@@ -1,0 +1,29 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/logs",
+  "rootExistedAtStart": true,
+  "rootSeen": true,
+  "bytes": 592,
+  "incomplete": [
+    "truncated /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/logs/WeappLog/review.log: size 189 < read offset 6000"
+  ],
+  "events": [
+    {
+      "t": "2026-10-10T01:32:53.415Z",
+      "event": "baseline",
+      "rootExists": true,
+      "files": 1
+    },
+    {
+      "t": "2026-10-10T01:32:54.427Z",
+      "event": "truncated",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/logs/WeappLog/review.log"
+    },
+    {
+      "t": "2026-10-10T01:32:55.041Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/logs/WeappLog/review.log",
+      "bytes": 592,
+      "ok": true
+    }
+  ]
+}

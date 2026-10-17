@@ -1,0 +1,90 @@
+[
+  {
+    "source": "automator.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] 9830789fb9a8106e"
+  },
+  {
+    "source": "automator.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] 9830789fb9a8106e"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] 9830789fb9a8106e"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] 9830789fb9a8106e"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] 9830789fb9a8106e"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] 9830789fb9a8106e"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] 9830789fb9a8106e"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] 9830789fb9a8106e"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] 9830789fb9a8106e"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-16T22:17:00.705Z",
+  "scope": "Actual WorldFlow and RegionJourneyController with explicit actor/scene/board doubles; no runtime pixels",
+  "checks": [
+    {
+      "region": "meadow",
+      "stage": "mainline-05",
+      "root": [
+        0,
+        1,
+        11
+      ],
+      "boardExitAndWorldResumeRemainCurrentRegion": true,
+      "noAdditionalTravel": true
+    },
+    {
+      "region": "skycity",
+      "stage": "mainline-09",
+      "root": [
+        0,
+        2,
+        19
+      ],
+      "boardExitAndWorldResumeRemainCurrentRegion": true,
+      "noAdditionalTravel": true
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+From fec63e95a5c1bf223ff24324ce8bcce2199e6bfe Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 13:09:43 +0800
+Subject: [PATCH 3/6] lakeside L5: skip 34 r5h3 ASSETS-collection templates
+ (name == GLB basename, at origin)
+
+Removes the house/pavilion stack on the bridge and the duplicated lake/terrain/bridge
+(z-fighting). Instances 465 -> 431. Exporter should drop hidden ASSETS collection.
+---
+ .../assets/scripts/region/LakesideSceneData.ts             | 7 ++++++-
+ tools/lakeside/test_lakeside_entry.cjs                     | 6 +++++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index c5fd760..ea6a556 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -80,6 +80,11 @@ export type LakesideInstance = Readonly<{ name: string; glb: string; group: stri
+ export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
+ export function lakesideSceneInstances(instances: readonly LakesideInstance[]): LakesideInstance[] {
+   if (!Array.isArray(instances) || !instances.length) throw Error('lakeside transforms empty');
+-  return instances.filter(i => i && typeof i.glb === 'string' && !LAKESIDE_SKIPPED_GLB.includes(i.glb) && !/^LK_piece_/.test(i.glb));
++  return instances.filter(i => i && typeof i.glb === 'string' && !LAKESIDE_SKIPPED_GLB.includes(i.glb) && !/^LK_piece_/.test(i.glb) && !isLakesideAssetTemplate(i));
+ }
++/** The r5h3 export also wrote the 34 source meshes of the Blender ASSETS collection (hide_render, never visible in the
++ *  reference) as instances named exactly after their GLB, all at the origin with identity transform. At the origin they stack a
++ *  house A/B/C + pavilion + trees + clouds on the bridge and double the lake/terrain/bridge (z-fighting). Real placements are
++ *  always suffixed (`_i`, `_i.001`, `LK_tree_mid_*`…), so an instance whose name equals its GLB basename is a template. */
++export function isLakesideAssetTemplate(i: LakesideInstance): boolean { return !!i && i.name === lakesidePrefabName(i.glb); }
+ export function lakesidePrefabName(glb: string): string { return String(glb).replace(/\.glb$/i, ''); }
+diff --git a/tools/lakeside/test_lakeside_entry.cjs b/tools/lakeside/test_lakeside_entry.cjs
+index dc614c8..9f951e7 100644
+--- a/tools/lakeside/test_lakeside_entry.cjs
++++ b/tools/lakeside/test_lakeside_entry.cjs
+@@ -63,10 +63,14 @@ t('lights follow scene_r5h3_lighting.json (direction, colour, ratios); the MTN_R
+ t('scene instances: every kept GLB is in the subpackage (with .meta), 3D pieces / shadows / ripples / frame dropped',()=>{
+  const D=H.load('region/LakesideSceneData'),tr=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h_slim_transforms.json'),'utf8'));
+  const keep=D.lakesideSceneInstances(tr.instances),models=path.join(A,'bundles/region_lakeside/models');
+- assert(keep.length>400&&keep.length<tr.instances.length);assert(!keep.some(i=>/^LK_piece_|LK_contact_shadow|LK_ripple_ring|LK_board_frame/.test(i.glb)));
++ assert.equal(keep.length,431);assert(!keep.some(i=>/^LK_piece_|LK_contact_shadow|LK_ripple_ring|LK_board_frame/.test(i.glb)));
+  assert(keep.some(i=>i.glb==='LK_lilypad.glb')&&keep.some(i=>i.glb==='LK_chime_raft.glb'));
+  for(const g of new Set(keep.map(i=>i.glb))){assert(fs.existsSync(path.join(models,g)),g);assert(fs.existsSync(path.join(models,g+'.meta')),g+'.meta');}
+  for(const i of keep){assert.equal(i.pos.length,3);assert.equal(i.rot_quat_xyzw.length,4);assert(Math.abs(Math.hypot(...i.rot_quat_xyzw)-1)<1e-3,i.name);}
++ // r5h3 ASSETS-collection templates (name == GLB basename, at the origin) are not placed: no house/pavilion on the bridge.
++ const tpl=tr.instances.filter(i=>i.name===i.glb.replace(/\.glb$/,''));assert.equal(tpl.length,34);for(const i of tpl)assert.deepEqual(i.pos.map(Math.abs),[0,0,0],i.name);
++ assert(!keep.some(i=>D.isLakesideAssetTemplate(i)));assert(!keep.some(i=>/LK_(house_[ABC]|pavilion)\.glb/.test(i.glb)&&Math.hypot(...i.pos)<5),'nothing house-like within 5 m of the bridge origin');
++ assert.equal(keep.filter(i=>i.glb==='LK_pavilion.glb').length,1);assert.equal(keep.filter(i=>i.glb==='LK_lake.glb').length,1);assert.equal(keep.filter(i=>i.glb==='LK_bridge.glb').length,1);
+  assert.deepEqual(D.lakesideCellCenter(0),[-3.3,0,8.7]);assert.deepEqual(D.lakesideCellCenter(48),[3.3,0,15.3]);assert.throws(()=>D.lakesideCellCenter(49));
+  for(const s of L)for(const c of s.rules.chimes)D.lakesideCellCenter(c.index);});
+ console.log(JSON.stringify({status:'PASS',cases:n,scope:'Pure logic + Cocos doubles. Not rendering, Creator import, device or WeChat.'}));
+-- 
+2.47.3
+

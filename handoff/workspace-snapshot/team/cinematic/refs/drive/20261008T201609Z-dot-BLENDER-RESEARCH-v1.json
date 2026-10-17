@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "template": false,
+  "handoff_id": "20261008T201609Z-dot-BLENDER-RESEARCH-v1",
+  "agent": "dot",
+  "task_id": "BLENDER-RESEARCH-SYNC",
+  "created_at_utc": "2026-10-08T20:16:09Z",
+  "status": "research_archives_uploaded_not_accepted",
+  "goal": "追加同步两份独立 Blender 研究检查点，保留当前游戏源码和默认交接基线",
+  "did": [
+    "独立白围裙／黄裙对象；真实腰部 pin 与底部双角定义",
+    "极细单元局部重建，保留 UV 与外边；工程报告实际 Game 轮廓一致",
+    "两包已实际上传原 WIP 子目录",
+    "本次本地核对两包大小与SHA-256并在manifest新增研究条目"
+  ],
+  "delivered_artifacts": [
+    {
+      "artifact_id": "blender-cloth-interface-r2-research",
+      "name": "POLISH09-BLENDER-CLOTH-INTERFACE-R2.zip",
+      "bytes": 6735369,
+      "sha256": "dd566da37a4f7449807d9fe6d3fc40e1852c7f216410060dc59b6be583f5c87b",
+      "drive_file_id": "1cGVLjGb5iPBgjtFcp0Z32D3rpl2fjsaV",
+      "work": "独立白围裙／黄裙对象；真实腰部 pin 与底部双角定义",
+      "evidence_scope": "结构与约束接口候选，不是动态碰撞通过",
+      "role": "dot_owned_blender_research_checkpoint",
+      "drive_url": "https://drive.google.com/file/d/1cGVLjGb5iPBgjtFcp0Z32D3rpl2fjsaV/view",
+      "drive_parent_id": "1YwMmM1AC2KAAK92ffaoPu3YFnjO2xnQZ",
+      "drive_revision": null,
+      "upload_status": "主整合者确认已实际上传 WIP 子目录；本次只读核对本地包字节数和SHA-256",
+      "integration_state": "research_only_not_merged",
+      "excluded_from": [
+        "grokbot-R2-plus-R6",
+        "dot-R11-plus-R12-WIP"
+      ],
+      "may_replace_shared_baseline": false,
+      "not_accepted": [
+        "碰撞",
+        "完整动态",
+        "微信真机手机表现"
+      ]
+    },
+    {
+      "artifact_id": "sleeve-micro-material-r1-research",
+      "name": "SLEEVE-MICRO-MATERIAL-CHECKPOINT-R1.zip",
+      "bytes": 10909666,
+      "sha256": "f87206e2df3f57742154fe882554f0c9e7fd0dd82f446bb30498e25ccae427c9",
+      "drive_file_id": "1-HdK7XS9FXooC65WShTVMcjvwX2wcyGs",
+      "work": "极细单元局部重建，保留 UV 与外边；工程报告实际 Game 轮廓一致",
+      "evidence_scope": "局部材质／轮廓检查，不是完整动态或手机通过",
+      "role": "dot_owned_blender_research_checkpoint",
+      "drive_url": "https://drive.google.com/file/d/1-HdK7XS9FXooC65WShTVMcjvwX2wcyGs/view",
+      "drive_parent_id": "1YwMmM1AC2KAAK92ffaoPu3YFnjO2xnQZ",
+      "drive_revision": null,
+      "upload_status": "主整合者确认已实际上传 WIP 子目录；本次只读核对本地包字节数和SHA-256",
+      "integration_state": "research_only_not_merged",
+      "excluded_from": [
+        "grokbot-R2-plus-R6",
+        "dot-R11-plus-R12-WIP"
+      ],
+      "may_replace_shared_baseline": false,
+      "not_accepted": [
+        "碰撞",
+        "完整动态",
+        "微信真机手机表现"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "包身份核验",
+      "status": "passed",
+      "scope": "两包本地字节数和SHA-256与交接值一致"
+    },
+    {
+      "name": "白黄对象与腰pin双角定义",
+      "status": "passed",
+      "scope": "工程交接确认结构接口存在；不推论为物理接触已通过"
+    },
+    {
+      "name": "袖部实际Game轮廓",
+      "status": "passed",
+      "scope": "工程报告局部重建后轮廓一致、UV和外边保留；未扩大至完整动画"
+    },
+    {
+      "name": "碰撞、完整动态与手机性能验收",
+      "status": "not_run",
+      "scope": "本次同步没有新增通过证据；研究候选仍未验收"
+    }
+  ],
+  "unchanged": {
+    "external_default": "R2+R6",
+    "runtime_wip": "R11+R12",
+    "research_merged_into_runtime": false,
+    "github_head": "1468f921a51264a496bc33259877718dd098bf7a"
+  },
+  "risks": [
+    "两包均为dot-owned研究阶段，不得替换R12可运行源或R2+R6默认输入",
+    "局部结构与轮廓通过不等于衣手碰撞、完整动态或手机预算通过"
+  ],
+  "grokbot_read_receipt_received": false,
+  "next": [
+    "主整合者保原manifest文件ID更新并追加本日志",
+    "研究结果需完整动态、碰撞及真机证据，再明确决定是否整合"
+  ],
+  "rollback": "保持现有R12和外部R2+R6不动；研究在独立目录内继续，不覆盖旧包或其他代理文件。"
+}

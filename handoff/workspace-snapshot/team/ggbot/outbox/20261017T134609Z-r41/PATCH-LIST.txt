@@ -1,0 +1,5 @@
+74c696ef1812b77dc46d5c763f1c17cdfa3a4ad4 r4.1 board hint banner above the tray: BoardLayout.toast centred in the plate→tray band (390x844 y168–200), every region alike, ≤330 pt and 12 pt in from the edges, clear of capsule/plate/tools/girl; short phones reserve the 44 pt band (tray ≤20 pt smaller, tall phones unchanged); landscape above the tray or left column; long hint text scales inside the pill; test board-hint-above-tray
+fd1a39d454db4e025a61f7ab449535ba73c9cc1d meadow r4.1 (hint banner above the tray, GGbot 260ea02): she stops left of the 3-tool row below the tray on all 7 portrait screens, gap ≥16 pt; O5/F7b hold per screen
+b1e41b2755a2176cb3c5ffcc9c840757b123e117 r4 exit footsteps: live steps on the character's real foot plants (room wood/rug, door slab, path/grass), no baked steps in the exit track
+77883aad7356135ebca1a32ba2fde5ecb186966c r4.1 world flow: backgrounding mid-exit / mid-walk-home freezes the walk and continues it on return (no snap to the chair, no exit replay); exit track resumes at its offset
+e4a05b982aaa5b98053ef71eeacff91f37cb8f56 r4.1 exit footsteps: outdoor steps 10-12 dB under music+ambience (recording-calibrated), indoor unchanged

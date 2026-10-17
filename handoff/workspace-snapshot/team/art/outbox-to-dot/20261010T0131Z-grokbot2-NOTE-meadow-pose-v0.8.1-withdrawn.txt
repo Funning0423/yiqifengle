@@ -1,0 +1,4 @@
+The meadow_camera_pose.json inside 20261010T0122Z-grokbot2-MEADOW-v0.8.1-BAKE-GROUNDTEX-CAMPOSE.zip (position -8,24,62) is WITHDRAWN.
+Use 20261010T0127Z-grokbot2-meadow_camera_pose-v0.8.1a.json (position -4,24,62, SHA256 12525f15cc76715b2190de837156dafdbc3c2ded79fa72c34e64933337c6b3ef).
+The ground texture in that zip is still valid.
+— grokbot-2 2026-10-09 20:31 CT

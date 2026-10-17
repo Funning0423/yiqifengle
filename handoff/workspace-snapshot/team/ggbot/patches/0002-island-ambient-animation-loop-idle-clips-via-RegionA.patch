@@ -1,0 +1,116 @@
+From a904c69d4455b55ee9ddecf25e4e799696d88dda Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 9 Oct 2026 14:26:37 -0500
+Subject: [PATCH] island ambient animation: loop idle clips via
+ RegionAmbientAnimation (GGbot)
+
+---
+ assets/scripts/region.meta                    |  9 ++++
+ .../scripts/region/RegionAmbientAnimation.ts  | 42 +++++++++++++++++++
+ .../region/RegionAmbientAnimation.ts.meta     |  9 ++++
+ assets/scripts/world-r1/WorldFlowComponent.ts |  3 +-
+ 4 files changed, 62 insertions(+), 1 deletion(-)
+ create mode 100644 assets/scripts/region.meta
+ create mode 100644 assets/scripts/region/RegionAmbientAnimation.ts
+ create mode 100644 assets/scripts/region/RegionAmbientAnimation.ts.meta
+
+diff --git a/assets/scripts/region.meta b/assets/scripts/region.meta
+new file mode 100644
+index 0000000..6ac72fe
+--- /dev/null
++++ b/assets/scripts/region.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "1.2.0",
++  "importer": "directory",
++  "imported": true,
++  "uuid": "9b63d01f-2075-4531-85f0-a28178f37a4c",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/assets/scripts/region/RegionAmbientAnimation.ts b/assets/scripts/region/RegionAmbientAnimation.ts
+new file mode 100644
+index 0000000..6bf99ef
+--- /dev/null
++++ b/assets/scripts/region/RegionAmbientAnimation.ts
+@@ -0,0 +1,42 @@
++import {_decorator,Component,SkeletalAnimation,AnimationClip,AnimationState,assetManager,isValid} from 'cc';
++const {ccclass,property}=_decorator;
++/**
++ * Plays a region model's ambient (idle) clips on loop, several at the same time if needed.
++ * - Uses the SkeletalAnimation the glTF prefab already has; adds one if missing.
++ * - Clips come from that component; extra clips can be loaded by UUID (same bundle must already be loaded).
++ * - One clip: keeps baked animation (cheapest). Several clips at once: switches to real-time mode,
++ *   because concurrent baked states on one component are not safe.
++ * Island v2.1 ships one combined clip `idle_loop` (12 s, 12 rigs). v2.2 will ship one named clip per rig.
++ */
++@ccclass('RegionAmbientAnimation')
++export class RegionAmbientAnimation extends Component {
++  /** Clip names to play together. Empty = play every clip on the component. */
++  @property([String]) clipNames:string[]=[];
++  /** Optional clip asset UUIDs to add when the prefab's component has no clips. */
++  @property([String]) clipUuids:string[]=[];
++  /** Spread clip start times so identical loops do not move in sync. */
++  @property randomizeStart=false;
++  private anim:SkeletalAnimation|null=null;private playing:AnimationState[]=[];
++
++  start(){
++    this.anim=this.getComponent(SkeletalAnimation)||this.addComponent(SkeletalAnimation);
++    if(this.anim.clips.filter(Boolean).length||!this.clipUuids.length){this.play();return;}
++    let left=this.clipUuids.length;const loaded:AnimationClip[]=[];
++    for(const uuid of this.clipUuids)assetManager.loadAny({uuid},(err:any,clip:AnimationClip)=>{
++      if(err)console.error('Ambient clip failed',uuid,err);else loaded.push(clip);
++      if(--left===0&&isValid(this.node,true)&&this.anim){this.anim.clips=[...this.anim.clips.filter(Boolean),...loaded];this.play();}
++    });
++  }
++  private play(){
++    const anim=this.anim!;const clips=anim.clips.filter(Boolean) as AnimationClip[];
++    const wanted=this.clipNames.length?clips.filter(c=>this.clipNames.includes(c.name)):clips;
++    if(!wanted.length){console.warn('RegionAmbientAnimation: no clips to play on',this.node.name);return;}
++    if(wanted.length>1)anim.useBakedAnimation=false;
++    anim.playOnLoad=true;anim.defaultClip=wanted[0];
++    this.playing=wanted.map(c=>{const s=anim.getState(c.name)!;s.wrapMode=AnimationClip.WrapMode.Loop;s.repeatCount=Infinity;
++      if(this.randomizeStart)s.time=Math.random()*s.duration;s.play();return s;});
++  }
++  /** For tests: names and times of the clips currently playing. */
++  diagnostics(){return this.playing.map(s=>({name:s.name,time:s.time,playing:s.isPlaying,baked:!!this.anim?.useBakedAnimation}));}
++  onDestroy(){for(const s of this.playing)s.stop();this.playing=[];}
++}
+diff --git a/assets/scripts/region/RegionAmbientAnimation.ts.meta b/assets/scripts/region/RegionAmbientAnimation.ts.meta
+new file mode 100644
+index 0000000..0e7bc08
+--- /dev/null
++++ b/assets/scripts/region/RegionAmbientAnimation.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "54515989-2212-4721-861f-573496d65bc2",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/assets/scripts/world-r1/WorldFlowComponent.ts b/assets/scripts/world-r1/WorldFlowComponent.ts
+index b55dffd..8d819af 100644
+--- a/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -1,4 +1,5 @@
+ import { _decorator, Component, Prefab, instantiate, Camera, Vec3, MeshRenderer, Node, game, Game } from 'cc';
++import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
+ import { WorldFlow, Cancellation, Cancelled, interpolate } from './WorldFlowCore';
+ import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot } from './WorldFlowCore';
+ import { CHARACTER_REFERENCE } from './CharacterReference';
+@@ -54,7 +55,7 @@ export class WorldFlowComponent extends Component {
+   }
+   bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');return this.flow.bindCharacter(adapter);}
+   private async createWorld(token:Cancellation):Promise<WorldLease> {
+-    token.check();const model=instantiate(this.firstsliceModel!);this.ownedModel=model;this.node.addChild(model);
++    token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);ambient.clipUuids=['498b3fa5-2dd3-4e86-93b8-637ae51438fe@f2bf2'];this.ownedModel=model;this.node.addChild(model);
+     try {
+       identity(model);const sceneRoot=resolvePath(model,'scene_root');identity(sceneRoot);
+       for(const anchor of Object.values(FIRSTSLICE.anchors)) {
+-- 
+2.47.3
+

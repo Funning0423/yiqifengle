@@ -1,0 +1,635 @@
+{
+ "input": {
+  "pose": {
+   "position": [
+    -4,
+    24,
+    62
+   ],
+   "target": [
+    0.3151,
+    3.4577,
+    -0.6059
+   ],
+   "fovVerticalDeg": 45.0
+  },
+  "near_used_m": 1.0,
+  "far_m": 1000.0,
+  "dome_follows_camera": true,
+  "excluded_render_hidden": [
+   "flower_cluster_F0_pink",
+   "flower_cluster_F1_white",
+   "flower_cluster_F2_mixed",
+   "grass_clump_T0_dark_long",
+   "grass_clump_T1_mid_long",
+   "grass_clump_T2_bright_long",
+   "grass_clump_T3_mid_short",
+   "grass_clump_T4_bright_short",
+   "PREVIEW_grass_wave_morph",
+   "ref_girl_height_placeholder_1p626m"
+  ]
+ },
+ "c1_format": {
+  "pose_keys": [
+   "position",
+   "target",
+   "fovVerticalDeg"
+  ],
+  "only_allowed_keys": true,
+  "all_finite": true,
+  "forward_cocos": [
+   0.0653495267033577,
+   -0.31110042333602905,
+   -0.9481276273727417
+  ],
+  "right_cocos": [
+   0.9976330995559692,
+   0.0,
+   0.0687616840004921
+  ],
+  "up_cocos": [
+   0.021391788497567177,
+   0.9503770470619202,
+   -0.3103640675544739
+  ],
+  "right_y": 0.0,
+  "roll_ok": true,
+  "pitch_deg": -18.125559620991375,
+  "yaw_deg_from_-Z_toward_+X": 3.9428655194736675,
+  "pitch_ok_not_near_90": true,
+  "target_distance_m": 66.03109058048558
+ },
+ "c2_inside_near_occlusion": {
+  "ray_down_first_hit": "meadow_terrain",
+  "height_above_ground_m": 25.01499366760254,
+  "ray_up_first_hit": "meadow_sky_dome",
+  "nearest_geometry_m": 24.9858455657959,
+  "nearest_object": "meadow_terrain",
+  "near_plane_clear_at_1m": true,
+  "near_plane_clear_at_0.05m": true,
+  "optical_axis_first_hit": "meadow_terrain",
+  "optical_axis_hit_cocos": [
+   0.31509828567504883,
+   3.4577102661132812,
+   -0.6058731079101562
+  ],
+  "optical_axis_hit_minus_target_m": 2.8822158639824428e-05,
+  "key_point_occlusion(0.3m above ground anchors)": {
+   "player_spawn": {
+    "occluded_by": null
+   },
+   "windmill_door_point": {
+    "occluded_by": null
+   },
+   "region_interaction_point": {
+    "occluded_by": null
+   },
+   "windmill_sail_hub": {
+    "occluded_by": "windmill_sails"
+   },
+   "walk_path_00": {
+    "occluded_by": null
+   },
+   "walk_path_01": {
+    "occluded_by": null
+   },
+   "walk_path_02": {
+    "occluded_by": null
+   },
+   "walk_path_03": {
+    "occluded_by": null
+   },
+   "walk_path_04": {
+    "occluded_by": null
+   },
+   "walk_path_05": {
+    "occluded_by": null
+   },
+   "walk_path_06": {
+    "occluded_by": null
+   },
+   "walk_path_07": {
+    "occluded_by": null
+   },
+   "walk_path_08": {
+    "occluded_by": null
+   },
+   "walk_path_09": {
+    "occluded_by": null
+   },
+   "walk_path_10": {
+    "occluded_by": null
+   },
+   "walk_path_11": {
+    "occluded_by": null
+   },
+   "walk_path_12": {
+    "occluded_by": null
+   },
+   "walk_path_13": {
+    "occluded_by": null
+   },
+   "walk_path_14": {
+    "occluded_by": null
+   },
+   "walk_path_15": {
+    "occluded_by": null
+   },
+   "walk_path_16": {
+    "occluded_by": null
+   },
+   "walk_path_17": {
+    "occluded_by": null
+   },
+   "walk_path_18": {
+    "occluded_by": null
+   },
+   "walk_path_19": {
+    "occluded_by": null
+   },
+   "walk_path_20": {
+    "occluded_by": null
+   },
+   "walk_path_21": {
+    "occluded_by": null
+   },
+   "walk_path_22": {
+    "occluded_by": null
+   },
+   "target": {
+    "occluded_by": null
+   },
+   "bell_01": {
+    "occluded_by": null
+   }
+  }
+ },
+ "per_aspect": {
+  "0.46": {
+   "screen_fraction_by_class": {
+    "bells": 0.0019,
+    "fence": 0.0017,
+    "flowers": 0.0018,
+    "grass": 0.039,
+    "path": 0.0316,
+    "river_bank": 0.0124,
+    "sky": 0.267,
+    "terrain": 0.5857,
+    "trees": 0.0225,
+    "windmill": 0.0364
+   },
+   "meadow_fraction(ground+path+grass+flowers+props+trees+river)": 0.733,
+   "far_hills_fraction": 0,
+   "sky_fraction(sky+cloud)": 0.267,
+   "void_fraction(no hit)": 0.0,
+   "terrain_edge_hits(|x|or|y|>78m)": 0,
+   "sky_or_void_seen_below_true_horizon_rays": 2980,
+   "true_horizon_ndc_y": 0.7902788326708056,
+   "skyline_ndc_y(min/mean/max over columns)": [
+    0.31999999999999995,
+    0.49010869565217396,
+    0.6699999999999999
+   ],
+   "max_hit_distance_m": 282.914075645236,
+   "far_plane_ok": true,
+   "bottom_band_y<-0.5_content": {
+    "grass": 0.0333,
+    "river_bank": 0.0496,
+    "terrain": 0.9172
+   },
+   "points_ndc": {
+    "player_spawn": [
+     0.123,
+     -0.439
+    ],
+    "windmill_door_point": [
+     -0.12,
+     0.288
+    ],
+    "region_interaction_point": [
+     0.306,
+     0.266
+    ],
+    "windmill_sail_hub": [
+     -0.127,
+     0.492
+    ],
+    "walk_path_00": [
+     0.123,
+     -0.439
+    ],
+    "walk_path_01": [
+     0.259,
+     -0.38
+    ],
+    "walk_path_02": [
+     0.323,
+     -0.324
+    ],
+    "walk_path_03": [
+     0.331,
+     -0.271
+    ],
+    "walk_path_04": [
+     0.297,
+     -0.221
+    ],
+    "walk_path_05": [
+     0.233,
+     -0.175
+    ],
+    "walk_path_06": [
+     0.151,
+     -0.133
+    ],
+    "walk_path_07": [
+     0.059,
+     -0.096
+    ],
+    "walk_path_08": [
+     -0.034,
+     -0.063
+    ],
+    "walk_path_09": [
+     -0.121,
+     -0.033
+    ],
+    "walk_path_10": [
+     -0.196,
+     -0.006
+    ],
+    "walk_path_11": [
+     -0.254,
+     0.018
+    ],
+    "walk_path_12": [
+     -0.295,
+     0.054
+    ],
+    "walk_path_13": [
+     -0.269,
+     0.092
+    ],
+    "walk_path_14": [
+     -0.156,
+     0.129
+    ],
+    "walk_path_15": [
+     -0.031,
+     0.162
+    ],
+    "walk_path_16": [
+     0.053,
+     0.19
+    ],
+    "walk_path_17": [
+     0.102,
+     0.214
+    ],
+    "walk_path_18": [
+     0.121,
+     0.241
+    ],
+    "walk_path_19": [
+     0.099,
+     0.262
+    ],
+    "walk_path_20": [
+     0.046,
+     0.276
+    ],
+    "walk_path_21": [
+     -0.051,
+     0.285
+    ],
+    "walk_path_22": [
+     -0.12,
+     0.288
+    ],
+    "target": [
+     -0.0,
+     -0.0
+    ],
+    "bell_01": [
+     0.317,
+     0.334
+    ]
+   },
+   "path_mesh_bbox_ndc[xmin,xmax,ymin,ymax]": [
+    -0.354,
+    0.424,
+    -0.455,
+    0.294
+   ],
+   "walk_path_00_22_bbox_ndc": [
+    -0.295,
+    0.331,
+    -0.439,
+    0.288
+   ],
+   "grass_instances": {
+    "count": 1000,
+    "origins_in_frame": 365,
+    "origins_in_frame_above_-0.5": 327,
+    "in_frame_bbox_ndc": [
+     -0.999,
+     0.993,
+     -0.652,
+     0.363
+    ]
+   },
+   "flower_instances": {
+    "count": 150,
+    "origins_in_frame": 116,
+    "origins_in_frame_above_-0.5": 116,
+    "in_frame_bbox_ndc": [
+     -0.983,
+     0.996,
+     0.141,
+     0.335
+    ]
+   },
+   "terrain_edge_visibility": {
+    "north(+Z_b y=+80 / cocos z=-80)": "0/101 sample points visible in frame",
+    "west(x=-80)": "0/101 sample points visible in frame",
+    "east(x=+80)": "0/101 sample points visible in frame"
+   },
+   "characters": {
+    "girl_at_player_spawn_1.73m_hat": {
+     "bbox_ndc[xmin,xmax,ymin,ymax]": [
+      0.087,
+      0.161,
+      -0.447,
+      -0.352
+     ],
+     "above_ui_band(ymin>=-0.5)": true,
+     "margin_to_-0.5": 0.053,
+     "within_|x|<=0.7": true,
+     "center_x": 0.124,
+     "height_px_at_1000h": 47.5,
+     "occlusion": {
+      "samples": 9,
+      "occluded_samples": 0,
+      "by": []
+     }
+    },
+    "ref_girl_placeholder_1p626m(+hat->1.73m)": {
+     "bbox_ndc[xmin,xmax,ymin,ymax]": [
+      0.076,
+      0.148,
+      -0.411,
+      -0.318
+     ],
+     "above_ui_band(ymin>=-0.5)": true,
+     "margin_to_-0.5": 0.089,
+     "within_|x|<=0.7": true,
+     "center_x": 0.112,
+     "height_px_at_1000h": 46.5,
+     "occlusion": {
+      "samples": 9,
+      "occluded_samples": 0,
+      "by": []
+     }
+    }
+   },
+   "key_content_above_-0.5": {
+    "path_mesh": true,
+    "walk_path_anchors": true,
+    "target": true
+   }
+  },
+  "0.75": {
+   "screen_fraction_by_class": {
+    "bells": 0.0012,
+    "fence": 0.0011,
+    "flowers": 0.0015,
+    "grass": 0.0384,
+    "path": 0.0194,
+    "river_bank": 0.0188,
+    "sky": 0.291,
+    "terrain": 0.5871,
+    "trees": 0.0193,
+    "windmill": 0.0223
+   },
+   "meadow_fraction(ground+path+grass+flowers+props+trees+river)": 0.709,
+   "far_hills_fraction": 0,
+   "sky_fraction(sky+cloud)": 0.291,
+   "void_fraction(no hit)": 0.0,
+   "terrain_edge_hits(|x|or|y|>78m)": 0,
+   "sky_or_void_seen_below_true_horizon_rays": 5581,
+   "true_horizon_ndc_y": 0.7902788326708056,
+   "skyline_ndc_y(min/mean/max over columns)": [
+    0.29000000000000004,
+    0.43373333333333336,
+    0.6699999999999999
+   ],
+   "max_hit_distance_m": 283.00699803626765,
+   "far_plane_ok": true,
+   "bottom_band_y<-0.5_content": {
+    "grass": 0.0304,
+    "river_bank": 0.0751,
+    "terrain": 0.8945
+   },
+   "points_ndc": {
+    "player_spawn": [
+     0.075,
+     -0.439
+    ],
+    "windmill_door_point": [
+     -0.074,
+     0.288
+    ],
+    "region_interaction_point": [
+     0.188,
+     0.266
+    ],
+    "windmill_sail_hub": [
+     -0.078,
+     0.492
+    ],
+    "walk_path_00": [
+     0.075,
+     -0.439
+    ],
+    "walk_path_01": [
+     0.159,
+     -0.38
+    ],
+    "walk_path_02": [
+     0.198,
+     -0.324
+    ],
+    "walk_path_03": [
+     0.203,
+     -0.271
+    ],
+    "walk_path_04": [
+     0.182,
+     -0.221
+    ],
+    "walk_path_05": [
+     0.143,
+     -0.175
+    ],
+    "walk_path_06": [
+     0.093,
+     -0.133
+    ],
+    "walk_path_07": [
+     0.036,
+     -0.096
+    ],
+    "walk_path_08": [
+     -0.021,
+     -0.063
+    ],
+    "walk_path_09": [
+     -0.074,
+     -0.033
+    ],
+    "walk_path_10": [
+     -0.12,
+     -0.006
+    ],
+    "walk_path_11": [
+     -0.156,
+     0.018
+    ],
+    "walk_path_12": [
+     -0.181,
+     0.054
+    ],
+    "walk_path_13": [
+     -0.165,
+     0.092
+    ],
+    "walk_path_14": [
+     -0.096,
+     0.129
+    ],
+    "walk_path_15": [
+     -0.019,
+     0.162
+    ],
+    "walk_path_16": [
+     0.033,
+     0.19
+    ],
+    "walk_path_17": [
+     0.062,
+     0.214
+    ],
+    "walk_path_18": [
+     0.074,
+     0.241
+    ],
+    "walk_path_19": [
+     0.06,
+     0.262
+    ],
+    "walk_path_20": [
+     0.028,
+     0.276
+    ],
+    "walk_path_21": [
+     -0.031,
+     0.285
+    ],
+    "walk_path_22": [
+     -0.074,
+     0.288
+    ],
+    "target": [
+     -0.0,
+     -0.0
+    ],
+    "bell_01": [
+     0.194,
+     0.334
+    ]
+   },
+   "path_mesh_bbox_ndc[xmin,xmax,ymin,ymax]": [
+    -0.217,
+    0.26,
+    -0.455,
+    0.294
+   ],
+   "walk_path_00_22_bbox_ndc": [
+    -0.181,
+    0.203,
+    -0.439,
+    0.288
+   ],
+   "grass_instances": {
+    "count": 1000,
+    "origins_in_frame": 623,
+    "origins_in_frame_above_-0.5": 558,
+    "in_frame_bbox_ndc": [
+     -1.0,
+     0.998,
+     -0.718,
+     0.373
+    ]
+   },
+   "flower_instances": {
+    "count": 150,
+    "origins_in_frame": 150,
+    "origins_in_frame_above_-0.5": 150,
+    "in_frame_bbox_ndc": [
+     -0.901,
+     0.901,
+     0.041,
+     0.335
+    ]
+   },
+   "terrain_edge_visibility": {
+    "north(+Z_b y=+80 / cocos z=-80)": "0/101 sample points visible in frame",
+    "west(x=-80)": "0/101 sample points visible in frame",
+    "east(x=+80)": "0/101 sample points visible in frame"
+   },
+   "characters": {
+    "girl_at_player_spawn_1.73m_hat": {
+     "bbox_ndc[xmin,xmax,ymin,ymax]": [
+      0.053,
+      0.099,
+      -0.447,
+      -0.352
+     ],
+     "above_ui_band(ymin>=-0.5)": true,
+     "margin_to_-0.5": 0.053,
+     "within_|x|<=0.7": true,
+     "center_x": 0.076,
+     "height_px_at_1000h": 47.5,
+     "occlusion": {
+      "samples": 9,
+      "occluded_samples": 0,
+      "by": []
+     }
+    },
+    "ref_girl_placeholder_1p626m(+hat->1.73m)": {
+     "bbox_ndc[xmin,xmax,ymin,ymax]": [
+      0.046,
+      0.091,
+      -0.411,
+      -0.318
+     ],
+     "above_ui_band(ymin>=-0.5)": true,
+     "margin_to_-0.5": 0.089,
+     "within_|x|<=0.7": true,
+     "center_x": 0.069,
+     "height_px_at_1000h": 46.5,
+     "occlusion": {
+      "samples": 9,
+      "occluded_samples": 0,
+      "by": []
+     }
+    }
+   },
+   "key_content_above_-0.5": {
+    "path_mesh": true,
+    "walk_path_anchors": true,
+    "target": true
+   }
+  }
+ }
+}

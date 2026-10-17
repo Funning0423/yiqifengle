@@ -1,0 +1,546 @@
+[
+ {
+  "id": "r04-lake-01",
+  "draftMoves": 25,
+  "seedsTried": 12,
+  "greedyWins": 12,
+  "greedyUsedMedian": 2,
+  "greedyUsedP80": 2,
+  "winsWithinDraft": 12,
+  "seedBank": [
+   4,
+   12,
+   1
+  ],
+  "witness": [
+   {
+    "seed": 4,
+    "used": 1,
+    "actions": [
+     [
+      "swap",
+      10,
+      11
+     ]
+    ]
+   },
+   {
+    "seed": 12,
+    "used": 1,
+    "actions": [
+     [
+      "swap",
+      23,
+      30
+     ]
+    ]
+   },
+   {
+    "seed": 1,
+    "used": 2,
+    "actions": [
+     [
+      "swap",
+      23,
+      24
+     ],
+     [
+      "swap",
+      17,
+      18
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "r04-lake-02",
+  "draftMoves": 24,
+  "seedsTried": 12,
+  "greedyWins": 12,
+  "greedyUsedMedian": 14,
+  "greedyUsedP80": 19,
+  "winsWithinDraft": 12,
+  "seedBank": [
+   11,
+   8,
+   10
+  ],
+  "witness": [
+   {
+    "seed": 11,
+    "used": 4,
+    "actions": [
+     [
+      "swap",
+      6,
+      13
+     ],
+     [
+      "swap",
+      10,
+      11
+     ],
+     [
+      "swap",
+      28,
+      35
+     ],
+     [
+      "swap",
+      23,
+      30
+     ]
+    ]
+   },
+   {
+    "seed": 8,
+    "used": 8,
+    "actions": [
+     [
+      "swap",
+      21,
+      28
+     ],
+     [
+      "swap",
+      32,
+      39
+     ],
+     [
+      "swap",
+      27,
+      34
+     ],
+     [
+      "swap",
+      19,
+      20
+     ],
+     [
+      "swap",
+      8,
+      15
+     ],
+     [
+      "swap",
+      35,
+      42
+     ],
+     [
+      "swap",
+      1,
+      8
+     ],
+     [
+      "swap",
+      14,
+      15
+     ]
+    ]
+   },
+   {
+    "seed": 10,
+    "used": 8,
+    "actions": [
+     [
+      "swap",
+      42,
+      43
+     ],
+     [
+      "swap",
+      26,
+      27
+     ],
+     [
+      "swap",
+      14,
+      15
+     ],
+     [
+      "swap",
+      7,
+      14
+     ],
+     [
+      "swap",
+      17,
+      18
+     ],
+     [
+      "swap",
+      18,
+      25
+     ],
+     [
+      "swap",
+      18,
+      25
+     ],
+     [
+      "swap",
+      23,
+      24
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "r04-lake-03",
+  "draftMoves": 24,
+  "seedsTried": 12,
+  "greedyWins": 12,
+  "greedyUsedMedian": 2,
+  "greedyUsedP80": 2,
+  "winsWithinDraft": 12,
+  "seedBank": [
+   1,
+   2,
+   3
+  ],
+  "witness": [
+   {
+    "seed": 1,
+    "used": 2,
+    "actions": [
+     [
+      "swap",
+      23,
+      24
+     ],
+     [
+      "swap",
+      18,
+      25
+     ]
+    ]
+   },
+   {
+    "seed": 2,
+    "used": 2,
+    "actions": [
+     [
+      "swap",
+      31,
+      32
+     ],
+     [
+      "swap",
+      17,
+      18
+     ]
+    ]
+   },
+   {
+    "seed": 3,
+    "used": 2,
+    "actions": [
+     [
+      "swap",
+      23,
+      24
+     ],
+     [
+      "swap",
+      16,
+      17
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "r04-lake-04",
+  "draftMoves": 22,
+  "seedsTried": 12,
+  "greedyWins": 10,
+  "greedyUsedMedian": 21,
+  "greedyUsedP80": 24,
+  "winsWithinDraft": 6,
+  "seedBank": [
+   4,
+   8,
+   5
+  ],
+  "witness": [
+   {
+    "seed": 4,
+    "used": 6,
+    "actions": [
+     [
+      "swap",
+      10,
+      11
+     ],
+     [
+      "swap",
+      28,
+      29
+     ],
+     [
+      "swap",
+      30,
+      31
+     ],
+     [
+      "swap",
+      2,
+      9
+     ],
+     [
+      "swap",
+      40,
+      47
+     ],
+     [
+      "swap",
+      45,
+      46
+     ]
+    ]
+   },
+   {
+    "seed": 8,
+    "used": 10,
+    "actions": [
+     [
+      "swap",
+      21,
+      28
+     ],
+     [
+      "swap",
+      32,
+      39
+     ],
+     [
+      "swap",
+      42,
+      43
+     ],
+     [
+      "swap",
+      35,
+      42
+     ],
+     [
+      "swap",
+      0,
+      7
+     ],
+     [
+      "swap",
+      17,
+      24
+     ],
+     [
+      "swap",
+      5,
+      12
+     ],
+     [
+      "swap",
+      40,
+      47
+     ],
+     [
+      "swap",
+      33,
+      40
+     ],
+     [
+      "swap",
+      2,
+      9
+     ]
+    ]
+   },
+   {
+    "seed": 5,
+    "used": 11,
+    "actions": [
+     [
+      "swap",
+      46,
+      47
+     ],
+     [
+      "swap",
+      25,
+      32
+     ],
+     [
+      "swap",
+      12,
+      13
+     ],
+     [
+      "swap",
+      29,
+      36
+     ],
+     [
+      "swap",
+      36,
+      43
+     ],
+     [
+      "swap",
+      23,
+      30
+     ],
+     [
+      "swap",
+      26,
+      27
+     ],
+     [
+      "swap",
+      40,
+      47
+     ],
+     [
+      "swap",
+      46,
+      47
+     ],
+     [
+      "swap",
+      32,
+      39
+     ],
+     [
+      "swap",
+      41,
+      48
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "r04-lake-05",
+  "draftMoves": 24,
+  "seedsTried": 12,
+  "greedyWins": 12,
+  "greedyUsedMedian": 2,
+  "greedyUsedP80": 2,
+  "winsWithinDraft": 12,
+  "seedBank": [
+   1,
+   4,
+   5
+  ],
+  "witness": [
+   {
+    "seed": 1,
+    "used": 1,
+    "actions": [
+     [
+      "swap",
+      23,
+      24
+     ]
+    ]
+   },
+   {
+    "seed": 4,
+    "used": 1,
+    "actions": [
+     [
+      "swap",
+      10,
+      11
+     ]
+    ]
+   },
+   {
+    "seed": 5,
+    "used": 1,
+    "actions": [
+     [
+      "swap",
+      18,
+      25
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "id": "r04-lake-06",
+  "draftMoves": 26,
+  "seedsTried": 12,
+  "greedyWins": 12,
+  "greedyUsedMedian": 5,
+  "greedyUsedP80": 8,
+  "winsWithinDraft": 11,
+  "seedBank": [
+   8,
+   4,
+   11
+  ],
+  "witness": [
+   {
+    "seed": 8,
+    "used": 2,
+    "actions": [
+     [
+      "swap",
+      31,
+      38
+     ],
+     [
+      "swap",
+      30,
+      31
+     ]
+    ]
+   },
+   {
+    "seed": 4,
+    "used": 3,
+    "actions": [
+     [
+      "swap",
+      28,
+      29
+     ],
+     [
+      "swap",
+      24,
+      31
+     ],
+     [
+      "swap",
+      17,
+      24
+     ]
+    ]
+   },
+   {
+    "seed": 11,
+    "used": 3,
+    "actions": [
+     [
+      "swap",
+      22,
+      29
+     ],
+     [
+      "swap",
+      31,
+      38
+     ],
+     [
+      "swap",
+      31,
+      38
+     ]
+    ]
+   }
+  ]
+ }
+]

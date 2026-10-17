@@ -1,0 +1,441 @@
+From 12c0d4a7ef2b2f9d162f12f62deb9476f5cf3866 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 13:12:20 +0800
+Subject: [PATCH 4/4] lakeside v3: Fresnel/sun-streak water shader (instancing,
+ vertex colour, cc_time waves) on LK_lake + builtin LINEAR fog #FFCEA6
+ 45->257.5 (0.4@130m) held with the dir-light lease; Voice Bot verified values
+
+---
+ .../assets/bundles/region_lakeside/water.meta |   9 ++
+ .../water/lakeside-water.effect               | 111 ++++++++++++++++++
+ .../water/lakeside-water.effect.meta          |  11 ++
+ .../region_lakeside/water/lakeside-water.mtl  |  33 ++++++
+ .../water/lakeside-water.mtl.meta             |  11 ++
+ .../scripts/region/LakesideBoardBackground.ts |  35 ++++--
+ .../scripts/region/LakesideSceneData.ts       |  31 +++--
+ tools/journey-integration/run-suite.cjs       |   2 +-
+ tools/lakeside/test_lakeside_instancing.cjs   |   2 +-
+ tools/lakeside/test_lakeside_water_fog.cjs    |  40 +++++++
+ 10 files changed, 263 insertions(+), 22 deletions(-)
+ create mode 100644 creator-build-project/assets/bundles/region_lakeside/water.meta
+ create mode 100644 creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+ create mode 100644 creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect.meta
+ create mode 100644 creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl
+ create mode 100644 creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl.meta
+ create mode 100644 tools/lakeside/test_lakeside_water_fog.cjs
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water.meta b/creator-build-project/assets/bundles/region_lakeside/water.meta
+new file mode 100644
+index 0000000..6de751f
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_lakeside/water.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "1.2.0",
++  "importer": "directory",
++  "imported": true,
++  "uuid": "1b92cba1-8305-49c7-a796-e68062a47c84",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+new file mode 100644
+index 0000000..7926b5e
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+@@ -0,0 +1,111 @@
++// 风铃湖畔 water (GGbot D1 v3). Cheap mobile water for WeChat WebGL1/2: lit like builtin-standard's diffuse terms
++// (vertex colour x waterTint), Fresnel blend to the r5h3 sky colour at grazing angles, a Blinn-Phong sunset streak from the
++// main DirectionalLight, optional sin-wave normal (cc_time). No textures, no render targets, scene fog applied. Instancing via local-batch.
++CCEffect %{
++  techniques:
++  - name: opaque
++    passes:
++    - vert: lk-water-vs:vert
++      frag: lk-water-fs:frag
++      properties:
++        waterTint:     { value: [0.06, 0.55, 1.0, 1.0], linear: true, editor: { type: color } }
++        skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], linear: true, editor: { type: color } }
++        skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
++        skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
++        fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
++        specParams:    { value: [300.0, 1.6, 0.4, 0.0], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise' } }
++        waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
++}%
++
++CCProgram lk-water-vs %{
++  precision highp float;
++  #include <legacy/input-standard>
++  #include <builtin/uniforms/cc-global>
++  #include <legacy/local-batch>
++  #include <legacy/fog-vs>
++
++  #if USE_VERTEX_COLOR
++    in lowp vec4 a_color;
++    out lowp vec4 v_color;
++  #endif
++  out vec3 v_worldPos;
++  out vec3 v_worldNormal;
++
++  vec4 vert () {
++    StandardVertInput In;
++    CCVertInput(In);
++    mat4 matWorld, matWorldIT;
++    CCGetWorldMatrixFull(matWorld, matWorldIT);
++    vec4 pos = matWorld * In.position;
++    v_worldPos = pos.xyz;
++    v_worldNormal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
++    #if USE_VERTEX_COLOR
++      v_color = a_color;
++    #endif
++    CC_TRANSFER_FOG(pos);
++    return cc_matProj * (cc_matView * pos);
++  }
++}%
++
++CCProgram lk-water-fs %{
++  precision highp float;
++  #include <builtin/uniforms/cc-global>
++  #include <legacy/output-standard>
++  #include <legacy/fog-fs>
++
++  in vec3 v_worldPos;
++  in vec3 v_worldNormal;
++  #if USE_VERTEX_COLOR
++    in lowp vec4 v_color;
++  #endif
++
++  uniform LakesideWater {
++    vec4 waterTint;
++    vec4 skyZenith;
++    vec4 skyLow;
++    vec4 skyHorizon;
++    vec4 fresnelParams;
++    vec4 specParams;
++    vec4 waveParams;
++  };
++
++  vec4 frag () {
++    vec3 N = normalize(v_worldNormal);
++    #if USE_WAVES
++      float t = cc_time.x * waveParams.z, f = waveParams.y;
++      vec2 p = v_worldPos.xz * f;
++      vec2 d = vec2(sin(p.x + t) + 0.5 * sin(1.7 * p.y - 1.3 * t), cos(p.y + 0.8 * t) + 0.5 * cos(1.3 * p.x + 1.1 * t));
++      N = normalize(N + vec3(d.x, 0.0, d.y) * waveParams.x);
++    #endif
++    vec3 V = normalize(cc_cameraPos.xyz - v_worldPos);
++    vec3 L = normalize(-cc_mainLitDir.xyz);
++    vec3 albedo = waterTint.rgb;
++    #if USE_VERTEX_COLOR
++      albedo *= SRGBToLinear(v_color.rgb);
++    #endif
++    // Diffuse: the same terms as legacy/shading-standard-base (direct NL/PI + hemispheric ambient), so it sits with the palette props.
++    float NL = max(dot(N, L), 0.0);
++    vec3 lit = cc_mainLitColor.rgb * cc_mainLitColor.w;
++    float fAmb = max(0.0001, 0.5 - N.y * 0.5);
++    vec3 amb = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
++    vec3 col = albedo * (lit * NL / 3.14159265 + amb);
++    // Fresnel sky reflection (Schlick): water colour at normal incidence -> sky blue / horizon at grazing angles.
++    float NV = clamp(dot(N, V), 0.0, 1.0);
++    float F = fresnelParams.y + (1.0 - fresnelParams.y) * pow(1.0 - NV, fresnelParams.x);
++    // Reflected sky = the r5h3 world ramp by reflection elevation: horizon (<=0) -> low sky (0.16) -> zenith (>=0.38).
++    vec3 R = reflect(-V, N);
++    float e = R.y;
++    vec3 sky = mix(skyHorizon.rgb, skyLow.rgb, smoothstep(0.0, 0.16, e));
++    sky = mix(sky, skyZenith.rgb, smoothstep(0.16, 0.38, e)) * cc_ambientSky.w * fresnelParams.w;
++    col = mix(col, sky, clamp(F, 0.0, fresnelParams.z));
++    // Sunset streak: Blinn-Phong from the main light, its colour and intensity.
++    vec3 H = normalize(L + V);
++    // Streak: exponent wobbles +-specParams.z along x so the highlight breaks into a sunset band (cheap sin noise, no texture).
++    float n = 0.5 + 0.5 * sin(v_worldPos.x * 3.1 + sin(v_worldPos.z * 1.7 + cc_time.x * 0.6) * 2.0);
++    float ex = specParams.x * (1.0 + specParams.z * (n - 0.5) * 2.0);
++    col += lit * pow(max(dot(N, H), 0.0), ex) * specParams.y * F;
++    vec4 o = vec4(col, 1.0);
++    CC_APPLY_FOG(o, v_worldPos);
++    return CCFragOutput(o);
++  }
++}%
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect.meta b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect.meta
+new file mode 100644
+index 0000000..56af32c
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect.meta
+@@ -0,0 +1,11 @@
++{
++  "ver": "1.7.1",
++  "importer": "effect",
++  "imported": true,
++  "uuid": "391765d0-c4ae-4117-8004-5abc60f62e48",
++  "files": [
++    ".json"
++  ],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl
+new file mode 100644
+index 0000000..63d9faa
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl
+@@ -0,0 +1,33 @@
++{
++  "__type__": "cc.Material",
++  "_name": "",
++  "_objFlags": 0,
++  "__editorExtras__": {},
++  "_native": "",
++  "_effectAsset": {
++    "__uuid__": "391765d0-c4ae-4117-8004-5abc60f62e48",
++    "__expectedType__": "cc.EffectAsset"
++  },
++  "_techIdx": 0,
++  "_defines": [
++    {
++      "USE_VERTEX_COLOR": true,
++      "USE_WAVES": true,
++      "USE_INSTANCING": true
++    }
++  ],
++  "_states": [
++    {
++      "rasterizerState": {},
++      "depthStencilState": {},
++      "blendState": {
++        "targets": [
++          {}
++        ]
++      }
++    }
++  ],
++  "_props": [
++    {}
++  ]
++}
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl.meta b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl.meta
+new file mode 100644
+index 0000000..9641b11
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl.meta
+@@ -0,0 +1,11 @@
++{
++  "ver": "1.0.21",
++  "importer": "material",
++  "imported": true,
++  "uuid": "29ec51ab-b9a8-4d10-af93-f5b1f6b38563",
++  "files": [
++    ".json"
++  ],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 6b2d290..0dcc5ee 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -1,8 +1,8 @@
+-import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,MeshRenderer,Node,Prefab,Quat,Vec3,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
++import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
+ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+@@ -20,11 +20,12 @@ export function enableLakesideInstancing(root:Node):Material[]{
+ function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
+ function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
+ function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
++function loadMaterial(b:AssetManager.Bundle,path:string){return new Promise<Material|null>(ok=>b.load(path,Material,(e,a)=>ok(e||!a?null:a)));}
+ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
+ /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
+  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
+- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,instanced:Material[]=[];
++ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
+   *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
+@@ -35,8 +36,15 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   const P=LAKESIDE_DIR_LIGHT_PARAMS,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(P.sunColorLinear),sk=linearToSrgb8(P.ambientSkyColorLinear),gr=linearToSrgb8(P.ambientGroundColorLinear);
+   l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);l.illuminance=saved.illum*P.sunIlluminanceScale;
+   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
+-  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;};
+- const restoreDir=()=>{const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
++  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;applyFog();};
++ /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
++ let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number}|null=null;
++ const applyFog=()=>{const P=LAKESIDE_DIR_LIGHT_PARAMS,fog=(director.getScene() as any)?.globals?.fog;if(!P.fogEnabled||!fog)return;
++  if(!savedFog)savedFog={enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd};
++  const c=P.fogColorSrgb;fog.enabled=true;fog.type=0/* FogType.LINEAR (3.8.8 render-scene/scene/fog.ts) */;fog.fogColor=new Color(c[0],c[1],c[2],255);fog.fogStart=P.fogStart;fog.fogEnd=lakesideFogEnd(P);};
++ const restoreFog=()=>{const f0=savedFog;savedFog=null;const fog=(director.getScene() as any)?.globals?.fog;if(!f0||!fog)return;
++  fog.type=f0.type;fog.fogColor=f0.color;fog.fogStart=f0.start;fog.fogEnd=f0.end;fog.enabled=f0.enabled;};
++ const restoreDir=()=>{restoreFog();const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
+   s0.light.node.setRotation(s0.rot);s0.light.color=s0.color;s0.light.illuminance=s0.illum;if(typeof s0.vis==='number')(s0.light as any).visibility=s0.vis;
+   if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}};
+  const dispose=()=>{if(dead)return;restoreDir();dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
+@@ -48,6 +56,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
+   const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),token));token.check();
+   const prefabs=await waitRegionAsset(loadPrefabs(bundle),token,30000);token.check();for(const p of prefabs)take(p);
++  const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
+   if(!isValid(parent,true)||!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
+   const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
+   const missing=[...new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n)))];if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
+@@ -57,9 +66,17 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
+   for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
+   instanced=enableLakesideInstancing(scenery);
+-  if(LAKESIDE_LIGHT_MODE==='dir'){/* v2: water tint on the lease's own instanced copy of the lake material (asset untouched; destroyed with the lease). */
+-   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),tinted=new Set<Material>(),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
+-   for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m&&!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}
++  if(LAKESIDE_LIGHT_MODE==='dir'){/* v3: the lake gets the lease's own copy of lakeside-water.mtl (Fresnel sky + sun streak + fog); if it failed to
++   * load, v2 fallback: tint the lease's instanced palette copy. Assets untouched; copies destroyed with the lease. */
++   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
++   let water:Material|null=null;
++   if(waterAsset){water=new Material();water.copy(waterAsset);const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
++    water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
++    water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,0));
++    water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));instanced.push(water);}
++   const tinted=new Set<Material>();
++   for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
++    for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
+    waterTinted=tinted.size;}
+   setLayer(scenery);
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+@@ -72,7 +89,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+   };
+  }catch(error){dispose();throw error;}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index ea6a556..81a3a39 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -49,25 +49,34 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
+  *  DirectionalLight (reused while the lake shows, restored after), SUN_dusk_side 0.31 -> ambient sky/ground, Sun.001 0.08 dropped,
+  *  SUN_mtn_sky (MTN_RECV only) not placed, no point lights, shadows untouched. 'points' = the previous 3 SphereLights. */
+ export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
+-/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). v2 (GGbot), derived from r5h3:
+- *  - sunForward / sunColorLinear: scene_r5h3_lighting.json Sun exactly; sunIlluminanceScale x the scene's main-light illuminance.
+- *  - ambientSkyColorLinear: the blue top stop of the r5h3 world sky ramp (lakeside_r5h3.blend, z>=0.38) - not the dusk light's yellow.
+- *  - ambientGroundColorLinear: warm (half of SUN_dusk_side [1,0.55,0.28]); the dusk light is otherwise dropped, like Sun.001.
+- *  - ambientSkyIllumToSun 0.75: tuned in the Blender proxy so the frame's mean colour matches the r5h3 render (74/115/101 sRGB).
+- *  - waterTintLinear: multiplies the lake material (vertex colour x palette) so the warm sun no longer turns it green; tuned in the
+- *    proxy against the r5h3 water (81/160/151 sRGB near the board). Runtime-only on the lease's own instanced copy (no asset edit).
+- *  - clearColorLinear: same blue sky stop, behind the mountains (was peach #f2b98a). */
++/** ALL lakeside 'dir' lighting / water / fog values (one block; v3 = Voice Bot's verified r5h3 values where given, 20261017T051017Z):
++ *  - sun*: scene_r5h3_lighting.json Sun exactly. ambientSky = r5h3 world zenith; ambientGround = r5h3 below-horizon clamp (VB).
++ *  - ambientSkyIllumToSun: proxy-tuned (VB: physical 0.139, v2 0.75) - device check.
++ *  - water*: lakeside-water.effect. Tint (VB/v2), Schlick F0 0.02 / power 5 (VB), reflection colour by reflect-vector elevation
++ *    across zenith / low sky / horizon = the r5h3 sky ramp stops (VB), Blinn exponent 300 +-40% sin noise for a streak (VB 200–500).
++ *  - fog*: VB #FFCEA6, 45 m -> 130 m at max 0.4. Cocos LINEAR fog has no max amount, so the end is stretched to 45 + 85/0.4 =
++ *    257.5 m: identical amount up to 130 m (0.4 there), clouds beyond (to 163 m) reach ~0.55. Board 16–24 m, near shore <30 m: clear. */
+ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   sunForward: [-0.4182, -0.3983, 0.8164] as const,
+   sunColorLinear: [1.0, 0.6, 0.32] as const,
+   sunIlluminanceScale: 1.0,
+   ambientSkyColorLinear: [0.0116, 0.2747, 0.4793] as const,
+-  ambientGroundColorLinear: [0.5, 0.275, 0.14] as const,
++  ambientGroundColorLinear: [1.0, 0.5457, 0.1441] as const,
+   ambientSkyIllumToSun: 0.75,
+-  waterTintLinear: [0.06, 0.55, 1.0] as const,
+-  waterGlbs: ['LK_lake.glb'] as const,
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
++  waterGlbs: ['LK_lake.glb'] as const,
++  waterMaterialPath: 'water/lakeside-water',
++  waterTintLinear: [0.06, 0.55, 1.0] as const,
++  waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85, waterSkyStrength: 1.0,
++  waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
++  waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
++  waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
++  waterSpecExponent: 300, waterSpecNoise: 0.4, waterSpecIntensity: 1.6,
++  waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
++  fogEnabled: true, fogColorSrgb: [255, 206, 166] as const, fogStart: 45, fogMaxAt: 130, fogMaxAmount: 0.4,
+ });
++/** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
++export function lakesideFogEnd(p: { fogStart: number; fogMaxAt: number; fogMaxAmount: number } = LAKESIDE_DIR_LIGHT_PARAMS): number { return p.fogStart + (p.fogMaxAt - p.fogStart) / p.fogMaxAmount; }
+ export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
+ const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
+ export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index a99abb5..279ac5c 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -58,7 +58,7 @@ const tests=[
+  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
+  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
+- ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],
++ ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],['lakeside-water-fog','tools/lakeside/test_lakeside_water_fog.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_instancing.cjs b/tools/lakeside/test_lakeside_instancing.cjs
+index 95f9d70..dc6f229 100644
+--- a/tools/lakeside/test_lakeside_instancing.cjs
++++ b/tools/lakeside/test_lakeside_instancing.cjs
+@@ -2,7 +2,7 @@
+ const fs=require('fs'),path=require('path'),assert=require('assert');
+ const s=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/LakesideBoardBackground.ts'),'utf8');
+ assert(/m=new Material\(\);m\.copy\(src,\{defines:\{USE_INSTANCING:true\}\}\);shared\.set\(src,m\);\}r\.setSharedMaterial\(m,k\);/.test(s),'shared instanced copy');
+-assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,1200}?  setLayer\(scenery\);/.test(s),'applied after instantiate');
++assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,4000}?  setLayer\(scenery\);/.test(s),'applied after instantiate');
+ assert(/for\(const m of instanced\.splice\(0\)\)m\.destroy\(\);/.test(s),'destroyed on dispose');
+ assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
+ // Behaviour on stand-ins: 3 renderers over 2 source materials -> 2 copies, renderers sharing a source share the copy.
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+new file mode 100644
+index 0000000..d0ca1a9
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -0,0 +1,40 @@
++// v3: lakeside water shader (Fresnel sky ramp + sun streak + fog) and LINEAR scene fog; VB values; structure checks for 3.8.8.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const A=path.join(__dirname,'../../creator-build-project/assets'),W=path.join(A,'bundles/region_lakeside/water');
++const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);
++const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
++// Voice Bot verified values
++assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.5457,0.1441]);
++assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
++assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
++assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise>0);
++assert.deepEqual([...P.fogColorSrgb],[255,206,166]);assert.equal(P.fogStart,45);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
++const end=D.lakesideFogEnd();assert.equal(end,257.5);
++const amount=d=>Math.min(1,Math.max(0,(d-P.fogStart)/(end-P.fogStart)));assert(Math.abs(amount(130)-0.4)<1e-9);
++// board / near shore clear: farthest board corner and near-shore props are < fogStart from the board camera
++const cam=[0,13.2,26.5],B=D.LAKESIDE_BOARD_BOUNDS,dist=p=>Math.hypot(p[0]-cam[0],p[1]-cam[1],p[2]-cam[2]);
++for(const x of [B.min[0],B.max[0]])for(const z of [B.min[2],B.max[2]])assert(amount(dist([x,0,z]))===0,'board corner fog-free');
++// effect structure (3.8.8 builtin-unlit layout); chunks that exist in 3.8.8
++const fx=fs.readFileSync(path.join(W,'lakeside-water.effect'),'utf8');
++assert(/^CCEffect %\{[\s\S]*?\n\}%/m.test(fx)&&/CCProgram lk-water-vs %\{[\s\S]*?\n\}%/.test(fx)&&/CCProgram lk-water-fs %\{[\s\S]*?\n\}%/.test(fx));
++const inc=[...fx.matchAll(/#include <([^>]+)>/g)].map(x=>x[1]);
++const ok=['legacy/input-standard','builtin/uniforms/cc-global','legacy/local-batch','legacy/fog-vs','legacy/fog-fs','legacy/output-standard'];
++assert(inc.length&&inc.every(i=>ok.includes(i)),'only 3.8.8 chunks: '+inc);
++assert(/CC_TRANSFER_FOG\(pos\)/.test(fx)&&/CC_APPLY_FOG\(o, v_worldPos\)/.test(fx),'fog chunk used');
++assert(/CCGetWorldMatrixFull\(matWorld, matWorldIT\)/.test(fx),'instancing-aware world matrix');
++assert(!/sampler2D|texture\(/.test(fx),'no textures');
++const ub=fx.match(/uniform LakesideWater \{([\s\S]*?)\};/)[1].trim().split(/\n/).map(s=>s.trim());assert(ub.every(l=>/^vec4 \w+;$/.test(l)),'std140-safe vec4 block');
++for(const k of ['waterTint','skyZenith','skyLow','skyHorizon','fresnelParams','specParams','waveParams'])assert(new RegExp('\\n\\s+'+k+':\\s+\\{ value:').test(fx)&&ub.includes('vec4 '+k+';'),k);
++// metas / material
++const em=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.effect.meta'))),mt=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl'))),mm=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl.meta')));
++JSON.parse(fs.readFileSync(path.join(W,'..','water.meta')));
++assert.equal(em.importer,'effect');assert.equal(mm.importer,'material');assert.equal(mt._effectAsset.__uuid__,em.uuid);assert.notEqual(em.uuid,mm.uuid);
++assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
++// lease wiring
++const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
++assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\);water\.copy\(waterAsset\);/.test(bg)&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
++assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
++assert(/fog\.enabled=true;fog\.type=0/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
++assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.enabled=f0\.enabled;/.test(bg));
++console.log('lakeside water+fog OK fogEnd='+end);
+-- 
+2.47.3
+

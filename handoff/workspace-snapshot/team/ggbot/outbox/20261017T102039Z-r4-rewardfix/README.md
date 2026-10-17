@@ -1,0 +1,13 @@
+# r4-rewardfix：reward-background-return 测试过期（不是游戏 bug）
+- **结论：测试过期，不是 bug。** 3765e34 有意改成在结果页不再弹出 RewardPanel（「获得」弹窗），奖励直接显示在结果面板上：宝箱打开，奖励徽章浮在上面。测试却还在找 RewardPanel 的「Accept」按钮。
+- 分支 `ggbot/build05-r4-rewardfix`，基于 f3d3614。只有 1 个提交：`ec0de1f934797000df3585a4dc0f11363490770a`。只改了测试，**没有改游戏代码，包体变化 0 B**。没有 push。ggbot/build05-r4-tests 没动，仍然是 7c1047b。
+- **Bisect**：用 Node 22.23.3，在 2611f08（通过）和 f3d3614 之间二分。第一个失败的提交是 **3765e34**「Result screen: 回小岛 claims are saved before leaving; no 获得 popup on the result screen」。它的提交说明写的是：watchClaims 在结果页显示期间不再打开 RewardPanel，结果面板上的徽章已经展示了奖励；别的地方照常打开，比如在背包里开宝箱。test_result_home_claims 也明确断言了结果页上不会出现 RewardPanel。
+- **新的断言**，保证的还是同一件玩家能看到的事：
+  - 领取后，结果面板上能看到宝箱打开（`resultDiagnostics().chestOpen`）和奖励徽章（`ResultReward-0`）；没有 RewardPanel，ResultChestTap 也不在了。
+  - 每次切后台再回来（各 3 次）后：还是同一个面板、同样的弹窗，存储没变，没有触发全局恢复，奖励仍然显示。
+- **结果**：
+  - 这个测试在 Node 22 上通过（exit 0），见 reward-background-return-node22.txt。
+  - 全套件在 Node 20、本分支上：74 项中 69 项 PASS。没过的 5 项和 r3 一样：production-integrity、legacy-board-ui-pure、cloud-web-contract 失败；reward-background-return 在 Node 20 上失败，原因是 stripTypeScriptTypes 不存在；navigation-guard BLOCKED。
+  - 本分支 cherry-pick 到 7c1047b：干净（7a0c9f2）。叠上以后，这个测试在 Node 22 上 exit 0，在 Node 20 上报 BLOCKED_NODE。
+- Mac 上用 Node ≥22.6 跑：`npx -y node@22 tools/board-ui/test_reward_background_return.cjs; echo exit=$?`，期望 exit=0。
+- 文件：0001-*.patch、r4-rewardfix.bundle（前置是 f3d3614）、suite-node20.txt/.json、reward-background-return-node22.txt、SHA256SUMS

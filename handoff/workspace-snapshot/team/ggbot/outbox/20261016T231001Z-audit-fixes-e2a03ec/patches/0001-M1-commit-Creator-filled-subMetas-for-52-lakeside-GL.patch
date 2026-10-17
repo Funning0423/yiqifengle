@@ -1,0 +1,6133 @@
+From c6cd037241d3fba7aac5404fe832d90ad1b7909b Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:57:49 +0800
+Subject: [PATCH 1/6] =?UTF-8?q?M1:=20commit=20Creator-filled=20subMetas=20?=
+ =?UTF-8?q?for=2052=20lakeside=20GLB=20.meta=20+=20hasAlpha=20false=20for?=
+ =?UTF-8?q?=20T=5FLK=5Fpalette=5F256=20/=20T=5FLK=5Fgrade=5Flut=5F32=20(bo?=
+ =?UTF-8?q?th=20RGB=20PNGs,=20no=20alpha=20channel,=20no=20tRNS)=20?=
+ =?UTF-8?q?=E2=80=94=20diffs=20from=20=E7=95=8C=E9=9D=A2=E9=AA=8C=E6=94=B6?=
+ =?UTF-8?q?=E9=83=A8=20Mac=20import=20of=20e2a03ec?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../region_lakeside/models/LK_barrel.glb.meta | 98 ++++++++++++++++++-
+ .../models/LK_boardwalk.glb.meta              | 98 ++++++++++++++++++-
+ .../models/LK_boardwalk_rail.glb.meta         | 98 ++++++++++++++++++-
+ .../region_lakeside/models/LK_bridge.glb.meta | 98 ++++++++++++++++++-
+ .../models/LK_bridge_steps.glb.meta           | 98 ++++++++++++++++++-
+ .../models/LK_buoy_lantern.glb.meta           | 98 ++++++++++++++++++-
+ .../region_lakeside/models/LK_bush.glb.meta   | 98 ++++++++++++++++++-
+ .../models/LK_chime_post.glb.meta             | 98 ++++++++++++++++++-
+ .../models/LK_chime_raft.glb.meta             | 98 ++++++++++++++++++-
+ .../models/LK_clothesline.glb.meta            | 98 ++++++++++++++++++-
+ .../region_lakeside/models/LK_cloud.glb.meta  | 98 ++++++++++++++++++-
+ .../models/LK_contact_shadow.glb.meta         | 66 ++++++++++++-
+ .../models/LK_dragonfly.glb.meta              | 98 ++++++++++++++++++-
+ .../region_lakeside/models/LK_duck.glb.meta   | 98 ++++++++++++++++++-
+ .../models/LK_duckling.glb.meta               | 98 ++++++++++++++++++-
+ .../models/LK_far_hills.glb.meta              | 98 ++++++++++++++++++-
+ .../models/LK_far_shore.glb.meta              | 98 ++++++++++++++++++-
+ .../models/LK_fishnet.glb.meta                | 98 ++++++++++++++++++-
+ .../models/LK_float_rope_soft.glb.meta        | 66 ++++++++++++-
+ .../models/LK_flower_clump.glb.meta           | 98 ++++++++++++++++++-
+ .../models/LK_flowerpot.glb.meta              | 98 ++++++++++++++++++-
+ .../models/LK_grass_tuft.glb.meta             | 98 ++++++++++++++++++-
+ .../models/LK_house_A.glb.meta                | 98 ++++++++++++++++++-
+ .../models/LK_house_B.glb.meta                | 98 ++++++++++++++++++-
+ .../models/LK_house_C.glb.meta                | 98 ++++++++++++++++++-
+ .../region_lakeside/models/LK_lake.glb.meta   | 98 ++++++++++++++++++-
+ .../models/LK_lantern.glb.meta                | 98 ++++++++++++++++++-
+ .../models/LK_lantern_boat.glb.meta           | 98 ++++++++++++++++++-
+ .../models/LK_lilypad.glb.meta                | 98 ++++++++++++++++++-
+ .../region_lakeside/models/LK_lotus.glb.meta  | 98 ++++++++++++++++++-
+ .../models/LK_paper_boat.glb.meta             | 98 ++++++++++++++++++-
+ .../models/LK_pavilion.glb.meta               | 98 ++++++++++++++++++-
+ .../models/LK_piece_bell_pad.glb.meta         | 98 ++++++++++++++++++-
+ .../models/LK_piece_bobber.glb.meta           | 98 ++++++++++++++++++-
+ .../models/LK_piece_lake_light.glb.meta       | 98 ++++++++++++++++++-
+ .../models/LK_piece_lotus_lamp.glb.meta       | 98 ++++++++++++++++++-
+ .../models/LK_piece_paper_boat.glb.meta       | 98 ++++++++++++++++++-
+ .../models/LK_piece_shell.glb.meta            | 98 ++++++++++++++++++-
+ .../models/LK_porch_steps.glb.meta            | 98 ++++++++++++++++++-
+ .../models/LK_reed_card.glb.meta              | 98 ++++++++++++++++++-
+ .../models/LK_ripple_ring.glb.meta            | 98 ++++++++++++++++++-
+ .../region_lakeside/models/LK_rock.glb.meta   | 98 ++++++++++++++++++-
+ .../models/LK_rope_float.glb.meta             | 66 ++++++++++++-
+ .../models/LK_shore_foam.glb.meta             | 98 ++++++++++++++++++-
+ .../models/LK_signpost.glb.meta               | 98 ++++++++++++++++++-
+ .../models/LK_splash_crown.glb.meta           | 98 ++++++++++++++++++-
+ .../models/LK_splash_drop.glb.meta            | 98 ++++++++++++++++++-
+ .../models/LK_terrain.glb.meta                | 98 ++++++++++++++++++-
+ .../models/LK_tree_conifer.glb.meta           | 98 ++++++++++++++++++-
+ .../models/LK_tree_round.glb.meta             | 98 ++++++++++++++++++-
+ .../models/LK_wb_line.glb.meta                | 98 ++++++++++++++++++-
+ .../models/LK_windchime.glb.meta              | 98 ++++++++++++++++++-
+ .../models/T_LK_palette_256.png.meta          |  2 +-
+ .../post/T_LK_grade_lut_32.png.meta           |  2 +-
+ 54 files changed, 4901 insertions(+), 103 deletions(-)
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_barrel.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_barrel.glb.meta
+index 1d44d32..af77a4b 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_barrel.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_barrel.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "b9ace526-7405-5943-a3f9-4b5640b13d08",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "50d7c": {
++      "importer": "gltf-mesh",
++      "uuid": "b9ace526-7405-5943-a3f9-4b5640b13d08@50d7c",
++      "displayName": "",
++      "id": "50d7c",
++      "name": "LK_barrel.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 60
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "b9ace526-7405-5943-a3f9-4b5640b13d08@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "b9ace526-7405-5943-a3f9-4b5640b13d08@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "ef654": {
++      "importer": "gltf-scene",
++      "uuid": "b9ace526-7405-5943-a3f9-4b5640b13d08@ef654",
++      "displayName": "",
++      "id": "ef654",
++      "name": "LK_barrel.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "b9ace526-7405-5943-a3f9-4b5640b13d08@50d7c"
++      ],
++      "skeletons": [],
++      "textures": [
++        "b9ace526-7405-5943-a3f9-4b5640b13d08@e39f7"
++      ],
++      "materials": [
++        "b9ace526-7405-5943-a3f9-4b5640b13d08@a448d"
++      ],
++      "scenes": [
++        "b9ace526-7405-5943-a3f9-4b5640b13d08@ef654"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
+index 456b670..a28ef6d 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "0868bc53-0016-5d8c-920f-1116029ce836",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "96477": {
++      "importer": "gltf-scene",
++      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@96477",
++      "displayName": "",
++      "id": "96477",
++      "name": "LK_boardwalk.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e1093": {
++      "importer": "gltf-mesh",
++      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@e1093",
++      "displayName": "",
++      "id": "e1093",
++      "name": "LK_boardwalk.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 40
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "0868bc53-0016-5d8c-920f-1116029ce836@e1093"
++      ],
++      "skeletons": [],
++      "textures": [
++        "0868bc53-0016-5d8c-920f-1116029ce836@e39f7"
++      ],
++      "materials": [
++        "0868bc53-0016-5d8c-920f-1116029ce836@a448d"
++      ],
++      "scenes": [
++        "0868bc53-0016-5d8c-920f-1116029ce836@96477"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
+index bb6bab9..112d29b 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "9239c": {
++      "importer": "gltf-mesh",
++      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@9239c",
++      "displayName": "",
++      "id": "9239c",
++      "name": "LK_boardwalk_rail.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 40
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "4789f": {
++      "importer": "gltf-scene",
++      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@4789f",
++      "displayName": "",
++      "id": "4789f",
++      "name": "LK_boardwalk_rail.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@9239c"
++      ],
++      "skeletons": [],
++      "textures": [
++        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@e39f7"
++      ],
++      "materials": [
++        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@a448d"
++      ],
++      "scenes": [
++        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@4789f"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta
+index 2d1b361..aaee832 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "50157b8a-c078-5267-8ac6-3d80faa253fa",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "fbf99": {
++      "importer": "gltf-mesh",
++      "uuid": "50157b8a-c078-5267-8ac6-3d80faa253fa@fbf99",
++      "displayName": "",
++      "id": "fbf99",
++      "name": "LK_bridge.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 1040
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "50157b8a-c078-5267-8ac6-3d80faa253fa@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "50157b8a-c078-5267-8ac6-3d80faa253fa@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "d4caa": {
++      "importer": "gltf-scene",
++      "uuid": "50157b8a-c078-5267-8ac6-3d80faa253fa@d4caa",
++      "displayName": "",
++      "id": "d4caa",
++      "name": "LK_bridge.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "50157b8a-c078-5267-8ac6-3d80faa253fa@fbf99"
++      ],
++      "skeletons": [],
++      "textures": [
++        "50157b8a-c078-5267-8ac6-3d80faa253fa@e39f7"
++      ],
++      "materials": [
++        "50157b8a-c078-5267-8ac6-3d80faa253fa@a448d"
++      ],
++      "scenes": [
++        "50157b8a-c078-5267-8ac6-3d80faa253fa@d4caa"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge_steps.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge_steps.glb.meta
+index b08fd7a..48d8867 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge_steps.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_bridge_steps.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "a48b3": {
++      "importer": "gltf-mesh",
++      "uuid": "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@a48b3",
++      "displayName": "",
++      "id": "a48b3",
++      "name": "LK_bridge_steps.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 212
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "fa858": {
++      "importer": "gltf-scene",
++      "uuid": "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@fa858",
++      "displayName": "",
++      "id": "fa858",
++      "name": "LK_bridge_steps.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@a48b3"
++      ],
++      "skeletons": [],
++      "textures": [
++        "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@e39f7"
++      ],
++      "materials": [
++        "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@a448d"
++      ],
++      "scenes": [
++        "4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@fa858"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_buoy_lantern.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_buoy_lantern.glb.meta
+index c6e2bbc..4aee07b 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_buoy_lantern.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_buoy_lantern.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "67b963d8-3cf6-55db-8ad9-6a59fd409017",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "62e77": {
++      "importer": "gltf-mesh",
++      "uuid": "67b963d8-3cf6-55db-8ad9-6a59fd409017@62e77",
++      "displayName": "",
++      "id": "62e77",
++      "name": "LK_buoy_lantern.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 112
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "67b963d8-3cf6-55db-8ad9-6a59fd409017@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "67b963d8-3cf6-55db-8ad9-6a59fd409017@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "4d0f0": {
++      "importer": "gltf-scene",
++      "uuid": "67b963d8-3cf6-55db-8ad9-6a59fd409017@4d0f0",
++      "displayName": "",
++      "id": "4d0f0",
++      "name": "LK_buoy_lantern.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "67b963d8-3cf6-55db-8ad9-6a59fd409017@62e77"
++      ],
++      "skeletons": [],
++      "textures": [
++        "67b963d8-3cf6-55db-8ad9-6a59fd409017@e39f7"
++      ],
++      "materials": [
++        "67b963d8-3cf6-55db-8ad9-6a59fd409017@a448d"
++      ],
++      "scenes": [
++        "67b963d8-3cf6-55db-8ad9-6a59fd409017@4d0f0"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_bush.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_bush.glb.meta
+index ee4ae9e..cdc282f 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_bush.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_bush.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "e1aeb084-2929-5bd8-8735-7aed66993d9b",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "2d325": {
++      "importer": "gltf-mesh",
++      "uuid": "e1aeb084-2929-5bd8-8735-7aed66993d9b@2d325",
++      "displayName": "",
++      "id": "2d325",
++      "name": "LK_bush.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 180
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "e1aeb084-2929-5bd8-8735-7aed66993d9b@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "e1aeb084-2929-5bd8-8735-7aed66993d9b@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "f937a": {
++      "importer": "gltf-scene",
++      "uuid": "e1aeb084-2929-5bd8-8735-7aed66993d9b@f937a",
++      "displayName": "",
++      "id": "f937a",
++      "name": "LK_bush.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "e1aeb084-2929-5bd8-8735-7aed66993d9b@2d325"
++      ],
++      "skeletons": [],
++      "textures": [
++        "e1aeb084-2929-5bd8-8735-7aed66993d9b@e39f7"
++      ],
++      "materials": [
++        "e1aeb084-2929-5bd8-8735-7aed66993d9b@a448d"
++      ],
++      "scenes": [
++        "e1aeb084-2929-5bd8-8735-7aed66993d9b@f937a"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_post.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_post.glb.meta
+index 3deb432..fd57540 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_post.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_post.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "2306f547-9804-5a7c-9536-998c9f8f2732",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "ce5a5": {
++      "importer": "gltf-mesh",
++      "uuid": "2306f547-9804-5a7c-9536-998c9f8f2732@ce5a5",
++      "displayName": "",
++      "id": "ce5a5",
++      "name": "LK_chime_post.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 84
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "2306f547-9804-5a7c-9536-998c9f8f2732@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "2306f547-9804-5a7c-9536-998c9f8f2732@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "82ab7": {
++      "importer": "gltf-scene",
++      "uuid": "2306f547-9804-5a7c-9536-998c9f8f2732@82ab7",
++      "displayName": "",
++      "id": "82ab7",
++      "name": "LK_chime_post.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "2306f547-9804-5a7c-9536-998c9f8f2732@ce5a5"
++      ],
++      "skeletons": [],
++      "textures": [
++        "2306f547-9804-5a7c-9536-998c9f8f2732@e39f7"
++      ],
++      "materials": [
++        "2306f547-9804-5a7c-9536-998c9f8f2732@a448d"
++      ],
++      "scenes": [
++        "2306f547-9804-5a7c-9536-998c9f8f2732@82ab7"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_raft.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_raft.glb.meta
+index 1bf248e..f1c313d 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_raft.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_chime_raft.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "7971f28d-6c38-5d02-8235-680d13256a50",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "2937c": {
++      "importer": "gltf-mesh",
++      "uuid": "7971f28d-6c38-5d02-8235-680d13256a50@2937c",
++      "displayName": "",
++      "id": "2937c",
++      "name": "LK_chime_raft.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 140
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "7971f28d-6c38-5d02-8235-680d13256a50@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "7971f28d-6c38-5d02-8235-680d13256a50@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "c7967": {
++      "importer": "gltf-scene",
++      "uuid": "7971f28d-6c38-5d02-8235-680d13256a50@c7967",
++      "displayName": "",
++      "id": "c7967",
++      "name": "LK_chime_raft.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "7971f28d-6c38-5d02-8235-680d13256a50@2937c"
++      ],
++      "skeletons": [],
++      "textures": [
++        "7971f28d-6c38-5d02-8235-680d13256a50@e39f7"
++      ],
++      "materials": [
++        "7971f28d-6c38-5d02-8235-680d13256a50@a448d"
++      ],
++      "scenes": [
++        "7971f28d-6c38-5d02-8235-680d13256a50@c7967"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_clothesline.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_clothesline.glb.meta
+index 36059e8..62466ed 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_clothesline.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_clothesline.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "f210f": {
++      "importer": "gltf-mesh",
++      "uuid": "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@f210f",
++      "displayName": "",
++      "id": "f210f",
++      "name": "LK_clothesline.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 86
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "fa338": {
++      "importer": "gltf-scene",
++      "uuid": "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@fa338",
++      "displayName": "",
++      "id": "fa338",
++      "name": "LK_clothesline.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@f210f"
++      ],
++      "skeletons": [],
++      "textures": [
++        "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@e39f7"
++      ],
++      "materials": [
++        "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@a448d"
++      ],
++      "scenes": [
++        "7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@fa338"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_cloud.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_cloud.glb.meta
+index 33aa93c..d44185e 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_cloud.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_cloud.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "5a842c4b-8cc2-5847-81d0-59aa8736d560",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "a960e": {
++      "importer": "gltf-mesh",
++      "uuid": "5a842c4b-8cc2-5847-81d0-59aa8736d560@a960e",
++      "displayName": "",
++      "id": "a960e",
++      "name": "LK_cloud.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 560
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "5a842c4b-8cc2-5847-81d0-59aa8736d560@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "5a842c4b-8cc2-5847-81d0-59aa8736d560@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "b0c78": {
++      "importer": "gltf-scene",
++      "uuid": "5a842c4b-8cc2-5847-81d0-59aa8736d560@b0c78",
++      "displayName": "",
++      "id": "b0c78",
++      "name": "LK_cloud.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "5a842c4b-8cc2-5847-81d0-59aa8736d560@a960e"
++      ],
++      "skeletons": [],
++      "textures": [
++        "5a842c4b-8cc2-5847-81d0-59aa8736d560@e39f7"
++      ],
++      "materials": [
++        "5a842c4b-8cc2-5847-81d0-59aa8736d560@a448d"
++      ],
++      "scenes": [
++        "5a842c4b-8cc2-5847-81d0-59aa8736d560@b0c78"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_contact_shadow.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_contact_shadow.glb.meta
+index 21a9542..ede29f0 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_contact_shadow.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_contact_shadow.glb.meta
+@@ -4,7 +4,58 @@
+   "imported": true,
+   "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "d0603": {
++      "importer": "gltf-mesh",
++      "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b@d0603",
++      "displayName": "",
++      "id": "d0603",
++      "name": "LK_contact_shadow.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 8
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "08352": {
++      "importer": "gltf-material",
++      "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b@08352",
++      "displayName": "",
++      "id": "08352",
++      "name": "M_prev_shadow.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e9d86": {
++      "importer": "gltf-scene",
++      "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b@e9d86",
++      "displayName": "",
++      "id": "e9d86",
++      "name": "LK_contact_shadow.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+     "imageMetas": [],
+@@ -31,6 +82,19 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "00655f62-d835-5648-9c7a-3e0854a3b34b@d0603"
++      ],
++      "skeletons": [],
++      "textures": [],
++      "materials": [
++        "00655f62-d835-5648-9c7a-3e0854a3b34b@08352"
++      ],
++      "scenes": [
++        "00655f62-d835-5648-9c7a-3e0854a3b34b@e9d86"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_dragonfly.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_dragonfly.glb.meta
+index 202120e..97320a1 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_dragonfly.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_dragonfly.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "458831aa-c0c7-5eda-b3d8-07fb4aa97163",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "afe07": {
++      "importer": "gltf-mesh",
++      "uuid": "458831aa-c0c7-5eda-b3d8-07fb4aa97163@afe07",
++      "displayName": "",
++      "id": "afe07",
++      "name": "LK_dragonfly.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 80
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "458831aa-c0c7-5eda-b3d8-07fb4aa97163@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "458831aa-c0c7-5eda-b3d8-07fb4aa97163@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "51c18": {
++      "importer": "gltf-scene",
++      "uuid": "458831aa-c0c7-5eda-b3d8-07fb4aa97163@51c18",
++      "displayName": "",
++      "id": "51c18",
++      "name": "LK_dragonfly.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "458831aa-c0c7-5eda-b3d8-07fb4aa97163@afe07"
++      ],
++      "skeletons": [],
++      "textures": [
++        "458831aa-c0c7-5eda-b3d8-07fb4aa97163@e39f7"
++      ],
++      "materials": [
++        "458831aa-c0c7-5eda-b3d8-07fb4aa97163@a448d"
++      ],
++      "scenes": [
++        "458831aa-c0c7-5eda-b3d8-07fb4aa97163@51c18"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_duck.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_duck.glb.meta
+index 8b30600..a6be6e0 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_duck.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_duck.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "6d616ec7-a272-5666-a6b5-198ed3c672be",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "04575": {
++      "importer": "gltf-mesh",
++      "uuid": "6d616ec7-a272-5666-a6b5-198ed3c672be@04575",
++      "displayName": "",
++      "id": "04575",
++      "name": "LK_duck.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 288
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "6d616ec7-a272-5666-a6b5-198ed3c672be@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "6d616ec7-a272-5666-a6b5-198ed3c672be@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "d390f": {
++      "importer": "gltf-scene",
++      "uuid": "6d616ec7-a272-5666-a6b5-198ed3c672be@d390f",
++      "displayName": "",
++      "id": "d390f",
++      "name": "LK_duck.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "6d616ec7-a272-5666-a6b5-198ed3c672be@04575"
++      ],
++      "skeletons": [],
++      "textures": [
++        "6d616ec7-a272-5666-a6b5-198ed3c672be@e39f7"
++      ],
++      "materials": [
++        "6d616ec7-a272-5666-a6b5-198ed3c672be@a448d"
++      ],
++      "scenes": [
++        "6d616ec7-a272-5666-a6b5-198ed3c672be@d390f"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_duckling.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_duckling.glb.meta
+index 6f01d2d..0e27805 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_duckling.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_duckling.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "16edafc4-5247-5574-938b-a3ef1a47d89f",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "2f49d": {
++      "importer": "gltf-mesh",
++      "uuid": "16edafc4-5247-5574-938b-a3ef1a47d89f@2f49d",
++      "displayName": "",
++      "id": "2f49d",
++      "name": "LK_duckling.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 84
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "16edafc4-5247-5574-938b-a3ef1a47d89f@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "16edafc4-5247-5574-938b-a3ef1a47d89f@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "b0e69": {
++      "importer": "gltf-scene",
++      "uuid": "16edafc4-5247-5574-938b-a3ef1a47d89f@b0e69",
++      "displayName": "",
++      "id": "b0e69",
++      "name": "LK_duckling.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "16edafc4-5247-5574-938b-a3ef1a47d89f@2f49d"
++      ],
++      "skeletons": [],
++      "textures": [
++        "16edafc4-5247-5574-938b-a3ef1a47d89f@e39f7"
++      ],
++      "materials": [
++        "16edafc4-5247-5574-938b-a3ef1a47d89f@a448d"
++      ],
++      "scenes": [
++        "16edafc4-5247-5574-938b-a3ef1a47d89f@b0e69"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb.meta
+index d4f7066..951666a 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "86a5b": {
++      "importer": "gltf-mesh",
++      "uuid": "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@86a5b",
++      "displayName": "",
++      "id": "86a5b",
++      "name": "LK_far_hills.002.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 822
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "3ecde": {
++      "importer": "gltf-scene",
++      "uuid": "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@3ecde",
++      "displayName": "",
++      "id": "3ecde",
++      "name": "LK_far_hills.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@86a5b"
++      ],
++      "skeletons": [],
++      "textures": [
++        "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@e39f7"
++      ],
++      "materials": [
++        "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@a448d"
++      ],
++      "scenes": [
++        "0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@3ecde"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb.meta
+index dac0fcf..dede97b 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "edc7e22a-14df-504d-89de-d505d32fc54d",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "67807": {
++      "importer": "gltf-scene",
++      "uuid": "edc7e22a-14df-504d-89de-d505d32fc54d@67807",
++      "displayName": "",
++      "id": "67807",
++      "name": "LK_far_shore.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "feec0": {
++      "importer": "gltf-mesh",
++      "uuid": "edc7e22a-14df-504d-89de-d505d32fc54d@feec0",
++      "displayName": "",
++      "id": "feec0",
++      "name": "LK_far_shore.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 492
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "edc7e22a-14df-504d-89de-d505d32fc54d@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "edc7e22a-14df-504d-89de-d505d32fc54d@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "edc7e22a-14df-504d-89de-d505d32fc54d@feec0"
++      ],
++      "skeletons": [],
++      "textures": [
++        "edc7e22a-14df-504d-89de-d505d32fc54d@e39f7"
++      ],
++      "materials": [
++        "edc7e22a-14df-504d-89de-d505d32fc54d@a448d"
++      ],
++      "scenes": [
++        "edc7e22a-14df-504d-89de-d505d32fc54d@67807"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta
+index 41f1900..8f00d14 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "15461": {
++      "importer": "gltf-scene",
++      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@15461",
++      "displayName": "",
++      "id": "15461",
++      "name": "LK_fishnet.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "ce883": {
++      "importer": "gltf-mesh",
++      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@ce883",
++      "displayName": "",
++      "id": "ce883",
++      "name": "LK_fishnet.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 144
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@ce883"
++      ],
++      "skeletons": [],
++      "textures": [
++        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@e39f7"
++      ],
++      "materials": [
++        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@a448d"
++      ],
++      "scenes": [
++        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@15461"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_float_rope_soft.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_float_rope_soft.glb.meta
+index e217b58..bc2a948 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_float_rope_soft.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_float_rope_soft.glb.meta
+@@ -4,7 +4,58 @@
+   "imported": true,
+   "uuid": "9dde3c40-c60e-5179-afc5-74eb56a7b49f",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "31384": {
++      "importer": "gltf-mesh",
++      "uuid": "9dde3c40-c60e-5179-afc5-74eb56a7b49f@31384",
++      "displayName": "",
++      "id": "31384",
++      "name": "LK_float_rope_soft.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 576
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "3c6d0": {
++      "importer": "gltf-material",
++      "uuid": "9dde3c40-c60e-5179-afc5-74eb56a7b49f@3c6d0",
++      "displayName": "",
++      "id": "3c6d0",
++      "name": "M_prev_rope.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "180ff": {
++      "importer": "gltf-scene",
++      "uuid": "9dde3c40-c60e-5179-afc5-74eb56a7b49f@180ff",
++      "displayName": "",
++      "id": "180ff",
++      "name": "LK_float_rope_soft.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+     "imageMetas": [],
+@@ -31,6 +82,19 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "9dde3c40-c60e-5179-afc5-74eb56a7b49f@31384"
++      ],
++      "skeletons": [],
++      "textures": [],
++      "materials": [
++        "9dde3c40-c60e-5179-afc5-74eb56a7b49f@3c6d0"
++      ],
++      "scenes": [
++        "9dde3c40-c60e-5179-afc5-74eb56a7b49f@180ff"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_flower_clump.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_flower_clump.glb.meta
+index 6a4e5e2..a0d2653 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_flower_clump.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_flower_clump.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "2af21b73-23d0-5305-908c-d39f9e28ee1e",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "d27dd": {
++      "importer": "gltf-mesh",
++      "uuid": "2af21b73-23d0-5305-908c-d39f9e28ee1e@d27dd",
++      "displayName": "",
++      "id": "d27dd",
++      "name": "LK_flower_clump.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 104
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "2af21b73-23d0-5305-908c-d39f9e28ee1e@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "2af21b73-23d0-5305-908c-d39f9e28ee1e@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "b2cd1": {
++      "importer": "gltf-scene",
++      "uuid": "2af21b73-23d0-5305-908c-d39f9e28ee1e@b2cd1",
++      "displayName": "",
++      "id": "b2cd1",
++      "name": "LK_flower_clump.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "2af21b73-23d0-5305-908c-d39f9e28ee1e@d27dd"
++      ],
++      "skeletons": [],
++      "textures": [
++        "2af21b73-23d0-5305-908c-d39f9e28ee1e@e39f7"
++      ],
++      "materials": [
++        "2af21b73-23d0-5305-908c-d39f9e28ee1e@a448d"
++      ],
++      "scenes": [
++        "2af21b73-23d0-5305-908c-d39f9e28ee1e@b2cd1"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_flowerpot.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_flowerpot.glb.meta
+index 7de7f17..4f5e115 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_flowerpot.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_flowerpot.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "595ec052-5f1d-5077-9bd7-ed34f86f4ac6",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "d5587": {
++      "importer": "gltf-mesh",
++      "uuid": "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@d5587",
++      "displayName": "",
++      "id": "d5587",
++      "name": "LK_flowerpot.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 76
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "25ff9": {
++      "importer": "gltf-scene",
++      "uuid": "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@25ff9",
++      "displayName": "",
++      "id": "25ff9",
++      "name": "LK_flowerpot.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@d5587"
++      ],
++      "skeletons": [],
++      "textures": [
++        "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@e39f7"
++      ],
++      "materials": [
++        "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@a448d"
++      ],
++      "scenes": [
++        "595ec052-5f1d-5077-9bd7-ed34f86f4ac6@25ff9"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_grass_tuft.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_grass_tuft.glb.meta
+index 3a72063..f83e33e 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_grass_tuft.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_grass_tuft.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "6b9a6": {
++      "importer": "gltf-mesh",
++      "uuid": "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@6b9a6",
++      "displayName": "",
++      "id": "6b9a6",
++      "name": "LK_grass_tuft.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 9
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "cc0a2": {
++      "importer": "gltf-scene",
++      "uuid": "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@cc0a2",
++      "displayName": "",
++      "id": "cc0a2",
++      "name": "LK_grass_tuft.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@6b9a6"
++      ],
++      "skeletons": [],
++      "textures": [
++        "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@e39f7"
++      ],
++      "materials": [
++        "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@a448d"
++      ],
++      "scenes": [
++        "9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@cc0a2"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_house_A.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_house_A.glb.meta
+index ea950bc..cfb9dcd 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_house_A.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_house_A.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "b4dca0ad-fce8-5cef-9e52-00e796743acc",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "dbb42": {
++      "importer": "gltf-mesh",
++      "uuid": "b4dca0ad-fce8-5cef-9e52-00e796743acc@dbb42",
++      "displayName": "",
++      "id": "dbb42",
++      "name": "LK_house_A.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 928
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "b4dca0ad-fce8-5cef-9e52-00e796743acc@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "b4dca0ad-fce8-5cef-9e52-00e796743acc@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "9b720": {
++      "importer": "gltf-scene",
++      "uuid": "b4dca0ad-fce8-5cef-9e52-00e796743acc@9b720",
++      "displayName": "",
++      "id": "9b720",
++      "name": "LK_house_A.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "b4dca0ad-fce8-5cef-9e52-00e796743acc@dbb42"
++      ],
++      "skeletons": [],
++      "textures": [
++        "b4dca0ad-fce8-5cef-9e52-00e796743acc@e39f7"
++      ],
++      "materials": [
++        "b4dca0ad-fce8-5cef-9e52-00e796743acc@a448d"
++      ],
++      "scenes": [
++        "b4dca0ad-fce8-5cef-9e52-00e796743acc@9b720"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_house_B.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_house_B.glb.meta
+index 49c4cfb..d311b8e 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_house_B.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_house_B.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "5ef9b86d-7c39-5030-8447-d91e521176a2",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "f38e2": {
++      "importer": "gltf-mesh",
++      "uuid": "5ef9b86d-7c39-5030-8447-d91e521176a2@f38e2",
++      "displayName": "",
++      "id": "f38e2",
++      "name": "LK_house_B.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 928
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "5ef9b86d-7c39-5030-8447-d91e521176a2@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "5ef9b86d-7c39-5030-8447-d91e521176a2@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "2ae8c": {
++      "importer": "gltf-scene",
++      "uuid": "5ef9b86d-7c39-5030-8447-d91e521176a2@2ae8c",
++      "displayName": "",
++      "id": "2ae8c",
++      "name": "LK_house_B.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "5ef9b86d-7c39-5030-8447-d91e521176a2@f38e2"
++      ],
++      "skeletons": [],
++      "textures": [
++        "5ef9b86d-7c39-5030-8447-d91e521176a2@e39f7"
++      ],
++      "materials": [
++        "5ef9b86d-7c39-5030-8447-d91e521176a2@a448d"
++      ],
++      "scenes": [
++        "5ef9b86d-7c39-5030-8447-d91e521176a2@2ae8c"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_house_C.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_house_C.glb.meta
+index 8726607..fa21200 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_house_C.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_house_C.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "d76b166c-2051-5058-8ff7-dd2d79f89c09",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "bc66e": {
++      "importer": "gltf-mesh",
++      "uuid": "d76b166c-2051-5058-8ff7-dd2d79f89c09@bc66e",
++      "displayName": "",
++      "id": "bc66e",
++      "name": "LK_house_C.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 984
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "d76b166c-2051-5058-8ff7-dd2d79f89c09@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "d76b166c-2051-5058-8ff7-dd2d79f89c09@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "3d808": {
++      "importer": "gltf-scene",
++      "uuid": "d76b166c-2051-5058-8ff7-dd2d79f89c09@3d808",
++      "displayName": "",
++      "id": "3d808",
++      "name": "LK_house_C.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "d76b166c-2051-5058-8ff7-dd2d79f89c09@bc66e"
++      ],
++      "skeletons": [],
++      "textures": [
++        "d76b166c-2051-5058-8ff7-dd2d79f89c09@e39f7"
++      ],
++      "materials": [
++        "d76b166c-2051-5058-8ff7-dd2d79f89c09@a448d"
++      ],
++      "scenes": [
++        "d76b166c-2051-5058-8ff7-dd2d79f89c09@3d808"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_lake.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_lake.glb.meta
+index 2a14fc2..8fd37e6 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_lake.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_lake.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "65ccdee0-d0c1-5e4f-a385-adb532fd3f86",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "45577": {
++      "importer": "gltf-mesh",
++      "uuid": "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@45577",
++      "displayName": "",
++      "id": "45577",
++      "name": "LK_lake.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 512
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "590f0": {
++      "importer": "gltf-scene",
++      "uuid": "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@590f0",
++      "displayName": "",
++      "id": "590f0",
++      "name": "LK_lake.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@45577"
++      ],
++      "skeletons": [],
++      "textures": [
++        "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@e39f7"
++      ],
++      "materials": [
++        "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@a448d"
++      ],
++      "scenes": [
++        "65ccdee0-d0c1-5e4f-a385-adb532fd3f86@590f0"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern.glb.meta
+index 68dc43c..c148417 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "c64adaa1-df65-5539-a333-87452c993e50",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "dd574": {
++      "importer": "gltf-mesh",
++      "uuid": "c64adaa1-df65-5539-a333-87452c993e50@dd574",
++      "displayName": "",
++      "id": "dd574",
++      "name": "LK_lantern.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 60
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "c64adaa1-df65-5539-a333-87452c993e50@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "c64adaa1-df65-5539-a333-87452c993e50@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "33b59": {
++      "importer": "gltf-scene",
++      "uuid": "c64adaa1-df65-5539-a333-87452c993e50@33b59",
++      "displayName": "",
++      "id": "33b59",
++      "name": "LK_lantern.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "c64adaa1-df65-5539-a333-87452c993e50@dd574"
++      ],
++      "skeletons": [],
++      "textures": [
++        "c64adaa1-df65-5539-a333-87452c993e50@e39f7"
++      ],
++      "materials": [
++        "c64adaa1-df65-5539-a333-87452c993e50@a448d"
++      ],
++      "scenes": [
++        "c64adaa1-df65-5539-a333-87452c993e50@33b59"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern_boat.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern_boat.glb.meta
+index f8708db..6f1406e 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern_boat.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_lantern_boat.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "71216830-d5b0-57ff-b7a7-1346a5b59fbf",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "5ae85": {
++      "importer": "gltf-mesh",
++      "uuid": "71216830-d5b0-57ff-b7a7-1346a5b59fbf@5ae85",
++      "displayName": "",
++      "id": "5ae85",
++      "name": "LK_lantern_boat.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 68
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "71216830-d5b0-57ff-b7a7-1346a5b59fbf@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "71216830-d5b0-57ff-b7a7-1346a5b59fbf@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "3a90d": {
++      "importer": "gltf-scene",
++      "uuid": "71216830-d5b0-57ff-b7a7-1346a5b59fbf@3a90d",
++      "displayName": "",
++      "id": "3a90d",
++      "name": "LK_lantern_boat.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "71216830-d5b0-57ff-b7a7-1346a5b59fbf@5ae85"
++      ],
++      "skeletons": [],
++      "textures": [
++        "71216830-d5b0-57ff-b7a7-1346a5b59fbf@e39f7"
++      ],
++      "materials": [
++        "71216830-d5b0-57ff-b7a7-1346a5b59fbf@a448d"
++      ],
++      "scenes": [
++        "71216830-d5b0-57ff-b7a7-1346a5b59fbf@3a90d"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_lilypad.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_lilypad.glb.meta
+index 31b7977..711bce1 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_lilypad.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_lilypad.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "0c54012f-34c8-5ce5-b3b6-3119420a26c8",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "90410": {
++      "importer": "gltf-scene",
++      "uuid": "0c54012f-34c8-5ce5-b3b6-3119420a26c8@90410",
++      "displayName": "",
++      "id": "90410",
++      "name": "LK_lilypad.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "b3abd": {
++      "importer": "gltf-mesh",
++      "uuid": "0c54012f-34c8-5ce5-b3b6-3119420a26c8@b3abd",
++      "displayName": "",
++      "id": "b3abd",
++      "name": "LK_lilypad.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 30
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "0c54012f-34c8-5ce5-b3b6-3119420a26c8@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "0c54012f-34c8-5ce5-b3b6-3119420a26c8@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "0c54012f-34c8-5ce5-b3b6-3119420a26c8@b3abd"
++      ],
++      "skeletons": [],
++      "textures": [
++        "0c54012f-34c8-5ce5-b3b6-3119420a26c8@e39f7"
++      ],
++      "materials": [
++        "0c54012f-34c8-5ce5-b3b6-3119420a26c8@a448d"
++      ],
++      "scenes": [
++        "0c54012f-34c8-5ce5-b3b6-3119420a26c8@90410"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_lotus.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_lotus.glb.meta
+index 5ab8018..11c5b2f 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_lotus.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_lotus.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "6d6a20e4-7ab2-58bd-8dde-33834d370b6a",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "134a4": {
++      "importer": "gltf-mesh",
++      "uuid": "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@134a4",
++      "displayName": "",
++      "id": "134a4",
++      "name": "LK_lotus.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 52
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "9c56c": {
++      "importer": "gltf-scene",
++      "uuid": "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@9c56c",
++      "displayName": "",
++      "id": "9c56c",
++      "name": "LK_lotus.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@134a4"
++      ],
++      "skeletons": [],
++      "textures": [
++        "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@e39f7"
++      ],
++      "materials": [
++        "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@a448d"
++      ],
++      "scenes": [
++        "6d6a20e4-7ab2-58bd-8dde-33834d370b6a@9c56c"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_paper_boat.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_paper_boat.glb.meta
+index 9511917..7211512 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_paper_boat.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_paper_boat.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "c572af1b-2bc3-5bf9-861c-36872cfd364c",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "004eb": {
++      "importer": "gltf-mesh",
++      "uuid": "c572af1b-2bc3-5bf9-861c-36872cfd364c@004eb",
++      "displayName": "",
++      "id": "004eb",
++      "name": "LK_paper_boat.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 16
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "c572af1b-2bc3-5bf9-861c-36872cfd364c@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "c572af1b-2bc3-5bf9-861c-36872cfd364c@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "58b79": {
++      "importer": "gltf-scene",
++      "uuid": "c572af1b-2bc3-5bf9-861c-36872cfd364c@58b79",
++      "displayName": "",
++      "id": "58b79",
++      "name": "LK_paper_boat.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "c572af1b-2bc3-5bf9-861c-36872cfd364c@004eb"
++      ],
++      "skeletons": [],
++      "textures": [
++        "c572af1b-2bc3-5bf9-861c-36872cfd364c@e39f7"
++      ],
++      "materials": [
++        "c572af1b-2bc3-5bf9-861c-36872cfd364c@a448d"
++      ],
++      "scenes": [
++        "c572af1b-2bc3-5bf9-861c-36872cfd364c@58b79"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_pavilion.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_pavilion.glb.meta
+index 086fbc0..9afca0c 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_pavilion.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_pavilion.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "843dba45-f48d-5762-a19b-e41182fbbd33",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "73ffa": {
++      "importer": "gltf-mesh",
++      "uuid": "843dba45-f48d-5762-a19b-e41182fbbd33@73ffa",
++      "displayName": "",
++      "id": "73ffa",
++      "name": "LK_pavilion.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 486
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "843dba45-f48d-5762-a19b-e41182fbbd33@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "843dba45-f48d-5762-a19b-e41182fbbd33@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "26c12": {
++      "importer": "gltf-scene",
++      "uuid": "843dba45-f48d-5762-a19b-e41182fbbd33@26c12",
++      "displayName": "",
++      "id": "26c12",
++      "name": "LK_pavilion.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "843dba45-f48d-5762-a19b-e41182fbbd33@73ffa"
++      ],
++      "skeletons": [],
++      "textures": [
++        "843dba45-f48d-5762-a19b-e41182fbbd33@e39f7"
++      ],
++      "materials": [
++        "843dba45-f48d-5762-a19b-e41182fbbd33@a448d"
++      ],
++      "scenes": [
++        "843dba45-f48d-5762-a19b-e41182fbbd33@26c12"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bell_pad.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bell_pad.glb.meta
+index ae3acce..07645e8 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bell_pad.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bell_pad.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "a57b7262-182a-5143-b135-4cd686a3386a",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "43132": {
++      "importer": "gltf-scene",
++      "uuid": "a57b7262-182a-5143-b135-4cd686a3386a@43132",
++      "displayName": "",
++      "id": "43132",
++      "name": "LK_piece_bell_pad.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "9f339": {
++      "importer": "gltf-mesh",
++      "uuid": "a57b7262-182a-5143-b135-4cd686a3386a@9f339",
++      "displayName": "",
++      "id": "9f339",
++      "name": "LK_piece_bell_pad.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 96
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "a57b7262-182a-5143-b135-4cd686a3386a@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "a57b7262-182a-5143-b135-4cd686a3386a@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "a57b7262-182a-5143-b135-4cd686a3386a@9f339"
++      ],
++      "skeletons": [],
++      "textures": [
++        "a57b7262-182a-5143-b135-4cd686a3386a@e39f7"
++      ],
++      "materials": [
++        "a57b7262-182a-5143-b135-4cd686a3386a@a448d"
++      ],
++      "scenes": [
++        "a57b7262-182a-5143-b135-4cd686a3386a@43132"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bobber.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bobber.glb.meta
+index b8d0213..a5d8e62 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bobber.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bobber.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "28f50aa7-006f-57d4-82b7-aa9d410f455a",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "ca32a": {
++      "importer": "gltf-mesh",
++      "uuid": "28f50aa7-006f-57d4-82b7-aa9d410f455a@ca32a",
++      "displayName": "",
++      "id": "ca32a",
++      "name": "LK_piece_bobber.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 132
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "28f50aa7-006f-57d4-82b7-aa9d410f455a@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "28f50aa7-006f-57d4-82b7-aa9d410f455a@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "f72e8": {
++      "importer": "gltf-scene",
++      "uuid": "28f50aa7-006f-57d4-82b7-aa9d410f455a@f72e8",
++      "displayName": "",
++      "id": "f72e8",
++      "name": "LK_piece_bobber.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "28f50aa7-006f-57d4-82b7-aa9d410f455a@ca32a"
++      ],
++      "skeletons": [],
++      "textures": [
++        "28f50aa7-006f-57d4-82b7-aa9d410f455a@e39f7"
++      ],
++      "materials": [
++        "28f50aa7-006f-57d4-82b7-aa9d410f455a@a448d"
++      ],
++      "scenes": [
++        "28f50aa7-006f-57d4-82b7-aa9d410f455a@f72e8"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lake_light.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lake_light.glb.meta
+index 40b8674..a09f2ab 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lake_light.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lake_light.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "5e6e6fce-7698-5524-8839-47328f2d6ea5",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "ba25d": {
++      "importer": "gltf-mesh",
++      "uuid": "5e6e6fce-7698-5524-8839-47328f2d6ea5@ba25d",
++      "displayName": "",
++      "id": "ba25d",
++      "name": "LK_piece_lake_light.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 68
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "5e6e6fce-7698-5524-8839-47328f2d6ea5@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "5e6e6fce-7698-5524-8839-47328f2d6ea5@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "2e2b3": {
++      "importer": "gltf-scene",
++      "uuid": "5e6e6fce-7698-5524-8839-47328f2d6ea5@2e2b3",
++      "displayName": "",
++      "id": "2e2b3",
++      "name": "LK_piece_lake_light.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "5e6e6fce-7698-5524-8839-47328f2d6ea5@ba25d"
++      ],
++      "skeletons": [],
++      "textures": [
++        "5e6e6fce-7698-5524-8839-47328f2d6ea5@e39f7"
++      ],
++      "materials": [
++        "5e6e6fce-7698-5524-8839-47328f2d6ea5@a448d"
++      ],
++      "scenes": [
++        "5e6e6fce-7698-5524-8839-47328f2d6ea5@2e2b3"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lotus_lamp.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lotus_lamp.glb.meta
+index 2c21f1f..3452147 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lotus_lamp.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lotus_lamp.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "98055214-3c22-5fca-9f14-914e30037393",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "35121": {
++      "importer": "gltf-scene",
++      "uuid": "98055214-3c22-5fca-9f14-914e30037393@35121",
++      "displayName": "",
++      "id": "35121",
++      "name": "LK_piece_lotus_lamp.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "76787": {
++      "importer": "gltf-mesh",
++      "uuid": "98055214-3c22-5fca-9f14-914e30037393@76787",
++      "displayName": "",
++      "id": "76787",
++      "name": "LK_piece_lotus_lamp.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 144
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "98055214-3c22-5fca-9f14-914e30037393@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "98055214-3c22-5fca-9f14-914e30037393@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "98055214-3c22-5fca-9f14-914e30037393@76787"
++      ],
++      "skeletons": [],
++      "textures": [
++        "98055214-3c22-5fca-9f14-914e30037393@e39f7"
++      ],
++      "materials": [
++        "98055214-3c22-5fca-9f14-914e30037393@a448d"
++      ],
++      "scenes": [
++        "98055214-3c22-5fca-9f14-914e30037393@35121"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_paper_boat.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_paper_boat.glb.meta
+index 3eb286f..34dd36d 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_paper_boat.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_paper_boat.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "ae75f199-8730-5a97-89d8-8b285fceacf6",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "a5c24": {
++      "importer": "gltf-mesh",
++      "uuid": "ae75f199-8730-5a97-89d8-8b285fceacf6@a5c24",
++      "displayName": "",
++      "id": "a5c24",
++      "name": "LK_piece_paper_boat.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 37
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "ae75f199-8730-5a97-89d8-8b285fceacf6@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "ae75f199-8730-5a97-89d8-8b285fceacf6@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "480e2": {
++      "importer": "gltf-scene",
++      "uuid": "ae75f199-8730-5a97-89d8-8b285fceacf6@480e2",
++      "displayName": "",
++      "id": "480e2",
++      "name": "LK_piece_paper_boat.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "ae75f199-8730-5a97-89d8-8b285fceacf6@a5c24"
++      ],
++      "skeletons": [],
++      "textures": [
++        "ae75f199-8730-5a97-89d8-8b285fceacf6@e39f7"
++      ],
++      "materials": [
++        "ae75f199-8730-5a97-89d8-8b285fceacf6@a448d"
++      ],
++      "scenes": [
++        "ae75f199-8730-5a97-89d8-8b285fceacf6@480e2"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_shell.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_shell.glb.meta
+index 4dcd632..4c29d44 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_shell.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_piece_shell.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "a7c2c666-5240-5e81-b3c0-72fa01a489fb",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "82bb0": {
++      "importer": "gltf-mesh",
++      "uuid": "a7c2c666-5240-5e81-b3c0-72fa01a489fb@82bb0",
++      "displayName": "",
++      "id": "82bb0",
++      "name": "LK_piece_shell.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 104
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "a7c2c666-5240-5e81-b3c0-72fa01a489fb@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "a7c2c666-5240-5e81-b3c0-72fa01a489fb@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "2f02d": {
++      "importer": "gltf-scene",
++      "uuid": "a7c2c666-5240-5e81-b3c0-72fa01a489fb@2f02d",
++      "displayName": "",
++      "id": "2f02d",
++      "name": "LK_piece_shell.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "a7c2c666-5240-5e81-b3c0-72fa01a489fb@82bb0"
++      ],
++      "skeletons": [],
++      "textures": [
++        "a7c2c666-5240-5e81-b3c0-72fa01a489fb@e39f7"
++      ],
++      "materials": [
++        "a7c2c666-5240-5e81-b3c0-72fa01a489fb@a448d"
++      ],
++      "scenes": [
++        "a7c2c666-5240-5e81-b3c0-72fa01a489fb@2f02d"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_porch_steps.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_porch_steps.glb.meta
+index 532645d..974d3dc 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_porch_steps.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_porch_steps.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "0a38d7ac-bde3-5369-b4a7-9204734228fa",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "9cbf2": {
++      "importer": "gltf-mesh",
++      "uuid": "0a38d7ac-bde3-5369-b4a7-9204734228fa@9cbf2",
++      "displayName": "",
++      "id": "9cbf2",
++      "name": "LK_porch_steps.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 60
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "0a38d7ac-bde3-5369-b4a7-9204734228fa@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "0a38d7ac-bde3-5369-b4a7-9204734228fa@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "004ca": {
++      "importer": "gltf-scene",
++      "uuid": "0a38d7ac-bde3-5369-b4a7-9204734228fa@004ca",
++      "displayName": "",
++      "id": "004ca",
++      "name": "LK_porch_steps.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "0a38d7ac-bde3-5369-b4a7-9204734228fa@9cbf2"
++      ],
++      "skeletons": [],
++      "textures": [
++        "0a38d7ac-bde3-5369-b4a7-9204734228fa@e39f7"
++      ],
++      "materials": [
++        "0a38d7ac-bde3-5369-b4a7-9204734228fa@a448d"
++      ],
++      "scenes": [
++        "0a38d7ac-bde3-5369-b4a7-9204734228fa@004ca"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_reed_card.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_reed_card.glb.meta
+index cc4e2f1..ce0c37b 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_reed_card.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_reed_card.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "626408f6-a1cc-56c7-81f2-981cb790b71c",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "0eabd": {
++      "importer": "gltf-mesh",
++      "uuid": "626408f6-a1cc-56c7-81f2-981cb790b71c@0eabd",
++      "displayName": "",
++      "id": "0eabd",
++      "name": "LK_reed_card.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 2
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "626408f6-a1cc-56c7-81f2-981cb790b71c@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "626408f6-a1cc-56c7-81f2-981cb790b71c@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "9af69": {
++      "importer": "gltf-scene",
++      "uuid": "626408f6-a1cc-56c7-81f2-981cb790b71c@9af69",
++      "displayName": "",
++      "id": "9af69",
++      "name": "LK_reed_card.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "626408f6-a1cc-56c7-81f2-981cb790b71c@0eabd"
++      ],
++      "skeletons": [],
++      "textures": [
++        "626408f6-a1cc-56c7-81f2-981cb790b71c@e39f7"
++      ],
++      "materials": [
++        "626408f6-a1cc-56c7-81f2-981cb790b71c@a448d"
++      ],
++      "scenes": [
++        "626408f6-a1cc-56c7-81f2-981cb790b71c@9af69"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_ripple_ring.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_ripple_ring.glb.meta
+index e4fcdd0..40b6ee5 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_ripple_ring.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_ripple_ring.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "79735": {
++      "importer": "gltf-mesh",
++      "uuid": "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@79735",
++      "displayName": "",
++      "id": "79735",
++      "name": "LK_ripple_ring.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 28
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "f9846": {
++      "importer": "gltf-scene",
++      "uuid": "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@f9846",
++      "displayName": "",
++      "id": "f9846",
++      "name": "LK_ripple_ring.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@79735"
++      ],
++      "skeletons": [],
++      "textures": [
++        "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@e39f7"
++      ],
++      "materials": [
++        "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@a448d"
++      ],
++      "scenes": [
++        "bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@f9846"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_rock.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_rock.glb.meta
+index 179a5fd..7aa594a 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_rock.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_rock.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "4ff64f6f-87f2-5a4c-9e07-26d7814068b1",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "23bdc": {
++      "importer": "gltf-mesh",
++      "uuid": "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@23bdc",
++      "displayName": "",
++      "id": "23bdc",
++      "name": "LK_rock.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 40
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "396ec": {
++      "importer": "gltf-scene",
++      "uuid": "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@396ec",
++      "displayName": "",
++      "id": "396ec",
++      "name": "LK_rock.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@23bdc"
++      ],
++      "skeletons": [],
++      "textures": [
++        "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@e39f7"
++      ],
++      "materials": [
++        "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@a448d"
++      ],
++      "scenes": [
++        "4ff64f6f-87f2-5a4c-9e07-26d7814068b1@396ec"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_rope_float.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_rope_float.glb.meta
+index e05ef66..b613166 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_rope_float.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_rope_float.glb.meta
+@@ -4,7 +4,58 @@
+   "imported": true,
+   "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "25334": {
++      "importer": "gltf-material",
++      "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2@25334",
++      "displayName": "",
++      "id": "25334",
++      "name": "M_prev_float.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "b842e": {
++      "importer": "gltf-mesh",
++      "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2@b842e",
++      "displayName": "",
++      "id": "b842e",
++      "name": "LK_rope_float.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 24
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "cc84f": {
++      "importer": "gltf-scene",
++      "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2@cc84f",
++      "displayName": "",
++      "id": "cc84f",
++      "name": "LK_rope_float.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+     "imageMetas": [],
+@@ -31,6 +82,19 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "cc5048f6-6129-51a6-96cc-bc9779fe12f2@b842e"
++      ],
++      "skeletons": [],
++      "textures": [],
++      "materials": [
++        "cc5048f6-6129-51a6-96cc-bc9779fe12f2@25334"
++      ],
++      "scenes": [
++        "cc5048f6-6129-51a6-96cc-bc9779fe12f2@cc84f"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_shore_foam.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_shore_foam.glb.meta
+index af982fc..e141aed 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_shore_foam.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_shore_foam.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "f9aa9e88-8afa-5033-a1d6-361dde00772c",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "edeb6": {
++      "importer": "gltf-mesh",
++      "uuid": "f9aa9e88-8afa-5033-a1d6-361dde00772c@edeb6",
++      "displayName": "",
++      "id": "edeb6",
++      "name": "LK_shore_foam.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 288
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "f9aa9e88-8afa-5033-a1d6-361dde00772c@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "f9aa9e88-8afa-5033-a1d6-361dde00772c@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "6ebe1": {
++      "importer": "gltf-scene",
++      "uuid": "f9aa9e88-8afa-5033-a1d6-361dde00772c@6ebe1",
++      "displayName": "",
++      "id": "6ebe1",
++      "name": "LK_shore_foam.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "f9aa9e88-8afa-5033-a1d6-361dde00772c@edeb6"
++      ],
++      "skeletons": [],
++      "textures": [
++        "f9aa9e88-8afa-5033-a1d6-361dde00772c@e39f7"
++      ],
++      "materials": [
++        "f9aa9e88-8afa-5033-a1d6-361dde00772c@a448d"
++      ],
++      "scenes": [
++        "f9aa9e88-8afa-5033-a1d6-361dde00772c@6ebe1"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta
+index ba75752..0cc1adc 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "4898a": {
++      "importer": "gltf-mesh",
++      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@4898a",
++      "displayName": "",
++      "id": "4898a",
++      "name": "LK_signpost.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 60
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "5949d": {
++      "importer": "gltf-scene",
++      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@5949d",
++      "displayName": "",
++      "id": "5949d",
++      "name": "LK_signpost.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@4898a"
++      ],
++      "skeletons": [],
++      "textures": [
++        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@e39f7"
++      ],
++      "materials": [
++        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@a448d"
++      ],
++      "scenes": [
++        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@5949d"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_crown.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_crown.glb.meta
+index 8b0054a..8e0888c 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_crown.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_crown.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "8584243a-61da-50d5-b2e5-d8f73488f8b2",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "01068": {
++      "importer": "gltf-mesh",
++      "uuid": "8584243a-61da-50d5-b2e5-d8f73488f8b2@01068",
++      "displayName": "",
++      "id": "01068",
++      "name": "LK_splash_crown.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 60
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "8584243a-61da-50d5-b2e5-d8f73488f8b2@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "8584243a-61da-50d5-b2e5-d8f73488f8b2@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e7985": {
++      "importer": "gltf-scene",
++      "uuid": "8584243a-61da-50d5-b2e5-d8f73488f8b2@e7985",
++      "displayName": "",
++      "id": "e7985",
++      "name": "LK_splash_crown.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "8584243a-61da-50d5-b2e5-d8f73488f8b2@01068"
++      ],
++      "skeletons": [],
++      "textures": [
++        "8584243a-61da-50d5-b2e5-d8f73488f8b2@e39f7"
++      ],
++      "materials": [
++        "8584243a-61da-50d5-b2e5-d8f73488f8b2@a448d"
++      ],
++      "scenes": [
++        "8584243a-61da-50d5-b2e5-d8f73488f8b2@e7985"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_drop.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_drop.glb.meta
+index 99b6144..2ec54bf 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_drop.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_splash_drop.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "ca646": {
++      "importer": "gltf-mesh",
++      "uuid": "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@ca646",
++      "displayName": "",
++      "id": "ca646",
++      "name": "LK_splash_drop.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 20
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "ee536": {
++      "importer": "gltf-scene",
++      "uuid": "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@ee536",
++      "displayName": "",
++      "id": "ee536",
++      "name": "LK_splash_drop.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@ca646"
++      ],
++      "skeletons": [],
++      "textures": [
++        "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@e39f7"
++      ],
++      "materials": [
++        "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@a448d"
++      ],
++      "scenes": [
++        "ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@ee536"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb.meta
+index b6832e4..5fe72df 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "c658d": {
++      "importer": "gltf-mesh",
++      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@c658d",
++      "displayName": "",
++      "id": "c658d",
++      "name": "LK_terrain.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 1380
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "4f8ac": {
++      "importer": "gltf-scene",
++      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@4f8ac",
++      "displayName": "",
++      "id": "4f8ac",
++      "name": "LK_terrain.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@c658d"
++      ],
++      "skeletons": [],
++      "textures": [
++        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@e39f7"
++      ],
++      "materials": [
++        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@a448d"
++      ],
++      "scenes": [
++        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@4f8ac"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_conifer.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_conifer.glb.meta
+index 31767d6..69e92b6 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_conifer.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_conifer.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "7ea3ab81-37bd-5c96-997c-1b385970871d",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "71828": {
++      "importer": "gltf-scene",
++      "uuid": "7ea3ab81-37bd-5c96-997c-1b385970871d@71828",
++      "displayName": "",
++      "id": "71828",
++      "name": "LK_tree_conifer.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "6fdc5": {
++      "importer": "gltf-mesh",
++      "uuid": "7ea3ab81-37bd-5c96-997c-1b385970871d@6fdc5",
++      "displayName": "",
++      "id": "6fdc5",
++      "name": "LK_tree_conifer.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 58
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "7ea3ab81-37bd-5c96-997c-1b385970871d@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "7ea3ab81-37bd-5c96-997c-1b385970871d@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "7ea3ab81-37bd-5c96-997c-1b385970871d@6fdc5"
++      ],
++      "skeletons": [],
++      "textures": [
++        "7ea3ab81-37bd-5c96-997c-1b385970871d@e39f7"
++      ],
++      "materials": [
++        "7ea3ab81-37bd-5c96-997c-1b385970871d@a448d"
++      ],
++      "scenes": [
++        "7ea3ab81-37bd-5c96-997c-1b385970871d@71828"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_round.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_round.glb.meta
+index 9425ea0..b14b79b 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_round.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_tree_round.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "f75059db-8524-5fac-a297-9c1525a6a438",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "7b008": {
++      "importer": "gltf-mesh",
++      "uuid": "f75059db-8524-5fac-a297-9c1525a6a438@7b008",
++      "displayName": "",
++      "id": "7b008",
++      "name": "LK_tree_round.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 172
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "f75059db-8524-5fac-a297-9c1525a6a438@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "f75059db-8524-5fac-a297-9c1525a6a438@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "c16ea": {
++      "importer": "gltf-scene",
++      "uuid": "f75059db-8524-5fac-a297-9c1525a6a438@c16ea",
++      "displayName": "",
++      "id": "c16ea",
++      "name": "LK_tree_round.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "f75059db-8524-5fac-a297-9c1525a6a438@7b008"
++      ],
++      "skeletons": [],
++      "textures": [
++        "f75059db-8524-5fac-a297-9c1525a6a438@e39f7"
++      ],
++      "materials": [
++        "f75059db-8524-5fac-a297-9c1525a6a438@a448d"
++      ],
++      "scenes": [
++        "f75059db-8524-5fac-a297-9c1525a6a438@c16ea"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_wb_line.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_wb_line.glb.meta
+index c8142e7..96c53ae 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_wb_line.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_wb_line.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "c7975370-bde6-57a5-9d25-bd490a30a5a2",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "11762": {
++      "importer": "gltf-mesh",
++      "uuid": "c7975370-bde6-57a5-9d25-bd490a30a5a2@11762",
++      "displayName": "",
++      "id": "11762",
++      "name": "LK_wb_line.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 2
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "c7975370-bde6-57a5-9d25-bd490a30a5a2@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "c7975370-bde6-57a5-9d25-bd490a30a5a2@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "17ce3": {
++      "importer": "gltf-scene",
++      "uuid": "c7975370-bde6-57a5-9d25-bd490a30a5a2@17ce3",
++      "displayName": "",
++      "id": "17ce3",
++      "name": "LK_wb_line.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "c7975370-bde6-57a5-9d25-bd490a30a5a2@11762"
++      ],
++      "skeletons": [],
++      "textures": [
++        "c7975370-bde6-57a5-9d25-bd490a30a5a2@e39f7"
++      ],
++      "materials": [
++        "c7975370-bde6-57a5-9d25-bd490a30a5a2@a448d"
++      ],
++      "scenes": [
++        "c7975370-bde6-57a5-9d25-bd490a30a5a2@17ce3"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_windchime.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_windchime.glb.meta
+index 1f0dcf7..ebccb73 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_windchime.glb.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/LK_windchime.glb.meta
+@@ -4,10 +4,89 @@
+   "imported": true,
+   "uuid": "f03e7c77-66cb-53b7-9b63-b437bb5f3db5",
+   "files": [],
+-  "subMetas": {},
++  "subMetas": {
++    "d37ac": {
++      "importer": "gltf-mesh",
++      "uuid": "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@d37ac",
++      "displayName": "",
++      "id": "d37ac",
++      "name": "LK_windchime.mesh",
++      "userData": {
++        "gltfIndex": 0,
++        "triangleCount": 126
++      },
++      "ver": "1.1.1",
++      "imported": true,
++      "files": [
++        ".bin",
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "e39f7": {
++      "importer": "texture",
++      "uuid": "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@e39f7",
++      "displayName": "",
++      "id": "e39f7",
++      "name": "UnnamedTexture.texture",
++      "userData": {
++        "wrapModeS": "repeat",
++        "wrapModeT": "repeat",
++        "minfilter": "nearest",
++        "magfilter": "nearest",
++        "mipfilter": "nearest",
++        "anisotropy": 0,
++        "isUuid": false,
++        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "a448d": {
++      "importer": "gltf-material",
++      "uuid": "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@a448d",
++      "displayName": "",
++      "id": "a448d",
++      "name": "M_LK_palette.material",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "18cc7": {
++      "importer": "gltf-scene",
++      "uuid": "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@18cc7",
++      "displayName": "",
++      "id": "18cc7",
++      "name": "LK_windchime.prefab",
++      "userData": {
++        "gltfIndex": 0
++      },
++      "ver": "1.0.14",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
+   "userData": {
+     "tangents": 1,
+-    "imageMetas": [],
++    "imageMetas": [
++      {
++        "name": "T_LK_palette_256",
++        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
++      }
++    ],
+     "lods": {
+       "enable": false,
+       "hasBuiltinLOD": false,
+@@ -31,6 +110,21 @@
+       "compress": true,
+       "quantize": true,
+       "encode": true
++    },
++    "assetFinder": {
++      "meshes": [
++        "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@d37ac"
++      ],
++      "skeletons": [],
++      "textures": [
++        "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@e39f7"
++      ],
++      "materials": [
++        "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@a448d"
++      ],
++      "scenes": [
++        "f03e7c77-66cb-53b7-9b63-b437bb5f3db5@18cc7"
++      ]
+     }
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta b/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta
+index 7fbfbb3..05c1941 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta
+@@ -36,7 +36,7 @@
+   "userData": {
+     "type": "texture",
+     "fixAlphaTransparencyArtifacts": false,
+-    "hasAlpha": true,
++    "hasAlpha": false,
+     "redirect": "2d786f80-a6ed-5df2-8bf0-7de41c757b8a@6c48a"
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta b/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta
+index a31f908..f0a4279 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta
+@@ -36,7 +36,7 @@
+   "userData": {
+     "type": "texture",
+     "fixAlphaTransparencyArtifacts": false,
+-    "hasAlpha": true,
++    "hasAlpha": false,
+     "redirect": "ee274b5d-13cc-5dcb-ba5f-38b730992c93@6c48a"
+   }
+ }
+-- 
+2.47.3
+

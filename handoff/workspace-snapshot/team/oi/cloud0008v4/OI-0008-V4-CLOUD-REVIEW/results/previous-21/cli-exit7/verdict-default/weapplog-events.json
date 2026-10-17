@@ -1,0 +1,28 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 990,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T01:32:57.030Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T01:32:58.037Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/logs/WeappLog/review.log",
+      "size": 597
+    },
+    {
+      "t": "2026-10-10T01:32:58.645Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/logs/WeappLog/review.log",
+      "bytes": 990,
+      "ok": true
+    }
+  ]
+}

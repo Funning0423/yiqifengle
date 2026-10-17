@@ -1,0 +1,30 @@
+v2g attribution evidence (2026-10-09 ~18:15 CT). midsurface tri pairs unless noted.
+
+1) 4-weight vs ORIGINAL pass2b weights, same animation, same frames (scripts/make_origw.py; full table compare_4w_vs_origw_v2g.txt)
+   stand legL x dress  4w max 813 / origw 781      legR x dress 804 / 792
+   stand legL x apron  291 / 291                   legR x apron 288 / 288
+   stand apron x dress 586 / 519 (sum 18122 / 8894)   thin_sheet dress 2676 / 2515   layer_cross 47 / 45
+   torso x apron (stand f82-90, turn f0-45, open_safe_end)  4 / 4, 6.29 mm in both  -> present at REST pose -> model (rest torso x apron)
+   torso x dress f0-85  18 / 18
+   => the 4-weight limit is NOT the main cause of the stand legs x garment items (it does drive half of apron x dress).
+
+2) Legs x garment component test, scripts/diag_legs_garment.py (4w, midsurface)
+   frame | as animated   | legs = pass2b SIT FK | skirt released (bones rest, morph 0) | skirt full sit (bones SIT, morph 1)
+   f0    | L506 R264 / apron 0  | L78 R0       | L120 R136 / apron 86 88  | = animated
+   f20   | L336 R36             | L78 R0       | L124 R136 / 86 88        | = animated
+   f40   | L424 R409 / 213 230  | L384 R344 / 100 114 | L136 R148 / 92 98 | L499 R483 / 230 236
+   f60   | L257 R265 / 137 137  | L164 R189 / 94 100  | L118 R136 / 84 86 | L1157 R600 / 0 13
+   f0-20: with pass2b's own leg pose the sit skirt is clean except L78 (the 4-weight effect). Our legs differ because the real seat needs the root
+          54.9 mm higher than pass2b's design (true tri-intersection fit), so the feet only reach the real floor with the thighs sloping down.
+          The sit_corrective morph is sculpted for pass2b's horizontal thighs on the box chair -> model side (sit_corrective for the real chair, pass2c #2).
+   f23-75 (rise): no skirt state (sit, released, or the current blend) is clean against the rising legs -> needs a sit_corrective / skirt rig that
+          supports the rise (model side). Skirt bones/morph timing is skirt tuning, forbidden on the v1 base (17:02).
+
+3) Backrest: REAL backrest mesh vs col_int_chair_back proxy (scripts/diag_backrest.py, check_v2g.json)
+   real mesh tri-tri: 0 pairs on every frame, for body, dress, apron and hair. Seated clearance 5.87 mm (fit target 5 mm); f32 16.8 mm, f45 24.4 mm.
+   proxy (box 113 x 495 x 512 mm, thicker than the real backrest):
+     f0-15  377 verts inside (head/hat 353, hips 24), 20.8 mm
+     f32    63 verts (hips = bow knot / bow tails), 45.2 mm
+     body without the bow tails: 32.5 mm, f30
+   Clearing the proxy would mean sitting more than 30 mm forward of the real backrest, which contradicts Oi item 3 (real contacts).
+   -> the proxy is conservative; reported only, not a real intersection.

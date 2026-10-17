@@ -1,0 +1,82 @@
+00:00.114  system.path      | WARNING Could not get a list of mounted file-systems
+KNOTS G2_DRESS_R5G2 72 fixed frames [0, 1, 2, 3, 4, 5, 86, 87, 88, 89, 90]
+KNOTS G2_APRON_R5G2 72 fixed frames [0, 1, 2, 3, 4, 5, 86, 87, 88, 89, 90]
+GAIN G2_DRESS_R5G2 0.026 0.199
+GAIN G2_APRON_R5G2 0.026 0.199
+building body trees
+trees 3.6
+apron baseline verts 587 outer(+) 587 rest gap p5/p50 [ 4.04865541 11.78375352]
+dress-under-apron baseline verts 2093
+ACCEL orig {'DRESS': np.float64(94.79), 'APRON': np.float64(71.22)} plain-smoothed lam 0.05 {'DRESS': np.float64(9.69), 'APRON': np.float64(10.0)}
+orig layer flips >5mm (left as artefact): 5  0.5-5mm (fixed): 97
+artefact refs (orig < -0.5 mm) dress-body/chair apron-body/chair: [10616, 0, 289, 0]
+candidates dress/apron mean 5171.879120879121 577.8681318681319
+EYE <Vector (-0.8000, 4.8000, 1.6500)> eye fixed across poses: False
+ORIG overlaps excluded {'sd': 4, 'sa': 44, 'ad': 0, 'db': 66, 'ab': 0, 'dc': 0, 'ac': 0}
+STAGE ('dress',) it 0 maxviol_mm 34.312 cons {'DRESS': 6128, 'APRON': 0} worst {'dress_x_body': (34.312, 75, (1233, 34.31)), 'dress_x_chair': (13.221, 45, (4013, 13.22))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.2 s
+  qp 0.2 s
+STAGE ('dress',) it 1 maxviol_mm 7.908 cons {'DRESS': 6556, 'APRON': 0} worst {'dress_x_chair': (6.685, 35, (5098, 6.68)), 'dress_x_body': (7.908, 50, (4466, 7.91))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.2 s
+  qp 0.3 s
+STAGE ('dress',) it 2 maxviol_mm 1.998 cons {'DRESS': 6660, 'APRON': 0} worst {'dress_x_chair': (1.998, 12, (882, 2.0)), 'dress_x_body': (1.276, 85, (1105, 1.28))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.2 s
+  qp 0.3 s
+STAGE ('dress',) it 3 maxviol_mm 1.976 cons {'DRESS': 6725, 'APRON': 0} worst {'dress_x_body': (1.225, 28, (2231, 1.23)), 'dress_x_chair': (1.976, 7, (3231, 1.98))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.1 s
+  qp 0.3 s
+STAGE ('dress',) it 4 maxviol_mm 1.951 cons {'DRESS': 6763, 'APRON': 0} worst {'dress_x_chair': (1.951, 12, (3778, 1.95)), 'dress_x_body': (1.365, 37, (2865, 1.36))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.0 s
+  qp 0.3 s
+STAGE ('dress',) it 5 maxviol_mm 1.893 cons {'DRESS': 6789, 'APRON': 0} worst {'dress_x_chair': (1.893, 6, (3168, 1.89)), 'dress_x_body': (1.386, 76, (2623, 1.39))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.0 s
+  qp 0.3 s
+STAGE ('dress',) it 6 maxviol_mm 1.966 cons {'DRESS': 6808, 'APRON': 0} worst {'dress_x_chair': (1.966, 22, (1915, 1.97)), 'dress_x_body': (1.384, 33, (2193, 1.38))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.1 s
+  qp 0.4 s
+STAGE ('dress',) it 7 maxviol_mm 1.89 cons {'DRESS': 6821, 'APRON': 0} worst {'dress_x_chair': (1.89, 6, (3903, 1.89)), 'dress_x_body': (1.302, 73, (58, 1.3))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.1 s
+  qp 0.3 s
+STAGE ('dress',) it 8 maxviol_mm 1.674 cons {'DRESS': 6829, 'APRON': 0} worst {'dress_x_chair': (1.674, 21, (4038, 1.67)), 'dress_x_body': (1.31, 29, (3634, 1.31))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.3 s
+  qp 0.3 s
+STAGE ('dress',) it 9 maxviol_mm 1.678 cons {'DRESS': 6833, 'APRON': 0} worst {'dress_x_chair': (1.678, 20, (4023, 1.68)), 'dress_x_body': (1.371, 28, (3637, 1.37))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.3 s
+  qp 0.3 s
+STAGE ('dress',) it 10 maxviol_mm 1.688 cons {'DRESS': 6835, 'APRON': 0} worst {'dress_x_chair': (1.688, 19, (3998, 1.69)), 'dress_x_body': (1.114, 30, (19, 1.11))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.4 s
+  qp 0.3 s
+STAGE ('dress',) it 11 maxviol_mm 1.735 cons {'DRESS': 6837, 'APRON': 0} worst {'dress_x_chair': (1.735, 18, (3980, 1.73)), 'dress_x_body': (1.395, 29, (19, 1.39))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.3 s
+  qp 0.3 s
+STAGE ('dress',) it 12 maxviol_mm 1.774 cons {'DRESS': 6838, 'APRON': 0} worst {'dress_x_chair': (1.774, 17, (3971, 1.77))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.4 s
+  qp 0.3 s
+STAGE ('dress',) it 13 maxviol_mm 1.814 cons {'DRESS': 6839, 'APRON': 0} worst {'dress_x_chair': (1.814, 16, (3963, 1.81))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.1 s
+  qp 0.3 s
+STAGE ('dress',) it 14 maxviol_mm 1.762 cons {'DRESS': 6840, 'APRON': 0} worst {'dress_x_chair': (1.762, 15, (3955, 1.76))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.1 s
+  qp 0.3 s
+STAGE ('dress',) it 15 maxviol_mm 1.609 cons {'DRESS': 6841, 'APRON': 0} worst {'dress_x_chair': (1.609, 14, (3942, 1.61))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.4 s
+  qp 0.3 s
+STAGE ('dress',) it 16 maxviol_mm 1.399 cons {'DRESS': 6842, 'APRON': 0} worst {'dress_x_chair': (1.399, 13, (3932, 1.4))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.1 s
+  qp 0.3 s
+STAGE ('dress',) it 17 maxviol_mm 1.273 cons {'DRESS': 6843, 'APRON': 0} worst {'dress_x_chair': (1.273, 12, (3928, 1.27))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.1 s
+  qp 0.3 s
+STAGE ('dress',) it 18 maxviol_mm 1.535 cons {'DRESS': 6844, 'APRON': 0} worst {'dress_x_chair': (1.535, 11, (3924, 1.53))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.2 s
+  qp 0.3 s
+STAGE ('dress',) it 19 maxviol_mm 0.65 cons {'DRESS': 6845, 'APRON': 0} worst {'dress_x_chair': (0.65, 10, (3923, 0.65))} accel {'DRESS': 9.69, 'APRON': 10.0} 3.2 s
+  qp 0.3 s
+STAGE ('apron',) it 0 maxviol_mm 31.151 cons {'DRESS': 6845, 'APRON': 3895} worst {'apron_x_chair': (1.806, 7, (369, 1.81)), 'apron_x_dress': (np.float64(15.414), 56, (119, -13.01)), 'apron_over_dress': (np.float64(31.151), 15, None), 'apron_x_body': (8.483, 39, (327, 8.48))} accel {'DRESS': 9.69, 'APRON': 10.0} 2.3 s
+  qp 0.3 s
+STAGE ('apron',) it 1 maxviol_mm 31.237 cons {'DRESS': 6845, 'APRON': 7209} worst {'apron_x_dress': (np.float64(27.341), 48, (44, -24.94)), 'apron_over_dress': (np.float64(30.52), 10, None), 'apron_x_body': (31.237, 42, (288, 31.24))} accel {'DRESS': 9.69, 'APRON': 59.47} 2.3 s
+  qp 0.6 s
+STAGE ('apron',) it 2 maxviol_mm 41.545 cons {'DRESS': 6845, 'APRON': 12525} worst {'apron_x_dress': (np.float64(30.641), 49, (16, -28.24)), 'apron_over_dress': (np.float64(29.927), 38, None), 'apron_x_body': (41.545, 40, (2, 41.54))} accel {'DRESS': 9.69, 'APRON': 99.61} 2.2 s
+  qp 1.8 s
+STAGE ('apron',) it 3 maxviol_mm 48.156 cons {'DRESS': 6845, 'APRON': 19276} worst {'apron_x_dress': (np.float64(31.031), 52, (46, -28.63)), 'apron_over_dress': (np.float64(31.116), 54, None), 'apron_x_body': (48.156, 40, (42, 48.16))} accel {'DRESS': 9.69, 'APRON': 105.06} 2.4 s
+  qp 5.3 s
+STAGE ('apron',) it 4 maxviol_mm 44.33 cons {'DRESS': 6845, 'APRON': 26466} worst {'apron_x_dress': (np.float64(31.222), 31, (10, -28.82)), 'apron_over_dress': (np.float64(30.878), 15, None), 'apron_x_body': (44.33, 40, (42, 44.33))} accel {'DRESS': 9.69, 'APRON': 116.36} 2.3 s
+  qp 9.5 s
+STAGE ('apron',) it 5 maxviol_mm 52.074 cons {'DRESS': 6845, 'APRON': 33173} worst {'apron_x_dress': (np.float64(31.611), 11, (495, -29.21)), 'apron_over_dress': (np.float64(31.151), 15, None), 'apron_x_body': (52.074, 39, (12, 52.07))} accel {'DRESS': 9.69, 'APRON': 123.53} 2.4 s
+  qp 14.5 s
+STAGE ('apron',) it 6 maxviol_mm 45.717 cons {'DRESS': 6845, 'APRON': 37815} worst {'apron_x_dress': (np.float64(31.548), 50, (73, -29.15)), 'apron_over_dress': (np.float64(29.24), 60, None), 'apron_x_body': (45.717, 43, (17, 45.72)), 'apron_x_chair': (0.392, 34, (323, 0.39))} accel {'DRESS': 9.69, 'APRON': 128.78} 2.3 s
+  qp 17.7 s
+STAGE ('apron',) it 7 maxviol_mm 39.766 cons {'DRESS': 6845, 'APRON': 42914} worst {'apron_x_dress': (np.float64(31.529), 77, (80, -29.13)), 'apron_over_dress': (np.float64(28.99), 55, None), 'apron_x_body': (39.766, 23, (19, 39.77)), 'apron_x_chair': (0.062, 31, (350, 0.06))} accel {'DRESS': 9.69, 'APRON': 135.31} 2.3 s
+  qp 22.5 s
+STAGE ('apron',) it 8 maxviol_mm 36.769 cons {'DRESS': 6845, 'APRON': 46963} worst {'apron_x_dress': (np.float64(32.211), 19, (522, -29.81)), 'apron_over_dress': (np.float64(27.498), 9, None), 'apron_x_body': (36.769, 39, (3, 36.77))} accel {'DRESS': 9.69, 'APRON': 140.46} 2.3 s
+  qp 25.6 s
+STAGE ('apron',) it 9 maxviol_mm 43.07 cons {'DRESS': 6845, 'APRON': 50759} worst {'apron_x_dress': (np.float64(31.93), 67, (153, -29.53)), 'apron_over_dress': (np.float64(30.136), 45, None), 'apron_x_body': (43.07, 36, (14, 43.07)), 'apron_x_chair': (0.895, 33, (348, 0.89))} accel {'DRESS': 9.69, 'APRON': 133.03} 2.2 s
+  qp 28.0 s
+STAGE ('apron',) it 10 maxviol_mm 45.284 cons {'DRESS': 6845, 'APRON': 53581} worst {'apron_x_dress': (np.float64(30.467), 23, (24, -28.07)), 'apron_over_dress': (np.float64(31.151), 15, None), 'apron_x_body': (45.284, 38, (15, 45.28))} accel {'DRESS': 9.69, 'APRON': 130.46} 2.2 s
+  qp 29.7 s
+STAGE ('apron',) it 11 maxviol_mm 42.46 cons {'DRESS': 6845, 'APRON': 56024} worst {'apron_x_dress': (np.float64(31.549), 10, (495, -29.15)), 'apron_over_dress': (np.float64(31.151), 15, None), 'apron_x_body': (42.46, 40, (15, 42.46))} accel {'DRESS': 9.69, 'APRON': 184.4} 2.2 s
+  qp 30.9 s
+STAGE ('apron',) it 12 maxviol_mm 31.537 cons {'DRESS': 6845, 'APRON': 58453} worst {'apron_x_dress': (np.float64(31.537), 10, (495, -29.14)), 'apron_over_dress': (np.float64(31.151), 15, None), 'apron_x_body': (27.729, 24, (21, 27.73))} accel {'DRESS': 9.69, 'APRON': 148.44} 2.4 s
+  qp 34.1 s
+STAGE ('apron',) it 13 maxviol_mm 38.522 cons {'DRESS': 6845, 'APRON': 60658} worst {'apron_x_dress': (np.float64(31.849), 23, (494, -29.45)), 'apron_over_dress': (np.float64(31.151), 15, None), 'apron_x_body': (38.522, 33, (503, 38.52))} accel {'DRESS': 9.69, 'APRON': 147.82} 2.3 s

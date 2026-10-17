@@ -1,0 +1,55 @@
+00:00.128  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.566  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-clipfix/pipe/scene/cine_m1_anim.blend"
+00:00.865  system.path      | WARNING Could not get a list of mounted file-systems
+00:05.702  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f037_lap_game_r24.png'
+00:09.748  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f037_lap_game_portrait45.png'
+00:13.133  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f037_lap_closeFront.png'
+00:16.531  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f037_lap_closeRight.png'
+00:19.767  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f037_lap_closeFront_marker.png'
+CU v3_pass2c_src 37 lap
+00:23.590  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f076_lap_game_r24.png'
+00:27.075  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f076_lap_game_portrait45.png'
+00:29.505  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f076_lap_closeFront.png'
+00:32.149  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f076_lap_closeRight.png'
+00:34.956  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f076_lap_closeFront_marker.png'
+CU v3_pass2c_src 76 lap
+00:38.420  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f077_lap_game_r24.png'
+00:41.638  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f077_lap_game_portrait45.png'
+00:44.113  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f077_lap_closeFront.png'
+00:47.104  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f077_lap_closeRight.png'
+00:49.367  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f077_lap_closeFront_marker.png'
+CU v3_pass2c_src 77 lap
+00:53.387  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f078_lap_game_r24.png'
+00:56.445  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f078_lap_game_portrait45.png'
+00:59.087  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f078_lap_closeFront.png'
+01:01.989  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f078_lap_closeRight.png'
+01:04.390  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f078_lap_closeFront_marker.png'
+CU v3_pass2c_src 78 lap
+01:07.948  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f079_lap_game_r24.png'
+01:11.316  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f079_lap_game_portrait45.png'
+01:13.792  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f079_lap_closeFront.png'
+01:16.816  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f079_lap_closeRight.png'
+01:19.563  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f079_lap_closeFront_marker.png'
+CU v3_pass2c_src 79 lap
+01:23.128  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f080_lap_game_r24.png'
+01:26.320  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f080_lap_game_portrait45.png'
+01:28.859  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f080_lap_closeFront.png'
+01:31.983  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f080_lap_closeRight.png'
+01:34.562  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f080_lap_closeFront_marker.png'
+CU v3_pass2c_src 80 lap
+01:38.100  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f081_lap_game_r24.png'
+01:41.385  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f081_lap_game_portrait45.png'
+01:44.205  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f081_lap_closeFront.png'
+01:47.315  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f081_lap_closeRight.png'
+01:49.935  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f081_lap_closeFront_marker.png'
+CU v3_pass2c_src 81 lap
+01:54.001  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f082_lap_game_r24.png'
+01:57.661  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f082_lap_game_portrait45.png'
+02:00.572  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f082_lap_closeFront.png'
+02:03.410  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f082_lap_closeRight.png'
+02:05.633  render           | Saved: 'evidence/stills_v3/v3_pass2c_src_f082_lap_closeFront_marker.png'
+CU v3_pass2c_src 82 lap
+CUDONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

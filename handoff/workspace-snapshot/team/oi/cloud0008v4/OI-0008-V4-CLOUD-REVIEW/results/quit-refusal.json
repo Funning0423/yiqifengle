@@ -1,0 +1,12 @@
+{
+  "status": "BLOCKED",
+  "exit": 2,
+  "reason": "QF_DEVTOOLS_QUIT_FIRST was removed in v3 (cloud review: no global quit); unset it — the audit only closes its own copies",
+  "cliWasInvoked": false,
+  "manifest": {
+    "ok": true,
+    "mismatched": [],
+    "unlisted": [],
+    "files": 3
+  }
+}

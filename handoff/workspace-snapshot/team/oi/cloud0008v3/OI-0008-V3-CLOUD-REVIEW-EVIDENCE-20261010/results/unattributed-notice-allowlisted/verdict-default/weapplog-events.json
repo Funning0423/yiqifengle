@@ -1,0 +1,21 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/unattributed-notice-allowlisted/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1309,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T00:06:53.845Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T00:06:54.856Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/unattributed-notice-allowlisted/logs/WeappLog/review.log",
+      "size": 852
+    }
+  ]
+}

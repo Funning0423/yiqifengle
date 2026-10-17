@@ -1,0 +1,13 @@
+2026-10-10T01:33:16.836Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] e087acfaeddb159c
+2026-10-10T01:33:16.836Z automator.error	[QF-AUDIT-CANARY-LATE] e087acfaeddb159c
+2026-10-10T01:33:16.335Z shim.errors	[QF-AUDIT-CANARY] e087acfaeddb159c
+2026-10-10T01:33:16.836Z shim.errors	[QF-AUDIT-CANARY-LATE] e087acfaeddb159c
+2026-10-10T01:33:16.335Z shim.logs	[QF-AUDIT-HEARTBEAT] e087acfaeddb159c
+2026-10-10T01:33:16.335Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:33:16.836Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] e087acfaeddb159c
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T013315195Z-a908-c6c1cb-default [log] [QF-AUDIT-HEARTBEAT] e087acfaeddb159c
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T013315195Z-a908-c6c1cb-default [error] [QF-AUDIT-CANARY] e087acfaeddb159c
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T013315195Z-a908-c6c1cb-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T013315195Z-a908-c6c1cb-default [QF-AUDIT-CANARY] e087acfaeddb159c TypeError: real failure on same line
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T013315195Z-a908-c6c1cb-default [log] [QF-AUDIT-HEARTBEAT-LATE] e087acfaeddb159c
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T013315195Z-a908-c6c1cb-default [error] [QF-AUDIT-CANARY-LATE] e087acfaeddb159c

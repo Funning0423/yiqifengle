@@ -1,0 +1,32 @@
+From 655ecd532a8e2f5255b3785a7a9be5bdfa8dc640 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 15:04:32 +0800
+Subject: [PATCH 15/20] =?UTF-8?q?integration=20build05-next:=20test-lakesi?=
+ =?UTF-8?q?de-journey-wire=20pitch=20guard=20follows=20=E8=BF=90=E9=95=9Cb?=
+ =?UTF-8?q?ot=20b0c21d2=20(portrait=20board.pitchDeg=20removed;=20landscap?=
+ =?UTF-8?q?e=2075=20kept;=20adapter=20sets=20no=20pitch)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+(cherry picked from commit dc67b490b2ba673812a94ffcb17aa606ae68bb60)
+---
+ tools/journey-integration/test-lakeside-journey-wire.cjs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/journey-integration/test-lakeside-journey-wire.cjs b/tools/journey-integration/test-lakeside-journey-wire.cjs
+index 090ae19..f330957 100644
+--- a/tools/journey-integration/test-lakeside-journey-wire.cjs
++++ b/tools/journey-integration/test-lakeside-journey-wire.cjs
+@@ -51,7 +51,7 @@ t('landing→board hook call site',()=>{
+  const i=comp.indexOf('lakesideLandingToBoard({'),e=comp.indexOf('ensureRegion(region)'),l=comp.indexOf("enterLevel(selection.stageId)");assert(e>0&&e<i&&i<l,'between arrival and enterLevel');
+  const p=Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});assert(p&&typeof p.then==='function');
+  assert.match(src('region/LakesideLandingHook.ts'),/TODO\(运镜bot\)/);});
+-t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,64);});
++t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{/* build05-next: 运镜bot b0c21d2 dropped the portrait board.pitchDeg (pitch 58 void; portrait is solved from the landing pose). The wiring still must not override the layout: landscape stays 75, and the adapter only reads lakesideJourney. */assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,undefined);assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.landscape.pitchDeg,75);assert.doesNotMatch(src('region/RegionJourneyAdapter.ts'),/pitchDeg\s*[:=]/);});
+ (async()=>{
+  const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
+  await T('ensureRegion (real class method): island→lakeside one travel, lakeside→lakeside none, meadow→lakeside refused',async()=>{
+-- 
+2.47.3
+

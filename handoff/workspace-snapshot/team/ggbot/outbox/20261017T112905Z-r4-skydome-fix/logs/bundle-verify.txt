@@ -1,0 +1,6 @@
+/workspace/wechat-game/team/ggbot/outbox/20261017T112905Z-r4-skydome-fix/ggbot-build05-r4-journey-fixes-skydome.bundle is okay
+The bundle contains this ref:
+5bb9e0da057efde43879b7cd1e98adf8f09c7788 refs/heads/ggbot/build05-r4-journey-fixes
+The bundle requires this ref:
+939049ceb815434fbb65c4dfdc187d8266d08a24 
+The bundle uses this hash algorithm: sha1

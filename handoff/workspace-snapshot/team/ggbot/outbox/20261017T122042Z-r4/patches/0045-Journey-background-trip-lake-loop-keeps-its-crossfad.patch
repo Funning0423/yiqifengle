@@ -1,0 +1,118 @@
+From 02e7fd4147913032c84531a5f779338321d14f2f Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 19:34:39 +0800
+Subject: [PATCH 45/47] Journey background trip: lake loop keeps its crossfade
+ aligned across hide/return; test locks the cutscene audio resume
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Voice Bot: with the cutscene now resuming by itself on return (2c12565), its sound must come back where it was.
+On this line the island→lakeside journey has no cue / voice track and no cue timing.json (the only timeline track,
+audio_cine/sfx_exit_outbound, is the home exit's, with its own restart rule). Its sound is the bed: amb_lake_loop
+on the arrival stretch plus the GameAudio loops (wind / waves / BGM), which suspend('hidden') pauses and resumes.
+
+Fix (LakeAmbienceCore.step): when the lake read as not wanted while silent, a running loop crossfade stopped its
+partner (reset to 0). A background trip reads as not wanted (snapshot state 'paused'), so hiding inside the 0.2 s
+crossfade window restarted the partner at 0 against cur on return: a 50 ms misaligned crossfade. Both sources are
+now only paused (they already are by the silent branch) and the crossfade resumes aligned; the existing partner
+timeout still covers a partner that never plays again.
+
+Test journey-background-audio (in run-suite): hide at 2 s, 9.5 s, mid-crossfade (loopS+0.05, loopS+delay+0.08) and
+30 s, hidden 0.5-10 s, then the paused-visible frame and the auto-resumed arrival: lake loop paused not stopped
+(position kept), resumes from that position (offset <= 50 ms, measured 0), never two sources outside the crossfade,
+full level after the fade-in; muted/gated silent with no drift; still exactly 3 sfxMuted gates (none added);
+tripwire: a journey cue track or cue timing.json added later fails this test until it gets timeline-synced resume.
+---
+ .../assets/scripts/audio/LakeAmbienceCore.ts  |  4 +-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ .../test-journey-background-audio.cjs         | 50 +++++++++++++++++++
+ 3 files changed, 54 insertions(+), 1 deletion(-)
+ create mode 100644 tools/journey-integration/test-journey-background-audio.cjs
+
+diff --git a/creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts b/creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts
+index c4986a8..655ac8b 100644
+--- a/creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts
++++ b/creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts
+@@ -43,7 +43,9 @@ export class LakeAmbienceCore {
+     if (this.heard < 0.002) {
+       for (const s of [this.cur, this.next]) { try { s.volume = 0; if (s.playing) s.pause(); } catch { } }
+       if (this.wasPlaying) { this.wasPlaying = false; this.log('lake-pause', { wanted, canSound }); }
+-      if (!wanted && this.xfading) { try { this.next.stop(); } catch { } this.xfading = false; }
++      // Both loop sources are paused at aligned positions (same file, partner = cur − loopS). Keep the crossfade as it is:
++      // a background trip / auto-resumed journey (snapshot 'paused' reads as not wanted) resumes both exactly where they were.
++      // Stopping the partner here restarted it at 0 against cur, a misaligned crossfade after the return.
+       return;
+     }
+     if (!this.cur.playing) { try { this.cur.play(); } catch (e) { this.log('lake-play-failed', { err: String(e) }); } }
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 29d6df7..0b57207 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -12,6 +12,7 @@ const tests=[
+  ['journey-framing','tools/journey-integration/test-journey-framing.cjs'],
+  ['journey-start-continuity','tools/journey-integration/test-journey-start-continuity.cjs'],
+  ['journey-cutscene-ui','tools/journey-integration/test-journey-cutscene-ui.cjs'],
++ ['journey-background-audio','tools/journey-integration/test-journey-background-audio.cjs'],
+  ['composition-boundaries','tools/journey-integration/test-composition-boundaries.cjs'],
+  ['world-region-exit','tools/journey-integration/test-world-region-exit.cjs'],
+  ['region-levels','tools/region-levels/test-region-levels.cjs'],
+diff --git a/tools/journey-integration/test-journey-background-audio.cjs b/tools/journey-integration/test-journey-background-audio.cjs
+new file mode 100644
+index 0000000..07e180c
+--- /dev/null
++++ b/tools/journey-integration/test-journey-background-audio.cjs
+@@ -0,0 +1,50 @@
++'use strict';
++// Journey cutscene audio across a background trip, now that the cutscene resumes by itself on return (2c12565).
++// What the island→lakeside journey actually sounds on this line: no cue/voice track and no cue timing.json (the only
++// timeline track, audio_cine/sfx_exit_outbound, belongs to the home exit and has its own restart rule), so the sound
++// that must survive is the bed: amb_lake_loop on the arrival stretch (+ wind/waves/BGM loops in GameAudio, paused/resumed
++// by suspend('hidden')). This locks: the lake loop is PAUSED (position kept, never stopped) while hidden, resumes from
++// that position once the auto-resumed cutscene is back on the arrival stretch (offset 0 ms vs its pre-hide position),
++// never two sources at once outside the loop crossfade, at several hide points incl. mid-crossfade. Also a tripwire:
++// a journey cue track or cue timing.json added later must come with timeline-synced resume (this test then fails).
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const ROOT=path.resolve(__dirname,'../..'),S=ROOT+'/creator-build-project/assets/scripts/';
++const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness();
++const {LAKE_AMB,LakeAmbienceCore,lakeAmbienceWanted}=H.load(S+'audio/LakeAmbienceCore.ts');
++function src(name){return {name,volume:0,playing:false,currentTime:0,plays:0,stops:0,play(){this.playing=true;this.plays++;},pause(){this.playing=false;},stop(){this.playing=false;this.currentTime=0;this.stops++;}};}
++const DT=1/60;
++const run=(hideAtS,hiddenS)=>{
++ const a=src('a'),b=src('b'),core=new LakeAmbienceCore(a,b);core.ready=true;
++ let snap={state:'region-travel',hidden:false,needsResume:false,journey:{target:'lakeside',phase:'arrival'}},hidden=false;
++ const probe=()=>({state:snap.state,journeyTarget:snap.journey?.target,journeyPhase:snap.journey?.phase});
++ const frame=(canSound=!hidden)=>{core.step(DT,lakeAmbienceWanted(probe()),canSound,1);for(const s of [a,b])if(s.playing)s.currentTime+=DT;
++  const both=a.playing&&b.playing;if(both)assert(core.diagnostics().xfading,'two lake sources only inside the loop crossfade');};
++ for(let t=0;t<hideAtS;t+=DT)frame();
++ const pos=()=>[a,b].map(s=>+s.currentTime.toFixed(6)),before=pos(),playingBefore=[a.playing,b.playing],stopsBefore=a.stops+b.stops;
++ // wx.onHide: GameAudio.onHide -> quietAmbience('hide') -> core.quiet(); WorldFlow.hide(): state paused, needsResume.
++ core.quiet();hidden=true;snap={state:'paused',hidden:true,needsResume:true,journey:{target:'lakeside',phase:'paused'}};
++ for(let t=0;t<hiddenS;t+=DT)frame(false);
++ assert(!a.playing&&!b.playing,'silent while hidden');assert.deepEqual(pos(),before,'paused, not stopped: position kept while hidden');assert.equal(a.stops+b.stops,stopsBefore,'no stop() on hide');
++ // wx.onShow: shown but still paused for one frame, then the Boot auto-resumes the cutscene (journey-cutscene-ui locks that).
++ hidden=false;snap={state:'paused',hidden:false,needsResume:true,journey:{target:'lakeside',phase:'paused'}};frame();
++ snap={state:'region-travel',hidden:false,needsResume:false,journey:{target:'lakeside',phase:'arrival'}};
++ const resumed=[];let first=null;for(let t=0;t<2;t+=DT){const p0=pos();frame();if(first===null&&(a.playing||b.playing)){first=p0;}resumed.push(a.playing||b.playing);}
++ assert(resumed.some(Boolean),'lake loop sounds again after the return');
++ // Offset: the resumed source picks up exactly where it was paused (no restart from 0, no skip).
++ for(let i=0;i<2;i++)if(playingBefore[i])assert(Math.abs(first[i]-before[i])*1000<=50,'resume offset ≤ 50 ms: source '+i+' '+first[i]+' vs '+before[i]);
++ assert.equal(a.stops+b.stops,stopsBefore+(core.diagnostics().xfading?0:(playingBefore[0]&&playingBefore[1]?1:0)),'no restart: only the crossfade handover may stop a source');
++ for(let t=0;t<LAKE_AMB.fadeInS+.5;t+=DT)frame();assert(Math.abs(core.diagnostics().heard-LAKE_AMB.maxVol)<1e-6,'back to full level after the fade-in');
++ return {hideAtS,hiddenS,positionAtHide:before,positionOnResume:first,offsetMs:Math.max(...[0,1].filter(i=>playingBefore[i]).map(i=>Math.abs(first[i]-before[i])*1000))};
++};
++const cases=[run(2,5),run(9.5,1),run(LAKE_AMB.loopS+.05,3),run(LAKE_AMB.loopS+LAKE_AMB.encoderDelayS+.08,0.5),run(30,10)];
++// Muted / gated: no sound and no position drift while ambience cannot play (GameAudio.canPlayAmbience covers mute + background).
++{const a=src('a'),b=src('b'),c=new LakeAmbienceCore(a,b);c.ready=true;for(let i=0;i<120;i++){c.step(DT,true,true,1);if(a.playing)a.currentTime+=DT;}const p=a.currentTime;for(let i=0;i<120;i++)c.step(DT,true,false,1);assert.equal(a.playing,false);assert.equal(a.currentTime,p);}
++// SFX gates unchanged: exactly the 3 sfxMuted gates the suite expects (play, playCheer, exit cine); this commit adds none.
++const GA=fs.readFileSync(S+'audio/GameAudio.ts','utf8');assert.equal((GA.match(/this\.muted \|\| this\.sfxMuted \|\| this\.reasons\.size > 0/g)||[]).length,3,'3 sfxMuted gates');
++// Tripwire: no journey cue track / cue timing on this line. Add one -> give it timeline-synced pause/resume and update this test.
++const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);
++const assets=walk(ROOT+'/creator-build-project/assets');
++assert.deepEqual(assets.filter(f=>/timing\.json$/i.test(f)).map(f=>path.relative(ROOT,f)),[],'a cue timing.json is in the package: wire its timeline-synced resume');
++assert.deepEqual(assets.filter(f=>/audio_cine\/.*\.mp3$/.test(f)).map(f=>path.basename(f)),['sfx_exit_outbound.mp3'],'a new cutscene cue track: wire its timeline-synced resume');
++const scripts=assets.filter(f=>/\.ts$/.test(f)).map(f=>fs.readFileSync(f,'utf8')).join('\n');assert.deepEqual([...new Set(scripts.match(/audio_cine\/[\w]+/g)||[])],['audio_cine/sfx_exit_outbound']);
++console.log(JSON.stringify({status:'PASS',cases,checks:['lake loop paused (not stopped) while hidden, position kept','resumes from that position after the auto-resume (offset ≤ 50 ms; measured 0)','no double sources outside the crossfade, incl. hide mid-crossfade','full level after fade-in','muted/gated: silent, no drift','3 sfxMuted gates unchanged','tripwire: no journey cue track / timing.json on this line'],scope:'LakeAmbienceCore + fake AudioSource (Cocos 3.8 AudioSource.play resumes a paused clip); no device audio'},null,2));
+-- 
+2.47.3
+

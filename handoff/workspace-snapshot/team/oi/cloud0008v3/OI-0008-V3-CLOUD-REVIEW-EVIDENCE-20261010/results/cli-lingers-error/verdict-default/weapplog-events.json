@@ -1,0 +1,21 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-error/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1080,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T00:06:30.322Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T00:06:31.328Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-error/logs/WeappLog/review.log",
+      "size": 651
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+[TARGET ERROR AFTER TRUNCATE] [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面
+[CONTROL ERROR] [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面

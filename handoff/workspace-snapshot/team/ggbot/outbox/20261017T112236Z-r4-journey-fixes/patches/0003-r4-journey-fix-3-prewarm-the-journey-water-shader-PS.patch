@@ -1,0 +1,203 @@
+From 88b27053114706904ae02cd3399cb768a1f5179c Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 19:15:19 +0800
+Subject: [PATCH 3/4] r4 journey fix 3: prewarm the journey water shader/PSO
+ under the set-off black (no first-sight hitch)
+
+WebGL links the water program and Cocos builds the PSO on the first draw, which
+was whenever the lake first entered the walking camera's view. On the first
+show(true) (under the set-off fade's full black, right after prime() switched
+the fog, so the compiled variant is the one the lake uses), the journey now
+draws its own water copy once on a copy of the real lake mesh, shrunk to <=1 mm
+in front of the journey camera, for 2 rendered frames (3 s cap if no draw
+event), then removes it. Same mesh/material/shadow flags/layer as the lake.
+Once per journey, cancelled on release; never throws.
+LakesideJourneyWater.ts: lakesideWaterSourceRenderer, prewarmLakesideWaterDraw.
+Test: lakeside-journey-water-prewarm (node/mesh/material/slots/size, 2 frames
+then removed once, cancel, missing inputs, paused game cap, ordering: show(true)
+under black after prime, not from the walk, freed on release).
+lakeside-journey-atmosphere show() regex updated for the added call.
+---
+ .../scripts/region/LakesideJourneyWater.ts    | 30 +++++++++++
+ .../scripts/region/RegionJourneyAdapter.ts    | 15 +++---
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ .../test_lakeside_journey_atmosphere.cjs      |  2 +-
+ .../test_lakeside_journey_water_prewarm.cjs   | 50 +++++++++++++++++++
+ 5 files changed, 91 insertions(+), 8 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_journey_water_prewarm.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts b/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts
+index 75976f7..a91f1e7 100644
+--- a/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts
+@@ -1,3 +1,4 @@
++import {MeshRenderer,Node,director,isValid,type Camera,type Material} from 'cc';
+ import {LAKESIDE_BUNDLE,LAKESIDE_DIR_LIGHT_PARAMS} from './LakesideSceneData';
+ /** r4 journey fix 1: the island→lakeside journey's lake keeps the imported water look when its own lakeside-water.mtl copy cannot be
+  *  made (bundle or material load failed, timed out, or the copy threw). That fallback is no longer silent: one always-on
+@@ -7,3 +8,32 @@ export function logLakesideJourneyWaterFallback(error:unknown,asset:string=LAKES
+  let reason='unknown';try{reason=String((error as any)?.message??error);}catch{}
+  try{console.warn('[QF_LAKE] '+JSON.stringify({event:'journey-water-fallback',bundle,asset,reason,look:'imported water (pre-r4 look)'}));}catch{}
+  return reason;}
++/** r4 journey fix 3: the journey lake's water shader/pipeline state is built on its FIRST DRAW (WebGL links the program and the PSO is
++ *  made lazily), which used to be whenever the lake first entered the walking camera's view: a hitch mid-walk. The prewarm draws the
++ *  journey's own water copy once, on a copy of a real water mesh shrunk to <= 1 mm right in front of the journey camera, for `frames`
++ *  rendered frames, then removes it. It runs from show(true) right after the atmosphere prime(): under the set-off fade's full black
++ *  and after the fog switch, so the variant compiled is the one the lake (and the board's copy, same effect/defines) draws with.
++ *  Same mesh (vertex layout), same material, same shadow flags and layer as the lake renderer. Never throws; one node, gone after. */
++export const LAKESIDE_WATER_PREWARM=Object.freeze({frames:2,maxMs:3000,sizeM:1e-3,distanceM:.5});
++export type LakesideWaterPrewarm={done:Promise<boolean>;cancel():void;node():Node|null};
++/** First lakeside water renderer (with a mesh) under root's direct children, as mounted (isWater = isLakesideWaterNode). */
++export function lakesideWaterSourceRenderer(root:Node|null,isWater:(n:Node)=>boolean):MeshRenderer|null{
++ if(!root)return null;for(const child of root.children)if(isWater(child))for(const r of child.getComponentsInChildren(MeshRenderer))if(r&&r.mesh)return r;return null;}
++const afterDraw=()=>new Promise<void>(resolve=>{try{director.once('director_after_draw' as any,()=>resolve());}catch{resolve();}});
++export function prewarmLakesideWaterDraw(camera:Camera|null,water:Material|null,source:MeshRenderer|null,opt:{afterDraw?:()=>Promise<void>;maxMs?:number;frames?:number}={}):LakesideWaterPrewarm{
++ const C=LAKESIDE_WATER_PREWARM,frames=opt.frames??C.frames,maxMs=opt.maxMs??C.maxMs,wait=opt.afterDraw??afterDraw;
++ let node:Node|null=null,over=false;
++ const end=()=>{over=true;const n=node;node=null;if(n&&isValid(n,true))n.destroy();};
++ const skip=(why:string)=>{try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKE] '+JSON.stringify({event:'journey-water-prewarm-skipped',why}));}catch{}end();return {done:Promise.resolve(false),cancel(){},node:()=>null};};
++ if(!water)return skip('no-water-material');if(!source||!source.mesh)return skip('no-water-mesh');if(!camera||!isValid(camera,true)||!isValid(camera.node,true))return skip('no-camera');
++ try{
++  const n=new Node('LakesideWaterPrewarm');node=n;n.layer=source.node.layer;camera.node.addChild(n);
++  const st:any=(source.mesh as any).struct,lo=st?.minPosition,hi=st?.maxPosition,ext=lo&&hi?Math.max(hi.x-lo.x,hi.y-lo.y,hi.z-lo.z):NaN,k=Number.isFinite(ext)&&ext>0?C.sizeM/ext:1e-5;
++  n.setPosition(0,0,-Math.max(C.distanceM,(Number.isFinite(camera.near)?camera.near:0)*4));n.setScale(k,k,k);
++  const r=n.addComponent(MeshRenderer);r.shadowCastingMode=source.shadowCastingMode;r.receiveShadow=source.receiveShadow;r.mesh=source.mesh;
++  const slots=Math.max(1,source.sharedMaterials.length);for(let i=0;i<slots;i++)r.setSharedMaterial(water,i);
++ }catch(error){try{console.warn('[QF_LAKE] '+JSON.stringify({event:'journey-water-prewarm-failed',error:String((error as any)?.message??error)}));}catch{}end();return {done:Promise.resolve(false),cancel(){},node:()=>null};}
++ const t0=Date.now();
++ const done=(async()=>{let drawn=0;for(;drawn<frames&&!over;drawn++){let timer:any;const late=new Promise<void>(res=>{timer=setTimeout(res,maxMs);});try{await Promise.race([wait(),late]);}finally{clearTimeout(timer);}}
++  const ok=!over;end();try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKE] '+JSON.stringify({event:'journey-water-prewarm',ok,frames:drawn,ms:Date.now()-t0}));}catch{}return ok;})();
++ return {done,cancel:end,node:()=>node};}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 8326fc7..1e85cab 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -18,7 +18,7 @@ import {boardSafeInsets} from '../ui/BoardLayout';
+ import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+ import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
+-import {logLakesideJourneyWaterFallback} from './LakesideJourneyWater';
++import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
+ function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
+ function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
+ /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
+@@ -124,12 +124,12 @@ function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
+ export const LAKESIDE_BOARD_PRELOAD_W=.9;
+ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+  if(from!=='island')throw Error('journey-region-order');
+- const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
++ const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
+  let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+- const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
++ const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+  try{
+-  progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
++  progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);lakeModel=model;
+   await mountLakesideScenery(model,token,take);token.check();
+   // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
+   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
+@@ -138,13 +138,16 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
+   // r4 journey fix 1: and one always-on [QF_LAKE] journey-water-fallback warn with the reason + asset path (no throw, the walk goes on).
+   let waterAsset:Material|null=null;try{waterAsset=await loadLakesideWaterAsset(token,take);}catch(error){if(token.cancelled||dead)throw error;logLakesideJourneyWaterFallback(error);waterAsset=null;}token.check();
+   if(waterAsset){const water=lakesideWaterMaterial(waterAsset);owned.push(water);applyLakesideWaterMode(water,lakesideDayNightMode());useLakesideWater(model,water);
+-   offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});}
++   offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});journeyWater=water;}
+   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
+   const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
+   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
+   const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
+   rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
+-  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
++  // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
++  // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
++  const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
++  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
+   const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
+   return lease;
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 32680d3..19e1ef0 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -69,7 +69,7 @@ const tests=[
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-sky-follow','tools/lakeside/test_lakeside_sky_follow.cjs'],
+  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
+- ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],['lakeside-journey-water-fallback','tools/lakeside/test_lakeside_journey_water_fallback.cjs'],['lakeside-journey-sun','tools/lakeside/test_lakeside_journey_sun.cjs'],
++ ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],['lakeside-journey-water-fallback','tools/lakeside/test_lakeside_journey_water_fallback.cjs'],['lakeside-journey-sun','tools/lakeside/test_lakeside_journey_sun.cjs'],['lakeside-journey-water-prewarm','tools/lakeside/test_lakeside_journey_water_prewarm.cjs'],
+  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
+  ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+diff --git a/tools/lakeside/test_lakeside_journey_atmosphere.cjs b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+index ee4fc0e..2eaf9e4 100644
+--- a/tools/lakeside/test_lakeside_journey_atmosphere.cjs
++++ b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+@@ -42,7 +42,7 @@ const rd=f=>fs.readFileSync(path.join(S,f),'utf8'),core=rd('world-r1/RegionJourn
+ assert(/progress\?\(distance:number\):void;/.test(core));
+ assert((core.match(/this\.leaseProgress\(\);/g)||[]).length===2,'observe + stop');
+ assert(/private leaseProgress\(\)\{const l=this\.lease;if\(!l\?\.progress\)return;try\{l\.progress\(this\.distance\);\}catch\{\}\}/.test(core),'a lighting error never breaks the walk');
+-assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)atmosphere\.prime\(\);\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
++assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)\{atmosphere\.prime\(\);warmWater\(\);\}\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
+ assert(/const release=\(\)=>\{if\(dead\)return;dead=true;(offWater\(\);)?atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
+ assert(/landing:L\.landing,timing:L\.timing/.test(ad),'17 s S-curve walk from 运镜bot layout');
+ assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(lt)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(lt),'sun direction slerps to sunForward (r2: LakesideJourneyLighting.ts)');
+diff --git a/tools/lakeside/test_lakeside_journey_water_prewarm.cjs b/tools/lakeside/test_lakeside_journey_water_prewarm.cjs
+new file mode 100644
+index 0000000..c84b8c9
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_journey_water_prewarm.cjs
+@@ -0,0 +1,50 @@
++// r4 journey fix 3 (GGbot): the journey lake's water shader/PSO is built before the lake first comes into view. On the first show(true)
++// (under the set-off fade's full black, right after prime() switched the fog) the journey draws its own water copy once on a copy of a
++// real water mesh shrunk to <= 1 mm in front of the camera, for 2 rendered frames, then removes it. Real LakesideJourneyWater with a fake
++// cc; ordering locked in the adapter + RegionJourneyCore sources (show(true) under black, before the fade-in and the first walked frame).
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++class Node{constructor(name='',layer=1){this.name=name;this.layer=layer;this.children=[];this.parent=null;this.components=[];this.destroyed=0;this.pos=[0,0,0];this.scale=[1,1,1];}
++ addChild(c){c.parent=this;this.children.push(c);}setPosition(x,y,z){this.pos=[x,y,z];}setScale(x,y,z){this.scale=[x,y,z];}
++ addComponent(C){const c=new C();c.node=this;this.components.push(c);return c;}getComponentsInChildren(C){const out=[];const walk=n=>{for(const c of n.components)if(c instanceof C)out.push(c);n.children.forEach(walk);};walk(this);return out;}
++ destroy(){this.destroyed++;this.isValid=false;if(this.parent)this.parent.children=this.parent.children.filter(c=>c!==this);}}
++class MeshRenderer{constructor(){this.mesh=null;this.sharedMaterials=[];this.shadowCastingMode=0;this.receiveShadow=1;}setSharedMaterial(m,i){this.sharedMaterials[i]=m;}}
++let afterDrawHandlers=[];const director={once(ev,fn){assert.equal(ev,'director_after_draw');afterDrawHandlers.push(fn);}};
++const draw=async()=>{const h=afterDrawHandlers;afterDrawHandlers=[];h.forEach(f=>f());await new Promise(r=>setImmediate(r));};
++const cc={Node,MeshRenderer,director,isValid:o=>!!o&&o.isValid!==false};
++const cache=new Map();
++function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(file).exports;const m={exports:{}};cache.set(file,m);
++ const out=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:1,target:7}}).outputText;
++ const req=spec=>spec==='cc'?cc:spec==='cc/env'?{DEBUG:false}:load(path.resolve(path.dirname(file),spec)+'.ts');
++ vm.runInThisContext('(function(exports,require,module){'+out+'\n})')(m.exports,req,m);return m.exports;}
++const W=load(S+'region/LakesideJourneyWater.ts');
++function lake(){const model=new Node('LakesideJourneyScene'),tree=new Node('LK_tree_01'),w=new Node('LK_water_01',1<<30);w.water=true;model.addChild(tree);model.addChild(w);
++ const tr=tree.addComponent(MeshRenderer);tr.mesh={name:'tree'};const r=w.addComponent(MeshRenderer);r.mesh={name:'lake-mesh',struct:{minPosition:{x:-80,y:0,z:-120},maxPosition:{x:80,y:.2,z:120}}};r.sharedMaterials=[{n:'old0'},{n:'old1'}];r.shadowCastingMode=0;r.receiveShadow=1;
++ const camNode=new Node('JourneyCamera');return {model,r,camera:{node:camNode,near:.1}};}
++const water={name:'journey water copy'},isWater=n=>!!n.water;
++const tests=[];const t=(n,f)=>tests.push([n,f]);
++t('source = the lake renderer (water node, with a mesh), not other scenery',async()=>{const {model,r}=lake();assert.equal(W.lakesideWaterSourceRenderer(model,isWater),r);assert.equal(W.lakesideWaterSourceRenderer(null,isWater),null);});
++t('prewarm: one tiny node in front of the camera draws the water copy on the real lake mesh, kept for 2 drawn frames, then removed',async()=>{
++ const {model,r,camera}=lake();const p=W.prewarmLakesideWaterDraw(camera,water,W.lakesideWaterSourceRenderer(model,isWater));const n=p.node();
++ assert(n&&n.parent===camera.node,'child of the journey camera');assert.equal(n.layer,r.node.layer,'lake layer (camera sees it)');assert(n.pos[2]<0&&n.pos[0]===0&&n.pos[1]===0,'straight ahead');
++ const mr=n.components[0];assert.equal(mr.mesh,r.mesh,'same mesh = same vertex layout/PSO');assert.deepEqual(mr.sharedMaterials,[water,water],'water copy on every slot');assert.equal(mr.shadowCastingMode,r.shadowCastingMode);assert.equal(mr.receiveShadow,r.receiveShadow);
++ assert(240*n.scale[0]<=W.LAKESIDE_WATER_PREWARM.sizeM+1e-12,'<= 1 mm on screen side');
++ await draw();assert.equal(n.destroyed,0,'still there after 1 frame');await draw();const ok=await p.done;assert.equal(ok,true);assert.equal(n.destroyed,1);assert.equal(camera.node.children.length,0);assert.equal(p.node(),null);
++ p.cancel();assert.equal(n.destroyed,1,'removed exactly once');});
++t('cancel (journey disposed before the frames): removed once, done=false, later draws do nothing',async()=>{const {model,camera}=lake();const p=W.prewarmLakesideWaterDraw(camera,water,W.lakesideWaterSourceRenderer(model,isWater));const n=p.node();
++ p.cancel();assert.equal(n.destroyed,1);await draw();await draw();assert.equal(await p.done,false);assert.equal(n.destroyed,1);});
++t('no water copy / no mesh / no camera: nothing created, no throw',async()=>{const {model,camera}=lake();const src=W.lakesideWaterSourceRenderer(model,isWater);
++ for(const p of [W.prewarmLakesideWaterDraw(camera,null,src),W.prewarmLakesideWaterDraw(camera,water,null),W.prewarmLakesideWaterDraw(null,water,src)]){assert.equal(p.node(),null);assert.equal(await p.done,false);p.cancel();}assert.equal(camera.node.children.length,0);});
++t('paused game (no draw event): removed after maxMs anyway',async()=>{const {model,camera}=lake();const p=W.prewarmLakesideWaterDraw(camera,water,W.lakesideWaterSourceRenderer(model,isWater),{afterDraw:()=>new Promise(()=>{}),maxMs:5});const n=p.node();assert.equal(await p.done,true);assert.equal(n.destroyed,1);});
++t('ordering: prewarm runs on the first show(true) right after prime(), under the set-off black, before the fade-in and any walked frame; freed on release',async()=>{
++ const rd=f=>fs.readFileSync(S+f,'utf8'),ad=rd('region/RegionJourneyAdapter.ts'),core=rd('world-r1/RegionJourneyCore.ts'),prep=ad.slice(ad.indexOf('async function prepareLakesideJourney'));
++ assert.match(prep,/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)\{atmosphere\.prime\(\);warmWater\(\);\}\}/);
++ assert.match(prep,/const warmWater=\(\)=>\{if\(warm\|\|dead\|\|!journeyWater\)return;warm=prewarmLakesideWaterDraw\(camera,journeyWater,lakesideWaterSourceRenderer\(lakeModel,isLakesideWaterNode\)\);\};/);
++ assert.match(prep,/useLakesideWater\(model,water\);[\s\S]{0,200}journeyWater=water;\}/,'the journey copy, after it is on the lake');
++ assert.doesNotMatch(prep.slice(prep.indexOf('progress(d)')),/warmWater\(\)/,'not from the walk');
++ assert.match(prep,/const release=\(\)=>\{if\(dead\)return;dead=true;offWater\(\);atmosphere\.restore\(\);releaseLakesideBoardPreload\(\)[^;]*;warm\?\.cancel\(\)/);
++ const black=core.indexOf("this.fadeState='black'"),show=core.indexOf('this.show(true);',black),fadeIn=core.indexOf("this.fadeState='in'",black);
++ assert(black>0&&show>black&&fadeIn>show,'show(true) happens under full black, before the fade-in');});
++(async()=>{let fail=0;for(const [n,f] of tests){try{await f();console.log('PASS',n);}catch(e){fail++;console.log('FAIL',n,'\n',e.stack||e);}}
++ console.log(fail?'FAIL '+fail:'lakeside journey water prewarm OK');process.exit(fail?1:0);})();
+-- 
+2.47.3
+

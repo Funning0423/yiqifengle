@@ -1,0 +1,44 @@
+00:00.101  system.path      | WARNING Could not get a list of mounted file-systems
+01:50:28 | INFO: Data are loaded, start creating Blender stuff
+01:50:28 | INFO: Blender create Mesh node ui_signpost
+01:50:28 | INFO: Draco Decoder: Decode primitive ui_signpost
+01:50:28 | INFO: Blender create Mesh node lamp_glass
+01:50:28 | INFO: Draco Decoder: Decode primitive lamp_glass
+01:50:28 | INFO: glTF import finished in 0.01s
+01:50:28 | INFO: Data are loaded, start creating Blender stuff
+01:50:28 | INFO: Blender create Mesh node beach_palm_tall
+01:50:28 | INFO: Draco Decoder: Decode primitive beach_palm_tall
+01:50:28 | INFO: glTF import finished in 0.00s
+01:50:28 | INFO: Data are loaded, start creating Blender stuff
+01:50:28 | INFO: Blender create Mesh node env_island_main
+01:50:28 | INFO: Blender create Mesh node env_lighthouse_ext
+01:50:28 | INFO: Blender create Mesh node env_lighthouse_door
+01:50:28 | INFO: Blender create Mesh node env_sea_surface
+01:50:28 | INFO: Blender create Mesh node env_sea_foam
+01:50:28 | INFO: Blender create Mesh node env_sky_dome
+01:50:28 | INFO: Blender create Mesh node env_island_props_merged
+01:50:28 | INFO: Blender create Mesh node env_cloud_layer
+01:50:28 | INFO: Blender create Mesh node env_interior_shell
+01:50:28 | INFO: Blender create Mesh node env_interior_glass.001
+01:50:28 | INFO: Blender create Mesh node env_interior_props_merged
+01:50:28 | INFO: Blender create Mesh node env_int_anim_cat
+01:50:28 | INFO: Blender create Mesh node env_int_anim_hanging_plants
+01:50:28 | INFO: Blender create Mesh node env_int_anim_window_breeze
+01:50:28 | INFO: Blender create Mesh node env_int_anim_small_props
+01:50:28 | INFO: Blender create Mesh node env_int_anim_ship_mobile
+01:50:28 | INFO: Blender create Mesh node env_window_blind_cards
+01:50:28 | INFO: Blender create Mesh node env_prop_palm_tall_01
+01:50:28 | INFO: Blender create Mesh node env_prop_palm_lean_01
+01:50:28 | INFO: Blender create Mesh node env_prop_palm_young_01
+01:50:28 | INFO: Blender create Mesh node env_anim_seagull_01
+01:50:28 | INFO: Blender create Mesh node env_anim_crab_01
+01:50:28 | INFO: Blender create Mesh node env_anim_cat_tuxedo_01
+01:50:28 | INFO: Blender create Mesh node env_anim_turtle_01
+01:50:29 | INFO: glTF import finished in 0.57s
+SAIL_DONE 157
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+DracoDecoder | Decoded 906 vertices, 2364 indices
+DracoDecoder | Decoded 36 vertices, 60 indices
+DracoDecoder | Decoded 758 vertices, 2016 indices
+
+Blender quit

@@ -1,0 +1,126 @@
+{
+  "sourceFilesExact": 20,
+  "sourceChecks": [
+    {
+      "file": "finalize_wechat_local.first-open.snippet.diff",
+      "identical": true
+    },
+    {
+      "file": "README.md",
+      "identical": true
+    },
+    {
+      "file": "test/fake-finalize_wechat_local.cjs",
+      "identical": true
+    },
+    {
+      "file": "test/run_selftest.sh",
+      "identical": true
+    },
+    {
+      "file": "test/test_shim.cjs",
+      "identical": true
+    },
+    {
+      "file": "test/test_first_open_audit_dryrun.cjs",
+      "identical": true
+    },
+    {
+      "file": "test/test_first_open_condition.cjs",
+      "identical": true
+    },
+    {
+      "file": "test/fake-wechat-cli.cjs",
+      "identical": true
+    },
+    {
+      "file": "tools/finalize_wechat_local_firstopen.cjs",
+      "identical": true
+    },
+    {
+      "file": "tools/first-open-audit-shim.js",
+      "identical": true
+    },
+    {
+      "file": "tools/wechat_first_open_condition.cjs",
+      "identical": true
+    },
+    {
+      "file": "tools/qf-wechat-env.cjs",
+      "identical": true
+    },
+    {
+      "file": "tools/wechat_first_open_audit.cjs",
+      "identical": true
+    },
+    {
+      "file": "test/fake-automator-server/server.cjs",
+      "identical": true
+    },
+    {
+      "file": "test/fixtures/synthetic-active-condition.project.config.json",
+      "identical": true
+    },
+    {
+      "file": "test/fixtures/synthetic-existing.project.private.config.json",
+      "identical": true
+    },
+    {
+      "file": "test/fixtures/oi-r6-first-open-A.project.config.json",
+      "identical": true
+    },
+    {
+      "file": "test/fixtures/oi-r6-first-open-B.project.config.json",
+      "identical": true
+    },
+    {
+      "file": "test/fixtures/fake-build-game.js",
+      "identical": true
+    },
+    {
+      "file": "test/fixtures/synthetic-cocos-template-currentL.project.config.json",
+      "identical": true
+    }
+  ],
+  "scenarioManifestChecks": [
+    {
+      "case": "repro-unrelated-control",
+      "mismatches": [],
+      "expected": true
+    },
+    {
+      "case": "repro-missing-root",
+      "mismatches": [],
+      "expected": true
+    },
+    {
+      "case": "repro-cli-nonzero",
+      "mismatches": [],
+      "expected": true
+    },
+    {
+      "case": "repro-rotation",
+      "mismatches": [],
+      "expected": true
+    },
+    {
+      "case": "repro-cli-lingers",
+      "mismatches": [
+        "run.log"
+      ],
+      "expected": true
+    },
+    {
+      "case": "repro-no-control-no-logs",
+      "mismatches": [],
+      "expected": true
+    }
+  ],
+  "portabilityReplay": {
+    "shortRun": "passed (5/5 unsound PASS reproductions plus boundaries)",
+    "longRun": "passed (unsound PASS and post-manifest run.log mutation reproduced)",
+    "dependencies": "Node built-ins only",
+    "performedAtUtc": "2026-10-09T23:15:24Z"
+  },
+  "safety": "cloud-only fake CLI and VM; no real Mac/DevTools, network sockets, installations or quit"
+}

@@ -1,0 +1,119 @@
+From 892744348b1334040b84fa22f08e20b218bb0ff5 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 16:00:37 +0800
+Subject: [PATCH 08/10] lakeside day clear fix: in dir mode the day pack's
+ clearColor is the board init clear (linearToSrgb8(clearColorLinear) =
+ #1c8fb8, 28/143/184), not the old hemi-mode LAKESIDE_CLEAR_COLOR #f2b98a
+
+One helper lakesideDayClearColor() (sRGB bytes, never light-encoded; points mode keeps LAKESIDE_CLEAR_COLOR) now feeds the board init clear
+(LakesideBoardBackground camera setup), the day pack (board day toggle) and the journey's day end target, so switching to day and the
+journey end no longer jump to orange. Light/ambient/water colour conversion and night values untouched. Tests: lakeside-daynight asserts
+day clear = board init byte for byte and journey day end (target + w=1) = board init; journey-atmosphere and dirlight follow.
+---
+ .../assets/scripts/region/LakesideBoardBackground.ts  |  4 ++--
+ .../assets/scripts/region/LakesideSceneData.ts        |  9 ++++++++-
+ tools/lakeside/test_lakeside_daynight.cjs             | 11 ++++++++++-
+ tools/lakeside/test_lakeside_dirlight.cjs             |  2 +-
+ tools/lakeside/test_lakeside_journey_atmosphere.cjs   |  2 +-
+ 5 files changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index eb7fe72..0cf4ca9 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -7,7 +7,7 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+ import type {Cancellation} from '../world-r1/WorldFlowCore';
+ import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+@@ -197,7 +197,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
+   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
+   releaseLakesidePrewarm();
+-  camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=LAKESIDE_LIGHT_MODE==='dir'?(()=>{const c=linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);return new Color(c[0],c[1],c[2],255);})():new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
++  camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(lakesideDayClearColor())/* same helper as the day pack + journey day end */;camera.enabled=false;
+   return {
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index a2e21b5..351448e 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -143,7 +143,7 @@ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighti
+   if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
+   const P = LAKESIDE_DIR_LIGHT_PARAMS;
+   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
+-    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: LAKESIDE_CLEAR_COLOR, fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
++    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
+ }
+ /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
+ /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
+@@ -172,6 +172,13 @@ const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <=
+ export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
+ /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
+ export const LAKESIDE_CLEAR_COLOR = '#f2b98a';
++/** Day clear colour, sRGB bytes as '#rrggbb' (clear colour is never light-encoded). dir mode: the r5h3 sky clear
++ *  linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear) (~28/143/184); points mode: LAKESIDE_CLEAR_COLOR. One source for the board
++ *  init clear, the day pack (board toggle) and the journey's day end target, so they cannot drift. */
++export function lakesideDayClearColor(mode: 'dir' | 'points' = LAKESIDE_LIGHT_MODE): string {
++  if (mode !== 'dir') return LAKESIDE_CLEAR_COLOR;
++  return '#' + linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear).map(v => ('0' + v.toString(16)).slice(-2)).join('');
++}
+ export type LakesideInstance = Readonly<{ name: string; glb: string; group: string; pos: readonly number[]; rot_quat_xyzw: readonly number[]; scale: readonly number[]; animated?: boolean }>;
+ /** The 2D board UI draws pieces, cells and selection. The live scene keeps the background and the static water dressing
+  *  (lily pads, rope floats, buoy lanterns, white-balance lines, chime rafts), and drops what the 2D board already shows:
+diff --git a/tools/lakeside/test_lakeside_daynight.cjs b/tools/lakeside/test_lakeside_daynight.cjs
+index 704cb03..efddeb1 100644
+--- a/tools/lakeside/test_lakeside_daynight.cjs
++++ b/tools/lakeside/test_lakeside_daynight.cjs
+@@ -40,8 +40,17 @@ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);a
+  if(primed){assert.equal(globals.fog.enabled,true);assert(globals.fog.fogRange>=D.LAKESIDE_LAYERED_FOG.fogRange*999,label+' primed fog ~invisible');}else{assert.equal(globals.fog.enabled,false,label+' island fog off');assert.equal(globals.fog.type,0);}}
+ const run=(name,f)=>{f();console.log('PASS',name);};
+ const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
+-run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.LAKESIDE_CLEAR_COLOR);
++run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.lakesideDayClearColor());
+  assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
++run('day clear = board init clear byte for byte (dir mode), journey day end clear too; points mode keeps LAKESIDE_CLEAR_COLOR',()=>{
++ assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');const init=D.linearToSrgb8(D.LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);
++ assert.deepEqual(rgb(new Color(Dy.clearColor)),init,'day pack clear bytes = board init bytes');assert.deepEqual(init,[28,143,184]);assert.notEqual(Dy.clearColor.toLowerCase(),'#f2b98a');
++ assert.equal(D.lakesideDayClearColor('points'),D.LAKESIDE_CLEAR_COLOR);assert.match(D.lakesideDayClearColor(),/^#[0-9a-f]{6}$/);
++ const end=A.lakesideAtmosphereTarget({illum:60000,color:[255,255,255],sky:[1,1,1],ground:[1,1,1],skyIllum:1,clear:[51,51,51]},'day');assert.deepEqual([...end.clear],init,'journey day end clear = board init');
++ const endW1=A.lakesideAtmosphereAt({illum:60000,color:[255,255,255],sky:[1,1,1],ground:[1,1,1],skyIllum:1,clear:[51,51,51]},1,'layered',0,'day');assert.deepEqual([...endW1.clear],init,'journey at w=1 (day) = board init');
++ const bb=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
++ assert.match(bb,/camera\.clearColor=new Color\(lakesideDayClearColor\(\)\)/,'board init clear comes from the shared helper');assert.match(bb,/camera\.clearColor=new Color\(M\.clearColor\)/,'board toggle clear comes from the day/night pack');
++ assert.doesNotMatch(bb,/linearToSrgb8\(LAKESIDE_DIR_LIGHT_PARAMS\.clearColorLinear\)/,'no second copy of the init conversion');});
+ // journey 1: day -> lake -> night -> day -> night -> leave -> toggle back on the island
+ let J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();
+ run('before the blend (w=0) a toggle stays the island look',()=>{globalThis.__worldDayNight.toggle();expectIsland('night','pre-blend night',true);globalThis.__worldDayNight.toggle();expectIsland('day','pre-blend day',true);});
+diff --git a/tools/lakeside/test_lakeside_dirlight.cjs b/tools/lakeside/test_lakeside_dirlight.cjs
+index bc74d7d..7ddb1f7 100644
+--- a/tools/lakeside/test_lakeside_dirlight.cjs
++++ b/tools/lakeside/test_lakeside_dirlight.cjs
+@@ -30,6 +30,6 @@ assert(/visibility=saved\.vis\|LAKESIDE_LAYER/.test(bg),'main light reaches the
+ assert(/setVisible:value=>\{[^}]*if\(value\)applyDir\(\);else restoreDir\(\);\}/.test(bg)&&/dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);/.test(bg),'apply on show, restore on hide/dispose');
+ assert(/s0\.light\.node\.setRotation\(s0\.rot\);s0\.light\.color=s0\.color;s0\.light\.illuminance=s0\.illum;/.test(bg)&&/amb\.skyLightingColor=s0\.sky;amb\.groundLightingColor=s0\.ground;amb\.skyIllum=s0\.skyIllum;/.test(bg),'full restore');
+ assert(/m\.setProperty\('mainColor',new Color\(wc\[0\],wc\[1\],wc\[2\],255\)\)/.test(bg)&&/instanced\.includes\(m\)/.test(bg),'water tint only on the lease-owned instanced copy');
+-assert(/camera\.clearColor=LAKESIDE_LIGHT_MODE==='dir'\?/.test(bg),'dir mode clear colour from params');
++assert(/camera\.clearColor=new Color\(lakesideDayClearColor\(\)\)/.test(bg),'dir mode clear colour from params (shared helper lakesideDayClearColor)');assert.deepEqual(D.lakesideDayClearColor(),'#1c8fb8','dir clear = linearToSrgb8(clearColorLinear) = 28/143/184');
+ assert(!/shadowEnabled|shadowFixedArea|ShadowType/.test(bg),'shadows untouched');
+ console.log('lakeside dirlight OK');
+diff --git a/tools/lakeside/test_lakeside_journey_atmosphere.cjs b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+index 73cef74..bec70b2 100644
+--- a/tools/lakeside/test_lakeside_journey_atmosphere.cjs
++++ b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+@@ -16,7 +16,7 @@ for(const [label,base] of [['day',{illum:65000,color:[255,244,214],sky:[200,220,
+  const t=A.lakesideAtmosphereTarget(base),f1=A.lakesideAtmosphereAt(base,W(T),'layered',j.root[1]);
+  assert.equal(f1.illum,base.illum*P0.sunIlluminanceScale);assert.equal(f1.skyIllum,base.illum*P0.ambientSkyIllumToSun,'board: skyIllum = base illum × ambientSkyIllumToSun');
+  assert.deepEqual([...f1.color],D.lakesideCocosLightColor(P0.sunColorLinear));assert.deepEqual([...f1.sky],D.lakesideCocosLightColor(P0.ambientSkyColorLinear));assert.deepEqual([...f1.ground],D.lakesideCocosLightColor(P0.ambientGroundColorLinear));
+- assert.deepEqual([...f1.clear],[0xf2,0xb9,0x8a],'clear = LAKESIDE_CLEAR_COLOR');
++ assert.deepEqual([...f1.clear],D.linearToSrgb8(P0.clearColorLinear),'day end clear = board init clear (dir: linearToSrgb8(clearColorLinear), not the old hemi #f2b98a)');assert.deepEqual([...f1.clear],[28,143,184]);
+  assert.equal(f1.fog.type,3);assert.equal(f1.fog.range,D.LAKESIDE_LAYERED_FOG.fogRange);assert.equal(f1.fog.atten,D.LAKESIDE_LAYERED_FOG.fogAtten);
+  const f0=A.lakesideAtmosphereAt(base,0,'layered');assert.equal(f0.illum,base.illum);assert.deepEqual([...f0.color],base.color);assert(f0.fog.range>=D.LAKESIDE_LAYERED_FOG.fogRange*999,'primed fog ≈ invisible');
+  // time domain: the timed walk (journeyDistanceAt, route.timing) at 60 Hz -> per-frame steps (no pop)
+-- 
+2.47.3
+

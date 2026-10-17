@@ -1,0 +1,1175 @@
+{
+ "rule": "every intersection is listed; <=2 mm is NOT auto-pass (Oi item 5)",
+ "items": [
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:legLxdress",
+   "frames": [
+    0,
+    75
+   ],
+   "max_count": 1625,
+   "max_depth_mm": 79.5,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:legRxdress",
+   "frames": [
+    0,
+    16
+   ],
+   "max_count": 522,
+   "max_depth_mm": 22.79,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:legRxdress",
+   "frames": [
+    20,
+    75
+   ],
+   "max_count": 1610,
+   "max_depth_mm": 76.13,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:torsoxdress",
+   "frames": [
+    0,
+    24
+   ],
+   "max_count": 36,
+   "max_depth_mm": 14.88,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:torsoxdress",
+   "frames": [
+    27,
+    85
+   ],
+   "max_count": 18,
+   "max_depth_mm": 10.97,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:apronxdress",
+   "frames": [
+    0,
+    70
+   ],
+   "max_count": 2358,
+   "max_depth_mm": 21.17,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:legLxdress",
+   "frames": [
+    0,
+    75
+   ],
+   "max_count": 813,
+   "max_depth_mm": 94.3,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:legRxdress",
+   "frames": [
+    0,
+    15
+   ],
+   "max_count": 264,
+   "max_depth_mm": 23.01,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:legRxdress",
+   "frames": [
+    20,
+    75
+   ],
+   "max_count": 804,
+   "max_depth_mm": 93.43,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:torsoxdress",
+   "frames": [
+    0,
+    24
+   ],
+   "max_count": 18,
+   "max_depth_mm": 9.74,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:torsoxdress",
+   "frames": [
+    27,
+    85
+   ],
+   "max_count": 9,
+   "max_depth_mm": 9.64,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:apronxdress",
+   "frames": [
+    0,
+    69
+   ],
+   "max_count": 586,
+   "max_depth_mm": 16.65,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "thin_sheet:dress_self",
+   "frames": [
+    0,
+    63
+   ],
+   "max_count": 2676,
+   "max_depth_mm": null,
+   "le_2mm": null,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "thin_sheet:apron_self",
+   "frames": [
+    0,
+    58
+   ],
+   "max_count": 115,
+   "max_depth_mm": null,
+   "le_2mm": null,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "thin_sheet:apron_self",
+   "frames": [
+    64,
+    65
+   ],
+   "max_count": 1,
+   "max_depth_mm": null,
+   "le_2mm": null,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "layer_cross:apron_vs_dress",
+   "frames": [
+    0,
+    67
+   ],
+   "max_count": 47,
+   "max_depth_mm": 29.08,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "chair:bodyxchair_seat",
+   "frames": [
+    0,
+    27
+   ],
+   "max_count": 62,
+   "max_depth_mm": 14.01,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "chair:bodyxchair_seat",
+   "frames": [
+    37,
+    46
+   ],
+   "max_count": 72,
+   "max_depth_mm": 4.85,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "chair:bodyxchair_seat",
+   "frames": [
+    48,
+    48
+   ],
+   "max_count": 6,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:bodyxcol_int_chair_back",
+   "frames": [
+    0,
+    50
+   ],
+   "max_count": 377,
+   "max_depth_mm": 45.24,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:bodyxcol_int_chair_seat",
+   "frames": [
+    0,
+    27
+   ],
+   "max_count": 19,
+   "max_depth_mm": 14.56,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:bodyxcol_int_chair_seat",
+   "frames": [
+    38,
+    41
+   ],
+   "max_count": 12,
+   "max_depth_mm": 4.99,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:bodyxcol_int_chair_seat",
+   "frames": [
+    43,
+    43
+   ],
+   "max_count": 6,
+   "max_depth_mm": 2.96,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:bodyxcol_int_chair_seat",
+   "frames": [
+    45,
+    46
+   ],
+   "max_count": 6,
+   "max_depth_mm": 3.08,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:body_nobowxcol_int_chair_back",
+   "frames": [
+    0,
+    34
+   ],
+   "max_count": 377,
+   "max_depth_mm": 32.47,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:hairxcol_int_chair_back",
+   "frames": [
+    0,
+    23
+   ],
+   "max_count": 906,
+   "max_depth_mm": 23.49,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:legRxapron",
+   "frames": [
+    21,
+    75
+   ],
+   "max_count": 574,
+   "max_depth_mm": 65.35,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:legRxapron",
+   "frames": [
+    21,
+    75
+   ],
+   "max_count": 288,
+   "max_depth_mm": 97.38,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:legLxapron",
+   "frames": [
+    23,
+    75
+   ],
+   "max_count": 574,
+   "max_depth_mm": 80.13,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:legLxapron",
+   "frames": [
+    23,
+    75
+   ],
+   "max_count": 291,
+   "max_depth_mm": 88.74,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    23,
+    23
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    26,
+    26
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    28,
+    28
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    30,
+    30
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    35,
+    36
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    41,
+    47
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    50,
+    50
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    56,
+    58
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    62,
+    62
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    65,
+    67
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    71,
+    72
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    76,
+    76
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    81,
+    83
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    85,
+    90
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    23,
+    23
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    26,
+    26
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    28,
+    28
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    30,
+    30
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    35,
+    36
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    41,
+    47
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    50,
+    50
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    56,
+    58
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    62,
+    62
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    65,
+    67
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    71,
+    72
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    76,
+    76
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    81,
+    83
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    85,
+    90
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "chair:dressxchair_seat",
+   "frames": [
+    23,
+    45
+   ],
+   "max_count": 623,
+   "max_depth_mm": 19.33,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "proxy:dressxcol_int_chair_seat",
+   "frames": [
+    23,
+    45
+   ],
+   "max_count": 860,
+   "max_depth_mm": 40.0,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "chair:dressxchair_front_edge",
+   "frames": [
+    27,
+    45
+   ],
+   "max_count": 546,
+   "max_depth_mm": 19.28,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "chair:apronxchair_front_edge",
+   "frames": [
+    32,
+    33
+   ],
+   "max_count": 10,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[visible]:torsoxapron",
+   "frames": [
+    82,
+    90
+   ],
+   "max_count": 8,
+   "max_depth_mm": 9.23,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_stand",
+   "pair": "garment[midsurface]:torsoxapron",
+   "frames": [
+    82,
+    90
+   ],
+   "max_count": 4,
+   "max_depth_mm": 6.4,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "garment[visible]:torsoxapron",
+   "frames": [
+    0,
+    45
+   ],
+   "max_count": 8,
+   "max_depth_mm": 9.23,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "garment[midsurface]:torsoxapron",
+   "frames": [
+    0,
+    45
+   ],
+   "max_count": 4,
+   "max_depth_mm": 6.29,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    0,
+    8
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    10,
+    10
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "env:bodyxenv_interior_shell",
+   "frames": [
+    43,
+    44
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.04,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    0,
+    8
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    10,
+    10
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_turn",
+   "pair": "env:body_nobowxenv_interior_shell",
+   "frames": [
+    43,
+    44
+   ],
+   "max_count": 5,
+   "max_depth_mm": 0.04,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_open_safe_end",
+   "pair": "garment[visible]:torsoxapron",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 8,
+   "max_depth_mm": 6.28,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_open_safe_end",
+   "pair": "garment[midsurface]:torsoxapron",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 4,
+   "max_depth_mm": 6.29,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[visible]:legLxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 1042,
+   "max_depth_mm": 0.0,
+   "le_2mm": true,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[visible]:legRxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 522,
+   "max_depth_mm": 21.22,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[visible]:torsoxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 32,
+   "max_depth_mm": 10.55,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[visible]:apronxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 806,
+   "max_depth_mm": 2.96,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[midsurface]:legLxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 506,
+   "max_depth_mm": 5.46,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[midsurface]:legRxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 264,
+   "max_depth_mm": 21.44,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[midsurface]:torsoxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 16,
+   "max_depth_mm": 7.24,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "garment[midsurface]:apronxdress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 194,
+   "max_depth_mm": 7.88,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "thin_sheet:dress_self",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 2489,
+   "max_depth_mm": null,
+   "le_2mm": null,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "thin_sheet:apron_self",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 115,
+   "max_depth_mm": null,
+   "le_2mm": null,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "layer_cross:apron_vs_dress",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 26,
+   "max_depth_mm": 24.93,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "model-side"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "chair:bodyxchair_seat",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 62,
+   "max_depth_mm": 14.01,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "proxy:bodyxcol_int_chair_back",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 377,
+   "max_depth_mm": 20.76,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "proxy:bodyxcol_int_chair_seat",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 19,
+   "max_depth_mm": 14.56,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "proxy:body_nobowxcol_int_chair_back",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 377,
+   "max_depth_mm": 20.76,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  },
+  {
+   "clip": "cine_home_safe_end",
+   "pair": "proxy:hairxcol_int_chair_back",
+   "frames": [
+    0,
+    0
+   ],
+   "max_count": 906,
+   "max_depth_mm": 23.49,
+   "le_2mm": false,
+   "auto_pass": false,
+   "category_hint": "see README"
+  }
+ ]
+}

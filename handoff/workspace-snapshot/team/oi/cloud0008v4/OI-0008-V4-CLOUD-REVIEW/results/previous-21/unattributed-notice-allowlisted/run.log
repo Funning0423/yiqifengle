@@ -1,0 +1,12 @@
+2026-10-10T01:33:24.259Z +0.0s config {"cli":"/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-cli.cjs","buildDir":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/build","workRoot":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies","finalizer":"/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs","cases":["default"],"allowAppJsonNotice":true,"mode":"auto","autoPort":42019,"settleMs":0,"cliDrainMs":100,"injectShim":true,"logDir":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/logs","logPollMs":20,"logMaxBytes":1000000,"automatorModule":"/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-automator.cjs","globalQuit":"removed"}
+2026-10-10T01:33:24.314Z +0.1s cli islogin pid=849 exit=0 (53ms, 1 lines)
+2026-10-10T01:33:24.315Z +0.1s [verdict:default] copy build → /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default
+2026-10-10T01:33:24.370Z +0.1s [verdict:default] finalizer exit=0 {"output":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default","compileType":"game","emptyCompileConditionsRemoved":true,"enhancementDisabled":true,"removedCondition":null,"changed":true,"action":"LOCAL_CONFIG_ONLY"}
+2026-10-10T01:33:24.371Z +0.1s [verdict:default] audit shim injected into COPY game.js (token 7553b00cad16629f)
+2026-10-10T01:33:24.372Z +0.1s [verdict:default] cli auto --project /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default --auto-port 42019
+2026-10-10T01:33:24.424Z +0.2s cli auto pid=865 exit=0 (52ms, 0 lines)
+2026-10-10T01:33:25.377Z +1.1s [verdict:default] automator connected
+2026-10-10T01:33:25.878Z +1.6s [verdict:default] settle 0ms (no Compile, no input)
+2026-10-10T01:33:25.936Z +1.7s cli close pid=876 exit=0 (55ms, 0 lines)
+2026-10-10T01:33:25.990Z +1.7s [verdict:default] BLOCKED: 1 finding(s) not attributable to this project (weapplog:error)
+2026-10-10T01:33:25.991Z +1.7s VERDICT BLOCKED: default: 1 finding(s) not attributable to this project (weapplog:error)

@@ -1,0 +1,57 @@
+E4 v1.2 云端复审，2026-10-10 UTC
+对象：20261009T2353Z-grokbot2-E4-MATERIALS-v1.2.zip
+结论：前轮主相机天空剔除与真实无实例化设备的黑根风险已有有效修复路径，但不能按“全部已修”接入。花 50% 未实现，强制无实例化测试路径和祖先缩放仍有缺口。未修改任何工程或美术，未操作 Mac、未外发。
+
+完整性
+238924 B；SHA256 67b54a6069e58cbdff2deb67d99702f35122e7eede2f45d480aacdf8e9ce4dfa。
+与独立 sidecar 一致；ZIP 36 项 CRC、路径安全、重复/大小写冲突检查通过；解压总量 740118 B；内部 SHA 清单 35/35 通过。v1.1 仅作已撤回的比较基线。
+
+已关闭到静态/逻辑层的旧问题
+1. 主相机天空 CPU AABB 跟随：SkyFollowCamera.sync 实际改节点世界 XZ，保留 Y。官方 v3.8.8 时序为 Director.tick BEFORE_DRAW → root.frameMove → scene.update → BEFORE_COMMIT → pipeline.render → sceneCulling。BEFORE_DRAW 早于剔除，不是“渲染完才同步”。独立逻辑用例验证单帧跳到 (410,-250) 时同步到当帧坐标，Y 保持 8。[1][2][3]
+   条件：cameraNode 显式绑定真正主相机，跟随组件挂在正确天空节点，相机写入在该同步前完成；后续没有不遵守契约的写入。未在 Creator 中复现渲染。
+2. 真实不支持硬件实例化：先保留草 30%，统一 rootColor=#60AE32；引擎关闭 USE_INSTANCING 后走 uniform 根色分支。支持实例化但 _ROOT_COLOR 缺失/非法的实例也会补中绿线性值。独立逻辑均通过。[4]
+3. 新实例继承最近画质、模板局部 TRS 容器、根节点自身缩放/重新启用后排队刷新、卸载先停用节点再释放材质副本均有实现。独立逻辑验证了档位继承、根节点缩放回调及副本释放。跨区域共享同一基础材质时仍必须统一管理副本所有权，不能由任一区域默认销毁其他区域正在使用的副本。
+4. 夜渐变确实进入 shader：无夜图路径按原始 v/horizonV 在两种线性颜色间插值，horizonV 仍为 0.857。天空自定义 UBO 增至 128 B；两 Effect YAML/入口/37 个属性目标/UBO布局检查通过。
+
+仍需处理的问题
+E4-12-01｜中｜花 50% 没有落入当前包
+MeadowInstancer.ts:63–75、91–105 只对草做选择。README:137、218 明写花不减，供应方自测也验证 150 簇花全量。
+独立合成 1000 草 + 150 花用例得到 300 草 + 150 花，不是 300 草 + 75 花。应明确这是待补代码还是交付说明错误，不能宣称已实现花 50%。
+
+E4-12-02｜中｜forceNoInstancing 不能模拟真实非实例化，可能制造黑根
+MeadowInstancer.ts:60 把本地 instancing 标志设 false，101 因此不写 a_root_color，但没有把共享材质的 USE_INSTANCING 关掉。在有硬件支持的设备上，引擎不会替它关宏。
+独立用例结果：localFlag=false，USE_INSTANCING=true，rootAttribute=null。实际 shader 仍取初始零值实例根色，uniform 中绿不生效。需为强制测试建立真正的非实例化材质分支，或避免宣称该开关完成了非实例化验收。现供应方测试只查数量/本地标志，漏了材质宏。
+
+E4-12-03｜中｜祖先缩放没有触发草包围盒重算
+MeadowInstancer.ts:116、142 只监听 this.node 自身 TRANSFORM_CHANGED。官方 Node.setScale 发本节点事件，invalidateChildren 仅标后代 dirty，不向后代补发该事件。[5]
+独立用例：草甸根自身缩放刷新 1 次，上层父节点缩放刷新 0 次。祖先缩小后世界风位移不变而旧 padding 随变换缩小，可能再次提前剔除。应监听/检测最终 worldScale，或明确约束父级与实例缩放不可运行时改变，并要求变化方显式刷新。直接替换单个 mesh 也不在当前监听覆盖内。
+
+E4-12-04｜中｜晚写/第二相机仍有剔除边界，文档承诺需收紧
+SkyFollowCamera.verify:75–82 只是计数并告警，不纠正本帧节点或 bounds。README:121 所述“GPU兜底，画面不受影响”不能保证：若 CPU 已剔除模型，shader 根本不会运行。第二相机若远离被跟随的主相机，也有相同问题。[3]
+晚写方在 BEFORE_DRAW、scene.update 之前调用 syncAll 才符合当前合同。多相机场景需独立可见性/bounds 方案；不能仅凭 GPU 居中宣称支持。
+
+E4-12-05｜低｜均匀抽稀的计数与文档不一致
+GrassFallback.ts:81 用 round(N×ratio) 定目标，但无锚点分支:87 实际保留 floor(N×ratio)。独立 N=5、ratio=.3 得 1，文档目标 2。当前 N=1000 恰好不受影响。
+
+最小接入条件
+- 只复制 runtime/effects 的两个 Effect 与 runtime/scripts 的四个 TS；四 TS 放同一目录。tools、docs、自测输出不进 assets。
+- 仍需项目自己的 .mtl/.meta、GLB、instances JSON、昼夜贴图与调色板，当前包没有把它们接进工程。
+- 明确绑定主相机；followY=false。保留原 UV、美术资源和已定参数。海岛 SKY_NIGHT_TINT_ONLY 的含义从“白天乘 tint”变成两色夜渐变，旧材质要显式核对。
+- before-draw 晚写、多相机、祖先缩放、材质副本共享所有权需有明确接入合同；强制无实例化验收先修宏分支；花50%先核对交付版本。
+- 低优先，继续排在 0008-v3、0005c 后。当前不安排 Mac 执行；后续即便获准也仅到 Creator 编译，不自动进入微信。
+
+测试证据与限制
+独立 Node v24.19.0 逻辑用例：11 pass / 4 fail。仅执行已检查的 runtime 源码，使用自写 cc mocks；Node 去类型和装饰器后验证业务路径，不是 TypeScript 类型检查或真实引擎运行。未执行供应方 setup/selftest。
+失败四项对应花50%、forceNoInstancing 宏、祖先缩放、stride 取整；晚写告警测试通过仅代表确认“告警而不修复”，不代表晚写场景安全。
+Creator 导入/编译、Creator 类型检查、shader/GPU编译、微信工具、真实渲染/帧时/显存/真机均 not_run。供应方 92 pass / 0 fail / 9 not_run 不算本次复验结果。
+复跑逻辑：node independent-checks.cjs <已核验并解压的v1.2包根目录>
+
+来源
+原包：https://drive.google.com/file/d/1gG46tFSTx52PsDXQBjyzb7m8cm7UBt5T/view
+SHA sidecar：https://drive.google.com/file/d/1CehrJGSnNrf4TbY12TRRI2-_NRXMrsx8/view
+[1] Director.tick:712–744：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/game/director.ts
+[2] Root.frameMove/_frameMoveProcess/_frameMoveEnd:436–453、712–747：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/root.ts
+[3] RenderPipeline.render:441–460：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/rendering/render-pipeline.ts
+    CPU bounds 剔除:179–184：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/rendering/scene-culling.ts
+[4] Pass._syncBatchingScheme:743–750：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/render-scene/core/pass.ts
+[5] Node.invalidateChildren:2119–2143，setScale:2370–2385：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/scene-graph/node.ts

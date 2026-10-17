@@ -1,0 +1,7 @@
+<html><body style="margin:0;background:#bdb3a5"><canvas id=c width=560 height=230></canvas><script>
+const c=document.getElementById('c'),g=c.getContext('2d'),im=new Image();im.onload=()=>{
+g.translate(0,15);g.scale(2,2);g.fillStyle='rgba(255,255,255,.28)';g.strokeStyle='rgba(255,255,255,.85)';g.lineWidth=1.5;g.beginPath();g.roundRect(0,0,280,100,50);g.fill();g.stroke();
+const font='bold 34px sans-serif';g.font=font;const cap='出发去看海',capW=g.measureText(cap).width,size=44,k=size/48,visL=7*k,visW=34*k,gap=6,total=visW+gap+capW,left=140-total/2;
+g.imageSmoothingQuality='high';g.drawImage(im,left-visL,50-size/2,size,size);
+g.textBaseline='middle';g.shadowColor='rgba(0,40,60,.45)';g.shadowBlur=6;g.shadowOffsetY=1;g.fillStyle='#fff';g.fillText(cap,left+visW+gap,52);document.title='done';};im.src='l.png';
+</script></body></html>

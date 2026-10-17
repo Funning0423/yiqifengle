@@ -1,0 +1,6 @@
+{
+  "sourceCommitBeforeDisplayChanges": "06b125f",
+  "mainScriptSha256": "1a140fcebe5a2c048d1f410e4767cec90ed07bf0510769fdce922a77af1ec79c",
+  "frozenBuild": "output/playable-approved-frozen-build-20261009",
+  "reason": "Separate immutable preview tree prevents Creator deleting live test assets during another build; previous failed second-profile launch was local preview 404 during rebuild."
+}

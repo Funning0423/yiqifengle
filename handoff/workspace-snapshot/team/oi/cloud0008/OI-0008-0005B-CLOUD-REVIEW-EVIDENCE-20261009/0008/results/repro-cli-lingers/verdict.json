@@ -1,0 +1,235 @@
+{
+  "tool": "wechat_first_open_audit.cjs",
+  "version": "0008-v1",
+  "runId": "20261009T231202Z",
+  "startedAt": "2026-10-09T23:12:02.802Z",
+  "host": {
+    "platform": "linux",
+    "node": "v24.19.0"
+  },
+  "dryRun": true,
+  "scope": "DRY_RUN_FAKE_CLI — exercises the script only; NOT evidence of WeChat DevTools behaviour",
+  "status": "PASS",
+  "reason": "target B: 0 console errors on first open without manual Compile; positive control A error detected (weapplog)",
+  "variants": [
+    {
+      "role": "target",
+      "variant": "B",
+      "projectDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-a723a8-B",
+      "projectname": "QFFirstOpen-20261009T231202Z-a723a8-B",
+      "port": 41100,
+      "steps": {
+        "originalProjectname": "ForestWorldR6FirstOpenA",
+        "shimInjected": true,
+        "cliAuto": {
+          "label": "auto",
+          "note": "cli still running after connect; output so far not final"
+        },
+        "pingResult": "b6c3ffab2f0c3b90",
+        "screenshotError": "review fake: screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-a723a8-B"
+          ],
+          "code": 0,
+          "error": null,
+          "ms": 105,
+          "timedOut": false,
+          "lines": [
+            {
+              "t": "2026-10-09T23:12:19.486Z",
+              "stream": "stdout",
+              "line": "fake close; no process killed"
+            }
+          ]
+        }
+      },
+      "channels": {
+        "weappLog": {
+          "available": true,
+          "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/logs",
+          "filesAtStart": 1,
+          "newLines": 1
+        },
+        "automatorConsole": {
+          "enabled": true,
+          "messages": 1,
+          "provenByLateHeartbeat": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "injected": true,
+          "readable": true,
+          "heartbeatAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn"
+          ]
+        },
+        "cliOutput": {
+          "lines": 0
+        }
+      },
+      "errors": [],
+      "ignored": [],
+      "warnings": [],
+      "status": "PASS",
+      "reason": "0 errors in automator console/exception, shim buffer, WeappLog delta and CLI output",
+      "token": "b6c3ffab2f0c3b90",
+      "mode": "auto",
+      "shim": {
+        "version": "0008-v1",
+        "token": "b6c3ffab2f0c3b90",
+        "installedAt": 1791587523921,
+        "heartbeat": true,
+        "wrapped": [
+          "error",
+          "warn"
+        ],
+        "errors": [],
+        "warns": [],
+        "onError": [],
+        "unhandled": []
+      }
+    },
+    {
+      "role": "control",
+      "variant": "A",
+      "projectDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-4e7ce4-A",
+      "projectname": "QFFirstOpen-20261009T231202Z-4e7ce4-A",
+      "port": 41101,
+      "steps": {
+        "originalProjectname": "ForestWorldR6FirstOpenA",
+        "shimInjected": true,
+        "cliAuto": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-4e7ce4-A",
+            "--auto-port",
+            "41101"
+          ],
+          "code": 0,
+          "error": null,
+          "ms": 102,
+          "timedOut": false,
+          "lines": [
+            {
+              "t": "2026-10-09T23:12:19.588Z",
+              "stream": "stdout",
+              "line": "cloud review fake auto complete"
+            }
+          ]
+        },
+        "pingResult": "b434181d9e0bdc30",
+        "screenshotError": "review fake: screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-4e7ce4-A"
+          ],
+          "code": 0,
+          "error": null,
+          "ms": 106,
+          "timedOut": false,
+          "lines": [
+            {
+              "t": "2026-10-09T23:12:21.101Z",
+              "stream": "stdout",
+              "line": "fake close; no process killed"
+            }
+          ]
+        }
+      },
+      "channels": {
+        "weappLog": {
+          "available": true,
+          "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/logs",
+          "filesAtStart": 1,
+          "newLines": 1
+        },
+        "automatorConsole": {
+          "enabled": true,
+          "messages": 1,
+          "provenByLateHeartbeat": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "injected": true,
+          "readable": true,
+          "heartbeatAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn"
+          ]
+        },
+        "cliOutput": {
+          "lines": 1
+        }
+      },
+      "errors": [
+        {
+          "source": "weapplog",
+          "text": "[CONTROL ERROR] [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面"
+        }
+      ],
+      "ignored": [],
+      "warnings": [],
+      "status": "FAIL",
+      "reason": "1 error(s): weapplog",
+      "token": "b434181d9e0bdc30",
+      "mode": "auto",
+      "shim": {
+        "version": "0008-v1",
+        "token": "b434181d9e0bdc30",
+        "installedAt": 1791587540545,
+        "heartbeat": true,
+        "wrapped": [
+          "error",
+          "warn"
+        ],
+        "errors": [],
+        "warns": [],
+        "onError": [],
+        "unhandled": []
+      }
+    }
+  ],
+  "config": {
+    "cli": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/review-fake-cli.cjs",
+    "buildDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/build",
+    "workRoot": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies",
+    "target": "B",
+    "control": "A",
+    "mode": "auto",
+    "autoPort": 41100,
+    "settleMs": 0,
+    "injectShim": true,
+    "quitFirst": false,
+    "logDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/logs",
+    "automatorModule": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/review-fake-automator.cjs"
+  },
+  "sourceBuild": {
+    "projectConfigSha256": "ffbe82b5e3c4ec5549243416e955fdc889423a12a1554a3a6a8a43725e27562e",
+    "gameJsonSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "fileCount": 3
+  },
+  "islogin": {
+    "code": 0,
+    "output": "{\"login\":true,\"fake\":true}"
+  },
+  "controlDetected": true,
+  "finishedAt": "2026-10-09T23:12:21.155Z"
+}

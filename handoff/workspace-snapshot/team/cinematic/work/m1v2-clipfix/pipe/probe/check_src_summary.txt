@@ -1,0 +1,23 @@
+===== cine_open_stand
+self:legLxlegL_ctrl                                max    0.00mm @f90  maxN  384 nz 91 [0..90]
+garment[visible]:legLxdress                        max    0.05mm @f14  maxN   16 nz  5 [14..37]
+garment[visible]:legRxdress                        max   29.58mm @f40  maxN    6 nz  3 [35..42]
+garment[visible]:apronxdress                       max    0.00mm @f37  maxN    4 nz  1 [37..37]
+layer_cross:apron_vs_dress                         max   19.56mm @f25  maxN    7 nz 54 [0..68]
+proxy:bodyxcol_int_chair_back                      max   32.27mm @f27  maxN  402 nz 43 [0..42]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f15  maxN  353 nz 24 [0..23]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f15  maxN  906 nz 24 [0..23]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 322}}
+===== cine_open_turn
+self:legLxlegL_ctrl                                max    0.00mm @f45  maxN  370 nz 46 [0..45]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 292}}
+===== cine_open_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  292 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 292}}
+===== cine_home_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  308 nz  1 [0..0]
+layer_cross:apron_vs_dress                         max    3.07mm @f0  maxN    2 nz  1 [0..0]
+proxy:bodyxcol_int_chair_back                      max   31.80mm @f0  maxN  402 nz  1 [0..0]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f0  maxN  353 nz  1 [0..0]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f0  maxN  906 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 308}, 'layer_cross:apron_vs_dress': {'verts_inside': 2, 'depth_mm': 3.07}, 'proxy:bodyxcol_int_chair_back': {'verts_inside': 402, 'depth_mm': 31.8}, 'proxy:body_nobowxcol_int_chair_back': {'verts_inside': 353, 'depth_mm': 20.76}, 'proxy:hairxcol_int_chair_back': {'verts_inside': 906, 'depth_mm': 23.49}}

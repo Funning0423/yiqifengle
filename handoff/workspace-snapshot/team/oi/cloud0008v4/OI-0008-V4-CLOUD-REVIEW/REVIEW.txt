@@ -1,0 +1,105 @@
+0008-v4 独立云端审查，2026-10-10 UTC
+
+结论
+v4 实修了原 21 场景中的旧问题；补充的纯整行精确通知也正确给特殊放行 / exit 3。
+仍不宜合入为自动验收门禁，不能信任其 PASS：新增 12 场景（含健康/阻断对照）中，7 个安全期望失败，分属 3 个实现缺陷。实际为 6 个误 PASS/0、1 个误 PASS_WITH_ALLOWLISTED_IDE_NOTICE/3。均运行原样 v4 源码，非重写模型。四套供应方单测本次复跑仍为 73/73，说明现有单测不足以覆盖边界。
+
+可以保留为待修诊断候选；当前不能拿其通过结果放行正式产物。不要求回退已确认修好的旧场景。
+本次没有操作 Mac、DevTools、微信、用户窗口或外部服务，也没有安装依赖。所有 CLI/automator 均为本包明确指定的本地假实现，game.js 在 Node vm 中运行，非真实小游戏运行。
+
+一、下载与完整性
+经 Google Drive 正规 metadata/fetch(raw) 下载，读取 sidecar，再从官方返回附件下载到隔离云端。
+ZIP: 20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4.zip
+Drive ID: 11zp_XLeFnfvYM4AXnnoEL1dfA5qpn_9-
+size: 2236023 bytes
+SHA256: 2a86e054af519f07bef1d3be313b9f9cb89a652b974dcdbd0abcabfca7a8748b
+sidecar Drive ID: 1BS4CyKBA9qRmdC7ql3M2NjEF9MAkef73；与收到的 SHA 全值一致。
+CRC 全通过；2,428 项，无重复路径、绝对路径、.. 跳出、反斜杠/NUL 路径或符号链接。
+总解压 6,626,354 bytes；内部清单列出的 2,308 文件 SHA 全通过。另 120 项全为各级 SHA256SUMS.txt 清单本身，非未列源码；outer SHA 绑定全部字节。详细见 results/integrity.json。
+
+实际执行的 audit SHA256:
+d466c6413f75fd7224ee4858ea3fca23509585de0f7382a63a09c108e9485ae2
+所需源码原字节在 source/；所有复制源码及 fixtures 的完整 SHA 见 SOURCE-SHA256SUMS.txt。没有修改供应方源码。
+
+二、已修与测试是否改弱
+独立旧 21 场景使用我方原 fake-cli/fake-automator 输入；只更新目标源码/pin和修后期望。全部判对，并独立核验 exit 0/1/2/3、退出后 manifest、非空 CLI 动作和关闭目标。
+- 普通 Error、任意方括号错误、无可识别文本的 WeappLog console.error 现在可判错。
+- 无归属错误现在 BLOCKED。
+- 混合 canary 同行后缀错误不再豁免；缺 boot 不由 LATE 代替。缺 boot 场景原因明确为 boot 记录缺失及 canaryAtBoot 非 true。
+- TypeError 与提示混合的原反例现在 FAIL。
+- OTHER-PROJECT + 通知保留未知前缀，非精确 payload；误归为提示需后缀匹配，违反严格 allowlist，因此 BLOCKED 合理。
+- 新增无项目标记的纯整行精确通知，allowlist 开启且其它证据完整时仅特殊放行/exit3；本项目精确通知默认 FAIL。
+
+供应方 test/oi-replay-v4 的原件与我方先前交付逐字节一致；原 21 场景保留，fake-cli 未改，fake-automator 仅加纯整行通知。所附 CHANGES diff 与独立 diff 一致。未发现删反例/改弱输入。
+但 SHA 固定断言改为可选 REVIEW_EXPECT_SHA，默认不再钉住版本。其 ok 只断言 status+manifest、不核 exit；这项 exit 覆盖缺口原版也已有，不能归为本轮偷改。我们的交付脚本重新固定当前完整 audit SHA 并断言 exit；所有 source 哈希另外可验。
+
+三、仍存在的 3 个缺陷与精确复现
+所有新场景都以健康场景为底，其它 boot/late canary、LoadScene、自有 CLI 退出/关闭均完整；只新增以下输入。原始行输入见 inputs/new-boundaries/<case>/logs/WeappLog/review.log，CLI 行见相应 cli-output.json。随机 canary token 是审计标记，不是凭证。
+
+A. 高优先级：行内 level tag 前的文字被丢出分类，破坏“整条匹配”。
+位置：source/tools/first_open_console_rules.cjs:55-67；source/tools/wechat_first_open_audit.cjs:410-419。
+parseLogLine 以任意位置第一个 level tag 切 payload，把此前文字放 prefix；audit 最终只给 classifyEvent(level,payload)，prefix 不检查，也不进入 events-classified.json。
+实际输入 / 结果 / 应有结果：
+1) <own path> TypeError: actual prefix failure [log] harmless
+   prefix-error-before-log → PASS/0；应 FAIL。
+2) <own path> TypeError: actual prefix failure [error] [QF-AUDIT-CANARY] <本次token>
+   prefix-error-before-canary → PASS/0；应 FAIL，整行含真实错误不能豁免。
+3) <own path> TypeError: actual prefix failure [error] <精确通知>；allowlist=1
+   prefix-error-before-notice-allowlisted → 特殊放行/3；应 FAIL，前段 TypeError 不能被提示覆盖。
+4) OTHER-PROJECT TypeError: unowned prefix failure [log] harmless
+   prefix-unowned-error-before-log → PASS/0；应 BLOCKED，无归属也不得静默吞掉错误。
+健康与 source-prefix [error] plain fatal diagnostic 对照分别 PASS 与 FAIL。
+建议：只剥明确认可的前导协议字段；未知前段须保留在完整待判文本，或标记协议不完整而 BLOCKED。允许 canary/notice 豁免前，应确认整个有效事件无额外未知文字，不能仅检查已经裁掉错误的 payload。
+
+B. 中优先级：CLI 使用同一分类函数，但未做同一等级归一化。
+位置：source/tools/wechat_first_open_audit.cjs:415。
+自有 CLI stderr 的每一行都设置 level='unknown'，不经过 parseLogLine；因此以下输出且 CLI exit0、其它通道健康时：
+5) [console.error] plain fatal diagnostic → PASS/0。
+6) [error] plain fatal diagnostic → PASS/0。
+场景 cli-error-tag / cli-error-prefix。显式错误等级应 FAIL；若真实 CLI 格式无法安全解释，至少 BLOCKED，不能静默 PASS。普通 [warn] 对照仍 PASS，不能简单将一切 stderr 都算错误。
+本次没有证实真实 DevTools CLI 会输出这两个精确格式；已证明候选宣称的多通道错误规则在这两个本地边界下不一致。
+
+C. 中优先级：UTF-8 在 EOF 残缺时未触发协议不完整。
+位置：source/tools/wechat_first_open_audit.cjs:198-200 vs :241。
+readFrom 检查 decoder.write 的 replacement 字符；stop 对 decoder.end() 的返回值直接 emit，漏掉只在 flush 时产生的 replacement。
+7) 完整健康日志结束后，追加 <own path> [log] truncated utf8: 再跟单字节 0xE4（无换行、无后续字节）。
+   utf8-truncated-eof → PASS/0，weappLog.incomplete=[]，final-rehash ok=true；应 BLOCKED（不是完整 UTF-8）。
+同样位置写 0xFF 的 utf8-invalid-control 正确 BLOCKED。
+建议：对 decoder.end() 残余解码结果做同等无效编码检查，或明确检测待完成字节；重哈希证明字节一致不代表编码完整。
+
+完整结果见 results/new-boundaries/summary.json；每个结果目录有原样 verdict、channels、分类事件、console/log/CLI 证据和已冻结 SHA/manifest。
+
+四、实际已跑的其它检查
+- source/tools 四文件 node --check 均 exit0。
+- test_finalizer_0008v2：33/33。
+- test_shim：8/8。
+- test_log_tailer：20/20，包含同 inode/同大小/前4K不变后缀、中段、基线重写、UTF8 split健康对照。
+- test_rules_v4：12/12。
+- 原独立 4K 后缀反例的 v4 阳性版本通过：重写记录 incomplete；3 条分类反例均为 error。它未要求无法捕获内容一定恢复，阻断已足够。
+- QF_DEVTOOLS_QUIT_FIRST=1 隔离探针：BLOCKED/2，CLI 调用次数为零；未执行任何 quit。
+- 全部 33 个动态场景的实际 exit 与 status 映射一致，manifest 退出后均一致。
+- CLI 动作都实际存在：islogin、auto、1次或以上 close；close-exit5 失败路径重试同一副本。没有其它命令或其它项目目标。真实 cli close 语义未由此证明。
+
+五、finalizer 与根因边界
+v4 patch 与 v2/v3 逐字节相同：
+patch SHA a2e4d6995de61464b5f52f059e15f5f59e182e0f0ca509b04ae903cd50f9e149
+patched reference SHA de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79
+实际 12ef697 原文件 SHA 613273428bd91756e08f9a49c27a8ca218ac674c2055fa763d164de278266b09
+apply --check、apply 后 reference 一致、反向检查及保留 compileType/AppID、非空 condition 拒绝、enhance=false 均由本次测试确认。只在临时目录执行，不替换当前工程文件；不能把这项诊断/幂等补丁说成已修 IDE 红字。
+README 根因已明显收窄：E/F/G 历史材料只支持“不需要 Cocos、已测 condition 有/无都不足以消除、某些运行仍继续加载”。不能证明 DevTools 全局根因、任何项目文件都无法修复、对所有功能无害。H1′/H2 未验证。
+README 关于未知格式“整段扫描”、无效 UTF8必阻断仍被本轮反例推翻。另“轮询之间追加后又截断一定记录 incomplete”过满：若观察前完全恢复原字节/大小，则没有可观察变化，应归已声明的检测不到范围。
+
+六、可进入真环境/合入条件
+1) 修复上述 3 个实现缺口；新增 7 个反例必须不得 PASS/特殊放行，其它正负对照保持正确。重新固定源码 SHA、退出码与 manifest 断言。
+2) 保留 12ef697 的现有修复与窄 patch 机制，不整体覆盖未知最新 finalizer；不重新加入全局 quit；只在明确隔离副本上运行。
+3) 云端回归通过后，可在获得可用 Mac 与明确授权时进入隔离诊断。首次应只核实际日志协议/本项目标记/boot canary/等级和 close 语义，人工对照三通道；未满足则 BLOCKED。不能靠 false-PASS 有历史的工具自动宣告首开通过。
+4) 默认不启用 allowlist；若另获批准，仅精确整行通知可到特殊状态 exit3，不能作为零红普通 PASS。
+
+逐项未测
+- 用户 Mac、Creator 实际新构建、真实 DevTools Stable 2.02.2608080、基础库 3.17.3、微信与真机。
+- 真实 WeappLog 位置、目录深度、扩展名、等级格式、编码/追加协议、项目标记、canary 是否落盘、写入/轮转时序。
+- 真实 automator console/error/exception/evaluate/screenshot 行为和可见窗口。
+- 真实 cli close --project 的作用范围和退出码含义、多窗口共存、DevTools 持久状态；本次仅核源代码调用范围和假 CLI 记录。
+- V1/V2/V3、H1′/H2、app.json/custom-condition 真正触发原因及消除方案。
+- 本次未复跑供应方需要额外客户端/server 的 26 项 dry-run 与 15 项 v2-v3对照；其自测文件只是供应方记录。本包独立 21+12 与四套73单测、tail边界、quit探针已实跑。
+- 暂态日志改写若观察前恢复原字节、协议外文件及 IDE 未输出内容没有通用捕获保证。

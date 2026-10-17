@@ -1,0 +1,243 @@
+{
+ "run": "rh_skycity_390x520",
+ "lastBefore": {
+  "t_ms": 124538.9,
+  "state": "level-loading",
+  "cam": "Main Camera",
+  "fov": 55,
+  "posLocal": [
+   3.14112,
+   7.97335,
+   47.94516
+  ],
+  "fwdLocal": [
+   -0.207888,
+   -0.381127,
+   -0.900847
+  ],
+  "aspect": 0.75
+ },
+ "firstAfter": {
+  "t_ms": 124574.7,
+  "state": "level",
+  "cam": "SkycityBackgroundCamera",
+  "fov": 55,
+  "posLocal": [
+   3.14112,
+   7.97335,
+   47.94516
+  ],
+  "fwdLocal": [
+   -0.207888,
+   -0.381127,
+   -0.900847
+  ],
+  "aspect": 0.75
+ },
+ "swapDelta": {
+  "angleDeg": 0.0,
+  "fovDeg": 0,
+  "positionCm": 0.0
+ },
+ "window20": [
+  {
+   "t_ms": 124405.4,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.9
+  },
+  {
+   "t_ms": 124422,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.6
+  },
+  {
+   "t_ms": 124438.7,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.7
+  },
+  {
+   "t_ms": 124455.3,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.6
+  },
+  {
+   "t_ms": 124472.2,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.9
+  },
+  {
+   "t_ms": 124488.9,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.7
+  },
+  {
+   "t_ms": 124505.6,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.7
+  },
+  {
+   "t_ms": 124522,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.4
+  },
+  {
+   "t_ms": 124538.9,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.9
+  },
+  {
+   "t_ms": 124574.7,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 35.8
+  },
+  {
+   "t_ms": 124577.3,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 2.6
+  },
+  {
+   "t_ms": 124589.3,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 12.0
+  },
+  {
+   "t_ms": 124605.7,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.4
+  },
+  {
+   "t_ms": 124622.4,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.7
+  },
+  {
+   "t_ms": 124638.9,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.5
+  },
+  {
+   "t_ms": 124656,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 17.1
+  },
+  {
+   "t_ms": 124672.6,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.6
+  },
+  {
+   "t_ms": 124689.3,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.7
+  },
+  {
+   "t_ms": 124706.1,
+   "cam": "SkycityBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.8
+  }
+ ],
+ "windowTimes": [
+  124388.5,
+  124405.4,
+  124422,
+  124438.7,
+  124455.3,
+  124472.2,
+  124488.9,
+  124505.6,
+  124522,
+  124538.9,
+  124574.7,
+  124577.3,
+  124589.3,
+  124605.7,
+  124622.4,
+  124638.9,
+  124656,
+  124672.6,
+  124689.3,
+  124706.1
+ ],
+ "maxStepInWindow": {
+  "dAngleDeg": 0.0,
+  "dFovDeg": 0,
+  "dPosCm": 0.0
+ },
+ "pass": true
+}

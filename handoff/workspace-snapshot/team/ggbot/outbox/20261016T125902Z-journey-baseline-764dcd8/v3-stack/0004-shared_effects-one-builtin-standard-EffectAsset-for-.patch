@@ -1,0 +1,195 @@
+From cb4f846b831a030d866aa87c71330c2ba06acee1 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 18:20:02 +0800
+Subject: [PATCH 4/5] shared_effects: one builtin-standard EffectAsset for all
+ region bundles
+
+New priority-6 WeChat subpackage shared_effects holds a material referencing builtin-standard, so Creator packs the
+~1.0 MiB effect once instead of in board_art, region_island, region_meadow, region_skycity and static_seat_preview.
+SharedBundles.ts (imported first by both boots) loads shared_effects before any dependent bundle (Cocos 3.8 does not
+auto-load bundle deps). Test tools/skycity/test_shared_effects.cjs.
+---
+ .../assets/bundles/shared_effects.meta        | 20 +++++++++++++
+ .../mat_shared_builtin_standard.mtl           | 29 +++++++++++++++++++
+ .../mat_shared_builtin_standard.mtl.meta      | 11 +++++++
+ .../assets/scripts/SharedBundles.ts           | 18 ++++++++++++
+ .../assets/scripts/SharedBundles.ts.meta      |  9 ++++++
+ .../assets/scripts/StaticSeatedPreviewBoot.ts |  1 +
+ .../assets/scripts/WorldIntegrationBoot.ts    |  1 +
+ tools/skycity/test_shared_effects.cjs         | 24 +++++++++++++++
+ 8 files changed, 113 insertions(+)
+ create mode 100644 creator-build-project/assets/bundles/shared_effects.meta
+ create mode 100644 creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl
+ create mode 100644 creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl.meta
+ create mode 100644 creator-build-project/assets/scripts/SharedBundles.ts
+ create mode 100644 creator-build-project/assets/scripts/SharedBundles.ts.meta
+ create mode 100644 tools/skycity/test_shared_effects.cjs
+
+diff --git a/creator-build-project/assets/bundles/shared_effects.meta b/creator-build-project/assets/bundles/shared_effects.meta
+new file mode 100644
+index 0000000..a1e26fc
+--- /dev/null
++++ b/creator-build-project/assets/bundles/shared_effects.meta
+@@ -0,0 +1,20 @@
++{
++  "ver": "1.2.0",
++  "importer": "directory",
++  "imported": true,
++  "uuid": "68aca500-6888-46a1-b19e-52f74ca8ad28",
++  "files": [],
++  "subMetas": {},
++  "userData": {
++    "isBundle": true,
++    "bundleConfigID": "wx_subpackage",
++    "bundleName": "shared_effects",
++    "priority": 6,
++    "compressionType": {
++      "wechatgame": "subpackage"
++    },
++    "isRemoteBundle": {
++      "wechatgame": false
++    }
++  }
++}
+diff --git a/creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl b/creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl
+new file mode 100644
+index 0000000..aa4022d
+--- /dev/null
++++ b/creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl
+@@ -0,0 +1,29 @@
++{
++  "__type__": "cc.Material",
++  "_name": "",
++  "_objFlags": 0,
++  "__editorExtras__": {},
++  "_native": "",
++  "_effectAsset": {
++    "__uuid__": "c8f66d17-351a-48da-a12c-0212d28575c4",
++    "__expectedType__": "cc.EffectAsset"
++  },
++  "_techIdx": 0,
++  "_defines": [
++    {}
++  ],
++  "_states": [
++    {
++      "rasterizerState": {},
++      "depthStencilState": {},
++      "blendState": {
++        "targets": [
++          {}
++        ]
++      }
++    }
++  ],
++  "_props": [
++    {}
++  ]
++}
+diff --git a/creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl.meta b/creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl.meta
+new file mode 100644
+index 0000000..28df0b1
+--- /dev/null
++++ b/creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl.meta
+@@ -0,0 +1,11 @@
++{
++  "ver": "1.0.21",
++  "importer": "material",
++  "imported": true,
++  "uuid": "a5aabc81-7a75-4c9f-9845-32e0da09dfa7",
++  "files": [
++    ".json"
++  ],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/SharedBundles.ts b/creator-build-project/assets/scripts/SharedBundles.ts
+new file mode 100644
+index 0000000..3cec09b
+--- /dev/null
++++ b/creator-build-project/assets/scripts/SharedBundles.ts
+@@ -0,0 +1,18 @@
++import { assetManager } from 'cc';
++/** One shared copy of builtin-standard (≈1.0 MiB EffectAsset) instead of one per bundle.
++ * shared_effects (priority 6, WeChat subpackage) holds a material that references the effect, so Creator packs the effect there
++ * and the priority-1 bundles reference it instead of copying it. Cocos 3.8 does not load bundle deps on its own, so every
++ * loadBundle of a dependent bundle first loads shared_effects. Installed once at import; idempotent. */
++export const SHARED_BUNDLE = 'shared_effects';
++export const SHARED_DEPENDENTS: readonly string[] = ['region_island', 'region_meadow', 'region_skycity', 'static_seat_preview', 'board_art'];
++export function installSharedBundleDeps(am: any = assetManager): void {
++  if (!am || typeof am.loadBundle !== 'function' || am.__qfSharedDeps) return;
++  const orig = am.loadBundle.bind(am); am.__qfSharedDeps = true;
++  am.loadBundle = function (name: string, a?: any, b?: any) {
++    const cb = typeof a === 'function' ? a : b, opts = typeof a === 'function' ? undefined : a;
++    const go = () => (opts === undefined ? orig(name, cb) : orig(name, opts, cb));
++    if (name === SHARED_BUNDLE || !SHARED_DEPENDENTS.includes(name) || am.getBundle(SHARED_BUNDLE)) return go();
++    orig(SHARED_BUNDLE, (e: any) => { if (e) { if (typeof cb === 'function') cb(e, null); return; } go(); });
++  };
++}
++installSharedBundleDeps();
+diff --git a/creator-build-project/assets/scripts/SharedBundles.ts.meta b/creator-build-project/assets/scripts/SharedBundles.ts.meta
+new file mode 100644
+index 0000000..5cef7c6
+--- /dev/null
++++ b/creator-build-project/assets/scripts/SharedBundles.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "6cbd77b4-c68b-43d8-a5a8-f202a8f52c74",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts b/creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts
+index 42073a8..90c63dd 100644
+--- a/creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts
++++ b/creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts
+@@ -1,3 +1,4 @@
++import './SharedBundles';
+ import { _decorator, Component, assetManager, Prefab, Node, instantiate, isValid, director, Camera, Vec3, MeshRenderer, SkeletalAnimation } from 'cc';
+ import { PreviewLease } from './static-seat/PreviewLease';
+ import { FIRSTSLICE } from './world-r1/FirstsliceFacts';
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index ba0ee63..9170669 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -1,3 +1,4 @@
++import './SharedBundles';
+ import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
+ import { DEBUG } from 'cc/env';
+ import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
+diff --git a/tools/skycity/test_shared_effects.cjs b/tools/skycity/test_shared_effects.cjs
+new file mode 100644
+index 0000000..09e44ab
+--- /dev/null
++++ b/tools/skycity/test_shared_effects.cjs
+@@ -0,0 +1,24 @@
++#!/usr/bin/env node
++'use strict';
++// shared_effects: one builtin-standard copy (priority 6 WeChat subpackage) + loader hook that loads it before any dependent bundle.
++const fs=require('fs'),path=require('path'),assert=require('assert'),Module=require('module');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript'),P=path.resolve(__dirname,'../../creator-build-project/assets');
++const dir=JSON.parse(fs.readFileSync(P+'/bundles/shared_effects.meta','utf8')).userData;
++assert.deepStrictEqual([dir.isBundle,dir.bundleName,dir.priority,dir.compressionType.wechatgame,dir.isRemoteBundle.wechatgame],[true,'shared_effects',6,'subpackage',false]);
++const bundles=fs.readdirSync(P+'/bundles').filter(f=>f.endsWith('.meta')&&f!=='shared_effects.meta').map(f=>JSON.parse(fs.readFileSync(P+'/bundles/'+f,'utf8')).userData).filter(u=>u.isBundle);
++for(const u of bundles)assert(u.priority<6,u.bundleName+' must stay below shared_effects priority');
++const res=JSON.parse(fs.readFileSync(P+'/resources.meta','utf8')).userData;assert(res.priority>6,'resources/main keep higher priority');
++const mtl=JSON.parse(fs.readFileSync(P+'/bundles/shared_effects/mat_shared_builtin_standard.mtl','utf8'));assert.equal(mtl._effectAsset.__uuid__,'c8f66d17-351a-48da-a12c-0212d28575c4');
++assert.deepStrictEqual(fs.readdirSync(P+'/bundles/shared_effects').sort(),['mat_shared_builtin_standard.mtl','mat_shared_builtin_standard.mtl.meta'],'shared bundle holds only the effect carrier');
++// loader hook, real TS with a fake assetManager
++const src=fs.readFileSync(P+'/scripts/SharedBundles.ts','utf8'),js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2019}}).outputText;
++const log=[],loaded=new Set();let fail=null;const am={getBundle:n=>loaded.has(n)?{name:n}:null,loadBundle(n,a,b){const cb=typeof a==='function'?a:b;log.push(n);setImmediate(()=>{if(fail===n)return cb(Error('x'),null);loaded.add(n);cb(null,{name:n});});}};
++const m=new Module('SharedBundles');m.paths=module.paths;const req=m.require.bind(m);m.require=id=>id==='cc'?{assetManager:am}:req(id);m._compile(js,'SharedBundles.js');
++assert(am.__qfSharedDeps);const L=m.exports;L.installSharedBundleDeps(am);assert.deepStrictEqual([...L.SHARED_DEPENDENTS].sort(),['board_art','region_island','region_meadow','region_skycity','static_seat_preview']);
++(async()=>{const load=(n,o)=>new Promise((ok,ko)=>o?am.loadBundle(n,o,(e,b)=>e?ko(e):ok(b)):am.loadBundle(n,(e,b)=>e?ko(e):ok(b)));
++ assert.equal((await load('audio_bgm_island')).name,'audio_bgm_island');assert.deepStrictEqual(log,['audio_bgm_island'],'non-dependent untouched');
++ fail='shared_effects';await assert.rejects(load('region_skycity'));assert(!loaded.has('region_skycity'),'dependent never loads without the shared effect');fail=null;log.length=0;
++ assert.equal((await load('region_skycity',{})).name,'region_skycity');assert.deepStrictEqual(log,['shared_effects','region_skycity']);
++ log.length=0;await load('region_meadow');assert.deepStrictEqual(log,['region_meadow'],'shared loaded once');
++ for(const f of ['WorldIntegrationBoot.ts','StaticSeatedPreviewBoot.ts'])assert(/^import '\.\/SharedBundles';/m.test(fs.readFileSync(P+'/scripts/'+f,'utf8')),f+' installs the hook first');
++ console.log('PASS shared_effects bundle + loader hook');})().catch(e=>{console.error(e);process.exitCode=1;});
+-- 
+2.47.3
+

@@ -1,0 +1,17 @@
+[
+  {
+    "side": "R",
+    "start": 21.5,
+    "end": 22.18,
+    "world_heel_game_m": [
+      -0.12474305219105859,
+      0.0011814535837357254,
+      -0.4576353357268746
+    ],
+    "yaw_initial": 0.08921258440595356,
+    "body_yaw_initial": 0.0,
+    "yaw_end": 1.0690160203190233,
+    "source_heel_vertex_id": 2252,
+    "forefoot_pitch_peak_degrees": 1.2
+  }
+]

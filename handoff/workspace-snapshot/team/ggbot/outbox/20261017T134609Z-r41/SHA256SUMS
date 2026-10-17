@@ -1,0 +1,14 @@
+1db9685e958415142a3a22801736d901c5199766f5b8b9aa1380bb984ae719eb  ./MAC_CHECKLIST.md
+a733dd164bb4d47c8b0c00d14d741e1e1141cfeeca85c07f1fee2dd6b52b54e2  ./PATCH-LIST.txt
+da8a0f551d5ed04358a0c634a64a12fb9109125e0c5be288d56a59c42a1a2088  ./README.md
+9525e2d431d61a81895ada8d9950e156dea0b00038b95957fb758412f7d7453e  ./bundle-verify.txt
+8f1d0d77507347a8e68c3bcf3da526f1509ea3c50dfcfada927dfdfeaa1f8902  ./patches/0001-r4.1-board-hint-banner-above-the-tray-BoardLayout.to.patch
+e911ec96e0a59ecaa3b68c8f29857c6727f2d1b2ba3e204559c597a0762ac663  ./patches/0002-meadow-r4.1-hint-banner-above-the-tray-GGbot-260ea02.patch
+ae8394edb077ff0154a50d00f6ea305e4b05491d6132aacb08c5bdfb5a7a9687  ./patches/0003-r4-exit-footsteps-live-steps-on-the-character-s-real.patch
+041e8d0d6fa6deb8456a72c5f012f967a397effd1f25386d606738ad324fcc93  ./patches/0004-r4.1-world-flow-backgrounding-mid-exit-mid-walk-home.patch
+b56a6883d2403843ab43a6ec66f979ba9c5a72e9fa48e1c4710c7b2236f108f6  ./patches/0005-r4.1-exit-footsteps-outdoor-steps-10-12-dB-under-mus.patch
+3956cf59c6c8f7a26719a650afc8dc4015c023582ba7f3c3c1e270e2f91ebc1a  ./r41-build05.bundle
+1f42402194e1b0c1d228df91669422bb8c3127384fa9d21865a5213d033455d7  ./size-delta.txt
+08121e60fb2ea98d23c6bc689bdb5b2eabf463fb48e548d95f6438398efc95a4  ./suite/exit-footsteps-node22.txt
+8eb12b61dd5e8d960a53a8649b99694f56b7db5ab3550b333d1db8cc3597724d  ./suite/suite-node20.txt
+8e45ca17770e58b9b1fe4243dbb4aee917186793cb45661da63e1ca2d99add44  ./suite/suite-node22.txt

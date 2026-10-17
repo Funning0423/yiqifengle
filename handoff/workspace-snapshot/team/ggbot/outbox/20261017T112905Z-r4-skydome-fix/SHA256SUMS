@@ -1,0 +1,16 @@
+572cc760d9b7b8f2f8f312ebe9084ec71a670d6400f5463734da51d022b78304  ./README.md
+e2259215d08c18cb82ecf915258999fce6dc479d25ec1b81e760e814dad5d7d0  ./ggbot-build05-r4-journey-fixes-skydome.bundle
+412bd17b8b0ea2c355af5ff83d7e472ceaec32c5cb91cc5e6d031ec3ccf31dda  ./images/dome-blend-swatches-COMPUTED-not-screenshot.png
+55b6299cbd7209cb906c10b6c246473bbe1d46fbb643cb3a4c4a13b67de4c9bd  ./images/dome-colours-computed.json
+f28fa0974ae24256fb130e13cc77f9484abdeeebac58e52348150a3c6aa0d989  ./logs/b-class-check/errs-check.txt
+0e7f78fb14548fb41d9daede8e30dc554ea664212ec3b2d3faad1dc133fb7e4f  ./logs/b-class-check/gen.cjs
+77554025f9accbbd956fa6e7d465438e7a2407ae9d1082197d7686acc87ac0bb  ./logs/b-class-check/t_worldFlowLog.txt
+badf953de8729b0ab8572d488ba8dcdd7003643da63ab053744c74130d82f8fd  ./logs/bundle-verify.txt
+ec881fc9dbbbb725eb03b926ed396b0b0726059ad2a16e4cc0942f31e441550a  ./logs/cherry-pick-a8ba19a-tests.log
+0046031e78c9628776d5a32ad2c678d6ab6ba0ba5e7f59c50b8d0b0c308da46a  ./logs/cherry-pick-a8ba19a.log
+541a7d3f0175a47f3b15baddeb8b8de05061812c26272254475f9d0bbbd1e40a  ./logs/suite-node20.json
+3333fd3ee25f6f01a3cb0fa395916706e60bc1968e4854c031a3c0a8708ca15f  ./logs/suite-node20.log
+342231bbb610216f8dafabf949f4f4931bc6314f8486953afe25aa393b0bfe19  ./logs/suite-node22.json
+97ab2729559b1c49541440d6859322c05409b93005f80f86a9bd44d4bf579924  ./logs/suite-node22.log
+a2529efe4185871c18fb179337f1dbf359fc28cc96e6370736be8846e4c5832d  ./patches/0001-r4-sky-dome-fix-dome-follows-the-board-clear-colour-.patch
+ca95989160cac9ae070f7a4cf8818e718a8749605151ad429da7ae6c3b049cbf  ./patches/0002-r4-journey-fix-1b-QF_LAKE-journey-water-fallback-is-.patch

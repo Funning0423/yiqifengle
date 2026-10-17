@@ -1,0 +1,63 @@
+{
+ "clips": [
+  {
+   "name": "wind_sway_loop",
+   "fps": 30,
+   "frames": 120,
+   "duration_s": 4.0,
+   "loop": true,
+   "in_place": true,
+   "root_curve": [
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     4.0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "events": [],
+   "driven_bones": [
+    "skirt.front",
+    "skirt.back",
+    "skirt.left",
+    "skirt.right",
+    "skirt.front.low",
+    "skirt.back.low",
+    "skirt.left.low",
+    "skirt.right.low"
+   ],
+   "wind_direction": "+X Blender / +X glTF = character's physical LEFT side, slight forward (-Y Blender = +Z glTF forward), matches R8 MDD frame-150 hem drift (+x,-y)",
+   "agent": "grokbot-2 (\u7b2c\u4e8c\u4e2a Grok Bot)"
+  },
+  {
+   "name": "idle_breathing_loop",
+   "fps": 30,
+   "frames": 120,
+   "duration_s": 4.0,
+   "loop": true,
+   "in_place": true,
+   "root_curve": [
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     4.0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "events": [],
+   "agent": "grokbot-2 (\u7b2c\u4e8c\u4e2a Grok Bot)"
+  }
+ ]
+}

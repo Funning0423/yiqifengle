@@ -1,0 +1,84 @@
+# Build M1 working scene: copy of pass2b source (K applied once, 4-weight limit) + real interior (chair, door, shell, col_* proxies) in metre game space (Blender Z-up; game(x,y,z)->blender(x,-z,y)).
+import bpy, json, math, numpy as np
+from mathutils import Vector, Matrix
+from mathutils.kdtree import KDTree
+W='/workspace/wechat-game/team/cinematic/work/m1v2/'
+A='/workspace/wechat-game/art/x/GROKBOT-ART-001-INTERIOR-v2.1.0/GROKBOT-ART-001-INTERIOR-v2.1.0/'
+bpy.ops.wm.open_mainfile(filepath=W+'src_copy/B_R5G2_FIX_PASS2B_SOURCE_grokbot2.blend')
+rep={}
+# 1) drop reference-only objects (hidden MDD wind refs, hidden repair patches, review cameras)
+for n in ['B_APRON_PROOF_MIDSURFACE_R8WIND_REFERENCE_MDD','B_YELLOW_PROOF_MIDSURFACE_R8WIND_REFERENCE_MDD','B_CONTINUOUS_FACE_PATCH_R6','B_NATURAL_HAND_FACE_R9','BodiceChartReviewCamera','OriginalHeadRepairCamera']:
+    o=bpy.data.objects.get(n)
+    if o: bpy.data.objects.remove(o)
+arm=bpy.data.objects['R5G2_RIG_22P4']; K=bpy.data.objects['B_SINGLE_WORLD_ROOT_SOURCE_K']
+CH=['B_ANATOMICAL_VERTICAL_SLENDER_R5','G2_DRESS_R5G2','G2_APRON_R5G2','G2_HAIR_BOB_R5G2']
+kval=K.scale[0]; rep['K']=kval
+# 2) Cocos skinning: limit 4 influences + normalize (count before)
+for n in CH:
+    o=bpy.data.objects[n]
+    defn={g.index for g in o.vertex_groups}
+    cnt=sum(1 for v in o.data.vertices if len([g for g in v.groups if g.weight>0])>4)
+    for x in bpy.context.selected_objects: x.select_set(False)
+    o.select_set(True); bpy.context.view_layer.objects.active=o
+    bpy.ops.object.vertex_group_limit_total(group_select_mode='ALL',limit=4)
+    bpy.ops.object.vertex_group_normalize_all(group_select_mode='ALL',lock_active=False)
+    mx=max((len([g for g in v.groups if g.weight>0]) for v in o.data.vertices),default=0)
+    rep['weights_'+n]={'verts_over4_before':cnt,'max_influences_after':mx}
+# 3) apply K once (root scale = 1)
+for x in bpy.context.selected_objects: x.select_set(False)
+for n in CH+['R5G2_RIG_22P4']:
+    o=bpy.data.objects[n]; mw=o.matrix_world.copy(); o.parent=None; o.matrix_world=mw; o.select_set(True)
+bpy.context.view_layer.objects.active=arm
+bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+for n in CH:
+    for m in bpy.data.objects[n].modifiers:
+        if m.type=='SOLIDIFY': m.thickness*=kval
+bpy.data.objects.remove(K)
+# drop pass2 loop NLA from active use (keep actions, muted)
+arm.animation_data.action=None
+# 4) environment from the real interior pack (metric)
+def append(path,names):
+    with bpy.data.libraries.load(path) as (src,dst): dst.objects=[n for n in src.objects if n in names]
+    out=[]
+    for o in dst.objects:
+        if o is None: continue
+        bpy.context.scene.collection.objects.link(o); out.append(o)
+    return out
+envc=bpy.data.collections.new('ENV_REAL'); bpy.context.scene.collection.children.link(envc)
+colc=bpy.data.collections.new('ENV_COL_PROXIES'); bpy.context.scene.collection.children.link(colc)
+env=append(A+'scene/env_interior_assembled.blend',['env_interior_props_merged','env_interior_shell','env_lighthouse_door','env_interior_glass','env_int_anim_cat']+['col_int_ceiling','col_int_chair_armrest_l','col_int_chair_armrest_r','col_int_chair_back','col_int_chair_seat','col_int_desk','col_int_door_frame','col_int_floor_walkable','col_int_props_misc','col_int_side_table','col_int_stairs','col_int_stool','col_int_walls','col_lighthouse_door_leaf'])
+for o in env:
+    for c in list(o.users_collection): c.objects.unlink(o)
+    (colc if o.name.startswith('col_') else envc).objects.link(o)
+    if o.name.startswith('col_'): o.display_type='WIRE'; o.hide_render=True
+    o.parent=None
+colc.hide_render=True
+chair_w=Matrix.Translation((0.4203,4.2133,0))@Matrix.Rotation(-2.0,4,'Z')
+ch=append(A+'assets/blend/env_int_prop_reading_chair.blend',['env_int_prop_reading_chair'])[0]
+for c in list(ch.users_collection): c.objects.unlink(ch)
+envc.objects.link(ch); ch.matrix_world=chair_w; ch.name='CHAIR_REAL_reading_chair'
+ca=append(A+'assets/blend/env_int_prop_reading_chair_arms.blend',['env_int_prop_reading_chair_arms'])[0]
+for c in list(ca.users_collection): c.objects.unlink(ca)
+envc.objects.link(ca); ca.matrix_world=chair_w; ca.name='CHAIR_VARIANT_arms_NOT_IN_GAME'; ca.hide_render=True; ca.hide_set(True)
+# remove the chair verts from the merged props copy (chair is tested as its own object)
+pm=bpy.data.objects['env_interior_props_merged']
+kd=KDTree(len(ch.data.vertices))
+for i,v in enumerate(ch.data.vertices): kd.insert(ch.matrix_world@v.co,i)
+kd.balance()
+import bmesh
+bm=bmesh.new(); bm.from_mesh(pm.data)
+dele=[v for v in bm.verts if kd.find(pm.matrix_world@v.co)[2]<1e-5]
+rep['props_merged_chair_verts_removed']=len(dele)
+bmesh.ops.delete(bm,geom=dele,context='VERTS'); bm.to_mesh(pm.data); bm.free()
+pm.name='ENV_props_merged_minus_chair'
+# anchors (game -> blender)
+F=json.load(open(W+'probe/facts.json'))
+anc=bpy.data.collections.new('ANCHORS'); bpy.context.scene.collection.children.link(anc)
+for n,a in F['anchors'].items():
+    p=a['position']; e=bpy.data.objects.new('A_'+n,None); e.empty_display_size=0.08; e.location=(p[0],-p[2],p[1]); anc.objects.link(e)
+    y=(a.get('properties') or {}).get('yaw_rad')
+    if y is not None: e.rotation_euler=(0,0,y)
+for n in CH: rep['bbox_z_'+n]=round(max((bpy.data.objects[n].matrix_world@Vector(c)).z for c in bpy.data.objects[n].bound_box),4)
+bpy.context.scene.render.fps=30
+bpy.ops.wm.save_as_mainfile(filepath=W+'scene/cine_m1_base.blend')
+print('REP',json.dumps(rep))

@@ -1,0 +1,8 @@
+{
+  "../base/runtime-editable-source.json.gz": "f811368062a9395b7889971374daed64bbb24d05e938a252425f6d8e499f361a",
+  "../split_mapping.json": "be40219cb4bf66eca889b60e3941bc93622cfca6e7ffffe1717f6a166627d9b9",
+  "../arm_release_gate/EARLY_TORSO_PLANE_R9/pose_matrices.npz": "3b04a2d2e582bb308666d158df0f72b352be85ee648e26275f849f7230e3ac3b",
+  "REALSCENE-HEAD-GAZE-GATE-R1/pose_matrices.npz": "efb4cbe58f6eea9e862e41b437fc542ea06ed6e20912ae69080b09d88ff1dc8a",
+  "REALSCENE-COHERENT-LOWER-R1/pose_matrices.npz": "d40b0584289f06ecb5878d39c24f599fd481bfb0080440f27558c43db473e5d9",
+  "actual_source_manifest_verified.json": "0067b8e22f00932cd9d47a4ba18368da2e6b42cc3ba5a25c5a496be98bad3e90"
+}

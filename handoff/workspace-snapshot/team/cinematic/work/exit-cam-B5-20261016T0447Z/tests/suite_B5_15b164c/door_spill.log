@@ -1,0 +1,11 @@
+PASS tint-from-palette              {"texel":[112,216],"palette":[252,201,114],"color":[252,201,114],"material":"M_env_palette (env_palette_256)"}
+PASS geometry-on-floor-inside       {"vertices":24,"triangles":30,"y":0.012,"bad":[]}
+PASS home-pose-shows-tail           {"visibleSamples":21,"of":100,"maxAlphaFactor":0.63,"nearestZ":-3.3,"peakAlpha":{"day":0.164,"night":0.535},"fov":75,"fovChanged":false}
+PASS door-view-shows-gap-light      {"visibleSamples":28,"of":100,"maxAlphaFactor":1,"nearestZ":-0.32}
+PASS layers-day                     {"night":false,"maxAlphaStepPerFrame":0.0108,"limit":0.0108,"leakFrames":[],"framesWithExterior":1981,"onAfterDoorOpenFrames":0,"homeAlpha":0.26}
+PASS layers-night                   {"night":true,"maxAlphaStepPerFrame":0.0354,"limit":0.0354,"leakFrames":[],"framesWithExterior":1981,"onAfterDoorOpenFrames":0,"homeAlpha":0.85}
+PASS night-brighter-than-day        {"day":0.26,"night":0.85}
+PASS component-wiring               {"constructed":true,"setViewInApplyDayNight":true,"advancedInLateUpdate":true,"disposedPaths":3,"noTexture":true,"depthWriteOffAlphaBlend":true,"notUnderModel":true}
+PASS byte-cost                      {"sourceBytes":{"core":3440,"wrapper":2992},"minifiedJsBytes":"terser unavailable: Cannot find module '/tmp/GGbot/tools/vendor-node/node_module","assetsAdded":0,"runtime":{"vertices":24,"triangles":30,"drawCalls":"1 (HOME only)","materials":1,"textures":0}}
+ALL PASS
+exit 0

@@ -1,0 +1,22 @@
+{
+  "director_before_draw": {
+    "url": "https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/game/director.ts",
+    "lines": "712-744",
+    "finding": "BEFORE_DRAW emitted before root.frameMove"
+  },
+  "root_scene_update": {
+    "url": "https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/root.ts",
+    "lines": "436-453,712-747",
+    "finding": "frameMoveProcess updates scenes before frameMoveEnd pipeline.render"
+  },
+  "pipeline_culling": {
+    "url": "https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/rendering/render-pipeline.ts",
+    "lines": "441-460",
+    "finding": "sceneCulling invoked inside pipeline.render"
+  },
+  "ancestor_scale_event": {
+    "url": "https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/scene-graph/node.ts",
+    "lines": "2119-2143,2370-2385",
+    "finding": "scale event emitted on changed node; descendant transform invalidation does not emit descendant event"
+  }
+}

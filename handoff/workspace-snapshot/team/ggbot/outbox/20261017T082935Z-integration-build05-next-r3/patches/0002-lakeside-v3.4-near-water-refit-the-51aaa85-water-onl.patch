@@ -1,0 +1,98 @@
+From a90b2cf6c9737673bbefdb0e7320e553ea3eb7d3 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 15:29:43 +0800
+Subject: [PATCH 02/10] lakeside v3.4 near water: refit the 51aaa85 water-only
+ scales under the v3.4 linear lights (v3.3 values there gave 52/98/88): main
+ 0.8 -> 1.67, ambient 0.35 -> 1.27, sky 0.4 -> 0.8, floor 0.25 -> 0.30 (params
+ + effect defaults); Mac-calibrated emulator, handoff camera, layered fog:
+ near water 58/152/148 vs r5h3 66/152/146; 51aaa85 wave fade 12-35 m + noise 0
+ kept (mid-lake temporal std 0); test water_fog follows
+
+---
+ .../region_lakeside/water/lakeside-water.effect        |  4 ++--
+ .../assets/scripts/region/LakesideSceneData.ts         |  9 ++++++---
+ tools/lakeside/test_lakeside_water_fog.cjs             | 10 +++++-----
+ 3 files changed, 13 insertions(+), 10 deletions(-)
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+index a98dddc..89e2de1 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+@@ -13,9 +13,9 @@ CCEffect %{
+         skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
+         skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
+         fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
+-        specParams:    { value: [300.0, 1.6, 0.0, 0.25], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise (v3.3: 0 - its x-striped sin made the moving mid-lake bands), w sky-reflection floor (v3.2)' } }
++        specParams:    { value: [300.0, 1.6, 0.0, 0.3], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise (v3.3: 0 - its x-striped sin made the moving mid-lake bands), w sky-reflection floor (v3.2)' } }
+         waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
+-        lightParams:   { value: [0.8, 0.35, 12.0, 35.0], editor: { tooltip: 'v3.3 water only: x main-light (diffuse) scale, y ambient scale, z/w wave fade start/end distance (m)' } }
++        lightParams:   { value: [1.67, 1.27, 12.0, 35.0], editor: { tooltip: 'v3.3 water only: x main-light (diffuse) scale, y ambient scale, z/w wave fade start/end distance (m)' } }
+ }%
+ 
+ CCProgram lk-water-vs %{
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 2f0efa9..7acb416 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -87,11 +87,14 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
+   /** v3.3: reflected-sky brightness 1.0 -> 0.4 (the floor 0.25 stays; this dims what the floor mixes in). Cocos multiplies the r5h3 sky
+    *  colour by the ambient illuminance (x exposure), so at 1.0 the reflection alone gave the near water more blue than r5h3 shows. */
+-  waterSkyStrength: 0.4,
++  waterSkyStrength: 0.8, // v3.4 (VB): refit 0.4 -> 0.8 with the linear lights (see waterMainLightScale)
+   /** v3.3 water-only light scales (lakeside-water lightParams.xy). Fit to the Mac v3.2 pixel (near water 64/218/216, layered) toward
+    *  r5h3 66/152/146 with the shader's own terms: predicted ~61/153/145 (tools/lakeside/water_tune_v33.cjs). Main light alone cannot get
+    *  there - it only lights ~5-16% of the green/blue - so ambient (0.35) and sky strength (0.4) carry most of it; main light 0.8. */
+-  waterMainLightScale: 0.8, waterAmbientScale: 0.35,
++  /** v3.4 (VB): with the v3.4 linear light colours (sun 0.5, ambient 0.2) the v3.3 scales left the near water too dark (emulator
++   *  52/98/88); refit on the Mac-calibrated emulator (handoff camera, layered fog, wave fade on): main 1.67, ambient 1.27, sky 0.8,
++   *  floor 0.30 -> near water 58/152/148 vs r5h3 66/152/146 (R is capped by the lake vertex colour). */
++  waterMainLightScale: 1.67, waterAmbientScale: 1.27,
+   /** v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m (kills the moving mid-lake bands). */
+   waterWaveFadeStart: 12, waterWaveFadeEnd: 35,
+   waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
+@@ -100,7 +103,7 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   waterSpecExponent: 300, waterSpecNoise: 0, waterSpecIntensity: 1.6, // v3.3 noise 0.4 -> 0: its sin(x*3.1) striped the streak into moving bands
+   /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
+    *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
+-  waterSkyReflectFloor: 0.25,
++  waterSkyReflectFloor: 0.3, // v3.4 refit (0.25 -> 0.30)
+   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
+   fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
+ });
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index c7cf7d4..b345fad 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -41,7 +41,7 @@ assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.
+ assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
+ assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= SRGBToLinear\(v_color\.rgb\)/.test(fx));
+ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
+-assert.equal(P.waterSkyReflectFloor,0.25);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.25\]/.test(fx));
++assert.equal(P.waterSkyReflectFloor,0.3);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.3\]/.test(fx));
+ assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
+ assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
+ assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.linearToSrgb8(P.waterTintLinear),[243,255,255],'fallback mainColor ~white');
+@@ -59,15 +59,15 @@ const lay=(Dh,y)=>{if(y>=Lf.fogTop)return 0;const dD=Dh/Lf.fogAtten*2,dY=(Lf.fog
+ assert(lay(77,0)>0.3&&lay(77,0)<0.45&&lay(20,0)<0.15&&lay(85,2)===0);
+ assert(/fog\.fogTop=L\.fogTop;fog\.fogRange=L\.fogRange;fog\.fogAtten=L\.fogAtten;/.test(bg));
+ // v3.3 near water: water-only light scales + dimmer reflected sky (floor and tint unchanged); default fog layered; waves fade with distance
+-assert.equal(P.waterMainLightScale,0.8);assert.equal(P.waterAmbientScale,0.35);assert.equal(P.waterSkyStrength,0.4);
+-assert(/lightParams:\s+\{ value: \[0\.8, 0\.35, 12\.0, 35\.0\]/.test(fx),'effect defaults = params (fallback if setProperty fails)');
++// v3.4 (VB): refit under the linear lights (dirlight test) on the Mac-calibrated emulator: near water 58/152/148 vs r5h3 66/152/146
++assert.equal(P.waterMainLightScale,1.67);assert.equal(P.waterAmbientScale,1.27);assert.equal(P.waterSkyStrength,0.8);
++assert(/lightParams:\s+\{ value: \[1\.67, 1\.27, 12\.0, 35\.0\]/.test(fx),'effect defaults = params (fallback if setProperty fails)');
+ assert(/water\.setProperty\('lightParams',new Vec4\(P\.waterMainLightScale,P\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\)/.test(bg));
+ assert(/vec3 col = albedo \* \(lit \* NL \/ 3\.14159265 \* lightParams\.x \+ amb \* lightParams\.y\);/.test(fx),'diffuse main x, ambient y');
+ assert(/col \+= lit \* pow\(max\(dot\(N, H\), 0\.0\), ex\) \* specParams\.y \* F;/.test(fx),'streak keeps the full main light');
+ assert(/float wf = 1\.0 - smoothstep\(lightParams\.z, lightParams\.w, length\(cc_cameraPos\.xyz - v_worldPos\)\);/.test(fx)&&/\* \(waveParams\.x \* wf\)\);/.test(fx),'wave fade');
+ const bd=dist([0,0,B.max[2]]),mid=dist([0,0,-40]);assert(bd<P.waterWaveFadeEnd&&mid>P.waterWaveFadeEnd,'waves on the board water, none mid-lake');
+-const T=require('./water_tune_v33.cjs'),tgt=[66,152,146];
+-for(const vc of T.VCS){const p=T.predict({main:P.waterMainLightScale,amb:P.waterAmbientScale,sky:P.waterSkyStrength},vc);assert(p.every((c,i)=>Math.abs(c-tgt[i])<=8),'near water fit '+p);}
++const T=require('./water_tune_v33.cjs');// v3.3 fit model (assumes the v3.2 sRGB-byte lights) - kept for its v3.2 reproduction check only
+ assert.deepEqual(T.predict(T.P0,T.VCS[0]),[63,216,214],'model reproduces the Mac v3.2 pixel 64/218/216');
+ assert.equal(D.LAKESIDE_FOG_MODE,'layered','v3.3 default fog');
+ console.log('lakeside water+fog OK fogEnd='+end);
+-- 
+2.47.3
+

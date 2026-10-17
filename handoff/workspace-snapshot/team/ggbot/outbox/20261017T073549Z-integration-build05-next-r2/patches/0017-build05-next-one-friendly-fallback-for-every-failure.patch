@@ -1,0 +1,181 @@
+From be1cd5aae04463e835080fcbca095a024bf2d2a7 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 15:13:27 +0800
+Subject: [PATCH 17/20] =?UTF-8?q?build05-next:=20one=20friendly=20fallback?=
+ =?UTF-8?q?=20for=20every=20=E9=A3=8E=E9=93=83=E6=B9=96=E7=95=94=20failure?=
+ =?UTF-8?q?=20path=20(journey=20prepare/walk,=20ensureRegion,=20board)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+WorldNativeComposition.lakesideFallback: Voice Bot's [QF_LAKE] logs stay (log only) + one
+[QF_LAKE] {event:'lakeside-fallback',stage,reason,island} line; the lakeside journey is dropped
+(new WorldFlow.abandonLakesideJourney via commands(): returnToIsland, stable island, restore - no
+'旅程暂时受阻' retry state), and the HUD gets LAKESIDE_LOAD_FAILED -> only the toast
+「湖畔暂时没准备好，先回小岛吧」. cancelled/paused/busy stay soft (normal pause/resume UI).
+Lake ambience load failure stays log-only (sea waves keep playing), no toast.
+Test: tools/lakeside/test_lakeside_fallback.cjs (suite: lakeside-fallback); load-failure test follows.
+---
+ .../scripts/world-r1/WorldFlowComponent.ts    |  2 +-
+ .../assets/scripts/world-r1/WorldFlowCore.ts  |  9 ++++
+ .../world-r2/WorldNativeComposition.ts        | 17 +++++--
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_fallback.cjs     | 47 +++++++++++++++++++
+ tools/lakeside/test_lakeside_load_failure.cjs |  2 +-
+ 6 files changed, 73 insertions(+), 5 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_fallback.cjs
+
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 25ae5ee..12fcb84 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -243,7 +243,7 @@ export class WorldFlowComponent extends Component {
+     return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),pullIsland:(dy:number,scale:number)=>this.pullIsland(dy,scale),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),hitCabin:(x:number,y:number)=>this.hitCabin(x,y),
+       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
+       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
+-      prepareRegion:(target:JourneyRegion)=>flow().prepareRegion(target),travelRegion:(target:JourneyRegion)=>flow().travelRegion(target),journeySnapshot:()=>flow().snapshot().journey,
++      prepareRegion:(target:JourneyRegion)=>flow().prepareRegion(target),travelRegion:(target:JourneyRegion)=>flow().travelRegion(target),journeySnapshot:()=>flow().snapshot().journey,abandonLakesideJourney:()=>flow().abandonLakesideJourney(),
+       cancelTransition:()=>{const settling=!!this.roomLookToken;this.cancelRoomLook();return settling?{ok:true}:flow().cancelTransition();},setMode:(m:Mode)=>{this.cancelRoomLook();return flow().setMode(m);},
+       dayNight:()=>this.dayNightSnapshot(),toggleDayNight:()=>this.toggleDayNight(),setDayNight:(mode:DayNightMode)=>this.setDayNight(mode,true)});
+   }
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+index 80abf28..e5d3893 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+@@ -539,6 +539,15 @@ export class WorldFlow {
+     // her straight at home (seated pose, home camera/layers) instead of replaying the walk.
+     this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});return {ok:true};
+   }
++  /** build05-next (风铃湖畔 fallback, toast 「湖畔暂时没准备好，先回小岛吧」): after a failed island→lakeside journey or a failed
++   *  lakeside board, drop the lakeside journey scenes and stand her on the island (no retry state; saves untouched). */
++  abandonLakesideJourney():Result {
++    const j=this.journey;if(!j||this.state==='disposed')return {ok:false,reason:'journey-unavailable'};
++    if(this.current)return {ok:false,reason:'busy'};
++    const s=j.snapshot();if(s.target!=='lakeside'&&s.region!=='lakeside')return {ok:true};
++    try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
++    this.error=null;this.stable='island';this.restore();this.change('island');return {ok:true};
++  }
+   async returnHome():Promise<Result> {
+     const left=this.leaveJourneyForIsland();if(left)return left;
+     if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
+diff --git a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+index 6456cb3..9849236 100644
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -19,6 +19,8 @@ import { createPersistentMainlinePort } from './PersistentMainlinePort';
+ import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
+ import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
+ import {lakesideLandingToBoard} from '../region/LakesideLandingHook';
++/** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
++const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
+ import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
+ const {ccclass,property}=_decorator;
+ /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
+@@ -71,14 +73,23 @@ export class WorldNativeComposition extends Component {
+     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
+     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
+     const region=this.selectionRegion(selection);
+-    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside')console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);return arrived;}
++    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside'){console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);if(!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);}return arrived;}
+     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
+     if(region==='lakeside')await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null});
+     const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;
+-    // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); WorldFlow put her back on the island. Hand the HUD one stable reason.
+-    if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED)){this.pendingJourneySelection=null;return {ok:false,reason:LAKESIDE_LOAD_FAILED};}
++    // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
++    if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
+     return result;
+   }
++  /** build05-next: every lakeside journey / ensureRegion / board failure ends the same way: details to the log only
++   *  ([QF_LAKE] / [QF_LAKESIDE]), the lakeside journey is dropped, she stands on the island, and the HUD gets one stable
++   *  reason (WorldIntegrationBoot shows only the toast 「湖畔暂时没准备好，先回小岛吧」). */
++  private lakesideFallback(stage:'journey'|'board',reason:unknown):Result{
++    this.pendingJourneySelection=null;let back:Result={ok:false,reason:'no-world'};
++    try{back=(this.world?.commands() as any)?.abandonLakesideJourney?.()??back;}catch(error){back={ok:false,reason:String(error)};}
++    try{console.error('[QF_LAKE] '+JSON.stringify({event:'lakeside-fallback',stage,reason:String(reason),island:back.ok?'ok':String((back as any).reason)}));}catch{}
++    return {ok:false,reason:LAKESIDE_LOAD_FAILED};
++  }
+   private selectionRegion(selection:Selection):JourneyRegion {
+     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
+     // r05-meadow-* meadow, r05-sky-* skycity, 风铃湖畔 r04-lake-* (r05 renumbering too) lakeside, else island (tide).
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index e197e51..dbab0e9 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -64,6 +64,7 @@ const tests=[
+  ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
+  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
+  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
++ ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/lakeside/test_lakeside_fallback.cjs b/tools/lakeside/test_lakeside_fallback.cjs
+new file mode 100644
+index 0000000..ea86d43
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_fallback.cjs
+@@ -0,0 +1,47 @@
++// build05-next: every 风铃湖畔 failure path Voice Bot's 4728814 logs with [QF_LAKE] (journey prepare/walk, ensureRegion,
++// board background) ends the same way: details in the log only, the lakeside journey dropped, she stands on the island, and the
++// HUD shows only the toast 「湖畔暂时没准备好，先回小岛吧」. Pause/cancel/double-tap stay soft (normal pause/resume UI).
++// A lake-ambience load failure is log-only (sea waves stay on), no toast.
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/'),src=f=>fs.readFileSync(S+f,'utf8');
++const comp=src('world-r2/WorldNativeComposition.ts'),flow=src('world-r1/WorldFlowCore.ts'),boot=src('WorldIntegrationBoot.ts'),amb=src('audio/LakeAmbience.ts'),bg=src('region/LakesideBoardBackground.ts');
++const FAILED=bg.match(/export const LAKESIDE_LOAD_FAILED='([^']+)'/)[1];
++const soft=JSON.parse(comp.match(/const LAKESIDE_SOFT_REASONS=(\[[^\]]*\])/)[1].replace(/'/g,'"'));assert.deepEqual(soft,['cancelled','paused','busy']);
++const body=comp.slice(comp.indexOf('export class WorldNativeComposition')).replace(/@property\([^)]*\) /g,'');
++const logs=[];const ctx={exports:{},Component:class{},RegionCampaign:{canEnterRegion:()=>({ok:true})},DEBUG:false,LAKESIDE_LOAD_FAILED:FAILED,LAKESIDE_SOFT_REASONS:soft,console:{...console,error:(...a)=>logs.push(a.join(' '))},lakesideLandingToBoard:()=>Promise.resolve()};
++vm.runInNewContext(ts.transpileModule(body,{compilerOptions:{module:1,target:7}}).outputText,ctx);const Comp=ctx.exports.WorldNativeComposition;
++function host({travel,enter}){const h=Object.create(Comp.prototype),ev=[],snap={state:'island',journey:{region:'island',target:null}};
++ h.world={commands:()=>({snapshot:()=>snap,async travelRegion(t){ev.push(['travel',t]);return travel;},async enterLevel(id){ev.push(['enter',id]);return enter;},abandonLakesideJourney(){ev.push(['abandon']);return {ok:true};}})};
++ h.mainline={journeySnapshot:()=>({readOnly:false,records:[]})};h.selection={provider:'mainline-free',stageId:'r04-lake-01',seed:4};return {h,ev};}
++(async()=>{
++ const cases=[
++  ['journey prepare/walk failure',{travel:{ok:false,reason:'Error: lakeside-prefab-missing: LK_x'},enter:{ok:true}},FAILED,[['travel','lakeside'],['abandon']],'journey'],
++  ['ensureRegion refusal (wrong origin)',{travel:{ok:false,reason:'journey-wrong-origin'},enter:{ok:true}},FAILED,[['travel','lakeside'],['abandon']],'journey'],
++  ['board background failure',{travel:{ok:true},enter:{ok:false,reason:'Error: '+FAILED}},FAILED,[['travel','lakeside'],['enter','r04-lake-01'],['abandon']],'board'],
++  ['player pause stays soft',{travel:{ok:false,reason:'cancelled'},enter:{ok:true}},'cancelled',[['travel','lakeside']],null],
++  ['background pause stays soft',{travel:{ok:false,reason:'paused'},enter:{ok:true}},'paused',[['travel','lakeside']],null],
++  ['ordinary board refusal passes through',{travel:{ok:true},enter:{ok:false,reason:'finish-or-discard-current-attempt'}},'finish-or-discard-current-attempt',[['travel','lakeside'],['enter','r04-lake-01']],null],
++ ];
++ for(const [name,io,reason,events,stage] of cases){logs.length=0;const {h,ev}=host(io);const r=await h.enterSelectedLevel();
++  assert.equal(r.reason,reason,name);assert.deepEqual(JSON.parse(JSON.stringify(ev)),events,name);
++  if(stage){assert.equal(h.pendingJourneySelection,null,name);const j=logs.map(l=>l.startsWith('[QF_LAKE] {')?JSON.parse(l.slice(10)):null).find(Boolean);assert(j&&j.event==='lakeside-fallback'&&j.stage===stage&&j.island==='ok',name+' logged');}
++  console.log('PASS',name);}
++ // WorldFlow.abandonLakesideJourney on stubs (real method text)
++ const m=flow.match(/  abandonLakesideJourney\(\):Result \{[\s\S]*?\n  \}\n/)[0];
++ const F=vm.runInNewContext(ts.transpileModule('class F{'+m+'}',{compilerOptions:{target:7}}).outputText+';F');
++ const mk=(snap,current=null)=>{const calls=[];const o=Object.assign(Object.create(F.prototype),{state:'island',current,stable:'lakeside',error:'Error: x',journey:{snapshot:()=>snap,returnToIsland(){calls.push('return');}},restore(){calls.push('restore');},change(s){calls.push('change:'+s);}});return {o,calls};};
++ let x=mk({region:'island',target:'lakeside',phase:'failed'});assert.deepEqual(JSON.parse(JSON.stringify(x.o.abandonLakesideJourney())),{ok:true});assert.deepEqual(x.calls,['return','restore','change:island']);assert.equal(x.o.stable,'island');assert.equal(x.o.error,null);
++ x=mk({region:'lakeside',target:null,phase:'arrived'});x.o.abandonLakesideJourney();assert.deepEqual(x.calls,['return','restore','change:island'],'arrived lakeside, board failed');
++ x=mk({region:'meadow',target:null,phase:'arrived'});x.o.abandonLakesideJourney();assert.deepEqual(x.calls,[],'other regions untouched');
++ x=mk({region:'island',target:'lakeside'},{});assert.equal(x.o.abandonLakesideJourney().reason,'busy');assert.deepEqual(x.calls,[]);
++ assert(/abandonLakesideJourney:\(\)=>flow\(\)\.abandonLakesideJourney\(\)/.test(src('world-r1/WorldFlowComponent.ts')),'exposed on commands()');
++ console.log('PASS WorldFlow.abandonLakesideJourney');
++ // screen: only the approved toast; no [QF_LAKE]/[QF_LAKESIDE] text reaches a Label
++ assert(/r\.reason===LAKESIDE_LOAD_FAILED\)\{this\.islandToast\?\.show\(LAKESIDE_NOT_READY_TEXT\);/.test(boot));
++ assert(!/QF_LAKE/.test(boot),'no log tag in HUD code');
++ // ambience failure: log only (sea waves stay on), no toast
++ assert(/console\.error\('\[QF_LAKE\] lake ambience ' \+ stage \+ ' failed \(sea waves stay on\)/.test(amb));assert(!/Toast|LAKESIDE_NOT_READY|LAKESIDE_LOAD_FAILED/.test(amb),'ambience never toasts');
++ console.log('PASS HUD/ambience');
++ console.log('lakeside fallback OK');
++})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/lakeside/test_lakeside_load_failure.cjs b/tools/lakeside/test_lakeside_load_failure.cjs
+index 6116f18..71f2bbe 100644
+--- a/tools/lakeside/test_lakeside_load_failure.cjs
++++ b/tools/lakeside/test_lakeside_load_failure.cjs
+@@ -15,7 +15,7 @@ new Function(src+';logLakesideFailure("prefabs","r04-lake-01",new Error("lakesid
+ assert.equal(lines.length,2);const j=JSON.parse(lines[0].replace('[QF_LAKESIDE] ',''));assert.deepEqual(j,{event:'load-failed',stageId:'r04-lake-01',step:'prefabs',error:'lakeside-prefab-missing: x'});
+ // fallback stays the island: operate() restores the stable place on a non-cancel error
+ assert(/token\.cancel\(\);this\.error=String\(err\);this\.restore\(\);this\.change\(this\.world\?this\.stable:'error'\);/.test(flow),'WorldFlow returns to the stable place');
+-assert(/if\(result\.ok===false&&String\(result\.reason\)\.includes\(LAKESIDE_LOAD_FAILED\)\)\{this\.pendingJourneySelection=null;return \{ok:false,reason:LAKESIDE_LOAD_FAILED\};\}/.test(comp));
++assert(/if\(result\.ok===false&&String\(result\.reason\)\.includes\(LAKESIDE_LOAD_FAILED\)\)return this\.lakesideFallback\('board',result\.reason\);/.test(comp),'build05-next: board failure -> lakesideFallback (test_lakeside_fallback)');
+ // HUD: approved copy only, toast (no error panel, no raw reason), and it does not block the island (this.error stays empty)
+ const m={exports:{}};const out=ts.transpileModule(toast.replace(/^import[^\n]*\n/gm,''),{compilerOptions:{module:1,target:6}}).outputText;
+ new Function('module','exports','require','TOAST_S','makeLabel','measure',out)(m,m.exports,require,2,null,null);
+-- 
+2.47.3
+

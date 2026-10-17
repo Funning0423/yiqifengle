@@ -1,0 +1,10 @@
+a426b604a2e7722e9fd7ee69e833d25e187dae1e9bfc70374db5ab3411d68c6b  ./README.md
+b1443e0ee4fa051e5021eed6a5c81ac928006a1e46fe6ac26e0a8cce0cde84aa  ./ggbot-build05-r4-ui-fixes.bundle
+e37b714664efdd0ba1f47ad47ad94944b4714dc345e76509e4340fd09f6989bc  ./logs/cherry-pick-onto-a8ba19a.log
+cc4398ef89d4fcb98c9b7bbeb83e60e81173b7653bdc3e7031edee45417c6d41  ./logs/suite-node20.json
+d7582ec8bfc3ba112e9da6f97db51d6709c42c23905a7fd9bf93775eaa6440da  ./logs/suite-node20.log
+b2154b4596efd5dfe444da81d5e0f167611955e345ecbe70d3eac164b5caa8d6  ./logs/suite-node22.json
+d407c797e9515c5da04e471f57fd44cd14b2187e8bb4fd78075fd671f6f2fc7b  ./logs/suite-node22.log
+21384630591d89fb7f17bbbf9754be8d651d5dd7250842d6be2d79b6c6a7a188  ./patches/0001-reward-background-return-follow-the-intended-result-.patch
+0cef5e42d617a81b5c7ecbf729c61290dccc4d863a030cf44888d718012eb572  ./patches/0002-Result-screen-no-rewards-on-screen-until-the-chest-o.patch
+c963076c26472a34f9aa5c57f5d5dd137a23d0df31313389280b9aa70a4391cf  ./patches/0003-Journey-cutscene-no-button-no-caption-strip-tiny-dev.patch

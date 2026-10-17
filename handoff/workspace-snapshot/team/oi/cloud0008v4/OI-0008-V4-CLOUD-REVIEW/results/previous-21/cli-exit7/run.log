@@ -1,0 +1,12 @@
+2026-10-10T01:32:56.923Z +0.0s config {"cli":"/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-cli.cjs","buildDir":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/build","workRoot":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies","finalizer":"/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs","cases":["default"],"allowAppJsonNotice":false,"mode":"auto","autoPort":42004,"settleMs":0,"cliDrainMs":100,"injectShim":true,"logDir":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/logs","logPollMs":20,"logMaxBytes":1000000,"automatorModule":"/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-automator.cjs","globalQuit":"removed"}
+2026-10-10T01:32:56.975Z +0.1s cli islogin pid=196 exit=0 (51ms, 1 lines)
+2026-10-10T01:32:56.976Z +0.1s [verdict:default] copy build → /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default
+2026-10-10T01:32:57.029Z +0.1s [verdict:default] finalizer exit=0 {"output":"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default","compileType":"game","emptyCompileConditionsRemoved":true,"enhancementDisabled":true,"removedCondition":null,"changed":true,"action":"LOCAL_CONFIG_ONLY"}
+2026-10-10T01:32:57.030Z +0.1s [verdict:default] audit shim injected into COPY game.js (token 7e8ef40d032d43d6)
+2026-10-10T01:32:57.031Z +0.1s [verdict:default] cli auto --project /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default --auto-port 42004
+2026-10-10T01:32:57.079Z +0.2s cli auto pid=212 exit=7 (48ms, 0 lines)
+2026-10-10T01:32:58.036Z +1.1s [verdict:default] automator connected
+2026-10-10T01:32:58.539Z +1.6s [verdict:default] settle 0ms (no Compile, no input)
+2026-10-10T01:32:58.594Z +1.7s cli close pid=223 exit=0 (53ms, 0 lines)
+2026-10-10T01:32:58.648Z +1.7s [verdict:default] BLOCKED: own cli auto did not finish cleanly (code=7, signal=null, error=null, timedOut=false, terminatedAfterDrain=false)
+2026-10-10T01:32:58.648Z +1.7s VERDICT BLOCKED: default: own cli auto did not finish cleanly (code=7, signal=null, error=null, timedOut=false, terminatedAfterDrain=false)

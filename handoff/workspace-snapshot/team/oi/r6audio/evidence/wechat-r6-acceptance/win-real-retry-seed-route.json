@@ -1,0 +1,83 @@
+{
+  "seed": 2090117599,
+  "actions": [
+    [
+      "bomb",
+      25
+    ],
+    [
+      "bomb",
+      15
+    ],
+    [
+      "swap",
+      29,
+      30
+    ],
+    [
+      "swap",
+      16,
+      17
+    ],
+    [
+      "swap",
+      28,
+      29
+    ],
+    [
+      "swap",
+      31,
+      32
+    ],
+    [
+      "swap",
+      45,
+      46
+    ]
+  ],
+  "expected": {
+    "version": 1,
+    "format": "mainline-replay-1",
+    "engineRevision": "a1f89a0deb942268bfdbed931a3ab28f85970f4b9186f344bba9a937c7b6bd1b",
+    "level": 1,
+    "stageId": "mainline-02",
+    "seed": 2090117599,
+    "contentSignature": "{\"chapter\":1,\"chapterName\":\"晨光林地\",\"name\":\"苔径初开\",\"description\":\"在苔藓所在格消除，扫出一条小径。\",\"starters\":[{\"index\":3,\"special\":\"column\"}],\"moves\":25,\"goals\":{\"moss\":7,\"type5\":10},\"moss\":[21,22,23,24,25,26,27],\"roots\":[]}",
+    "actions": [
+      [
+        "bomb",
+        25
+      ],
+      [
+        "bomb",
+        15
+      ],
+      [
+        "swap",
+        29,
+        30
+      ],
+      [
+        "swap",
+        16,
+        17
+      ],
+      [
+        "swap",
+        28,
+        29
+      ],
+      [
+        "swap",
+        31,
+        32
+      ],
+      [
+        "swap",
+        45,
+        46
+      ]
+    ],
+    "expectedState": "{\"board\":[{\"id\":86,\"type\":0,\"special\":null},{\"id\":127,\"type\":5,\"special\":null},{\"id\":128,\"type\":1,\"special\":null},{\"id\":129,\"type\":1,\"special\":null},{\"id\":119,\"type\":5,\"special\":null},{\"id\":95,\"type\":4,\"special\":null},{\"id\":70,\"type\":3,\"special\":null},{\"id\":72,\"type\":3,\"special\":null},{\"id\":116,\"type\":5,\"special\":null},{\"id\":107,\"type\":4,\"special\":null},{\"id\":126,\"type\":4,\"special\":null},{\"id\":118,\"type\":5,\"special\":null},{\"id\":58,\"type\":5,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":71,\"type\":3,\"special\":null},{\"id\":115,\"type\":0,\"special\":null},{\"id\":106,\"type\":2,\"special\":null},{\"id\":125,\"type\":2,\"special\":null},{\"id\":117,\"type\":1,\"special\":null},{\"id\":57,\"type\":3,\"special\":null},{\"id\":14,\"type\":0,\"special\":null},{\"id\":1,\"type\":2,\"special\":null},{\"id\":114,\"type\":2,\"special\":null},{\"id\":105,\"type\":5,\"special\":null},{\"id\":124,\"type\":4,\"special\":null},{\"id\":94,\"type\":3,\"special\":null},{\"id\":56,\"type\":0,\"special\":null},{\"id\":21,\"type\":1,\"special\":null},{\"id\":76,\"type\":5,\"special\":null},{\"id\":113,\"type\":5,\"special\":null},{\"id\":89,\"type\":0,\"special\":null},{\"id\":123,\"type\":1,\"special\":null},{\"id\":68,\"type\":0,\"special\":null},{\"id\":13,\"type\":2,\"special\":null},{\"id\":35,\"type\":1,\"special\":null},{\"id\":36,\"type\":0,\"special\":null},{\"id\":112,\"type\":1,\"special\":null},{\"id\":60,\"type\":1,\"special\":null},{\"id\":122,\"type\":4,\"special\":null},{\"id\":55,\"type\":4,\"special\":null},{\"id\":41,\"type\":3,\"special\":null},{\"id\":42,\"type\":2,\"special\":null},{\"id\":43,\"type\":3,\"special\":null},{\"id\":96,\"type\":3,\"special\":null},{\"id\":30,\"type\":4,\"special\":null},{\"id\":121,\"type\":3,\"special\":null},{\"id\":61,\"type\":0,\"special\":null},{\"id\":48,\"type\":0,\"special\":null},{\"id\":49,\"type\":2,\"special\":null}],\"moves\":20,\"bombs\":0,\"score\":1055,\"status\":\"won\",\"goals\":{\"moss\":0,\"type5\":0},\"moss\":[],\"roots\":[],\"nextId\":130,\"version\":37,\"random\":1080648754,\"beaconCursor\":0}"
+  }
+}

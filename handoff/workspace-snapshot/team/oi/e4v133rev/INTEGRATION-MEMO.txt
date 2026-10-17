@@ -1,0 +1,49 @@
+E4 v1.3.3（0207Z 正确包）云端差异审查
+结论：新增夜空链路的正常逻辑通过独立检查，可排后续隔离编译；两项异常/配置防护缺口仍开，不作运行验收通过。只接收0207Z包，未另取撤回0157Z包，未操作Mac或改美术。
+
+完整性
+Drive 13mBN6WSjyv0lPrBtIXl8IxTSdZJTH9rS；sidecar 1w6oE6pGsZB3OeIjBuYrCC4AEobJCRpJC。
+1695803 B；SHA256 278b8d0775b03e83a483974c69caf6f303e0cdf677c7115c30feacfabba1284d。
+正规metadata/fetch、完整SHA/sidecar、ZIP CRC/路径安全、94项内部清单通过。
+
+独立结果
+原检查15/15，前轮边界12/12；v1.3.2新增检查21/22（旧泄漏仍失败）；新天空检查34/36。Node v24.19.0，执行已审runtime TS配自写cc mock，作者自测181/0/14没有冒充独立结果。
+草effect、MeadowInstancer、GrassFallback、GrassWindQuality、SkyFollowCamera与v1.3.2字节相同；原花50%、forceNoInstancing、祖先scale、OFF只停风、默认仅无实例化超预算关草均保留。
+
+新天空正常路径
+- detectAstcSupport采用ASTC_RGBA_4X4的SAMPLED_TEXTURE位，与官方3.8.8 ImageAsset选择判法一致；明确yes选2048，no/unknown/检测异常选1024。只测能力不证明构建已生成ASTC，后续仍须核产物。
+- 初始nightTexMix=0并设置渐变两色；异步夜里到图后0.3s单调淡入，白天到图/同步缓存直接1；昼夜改变不重启淡入。
+- 失败保持渐变，延迟后最多3次重试（加初次共4请求）；成功恢复淡入；重复回调、加载中卸载、淡入中卸载、卸载后回调/更新正常路径引用平衡。
+- 天空UBO仍128 B，nightTexMix使用原skyParams.z空位；白天采样分支未变。这是静态/CPU逻辑证据，不是GPU效果验收。
+
+未关闭问题
+E4-132-01 未修：BakedGroundTexture.ts:64–67 在addRef后于try外调用target.valid/get。旧getter异常复现仍剩1引用；SkyNightTexture复用它后同样复现。建议valid/get/set异常路径统一释放并置failed，补回归。本版该文件只加label/提示文字，不能宣称已修。此处为异常注入复现，不代表正常Creator运行已观察到泄漏。
+E4-133-01 配置防护：SkyNightTexture.ts:108–115只检查renderer有效，无材质时get返回null、set静默跳过，仍记applied并淡入到1。独立复现state=applied、texMix=1、实际无材质。建议加载前验证材质索引/effect/有效纹理槽，无效即失败并保留渐变，不把这种状态报成功；至少必须作为工程接入前置校验。
+文档冲突：README:158旧节仍写nightTexture绑定夜图，与:317新版留空冲突。以新契约为准，修旧段防误接。nightTexture预先绑定不会被组件自动拒绝，可能先加载2048，再加载1024，抵消节省。
+
+资产实核
+仅1024夜图实文件已补：RGB PNG、1024×512、332327 B，SHA256 2cbc0e9e92df842d21ece97ac9cb9b5322028a3fc00ff948a9f96872ba315e6d。
+独立像素读取：horizonV=.857对应第439行起；439–511行纵向平坦，各列中位数偏差≤1级，438→439平均亮度差0.08691。存在横向色差（43种RGB，通道跨度约6级），不是全幅严格单色填充。直接看过源PNG，未修改。
+2048 DAY/NIGHT原图、烘焙地面仍未随包；无法独立核2048下缘878–1023、源图到1024降采样/保星或渐变取色声明。6张对比图不能替代原图。仍需原图精确ID及完整SHA。
+1024 meta声明不压缩、无mip；旧预设未改，夜2048仍ASTC4×4、日6×6。它们仍是手写接入模板，未实际配置工程。RGBA8夜图8→2 MiB只为2048→1024、无mip假设下的理论尺寸估算，不是显存/峰值测量，也不是包含白天天空后的总量。
+
+接入/编译条件
+1. 两effect、六TS（同目录），1024夜图及其meta进入规定bundle；tools/docs/controls不导入。合并设置，保留原工程UUID/引用；2048资源路径和bundle真实存在。
+2. 草甸nightTexture必须空；启用SkyNightTexture，绑定正确skyRenderer/materialIndex并确保有效sky-unlit材质。昼夜只改同一材质实例，优先setNightBlend；修改sharedMaterial不会更新该实例。
+3. 无SkyNightTexture但直接绑夜图的其他天空，nightTexMix须显式1；tint-only分支不依赖此项。不可只替换effect却漏掉新契约。
+4. 验证构建实际含2048 ASTC4×4和1024 PNG，确认没有额外直接引用拉入2048夜图；能力yes不保证下载结果一定ASTC。正常逻辑可先编译，运行验收前处理以上异常防护/资产/配置缺口。
+5. Creator导入/类型及effect编译、实际压缩构建、DevTools、真机、帧时和GPU显存均not_run。Mac额度阻塞，本审查不启动编译。
+
+复现（需要已核验的0207Z包根）
+python verify-package.py PACKAGE.zip PACKAGE.zip.sha256
+node independent-checks-original.cjs VERIFIED_PACKAGE_ROOT
+node boundary-checks.cjs VERIFIED_PACKAGE_ROOT
+node v132-focused-checks.cjs VERIFIED_PACKAGE_ROOT
+node v133-focused-checks.cjs VERIFIED_PACKAGE_ROOT
+python asset-checks.py VERIFIED_PACKAGE_ROOT asset-results-rerun.json
+检查JSON.failed而非仅进程退出码；两套focused预期分别1与2失败（旧泄漏重复覆盖，是同一问题）。
+
+官方3.8.8依据
+https://github.com/cocos/cocos-engine/blob/v3.8.8/cocos/asset/assets/image-asset.ts#L685-L732
+https://github.com/cocos/cocos-engine/blob/v3.8.8/cocos/root.ts#L60-L67
+https://github.com/cocos/cocos-engine/blob/v3.8.8/cocos/game/director.ts#L787-L795

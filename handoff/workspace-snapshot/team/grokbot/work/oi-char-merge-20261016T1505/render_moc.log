@@ -1,0 +1,25 @@
+00:00.079  system.path      | WARNING Could not get a list of mounted file-systems
+03:23:33 | INFO: Data are loaded, start creating Blender stuff
+03:23:33 | INFO: Blender create Mesh node LOD0_G2_APRON
+03:23:33 | INFO: Blender create Mesh node LOD0_G2_BODY
+03:23:33 | INFO: Blender create Mesh node LOD0_G2_BOW
+03:23:33 | INFO: Blender create Mesh node LOD0_G2_DRESS
+03:23:33 | INFO: glTF import finished in 0.19s
+03:23:33 | INFO: Data are loaded, start creating Blender stuff
+03:23:33 | INFO: Blender create Mesh node Cone
+03:23:33 | INFO: glTF import finished in 0.01s
+/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/tools/render.py:29: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('g');m.use_nodes=True;m.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(.55,.6,.5,1);pl.data.materials.append(m)
+/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/tools/render.py:31: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w');sc.world=w;w.use_nodes=True;w.node_tree.nodes['Background'].inputs[0].default_value=(.75,.82,.9,1);w.node_tree.nodes['Background'].inputs[1].default_value=.8
+00:14.203  render           | Saved: '/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/stills/mergeOldChair_sit_hold0.5_front.png'
+00:31.932  render           | Saved: '/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/stills/mergeOldChair_sit_hold0.5_side.png'
+00:52.396  render           | Saved: '/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/stills/mergeOldChair_sit_hold0.5_back.png'
+01:13.574  render           | Saved: '/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/stills/mergeOldChair_sit_hold0.5_closeseat.png'
+01:38.628  render           | Saved: '/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/stills/mergeOldChair_sit_hold0.5_closeside.png'
+02:06.987  render           | Saved: '/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/stills/mergeOldChair_sit_hold0.5_closefeet.png'
+02:27.892  render           | Saved: '/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/stills/mergeOldChair_sit_hold0.5_closehands.png'
+CLIP sit_hold <Vector (0.0000, 60.0000)> 30
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

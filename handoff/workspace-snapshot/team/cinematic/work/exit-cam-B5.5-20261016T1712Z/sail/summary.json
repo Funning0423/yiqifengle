@@ -1,0 +1,15 @@
+{
+ "T9": {
+  "island_frames": 81,
+  "start_cam": [
+   -12.0,
+   15.5,
+   48.0
+  ],
+  "start_fov": 42.0,
+  "min_sign": 49.72,
+  "min_palm": 40.688,
+  "min_island": 16.419,
+  "occluded_frames": []
+ }
+}

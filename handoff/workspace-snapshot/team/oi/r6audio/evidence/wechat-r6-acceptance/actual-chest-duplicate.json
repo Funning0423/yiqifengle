@@ -1,0 +1,3754 @@
+{
+  "board": {
+    "snapshot": {
+      "provider": "mainline-v33",
+      "storageKey": "forest-mainline-cocos-r1-active",
+      "progressKey": "forest-v33-journey",
+      "state": "result.saved",
+      "active": {
+        "board": [
+          {
+            "id": 86,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 127,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 128,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 129,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 119,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 95,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 70,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 72,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 116,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 107,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 126,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 118,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 58,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 7,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 71,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 115,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 106,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 125,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 117,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 57,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 14,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 1,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 114,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 105,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 124,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 94,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 56,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 21,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 76,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 113,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 89,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 123,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 68,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 13,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 35,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 36,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 112,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 60,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 122,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 55,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 41,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 42,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 43,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 96,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 30,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 121,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 61,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 48,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 49,
+            "type": 2,
+            "special": null
+          }
+        ],
+        "moves": 20,
+        "bombs": 0,
+        "score": 1055,
+        "status": "won",
+        "goals": {
+          "moss": 0,
+          "type5": 0
+        },
+        "moss": [],
+        "roots": [],
+        "nextId": 130,
+        "version": 37,
+        "random": 1080648754,
+        "beaconCursor": 0,
+        "level": 1,
+        "stageId": "mainline-02",
+        "seed": 2090117599,
+        "theme": "seaBeach",
+        "name": "\u82d4\u5f84\u521d\u5f00",
+        "initialGoals": {
+          "moss": 7,
+          "type5": 10
+        },
+        "goalOrder": [
+          "moss",
+          "type5"
+        ],
+        "actions": [
+          [
+            "bomb",
+            25
+          ],
+          [
+            "bomb",
+            15
+          ],
+          [
+            "swap",
+            29,
+            30
+          ],
+          [
+            "swap",
+            16,
+            17
+          ],
+          [
+            "swap",
+            28,
+            29
+          ],
+          [
+            "swap",
+            31,
+            32
+          ],
+          [
+            "swap",
+            45,
+            46
+          ]
+        ],
+        "beaconTarget": null,
+        "attemptId": "mla-000000000003"
+      },
+      "visual": null,
+      "hidden": false,
+      "readOnly": false,
+      "error": null,
+      "stages": [
+        {
+          "id": "mainline-01",
+          "level": 0,
+          "region": "tide",
+          "ordinal": 1,
+          "name": "\u9732\u73e0\u95ee\u5019",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u6536\u96c6\u8349\u8393\uff0c\u5b66\u4f1a\u76f8\u90bb\u4ea4\u6362\u3002",
+          "moves": 22,
+          "goals": {
+            "type0": 15
+          },
+          "unlocked": true,
+          "record": {
+            "bestStars": 3,
+            "bestScore": 670,
+            "bestMoves": 13,
+            "clears": 1
+          }
+        },
+        {
+          "id": "mainline-02",
+          "level": 1,
+          "region": "tide",
+          "ordinal": 2,
+          "name": "\u82d4\u5f84\u521d\u5f00",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u5728\u82d4\u85d3\u6240\u5728\u683c\u6d88\u9664\uff0c\u626b\u51fa\u4e00\u6761\u5c0f\u5f84\u3002",
+          "moves": 25,
+          "goals": {
+            "moss": 7,
+            "type5": 10
+          },
+          "unlocked": true,
+          "record": {
+            "bestStars": 3,
+            "bestScore": 1055,
+            "bestMoves": 20,
+            "clears": 1
+          }
+        },
+        {
+          "id": "mainline-03",
+          "level": 2,
+          "region": "tide",
+          "ordinal": 3,
+          "name": "\u6d46\u679c\u91ce\u9910",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u6536\u96c6\u84dd\u8393\u548c\u6a61\u679c\uff0c\u518d\u5f62\u6210\u4e00\u6b21\u56db\u8fde\u3002",
+          "moves": 29,
+          "goals": {
+            "type2": 12,
+            "type4": 12,
+            "lines": 1
+          },
+          "unlocked": true,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-04",
+          "level": 3,
+          "region": "tide",
+          "ordinal": 4,
+          "name": "\u5c0f\u5f84\u5b88\u536b",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u5728\u6839\u987b\u672c\u683c\u6216\u76f8\u90bb\u683c\u6d88\u9664\uff0c\u9010\u5c42\u89e3\u5f00\u6839\u987b\u3002",
+          "moves": 28,
+          "goals": {
+            "roots": 7,
+            "type4": 12
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-05",
+          "level": 4,
+          "region": "meadow",
+          "ordinal": 5,
+          "name": "\u6eaa\u5cb8\u82b1\u73af",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u6e05\u7406\u73af\u5f62\u82d4\u85d3\uff0c\u6536\u96c6\u6eaa\u5cb8\u84dd\u8393\u3002",
+          "moves": 31,
+          "goals": {
+            "moss": 12,
+            "type2": 14
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-06",
+          "level": 5,
+          "region": "meadow",
+          "ordinal": 6,
+          "name": "\u53cc\u5c42\u6811\u6865",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u6811\u6865\u4e24\u4fa7\u7684\u6839\u987b\u8981\u53d7\u5230\u4e24\u6b21\u6d88\u9664\u6ce2\u7684\u51b2\u51fb\u3002",
+          "moves": 31,
+          "goals": {
+            "roots": 8,
+            "type0": 14
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-07",
+          "level": 6,
+          "region": "meadow",
+          "ordinal": 7,
+          "name": "\u8424\u706b\u5bf9\u8bed",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u6536\u96c6\u9752\u53f6\u4e0e\u82b1\u6735\uff0c\u5f62\u6210\u4e24\u9897\u7279\u6b8a\u679c\u5b9e\u3002",
+          "moves": 34,
+          "goals": {
+            "type1": 14,
+            "type3": 12,
+            "specials": 2
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-08",
+          "level": 7,
+          "region": "meadow",
+          "ordinal": 8,
+          "name": "\u6eaa\u8c37\u4e4b\u5fc3",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u89e3\u5f00\u4e2d\u5fc3\u6839\u7ed3\uff0c\u518d\u7167\u4eae\u5468\u56f4\u82d4\u85d3\u3002",
+          "moves": 34,
+          "goals": {
+            "moss": 9,
+            "roots": 5,
+            "type1": 12
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-09",
+          "level": 8,
+          "region": "sky",
+          "ordinal": 9,
+          "name": "\u6708\u5149\u9636\u68af",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u6cbf\u7740\u6708\u5149\u9636\u68af\u6e05\u7406\u82d4\u85d3\u548c\u53cc\u5c42\u6839\u987b\u3002",
+          "moves": 35,
+          "goals": {
+            "moss": 13,
+            "roots": 6,
+            "type3": 12
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-10",
+          "level": 9,
+          "region": "sky",
+          "ordinal": 10,
+          "name": "\u53e4\u6811\u7ed3\u754c",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u4e09\u5c42\u6839\u987b\u56f4\u4f4f\u53e4\u6811\uff1b\u8303\u56f4\u9053\u5177\u80fd\u4e00\u540c\u51fb\u4e2d\u5b83\u4eec\u3002",
+          "moves": 36,
+          "goals": {
+            "roots": 9,
+            "type4": 16
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-11",
+          "level": 10,
+          "region": "sky",
+          "ordinal": 11,
+          "name": "\u661f\u5c51\u82b1\u56ed",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u6e05\u7406\u56db\u89d2\u82b1\u56ed\uff0c\u6536\u96c6\u661f\u5c51\u4e0e\u82b1\u74e3\u3002",
+          "moves": 38,
+          "goals": {
+            "moss": 12,
+            "roots": 4,
+            "type2": 16,
+            "type5": 16
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-12",
+          "level": 11,
+          "region": "sky",
+          "ordinal": 12,
+          "name": "\u68ee\u6797\u7684\u5fc3\u613f",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u628a\u6574\u5ea7\u68ee\u6797\u7684\u5fc3\u613f\u8fde\u5728\u4e00\u8d77\u3002",
+          "moves": 42,
+          "goals": {
+            "moss": 13,
+            "roots": 9,
+            "type0": 18,
+            "type3": 18
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        }
+      ],
+      "regions": [],
+      "journey": {
+        "version": 3,
+        "regionClaims": [
+          false,
+          false,
+          false
+        ],
+        "openedChests": [
+          0,
+          1
+        ],
+        "toolsSpent": {
+          "windBell": 0,
+          "tideBottle": 0,
+          "tideNet": 0,
+          "sunSeed": 0,
+          "starShears": 0
+        },
+        "inventory": {
+          "tools": {
+            "windBell": 1,
+            "tideBottle": 0,
+            "tideNet": 0,
+            "sunSeed": 0,
+            "starShears": 0
+          },
+          "charms": [
+            "seaRibbon"
+          ]
+        },
+        "equippedCharm": null,
+        "unlocked": 2,
+        "completed": 2,
+        "records": [
+          {
+            "bestStars": 3,
+            "bestScore": 670,
+            "bestMoves": 13,
+            "clears": 1
+          },
+          {
+            "bestStars": 3,
+            "bestScore": 1055,
+            "bestMoves": 20,
+            "clears": 1
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        ],
+        "mementos": [],
+        "attempts": [
+          {
+            "id": "mla-000000000001",
+            "level": 0,
+            "result": {
+              "chestAwarded": true,
+              "newChest": 0,
+              "earnedStars": 3,
+              "previousStars": 0,
+              "previousScore": null,
+              "bestScore": 670,
+              "scoreImproved": true,
+              "improvement": 3,
+              "newMementos": [],
+              "totalStars": 3,
+              "duplicate": false
+            }
+          },
+          {
+            "id": "mla-000000000003",
+            "level": 1,
+            "result": {
+              "chestAwarded": true,
+              "newChest": 1,
+              "earnedStars": 3,
+              "previousStars": 0,
+              "previousScore": null,
+              "bestScore": 1055,
+              "scoreImproved": true,
+              "improvement": 3,
+              "newMementos": [],
+              "totalStars": 6,
+              "duplicate": false
+            }
+          }
+        ],
+        "chests": [
+          {
+            "level": 0,
+            "earned": true,
+            "opened": true,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "seaRibbon",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 1,
+            "earned": true,
+            "opened": true,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 2,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 3,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "paperPlane",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 4,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 5,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 6,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "pairedBells",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 7,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 8,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 9,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "cloudCrown",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 10,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 11,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "starBrooch",
+                "count": 1
+              },
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          }
+        ],
+        "regionRewards": [
+          {
+            "region": 0,
+            "unlocked": true,
+            "claimed": false
+          },
+          {
+            "region": 1,
+            "unlocked": false,
+            "claimed": false
+          },
+          {
+            "region": 2,
+            "unlocked": false,
+            "claimed": false
+          }
+        ],
+        "readOnly": false,
+        "storageWarning": null,
+        "persistenceErrors": []
+      },
+      "result": {
+        "outcome": "won",
+        "saved": true,
+        "completionRecorded": true,
+        "firstClear": true,
+        "duplicate": false,
+        "stars": 3,
+        "newChest": 1
+      },
+      "nextStageId": "mainline-03",
+      "capabilities": {
+        "swap": true,
+        "activate": true,
+        "bomb": true,
+        "earnedTools": false,
+        "oceanEvents": false,
+        "goals": [
+          "moss",
+          "type5"
+        ],
+        "maxGoalSlots": 4
+      }
+    },
+    "checkpoint": {
+      "version": 1,
+      "format": "mainline-replay-1",
+      "engineRevision": "a1f89a0deb942268bfdbed931a3ab28f85970f4b9186f344bba9a937c7b6bd1b",
+      "level": 1,
+      "stageId": "mainline-02",
+      "seed": 2090117599,
+      "contentSignature": "{\"chapter\":1,\"chapterName\":\"\u6668\u5149\u6797\u5730\",\"name\":\"\u82d4\u5f84\u521d\u5f00\",\"description\":\"\u5728\u82d4\u85d3\u6240\u5728\u683c\u6d88\u9664\uff0c\u626b\u51fa\u4e00\u6761\u5c0f\u5f84\u3002\",\"starters\":[{\"index\":3,\"special\":\"column\"}],\"moves\":25,\"goals\":{\"moss\":7,\"type5\":10},\"moss\":[21,22,23,24,25,26,27],\"roots\":[]}",
+      "actions": [
+        [
+          "bomb",
+          25
+        ],
+        [
+          "bomb",
+          15
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          16,
+          17
+        ],
+        [
+          "swap",
+          28,
+          29
+        ],
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          45,
+          46
+        ]
+      ],
+      "expectedState": "{\"board\":[{\"id\":86,\"type\":0,\"special\":null},{\"id\":127,\"type\":5,\"special\":null},{\"id\":128,\"type\":1,\"special\":null},{\"id\":129,\"type\":1,\"special\":null},{\"id\":119,\"type\":5,\"special\":null},{\"id\":95,\"type\":4,\"special\":null},{\"id\":70,\"type\":3,\"special\":null},{\"id\":72,\"type\":3,\"special\":null},{\"id\":116,\"type\":5,\"special\":null},{\"id\":107,\"type\":4,\"special\":null},{\"id\":126,\"type\":4,\"special\":null},{\"id\":118,\"type\":5,\"special\":null},{\"id\":58,\"type\":5,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":71,\"type\":3,\"special\":null},{\"id\":115,\"type\":0,\"special\":null},{\"id\":106,\"type\":2,\"special\":null},{\"id\":125,\"type\":2,\"special\":null},{\"id\":117,\"type\":1,\"special\":null},{\"id\":57,\"type\":3,\"special\":null},{\"id\":14,\"type\":0,\"special\":null},{\"id\":1,\"type\":2,\"special\":null},{\"id\":114,\"type\":2,\"special\":null},{\"id\":105,\"type\":5,\"special\":null},{\"id\":124,\"type\":4,\"special\":null},{\"id\":94,\"type\":3,\"special\":null},{\"id\":56,\"type\":0,\"special\":null},{\"id\":21,\"type\":1,\"special\":null},{\"id\":76,\"type\":5,\"special\":null},{\"id\":113,\"type\":5,\"special\":null},{\"id\":89,\"type\":0,\"special\":null},{\"id\":123,\"type\":1,\"special\":null},{\"id\":68,\"type\":0,\"special\":null},{\"id\":13,\"type\":2,\"special\":null},{\"id\":35,\"type\":1,\"special\":null},{\"id\":36,\"type\":0,\"special\":null},{\"id\":112,\"type\":1,\"special\":null},{\"id\":60,\"type\":1,\"special\":null},{\"id\":122,\"type\":4,\"special\":null},{\"id\":55,\"type\":4,\"special\":null},{\"id\":41,\"type\":3,\"special\":null},{\"id\":42,\"type\":2,\"special\":null},{\"id\":43,\"type\":3,\"special\":null},{\"id\":96,\"type\":3,\"special\":null},{\"id\":30,\"type\":4,\"special\":null},{\"id\":121,\"type\":3,\"special\":null},{\"id\":61,\"type\":0,\"special\":null},{\"id\":48,\"type\":0,\"special\":null},{\"id\":49,\"type\":2,\"special\":null}],\"moves\":20,\"bombs\":0,\"score\":1055,\"status\":\"won\",\"goals\":{\"moss\":0,\"type5\":0},\"moss\":[],\"roots\":[],\"nextId\":130,\"version\":37,\"random\":1080648754,\"beaconCursor\":0}"
+    },
+    "presentation": {
+      "provider": "mainline-v33",
+      "storageKey": "forest-mainline-cocos-r1-active",
+      "progressKey": "forest-v33-journey",
+      "state": "result.saved",
+      "active": {
+        "board": [
+          {
+            "id": 86,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 127,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 128,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 129,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 119,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 95,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 70,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 72,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 116,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 107,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 126,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 118,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 58,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 7,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 71,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 115,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 106,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 125,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 117,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 57,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 14,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 1,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 114,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 105,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 124,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 94,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 56,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 21,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 76,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 113,
+            "type": 5,
+            "special": null
+          },
+          {
+            "id": 89,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 123,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 68,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 13,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 35,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 36,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 112,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 60,
+            "type": 1,
+            "special": null
+          },
+          {
+            "id": 122,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 55,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 41,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 42,
+            "type": 2,
+            "special": null
+          },
+          {
+            "id": 43,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 96,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 30,
+            "type": 4,
+            "special": null
+          },
+          {
+            "id": 121,
+            "type": 3,
+            "special": null
+          },
+          {
+            "id": 61,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 48,
+            "type": 0,
+            "special": null
+          },
+          {
+            "id": 49,
+            "type": 2,
+            "special": null
+          }
+        ],
+        "moves": 20,
+        "bombs": 0,
+        "score": 1055,
+        "status": "won",
+        "goals": {
+          "moss": 0,
+          "type5": 0
+        },
+        "moss": [],
+        "roots": [],
+        "nextId": 130,
+        "version": 37,
+        "random": 1080648754,
+        "beaconCursor": 0,
+        "level": 1,
+        "stageId": "mainline-02",
+        "seed": 2090117599,
+        "theme": "seaBeach",
+        "name": "\u82d4\u5f84\u521d\u5f00",
+        "initialGoals": {
+          "moss": 7,
+          "type5": 10
+        },
+        "goalOrder": [
+          "moss",
+          "type5"
+        ],
+        "actions": [
+          [
+            "bomb",
+            25
+          ],
+          [
+            "bomb",
+            15
+          ],
+          [
+            "swap",
+            29,
+            30
+          ],
+          [
+            "swap",
+            16,
+            17
+          ],
+          [
+            "swap",
+            28,
+            29
+          ],
+          [
+            "swap",
+            31,
+            32
+          ],
+          [
+            "swap",
+            45,
+            46
+          ]
+        ],
+        "beaconTarget": null,
+        "attemptId": "mla-000000000003"
+      },
+      "visual": null,
+      "hidden": false,
+      "readOnly": false,
+      "error": null,
+      "stages": [
+        {
+          "id": "mainline-01",
+          "level": 0,
+          "region": "tide",
+          "ordinal": 1,
+          "name": "\u9732\u73e0\u95ee\u5019",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u6536\u96c6\u8349\u8393\uff0c\u5b66\u4f1a\u76f8\u90bb\u4ea4\u6362\u3002",
+          "moves": 22,
+          "goals": {
+            "type0": 15
+          },
+          "unlocked": true,
+          "record": {
+            "bestStars": 3,
+            "bestScore": 670,
+            "bestMoves": 13,
+            "clears": 1
+          }
+        },
+        {
+          "id": "mainline-02",
+          "level": 1,
+          "region": "tide",
+          "ordinal": 2,
+          "name": "\u82d4\u5f84\u521d\u5f00",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u5728\u82d4\u85d3\u6240\u5728\u683c\u6d88\u9664\uff0c\u626b\u51fa\u4e00\u6761\u5c0f\u5f84\u3002",
+          "moves": 25,
+          "goals": {
+            "moss": 7,
+            "type5": 10
+          },
+          "unlocked": true,
+          "record": {
+            "bestStars": 3,
+            "bestScore": 1055,
+            "bestMoves": 20,
+            "clears": 1
+          }
+        },
+        {
+          "id": "mainline-03",
+          "level": 2,
+          "region": "tide",
+          "ordinal": 3,
+          "name": "\u6d46\u679c\u91ce\u9910",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u6536\u96c6\u84dd\u8393\u548c\u6a61\u679c\uff0c\u518d\u5f62\u6210\u4e00\u6b21\u56db\u8fde\u3002",
+          "moves": 29,
+          "goals": {
+            "type2": 12,
+            "type4": 12,
+            "lines": 1
+          },
+          "unlocked": true,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-04",
+          "level": 3,
+          "region": "tide",
+          "ordinal": 4,
+          "name": "\u5c0f\u5f84\u5b88\u536b",
+          "chapter": 1,
+          "chapterName": "\u6668\u5149\u6797\u5730",
+          "description": "\u5728\u6839\u987b\u672c\u683c\u6216\u76f8\u90bb\u683c\u6d88\u9664\uff0c\u9010\u5c42\u89e3\u5f00\u6839\u987b\u3002",
+          "moves": 28,
+          "goals": {
+            "roots": 7,
+            "type4": 12
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-05",
+          "level": 4,
+          "region": "meadow",
+          "ordinal": 5,
+          "name": "\u6eaa\u5cb8\u82b1\u73af",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u6e05\u7406\u73af\u5f62\u82d4\u85d3\uff0c\u6536\u96c6\u6eaa\u5cb8\u84dd\u8393\u3002",
+          "moves": 31,
+          "goals": {
+            "moss": 12,
+            "type2": 14
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-06",
+          "level": 5,
+          "region": "meadow",
+          "ordinal": 6,
+          "name": "\u53cc\u5c42\u6811\u6865",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u6811\u6865\u4e24\u4fa7\u7684\u6839\u987b\u8981\u53d7\u5230\u4e24\u6b21\u6d88\u9664\u6ce2\u7684\u51b2\u51fb\u3002",
+          "moves": 31,
+          "goals": {
+            "roots": 8,
+            "type0": 14
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-07",
+          "level": 6,
+          "region": "meadow",
+          "ordinal": 7,
+          "name": "\u8424\u706b\u5bf9\u8bed",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u6536\u96c6\u9752\u53f6\u4e0e\u82b1\u6735\uff0c\u5f62\u6210\u4e24\u9897\u7279\u6b8a\u679c\u5b9e\u3002",
+          "moves": 34,
+          "goals": {
+            "type1": 14,
+            "type3": 12,
+            "specials": 2
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-08",
+          "level": 7,
+          "region": "meadow",
+          "ordinal": 8,
+          "name": "\u6eaa\u8c37\u4e4b\u5fc3",
+          "chapter": 2,
+          "chapterName": "\u8424\u706b\u6eaa\u8c37",
+          "description": "\u89e3\u5f00\u4e2d\u5fc3\u6839\u7ed3\uff0c\u518d\u7167\u4eae\u5468\u56f4\u82d4\u85d3\u3002",
+          "moves": 34,
+          "goals": {
+            "moss": 9,
+            "roots": 5,
+            "type1": 12
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-09",
+          "level": 8,
+          "region": "sky",
+          "ordinal": 9,
+          "name": "\u6708\u5149\u9636\u68af",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u6cbf\u7740\u6708\u5149\u9636\u68af\u6e05\u7406\u82d4\u85d3\u548c\u53cc\u5c42\u6839\u987b\u3002",
+          "moves": 35,
+          "goals": {
+            "moss": 13,
+            "roots": 6,
+            "type3": 12
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-10",
+          "level": 9,
+          "region": "sky",
+          "ordinal": 10,
+          "name": "\u53e4\u6811\u7ed3\u754c",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u4e09\u5c42\u6839\u987b\u56f4\u4f4f\u53e4\u6811\uff1b\u8303\u56f4\u9053\u5177\u80fd\u4e00\u540c\u51fb\u4e2d\u5b83\u4eec\u3002",
+          "moves": 36,
+          "goals": {
+            "roots": 9,
+            "type4": 16
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-11",
+          "level": 10,
+          "region": "sky",
+          "ordinal": 11,
+          "name": "\u661f\u5c51\u82b1\u56ed",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u6e05\u7406\u56db\u89d2\u82b1\u56ed\uff0c\u6536\u96c6\u661f\u5c51\u4e0e\u82b1\u74e3\u3002",
+          "moves": 38,
+          "goals": {
+            "moss": 12,
+            "roots": 4,
+            "type2": 16,
+            "type5": 16
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        },
+        {
+          "id": "mainline-12",
+          "level": 11,
+          "region": "sky",
+          "ordinal": 12,
+          "name": "\u68ee\u6797\u7684\u5fc3\u613f",
+          "chapter": 3,
+          "chapterName": "\u6708\u5f71\u53e4\u6811",
+          "description": "\u628a\u6574\u5ea7\u68ee\u6797\u7684\u5fc3\u613f\u8fde\u5728\u4e00\u8d77\u3002",
+          "moves": 42,
+          "goals": {
+            "moss": 13,
+            "roots": 9,
+            "type0": 18,
+            "type3": 18
+          },
+          "unlocked": false,
+          "record": {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        }
+      ],
+      "regions": [],
+      "journey": {
+        "version": 3,
+        "regionClaims": [
+          false,
+          false,
+          false
+        ],
+        "openedChests": [
+          0,
+          1
+        ],
+        "toolsSpent": {
+          "windBell": 0,
+          "tideBottle": 0,
+          "tideNet": 0,
+          "sunSeed": 0,
+          "starShears": 0
+        },
+        "inventory": {
+          "tools": {
+            "windBell": 1,
+            "tideBottle": 0,
+            "tideNet": 0,
+            "sunSeed": 0,
+            "starShears": 0
+          },
+          "charms": [
+            "seaRibbon"
+          ]
+        },
+        "equippedCharm": null,
+        "unlocked": 2,
+        "completed": 2,
+        "records": [
+          {
+            "bestStars": 3,
+            "bestScore": 670,
+            "bestMoves": 13,
+            "clears": 1
+          },
+          {
+            "bestStars": 3,
+            "bestScore": 1055,
+            "bestMoves": 20,
+            "clears": 1
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          },
+          {
+            "bestStars": 0,
+            "bestScore": null,
+            "bestMoves": null,
+            "clears": 0
+          }
+        ],
+        "mementos": [],
+        "attempts": [
+          {
+            "id": "mla-000000000001",
+            "level": 0,
+            "result": {
+              "chestAwarded": true,
+              "newChest": 0,
+              "earnedStars": 3,
+              "previousStars": 0,
+              "previousScore": null,
+              "bestScore": 670,
+              "scoreImproved": true,
+              "improvement": 3,
+              "newMementos": [],
+              "totalStars": 3,
+              "duplicate": false
+            }
+          },
+          {
+            "id": "mla-000000000003",
+            "level": 1,
+            "result": {
+              "chestAwarded": true,
+              "newChest": 1,
+              "earnedStars": 3,
+              "previousStars": 0,
+              "previousScore": null,
+              "bestScore": 1055,
+              "scoreImproved": true,
+              "improvement": 3,
+              "newMementos": [],
+              "totalStars": 6,
+              "duplicate": false
+            }
+          }
+        ],
+        "chests": [
+          {
+            "level": 0,
+            "earned": true,
+            "opened": true,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "seaRibbon",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 1,
+            "earned": true,
+            "opened": true,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 2,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 3,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "paperPlane",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 4,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 5,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 6,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "pairedBells",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 7,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 8,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 9,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "cloudCrown",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 10,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 11,
+            "earned": false,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "starBrooch",
+                "count": 1
+              },
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          }
+        ],
+        "regionRewards": [
+          {
+            "region": 0,
+            "unlocked": true,
+            "claimed": false
+          },
+          {
+            "region": 1,
+            "unlocked": false,
+            "claimed": false
+          },
+          {
+            "region": 2,
+            "unlocked": false,
+            "claimed": false
+          }
+        ],
+        "readOnly": false,
+        "storageWarning": null,
+        "persistenceErrors": []
+      },
+      "result": {
+        "outcome": "won",
+        "saved": true,
+        "completionRecorded": true,
+        "firstClear": true,
+        "duplicate": false,
+        "stars": 3,
+        "newChest": 1
+      },
+      "nextStageId": "mainline-03",
+      "capabilities": {
+        "swap": true,
+        "activate": true,
+        "bomb": true,
+        "earnedTools": false,
+        "oceanEvents": false,
+        "goals": [
+          "moss",
+          "type5"
+        ],
+        "maxGoalSlots": 4
+      },
+      "uiTitle": "\u82d4\u5f84\u521d\u5f00",
+      "uiStatus": "\u82d4\u5f84\u521d\u5f00",
+      "uiResultCaption": "3 \u661f \u00b7 \u5df2\u4fdd\u5b58"
+    },
+    "layout": {
+      "width": 390,
+      "height": 844,
+      "safe": {
+        "top": 62,
+        "bottom": 34,
+        "left": 0,
+        "right": 0,
+        "portrait": true
+      },
+      "board": 366,
+      "cell": 52.285714285714285,
+      "boardCenter": {
+        "x": 0,
+        "y": -67.52
+      },
+      "skyReserved": 244.51999999999998,
+      "spriteReady": true,
+      "tiles": [
+        {
+          "x": 38.14285714285714,
+          "y": 332.66285714285715
+        },
+        {
+          "x": 90.42857142857143,
+          "y": 332.66285714285715
+        },
+        {
+          "x": 142.71428571428572,
+          "y": 332.66285714285715
+        },
+        {
+          "x": 195,
+          "y": 332.66285714285715
+        },
+        {
+          "x": 247.28571428571428,
+          "y": 332.66285714285715
+        },
+        {
+          "x": 299.57142857142856,
+          "y": 332.66285714285715
+        },
+        {
+          "x": 351.8571428571429,
+          "y": 332.66285714285715
+        },
+        {
+          "x": 38.14285714285714,
+          "y": 384.9485714285714
+        },
+        {
+          "x": 90.42857142857143,
+          "y": 384.9485714285714
+        },
+        {
+          "x": 142.71428571428572,
+          "y": 384.9485714285714
+        },
+        {
+          "x": 195,
+          "y": 384.9485714285714
+        },
+        {
+          "x": 247.28571428571428,
+          "y": 384.9485714285714
+        },
+        {
+          "x": 299.57142857142856,
+          "y": 384.9485714285714
+        },
+        {
+          "x": 351.8571428571429,
+          "y": 384.9485714285714
+        },
+        {
+          "x": 38.14285714285714,
+          "y": 437.2342857142857
+        },
+        {
+          "x": 90.42857142857143,
+          "y": 437.2342857142857
+        },
+        {
+          "x": 142.71428571428572,
+          "y": 437.2342857142857
+        },
+        {
+          "x": 195,
+          "y": 437.2342857142857
+        },
+        {
+          "x": 247.28571428571428,
+          "y": 437.2342857142857
+        },
+        {
+          "x": 299.57142857142856,
+          "y": 437.2342857142857
+        },
+        {
+          "x": 351.8571428571429,
+          "y": 437.2342857142857
+        },
+        {
+          "x": 38.14285714285714,
+          "y": 489.52
+        },
+        {
+          "x": 90.42857142857143,
+          "y": 489.52
+        },
+        {
+          "x": 142.71428571428572,
+          "y": 489.52
+        },
+        {
+          "x": 195,
+          "y": 489.52
+        },
+        {
+          "x": 247.28571428571428,
+          "y": 489.52
+        },
+        {
+          "x": 299.57142857142856,
+          "y": 489.52
+        },
+        {
+          "x": 351.8571428571429,
+          "y": 489.52
+        },
+        {
+          "x": 38.14285714285714,
+          "y": 541.8057142857143
+        },
+        {
+          "x": 90.42857142857143,
+          "y": 541.8057142857143
+        },
+        {
+          "x": 142.71428571428572,
+          "y": 541.8057142857143
+        },
+        {
+          "x": 195,
+          "y": 541.8057142857143
+        },
+        {
+          "x": 247.28571428571428,
+          "y": 541.8057142857143
+        },
+        {
+          "x": 299.57142857142856,
+          "y": 541.8057142857143
+        },
+        {
+          "x": 351.8571428571429,
+          "y": 541.8057142857143
+        },
+        {
+          "x": 38.14285714285714,
+          "y": 594.0914285714285
+        },
+        {
+          "x": 90.42857142857143,
+          "y": 594.0914285714285
+        },
+        {
+          "x": 142.71428571428572,
+          "y": 594.0914285714285
+        },
+        {
+          "x": 195,
+          "y": 594.0914285714285
+        },
+        {
+          "x": 247.28571428571428,
+          "y": 594.0914285714285
+        },
+        {
+          "x": 299.57142857142856,
+          "y": 594.0914285714285
+        },
+        {
+          "x": 351.8571428571429,
+          "y": 594.0914285714285
+        },
+        {
+          "x": 38.14285714285714,
+          "y": 646.3771428571429
+        },
+        {
+          "x": 90.42857142857143,
+          "y": 646.3771428571429
+        },
+        {
+          "x": 142.71428571428572,
+          "y": 646.3771428571429
+        },
+        {
+          "x": 195,
+          "y": 646.3771428571429
+        },
+        {
+          "x": 247.28571428571428,
+          "y": 646.3771428571429
+        },
+        {
+          "x": 299.57142857142856,
+          "y": 646.3771428571429
+        },
+        {
+          "x": 351.8571428571429,
+          "y": 646.3771428571429
+        }
+      ],
+      "targets": {
+        "moves": {
+          "x": 359,
+          "y": 85
+        },
+        "bomb": {
+          "x": 137,
+          "y": 776
+        },
+        "resultBack": {
+          "x": 195,
+          "y": 535.52
+        }
+      },
+      "tileRects": [
+        {
+          "x": 11.999999999999996,
+          "y": 306.52,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 64.28571428571429,
+          "y": 306.52,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 116.57142857142858,
+          "y": 306.52,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 168.85714285714286,
+          "y": 306.52,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 221.14285714285714,
+          "y": 306.52,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 273.4285714285714,
+          "y": 306.52,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 325.7142857142857,
+          "y": 306.52,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 11.999999999999996,
+          "y": 358.80571428571426,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 64.28571428571429,
+          "y": 358.80571428571426,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 116.57142857142858,
+          "y": 358.80571428571426,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 168.85714285714286,
+          "y": 358.80571428571426,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 221.14285714285714,
+          "y": 358.80571428571426,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 273.4285714285714,
+          "y": 358.80571428571426,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 325.7142857142857,
+          "y": 358.80571428571426,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 11.999999999999996,
+          "y": 411.09142857142854,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 64.28571428571429,
+          "y": 411.09142857142854,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 116.57142857142858,
+          "y": 411.09142857142854,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 168.85714285714286,
+          "y": 411.09142857142854,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 221.14285714285714,
+          "y": 411.09142857142854,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 273.4285714285714,
+          "y": 411.09142857142854,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 325.7142857142857,
+          "y": 411.09142857142854,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 11.999999999999996,
+          "y": 463.3771428571428,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 64.28571428571429,
+          "y": 463.3771428571428,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 116.57142857142858,
+          "y": 463.3771428571428,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 168.85714285714286,
+          "y": 463.3771428571428,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 221.14285714285714,
+          "y": 463.3771428571428,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 273.4285714285714,
+          "y": 463.3771428571428,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 325.7142857142857,
+          "y": 463.3771428571428,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 11.999999999999996,
+          "y": 515.6628571428572,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 64.28571428571429,
+          "y": 515.6628571428572,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 116.57142857142858,
+          "y": 515.6628571428572,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 168.85714285714286,
+          "y": 515.6628571428572,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 221.14285714285714,
+          "y": 515.6628571428572,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 273.4285714285714,
+          "y": 515.6628571428572,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 325.7142857142857,
+          "y": 515.6628571428572,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 11.999999999999996,
+          "y": 567.9485714285714,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 64.28571428571429,
+          "y": 567.9485714285714,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 116.57142857142858,
+          "y": 567.9485714285714,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 168.85714285714286,
+          "y": 567.9485714285714,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 221.14285714285714,
+          "y": 567.9485714285714,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 273.4285714285714,
+          "y": 567.9485714285714,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 325.7142857142857,
+          "y": 567.9485714285714,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 11.999999999999996,
+          "y": 620.2342857142858,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 64.28571428571429,
+          "y": 620.2342857142858,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 116.57142857142858,
+          "y": 620.2342857142858,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 168.85714285714286,
+          "y": 620.2342857142858,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 221.14285714285714,
+          "y": 620.2342857142858,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 273.4285714285714,
+          "y": 620.2342857142858,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        },
+        {
+          "x": 325.7142857142857,
+          "y": 620.2342857142858,
+          "width": 52.285714285714285,
+          "height": 52.285714285714285
+        }
+      ],
+      "back": {
+        "x": 28,
+        "y": 85
+      },
+      "pause": {
+        "x": 358,
+        "y": 776
+      },
+      "goalRects": [
+        {
+          "x": 61,
+          "y": 65,
+          "width": 58,
+          "height": 40
+        },
+        {
+          "x": 122,
+          "y": 65,
+          "width": 58,
+          "height": 40
+        }
+      ],
+      "controlRects": [
+        {
+          "x": 5,
+          "y": 62,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 335,
+          "y": 753,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 114,
+          "y": 753,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 172,
+          "y": 753,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 230,
+          "y": 753,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 330,
+          "y": 64,
+          "width": 58,
+          "height": 42
+        }
+      ],
+      "spriteSizes": [
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        },
+        {
+          "width": 46.011428571428574,
+          "height": 46.011428571428574
+        }
+      ],
+      "canvasPixels": {
+        "width": 1170,
+        "height": 2532
+      },
+      "renderPixels": {
+        "width": 1170,
+        "height": 2532
+      }
+    },
+    "storage": [
+      [
+        "forest-mainline-cocos-r1-active",
+        "{\"version\":1,\"format\":\"mainline-active-1\",\"sequence\":3,\"attemptId\":\"mla-000000000003\",\"checkpoint\":{\"version\":1,\"format\":\"mainline-replay-1\",\"engineRevision\":\"a1f89a0deb942268bfdbed931a3ab28f85970f4b9186f344bba9a937c7b6bd1b\",\"level\":1,\"stageId\":\"mainline-02\",\"seed\":2090117599,\"contentSignature\":\"{\\\"chapter\\\":1,\\\"chapterName\\\":\\\"\u6668\u5149\u6797\u5730\\\",\\\"name\\\":\\\"\u82d4\u5f84\u521d\u5f00\\\",\\\"description\\\":\\\"\u5728\u82d4\u85d3\u6240\u5728\u683c\u6d88\u9664\uff0c\u626b\u51fa\u4e00\u6761\u5c0f\u5f84\u3002\\\",\\\"starters\\\":[{\\\"index\\\":3,\\\"special\\\":\\\"column\\\"}],\\\"moves\\\":25,\\\"goals\\\":{\\\"moss\\\":7,\\\"type5\\\":10},\\\"moss\\\":[21,22,23,24,25,26,27],\\\"roots\\\":[]}\",\"actions\":[[\"bomb\",25],[\"bomb\",15],[\"swap\",29,30],[\"swap\",16,17],[\"swap\",28,29],[\"swap\",31,32],[\"swap\",45,46]],\"expectedState\":\"{\\\"board\\\":[{\\\"id\\\":86,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":127,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":128,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":129,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":119,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":95,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":70,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":72,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":116,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":107,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":126,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":118,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":58,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":7,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":71,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":115,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":106,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":125,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":117,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":57,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":14,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":1,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":114,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":105,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":124,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":94,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":56,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":21,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":76,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":113,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":89,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":123,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":68,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":13,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":35,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":36,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":112,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":60,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":122,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":55,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":41,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":42,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":43,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":96,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":30,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":121,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":61,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":48,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":49,\\\"type\\\":2,\\\"special\\\":null}],\\\"moves\\\":20,\\\"bombs\\\":0,\\\"score\\\":1055,\\\"status\\\":\\\"won\\\",\\\"goals\\\":{\\\"moss\\\":0,\\\"type5\\\":0},\\\"moss\\\":[],\\\"roots\\\":[],\\\"nextId\\\":130,\\\"version\\\":37,\\\"random\\\":1080648754,\\\"beaconCursor\\\":0}\"},\"completionBase\":\"{\\\"forest-v33-journey\\\":\\\"{\\\\\\\"version\\\\\\\":3,\\\\\\\"regionClaims\\\\\\\":[false,false,false],\\\\\\\"openedChests\\\\\\\":[0],\\\\\\\"toolsSpent\\\\\\\":{\\\\\\\"windBell\\\\\\\":0,\\\\\\\"tideBottle\\\\\\\":0,\\\\\\\"tideNet\\\\\\\":0,\\\\\\\"sunSeed\\\\\\\":0,\\\\\\\"starShears\\\\\\\":0},\\\\\\\"inventory\\\\\\\":{\\\\\\\"tools\\\\\\\":{\\\\\\\"windBell\\\\\\\":0,\\\\\\\"tideBottle\\\\\\\":0,\\\\\\\"tideNet\\\\\\\":0,\\\\\\\"sunSeed\\\\\\\":0,\\\\\\\"starShears\\\\\\\":0},\\\\\\\"charms\\\\\\\":[\\\\\\\"seaRibbon\\\\\\\"]},\\\\\\\"equippedCharm\\\\\\\":null,\\\\\\\"unlocked\\\\\\\":1,\\\\\\\"completed\\\\\\\":1,\\\\\\\"records\\\\\\\":[{\\\\\\\"bestStars\\\\\\\":3,\\\\\\\"bestScore\\\\\\\":670,\\\\\\\"bestMoves\\\\\\\":13,\\\\\\\"clears\\\\\\\":1},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0}],\\\\\\\"mementos\\\\\\\":[],\\\\\\\"attempts\\\\\\\":[{\\\\\\\"id\\\\\\\":\\\\\\\"mla-000000000001\\\\\\\",\\\\\\\"level\\\\\\\":0,\\\\\\\"result\\\\\\\":{\\\\\\\"chestAwarded\\\\\\\":true,\\\\\\\"newChest\\\\\\\":0,\\\\\\\"earnedStars\\\\\\\":3,\\\\\\\"previousStars\\\\\\\":0,\\\\\\\"previousScore\\\\\\\":null,\\\\\\\"bestScore\\\\\\\":670,\\\\\\\"scoreImproved\\\\\\\":true,\\\\\\\"improvement\\\\\\\":3,\\\\\\\"newMementos\\\\\\\":[],\\\\\\\"totalStars\\\\\\\":3,\\\\\\\"duplicate\\\\\\\":false}}]}\\\",\\\"forest-v3-progress\\\":\\\"1\\\",\\\"forest-v3-completed\\\":\\\"1\\\"}\",\"discarded\":false}"
+      ],
+      [
+        "forest-v33-journey",
+        "{\"version\":3,\"regionClaims\":[false,false,false],\"openedChests\":[0,1],\"toolsSpent\":{\"windBell\":0,\"tideBottle\":0,\"tideNet\":0,\"sunSeed\":0,\"starShears\":0},\"inventory\":{\"tools\":{\"windBell\":1,\"tideBottle\":0,\"tideNet\":0,\"sunSeed\":0,\"starShears\":0},\"charms\":[\"seaRibbon\"]},\"equippedCharm\":null,\"unlocked\":2,\"completed\":2,\"records\":[{\"bestStars\":3,\"bestScore\":670,\"bestMoves\":13,\"clears\":1},{\"bestStars\":3,\"bestScore\":1055,\"bestMoves\":20,\"clears\":1},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0}],\"mementos\":[],\"attempts\":[{\"id\":\"mla-000000000001\",\"level\":0,\"result\":{\"chestAwarded\":true,\"newChest\":0,\"earnedStars\":3,\"previousStars\":0,\"previousScore\":null,\"bestScore\":670,\"scoreImproved\":true,\"improvement\":3,\"newMementos\":[],\"totalStars\":3,\"duplicate\":false}},{\"id\":\"mla-000000000003\",\"level\":1,\"result\":{\"chestAwarded\":true,\"newChest\":1,\"earnedStars\":3,\"previousStars\":0,\"previousScore\":null,\"bestScore\":1055,\"scoreImproved\":true,\"improvement\":3,\"newMementos\":[],\"totalStars\":6,\"duplicate\":false}}]}"
+      ],
+      [
+        "forest-v3-progress",
+        "2"
+      ],
+      [
+        "forest-v3-completed",
+        "2"
+      ]
+    ],
+    "frameKinds": [
+      "action",
+      "clear",
+      "drop"
+    ],
+    "goalSemantics": [
+      {
+        "key": "moss",
+        "value": "0",
+        "icon": "moss"
+      },
+      {
+        "key": "type5",
+        "value": "0",
+        "icon": "type5"
+      }
+    ]
+  },
+  "storage": [
+    [
+      "forest-mainline-cocos-r1-active",
+      "{\"version\":1,\"format\":\"mainline-active-1\",\"sequence\":3,\"attemptId\":\"mla-000000000003\",\"checkpoint\":{\"version\":1,\"format\":\"mainline-replay-1\",\"engineRevision\":\"a1f89a0deb942268bfdbed931a3ab28f85970f4b9186f344bba9a937c7b6bd1b\",\"level\":1,\"stageId\":\"mainline-02\",\"seed\":2090117599,\"contentSignature\":\"{\\\"chapter\\\":1,\\\"chapterName\\\":\\\"\u6668\u5149\u6797\u5730\\\",\\\"name\\\":\\\"\u82d4\u5f84\u521d\u5f00\\\",\\\"description\\\":\\\"\u5728\u82d4\u85d3\u6240\u5728\u683c\u6d88\u9664\uff0c\u626b\u51fa\u4e00\u6761\u5c0f\u5f84\u3002\\\",\\\"starters\\\":[{\\\"index\\\":3,\\\"special\\\":\\\"column\\\"}],\\\"moves\\\":25,\\\"goals\\\":{\\\"moss\\\":7,\\\"type5\\\":10},\\\"moss\\\":[21,22,23,24,25,26,27],\\\"roots\\\":[]}\",\"actions\":[[\"bomb\",25],[\"bomb\",15],[\"swap\",29,30],[\"swap\",16,17],[\"swap\",28,29],[\"swap\",31,32],[\"swap\",45,46]],\"expectedState\":\"{\\\"board\\\":[{\\\"id\\\":86,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":127,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":128,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":129,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":119,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":95,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":70,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":72,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":116,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":107,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":126,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":118,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":58,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":7,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":71,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":115,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":106,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":125,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":117,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":57,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":14,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":1,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":114,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":105,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":124,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":94,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":56,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":21,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":76,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":113,\\\"type\\\":5,\\\"special\\\":null},{\\\"id\\\":89,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":123,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":68,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":13,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":35,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":36,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":112,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":60,\\\"type\\\":1,\\\"special\\\":null},{\\\"id\\\":122,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":55,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":41,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":42,\\\"type\\\":2,\\\"special\\\":null},{\\\"id\\\":43,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":96,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":30,\\\"type\\\":4,\\\"special\\\":null},{\\\"id\\\":121,\\\"type\\\":3,\\\"special\\\":null},{\\\"id\\\":61,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":48,\\\"type\\\":0,\\\"special\\\":null},{\\\"id\\\":49,\\\"type\\\":2,\\\"special\\\":null}],\\\"moves\\\":20,\\\"bombs\\\":0,\\\"score\\\":1055,\\\"status\\\":\\\"won\\\",\\\"goals\\\":{\\\"moss\\\":0,\\\"type5\\\":0},\\\"moss\\\":[],\\\"roots\\\":[],\\\"nextId\\\":130,\\\"version\\\":37,\\\"random\\\":1080648754,\\\"beaconCursor\\\":0}\"},\"completionBase\":\"{\\\"forest-v33-journey\\\":\\\"{\\\\\\\"version\\\\\\\":3,\\\\\\\"regionClaims\\\\\\\":[false,false,false],\\\\\\\"openedChests\\\\\\\":[0],\\\\\\\"toolsSpent\\\\\\\":{\\\\\\\"windBell\\\\\\\":0,\\\\\\\"tideBottle\\\\\\\":0,\\\\\\\"tideNet\\\\\\\":0,\\\\\\\"sunSeed\\\\\\\":0,\\\\\\\"starShears\\\\\\\":0},\\\\\\\"inventory\\\\\\\":{\\\\\\\"tools\\\\\\\":{\\\\\\\"windBell\\\\\\\":0,\\\\\\\"tideBottle\\\\\\\":0,\\\\\\\"tideNet\\\\\\\":0,\\\\\\\"sunSeed\\\\\\\":0,\\\\\\\"starShears\\\\\\\":0},\\\\\\\"charms\\\\\\\":[\\\\\\\"seaRibbon\\\\\\\"]},\\\\\\\"equippedCharm\\\\\\\":null,\\\\\\\"unlocked\\\\\\\":1,\\\\\\\"completed\\\\\\\":1,\\\\\\\"records\\\\\\\":[{\\\\\\\"bestStars\\\\\\\":3,\\\\\\\"bestScore\\\\\\\":670,\\\\\\\"bestMoves\\\\\\\":13,\\\\\\\"clears\\\\\\\":1},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0},{\\\\\\\"bestStars\\\\\\\":0,\\\\\\\"bestScore\\\\\\\":null,\\\\\\\"bestMoves\\\\\\\":null,\\\\\\\"clears\\\\\\\":0}],\\\\\\\"mementos\\\\\\\":[],\\\\\\\"attempts\\\\\\\":[{\\\\\\\"id\\\\\\\":\\\\\\\"mla-000000000001\\\\\\\",\\\\\\\"level\\\\\\\":0,\\\\\\\"result\\\\\\\":{\\\\\\\"chestAwarded\\\\\\\":true,\\\\\\\"newChest\\\\\\\":0,\\\\\\\"earnedStars\\\\\\\":3,\\\\\\\"previousStars\\\\\\\":0,\\\\\\\"previousScore\\\\\\\":null,\\\\\\\"bestScore\\\\\\\":670,\\\\\\\"scoreImproved\\\\\\\":true,\\\\\\\"improvement\\\\\\\":3,\\\\\\\"newMementos\\\\\\\":[],\\\\\\\"totalStars\\\\\\\":3,\\\\\\\"duplicate\\\\\\\":false}}]}\\\",\\\"forest-v3-progress\\\":\\\"1\\\",\\\"forest-v3-completed\\\":\\\"1\\\"}\",\"discarded\":false}"
+    ],
+    [
+      "forest-v33-journey",
+      "{\"version\":3,\"regionClaims\":[false,false,false],\"openedChests\":[0,1],\"toolsSpent\":{\"windBell\":0,\"tideBottle\":0,\"tideNet\":0,\"sunSeed\":0,\"starShears\":0},\"inventory\":{\"tools\":{\"windBell\":1,\"tideBottle\":0,\"tideNet\":0,\"sunSeed\":0,\"starShears\":0},\"charms\":[\"seaRibbon\"]},\"equippedCharm\":null,\"unlocked\":2,\"completed\":2,\"records\":[{\"bestStars\":3,\"bestScore\":670,\"bestMoves\":13,\"clears\":1},{\"bestStars\":3,\"bestScore\":1055,\"bestMoves\":20,\"clears\":1},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0},{\"bestStars\":0,\"bestScore\":null,\"bestMoves\":null,\"clears\":0}],\"mementos\":[],\"attempts\":[{\"id\":\"mla-000000000001\",\"level\":0,\"result\":{\"chestAwarded\":true,\"newChest\":0,\"earnedStars\":3,\"previousStars\":0,\"previousScore\":null,\"bestScore\":670,\"scoreImproved\":true,\"improvement\":3,\"newMementos\":[],\"totalStars\":3,\"duplicate\":false}},{\"id\":\"mla-000000000003\",\"level\":1,\"result\":{\"chestAwarded\":true,\"newChest\":1,\"earnedStars\":3,\"previousStars\":0,\"previousScore\":null,\"bestScore\":1055,\"scoreImproved\":true,\"improvement\":3,\"newMementos\":[],\"totalStars\":6,\"duplicate\":false}}]}"
+    ],
+    [
+      "forest-v3-progress",
+      "2"
+    ],
+    [
+      "forest-v3-completed",
+      "2"
+    ]
+  ],
+  "mainline": {
+    "provider": "mainline-v33",
+    "storageKey": "forest-mainline-cocos-r1-active",
+    "progressKey": "forest-v33-journey",
+    "state": "result.saved",
+    "active": {
+      "board": [
+        {
+          "id": 86,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 127,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 128,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 129,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 119,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 95,
+          "type": 4,
+          "special": null
+        },
+        {
+          "id": 70,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 72,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 116,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 107,
+          "type": 4,
+          "special": null
+        },
+        {
+          "id": 126,
+          "type": 4,
+          "special": null
+        },
+        {
+          "id": 118,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 58,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 7,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 71,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 115,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 106,
+          "type": 2,
+          "special": null
+        },
+        {
+          "id": 125,
+          "type": 2,
+          "special": null
+        },
+        {
+          "id": 117,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 57,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 14,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 1,
+          "type": 2,
+          "special": null
+        },
+        {
+          "id": 114,
+          "type": 2,
+          "special": null
+        },
+        {
+          "id": 105,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 124,
+          "type": 4,
+          "special": null
+        },
+        {
+          "id": 94,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 56,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 21,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 76,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 113,
+          "type": 5,
+          "special": null
+        },
+        {
+          "id": 89,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 123,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 68,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 13,
+          "type": 2,
+          "special": null
+        },
+        {
+          "id": 35,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 36,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 112,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 60,
+          "type": 1,
+          "special": null
+        },
+        {
+          "id": 122,
+          "type": 4,
+          "special": null
+        },
+        {
+          "id": 55,
+          "type": 4,
+          "special": null
+        },
+        {
+          "id": 41,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 42,
+          "type": 2,
+          "special": null
+        },
+        {
+          "id": 43,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 96,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 30,
+          "type": 4,
+          "special": null
+        },
+        {
+          "id": 121,
+          "type": 3,
+          "special": null
+        },
+        {
+          "id": 61,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 48,
+          "type": 0,
+          "special": null
+        },
+        {
+          "id": 49,
+          "type": 2,
+          "special": null
+        }
+      ],
+      "moves": 20,
+      "bombs": 0,
+      "score": 1055,
+      "status": "won",
+      "goals": {
+        "moss": 0,
+        "type5": 0
+      },
+      "moss": [],
+      "roots": [],
+      "nextId": 130,
+      "version": 37,
+      "random": 1080648754,
+      "beaconCursor": 0,
+      "level": 1,
+      "stageId": "mainline-02",
+      "seed": 2090117599,
+      "theme": "seaBeach",
+      "name": "\u82d4\u5f84\u521d\u5f00",
+      "initialGoals": {
+        "moss": 7,
+        "type5": 10
+      },
+      "goalOrder": [
+        "moss",
+        "type5"
+      ],
+      "actions": [
+        [
+          "bomb",
+          25
+        ],
+        [
+          "bomb",
+          15
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          16,
+          17
+        ],
+        [
+          "swap",
+          28,
+          29
+        ],
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          45,
+          46
+        ]
+      ],
+      "beaconTarget": null,
+      "attemptId": "mla-000000000003"
+    },
+    "visual": null,
+    "hidden": false,
+    "readOnly": false,
+    "error": null,
+    "stages": [
+      {
+        "id": "mainline-01",
+        "level": 0,
+        "region": "tide",
+        "ordinal": 1,
+        "name": "\u9732\u73e0\u95ee\u5019",
+        "chapter": 1,
+        "chapterName": "\u6668\u5149\u6797\u5730",
+        "description": "\u6536\u96c6\u8349\u8393\uff0c\u5b66\u4f1a\u76f8\u90bb\u4ea4\u6362\u3002",
+        "moves": 22,
+        "goals": {
+          "type0": 15
+        },
+        "unlocked": true,
+        "record": {
+          "bestStars": 3,
+          "bestScore": 670,
+          "bestMoves": 13,
+          "clears": 1
+        }
+      },
+      {
+        "id": "mainline-02",
+        "level": 1,
+        "region": "tide",
+        "ordinal": 2,
+        "name": "\u82d4\u5f84\u521d\u5f00",
+        "chapter": 1,
+        "chapterName": "\u6668\u5149\u6797\u5730",
+        "description": "\u5728\u82d4\u85d3\u6240\u5728\u683c\u6d88\u9664\uff0c\u626b\u51fa\u4e00\u6761\u5c0f\u5f84\u3002",
+        "moves": 25,
+        "goals": {
+          "moss": 7,
+          "type5": 10
+        },
+        "unlocked": true,
+        "record": {
+          "bestStars": 3,
+          "bestScore": 1055,
+          "bestMoves": 20,
+          "clears": 1
+        }
+      },
+      {
+        "id": "mainline-03",
+        "level": 2,
+        "region": "tide",
+        "ordinal": 3,
+        "name": "\u6d46\u679c\u91ce\u9910",
+        "chapter": 1,
+        "chapterName": "\u6668\u5149\u6797\u5730",
+        "description": "\u6536\u96c6\u84dd\u8393\u548c\u6a61\u679c\uff0c\u518d\u5f62\u6210\u4e00\u6b21\u56db\u8fde\u3002",
+        "moves": 29,
+        "goals": {
+          "type2": 12,
+          "type4": 12,
+          "lines": 1
+        },
+        "unlocked": true,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-04",
+        "level": 3,
+        "region": "tide",
+        "ordinal": 4,
+        "name": "\u5c0f\u5f84\u5b88\u536b",
+        "chapter": 1,
+        "chapterName": "\u6668\u5149\u6797\u5730",
+        "description": "\u5728\u6839\u987b\u672c\u683c\u6216\u76f8\u90bb\u683c\u6d88\u9664\uff0c\u9010\u5c42\u89e3\u5f00\u6839\u987b\u3002",
+        "moves": 28,
+        "goals": {
+          "roots": 7,
+          "type4": 12
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-05",
+        "level": 4,
+        "region": "meadow",
+        "ordinal": 5,
+        "name": "\u6eaa\u5cb8\u82b1\u73af",
+        "chapter": 2,
+        "chapterName": "\u8424\u706b\u6eaa\u8c37",
+        "description": "\u6e05\u7406\u73af\u5f62\u82d4\u85d3\uff0c\u6536\u96c6\u6eaa\u5cb8\u84dd\u8393\u3002",
+        "moves": 31,
+        "goals": {
+          "moss": 12,
+          "type2": 14
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-06",
+        "level": 5,
+        "region": "meadow",
+        "ordinal": 6,
+        "name": "\u53cc\u5c42\u6811\u6865",
+        "chapter": 2,
+        "chapterName": "\u8424\u706b\u6eaa\u8c37",
+        "description": "\u6811\u6865\u4e24\u4fa7\u7684\u6839\u987b\u8981\u53d7\u5230\u4e24\u6b21\u6d88\u9664\u6ce2\u7684\u51b2\u51fb\u3002",
+        "moves": 31,
+        "goals": {
+          "roots": 8,
+          "type0": 14
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-07",
+        "level": 6,
+        "region": "meadow",
+        "ordinal": 7,
+        "name": "\u8424\u706b\u5bf9\u8bed",
+        "chapter": 2,
+        "chapterName": "\u8424\u706b\u6eaa\u8c37",
+        "description": "\u6536\u96c6\u9752\u53f6\u4e0e\u82b1\u6735\uff0c\u5f62\u6210\u4e24\u9897\u7279\u6b8a\u679c\u5b9e\u3002",
+        "moves": 34,
+        "goals": {
+          "type1": 14,
+          "type3": 12,
+          "specials": 2
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-08",
+        "level": 7,
+        "region": "meadow",
+        "ordinal": 8,
+        "name": "\u6eaa\u8c37\u4e4b\u5fc3",
+        "chapter": 2,
+        "chapterName": "\u8424\u706b\u6eaa\u8c37",
+        "description": "\u89e3\u5f00\u4e2d\u5fc3\u6839\u7ed3\uff0c\u518d\u7167\u4eae\u5468\u56f4\u82d4\u85d3\u3002",
+        "moves": 34,
+        "goals": {
+          "moss": 9,
+          "roots": 5,
+          "type1": 12
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-09",
+        "level": 8,
+        "region": "sky",
+        "ordinal": 9,
+        "name": "\u6708\u5149\u9636\u68af",
+        "chapter": 3,
+        "chapterName": "\u6708\u5f71\u53e4\u6811",
+        "description": "\u6cbf\u7740\u6708\u5149\u9636\u68af\u6e05\u7406\u82d4\u85d3\u548c\u53cc\u5c42\u6839\u987b\u3002",
+        "moves": 35,
+        "goals": {
+          "moss": 13,
+          "roots": 6,
+          "type3": 12
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-10",
+        "level": 9,
+        "region": "sky",
+        "ordinal": 10,
+        "name": "\u53e4\u6811\u7ed3\u754c",
+        "chapter": 3,
+        "chapterName": "\u6708\u5f71\u53e4\u6811",
+        "description": "\u4e09\u5c42\u6839\u987b\u56f4\u4f4f\u53e4\u6811\uff1b\u8303\u56f4\u9053\u5177\u80fd\u4e00\u540c\u51fb\u4e2d\u5b83\u4eec\u3002",
+        "moves": 36,
+        "goals": {
+          "roots": 9,
+          "type4": 16
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-11",
+        "level": 10,
+        "region": "sky",
+        "ordinal": 11,
+        "name": "\u661f\u5c51\u82b1\u56ed",
+        "chapter": 3,
+        "chapterName": "\u6708\u5f71\u53e4\u6811",
+        "description": "\u6e05\u7406\u56db\u89d2\u82b1\u56ed\uff0c\u6536\u96c6\u661f\u5c51\u4e0e\u82b1\u74e3\u3002",
+        "moves": 38,
+        "goals": {
+          "moss": 12,
+          "roots": 4,
+          "type2": 16,
+          "type5": 16
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      },
+      {
+        "id": "mainline-12",
+        "level": 11,
+        "region": "sky",
+        "ordinal": 12,
+        "name": "\u68ee\u6797\u7684\u5fc3\u613f",
+        "chapter": 3,
+        "chapterName": "\u6708\u5f71\u53e4\u6811",
+        "description": "\u628a\u6574\u5ea7\u68ee\u6797\u7684\u5fc3\u613f\u8fde\u5728\u4e00\u8d77\u3002",
+        "moves": 42,
+        "goals": {
+          "moss": 13,
+          "roots": 9,
+          "type0": 18,
+          "type3": 18
+        },
+        "unlocked": false,
+        "record": {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      }
+    ],
+    "regions": [],
+    "journey": {
+      "version": 3,
+      "regionClaims": [
+        false,
+        false,
+        false
+      ],
+      "openedChests": [
+        0,
+        1
+      ],
+      "toolsSpent": {
+        "windBell": 0,
+        "tideBottle": 0,
+        "tideNet": 0,
+        "sunSeed": 0,
+        "starShears": 0
+      },
+      "inventory": {
+        "tools": {
+          "windBell": 1,
+          "tideBottle": 0,
+          "tideNet": 0,
+          "sunSeed": 0,
+          "starShears": 0
+        },
+        "charms": [
+          "seaRibbon"
+        ]
+      },
+      "equippedCharm": null,
+      "unlocked": 2,
+      "completed": 2,
+      "records": [
+        {
+          "bestStars": 3,
+          "bestScore": 670,
+          "bestMoves": 13,
+          "clears": 1
+        },
+        {
+          "bestStars": 3,
+          "bestScore": 1055,
+          "bestMoves": 20,
+          "clears": 1
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        },
+        {
+          "bestStars": 0,
+          "bestScore": null,
+          "bestMoves": null,
+          "clears": 0
+        }
+      ],
+      "mementos": [],
+      "attempts": [
+        {
+          "id": "mla-000000000001",
+          "level": 0,
+          "result": {
+            "chestAwarded": true,
+            "newChest": 0,
+            "earnedStars": 3,
+            "previousStars": 0,
+            "previousScore": null,
+            "bestScore": 670,
+            "scoreImproved": true,
+            "improvement": 3,
+            "newMementos": [],
+            "totalStars": 3,
+            "duplicate": false
+          }
+        },
+        {
+          "id": "mla-000000000003",
+          "level": 1,
+          "result": {
+            "chestAwarded": true,
+            "newChest": 1,
+            "earnedStars": 3,
+            "previousStars": 0,
+            "previousScore": null,
+            "bestScore": 1055,
+            "scoreImproved": true,
+            "improvement": 3,
+            "newMementos": [],
+            "totalStars": 6,
+            "duplicate": false
+          }
+        }
+      ],
+      "chests": [
+        {
+          "level": 0,
+          "earned": true,
+          "opened": true,
+          "rewards": [
+            {
+              "kind": "charm",
+              "id": "seaRibbon",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 1,
+          "earned": true,
+          "opened": true,
+          "rewards": [
+            {
+              "kind": "tool",
+              "id": "windBell",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "tool",
+              "id": "tideBottle",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "charm",
+              "id": "paperPlane",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 4,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "tool",
+              "id": "windBell",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 5,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "tool",
+              "id": "tideBottle",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 6,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "charm",
+              "id": "pairedBells",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 7,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "tool",
+              "id": "tideBottle",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 8,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "tool",
+              "id": "windBell",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 9,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "charm",
+              "id": "cloudCrown",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 10,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "tool",
+              "id": "tideBottle",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "level": 11,
+          "earned": false,
+          "opened": false,
+          "rewards": [
+            {
+              "kind": "charm",
+              "id": "starBrooch",
+              "count": 1
+            },
+            {
+              "kind": "tool",
+              "id": "windBell",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "regionRewards": [
+        {
+          "region": 0,
+          "unlocked": true,
+          "claimed": false
+        },
+        {
+          "region": 1,
+          "unlocked": false,
+          "claimed": false
+        },
+        {
+          "region": 2,
+          "unlocked": false,
+          "claimed": false
+        }
+      ],
+      "readOnly": false,
+      "storageWarning": null,
+      "persistenceErrors": []
+    },
+    "result": {
+      "outcome": "won",
+      "saved": true,
+      "completionRecorded": true,
+      "firstClear": false,
+      "duplicate": true,
+      "stars": 3,
+      "newChest": 1
+    },
+    "nextStageId": "mainline-03",
+    "capabilities": {
+      "swap": true,
+      "activate": true,
+      "bomb": true,
+      "earnedTools": false,
+      "oceanEvents": false,
+      "goals": [
+        "moss",
+        "type5"
+      ],
+      "maxGoalSlots": 4
+    }
+  },
+  "hostReply": {
+    "ok": true,
+    "result": {
+      "level": 1,
+      "rewards": [],
+      "newlyGrantedRewards": [],
+      "duplicate": true,
+      "opened": true
+    },
+    "duplicate": true,
+    "newlyGrantedRewards": []
+  },
+  "nav": {
+    "width": 390,
+    "height": 844,
+    "targets": {
+      "mainNext": {
+        "x": 195,
+        "y": 661.52
+      },
+      "chest": {
+        "x": 195,
+        "y": 711.52
+      },
+      "regionReward": {
+        "x": 195,
+        "y": 761.52
+      }
+    },
+    "targetRects": {
+      "mainNext": {
+        "x": 75,
+        "y": 638.52,
+        "width": 240,
+        "height": 46
+      },
+      "chest": {
+        "x": 75,
+        "y": 688.52,
+        "width": 240,
+        "height": 46
+      },
+      "regionReward": {
+        "x": 75,
+        "y": 738.52,
+        "width": 240,
+        "height": 46
+      }
+    },
+    "managedBoards": 1
+  }
+}

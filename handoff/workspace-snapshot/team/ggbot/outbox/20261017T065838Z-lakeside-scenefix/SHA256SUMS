@@ -1,0 +1,4 @@
+2e1be8b1897f3ef3c095a886a5569e5eedc01053d869baca2b98c31dac6dbd4d  ./README.md
+e60d4a22ee94f99ccb4184da4cccc48273c3b6c6eb2df50364ef2bf249c259a0  ./lakeside-scenefix.bundle
+c1ed626f3730126297179f6cd14133548545b23c80983f7c68fad1d9a7635e14  ./patches/0001-scene-design-generic-region-exporter-drops-ASSETS-te.patch
+c3056aeb57f1eef791748e736955d79415f9e2726c84babded1b540dfb05a5e4  ./patches/0002-lakeside-drop-4-zero-instance-GLBs-from-region_lakes.patch

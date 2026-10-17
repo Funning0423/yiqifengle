@@ -1,0 +1,68 @@
+cine_home_safe_end   chair:body_nobowxchair_seat                | v1: -                                             | v2: max 34 sum 34 f0-0 d19.30mm
+cine_home_safe_end   chair:bodyxchair_seat                      | v1: -                                             | v2: max 68 sum 68 f0-0 d19.30mm
+cine_home_safe_end   chair:dressxchair_front_edge               | v1: -                                             | v2: max 8 sum 8 f0-0 d5.91mm
+cine_home_safe_end   chair:dressxchair_seat                     | v1: -                                             | v2: max 190 sum 190 f0-0 d19.08mm
+cine_home_safe_end   env:body_nobowxenv_interior_shell          | v1: -                                             | v2: max 5 sum 5 f0-0 d0.00mm
+cine_home_safe_end   env:bodyxenv_interior_shell                | v1: -                                             | v2: max 5 sum 5 f0-0 d0.00mm
+cine_home_safe_end   garment[midsurface]:apronxdress            | v1: -                                             | v2: max 194 sum 194 f0-0 d7.88mm
+cine_home_safe_end   garment[midsurface]:legLxapron             | v1: -                                             | v2: max 34 sum 34 f0-0 d1.71mm
+cine_home_safe_end   garment[midsurface]:legLxdress             | v1: -                                             | v2: max 260 sum 260 f0-0 d10.40mm
+cine_home_safe_end   garment[midsurface]:legRxapron             | v1: -                                             | v2: max 36 sum 36 f0-0 d2.18mm
+cine_home_safe_end   garment[midsurface]:legRxdress             | v1: -                                             | v2: max 184 sum 184 f0-0 d5.59mm
+cine_home_safe_end   garment[midsurface]:torsoxdress            | v1: -                                             | v2: max 16 sum 16 f0-0 d7.24mm
+cine_home_safe_end   garment[visible]:apronxdress               | v1: -                                             | v2: max 806 sum 806 f0-0 d3.49mm
+cine_home_safe_end   garment[visible]:legLxapron                | v1: -                                             | v2: max 68 sum 68 f0-0 d0.23mm
+cine_home_safe_end   garment[visible]:legLxdress                | v1: -                                             | v2: max 542 sum 542 f0-0 d10.52mm
+cine_home_safe_end   garment[visible]:legRxapron                | v1: -                                             | v2: max 62 sum 62 f0-0 d0.16mm
+cine_home_safe_end   garment[visible]:legRxdress                | v1: -                                             | v2: max 360 sum 360 f0-0 d0.17mm
+cine_home_safe_end   garment[visible]:torsoxdress               | v1: -                                             | v2: max 32 sum 32 f0-0 d10.55mm
+cine_home_safe_end   layer_cross:apron_vs_dress                 | v1: -                                             | v2: max 26 sum 26 f0-0 d24.93mm
+cine_home_safe_end   proxy:body_nobowxcol_int_chair_back        | v1: -                                             | v2: max 434 sum 434 f0-0 d28.84mm
+cine_home_safe_end   proxy:body_nobowxcol_int_chair_seat        | v1: -                                             | v2: max 27 sum 27 f0-0 d36.75mm
+cine_home_safe_end   proxy:bodyxcol_int_chair_back              | v1: -                                             | v2: max 434 sum 434 f0-0 d28.84mm
+cine_home_safe_end   proxy:bodyxcol_int_chair_seat              | v1: -                                             | v2: max 182 sum 182 f0-0 d45.40mm
+cine_home_safe_end   proxy:dressxcol_int_chair_seat             | v1: -                                             | v2: max 90 sum 90 f0-0 d28.92mm
+cine_home_safe_end   proxy:hairxcol_int_chair_back              | v1: -                                             | v2: max 1248 sum 1248 f0-0 d30.50mm
+cine_home_safe_end   thin_sheet:apron_self                      | v1: -                                             | v2: max 115 sum 115 f0-0 d0.00mm
+cine_home_safe_end   thin_sheet:dress_self                      | v1: -                                             | v2: max 2489 sum 2489 f0-0 d0.00mm
+cine_open_safe_end   garment[midsurface]:torsoxapron            | v1: -                                             | v2: max 4 sum 4 f0-0 d6.29mm
+cine_open_safe_end   garment[visible]:torsoxapron               | v1: -                                             | v2: max 8 sum 8 f0-0 d6.28mm
+cine_open_stand      chair:apronxchair_front_edge               | v1: max 6 sum 6 f31-31 d0.00mm                    | v2: max 32 sum 136 f30-34 d4.97mm
+cine_open_stand      chair:apronxchair_seat                     | v1: -                                             | v2: max 20 sum 70 f30-34 d4.97mm
+cine_open_stand      chair:body_nobowxchair_seat                | v1: max 34 sum 960 f0-30 d19.40mm                 | v2: max 34 sum 960 f0-30 d19.40mm
+cine_open_stand      chair:bodyxchair_seat                      | v1: max 92 sum 3291 f0-48 d19.41mm                | v2: max 76 sum 3381 f0-50 d19.40mm
+cine_open_stand      chair:dressxchair_front_edge               | v1: max 591 sum 8565 f0-45 d46.16mm               | v2: max 588 sum 9021 f0-47 d19.38mm
+cine_open_stand      chair:dressxchair_seat                     | v1: max 905 sum 17752 f0-44 d19.36mm              | v2: max 931 sum 19948 f0-47 d19.36mm
+cine_open_stand      env:body_nobowxenv_interior_shell          | v1: max 7 sum 147 f0-83 d0.05mm                   | v2: max 5 sum 230 f0-90 d0.00mm
+cine_open_stand      env:bodyxenv_interior_shell                | v1: max 7 sum 147 f0-83 d0.05mm                   | v2: max 5 sum 230 f0-90 d0.00mm
+cine_open_stand      garment[midsurface]:apronxdress            | v1: max 604 sum 16864 f0-65 d17.26mm              | v2: max 586 sum 18120 f0-69 d16.65mm
+cine_open_stand      garment[midsurface]:legLxapron             | v1: max 289 sum 10501 f0-72 d87.94mm              | v2: max 289 sum 11218 f0-75 d90.32mm
+cine_open_stand      garment[midsurface]:legLxdress             | v1: max 832 sum 29742 f0-72 d101.73mm             | v2: max 826 sum 30655 f0-75 d103.34mm
+cine_open_stand      garment[midsurface]:legRxapron             | v1: max 288 sum 10853 f0-72 d99.58mm              | v2: max 291 sum 11519 f0-75 d102.96mm
+cine_open_stand      garment[midsurface]:legRxdress             | v1: max 863 sum 28208 f0-72 d96.43mm              | v2: max 824 sum 28831 f0-75 d99.05mm
+cine_open_stand      garment[midsurface]:torsoxapron            | v1: max 4 sum 48 f79-90 d6.37mm                   | v2: max 4 sum 34 f82-90 d6.40mm
+cine_open_stand      garment[midsurface]:torsoxdress            | v1: max 18 sum 583 f0-81 d9.74mm                  | v2: max 18 sum 609 f0-85 d9.74mm
+cine_open_stand      garment[visible]:apronxdress               | v1: max 2402 sum 69278 f0-66 d17.12mm             | v2: max 2358 sum 74546 f0-70 d21.17mm
+cine_open_stand      garment[visible]:legLxapron                | v1: max 578 sum 21177 f0-72 d84.97mm              | v2: max 580 sum 22656 f0-75 d87.23mm
+cine_open_stand      garment[visible]:legLxdress                | v1: max 1651 sum 59648 f0-72 d63.91mm             | v2: max 1646 sum 61316 f0-75 d60.84mm
+cine_open_stand      garment[visible]:legRxapron                | v1: max 574 sum 21668 f0-72 d85.85mm              | v2: max 578 sum 23003 f0-75 d85.21mm
+cine_open_stand      garment[visible]:legRxdress                | v1: max 1729 sum 56344 f0-72 d67.40mm             | v2: max 1636 sum 57470 f0-75 d71.65mm
+cine_open_stand      garment[visible]:torsoxapron               | v1: max 8 sum 95 f79-90 d9.23mm                   | v2: max 8 sum 71 f82-90 d9.23mm
+cine_open_stand      garment[visible]:torsoxdress               | v1: max 36 sum 1168 f0-81 d14.88mm                | v2: max 36 sum 1217 f0-85 d14.88mm
+cine_open_stand      layer_cross:apron_vs_dress                 | v1: -                                             | v2: max 47 sum 1855 f0-67 d29.08mm
+cine_open_stand      proxy:apronxcol_int_chair_seat             | v1: -                                             | v2: max 6 sum 21 f30-34 d5.16mm
+cine_open_stand      proxy:body_nobowxcol_int_chair_back        | v1: max 419 sum 8616 f0-22 d26.75mm               | v2: max 434 sum 9052 f0-31 d28.84mm
+cine_open_stand      proxy:body_nobowxcol_int_chair_seat        | v1: max 27 sum 711 f0-30 d36.75mm                 | v2: max 27 sum 711 f0-30 d36.75mm
+cine_open_stand      proxy:bodyxcol_int_chair_back              | v1: max 419 sum 8619 f0-31 d26.75mm               | v2: max 434 sum 9082 f0-35 d28.84mm
+cine_open_stand      proxy:bodyxcol_int_chair_seat              | v1: max 182 sum 5937 f0-48 d47.48mm               | v2: max 182 sum 5570 f0-50 d45.40mm
+cine_open_stand      proxy:dressxcol_int_chair_seat             | v1: max 1485 sum 20976 f0-44 d67.63mm             | v2: max 1692 sum 24988 f0-47 d73.94mm
+cine_open_stand      proxy:hairxcol_int_chair_back              | v1: max 1188 sum 24568 f0-22 d28.42mm             | v2: max 1248 sum 26082 f0-22 d30.50mm
+cine_open_stand      self:handLxlegL                            | v1: max 134 sum 1664 f26-41 d0.00mm               | v2: -
+cine_open_stand      self:handRxlegR                            | v1: max 136 sum 1785 f23-41 d0.00mm               | v2: -
+cine_open_stand      thin_sheet:apron_self                      | v1: -                                             | v2: max 115 sum 5505 f0-65 d0.00mm
+cine_open_stand      thin_sheet:dress_self                      | v1: -                                             | v2: max 2676 sum 140085 f0-63 d0.00mm
+cine_open_turn       env:body_nobowxenv_interior_shell          | v1: max 5 sum 65 f0-44 d0.04mm                    | v2: max 5 sum 60 f0-44 d0.04mm
+cine_open_turn       env:bodyxenv_interior_shell                | v1: max 5 sum 65 f0-44 d0.04mm                    | v2: max 5 sum 60 f0-44 d0.04mm
+cine_open_turn       garment[midsurface]:torsoxapron            | v1: max 4 sum 184 f0-45 d6.29mm                   | v2: max 4 sum 184 f0-45 d6.29mm
+cine_open_turn       garment[visible]:torsoxapron               | v1: max 8 sum 368 f0-45 d9.23mm                   | v2: max 8 sum 368 f0-45 d9.23mm
+cine_open_turn       self:legLxlegR                             | v1: max 96 sum 948 f6-38 d0.00mm                  | v2: -

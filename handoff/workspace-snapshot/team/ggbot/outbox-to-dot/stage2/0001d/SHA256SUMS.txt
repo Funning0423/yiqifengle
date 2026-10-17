@@ -1,0 +1,3 @@
+37d27eda148a7515c00c645c836b685b9a9517044cfde174e88a1587e673668d  ./0001-0001d-per-folder-configMode-overwrite-overwriteSetti.patch
+ae949b72200b4b2be956fbc7a27391ddae37f8317dae9877ff4f34a5aec1e7e1  ./README-0001d.md
+3e74ac49d392c63a740884e2fc9466022eb26623db4b66cc07fc1f9411d6970c  ./check_wechat_build.py

@@ -1,0 +1,241 @@
+{
+  "tool": "wechat_first_open_audit.cjs",
+  "version": "0008-v4",
+  "runId": "20261010T013304386Z-1dac",
+  "startedAt": "2026-10-10T01:33:04.387Z",
+  "host": {
+    "platform": "linux",
+    "node": "v24.19.0"
+  },
+  "dryRun": true,
+  "scope": "DRY_RUN_FAKE_CLI — exercises the script only; NOT evidence of WeChat DevTools behaviour",
+  "status": "BLOCKED",
+  "reason": "default: WeappLog root never appeared: /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs | WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it)",
+  "variants": [
+    {
+      "role": "verdict",
+      "variant": "default",
+      "projectDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/copies/QFFirstOpen-20261010T013304386Z-1dac-2ee759-default",
+      "projectname": "QFFirstOpen-20261010T013304386Z-1dac-2ee759-default",
+      "port": 42008,
+      "steps": {
+        "originalProjectname": "review",
+        "finalizer": {
+          "path": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+          "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79",
+          "exit": 0,
+          "stdout": "{\"output\":\"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/copies/QFFirstOpen-20261010T013304386Z-1dac-2ee759-default\",\"compileType\":\"game\",\"emptyCompileConditionsRemoved\":true,\"enhancementDisabled\":true,\"removedCondition\":null,\"changed\":true,\"action\":\"LOCAL_CONFIG_ONLY\"}",
+          "stderr": ""
+        },
+        "removedConditionReportedByFinalizer": null,
+        "shimInjected": true,
+        "pingResult": "d19d21e108ac6413",
+        "screenshotError": "fake screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/copies/QFFirstOpen-20261010T013304386Z-1dac-2ee759-default"
+          ],
+          "pid": 403,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 62,
+          "lines": []
+        },
+        "cliLaunch": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/copies/QFFirstOpen-20261010T013304386Z-1dac-2ee759-default",
+            "--auto-port",
+            "42008"
+          ],
+          "pid": 392,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 55,
+          "lines": []
+        }
+      },
+      "channels": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": false,
+          "files": 0,
+          "lines": 0,
+          "ownLines": 0,
+          "ownBootCanary": false,
+          "ownLateCanary": false,
+          "bytes": 0,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "errors": [],
+      "knownNotice": [],
+      "knownNoticeUnattributed": [],
+      "unattributed": [],
+      "warnings": [],
+      "missing": [
+        "WeappLog root never appeared: /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs",
+        "WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it)"
+      ],
+      "status": "BLOCKED",
+      "reason": "WeappLog root never appeared: /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs | WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it)",
+      "token": "d19d21e108ac6413",
+      "attributionMarkers": [
+        "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/copies/QFFirstOpen-20261010T013304386Z-1dac-2ee759-default",
+        "QFFirstOpen-20261010T013304386Z-1dac-2ee759-default",
+        "d19d21e108ac6413"
+      ],
+      "mode": "auto",
+      "shim": {
+        "version": "0008v3",
+        "token": "d19d21e108ac6413",
+        "installedAt": 1791595985509,
+        "heartbeat": true,
+        "canaryAtBoot": true,
+        "wrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "stillWrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "onErrorRegistered": true,
+        "onUnhandledRejectionRegistered": true,
+        "installErrors": [],
+        "dropped": 0,
+        "errors": [
+          {
+            "t": 1791595985509,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY] d19d21e108ac6413"
+          },
+          {
+            "t": 1791595986011,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY-LATE] d19d21e108ac6413"
+          }
+        ],
+        "warns": [],
+        "logs": [
+          {
+            "t": 1791595985509,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT] d19d21e108ac6413"
+          },
+          {
+            "t": 1791595985509,
+            "level": "log",
+            "msg": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+          },
+          {
+            "t": 1791595986011,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT-LATE] d19d21e108ac6413"
+          }
+        ],
+        "onError": [],
+        "unhandled": []
+      },
+      "loadSceneSeen": true,
+      "unclassifiedInfo": []
+    }
+  ],
+  "config": {
+    "cli": "/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-cli.cjs",
+    "buildDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/build",
+    "workRoot": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/copies",
+    "finalizer": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+    "cases": [
+      "default"
+    ],
+    "allowAppJsonNotice": false,
+    "mode": "auto",
+    "autoPort": 42008,
+    "settleMs": 0,
+    "cliDrainMs": 100,
+    "injectShim": true,
+    "logDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs",
+    "logPollMs": 20,
+    "logMaxBytes": 1000000,
+    "automatorModule": "/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-automator.cjs",
+    "globalQuit": "removed"
+  },
+  "sourceBuild": {
+    "projectConfigSha256": "44d16e30a37434fd804bceb7c7567d6947a291a92fe65e156f4f44af53f5ffbb",
+    "gameJsonSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "fileCount": 3
+  },
+  "islogin": {
+    "code": 0,
+    "output": "fake logged in"
+  },
+  "diagnostics": [],
+  "noticeSeenInDefault": false,
+  "finishedAt": "2026-10-10T01:33:06.128Z",
+  "ownChildrenRunningAtFreeze": 0
+}

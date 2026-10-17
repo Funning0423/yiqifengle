@@ -1,0 +1,1086 @@
+{
+  "environment": "macOS M4 16GB headless Chromium actual Cocos Web, 402x874, home with B idle",
+  "scope": "120 actual Director AFTER_DRAW observations, desktop baseline preparation only. Not phone/WeChat GPU timing, sustained fps, thermal or whole-process memory.",
+  "samples": [
+    {
+      "intervalMs": 11.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 48.39999997615814,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.400000035762787,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.899999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.399999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.600000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.399999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 19.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.600000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.699999988079071,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.80000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.300000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.599999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.900000035762787,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.30000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.399999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.200000047683716,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.899999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.80000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.699999988079071,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.200000047683716,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.30000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.80000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.800000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.200000047683716,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.599999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.800000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.899999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.600000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.399999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.30000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.800000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.800000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.299999952316284,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.400000035762787,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.899999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.900000035762787,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.399999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.700000047683716,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.700000047683716,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.399999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.699999988079071,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.80000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.400000035762787,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.600000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 19,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.300000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.799999952316284,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.600000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.30000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.300000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.600000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.599999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.400000035762787,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 15.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.30000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.5,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.80000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.099999964237213,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.100000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.300000011920929,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 18.80000001192093,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.19999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 17.899999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 14.600000023841858,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.69999998807907,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 19,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    },
+    {
+      "intervalMs": 16.399999976158142,
+      "drawCalls": 15,
+      "triangles": 52496,
+      "gfxMemory": {
+        "bufferSize": 19800498,
+        "textureSize": 36071332
+      }
+    }
+  ]
+}

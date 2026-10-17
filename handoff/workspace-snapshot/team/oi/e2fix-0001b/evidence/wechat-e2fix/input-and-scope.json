@@ -1,0 +1,51 @@
+{
+  "atUTC": "2026-10-09T20:24:22.222088+00:00",
+  "boardId": "1Fds-wu_uVmGJIgunYXWXjtmwlCdri3Hl4myugNQhjNw",
+  "boardModifiedTimeUTC": "2026-10-09T20:17:18.274Z",
+  "requestLabels": [
+    "20:12 UTC",
+    "20:20 UTC"
+  ],
+  "labelsAreAuthorSuppliedNotProviderTimestamps": true,
+  "inputId": "12F8zEfNVFl3ei5cPUDF5jTgbBpcE3BSM",
+  "handoffId": "1KNfCBMWhfWDXISCaoKAjseZup7EkzkTT",
+  "inputSha256": "6896f12caa1e9c370fb87b91fd782eb2919ce48d4612253b312eee17dfef5153",
+  "inputBytes": 6682,
+  "zipAndIndividualHashes": "PASSED",
+  "replyFolder": "1UO5qn1zuGm2Re-aCoQtwSUqstYCRlNnH",
+  "replyFolderParent": "1QcGYB84X7w_AOHHT08N66iwLK1nzyyAq",
+  "replyFolderAndInboxOwnerOnly": true,
+  "E8": {
+    "status": "NOT_RUN_MISSING_INPUT",
+    "required": "E8 MainlineHost test patch/archive, exact revision, full SHA256 and manifest; collaborator progress says files only on shared box, no normal downloadable delivery found in to_dot."
+  },
+  "regionSkycity": {
+    "status": "NOT_RUN_MISSING_INPUT",
+    "required": "0003 region_skycity patch plus selected skycity GLB/assets/meta/manifest and full hashes; not in 0001b input, to_dot or 09_grokbot_art lists."
+  },
+  "GrokBotDirectCommunication": {
+    "status": "READ_VISIBLE_GAME_ONLY_SEND_NOT_RUN_AX_BOUNDARY",
+    "confirmedWindowOwner": "Grok Bot",
+    "confirmedChat": "微信小游戏的开发小组",
+    "visibleMessage": "GGbot 0001b accepted, three subpackage settings required, expected size approximate, stop if over4,000,000 bytes",
+    "identityMessageSent": false,
+    "blockingPermission": "macOS Accessibility for current execution application; earlier System Events error: osascript不允许辅助访问 (-1728)",
+    "permissionsChanged": false
+  },
+  "configurationReferences": [
+    "https://docs.cocos.com/creator/3.8/manual/en/editor/publish/publish-in-command-line.html",
+    "https://docs.cocos.com/creator/3.8/manual/zh/asset/bundle.html",
+    "installed Creator builtin/builder/@types/public/options.d.ts: IBundleOptions compressionType and root",
+    "installed Creator builtin/builder/@types/protected/bundle-config.d.ts: SUBPACKAGE=subpackage",
+    "installed Creator wechatgame IOptions: separateEngine:boolean"
+  ],
+  "staticModuleAudit": {
+    "physicsOrCroppedFeatureImportsFound": false,
+    "preservedImportedAnimationSymbols": [
+      "SkeletalAnimation",
+      "AnimationClip",
+      "AnimationState"
+    ],
+    "scope": "cc named imports, scene component text; no claim native collider/contact acceptance"
+  }
+}

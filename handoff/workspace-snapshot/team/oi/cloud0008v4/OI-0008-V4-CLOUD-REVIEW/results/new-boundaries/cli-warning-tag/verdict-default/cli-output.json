@@ -1,0 +1,44 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/copies/QFFirstOpen-20261010T013516872Z-b59e-d37c7e-default",
+      "--auto-port",
+      "42008"
+    ],
+    "pid": 381,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 55,
+    "lines": [
+      {
+        "t": "2026-10-10T01:35:17.051Z",
+        "stream": "stderr",
+        "line": "[warn] harmless diagnostic"
+      }
+    ]
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/copies/QFFirstOpen-20261010T013516872Z-b59e-d37c7e-default"
+    ],
+    "pid": 392,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 49,
+    "lines": []
+  }
+}

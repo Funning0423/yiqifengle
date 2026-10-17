@@ -1,0 +1,11 @@
+{
+  "tool": "wechat_first_open_condition.cjs",
+  "version": "0008-v1",
+  "time": "2026-10-09T23:11:22.341Z",
+  "outDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/missing-root/copies/QFFirstOpen-20261009T231120Z-403aba-A",
+  "variant": "A",
+  "note": "no change (default, current behaviour)",
+  "check": false,
+  "files": [],
+  "changed": false
+}

@@ -1,0 +1,252 @@
+{
+  "tool": "wechat_first_open_audit.cjs",
+  "version": "0008-v1",
+  "runId": "20261009T231124Z",
+  "startedAt": "2026-10-09T23:11:24.021Z",
+  "host": {
+    "platform": "linux",
+    "node": "v24.19.0"
+  },
+  "dryRun": true,
+  "scope": "DRY_RUN_FAKE_CLI — exercises the script only; NOT evidence of WeChat DevTools behaviour",
+  "status": "PASS",
+  "reason": "target B: 0 console errors on first open without manual Compile; positive control A error detected (weapplog)",
+  "variants": [
+    {
+      "role": "target",
+      "variant": "B",
+      "projectDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/copies/QFFirstOpen-20261009T231124Z-adda32-B",
+      "projectname": "QFFirstOpen-20261009T231124Z-adda32-B",
+      "port": 41004,
+      "steps": {
+        "originalProjectname": "ForestWorldR6FirstOpenA",
+        "shimInjected": true,
+        "cliAuto": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/copies/QFFirstOpen-20261009T231124Z-adda32-B",
+            "--auto-port",
+            "41004"
+          ],
+          "code": 0,
+          "error": null,
+          "ms": 105,
+          "timedOut": false,
+          "lines": [
+            {
+              "t": "2026-10-09T23:11:24.184Z",
+              "stream": "stdout",
+              "line": "cloud review fake auto complete"
+            }
+          ]
+        },
+        "pingResult": "60f7e4b908ae122f",
+        "screenshotError": "review fake: screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/copies/QFFirstOpen-20261009T231124Z-adda32-B"
+          ],
+          "code": 0,
+          "error": null,
+          "ms": 113,
+          "timedOut": false,
+          "lines": [
+            {
+              "t": "2026-10-09T23:11:25.699Z",
+              "stream": "stdout",
+              "line": "fake close; no process killed"
+            }
+          ]
+        }
+      },
+      "channels": {
+        "weappLog": {
+          "available": true,
+          "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/logs",
+          "filesAtStart": 1,
+          "newLines": 0
+        },
+        "automatorConsole": {
+          "enabled": true,
+          "messages": 1,
+          "provenByLateHeartbeat": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "injected": true,
+          "readable": true,
+          "heartbeatAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn"
+          ]
+        },
+        "cliOutput": {
+          "lines": 1
+        }
+      },
+      "errors": [],
+      "ignored": [],
+      "warnings": [],
+      "status": "PASS",
+      "reason": "0 errors in automator console/exception, shim buffer, WeappLog delta and CLI output",
+      "token": "60f7e4b908ae122f",
+      "mode": "auto",
+      "shim": {
+        "version": "0008-v1",
+        "token": "60f7e4b908ae122f",
+        "installedAt": 1791587485137,
+        "heartbeat": true,
+        "wrapped": [
+          "error",
+          "warn"
+        ],
+        "errors": [],
+        "warns": [],
+        "onError": [],
+        "unhandled": []
+      }
+    },
+    {
+      "role": "control",
+      "variant": "A",
+      "projectDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/copies/QFFirstOpen-20261009T231124Z-26f2b2-A",
+      "projectname": "QFFirstOpen-20261009T231124Z-26f2b2-A",
+      "port": 41005,
+      "steps": {
+        "originalProjectname": "ForestWorldR6FirstOpenA",
+        "shimInjected": true,
+        "cliAuto": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/copies/QFFirstOpen-20261009T231124Z-26f2b2-A",
+            "--auto-port",
+            "41005"
+          ],
+          "code": 0,
+          "error": null,
+          "ms": 104,
+          "timedOut": false,
+          "lines": [
+            {
+              "t": "2026-10-09T23:11:25.808Z",
+              "stream": "stdout",
+              "line": "cloud review fake auto complete"
+            }
+          ]
+        },
+        "pingResult": "42fd7592313e663a",
+        "screenshotError": "review fake: screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/copies/QFFirstOpen-20261009T231124Z-26f2b2-A"
+          ],
+          "code": 0,
+          "error": null,
+          "ms": 103,
+          "timedOut": false,
+          "lines": [
+            {
+              "t": "2026-10-09T23:11:27.314Z",
+              "stream": "stdout",
+              "line": "fake close; no process killed"
+            }
+          ]
+        }
+      },
+      "channels": {
+        "weappLog": {
+          "available": true,
+          "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/logs",
+          "filesAtStart": 1,
+          "newLines": 1
+        },
+        "automatorConsole": {
+          "enabled": true,
+          "messages": 1,
+          "provenByLateHeartbeat": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "injected": true,
+          "readable": true,
+          "heartbeatAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn"
+          ]
+        },
+        "cliOutput": {
+          "lines": 1
+        }
+      },
+      "errors": [
+        {
+          "source": "weapplog",
+          "text": "[CONTROL ERROR] [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面"
+        }
+      ],
+      "ignored": [],
+      "warnings": [],
+      "status": "FAIL",
+      "reason": "1 error(s): weapplog",
+      "token": "42fd7592313e663a",
+      "mode": "auto",
+      "shim": {
+        "version": "0008-v1",
+        "token": "42fd7592313e663a",
+        "installedAt": 1791587486761,
+        "heartbeat": true,
+        "wrapped": [
+          "error",
+          "warn"
+        ],
+        "errors": [],
+        "warns": [],
+        "onError": [],
+        "unhandled": []
+      }
+    }
+  ],
+  "config": {
+    "cli": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/review-fake-cli.cjs",
+    "buildDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/build",
+    "workRoot": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/copies",
+    "target": "B",
+    "control": "A",
+    "mode": "auto",
+    "autoPort": 41004,
+    "settleMs": 0,
+    "injectShim": true,
+    "quitFirst": false,
+    "logDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/logs",
+    "automatorModule": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/review-fake-automator.cjs"
+  },
+  "sourceBuild": {
+    "projectConfigSha256": "ffbe82b5e3c4ec5549243416e955fdc889423a12a1554a3a6a8a43725e27562e",
+    "gameJsonSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "fileCount": 3
+  },
+  "islogin": {
+    "code": 0,
+    "output": "{\"login\":true,\"fake\":true}"
+  },
+  "controlDetected": true,
+  "finishedAt": "2026-10-09T23:11:27.368Z"
+}

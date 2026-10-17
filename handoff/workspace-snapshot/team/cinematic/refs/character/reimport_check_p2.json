@@ -1,0 +1,237 @@
+{
+ "file": "chr_b_r5g2_lod0_anim_pass2_grokbot2.glb",
+ "bytes": 1653348,
+ "objects": [
+  [
+   "B_SINGLE_WORLD_ROOT_SOURCE_K",
+   "EMPTY"
+  ],
+  [
+   "Icosphere",
+   "MESH"
+  ],
+  [
+   "LOD0_G2_APRON",
+   "MESH"
+  ],
+  [
+   "LOD0_G2_BODY",
+   "MESH"
+  ],
+  [
+   "LOD0_G2_DRESS",
+   "MESH"
+  ],
+  [
+   "R5G2_RIG_22P4",
+   "ARMATURE"
+  ]
+ ],
+ "mesh_tris": {
+  "LOD0_G2_APRON": 1099,
+  "LOD0_G2_BODY": 18044,
+  "LOD0_G2_DRESS": 5399
+ },
+ "tris_total": 24542,
+ "bones": [
+  "root",
+  "hips",
+  "spine",
+  "chest",
+  "neck",
+  "head",
+  "upper_arm.L",
+  "forearm.L",
+  "hand.L",
+  "upper_arm.R",
+  "forearm.R",
+  "hand.R",
+  "thigh.L",
+  "shin.L",
+  "foot.L",
+  "thigh.R",
+  "shin.R",
+  "foot.R",
+  "skirt.front",
+  "skirt.front.low",
+  "skirt.left",
+  "skirt.left.low",
+  "skirt.back",
+  "skirt.back.low",
+  "skirt.right",
+  "skirt.right.low"
+ ],
+ "bone_count": 26,
+ "max_influences_after_import": 4,
+ "bbox_min_blender": [
+  -0.2894,
+  -0.209,
+  0.0
+ ],
+ "bbox_max_blender": [
+  0.3004,
+  0.1859,
+  1.7253
+ ],
+ "height_m": 1.7253,
+ "apron_mean_y_blender": -0.1176,
+ "facing_ok_plusZ_gltf": true,
+ "materials": {
+  "M_G2_APRON": {
+   "double_sided": true,
+   "images": [
+    "T_G2_APRON_512 512x512"
+   ]
+  },
+  "M_G2_BODY": {
+   "double_sided": false,
+   "images": [
+    "T_G2_BODY_1024 1024x1024"
+   ]
+  },
+  "M_G2_DRESS": {
+   "double_sided": true,
+   "images": [
+    "T_G2_DRESS_1024 1024x1024"
+   ]
+  },
+  "M_G2_FACE": {
+   "double_sided": false,
+   "images": [
+    "T_G2_FACE_1024 1024x1024"
+   ]
+  },
+  "M_G2_HAIR": {
+   "double_sided": true,
+   "images": []
+  },
+  "M_G2_HEAD": {
+   "double_sided": false,
+   "images": [
+    "T_G2_HEAD_1024 1024x1024"
+   ]
+  }
+ },
+ "gltf_nodes": 31,
+ "gltf_skins": [
+  [
+   "R5G2_RIG_22P4",
+   26
+  ]
+ ],
+ "gltf_has_JOINTS_1": false,
+ "gltf_primitives": 6,
+ "gltf_root_scale": [
+  1.061164379119873,
+  1.061164379119873,
+  1.061164379119873
+ ],
+ "gltf_images": [
+  [
+   "T_G2_APRON_512",
+   "image/jpeg"
+  ],
+  [
+   "T_G2_FACE_1024",
+   "image/jpeg"
+  ],
+  [
+   "T_G2_HEAD_1024",
+   "image/jpeg"
+  ],
+  [
+   "T_G2_BODY_1024",
+   "image/jpeg"
+  ],
+  [
+   "T_G2_DRESS_1024",
+   "image/jpeg"
+  ]
+ ],
+ "gltf_animations": [
+  {
+   "name": "idle_breathing_loop",
+   "t_min": 0.03333333333333333,
+   "t_max": 4.033333333333333,
+   "channels": 78,
+   "target_nodes": [
+    "chest",
+    "foot.L",
+    "foot.R",
+    "forearm.L",
+    "forearm.R",
+    "hand.L",
+    "hand.R",
+    "head",
+    "hips",
+    "neck",
+    "root",
+    "shin.L",
+    "shin.R",
+    "skirt.back",
+    "skirt.back.low",
+    "skirt.front",
+    "skirt.front.low",
+    "skirt.left",
+    "skirt.left.low",
+    "skirt.right",
+    "skirt.right.low",
+    "spine",
+    "thigh.L",
+    "thigh.R",
+    "upper_arm.L",
+    "upper_arm.R"
+   ]
+  },
+  {
+   "name": "wind_sway_loop",
+   "t_min": 0.03333333333333333,
+   "t_max": 4.033333333333333,
+   "channels": 78,
+   "target_nodes": [
+    "chest",
+    "foot.L",
+    "foot.R",
+    "forearm.L",
+    "forearm.R",
+    "hand.L",
+    "hand.R",
+    "head",
+    "hips",
+    "neck",
+    "root",
+    "shin.L",
+    "shin.R",
+    "skirt.back",
+    "skirt.back.low",
+    "skirt.front",
+    "skirt.front.low",
+    "skirt.left",
+    "skirt.left.low",
+    "skirt.right",
+    "skirt.right.low",
+    "spine",
+    "thigh.L",
+    "thigh.R",
+    "upper_arm.L",
+    "upper_arm.R"
+   ]
+  }
+ ],
+ "blender_actions_after_import": [
+  [
+   "idle_breathing_loop",
+   [
+    0.8000000715255737,
+    96.80000305175781
+   ]
+  ],
+  [
+   "wind_sway_loop",
+   [
+    0.8000000715255737,
+    96.80000305175781
+   ]
+  ]
+ ]
+}

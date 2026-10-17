@@ -1,0 +1,40 @@
+[
+  {
+    "case": "root-is-WeappLog",
+    "files": 0
+  },
+  {
+    "case": "new-file-with-old-timestamp",
+    "delta": [
+      {
+        "file": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/delta-tests/WeappLog/historic.log",
+        "line": "[2001-01-01] [app.json 或自定义编译条件错误] historical archived error"
+      }
+    ]
+  },
+  {
+    "case": "over-8MiB-append",
+    "capturedError": false,
+    "dataLossDisclosed": false
+  },
+  {
+    "case": "condition-with-missing-list",
+    "classifiedEmpty": true,
+    "after": {
+      "compileType": "game",
+      "condition": {
+        "game": {
+          "current": -1,
+          "list": []
+        },
+        "miniprogram": {
+          "current": -1,
+          "list": []
+        }
+      },
+      "setting": {
+        "enhance": false
+      }
+    }
+  }
+]

@@ -1,0 +1,65 @@
+From ba7b06719001a1b1ea1faaf1f3311323cea036f3 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:45:03 -0400
+Subject: [PATCH 31/47] region hooks test: her r4-prep B+ board copy at the
+ board camera (= hook end pose), per screen
+
+girl-frame.cjs projects characterBox(landing spot, 1.7253 m, 0.3 m) through the meadow / skycity board
+camera on 5 screens against boardLayout(boardSafeInsets): where visible she must be <= 80% of frame width,
+inside REGION_CAMERA.frameLimits and not under the tray / goal plate; tool-icon overlap is reported.
+Finding (reported, no camera change): meadow - visible, 4-6% wide, but under the 3rd tool icon when 3 tools
+show (portrait); skycity - never in frame (camera ends 2-12 m beside her, looking at the star court).
+---
+ tools/journey-integration/girl-frame.cjs      | 22 +++++++++++++++++++
+ .../test-region-landing-hook.cjs              |  6 ++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
+ create mode 100644 tools/journey-integration/girl-frame.cjs
+
+diff --git a/tools/journey-integration/girl-frame.cjs b/tools/journey-integration/girl-frame.cjs
+new file mode 100644
+index 0000000..2994ad1
+--- /dev/null
++++ b/tools/journey-integration/girl-frame.cjs
+@@ -0,0 +1,22 @@
++'use strict';
++// 运镜bot report helper (camera rules for GGbot's r4-prep B+): her frozen board copy (r4-prep B+) at the board camera = the region hook's end pose: on-screen footprint per screen
++const Jn=require('./journey-scene.cjs');const {legs,routeLength,rotY,add,sub,mOff,sOff,yaw,sA,H,S,sampleRoute}=Jn;
++const RB=H.load(S+'region/RegionBoardLanding.ts'),BL=H.load(S+'ui/BoardLayout.ts'),RC=H.load(S+'world-r1/RegionCameraData.ts');
++const SRC={meadow:{region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}},skycity:{region:'skycity',map:{toJourney:p=>add(rotY(yaw,p),sOff),toBoard:p=>rotY(-yaw,sub(p,sOff))},anchors:{spawn:sA('anchor_spawn_girl'),court:sA('anchor_starcourt_center')}}};
++const C=RC.REGION_CAMERA.islandCharacter;const out=[];
++for(const region of ['meadow','skycity'])for(const [w,h] of [[390,844],[414,896],[360,780],[375,667],[390,520]]){
++ const leg=legs.find(l=>l.id===(region==='meadow'?'04-05':'08-09')),L=routeLength(leg.path),root=sampleRoute(leg.path,L).slice(0,3),b=RB.regionBoardEnd(SRC[region],w/h);
++ const f=sub(b.target,b.position),fl=Math.hypot(...f);const F=f.map(x=>x/fl),R=[F[2],0,-F[0]].map((x,_,a)=>x/Math.hypot(a[0],a[2])),U=[R[1]*F[2]-R[2]*F[1],R[2]*F[0]-R[0]*F[2],R[0]*F[1]-R[1]*F[0]].map(x=>-x);
++ const t=Math.tan(b.fovVerticalDeg*Math.PI/360),asp=w/h;const pts=[];
++ for(const dx of [-C.halfWidthM,C.halfWidthM])for(const dz of [-C.halfWidthM,C.halfWidthM])for(const y of [0,C.heightM]){const q=sub([root[0]+dx,root[1]+y,root[2]+dz],b.position),z=q[0]*F[0]+q[1]*F[1]+q[2]*F[2];pts.push(z>0?[(q[0]*R[0]+q[1]*R[1]+q[2]*R[2])/(z*t*asp),(q[0]*U[0]+q[1]*U[1]+q[2]*U[2])/(z*t),z]:null);}
++ const lay=BL.boardLayout(w,h,BL.boardSafeInsets(w,h));
++ if(pts.some(p=>!p)){out.push({region,screen:`${w}x${h}`,behindCamera:true});continue;}
++ const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const ndc={minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};
++ const px={l:(ndc.minX+1)/2*w,r:(ndc.maxX+1)/2*w,t:(1-ndc.maxY)/2*h,b:(1-ndc.minY)/2*h};const cl={l:Math.max(0,px.l),r:Math.min(w,px.r),t:Math.max(0,px.t),b:Math.min(h,px.b)};
++ const vis=cl.r>cl.l&&cl.b>cl.t;const rect=r=>({l:r.x-r.width/2,r:r.x+r.width/2,t:r.y-r.height/2,b:r.y+r.height/2});const ov=(a,q)=>Math.max(0,Math.min(a.r,q.r)-Math.max(a.l,q.l))*Math.max(0,Math.min(a.b,q.b)-Math.max(a.t,q.t));
++ const area=vis?(cl.r-cl.l)*(cl.b-cl.t):0,tray=rect(lay.tray),plate=rect(lay.plate);
++ out.push({region,screen:`${w}x${h}`,distanceM:+Math.min(...pts.map(p=>p[2])).toFixed(2),visible:vis,boxPt:{l:+px.l.toFixed(1),r:+px.r.toFixed(1),t:+px.t.toFixed(1),b:+px.b.toFixed(1)},widthFrac:vis?+((cl.r-cl.l)/w).toFixed(3):null,heightFrac:vis?+((cl.b-cl.t)/h).toFixed(3):null,ndcX:[+ndc.minX.toFixed(2),+ndc.maxX.toFixed(2)],
++  inFrameLimits:ndc.minX>=-RC.REGION_CAMERA.frameLimits.maxAbsX&&ndc.maxX<=RC.REGION_CAMERA.frameLimits.maxAbsX&&ndc.minY>=RC.REGION_CAMERA.frameLimits.minY&&ndc.maxY<=RC.REGION_CAMERA.frameLimits.maxY,
++  trayPt:{l:+tray.l.toFixed(1),r:+tray.r.toFixed(1),t:+tray.t.toFixed(1),b:+tray.b.toFixed(1)},underTrayShareOfHer:area?+(ov(cl,tray)/area).toFixed(3):0,underPlateShareOfHer:area?+(ov(cl,plate)/area).toFixed(3):0,
++  underToolIconsShareOfHer:Object.fromEntries([1,2,3].map(n=>[n+'tools',area?+(BL.toolSlots(lay,n).reduce((a,x)=>a+ov(cl,{l:x-lay.tools.size/2,r:x+lay.tools.size/2,t:lay.tools.y-lay.tools.size/2,b:lay.tools.y+lay.tools.size/2}),0)/area).toFixed(3):0]))});}
++if(require.main===module)console.log(JSON.stringify(out,null,0).replace(/\},\{/g,'},\n{'));module.exports=out;
+diff --git a/tools/journey-integration/test-region-landing-hook.cjs b/tools/journey-integration/test-region-landing-hook.cjs
+index 9904b66..096d144 100644
+--- a/tools/journey-integration/test-region-landing-hook.cjs
++++ b/tools/journey-integration/test-region-landing-hook.cjs
+@@ -88,7 +88,11 @@ await T('routes without board unchanged; invalid board rejected',async()=>{const
+  const base={from:'meadow',to:'skycity',path:leg.path,bridgeStart:1,bridgeEnd:2,speed:1.2,focus:leg.focus};const good=RB.regionBoardEnd(SRC.skycity,390/844);
+  Core.validateJourneyRoute({...base,board:good},leg.path[0]);
+  for(const bad of [{...good,blendM:0},{...good,blendM:L+1},{...good,fovVerticalDeg:NaN},{...good,target:good.position}]){let threw=false;try{Core.validateJourneyRoute({...base,board:bad},leg.path[0]);}catch{threw=true;}ok(threw,'invalid board accepted '+JSON.stringify(bad).slice(0,80));}});
+-await T('wiring',async()=>{const src=f=>fs.readFileSync(S+f,'utf8').replace(/\s+/g,' ');
++await T('her board copy at the board camera (r4-prep B+)',async()=>{const g=require('./girl-frame.cjs');
++  // camera rules where she is visible: ≤ 80% of frame width, inside frameLimits, not under the board tray / goal plate (reported: tool icons)
++  for(const r of g)if(r.visible){ok(r.widthFrac<=.8,'too wide '+r.region+' '+r.screen);ok(r.inFrameLimits,'outside frameLimits '+r.region+' '+r.screen);ok(r.underTrayShareOfHer===0&&r.underPlateShareOfHer===0,'under the board '+r.region+' '+r.screen);}
++  report.girlAtBoard=g;return {visible:g.filter(r=>r.visible).map(r=>r.region+' '+r.screen),notVisible:g.filter(r=>!r.visible).map(r=>r.region+' '+r.screen)};});
++ await T('wiring',async()=>{const src=f=>fs.readFileSync(S+f,'utf8').replace(/\s+/g,' ');
+  const ad=src('region/RegionJourneyAdapter.ts'),co=src('world-r2/WorldNativeComposition.ts'),mb=src('region/MeadowBoardBackground.ts'),sb=src('region/SkycityBoardBackground.ts'),core=src('world-r1/RegionJourneyCore.ts');
+  ok(/model=mountRegion\(def,prefab,rig\);[^;]*boardLocal=new Mat4\(\);Mat4\.fromRTS\(boardLocal,model\.rotation,model\.position,model\.scale\);/.test(ad),'adapter: board copy transform captured right after mountRegion');
+  ok(/board=regionBoardEnd\(boardSrc,v\.width\/v\.height\)/.test(ad)&&/lakesideViewport\(view\.getFrameSize\(\)\)/.test(ad),'adapter: route.board from the board UI viewport');
+-- 
+2.47.3
+

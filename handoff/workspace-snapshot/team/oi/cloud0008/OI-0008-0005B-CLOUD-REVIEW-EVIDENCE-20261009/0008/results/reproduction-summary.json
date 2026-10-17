@@ -1,0 +1,123 @@
+{
+  "scope": "Cloud-only reviewer-authored fake CLI and in-process vm automator. No real Mac, real DevTools, network, install, or quit call. NOT validation of actual DevTools behavior.",
+  "sourceUnchanged": true,
+  "results": [
+    {
+      "scenario": "no-control-no-logs",
+      "exit": 0,
+      "status": "PASS",
+      "reason": "target B: 0 console errors on first open without manual Compile; NO positive control run (QF_FIRST_OPEN_CONTROL=none) — detector sensitivity unproven",
+      "targetLogChannel": {
+        "available": false,
+        "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/no-control-no-logs/logs",
+        "filesAtStart": 0,
+        "newLines": 0
+      },
+      "targetCliCode": 0,
+      "targetScreenshotError": "review fake: screenshot unavailable",
+      "controlDetected": null
+    },
+    {
+      "scenario": "missing-root",
+      "exit": 0,
+      "status": "PASS",
+      "reason": "target B: 0 console errors on first open without manual Compile; positive control A error detected (weapplog)",
+      "targetLogChannel": {
+        "available": false,
+        "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/missing-root/logs",
+        "filesAtStart": 0,
+        "newLines": 0
+      },
+      "targetCliCode": 0,
+      "targetScreenshotError": "review fake: screenshot unavailable",
+      "controlDetected": true,
+      "rawLogHasTargetError": true
+    },
+    {
+      "scenario": "rotation",
+      "exit": 0,
+      "status": "PASS",
+      "reason": "target B: 0 console errors on first open without manual Compile; positive control A error detected (weapplog)",
+      "targetLogChannel": {
+        "available": true,
+        "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/rotation/logs",
+        "filesAtStart": 1,
+        "newLines": 0
+      },
+      "targetCliCode": 0,
+      "targetScreenshotError": "review fake: screenshot unavailable",
+      "controlDetected": true,
+      "rawLogHasTargetError": true
+    },
+    {
+      "scenario": "unrelated-control",
+      "exit": 0,
+      "status": "PASS",
+      "reason": "target B: 0 console errors on first open without manual Compile; positive control A error detected (weapplog)",
+      "targetLogChannel": {
+        "available": true,
+        "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/unrelated-control/logs",
+        "filesAtStart": 1,
+        "newLines": 1
+      },
+      "targetCliCode": 0,
+      "targetScreenshotError": "review fake: screenshot unavailable",
+      "controlDetected": true
+    },
+    {
+      "scenario": "cli-nonzero",
+      "exit": 0,
+      "status": "PASS",
+      "reason": "target B: 0 console errors on first open without manual Compile; positive control A error detected (weapplog)",
+      "targetLogChannel": {
+        "available": true,
+        "root": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/cli-nonzero/logs",
+        "filesAtStart": 1,
+        "newLines": 1
+      },
+      "targetCliCode": 7,
+      "targetScreenshotError": "review fake: screenshot unavailable",
+      "controlDetected": true
+    }
+  ],
+  "logTests": [
+    {
+      "case": "root-is-WeappLog",
+      "files": 0
+    },
+    {
+      "case": "new-file-with-old-timestamp",
+      "delta": [
+        {
+          "file": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/delta-tests/WeappLog/historic.log",
+          "line": "[2001-01-01] [app.json 或自定义编译条件错误] historical archived error"
+        }
+      ]
+    },
+    {
+      "case": "over-8MiB-append",
+      "capturedError": false,
+      "dataLossDisclosed": false
+    },
+    {
+      "case": "condition-with-missing-list",
+      "classifiedEmpty": true,
+      "after": {
+        "compileType": "game",
+        "condition": {
+          "game": {
+            "current": -1,
+            "list": []
+          },
+          "miniprogram": {
+            "current": -1,
+            "list": []
+          }
+        },
+        "setting": {
+          "enhance": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "frozenSources": [
+    {
+      "path": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e1-20261009",
+      "head": "74b5399c6227319b17ba3fc108da0ff69d26e632",
+      "clean": true
+    },
+    {
+      "path": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2-20261009",
+      "head": "27be2e2db0812e6fcdf842693216822b24c57479",
+      "clean": true
+    },
+    {
+      "path": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-mainline-r1-chest-fix-20261009",
+      "head": "5b449faece59e07a01b06897290921c1c5f44b17",
+      "clean": true
+    }
+  ],
+  "oldWechatConfigurationsUnchanged": true,
+  "glbSha256": "158f0b42c534234ae46d68fc574cf84810900bb451d22c8b29656bcd6b28cf6c",
+  "patchCommit": "23ff863b2d63fd1e30db6111358e24934aef60e5"
+}

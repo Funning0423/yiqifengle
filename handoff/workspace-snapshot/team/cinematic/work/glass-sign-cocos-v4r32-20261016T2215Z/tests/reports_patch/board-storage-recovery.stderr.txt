@@ -1,0 +1,11 @@
+[QF_BOARD_PRESENTATION_ERROR] Error: injected presentation before stable save
+    at u.render (/tmp/wt-glass/tools/board-ui/test_board_storage_recovery.cjs:18:129)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1306:33)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at Object.safeCommand [as command] (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1377:29)
+    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1417:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:860:18)
+    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:207:22)

@@ -1,0 +1,15 @@
+{
+  "video": "INTERNAL_FULL_CHAIN_R24_REAL_30FPS.mp4",
+  "sha256": "0059803843f6a21471c67629b19b946ba7ca2e1556aa48c3aa677955be420d89",
+  "blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "rendered_source_frames": 990,
+  "unique_source_frame_numbers": 990,
+  "source_frame_range": [
+    1,
+    990
+  ],
+  "render_and_playback_fps": 30,
+  "duration_seconds": 33,
+  "decode_all_frames": "passed with ffmpeg no errors",
+  "status": "Internal full-chain motion review; clothing/body garment and same-leg skin are unaccepted. Overall tempo remains for playback review."
+}

@@ -1,0 +1,6 @@
+{
+  "bytes": 15179489,
+  "sha256": "eb715dcf7dc4e7dc0432122e745628f37ea35c1681b3bf084e8cb1b07b2a3b62",
+  "expected": "eb715dcf7dc4e7dc0432122e745628f37ea35c1681b3bf084e8cb1b07b2a3b62",
+  "status": "PASS_FULL_REMOTE_BYTES"
+}

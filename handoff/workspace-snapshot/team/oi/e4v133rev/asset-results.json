@@ -1,0 +1,441 @@
+{
+  "audit": {
+    "created_utc": "2026-10-10T02:13:53.964809+00:00",
+    "root": "/workspace/shared/e4-v133-review/source/20261010T0207Z-grokbot2-E4-MATERIALS-v1.3.3",
+    "method": "Independent read-only Python/Pillow/NumPy pixel, file hash and JSON/static path inspection; no author tools executed; no Creator, browser or device work.",
+    "scope": "Packaged raster sources, night 1024 fallback, meta/preset declarations and theoretical memory only."
+  },
+  "file_count": 95,
+  "expected_original_sources": {
+    "day_v01a_2048": {
+      "expected_sha256": "153979281ac0b9a96d360245f59ad3b02438b1a39082afbca5cefc647959a4b8",
+      "matching_files_in_package": [],
+      "independent_original_pixel_check": "blocked: source absent"
+    },
+    "night_v01a_2048": {
+      "expected_sha256": "1fd02ba7284fe9dec25e2a2ea3deb5e8a10ebf9c014ef058c793b8883f39acd0",
+      "matching_files_in_package": [],
+      "independent_original_pixel_check": "blocked: source absent"
+    }
+  },
+  "raster_inventory": [
+    {
+      "path": "docs/review/night1024-dark-compare-contrast.png",
+      "size": [
+        2344,
+        430
+      ],
+      "mode": "RGB",
+      "format": "PNG",
+      "file_bytes": 21679,
+      "sha256": "f8474b7d15013d5807ba3cb1c0c3532f4049786480bd4b090054e156eeab2d49",
+      "image_metadata_keys": []
+    },
+    {
+      "path": "docs/review/night1024-dark-compare.png",
+      "size": [
+        2344,
+        430
+      ],
+      "mode": "RGB",
+      "format": "PNG",
+      "file_bytes": 34684,
+      "sha256": "1b5b638cbbf04269ff17c89778e8cd7b7d41c98606fc8b079f973409bac91850",
+      "image_metadata_keys": []
+    },
+    {
+      "path": "docs/review/night1024-horizon-compare-contrast.png",
+      "size": [
+        2344,
+        430
+      ],
+      "mode": "RGB",
+      "format": "PNG",
+      "file_bytes": 29009,
+      "sha256": "9e00fd751baa26408d146d2ca275b3479ee21fc5779c9939a9a7363268a6ba5d",
+      "image_metadata_keys": []
+    },
+    {
+      "path": "docs/review/night1024-horizon-compare.png",
+      "size": [
+        2344,
+        430
+      ],
+      "mode": "RGB",
+      "format": "PNG",
+      "file_bytes": 38370,
+      "sha256": "4f60a293a5d8d522cdb83f7075cd73913a24e50fd5d02921636405df3dd9102f",
+      "image_metadata_keys": []
+    },
+    {
+      "path": "docs/review/night1024-stars-compare-contrast.png",
+      "size": [
+        2344,
+        430
+      ],
+      "mode": "RGB",
+      "format": "PNG",
+      "file_bytes": 21426,
+      "sha256": "80e2c2c96ef0a944c378d6e19dc15044db54a50ecfceaac5762702546ff2c263",
+      "image_metadata_keys": []
+    },
+    {
+      "path": "docs/review/night1024-stars-compare.png",
+      "size": [
+        2344,
+        430
+      ],
+      "mode": "RGB",
+      "format": "PNG",
+      "file_bytes": 43529,
+      "sha256": "9c4ba68c7a17af961889d1b642553a2b8d18a4b8088d668a8227c0e534108106",
+      "image_metadata_keys": []
+    },
+    {
+      "path": "runtime/textures/tex_meadow_sky_night_1024x512.png",
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGB",
+      "format": "PNG",
+      "file_bytes": 332327,
+      "sha256": "2cbc0e9e92df842d21ece97ac9cb9b5322028a3fc00ff948a9f96872ba315e6d",
+      "image_metadata_keys": []
+    }
+  ],
+  "built_gpu_texture_artifacts": [],
+  "night1024": {
+    "sha256": "2cbc0e9e92df842d21ece97ac9cb9b5322028a3fc00ff948a9f96872ba315e6d",
+    "expected_sha256": "2cbc0e9e92df842d21ece97ac9cb9b5322028a3fc00ff948a9f96872ba315e6d",
+    "hash_matches": true,
+    "actual_size": [
+      1024,
+      512
+    ],
+    "actual_mode": "RGB",
+    "file_bytes": 332327,
+    "horizonV": 0.857,
+    "horizonV_times_height": 438.784,
+    "first_texel_center_after_horizon_row_zero_based": 439,
+    "checked_lower_rows_zero_based_inclusive": [
+      439,
+      511
+    ],
+    "lower_pixel_count": 74752,
+    "lower_rgb": {
+      "min_rgb": [
+        109.0,
+        132.0,
+        176.0
+      ],
+      "max_rgb": [
+        115.0,
+        138.0,
+        182.0
+      ],
+      "mean_rgb": [
+        110.84895387414383,
+        133.87445151969177,
+        177.84092733304794
+      ]
+    },
+    "lower_max_row_mean_deviation_from_whole_lower_mean_per_channel": [
+      0.06901487585616906,
+      0.07867348030822541,
+      0.07823202054794365
+    ],
+    "lower_max_row_mean_deviation_from_whole_lower_mean": 0.07867348030822541,
+    "lower_max_pixel_deviation_from_own_column_median": 1.0,
+    "lower_max_vertical_pixel_step": 1.0,
+    "lower_max_horizontal_pixel_step": 1.0,
+    "lower_identical_all_pixels": false,
+    "lower_unique_rgb_triplets": 43,
+    "lower_unique_row_mean_rgb": 73,
+    "lower_mean_column_range_rgb": [
+      5.342465753424662,
+      5.0,
+      5.356164383561662
+    ],
+    "row438_rgb": {
+      "min_rgb": [
+        109.0,
+        132.0,
+        176.0
+      ],
+      "max_rgb": [
+        115.0,
+        138.0,
+        182.0
+      ],
+      "mean_rgb": [
+        111.0263671875,
+        133.9990234375,
+        177.8447265625
+      ]
+    },
+    "row439_rgb": {
+      "min_rgb": [
+        109.0,
+        132.0,
+        176.0
+      ],
+      "max_rgb": [
+        115.0,
+        138.0,
+        182.0
+      ],
+      "mean_rgb": [
+        110.87890625,
+        133.916015625,
+        177.8974609375
+      ]
+    },
+    "row438_to439_mean_luminance_step_abs": 0.08690996093750414,
+    "row438_to439_max_pixel_channel_step": 1.0,
+    "whole_image_left_right_seam_mean_abs_channel_delta": 0.6770833333333334,
+    "lower_left_right_seam_mean_abs_channel_delta": 0.3287671232876712,
+    "lower_adjacent_column_mean_abs_channel_delta": 0.36516289720001605,
+    "flatness_interpretation": "Vertically near-flat horizon continuation with <=1 code-value deviation from each column median. Not a literally identical RGB fill: horizontal colour variation and dither remain.",
+    "source_derivation_regeneration_stars_and_dither_retention": "not independently verifiable without original 2048 night image; packaged author reports and comparison panels are not source files",
+    "visual_review": "Original packaged 1024 PNG opened with view_image; dark-to-blue night sky, stars and clouds visible; lower strip looks vertically flat. This is not Creator rendering, GPU compression or device visual validation."
+  },
+  "meta_templates": [
+    {
+      "path": "runtime/textures-meta/tex_meadow_ground_grassoff_1024.jpg.meta",
+      "asset_name": "tex_meadow_ground_grassoff_1024.jpg",
+      "asset_paths_in_package": [],
+      "uuid": "cd5f4799-db47-4a3c-8c73-d6215d984a1f",
+      "uuid_links_internally_consistent": true,
+      "display_name_matches_asset_stem": true,
+      "subresource_name": "texture",
+      "wrapS": "clamp-to-edge",
+      "wrapT": "clamp-to-edge",
+      "minfilter": "linear",
+      "magfilter": "linear",
+      "mipfilter": "linear",
+      "compression_declaration": {
+        "useCompressTexture": true,
+        "presetId": "e4-meadow-ground-astc6x6"
+      },
+      "preset_reference_resolves_in_template": true,
+      "preset_options": {
+        "miniGame": {
+          "astc_6x6": {
+            "quality": "medium"
+          },
+          "etc2_rgb": {
+            "quality": "fast"
+          },
+          "jpg": {
+            "quality": 80
+          }
+        },
+        "android": {
+          "astc_6x6": {
+            "quality": "medium"
+          },
+          "etc2_rgb": {
+            "quality": "fast"
+          },
+          "jpg": {
+            "quality": 80
+          }
+        },
+        "ios": {
+          "astc_6x6": {
+            "quality": "medium"
+          },
+          "jpg": {
+            "quality": 80
+          }
+        },
+        "web": {
+          "jpg": {
+            "quality": 80
+          }
+        }
+      },
+      "adjacent_asset_in_package": false,
+      "project_import_build_status": "not_run; separate hand-authored template, not evidence of imported or built settings"
+    },
+    {
+      "path": "runtime/textures-meta/tex_meadow_sky_2048x1024.jpg.meta",
+      "asset_name": "tex_meadow_sky_2048x1024.jpg",
+      "asset_paths_in_package": [],
+      "uuid": "5a3e0f61-2c7d-4b8e-9f41-6d2b8c0e7a13",
+      "uuid_links_internally_consistent": true,
+      "display_name_matches_asset_stem": true,
+      "subresource_name": "texture",
+      "wrapS": "repeat",
+      "wrapT": "clamp-to-edge",
+      "minfilter": "linear",
+      "magfilter": "linear",
+      "mipfilter": "none",
+      "compression_declaration": {
+        "useCompressTexture": true,
+        "presetId": "e4-meadow-sky-day"
+      },
+      "preset_reference_resolves_in_template": true,
+      "preset_options": {
+        "miniGame": {
+          "astc_6x6": {
+            "quality": "thorough"
+          },
+          "jpg": {
+            "quality": 90
+          }
+        },
+        "android": {
+          "astc_6x6": {
+            "quality": "thorough"
+          },
+          "jpg": {
+            "quality": 90
+          }
+        },
+        "ios": {
+          "astc_6x6": {
+            "quality": "thorough"
+          },
+          "jpg": {
+            "quality": 90
+          }
+        },
+        "web": {
+          "jpg": {
+            "quality": 90
+          }
+        }
+      },
+      "adjacent_asset_in_package": false,
+      "project_import_build_status": "not_run; separate hand-authored template, not evidence of imported or built settings"
+    },
+    {
+      "path": "runtime/textures-meta/tex_meadow_sky_night_1024x512.png.meta",
+      "asset_name": "tex_meadow_sky_night_1024x512.png",
+      "asset_paths_in_package": [
+        "runtime/textures/tex_meadow_sky_night_1024x512.png"
+      ],
+      "uuid": "3f7a9c1e-5b2d-4e86-9a0f-c41d7e8b2a59",
+      "uuid_links_internally_consistent": true,
+      "display_name_matches_asset_stem": true,
+      "subresource_name": "texture",
+      "wrapS": "repeat",
+      "wrapT": "clamp-to-edge",
+      "minfilter": "linear",
+      "magfilter": "linear",
+      "mipfilter": "none",
+      "compression_declaration": {
+        "useCompressTexture": false,
+        "presetId": ""
+      },
+      "preset_reference_resolves_in_template": true,
+      "preset_options": null,
+      "adjacent_asset_in_package": false,
+      "project_import_build_status": "not_run; separate hand-authored template, not evidence of imported or built settings"
+    },
+    {
+      "path": "runtime/textures-meta/tex_meadow_sky_night_2048x1024.png.meta",
+      "asset_name": "tex_meadow_sky_night_2048x1024.png",
+      "asset_paths_in_package": [],
+      "uuid": "8b14c2d9-7e53-4f06-a1c8-3f9d5e2b6047",
+      "uuid_links_internally_consistent": true,
+      "display_name_matches_asset_stem": true,
+      "subresource_name": "texture",
+      "wrapS": "repeat",
+      "wrapT": "clamp-to-edge",
+      "minfilter": "linear",
+      "magfilter": "linear",
+      "mipfilter": "none",
+      "compression_declaration": {
+        "useCompressTexture": true,
+        "presetId": "e4-meadow-sky-night"
+      },
+      "preset_reference_resolves_in_template": true,
+      "preset_options": {
+        "miniGame": {
+          "astc_4x4": {
+            "quality": "thorough"
+          },
+          "png": {
+            "quality": "lossless"
+          }
+        },
+        "android": {
+          "astc_4x4": {
+            "quality": "thorough"
+          },
+          "png": {
+            "quality": "lossless"
+          }
+        },
+        "ios": {
+          "astc_4x4": {
+            "quality": "thorough"
+          },
+          "png": {
+            "quality": "lossless"
+          }
+        },
+        "web": {
+          "png": {
+            "quality": "lossless"
+          }
+        }
+      },
+      "adjacent_asset_in_package": false,
+      "project_import_build_status": "not_run; separate hand-authored template, not evidence of imported or built settings"
+    }
+  ],
+  "runtime_paths": [
+    {
+      "constant": "SKY_NIGHT_ASTC_PATH",
+      "path": "textures/tex_meadow_sky_night_2048x1024/texture",
+      "bundle": "region_meadow",
+      "matching_meta": [
+        "runtime/textures-meta/tex_meadow_sky_night_2048x1024.png.meta"
+      ],
+      "matching_assets": [],
+      "subresource_suffix_matches_meta": true,
+      "expected_project_directory": "assets/bundles/region_meadow/textures/"
+    },
+    {
+      "constant": "SKY_NIGHT_NOASTC_PATH",
+      "path": "textures/tex_meadow_sky_night_1024x512/texture",
+      "bundle": "region_meadow",
+      "matching_meta": [
+        "runtime/textures-meta/tex_meadow_sky_night_1024x512.png.meta"
+      ],
+      "matching_assets": [
+        "runtime/textures/tex_meadow_sky_night_1024x512.png"
+      ],
+      "subresource_suffix_matches_meta": true,
+      "expected_project_directory": "assets/bundles/region_meadow/textures/"
+    }
+  ],
+  "compression_effectiveness": {
+    "night1024_declares_gpu_compression_disabled": true,
+    "night1024_declares_mipfilter_none": true,
+    "day_declares_ASTC6x6_thorough_with_JPG_fallback": true,
+    "night2048_declares_ASTC4x4_thorough_with_PNG_fallback": true,
+    "source_png_is_losslessly_compressed_file": true,
+    "project_imported_or_built_proof": false,
+    "reason": "Package holds separate hand-authored .meta and preset templates; README line 446 states they have not been imported in Creator. No project settings or built texture outputs are included."
+  },
+  "memory_estimates_not_measurements": {
+    "night1024_RGB8_no_mips_bytes": 1572864,
+    "night1024_RGBA8_no_mips_bytes": 2097152,
+    "night1024_RGBA8_all_mips_exact_bytes": 2796204,
+    "night2048_RGBA8_no_mips_bytes": 8388608,
+    "night2048_ASTC4x4_no_mips_payload_bytes": 2097152,
+    "night2048_ASTC4x4_file_with_16byte_header_bytes": 2097168,
+    "actual_upload_format_gpu_memory_cpu_peak_or_download_behavior": "not measured; project build and device verification required"
+  },
+  "limitations": [
+    "2048 DAY and NIGHT originals absent: cannot verify original image hashes by asset bytes, rows 878-1023, source-colour measurements, or deterministic regeneration.",
+    "1024 star-retention, source-relative dither-retention and original-vs-fallback comparisons remain author claims.",
+    "Template syntax/path consistency does not validate Creator import, compression-preset application, scene/material wiring, runtime selected asset, or real device memory.",
+    "The lower strip meets near-flat-with-dither evidence, not exact single-RGB strict uniformity."
+  ]
+}

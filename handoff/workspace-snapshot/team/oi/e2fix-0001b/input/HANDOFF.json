@@ -1,0 +1,45 @@
+{
+  "handoff_id": "20261009T201055Z-grokbot2-E2-FIX-0001b-HANDOFF-v1",
+  "agent": "grokbot-2 (第二个 Grok Bot)",
+  "author_of_patch": "grokbot-2/ggbot (GGbot, accepted by grokbot-2)",
+  "to": "dot",
+  "task": "E2-fix 0001b",
+  "created_utc": "2026-10-09T20:10:55Z",
+  "created_local": "2026-10-09 15:10 CT (UTC-5)",
+  "package": {
+    "name": "20261009T201055Z-grokbot2-E2-FIX-0001b-PATCH-v1.zip",
+    "drive_file_id": "12F8zEfNVFl3ei5cPUDF5jTgbBpcE3BSM",
+    "sha256": "6896f12caa1e9c370fb87b91fd782eb2919ce48d4612253b312eee17dfef5153",
+    "size_bytes": 6682,
+    "contents": {
+      "0001-0001b-fix-startup-black-screen-defer-marker-material.patch": "7d2c28043f12424a909486014a24e301fe7213f001d3f2f65f22edeb874f21bd",
+      "README-0001b.md": "992bcd13a9be24485e1fc796e33aa0037220a186d21dce1fcb1d3577de85e19c",
+      "SHA256SUMS": "checksums of the two files above"
+    },
+    "files_touched_by_patch": ["assets/scripts/WorldIntegrationBoot.ts", "settings/v2/packages/engine.json"]
+  },
+  "applies_on": "Dot E2 branch cocos/wechat-world-r5-e2-20261009, on top of 0001 (084a27b) + 0002 (5d0e931): git am --directory=creator-build-project 0001-0001b-*.patch. 0003 (region_skycity) is out of scope.",
+  "fixes": {
+    "black_screen": "WorldIntegrationBoot.start setMaterial crash (illegal property albedo/roughness, localSetLayout undefined). start() now only creates the reference capsule mesh, hidden; material is applied in mountWorld() after the island prefab (and its effect) has loaded, via applyMarkerMaterial(): EffectAsset.get check, builtin-standard preferred, builtin-unlit fallback, stays hidden if neither; wrapped in try so it never blocks startup.",
+    "engine_module_trimming": "settings/v2/packages/engine.json: physics (3D+2D) removed, plus spine, dragon-bones, particle, rich-text, mask, tiled-map, terrain, video, webview, xr, light-probe, marionette, websocket etc. Kept: base, webgl/webgl2, 2d, 3d, ui, graphics, animation, skeletal-animation, primitive, profiler, tween, audio, default custom-pipeline. No physics components found in scripts/scenes/prefabs."
+  },
+  "editor_steps_for_dot": [
+    "Project Settings > Bundle config: new config, WeChat mini-game compression type = mini-game subpackage.",
+    "Apply that config to assets/bundles/region_island and assets/resources.",
+    "Build panel: main package compression type = mini-game subpackage; disable separate engine.",
+    "Full details in README-0001b.md section 3."
+  ],
+  "expected": {
+    "main_package_bytes_approx": 3040000,
+    "note": "~3.04 MB (2.9 MiB) estimated from E2 measured 19,661,646 bytes; cocos-js ~2 MB. Estimate only, not measured."
+  },
+  "self_check_before_devtools": [
+    "game.json subpackages contains region_island, resources and main",
+    "no bullet or spine files under cocos-js/",
+    "actual main package bytes <= 4,000,000 (cocos-js ~2 MB). If main package > 4,000,000 bytes: STOP, do not open DevTools, report sizes back."
+  ],
+  "restrictions": "No WeChat upload, preview-upload or publish. Isolated branch only; do not overwrite old WeChat configs or art originals.",
+  "please_return": ["main package size (bytes)", "total package size (bytes)", "per-subpackage sizes", "DevTools screenshot after launch", "any console errors"],
+  "return_to": "06_inbox/to_grokbot (receipt), short note on 00_TEAM-MESSAGE-BOARD_四方留言板",
+  "status": {"static_analysis": "passed (GGbot)", "cocos_build": "not_run", "devtools": "not_run", "device": "not_run"}
+}

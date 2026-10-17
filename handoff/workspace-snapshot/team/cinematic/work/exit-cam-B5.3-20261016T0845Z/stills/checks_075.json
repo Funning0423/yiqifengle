@@ -1,0 +1,34 @@
+{
+ "final_frame_0.75_1056x1408": {
+  "shadowOnHer": {
+   "feet": "",
+   "chest": "",
+   "face": ""
+  },
+  "foregroundPropRaysNearerThanHer": {
+   "env_island_props_merged": 68,
+   "beach_palm_tall": 2,
+   "env_prop_palm_tall_01": 8
+  },
+  "lineOfSight": {
+   "feet": "",
+   "chest": "",
+   "face": "",
+   "head": ""
+  },
+  "cover": {
+   "env_sea_surface": 0.444,
+   "env_sky_dome": 0.206,
+   "env_island_props_merged": 0.109,
+   "env_island_main": 0.107,
+   "env_lighthouse_ext": 0.079,
+   "env_cloud_layer": 0.025,
+   "env_prop_palm_tall_01": 0.01,
+   "env_lighthouse_door": 0.007,
+   "env_interior_shell": 0.004,
+   "env_prop_palm_young_01": 0.003,
+   "beach_palm_tall": 0.003,
+   "ui_signpost": 0.002
+  }
+ }
+}

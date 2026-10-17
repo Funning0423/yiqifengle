@@ -1,0 +1,262 @@
+{
+  "tool": "wechat_first_open_audit.cjs",
+  "version": "0008-v4",
+  "runId": "20261010T013317023Z-4a05",
+  "startedAt": "2026-10-10T01:33:17.023Z",
+  "host": {
+    "platform": "linux",
+    "node": "v24.19.0"
+  },
+  "dryRun": true,
+  "scope": "DRY_RUN_FAKE_CLI — exercises the script only; NOT evidence of WeChat DevTools behaviour",
+  "status": "FAIL",
+  "reason": "default: 3 own error(s): automator.console.error, shim.console.error, weapplog",
+  "variants": [
+    {
+      "role": "verdict",
+      "variant": "default",
+      "projectDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default",
+      "projectname": "QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default",
+      "port": 42015,
+      "steps": {
+        "originalProjectname": "review",
+        "finalizer": {
+          "path": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+          "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79",
+          "exit": 0,
+          "stdout": "{\"output\":\"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default\",\"compileType\":\"game\",\"emptyCompileConditionsRemoved\":true,\"enhancementDisabled\":true,\"removedCondition\":null,\"changed\":true,\"action\":\"LOCAL_CONFIG_ONLY\"}",
+          "stderr": ""
+        },
+        "removedConditionReportedByFinalizer": null,
+        "shimInjected": true,
+        "pingResult": "e22e4f09b5b17947",
+        "screenshotError": "fake screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default"
+          ],
+          "pid": 704,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 53,
+          "lines": []
+        },
+        "cliLaunch": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default",
+            "--auto-port",
+            "42015"
+          ],
+          "pid": 693,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 63,
+          "lines": []
+        }
+      },
+      "channels": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 3,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1283,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "errors": [
+        {
+          "source": "automator.console.error",
+          "level": "error",
+          "id": "js-error",
+          "text": "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+        },
+        {
+          "source": "shim.console.error",
+          "level": "error",
+          "id": "js-error",
+          "text": "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+        },
+        {
+          "source": "weapplog",
+          "level": "error",
+          "id": "js-error",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+        }
+      ],
+      "knownNotice": [],
+      "knownNoticeUnattributed": [],
+      "unattributed": [],
+      "warnings": [],
+      "missing": [],
+      "status": "FAIL",
+      "reason": "3 own error(s): automator.console.error, shim.console.error, weapplog",
+      "token": "e22e4f09b5b17947",
+      "attributionMarkers": [
+        "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default",
+        "QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default",
+        "e22e4f09b5b17947"
+      ],
+      "mode": "auto",
+      "shim": {
+        "version": "0008v3",
+        "token": "e22e4f09b5b17947",
+        "installedAt": 1791595998160,
+        "heartbeat": true,
+        "canaryAtBoot": true,
+        "wrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "stillWrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "onErrorRegistered": true,
+        "onUnhandledRejectionRegistered": true,
+        "installErrors": [],
+        "dropped": 0,
+        "errors": [
+          {
+            "t": 1791595998161,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY] e22e4f09b5b17947"
+          },
+          {
+            "t": 1791595998662,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947"
+          },
+          {
+            "t": 1791595998662,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+          }
+        ],
+        "warns": [],
+        "logs": [
+          {
+            "t": 1791595998160,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT] e22e4f09b5b17947"
+          },
+          {
+            "t": 1791595998161,
+            "level": "log",
+            "msg": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+          },
+          {
+            "t": 1791595998662,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT-LATE] e22e4f09b5b17947"
+          }
+        ],
+        "onError": [],
+        "unhandled": []
+      },
+      "loadSceneSeen": true,
+      "unclassifiedInfo": []
+    }
+  ],
+  "config": {
+    "cli": "/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-cli.cjs",
+    "buildDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/build",
+    "workRoot": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies",
+    "finalizer": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+    "cases": [
+      "default"
+    ],
+    "allowAppJsonNotice": false,
+    "mode": "auto",
+    "autoPort": 42015,
+    "settleMs": 0,
+    "cliDrainMs": 100,
+    "injectShim": true,
+    "logDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/logs",
+    "logPollMs": 20,
+    "logMaxBytes": 1000000,
+    "automatorModule": "/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-automator.cjs",
+    "globalQuit": "removed"
+  },
+  "sourceBuild": {
+    "projectConfigSha256": "44d16e30a37434fd804bceb7c7567d6947a291a92fe65e156f4f44af53f5ffbb",
+    "gameJsonSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "fileCount": 3
+  },
+  "islogin": {
+    "code": 0,
+    "output": "fake logged in"
+  },
+  "diagnostics": [],
+  "noticeSeenInDefault": false,
+  "finishedAt": "2026-10-10T01:33:18.771Z",
+  "ownChildrenRunningAtFreeze": 0
+}

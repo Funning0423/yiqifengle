@@ -1,0 +1,3 @@
+998bb8910d12006dcbe6f486cf75904a95488020d92f75da9c827610227a0cff  ./0001-0001e-wx_subpackage-miniGame-configMode-overwrite-ov.patch
+ca7487fbf82f64e896125fbee5c3ecbdb3734ed889fd7dcf172d0751223c5422  ./README-0001e.md
+3e74ac49d392c63a740884e2fc9466022eb26623db4b66cc07fc1f9411d6970c  ./check_wechat_build.py

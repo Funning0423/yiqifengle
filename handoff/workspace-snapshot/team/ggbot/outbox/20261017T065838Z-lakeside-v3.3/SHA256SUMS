@@ -1,0 +1,12 @@
+47f665f63815b298330fce9300d995e9fd5c94bc3702e8e5cf35b8db776d1614  ./README.md
+a166b599343f6198e6d0186a80ac66122c1c0fddbdaa6301a98284d92484afd0  ./lakeside-v3.3.bundle
+a630b48e37708ad07c9b499f1a9aa7bfa555a22f922c1623bfaf6a76fdccdca2  ./near_water_swatch_proxy.png
+ce861d4d57cd02fd5010b471d5c0f49f4de65cac6606b9ae7d2c2bbc84fd44fb  ./patches/0001-scene-design-generic-region-exporter-drops-ASSETS-te.patch
+3dbb6766cb9ba993e0f7edc67dec476bb53c09e5a87940232649c75169e59239  ./patches/0002-lakeside-drop-4-zero-instance-GLBs-from-region_lakes.patch
+3091e37d4731b29c807df42cd8e4da4f5689821445a4474bccaeca7a0a2dac35  ./patches/0003-lakeside-v3.3-load-fix-A-enable-the-engine-meshopt-m.patch
+8676b254dc841fffb7fe197a82371eb202309d4b2e0996f97e738d3d1dc7f762  ./patches/0004-lakeside-v3.3-load-fix-B-Array.from-instead-of-.map..patch
+6a7cb9f4cfc5917cac53bd3b7a07a21dee2d9a2998c53020d24d1742e56a7dcd  ./patches/0005-lakeside-v3.3-a-failed-lakeside-load-is-no-longer-sw.patch
+5b31713f251e99ee75c4843ea852b7af52fe5b86819800a9e2aae53f7a1aae62  ./patches/0006-lakeside-v3.3-water-water-only-light-scales-lightPar.patch
+17b0e907283a47ab7a2a6ffd08148a56fdd95ae18b7fdd6bcd3019ae6d54dcf9  ./patches/0007-lakeside-v3.3-draw-calls-static-merge-after-instanci.patch
+9f8d0d1124696fdcc6236163663915af9f5f5f1935eff492c3f352dfd38eca4d  ./patches/0008-lakeside-v3.3-prewarm-warm-bundle-transforms-prefabs.patch
+225d91faa68fd11d101d7255741cd22a5e86a247bdf693107d435b9c82f42b77  ./water_tune_v33.cjs

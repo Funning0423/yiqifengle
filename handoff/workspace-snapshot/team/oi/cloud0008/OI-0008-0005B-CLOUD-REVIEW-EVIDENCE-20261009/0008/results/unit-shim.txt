@@ -1,0 +1,7 @@
+PASS records console.error/warn, still calls originals, heartbeat logged
+PASS wx.onError / onUnhandledRejection captured; ping logs late heartbeat
+PASS double injection is a no-op (guard)
+PASS injectShim keeps leading "use strict" first
+PASS strict-mode game.js still strict after injection
+
+5/5 passed

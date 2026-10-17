@@ -1,0 +1,55 @@
+{
+  "version": "0008v3",
+  "token": "b242e5f6290f8603",
+  "installedAt": 1791590804084,
+  "heartbeat": true,
+  "canaryAtBoot": true,
+  "wrapped": [
+    "error",
+    "warn",
+    "log",
+    "info"
+  ],
+  "stillWrapped": [
+    "error",
+    "warn",
+    "log",
+    "info"
+  ],
+  "onErrorRegistered": true,
+  "onUnhandledRejectionRegistered": true,
+  "installErrors": [],
+  "dropped": 0,
+  "errors": [
+    {
+      "t": 1791590804084,
+      "level": "error",
+      "msg": "[QF-AUDIT-CANARY] b242e5f6290f8603"
+    },
+    {
+      "t": 1791590804585,
+      "level": "error",
+      "msg": "[QF-AUDIT-CANARY-LATE] b242e5f6290f8603"
+    }
+  ],
+  "warns": [],
+  "logs": [
+    {
+      "t": 1791590804084,
+      "level": "log",
+      "msg": "[QF-AUDIT-HEARTBEAT] b242e5f6290f8603"
+    },
+    {
+      "t": 1791590804084,
+      "level": "log",
+      "msg": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+    },
+    {
+      "t": 1791590804585,
+      "level": "log",
+      "msg": "[QF-AUDIT-HEARTBEAT-LATE] b242e5f6290f8603"
+    }
+  ],
+  "onError": [],
+  "unhandled": []
+}

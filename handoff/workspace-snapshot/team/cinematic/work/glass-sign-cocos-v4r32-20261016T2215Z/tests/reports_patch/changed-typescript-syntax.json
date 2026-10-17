@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-15T17:06:46.752Z",
+  "scope": "Syntax/transpile diagnostics for changed TS files only; not a formal Creator compile",
+  "count": 12,
+  "checks": [
+    {
+      "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/RegionAssetDeadline.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/ui/BoardArt.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts",
+      "errors": []
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
+      "errors": []
+    },
+    {
+      "file": "tools/region-levels/contract-typecheck.ts",
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+23a57e3c28273043d892dcc1628c2b3472dd8aae12150e0161434aeae2d37242  ./README.md
+98ee3a01f0182930690bfcdadc91902475e569716bf356fcc0c50f4b56c43d0b  ./integration-build05-next-20261017T0818Z-r3.bundle
+b139f694df52426c5af17e13dc2ccdbada261a668b5e46bf1ea91b7104328bb1  ./patches/0001-lakeside-v3.4-bridge-whiteness-Cocos-3.8.8-takes-lig.patch
+59150bef7b218aedc5e057e5a4b19c8efb216907f44a6ce00efcf59042c074c7  ./patches/0002-lakeside-v3.4-near-water-refit-the-51aaa85-water-onl.patch
+cabb7059809b8c1e0ba84e691ff9f863ac525afc7f6f6dd7fb5e4d1126bc9bd8  ./patches/0003-lakeside-v3.4-pavilion-on-the-bridge-finding-no-real.patch
+fe38ba32a54ccbb140487abed23ffbce6f7991556ca945f6bb8e61ba98076ced  ./patches/0004-lakeside-r2-light-encoding-exactly-one-linear-Cocos-.patch
+ec6a9cf25e6f2f5250150149327301266bd1690c3475ded429fcb2e4b8ad5f09  ./patches/0005-lakeside-r2-brightness-sun-0.5-0.7-warm-hemisphere-a.patch
+cb1b49e531976114020705a5fa7b0e3dd1c958b88d3a11e4fee25b09f22d365c  ./patches/0006-lakeside-r2b-warm-fill-halved-ground-ambient-warm-sa.patch
+6fcc16c12fdadea75e688af6f0ce63ac3e7ed486d978eb9016f71357a0094a25  ./patches/0007-lakeside-olive-r5h3-alignment-far-hills-terrain-gras.patch
+fa5c39b3b9f0fb5dfe2fb6330151d9345ae63f40a68195dd601fc1ef25586875  ./patches/0008-lakeside-day-clear-fix-in-dir-mode-the-day-pack-s-cl.patch
+f9d10b9b0f9779e2b2b105a1cb5d46451cdd2a14be1f34529eabbe26541c8826  ./patches/0009-journey-merge-side-branch-apply-if-Mac-journey-peak-.patch
+b2ec1d0fc358106f33e03874554d159009e0891eb79ff86a974dac4d0375e512  ./patches/0010-lakeside-journey-ends-on-the-current-screen-s-board-.patch
+d9eaaa6fdadb69e02a62f4bc9f14e09fc405990cdbdd0bd9f88e7923daccc9fe  ./suite.json

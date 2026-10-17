@@ -1,0 +1,31 @@
+Board hint banner (提示牌) footprint — r4.1, commit 260ea02 (ggbot/build05-r41-hint-above-tray)
+Units: pt, origin top-left, y down. Insets = BoardLayout.boardSafeInsets defaults (portrait top 47 / bottom 34, capsule y 51–83).
+Banner x range is at max width; a shorter hint is narrower, centred on the same x. Height always 32.
+
+screen            banner x (max w)       banner y        tray x          tray y           plate bottom / capsule bottom
+390x844           30–360   (330)         168–200         18.1–371.9      212–587.6        156 / 83
+375x667           22.5–352.5 (330)       162–194         45.7–329.3      200–501   *      156 / 83
+414x896           42–372   (330)         169.7–201.7     19.2–394.8      215.4–614.2      156 / 83
+320x568           12–308   (296)         162–194         64.9–255.1      200–402   *      156 / 83
+360x780           15–345   (330)         167.1–199.1     9–351           210.1–573.2      156 / 83
+768x1024          219–549  (330)         176.4–208.4     154–614         228.8–717.1      156 / 83
+1024x768 land.    470–800  (330)         91.4–123.4      405–865         135.4–623.6      above tray
+1280x800 land.    598–928  (330)         107.4–139.4     533–993         151.4–639.6      above tray
+1440x900 land.    678–1008 (330)         157.4–189.4     613–1073        201.4–689.6      above tray
+1280x720 land.    598–928  (330)         67.4–99.4       533–993         111.4–599.6      above tray
+844x390  land.    56–372.4 (316.4)       229–261         384.4–705.6     20–361           left column under the tools (no room above tray)
+390x520 (short)   30–360   (330)         139.7–171.7     112–278         177.7–354        min pitch: band only 21.7, banner overlaps plate bottom, tray stays clear
+* tray top was 180 on r4 (6f42df4); short phones give up to 20 pt to keep the 44 pt plate→tray band. Tall phones: tray identical to r4.
+
+Old banner (r4, 6f42df4) on 390x844: x 30–360, y 652–684 (between tray bottom 588 and the tools at 730).
+
+Girl positions (her box, pt):
+  meadow, 6f42df4 spot   390x844  x 99–123   y 703–762   -> no overlap with the new banner (was under the 3-tool row)
+  meadow, with 95d3eee   390x844  x 75.6–96.5 y 620.4–671 | 414x896 x 80.2–102.5 y 658.6–712.3 | 360x780 x 25.6–47.3 y 604.9–654.9
+                         375x667  x 57–75.5  y 516.2–558.9 | 390x520 x 73.2–89.7 y 437.9–475   (all 0% under tools; on 390x844 this spot
+                         overlapped the OLD banner y 652–684 — the new banner is at y 168–200, so the band 588–730 is free of UI except the tool row)
+  lakeside frozen copy   390x844 x 73.9–157.3 y 394.2–595 | 375x667 x 90.4–156.9 y 346–509.1 | 414x896 x 78.5–167.1 y 408.9–621.4
+                         320x568 x 94.9–139.4 y 298–407.9 | 360x780 x 62.9–143.3 y 386.3–581.7 | 768x1024 x 226.6–335.1 y 465.7–726.1
+  sky city               not on screen at the board camera (all 5 screens)
+Free UI-less band for her below the tray (portrait): tray bottom → tool row top (tools.y − tools.size/2):
+  390x844 587.6–692.5 | 414x896 614.2–742.2 | 360x780 573.2–629.7 | 375x667 501–522.9 | 320x568 402–424 | 768x1024 717.1–865

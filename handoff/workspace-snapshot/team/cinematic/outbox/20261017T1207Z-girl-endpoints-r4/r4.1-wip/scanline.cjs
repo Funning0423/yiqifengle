@@ -1,0 +1,10 @@
+const J=require('/workspace/tmp-lkcam/wt-r4/tools/journey-integration/journey-scene.cjs');const {evalAt,SCR}=require('./feas.cjs');
+const {Lay,L,routeLength,sampleRoute,journeyCamera}=J;const leg2=J.legs[1];const rest=leg2.path.slice(J.appr2.length);const ex=J.exit02to08;
+const line=process.argv[2]?JSON.parse(process.argv[2]):J.H.load(J.S+'region/RegionJourneyLayout.ts').MEADOW_STAND_LOCAL;
+const spawn=J.meadowSrc.map.toBoard(J.mA('player_spawn'));const full=[spawn,...line];const Lt=(()=>{let s=0;for(let i=1;i<full.length;i++)s+=Math.hypot(...[0,1,2].map(k=>full[i][k]-full[i-1][k]));return s;})();
+const at=d=>{let acc=0;for(let i=1;i<full.length;i++){const a=full[i-1],b=full[i],l=Math.hypot(...[0,1,2].map(k=>b[k]-a[k]));if(acc+l>=d-1e-9){const t=l?Math.min(1,(d-acc)/l):0;return {p:a.map((v,k)=>v+(b[k]-v)*t),i};}acc+=l;}return {p:full.at(-1),i:full.length-1};};
+const facing=(path,d)=>{const a=sampleRoute(path,d),b=sampleRoute(path,d+.08);let x=b[0]-a[0],z=b[2]-a[2];if(Math.hypot(x,z)<1e-4){const c=sampleRoute(path,Math.max(0,d-.08));x=a[0]-c[0];z=a[2]-c[2];}const l=Math.hypot(x,z)||1;return [x/l,z/l];};
+for(let d=1;d<=Lt+1e-9;d+=+(process.argv[3]||0.5)){const {p,i}=at(d),sp=[...full.slice(1,i),p].map(J.meadowSrc.map.toJourney);const l1=[...J.appr1,...J.bridge1.slice(1),...sp];
+ const s=sp.at(-1),appr=[s,...Lay.meadowExitFrom(s,ex)],path=[...appr,...rest],T=routeLength(path),start=J.readPose(journeyCamera(l1,routeLength(l1),J.legs[0].start,undefined,undefined,0)),lens=Lay.lensKeys(L.skyLens,routeLength(appr));
+ let worst=-999,wat=0;for(let x=0;x<T-10;x+=.1){const c=journeyCamera(path,x,start,leg2.focus,lens,0),q=sampleRoute(path,x),[hx,hz]=facing(path,x),vx=c.position[0]-q[0],vz=c.position[2]-q[2],back=-(vx*hx+vz*hz),right=vx*(-hz)+vz*hx,a=Math.atan2(-right,back)*180/Math.PI;if(a>worst){worst=a;wat=x;}}
+ const extra=(T-42.865)/1.2;console.log('d',d.toFixed(1),'p',p.map(v=>v.toFixed(2)).join(','),'O5',extra.toFixed(2),'F7b',worst.toFixed(1),'@',wat.toFixed(1),'gaps',SCR.slice(0,7).map(([w,h])=>{const e=evalAt(p,w,h);return e?e.gap.toFixed(0):'x'}).join(' '));}

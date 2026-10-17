@@ -1,0 +1,33 @@
+{
+  "startupConsole": "NOT_CLOSED: app.json/custom-condition red persists; full raw logs captured. D no-enhancement avoids observed B helper failure.",
+  "audio": "PASS_ACTUAL_WECHAT_RESOURCE_AND_LIFECYCLE_OBSERVATION",
+  "stableHome": {
+    "state": "home",
+    "stable": "home",
+    "mode": "fixed",
+    "hidden": false,
+    "needsResume": false,
+    "characterReady": true,
+    "error": null
+  },
+  "instances": 1,
+  "clips": [
+    "sfx_chest_open",
+    "sfx_match_normal",
+    "sfx_level_clear",
+    "sfx_combo_1",
+    "sfx_combo_3",
+    "sfx_combo_2",
+    "sfx_ui_click"
+  ],
+  "hide": true,
+  "show": false,
+  "sameCompiledBytes": {
+    "files": 200,
+    "different": []
+  },
+  "hearing": "NOT_RUN: no system-output capture tool; no new permissions or volume changes",
+  "mute": "NOT_RUN_UI: no normal mute control; no direct mutation invoked",
+  "bgmLoopHearing": "NOT_RUN: loop clip not assigned",
+  "no006007": true
+}

@@ -1,0 +1,126 @@
+From f05c6a3ab150802881e7e32d8394843f79bc0332 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 06:15:03 -0400
+Subject: [PATCH] journey v3.1: journey-only deep night sea tint
+
+IslandProps.sync takes journey (region-travel) and fades a journey weight; seaColorAt(authored,w,j)
+lerps the night tint #7f9fb3 -> #2c4058 by j. Day (w=0) is always the authored colour. Tests in t9 island props.
+---
+ .../assets/scripts/WorldIntegrationBoot.ts          |  2 +-
+ .../assets/scripts/world-r2/IslandProps.ts          | 13 +++++++------
+ .../assets/scripts/world-r2/IslandPropsLayout.ts    | 12 +++++++-----
+ tools/t9-island-props/test_island_props.cjs         |  9 +++++++++
+ 4 files changed, 24 insertions(+), 12 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index c81ca1b..ba0ee63 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -554,7 +554,7 @@ export class WorldIntegrationBoot extends Component {
+   const p=this.islandProps,m=this.controls.get('mainline')!;let sign=null as null|{x:number;y:number;width:number;height:number};
+   if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
+    const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
+-   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
++   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',journey:s.state==='region-travel',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
+    if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
+   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
+   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandProps.ts b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+index 7855dc0..12a1d39 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandProps.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+@@ -23,9 +23,9 @@ export class IslandProps {
+   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
+   private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
+   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
+-  private nightW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
++  private nightW = 0; private journeyW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
+   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
+-  private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number } | null = null;
++  private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number; appliedJ: number } | null = null;
+   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
+   private entrance = 1; private fade: { r: MeshRenderer; i: number; m: Material }[] = []; private signText: UIOpacity | null = null; private view = { width: 0, height: 0 };
+   private water: { meshes: Mesh[]; shadow: Material | null; ripples: { node: Node; material: Material }[] } = { meshes: [], shadow: null, ripples: [] };
+@@ -133,12 +133,12 @@ export class IslandProps {
+       const r = find(top)?.getComponent(MeshRenderer), shared = r?.getSharedMaterial(0), mat = r?.getRenderMaterial(0) as Material | null;
+       if (!r || !shared || !mat || mat === shared) { this.stats.sea = 'skipped:no-instance'; return; }
+       const c = mat.getProperty(ISLAND_PROPS.seaNight.property) as Color | null; if (!c) { this.stats.sea = 'skipped:no-mainColor'; return; }
+-      this.sea = { material: mat, authored: [c.r, c.g, c.b, c.a], applied: 0 }; this.stats.sea = 'instance-tint';
++      this.sea = { material: mat, authored: [c.r, c.g, c.b, c.a], applied: 0, appliedJ: 0 }; this.stats.sea = 'instance-tint';
+     } catch (e) { this.sea = null; this.stats.sea = 'failed:' + String(e); }
+   }
+   private tickSea(w: number) {
+-    const sea = this.sea; if (!sea || !isValid(sea.material, true)) return; if (Math.abs(w - sea.applied) < 0.004 && !(w === 0 && sea.applied !== 0)) return;
+-    const v = seaColorAt(sea.authored, w); sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(v[0], v[1], v[2], v[3])); sea.applied = w;
++    const sea = this.sea; if (!sea || !isValid(sea.material, true)) return; const j = this.journeyW; if (Math.abs(w - sea.applied) < 0.004 && Math.abs(j - sea.appliedJ) < 0.004 && !(w === 0 && sea.applied !== 0)) return;
++    const v = seaColorAt(sea.authored, w, j); sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(v[0], v[1], v[2], v[3])); sea.applied = w; sea.appliedJ = j;
+   }
+   private restoreSea() { const sea = this.sea; this.sea = null; if (sea && isValid(sea.material, true)) sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(sea.authored[0], sea.authored[1], sea.authored[2], sea.authored[3])); }
+   /** T9n: warm SphereLight next to lamp_glass, night only. Light.visibility = the sign's own layer bit (a user layer the
+@@ -192,13 +192,14 @@ export class IslandProps {
+     return { position: [p.x, p.y, p.z], rotation: [q.x, q.y, q.z, q.w], fovVerticalDeg: c.fov };
+   }
+   /** Once per frame from the host. exterior = island exterior layer visible; buttons = island dock is showing. */
+-  sync(o: { exterior: boolean; night: boolean; buttons: boolean; width: number; height: number; dock?: { dy: number; k: number } }) {
++  sync(o: { exterior: boolean; night: boolean; journey?: boolean; buttons: boolean; width: number; height: number; dock?: { dy: number; k: number } }) {
+     if (!this.ready || !isValid(this.root, true)) return;
+     if (this.root.active !== o.exterior) this.root.active = o.exterior;
+     this.view.width = o.width; this.view.height = o.height;
+     const now = game.totalTime / 1000, first = this.lastTime < 0, dt = first ? 0 : now - this.lastTime; this.lastTime = now;
+     // first sync snaps to the current mode (no fade at startup); afterwards a switch fades over nightFadeS
+     this.nightW = first ? (o.night ? 1 : 0) : approachNight(this.nightW, o.night, dt);
++    this.journeyW = first ? (o.journey ? 1 : 0) : approachNight(this.journeyW, !!o.journey, dt);
+     this.stats.nightWeight = +this.nightW.toFixed(3); setPropNightWeight(this.nightW);
+     // lamp glass day/night material: swapped at the middle of the fade (light is half up), not at the switch instant
+     const lampNight = this.nightW >= 0.5;
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+index 8ec1eac..0d26ef6 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+@@ -68,7 +68,7 @@ export const ISLAND_PROPS = Object.freeze({
+   /** T9n-2 night sea: env_sea_surface's render material (RoomLightingRig's own instance, which only scrolls tilingOffset) gets
+    * mainColor = authored mainColor x tint, blended by the props night weight; restored exactly at weight 0. Never the shared
+    * M_env_sea material; skipped when the renderer has no instance. tint is sRGB hex (linear = (0.212, 0.347, 0.451)). */
+-  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3' },
++  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3', journeyTint: '#2c4058' },
+   /** Seconds for the props' night weight to follow a day/night switch (labels, lamp light, water tint fade together). */
+   nightFadeS: 0.5,
+   notAdded: {
+@@ -301,8 +301,10 @@ export function propNightWeight(): number { return propNight; }
+ export function srgbToLinear(h: string): [number, number, number] {
+   const x = h.replace('#', ''); return [0, 2, 4].map(i => { const v = parseInt(x.slice(i, i + 2), 16) / 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }) as [number, number, number];
+ }
+-/** Night sea mainColor at weight w: authored colour (0..255 RGBA) lerped toward authored x tint (sRGB-byte multiply, as Color stores it). */
+-export function seaColorAt(authored: readonly number[], w: number): number[] {
+-  const k = Math.max(0, Math.min(1, w)), t = hexRgba(ISLAND_PROPS.seaNight.tint);
+-  return [0, 1, 2].map(i => Math.round(authored[i] + (authored[i] * t[i] / 255 - authored[i]) * k)).concat([authored[3] ?? 255]);
++/** Night sea mainColor at weight w: authored colour (0..255 RGBA) lerped toward authored x tint (sRGB-byte multiply, as Color stores it).
++ * j (0..1) = region-journey weight: the night tint deepens toward seaNight.journeyTint so the open sea under the journey lens reads as night,
++ * not day-cyan. w = 0 (day) always returns the authored colour, whatever j is. */
++export function seaColorAt(authored: readonly number[], w: number, j = 0): number[] {
++  const k = Math.max(0, Math.min(1, w)), q = Math.max(0, Math.min(1, j)), a = hexRgba(ISLAND_PROPS.seaNight.tint), b = hexRgba(ISLAND_PROPS.seaNight.journeyTint);
++  return [0, 1, 2].map(i => { const t = a[i] + (b[i] - a[i]) * q; return Math.round(authored[i] + (authored[i] * t / 255 - authored[i]) * k); }).concat([authored[3] ?? 255]);
+ }
+diff --git a/tools/t9-island-props/test_island_props.cjs b/tools/t9-island-props/test_island_props.cjs
+index 447ac8b..46597b2 100644
+--- a/tools/t9-island-props/test_island_props.cjs
++++ b/tools/t9-island-props/test_island_props.cjs
+@@ -230,6 +230,15 @@ ok('T9n-2 lamp + sea: amber unlit lamp glass (not white), soft glow, board light
+   const lin=L.srgbToLinear(P.seaNight.tint);assert.deepEqual(lin.map(v=>+v.toFixed(3)),[0.212,0.347,0.451]);
+   assert.deepEqual(L.seaColorAt([255,255,255,255],0),[255,255,255,255]);assert.deepEqual(L.seaColorAt([255,255,255,255],1),[127,159,179,255]);
+   assert.deepEqual(L.seaColorAt([200,220,240,255],0.5),[150,179,204,255]);
++  // v3.1 journey night sea: day untouched whatever the journey weight; j=0 is the old night; j=1 deepens to journeyTint
++  assert.equal(P.seaNight.tint,'#7f9fb3');assert.equal(P.seaNight.journeyTint,'#2c4058');
++  for(const c of [[255,255,255,255],[200,220,240,255],[90,180,210,200]])for(const j of [0,.3,1])assert.deepEqual(L.seaColorAt(c,0,j),c,'day sea must stay authored');
++  assert.deepEqual(L.seaColorAt([200,220,240,255],0.5,0),L.seaColorAt([200,220,240,255],0.5));
++  assert.deepEqual(L.seaColorAt([255,255,255,255],1,1),[44,64,88,255]);assert.deepEqual(L.seaColorAt([200,220,240,255],0.5,1),[117,138,161,255]);
++  {const lum=v=>.2126*v[0]+.7152*v[1]+.0722*v[2],base=[120,200,220,255];let prev=1e9;for(const j of [0,.25,.5,.75,1]){const l=lum(L.seaColorAt(base,1,j));assert(l<prev,'journey tint monotonic darker');prev=l;}}
++  {const boot=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8'),src2=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
++   assert(/night:dn\?\.mode==='night',journey:s\.state==='region-travel'/.test(boot),'boot passes journey from region-travel');
++   assert(/journey\?: boolean/.test(src2)&&/approachNight\(this\.journeyW, !!o\.journey, dt\)/.test(src2)&&/seaColorAt\(sea\.authored, w, j\)/.test(src2),'IslandProps fades journey weight into the sea tint');}
+   const src=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+   assert(/mat === shared\) \{ this\.stats\.sea = 'skipped:no-instance'/.test(src),'never the shared sea material');
+   assert(!/setSharedMaterial\([^)]*sea/i.test(src)&&/restoreSea\(\)/.test(src)&&/this\.tickSea\(w\)/.test(src));
+-- 
+2.47.3
+

@@ -1,0 +1,205 @@
+From 0111d351167f3b64e00c0aaae827eb1002811d40 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 02:45:29 +0800
+Subject: [PATCH 3/5] =?UTF-8?q?Result=20screen:=20=E3=80=8C=E5=85=A8?=
+ =?UTF-8?q?=E9=83=A8=E9=A2=86=E5=8F=96=E3=80=8D=20fires=20once=20and=20bat?=
+ =?UTF-8?q?ches=20same-turn=20claims=20into=20one=20invoke=20(from=20PR=20?=
+ =?UTF-8?q?#55=20bd10569)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Taken: BoardPanels ClaimAll spent-guard; WorldIntegrationBoot enqueueResultBatch + resultActions use it;
+test_claim_batch.cjs; test_board_runtime ClaimAll checks.
+Adapted: the batch flushes on a microtask instead of setTimeout(0) (legacy-startup-ready forbids timers in
+WorldIntegrationBoot); test_result_viewports now expects the one-shot ClaimAll (PR #55 left that check failing).
+Excluded from bd10569: night-sky uniform readback, DebugJumpPanel, StartupLoading*, dock fade (dockFade,
+navLayout dock targets), WorldFlowComponent, IslandProps, RegionFlowTest, WorldNativeComposition and their tests.
+3b6589d has no settlement hunks (dock icons, cream cover, debug home/opGen) and is not taken.
+
+(cherry picked from commit bd1056956437b0290271c020fb86f57e0ff5c3fc, partial)
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    | 30 ++++++++++--
+ .../assets/scripts/ui/BoardPanels.ts          |  9 +++-
+ tools/board-ui/test_board_runtime.cjs         | 14 +++++-
+ tools/board-ui/test_claim_batch.cjs           | 47 +++++++++++++++++++
+ tools/board-ui/test_result_viewports.cjs      |  2 +-
+ 5 files changed, 96 insertions(+), 6 deletions(-)
+ create mode 100644 tools/board-ui/test_claim_batch.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index ea52993..dc18ca7 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -31,6 +31,30 @@ import {runHomeTransition,HOME_FADE} from './world-r2/HomeTransition';
+ import {GameAudio} from './audio/GameAudio';
+ import {SCENE_TRACKS} from './audio/SceneMusic';
+ const {ccclass,property}=_decorator;
++/** Claims fired in one turn share a single invoke. The busy gate would otherwise drop every call after the first. */
++function enqueueResultBatch(start:(run:()=>Promise<any>)=>void):(fn:()=>any)=>void{
++  let q:Array<()=>any>|null=null,running=false;
++  return (fn:()=>any)=>{
++    if(running)return;
++    if(!q){
++      const batch:Array<()=>any>=[];q=batch;
++      // A microtask, not a timer: every claim fired by the same 全部领取 tap is already queued when it runs.
++      void Promise.resolve().then(()=>{
++        if(q!==batch)return;q=null;
++        start(async()=>{
++          running=true;
++          try{
++            let last:any={ok:true};
++            for(let i=0;i<batch.length;i++){const r=await batch[i]();last=r;if(r&&r.ok===false&&r.reason!=='cancelled')return r;}
++            return last;
++          }finally{running=false;}
++        });
++      });
++    }
++    q.push(fn);
++  };
++}
++/** end enqueueResultBatch */
+ /** R3: flow states in which the T9 signpost is hidden (everything except island-idle, level/skycity + loading, paused, error). */
+ const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting','region-loading','region-travel','meadow'];
+ /** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
+@@ -373,7 +397,7 @@ export class WorldIntegrationBoot extends Component {
+  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+  private islandProps:IslandProps|null=null;private propSign=false;
+  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
+- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
++ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
+  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
+  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
+@@ -477,7 +501,7 @@ export class WorldIntegrationBoot extends Component {
+  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
+  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
+  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+- private createNavigation(){this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
++ private createNavigation(){this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+  this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+@@ -497,7 +521,7 @@ export class WorldIntegrationBoot extends Component {
+  private label(text:string,x:number,y:number,size:number,w:number){const n=new Node('LabelPlate');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,size+10);const bg=n.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-w/2,-(size+10)/2,w,size+10,10);bg.fill();const t=new Node('VisibleLabel');t.layer=Layers.Enum.UI_2D;n.addChild(t);t.addComponent(UITransform).setContentSize(w,size+10);const l=t.addComponent(Label);l.string=text;l.fontSize=size;l.lineHeight=size+4;l.color=new Color('#fff2cf');l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;return l;}
+  private button(id:string,text:string,fn:()=>any,interrupt=false){const n=new Node(id);n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);const surface=warmButton(n,240,46);const l=this.label(text,0,0,17,230);const plate=l.node.parent!;plate.removeFromParent();plate.getComponent(Graphics)!.clear();n.addChild(plate);surface.addContent(plate);const blocked=()=>!!(this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.busy&&!interrupt);
+  if(id==='mainline')n.on(Node.EventType.TOUCH_START,()=>emitPropTap('signpost','press',blocked())); // T9: IslandPropTaps (signpost hosts mainline)
+- this.resultActions[id]=()=>{if(!blocked())void this.invoke(fn);};
++ this.resultActions[id]=()=>{if(!blocked())this.enqueueResult(fn);};
+  surface.bind(()=>{if(id==='mainline')emitPropTap('signpost','confirm',blocked());if(blocked())return false;if(interrupt){const r=fn();if(r&&!r.ok)this.error=r.reason;this.paintNavigation();return;}void this.invoke(fn);});this.controls.set(id,n);}
+  private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
+  // T2: bake the FINAL island button size/skin while it is still hidden. Otherwise the first island frame resizes the
+diff --git a/creator-build-project/assets/scripts/ui/BoardPanels.ts b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+index 5c9bd5b..80537b3 100644
+--- a/creator-build-project/assets/scripts/ui/BoardPanels.ts
++++ b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+@@ -92,7 +92,14 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
+       y += rewardsH;
+     }
+     const ready = m.rewards.filter(r => r.state === 'ready' && r.claim);
+-    if (ready.length) p.button('primary', '全部领取', 0, y, 220, 56, () => { for (let i = 0; i < ready.length; i++) ready[i].claim?.(); }, { fontSize: 26, name: 'ClaimAll' });
++    if (ready.length) {
++      let spent = false;
++      const handle = p.button('primary', '全部领取', 0, y, 220, 56, () => {
++        if (spent) return;
++        spent = true; handle.setEnabled(false); handle.node.active = false;
++        for (let i = 0; i < ready.length; i++) { const claim = ready[i].claim; if (claim) claim(); }
++      }, { fontSize: 26, name: 'ClaimAll' });
++    }
+     if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
+     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
+   } else if (m.kind === 'lose') {
+diff --git a/tools/board-ui/test_board_runtime.cjs b/tools/board-ui/test_board_runtime.cjs
+index 22d5841..c660f9e 100644
+--- a/tools/board-ui/test_board_runtime.cjs
++++ b/tools/board-ui/test_board_runtime.cjs
+@@ -101,7 +101,19 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
+     s.state = 'result.saved'; s.active.status = 'won'; s.result = { stars: 3 }; s.journey.chests = [{ level: 0, earned: true, opened: false }]; b.render();
+     u.setHostActions({ chest: { visible: true, run: () => chest++ }, mainNext: { visible: true, run: () => next++ } }); b.step(0.3);
+     let p = u.popups.find('ResultPanel'); assert(p); assert.equal(p.options.title, '过关啦'); assert.equal(u.hostModalOpen(), false, 'result page is not a board modal');
+-    H.tap(inPopup(b, 'ResultPanel', 'ClaimAll')); assert.equal(chest, 1); H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
++    const claimAll = inPopup(b, 'ResultPanel', 'ClaimAll');
++    H.tap(claimAll); assert.equal(chest, 1); assert.equal(claimAll.active, false, 'ClaimAll hides on the first tap');
++    H.tap(claimAll); assert.equal(chest, 1, 'a second tap does not claim again');
++    H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
++    const both = await board(); let chest2 = 0, region2 = 0;
++    both.s.state = 'result.saved'; both.s.active.status = 'won'; both.s.result = { stars: 3 };
++    both.s.journey.chests = [{ level: 0, earned: true, opened: false }];
++    both.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; both.render();
++    both.u.setHostActions({ chest: { visible: true, run: () => chest2++ }, regionReward: { visible: true, run: () => region2++ } });
++    both.H.tap(inPopup(both, 'ResultPanel', 'ClaimAll'));
++    assert.equal(chest2, 1); assert.equal(region2, 1, 'one tap claims the chest and the region reward');
++    both.s.journey.chests[0].opened = true; both.s.journey.regionRewards[0].claimed = true; both.render();
++    assert.equal(inPopup(both, 'ResultPanel', 'ClaimAll'), null, 'opened chest and claimed region hide 全部领取');
+     H.tap(inPopup(b, 'ResultPanel', 'Home')); assert.deepEqual(log.commands.at(-1), ['requestExit']);
+     const reg = await board(); reg.s.state = 'result.saved'; reg.s.active.status = 'won'; reg.s.result = { stars: 1 }; reg.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; reg.render();
+     const net = inPopup(reg, 'ResultPanel', 'tool_tidenet'); assert(net, 'result region reward uses the tide-net slice');
+diff --git a/tools/board-ui/test_claim_batch.cjs b/tools/board-ui/test_claim_batch.cjs
+new file mode 100644
+index 0000000..acd8292
+--- /dev/null
++++ b/tools/board-ui/test_claim_batch.cjs
+@@ -0,0 +1,47 @@
++'use strict';
++// Result claims that fire in one turn must share one invoke. A per-call busy gate drops the second.
++const fs = require('node:fs'), assert = require('node:assert/strict');
++const ts = require('../qf-env.cjs').typescript();
++const src = fs.readFileSync('creator-build-project/assets/scripts/WorldIntegrationBoot.ts', 'utf8');
++const a = src.indexOf('function enqueueResultBatch');
++const b = src.indexOf('/** end enqueueResultBatch */');
++assert(a > 0 && b > a, 'enqueueResultBatch boundaries');
++const js = ts.transpileModule(src.slice(a, b), { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.None } }).outputText;
++const enqueueResultBatch = new Function(js + '\nreturn enqueueResultBatch;')();
++const delay = ms => new Promise(r => setTimeout(r, ms));
++
++(async () => {
++  const order = [];
++  let busy = false;
++  const enqueue = enqueueResultBatch(run => {
++    if (busy) { order.push('drop'); return; }
++    busy = true;
++    void Promise.resolve(run()).then(() => { busy = false; }, () => { busy = false; });
++  });
++  enqueue(() => order.push('chest'));
++  enqueue(() => order.push('region'));
++  assert.deepEqual(order, [], 'same-turn claims wait for one flush');
++  await delay(30);
++  assert.deepEqual(order, ['chest', 'region'], 'both claims run inside the one invoke');
++
++  const dropped = [];
++  let gate = false;
++  const invoke = async fn => { if (gate) { dropped.push('drop'); return; } gate = true; try { await fn(); } finally { gate = false; } };
++  void invoke(() => dropped.push('chest'));
++  void invoke(() => dropped.push('region'));
++  await delay(0);
++  assert.deepEqual(dropped, ['chest', 'drop'], 'the busy gate by itself drops the second claim');
++
++  let release = null;
++  const late = [];
++  const held = enqueueResultBatch(run => { void run(); });
++  held(() => new Promise(r => { release = r; }));
++  await delay(20);
++  held(() => late.push('again'));
++  await delay(20);
++  assert.deepEqual(late, [], 'a claim that arrives while the batch is running is ignored');
++  release();
++  await delay(20);
++  assert.deepEqual(late, []);
++  console.log(JSON.stringify({ status: 'PASS', checks: ['same-turn batch', 'busy gate drops', 'in-flight ignored'] }));
++})().catch(e => { console.error(e); process.exitCode = 1; });
+diff --git a/tools/board-ui/test_result_viewports.cjs b/tools/board-ui/test_result_viewports.cjs
+index b2ce21a..9e882d7 100644
+--- a/tools/board-ui/test_result_viewports.cjs
++++ b/tools/board-ui/test_result_viewports.cjs
+@@ -252,7 +252,7 @@ async function runInputChecks() {
+       send(H, node, 'end', point); assert.deepEqual(calls, [], 'old-coordinate late END must not activate');
+       revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
+       send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, expected);
+-      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, expected.concat(expected));
++      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, target === 'ClaimAll' ? expected : expected.concat(expected), target === 'ClaimAll' ? '全部领取 is one-shot: a later tap claims nothing' : undefined);
+     } finally { stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0); }
+   });
+   for (const [target, spec] of targetCases) await check(`${target} child-first null-field teardown after reflow`, () => {
+-- 
+2.47.3
+

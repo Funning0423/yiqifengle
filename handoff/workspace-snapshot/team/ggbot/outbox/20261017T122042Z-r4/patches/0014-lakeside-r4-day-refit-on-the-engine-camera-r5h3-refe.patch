@@ -1,0 +1,215 @@
+From eaf207249f3e662ab999d44a5cf6581b69734afd Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 06:44:21 -0400
+Subject: [PATCH 14/47] lakeside r4: day refit on the engine-camera r5h3
+ reference (water, reflected sky, fog, lights)
+
+Fitted on the Mac-calibrated HDR+ACES stand-in (exposure F16 / 1/125 s / ISO100 -> 2.604e-5)
+against ENGINE_COLOR_REFERENCE/engine_cam_r5h3 (10 points within 9/channel, stripe std 2.3).
+Values only, in GGbot's single source (LAKESIDE_DIR_LIGHT_PARAMS -> lakesideWaterMaterial /
+applyLakesideWaterMode), so board and journey lake both get them.
+Water: tint 0.714/0.858/1, main 2.51, amb 2.87, skyStrength 0.387, floor 0.323, horizon
+0.204/0.297/0.003 (reflected shore), low 0.173/0.221/0.481, zenith 0.3/0.15/0.465.
+Lights: sun 0.95, ambient 0.236, sky 0.0107/0.0656/0.082, ground 0.97/0.533/0.296. Fog 231/165/125,
+layered top 4.16 / range 74 / atten 59.2. Night sun/ambient re-derived to keep moon/sun 0.857 and
+ambient 0.219 (1.173 / 0.643). Effect defaults = day params.
+---
+ .../water/lakeside-water.effect               | 14 +++----
+ .../scripts/region/LakesideSceneData.ts       | 38 +++++++++++--------
+ tools/lakeside/test_lakeside_dirlight.cjs     |  6 +--
+ tools/lakeside/test_lakeside_water_fog.cjs    | 25 +++++++-----
+ 4 files changed, 49 insertions(+), 34 deletions(-)
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+index 0cfb244..d907932 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+@@ -11,14 +11,14 @@ CCEffect %{
+     - vert: lk-water-vs:vert
+       frag: lk-water-fs:frag
+       properties:
+-        waterTint:     { value: [0.9, 1.0, 1.0, 1.0], editor: { type: color } }
+-        skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], editor: { type: color } }
+-        skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], editor: { type: color } }
+-        skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], editor: { type: color } }
+-        fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
+-        specParams:    { value: [300.0, 1.6, 0.0, 0.31], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise (v3.3: 0 - its x-striped sin made the moving mid-lake bands), w sky-reflection floor (v3.2)' } }
++        waterTint:     { value: [0.714, 0.858, 1.0, 1.0], editor: { type: color } }
++        skyZenith:     { value: [0.3, 0.15, 0.465, 1.0], editor: { type: color } }
++        skyLow:        { value: [0.173, 0.221, 0.481, 1.0], editor: { type: color } }
++        skyHorizon:    { value: [0.204, 0.297, 0.003, 1.0], editor: { type: color } }
++        fresnelParams: { value: [5.0, 0.02, 0.85, 0.387], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
++        specParams:    { value: [300.0, 1.6, 0.0, 0.323], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise (v3.3: 0 - its x-striped sin made the moving mid-lake bands), w sky-reflection floor (v3.2)' } }
+         waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
+-        lightParams:   { value: [1.37, 1.85, 12.0, 35.0], editor: { tooltip: 'v3.3 water only: x main-light (diffuse) scale, y ambient scale, z/w wave fade start/end distance (m)' } }
++        lightParams:   { value: [2.51, 2.87, 12.0, 35.0], editor: { tooltip: 'v3.3 water only: x main-light (diffuse) scale, y ambient scale, z/w wave fade start/end distance (m)' } }
+ }%
+ 
+ CCProgram lk-water-vs %{
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 351448e..1026a04 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -82,40 +82,46 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+    *  0.2 -> 0.49 of base. Emulator (Mac-calibrated, board camera) vs r5h3 luma: near water 0.99, bridge deck 1.11, grass_L 1.29,
+    *  far trees 1.00, roof 1.12 - grass stays bright at sun >= 0.7 (see the r2 README). History: v3.4: 1.0 -> 0.5 and ambient 0.75 -> 0.2 of the base illuminance (= 0.4 x lakeside sun). With the colours now really linear,
+    *  a grid search on the Mac-calibrated Blender G-buffer emulator vs r5h3 (bridge, grass, trees, roof) put the land score 1535 -> 326. */
+-  sunIlluminanceScale: 0.7,
++  /** r4 (VB): refit on the engine-camera r5h3 reference (ENGINE_COLOR_REFERENCE/engine_cam_r5h3, Mac-calibrated HDR+ACES stand-in). */
++  sunIlluminanceScale: 0.95,
+   /** r2 warm hemisphere fill (linear; r5h3 sky 0.0116/0.2747/0.4793, ground 1/0.5457/0.1441). Up faces get the sky, the
+    *  camera-facing backlit faces about half sky / half ground. */
+-  ambientSkyColorLinear: [0.0107, 0.0656, 0.1106] as readonly number[],
++  ambientSkyColorLinear: [0.0107, 0.0656, 0.082] as readonly number[], // r4 refit (B was 0.1106)
+   /** r2b (Grok Bot: warm fill too strong, rails yellow): ground warm saturation halved toward its own luminance (c60ac55 1/0.841/0.0687,
+    *  luminance 0.819 kept, so the night ratios are unchanged). */
+-  ambientGroundColorLinear: [0.9095, 0.83, 0.4439] as readonly number[],
+-  ambientSkyIllumToSun: 0.49,
++  ambientGroundColorLinear: [0.97, 0.533, 0.296] as readonly number[], // r4 refit (was 0.9095/0.83/0.4439)
++  ambientSkyIllumToSun: 0.236, // r4 refit (was 0.49): the engine-camera reference bridge/water is darker than the r3 Mac shot
++
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterGlbs: ['LK_lake.glb'] as const,
+   waterMaterialPath: 'water/lakeside-water',
+-  waterTintLinear: [0.9, 1.0, 1.0] as const, // v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
++  waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
+   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
+   /** v3.3: reflected-sky brightness 1.0 -> 0.4 (the floor 0.25 stays; this dims what the floor mixes in). Cocos multiplies the r5h3 sky
+    *  colour by the ambient illuminance (x exposure), so at 1.0 the reflection alone gave the near water more blue than r5h3 shows. */
+-  waterSkyStrength: 0.35, // r2 (VB): refit under the r2 lights (v3.4 0.8, v3.3 0.4)
++  waterSkyStrength: 0.387, // r4 refit (r3 0.35). r2 (VB): refit under the r2 lights (v3.4 0.8, v3.3 0.4)
+   /** v3.3 water-only light scales (lakeside-water lightParams.xy). Fit to the Mac v3.2 pixel (near water 64/218/216, layered) toward
+    *  r5h3 66/152/146 with the shader's own terms: predicted ~61/153/145 (tools/lakeside/water_tune_v33.cjs). Main light alone cannot get
+    *  there - it only lights ~5-16% of the green/blue - so ambient (0.35) and sky strength (0.4) carry most of it; main light 0.8. */
+   /** v3.4 (VB): with the v3.4 linear light colours (sun 0.5, ambient 0.2) the v3.3 scales left the near water too dark (emulator
+    *  52/98/88); refit on the Mac-calibrated emulator (handoff camera, layered fog, wave fade on): main 1.67, ambient 1.27, sky 0.8,
+    *  floor 0.30 -> near water 58/152/148 vs r5h3 66/152/146 (R is capped by the lake vertex colour). */
+-  waterMainLightScale: 1.37, waterAmbientScale: 1.85, // r2 (VB) refit under sun 0.7 + warm hemisphere: emulator near water 59/153/146 vs r5h3 66/152/146 (v3.4 1.67 / 1.27)
++  waterMainLightScale: 2.51, waterAmbientScale: 2.87, // r4 refit (r3 1.37 / 1.85). r2 (VB) refit under sun 0.7 + warm hemisphere: emulator near water 59/153/146 vs r5h3 66/152/146 (v3.4 1.67 / 1.27)
+   /** v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m (kills the moving mid-lake bands). */
+   waterWaveFadeStart: 12, waterWaveFadeEnd: 35,
+-  waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
+-  waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
+-  waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
++  /** r4 refit. r3 used the r5h3 world ramp (zenith sky blue, low beige 0.92/0.58/0.27, horizon orange 1/0.55/0.14): the low
++   *  engine camera sees reflection elevations 0.07-0.16 at the lake centre, i.e. mostly low/horizon, and Cocos squared them
++   *  (`linear: true`, now dropped) -> the beige/orange "sand" centre. Now: horizon = the reflected far shore (olive),
++   *  low = blue, zenith = dusk lavender. */
++  waterSkyZenithLinear: [0.3, 0.15, 0.465] as const,
++  waterSkyLowLinear: [0.173, 0.221, 0.481] as const,
++  waterSkyHorizonLinear: [0.204, 0.297, 0.003] as const,
+   waterSpecExponent: 300, waterSpecNoise: 0, waterSpecIntensity: 1.6, // v3.3 noise 0.4 -> 0: its sin(x*3.1) striped the streak into moving bands
+   /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
+    *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
+-  waterSkyReflectFloor: 0.31, // r2 refit (v3.4 0.30, v3.2 0.25)
++  waterSkyReflectFloor: 0.323, // r4 refit (r3 0.31). r2 refit (v3.4 0.30, v3.2 0.25)
+   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
+-  fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
++  fogEnabled: true, fogColorSrgb: [231, 165, 125] as const /* r4 refit (was 215/170/150) */, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
+ });
+ /** build05-next r2 (lead): lakeside's own NIGHT look for the day/night toggle (board + journey). Same structure as the day values
+  *  (LAKESIDE_DIR_LIGHT_PARAMS, the r5h3 dusk); relative to the island's current-mode main light, so the island's 0.35 night scale
+@@ -126,10 +132,10 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+  *  the r2 balance per term (luminance): moon/sun 0.857, hemisphere ambient night/day 0.219, against the CURRENT day values. */
+ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
+   sunColorLinear: [0.36, 0.46, 0.78] as const,
+-  sunIlluminanceScale: 0.864, // r2: keeps moon/sun 0.857 (luminance) vs the r2 day (sun 0.7)
++  sunIlluminanceScale: 1.173, // r4: keeps moon/sun 0.857 (luminance) vs the r4 day (sun 0.95); r2 0.864
+   ambientSkyColorLinear: [0.012, 0.03, 0.09] as const,
+   ambientGroundColorLinear: [0.02, 0.022, 0.04] as const,
+-  ambientSkyIllumToSun: 1.76, // r2: keeps hemisphere ambient night/day 0.219 vs the r2 day (warm fill 0.49)
++  ambientSkyIllumToSun: 0.643, // r4: keeps hemisphere ambient night/day 0.219 vs the r4 day (fill 0.236, ground 0.97/0.533/0.296); r2 1.76
+   clearColor: '#1c2740',
+   fogColorSrgb: [44, 54, 84] as const,
+   waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
+@@ -155,7 +161,9 @@ export const LAKESIDE_FOG_MODE: LakesideFogMode = 'layered';
+ /** LAYERED: Cocos 3.8.8 LayeredFog(): camera (y 13.2) above fogTop -> density ~ (2D/fogAtten)*(fogTop-y)/fogRange for low slabs, so it grows
+  *  with horizontal distance D and with depth below fogTop. top 1.5 m = just above water/far shore (0..0.3 m), range 30 / atten 17:
+  *  water at the far shore (~77 m) 0.36, lake end (100 m) 0.44, anything above 1.5 m none; board water (18-24 m) ~0.10-0.13. */
+-export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 1.5, fogRange: 30, fogAtten: 17 });
++/** r4 (VB) refit (was top 1.5 / range 30 / atten 17): a thicker, much softer golden slab - far shore water ~14%, board water ~4%,
++ *  nothing above 4.16 m (hills, tree crowns). */
++export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 4.16, fogRange: 74, fogAtten: 59.2 });
+ export function lakesideFogMode(search?: string | null, fallback: LakesideFogMode = LAKESIDE_FOG_MODE): LakesideFogMode {
+   const m = /[?&]lakefog=([a-z0-9]+)/.exec(search || '');
+   return m && (m[1] === 'layered' || m[1] === 'linear60' || m[1] === 'off') ? m[1] : fallback;
+diff --git a/tools/lakeside/test_lakeside_dirlight.cjs b/tools/lakeside/test_lakeside_dirlight.cjs
+index 7ddb1f7..f25915a 100644
+--- a/tools/lakeside/test_lakeside_dirlight.cjs
++++ b/tools/lakeside/test_lakeside_dirlight.cjs
+@@ -12,12 +12,12 @@ const R=D.LAKESIDE_R5H3_LIGHT_LINEAR,b8=c=>c.map(v=>Math.round(v*255));
+ assert.deepEqual([...R.sun],L('Sun').colorLinear,'r5h3 = json Sun colour');assert.deepEqual([...P.sunColorLinear],[...R.sun],'param is linear');assert.deepEqual(D.lakesideCocosLightColor(P.sunColorLinear),b8(R.sun),'Cocos sun = json Sun (linear)');
+ assert.deepEqual(D.lakesideCocosLightColor(R.ambientSky),b8(R.ambientSky));assert.deepEqual(D.lakesideCocosLightColor(R.ambientGround),b8(R.ambientGround));
+ for(let i=0;i<101;i++){const x=i/100;assert.equal(D.lakesideCocosLightColor([x,x,x])[0],Math.round(x*255),'linear -> byte '+x);}
+-assert.equal(P.sunIlluminanceScale,0.7,'r2 sun 0.7 x base (Grok Bot 0.7-0.8; emulator fit, device check)');
+-assert.deepEqual([...P.ambientSkyColorLinear],[0.0107,0.0656,0.1106]);assert.deepEqual([...P.ambientGroundColorLinear],[0.9095,0.83,0.4439]);assert(P.ambientGroundColorLinear[0]>P.ambientSkyColorLinear[0]*10,'r2 warm fill: ground warm, sky dim');
++assert.equal(P.sunIlluminanceScale,0.95,'r4 sun 0.95 x base (engine-camera r5h3 refit; r2 0.7)');
++assert.deepEqual([...P.ambientSkyColorLinear],[0.0107,0.0656,0.082]);assert.deepEqual([...P.ambientGroundColorLinear],[0.97,0.533,0.296]);assert(P.ambientGroundColorLinear[0]>P.ambientSkyColorLinear[0]*10,'r2 warm fill: ground warm, sky dim');
+ // v2: blue sky (r5h3 world ramp top stop), warm ground, bluer water, blue clear colour
+ const sky=R.ambientSky;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
+ const gr=R.ambientGround;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
+-assert.equal(P.ambientSkyIllumToSun,0.49,'r2: warm hemisphere fill 0.49 of base (v3.4 0.2; v3.3 0.75 compensated sRGB-as-linear bytes)');
++assert.equal(P.ambientSkyIllumToSun,0.236,'r4: hemisphere fill 0.236 of base (r2 0.49; v3.4 0.2; v3.3 0.75 compensated sRGB-as-linear bytes)');
+ const wt=P.waterTintLinear;assert(wt[2]>=wt[1]&&wt[1]>wt[0]&&wt.every(c=>c>=0&&c<=1),'water tint cyan-blue, a valid Color');assert.deepEqual([...P.waterGlbs],['LK_lake.glb']);
+ assert.deepEqual([...P.clearColorLinear],[...sky],'clear colour = sky stop');assert.deepEqual(D.linearToSrgb8(P.clearColorLinear),[28,143,184]);
+ assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index 4024f99..16ed791 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -7,9 +7,10 @@ const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
+ // Voice Bot verified values
+ assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.lakesideCocosLightColor(D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround),[255,139,37],"v3.4 Cocos bytes = linear x 255");
+ assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
+-assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
++// r4 refit: reflected sky is no longer the r5h3 dusk beige/orange (squared by Cocos = the sand look): olive shore horizon, blue low, lavender zenith
++assert.deepEqual([...P.waterSkyZenithLinear],[0.3,0.15,0.465]);assert.deepEqual([...P.waterSkyLowLinear],[0.173,0.221,0.481]);assert.deepEqual([...P.waterSkyHorizonLinear],[0.204,0.297,0.003]);
+ assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise===0,'v3.3: streak noise off (its x-striped sin made moving bands)');
+-assert.deepEqual([...P.fogColorSrgb],[215,170,150]);assert.equal(P.fogStart,60);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
++assert.deepEqual([...P.fogColorSrgb],[231,165,125]);assert.equal(P.fogStart,60);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
+ const end=D.lakesideFogEnd();assert.equal(end,235);
+ const amount=d=>Math.min(1,Math.max(0,(d-P.fogStart)/(end-P.fogStart)));assert(Math.abs(amount(130)-0.4)<1e-9);
+ // board / near shore clear: farthest board corner and near-shore props are < fogStart from the board camera
+@@ -42,13 +43,17 @@ assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material'
+ assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
+ assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
+ // v3.2 tint: near-white (0.9,1,1) multiplies the r5h3 vertex colours (kept: shallow shore / deep middle); sky-reflection floor 0.25
+-assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
+-assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= v_color\.rgb;/.test(fx)&&!/SRGBToLinear\(v_color/.test(fx),'glTF COLOR_0 is linear: no second decode in the shader');
++// r4: tint saturation fitted on the engine-camera reference; still a multiply on the r5h3 vertex colours (shallow shore / deep middle kept)
++assert.deepEqual([...P.waterTintLinear],[0.714,0.858,1.0]);assert(Math.min(...P.waterTintLinear)>=0.6,'no flattening of vertex colours');
++// effect defaults = the day values the shared writers put on the copy (shown if a setProperty were ever missed)
++{const day=[['waterTint',[...P.waterTintLinear,1]],['skyZenith',[...P.waterSkyZenithLinear,1]],['skyLow',[...P.waterSkyLowLinear,1]],['skyHorizon',[...P.waterSkyHorizonLinear,1]],['fresnelParams',[P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength]],['specParams',[P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor]],['waveParams',[P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0]],['lightParams',[P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd]]];
++ for(const [k,v] of day){const mm=fx.match(new RegExp('\\n\\s+'+k+':\\s+\\{ value: \\[([^\\]]*)\\]'));assert(mm,k);assert.deepEqual(mm[1].split(',').map(Number),v,k+' effect default = day param');}}
++assert(/albedo \*= v_color\.rgb;/.test(fx)&&!/SRGBToLinear\(v_color/.test(fx),'glTF COLOR_0 is linear: no second decode in the shader');
+ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
+-assert.equal(P.waterSkyReflectFloor,0.31);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.31\]/.test(fx));
++assert.equal(P.waterSkyReflectFloor,0.323);
+ assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
+ assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
+-assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(P.waterTintLinear),[230,255,255],'r2: fallback mainColor (legacy albedo uniform, linear) = tint x 255, was sRGB 243/255/255');
++assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(P.waterTintLinear),[182,219,255],'r2: fallback mainColor (legacy albedo uniform, linear) = tint x 255 (r4 tint 0.714/0.858/1)');
+ // fog modes + URL override (guarded for WeChat)
+ assert.equal(D.LAKESIDE_FOG_MODE,'layered');
+ assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');
+@@ -60,12 +65,14 @@ assert(/const fogMode=lakesideFogModeFromEnv\(\);/.test(bg)&&/if\(fogMode==='off
+ // layered: slab above water, below mountains/trees; fog factor per 3.8.8 LayeredFog()
+ const Lf=D.LAKESIDE_LAYERED_FOG;assert(Lf.fogTop>0.3&&Lf.fogTop<5.7&&Lf.fogTop<cam[1]);
+ const lay=(Dh,y)=>{if(y>=Lf.fogTop)return 0;const dD=Dh/Lf.fogAtten*2,dY=(Lf.fogTop-y)/Lf.fogRange*2;return 1-Math.exp(-Math.sqrt(1+(dD/dY)**2)*dY*dY/2);};
+-assert(lay(77,0)>0.3&&lay(77,0)<0.45&&lay(20,0)<0.15&&lay(85,2)===0);
++// r4 refit: thicker (top 4.16) but much softer slab (range 74, atten 59.2): ~14% at the far shore, ~4% at 20 m, none above the top
++assert(lay(77,0)>0.1&&lay(77,0)<0.2&&lay(20,0)<0.05&&lay(85,Lf.fogTop)===0&&lay(85,6)===0);
+ assert(/fog\.fogTop=L\.fogTop;fog\.fogRange=L\.fogRange;fog\.fogAtten=L\.fogAtten;/.test(bg));
+ // v3.3 near water: water-only light scales + dimmer reflected sky (floor and tint unchanged); default fog layered; waves fade with distance
+ // v3.4 (VB): refit under the linear lights (dirlight test) on the Mac-calibrated emulator: near water 58/152/148 vs r5h3 66/152/146
+-assert.equal(P.waterMainLightScale,1.37);assert.equal(P.waterAmbientScale,1.85);assert.equal(P.waterSkyStrength,0.35);
+-assert(/lightParams:\s+\{ value: \[1\.37, 1\.85, 12\.0, 35\.0\]/.test(fx),'effect defaults = params (fallback if setProperty fails)');
++// r4 refit (r3 1.37 / 1.85 / 0.35)
++assert.equal(P.waterMainLightScale,2.51);assert.equal(P.waterAmbientScale,2.87);assert.equal(P.waterSkyStrength,0.387);
++assert(/lightParams:\s+\{ value: \[2\.51, 2\.87, 12\.0, 35\.0\]/.test(fx),'effect defaults = params (fallback if setProperty fails)');
+ assert(/water\.setProperty\('lightParams',new Vec4\(P\.waterMainLightScale,P\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\)/.test(bg));
+ assert(/vec3 col = albedo \* \(lit \* NL \/ 3\.14159265 \* lightParams\.x \+ amb \* lightParams\.y\);/.test(fx),'diffuse main x, ambient y');
+ assert(/col \+= lit \* pow\(max\(dot\(N, H\), 0\.0\), ex\) \* specParams\.y \* F;/.test(fx),'streak keeps the full main light');
+-- 
+2.47.3
+

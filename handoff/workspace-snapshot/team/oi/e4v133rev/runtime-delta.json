@@ -1,0 +1,86 @@
+[
+  {
+    "path": "runtime/effects/meadow-grass-wind.effect",
+    "status": "unchanged",
+    "bytes": 9486,
+    "sha256": "90b2b8e2155b3105ae7e4887f4f472cd96f500a28e699fa95dd33d782fcd047d"
+  },
+  {
+    "path": "runtime/effects/sky-unlit.effect",
+    "status": "changed",
+    "bytes": 9064,
+    "sha256": "a0b6fbfd3d7329c0c17d3088156f1a435d06dfbe1cd36f13b0171ee46b61afb8"
+  },
+  {
+    "path": "runtime/scripts/BakedGroundTexture.ts",
+    "status": "changed",
+    "bytes": 5397,
+    "sha256": "2cda952078df8f980265978cd80d1e81a6cb0971ee4742e5147d4da25e4e8612"
+  },
+  {
+    "path": "runtime/scripts/GrassFallback.ts",
+    "status": "unchanged",
+    "bytes": 8987,
+    "sha256": "29fd6c3daaab650085bd859a502e9870d6d1b6df7260a6eb9c9c8d3bc49b928e"
+  },
+  {
+    "path": "runtime/scripts/GrassWindQuality.ts",
+    "status": "unchanged",
+    "bytes": 21171,
+    "sha256": "210726b429f490f2db93d881b064fdaedc149638af20956c123f4155acf3c30e"
+  },
+  {
+    "path": "runtime/scripts/MeadowInstancer.ts",
+    "status": "unchanged",
+    "bytes": 18512,
+    "sha256": "d5f3651e43568c423b63708dbffa1c0c1697f047b7a98f154ebe34353e48f9e1"
+  },
+  {
+    "path": "runtime/scripts/SkyFollowCamera.ts",
+    "status": "unchanged",
+    "bytes": 5790,
+    "sha256": "ff59f017a8dec815675cd13f457f4ffa9dea9da3ad4c4731f338ccb275ec34ee"
+  },
+  {
+    "path": "runtime/scripts/SkyNightTexture.ts",
+    "status": "new",
+    "bytes": 9988,
+    "sha256": "b7bd2e8b32cff605bbef4b9447353e0bb80961f0a4836b285f55e03b725f9a55"
+  },
+  {
+    "path": "runtime/textures/tex_meadow_sky_night_1024x512.png",
+    "status": "new",
+    "bytes": 332327,
+    "sha256": "2cbc0e9e92df842d21ece97ac9cb9b5322028a3fc00ff948a9f96872ba315e6d"
+  },
+  {
+    "path": "runtime/textures-meta/tex_meadow_ground_grassoff_1024.jpg.meta",
+    "status": "unchanged",
+    "bytes": 1130,
+    "sha256": "3ab8b98b64a574e06531635a58a0bd101f7d1d76b4d2dda385c3f9c7f9ae119a"
+  },
+  {
+    "path": "runtime/textures-meta/tex_meadow_sky_2048x1024.jpg.meta",
+    "status": "unchanged",
+    "bytes": 1107,
+    "sha256": "67f8753a9569460340791721080aaba4039cb4b6f2d2acbbac7aecaeba6ce1a1"
+  },
+  {
+    "path": "runtime/textures-meta/tex_meadow_sky_night_1024x512.png.meta",
+    "status": "new",
+    "bytes": 1096,
+    "sha256": "55c5600d2a9733bc069126cb1a4884efe8e872543b8672f9444338814d71d03c"
+  },
+  {
+    "path": "runtime/textures-meta/tex_meadow_sky_night_2048x1024.png.meta",
+    "status": "unchanged",
+    "bytes": 1115,
+    "sha256": "829ecf3e8812676cae35384efa8d907b391b464c432ddaa34fc63b717efb6c96"
+  },
+  {
+    "path": "runtime/textures-meta/texture-compress-presets.e4.json",
+    "status": "unchanged",
+    "bytes": 2989,
+    "sha256": "c21f7c02089f8d6838af8cfda68ee616958e859c626063c49fd68083b1b50d65"
+  }
+]

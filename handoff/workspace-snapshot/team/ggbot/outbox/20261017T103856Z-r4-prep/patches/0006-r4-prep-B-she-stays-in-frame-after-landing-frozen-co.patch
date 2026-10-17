@@ -1,0 +1,213 @@
+From 2363c3755e701277a7a4960898f3e381de3c0006 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 17:56:18 +0800
+Subject: [PATCH 6/9] =?UTF-8?q?r4-prep=20B:=20she=20stays=20in=20frame=20a?=
+ =?UTF-8?q?fter=20landing=20(frozen=20copy=20of=20her=20in=20the=20?=
+ =?UTF-8?q?=E9=A3=8E=E9=93=83=E6=B9=96=E7=95=94=20board=20background)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The board camera only draws LAKESIDE_LAYER and WorldFlow hides her for the level, so she vanished at the swap.
+The board lease now mounts a copy of her (taken at lease creation, after the landing hook: she has stopped) in
+the board scenery at journeyScene^-1 x her world transform = the spot where she landed, same joint pose,
+animation/scripts off, board layer. Her own renderers only (the original is hidden during the level); freed
+exactly once with the lease. Meadow/sky-city boards never showed her (own-layer cameras). Test:
+tools/lakeside/test_lakeside_board_guest.cjs (lakeside-board-guest).
+---
+ .../scripts/region/LakesideBoardBackground.ts | 11 ++--
+ .../scripts/region/LakesideBoardGuest.ts      | 36 ++++++++++++
+ .../scripts/region/LakesideBoardGuest.ts.meta |  9 +++
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_board_guest.cjs  | 58 +++++++++++++++++++
+ 5 files changed, 111 insertions(+), 4 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideBoardGuest.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideBoardGuest.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_board_guest.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index ff6446b..0c4024a 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -7,6 +7,7 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+ import type {Cancellation} from '../world-r1/WorldFlowCore';
+ import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
++import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
+ import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+@@ -167,7 +168,7 @@ export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
+ /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
+ export function logLakesideFailure(step:string,stageId:string,error:unknown){try{console.error('[QF_LAKESIDE] '+JSON.stringify({event:'load-failed',stageId,step,error:String((error as any)?.message??error)}));}catch{}}
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,selection,token})=>{
+- let merged:MergeOut|null=null;
++ let merged:MergeOut|null=null,guest:LakesideGuest|null=null;
+  let step='start',rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
+@@ -204,7 +205,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   try{if(!reapplyLakesideJourney()&&s0.mode!==lakesideDayNightMode())(globalThis as any).__worldDayNight?.reapply?.();}catch{}};
+  /** r2: day/night toggle while the board shows -> the lakeside look for the new mode (the world has just written the island's). */
+  const offDayNight=onDayNightChange(()=>{if(visible&&!dead)applyDir();});
+- const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
++ const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+@@ -228,7 +229,9 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+     for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
+    waterTinted=tinted.size;}
+   step='static-merge';if(lakesideStaticMergeFromEnv()){const water=new Set(list.filter(i=>(LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));merged=mergeLakesideStatic(scenery,n=>water.has(n.name));}
+-  setLayer(scenery);step='lights-camera';
++  setLayer(scenery);
++  step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);/* r4-prep B: she stays in frame after landing (frozen copy at her landed spot) */
++  step='lights-camera';
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+    const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
+@@ -240,7 +243,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null,guest:guest?guest.renderers:0}),
+    dispose,
+   };
+  }catch(error){dispose();
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts b/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts
+new file mode 100644
+index 0000000..dc2c7c0
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts
+@@ -0,0 +1,36 @@
++import {Component,MeshRenderer,Node,Quat,SkeletalAnimation,Vec3,director,instantiate,isValid} from 'cc';
++/** r4-prep B (lead): she stays in frame after landing. While 风铃湖畔's board shows, the world layers (and she) are off and only the
++ *  board camera (LAKESIDE_LAYER) draws, so she vanished from the board background. The board lease now carries a frozen copy of
++ *  her: taken when the lease is made (enterLevel, after the landing hook: she has stopped), placed in the board scenery at the
++ *  spot where she stands in the journey copy (local = journeyScene⁻¹ × her world transform; the board scenery is the same
++ *  r5h3 scene, so board camera + copy = the journey's view of her), on the board layer, joints as they are (same pose), every
++ *  animation/script component off (nothing moves her). Her own renderers only: the original is hidden by WorldFlow during the
++ *  level, so the draw count is hers, not doubled. Destroyed exactly once with the lease. Lakeside only: meadow / sky-city board
++ *  cameras see their own layer and never showed her (by design there). */
++export const LAKESIDE_GUEST_SOURCE='FLOW_REFERENCE_PLACEHOLDER_NOT_B';
++export const LAKESIDE_GUEST_JOURNEY_SCENE='LakesideJourneyScene';
++export const LAKESIDE_GUEST_NODE='LakesideBoardGuest';
++export type LakesideGuest={node:Node;renderers:number;dispose():void};
++function findDeep(n:Node|null|undefined,name:string):Node|null{if(!n)return null;if(n.name===name)return n;const k=n.children;for(let i=0;i<k.length;i++){const hit=findDeep(k[i],name);if(hit)return hit;}return null;}
++function setLayer(n:Node,layer:number){n.layer=layer;const k=n.children;for(let i=0;i<k.length;i++)setLayer(k[i],layer);}
++/** Pure: her transform in the lakeside scene's own frame from her world transform and the journey scene's world transform (scale 1). */
++export function lakesideGuestLocal(scenePos:Readonly<Vec3>,sceneRot:Readonly<Quat>,pos:Readonly<Vec3>,rot:Readonly<Quat>):{pos:Vec3;rot:Quat}{
++ const inv=new Quat();Quat.invert(inv,sceneRot);const d=new Vec3(pos.x-scenePos.x,pos.y-scenePos.y,pos.z-scenePos.z),p=new Vec3();Vec3.transformQuat(p,d,inv);
++ const r=new Quat();Quat.multiply(r,inv,rot);return {pos:p,rot:r};}
++/** Mounts her copy under `scenery` (the board lease's scene root); null when she or the journey scene is not there (no copy,
++ *  board unchanged). Never throws. */
++export function mountLakesideGuest(scenery:Node,layer:number):LakesideGuest|null{
++ let copy:Node|null=null;
++ try{const scene=director.getScene(),src=scene?scene.getChildByName(LAKESIDE_GUEST_SOURCE):null,journey=findDeep(scene as any,LAKESIDE_GUEST_JOURNEY_SCENE);
++  if(!src||!isValid(src,true)||!journey||!isValid(journey,true)||!isValid(scenery,true))return null;
++  const local=lakesideGuestLocal(journey.worldPosition,journey.worldRotation,src.worldPosition,src.worldRotation),scale=src.worldScale;
++  copy=instantiate(src) as Node;copy.name=LAKESIDE_GUEST_NODE;
++  // before it enters the scene: nothing plays or ticks (joint nodes keep the pose they were copied with)
++  const anims=copy.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<anims.length;i++){anims[i].playOnLoad=false;(anims[i] as any).useBakedAnimation=false;anims[i].enabled=false;}
++  const comps=copy.getComponentsInChildren(Component);for(let i=0;i<comps.length;i++)if(!(comps[i] instanceof MeshRenderer))comps[i].enabled=false;
++  setLayer(copy,layer);copy.setPosition(local.pos);copy.setRotation(local.rot);copy.setScale(scale.x,scale.y,scale.z);copy.active=true;scenery.addChild(copy);
++  const renderers=copy.getComponentsInChildren(MeshRenderer).length,node=copy;let dead=false;
++  try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest',renderers,pos:[local.pos.x,local.pos.y,local.pos.z]}));}catch{}
++  return {node,renderers,dispose(){if(dead)return;dead=true;if(isValid(node,true))node.destroy();}};
++ }catch(error){try{if(copy&&isValid(copy,true))copy.destroy();}catch{}try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest-skipped',error:String((error as any)?.message||error)}));}catch{}return null;}
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts.meta b/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts.meta
+new file mode 100644
+index 0000000..8897296
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "f88033f9-aa0c-4f37-bede-7d93b934b82b",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 6c656da..0e310d3 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -70,6 +70,7 @@ const tests=[
+  ['lakeside-sky-follow','tools/lakeside/test_lakeside_sky_follow.cjs'],
+  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
+  ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],
++ ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],
+  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
+diff --git a/tools/lakeside/test_lakeside_board_guest.cjs b/tools/lakeside/test_lakeside_board_guest.cjs
+new file mode 100644
+index 0000000..e2b3f80
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_board_guest.cjs
+@@ -0,0 +1,58 @@
++// r4-prep B (lead): she stays in frame after landing — the 风铃湖畔 board background carries a frozen copy of her at the spot
++// where she stands in the journey copy (same pose, board layer, nothing animating), her own renderers only, destroyed once.
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++class Vec3{constructor(x=0,y=0,z=0){Object.assign(this,{x,y,z});}clone(){return new Vec3(this.x,this.y,this.z);}
++ static transformQuat(o,a,q){const ix=q.w*a.x+q.y*a.z-q.z*a.y,iy=q.w*a.y+q.z*a.x-q.x*a.z,iz=q.w*a.z+q.x*a.y-q.y*a.x,iw=-q.x*a.x-q.y*a.y-q.z*a.z;
++  o.x=ix*q.w+iw*-q.x+iy*-q.z-iz*-q.y;o.y=iy*q.w+iw*-q.y+iz*-q.x-ix*-q.z;o.z=iz*q.w+iw*-q.z+ix*-q.y-iy*-q.x;return o;}}
++class Quat{constructor(x=0,y=0,z=0,w=1){Object.assign(this,{x,y,z,w});}clone(){return new Quat(this.x,this.y,this.z,this.w);}
++ static invert(o,a){o.x=-a.x;o.y=-a.y;o.z=-a.z;o.w=a.w;return o;}
++ static multiply(o,a,b){const x=a.w*b.x+a.x*b.w+a.y*b.z-a.z*b.y,y=a.w*b.y+a.y*b.w+a.z*b.x-a.x*b.z,z=a.w*b.z+a.z*b.w+a.x*b.y-a.y*b.x,w=a.w*b.w-a.x*b.x-a.y*b.y-a.z*b.z;o.x=x;o.y=y;o.z=z;o.w=w;return o;}
++ static yaw(deg){const t=deg*Math.PI/360;return new Quat(0,Math.sin(t),0,Math.cos(t));}}
++let destroyed=0;
++class Component{constructor(){this.enabled=true;}}class MeshRenderer extends Component{}class SkeletalAnimation extends Component{constructor(){super();this.playOnLoad=true;this.useBakedAnimation=false;}}class Script extends Component{}
++class Node{constructor(name){this.name=name;this.children=[];this.parent=null;this.layer=1;this.active=true;this.comps=[];this.valid=true;this.position=new Vec3();this.rotation=new Quat();this.scale=new Vec3(1,1,1);}
++ get worldPosition(){if(!this.parent)return this.position.clone();const p=new Vec3();Vec3.transformQuat(p,this.position,this.parent.worldRotation);const b=this.parent.worldPosition;return new Vec3(b.x+p.x,b.y+p.y,b.z+p.z);}
++ get worldRotation(){if(!this.parent)return this.rotation.clone();const q=new Quat();return Quat.multiply(q,this.parent.worldRotation,this.rotation);}
++ get worldScale(){return this.scale.clone();}
++ addChild(c){c.parent=this;this.children.push(c);}getChildByName(n){return this.children.find(c=>c.name===n)||null;}
++ addComponent(C){const c=new C();c.node=this;this.comps.push(c);return c;}
++ getComponentsInChildren(C){const out=[];const walk=n=>{for(const c of n.comps)if(c instanceof C)out.push(c);n.children.forEach(walk);};walk(this);return out;}
++ setPosition(p){this.position=new Vec3(p.x,p.y,p.z);}setRotation(q){this.rotation=new Quat(q.x,q.y,q.z,q.w);}setScale(x,y,z){this.scale=new Vec3(x,y,z);}
++ destroy(){this.valid=false;destroyed++;if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this);}}
++function instantiate(n){const c=new Node(n.name);c.layer=n.layer;c.active=n.active;c.position=n.position.clone();c.rotation=n.rotation.clone();c.scale=n.scale.clone();
++ for(const k of n.comps){const o=Object.assign(Object.create(Object.getPrototypeOf(k)),k);o.node=c;c.comps.push(o);}for(const ch of n.children)c.addChild(instantiate(ch));return c;}
++let scene;const cc={Component,MeshRenderer,SkeletalAnimation,Node,Quat,Vec3,instantiate,director:{getScene:()=>scene},isValid:o=>!!o&&o.valid!==false};
++const out=ts.transpileModule(fs.readFileSync(S+'region/LakesideBoardGuest.ts','utf8'),{compilerOptions:{module:1,target:7}}).outputText;
++const G={};vm.runInThisContext('(function(exports,require){'+out+'\n})')(G,s=>s==='cc'?cc:null);
++const run=(n,f)=>{f();console.log('PASS',n);};const near=(a,b)=>Math.abs(a-b)<1e-9;
++function world(){scene=new Node('scene');const journey=new Node('RegionJourney-lakeside');scene.addChild(journey);const js=new Node('LakesideJourneyScene');journey.addChild(js);
++ js.position=new Vec3(6.5,-0.58,44.2);js.rotation=Quat.yaw(180);
++ const ref=new Node(G.LAKESIDE_GUEST_SOURCE);scene.addChild(ref);const girl=new Node('B_PASS2G_CURSOR');ref.addChild(girl);girl.addComponent(SkeletalAnimation);
++ const body=new Node('body');girl.addChild(body);body.addComponent(MeshRenderer);const apron=new Node('apron');girl.addChild(apron);apron.addComponent(MeshRenderer);const hip=new Node('hip');girl.addChild(hip);hip.rotation=new Quat(.1,0,0,Math.sqrt(1-.01));
++ ref.addComponent(Script);
++ // she stands at lakeside-local (1.2, 0, 2.5) facing local yaw 30 (world = journey frame x local)
++ const lp=new Vec3(1.2,0,2.5),wp=new Vec3();Vec3.transformQuat(wp,lp,js.rotation);ref.position=new Vec3(wp.x+6.5,wp.y-0.58,wp.z+44.2);ref.rotation=Quat.multiply(new Quat(),js.rotation,Quat.yaw(30));
++ ref.active=false/* WorldFlow hid her for the level */;
++ const rig=new Node('LakesideLiveScene');scene.addChild(rig);const scenery=new Node('LakesideScenery');rig.addChild(scenery);return {ref,scenery,hip,girl};}
++run('placement: copy local = journey scene⁻¹ × her world transform (the same spot in the board copy of the scene), scale kept',()=>{
++ const w=world(),g=G.mountLakesideGuest(w.scenery,1<<20);assert(g);const c=w.scenery.getChildByName(G.LAKESIDE_GUEST_NODE);assert.equal(c,g.node);
++ assert(near(c.position.x,1.2)&&near(c.position.y,0)&&near(c.position.z,2.5),JSON.stringify(c.position));const q=Quat.yaw(30);assert(near(Math.abs(c.rotation.y),Math.abs(q.y))&&near(Math.abs(c.rotation.w),Math.abs(q.w)));
++ assert.equal(c.active,true,'shown although the original is hidden');});
++run('pose: joints copied as they are; animation off, playOnLoad off, scripts off, renderers on; whole copy on the board layer',()=>{
++ const w=world(),g=G.mountLakesideGuest(w.scenery,1<<20),c=g.node;const hip=c.getChildByName('B_PASS2G_CURSOR').getChildByName('hip');assert.deepEqual(hip.rotation,w.hip.rotation);
++ const a=c.getComponentsInChildren(SkeletalAnimation);assert.equal(a.length,1);assert.equal(a[0].enabled,false);assert.equal(a[0].playOnLoad,false);assert.equal(a[0].useBakedAnimation,false);
++ assert.equal(c.getComponentsInChildren(Script)[0].enabled,false);const r=c.getComponentsInChildren(MeshRenderer);assert.equal(r.length,2);assert(r.every(x=>x.enabled));assert.equal(g.renderers,2,'her own renderers only');
++ const all=[];const walk=n=>{all.push(n);n.children.forEach(walk);};walk(c);assert(all.every(n=>n.layer===1<<20));
++ assert.equal(w.ref.layer,1,'original untouched');assert.equal(w.ref.active,false);assert.equal(w.girl.getComponentsInChildren(SkeletalAnimation)[0].enabled,true);});
++run('free once: dispose destroys the copy exactly once; missing her / journey scene → null, nothing added',()=>{
++ const w=world(),g=G.mountLakesideGuest(w.scenery,1<<20);destroyed=0;g.dispose();g.dispose();assert.equal(destroyed,1);assert.equal(w.scenery.children.length,0);
++ const w2=world();w2.ref.name='other';assert.equal(G.mountLakesideGuest(w2.scenery,1<<20),null);assert.equal(w2.scenery.children.length,0);
++ const w3=world();scene.children[0].children=[];assert.equal(G.mountLakesideGuest(w3.scenery,1<<20),null);});
++run('wiring: board lease mounts her after the layer pass, frees her in dispose (once), reports her renderer count',()=>{
++ const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
++ assert.match(bg,/setLayer\(scenery\);\n  step='guest';guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);/);assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);if\(guest\)\{guest\.dispose\(\);guest=null;\}/);
++ assert.match(bg,/guest:guest\?guest\.renderers:0/);
++ // other regions: their board cameras only see their own layer (by design no girl there)
++ for(const f of ['region/MeadowBoardBackground.ts','region/SkycityBoardBackground.ts']){const t=fs.readFileSync(S+f,'utf8');assert.doesNotMatch(t,/mountLakesideGuest/);}});
+-- 
+2.47.3
+

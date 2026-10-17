@@ -1,0 +1,28 @@
+{
+ "cine_open_stand": {
+  "max_bone_pos_diff_mm": 0.0,
+  "max_bone_rot_diff_deg": 0.213,
+  "max_ang_vel_deg_per_frame": {
+   "before": 10.246,
+   "after": 10.246
+  },
+  "max_ang_accel_deg_per_frame2 (pop check)": {
+   "before": 6.332,
+   "after": 6.332
+  },
+  "per_bone_max_vel_after_minus_before": {}
+ },
+ "cine_open_turn": {
+  "max_bone_pos_diff_mm": 0.0,
+  "max_bone_rot_diff_deg": 0.3943,
+  "max_ang_vel_deg_per_frame": {
+   "before": 14.282,
+   "after": 14.282
+  },
+  "max_ang_accel_deg_per_frame2 (pop check)": {
+   "before": 10.408,
+   "after": 10.408
+  },
+  "per_bone_max_vel_after_minus_before": {}
+ }
+}

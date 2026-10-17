@@ -1,0 +1,102 @@
+{
+  "blend_sha256": "7652fb01b885b9b4f3d155d8aa2f58b535a346324febf0c8871d3cf01ee6c0e2",
+  "rows": [
+    {
+      "object": "B_ANATOMICAL_VERTICAL_SLENDER_R5",
+      "world_matrix": [
+        [
+          1.061164379119873,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.061164379119873,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.061164379119873,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "parent": "B_SINGLE_WORLD_ROOT_SOURCE_K",
+      "body_npz_max_world_m": 1.2121908083293178e-07
+    },
+    {
+      "object": "B_YELLOW_PROOF_MIDSURFACE",
+      "world_matrix": [
+        [
+          1.061164379119873,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.061164379119873,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.061164379119873,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "parent": "B_SINGLE_WORLD_ROOT_SOURCE_K",
+      "relative_cache_path": "//B_YELLOW_PROOF_MIDSURFACE.mdd",
+      "cache_sha256": "e2cfaa4c9c5a503aabf06e182ce93a61511c7b742ddb1e140fdd0b7034cee914",
+      "same_bytes_as_previous_R4": true
+    },
+    {
+      "object": "B_APRON_PROOF_MIDSURFACE",
+      "world_matrix": [
+        [
+          1.061164379119873,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.061164379119873,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.061164379119873,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "parent": "B_SINGLE_WORLD_ROOT_SOURCE_K",
+      "relative_cache_path": "//B_APRON_PROOF_MIDSURFACE.mdd",
+      "cache_sha256": "5b55476b1eff2017480c7491d0f013febb77e1935ab257b8165a83103b093a83",
+      "same_bytes_as_previous_R4": true
+    }
+  ]
+}

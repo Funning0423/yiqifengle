@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-10-10T00:06:33.920Z",
+  "frozen": "after all own CLI children exited, log tailers stopped and run.log closed",
+  "files": [
+    {
+      "path": "run.log",
+      "bytes": 2792,
+      "sha256": "61566fcf1b968c1438e7850b1971283b373dd2332c3a218a713f51a16a6b9750"
+    },
+    {
+      "path": "source-project.config.json",
+      "bytes": 101,
+      "sha256": "44d16e30a37434fd804bceb7c7567d6947a291a92fe65e156f4f44af53f5ffbb"
+    },
+    {
+      "path": "verdict-default/automator-console.json",
+      "bytes": 273,
+      "sha256": "88d9c030c4bd84b221fc0fe97b70f335e40a3869f879066699f2049d2f213b39"
+    },
+    {
+      "path": "verdict-default/automator-exceptions.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "verdict-default/build-copy-SHA256SUMS.txt",
+      "bytes": 236,
+      "sha256": "40c9aeeeb06ca3b013cf4b718853e0be99d1ca447ce42271f472b689b61f1e9d"
+    },
+    {
+      "path": "verdict-default/cli-output.json",
+      "bytes": 920,
+      "sha256": "c5d224310b5c202dd7bf130e5d53a567dc177b4dd670ded8293fcf60b40e1169"
+    },
+    {
+      "path": "verdict-default/console-transcript.txt",
+      "bytes": 1708,
+      "sha256": "9380f1c48ee3751249d8d8ae8853643efb3290da205f7fc6f8b7642638ea13cf"
+    },
+    {
+      "path": "verdict-default/finalizer-result.json",
+      "bytes": 651,
+      "sha256": "496cf792f2adaff26cab1980ff9142b2240e2a6216c9cdbc22e15adaca05cdfe"
+    },
+    {
+      "path": "verdict-default/project.config.json.as-opened",
+      "bytes": 174,
+      "sha256": "b44b7da412a60e178dcee89556a74b848f3c90472749a4f31ae73bc9f31e7820"
+    },
+    {
+      "path": "verdict-default/shim-buffer.json",
+      "bytes": 1067,
+      "sha256": "1db0f4a17da4edcf07ec7a0168a81ad22abfb619aa7b6b6c013613b9923f37e4"
+    },
+    {
+      "path": "verdict-default/weapplog-events.json",
+      "bytes": 602,
+      "sha256": "60a1fade687626f529f8ebc1f9f84451165d88e444c6d145a398ad82960270fb"
+    },
+    {
+      "path": "verdict-default/weapplog-tail.txt",
+      "bytes": 1740,
+      "sha256": "e30ccb6c5c6e4cb16dbc5216a0726926e14fd67e8c48f9f13b8684ea1971f086"
+    },
+    {
+      "path": "verdict.json",
+      "bytes": 8169,
+      "sha256": "420d2c7408b32932af34505ad8328ebef98ddc6dc8338bf3fe44580b288d9996"
+    }
+  ]
+}

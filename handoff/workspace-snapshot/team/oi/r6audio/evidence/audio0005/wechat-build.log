@@ -1,0 +1,1986 @@
+init **** success
+Arguments:
+  /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator: true
+  project: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project
+  build: configPath=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/tools/wechat-world-r6-audio-build-options.json
+  dev: false
+  home: /Users/<mac-user>/.CocosCreator
+ 
+[Package] metrics@1.0.0 enable
+[Package] menu@1.0.0 enable
+[Package] profile@1.0.0 enable
+[Package] project@1.0.6 enable
+[Package] messages@1.0.0 enable
+[Package] utils@1.0.0 enable
+[Package] program@1.0.4 enable
+[Package] tester@1.0.0 enable
+[Package] information@1.0.1 enable
+[Package] preferences@1.0.0 enable
+[EditorQuickCompiler]Version information looks good.
+Note, quick compiler does not get launched.
+engine:compile-builtin-engine-success (577ms)
+Load engine in /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine
+Register native engine in /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/native
+[Package] engine@1.0.12 enable
+[Package] programming@1.0.0 enable
+[Package] window@1.0.0 enable
+Request namespace: device-list
+[Package] device@1.0.1 enable
+[Package] ui-kit@1.0.1 enable
+[Package] asset-db@1.0.0 enable
+[Package] scene@1.0.3 enable
+[Package] server@1.0.0 enable
+[Package] preview@1.0.1 enable
+[Package] animator@1.0.0 enable
+[Build] internalRegister pkg(scene) in android platform success!
+[Package] builder@1.3.9 enable
+[Build] internalRegister pkg(scene) in google-play platform success!
+[Build] internalRegister pkg(scene) in ohos platform success!
+[Build] internalRegister pkg(scene) in harmonyos-next platform success!
+[Build] internalRegister pkg(scene) in huawei-agc platform success!
+[Build] internalRegister pkg(scene) in ios platform success!
+[Build] internalRegister pkg(scene) in windows platform success!
+[Build] internalRegister pkg(scene) in mac platform success!
+[Build] internalRegister pkg(scene) in linux platform success!
+[Build] internalRegister pkg(scene) in alipay-mini-game platform success!
+[Build] internalRegister pkg(scene) in taobao-creative-app platform success!
+[Build] internalRegister pkg(scene) in taobao-mini-game platform success!
+[Build] internalRegister pkg(scene) in bytedance-mini-game platform success!
+[Build] internalRegister pkg(scene) in oppo-mini-game platform success!
+[Build] internalRegister pkg(scene) in huawei-quick-game platform success!
+[Build] internalRegister pkg(scene) in migu-mini-game platform success!
+[Build] internalRegister pkg(scene) in honor-mini-game platform success!
+[Build] internalRegister pkg(scene) in vivo-mini-game platform success!
+[Build] internalRegister pkg(scene) in xiaomi-quick-game platform success!
+[Build] internalRegister pkg(scene) in baidu-mini-game platform success!
+[Build] internalRegister pkg(scene) in wechatgame platform success!
+[Build] internalRegister pkg(scene) in wechatprogram platform success!
+[Build] internalRegister pkg(scene) in link-sure platform success!
+[Build] internalRegister pkg(scene) in qtt platform success!
+[Build] internalRegister pkg(scene) in fb-instant-games platform success!
+[Build] internalRegister pkg(scene) in web-desktop platform success!
+[Build] internalRegister pkg(scene) in web-mobile platform success!
+[Build] internalRegister pkg(scene) in cocos-runtime platform success!
+[Build] internalRegister pkg(scene) in platform-example platform success!
+[Build] internalRegister pkg(scene) in online platform success!
+[Build] internalRegister pkg(scene) in xr-meta platform success!
+[Build] internalRegister pkg(scene) in xr-huaweivr platform success!
+[Build] internalRegister pkg(scene) in xr-pico platform success!
+[Build] internalRegister pkg(scene) in xr-rokid platform success!
+[Build] internalRegister pkg(scene) in xr-monado platform success!
+[Build] internalRegister pkg(scene) in xr-spaces platform success!
+[Build] internalRegister pkg(scene) in xr-seed platform success!
+[Build] internalRegister pkg(scene) in ar-android platform success!
+[Build] internalRegister pkg(scene) in ar-ios platform success!
+[Build] internalRegister pkg(scene) in xr-gsxr platform success!
+[Build] internalRegister pkg(scene) in xr-yvr platform success!
+[Build] internalRegister pkg(scene) in xr-htc platform success!
+[Build] internalRegister pkg(scene) in xr-iqiyi platform success!
+[Build] internalRegister pkg(scene) in xr-skyworth platform success!
+[Build] internalRegister pkg(scene) in xr-ffalcon platform success!
+[Build] internalRegister pkg(scene) in xr-nreal platform success!
+[Build] internalRegister pkg(scene) in xr-inmo platform success!
+[Build] internalRegister pkg(scene) in xr-lenovo platform success!
+[Build] internalRegister pkg(scene) in android-hmi platform success!
+[Build-plugin] register pkg scene: 68ms
+Builder PluginManager init: 71ms
+[Package] shortcuts@1.0.1 enable
+Preview import map: {
+  "imports": {
+    "cc": "cce:/internal/x/cc",
+    "cc/env": "cc/editor/populate-internal-constants",
+    "cce.env": "cc/editor/populate-internal-constants",
+    "cc/userland/macro": "./userland/macro"
+  }
+}
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1434: Unexpected keyword or identifier.
+@cocos/rollup-plugin-typescript TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[Package] animation-graph@1.0.0 enable
+[Package] about@1.0.0 enable
+[Package] assets@1.0.0 enable
+[Package] console@1.0.0 enable
+[Package] crash-reporter@1.0.0 enable
+[Package] extension@3.1.4 enable
+[Package] feedback@1.0.0 enable
+[Package] hierarchy@1.0.0 enable
+[Package] inspector@1.0.0 enable
+[Package] light-probe@1.0.4 enable
+[Package] lightmap@1.0.4 enable
+[Package] node-library@1.0.1 enable
+[Package] package-asset@1.0.3 enable
+[Package] process@1.0.0 enable
+[Package] reference-image@1.0.0 enable
+[Package] reflection-probe@1.0.4 enable
+[Package] engine-extends@1.0.0 enable
+[Package] adsense-h5g-plugin@1.0.1 enable
+[Build] internalRegister pkg(adsense-h5g-plugin) in android platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in google-play platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ohos platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in harmonyos-next platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in huawei-agc platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ios platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in windows platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in mac platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in linux platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in alipay-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in taobao-creative-app platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in taobao-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in bytedance-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in oppo-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in huawei-quick-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in migu-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in honor-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in vivo-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xiaomi-quick-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in baidu-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in wechatgame platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in wechatprogram platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in link-sure platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in qtt platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in fb-instant-games platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-desktop platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-mobile platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in cocos-runtime platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in platform-example platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in online platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-meta platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-huaweivr platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-pico platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-rokid platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-monado platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-spaces platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-seed platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ar-android platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ar-ios platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-gsxr platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-yvr platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-htc platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-iqiyi platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-skyworth platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-ffalcon platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-nreal platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-inmo platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-lenovo platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in android-hmi platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-desktop platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-mobile platform success!
+[Build-plugin] register pkg adsense-h5g-plugin: 5ms
+[Package] alipay-mini-game@1.0.2 enable
+[Build] internalRegister pkg(alipay-mini-game) in alipay-mini-game platform success!
+[Build-plugin] register pkg alipay-mini-game: 5ms
+[Package] android@1.0.1 enable
+[Build] internalRegister pkg(android) in android platform success!
+[Build] internalRegister pkg(android) in huawei-agc platform success!
+[Build-plugin] register pkg android: 8ms
+[Package] bytedance-mini-game@1.0.3 enable
+[Build] internalRegister pkg(bytedance-mini-game) in bytedance-mini-game platform success!
+[Build-plugin] register pkg bytedance-mini-game: 6ms
+[Package] certificate@1.0.0 enable
+[Package] channel-upload-tools@1.0.0 enable
+[Package] fb-instant-games@1.0.0 enable
+[Build] internalRegister pkg(fb-instant-games) in fb-instant-games platform success!
+[Build-plugin] register pkg fb-instant-games: 6ms
+[Package] google-play@1.0.1 enable
+[Build] internalRegister pkg(google-play) in google-play platform success!
+[Build-plugin] register pkg google-play: 6ms
+[Package] harmonyos-next@1.0.0 enable
+[Build] internalRegister pkg(harmonyos-next) in harmonyos-next platform success!
+[Build-plugin] register pkg harmonyos-next: 7ms
+[Package] honor-mini-game@1.0.0 enable
+[Build] internalRegister pkg(honor-mini-game) in honor-mini-game platform success!
+[Build-plugin] register pkg honor-mini-game: 5ms
+[Package] huawei-agc@1.0.0 enable
+[Build] internalRegister pkg(huawei-agc) in huawei-agc platform success!
+[Build-plugin] register pkg huawei-agc: 3ms
+[Package] huawei-quick-game@1.0.3 enable
+[Build] internalRegister pkg(huawei-quick-game) in huawei-quick-game platform success!
+[Build-plugin] register pkg huawei-quick-game: 7ms
+[Package] ios@1.0.1 enable
+[Build] internalRegister pkg(ios) in ios platform success!
+[Build-plugin] register pkg ios: 4ms
+[Package] linux@1.0.0 enable
+平台 linux 不存在，无法添加该平台
+[Package] mac@1.0.0 enable
+[Build] internalRegister pkg(mac) in mac platform success!
+[Build-plugin] register pkg mac: 7ms
+[Package] migu-mini-game@1.0.0 enable
+平台 migu-mini-game 不存在，无法添加该平台
+[Package] native@1.0.2 enable
+[Build] internalRegister pkg(native) in ios platform success!
+[Build] internalRegister pkg(native) in android platform success!
+[Build] internalRegister pkg(native) in huawei-agc platform success!
+[Build] internalRegister pkg(native) in windows platform success!
+[Build] internalRegister pkg(native) in mac platform success!
+[Build] internalRegister pkg(native) in google-play platform success!
+[Build] internalRegister pkg(native) in ohos platform success!
+[Build] internalRegister pkg(native) in harmonyos-next platform success!
+平台 linux 不存在，不支持向该平台注册任何内容
+[Build] internalRegister pkg(native) in xr-huaweivr platform success!
+[Build] internalRegister pkg(native) in xr-meta platform success!
+[Build] internalRegister pkg(native) in xr-pico platform success!
+[Build] internalRegister pkg(native) in xr-rokid platform success!
+[Build] internalRegister pkg(native) in xr-monado platform success!
+[Build] internalRegister pkg(native) in ar-android platform success!
+[Build] internalRegister pkg(native) in ar-ios platform success!
+[Build] internalRegister pkg(native) in xr-spaces platform success!
+[Build] internalRegister pkg(native) in xr-seed platform success!
+[Build] internalRegister pkg(native) in xr-gsxr platform success!
+[Build] internalRegister pkg(native) in xr-yvr platform success!
+[Build] internalRegister pkg(native) in xr-htc platform success!
+[Build] internalRegister pkg(native) in xr-iqiyi platform success!
+[Build] internalRegister pkg(native) in xr-skyworth platform success!
+[Build] internalRegister pkg(native) in xr-ffalcon platform success!
+[Build] internalRegister pkg(native) in xr-nreal platform success!
+[Build] internalRegister pkg(native) in xr-inmo platform success!
+[Build] internalRegister pkg(native) in xr-lenovo platform success!
+[Build-plugin] register pkg native: 8ms
+[Package] ohos@1.0.0 enable
+[Build] internalRegister pkg(ohos) in ohos platform success!
+[Build-plugin] register pkg ohos: 3ms
+[Package] oppo-mini-game@1.0.3 enable
+[Build] internalRegister pkg(oppo-mini-game) in oppo-mini-game platform success!
+[Build-plugin] register pkg oppo-mini-game: 5ms
+[Package] runtime-dev-tools@1.0.0 enable
+[Package] taobao-mini-game@1.0.1 enable
+[Build] internalRegister pkg(taobao-mini-game) in taobao-mini-game platform success!
+[Build-plugin] register pkg taobao-mini-game: 5ms
+[Package] vivo-mini-game@1.0.3 enable
+[Build] internalRegister pkg(vivo-mini-game) in vivo-mini-game platform success!
+[Build-plugin] register pkg vivo-mini-game: 4ms
+[Package] web-desktop@1.0.1 enable
+[Build] internalRegister pkg(web-desktop) in web-desktop platform success!
+[Build-plugin] register pkg web-desktop: 5ms
+[Package] web-mobile@1.0.1 enable
+[Build] internalRegister pkg(web-mobile) in web-mobile platform success!
+[Build-plugin] register pkg web-mobile: 4ms
+[Package] wechatgame@1.0.4 enable
+[Build] internalRegister pkg(wechatgame) in wechatgame platform success!
+[Build-plugin] register pkg wechatgame: 7ms
+[Package] wechatprogram@1.0.2 enable
+平台 wechatprogram 不存在，无法添加该平台
+[Package] windows@1.0.1 enable
+[Build-plugin] register pkg windows: 8ms
+[Package] xiaomi-quick-game@1.0.2 enable
+平台 xiaomi-quick-game 不存在，无法添加该平台
+[Package] cocos-service@3.0.9 enable
+[Build] internalRegister pkg(cocos-service) in android platform success!
+[Build] internalRegister pkg(cocos-service) in google-play platform success!
+[Build] internalRegister pkg(cocos-service) in ohos platform success!
+[Build] internalRegister pkg(cocos-service) in harmonyos-next platform success!
+[Build] internalRegister pkg(cocos-service) in huawei-agc platform success!
+[Build] internalRegister pkg(cocos-service) in ios platform success!
+[Build] internalRegister pkg(cocos-service) in windows platform success!
+[Build] internalRegister pkg(cocos-service) in mac platform success!
+[Build] internalRegister pkg(cocos-service) in linux platform success!
+[Build] internalRegister pkg(cocos-service) in alipay-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in taobao-creative-app platform success!
+[Build] internalRegister pkg(cocos-service) in taobao-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in bytedance-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in oppo-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in huawei-quick-game platform success!
+[Build] internalRegister pkg(cocos-service) in migu-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in honor-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in vivo-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in xiaomi-quick-game platform success!
+[Build] internalRegister pkg(cocos-service) in baidu-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in wechatgame platform success!
+[Build] internalRegister pkg(cocos-service) in wechatprogram platform success!
+[Build] internalRegister pkg(cocos-service) in link-sure platform success!
+[Build] internalRegister pkg(cocos-service) in qtt platform success!
+[Build] internalRegister pkg(cocos-service) in fb-instant-games platform success!
+[Build] internalRegister pkg(cocos-service) in web-desktop platform success!
+[Build] internalRegister pkg(cocos-service) in web-mobile platform success!
+[Build] internalRegister pkg(cocos-service) in cocos-runtime platform success!
+[Build] internalRegister pkg(cocos-service) in platform-example platform success!
+[Build] internalRegister pkg(cocos-service) in online platform success!
+[Build] internalRegister pkg(cocos-service) in xr-meta platform success!
+[Build] internalRegister pkg(cocos-service) in xr-huaweivr platform success!
+[Build] internalRegister pkg(cocos-service) in xr-pico platform success!
+[Build] internalRegister pkg(cocos-service) in xr-rokid platform success!
+[Build] internalRegister pkg(cocos-service) in xr-monado platform success!
+[Build] internalRegister pkg(cocos-service) in xr-spaces platform success!
+[Build] internalRegister pkg(cocos-service) in xr-seed platform success!
+[Build] internalRegister pkg(cocos-service) in ar-android platform success!
+[Build] internalRegister pkg(cocos-service) in ar-ios platform success!
+[Build] internalRegister pkg(cocos-service) in xr-gsxr platform success!
+[Build] internalRegister pkg(cocos-service) in xr-yvr platform success!
+[Build] internalRegister pkg(cocos-service) in xr-htc platform success!
+[Build] internalRegister pkg(cocos-service) in xr-iqiyi platform success!
+[Build] internalRegister pkg(cocos-service) in xr-skyworth platform success!
+[Build] internalRegister pkg(cocos-service) in xr-ffalcon platform success!
+[Build] internalRegister pkg(cocos-service) in xr-nreal platform success!
+[Build] internalRegister pkg(cocos-service) in xr-inmo platform success!
+[Build] internalRegister pkg(cocos-service) in xr-lenovo platform success!
+[Build] internalRegister pkg(cocos-service) in android-hmi platform success!
+[Build-plugin] register pkg cocos-service: 8ms
+[Package] im-plugin@3.0.14 enable
+[Package] placeholder@1.0.0 enable
+Start enter command build with options {"configPath":"/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/tools/wechat-world-r6-audio-build-options.json"}
+Read config from path /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/tools/wechat-world-r6-audio-build-options.json...
+wechatgame 插件构建配置无版本号，将跳过数据迁移
+init builder manager success
+[[Facet.reload]], before lock, count: 1
+[[Facet.reload]], after lock, count: 1
+[[Facet.reload]], before unlock, count: 1
+[[Facet.reload]], after unlock, count: 1
+auto refresh because script compiled or scene changed
+trackTimeEnd failed! Can not find the track time asset-db:worker-startup-database[internal] start
+trackTimeEnd failed! Can not find the track time asset-db:worker-startup-database[assets] start
+asset-db is ready!
+Check and complete build options {
+  platform: 'wechatgame',
+  debug: false,
+  outputName: 'wechat-world-r6-audio',
+  name: 'ForestWorldR6Audio',
+  startScene: '260c2ebc-0660-4be6-8c4b-7885436222ea',
+  scenes: [
+    {
+      url: 'db://assets/scenes/WorldR5Integration.scene',
+      uuid: '260c2ebc-0660-4be6-8c4b-7885436222ea'
+    }
+  ],
+  mainBundleCompressionType: 'subpackage',
+  packages: {
+    wechatgame: { appid: 'wx3bdd911c5c06f591', separateEngine: false }
+  },
+  taskName: 'wechat-world-r6-audio',
+  buildMode: 'normal'
+}
+start preview settings manager
+2026-10-10 06:31:06 - debug: =================================== build Task (wechat-world-r6-audio) Start ================================
+
+2026-10-10 06:31:06 - debug: Start build task, options:{"platform":"wechatgame","debug":false,"outputName":"wechat-world-r6-audio","name":"ForestWorldR6Audio","startScene":"260c2ebc-0660-4be6-8c4b-7885436222ea","scenes":[{"url":"db://assets/scenes/WorldR5Integration.scene","uuid":"260c2ebc-0660-4be6-8c4b-7885436222ea"}],"mainBundleCompressionType":"subpackage","packages":{"wechatgame":{"appid":"wx3bdd911c5c06f591","separateEngine":false,"orientation":"portrait","buildOpenDataContextTemplate":"","highPerformanceMode":false}},"taskName":"wechat-world-r6-audio","buildMode":"normal","server":"","engineModulesConfigKey":"defaultConfig","buildPath":"project://build","mangleProperties":false,"md5Cache":false,"skipCompressTexture":false,"sourceMaps":false,"overwriteProjectSettings":{"macroConfig":{"cleanupImageCache":"on"},"includeModules":{"physics":"inherit-project-setting","physics-2d":"inherit-project-setting","gfx-webgl2":"off"}},"nativeCodeBundleMode":"wasm","polyfills":{"asyncFunctions":false},"experimentalEraseModules":false,"startSceneAssetBundle":false,"bundleConfigs":[],"inlineEnum":true,"useBuiltinServer":false,"md5CacheOptions":{"excludes":[],"includes":[],"replaceOnly":[],"handleTemplateMd5Link":true},"mainBundleIsRemote":false,"useSplashScreen":true,"bundleCommonChunk":false,"packAutoAtlas":true,"wasmCompressionMode":false,"binGroupConfig":{"threshold":16,"enable":false},"logDest":"project://temp/builder/log/wechatgame10-10-2026 06-30.log"}
+
+2026-10-10 06:31:06 - debug: Build with Cocos Creator 3.8.8
+
+2026-10-10 06:31:06 - debug: wechatgame:(onBeforeBuild) start..., progress: 0%
+
+2026-10-10 06:31:06 - debug: // ---- build task wechatgame：onBeforeBuild ----
+
+2026-10-10 06:31:06 - debug: // ---- build task wechatgame：onBeforeBuild ---- (14ms)
+
+2026-10-10 06:31:06 - debug: wechatgame:(onBeforeBuild) in 14 ms ✓, progress: 2%
+
+2026-10-10 06:31:06 - debug: cocos-service:(onBeforeBuild) start..., progress: 2%
+
+2026-10-10 06:31:06 - debug: // ---- build task cocos-service：onBeforeBuild ----
+
+2026-10-10 06:31:06 - debug: // ---- build task cocos-service：onBeforeBuild ---- (49ms)
+
+2026-10-10 06:31:06 - debug: cocos-service:(onBeforeBuild) in 49 ms ✓, progress: 4%
+
+2026-10-10 06:31:06 - debug: scene:(onBeforeBuild) start..., progress: 4%
+
+2026-10-10 06:31:06 - debug: // ---- build task scene：onBeforeBuild ----
+
+2026-10-10 06:31:06 - debug: // ---- build task scene：onBeforeBuild ---- (4ms)
+
+2026-10-10 06:31:06 - debug: scene:(onBeforeBuild) in 4 ms ✓, progress: 5%
+
+2026-10-10 06:31:06 - debug: Start lock asset db..., progress: 5%
+
+2026-10-10 06:31:06 - log: Asset DB is paused with build!
+
+2026-10-10 06:31:06 - debug: Query all assets info in project
+
+2026-10-10 06:31:06 - debug: init custom config: keepNodeUuid: false, useCache: true
+
+2026-10-10 06:31:06 - debug: wechatgame:(onAfterInit) start..., progress: 5%
+
+2026-10-10 06:31:06 - debug: // ---- build task wechatgame：onAfterInit ----
+
+2026-10-10 06:31:06 - debug: // ---- build task wechatgame：onAfterInit ---- (7ms)
+
+2026-10-10 06:31:06 - debug: wechatgame:(onAfterInit) in 7 ms ✓, progress: 7%
+
+2026-10-10 06:31:06 - debug: cocos-service:(onAfterInit) start..., progress: 7%
+
+2026-10-10 06:31:06 - debug: // ---- build task cocos-service：onAfterInit ----
+
+2026-10-10 06:31:06 - debug: // ---- build task cocos-service：onAfterInit ---- (7ms)
+
+2026-10-10 06:31:06 - debug: cocos-service:(onAfterInit) in 7 ms ✓, progress: 9%
+
+2026-10-10 06:31:06 - debug: Skip compress image, progress: 0%
+
+2026-10-10 06:31:06 - debug: wechatgame:(onBeforeBundleInit) start..., progress: 9%
+
+2026-10-10 06:31:06 - debug: wechatgame:(onBeforeBundleInit) start..., progress: 0%
+
+2026-10-10 06:31:06 - debug: // ---- build task wechatgame：onBeforeBundleInit ----
+
+2026-10-10 06:31:06 - debug: // ---- build task wechatgame：onBeforeBundleInit ---- (5ms)
+
+2026-10-10 06:31:06 - debug: wechatgame:(onBeforeBundleInit) in 5 ms ✓, progress: 9%
+
+2026-10-10 06:31:06 - debug: wechatgame:(onBeforeBundleInit) in 5 ms ✓, progress: 7%
+
+2026-10-10 06:31:06 - debug: adsense-h5g-plugin:(onBeforeBundleInit) start..., progress: 9%
+
+2026-10-10 06:31:06 - debug: adsense-h5g-plugin:(onBeforeBundleInit) start..., progress: 7%
+
+2026-10-10 06:31:06 - debug: // ---- build task adsense-h5g-plugin：onBeforeBundleInit ----
+
+2026-10-10 06:31:06 - debug: [adsense-h5g-plugin] remove script success
+
+2026-10-10 06:31:06 - debug: // ---- build task adsense-h5g-plugin：onBeforeBundleInit ---- (10ms)
+
+2026-10-10 06:31:06 - debug: adsense-h5g-plugin:(onBeforeBundleInit) in 10 ms ✓, progress: 9%
+
+2026-10-10 06:31:06 - debug: adsense-h5g-plugin:(onBeforeBundleInit) in 10 ms ✓, progress: 13%
+
+2026-10-10 06:31:06 - debug: Init all bundles start..., progress: 9%
+
+2026-10-10 06:31:07 - debug: Init all bundles start..., progress: 13%
+
+2026-10-10 06:31:07 - debug: Num of bundles: 5..., progress: 9%
+
+2026-10-10 06:31:07 - debug: Num of bundles: 5..., progress: 13%
+
+2026-10-10 06:31:07 - debug: 查询 Asset Bundle start, progress: 9%
+
+2026-10-10 06:31:07 - debug: // ---- build task 查询 Asset Bundle ----
+
+2026-10-10 06:31:07 - debug: Init bundle root assets start..., progress: 9%
+
+2026-10-10 06:31:07 - debug: Init bundle root assets start..., progress: 13%
+
+2026-10-10 06:31:07 - debug: Query preload assets/scripts from cc.config.json: 60f7195c-ec2a-45eb-ba94-8955f60e81d0,1c02ae6f-4492-4915-b8f8-7492a3b1e4cd,810e96e4-e456-4468-9b59-f4e8f39732c0,efe8e2a3-eace-427b-b4f1-cb8a937ec77d,e9aa9a3e-5b2b-4ac7-a2c7-073de2b2b24f,8bbdbcdd-5cd4-4100-b6d5-b7c9625b6107,50f4348b-c883-4e2f-8f11-ce233b859fa1,fda095cb-831d-4601-ad94-846013963de8,f92806d7-1768-443f-afe8-12bcde84d0f0,dd3a144d-ab7f-41f0-82b8-2e43a090d496,f0416e68-0200-4b77-a926-4f9d16e494da,511d2633-09a7-4bdd-ac42-f778032124b3,5d45aa00-e064-4938-b314-4265f0c2258c,9361fd90-ba52-4f84-aa93-6e878fd576ca,970b0598-bcb0-4714-91fb-2e81440dccd8,bcd64cc6-2dd9-43f6-abbe-66318d332032,d930590d-bb92-4cc8-8bd1-23cd027f9edf,a3cd009f-0ab0-420d-9278-b9fdab939bbc,6a2d0734-bd9e-4ddf-946e-caa52498cb75,871c3b6c-7379-419d-bda3-794b239ab90d,ff9b0199-ce04-4cfe-86cc-6c719f08d6e4,de1c2107-70c8-4021-8459-6399f24d01c6,cbf30902-517f-40dc-af90-a550bac27cf1,5c601d96-e4c7-4698-991b-7ee674b11079
+
+2026-10-10 06:31:07 - debug:   Number of all scenes: 3
+
+2026-10-10 06:31:07 - debug:   Number of all scripts: 60
+
+2026-10-10 06:31:07 - debug:   Number of other assets: 477
+
+2026-10-10 06:31:07 - debug: Init bundle root assets success..., progress: 9%
+
+2026-10-10 06:31:07 - debug: Init bundle root assets success..., progress: 13%
+
+2026-10-10 06:31:07 - debug: reload all scripts.
+
+2026-10-10 06:31:07 - log: creating executor ...
+
+2026-10-10 06:31:10 - debug: [[Executor]] reload before lock
+
+2026-10-10 06:31:10 - debug: Set detail map pack:///resolution-detail-map.json: {}
+
+2026-10-10 06:31:10 - groupCollapsed: Invalidate all modules
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/93/93ba276ea7b26ffcdc433fab14afc1ed6f05647b.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/93/93ba276ea7b26ffcdc433fab14afc1ed6f05647b.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/base" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-webgl" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-webgl2" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-empty" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-webgpu" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/3d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/animation" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/skeletal-animation" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/sorting" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/rich-text" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/mask" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/graphics" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/ui-skew" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/ui" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/affine-transform" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/sorting-2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/particle" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/particle-2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-framework" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-cannon" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-physx" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-ammo" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-builtin" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-framework" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-box2d-jsb" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-box2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-builtin" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-box2d-wasm" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/intersection-2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/primitive" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/profiler" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/geometry-renderer" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/audio" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/video" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/xr" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/light-probe" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/terrain" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/webview" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/tween" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/tiled-map" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/vendor-google" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/spine" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/dragon-bones" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/custom-pipeline" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/custom-pipeline-post-process" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/legacy-pipeline" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/base" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-webgl" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-webgl2" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-empty" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/gfx-webgpu" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/3d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/animation" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/skeletal-animation" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/sorting" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/rich-text" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/mask" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/graphics" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/ui-skew" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/ui" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/affine-transform" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/sorting-2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/particle" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/particle-2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-framework" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-cannon" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-physx" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-ammo" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-builtin" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-framework" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-box2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-builtin" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-box2d-wasm" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/intersection-2d" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/primitive" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/profiler" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/geometry-renderer" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/audio" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/video" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/xr" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/light-probe" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/terrain" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/webview" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/tween" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/tiled-map" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/spine" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/dragon-bones" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/custom-pipeline" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/custom-pipeline-post-process" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/legacy-pipeline" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/vendor-google" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/cc-fu/physics-2d-box2d-jsb" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/93/93ba276ea7b26ffcdc433fab14afc1ed6f05647b.js" loaded.
+
+2026-10-10 06:31:10 - debug: Invalidating 'pack:///chunks/93/93ba276ea7b26ffcdc433fab14afc1ed6f05647b.js'
+
+2026-10-10 06:31:10 - groupEnd: Invalidate all modules
+
+2026-10-10 06:31:10 - groupCollapsed: Imports all modules
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/93/93ba276ea7b26ffcdc433fab14afc1ed6f05647b.js" loaded.
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6d/6d8fd2b0177941b032ddc0733af48a561fb60657.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6d/6d8fd2b0177941b032ddc0733af48a561fb60657.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/6d/6d8fd2b0177941b032ddc0733af48a561fb60657.js" loaded.
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/44/442191f7f507dcc71d2d5240350d9f1e976084b3.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/44/442191f7f507dcc71d2d5240350d9f1e976084b3.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6a/6a5019a719a9014c047e67aa1cf34453ab8392ce.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6a/6a5019a719a9014c047e67aa1cf34453ab8392ce.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/50/5055dbb3c019ac4cfe831ece636a096680386f45.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/50/5055dbb3c019ac4cfe831ece636a096680386f45.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/39/3900bd09f6cb29e250df124ed638c53bcad934fd.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/39/3900bd09f6cb29e250df124ed638c53bcad934fd.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f5/f5d32fcfbf45c1a4e723c0f6e2439c266539b7ee.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f5/f5d32fcfbf45c1a4e723c0f6e2439c266539b7ee.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/56/562e0e21690fa70cf037aabb9755efcfdd9197a7.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/56/562e0e21690fa70cf037aabb9755efcfdd9197a7.js is not in module cache!
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/6a/6a5019a719a9014c047e67aa1cf34453ab8392ce.js" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/engine-export-to-editor/cc/editor/populate-internal-constants" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/56/562e0e21690fa70cf037aabb9755efcfdd9197a7.js" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "cce:/internal/x/engine-export-to-editor/cc/editor/populate-internal-constants" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Register BuiltinPipelineSettings
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/39/3900bd09f6cb29e250df124ed638c53bcad934fd.js" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/50/5055dbb3c019ac4cfe831ece636a096680386f45.js" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Register BuiltinPipelinePassBuilder
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/f5/f5d32fcfbf45c1a4e723c0f6e2439c266539b7ee.js" loaded.
+
+2026-10-10 06:31:10 - debug: [[Executor]] Register BuiltinDepthOfFieldPass
+
+2026-10-10 06:31:10 - debug: [[Executor]] Module "pack:///chunks/44/442191f7f507dcc71d2d5240350d9f1e976084b3.js" loaded.
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/22/22d533ec6535f799b2413e13bce3956ac56a7ef4.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/22/22d533ec6535f799b2413e13bce3956ac56a7ef4.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: [[Executor]] Register DebugViewRuntimeControl
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/22/22d533ec6535f799b2413e13bce3956ac56a7ef4.js" loaded.
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/38/38001919cf7abfe093307e7d7570b132a36770e9.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/38/38001919cf7abfe093307e7d7570b132a36770e9.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/38/38001919cf7abfe093307e7d7570b132a36770e9.js" loaded.
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f1/f1cd684f93f90acdadd35eb11710ca417e7a9ffe.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f1/f1cd684f93f90acdadd35eb11710ca417e7a9ffe.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/23/2359a14c1462f1f6a0c5ad00449f4f201f539ce8.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/23/2359a14c1462f1f6a0c5ad00449f4f201f539ce8.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9e/9e6c49522b2360489b5227fde8822e277ca62ec4.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9e/9e6c49522b2360489b5227fde8822e277ca62ec4.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b1/b1a595711c18d9960a3b22a4995e0a5cab2ae983.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b1/b1a595711c18d9960a3b22a4995e0a5cab2ae983.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a3/a3e97c1815984d65fa4c72b2a8b2477355511fcf.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a3/a3e97c1815984d65fa4c72b2a8b2477355511fcf.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/1a/1a30c624f1fd5a408230fbd52739892cb13d4396.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/1a/1a30c624f1fd5a408230fbd52739892cb13d4396.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/34/34d53f7b5da2870c006eee661fc69f2faa9aafcc.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/34/34d53f7b5da2870c006eee661fc69f2faa9aafcc.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/47592febfef47288a28260767f26e93d9ae3e3bc.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/47592febfef47288a28260767f26e93d9ae3e3bc.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a0/a0d063530de23ddade53e1a935bf64c81277c061.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a0/a0d063530de23ddade53e1a935bf64c81277c061.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/65/65120b3956d09abcbd8701bb917b5d4633b4de2d.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/65/65120b3956d09abcbd8701bb917b5d4633b4de2d.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/2a/2a77241ee72fdace83b81bacb486e4a97f29d3f3.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/2a/2a77241ee72fdace83b81bacb486e4a97f29d3f3.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/0f/0f6322ed898c9f8b2cf24f7b06d8d32a039a171f.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/0f/0f6322ed898c9f8b2cf24f7b06d8d32a039a171f.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/c7/c71e164b28c4a7e4476142d1ae3cf536b7f3c5bd.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/c7/c71e164b28c4a7e4476142d1ae3cf536b7f3c5bd.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/43/4371a50b336697662b15de11c89ca72cba925b75.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/43/4371a50b336697662b15de11c89ca72cba925b75.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/a0/a0d063530de23ddade53e1a935bf64c81277c061.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/2a/2a77241ee72fdace83b81bacb486e4a97f29d3f3.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/0f/0f6322ed898c9f8b2cf24f7b06d8d32a039a171f.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/c7/c71e164b28c4a7e4476142d1ae3cf536b7f3c5bd.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/43/4371a50b336697662b15de11c89ca72cba925b75.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/65/65120b3956d09abcbd8701bb917b5d4633b4de2d.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/34/34d53f7b5da2870c006eee661fc69f2faa9aafcc.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/47/47592febfef47288a28260767f26e93d9ae3e3bc.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/a3/a3e97c1815984d65fa4c72b2a8b2477355511fcf.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Register NativeBoardUI
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/23/2359a14c1462f1f6a0c5ad00449f4f201f539ce8.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/9e/9e6c49522b2360489b5227fde8822e277ca62ec4.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/1a/1a30c624f1fd5a408230fbd52739892cb13d4396.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Register RuntimeProbe
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/b1/b1a595711c18d9960a3b22a4995e0a5cab2ae983.js" loaded.
+
+2026-10-10 06:31:11 - debug: [[Executor]] Register FirstsliceBoot
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/f1/f1cd684f93f90acdadd35eb11710ca417e7a9ffe.js" loaded.
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/63/63f79157148c24170b6d1febcd90a18b2af083ff.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/63/63f79157148c24170b6d1febcd90a18b2af083ff.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: [[Executor]] Register ManagedMobileBoardUI
+
+2026-10-10 06:31:11 - debug: [[Executor]] Module "pack:///chunks/63/63f79157148c24170b6d1febcd90a18b2af083ff.js" loaded.
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/49/49d0a5e5c8cf3e93c814e9babb0e13bbf3ba0998.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/49/49d0a5e5c8cf3e93c814e9babb0e13bbf3ba0998.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/92/9248614007a3699c2980f8be401bc0c6bc881ea4.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/92/9248614007a3699c2980f8be401bc0c6bc881ea4.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/7d/7d7673a55629298ac9d974fbb542cd30ba79156d.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/7d/7d7673a55629298ac9d974fbb542cd30ba79156d.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6c/6ccc54adef924e01b73d2a3d35d67ef6fc0684b7.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6c/6ccc54adef924e01b73d2a3d35d67ef6fc0684b7.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/74/7489b8e3d1ae5a440227460ed2a6e85b544f904f.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/74/7489b8e3d1ae5a440227460ed2a6e85b544f904f.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/5b/5bd1852a8e0220c271957c1a51f7a2dcbc3af841.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/5b/5bd1852a8e0220c271957c1a51f7a2dcbc3af841.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/7a/7ab89885dda9f4bcd355926b1d2df375c416cd5c.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/7a/7ab89885dda9f4bcd355926b1d2df375c416cd5c.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9c/9ca2739ff52e5f00de2d14655fbc7543c7ca9a13.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9c/9ca2739ff52e5f00de2d14655fbc7543c7ca9a13.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/48/4851dc6a459d069a210bd52e455c7bce121f564a.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/48/4851dc6a459d069a210bd52e455c7bce121f564a.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/3c/3cee23e2a9f6fdd3f8868498fd86a3f4853802f3.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/3c/3cee23e2a9f6fdd3f8868498fd86a3f4853802f3.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f4/f4c9ad00f176e87b128ef1fa3cefe5c18abae6d7.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f4/f4c9ad00f176e87b128ef1fa3cefe5c18abae6d7.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/48/48e062331cf938c10c4f7a1c95d8881512fb3f84.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/48/48e062331cf938c10c4f7a1c95d8881512fb3f84.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9d/9dd4fdbb1feb58175470b556bb8c7175c6669b60.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9d/9dd4fdbb1feb58175470b556bb8c7175c6669b60.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d7/d72e5a69fb9df58ff14f84fece4fa771a7af62cf.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d7/d72e5a69fb9df58ff14f84fece4fa771a7af62cf.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/3f/3f67e6551399866a391f5540938b1078e8538912.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/3f/3f67e6551399866a391f5540938b1078e8538912.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/60/60bcf1c3072022ed228dad60eca4bd6abc2a304b.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/60/60bcf1c3072022ed228dad60eca4bd6abc2a304b.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/15/1554d3f3acc0a09988a8e1e34f3643fea8d3f7fa.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/15/1554d3f3acc0a09988a8e1e34f3643fea8d3f7fa.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/7b/7bd95fd7d704e5cae14270ac8b9068a5e8e6708f.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/7b/7bd95fd7d704e5cae14270ac8b9068a5e8e6708f.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/cb/cb5e0ef8103dad12e80db3e748a5d7ce135e9975.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/cb/cb5e0ef8103dad12e80db3e748a5d7ce135e9975.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/0f/0fb5f320548707b57659124c85f23a7352e4b357.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/0f/0fb5f320548707b57659124c85f23a7352e4b357.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/475e30dbbe4e4b473ee9fa704751b7c70690086d.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/475e30dbbe4e4b473ee9fa704751b7c70690086d.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/62/627841665b397848dadf0ec6ce6938fa42da2637.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/62/627841665b397848dadf0ec6ce6938fa42da2637.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9a/9afefb25f36b009b12b3ae08b4906a479ba19a1a.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9a/9afefb25f36b009b12b3ae08b4906a479ba19a1a.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/c5/c5b5ceda39341790c755ce8d3e559e7246e18c12.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/c5/c5b5ceda39341790c755ce8d3e559e7246e18c12.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a2/a2554e1f6aa2f191d73d6da33265fa19e2d7e0da.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a2/a2554e1f6aa2f191d73d6da33265fa19e2d7e0da.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/96/96ca338db5fb8c2ac427a0f46240dcdf2f51f825.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/96/96ca338db5fb8c2ac427a0f46240dcdf2f51f825.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/de/de52019c9db8c652e722fde5e3f3588c12451d50.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/de/de52019c9db8c652e722fde5e3f3588c12451d50.js is not in module cache!
+
+2026-10-10 06:31:11 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b5/b5226d6d64d91af80c0b58460334b26f8fb0af54.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b5/b5226d6d64d91af80c0b58460334b26f8fb0af54.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d1/d1e2b61c715b20c4587587aff0c505f518a639a4.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d1/d1e2b61c715b20c4587587aff0c505f518a639a4.js is not in module cache!
+
+Warn: [Assets] The type of "RegionAmbientAnimation.clipNames" must be CCString, not String.
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:153758:12)
+    at warnID (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:153946:5)
+    at parseType (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:277989:11)
+    at preprocessAttrs (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:278104:11)
+    at declareProperties (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:145810:7)
+    at CCClass (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:145839:5)
+    at eval (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:276601:21)
+    at eval (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:277285:18)
+    at Object.execute (file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d7/d72e5a69fb9df58ff14f84fece4fa771a7af62cf.js:44:165)
+    at doExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:517:30)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:508:21)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:493:28
+    at Array.forEach (<anonymous>)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:491:10)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:493:28
+    at Array.forEach (<anonymous>)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:491:10)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:493:28
+    at Array.forEach (<anonymous>)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:491:10)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:440:12
+    at file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6d/cce:/internal/x/prerequisite-imports:8:13
+    at Object.execute (file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6d/cce:/internal/x/prerequisite-imports:4:1)
+    at Executor._importPrerequisiteModules (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/src/executor/index.ts:358:13)
+    at Executor.reload (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/src/executor/index.ts:235:13)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:2605
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1309
+    at GlobalEnv.processQueue (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1706)
+    at GlobalEnv.record (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1477)
+    at loadScript (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1858)
+    at BundleManager.loadScript (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/bundle/index.ccc:1:3083)
+    at BundleManager.initAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/bundle/index.ccc:1:4524)
+    at BuildTask.handle (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/tasks/data-task/asset.ccc:1:43)
+    at BuildTask.runBuildTask (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/index.ccc:1:13628)
+    at BuildTask.run (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/index.ccc:1:4127)
+    at build (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/index.ccc:1:4763)
+    at Ipc.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/msg-util.ccc:1:210)
+Warn: [Assets] The type of "RegionAmbientAnimation.clipUuids" must be CCString, not String.
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:153758:12)
+    at warnID (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:153946:5)
+    at parseType (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:277989:11)
+    at preprocessAttrs (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:278104:11)
+    at declareProperties (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:145810:7)
+    at CCClass (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:145839:5)
+    at eval (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:276601:21)
+    at eval (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/bin/.cache/dev/editor/bundled/index.js:277285:18)
+    at Object.execute (file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d7/d72e5a69fb9df58ff14f84fece4fa771a7af62cf.js:44:165)
+    at doExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:517:30)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:508:21)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:493:28
+    at Array.forEach (<anonymous>)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:491:10)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:493:28
+    at Array.forEach (<anonymous>)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:491:10)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:493:28
+    at Array.forEach (<anonymous>)
+    at postOrderExec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:491:10)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/static/executor/systemjs-bridge/out/index.js:440:12
+    at file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6d/cce:/internal/x/prerequisite-imports:8:13
+    at Object.execute (file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/6d/cce:/internal/x/prerequisite-imports:4:1)
+    at Executor._importPrerequisiteModules (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/src/executor/index.ts:358:13)
+    at Executor.reload (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/lib-programming/src/executor/index.ts:235:13)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:2605
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1309
+    at GlobalEnv.processQueue (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1706)
+    at GlobalEnv.record (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1477)
+    at loadScript (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/script/load-script.ccc:1:1858)
+    at BundleManager.loadScript (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/bundle/index.ccc:1:3083)
+    at BundleManager.initAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/asset-handler/bundle/index.ccc:1:4524)
+    at BuildTask.handle (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/tasks/data-task/asset.ccc:1:43)
+    at BuildTask.runBuildTask (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/index.ccc:1:13628)
+    at BuildTask.run (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/builder/index.ccc:1:4127)
+    at build (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/index.ccc:1:4763)
+    at Ipc.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/msg-util.ccc:1:210)
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/2d/2d57e5e251807b21594b44f032f4386f189aafeb.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/2d/2d57e5e251807b21594b44f032f4386f189aafeb.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/db/dba163c437a18d82dd1b3e12583e2361a3841f0b.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/db/dba163c437a18d82dd1b3e12583e2361a3841f0b.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f1/f1638dc54ec213fb9d452f501a03e172aff0022a.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/f1/f1638dc54ec213fb9d452f501a03e172aff0022a.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/21/216dfc6f65e974b7a79386783c54088721c6a059.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/21/216dfc6f65e974b7a79386783c54088721c6a059.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a1/a13a1a436a42812a2ed451fbcd866757912a00af.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/a1/a13a1a436a42812a2ed451fbcd866757912a00af.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/76/76905faeda8139067d08e19053dee0044c6c178e.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/76/76905faeda8139067d08e19053dee0044c6c178e.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b6/b66740a3fb867fc0653a7315532eb7a0cb3910c8.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b6/b66740a3fb867fc0653a7315532eb7a0cb3910c8.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/65/65dcbf93ec54e9d5e0373ef10fba7e0bbb52f75a.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/65/65dcbf93ec54e9d5e0373ef10fba7e0bbb52f75a.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/35/358f9c7fac29c87bd079982b97feabd14d0a29cf.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/35/358f9c7fac29c87bd079982b97feabd14d0a29cf.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d4/d40775ced2e2eb692a2fc2caf1b62316830c97aa.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d4/d40775ced2e2eb692a2fc2caf1b62316830c97aa.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/2a/2a7bdf98969b981d44beee8077dc3ad15c182174.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/2a/2a7bdf98969b981d44beee8077dc3ad15c182174.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/35/351ebd487ac5ab2ca94431bd12639c56ba6952a8.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/35/351ebd487ac5ab2ca94431bd12639c56ba6952a8.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Register RegionAmbientAnimation
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/d7/d72e5a69fb9df58ff14f84fece4fa771a7af62cf.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/6c/6ccc54adef924e01b73d2a3d35d67ef6fc0684b7.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/74/7489b8e3d1ae5a440227460ed2a6e85b544f904f.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/92/9248614007a3699c2980f8be401bc0c6bc881ea4.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/60/60bcf1c3072022ed228dad60eca4bd6abc2a304b.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/47/475e30dbbe4e4b473ee9fa704751b7c70690086d.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Register WorldFlowComponent
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/9c/9ca2739ff52e5f00de2d14655fbc7543c7ca9a13.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/f1/f1638dc54ec213fb9d452f501a03e172aff0022a.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/a2/a2554e1f6aa2f191d73d6da33265fa19e2d7e0da.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/96/96ca338db5fb8c2ac427a0f46240dcdf2f51f825.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/15/1554d3f3acc0a09988a8e1e34f3643fea8d3f7fa.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/c5/c5b5ceda39341790c755ce8d3e559e7246e18c12.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/de/de52019c9db8c652e722fde5e3f3588c12451d50.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/b5/b5226d6d64d91af80c0b58460334b26f8fb0af54.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/cb/cb5e0ef8103dad12e80db3e748a5d7ce135e9975.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/21/216dfc6f65e974b7a79386783c54088721c6a059.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/d1/d1e2b61c715b20c4587587aff0c505f518a639a4.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/3f/3f67e6551399866a391f5540938b1078e8538912.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/7a/7ab89885dda9f4bcd355926b1d2df375c416cd5c.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/0f/0fb5f320548707b57659124c85f23a7352e4b357.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/7b/7bd95fd7d704e5cae14270ac8b9068a5e8e6708f.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/48/4851dc6a459d069a210bd52e455c7bce121f564a.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/3c/3cee23e2a9f6fdd3f8868498fd86a3f4853802f3.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/f4/f4c9ad00f176e87b128ef1fa3cefe5c18abae6d7.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/35/351ebd487ac5ab2ca94431bd12639c56ba6952a8.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/65/65dcbf93ec54e9d5e0373ef10fba7e0bbb52f75a.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/2a/2a7bdf98969b981d44beee8077dc3ad15c182174.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/d4/d40775ced2e2eb692a2fc2caf1b62316830c97aa.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/b6/b66740a3fb867fc0653a7315532eb7a0cb3910c8.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/35/358f9c7fac29c87bd079982b97feabd14d0a29cf.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/a1/a13a1a436a42812a2ed451fbcd866757912a00af.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/2d/2d57e5e251807b21594b44f032f4386f189aafeb.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/62/627841665b397848dadf0ec6ce6938fa42da2637.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/48/48e062331cf938c10c4f7a1c95d8881512fb3f84.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/76/76905faeda8139067d08e19053dee0044c6c178e.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/db/dba163c437a18d82dd1b3e12583e2361a3841f0b.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/9a/9afefb25f36b009b12b3ae08b4906a479ba19a1a.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/9d/9dd4fdbb1feb58175470b556bb8c7175c6669b60.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Register WorldNativeComposition
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/7d/7d7673a55629298ac9d974fbb542cd30ba79156d.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/5b/5bd1852a8e0220c271957c1a51f7a2dcbc3af841.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Register WorldIntegrationBoot
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/49/49d0a5e5c8cf3e93c814e9babb0e13bbf3ba0998.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/37/37451820cfa90903316e98590dd8de1aa12d6a20.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/37/37451820cfa90903316e98590dd8de1aa12d6a20.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/91/91d57aaa86f73b77c0ed6a270839931348987af5.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/91/91d57aaa86f73b77c0ed6a270839931348987af5.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Register GameAudio
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/91/91d57aaa86f73b77c0ed6a270839931348987af5.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Register AudioBridge
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/37/37451820cfa90903316e98590dd8de1aa12d6a20.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9d/9d372df5b7173b1542c7cb62dc47f629f9ac82cb.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/9d/9d372df5b7173b1542c7cb62dc47f629f9ac82cb.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/9d/9d372df5b7173b1542c7cb62dc47f629f9ac82cb.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b1/b1699bb3cf4e3c4169cf15f73ec979e580e92818.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b1/b1699bb3cf4e3c4169cf15f73ec979e580e92818.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/b1/b1699bb3cf4e3c4169cf15f73ec979e580e92818.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/fd/fddbeb19965469fadc0577babbe8a3ae37898eb1.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/fd/fddbeb19965469fadc0577babbe8a3ae37898eb1.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/fd/fddbeb19965469fadc0577babbe8a3ae37898eb1.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/4b/4b7847df38a7e3a53958f23d6c32ab74e3accb70.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/4b/4b7847df38a7e3a53958f23d6c32ab74e3accb70.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/4b/4b7847df38a7e3a53958f23d6c32ab74e3accb70.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/57/57886d9c17c98dbceb59417c93e51c312011acfa.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/57/57886d9c17c98dbceb59417c93e51c312011acfa.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/57/57886d9c17c98dbceb59417c93e51c312011acfa.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/57/57107ca7e7ac7a8cf0647bf268b771466c9a07ff.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/57/57107ca7e7ac7a8cf0647bf268b771466c9a07ff.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/57/57107ca7e7ac7a8cf0647bf268b771466c9a07ff.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/50/50fe0651dc35259aab40298e937dd94635d214ab.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/50/50fe0651dc35259aab40298e937dd94635d214ab.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/50/50fe0651dc35259aab40298e937dd94635d214ab.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/40/409025a866f4d8343ee45870bfb178993d69115a.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/40/409025a866f4d8343ee45870bfb178993d69115a.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/40/409025a866f4d8343ee45870bfb178993d69115a.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/5d/5d0978c4f707654ce30970d40cd7c667f854b918.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/5d/5d0978c4f707654ce30970d40cd7c667f854b918.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/5d/5d0978c4f707654ce30970d40cd7c667f854b918.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/17/1728ea2d71e04fc83f3fb6f30b90ca9a0fc88640.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/17/1728ea2d71e04fc83f3fb6f30b90ca9a0fc88640.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/17/1728ea2d71e04fc83f3fb6f30b90ca9a0fc88640.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/ab/abe81bce86fe5338179ba49ba62d3d3ef40eb78f.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/ab/abe81bce86fe5338179ba49ba62d3d3ef40eb78f.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/47d6f88debe52df68736e33a1e6b6f5d27419a42.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/47d6f88debe52df68736e33a1e6b6f5d27419a42.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/47/47d6f88debe52df68736e33a1e6b6f5d27419a42.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/ab/abe81bce86fe5338179ba49ba62d3d3ef40eb78f.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/5e/5e305f67702ab739c5dfd5cd33714c3c24d59225.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/5e/5e305f67702ab739c5dfd5cd33714c3c24d59225.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/5e/5e305f67702ab739c5dfd5cd33714c3c24d59225.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/47664409a23c2c24b00643dbf5cb37c9ca72a09d.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/47/47664409a23c2c24b00643dbf5cb37c9ca72a09d.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/47/47664409a23c2c24b00643dbf5cb37c9ca72a09d.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d7/d790d9daa590953a333553dbf760d441ae6297d3.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/d7/d790d9daa590953a333553dbf760d441ae6297d3.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/d7/d790d9daa590953a333553dbf760d441ae6297d3.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/93/93240dca7a137a66e6e6c3b67e87cff4a111d08e.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/93/93240dca7a137a66e6e6c3b67e87cff4a111d08e.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/93/93240dca7a137a66e6e6c3b67e87cff4a111d08e.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/56/56a2e78f2967497d76fe9898509f59b6653de2a9.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/56/56a2e78f2967497d76fe9898509f59b6653de2a9.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/56/56a2e78f2967497d76fe9898509f59b6653de2a9.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b6/b69ec4eb69552d96dd20e97b9c1cb8d438a00d01.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/b6/b69ec4eb69552d96dd20e97b9c1cb8d438a00d01.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/b6/b69ec4eb69552d96dd20e97b9c1cb8d438a00d01.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/34/3469104b93d0633678b28a839389a402dd3899a2.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/34/3469104b93d0633678b28a839389a402dd3899a2.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/34/3469104b93d0633678b28a839389a402dd3899a2.js" loaded.
+
+2026-10-10 06:31:12 - debug: /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/eb/eb18df921de492e1f904d3f87da0aa527a822720.js resolved to /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/temp/programming/packer-driver/targets/editor/chunks/eb/eb18df921de492e1f904d3f87da0aa527a822720.js is not in module cache!
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/eb/eb18df921de492e1f904d3f87da0aa527a822720.js" loaded.
+
+2026-10-10 06:31:12 - debug: [[Executor]] Module "pack:///chunks/6d/6d8fd2b0177941b032ddc0733af48a561fb60657.js" loaded.
+
+2026-10-10 06:31:12 - groupEnd: Imports all modules
+
+2026-10-10 06:31:12 - debug: [[Executor]] after unlock
+
+2026-10-10 06:31:12 - debug: Incremental keys: regeneratorRuntime,b2jsb,ForestEngine
+
+2026-10-10 06:31:12 - debug: Init bundle share assets start..., progress: 9%
+
+2026-10-10 06:31:12 - debug: Init bundle share assets start..., progress: 13%
+
+2026-10-10 06:31:12 - debug: Init bundle share assets success..., progress: 9%
+
+2026-10-10 06:31:12 - debug: Init bundle share assets success..., progress: 13%
+
+2026-10-10 06:31:12 - debug: handle json group in bundle internal
+
+2026-10-10 06:31:12 - debug: handle json group in bundle resources
+
+2026-10-10 06:31:12 - debug: handle json group in bundle main
+
+2026-10-10 06:31:12 - debug: handle json group in bundle region_island
+
+2026-10-10 06:31:12 - debug: handle json group in bundle region_skycity
+
+2026-10-10 06:31:12 - debug: handle json group in bundle main success
+
+2026-10-10 06:31:12 - debug: init image compress task 0 in bundle main
+
+2026-10-10 06:31:12 - debug: handle json group in bundle resources success
+
+2026-10-10 06:31:12 - debug: init image compress task 0 in bundle resources
+
+2026-10-10 06:31:12 - debug: handle json group in bundle internal success
+
+2026-10-10 06:31:12 - debug: init image compress task 0 in bundle internal
+
+2026-10-10 06:31:12 - debug: handle json group in bundle region_skycity success
+
+2026-10-10 06:31:12 - debug: init image compress task 0 in bundle region_skycity
+
+2026-10-10 06:31:12 - debug: handle json group in bundle region_island success
+
+2026-10-10 06:31:12 - debug: init image compress task 0 in bundle region_island
+
+2026-10-10 06:31:12 - debug: // ---- build task 查询 Asset Bundle ---- (5933ms)
+
+2026-10-10 06:31:12 - log: run build task 查询 Asset Bundle success in 5 s√, progress: 14%
+
+2026-10-10 06:31:12 - debug: [Build Memory track]: 查询 Asset Bundle start:245.43MB, end 263.14MB, increase: 17.71MB
+
+2026-10-10 06:31:12 - debug: 查询 Asset Bundle start, progress: 14%
+
+2026-10-10 06:31:12 - debug: // ---- build task 查询 Asset Bundle ----
+
+2026-10-10 06:31:13 - debug: // ---- build task 查询 Asset Bundle ---- (85ms)
+
+2026-10-10 06:31:13 - log: run build task 查询 Asset Bundle success in 85 ms√, progress: 19%
+
+2026-10-10 06:31:13 - debug: [Build Memory track]: 查询 Asset Bundle start:263.17MB, end 263.05MB, increase: -129.17KB
+
+2026-10-10 06:31:13 - debug: 打包脚本 start, progress: 19%
+
+2026-10-10 06:31:13 - debug: // ---- build task 打包脚本 ----
+
+[[Facet.reload]], before lock, count: 2
+[[Facet.reload]], after lock, count: 2
+[[Facet.reload]], before unlock, count: 2
+[[Facet.reload]], after unlock, count: 2
+2026-10-10 06:31:14 - log: [buildPolyfillsCommand]enter sub process 79505, 9229, see: chrome://inspect/#devices
+
+auto refresh because script compiled or scene changed
+2026-10-10 06:31:20 - debug: execute-script-end with buildPolyfillsCommand 7744ms
+
+2026-10-10 06:31:20 - debug: Generate systemJs..., progress: 19%
+
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1434: Unexpected keyword or identifier.
+[warning]@cocos/rollup-plugin-typescript TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1434: Unexpected keyword or identifier.[warning]@cocos/rollup-plugin-typescript TS1068: Unexpected token. A constructor, method, accessor, or property was expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+
+2026-10-10 06:31:24 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-10 06:31:29 - debug: execute-script-end with buildSystemJsCommand 8787ms
+
+2026-10-10 06:31:29 - debug: 构建项目脚本 start..., progress: 19%
+
+2026-10-10 06:31:29 - debug: 构建项目脚本 start..., progress: 13%
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js'Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/catalog-data.js'Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-progress.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-session.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-validation.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js'Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/durable-store.js'Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js'Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/vendor/engine.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/engine.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/index.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/index.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/journey-bridge.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/world-r2/LegacyProgressionV3.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js'
+
+2026-10-10 06:31:29 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/vendor/progression.js'Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/world-r2/LegacyProgressionV3.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/index.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/index.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/durable-store.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/index.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/journey-bridge.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/vendor/engine.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/mainline-r1/runtime/vendor/progression.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-progress.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-session.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-validation.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/r4-cloud-compat/runtime/engine.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/catalog-data.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/index.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js'
+
+2026-10-10 06:31:33 - log: [buildScriptCommand]Create cjs interop url for 'file:///Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/assets/scripts/world-r2/LegacyProgressionV3.js'
+
+2026-10-10 06:31:41 - log: [buildScriptCommand]Number of non-entry chunks: 5
+
+2026-10-10 06:31:41 - debug: execute-script-end with buildScriptCommand 12263ms
+
+2026-10-10 06:31:41 - debug: Copy externalScripts success!
+
+2026-10-10 06:31:41 - debug: 构建项目脚本 in (12359 ms) √, progress: 19%
+
+2026-10-10 06:31:41 - debug: 构建项目脚本 in (12359 ms) √, progress: 13%
+
+2026-10-10 06:31:41 - debug: 构建引擎脚本 start..., progress: 19%
+
+2026-10-10 06:31:41 - debug: mangleProperties is enabled, found engine-mangle-config.json, use it
+
+2026-10-10 06:31:42 - debug: Error: Exit process with code:null, signal:SIGTERM in task build-script    at ChildProcess.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2409)    at ChildProcess.emit (node:events:519:28)    at Process.ChildProcess._handle.onexit (node:internal/child_process:294:12)
+
+2026-10-10 06:31:42 - debug: Use cache engine: {link(/var/folders/mj/mrt0w4m97fb6xs3g4rsj5b8w0000gn/T/CocosCreator/3.8.8/builder/engine/4f5c3d2bbfc2132889d805d9053b3801)}
+
+2026-10-10 06:31:42 - debug: Use cache, md5String: debug=false,sourceMaps=false,includeModules=["2d","3d","animation","audio","base","custom-pipeline","gfx-webgl","graphics","primitive","profiler","skeletal-animation","tween","ui","ui-skew","custom-pipeline-builtin-scripts"],engineVersion="3.8.8",platformType="WECHAT",split=undefined,nativeCodeBundleMode="wasm",targets=undefined,entry="/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine",noDeprecatedFeatures=undefined,loose=true,assetURLFormat="relative-from-out",flags={"DEBUG":false,"LOAD_BULLET_MANUALLY":false,"LOAD_SPINE_MANUALLY":false},preserveType=undefined,wasmCompressionMode=false,enableNamedRegisterForSystemJSModuleFormat=undefined,mangleProperties=false,inlineEnum=true,
+
+2026-10-10 06:31:42 - debug: Use cache, options: {  "entry": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine",  "debug": false,  "mangleProperties": false,  "inlineEnum": true,  "sourceMaps": false,  "includeModules": [    "2d",    "3d",    "animation",    "audio",    "base",    "custom-pipeline",    "gfx-webgl",    "graphics",    "primitive",    "profiler",    "skeletal-animation",    "tween",    "ui",    "ui-skew",    "custom-pipeline-builtin-scripts"  ],  "engineVersion": "3.8.8",  "md5Map": [],  "engineName": "cocos-js",  "output": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/build/wechat-world-r6-audio/cocos-js",  "platformType": "WECHAT",  "useCache": true,  "nativeCodeBundleMode": "wasm",  "wasmCompressionMode": false,  "assetURLFormat": "relative-from-out",  "flags": {    "DEBUG": false,    "LOAD_BULLET_MANUALLY": false,    "LOAD_SPINE_MANUALLY": false  }}
+
+2026-10-10 06:31:42 - debug: 构建引擎脚本 in (167 ms) √, progress: 19%
+
+2026-10-10 06:31:42 - debug: Copy plugin script ..., progress: 19%
+
+2026-10-10 06:31:42 - debug: Generate import-map..., progress: 19%
+
+2026-10-10 06:31:42 - debug: // ---- build task 打包脚本 ---- (29249ms)
+
+2026-10-10 06:31:42 - log: run build task 打包脚本 success in 29 s√, progress: 24%
+
+2026-10-10 06:31:42 - debug: [Build Memory track]: 打包脚本 start:263.19MB, end 263.55MB, increase: 370.75KB
+
+2026-10-10 06:31:42 - debug: Build Assets start, progress: 24%
+
+2026-10-10 06:31:42 - debug: // ---- build task Build Assets ----
+
+2026-10-10 06:31:42 - debug: Build bundles..., progress: 24%
+
+2026-10-10 06:31:42 - debug: Pack Images start, progress: 24%
+
+2026-10-10 06:31:42 - debug: Pack Images start, progress: 13%
+
+2026-10-10 06:31:42 - debug: Number of pac assets: 1
+
+2026-10-10 06:31:42 - debug: No pack results
+
+2026-10-10 06:31:42 - debug: Compress image start..., progress: 24%
+
+2026-10-10 06:31:42 - debug: Compress image start..., progress: 13%
+
+2026-10-10 06:31:42 - group: Compress image...
+
+2026-10-10 06:31:42 - debug: sort compress task {}
+
+2026-10-10 06:31:42 - debug: Num of all image compress task 0, really: 0, configTasks: 0
+
+2026-10-10 06:31:42 - debug: No image need to compress
+
+2026-10-10 06:31:42 - groupEnd: Compress image...
+
+2026-10-10 06:31:42 - debug: Compress image success..., progress: 24%
+
+2026-10-10 06:31:42 - debug: Compress image success..., progress: 13%
+
+2026-10-10 06:31:42 - debug: Output asset in bundles start, progress: 24%
+
+2026-10-10 06:31:42 - debug: Output asset in bundles start, progress: 13%
+
+2026-10-10 06:31:42 - debug: Handle all json groups in bundle internal
+
+2026-10-10 06:31:42 - debug: handle json group
+
+2026-10-10 06:31:42 - debug: Handle all json groups in bundle resources
+
+2026-10-10 06:31:42 - debug: handle json group
+
+2026-10-10 06:31:42 - debug: Handle all json groups in bundle main
+
+2026-10-10 06:31:42 - debug: handle json group
+
+2026-10-10 06:31:42 - debug: handle single json
+
+2026-10-10 06:31:42 - debug: Handle all json groups in bundle region_island
+
+2026-10-10 06:31:42 - debug: handle json group
+
+2026-10-10 06:31:42 - debug: Handle all json groups in bundle region_skycity
+
+2026-10-10 06:31:42 - debug: handle json group
+
+2026-10-10 06:31:42 - debug: handle single json
+
+2026-10-10 06:31:42 - debug: Json group(05de040c9) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: Json group(0dfe1b9d0) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: Json group(09d739bea) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: Json group(03a1eae20) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: Json group(0ba503733) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: Json group(0e7a008af) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: handle single json
+
+2026-10-10 06:31:42 - debug: Json group(021488165) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: Json group(0d1beec58) compile success，json number: 6
+
+2026-10-10 06:31:42 - debug: handle single json
+
+2026-10-10 06:31:43 - debug: Json group(03d2174f9) compile success，json number: 6
+
+2026-10-10 06:31:43 - debug: handle single json
+
+2026-10-10 06:31:43 - debug: Output asset in bundles success, progress: 24%
+
+2026-10-10 06:31:43 - debug: Output asset in bundles success, progress: 13%
+
+2026-10-10 06:31:43 - debug: Output asset in bundles start, progress: 24%
+
+2026-10-10 06:31:43 - debug: Output asset in bundles start, progress: 13%
+
+2026-10-10 06:31:43 - debug: compress config of bundle internal...
+
+2026-10-10 06:31:43 - debug: compress config of bundle internal success
+
+2026-10-10 06:31:43 - debug: compress config of bundle resources...
+
+2026-10-10 06:31:43 - debug: compress config of bundle resources success
+
+2026-10-10 06:31:43 - debug: compress config of bundle main...
+
+2026-10-10 06:31:43 - debug: compress config of bundle main success
+
+2026-10-10 06:31:43 - debug: compress config of bundle region_island...
+
+2026-10-10 06:31:43 - debug: compress config of bundle region_island success
+
+2026-10-10 06:31:43 - debug: compress config of bundle region_skycity...
+
+2026-10-10 06:31:43 - debug: compress config of bundle region_skycity success
+
+2026-10-10 06:31:43 - debug: output config of bundle internal
+
+2026-10-10 06:31:43 - debug: output config of bundle internal success
+
+2026-10-10 06:31:43 - debug: output config of bundle resources
+
+2026-10-10 06:31:43 - debug: output config of bundle resources success
+
+2026-10-10 06:31:43 - debug: output config of bundle main
+
+2026-10-10 06:31:43 - debug: output config of bundle main success
+
+2026-10-10 06:31:43 - debug: output config of bundle region_island
+
+2026-10-10 06:31:43 - debug: output config of bundle region_island success
+
+2026-10-10 06:31:43 - debug: output config of bundle region_skycity
+
+2026-10-10 06:31:43 - debug: output config of bundle region_skycity success
+
+2026-10-10 06:31:43 - debug: Output asset in bundles success, progress: 24%
+
+2026-10-10 06:31:43 - debug: Output asset in bundles success, progress: 13%
+
+2026-10-10 06:31:43 - debug: // ---- build task Build Assets ---- (1391ms)
+
+2026-10-10 06:31:43 - log: run build task Build Assets success in 1 s√, progress: 29%
+
+2026-10-10 06:31:43 - debug: [Build Memory track]: Build Assets start:263.58MB, end 288.28MB, increase: 24.69MB
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterBundleBuildTask) start..., progress: 29%
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterBundleBuildTask) start..., progress: 13%
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onAfterBundleBuildTask ----
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onAfterBundleBuildTask ---- (5ms)
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterBundleBuildTask) in 5 ms ✓, progress: 29%
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterBundleBuildTask) in 5 ms ✓, progress: 20%
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterBuildAssets) start..., progress: 29%
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onAfterBuildAssets ----
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onAfterBuildAssets ---- (25ms)
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterBuildAssets) in 25 ms ✓, progress: 31%
+
+2026-10-10 06:31:43 - debug: 整理部分构建选项内数据到 settings.json start, progress: 31%
+
+2026-10-10 06:31:43 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ----
+
+2026-10-10 06:31:43 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ---- (4ms)
+
+2026-10-10 06:31:43 - log: run build task 整理部分构建选项内数据到 settings.json success in 4 ms√, progress: 33%
+
+2026-10-10 06:31:43 - debug: [Build Memory track]: 整理部分构建选项内数据到 settings.json start:288.54MB, end 288.57MB, increase: 29.68KB
+
+2026-10-10 06:31:43 - debug: 填充脚本数据到 settings.json start, progress: 33%
+
+2026-10-10 06:31:43 - debug: // ---- build task 填充脚本数据到 settings.json ----
+
+2026-10-10 06:31:43 - debug: // ---- build task 填充脚本数据到 settings.json ---- (13ms)
+
+2026-10-10 06:31:43 - log: run build task 填充脚本数据到 settings.json success in 13 ms√, progress: 34%
+
+2026-10-10 06:31:43 - debug: [Build Memory track]: 填充脚本数据到 settings.json start:288.60MB, end 288.64MB, increase: 32.46KB
+
+2026-10-10 06:31:43 - debug: 整理部分构建选项内数据到 settings.json start, progress: 34%
+
+2026-10-10 06:31:43 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ----
+
+2026-10-10 06:31:43 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ---- (20ms)
+
+2026-10-10 06:31:43 - log: run build task 整理部分构建选项内数据到 settings.json success in 20 ms√, progress: 36%
+
+2026-10-10 06:31:43 - debug: [Build Memory track]: 整理部分构建选项内数据到 settings.json start:288.67MB, end 288.82MB, increase: 152.22KB
+
+2026-10-10 06:31:43 - debug: wechatgame:(onBeforeCompressSettings) start..., progress: 36%
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onBeforeCompressSettings ----
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onBeforeCompressSettings ---- (3ms)
+
+2026-10-10 06:31:43 - debug: wechatgame:(onBeforeCompressSettings) in 3 ms ✓, progress: 38%
+
+2026-10-10 06:31:43 - debug: cocos-service:(onBeforeCompressSettings) start..., progress: 38%
+
+2026-10-10 06:31:43 - debug: // ---- build task cocos-service：onBeforeCompressSettings ----
+
+2026-10-10 06:31:43 - debug: // ---- build task cocos-service：onBeforeCompressSettings ---- (7ms)
+
+2026-10-10 06:31:43 - debug: cocos-service:(onBeforeCompressSettings) in 7 ms ✓, progress: 40%
+
+2026-10-10 06:31:43 - debug: 整理静态模板文件 start, progress: 40%
+
+2026-10-10 06:31:43 - debug: // ---- build task 整理静态模板文件 ----
+
+2026-10-10 06:31:43 - debug: // ---- build task 整理静态模板文件 ---- (98ms)
+
+2026-10-10 06:31:43 - log: run build task 整理静态模板文件 success in 98 ms√, progress: 45%
+
+2026-10-10 06:31:43 - debug: [Build Memory track]: 整理静态模板文件 start:289.01MB, end 287.15MB, increase: -1912.28KB
+
+2026-10-10 06:31:43 - debug: cocos-service:(onAfterCompressSettings) start..., progress: 45%
+
+2026-10-10 06:31:43 - debug: // ---- build task cocos-service：onAfterCompressSettings ----
+
+2026-10-10 06:31:43 - debug: // ---- build task cocos-service：onAfterCompressSettings ---- (15ms)
+
+2026-10-10 06:31:43 - debug: cocos-service:(onAfterCompressSettings) in 15 ms ✓, progress: 46%
+
+2026-10-10 06:31:43 - debug: wechatgame:(onBeforeCopyBuildTemplate) start..., progress: 46%
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onBeforeCopyBuildTemplate ----
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onBeforeCopyBuildTemplate ---- (51ms)
+
+2026-10-10 06:31:43 - debug: wechatgame:(onBeforeCopyBuildTemplate) in 51 ms ✓, progress: 48%
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterCopyBuildTemplate) start..., progress: 48%
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onAfterCopyBuildTemplate ----
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onAfterCopyBuildTemplate ---- (14ms)
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterCopyBuildTemplate) in 14 ms ✓, progress: 50%
+
+2026-10-10 06:31:43 - debug: 给所有的资源加上 MD5 后缀 start, progress: 50%
+
+2026-10-10 06:31:43 - debug: // ---- build task 给所有的资源加上 MD5 后缀 ----
+
+2026-10-10 06:31:43 - debug: // ---- build task 给所有的资源加上 MD5 后缀 ---- (9ms)
+
+2026-10-10 06:31:43 - log: run build task 给所有的资源加上 MD5 后缀 success in 9 ms√, progress: 60%
+
+2026-10-10 06:31:43 - debug: [Build Memory track]: 给所有的资源加上 MD5 后缀 start:287.68MB, end 287.72MB, increase: 41.55KB
+
+2026-10-10 06:31:43 - debug: wechatgame:(onAfterBuild) start..., progress: 60%
+
+2026-10-10 06:31:43 - debug: // ---- build task wechatgame：onAfterBuild ----
+
+2026-10-10 06:31:45 - debug: // ---- build task wechatgame：onAfterBuild ---- (1530ms)
+
+2026-10-10 06:31:45 - debug: wechatgame:(onAfterBuild) in 1530 ms ✓, progress: 62%
+
+2026-10-10 06:31:45 - debug: cocos-service:(onAfterBuild) start..., progress: 62%
+
+2026-10-10 06:31:45 - debug: // ---- build task cocos-service：onAfterBuild ----
+
+2026-10-10 06:31:45 - debug: // ---- build task cocos-service：onAfterBuild ---- (45ms)
+
+2026-10-10 06:31:45 - debug: cocos-service:(onAfterBuild) in 45 ms ✓, progress: 64%
+
+2026-10-10 06:31:45 - debug: adsense-h5g-plugin:(onAfterBuild) start..., progress: 64%
+
+2026-10-10 06:31:45 - debug: // ---- build task adsense-h5g-plugin：onAfterBuild ----
+
+2026-10-10 06:31:45 - debug: // ---- build task adsense-h5g-plugin：onAfterBuild ---- (8ms)
+
+2026-10-10 06:31:45 - debug: adsense-h5g-plugin:(onAfterBuild) in 8 ms ✓, progress: 65%
+
+2026-10-10 06:31:45 - log: Asset DB is resume!
+
+2026-10-10 06:31:45 - debug: builder:build-project-total (38854ms)
+
+2026-10-10 06:31:45 - debug: build task(wechat-world-r6-audio) in 38854!
+
+2026-10-10 06:31:45 - debug: [Build Memory track]: builder:build-project-total start:242.16MB, end 285.79MB, increase: 43.62MB
+
+2026-10-10 06:31:45 - debug: ================================ build Task (wechat-world-r6-audio) Finished in (39 s)ms ================================
+

@@ -1,0 +1,5 @@
+00:00.079  system.path      | WARNING Could not get a list of mounted file-systems
+OSError: Python file "/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/tools/tools/render.py" could not be opened: No such file or directory
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

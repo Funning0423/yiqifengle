@@ -1,0 +1,212 @@
+{
+  "scope": "independent inspected runtime with self-authored cc mocks, no Creator/GPU/real textures loaded by engine",
+  "passed": 34,
+  "failed": 2,
+  "results": [
+    {
+      "name": "ASTC capability: yes",
+      "status": "pass",
+      "detail": {
+        "support": "yes",
+        "via": "getFormatFeatures(ASTC_RGBA_4X4) 含 SAMPLED_TEXTURE"
+      }
+    },
+    {
+      "name": "ASTC capability: no",
+      "status": "pass",
+      "detail": {
+        "support": "no",
+        "via": "getFormatFeatures(ASTC_RGBA_4X4) 不含 SAMPLED_TEXTURE"
+      }
+    },
+    {
+      "name": "ASTC capability: other features",
+      "status": "pass",
+      "detail": {
+        "support": "no",
+        "via": "getFormatFeatures(ASTC_RGBA_4X4) 不含 SAMPLED_TEXTURE"
+      }
+    },
+    {
+      "name": "ASTC capability: missing device",
+      "status": "pass",
+      "detail": {
+        "support": "unknown",
+        "via": "没有 gfx 设备或没有 getFormatFeatures"
+      }
+    },
+    {
+      "name": "ASTC capability: missing function",
+      "status": "pass",
+      "detail": {
+        "support": "unknown",
+        "via": "没有 gfx 设备或没有 getFormatFeatures"
+      }
+    },
+    {
+      "name": "ASTC capability: bad type",
+      "status": "pass",
+      "detail": {
+        "support": "unknown",
+        "via": "getFormatFeatures 返回值不是数字"
+      }
+    },
+    {
+      "name": "ASTC capability: exception",
+      "status": "pass",
+      "detail": {
+        "support": "unknown",
+        "via": "检测抛异常：Error: device lost"
+      }
+    },
+    {
+      "name": "path choice yes",
+      "status": "pass"
+    },
+    {
+      "name": "path choice no",
+      "status": "pass"
+    },
+    {
+      "name": "path choice unknown",
+      "status": "pass"
+    },
+    {
+      "name": "ASTC onLoad starts one chosen request and gradient state",
+      "status": "pass",
+      "detail": {
+        "path": "textures/tex_meadow_sky_night_2048x1024/texture"
+      }
+    },
+    {
+      "name": "ASTC load retains one texture but keeps mix zero until update",
+      "status": "pass"
+    },
+    {
+      "name": "ASTC fade reaches one monotonically in .3 seconds",
+      "status": "pass",
+      "detail": {
+        "a": 0.33333333333333337,
+        "b": 0.6666666666666667,
+        "end": 1
+      }
+    },
+    {
+      "name": "ASTC destroy restores empty slot and balances texture ref",
+      "status": "pass"
+    },
+    {
+      "name": "no ASTC onLoad starts one chosen request and gradient state",
+      "status": "pass",
+      "detail": {
+        "path": "textures/tex_meadow_sky_night_1024x512/texture"
+      }
+    },
+    {
+      "name": "no ASTC load retains one texture but keeps mix zero until update",
+      "status": "pass"
+    },
+    {
+      "name": "no ASTC fade reaches one monotonically in .3 seconds",
+      "status": "pass",
+      "detail": {
+        "a": 0.33333333333333337,
+        "b": 0.6666666666666667,
+        "end": 1
+      }
+    },
+    {
+      "name": "no ASTC destroy restores empty slot and balances texture ref",
+      "status": "pass"
+    },
+    {
+      "name": "unknown onLoad starts one chosen request and gradient state",
+      "status": "pass",
+      "detail": {
+        "path": "textures/tex_meadow_sky_night_1024x512/texture"
+      }
+    },
+    {
+      "name": "unknown load retains one texture but keeps mix zero until update",
+      "status": "pass"
+    },
+    {
+      "name": "unknown fade reaches one monotonically in .3 seconds",
+      "status": "pass",
+      "detail": {
+        "a": 0.33333333333333337,
+        "b": 0.6666666666666667,
+        "end": 1
+      }
+    },
+    {
+      "name": "unknown destroy restores empty slot and balances texture ref",
+      "status": "pass"
+    },
+    {
+      "name": "daytime arrival switches immediately",
+      "status": "pass"
+    },
+    {
+      "name": "setNightBlend updates same instance, not shared material",
+      "status": "pass"
+    },
+    {
+      "name": "shared material changes do not update owned instance (integration contract)",
+      "status": "pass"
+    },
+    {
+      "name": "cached synchronous load renders first frame at full texture mix",
+      "status": "pass"
+    },
+    {
+      "name": "day-night changes during fade do not restart it",
+      "status": "pass"
+    },
+    {
+      "name": "update after destroy performs no further load or fade",
+      "status": "pass"
+    },
+    {
+      "name": "late successful callback after destroy discarded with balanced ref",
+      "status": "pass"
+    },
+    {
+      "name": "failed load keeps gradient and waits retry delay",
+      "status": "pass"
+    },
+    {
+      "name": "failure launches one delayed retry",
+      "status": "pass"
+    },
+    {
+      "name": "successful retry fades into texture",
+      "status": "pass"
+    },
+    {
+      "name": "retry cap is initial request plus three retries",
+      "status": "pass"
+    },
+    {
+      "name": "duplicate callback and destruction midfade leave zero retained refs",
+      "status": "pass"
+    },
+    {
+      "name": "SkyNightTexture reused swap cleans up failing texture getter",
+      "status": "fail",
+      "detail": {
+        "threw": true,
+        "remainingRefs": 1
+      }
+    },
+    {
+      "name": "missing material must not claim applied texture",
+      "status": "fail",
+      "detail": {
+        "state": "applied",
+        "texMix": 1,
+        "note": "configuration preflight needed: valid renderer is not enough"
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+eec0534e71d028d1789d6fe67a15a9e6b7d95494f4619bd4e97d45c86cae7414  lakeside-v3.1.bundle
+2115693ae19916f724dc63313bc7d9753ea98b75f85271bfc00c342f11a21d6e  lakeside_v3.1_compare.png
+f1c75fb02f881ca974fcf0a20a2b209fb2ca6d99cc28ba9b63b827baf9b6e01b  render_v3.py
+7b093e7c8111003ad90388c7749cab6fd63c7fa99151852893901a8efdc8e06d  README.md
+cddff629012ce67b69a18e50cd2e3156d0a457535718419273a5f2801087679f  patches/0001-D1-DC-fallback-lakeside-lights-as-authored-parallel-.patch
+52410e6d92571ea5aeb1c8d50776f57f69a822c6cd605ad1cb782521fdb62237  patches/0002-D1-v2-blue-ambient-sky-r5h3-world-ramp-top-stop-warm.patch
+86fdcd39319273d03e8949abaa8a9e8158052efdba763fcbd910e05e7c12ce5c  patches/0003-lakeside-L5-skip-34-r5h3-ASSETS-collection-templates.patch
+4bcc191d7d7434935aeb84f587e4896be38e9383c439558d05d957ba260a7cec  patches/0004-lakeside-v3-Fresnel-sun-streak-water-shader-instanci.patch
+72dc7099c3b6efe77978c445488ad0597b6b9ea58a294b8b1d28ccf52a6739cf  patches/0005-lakeside-v3.1-water-tint-linear-sRGB-79-172-176-effe.patch

@@ -1,0 +1,192 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 2602,
+    "sha256": "064f33838cc59fa4f86b9e0a8696dc7935c66b7ee4c21216fb4e6f80e14a36b3"
+  },
+  {
+    "path": "cli-open.txt",
+    "bytes": 301,
+    "sha256": "313032fa3ce91a3e7f7b55daa935c8eba50f551f01996b16193ac11b11eb8fed"
+  },
+  {
+    "path": "console-raw.txt",
+    "bytes": 573,
+    "sha256": "5c4b0d67db3acd507e3df18b02235bf89ae3d611d7c56a1390cd71e37e1bf5e0"
+  },
+  {
+    "path": "e-cli-close.txt",
+    "bytes": 302,
+    "sha256": "95908a4484646703a81316e7c6ab786986981b662d6b5841dba217dc96c8b45c"
+  },
+  {
+    "path": "e-cli-reopen.txt",
+    "bytes": 301,
+    "sha256": "d45e790e3fa235ed4d6db90d24c5afc354e69a49be7f6d29e5676a92a77d2419"
+  },
+  {
+    "path": "e-reopened-console.txt",
+    "bytes": 416,
+    "sha256": "99c70e233ac6e6b5d29a58857424a908a1c9416839034c4b8a70d781156b0a0c"
+  },
+  {
+    "path": "e-reopened-settled-console.txt",
+    "bytes": 416,
+    "sha256": "99c70e233ac6e6b5d29a58857424a908a1c9416839034c4b8a70d781156b0a0c"
+  },
+  {
+    "path": "e-reopened-settled.png",
+    "bytes": 693522,
+    "sha256": "2c8d95931120ebeb358039cee0fb487d4ad8097d2e40940160fc9e8227dd9bea"
+  },
+  {
+    "path": "e-reopened-windows.json",
+    "bytes": 4599,
+    "sha256": "5cbff8e0fa9107f2814dcbf9b4d54eb945bb532344b8758d38a9aea7b86c2e95"
+  },
+  {
+    "path": "f-cli-close.txt",
+    "bytes": 302,
+    "sha256": "929f9cbbfe06211e2e5f9136f278271da9e31726fb8d17572c6198e1fd9889c5"
+  },
+  {
+    "path": "f-cli-open.txt",
+    "bytes": 301,
+    "sha256": "edb4192218357eefb5ba3b3cfb98cbd0f9bc3c08f5f8c211e7304bc714a5cef5"
+  },
+  {
+    "path": "f-cli-reopen.txt",
+    "bytes": 301,
+    "sha256": "f89cab3b84b73b66a705bbc1fccf81162dd69a3eab6afa4c9589d8ed1c75b296"
+  },
+  {
+    "path": "f-first-open.png",
+    "bytes": 591900,
+    "sha256": "ad9575ebf1fc2d77e6f3429a7caa8223d7e258a7d3ab221bf50b83cc1fd330a9"
+  },
+  {
+    "path": "f-initial-copy-stale-NOT-CONSOLE.txt",
+    "bytes": 127,
+    "sha256": "991b9d819b26981c9a9f812f6e102772a4abcfcbf32a2208b73d98cb818d94a2"
+  },
+  {
+    "path": "f-project.config.json",
+    "bytes": 687,
+    "sha256": "6731a071010dc3d25cc782fc77d32eb27b84b1d29e88ffec91ae076b15f7d0b7"
+  },
+  {
+    "path": "f-reopened-console.txt",
+    "bytes": 416,
+    "sha256": "88e08bb134b10339710affaa9231dd8f35bba44be195eab7d5f8acb37d0ceb6a"
+  },
+  {
+    "path": "f-reopened-windows.json",
+    "bytes": 4599,
+    "sha256": "7cbbb8b77ad04ebee7a756908b6b3dbe6d5fdca8bcf8d14d735b1e8484d08bba"
+  },
+  {
+    "path": "f-reopened.png",
+    "bytes": 693443,
+    "sha256": "a4ddd584cbd45a59ce3b380f504cffce1b6c1980ddc83ba79a22590450063626"
+  },
+  {
+    "path": "f-windows.json",
+    "bytes": 4599,
+    "sha256": "557b3ff4f1ca3fc12b3c7b3fb78325904320e0ee2df8e1cdffb2989564cb86bd"
+  },
+  {
+    "path": "first-open.png",
+    "bytes": 722049,
+    "sha256": "e0e55b31fe968b6bf3f5d34e5b24da7065616181ead3480e3c529c4f17244832"
+  },
+  {
+    "path": "g-cli-close.txt",
+    "bytes": 302,
+    "sha256": "06fb24c6c0c3600f6032a5b5dbae44e50f2ba3c58f4cbdf593c386dd6257e5ec"
+  },
+  {
+    "path": "g-cli-open.txt",
+    "bytes": 301,
+    "sha256": "431a7eee2135cca713b0aba531c3cf16a600368a5e2cad4d56a9d71ffc9c7a81"
+  },
+  {
+    "path": "g-cli-reopen.txt",
+    "bytes": 301,
+    "sha256": "058514eaa845c302caecf6f45cfac0ef9f60421536f24eee0e42f954558efc0c"
+  },
+  {
+    "path": "g-first-copy-stale-NOT-CONSOLE.txt",
+    "bytes": 416,
+    "sha256": "99c70e233ac6e6b5d29a58857424a908a1c9416839034c4b8a70d781156b0a0c"
+  },
+  {
+    "path": "g-first-open.png",
+    "bytes": 1516022,
+    "sha256": "85a03872ec5ba5d238f6747ae33554279c5313d9987db8c42e2da44f0464eb6e"
+  },
+  {
+    "path": "g-project.config.json",
+    "bytes": 686,
+    "sha256": "3fd906fdd30c8a263195ebdbd158d5d7b282a328c097257c8b0c08619736fea1"
+  },
+  {
+    "path": "g-reopened-console.txt",
+    "bytes": 627,
+    "sha256": "e51332e2d5fa49ed2494c4af5ad360a5908cfe0530703946ca130e7059584298"
+  },
+  {
+    "path": "g-reopened.png",
+    "bytes": 1657361,
+    "sha256": "9cbd817d7886ded36c04f6d9d4b223ec4e80ba748f9753052f9c6958fd1be7a5"
+  },
+  {
+    "path": "g-windows.json",
+    "bytes": 5105,
+    "sha256": "a8a8802225a4dfd4d6900b6753cbc6479acd437270b7e121494c06a2526fdf3f"
+  },
+  {
+    "path": "game.js",
+    "bytes": 237,
+    "sha256": "4a42015f54d690850122b989399ad6dac0e1d9cfd6fb6238901dab9fe5c70cd5"
+  },
+  {
+    "path": "game.json",
+    "bytes": 33,
+    "sha256": "0f289ceeb500dae5505653b55e573b5764aa3cc4af3adcdae6a06f5a7f9dffe6"
+  },
+  {
+    "path": "installed-devtools-condition-calls.json",
+    "bytes": 3455,
+    "sha256": "bba455ab591683831c9e587451c7f3a4fec8fe0f4984cdbdc6aec74598539f81"
+  },
+  {
+    "path": "installed-devtools-error-source-search.json",
+    "bytes": 1748,
+    "sha256": "a135e3265b2f1ed67f647287b9f2d64bf13c697c9158318c009b26de7f7b3880"
+  },
+  {
+    "path": "project.config.json",
+    "bytes": 391,
+    "sha256": "6ec2754a3a9f51e2ebd85f32f03526811085f11b373985e3c6d7f21201bc11c1"
+  },
+  {
+    "path": "runtime-readonly.json",
+    "bytes": 127,
+    "sha256": "991b9d819b26981c9a9f812f6e102772a4abcfcbf32a2208b73d98cb818d94a2"
+  },
+  {
+    "path": "source-and-handoff-receipt.json",
+    "bytes": 798,
+    "sha256": "794c32269af785cffff9eee50d9bcfd0d0b331aa1838406571870757b08430d0"
+  },
+  {
+    "path": "summary.json",
+    "bytes": 2382,
+    "sha256": "06aee326f068e838a1e0f4e757d613d79bd67ff91edafb0dc567d6ae0d22d0a5"
+  },
+  {
+    "path": "windows.json",
+    "bytes": 4092,
+    "sha256": "ea7a0fb6a611a45e824a1257c81a8c35e0e5867cf57415f2c362f1b847759304"
+  }
+]

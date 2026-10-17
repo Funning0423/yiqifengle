@@ -1,0 +1,37 @@
+{
+ "360x780 (0.46)": {
+  "positionM": 8.88e-16,
+  "viewDeg": 0,
+  "fovDeg": 0
+ },
+ "390x844 notch+capsule": {
+  "positionM": 8.88e-16,
+  "viewDeg": 0.2968,
+  "fovDeg": 2.1355
+ },
+ "375x667 (0.56)": {
+  "positionM": 8.88e-16,
+  "viewDeg": 2.3613,
+  "fovDeg": -7.6209
+ },
+ "414x896": {
+  "positionM": 8.88e-16,
+  "viewDeg": 0.587,
+  "fovDeg": 2.1657
+ },
+ "330x770 (0.43)": {
+  "positionM": 8.88e-16,
+  "viewDeg": 1.5079,
+  "fovDeg": 3.8558
+ },
+ "390x520 (0.75)": {
+  "positionM": 8.88e-16,
+  "viewDeg": 2.5072,
+  "fovDeg": 3.9231
+ },
+ "768x1024 tablet (0.75)": {
+  "positionM": 8.88e-16,
+  "viewDeg": 1.8298,
+  "fovDeg": -1.0514
+ }
+}

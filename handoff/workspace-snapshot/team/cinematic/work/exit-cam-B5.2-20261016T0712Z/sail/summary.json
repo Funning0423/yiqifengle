@@ -1,0 +1,36 @@
+{
+ "C": {
+  "minSignpostM": 26.325,
+  "minPalmM": 26.998,
+  "minIslandM": 12.919,
+  "faceHeadOcclVisible": [],
+  "feetOccl": 0,
+  "start": [
+   -22.0,
+   12.0,
+   18.0
+  ],
+  "end": [
+   -27.866,
+   14.654,
+   22.749
+  ]
+ },
+ "A2": {
+  "minSignpostM": 26.075,
+  "minPalmM": 26.998,
+  "minIslandM": 12.919,
+  "faceHeadOcclVisible": [],
+  "feetOccl": 0,
+  "start": [
+   -22.0,
+   12.0,
+   18.0
+  ],
+  "end": [
+   -27.866,
+   14.654,
+   22.749
+  ]
+ }
+}

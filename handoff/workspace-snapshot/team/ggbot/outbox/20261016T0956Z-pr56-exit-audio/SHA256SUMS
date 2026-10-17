@@ -1,0 +1,4 @@
+e94d8fb7ab3bee3b9ac6f4aade2e669d8b7d93798ece03ecacddc28f04015d06  0001-audio-sfx_exit_outbound.mp3-aligned-to-exit-cam-B5.3.patch
+2f1d2a42f36bf5d827ea504f6da702e647b727cff8df00057f796b6e355a957c  0002-audio-duck-WindAudio-12-dB-0.5-s-fades-during-the-ex.patch
+83dc47e96582cec1847edd8f431f401b9525c2f4d1d95904e1e4336e2316335a  0003-exit-audio-play-sfx_exit_outbound-region_island-on-e.patch
+a7afe8ac1803396dc8209e18ac9f6ea5b53650ed2857ae65b033ead853acfb39  README.md

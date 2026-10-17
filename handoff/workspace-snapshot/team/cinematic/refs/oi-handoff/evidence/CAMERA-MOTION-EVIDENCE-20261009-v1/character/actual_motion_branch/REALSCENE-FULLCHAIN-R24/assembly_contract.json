@@ -1,0 +1,22 @@
+{
+  "branch": "REALSCENE-FULLCHAIN-R24",
+  "status": "FULL ROUTE INTEGRATED POSE PREPARATION. Rise arm R9 and head counter R1 are merged; complete-route upper-body and garment gates remain unresolved. Rejected BALANCED contour is NOT applied.",
+  "blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "duration": 33,
+  "pose_bake_hz": 60,
+  "close_interval_bake_hz": 120,
+  "exit_interval_bake_hz": 120,
+  "arm_reference": "/workspace/shared/grok-takeover/character/arm_release_gate/EARLY_TORSO_PLANE_R9/pose_matrices.npz",
+  "head_reference": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-HEAD-GAZE-GATE-R1/pose_matrices.npz",
+  "exact_events_keyed": true,
+  "keyed_poses": 2408,
+  "final_chair_turn_degrees": 68.20325906021235,
+  "max_reach_overrun_source": 0.0,
+  "reach_failure_times": [],
+  "arm_and_garment_status": "Rise R9 arm and head R1 references merged as new kinematics; full-route arms, cuffs, sleeves and original garments remain unaccepted. No cuff R1 or rejected contour integrated.",
+  "remaining_gates": [
+    "All new turns, full shoe/leaf future-stance contact, exact actual inside/outside support, full source body-self and garment contacts.",
+    "Dense interpolation/contact and joint tests before any promotion.",
+    "Tempo review and runtime import/performance."
+  ]
+}

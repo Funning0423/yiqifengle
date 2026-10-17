@@ -1,0 +1,82 @@
+From c49801b56b057396523c2d1ca210bc52e7e23745 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 11:31:04 +0800
+Subject: [PATCH] A3: waves bed fades in from 0 when something else stopped it
+ (meadow -> home), no stale level stacking on the BGM fade-in; test
+ home-sea-fadein
+
+---
+ .../assets/scripts/audio/AmbienceAudio.ts      |  4 ++++
+ tools/journey-integration/run-suite.cjs        |  1 +
+ tools/test_home_sea_fadein.cjs                 | 18 ++++++++++++++++++
+ 3 files changed, 23 insertions(+)
+ create mode 100644 tools/test_home_sea_fadein.cjs
+
+diff --git a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+index 1b37447..97228e4 100644
+--- a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
++++ b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+@@ -415,6 +415,7 @@ export class AmbienceAudio extends Component {
+ 
+   private static smoothstep(a: number, b: number, x: number) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
+ 
++  private bedOn = false;   // A3: did this update leave the waves bed playing?
+   /** V1 follow-up: drop the smoothed waves bed at once (GameAudio.quietAmbience); it fades back in from 0 if still outdoors. */
+   quiet() { this.vol = 0; const src = this.src; if (!src) return; try { src.volume = 0; if (src.playing) src.pause(); } catch { /* ignore */ } }
+   update(dt: number) {
+@@ -434,6 +435,8 @@ export class AmbienceAudio extends Component {
+     const duck = 1 - E.waveWindDuck * AmbienceAudio.smoothstep(0.3, 1.0, wind);
+     const target = allowed && outdoor >= 0 ? Math.max(outdoor * WAVES_MAX_VOL, floor) * duck : 0;
+     const k = Math.min(1, dt * SMOOTH_PER_S);
++    // A3: we left the bed playing but something else stopped it (meadow -> home): fade back in from 0, not the stale level.
++    if (this.bedOn && !src.playing) this.vol = 0;
+     this.vol += (target - this.vol) * k;
+     if (!allowed) this.vol = 0;
+     // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
+@@ -448,6 +451,7 @@ export class AmbienceAudio extends Component {
+       this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('waves-level', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); }
+       if (!src.playing) { try { src.play(); qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+     }
++    this.bedOn = src.playing;
+     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
+     if (wind < E.exitOn) { this.exitActive = false; this.distantDone = []; }
+     else {
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 479ef5a..632116c 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -55,6 +55,7 @@ const tests=[
+  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
+  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
+  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
++ ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
+  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+diff --git a/tools/test_home_sea_fadein.cjs b/tools/test_home_sea_fadein.cjs
+new file mode 100644
+index 0000000..ff15e79
+--- /dev/null
++++ b/tools/test_home_sea_fadein.cjs
+@@ -0,0 +1,18 @@
++// A3: returning home from the meadow the waves bed fades in from 0 (no stale level stacking on the BGM fade-in).
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const aa=fs.readFileSync(path.join(__dirname,'..','creator-build-project/assets/scripts/audio/AmbienceAudio.ts'),'utf8');
++const reset='    if (this.bedOn && !src.playing) this.vol = 0;';
++assert(aa.includes('const k = Math.min(1, dt * SMOOTH_PER_S);\n    // A3:')&&aa.includes(reset),'reset before smoothing');
++assert(/console\.warn\('\[AmbienceAudio\] waves play failed', e\); \} \}\n    \}\n    this\.bedOn = src\.playing;\n/.test(aa),'bedOn recorded after play/pause');
++assert(/private bedOn = false;/.test(aa));
++// Stand-in loop with the same statements: bed playing at 0.441, then externally stopped on the home transition.
++const self={vol:0.441,bedOn:true},src={playing:false},k=4/60,bed=1;let first=-1;
++for(let i=0;i<120;i++){
++  if(self.bedOn&&!src.playing)self.vol=0;
++  self.vol+=(0.55-self.vol)*k;const heard=self.vol*bed;
++  if(heard>=0.002&&!src.playing){src.playing=true;if(first<0)first=heard;}
++  self.bedOn=src.playing;
++}
++assert(first>0&&first<0.05,'restart starts near 0, got '+first);
++assert(self.vol>0.4,'reaches bed level in ~2 s, got '+self.vol);
++console.log('home sea fade-in OK first='+first.toFixed(4));
+-- 
+2.47.3
+

@@ -1,0 +1,61 @@
+{
+ "status": "PASS",
+ "timeUTC": "2026-10-16T19:06:16.509Z",
+ "scope": "Geometry/continuity of the real journeyCamera. Not a render or device acceptance.",
+ "checks": [
+  {
+   "id": "K1 04→05 startBlendM=0: continuous after set-off (d 0–10 m)",
+   "status": "PASS",
+   "maxPosStepPer1cm": 0.01,
+   "maxTurnDegS": 2.19,
+   "atM": 0,
+   "fov": 48
+  },
+  {
+   "id": "K2 before→after hand-over at set-off is a CUT (pinned, reported for design/device review)",
+   "status": "PASS",
+   "cut": true,
+   "positionJumpM": 50.727,
+   "viewTurnDeg": 132.07,
+   "fov": [
+    42,
+    48
+   ],
+   "before": {
+    "position": [
+     -12,
+     15.5,
+     48
+    ],
+    "target": [
+     -9.961567874056541,
+     13.1479629316037,
+     40.63028385235826
+    ],
+    "fovVerticalDeg": 42
+   },
+   "after": {
+    "position": [
+     -5.556268201935414,
+     3.4,
+     -0.839657508127801
+    ],
+    "target": [
+     -2.0162809028334334,
+     2.42699148917896,
+     6.2682074568294315
+    ],
+    "fovVerticalDeg": 48
+   }
+  },
+  {
+   "id": "K3 control: default blend starts exactly on the live lens",
+   "status": "PASS",
+   "blendM": 18
+  },
+  {
+   "id": "K4 wiring: startBlendM 0 only on island 04→05",
+   "status": "PASS"
+  }
+ ]
+}

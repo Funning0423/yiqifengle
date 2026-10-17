@@ -1,0 +1,9 @@
+sailboat transition tests ok {"frames":157,"lastFrame":156,"fps":30,"shots":[0,12,48,90,126],"skipFrom":9,"swap":81,"cloud":{"inStartFrame":66,"fullFrom":78,"fullTo":84,"outEndFrame":96},"cine":"audio_cine/sfx_transition_island_to_meadow.mp3"}
+sailboat r3 cloud texture/dissolve/prefetch: ok
+r3 start gate / hold timing: ok
+PASS short hold (<250ms) never fades the sting
+PASS long hold fades after 250ms over 0.4s
+PASS leaveHold mid-fade restores the sting
+PASS skip during hold keeps the 0.3s skip fade only
+(node:103414) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

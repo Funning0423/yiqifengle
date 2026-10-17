@@ -1,0 +1,314 @@
+{
+  "status": "PASS_DISPLAY_AND_IDLE_ONLY",
+  "before": {
+    "screenBounds": [
+      {
+        "x": 38.72004643791438,
+        "y": 172.19015917302124
+      },
+      {
+        "x": 95.41346617306509,
+        "y": 96.50298677910155
+      },
+      {
+        "x": 3.7007156163634796,
+        "y": 763.137779385974
+      },
+      {
+        "x": 68.28847709755271,
+        "y": 780.563879138009
+      },
+      {
+        "x": 207.2952945376629,
+        "y": 225.52252187660437
+      },
+      {
+        "x": 279.58315006217384,
+        "y": 166.09778586031092
+      },
+      {
+        "x": 208.48140005841492,
+        "y": 751.5276926604473
+      },
+      {
+        "x": 296.79321712760003,
+        "y": 764.4981888592122
+      }
+    ],
+    "renderSize": {
+      "width": 402,
+      "height": 874
+    },
+    "world": {
+      "state": "home",
+      "stable": "home",
+      "mode": "fixed",
+      "hidden": false,
+      "needsResume": false,
+      "characterReady": true,
+      "error": null
+    },
+    "scale": {
+      "x": 1.0000000000000002,
+      "y": 1,
+      "z": 1.0000000000000002
+    },
+    "position": {
+      "x": -0.016162758009872158,
+      "y": 0,
+      "z": -4.413050709661525
+    },
+    "meshes": [
+      {
+        "node": "LOD0_G2_APRON",
+        "materials": [
+          {
+            "name": "M_G2_APRON",
+            "cull": [
+              0,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "node": "LOD0_G2_BODY",
+        "materials": [
+          {
+            "name": "M_G2_FACE",
+            "cull": [
+              2,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          },
+          {
+            "name": "M_G2_HEAD",
+            "cull": [
+              2,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          },
+          {
+            "name": "M_G2_BODY",
+            "cull": [
+              2,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          },
+          {
+            "name": "M_G2_HAIR",
+            "cull": [
+              0,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "node": "LOD0_G2_DRESS",
+        "materials": [
+          {
+            "name": "M_G2_DRESS",
+            "cull": [
+              0,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          }
+        ]
+      }
+    ],
+    "animations": [
+      {
+        "baked": true,
+        "clips": [
+          "idle_breathing_loop",
+          "wind_sway_loop"
+        ],
+        "time": 0.6385000000000001,
+        "playing": true
+      }
+    ],
+    "capsuleActive": false
+  },
+  "after": {
+    "screenBounds": [
+      {
+        "x": 38.72004643791438,
+        "y": 172.19015917302124
+      },
+      {
+        "x": 95.41346617306509,
+        "y": 96.50298677910155
+      },
+      {
+        "x": 3.7007156163634796,
+        "y": 763.137779385974
+      },
+      {
+        "x": 68.28847709755271,
+        "y": 780.563879138009
+      },
+      {
+        "x": 207.2952945376629,
+        "y": 225.52252187660437
+      },
+      {
+        "x": 279.58315006217384,
+        "y": 166.09778586031092
+      },
+      {
+        "x": 208.48140005841492,
+        "y": 751.5276926604473
+      },
+      {
+        "x": 296.79321712760003,
+        "y": 764.4981888592122
+      }
+    ],
+    "renderSize": {
+      "width": 402,
+      "height": 874
+    },
+    "world": {
+      "state": "home",
+      "stable": "home",
+      "mode": "fixed",
+      "hidden": false,
+      "needsResume": false,
+      "characterReady": true,
+      "error": null
+    },
+    "scale": {
+      "x": 1.0000000000000002,
+      "y": 1,
+      "z": 1.0000000000000002
+    },
+    "position": {
+      "x": -0.016162758009872158,
+      "y": 0,
+      "z": -4.413050709661525
+    },
+    "meshes": [
+      {
+        "node": "LOD0_G2_APRON",
+        "materials": [
+          {
+            "name": "M_G2_APRON",
+            "cull": [
+              0,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "node": "LOD0_G2_BODY",
+        "materials": [
+          {
+            "name": "M_G2_FACE",
+            "cull": [
+              2,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          },
+          {
+            "name": "M_G2_HEAD",
+            "cull": [
+              2,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          },
+          {
+            "name": "M_G2_BODY",
+            "cull": [
+              2,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          },
+          {
+            "name": "M_G2_HAIR",
+            "cull": [
+              0,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "node": "LOD0_G2_DRESS",
+        "materials": [
+          {
+            "name": "M_G2_DRESS",
+            "cull": [
+              0,
+              2,
+              1,
+              2,
+              2,
+              2
+            ]
+          }
+        ]
+      }
+    ],
+    "animations": [
+      {
+        "baked": true,
+        "clips": [
+          "idle_breathing_loop",
+          "wind_sway_loop"
+        ],
+        "time": 2.17260000002384,
+        "playing": true
+      }
+    ],
+    "capsuleActive": false
+  },
+  "errors": [],
+  "buildFingerprint": "1a140fcebe5a2c048d1f410e4767cec90ed07bf0510769fdce922a77af1ec79c",
+  "scope": "Actual Cocos Web original loading background + temporary standing B + idle playback. No sit/walk/door/contact/WeChat/phone acceptance."
+}

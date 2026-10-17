@@ -1,0 +1,80 @@
+From 8edc7d2e09237cfd18bedf8abedcfd1acd01a059 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:21:55 +0800
+Subject: [PATCH 5/6] R2: floating reward badges 14 pt higher on small screens
+ (height <= 700) so they clear the open lid; test result-float-lift
+
+---
+ .../assets/scripts/ui/BoardPanels.ts          |  5 ++++-
+ tools/board-ui/test_result_float_lift.cjs     | 19 +++++++++++++++++++
+ tools/journey-integration/run-suite.cjs       |  1 +
+ 3 files changed, 24 insertions(+), 1 deletion(-)
+ create mode 100644 tools/board-ui/test_result_float_lift.cjs
+
+diff --git a/creator-build-project/assets/scripts/ui/BoardPanels.ts b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+index 080314d..189d0b1 100644
+--- a/creator-build-project/assets/scripts/ui/BoardPanels.ts
++++ b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+@@ -333,11 +333,13 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   // Rewards float above the open chest: icon + name, a gentle rise then bob. No card module under the chest.
+   // FLOAT_PLATE: the mockup's flat cream plate behind each reward; off (keep the game's art), one switch for the redesign.
+   const FLOAT_PLATE = true; // SPEC v2.1 RewardBadge (existing icon on a cream round badge)
++  /** R2 (77b76c3 audit): on small screens (height ≤ 700) the floating reward badges sit 14 pt higher (they overlapped the lid on 320×568). */
++  const FLOAT_COMPACT_LIFT = 14;
+   const FLOAT_ICON = 68, FLOAT_ICON_DENSE = 56, FLOAT_NAME = 22, FLOAT_GAP = 28, FLOAT_STEP = 76, FLOAT_STEP_MANY = 64;
+   // Bottom row keeps clear of the panel edge (28 inside a 12-unit panel inset = 40 from a 390-wide screen) and the bottom.
+   // SPEC: buttons (drop shadow included) keep 16 pt from the panel's inner edge (the ≈ 23 pt 9-slice border) on the sides and bottom, every size.
+   const ACTION_INNER_PAD = 16, ACTION_PAD = PANEL_EDGE_PT + ACTION_INNER_PAD, ACTION_SIDE = ACTION_PAD, ACTION_GAP = 16, ACTION_BOTTOM = ACTION_PAD, ACTION_H_C = 52;
+-  (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
++  (p as any).resultDiagnostics = () => ({ floatLift: specCompact ? FLOAT_COMPACT_LIFT : 0, chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
+   let floatDiag: { name: string; x: number; y: number; icon: number }[] = []; const guideDiag: any = { pulsing: false, period: GUIDE_PERIOD };
+   let hintLabel: Label | null = null;
+   const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
+@@ -511,6 +513,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     /** Reward items hovering in a centred row: icon above, name under it. */
+     const placeFloating = (row: Row, baseY: number, mouthY = baseY - 40, fit = Infinity) => {
+       const list = floating(); if (!list.length) return;
++      if (specCompact) { baseY += FLOAT_COMPACT_LIFT; mouthY += FLOAT_COMPACT_LIFT; } // R2: small screens keep the badges off the open lid
+       const colW = Math.min(inner / list.length, list.length > 4 ? FLOAT_STEP_MANY : FLOAT_STEP); const icon = Math.max(16, Math.min(list.length > 4 ? 56 : floatIcon, fit - FLOAT_NAME - 12));
+       list.forEach((r, k) => {
+         const i = m.rewards.indexOf(r), x = (k - (list.length - 1) / 2) * colW;
+diff --git a/tools/board-ui/test_result_float_lift.cjs b/tools/board-ui/test_result_float_lift.cjs
+new file mode 100644
+index 0000000..158fb1e
+--- /dev/null
++++ b/tools/board-ui/test_result_float_lift.cjs
+@@ -0,0 +1,19 @@
++'use strict';
++// R2: on small screens (≤700 tall) the floating reward badges of the open chest sit 14 pt higher than the base layout.
++const assert = require('node:assert/strict'), { createHarness } = require('./harness.cjs');
++(async () => {
++  const H = createHarness(), A = H.load('ui/BoardArt'), K = H.load('ui/PopupKit'), P = H.load('ui/BoardPanels');
++  await Promise.all(['board', 'popup', 'r2'].map(d => A.BoardArt.shared().load(d)));
++  const owner = new H.cc.Node('FloatLiftProbe'); H.cc._scene.addChild(owner); const stack = new K.PopupStack(owner, () => H.state.viewport);
++  const settle = () => { for (let i = 0; i < 40; i++) stack.update(.025); };
++  const model = { kind: 'win', score: 630, stars: 3, movesUsed: 11, movesLeft: 11, goalsLeft: [], chestHint: false, next: () => {}, home: () => {},
++    rewards: [{ id: 'chest', label: '打开宝箱', icon: 'popup/chest_closed', iconKind: 'chest', state: 'claimed' }, { id: 'regionReward', label: '潮汐网', icon: '', tool: 'tideNet', iconKind: 'tool', state: 'claimed' }] };
++  const out = {};
++  for (const [w, h, lift] of [[320, 568, 14], [375, 667, 14], [390, 844, 0]]) {
++    H.state.viewport = { width: w, height: h, safeInsets: { top: 47, bottom: 34, left: 0, right: 0 } };
++    const p = P.openResult(stack, model, null); settle(); const d = p.resultDiagnostics();
++    assert.equal(d.floatLift, lift, w + 'x' + h + ' lift'); assert(d.float.length >= 1, 'badges placed');
++    out[w + 'x' + h] = { lift: d.floatLift, badgeY: d.float[0].y }; stack.clear(); settle();
++  }
++  console.log(JSON.stringify({ status: 'PASS', ...out }));
++})().catch(e => { console.error(e); process.exit(1); });
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 6d49133..6758e03 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -48,6 +48,7 @@ const tests=[
+  ['cconb-bin-only','tools/test_cconb_bin_only.cjs'],
+  ['fade-cover-alpha','tools/test_fade_cover_alpha.cjs'],
+  ['result-chest-handoff','tools/board-ui/test_result_chest_handoff.cjs'],
++ ['result-float-lift','tools/board-ui/test_result_float_lift.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+-- 
+2.47.3
+

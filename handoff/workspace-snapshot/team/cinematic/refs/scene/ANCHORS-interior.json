@@ -1,0 +1,957 @@
+{
+ "package": "GROKBOT-ART-001-INTERIOR-v2.1.0",
+ "units": "metre (reference) + game_units copy (x1.415282, source-derived, pending calibration)",
+ "files": {
+  "metre": "anchors/interaction_anchors_interior.json",
+  "game_units": "anchors/interaction_anchors_interior_gu.json"
+ },
+ "source": "CommonR2 interaction_anchors (read-only), evidence/interaction_anchors_source.json",
+ "v2_1": "door_handle anchor position unchanged (already at handleAt); door handle mesh moved to match it. Chair and door sizes unchanged.",
+ "metre": {
+  "exit_path": [
+   {
+    "name": "exit_path_00",
+    "t": 0,
+    "pos": [
+     0.6074,
+     0,
+     -3.8233
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_01",
+    "t": 1,
+    "pos": [
+     0.4848,
+     0,
+     -3.914
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_02",
+    "t": 2,
+    "pos": [
+     0.3767,
+     0,
+     -3.1209
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_03",
+    "t": 3,
+    "pos": [
+     0.2295,
+     0,
+     -2.0004
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_04",
+    "t": 4,
+    "pos": [
+     -0.0653,
+     0,
+     -0.773
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_05",
+    "t": 5,
+    "pos": [
+     -0.212,
+     0,
+     -0.1467
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_06",
+    "t": 6,
+    "pos": [
+     -0.0482,
+     0,
+     0.6892
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_07",
+    "t": 7,
+    "pos": [
+     -0.4376,
+     0,
+     1.5469
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_08",
+    "t": 8,
+    "pos": [
+     -0.8784,
+     0,
+     2.118
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_09",
+    "t": 9,
+    "pos": [
+     -1.1477,
+     0,
+     2.4345
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_10",
+    "t": 10,
+    "pos": [
+     -1.4174,
+     0,
+     2.7506
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_11",
+    "t": 11,
+    "pos": [
+     -1.6792,
+     0,
+     3.0731
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_12",
+    "t": 12,
+    "pos": [
+     -1.9229,
+     0,
+     3.4095
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_13",
+    "t": 13,
+    "pos": [
+     -2.1327,
+     0,
+     3.7678
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_14",
+    "t": 14,
+    "pos": [
+     -2.283,
+     0,
+     4.1544
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_15",
+    "t": 15,
+    "pos": [
+     -2.3362,
+     0,
+     4.5651
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_16",
+    "t": 16,
+    "pos": [
+     -2.2627,
+     0,
+     4.9722
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_17",
+    "t": 17,
+    "pos": [
+     -2.1135,
+     0,
+     5.2814
+    ],
+    "ground": null
+   }
+  ],
+  "return_path": [
+   {
+    "name": "return_path_00",
+    "t": 0,
+    "pos": [
+     -2.1119,
+     0,
+     5.2839
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_01",
+    "t": 1,
+    "pos": [
+     -2.3339,
+     0,
+     4.6209
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_02",
+    "t": 2,
+    "pos": [
+     -2.2072,
+     0,
+     3.9319
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_03",
+    "t": 3,
+    "pos": [
+     -1.8604,
+     0,
+     3.318
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_04",
+    "t": 4,
+    "pos": [
+     -1.426,
+     0,
+     2.761
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_05",
+    "t": 5,
+    "pos": [
+     -0.9673,
+     0,
+     2.2236
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_06",
+    "t": 6,
+    "pos": [
+     -0.5262,
+     0,
+     1.6718
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_07",
+    "t": 7,
+    "pos": [
+     -0.1581,
+     0,
+     1.0699
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_08",
+    "t": 8,
+    "pos": [
+     -0.1444,
+     0,
+     0.4008
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_09",
+    "t": 9,
+    "pos": [
+     -0.212,
+     0,
+     -0.295
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_10",
+    "t": 10,
+    "pos": [
+     0.0062,
+     0,
+     -0.9648
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_11",
+    "t": 11,
+    "pos": [
+     0.1743,
+     0,
+     -1.6488
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_12",
+    "t": 12,
+    "pos": [
+     0.1279,
+     0,
+     -2.3522
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_13",
+    "t": 13,
+    "pos": [
+     -0.0039,
+     0,
+     -3.0463
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_14",
+    "t": 14,
+    "pos": [
+     -0.0764,
+     0,
+     -3.7473
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_15",
+    "t": 15,
+    "pos": [
+     -0.0561,
+     0,
+     -4.3498
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   }
+  ],
+  "collision": [
+   "col_lighthouse_door_leaf",
+   "col_int_walls",
+   "col_int_stool",
+   "col_int_stairs",
+   "col_int_side_table",
+   "col_int_props_misc",
+   "col_int_floor_walkable",
+   "col_int_door_frame",
+   "col_int_desk",
+   "col_int_chair_seat",
+   "col_int_chair_back",
+   "col_int_chair_armrest_r",
+   "col_int_chair_armrest_l",
+   "col_int_ceiling"
+  ],
+  "anchors": {
+   "interaction_anchors": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "seat_anchor": [
+    0.4203,
+    0.38,
+    -4.2133
+   ],
+   "seated_foot_anchor": [
+    0.4944,
+    0.0,
+    -3.8233
+   ],
+   "stand_up_foot_anchor": [
+    -0.152,
+    0.0,
+    -4.2603
+   ],
+   "door_hinge": [
+    0.7202,
+    0.0,
+    -0.0
+   ],
+   "door_handle": [
+    -0.43,
+    1.1287,
+    -0.0424
+   ],
+   "door_stand_point": [
+    -0.212,
+    0.0,
+    -0.3321
+   ],
+   "interior_spawn": [
+    0.6074,
+    0.0,
+    -3.8233
+   ],
+   "entrance_point": [
+    -0.2181,
+    0.0,
+    -0.3674
+   ],
+   "exit_point": [
+    -0.212,
+    0.0,
+    0.1413
+   ],
+   "exit_path": [
+    0.6074,
+    0.0,
+    -3.8233
+   ],
+   "return_path": [
+    -2.1119,
+    0.0,
+    5.2839
+   ],
+   "walkable_area": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "collision_proxies": [
+    0.0,
+    0.0,
+    -0.0
+   ]
+  }
+ },
+ "game_units": {
+  "exit_path": [
+   {
+    "name": "exit_path_00",
+    "t": 0,
+    "pos": [
+     0.85964,
+     0.0,
+     -5.41105
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_01",
+    "t": 1,
+    "pos": [
+     0.68613,
+     0.0,
+     -5.53942
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_02",
+    "t": 2,
+    "pos": [
+     0.53314,
+     0.0,
+     -4.41695
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_03",
+    "t": 3,
+    "pos": [
+     0.32481,
+     0.0,
+     -2.83113
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_04",
+    "t": 4,
+    "pos": [
+     -0.09242,
+     0.0,
+     -1.09401
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_05",
+    "t": 5,
+    "pos": [
+     -0.30004,
+     0.0,
+     -0.20762
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "exit_path_06",
+    "t": 6,
+    "pos": [
+     -0.06822,
+     0.0,
+     0.97541
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_07",
+    "t": 7,
+    "pos": [
+     -0.61933,
+     0.0,
+     2.1893
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_08",
+    "t": 8,
+    "pos": [
+     -1.24318,
+     0.0,
+     2.99757
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_09",
+    "t": 9,
+    "pos": [
+     -1.62432,
+     0.0,
+     3.4455
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_10",
+    "t": 10,
+    "pos": [
+     -2.00602,
+     0.0,
+     3.89288
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_11",
+    "t": 11,
+    "pos": [
+     -2.37654,
+     0.0,
+     4.3493
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_12",
+    "t": 12,
+    "pos": [
+     -2.72145,
+     0.0,
+     4.82541
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_13",
+    "t": 13,
+    "pos": [
+     -3.01837,
+     0.0,
+     5.3325
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_14",
+    "t": 14,
+    "pos": [
+     -3.23109,
+     0.0,
+     5.87965
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_15",
+    "t": 15,
+    "pos": [
+     -3.30638,
+     0.0,
+     6.46091
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_16",
+    "t": 16,
+    "pos": [
+     -3.20236,
+     0.0,
+     7.03707
+    ],
+    "ground": null
+   },
+   {
+    "name": "exit_path_17",
+    "t": 17,
+    "pos": [
+     -2.9912,
+     0.0,
+     7.47467
+    ],
+    "ground": null
+   }
+  ],
+  "return_path": [
+   {
+    "name": "return_path_00",
+    "t": 0,
+    "pos": [
+     -2.98893,
+     0.0,
+     7.47821
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_01",
+    "t": 1,
+    "pos": [
+     -3.30313,
+     0.0,
+     6.53988
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_02",
+    "t": 2,
+    "pos": [
+     -3.12381,
+     0.0,
+     5.56475
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_03",
+    "t": 3,
+    "pos": [
+     -2.63299,
+     0.0,
+     4.69591
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_04",
+    "t": 4,
+    "pos": [
+     -2.01819,
+     0.0,
+     3.90759
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_05",
+    "t": 5,
+    "pos": [
+     -1.369,
+     0.0,
+     3.14702
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_06",
+    "t": 6,
+    "pos": [
+     -0.74472,
+     0.0,
+     2.36607
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_07",
+    "t": 7,
+    "pos": [
+     -0.22376,
+     0.0,
+     1.51421
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_08",
+    "t": 8,
+    "pos": [
+     -0.20437,
+     0.0,
+     0.56725
+    ],
+    "ground": null
+   },
+   {
+    "name": "return_path_09",
+    "t": 9,
+    "pos": [
+     -0.30004,
+     0.0,
+     -0.41751
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_10",
+    "t": 10,
+    "pos": [
+     0.00877,
+     0.0,
+     -1.36546
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_11",
+    "t": 11,
+    "pos": [
+     0.24668,
+     0.0,
+     -2.33352
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_12",
+    "t": 12,
+    "pos": [
+     0.18101,
+     0.0,
+     -3.32903
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_13",
+    "t": 13,
+    "pos": [
+     -0.00552,
+     0.0,
+     -4.31137
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_14",
+    "t": 14,
+    "pos": [
+     -0.10813,
+     0.0,
+     -5.30349
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   },
+   {
+    "name": "return_path_15",
+    "t": 15,
+    "pos": [
+     -0.0794,
+     0.0,
+     -6.1562
+    ],
+    "ground": [
+     "env_interior_shell",
+     0.0
+    ]
+   }
+  ],
+  "collision": [
+   "col_lighthouse_door_leaf",
+   "col_int_walls",
+   "col_int_stool",
+   "col_int_stairs",
+   "col_int_side_table",
+   "col_int_props_misc",
+   "col_int_floor_walkable",
+   "col_int_door_frame",
+   "col_int_desk",
+   "col_int_chair_seat",
+   "col_int_chair_back",
+   "col_int_chair_armrest_r",
+   "col_int_chair_armrest_l",
+   "col_int_ceiling"
+  ],
+  "anchors": {
+   "interaction_anchors": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "seat_anchor": [
+    0.59484,
+    0.53781,
+    -5.96301
+   ],
+   "seated_foot_anchor": [
+    0.69972,
+    0.0,
+    -5.41105
+   ],
+   "stand_up_foot_anchor": [
+    -0.21512,
+    0.0,
+    -6.02953
+   ],
+   "door_hinge": [
+    1.01929,
+    0.0,
+    -0.0
+   ],
+   "door_handle": [
+    -0.60857,
+    1.59743,
+    -0.06001
+   ],
+   "door_stand_point": [
+    -0.30004,
+    0.0,
+    -0.47002
+   ],
+   "interior_spawn": [
+    0.85964,
+    0.0,
+    -5.41105
+   ],
+   "entrance_point": [
+    -0.30867,
+    0.0,
+    -0.51997
+   ],
+   "exit_point": [
+    -0.30004,
+    0.0,
+    0.19998
+   ],
+   "exit_path": [
+    0.85964,
+    0.0,
+    -5.41105
+   ],
+   "return_path": [
+    -2.98893,
+    0.0,
+    7.47821
+   ],
+   "walkable_area": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "collision_proxies": [
+    0.0,
+    0.0,
+    -0.0
+   ]
+  },
+  "_units": "legacy CommonR2 scene units = metres x 1.415282 (source-derived girlScale conversion, pending engine calibration); angles unchanged"
+ }
+}

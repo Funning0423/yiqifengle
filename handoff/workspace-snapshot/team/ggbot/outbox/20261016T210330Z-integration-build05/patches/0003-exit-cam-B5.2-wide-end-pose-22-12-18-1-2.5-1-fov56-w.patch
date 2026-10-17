@@ -1,0 +1,78 @@
+From c42cf60e5304296aab6cf235f08b2a23bc8672d1 Mon Sep 17 00:00:00 2001
+From: yunjing-bot <yunjing-bot@local>
+Date: Fri, 16 Oct 2026 03:07:30 -0400
+Subject: [PATCH 03/21] exit-cam B5.2: wide end pose (-22,12,18)->(-1,2.5,1)
+ fov56 (whole lighthouse+island+sea), peak 1.84 m/s (cap 2.2), settle 28 s,
+ bearing/height lead shares 0.45/0.55 for prop+flyer clearance; side-pose wind
+ fallback peaks >=3 s before end
+
+---
+ .../assets/scripts/world-r1/FirstsliceRoutes.ts            | 7 ++++++-
+ .../assets/scripts/world-r1/RegionCameraData.ts            | 6 +++---
+ tools/camera-frame-test/test_camera_frames.cjs             | 2 +-
+ 3 files changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts b/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
+index e61e44f..c9bf051 100644
+--- a/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
++++ b/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
+@@ -153,7 +153,12 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
+     let qFr=-1,qHold=-1,tFr=0,minD=99;
+     for(let i=0;i<=320;i++){const q=qCrossEnd+(1-qCrossEnd)*i/320,m=angAt(q);if(m.dist<minD)minD=m.dist;
+       if(qFr<0&&m.ang<=opts.frontalDeg){qFr=q;tFr=m.t;qHold=q;}else if(qFr>=0&&m.ang<=opts.holdMaxDeg&&m.t<=Math.max(tFr+.05,Math.min(tFr+1.6,tOfQ(1)-2.0)))qHold=Math.min(q,1-1e-4);}
+-    if(qFr<0){qFr=1-1e-4;qHold=1-5e-5;tFr=tOfQ(qFr);}
++    if(qFr<0){ // no frontal sample (side end pose): wind peaks where the lens is nearest her front, but >= 3 s before the end so it can ease out
++      const tEnd=tOfQ(1);let best=1e9;const A:Array<{q:number,ang:number,t:number}>=[];
++      for(let i=0;i<=320;i++){const q=qCrossEnd+(1-qCrossEnd)*i/320,m=angAt(q);A.push({q,ang:m.ang,t:m.t});if(m.t<=tEnd-3&&m.ang<best)best=m.ang;}
++      const fr=A.find(a=>a.t<=tEnd-3&&a.ang<=best+2)!;qFr=fr.q;tFr=fr.t;qHold=qFr;
++      for(const a of A)if(a.q>qFr&&a.t<=Math.min(tFr+1.6,tEnd-2.5))qHold=a.q;
++      if(!(qHold>qFr+1e-4))qHold=Math.min(qFr+2e-4,1-5e-5);}
+     if(!(minD>=1.7))throw Error('B5: lens crowds her '+minD.toFixed(2));
+     const bound=poseQ(qWalkEnd);
+     const locC=(q:number)=>q/qCrossEnd,locI=(q:number)=>(q-qCrossEnd)/(qWalkEnd-qCrossEnd),locS=(q:number)=>(q-qWalkEnd)/(1-qWalkEnd);
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+index 2a535c7..7f2d865 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+@@ -24,7 +24,7 @@ export const REGION_CAMERA = {
+         source: 'old FirstsliceRoutes.cameraIsland (capsule era); ~2.6 m from character, causes OI-FRAME-002' },
+       'temporary-6m': { position: [-5.796, 3.323, 9.352], target: [-2.114, 0.9, 5.281], fovVerticalDeg: 45, characterYawDeg: 0,
+         source: 'TEMPORARY 0007 v1.2 composition candidate: legacy direction pulled back to 6 m from exit_path_17 chest point. NOT final.' },
+-      'yunjing-final': { position: [-2.3, 7.0, 11.0], target: [-2.0, 0.8, 4.6], fovVerticalDeg: 48, characterYawDeg: 0,
++      'yunjing-final': { position: [-22, 12, 18], target: [-1, 2.5, 1], fovVerticalDeg: 56, characterYawDeg: 0,
+         source: '运镜bot exit-cam-v2 2026-10-15 candidate: pitch -30, y 15.5 (suite end height), fov 70, island ~47% H (lighthouse top to beach), lighthouse+hut centred (ref FUNNING-exit-final-frame-ref.png). Funning pick pending. Kept unchanged as the B5 end pose.' },
+       // art/island/v2.3-cursor-cam/island_camera_wide.json (CAM-01). Position+target+fov only; rotation is derived.
+       'v23-wide': { position: [-49.6623, 26.7215, 56.2639], target: [-2.1535, -4.5424, 3.7359], fovVerticalDeg: 42, characterYawDeg: 0,
+@@ -189,14 +189,14 @@ export const TRANSITION_CAMERA = Object.freeze({
+    *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
+    *  frontalDeg: wind reaches 1 the first time the lens is within this many
+    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
+-  crane: { settleSeconds: 4.2,
++  crane: { settleSeconds: 28,
+     pace: { sampleMetres: 0.05, rampSeconds: 1.03, cruiseMps: 7,
+       depart: { turn: 1, straightM: 0.45, rayMps: 1.15, blendMetres: 0.5, aimDeg: 22, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
+       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36,
+       /** B5 (运镜bot 2026-10-16, Funning rejected B4: mid-way surge + abrupt lift). Follow her at walking pace, then ONE
+        *  minimum-jerk (smootherstep) rise from her right to cameraIsland; all seconds after the doorway key. */
+       /* Rollback to B4: delete this b5 entry (depart above is the B4 arc). */
+-      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 2.4, riseAt: 2.4, side: 1.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 1 } } },
++      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 2.4, riseAt: 2.4, side: 1.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 0.45, heightShare: 0.55 } } },
+   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
+    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when
+    *  the exit arc first faces her -> held while she stays in front -> eases to exactly 0 when the camera settles on
+diff --git a/tools/camera-frame-test/test_camera_frames.cjs b/tools/camera-frame-test/test_camera_frames.cjs
+index 1853ced..3ef40b4 100644
+--- a/tools/camera-frame-test/test_camera_frames.cjs
++++ b/tools/camera-frame-test/test_camera_frames.cjs
+@@ -228,7 +228,7 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
+   // then rises in one smooth ease. Checked on BOTH clocks (constant walk here, real walk driver below):
+   // peak speed <= EXIT_LIMITS.peakMps, smoothed |accel| / |jerk| caps (no spikes/kinks), and the lens on her right side
+   // (lateral offset on her right axis >= -EXIT_LIMITS.leftToleranceM). No cruise band, no door-angle condition.
+-  const EXIT_LIMITS={peakMps:4.0,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
++  const EXIT_LIMITS={peakMps:2.2,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
+   const exitKin=(frames,dtE,tFrom)=>{const ex=frames.filter(f=>f.state==='crossing-out'&&f.t>=tFrom-.5);const n=ex.length,h=EXIT_LIMITS.smoothFrames>>1;
+     const w=[];for(let k=-h;k<=h;k++){let c=1;for(let q=0;q<k+h;q++)c=c*(2*h-q)/(q+1);w.push(c);}const ws=w.reduce((p,q)=>p+q,0);
+     const P=ex.map((f,i)=>{let x=[0,0,0];for(let k=-h;k<=h;k++){const g=ex[Math.max(0,Math.min(n-1,i+k))].cam.position;for(let c=0;c<3;c++)x[c]+=g[c]*w[k+h]/ws;}return x;});
+-- 
+2.47.3
+

@@ -1,0 +1,2 @@
+$ git bundle list-heads /workspace/wechat-game/team/ggbot/outbox/20261017T041004Z-integration-build05-milestone-readme-v2.1/qfl-build05-09a1b8e-full.bundle
+09a1b8e456fd38dadf632f627189883808307cbe refs/heads/integration/build05-20261016T2048

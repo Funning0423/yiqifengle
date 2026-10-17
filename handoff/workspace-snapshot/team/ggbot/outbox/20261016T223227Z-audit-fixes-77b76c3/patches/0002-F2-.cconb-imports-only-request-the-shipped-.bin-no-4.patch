@@ -1,0 +1,81 @@
+From c76ba9a10e7f4b2500c2b3b1d8ce49bc34c9af4a Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:12:29 +0800
+Subject: [PATCH 2/6] =?UTF-8?q?F2:=20.cconb=20imports=20only=20request=20t?=
+ =?UTF-8?q?he=20shipped=20.bin=20(no=20404=20fallback=20to=20.cconb);=20no?=
+ =?UTF-8?q?t=20caused=20by=20meshCompress=20260c3d5=20=E2=80=94=20b0020ed?=
+ =?UTF-8?q?=20(without=20260c3d5)=20already=20showed=20@b043a.cconb=20404?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/SharedBundles.ts           | 20 +++++++++++++++++++
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/test_cconb_bin_only.cjs                 | 14 +++++++++++++
+ 3 files changed, 35 insertions(+)
+ create mode 100644 tools/test_cconb_bin_only.cjs
+
+diff --git a/creator-build-project/assets/scripts/SharedBundles.ts b/creator-build-project/assets/scripts/SharedBundles.ts
+index 3cec09b..8b0470f 100644
+--- a/creator-build-project/assets/scripts/SharedBundles.ts
++++ b/creator-build-project/assets/scripts/SharedBundles.ts
+@@ -16,3 +16,23 @@ export function installSharedBundleDeps(am: any = assetManager): void {
+   };
+ }
+ installSharedBundleDeps();
++
++/** F2 (77b76c3 audit): Creator 3.8.8 serialises AnimationClips as CCON binary. config.extensionMap lists them as '.cconb' but the
++ * build writes them as '.bin' (official layout; the mini-game adapter rewrites .cconb→.bin, web downloadCCONB asks for .bin first and
++ * only falls back to the never-shipped .cconb URL when the .bin request fails). A transient .bin failure on first launch therefore
++ * surfaced as 404s on .cconb. This wraps the '.cconb' downloader so it only ever requests the shipped .bin: the engine's own
++ * fallback becomes a second .bin attempt instead of a guaranteed 404, matching WeChat behaviour. Idempotent; no package bytes. */
++export function installCconbBinOnly(am: any = assetManager): boolean {
++  const d = am && am.downloader, table = d && d._downloaders;
++  if (!table || typeof table['.cconb'] !== 'function' || table['.cconb'].__qfBinOnly) return false;
++  const orig = table['.cconb'];
++  const wrapped: any = function (url: string, options: any, done: any) {
++    const bin = typeof url === 'string' ? url.replace(/\.cconb(?=$|[?#])/, '.bin') : url;
++    return orig.call(this, bin, options, (err: any, data: any) => {
++      if (err && (globalThis as any).__worldFlowLog) console.warn('[QF_CCONB] .bin load failed', bin, err && err.message);
++      done(err, data);
++    });
++  };
++  wrapped.__qfBinOnly = true; table['.cconb'] = wrapped; return true;
++}
++installCconbBinOnly();
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 9c1d589..4006ba4 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -45,6 +45,7 @@ const tests=[
+  ['retry-protection','tools/test_retry_protection.cjs'],
+  ['cloud-web-contract','tools/cloud-web/test.cjs'],
+  ['exit-cine-audio','tools/test_exit_cine_audio.cjs'],
++ ['cconb-bin-only','tools/test_cconb_bin_only.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/test_cconb_bin_only.cjs b/tools/test_cconb_bin_only.cjs
+new file mode 100644
+index 0000000..fef2b95
+--- /dev/null
++++ b/tools/test_cconb_bin_only.cjs
+@@ -0,0 +1,14 @@
++'use strict';
++// F2: '.cconb' import requests must only target the shipped '.bin' (never the .cconb URL that 404s). Mock downloader only.
++const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
++const src=fs.readFileSync('creator-build-project/assets/scripts/SharedBundles.ts','utf8').replace(/^import .* from 'cc';\n/m,'').replace(/^installSharedBundleDeps\(\);\n/m,'').replace(/^installCconbBinOnly\(\);\n/m,'').replace(/export /g,'');
++const code=require('./qf-env.cjs').typescript().transpileModule(src,{compilerOptions:{target:99}}).outputText+'\nglobalThis.install=installCconbBinOnly;';
++const reqs=[];let failBin=1;
++// Same shape as engine 3.8.8 downloadCCONB: try url.replace('.cconb','.bin'), on error try url itself.
++const engine=(url,o,cb)=>{const get=(u,k)=>{reqs.push(u);if(u.endsWith('.bin')&&failBin-->0)return k(Error('net'));if(u.endsWith('.cconb'))return k(Error('404'));k(null,'ok');};get(url.replace('.cconb','.bin'),(e,d)=>e?get(url,cb):cb(null,d));};
++const am={downloader:{_downloaders:{'.cconb':engine}}};const ctx={assetManager:am,console};ctx.globalThis=ctx;vm.runInNewContext(code,ctx);
++assert.equal(ctx.install(am),true);assert.equal(ctx.install(am),false,'idempotent');
++let out;am.downloader._downloaders['.cconb']('a/dc/x@b043a.cconb',{},(e,d)=>out=[e,d]);
++assert.deepEqual(reqs,['a/dc/x@b043a.bin','a/dc/x@b043a.bin']);assert.equal(out[1],'ok');
++assert(!reqs.some(u=>u.endsWith('.cconb')),'no .cconb request');
++console.log('PASS cconb requests only target .bin (transient .bin failure retried as .bin)');
+-- 
+2.47.3
+

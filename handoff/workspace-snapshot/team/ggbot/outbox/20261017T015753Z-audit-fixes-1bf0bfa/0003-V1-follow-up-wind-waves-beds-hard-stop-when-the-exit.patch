@@ -1,0 +1,119 @@
+From 511953eebda301e354149faf8e07ddde2031fbd8 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 09:31:22 +0800
+Subject: [PATCH 3/3] V1 follow-up: wind/waves beds hard-stop when the exit
+ restarts after a background trip (GameAudio.quietAmbience on leaving paused
+ and on standing); test
+
+---
+ .../assets/scripts/audio/AmbienceAudio.ts        |  3 +++
+ .../assets/scripts/audio/GameAudio.ts            |  7 +++++++
+ .../assets/scripts/audio/WindAudio.ts            |  8 ++++++++
+ tools/journey-integration/run-suite.cjs          |  1 +
+ tools/test_exit_restart_quiet.cjs                | 16 ++++++++++++++++
+ 5 files changed, 35 insertions(+)
+ create mode 100644 tools/test_exit_restart_quiet.cjs
+
+diff --git a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+index 5c97427..1b37447 100644
+--- a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
++++ b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+@@ -415,6 +415,8 @@ export class AmbienceAudio extends Component {
+ 
+   private static smoothstep(a: number, b: number, x: number) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
+ 
++  /** V1 follow-up: drop the smoothed waves bed at once (GameAudio.quietAmbience); it fades back in from 0 if still outdoors. */
++  quiet() { this.vol = 0; const src = this.src; if (!src) return; try { src.volume = 0; if (src.playing) src.pause(); } catch { /* ignore */ } }
+   update(dt: number) {
+     const src = this.src; if (!src) return;
+     this.clock += dt;
+@@ -495,3 +497,4 @@ export class AmbienceAudio extends Component {
+ 
+ director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AmbienceAudio.ensure());
+ (GameAudio as any).ambienceMounters?.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio
++(GameAudio as any).ambienceQuieters?.push(() => (AmbienceAudio as any).inst?.quiet());
+diff --git a/creator-build-project/assets/scripts/audio/GameAudio.ts b/creator-build-project/assets/scripts/audio/GameAudio.ts
+index f9cc663..c38ea6c 100644
+--- a/creator-build-project/assets/scripts/audio/GameAudio.ts
++++ b/creator-build-project/assets/scripts/audio/GameAudio.ts
+@@ -191,6 +191,11 @@ export class GameAudio extends Component {
+   private audioProven = false; // A1b: an sfx actually started (exit track) — ambience may follow it
+   /** A1b: WindAudio/AmbienceAudio register their ensure() here (they import GameAudio, not the other way round). */
+   static ambienceMounters: Array<() => void> = [];
++  /** V1 follow-up: wind/waves register a hard-stop here. Called when the exit restarts after a background trip (and on
++   *  every 'standing'), so the bed left over from the cancelled exit does not linger ~1 s into the new one. */
++  static ambienceQuieters: Array<() => void> = [];
++  static quietAmbience(reason: string) { for (const f of GameAudio.ambienceQuieters) { try { f(); } catch { } } qfAudioLog('ambience-quiet', { reason, quieters: GameAudio.ambienceQuieters.length }); }
++  private lastWorldState = '';
+   static ensureAmbience(state: string) { for (const f of GameAudio.ambienceMounters) { try { f(); } catch { } } qfAudioLog('ensure-ambience', { state, mounters: GameAudio.ambienceMounters.length, gate: GameAudio.instance?.ambienceGate() ?? 'no-gameaudio' }); }
+   /** Why ambience is (not) allowed right now — for [QF_AUDIO] logs. */
+   ambienceGate(): string { return !GameAudio.usable(this) ? 'unusable' : GameAudio.instance !== this ? 'not-instance' : this.muted ? 'muted' : this.reasons.size ? 'suspended:' + Array.from(this.reasons).join(',') : !(this.gestureSeen || this.audioProven) ? 'no-gesture' : 'ok'; }
+@@ -969,6 +974,8 @@ export class GameAudio extends Component {
+   /** World flow state feed (WorldIntegrationBoot, once per change). */
+   onWorldState(state: string) {
+     if (!GameAudio.usable(this)) return;
++    const prev = this.lastWorldState; this.lastWorldState = state;
++    if (state === 'standing' || (prev === 'paused' && state !== 'paused')) GameAudio.quietAmbience(prev === 'paused' ? 'resume:' + state : state);
+     if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { GameAudio.ensureAmbience(state); this.stopExitCine('restart'); this.loadExitCine(); return; }
+     if (state === 'crossing-out' || EXIT_PRELOAD_STATES.indexOf(state) >= 0) GameAudio.ensureAmbience(state); // A1b: wind + waves mounted before the outdoor segment
+     if (state === 'crossing-out') { this.exitCineAt = GameAudio.now(); this.exitCineMark('segment-start'); this.loadExitCine(); this.startExitCine(); return; }
+diff --git a/creator-build-project/assets/scripts/audio/WindAudio.ts b/creator-build-project/assets/scripts/audio/WindAudio.ts
+index e80e3a9..e23c503 100644
+--- a/creator-build-project/assets/scripts/audio/WindAudio.ts
++++ b/creator-build-project/assets/scripts/audio/WindAudio.ts
+@@ -244,6 +244,13 @@ export class WindAudio extends Component {
+   private lastGate = '';
+   private levelLogIn = 0;
+   private gate(g: string) { if (g === this.lastGate) return; this.lastGate = g; qfAudioLog('wind-gate', { gate: g, wind: +this.windStrength().toFixed(3), clips: Object.keys(this.clips).filter(k => this.clips[k]).length }); }
++  /** V1 follow-up: hard stop (smoothed strength, gust, bgm duck, both loops) — see GameAudio.quietAmbience. */
++  quiet() {
++    this.s = 0; this.sWind = 0; this.gust = -1; this.quietFor = IDLE_PAUSE_S;
++    AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0);
++    for (const src of [this.softSrc, this.strongSrc]) if (src) { try { src.volume = 0; } catch { /* ignore */ } }
++    this.pauseLoops();
++  }
+   private pauseLoops() {
+     for (const src of [this.softSrc, this.strongSrc]) {
+       if (src && src.playing) { try { src.pause(); qfAudioLog('wind-pause', {}); } catch { /* ignore */ } }
+@@ -295,3 +302,4 @@ director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => WindAudio.ensure());
+ // A1b: also mount from GameAudio's world-state hook (standing / crossing-out): if this module ran after the scene had
+ // launched, the once() above never fires and the outdoor segment was silent.
+ (GameAudio as any).ambienceMounters?.push(() => WindAudio.ensure());
++(GameAudio as any).ambienceQuieters?.push(() => { const w = WindAudio.instance; if (w && (w as any).alive) w.quiet(); });
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 217f0c9..76aa400 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -54,6 +54,7 @@ const tests=[
+  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
+  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
+  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
++ ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/test_exit_restart_quiet.cjs b/tools/test_exit_restart_quiet.cjs
+new file mode 100644
+index 0000000..fa449d5
+--- /dev/null
++++ b/tools/test_exit_restart_quiet.cjs
+@@ -0,0 +1,16 @@
++// V1 follow-up: when the exit restarts after a background trip the wind/waves beds stop at once (no ~1 s tail).
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const A=path.join(__dirname,'..','creator-build-project/assets/scripts/audio'),rd=f=>fs.readFileSync(path.join(A,f),'utf8');
++const ga=rd('GameAudio.ts'),wa=rd('WindAudio.ts'),aa=rd('AmbienceAudio.ts');
++assert(/static ambienceQuieters: Array<\(\) => void> = \[\];/.test(ga));
++assert(/if \(state === 'standing' \|\| \(prev === 'paused' && state !== 'paused'\)\) GameAudio\.quietAmbience\(/.test(ga),'quiet on standing / leaving paused');
++assert(/\(GameAudio as any\)\.ambienceQuieters\?\.push\(\(\) => \{ const w = WindAudio\.instance;/.test(wa),'wind registers');
++assert(/\(GameAudio as any\)\.ambienceQuieters\?\.push\(\(\) => \(AmbienceAudio as any\)\.inst\?\.quiet\(\)\);/.test(aa),'waves register');
++// Behaviour of the quiet bodies on a stand-in object (same statements as the source).
++const wq=wa.match(/  quiet\(\) \{\n([\s\S]*?)\n  \}\n/)[1];
++const w={s:.9,sWind:.8,gust:1,quietFor:0,softSrc:{volume:.6,playing:true},strongSrc:{volume:.5,playing:true},paused:0,pauseLoops(){for(const s of [this.softSrc,this.strongSrc])if(s.playing){s.playing=false;this.paused++;}}};
++const calls=[];new Function('AmbienceAudio','WindAudio','IDLE_PAUSE_S',wq.replace(/this\./g,'self.').replace(/^/,'const self=this;\n')).call(w,{setWindExit:v=>calls.push(['exit',v])},{duckBgm:v=>calls.push(['duck',v])},1);
++assert.equal(w.s,0);assert.equal(w.sWind,0);assert.equal(w.gust,-1);assert.equal(w.softSrc.volume,0);assert.equal(w.strongSrc.volume,0);assert.equal(w.paused,2);assert.deepStrictEqual(calls,[['exit',0],['duck',0]]);
++const aq=aa.match(/  quiet\(\) \{ ([^\n]*) \}\n/)[1];const a={vol:.5,src:{volume:.5,playing:true,pause(){this.playing=false;}}};
++new Function(aq.replace(/this\./g,'self.').replace(/^/,'const self=this;')).call(a);assert.equal(a.vol,0);assert.equal(a.src.volume,0);assert.equal(a.src.playing,false);
++console.log('exit restart quiet OK');
+-- 
+2.47.3
+

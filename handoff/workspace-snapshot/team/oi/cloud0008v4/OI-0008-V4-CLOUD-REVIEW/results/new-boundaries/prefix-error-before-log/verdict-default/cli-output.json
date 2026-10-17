@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default",
+      "--auto-port",
+      "42001"
+    ],
+    "pid": 80,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 52,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default"
+    ],
+    "pid": 91,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 66,
+    "lines": []
+  }
+}

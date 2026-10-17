@@ -1,0 +1,65 @@
+[
+ {
+  "screen": "390x844",
+  "O5s": 1.19,
+  "F7bWorstDeg": -0.17,
+  "at": 7,
+  "occludedFirst20m": [],
+  "minLensFirst20m": 3,
+  "leg1M": 34.19
+ },
+ {
+  "screen": "414x896",
+  "O5s": 1.19,
+  "F7bWorstDeg": -0.17,
+  "at": 7,
+  "occludedFirst20m": [],
+  "minLensFirst20m": 3,
+  "leg1M": 34.19
+ },
+ {
+  "screen": "360x780",
+  "O5s": 1.19,
+  "F7bWorstDeg": -0.17,
+  "at": 7,
+  "occludedFirst20m": [],
+  "minLensFirst20m": 3,
+  "leg1M": 34.19
+ },
+ {
+  "screen": "375x667",
+  "O5s": 1.19,
+  "F7bWorstDeg": -0.17,
+  "at": 7,
+  "occludedFirst20m": [],
+  "minLensFirst20m": 3,
+  "leg1M": 34.19
+ },
+ {
+  "screen": "390x520",
+  "O5s": 2.98,
+  "F7bWorstDeg": -0.14,
+  "at": 9.1,
+  "occludedFirst20m": [],
+  "minLensFirst20m": 3,
+  "leg1M": 32
+ },
+ {
+  "screen": "320x568",
+  "O5s": 2.4,
+  "F7bWorstDeg": -0.22,
+  "at": 13.1,
+  "occludedFirst20m": [],
+  "minLensFirst20m": 3,
+  "leg1M": 32.7
+ },
+ {
+  "screen": "768x1024",
+  "O5s": 1.19,
+  "F7bWorstDeg": -0.17,
+  "at": 7,
+  "occludedFirst20m": [],
+  "minLensFirst20m": 3,
+  "leg1M": 34.19
+ }
+]

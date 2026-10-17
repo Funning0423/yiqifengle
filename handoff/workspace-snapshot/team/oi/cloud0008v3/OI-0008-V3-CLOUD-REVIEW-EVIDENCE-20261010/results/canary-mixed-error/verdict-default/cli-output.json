@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T000644749Z-7eb5-49a9c6-default",
+      "--auto-port",
+      "42014"
+    ],
+    "pid": 647,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 55,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T000644749Z-7eb5-49a9c6-default"
+    ],
+    "pid": 658,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 59,
+    "lines": []
+  }
+}

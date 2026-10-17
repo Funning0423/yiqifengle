@@ -1,0 +1,47 @@
+{
+  "scope": "Local deterministic log-fixture test only; actual DevTools logfile rewrite behavior not established.",
+  "rows": [
+    {
+      "name": "same_inode_size_and_4096_prefix_suffix_rewrite",
+      "result": "error_not_captured_no_incomplete",
+      "fileBytes": 4297,
+      "lines": [],
+      "incomplete": [],
+      "events": [
+        {
+          "t": "2026-10-10T00:05:14.497Z",
+          "event": "baseline",
+          "rootExists": true,
+          "files": 1
+        }
+      ]
+    },
+    {
+      "name": "classifier_coverage",
+      "text": "Error: ordinary failure",
+      "standalone": {
+        "kind": "forbidden",
+        "id": "js-error"
+      },
+      "auditStrongPatternHit": false
+    },
+    {
+      "name": "classifier_coverage",
+      "text": "[其他错误] 资源加载失败",
+      "standalone": {
+        "kind": "forbidden",
+        "id": "other-bracket-error"
+      },
+      "auditStrongPatternHit": false
+    },
+    {
+      "name": "classifier_coverage",
+      "text": "[console.error] ordinary failure",
+      "standalone": {
+        "kind": "unclassified",
+        "id": null
+      },
+      "auditStrongPatternHit": false
+    }
+  ]
+}

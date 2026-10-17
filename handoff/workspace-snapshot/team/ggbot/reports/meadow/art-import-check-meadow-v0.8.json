@@ -1,0 +1,484 @@
+[
+  {
+    "file": "/workspace/wechat-game/art/x/GROKBOT-MEADOW-v0.8.0/meadow_v0_8/meadow_greybox_v0_8.glb",
+    "kind": "env",
+    "bbox_m": [
+      560.0,
+      352.469,
+      560.0
+    ],
+    "checks": [
+      {
+        "item": "Y-up：根节点没有残留 Blender 的 X ±90° 旋转",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "无负缩放（镜像）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "无非等比缩放",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "世界缩放为 1（或仅一次 K=1.061164）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "K 没有被重复施加（K²）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "单位：场景尺寸像米（最长边 1–2000 m）",
+        "result": "green",
+        "detail": "包围盒 [560.0, 352.469, 560.0] m（X,Y,Z）"
+      },
+      {
+        "item": "Y 范围（信息，天空盒/云海会低于 0）",
+        "result": "green",
+        "detail": "最低 Y=-72.469，最高 Y=280"
+      },
+      {
+        "item": "网格节点命名有前缀（env_/chr_/col_/anchor_…）",
+        "result": "yellow",
+        "detail": "23/23 不合规: ['meadow_clouds_near', 'meadow_far_hills', 'meadow_fence_merged', 'meadow_path', 'meadow_river', 'meadow_river_bank', 'meadow_sky_dome', 'meadow_terrain', 'meadow_trees_merged', 'wind_bell_00']"
+      },
+      {
+        "item": "名称无空格和非 ASCII 字符",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "网格节点不重名",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "骨骼",
+        "result": "green",
+        "detail": "无 skin"
+      },
+      {
+        "item": "glTF 扩展在 Cocos 已知支持范围",
+        "result": "yellow",
+        "detail": "未确认: ['EXT_mesh_gpu_instancing']"
+      },
+      {
+        "item": "动画 clip 命名",
+        "result": "green",
+        "detail": "[('windmill_sails_loop', 1)]"
+      }
+    ],
+    "budget": {
+      "file": "/workspace/wechat-game/art/x/GROKBOT-MEADOW-v0.8.0/meadow_v0_8/meadow_greybox_v0_8.glb",
+      "sha256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
+      "bytes": 1443200,
+      "generator": "Khronos glTF Blender I/O v4.5.51",
+      "extensionsUsed": [
+        "EXT_mesh_gpu_instancing",
+        "KHR_materials_specular",
+        "KHR_materials_unlit"
+      ],
+      "size_breakdown_bytes": {
+        "json": 38672,
+        "bin_total": 1404500,
+        "images": 436834,
+        "animations": 4820,
+        "geometry_and_other": 962846
+      },
+      "counts": {
+        "meshes": 23,
+        "mesh_nodes": 23,
+        "skinned_nodes": 0,
+        "materials": 6,
+        "textures": 5,
+        "images": 4,
+        "animations": 1,
+        "skins": 0,
+        "nodes": 67
+      },
+      "triangles_scene": 78492,
+      "draw_calls_est": 1165,
+      "checks": [
+        {
+          "item": "场景三角面",
+          "value": 78492,
+          "budget": "≤120000",
+          "result": "green"
+        },
+        {
+          "item": "draw call 估算（未合批：每个实例的每个 primitive 算 1 次）",
+          "value": 1165,
+          "budget": "≤80",
+          "result": "red"
+        },
+        {
+          "item": "最大贴图边长",
+          "value": 4096,
+          "budget": "建议≤1024，上限2048",
+          "result": "red"
+        },
+        {
+          "item": "贴图显存估算 MiB（RGBA8+mip，未压缩）",
+          "value": 28.33,
+          "budget": "≤64",
+          "result": "green"
+        },
+        {
+          "item": "GLB 文件体积 MB（能否进主包）",
+          "value": 1.38,
+          "budget": "主包整体≤4.0",
+          "result": "yellow"
+        }
+      ],
+      "images": [
+        {
+          "index": 0,
+          "name": "meadow_palette_256",
+          "format": "png",
+          "width": 256,
+          "height": 256,
+          "file_bytes": 2511,
+          "gpu_bytes_est": 349525,
+          "flag": "ok"
+        },
+        {
+          "index": 1,
+          "name": "meadow_ground_v0_8_1024",
+          "format": "jpeg",
+          "width": 1024,
+          "height": 1024,
+          "file_bytes": 117609,
+          "gpu_bytes_est": 5592405,
+          "flag": "ok"
+        },
+        {
+          "index": 2,
+          "name": "meadow_sky_4096x1024",
+          "format": "jpeg",
+          "width": 4096,
+          "height": 1024,
+          "file_bytes": 87407,
+          "gpu_bytes_est": 22369621,
+          "flag": "red"
+        },
+        {
+          "index": 3,
+          "name": "meadow_ground_detail_v0_8_512",
+          "format": "jpeg",
+          "width": 512,
+          "height": 512,
+          "file_bytes": 229307,
+          "gpu_bytes_est": 1398101,
+          "flag": "ok"
+        }
+      ],
+      "top_meshes": [
+        {
+          "mesh": "grass_clump_T2_bright_long",
+          "instances": 621,
+          "primitives": 1,
+          "triangles_each": 40
+        },
+        {
+          "mesh": "meadow_terrain",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 12800
+        },
+        {
+          "mesh": "grass_clump_T0_dark_long",
+          "instances": 220,
+          "primitives": 1,
+          "triangles_each": 40
+        },
+        {
+          "mesh": "meadow_trees_merged",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5738
+        },
+        {
+          "mesh": "flower_cluster_F0_pink",
+          "instances": 60,
+          "primitives": 1,
+          "triangles_each": 56
+        },
+        {
+          "mesh": "grass_clump_T4_bright_short",
+          "instances": 64,
+          "primitives": 1,
+          "triangles_each": 50
+        },
+        {
+          "mesh": "flower_cluster_F2_mixed",
+          "instances": 48,
+          "primitives": 1,
+          "triangles_each": 62
+        },
+        {
+          "mesh": "flower_cluster_F1_white",
+          "instances": 42,
+          "primitives": 1,
+          "triangles_each": 54
+        },
+        {
+          "mesh": "meadow_clouds_near",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 2240
+        },
+        {
+          "mesh": "grass_clump_T1_mid_long",
+          "instances": 54,
+          "primitives": 1,
+          "triangles_each": 40
+        },
+        {
+          "mesh": "grass_clump_T3_mid_short",
+          "instances": 41,
+          "primitives": 1,
+          "triangles_each": 50
+        },
+        {
+          "mesh": "meadow_river",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 1960
+        },
+        {
+          "mesh": "meadow_river_bank",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 1920
+        },
+        {
+          "mesh": "meadow_sky_dome",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 1392
+        },
+        {
+          "mesh": "meadow_far_hills",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 576
+        }
+      ],
+      "notes": [
+        "静态分析，不等于 Cocos 导入结果或真机数据。",
+        "draw call 是未合批上限估算；同材质静态合批或 GPU instancing 后会更低。",
+        "Cocos 导入后包体以构建产物为准（导入会转成 .bin/.json，体积可能与 GLB 不同）。"
+      ]
+    }
+  },
+  {
+    "file": "/workspace/wechat-game/art/x/GROKBOT-MEADOW-v0.8.0/meadow_v0_8/meadow_grass_clump_templates_v0_8.glb",
+    "kind": "env",
+    "bbox_m": [
+      7.503,
+      1.095,
+      4.109
+    ],
+    "checks": [
+      {
+        "item": "Y-up：根节点没有残留 Blender 的 X ±90° 旋转",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "无负缩放（镜像）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "无非等比缩放",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "世界缩放为 1（或仅一次 K=1.061164）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "K 没有被重复施加（K²）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "单位：场景尺寸像米（最长边 1–2000 m）",
+        "result": "green",
+        "detail": "包围盒 [7.503, 1.095, 4.109] m（X,Y,Z）"
+      },
+      {
+        "item": "Y 范围（信息，天空盒/云海会低于 0）",
+        "result": "green",
+        "detail": "最低 Y=-0.05，最高 Y=1.045"
+      },
+      {
+        "item": "网格节点命名有前缀（env_/chr_/col_/anchor_…）",
+        "result": "yellow",
+        "detail": "8/8 不合规: ['grass_clump_T0_dark_long', 'grass_clump_T1_mid_long', 'grass_clump_T2_bright_long', 'grass_clump_T3_mid_short', 'grass_clump_T4_bright_short', 'flower_cluster_F0_pink', 'flower_cluster_F1_white', 'flower_cluster_F2_mixed']"
+      },
+      {
+        "item": "名称无空格和非 ASCII 字符",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "网格节点不重名",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "骨骼",
+        "result": "green",
+        "detail": "无 skin"
+      },
+      {
+        "item": "glTF 扩展在 Cocos 已知支持范围",
+        "result": "green",
+        "detail": "KHR_materials_specular"
+      },
+      {
+        "item": "动画 clip 命名",
+        "result": "green",
+        "detail": "[]"
+      }
+    ],
+    "budget": {
+      "file": "/workspace/wechat-game/art/x/GROKBOT-MEADOW-v0.8.0/meadow_v0_8/meadow_grass_clump_templates_v0_8.glb",
+      "sha256": "0e5c88ecaaa062638f323514da0afcfbd57607aea602ce1c125b0baa9521677b",
+      "bytes": 41260,
+      "generator": "Khronos glTF Blender I/O v4.5.51",
+      "extensionsUsed": [
+        "KHR_materials_specular"
+      ],
+      "size_breakdown_bytes": {
+        "json": 9112,
+        "bin_total": 32120,
+        "images": 2511,
+        "animations": 0,
+        "geometry_and_other": 29609
+      },
+      "counts": {
+        "meshes": 8,
+        "mesh_nodes": 8,
+        "skinned_nodes": 0,
+        "materials": 2,
+        "textures": 2,
+        "images": 1,
+        "animations": 0,
+        "skins": 0,
+        "nodes": 8
+      },
+      "triangles_scene": 392,
+      "draw_calls_est": 8,
+      "checks": [
+        {
+          "item": "场景三角面",
+          "value": 392,
+          "budget": "≤120000",
+          "result": "green"
+        },
+        {
+          "item": "draw call 估算（未合批：每个实例的每个 primitive 算 1 次）",
+          "value": 8,
+          "budget": "≤80",
+          "result": "green"
+        },
+        {
+          "item": "最大贴图边长",
+          "value": 256,
+          "budget": "建议≤1024，上限2048",
+          "result": "green"
+        },
+        {
+          "item": "贴图显存估算 MiB（RGBA8+mip，未压缩）",
+          "value": 0.33,
+          "budget": "≤64",
+          "result": "green"
+        },
+        {
+          "item": "GLB 文件体积 MB（能否进主包）",
+          "value": 0.04,
+          "budget": "主包整体≤4.0",
+          "result": "green"
+        }
+      ],
+      "images": [
+        {
+          "index": 0,
+          "name": "meadow_palette_256",
+          "format": "png",
+          "width": 256,
+          "height": 256,
+          "file_bytes": 2511,
+          "gpu_bytes_est": 349525,
+          "flag": "ok"
+        }
+      ],
+      "top_meshes": [
+        {
+          "mesh": "flower_cluster_F2_mixed",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 62
+        },
+        {
+          "mesh": "flower_cluster_F0_pink",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 56
+        },
+        {
+          "mesh": "flower_cluster_F1_white",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 54
+        },
+        {
+          "mesh": "grass_clump_T4_bright_short",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 50
+        },
+        {
+          "mesh": "grass_clump_T3_mid_short",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 50
+        },
+        {
+          "mesh": "grass_clump_T2_bright_long",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 40
+        },
+        {
+          "mesh": "grass_clump_T1_mid_long",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 40
+        },
+        {
+          "mesh": "grass_clump_T0_dark_long",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 40
+        }
+      ],
+      "notes": [
+        "静态分析，不等于 Cocos 导入结果或真机数据。",
+        "draw call 是未合批上限估算；同材质静态合批或 GPU instancing 后会更低。",
+        "Cocos 导入后包体以构建产物为准（导入会转成 .bin/.json，体积可能与 GLB 不同）。"
+      ]
+    }
+  }
+]

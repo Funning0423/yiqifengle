@@ -1,0 +1,2 @@
+PASS BuildInfo: committed placeholder dev; label "v0.1 · 构建 <sha>"; write_build_info stamps a 7-char sha
+PASS UI flags live in localStorage under qfl.ui.* (seenTools JSON list, cabinHintSeen "1"), tolerate corrupt values, never in journey code

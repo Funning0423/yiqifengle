@@ -1,0 +1,17 @@
+env_sky_static_palette           21556 raw 1.445 zlib 0.386 enc 0.423 enc+z 0.361 q 0.870 q+enc+z 0.176 q+z 0.260 posErr 6.2e-2 ext 75.3
+chr_robot_gardener_mesh          12007 raw 1.193 zlib 0.261 enc 0.238 enc+z 0.198 q 0.689 q+enc+z 0.087 q+z 0.165 posErr 1.6e-2 ext 30.7
+env_sky_static_foliage_cards     17580 raw 1.123 zlib 0.174 enc 0.294 enc+z 0.096 q 0.654 q+enc+z 0.044 q+z 0.133 posErr 6.2e-2 ext 74.7
+env_sky_greattree_canopy         17107 raw 1.104 zlib 0.280 enc 0.308 enc+z 0.265 q 0.647 q+enc+z 0.127 q+z 0.173 posErr 1.6e-2 ext 23.5
+env_sky_ruins                    11837 raw 0.760 zlib 0.134 enc 0.200 enc+z 0.169 q 0.444 q+enc+z 0.085 q+z 0.096 posErr 3.1e-2 ext 38.1
+env_sky_cloudsea                 7908 raw 0.500 zlib 0.106 enc 0.129 enc+z 0.115 q 0.289 q+enc+z 0.054 q+z 0.062 posErr 4.9e-1 ext 724.6
+env_sky_island_vines             4380 raw 0.307 zlib 0.096 enc 0.086 enc+z 0.072 q 0.190 q+enc+z 0.031 q+z 0.062 posErr 3.1e-2 ext 46.7
+env_sky_starring                 2426 raw 0.155 zlib 0.024 enc 0.035 enc+z 0.026 q 0.090 q+enc+z 0.012 q+z 0.018 posErr 1.6e-2 ext 24.3
+TOTAL meshes 45 {
+  raw: '7.749',
+  cz: '1.724',
+  enc: '2.030',
+  encz: '1.551',
+  q: '4.553',
+  qencz: '0.740',
+  qz: '1.143'
+}

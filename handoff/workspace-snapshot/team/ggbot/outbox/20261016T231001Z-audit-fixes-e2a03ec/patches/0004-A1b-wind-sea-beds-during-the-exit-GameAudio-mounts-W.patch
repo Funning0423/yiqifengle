@@ -1,0 +1,210 @@
+From 827cb1fb6e12b4d277abb84490b28886befeb9f4 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 07:00:57 +0800
+Subject: [PATCH 4/6] =?UTF-8?q?A1b:=20wind=20+=20sea=20beds=20during=20the?=
+ =?UTF-8?q?=20exit=20=E2=80=94=20GameAudio=20mounts=20WindAudio/AmbienceAu?=
+ =?UTF-8?q?dio=20on=20standing/crossing-out=20(not=20only=20director.once)?=
+ =?UTF-8?q?,=20the=20exit=20track=20starting=20opens=20the=20ambience=20ga?=
+ =?UTF-8?q?te=20(was=20gestureSeen-only),=20[QF=5FAUDIO]=20gate/load/play?=
+ =?UTF-8?q?=20logs=20under=20=5F=5FworldFlowLog?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/audio/AmbienceAudio.ts        | 12 ++++++++----
+ .../assets/scripts/audio/GameAudio.ts            | 16 ++++++++++++++--
+ .../assets/scripts/audio/WindAudio.ts            | 15 +++++++++++----
+ tools/test_exit_cine_audio.cjs                   | 12 ++++++++++++
+ 4 files changed, 45 insertions(+), 10 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+index 0380096..7c8f716 100644
+--- a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
++++ b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+@@ -14,7 +14,7 @@
+ // 海鸥事件（给场景特效bot 的可见海鸥，docs/audio-events.md）：每声海鸥先 'scheduled' 再 'start'（同一 id），
+ //   方位 yawWorldDeg 由这里选定，声像每帧按当前镜头朝向重算（L/R 两个声源等功率声像）。夜里随机海鸥稀一些、轻一些。
+ import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
+-import { GameAudio, SfxName } from './GameAudio';
++import { qfAudioLog, GameAudio, SfxName } from './GameAudio';
+ const { ccclass } = _decorator;
+ 
+ /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+@@ -203,6 +203,7 @@ export class AmbienceAudio extends Component {
+     const a = AmbienceAudio.inst; return a && a.alive ? a.request(dist, yawWorldDeg) : null;
+   }
+ 
++  private lastGate = '';
+   static ensure() {
+     try {
+       const a = GameAudio.ensure();
+@@ -216,8 +217,8 @@ export class AmbienceAudio extends Component {
+     this.src.playOnAwake = false; this.src.loop = true; this.src.volume = 0;
+     resources.load(WAVES_PATH, AudioClip, (err, clip) => {
+       if (!this.alive || !isValid(this.node, true)) return;
+-      if (err || !clip) { console.warn('[AmbienceAudio] waves load failed', err); return; }
+-      clip.addRef(); this.clip = clip; if (this.src) this.src.clip = clip;
++      if (err || !clip) { console.warn('[AmbienceAudio] waves load failed', err); qfAudioLog('waves-load-failed', { err: String(err) }); return; }
++      clip.addRef(); this.clip = clip; qfAudioLog('waves-loaded', {}); if (this.src) this.src.clip = clip;
+     });
+     // 声像用的 L/R 版本（缺了就退回 GameAudio.play 居中播放）
+     for (let i = 0; i < GULLS.length; i++) {
+@@ -426,12 +427,14 @@ export class AmbienceAudio extends Component {
+     if (!allowed) this.vol = 0;
+     // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
+     const heard = this.vol * musicBed();
++    { const g = !audio ? 'no-gameaudio' : !canSound ? 'gameaudio:' + ((audio as any).ambienceGate?.() ?? '?') : !this.clip ? 'no-clip' : outdoor < 0 ? 'no-world' : 'ok';
++      if (g !== this.lastGate) { this.lastGate = g; qfAudioLog('waves-gate', { gate: g, outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } }
+     if (!allowed || heard < 0.002) {
+       try { src.volume = 0; } catch { /* ignore */ }
+       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
+     } else {
+       src.volume = heard;
+-      if (!src.playing) { try { src.play(); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
++      if (!src.playing) { try { src.play(); qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+     }
+     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
+     if (wind < E.exitOn) { this.exitActive = false; this.distantDone = []; }
+@@ -481,3 +484,4 @@ export class AmbienceAudio extends Component {
+ }
+ 
+ director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AmbienceAudio.ensure());
++GameAudio.ambienceMounters.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio
+diff --git a/creator-build-project/assets/scripts/audio/GameAudio.ts b/creator-build-project/assets/scripts/audio/GameAudio.ts
+index 21932b5..f9cc663 100644
+--- a/creator-build-project/assets/scripts/audio/GameAudio.ts
++++ b/creator-build-project/assets/scripts/audio/GameAudio.ts
+@@ -49,6 +49,8 @@
+ //   d) “音乐真正开始”的时刻：GameAudio.onMusicStart(cb) / globalThis.__gameAudioMusic.onMusicStart(cb)，
+ //      loopSource 第一次确认 playing 时发一次（每次 setMusic 一次；切后台回来的恢复记 first=false）。
+ import { _decorator, Component, Node, AudioSource, AudioClip, resources, assetManager, director, game, Game, sys, isValid, input, Input } from 'cc';
++/** A1b: [QF_AUDIO] acceptance log, only with globalThis.__worldFlowLog (no cost otherwise). */
++export function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
+ const { ccclass } = _decorator;
+ 
+ export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
+@@ -186,6 +188,12 @@ export class GameAudio extends Component {
+   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
+   private musicError: string | null = null;
+   private gestureSeen = false;
++  private audioProven = false; // A1b: an sfx actually started (exit track) — ambience may follow it
++  /** A1b: WindAudio/AmbienceAudio register their ensure() here (they import GameAudio, not the other way round). */
++  static ambienceMounters: Array<() => void> = [];
++  static ensureAmbience(state: string) { for (const f of GameAudio.ambienceMounters) { try { f(); } catch { } } qfAudioLog('ensure-ambience', { state, mounters: GameAudio.ambienceMounters.length, gate: GameAudio.instance?.ambienceGate() ?? 'no-gameaudio' }); }
++  /** Why ambience is (not) allowed right now — for [QF_AUDIO] logs. */
++  ambienceGate(): string { return !GameAudio.usable(this) ? 'unusable' : GameAudio.instance !== this ? 'not-instance' : this.muted ? 'muted' : this.reasons.size ? 'suspended:' + Array.from(this.reasons).join(',') : !(this.gestureSeen || this.audioProven) ? 'no-gesture' : 'ok'; }
+   private loopRequested = false;
+   private loopPendingSince: number | null = null;
+   private loopNeedsReplacement = false;
+@@ -961,7 +969,8 @@ export class GameAudio extends Component {
+   /** World flow state feed (WorldIntegrationBoot, once per change). */
+   onWorldState(state: string) {
+     if (!GameAudio.usable(this)) return;
+-    if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { this.stopExitCine('restart'); this.loadExitCine(); return; }
++    if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { GameAudio.ensureAmbience(state); this.stopExitCine('restart'); this.loadExitCine(); return; }
++    if (state === 'crossing-out' || EXIT_PRELOAD_STATES.indexOf(state) >= 0) GameAudio.ensureAmbience(state); // A1b: wind + waves mounted before the outdoor segment
+     if (state === 'crossing-out') { this.exitCineAt = GameAudio.now(); this.exitCineMark('segment-start'); this.loadExitCine(); this.startExitCine(); return; }
+     if (state === 'island') return;   // 20 s track runs out on its own over the settle
+     this.stopExitCine('left-exit');
+@@ -1001,6 +1010,9 @@ export class GameAudio extends Component {
+       source.play();
+       if (late > 0.05) { try { source.currentTime = late; } catch { /* seek optional */ } }
+       this.exitCineSource = source; this.exitCineMark('play', Math.max(0, late));
++      // A1b: the exit track starting proves the platform let audio play; the wind/sea beds (which replaced the baked-in
++      // wind and sea) must not stay gated on a UI-button gesture the outdoor segment may never have seen.
++      if (!this.gestureSeen) { this.audioProven = true; qfAudioLog('gesture-proven-by-exit-track', {}); }
+     } catch (e) {
+       if (source) this.retireSfx(source);
+       console.warn('[GameAudio] exit track playback failed', e);
+@@ -1045,7 +1057,7 @@ export class GameAudio extends Component {
+ 
+   /** A4：环境声（AmbienceAudio）用来判断现在能不能出声：未静音、无挂起、已有过用户手势 */
+   canPlayAmbience(): boolean {
+-    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && this.gestureSeen;
++    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && (this.gestureSeen || this.audioProven);
+   }
+ 
+   onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
+diff --git a/creator-build-project/assets/scripts/audio/WindAudio.ts b/creator-build-project/assets/scripts/audio/WindAudio.ts
+index 65f3e91..fbb662b 100644
+--- a/creator-build-project/assets/scripts/audio/WindAudio.ts
++++ b/creator-build-project/assets/scripts/audio/WindAudio.ts
+@@ -21,6 +21,7 @@
+ import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
+ import { GameAudio } from './GameAudio';
+ import { AmbienceAudio } from './AmbienceAudio';
++import { qfAudioLog } from './GameAudio';
+ const { ccclass } = _decorator;
+ 
+ /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+@@ -100,8 +101,8 @@ export class WindAudio extends Component {
+       this.clips[p] = null;
+       resources.load(p, AudioClip, (err, clip) => {
+         if (!this.alive || !isValid(this.node, true)) return;
+-        if (err || !clip) { console.warn('[WindAudio] load failed', p, err); return; }
+-        clip.addRef(); this.clips[p] = clip;
++        if (err || !clip) { console.warn('[WindAudio] load failed', p, err); qfAudioLog('wind-load-failed', { path: p, err: String(err) }); return; }
++        clip.addRef(); this.clips[p] = clip; qfAudioLog('wind-loaded', { path: p });
+       });
+     }
+   }
+@@ -229,13 +230,15 @@ export class WindAudio extends Component {
+       if (!src) { src = this.newSource(true); if (which === 'soft') this.softSrc = src; else this.strongSrc = src; }
+       if (src.clip !== clip) src.clip = clip;
+       src.volume = vol;
+-      if (!src.playing) src.play();
++      if (!src.playing) { src.play(); qfAudioLog('wind-play', { which, vol: +vol.toFixed(3), s: +this.s.toFixed(3) }); }
+     } catch (e) { console.warn('[WindAudio] wind play failed', which, e); }
+   }
+ 
++  private lastGate = '';
++  private gate(g: string) { if (g === this.lastGate) return; this.lastGate = g; qfAudioLog('wind-gate', { gate: g, wind: +this.windStrength().toFixed(3), clips: Object.keys(this.clips).filter(k => this.clips[k]).length }); }
+   private pauseLoops() {
+     for (const src of [this.softSrc, this.strongSrc]) {
+-      if (src && src.playing) { try { src.pause(); } catch { /* ignore */ } }
++      if (src && src.playing) { try { src.pause(); qfAudioLog('wind-pause', {}); } catch { /* ignore */ } }
+     }
+   }
+ 
+@@ -244,6 +247,7 @@ export class WindAudio extends Component {
+     this.locate(dt);
+     const g = this.gustValue(dt);
+     const allowed = this.allowed();
++    this.gate(allowed ? 'ok' : !GameAudio.instance ? 'no-gameaudio' : !GameAudio.instance.canPlayAmbience() ? 'gameaudio:' + ((GameAudio.instance as any).ambienceGate?.() ?? '?') : !this.flow ? 'no-flow' : 'world-hidden');
+     if (!allowed) {
+       this.s = 0; this.sWind = 0; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0); this.quietFor = IDLE_PAUSE_S;
+       this.pauseLoops();
+@@ -279,3 +283,6 @@ export class WindAudio extends Component {
+ }
+ 
+ director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => WindAudio.ensure());
++// A1b: also mount from GameAudio's world-state hook (standing / crossing-out): if this module ran after the scene had
++// launched, the once() above never fires and the outdoor segment was silent.
++GameAudio.ambienceMounters.push(() => WindAudio.ensure());
+diff --git a/tools/test_exit_cine_audio.cjs b/tools/test_exit_cine_audio.cjs
+index 1136d5d..a6fcbc4 100644
+--- a/tools/test_exit_cine_audio.cjs
++++ b/tools/test_exit_cine_audio.cjs
+@@ -52,6 +52,18 @@ test('load failure is silent; __worldFlowLog gets timestamped events',()=>{const
+  const ev=a.exitCineDiagnostics().log.map(e=>e.event);assert.equal(JSON.stringify(ev),JSON.stringify(['load-failed','segment-start']));assert(h.logs.some(l=>l.includes('exit-cine')&&l.includes('segment-start')));});
+ test('「主页」 transition fade applies to the exit track (it is an owned sfx voice)',()=>{const h=harness(),a=h.a;h.setBundle();a.onWorldState('standing');h.bundleLoads[0].cb(null,h.clip());a.onWorldState('opening-door');a.onWorldState('crossing-out');a.fadeTransition(0,0);assert.equal(src_(a).volume,0);});
+ test('Boot feeds world states to GameAudio.onWorldState',()=>{const b=fs.readFileSync('creator-build-project/assets/scripts/WorldIntegrationBoot.ts','utf8');assert(/trackTransitionHud\(state:string\)\{[^\n]*\n[^\n]*onWorldState\?\.\(state\)/.test(b));});
++test('A1b: standing + crossing-out mount the wind/sea beds; the exit track starting opens the ambience gate; [QF_AUDIO] logs',()=>{
++ const h=harness(),a=h.a,A=h.A;h.ctx.__worldFlowLog=true;const calls=[];A.ambienceMounters.length=0;A.ambienceMounters.push(()=>calls.push('wind'),()=>calls.push('waves'));
++ h.setBundle();assert.equal(a.canPlayAmbience(),false,'no gesture yet');a.onWorldState('standing');assert.deepEqual(calls,['wind','waves']);
++ h.bundleLoads[0].cb(null,h.clip());a.onWorldState('opening-door');a.onWorldState('crossing-out');
++ assert(calls.length>=4,'mounted again at crossing-out');assert(src_(a),'exit track playing');
++ assert.equal(a.canPlayAmbience(),true,'wind/sea may follow the exit track');assert.equal(a.ambienceGate(),'ok');
++ assert(h.logs.some(l=>l.includes('[QF_AUDIO]')&&l.includes('ensure-ambience')),'ensure logged');assert(h.logs.some(l=>l.includes('gesture-proven-by-exit-track')));
++ a.setMuted(true);assert.equal(a.canPlayAmbience(),false,'mute still wins');assert.equal(a.ambienceGate(),'muted');
++ const w=fs.readFileSync('creator-build-project/assets/scripts/audio/WindAudio.ts','utf8'),m=fs.readFileSync('creator-build-project/assets/scripts/audio/AmbienceAudio.ts','utf8');
++ assert(/GameAudio\.ambienceMounters\.push\(\(\) => WindAudio\.ensure\(\)\)/.test(w)&&/GameAudio\.ambienceMounters\.push\(\(\) => AmbienceAudio\.ensure\(\)\)/.test(m),'both beds register a mounter');
++ for(const e of ['wind-gate','wind-play','wind-loaded'])assert(w.includes("qfAudioLog('"+e+"'"),e);for(const e of ['waves-gate','waves-play','waves-loaded'])assert(m.includes("qfAudioLog('"+e+"'"),e);
++});
+ test('asset: re-encoded mono mp3 in region_island subpackage, fixed Cocos meta, budget size',()=>{
+  const p='creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3',bytes=fs.readFileSync(p);
+  // A1 (Voice Bot f57b8d2): 32 kHz 56k CBR mono, 140,660 B; budget 150 KB. Header must be MPEG-1 Layer III 32 kHz (not 22.05k).
+-- 
+2.47.3
+

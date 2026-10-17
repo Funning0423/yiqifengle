@@ -1,0 +1,84 @@
+[detached HEAD ff778e8] r4-prep 1/3: landing from the journey into a 风铃湖畔 board no longer opens 「暂停一下」 for a restored unfinished attempt
+ Date: Sat Oct 17 17:29:07 2026 +0800
+ 4 files changed, 41 insertions(+), 1 deletion(-)
+ create mode 100644 tools/board-ui/test_lakeside_landing_no_pause.cjs
+Auto-merging creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+[detached HEAD 4122dc7] r4-prep 2/3: island sky dome + cloud layer follow the lakeside journey blend instead of covering the blended sky
+ Date: Sat Oct 17 17:33:28 2026 +0800
+ 6 files changed, 129 insertions(+), 6 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/world-r1/SkyFollowCore.ts
+ create mode 100644 creator-build-project/assets/scripts/world-r1/SkyFollowCore.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_sky_follow.cjs
+[detached HEAD b2c60b9] r4-prep 3/3: first lakeside entry - the board reuses the journey copy's merged geometry instead of rebuilding it in the entry frame
+ Date: Sat Oct 17 17:36:20 2026 +0800
+ 3 files changed, 71 insertions(+), 4 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_merge_share.cjs
+Auto-merging creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+[detached HEAD b507673] r4-prep C: island-only sky dome, cloud layer and gulls fade out over the lakeside arrival (w 0.6-0.95), restored on leave
+ Date: Sat Oct 17 17:51:50 2026 +0800
+ 8 files changed, 89 insertions(+), 14 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_far_view.cjs
+[detached HEAD 32340f9] r4-prep D: journey lake reads the board's water source (shared lakesideWaterMaterial / applyLakesideWaterMode)
+ Date: Sat Oct 17 17:54:01 2026 +0800
+ 6 files changed, 71 insertions(+), 12 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_shared_water.cjs
+[detached HEAD ce91017] r4-prep B: she stays in frame after landing (frozen copy of her in the 风铃湖畔 board background)
+ Date: Sat Oct 17 17:56:18 2026 +0800
+ 5 files changed, 111 insertions(+), 4 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideBoardGuest.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideBoardGuest.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_board_guest.cjs
+Auto-merging creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+[detached HEAD 7c4756d] r4-prep A: preload the 风铃湖畔 board during the arrival/landing; the swap frame only turns its camera on
+ Date: Sat Oct 17 18:01:13 2026 +0800
+ 6 files changed, 87 insertions(+), 18 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_board_preload.cjs
+Auto-merging creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+[detached HEAD f6b08c8] r4-prep B+: she stays where she landed in the meadow and sky-city live boards too (same approach)
+ Date: Sat Oct 17 18:02:51 2026 +0800
+ 3 files changed, 58 insertions(+), 10 deletions(-)
+[detached HEAD 266d96f] r4-prep D (test): lakeside-daynight reads the water day/night scales through the shared applyLakesideWaterMode
+ Author: Cursor-Agent <cursoragent@cursor.com>
+ Date: Sat Oct 17 18:14:57 2026 +0800
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[detached HEAD 0ff4632] r4-prep B2: her frozen board copy carries the original's morph weights (apron/dress) and renderer state
+ Date: Sat Oct 17 18:41:55 2026 +0800
+ 2 files changed, 44 insertions(+), 7 deletions(-)
+[detached HEAD 2a4ef19] lakeside diag: one-time [QF_LAKE_DIAG] print at the board light apply, gated by cc/env DEBUG && ?lakediag=1
+ Author: Voice Bot <voicebot@local>
+ Date: Sat Oct 17 16:41:38 2026 +0800
+ 3 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 tools/lakeside/test_lakeside_diag.cjs
+[detached HEAD 754dce9] lakeside water: fix the v_color double decode in lakeside-water.effect (albedo *= v_color.rgb), params unchanged
+ Author: Voice Bot <voicebot@local>
+ Date: Sat Oct 17 16:41:38 2026 +0800
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+[detached HEAD abc3fda] lakeside water: colour uniforms pass through as linear (drop linear:true)
+ Author: Voice Bot <voicebot@local>
+ Date: Sat Oct 17 17:52:50 2026 +0800
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+[detached HEAD 4b73ade] lakeside r4: day refit on the engine-camera r5h3 reference (water, reflected sky, fog, lights)
+ Author: Voice Bot <voicebot@local>
+ Date: Sat Oct 17 06:44:21 2026 -0400
+ 4 files changed, 49 insertions(+), 34 deletions(-)
+[detached HEAD 7154ace] lakeside r4: night lake reflects its own dark blue-teal sky; tests lock sky reflection > 0
+ Author: Voice Bot <voicebot@local>
+ Date: Sat Oct 17 06:45:47 2026 -0400
+ 6 files changed, 43 insertions(+), 8 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_sky_reflection.cjs
+[detached HEAD 7f7a46e] reward-background-return: follow the intended result-screen reward flow (no RewardPanel there since 3765e34)
+ Date: Sat Oct 17 18:16:53 2026 +0800
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+[detached HEAD fd6046e] Result screen: no rewards on screen until the chest opens; badges rise out of its mouth once, never replayed
+ Date: Sat Oct 17 19:15:30 2026 +0800
+ 2 files changed, 41 insertions(+), 9 deletions(-)
+[detached HEAD 879d6a2] Journey cutscene: no 暂停旅程 button, no caption strip; tiny dev-preview line in test builds; background pause resumes itself
+ Date: Sat Oct 17 19:18:46 2026 +0800
+ 5 files changed, 155 insertions(+), 11 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/ui/DevPreviewMark.ts
+ create mode 100644 creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta
+ create mode 100644 tools/journey-integration/test-journey-cutscene-ui.cjs
+[detached HEAD 70680ee] Journey background trip: lake loop keeps its crossfade aligned across hide/return; test locks the cutscene audio resume
+ Date: Sat Oct 17 19:34:39 2026 +0800
+ 3 files changed, 54 insertions(+), 1 deletion(-)
+ create mode 100644 tools/journey-integration/test-journey-background-audio.cjs

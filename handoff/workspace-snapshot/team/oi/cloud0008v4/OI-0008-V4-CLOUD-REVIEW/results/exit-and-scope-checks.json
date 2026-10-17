@@ -1,0 +1,465 @@
+[
+  {
+    "group": "previous-21",
+    "scenario": "healthy",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "missing-root-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "truncate-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "unrelated-only",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "cli-exit7",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "close-exit5",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "cli-lingers-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "cli-lingers-clean",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "no-logs",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "weapp-generic-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "weapp-unclassified-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "weapp-unattributed-generic",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "weapp-bracket-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "cli-generic-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "canary-mixed-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "canary-mixed-console",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "canary-boot-missing",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "known-notice-denied",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "known-notice-allowlisted",
+    "status": "PASS_WITH_ALLOWLISTED_IDE_NOTICE",
+    "exit": 3,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "unattributed-notice-allowlisted",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "previous-21",
+    "scenario": "mixed-error-notice-allowlisted",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "healthy",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "prefix-error-before-log",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "prefix-error-before-canary",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "prefix-error-before-notice-allowlisted",
+    "status": "PASS_WITH_ALLOWLISTED_IDE_NOTICE",
+    "exit": 3,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "prefix-unowned-error-before-log",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "prefix-benign-before-error",
+    "status": "FAIL",
+    "exit": 1,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "cli-error-tag",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "cli-error-prefix",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "cli-warning-tag",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "utf8-truncated-eof",
+    "status": "PASS",
+    "exit": 0,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "utf8-invalid-control",
+    "status": "BLOCKED",
+    "exit": 2,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  },
+  {
+    "group": "new-boundaries",
+    "scenario": "unattributed-exact-notice-allowlisted",
+    "status": "PASS_WITH_ALLOWLISTED_IDE_NOTICE",
+    "exit": 3,
+    "exitMatchesStatus": true,
+    "manifestOK": true,
+    "cliCommands": [
+      "islogin",
+      "auto",
+      "close"
+    ],
+    "nonemptyOwnOnlyClose": true
+  }
+]

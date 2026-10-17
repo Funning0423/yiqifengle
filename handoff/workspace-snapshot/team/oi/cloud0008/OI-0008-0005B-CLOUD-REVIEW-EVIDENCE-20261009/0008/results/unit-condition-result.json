@@ -1,0 +1,94 @@
+{
+  "passed": 22,
+  "total": 22,
+  "results": [
+    {
+      "name": "fixtures: Oi A has no condition key; Oi B differs from A only by projectname + condition",
+      "ok": true
+    },
+    {
+      "name": "A (default/off) is a no-op: file byte-identical, no log dir",
+      "ok": true
+    },
+    {
+      "name": "B on Oi A keeps Oi's \\u-escaped style: text = A text + condition block only",
+      "ok": true
+    },
+    {
+      "name": "B on Oi A reproduces Oi-verified B config exactly (deep-equal after projectname)",
+      "ok": true
+    },
+    {
+      "name": "B on Oi A is BYTE-identical to Oi's verified first-open-b-project.config.json (projectname aside)",
+      "ok": true
+    },
+    {
+      "name": "B preserves every other field and key order; backup + log written OUTSIDE the output dir",
+      "ok": true
+    },
+    {
+      "name": "idempotent: second B run changes nothing, keeps single backup, no new log line",
+      "ok": true
+    },
+    {
+      "name": "B on already-B (Oi B file) is untouched byte-for-byte (keeps Oi's \\u escapes)",
+      "ok": true
+    },
+    {
+      "name": "empty Cocos-template condition (game.currentL typo) is replaced by B",
+      "ok": true
+    },
+    {
+      "name": "active (non-empty) condition is refused and file untouched",
+      "ok": true
+    },
+    {
+      "name": "B1 creates project.private.config.json with the same condition",
+      "ok": true
+    },
+    {
+      "name": "B1 preserves existing private config fields and order",
+      "ok": true
+    },
+    {
+      "name": "B2 writes game-only condition",
+      "ok": true
+    },
+    {
+      "name": "switching B -> B2 on the same output is allowed (B condition counts as empty)",
+      "ok": true
+    },
+    {
+      "name": "--check writes nothing",
+      "ok": true
+    },
+    {
+      "name": "unknown variant rejected; missing project.config.json rejected",
+      "ok": true
+    },
+    {
+      "name": "CLI entry: prints JSON report, exit 0; active condition exit 1",
+      "ok": true
+    },
+    {
+      "name": "wrapper default off == original finalizer alone (byte-identical output)",
+      "ok": true
+    },
+    {
+      "name": "wrapper with env B: finalizer runs first, then B applied",
+      "ok": true
+    },
+    {
+      "name": "wrapper flag --first-open-condition=B is stripped before the finalizer sees argv",
+      "ok": true
+    },
+    {
+      "name": "wrapper propagates finalizer rejection and applies nothing",
+      "ok": true
+    },
+    {
+      "name": "wrapper re-run on its own output is stable (finalizer strips B, wrapper re-applies B → identical)",
+      "ok": true
+    }
+  ]
+}

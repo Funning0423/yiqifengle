@@ -1,0 +1,83 @@
+{
+ "file": "export/clips/cine_m1_open_stand_turn.glb",
+ "bytes": 3434556,
+ "armatures": [
+  [
+   "R5G2_RIG_22P4",
+   26,
+   [
+    1.0,
+    1.0,
+    1.0
+   ]
+  ]
+ ],
+ "meshes": [
+  [
+   "B_ANATOMICAL_VERTICAL_SLENDER_R5",
+   25442,
+   []
+  ],
+  [
+   "G2_APRON_R5G2",
+   729,
+   [
+    "Basis",
+    "sit_corrective"
+   ]
+  ],
+  [
+   "G2_DRESS_R5G2",
+   6678,
+   [
+    "Basis",
+    "sit_corrective"
+   ]
+  ],
+  [
+   "G2_HAIR_BOB_R5G2",
+   6947,
+   []
+  ],
+  [
+   "Icosphere",
+   42,
+   []
+  ]
+ ],
+ "actions": {
+  "cine_home_safe_end": {
+   "frame_range": [
+    0.0,
+    0.8000000715255737
+   ],
+   "fcurves": 260,
+   "morph_curves": 0
+  },
+  "cine_open_safe_end": {
+   "frame_range": [
+    0.0,
+    0.8000000715255737
+   ],
+   "fcurves": 260,
+   "morph_curves": 0
+  },
+  "cine_open_stand": {
+   "frame_range": [
+    0.0,
+    72.0
+   ],
+   "fcurves": 260,
+   "morph_curves": 0
+  },
+  "cine_open_turn": {
+   "frame_range": [
+    0.0,
+    36.0
+   ],
+   "fcurves": 260,
+   "morph_curves": 0
+  }
+ },
+ "max_influences": 3
+}

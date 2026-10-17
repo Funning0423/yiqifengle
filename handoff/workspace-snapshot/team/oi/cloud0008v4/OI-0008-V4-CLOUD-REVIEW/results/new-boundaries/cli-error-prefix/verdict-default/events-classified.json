@@ -1,0 +1,106 @@
+[
+  {
+    "source": "automator.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] 5b238e96aabc849a"
+  },
+  {
+    "source": "automator.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] 5b238e96aabc849a"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] 5b238e96aabc849a"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] 5b238e96aabc849a"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] 5b238e96aabc849a"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] 5b238e96aabc849a"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] 5b238e96aabc849a"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] 5b238e96aabc849a"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] 5b238e96aabc849a"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] 5b238e96aabc849a"
+  },
+  {
+    "source": "cli.stderr",
+    "own": true,
+    "level": "unknown",
+    "kind": "info",
+    "id": null,
+    "payload": "[error] plain fatal diagnostic"
+  }
+]

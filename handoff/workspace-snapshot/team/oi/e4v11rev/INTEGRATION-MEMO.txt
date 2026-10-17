@@ -1,0 +1,63 @@
+E4 材质 v1.1：Creator 3.8.8 云端接入审查
+审查日期：2026-10-09 UTC
+
+结论
+可保留为 Creator 编译候选，未达到“已编译/已集成”。没有在本次静态范围内发现明确的 Effect YAML、property/UBO、varying 或已核对 TypeScript API 拼写错误。天空跟随的 CPU 剔除问题必须在接入时处理或证明不会触发。
+优先级保持低：排在 0008-v3、0005c 之后；本次不占 Mac、不改美术、不修改游戏工程、不进微信、不上传或联系外部人员。
+
+已验证
+- 原包 133206 B，SHA256 e0f638853ac1b896884b0fdc8b151ad16df0026db93c8940806625df91436991，与独立 SHA sidecar 一致。
+- ZIP 31 个文件、解压总量 438634 B；全体 CRC 通过，无绝对路径、路径穿越、反斜杠路径、符号链接、重复项或大小写冲突。内部 SHA 清单 30/30 通过。
+- 独立结构检查 86/86：两个 Effect 的 YAML、入口、35 个属性的目标/不重叠检查、四组全 vec4 UBO、作者自定义 varying 配对及天空雾公式等。
+- horizonV=0.857 已落进当前 effect；雾权重从 v=0.737 的 0 平滑升至 v=0.857 的 1，之后保持 1。它与包内所述“v 从顶向下”的约定一致。实际 GLB、贴图及 Creator UV 导入结果本次未重新验证。
+- 对照官方 v3.8.8 源码确认：Material.copy 的 defines 覆盖、MeshRenderer.ShadowCastingMode、setInstancedAttribute、model.createBoundingShape/updateWorldBound 等所用接口存在。共享 Material.recompileShaders 仅告警，包采用每档共享副本的方向合理。[1][2][3]
+
+主要问题与接入条件
+1. 天空 CPU 剔除缺口（中等，源码推断，未实机复现）
+   sky-unlit.effect:69–70 仅在 GPU 将天空移到相机 XZ，84–85 仅改裁剪空间深度。普通天空 MeshRenderer 的 CPU worldBounds 仍在原节点位置。Creator 默认管线先做 AABB/视锥剔除；相机远离原天空范围时，可能整片天空消失。推远平面不能阻止这一层剔除。[4]
+   接入时让实际天空节点在世界 XZ 跟随相机，或提供可靠的 CPU 包围盒同步方案；保持原 Y/UV/美术资源不变。若工程已有跟随脚本，核实其执行时间和目标节点。编译成功不等于此风险已关闭。
+
+2. 不支持硬件实例化时，性能与根色都降级（中等，源码路径确认）
+   引擎无 INSTANCED_ARRAYS 时会关闭 USE_INSTANCING。[5] 当前 effect 随即改用统一 rootColor，a_root_color 的每丛根色失效；1,000 丛也可能退成约 1,000 次提交。仅 WIND_QUALITY=0 只关风计算，并不减少节点或提交数量。需要明确最低设备支持边界或单独的减量/关闭草兜底。当前包的“草 5 draw calls”只是理想合批目标，非实测。
+
+3. 资源、生命周期与数据前置条件
+   - 包不含 .meta、.mtl、GLB、instances JSON、白天/夜景贴图，不能直接视作已接好。两 TS 必须同目录。只导入 effects/ 和 scripts/；不要把 selftest/out/、patches/、compiler setup 作为运行资源。
+   - MeadowInstancer 依赖 meadow_instances JSON 与模板节点名/单材质槽。生成节点是源节点的兄弟；若源模板节点有非单位局部 TRS，应核对展开后的变换是否保留。现包未包含这些场景数据，不能确认。
+   - 开 USE_INSTANCING 和 USE_INSTANCE_ROOT_COLOR 前，必须确认每个草实例都提供 _ROOT_COLOR；缺值时实例属性初始为零，可导致黑根。换材质后重新写入实例属性是官方明确要求，现有切档事件已覆盖该路径。[6]
+   - mesh/模型重建、运行中改变父节点缩放、场景重新显示等流程应在模型就绪后重算草包围盒并重设根色。包仅监听切档/风参数事件；其 README 已将部分恢复流程交给调用方。自动画质组件只在 start 扫一次，异步加载或后续新增草后需显式 apply。
+   - 运行时画质 Material 副本有缓存，但没有显式销毁入口。区域卸载时需由资源所有者安排释放，避免多次加载后留下 GPU 资源；此为生命周期审查项，非已测内存泄漏。
+
+最小接入备忘录
+1. 在隔离 Creator 3.8.8 工程导入两个 .effect、两个同目录 TS，记录新生成 .meta。不要覆盖美术文件。
+2. 草材质共享一个资源：USE_INSTANCING=true、USE_INSTANCE_ROOT_COLOR=true、WIND_QUALITY=1、GRASS_LIGHTING=1，WIND_SPACE=0、WIND_PHASE_PER_VERTEX=false。数值宏默认 0，未设置会静止。不静态合批、不对每丛创建 MaterialInstance。
+3. COLOR_0 作为风数据读取，不能当顶点乘色；确认 r 在 [0,1]、alpha 已正确归一化。调色板关 mipmap。改风参数走 setGrassWindParams，确保包围盒同步。
+4. 天空：绑定白天和夜景两张图，SKY_SOURCE=0；horizonV=0.857。USE_HORIZON_FOG 开启后 horizonFog 默认仍为 0，确需雾时才按已定视觉参数设置。场景 Skybox 关闭，相机 SOLID_COLOR。相机跟随与 CPU bounds 一并落实。
+5. 海岛纯顶点色天空用 SKY_SOURCE=1、SKY_NIGHT_TINT_ONLY=true。nightTint 默认为白色；没有已定暗色时夜晚不会自动变暗，不擅自改美术参数。
+6. 本轮后续上限是 Creator 导入/脚本编译/Effect 编译。记录版本、日志和具体宏组合，不启动微信工具。渲染/剔除/性能检查仍列为后续未验证门槛。
+
+资源预算（计算/声明，不是实测）
+- 两张 2048×1024 RGBA8 天空图，无 mipmap，合计 16 MiB；ASTC 6×6 理论约 1.785 MiB。须实际配置压缩与兜底；图片文件压缩体积不等于 GPU 内存。
+- 包中两 Effect 源码合计 15731 B；随包生成 GLSL1+3 文本合计 68807 B，不能替代最终构建包体。
+- 自定义材质 UBO：草 144 B、天空 96 B，均全 vec4，布局简单。实际 shader 活跃属性/资源上限仍需目标渲染后端验证。
+- 每顶点风运算：低档 1 个 sin，高档 4 个 sin；草 5 + 花 3 + 天空 1 次 draw 为共享 mesh/material 条件下的目标。画质阈值只是包提供的设备启发式，并非当前项目 FPS 证据。
+
+验证边界
+本云端未发现 Creator 3.8.8、官方 effect 编译器、Creator cc.d.ts 或 glslangValidator。
+creator_import_compile = not_run
+creator_tsc = not_run
+glslang_compile_link = not_run
+wechat_devtools = not_run
+real_device = not_run
+rendering_fps_drawcalls = not_run
+未运行交付包的 setup.sh 或自测脚本。随包 69 pass / 0 fail / 6 not_run、992 个链接程序等为供应方结果，不计作本次复验通过。
+
+来源
+原包：https://drive.google.com/file/d/15GU0EgfS0v1auHT7EaWgaS80aPodHodz/view
+SHA sidecar：https://drive.google.com/file/d/1_8BEYZ8fXydF7v1B3jmk2UAHGybtDqs2/view
+[1] Material copy/recompile API：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/asset/assets/material.ts
+[2] MeshRenderer API：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/3d/framework/mesh-renderer.ts
+[3] Model bounds API：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/render-scene/scene/model.ts
+[4] 默认管线 sceneCulling 的 worldBounds 剔除：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/rendering/scene-culling.ts
+[5] Pass._syncBatchingScheme：https://raw.githubusercontent.com/cocos/cocos-engine/v3.8.8/cocos/render-scene/core/pass.ts
+[6] 实例属性初始化/材质切换要求：https://docs.cocos.com/creator/3.8/manual/en/shader/instanced-attributes.html
+UBO 规则：https://docs.cocos.com/creator/3.8/manual/en/shader/ubo-layout.html

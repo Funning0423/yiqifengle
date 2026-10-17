@@ -1,0 +1,10 @@
+2026-10-10T00:06:24.622Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] c9f512af2ddf2a18
+2026-10-10T00:06:24.623Z automator.error	[QF-AUDIT-CANARY-LATE] c9f512af2ddf2a18
+2026-10-10T00:06:24.121Z shim.errors	[QF-AUDIT-CANARY] c9f512af2ddf2a18
+2026-10-10T00:06:24.623Z shim.errors	[QF-AUDIT-CANARY-LATE] c9f512af2ddf2a18
+2026-10-10T00:06:24.121Z shim.logs	[QF-AUDIT-HEARTBEAT] c9f512af2ddf2a18
+2026-10-10T00:06:24.121Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T00:06:24.622Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] c9f512af2ddf2a18
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/truncate-error/copies/QFFirstOpen-20261010T000623004Z-3927-785978-default [error] TypeError: after truncation
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/truncate-error/copies/QFFirstOpen-20261010T000623004Z-3927-785978-default [log] [QF-AUDIT-HEARTBEAT-LATE] c9f512af2ddf2a18
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/truncate-error/copies/QFFirstOpen-20261010T000623004Z-3927-785978-default [error] [QF-AUDIT-CANARY-LATE] c9f512af2ddf2a18

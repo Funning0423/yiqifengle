@@ -1,0 +1,130 @@
+{
+"blend": "/workspace/wechat-game/team/cinematic/work/m1v2-truesize/scene/cine_m1_anim.blend",
+"method": "Per-frame SIGNED penetration depth (mm; >0 = penetration, <0 = clearance) for\n   legs(L/R) x dress / apron (game midsurface + 0.8 mm visible shell) and legs/body parts x chair-back (col_int_chair_back proxy box + real backrest mesh).\nMethod (garments): exact tri-tri overlap (BVHTree.overlap) seeds; wrong-side vertices (signed distance along the nearest face normal, proper side by majority,\n   nearest point on a garment BOUNDARY edge = outside the garment's extent, not counted) are region-grown over mesh adjacency from the seeds, both ways\n   (leg verts outside the garment, garment verts inside the leg); depth = max distance in the grown region. No overlap -> depth = -min clearance (cap 60 mm).\nusage: blender -b --python measure.py -- <blend> <checker_scripts_dir> <out.json> [frames spec e.g. cine_open_stand:0-90,cine_open_turn:0-45]",
+"frames": [
+{
+"clip": "cine_open_stand",
+"frame": 40,
+"legLx dress[mid]": {
+"depth_mm": -0.47,
+"tri_pairs": 0,
+"n_pen_verts": 0,
+"proper": -1.0
+},
+"legLx apron[mid]": {
+"depth_mm": -9.57,
+"tri_pairs": 0,
+"n_pen_verts": 0,
+"proper": -1.0
+},
+"legRx dress[mid]": {
+"depth_mm": -2.92,
+"tri_pairs": 0,
+"n_pen_verts": 0,
+"proper": -1.0
+},
+"legRx apron[mid]": {
+"depth_mm": -7.55,
+"tri_pairs": 0,
+"n_pen_verts": 0,
+"proper": -1.0
+},
+"legLx dress[shell]": {
+"depth_mm": -0.09,
+"tri_pairs": 0,
+"n_pen_verts": 0,
+"proper": 1.0
+},
+"legLx apron[shell]": {
+"depth_mm": -9.17,
+"tri_pairs": 0,
+"n_pen_verts": 0,
+"proper": 1.0
+},
+"legRx dress[shell]": {
+"depth_mm": 0.0,
+"depth_part_out_mm": 0.0,
+"depth_garment_in_mm": 0.0,
+"tri_pairs": 6,
+"n_pen_verts": 0,
+"proper": 1.0,
+"worst_loc": [
+0.2955,
+4.2353,
+0.5278
+]
+},
+"legRx apron[shell]": {
+"depth_mm": -7.16,
+"tri_pairs": 0,
+"n_pen_verts": 0,
+"proper": 1.0
+},
+"legLx chair_back_proxy": {
+"depth_mm": -181.8,
+"verts_inside": 0,
+"worst_loc": [
+0.4265,
+4.2773,
+0.4929
+]
+},
+"legLx chair_back_real": {
+"depth_mm": -60.0,
+"tri_pairs": 0
+},
+"legRx chair_back_proxy": {
+"depth_mm": -181.79,
+"verts_inside": 0,
+"worst_loc": [
+0.3759,
+4.1668,
+0.4929
+]
+},
+"legRx chair_back_real": {
+"depth_mm": -60.0,
+"tri_pairs": 0
+},
+"body_nobowx chair_back_proxy": {
+"depth_mm": -181.79,
+"verts_inside": 0,
+"worst_loc": [
+0.3759,
+4.1668,
+0.4929
+]
+},
+"body_nobowx chair_back_real": {
+"depth_mm": -60.0,
+"tri_pairs": 0
+},
+"bowx chair_back_proxy": {
+"depth_mm": -78.52,
+"verts_inside": 0,
+"worst_loc": [
+0.4906,
+4.1692,
+0.3772
+]
+},
+"bowx chair_back_real": {
+"depth_mm": -60.0,
+"tri_pairs": 0
+},
+"hairx chair_back_proxy": {
+"depth_mm": -266.52,
+"verts_inside": 0,
+"worst_loc": [
+0.3247,
+4.2571,
+0.9093
+]
+},
+"hairx chair_back_real": {
+"depth_mm": -60.0,
+"tri_pairs": 0
+}
+}
+]
+}

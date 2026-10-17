@@ -1,0 +1,409 @@
+From 05005673d1082c97703995354770e2ea0cf7eb43 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:58:18 +0800
+Subject: [PATCH 4/5] Glass sign v4-refined3.2 in Cocos: world-space capsule
+ card (0.80x0.28 m @ 0.05,1.02,-4.70, bob 12 mm/3.2 s, unchanged geometry),
+ refined2 rim + top highlight with 15% faded ends, analytic SDF/derivative
+ edge AA in its own shader (no MSAA/FXAA), tap feedback then leaveHome; no
+ backdrop blur
+
+---
+ .../assets/resources/world.meta               |   9 ++
+ .../assets/resources/world/glass-sign.effect  | 121 ++++++++++++++++++
+ .../resources/world/glass-sign.effect.meta    |  11 ++
+ .../assets/scripts/RoomExploreOverlay.ts      |  10 +-
+ .../assets/scripts/WorldIntegrationBoot.ts    |  12 +-
+ .../assets/scripts/world-r1/GlassSign.ts      | 120 +++++++++++++++++
+ 6 files changed, 275 insertions(+), 8 deletions(-)
+ create mode 100644 creator-build-project/assets/resources/world.meta
+ create mode 100644 creator-build-project/assets/resources/world/glass-sign.effect
+ create mode 100644 creator-build-project/assets/resources/world/glass-sign.effect.meta
+ create mode 100644 creator-build-project/assets/scripts/world-r1/GlassSign.ts
+
+diff --git a/creator-build-project/assets/resources/world.meta b/creator-build-project/assets/resources/world.meta
+new file mode 100644
+index 0000000..77863b9
+--- /dev/null
++++ b/creator-build-project/assets/resources/world.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "1.2.0",
++  "importer": "directory",
++  "imported": true,
++  "uuid": "39392c72-a9e7-4450-8209-b65dc2074310",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/resources/world/glass-sign.effect b/creator-build-project/assets/resources/world/glass-sign.effect
+new file mode 100644
+index 0000000..026a347
+--- /dev/null
++++ b/creator-build-project/assets/resources/world/glass-sign.effect
+@@ -0,0 +1,121 @@
++// Glass sign v4-refined3.2 (运镜bot): capsule glass card + refined2 rim + top highlight with 15 % faded ends.
++// Edge anti-aliasing is analytic in this shader (SDF + screen-space derivatives); no MSAA/FXAA dependency.
++// Geometry is one quad; a_texCoord carries sign-local px (card = 280x100, y down, same space as the CSS prototype).
++// Output is premultiplied sRGB (the forward RT here is sRGB-ready, like meadow-grass-wind / warm-button-lit).
++CCEffect %{
++  techniques:
++  - name: transparent
++    passes:
++    - vert: glass-sign-vs:vert
++      frag: glass-sign-fs:frag
++      properties:
++        params0: { value: [0.43, 2.4, 2.6, 1.0] }
++        params1: { value: [1.0, 0.0, -1.0, 0.0] }
++        params2: { value: [0.0, 0.0, 0.35, 2.0] }
++      rasterizerState: { cullMode: none }
++      depthStencilState: { depthTest: false, depthWrite: false } # prototype is an overlay: the card sits at the wall plane, never z-fight it
++      blendState:
++        targets:
++        - blend: true
++          blendSrc: one
++          blendDst: one_minus_src_alpha
++          blendSrcAlpha: one
++          blendDstAlpha: one_minus_src_alpha
++}%
++CCProgram glass-sign-vs %{
++  precision highp float;
++  #include <builtin/uniforms/cc-global>
++  #include <builtin/uniforms/cc-local>
++  in vec3 a_position;
++  in vec2 a_texCoord;
++  out vec2 v_px;
++  vec4 vert () {
++    v_px = a_texCoord;
++    return cc_matViewProj * cc_matWorld * vec4(a_position, 1.0);
++  }
++}%
++CCProgram glass-sign-fs %{
++  precision highp float;
++  #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
++  in vec2 v_px;
++  // params0: rim alpha (0.43 r^0.6), top-line width (device px), rim width (device px), group opacity
++  // params1: card scale, ring glow g, ripple progress (<0 off), ring spread k
++  // params2: ripple opacity, unused, local px per device px (fallback without derivatives), dpr
++  uniform GlassSign { vec4 params0; vec4 params1; vec4 params2; };
++  const vec2 C = vec2(140.0, 50.0);
++  float sdCapsule (vec2 p, vec2 halfSize, float r) {
++    vec2 q = abs(p - C) - halfSize + vec2(r);
++    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
++  }
++  float phi (float x) { return 1.0 / (1.0 + exp(1.702 * x)); } // ~ gaussian CDF of -x (x in sigmas)
++  vec4 over (vec4 top, vec4 under) { return top + under * (1.0 - top.a); }
++  float topLineDist (vec2 q) { // open highlight: inset 2.2 along the top, arcs end 0.9*90 deg down each side
++    float R = 47.8;
++    if (q.x >= 50.0 && q.x <= 230.0) return abs(q.y - 2.2) + max(q.y - 50.0, 0.0) * 4.0;
++    vec2 c = vec2(q.x < 50.0 ? 50.0 : 230.0, 50.0);
++    vec2 v = q - c;
++    float a = atan(v.y, v.x);                       // y down: top of the arc is -pi/2
++    float lo = q.x < 50.0 ? -3.14159265 + 0.15707963 : -1.5707963;
++    float hi = q.x < 50.0 ? -1.5707963 : -0.15707963;
++    if (q.x < 50.0 && a > 0.0) a = -3.14159265;     // lower-left: clamp toward the start of the arc
++    a = clamp(a, lo, hi);
++    return length(q - (c + R * vec2(cos(a), sin(a))));
++  }
++  vec4 frag () {
++    float sc = params1.x;
++    vec2 p = v_px;
++    vec2 q = C + (p - C) / sc;                      // card (scaled by tap feedback about its centre)
++    float dq = sdCapsule(q, vec2(140.0, 50.0), 50.0);
++    float d0 = sdCapsule(p, vec2(140.0, 50.0), 50.0);
++  #if __VERSION__ >= 300 || defined(GL_OES_standard_derivatives)
++    float g = max(length(vec2(dFdx(dq), dFdy(dq))), 1e-4);  // sign-local px per device px
++    float g0 = max(length(vec2(dFdx(d0), dFdy(d0))), 1e-4);
++    float w = fwidth(dq) * 0.75;
++  #else
++    float g = params2.z / sc, g0 = params2.z, w = params2.z * 0.75;
++  #endif
++    vec4 col = vec4(0.0);
++    // drop shadow (.shadow layer, not scaled): 0 10px 24px rgba(0,0,0,.22), drawn outside the box only
++    float ds = sdCapsule(p - vec2(0.0, 10.0), vec2(140.0, 50.0), 50.0);
++    float sh = 0.22 * phi(ds / 12.0) * clamp(d0 / g0 + 0.5, 0.0, 1.0);
++    col = over(vec4(0.0, 0.0, 0.0, sh), col);
++    // tap ripple: 3px white border, scale(1+.9e, 1+1.6e)
++    if (params1.z >= 0.0) {
++      float e = 1.0 - pow(1.0 - params1.z, 3.0);
++      vec2 s2 = vec2(1.0 + 0.9 * e, 1.0 + 1.6 * e);
++      vec2 qr = C + (p - C) / s2;
++      float dr = sdCapsule(qr, vec2(140.0, 50.0), 50.0);
++      float gr = g0 / min(s2.x, s2.y);
++      float band = clamp(0.5 - (dr) / gr, 0.0, 1.0) * clamp(0.5 + (dr + 3.0) / gr, 0.0, 1.0);
++      float a = 0.9 * params2.x * band;
++      col = over(vec4(a, a, a, a), col);
++    }
++    // glass card: 160deg gradient rgba(255,255,255,.34 / .10 @55% / .18) + inset 0 -6px 14px rgba(255,255,255,.12)
++    float cover = 1.0 - smoothstep(-w, w, dq);
++    float t = clamp(dot(q - C, vec2(0.34202, 0.93969)) / 189.76 + 0.5, 0.0, 1.0);
++    float fa = t < 0.55 ? mix(0.34, 0.10, t / 0.55) : mix(0.10, 0.18, (t - 0.55) / 0.45);
++    float glow = 0.12 * (1.0 - phi(sdCapsule(q + vec2(0.0, 6.0), vec2(140.0, 50.0), 50.0) / 7.0));
++    float ca = (fa + glow * (1.0 - fa)) * cover;
++    col = over(vec4(ca, ca, ca, ca), col);
++    // ring (inset -4px, r54, 4px border rgba(255,248,220,g)) + glow 0 0 (24+16k)px (6+6k)px rgba(255,236,180,.85g)
++    if (params1.y > 0.0) {
++      float d4 = sdCapsule(p, vec2(144.0, 54.0), 54.0);
++      float k = params1.w, sig = (24.0 + 16.0 * k) * 0.5, spr = 6.0 + 6.0 * k;
++      float gl = 0.85 * params1.y * phi((d4 - spr) / sig) * clamp(d4 / g0 + 0.5, 0.0, 1.0);
++      col = over(vec4(vec3(1.0, 0.925, 0.706) * gl, gl), col);
++      float br = params1.y * clamp(0.5 - d4 / g0, 0.0, 1.0) * clamp(0.5 + (d4 + 4.0) / g0, 0.0, 1.0);
++      col = over(vec4(vec3(1.0, 0.973, 0.863) * br, br), col);
++    }
++    // refined2 rim: capsule inset 0.75 local px, params0.z device px wide, white params0.x
++    float rd = abs(dq + 0.75) / g;
++    float rim = params0.x * clamp(params0.z * 0.5 + 0.5 - rd, 0.0, 1.0);
++    // refined3.1/3.2 top highlight: inset 2.2, round caps, white .8, ends fade 0 -> .8 over 15 % of the chord
++    float td = topLineDist(q) / g;
++    float u = clamp((q.x - 2.79) / 274.42, 0.0, 1.0);
++    float fade = min(min(u / 0.15, (1.0 - u) / 0.15), 1.0);
++    float top = 0.8 * fade * clamp(params0.y * 0.5 + 0.5 - td, 0.0, 1.0);
++    col = over(vec4(rim, rim, rim, rim), col);
++    col = over(vec4(top, top, top, top), col);
++    return col * params0.w;
++  }
++}%
+diff --git a/creator-build-project/assets/resources/world/glass-sign.effect.meta b/creator-build-project/assets/resources/world/glass-sign.effect.meta
+new file mode 100644
+index 0000000..8cd23d8
+--- /dev/null
++++ b/creator-build-project/assets/resources/world/glass-sign.effect.meta
+@@ -0,0 +1,11 @@
++{
++  "ver": "1.7.1",
++  "importer": "effect",
++  "imported": true,
++  "uuid": "7018db24-e45b-4588-b5eb-6393958df6b8",
++  "files": [
++    ".json"
++  ],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/RoomExploreOverlay.ts b/creator-build-project/assets/scripts/RoomExploreOverlay.ts
+index bf6b88b..a0b2ebd 100644
+--- a/creator-build-project/assets/scripts/RoomExploreOverlay.ts
++++ b/creator-build-project/assets/scripts/RoomExploreOverlay.ts
+@@ -1,6 +1,7 @@
+ import {Node,UITransform,Label,Layers,Color,EventTouch,isValid} from 'cc';
+ import {AudioUnlock} from './audio/AudioUnlock';
+ type RoomView={enabled:boolean;settling:boolean;door:{visible:boolean;x:number;y:number;direction:number}};
++type GlassSignTap={tap:(x:number,y:number)=>boolean;hit:(x:number,y:number)=>boolean};
+ type Commands={roomView:(aspect:number)=>RoomView;lookRoom:(dx:number,dy:number)=>boolean;leaveHome:()=>unknown};
+ /** Plain scene-linked copy: no Button, panel, extra camera, asset load, timer or global input hook.
+  * Audio (GGbot 2026-10-11): this full-screen surface swallows every room touch, so it forwards the gesture to GameAudio itself,
+@@ -9,7 +10,7 @@ type Commands={roomView:(aspect:number)=>RoomView;lookRoom:(dx:number,dy:number)
+ export class RoomExploreOverlay {
+  private root:Node;private prompt:Label;private guide:Label;private pointer:number|null=null;private start={x:0,y:0};private last={x:0,y:0};private dragged=false;private blocked=false;private width=1;private height=1;private disposed=false;private rect={x:0,y:0,w:0,h:0};private handle={x:0,y:0,visible:false};
+  private leave:()=>void;
+- constructor(parent:Node,private commands:()=>Commands|null,private allowed:()=>boolean,leave:()=>void){
++ constructor(parent:Node,private commands:()=>Commands|null,private allowed:()=>boolean,leave:()=>void,private sign:()=>GlassSignTap|null=()=>null){
+   this.leave=()=>{AudioUnlock.gesture('door-tap','leave');leave();};
+   this.root=new Node('RoomExploreSurface');this.root.layer=Layers.Enum.UI_2D;parent.addChild(this.root);this.root.addComponent(UITransform);this.root.active=false;
+   this.prompt=this.text('DoorHandleInvitation','推开门，开始冒险',17,224);this.guide=this.text('RoomLookGuide','向左轻拖，看看门口  ›',14,260);
+@@ -26,9 +27,12 @@ export class RoomExploreOverlay {
+  }
+  private down(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchstart');if(!this.root.active||!this.allowed())return;const id=e.getID();if(id===null)return;if(this.pointer!==null||e.getAllTouches().length>1){this.blocked=true;return;}const p=e.getUILocation();this.pointer=id;this.start={x:p.x,y:p.y};this.last={...this.start};this.dragged=false;}
+  private move(e:EventTouch){if(e.getID()!==this.pointer||this.blocked)return;if(!this.allowed()||!this.commands()?.roomView(this.width/this.height).enabled){this.cancel();return;}const p=e.getUILocation();if(Math.hypot(p.x-this.start.x,p.y-this.start.y)>8)this.dragged=true;if(this.dragged)this.commands()?.lookRoom((p.x-this.last.x)/this.width,(p.y-this.last.y)/this.height);this.last={x:p.x,y:p.y};}
+- private up(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchend');if(e.getID()!==this.pointer){if(e.getAllTouches().length===0)this.cancel();return;}const p=e.getUILocation(),r=this.rect;const tap=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8&&this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);this.cancel();if(tap&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled)this.leave();}
++ private up(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchend');if(e.getID()!==this.pointer){if(e.getAllTouches().length===0)this.cancel();return;}const p=e.getUILocation(),r=this.rect;
++  // Glass sign (world-r1/GlassSign.ts): a still tap on its projected card starts its feedback; the sign leaves home itself.
++  {const still=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8,s=e.getLocation();if(still&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled&&this.sign()?.tap(s.x,s.y)){AudioUnlock.gesture('door-tap','leave');this.cancel();return;}}
++  const tap=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8&&this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);this.cancel();if(tap&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled)this.leave();}
+  /** Same door-handle hit area as up(): rect or within 28 px of the handle, door on screen. */
+- private onDoor(e:EventTouch){try{const p=e.getUILocation(),r=this.rect;return this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);}catch{return false;}}
++ private onDoor(e:EventTouch){try{const p=e.getUILocation(),r=this.rect,g=e.getLocation();if(this.sign()?.hit(g.x,g.y))return true;return this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);}catch{return false;}}
+  private cancel(){this.pointer=null;this.dragged=false;this.blocked=false;}
+  diagnostics(){return {visible:this.root.active,doorVisible:this.handle.visible,prompt:this.prompt.string,handle:{...this.handle},rect:{...this.rect},dragging:this.dragged,buttonless:true};}
+  dispose(){if(this.disposed)return;this.disposed=true;this.cancel();if(isValid(this.root,true)){this.root.off(Node.EventType.TOUCH_START,this.down,this);this.root.off(Node.EventType.TOUCH_MOVE,this.move,this);this.root.off(Node.EventType.TOUCH_END,this.up,this);this.root.off(Node.EventType.TOUCH_CANCEL,this.cancel,this);this.root.destroy();}}
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 0c6210f..da5c7ea 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -9,6 +9,7 @@ import {cabinHintSeen,markCabinHintSeen} from './ui/UiPrefs';
+ import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
+ import {ISLAND_NAV_IDS,worldNavigationLayout} from './world-r2/WorldNavigationLayout';
+ import { RoomExploreOverlay } from './RoomExploreOverlay';
++import { GlassSign } from './world-r1/GlassSign';
+ import { warmButton, WarmButton } from './WarmButton';
+ import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
+ import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
+@@ -397,7 +398,7 @@ export class WorldIntegrationBoot extends Component {
+  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
+  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+  private islandProps:IslandProps|null=null;private propSign=false;
+- private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
++ private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private glassSign:GlassSign|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
+  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
+  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
+@@ -475,6 +476,7 @@ export class WorldIntegrationBoot extends Component {
+  for(const a of seated){a.useBakedAnimation=!CHARACTER_POSE_BLEND;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip; /* bindVisual captures imported rest TRS before sampling the initial seated pose. */}
+  (this as any)._referenceAdapter.setAnimMeta(this.animMeta);(this as any)._referenceAdapter.bindVisual(girl);
+  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
++ try{this.glassSign?.dispose();this.glassSign=new GlassSign(scene,camera,()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});}catch(e){this.glassSign=null;console.warn('[GLASS_SIGN] unavailable',String(e));}
+  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
+  if(!this.transitionChairPrefab)throw Error('Required transition support missing');
+  const chair=instantiate(this.transitionChairPrefab);this.transitionChairVisual=chair;chair.name='StationaryReferenceRoundStool';owner.addChild(chair);chair.active=false;
+@@ -496,7 +498,7 @@ export class WorldIntegrationBoot extends Component {
+  (globalThis as any).__characterCandidateIdentity={candidate:'layer-clearance-task21',glbSHA256:'42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec',metadataSHA256:'cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6',motionSHA256:'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657',prefabUUID:(this.characterPrefab as any)._uuid,metadataSource:((this as any)._referenceAdapter).diagnostics().motion.metaSource,visualName:girl.name,staticHomeInstantiated:!!this.homeSeatedVisual,meshNames:girl.getComponentsInChildren(MeshRenderer).map(r=>r.node.name),acceptance:'OPEN'};
+  console.info('UNIFIED_CHARACTER_CANDIDATE_LOADED',(globalThis as any).__characterCandidateIdentity);
+  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
+- (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.goHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.resumeJourney(),journey:()=>this.composition.worldCommands().journeySnapshot(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. OPEN layer-clearance task21 GLB SHA 42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
++ (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),glassSign:()=>this.glassSign?.diagnostics()??null,props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.goHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.resumeJourney(),journey:()=>this.composition.worldCommands().journeySnapshot(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. OPEN layer-clearance task21 GLB SHA 42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
+  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
+  }
+  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
+@@ -506,7 +508,7 @@ export class WorldIntegrationBoot extends Component {
+  this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+- this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
++ this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},()=>this.glassSign);this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
+  if(DEBUG){
+  this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);
+  this.button('flowTests','地区流程测试',()=>{this.flowTestMenu=!this.flowTestMenu;});
+@@ -612,7 +614,7 @@ export class WorldIntegrationBoot extends Component {
+  if(board){const actions:any={};for(const k of RESULT_ACTION_IDS){const n=this.controls.get(k)!;actions[k]={visible:n.active,run:this.resultActions[k]};n.active=false;}actions.afterClaims={visible:true,run:(then:()=>any)=>{if(this.busy){void then();return;}this.enqueueResult(()=>then());}};if(!s.hidden)board.setHostActions(actions);}
+  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
+ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
+- this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
++ this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);if(s.state!=='home')this.glassSign?.reset();this.glassSign?.sync(dt,s.state==='home'&&!s.hidden&&!s.needsResume&&!!this.roomExplore?.diagnostics().visible);
+  if(DEBUG){const test=this.composition.regionFlowTestStatus(),outside=['home','island'].includes(s.state)&&!s.hidden&&!s.needsResume&&!this.busy;
+  const testLayout=flowTestLayout(f.width,f.height,readFlowTestHost());
+  const put=(id:string,r:{x:number;y:number;width:number;height:number},on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on&&testLayout.supported;this.placeNavigationControl(n,r);}};
+@@ -658,5 +660,5 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+  private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
+   if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
+  update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+- onDestroy(){setScreenCover(null);this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
++ onDestroy(){setScreenCover(null);this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ }
+diff --git a/creator-build-project/assets/scripts/world-r1/GlassSign.ts b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+new file mode 100644
+index 0000000..dfd7479
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+@@ -0,0 +1,120 @@
++import { Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
++
++/**
++ * Glass sign v4-refined3.2 (运镜bot, approved prototype glass-panel-v4refined3.2-20261016T1419Z).
++ * A world-space capsule glass card in the home room: 0.80 x 0.28 m, centre (0.05, 1.02, -4.70), world X/Y axes,
++ * bob 0.012 m / 3.2 s. Tapping it plays the prototype's 27-frame feedback (scale, ring, ripple, fade) and then leaves
++ * home through the normal leaveHome path. Edge AA lives in resources/world/glass-sign.effect (SDF + derivatives):
++ * refined2 rim (inset 0.75 local px, 1.3 CSS px, white .43 r^.6) + top highlight (inset 2.2, white .8, width
++ * 1.2 r^.6 CSS px, ends faded over 15 %). r = projected card width / 123.2 CSS px. No full-screen MSAA/FXAA.
++ * Not reproduced from the CSS prototype: backdrop-filter blur(14px) saturate(1.4) (needs a scene-colour grab pass).
++ */
++export const GLASS_SIGN = Object.freeze({
++  centre: [0.05, 1.02, -4.70] as const, widthM: 0.80, heightM: 0.28, bobAmp: 0.012, bobPeriod: 3.2,
++  px: [280, 100] as const, pad: [130, 85] as const, refWidthCss: 123.2,
++  rim: { alpha: 0.43, gamma: 0.6, widthCss: 1.3 }, top: { alpha: 0.8, widthCss: 1.2, gamma: 0.6 },
++  caption: '出发去看海', leaf: '🍃', leaveAtFrame: 27,
++});
++
++export class GlassSign {
++  readonly root: Node;
++  private card: Node; private text: Node; private textOpacity: UIOpacity | null = null;
++  private material: Material | null = null; private renderer: MeshRenderer | null = null;
++  private t = 0; private tapT: number | null = null; private left = false; private shown = false; private disposed = false;
++  private corners: Vec3[] = [new Vec3(), new Vec3(), new Vec3(), new Vec3()];
++  private box: { l: number; r: number; t: number; b: number } | null = null; private onScreen = false;
++  private stats = { effect: 'loading' as string, frames: 0 };
++
++  constructor(scene: Node, private camera: Camera, private leave: () => void) {
++    const S = GLASS_SIGN;
++    this.root = new Node('GlassSignV4R32'); scene.addChild(this.root);
++    this.root.layer = (camera.visibility & Layers.Enum.DEFAULT) ? Layers.Enum.DEFAULT : this.firstLayer(camera.visibility);
++    this.root.setPosition(S.centre[0], S.centre[1], S.centre[2]); this.root.active = false;
++    this.card = new Node('GlassSignCard'); this.card.layer = this.root.layer; this.root.addChild(this.card);
++    this.text = new Node('GlassSignText'); this.text.layer = this.root.layer; this.root.addChild(this.text);
++    this.buildText();
++    resources.load('world/glass-sign', EffectAsset, (err: Error | null, fx: EffectAsset | null) => {
++      if (this.disposed) return;
++      if (err || !fx) { this.stats.effect = 'failed:' + String(err); console.warn('[GLASS_SIGN] effect unavailable', String(err)); return; }
++      try { this.buildCard(fx); this.stats.effect = 'ready'; } catch (e) { this.stats.effect = 'failed:' + String(e); console.warn('[GLASS_SIGN] build failed', String(e)); }
++    });
++  }
++  private firstLayer(mask: number) { for (let i = 0; i < 20; i++) if (mask & (1 << i)) return 1 << i; return Layers.Enum.DEFAULT; }
++  /** One quad covering the card plus its shadow / ring / ripple margin; uv = sign-local px (card 0..280 x 0..100, y down). */
++  private buildCard(fx: EffectAsset) {
++    const S = GLASS_SIGN, sx = S.widthM / S.px[0], sy = S.heightM / S.px[1];
++    const x0 = -S.pad[0], x1 = S.px[0] + S.pad[0], y0 = -S.pad[1], y1 = S.px[1] + S.pad[1];
++    const P = (x: number, y: number) => [(x - S.px[0] / 2) * sx, -(y - S.px[1] / 2) * sy, 0];
++    const mesh = utils.createMesh({ positions: [...P(x0, y0), ...P(x1, y0), ...P(x1, y1), ...P(x0, y1)], normals: [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1],
++      uvs: [x0, y0, x1, y0, x1, y1, x0, y1], indices: [0, 3, 2, 0, 2, 1] }, undefined, { calculateBounds: true });
++    const m = new Material(); m.initialize({ effectAsset: fx, technique: 0 }); this.material = m;
++    const r = this.card.addComponent(MeshRenderer); r.mesh = mesh; r.setMaterial(m, 0);
++    r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; r.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF; this.renderer = r;
++  }
++  /** Caption: world-camera Label (RenderRoot2D), system font, white 600 34px + soft dark shadow, leaf 30px + 12px gap. */
++  private buildText() {
++    const S = GLASS_SIGN, k = S.widthM / S.px[0];
++    this.text.setScale(k, S.heightM / S.px[1], 1); this.text.setPosition(0, 0, 0.001);
++    this.text.addComponent(RenderRoot2D); this.text.addComponent(UITransform).setContentSize(S.px[0], S.px[1]); this.textOpacity = this.text.addComponent(UIOpacity);
++    const add = (name: string, s: string, size: number, x: number, w: number) => {
++      const n = new Node(name); n.layer = this.root.layer; this.text.addChild(n); n.addComponent(UITransform).setContentSize(w, S.px[1]); n.setPosition(x, 1, 0);
++      const l = n.addComponent(Label); l.string = s; l.fontSize = size; l.lineHeight = size + 4; l.isBold = true; l.fontFamily = 'Noto Sans CJK SC, PingFang SC, sans-serif';
++      l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
++      l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
++    };
++    // CSS: leaf (30px) + 12px margin + caption (34px, letter-spacing 4px), centred as one line
++    const capW = 5 * 34 + 5 * 4, leafW = 34, total = leafW + 12 + capW;
++    add('Leaf', S.leaf, 30, -total / 2 + leafW / 2, leafW + 8); add('Caption', S.caption, 34, -total / 2 + leafW + 12 + capW / 2, capW + 8);
++  }
++  /** Prototype tap feedback timeline (frames at 30 fps after the tap). */
++  private feedback() {
++    const cl = (x: number) => Math.max(0, Math.min(1, x)), eo = (x: number) => 1 - Math.pow(1 - x, 3);
++    if (this.tapT === null) return { sc: 1, ring: 0, k: 0, rip: -1, ripA: 0, op: 1, f: -1 };
++    const f = (this.t - this.tapT) * 30;
++    const sc = f < 4 ? 1 - 0.08 * eo(f / 4) : (f < 10 ? 0.92 + 0.05 * Math.sin(cl((f - 4) / 6) * Math.PI / 2) : 0.97);
++    const ring = f < 3 ? 0 : (f < 10 ? (f - 3) / 7 : 1 - cl((f - 10) / 9)), k = cl((f - 10) / 9);
++    const rr = cl((f - 6) / 18), rip = f < 6 ? -1 : rr, ripA = f < 6 ? 0 : 1 - rr;
++    return { sc, ring, k, rip, ripA, op: 1 - cl((f - 16) / 10), f };
++  }
++  /** Called every frame by the host. visible = home room view is up and input is allowed. */
++  sync(dt: number, visible: boolean) {
++    if (this.disposed) return;
++    this.t += dt; this.stats.frames++;
++    const want = (visible || this.tapT !== null) && !this.left;
++    if (!want) { this.root.active = false; this.shown = false; this.onScreen = false; this.box = null; if (!visible) this.tapT = null; return; }
++    const S = GLASS_SIGN, bob = S.bobAmp * Math.sin(2 * Math.PI * this.t / S.bobPeriod), fb = this.feedback();
++    this.root.setPosition(S.centre[0], S.centre[1] + bob, S.centre[2]);
++    // project the card corners (same test as the prototype: hidden when any corner is off the depth range)
++    const cam = this.camera.camera; let ok = !!cam; const hw = S.widthM / 2, hh = S.heightM / 2;
++    const xs: number[] = [], ys: number[] = [];
++    if (cam) for (let i = 0; i < 4; i++) {
++      const sx = i === 0 || i === 3 ? -1 : 1, sy = i < 2 ? 1 : -1, o = this.corners[i];
++      cam.worldToScreen(o, new Vec3(S.centre[0] + sx * hw, S.centre[1] + sy * hh + bob, S.centre[2]));
++      if (o.z < 0 || o.z > 1) ok = false; xs.push(o.x); ys.push(o.y);
++    }
++    this.onScreen = ok; this.root.active = ok; this.shown = ok;
++    if (!ok) { this.box = null; return; }
++    this.box = { l: Math.min(...xs), r: Math.max(...xs), t: Math.max(...ys), b: Math.min(...ys) }; // screen px, y up
++    const dpr = screen.devicePixelRatio || 1, r = (this.box.r - this.box.l) / dpr / S.refWidthCss;
++    const localPerPx = S.px[0] / Math.max(1, this.box.r - this.box.l);
++    if (this.material) {
++      this.material.setProperty('params0', new Vec4(Math.min(1, S.rim.alpha * Math.pow(r, S.rim.gamma)), S.top.widthCss * Math.pow(r, S.top.gamma) * dpr, S.rim.widthCss * dpr, fb.op));
++      this.material.setProperty('params1', new Vec4(fb.sc, fb.ring, fb.rip, fb.k));
++      this.material.setProperty('params2', new Vec4(fb.ripA, 0, localPerPx, dpr));
++    }
++    this.text.setScale(fb.sc * S.widthM / S.px[0], fb.sc * S.heightM / S.px[1], 1);
++    if (this.textOpacity) this.textOpacity.opacity = Math.round(255 * fb.op);
++    if (fb.f >= S.leaveAtFrame && !this.left) { this.left = true; this.root.active = false; this.leave(); }
++  }
++  /** Tap test in screen px (y up, same space as Camera.worldToScreen / EventTouch.getLocation). Starts the feedback. */
++  tap(x: number, y: number): boolean {
++    if (!this.hit(x, y) || this.tapT !== null || this.left) return false;
++    this.tapT = this.t; return true;
++  }
++  hit(x: number, y: number) { const b = this.box; return !!b && this.shown && this.onScreen && x >= b.l && x <= b.r && y >= b.b && y <= b.t; }
++  busy() { return this.tapT !== null && !this.left; }
++  /** After a leave, the next home visit shows the sign again. */
++  reset() { this.tapT = null; this.left = false; }
++  diagnostics() { return { ...this.stats, visible: this.root.active, box: this.box ? { ...this.box } : null, corners: this.box ? this.corners.map(c => [c.x, c.y]) : null, tapped: this.tapT !== null, left: this.left, layer: this.root.layer }; }
++  dispose() { if (this.disposed) return; this.disposed = true; if (isValid(this.root, true)) this.root.destroy(); this.material?.destroy(); this.material = null; }
++}
+-- 
+2.47.3
+

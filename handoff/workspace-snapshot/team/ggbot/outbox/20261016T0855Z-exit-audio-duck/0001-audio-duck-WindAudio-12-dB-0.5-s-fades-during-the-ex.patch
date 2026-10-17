@@ -1,0 +1,1023 @@
+From 3ad4f9135b9afb211e9eec184543cbb4cf3e0a4e Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 04:55:10 -0400
+Subject: [PATCH] audio: duck WindAudio -12 dB (0.5 s fades) during the exit
+ cinematic so sfx_exit_outbound carries the wind; release on island/sail start
+ (releaseExitDuck), cancel/abort, error, scene change, mute, destroy; .meta
+ for region_island/audio_cine + mp3; manifests refreshed
+
+---
+ assets-MANIFEST-SHA256.json                   |  25 +-
+ .../bundles/region_island/audio_cine.meta     |   9 +
+ .../audio_cine/sfx_exit_outbound.mp3.meta     |  14 +
+ .../assets/scripts/audio/WindAudio.ts         |  41 ++-
+ text-MANIFEST-SHA256.json                     | 342 ++++++++++++------
+ tools/voice-bot/wind/test_wind_exit_duck.cjs  |  76 ++++
+ 6 files changed, 388 insertions(+), 119 deletions(-)
+ create mode 100644 creator-build-project/assets/bundles/region_island/audio_cine.meta
+ create mode 100644 creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta
+ create mode 100644 tools/voice-bot/wind/test_wind_exit_duck.cjs
+
+diff --git a/assets-MANIFEST-SHA256.json b/assets-MANIFEST-SHA256.json
+index 996fc3e..db9ad2a 100644
+--- a/assets-MANIFEST-SHA256.json
++++ b/assets-MANIFEST-SHA256.json
+@@ -414,6 +414,11 @@
+     "bytes": 1755,
+     "sha256": "308a3218749e655609def03591fe9f3251ce3198f9f8f58400fcc720a74ad949"
+   },
++  {
++    "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3",
++    "bytes": 240475,
++    "sha256": "bfe9cb62e04893ebb68d208af0f94d8527697e5335407adf8ed5b5e82198d616"
++  },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/board/bg_island_board.jpg",
+     "bytes": 23276,
+@@ -421,13 +426,13 @@
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+-    "bytes": 1426060,
+-    "sha256": "1364896733341c1dcc43deb1b6cd6a3bbaa147b7830ec36475404b6664e37c68"
++    "bytes": 3482864,
++    "sha256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec"
+   },
+   {
+-    "path": "creator-build-project/assets/bundles/region_island/combined_visual_m.glb",
+-    "bytes": 4866052,
+-    "sha256": "1d9c4b56f601677f2dd59849fd8b9ada7509c7f72dd0f6e03fca784fe841f5d3"
++    "path": "creator-build-project/assets/bundles/region_island/character_support/reading_chair.glb",
++    "bytes": 73152,
++    "sha256": "d156b7a05017713e88ec965254c1b832ffe4f10ee75fc554f8cc7ab19ff5bf2a"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_short.glb",
+@@ -464,6 +469,11 @@
+     "bytes": 436288,
+     "sha256": "eb173a0d679f52e69a457c0a3512623e427efe5c2cf679e6caa9e1cb243cd87f"
+   },
++  {
++    "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
++    "bytes": 4082496,
++    "sha256": "ab3f6e552cdfab624f64cf1abefa3316740ef0d08d309f0e7366948d04fb9321"
++  },
+   {
+     "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3",
+     "bytes": 432526,
+@@ -479,11 +489,6 @@
+     "bytes": 3690136,
+     "sha256": "584e4b2c710c4c86996c47ceb1c8e1706fc84641a19906978f38de3441005395"
+   },
+-  {
+-    "path": "creator-build-project/assets/bundles/static_seat_preview/actor/user_static_seated_2k.glb",
+-    "bytes": 7925240,
+-    "sha256": "6667393b50aa9876eb760af6f229c3a2a83ccc70729c4015b7beb5f9e920b478"
+-  },
+   {
+     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
+     "bytes": 4891764,
+diff --git a/creator-build-project/assets/bundles/region_island/audio_cine.meta b/creator-build-project/assets/bundles/region_island/audio_cine.meta
+new file mode 100644
+index 0000000..f99edef
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_island/audio_cine.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "1.2.0",
++  "importer": "directory",
++  "imported": true,
++  "uuid": "65640a1e-f470-478a-bdf4-70f99ad70d49",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta b/creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta
+new file mode 100644
+index 0000000..d42b097
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta
+@@ -0,0 +1,14 @@
++{
++  "ver": "1.0.0",
++  "importer": "audio-clip",
++  "imported": true,
++  "uuid": "ff7178e1-8cb3-4566-ab6e-6e6de1ddba35",
++  "files": [
++    ".json",
++    ".mp3"
++  ],
++  "subMetas": {},
++  "userData": {
++    "downloadMode": 0
++  }
++}
+diff --git a/creator-build-project/assets/scripts/audio/WindAudio.ts b/creator-build-project/assets/scripts/audio/WindAudio.ts
+index d7082f3..f8986be 100644
+--- a/creator-build-project/assets/scripts/audio/WindAudio.ts
++++ b/creator-build-project/assets/scripts/audio/WindAudio.ts
+@@ -18,6 +18,12 @@
+ //     2) 在 WorldFlowComponent / WorldIntegrationBoot / 角色 adapter 上提供
+ //        onApronLift(listener:(strength:'full'|'soft', durationSec:number)=>void): ()=>void（返回取消订阅），
+ //        这里会用 typeof 找到并订阅，销毁时取消。
++// 出门过场让位（GGbot 2026-10-16，Grok Bot 定）：出门 B5.3 音轨 sfx_exit_outbound 自带风，WindAudio 在出门期间压低约 -12 dB，
++//   0.5 s 淡入淡出（按 dB 线性），帆船转场开始时恢复。驱动方式：每帧看 WorldFlow 的 state，处于出门段
++//   （standing/turning-out/walking-out/opening-door/crossing-out）就压；离开出门段（到 island、被取消回 home、error、
++//   disposed）、找不到 WorldFlowComponent（换场景）、allowed() 为 false、组件销毁，都会释放。
++//   帆船转场 / 跳过可以显式调用 WindAudio.releaseExitDuck()（或 globalThis.__voiceWind.releaseExitDuck()）提前恢复：
++//   释放后到离开出门段之前不会再压回去。
+ import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
+ import { GameAudio } from './GameAudio';
+ import { AmbienceAudio } from './AmbienceAudio';
+@@ -47,6 +53,11 @@ const ON_GAIN = 0.003;             // 低于这个当作无声
+ const IDLE_PAUSE_S = 1;            // 两条都无声超过这么久就暂停
+ const REFIND_S = 1;
+ const HOOK_RETRY_S = 2;
++export const EXIT_DUCK_DB = -12;
++export const EXIT_DUCK_FADE_S = 0.5;
++export const EXIT_STATES: readonly string[] = ['standing', 'turning-out', 'walking-out', 'opening-door', 'crossing-out'];
++/** Duck gain for fade progress u (0 = no duck, 1 = full -12 dB), linear in dB. */
++export function exitDuckGain(u: number): number { const k = Math.max(0, Math.min(1, u)); return Math.pow(10, (EXIT_DUCK_DB * k) / 20); }
+ 
+ export function smoothstep(a: number, b: number, x: number): number {
+   const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u);
+@@ -74,6 +85,8 @@ export class WindAudio extends Component {
+   private gust = -1;                          // 'soft' 包络已走的时间；<0 表示没有
+   private gustDur = SOFT_DEFAULT_S;
+   private alive = true;
++  private duckU = 0;                          // 出门让位淡入进度 0..1
++  private duckReleased = false;               // releaseExitDuck() 之后、离开出门段之前保持不压
+ 
+   static ensure() {
+     try {
+@@ -88,12 +101,32 @@ export class WindAudio extends Component {
+     if (w && w.alive) w.onApronLift(strength, durationSec);
+   }
+ 
++  /** 帆船转场开始 / 跳过时调用：0.5 s 淡回原音量。 */
++  static releaseExitDuck() { const w = WindAudio.instance; if (w && w.alive) w.duckReleased = true; }
++
++  private flowState(): string | null {
++    const f = this.flow; if (!f || !isValid(f, true) || typeof f.commands !== 'function') return null;
++    try { const s = f.commands().snapshot(); return s && typeof s.state === 'string' ? s.state : null; } catch { return null; }
++  }
++
++  /** 每帧推进让位包络，返回乘在风声音量上的增益。 */
++  private exitDuck(dt: number): number {
++    const st = this.flowState(), exiting = st !== null && EXIT_STATES.indexOf(st) >= 0;
++    if (!exiting) this.duckReleased = false;
++    const target = exiting && !this.duckReleased ? 1 : 0, step = Math.max(0, dt) / EXIT_DUCK_FADE_S;
++    this.duckU = target > this.duckU ? Math.min(target, this.duckU + step) : Math.max(target, this.duckU - step);
++    return exitDuckGain(this.duckU);
++  }
++
++  private resetDuck() { this.duckU = 0; this.duckReleased = false; }
++
+   onLoad() {
+     if (WindAudio.instance && WindAudio.instance !== this && isValid(WindAudio.instance, true)) { this.alive = false; return; }
+     WindAudio.instance = this;
+     (globalThis as any).__voiceWind = {
+       notifyApronLift: (strength: ApronLiftStrength, durationSec?: number) => WindAudio.notifyApronLift(strength, durationSec),
+       snapshot: () => this.snapshot(),
++      releaseExitDuck: () => WindAudio.releaseExitDuck(),
+     };
+     for (const p of [SOFT_PATH, STRONG_PATH, FLAP_PATH]) {
+       this.clips[p] = null;
+@@ -117,7 +150,7 @@ export class WindAudio extends Component {
+     }
+     this.softSrc = this.strongSrc = this.flapSrc = null;
+     for (const p in this.clips) { const c = this.clips[p]; if (c) c.decRef(); }
+-    this.clips = {}; this.flow = null; this.boot = null;
++    this.clips = {}; this.flow = null; this.boot = null; this.resetDuck();
+     if (owner) {
+       WindAudio.instance = null; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0);
+       const g = (globalThis as any).__voiceWind; if (g) delete (globalThis as any).__voiceWind;
+@@ -126,7 +159,8 @@ export class WindAudio extends Component {
+ 
+   snapshot() {
+     return { s: this.s, soft: this.softSrc ? this.softSrc.volume : 0, strong: this.strongSrc ? this.strongSrc.volume : 0,
+-      softPlaying: !!this.softSrc?.playing, strongPlaying: !!this.strongSrc?.playing, gust: this.gust, hooks: this.hooked.length };
++      softPlaying: !!this.softSrc?.playing, strongPlaying: !!this.strongSrc?.playing, gust: this.gust, hooks: this.hooked.length,
++      exitDuck: this.duckU, exitDuckGain: exitDuckGain(this.duckU) };
+   }
+ 
+   /** GameAudio.setWindDuck if present (older GameAudio / test stubs: no-op) */
+@@ -244,6 +278,7 @@ export class WindAudio extends Component {
+     const g = this.gustValue(dt);
+     const allowed = this.allowed();
+     if (!allowed) {
++      this.resetDuck();
+       this.s = 0; this.sWind = 0; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0); this.quietFor = IDLE_PAUSE_S;
+       this.pauseLoops();
+       return;
+@@ -257,7 +292,7 @@ export class WindAudio extends Component {
+     if (this.sWind < 1e-4 && wind === 0) this.sWind = 0;
+     AmbienceAudio.setWindExit(this.sWind);
+     WindAudio.duckBgm(this.s);   // BGM 让风：GameAudio 里 -4 dB x smoothstep(0.2, 1, s)，0.5 s 平滑
+-    const music = musicBed();
++    const music = musicBed() * this.exitDuck(dt);
+     if (music <= 0) {
+       for (const src of [this.softSrc, this.strongSrc]) if (src) src.volume = 0;
+       this.pauseLoops();
+diff --git a/text-MANIFEST-SHA256.json b/text-MANIFEST-SHA256.json
+index fdafdb8..66404fd 100644
+--- a/text-MANIFEST-SHA256.json
++++ b/text-MANIFEST-SHA256.json
+@@ -146,8 +146,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/bundles/board_art/chest/result_chest.glb.meta",
+-    "bytes": 187,
+-    "sha256": "4b658706f144e630ee3169cd3420a32a296052c20b9b15f9034f8a98dd649807"
++    "bytes": 3305,
++    "sha256": "c8ec861ea3706379d6669fc2728cd004ab824e6fe74bc23b7c08ce8764e32fc4"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/board_art/licenses.meta",
+@@ -499,6 +499,16 @@
+     "bytes": 408,
+     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
+   },
++  {
++    "path": "creator-build-project/assets/bundles/region_island/audio_cine.meta",
++    "bytes": 169,
++    "sha256": "6e457a9c6f2499ace8800a99904b2c1e72acaf5a8c7f8c18aed2ebe8a03f967d"
++  },
++  {
++    "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta",
++    "bytes": 222,
++    "sha256": "becbc904033ca183a5ed4fbb912b2126b5daeea4c34902b16fda7bb14a040c9b"
++  },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/board.meta",
+     "bytes": 169,
+@@ -507,7 +517,7 @@
+   {
+     "path": "creator-build-project/assets/bundles/region_island/board/bg_island_board.jpg.meta",
+     "bytes": 1000,
+-    "sha256": "f2523cb846e8e81405754d1440b28eff8827236b8144ffda2fa89582e9aaa34a"
++    "sha256": "cc3fb2b4b53062145a8b16d29cf36c435723749c62898ac455ddf6ca40fd5d10"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/character.meta",
+@@ -516,8 +526,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
+-    "bytes": 45570,
+-    "sha256": "7f219158a562a33381fc6072bd816996066f9f87296021e61a8a103a1c68682d"
++    "bytes": 371995,
++    "sha256": "cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
+@@ -529,6 +539,16 @@
+     "bytes": 25308,
+     "sha256": "d1246ef657fdaee129be88187f9395c99babd0f0ad1b75840f2d697224142500"
+   },
++  {
++    "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
++    "bytes": 169,
++    "sha256": "15342d8badbfdea496a58416f8c01088f2f1345613f77778dfe443e4df6a5fea"
++  },
++  {
++    "path": "creator-build-project/assets/bundles/region_island/character_support/reading_chair.glb.meta",
++    "bytes": 1967,
++    "sha256": "bbb445f6776fa8b0e2b8070adc1b0e5b077c0ee1bad98c39c606cc686d158391"
++  },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/combined_anchors_m.json",
+     "bytes": 41907,
+@@ -549,11 +569,6 @@
+     "bytes": 179,
+     "sha256": "7c9dbe1d2038c1b7c80e518f0078ddbebbcf97a8f4c9b73f01c9d3733313e804"
+   },
+-  {
+-    "path": "creator-build-project/assets/bundles/region_island/combined_visual_m.glb.meta",
+-    "bytes": 45784,
+-    "sha256": "cea6abbe29d7894652f353c47bc87476844e7ba7140e0fcb359e828905d5eeaf"
+-  },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props.meta",
+     "bytes": 169,
+@@ -561,33 +576,33 @@
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_short.glb.meta",
+-    "bytes": 187,
+-    "sha256": "c33d76be3e9716217052a8ab28e10fb859b084e8a9e0874fe7015366b2b0e54c"
++    "bytes": 1995,
++    "sha256": "6fc1c0561f5892b33bcc0ab736c4f8124e117ed4cfdc140c8588453740f035e2"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_tall.glb.meta",
+-    "bytes": 187,
+-    "sha256": "41056c28b2bfdd67251d818f737b05e44ec23cab60d78d818e01225fe204cd76"
++    "bytes": 1993,
++    "sha256": "f8a404509abbb2e464996cbeb39e0600e5b26792f1108aa961a6e79289c99811"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_compass.glb.meta",
+-    "bytes": 187,
+-    "sha256": "61691881d074baaf78541808cb276ee722e5173798d2751b8432cf811fee5c35"
++    "bytes": 1983,
++    "sha256": "71a33713299692c58c9a4e21f52469644acccaa02130418fa741552a7ca806ea"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_notebook.glb.meta",
+-    "bytes": 187,
+-    "sha256": "2b12a3e56a581b2556c57a1cb6c364bd290499d69898f339684fce7d9a245f40"
++    "bytes": 1985,
++    "sha256": "f08ac44b73e75983df5bab10399c673767ecd22f8912f72ffbdc82aad681221a"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_satchel.glb.meta",
+-    "bytes": 187,
+-    "sha256": "5d84ddd6dcc2da19cfebf60e17655d97e178d21d073f01e81c981bd8fadf82ce"
++    "bytes": 1983,
++    "sha256": "46c1e3d33d02c2804013386626315d34745ddf3df7749437dbf84af23248c5d8"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_signpost.glb.meta",
+-    "bytes": 187,
+-    "sha256": "9ee570b4d4b409ac561ed40bc49e62efbfbcdc991dbf164980fb2215209ba955"
++    "bytes": 2858,
++    "sha256": "fb26fe7f9dc960f9ad536fe08f4fa51ef379ad4c890140e0e0e284753a57f8df"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_meadow.meta",
+@@ -604,6 +619,31 @@
+     "bytes": 222,
+     "sha256": "b0d94518e28f748390997806438e09e595271fe5d6160cc5c1d7cc875a850d39"
+   },
++  {
++    "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
++    "bytes": 21225,
++    "sha256": "e1038b6c865f67d9e528ba21f36b1d17b76ce6221737b3f403ee0f076e9e3fda"
++  },
++  {
++    "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
++    "bytes": 1390,
++    "sha256": "2f8c1a1fb5b9bff7f44500de9e64d9a4fcdc4cd9e4df0d74dd8b4eb7bb208ccd"
++  },
++  {
++    "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect.meta",
++    "bytes": 181,
++    "sha256": "ebe3cc5bb219fc0b21af8b1f62af2ab57c1a727a8f9338936b259e0921adf300"
++  },
++  {
++    "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json",
++    "bytes": 32930,
++    "sha256": "2e2c69ec4846333749383fd470e7dec6715dbbff047639c52b01aec3b21bab0f"
++  },
++  {
++    "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json.meta",
++    "bytes": 179,
++    "sha256": "af3a064588893b86b7193a265342314b0616191fae07043aa0cda9e32b3f2ba3"
++  },
+   {
+     "path": "creator-build-project/assets/bundles/region_skycity.meta",
+     "bytes": 409,
+@@ -627,7 +667,7 @@
+   {
+     "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg.meta",
+     "bytes": 1001,
+-    "sha256": "b3eaf722ce9c7ec2f67f2d60a8583913b7fe0086d57d5a4a707746a8ff43b599"
++    "sha256": "5bbf511de76170146510e02fa4b70d6821504151f1db6857a09d4c5d1f80295a"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
+@@ -636,18 +676,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/bundles/static_seat_preview.meta",
+-    "bytes": 375,
+-    "sha256": "7420a21738fc64178ab1ff561495be66de1d9d4498cf1cf7c72bfd7262d1dde0"
+-  },
+-  {
+-    "path": "creator-build-project/assets/bundles/static_seat_preview/actor.meta",
+-    "bytes": 169,
+-    "sha256": "6667ac95517aa006c4b45c88a3aa416eefc5dcb42f9805063c6d12fc88e0801d"
+-  },
+-  {
+-    "path": "creator-build-project/assets/bundles/static_seat_preview/actor/user_static_seated_2k.glb.meta",
+-    "bytes": 166,
+-    "sha256": "7c289556267bdc2e72214c56b9c736031fbc392aa2f1edbe37a19c224806281f"
++    "bytes": 414,
++    "sha256": "c3c240990215bcbebeb6964620e573ab97535f7fd5e859d4792a04a4cee3499a"
+   },
+   {
+     "path": "creator-build-project/assets/bundles/static_seat_preview/room.meta",
+@@ -656,8 +686,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta",
+-    "bytes": 166,
+-    "sha256": "8071902f9968006b72838e8b8dec6888f17b36bd0da36dafdd69627aa19d12e1"
++    "bytes": 45911,
++    "sha256": "f0e8db6e1694f07186e9e4a5bf7c86923087aacae145ada81c04326bf5c4ffb1"
+   },
+   {
+     "path": "creator-build-project/assets/resources.meta",
+@@ -857,12 +887,12 @@
+   {
+     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.fnt.meta",
+     "bytes": 4739,
+-    "sha256": "0f83f6dba315c4ce9f6072967964ffbbe7cbdcab34b8aa7fa200dd3c359d24fc"
++    "sha256": "227caee0836ab1b68b7e77b17896e6f7648bd218892a4f5d0cc028209296451b"
+   },
+   {
+     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png.meta",
+-    "bytes": 2398,
+-    "sha256": "268276a7f025dc0104d9b15b38c2c168fab659158712e467e7848f086d5c1b05"
++    "bytes": 3085,
++    "sha256": "c45ff519c4241630a52de5a9c9ba448826320867a40adbe58cee4f24aa6e8859"
+   },
+   {
+     "path": "creator-build-project/assets/resources/ui/tools-original.png.meta",
+@@ -951,8 +981,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
+-    "bytes": 61007,
+-    "sha256": "129a28e17be8b2fb715ec9b9f47d6fe3720d8f3f73446484b2cef7abce150cf6"
++    "bytes": 139742,
++    "sha256": "3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
+@@ -981,8 +1011,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
+-    "bytes": 88815,
+-    "sha256": "f7ebe15617fe88ec52236a7cd6d8c46b3674d9523ae5d5a8f5c893a3a1fa81ba"
++    "bytes": 91079,
++    "sha256": "5ef532804375b0a65402b4fbbfb374d36639a9cbc2e3331dff0def96ca205caa"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
+@@ -1021,8 +1051,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts",
+-    "bytes": 5660,
+-    "sha256": "119e5c2eb2724318a27e8640184dec6b0467145a0286dac5e302d9ea4d7d1e49"
++    "bytes": 5841,
++    "sha256": "049ab0b860dcdc01e1475926a306e27785b7950f163d85cb417dc07b781ea1ab"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts.meta",
+@@ -1071,8 +1101,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+-    "bytes": 74328,
+-    "sha256": "49aa82ade7227afd3ab993c8c126bf73b10078664872169e086a41094c44f5d2"
++    "bytes": 90563,
++    "sha256": "1063123fe8e64535429ffa1494c404cd247f7bd4f526114cbb1a7eb9e0bd2392"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
+@@ -1136,8 +1166,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts",
+-    "bytes": 8659,
+-    "sha256": "88038bdc4c993f82af5538254139d6cf1eaa76174ae80651cf0db1940efe8ed6"
++    "bytes": 8873,
++    "sha256": "88289e3de0168625abdac7083e99024b88885774dec0523da6b4581bfe71493d"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts.meta",
+@@ -1146,8 +1176,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts",
+-    "bytes": 13401,
+-    "sha256": "d9f3539691b0713548db0d712ace1af8d436d3e90d6632469b84d6a662513290"
++    "bytes": 15965,
++    "sha256": "84a59b290f94721dacc9e5c24dd7e5e09f4d4ab7de413d1fca670ea5007c644a"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts.meta",
+@@ -1384,6 +1414,26 @@
+     "bytes": 169,
+     "sha256": "ceb12afb038635164f2d5cc9726e7b474c2e0dbd781405f5be01fb15efc3e547"
+   },
++  {
++    "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
++    "bytes": 9148,
++    "sha256": "d139d274c2c2614adc07b0605b1d1619791fc2176ec4a04485f171dc2d1e323e"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts.meta",
++    "bytes": 171,
++    "sha256": "b74cdccdd5be98ad18e8e46fe58a51358d551a0c2607eb4206de015790246624"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
++    "bytes": 1552,
++    "sha256": "5ee594cea9ff136d3572eadf039e333fe5fa1a54211a3057633f743978b66731"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts.meta",
++    "bytes": 171,
++    "sha256": "0daba6bbf77ee132e0e36450ea1fe672f2140abdb31d1284b5227e04a5e26f8d"
++  },
+   {
+     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts",
+     "bytes": 7214,
+@@ -1424,6 +1474,26 @@
+     "bytes": 171,
+     "sha256": "b054449e93a3d7cf7110ac0ffeed4d46d396282a85d36321c5b9a5a5e282c6ab"
+   },
++  {
++    "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
++    "bytes": 11269,
++    "sha256": "9e01e793358c48ef6517bde43d35b8a4ca43a50dc532134534d162efbf8e8c8c"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
++    "bytes": 171,
++    "sha256": "2e647e6dbeb995547eceb0e41977e9ff9b177a8939fa13e36f2f2c00474de1cc"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/region/SkycityBoardPose.ts",
++    "bytes": 1532,
++    "sha256": "2a3f7a6e8cd1e6ae1e69a6a774a8749234f9dd3e3d06a5ecbecee4d4df33622d"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/region/SkycityBoardPose.ts.meta",
++    "bytes": 171,
++    "sha256": "5166a16d06b4d13838fc9693b74f210608d31b510002a313a86a3cc6cd092584"
++  },
+   {
+     "path": "creator-build-project/assets/scripts/region/SkycityRobotInteract.ts",
+     "bytes": 4692,
+@@ -1636,8 +1706,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/GullFlockCore.ts",
+-    "bytes": 35437,
+-    "sha256": "beda7c88501baddd2d2ffec20fa28931a22d3736ba06c1ca3678282445e6d93b"
++    "bytes": 35438,
++    "sha256": "c57ad86fe573933b0d15fdb3b1b5ee6eb29a52a6b92d023829a870039ebede92"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/GullFlockCore.ts.meta",
+@@ -1646,8 +1716,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts",
+-    "bytes": 9800,
+-    "sha256": "2389a05b38efac97dec85c78a956b6b6606a99f206a78ffd4e525e5aae714061"
++    "bytes": 10419,
++    "sha256": "f52c4b33da796e033ab9520e56b6ea3fe5b8ad110ba23af2266267947bd2f0dd"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts.meta",
+@@ -1656,8 +1726,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts",
+-    "bytes": 24040,
+-    "sha256": "0052b13d9a1201f2d28714c8ab1eb888ab790ff7f81209c97c9522fffed5cd8c"
++    "bytes": 24304,
++    "sha256": "6e97e77cf2564ed48fbd72c6d070c2c36a915dbd5e8f1fc3b047e029fef8f601"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts.meta",
+@@ -1666,8 +1736,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
+-    "bytes": 36493,
+-    "sha256": "8acd545528ddf42420ddbc1dbb4714ca061c8016950c86e2f98e62646dc596b6"
++    "bytes": 36600,
++    "sha256": "a880a306ebdb2224099ac7a3d1e48dfa2998ed85adbd6f352df80834be5e09fd"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts.meta",
+@@ -1726,8 +1796,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts",
+-    "bytes": 11723,
+-    "sha256": "f02776daa5525fc500136b697d47c850c8275ae5fcb4be3f2eb56316399b172c"
++    "bytes": 11816,
++    "sha256": "2a8bbcb0225628dc9f91dce6e197482ea60b25469c170ec9801e5689d2c17031"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts.meta",
+@@ -1746,8 +1816,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
+-    "bytes": 29599,
+-    "sha256": "3cbfb15cc07770ddd3c153b12022656ba9847eb06855d1998c01751597e412ac"
++    "bytes": 38338,
++    "sha256": "9f66e7b5cbdca07cfa93f720352c426718f1b5f91c15fa8736b0f1b296f4544b"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
+@@ -1776,18 +1846,28 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts",
+-    "bytes": 18106,
+-    "sha256": "41e0af4efb53aa427ab13626cbc0d2a3112041440e8cb28f168129d612089ec4"
++    "bytes": 19096,
++    "sha256": "fae3b5ddcb9fec6b58177db6cd334f3680c7d3d44ec0e290e2282a635846d582"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts.meta",
+     "bytes": 171,
+     "sha256": "f4970d12d81bca43418935f1ba0baf7a0c50118dd077ea7570933bd1e4afe3cd"
+   },
++  {
++    "path": "creator-build-project/assets/scripts/ui/DebugJumpPanel.ts",
++    "bytes": 13782,
++    "sha256": "9efbd2a224ecacce1d9faa6d5bbe34c958b6c557cef98e074296fce630e9b903"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/ui/DebugJumpPanel.ts.meta",
++    "bytes": 171,
++    "sha256": "f9bfda950a624015dd3faa7bae9cb8650e66ef2684587c38b1dc0af0af721941"
++  },
+   {
+     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts",
+-    "bytes": 8199,
+-    "sha256": "1b31747876bcf55e903ad709a12a5c6812fde81f2e37a745e0b62fd09b85400a"
++    "bytes": 8355,
++    "sha256": "6cfecebc4b9fa2bd4a6e087a2f7be3f1e0bf1b068a620522f60dbbdb0f6e4c7f"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts.meta",
+@@ -1806,8 +1886,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/NightTint.ts",
+-    "bytes": 3192,
+-    "sha256": "6bd269e64681659f5af75f9da37e18da98a1486bce97c4cb2d5d212be17c21a0"
++    "bytes": 3611,
++    "sha256": "88deb5874bd254ab21a81249f257efa81e4d36713b42c1cc1e2cfcc01d75c417"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/NightTint.ts.meta",
+@@ -1816,8 +1896,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
+-    "bytes": 29524,
+-    "sha256": "773ac3695876be1cc88a3ebe64feaad14bac30c40c2c44b08119d630bd10bd7d"
++    "bytes": 29586,
++    "sha256": "6aa3ad7c62bb443e58bee7d536c432adaacfaed51d4790d7be00d66f2cbc2533"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",
+@@ -1826,8 +1906,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts",
+-    "bytes": 9049,
+-    "sha256": "e4c730f318d08afb88d4485b2525b0def7d28d4bdcd0351a6f54699045d2ed9a"
++    "bytes": 9342,
++    "sha256": "debc18aa8ba3a9d97c55eab4ecdd3fadc75c1f949e99056e0888dfed4ca29eff"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts.meta",
+@@ -1836,8 +1916,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts",
+-    "bytes": 7486,
+-    "sha256": "711edb91c240bf39d0eb960d00b427217d775045e2edf12a111e47679984fae2"
++    "bytes": 7660,
++    "sha256": "0b6f15bcd034b892f1859347efc1325c3aaed1af4bae8f7321bee45be5b6134c"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts.meta",
+@@ -1846,8 +1926,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/UiPrefs.ts",
+-    "bytes": 1573,
+-    "sha256": "67b3eca93cc9fa3f54fd735a3a35f13950ec95037ff4c3004d7a27d943081f43"
++    "bytes": 2110,
++    "sha256": "9bc4266c5cc6057326b40e70c0f886a2b1b1afcceee59fd33171bbcc6c9d9bff"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/ui/UiPrefs.ts.meta",
+@@ -1901,8 +1981,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/DayNightContract.ts",
+-    "bytes": 1675,
+-    "sha256": "9d36bc100ce17a2a66d2ea56b04c8bf73886daf5eef12da1d350fd95412d5ac8"
++    "bytes": 2030,
++    "sha256": "6d0625f764a4dc7391039abb0db9bd6d0c086effcc1299ac18dd85dffe0069f6"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/DayNightContract.ts.meta",
+@@ -1921,8 +2001,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
+-    "bytes": 41770,
+-    "sha256": "cf8ba48924289cfd92907c1dcd3d2991b1a008a118183772a8b6f0022574b2d1"
++    "bytes": 51255,
++    "sha256": "ae91f15f54769e23ed87782375a4224eaf4fd9ad91d053eb3f49e2513a4e6390"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts.meta",
+@@ -1951,8 +2031,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts",
+-    "bytes": 24506,
+-    "sha256": "2d47afb032988f9beb9247f700a50d19137a70b4e4c711cc2763bf3f075009b1"
++    "bytes": 25505,
++    "sha256": "795a79bcc087cbd89063d0106f3d841ddb15548f60cea02218d91ff96782f065"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts.meta",
+@@ -1971,8 +2051,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+-    "bytes": 53887,
+-    "sha256": "660c956e643698847fdc2edae714a05682156197518f97e5afb31c7dca553db6"
++    "bytes": 56618,
++    "sha256": "af1ea043328fa0a5f1b6f5cb2a7c74eee7c10e8da682067060e42b6f7ac3c15d"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
+@@ -1981,8 +2061,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
+-    "bytes": 54286,
+-    "sha256": "aac4cc7ac2e9298c6256e64feabf14b08b454ce62c9d831c6dacf2fe64f1c11e"
++    "bytes": 54590,
++    "sha256": "d423093bd619136c683b9067676b5fd1b2276bf4e6e7d3c65dfb7c1a5662d9f5"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
+@@ -2014,10 +2094,20 @@
+     "bytes": 171,
+     "sha256": "6afd89112735e7a686893a50705fb827ee8feca580dd03cedf08b01939988ef2"
+   },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts",
++    "bytes": 2043,
++    "sha256": "37c1293193ecdb0584961d54ab7ca315c295288b8b18e4f521df2381017d8ed4"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts.meta",
++    "bytes": 171,
++    "sha256": "edcf1066646f63160c770d033fb6b85f15b2e9babdb9c3d700b07c747d648ce1"
++  },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts",
+-    "bytes": 5034,
+-    "sha256": "f25e803d21fb0ad268fa180233e2e0595bb95e4ed5dc41ef31dd1423da1f0cec"
++    "bytes": 5053,
++    "sha256": "ad326f8b38d2355583429884ea8fcd3ce912f10c87a76aa20d854a00e85a41bb"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts.meta",
+@@ -2036,8 +2126,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
+-    "bytes": 9871,
+-    "sha256": "df38095600e3ed4a9a9e6688dc25c7ac6a21d78a4fee6255270b1711f51a8ca1"
++    "bytes": 9881,
++    "sha256": "86a1b353f3a29926045111505c70d6163bf1e305f6d1531d96a2c8f6ba913ecb"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
+@@ -2056,8 +2146,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts",
+-    "bytes": 27056,
+-    "sha256": "55a958182d58d7e7382275f433ad65ab3031bb7781697b7bc4b44273bec0af13"
++    "bytes": 31602,
++    "sha256": "609a7bb18412451cc995c2bc546bc0c1aa661259dee96ae347f20dfb9bcc8580"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts.meta",
+@@ -2066,8 +2156,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
+-    "bytes": 24468,
+-    "sha256": "39b80ced939d619b012d1aabe42d22fb7fee6ad647638637675f86602d728bf9"
++    "bytes": 25729,
++    "sha256": "82d1aa0d1f90a784f32bc2a147b103c12fc42d204a28592a0a5751c9c886307d"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",
+@@ -2104,6 +2194,16 @@
+     "bytes": 171,
+     "sha256": "f4752381c14ca24db2c5ee4fcc076ea0ff27e8ea5dcce3a1f7fcacbc02cc9868"
+   },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts",
++    "bytes": 1153,
++    "sha256": "05fc4eac4bd135c570f49cb01bd52922c882ace3663e8b30787fbae5d49540d3"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts.meta",
++    "bytes": 171,
++    "sha256": "c15198d900266b1e99b69deb3f99b7d67304c0da55e4129602e22f6e59e795dc"
++  },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/MainlineHost.ts",
+     "bytes": 1601,
+@@ -2146,8 +2246,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
+-    "bytes": 6220,
+-    "sha256": "a8fc98928a772ed6c368e3ebb4e8ed5ffab963b90143507f091234362ea352cc"
++    "bytes": 6390,
++    "sha256": "aa0aa2dc7e25e842ed899b0fd90dfe85fbe3d490c43e2794987849f89ade4cf3"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
+@@ -2184,6 +2284,26 @@
+     "bytes": 171,
+     "sha256": "a950bf1ca94f30e274beb2905385691ea922f76f2bc1abef3dfb66a4a3874159"
+   },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts",
++    "bytes": 8398,
++    "sha256": "79ec743ffda9524d95459223e3a0d375f8e2a23f7c868ffadbc9bb0f0971ede2"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts.meta",
++    "bytes": 171,
++    "sha256": "b3c14affbab0a531649641d81b35ba5b130501427d400d64e411ff98b5b23b00"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowWitnesses.ts",
++    "bytes": 3837,
++    "sha256": "b5bb177c26e7406811b0a1f95f27e72e9493805f1bda2be6fef9a10d40261e0e"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowWitnesses.ts.meta",
++    "bytes": 171,
++    "sha256": "415d088ffd7e25869905e431d0e577244edbf63a162ec88439fdd3c6633d0f40"
++  },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts",
+     "bytes": 3647,
+@@ -2194,6 +2314,16 @@
+     "bytes": 171,
+     "sha256": "5e169f368ad9f5cdcdd75bef1385a210399e1542d6073423c45da51ff2e7443f"
+   },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/SeaSurfaceFollow.ts",
++    "bytes": 569,
++    "sha256": "6e7d868e374d3e3cbf317dfdd5da94e9cb6c763081e158f5a8ede1eec938405e"
++  },
++  {
++    "path": "creator-build-project/assets/scripts/world-r2/SeaSurfaceFollow.ts.meta",
++    "bytes": 171,
++    "sha256": "dd5a86bde6a4814469a31893f3bfafb8fd41b9925230244413b48216902e32fd"
++  },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/StartupReadyGate.ts",
+     "bytes": 1506,
+@@ -2206,8 +2336,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
+-    "bytes": 12469,
+-    "sha256": "8d309347756bafb20c3a408e3a02b3d98e675d3e40026a10b67e80e8dabf3e70"
++    "bytes": 20975,
++    "sha256": "8f98b0054299059e00a59599d96c8da3e2079498d4e5ecbbe9d832a3c1878535"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
+@@ -2241,8 +2371,8 @@
+   },
+   {
+     "path": "creator-build-project/settings/v2/packages/builder.json",
+-    "bytes": 1986,
+-    "sha256": "3938bcc8b742eae650ab3b84a53ab8c95a2e68da7aa4088e81b2f7a8b6b694de"
++    "bytes": 1984,
++    "sha256": "760edb06a69bde42432f5110ebb7e1c87cdda71f1f7ed902c3120e2322638d72"
+   },
+   {
+     "path": "creator-build-project/settings/v2/packages/device.json",
+@@ -2556,8 +2686,8 @@
+   },
+   {
+     "path": "tools/test_startup_ready_gate.cjs",
+-    "bytes": 14705,
+-    "sha256": "aad3ed07d09bdd7d8f302c384012198fc351108728a07cdb10923e91e28d3c14"
++    "bytes": 17023,
++    "sha256": "9ca217d60f22676e838f4baeb6405ccfe598e20ccc142c5748a8b42456a24a60"
+   },
+   {
+     "path": "tools/test_ui_contrast.cjs",
+@@ -2611,8 +2741,8 @@
+   },
+   {
+     "path": "tools/wechat-build-options.json",
+-    "bytes": 451,
+-    "sha256": "ab3ffad00ba2035672b4800fc37da6fe9d7f9975b732a2af0d980b2f3391b6ea"
++    "bytes": 479,
++    "sha256": "e608d796ef36ab70a71a7d15c2c2e994210fb68336dca04bd173c1ae28ad3dd8"
+   },
+   {
+     "path": "tools/wechat-world-r5-build-options.json",
+diff --git a/tools/voice-bot/wind/test_wind_exit_duck.cjs b/tools/voice-bot/wind/test_wind_exit_duck.cjs
+new file mode 100644
+index 0000000..0546c50
+--- /dev/null
++++ b/tools/voice-bot/wind/test_wind_exit_duck.cjs
+@@ -0,0 +1,76 @@
++// Box test (mocked cc): WindAudio exit-cinematic duck (-12 dB, 0.5 s fades) and release on every exit path.
++// Usage: node tools/voice-bot/wind/test_wind_exit_duck.cjs   (typescript: VB_TS, else first resolvable fallback)
++'use strict';
++const path = require('path'), fs = require('fs'), Module = require('module');
++const ROOT = path.resolve(__dirname, '../../..');
++const DIR = path.join(ROOT, 'creator-build-project/assets/scripts/audio');
++const SRC = path.join(DIR, 'WindAudio.ts'), AMB = path.join(DIR, 'AmbienceAudio.ts');
++const cands = [process.env.VB_TS, '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript', '/tmp/ts5/node_modules/typescript', 'typescript'].filter(Boolean);
++let ts = null; for (const c of cands) { try { ts = require(c); break; } catch { /* next */ } }
++if (!ts) { console.error('typescript not found; set VB_TS'); process.exit(2); }
++const tr = (f) => ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true } }).outputText;
++const js = tr(SRC), ambJs = tr(AMB);
++let fail = 0, n = 0; const ok = (c, m, d) => { n++; console.log((c ? 'PASS ' : 'FAIL ') + m + (d === undefined ? '' : ' ' + JSON.stringify(d))); if (!c) fail++; };
++const near = (a, b, e = 2e-3) => Math.abs(a - b) <= e;
++const DUCK = Math.pow(10, -12 / 20);
++
++function env() {
++  const onceCbs = [];
++  class AudioSource { constructor() { this.volume = 1; this.clip = null; this.playing = false; } play() { this.playing = true; } stop() { this.playing = false; } pause() { this.playing = false; } destroy() { this.destroyed = true; } }
++  class Node { constructor() { this.comps = []; this.valid = true; } addComponent(C) { const c = new C(); c.node = this; this.comps.push(c); if (c.onLoad) c.onLoad(); return c; } getComponent(C) { return this.comps.find(c => c instanceof C) || null; } }
++  function Component() {}
++  const flow = { valid: true, wind: 1, visible: true, state: 'home', w: 1, rig: true,
++    getWindStrength() { return this.wind; }, isWorldVisible() { return this.visible; }, getRoomLightWeight() { return this.w; }, hasRoomLight() { return this.rig; },
++    commands() { const f = this; return { snapshot: () => ({ state: f.state }) }; } };
++  let present = true;
++  const audioNode = new Node();
++  const GameAudio = { instance: { can: true, canPlayAmbience() { return this.can; }, node: audioNode, play() {}, setWindDuck() {} }, ensure() { return this.instance; } };
++  const scene = { getComponentInChildren(nm) { return nm === 'WorldFlowComponent' && present ? flow : null; } };
++  const cc = { _decorator: { ccclass: () => (C) => C }, Component, AudioSource, AudioClip: class {},
++    isValid: (o) => !!o && o.valid !== false && o.destroyed !== true,
++    resources: { load(p, T, cb) { cb(null, { p, addRef() {}, decRef() {} }); } },
++    director: { getScene: () => scene, once(ev, cb) { onceCbs.push(cb); } }, Director: { EVENT_AFTER_SCENE_LAUNCH: 'x' } };
++  delete global.__voiceWind;
++  const load = (file, code, extra) => { const m = new Module(file); m.filename = file; m.paths = []; const o = m.require.bind(m);
++    m.require = (id) => id === 'cc' ? cc : id === './GameAudio' ? { GameAudio } : extra && extra[id] ? extra[id] : o(id); m._compile(code, file); return m.exports; };
++  const amb = load(AMB, ambJs); const mod = load(SRC, js, { './AmbienceAudio': amb });
++  onceCbs.splice(0, 1); onceCbs.forEach(cb => cb());
++  const w = audioNode.getComponent(mod.WindAudio);
++  const run = (sec, dt = 1 / 60) => { for (let t = 0; t < sec - 1e-9; t += dt) w.update(dt); };
++  return { mod, w, flow, run, GameAudio, setPresent: v => { present = v; if (!v) flow.valid = false; } };
++}
++const g = e => e.w.snapshot().exitDuckGain;
++const soft = e => e.w.snapshot().soft;
++const FULL_SOFT = 0.75;
++
++{ const e = env();
++  ok(near(e.mod.exitDuckGain(1), DUCK, 1e-6) && e.mod.exitDuckGain(0) === 1 && e.mod.EXIT_DUCK_FADE_S === 0.5, 'gain curve: 0 dB -> -12 dB, fade 0.5 s');
++  e.run(3); ok(near(soft(e), FULL_SOFT) && g(e) === 1, 'home: no duck, soft at full', e.w.snapshot());
++  e.flow.state = 'standing'; e.run(0.25); ok(near(g(e), e.mod.exitDuckGain(0.5), 0.02), 'duck fades in: half-way (-6 dB) after 0.25 s', g(e));
++  e.run(0.3); ok(near(g(e), DUCK) && near(soft(e), FULL_SOFT * DUCK), 'full -12 dB after 0.5 s', e.w.snapshot());
++  for (const st of ['turning-out', 'walking-out', 'opening-door', 'crossing-out']) { e.flow.state = st; e.run(0.5); }
++  ok(near(g(e), DUCK), 'stays ducked through all exit states');
++  e.flow.state = 'island'; e.run(0.25); ok(g(e) > DUCK + 0.1 && g(e) < 0.99, 'island reached: fades back (mid)', g(e));
++  e.run(0.3); ok(g(e) === 1 && near(soft(e), FULL_SOFT), 'restored to 0 dB after 0.5 s');
++}
++{ const e = env(); e.run(1); e.flow.state = 'crossing-out'; e.run(1); ok(near(g(e), DUCK), 'sail/skip: ducked before release');
++  e.mod.WindAudio.releaseExitDuck(); e.run(0.55); ok(g(e) === 1, 'releaseExitDuck() (sail transition start / skip) restores while state still crossing-out');
++  e.run(2); ok(g(e) === 1, 'no re-duck after release while still in exit state');
++  e.flow.state = 'island'; e.run(0.1); e.flow.state = 'standing'; e.run(0.6); ok(near(g(e), DUCK), 'next exit ducks again (release flag cleared)');
++  global.__voiceWind.releaseExitDuck(); e.run(0.6); ok(g(e) === 1, 'globalThis.__voiceWind.releaseExitDuck works');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1);
++  e.flow.state = 'home'; e.run(0.55); ok(g(e) === 1, 'abort (cancelled leaveHome -> back to home) restores');
++  e.flow.state = 'opening-door'; e.run(1); e.flow.state = 'error'; e.run(0.55); ok(g(e) === 1, 'failure (state error) restores');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1);
++  e.setPresent(false); e.run(0.05); ok(e.w.snapshot().exitDuck === 0, 'scene change (WorldFlowComponent gone) resets duck immediately');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1);
++  e.GameAudio.instance.can = false; e.run(0.05); ok(e.w.snapshot().exitDuck === 0, 'muted/hidden (not allowed) resets duck');
++  e.GameAudio.instance.can = true; e.flow.state = 'disposed'; e.run(0.6); ok(g(e) === 1, 'disposed state not ducked');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1); e.w.onDestroy(); ok(e.w.snapshot().exitDuck === 0, 'component destroy resets duck'); }
++{ const e = env(); e.flow.commands = () => { throw Error('World not initialized'); }; e.flow.state = 'standing'; e.run(1); ok(g(e) === 1, 'commands() throwing -> treated as not exiting'); }
++console.log(JSON.stringify({ status: fail ? 'FAIL' : 'PASS_MOCK', cases: n, failed: fail, creatorBuild: 'NOT_RUN', deviceListening: 'NOT_RUN' }));
++process.exit(fail ? 1 : 0);
+-- 
+2.47.3
+

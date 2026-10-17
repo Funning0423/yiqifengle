@@ -1,0 +1,66 @@
+[
+  {
+    "source": "automator.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] a7c333fa871ce0a1"
+  },
+  {
+    "source": "automator.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] a7c333fa871ce0a1"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] a7c333fa871ce0a1"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] a7c333fa871ce0a1"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] a7c333fa871ce0a1"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] a7c333fa871ce0a1"
+  },
+  {
+    "source": "weapplog",
+    "own": false,
+    "level": "error",
+    "kind": "error",
+    "id": "js-error",
+    "payload": "TypeError: unrelated project failure"
+  }
+]

@@ -1,0 +1,198 @@
+{
+ "clips": {
+  "cine_open_stand": {
+   "first": {
+    "frame": 0,
+    "root_game": [
+     0.43273,
+     -0.62912,
+     -4.20761
+    ],
+    "yaw_rad": -2.0,
+    "vs": {
+     "seatedRoot(CharacterReference=R24 seated)": {
+      "pos_err_mm": 0.0,
+      "height_mm": -629.117,
+      "yaw_err_deg": 0.0
+     },
+     "standingRoot(CharacterReference)": {
+      "pos_err_mm": 493.763,
+      "height_mm": -629.117,
+      "yaw_err_deg": 0.0
+     },
+     "standingRoot(R24 Oi \u00a74)": {
+      "pos_err_mm": 493.67,
+      "height_mm": -629.117,
+      "yaw_err_deg": 0.0
+     },
+     "turn end: standingRoot + walkYawRad": {
+      "pos_err_mm": 493.763,
+      "height_mm": -629.117,
+      "yaw_err_deg": -111.7625
+     },
+     "stand_up_foot_anchor (old foot ref, info only)": {
+      "pos_err_mm": 587.099,
+      "height_mm": -629.117
+     },
+     "turnStartFoot=return_path_15 (info only)": {
+      "pos_err_mm": 509.09,
+      "height_mm": -629.117
+     }
+    }
+   },
+   "last": {
+    "frame": 90,
+    "root_game": [
+     -0.01625,
+     0.0,
+     -4.41309
+    ],
+    "yaw_rad": -2.0,
+    "vs": {
+     "seatedRoot(CharacterReference=R24 seated)": {
+      "pos_err_mm": 493.763,
+      "height_mm": 0.0,
+      "yaw_err_deg": 0.0
+     },
+     "standingRoot(CharacterReference)": {
+      "pos_err_mm": 0.0,
+      "height_mm": 0.0,
+      "yaw_err_deg": 0.0
+     },
+     "standingRoot(R24 Oi \u00a74)": {
+      "pos_err_mm": 0.093,
+      "height_mm": 0.0,
+      "yaw_err_deg": 0.0
+     },
+     "turn end: standingRoot + walkYawRad": {
+      "pos_err_mm": 0.0,
+      "height_mm": 0.0,
+      "yaw_err_deg": -111.7625
+     },
+     "stand_up_foot_anchor (old foot ref, info only)": {
+      "pos_err_mm": 204.381,
+      "height_mm": 0.0
+     },
+     "turnStartFoot=return_path_15 (info only)": {
+      "pos_err_mm": 74.787,
+      "height_mm": 0.0
+     }
+    }
+   },
+   "last_frame_max_bone_dev_from_rest_deg": 0,
+   "last_frame_sit_corrective": [
+    0.0,
+    0.0
+   ]
+  },
+  "cine_open_turn": {
+   "first": {
+    "frame": 0,
+    "root_game": [
+     -0.01625,
+     0.0,
+     -4.41309
+    ],
+    "yaw_rad": -2.0,
+    "vs": {
+     "seatedRoot(CharacterReference=R24 seated)": {
+      "pos_err_mm": 493.763,
+      "height_mm": 0.0,
+      "yaw_err_deg": 0.0
+     },
+     "standingRoot(CharacterReference)": {
+      "pos_err_mm": 0.0,
+      "height_mm": 0.0,
+      "yaw_err_deg": 0.0
+     },
+     "standingRoot(R24 Oi \u00a74)": {
+      "pos_err_mm": 0.093,
+      "height_mm": 0.0,
+      "yaw_err_deg": 0.0
+     },
+     "turn end: standingRoot + walkYawRad": {
+      "pos_err_mm": 0.0,
+      "height_mm": 0.0,
+      "yaw_err_deg": -111.7625
+     },
+     "stand_up_foot_anchor (old foot ref, info only)": {
+      "pos_err_mm": 204.381,
+      "height_mm": 0.0
+     },
+     "turnStartFoot=return_path_15 (info only)": {
+      "pos_err_mm": 74.787,
+      "height_mm": 0.0
+     }
+    }
+   },
+   "last": {
+    "frame": 45,
+    "root_game": [
+     -0.01625,
+     0.0,
+     -4.41309
+    ],
+    "yaw_rad": -0.049376,
+    "vs": {
+     "seatedRoot(CharacterReference=R24 seated)": {
+      "pos_err_mm": 493.763,
+      "height_mm": 0.0,
+      "yaw_err_deg": 111.7625
+     },
+     "standingRoot(CharacterReference)": {
+      "pos_err_mm": 0.0,
+      "height_mm": 0.0,
+      "yaw_err_deg": 111.7625
+     },
+     "standingRoot(R24 Oi \u00a74)": {
+      "pos_err_mm": 0.093,
+      "height_mm": 0.0,
+      "yaw_err_deg": 111.7625
+     },
+     "turn end: standingRoot + walkYawRad": {
+      "pos_err_mm": 0.0,
+      "height_mm": 0.0,
+      "yaw_err_deg": 0.0
+     },
+     "stand_up_foot_anchor (old foot ref, info only)": {
+      "pos_err_mm": 204.381,
+      "height_mm": 0.0
+     },
+     "turnStartFoot=return_path_15 (info only)": {
+      "pos_err_mm": 74.787,
+      "height_mm": 0.0
+     }
+    }
+   },
+   "last_frame_max_bone_dev_from_rest_deg": 0,
+   "last_frame_sit_corrective": [
+    0.0,
+    0.0
+   ]
+  }
+ },
+ "height": {
+  "per_material_top_m": {
+   "R9_SourceHatContinuousBand": 1.7253,
+   "ContinuousHeadSkinHairBoundary": 1.626,
+   "Actual_Game_atlas": 1.1815,
+   "R9_SourceBlueBob": 1.6262,
+   "AnatomicalHandOriginalSkin": 1.4496,
+   "AnatomicalSleeveOriginalYellow": 1.4139
+  },
+  "feet_min_m": 0.0,
+  "hair_top_m": 1.6441
+ },
+ "bones": {
+  "total": 26,
+  "deform": 26,
+  "cap": 60
+ },
+ "root_scale": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "char_scale": 1.061164379119873,
+ "char_scale_mode": "bakeK"
+}

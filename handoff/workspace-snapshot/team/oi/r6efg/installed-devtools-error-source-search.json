@@ -1,0 +1,17 @@
+[
+  {
+    "file": "js/98f15e8132a9f48937f4c8189466c73c.js",
+    "term": "app.json 中未定义",
+    "context": "TOM_COMPILE_PATH_NOT_EXISTS_TITLE: 'app.json 或自定义编译条件错误',\n    JSON_CUSTOM_COMPILE_PATH_NOT_EXISTS: 'app.json 中未定义自定义编译中指定的启动页面 %s',\n    JSON_ENTRY_PAGE_PATH_NOT_FOUND: '未在 %s 中找到 %s 定义的入口页面',\n    JSON_TABBAR_SHOULD_BE_LIST: 'tabBar.list 应为数组',\n    JSON_TABBAR_AT_LEAST: 'tabBar.list 需至少包含 %s 项',\n    JSON_TABBAR_AT_MOST: 'tabBar.list 不能�"
+  },
+  {
+    "file": "js/common/miniprogram-builder/services/locales/server/const.js",
+    "term": "app.json 中未定义",
+    "context": "SON_CUSTOM_COMPILE_PATH_NOT_EXISTS_TITLE:\"app.json 或自定义编译条件错误\",JSON_CUSTOM_COMPILE_PATH_NOT_EXISTS:\"app.json 中未定义自定义编译中指定的启动页面 %s\",JSON_ENTRY_PAGE_PATH_NOT_FOUND:\"未在 %s 中找到 %s 定义的入口页面\",JSON_TABBAR_SHOULD_BE_LIST:\"tabBar.list 应为数组\",JSON_TABBAR_AT_LEAST:\"tabBar.list 需至少包含 %s 项\",JSON_TABBAR_AT_MOST:\"tabBar.list 不能超过 %s 项\",JSON_TABBAR"
+  },
+  {
+    "file": "js/common/miniprogram-builder/utils/locales/zh.js",
+    "term": "app.json 中未定义",
+    "context": "SON_CUSTOM_COMPILE_PATH_NOT_EXISTS_TITLE:\"app.json 或自定义编译条件错误\",JSON_CUSTOM_COMPILE_PATH_NOT_EXISTS:\"app.json 中未定义自定义编译中指定的启动页面 %s\",JSON_ENTRY_PAGE_PATH_NOT_FOUND:\"未在 %s 中找到 %s 定义的入口页面\",JSON_TABBAR_AT_LEAST:'[\"tabBar\"][\"list\"] 需至少包含 %s 项',JSON_TABBAR_AT_MOST:'[\"tabBar\"][\"list\"] 不能超过 %s 项',JSON_TABBAR_PATH_EMPTY:'[\"tabBar\"][\"list\"][%s][\"pag"
+  }
+]

@@ -1,0 +1,121 @@
+From 97b761d11f14f8d24e3b690e370cb0da04ff9127 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:41:55 +0800
+Subject: [PATCH] r4-prep B2: her frozen board copy carries the original's
+ morph weights (apron/dress) and renderer state
+
+Lead: the apron must not jump on the swap frame. mountBoardGuest (lakeside + meadow/sky city via withRegionBoardGuest)
+now pairs original/copy MeshRenderers (SkinnedMeshRenderer included) by hierarchy order + node name and copies every
+sub-mesh's every morph target weight (getWeight -> setWeights), enableMorph, shared materials and shadow cast/receive,
+before and after the copy enters the scene. Joint pose already matches (blend mode, real joint nodes). Diagnostics:
+guest.morph {renderers,morphRenderers,weights,mismatched}. Test: lakeside-board-guest (morph case).
+---
+ .../scripts/region/LakesideBoardGuest.ts      | 30 ++++++++++++++++---
+ tools/lakeside/test_lakeside_board_guest.cjs  | 21 +++++++++++--
+ 2 files changed, 44 insertions(+), 7 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts b/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts
+index d433bc8..7086f11 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardGuest.ts
+@@ -11,7 +11,26 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+ export const LAKESIDE_GUEST_SOURCE='FLOW_REFERENCE_PLACEHOLDER_NOT_B';
+ export const LAKESIDE_GUEST_JOURNEY_SCENE='LakesideJourneyScene';
+ export const LAKESIDE_GUEST_NODE='LakesideBoardGuest';
+-export type LakesideGuest={node:Node;renderers:number;dispose():void};
++export type LakesideGuest={node:Node;renderers:number;morph:GuestMorphCopy;dispose():void};
++export type GuestMorphCopy={renderers:number;morphRenderers:number;weights:number;mismatched:number};
++/** r4-prep B2 (lead): the apron must not jump on the swap frame. CharacterMotion's MorphDriver writes the apron / dress shape
++ *  weights with setWeight every frame; those runtime weights are not guaranteed to reach the copy's new model (morph instance re-created from the mesh), so the apron could snap to its rest shape.
++ *  Pairs source/copy renderers by hierarchy order (same node name required) and copies, per renderer: every sub-mesh's every
++ *  target weight (getWeight → setWeights), enableMorph, shared materials, shadow cast/receive flags. Pure over the renderer
++ *  interface (getWeight/setWeights/mesh.struct.morph.subMeshMorphs); never throws per renderer. */
++export function copyGuestRendererState(src:ReadonlyArray<any>,dst:ReadonlyArray<any>):GuestMorphCopy{
++ const out:GuestMorphCopy={renderers:0,morphRenderers:0,weights:0,mismatched:0};
++ for(let i=0;i<dst.length;i++){const a=src[i],b=dst[i];
++  if(!a||!b||(a.node&&b.node&&a.node.name!==b.node.name)){out.mismatched++;continue;}out.renderers++;
++  try{if(typeof a.enableMorph==='boolean')b.enableMorph=a.enableMorph;
++   if(a.shadowCastingMode!==undefined)b.shadowCastingMode=a.shadowCastingMode;if(a.receiveShadow!==undefined)b.receiveShadow=a.receiveShadow;
++   const mats=a.sharedMaterials;if(mats&&typeof b.setSharedMaterial==='function')for(let m=0;m<mats.length;m++)if(b.getSharedMaterial?.(m)!==mats[m])b.setSharedMaterial(mats[m],m);
++   const subs=a.mesh&&a.mesh.struct&&a.mesh.struct.morph&&a.mesh.struct.morph.subMeshMorphs;
++   if(!subs||!subs.length||typeof a.getWeight!=='function'||typeof b.setWeights!=='function')continue;let any=false;
++   for(let s=0;s<subs.length;s++){const n=subs[s]&&subs[s].targets?subs[s].targets.length:0;if(!n)continue;const w:number[]=[];
++    for(let t=0;t<n;t++){const v=Number(a.getWeight(s,t));w.push(Number.isFinite(v)?v:0);}b.setWeights(w,s);out.weights+=n;any=true;}
++   if(any)out.morphRenderers++;}catch{out.mismatched++;}}
++ return out;}
+ function findDeep(n:Node|null|undefined,name:string):Node|null{if(!n)return null;if(n.name===name)return n;const k=n.children;for(let i=0;i<k.length;i++){const hit=findDeep(k[i],name);if(hit)return hit;}return null;}
+ function setLayer(n:Node,layer:number){n.layer=layer;const k=n.children;for(let i=0;i<k.length;i++)setLayer(k[i],layer);}
+ /** Pure: her transform in the lakeside scene's own frame from her world transform and the journey scene's world transform (scale 1). */
+@@ -39,10 +58,13 @@ export function mountBoardGuest(boardScene:Node,layer:number,journey:Node|null):
+   // before it enters the scene: nothing plays or ticks (joint nodes keep the pose they were copied with)
+   const anims=copy.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<anims.length;i++){anims[i].playOnLoad=false;(anims[i] as any).useBakedAnimation=false;anims[i].enabled=false;}
+   const comps=copy.getComponentsInChildren(Component);for(let i=0;i<comps.length;i++)if(!(comps[i] instanceof MeshRenderer))comps[i].enabled=false;
+-  setLayer(copy,layer);copy.setPosition(local.pos);copy.setRotation(local.rot);copy.setScale(scale.x/k,scale.y/k,scale.z/k);copy.active=true;boardScene.addChild(copy);
++  setLayer(copy,layer);copy.setPosition(local.pos);copy.setRotation(local.rot);copy.setScale(scale.x/k,scale.y/k,scale.z/k);copy.active=true;
++  // morph weights + renderer state from the original, before (stored weights) and after (live morph instance) it enters the scene
++  const srcR=src.getComponentsInChildren(MeshRenderer);copyGuestRendererState(srcR,copy.getComponentsInChildren(MeshRenderer));boardScene.addChild(copy);
++  const morph=copyGuestRendererState(srcR,copy.getComponentsInChildren(MeshRenderer));
+   const renderers=copy.getComponentsInChildren(MeshRenderer).length,node=copy;let dead=false;
+-  try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest',board:boardScene.name,renderers,pos:[local.pos.x,local.pos.y,local.pos.z]}));}catch{}
+-  return {node,renderers,dispose(){if(dead)return;dead=true;if(isValid(node,true))node.destroy();}};
++  try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest',board:boardScene.name,renderers,morph,pos:[local.pos.x,local.pos.y,local.pos.z]}));}catch{}
++  return {node,renderers,morph,dispose(){if(dead)return;dead=true;if(isValid(node,true))node.destroy();}};
+  }catch(error){try{if(copy&&isValid(copy,true))copy.destroy();}catch{}try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest-skipped',error:String((error as any)?.message||error)}));}catch{}return null;}
+ }
+ /** r4-prep B (extended) without touching the meadow / sky-city lease files (运镜bot's 04→05 / 08→09 work; the 09 plaza file is
+diff --git a/tools/lakeside/test_lakeside_board_guest.cjs b/tools/lakeside/test_lakeside_board_guest.cjs
+index 127dd85..c2754eb 100644
+--- a/tools/lakeside/test_lakeside_board_guest.cjs
++++ b/tools/lakeside/test_lakeside_board_guest.cjs
+@@ -11,7 +11,12 @@ class Quat{constructor(x=0,y=0,z=0,w=1){Object.assign(this,{x,y,z,w});}clone(){r
+  static multiply(o,a,b){const x=a.w*b.x+a.x*b.w+a.y*b.z-a.z*b.y,y=a.w*b.y+a.y*b.w+a.z*b.x-a.x*b.z,z=a.w*b.z+a.z*b.w+a.x*b.y-a.y*b.x,w=a.w*b.w-a.x*b.x-a.y*b.y-a.z*b.z;o.x=x;o.y=y;o.z=z;o.w=w;return o;}
+  static yaw(deg){const t=deg*Math.PI/360;return new Quat(0,Math.sin(t),0,Math.cos(t));}}
+ let destroyed=0;
+-class Component{constructor(){this.enabled=true;}}class MeshRenderer extends Component{}class SkeletalAnimation extends Component{constructor(){super();this.playOnLoad=true;this.useBakedAnimation=false;}}class Script extends Component{}
++class Component{constructor(){this.enabled=true;}}
++// MeshRenderer stand-in with Cocos 3.8 morph API; instantiate gives the copy rest weights (0) like a fresh morph instance
++class MeshRenderer extends Component{constructor(){super();this.mesh=null;this.w=[];this.enableMorph=true;this.shadowCastingMode=0;this.receiveShadow=1;this.sharedMaterials=['m0'];}
++ morph(targets){this.mesh={struct:{morph:{subMeshMorphs:targets.map(n=>n?{targets:new Array(n).fill(0)}:null)}}};this.w=targets.map(n=>new Array(n||0).fill(0));return this;}
++ getWeight(s,t){return this.w[s][t];}setWeights(ws,s){this.w[s]=ws.slice();}setWeight(v,s,t){this.w[s][t]=v;}
++ getSharedMaterial(i){return this.sharedMaterials[i];}setSharedMaterial(m,i){this.sharedMaterials=this.sharedMaterials.slice();this.sharedMaterials[i]=m;}}class SkeletalAnimation extends Component{constructor(){super();this.playOnLoad=true;this.useBakedAnimation=false;}}class Script extends Component{}
+ class Node{constructor(name){this.name=name;this.children=[];this.parent=null;this.layer=1;this.active=true;this.comps=[];this.valid=true;this.position=new Vec3();this.rotation=new Quat();this.scale=new Vec3(1,1,1);}
+  get worldPosition(){if(!this.parent)return this.position.clone();const p=new Vec3();Vec3.transformQuat(p,this.position,this.parent.worldRotation);const b=this.parent.worldPosition;return new Vec3(b.x+p.x,b.y+p.y,b.z+p.z);}
+  get worldRotation(){if(!this.parent)return this.rotation.clone();const q=new Quat();return Quat.multiply(q,this.parent.worldRotation,this.rotation);}
+@@ -22,7 +27,7 @@ class Node{constructor(name){this.name=name;this.children=[];this.parent=null;th
+  setPosition(p){this.position=new Vec3(p.x,p.y,p.z);}setRotation(q){this.rotation=new Quat(q.x,q.y,q.z,q.w);}setScale(x,y,z){this.scale=new Vec3(x,y,z);}
+  destroy(){this.valid=false;destroyed++;if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this);}}
+ function instantiate(n){const c=new Node(n.name);c.layer=n.layer;c.active=n.active;c.position=n.position.clone();c.rotation=n.rotation.clone();c.scale=n.scale.clone();
+- for(const k of n.comps){const o=Object.assign(Object.create(Object.getPrototypeOf(k)),k);o.node=c;c.comps.push(o);}for(const ch of n.children)c.addChild(instantiate(ch));return c;}
++ for(const k of n.comps){const o=Object.assign(Object.create(Object.getPrototypeOf(k)),k);o.node=c;if(o instanceof MeshRenderer){o.w=k.w.map(a=>a.map(()=>0));o.sharedMaterials=k.sharedMaterials.slice();}c.comps.push(o);}for(const ch of n.children)c.addChild(instantiate(ch));return c;}
+ let scene;const cc={Component,MeshRenderer,SkeletalAnimation,Node,Quat,Vec3,instantiate,director:{getScene:()=>scene},isValid:o=>!!o&&o.valid!==false};
+ const out=ts.transpileModule(fs.readFileSync(S+'region/LakesideBoardGuest.ts','utf8'),{compilerOptions:{module:1,target:7}}).outputText;
+ const G={};vm.runInThisContext('(function(exports,require){'+out+'\n})')(G,s=>s==='cc'?cc:null);
+@@ -30,7 +35,7 @@ const run=(n,f)=>{f();console.log('PASS',n);};const near=(a,b)=>Math.abs(a-b)<1e
+ function world(){scene=new Node('scene');const journey=new Node('RegionJourney-lakeside');scene.addChild(journey);const js=new Node('LakesideJourneyScene');journey.addChild(js);
+  js.position=new Vec3(6.5,-0.58,44.2);js.rotation=Quat.yaw(180);
+  const ref=new Node(G.LAKESIDE_GUEST_SOURCE);scene.addChild(ref);const girl=new Node('B_PASS2G_CURSOR');ref.addChild(girl);girl.addComponent(SkeletalAnimation);
+- const body=new Node('body');girl.addChild(body);body.addComponent(MeshRenderer);const apron=new Node('apron');girl.addChild(apron);apron.addComponent(MeshRenderer);const hip=new Node('hip');girl.addChild(hip);hip.rotation=new Quat(.1,0,0,Math.sqrt(1-.01));
++ const body=new Node('body');girl.addChild(body);body.addComponent(MeshRenderer);const apron=new Node('apron');girl.addChild(apron);const ar=apron.addComponent(MeshRenderer).morph([4,0,3]);ar.w=[[.1,.62,0,1],[],[.33,.05,.9]];body.comps[0].morph([2]).w=[[.4,.7]];const hip=new Node('hip');girl.addChild(hip);hip.rotation=new Quat(.1,0,0,Math.sqrt(1-.01));
+  ref.addComponent(Script);
+  // she stands at lakeside-local (1.2, 0, 2.5) facing local yaw 30 (world = journey frame x local)
+  const lp=new Vec3(1.2,0,2.5),wp=new Vec3();Vec3.transformQuat(wp,lp,js.rotation);ref.position=new Vec3(wp.x+6.5,wp.y-0.58,wp.z+44.2);ref.rotation=Quat.multiply(new Quat(),js.rotation,Quat.yaw(30));
+@@ -55,6 +60,16 @@ run('wiring: board lease mounts her after the layer pass, frees her in dispose (
+  assert.match(bg,/setLayer\(scenery\);\n[^\n]*\n  if\(!pre\)\{step='guest';guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);\}/);assert.match(bg,/adopt:\(owner,next\)=>\{[^\n]*guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);/,'preloaded lease: her copy on adopt (after the landing hook)');assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);if\(guest\)\{guest\.dispose\(\);guest=null;\}/);
+  assert.match(bg,/guest:guest\?guest\.renderers:0/);
+ });
++run('morph: every renderer with morphs gets the original weights per sub-mesh and target (apron 3 sub-meshes, dress); state flags + materials copied',()=>{
++ const w=world();const ar=w.girl.getChildByName('apron').comps[0];ar.shadowCastingMode=1;ar.receiveShadow=0;ar.sharedMaterials=['apronNight'];
++ const g=G.mountLakesideGuest(w.scenery,1<<20),src=w.ref.getComponentsInChildren(MeshRenderer),dst=g.node.getComponentsInChildren(MeshRenderer);
++ assert.equal(dst.length,src.length);for(let i=0;i<src.length;i++){assert.equal(dst[i].node.name,src[i].node.name);assert.notEqual(dst[i],src[i]);assert.deepEqual(dst[i].w,src[i].w,src[i].node.name);
++  const subs=src[i].mesh.struct.morph.subMeshMorphs;for(let s=0;s<subs.length;s++)for(let t=0;t<(subs[s]?subs[s].targets.length:0);t++)assert.equal(dst[i].getWeight(s,t),src[i].getWeight(s,t));
++  assert.equal(dst[i].shadowCastingMode,src[i].shadowCastingMode);assert.equal(dst[i].receiveShadow,src[i].receiveShadow);assert.deepEqual(dst[i].sharedMaterials,src[i].sharedMaterials);}
++ assert.deepEqual(g.morph,{renderers:2,morphRenderers:2,weights:9,mismatched:0});
++ ar.setWeight(.99,0,1);assert.equal(dst[1].getWeight(0,1),.62,'copy is a snapshot, not shared');
++ // pure helper: mismatched hierarchy is counted, not copied
++ const r=G.copyGuestRendererState([{node:{name:'a'}}],[{node:{name:'b'}}]);assert.equal(r.mismatched,1);});
+ run('other regions (meadow / sky city): same mapping from the journey copy of the region model (same name under RegionJourney-<region>), scale honoured',()=>{
+  for(const [region,layer] of [['meadow',1<<20],['skycity',1<<20]]){const w=world();const jr=new Node('RegionJourney-'+region);scene.addChild(jr);const jm=new Node('region_'+region);jr.addChild(jm);jr.addChild(new Node('RainbowBridgeStrip0'));
+   jm.position=new Vec3(-20,4,90);jm.rotation=Quat.yaw(90);jm.scale=new Vec3(2,2,2);
+-- 
+2.47.3
+

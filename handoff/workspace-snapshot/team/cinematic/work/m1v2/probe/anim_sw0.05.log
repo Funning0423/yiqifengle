@@ -1,0 +1,7 @@
+could not get a list of mounted file-systems
+Info: Saved as "cine_m1_anim.blend"
+DONE {"stand_root": [-0.016248999163508415, 4.4130859375, 0.0], "yaw_end": -0.04937561571266458, "turn_deg": 111.76254463496913, "stand_foot_ik_err_mm_max": 9.396670949182987e-05, "turn_foot_ik_err_mm_max": 3.753841433903392, "ground_under_feet": {"L": 0.0, "R": -2.9802322387695312e-08}}
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/scene/cine_m1_base.blend"
+
+Blender quit

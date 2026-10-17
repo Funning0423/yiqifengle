@@ -1,0 +1,5 @@
+5d93d5e2ea257a6d0a866f993f453fc93ad483425bb01329af94c9206df46b12  0001-journey-v3.1-journey-only-deep-night-sea-tint.patch
+2a743e7effb604f5af46cd31c2d2360a741a1ab3b12634fd6d250ba1c927f6ac  0002-Build05-skycity-break-up-08-09-deck-flats-with-verte.patch
+1f4e7c4424d679a8033cf97de26ea4a3120eaa8115d855b6cd3ff34fcb6525ce  0003-skycity-lossless-Creator-meshCompress-zlib-on-env_sk.patch
+e55110de1caf8ec673bf337822cc224cefaeb7bb7e3d09412603e77b3a619970  0004-shared_effects-one-builtin-standard-EffectAsset-for-.patch
+8722a1bac23214e7090e60a69897c753927369264d05a49415a29de9608a1427  0005-occlusion-fixture-rebuild-for-the-ground-v3-env_skyc.patch

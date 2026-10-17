@@ -1,0 +1,102 @@
+{
+  "status": "PASS_ACTUAL_LOAD_AND_REQUEST_OBSERVATION",
+  "initial": {
+    "instances": 1,
+    "bridge": true,
+    "clips": [
+      "sfx_chest_open",
+      "sfx_combo_1",
+      "sfx_combo_2",
+      "sfx_combo_3",
+      "sfx_level_clear",
+      "sfx_match_normal",
+      "sfx_ui_click"
+    ],
+    "lastPlay": {},
+    "muted": false,
+    "hidden": false,
+    "sources": 2,
+    "tagged": 14
+  },
+  "won": {
+    "instances": 1,
+    "bridge": true,
+    "clips": [
+      "sfx_chest_open",
+      "sfx_combo_1",
+      "sfx_combo_2",
+      "sfx_combo_3",
+      "sfx_level_clear",
+      "sfx_match_normal",
+      "sfx_ui_click"
+    ],
+    "lastPlay": {
+      "sfx_ui_click": 1791585360290,
+      "sfx_match_normal": 1791585372245,
+      "sfx_combo_1": 1791585372628,
+      "sfx_combo_2": 1791585370395,
+      "sfx_combo_3": 1791585362086,
+      "sfx_level_clear": 1791585373018
+    },
+    "muted": false,
+    "hidden": false,
+    "sources": 2,
+    "tagged": 20
+  },
+  "first": {
+    "instances": 1,
+    "bridge": true,
+    "clips": [
+      "sfx_chest_open",
+      "sfx_combo_1",
+      "sfx_combo_2",
+      "sfx_combo_3",
+      "sfx_level_clear",
+      "sfx_match_normal",
+      "sfx_ui_click"
+    ],
+    "lastPlay": {
+      "sfx_ui_click": 1791585373327,
+      "sfx_match_normal": 1791585372245,
+      "sfx_combo_1": 1791585372628,
+      "sfx_combo_2": 1791585370395,
+      "sfx_combo_3": 1791585362086,
+      "sfx_level_clear": 1791585373018,
+      "sfx_chest_open": 1791585373329
+    },
+    "muted": false,
+    "hidden": false,
+    "sources": 2,
+    "tagged": 20
+  },
+  "duplicate": {
+    "instances": 1,
+    "bridge": true,
+    "clips": [
+      "sfx_chest_open",
+      "sfx_combo_1",
+      "sfx_combo_2",
+      "sfx_combo_3",
+      "sfx_level_clear",
+      "sfx_match_normal",
+      "sfx_ui_click"
+    ],
+    "lastPlay": {
+      "sfx_ui_click": 1791585373647,
+      "sfx_match_normal": 1791585372245,
+      "sfx_combo_1": 1791585372628,
+      "sfx_combo_2": 1791585370395,
+      "sfx_combo_3": 1791585362086,
+      "sfx_level_clear": 1791585373018,
+      "sfx_chest_open": 1791585373329
+    },
+    "muted": false,
+    "hidden": false,
+    "sources": 2,
+    "tagged": 20
+  },
+  "errors": [],
+  "hearing": "NOT_RUN: headless observation records actual Cocos audio playback requests; no captured/listened device audio.",
+  "muteHideResume": "NOT_RUN_UI: supplied package exposes no mute control; no game/debug state mutation used.",
+  "limit": "MAX_VOICES is an approximate request-duration cap. Creator playOneShot exposes no per-request cancel handle; already started/pending one-shots are not claimed instantly silenced."
+}

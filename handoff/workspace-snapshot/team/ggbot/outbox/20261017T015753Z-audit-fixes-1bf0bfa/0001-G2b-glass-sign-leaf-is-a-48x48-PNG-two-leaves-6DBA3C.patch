@@ -1,0 +1,328 @@
+From d9f87b23781153c5ffa9013a3a279108372071b8 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 09:30:20 +0800
+Subject: [PATCH 1/3] G2b: glass sign leaf is a 48x48 PNG (two leaves
+ #6DBA3C/#A6DB6A, stem, dark outline, 8x supersampled; 2.6 KB, stable uuid
+ 848df364, linear/no mips/no premultiply/alpha bleed), drawn 44 px (~1.1x
+ caption), 6 px gap, group centred; test
+
+---
+ .../resources/world/glass-sign-leaf.png       | Bin 0 -> 2609 bytes
+ .../resources/world/glass-sign-leaf.png.meta  | 142 ++++++++++++++++++
+ .../assets/scripts/world-r1/GlassSign.ts      |  35 ++---
+ tools/test_glass_sign_layout.cjs              |  28 +++-
+ 4 files changed, 176 insertions(+), 29 deletions(-)
+ create mode 100644 creator-build-project/assets/resources/world/glass-sign-leaf.png
+ create mode 100644 creator-build-project/assets/resources/world/glass-sign-leaf.png.meta
+
+diff --git a/creator-build-project/assets/resources/world/glass-sign-leaf.png b/creator-build-project/assets/resources/world/glass-sign-leaf.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..98fe121e3b52efb64de538ebf2e777bb6b99e554
+GIT binary patch
+literal 2609
+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
+T7pFMG00000NkvXXu0mjfF^SOp
+
+literal 0
+HcmV?d00001
+
+diff --git a/creator-build-project/assets/resources/world/glass-sign-leaf.png.meta b/creator-build-project/assets/resources/world/glass-sign-leaf.png.meta
+new file mode 100644
+index 0000000..6c5f20b
+--- /dev/null
++++ b/creator-build-project/assets/resources/world/glass-sign-leaf.png.meta
+@@ -0,0 +1,142 @@
++{
++  "ver": "1.0.27",
++  "importer": "image",
++  "imported": true,
++  "uuid": "848df364-a778-5f96-b167-fce358205792",
++  "files": [
++    ".json",
++    ".png"
++  ],
++  "subMetas": {
++    "6c48a": {
++      "importer": "texture",
++      "uuid": "848df364-a778-5f96-b167-fce358205792@6c48a",
++      "displayName": "glass-sign-leaf",
++      "id": "6c48a",
++      "name": "texture",
++      "userData": {
++        "wrapModeS": "clamp-to-edge",
++        "wrapModeT": "clamp-to-edge",
++        "minfilter": "linear",
++        "magfilter": "linear",
++        "mipfilter": "none",
++        "premultiplyAlpha": false,
++        "anisotropy": 0,
++        "isUuid": true,
++        "imageUuidOrDatabaseUri": "848df364-a778-5f96-b167-fce358205792",
++        "visible": false
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    },
++    "f9941": {
++      "importer": "sprite-frame",
++      "uuid": "848df364-a778-5f96-b167-fce358205792@f9941",
++      "displayName": "glass-sign-leaf",
++      "id": "f9941",
++      "name": "spriteFrame",
++      "userData": {
++        "wrapModeS": "clamp-to-edge",
++        "wrapModeT": "clamp-to-edge",
++        "minfilter": "linear",
++        "magfilter": "linear",
++        "mipfilter": "none",
++        "premultiplyAlpha": false,
++        "anisotropy": 0,
++        "isUuid": true,
++        "trimType": "none",
++        "trimThreshold": 1,
++        "rotated": false,
++        "offsetX": 0,
++        "offsetY": 0,
++        "trimX": 0,
++        "trimY": 0,
++        "width": 48,
++        "height": 48,
++        "rawWidth": 48,
++        "rawHeight": 48,
++        "borderTop": 0,
++        "borderBottom": 0,
++        "borderLeft": 0,
++        "borderRight": 0,
++        "imageUuidOrDatabaseUri": "848df364-a778-5f96-b167-fce358205792@6c48a",
++        "atlasUuid": "",
++        "packable": false,
++        "pixelsToUnit": 100,
++        "pivotX": 0.5,
++        "pivotY": 0.5,
++        "meshType": 0,
++        "vertices": {
++          "rawPosition": [
++            -24,
++            -24,
++            0,
++            24,
++            -24,
++            0,
++            -24,
++            24,
++            0,
++            24,
++            24,
++            0
++          ],
++          "indexes": [
++            0,
++            1,
++            2,
++            2,
++            1,
++            3
++          ],
++          "uv": [
++            0,
++            48,
++            48,
++            48,
++            0,
++            0,
++            48,
++            0
++          ],
++          "nuv": [
++            0,
++            0,
++            1,
++            0,
++            0,
++            1,
++            1,
++            1
++          ],
++          "minPos": [
++            -24,
++            -24,
++            0
++          ],
++          "maxPos": [
++            24,
++            24,
++            0
++          ]
++        }
++      },
++      "ver": "1.0.12",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
++  "userData": {
++    "type": "sprite-frame",
++    "hasAlpha": true,
++    "fixAlphaTransparencyArtifacts": true,
++    "redirect": "848df364-a778-5f96-b167-fce358205792@6c48a"
++  }
++}
+diff --git a/creator-build-project/assets/scripts/world-r1/GlassSign.ts b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+index fff3342..7837529 100644
+--- a/creator-build-project/assets/scripts/world-r1/GlassSign.ts
++++ b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+@@ -1,4 +1,4 @@
+-import { Graphics, Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
++import { Sprite, SpriteFrame, Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
+ 
+ /**
+  * Glass sign v4-refined3.2 (运镜bot, approved prototype glass-panel-v4refined3.2-20261016T1419Z).
+@@ -13,7 +13,7 @@ export const GLASS_SIGN = Object.freeze({
+   centre: [0.05, 1.02, -4.70] as const, widthM: 0.80, heightM: 0.28, bobAmp: 0.012, bobPeriod: 3.2,
+   px: [280, 100] as const, pad: [130, 85] as const, refWidthCss: 123.2,
+   rim: { alpha: 0.43, gamma: 0.6, widthCss: 1.3 }, top: { alpha: 0.8, widthCss: 1.2, gamma: 0.6 },
+-  caption: '出发去看海', leaf: { size: 42, fill: [178, 226, 142, 255], vein: [255, 255, 255, 210], shade: [0, 40, 60, 60] } as const, leaveAtFrame: 27,
++  caption: '出发去看海', leaf: { size: 44, png: 'world/glass-sign-leaf/spriteFrame', bbox: [7, 41, 48] as const, gap: 6 } as const, leaveAtFrame: 27,
+ });
+ 
+ export class GlassSign {
+@@ -62,14 +62,16 @@ export class GlassSign {
+       l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
+       l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
+     };
+-    // G2: leaf (Graphics, 42 px, 0 B, same look on every platform instead of the system leaf emoji) + 12 px + caption,
+-    // centred as ONE group on the caption's measured width (the old fixed 198 px box left the text off-centre with a gap).
++    // G2b: leaf = 48x48 PNG (two leaves #6DBA3C/#A6DB6A, stem, thin dark outline; 8x supersampled then downscaled) drawn at
++    // 44 px, visible leaf ~37 px = 1.1x the 34 px caption. Gap 6 px between the VISIBLE leaf edge (PNG bbox x 7..41 of 48) and
++    // the measured caption; that group is centred on the card.
+     const cap = add('Caption', S.caption, 34, 0, 0); cap.overflow = Label.Overflow.NONE; cap.horizontalAlign = Label.HorizontalAlign.LEFT;
+     cap.updateRenderData(true); const measured = cap.node.getComponent(UITransform)!.width;
+-    const capW = Number.isFinite(measured) && measured > 0 ? measured : 5 * 34 + 4 * 4, gap = 12, total = glassSignGroupWidth(capW, gap);
+-    cap.node.setPosition(-total / 2 + S.leaf.size + gap + capW / 2, 1, 0);
++    const capW = Number.isFinite(measured) && measured > 0 ? measured : 5 * 34 + 4 * 4, g = glassSignGroup(capW);
++    cap.node.setPosition(g.captionX, 1, 0);
+     const leaf = new Node('Leaf'); leaf.layer = this.root.layer; this.text.addChild(leaf); leaf.addComponent(UITransform).setContentSize(S.leaf.size, S.leaf.size);
+-    leaf.setPosition(-total / 2 + S.leaf.size / 2, 1, 0); drawGlassLeaf(leaf.addComponent(Graphics), S.leaf.size);
++    leaf.setPosition(g.leafX, 1, 0); const sp = leaf.addComponent(Sprite); sp.sizeMode = Sprite.SizeMode.CUSTOM;
++    resources.load(S.leaf.png, SpriteFrame, (err: Error | null, f: SpriteFrame | null) => { if (err || !f || !isValid(sp, true)) { if (err) console.warn('[GlassSign] leaf png unavailable', String(err)); return; } sp.spriteFrame = f; });
+   }
+   /** Prototype tap feedback timeline (frames at 30 fps after the tap). */
+   private feedback() {
+@@ -124,18 +126,9 @@ export class GlassSign {
+   dispose() { if (this.disposed) return; this.disposed = true; if (isValid(this.root, true)) this.root.destroy(); this.material?.destroy(); this.material = null; }
+ }
+ 
+-/** G2: total width of leaf + gap + caption, which is centred on the card. */
+-export function glassSignGroupWidth(captionW: number, gap = 12): number { return GLASS_SIGN.leaf.size + gap + captionW; }
+-/** G2: small tilted leaf in the card's local px (centre 0,0, fits size x size): soft drop shade, body, white midrib. */
+-export function drawGlassLeaf(g: Graphics, size: number) {
+-  const L = GLASS_SIGN.leaf, h = size * .46, w = size * .3, c = Math.cos(-.6), sn = Math.sin(-.6);
+-  const P = (x: number, y: number, dx = 0, dy = 0): [number, number] => [x * c - y * sn + dx, x * sn + y * c + dy];
+-  const body = (dx: number, dy: number) => {
+-    g.moveTo(...P(0, -h, dx, dy)); g.bezierCurveTo(...P(w * 1.6, -h * .45, dx, dy), ...P(w * 1.4, h * .55, dx, dy), ...P(0, h, dx, dy));
+-    g.bezierCurveTo(...P(-w * 1.4, h * .55, dx, dy), ...P(-w * 1.6, -h * .45, dx, dy), ...P(0, -h, dx, dy)); g.close();
+-  };
+-  g.fillColor = new Color(L.shade[0], L.shade[1], L.shade[2], L.shade[3]); body(0, -1.5); g.fill();
+-  g.fillColor = new Color(L.fill[0], L.fill[1], L.fill[2], L.fill[3]); body(0, 0); g.fill();
+-  g.lineWidth = Math.max(1.5, size / 18); g.lineCap = Graphics.LineCap.ROUND; g.strokeColor = new Color(L.vein[0], L.vein[1], L.vein[2], L.vein[3]);
+-  g.moveTo(...P(0, -h * .7)); g.lineTo(...P(0, h * 1.15)); g.stroke();
++/** G2b: centred group geometry (card-local px, centre 0): visible leaf width + gap + caption. */
++export function glassSignGroup(captionW: number) {
++  const L = GLASS_SIGN.leaf, k = L.size / L.bbox[2], visL = L.bbox[0] * k, visW = (L.bbox[1] - L.bbox[0]) * k;
++  const total = visW + L.gap + captionW, left = -total / 2;
++  return { total, visW, gap: L.gap, leafX: left - visL + L.size / 2, captionX: left + visW + L.gap + captionW / 2 };
+ }
+diff --git a/tools/test_glass_sign_layout.cjs b/tools/test_glass_sign_layout.cjs
+index 38a95c5..4f17475 100644
+--- a/tools/test_glass_sign_layout.cjs
++++ b/tools/test_glass_sign_layout.cjs
+@@ -1,10 +1,22 @@
+-// G2: glass sign leaf is a Graphics drawing (no emoji / no asset), 42 px, and leaf+gap+caption is centred as one group.
++// G2/G2b: glass sign leaf is a small committed PNG (no emoji, no Graphics), ~1.1x caption height, 5-6 px gap, group centred.
+ const fs=require('fs'),path=require('path'),assert=require('assert');
+-const s=fs.readFileSync(path.join(__dirname,'..','creator-build-project/assets/scripts/world-r1/GlassSign.ts'),'utf8');
+-assert(!/🍃/u.test(s),'no system emoji');assert(/leaf: \{ size: 42,/.test(s),'leaf 42 px');
+-assert(/drawGlassLeaf\(leaf\.addComponent\(Graphics\), S\.leaf\.size\)/.test(s),'leaf drawn with Graphics');
+-assert(/cap\.overflow = Label\.Overflow\.NONE/.test(s)&&/cap\.updateRenderData\(true\)/.test(s),'caption width measured');
+-assert(/cap\.node\.setPosition\(-total \/ 2 \+ S\.leaf\.size \+ gap \+ capW \/ 2, 1, 0\)/.test(s)&&/leaf\.setPosition\(-total \/ 2 \+ S\.leaf\.size \/ 2, 1, 0\)/.test(s),'group positions');
+-// centring: group spans [-total/2, total/2] for any caption width
+-for(const capW of [150,170,186,205]){const total=42+12+capW,left=-total/2,right=left+42+12+capW;assert(Math.abs(left+right)<1e-9);assert(total<=280,'fits card '+capW);}
++const A=path.join(__dirname,'..','creator-build-project/assets');
++const s=fs.readFileSync(path.join(A,'scripts/world-r1/GlassSign.ts'),'utf8');
++assert(!/🍃/u.test(s),'no system emoji');assert(!/Graphics/.test(s),'no Graphics leaf');
++const m=s.match(/leaf: \{ size: (\d+), png: '([^']+)', bbox: \[(\d+), (\d+), (\d+)\] as const, gap: (\d+) \}/);assert(m,'leaf config');
++const [size,png,b0,b1,bw,gap]=[+m[1],m[2],+m[3],+m[4],+m[5],+m[6]];
++assert(gap>=5&&gap<=6,'gap 5-6 px');
++// PNG: 48x48 RGBA, small, visible bbox matches config
++const f=path.join(A,'resources',png.replace(/\/spriteFrame$/,'')+'.png'),buf=fs.readFileSync(f);
++assert(buf.length<6000,'png a few KB: '+buf.length);assert.equal(buf.readUInt32BE(16),48);assert.equal(buf.readUInt32BE(20),48);assert.equal(buf[25],6,'RGBA');assert.equal(bw,48);
++const meta=JSON.parse(fs.readFileSync(f+'.meta','utf8'));assert.equal(meta.uuid,'848df364-a778-5f96-b167-fce358205792','stable uuid');
++for(const sm of Object.values(meta.subMetas)){const u=sm.userData;assert.equal(u.minfilter,'linear');assert.equal(u.magfilter,'linear');assert.equal(u.mipfilter,'none');assert.equal(u.premultiplyAlpha,false);assert.equal(u.wrapModeS,'clamp-to-edge');}
++assert.equal(meta.userData.fixAlphaTransparencyArtifacts,true,'alpha bleed for clean edges');
++// visible height ~1.1x the 34 px caption (PNG content rows 4..44 of 48)
++const visH=40/48*size;assert(visH/34>1.0&&visH/34<1.2,'leaf height ratio '+(visH/34).toFixed(2));
++// group geometry mirrors glassSignGroup
++assert(/cap\.updateRenderData\(true\)/.test(s)&&/cap\.node\.setPosition\(g\.captionX, 1, 0\)/.test(s)&&/leaf\.setPosition\(g\.leafX, 1, 0\)/.test(s));
++for(const capW of [150,170,186,205]){const k=size/bw,visL=b0*k,visW=(b1-b0)*k,total=visW+gap+capW,left=-total/2,leafX=left-visL+size/2,capX=left+visW+gap+capW/2;
++ const visLeft=leafX-size/2+visL,visRight=leafX-size/2+b1*k,capLeft=capX-capW/2,capRight=capX+capW/2;
++ assert(Math.abs(capLeft-visRight-gap)<1e-9,'gap');assert(Math.abs(visLeft+capRight)<1e-9,'centred');assert(total<=280,'fits card');}
+ console.log('glass sign layout OK');
+-- 
+2.47.3
+

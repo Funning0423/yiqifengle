@@ -1,0 +1,77 @@
+{
+  "utc": "2026-10-09T23:23:43.637780+00:00",
+  "sourceCommit": "8523f92faf96a2d5e4fef49b02d8dbabfa0ab859",
+  "creator": "3.8.8",
+  "devtools": "Stable 2.02.2608080",
+  "library": "3.17.3",
+  "observations": [
+    {
+      "control": "E",
+      "engine": "pure wx canvas",
+      "condition": "absent",
+      "opening": "first",
+      "capture": "console-raw.txt",
+      "valid": true,
+      "redObserved": true,
+      "marker": "OI_MINIMAL_CONTROL_E_READY"
+    },
+    {
+      "control": "E",
+      "engine": "pure wx canvas",
+      "condition": "absent",
+      "opening": "reopen, settled",
+      "capture": "e-reopened-settled-console.txt",
+      "valid": true,
+      "redObserved": false,
+      "marker": "OI_MINIMAL_CONTROL_E_READY"
+    },
+    {
+      "control": "F",
+      "engine": "same pure wx canvas bytes as E",
+      "condition": "full official empty template",
+      "opening": "first",
+      "capture": "f-initial-copy-stale-NOT-CONSOLE.txt",
+      "valid": false,
+      "redObserved": null
+    },
+    {
+      "control": "F",
+      "engine": "same pure wx canvas bytes as E",
+      "condition": "full official empty template",
+      "opening": "reopen",
+      "capture": "f-reopened-console.txt",
+      "valid": true,
+      "redObserved": false,
+      "marker": "OI_MINIMAL_CONTROL_E_READY"
+    },
+    {
+      "control": "G",
+      "engine": "current R6 Cocos/audio output",
+      "condition": "full official empty template",
+      "opening": "first",
+      "capture": "g-first-copy-stale-NOT-CONSOLE.txt",
+      "valid": false,
+      "redObserved": null
+    },
+    {
+      "control": "G",
+      "engine": "current R6 Cocos/audio output",
+      "condition": "full official empty template",
+      "opening": "reopen",
+      "capture": "g-reopened-console.txt",
+      "valid": true,
+      "redObserved": true,
+      "marker": "LoadScene db://assets/scenes/WorldR5Integration.scene"
+    }
+  ],
+  "firstOpenAcceptance": "NOT_PASS",
+  "configurationFixAccepted": false,
+  "finalizerChanged": false,
+  "finalizerSha256": "613273428bd91756e08f9a49c27a8ca218ac674c2055fa763d164de278266b09",
+  "gNonConfigFiles": 200,
+  "gNonConfigExactMatches": [
+    "creator-build-project/build/wechat-world-r6-audio"
+  ],
+  "formalJourneyKeysWritten": false,
+  "scope": "Local simulator diagnostics only. No upload to WeChat, publish, whole IDE quit, phone, hearing or thermal acceptance."
+}

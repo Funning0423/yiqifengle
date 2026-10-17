@@ -1,0 +1,6 @@
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [log] [QF-AUDIT-HEARTBEAT] e22e4f09b5b17947
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY] e22e4f09b5b17947
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [log] [QF-AUDIT-HEARTBEAT-LATE] e22e4f09b5b17947
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY-LATE] e22e4f09b5b17947
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended

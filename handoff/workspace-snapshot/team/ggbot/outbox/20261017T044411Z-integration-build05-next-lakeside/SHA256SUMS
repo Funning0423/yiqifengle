@@ -1,0 +1,11 @@
+270ae7143ec3c1828a192e1e555cda2c7d5966fc4c64ecdc951ec10e780e8bb4  integration-build05-next.bundle
+4d60e4bbe78a3720c7ef308db49698ac44b2922106a872d83a8d0c5cb5ee9130  TEST-ONLY-lake-gate-0.patch
+e1f21dd23463a1698a68b69bdfc99c02f05369a8157f27499aa8ffc9c76f4556  patches/0001-A3-waves-bed-fades-in-from-0-when-something-else-sto.patch
+5a7893fecb63ebd72e60b95a4029bd5a544345fe0bccb6a8968f32a7736219cd  patches/0002-A3b-waves-bed-always-re-starts-from-0-incl.-self-pau.patch
+d4da718d8546273a1cf6000b30f30d3a2afff9da8c0777b6a82e2bfddd435472  patches/0003-lakeside-L1-joins-the-regional-r05-catalog-6-r04-lak.patch
+73b42eac765874559361b04380633a2f340b5752de3142d4c4b28dbf3e27e154  patches/0004-lakeside-L2-live-region_lakeside-board-background-sc.patch
+25fda12912b32d54d68f174520161406d334a950b7a0343e60b5c61863667e69  patches/0005-lakeside-L3-region-select-journey-book-4th-chapter-x.patch
+ed3dbb7d7c5a36b515bc015737658a5de2ce51d131916756a2c49a1ed9c52358  patches/0006-lakeside-L4-tests-lakeside-entry-suite-catalog-gate-.patch
+c34a52e04ef2207b85c0e31d7eaf398249153ee6c2307544f8ce0c2f94a4cc45  patches/0007-B1-lakeside-scenery-GPU-instancing-one-shared-USE_IN.patch
+5e791164ab3572c06cf64c93eb1672679d1eb4e7c703f1aed0a086e8239a3634  README.md
+65d1c6bb7084b6e41eca8978996eda9b21a7b985c134b37c0737529002e58348  suite.txt

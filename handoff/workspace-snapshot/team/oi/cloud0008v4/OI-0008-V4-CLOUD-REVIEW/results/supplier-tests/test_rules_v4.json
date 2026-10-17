@@ -1,0 +1,54 @@
+{
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "name": "A1 plain \"Error:\" at any level is an error",
+      "ok": true
+    },
+    {
+      "name": "A2 any \"[…错误]\" category anywhere is an error (not only line start)",
+      "ok": true
+    },
+    {
+      "name": "A3 console.error level with unrecognised text → error \"unrecognised-error-level\"",
+      "ok": true
+    },
+    {
+      "name": "A4 WeappLog level tags: [error] [console.error] [warn] [warning] [log]; timestamps stripped",
+      "ok": true
+    },
+    {
+      "name": "A5 other JS error classes + Uncaught; benign info stays info",
+      "ok": true
+    },
+    {
+      "name": "B1 only the EXACT normalised canary is exempt (boot / late / whitespace-normalised)",
+      "ok": true
+    },
+    {
+      "name": "B2 canary + any other text is NOT exempt; the rest is evaluated",
+      "ok": true
+    },
+    {
+      "name": "B3 foreign-token canary → canary-foreign; canary at log/warn level is not a canary",
+      "ok": true
+    },
+    {
+      "name": "D1 exact notice (whole normalised payload) → known-notice, at error or unknown level",
+      "ok": true
+    },
+    {
+      "name": "D2 notice with ANY other text (before/after, other error first) → error, never allowlisted",
+      "ok": true
+    },
+    {
+      "name": "D3 no suffix/end-of-line extraction API remains",
+      "ok": true
+    },
+    {
+      "name": "audit uses no STRONG pattern gate and no CANARY_RE",
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+ "B4": {
+  "doorKeyT": 2.61,
+  "exitSeconds": 7.14,
+  "totalT": 9.75,
+  "peakSpeed": [
+   6.127,
+   6.467
+  ],
+  "smoothedMaxAccel": 52.235,
+  "smoothedMaxJerk": 657.38,
+  "rawMaxAccelAfterDoor": 61.848,
+  "rawMaxJerkAfterDoor": 910.62,
+  "accel8to10": [
+   3.342,
+   19.978
+  ],
+  "jerk8to10max": 164.248,
+  "kinkFrames": [
+   [
+    3.183,
+    496.6
+   ],
+   [
+    3.2,
+    616.01
+   ],
+   [
+    3.217,
+    657.38
+   ],
+   [
+    3.233,
+    578.87
+   ],
+   [
+    3.283,
+    534.14
+   ],
+   [
+    3.3,
+    576.97
+   ],
+   [
+    3.317,
+    523.96
+   ],
+   [
+    5.267,
+    21.46
+   ],
+   [
+    6.383,
+    23.34
+   ],
+   [
+    6.4,
+    44.44
+   ],
+   [
+    6.417,
+    49.72
+   ],
+   [
+    6.433,
+    22.57
+   ],
+   [
+    6.45,
+    23.9
+   ],
+   [
+    6.467,
+    53.87
+   ],
+   [
+    6.483,
+    50.86
+   ],
+   [
+    6.5,
+    29.65
+   ],
+   [
+    7.433,
+    172.68
+   ],
+   [
+    7.45,
+    241.93
+   ],
+   [
+    7.467,
+    226.37
+   ],
+   [
+    7.483,
+    150.36
+   ]
+  ],
+  "kinkCount": 24
+ },
+ "B5": {
+  "doorKeyT": 2.5409,
+  "exitSeconds": 11.642,
+  "totalT": 14.183333333333334,
+  "peakSpeed": [
+   7.715,
+   8.267
+  ],
+  "smoothedMaxAccel": 6.344,
+  "smoothedMaxJerk": 17.641,
+  "rawMaxAccelAfterDoor": 6.488,
+  "rawMaxJerkAfterDoor": 48.61,
+  "accel8to10": [
+   1.97,
+   6.105
+  ],
+  "jerk8to10max": 17.641,
+  "kinkFrames": [
+   [
+    3.717,
+    9.4
+   ]
+  ],
+  "kinkCount": 1
+ },
+ "B5.1": {
+  "doorKeyT": 2.5409,
+  "exitSeconds": 10.342,
+  "totalT": 12.883333333333333,
+  "peakSpeed": [
+   3.332,
+   8.833
+  ],
+  "smoothedMaxAccel": 2.324,
+  "smoothedMaxJerk": 13.468,
+  "rawMaxAccelAfterDoor": 2.466,
+  "rawMaxJerkAfterDoor": 49.41,
+  "accel8to10": [
+   1.653,
+   2.324
+  ],
+  "jerk8to10max": 13.468,
+  "kinkFrames": [
+   [
+    3.7,
+    11.49
+   ],
+   [
+    3.717,
+    12.36
+   ],
+   [
+    3.733,
+    10.07
+   ]
+  ],
+  "kinkCount": 3
+ }
+}

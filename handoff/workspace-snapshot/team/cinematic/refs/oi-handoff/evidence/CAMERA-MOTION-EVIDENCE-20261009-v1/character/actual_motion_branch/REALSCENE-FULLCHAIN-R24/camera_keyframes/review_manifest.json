@@ -1,0 +1,210 @@
+{
+  "blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "camera_plan_sha256": "cd6b4cdfe0f86dae95898e02a6d8becb31f9a7ac871be2edc1e7dd8f7ec0bf86",
+  "frame_count": 24,
+  "source_frame_rate": 30,
+  "render_frame_rate": 30,
+  "playback_frame_rate": 30,
+  "duration_seconds": null,
+  "image_size": [
+    384,
+    496
+  ],
+  "renderer": "Blender Workbench8AA with original active atlas textures. Internal motion review, not final material/cloth rendering.",
+  "scope": "Full-chain kinematic preparation. Source LBS garments/sleeves/cuffs/bow-tail and same-leg knee skin self-contact remain unaccepted. No contour or cloth physics merged.",
+  "images": [
+    {
+      "frame": 1,
+      "source_time_seconds": 0.0,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0001.png",
+      "event": "seated_tuck_rise",
+      "sha256": "e602b720a90c44d62481e98b68f81fbc05fe822eed46ca684f49a7680d775519"
+    },
+    {
+      "frame": 40,
+      "source_time_seconds": 1.3,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0040.png",
+      "event": "seated_tuck_rise",
+      "sha256": "d2e81139380a1f2663e3677b93befd6b41e7f32a69ae56e041e83c2893c635c9"
+    },
+    {
+      "frame": 91,
+      "source_time_seconds": 3.0,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0091.png",
+      "event": "anatomical_left_turn",
+      "sha256": "a085bc9899798bc9568798c748c1c64c940a9b572a5a0851a4fd8f4814a6734f"
+    },
+    {
+      "frame": 121,
+      "source_time_seconds": 4.0,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0121.png",
+      "event": "anatomical_left_turn",
+      "sha256": "ce7a6fd8b4f2203be9f0cf2dde333bd29e00a07645dd4e0521b4693bcaa24b3e"
+    },
+    {
+      "frame": 136,
+      "source_time_seconds": 4.5,
+      "shot": "B_approach_front_right",
+      "file": "frames/0136.png",
+      "event": "walk_to_door",
+      "sha256": "fa5a56bc15cf17738a0204f0d4e27ae0643e0083d94c42aab479e5de0adc9183"
+    },
+    {
+      "frame": 211,
+      "source_time_seconds": 7.0,
+      "shot": "B_approach_front_right",
+      "file": "frames/0211.png",
+      "event": "walk_to_door",
+      "sha256": "7217702da035c44fc37c09975095c4f95d0fd031535dd2269b06024f12a34444"
+    },
+    {
+      "frame": 295,
+      "source_time_seconds": 9.8,
+      "shot": "C_door_inside_right",
+      "file": "frames/0295.png",
+      "event": "reach_real_ring",
+      "sha256": "9cfe41d7b1b94bc99dcc248559cb594d909198297ccd6c4bda14ea81dbfc3733"
+    },
+    {
+      "frame": 310,
+      "source_time_seconds": 10.3,
+      "shot": "C_door_inside_right",
+      "file": "frames/0310.png",
+      "event": "open_real_leaf",
+      "sha256": "9e796cd7240365e1d9db1fde46056ab2e0f34e9fa392ec3fb36a7007355597e3"
+    },
+    {
+      "frame": 346,
+      "source_time_seconds": 11.5,
+      "shot": "D_exterior_right",
+      "file": "frames/0346.png",
+      "event": "exit",
+      "sha256": "0b37e57cd1840ce61a01d17ef1401fc862d625bb9740f98f071f64326ef3fbb3"
+    },
+    {
+      "frame": 382,
+      "source_time_seconds": 12.7,
+      "shot": "D_exterior_right",
+      "file": "frames/0382.png",
+      "event": "exit",
+      "sha256": "d60d779b35e16ef217e26a42d23d93c9e4cd5d8b69edec0e21ff9b61f986523d"
+    },
+    {
+      "frame": 421,
+      "source_time_seconds": 14.0,
+      "shot": "D_exterior_right",
+      "file": "frames/0421.png",
+      "event": "outside_pause",
+      "sha256": "531a09ae4134e5fae38acb547276515fae287c08c3812c82b167c8e09bed93f0"
+    },
+    {
+      "frame": 469,
+      "source_time_seconds": 15.6,
+      "shot": "D_exterior_right",
+      "file": "frames/0469.png",
+      "event": "turn_return",
+      "sha256": "6fc31ef0cad38b6b23968fc9467ef7f38e85768a2f5e1b49fda265c32085ecf4"
+    },
+    {
+      "frame": 538,
+      "source_time_seconds": 17.9,
+      "shot": "D_exterior_right",
+      "file": "frames/0538.png",
+      "event": "turn_reach_close",
+      "sha256": "7beecef9ad328ff7f7bddbeb9ec75cc6cea6fe2716bbe5d0d49492ea6f0fed77"
+    },
+    {
+      "frame": 568,
+      "source_time_seconds": 18.9,
+      "shot": "D_exterior_right",
+      "file": "frames/0568.png",
+      "event": "close_real_leaf",
+      "sha256": "c6301a8883230c92d69d4bfcb9af8adf573bf9db99d31ad9a95a73d5499d70cf"
+    },
+    {
+      "frame": 608,
+      "source_time_seconds": 20.233333333333334,
+      "shot": "E_close_inside_right",
+      "file": "frames/0608.png",
+      "event": "close_real_leaf",
+      "sha256": "cfbaf90b2f9ccf9b756a1276cfe71da95f845d111cc0349f125daba02a31f5c8"
+    },
+    {
+      "frame": 646,
+      "source_time_seconds": 21.5,
+      "shot": "E_close_inside_right",
+      "file": "frames/0646.png",
+      "event": "turn_to_chair",
+      "sha256": "79119b79005c09401e488005188f762a745b0a94696020e002e71d56cb1a0670"
+    },
+    {
+      "frame": 697,
+      "source_time_seconds": 23.2,
+      "shot": "F_return_room_right",
+      "file": "frames/0697.png",
+      "event": "walk_to_chair",
+      "sha256": "ba5dfa5ee83e79c2a4b9f00c18a7ddb2f236bf50b45c5f7a3aa22062a4b6812b"
+    },
+    {
+      "frame": 781,
+      "source_time_seconds": 26.0,
+      "shot": "F_return_room_right",
+      "file": "frames/0781.png",
+      "event": "walk_to_chair",
+      "sha256": "9c81dc28cdcfaa6bea5b7efa37b027fd05ffac9b0cec77503fedf66b6ab4f544"
+    },
+    {
+      "frame": 799,
+      "source_time_seconds": 26.6,
+      "shot": "G_return_turn_from_travel_right",
+      "file": "frames/0799.png",
+      "event": "walk_to_chair",
+      "sha256": "2e1e32b610b31d16d57bf680c784f541189921a6a06f4294dd439b65c702b372"
+    },
+    {
+      "frame": 832,
+      "source_time_seconds": 27.7,
+      "shot": "G_return_turn_from_travel_right",
+      "file": "frames/0832.png",
+      "event": "turn_to_sit",
+      "sha256": "bdf54c641103313a887f9203822ca02c00dbad135f9a9ec6544f611b5cd763ff"
+    },
+    {
+      "frame": 841,
+      "source_time_seconds": 28.0,
+      "shot": "G_return_turn_from_travel_right",
+      "file": "frames/0841.png",
+      "event": "turn_to_sit",
+      "sha256": "579203037b64ff69f434d8ff2453ce353bdcc8cd8a601194f1cec9f3fee83327"
+    },
+    {
+      "frame": 877,
+      "source_time_seconds": 29.2,
+      "shot": "H_seated_physical_right",
+      "file": "frames/0877.png",
+      "event": "sit_down",
+      "sha256": "91b53fbd52a2dbf34eb6a8476039b3b88fcf424b38607192f001db19837f15e6"
+    },
+    {
+      "frame": 928,
+      "source_time_seconds": 30.9,
+      "shot": "H_seated_physical_right",
+      "file": "frames/0928.png",
+      "event": "sit_down",
+      "sha256": "2e458bb16536d039e788db7c621d79c0f672a2a206d9d66ce7989df258835ea8"
+    },
+    {
+      "frame": 967,
+      "source_time_seconds": 32.2,
+      "shot": "H_seated_physical_right",
+      "file": "frames/0967.png",
+      "event": "seated_hold",
+      "sha256": "cecbaac1adb0a60be3b0501f837f861b4f7a8b6d2608773f887cb7d42096ff97"
+    }
+  ],
+  "sheet": "FULL_CHAIN_CAMERA_SHEET_R24.jpg"
+}

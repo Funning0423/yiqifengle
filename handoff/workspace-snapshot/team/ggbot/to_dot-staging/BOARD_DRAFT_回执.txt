@@ -1,0 +1,5 @@
+【回执 · d238881 补丁包已核对】
+Drive to_dot 里的 20261016T125957Z-journey-baseline-d238881.zip（3,630,701 字节）我已下载核对：
+SHA256 = 0c8489f9ebed780c1c36f91b1eea34b34e7f0136939965708ab5ddc50d1137f1
+和 AAACI3nFRvM 里公布的值一致，大小也和本地原件相同。Oi 可以直接用它复验：在 1c21428 上 git am，tree 应为 d0296913f46202d21debd804efd99578447cdc8c。
+状态不变：Mac 待验、落地未定。

@@ -1,0 +1,108 @@
+0008 首开审计工具审查
+完成时间：2026-10-09 UTC
+
+结论
+当前 0008-v1 不可作为“首开 0 红错”的验收闸门，不能把脚本 PASS 等同真实修复。已在完全隔离的云端模拟中复现 6 条 PASS 漏判或证据失真路径，其中包含默认启用 A 对照仍漏掉目标真实匹配错误的情况。可把配置候选用于受控 Mac 副本诊断，但必须另行授权/安排真实 Mac 操作，人工保留首次打开 Console、调试器和开始页证据，且不采信现脚本 PASS。未在本审查操作 Mac、真实 DevTools、真实游戏或第三方服务；未安装软件；未运行 QF_DEVTOOLS_QUIT_FIRST=1，也未调用任何 quit。
+
+审查输入和边界
+- 源包目录：/workspace/shared/game-audit-0008-0005b/extracted/0008/20261009T2300Z-grokbot2-WECHAT-FIRST-OPEN-0008-v1
+- 范围：README、finalizer wrapper/snippet、condition/shim/audit/env、全部附带测试/夹具。
+- 包内没有真实 finalize_wechat_local.cjs，仅有 wrapper、伪 diff 和假 finalizer。另行交付的真实 finalizer 未在本审查读取，不能宣称已做真实集成验证。
+- 独立 Mac 审计记录提供的最新事实：当前 Mac 仍首开报错且 enhance=false；官方 3.8.8 模板 game 分支同时包含 currentL:-1/list:[]/current:-1，其他模板分支 current:-1/list:[]；删全部 condition + enhance=false 仍红错。以上来自独立 Mac 审计记录，本次云端复核未现场验证。
+- 包中 A/B 夹具 setting.enhance=true，不能外推成已验证当前 Mac enhance=false 的实际产物。README 的 currentL 推理和“H1 最可能”均不是根因证据。
+
+已验证结果
+- 原工具和测试脚本 node --check：全部通过。
+- 原 condition/wrapper 单测：22/22 通过。
+- 原 shim 单测：5/5 通过。
+- 原作者 16/16 dry-run：包内已有结果，但本机缺少 miniprogram-automator，未重跑该套真实客户端+假 WebSocket 服务端测试，也未安装依赖。
+- 本审查自编 fake CLI + Node vm automator：6 条端到端缺陷复现全部成功。测试直接调用未经修改的原 audit 文件；模拟客户端不打开任何网络 socket。
+- source-hashes-before.json 与 source-hashes-after.json 一致，原包文件未改。
+
+阻断缺陷
+
+P1-01：目标日志根目录首开前不存在，首开生成的错误整批被忽略。
+位置：tools/wechat_first_open_audit.cjs:82-97、180-181、234-237、268-272、329-335。
+原因：logsBefore.available=false 时直接令 delta=[]，即使 logsAfter 已发现新日志；可用性缺失也不阻断目标 PASS。随后 A 对照看到新根目录并检出错误，于是整体 PASS。
+复现：repro-missing-root/verdict.json = PASS/exit 0；target channels.weappLog.available=false/newLines=0；review-raw-weapplog.txt 明确有 [TARGET ERROR] 自定义条件错误；controlDetected=true。
+应改：动态发现新日志并采集，逐通道报告可用/缺失/丢失，缺失必要首开通道时 BLOCKED；不能用之后 A 通道可用证明之前 B 通道可用。
+
+P1-02：日志截断/轮转漏检；日志容量和行长截断无失真标志。
+位置：audit:100-110。
+原因：仅记录路径与 size，无 inode/文件身份/mtime；size<=旧 size 直接跳过，新内容增长超过旧 size 时也只从旧偏移读。每文件只读前 8 MiB，每行只留 4000 字符，无 overflow/incomplete 标志。
+复现：repro-rotation/verdict.json = PASS/exit 0，目标截断后文件中明明有 [TARGET ERROR AFTER TRUNCATE]，target newLines=0，对照检出；delta-and-condition-results.json 的 over-8MiB-append 漏掉末尾错误。
+应改：识别轮转、截断、文件替换及读取失败，保存覆盖范围/丢弃计数；对任何不完整采集 BLOCKED，而非 0 错。
+
+P1-03：日志没有项目/会话关联，别的项目或旧日志可冒充阳性对照。
+位置：audit:82-110、258、330。
+原因：扫描根目录下所有 WeappLog/**/*.log，仅匹配文本。未验证项目路径、AppID、session/PID、运行时间戳；新出现文件全读，历史文件搬入也算“新增”。
+复现：repro-unrelated-control/verdict.json = PASS/controlDetected=true，对照错误文本明确为 [UNRELATED OTHER PROJECT ERROR]。delta-and-condition-results.json 还显示新文件里 2001 年历史错误会进入 delta。
+应改：先证明日志属于本次目标/对照会话；无法关联则只能诊断，不能当验收阳性对照。独立项目副本和不同端口不能隔离同一 DevTools 进程的所有窗口日志。
+
+P1-04：长生命周期 CLI 丢掉全部输出，清单生成后仍写日志。
+位置：audit:56-79、191-206、259-260、285-306。
+原因：await Promise.race 在连接后再等最多 15 秒；超时得到只有 note 的占位对象，先前已收到的 lines 全部不可见，底层 launch 仍运行。错误事件监听也直到这个等待后才挂。done 写 verdict/manifest/SHA 后，未收尾 CLI 仍可追加 run.log。
+复现：lingering-cli-result.json。fake CLI 已输出目标自定义条件错误并活 21 秒；target.steps.cliAuto 仅有 note、targetErrors=[]；整体 PASS。VERDICT 在 +18.4s，CLI 在 +21.2s 才退出并追加 run.log；SHA256SUMS 中 run.log 摘要随即不匹配。
+应改：始终持有实时 CLI 缓冲，先挂事件再等待，明确终止/回收并等待所有写入任务；未完成 CLI 不得 PASS。所有证据冻结后再计算清单，并在进程真正完成后自校验。
+
+P1-05：CLI 非零/错误/超时不是独立失败条件。
+位置：audit:193-204、268-272。
+原因：CLI 非零仅在重试连接循环的部分路径影响 break；一旦 automator 连上，就不检查 cliAuto.code/error/timedOut。cli close/quit 结果也未成为隔离保证。
+复现：repro-cli-nonzero/verdict.json，target.steps.cliAuto.code=7，但整体 PASS。
+应改：明确所有阶段成功条件；异常、超时、启动非零、端口已占用/会话不一致、close 未确认等不能作为成功。
+
+P1-06：明确跳过阳性对照仍给 PASS。
+位置：audit:313、334-335；test/test_first_open_audit_dryrun.cjs 的 13-no-control 把此行为写成预期 PASS。
+复现：repro-no-control-no-logs/verdict.json = PASS/exit 0，controlDetected=null、日志不可用，reason 同时说 detector sensitivity unproven。
+应改：这类运行只给 OBSERVED_NO_ERRORS/INCONCLUSIVE 或 BLOCKED；不能共享正式 PASS/exit 0 验收语义。
+
+其他重要限制
+
+1. A/B 的有效配置没有完全隔离。
+audit:139-161 只把 project.config.json 的空 condition 清掉，完整复制并保留 source project.private.config.json。B/B2 与 A 不校验或清理 private condition，私有 projectname/setting 也被保留；B1 才改 private condition。若私有字段有覆盖效力，A/B 可能有效相同或受旧值影响。as-opened 文件实际在 CLI 打开前存档，未保留工具打开后写回的私有配置。
+建议：记录并比较明确的有效配置、私有覆盖、打开前后差异，控制基线和目标除实验字段外一致；不要默默删除用户配置，使用副本并拒绝不明/活跃条件。
+
+2. condition “空”判定不够保守。
+condition:46-50 把任何缺失/null list 分支当空，不校验 current 或未知字段。例如 {game:{current:0,pathName:"pages/launch",query:"keep-me"}} 被视为空并整体替换，已在 delta-and-condition-results.json 复现。它可能是 malformed 数据而非合法活动条件，但应拒绝并保存诊断，而不能声称只改完全空条件。
+常规 list 非空确实拒绝；B1 先规划两个文件，再写入，可避免第二文件语义校验失败时先改第一文件。实际写入过程不是跨两个文件事务，I/O 失败仍可部分写入。
+
+3. shim 自证只证明 console.log late heartbeat，不证明错误事件与所有启动阶段可见。
+shim:16-28 的 wrap/注册失败没有完整能力记录；audit:265-272 不要求 wrapped 包含 error/warn，不要求 wx.onError/rejection 注册成功、boot heartbeat 或异常通道阳性对照。引擎执行 game.js 之前的 IDE 错误只能依赖外部通道。缓冲达到 500 后静默丢弃，没有 overflow；游戏之后替换 console 会绕过早期包装。
+
+4. PASS 不验证开始页/调试器是否正常。
+audit:221 的 screenshot 失败仅记录，未检查任何业务 ready marker 或页面。6 个复现中 game.js 都只含普通日志，无游戏/开始页，截图明确不可用仍 PASS。因此仅可谈已覆盖观察窗口内的错误计数，不能声称进入主页、调试器不空白或常规 cli open 首开等价。auto 打开/自动编译的行为与普通 open 的等价性尚未实测。
+
+5. wrapper 是适配候选，不是替换修复。
+wrapper:29-39 确实先运行原 finalizer，失败时不套变体；A 不改产物。B 输出定位依赖 env/专用 flag/首个含 config 的位置参数，原 finalizer 参数契约未核实。本审查仅假 finalizer 22 测通过，真实 finalizer 未集成。snippet 明示伪 diff，不能 git apply。新工具未修改 app.json，也未证明 condition 变换可消除真实首开错误。
+
+6. 次要完整性/鲁棒性问题。
+- snapshotLogs 的根若直接传 WeappLog 本身，inWeapp 初始 false，根内文件扫不到；已复现 files=0。
+- 输出目录允许复用；run.log append、variant 目录复用，可把旧截图/旧文件计入新 manifest。默认 runId 只有秒精度，显式 OUT 固定复跑尤其需防污染。
+- CLI 按每个 data chunk 切行，没有跨 chunk 拼接和 UTF-8 StringDecoder；错误词被分块时可能不命中。
+- build copy 使用 dereference:true；本包源经上游核验无 symlink，但未来实际构建目录仍需检查，不能把该上游保证外推。
+- 数值环境变量仅检查有限数，负 settle、非法端口、极短窗口未拒绝；ignore regex 可抹掉大量错误，正式验收需锁定或披露严格白名单。
+
+隔离 Mac 测试门槛
+NO-GO：原样接入生产 finalizer、作为自动验收 gate、以 PASS 宣布修复、照 README 执行会关闭所有窗口的 QUIT_FIRST 命令。
+CONDITIONAL-GO：授权的隔离诊断副本试验。先修 P1 的采集/判定/冻结问题，或明确撤销脚本验收语义，独立人工确认所有 Console/调试器/首屏事实。
+最低要求：
+- 不动真实源目录和正式 finalizer；每次新鲜副本和唯一证据目录。
+- 使用独立 Mac 审计的最新真实 build/config（含 enhance=false），而非包内旧 R6 fixture；保存原始、finalize 后、变体前后、DevTools 写回后配置和摘要。
+- 先核实并记录 private config 及有效配置，拒绝不明活动条件；A/B 只改变预先声明变量。
+- 限定独立会话、项目、进程、端口、日志来源；不要自动关其他窗口，不执行 QF_DEVTOOLS_QUIT_FIRST=1。
+- 从打开前开始录制首次红错及 UI，保留完整日志而非仅命中文本；不手动 Compile。
+- 核实 target 所有必要通道和 positive control 在相同覆盖能力下有效；失败、缺失、溢出或关联不明即 BLOCKED。
+- 最后等待命令和写入完全停止，再生成并自验 manifest。
+
+未测清单
+真实 Mac/DevTools Stable 2.02.2608080、实际小游戏 automator console/exception/evaluate/screenshot、真实日志路径/轮转/写入格式、普通 open 与 auto 的首次启动差异、真实 A/B/B1/B2 首屏和调试器状态、真实 finalizer 参数/顺序/包体 gate、当前 enhance=false 产物、真机基础库 3.17.3。没有发布、上传、预览、安装、帐号操作或网络访问。
+
+证据索引
+- reproduction-summary.json：前 5 个端到端复现摘要。
+- lingering-cli-result.json：第 6 个复现与 SHA 失效。
+- repro-*/verdict.json、run.log、相关原始日志：每个场景完整输出。
+- delta-and-condition-results.json：截断上限、历史日志、根路径与宽松空条件复现。
+- reproduce-audit-gaps.cjs、reproduce-lingering-cli.cjs、review-fake-cli.cjs、review-fake-automator.cjs：可复核云端模拟测试代码。
+- unit-condition-result.json、unit-condition.txt、unit-shim.txt、syntax-check.txt、environment.txt：本次实际重跑。
+- source-hashes-before.json/source-hashes-after.json：原包未修改。
+- REVIEW-SHA256SUMS.txt：本审查最终证据摘要；与故意复现失效的原工具 SHA256SUMS.txt 区分。

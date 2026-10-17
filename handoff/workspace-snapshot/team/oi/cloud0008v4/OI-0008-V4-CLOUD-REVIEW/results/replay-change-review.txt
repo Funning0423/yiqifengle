@@ -1,0 +1,65 @@
+0008-v4 回放改造与 README 静态复核
+审查日期：2026-10-10 UTC
+
+结论
+1. 原 21 个回放场景及其 fake 输入均保留，顺序未变；第 22 个是新增的“无项目标记、纯整行精确通知、allowlist 开启”场景。边界测试仍是另一个脚本，不应混算成第 22 场景。
+2. 没有发现删掉旧反例或通过削弱旧输入让测试变绿。期望由“重现 v3 已知错误行为”改成“修后应 FAIL/BLOCKED/特殊放行”，符合原我方 README-REPLAY.txt:16 的要求。
+3. 不能概括为“只改路径和期望”：源码固定 SHA 改为可选环境变量，默认不再拒绝错版本；逐场景断言改为累计 ok/最终非零；边界断言改成安全阻断标准；另增 1 场景。这些均在所附 diff 与 README 明示。可选 SHA 是实际的默认验证保障减弱，应在独立运行时显式钉住。
+4. 当前回放只把 status+manifest 纳入 ok，未断言进程 exit code，也未把具体缺失通道/错误归属原因纳入 ok。这是原脚本也有的覆盖限度，不能仅凭 22/22 就宣称退出码协议及每条修复机制均得到断言验证。
+5. README 的根因结论已收窄到历史证据支持的范围，必要真实未测阶段列得明确。仍有日志协议/“全部扫描”过满表述，见下方静态风险。22/22 不是实际 DevTools 首开通过。
+
+审查范围与路径
+R = /workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4
+O = /workspace/shared/game-first-open-0008-v3-review/delivery/replay
+本次仅用 cmp/diff、文本/JSON 阅读、Python 标准库静态比较及 hash。没有运行任何候选工具、回放、单测、旧版本、Mac、微信或 automator；没有安装、外发或改动源包。运行验证由另一审查分工承担。本报告读到的 selftest 结果始终是供应方历史记录。
+
+一、原件及 diff 真实性
+- R/test/oi-replay-v4/oi-original/ 中以下 5 文件与 O 对应文件逐字节一致：fake-automator.cjs、fake-cli.cjs、replay.cjs、test_boundaries.cjs、boundary-results.json。
+- 独立从 O 到 R/test/oi-replay-v4 生成 unified diff，移除路径/时间头后，三个改动文件的完整 hunks 与 CHANGES-vs-Oi-original.diff 一致；fake-cli.cjs 无差异。
+- 原文件 SHA256：
+  fake-automator.cjs b6bc8b3ac343e3719ab88c510b6ff2ee297175c4008b485ef017ad9c1baaf4b3
+  fake-cli.cjs f2ffa10ce1dbb13abfb54ab0c54ce54e76b8dce8e5ae766d88129f7a1a44e63a
+  replay.cjs 16b097f16e6fe9cdbb9c2274995f96bfc09a5b5f0e1dff5fcc8f38d39d65413f
+  test_boundaries.cjs 42a06d53125e920e8ca75064e5f0d903b4a310adaec819481ed5a79e963e36dc
+  boundary-results.json 1447eaccca74938a23705ed7cce109c24dda37a6de6032092e95148aeb35a740
+
+二、fixture 与执行语义是否保留
+引用路径本节均相对于 R/test/oi-replay-v4/。
+- fake-cli.cjs 全文件未改：只接受 islogin/auto/close，保留 stderr 通用 Error、退出 7、长驻有错/无错、close 退出 5 等输入（:3–17）。
+- fake-automator.cjs 唯一新增 :18 为 logLine(notice)。原 OTHER-PROJECT 前缀通知 :17、TypeError 与通知混合 :19、运行中新根 :21、截断 :22、普通错误/无法归属/分类错误 :23–27、混合 canary :28/38、缺 boot :39 均保留。
+- replay.cjs:11 的前 21 项与 O/replay.cjs:10 完全相同且同序；唯一追加 unattributed-exact-notice-allowlisted。
+- replay.cjs:13–21 的临时副本、fake CLI、VM 模块、单场景环境、allowlist 开关、禁用截图/quit、stdout/stderr 放 manifest 目录之外、退出后 verifyManifest、命令白名单及 close 目标核查未改变。
+- 原 21 项的期望变更不是削弱反例，而是停止把缺陷行为当成功：
+  11 项不变：healthy；missing-root-error；truncate-error；unrelated-only；cli-exit7；close-exit5；cli-lingers-error；cli-lingers-clean；no-logs；known-notice-denied；known-notice-allowlisted。
+  10 项更严格：weapp-generic-error PASS→FAIL；weapp-unclassified-error PASS→FAIL；weapp-unattributed-generic PASS→BLOCKED；weapp-bracket-error PASS→FAIL；cli-generic-error PASS→FAIL；canary-mixed-error PASS→FAIL；canary-mixed-console PASS→FAIL；canary-boot-missing PASS→BLOCKED；unattributed-notice-allowlisted 特殊放行→BLOCKED；mixed-error-notice-allowlisted 特殊放行→FAIL。
+  新增第 22 项：unattributed-exact-notice-allowlisted→PASS_WITH_ALLOWLISTED_IDE_NOTICE。
+- fail-fast 改成累计失败不改变被检查的两个条件：旧脚本分别 assert(status===expected) 和 assert(manifest.ok)，新 :23 等价地计算两者 conjunction，任何不符设置 process.exitCode=1。后续没有清零，因此不是吞掉失败；好处是保留全部场景结果。
+
+三、边界测试是否维持原含义
+- O/test_boundaries.cjs:6 与新 test_boundaries.cjs:7 的 4297 字节文件、4096 字节不变前缀、200 字节后段、同一文件覆盖、poll/stop 操作相同；不是改成更容易的短文件/换 inode/缩短文件。
+- 原测试断言“没有 incomplete 且没读到错误”，目的是证明缺陷；新测试断言 incomplete.length>0，符合前轮“捕获不了就阻断、不能无证据 PASS”的安全目标。去掉“错误必须没被读到”的旧断言也合理，该断言不能继续作为修后成功条件。
+- 新边界测试只要求任何 incomplete，并未断言原因包含 rewritten 或检测到具体错误；它足以检验不能静默通过，但单独不足以证明后缀机制正确。包中 test/test_log_tailer.cjs:83–87 则进一步核实 inode/size 不变且 incomplete 原因是重写；:89–108 加了中段、基线区域、无效 UTF-8、纯追加健康对照。
+- 三条分类文本保持原样。旧脚本仅记录 standalone 和 STRONG 命中，新 :9 额外 assert(parseLogLine→classifyEvent.kind==='error')，覆盖反而更明确。STRONG 命中只保留为诊断，不再是判据，与统一分类器设计相符。
+- 本边界脚本输出仍明确限定“本地确定性 fixture；真实 DevTools 重写行为未建立”（:10）。
+
+四、OTHER-PROJECT 通知与精确通知的标准
+- OTHER-PROJECT + notice 没有受支持的级别标签，因此 parseLogLine 的 payload 保留 OTHER-PROJECT 前缀（tools/first_open_console_rules.cjs:56–67）。整条 payload 不匹配 exact notice（:10–14），却匹配任意位置的方括号错误（:36/87–90）；无法归属时入 R.unattributed（tools/wechat_first_open_audit.cjs:410–436），由 :490/494 BLOCKED。这正是禁用任意后缀放行的合理结果，不能为保持旧期望再把它当精确通知。
+- 新增纯整行通知不含项目标记，在 allowlist 开启时被记录到 knownNoticeUnattributed（audit:430–434），只有其他通道完整且无错误/缺失时才到特殊状态（:492–496），不会变普通 PASS。exit 映射为 3（:545）；其他错误仍优先 FAIL、缺证据仍优先 BLOCKED。关闭 allowlist 的无归属通知将 BLOCKED，而本项目通知默认 FAIL。
+- 包内 selftest/oi-replay-v4/summary.json 的 22 行及源 SHA 与当前文件一致：1 PASS、11 FAIL、8 BLOCKED、2 特殊放行；所有存储行的 exit 均与 0/1/2/3 映射一致。这仅是静态核对供应方记录，不是本次复跑。
+
+五、测试保障的剩余缺口
+1. 源码 pin 默认变弱。O/replay.cjs:4 无条件核对 v3 audit 完整 SHA；新 replay.cjs:5 仅在 REVIEW_EXPECT_SHA 非空时核对。:26 只记录实际 SHA，不能替代预先拒绝错版本。本次 v4 audit SHA 为 d466c6413f75fd7224ee4858ea3fca23509585de0f7382a63a09c108e9485ae2。独立运行应显式设置此 SHA，并保持外层/整包清单校验；README:93 已如实披露可选 pin。
+2. exit 没进入 ok。新 replay.cjs:23 只检查 status 与 manifest；:24 仅把 r.status 写进结果。旧 O/replay.cjs:21–22 同样如此。若将来 status 为特殊放行却 exit0，22/22 可能仍显示成功。应独立核对或补 expectedExit 映射，且核查 spawn error/signal/timeout。不能把这个原有覆盖缺口说成 v4 偷改测试。
+3. 场景断言通常只到最终状态；比如 canary-boot-missing 的 BLOCKED 不要求 missing 中恰好是 boot 证据缺失，而不是其它碰巧阻断。父任务运行应读原因和 channels。close-target 两个 every 在空动作列表时也可能真，这同属旧限制；可在独立结果核实动作存在与具体目标。
+4. 新规则测试仍未覆盖“错误前缀 + 行内级别标签”的混合记录，且源码有明显静态风险：rules.parseLogLine:65–66 取任意位置首个 [log]/[error] 等级别标签，将其前全部内容放 prefix；audit:413 虽保存 prefix，但 :419 只传 payload 分类。因此“本项目 TypeError: real failure [log] harmless”会把前段真实错误丢在不分类的 prefix；“TypeError: ... [error] <精确通知或 canary>”也可能重新形成整段免检。test_rules_v4.cjs:19–29 的混合用例没有这一切口，不能靠现有 22 场景排除。此处是静态推断，已交父任务运行分工验证；未在本分工运行任何样例。
+
+六、README 审查
+- 根因范围已实质修正。README:20–27 只说在历史 E/F/G 中不需要 Cocos、已测 condition 有/无不足以修复、显示源于追踪到的 IDE 路径、某些运行随后继续；明确未确认 realNotFound/path 原因、未穷举 condition、未验证所有功能，也撤回“项目输出改不掉”。这些符合原我方 REVIEW.txt:65–67 的证据边界。
+- H1′/H2 在 README:39–43 明确标作未验证假设，不能转述为已定位根因。
+- README:64/75–76 明示真实 WeappLog 格式/归属未核实，可能每次真实运行都 BLOCKED；:150 明示 fake 测试不代表 DevTools 行为；:152 逐项列出 Mac/真实 DevTools/微信、日志位置/格式/项目标记/只追加/编码、真实 automator 级别/exception/evaluate/screenshot、通知通道及文本、close 返回语义、V1/V2/V3 与两种根因假设均未跑。
+- README:93 对测试变化完整披露；:119–123 解释 OTHER-PROJECT 情况变 BLOCKED 与纯整行通知新场景，合理。
+- 仍应修正的范围表述：README:60 “协议之外→incomplete…绝不跳过”不能覆盖 :68 同时承认的其它目录/扩展名、轮询间恢复原字节等不可见情况；:63 “整段仍过完整错误规则”与上文级别标签前缀被丢弃静态风险冲突。:68 最后一项称“轮询间追加后又截断会记 incomplete”也过满：若下一轮前恢复到原始大小与字节，size<offset 不成立，现有 hash 也无变化可观察（audit:222–229）。应限定到下一次观察时仍呈现的变化。
+- 小措辞问题：README:55 “21 个反例”实际上包含 healthy 阳性对照及原本就正确阻断的场景；更准确为“原 21 个回放场景”。:96 标题“21 个场景”配 +1 行并非漏测，但最终统计应写 21+1=22，边界另列。
+
+使用建议
+可认定测试改造保留原输入反例，且比原“观察行为重放”更接近修后正向标准。不要据此单独给候选自动验收通过结论；合并父任务的独立 runtime、exit/manifest/原因核验及前缀丢失风险的复现结果。真实环境阶段仍未运行，根因仍未证明。

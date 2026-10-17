@@ -1,0 +1,114 @@
+[
+  {
+    "name": "seated_tuck_rise",
+    "start_seconds": 0,
+    "end_seconds": 3,
+    "frame_start": 1,
+    "frame_end": 91
+  },
+  {
+    "name": "anatomical_left_turn",
+    "start_seconds": 3,
+    "end_seconds": 4.5,
+    "frame_start": 91,
+    "frame_end": 136.0
+  },
+  {
+    "name": "walk_to_door",
+    "start_seconds": 4.5,
+    "end_seconds": 9,
+    "frame_start": 136.0,
+    "frame_end": 271
+  },
+  {
+    "name": "reach_real_ring",
+    "start_seconds": 9,
+    "end_seconds": 10,
+    "frame_start": 271,
+    "frame_end": 301
+  },
+  {
+    "name": "open_real_leaf",
+    "start_seconds": 10,
+    "end_seconds": 11.5,
+    "frame_start": 301,
+    "frame_end": 346.0
+  },
+  {
+    "name": "exit",
+    "start_seconds": 11.5,
+    "end_seconds": 14,
+    "frame_start": 346.0,
+    "frame_end": 421
+  },
+  {
+    "name": "outside_pause",
+    "start_seconds": 14,
+    "end_seconds": 14.3,
+    "frame_start": 421,
+    "frame_end": 430.0
+  },
+  {
+    "name": "turn_return",
+    "start_seconds": 14.3,
+    "end_seconds": 16,
+    "frame_start": 430.0,
+    "frame_end": 481
+  },
+  {
+    "name": "return_to_ring",
+    "start_seconds": 16,
+    "end_seconds": 17.5,
+    "frame_start": 481,
+    "frame_end": 526.0
+  },
+  {
+    "name": "turn_reach_close",
+    "start_seconds": 17.5,
+    "end_seconds": 18.5,
+    "frame_start": 526.0,
+    "frame_end": 556.0
+  },
+  {
+    "name": "close_real_leaf",
+    "start_seconds": 18.5,
+    "end_seconds": 21.5,
+    "frame_start": 556.0,
+    "frame_end": 646.0
+  },
+  {
+    "name": "turn_to_chair",
+    "start_seconds": 21.5,
+    "end_seconds": 23.2,
+    "frame_start": 646.0,
+    "frame_end": 697.0
+  },
+  {
+    "name": "walk_to_chair",
+    "start_seconds": 23.2,
+    "end_seconds": 27.7,
+    "frame_start": 697.0,
+    "frame_end": 832.0
+  },
+  {
+    "name": "turn_to_sit",
+    "start_seconds": 27.7,
+    "end_seconds": 29.2,
+    "frame_start": 832.0,
+    "frame_end": 877.0
+  },
+  {
+    "name": "sit_down",
+    "start_seconds": 29.2,
+    "end_seconds": 32.2,
+    "frame_start": 877.0,
+    "frame_end": 967.0000000000001
+  },
+  {
+    "name": "seated_hold",
+    "start_seconds": 32.2,
+    "end_seconds": 33,
+    "frame_start": 967.0000000000001,
+    "frame_end": 991
+  }
+]

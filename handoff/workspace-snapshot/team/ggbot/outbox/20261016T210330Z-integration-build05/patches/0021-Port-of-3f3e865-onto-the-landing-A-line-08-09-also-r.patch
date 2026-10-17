@@ -1,0 +1,47 @@
+From 95c208dcd45fa9f727464143af52c66a26e0f2bd Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 04:59:53 +0800
+Subject: [PATCH 21/21] =?UTF-8?q?Port=20of=203f3e865=20onto=20the=20landin?=
+ =?UTF-8?q?g-A=20line:=2008=E2=86=9209=20also=20runs=20at=20startBlendM=20?=
+ =?UTF-8?q?0=20here=20(bc90315),=20so=20gate=20the=20set-off=20fade=20on?=
+ =?UTF-8?q?=20route.from=3D=3D=3D'island'=20(04=E2=86=9205=20only,=20as=20?=
+ =?UTF-8?q?decided);=20start-continuity=20C5=20updated?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/world-r1/RegionJourneyCore.ts               | 2 +-
+ tools/journey-integration/test-journey-start-continuity.cjs    | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 5ed943f..0969b66 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -149,7 +149,7 @@ export class RegionJourneyController {
+    // v3.3 set-off fade (Grok Bot: no hard cut, no camera swoop): leaving the live island lens on a startBlendM-0 route,
+    // fade to black (SETOFF_FADE.outS), cut to the follow pose (FOV straight to 48) and show the journey scenes only under
+    // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
+-   const fade=this.distance===0&&this.lease.route.startBlendM===0&&typeof world.fadeCover==='function';
++   const fade=this.distance===0&&this.lease.route.startBlendM===0&&this.lease.route.from==='island'&&typeof world.fadeCover==='function';
+    if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
+     this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0);world.setCamera(this.camera);}
+    this.show(true);token.check();
+diff --git a/tools/journey-integration/test-journey-start-continuity.cjs b/tools/journey-integration/test-journey-start-continuity.cjs
+index 6c37ce0..d201fde 100644
+--- a/tools/journey-integration/test-journey-start-continuity.cjs
++++ b/tools/journey-integration/test-journey-start-continuity.cjs
+@@ -58,7 +58,8 @@ await check('C3 cancel during the fade-out: cover goes back to 0, no cut, no wal
+ await check('C4 08→09 (default blend): no fade',async()=>{const R=rig({route:{startBlendM:undefined}}),token=new Cancellation();await R.controller.prepare('meadow',leg.path[0],token);const w=R.controller.walk(R.actor,R.world,token);await tick();
+  assert(!R.log.some(e=>e.k==='cover'));R.setProgress(1);R.performed[0].resolve();await w;return {};});
+ await check('C5 wiring: startBlendM 0 on island 04→05; WorldLease.fadeCover -> ScreenCover <- WorldIntegrationBoot cover; no audio in the set-off path',()=>{
+- const rd=f=>fs.readFileSync(SRC+f,'utf8');assert(/startBlendM:0/.test(rd('region/RegionJourneyAdapter.ts').replace(/\s/g,'')));assert.equal(legs[1].startBlendM,undefined);
++ const rd=f=>fs.readFileSync(SRC+f,'utf8');assert(/startBlendM:0/.test(rd('region/RegionJourneyAdapter.ts').replace(/\s/g,'')));assert.equal(legs[1].startBlendM,0); // landing A (bc90315) also runs 08→09 at startBlendM 0, so the fade is gated on the island route
++ assert(/startBlendM===0&&this\.lease\.route\.from==='island'&&/.test(rd('world-r1/RegionJourneyCore.ts').replace(/\s/g,'')));
+  assert(/get fadeCover\(\)\{return hasScreenCover\(\)\?/.test(rd('world-r1/WorldFlowComponent.ts')));const b=rd('WorldIntegrationBoot.ts');assert(/setScreenCover\(\(a,sec\)=>this\.fadeCover\(a,sec\)\)/.test(b)&&/setScreenCover\(null\)/.test(b)&&/addComponent\(UIOpacity\)/.test(b)&&/this\.tickCover\(\);this\.tickLoading/.test(b));
+  const core=rd('world-r1/RegionJourneyCore.ts'),wk=core.slice(core.indexOf(' async walk('),core.indexOf(' restore(actor')).replace(/\/\/.*$/gm,'');assert(wk.length>200&&!/Audio|audio|duck|volume/.test(wk),'set-off must not touch audio');assert.deepEqual({...SETOFF_FADE},{outS:.25,inS:.35});return {};});
+ const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'journeyCamera geometry + real RegionJourneyController with a recording world. Not a render or device acceptance.',checks:results};
+-- 
+2.47.3
+

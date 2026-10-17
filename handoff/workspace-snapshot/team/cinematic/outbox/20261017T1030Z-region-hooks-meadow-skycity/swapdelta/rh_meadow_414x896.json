@@ -1,0 +1,243 @@
+{
+ "run": "rh_meadow_414x896",
+ "lastBefore": {
+  "t_ms": 78203.7,
+  "state": "level-loading",
+  "cam": "Main Camera",
+  "fov": 49.4264,
+  "posLocal": [
+   9,
+   19,
+   42
+  ],
+  "fwdLocal": [
+   -0.144542,
+   -0.224843,
+   -0.963615
+  ],
+  "aspect": 0.46205
+ },
+ "firstAfter": {
+  "t_ms": 78382,
+  "state": "level",
+  "cam": "MeadowBackgroundCamera",
+  "fov": 49.4264,
+  "posLocal": [
+   9,
+   19,
+   42
+  ],
+  "fwdLocal": [
+   -0.144542,
+   -0.224843,
+   -0.963615
+  ],
+  "aspect": 0.46205
+ },
+ "swapDelta": {
+  "angleDeg": 0.0,
+  "fovDeg": 0.0,
+  "positionCm": 0.0
+ },
+ "window20": [
+  {
+   "t_ms": 78069.8,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.5
+  },
+  {
+   "t_ms": 78088.2,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 18.4
+  },
+  {
+   "t_ms": 78103.6,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 15.4
+  },
+  {
+   "t_ms": 78120.7,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 17.1
+  },
+  {
+   "t_ms": 78137,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.3
+  },
+  {
+   "t_ms": 78154.7,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 17.7
+  },
+  {
+   "t_ms": 78169.9,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 15.2
+  },
+  {
+   "t_ms": 78186.4,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.5
+  },
+  {
+   "t_ms": 78203.7,
+   "cam": "Main Camera",
+   "state": "level-loading",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 17.3
+  },
+  {
+   "t_ms": 78382,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 178.3
+  },
+  {
+   "t_ms": 78395.2,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 13.2
+  },
+  {
+   "t_ms": 78422.8,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 27.6
+  },
+  {
+   "t_ms": 78438.2,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 15.4
+  },
+  {
+   "t_ms": 78454.5,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 16.3
+  },
+  {
+   "t_ms": 78473.5,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 19.0
+  },
+  {
+   "t_ms": 78503.2,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 29.7
+  },
+  {
+   "t_ms": 78511.8,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 8.6
+  },
+  {
+   "t_ms": 78539.5,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 27.7
+  },
+  {
+   "t_ms": 78557,
+   "cam": "MeadowBackgroundCamera",
+   "state": "level",
+   "dAngleDeg": 0.0,
+   "dFovDeg": 0.0,
+   "dPosCm": 0.0,
+   "frameDtMs": 17.5
+  }
+ ],
+ "windowTimes": [
+  78053.3,
+  78069.8,
+  78088.2,
+  78103.6,
+  78120.7,
+  78137,
+  78154.7,
+  78169.9,
+  78186.4,
+  78203.7,
+  78382,
+  78395.2,
+  78422.8,
+  78438.2,
+  78454.5,
+  78473.5,
+  78503.2,
+  78511.8,
+  78539.5,
+  78557
+ ],
+ "maxStepInWindow": {
+  "dAngleDeg": 0.0,
+  "dFovDeg": 0.0,
+  "dPosCm": 0.0
+ },
+ "pass": true
+}

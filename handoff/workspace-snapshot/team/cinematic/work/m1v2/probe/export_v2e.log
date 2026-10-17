@@ -1,0 +1,32 @@
+could not get a list of mounted file-systems
+INFO Draco mesh compression is available, use library at /opt/blender-4.5.14-linux-x64/4.5/scripts/addons_core/io_scene_gltf2/libextern_draco.so
+17:29:14 | INFO: Starting glTF 2.0 export
+17:29:14 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+17:29:14 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+17:29:14 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+17:29:14 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+17:29:14 | INFO: Extracting primitive: NewAnatomicalArmsHandsContinuousFace
+17:29:14 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+17:29:14 | WARNING: The active Vertex Color will not be exported, as it is not used in the node tree of the material
+17:29:15 | INFO: Primitives created: 6
+17:29:15 | INFO: Extracting primitive: G2_DRESS_R5G2
+17:29:15 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+17:29:15 | INFO: Primitives created: 1
+17:29:15 | INFO: Extracting primitive: G2_APRON_R5G2
+17:29:15 | INFO: Primitives created: 1
+17:29:15 | INFO: Extracting primitive: G2_HAIR_BOB_R5G2
+17:29:15 | INFO: Primitives created: 1
+17:29:21 | INFO: Finished glTF 2.0 export in 7.005818605422974 s
+
+17:29:21 | INFO: Data are loaded, start creating Blender stuff
+17:29:21 | INFO: Blender create Mesh node NewAnatomicalArmsHandsContinuousFace
+17:29:21 | INFO: Blender create Mesh node G2_DRESS_R5G2
+17:29:21 | INFO: Blender create Mesh node G2_APRON_R5G2
+17:29:21 | INFO: Blender create Mesh node G2_HAIR_BOB_R5G2
+17:29:21 | INFO: glTF import finished in 0.24s
+REIMPORT {"file": "export/clips/cine_m1_open_stand_turn.glb", "bytes": 3434692, "armatures": [["R5G2_RIG_22P4", 26, [1.0, 1.0, 1.0]]], "meshes": [["B_ANATOMICAL_VERTICAL_SLENDER_R5", 25442, []], ["G2_APRON_R5G2", 729, ["Basis", "sit_corrective"]], ["G2_DRESS_R5G2", 6678, ["Basis", "sit_corrective"]], ["G2_HAIR_BOB_R5G2", 6947, []], ["Icosphere", 42, []]], "actions": {"cine_home_safe_end": {"frame_range": [0.0, 0.8000000715255737], "fcurves": 260, "morph_curves": 0}, "cine_open_safe_end": {"frame_range": [0.0, 0.8000000715255737], "fcurves": 260, "morph_curves": 0}, "cine_open_stand": {"frame_range": [0.0, 72.0], "fcurves": 260, "morph_curves": 0}, "cine_open_turn": {"frame_range": [0.0, 36.0], "fcurves": 260, "morph_curves": 0}}, "max_influences": 3}
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/scene/cine_m1_anim.blend"
+
+Blender quit
+POSTDONE

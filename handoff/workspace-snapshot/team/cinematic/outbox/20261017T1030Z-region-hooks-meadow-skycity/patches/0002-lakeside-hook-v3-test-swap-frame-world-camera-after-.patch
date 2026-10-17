@@ -1,0 +1,52 @@
+From 834f9bf9ca4db1c9322ace7cadda67e9b65f3a34 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 17:34:08 +0800
+Subject: [PATCH 2/7] lakeside hook v3 test: swap frame (world camera after
+ hook+hold vs LakesideBackgroundCamera) on 5 screens, goals 2..4
+
+Builds the after-pose the way the engine does (ManagedMobileBoardUI layout -> LakesideBoardBackground.frame ->
+lakesideAlignedBoardPose) and the before-pose from the real hook's last write in the journey scenery frame
+(RegionJourneyAdapter: LakesideJourneyScene yaw/root). Limits 0.1 deg / 0.1 deg FOV / 1 cm.
+---
+ .../test-lakeside-landing-hook.cjs            | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/tools/journey-integration/test-lakeside-landing-hook.cjs b/tools/journey-integration/test-lakeside-landing-hook.cjs
+index 5660b01..f2b601f 100644
+--- a/tools/journey-integration/test-lakeside-landing-hook.cjs
++++ b/tools/journey-integration/test-lakeside-landing-hook.cjs
+@@ -87,13 +87,30 @@ const runs={},table={};
+   for(const [p,jr] of [[rot,null],[{...end,fovVerticalDeg:end.fovVerticalDeg+20},null],[end,[j.root[0]+1,j.root[1],j.root[2]]]]){const {st,deps}=fake({from:p});let wrote=0;
+    const r=await Hook.lakesideLandingToBoard({stageId:'s',journey:jr?{root:jr}:null,deps:{...deps,setCamera:()=>{wrote++;return true;}}});assert.equal(r.ok,true);assert.equal(wrote,0);assert.equal(st.logs.at(-1).result,'not-at-landing');}});
+  await T('root recovered from the landing pose = the journey root',async()=>{const r=Hook.lakesideRootFromLanding(landingEnd(j.landing));assert(Math.hypot(...sub(r.root,j.root))<1e-9);assert.equal(r.yawDeg,j.yawDeg);});
++ // SWAP = last world-camera frame before the board vs first LakesideBackgroundCamera frame after (the camera that renders the board).
++ //  before: the real hook's final write on the real journey end, held through the enter-level cover (hold contract below), expressed in
++ //          the journey scenery's frame (RegionJourneyAdapter: LakesideJourneyScene yaw L.yawDeg at L.root);
++ //  after:  what LakesideBoardBackground.frame() applies: lakesideAlignedBoardPose(layout) with the layout ManagedMobileBoardUI builds
++ //          ({width,height,boardTop:tray top,board:grid} from boardLayout(w,h,boardSafeInsets(w,h),max(2,goals))), in the board rig's
++ //          scenery frame (rig + scenery identity). Limits: angle ≤ 0.1°, FOV ≤ 0.1°, position ≤ 1 cm, for goals 2..4.
++ const qrot=(q,v)=>{const [x,y,z,w]=q,tx=2*(y*v[2]-z*v[1]),ty=2*(z*v[0]-x*v[2]),tz=2*(x*v[1]-y*v[0]);return [v[0]+w*tx+(y*tz-z*ty),v[1]+w*ty+(z*tx-x*tz),v[2]+w*tz+(x*ty-y*tx)];};
++ const toJourneyLocal=(v,yawDeg)=>{const a=-yawDeg*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return [v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c];};
++ const swapTable={};
++ for(const [w,h] of SCREENS)await T(`${w}x${h}: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4`,async()=>{
++  const fr=frameOf(w,h),end=landingEnd(LK.lakesideScreenLanding(j,fr));const {st,deps}=fake({w,h,from:end});const r=await Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null,deps});assert.equal(r.ok,true);
++  const last=st.pose,pl=toJourneyLocal(sub(last.position,j.root),j.yawDeg),fl=toJourneyLocal(dir(last),j.yawDeg);const rows=[];
++  for(const goals of [2,3,4]){const safe=BL.boardSafeInsets(w,h),g=BL.boardLayout(w,h,safe,Math.max(2,goals)),layout={width:w,height:h,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
++   const bg=LK.lakesideAlignedBoardPose(layout),bf=qrot(bg.rotation,[0,0,-1]),bl=Math.hypot(...bf),u=fl,v=bf.map(x=>x/bl);
++   const d={goals,angleDeg:Math.atan2(Math.hypot(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]),u[0]*v[0]+u[1]*v[1]+u[2]*v[2])*180/Math.PI,fovDeg:bg.fovVerticalDeg-last.fovVerticalDeg,positionCm:100*Math.hypot(...sub(pl,bg.position))};
++   assert(d.angleDeg<=0.1&&Math.abs(d.fovDeg)<=0.1&&d.positionCm<=1,JSON.stringify(d));rows.push(Object.fromEntries(Object.entries(d).map(([k,x])=>[k,+(+x).toExponential(3)])));}
++  swapTable[`${w}x${h}`]=rows;return {swap:rows};});
+  await T('enter-level cover holds the landed board pose (no 2.6 m push-in then cut back); one-shot, lakeside only',async()=>{
+   const root=path.join(__dirname,'../../creator-build-project/assets/scripts');const comp=fs.readFileSync(root+'/world-r2/WorldNativeComposition.ts','utf8'),flow=fs.readFileSync(root+'/world-r1/WorldFlowComponent.ts','utf8');
+   const site=comp.slice(comp.indexOf('const landed=await lakesideLandingToBoard'));const fb=site.indexOf("lakesideFallback('board',landed.reason)"),on=site.indexOf('held=true;this.world?.holdEnterLevel?.(true)'),enter=site.indexOf('.enterLevel(selection.stageId)'),off=site.indexOf('finally{if(held)this.world?.holdEnterLevel?.(false);}');
+   assert(fb>0&&on>fb&&enter>on&&off>enter,'hold set only after a landed hook, cleared after enterLevel');assert(comp.includes("if(region==='lakeside'){const landed=await lakesideLandingToBoard(")&&site.includes("return this.lakesideFallback('board',landed.reason);held=true;this.world?.holdEnterLevel?.(true);}"),'inside the lakeside branch, after the landed check');
+   const play=flow.slice(flow.indexOf('playEnterLevel:(token)=>{'));const h=play.indexOf('if(this.enterLevelHold){'),look=play.indexOf('this.enterLevelLook()');assert(h>0&&h<look,'hold checked before the push-in path');
+   const body=play.slice(h,play.indexOf('\n',h));assert(/this\.enterLevelHold=false;/.test(body)&&/return this\.run\(ENTER_LEVEL_SHOT_S,token,\(\)=>\{\}\)/.test(body)&&!/Camera|track|fov/.test(body.replace("console.info('[enter-level] hold (lakeside landing on the board pose)')",'')),'same cover duration, no camera write, one-shot');});
+- const report={status:fail?'FAIL':'PASS',walkModels:{constant:'LEN/durationS (in-game controller walk today)',timed:'journeyDistanceAt (17 s S-curve)'},table,results,runs};
++ const report={status:fail?'FAIL':'PASS',swapTable,walkModels:{constant:'LEN/durationS (in-game controller walk today)',timed:'journeyDistanceAt (17 s S-curve)'},table,results,runs};
+  fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-landing-hook.json',JSON.stringify(report,null,1)+'\n');
+  console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status}))},null,1));if(fail)process.exitCode=1;
+ })();
+-- 
+2.47.3
+

@@ -1,0 +1,25 @@
+diff --git a/tools/finalize_wechat_local.cjs b/tools/finalize_wechat_local.cjs
+index 1f71ead..42c1acb 100644
+--- a/tools/finalize_wechat_local.cjs
++++ b/tools/finalize_wechat_local.cjs
+@@ -8,6 +8,11 @@ assert.equal(config.appid,'wx3bdd911c5c06f591','Unexpected game AppID');
+ if(config.condition){
+   for(const value of Object.values(config.condition))assert(Array.isArray(value.list)&&value.list.length===0,'Preserve active custom compile conditions; review manually');
+   delete config.condition;
+-  fs.writeFileSync(p,JSON.stringify(config,null,2)+'\n');
+ }
+-console.log(JSON.stringify({output:out,compileType:config.compileType,emptyCompileConditionsRemoved:!config.condition,action:'LOCAL_CONFIG_ONLY'}));
++// Creator already compiles this output. A second DevTools enhancement pass
++// produced an unavailable @babel/runtime/helpers/Objectvalues dependency on reopen.
++// The independent no-enhancement candidate reached the scene with all audio clips.
++config.setting = config.setting || {};
++config.setting.enhance = false;
++fs.writeFileSync(p,JSON.stringify(config,null,2)+'\n');
++console.log(JSON.stringify({output:out,compileType:config.compileType,emptyCompileConditionsRemoved:!config.condition,enhancementDisabled:config.setting.enhance===false,action:'LOCAL_CONFIG_ONLY'}));
+diff --git a/tools/read_wechat_audio_state.js b/tools/read_wechat_audio_state.js
+new file mode 100644
+index 0000000..5149888
+--- /dev/null
++++ b/tools/read_wechat_audio_state.js
+@@ -0,0 +1 @@
++(async()=>{const cc=await System.import('cc');let nodes=[];function walk(n){if(n.getComponent('GameAudio'))nodes.push(n);for(const x of n.children)walk(x)}walk(cc.director.getScene());const n=nodes[0],a=n?.getComponent('GameAudio'),b=n?.getComponent('AudioBridge');copy(JSON.stringify({instances:nodes.length,bridge:!!b,clips:a?Array.from(a.clips.keys()):[],lastPlay:a?Object.fromEntries(a.lastPlay):{},muted:a?.isMuted(),hidden:a?.hidden,voices:a?.voices,sources:n?.getComponents(cc.AudioSource).map(x=>({playing:x.playing,loop:x.loop,volume:x.volume,clip:x.clip?.name})),tagged:b?.taggedNodes.size,loading:globalThis.__worldLoading?.layout(),nav:globalThis.__worldIntegration?.layout(),world:globalThis.__worldIntegration?.snapshot()}))})()

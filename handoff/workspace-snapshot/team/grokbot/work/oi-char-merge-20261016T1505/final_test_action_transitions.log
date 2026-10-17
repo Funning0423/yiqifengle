@@ -1,0 +1,19 @@
+AssertionError [ERR_ASSERTION]: sit 2.006046579344563,2.9713408754964563
+    at /workspace/wechat-game/work/wt-oi-char/tools/walk-driver/test_action_transitions.cjs:23:785
+    at async check (/workspace/wechat-game/work/wt-oi-char/tools/walk-driver/test_action_transitions.cjs:10:42)
+    at async /workspace/wechat-game/work/wt-oi-char/tools/walk-driver/test_action_transitions.cjs:23:2
+{
+  "status": "FAIL",
+  "results": [
+    {
+      "name": "sit lower-body matched-entry contract: current idle frame zero equals sit_down root/hips/legs",
+      "ok": true,
+      "info": {
+        "idle_breathing_loop -> sit_down": {
+          "maxLocalTranslationMm": 0,
+          "maxLocalRotationDeg": 0.024005261526967785
+        }
+      }
+    }
+  ]
+}

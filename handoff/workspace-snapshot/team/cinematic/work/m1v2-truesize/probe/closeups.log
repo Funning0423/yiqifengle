@@ -1,0 +1,708 @@
+could not get a list of mounted file-systems
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-truesize/scene/cine_m1_anim.blend"
+Saved: 'probe/closeups/cine_open_stand_f009_c0_cine_r24.png'
+Time: 00:02.65 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c0_cine_45_portrait.png'
+Time: 00:01.86 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c0_orbit000.png'
+Time: 00:01.15 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c0_orbit090.png'
+Time: 00:01.11 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c0_orbit180.png'
+Time: 00:01.82 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c0_orbit270.png'
+Time: 00:01.36 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c0_orbit000_marker.png'
+Time: 00:01.17 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c1_cine_r24.png'
+Time: 00:02.44 (Saving: 00:00.04)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c1_cine_45_portrait.png'
+Time: 00:01.96 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c1_orbit000.png'
+Time: 00:01.07 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c1_orbit090.png'
+Time: 00:01.03 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c1_orbit180.png'
+Time: 00:01.76 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c1_orbit270.png'
+Time: 00:01.14 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c1_orbit000_marker.png'
+Time: 00:01.09 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c2_cine_r24.png'
+Time: 00:02.16 (Saving: 00:00.06)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c2_cine_45_portrait.png'
+Time: 00:01.94 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c2_orbit000.png'
+Time: 00:01.18 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c2_orbit090.png'
+Time: 00:01.03 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c2_orbit180.png'
+Time: 00:01.83 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c2_orbit270.png'
+Time: 00:01.29 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f009_c2_orbit000_marker.png'
+Time: 00:01.35 (Saving: 00:00.02)
+
+CU {"clip": "cine_open_stand", "frame": 9, "time_s": 0.3, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.3948, 4.2858, 0.5423], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [3.029, 3.029], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.7, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.7, "point_visible": true}, "orbit_visible_dirs": "12/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 12}}, {"center_blender": [0.3277, 4.1189, 0.4972], "count": 2, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [1.548, 2.163], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -1.74, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -1.74, "point_visible": true}, "orbit_visible_dirs": "11/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 11}}, {"center_blender": [0.4021, 4.3503, 0.5209], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [2.122, 2.122], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -9.67, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -9.67, "point_visible": false}, "orbit_visible_dirs": "4/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 5}}]}
+Saved: 'probe/closeups/cine_open_stand_f020_c0_cine_r24.png'
+Time: 00:02.35 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c0_cine_45_portrait.png'
+Time: 00:02.04 (Saving: 00:00.04)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c0_orbit000.png'
+Time: 00:01.24 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c0_orbit090.png'
+Time: 00:01.08 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c0_orbit180.png'
+Time: 00:01.83 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c0_orbit270.png'
+Time: 00:01.27 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c0_orbit000_marker.png'
+Time: 00:01.24 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c1_cine_r24.png'
+Time: 00:02.01 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c1_cine_45_portrait.png'
+Time: 00:01.93 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c1_orbit000.png'
+Time: 00:01.22 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c1_orbit090.png'
+Time: 00:01.09 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c1_orbit180.png'
+Time: 00:01.85 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c1_orbit270.png'
+Time: 00:01.26 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c1_orbit000_marker.png'
+Time: 00:01.21 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c2_cine_r24.png'
+Time: 00:02.05 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c2_cine_45_portrait.png'
+Time: 00:01.93 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c2_orbit000.png'
+Time: 00:01.18 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c2_orbit090.png'
+Time: 00:01.13 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c2_orbit180.png'
+Time: 00:01.91 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c2_orbit270.png'
+Time: 00:01.41 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c2_orbit000_marker.png'
+Time: 00:01.33 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c3_cine_r24.png'
+Time: 00:02.15 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c3_cine_45_portrait.png'
+Time: 00:01.96 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c3_orbit000.png'
+Time: 00:01.24 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c3_orbit090.png'
+Time: 00:01.07 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c3_orbit180.png'
+Time: 00:02.02 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c3_orbit270.png'
+Time: 00:01.46 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c3_orbit000_marker.png'
+Time: 00:01.29 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c4_cine_r24.png'
+Time: 00:02.27 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c4_cine_45_portrait.png'
+Time: 00:02.06 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c4_orbit000.png'
+Time: 00:01.24 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c4_orbit090.png'
+Time: 00:01.58 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c4_orbit180.png'
+Time: 00:01.73 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c4_orbit270.png'
+Time: 00:01.39 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f020_c4_orbit000_marker.png'
+Time: 00:01.42 (Saving: 00:00.04)
+
+CU {"clip": "cine_open_stand", "frame": 20, "time_s": 0.667, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.3997, 4.3046, 0.5465], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [9.412, 9.412], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -2.26, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -2.26, "point_visible": false}, "orbit_visible_dirs": "9/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 10}}, {"center_blender": [0.4152, 4.3343, 0.5242], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [3.567, 3.567], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -1.51, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -1.51, "point_visible": true}, "orbit_visible_dirs": "5/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 6}}, {"center_blender": [0.3821, 4.2934, 0.5386], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [0.772, 0.772], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -23.77, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -23.77, "point_visible": false}, "orbit_visible_dirs": "7/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 8}}, {"center_blender": [0.3898, 4.3571, 0.5343], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [14.792, 14.792], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.75, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.75, "point_visible": true}, "orbit_visible_dirs": "9/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 10}}, {"center_blender": [-0.0638, 4.3085, 0.4465], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [2.0, 2.0], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -113.97, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -113.97, "point_visible": false}, "orbit_visible_dirs": "10/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 12}}]}
+Saved: 'probe/closeups/cine_open_stand_f025_c0_cine_r24.png'
+Time: 00:02.47 (Saving: 00:00.08)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c0_cine_45_portrait.png'
+Time: 00:02.21 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c0_orbit000.png'
+Time: 00:01.33 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c0_orbit090.png'
+Time: 00:01.20 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c0_orbit180.png'
+Time: 00:02.00 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c0_orbit270.png'
+Time: 00:01.40 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c0_orbit000_marker.png'
+Time: 00:01.21 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c1_cine_r24.png'
+Time: 00:02.09 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c1_cine_45_portrait.png'
+Time: 00:01.90 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c1_orbit000.png'
+Time: 00:01.00 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c1_orbit090.png'
+Time: 00:01.44 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c1_orbit180.png'
+Time: 00:01.49 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c1_orbit270.png'
+Time: 00:01.23 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c1_orbit000_marker.png'
+Time: 00:01.01 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c2_cine_r24.png'
+Time: 00:02.04 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c2_cine_45_portrait.png'
+Time: 00:01.93 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c2_orbit000.png'
+Time: 00:01.06 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c2_orbit090.png'
+Time: 00:01.37 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c2_orbit180.png'
+Time: 00:01.37 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c2_orbit270.png'
+Time: 00:01.33 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f025_c2_orbit000_marker.png'
+Time: 00:01.04 (Saving: 00:00.02)
+
+CU {"clip": "cine_open_stand", "frame": 25, "time_s": 0.833, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.3892, 4.3078, 0.5377], "count": 2, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [2.0, 2.253], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -1.3, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -1.3, "point_visible": true}, "orbit_visible_dirs": "7/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 9}}, {"center_blender": [-0.0453, 4.2986, 0.4049], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [2.0, 2.0], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -156.77, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -156.77, "point_visible": false}, "orbit_visible_dirs": "8/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 9}}, {"center_blender": [-0.0618, 4.2926, 0.372], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [19.561, 19.561], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -185.51, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -185.51, "point_visible": false}, "orbit_visible_dirs": "19/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 19}}]}
+Saved: 'probe/closeups/cine_open_stand_f065_c0_cine_r24.png'
+Time: 00:02.07 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c0_cine_45_portrait.png'
+Time: 00:01.98 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c0_orbit000.png'
+Time: 00:01.14 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c0_orbit090.png'
+Time: 00:00.91 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c0_orbit180.png'
+Time: 00:01.86 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c0_orbit270.png'
+Time: 00:01.30 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c0_orbit000_marker.png'
+Time: 00:01.21 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c1_cine_r24.png'
+Time: 00:02.10 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c1_cine_45_portrait.png'
+Time: 00:01.76 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c1_orbit000.png'
+Time: 00:01.19 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c1_orbit090.png'
+Time: 00:01.20 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c1_orbit180.png'
+Time: 00:01.65 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c1_orbit270.png'
+Time: 00:01.47 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f065_c1_orbit000_marker.png'
+Time: 00:01.21 (Saving: 00:00.02)
+
+CU {"clip": "cine_open_stand", "frame": 65, "time_s": 2.167, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.0611, 4.5016, 0.8652], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [2.0, 2.0], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -15.51, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -15.51, "point_visible": false}, "orbit_visible_dirs": "4/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 4}}, {"center_blender": [-0.0722, 4.53, 0.708], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [3.015, 3.015], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.6, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.6, "point_visible": true}, "orbit_visible_dirs": "10/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 11}}]}
+Saved: 'probe/closeups/cine_open_stand_f067_c0_cine_r24.png'
+Time: 00:02.12 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f067_c0_cine_45_portrait.png'
+Time: 00:01.81 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f067_c0_orbit000.png'
+Time: 00:01.19 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f067_c0_orbit090.png'
+Time: 00:01.04 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f067_c0_orbit180.png'
+Time: 00:01.98 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f067_c0_orbit270.png'
+Time: 00:01.14 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f067_c0_orbit000_marker.png'
+Time: 00:01.24 (Saving: 00:00.03)
+
+CU {"clip": "cine_open_stand", "frame": 67, "time_s": 2.233, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [-0.0182, 4.4839, 0.8846], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [12.671, 12.671], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.52, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.52, "point_visible": true}, "orbit_visible_dirs": "6/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 6}}]}
+Saved: 'probe/closeups/cine_open_stand_f037_c0_cine_r24.png'
+Time: 00:02.10 (Saving: 00:00.06)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c0_cine_45_portrait.png'
+Time: 00:01.78 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c0_orbit000.png'
+Time: 00:01.29 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c0_orbit090.png'
+Time: 00:01.17 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c0_orbit180.png'
+Time: 00:01.74 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c0_orbit270.png'
+Time: 00:01.36 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c0_orbit000_marker.png'
+Time: 00:01.27 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c1_cine_r24.png'
+Time: 00:01.90 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c1_cine_45_portrait.png'
+Time: 00:01.79 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c1_orbit000.png'
+Time: 00:01.12 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c1_orbit090.png'
+Time: 00:01.04 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c1_orbit180.png'
+Time: 00:01.73 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c1_orbit270.png'
+Time: 00:01.08 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c1_orbit000_marker.png'
+Time: 00:01.10 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c2_cine_r24.png'
+Time: 00:01.92 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c2_cine_45_portrait.png'
+Time: 00:01.85 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c2_orbit000.png'
+Time: 00:01.37 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c2_orbit090.png'
+Time: 00:01.29 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c2_orbit180.png'
+Time: 00:01.91 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c2_orbit270.png'
+Time: 00:01.37 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c2_orbit000_marker.png'
+Time: 00:01.36 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c3_cine_r24.png'
+Time: 00:01.99 (Saving: 00:00.04)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c3_cine_45_portrait.png'
+Time: 00:01.86 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c3_orbit000.png'
+Time: 00:01.42 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c3_orbit090.png'
+Time: 00:01.25 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c3_orbit180.png'
+Time: 00:01.67 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c3_orbit270.png'
+Time: 00:01.43 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f037_c3_orbit000_marker.png'
+Time: 00:01.57 (Saving: 00:00.02)
+
+CU {"clip": "cine_open_stand", "frame": 37, "time_s": 1.233, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.3052, 4.3528, 0.5458], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [6.162, 6.162], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.67, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.67, "point_visible": true}, "orbit_visible_dirs": "3/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 3}}, {"center_blender": [0.3016, 4.3732, 0.5428], "count": 4, "kinds": ["vis apronxdress"], "depth_or_gap_mm": [7.391, 11.082], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -2.56, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -2.56, "point_visible": false}, "orbit_visible_dirs": "2/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 4}}, {"center_blender": [0.0812, 4.4214, 0.5267], "count": 5, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [2.36, 2.878], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -23.07, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -23.07, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}, {"center_blender": [0.0347, 4.4356, 0.5229], "count": 3, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [2.642, 2.642], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -24.1, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -24.1, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}]}
+Saved: 'probe/closeups/cine_open_stand_f014_c0_cine_r24.png'
+Time: 00:02.37 (Saving: 00:00.06)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c0_cine_45_portrait.png'
+Time: 00:02.12 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c0_orbit000.png'
+Time: 00:01.30 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c0_orbit090.png'
+Time: 00:01.06 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c0_orbit180.png'
+Time: 00:01.71 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c0_orbit270.png'
+Time: 00:01.24 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c0_orbit000_marker.png'
+Time: 00:01.28 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c1_cine_r24.png'
+Time: 00:02.41 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c1_cine_45_portrait.png'
+Time: 00:02.31 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c1_orbit000.png'
+Time: 00:01.29 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c1_orbit090.png'
+Time: 00:01.09 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c1_orbit180.png'
+Time: 00:01.82 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c1_orbit270.png'
+Time: 00:01.38 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c1_orbit000_marker.png'
+Time: 00:01.23 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c2_cine_r24.png'
+Time: 00:02.44 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c2_cine_45_portrait.png'
+Time: 00:01.87 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c2_orbit000.png'
+Time: 00:01.38 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c2_orbit090.png'
+Time: 00:01.46 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c2_orbit180.png'
+Time: 00:01.59 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c2_orbit270.png'
+Time: 00:01.23 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c2_orbit000_marker.png'
+Time: 00:01.38 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c3_cine_r24.png'
+Time: 00:02.23 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c3_cine_45_portrait.png'
+Time: 00:01.85 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c3_orbit000.png'
+Time: 00:01.25 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c3_orbit090.png'
+Time: 00:01.24 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c3_orbit180.png'
+Time: 00:02.02 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c3_orbit270.png'
+Time: 00:01.28 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c3_orbit000_marker.png'
+Time: 00:01.23 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c4_cine_r24.png'
+Time: 00:02.01 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c4_cine_45_portrait.png'
+Time: 00:01.84 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c4_orbit000.png'
+Time: 00:01.29 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c4_orbit090.png'
+Time: 00:01.17 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c4_orbit180.png'
+Time: 00:01.71 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c4_orbit270.png'
+Time: 00:01.27 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c4_orbit000_marker.png'
+Time: 00:01.36 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c5_cine_r24.png'
+Time: 00:01.98 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c5_cine_45_portrait.png'
+Time: 00:01.93 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c5_orbit000.png'
+Time: 00:01.30 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c5_orbit090.png'
+Time: 00:01.34 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c5_orbit180.png'
+Time: 00:01.91 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c5_orbit270.png'
+Time: 00:01.36 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c5_orbit000_marker.png'
+Time: 00:01.35 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c6_cine_r24.png'
+Time: 00:01.99 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c6_cine_45_portrait.png'
+Time: 00:01.90 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c6_orbit000.png'
+Time: 00:01.31 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c6_orbit090.png'
+Time: 00:01.32 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c6_orbit180.png'
+Time: 00:02.20 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c6_orbit270.png'
+Time: 00:01.48 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c6_orbit000_marker.png'
+Time: 00:01.34 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c7_cine_r24.png'
+Time: 00:02.01 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c7_cine_45_portrait.png'
+Time: 00:01.87 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c7_orbit000.png'
+Time: 00:01.34 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c7_orbit090.png'
+Time: 00:01.49 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c7_orbit180.png'
+Time: 00:01.96 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c7_orbit270.png'
+Time: 00:01.51 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c7_orbit000_marker.png'
+Time: 00:01.54 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c8_cine_r24.png'
+Time: 00:02.01 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c8_cine_45_portrait.png'
+Time: 00:01.91 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c8_orbit000.png'
+Time: 00:01.37 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c8_orbit090.png'
+Time: 00:01.36 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c8_orbit180.png'
+Time: 00:01.96 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c8_orbit270.png'
+Time: 00:01.63 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f014_c8_orbit000_marker.png'
+Time: 00:01.44 (Saving: 00:00.02)
+
+CU {"clip": "cine_open_stand", "frame": 14, "time_s": 0.467, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.3948, 4.2803, 0.5419], "count": 2, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [2.55, 7.247], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.6, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.6, "point_visible": true}, "orbit_visible_dirs": "12/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 12}}, {"center_blender": [0.3264, 4.1151, 0.4998], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [8.683, 8.683], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.24, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.24, "point_visible": true}, "orbit_visible_dirs": "14/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 14}}, {"center_blender": [-0.0991, 4.5091, 0.4836], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [4.551, 4.551], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.46, "point_visible": true}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -0.46, "point_visible": true}, "orbit_visible_dirs": "13/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 15}}, {"center_blender": [0.3467, 4.2992, 0.5281], "count": 4, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [5.638, 5.638], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -41.45, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -41.45, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}, {"center_blender": [0.2702, 4.3261, 0.5331], "count": 4, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [10.404, 10.404], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -43.78, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -43.78, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}, {"center_blender": [0.1201, 4.4208, 0.5532], "count": 4, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [1.759, 2.203], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -9.1, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -9.1, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}, {"center_blender": [0.1621, 4.3972, 0.5499], "count": 1, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [3.268, 3.268], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -8.47, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -8.47, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}, {"center_blender": [0.0509, 4.4484, 0.5565], "count": 2, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [2.133, 2.394], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -7.66, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -7.66, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}, {"center_blender": [0.0241, 4.4531, 0.5557], "count": 1, "kinds": ["vis legLxdress"], "depth_or_gap_mm": [2.599, 2.599], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -7.59, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -7.59, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}]}
+Saved: 'probe/closeups/cine_open_stand_f040_c0_cine_r24.png'
+Time: 00:02.25 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c0_cine_45_portrait.png'
+Time: 00:01.90 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c0_orbit000.png'
+Time: 00:01.31 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c0_orbit090.png'
+Time: 00:01.26 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c0_orbit180.png'
+Time: 00:01.61 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c0_orbit270.png'
+Time: 00:01.08 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c0_orbit000_marker.png'
+Time: 00:01.23 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c1_cine_r24.png'
+Time: 00:01.97 (Saving: 00:00.04)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c1_cine_45_portrait.png'
+Time: 00:01.82 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c1_orbit000.png'
+Time: 00:01.17 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c1_orbit090.png'
+Time: 00:01.20 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c1_orbit180.png'
+Time: 00:01.68 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c1_orbit270.png'
+Time: 00:01.24 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c1_orbit000_marker.png'
+Time: 00:01.15 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c2_cine_r24.png'
+Time: 00:01.84 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c2_cine_45_portrait.png'
+Time: 00:01.74 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c2_orbit000.png'
+Time: 00:01.12 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c2_orbit090.png'
+Time: 00:01.14 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c2_orbit180.png'
+Time: 00:01.69 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c2_orbit270.png'
+Time: 00:01.03 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c2_orbit000_marker.png'
+Time: 00:01.33 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c3_cine_r24.png'
+Time: 00:01.97 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c3_cine_45_portrait.png'
+Time: 00:01.89 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c3_orbit000.png'
+Time: 00:01.19 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c3_orbit090.png'
+Time: 00:01.17 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c3_orbit180.png'
+Time: 00:01.80 (Saving: 00:00.03)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c3_orbit270.png'
+Time: 00:01.09 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_open_stand_f040_c3_orbit000_marker.png'
+Time: 00:01.23 (Saving: 00:00.02)
+
+CU {"clip": "cine_open_stand", "frame": 40, "time_s": 1.333, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.1598, 4.3031, 0.5608], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [1.733, 1.733], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -6.4, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -6.4, "point_visible": false}, "orbit_visible_dirs": "3/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 4}}, {"center_blender": [0.1396, 4.2576, 0.5496], "count": 2, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [1.578, 3.307], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -19.52, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -19.52, "point_visible": false}, "orbit_visible_dirs": "5/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 5}}, {"center_blender": [0.2191, 4.2628, 0.5306], "count": 3, "kinds": ["vis legRxdress"], "depth_or_gap_mm": [6.183, 6.183], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -27.27, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -27.27, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}, {"center_blender": [0.1425, 4.2898, 0.5323], "count": 3, "kinds": ["vis legRxdress"], "depth_or_gap_mm": [11.455, 11.455], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -49.9, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -49.9, "point_visible": false}, "orbit_visible_dirs": "0/40", "orbit_first_hit_within_5mm_of_point": {}}]}
+Saved: 'probe/closeups/cine_home_safe_end_f000_c0_cine_r24.png'
+Time: 00:01.79 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c0_cine_45_portrait.png'
+Time: 00:01.47 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c0_orbit000.png'
+Time: 00:01.00 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c0_orbit090.png'
+Time: 00:01.06 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c0_orbit180.png'
+Time: 00:01.51 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c0_orbit270.png'
+Time: 00:01.07 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c0_orbit000_marker.png'
+Time: 00:00.98 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c1_cine_r24.png'
+Time: 00:01.78 (Saving: 00:00.05)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c1_cine_45_portrait.png'
+Time: 00:01.46 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c1_orbit000.png'
+Time: 00:00.92 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c1_orbit090.png'
+Time: 00:01.32 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c1_orbit180.png'
+Time: 00:01.46 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c1_orbit270.png'
+Time: 00:01.05 (Saving: 00:00.02)
+
+Saved: 'probe/closeups/cine_home_safe_end_f000_c1_orbit000_marker.png'
+Time: 00:00.91 (Saving: 00:00.02)
+
+CU {"clip": "cine_home_safe_end", "frame": 0, "time_s": 3.0, "cine_shot": "A_chair_physical_right", "clusters": [{"center_blender": [0.3272, 4.1413, 0.5193], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [2.877, 2.877], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -14.47, "point_visible": false}, "cine_45_portrait": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -14.47, "point_visible": false}, "orbit_visible_dirs": "12/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 12}}, {"center_blender": [-0.0624, 4.3112, 0.4322], "count": 1, "kinds": ["layer_cross apron"], "depth_or_gap_mm": [3.065, 3.065], "cine_r24": {"in_frame": true, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -116.5, "point_visible": false}, "cine_45_portrait": {"in_frame": false, "ray_first_hit": "G2_APRON_R5G2", "hit_minus_point_mm": -116.5, "point_visible": false}, "orbit_visible_dirs": "5/40", "orbit_first_hit_within_5mm_of_point": {"G2_APRON_R5G2": 8}}]}
+DONE
+
+Blender quit

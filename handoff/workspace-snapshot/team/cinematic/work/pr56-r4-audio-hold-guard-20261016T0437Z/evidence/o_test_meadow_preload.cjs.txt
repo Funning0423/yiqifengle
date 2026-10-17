@@ -1,0 +1,3 @@
+(node:103436) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+meadow preload: ok (total with early ready 5.200 s; late+1s 6.200 s)

@@ -1,0 +1,1 @@
+{"launchScene":1001,"enterScene":1001,"configPages":[],"hasCocos":false,"compileControl":"pure wx canvas; no custom condition"}

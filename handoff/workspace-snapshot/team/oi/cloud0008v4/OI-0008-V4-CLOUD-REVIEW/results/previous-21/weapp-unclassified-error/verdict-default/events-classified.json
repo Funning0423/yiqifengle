@@ -1,0 +1,106 @@
+[
+  {
+    "source": "automator.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] f71fdaed9c9de85d"
+  },
+  {
+    "source": "automator.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] f71fdaed9c9de85d"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] f71fdaed9c9de85d"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] f71fdaed9c9de85d"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] f71fdaed9c9de85d"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] f71fdaed9c9de85d"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] f71fdaed9c9de85d"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] f71fdaed9c9de85d"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "error",
+    "id": "unrecognised-error-level",
+    "payload": "plain fatal diagnostic"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] f71fdaed9c9de85d"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] f71fdaed9c9de85d"
+  }
+]

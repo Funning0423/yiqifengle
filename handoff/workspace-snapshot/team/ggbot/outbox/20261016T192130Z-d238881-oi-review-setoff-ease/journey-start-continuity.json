@@ -1,0 +1,388 @@
+{
+ "status": "PASS",
+ "timeUTC": "2026-10-16T19:17:56.406Z",
+ "scope": "Geometry/continuity of the real journeyCamera at 60 fps route speed. Not a render or device acceptance.",
+ "checks": [
+  {
+   "id": "K1 post-set-off unchanged vs d238881 and continuous (d ≥ setOffEaseM)",
+   "status": "PASS",
+   "easeEndM": 0.78,
+   "maxStepPerFrameM": 0.02,
+   "maxTurnDegS": 1.7
+  },
+  {
+   "id": "K2 no cut at set-off: smooth position / view / FOV hand-over",
+   "status": "PASS",
+   "easeM": 0.78,
+   "easeS": 0.65,
+   "maxStepPerFrameM": 2.415,
+   "maxStepChangePerFrameM": 0.1909,
+   "maxFovPerFrameDeg": 0.288,
+   "maxTurnDegS": 383.2,
+   "totalMoveM": 50.112,
+   "totalTurnDeg": 133.13
+  },
+  {
+   "id": "K2b ease turn rate reported (≤ 20°/s infeasible within the right-side/in-frame/occlusion rules), pinned",
+   "status": "PASS",
+   "peakTurnDegS": 383.2,
+   "note": "132° in 0.65 s; ≥15 m ease needed for 20°/s, which fails F7/F2/O1"
+  },
+  {
+   "id": "K3 control: default blend starts exactly on the live lens",
+   "status": "PASS",
+   "blendM": 18
+  },
+  {
+   "id": "K4 wiring: startBlendM 0 only on island 04→05",
+   "status": "PASS"
+  }
+ ],
+ "curves": {
+  "frames": [
+   {
+    "d": 0.02,
+    "t": 0.0167,
+    "stepM": 0.00822,
+    "turnDegS": 1.285,
+    "fov": 42.001
+   },
+   {
+    "d": 0.04,
+    "t": 0.0333,
+    "stepM": 0.055,
+    "turnDegS": 8.601,
+    "fov": 42.0075
+   },
+   {
+    "d": 0.06,
+    "t": 0.05,
+    "stepM": 0.14166,
+    "turnDegS": 22.17,
+    "fov": 42.0243
+   },
+   {
+    "d": 0.08,
+    "t": 0.0667,
+    "stepM": 0.2611,
+    "turnDegS": 40.891,
+    "fov": 42.0552
+   },
+   {
+    "d": 0.1,
+    "t": 0.0833,
+    "stepM": 0.4066,
+    "turnDegS": 63.724,
+    "fov": 42.1034
+   },
+   {
+    "d": 0.12,
+    "t": 0.1,
+    "stepM": 0.57187,
+    "turnDegS": 89.692,
+    "fov": 42.1712
+   },
+   {
+    "d": 0.14,
+    "t": 0.1167,
+    "stepM": 0.75102,
+    "turnDegS": 117.877,
+    "fov": 42.2602
+   },
+   {
+    "d": 0.16,
+    "t": 0.1333,
+    "stepM": 0.93858,
+    "turnDegS": 147.427,
+    "fov": 42.3716
+   },
+   {
+    "d": 0.18,
+    "t": 0.15,
+    "stepM": 1.12951,
+    "turnDegS": 177.55,
+    "fov": 42.5057
+   },
+   {
+    "d": 0.2,
+    "t": 0.1667,
+    "stepM": 1.31914,
+    "turnDegS": 207.519,
+    "fov": 42.6624
+   },
+   {
+    "d": 0.22,
+    "t": 0.1833,
+    "stepM": 1.50325,
+    "turnDegS": 236.666,
+    "fov": 42.841
+   },
+   {
+    "d": 0.24,
+    "t": 0.2,
+    "stepM": 1.67802,
+    "turnDegS": 264.389,
+    "fov": 43.0404
+   },
+   {
+    "d": 0.26,
+    "t": 0.2167,
+    "stepM": 1.84001,
+    "turnDegS": 290.146,
+    "fov": 43.2593
+   },
+   {
+    "d": 0.28,
+    "t": 0.2333,
+    "stepM": 1.98624,
+    "turnDegS": 313.461,
+    "fov": 43.4956
+   },
+   {
+    "d": 0.3,
+    "t": 0.25,
+    "stepM": 2.11409,
+    "turnDegS": 333.918,
+    "fov": 43.7473
+   },
+   {
+    "d": 0.32,
+    "t": 0.2667,
+    "stepM": 2.22138,
+    "turnDegS": 351.165,
+    "fov": 44.0119
+   },
+   {
+    "d": 0.34,
+    "t": 0.2833,
+    "stepM": 2.30632,
+    "turnDegS": 364.915,
+    "fov": 44.2867
+   },
+   {
+    "d": 0.36,
+    "t": 0.3,
+    "stepM": 2.36752,
+    "turnDegS": 374.942,
+    "fov": 44.569
+   },
+   {
+    "d": 0.38,
+    "t": 0.3167,
+    "stepM": 2.40401,
+    "turnDegS": 381.085,
+    "fov": 44.8558
+   },
+   {
+    "d": 0.4,
+    "t": 0.3333,
+    "stepM": 2.41522,
+    "turnDegS": 383.243,
+    "fov": 45.1442
+   },
+   {
+    "d": 0.42,
+    "t": 0.35,
+    "stepM": 2.40098,
+    "turnDegS": 381.384,
+    "fov": 45.431
+   },
+   {
+    "d": 0.44,
+    "t": 0.3667,
+    "stepM": 2.36152,
+    "turnDegS": 375.534,
+    "fov": 45.7133
+   },
+   {
+    "d": 0.46,
+    "t": 0.3833,
+    "stepM": 2.29747,
+    "turnDegS": 365.787,
+    "fov": 45.9881
+   },
+   {
+    "d": 0.48,
+    "t": 0.4,
+    "stepM": 2.20987,
+    "turnDegS": 352.297,
+    "fov": 46.2527
+   },
+   {
+    "d": 0.5,
+    "t": 0.4167,
+    "stepM": 2.10016,
+    "turnDegS": 335.286,
+    "fov": 46.5044
+   },
+   {
+    "d": 0.52,
+    "t": 0.4333,
+    "stepM": 1.97017,
+    "turnDegS": 315.036,
+    "fov": 46.7407
+   },
+   {
+    "d": 0.54,
+    "t": 0.45,
+    "stepM": 1.82214,
+    "turnDegS": 291.895,
+    "fov": 46.9596
+   },
+   {
+    "d": 0.56,
+    "t": 0.4667,
+    "stepM": 1.6587,
+    "turnDegS": 266.275,
+    "fov": 47.159
+   },
+   {
+    "d": 0.58,
+    "t": 0.4833,
+    "stepM": 1.48287,
+    "turnDegS": 238.65,
+    "fov": 47.3376
+   },
+   {
+    "d": 0.6,
+    "t": 0.5,
+    "stepM": 1.29809,
+    "turnDegS": 209.561,
+    "fov": 47.4943
+   },
+   {
+    "d": 0.62,
+    "t": 0.5167,
+    "stepM": 1.10817,
+    "turnDegS": 179.612,
+    "fov": 47.6284
+   },
+   {
+    "d": 0.64,
+    "t": 0.5333,
+    "stepM": 0.91733,
+    "turnDegS": 149.472,
+    "fov": 47.7398
+   },
+   {
+    "d": 0.66,
+    "t": 0.55,
+    "stepM": 0.73018,
+    "turnDegS": 119.87,
+    "fov": 47.8288
+   },
+   {
+    "d": 0.68,
+    "t": 0.5667,
+    "stepM": 0.55173,
+    "turnDegS": 91.605,
+    "fov": 47.8966
+   },
+   {
+    "d": 0.7,
+    "t": 0.5833,
+    "stepM": 0.38739,
+    "turnDegS": 65.538,
+    "fov": 47.9448
+   },
+   {
+    "d": 0.72,
+    "t": 0.6,
+    "stepM": 0.24296,
+    "turnDegS": 42.596,
+    "fov": 47.9757
+   },
+   {
+    "d": 0.74,
+    "t": 0.6167,
+    "stepM": 0.12472,
+    "turnDegS": 23.77,
+    "fov": 47.9925
+   },
+   {
+    "d": 0.76,
+    "t": 0.6333,
+    "stepM": 0.03993,
+    "turnDegS": 10.127,
+    "fov": 47.999
+   },
+   {
+    "d": 0.78,
+    "t": 0.65,
+    "stepM": 0.01356,
+    "turnDegS": 2.847,
+    "fov": 48
+   },
+   {
+    "d": 0.8,
+    "t": 0.6667,
+    "stepM": 0.01946,
+    "turnDegS": 1.649,
+    "fov": 48
+   },
+   {
+    "d": 0.82,
+    "t": 0.6833,
+    "stepM": 0.01946,
+    "turnDegS": 1.638,
+    "fov": 48
+   },
+   {
+    "d": 0.84,
+    "t": 0.7,
+    "stepM": 0.01946,
+    "turnDegS": 1.627,
+    "fov": 48
+   },
+   {
+    "d": 0.86,
+    "t": 0.7167,
+    "stepM": 0.01947,
+    "turnDegS": 1.616,
+    "fov": 48
+   },
+   {
+    "d": 0.88,
+    "t": 0.7333,
+    "stepM": 0.01947,
+    "turnDegS": 1.605,
+    "fov": 48
+   },
+   {
+    "d": 0.9,
+    "t": 0.75,
+    "stepM": 0.01947,
+    "turnDegS": 1.595,
+    "fov": 48
+   },
+   {
+    "d": 0.92,
+    "t": 0.7667,
+    "stepM": 0.01948,
+    "turnDegS": 1.584,
+    "fov": 48
+   },
+   {
+    "d": 0.94,
+    "t": 0.7833,
+    "stepM": 0.01948,
+    "turnDegS": 1.573,
+    "fov": 48
+   },
+   {
+    "d": 0.96,
+    "t": 0.8,
+    "stepM": 0.01948,
+    "turnDegS": 1.563,
+    "fov": 48
+   },
+   {
+    "d": 0.98,
+    "t": 0.8167,
+    "stepM": 0.01949,
+    "turnDegS": 1.553,
+    "fov": 48
+   }
+  ]
+ }
+}

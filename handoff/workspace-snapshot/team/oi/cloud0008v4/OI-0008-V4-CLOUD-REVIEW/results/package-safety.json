@@ -1,0 +1,8 @@
+{
+  "onlyGameReviewInputsCodeAndOutputs": true,
+  "rawDriveMetadataOrSignedURLsIncluded": false,
+  "largeOriginalArchivesIncluded": false,
+  "knownCredentialPatternMatches": [],
+  "canaryTokensAreNonCredentialRandomAuditMarkers": true,
+  "note": "Pattern scan is supporting evidence, not an absolute proof against every secret format."
+}

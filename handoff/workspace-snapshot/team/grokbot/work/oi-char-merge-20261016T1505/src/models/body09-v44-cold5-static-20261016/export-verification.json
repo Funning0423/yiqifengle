@@ -1,0 +1,106 @@
+{
+  "status": "STATIC_GEOMETRY_EXPORT_VERIFIED_NOT_CONTACT_RECERTIFIED",
+  "file": "character-body09-v44-cold5-static-candidate.glb",
+  "bytes": 3971320,
+  "sha256": "dfa8dac47f4809b165511d26bac7f0646bb4e9df252aeafe5e1611b4bc47c5a9",
+  "sourceFiles": {
+    "sources/original-character.glb": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec",
+    "sources/body09.npz": "14acc74e49a22b51bc8bbeaba43bf29f574d26fadf7bd0959fb8645f3d8a3ec4",
+    "sources/cloth-v44-cold5.npz": "839bc8fc42e518720059f550e96366ad53ce666f23739f29cdc8d82db1aa4aae",
+    "sources/candidate08-pose.npz": "756c3b08e6dbae7cbf52bfba9e2b966319a5f4b727c5f7aeef8a8607c439b235"
+  },
+  "checks": [
+    {
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "vertices": 690,
+      "faces": 1240,
+      "maxFloat32ErrorM": 5.9090069948197765e-08
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 0,
+      "vertices": 4779,
+      "faces": 7048,
+      "maxFloat32ErrorM": 5.9596008794571276e-08
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 1,
+      "vertices": 4176,
+      "faces": 768,
+      "maxFloat32ErrorM": 5.9588181944292273e-08
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 2,
+      "vertices": 4176,
+      "faces": 224,
+      "maxFloat32ErrorM": 5.9588181944292273e-08
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 3,
+      "vertices": 701,
+      "faces": 1148,
+      "maxFloat32ErrorM": 5.9520055550876805e-08
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 4,
+      "vertices": 336,
+      "faces": 432,
+      "maxFloat32ErrorM": 5.9116619599564046e-08
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 5,
+      "vertices": 1817,
+      "faces": 3068,
+      "maxFloat32ErrorM": 5.958503490610667e-08
+    },
+    {
+      "mesh": "LOD0_G2_BOW",
+      "primitive": 0,
+      "vertices": 186,
+      "faces": 348,
+      "maxFloat32ErrorM": 5.888484322369436e-08
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "primitive": 0,
+      "vertices": 5721,
+      "faces": 10560,
+      "maxFloat32ErrorM": 5.94655342744943e-08
+    }
+  ],
+  "materialsPreserved": true,
+  "imagesPreserved": true,
+  "animations": 0,
+  "meshCount": 4,
+  "sourceRigRetainedAsDetachedReference": true,
+  "limits": [
+    "Static float32 render export; exact float64 contact audit does not transfer automatically.",
+    "Original rig preserved as detached reference; no executable skinning or animation.",
+    "BOW and complete character native/dynamic acceptance remain unvalidated.",
+    "No geometry simplification, hand flattening, new wrist edits, or simulation performed."
+  ],
+  "visualReview": {
+    "actualExportRendered": true,
+    "file": "preview/export-front-side-back.png",
+    "result": "Full body, hand thickness, source textures and stool placement visually inspected in front/side/back. Standing reference, not seated.",
+    "chairBoundsM": [
+      [
+        -0.19430388910992866,
+        7.701873779312942e-09,
+        -0.1616021621335998
+      ],
+      [
+        0.1934158970572198,
+        0.43962600107288363,
+        0.1983978521715108
+      ]
+    ],
+    "note": "CPU diagnostic render, not native GPU certification."
+  }
+}

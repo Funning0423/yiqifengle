@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-10-10T01:33:13.326Z",
+  "frozen": "after all own CLI children exited, log tailers stopped and run.log closed",
+  "files": [
+    {
+      "path": "run.log",
+      "bytes": 2418,
+      "sha256": "8bf64681b0536980440614d7acb0ee0f586435e01d6a941638d09e58d3528e62"
+    },
+    {
+      "path": "source-project.config.json",
+      "bytes": 101,
+      "sha256": "44d16e30a37434fd804bceb7c7567d6947a291a92fe65e156f4f44af53f5ffbb"
+    },
+    {
+      "path": "verdict-default/automator-console.json",
+      "bytes": 273,
+      "sha256": "64d31cc014761af7a953125851118ae410a984edbd3d543b0a6b3e9d7043e4c6"
+    },
+    {
+      "path": "verdict-default/automator-exceptions.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "verdict-default/build-copy-SHA256SUMS.txt",
+      "bytes": 236,
+      "sha256": "7f9e4d31e4cb4251b020e54b44a78234987fcf59f032d159f89676d772a96661"
+    },
+    {
+      "path": "verdict-default/cli-output.json",
+      "bytes": 895,
+      "sha256": "fe0f9c5b9dc1e0d0650242f5fb9b2d4b511982d6ac4bed86c1034cb0ec596f6d"
+    },
+    {
+      "path": "verdict-default/console-transcript.txt",
+      "bytes": 1874,
+      "sha256": "2b52c259dd02b57d6039eed2ebb17198e8ea597e2be083d5e6dd72f9df21c020"
+    },
+    {
+      "path": "verdict-default/events-classified.json",
+      "bytes": 2318,
+      "sha256": "f06c45b8ffc1ffe98f0ceab037886dbe417f504e15e9b1737ffe85ab040b1b37"
+    },
+    {
+      "path": "verdict-default/finalizer-result.json",
+      "bytes": 643,
+      "sha256": "94aff67162cad53c4e4169bc2d2dcc73d6f6f5373500ca96f5c34d402f7c73a3"
+    },
+    {
+      "path": "verdict-default/project.config.json.as-opened",
+      "bytes": 174,
+      "sha256": "289bbe509520af1b74cbf7a700bfc4f1401da658f7f61914fd02cd25aa92506e"
+    },
+    {
+      "path": "verdict-default/shim-buffer.json",
+      "bytes": 1067,
+      "sha256": "68115bdc59c25d5de04a5098d38312296d51b44ca4bf229074759a8f56755ad3"
+    },
+    {
+      "path": "verdict-default/weapplog-events.json",
+      "bytes": 848,
+      "sha256": "64c782ff52379e6505996cd49528bcb9631928515024f87f4c3d0a9da98ce193"
+    },
+    {
+      "path": "verdict-default/weapplog-tail.txt",
+      "bytes": 1976,
+      "sha256": "281c38fd38c3c53817e4d1dfeec1bc3887c05a4e80db581a8289ccb7d2bddf87"
+    },
+    {
+      "path": "verdict.json",
+      "bytes": 8273,
+      "sha256": "25e26a13c9726b1d300c59c5a3a0c3c9cd80af20acaf7793c25328079a828503"
+    }
+  ]
+}

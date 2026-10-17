@@ -1,0 +1,13 @@
+2026-10-10T01:33:25.878Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 7553b00cad16629f
+2026-10-10T01:33:25.878Z automator.error	[QF-AUDIT-CANARY-LATE] 7553b00cad16629f
+2026-10-10T01:33:25.377Z shim.errors	[QF-AUDIT-CANARY] 7553b00cad16629f
+2026-10-10T01:33:25.878Z shim.errors	[QF-AUDIT-CANARY-LATE] 7553b00cad16629f
+2026-10-10T01:33:25.376Z shim.logs	[QF-AUDIT-HEARTBEAT] 7553b00cad16629f
+2026-10-10T01:33:25.377Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:33:25.878Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 7553b00cad16629f
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default [log] [QF-AUDIT-HEARTBEAT] 7553b00cad16629f
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default [error] [QF-AUDIT-CANARY] 7553b00cad16629f
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(unattributed)	OTHER-PROJECT [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面 (env: macOS,mg,2.02.2608080; lib: 3.17.3)
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default [log] [QF-AUDIT-HEARTBEAT-LATE] 7553b00cad16629f
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default [error] [QF-AUDIT-CANARY-LATE] 7553b00cad16629f

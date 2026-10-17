@@ -1,0 +1,8 @@
+2026-10-10T00:06:26.404Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 4c6da06311aca8b4
+2026-10-10T00:06:26.404Z automator.error	[QF-AUDIT-CANARY-LATE] 4c6da06311aca8b4
+2026-10-10T00:06:25.902Z shim.errors	[QF-AUDIT-CANARY] 4c6da06311aca8b4
+2026-10-10T00:06:26.404Z shim.errors	[QF-AUDIT-CANARY-LATE] 4c6da06311aca8b4
+2026-10-10T00:06:25.902Z shim.logs	[QF-AUDIT-HEARTBEAT] 4c6da06311aca8b4
+2026-10-10T00:06:25.902Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T00:06:26.404Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 4c6da06311aca8b4
+weapplog(unattributed)	OTHER-PROJECT [error] TypeError: unrelated project failure

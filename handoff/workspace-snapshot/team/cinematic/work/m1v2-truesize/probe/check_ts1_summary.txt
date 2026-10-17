@@ -1,0 +1,35 @@
+===== cine_open_stand
+self:legLxlegL_ctrl                                max    0.00mm @f90  maxN  402 nz 91 [0..90]
+garment[visible]:legLxdress                        max    0.05mm @f14  maxN   16 nz  5 [14..37]
+garment[visible]:legRxdress                        max   29.58mm @f40  maxN    6 nz  3 [35..42]
+garment[visible]:bowxdress                         max    2.13mm @f41  maxN  214 nz 53 [0..81]
+garment[visible]:apronxdress                       max    0.00mm @f37  maxN    4 nz  1 [37..37]
+garment[midsurface]:bowxdress                      max   10.66mm @f40  maxN  108 nz 53 [0..81]
+layer_cross:apron_vs_dress                         max   19.56mm @f25  maxN    7 nz 54 [0..68]
+chair:bodyxchair_seat                              max   19.41mm @f32  maxN   72 nz 55 [0..54]
+proxy:bodyxcol_int_chair_back                      max   20.76mm @f15  maxN  354 nz 24 [0..23]
+proxy:bodyxcol_int_chair_seat                      max  189.98mm @f16  maxN  168 nz 55 [0..54]
+env:bodyxenv_interior_shell                        max    0.00mm @f90  maxN    5 nz  6 [85..90]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f15  maxN  353 nz 24 [0..23]
+env:body_nobowxenv_interior_shell                  max    0.00mm @f90  maxN    5 nz  6 [85..90]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f15  maxN  906 nz 24 [0..23]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 314}, 'env:bodyxenv_interior_shell': {'tri_pairs': 5, 'wrong_side_verts': 1, 'depth_mm': 0.0}, 'env:body_nobowxenv_interior_shell': {'tri_pairs': 5, 'wrong_side_verts': 1, 'depth_mm': 0.0}}
+===== cine_open_turn
+self:legLxlegL_ctrl                                max    0.00mm @f45  maxN  364 nz 46 [0..45]
+env:bodyxenv_interior_shell                        max    0.04mm @f44  maxN    5 nz  9 [0..44]
+env:body_nobowxenv_interior_shell                  max    0.04mm @f44  maxN    5 nz  9 [0..44]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 298}}
+===== cine_open_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  298 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 298}}
+===== cine_home_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  308 nz  1 [0..0]
+garment[visible]:bowxdress                         max    0.14mm @f0  maxN   64 nz  1 [0..0]
+garment[midsurface]:bowxdress                      max    2.22mm @f0  maxN   34 nz  1 [0..0]
+layer_cross:apron_vs_dress                         max    3.07mm @f0  maxN    2 nz  1 [0..0]
+chair:bodyxchair_seat                              max   17.88mm @f0  maxN   68 nz  1 [0..0]
+proxy:bodyxcol_int_chair_back                      max   20.76mm @f0  maxN  354 nz  1 [0..0]
+proxy:bodyxcol_int_chair_seat                      max  189.97mm @f0  maxN  168 nz  1 [0..0]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f0  maxN  353 nz  1 [0..0]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f0  maxN  906 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 308}, 'garment[visible]:bowxdress': {'tri_pairs': 64, 'wrong_side_verts': 1, 'depth_mm': 0.14}, 'garment[midsurface]:bowxdress': {'tri_pairs': 34, 'wrong_side_verts': 4, 'depth_mm': 2.22}, 'layer_cross:apron_vs_dress': {'verts_inside': 2, 'depth_mm': 3.07}, 'chair:bodyxchair_seat': {'tri_pairs': 68, 'wrong_side_verts': 27, 'depth_mm': 17.88}, 'proxy:bodyxcol_int_chair_back': {'verts_inside': 354, 'depth_mm': 20.76}, 'proxy:bodyxcol_int_chair_seat': {'verts_inside': 168, 'depth_mm': 189.97}, 'proxy:body_nobowxcol_int_chair_back': {'verts_inside': 353, 'depth_mm': 20.76}, 'proxy:hairxcol_int_chair_back': {'verts_inside': 906, 'depth_mm': 23.49}}

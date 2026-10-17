@@ -1,0 +1,260 @@
+From fd434fe8c603c5be3f0687b3f20fecf3dc405ccf Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 07:48:12 -0400
+Subject: [PATCH 1/5] v3.2 night sea: tint the live sea uniform (lazy,
+ verified), journey tint #4a6a8c
+
+Mac review of 764dcd8: the v3.1 tint never reached the pixels. The v3.1 binder ran once at prop load, read mainColor
+with getProperty() as a byte Color and only adopted an existing RoomLightingRig instance; any miss left it off for good.
+SeaNightTint reads/writes the pass uniform (linear Vec4, the API the verified WorldFlowComponent bindings use), re-binds
+every tick until it holds the renderer's current material (and after a swap), takes its own instance after 2 s if nobody
+instanced the sea, verifies each write by readback, and runs every sync (not only with the exterior layer).
+Journey tint #4a6a8c: predicted night-journey sea Y 0.16-0.19 from the measured Mac pixels (target <= 0.25).
+Day = authored uniform exactly. New test tools/t9-island-props/test_sea_night_tint.cjs (S1-S6).
+---
+ .../assets/scripts/world-r2/IslandProps.ts    | 27 +++------
+ .../scripts/world-r2/IslandPropsLayout.ts     |  2 +-
+ .../assets/scripts/world-r2/SeaNightTint.ts   | 57 +++++++++++++++++++
+ tools/t9-island-props/fake_cc_sea.cjs         |  6 ++
+ tools/t9-island-props/test_island_props.cjs   | 12 ++--
+ tools/t9-island-props/test_sea_night_tint.cjs | 40 +++++++++++++
+ 6 files changed, 118 insertions(+), 26 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/world-r2/SeaNightTint.ts
+ create mode 100644 tools/t9-island-props/fake_cc_sea.cjs
+ create mode 100644 tools/t9-island-props/test_sea_night_tint.cjs
+
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandProps.ts b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+index 12a1d39..e76d3db 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandProps.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+@@ -3,6 +3,7 @@ import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
+ import { islandPoseEntry } from '../world-r1/RegionCameraData';
+ import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+ import { onPropTap } from './IslandPropTaps';
++import { SeaNightTint } from './SeaNightTint';
+ 
+ /**
+  * T9 island 3D UI props host (runtime). Owns only its own nodes under one root; never touches the imported island
+@@ -21,9 +22,9 @@ export class IslandProps {
+   private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>(); private pivots = new Map<PropRole, Node>();
+   /** Settled island wide shot. A pull moves the live lens only; the three bottom props keep this picture. */
+   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
+-  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
++  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string, seaUniform: null as number[] | null };
+   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
+-  private nightW = 0; private journeyW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
++  private nightW = 0; private journeyW = 0; private seaTint: SeaNightTint | null = null; private seaLast = -1; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
+   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
+   private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number; appliedJ: number } | null = null;
+   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
+@@ -122,25 +123,12 @@ export class IslandProps {
+     if (this.lampLight && isValid(this.lampLight, true)) { const on = L.enabled && this.entrance > 0; if (this.lampLight.enabled !== on) this.lampLight.enabled = on; this.lampLight.luminance = this.lampBase * L.scale * this.entrance; }
+     if (this.glow && isValid(this.glow.node, true)) { const R = S.lampLight.reflection, c = new Color(R.color); const a = Math.round(R.alpha * (L.scale / S.lampLight.luminanceScale) * this.entrance * 255); c.a = a; this.glow.material.setProperty('mainColor', c); if (this.glow.node.active !== a > 0) this.glow.node.active = a > 0; }
+     if (this.lampGlow && isValid(this.lampGlow.node, true)) { const G = S.lampGlass.glow, c = new Color(G.color); const a = Math.round(G.alpha * (L.scale / S.lampLight.luminanceScale) * this.entrance * 255); c.a = a; this.lampGlow.material.setProperty('mainColor', c); if (this.lampGlow.node.active !== a > 0) this.lampGlow.node.active = a > 0; }
+-    this.tickSea(w);
+     if (this.signLabel && isValid(this.signLabel, true)) this.signLabel.color = new Color(mixHex(S.text.color, S.text.nightColor, w));
+   }
+-  /** T9n-2 night sea: tint the sea renderer's EXISTING material instance (RoomLightingRig's tilingOffset instance) only. */
+-  private bindSea() {
+-    try {
+-      const find = (n: Node): Node | null => { if (n.name === ISLAND_PROPS.seaNight.node) return n; for (const c of n.children) { const r = find(c); if (r) return r; } return null; };
+-      let top: Node = this.root; while (top.parent) top = top.parent;
+-      const r = find(top)?.getComponent(MeshRenderer), shared = r?.getSharedMaterial(0), mat = r?.getRenderMaterial(0) as Material | null;
+-      if (!r || !shared || !mat || mat === shared) { this.stats.sea = 'skipped:no-instance'; return; }
+-      const c = mat.getProperty(ISLAND_PROPS.seaNight.property) as Color | null; if (!c) { this.stats.sea = 'skipped:no-mainColor'; return; }
+-      this.sea = { material: mat, authored: [c.r, c.g, c.b, c.a], applied: 0, appliedJ: 0 }; this.stats.sea = 'instance-tint';
+-    } catch (e) { this.sea = null; this.stats.sea = 'failed:' + String(e); }
+-  }
+-  private tickSea(w: number) {
+-    const sea = this.sea; if (!sea || !isValid(sea.material, true)) return; const j = this.journeyW; if (Math.abs(w - sea.applied) < 0.004 && Math.abs(j - sea.appliedJ) < 0.004 && !(w === 0 && sea.applied !== 0)) return;
+-    const v = seaColorAt(sea.authored, w, j); sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(v[0], v[1], v[2], v[3])); sea.applied = w; sea.appliedJ = j;
+-  }
+-  private restoreSea() { const sea = this.sea; this.sea = null; if (sea && isValid(sea.material, true)) sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(sea.authored[0], sea.authored[1], sea.authored[2], sea.authored[3])); }
++  /** T9n-2 / v3.2 night sea: see SeaNightTint (uniform read/write, lazy re-bind, readback-verified). */
++  private bindSea() { if (!this.seaTint) this.seaTint = new SeaNightTint(() => { let top: Node = this.root; while (top.parent) top = top.parent; return top; }); }
++  private tickSea(w: number) { const t = this.seaTint; if (!t) return; const now = game.totalTime / 1000, dt = this.seaLast < 0 ? 0 : Math.max(0, now - this.seaLast); this.seaLast = now; t.tick(w, this.journeyW, dt); this.stats.sea = t.state; this.stats.seaUniform = t.uniform; }
++  private restoreSea() { this.seaTint?.restore(); this.seaTint = null; }
+   /** T9n: warm SphereLight next to lamp_glass, night only. Light.visibility = the sign's own layer bit (a user layer the
+    * world camera already renders and nothing else uses), so the forward-add pass touches only the sign's 2 renderers
+    * (island, sea, palms, buttons are not lit by it). Skipped (lamp keeps its emissive glow only) when the camera does
+@@ -208,6 +196,7 @@ export class IslandProps {
+       if (this.lamp && isValid(this.lamp, true) && !this.fade.length) { const m = lampNight ? (this.lampNightMat ?? this.palette) : this.lampDay; if (m) { this.lamp.setSharedMaterial(m, 0); this.stats.lampSwaps++; } }
+     }
+     if (o.exterior) this.tickWater(this.nightW);
++    this.tickSea(this.nightW); // backdrop sea renders with or without the exterior layer
+     const pose = o.buttons && o.exterior ? this.pose() : null;
+     const slots = pose && o.width > 0 && o.height > 0 ? propButtonLayout(o.width, o.height).slots : [];
+     for (const role of PROP_ROLES) {
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+index 0d26ef6..9c02020 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+@@ -68,7 +68,7 @@ export const ISLAND_PROPS = Object.freeze({
+   /** T9n-2 night sea: env_sea_surface's render material (RoomLightingRig's own instance, which only scrolls tilingOffset) gets
+    * mainColor = authored mainColor x tint, blended by the props night weight; restored exactly at weight 0. Never the shared
+    * M_env_sea material; skipped when the renderer has no instance. tint is sRGB hex (linear = (0.212, 0.347, 0.451)). */
+-  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3', journeyTint: '#2c4058' },
++  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3', journeyTint: '#4a6a8c' },
+   /** Seconds for the props' night weight to follow a day/night switch (labels, lamp light, water tint fade together). */
+   nightFadeS: 0.5,
+   notAdded: {
+diff --git a/creator-build-project/assets/scripts/world-r2/SeaNightTint.ts b/creator-build-project/assets/scripts/world-r2/SeaNightTint.ts
+new file mode 100644
+index 0000000..20cede6
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r2/SeaNightTint.ts
+@@ -0,0 +1,57 @@
++import { MeshRenderer, Node, Vec4, isValid } from 'cc';
++import { ISLAND_PROPS, srgbToLinear } from './IslandPropsLayout';
++
++/** v3.2 night sea (Mac review 764dcd8: the v3.1 tint never reached the pixels; sea Y 0.43–0.50 at night, unchanged).
++ * The v3.1 path read mainColor with getProperty() as a byte Color and bound once, at prop load, only if RoomLightingRig's
++ * instance already existed; any miss (no instance yet, property stored as linear Vec4 / absent, instance swapped later)
++ * left it silently off. This binder:
++ *  - reads and writes the real pass uniform (linear Vec4), the same API WorldFlowComponent's verified bindings use;
++ *  - re-binds lazily every tick until it holds the renderer's CURRENT render material, and re-binds if that changes;
++ *  - takes its own instance only after the sea has stayed on the shared material for graceS (RoomLightingRig instances
++ *    it first when it can, so its tilingOffset scroll keeps working);
++ *  - verifies each write by uniform readback and exposes {state, uniform} for diagnostics.
++ * Day (w = 0) writes the authored uniform back exactly. */
++export type SeaTintState = 'unbound' | 'waiting-instance' | 'instance-tint' | 'own-instance-tint' | 'failed';
++export function seaLinearFactor(w: number, j: number): [number, number, number] {
++  const k = Math.max(0, Math.min(1, w)), q = Math.max(0, Math.min(1, j)), a = srgbToLinear(ISLAND_PROPS.seaNight.tint), b = srgbToLinear(ISLAND_PROPS.seaNight.journeyTint);
++  return [0, 1, 2].map(i => 1 + ((a[i] + (b[i] - a[i]) * q) - 1) * k) as [number, number, number];
++}
++export class SeaNightTint {
++  state: SeaTintState = 'unbound'; uniform: number[] | null = null; rebinds = 0; error = '';
++  private r: MeshRenderer | null = null; private mat: any = null; private authored: Vec4 | null = null; private own = false;
++  private waitS = 0; private lastW = -1; private lastJ = -1;
++  constructor(private readonly root: () => Node | null, private readonly graceS = 2) {}
++  private find(): MeshRenderer | null {
++    const top = this.root(); if (!top) return null; const name = ISLAND_PROPS.seaNight.node; let best: MeshRenderer | null = null;
++    const walk = (n: Node) => { if (n.name === name) { const r = n.getComponent(MeshRenderer); if (r && (!best || (r.enabled && n.activeInHierarchy))) best = r; } for (const c of n.children) walk(c); };
++    walk(top); return best;
++  }
++  private static read(m: any): Vec4 | null { const p = m?.passes?.[0], h = p?.getHandle?.(ISLAND_PROPS.seaNight.property); if (!h) return null; const v = new Vec4(); p.getUniform(h, v); return [v.x, v.y, v.z, v.w].every(Number.isFinite) ? v : null; }
++  private bind(dt: number): boolean {
++    const r = this.r && isValid(this.r, true) && isValid(this.r.node, true) ? this.r : this.find(); if (!r) { this.state = 'unbound'; return false; }
++    const cur: any = r.getRenderMaterial(0), shared: any = r.getSharedMaterial(0); if (!cur || !shared) { this.state = 'unbound'; return false; }
++    if (this.r === r && this.mat === cur && isValid(cur, true)) return true;
++    // the instance we tinted was replaced (or first bind): never adopt the shared asset
++    let m = cur;
++    if (cur === shared) { this.waitS += dt; if (this.waitS < this.graceS) { this.state = 'waiting-instance'; return false; } m = r.getMaterialInstance(0); if (!m || m === shared) { this.state = 'failed'; this.error = 'no instance'; return false; } this.own = true; }
++    else this.own = false;
++    const a = SeaNightTint.read(shared) ?? SeaNightTint.read(m); if (!a) { this.state = 'failed'; this.error = 'mainColor uniform missing'; return false; }
++    if (this.r) this.rebinds++;
++    this.r = r; this.mat = m; this.authored = a; this.lastW = this.lastJ = -1; this.state = this.own ? 'own-instance-tint' : 'instance-tint'; return true;
++  }
++  /** w = night weight, j = journey weight, dt seconds. Safe to call every frame. */
++  tick(w: number, j: number, dt: number): void {
++    try {
++      if (!this.bind(dt)) return; if (Math.abs(w - this.lastW) < 0.002 && Math.abs(j - this.lastJ) < 0.002) return;
++      const a = this.authored!, f = seaLinearFactor(w, j), v = w <= 0 ? a.clone() : new Vec4(a.x * f[0], a.y * f[1], a.z * f[2], a.w);
++      this.mat.setProperty(ISLAND_PROPS.seaNight.property, v); const back = SeaNightTint.read(this.mat);
++      if (!back || Math.abs(back.x - v.x) > 1e-4 || Math.abs(back.z - v.z) > 1e-4) { this.state = 'failed'; this.error = 'readback mismatch'; return; }
++      this.uniform = [back.x, back.y, back.z, back.w].map(x => +x.toFixed(4)); this.lastW = w; this.lastJ = j;
++    } catch (e) { this.state = 'failed'; this.error = String(e); }
++  }
++  restore(): void {
++    try { if (this.mat && isValid(this.mat, true) && this.authored) this.mat.setProperty(ISLAND_PROPS.seaNight.property, this.authored.clone());
++      if (this.own && this.r && isValid(this.r, true) && this.r.getRenderMaterial(0) === this.mat) this.r.setSharedMaterial(this.r.getSharedMaterial(0)!, 0, true as any); } catch { /* best effort */ }
++    this.r = null; this.mat = null; this.authored = null; this.state = 'unbound';
++  }
++}
+diff --git a/tools/t9-island-props/fake_cc_sea.cjs b/tools/t9-island-props/fake_cc_sea.cjs
+new file mode 100644
+index 0000000..2b3a7cc
+--- /dev/null
++++ b/tools/t9-island-props/fake_cc_sea.cjs
+@@ -0,0 +1,6 @@
++'use strict';
++// Minimal cc stub for SeaNightTint: Vec4, isValid, MeshRenderer (component key), Node tree.
++class Vec4{constructor(x=0,y=0,z=0,w=0){this.x=x;this.y=y;this.z=z;this.w=w;}clone(){return new Vec4(this.x,this.y,this.z,this.w);}}
++class MeshRenderer{}
++const isValid=o=>!!o&&!o.destroyed;
++module.exports={Vec4,MeshRenderer,isValid,Node:class{}};
+diff --git a/tools/t9-island-props/test_island_props.cjs b/tools/t9-island-props/test_island_props.cjs
+index 46597b2..856f10a 100644
+--- a/tools/t9-island-props/test_island_props.cjs
++++ b/tools/t9-island-props/test_island_props.cjs
+@@ -178,7 +178,7 @@ ok('R3: IslandProps.setSignEntrance(0) hides the whole sign set (sign node, wate
+   assert(/if \(e <= 0\) \{ if \(this\.lampLight && isValid\(this\.lampLight, true\) && this\.lampLight\.enabled\) \{ this\.lampLight\.luminance = 0; this\.lampLight\.enabled = false; \}/.test(src),'lamp light off at 0');
+   assert(/for \(const g of \[this\.glow, this\.lampGlow\]\) if \(g && isValid\(g\.node, true\) && g\.node\.active\) g\.node\.active = false;/.test(src),'glows off at 0');
+   assert(/const on = L\.enabled && this\.entrance > 0; if \(this\.lampLight\.enabled !== on\) this\.lampLight\.enabled = on;/.test(src),'tickWater keeps it off');
+-  assert(/this\.tickSea\(w\);/.test(src)&&!/tickSea\([^)]*entrance/.test(src),'sea tint independent of the sign');
++  assert(/this\.tickSea\(this\.nightW\);/.test(src)&&!/tickSea\([^)]*entrance/.test(src),'sea tint independent of the sign and of the exterior layer');
+   assert(/if \(this\.root\.active !== o\.exterior\) this\.root\.active = o\.exterior;/.test(src),'whole prop root off when the exterior is not visible (nothing in the room)');
+ });
+ ok('night sign text: day ink stays #633f21; night ink stays #3a220f',()=>{
+@@ -231,17 +231,17 @@ ok('T9n-2 lamp + sea: amber unlit lamp glass (not white), soft glow, board light
+   assert.deepEqual(L.seaColorAt([255,255,255,255],0),[255,255,255,255]);assert.deepEqual(L.seaColorAt([255,255,255,255],1),[127,159,179,255]);
+   assert.deepEqual(L.seaColorAt([200,220,240,255],0.5),[150,179,204,255]);
+   // v3.1 journey night sea: day untouched whatever the journey weight; j=0 is the old night; j=1 deepens to journeyTint
+-  assert.equal(P.seaNight.tint,'#7f9fb3');assert.equal(P.seaNight.journeyTint,'#2c4058');
++  assert.equal(P.seaNight.tint,'#7f9fb3');assert.equal(P.seaNight.journeyTint,'#4a6a8c');
+   for(const c of [[255,255,255,255],[200,220,240,255],[90,180,210,200]])for(const j of [0,.3,1])assert.deepEqual(L.seaColorAt(c,0,j),c,'day sea must stay authored');
+   assert.deepEqual(L.seaColorAt([200,220,240,255],0.5,0),L.seaColorAt([200,220,240,255],0.5));
+-  assert.deepEqual(L.seaColorAt([255,255,255,255],1,1),[44,64,88,255]);assert.deepEqual(L.seaColorAt([200,220,240,255],0.5,1),[117,138,161,255]);
++  assert.deepEqual(L.seaColorAt([255,255,255,255],1,1),[74,106,140,255]);
+   {const lum=v=>.2126*v[0]+.7152*v[1]+.0722*v[2],base=[120,200,220,255];let prev=1e9;for(const j of [0,.25,.5,.75,1]){const l=lum(L.seaColorAt(base,1,j));assert(l<prev,'journey tint monotonic darker');prev=l;}}
+   {const boot=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8'),src2=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+    assert(/night:dn\?\.mode==='night',journey:s\.state==='region-travel'/.test(boot),'boot passes journey from region-travel');
+-   assert(/journey\?: boolean/.test(src2)&&/approachNight\(this\.journeyW, !!o\.journey, dt\)/.test(src2)&&/seaColorAt\(sea\.authored, w, j\)/.test(src2),'IslandProps fades journey weight into the sea tint');}
++   assert(/journey\?: boolean/.test(src2)&&/approachNight\(this\.journeyW, !!o\.journey, dt\)/.test(src2)&&/t\.tick\(w, this\.journeyW, dt\)/.test(src2),'IslandProps fades journey weight into the sea tint');}
+   const src=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+-  assert(/mat === shared\) \{ this\.stats\.sea = 'skipped:no-instance'/.test(src),'never the shared sea material');
+-  assert(!/setSharedMaterial\([^)]*sea/i.test(src)&&/restoreSea\(\)/.test(src)&&/this\.tickSea\(w\)/.test(src));
++  {const st=fs.readFileSync(path.join(SRC,'world-r2/SeaNightTint.ts'),'utf8');assert(/never adopt the shared asset/.test(st)&&/m === shared\) \{ this\.state = 'failed'/.test(st),'never the shared sea material');}
++  assert(!/setSharedMaterial\([^)]*sea/i.test(src)&&/restoreSea\(\)/.test(src)&&/this\.tickSea\(this\.nightW\)/.test(src));
+   assert(/effectName: 'builtin-unlit', technique: 0 \}\); m\.setProperty\('mainColor', new Color\(S\.lampGlass\.nightColor\)\)/.test(src)&&/SignLampGlow/.test(src));
+   assert(!/moon/i.test(src),'no moon (owned by 场景特效bot)');
+ });
+diff --git a/tools/t9-island-props/test_sea_night_tint.cjs b/tools/t9-island-props/test_sea_night_tint.cjs
+new file mode 100644
+index 0000000..863dbd4
+--- /dev/null
++++ b/tools/t9-island-props/test_sea_night_tint.cjs
+@@ -0,0 +1,40 @@
++#!/usr/bin/env node
++'use strict';
++/* v3.2 night sea. Regression for the Mac review of 764dcd8: the v3.1 tint never reached the pixels (night journey sea
++ * Y 0.43–0.50, hue 199–204°, same as before). Real SeaNightTint.ts against a fake renderer that reproduces the release
++ * conditions the v3.1 one-shot getProperty(Color) binder could not survive:
++ *  S1 RoomLightingRig's instance appears only AFTER the props bind; S2 mainColor is only a linear pass uniform
++ *  (getProperty returns nothing); S3 the instance is swapped mid-journey; S4 nobody ever instances the sea;
++ *  S5 day writes the authored uniform back exactly; S6 predicted night-journey sea brightness ≤ 0.25 from the measured
++ *  Mac pixels (logs/sea_hsv.txt) and the island night unchanged in design (#7f9fb3). */
++const assert=require('assert/strict'),path=require('path'),fs=require('fs');
++const {load}=require('./load_ts.cjs');
++const M=load(['world-r1/CameraPose','world-r2/IslandPropsLayout','world-r2/SeaNightTint'],{cc:path.join(__dirname,'fake_cc_sea.cjs')});
++const {SeaNightTint,seaLinearFactor}=M.SeaNightTint,{ISLAND_PROPS:P,srgbToLinear}=M.IslandPropsLayout,{Vec4,MeshRenderer}=require('./fake_cc_sea.cjs');
++const results=[];const ok=(id,fn)=>{try{fn();results.push(id);console.log('PASS',id);}catch(e){console.log('FAIL',id);console.error(e);process.exitCode=1;}};
++const AUTH=[0.82,0.93,1,1];
++function mat(name,u=AUTH){const m={name,u:u.slice(),props:{},passes:[{getHandle:k=>k==='mainColor'?1:0,getUniform:(h,v)=>{v.x=m.u[0];v.y=m.u[1];v.z=m.u[2];v.w=m.u[3];return v;}}],
++ getProperty:()=>undefined,/* S2: no Color property, uniform only */setProperty(k,v){assert.equal(k,'mainColor');assert(v instanceof Vec4,'writes a linear Vec4, not a byte Color');m.u=[v.x,v.y,v.z,v.w];}};return m;}
++function world(){const shared=mat('shared');let render=shared;const r=new MeshRenderer();r.enabled=true;
++ r.getSharedMaterial=()=>shared;r.getRenderMaterial=()=>render;r.getMaterialInstance=()=>{if(render===shared)render=mat('own');return render;};r.setSharedMaterial=(m)=>{render=m;};
++ const sea={name:P.seaNight.node,children:[],activeInHierarchy:true,getComponent:()=>r};r.node=sea;const root={name:'scene',children:[sea],getComponent:()=>null};
++ return {root,r,shared,instance:(m)=>{render=m;return m;},render:()=>render};}
++const lin2s=v=>v<=.0031308?v*12.92:1.055*Math.pow(v,1/2.4)-.055,Y=c=>.2126*c[0]+.7152*c[1]+.0722*c[2];
++ok('S1 late RoomLightingRig instance: binder waits, then tints that instance (v3.1 bound once and stayed off)',()=>{
++ const W=world(),t=new SeaNightTint(()=>W.root,2);t.tick(1,1,.1);assert.equal(t.state,'waiting-instance');assert.deepEqual(W.shared.u,AUTH,'shared never written');
++ const inst=W.instance(mat('rlr'));t.tick(1,1,.1);assert.equal(t.state,'instance-tint');const f=seaLinearFactor(1,1);
++ assert.deepEqual(inst.u.map(x=>+x.toFixed(5)),[AUTH[0]*f[0],AUTH[1]*f[1],AUTH[2]*f[2],1].map(x=>+x.toFixed(5)));assert.deepEqual(W.shared.u,AUTH);});
++ok('S3 instance swapped mid-journey: re-binds and re-tints the new instance',()=>{
++ const W=world(),t=new SeaNightTint(()=>W.root);W.instance(mat('a'));t.tick(1,1,.1);const b=W.instance(mat('b'));t.tick(1,1,.1);assert.equal(t.rebinds,1);assert(b.u[2]<.5,'new instance dark');});
++ok('S4 nobody instances the sea: own instance after the grace period, shared untouched',()=>{
++ const W=world(),t=new SeaNightTint(()=>W.root,2);for(let i=0;i<19;i++)t.tick(1,0,.1);assert.equal(t.state,'waiting-instance');t.tick(1,0,.2);assert.equal(t.state,'own-instance-tint');assert.deepEqual(W.shared.u,AUTH);assert.notEqual(W.render(),W.shared);});
++ok('S5 day = authored uniform exactly, whatever the journey weight; restore puts authored back',()=>{
++ const W=world(),t=new SeaNightTint(()=>W.root);const i=W.instance(mat('rlr'));t.tick(1,1,.1);for(const j of [0,.5,1]){t.tick(0,j,.1);assert.deepEqual(i.u,AUTH);}t.tick(1,1,.1);t.restore();assert.deepEqual(i.u,AUTH);});
++ok('S6 night journey sea Y ≤ 0.25 from the measured Mac night pixels; island night = #7f9fb3 multiply; monotone',()=>{
++ const f=seaLinearFactor(1,1),fi=seaLinearFactor(1,0);assert.deepEqual(fi.map(x=>+x.toFixed(3)),srgbToLinear(P.seaNight.tint).map(x=>+x.toFixed(3)));
++ const measured=[[66,140,185],[51,134,182],[48,120,168],[34,134,181],[92,138,172]],out=[];
++ for(const c of measured){const p=c.map((v,i)=>lin2s(srgbToLinear('#'+c.map(x=>x.toString(16).padStart(2,'0')).join(''))[i]*f[i]));out.push(+Y(p).toFixed(3));}
++ assert(Math.max(...out)<=.25,'predicted night journey sea Y '+out);assert(Math.min(...out)>=.12,'still reads as sea, not black '+out);
++ let prev=9;for(const j of [0,.25,.5,.75,1]){const v=Y(seaLinearFactor(1,j));assert(v<prev);prev=v;}console.log('   predicted Y',out);});
++ok('Boot wiring: IslandProps ticks the sea every sync with the journey weight',()=>{const {SRC}=require('./load_ts.cjs'),s=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8'),b=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');assert(/\n    this\.tickSea\(this\.nightW\);/.test(s));assert(/t\.tick\(w, this\.journeyW, dt\)/.test(s));assert(/journey:s\.state==='region-travel'/.test(b));});
++console.log(JSON.stringify({passed:results.length}));
+-- 
+2.47.3
+

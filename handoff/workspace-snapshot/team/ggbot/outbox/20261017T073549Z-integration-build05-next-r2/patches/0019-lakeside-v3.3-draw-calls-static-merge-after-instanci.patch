@@ -1,0 +1,312 @@
+From c2eaf64a3f9b1fa868051776e5150b8ebac0d494 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 14:53:16 +0800
+Subject: [PATCH 19/20] lakeside v3.3 draw calls: static merge after instancing
+ - static renderers with equal material CONTENT (texture by image+sampler: 45
+ per-GLB Texture2D sub-assets share T_LK_palette_256) and vertex layout are
+ baked into world-space meshes (<=65,535 v, RGBA8 colours, half/quantized
+ attributes decoded); water and blended materials excluded; originals
+ disabled; failure reverts to the instanced scene; ?lakemerge=off for A/B;
+ plan on the real bundle: 430 pieces -> 2 chunks (57,010 v + 1,080 v) + 1
+ instanced + water = ~4 background draws (was 36), total ~47 (was 79); test
+ lakeside-static-merge
+
+(cherry picked from commit 42126a0cd20c8da35cd91fdf2edf7039eb4d0af9)
+---
+ .../scripts/region/LakesideBoardBackground.ts | 66 ++++++++++++++-
+ .../scripts/region/LakesideStaticMerge.ts     | 81 +++++++++++++++++++
+ .../region/LakesideStaticMerge.ts.meta        |  9 +++
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_static_merge.cjs | 55 +++++++++++++
+ 5 files changed, 209 insertions(+), 3 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideStaticMerge.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideStaticMerge.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_static_merge.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 5868486..4c4bf4f 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -1,4 +1,5 @@
+-import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
++import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
++import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppendPiece,lakesideStaticMergeFromEnv,type LakesideAttr} from './LakesideStaticMerge';
+ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
+@@ -20,6 +21,63 @@ export function enableLakesideInstancing(root:Node):Material[]{
+    if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});shared.set(src,m);}r.setSharedMaterial(m,k);}}
+  return Array.from(shared.values()); // not [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
+ }
++/** v3.3 static merge (see LakesideStaticMerge.ts): after instancing, every static renderer whose materials match by CONTENT and whose
++ *  vertex layout matches is baked into one world-space mesh per <=65,535 vertices; originals are disabled (kept for names/diagnostics).
++ *  Mac v3.2: background 36 draw calls (one instanced batch per GLB kind). Expected after: palette chunk(s) + 2 rope materials + water.
++ *  Any failure reverts to the instanced scene (logged, never fatal). Returns what dispose() must destroy. */
++function lakesideMaterialFacts(m:Material){
++ const p:any=m.passes[0],props:Record<string,unknown>={};
++ for(const k of ['mainTexture','mainColor','albedoScale','roughness','metallic','occlusion','specularIntensity','tilingOffset','alphaThreshold','emissive','emissiveScale','normalMap','pbrMap']){
++  let v:any=null;try{v=(m as any).getProperty(k);}catch{v=null;}if(v===null||v===undefined)continue;
++  // Textures by IMAGE + sampler: every lakeside GLB imports its own Texture2D sub-asset (<glb>@e39f7) over the one shared
++  // T_LK_palette_256.png with identical nearest/repeat settings (metas), so the texture uuid alone would keep all 45 apart.
++  const img=v&&typeof v==='object'?(v.image?._uuid||v.mipmaps?.[0]?._uuid||v._mipmaps?.[0]?._uuid):null;
++  props[k]=typeof v==='object'?(img?'img:'+img+'/'+[v._minFilter,v._magFilter,v._mipFilter,v._wrapS,v._wrapT,v._anisotropy].join(','):v._uuid?'asset:'+v._uuid:[v.x??v.r,v.y??v.g,v.z??v.b,v.w??v.a]):v;}
++ const t=p?.blendState?.targets?.[0];
++ return {effect:String((m as any).effectName||(m as any).effectAsset?.name||''),technique:Number((m as any).technique||0),defines:{...(p?.defines||{})},props,cull:Number(p?.rasterizerState?.cullMode??-1),blend:!!t?.blend,priority:Number(p?.priority??0)};
++}
++type MergeOut={meshes:Mesh[];nodes:Node[];disabled:MeshRenderer[];stats:{chunks:number;pieces:number;vertices:number;ms:number;skipped?:string}};
++export function mergeLakesideStatic(scenery:Node,skip:(n:Node)=>boolean):MergeOut{
++ const t0=Date.now(),out:MergeOut={meshes:[],nodes:[],disabled:[],stats:{chunks:0,pieces:0,vertices:0,ms:0}};
++ const A=gfx.AttributeName,NAMES:Record<LakesideAttr,string>={position:A.ATTR_POSITION,normal:A.ATTR_NORMAL,uv:A.ATTR_TEX_COORD,color:A.ATTR_COLOR};
++ type Piece={r:MeshRenderer;mesh:Mesh;k:number;group:string;vertices:number;indices:number;layout:Record<LakesideAttr,boolean>;mat:Material};
++ const pieces:Piece[]=[],keys=new Map<Material,string>();
++ try{
++  for(const child of scenery.children){if(skip(child))continue;
++   for(const r of child.getComponentsInChildren(MeshRenderer)){const mesh=r.mesh;if(!r.enabled||!mesh||!mesh.struct)continue;
++    const own:Piece[]=[];let ok=true;
++    for(let k=0;k<mesh.struct.primitives.length;k++){const mat=r.sharedMaterials[k],prim:any=mesh.struct.primitives[k];
++     if(!mat||!prim.indexView||(prim.primitiveMode!==undefined&&prim.primitiveMode!==gfx.PrimitiveMode.TRIANGLE_LIST)){ok=false;break;}
++     let key=keys.get(mat);if(key===undefined){key=lakesideMaterialKey(lakesideMaterialFacts(mat));keys.set(mat,key);}
++     if(key.includes('|blend|')){ok=false;break;}
++     const layout={position:!!mesh.readAttributeFormat(k,A.ATTR_POSITION),normal:!!mesh.readAttributeFormat(k,A.ATTR_NORMAL),uv:!!mesh.readAttributeFormat(k,A.ATTR_TEX_COORD),color:!!mesh.readAttributeFormat(k,A.ATTR_COLOR)};
++     if(!layout.position){ok=false;break;}
++     const vb=mesh.struct.vertexBundles[prim.vertexBundelIndices[0]];
++     own.push({r,mesh,k,group:key+'#'+(Object.keys(layout) as LakesideAttr[]).filter(a=>layout[a]).join('+'),vertices:vb.view.count,indices:prim.indexView.count,layout,mat});}
++    if(ok)pieces.push(...own);}}
++  const plan=lakesideMergePlan(pieces).filter(c=>c.pieces.length>1),cache=new Map<Mesh,Map<number,any>>();
++  const read=(p:Piece)=>{let m=cache.get(p.mesh);if(!m){m=new Map();cache.set(p.mesh,m);}let d=m.get(p.k);if(d)return d;
++   const attr=(a:LakesideAttr)=>{if(!p.layout[a])return null;const raw=p.mesh.readAttribute(p.k,NAMES[a] as any),f=p.mesh.readAttributeFormat(p.k,NAMES[a] as any);if(!raw||!f)throw Error('lakeside-merge-unreadable '+a);return lakesideAttrToFloat(raw as any,f as any,a==='color');};
++   const idx=p.mesh.readIndices(p.k);if(!idx)throw Error('lakeside-merge-no-indices');
++   d={positions:attr('position'),normals:attr('normal'),uvs:attr('uv'),colors:attr('color'),indices:idx};m.set(p.k,d);return d;};
++  const inv=new Mat4(),rel=new Mat4();Mat4.invert(inv,scenery.worldMatrix);
++  plan.forEach((chunk,ci)=>{const first=pieces[chunk.pieces[0]],layout=first.layout,dst={positions:[] as number[],normals:[] as number[],uvs:[] as number[],colors:[] as number[],indices:[] as number[],vertices:0};
++   for(const pi of chunk.pieces){const p=pieces[pi];Mat4.multiply(rel,inv,p.r.node.worldMatrix);lakesideAppendPiece(dst,read(p),Mat4.toArray([],rel),layout);}
++   const geo:any={positions:dst.positions,indices:dst.indices};
++   if(layout.normal)geo.normals=dst.normals;if(layout.uv)geo.uvs=dst.uvs;
++   if(layout.color){geo.colors=dst.colors.map(c=>Math.round(Math.max(0,Math.min(1,c))*255));geo.attributes=[new gfx.Attribute(A.ATTR_COLOR,gfx.Format.RGBA8,true)];}
++   const mesh=utils.createMesh(geo,undefined,{calculateBounds:true});out.meshes.push(mesh);
++   const n=new Node('LakesideMerged_'+ci);n.layer=scenery.layer;scenery.addChild(n);out.nodes.push(n);
++   const mr=n.addComponent(MeshRenderer);mr.shadowCastingMode=first.r.shadowCastingMode;mr.receiveShadow=first.r.receiveShadow;mr.mesh=mesh;mr.setSharedMaterial(first.mat,0);
++   for(const pi of chunk.pieces){const r=pieces[pi].r;if(r.enabled){r.enabled=false;out.disabled.push(r);}}
++   out.stats.chunks++;out.stats.pieces+=chunk.pieces.length;out.stats.vertices+=dst.vertices;});
++ }catch(error){
++  for(const r of out.disabled.splice(0))if(isValid(r,true))r.enabled=true;for(const n of out.nodes.splice(0))if(isValid(n,true))n.destroy();for(const m of out.meshes.splice(0))m.destroy();
++  out.stats={chunks:0,pieces:0,vertices:0,ms:0,skipped:String((error as any)?.message??error)};
++  try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'static-merge-skipped',error:out.stats.skipped}));}catch{}
++ }
++ out.stats.ms=Date.now()-t0;return out;
++}
+ function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
+ function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
+ function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
+@@ -66,6 +124,7 @@ export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
+ /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
+ export function logLakesideFailure(step:string,stageId:string,error:unknown){try{console.error('[QF_LAKESIDE] '+JSON.stringify({event:'load-failed',stageId,step,error:String((error as any)?.message??error)}));}catch{}}
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,selection,token})=>{
++ let merged:MergeOut|null=null;
+  let step='start',rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
+@@ -93,7 +152,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+  const restoreDir=()=>{restoreFog();const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
+   s0.light.node.setRotation(s0.rot);s0.light.color=s0.color;s0.light.illuminance=s0.illum;if(typeof s0.vis==='number')(s0.light as any).visibility=s0.vis;
+   if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}};
+- const dispose=()=>{if(dead)return;restoreDir();dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
++ const dispose=()=>{if(dead)return;restoreDir();dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+@@ -120,6 +179,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
+     for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
+    waterTinted=tinted.size;}
++  step='static-merge';if(lakesideStaticMergeFromEnv()){const water=new Set(list.filter(i=>(LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));merged=mergeLakesideStatic(scenery,n=>water.has(n.name));}
+   setLayer(scenery);step='lights-camera';
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+@@ -132,7 +192,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null}),
+    dispose,
+   };
+  }catch(error){dispose();
+diff --git a/creator-build-project/assets/scripts/region/LakesideStaticMerge.ts b/creator-build-project/assets/scripts/region/LakesideStaticMerge.ts
+new file mode 100644
+index 0000000..1506306
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideStaticMerge.ts
+@@ -0,0 +1,81 @@
++/**
++ * v3.3 (GGbot): engine-independent half of the lakeside static merge (no 'cc'; unit-tested in Node).
++ * Why: with GPU instancing the lakeside background still costs one draw call per GLB kind (~36 on the Mac, 79 total with board+UI).
++ * 45 of the 48 lakeside GLBs import the same palette material (T_LK_palette_256, roughness 0.8, double-sided), so after the
++ * instances are placed, every static instance that shares a material (by content, not by object) and a vertex layout is baked into
++ * one world-space mesh (split at 65,535 vertices for 16-bit indices). Nothing in the lakeside scene moves at runtime (GLB
++ * animations: 0; Animation components are disabled by the lease), so this is lossless for the picture.
++ */
++export type LakesideAttr = 'position' | 'normal' | 'uv' | 'color';
++/** gfx.FormatType numbering (3.8.8 gfx/base/define.ts): NONE 0, UNORM 1, SNORM 2, UINT 3, INT 4, UFLOAT 5, FLOAT 6. */
++export const FMT = Object.freeze({ UNORM: 1, SNORM: 2, UINT: 3, INT: 4, UFLOAT: 5, FLOAT: 6 });
++export type LakesideFormat = Readonly<{ type: number; size: number; count: number }>;
++/** IEEE half -> float (quantized meshes keep RGB16F/RG16F when the device can read half vertex attributes). */
++export function halfToFloat(h: number): number {
++  const s = (h & 0x8000) ? -1 : 1, e = (h >> 10) & 0x1f, m = h & 0x3ff;
++  if (e === 0) return s * m * Math.pow(2, -24);
++  if (e === 31) return m ? NaN : s * Infinity;
++  return s * (1 + m / 1024) * Math.pow(2, e - 15);
++}
++/** Mesh.readAttribute() returns the RAW storage of an attribute (half floats as Uint16, normalized ints as ints). Converts it to
++ *  plain floats; normalized integer formats are scaled to 0..1 / -1..1 (colours stay 0..1 here). */
++export function lakesideAttrToFloat(raw: ArrayLike<number>, f: LakesideFormat, normalized: boolean): number[] {
++  const bytes = f.size / f.count, out = new Array<number>(raw.length);
++  if (f.type === FMT.FLOAT || f.type === FMT.UFLOAT) { for (let i = 0; i < raw.length; i++) out[i] = bytes === 2 ? halfToFloat(raw[i]) : raw[i]; return out; }
++  const signed = f.type === FMT.SNORM || f.type === FMT.INT, max = signed ? Math.pow(2, bytes * 8 - 1) - 1 : Math.pow(2, bytes * 8) - 1;
++  const norm = normalized || f.type === FMT.UNORM || f.type === FMT.SNORM;
++  for (let i = 0; i < raw.length; i++) out[i] = norm ? Math.max(-1, raw[i] / max) : raw[i];
++  return out;
++}
++/** Content key of a material: two GLBs whose imported materials have the same effect, technique, defines, textures, uniforms and
++ *  states draw identically, so they can share one merged mesh. Blended materials are never merged (sorting). */
++export type LakesideMaterialFacts = Readonly<{ effect: string; technique: number; defines: Record<string, unknown>; props: Record<string, unknown>; cull: number; blend: boolean; priority: number }>;
++export function lakesideMaterialKey(m: LakesideMaterialFacts): string {
++  const defs = Object.keys(m.defines || {}).filter(k => k !== 'USE_INSTANCING').sort().map(k => k + '=' + String(m.defines[k]));
++  const props = Object.keys(m.props || {}).sort().map(k => k + '=' + JSON.stringify(m.props[k]));
++  return [m.effect, m.technique, defs.join(','), props.join(','), 'cull' + m.cull, m.blend ? 'blend' : 'opaque', 'p' + m.priority].join('|');
++}
++export type LakesidePiece = Readonly<{ group: string; vertices: number; indices: number }>;
++/** Groups pieces by key and packs them into chunks of at most `maxVertices` vertices (16-bit indices). Order is stable. */
++export function lakesideMergePlan(pieces: readonly LakesidePiece[], maxVertices = 65535): Array<{ group: string; pieces: number[]; vertices: number; indices: number }> {
++  const out: Array<{ group: string; pieces: number[]; vertices: number; indices: number }> = [], open = new Map<string, { group: string; pieces: number[]; vertices: number; indices: number }>();
++  pieces.forEach((p, i) => {
++    if (!(p.vertices > 0) || p.vertices > maxVertices) return; // empty or oversized pieces stay unmerged
++    let c = open.get(p.group);
++    if (!c || c.vertices + p.vertices > maxVertices) { c = { group: p.group, pieces: [], vertices: 0, indices: 0 }; open.set(p.group, c); out.push(c); }
++    c.pieces.push(i); c.vertices += p.vertices; c.indices += p.indices;
++  });
++  return out;
++}
++/** Appends one placed piece in world space. m = column-major 4x4 (Cocos Mat4 m00..m15) of the piece relative to the merged node.
++ *  Normals use the inverse-transpose of the upper 3x3 (non-uniform scales in the r5h3 export) and are renormalised. */
++export function lakesideAppendPiece(dst: { positions: number[]; normals: number[]; uvs: number[]; colors: number[]; indices: number[]; vertices: number },
++  src: { positions: number[]; normals?: number[] | null; uvs?: number[] | null; colors?: number[] | null; indices: ArrayLike<number> }, m: ArrayLike<number>, layout: Readonly<Record<LakesideAttr, boolean>>): void {
++  const n = src.positions.length / 3, base = dst.vertices;
++  const a00 = m[0], a01 = m[1], a02 = m[2], a10 = m[4], a11 = m[5], a12 = m[6], a20 = m[8], a21 = m[9], a22 = m[10];
++  // inverse-transpose of the 3x3 via cofactors (determinant sign kept so mirrored placements keep outward normals)
++  const c00 = a11 * a22 - a12 * a21, c01 = a12 * a20 - a10 * a22, c02 = a10 * a21 - a11 * a20;
++  const c10 = a02 * a21 - a01 * a22, c11 = a00 * a22 - a02 * a20, c12 = a01 * a20 - a00 * a21;
++  const c20 = a01 * a12 - a02 * a11, c21 = a02 * a10 - a00 * a12, c22 = a00 * a11 - a01 * a10;
++  const det = a00 * c00 + a01 * c01 + a02 * c02, sg = det < 0 ? -1 : 1;
++  for (let i = 0; i < n; i++) {
++    const x = src.positions[i * 3], y = src.positions[i * 3 + 1], z = src.positions[i * 3 + 2];
++    dst.positions.push(m[0] * x + m[4] * y + m[8] * z + m[12], m[1] * x + m[5] * y + m[9] * z + m[13], m[2] * x + m[6] * y + m[10] * z + m[14]);
++    if (layout.normal) {
++      const nx = src.normals ? src.normals[i * 3] : 0, ny = src.normals ? src.normals[i * 3 + 1] : 1, nz = src.normals ? src.normals[i * 3 + 2] : 0;
++      let ox = (c00 * nx + c10 * ny + c20 * nz) * sg, oy = (c01 * nx + c11 * ny + c21 * nz) * sg, oz = (c02 * nx + c12 * ny + c22 * nz) * sg;
++      const l = Math.hypot(ox, oy, oz) || 1; ox /= l; oy /= l; oz /= l; dst.normals.push(ox, oy, oz);
++    }
++    if (layout.uv) dst.uvs.push(src.uvs ? src.uvs[i * 2] : 0, src.uvs ? src.uvs[i * 2 + 1] : 0);
++    if (layout.color) for (let k = 0; k < 4; k++) dst.colors.push(src.colors ? src.colors[i * 4 + k] : 1);
++  }
++  for (let i = 0; i < src.indices.length; i++) dst.indices.push(src.indices[i] + base);
++  dst.vertices += n;
++}
++/** v3.3 switch: static merge on by default; web builds can compare once per lakeside load with ?lakemerge=off (WeChat: constant). */
++export function lakesideStaticMergeEnabled(search?: string | null): boolean { return !/[?&]lakemerge=(off|0|false)\b/.test(search || ''); }
++export function lakesideStaticMergeFromEnv(): boolean {
++  let q: string | null = null;
++  try { const w: any = typeof window !== 'undefined' ? window : null; q = w && w.location && typeof w.location.search === 'string' ? w.location.search : null; } catch { q = null; }
++  return lakesideStaticMergeEnabled(q);
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideStaticMerge.ts.meta b/creator-build-project/assets/scripts/region/LakesideStaticMerge.ts.meta
+new file mode 100644
+index 0000000..656eeea
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideStaticMerge.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "33dfa75e-db22-4cf9-af54-05e1841c0667",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index dbab0e9..caf952c 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -66,6 +66,7 @@ const tests=[
+  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
+  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
++ ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_static_merge.cjs b/tools/lakeside/test_lakeside_static_merge.cjs
+new file mode 100644
+index 0000000..d203b73
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_static_merge.cjs
+@@ -0,0 +1,55 @@
++// v3.3 draw calls: static merge of the lakeside scenery (Mac v3.2: 79 = background 36 + board/UI ~43; target <= 55).
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const A=path.join(__dirname,'../../creator-build-project/assets'),R=path.join(A,'bundles/region_lakeside');
++const load=f=>{const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region',f),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);return m.exports;};
++const M=load('LakesideStaticMerge.ts'),D=load('LakesideSceneData.ts');
++// half floats / normalized ints exactly as Mesh.readAttribute hands them out (raw storage)
++assert.equal(M.halfToFloat(0x3c00),1);assert.equal(M.halfToFloat(0xc000),-2);assert.equal(M.halfToFloat(0x5640),100);assert.equal(M.halfToFloat(0),0);
++assert.deepEqual(M.lakesideAttrToFloat([0x3c00,0x3800],{type:6,size:4,count:2},false),[1,0.5],'RG16F');
++assert.deepEqual(M.lakesideAttrToFloat(new Float32Array([1.5,-2]),{type:6,size:8,count:2},false),[1.5,-2],'RG32F');
++assert.deepEqual(M.lakesideAttrToFloat([255,0,51,255],{type:1,size:4,count:4},true),[1,0,0.2,1],'RGBA8 unorm');
++assert.deepEqual(M.lakesideAttrToFloat([127,-127,0],{type:2,size:3,count:3},true),[1,-1,0],'RGB8 snorm');
++// material content key: per-GLB copies with equal content share a key; USE_INSTANCING ignored; blend / texture / colour differ
++const base={effect:'builtin-standard',technique:0,defines:{USE_INSTANCING:true,USE_ALBEDO_MAP:true,USE_VERTEX_COLOR:true},props:{mainTexture:'asset:pal',roughness:0.8},cull:0,blend:false,priority:128};
++const k=M.lakesideMaterialKey;assert.equal(k(base),k({...base,defines:{USE_ALBEDO_MAP:true,USE_VERTEX_COLOR:true}}));
++assert.notEqual(k(base),k({...base,blend:true}));assert.notEqual(k(base),k({...base,props:{...base.props,mainTexture:'asset:other'}}));assert.notEqual(k(base),k({...base,props:{...base.props,roughness:0.5}}));
++assert(k({...base,blend:true}).includes('|blend|'));
++// chunking at 65,535 vertices, per group, stable order; single oversize pieces stay unmerged
++const plan=M.lakesideMergePlan([{group:'a',vertices:40000,indices:3},{group:'b',vertices:10,indices:3},{group:'a',vertices:30000,indices:3},{group:'a',vertices:20000,indices:3},{group:'a',vertices:70000,indices:3}]);
++assert.deepEqual(plan.map(c=>[c.group,c.pieces,c.vertices]),[['a',[0],40000],['b',[1],10],['a',[2,3],50000]]);
++// world-space append: translation, non-uniform scale (normal via inverse-transpose), mirrored placement, index offset
++const dst={positions:[],normals:[],uvs:[],colors:[],indices:[],vertices:0},L={position:true,normal:true,uv:true,color:true};
++const piece={positions:[1,0,0, 0,1,0, 0,0,1],normals:[0.7071,0.7071,0, 0,1,0, 0,0,1],uvs:[0,0,1,0,0,1],colors:[1,0,0,1, 0,1,0,1, 0,0,1,1],indices:[0,1,2]};
++const S=[2,0,0,0, 0,1,0,0, 0,0,1,0, 10,0,5,1];M.lakesideAppendPiece(dst,piece,S,L);M.lakesideAppendPiece(dst,piece,[-1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1],L);
++assert.deepEqual(dst.positions.slice(0,9),[12,0,5, 10,1,5, 10,0,6]);assert.deepEqual(dst.indices,[0,1,2,3,4,5]);assert.equal(dst.vertices,6);
++const n0=dst.normals.slice(0,3);assert(Math.abs(Math.hypot(...n0)-1)<1e-9&&Math.abs(n0[0]/n0[1]-0.5)<1e-6,'normal follows inverse-transpose of scale(2,1,1)');
++assert.deepEqual(dst.normals.slice(9,12).map(x=>+x.toFixed(4)),[-0.7071,0.7071,0],'mirrored placement keeps an outward normal');
++assert.equal(dst.colors.length,24);assert.equal(dst.uvs.length,12);
++assert.equal(M.lakesideStaticMergeEnabled(''),true);assert.equal(M.lakesideStaticMergeEnabled('?lakemerge=off'),false);assert.equal(M.lakesideStaticMergeEnabled('?x=1&lakemerge=0'),false);
++// expected background draw calls from the REAL bundle: group the placed instances by glTF material content + vertex layout
++const tr=JSON.parse(fs.readFileSync(path.join(R,'scene_r5h_slim_transforms.json'),'utf8')),list=D.lakesideSceneInstances(tr.instances);
++const glb=f=>{const b=fs.readFileSync(path.join(R,'models',f));const l=b.readUInt32LE(12);return JSON.parse(b.slice(20,20+l));};
++const water=new Set(D.LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs),pieces=[],info={};let singles=0;
++for(const i of list){if(water.has(i.glb))continue;const j=info[i.glb]||(info[i.glb]=glb(i.glb));const p=j.meshes[0].primitives[0],mat=j.materials[p.material];
++ const key=JSON.stringify({...mat,name:undefined})+'#'+Object.keys(p.attributes).sort().join('+');
++ if(mat.alphaMode==='BLEND'){singles++;continue;}pieces.push({group:key,vertices:j.accessors[p.attributes.POSITION].count,indices:j.accessors[p.indices].count});}
++const chunks=M.lakesideMergePlan(pieces),merged=chunks.filter(c=>c.pieces.length>1),lone=chunks.filter(c=>c.pieces.length===1).length;
++const instancedKinds=new Set(chunks.filter(c=>c.pieces.length===1).map(c=>c.group)).size;
++const bgDraws=merged.length+instancedKinds+singles+1/*water*/;
++console.log('merge plan: '+pieces.length+' pieces -> '+merged.length+' merged chunk(s) ('+merged.map(c=>c.vertices+' v').join(', ')+'), '+lone+' unmerged, '+singles+' blended; background ~'+bgDraws+' draws (was 36); total ~'+(bgDraws+43)+' (was 79)');
++assert(bgDraws<=8,'background draws '+bgDraws);assert(bgDraws+43<=55,'total under 55 with margin');
++// lease wiring
++const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
++assert(/instanced=enableLakesideInstancing\(scenery\);[\s\S]*waterTinted=tinted\.size;\}\n  step='static-merge';if\(lakesideStaticMergeFromEnv\(\)\)\{[^\n]*merged=mergeLakesideStatic\(scenery,n=>water\.has\(n\.name\)\);\}\n  setLayer\(scenery\);/.test(bg),'after instancing + water, before layers');
++assert(/if\(merged\)\{for\(const m of merged\.meshes\.splice\(0\)\)m\.destroy\(\);merged=null;\}/.test(bg),'merged meshes destroyed with the lease');
++assert(/for\(const r of out\.disabled\.splice\(0\)\)if\(isValid\(r,true\)\)r\.enabled=true;/.test(bg)&&/static-merge-skipped/.test(bg),'failure reverts to the instanced scene');
++assert(/key\.includes\('\|blend\|'\)/.test(bg)&&/c=>c\.pieces\.length>1/.test(bg),'no blended merges, no 1-piece chunks');
++assert(/new gfx\.Attribute\(A\.ATTR_COLOR,gfx\.Format\.RGBA8,true\)/.test(bg)&&/utils\.createMesh\(geo,undefined,\{calculateBounds:true\}\)/.test(bg));
++assert(/staticMerge:merged\?merged\.stats:null/.test(bg),'diagnostics');
++// per-GLB Texture2D sub-assets over ONE image: the key must use the image + sampler (else nothing merges in the engine)
++assert(/'img:'\+img\+'\/'\+\[v\._minFilter,v\._magFilter,v\._mipFilter,v\._wrapS,v\._wrapT,v\._anisotropy\]/.test(bg),'texture keyed by image+sampler');
++const metas=fs.readdirSync(path.join(R,'models')).filter(f=>f.endsWith('.glb.meta')).map(f=>JSON.parse(fs.readFileSync(path.join(R,'models',f),'utf8')));
++const tex=new Set(),img=new Set();for(const m of metas)for(const [id,sm] of Object.entries(m.subMetas))if(sm.importer==='texture'){tex.add(m.uuid+'@'+id);const u={...sm.userData};img.add(JSON.stringify(u));}
++assert(tex.size>=40&&img.size===1,'45 texture sub-assets, one image+sampler ('+tex.size+'/'+img.size+')');
++console.log('lakeside static merge OK');
+-- 
+2.47.3
+

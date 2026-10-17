@@ -1,0 +1,6 @@
+could not get a list of mounted file-systems
+CONT {"max_pose_jump": ["root", 0.0], "max_angvel_mismatch": ["hand.L", 1.1446, 0.9875], "max_linvel_delta": ["hand.L", 0.856], "max_pos_jump_mm": 0.001}
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/export/blend/cine_m1_v2wip.blend"
+
+Blender quit

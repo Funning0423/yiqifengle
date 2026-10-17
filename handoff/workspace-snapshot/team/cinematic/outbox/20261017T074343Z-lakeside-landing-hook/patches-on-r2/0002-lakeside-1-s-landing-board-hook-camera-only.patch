@@ -1,0 +1,384 @@
+From 26be951cc0b3b6f7f072b0c19345274bdc7cae1d Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 15:34:33 +0800
+Subject: [PATCH 2/2] =?UTF-8?q?lakeside:=201=20s=20landing=E2=86=92board?=
+ =?UTF-8?q?=20hook=20(camera=20only)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+lakesideLandingToBoard now blends the world camera from the landing END to the
+board camera pose predicted from the board UI frame (boardSafeInsets extracted
+from ManagedMobileBoardUI, BoardLayout), position + slerp + FOV on one
+smootherstep, zero velocity at both ends, monotonic. Awaits prewarmLakesideAssets
+first (bounded), skips if the camera is not at the landing end, never rejects.
+Landing END re-referenced to 390x844 with the UI's default safe insets
+(arrivalPitchDeg -2.507461, arrivalFovDeg 57.35256). New test
+test-lakeside-landing-hook; wire test asserts the deps call site.
+---
+ .../assets/scripts/ManagedMobileBoardUI.ts    | 18 +----
+ .../scripts/region/LakesideCameraLayout.ts    | 11 +--
+ .../scripts/region/LakesideLandingHook.ts     | 70 +++++++++++++++++--
+ .../assets/scripts/ui/BoardLayout.ts          | 17 +++++
+ .../world-r2/WorldNativeComposition.ts        | 24 +++++--
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ .../test-lakeside-camera.cjs                  |  8 +--
+ .../test-lakeside-journey-wire.cjs            |  3 +-
+ .../test-lakeside-landing-hook.cjs            | 65 +++++++++++++++++
+ 9 files changed, 180 insertions(+), 38 deletions(-)
+ create mode 100644 tools/journey-integration/test-lakeside-landing-hook.cjs
+
+diff --git a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+index 0b64a73..e9da850 100644
+--- a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
++++ b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+@@ -4,7 +4,7 @@ import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpa
+ import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/LevelBackground';
+ import { GameAudio } from './audio/GameAudio';
+ import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
+-import { boardLayout, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
++import { boardLayout, boardSafeInsets, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
+ import { PopupStack, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
+ import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
+ import { openPause, openRestartConfirm, openResult, type ResultModel, type ResultReward } from './ui/BoardPanels';
+@@ -559,21 +559,7 @@ export class ManagedMobileBoardUI extends Component {
+     }
+   }
+   // ---------------- layout ----------------
+-  private safeInsets(w: number, h: number): SafeArea & { portrait: boolean } {
+-    const portrait = w < h * 1.1; let top = portrait ? 47 : 12, bottom = portrait ? 34 : 21, left = portrait ? 0 : 44, right = left;
+-    if (typeof document !== 'undefined' && document.documentElement && typeof getComputedStyle === 'function') { const css = getComputedStyle(document.documentElement); const read = (name: string) => parseFloat(css.getPropertyValue(name)) || 0; top = Math.max(top, read('--safe-top')); bottom = Math.max(bottom, read('--safe-bottom')); left = Math.max(left, read('--safe-left')); right = Math.max(right, read('--safe-right')); }
+-    const wx = (globalThis as any).wx; let info: any = null, capsule: any = null;
+-    try { info = wx?.getWindowInfo?.(); } catch { } if (!info) try { info = wx?.getSystemInfoSync?.(); } catch { }
+-    const ww = Number(info?.windowWidth) || w, hh = Number(info?.windowHeight) || h, sx = w / ww, sy = h / hh;
+-    const finite = (x: any) => typeof x === 'number' && Number.isFinite(x);
+-    if (ww > 0 && hh > 0 && Number.isFinite(sx) && Number.isFinite(sy)) {
+-      const a = info?.safeArea;
+-      if (a && [a.top, a.bottom, a.left, a.right].every(finite) && a.top >= 0 && a.bottom >= a.top && a.bottom <= hh && a.left >= 0 && a.right >= a.left && a.right <= ww) { top = Math.max(top, a.top * sy); bottom = Math.max(bottom, (hh - a.bottom) * sy); left = Math.max(left, a.left * sx); right = Math.max(right, (ww - a.right) * sx); }
+-      try { const r = wx?.getMenuButtonBoundingClientRect?.(); if (r && [r.top, r.bottom, r.left, r.right].every(finite) && r.top >= 0 && r.bottom > r.top && r.bottom < hh * .35 && r.left >= 0 && r.right > r.left && r.right <= ww) capsule = { top: r.top * sy, bottom: r.bottom * sy, left: r.left * sx, right: r.right * sx }; } catch { }
+-    }
+-    if (!capsule && portrait) capsule = { top: top + 4, bottom: top + 36, left: w - 93, right: w - 6 };
+-    return { top, bottom, left, right, portrait, capsule };
+-  }
++  private safeInsets(w: number, h: number): SafeArea & { portrait: boolean } { return boardSafeInsets(w, h); }
+   private layout() {
+     const frame = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); const w = Math.max(240, frame.width), h = Math.max(320, frame.height);
+     if (!this.managed) view.setDesignResolutionSize(w, h, ResolutionPolicy.EXACT_FIT); if (game.canvas) director.root?.resize(game.canvas.width, game.canvas.height); this.camera.orthoHeight = h / 2; this.root.getComponent(UITransform)!.setContentSize(w, h);
+diff --git a/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
+index c9d8329..01fe840 100644
+--- a/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
++++ b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
+@@ -25,14 +25,15 @@ export const LAKESIDE_CAMERA_LAYOUT={
+  /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). Close end pose
+   * (Funning on the c375304 video: the fallback's final frame reads the board and bridge better): the arrival pose is the
+   * fallback's close neighbourhood (6.8 m behind / 1.1 m right of her; 3.0 m up, 0.4 m under the 3.4 m follow height) and it
+-  * ENDS ON THE BOARD CAMERA (reviewer): aim, pitch and FOV are those of lakesideAlignedLookAt at the 360×780 reference
++  * ENDS ON THE BOARD CAMERA (reviewer): aim, pitch and FOV are those of lakesideAlignedLookAt at the 390×844 reference with
++  * the board UI's default insets (ManagedMobileBoardUI: top 47 / bottom 34 + capsule; iPhone 12–15 class)
+   * (board centre on the 2D grid centre: horizontal aim at the focus, arrivalPitchDeg below the focus pitch, arrivalFovDeg),
+   * so the landing→board hook closes no gap there and only a small one on other screens (≤ ~2.5° view, a few ° FOV; the
+   * test reports it per layout). If BoardLayout or the landing position changes, re-derive the two numbers (the test fails
+-  * when the 360×780 gap exceeds 0.01° / 0.01° FOV). Over the 14.3 m arrival blend the lens height above her eases
++  * when the 390×844 gap exceeds 0.01° / 0.01° FOV). Over the 14.3 m arrival blend the lens height above her eases
+   * 3.4 → 3.0 m and the FOV 48 → arrivalFovDeg with the same smoother as the view, so the lens never climbs in the world
+-  * (no crane-up). Her ≈ 29% across at 360×780, 37% at 390×520. */
+- landing:{arrivalBackM:6.8,arrivalSideM:1.1,arrivalUpM:3.0,arrivalPitchDeg:-2.80422,arrivalFovDeg:55.2171,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
++  * (no crane-up). */
++ landing:{arrivalBackM:6.8,arrivalSideM:1.1,arrivalUpM:3.0,arrivalPitchDeg:-2.507461,arrivalFovDeg:57.35256,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
+  /** Time profile (reviewer on c375304): the 39.2 m leg in 17 s, smootherstep ramps 4 s up from rest and 4 s down into
+   * the landing stop. Cruise 3.02 m/s (≤ 4.5), |a| ≤ 1.41 m/s² (≤ 3), |jerk| ≤ 1.09 m/s³ for her; the lens follows distance
+   * (K7: lens |a| ≤ 1.95 m/s², |jerk| ≤ 4.9 m/s³). */
+@@ -74,7 +75,7 @@ export function lakesideBoardRect(frame:LakesideBoardFrame):{x:number;y:number;s
+ }
+ /** Lakeside close end pose (Local): Landing A arrival pose of the lakeside walk (her stop walkLocal[last], focus = board centre). */
+ export function lakesideLandingLocal():AuthoredPose{const L=LAKESIDE_CAMERA_LAYOUT,e=arrivalPose(L.walkLocal,L.focusLocal,L.landing);
+- return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:48};}
++ return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:L.landing.arrivalFovDeg||48};}
+ /** Lakeside board-background camera for a board-UI frame (Local).
+  * Portrait: position = lakesideLandingLocal().position; no roll; yaw/pitch solved (Newton) so the 3D board centre projects on
+  * the 2D grid centre, FOV solved (bisection) so the 3D centre row projects exactly the 2D grid width.
+diff --git a/creator-build-project/assets/scripts/region/LakesideLandingHook.ts b/creator-build-project/assets/scripts/region/LakesideLandingHook.ts
+index 93f0275..b3ff2de 100644
+--- a/creator-build-project/assets/scripts/region/LakesideLandingHook.ts
++++ b/creator-build-project/assets/scripts/region/LakesideLandingHook.ts
+@@ -1,7 +1,63 @@
+-/** LANDING → BOARD camera hook for 风铃湖畔 (single call site: WorldNativeComposition.enterSelectedLevel).
+- *  TODO(运镜bot): replace this stub with your landing→board transition hook (~1 s, owned by 运镜bot per Grok Bot) — the
+- *  swap is a one-line change of the import in WorldNativeComposition (or of this body). Until then this keeps the
+- *  existing behaviour: resolve at once, the level then mounts and the board-background camera takes over (hard cut).
+- *  Pure (no engine imports). Must resolve (never reject) and must not touch saves/progression. */
+-export type LakesideLandingContext=Readonly<{stageId:string;journey:unknown}>;
+-export function lakesideLandingToBoard(_context:LakesideLandingContext):Promise<void>{return Promise.resolve();}
++import type {Pose} from '../world-r1/WorldFlowCore';
++import {boardLayout,type SafeArea} from '../ui/BoardLayout';
++import {LAKESIDE_CAMERA_LAYOUT,lakesideLandingBlend,lakesideLandingLocal,type LakesideBoardFrame,type LakesideLandingBlend} from './LakesideCameraLayout';
++/** LANDING → BOARD camera hook for 风铃湖畔 (运镜bot; single call site: WorldNativeComposition.enterSelectedLevel, after the
++ *  journey arrived, before enterLevel mounts the board). Pure (no engine imports): the call site injects the camera, the frame
++ *  clock, the viewport/safe area and the preload.
++ *   1. PRELOAD: awaits deps.preload() (prewarmLakesideAssets: bundle, transforms, prefabs, water material) before the blend
++ *      starts, at most preloadTimeoutS (frames counted on deps.nextFrame) — a slow or failed preload never blocks or rejects;
++ *      enterLevel still loads what is missing.
++ *   2. BLEND: from the world camera's current pose (= the final journey pose: the landing END pose, which already IS the board
++ *      camera at the 390×844 reference) to the board camera for the board UI's own frame (BoardLayout + boardSafeInsets, the
++ *      exact frame ManagedMobileBoardUI reports), lakesideLandingBlend: position lerp + view slerp + FOV lerp on ONE
++ *      smootherstep, zero velocity/acceleration at both ends, monotonic, no overshoot; seconds = landingBlend.seconds (1 s),
++ *      time from the frame dt (capped at 0.1 s like WorldFlowComponent). First write = the current pose, last write =
++ *      boardWorld exactly.
++ *   3. SWAP: returns after the frame that wrote boardWorld; the world camera holds it while enterLevel mounts the board, and
++ *      the lakeside board background's camera (lakesideAlignedBoardPose(frame) in the lease rig = boardWorld seen from the
++ *      lakeside root) takes over at the identical pose.
++ *  Never rejects, never touches saves/progression. Without deps (older call sites) it resolves at once (previous hard cut). */
++export type LakesideLandingDeps=Readonly<{
++ readCamera():Pose|null;
++ /** apply a world camera pose (applyCameraPose on the world camera); false = rejected → the hook stops (the board still mounts). */
++ setCamera(pose:Pose):boolean;
++ /** resolves on the next rendered frame with that frame's dt in seconds. */
++ nextFrame():Promise<number>;
++ viewport():Readonly<{width:number;height:number}>;
++ safe?(width:number,height:number):SafeArea;
++ preload?():Promise<unknown>;
++ /** default 3 s */
++ preloadTimeoutS?:number;
++ /** one line per run: {event:'landing-board', ...} */
++ log?(entry:Record<string,unknown>):void;
++}>;
++/** How close the world camera must be to the landing END (direction / FOV) for the hook to run. */
++export const LANDING_MATCH={viewDeg:.5,fovDeg:.5} as const;
++export type LakesideLandingContext=Readonly<{stageId:string;journey:unknown;deps?:LakesideLandingDeps}>;
++/** Board-UI frame the board will report for this viewport (portrait plate width does not depend on the goal count). */
++export function lakesideHookFrame(width:number,height:number,safe:SafeArea):LakesideBoardFrame{
++ const g=boardLayout(width,height,safe,2);return {width,height,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};}
++/** Lakeside root from the landing pose: the journey ends on lakesideLandingLocal() placed by (yawDeg, root). */
++export function lakesideRootFromLanding(from:Pose):{yawDeg:number;root:[number,number,number]}{
++ const yawDeg=LAKESIDE_CAMERA_LAYOUT.yawDeg,t=yawDeg*Math.PI/180,c=Math.cos(t),s=Math.sin(t),p=lakesideLandingLocal().position;
++ const r=[c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];return {yawDeg,root:[from.position[0]-r[0],from.position[1]-r[1],from.position[2]-r[2]]};}
++export async function lakesideLandingToBoard(context:LakesideLandingContext):Promise<void>{
++ const d=context.deps;if(!d)return;const log=(e:Record<string,unknown>)=>{try{d.log?.({event:'landing-board',stageId:context.stageId,...e});}catch{}};
++ const t0=Date.now();let frames=0,elapsed=0,stage='preload',preloaded:'ok'|'failed'|'timeout'|'none'='none';
++ try{
++  if(d.preload){let settled=false;const p=Promise.resolve().then(()=>d.preload!()).then(()=>{settled=true;preloaded='ok';},()=>{settled=true;preloaded='failed';});
++   const limit=d.preloadTimeoutS??3;let waited=0;while(!settled&&waited<limit){await Promise.race([p,d.nextFrame().then(dt=>{waited+=Math.max(0,Math.min(.1,dt||0))||1/60;})]);}
++   if(!settled)preloaded='timeout';}
++  stage='plan';const from=d.readCamera();if(!from){log({result:'no-camera',preloaded});return;}
++  // only from the journey's landing END (view direction and FOV are root-independent): anything else keeps the plain cut
++  const L=lakesideLandingLocal(),yr=LAKESIDE_CAMERA_LAYOUT.yawDeg*Math.PI/180,u=[L.target[0]-L.position[0],L.target[1]-L.position[1],L.target[2]-L.position[2]],
++   ue=[Math.cos(yr)*u[0]+Math.sin(yr)*u[2],u[1],-Math.sin(yr)*u[0]+Math.cos(yr)*u[2]],uf=[from.target[0]-from.position[0],from.target[1]-from.position[1],from.target[2]-from.position[2]],
++   cr=[ue[1]*uf[2]-ue[2]*uf[1],ue[2]*uf[0]-ue[0]*uf[2],ue[0]*uf[1]-ue[1]*uf[0]],offDeg=Math.atan2(Math.hypot(cr[0],cr[1],cr[2]),ue[0]*uf[0]+ue[1]*uf[1]+ue[2]*uf[2])*180/Math.PI,fovOff=Math.abs((from.fovVerticalDeg??48)-(L.fovVerticalDeg??48));
++  if(!(offDeg<=LANDING_MATCH.viewDeg&&fovOff<=LANDING_MATCH.fovDeg)){log({result:'not-at-landing',offDeg,fovOff,preloaded});return;}
++  const v=d.viewport(),frame=lakesideHookFrame(v.width,v.height,d.safe?d.safe(v.width,v.height):{top:0,bottom:0,left:0,right:0,capsule:null}),b:LakesideLandingBlend=lakesideLandingBlend(from,frame,lakesideRootFromLanding(from));
++  stage='blend';
++  for(;;){const done=b.done(elapsed);if(!d.setCamera(b.at(elapsed))){log({result:'camera-rejected',elapsed,frames,preloaded});return;}if(done)break;
++   const dt=await d.nextFrame();frames++;elapsed+=Number.isFinite(dt)&&dt>0?Math.min(.1,dt):0;}
++  log({result:'ok',preloaded,frames,seconds:b.seconds,gap:b.gap,frame:{width:v.width,height:v.height},ms:Date.now()-t0});
++ }catch(error){log({result:'error',stage,error:String((error as any)?.message||error),preloaded});}
++}
+diff --git a/creator-build-project/assets/scripts/ui/BoardLayout.ts b/creator-build-project/assets/scripts/ui/BoardLayout.ts
+index dd60df6..8a3860f 100644
+--- a/creator-build-project/assets/scripts/ui/BoardLayout.ts
++++ b/creator-build-project/assets/scripts/ui/BoardLayout.ts
+@@ -89,3 +89,20 @@ export class IdleHintClock {
+   }
+   count() { return this.shown; }
+ }
++/** Safe-area insets of the board UI (moved verbatim from ManagedMobileBoardUI.safeInsets, which now delegates here) so the
++ *  lakeside landing→board hook predicts the exact BoardLayout frame the board UI will report. Reads CSS env + wx only. */
++export function boardSafeInsets(w: number, h: number): SafeArea & { portrait: boolean } {
++  const portrait = w < h * 1.1; let top = portrait ? 47 : 12, bottom = portrait ? 34 : 21, left = portrait ? 0 : 44, right = left;
++  if (typeof document !== 'undefined' && document.documentElement && typeof getComputedStyle === 'function') { const css = getComputedStyle(document.documentElement); const read = (name: string) => parseFloat(css.getPropertyValue(name)) || 0; top = Math.max(top, read('--safe-top')); bottom = Math.max(bottom, read('--safe-bottom')); left = Math.max(left, read('--safe-left')); right = Math.max(right, read('--safe-right')); }
++  const wx = (globalThis as any).wx; let info: any = null, capsule: any = null;
++  try { info = wx?.getWindowInfo?.(); } catch { } if (!info) try { info = wx?.getSystemInfoSync?.(); } catch { }
++  const ww = Number(info?.windowWidth) || w, hh = Number(info?.windowHeight) || h, sx = w / ww, sy = h / hh;
++  const finite = (x: any) => typeof x === 'number' && Number.isFinite(x);
++  if (ww > 0 && hh > 0 && Number.isFinite(sx) && Number.isFinite(sy)) {
++    const a = info?.safeArea;
++    if (a && [a.top, a.bottom, a.left, a.right].every(finite) && a.top >= 0 && a.bottom >= a.top && a.bottom <= hh && a.left >= 0 && a.right >= a.left && a.right <= ww) { top = Math.max(top, a.top * sy); bottom = Math.max(bottom, (hh - a.bottom) * sy); left = Math.max(left, a.left * sx); right = Math.max(right, (ww - a.right) * sx); }
++    try { const r = wx?.getMenuButtonBoundingClientRect?.(); if (r && [r.top, r.bottom, r.left, r.right].every(finite) && r.top >= 0 && r.bottom > r.top && r.bottom < hh * .35 && r.left >= 0 && r.right > r.left && r.right <= ww) capsule = { top: r.top * sy, bottom: r.bottom * sy, left: r.left * sx, right: r.right * sx }; } catch { }
++  }
++  if (!capsule && portrait) capsule = { top: top + 4, bottom: top + 36, left: w - 93, right: w - 6 };
++  return { top, bottom, left, right, portrait, capsule };
++}
+diff --git a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+index 9849236..255d50e 100644
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -1,8 +1,8 @@
+ import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
+-import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED } from '../region/LakesideBoardBackground';
++import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets } from '../region/LakesideBoardBackground';
+ import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
+ import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
+-import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } from 'cc';
++import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view } from 'cc';
+ import { DEBUG } from 'cc/env';
+ import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
+ import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
+@@ -18,7 +18,9 @@ import { createPersistentR5Port } from './PersistentR5Port';
+ import { createPersistentMainlinePort } from './PersistentMainlinePort';
+ import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
+ import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
+-import {lakesideLandingToBoard} from '../region/LakesideLandingHook';
++import {lakesideLandingToBoard,type LakesideLandingDeps} from '../region/LakesideLandingHook';
++import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
++import {boardSafeInsets} from '../ui/BoardLayout';
+ /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
+ const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
+ import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
+@@ -75,7 +77,7 @@ export class WorldNativeComposition extends Component {
+     const region=this.selectionRegion(selection);
+     this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside'){console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);if(!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);}return arrived;}
+     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
+-    if(region==='lakeside')await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null});
++    if(region==='lakeside')await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null,deps:this.lakesideLandingDeps()});
+     const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;
+     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
+     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
+@@ -90,6 +92,20 @@ export class WorldNativeComposition extends Component {
+     try{console.error('[QF_LAKE] '+JSON.stringify({event:'lakeside-fallback',stage,reason:String(reason),island:back.ok?'ok':String((back as any).reason)}));}catch{}
+     return {ok:false,reason:LAKESIDE_LOAD_FAILED};
+   }
++  /** 运镜bot: what the landing→board hook needs (world camera read/write through applyCameraPose, frame clock, the board UI's
++   *  viewport + safe area, the lakeside preload). The hook is pure and never rejects. */
++  private lakesideLandingDeps():LakesideLandingDeps|undefined{
++    const camera=this.worldCamera;if(!camera||!camera.node?.isValid)return undefined;
++    return {
++      readCamera:()=>{const n=camera.node;if(!n.isValid)return null;const p=n.worldPosition,f=n.forward;return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:camera.fov};},
++      setCamera:pose=>camera.node.isValid&&applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),'lakeside.landing-board'),
++      nextFrame:()=>new Promise<number>(resolve=>this.scheduleOnce(()=>resolve(director.getDeltaTime()),0)),
++      viewport:()=>{const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();return {width:Math.max(240,f.width),height:Math.max(320,f.height)};},
++      safe:(w,h)=>boardSafeInsets(w,h),
++      preload:()=>prewarmLakesideAssets(),
++      log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_LAKESIDE] '+JSON.stringify(entry));}catch{}},
++    };
++  }
+   private selectionRegion(selection:Selection):JourneyRegion {
+     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
+     // r05-meadow-* meadow, r05-sky-* skycity, 风铃湖畔 r04-lake-* (r05 renumbering too) lakeside, else island (tide).
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index e5210a2..65fcbde 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -66,7 +66,7 @@ const tests=[
+  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
+  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+- ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
++ ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/journey-integration/test-lakeside-camera.cjs b/tools/journey-integration/test-lakeside-camera.cjs
+index 2e73e57..1ed9175 100644
+--- a/tools/journey-integration/test-lakeside-camera.cjs
++++ b/tools/journey-integration/test-lakeside-camera.cjs
+@@ -15,8 +15,8 @@
+  *     as distanceAt; NOTE the frozen FlowReferenceStandin does not follow it until its reviewed patch lands), 60 Hz:
+  *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
+  *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
+- *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): landing END = board camera at the 360×780 reference
+- *     (gap ≤ 1e-6 m / 0.01° / 0.01° FOV; residual per portrait layout reported); starts on the landing pose (lens at rest), ends exactly on
++ *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): landing END = board camera at the 390×844 reference (UI default
++ *     insets; gap ≤ 1e-6 m / 0.01° / 0.01° FOV; residual per portrait layout reported); starts on the landing pose (lens at rest), ends exactly on
+  *     the board camera; one smootherstep for position/view (slerp)/FOV: monotonic, no overshoot, single-peak rates ≈ 0 at both ends;
+  *     lens ≥ 1.1 m on every 60 Hz frame, her face/head/chest never hidden, lens on her right while it is behind her; per-frame
+  *     displacement / speed / turn rate / FOV rate written to the report (perFrame) for the blend plots.
+@@ -158,10 +158,10 @@ check(`K8 landing→board blend ${C.landingBlend.seconds} s @60 Hz: exact ends,
+   out[W+'x'+Hh]={seconds:b.seconds,frames:n+1,from:{position:from.position.map(r3),fov:r3(from.fovVerticalDeg)},to:{position:bw[0].map(r3),fov:r3(loc.fovVerticalDeg)},moveM:r3(totD),turnDeg:r3(totA*180/Math.PI),fovChangeDeg:r3(totF),
+    minLensM:r3(minLens),minLensObj:minObj,minRightWhileBehindM:r3(minSide),passesHerAtS:ahead,peakSpeedMps:r3(pv.m),peakTurnDegS:r3(pw.m),peakTurnAtS:r3((pw.im+1)/60),peakTurnAccelDegS2:r3(Math.max(...acc)),peakFovRateDegS:r3(pf.m),
+    endRates:{firstFrameTurnDegS:r3(pw.first),lastFrameTurnDegS:r3(pw.last),firstFrameFovDegS:r3(pf.first),lastFrameFovDegS:r3(pf.last)},perFrame:F.map(f=>Object.fromEntries(Object.entries(f).map(([k,v])=>[k,+v.toFixed(5)])))};}
+- // landing END = board camera (reviewer): no gap at the 360×780 reference, residual reported on every portrait layout
++ // landing END = board camera (reviewer): no gap at the 390×844 reference (board UI default insets), residual reported on every portrait layout
+  const gaps={};for(const [name,W,Hh,safe] of K6_LAYOUTS){if(W>Hh)continue;const g=BL8.boardLayout(W,Hh,safe,2),b=LK.lakesideLandingBlend(cT,{width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}},j);
+   assert(b.done(b.seconds)&&!b.done(b.seconds-1e-3)&&b.at(b.seconds)===b.boardWorld,'done()/at() swap frame');gaps[name]={positionM:+b.gap.positionM.toExponential(2),viewDeg:+b.gap.viewDeg.toFixed(4),fovDeg:+b.gap.fovDeg.toFixed(4)};}
+- const ref=gaps['360x780 (0.46)'];assert(ref.positionM<=1e-6&&ref.viewDeg<=.01&&Math.abs(ref.fovDeg)<=.01,'landing end != board camera at 360x780: '+JSON.stringify(ref));
++ const ref=gaps['390x844 notch+capsule'];assert(ref.positionM<=1e-6&&ref.viewDeg<=.01&&Math.abs(ref.fovDeg)<=.01,'landing end != board camera at 390x844 (UI default insets): '+JSON.stringify(ref));
+  return {landingLensAtStop:{speedMps:+landV.toFixed(5),turnDegS:+landW.toFixed(5)},landingToBoardGap:gaps,blends:out};});
+ const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
+diff --git a/tools/journey-integration/test-lakeside-journey-wire.cjs b/tools/journey-integration/test-lakeside-journey-wire.cjs
+index f330957..efa97c2 100644
+--- a/tools/journey-integration/test-lakeside-journey-wire.cjs
++++ b/tools/journey-integration/test-lakeside-journey-wire.cjs
+@@ -50,7 +50,8 @@ t('landing→board hook call site',()=>{
+  assert.match(comp,/if\(region==='lakeside'\)await lakesideLandingToBoard\(/);
+  const i=comp.indexOf('lakesideLandingToBoard({'),e=comp.indexOf('ensureRegion(region)'),l=comp.indexOf("enterLevel(selection.stageId)");assert(e>0&&e<i&&i<l,'between arrival and enterLevel');
+  const p=Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});assert(p&&typeof p.then==='function');
+- assert.match(src('region/LakesideLandingHook.ts'),/TODO\(运镜bot\)/);});
++ // 运镜bot's hook replaced the stub: the call site injects deps; without deps it still resolves at once (old cut). Behaviour: test-lakeside-landing-hook.
++ assert.doesNotMatch(src('region/LakesideLandingHook.ts'),/TODO\(运镜bot\)/);assert.match(comp,/lakesideLandingToBoard\(\{stageId:selection\.stageId,journey:[^\n]*deps:this\.lakesideLandingDeps\(\)\}\)/);});
+ t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{/* build05-next: 运镜bot b0c21d2 dropped the portrait board.pitchDeg (pitch 58 void; portrait is solved from the landing pose). The wiring still must not override the layout: landscape stays 75, and the adapter only reads lakesideJourney. */assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,undefined);assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.landscape.pitchDeg,75);assert.doesNotMatch(src('region/RegionJourneyAdapter.ts'),/pitchDeg\s*[:=]/);});
+ (async()=>{
+  const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
+diff --git a/tools/journey-integration/test-lakeside-landing-hook.cjs b/tools/journey-integration/test-lakeside-landing-hook.cjs
+new file mode 100644
+index 0000000..0db2cc2
+--- /dev/null
++++ b/tools/journey-integration/test-lakeside-landing-hook.cjs
+@@ -0,0 +1,65 @@
++'use strict';
++// 运镜bot: region/LakesideLandingHook.lakesideLandingToBoard (landing → board, 1 s) with injected fakes (camera, frame clock,
++// viewport/safe area, preload). Checks: preload awaited before the first camera write (and bounded: failure / hang never block
++// or reject); first write = the landing pose, last write = boardWorld exactly (identical pose for the board's camera, the board
++// UI frame predicted with the UI's own boardSafeInsets + BoardLayout); per-frame position / view / FOV monotonic, no overshoot,
++// single-peak rates ≈ 0 at both ends, 60 Hz and jittery dt (incl. a long frame); never rejects (camera rejected / throws /
++// not at the landing → stops, logs); no deps → resolves at once. Writes reports/lakeside-landing-hook.json (per-frame data).
++const assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),{createHarness}=require('../board-ui/harness.cjs');
++const H=createHarness(),S=path.resolve(__dirname,'../../creator-build-project/assets/scripts')+'/';
++const Hook=H.load(S+'region/LakesideLandingHook.ts'),LK=H.load(S+'region/LakesideCameraLayout.ts'),Core=H.load(S+'world-r1/RegionJourneyCore.ts'),BL=H.load(S+'ui/BoardLayout.ts');
++const results=[];let fail=0;const T=async(id,f)=>{try{const r=await f();results.push({id,status:'PASS',...(r||{})});console.log('PASS',id);}catch(e){fail++;results.push({id,status:'FAIL',error:String(e.stack||e)});console.log('FAIL',id,'\n',e.stack||e);}};
++const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],dir=p=>{const d=sub(p.target,p.position),l=Math.hypot(...d);return d.map(x=>x/l);};
++const ang=(a,b)=>{const u=dir(a),v=dir(b),c=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];return Math.atan2(Math.hypot(...c),u[0]*v[0]+u[1]*v[1]+u[2]*v[2])*180/Math.PI;};
++const j=LK.lakesideJourney([2,0,-1]),path_=[...j.approach,...j.bridge.slice(1),...j.arrival];
++const landing=Core.journeyCamera(path_,Core.routeLength(path_),{position:[0,5,-10],target:[0,0,0],fovVerticalDeg:45},j.focus,undefined,0,j.landing);
++const UI=(w,h)=>BL.boardSafeInsets(w,h);
++// preload resolving after `frames` frames (the fake clock is virtual: frames come back-to-back)
++const afterFrames=frames=>{let res;const p=new Promise(r=>{res=r;});p.frames=frames;p.res=res;return ()=>p;};
++function fake({w=390,h=844,dts=null,preload=()=>Promise.resolve(),readCamera,setCamera,timeout}={}){
++ const st={pose:landing,writes:[],at:[],dts:[],logs:[],preloadDoneAtWrite:null,preloaded:false};let k=0;const pre=preload();
++ const deps={readCamera:readCamera||(()=>st.pose),setCamera:setCamera||(p=>{if(st.preloadDoneAtWrite===null)st.preloadDoneAtWrite=st.preloaded;st.pose=p;st.writes.push(p);st.at.push(st.dts.length);return true;}),
++  nextFrame:()=>new Promise(r=>setImmediate(()=>{const dt=dts?dts[k++%dts.length]:1/60;st.dts.push(dt);if(pre.frames!==undefined&&st.dts.length>=pre.frames)pre.res();r(dt);})),viewport:()=>({width:w,height:h}),safe:UI,
++  preload:()=>pre.then(v=>{st.preloaded=true;return v;}),preloadTimeoutS:timeout,log:e=>st.logs.push(e)};return {st,deps};}
++const board=(w,h)=>{const f=Hook.lakesideHookFrame(w,h,UI(w,h));return LK.lakesideLandingBlend(landing,f,j);};
++function series(st){const F=[];let t=0;const dts=st.writes.map((_,i)=>i?st.dts.slice(st.at[i-1],st.at[i]).reduce((a,b)=>a+b,0):0).slice(1);st.writes.forEach((p,i)=>{if(i)t+=Math.min(.1,dts[i-1]);const q=st.writes[i-1];
++ F.push({frame:i,t:+t.toFixed(5),dt:i?+dts[i-1].toFixed(5):0,position:p.position.map(x=>+x.toFixed(6)),forward:dir(p).map(x=>+x.toFixed(7)),fov:+p.fovVerticalDeg.toFixed(5),
++  dispM:Math.hypot(...sub(p.position,landing.position)),angFromStartDeg:ang(landing,p),angVelDegS:q?ang(q,p)/Math.max(1e-9,Math.min(.1,dts[i-1])):0,speedMps:q?Math.hypot(...sub(p.position,q.position))/Math.max(1e-9,Math.min(.1,dts[i-1])):0,fovRateDegS:q?(p.fovVerticalDeg-q.fovVerticalDeg)/Math.max(1e-9,Math.min(.1,dts[i-1])):0});});return F;}
++function checkRun(st,w,h,label){const b=board(w,h),F=series(st),last=st.writes.at(-1),first=st.writes[0];
++ assert.equal(st.preloadDoneAtWrite,true,label+': first camera write before the preload finished');
++ assert(Math.hypot(...sub(first.position,landing.position))<1e-12&&ang(first,landing)<1e-9&&Math.abs(first.fovVerticalDeg-landing.fovVerticalDeg)<1e-12,label+': first write != landing pose');
++ // last write = boardWorld (the hook recovers the root from the landing pose: equal to the journey root within float noise)
++ const close=(x,y)=>x.every((v,i)=>Math.abs(v-y[i])<=1e-9);assert(close(last.position,b.boardWorld.position)&&close(last.target,b.boardWorld.target)&&last.fovVerticalDeg===b.boardWorld.fovVerticalDeg,label+': last write != boardWorld');
++ // the board's own camera (lease rig at the origin) = boardLocal = lakesideAlignedLookAt(the UI frame) → identical pose
++ const ui=BL.boardLayout(w,h,UI(w,h),3),uiFrame={width:w,height:h,boardTop:ui.tray.y-ui.tray.height/2,board:{x:ui.grid.x,y:ui.grid.y,size:ui.grid.size}},lease=LK.lakesideAlignedLookAt(uiFrame);
++ assert.deepEqual(lease,b.boardLocal,label+': board camera for the UI frame (3 goals) != hook target');
++ const tot=ang(landing,last),totF=last.fovVerticalDeg-landing.fovVerticalDeg,tol=1e-6;
++ for(let i=1;i<F.length;i++){assert(F[i].angFromStartDeg>=F[i-1].angFromStartDeg-tol&&F[i].angFromStartDeg<=tot+tol,label+': view overshoot at '+i);assert((F[i].fov-F[i-1].fov)*(Math.sign(totF)||1)>=-tol,label+': FOV not monotonic at '+i);assert(F[i].dispM>=F[i-1].dispM-tol,label+': displacement not monotonic');}
++ const elapsed=F.at(-1).t;assert(elapsed>=1-1e-9&&elapsed<=1.1+1e-9,label+': blend took '+elapsed+' s');
++ return {F,b,tot,totF};}
++(async()=>{
++ await T('no deps: resolves at once (previous cut)',async()=>{await Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});});
++ const runs={};
++ for(const [w,h] of [[390,844],[360,780],[414,896],[375,667],[390,520]])await T(`60 Hz ${w}x${h}: preload first, exact ends (landing → board camera of the UI frame), monotonic, single-peak rates ≈ 0 at both ends`,async()=>{
++  const {st,deps}=fake({w,h,preload:afterFrames(20)});await Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null,deps});
++  const {F,b,tot,totF}=checkRun(st,w,h,`${w}x${h}`);const r=F.slice(1).map(f=>f.angVelDegS),m=Math.max(...r),im=r.indexOf(m);
++  if(m>1e-6){assert(r.every((x,i)=>!i||(i<=im?x>=r[i-1]-1e-3*m:x<=r[i-1]+1e-3*m)),'turn rate not single-peaked');assert(r[0]<=.02*m&&r.at(-1)<=.02*m,'turn rate not ≈ 0 at the ends');}
++  const fr=F.slice(1).map(f=>Math.abs(f.fovRateDegS)),fm=Math.max(...fr);if(fm>1e-6)assert(fr[0]<=.02*fm&&fr.at(-1)<=.02*fm,'FOV rate not ≈ 0 at the ends');
++  assert.equal(st.logs.at(-1).result,'ok');runs[w+'x'+h]={frames:F.length,gap:b.gap,peakTurnDegS:+m.toFixed(4),peakFovRateDegS:+fm.toFixed(4),perFrame:F};
++  return {frames:F.length,gap:{positionM:+b.gap.positionM.toExponential(2),viewDeg:+b.gap.viewDeg.toFixed(4),fovDeg:+b.gap.fovDeg.toFixed(4)},totalTurnDeg:+tot.toFixed(4),fovChangeDeg:+totF.toFixed(4),peakTurnDegS:+m.toFixed(4)};});
++ await T('jittery dt (12–40 ms) + one 250 ms frame (capped 0.1 s): exact ends, monotonic, ≤ 1.1 s',async()=>{const dts=[.016,.012,.033,.017,.25,.04,.016,.02,.016,.013];
++  const {st,deps}=fake({w:390,h:520,dts});await Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null,deps});const {F}=checkRun(st,390,520,'jitter');return {frames:F.length};});
++ await T('preload rejects → still blends (logged failed)',async()=>{const {st,deps}=fake({preload:()=>Promise.reject(Error('x'))});deps.setCamera=p=>{st.pose=p;st.writes.push(p);return true;};
++  await Hook.lakesideLandingToBoard({stageId:'s',journey:null,deps});assert.equal(st.logs.at(-1).result,'ok');assert.equal(st.logs.at(-1).preloaded,'failed');assert(st.writes.at(-1).position.every((v,i)=>Math.abs(v-board(390,844).boardWorld.position[i])<1e-9));});
++ await T('preload hangs → bounded by preloadTimeoutS, then blends',async()=>{const {st,deps}=fake({preload:()=>new Promise(()=>{}),timeout:.2});deps.setCamera=p=>{st.pose=p;st.writes.push(p);return true;};
++  await Hook.lakesideLandingToBoard({stageId:'s',journey:null,deps});assert.equal(st.logs.at(-1).preloaded,'timeout');assert.equal(st.logs.at(-1).result,'ok');const waited=st.dts.length-(st.writes.length-1);assert(waited>=12&&waited<=13,'waited frames '+waited);});
++ await T('never rejects: camera rejected / readCamera throws / setCamera throws / viewport throws',async()=>{
++  for(const mut of [d=>{d.setCamera=()=>false;},d=>{d.readCamera=()=>{throw Error('r');};},d=>{d.setCamera=()=>{throw Error('s');};},d=>{d.viewport=()=>{throw Error('v');};},d=>{d.readCamera=()=>null;}]){
++   const {st,deps}=fake();const dd={...deps};mut(dd);await Hook.lakesideLandingToBoard({stageId:'s',journey:null,deps:dd});assert(['camera-rejected','error','no-camera'].includes(st.logs.at(-1).result),JSON.stringify(st.logs.at(-1)));}});
++ await T('not at the landing END (other view / FOV) → no camera write, plain cut',async()=>{
++  for(const p of [{...landing,target:[landing.target[0]+3,landing.target[1],landing.target[2]]},{...landing,fovVerticalDeg:48}]){const {st,deps}=fake();deps.readCamera=()=>p;let wrote=0;const dd={...deps,setCamera:()=>{wrote++;return true;}};
++   await Hook.lakesideLandingToBoard({stageId:'s',journey:null,deps:dd});assert.equal(wrote,0);assert.equal(st.logs.at(-1).result,'not-at-landing');}});
++ await T('root recovered from the landing pose = the journey root',async()=>{const r=Hook.lakesideRootFromLanding(landing);assert(Math.hypot(...sub(r.root,j.root))<1e-9);assert.equal(r.yawDeg,j.yawDeg);});
++ const report={status:fail?'FAIL':'PASS',results,runs};fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-landing-hook.json',JSON.stringify(report,null,1)+'\n');
++ console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status}))},null,1));if(fail)process.exitCode=1;
++})();
+-- 
+2.47.3
+

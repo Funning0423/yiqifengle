@@ -1,0 +1,49 @@
+From ff3d0450f50bcbb3a33643ceaa24aea4d545e5f6 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 22:45:37 +0800
+Subject: [PATCH 07/10] exit-cam B5.4.3: ~30 s (settle 22, ramp-out .15 -> last
+ ~3 s gentle settle), peak 2.55 m/s, max accel 1.30; path/end pose/clearance
+ bump unchanged; test peak cap 2.6, 1.1 m clearance kept
+
+---
+ .../assets/scripts/world-r1/RegionCameraData.ts               | 4 ++--
+ tools/camera-frame-test/test_camera_frames.cjs                | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+index 986e697..4251c5f 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+@@ -189,14 +189,14 @@ export const TRANSITION_CAMERA = Object.freeze({
+    *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
+    *  frontalDeg: wind reaches 1 the first time the lens is within this many
+    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
+-  crane: { settleSeconds: 29,
++  crane: { settleSeconds: 22,
+     pace: { sampleMetres: 0.05, rampSeconds: 1.03, cruiseMps: 7,
+       depart: { turn: 1, straightM: 0.45, rayMps: 1.15, blendMetres: 0.5, aimDeg: 22, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
+       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36,
+       /** B5 (运镜bot 2026-10-16, Funning rejected B4: mid-way surge + abrupt lift). Follow her at walking pace, then ONE
+        *  minimum-jerk (smootherstep) rise from her right to cameraIsland; all seconds after the doorway key. */
+       /* Rollback to B4: delete this b5 entry (depart above is the B4 arc). */
+-      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.6, riseAt: 1.2, side: 2.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.52, cruiseRamp: 0.12, cartesian: 1, cruiseRampIn: 0.3, nudge: { at: 4.8, width: 4.5, up: 0.35 } } } },
++      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.6, riseAt: 1.2, side: 2.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.52, cruiseRamp: 0.15, cartesian: 1, cruiseRampIn: 0.3, nudge: { at: 4.8, width: 4.5, up: 0.35 } } } },
+   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
+    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when
+    *  the exit arc first faces her -> held while she stays in front -> eases to exactly 0 when the camera settles on
+diff --git a/tools/camera-frame-test/test_camera_frames.cjs b/tools/camera-frame-test/test_camera_frames.cjs
+index 8ab0ffa..7614d67 100644
+--- a/tools/camera-frame-test/test_camera_frames.cjs
++++ b/tools/camera-frame-test/test_camera_frames.cjs
+@@ -229,7 +229,7 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
+   // then rises in one smooth ease. Checked on BOTH clocks (constant walk here, real walk driver below):
+   // peak speed <= EXIT_LIMITS.peakMps, smoothed |accel| / |jerk| caps (no spikes/kinks), and the lens on her right side
+   // (lateral offset on her right axis >= -EXIT_LIMITS.leftToleranceM). No cruise band, no door-angle condition.
+-  const EXIT_LIMITS={peakMps:2.0,clearM:1.1,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
++  const EXIT_LIMITS={peakMps:2.6,clearM:1.1,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
+   const exitKin=(frames,dtE,tFrom)=>{const ex=frames.filter(f=>f.state==='crossing-out'&&f.t>=tFrom-.5);const n=ex.length,h=EXIT_LIMITS.smoothFrames>>1;
+     const w=[];for(let k=-h;k<=h;k++){let c=1;for(let q=0;q<k+h;q++)c=c*(2*h-q)/(q+1);w.push(c);}const ws=w.reduce((p,q)=>p+q,0);
+     const P=ex.map((f,i)=>{let x=[0,0,0];for(let k=-h;k<=h;k++){const g=ex[Math.max(0,Math.min(n-1,i+k))].cam.position;for(let c=0;c<3;c++)x[c]+=g[c]*w[k+h]/ws;}return x;});
+-- 
+2.47.3
+

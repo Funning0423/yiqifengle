@@ -1,0 +1,4 @@
+inode=762058 links=1 bytes=138105148 mtime=2026-10-17 13:29:52.052339572 +0800  /workspace/wechat-game/team/ggbot/outbox/20261017T033129Z-integration-build05-milestone-readme-v2/qfl-build05-09a1b8e-full.bundle
+inode=762059 links=1 bytes=138105148 mtime=2026-10-17 13:29:53.056339572 +0800  /workspace/wechat-game/team/ggbot/outbox/20261017T041004Z-integration-build05-milestone-readme-v2.1/qfl-build05-09a1b8e-full.bundle
+5d4ed05d6ab3eafc0a14894109384adfea9fcb797a47a08f63be6a409568c2e2  /workspace/wechat-game/team/ggbot/outbox/20261017T033129Z-integration-build05-milestone-readme-v2/qfl-build05-09a1b8e-full.bundle
+5d4ed05d6ab3eafc0a14894109384adfea9fcb797a47a08f63be6a409568c2e2  /workspace/wechat-game/team/ggbot/outbox/20261017T041004Z-integration-build05-milestone-readme-v2.1/qfl-build05-09a1b8e-full.bundle

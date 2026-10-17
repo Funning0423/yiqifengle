@@ -1,0 +1,7 @@
+b12ff1fd1886c332e90ed09e4cbea8786bc6b9ba f5c745a18a6a5aee9bc7ccea83d6e40294ec4cc4 exit-cam B5.1: closer/lower end pose (-2.3,7,11)->(-2,0.8,4.6) fov48, single shared ease, peak<=4 m/s; exit tests check speed/jerk caps + right side; wind hold capped before end
+15b164c4b59467a60061c40ef671c154f6ca4671 5c53f36dc39e73ff37907801f8c36d936c9eaa76 Follow her out of the door at walking pace, then rise from her right in one smooth curve (exit camera B5).
+
+ .../assets/scripts/world-r1/FirstsliceRoutes.ts    |  2 +-
+ .../assets/scripts/world-r1/RegionCameraData.ts    |  6 +-
+ tools/camera-frame-test/test_camera_frames.cjs     | 79 ++++++----------------
+ 3 files changed, 26 insertions(+), 61 deletions(-)

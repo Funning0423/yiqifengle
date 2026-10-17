@@ -1,0 +1,23 @@
+2026-10-17T11:09:57.450Z home ready
+2026-10-17T11:09:57.742Z renderer ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)
+2026-10-17T11:09:57.832Z step {"op":"eval","js":"__worldIntegration.leave()"}
+2026-10-17T11:10:28.734Z eval -> {"ok":true}
+2026-10-17T11:10:28.763Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()==='island'","timeout":180000}
+2026-10-17T11:10:29.531Z until ok
+2026-10-17T11:10:29.534Z step {"op":"wait","ms":2000}
+2026-10-17T11:10:31.547Z step {"op":"startRec"}
+2026-10-17T11:10:31.563Z recording
+2026-10-17T11:10:31.564Z step {"op":"play","js":"window.__boot.composition.enterMainline()"}
+2026-10-17T11:10:31.569Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()==='level'","timeout":600000}
+2026-10-17T11:11:43.784Z play -> {"ok":true}
+2026-10-17T11:11:43.848Z until ok
+2026-10-17T11:11:43.848Z step {"op":"wait","ms":2500}
+2026-10-17T11:11:46.349Z step {"op":"dump","name":"bg_camera_pose","js":"(async()=>{const cc=window.__cc;const s=cc.director.getScene();const c=s.getComponentsInChildren(cc.Camera).find(x=>x.node.name===window.__bgCam&&x.enabledInHierarchy);if(!c)return {error:'no bg camera'};\nconst n=c.node,path=[];let p=n;while(p){path.unshift(p.name);p=p.parent;}const wp=n.worldPosition,wr=n.worldRotation,e=new cc.Vec3();wr.getEulerAngles(e);\nconst sc=window.__scen(n.parent);let rel=null;if(sc){const M=new cc.Mat4();cc.Mat4.invert(M,sc.worldMatrix);const lp=new cc.Vec3();cc.Vec3.transformMat4(lp,wp,M);const lr=new cc.Quat();cc.Quat.invert(lr,sc.worldRotation);cc.Quat.multiply(lr,lr,wr);const le=new cc.Vec3();lr.getEulerAngles(le);rel={sceneryNode:sc.name+' (board copy under '+window.__boardRig+')',sceneryWorldPosition:[sc.worldPosition.x,sc.worldPosition.y,sc.worldPosition.z],sceneryWorldRotation:[sc.worldRotation.x,sc.worldRotation.y,sc.worldRotation.z,sc.worldRotation.w],sceneryWorldScale:[sc.worldScale.x,sc.worldScale.y,sc.worldScale.z],position:[lp.x,lp.y,lp.z],rotationQuatXYZW:[lr.x,lr.y,lr.z,lr.w],eulerDegXYZ:[le.x,le.y,le.z]};}\nconst js=window.__scen(null);const jt=js?{node:js.name,worldPosition:[js.worldPosition.x,js.worldPosition.y,js.worldPosition.z],worldRotation:[js.worldRotation.x,js.worldRotation.y,js.worldRotation.z,js.worldRotation.w],worldScale:[js.worldScale.x,js.worldScale.y,js.worldScale.z]}:null;\nconst rig=n.parent,host=rig&&rig.parent;const tr=x=>x?{name:x.name,worldPosition:[x.worldPosition.x,x.worldPosition.y,x.worldPosition.z],worldRotation:[x.worldRotation.x,x.worldRotation.y,x.worldRotation.z,x.worldRotation.w],worldScale:[x.worldScale.x,x.worldScale.y,x.worldScale.z]}:null;\nconst f=n.forward;let board=null;try{const b=__worldIntegration.board();board={layout:b&&b.layout?JSON.parse(JSON.stringify(b.layout,(k,v)=>typeof v==='number'?+v.toFixed(3):v)):null};}catch(x){board={error:String(x)};}\nreturn {nodePath:path.join('/'),scene:s.name,camera:{projection:'PERSPECTIVE',fovAxis:c.fovAxis===0?'VERTICAL':'HORIZONTAL',fovDeg:c.fov,near:c.near,far:c.far,aspect:c.camera?c.camera.aspect:null,priority:c.priority,visibility:c.visibility},\n world:{position:[wp.x,wp.y,wp.z],rotationQuatXYZW:[wr.x,wr.y,wr.z,wr.w],eulerDegXYZ:[e.x,e.y,e.z],forward:[f.x,f.y,f.z]},sceneryLocal:rel,journeyModel:jt,boardRig:tr(rig),boardHost:tr(host),\n viewport:{innerWidth,innerHeight,dpr:devicePixelRatio,canvas:[cc.game.canvas.width,cc.game.canvas.height]},board};})()\n"}
+2026-10-17T11:11:46.359Z dump bg_camera_pose
+2026-10-17T11:11:46.359Z step {"op":"gotit"}
+2026-10-17T11:11:46.389Z gotIt {"x":195,"y":362.4}
+2026-10-17T11:11:47.593Z step {"op":"bgonly","name":"board_bgonly"}
+2026-10-17T11:11:48.386Z bgonly board_bgonly 3
+2026-10-17T11:11:48.386Z step {"op":"wait","ms":300}
+2026-10-17T11:11:48.688Z stopped
+2026-10-17T11:11:49.313Z saved 3757 frames 4582 cam frames webaudio:904/wl:903

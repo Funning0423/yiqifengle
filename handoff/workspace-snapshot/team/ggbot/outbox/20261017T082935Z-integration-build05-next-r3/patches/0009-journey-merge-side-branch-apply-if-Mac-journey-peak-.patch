@@ -1,0 +1,191 @@
+From b449fc1216394e62724fb030b90839dcaffcca29 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 15:40:01 +0800
+Subject: [PATCH 09/10] =?UTF-8?q?journey-merge=20(side=20branch,=20apply?=
+ =?UTF-8?q?=20if=20Mac=20journey=20peak=20DC=20>=2060):=20island=E2=86=92l?=
+ =?UTF-8?q?akeside=20journey=20copy=20gets=20the=20board's=20instancing=20?=
+ =?UTF-8?q?+=20static=20merge?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+prepareLakesideJourney: after mountLakesideScenery -> applyLakesideJourneyBatching(model,{enableLakesideInstancing, mergeLakesideStatic,
+lakesideStaticMergeFromEnv, isLakesideWaterNode}); water GLBs (tagged at mount) stay out of the merge; ?lakemerge=off keeps instancing
+only. Merged meshes + instanced material copies are freed exactly once in the lease's release() (leave/returnToIsland, controller
+dispose, abandonLakesideJourney friendly fallback, prepare failure). Expected journey lakeside draws ~431+ -> ~4 (same plan as the board:
+2 palette chunks + 1 unmerged + water); extra ~1.6 MB merged mesh while board + journey copies coexist (accepted by lead). Far scenery
+not hidden. Test lakeside-journey-merge.
+---
+ .../scripts/region/LakesideBoardBackground.ts |  5 ++-
+ .../scripts/region/LakesideJourneyBatching.ts | 25 ++++++++++++
+ .../region/LakesideJourneyBatching.ts.meta    |  9 +++++
+ .../scripts/region/RegionJourneyAdapter.ts    | 12 ++++--
+ tools/journey-integration/run-suite.cjs       |  1 +
+ .../lakeside/test_lakeside_journey_merge.cjs  | 39 +++++++++++++++++++
+ 6 files changed, 86 insertions(+), 5 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_journey_merge.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 0cf4ca9..40c5a38 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -87,6 +87,9 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
+ /** Loads region_lakeside and instantiates the real scene (lakesideSceneInstances) under scenery: rigid placement only, embedded
+  *  cameras/animations off. Shared by the board background and the island→lakeside journey (RegionJourneyAdapter). take()
+  *  must addRef+hold every loaded asset for the caller's lifetime. Returns the instance count. */
++const lakesideGlbOf=new WeakMap<Node,string>();
++/** journey-merge: true for a node mountLakesideScenery instantiated from one of the water GLBs (kept out of the static merge). */
++export function isLakesideWaterNode(n:Node):boolean{const g=lakesideGlbOf.get(n);return !!g&&(LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs as readonly string[]).includes(g);}
+ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<number>{
+  const t=token,bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),t);token.check();
+  const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),t));token.check();
+@@ -94,7 +97,7 @@ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:
+  if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');
+  const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
+  const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
+- let n=0;for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;}
++ let n=0;for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;lakesideGlbOf.set(node,i.glb);node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;}
+  for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
+  for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
+  return n;
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts b/creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts
+new file mode 100644
+index 0000000..60f8c2c
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts
+@@ -0,0 +1,25 @@
++/** build05-next journey-merge (side branch, lead: apply if the Mac journey peak DC > 60): the island→lakeside journey mounts the
++ *  same 431 r5h3 instances as the board, but without batching they draw one by one. This gives the journey model the board's
++ *  treatment: shared USE_INSTANCING material copies, then (unless ?lakemerge=off) the static merge, water kept out of the merge.
++ *  Pure (no cc import): the adapter passes the real enableLakesideInstancing / mergeLakesideStatic. release() destroys what was
++ *  created exactly once (merged meshes + instanced material copies); merged nodes live under the model and go with the rig. */
++export interface Destroyable{destroy():unknown}
++export interface JourneyMergeOut<M extends Destroyable>{meshes:M[];stats:{chunks:number;pieces:number;vertices:number;ms:number;skipped?:string}}
++export interface JourneyBatchingDeps<N,Mat extends Destroyable,M extends Destroyable>{
++ instancing(model:N):Mat[];
++ merge(model:N,skip:(n:N)=>boolean):JourneyMergeOut<M>;
++ mergeEnabled():boolean;
++ isWater(n:N):boolean;
++}
++export interface JourneyBatching{instancedMaterials:number;merged:JourneyMergeOut<Destroyable>['stats']|null;release():void}
++export function applyLakesideJourneyBatching<N,Mat extends Destroyable,M extends Destroyable>(model:N,deps:JourneyBatchingDeps<N,Mat,M>):JourneyBatching{
++ const owned:Destroyable[]=[];let released=false;
++ const release=()=>{if(released)return;released=true;for(const a of owned.splice(0)){try{a.destroy();}catch{}}};
++ try{
++  const mats=deps.instancing(model);for(const m of mats)owned.push(m);
++  let merged:JourneyMergeOut<M>|null=null;
++  if(deps.mergeEnabled()){merged=deps.merge(model,n=>deps.isWater(n));for(const m of merged.meshes)owned.push(m);}
++  try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'journey-batching',instancedMaterials:mats.length,merge:merged?merged.stats:'off'}));}catch{}
++  return {instancedMaterials:mats.length,merged:merged?merged.stats:null,release};
++ }catch(error){release();throw error;}
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts.meta b/creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts.meta
+new file mode 100644
+index 0000000..a0d6470
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "f5c84c6c-a72b-465b-8ea8-d012130b9e18",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index cb82d52..c03da0b 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -9,7 +9,9 @@ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCor
+ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+-import {mountLakesideScenery} from './LakesideBoardBackground';
++import {enableLakesideInstancing,isLakesideWaterNode,mergeLakesideStatic,mountLakesideScenery} from './LakesideBoardBackground';
++import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
++import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
+ import {lakesideJourney} from './LakesideCameraLayout';
+ import {lakesideAtmosphereWeight} from './LakesideJourneyAtmosphere';
+ import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
+@@ -113,12 +115,14 @@ function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNigh
+ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+  if(from!=='island')throw Error('journey-region-order');
+  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
+- let waterY=0;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
+- const release=()=>{if(dead)return;dead=true;atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
++ let waterY=0,batching:JourneyBatching|null=null;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
++ const release=()=>{if(dead)return;dead=true;atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+  try{
+   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
+-  await mountLakesideScenery(model,token,take);token.check();progress(.86);
++  await mountLakesideScenery(model,token,take);token.check();
++  // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
++  batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
+   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
+   const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];
+   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index e9cac83..c111d3d 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -68,6 +68,7 @@ const tests=[
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],
++ ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_journey_merge.cjs b/tools/lakeside/test_lakeside_journey_merge.cjs
+new file mode 100644
+index 0000000..f13e5bf
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_journey_merge.cjs
+@@ -0,0 +1,39 @@
++// journey-merge side branch (lead: apply if the Mac journey peak DC > 60): the island→lakeside journey copy of the r5h3 scene gets
++// the board's instancing + static merge (water kept out), ?lakemerge=off keeps instancing only, and everything created is freed
++// exactly once on leave / dispose / abandon / friendly fallback (all of them end in the lease's release()).
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++function load(file){const m={exports:{}};const out=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:1,target:7}}).outputText;
++ vm.runInThisContext('(function(exports,require,module){'+out+'\n})')(m.exports,s=>{if(s==='cc')return {};return load(path.resolve(path.dirname(file),s)+'.ts');},m);return m.exports;}
++const B=load(S+'region/LakesideJourneyBatching.ts'),SM=load(S+'region/LakesideStaticMerge.ts');
++const checks=[];const pass=n=>{checks.push(n);console.log('PASS '+n);};
++const mk=n=>({n,destroyed:0,destroy(){this.destroyed++;}});
++function run(enabled){
++ const log={instancing:0,merge:0,skipped:[]},mats=[mk('palette'),mk('rope')],meshes=[mk('chunk0'),mk('chunk1')];
++ const model={children:[{name:'LK_water_01',water:true},{name:'LK_tree_01'}]};
++ const b=B.applyLakesideJourneyBatching(model,{instancing:m=>{assert.equal(m,model);log.instancing++;return mats;},
++  merge:(m,skip)=>{assert.equal(log.instancing,1,'merge runs after instancing');log.merge++;log.skipped=m.children.filter(skip).map(c=>c.name);return {meshes,stats:{chunks:2,pieces:430,vertices:58090,ms:1}};},
++  mergeEnabled:()=>enabled,isWater:n=>!!n.water});
++ return {b,log,mats,meshes};}
++{const {b,log,mats,meshes}=run(true);
++ assert.equal(log.instancing,1);assert.equal(log.merge,1);assert.deepEqual(log.skipped,['LK_water_01']);assert.equal(b.instancedMaterials,2);assert.equal(b.merged.chunks,2);
++ assert([...mats,...meshes].every(x=>x.destroyed===0),'nothing freed while the journey runs');pass('merge applied on journey mount (after instancing, water skipped)');
++ b.release();assert([...mats,...meshes].every(x=>x.destroyed===1),'merged meshes + instanced copies freed on leave');b.release();assert([...mats,...meshes].every(x=>x.destroyed===1),'freed exactly once');pass('freed on leave, exactly once');}
++{const {b,log,mats,meshes}=run(false);assert.equal(log.instancing,1);assert.equal(log.merge,0);assert.equal(b.merged,null);assert(meshes.every(x=>x.destroyed===0));
++ b.release();assert(mats.every(x=>x.destroyed===1));pass('?lakemerge=off: instancing only, no merge');}
++{const mats=[mk('a')];assert.throws(()=>B.applyLakesideJourneyBatching({},{instancing:()=>mats,merge:()=>{throw Error('boom');},mergeEnabled:()=>true,isWater:()=>false}),/boom/);
++ assert.equal(mats[0].destroyed,1);pass('a throw inside batching frees what it created');}
++assert.equal(SM.lakesideStaticMergeEnabled('?lakemerge=off'),false);assert.equal(SM.lakesideStaticMergeEnabled(''),true);assert.equal(SM.lakesideStaticMergeEnabled(null),true);pass('off-switch parses ?lakemerge=off (default on)');
++// wiring in the real adapter / board / core
++const ad=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8'),bb=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8'),core=fs.readFileSync(S+'world-r1/RegionJourneyCore.ts','utf8'),flow=fs.readFileSync(S+'world-r1/WorldFlowCore.ts','utf8');
++const prep=ad.slice(ad.indexOf('async function prepareLakesideJourney'));
++assert(/await mountLakesideScenery\(model,token,take\);token\.check\(\);[\s\S]{0,300}batching=applyLakesideJourneyBatching\(model,\{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode\}\)/.test(prep),'adapter batches right after the mount');
++assert(/const release=\(\)=>\{if\(dead\)return;[^\n]*batching\?\.release\(\);batching=null;/.test(prep),'release() frees the batching');
++assert(/dispose:release/.test(prep)&&/catch\(error\)\{[^\n]*release\(\);throw error;\}/.test(prep),'lease dispose + prepare failure use release()');
++assert(/lakesideGlbOf\.set\(node,i\.glb\)/.test(bb)&&/export function isLakesideWaterNode/.test(bb),'water nodes tagged at mount');
++assert(/returnToIsland\(\)[\s\S]{0,40}\{[^\n]*for\(const scene of this\.scenes\)scene\.dispose\(\)/.test(core)||/for\(const scene of this\.scenes\)scene\.dispose\(\);this\.scenes=\[\];this\.lease=null;this\.region='island'/.test(core),'leave disposes the journey scenes');
++assert(/dispose\(\)\{[^\n]*for\(const scene of this\.scenes\)scene\.dispose\(\)/.test(core),'controller dispose disposes the scenes');
++assert(/abandonLakesideJourney\(\)[\s\S]{0,400}j\.returnToIsland\(\)/.test(flow),'friendly fallback (abandonLakesideJourney) leaves through returnToIsland');
++pass('wiring: mount → batch; leave / dispose / abandon / fallback → release');
++console.log(JSON.stringify({test:'lakeside-journey-merge',status:'PASS',checks:checks.length}));
+-- 
+2.47.3
+

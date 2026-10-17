@@ -1,0 +1,154 @@
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS old 1-arg setMusic(path) still loads via resources.load (unchanged call) ["audio_bgm/test_main"]
+PASS v0.5: GameAudio.onLoad requests no music at all (island BGM waits for the room) {"path":null,"bundle":null,"status":"idle","error":null,"gestureSeen":false,"muted":false,"sfxMuted":false,"volume":0.4,"suspended":[],"playRequested":false,"playing":false,"playbackState":"idle","playbackRecoveries":0,"playbackRecoveryLimit":1,"playbackRetryReason":null,"playbackRetryAfterMs":0,"loopCrossfade":{"partner":false,"fading":false,"completed":0,"paddingS":0.045,"xfadeS":0.15},"windDuck":{"target":0,"value":0,"gain":1,"maxDb":-4},"sceneCrossfade":{"fadingOut":false,"started":false,"fadeIn":false,"xfadeS":1.5},"lastStart":null,"audibleVerified":false}
+PASS scene track with bundle: assetManager.loadBundle(region_meadow)
+PASS then bundle.load(path, AudioClip)
+[GameAudio] music started {"path":"audio/bgm_meadow","bundle":"region_meadow","first":true,"fadeIn":false,"loadMs":0}
+PASS clip ready, referenced once {"path":"audio/bgm_meadow","bundle":"region_meadow","status":"ready","error":null,"gestureSeen":true,"muted":false,"sfxMuted":false,"volume":0.4,"suspended":[],"playRequested":true,"playing":true,"playbackState":"playing","playbackRecoveries":0,"playbackRecoveryLimit":1,"playbackRetryReason":null,"playbackRetryAfterMs":0,"loopCrossfade":{"partner":false,"fading":false,"completed":0,"paddingS":0.045,"xfadeS":0.15},"windDuck":{"target":0,"value":0,"gain":1,"maxDb":-4},"sceneCrossfade":{"fadingOut":true,"started":false,"fadeIn":true,"xfadeS":1.5},"lastStart":{"path":"audio/bgm_meadow","bundle":"region_meadow","at":0,"first":true,"fadeIn":false,"requestedAt":0,"loadedAt":0},"audibleVerified":false}
+PASS same path+bundle again: no reload
+PASS already-loaded bundle: getBundle() reused, no second loadBundle
+PASS previous clip released on stop 0
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+[GameAudio] Missing/unloadable BGM region_meadow/audio/bgm_meadow: Error: subpackage missing
+PASS missing bundle -> observable error naming bundle/path "Missing/unloadable BGM region_meadow/audio/bgm_meadow: Error: subpackage missing"
+PASS stale loadBundle callback after a newer setMusic is ignored
+[GameAudio] music started {"path":"audio/bgm_skycity","bundle":"region_skycity","first":true,"fadeIn":false,"loadMs":0}
+PASS newest bundle track becomes ready
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS no wind: BGM at musicVolume 0.4, duck gain 1 {"target":0,"value":0,"gain":1,"maxDb":-4}
+PASS wind 1: after 0.5 s the duck is 1-1/e of the way (tau 0.5 s) {"g05":0.7474,"exp05":0.7474}
+PASS wind 1 held: BGM -4 dB (0.4 -> 0.252) 0.252488945023869
+PASS wind <= 0.2: no duck (back to 0.4) 0.3999382666138426
+PASS wind 0.6: smoothstep 0.5 -> -2 dB 0.31775582094306354
+PASS NaN -> treated as 0
+PASS duck multiplies the player music volume 0.504843847917486
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS schedule point = duration - 45 ms MP3 padding - 150 ms crossfade - 30 ms frame margin 9.775
+PASS before the schedule point: one voice
+PASS partner voice started at the schedule point (loop=true fallback) {"plays":1,"t":9.783333333333399}
+PASS partner started in the first frame that reaches the schedule point {"trigT":9.766666666666731,"t":9.783333333333399}
+PASS mid-crossfade: equal power (sum of squares = volume^2) {"out":0.25711504387462547,"in":0.30641777724758307,"v":0.4}
+PASS after 150 ms: partner is loopSource, old voice retired before it wrapped {"wraps":0}
+PASS new voice at full music volume; diagnostics playing {"partner":false,"fading":false,"completed":1,"paddingS":0.045,"xfadeS":0.15}
+PASS next pass crossfades again; never more than the active voices {"partner":false,"fading":false,"completed":2,"paddingS":0.045,"xfadeS":0.15}
+PASS at most 2 music voices at any time 2
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS coarse 250 ms currentTime: wall-clock extrapolation keeps the start within 60 ms 9.783333333333399
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS partner requested but platform has not started it: no fade yet
+PASS old voice stays at full volume while waiting (no dip)
+PASS partner never started: platform loop wraps the old voice and the partner is dropped (fallback, single voice)
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS mute mid-crossfade: partner destroyed, music paused {"partner":true,"live":0}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":false,"fadeIn":false,"loadMs":0}
+PASS mute lifted: loopSource resumes (it is past the schedule point, so a fresh crossfade may start) 2
+PASS mute lifted: crossfade completes to one voice, no platform wrap {"live":1}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS hide mid-crossfade: partner destroyed, music paused {"partner":true,"live":0}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":false,"fadeIn":false,"loadMs":0}
+PASS hide lifted: loopSource resumes (it is past the schedule point, so a fresh crossfade may start) 2
+PASS hide lifted: crossfade completes to one voice, no platform wrap {"live":1}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS interrupt mid-crossfade: partner destroyed, music paused {"partner":true,"live":0}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":false,"fadeIn":false,"loadMs":0}
+PASS interrupt lifted: loopSource resumes (it is past the schedule point, so a fresh crossfade may start) 2
+PASS interrupt lifted: crossfade completes to one voice, no platform wrap {"live":1}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS volume0 mid-crossfade: partner destroyed, music paused {"partner":true,"live":0}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":false,"fadeIn":false,"loadMs":0}
+PASS volume0 lifted: loopSource resumes (it is past the schedule point, so a fresh crossfade may start) 2
+PASS volume0 lifted: crossfade completes to one voice, no platform wrap {"live":1}
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS switch while audible: old track keeps playing at full volume while the new one loads
+PASS no fade before the new track is confirmed playing
+[GameAudio] music started {"path":"audio/bgm_skycity","bundle":"region_skycity","first":true,"fadeIn":false,"loadMs":500.0000000000023}
+PASS new track playing -> 1.5 s crossfade starts
+PASS scene crossfade midway: equal power {"old":0.28284271247461906,"nw":0.282842712474619}
+PASS after 1.5 s: old voice retired, new at full volume
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+[GameAudio] music started {"path":"audio/bgm_skycity","bundle":"region_skycity","first":true,"fadeIn":false,"loadMs":0}
+PASS scene crossfade: the outgoing voice follows the music slider and keeps the captured wind-duck ratio {"before":0.4,"after":0.2}
+PASS music slider 0 silences both voices of a scene crossfade
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+[GameAudio] Missing/unloadable BGM region_meadow/audio/bgm_meadow: Error: no region_meadow
+PASS new track fails to load: old track fades out instead of cutting 0.2877359201354606
+PASS fade-out completes; error stays observable
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS setMusic(null) during a scene switch stops everything immediately
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS mute during scene switch: fading voice destroyed at once
+[GameAudio] music started {"path":"audio/bgm_meadow","bundle":"region_meadow","first":true,"fadeIn":false,"loadMs":199.99999999999994}
+PASS after unmute the new track plays alone at normal volume
+PASS switch before audio unlock: immediate (original behaviour, no extra voice)
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS destroy stops every music voice
+PASS sceneTrackFor: home/island/tide/mainline -> island, skycity visit + sky region -> skycity, meadow -> meadow, transitions keep []
+[GameAudio] music started {"path":"audio_bgm/test_main","bundle":null,"first":true,"fadeIn":false,"loadMs":0}
+PASS SceneMusic self-mounts after the first scene launch
+PASS SceneMusic component on the persistent GameAudio node
+PASS loading page (__worldLoading phase loading): no music request at all {"loads":0,"bundles":0}
+PASS world load error: still nothing
+PASS room interactive (phase ready) -> setMusic(audio/bgm_main, audio_bgm_island) via assetManager.loadBundle, nothing from resources {"path":"audio/bgm_main","bundle":"audio_bgm_island","status":"loading","error":null,"gestureSeen":false,"muted":false,"sfxMuted":false,"volume":0.4,"suspended":[],"playRequested":false,"playing":false,"playbackState":"idle","playbackRecoveries":0,"playbackRecoveryLimit":1,"playbackRetryReason":null,"playbackRetryAfterMs":0,"loopCrossfade":{"partner":false,"fading":false,"completed":0,"paddingS":0.045,"xfadeS":0.15},"windDuck":{"target":0,"value":0,"gain":1,"maxDb":-4},"sceneCrossfade":{"fadingOut":false,"started":false,"fadeIn":true,"xfadeS":1.5},"lastStart":null,"audibleVerified":false}
+PASS first request carries the room fade-in
+PASS once started, a later loading phase does not re-gate or reload
+PASS WorldIntegrationBoot present but __worldLoading not published yet (its start() not run): wait
+PASS scene without WorldIntegrationBoot (no loading page): request at once
+PASS roomInteractiveFrom: pure gate table
+PASS unlock-then-load: unlocked while the bundle downloads: silent, waiting, no error
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":1283.3333333333335}
+PASS unlock-then-load: BGM starts without another touch "playing"
+PASS unlock-then-load: exactly one onMusicStart(first=true, fadeIn) event, also via globalThis.__gameAudioMusic {"now":1300.0000000000002,"path":"audio/bgm_main","bundle":"audio_bgm_island","at":1300.0000000000002,"first":true,"fadeIn":true,"requestedAt":16.666666666666668,"loadedAt":1300.0000000000002}
+PASS unlock-then-load: musicDiagnostics().lastStart mirrors the event
+PASS unlock-then-load: starts silent (fade-in from 0) 0
+PASS unlock-then-load: half-way (0.75 s) equal-power fade-in ~0.707 x volume {"mid":0.28284271247461995,"v":0.4}
+PASS unlock-then-load: after 1.5 s at full music volume 0.4
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":false,"fadeIn":false,"loadMs":1283.3333333333335}
+PASS unlock-then-load: resume after background = start event first=false (T0 keys on first=true) [true,false]
+PASS load-then-unlock: clip ready before any touch: stays silent (no autoplay without a gesture)
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":283.3333333333333}
+PASS load-then-unlock: BGM starts without another touch "playing"
+PASS load-then-unlock: exactly one onMusicStart(first=true, fadeIn) event, also via globalThis.__gameAudioMusic {"now":2300.0000000000014,"path":"audio/bgm_main","bundle":"audio_bgm_island","at":2300.0000000000014,"first":true,"fadeIn":true,"requestedAt":16.666666666666668,"loadedAt":300}
+PASS load-then-unlock: musicDiagnostics().lastStart mirrors the event
+PASS load-then-unlock: starts silent (fade-in from 0) 0
+PASS load-then-unlock: half-way (0.75 s) equal-power fade-in ~0.707 x volume {"mid":0.282842712474617,"v":0.4}
+PASS load-then-unlock: after 1.5 s at full music volume 0.4
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":false,"fadeIn":false,"loadMs":283.3333333333333}
+PASS load-then-unlock: resume after background = start event first=false (T0 keys on first=true) [true,false]
+PASS unlock-before-room: touch during the loading page unlocks but loads nothing
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":149.99999999999864}
+PASS unlock-before-room: BGM starts without another touch "playing"
+PASS unlock-before-room: exactly one onMusicStart(first=true, fadeIn) event, also via globalThis.__gameAudioMusic {"now":2300.0000000000014,"path":"audio/bgm_main","bundle":"audio_bgm_island","at":2300.0000000000014,"first":true,"fadeIn":true,"requestedAt":2150.0000000000027,"loadedAt":2300.0000000000014}
+PASS unlock-before-room: musicDiagnostics().lastStart mirrors the event
+PASS unlock-before-room: starts silent (fade-in from 0) 0
+PASS unlock-before-room: half-way (0.75 s) equal-power fade-in ~0.707 x volume {"mid":0.282842712474617,"v":0.4}
+PASS unlock-before-room: after 1.5 s at full music volume 0.4
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":false,"fadeIn":false,"loadMs":149.99999999999864}
+PASS unlock-before-room: resume after background = start event first=false (T0 keys on first=true) [true,false]
+PASS muted: clip arrives, nothing plays
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":283.3333333333333}
+PASS unmute before the first start: still fades in from 0
+[GameAudio] Missing/unloadable BGM audio_bgm_island/audio/bgm_main: Error: subpackage audio_bgm_island download failed
+PASS island bundle download fails: no throw, error observable, no retry spin, silence "Missing/unloadable BGM audio_bgm_island/audio/bgm_main: Error: subpackage audio_bgm_island download failed"
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":283.3333333333333}
+PASS island: keeps the island BGM, no reload
+PASS meadow region board -> setMusic(audio/bgm_meadow, region_meadow)
+PASS scene switch still uses the 1.5 s crossfade (no room fade-in flag)
+[GameAudio] Missing/unloadable BGM region_meadow/audio/bgm_meadow: Error: missing
+[SceneMusic] meadow BGM unavailable, falling back to island BGM: Missing/unloadable BGM region_meadow/audio/bgm_meadow: Error: missing
+PASS meadow BGM unavailable -> falls back to island BGM (cached audio_bgm_island bundle)
+PASS fallback is sticky for this visit (no retry loop)
+PASS sky region board -> sky city BGM from region_skycity
+PASS back on the island -> island BGM
+PASS skycity-loading: unchanged
+PASS skycity visit -> sky city BGM
+PASS loose ES5: no Map/Set/iterator spread or for-of in GameAudio.ts / SceneMusic.ts (TS 5.9.3, cc types off) []
+PASS region_meadow.meta == region_skycity.meta except uuid + bundleName (wx_subpackage, priority 1, subpackage, not remote) {"isBundle":true,"bundleConfigID":"wx_subpackage","bundleName":"region_meadow","priority":1,"compressionType":{"wechatgame":"subpackage"},"isRemoteBundle":{"wechatgame":false}}
+PASS v0.5: audio_bgm_island.meta == region_skycity.meta except uuid + bundleName (wx_subpackage, priority 1, subpackage, NOT remote) {"isBundle":true,"bundleConfigID":"wx_subpackage","bundleName":"audio_bgm_island","priority":1,"compressionType":{"wechatgame":"subpackage"},"isRemoteBundle":{"wechatgame":false}}
+PASS v0.5: resources/audio_bgm removed (island BGM no longer in resources)
+PASS no duplicate uuids across assets/**/*.meta (330 metas) []
+PASS bundles/region_meadow/audio/bgm_meadow.mp3: audio-clip meta, MPEG-1 44.1 kHz stereo, 363615 B {"kbps":40,"mode":1,"uuid":"1277a852-05ad-4cbc-9b23-38860d494b03"}
+PASS bundles/region_skycity/audio/bgm_skycity.mp3: audio-clip meta, MPEG-1 44.1 kHz stereo, 360480 B {"kbps":40,"mode":1,"uuid":"67e7580c-0303-43ad-b5f3-8dbb6e31da5f"}
+PASS bundles/audio_bgm_island/audio/bgm_main.mp3: audio-clip meta, MPEG-1 44.1 kHz stereo, 417819 B {"kbps":40,"mode":1,"uuid":"24969762-d70f-41d5-abe0-6cf06ce46946"}
+PASS island bgm_main.mp3 keeps its uuid 24969762-… after the move
+PASS island bgm_main.mp3 = v3.2 40 kbps re-encode of 21ca21ac… (sha256 183993fb…)
+ALL PASS scene-bgm (114 checks)

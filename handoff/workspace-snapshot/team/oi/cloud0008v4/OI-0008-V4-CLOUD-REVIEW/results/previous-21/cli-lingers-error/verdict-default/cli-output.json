@@ -1,0 +1,44 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-lingers-error/copies/QFFirstOpen-20261010T013300574Z-c686-aa37c7-default",
+      "--auto-port",
+      "42006"
+    ],
+    "pid": 306,
+    "code": null,
+    "signal": "SIGTERM",
+    "error": null,
+    "timedOut": false,
+    "terminated": true,
+    "exited": true,
+    "ms": 1668,
+    "lines": [
+      {
+        "t": "2026-10-10T01:33:00.739Z",
+        "stream": "stderr",
+        "line": "TypeError: late CLI error"
+      }
+    ]
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-lingers-error/copies/QFFirstOpen-20261010T013300574Z-c686-aa37c7-default"
+    ],
+    "pid": 317,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 58,
+    "lines": []
+  }
+}

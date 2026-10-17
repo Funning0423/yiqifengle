@@ -1,0 +1,110 @@
+From 925a1fcf2a508ad8e9089d9976056fe937703277 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:16:05 +0800
+Subject: [PATCH 3/6] =?UTF-8?q?F1:=20HomeFadeCover=20bakes=20alpha=20into?=
+ =?UTF-8?q?=20the=20Graphics=20fill=20(UIOpacity=20does=20not=20fade=20Gra?=
+ =?UTF-8?q?phics)=20so=20set-off=200.25/0.35=20s=20and=20=E4=B8=BB?=
+ =?UTF-8?q?=E9=A1=B5=200.4/0.5=20s=20fades=20render=20instead=20of=20hard?=
+ =?UTF-8?q?=20cuts?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/WorldIntegrationBoot.ts        | 14 +++++++++-----
+ .../assets/scripts/world-r2/HomeTransition.ts     |  2 ++
+ tools/journey-integration/run-suite.cjs           |  1 +
+ tools/test_fade_cover_alpha.cjs                   | 15 +++++++++++++++
+ 4 files changed, 27 insertions(+), 5 deletions(-)
+ create mode 100644 tools/test_fade_cover_alpha.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 177e9bb..0c6210f 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -28,7 +28,7 @@ import {StartupLoadingLayer} from './ui/StartupLoadingLayer';
+ import {ART as STARTUP_ART} from './ui/StartupLoadingLayout';
+ import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
+ import {validateSkycity} from './region/RegionValidation';
+-import {runHomeTransition,HOME_FADE} from './world-r2/HomeTransition';
++import {runHomeTransition,HOME_FADE,coverAlphaByte} from './world-r2/HomeTransition';
+ import {GameAudio} from './audio/GameAudio';
+ import {SCENE_TRACKS} from './audio/SceneMusic';
+ const {ccclass,property}=_decorator;
+@@ -632,7 +632,11 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+   * journey and place her at home, resolve {ok:true} once the state is home, then fade in with the island bgm.
+   * Island (no journey) keeps the walk home; both paths carry an overall timeout and always resolve. */
+  private homeWaits:{at:number;r:()=>void}[]=[];
+- private homeCover:{node:Node;op:UIOpacity;from:number;to:number;at:number;s:number;done:(()=>void)|null}|null=null;
++ private homeCover:{node:Node;g:Graphics;alpha:number;from:number;to:number;at:number;s:number;done:(()=>void)|null}|null=null;
++ /** F1 (77b76c3 audit): the cover used to fade via UIOpacity, which Cocos 3.8 Graphics ignores (its colour is baked into the fill
++  * vertices), so the black appeared at full strength the instant the node went active and vanished at the end: a hard cut both ways.
++  * The alpha is now baked into the fill itself on every tick (coverAlphaByte), so the 0.25/0.35 s set-off and 0.4/0.5 s home ramps render. */
++ private paintCover(c:{g:Graphics;alpha:number},alpha:number){const a=coverAlphaByte(alpha);if(a===c.alpha)return;c.alpha=a;const g=c.g;g.clear();g.fillColor=new Color(0,0,0,a);g.rect(-2000,-2000,4000,4000);g.fill();}
+  goHome():Promise<{ok:boolean;reason?:string;seconds?:number}>{
+   const cmd=this.composition.worldCommands(),s=cmd.snapshot() as any;
+   const inRegion=s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity'||!!(s.journey&&s.state==='island'&&['paused','failed'].includes(s.journey.phase));
+@@ -647,11 +651,11 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+  }
+  private fadeCover(to:number,seconds:number):Promise<void>{
+   if(!this.homeCover){const node=new Node('HomeFadeCover');node.layer=Layers.Enum.UI_2D;this.canvas.addChild(node);node.addComponent(UITransform).setContentSize(4000,4000);
+-   const g=node.addComponent(Graphics);g.fillColor=new Color(0,0,0,255);g.rect(-2000,-2000,4000,4000);g.fill();const op=node.addComponent(UIOpacity);op.opacity=0;this.homeCover={node,op,from:0,to:0,at:0,s:0,done:null};}
+-  const c=this.homeCover;c.node.setSiblingIndex(this.canvas.children.length-1);c.done?.();c.from=c.op.opacity/255;c.to=to;c.at=Date.now()/1000;c.s=Math.max(0,seconds);c.node.active=true;
++   const g=node.addComponent(Graphics);this.homeCover={node,g,alpha:-1,from:0,to:0,at:0,s:0,done:null};this.paintCover(this.homeCover,0);}
++  const c=this.homeCover;c.node.setSiblingIndex(this.canvas.children.length-1);c.done?.();c.from=Math.max(0,c.alpha)/255;c.to=to;c.at=Date.now()/1000;c.s=Math.max(0,seconds);c.node.active=true;
+   return new Promise<void>(r=>{c.done=r;this.tickCover();});
+  }
+- private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;c.op.opacity=Math.round(255*(c.from+(c.to-c.from)*t));
++ private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
+   if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
+  update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+  onDestroy(){setScreenCover(null);this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+diff --git a/creator-build-project/assets/scripts/world-r2/HomeTransition.ts b/creator-build-project/assets/scripts/world-r2/HomeTransition.ts
+index 00681a0..04569d5 100644
+--- a/creator-build-project/assets/scripts/world-r2/HomeTransition.ts
++++ b/creator-build-project/assets/scripts/world-r2/HomeTransition.ts
+@@ -2,6 +2,8 @@
+  * her at home, resolve as soon as the flow state is home, then fade back in. Pure (no cc imports): the host
+  * injects the cover, audio and a wall clock so tests can drive simulated time. Every path resolves. */
+ export const HOME_FADE={outS:.4,inS:.5,timeoutS:10} as const;
++/** Cover alpha (0..1) → fill-colour byte; Graphics fills carry their own alpha (UIOpacity does not affect them). */
++export function coverAlphaByte(a:number):number{return Math.max(0,Math.min(255,Math.round(255*(Number.isFinite(a)?a:0))));}
+ export type HomeResult={ok:boolean;reason?:string};
+ export interface HomeTransitionHost{
+   now():number;                       // wall-clock seconds
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 4006ba4..755cf1a 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -46,6 +46,7 @@ const tests=[
+  ['cloud-web-contract','tools/cloud-web/test.cjs'],
+  ['exit-cine-audio','tools/test_exit_cine_audio.cjs'],
+  ['cconb-bin-only','tools/test_cconb_bin_only.cjs'],
++ ['fade-cover-alpha','tools/test_fade_cover_alpha.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/test_fade_cover_alpha.cjs b/tools/test_fade_cover_alpha.cjs
+new file mode 100644
+index 0000000..bb6b9b1
+--- /dev/null
++++ b/tools/test_fade_cover_alpha.cjs
+@@ -0,0 +1,15 @@
++'use strict';
++// F1: the HomeFadeCover must carry its alpha in the Graphics fill (Cocos 3.8 Graphics ignores UIOpacity → hard cut).
++// Source contract + pure ramp maths only; NOT a render. Device/Mac must still confirm intermediate frames.
++const fs=require('node:fs'),assert=require('node:assert/strict'),{createHarness}=require('./board-ui/harness.cjs');
++const H=createHarness(),{coverAlphaByte,HOME_FADE}=H.load('world-r2/HomeTransition');
++const boot=fs.readFileSync('creator-build-project/assets/scripts/WorldIntegrationBoot.ts','utf8');
++const body=boot.slice(boot.indexOf('private fadeCover('),boot.indexOf('update(dt:number)'));
++assert(!/UIOpacity|\.opacity\s*=/.test(body),'fadeCover/tickCover must not drive the cover through UIOpacity');
++assert(/paintCover\(c,c\.from\+\(c\.to-c\.from\)\*t\)/.test(body),'tick must repaint the fill with the interpolated alpha');
++assert(/g\.fillColor=new Color\(0,0,0,a\)/.test(boot),'fill colour must carry the alpha byte');
++assert.equal(coverAlphaByte(0),0);assert.equal(coverAlphaByte(1),255);assert.equal(coverAlphaByte(2),255);assert.equal(coverAlphaByte(NaN),0);
++// a 0.4 s fade sampled at 30 fps must yield distinct intermediate bytes (no 0→255 jump)
++const seen=new Set();for(let f=0;f<=12;f++)seen.add(coverAlphaByte(Math.min(1,f/30/HOME_FADE.outS)));
++assert(seen.size>=10,'expected a ramp, got '+[...seen]);
++console.log('PASS fade cover bakes alpha into Graphics fill; 0.4 s ramp has',seen.size,'levels');
+-- 
+2.47.3
+

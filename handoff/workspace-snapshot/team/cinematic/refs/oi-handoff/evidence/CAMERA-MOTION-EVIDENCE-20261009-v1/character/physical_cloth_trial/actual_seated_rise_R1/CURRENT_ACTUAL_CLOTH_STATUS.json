@@ -1,0 +1,25 @@
+{
+  "status": "One approved angular damping control completed and rejected at automatic first-failure84;91not reached.",
+  "retired_control": "native_trial01: true yellow shell failure at60/61;31 local material strain warning; no seated/output completion",
+  "selected_control": "native_triangle_yellow_trial02: same61 samples show clear actual rendered/native/24scene surfaces at checkpoints, material range improves at61; independent review agrees",
+  "input_connectivity": "6552 yellow quads now existing13104 actual native triangles, same6678points and original preferredrest; structural graph and average-length normalization changed explicitly",
+  "temporary_body": "R9 hands/face appearance rejected by user. Current R9+R10 body remains numeric collider for approved cloth development only.",
+  "actual_output_goal": "Original0\u20133s seated\u2192rise frames271\u2013361 of preparation. Current results are initialization only.",
+  "continuation": "native_apron_angular_damping_trial06",
+  "current_frame": 84,
+  "appearance_branch_archived": "R9_REJECTED_BODY_LOCAL_CORNER_DIAGNOSTIC_ARCHIVE.zip",
+  "active_simulation": false,
+  "last_frozen_branches": {
+    "native_trial01": "Original yellow quads:36true shell pairs at61 and severe triangle strain. Retired.",
+    "native_triangle_yellow_trial02": "Literal fixed native triangles: clear actual/native/scene checkpoints through61, material improved;31local warning retained.",
+    "native_triangle_yellow_preheat_R1": "Same triangle continuation stops75:58yellow shell pairs plus14 strained native faces; no actual chair contact yet.",
+    "native_triangle_yellow_air50ms_trial03": "Only yellow air tau50ms after31: material75 within0.970\u20131.052 but shell7pairs61/71pairs75. Frozen failed diagnostic.",
+    "native_triangle_yellow_bend2_trial04": "Only yellow B doubles after31:3old hinges improve, global failure relocates;68yellow shell pairs75. Frozen failed control.",
+    "local_midcurve75_prototype_R1": "Static44-native-point4mm domain: same-rebuild local shell34\u219234,10new pairs. Failed bounded shape feasibility prototype, not simulated animation.",
+    "lightweight_display_R1": "Single middle plus0.8mm free-edge binding:31/61clear,75has35binding self-pairs, max9.019mm. Original middle exact, binding failed and preserved.",
+    "native_apron_angular_damping_trial06": "One approved angular damping control completed and rejected at automatic first-failure84;91not reached."
+  },
+  "latest_frozen_manifest": "native_apron_angular_damping_trial06/FROZEN_TRIAL06_MANIFEST.json",
+  "remaining_blocker": "The control changes the local failure trajectory but does not establish a repair. Finite damping adds dissipation, not an inversion barrier; the coupled nonlinear membrane/hinge problem remains. Recorded frozen-operator bounds stay satisfied, which does not certify coupled-system stability. No further sweep or continuation is active.",
+  "active_physics_sha256": "abdc6b538c0154949ea27e422637fc4769788b082dacfac17cb7d1ccf5596a85"
+}

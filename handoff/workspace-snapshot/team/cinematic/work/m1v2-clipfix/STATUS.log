@@ -1,0 +1,120 @@
+2026-10-17 18:04:08 START measure ts2
+2026-10-17 18:04:08 START measure v2g
+2026-10-17 18:05:33 END measure v2g rc=0
+2026-10-17 18:05:37 END measure ts2 rc=0
+2026-10-17 18:08:27 START pipe build
+2026-10-17 18:08:28 END pipe build rc=0
+2026-10-17 18:08:28 START pipe anim
+2026-10-17 18:10:05 END pipe anim rc=0
+2026-10-17 18:10:05 START pipe anchors
+2026-10-17 18:10:07 END pipe anchors rc=0
+2026-10-17 18:10:07 START pipe measure
+2026-10-17 18:11:36 END pipe measure rc=0
+2026-10-17 18:11:36 START pipe check
+2026-10-17 18:12:53 START measure src
+2026-10-17 18:12:53 START measure v2g
+2026-10-17 18:13:15 END pipe check rc=0
+PIPEDONE
+2026-10-17 18:13:34 joints done
+2026-10-17 18:14:17 END measure v2g rc=0
+2026-10-17 18:14:19 END measure src rc=0
+2026-10-17 18:15:53 START pipe anim
+2026-10-17 18:17:47 END pipe anim rc=0
+2026-10-17 18:17:47 START pipe anchors
+2026-10-17 18:17:48 END pipe anchors rc=0
+2026-10-17 18:17:48 START pipe measure
+2026-10-17 18:19:36 END pipe measure rc=0
+2026-10-17 18:19:36 START pipe check
+2026-10-17 18:20:32 START render before r24 (have 0)
+2026-10-17 18:21:27 cloth+joints done
+2026-10-17 18:21:42 END pipe check rc=0
+PIPEDONE
+2026-10-17 18:22:58 START variant s10 sigma=1.0 ovr=
+2026-10-17 18:23:32 closeups done
+2026-10-17 18:24:04 END variant s10
+2026-10-17 18:24:04 START variant s15 sigma=1.5 ovr=
+2026-10-17 18:25:05 END variant s15
+2026-10-17 18:25:05 START variant s20 sigma=2.0 ovr=
+2026-10-17 18:25:56 END render before r24 136
+2026-10-17 18:25:56 START render after r24 (have 0)
+2026-10-17 18:26:06 END variant s20
+2026-10-17 18:27:26 START fix f15a sigma=1.5 near=6 far=20
+2026-10-17 18:27:47 render stopped (after = raw SRC, partial; will re-render with chosen fix)
+2026-10-17 18:29:32 END fix f15a
+2026-10-17 18:29:32 START fix f10a sigma=1.0 near=4 far=15
+2026-10-17 18:31:49 START fix f15b sigma=1.5 near=6 far=20
+2026-10-17 18:31:50 END fix f10a
+2026-10-17 18:37:06 END fix f15b
+2026-10-17 18:39:55 START render after r24 (have 65)
+2026-10-17 18:41:40 closeups v2 done
+2026-10-17 18:42:18 END render after r24 136
+2026-10-17 18:42:18 START render before portrait45 (have 0)
+2026-10-17 06:46:39 END render before portrait45 136
+2026-10-17 06:46:39 START render after portrait45 (have 0)
+2026-10-17 18:50:58 END render after portrait45 136
+RENDERDONE
+2026-10-17 18:52:25 START make_video
+2026-10-17 18:52:32 END make_video
+2026-10-17 18:53:00 README written; cleanup
+2026-10-17 18:53:00 DONE
+2026-10-17 06:57:22 v3 START constrained-smooth workstream
+2026-10-17 06:58:21 cs step1 precompute rc=0
+2026-10-17 07:00:23 cs step2 solve cs1 START pid 321164
+2026-10-17 07:01:12 cs1 killed (own pid 321164) - not converging, adding diagnostics
+2026-10-17 07:04:15 cs1 killed again (own pid) - accel growth, diagnosing
+2026-10-17 07:04:15 cs step2 solve cs1 lam0.05 rc=0
+2026-10-17 07:11:29 cs: alternating-projection variant oscillates/diverges (nearest-face flips); switching to per-vertex QP (smoothness objective + accumulated linearised contact constraints, active-set dual) = solve2.py
+2026-10-17 07:15:48 cs2 solved (QP, lam0.05): converged; accel dress 9.69 apron 13.36 (plain-smooth 9.69/10.0). launching eval cs2 + solve cs3 lam0.03
+2026-10-17 07:15:49 wrote /workspace/wechat-game/team/cinematic/work/m1v2-clipfix/pipe/scene/cine_m1_anim_cs2.blend
+2026-10-17 07:15:49 START eval cs2
+2026-10-17 07:17:29 END eval cs2
+2026-10-17 07:25:17 cs2 eval: accel OK (dress 9.69 / apron 13.36, visible pops f36-41 <=9, f76-82 <=10) BUT tri-level regressions: dress self 624 pairs, apron x dress visible 530 pairs, torso x dress 12.9mm, armL x apron 0.3mm. cs3 (lam .03) worse apron accel 19. -> building solve3: global constraints incl. tri-tri (self, apron-dress, body-garment) with Gauss-Seidel per-vertex QP
+2026-10-17 07:37:06 solve3 cs4 started (tri-level constraints, vertex-side variables)
+2026-10-17 07:45:13 solve3 (tri constraints, also homotopy) diverges: self-overlaps multiply (1149->23978). killed own pids 386874 390178. Switching to solve4: cs2 unary QP + per-vertex smoothing strength (lambda levels raised locally where tri crossings appear, original = crossing-free limit)
+2026-10-17 07:46:07 solve4 cs5 started pid 396989
+2026-10-17 07:55:30 solve4 cs5 (pid 400733) running: crossings shrink slowly (sd 6360->4451 in 3 rounds) while accel climbs (21) - fallback only. Trying cloth-sim filter (Blender cloth, goal=pass2c deformed mesh, dynamic mesh rest, self+body+chair+layer collisions) = cs/sim_cloth.py
+2026-10-17 08:00:10 cloth-sim filter tried (pin w .5/.7/.85): accel 57-84, thousands of new crossings -> rejected, sims deleted
+2026-10-17 08:00:29 solve4 cs5 killed (own pid 400733): reverting all crossings drives accel back to 60. -> solve5: same but only crossings VISIBLE from the game camera eye (R24 plan, ray test) raise the local smoothing strength
+2026-10-17 08:09:38 solve5 restarted with dress-under-apron constraint (dress verts poking through large apron tris)
+2026-10-17 08:15:26 solve5: dress-under-apron (sandwich) exploded; replaced by apron-over-dress-points (apron tri verts move outward). restarted pid 431285
+2026-10-17 08:21:10 solve5 apron-over-dress also explodes (baseline sign invalid in posed frames, apron pushed 30mm into body). killed own pids 431285/431283. DECISION: stop solver attempts; package evidence for best candidate cs2 (accel ok, tri crossings NOT ok) + trade-off findings; report targets missed.
+2026-10-17 08:21:10 START render v3 v2g portrait45 (have 0)
+2026-10-17 08:21:10 START render v3 src portrait45 (have 0)
+2026-10-17 08:21:10 START render v3 cs2 portrait45 (have 0)
+2026-10-17 08:23:58 stills v3 done
+2026-10-17 08:24:36 curves_v3 + stills_v3 (v2g/src/cs2, f37,f76-82, game r24/p45 + close) done; jv src vs cs2: bone pos 0.0mm, ang vel identical (rot diff 0.21/0.39 deg = quaternion eval noise, same as before). cs2 f37 closeFront shows visible apron/dress crossing patch. waiting renders.
+2026-10-17 08:27:25 END render v3 src portrait45 136
+2026-10-17 08:27:25 END render v3 cs2 portrait45 136
+2026-10-17 08:27:29 END render v3 v2g portrait45 136
+2026-10-17 08:27:29 START render v3 v2g r24 (have 0)
+2026-10-17 08:27:29 START render v3 cs2 r24 (have 0)
+2026-10-17 08:27:29 START render v3 src r24 (have 0)
+2026-10-17 08:32:20 END render v3 cs2 r24 136
+2026-10-17 08:32:20 END render v3 src r24 136
+2026-10-17 08:32:21 END render v3 v2g r24 136
+RENDERDONE_V3
+2026-10-17 08:35:07 videos v3 done
+2026-10-17 08:35:31 README v3 + STATUS.md updated; cleaned /workspace/tmp-m1clip and cs intermediates (pre.npz, wip/state/levels npz; kept knots_cs1-3, scripts, logs). DONE v3.
+2026-10-17 08:36:59 START v4: SRC + apron-only f3-6 ease into sit_corrective (Grok Bot decision: SRC used, cs2 not used)
+2026-10-17 08:38:02 wrote pipe/scene/cine_m1_anim_ease.blend (apron sit f3-6 = 0.896/0.648/0.352/0.104, SRC 1/1/1/0.5)
+2026-10-17 08:38:02 START eval ease
+2026-10-17 08:39:31 START render v4 ease r24 (have 0/136)
+2026-10-17 08:39:31 START render v4 src r24 (have 0/16)
+2026-10-17 08:39:31 START render v4 v2g r24 (have 0/136)
+2026-10-17 08:40:13 END eval ease
+2026-10-17 08:40:19 END render v4 src r24 16/16
+2026-10-17 08:40:24 PROBLEM_BRIEF.md written; ease cloth: apron f1-8 max 3.9->3.1 (SRC already <=10 there; 13.4 was cs2). renders v4 running pid 460977
+2026-10-17 08:41:38 stills v4 done (f4,f5,f37 src vs src_ease)
+2026-10-17 08:44:29 END render v4 ease r24 136/136
+2026-10-17 08:44:32 END render v4 v2g r24 136/136
+2026-10-17 08:44:33 START render v4 ease portrait45 (have 0/136)
+2026-10-17 08:44:33 START render v4 src portrait45 (have 0/16)
+2026-10-17 08:44:33 START render v4 v2g portrait45 (have 0/136)
+2026-10-17 08:45:11 END render v4 src portrait45 16/16
+2026-10-17 08:45:47 ease check: tri-level checks identical to SRC; vertex-check apron_vs_dress f3-6 2->3 verts, depth <=3.07 (=SRC f0-5 max). stills v4 + renders v4 running.
+2026-10-17 08:48:38 END render v4 ease portrait45 136/136
+2026-10-17 08:48:38 END render v4 v2g portrait45 136/136
+RENDERDONE_V4
+2026-10-17 08:55:17 videos v4 done
+2026-10-17 08:55:31 README v4 + STATUS.md updated
+2026-10-17 08:55:51 committed 508b87b on local branch cine/m1v2-src-apron-ease (new local repo in m1v2-clipfix/, no remote, not pushed); cleaned /workspace/tmp-m1clip4 + /tmp scratch. DONE v4.

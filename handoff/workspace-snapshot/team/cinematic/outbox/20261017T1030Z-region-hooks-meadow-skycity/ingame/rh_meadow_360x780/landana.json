@@ -1,0 +1,29 @@
+{
+ "run": "rh_meadow_360x780",
+ "windowS": 11.0,
+ "frames": 660,
+ "gapAtWindowStart": {
+  "positionM": 15.999,
+  "viewDeg": 10.358,
+  "fovDeg": 1.426
+ },
+ "gapAtArrival": {
+  "positionCm": 0.0,
+  "viewDeg": 0.0,
+  "fovDeg": 0.0
+ },
+ "maxGrowPerFrame": {
+  "positionM": 0.013,
+  "viewDeg": 0,
+  "fovDeg": 0
+ },
+ "maxTurnDps": 2.25,
+ "maxFovRateDps": 0.315,
+ "frameDtMedianMs": 16.60000000000582,
+ "hitchesOver40ms": [],
+ "coverHold": {
+  "frames": 151,
+  "maxPosFromBoardCm": 0.0,
+  "maxFovFromBoardDeg": 0.0
+ }
+}

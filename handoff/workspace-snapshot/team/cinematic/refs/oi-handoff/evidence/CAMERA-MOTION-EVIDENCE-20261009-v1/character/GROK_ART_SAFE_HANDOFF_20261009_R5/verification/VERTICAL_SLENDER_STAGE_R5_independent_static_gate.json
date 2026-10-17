@@ -1,0 +1,20 @@
+{
+  "input_sha256": "2d6e7af5b8ec72066d13e6eb4ff61931d7c30ff03be29cc0c8829f11bd2b15c5",
+  "body_self_hits": [],
+  "coplanar_area_contacts": [],
+  "sewn_local_pairs": 0,
+  "budget": {
+    "stored_body_vertices": 32472,
+    "used_body_vertices": 20326,
+    "body_triangles": 40457,
+    "source_body_triangles": 15738,
+    "yellow_render_triangles": 26712,
+    "apron_render_triangles": 2912,
+    "combined_render_triangles": 70081,
+    "previous_combined_render_triangles": 45362,
+    "triangle_increase_fraction": 0.5449274723336713,
+    "maximum_skin_influences": 4,
+    "bone_count": 22
+  },
+  "scope": "Full static anatomical arms/hands merged natural body finite crossings and positive coplanar overlap, explicit sewn locality only. Geometry and budget only; materials/appearance remain under active revision."
+}

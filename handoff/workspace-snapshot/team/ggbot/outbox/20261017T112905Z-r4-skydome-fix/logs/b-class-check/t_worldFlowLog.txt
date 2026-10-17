@@ -1,0 +1,2 @@
+1.000	error	[QF_LAKE] {"event":"journey-water-fallback","bundle":"region_lakeside","asset":"water/lakeside-water","reason":"lakeside-water-material-load-failed: water/lakeside-water: 404","look":"imported water (pre-r4 look)"}
+1.100	warning	[QF_LAKE] {"event":"journey-water-fallback","note":"old warn variant"}

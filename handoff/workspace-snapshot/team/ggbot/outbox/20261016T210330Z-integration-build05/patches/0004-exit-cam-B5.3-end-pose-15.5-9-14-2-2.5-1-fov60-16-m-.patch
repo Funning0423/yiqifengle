@@ -1,0 +1,93 @@
+From c789128faa0e64149b1c4c0f15ce173bffc8faed Mon Sep 17 00:00:00 2001
+From: yunjing-bot <yunjing-bot@local>
+Date: Fri, 16 Oct 2026 04:45:01 -0400
+Subject: [PATCH 04/21] exit-cam B5.3: end pose (-15.5,9,14)->(-2,2.5,1) fov60
+ (16 m, h9), straight-line offset blend + smooth-trapezoid ease (ramp in
+ .45/out .25), settle 11.3 -> 19.97 s, peak 1.96/2.16 m/s; wind-frontal = lens
+ never behind her face
+
+---
+ .../assets/scripts/world-r1/FirstsliceRoutes.ts     | 13 +++++++++----
+ .../assets/scripts/world-r1/RegionCameraData.ts     |  6 +++---
+ tools/camera-frame-test/test_camera_frames.cjs      |  4 +++-
+ 3 files changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts b/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
+index c9bf051..fc035e9 100644
+--- a/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
++++ b/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
+@@ -30,7 +30,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
+ }
+ type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{turn?:-1|1;shiftX?:number;hop?:number;rayTau?:number;straightM?:number;rayMps?:number;preTurnDeg?:number;minZ?:number;blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number;b5?:B5Opts}>;
+ /** B5 exit (运镜bot 2026-10-16): follow her, then one minimum-jerk rise. All times in seconds after the doorway key. */
+-type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number}>;
++type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean;cruiseRampIn?:number}>;
+ type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
+ /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
+ function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
+@@ -126,9 +126,14 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
+     const unwrapNear=(a:number,ref:number)=>{while(a-ref>Math.PI)a-=2*Math.PI;while(a-ref<-Math.PI)a+=2*Math.PI;return a;};
+     const bf=unwrapNear(cf.b,c0.b);let b3=unwrapNear(c3.b,bf);const rightB=Math.atan2(rx,rz);
+     const passR=unwrapNear(rightB,bf);if(!(Math.min(bf,b3)<=passR&&passR<=Math.max(bf,b3)))b3+=b3<bf?2*Math.PI:-2*Math.PI;
+-    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=s5((tau-b.riseAt)/(span-b.riseAt)),wb=s5((tau-b.riseAt)/((span-b.riseAt)*b.turnShare));
+-      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=s5((tau-b.riseAt)/((span-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
+-      const p:Vec=[h[0]+Math.sin(be)*ra,yy,h[2]+Math.cos(be)*ra];
++    const rr=b.cruiseRamp??0,eI=(x:number)=>x*x*x*x*(x*x-3*x+2.5),
++      ra0=b.cruiseRampIn??rr,tot=1-(ra0+rr)/2,ez=(u:number)=>{if(!(rr>0))return s5(u);const x=Math.max(0,Math.min(1,u));return (x<ra0?ra0*eI(x/ra0):x>1-rr?tot-rr*eI((1-x)/rr):ra0*.5+(x-ra0))/tot;}; // smooth-trapezoid speed profile (s5-shaped ramp-in ra0, ramp-out rr): peak = mean/tot
++    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=ez((tau-b.riseAt)/(span-b.riseAt)),wb=ez((tau-b.riseAt)/((span-b.riseAt)*b.turnShare));
++      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=ez((tau-b.riseAt)/((span-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
++      let p:Vec=[h[0]+Math.sin(be)*ra,yy,h[2]+Math.cos(be)*ra];
++      if(b.cartesian){ // straight-line (Cartesian) offset blend follow -> island: shortest lens path, stays on her right because both ends do
++        const bF=c0.b+(bf-c0.b)*wS,rF=c0.r+(cf.r-c0.r)*wS,ox=Math.sin(bF)*rF,oz=Math.cos(bF)*rF,ex=Math.sin(c3.b)*c3.r,ez2=Math.cos(c3.b)*c3.r;
++        p=[h[0]+ox+(ex-ox)*wb,yy,h[2]+oz+(ez2-oz)*wb];}
+       const lk:Vec=[h[0]+fx*b.look,h[1]+b.targetHeight,h[2]+fz*b.look];
+       const m:Vec=[doorT0[0]+(lk[0]-doorT0[0])*w1,doorT0[1]+(lk[1]-doorT0[1])*w1,doorT0[2]+(lk[2]-doorT0[2])*w1];
+       const it=island.target,tg:Vec=[m[0]+(it[0]-m[0])*w2,m[1]+(it[1]-m[1])*w2,m[2]+(it[2]-m[2])*w2];
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+index 7f2d865..c2920ff 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+@@ -24,7 +24,7 @@ export const REGION_CAMERA = {
+         source: 'old FirstsliceRoutes.cameraIsland (capsule era); ~2.6 m from character, causes OI-FRAME-002' },
+       'temporary-6m': { position: [-5.796, 3.323, 9.352], target: [-2.114, 0.9, 5.281], fovVerticalDeg: 45, characterYawDeg: 0,
+         source: 'TEMPORARY 0007 v1.2 composition candidate: legacy direction pulled back to 6 m from exit_path_17 chest point. NOT final.' },
+-      'yunjing-final': { position: [-22, 12, 18], target: [-1, 2.5, 1], fovVerticalDeg: 56, characterYawDeg: 0,
++      'yunjing-final': { position: [-15.5, 9, 14], target: [-2, 2.5, 1], fovVerticalDeg: 60, characterYawDeg: 0,
+         source: '运镜bot exit-cam-v2 2026-10-15 candidate: pitch -30, y 15.5 (suite end height), fov 70, island ~47% H (lighthouse top to beach), lighthouse+hut centred (ref FUNNING-exit-final-frame-ref.png). Funning pick pending. Kept unchanged as the B5 end pose.' },
+       // art/island/v2.3-cursor-cam/island_camera_wide.json (CAM-01). Position+target+fov only; rotation is derived.
+       'v23-wide': { position: [-49.6623, 26.7215, 56.2639], target: [-2.1535, -4.5424, 3.7359], fovVerticalDeg: 42, characterYawDeg: 0,
+@@ -189,14 +189,14 @@ export const TRANSITION_CAMERA = Object.freeze({
+    *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
+    *  frontalDeg: wind reaches 1 the first time the lens is within this many
+    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
+-  crane: { settleSeconds: 28,
++  crane: { settleSeconds: 11.3,
+     pace: { sampleMetres: 0.05, rampSeconds: 1.03, cruiseMps: 7,
+       depart: { turn: 1, straightM: 0.45, rayMps: 1.15, blendMetres: 0.5, aimDeg: 22, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
+       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36,
+       /** B5 (运镜bot 2026-10-16, Funning rejected B4: mid-way surge + abrupt lift). Follow her at walking pace, then ONE
+        *  minimum-jerk (smootherstep) rise from her right to cameraIsland; all seconds after the doorway key. */
+       /* Rollback to B4: delete this b5 entry (depart above is the B4 arc). */
+-      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 2.4, riseAt: 2.4, side: 1.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 0.45, heightShare: 0.55 } } },
++      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 2.4, riseAt: 1.2, side: 1.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.65, cruiseRamp: 0.25, cartesian: true, cruiseRampIn: 0.45 } } },
+   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
+    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when
+    *  the exit arc first faces her -> held while she stays in front -> eases to exactly 0 when the camera settles on
+diff --git a/tools/camera-frame-test/test_camera_frames.cjs b/tools/camera-frame-test/test_camera_frames.cjs
+index 3ef40b4..edff7e7 100644
+--- a/tools/camera-frame-test/test_camera_frames.cjs
++++ b/tools/camera-frame-test/test_camera_frames.cjs
+@@ -265,7 +265,9 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
+     // Voice bot AmbienceAudio (int/v1 e439b62) triggers seagulls on RISING crossings of 0.4 and 0.7: exactly once each per trip.
+     const rising=th=>{let n=0;for(let i=1;i<w.length;i++)if(w[i-1]<th&&w[i]>=th)n++;return n;};
+     check('wind-rising-crossings',rising(.4)===1&&rising(.7)===1,{'0.4':rising(.4),'0.7':rising(.7),expectedEach:1});
+-    check('wind-frontal',!!fr&&frontDeg(fr)<=25&&holdFront!==null&&holdFront<=40,{frontalDegAtPeak:fr?+frontDeg(fr).toFixed(1):null,limit:25,maxDegDuringHold:holdFront===null?null:+holdFront.toFixed(1),holdLimit:40});}
++    // exit shot (B5.3): from wind peak to island settle the lens must never be behind her face plane (angle to her facing < 90 deg); no frontal-angle limit
++    const tail=peak>=0?F.slice(peak,si?si.frame+1:F.length):[],tailMax=tail.length?Math.max(...tail.map(frontDeg)):null,last=F[si?si.frame:F.length-1];
++    check('wind-frontal',!!fr&&tailMax!==null&&tailMax<90,{rule:'camera never behind her face (front angle < 90) from wind peak to island settle',frontalDegAtPeak:fr?+frontDeg(fr).toFixed(1):null,maxFrontDegPeakToSettle:tailMax===null?null:+tailMax.toFixed(1),frontDegAtSettle:last?+frontDeg(last).toFixed(1):null,limit:90});}
+   const timeline=run.states.map(s=>({t:+(s.frame*dt).toFixed(3),state:s.state}));
+   // --- T2+ leave from a dragged room view (door-facing, RoomLook extreme): ONE continuous move, no cut, in frame after rejoin
+   if(!args.includes('--no-drag')){const env2=S.create(envOpts),h=env2.cfg.cameraHome,yaw=Math.atan2(0-h.position[0],0-h.position[2]);
+-- 
+2.47.3
+

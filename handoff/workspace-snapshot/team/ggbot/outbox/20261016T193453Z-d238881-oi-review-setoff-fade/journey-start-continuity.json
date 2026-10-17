@@ -1,0 +1,67 @@
+{
+ "status": "PASS",
+ "timeUTC": "2026-10-16T19:31:04.634Z",
+ "scope": "journeyCamera geometry + real RegionJourneyController with a recording world. Not a render or device acceptance.",
+ "checks": [
+  {
+   "id": "G1 journeyCamera unchanged vs d238881; continuous, ≤ 20°/s from the cut (0–10 m)",
+   "status": "PASS",
+   "maxStepPerFrameM": 0.02,
+   "maxTurnDegS": 2.18,
+   "fov": 48
+  },
+  {
+   "id": "G2 fade-in frames: in frame, chest/head/face unoccluded (no palm), lens ≥ 1 m",
+   "status": "PASS",
+   "fadeInM": 0.42,
+   "frames": 22,
+   "lowPointsBehind": [
+    "island:env_island_props_merged"
+   ]
+  },
+  {
+   "id": "C1 controller: fade out -> cut + show only under full black -> fade in -> walk",
+   "status": "PASS",
+   "sequence": [
+    "cover",
+    "coverDone",
+    "camera",
+    "show",
+    "cover",
+    "walk"
+   ],
+   "cutUnderAlpha": 1,
+   "cutJumpM": 50.727,
+   "cutTurnDeg": 132.07,
+   "fov": [
+    42,
+    48
+   ],
+   "fade": {
+    "outS": 0.25,
+    "inS": 0.35
+   }
+  },
+  {
+   "id": "C2 lease without fadeCover: old path, no cover",
+   "status": "PASS"
+  },
+  {
+   "id": "C3 cancel during the fade-out: cover goes back to 0, no cut, no walk",
+   "status": "PASS",
+   "sequence": [
+    "cover",
+    "coverDone",
+    "cover"
+   ]
+  },
+  {
+   "id": "C4 08→09 (default blend): no fade",
+   "status": "PASS"
+  },
+  {
+   "id": "C5 wiring: startBlendM 0 on island 04→05; WorldLease.fadeCover -> ScreenCover <- WorldIntegrationBoot cover; no audio in the set-off path",
+   "status": "PASS"
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+5b1f41dc96733891e38fd5bdabf1bca6cb0d5667 girl-frame: screen-right sign (was mirrored); verified against the in-game meadow board capture
+cc2a6d43a8fd038cdada03156c17f4da8999a39a region hooks test: her r4-prep B+ board copy at the board camera (= hook end pose), per screen
+052db63937100d985b0dc11ff8a40ce1b56118b9 cine(region): board-end blend view slerps from its blend-start direction
+6f2396ba6ea5e15dd2b447a529c41eddab0bad6c region hooks: build the hook deps first (no world camera → today's path, no import touched) — fixes region-journey-host sandbox (camera only)
+dd45b5d25f21a789014d56c5fe643f7547a779f2 region hooks: 04→05 meadow / 08→09 skycity journeys end on the board camera that renders after the swap; push-in held (camera only)
+834f9bf9ca4db1c9322ace7cadda67e9b65f3a34 lakeside hook v3 test: swap frame (world camera after hook+hold vs LakesideBackgroundCamera) on 5 screens, goals 2..4
+9e5843f31553068e58924c2807a2fc2a48a57528 lakeside: enter-level cover holds the landed board pose (no push-in + cut back) — camera only

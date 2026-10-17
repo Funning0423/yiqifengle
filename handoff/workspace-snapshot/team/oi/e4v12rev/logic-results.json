@@ -1,0 +1,132 @@
+{
+  "scope": "independent inspected-runtime logic with self-authored cc mocks; not Creator or GPU",
+  "passed": 11,
+  "failed": 4,
+  "results": [
+    {
+      "name": "hardware fallback keeps 30 percent grass",
+      "status": "pass",
+      "detail": {
+        "grass": 300
+      }
+    },
+    {
+      "name": "requested flower 50 percent exists",
+      "status": "fail",
+      "detail": {
+        "expected": 75,
+        "actual": 150,
+        "packageReadme": "flowers remain full density"
+      }
+    },
+    {
+      "name": "real no-instancing path uses uniform middle green",
+      "status": "pass",
+      "detail": {
+        "r": 96,
+        "g": 174,
+        "b": 50,
+        "a": 255
+      }
+    },
+    {
+      "name": "forceNoInstancing selects actual non-instanced shader branch",
+      "status": "fail",
+      "detail": {
+        "USE_INSTANCING": true,
+        "rootAttribute": null,
+        "localFlag": false
+      }
+    },
+    {
+      "name": "missing ROOT_COLOR is populated in real instancing path",
+      "status": "pass",
+      "detail": [
+        0.14173010380622836,
+        0.46560553633217994,
+        0.03844675124951941,
+        1
+      ]
+    },
+    {
+      "name": "missing and invalid colors receive fallback",
+      "status": "pass",
+      "detail": {
+        "colors": [
+          0.14173010380622836,
+          0.46560553633217994,
+          0.03844675124951941,
+          0.14173010380622836,
+          0.46560553633217994,
+          0.03844675124951941
+        ],
+        "missing": 1,
+        "invalid": 1
+      }
+    },
+    {
+      "name": "destroy stops spawned nodes and releases variants",
+      "status": "pass",
+      "detail": {
+        "variantDestroyed": true,
+        "baseValid": true
+      }
+    },
+    {
+      "name": "async/new instances inherit last quality",
+      "status": "pass"
+    },
+    {
+      "name": "own meadow-root scale queues refresh",
+      "status": "pass",
+      "detail": {
+        "refresh": 1
+      }
+    },
+    {
+      "name": "ancestor-scale automatically queues grass bounds refresh",
+      "status": "fail",
+      "detail": {
+        "refresh": 0,
+        "listener": "only meadow root TRANSFORM_CHANGED"
+      }
+    },
+    {
+      "name": "main-camera sky sync before scene-update keeps Y",
+      "status": "pass",
+      "detail": {
+        "x": 410,
+        "y": 8,
+        "z": -250
+      }
+    },
+    {
+      "name": "late write is warning-only, not repaired",
+      "status": "pass",
+      "detail": {
+        "lateWrites": 1,
+        "skyX": 410,
+        "cameraX": 900
+      }
+    },
+    {
+      "name": "sky cleanup removes listeners and active instance",
+      "status": "pass"
+    },
+    {
+      "name": "frame-budget monitor triggers once on sustained 50ms frames",
+      "status": "pass",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "name": "stride selection matches documented round(N*ratio)",
+      "status": "fail",
+      "detail": {
+        "expected": 2,
+        "actual": 1
+      }
+    }
+  ]
+}

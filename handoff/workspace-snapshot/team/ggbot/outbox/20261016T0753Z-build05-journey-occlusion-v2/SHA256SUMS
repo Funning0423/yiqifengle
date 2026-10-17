@@ -1,0 +1,14 @@
+961175d67abbc0a3a23acee8efa3869cb1cea20972c8cdc7e2d96874cf9322ff  ./README.md
+8f7714c4966ae2be2a25dd8c4b777fab942f21b4487abf3a8d34c2882153deaa  ./evidence/before-build05-occlusion-samples.json
+527b6945ae46b224ea09b95c4a7e462286fba3ffb2dede07379f045f659bf0cb  ./evidence/journey-occlusion.json
+ee10eaab0bd2c95baeffacd04b31e24363dac90bd434b38a0c6db4f4bfa80e58  ./evidence/overhead-and-overlap.txt
+6937c4b672ec067e91f034202f4e780433fb8067dcf57a6555132054f0f0fa25  ./evidence/route-profile-and-overhead.cjs
+ebd6f9dc469ed8f4ff9f8f6b5b5b69d9456a3326d9d751b3db5c1847a6d466cb  ./patches/0001-Build05-baseline-Oi-task21-regions-build05-complete..patch
+4799dd89c7efacaa5c581b09e1c20e1e079d55e06a0cafc2dcdac8beec80b9d8  ./patches/0002-Build05-journey-occlusion-re-place-bridges-path-fram.patch
+30f74047c1700facb12302c84216ae13cf3444ec074780f604025db2eef5aaa5  ./patches/0003-Build05-journey-08-09-side-rim-landing-3-s-over-Buil.patch
+28be86b3547994e7a4d706d29c57343d4dcba71f571ac052ed288dde1fc4a40d  ./patches/fix-only/0001-Build05-journey-occlusion-re-place-bridges-path-fram.patch
+7260a5b69e4ec331c084a72a17bf3f1b643366d487ab4556e04d841e40ff0923  ./patches/fix-only/0002-Build05-journey-08-09-side-rim-landing-3-s-over-Buil.patch
+1ace1d9d4e140d4a441ba99a68840f3f428845b75437ea9f3aea1d8a0ac6cc9b  ./patches/incremental/0001-Build05-journey-08-09-side-rim-landing-3-s-over-Buil.patch
+85fc226392d7e450fc23c96ce999a059c4e8fa0308aed5f36ae2d064a460d28d  ./route-height-04-05.csv
+a68c063b6ba00f93fe3623c34efc23773758efa43b31ce745617cf7abb3d991e  ./route-height-08-09.csv
+60110b54989494c02339faaea9ee34a6e46d26fa091980c4ed87112a50225a7c  ./tree.txt

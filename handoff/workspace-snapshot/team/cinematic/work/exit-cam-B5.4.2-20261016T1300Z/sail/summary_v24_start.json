@@ -1,0 +1,48 @@
+{
+ "C": {
+  "island_frames": "0-80",
+  "min_sign": [
+   49.72,
+   0
+  ],
+  "min_palm": [
+   44.408,
+   0
+  ],
+  "min_island": [
+   16.419,
+   0
+  ],
+  "occluded_frames": [],
+  "occluded_frames_actor_visible": [],
+  "actor_visible_frames": "0-12",
+  "feet_ndc_y_min_visible": -0.1086,
+  "face_ndc_visible": [
+   -0.2291,
+   -0.0257
+  ]
+ },
+ "A2": {
+  "island_frames": "0-80",
+  "min_sign": [
+   49.403,
+   0
+  ],
+  "min_palm": [
+   44.408,
+   0
+  ],
+  "min_island": [
+   16.419,
+   0
+  ],
+  "occluded_frames": [],
+  "occluded_frames_actor_visible": [],
+  "actor_visible_frames": "0-12",
+  "feet_ndc_y_min_visible": -0.1086,
+  "face_ndc_visible": [
+   -0.2291,
+   -0.0257
+  ]
+ }
+}

@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-10-09T23:11:27.369Z",
+  "files": [
+    {
+      "path": "control-A/automator-console.json",
+      "bytes": 138,
+      "sha256": "1c67a4d489b1e27ef5c82088310b872afb7c03f361a4a554ad2fa1f50512b3f4"
+    },
+    {
+      "path": "control-A/automator-exceptions.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "control-A/build-copy-SHA256SUMS.txt",
+      "bytes": 236,
+      "sha256": "4972b022f03bd56e52da4ecef53d2fbdcbefebd0594cb7fe0242b16ee76660a7"
+    },
+    {
+      "path": "control-A/condition-report.json",
+      "bytes": 378,
+      "sha256": "10a44b7f6f15772f58a52b528e43908c7cb3028a010ccb9bfa8717aad5263736"
+    },
+    {
+      "path": "control-A/project.config.json.as-opened",
+      "bytes": 378,
+      "sha256": "19371be5d1ddcebf3c321509645a358561346557c8fec21b4542ba9d57f1b810"
+    },
+    {
+      "path": "control-A/shim-buffer.json",
+      "bytes": 221,
+      "sha256": "6de3fd9cc7aacddae97781c37c88e693158f91b2816077c9df8cdfd6bd3b3efd"
+    },
+    {
+      "path": "control-A/weapplog-delta.txt",
+      "bytes": 237,
+      "sha256": "3374baf5a43e0a9367c90e290c3e74cce91b20e24d37318c076f8116958478df"
+    },
+    {
+      "path": "run.log",
+      "bytes": 2908,
+      "sha256": "c822e6a81ea5b2e479f9684e8ca8824bc4e24f5ea119d1eb7bcefe98ec8a3654"
+    },
+    {
+      "path": "source-project.config.json",
+      "bytes": 385,
+      "sha256": "ffbe82b5e3c4ec5549243416e955fdc889423a12a1554a3a6a8a43725e27562e"
+    },
+    {
+      "path": "target-B/automator-console.json",
+      "bytes": 138,
+      "sha256": "17bac84f337e49b64450914ac21f06e2754af9e6f5b1672c6403a69d00f4917f"
+    },
+    {
+      "path": "target-B/automator-exceptions.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "target-B/build-copy-SHA256SUMS.txt",
+      "bytes": 236,
+      "sha256": "ea71b3cdee27bd975c2ae7cc9e5c866315e9d33f79669999fe76cdf37116be3a"
+    },
+    {
+      "path": "target-B/condition-log/first-open-condition.log.jsonl",
+      "bytes": 1872,
+      "sha256": "eff584b397d8972a194125071435943d3cf5b2199120a3b4da0357a8fc7bb488"
+    },
+    {
+      "path": "target-B/condition-log/project.config.json.before-first-open.bak",
+      "bytes": 378,
+      "sha256": "3accfe76a105bdccd8737fa2ee32462639e95e80fd277819fd7cc6f05c2f171b"
+    },
+    {
+      "path": "target-B/condition-report.json",
+      "bytes": 2168,
+      "sha256": "f224a35c320bbf6665da1d395b91a42a12c1223d2319303e9cee7dbbf7122c01"
+    },
+    {
+      "path": "target-B/project.config.json.as-opened",
+      "bytes": 524,
+      "sha256": "619e6e6615fa90fd62c1d90bdeaea31ad06f835013ab514620a6f79e4c19de3d"
+    },
+    {
+      "path": "target-B/shim-buffer.json",
+      "bytes": 221,
+      "sha256": "59c5af2e9c890b798caf45c8a47f8d94204d2da7cdffa547aa28dc35fc41419b"
+    },
+    {
+      "path": "target-B/weapplog-delta.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "verdict.json",
+      "bytes": 7725,
+      "sha256": "357f885ddad8861ee4d01bad9a00d49965725eb43610ad92a4d9b74fce0899ad"
+    }
+  ]
+}

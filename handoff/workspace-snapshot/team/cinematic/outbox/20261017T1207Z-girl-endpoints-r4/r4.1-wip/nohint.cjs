@@ -1,0 +1,3 @@
+const J=require('/workspace/tmp-lkcam/wt-r4/tools/journey-integration/journey-scene.cjs');const {f7}=require('./scan2d.cjs');const {SCR}=require('./feas.cjs');
+const out=require('./feas_meadow.json');const ex=J.exit02to08;const c=out.filter(o=>o.g.slice(0,7).some(g=>g>=13)).map(o=>({...o,e:J.Lay.meadowExitExtraM(J.meadowSrc.map.toJourney(o.p),ex)})).filter(o=>o.e<=0.432).map(o=>({...o,f:f7(o.p).worst})).filter(o=>o.f<=0);
+for(let k=0;k<7;k++){const r=c.filter(o=>o.g[k]>=13).sort((a,b)=>b.g[k]-a.g[k]);console.log(SCR[k].join('x'),'ok',r.length,r[0]?r[0].p.map(v=>v.toFixed(2)).join(',')+' g'+r[0].g[k].toFixed(0):'');}

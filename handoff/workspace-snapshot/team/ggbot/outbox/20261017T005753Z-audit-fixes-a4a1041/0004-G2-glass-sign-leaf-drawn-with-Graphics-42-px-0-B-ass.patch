@@ -1,0 +1,102 @@
+From 1bf0bfae96cc2e30727f6f3c256a2c10231ae189 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 08:34:24 +0800
+Subject: [PATCH 4/4] G2: glass sign leaf drawn with Graphics (42 px, 0 B
+ asset, replaces the leaf emoji); leaf+12px+measured caption centred as one
+ group; test
+
+---
+ .../assets/scripts/world-r1/GlassSign.ts      | 31 ++++++++++++++++---
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/test_glass_sign_layout.cjs              | 10 ++++++
+ 3 files changed, 37 insertions(+), 5 deletions(-)
+ create mode 100644 tools/test_glass_sign_layout.cjs
+
+diff --git a/creator-build-project/assets/scripts/world-r1/GlassSign.ts b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+index 80677b7..fff3342 100644
+--- a/creator-build-project/assets/scripts/world-r1/GlassSign.ts
++++ b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+@@ -1,4 +1,4 @@
+-import { Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
++import { Graphics, Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
+ 
+ /**
+  * Glass sign v4-refined3.2 (运镜bot, approved prototype glass-panel-v4refined3.2-20261016T1419Z).
+@@ -13,7 +13,7 @@ export const GLASS_SIGN = Object.freeze({
+   centre: [0.05, 1.02, -4.70] as const, widthM: 0.80, heightM: 0.28, bobAmp: 0.012, bobPeriod: 3.2,
+   px: [280, 100] as const, pad: [130, 85] as const, refWidthCss: 123.2,
+   rim: { alpha: 0.43, gamma: 0.6, widthCss: 1.3 }, top: { alpha: 0.8, widthCss: 1.2, gamma: 0.6 },
+-  caption: '出发去看海', leaf: '🍃', leaveAtFrame: 27,
++  caption: '出发去看海', leaf: { size: 42, fill: [178, 226, 142, 255], vein: [255, 255, 255, 210], shade: [0, 40, 60, 60] } as const, leaveAtFrame: 27,
+ });
+ 
+ export class GlassSign {
+@@ -62,9 +62,14 @@ export class GlassSign {
+       l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
+       l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
+     };
+-    // CSS: leaf (30px) + 12px margin + caption (34px, letter-spacing 4px), centred as one line
+-    const capW = 5 * 34 + 5 * 4, leafW = 44, total = leafW + 12 + capW;
+-    add('Leaf', S.leaf, 42, -total / 2 + leafW / 2, leafW + 8); add('Caption', S.caption, 34, -total / 2 + leafW + 12 + capW / 2, capW + 8);
++    // G2: leaf (Graphics, 42 px, 0 B, same look on every platform instead of the system leaf emoji) + 12 px + caption,
++    // centred as ONE group on the caption's measured width (the old fixed 198 px box left the text off-centre with a gap).
++    const cap = add('Caption', S.caption, 34, 0, 0); cap.overflow = Label.Overflow.NONE; cap.horizontalAlign = Label.HorizontalAlign.LEFT;
++    cap.updateRenderData(true); const measured = cap.node.getComponent(UITransform)!.width;
++    const capW = Number.isFinite(measured) && measured > 0 ? measured : 5 * 34 + 4 * 4, gap = 12, total = glassSignGroupWidth(capW, gap);
++    cap.node.setPosition(-total / 2 + S.leaf.size + gap + capW / 2, 1, 0);
++    const leaf = new Node('Leaf'); leaf.layer = this.root.layer; this.text.addChild(leaf); leaf.addComponent(UITransform).setContentSize(S.leaf.size, S.leaf.size);
++    leaf.setPosition(-total / 2 + S.leaf.size / 2, 1, 0); drawGlassLeaf(leaf.addComponent(Graphics), S.leaf.size);
+   }
+   /** Prototype tap feedback timeline (frames at 30 fps after the tap). */
+   private feedback() {
+@@ -118,3 +123,19 @@ export class GlassSign {
+   diagnostics() { return { ...this.stats, visible: this.root.active, box: this.box ? { ...this.box } : null, corners: this.box ? this.corners.map(c => [c.x, c.y]) : null, tapped: this.tapT !== null, left: this.left, layer: this.root.layer }; }
+   dispose() { if (this.disposed) return; this.disposed = true; if (isValid(this.root, true)) this.root.destroy(); this.material?.destroy(); this.material = null; }
+ }
++
++/** G2: total width of leaf + gap + caption, which is centred on the card. */
++export function glassSignGroupWidth(captionW: number, gap = 12): number { return GLASS_SIGN.leaf.size + gap + captionW; }
++/** G2: small tilted leaf in the card's local px (centre 0,0, fits size x size): soft drop shade, body, white midrib. */
++export function drawGlassLeaf(g: Graphics, size: number) {
++  const L = GLASS_SIGN.leaf, h = size * .46, w = size * .3, c = Math.cos(-.6), sn = Math.sin(-.6);
++  const P = (x: number, y: number, dx = 0, dy = 0): [number, number] => [x * c - y * sn + dx, x * sn + y * c + dy];
++  const body = (dx: number, dy: number) => {
++    g.moveTo(...P(0, -h, dx, dy)); g.bezierCurveTo(...P(w * 1.6, -h * .45, dx, dy), ...P(w * 1.4, h * .55, dx, dy), ...P(0, h, dx, dy));
++    g.bezierCurveTo(...P(-w * 1.4, h * .55, dx, dy), ...P(-w * 1.6, -h * .45, dx, dy), ...P(0, -h, dx, dy)); g.close();
++  };
++  g.fillColor = new Color(L.shade[0], L.shade[1], L.shade[2], L.shade[3]); body(0, -1.5); g.fill();
++  g.fillColor = new Color(L.fill[0], L.fill[1], L.fill[2], L.fill[3]); body(0, 0); g.fill();
++  g.lineWidth = Math.max(1.5, size / 18); g.lineCap = Graphics.LineCap.ROUND; g.strokeColor = new Color(L.vein[0], L.vein[1], L.vein[2], L.vein[3]);
++  g.moveTo(...P(0, -h * .7)); g.lineTo(...P(0, h * 1.15)); g.stroke();
++}
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 9814fa3..217f0c9 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -53,6 +53,7 @@ const tests=[
+  ['wind-audio','tools/voice-bot/wind/test_wind_audio.cjs'],
+  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
+  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
++ ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/test_glass_sign_layout.cjs b/tools/test_glass_sign_layout.cjs
+new file mode 100644
+index 0000000..38a95c5
+--- /dev/null
++++ b/tools/test_glass_sign_layout.cjs
+@@ -0,0 +1,10 @@
++// G2: glass sign leaf is a Graphics drawing (no emoji / no asset), 42 px, and leaf+gap+caption is centred as one group.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const s=fs.readFileSync(path.join(__dirname,'..','creator-build-project/assets/scripts/world-r1/GlassSign.ts'),'utf8');
++assert(!/🍃/u.test(s),'no system emoji');assert(/leaf: \{ size: 42,/.test(s),'leaf 42 px');
++assert(/drawGlassLeaf\(leaf\.addComponent\(Graphics\), S\.leaf\.size\)/.test(s),'leaf drawn with Graphics');
++assert(/cap\.overflow = Label\.Overflow\.NONE/.test(s)&&/cap\.updateRenderData\(true\)/.test(s),'caption width measured');
++assert(/cap\.node\.setPosition\(-total \/ 2 \+ S\.leaf\.size \+ gap \+ capW \/ 2, 1, 0\)/.test(s)&&/leaf\.setPosition\(-total \/ 2 \+ S\.leaf\.size \/ 2, 1, 0\)/.test(s),'group positions');
++// centring: group spans [-total/2, total/2] for any caption width
++for(const capW of [150,170,186,205]){const total=42+12+capW,left=-total/2,right=left+42+12+capW;assert(Math.abs(left+right)<1e-9);assert(total<=280,'fits card '+capW);}
++console.log('glass sign layout OK');
+-- 
+2.47.3
+

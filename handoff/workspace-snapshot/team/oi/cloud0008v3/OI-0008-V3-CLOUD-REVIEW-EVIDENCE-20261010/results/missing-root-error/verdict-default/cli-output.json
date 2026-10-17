@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/missing-root-error/copies/QFFirstOpen-20261010T000621213Z-97b2-ddac19-default",
+      "--auto-port",
+      "42001"
+    ],
+    "pid": 80,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 53,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/missing-root-error/copies/QFFirstOpen-20261010T000621213Z-97b2-ddac19-default"
+    ],
+    "pid": 91,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 57,
+    "lines": []
+  }
+}

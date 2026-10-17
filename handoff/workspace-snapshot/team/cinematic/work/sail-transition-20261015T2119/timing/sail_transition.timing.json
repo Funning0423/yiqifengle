@@ -1,0 +1,173 @@
+{
+ "day": {
+  "clip": "transition_island_to_meadow_sailboat",
+  "fps": 30,
+  "frameConvention": "frame 0 = sail start (S1 hold on island final pose begins); measured = game timing model SailboatTransitionModel.ts at 04632a6/41f47f7 tree ea9456c, meadow warmed in time",
+  "sailStart": {
+   "frame": 0,
+   "sec": 0
+  },
+  "setSail": {
+   "frame": 12,
+   "sec": 0.4
+  },
+  "cloudMaskInStart": {
+   "frame": 66,
+   "sec": 2.2
+  },
+  "fullCover": {
+   "frame": 78,
+   "sec": 2.6
+  },
+  "sceneSwap": {
+   "frame": 81,
+   "sec": 2.7
+  },
+  "dissolveStart": {
+   "frame": 84,
+   "sec": 2.8
+  },
+  "revealEnd": {
+   "frame": 96,
+   "sec": 3.2
+  },
+  "total": {
+   "frame": 156,
+   "sec": 5.2
+  },
+  "shots": [
+   {
+    "id": "S1_hold_island_final",
+    "startFrame": 0,
+    "endFrame": 12,
+    "durationSec": 0.4
+   },
+   {
+    "id": "S2_set_sail",
+    "startFrame": 12,
+    "endFrame": 48,
+    "durationSec": 1.2
+   },
+   {
+    "id": "S3_sea_crossing_cloud_wipe",
+    "startFrame": 48,
+    "endFrame": 90,
+    "durationSec": 1.4
+   },
+   {
+    "id": "S4_meadow_shore_arrive",
+    "startFrame": 90,
+    "endFrame": 126,
+    "durationSec": 1.2
+   },
+   {
+    "id": "S5_rise_to_meadow_pose",
+    "startFrame": 126,
+    "endFrame": 156,
+    "durationSec": 1
+   }
+  ],
+  "skipEnabledFrom": {
+   "frame": 9,
+   "sec": 0.3
+  },
+  "skipFadeSec": 0.3,
+  "windSfxSync": {
+   "suggestedStartFrame": 0,
+   "lengthSec": 5.2,
+   "peakFrames": [
+    78,
+    84
+   ],
+   "note": "5.2 s one-shot from sail start; loudest under full cover 78–84; if the meadow is late the clip pauses at sceneSwap and amb_wind_soft_loop holds (see holdBehaviour)"
+  },
+  "holdBehaviour": "if the warmed meadow is not ready at sceneSwap the model pauses there (cover full, cine sfx paused, wind loop on) and resumes when ready; total = 5.2 s + hold",
+  "recordingSailStartSec_r2": 29.53,
+  "note": "same timing day and night; the night difference is only the cloud tint"
+ },
+ "night": {
+  "clip": "transition_island_to_meadow_sailboat",
+  "fps": 30,
+  "frameConvention": "frame 0 = sail start (S1 hold on island final pose begins); measured = game timing model SailboatTransitionModel.ts at 04632a6/41f47f7 tree ea9456c, meadow warmed in time",
+  "sailStart": {
+   "frame": 0,
+   "sec": 0
+  },
+  "setSail": {
+   "frame": 12,
+   "sec": 0.4
+  },
+  "cloudMaskInStart": {
+   "frame": 66,
+   "sec": 2.2
+  },
+  "fullCover": {
+   "frame": 78,
+   "sec": 2.6
+  },
+  "sceneSwap": {
+   "frame": 81,
+   "sec": 2.7
+  },
+  "dissolveStart": {
+   "frame": 84,
+   "sec": 2.8
+  },
+  "revealEnd": {
+   "frame": 96,
+   "sec": 3.2
+  },
+  "total": {
+   "frame": 156,
+   "sec": 5.2
+  },
+  "shots": [
+   {
+    "id": "S1_hold_island_final",
+    "startFrame": 0,
+    "endFrame": 12,
+    "durationSec": 0.4
+   },
+   {
+    "id": "S2_set_sail",
+    "startFrame": 12,
+    "endFrame": 48,
+    "durationSec": 1.2
+   },
+   {
+    "id": "S3_sea_crossing_cloud_wipe",
+    "startFrame": 48,
+    "endFrame": 90,
+    "durationSec": 1.4
+   },
+   {
+    "id": "S4_meadow_shore_arrive",
+    "startFrame": 90,
+    "endFrame": 126,
+    "durationSec": 1.2
+   },
+   {
+    "id": "S5_rise_to_meadow_pose",
+    "startFrame": 126,
+    "endFrame": 156,
+    "durationSec": 1
+   }
+  ],
+  "skipEnabledFrom": {
+   "frame": 9,
+   "sec": 0.3
+  },
+  "skipFadeSec": 0.3,
+  "windSfxSync": {
+   "suggestedStartFrame": 0,
+   "lengthSec": 5.2,
+   "peakFrames": [
+    78,
+    84
+   ],
+   "note": "5.2 s one-shot from sail start; loudest under full cover 78–84; if the meadow is late the clip pauses at sceneSwap and amb_wind_soft_loop holds (see holdBehaviour)"
+  },
+  "holdBehaviour": "if the warmed meadow is not ready at sceneSwap the model pauses there (cover full, cine sfx paused, wind loop on) and resumes when ready; total = 5.2 s + hold",
+  "recordingSailStartSec_r2": "~32.0 (estimated, r2 night recording ended at 35.2 s)"
+ }
+}

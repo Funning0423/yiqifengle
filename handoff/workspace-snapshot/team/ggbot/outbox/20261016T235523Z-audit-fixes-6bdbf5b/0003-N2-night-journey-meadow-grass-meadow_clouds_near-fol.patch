@@ -1,0 +1,131 @@
+From 27acf2242b621eb169879b0a216bd261bd743769 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 07:32:30 +0800
+Subject: [PATCH 3/5] N2: night journey meadow grass + meadow_clouds_near
+ follow world night grade
+
+---
+ .../region_meadow/meadow-grass-wind.effect    |  5 ++++-
+ .../scripts/region/MeadowBoardBackground.ts   | 15 ++++++++++++-
+ .../scripts/region/RegionJourneyAdapter.ts    |  4 +++-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/test_meadow_night_grade.cjs             | 22 +++++++++++++++++++
+ 5 files changed, 44 insertions(+), 3 deletions(-)
+ create mode 100644 tools/test_meadow_night_grade.cjs
+
+diff --git a/creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect b/creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect
+index 11eeb46..909d223 100644
+--- a/creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect
++++ b/creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect
+@@ -24,7 +24,10 @@ CCProgram meadow-grass-vs %{
+     float omega = 6.28318530718 / 4.0;
+     float d = a_color.a * 1.5 * r * r * (0.36 * sin(a_texCoord1.y - omega * windParams.x) - 0.26 * sin(omega * windParams.x));
+     vec3 p = a_position + vec3(0.944 * d, -0.3 * d * r, -0.330 * d);
+-    v_color = a_color.rgb * mix(vec3(1.0), vec3(0.50, 0.62, 0.70), windParams.z);
++    // z = night weight. w = 1 on the region journey: use the world's lit-night grade
++    // (DayNight lightScale 0.35 x moon colour [180,198,232] linearised) instead of the board's softer sea tint.
++    vec3 nightK = mix(vec3(0.50, 0.62, 0.70), vec3(0.16, 0.20, 0.28), windParams.w);
++    v_color = a_color.rgb * mix(vec3(1.0), nightK, windParams.z);
+     return cc_matViewProj * cc_matWorld * vec4(p, 1.0);
+   }
+ }%
+diff --git a/creator-build-project/assets/scripts/region/MeadowBoardBackground.ts b/creator-build-project/assets/scripts/region/MeadowBoardBackground.ts
+index a97ec98..e27992a 100644
+--- a/creator-build-project/assets/scripts/region/MeadowBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/MeadowBoardBackground.ts
+@@ -46,8 +46,20 @@ export async function preflightMeadowScene():Promise<void> {
+   material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('Meadow wind material unavailable');
+  }finally{clearTimeout(timer);model?.destroy();material?.destroy();}
+ }
++/** Same sRGB tint WorldFlowComponent.bindUnlitBackdrop gives env_cloud_layer at night. */
++export const MEADOW_CLOUD_NIGHT_TINT:readonly number[]=[.22,.28,.43];
++export function meadowCloudColor(w:number):number[]{const t=Math.max(0,Math.min(1,w));return MEADOW_CLOUD_NIGHT_TINT.map(k=>1+(k-1)*t);}
++/** Collect builtin-unlit cloud material instances under `node` (instances, the shared glTF material stays untouched). */
++export function meadowCloudMaterials(node:Node|null):Material[]{
++ const out:Material[]=[];if(!node)return out;
++ for(const r of node.getComponentsInChildren(MeshRenderer))for(let i=0;i<r.sharedMaterials.length;i++){const m=r.getMaterialInstance(i);if(m&&m.passes[0]?.getHandle('mainColor'))out.push(m);}
++ return out;
++}
+ @ccclass('MeadowSceneMotion')
+ export class MeadowSceneMotion extends Component {
++ /** N2: journey mode (93-120 s night journey). Grass gets the world's lit-night grade (windParams.w=1) and the unlit
++  *  meadow_clouds_near gets the env_cloud_layer night tint, both following uiNightWeight(). Board background keeps w=0. */
++ journeyNight=false;clouds:Material[]=[];
+  material:Material|null=null;sail:Node|null=null;light:SphereLight|null=null;hostPaused=true;visible=false;
+  private seconds=0;private hidden=false;
+  onLoad(){game.on(Game.EVENT_HIDE,this.hide,this);game.on(Game.EVENT_SHOW,this.show,this);}
+@@ -56,7 +68,8 @@ export class MeadowSceneMotion extends Component {
+   if(this.visible&&!this.hostPaused&&!this.hidden&&Number.isFinite(dt)&&dt>0)this.seconds=(this.seconds+Math.min(dt,.1))%120;
+   const night=uiNightWeight();
+   if(this.sail&&isValid(this.sail,true))this.sail.setRotationFromEuler(0,0,(this.seconds%MEADOW_SCENE_SOURCE.windmillSeconds)*360/MEADOW_SCENE_SOURCE.windmillSeconds);
+-  this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,0));
++  this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,this.journeyNight?1:0));
++  if(this.journeyNight)for(const m of this.clouds){const c=meadowCloudColor(night);m.setProperty('mainColor',new Vec4(c[0],c[1],c[2],1));}
+  }
+  diagnostics(){return {seconds:this.seconds,paused:this.hostPaused||this.hidden||!this.visible,windmillLoopSeconds:8,grassWaveSeconds:4};}
+  onDestroy(){game.off(Game.EVENT_HIDE,this.hide,this);game.off(Game.EVENT_SHOW,this.show,this);this.material=null;this.sail=null;this.light=null;}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 196269d..5eac2e2 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -3,7 +3,7 @@ import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isVal
+ import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
+ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+ import {SkyNightTexture} from '../render/SkyNightTexture';
+-import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion} from './MeadowBoardBackground';
++import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials} from './MeadowBoardBackground';
+ import {rotate} from '../world-r1/CameraPose';
+ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
+ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+@@ -56,6 +56,8 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+      const material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('journey-meadow-wind-material-missing');owned.push(material);
+      for(const r of grass)for(let i=0;i<r.sharedMaterials.length;i++)r.setSharedMaterial(material,i);
+      motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');
++     // N2: grass + topmost cloud follow the journey's night grade.
++     motion.journeyNight=true;motion.clouds=meadowCloudMaterials(find(model,'meadow_clouds_near'));
+     }else{const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');await waitRegionAsset(ambient.prepare(),token);token.check();}
+     progress(.86);
+     let approach:Vec[];
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index c244271..8b9f43b 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -51,6 +51,7 @@ const tests=[
+  ['result-float-lift','tools/board-ui/test_result_float_lift.cjs'],
+  ['meadow-night-sky','tools/test_meadow_night_sky.cjs'],
+  ['wind-audio','tools/voice-bot/wind/test_wind_audio.cjs'],
++ ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/test_meadow_night_grade.cjs b/tools/test_meadow_night_grade.cjs
+new file mode 100644
+index 0000000..a285cab
+--- /dev/null
++++ b/tools/test_meadow_night_grade.cjs
+@@ -0,0 +1,22 @@
++// N2: on the night journey the meadow grass and topmost cloud follow the world night grade.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const A=path.join(__dirname,'..','creator-build-project','assets');
++const rd=p=>fs.readFileSync(path.join(A,p),'utf8');
++const fx=rd('bundles/region_meadow/meadow-grass-wind.effect'),bg=rd('scripts/region/MeadowBoardBackground.ts'),ad=rd('scripts/region/RegionJourneyAdapter.ts'),dn=rd('scripts/world-r1/DayNightContract.ts'),wf=rd('scripts/world-r1/WorldFlowComponent.ts');
++// Grass: journey night constant == lightScale x moon colour (linear), board keeps the old sea tint.
++const scale=+dn.match(/lightScale:\s*night\s*\?\s*([\d.]+)/)[1],moon=dn.match(/lightColor:\s*night\s*\?\s*\[([^\]]+)\]/)[1].split(',').map(Number);
++const lin=c=>{c/=255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);};
++const want=moon.map(c=>scale*lin(c));
++const m=fx.match(/mix\(vec3\(0\.50, 0\.62, 0\.70\), vec3\(([\d.]+), ([\d.]+), ([\d.]+)\), windParams\.w\)/);assert(m,'grass night grade keyed on windParams.w');
++m.slice(1).map(Number).forEach((v,i)=>assert(Math.abs(v-want[i])<.006,'grass night channel '+i+' '+v+' vs '+want[i].toFixed(3)));
++assert(/mix\(vec3\(1\.0\), nightK, windParams\.z\)/.test(fx),'night weight still drives the mix');
++assert(/new Vec4\(this\.seconds,1,night,this\.journeyNight\?1:0\)/.test(bg),'motion writes w from journeyNight');
++// Cloud: same tint as env_cloud_layer in bindUnlitBackdrop.
++const cl=wf.match(/name==='env_cloud_layer'\?\[([^\]]+)\]/)[1],ct=bg.match(/MEADOW_CLOUD_NIGHT_TINT:readonly number\[\]=\[([^\]]+)\]/)[1];
++assert.deepStrictEqual(ct.split(',').map(Number),cl.split(',').map(Number),'cloud tint matches env_cloud_layer');
++const f=new Function('MEADOW_CLOUD_NIGHT_TINT','return '+bg.match(/export function meadowCloudColor\(w:number\):number\[\]\{([^\n]+)\}/)[1].replace(/^const t=/,'(w)=>{const t=').replace(/:number/g,'')+'}')(ct.split(',').map(Number));
++assert.deepStrictEqual(f(0),[1,1,1]);assert.deepStrictEqual(f(1).map(v=>+v.toFixed(2)),[.22,.28,.43]);assert.deepStrictEqual(f(2).map(v=>+v.toFixed(2)),[.22,.28,.43]);
++// Journey wiring (board background does not set journeyNight).
++assert(/motion\.journeyNight=true;motion\.clouds=meadowCloudMaterials\(find\(model,'meadow_clouds_near'\)\)/.test(ad),'journey enables grade on meadow_clouds_near');
++assert(!/journeyNight=true/.test(bg),'board background stays on the old grade');
++console.log('meadow night grade OK',want.map(v=>v.toFixed(3)).join(','));
+-- 
+2.47.3
+

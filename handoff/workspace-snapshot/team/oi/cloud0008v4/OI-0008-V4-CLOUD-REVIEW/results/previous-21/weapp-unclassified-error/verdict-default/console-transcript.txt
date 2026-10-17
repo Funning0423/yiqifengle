@@ -1,0 +1,13 @@
+2026-10-10T01:33:09.625Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] f71fdaed9c9de85d
+2026-10-10T01:33:09.625Z automator.error	[QF-AUDIT-CANARY-LATE] f71fdaed9c9de85d
+2026-10-10T01:33:09.124Z shim.errors	[QF-AUDIT-CANARY] f71fdaed9c9de85d
+2026-10-10T01:33:09.625Z shim.errors	[QF-AUDIT-CANARY-LATE] f71fdaed9c9de85d
+2026-10-10T01:33:09.124Z shim.logs	[QF-AUDIT-HEARTBEAT] f71fdaed9c9de85d
+2026-10-10T01:33:09.124Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:33:09.625Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] f71fdaed9c9de85d
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/copies/QFFirstOpen-20261010T013308001Z-4712-d47311-default [log] [QF-AUDIT-HEARTBEAT] f71fdaed9c9de85d
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/copies/QFFirstOpen-20261010T013308001Z-4712-d47311-default [error] [QF-AUDIT-CANARY] f71fdaed9c9de85d
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/copies/QFFirstOpen-20261010T013308001Z-4712-d47311-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/copies/QFFirstOpen-20261010T013308001Z-4712-d47311-default [console.error] plain fatal diagnostic
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/copies/QFFirstOpen-20261010T013308001Z-4712-d47311-default [log] [QF-AUDIT-HEARTBEAT-LATE] f71fdaed9c9de85d
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/copies/QFFirstOpen-20261010T013308001Z-4712-d47311-default [error] [QF-AUDIT-CANARY-LATE] f71fdaed9c9de85d

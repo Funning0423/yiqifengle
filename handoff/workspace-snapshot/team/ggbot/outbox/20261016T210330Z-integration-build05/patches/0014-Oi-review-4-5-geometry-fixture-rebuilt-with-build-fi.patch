@@ -1,0 +1,151 @@
+From 1e06f124ee7215b531c2c879c5d1d420bca6658a Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 15:06:49 -0400
+Subject: [PATCH 14/21] =?UTF-8?q?Oi=20review=204/5=20geometry:=20fixture?=
+ =?UTF-8?q?=20rebuilt=20with=20build-fixture.cjs=20from=20the=20final=20GL?=
+ =?UTF-8?q?Bs=20(byte-identical=20to=20d238881,=20binSha256=2092091dac?=
+ =?UTF-8?q?=E2=80=A6);=20framing/occlusion=20re-run=20on=20the=20final=20t?=
+ =?UTF-8?q?ree,=20reports=20now=20record=20the=20fixture=20hashes=20(resul?=
+ =?UTF-8?q?ts=20unchanged,=20PASS)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+(cherry picked from commit c76b6fe890f6c2331a05274f177a1331246c8b14)
+---
+ .../reports/journey-framing.json              | 37 ++++++++++++++++++-
+ .../reports/journey-occlusion.json            | 37 ++++++++++++++++++-
+ .../test-journey-framing.cjs                  |  4 +-
+ .../test-journey-occlusion.cjs                |  2 +-
+ 4 files changed, 75 insertions(+), 5 deletions(-)
+
+diff --git a/tools/journey-integration/reports/journey-framing.json b/tools/journey-integration/reports/journey-framing.json
+index 52285da..081f4af 100644
+--- a/tools/journey-integration/reports/journey-framing.json
++++ b/tools/journey-integration/reports/journey-framing.json
+@@ -1,6 +1,41 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-16T11:54:28.187Z",
++ "timeUTC": "2026-10-16T19:06:37.397Z",
++ "fixture": {
++  "json": "occlusion/fixture-occluders.json",
++  "jsonSha256": "1b25fab5e9169b22af987719ce8bb0e7907701d858ac1df48a977fbe2f6139be",
++  "binGz": "occlusion/fixture-occluders.bin.gz",
++  "binGzSha256": "189a697c96cb3f992d4f5a66ca02eec0fd410ea155b78dfa56219525083da33d",
++  "bytes": 3752676,
++  "binSha256": "92091dac28161f9d1bff1fe01f656765266d44e25f3420a9f7a8fccdedb03365",
++  "sources": [
++   {
++    "id": "island",
++    "glb": "static_seat_preview/room/room_no_original_chair.glb",
++    "sha256": "f62e2832d326d3ec025161b5bcb55c56ab72560e10ee954d2a7fceffa39c8d29"
++   },
++   {
++    "id": "palm_tall",
++    "glb": "region_island/ui-props/beach_palm_tall.glb",
++    "sha256": "869dbf0c0633c936b573de0e644653fb9b2430169cb2f9ae23c480b8ed9c4528"
++   },
++   {
++    "id": "palm_short",
++    "glb": "region_island/ui-props/beach_palm_short.glb",
++    "sha256": "0ae020ed15d77e93b48fa217f1b97dd2583d8b67386552deb5d09da7541e0f1d"
++   },
++   {
++    "id": "skycity",
++    "glb": "region_skycity/env_skycity.glb",
++    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
++   },
++   {
++    "id": "skycity_frame",
++    "glb": "region_skycity/env_skycity.glb",
++    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
++   }
++  ]
++ },
+  "scope": "Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.",
+  "camera": {
+   "blendM": 18,
+diff --git a/tools/journey-integration/reports/journey-occlusion.json b/tools/journey-integration/reports/journey-occlusion.json
+index 0030119..11c4a69 100644
+--- a/tools/journey-integration/reports/journey-occlusion.json
++++ b/tools/journey-integration/reports/journey-occlusion.json
+@@ -1,6 +1,41 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-16T11:54:26.002Z",
++ "timeUTC": "2026-10-16T19:06:44.108Z",
++ "fixture": {
++  "json": "occlusion/fixture-occluders.json",
++  "jsonSha256": "1b25fab5e9169b22af987719ce8bb0e7907701d858ac1df48a977fbe2f6139be",
++  "binGz": "occlusion/fixture-occluders.bin.gz",
++  "binGzSha256": "189a697c96cb3f992d4f5a66ca02eec0fd410ea155b78dfa56219525083da33d",
++  "bytes": 3752676,
++  "binSha256": "92091dac28161f9d1bff1fe01f656765266d44e25f3420a9f7a8fccdedb03365",
++  "sources": [
++   {
++    "id": "island",
++    "glb": "static_seat_preview/room/room_no_original_chair.glb",
++    "sha256": "f62e2832d326d3ec025161b5bcb55c56ab72560e10ee954d2a7fceffa39c8d29"
++   },
++   {
++    "id": "palm_tall",
++    "glb": "region_island/ui-props/beach_palm_tall.glb",
++    "sha256": "869dbf0c0633c936b573de0e644653fb9b2430169cb2f9ae23c480b8ed9c4528"
++   },
++   {
++    "id": "palm_short",
++    "glb": "region_island/ui-props/beach_palm_short.glb",
++    "sha256": "0ae020ed15d77e93b48fa217f1b97dd2583d8b67386552deb5d09da7541e0f1d"
++   },
++   {
++    "id": "skycity",
++    "glb": "region_skycity/env_skycity.glb",
++    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
++   },
++   {
++    "id": "skycity_frame",
++    "glb": "region_skycity/env_skycity.glb",
++    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
++   }
++  ]
++ },
+  "scope": "Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.",
+  "camera": {
+   "blendM": 18,
+diff --git a/tools/journey-integration/test-journey-framing.cjs b/tools/journey-integration/test-journey-framing.cjs
+index 98e52a4..11da7fa 100644
+--- a/tools/journey-integration/test-journey-framing.cjs
++++ b/tools/journey-integration/test-journey-framing.cjs
+@@ -10,7 +10,7 @@
+  * F7 04→05 lens on her right side from set-off (v3.2 camera rule).
+  * Geometry on real GLB triangles + real TS; not a rendered or device acceptance. */
+ const sc=require('./journey-scene.cjs'),F=require('./journey-framing-lib.cjs');
+-const {fs,assert,Core,legs,sampleRoute,routeLength,journeyCamera,island,meadow,skyFrame,focus2,JOURNEY_CAMERA,L}=sc;
++const {sha,meta}=sc;const {fs,assert,Core,legs,sampleRoute,routeLength,journeyCamera,island,meadow,skyFrame,focus2,JOURNEY_CAMERA,L}=sc;
+ const results=[];function check(id,fn){try{results.push({id,status:'PASS',evidence:fn()});}catch(e){results.push({id,status:'FAIL',error:String(e&&e.stack||e)});}}
+ const STEP=.1,isMass=o=>o.tag==='skycity',bvh=F.buildBvh([...island,...meadow,...skyFrame]);
+ const run=leg=>{const T=routeLength(leg.path),rows=[];let prev=null;for(let d=0;d<=T+1e-9;d+=STEP){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),dv=F.dir(c),b=F.body(c,sampleRoute(leg.path,dd));
+@@ -45,6 +45,6 @@ check('F8 08→09 no lift: lens ≤ 7 m above her over the whole leg',()=>{const
+ check('F9 08→09 final frame: whole body in frame, feet ≥ 5% of screen height above the bottom edge, her x ≤ 80% of the width',()=>{const leg=legs[1],T=routeLength(leg.path),c=journeyCamera(leg.path,T,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,T),f=F.ndc(c,[p[0],p[1]+.05,p[2]]),h=F.ndc(c,[p[0],p[1]+1.65,p[2]]);
+  assert(f[2]>0&&h[2]>0,'behind camera');assert(f[1]>=-.9,`feet ndc y ${f[1].toFixed(3)}`);assert(h[1]<=.9,'head out');assert(Math.max(f[0],h[0])<=.6&&Math.min(f[0],h[0])>=-.85,`x ${f[0].toFixed(2)},${h[0].toFixed(2)} (≤0.60 = 80% of the width)`);
+  return {feetNdcY:+f[1].toFixed(3),bottomMarginPct:+((f[1]+1)/2*100).toFixed(1),headNdcY:+h[1].toFixed(3),x:+f[0].toFixed(2),xPctOfWidth:+((Math.max(f[0],h[0])+1)/2*100).toFixed(1)};});
+-const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
++const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),fixture:(()=>{const o=__dirname+'/occlusion/';return {json:'occlusion/fixture-occluders.json',jsonSha256:sha(o+'fixture-occluders.json'),binGz:'occlusion/fixture-occluders.bin.gz',binGzSha256:sha(o+'fixture-occluders.bin.gz'),bytes:meta.bytes,binSha256:meta.binSha256,sources:meta.sources.map(s=>({id:s.id,glb:s.glb,sha256:s.sha256}))};})(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
+ console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
+diff --git a/tools/journey-integration/test-journey-occlusion.cjs b/tools/journey-integration/test-journey-occlusion.cjs
+index cf244fb..439bf81 100644
+--- a/tools/journey-integration/test-journey-occlusion.cjs
++++ b/tools/journey-integration/test-journey-occlusion.cjs
+@@ -59,6 +59,6 @@ check('O4 09 board background pose unchanged and plaza in frame',()=>{
+  const plaza=[sp('anchor_starcourt_center'),...[[-4.8,-4.8],[4.8,-4.8],[-4.8,4.8],[4.8,4.8]].map(([x,z])=>[x,0,30+z])].map(ndc);for(const [x,y,z] of plaza)assert(z>0&&Math.abs(x)<=1.05&&Math.abs(y)<=1,'plaza out of frame '+[x,y]);
+  const rel=sub(deck.arrival,sA('anchor_cloudbridge_end')),relModel=rotY(-yaw,rel),relBase=base.arrivalFromEndModel;assert(Math.hypot(...sub(relModel,relBase))<1e-6,'arrival root moved relative to the city');
+  return {pose:pose,plazaNdc:plaza.map(p=>p.map(v=>+v.toFixed(3))),arrivalFromEndModel:relModel.map(v=>+v.toFixed(4))};});
+-const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.',camera:JOURNEY_CAMERA,layout:L,skyYawDeg:+yaw.toFixed(4),placement:{meadowRootWorld:mOff,meadowYawDeg:180,skycityRootWorld:sOff,skycityYawDeg:yaw,phases:{'04-05':{bridgeStart:routeLength(appr1),bridgeEnd:routeLength([...appr1,...bridge1.slice(1)])},'08-09':{bridgeStart:routeLength(appr2),bridgeEnd:routeLength([...appr2,...bridge2.slice(1)])}}},checks:results,routeProfile:profile};
++const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),fixture:(()=>{const o=__dirname+'/occlusion/';return {json:'occlusion/fixture-occluders.json',jsonSha256:sha(o+'fixture-occluders.json'),binGz:'occlusion/fixture-occluders.bin.gz',binGzSha256:sha(o+'fixture-occluders.bin.gz'),bytes:meta.bytes,binSha256:meta.binSha256,sources:meta.sources.map(s=>({id:s.id,glb:s.glb,sha256:s.sha256}))};})(),scope:'Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.',camera:JOURNEY_CAMERA,layout:L,skyYawDeg:+yaw.toFixed(4),placement:{meadowRootWorld:mOff,meadowYawDeg:180,skycityRootWorld:sOff,skycityYawDeg:yaw,phases:{'04-05':{bridgeStart:routeLength(appr1),bridgeEnd:routeLength([...appr1,...bridge1.slice(1)])},'08-09':{bridgeStart:routeLength(appr2),bridgeEnd:routeLength([...appr2,...bridge2.slice(1)])}}},checks:results,routeProfile:profile};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-occlusion.json',JSON.stringify(report,null,1)+'\n');
+ console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,error:r.error&&r.error.split('\n')[0].slice(0,400)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
+-- 
+2.47.3
+

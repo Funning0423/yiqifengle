@@ -1,0 +1,7 @@
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 1 {'[QF_LAKE] {"event":"journey-water-fallback","bundle":"region_lakeside","asset":"water/lakeside-water","reason":"lakeside-water-material-load-failed: water/lakes': 1}
+  (Failed to load resource 回显条数 0 )
+C HTTP>=400 0 [] 白名单(favicon 404) 0
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 0

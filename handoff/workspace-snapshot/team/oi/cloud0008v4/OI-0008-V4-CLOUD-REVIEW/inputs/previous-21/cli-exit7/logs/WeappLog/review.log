@@ -1,0 +1,5 @@
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default [log] [QF-AUDIT-HEARTBEAT] 7e8ef40d032d43d6
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default [error] [QF-AUDIT-CANARY] 7e8ef40d032d43d6
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default [log] [QF-AUDIT-HEARTBEAT-LATE] 7e8ef40d032d43d6
+/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/copies/QFFirstOpen-20261010T013256922Z-e85f-438ccc-default [error] [QF-AUDIT-CANARY-LATE] 7e8ef40d032d43d6

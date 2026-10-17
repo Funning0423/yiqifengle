@@ -1,0 +1,7 @@
+branch integration/build05-20261016T2048
+base b0020ed4ea1f632802ac414c44d0655afdeb34ee
+head 62382c4f3c3285193e499b81c3899d6ad4f082bb
+tree 009297f4218ca20a64ac78bebb8e9f5d35e3d386
+bundle (b0020ed..head) fetched into fresh repo -> head 62382c4f3c3285193e499b81c3899d6ad4f082bb tree 009297f4218ca20a64ac78bebb8e9f5d35e3d386 match: yes
+patches 0001-0021 (linear part b0020ed..95c208d, pre result-screen merge) git am -> tree 1cfdc5baf171c7193e2b1d6cf5b38785c6198054 vs 95c208d tree 1cfdc5baf171c7193e2b1d6cf5b38785c6198054 match: yes
+result-screen merge 62382c4 = merge of 3765e34 (in bundle)

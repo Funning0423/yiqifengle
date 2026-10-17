@@ -1,0 +1,8 @@
+PASS clip 0.8 s: lands at turn+clip    {"expected":2.3,"land":2.267,"home":2.317}
+PASS clip 2.37 s: lands at turn+clip   {"expected":3.87,"land":3.833,"home":3.9}
+PASS clip 3.6 s: lands at turn+clip    {"expected":5.1,"land":5.067,"home":5.133}
+PASS settle 1.6 of 2.37 s: lands at settle{"expectedLand":3.1,"land":3.067,"expectedHome":3.87,"home":3.9}
+PASS settle > clip ignored             {"land":3.833}
+PASS no report: 1.0 s fallback only then{"land":2.467}
+ALL PASS
+exit 0

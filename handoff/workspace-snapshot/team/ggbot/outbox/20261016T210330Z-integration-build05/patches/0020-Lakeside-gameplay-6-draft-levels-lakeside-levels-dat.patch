@@ -1,0 +1,757 @@
+From 6f66e2f1b4c8489d6127afff71141819a7f3532b Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 04:54:53 +0800
+Subject: [PATCH 20/21] Lakeside gameplay: 6 draft levels
+ (lakeside-levels-data.js, main package, not in the shipped catalog), lake
+ region with rules.chimes (one ring per wave from the cell or a 4-neighbour),
+ phase() falls back to 'calm' without a period, tool-less stages; greedy
+ seedBank calibration (moves kept at draft); lakeside-rules test
+
+---
+ .../runtime/lakeside-levels-data.js           |   3 +
+ .../runtime/lakeside-levels-data.js.meta      |   9 +
+ .../regional-r05/runtime/regional-session.js  |  17 +-
+ .../regional-r05/runtime/rule-guide.js        |   9 +-
+ tools/journey-integration/run-suite.cjs       |   1 +
+ tools/lakeside/calibrate.cjs                  |  20 +
+ tools/lakeside/calibration-report.json        | 546 ++++++++++++++++++
+ tools/lakeside/test_lakeside_rules.cjs        |  17 +
+ 8 files changed, 612 insertions(+), 10 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js
+ create mode 100644 creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js.meta
+ create mode 100644 tools/lakeside/calibrate.cjs
+ create mode 100644 tools/lakeside/calibration-report.json
+ create mode 100644 tools/lakeside/test_lakeside_rules.cjs
+
+diff --git a/creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js b/creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js
+new file mode 100644
+index 0000000..0b3c85b
+--- /dev/null
++++ b/creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js
+@@ -0,0 +1,3 @@
++'use strict';
++// Lakeside (风铃湖畔) levels, 场景设计部 LEVELS_DRAFT_lakeside.json draft-2026-10-16. Gameplay fields + names; not in the shipped campaign.
++module.exports=[{"id":"r04-lake-01","region":"lake","ordinal":1,"name":"两只风铃","contentRevision":"draft-2026-10-16","intendedBand":"introduce","config":{"moves":25,"goals":{"chimes":2},"moss":[],"roots":[],"starters":[]},"rules":{"chimes":[{"index":23,"hits":3},{"index":25,"hits":3}]},"pieceKinds":5,"tool":null,"seedBank":[4,12,1],"calibration":{"status":"greedy-witness","witnessActions":[1,1,2],"greedyMedian":2,"greedyP80":2,"greedyWins":"12/12","meaning":"1-ply greedy witness lengths; moves kept at the design draft, human difficulty unverified"}},{"id":"r04-lake-02","region":"lake","ordinal":2,"name":"两岸的铃","contentRevision":"draft-2026-10-16","intendedBand":"combine","config":{"moves":24,"goals":{"chimes":4,"type0":20},"moss":[],"roots":[],"starters":[]},"rules":{"chimes":[{"index":14,"hits":3},{"index":20,"hits":3},{"index":28,"hits":3},{"index":34,"hits":3}]},"pieceKinds":6,"tool":null,"seedBank":[11,8,10],"calibration":{"status":"greedy-witness","witnessActions":[4,8,8],"greedyMedian":14,"greedyP80":19,"greedyWins":"12/12","meaning":"1-ply greedy witness lengths; moves kept at the design draft, human difficulty unverified"}},{"id":"r04-lake-03","region":"lake","ordinal":3,"name":"苔下的铃","contentRevision":"draft-2026-10-16","intendedBand":"combine","config":{"moves":24,"goals":{"chimes":4,"moss":10},"moss":[9,15,23,11,19,25,29,37,33,39],"roots":[],"starters":[]},"rules":{"chimes":[{"index":16,"hits":3},{"index":18,"hits":3},{"index":30,"hits":3},{"index":32,"hits":3}]},"pieceKinds":6,"tool":null,"seedBank":[1,2,3],"calibration":{"status":"greedy-witness","witnessActions":[2,2,2],"greedyMedian":2,"greedyP80":2,"greedyWins":"12/12","meaning":"1-ply greedy witness lengths; moves kept at the design draft, human difficulty unverified"}},{"id":"r04-lake-04","region":"lake","ordinal":4,"name":"角落里的铃","contentRevision":"draft-2026-10-16","intendedBand":"peak","config":{"moves":22,"goals":{"chimes":6,"roots":8},"moss":[],"roots":[{"index":1,"layers":1},{"index":7,"layers":1},{"index":5,"layers":1},{"index":13,"layers":1},{"index":35,"layers":1},{"index":43,"layers":1},{"index":41,"layers":1},{"index":47,"layers":1}],"starters":[]},"rules":{"chimes":[{"index":0,"hits":3},{"index":6,"hits":3},{"index":42,"hits":3},{"index":48,"hits":3},{"index":3,"hits":3},{"index":45,"hits":3}]},"pieceKinds":6,"tool":null,"seedBank":[4,8,5],"calibration":{"status":"greedy-witness","witnessActions":[6,10,11],"greedyMedian":21,"greedyP80":24,"greedyWins":"10/12","meaning":"1-ply greedy witness lengths; moves kept at the design draft, human difficulty unverified"}},{"id":"r04-lake-05","region":"lake","ordinal":5,"name":"一排风铃","contentRevision":"draft-2026-10-16","intendedBand":"relief","config":{"moves":24,"goals":{"chimes":5},"moss":[],"roots":[],"starters":[{"index":38,"special":"row"}]},"rules":{"chimes":[{"index":22,"hits":3},{"index":23,"hits":3},{"index":24,"hits":3},{"index":25,"hits":3},{"index":26,"hits":3}]},"pieceKinds":6,"tool":null,"seedBank":[1,4,5],"calibration":{"status":"greedy-witness","witnessActions":[1,1,1],"greedyMedian":2,"greedyP80":2,"greedyWins":"12/12","meaning":"1-ply greedy witness lengths; moves kept at the design draft, human difficulty unverified"}},{"id":"r04-lake-06","region":"lake","ordinal":6,"name":"刻名的桥","contentRevision":"draft-2026-10-16","intendedBand":"story","config":{"moves":26,"goals":{"chimes":6,"type4":12},"moss":[],"roots":[],"starters":[]},"rules":{"chimes":[{"index":36,"hits":3},{"index":29,"hits":3},{"index":23,"hits":3},{"index":25,"hits":3},{"index":33,"hits":3},{"index":40,"hits":3}]},"pieceKinds":5,"tool":null,"seedBank":[8,4,11],"calibration":{"status":"greedy-witness","witnessActions":[2,3,3],"greedyMedian":5,"greedyP80":8,"greedyWins":"12/12","meaning":"1-ply greedy witness lengths; moves kept at the design draft, human difficulty unverified"}}];
+diff --git a/creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js.meta b/creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js.meta
+new file mode 100644
+index 0000000..6b2bdcd
+--- /dev/null
++++ b/creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "javascript",
++  "imported": true,
++  "uuid": "a1eaeb35-a104-53aa-972e-6c8628cde856",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+\ No newline at end of file
+diff --git a/creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js b/creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js
+index efa064e..1ac6c0b 100644
+--- a/creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js
++++ b/creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js
+@@ -8,26 +8,26 @@ function freeze(x) { if (x && typeof x === 'object' && !Object.isFrozen(x)) { Ob
+ function rng(seed) { var f=function(){f.state=(Math.imul(f.state,1664525)+1013904223)>>>0;return f.state/4294967296;};f.state=seed>>>0;return f; }
+ function validIndex(i) { return Number.isInteger(i) && i>=0 && i<49; }
+ function neighbors(i) { return [i,i%7?i-1:-1,i%7<6?i+1:-1,i>=7?i-7:-1,i<42?i+7:-1].filter(validIndex); }
+-function goalKey(region) { return region==='tide'?'pearls':region==='meadow'?'blooms':'relays'; }
++function goalKey(region) { return region==='tide'?'pearls':region==='meadow'?'blooms':region==='lake'?'chimes':'relays'; }
+ function signature(stage) { return JSON.stringify([stage.id,stage.contentRevision,stage.config,stage.rules,stage.tool]); }
+ function RegionalSession(stage, seed, options) {
+  options=options||{};
+- if(!stage || !['tide','meadow','sky'].includes(stage.region))throw Error('Unknown region');
++ if(!stage || !['tide','meadow','sky','lake'].includes(stage.region))throw Error('Unknown region');
+  if(!Number.isInteger(seed)||seed<0||seed>0xffffffff)throw Error('Invalid seed');
+  if(!options.authoring && !stage.seedBank.includes(seed))throw Error('Seed has no shipped witness');
+- this.stage=freeze(copy(stage));this.seed=seed;this.random=rng(seed);this.actions=[];this.clock=0;this.hold=0;this.toolCharges=stage.tool.charges;this.tokenSerial=0;this.instance=++serial;this.pending=null;this.frames=[];
+- this.pieces=copy(stage.rules.shells||stage.rules.blooms||stage.rules.relays).map(function(p){p.progress=0;p.done=false;p.shifted=false;return p;});
++ this.stage=freeze(copy(stage));this.seed=seed;this.random=rng(seed);this.actions=[];this.clock=0;this.hold=0;this.toolCharges=stage.tool?stage.tool.charges:0;this.tokenSerial=0;this.instance=++serial;this.pending=null;this.frames=[];
++ this.pieces=copy(stage.rules.shells||stage.rules.blooms||stage.rules.relays||stage.rules.chimes).map(function(p){p.progress=0;p.done=false;p.shifted=false;return p;});
+  this.cursor=0;var config=copy(stage.config);config.goals[goalKey(stage.region)]=this.pieces.length;
+  this.engine=new Engine(0,this.random,config);this.engine.bombs=0;
+ }
+-RegionalSession.prototype.phase=function(){var r=this.stage.rules,cycle=r.phaseCycle||r.windCycle||r.polarityCycle;return cycle[this.clock%cycle.length];};
++RegionalSession.prototype.phase=function(){var r=this.stage.rules,cycle=r.phaseCycle||r.windCycle||r.polarityCycle;return cycle&&cycle.length?cycle[this.clock%cycle.length]:'calm';}; // lake: no period -> constant 'calm'
+ RegionalSession.prototype._export=function(){var e=this.engine;return {board:copy(e.board),moves:e.moves,goals:copy(e.goals),score:e.score,status:e.status,moss:Array.from(e.moss).sort(function(a,b){return a-b;}),roots:Array.from(e.roots).sort(function(a,b){return a[0]-b[0];}),nextId:e._nextId,version:e._version,random:this.random.state,clock:this.clock,hold:this.hold,charges:this.toolCharges,pieces:copy(this.pieces),cursor:this.cursor};};
+ RegionalSession.prototype.fork=function(){var s=Object.create(RegionalSession.prototype),e=this.engine;Object.keys(this).forEach(function(k){s[k]=this[k];},this);s.actions=this.actions.map(function(a){return a.slice();});s.pieces=copy(this.pieces);s.frames=[];s.pending=null;s.random=rng(this.random.state);s.engine=Object.create(Engine.prototype);Object.keys(e).forEach(function(k){s.engine[k]=e[k];});s.engine.board=copy(e.board);s.engine.goals=copy(e.goals);s.engine.initialGoals=copy(e.initialGoals);s.engine.moss=new Set(e.moss);s.engine.vines=s.engine.moss;s.engine.roots=new Map(e.roots);s.engine._random=s.random;s.engine._hintCache=null;s.engine._pendingPlan=null;return s;};
+-RegionalSession.prototype.snapshot=function(){var e=this.engine;return freeze({schemaVersion:1,packId:'regional-r05',stageId:this.stage.id,region:this.stage.region,seed:this.seed,turn:this.actions.length,board:copy(e.board),moves:e.moves,goals:copy(e.goals),status:e.status,score:e.score,moss:Array.from(e.moss),roots:Array.from(e.roots),pieces:copy(this.pieces),activeRelay:this.stage.region==='sky'?this.cursor:null,scene:{phase:this.phase(),clock:this.clock,heldTurns:this.hold},tool:{kind:this.stage.tool.kind,charges:this.toolCharges},frames:copy(this.frames),guide:ruleGuide(this)});};
++RegionalSession.prototype.snapshot=function(){var e=this.engine;return freeze({schemaVersion:1,packId:'regional-r05',stageId:this.stage.id,region:this.stage.region,seed:this.seed,turn:this.actions.length,board:copy(e.board),moves:e.moves,goals:copy(e.goals),status:e.status,score:e.score,moss:Array.from(e.moss),roots:Array.from(e.roots),pieces:copy(this.pieces),activeRelay:this.stage.region==='sky'?this.cursor:null,scene:{phase:this.phase(),clock:this.clock,heldTurns:this.hold},tool:{kind:this.stage.tool?this.stage.tool.kind:null,charges:this.toolCharges},frames:copy(this.frames),guide:ruleGuide(this)});};
+ RegionalSession.prototype._valid=function(a){var e=this.engine;if(!Array.isArray(a)||!e._canStart())return false;
+  if(a[0]==='swap'&&a.length===3)return e.planSwap(a[1],a[2]).valid;
+  if(a[0]==='activate'&&a.length===2)return e.planActivation(a[1]).valid;
+- if(a[0]!=='tool'||this.toolCharges<1||a[1]!==this.stage.tool.kind)return false;
++ if(a[0]!=='tool'||!this.stage.tool||this.toolCharges<1||a[1]!==this.stage.tool.kind)return false;
+  if(a[1]==='tideAnchor')return a.length===2 && this.hold===0;
+  if(a[1]==='sunSeed')return a.length===3&&validIndex(a[2])&&!e.board[a[2]].special;
+  if(a[1]==='prismShift')return a.length===2&&this.cursor<this.pieces.length&&!this.pieces[this.cursor].shifted;
+@@ -53,6 +53,9 @@ RegionalSession.prototype._regional=function(wave){var s=this,events=[],effects=
+  else if(region==='meadow')this.pieces.forEach(function(p){if(p.done)return;var desired=p.pollen[p.progress];var valid=removed.some(function(t){var near=phase==='horizontal'?Math.floor(t.index/7)===Math.floor(p.index/7)&&Math.abs(t.index-p.index)<=1:t.index%7===p.index%7&&Math.abs(t.index-p.index)<=7;return near&&t.type===desired;});
+   if(!valid)return;p.progress++;events.push({kind:'pollen-delivered',index:p.index,type:desired,step:p.progress});if(p.progress===p.pollen.length){p.done=true;events.push({kind:'bloom-opened',index:p.index});effects.push({kind:'wind-burst',index:p.index,axis:phase,cells:Array.from(s.engine._area(phase==='horizontal'?'row':'column',p.index))});}
+  });
++ else if(region==='lake')this.pieces.forEach(function(p){if(p.done)return; // chime: one ring per wave when the cell or a 4-neighbour clears (a row special covers its whole row)
++  if(!removed.some(function(t){return neighbors(p.index).indexOf(t.index)>=0;}))return;p.progress++;events.push({kind:'chime-rang',index:p.index,step:p.progress});if(p.progress===p.hits){p.done=true;events.push({kind:'chime-complete',index:p.index});effects.push({kind:'chime-ripple',index:p.index,cells:neighbors(p.index)});}
++ });
+  else if(this.cursor<this.pieces.length){var p=this.pieces[this.cursor];if(phase===p.polarity&&removed.some(function(t){return t.index===p.index&&(p.type===undefined||t.type===p.type);})){p.progress++;events.push({kind:'relay-charged',index:p.index,step:p.progress});if(p.progress===p.hits){p.done=true;this.cursor++;events.push({kind:'relay-linked',index:p.index,partner:p.partner});effects.push({kind:'portal-echo',index:p.partner,cells:neighbors(p.partner)});}}}
+  this.engine.goals[goalKey(region)]=this.pieces.filter(function(p){return !p.done;}).length;return {events:events,effects:effects};
+ };
+diff --git a/creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js b/creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js
+index e871fd0..3c00a8d 100644
+--- a/creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js
++++ b/creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js
+@@ -3,17 +3,18 @@
+ // engine's zero-based identity so a renderer can use the existing piece artwork.
+ function cell(index) { return {index:index,row:Math.floor(index/7)+1,column:index%7+1}; }
+ function phaseName(phase) {
+-  return phase==='ebb'?'退潮':phase==='flood'?'涨潮':phase==='horizontal'?'横向风':phase==='vertical'?'纵向风':phase===0?'明相':'暗相';
++  return phase==='ebb'?'退潮':phase==='flood'?'涨潮':phase==='horizontal'?'横向风':phase==='vertical'?'纵向风':phase===0?'明相':phase==='calm'?'无风':'暗相';
+ }
+ var RULES={
+   tide:{title:'退潮开贝，涨潮取珠',goal:'珍珠',rule:'退潮时消除贝壳所在格，每波打开一层。全部打开后，在涨潮时再次消除该格才能收集珍珠，并触发整列水流。',tool:'潮汐锚消耗1步，固定当前潮位，让接下来两次棋盘行动保持此潮位；不直接收集珍珠。'},
+   meadow:{title:'顺着风向传递花粉',goal:'花朵',rule:'按花朵标出的图案顺序送粉。横向风看本格和左右相邻格，纵向风看本格和上下相邻格；范围内消除当前所需图案，每波前进一步。完成后沿当时风向清除整行或整列。',tool:'阳光种子消耗1步，把选中的普通果实变为纵线果实；本次不送粉、不切换风向，之后启动它仍需1步。'},
++  lake:{title:'敲响湖上的风铃',goal:'风铃',rule:'在风铃格本格或上下左右相邻格发生消除，风铃响一次；同一波（含特殊爆炸）最多响一次，响满所需次数完成。横向特殊扫过整行时，该行风铃各响一次。',tool:'本地区暂无道具。'},
+   sky:{title:'依次点亮明暗星门',goal:'星门',rule:'只处理当前星门。极性符合要求时，在星门本格消除指定图案才充能；未指定图案时任意图案均可。每波只充能一次，完成所需次数后才轮到下一门，并从伙伴格向十字邻格发出回声。',tool:'棱镜迁移消耗1步，交换当前星门与伙伴格的位置；保留充能进度、所需图案及极性，不切换明暗。'}
+ };
+ function guide(session) {
+   var region=session.stage.region,rule=RULES[region],phase=session.phase();
+   var targets=session.pieces.map(function(p,i){
+-    var current=region!=='sky'||i===session.cursor,required=region==='tide'?p.layers:region==='meadow'?p.pollen.length:p.hits;
++    var current=region!=='sky'||i===session.cursor,required=region==='tide'?p.layers:region==='lake'?p.hits:region==='meadow'?p.pollen.length:p.hits;
+     var target={cell:cell(p.index),progress:p.progress,required:required,done:p.done,current:current&&!p.done};
+     if(region==='tide'){
+       target.phase=p.progress<p.layers?'ebb':'flood';
+@@ -21,6 +22,8 @@ function guide(session) {
+     }else if(region==='meadow'){
+       target.requiredType=p.done?null:p.pollen[p.progress];target.pollen=p.pollen.slice();target.axis=phase;
+       target.instruction=p.done?'花朵已开放':(phase==='horizontal'?'本格或左右相邻格':'本格或上下相邻格')+'消除所需图案，送入第'+(p.progress+1)+'份花粉';
++    }else if(region==='lake'){
++      target.instruction=p.done?'风铃已响满':'在本格或相邻格消除，还需响'+(p.hits-p.progress)+'次';
+     }else{
+       target.partner=cell(p.partner);target.polarity=p.polarity;target.phaseLabel=phaseName(p.polarity);target.requiredType=p.type===undefined?null:p.type;
+       target.instruction=p.done?'星门已连通':!current?'等待前一星门连通':target.phaseLabel+'时在此格消除'+(target.requiredType===null?'任意图案':'指定图案')+'，还需'+(p.hits-p.progress)+'次充能';
+@@ -30,6 +33,6 @@ function guide(session) {
+   });
+   return {title:rule.title,goalName:rule.goal,rule:rule.rule,phaseLabel:phaseName(phase),
+     turnRule:'交换和启动特殊果实各用1步，整次连锁结束后推进环境（潮汐锚固定期间除外）；地区道具也用1步，但不推进环境。',
+-    heldTurns:session.hold,targets:targets,tool:{kind:session.stage.tool.kind,charges:session.toolCharges,moveCost:1,description:rule.tool}};
++    heldTurns:session.hold,targets:targets,tool:{kind:session.stage.tool?session.stage.tool.kind:null,charges:session.toolCharges,moveCost:1,description:rule.tool}};
+ }
+ module.exports=guide;
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index b67eee2..9c1d589 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -45,6 +45,7 @@ const tests=[
+  ['retry-protection','tools/test_retry_protection.cjs'],
+  ['cloud-web-contract','tools/cloud-web/test.cjs'],
+  ['exit-cine-audio','tools/test_exit_cine_audio.cjs'],
++ ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/calibrate.cjs b/tools/lakeside/calibrate.cjs
+new file mode 100644
+index 0000000..197cd7c
+--- /dev/null
++++ b/tools/lakeside/calibrate.cjs
+@@ -0,0 +1,20 @@
++'use strict';
++// Lakeside moves calibration: bounded greedy policy (1-ply, score = goals left) replayed on seeds 1..N in authoring mode.
++// Gives a witness length per seed (an UPPER bound on what a careful player needs), not human difficulty.
++const path=require('node:path'),fs=require('node:fs');
++const R=path.resolve(__dirname,'../../creator-build-project/assets/scripts/regional-r05/runtime');
++const Session=require(R+'/regional-session.js'),levels=require(R+'/lakeside-levels-data.js');
++const N=+(process.argv[2]||24),CAP=60;
++const left=s=>{const g=s.engine.goals;return Object.keys(g).reduce((a,k)=>a+Math.max(0,g[k])*(k==='chimes'?40:1),0)+s.pieces.reduce((a,p)=>a+(p.done?0:(p.hits-p.progress)*8),0);};
++function actions(s){const out=[];for(let i=0;i<49;i++){if(i%7<6)out.push(['swap',i,i+1]);if(i<42)out.push(['swap',i,i+7]);out.push(['activate',i]);}return out.filter(a=>s._valid(a));}
++function play(stage,seed){const st=JSON.parse(JSON.stringify(stage));st.config.moves=CAP;const s=new Session(st,seed,{authoring:true});const acts=[];
++ while(s.engine.status==='playing'&&acts.length<CAP){let best=null,bv=Infinity;for(const a of actions(s)){const f=s.fork();if(!f._act(a))continue;const v=f.engine.status==='won'?-1:left(f);if(v<bv){bv=v;best=a;}}if(!best)break;s.act(best);acts.push(best);}
++ return {won:s.engine.status==='won',used:acts.length,actions:acts};}
++const report=[];
++for(const L of levels){const runs=[];for(let seed=1;seed<=N;seed++){const r=play(L,seed);runs.push({seed,won:r.won,used:r.used,actions:r.actions});}
++ const wins=runs.filter(r=>r.won).sort((a,b)=>a.used-b.used),u=wins.map(r=>r.used).sort((a,b)=>a-b);
++ const med=u.length?u[Math.floor(u.length/2)]:null,p80=u.length?u[Math.min(u.length-1,Math.floor(u.length*.8))]:null;
++ const fit=wins.filter(r=>r.used<=L.config.moves);
++ report.push({id:L.id,draftMoves:L.config.moves,seedsTried:N,greedyWins:wins.length,greedyUsedMedian:med,greedyUsedP80:p80,winsWithinDraft:fit.length,seedBank:fit.slice(0,3).map(r=>r.seed),witness:fit.slice(0,3).map(r=>({seed:r.seed,used:r.used,actions:r.actions}))});
++ console.error(L.id,'draft',L.config.moves,'wins',wins.length+'/'+N,'median',med,'p80',p80,'withinDraft',fit.length);}
++fs.writeFileSync(process.argv[3]||'/dev/stdout',JSON.stringify(report,null,1)+'\n');
+diff --git a/tools/lakeside/calibration-report.json b/tools/lakeside/calibration-report.json
+new file mode 100644
+index 0000000..9f73b34
+--- /dev/null
++++ b/tools/lakeside/calibration-report.json
+@@ -0,0 +1,546 @@
++[
++ {
++  "id": "r04-lake-01",
++  "draftMoves": 25,
++  "seedsTried": 12,
++  "greedyWins": 12,
++  "greedyUsedMedian": 2,
++  "greedyUsedP80": 2,
++  "winsWithinDraft": 12,
++  "seedBank": [
++   4,
++   12,
++   1
++  ],
++  "witness": [
++   {
++    "seed": 4,
++    "used": 1,
++    "actions": [
++     [
++      "swap",
++      10,
++      11
++     ]
++    ]
++   },
++   {
++    "seed": 12,
++    "used": 1,
++    "actions": [
++     [
++      "swap",
++      23,
++      30
++     ]
++    ]
++   },
++   {
++    "seed": 1,
++    "used": 2,
++    "actions": [
++     [
++      "swap",
++      23,
++      24
++     ],
++     [
++      "swap",
++      17,
++      18
++     ]
++    ]
++   }
++  ]
++ },
++ {
++  "id": "r04-lake-02",
++  "draftMoves": 24,
++  "seedsTried": 12,
++  "greedyWins": 12,
++  "greedyUsedMedian": 14,
++  "greedyUsedP80": 19,
++  "winsWithinDraft": 12,
++  "seedBank": [
++   11,
++   8,
++   10
++  ],
++  "witness": [
++   {
++    "seed": 11,
++    "used": 4,
++    "actions": [
++     [
++      "swap",
++      6,
++      13
++     ],
++     [
++      "swap",
++      10,
++      11
++     ],
++     [
++      "swap",
++      28,
++      35
++     ],
++     [
++      "swap",
++      23,
++      30
++     ]
++    ]
++   },
++   {
++    "seed": 8,
++    "used": 8,
++    "actions": [
++     [
++      "swap",
++      21,
++      28
++     ],
++     [
++      "swap",
++      32,
++      39
++     ],
++     [
++      "swap",
++      27,
++      34
++     ],
++     [
++      "swap",
++      19,
++      20
++     ],
++     [
++      "swap",
++      8,
++      15
++     ],
++     [
++      "swap",
++      35,
++      42
++     ],
++     [
++      "swap",
++      1,
++      8
++     ],
++     [
++      "swap",
++      14,
++      15
++     ]
++    ]
++   },
++   {
++    "seed": 10,
++    "used": 8,
++    "actions": [
++     [
++      "swap",
++      42,
++      43
++     ],
++     [
++      "swap",
++      26,
++      27
++     ],
++     [
++      "swap",
++      14,
++      15
++     ],
++     [
++      "swap",
++      7,
++      14
++     ],
++     [
++      "swap",
++      17,
++      18
++     ],
++     [
++      "swap",
++      18,
++      25
++     ],
++     [
++      "swap",
++      18,
++      25
++     ],
++     [
++      "swap",
++      23,
++      24
++     ]
++    ]
++   }
++  ]
++ },
++ {
++  "id": "r04-lake-03",
++  "draftMoves": 24,
++  "seedsTried": 12,
++  "greedyWins": 12,
++  "greedyUsedMedian": 2,
++  "greedyUsedP80": 2,
++  "winsWithinDraft": 12,
++  "seedBank": [
++   1,
++   2,
++   3
++  ],
++  "witness": [
++   {
++    "seed": 1,
++    "used": 2,
++    "actions": [
++     [
++      "swap",
++      23,
++      24
++     ],
++     [
++      "swap",
++      18,
++      25
++     ]
++    ]
++   },
++   {
++    "seed": 2,
++    "used": 2,
++    "actions": [
++     [
++      "swap",
++      31,
++      32
++     ],
++     [
++      "swap",
++      17,
++      18
++     ]
++    ]
++   },
++   {
++    "seed": 3,
++    "used": 2,
++    "actions": [
++     [
++      "swap",
++      23,
++      24
++     ],
++     [
++      "swap",
++      16,
++      17
++     ]
++    ]
++   }
++  ]
++ },
++ {
++  "id": "r04-lake-04",
++  "draftMoves": 22,
++  "seedsTried": 12,
++  "greedyWins": 10,
++  "greedyUsedMedian": 21,
++  "greedyUsedP80": 24,
++  "winsWithinDraft": 6,
++  "seedBank": [
++   4,
++   8,
++   5
++  ],
++  "witness": [
++   {
++    "seed": 4,
++    "used": 6,
++    "actions": [
++     [
++      "swap",
++      10,
++      11
++     ],
++     [
++      "swap",
++      28,
++      29
++     ],
++     [
++      "swap",
++      30,
++      31
++     ],
++     [
++      "swap",
++      2,
++      9
++     ],
++     [
++      "swap",
++      40,
++      47
++     ],
++     [
++      "swap",
++      45,
++      46
++     ]
++    ]
++   },
++   {
++    "seed": 8,
++    "used": 10,
++    "actions": [
++     [
++      "swap",
++      21,
++      28
++     ],
++     [
++      "swap",
++      32,
++      39
++     ],
++     [
++      "swap",
++      42,
++      43
++     ],
++     [
++      "swap",
++      35,
++      42
++     ],
++     [
++      "swap",
++      0,
++      7
++     ],
++     [
++      "swap",
++      17,
++      24
++     ],
++     [
++      "swap",
++      5,
++      12
++     ],
++     [
++      "swap",
++      40,
++      47
++     ],
++     [
++      "swap",
++      33,
++      40
++     ],
++     [
++      "swap",
++      2,
++      9
++     ]
++    ]
++   },
++   {
++    "seed": 5,
++    "used": 11,
++    "actions": [
++     [
++      "swap",
++      46,
++      47
++     ],
++     [
++      "swap",
++      25,
++      32
++     ],
++     [
++      "swap",
++      12,
++      13
++     ],
++     [
++      "swap",
++      29,
++      36
++     ],
++     [
++      "swap",
++      36,
++      43
++     ],
++     [
++      "swap",
++      23,
++      30
++     ],
++     [
++      "swap",
++      26,
++      27
++     ],
++     [
++      "swap",
++      40,
++      47
++     ],
++     [
++      "swap",
++      46,
++      47
++     ],
++     [
++      "swap",
++      32,
++      39
++     ],
++     [
++      "swap",
++      41,
++      48
++     ]
++    ]
++   }
++  ]
++ },
++ {
++  "id": "r04-lake-05",
++  "draftMoves": 24,
++  "seedsTried": 12,
++  "greedyWins": 12,
++  "greedyUsedMedian": 2,
++  "greedyUsedP80": 2,
++  "winsWithinDraft": 12,
++  "seedBank": [
++   1,
++   4,
++   5
++  ],
++  "witness": [
++   {
++    "seed": 1,
++    "used": 1,
++    "actions": [
++     [
++      "swap",
++      23,
++      24
++     ]
++    ]
++   },
++   {
++    "seed": 4,
++    "used": 1,
++    "actions": [
++     [
++      "swap",
++      10,
++      11
++     ]
++    ]
++   },
++   {
++    "seed": 5,
++    "used": 1,
++    "actions": [
++     [
++      "swap",
++      18,
++      25
++     ]
++    ]
++   }
++  ]
++ },
++ {
++  "id": "r04-lake-06",
++  "draftMoves": 26,
++  "seedsTried": 12,
++  "greedyWins": 12,
++  "greedyUsedMedian": 5,
++  "greedyUsedP80": 8,
++  "winsWithinDraft": 11,
++  "seedBank": [
++   8,
++   4,
++   11
++  ],
++  "witness": [
++   {
++    "seed": 8,
++    "used": 2,
++    "actions": [
++     [
++      "swap",
++      31,
++      38
++     ],
++     [
++      "swap",
++      30,
++      31
++     ]
++    ]
++   },
++   {
++    "seed": 4,
++    "used": 3,
++    "actions": [
++     [
++      "swap",
++      28,
++      29
++     ],
++     [
++      "swap",
++      24,
++      31
++     ],
++     [
++      "swap",
++      17,
++      24
++     ]
++    ]
++   },
++   {
++    "seed": 11,
++    "used": 3,
++    "actions": [
++     [
++      "swap",
++      22,
++      29
++     ],
++     [
++      "swap",
++      31,
++      38
++     ],
++     [
++      "swap",
++      31,
++      38
++     ]
++    ]
++   }
++  ]
++ }
++]
+\ No newline at end of file
+diff --git a/tools/lakeside/test_lakeside_rules.cjs b/tools/lakeside/test_lakeside_rules.cjs
+new file mode 100644
+index 0000000..c1da093
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_rules.cjs
+@@ -0,0 +1,17 @@
++'use strict';
++// Lakeside (风铃湖畔) gameplay data + chime rule in regional-session (lake region). Pure JS, no Cocos.
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const R=path.resolve(__dirname,'../../creator-build-project/assets/scripts/regional-r05/runtime');
++const S=require(R+'/regional-session.js'),L=require(R+'/lakeside-levels-data.js'),guide=require(R+'/rule-guide.js'),catalog=require(R+'/catalog-data.js');
++const W=JSON.parse(fs.readFileSync(__dirname+'/calibration-report.json','utf8'));let n=0;const t=(m,f)=>{f();n++;console.log('PASS',m);};
++t('6 levels, region lake, rules.chimes, tool null, no period fields',()=>{assert.equal(L.length,6);for(const l of L){assert.equal(l.region,'lake');assert(l.rules.chimes.length>0);assert.equal(l.tool,null);assert(!l.rules.phaseCycle&&!l.rules.windCycle&&!l.rules.polarityCycle);for(const c of l.rules.chimes)assert(Number.isInteger(c.index)&&c.index>=0&&c.index<49&&c.hits>0);}});
++t('shipped catalog unchanged: lakeside is not in regional-r05 catalog',()=>{assert(!catalog.some(x=>x.region==='lake'));});
++t('phase() falls back to calm without a period; guide renders lake text',()=>{const s=new S(L[0],L[0].seedBank[0]);assert.equal(s.phase(),'calm');const g=guide(s);assert.equal(g.goalName,'风铃');assert.equal(g.tool.kind,null);assert.equal(g.targets.length,2);assert.equal(s.snapshot().scene.phase,'calm');});
++t('tool actions are rejected when the stage has no tool',()=>{const s=new S(L[0],L[0].seedBank[0]);assert.equal(s._valid(['tool',null,0]),false);assert.equal(s.act(['tool','tideAnchor',0]),false);});
++t('chime rings once per wave from its cell or a 4-neighbour, completes at hits, goal counts open chimes',()=>{const s=new S(L[0],L[0].seedBank[0]),p=s.pieces[0];
++ let r=s._regional({removed:[{index:p.index+1,type:0},{index:p.index-7,type:1}]});assert.equal(p.progress,1,'two neighbours in one wave = one ring');assert.equal(r.events[0].kind,'chime-rang');
++ s._regional({removed:[{index:p.index+2,type:0}]});assert.equal(p.progress,1,'two cells away does not ring');
++ s._regional({removed:[{index:p.index,type:0}]});s._regional({removed:[{index:p.index+7,type:0}]});assert.equal(p.done,true);assert.equal(s.engine.goals.chimes,1);});
++t('shipped seeds replay their greedy witnesses to a win within the draft moves',()=>{for(const l of L){const w=W.find(x=>x.id===l.id);assert.deepEqual(l.seedBank,w.seedBank);for(const x of w.witness){const s=new S(l,x.seed);for(const a of x.actions)assert(s.act(a),l.id+' '+JSON.stringify(a));assert.equal(s.engine.status,'won',l.id+' seed '+x.seed);assert(x.used<=l.config.moves);}}});
++t('unshipped seed needs authoring mode',()=>{assert.throws(()=>new S(L[0],999999),/witness/);});
++console.log(JSON.stringify({status:'PASS',cases:n}));
+-- 
+2.47.3
+

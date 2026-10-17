@@ -1,0 +1,13 @@
+commit 50afbbca9dcabe3a88c8f52e73dc7cd42d73d377
+Author: Cursor Agent <cursoragent@cursor.com>
+Date:   Sat Oct 17 06:58:18 2026 +0800
+
+    Glass sign v4-refined3.2 in Cocos: world-space capsule card (0.80x0.28 m @ 0.05,1.02,-4.70, bob 12 mm/3.2 s, unchanged geometry), refined2 rim + top highlight with 15% faded ends, analytic SDF/derivative edge AA in its own shader (no MSAA/FXAA), tap feedback then leaveHome; no backdrop blur
+
+ creator-build-project/assets/resources/world.meta  |   9 ++
+ .../assets/resources/world/glass-sign.effect       | 121 +++++++++++++++++++++
+ .../assets/resources/world/glass-sign.effect.meta  |  11 ++
+ .../assets/scripts/RoomExploreOverlay.ts           |  10 +-
+ .../assets/scripts/WorldIntegrationBoot.ts         |  12 +-
+ .../assets/scripts/world-r1/GlassSign.ts           | 120 ++++++++++++++++++++
+ 6 files changed, 275 insertions(+), 8 deletions(-)

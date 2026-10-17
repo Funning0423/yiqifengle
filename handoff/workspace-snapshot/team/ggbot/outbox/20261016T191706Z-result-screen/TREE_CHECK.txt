@@ -1,0 +1,5 @@
+base 88506aa
+head c87881f153ef3f114f2192fbc9405527995893a3
+expected tree ddebca9dd75a6acf396fb53955f1d3e8a8802612
+git am tree   ddebca9dd75a6acf396fb53955f1d3e8a8802612
+result MATCH

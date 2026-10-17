@@ -1,0 +1,13 @@
+2026-10-10T00:06:28.348Z +0.0s config {"cli":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-cli.cjs","buildDir":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/build","workRoot":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/close-exit5/copies","finalizer":"/workspace/shared/game-first-open-0008-v3-review/extracted/20261009T2354Z-grokbot2-WECHAT-FIRST-OPEN-0008-v3/reference/finalize_wechat_local.12ef697+0008v2.cjs","cases":["default"],"allowAppJsonNotice":false,"mode":"auto","autoPort":42005,"settleMs":0,"cliDrainMs":100,"injectShim":true,"logDir":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/close-exit5/logs","logPollMs":20,"logMaxBytes":1000000,"automatorModule":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-automator.cjs","globalQuit":"removed"}
+2026-10-10T00:06:28.411Z +0.1s cli islogin pid=236 exit=0 (62ms, 1 lines)
+2026-10-10T00:06:28.412Z +0.1s [verdict:default] copy build → /workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/close-exit5/copies/QFFirstOpen-20261010T000628346Z-049c-cc1865-default
+2026-10-10T00:06:28.467Z +0.1s [verdict:default] finalizer exit=0 {"output":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/close-exit5/copies/QFFirstOpen-20261010T000628346Z-049c-cc1865-default","compileType":"game","emptyCompileConditionsRemoved":true,"enhancementDisabled":true,"removedCondition":null,"changed":true,"action":"LOCAL_CONFIG_ONLY"}
+2026-10-10T00:06:28.468Z +0.1s [verdict:default] audit shim injected into COPY game.js (token 69084da948ab0104)
+2026-10-10T00:06:28.469Z +0.1s [verdict:default] cli auto --project /workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/close-exit5/copies/QFFirstOpen-20261010T000628346Z-049c-cc1865-default --auto-port 42005
+2026-10-10T00:06:28.527Z +0.2s cli auto pid=252 exit=0 (57ms, 0 lines)
+2026-10-10T00:06:29.474Z +1.1s [verdict:default] automator connected
+2026-10-10T00:06:29.975Z +1.6s [verdict:default] settle 0ms (no Compile, no input)
+2026-10-10T00:06:30.030Z +1.7s cli close pid=263 exit=5 (54ms, 0 lines)
+2026-10-10T00:06:30.083Z +1.7s [verdict:default] BLOCKED: cli close --project <own copy> not confirmed (code=5)
+2026-10-10T00:06:30.143Z +1.8s cli close pid=271 exit=5 (59ms, 0 lines)
+2026-10-10T00:06:30.143Z +1.8s VERDICT BLOCKED: default: cli close --project <own copy> not confirmed (code=5)

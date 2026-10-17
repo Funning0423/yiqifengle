@@ -1,0 +1,118 @@
+{
+ "v4_360": {
+  "visual_box_pt": [
+   123.1,
+   57.3
+  ],
+  "visual_box": {
+   "l": 93.91743527540106,
+   "r": 217.0572166829902,
+   "t": 397.39507111605803,
+   "b": 454.6483721502584
+  },
+  "hit_box_pt": [
+   123.2,
+   57.2
+  ],
+  "hit_box": {
+   "l": 93.18675321600467,
+   "r": 216.34692013146372,
+   "t": 397.14349508904684,
+   "b": 454.3904916562776
+  },
+  "silhouette_px_inside_visual_box": 6,
+  "silhouette_px_inside_hit_box": 6,
+  "min_gap_visual_box_to_silhouette_pt": 0.0,
+  "pixels_changed_outside_panel_vs_no_panel": 4882,
+  "frames_panel_visible": 211,
+  "min_box_left": -42.6,
+  "max_box_right": 346.5
+ },
+ "v4_390": {
+  "visual_box_pt": [
+   82.1,
+   38.2
+  ],
+  "visual_box": {
+   "l": 137.61188672998094,
+   "r": 219.70471233655098,
+   "t": 264.9520749460348,
+   "b": 303.12384907964673
+  },
+  "hit_box_pt": [
+   82.1,
+   37.9
+  ],
+  "hit_box": {
+   "l": 137.0974251410184,
+   "r": 219.2411595934879,
+   "t": 262.51624302003904,
+   "b": 300.3834963670098
+  },
+  "silhouette_px_inside_visual_box": 2,
+  "silhouette_px_inside_hit_box": 2,
+  "min_gap_visual_box_to_silhouette_pt": 0.0,
+  "pixels_changed_outside_panel_vs_no_panel": 2052,
+  "frames_panel_visible": 211,
+  "min_box_left": 46.6,
+  "max_box_right": 306.0
+ },
+ "v6_360": {
+  "visual_box_pt": [
+   138.2,
+   48.4
+  ],
+  "visual_box": {
+   "l": 18.067167672183093,
+   "r": 156.30195429540828,
+   "t": 399.8747081203925,
+   "b": 448.25688343852136
+  },
+  "hit_box_pt": [
+   138.3,
+   58.0
+  ],
+  "hit_box": {
+   "l": 17.28732490853369,
+   "r": 155.59691622432973,
+   "t": 393.73340677824996,
+   "b": 451.73340677824996
+  },
+  "silhouette_px_inside_visual_box": 0,
+  "silhouette_px_inside_hit_box": 0,
+  "min_gap_visual_box_to_silhouette_pt": 24.7,
+  "pixels_changed_outside_panel_vs_no_panel": 14517,
+  "frames_panel_visible": 211,
+  "min_box_left": -134.1,
+  "max_box_right": 281.5
+ },
+ "v6_390": {
+  "visual_box_pt": [
+   92.2,
+   32.3
+  ],
+  "visual_box": {
+   "l": 20.23129824689661,
+   "r": 112.38782266238006,
+   "t": 266.6165711888704,
+   "b": 298.8713547342896
+  },
+  "hit_box_pt": [
+   92.3,
+   44.0
+  ],
+  "hit_box": {
+   "l": 19.63358799223449,
+   "r": 111.89069264263134,
+   "t": 260.72842507163796,
+   "b": 304.72842507163796
+  },
+  "silhouette_px_inside_visual_box": 0,
+  "silhouette_px_inside_hit_box": 0,
+  "min_gap_visual_box_to_silhouette_pt": 11.6,
+  "pixels_changed_outside_panel_vs_no_panel": 6479,
+  "frames_panel_visible": 211,
+  "min_box_left": -103.0,
+  "max_box_right": 196.6
+ }
+}

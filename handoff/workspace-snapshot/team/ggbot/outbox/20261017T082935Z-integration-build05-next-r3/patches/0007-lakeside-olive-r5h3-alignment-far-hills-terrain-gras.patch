@@ -1,0 +1,330 @@
+From a6f39edba9cebca9eb735d154107d817f229b661 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 16:11:30 +0800
+Subject: [PATCH 07/10] lakeside olive (r5h3 alignment): far hills, terrain
+ grass and far-shore grass on their own olive palette cells
+
+Grok Bot approved; aligns with Funning's chosen r5h3 (no new art direction). Vertex colours cannot do it (COLOR_0 only
+multiplies: the far hills' red would need ~x6 linear), so the palette path, isolated:
+- T_LK_palette_256.png: 6 new cells in the free row 10 (all black before, sampled by no GLB): hills 4fa0a0 -> 93a77c,
+  2f6446 -> 5b6835, 3f7f52 -> 77853e, 5a93a8 -> a69982; grass 6dbe45 -> 398f12, a8d64a -> 5ca214. Shared cells unchanged,
+  PNG stays RGB with its sRGB/gAMA/cHRM chunks (1,803 -> 1,007 B, IDAT re-encoded).
+- LK_far_hills.glb (1,491 UVs), LK_terrain.glb (994), LK_far_shore.glb (656): float32 TEXCOORD_0 moved to those cells in
+  place; byte sizes, vertex counts, COLOR_0, image and material unchanged -> static merge / instancing unchanged, 0 added
+  draws, the journey loads the same assets (no pop). Grass tufts, bushes, trees and all 45 other GLBs untouched.
+- tools/lakeside/olive_recolour.py (idempotent; re-run after any .blend re-export), guard test lakeside-olive.
+Stand-in emulator (f7f892f lights, board camera): far hills 26/78/30 -> 71/84/20 (r5h3 far region 71/83/20); far_trees
+region 29/94/30 -> 51/94/28 (the far trees stay green: shared tree GLBs not changed); grass_L 109/134/59 -> 87/107/45
+(r5h3 81/107/24); grass_R 114/138/61 -> 93/111/48 (72/120/22).
+---
+ .../region_lakeside/models/LK_far_hills.glb   | Bin 95180 -> 95180 bytes
+ .../region_lakeside/models/LK_far_shore.glb   | Bin 39852 -> 39852 bytes
+ .../region_lakeside/models/LK_terrain.glb     | Bin 113816 -> 113816 bytes
+ .../models/T_LK_palette_256.png               | Bin 1803 -> 1007 bytes
+ tools/journey-integration/run-suite.cjs       |   2 +-
+ tools/lakeside/olive_recolour.py              |  59 ++++++++++++++++++
+ tools/lakeside/test_lakeside_olive.cjs        |  30 +++++++++
+ 7 files changed, 90 insertions(+), 1 deletion(-)
+ create mode 100644 tools/lakeside/olive_recolour.py
+ create mode 100644 tools/lakeside/test_lakeside_olive.cjs
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb b/creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb
+index 202538739db3f52d37081a8953c3815d864bd354..bd70e3d4d5b68eaf98114e306a029de986192e27 100644
+GIT binary patch
+delta 12584
+zcmcJVF>c;Q5QVA2fJ=9VjTDM2BV{@Rk$r@8K}uCFeFgdsx=MhwI)Dx22=3gdNM*p4
+zyi4*UcOUn0m*ns2Y2M7d8In88<qv)O`sCBsCm;X0diAvLZo2OEyRJKmw{K77_niu;
+zt&P?E8ozD#`>&h^!0iHyelfmpxb-B0TF~*t;RoR(_Gg}bDin1nptup&Z!ErN)1q{^
+z+*&QrZinZe-T^vq7s&H>=k+JYZ+F3=-f~B$`Co`u!T-YC|GlwzYyPRupUoQ&f*_6N
+zkL>RMhgb8SrlF)Lw#I3mv6nq9@2%^!5PszmuK9_}F|6sFIBshLuF<Ss+|vjIvw)3d
+z<Kk*MX`^@F9)6kEfC>_*e5<XE82j$~!>@m#sWI^Mf*-_R#<0X+&X-3DND4Lx4>}&d
+zqQpO+A28Q2ChQtNG)MgM`1nWMOdT$Zn35p9PI_Van@yDj3S)yVZyz7(J3)AdT8KF1
+zH|;onhZ2)K@)aqpJa+V7<VcYUrbi1JP$WL!){$a;XOhI?NdW&w!6A>h+qdEQmpWbo
+z%14HpUmI}tZ9kpJ5hM^Btnv6;5#63YNK{*S{2+eN@%RP9{WtS}lyBWH#<);_XUCUq
+z`08DJL%ctFvHS8uso&?95vklSXTu*w(eLM%(NV#3&#Twdv)bzgQ7edFkqd+$?3Qmx
+zO+)~!`CVMh8#a6m$OYX?9e#Palh=x&?zrL80N5&UK5p9ZRY+E;9r9XS`GV3lHf(n(
+zk-uTIKyHT#{_R6+?|CXu&*AbJkn6{i^QMtYx)i@aTt2+szKIV9^cS{=yxsjhX+E~}
+zvV15KFgC}dWZzh9^}CCt5J+5JCoEhDkU$Xrr(ny*#T9@wf(^pcI0#?Di=0$j3Z*|W
+zC5>#KRFlB$WD3ufgYeoAevr8C#%x?mK)#P$oae_c?abNmpf==qjl-Vj9|BY%wTT1q
+zgYcl?!~H*bQZ>Sj2hhU&(~uL!--_sf<PCQErAmMz35vwQs}1ik#upDRH6iD}o<6%;
+z@&0ByxP(83`6dw?ga_fz<23(H7#`Gu@JI2U`9~O`R$Jr9uOWFoe~^HE6rB#dVBZPR
+z)e398+Ag0s{G%P7KSV1c1ZrN5$3I}4e+Vb!{2H&e=9TPW{#_yoio`n}e*=#1e*#rd
+zZQ?-u&W86`nST<s5d2<Loojxn!T~yA^<#tNIU64A`Qs>3@F4bf{InqoD6ckg4v8QA
+z;rZvpdOyJ5ifx6bI&uD8g5zmK{f>8WF}^teBp`SxL^r|m{3ijM=K|vPHn`+X^A7<c
+zh+V^4JpL8d=AQ%_zy{$#_*R_fUj?u)h1$@hyUafU6vTF@an6P>V|e~$hu;@mLykuu
+zKlXs>`=0=ZB;t2Ad<zcqk09t0@$W^a7x;1hRnR36hhJ@YQ2lD(-<bJFKyfXQf4JbU
+z;jGK~pM=>_`66<0PKS8)&-0H%Q4{gQpTzb2YXR)DSZ*|#e+rZXmwiIxutArPKf|s0
+zuL(K7<0*_k+S&WR6cB&6gI7cd#E;#8<@Y~AiYkb|m0!on{38fz0ycg{{LRSxlYpSw
+z@HNytY><5H`THM2kpxivY7<w(DR24yM~Fo1qv&+tM-0zDC)T!WfIR$a!z*TS>HKd7
+zZj50jScp^I)XwHVb;P;H)&k0_AG-m|?|+v_VURfNy?D)ks*s2v2oJ*7ka&=I>=||b
+zXUFvZ$F>6IoKTBLclG|qp{Rn`M{&}x&p!of4XM9okGcou-!)V#h(F7Z^N#~0;3%R~
+T!>IqFH0ML%e;?mmeSY%;OSLvN
+
+delta 12584
+zcmcJTF>>BE5QTpgn$Zm`W!%_h%5*9c9U+~EC$L?)c8A<SSIJB+q0HzOZdCkLW>U!j
+z$&UaYumni{Dm+hb_w8Gd;DY@9^yB*J$Ms)-UwyoBUms4V@BZIjJpXYz4g2feNez_i
+z!diLNuXDHk%2@!o-XQu{^{(UAQ3z^7D~^slNIalBviGS`@S%a?iq5S(JXiBWX<@vz
+z+Mu8N{ZH=zEAKbR>o?bh{ZALL*<e?Fyrc8{$3X7_o*Q%D%FliN>^^uf1X<`gTgc=2
+z<>PXusgx4MUY*t%Jf3O!+D<2JL|)?<xAN$6^v`r2*w1wV)<Uy>;h9DVW&)qz%3D6?
+z`6&px$Nyg5FVBEBLa6axt_v~v<Nq%oKH;ev;;e-{NWPB#5&vbmJW4=H;2?3(ij!9q
+z{kvs@&-=#@&k0{&zl>*@h4Go8CCFN5KW9E%6wJcneTC66^y5b(H6m`IrPuf>593FJ
+zRbgcesk0EjwfsdsDQKV#;fm-zu6<IJcP1&!K1HlJjWr*+-~XYq1yNA{U~c7U+`_Y)
+zClW&n;9x6Gz8CRz{6V2|jgtq-gI1ippgsR0G|vguJ<A=n7BuPn{#ybyeiMH65Z(}<
+z-^9B(GJLDwmX{GNxnCA1z8A&cEia?JhR62H>DROJ@_}eIB(KN?5+8ZbZ%8e~0Bq$g
+zU8oxmd==z|)=Qmue7RHCi@xu4;Ija**WkF$4}9$>+;jG2WM5%RSHGa-8T;Mu!S{zG
+zF!I<?8|2(i@UP$WCgc*!irup?{tU?dL(ApR&{oRx(zq1js)vJT*@ijpKhW>YHQ){6
+z1>cLZmiR*v!>JKl$+;1^=2@5+FE1eC=<+`P!6g791c|>1_8eSX0mwq&Ao1sUyFubL
+zyvUboPovuL;1}eo=SFR%H3P03q)rz^9z^%`!8o|0pnkAjEFbniT$!%S;>1B+h!s~I
+ze3^d&pc*Mh2a*SggGT)Lm#Sf0+));iV`cskSjOag5g(Ack*B{@5hzlih>o~&;uZ$I
+z8#*37HLx1pc(35si??C^LxKMzD};k;Nc=duV~urTTlsC+|6%10V91p!*EsnWQs?-C
+z0{C9Ee25FW;$dku7K843>hPbq-+uzVh!LoDtvLA+!~PSnjI6xsm1|v%kMnO8QlN<5
+zij(ia`uwXgTn#m@T=gaQ`#-E~0R`KQ^Rc#kZkT@>fD|Zd9uA_nIC0SN$6lo2PITt@
+z>4IpWapmYNL_g*I{^x=6JRskTeU0ZnVgIcHE6zeRZ^bQL&{yZ50t_#O_$FAN|3t89
+zJbM?4|4sP*A1Ygb5yBR>^yCX{%|8V!01grdiTC0%|7rlg6zYOz-#GsWXb87ZbrvUH
+zN5B8|gncep3$o()lZTI(zW)(eNFjNP6Ys%s{xJltLh@VD^7HX&{?*VbKu2CVaZvNh
+zZ>{;qK(RE)zaPlAaPigoUlRUM8vH+uG_D*SsCl^Nm-#25sD<Q-AH;J0wE_Gn))$)0
+zKMm@_cuuGe4qEl(GhCbhmXVdW;xr~7c=rCU35Mh$BoAT)T5<9ftiS&;Qd9%-z421#
+z_kZwLNCHEUxFUH))ipWuj}SxU#9OF!aFBZV^825FA_bu4m7{CnTo-@;V?-f*FIqmt
+zC-nQD2TE=&fI9NZi7RHhbpBU`D`S`$R&?r{@@)Ro#88<E&C?hp5AVSG``;?00f-L1
+z6^rkG3_&#{-a@NR<Hi5~6#~BvL$as6c@}8ti5KsG5{haF-;1+<d;V$AT9D>jeDZbW
+nywea=BP*^ti)Zy={#A%zFRGu#ga6%-EFf$6&+GlwzxO`@VO*s0
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb b/creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb
+index f36c03a083b34c1229e26ab42f1be9dbded16af7..fb1ee629e7dde7c86fab1bfcbbf5daa14cf0ca01 100644
+GIT binary patch
+delta 7950
+zcmcK8!BN~m6og?F7av^Z035+a0axPii7ez06bOf{@_{rQfP?X@q;E9yq*q!nK2Sfe
+zr@KeXGDyqo+r#VI!}Z&b@%lInm#1NPE?+O@Yg%Wz**aQBI?5p*uKHLv6hy{sUJGiT
+zALF_nTzup9$^{u>fpv`Qa>$p>bACMdkqdsx1}FXFr7^ftbRkH`c!7Kv*X6MI#`%{|
+zzyihsK8)*f$cJ>C9?ScGX?_BXIIX7v1(6TwD2IGFjsJUtlm6ZLcV&0Kf|CtmUzoS^
+zKdnU!NJkfjeAz6=hl^g`e+E>90%tRyo{V~C-p;?Eg*YpsXER+7${o$)OY_^WKmh5e
+z2>G&Ej<1=Q^G`rUD0nvW>B*?)`Ki4BFL%5JiZLsuZyWUe@^$_8{<jyvpeSQ42zk1m
+zIMelxzKIk>L8K!cr|@?n&TDS04<3TCFwT6jFwSx)*U#nsCn#XdX1W~8WwRX4{`UM^
+zKt(tQ4t`m!%VG4>@s^v<zk(Q`qaa2<9py0ki$2c3{S1N_19X%_{%n@RtNXv81yqE5
+z*(`_rNXKXAKPwcpE=bR2x*W=x)B8W8qKt}A?rdIt`}=>~ND;nsgWc`D?{Cik|Jh*s
+z`x5)-7jk?5EudG3{S|-i155Y(pKavA(1m5Q9=>cY`f~qQgo4?u5c!dgdXTT4e+wvx
+zTcH2EU|kORvstb_{|jI>thZ4`$d}DA&yUvY{a+C>X0rn1M>^`k)tBG@1#u13r)4@S
+zM*eJGa^?IpDvC2*5%QhQe0n<G&ObpB3ZBh;dNS(4TW&u83M?QUr~97i>K`;Y)Qd&$
+zKmUJpgQl?iXO@j|-(TMU%RjsY3gZTG=5wKV_4&UF;k*l?Vx*%U<U=~v^RIvr=_rVN
+z*(`_rEBE(*MJSNXijg1bsApkw{w)Za1<^XvQ4aYI=l1+75I{OALcVO4<7?-``@bR-
+zL^{%Oy8rLQ^87Ct3**f9jtve!UF+R_{{Q?9PCni{|M3-VSJ)TOU1*%?u`kYYqi+PW
+zSpi=*)AgWSn78}CAPOKI6(JweQ4SYhbN(%$ATELJaXrp*XdUS|_qNafjM;{Q$d7c?
+zgM95gpMQcNV>Z*}Q0{EzD?P{m|NH0$ayCGEWIg|9S8P2N*Z||Y9P-uK`6nn~M0%tg
+z@}JFoyZisW8z`_5(lPdhc{~4E0UZ@%D6CJ@bUBn;SkAu%><!!Fxxz>}jCneC>qqzh
+zdpC%Makf$HYv=C#$AWBD5I2Z3pC05Z^YQ&(5CxEq2gUP!-+Ih_8NLof`Fa?B{r>sq
+F`(KFT=#u~d
+
+delta 7950
+zcmcK8y>S~c6vT0k5(l1ftZ@bGLMiKT#1fdn1u5{11GV7-T#RuaKOFAyp24xDfb-W|
+z>@H3^LPzQK?dkRH>BpCE<@|Cw-RkR7U)TD2UT3=5I$B3M${`=FdTAR9B4aiyMt-ED
+z9$b87`_2U!1kpOuQ4aaCdCrxCAGx4nRD^ulEQkC!>E+g4fFfi>Ix0p!q@x^GUzy*0
+z0v1pZ`H+rs$cJ=%eyR8W*8Kz+Q85Z4AJS0{`S5wV|F`Y}1d$Qxs2KT>j&gW+{skEX
+z(K^ym4*8OKJO2s<kdBIwFPr7~aMA1iXFx?LFq--FWYjZry8nU};;e|C&2&8|cQlu4
+z_vTX|fOJ%ZeAz6=*UiiMC!it}9L;=sGU~ZZ=l}Y^El`YEF@4)$-!I?Rr~7~HE`UK%
+z##RvWbUksV>n*;B6huL!BOPO3oY!1wA3Oxth4fVL#lkr2LAm{0w&%YB#%!i5Lb+^~
+z!`a`Te+#Gx=Ro&fp`#o|KOLvseEt>0038J}`spZ#(O>m4zxx>kF$U-;hy2+rhiA`!
+zK?|q|`LbCK`H_wn=RYeHv@S@`X1W~8nbYS#qoRz8P;NA@zWe8Y+(;3w!Qt->zSy^)
+zyYv4s8*IN{V*h-B)BU%A^Fnvd_gDPBA6Ryu|Fex;7`ni0*29<0RbQU}icm0{6(T><
+zQ4jL9^KStKaSQA}u3MKw{%n?OpZ^808S4As_Luj_aDz3k7xlO2zanJJW(CNPbku{Z
+zFMs|EqGF_@V&u!_C0DkO---mys0jH+GoPLvr}Ixxgo2})PftcYIOXQ^ufPJ*F)OCa
+zp&Zh&>ifU{6=f8}TCh7E*-XFht@r=-AGbhZ+#t?;m%7)rzVJNV|LFpn5N1I<uj@!h
+zJ;;Z2Z0BDABhpb2`LbCK`B&aQ{}rJ?HY-Mcq@$jNWjp^C1kHkI9qA~Ce1~&?{uKxy
+z9Tg#8Hp}t#^WpPf5egz5>1czDa+S;He?be`OwWqxdQcAOcYpsgD9X4M9RK+~T5rA1
+ze-py_SLDJ*GhghBv!3D$!E9E*m(6rNC>Q4K`7ek9NJmA;hjf&~#n+vG3n++7;GKU}
+zPxt>rHyHHK=ideR&V8rZOqWBs(acwSj{pDnuN%nO0O^tK{Ex2KdMvO3#&tR5YqRrD
+zP{4@vNIB#m&3t#y|3^1aU?Zes><jaD{<8u)D#lRQK26i*P;Oy8{}ym>*gl>sjFiKe
+zr{iw@==uNX2C*>CHi~`yygUD~Ae$A$4dTqF2l?uJ{QMV00i<Is+Wi;ZY(3^aoj#vV
+O_4Rc6`Rn`duYUlYaBw34
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb b/creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb
+index 0d297ff16a102d9ea9757a97b46a9e8f9d296f44..8d4aae9a2f390dc0d46b0886541a9dc880825687 100644
+GIT binary patch
+delta 10350
+zcmeI1J#HH@5Js1cks^SLxNxnc&>alK_BHGPPN_4bp-Y$U)<+0ZxH2HXM^NK7$O(en
+zz@7QCkJOGut)xgh4GZCkABV#cXJ^S>J-i-0ydK>?nZ=2{|JpRu^QKXv)tb1Q*Q)*U
+z7=YDV`VfFs%)Jl5YF>OU0GEH&6|lPH*VOutb*NQ_wf<GhPpkg@kDj^D)aT!Sk=t)F
+zIB<Ws|0@O%@Bd>4z{<uIxAFczW&or*1mg4Gk0@UY=#YUB9il^Yhz`AOXSxB{SOzW#
+z9|(~_B8TV@9il^Yhz_UcwyQ&}0I2_RgsTIT_OhLS;rj7u|KHVtoQO8WFBEz{{}&9>
+zH6i<jqaCa0CYRqqCYT>j%%|hD$^<<!^D2)#ahE+;WjYgg^VU<Azqs{M;PS5;Kz+*6
+z%e_y1t$)?>t8ZBb-m<XuLs>28aNGX$l(nq`X}@i|3p77vNeBEAbchboAv#2deSN9^
+zr9s~?pT^K3<Dk^nwwL#R=|B!VM1ROXjv*66bchboAv#2d=#DY}bigHpusx&0{q=YI
+zKaS!4CWzM!ej)zfy=9RG$<W=VXYM2WhuTBq)A=7qkbw{#O1;#Ux)`6&|8zh(aM!jR
+z*Z04o{`&^`aEcCb4ACJvM2A8D;Bp$iv@ciYbNl1koVLFv=B|DIVlLW0-^|Z;F){b^
+z#fAC(F(nI^BQqy!<caIUT3CVlmsovR(_DdC|9LmixC7SuKj_uZ#tdbO(_yV>P&lOF
+zh;a}dqC<4J^TQera15nhYIl11VQt8vbUb7)`{Q_bSfc~t7@|XThz`*qIz$g#{!477
+zfy+NS>^b<){`#;MmY1c4`&?r06TdL|=VdJ&5QCw%v>URQ{l)s1hO#|0@rM27`rpt&
+id1<@XU<3~F8@Vnwn>c9QUtVYJ;?n$`|GPGi-`@ZY02|Bz
+
+delta 10350
+zcmeI1J#HH@5QW9YaAClOQ>a!__zo%TTq6$PlsbaohACa9TOYwlkt%?I96?Q5BPTF?
+z19zU?<;T^IwW4H;I}MA)6W<JHW;q=GtnQwV?w*f+{Bf%fetI#PEaWjlZ{;}n^=5D0
+z2H@?6z6rn^=DrTVTTVU+K=N-o0(Jf^11R<1)}d7ymio7x{bu!lF7s_J&v~8y`iCrq
+zy>%ceWR`mz83o`cV+YXp=OqW3hj^>~I{#Z0GRyruvx9_v-<E+{3Vf(Ts{p9~edmDI
+z*KNuf9@Ko?|Fwcv)bdn&$Nt^<KV?wMQx0~MUw7q~#liA)=FU#zC==Ak*p2eYj>Ent
+zRc7Nj_${Zbg)DG(DUke|22khUGJsP5hLcZHU+Uj-_M6?Z;)0i|f3|)wb`0wVJh-ns
+z-m>;Jp!N4{hd{eqmNvkfz=QB0JO~fMgMD7s|31;RHLne%<XV4Yd%ga(LdwA*<jq%B
+z9D^7J;X!y19)t(sL3qLTD=PwUO`+Kx;labn!~Tz9@Nf>=?H#)y_FsKv(F##f>U}Pc
+zmZ#dO{&D}u5J*Q59@P9$Tl1=acm78J>W*)1>wbOv8|uHW(5(mXAcjGB5FUgF8~#{w
+z+We^geRUtJn=3c1e$Cu%_4kvztp0y<_tk3VelAy+?%^aR3zH*bm#mQ;hc$XFStbFj
+zFV+?Tl)uDG?@H6uVJ-KZDD@u?Yq^Jdqy19<3$`m0l=VMn0Bp>lo&)i)HmD$@GM6Wp
+z{LPm&-h{wF%@4H$KYUqB8PtYT`dZ%hm;56DF$}_k@E|-055j}+4c7IK0PHDbmY2&~
+z=G)-*%Uaz3$vwy%NVT<IN?*$d>t8GCcFOUN^5Od5(ZD;a=e^}s$zNWdtJN3xxO}>D
+HzrVi#6WD}L
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png b/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png
+index 4f6b7b98e6b7c0b09196ce9d9532e2e43e43352b..08c4914528cf4bd7ef1c7dc1918053965417f68e 100644
+GIT binary patch
+literal 1007
+zcmeAS@N?(olHy`uVBq!ia0y~yU<5K58911L)MWvCLlCbx$lZzA{J3v0ki(Mh=<CS9
+zu(6-}Pa-RjuaN8!<jcTNrN+R}(89p*3n<j^f`OsbfPvvv0t1893<d`Af;qbaZGaMH
+zsS%!OzP=1vK(+)BdjK)WItb0gD8&FW5hTLFC=F)|0Qn3PD&Fq_Qk?m2Zp9!z7~Im@
+zb`HqkEbxc~3UUj9Fyp1Wb$=Kbm>E4?978H@y}f%r`+On8@xs|t|J(_m9N(MrWPvHW
+z?$#6Qg(9`t?GGI~c=V5kyI#zdq~5@=M@d&E^{gp)=+Y~id^9sBc(T0q8P^}uaqR5-
+z`j7wo`tREJ-+yhY@9(=`_!#N}dQ)A_p0~d~zSyYV|IYRIsY>C+wP$<2Ufh?v#`IQr
+z=oGi#t9#{bRsU}cl4oRMU~FJ;U{GKXVBlb2VL;;knSE**|Gyr-kg0mT-_)PI>HMbp
+zJM8~e^FKGr`=miivFhSr_*bhMZ_n?_?v|g^{q5;j-HZEPp1YZ`zx?sb4Eyc>qqe+{
+zt2DXw{zj1a+w{A;WZzofu5<m({gi$2-&IQ=FRoqqxO&U|J*K~F{6g3Ce!G1<Z5Jbk
+zJ#dFEkeKr2dx<;yv8s3OziplOUfh>|@npvR51)g!?7vcBc&pr|Li}wtTb#@9hy8Oe
+z)|LE--jcs=j_g}@`#&Aut}3rz^!J}C_oCXnm%m@EyZJ6T4>J(p;i18n+L{@>h`D*{
+z){FZVz46^*A3XQ(e243w*1eJ4p0@vZeM)lmw_mUI+&{N{E57*e^cCHU|0>^~&G`T6
+z?emQI`hA+W%J;qN{>I#T^5VbmNBjv`r7f4be}7%+1FtRhI}%iG)z96cee3<2Seduh
+ze(O5FHJ?3v@!#=9ychSqKJYc8{>9CQ8TR$Tinq+a_;q|UKAwL5{I7qrGWHidT$1sB
+l%hPq>$U=!`M2vSGl;6=@=pz2w@*pUUdb;|#taD0e0sxdwQt$u(
+
+literal 1803
+zcmeAS@N?(olHy`uVBq!ia0y~yU<5K58911L)MWvCLlCbx$lZzA{J3v0ki(Mh=<CS9
+zu(6-}Pa-RjuaN8!<jcTNrN+R}(89p*3n<j^f`OsbfPvvv0t1893<d`Af;qbaZGaMH
+zsS%!OzP=1vK(+)BdjK)WItb0gD8&FW5hTLFC=F)|0Qn3PD&Fq_Qk?m2Zp9!z7~Im@
+zb`HqkEbxc~3UUj9Fyp1Wb$=Kb*knCj978G?-`+i+J)KpC{li+`MX8n&YdRE@C1jmm
+z8MsVP((dp~-r%en7SXP^R{nzPhbMXmS1g>iK%wd;Pn(DKr-11;`FvioPcpaa&Y8lw
+zy0Y_4e#PgQ8oNDZb@uV|&cEJke*gBhix1lw7@1f&1QZ+^Mj4}lKw(PwzTDyYnJW)p
+zoXuNvr{|M<JHPACbLH_JpANCi;;^~!B=NjZ#_k5jEqfi`-}gAcAoa0w$6F@03*XrG
+z)+;kIXB>I{a2vOT!)@s=|9V+?76{I7zpa<Rkeh$ux4Do(gIkSU9*LSS?5wQT-SzNX
+z>-EKdzFmB&VgK>%M~(mIPNWC^>wNk-@ZY84`7S@1A6GB_lN?_!{Pg+0ANr@}-}&b_
+zrT*W`bsG1rfBR3V|GM?e^UM3h7oV?BUTuHsH(SS!mergR4qM&s3InMlsxiI?7*?6S
+zng{fclHS8CCbodJf!|%2*aQkW!-WkRvU+!^10CPty<=7bV@UQD+ldW~E-{C$0{s`Y
+z_+2LpkHRCNb!rI=SEWk*RT3Bkrx%zuo_pHrebG0X`@Z{6=WOr5f3MD+)Uf~dex^qK
+zv$w&4b>G_WFZy%n)cL@=zx_Kk>eK(e*RVJJP%$NbZ>jmI_qTS)J-uI@WpL_!>>t}x
+z_P?)9)OatAX$d3qifb#Xl^B_+<)2;E@^{7VZn4^6ed>GZ{f<xb-=F$7|G=LQHD7+p
+z9^bV8`2UY5UcUJpZzcWoxZnJaPxZD&a!>1{c1b*4|F_EeRDYeN;M3=IJEfk6SIPH%
+z`Y!j&m_A|s&UX6d{rl}U7wH-OC@fGumH%yz<Wv54bw;Po`@QS_v^w~8;J<h0!WaGd
+z^E=-4C;$2yk*DQv-uHe=_U3o{`ET8u@6Vq;O<#0gUg}lnr|!%5T`TW{<B;mXi;`SE
+Z*e_p@SvN7}&jwI6;_2$=vd$@?2>@y6L(u>L
+
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index b4ea501..e9cac83 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -67,7 +67,7 @@ const tests=[
+  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+- ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],
++ ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/olive_recolour.py b/tools/lakeside/olive_recolour.py
+new file mode 100644
+index 0000000..f9e6a8e
+--- /dev/null
++++ b/tools/lakeside/olive_recolour.py
+@@ -0,0 +1,59 @@
++#!/usr/bin/env python3
++"""Voice Bot, lakeside olive (r5h3 alignment, Grok Bot approved): give LK_far_hills / LK_terrain / LK_far_shore their OWN palette
++cells (free row 10 of T_LK_palette_256.png, previously all black and sampled by no GLB) and point their TEXCOORD_0 at them.
++Grass tufts, bushes, trees and every other asset keep the shared cells. Same image, same material -> the static merge and the
++instanced batches are unchanged (0 added draw calls). Only float32 UVs are rewritten in place (byte sizes unchanged).
++Idempotent: a re-run finds no UVs on the source cells and rewrites the same pixels. Re-exporting the GLBs from the .blend
++reverts the UVs - re-run this script after any re-export (or port the mapping to the .blend).
++Colours: stand-in emulator fit (Mac-calibrated Cocos shading, board handoff camera) to r5h3 hills 71/83/20, grass_L 81/107/24."""
++import json,struct,sys,pathlib
++import numpy as np
++from PIL import Image
++M=pathlib.Path(__file__).resolve().parents[2]/'creator-build-project/assets/bundles/region_lakeside/models'
++ROW=10  # free palette row (16x16 cells, glTF v from the top)
++# source cell (col,row) -> (new col in ROW, new sRGB colour); per GLB
++CELLS={
++ 'hills_4fa0a0':((14,15),0,(147,167,124)),'hills_2f6446':((9,13),1,(91,104,53)),'hills_3f7f52':((8,13),2,(119,133,62)),'hills_5a93a8':((7,13),3,(166,153,130)),
++ 'grass_6dbe45':((9,15),4,(57,143,18)),'grass_a8d64a':((10,15),5,(92,162,20)),
++}
++GLBS={'LK_far_hills.glb':['hills_4fa0a0','hills_2f6446','hills_3f7f52','hills_5a93a8'],'LK_terrain.glb':['grass_6dbe45'],'LK_far_shore.glb':['grass_6dbe45','grass_a8d64a']}
++def glb(p):
++  b=bytearray(p.read_bytes());n=struct.unpack('<I',b[12:16])[0];j=json.loads(b[20:20+n]);return b,j,20+n+8
++def _chunks(b):
++  i=8;out=[]
++  while i<len(b):
++    n=struct.unpack('>I',b[i:i+4])[0];out.append((b[i+4:i+8],b[i:i+12+n]));i+=12+n
++  return out
++def save_png_like(png,rgb):
++  """Same PNG layout as the export (RGB, sRGB/gAMA/cHRM/eXIf/oFFs/pHYs kept), only the IDAT re-encoded."""
++  import io
++  orig=png.read_bytes();buf=io.BytesIO();Image.fromarray(np.ascontiguousarray(rgb),'RGB').save(buf,format='PNG',optimize=True)
++  new=[c for t,c in _chunks(buf.getvalue()) if t==b'IDAT'];out=[orig[:8]];done=False
++  for t,c in _chunks(orig):
++    if t==b'IDAT':
++      if not done:out+=new;done=True
++    else:out.append(c)
++  png.write_bytes(b''.join(out))
++def main(check=False):
++  png=M/'T_LK_palette_256.png';im=np.array(Image.open(png).convert('RGBA'))
++  for k,(src,col,rgb) in CELLS.items():
++    s=im[src[1]*16+8,src[0]*16+8];assert s[3]==255,k
++    cell=im[ROW*16:(ROW+1)*16,col*16:(col+1)*16];assert (cell[...,:3]==0).all() or (cell[...,:3]==rgb).all(),'row %d col %d not free'%(ROW,col)
++    cell[...,:3]=rgb;cell[...,3]=255
++  changed={}
++  for name,keys in GLBS.items():
++    p=M/name;b,j,bo=glb(p);moved=0
++    for m in j['meshes']:
++      for pr in m['primitives']:
++        a=j['accessors'][pr['attributes']['TEXCOORD_0']];assert a['componentType']==5126 and a['type']=='VEC2'
++        bv=j['bufferViews'][a['bufferView']];st=bv.get('byteStride',8);off=bo+bv.get('byteOffset',0)+a.get('byteOffset',0)
++        for i in range(a['count']):
++          o=off+i*st;u,v=struct.unpack_from('<ff',b,o);cx,cy=int(u*16),int(v*16)
++          for k in keys:
++            src,col,_=CELLS[k]
++            if (cx,cy)==src:struct.pack_into('<ff',b,o,(col*16+u*256-src[0]*16)/256,(ROW*16+v*256-src[1]*16)/256);moved+=1
++    changed[name]=moved
++    if not check:p.write_bytes(bytes(b))
++  if not check:save_png_like(png,im[...,:3])
++  print(json.dumps(changed))
++if __name__=='__main__':main('--check' in sys.argv)
+diff --git a/tools/lakeside/test_lakeside_olive.cjs b/tools/lakeside/test_lakeside_olive.cjs
+new file mode 100644
+index 0000000..b2cd6d5
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_olive.cjs
+@@ -0,0 +1,30 @@
++// Voice Bot (lakeside olive, r5h3 alignment): LK_far_hills / LK_terrain / LK_far_shore use their OWN palette cells in the free row
++// 10 of T_LK_palette_256.png (tools/lakeside/olive_recolour.py); no other GLB samples row 10, grass tufts / bushes / trees keep the
++// shared cells; same image + material (static merge and instancing unchanged, 0 added draws); vertex counts unchanged; PNG stays RGB
++// with its sRGB/gAMA chunks.
++const fs=require('fs'),path=require('path'),zlib=require('zlib'),assert=require('assert');
++const M=path.join(__dirname,'../../creator-build-project/assets/bundles/region_lakeside/models');
++function glb(f){const b=fs.readFileSync(path.join(M,f)),n=b.readUInt32LE(12),j=JSON.parse(b.slice(20,20+n).toString()),bo=20+n+8;return {j,b,bo};}
++function cells(f){const {j,b,bo}=glb(f),out=new Map();let v=0;for(const m of j.meshes)for(const p of m.primitives){if(p.attributes.TEXCOORD_0===undefined)continue;
++ const a=j.accessors[p.attributes.TEXCOORD_0],bv=j.bufferViews[a.bufferView],st=bv.byteStride||8,off=bo+(bv.byteOffset||0)+(a.byteOffset||0);assert.equal(a.componentType,5126);v+=a.count;
++ for(let i=0;i<a.count;i++){const k=Math.floor(b.readFloatLE(off+i*st)*16)+','+Math.floor(b.readFloatLE(off+i*st+4)*16);out.set(k,(out.get(k)||0)+1);}}
++ return {cells:out,verts:v,j};}
++function png(file){const b=fs.readFileSync(file);let i=8;const ch=[],idat=[];let w,h,ct;while(i<b.length){const n=b.readUInt32BE(i),t=b.slice(i+4,i+8).toString();ch.push(t);
++ if(t==='IHDR'){w=b.readUInt32BE(i+8);h=b.readUInt32BE(i+12);ct=b[i+17];}if(t==='IDAT')idat.push(b.slice(i+8,i+8+n));i+=12+n;}
++ const raw=zlib.inflateSync(Buffer.concat(idat)),bpp=ct===2?3:4,stride=w*bpp,px=Buffer.alloc(h*stride);
++ for(let y=0;y<h;y++){const f=raw[y*(stride+1)],src=raw.slice(y*(stride+1)+1,(y+1)*(stride+1));for(let x=0;x<stride;x++){const a=x>=bpp?px[y*stride+x-bpp]:0,bb=y?px[(y-1)*stride+x]:0,c=x>=bpp&&y?px[(y-1)*stride+x-bpp]:0;
++  let p=src[x];if(f===1)p+=a;else if(f===2)p+=bb;else if(f===3)p+=(a+bb)>>1;else if(f===4){const q=a+bb-c,pa=Math.abs(q-a),pb=Math.abs(q-bb),pc=Math.abs(q-c);p+=pa<=pb&&pa<=pc?a:pb<=pc?bb:c;}px[y*stride+x]=p&255;}}
++ return {w,h,ct,ch,at:(cx,cy)=>{const o=(cy*16+8)*stride+(cx*16+8)*bpp;return [px[o],px[o+1],px[o+2]];}};}
++const P=png(path.join(M,'T_LK_palette_256.png'));
++assert.equal(P.w,256);assert.equal(P.h,256);assert.equal(P.ct,2,'RGB like the export');assert(P.ch.includes('sRGB')&&P.ch.includes('gAMA'),'colour chunks kept');
++const NEW=[[147,167,124],[91,104,53],[119,133,62],[166,153,130],[57,143,18],[92,162,20]];NEW.forEach((c,i)=>assert.deepEqual(P.at(i,10),c,'olive cell '+i));
++for(let c=6;c<16;c++)assert.deepEqual(P.at(c,10),[0,0,0],'rest of row 10 still free');
++assert.deepEqual(P.at(9,15),[0x6d,0xbe,0x45],'shared grass cell unchanged');assert.deepEqual(P.at(10,15),[0xa8,0xd6,0x4a]);assert.deepEqual(P.at(14,15),[0x4f,0xa0,0xa0]);
++const want={'LK_far_hills.glb':{cells:['0,10','1,10','2,10','3,10','6,13','15,12'],verts:2466},'LK_terrain.glb':{cells:['4,10','10,14','11,14','12,14','13,14','14,14'],verts:2890},'LK_far_shore.glb':{cells:['4,10','5,10','12,14'],verts:984}};
++for(const [f,w] of Object.entries(want)){const g=cells(f);assert.deepEqual(Array.from(g.cells.keys()).sort(),w.cells.slice().sort(),f+' cells');assert.equal(g.verts,w.verts,f+' vertex count');
++ assert.equal(g.j.images.length,1);assert.equal(g.j.images[0].uri,'T_LK_palette_256.png','same shared image');assert.equal(g.j.materials.length,1);assert.equal(g.j.materials[0].name,'M_LK_palette');}
++const others=fs.readdirSync(M).filter(f=>f.endsWith('.glb')&&!want[f]);let n=0;
++for(const f of others){const g=cells(f);for(const k of g.cells.keys())assert(!k.endsWith(',10'),f+' must not sample the olive row ('+k+')');n++;}
++for(const f of ['LK_grass_tuft.glb','LK_bush.glb','LK_tree_round.glb','LK_tree_conifer.glb'])assert(others.includes(f),f);
++assert(cells('LK_grass_tuft.glb').cells.has('9,15'),'grass tufts keep the shared grass cell');
++console.log('lakeside olive OK (3 GLBs on own cells, %d other GLBs untouched by row 10)',n);
+-- 
+2.47.3
+

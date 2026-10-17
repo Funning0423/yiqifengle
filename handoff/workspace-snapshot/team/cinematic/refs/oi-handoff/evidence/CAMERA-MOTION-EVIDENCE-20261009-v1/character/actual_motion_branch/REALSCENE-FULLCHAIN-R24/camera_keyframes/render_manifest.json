@@ -1,0 +1,161 @@
+{
+  "blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "camera_plan_sha256": "cd6b4cdfe0f86dae95898e02a6d8becb31f9a7ac871be2edc1e7dd8f7ec0bf86",
+  "frame_count": 24,
+  "source_frame_rate": 30,
+  "render_frame_rate": 30,
+  "playback_frame_rate": 30,
+  "duration_seconds": null,
+  "image_size": [
+    384,
+    496
+  ],
+  "renderer": "Blender Workbench8AA with original active atlas textures. Internal motion review, not final material/cloth rendering.",
+  "scope": "Full-chain kinematic preparation. Source LBS garments/sleeves/cuffs/bow-tail and same-leg knee skin self-contact remain unaccepted. No contour or cloth physics merged.",
+  "images": [
+    {
+      "frame": 1,
+      "source_time_seconds": 0.0,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0001.png"
+    },
+    {
+      "frame": 40,
+      "source_time_seconds": 1.3,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0040.png"
+    },
+    {
+      "frame": 91,
+      "source_time_seconds": 3.0,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0091.png"
+    },
+    {
+      "frame": 121,
+      "source_time_seconds": 4.0,
+      "shot": "A_chair_physical_right",
+      "file": "frames/0121.png"
+    },
+    {
+      "frame": 136,
+      "source_time_seconds": 4.5,
+      "shot": "B_approach_front_right",
+      "file": "frames/0136.png"
+    },
+    {
+      "frame": 211,
+      "source_time_seconds": 7.0,
+      "shot": "B_approach_front_right",
+      "file": "frames/0211.png"
+    },
+    {
+      "frame": 295,
+      "source_time_seconds": 9.8,
+      "shot": "C_door_inside_right",
+      "file": "frames/0295.png"
+    },
+    {
+      "frame": 310,
+      "source_time_seconds": 10.3,
+      "shot": "C_door_inside_right",
+      "file": "frames/0310.png"
+    },
+    {
+      "frame": 346,
+      "source_time_seconds": 11.5,
+      "shot": "D_exterior_right",
+      "file": "frames/0346.png"
+    },
+    {
+      "frame": 382,
+      "source_time_seconds": 12.7,
+      "shot": "D_exterior_right",
+      "file": "frames/0382.png"
+    },
+    {
+      "frame": 421,
+      "source_time_seconds": 14.0,
+      "shot": "D_exterior_right",
+      "file": "frames/0421.png"
+    },
+    {
+      "frame": 469,
+      "source_time_seconds": 15.6,
+      "shot": "D_exterior_right",
+      "file": "frames/0469.png"
+    },
+    {
+      "frame": 538,
+      "source_time_seconds": 17.9,
+      "shot": "D_exterior_right",
+      "file": "frames/0538.png"
+    },
+    {
+      "frame": 568,
+      "source_time_seconds": 18.9,
+      "shot": "D_exterior_right",
+      "file": "frames/0568.png"
+    },
+    {
+      "frame": 608,
+      "source_time_seconds": 20.233333333333334,
+      "shot": "E_close_inside_right",
+      "file": "frames/0608.png"
+    },
+    {
+      "frame": 646,
+      "source_time_seconds": 21.5,
+      "shot": "E_close_inside_right",
+      "file": "frames/0646.png"
+    },
+    {
+      "frame": 697,
+      "source_time_seconds": 23.2,
+      "shot": "F_return_room_right",
+      "file": "frames/0697.png"
+    },
+    {
+      "frame": 781,
+      "source_time_seconds": 26.0,
+      "shot": "F_return_room_right",
+      "file": "frames/0781.png"
+    },
+    {
+      "frame": 799,
+      "source_time_seconds": 26.6,
+      "shot": "G_return_turn_from_travel_right",
+      "file": "frames/0799.png"
+    },
+    {
+      "frame": 832,
+      "source_time_seconds": 27.7,
+      "shot": "G_return_turn_from_travel_right",
+      "file": "frames/0832.png"
+    },
+    {
+      "frame": 841,
+      "source_time_seconds": 28.0,
+      "shot": "G_return_turn_from_travel_right",
+      "file": "frames/0841.png"
+    },
+    {
+      "frame": 877,
+      "source_time_seconds": 29.2,
+      "shot": "H_seated_physical_right",
+      "file": "frames/0877.png"
+    },
+    {
+      "frame": 928,
+      "source_time_seconds": 30.9,
+      "shot": "H_seated_physical_right",
+      "file": "frames/0928.png"
+    },
+    {
+      "frame": 967,
+      "source_time_seconds": 32.2,
+      "shot": "H_seated_physical_right",
+      "file": "frames/0967.png"
+    }
+  ]
+}

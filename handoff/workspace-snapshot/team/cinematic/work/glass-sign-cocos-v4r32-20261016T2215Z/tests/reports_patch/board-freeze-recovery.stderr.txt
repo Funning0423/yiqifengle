@@ -1,0 +1,100 @@
+[QF_BOARD_PRESENTATION_ERROR] Error: injected first-render
+    at b.u.render (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1306:33)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1377:29)
+    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1417:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:860:18)
+    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:207:22)
+    at Node.emit (/tmp/wt-glass/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/tmp/wt-glass/tools/board-ui/harness.cjs:190:91)
+[QF_BOARD_PRESENTATION_ERROR] Error: injected completion-render
+    at b.u.render (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1306:33)
+    at /tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:69:16
+    at ManagedMobileBoardUI.finishVisual (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1343:9)
+    at ManagedMobileBoardUI.update (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1743:22)
+    at step (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:13:49)
+    at /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:22:48
+    at async test (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:18:74
+[QF_BOARD_PRESENTATION_ERROR] Error: injected tween start
+    at b.H.cc.tween (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:21:108)
+    at Object.animate (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1312:36)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:63:12)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1377:29)
+    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1417:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:860:18)
+    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:207:22)
+    at Node.emit (/tmp/wt-glass/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/tmp/wt-glass/tools/board-ui/harness.cjs:190:91)
+[QF_BOARD_PRESENTATION_ERROR] Error: injected render
+    at b.u.paint (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:24:244)
+    at ManagedMobileBoardUI.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1489:14)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1306:33)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1377:29)
+    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1417:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:860:18)
+    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:207:22)
+    at Node.emit (/tmp/wt-glass/tools/board-ui/harness.cjs:15:335)
+[QF_BOARD_PRESENTATION_ERROR] Error: persistent board paint
+    at b.u.paint (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:25:203)
+    at ManagedMobileBoardUI.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1489:14)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1306:33)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:25:355
+    at async test (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:25:2
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R5 first-render
+    at u.render (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:31:412)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1306:33)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R5 completion-render
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R5 tween
+    at H.cc.tween (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:31:571)
+    at Object.animate (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1312:36)
+    at Object.animate (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R4 first-render
+    at u.render (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:33:1422)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1306:33)
+    at Object.render (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R4 completion-render
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R4 tween
+    at H.cc.tween (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:33:1581)
+    at Object.animate (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:1312:36)
+    at Object.animate (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/tmp/wt-glass/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-glass/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-glass/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+[QF_BOARD_ENTRY_TIMEOUT] background mainline-01
+[enter-level] not ready; staying on the island

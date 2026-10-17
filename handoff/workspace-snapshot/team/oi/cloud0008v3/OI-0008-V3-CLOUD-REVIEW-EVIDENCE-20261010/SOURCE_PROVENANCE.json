@@ -1,0 +1,151 @@
+{
+  "review_date_utc": "2026-10-10",
+  "zip_url": "https://drive.google.com/file/d/1_eYk8SQz08kka8SRbXgeiX2phJtk4EGr/view",
+  "sidecar_url": "https://drive.google.com/file/d/1VNS2SKXwxymeyI7huFXCiIzu1JEgJLJj/view",
+  "zip_bytes": 806286,
+  "zip_sha256": "9deb1c8e2bf0894dd489eb6de341215a3572eb5cf0ed55a7676470fda1db3f4d",
+  "actual_finalizer_url": "https://drive.google.com/file/d/1MMcNCucukyosEkyXAllVCmpeLFCvbRcP/view",
+  "actual_finalizer_sha256": "613273428bd91756e08f9a49c27a8ca218ac674c2055fa763d164de278266b09",
+  "source_files": [
+    {
+      "path": "0008-v2-finalize_wechat_local.patch",
+      "sha256": "a2e4d6995de61464b5f52f059e15f5f59e182e0f0ca509b04ae903cd50f9e149"
+    },
+    {
+      "path": "README.md",
+      "sha256": "cac02862c0d53ad3135a4dfa3d1b26eb83b759a0f49ed28d08b152b7a622688d"
+    },
+    {
+      "path": "reference/finalize_wechat_local.12ef697+0008v2.cjs",
+      "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79"
+    },
+    {
+      "path": "test/fixtures/README.md",
+      "sha256": "2038c5eb4750380f9da1d98f3b5b3832fd0560ca807096dd2be7fcff43251125"
+    },
+    {
+      "path": "test/fixtures/creator388-template-from-oi.project.config.json",
+      "sha256": "6a6c00f01b3c3f702d8f24bfc23af284f16ab60e94bed20ebc2b72cab81ba727"
+    },
+    {
+      "path": "test/fixtures/fake-build-game.js",
+      "sha256": "61259b34651f350d79d6dda2e2a136f8378b16e8cc5f39626613a5f661e47c9c"
+    },
+    {
+      "path": "test/fixtures/oi-finalize_wechat_local-12ef697.cjs",
+      "sha256": "613273428bd91756e08f9a49c27a8ca218ac674c2055fa763d164de278266b09"
+    },
+    {
+      "path": "test/fixtures/oi-r6-first-open-A.project.config.json",
+      "sha256": "ffbe82b5e3c4ec5549243416e955fdc889423a12a1554a3a6a8a43725e27562e"
+    },
+    {
+      "path": "test/fixtures/oi-r6-first-open-B.project.config.json",
+      "sha256": "eaa571cefc25d06e562700f5cef074ed7d85ea1189bc6f1b31d72b40d4b859f8"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/README.md",
+      "sha256": "2c508aedf37fef32a230d678312d4068618ae01cc1518954e613f4353d8bca78"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/console-raw.txt",
+      "sha256": "5c4b0d67db3acd507e3df18b02235bf89ae3d611d7c56a1390cd71e37e1bf5e0"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/e-game.js",
+      "sha256": "4a42015f54d690850122b989399ad6dac0e1d9cfd6fb6238901dab9fe5c70cd5"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/e-game.json",
+      "sha256": "0f289ceeb500dae5505653b55e573b5764aa3cc4af3adcdae6a06f5a7f9dffe6"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/e-project.config.json",
+      "sha256": "6ec2754a3a9f51e2ebd85f32f03526811085f11b373985e3c6d7f21201bc11c1"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/e-reopened-console.txt",
+      "sha256": "99c70e233ac6e6b5d29a58857424a908a1c9416839034c4b8a70d781156b0a0c"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/e-reopened-settled-console.txt",
+      "sha256": "99c70e233ac6e6b5d29a58857424a908a1c9416839034c4b8a70d781156b0a0c"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/f-project.config.json",
+      "sha256": "6731a071010dc3d25cc782fc77d32eb27b84b1d29e88ffec91ae076b15f7d0b7"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/f-reopened-console.txt",
+      "sha256": "88e08bb134b10339710affaa9231dd8f35bba44be195eab7d5f8acb37d0ceb6a"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/g-project.config.json",
+      "sha256": "3fd906fdd30c8a263195ebdbd158d5d7b282a328c097257c8b0c08619736fea1"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/g-reopened-console.txt",
+      "sha256": "e51332e2d5fa49ed2494c4af5ad360a5908cfe0530703946ca130e7059584298"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/installed-devtools-condition-calls.json",
+      "sha256": "bba455ab591683831c9e587451c7f3a4fec8fe0f4984cdbdc6aec74598539f81"
+    },
+    {
+      "path": "test/fixtures/oi-r6efg/summary.json",
+      "sha256": "06aee326f068e838a1e0f4e757d613d79bd67ff91edafb0dc567d6ae0d22d0a5"
+    },
+    {
+      "path": "test/fixtures/oi-r6startup/audio-project.config.json",
+      "sha256": "d5535755496cb6fa017c103d274983022bfe7736f7ce5803cb1f28afebeb637a"
+    },
+    {
+      "path": "test/fixtures/oi-r6startup/audio-startup-console-raw.txt",
+      "sha256": "3c46a5bd4f3eb730ad1eb5d37916af7d91e217d5ce4df18e7b84a8ab86bf5a15"
+    },
+    {
+      "path": "test/fixtures/oi-r6startup/first-open-b-reopened-console.txt",
+      "sha256": "dd3bd3e04a66192ef16fbfe3158b93abf11cc57cb0f96bb36c5e65f3efb599c3"
+    },
+    {
+      "path": "test/fixtures/oi-r6startup/gameroot-c-project.config.json",
+      "sha256": "09b8dd9aba5139c9a124731a8373fc7287dea7dbcd4d72714aec764f555fc181"
+    },
+    {
+      "path": "test/fixtures/oi-r6startup/noenhance-d-project.config.json",
+      "sha256": "49f499835becdad3520101df07311b4693a8fb4f2597b5a68a1faa4f61e051b3"
+    },
+    {
+      "path": "test/fixtures/oi-r6startup/noenhance-d-settled-console.txt",
+      "sha256": "b1d8748623b29ff9615f9f5da895c5e06bfc81ceda63f779098a17286088d9ae"
+    },
+    {
+      "path": "test/test_finalizer_0008v2.cjs",
+      "sha256": "ba3369f764b8afda7377484e38af403b51a5ba23f9b4054ffc37b88b0b43ace7"
+    },
+    {
+      "path": "test/test_log_tailer.cjs",
+      "sha256": "0b75a099288b9f64edd02e6b8c4db26c544cdde264f0d27c304a7a578dc246c9"
+    },
+    {
+      "path": "test/test_shim.cjs",
+      "sha256": "d77d9166d5a9b561f37285234faeb7eef612cdb7ec4cdcb8ff252b74f38a2d6e"
+    },
+    {
+      "path": "tools/first-open-audit-shim.js",
+      "sha256": "29381cdf5da9a901a300c708275e8e3106c69119161c1ea7d71b8142e53169d6"
+    },
+    {
+      "path": "tools/first_open_console_rules.cjs",
+      "sha256": "3a1949701c3fd0e9c7f31c097ae6c8ad9595963f7e9d8a57506e63eb12684c55"
+    },
+    {
+      "path": "tools/qf-wechat-env.cjs",
+      "sha256": "caa32ebc9ac0d8c209ed9a382f399860fa7a8c54ccf5c8866b21519d716be57e"
+    },
+    {
+      "path": "tools/wechat_first_open_audit.cjs",
+      "sha256": "12e23bbe3b6b8f18ff4008b391692b72fd3eb38717506912284bdb389b35c739"
+    }
+  ]
+}

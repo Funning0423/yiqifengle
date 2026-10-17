@@ -1,0 +1,71 @@
+From c843ba107a4a928f8266652e400d23bd4bd46256 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 07:27:07 +0800
+Subject: [PATCH 1/5] A1b follow-up: WindAudio/AmbienceAudio register the
+ mounter defensively and keep a local [QF_AUDIO] logger, so the Voice Bot
+ audio test doubles (mocked GameAudio) load again
+
+---
+ creator-build-project/assets/scripts/audio/AmbienceAudio.ts | 6 ++++--
+ creator-build-project/assets/scripts/audio/WindAudio.ts     | 5 +++--
+ tools/test_exit_cine_audio.cjs                              | 2 +-
+ 3 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+index 7c8f716..913a556 100644
+--- a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
++++ b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+@@ -14,7 +14,9 @@
+ // 海鸥事件（给场景特效bot 的可见海鸥，docs/audio-events.md）：每声海鸥先 'scheduled' 再 'start'（同一 id），
+ //   方位 yawWorldDeg 由这里选定，声像每帧按当前镜头朝向重算（L/R 两个声源等功率声像）。夜里随机海鸥稀一些、轻一些。
+ import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
+-import { qfAudioLog, GameAudio, SfxName } from './GameAudio';
++import { GameAudio, SfxName } from './GameAudio';
++/** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
++function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
+ const { ccclass } = _decorator;
+ 
+ /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+@@ -484,4 +486,4 @@ export class AmbienceAudio extends Component {
+ }
+ 
+ director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AmbienceAudio.ensure());
+-GameAudio.ambienceMounters.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio
++(GameAudio as any).ambienceMounters?.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio
+diff --git a/creator-build-project/assets/scripts/audio/WindAudio.ts b/creator-build-project/assets/scripts/audio/WindAudio.ts
+index fbb662b..570dfcc 100644
+--- a/creator-build-project/assets/scripts/audio/WindAudio.ts
++++ b/creator-build-project/assets/scripts/audio/WindAudio.ts
+@@ -21,8 +21,9 @@
+ import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
+ import { GameAudio } from './GameAudio';
+ import { AmbienceAudio } from './AmbienceAudio';
+-import { qfAudioLog } from './GameAudio';
+ const { ccclass } = _decorator;
++/** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
++function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
+ 
+ /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+ function musicBed(): number {
+@@ -285,4 +286,4 @@ export class WindAudio extends Component {
+ director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => WindAudio.ensure());
+ // A1b: also mount from GameAudio's world-state hook (standing / crossing-out): if this module ran after the scene had
+ // launched, the once() above never fires and the outdoor segment was silent.
+-GameAudio.ambienceMounters.push(() => WindAudio.ensure());
++(GameAudio as any).ambienceMounters?.push(() => WindAudio.ensure());
+diff --git a/tools/test_exit_cine_audio.cjs b/tools/test_exit_cine_audio.cjs
+index a6fcbc4..87f75d4 100644
+--- a/tools/test_exit_cine_audio.cjs
++++ b/tools/test_exit_cine_audio.cjs
+@@ -61,7 +61,7 @@ test('A1b: standing + crossing-out mount the wind/sea beds; the exit track start
+  assert(h.logs.some(l=>l.includes('[QF_AUDIO]')&&l.includes('ensure-ambience')),'ensure logged');assert(h.logs.some(l=>l.includes('gesture-proven-by-exit-track')));
+  a.setMuted(true);assert.equal(a.canPlayAmbience(),false,'mute still wins');assert.equal(a.ambienceGate(),'muted');
+  const w=fs.readFileSync('creator-build-project/assets/scripts/audio/WindAudio.ts','utf8'),m=fs.readFileSync('creator-build-project/assets/scripts/audio/AmbienceAudio.ts','utf8');
+- assert(/GameAudio\.ambienceMounters\.push\(\(\) => WindAudio\.ensure\(\)\)/.test(w)&&/GameAudio\.ambienceMounters\.push\(\(\) => AmbienceAudio\.ensure\(\)\)/.test(m),'both beds register a mounter');
++ assert(/ambienceMounters\?\.push\(\(\) => WindAudio\.ensure\(\)\)/.test(w)&&/ambienceMounters\?\.push\(\(\) => AmbienceAudio\.ensure\(\)\)/.test(m),'both beds register a mounter');
+  for(const e of ['wind-gate','wind-play','wind-loaded'])assert(w.includes("qfAudioLog('"+e+"'"),e);for(const e of ['waves-gate','waves-play','waves-loaded'])assert(m.includes("qfAudioLog('"+e+"'"),e);
+ });
+ test('asset: re-encoded mono mp3 in region_island subpackage, fixed Cocos meta, budget size',()=>{
+-- 
+2.47.3
+

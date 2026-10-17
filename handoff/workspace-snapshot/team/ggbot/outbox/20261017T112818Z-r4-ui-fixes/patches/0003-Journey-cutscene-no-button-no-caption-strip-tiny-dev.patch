@@ -1,0 +1,290 @@
+From 2c12565b49fee47f00f0978a5a220a6688569ab8 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 19:18:46 +0800
+Subject: [PATCH 3/3] =?UTF-8?q?Journey=20cutscene:=20no=20=E6=9A=82?=
+ =?UTF-8?q?=E5=81=9C=E6=97=85=E7=A8=8B=20button,=20no=20caption=20strip;?=
+ =?UTF-8?q?=20tiny=20dev-preview=20line=20in=20test=20builds;=20background?=
+ =?UTF-8?q?=20pause=20resumes=20itself?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Funning (Mac, desktop package 09a1b8e):
+- The bottom 「暂停旅程」 button (cancelVisit during region-loading/region-travel) is gone. cancelVisit stays only for
+  skycity-loading (取消前往), which is not the journey cutscene.
+- The strip under it was the Boot's notice plate (#123233 LabelPlate at bottom+55: 正在准备… / 沿着彩虹… / 快到了… /
+  旅程已暂停… / 旅程暂时受阻…). There is no separate debug-notes overlay; the plate and every use of it are removed.
+- ui/DevPreviewMark.ts: one bare Label 「开发预览画面，不代表最终效果」, 10 pt, white α150, right-aligned bottom-right,
+  12 pt inside the safe area (boardSafeInsets: home bar / landscape notch), far from the top-right capsule; only while
+  the cutscene is on screen. No Button, no BlockInputEvents, no touch listener: taps pass through.
+  Shown when DEBUG (cc/env) is set, or on WeChat when envVersion is develop/trial (devtools, 开发版, 体验版), or on web;
+  hidden on envVersion release or when it cannot be read. DEBUG alone is not enough: the desktop/test package is
+  built with tools/build-guard/wechat-release.json (debug false).
+- Pausing: no button and no tap-to-pause (a tap never pauses; lead: players would think it froze). Background is
+  the only pause (existing WorldFlow.hide suspends the journey); on return the Boot resumes it by itself through the
+  same path as 「继续」 (composition.resumeJourney), once, after any busy invoke, with no 「继续」 flash. Island and
+  error returns are unchanged (「继续」 / no auto-resume).
+- New test journey-cutscene-ui (in run-suite): five viewports x loading/approach/bridge/arrival, no button/strip, the
+  dev line is the only text, its geometry, zero listeners, taps change nothing, auto-resume (with and without a painted
+  hidden frame), release flag rules.
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    | 30 ++++---
+ .../assets/scripts/ui/DevPreviewMark.ts       | 46 +++++++++++
+ .../assets/scripts/ui/DevPreviewMark.ts.meta  |  9 +++
+ tools/journey-integration/run-suite.cjs       |  1 +
+ .../test-journey-cutscene-ui.cjs              | 80 +++++++++++++++++++
+ 5 files changed, 155 insertions(+), 11 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/ui/DevPreviewMark.ts
+ create mode 100644 creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta
+ create mode 100644 tools/journey-integration/test-journey-cutscene-ui.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 1728875..a1c5d0c 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -5,6 +5,7 @@ import {setScreenCover} from './world-r1/ScreenCover';
+ import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
+ import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
+ import {IslandToast,LAKESIDE_NOT_READY_TEXT} from './ui/IslandToast';
++import {DevPreviewMark} from './ui/DevPreviewMark';
+ import {LAKESIDE_LOAD_FAILED,prewarmLakesideAssets} from './region/LakesideBoardBackground';
+ import {CabinHint} from './world-r2/CabinHint';
+ import {cabinHintSeen,markCabinHintSeen} from './ui/UiPrefs';
+@@ -401,11 +402,13 @@ export class WorldIntegrationBoot extends Component {
+  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+  private islandProps:IslandProps|null=null;private propSign=false;
+  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private glassSign:GlassSign|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
+- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private islandToast:IslandToast|null=null;
++ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private status!:Label;private devMark:DevPreviewMark|null=null;
++ /** Back from the background during a journey cutscene: resume it by itself (no 「继续」 tap). Set while the cutscene runs. */
++ private cutsceneRunning=false;private cutsceneAutoResume=false;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private islandToast:IslandToast|null=null;
+  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
+  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
+- Array.from(this.controls.values()).forEach(n=>{n.active=false;});this.notice.node.parent!.active=false;this.status.string='咦，起风了';if(this.loadingLayer)this.status.node.parent!.active=false;this.resize();
++ Array.from(this.controls.values()).forEach(n=>{n.active=false;});this.status.string='咦，起风了';if(this.loadingLayer)this.status.node.parent!.active=false;this.resize();
+  (globalThis as any).__worldLoading={snapshot:()=>({phase:this.loadPhase,progress:this.loadProgress,error:this.error,approvedArt:true,backgroundSha256:STARTUP_ART.compositeSha256,art:this.loadingLayer?this.loadingLayer.diagnostics():null,gate:this.startup.snapshot(),initialClip:this.selectedSeatedClip,characterRoot:REF.seatedRoot,childOffset:[0,0,0]}),layout:()=>this.navLayout(),motion:()=>((this as any)._referenceAdapter)?.diagnostics()||null};
+  void this.loadWorld();
+  }
+@@ -507,9 +510,9 @@ export class WorldIntegrationBoot extends Component {
+  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
+  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason===LAKESIDE_LOAD_FAILED){this.islandToast?.show(LAKESIDE_NOT_READY_TEXT);this.logSuppressedStatus('lakeside',r.reason);}else if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+  private createNavigation(){setScreenCover((a,sec)=>this.fadeCover(a,sec));this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+- this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
++ this.createLoadingBackdrop();this.status=this.label('世界加载中',0,0,16,320);
+  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('lake','风铃湖畔',()=>this.composition.enterRegion('lake'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+- this.islandToast=new IslandToast(this.canvas);
++ this.islandToast=new IslandToast(this.canvas);this.devMark=new DevPreviewMark(this.canvas);
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{prewarm:id=>{if(id==='lake')void prewarmLakesideAssets();},invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},()=>this.glassSign);this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
+  if(DEBUG){
+@@ -529,7 +532,7 @@ export class WorldIntegrationBoot extends Component {
+  if(id==='mainline')n.on(Node.EventType.TOUCH_START,()=>emitPropTap('signpost','press',blocked())); // T9: IslandPropTaps (signpost hosts mainline)
+  this.resultActions[id]=()=>{if(!blocked())this.enqueueResult(fn);};
+  surface.bind(()=>{if(id==='mainline')emitPropTap('signpost','confirm',blocked());if(blocked())return false;if(interrupt){const r=fn();if(r&&!r.ok)this.error=r.reason;this.paintNavigation();return;}void this.invoke(fn);});this.controls.set(id,n);}
+- private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
++ private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
+  // T2: bake the FINAL island button size/skin while it is still hidden. Otherwise the first island frame resizes the
+  // button, the WarmButtonSkin cache starts a new offscreen bake and the Graphics fallback surface shows until it lands.
+  const islandNav=worldNavigationLayout(f.width,f.height);for(const id of ISLAND_NAV_IDS){const n=this.controls.get(id);if(n)this.placeNavigationControl(n,islandNav.buttons[id]);}
+@@ -600,15 +603,20 @@ export class WorldIntegrationBoot extends Component {
+  let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}
+  this.syncHomeSeated(s.state,!!s.hidden||!!s.needsResume);
+  // 0007 v1.3 (GGbot): home camera is pose DATA now (world-r1/RegionCameraData.ts homePoseSource='oi-interim-standing', same -1.1,1.5,-2.4 -> .1,.86,-4.35, fov 55); only CameraPose.applyCameraPose writes the camera.
+- this.notice.node.parent!.active=false;this.status.string='';
++ this.status.string='';
+  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
+  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
+- for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&['skycity-loading','region-loading','region-travel'].includes(s.state):k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow','lakeside'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):k==='home'?(s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
+- const journey=s.journey;if(journey&&['region-loading','region-travel'].includes(s.state)){this.notice.string=journey.phase==='loading'?'正在准备'+(journey.target==='meadow'?'草原':journey.target==='lakeside'?'风铃湖畔':'天空之城')+'，完成后继续前行':journey.phase==='bridge'?'沿着彩虹，去下一片天地':journey.phase==='arrival'?'快到了，跟着风往前走':'走向彩虹桥';this.notice.node.parent!.active=true;}else if(journey&&s.state!=='level'&&!s.needsResume&&['paused','failed'].includes(journey.phase)){this.notice.string=journey.phase==='failed'?'旅程暂时受阻，成绩已保留。点继续旅程重试':'旅程已暂停。点继续旅程从这里接着走';this.notice.node.parent!.active=true;}
++ // Funning (Mac, 09a1b8e): the journey cutscene has no 「暂停旅程」 button and no caption strip under it (the old notice plate:
++ // 正在准备… / 沿着彩虹… / 快到了… and the paused/failed lines). Nothing covers the picture; tapping it does nothing (no tap-to-pause).
++ // Background is the only pause: WorldFlow.hide() suspends the journey; on return it resumes by itself (same path as 「继续」).
++ // (WeChat may stop the frame loop while hidden, so the hidden frame itself is never painted: needsResume is the mark.)
++ if(!s.needsResume)this.cutsceneRunning=!s.hidden&&['region-loading','region-travel'].includes(s.state);
++ else if(this.cutsceneRunning){this.cutsceneRunning=false;this.cutsceneAutoResume=s.state!=='error';}
++ if(this.cutsceneAutoResume&&!s.hidden){if(!s.needsResume||s.state==='error')this.cutsceneAutoResume=false;else if(!this.busy&&!board?.hostModalOpen()&&!this.islandJourney?.isOpen()){this.cutsceneAutoResume=false;void this.invoke(()=>this.composition.resumeJourney());}}
++ for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen()&&!this.cutsceneAutoResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow','lakeside'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):k==='home'?(s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
+  const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(['island','meadow','skycity','lakeside'].includes(s.state))for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
+  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
+- this.islandToast?.update(dt,f.width,f.height);this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
+- this.controls.get('cancelVisit')!.getComponentsInChildren(Label)[0].string=s.state==='skycity-loading'?'取消前往':'暂停旅程';
++ this.islandToast?.update(dt,f.width,f.height);this.devMark?.sync(f.width,f.height,['region-loading','region-travel'].includes(s.state)&&!s.hidden&&!s.needsResume);this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
+  for(const id of ['returnIsland','cancelVisit','home'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
+   if(s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity')for(const id of ['mainline','home'] as const){const n=this.controls.get(id);if(n?.active)this.placeNavigationControl(n,navigation.region[id]);}
+  // Result actions are drawn by the board's result page (ui/BoardPanels.openResult); the host only owns availability + commands.
+@@ -663,5 +671,5 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+  private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
+   if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
+  update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+- onDestroy(){setScreenCover(null);this.islandToast?.dispose();this.islandToast=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
++ onDestroy(){setScreenCover(null);this.islandToast?.dispose();this.islandToast=null;this.devMark?.dispose();this.devMark=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ }
+diff --git a/creator-build-project/assets/scripts/ui/DevPreviewMark.ts b/creator-build-project/assets/scripts/ui/DevPreviewMark.ts
+new file mode 100644
+index 0000000..b1619a1
+--- /dev/null
++++ b/creator-build-project/assets/scripts/ui/DevPreviewMark.ts
+@@ -0,0 +1,46 @@
++import { Node, UITransform, Label, Color, Layers, isValid } from 'cc';
++import { DEBUG } from 'cc/env';
++import { boardSafeInsets } from './BoardLayout';
++/** Funning (Mac, 09a1b8e): the journey cutscene carries no button and no caption strip. Test builds only show one tiny,
++ *  semi-transparent line in the bottom-right corner; release builds show nothing. It is a bare Label: no Button, no
++ *  BlockInputEvents, no touch listener, so every tap passes through to the picture (and tapping never pauses). */
++export const DEV_PREVIEW_TEXT = '开发预览画面，不代表最终效果';
++export const DEV_PREVIEW_MARK = Object.freeze({ font: 10, line: 14, width: 140, inset: 12, alpha: 150 });
++/** Which builds show the line.
++ *  - Cocos build define DEBUG (cc/env; build option "debug": true, e.g. tools/wechat-build-options.json): always.
++ *  - WeChat: wx.getAccountInfoSync().miniProgram.envVersion 'develop' (devtools / 开发版) or 'trial' (体验版): shown;
++ *    'release' (正式版), or anything unreadable: hidden. This is what tells the desktop/test package (built with
++ *    tools/build-guard/wechat-release.json, debug false) apart from the store build, which DEBUG alone cannot.
++ *  - No wx (web-mobile preview / harness): shown; web builds are internal only. */
++export function devPreviewBuild(debug: boolean = DEBUG, host: any = (globalThis as any).wx): boolean {
++  if (debug) return true;
++  if (!host) return true;
++  try { const env = host.getAccountInfoSync?.()?.miniProgram?.envVersion; return env === 'develop' || env === 'trial'; } catch { return false; }
++}
++/** Centre of the line in canvas coords (origin centre, y up): right-aligned, inset from the safe-area bottom/right edges.
++ *  The WeChat capsule is top-right, so the line never meets it; the rect is returned for tests. */
++export function devPreviewMarkRect(width: number, height: number, safe = boardSafeInsets(width, height)) {
++  const M = DEV_PREVIEW_MARK, right = Math.max(0, safe.right) + M.inset, bottom = Math.max(0, safe.bottom) + M.inset;
++  const w = Math.min(M.width, Math.max(1, width - 2 * right)), h = M.line;
++  return { x: width / 2 - right - w / 2, y: -height / 2 + bottom + h / 2, width: w, height: h, right, bottom, capsule: safe.capsule ?? null };
++}
++export class DevPreviewMark {
++  readonly root: Node; private label: Label; readonly enabled: boolean;
++  constructor(parent: Node, enabled = devPreviewBuild()) {
++    this.enabled = enabled;
++    const n = new Node('DevPreviewMark'); n.layer = Layers.Enum.UI_2D; parent.addChild(n);
++    const M = DEV_PREVIEW_MARK; n.addComponent(UITransform).setContentSize(M.width, M.line);
++    const l = n.addComponent(Label); l.string = DEV_PREVIEW_TEXT; l.fontSize = M.font; l.lineHeight = M.line;
++    l.color = new Color(255, 255, 255, M.alpha); l.horizontalAlign = Label.HorizontalAlign.RIGHT; l.verticalAlign = Label.VerticalAlign.CENTER;
++    l.overflow = Label.Overflow.SHRINK; l.enableWrapText = false;
++    this.label = l; this.root = n; n.active = false;
++  }
++  /** visible: the caller's "journey cutscene on screen" state. Release builds never show it. */
++  sync(width: number, height: number, visible: boolean) {
++    if (!isValid(this.root, true)) return; const on = this.enabled && visible; this.root.active = on; if (!on) return;
++    const r = devPreviewMarkRect(width, height); this.root.getComponent(UITransform)!.setContentSize(r.width, r.height); this.root.setPosition(r.x, r.y, 0);
++    const parent = this.root.parent; if (parent && parent.children[parent.children.length - 1] !== this.root) this.root.setSiblingIndex(parent.children.length - 1);
++  }
++  diagnostics() { const r = this.root; return { enabled: this.enabled, visible: isValid(r, true) && r.activeInHierarchy, text: this.label.string, x: r.position.x, y: r.position.y }; }
++  dispose() { if (isValid(this.root, true)) this.root.destroy(); }
++}
+diff --git a/creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta b/creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta
+new file mode 100644
+index 0000000..2227b42
+--- /dev/null
++++ b/creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "b6f6f893-8657-4cf6-85e2-3187969567c5",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index dfc5a7c..31e576a 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -11,6 +11,7 @@ const tests=[
+  ['journey-occlusion','tools/journey-integration/test-journey-occlusion.cjs'],
+  ['journey-framing','tools/journey-integration/test-journey-framing.cjs'],
+  ['journey-start-continuity','tools/journey-integration/test-journey-start-continuity.cjs'],
++ ['journey-cutscene-ui','tools/journey-integration/test-journey-cutscene-ui.cjs'],
+  ['composition-boundaries','tools/journey-integration/test-composition-boundaries.cjs'],
+  ['world-region-exit','tools/journey-integration/test-world-region-exit.cjs'],
+  ['region-levels','tools/region-levels/test-region-levels.cjs'],
+diff --git a/tools/journey-integration/test-journey-cutscene-ui.cjs b/tools/journey-integration/test-journey-cutscene-ui.cjs
+new file mode 100644
+index 0000000..7c4335d
+--- /dev/null
++++ b/tools/journey-integration/test-journey-cutscene-ui.cjs
+@@ -0,0 +1,80 @@
++'use strict';
++// Funning (Mac, desktop package 09a1b8e): the journey cutscene shows no 「暂停旅程」 button and no caption strip; only test
++// builds draw a tiny non-interactive 「开发预览画面，不代表最终效果」 line bottom-right (clear of safe area + capsule).
++// Tapping the picture never pauses; going to the background pauses and coming back resumes by itself.
++// Real type-stripped WorldIntegrationBoot + DevPreviewMark (board-ui harness, Cocos memory doubles). No GPU / native touch.
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');const {createHarness}=require('../board-ui/harness.cjs');
++const B=createHarness({overrides:{
++ 'world-r2/IslandHomeInteraction':{IslandHomeInteraction:class{sync(){}dispose(){}}},
++ 'world-r2/IslandProps':{IslandProps:class{get ready(){return false;}load(){return Promise.resolve(false);}dispose(){}}},
++ 'world-r2/StartupReadyGate':{StartupReadyGate:class{dispose(){}},StartupAttempt:class{},StartupCancelled:class extends Error{}},
++ 'RoomExploreOverlay':{RoomExploreOverlay:class{sync(){}diagnostics(){return null;}dispose(){}}},
++}});
++const SRC=path.join(B.SCRIPTS,'WorldIntegrationBoot.ts'),code=fs.readFileSync(SRC,'utf8'),strip=t=>t.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
++assert(!strip(code).includes('暂停旅程'),'no 「暂停旅程」 label left in the Boot');
++assert(!/this\.notice\b/.test(strip(code)),'the caption/notes strip (notice plate) is gone from the Boot');
++for(const t of ['沿着彩虹，去下一片天地','快到了，跟着风往前走','旅程已暂停。点继续旅程从这里接着走'])assert(!code.includes(t),'old strip copy removed: '+t);
++const M=B.load('ui/DevPreviewMark'),Boot=B.load('WorldIntegrationBoot').WorldIntegrationBoot,{Node,UITransform,Label}=B.cc;
++// Build flag: DEBUG define, WeChat envVersion, web.
++const acct=env=>({getAccountInfoSync:()=>({miniProgram:{envVersion:env}})});
++assert.equal(M.devPreviewBuild(true,acct('release')),true,'DEBUG build: shown');
++assert.equal(M.devPreviewBuild(false,acct('develop')),true,'WeChat devtools / 开发版: shown');
++assert.equal(M.devPreviewBuild(false,acct('trial')),true,'体验版: shown');
++assert.equal(M.devPreviewBuild(false,acct('release')),false,'正式版: hidden');
++assert.equal(M.devPreviewBuild(false,{getAccountInfoSync:()=>{throw Error('x');}}),false,'unreadable env: hidden');
++assert.equal(M.devPreviewBuild(false,{}),false,'no envVersion: hidden');
++assert.equal(M.devPreviewBuild(false,null),true,'web preview (no wx): shown');
++const CUTSCENE=[{state:'region-loading',journey:{phase:'loading',target:'lakeside'}},{state:'region-travel',journey:{phase:'approach',target:'lakeside'}},{state:'region-travel',journey:{phase:'bridge',target:'meadow'}},{state:'region-travel',journey:{phase:'arrival',target:'skycity'}}];
++// The startup loading layer has faded out long before any journey (its fade is not driven here), so it is skipped.
++const active=(n,skip)=>{const out=[];const w=x=>{if(x===skip)return;if(x.activeInHierarchy)out.push(x);for(const c of x.children)w(c);};w(n);return out;};
++let cases=0,taps=0;const report={};
++for(const [w,h] of [[320,568],[390,844],[402,874],[568,320],[844,390]]){
++ B.setViewport(w,h);const boot=new Boot(),calls=[];let snap={state:'island',needsResume:false,hidden:false};
++ boot.node=new Node('Boot');boot.ready=true;boot.loadPhase='ready';boot.board=()=>null;
++ const cmd={snapshot:()=>snap,dayNight:()=>({mode:'day'}),returnHome:()=>calls.push('home'),enterSkycity:()=>calls.push('skycity'),exitSkycity:()=>calls.push('back'),cancelTransition:()=>{calls.push('cancelTransition');return {ok:true};},resume:()=>{calls.push('resume');return {ok:true};}};
++ boot.composition={worldCommands:()=>cmd,enterMainline:()=>calls.push('mainline'),resumeJourney:()=>{calls.push('resumeJourney');snap={state:'region-travel',needsResume:false,hidden:false,journey:{phase:'bridge',target:'lakeside'}};return Promise.resolve({ok:true});},islandOverview:()=>({journey:{inventory:{tools:{windBell:1}}}}),islandGates:()=>({r4:[],r5:[]})};
++ boot.createNavigation();boot.resize();
++ const mark=boot.canvas.getChildByName('DevPreviewMark');assert(mark,'DevPreviewMark on the navigation canvas');
++ snap={state:'island',needsResume:false,hidden:false};boot.paintNavigation();assert.equal(mark.active,false,'no mark on the island');
++ for(const c of CUTSCENE){snap={needsResume:false,hidden:false,...c};for(let i=0;i<3;i++)boot.paintNavigation(1/60);
++  const ctl=[...boot.controls].filter(([,n])=>n.activeInHierarchy).map(([k])=>k);assert.deepEqual(ctl,[],w+'x'+h+' '+c.state+'/'+c.journey.phase+': no button over the cutscene');
++  const plates=active(boot.canvas,boot.loadingBackdrop).filter(n=>n.name==='LabelPlate');assert.deepEqual(plates.map(n=>n.getComponentInChildren(Label)?.string),[],'no caption/notes strip');
++  const labels=active(boot.canvas,boot.loadingBackdrop).map(n=>n.getComponent(Label)).filter(Boolean).filter(l=>l.string);
++  assert.deepEqual(labels.map(l=>l.string),[M.DEV_PREVIEW_TEXT],'the only text on screen is the dev line');
++  // Geometry: bottom-right, inset >= 12 from the safe-area bottom/right, inside the screen, far from the top-right capsule.
++  const t=mark.getComponent(UITransform),r={l:mark.position.x-t.width/2+w/2,r:mark.position.x+t.width/2+w/2,top:h/2-(mark.position.y+t.height/2),bot:h/2-(mark.position.y-t.height/2)};
++  const safe=B.load('ui/BoardLayout').boardSafeInsets(w,h);
++  assert(r.l>=0&&r.top>=0,'inside the screen');assert(w-r.r>=safe.right+12-1e-6,'inset from the right safe edge');assert(h-r.bot>=safe.bottom+12-1e-6,'above the bottom safe area');
++  assert(r.l>w/2-1,'right half');assert(r.top>h/2,'bottom half');
++  const cap=safe.capsule;if(cap)assert(r.top>cap.bottom||r.r<cap.left,'clear of the capsule');
++  const l=mark.getComponent(Label);assert(l.fontSize<=10&&l.color.a<255&&l.color.a>=96,'tiny, semi-transparent');
++  report[w+'x'+h]={x:+r.l.toFixed(1),y:+r.top.toFixed(1),width:t.width,height:t.height,rightGap:+(w-r.r).toFixed(1),bottomGap:+(h-r.bot).toFixed(1)};
++  // Non-interactive: plain Label node, no Button/BlockInputEvents, no touch listener; taps anywhere change nothing.
++  for(const comp of mark.components)assert(['UITransform','Label'].includes(comp.constructor.name),'mark carries only UITransform + Label, found '+comp.constructor.name);
++  for(const e of ['touch-start','touch-move','touch-end','touch-cancel',Node.EventType.TOUCH_START,Node.EventType.TOUCH_END])assert.equal(mark.listeners(e),0,'no '+e+' listener on the mark');
++  const before=JSON.stringify(snap);
++  for(const n of [mark,boot.canvas,boot.node]){const ev=B.event({x:w/2,y:h/2},1);n.emit(Node.EventType.TOUCH_START,ev);n.emit(Node.EventType.TOUCH_END,ev);taps++;}
++  B.tap(mark);taps++;boot.paintNavigation(1/60);
++  assert.deepEqual(calls,[],'a tap on the cutscene never pauses / cancels / resumes it');assert.equal(JSON.stringify(snap),before,'still playing');assert.equal(mark.active,true);}
++ // Background: hide() suspends; the hidden frame may never paint (WeChat stops the loop). On return it resumes by itself, once, no 「继续」 button.
++ for(const paintHidden of [true,false]){
++  snap={state:'region-travel',needsResume:false,hidden:false,journey:{phase:'bridge',target:'lakeside'}};boot.paintNavigation(1/60);
++  if(paintHidden){snap={state:'paused',needsResume:true,hidden:true,journey:{phase:'paused',target:'lakeside'}};boot.paintNavigation(1/60);assert.deepEqual(calls,[],'nothing runs while hidden');assert.equal(mark.active,false);}
++  snap={state:'paused',needsResume:true,hidden:false,journey:{phase:'paused',target:'lakeside'}};boot.busy=true;boot.paintNavigation(1/60);
++  assert.deepEqual(calls,[],'waits while busy');assert.equal(boot.controls.get('resume').active,false,'no 「继续」 button flash on return');boot.busy=false;
++  boot.paintNavigation(1/60);await0();
++  assert.deepEqual(calls,['resumeJourney'],'resumed by itself on return ('+(paintHidden?'hidden frame painted':'no hidden frame')+')');calls.length=0;
++  boot.paintNavigation(1/60);boot.paintNavigation(1/60);assert.deepEqual(calls,[],'exactly once');assert.equal(mark.active,true,'cutscene back on screen');
++ }
++ // Not a cutscene (island) or an error: the existing paused 「继续」 path is untouched.
++ snap={state:'island',needsResume:false,hidden:false};boot.paintNavigation();snap={state:'paused',needsResume:true,hidden:false};boot.paintNavigation();
++ assert.deepEqual(calls,[]);assert.equal(boot.controls.get('resume').active,true,'island background return keeps 「继续」');
++ snap={state:'region-travel',needsResume:false,hidden:false,journey:{phase:'bridge'}};boot.paintNavigation();snap={state:'error',needsResume:true,hidden:false,error:'x'};boot.paintNavigation();boot.paintNavigation();assert.deepEqual(calls,[],'an error is never auto-resumed');
++ // Release build: no mark at all.
++ const rel=new M.DevPreviewMark(boot.canvas,false);rel.sync(w,h,true);assert.equal(rel.root.active,false,'release build: hidden');rel.dispose();
++ // skycity loading keeps its own small 取消前往 (not the journey cutscene).
++ snap={state:'skycity-loading',needsResume:false,hidden:false};boot.paintNavigation();assert.deepEqual([...boot.controls].filter(([,n])=>n.active).map(([k])=>k),['cancelVisit']);assert.equal(mark.active,false);
++ boot.onDestroy();cases++;
++}
++function await0(){} // invoke() is async but calls fn synchronously before its first await
++console.log(JSON.stringify({status:'PASS',cases,taps,mark:{text:M.DEV_PREVIEW_TEXT,...M.DEV_PREVIEW_MARK},rects:report,checks:['no 暂停旅程 button / caption strip in loading/approach/bridge/arrival across five viewports','dev line is the only text, bottom-right, inset from safe area, clear of capsule, tiny + semi-transparent','dev line non-interactive (UITransform+Label only, zero touch listeners); taps never pause/cancel','background return auto-resumes the cutscene once (hidden frame painted or not), waits while busy, no 继续 flash','island / error paths unchanged','release builds hide the line (DEBUG / envVersion / web rules)','skycity-loading keeps 取消前往'],scope:'actual type-stripped Boot + DevPreviewMark with Cocos memory doubles; no native render/touch'},null,2));
+-- 
+2.47.3
+

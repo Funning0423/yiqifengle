@@ -1,0 +1,1 @@
+const c=wx.createCanvas();const g=c.getContext('2d');g.fillStyle='#143c39';g.fillRect(0,0,c.width,c.height);g.fillStyle='#ffffff';g.font='18px sans-serif';g.fillText('OI STARTUP CONTROL',12,50);console.log('OI_MINIMAL_CONTROL_E_READY');

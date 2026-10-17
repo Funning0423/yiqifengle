@@ -1,0 +1,45 @@
+[
+  {
+    "effect": "sky-unlit.effect",
+    "yaml": "pass",
+    "entry_points": "pass",
+    "properties": 13,
+    "property_targets_and_overlap": "pass",
+    "vec4_ubo_bytes": {
+      "SkyVS": 32,
+      "SkyFS": 96
+    },
+    "night_gradient": {
+      "endpoints_srgb": [
+        [
+          0.0627,
+          0.0784,
+          0.1882
+        ],
+        [
+          0.4392,
+          0.5255,
+          0.6941
+        ]
+      ],
+      "linear_midpoint": [
+        0.09841396499999999,
+        0.141148405,
+        0.25859702500000004
+      ],
+      "formula": "clamp(v/horizonV) in linear space; saturates below horizon",
+      "source_checked": true
+    }
+  },
+  {
+    "effect": "meadow-grass-wind.effect",
+    "yaml": "pass",
+    "entry_points": "pass",
+    "properties": 24,
+    "property_targets_and_overlap": "pass",
+    "vec4_ubo_bytes": {
+      "GrassWindVS": 96,
+      "GrassWindFS": 48
+    }
+  }
+]

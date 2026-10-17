@@ -1,0 +1,33 @@
+{
+ "final_frame_0.46_780x1688": {
+  "shadowOnHer": {
+   "feet": "",
+   "chest": "",
+   "face": ""
+  },
+  "foregroundPropRaysNearerThanHer": {
+   "env_island_props_merged": 95,
+   "env_prop_palm_tall_01": 10
+  },
+  "lineOfSight": {
+   "feet": "",
+   "chest": "",
+   "face": "",
+   "head": ""
+  },
+  "cover": {
+   "env_sea_surface": 0.358,
+   "env_sky_dome": 0.201,
+   "env_island_props_merged": 0.138,
+   "env_lighthouse_ext": 0.128,
+   "env_island_main": 0.1,
+   "env_cloud_layer": 0.028,
+   "env_prop_palm_tall_01": 0.016,
+   "env_lighthouse_door": 0.01,
+   "env_interior_shell": 0.006,
+   "ui_signpost": 0.005,
+   "env_prop_palm_young_01": 0.005,
+   "env_interior_props_merged": 0.003
+  }
+ }
+}

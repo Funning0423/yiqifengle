@@ -1,0 +1,194 @@
+From 2607de69b48c608df2df18ff7e5399fe6b6b2eaf Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 13:05:23 -0400
+Subject: [PATCH] =?UTF-8?q?=E4=B8=BB=E9=A1=B5=20from=20journey=20regions;?=
+ =?UTF-8?q?=20landing=20final=20frame=20pulls=20her=20in=20to=2075%=20widt?=
+ =?UTF-8?q?h?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A) Mac check 379e137 item 9: after a mainline journey (04->05 meadow, 08->09 skycity) the
+   board exits to the region and there was no way back: returnHome needs the island, the
+   journey has no walk-back route (exitSkycity/ensureRegion refuse) and the 回主页 control
+   was never shown. Now:
+   - RegionJourneyController.returnToIsland(): release journey scenes, region=island, idle.
+   - WorldFlow.returnHome(): from an arrived meadow/skycity journey region (or a paused/
+     failed journey) set her back on the island, then walk home as usual. Not a completion:
+     unlocks/records stay in the campaign save; the next trip walks the route again.
+     Level (board exit first), active travel (busy) and the skycity VISIT are unchanged.
+   - WorldIntegrationBoot: 「主页」 control shown in meadow and journey-skycity.
+   - test-world-region-home.cjs: returnHome after arriving in meadow and skycity, etc.
+B) Arrival 12 m back / 1.5 m right / 2 m up, view pitched 2.5 deg up (arrivalPitchDeg),
+   2.5 m late lift: her centre 75% of the width (was 86-89%), plaza 50%/55%, h 0.153,
+   feet 21.9% above the bottom, rock 5/25, turn 18.9 deg/s. F9 asserts x <= 80%.
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    |  6 +--
+ .../scripts/world-r1/RegionJourneyCore.ts     | 18 ++++++---
+ .../assets/scripts/world-r1/WorldFlowCore.ts  | 11 ++++++
+ .../test-journey-framing.cjs                  |  8 ++--
+ .../test-world-region-home.cjs                | 39 +++++++++++++++++++
+ 5 files changed, 69 insertions(+), 13 deletions(-)
+ create mode 100644 tools/journey-integration/test-world-region-home.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 9170669..5967b31 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -476,7 +476,7 @@ export class WorldIntegrationBoot extends Component {
+  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+  private createNavigation(){this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+  this.createLoadingBackdrop();this.notice=this.label('流程参考占位 · 非新版B',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+- this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
++ this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
+  if(DEBUG){
+@@ -569,13 +569,13 @@ export class WorldIntegrationBoot extends Component {
+  this.notice.node.parent!.active=false;this.status.string='';
+  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
+  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
+- for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&['skycity-loading','region-loading','region-travel'].includes(s.state):k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
++ for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&['skycity-loading','region-loading','region-travel'].includes(s.state):k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):k==='home'?(s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
+  const journey=s.journey;if(journey&&['region-loading','region-travel'].includes(s.state)){this.notice.string=journey.phase==='loading'?'正在准备'+(journey.target==='meadow'?'草原':'天空之城')+'，完成后继续前行':journey.phase==='bridge'?'沿着彩虹，去下一片天地':journey.phase==='arrival'?'快到了，跟着风往前走':'走向彩虹桥';this.notice.node.parent!.active=true;}else if(journey&&s.state!=='level'&&!s.needsResume&&['paused','failed'].includes(journey.phase)){this.notice.string=journey.phase==='failed'?'旅程暂时受阻，成绩已保留。点继续旅程重试':'旅程已暂停。点继续旅程从这里接着走';this.notice.node.parent!.active=true;}
+  const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(['island','meadow','skycity'].includes(s.state))for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
+  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
+  this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
+  this.controls.get('cancelVisit')!.getComponentsInChildren(Label)[0].string=s.state==='skycity-loading'?'取消前往':'暂停旅程';
+- for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
++ for(const id of ['returnIsland','cancelVisit','home'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
+  // Result actions are drawn by the board's result page (ui/BoardPanels.openResult); the host only owns availability + commands.
+  // Do not rebuild the result behind a live RewardPanel while the app is hidden.
+  // Its dismissal callback owns that exact panel; on show the settled lease restores level before painting.
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 88c482e..156f148 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -38,11 +38,12 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
+  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
+ export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
+ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
+- // Landing A (final, v2): 11 m behind / 2 m right / 2 m up from the end, plaza centred, her 0.164 of screen height with her
+- // whole body in frame (feet 25% above the bottom edge). The low lens cuts the plaza rock in the frame centre from 9/25 to 5/25
+- // samples (it cannot reach 0 with the plaza centred: the rock is the plaza's own pedestal). A small 1.5 m late lift keeps her
+- // head/chest clear over the sunk mushroom at d41-43. Blend 14.3 m: turn <=20 deg/s, right side until the last ~10 m.
+- arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:1.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:11,arrivalSideM:-2,arrivalUpM:2,arrivalAim:0} as const;
++ // Landing A (final, v3, Mac check 379e137): 12 m behind / 1.5 m right / 2 m up from the end, view pitched 2.5 deg up over the
++ // plaza-centred aim: plaza 50% across / 55% down, her centre at 75% of the width (was 86-89%), her 0.153 of screen height
++ // with her whole body in frame (feet 21% above the bottom edge), plaza rock in the frame centre 5/25 samples. A small 2.5 m
++ // late lift keeps her head/chest clear over the sunk mushroom at d41-43. Blend 14.3 m: turn <=20 deg/s, right side until
++ // the last ~10 m.
++ arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:2.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:12,arrivalSideM:-1.5,arrivalUpM:2,arrivalAim:0,arrivalPitchDeg:2.5} as const;
+ export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
+  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
+  return l>1e-6?[x/l,z/l]:[0,1];
+@@ -73,7 +74,7 @@ export function arrivalPose(path:readonly Vec[],focus:Vec):{position:Vec;target:
+  const position:Vec=[p[0]-u[0]*C.arrivalBackM+n[0]*C.arrivalSideM,p[1]+C.arrivalUpM,p[2]-u[1]*C.arrivalBackM+n[1]*C.arrivalSideM];
+  // Horizontally the view points straight at the focus (plaza centred); vertically it tilts from the focus toward her
+  // chest by arrivalAim so she stays in the lower part of the portrait frame.
+- const fx2=focus[0]-position[0],fz2=focus[2]-position[2],fh=Math.hypot(fx2,fz2)||1,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
++ const fx2=focus[0]-position[0],fz2=focus[2]-position[2],fh=Math.hypot(fx2,fz2)||1,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim+C.arrivalPitchDeg*Math.PI/180,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
+  return {position,target:[position[0]+aim[0]*8,position[1]+aim[1]*8,position[2]+aim[2]*8]};
+ }
+ /** Her-relative lens offset moved on an orbit: horizontal angle, horizontal radius and height interpolate separately,
+@@ -156,5 +157,10 @@ export class RegionJourneyController {
+  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
+  restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
+  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
++ /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.
++  * Not a completion: region unlocks/records live in the campaign save, not here; the next trip simply walks the route again. */
++ returnToIsland():void{if(this.busy)throw Error('journey-busy');if(this.phase==='disposed')throw Error('journey-disposed');
++  ++this.serial;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.region='island';this.target=null;this.phase='idle';
++  this.distance=0;this.startDistance=0;this.root=null;this.camera=null;this.startCamera=null;this.activePath=null;this.error=null;this.loadProgress=0;}
+  dispose(){++this.serial;this.phase='disposed';this.activePath=null;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.root=null;}
+ }
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+index 57480fd..d904c0c 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+@@ -522,7 +522,18 @@ export class WorldFlow {
+     const accepted=this.level!.requestExit();if(!accepted.ok){this.error=accepted.reason;this.emit(this.snapshot());return accepted;}
+     this.level?.dispose();this.level=null;this.stable=this.levelOrigin;this.restore();this.change(this.levelOrigin);return {ok:true};
+   }
++  /** 「主页」 must work wherever she stands. From an arrived meadow/skycity journey region (no walk-back route exists) or a
++   *  paused/failed journey she is first set back on the island (journey scenes released, campaign save untouched), then
++   *  walks home as usual. A journey that is actively running stays busy; the region-visit skycity keeps exitSkycity. */
++  private leaveJourneyForIsland():Result|null {
++    const j=this.journey;if(!j||this.current||this.visit||this.hidden||this.needsResume)return null;
++    if(!['island','meadow','skycity'].includes(this.state))return null;
++    if(j.snapshot().region==='island'&&!j.isInTransit())return null;
++    try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
++    this.stable='island';this.restore();this.change('island');this.cameraEvent({kind:'settled',place:'island'});return null;
++  }
+   async returnHome():Promise<Result> {
++    const left=this.leaveJourneyForIsland();if(left)return left;
+     if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
+     const fail=this.blocked('island',true);if(fail)return fail;
+     return this.operate('walking-home',async t=>{
+diff --git a/tools/journey-integration/test-journey-framing.cjs b/tools/journey-integration/test-journey-framing.cjs
+index 43bf27d..98e52a4 100644
+--- a/tools/journey-integration/test-journey-framing.cjs
++++ b/tools/journey-integration/test-journey-framing.cjs
+@@ -41,10 +41,10 @@ check('F7b 08→09 lens on her right side (vs her facing) until the last 10 m',(
+ check('F8 08→09 no lift: lens ≤ 7 m above her over the whole leg',()=>{const leg=legs[1];let maxUp=0,at=0;for(const r of R[1].rows){const p=sampleRoute(leg.path,r.d),u=r.c.position[1]-p[1];if(u>maxUp){maxUp=u;at=r.d;}}
+  assert(maxUp<=7,'lens up '+maxUp.toFixed(2));return {maxUpM:+maxUp.toFixed(2),atM:at};});
+ // F9 (landing A v2): final 08→09 frame shows her WHOLE body — feet (0.05 m) and head top (1.65 m) inside the frame with at least
+-// 5% of screen height below her feet (ndc y ≥ −0.90) and |x| ≤ 0.85.
+-check('F9 08→09 final frame: whole body in frame, feet ≥ 5% of screen height above the bottom edge',()=>{const leg=legs[1],T=routeLength(leg.path),c=journeyCamera(leg.path,T,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,T),f=F.ndc(c,[p[0],p[1]+.05,p[2]]),h=F.ndc(c,[p[0],p[1]+1.65,p[2]]);
+- assert(f[2]>0&&h[2]>0,'behind camera');assert(f[1]>=-.9,`feet ndc y ${f[1].toFixed(3)}`);assert(h[1]<=.9,'head out');assert(Math.abs(f[0])<=.85&&Math.abs(h[0])<=.85,`x ${f[0].toFixed(2)},${h[0].toFixed(2)}`);
+- return {feetNdcY:+f[1].toFixed(3),bottomMarginPct:+((f[1]+1)/2*100).toFixed(1),headNdcY:+h[1].toFixed(3),x:+f[0].toFixed(2)};});
++// 5% of screen height below her feet (ndc y ≥ −0.90); her x ≤ 80% of the width (ndc ≤ 0.60, Mac check 379e137: was 89%).
++check('F9 08→09 final frame: whole body in frame, feet ≥ 5% of screen height above the bottom edge, her x ≤ 80% of the width',()=>{const leg=legs[1],T=routeLength(leg.path),c=journeyCamera(leg.path,T,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,T),f=F.ndc(c,[p[0],p[1]+.05,p[2]]),h=F.ndc(c,[p[0],p[1]+1.65,p[2]]);
++ assert(f[2]>0&&h[2]>0,'behind camera');assert(f[1]>=-.9,`feet ndc y ${f[1].toFixed(3)}`);assert(h[1]<=.9,'head out');assert(Math.max(f[0],h[0])<=.6&&Math.min(f[0],h[0])>=-.85,`x ${f[0].toFixed(2)},${h[0].toFixed(2)} (≤0.60 = 80% of the width)`);
++ return {feetNdcY:+f[1].toFixed(3),bottomMarginPct:+((f[1]+1)/2*100).toFixed(1),headNdcY:+h[1].toFixed(3),x:+f[0].toFixed(2),xPctOfWidth:+((Math.max(f[0],h[0])+1)/2*100).toFixed(1)};});
+ const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
+ console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
+diff --git a/tools/journey-integration/test-world-region-home.cjs b/tools/journey-integration/test-world-region-home.cjs
+new file mode 100644
+index 0000000..6da75ae
+--- /dev/null
++++ b/tools/journey-integration/test-world-region-home.cjs
+@@ -0,0 +1,39 @@
++'use strict';
++// 「主页」 from a region reached by the mainline journey (Mac check 379e137, item 9): after 04→05 (meadow) and 08→09
++// (skycity) the board exits to the region and returnHome must walk her home. Returning is not a completion: the journey is
++// reset to the island (scenes released) and the next trip walks the route again. A region VISIT (enterSkycity) keeps exitSkycity.
++const assert=require('node:assert/strict'),{createHarness}=require('../board-ui/harness.cjs');
++const H=createHarness(),{WorldFlow}=H.load('world-r1/WorldFlowCore'),{RegionJourneyController}=H.load('world-r1/RegionJourneyCore');
++const pose={position:[3,3,-6],target:[0,1,0]},zero=[0,0,0],seat={position:zero,back:[0,0,-1],yawRad:0,seatedFoot:zero,standingFoot:zero,seatedControllerRoot:zero,standingControllerRoot:zero};
++const config={seat,toDoor:[zero,[0,0,1]],outCrossing:[[0,0,1],[0,0,2]],toIsland:[[0,0,2],[0,0,3]],toThreshold:[[0,0,3],[0,0,2]],inCrossing:[[0,0,2],[0,0,1]],toSeat:[[0,0,1],zero],cameraHome:pose,cameraToDoor:[pose,pose],cameraInside:pose,cameraOutside:pose,cameraIsland:pose,openDeg:90,speed:1};
++function make({hold=false}={}){let root=zero,camera=pose,release=null;const walks=[],scenes={made:0,disposed:0};
++ const actor={calibrated:true,coordinates:{units:'m',up:'+Y',forward:'+Z',rootMotion:'controller-only',standingRoot:zero,seatedRoot:zero,seatYawRad:0,clearanceRadiusM:.1},advance(){},walkProgress:()=>hold?.4:1,
++  perform:async(action,token)=>{if(action.kind==='walk'){walks.push(action.path);if(hold&&action.path.length>2){await new Promise((res,rej)=>{release=res;token?.onCancel?.(()=>rej(new Error('cancelled')));});}root=action.path.at(-1);}},
++  cancelAndReset:p=>{root=p.kind==='standing'?p.controllerRoot:p.seat.seatedControllerRoot;},setVisible(){},dispose(){}};
++ const world={setCamera:p=>{camera=p;},setLayers(){},setDoor(){},cancelTransient(){},assertStaticWorld(){},dispose(){},animateCamera:async()=>{},animateDoor:async()=>{}};
++ const journey=new RegionJourneyController({readCamera:()=>camera,prepare:async(from,to,start)=>{scenes.made++;return {route:{from,to,path:[start,[start[0],start[1]+1,start[2]+4],[start[0],start[1]+1,start[2]+8]],bridgeStart:1,bridgeEnd:6,speed:1},show(){},dispose(){scenes.disposed++;}};}});
++ const visit={shown:0,show(){this.shown++;},hide(){},dispose(){this.disposed=true;}};
++ const flow=new WorldFlow({config,character:actor,journey,skycity:{enter:async()=>visit},levels:{enter:async()=>({requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){},isSettledResult:()=>true})},loadWorld:async()=>world});
++ return {flow,journey,walks,scenes,root:()=>root};}
++const results=[];const test=async(name,fn)=>{await fn();results.push(name);console.log('PASS',name);};
++(async()=>{
++ for(const [region,stage,legs] of [['meadow','mainline-05',['meadow']],['skycity','mainline-09',['meadow','skycity']]])
++  await test(`returnHome after arriving in ${region} (${stage}) and exitLevel walks her home; journey reset, not completed`,async()=>{
++   const x=make();assert((await x.flow.load()).ok);assert((await x.flow.leaveHome()).ok);
++   for(const r of legs)assert((await x.flow.travelRegion(r)).ok,'travel '+r);
++   assert((await x.flow.enterLevel(stage)).ok);assert(x.flow.exitLevel().ok);assert.equal(x.flow.snapshot().state,region);
++   const walks=x.walks.length,r=await x.flow.returnHome();assert.deepEqual(r,{ok:true});
++   assert.equal(x.flow.snapshot().state,'home');assert.deepEqual(x.root(),zero,'seated at home');
++   const j=x.journey.snapshot();assert.equal(j.region,'island');assert.equal(j.phase,'idle');assert.equal(j.target,null);assert.equal(x.scenes.disposed,x.scenes.made,'journey scenes released');
++   assert(x.walks.length>walks,'walked home');
++   // the next trip starts from the island again and walks the whole route (nothing was marked arrived/complete)
++   assert((await x.flow.leaveHome()).ok);for(const r2 of legs)assert((await x.flow.travelRegion(r2)).ok);assert.equal(x.flow.snapshot().state,region);
++   assert((await x.flow.enterLevel(stage)).ok,'stage re-enterable after the second trip');});
++ await test('returnHome directly from an arrived region (no level) works',async()=>{const x=make();await x.flow.load();await x.flow.leaveHome();assert((await x.flow.travelRegion('meadow')).ok);assert.deepEqual(await x.flow.returnHome(),{ok:true});assert.equal(x.flow.snapshot().state,'home');});
++ await test('returnHome from a paused (cancelled) journey on the island works',async()=>{const x=make({hold:true});await x.flow.load();await x.flow.leaveHome();const p=x.flow.travelRegion('meadow');await new Promise(r=>setTimeout(r,5));
++  const c=x.flow.cancelTransition();await p;assert(x.journey.isInTransit(),'journey paused mid-route');assert.notEqual(x.flow.snapshot().state,'region-travel');
++  const r=await x.flow.returnHome();assert.deepEqual(r,{ok:true},JSON.stringify(r)+' '+JSON.stringify(c));assert.equal(x.flow.snapshot().state,'home');assert.equal(x.journey.isInTransit(),false);});
++ await test('skycity VISIT still returns with exitSkycity (returnHome stays wrong-state there)',async()=>{const x=make();await x.flow.load();await x.flow.leaveHome();assert((await x.flow.enterSkycity()).ok);assert.equal((await x.flow.returnHome()).reason,'wrong-state');assert(x.flow.exitSkycity().ok);assert.deepEqual(await x.flow.returnHome(),{ok:true});});
++ await test('returnHome inside a level is still refused (the board exit comes first)',async()=>{const x=make();await x.flow.load();await x.flow.leaveHome();await x.flow.travelRegion('meadow');await x.flow.enterLevel('mainline-05');assert.equal((await x.flow.returnHome()).reason,'wrong-state');assert.equal(x.flow.snapshot().state,'level');});
++ console.log(JSON.stringify({status:'PASS',checks:results.length}));
++})().catch(e=>{console.error('FAIL',e);process.exitCode=1;});
+-- 
+2.47.3
+

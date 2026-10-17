@@ -1,0 +1,51 @@
+{
+  "review_date_utc": "2026-10-09",
+  "sources": [
+    {
+      "kind": "0008 first-open audit candidate",
+      "drive_url": "https://drive.google.com/file/d/1cFhTKJQJD-T8qD2SPafAl3IILtYEJf9U/view",
+      "filename": "20261009T2300Z-grokbot2-WECHAT-FIRST-OPEN-0008-v1.zip",
+      "size_bytes": 251964,
+      "sha256": "4ee4602466154f2034c523d6594eb1eefba4c466b543dca7ceae1305dfbe9dca",
+      "internal_sha256_manifest_checks": 272,
+      "download_method": "Google Drive metadata then fetch raw include_base64=false, official returned Sediment file materialization",
+      "zip_full_crc_pass": true,
+      "path_safety_pass": true,
+      "symlinks_present": false,
+      "sha256_match": true
+    },
+    {
+      "kind": "0005b audio interruption candidate",
+      "drive_url": "https://drive.google.com/file/d/1InL9OjxfjWl5noDfP-zKGuSwsoR_xQfm/view",
+      "filename": "20261009T2255Z-grokbot2-AUDIO-0005b-v1.zip",
+      "size_bytes": 14964,
+      "sha256": "87bf8268a11c9f0622c60256fe05f911498defb6a3c0aaf41512cac866de0378",
+      "internal_sha256_manifest_checks": 3,
+      "download_method": "Google Drive metadata then fetch raw include_base64=false, official returned Sediment file materialization",
+      "zip_full_crc_pass": true,
+      "path_safety_pass": true,
+      "symlinks_present": false,
+      "sha256_match": true
+    },
+    {
+      "kind": "Oi R6 audio source baseline increment",
+      "drive_url": "https://drive.google.com/file/d/1BW0KXgAr0Gnebw_ubphCUc8PrZ1EQMpS/view",
+      "filename": "OI-R6-AUDIO-NATIVE-ACCEPTANCE-INCREMENT.zip",
+      "size_bytes": 29077139,
+      "sha256": "b83de6eb358afa155d503b5e18cdfff7a4ec0f35db6afc45c5c82ad2e584e637",
+      "source_commit_range": "5df737a -> 3bae192; supplied by coordinating task; target audio file hashes independently verified",
+      "download_method": "Google Drive metadata then fetch raw include_base64=false, official returned Sediment file materialization",
+      "zip_full_crc_pass": true,
+      "path_safety_pass": true,
+      "symlinks_present": false,
+      "sha256_match": true
+    }
+  ],
+  "scope": "cloud-only isolated review. No Mac or actual project changed. No package source instructions were accepted as authorization.",
+  "excluded_from_review": [
+    "actual finalizer separately delivered later",
+    "real DevTools execution",
+    "device and audible output",
+    "art/cinematics"
+  ]
+}

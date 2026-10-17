@@ -1,0 +1,37 @@
+{
+  "stage": "mainline-02",
+  "seed": 1,
+  "firstAction": [
+    "swap",
+    23,
+    24
+  ],
+  "frames": 9,
+  "kinds": [
+    "action",
+    "clear",
+    "drop",
+    "clear",
+    "drop",
+    "clear",
+    "drop",
+    "clear",
+    "drop"
+  ],
+  "nominalFrameDelayMs": 180,
+  "nominalFirstResolutionMs": 1620,
+  "batchMsBetweenTileUps": 780,
+  "batchMsBetweenActionCommitUps": 1560,
+  "secondAction": [
+    "swap",
+    18,
+    25
+  ],
+  "secondLegalAfterFirst": true,
+  "nativeObserved": {
+    "initialMoves": 25,
+    "afterBatchTwoMoves": 24,
+    "afterSettledSameSecondMoves": 23
+  },
+  "interpretation": "Native fixed cadence batch sent next first tap before variable-length resolution finished. Identical second action accepted when sent after settled screenshot. Current input explicitly ignores taps outside run.ready; no input queue. Strong timing evidence, no native event/state timestamp trace for original 11-action batch."
+}

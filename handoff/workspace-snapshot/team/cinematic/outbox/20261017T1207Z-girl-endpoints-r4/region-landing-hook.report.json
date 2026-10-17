@@ -1,0 +1,2466 @@
+{
+ "status": "PASS",
+ "passed": 33,
+ "total": 33,
+ "limits": {
+  "angleDeg": 0.1,
+  "fovDeg": 0.1,
+  "positionCm": 1,
+  "clearanceM": 1.1,
+  "turnDps": 20
+ },
+ "blendM": {
+  "meadow": 12,
+  "skycity": 22
+ },
+ "swapTable": [
+  {
+   "region": "meadow",
+   "screen": "390x844",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.000001071204477724609
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "414x896",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000010741439508409013
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "360x780",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620693922970624e-9,
+    "positionCm": 0.0000010683416976601175
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "375x667",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000011313686070404192
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "390x520",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000011413809809713545
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "320x568",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.000001126756051269567
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "768x1024",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000010741439508409013
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "390x844",
+   "boardCamera": {
+    "position": [
+     5.273205398256558,
+     11.88217414435124,
+     57.18419360998453
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 7.50132321360028e-15,
+    "fovDeg": 0,
+    "positionCm": 7.993605777301127e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369344702124546e-9,
+    "positionCm": 0.0000018848617047849284
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "414x896",
+   "boardCamera": {
+    "position": [
+     5.273593239358466,
+     11.882885186371404,
+     57.18587425475947
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 4.770832022195276e-15,
+    "fovDeg": 0,
+    "positionCm": 7.993605777301127e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.3693432326038766e-9,
+    "positionCm": 0.0000018848699545500245
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "360x780",
+   "boardCamera": {
+    "position": [
+     5.279895861244662,
+     11.894439993162765,
+     57.21318561626632
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 2.963425394032188e-14,
+    "fovDeg": 0,
+    "positionCm": 9.607118501968132e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369315545201634e-9,
+    "positionCm": 0.0000018850203049938455
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "375x667",
+   "boardCamera": {
+    "position": [
+     4.2734143664321556,
+     10.049223919339834,
+     52.85176580541213
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 7.156248033292914e-15,
+    "fovDeg": 0,
+    "positionCm": 6.217248937900877e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.36934146486378e-9,
+    "positionCm": 0.0000018669917420180085
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "390x520",
+   "boardCamera": {
+    "position": [
+     3.141119576673518,
+     7.973350138115665,
+     47.94515504979137
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 3.743068312663368e-14,
+    "fovDeg": 0,
+    "positionCm": 7.95651227888113e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369313160855106e-9,
+    "positionCm": 0.000001861109288404977
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "320x568",
+   "boardCamera": {
+    "position": [
+     4.263971344071441,
+     10.031911711678525,
+     52.81084604184903
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 7.501323213600279e-15,
+    "fovDeg": 0,
+    "positionCm": 8.881784197001252e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369346533549694e-9,
+    "positionCm": 0.0000018668794983146527
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "768x1024",
+   "boardCamera": {
+    "position": [
+     3.141119576673518,
+     7.973350138115665,
+     47.94515504979137
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 3.743068312663368e-14,
+    "fovDeg": 0,
+    "positionCm": 7.95651227888113e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369313160855106e-9,
+    "positionCm": 0.000001861109288404977
+   }
+  }
+ ],
+ "landing": [
+  {
+   "region": "meadow",
+   "screen": "390x844",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.687776565621332,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0102,
+    "positionDriftAwayCumM": 0.5726,
+    "minVelocityCos0p5s": 0.869
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "region": "meadow",
+   "screen": "414x896",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.738739661587589,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0103,
+    "positionDriftAwayCumM": 0.5815,
+    "minVelocityCos0p5s": 0.867
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "region": "meadow",
+   "screen": "360x780",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.637286881377003,
+    "viewDeg": 10.35781809014427,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0101,
+    "positionDriftAwayCumM": 0.5637,
+    "minVelocityCos0p5s": 0.87
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "region": "meadow",
+   "screen": "375x667",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 16.638397955673828,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0122,
+    "positionDriftAwayCumM": 0.7085,
+    "minVelocityCos0p5s": 0.804
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "region": "meadow",
+   "screen": "390x520",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 16.7612692850286,
+    "viewDeg": 10.35781809014427,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0126,
+    "positionDriftAwayCumM": 0.7218,
+    "minVelocityCos0p5s": 0.79
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "region": "meadow",
+   "screen": "320x568",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 16.577525622795303,
+    "viewDeg": 10.35781809014427,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0122,
+    "positionDriftAwayCumM": 0.702,
+    "minVelocityCos0p5s": 0.81
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "region": "meadow",
+   "screen": "768x1024",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.738739661587589,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0103,
+    "positionDriftAwayCumM": 0.5815,
+    "minVelocityCos0p5s": 0.867
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "region": "skycity",
+   "screen": "390x844",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 47.74596305388704,
+    "viewDeg": 17.268993550125646,
+    "fovDeg": 7
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 22.00 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.955
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.182
+  },
+  {
+   "region": "skycity",
+   "screen": "414x896",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 47.745454196502614,
+    "viewDeg": 17.26899355012565,
+    "fovDeg": 7
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 22.00 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.955
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.182
+  },
+  {
+   "region": "skycity",
+   "screen": "360x780",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 47.73719445567669,
+    "viewDeg": 17.26899355012561,
+    "fovDeg": 7
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 22.00 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.955
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.182
+  },
+  {
+   "region": "skycity",
+   "screen": "375x667",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 49.27551283691712,
+    "viewDeg": 17.26899355012564,
+    "fovDeg": 7
+   },
+   "minClearanceM": 2.552,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_1 at 10.90 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.96
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.193
+  },
+  {
+   "region": "skycity",
+   "screen": "390x520",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 51.49760812135594,
+    "viewDeg": 17.268993550125607,
+    "fovDeg": 7
+   },
+   "minClearanceM": 1.713,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_cards_1 at 10.84 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.965
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.209
+  },
+  {
+   "region": "skycity",
+   "screen": "320x568",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 49.29197007305881,
+    "viewDeg": 17.26899355012565,
+    "fovDeg": 7
+   },
+   "minClearanceM": 2.54,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_1 at 10.90 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.96
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.193
+  },
+  {
+   "region": "skycity",
+   "screen": "768x1024",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 51.49760812135594,
+    "viewDeg": 17.268993550125607,
+    "fovDeg": 7
+   },
+   "minClearanceM": 1.713,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_cards_1 at 10.84 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.965
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.209
+  }
+ ],
+ "girlAtBoard": [
+  {
+   "region": "meadow",
+   "screen": "390x844",
+   "foot": [
+    -1.306,
+    0.351,
+    35.375
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": true,
+   "gapPt": 16.8,
+   "distanceM": 28.5,
+   "visible": true,
+   "boxPt": {
+    "l": 16.8,
+    "r": 43.3,
+    "t": 718.9,
+    "b": 780
+   },
+   "widthFrac": 0.068,
+   "heightFrac": 0.072,
+   "ndcX": [
+    -0.91,
+    -0.78
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 18.1,
+    "r": 371.9,
+    "t": 212,
+    "b": 587.6
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "414x896",
+   "foot": [
+    -1.231,
+    0.361,
+    35.441
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": true,
+   "gapPt": 16.1,
+   "distanceM": 28.57,
+   "visible": true,
+   "boxPt": {
+    "l": 16.1,
+    "r": 44.3,
+    "t": 761.6,
+    "b": 826.2
+   },
+   "widthFrac": 0.068,
+   "heightFrac": 0.072,
+   "ndcX": [
+    -0.92,
+    -0.79
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 19.2,
+    "r": 394.8,
+    "t": 215.4,
+    "b": 614.2
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "360x780",
+   "foot": [
+    -1.381,
+    0.341,
+    35.31
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": true,
+   "gapPt": 16.8,
+   "distanceM": 28.43,
+   "visible": true,
+   "boxPt": {
+    "l": 16.8,
+    "r": 41.4,
+    "t": 665.9,
+    "b": 722.5
+   },
+   "widthFrac": 0.068,
+   "heightFrac": 0.073,
+   "ndcX": [
+    -0.91,
+    -0.77
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 9,
+    "r": 351,
+    "t": 210.1,
+    "b": 573.2
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "375x667",
+   "foot": [
+    0.183,
+    0.466,
+    36.125
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": true,
+   "gapPt": 17.6,
+   "distanceM": 29.41,
+   "visible": true,
+   "boxPt": {
+    "l": 17.6,
+    "r": 38.8,
+    "t": 553.1,
+    "b": 599.8
+   },
+   "widthFrac": 0.057,
+   "heightFrac": 0.07,
+   "ndcX": [
+    -0.91,
+    -0.79
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 36.3,
+    "r": 338.7,
+    "t": 180,
+    "b": 501
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "390x520",
+   "foot": [
+    0.378,
+    0.473,
+    36.168
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": true,
+   "gapPt": 19.3,
+   "distanceM": 29.48,
+   "visible": true,
+   "boxPt": {
+    "l": 59.3,
+    "r": 75.8,
+    "t": 430.4,
+    "b": 466.7
+   },
+   "widthFrac": 0.043,
+   "heightFrac": 0.07,
+   "ndcX": [
+    -0.7,
+    -0.61
+   ],
+   "inFrameLimits": true,
+   "trayPt": {
+    "l": 112,
+    "r": 278,
+    "t": 177.7,
+    "b": 354
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "320x568",
+   "foot": [
+    0.085,
+    0.462,
+    36.103
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": true,
+   "gapPt": 17.1,
+   "distanceM": 29.38,
+   "visible": true,
+   "boxPt": {
+    "l": 17.1,
+    "r": 35.1,
+    "t": 471.5,
+    "b": 511.3
+   },
+   "widthFrac": 0.056,
+   "heightFrac": 0.07,
+   "ndcX": [
+    -0.89,
+    -0.78
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 55.4,
+    "r": 264.6,
+    "t": 180,
+    "b": 402
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "768x1024",
+   "foot": [
+    -1.231,
+    0.361,
+    35.441
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": true,
+   "gapPt": 13.3,
+   "distanceM": 28.57,
+   "visible": true,
+   "boxPt": {
+    "l": 165.8,
+    "r": 198,
+    "t": 870.3,
+    "b": 944.2
+   },
+   "widthFrac": 0.042,
+   "heightFrac": 0.072,
+   "ndcX": [
+    -0.57,
+    -0.48
+   ],
+   "inFrameLimits": true,
+   "trayPt": {
+    "l": 154,
+    "r": 614,
+    "t": 228.8,
+    "b": 717.1
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "meadow",
+   "screen": "1024x768",
+   "behindCamera": true
+  },
+  {
+   "region": "skycity",
+   "screen": "390x844",
+   "foot": [
+    26.601,
+    14.109,
+    51.101
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": false,
+   "gapPt": null,
+   "distanceM": 12.38,
+   "visible": false,
+   "boxPt": {
+    "l": -2898.2,
+    "r": -2571,
+    "t": 1085.8,
+    "b": 1203.9
+   },
+   "widthFrac": null,
+   "heightFrac": null,
+   "ndcX": [
+    -15.86,
+    -14.18
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 18.1,
+    "r": 371.9,
+    "t": 212,
+    "b": 587.6
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "414x896",
+   "foot": [
+    26.601,
+    14.109,
+    51.101
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": false,
+   "gapPt": null,
+   "distanceM": 12.38,
+   "visible": false,
+   "boxPt": {
+    "l": -3076.2,
+    "r": -2729,
+    "t": 1152.5,
+    "b": 1278
+   },
+   "widthFrac": null,
+   "heightFrac": null,
+   "ndcX": [
+    -15.86,
+    -14.18
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 19.2,
+    "r": 394.8,
+    "t": 215.4,
+    "b": 614.2
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "360x780",
+   "foot": [
+    26.601,
+    14.109,
+    51.101
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": false,
+   "gapPt": null,
+   "distanceM": 12.41,
+   "visible": false,
+   "boxPt": {
+    "l": -2671.2,
+    "r": -2370.3,
+    "t": 1001.9,
+    "b": 1110.8
+   },
+   "widthFrac": null,
+   "heightFrac": null,
+   "ndcX": [
+    -15.84,
+    -14.17
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 9,
+    "r": 351,
+    "t": 210.1,
+    "b": 573.2
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "375x667",
+   "foot": [
+    26.601,
+    14.109,
+    51.101
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": false,
+   "gapPt": null,
+   "distanceM": 7.57,
+   "visible": false,
+   "boxPt": {
+    "l": -3810.4,
+    "r": -3178.3,
+    "t": 1163.7,
+    "b": 1312.7
+   },
+   "widthFrac": null,
+   "heightFrac": null,
+   "ndcX": [
+    -21.32,
+    -17.95
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 36.3,
+    "r": 338.7,
+    "t": 180,
+    "b": 501
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "390x520",
+   "foot": [
+    26.601,
+    14.109,
+    51.101
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": false,
+   "gapPt": null,
+   "distanceM": 2.12,
+   "visible": false,
+   "boxPt": {
+    "l": -10925.3,
+    "r": -6555.2,
+    "t": 2032.2,
+    "b": 2844.9
+   },
+   "widthFrac": null,
+   "heightFrac": null,
+   "ndcX": [
+    -57.03,
+    -34.62
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 112,
+    "r": 278,
+    "t": 177.7,
+    "b": 354
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "320x568",
+   "foot": [
+    26.601,
+    14.109,
+    51.101
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": false,
+   "gapPt": null,
+   "distanceM": 7.52,
+   "visible": false,
+   "boxPt": {
+    "l": -3265.1,
+    "r": -2720.9,
+    "t": 994.9,
+    "b": 1122.5
+   },
+   "widthFrac": null,
+   "heightFrac": null,
+   "ndcX": [
+    -21.41,
+    -18.01
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 55.4,
+    "r": 264.6,
+    "t": 180,
+    "b": 402
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "768x1024",
+   "foot": [
+    26.601,
+    14.109,
+    51.101
+   ],
+   "cropped": false,
+   "coveredBy3ToolUi": [],
+   "clearOf3ToolUi": false,
+   "gapPt": null,
+   "distanceM": 2.12,
+   "visible": false,
+   "boxPt": {
+    "l": -21514.4,
+    "r": -12908.7,
+    "t": 4001.9,
+    "b": 5602.2
+   },
+   "widthFrac": null,
+   "heightFrac": null,
+   "ndcX": [
+    -57.03,
+    -34.62
+   ],
+   "inFrameLimits": false,
+   "trayPt": {
+    "l": 154,
+    "r": 614,
+    "t": 228.8,
+    "b": 717.1
+   },
+   "underTrayShareOfHer": 0,
+   "underPlateShareOfHer": 0,
+   "underToolIconsShareOfHer": {
+    "1tools": 0,
+    "2tools": 0,
+    "3tools": 0
+   }
+  },
+  {
+   "region": "skycity",
+   "screen": "1024x768",
+   "behindCamera": true
+  }
+ ],
+ "meadowStand": [
+  {
+   "screen": "390x844",
+   "stopM": 3,
+   "standModel": [
+    -0.007,
+    1.514,
+    17.106
+   ],
+   "yawModelDeg": -131.2,
+   "gapPt": 16.8,
+   "inFrameLimits": false,
+   "worstFootM": 0.046,
+   "minBodyClearanceM": 2,
+   "nearest": null,
+   "hiddenAtBoard": [],
+   "rejoinModel": [
+    2.67,
+    1.85,
+    13.81
+   ],
+   "approachMinClearanceM": 2
+  },
+  {
+   "screen": "414x896",
+   "stopM": 3.1,
+   "standModel": [
+    -0.082,
+    1.524,
+    17.041
+   ],
+   "yawModelDeg": -131.2,
+   "gapPt": 16.1,
+   "inFrameLimits": false,
+   "worstFootM": 0.046,
+   "minBodyClearanceM": 2,
+   "nearest": null,
+   "hiddenAtBoard": [],
+   "rejoinModel": [
+    2.67,
+    1.85,
+    13.81
+   ],
+   "approachMinClearanceM": 2
+  },
+  {
+   "screen": "360x780",
+   "stopM": 2.9,
+   "standModel": [
+    0.068,
+    1.504,
+    17.172
+   ],
+   "yawModelDeg": -131.2,
+   "gapPt": 16.8,
+   "inFrameLimits": false,
+   "worstFootM": 0.046,
+   "minBodyClearanceM": 2,
+   "nearest": null,
+   "hiddenAtBoard": [],
+   "rejoinModel": [
+    2.67,
+    1.85,
+    13.81
+   ],
+   "approachMinClearanceM": 2
+  },
+  {
+   "screen": "375x667",
+   "stopM": 4.7,
+   "standModel": [
+    -1.497,
+    1.629,
+    16.356
+   ],
+   "yawModelDeg": -102.5,
+   "gapPt": 17.6,
+   "inFrameLimits": false,
+   "worstFootM": 0.046,
+   "minBodyClearanceM": 2,
+   "nearest": null,
+   "hiddenAtBoard": [],
+   "rejoinModel": [
+    1.46,
+    2.64,
+    7.42
+   ],
+   "approachMinClearanceM": 2
+  },
+  {
+   "screen": "390x520",
+   "stopM": 4.9,
+   "standModel": [
+    -1.692,
+    1.637,
+    16.313
+   ],
+   "yawModelDeg": -102.5,
+   "gapPt": 19.3,
+   "inFrameLimits": true,
+   "worstFootM": 0.046,
+   "minBodyClearanceM": 2,
+   "nearest": null,
+   "hiddenAtBoard": [],
+   "rejoinModel": [
+    1.46,
+    2.64,
+    7.42
+   ],
+   "approachMinClearanceM": 2
+  },
+  {
+   "screen": "320x568",
+   "stopM": 4.6,
+   "standModel": [
+    -1.399,
+    1.626,
+    16.378
+   ],
+   "yawModelDeg": -102.5,
+   "gapPt": 17.1,
+   "inFrameLimits": false,
+   "worstFootM": 0.046,
+   "minBodyClearanceM": 2,
+   "nearest": null,
+   "hiddenAtBoard": [],
+   "rejoinModel": [
+    1.46,
+    2.64,
+    7.42
+   ],
+   "approachMinClearanceM": 2
+  },
+  {
+   "screen": "768x1024",
+   "stopM": 3.1,
+   "standModel": [
+    -0.082,
+    1.524,
+    17.041
+   ],
+   "yawModelDeg": -131.2,
+   "gapPt": 16.7,
+   "inFrameLimits": true,
+   "worstFootM": 0.046,
+   "minBodyClearanceM": 2,
+   "nearest": null,
+   "hiddenAtBoard": [],
+   "rejoinModel": [
+    2.67,
+    1.85,
+    13.81
+   ],
+   "approachMinClearanceM": 2
+  }
+ ],
+ "results": [
+  {
+   "id": "swap meadow 390x844",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "390x844",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.000001071204477724609
+   }
+  },
+  {
+   "id": "landing meadow 390x844",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "390x844",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.687776565621332,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0102,
+    "positionDriftAwayCumM": 0.5726,
+    "minVelocityCos0p5s": 0.869
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "id": "swap meadow 414x896",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "414x896",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000010741439508409013
+   }
+  },
+  {
+   "id": "landing meadow 414x896",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "414x896",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.738739661587589,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0103,
+    "positionDriftAwayCumM": 0.5815,
+    "minVelocityCos0p5s": 0.867
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "id": "swap meadow 360x780",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "360x780",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620693922970624e-9,
+    "positionCm": 0.0000010683416976601175
+   }
+  },
+  {
+   "id": "landing meadow 360x780",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "360x780",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.637286881377003,
+    "viewDeg": 10.35781809014427,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0101,
+    "positionDriftAwayCumM": 0.5637,
+    "minVelocityCos0p5s": 0.87
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "id": "swap meadow 375x667",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "375x667",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000011313686070404192
+   }
+  },
+  {
+   "id": "landing meadow 375x667",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "375x667",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 16.638397955673828,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0122,
+    "positionDriftAwayCumM": 0.7085,
+    "minVelocityCos0p5s": 0.804
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "id": "swap meadow 390x520",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "390x520",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000011413809809713545
+   }
+  },
+  {
+   "id": "landing meadow 390x520",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "390x520",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 16.7612692850286,
+    "viewDeg": 10.35781809014427,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0126,
+    "positionDriftAwayCumM": 0.7218,
+    "minVelocityCos0p5s": 0.79
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "id": "swap meadow 320x568",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "320x568",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.000001126756051269567
+   }
+  },
+  {
+   "id": "landing meadow 320x568",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "320x568",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 16.577525622795303,
+    "viewDeg": 10.35781809014427,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0122,
+    "positionDriftAwayCumM": 0.702,
+    "minVelocityCos0p5s": 0.81
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "id": "swap meadow 768x1024",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "768x1024",
+   "boardCamera": {
+    "position": [
+     9,
+     19,
+     42
+    ],
+    "target": [
+     0.3274661665889038,
+     5.509406509325702,
+     -15.81687522999821
+    ],
+    "fovVerticalDeg": 49.42635311494791
+   },
+   "swapDelta": {
+    "angleDeg": 3.578124016646457e-15,
+    "fovDeg": 0,
+    "positionCm": 0
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 4.620682978723274e-9,
+    "positionCm": 0.0000010741439508409013
+   }
+  },
+  {
+   "id": "landing meadow 768x1024",
+   "status": "PASS",
+   "region": "meadow",
+   "screen": "768x1024",
+   "blendM": 12,
+   "blendS": 10,
+   "gapAtBlendStart": {
+    "positionM": 15.738739661587589,
+    "viewDeg": 10.357818090144278,
+    "fovDeg": 1.4263531149479078
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 12.00 m before the stop",
+   "maxTurnDps": 1.94,
+   "maxFovRateDps": 0.267,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0.0103,
+    "positionDriftAwayCumM": 0.5815,
+    "minVelocityCos0p5s": 0.867
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 1
+  },
+  {
+   "id": "swap skycity 390x844",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "390x844",
+   "boardCamera": {
+    "position": [
+     5.273205398256558,
+     11.88217414435124,
+     57.18419360998453
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 7.50132321360028e-15,
+    "fovDeg": 0,
+    "positionCm": 7.993605777301127e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369344702124546e-9,
+    "positionCm": 0.0000018848617047849284
+   }
+  },
+  {
+   "id": "landing skycity 390x844",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "390x844",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 47.74596305388704,
+    "viewDeg": 17.268993550125646,
+    "fovDeg": 7
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 22.00 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.955
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.182
+  },
+  {
+   "id": "swap skycity 414x896",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "414x896",
+   "boardCamera": {
+    "position": [
+     5.273593239358466,
+     11.882885186371404,
+     57.18587425475947
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 4.770832022195276e-15,
+    "fovDeg": 0,
+    "positionCm": 7.993605777301127e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.3693432326038766e-9,
+    "positionCm": 0.0000018848699545500245
+   }
+  },
+  {
+   "id": "landing skycity 414x896",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "414x896",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 47.745454196502614,
+    "viewDeg": 17.26899355012565,
+    "fovDeg": 7
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 22.00 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.955
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.182
+  },
+  {
+   "id": "swap skycity 360x780",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "360x780",
+   "boardCamera": {
+    "position": [
+     5.279895861244662,
+     11.894439993162765,
+     57.21318561626632
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 2.963425394032188e-14,
+    "fovDeg": 0,
+    "positionCm": 9.607118501968132e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369315545201634e-9,
+    "positionCm": 0.0000018850203049938455
+   }
+  },
+  {
+   "id": "landing skycity 360x780",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "360x780",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 47.73719445567669,
+    "viewDeg": 17.26899355012561,
+    "fovDeg": 7
+   },
+   "minClearanceM": 3,
+   "minClearanceAt": "null at 22.00 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.955
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.182
+  },
+  {
+   "id": "swap skycity 375x667",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "375x667",
+   "boardCamera": {
+    "position": [
+     4.2734143664321556,
+     10.049223919339834,
+     52.85176580541213
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 7.156248033292914e-15,
+    "fovDeg": 0,
+    "positionCm": 6.217248937900877e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.36934146486378e-9,
+    "positionCm": 0.0000018669917420180085
+   }
+  },
+  {
+   "id": "landing skycity 375x667",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "375x667",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 49.27551283691712,
+    "viewDeg": 17.26899355012564,
+    "fovDeg": 7
+   },
+   "minClearanceM": 2.552,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_1 at 10.90 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.96
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.193
+  },
+  {
+   "id": "swap skycity 390x520",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "390x520",
+   "boardCamera": {
+    "position": [
+     3.141119576673518,
+     7.973350138115665,
+     47.94515504979137
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 3.743068312663368e-14,
+    "fovDeg": 0,
+    "positionCm": 7.95651227888113e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369313160855106e-9,
+    "positionCm": 0.000001861109288404977
+   }
+  },
+  {
+   "id": "landing skycity 390x520",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "390x520",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 51.49760812135594,
+    "viewDeg": 17.268993550125607,
+    "fovDeg": 7
+   },
+   "minClearanceM": 1.713,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_cards_1 at 10.84 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.965
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.209
+  },
+  {
+   "id": "swap skycity 320x568",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "320x568",
+   "boardCamera": {
+    "position": [
+     4.263971344071441,
+     10.031911711678525,
+     52.81084604184903
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 7.501323213600279e-15,
+    "fovDeg": 0,
+    "positionCm": 8.881784197001252e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369346533549694e-9,
+    "positionCm": 0.0000018668794983146527
+   }
+  },
+  {
+   "id": "landing skycity 320x568",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "320x568",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 49.29197007305881,
+    "viewDeg": 17.26899355012565,
+    "fovDeg": 7
+   },
+   "minClearanceM": 2.54,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_1 at 10.90 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.96
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.193
+  },
+  {
+   "id": "swap skycity 768x1024",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "768x1024",
+   "boardCamera": {
+    "position": [
+     3.141119576673518,
+     7.973350138115665,
+     47.94515504979137
+    ],
+    "target": [
+     -0.7000874989532814,
+     0.9311371661331996,
+     31.2999243887419
+    ],
+    "fovVerticalDeg": 55
+   },
+   "swapDelta": {
+    "angleDeg": 3.743068312663368e-14,
+    "fovDeg": 0,
+    "positionCm": 7.95651227888113e-13
+   },
+   "lastWalkStepToStop": {
+    "angleDeg": 5.369313160855106e-9,
+    "positionCm": 0.000001861109288404977
+   }
+  },
+  {
+   "id": "landing skycity 768x1024",
+   "status": "PASS",
+   "region": "skycity",
+   "screen": "768x1024",
+   "blendM": 22,
+   "blendS": 18.33,
+   "gapAtBlendStart": {
+    "positionM": 51.49760812135594,
+    "viewDeg": 17.268993550125607,
+    "fovDeg": 7
+   },
+   "minClearanceM": 1.713,
+   "minClearanceAt": "skycity:env_sky_floatingrocks_cards_1 at 10.84 m before the stop",
+   "maxTurnDps": 1.77,
+   "maxFovRateDps": 0.716,
+   "monotonic": {
+    "fovGrowDeg": 0,
+    "viewGrowDeg": 0,
+    "positionGrowM": 0,
+    "positionDriftAwayCumM": 0,
+    "minVelocityCos0p5s": 0.965
+   },
+   "turnRateJumpAtBlendStartDps": 0,
+   "turnRateAtStopDps": 0,
+   "herChestInFrameShare": 0.209
+  },
+  {
+   "id": "hook residual / failure paths",
+   "status": "PASS",
+   "residual": {
+    "gap": {
+     "positionM": 4.8092846990501545,
+     "viewDeg": 5.788696897479999e-15,
+     "fovDeg": 0
+    },
+    "seconds": 1.2023211747625386,
+    "writes": 74,
+    "result": {
+     "ok": true,
+     "result": "blended"
+    }
+   },
+   "far": "not-at-landing",
+   "noPose": "no-board-pose",
+   "noCamera": "no-camera",
+   "rejected": "camera-rejected",
+   "throws": "error",
+   "viewportThrows": "error",
+   "noDeps": "no-deps"
+  },
+  {
+   "id": "routes without board unchanged; invalid board rejected",
+   "status": "PASS"
+  },
+  {
+   "id": "her board copy at the board camera (r4: walk end, 3 tools)",
+   "status": "PASS",
+   "meadowLandscapeBehindCamera": [
+    "1024x768"
+   ],
+   "meadowClear3Tools": [
+    "390x844 gap 16.8 pt",
+    "414x896 gap 16.1 pt",
+    "360x780 gap 16.8 pt",
+    "375x667 gap 17.6 pt",
+    "390x520 gap 19.3 pt",
+    "320x568 gap 17.1 pt",
+    "768x1024 gap 13.3 pt"
+   ],
+   "skycityNotInFramePending": [
+    "390x844",
+    "414x896",
+    "360x780",
+    "375x667",
+    "390x520",
+    "320x568",
+    "768x1024",
+    "1024x768"
+   ]
+  },
+  {
+   "id": "meadow stand: walk on the ground, no clipping, she is seen by the board camera, 08→09 leaves cleanly (7 portrait screens)",
+   "status": "PASS",
+   "rows": [
+    {
+     "screen": "390x844",
+     "stopM": 3,
+     "standModel": [
+      -0.007,
+      1.514,
+      17.106
+     ],
+     "yawModelDeg": -131.2,
+     "gapPt": 16.8,
+     "inFrameLimits": false,
+     "worstFootM": 0.046,
+     "minBodyClearanceM": 2,
+     "nearest": null,
+     "hiddenAtBoard": [],
+     "rejoinModel": [
+      2.67,
+      1.85,
+      13.81
+     ],
+     "approachMinClearanceM": 2
+    },
+    {
+     "screen": "414x896",
+     "stopM": 3.1,
+     "standModel": [
+      -0.082,
+      1.524,
+      17.041
+     ],
+     "yawModelDeg": -131.2,
+     "gapPt": 16.1,
+     "inFrameLimits": false,
+     "worstFootM": 0.046,
+     "minBodyClearanceM": 2,
+     "nearest": null,
+     "hiddenAtBoard": [],
+     "rejoinModel": [
+      2.67,
+      1.85,
+      13.81
+     ],
+     "approachMinClearanceM": 2
+    },
+    {
+     "screen": "360x780",
+     "stopM": 2.9,
+     "standModel": [
+      0.068,
+      1.504,
+      17.172
+     ],
+     "yawModelDeg": -131.2,
+     "gapPt": 16.8,
+     "inFrameLimits": false,
+     "worstFootM": 0.046,
+     "minBodyClearanceM": 2,
+     "nearest": null,
+     "hiddenAtBoard": [],
+     "rejoinModel": [
+      2.67,
+      1.85,
+      13.81
+     ],
+     "approachMinClearanceM": 2
+    },
+    {
+     "screen": "375x667",
+     "stopM": 4.7,
+     "standModel": [
+      -1.497,
+      1.629,
+      16.356
+     ],
+     "yawModelDeg": -102.5,
+     "gapPt": 17.6,
+     "inFrameLimits": false,
+     "worstFootM": 0.046,
+     "minBodyClearanceM": 2,
+     "nearest": null,
+     "hiddenAtBoard": [],
+     "rejoinModel": [
+      1.46,
+      2.64,
+      7.42
+     ],
+     "approachMinClearanceM": 2
+    },
+    {
+     "screen": "390x520",
+     "stopM": 4.9,
+     "standModel": [
+      -1.692,
+      1.637,
+      16.313
+     ],
+     "yawModelDeg": -102.5,
+     "gapPt": 19.3,
+     "inFrameLimits": true,
+     "worstFootM": 0.046,
+     "minBodyClearanceM": 2,
+     "nearest": null,
+     "hiddenAtBoard": [],
+     "rejoinModel": [
+      1.46,
+      2.64,
+      7.42
+     ],
+     "approachMinClearanceM": 2
+    },
+    {
+     "screen": "320x568",
+     "stopM": 4.6,
+     "standModel": [
+      -1.399,
+      1.626,
+      16.378
+     ],
+     "yawModelDeg": -102.5,
+     "gapPt": 17.1,
+     "inFrameLimits": false,
+     "worstFootM": 0.046,
+     "minBodyClearanceM": 2,
+     "nearest": null,
+     "hiddenAtBoard": [],
+     "rejoinModel": [
+      1.46,
+      2.64,
+      7.42
+     ],
+     "approachMinClearanceM": 2
+    },
+    {
+     "screen": "768x1024",
+     "stopM": 3.1,
+     "standModel": [
+      -0.082,
+      1.524,
+      17.041
+     ],
+     "yawModelDeg": -131.2,
+     "gapPt": 16.7,
+     "inFrameLimits": true,
+     "worstFootM": 0.046,
+     "minBodyClearanceM": 2,
+     "nearest": null,
+     "hiddenAtBoard": [],
+     "rejoinModel": [
+      2.67,
+      1.85,
+      13.81
+     ],
+     "approachMinClearanceM": 2
+    }
+   ]
+  },
+  {
+   "id": "wiring",
+   "status": "PASS"
+  }
+ ]
+}

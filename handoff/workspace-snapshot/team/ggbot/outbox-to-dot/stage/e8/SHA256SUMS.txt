@@ -1,0 +1,5 @@
+2232bacecaf764ef625b9c8ae10276a3212fce00585c7f866d91e6e1a2d5a423  ./0001-E8-tool-paths-from-env-via-tools-qf-env.cjs-GGbot.patch
+dd5ce8bf2e6a53cdf35e49d955931ab45c2a7a423514b7a44d89dfde180c9894  ./0002-E8-fix-stale-check_persistence_local-MainlineHost-im.patch
+e08711d5b2f432974200e2a2b9c9ca31835c3d0a129192c716f5c375bd467b68  ./CHANGES-E8-portable-tools-v1.md
+c93a9d145af63c561d7cb4801889e9a9dc84581857732088737beb0f1c24c49f  ./README-E8.md
+f633ed08c55c0898d238429e9f23acec7487bdaf314dee2d458b2d25d1062364  ./reports-e8/local-wiring-check-linux.json

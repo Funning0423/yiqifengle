@@ -1,0 +1,53 @@
+could not get a list of mounted file-systems
+DIAG cine_open_turn 14 legL legR 0 {} {} z None None
+DIAG cine_open_turn 15 legL legR 0 {} {} z None None
+DIAG cine_open_turn 16 legL legR 0 {} {} z None None
+DIAG cine_open_turn 17 legL legR 0 {} {} z None None
+DIAG cine_open_turn 18 legL legR 0 {} {} z None None
+DIAG cine_open_turn 19 legL legR 0 {} {} z None None
+DIAG cine_open_turn 20 legL legR 0 {} {} z None None
+DIAG cine_open_turn 21 legL legR 0 {} {} z None None
+DIAG cine_open_turn 22 legL legR 0 {} {} z None None
+DIAG cine_open_turn 23 legL legR 0 {} {} z None None
+DIAG cine_open_turn 24 legL legR 0 {} {} z None None
+DIAG cine_open_turn 25 legL legR 0 {} {} z None None
+DIAG cine_open_turn 26 legL legR 0 {} {} z None None
+DIAG cine_open_turn 27 legL legR 0 {} {} z None None
+DIAG cine_open_turn 28 legL legR 0 {} {} z None None
+DIAG cine_open_turn 29 legL legR 0 {} {} z None None
+DIAG cine_open_stand 30 handL legL 0 {} {} z None None
+DIAG cine_open_stand 30 handR legR 0 {} {} z None None
+DIAG cine_open_stand 40 handL legL 0 {} {} z None None
+DIAG cine_open_stand 40 handR legR 0 {} {} z None None
+DIAG cine_open_stand 78 handL legL 0 {} {} z None None
+DIAG cine_open_stand 78 handR legR 0 {} {} z None None
+DIAG cine_open_stand 80 handL legL 0 {} {} z None None
+DIAG cine_open_stand 80 handR legR 0 {} {} z None None
+DIAG cine_open_stand 81 handL legL 0 {} {} z None None
+DIAG cine_open_stand 81 handR legR 0 {} {} z None None
+DIAG cine_open_stand 82 handL legL 0 {} {} z None None
+DIAG cine_open_stand 82 handR legR 0 {} {} z None None
+DIAG cine_open_stand 84 handL legL 0 {} {} z None None
+DIAG cine_open_stand 84 handR legR 0 {} {} z None None
+DIAG cine_open_stand 86 handL legL 0 {} {} z None None
+DIAG cine_open_stand 86 handR legR 0 {} {} z None None
+GZ 76 0.0
+GZ 77 0.0
+GZ 78 0.0
+GZ 79 0.0
+GZ 80 0.0
+GZ 81 0.0
+GZ 82 0.0
+GZ 83 0.0
+GZ 84 0.0
+GZ 85 0.0
+GZ 86 0.0
+GZ 87 0.0
+GZ 88 0.0
+GZ 89 0.0
+GZ 90 0.0
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/scene/cine_m1_anim.blend"
+
+Blender quit
+QDONE

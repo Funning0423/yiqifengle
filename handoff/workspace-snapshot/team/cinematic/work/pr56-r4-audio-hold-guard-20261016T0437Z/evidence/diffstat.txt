@@ -1,0 +1,11 @@
+ .../assets/scripts/audio/GameAudio.ts              |   7 +
+ .../assets/scripts/cine/SailboatMeadowStager.ts    | 124 ++++++++++++++++
+ .../scripts/cine/SailboatMeadowStager.ts.meta      |   9 ++
+ .../assets/scripts/cine/SailboatMeadowWarmup.ts    |  14 +-
+ .../scripts/cine/SailboatTransitionDriver.ts       |  74 ++++++++--
+ .../assets/scripts/cine/SailboatTransitionModel.ts |  36 ++++-
+ .../assets/scripts/region/RegionLoader.ts          |   6 +-
+ text-MANIFEST-SHA256.json                          |  30 ++--
+ tools/cine/test_sailboat_audio.cjs                 |  63 +++++++-
+ tools/cine/test_sailboat_transition.cjs            | 159 +++++++++++++++++++--
+ 10 files changed, 479 insertions(+), 43 deletions(-)

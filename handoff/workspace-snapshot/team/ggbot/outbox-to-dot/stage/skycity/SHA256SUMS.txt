@@ -1,0 +1,2 @@
+f13657ba6adf3e432b4f14385aa61190f38101ec1143bc08c219f87f8771c60e  ./0001-region_skycity-bundle-shared-RegionLoader-GGbot.patch
+9514812a9e7ce8377ef51843ce853971b70826c3cf1b1423afcc05f192613b32  ./README-0003.md

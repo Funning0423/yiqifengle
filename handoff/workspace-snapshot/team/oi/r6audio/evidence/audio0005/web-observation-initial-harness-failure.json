@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "error": "page.waitForFunction: ReferenceError: __worldIntegration is not defined\n    at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:1:1)\n    at predicate (eval at evaluate (:302:30), <anonymous>:7:23)\n    at next (eval at evaluate (:302:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:302:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:304:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/tools/test_audio_observation.cjs:6:304",
+  "errors": [
+    "ReferenceError: __worldIntegration is not defined"
+  ]
+}

@@ -1,0 +1,13 @@
+healthy PASS 0 expected PASS 0 OK
+prefix-error-before-log PASS 0 expected FAIL 1 DEFECT
+prefix-error-before-canary PASS 0 expected FAIL 1 DEFECT
+prefix-error-before-notice-allowlisted PASS_WITH_ALLOWLISTED_IDE_NOTICE 3 expected FAIL 1 DEFECT
+prefix-unowned-error-before-log PASS 0 expected BLOCKED 2 DEFECT
+prefix-benign-before-error FAIL 1 expected FAIL 1 OK
+cli-error-tag PASS 0 expected FAIL 1 DEFECT
+cli-error-prefix PASS 0 expected FAIL 1 DEFECT
+cli-warning-tag PASS 0 expected PASS 0 OK
+utf8-truncated-eof PASS 0 expected BLOCKED 2 DEFECT
+utf8-invalid-control BLOCKED 2 expected BLOCKED 2 OK
+unattributed-exact-notice-allowlisted PASS_WITH_ALLOWLISTED_IDE_NOTICE 3 expected PASS_WITH_ALLOWLISTED_IDE_NOTICE 3 OK
+Evidence directory: /workspace/shared/game-first-open-0008-v4-review/portable-new-retest

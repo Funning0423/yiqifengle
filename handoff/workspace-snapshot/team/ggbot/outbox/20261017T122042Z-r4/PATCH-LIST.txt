@@ -1,0 +1,47 @@
+25b55af 25b55af03a6b7033f3a25e872be64bf657d58f34 Cursor Agent | r4-prep 1/3: landing from the journey into a 风铃湖畔 board no longer opens 「暂停一下」 for a restored unfinished attempt
+8ed086c 8ed086c17456207f712d65ce3df254faf42257a6 Cursor Agent | r4-prep 2/3: island sky dome + cloud layer follow the lakeside journey blend instead of covering the blended sky
+c43e310 c43e310f225c01a72888ba50bf5ee6f2f872bce8 Cursor Agent | r4-prep 3/3: first lakeside entry - the board reuses the journey copy's merged geometry instead of rebuilding it in the entry frame
+074d6c7 074d6c7d4295129193dba0f206429edcdd423d24 Cursor Agent | r4-prep C: island-only sky dome, cloud layer and gulls fade out over the lakeside arrival (w 0.6-0.95), restored on leave
+6b3edad 6b3edad64c0a2c26b2c582078a549a63b2c233cc Cursor Agent | r4-prep D: journey lake reads the board's water source (shared lakesideWaterMaterial / applyLakesideWaterMode)
+2363c37 2363c3755e701277a7a4960898f3e381de3c0006 Cursor Agent | r4-prep B: she stays in frame after landing (frozen copy of her in the 风铃湖畔 board background)
+2d71e76 2d71e7600fbd5a51cbbc1434b2cdeb2e333baf43 Cursor Agent | r4-prep A: preload the 风铃湖畔 board during the arrival/landing; the swap frame only turns its camera on
+7f85eec 7f85eec4a88f22b745b8bf049c8ec72020352298 Cursor Agent | r4-prep B+: she stays where she landed in the meadow and sky-city live boards too (same approach)
+c30eeec c30eeecf65bb4fbd2fa92693ec3e3e48033713bf Cursor-Agent | r4-prep D (test): lakeside-daynight reads the water day/night scales through the shared applyLakesideWaterMode
+97b761d 97b761d11f14f8d24e3b690e370cb0da04ff9127 Cursor Agent | r4-prep B2: her frozen board copy carries the original's morph weights (apron/dress) and renderer state
+193b4f1 193b4f18326f843bb960d7f4e7ec3a341191a3d8 Voice Bot | lakeside diag: one-time [QF_LAKE_DIAG] print at the board light apply, gated by cc/env DEBUG && ?lakediag=1
+c4965cb c4965cb724e3feede2b5b2e729b6d5eea38077cd Voice Bot | lakeside water: fix the v_color double decode in lakeside-water.effect (albedo *= v_color.rgb), params unchanged
+ed2e532 ed2e532b7ab02d47b852d6e582ca6c51a71817eb Voice Bot | lakeside water: colour uniforms pass through as linear (drop linear:true)
+eaf2072 eaf207249f3e662ab999d44a5cf6581b69734afd Voice Bot | lakeside r4: day refit on the engine-camera r5h3 reference (water, reflected sky, fog, lights)
+9581c23 9581c232a9aae3dbec449d80eaef5edc2f7a8b8c Voice Bot | lakeside r4: night lake reflects its own dark blue-teal sky; tests lock sky reflection > 0
+1fde08f 1fde08f7a4ba7f64a80ca873ccb932bcdf589942 Cursor Agent | r4 journey fix 1: journey water-material failure logs [QF_LAKE] journey-water-fallback (reason + asset path)
+d46640a d46640a3af941658a6a8505bf8c9b8adbeb32b0d Cursor Agent | r4 journey fix 2: journey lakeside sun = the board's sun in the lake frame (one source, lakesideSunForward)
+88b2705 88b27053114706904ae02cd3399cb768a1f5179c Cursor Agent | r4 journey fix 3: prewarm the journey water shader/PSO under the set-off black (no first-sight hitch)
+939049c 939049ceb815434fbb65c4dfdc187d8266d08a24 Cursor Agent | r4 journey fix 4: island sky dome follows the lakeside sky zenith/low (linear), not the clear colour
+2519d35 2519d35c78e7ba0b3953efe5c1f910f9f3af4c15 Cursor Agent | r4 sky-dome fix: dome follows the board clear colour per mode, straight sRGB line (no lavender detour)
+5bb9e0d 5bb9e0da057efde43879b7cd1e98adf8f09c7788 Cursor Agent | r4 journey fix 1b: [QF_LAKE] journey-water-fallback is an ERROR line (console.error), not a warn
+b131471 b1314714a4b433cc6bd5a03a67ba584348be3101 Voice Bot | lakeside r4 land fill: flat emissive fill on the landform GLBs only, per mode from lakesideModeLighting
+b8bd243 b8bd243a5a3bab991faf2e0b72c00f435b046bfd Voice Bot | lakeside r4 land fill: test locks single source, land-only code path, cool night fill
+6902ba3 6902ba33792160fb9f722af81b4fcf63f93ec3ea Voice Bot | lakeside r4 land fill: rebase fixups (es5/prewarm test regexes) + lakesideModeLighting(mode).skyDomeColor = the clear colour per mode (documented, tested)
+467b36d 467b36d495ccd456201bcb16f82b82ac8eae5aa6 Voice Bot | lakeside sky dome: lakesideSkyDomeColor(mode) reads lakesideModeLighting(mode).skyDomeColor (same value as clearColor; one line + test expectation)
+0b3e850 0b3e8506dad74850d69c5a895a368afba37fedfe Cursor Agent | lakeside: enter-level cover holds the landed board pose (no push-in + cut back) — camera only
+6fd0e5f 6fd0e5f0f207a8929d8bb77eff69a8cc950e5db9 Cursor Agent | lakeside hook v3 test: swap frame (world camera after hook+hold vs LakesideBackgroundCamera) on 5 screens, goals 2..4
+99a8003 99a8003294e0803602b7f5dd867ded405c0b61f0 Cursor Agent | region hooks: 04→05 meadow / 08→09 skycity journeys end on the board camera that renders after the swap; push-in held (camera only)
+0ed6d84 0ed6d845f29854fbf8d6b92b5cc58d4eec08b41b Cursor Agent | region hooks: build the hook deps first (no world camera → today's path, no import touched) — fixes region-journey-host sandbox (camera only)
+64c33c7 64c33c7eb9d0907c28d5c7af97d665c32129d4e7 Cursor Agent | cine(region): board-end blend view slerps from its blend-start direction
+ba7b067 ba7b06719001a1b1ea1faaf1f3311323cea036f3 Cursor Agent | region hooks test: her r4-prep B+ board copy at the board camera (= hook end pose), per screen
+eb8aa92 eb8aa92458468a034d920a9cf22b59955ec0e165 Cursor Agent | girl-frame: screen-right sign (was mirrored); verified against the in-game meadow board capture
+714a6d0 714a6d08b23dbfe9cbe57c6dcc79a7cc78a3c3bc 运镜bot | Night-only glass set for the home-room glass sign and room hint text (day refine 3.2 unchanged)
+b3cb421 b3cb42184ca6d0007c903efaf7684d0526cac345 Cursor Agent | tests(cloud-web-contract): declare region_lakeside and shared_effects in the cloud-web bundle contract
+028ba83 028ba83c52c27b2df89bd1ea11ee9ace621747b8 Cursor Agent | provenance: build guard and run-suite print HEAD, tree and UTC time first; short SHA in log names
+c865781 c86578116cd2ab1b7fd2001e872970e024944551 Cursor Agent | reward-background-return: require Node >=22.6 explicitly; report BLOCKED_NODE on older Node (never a pass)
+92b0760 92b07601dce550d6bbeded2f0a795d8a427a6c9f Cursor Agent | production-integrity: check every frozen file, then fail once listing ALL mismatches
+ee7d526 ee7d526ccf81103297a8039c87fcd2b619b0718a Voice Bot | production-integrity: re-baseline 20 frozen sha256 values to the current, intended bytes
+494d218 494d2189ce472ac9c77c3a18e596e3f6be564352 Voice Bot | legacy-board-ui-pure: expect 3 sfxMuted gates (play, playCheer, exit cine) and the 4th chapter 'lake'
+1540814 1540814284ae468c1ab01cb4b355fdd1ba6e9aa8 Voice Bot | legacy-board-ui-pure: require Node >=22.6 explicitly; report BLOCKED_NODE on older Node (never a pass)
+332abcc 332abcce93ffd9212f6bef224db01113ace0a10b Cursor Agent | reward-background-return: follow the intended result-screen reward flow (no RewardPanel there since 3765e34)
+6a45937 6a45937da4c7e24f0736fe0af910c2d319a4d662 Cursor Agent | Result screen: no rewards on screen until the chest opens; badges rise out of its mouth once, never replayed
+1cd4dbb 1cd4dbb8a148591f0d7453c4ec39d1223a7ebe91 Cursor Agent | Journey cutscene: no 暂停旅程 button, no caption strip; tiny dev-preview line in test builds; background pause resumes itself
+d03c367 d03c367afce218dbcea1be43d494bfedebd035ec Cursor Agent | r4 sky-city figure: the 星庭 robot gardener carries over the swap (board copy continues the journey copy's ambient times)
+02e7fd4 02e7fd4147913032c84531a5f779338321d14f2f Cursor Agent | Journey background trip: lake loop keeps its crossfade aligned across hide/return; test locks the cutscene audio resume
+6f42df4 6f42df4b9202df285186b25a632d8d49a6ff693d Voice Bot | lakeside r4 prop fill: foliage / house walls / rocks / clouds get the land-fill emissive, own per-mode value in lakesideModeLighting; water + bridge untouched; test locks values, classes, night cool, draws <= 60
+2153a65 2153a65cd4c97208a202746d251e3a458d4bb98f 运镜bot | meadow 04→05: she stops where the board UI (3 tools) leaves her room on this screen; 08→09 leaves through the exit anchors ahead

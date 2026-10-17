@@ -1,0 +1,12 @@
+[enter-level] cover fixed false
+[enter-level] cover fixed false
+PASS returnHome after arriving in meadow (mainline-05) and exitLevel places her at home (no walk); journey reset, not completed
+[enter-level] cover fixed false
+[enter-level] cover fixed false
+PASS returnHome after arriving in skycity (mainline-09) and exitLevel places her at home (no walk); journey reset, not completed
+PASS returnHome directly from an arrived region (no level) works
+PASS returnHome from a paused (cancelled) journey on the island works
+PASS skycity VISIT still returns with exitSkycity (returnHome stays wrong-state there)
+[enter-level] cover fixed false
+PASS returnHome inside a level is still refused (the board exit comes first)
+{"status":"PASS","checks":6}

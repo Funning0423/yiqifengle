@@ -1,0 +1,13 @@
+[enter-level] cover fixed false
+PASS day (60 fps): 主页 from meadow resolves ok ≤10 s, state home, fade then audio in
+[enter-level] cover fixed false
+PASS day (60 fps): 主页 from journey-skycity resolves ok ≤10 s, state home, fade then audio in
+[enter-level] cover fixed false
+PASS night (1.6 fps): 主页 from meadow resolves ok ≤10 s, state home, fade then audio in
+[enter-level] cover fixed false
+PASS night (1.6 fps): 主页 from journey-skycity resolves ok ≤10 s, state home, fade then audio in
+PASS night: 主页 from a paused journey on the island resolves ok ≤10 s
+PASS root cause model: the old island walk home at night (1.6 fps, dt cap 0.1 s) takes ~6x its day wall time
+PASS timeout: a returnHome that never settles resolves {ok:false, reason:return-home-timeout} at 10 s and restores audio + cover
+PASS failure paths all resolve: act rejects / act {ok:false} / wrong state / cover throws
+{"status":"PASS","checks":8,"timings":[{"phase":"day","fps":60,"region":"meadow","seconds":0.4},{"phase":"day","fps":60,"region":"journey-skycity","seconds":0.4},{"phase":"night","fps":1.6,"region":"meadow","seconds":0.4},{"phase":"night","fps":1.6,"region":"journey-skycity","seconds":0.4},{"phase":"night","fps":1.6,"region":"paused-journey","seconds":0.4},{"model":"legacy-walk","day":3,"night":18.75}]}

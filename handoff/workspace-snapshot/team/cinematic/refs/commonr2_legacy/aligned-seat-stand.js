@@ -1,0 +1,12 @@
+'use strict';
+const Alignment=require('./original-room-alignment'),Posed=require('./character-snapshot/motion-study/girl-posed'),{MeshBuilder}=require('./character-snapshot/mesh3d'),RoutePosed=require('./natural-route-posed-girl'),Natural=require('./natural-route-locomotion');
+const R=Alignment.getRegistration(),SCALE=R.girlScale,REST=Posed.getRestRig().joints,LERP=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t),S=x=>{x=Math.max(0,Math.min(1,x));return x*x*x*(10+x*(-15+6*x));},V={add:(a,b)=>a.map((v,i)=>v+b[i]),sub:(a,b)=>a.map((v,i)=>v-b[i]),mul:(a,s)=>a.map(v=>v*s)};
+const base=V.mul(R.anchors.seatedFoot,1/SCALE),end=V.mul(R.anchors.standingFoot,1/SCALE);
+function evaluate(seconds){const t=Math.max(0,Math.min(1.1,seconds));if(t<=.65){const p=Posed.evaluateSeatStand(t,{duration:.65,seat:R.seatConfig});p.root={position:V.add(base,p.root.position),yaw:0};if(!p.feet)p.feet=Object.fromEntries(['L','R'].map(s=>[s,{worldAnkle:REST['ankle'+s].slice(),planted:true,yaw:0,pitch:0}]));for(const f of Object.values(p.feet)){f.worldAnkle=V.add(base,f.worldAnkle);f.worldYaw=0;}p.atRest=t===.65;p.stage='rise-from-original-stool';return p;}
+ const progress={L:S((t-.65)/.225),R:S((t-.875)/.225)},u=(progress.L+progress.R)/2,root={position:LERP(base,end,u),yaw:0},feet={},joints={},support={};let lower=0;
+ for(const side of ['L','R']){const p=progress[side],phase=Math.max(0,Math.min(1,(t-(side==='L'?.65:.875))/.225)),ankle=V.add(LERP(base,end,p),REST['ankle'+side]);ankle[1]+=.014*16*phase*phase*(1-phase)*(1-phase);feet[side]={worldAnkle:ankle,worldYaw:0,yaw:0,pitch:0,planted:p===0||p===1};const local=V.sub(ankle,root.position),h=REST['hip'+side],l=Natural.constants.restLengths[side].thigh+Natural.constants.restLengths[side].calf;lower=Math.max(lower,h[1]-local[1]-Math.sqrt(l*l-(h[0]-local[0])**2-(h[2]-local[2])**2)+.00004);}
+ lower=Math.max(0,lower)+.0015*Math.sin(u*Math.PI);root.position[1]-=lower;const activity=Math.sin(u*Math.PI);
+ for(const side of ['L','R']){const f=feet[side],local=V.sub(f.worldAnkle,root.position),leg=Natural.solveLeg(side,local,REST['hip'+side],activity);f.ankle=local;for(const n of ['hip','knee','ankle'])joints[n+side]=leg[n];support[side]=f.planted;}
+ return{time:t,root,feet,joints,support,sit:0,atRest:t===1.1,torso:{pitch:0},stage:'two-contact-stool-clearance',pelvisLowering:lower};}
+function makeModel(p){return p.time>.65?RoutePosed.makeModel(p):Posed.buildPosedGirl(new MeshBuilder(),p);}
+module.exports={evaluate,makeModel,SCALE,registration:R,duration:1.1};

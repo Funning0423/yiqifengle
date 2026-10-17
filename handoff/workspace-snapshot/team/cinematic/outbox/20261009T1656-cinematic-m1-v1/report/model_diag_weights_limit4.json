@@ -1,0 +1,58 @@
+{
+ "orig_weights:rest": {
+  "visible:legLxDRESS": 0,
+  "visible:legRxDRESS": 0,
+  "visible:torsoxDRESS": 0,
+  "visible:legLxAPRON": 0,
+  "visible:legRxAPRON": 0,
+  "visible:torsoxAPRON": 8,
+  "midsurface:legLxDRESS": 0,
+  "midsurface:legRxDRESS": 0,
+  "midsurface:torsoxDRESS": 0,
+  "midsurface:legLxAPRON": 0,
+  "midsurface:legRxAPRON": 0,
+  "midsurface:torsoxAPRON": 4
+ },
+ "orig_weights:sit": {
+  "visible:legLxDRESS": 0,
+  "visible:legRxDRESS": 0,
+  "visible:torsoxDRESS": 32,
+  "visible:legLxAPRON": 0,
+  "visible:legRxAPRON": 0,
+  "visible:torsoxAPRON": 0,
+  "midsurface:legLxDRESS": 0,
+  "midsurface:legRxDRESS": 0,
+  "midsurface:torsoxDRESS": 16,
+  "midsurface:legLxAPRON": 0,
+  "midsurface:legRxAPRON": 0,
+  "midsurface:torsoxAPRON": 0
+ },
+ "limit4:rest": {
+  "visible:legLxDRESS": 0,
+  "visible:legRxDRESS": 0,
+  "visible:torsoxDRESS": 0,
+  "visible:legLxAPRON": 0,
+  "visible:legRxAPRON": 0,
+  "visible:torsoxAPRON": 8,
+  "midsurface:legLxDRESS": 0,
+  "midsurface:legRxDRESS": 0,
+  "midsurface:torsoxDRESS": 0,
+  "midsurface:legLxAPRON": 0,
+  "midsurface:legRxAPRON": 0,
+  "midsurface:torsoxAPRON": 4
+ },
+ "limit4:sit": {
+  "visible:legLxDRESS": 168,
+  "visible:legRxDRESS": 0,
+  "visible:torsoxDRESS": 32,
+  "visible:legLxAPRON": 0,
+  "visible:legRxAPRON": 0,
+  "visible:torsoxAPRON": 0,
+  "midsurface:legLxDRESS": 78,
+  "midsurface:legRxDRESS": 0,
+  "midsurface:torsoxDRESS": 16,
+  "midsurface:legLxAPRON": 0,
+  "midsurface:legRxAPRON": 0,
+  "midsurface:torsoxAPRON": 0
+ }
+}

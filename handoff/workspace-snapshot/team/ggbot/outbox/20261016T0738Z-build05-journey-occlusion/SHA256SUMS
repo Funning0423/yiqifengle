@@ -1,0 +1,11 @@
+7d3f7975841e9e4047720ef39b74575b9de6585137cec1f140e19e3ca8bbe9c8  ./README.md
+8f7714c4966ae2be2a25dd8c4b777fab942f21b4487abf3a8d34c2882153deaa  ./evidence/before-build05-occlusion-samples.json
+66642b42e1de9e9287d960fdb44a2aee8812d5c288f74d91aba5d3a63058a78a  ./evidence/journey-occlusion.json
+464ae504f9cca93474e113c0369420434e6fd56ed027cd5f9ceaf18731874bca  ./evidence/overhead-clearance.txt
+6fd06940a108c21fc14072fdb3591242911bd061254036fa649ff65532065aab  ./evidence/overhead.cjs
+baaa37641cadc7198e9ff2a2316b230f18a2289f45827f61e0c4b75b9433b1f4  ./patches/0001-Build05-baseline-Oi-task21-regions-build05-complete..patch
+7dab11b8b6bcf55af869a814363f0c18a03f5196c6ed00f9295fc07b4876133c  ./patches/0002-Build05-journey-occlusion-re-place-bridges-path-fram.patch
+347e31088840cbc29ebf5fa3568b75fc3811d4f17f3497a99c3e6af32e4bd9b8  ./patches/fix-only/0001-Build05-journey-occlusion-re-place-bridges-path-fram.patch
+c1d3dc58fa31e1321577cb035bc5758744ea42b6f08c6fa70fe9ae84dc2bac21  ./route-height-04-05.csv
+3224f7cb6a73b71fc7c323a1cb4356e0e8b873a9a45be338d4cfc8ee787851ac  ./route-height-08-09.csv
+3705371086b8fd1ebb34e747c36abd22f0e52c2e982b3a31b7c087c726d6b326  ./tree.txt

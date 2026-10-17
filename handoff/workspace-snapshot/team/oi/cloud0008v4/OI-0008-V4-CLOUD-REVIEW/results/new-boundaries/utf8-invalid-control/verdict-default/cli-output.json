@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default",
+      "--auto-port",
+      "42010"
+    ],
+    "pid": 467,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 57,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default"
+    ],
+    "pid": 478,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 52,
+    "lines": []
+  }
+}

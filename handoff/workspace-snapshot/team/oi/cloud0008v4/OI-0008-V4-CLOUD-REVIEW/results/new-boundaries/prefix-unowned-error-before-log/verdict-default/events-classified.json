@@ -1,0 +1,106 @@
+[
+  {
+    "source": "automator.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] f222b440b8529a12"
+  },
+  {
+    "source": "automator.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] f222b440b8529a12"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] f222b440b8529a12"
+  },
+  {
+    "source": "shim.console.error",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] f222b440b8529a12"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] f222b440b8529a12"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "shim.console.log",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] f222b440b8529a12"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT] f222b440b8529a12"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-boot",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY] f222b440b8529a12"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+  },
+  {
+    "source": "weapplog",
+    "own": false,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "harmless"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "log",
+    "kind": "info",
+    "id": null,
+    "payload": "[QF-AUDIT-HEARTBEAT-LATE] f222b440b8529a12"
+  },
+  {
+    "source": "weapplog",
+    "own": true,
+    "level": "error",
+    "kind": "canary-late",
+    "id": null,
+    "payload": "[QF-AUDIT-CANARY-LATE] f222b440b8529a12"
+  }
+]

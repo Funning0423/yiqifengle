@@ -1,0 +1,34 @@
+{
+  "source": "R22 sampled world pelvis path",
+  "sigma_seconds": 0.12,
+  "lateral_deviation_fraction": 0.55,
+  "extra_turn_vertical_modulation_m": 0.004,
+  "spans": [
+    [
+      3,
+      4.5
+    ],
+    [
+      14.3,
+      16
+    ],
+    [
+      17.5,
+      18.5
+    ],
+    [
+      18.5,
+      21.5
+    ],
+    [
+      21.5,
+      23.2
+    ],
+    [
+      27.7,
+      29.2
+    ]
+  ],
+  "method": "Gaussian smooth horizontal pelvis path, reduce deviation from interpolated neutral endpoints, smooth 0.18-second endpoint envelopes. Precomputed geometry-fixed curve; no per-frame maximum-reach forcing. Four-millimetre smooth local pelvis modulation, controller worldY remains0. Original root path and exact foot transforms retained.",
+  "pending": "New evaluated lower/scene/self and visible motion regression."
+}

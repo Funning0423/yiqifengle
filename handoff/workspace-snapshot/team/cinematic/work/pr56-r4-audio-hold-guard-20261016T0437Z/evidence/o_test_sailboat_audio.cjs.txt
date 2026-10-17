@@ -1,0 +1,16 @@
+PASS missing cine file warns and does not throw or start a source
+PASS cine plays once at transition start and a late load after stop is ignored
+PASS skip fades the cine bed over the supplied 0.3s and then stops it
+PASS background stops the cine bed and showing the app does not resume it
+PASS hold waits on the existing wind loop, then fades it when the load continues
+PASS background stops hold wind; returning does not loop it again until asked
+PASS sfx mute stops cine only; full mute also stops the hold bed
+PASS pause holds the cine voice and resume continues the same source
+PASS a short fadeCineSlot (80ms) fades without cutting it, then the wind bed is still up
+PASS sail sting loads from the region_island bundle and a missing bundle only warns
+PASS cloud-hold 0.4s fade: still live at 250ms+0.39s, stopped only after 0.4s
+PASS restoreCineSlot mid-fade puts the sting back at full gain and it keeps playing
+PASS restoreCineSlot with no fade or after the slot stopped is a no-op
+{"status":"PASS_SAILBOAT_AUDIO","cases":13}
+(node:103422) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

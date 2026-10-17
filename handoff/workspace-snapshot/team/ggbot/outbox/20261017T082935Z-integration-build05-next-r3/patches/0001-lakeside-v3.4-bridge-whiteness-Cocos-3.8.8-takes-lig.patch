@@ -1,0 +1,113 @@
+From 7176c5654789e5cfa22f0960e970ce358d1d52a8 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 15:29:02 +0800
+Subject: [PATCH 01/10] lakeside v3.4 bridge whiteness: Cocos 3.8.8 takes
+ light/ambient Color bytes/255 as linear, the lease sent sRGB-encoded bytes
+ (sky ambient 0.110/0.565/0.718 instead of r5h3 0.0116/0.2747/0.4793, ambient
+ 0.75 x sun) -> ACES washed the stone bridge cyan-white (Mac v3.2 179/217/214
+ vs r5h3 104/128/116). Data only in LakesideSceneData (call sites, day/night
+ and journey code untouched): lakesideCocosLightColor pre-encodes so
+ linearToSrgb8() = r5h3 linear x 255; sun 1.0 -> 0.5, ambient 0.75 -> 0.2 of
+ base illum (emulator land fit vs r5h3 1535 -> 326; bridge deck 119/142/140).
+ Tests dirlight + water_fog follow
+
+---
+ .../scripts/region/LakesideSceneData.ts       | 29 +++++++++++++++----
+ tools/lakeside/test_lakeside_dirlight.cjs     | 17 +++++++----
+ tools/lakeside/test_lakeside_water_fog.cjs    |  2 +-
+ 3 files changed, 35 insertions(+), 13 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index fa0d3ea..2f0efa9 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -51,18 +51,35 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
+ export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
+ /** ALL lakeside 'dir' lighting / water / fog values (one block; v3 = Voice Bot's verified r5h3 values where given, 20261017T051017Z):
+  *  - sun*: scene_r5h3_lighting.json Sun exactly. ambientSky = r5h3 world zenith; ambientGround = r5h3 below-horizon clamp (VB).
+- *  - ambientSkyIllumToSun: proxy-tuned (VB: physical 0.139, v2 0.75) - device check.
++ *  - ambientSkyIllumToSun: v3.4 0.2 (see lakesideCocosLightColor; v2/v3.3 0.75 compensated sRGB-bytes-as-linear) - device check.
+  *  - water*: lakeside-water.effect. Tint (VB/v2), Schlick F0 0.02 / power 5 (VB), reflection colour by reflect-vector elevation
+  *    across zenith / low sky / horizon = the r5h3 sky ramp stops (VB), Blinn exponent 300 +-40% sin noise for a streak (VB 200–500).
+  *  - fog*: v3.1 sRGB 215/170/150; mode in LAKESIDE_FOG_MODE. linear60: 60 m -> 0.4 at 130 m; Cocos LINEAR has no max amount, so
+  *    the end is stretched to 60 + 70/0.4 = 235 m (clouds at ~163 m reach ~0.44). Board 16–24 m, near shore <30 m: clear. */
++/** v3.4 (VB, bridge whiteness): Cocos 3.8.8 uses a light's Color bytes / 255 AS LINEAR (DirectionalLight.color -> colorTemperature-free
++ *  path, Ambient.skyLightingColor / groundLightingColor -> Color.x without SRGBToLinear; only fog colour is linearised). The lease sends
++ *  linearToSrgb8(<linear r5h3 colour>), so Cocos saw sRGB bytes as linear: sky ambient (0.110,0.565,0.718) instead of r5h3
++ *  (0.0116,0.2747,0.4793) - ~2x too bright and cyan - and ambient w = 0.75 x sun; ACES then washed the light stone bridge to
++ *  cyan-white (Mac v3.2 bridge 179/217/214 vs r5h3 104/128/116; same cause for the lime grass). Fix, data only (call sites untouched):
++ *  lakesideCocosLightColor(lin) returns the value whose linearToSrgb8() is round(lin*255), i.e. Cocos gets the r5h3 linear colour.
++ *  The authored r5h3 values stay readable as LAKESIDE_R5H3_LIGHT_LINEAR. */
++export function lakesideCocosLightColor(lin: readonly number[]): [number, number, number] {
++  const dec = (x: number) => { const v = Math.max(0, Math.min(1, x)); return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
++  return [dec(lin[0]), dec(lin[1]), dec(lin[2])];
++}
++export const LAKESIDE_R5H3_LIGHT_LINEAR = Object.freeze({
++  sun: [1.0, 0.6, 0.32] as const, ambientSky: [0.0116, 0.2747, 0.4793] as const, ambientGround: [1.0, 0.5457, 0.1441] as const,
++});
+ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   sunForward: [-0.4182, -0.3983, 0.8164] as const,
+-  sunColorLinear: [1.0, 0.6, 0.32] as const,
+-  sunIlluminanceScale: 1.0,
+-  ambientSkyColorLinear: [0.0116, 0.2747, 0.4793] as const,
+-  ambientGroundColorLinear: [1.0, 0.5457, 0.1441] as const,
+-  ambientSkyIllumToSun: 0.75,
++  /** pre-encoded for Cocos (see lakesideCocosLightColor): linearToSrgb8() of these = r5h3 linear x 255. */
++  sunColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.sun) as readonly number[],
++  /** v3.4: 1.0 -> 0.5 and ambient 0.75 -> 0.2 of the base illuminance (= 0.4 x lakeside sun). With the colours now really linear,
++   *  a grid search on the Mac-calibrated Blender G-buffer emulator vs r5h3 (bridge, grass, trees, roof) put the land score 1535 -> 326. */
++  sunIlluminanceScale: 0.5,
++  ambientSkyColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientSky) as readonly number[],
++  ambientGroundColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround) as readonly number[],
++  ambientSkyIllumToSun: 0.2,
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterGlbs: ['LK_lake.glb'] as const,
+   waterMaterialPath: 'water/lakeside-water',
+diff --git a/tools/lakeside/test_lakeside_dirlight.cjs b/tools/lakeside/test_lakeside_dirlight.cjs
+index ee27e57..1e2d89c 100644
+--- a/tools/lakeside/test_lakeside_dirlight.cjs
++++ b/tools/lakeside/test_lakeside_dirlight.cjs
+@@ -6,16 +6,21 @@ const m={exports:{}};new Function('module','exports','require',ts.transpileModul
+ const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS,J=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h3_lighting.json'),'utf8'));
+ const L=n=>J.lights.find(l=>l.name===n);
+ assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');
+-assert.deepEqual([...P.sunForward],L('Sun').forward,'main = json Sun direction');assert.deepEqual([...P.sunColorLinear],L('Sun').colorLinear,'main = json Sun colour');
+-assert.equal(P.sunIlluminanceScale,L('Sun').illuminanceRatio);
++assert.deepEqual([...P.sunForward],L('Sun').forward,'main = json Sun direction');
++// v3.4: Cocos takes light/ambient Color bytes/255 as linear -> the bytes the lease sends (linearToSrgb8(param)) must be r5h3 linear x 255
++const R=D.LAKESIDE_R5H3_LIGHT_LINEAR,b8=c=>c.map(v=>Math.round(v*255));
++assert.deepEqual([...R.sun],L('Sun').colorLinear,'r5h3 = json Sun colour');assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),b8(R.sun),'Cocos sun = json Sun (linear)');
++assert.deepEqual(D.linearToSrgb8(P.ambientSkyColorLinear),b8(R.ambientSky));assert.deepEqual(D.linearToSrgb8(P.ambientGroundColorLinear),b8(R.ambientGround));
++for(let i=0;i<101;i++){const x=i/100;assert.equal(D.linearToSrgb8(D.lakesideCocosLightColor([x,x,x]))[0],Math.round(x*255),'round trip '+x);}
++assert.equal(P.sunIlluminanceScale,0.5,'v3.4 sun 0.5 x base (emulator fit, device check)');
+ // v2: blue sky (r5h3 world ramp top stop), warm ground, bluer water, blue clear colour
+-const sky=P.ambientSkyColorLinear;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
+-const gr=P.ambientGroundColorLinear;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
+-assert(P.ambientSkyIllumToSun>0.31&&P.ambientSkyIllumToSun<=1,'ambient raised so the scene is not grey');
++const sky=R.ambientSky;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
++const gr=R.ambientGround;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
++assert.equal(P.ambientSkyIllumToSun,0.2,'v3.4: 0.75 only compensated the sRGB-as-linear bytes; real linear colours need 0.2 (0.4 x lakeside sun)');
+ const wt=P.waterTintLinear;assert(wt[2]>=wt[1]&&wt[1]>wt[0]&&wt.every(c=>c>=0&&c<=1),'water tint cyan-blue, a valid Color');assert.deepEqual([...P.waterGlbs],['LK_lake.glb']);
+ assert.deepEqual([...P.clearColorLinear],[...sky],'clear colour = sky stop');assert.deepEqual(D.linearToSrgb8(P.clearColorLinear),[28,143,184]);
+ assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
+-assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),[255,203,153]);
++assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),[255,153,82]);
+ const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
+ assert(/if\(LAKESIDE_LIGHT_MODE==='points'\)for\(const l of LAKESIDE_LIGHTS\)/.test(bg),'SphereLights only in points mode');
+ assert(/getChildByName\('Main Light'\)/.test(bg)&&!/addComponent\(DirectionalLight\)/.test(bg),'reuses the scene main light, never adds one');
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index 3bac308..c7cf7d4 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -5,7 +5,7 @@ const A=path.join(__dirname,'../../creator-build-project/assets'),W=path.join(A,
+ const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);
+ const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
+ // Voice Bot verified values
+-assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.5457,0.1441]);
++assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.linearToSrgb8(P.ambientGroundColorLinear),[255,139,37],"v3.4 Cocos bytes = linear x 255");
+ assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
+ assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
+ assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise===0,'v3.3: streak noise off (its x-striped sin made moving bands)');
+-- 
+2.47.3
+

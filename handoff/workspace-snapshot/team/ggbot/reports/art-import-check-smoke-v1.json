@@ -1,0 +1,546 @@
+[
+  {
+    "file": "../../work/ggbot-island-bundle/assets/bundles/region_island/combined_visual_m.glb",
+    "kind": "env",
+    "bbox_m": [
+      565.258,
+      341.391,
+      565.258
+    ],
+    "checks": [
+      {
+        "item": "Y-up：根节点没有残留 Blender 的 X ±90° 旋转",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "无负缩放（镜像）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "无非等比缩放",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "世界缩放为 1（或仅一次 K=1.061164）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "K 没有被重复施加（K²）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "单位：场景尺寸像米（最长边 1–2000 m）",
+        "result": "green",
+        "detail": "包围盒 [565.258, 341.391, 565.258] m（X,Y,Z）"
+      },
+      {
+        "item": "Y 范围（信息，天空盒/云海会低于 0）",
+        "result": "green",
+        "detail": "最低 Y=-58.762，最高 Y=282.629"
+      },
+      {
+        "item": "网格节点命名有前缀（env_/chr_/col_/anchor_…）",
+        "result": "green",
+        "detail": "0/24 不合规: []"
+      },
+      {
+        "item": "名称无空格和非 ASCII 字符",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "网格节点不重名",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "每个 skin 骨骼数 ≤22",
+        "result": "green",
+        "detail": "12 个 skin，最多 8 根；超标: []"
+      },
+      {
+        "item": "每顶点权重 ≤4",
+        "result": "green",
+        "detail": "蒙皮顶点 13643，超 4 权重 0，有 JOINTS_1/WEIGHTS_1: False"
+      },
+      {
+        "item": "权重归一化（和为 1）",
+        "result": "green",
+        "detail": "未归一 0"
+      },
+      {
+        "item": "glTF 扩展在 Cocos 已知支持范围",
+        "result": "green",
+        "detail": "KHR_materials_specular, KHR_materials_unlit"
+      },
+      {
+        "item": "动画 clip 命名",
+        "result": "green",
+        "detail": "[('idle_loop', 225)]"
+      }
+    ],
+    "budget": {
+      "file": "../../work/ggbot-island-bundle/assets/bundles/region_island/combined_visual_m.glb",
+      "sha256": "158f0b42c534234ae46d68fc574cf84810900bb451d22c8b29656bcd6b28cf6c",
+      "bytes": 6225724,
+      "generator": "pygltflib@v1.16.5",
+      "extensionsUsed": [
+        "KHR_materials_specular",
+        "KHR_materials_unlit"
+      ],
+      "size_breakdown_bytes": {
+        "json": 152100,
+        "bin_total": 6073596,
+        "images": 378099,
+        "animations": 964592,
+        "geometry_and_other": 4730905
+      },
+      "counts": {
+        "meshes": 39,
+        "mesh_nodes": 24,
+        "skinned_nodes": 12,
+        "materials": 8,
+        "textures": 5,
+        "images": 3,
+        "animations": 1,
+        "skins": 12,
+        "nodes": 184
+      },
+      "triangles_scene": 74799,
+      "draw_calls_est": 24,
+      "checks": [
+        {
+          "item": "场景三角面",
+          "value": 74799,
+          "budget": "≤120000",
+          "result": "green"
+        },
+        {
+          "item": "draw call 估算（未合批：每个实例的每个 primitive 算 1 次）",
+          "value": 24,
+          "budget": "≤80",
+          "result": "green"
+        },
+        {
+          "item": "最大贴图边长",
+          "value": 1024,
+          "budget": "建议≤1024，上限2048",
+          "result": "green"
+        },
+        {
+          "item": "贴图显存估算 MiB（RGBA8+mip，未压缩）",
+          "value": 3.33,
+          "budget": "≤64",
+          "result": "green"
+        },
+        {
+          "item": "GLB 文件体积 MB（能否进主包）",
+          "value": 5.94,
+          "budget": "主包整体≤4.0",
+          "result": "red"
+        }
+      ],
+      "images": [
+        {
+          "index": 0,
+          "name": "env_palette_emissive_256",
+          "format": "png",
+          "width": 256,
+          "height": 256,
+          "file_bytes": 403,
+          "gpu_bytes_est": 349525,
+          "flag": "ok"
+        },
+        {
+          "index": 1,
+          "name": "env_palette_256",
+          "format": "png",
+          "width": 256,
+          "height": 256,
+          "file_bytes": 2412,
+          "gpu_bytes_est": 349525,
+          "flag": "ok"
+        },
+        {
+          "index": 2,
+          "name": "env_window_views_1024",
+          "format": "png",
+          "width": 1024,
+          "height": 512,
+          "file_bytes": 375284,
+          "gpu_bytes_est": 2796202,
+          "flag": "ok"
+        }
+      ],
+      "top_meshes": [
+        {
+          "mesh": "env_island_props_merged",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 26748
+        },
+        {
+          "mesh": "env_cloud_layer",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 7914
+        },
+        {
+          "mesh": "env_interior_props_merged",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 7707
+        },
+        {
+          "mesh": "env_lighthouse_ext",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 7609
+        },
+        {
+          "mesh": "env_sea_surface",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5688
+        },
+        {
+          "mesh": "env_interior_shell",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5189
+        },
+        {
+          "mesh": "env_island_main",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 4312
+        },
+        {
+          "mesh": "env_prop_palm_young_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 924
+        },
+        {
+          "mesh": "env_lighthouse_door",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 844
+        },
+        {
+          "mesh": "env_prop_palm_tall_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 810
+        },
+        {
+          "mesh": "env_int_anim_small_props",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 782
+        },
+        {
+          "mesh": "env_sea_foam",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 720
+        },
+        {
+          "mesh": "env_prop_palm_lean_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 706
+        },
+        {
+          "mesh": "env_sky_dome",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 672
+        },
+        {
+          "mesh": "env_anim_turtle_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 644
+        }
+      ],
+      "notes": [
+        "静态分析，不等于 Cocos 导入结果或真机数据。",
+        "draw call 是未合批上限估算；同材质静态合批或 GPU instancing 后会更低。",
+        "Cocos 导入后包体以构建产物为准（导入会转成 .bin/.json，体积可能与 GLB 不同）。"
+      ]
+    }
+  },
+  {
+    "file": "../../art/skycity/v0.2/export/skycity_v0_2.glb",
+    "kind": "env",
+    "bbox_m": [
+      1266.51,
+      218.803,
+      1440.848
+    ],
+    "checks": [
+      {
+        "item": "Y-up：根节点没有残留 Blender 的 X ±90° 旋转",
+        "result": "green",
+        "detail": "无；其他有旋转的根（锚点朝向等，属正常）: anchor_robot_root, anchor_spawn_girl, env_sky_starring_root, state_ring_before, state_ring_before_stars"
+      },
+      {
+        "item": "无负缩放（镜像）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "无非等比缩放",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "世界缩放为 1（或仅一次 K=1.061164）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "K 没有被重复施加（K²）",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "单位：场景尺寸像米（最长边 1–2000 m）",
+        "result": "green",
+        "detail": "包围盒 [1266.51, 218.803, 1440.848] m（X,Y,Z）"
+      },
+      {
+        "item": "Y 范围（信息，天空盒/云海会低于 0）",
+        "result": "green",
+        "detail": "最低 Y=-165.345，最高 Y=53.458"
+      },
+      {
+        "item": "网格节点命名有前缀（env_/chr_/col_/anchor_…）",
+        "result": "yellow",
+        "detail": "11/43 不合规: ['state_ring_after_stars', 'state_bridge_after', 'state_bridge_before', 'state_court_after', 'state_court_after_flowers', 'state_court_before', 'state_gate_after', 'state_gate_after_flowers', 'state_gate_before', 'state_ring_before']"
+      },
+      {
+        "item": "名称无空格和非 ASCII 字符",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "网格节点不重名",
+        "result": "green",
+        "detail": "无"
+      },
+      {
+        "item": "每个 skin 骨骼数 ≤22",
+        "result": "green",
+        "detail": "1 个 skin，最多 18 根；超标: []"
+      },
+      {
+        "item": "每顶点权重 ≤4",
+        "result": "green",
+        "detail": "蒙皮顶点 11222，超 4 权重 0，有 JOINTS_1/WEIGHTS_1: False"
+      },
+      {
+        "item": "权重归一化（和为 1）",
+        "result": "green",
+        "detail": "未归一 0"
+      },
+      {
+        "item": "glTF 扩展在 Cocos 已知支持范围",
+        "result": "green",
+        "detail": "KHR_materials_emissive_strength, KHR_materials_specular"
+      },
+      {
+        "item": "动画 clip 命名",
+        "result": "green",
+        "detail": "[('robot_give_flower', 54), ('robot_idle', 54), ('robot_watering', 54)]"
+      }
+    ],
+    "budget": {
+      "file": "../../art/skycity/v0.2/export/skycity_v0_2.glb",
+      "sha256": "c119eb1615fd7941459a755e2ecf06c75d37653f0c06a5b315b2216d20d61afb",
+      "bytes": 7714492,
+      "generator": "Khronos glTF Blender I/O v5.2.40",
+      "extensionsUsed": [
+        "KHR_materials_emissive_strength",
+        "KHR_materials_specular"
+      ],
+      "size_breakdown_bytes": {
+        "json": 86236,
+        "bin_total": 7628228,
+        "images": 252673,
+        "animations": 15744,
+        "geometry_and_other": 7359811
+      },
+      "counts": {
+        "meshes": 43,
+        "mesh_nodes": 43,
+        "skinned_nodes": 1,
+        "materials": 4,
+        "textures": 6,
+        "images": 2,
+        "animations": 3,
+        "skins": 1,
+        "nodes": 74
+      },
+      "triangles_scene": 120639,
+      "draw_calls_est": 47,
+      "checks": [
+        {
+          "item": "场景三角面",
+          "value": 120639,
+          "budget": "≤120000",
+          "result": "red"
+        },
+        {
+          "item": "draw call 估算（未合批：每个实例的每个 primitive 算 1 次）",
+          "value": 47,
+          "budget": "≤80",
+          "result": "green"
+        },
+        {
+          "item": "最大贴图边长",
+          "value": 512,
+          "budget": "建议≤1024，上限2048",
+          "result": "green"
+        },
+        {
+          "item": "贴图显存估算 MiB（RGBA8+mip，未压缩）",
+          "value": 1.67,
+          "budget": "≤64",
+          "result": "green"
+        },
+        {
+          "item": "GLB 文件体积 MB（能否进主包）",
+          "value": 7.36,
+          "budget": "主包整体≤4.0",
+          "result": "red"
+        }
+      ],
+      "images": [
+        {
+          "index": 0,
+          "name": "tex_sky_palette_256",
+          "format": "png",
+          "width": 256,
+          "height": 256,
+          "file_bytes": 3414,
+          "gpu_bytes_est": 349525,
+          "flag": "ok"
+        },
+        {
+          "index": 1,
+          "name": "tex_sky_foliage_512",
+          "format": "png",
+          "width": 512,
+          "height": 512,
+          "file_bytes": 249259,
+          "gpu_bytes_est": 1398101,
+          "flag": "ok"
+        }
+      ],
+      "top_meshes": [
+        {
+          "mesh": "chr_robot_gardener_mesh",
+          "instances": 1,
+          "primitives": 3,
+          "triangles_each": 16308
+        },
+        {
+          "mesh": "env_sky_ruins",
+          "instances": 1,
+          "primitives": 2,
+          "triangles_each": 12878
+        },
+        {
+          "mesh": "env_sky_cloudsea",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 11577
+        },
+        {
+          "mesh": "env_sky_greattree_canopy",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 10480
+        },
+        {
+          "mesh": "env_sky_gardens_shrubs",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 9588
+        },
+        {
+          "mesh": "env_sky_island_vines",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 6992
+        },
+        {
+          "mesh": "env_sky_greattree_roots",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 6212
+        },
+        {
+          "mesh": "env_sky_islets_far",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5740
+        },
+        {
+          "mesh": "env_sky_island_underside_rocks",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5360
+        },
+        {
+          "mesh": "env_sky_cumulus_far",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5200
+        },
+        {
+          "mesh": "env_sky_starcourt_plaza",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 4988
+        },
+        {
+          "mesh": "env_sky_greattree_trunk",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 3212
+        },
+        {
+          "mesh": "env_sky_cards_grass",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 3000
+        },
+        {
+          "mesh": "env_sky_cloud_small",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 2940
+        },
+        {
+          "mesh": "env_sky_island_top",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 2568
+        }
+      ],
+      "notes": [
+        "静态分析，不等于 Cocos 导入结果或真机数据。",
+        "draw call 是未合批上限估算；同材质静态合批或 GPU instancing 后会更低。",
+        "Cocos 导入后包体以构建产物为准（导入会转成 .bin/.json，体积可能与 GLB 不同）。"
+      ]
+    }
+  }
+]

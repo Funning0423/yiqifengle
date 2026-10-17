@@ -1,0 +1,11 @@
+PASS catalog preserves frozen budgets, exact goals, stage identity and seed banks
+PASS 36 shipped mainline openings win without tools; every action prefix cold-restores
+PASS 24 meadow/sky challenge seeds replay all goals and cold-recover every prefix
+PASS actual 12-stage progression, 4/8 entry versus 8/12 challenge gates, reward claims, cold storage
+PASS malformed, unavailable, read-only and sparse counter projections fail closed with no mutation
+PASS boundary winning-journal failures cannot unlock meadow/sky; cold retry records exactly once
+PASS mid-level cold reopen preserves board and needs explicit resume; late tokens do not write
+PASS meadow/sky chest and region-gift writes: before/after faults, retry, duplicate and cold claims
+PASS meadow/sky challenges progress in order, recover proof receipts and claim one regional memento
+PASS corrupt journey/checkpoint and stale concurrent writer preserve original bytes and lock regions
+PASS 10 region-level suites

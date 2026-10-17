@@ -1,0 +1,3 @@
+3610cfdf1d88230a8a4f06a2ae6169ce0268aa874d7bf3989b71b2b4332ce8a4  ./0001-0003-v2-region_skycity-bundle-overwrite-subpackage-s.patch
+3ae7b9edf9c6eaa9a5856cd03d2a38e127772c98200ac7fad07206d91728c8e0  ./README-0003-v2.md
+3e74ac49d392c63a740884e2fc9466022eb26623db4b66cc07fc1f9411d6970c  ./check_wechat_build.py

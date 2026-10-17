@@ -1,0 +1,13 @@
+2026-10-10T01:35:05.844Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 021dc0484fe9eaa6
+2026-10-10T01:35:05.844Z automator.error	[QF-AUDIT-CANARY-LATE] 021dc0484fe9eaa6
+2026-10-10T01:35:05.344Z shim.errors	[QF-AUDIT-CANARY] 021dc0484fe9eaa6
+2026-10-10T01:35:05.844Z shim.errors	[QF-AUDIT-CANARY-LATE] 021dc0484fe9eaa6
+2026-10-10T01:35:05.343Z shim.logs	[QF-AUDIT-HEARTBEAT] 021dc0484fe9eaa6
+2026-10-10T01:35:05.344Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:35:05.844Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 021dc0484fe9eaa6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default [log] [QF-AUDIT-HEARTBEAT] 021dc0484fe9eaa6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default [error] [QF-AUDIT-CANARY] 021dc0484fe9eaa6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default TypeError: actual prefix failure [log] harmless
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default [log] [QF-AUDIT-HEARTBEAT-LATE] 021dc0484fe9eaa6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/copies/QFFirstOpen-20261010T013504224Z-6b21-80dd56-default [error] [QF-AUDIT-CANARY-LATE] 021dc0484fe9eaa6

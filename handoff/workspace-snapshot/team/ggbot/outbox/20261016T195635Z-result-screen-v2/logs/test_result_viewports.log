@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "geometrySamples": 9661,
+  "geometrySamplesFailed": 0,
+  "failureTypes": {},
+  "contentTransformObservationSamples": 0,
+  "inputChecks": 323,
+  "inputChecksFailed": 0,
+  "inputFailures": []
+}

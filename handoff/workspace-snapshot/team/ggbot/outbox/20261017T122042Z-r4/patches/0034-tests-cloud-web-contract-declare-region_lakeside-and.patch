@@ -1,0 +1,34 @@
+From b3cb42184ca6d0007c903efaf7684d0526cac345 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:06:45 +0800
+Subject: [PATCH 34/47] tests(cloud-web-contract): declare region_lakeside and
+ shared_effects in the cloud-web bundle contract
+
+tools/cloud-web/lib.cjs REQUIRED_BUNDLES is the contract's list of current-scene project
+bundles that a web artifact must declare in settings.assets.projectBundles. The source
+has real bundle folders for both (assets/bundles/region_lakeside.meta, shared_effects.meta,
+isBundle:true; shared_effects since cb4f846), so the synthetic artifact built from the
+contract lacked them and verifyArtifact (lib.cjs:119) failed:
+'Required current-scene bundle not declared: region_lakeside' (shared_effects next).
+No assertion loosened. Validator-only file under tools/: no game script/asset/build
+config changes, so no package size change.
+---
+ tools/cloud-web/lib.cjs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/cloud-web/lib.cjs b/tools/cloud-web/lib.cjs
+index 9d0ffef..d7f1b65 100644
+--- a/tools/cloud-web/lib.cjs
++++ b/tools/cloud-web/lib.cjs
+@@ -9,7 +9,7 @@ const SCENE_UUID = '260c2ebc-0660-4be6-8c4b-7885436222ea';
+ const SCENE_URL = 'db://assets/scenes/WorldR5Integration.scene';
+ const CONFIG_REL = 'tools/cloud-web/world-r5-build-options.json';
+ const GENERATED_PROJECT_DIRS = new Set(['library','temp','local','profiles','build','node_modules','.git']);
+-const REQUIRED_BUNDLES = ['internal','resources','main','audio_bgm_island','board_art','region_island','region_meadow','region_skycity'];
++const REQUIRED_BUNDLES = ['internal','resources','main','audio_bgm_island','board_art','region_island','region_meadow','region_skycity','region_lakeside','shared_effects'];
+ const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+ const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
+ const write = (file, value) => { fs.mkdirSync(path.dirname(file), {recursive:true}); fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n'); };
+-- 
+2.47.3
+

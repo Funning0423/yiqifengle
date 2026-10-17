@@ -1,0 +1,159 @@
+{
+ "noTap": {
+  "tapFrame": -1,
+  "tapSec": -0.033,
+  "readyAtFrame": null,
+  "doneAfterFrames": 156,
+  "doneSec": 5.2,
+  "phases": [
+   "playing",
+   "done"
+  ],
+  "maxCover": 1
+ },
+ "lateLoad180": {
+  "tapFrame": -1,
+  "tapSec": -0.033,
+  "readyAtFrame": 180,
+  "doneAfterFrames": 255,
+  "doneSec": 8.5,
+  "phases": [
+   "playing",
+   "holding",
+   "playing",
+   "done"
+  ],
+  "maxCover": 1
+ },
+ "cases": [
+  {
+   "tapFrame": 3,
+   "tapSec": 0.1,
+   "readyAtFrame": null,
+   "doneAfterFrames": 156,
+   "doneSec": 5.2,
+   "phases": [
+    "playing",
+    "done"
+   ],
+   "maxCover": 1
+  },
+  {
+   "tapFrame": 9,
+   "tapSec": 0.3,
+   "readyAtFrame": null,
+   "doneAfterFrames": 18,
+   "doneSec": 0.6,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "done"
+   ],
+   "maxCover": 0.889
+  },
+  {
+   "tapFrame": 15,
+   "tapSec": 0.5,
+   "readyAtFrame": null,
+   "doneAfterFrames": 24,
+   "doneSec": 0.8,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "done"
+   ],
+   "maxCover": 0.889
+  },
+  {
+   "tapFrame": 45,
+   "tapSec": 1.5,
+   "readyAtFrame": null,
+   "doneAfterFrames": 54,
+   "doneSec": 1.8,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "done"
+   ],
+   "maxCover": 0.889
+  },
+  {
+   "tapFrame": 70,
+   "tapSec": 2.333,
+   "readyAtFrame": null,
+   "doneAfterFrames": 79,
+   "doneSec": 2.633,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "done"
+   ],
+   "maxCover": 0.889
+  },
+  {
+   "tapFrame": 81,
+   "tapSec": 2.7,
+   "readyAtFrame": null,
+   "doneAfterFrames": 90,
+   "doneSec": 3,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "done"
+   ],
+   "maxCover": 1
+  },
+  {
+   "tapFrame": 100,
+   "tapSec": 3.333,
+   "readyAtFrame": null,
+   "doneAfterFrames": 109,
+   "doneSec": 3.633,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "done"
+   ],
+   "maxCover": 1
+  },
+  {
+   "tapFrame": 140,
+   "tapSec": 4.667,
+   "readyAtFrame": null,
+   "doneAfterFrames": 149,
+   "doneSec": 4.967,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "done"
+   ],
+   "maxCover": 1
+  },
+  {
+   "tapFrame": 15,
+   "tapSec": 0.5,
+   "readyAtFrame": 120,
+   "doneAfterFrames": 121,
+   "doneSec": 4.033,
+   "phases": [
+    "playing",
+    "skip-fade",
+    "skip-hold",
+    "done"
+   ],
+   "maxCover": 1
+  },
+  {
+   "tapFrame": 200,
+   "tapSec": 6.667,
+   "readyAtFrame": null,
+   "doneAfterFrames": 156,
+   "doneSec": 5.2,
+   "phases": [
+    "playing",
+    "done"
+   ],
+   "maxCover": 1
+  }
+ ]
+}

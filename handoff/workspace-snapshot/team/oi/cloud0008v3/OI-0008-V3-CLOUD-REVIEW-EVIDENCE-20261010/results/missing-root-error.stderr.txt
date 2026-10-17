@@ -1,0 +1,12 @@
+2026-10-10T00:06:21.214Z +0.0s config {"cli":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-cli.cjs","buildDir":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/build","workRoot":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/missing-root-error/copies","finalizer":"/workspace/shared/game-first-open-0008-v3-review/extracted/20261009T2354Z-grokbot2-WECHAT-FIRST-OPEN-0008-v3/reference/finalize_wechat_local.12ef697+0008v2.cjs","cases":["default"],"allowAppJsonNotice":false,"mode":"auto","autoPort":42001,"settleMs":0,"cliDrainMs":100,"injectShim":true,"logDir":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/missing-root-error/logs","logPollMs":20,"logMaxBytes":1000000,"automatorModule":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-automator.cjs","globalQuit":"removed"}
+2026-10-10T00:06:21.270Z +0.1s cli islogin pid=64 exit=0 (55ms, 1 lines)
+2026-10-10T00:06:21.271Z +0.1s [verdict:default] copy build → /workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/missing-root-error/copies/QFFirstOpen-20261010T000621213Z-97b2-ddac19-default
+2026-10-10T00:06:21.326Z +0.1s [verdict:default] finalizer exit=0 {"output":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/missing-root-error/copies/QFFirstOpen-20261010T000621213Z-97b2-ddac19-default","compileType":"game","emptyCompileConditionsRemoved":true,"enhancementDisabled":true,"removedCondition":null,"changed":true,"action":"LOCAL_CONFIG_ONLY"}
+2026-10-10T00:06:21.326Z +0.1s [verdict:default] audit shim injected into COPY game.js (token 721e34a8bfda489c)
+2026-10-10T00:06:21.327Z +0.1s [verdict:default] cli auto --project /workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/missing-root-error/copies/QFFirstOpen-20261010T000621213Z-97b2-ddac19-default --auto-port 42001
+2026-10-10T00:06:21.381Z +0.2s cli auto pid=80 exit=0 (53ms, 0 lines)
+2026-10-10T00:06:22.333Z +1.1s [verdict:default] automator connected
+2026-10-10T00:06:22.834Z +1.6s [verdict:default] settle 0ms (no Compile, no input)
+2026-10-10T00:06:22.892Z +1.7s cli close pid=91 exit=0 (57ms, 0 lines)
+2026-10-10T00:06:22.945Z +1.7s [verdict:default] FAIL: 1 own error(s): weapplog
+2026-10-10T00:06:22.946Z +1.7s VERDICT FAIL: default: 1 own error(s): weapplog

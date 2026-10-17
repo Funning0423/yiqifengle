@@ -1,0 +1,69 @@
+From 5e1a291b3e18c3cede2cf43d092832418ff854bc Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 14:49:13 +0800
+Subject: [PATCH 12/17] Keep FlowReferenceStandin frozen (controller-integrity
+ guard): revert the distanceAt walk-driver hunk from 0e39055
+
+The route.timing distance curve is still handed to the walk action (Action.walk.distanceAt, optional); the frozen standin
+ignores it until a reviewed controller patch lands (proposed patch kept outside the repo). Until then the walk runs the
+controller's own plan at duration = timing.durationS (17 s).
+
+(cherry picked from commit 68478d9009b64c29c9846c3b21eee52679ac5482)
+---
+ creator-build-project/assets/scripts/WorldIntegrationBoot.ts  | 4 ++--
+ .../assets/scripts/world-r1/WorldFlowCore.ts                  | 2 +-
+ tools/journey-integration/test-lakeside-camera.cjs            | 3 ++-
+ 3 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 5cc7a83..0926650 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -216,7 +216,7 @@ class FlowReferenceStandin implements CharacterAdapter {
+    if(j.elapsed+1e-6>=j.duration)j.elapsed=j.duration;let p=j.elapsed/j.duration;
+    if(j.action.kind==='walk'){
+     // root travel: plan distance (walk_start / stop forward curves, cruise ramps) or the old linear L*t/D
+-    const plan:WalkPlan|null=j.plan,sPrev=j.s,curve=j.action.distanceAt;const s=curve?Math.max(sPrev,Math.min(j.length,curve(j.elapsed))):plan?walkDistanceAt(plan,j.elapsed):j.length*p;j.s=s;if(j.length>0)p=s/j.length;
++    const plan:WalkPlan|null=j.plan,sPrev=j.s;const s=plan?walkDistanceAt(plan,j.elapsed):j.length*p;j.s=s;if(j.length>0)p=s/j.length;
+     const st=plan&&plan.stop;if(st&&!j.stopEntered&&j.elapsed>=st.tEntry-1e-9){j.stopEntered=true;entry={dt1:Math.max(0,Math.min(step,st.tEntry-before)),ds1:Math.max(0,st.sEntry-sPrev)};
+      const e=j.action.path[j.action.path.length-1];this.stopRoot={clip:st.clip,end:[e[0],e[1],e[2]],yaw:this.yawRad,S:st.S,scale:st.scale,forward:st.forward,lateral:st.lateral};}
+     const q=pointOnPath(j.action.path,p),at=[q[0],q[1],q[2]];
+@@ -287,7 +287,7 @@ class FlowReferenceStandin implements CharacterAdapter {
+    if(action.kind==='stand')duration=this.playNamed(CLIP_ROLES.standUp,false)!;
+    else if(action.kind==='sit')duration=this.playNamed(CLIP_ROLES.sitDown,false)!;
+    else if(action.kind==='walk'){this.requireClip(CLIP_ROLES.walk);duration=action.duration;let L=0;for(let i=1;i<action.path.length;i++){const a=action.path[i-1],b=action.path[i];L+=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}extra.length=L;
+-    extra.plan=Number.isFinite(duration)&&duration>0&&!action.distanceAt?this.planFor(action,L):null;extra.fromRest=this.beginWalk(extra.plan||{L,D:duration,start:null,stop:null,cruise:null,linear:true,rate:1,notes:[]});}
++    extra.plan=Number.isFinite(duration)&&duration>0?this.planFor(action,L):null;extra.fromRest=this.beginWalk(extra.plan||{L,D:duration,start:null,stop:null,cruise:null,linear:true,rate:1,notes:[]});}
+    else{// Start from where she actually faces (the walk's damped yaw may still trail the path end by a few degrees).
+     const turn=action as Extract<Action,{kind:'turn'}>;extra.fromYaw=this.yawRad;extra.deltaYaw=wrapAngle(turn.toYawRad-this.yawRad);
+     // the walk ended without a planned stop: the stop plays before the turn (r5: it was skipped whenever a task followed)
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+index 5194f70..e954afe 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+@@ -17,7 +17,7 @@ export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean;
+ export type Pose = Readonly<{position:Vec; target:Vec; progress?:number; fovVerticalDeg?:number}>;
+ export type Seat = Readonly<{position:Vec; back:Vec; yawRad:number; seatedFoot:Vec; standingFoot:Vec; seatedControllerRoot:Vec; standingControllerRoot:Vec}>;
+ export type StablePose = {kind:'seated'; seat:Seat} | {kind:'standing'; controllerRoot:Vec; yawRad:number};
+-export type Action = {kind:'stand'|'sit'; seat:Seat} | {kind:'turn'; controllerRoot:Vec; fromYawRad:number; toYawRad:number; direction:'left'} | {kind:'walk'; path:readonly Vec[]; duration:number; /** optional distance-vs-time curve (0…duration → 0…path length); replaces the start/stop walk plan */ distanceAt?:(time:number)=>number};
++export type Action = {kind:'stand'|'sit'; seat:Seat} | {kind:'turn'; controllerRoot:Vec; fromYawRad:number; toYawRad:number; direction:'left'} | {kind:'walk'; path:readonly Vec[]; duration:number; /** optional distance-vs-time curve (0…duration → 0…path length) for a driver that supports it (replaces its start/stop walk plan). The frozen FlowReferenceStandin ignores it until its reviewed patch lands (controller-integrity guard). */ distanceAt?:(time:number)=>number};
+ export class Cancelled extends Error { constructor() { super('World operation cancelled'); this.name='Cancelled'; } }
+ export class Cancellation {
+   cancelled=false;
+diff --git a/tools/journey-integration/test-lakeside-camera.cjs b/tools/journey-integration/test-lakeside-camera.cjs
+index 56e6b52..a704ba5 100644
+--- a/tools/journey-integration/test-lakeside-camera.cjs
++++ b/tools/journey-integration/test-lakeside-camera.cjs
+@@ -11,7 +11,8 @@
+  *  K4 final landing frame at 360×780 (0.46) and 390×520 (0.75): whole body in frame, feet ≥ 5% above the bottom edge,
+  *     her centre 20–80% of the width, height 0.12–0.26 of the screen (0.26: close fallback-like end pose), board centre in frame.
+  *  K5 view turn ≤ 20°/s on the timed walk (route.timing, 17 s); no crane-up: lens height above her never rises over the arrival (monotone).
+- *  K7 time domain on route.timing (RegionJourneyCore.journeyDistanceAt, the distance curve the walk action now gets), 60 Hz:
++ *  K7 time domain on route.timing (RegionJourneyCore.journeyDistanceAt, the distance curve the controller hands the walk action
++ *     as distanceAt; NOTE the frozen FlowReferenceStandin does not follow it until its reviewed patch lands), 60 Hz:
+  *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
+  *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
+  *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): starts on the landing pose (lens at rest), ends exactly on
+-- 
+2.47.3
+

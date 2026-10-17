@@ -1,0 +1,22 @@
+[
+  {
+    "file": "tools/first-open-audit-shim.js",
+    "sha256": "29381cdf5da9a901a300c708275e8e3106c69119161c1ea7d71b8142e53169d6",
+    "syntaxExit": 0
+  },
+  {
+    "file": "tools/first_open_console_rules.cjs",
+    "sha256": "7fc9ff812d27792f7288c8d5b26d55c48c5acd9915afd540a1dae5e418a46bcd",
+    "syntaxExit": 0
+  },
+  {
+    "file": "tools/qf-wechat-env.cjs",
+    "sha256": "caa32ebc9ac0d8c209ed9a382f399860fa7a8c54ccf5c8866b21519d716be57e",
+    "syntaxExit": 0
+  },
+  {
+    "file": "tools/wechat_first_open_audit.cjs",
+    "sha256": "d466c6413f75fd7224ee4858ea3fca23509585de0f7382a63a09c108e9485ae2",
+    "syntaxExit": 0
+  }
+]

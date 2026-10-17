@@ -1,0 +1,25 @@
+PASS swap meadow 390x844
+PASS landing meadow 390x844
+PASS swap meadow 414x896
+PASS landing meadow 414x896
+PASS swap meadow 360x780
+PASS landing meadow 360x780
+PASS swap meadow 375x667
+PASS landing meadow 375x667
+PASS swap meadow 390x520
+PASS landing meadow 390x520
+PASS swap skycity 390x844
+PASS landing skycity 390x844
+PASS swap skycity 414x896
+PASS landing skycity 414x896
+PASS swap skycity 360x780
+PASS landing skycity 360x780
+PASS swap skycity 375x667
+PASS landing skycity 375x667
+PASS swap skycity 390x520
+PASS landing skycity 390x520
+PASS hook residual / failure paths
+PASS routes without board unchanged; invalid board rejected
+PASS her board copy at the board camera (r4-prep B+)
+PASS wiring
+{"status":"PASS","passed":24,"total":24}

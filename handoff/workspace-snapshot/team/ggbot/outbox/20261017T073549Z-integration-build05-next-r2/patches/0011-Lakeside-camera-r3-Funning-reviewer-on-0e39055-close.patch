@@ -1,0 +1,318 @@
+From a724d489a1e02d63a283529dab2259389b31d318 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 14:42:48 +0800
+Subject: [PATCH 11/20] Lakeside camera r3 (Funning/reviewer on 0e39055): close
+ fallback-like end pose + board lens, pitch 58 void; blend = one S for
+ position/slerp/FOV
+
+- landing: end pose = the default follow lens's final pose (6.8 m back / 1.76 m right / 3.0 m up, aim 60% toward her),
+  arrival Hermite off (lens rides her S-curve walk; lens peak 3.02 m/s, |a| 1.95, |jerk| 4.87), height only settles (no crane-up)
+- RegionJourneyCore: Landing key arrivalYawToHer (0 = unchanged for other routes)
+- board (portrait): camera stays at the landing position; yaw/pitch + FOV solved so the 3D board centre sits on the 2D grid
+  centre and the centre row matches its width (pitch ~10-14 deg, FOV 47-59 deg); landscape unchanged (75 deg / 40)
+- lakesideLandingBlend: position lerp, view slerp, FOV lerp on the same smootherstep (lateralExp removed)
+- test: K8 at 60 Hz (rest at both ends, monotonic/no overshoot, single-peak rates, per-frame series), K4 height <= 0.26,
+  K6 tray inset asserted on landscape only (portrait reported)
+
+(cherry picked from commit b0c21d245f88d3160f88a8a8ba9cdd5ac96f7072)
+---
+ .../scripts/region/LakesideCameraLayout.ts    | 95 +++++++++++--------
+ .../scripts/world-r1/RegionJourneyCore.ts     | 12 ++-
+ .../test-lakeside-camera.cjs                  | 58 +++++++----
+ 3 files changed, 103 insertions(+), 62 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
+index e6149c6..4651480 100644
+--- a/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
++++ b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
+@@ -1,7 +1,6 @@
+ import type {Pose,Vec} from '../world-r1/WorldFlowCore';
+-import type {JourneyLanding,JourneyTiming} from '../world-r1/RegionJourneyCore';
+-import {fromLookAt,type AuthoredPose,type CameraPose} from '../world-r1/CameraPose';
+-import {lakesideBoardPose} from './LakesideSceneData';
++import {arrivalPose,type JourneyLanding,type JourneyTiming} from '../world-r1/RegionJourneyCore';
++import {fromLookAt,projectPoint,type AuthoredPose,type CameraPose} from '../world-r1/CameraPose';
+ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus} from './RegionJourneyLayout';
+ /** Lakeside (r5h3) camera data: journey into the region, Landing A arrival and the board framing. Pure numbers and maths, no
+  * engine imports, so tools/journey-integration/test-lakeside-camera.cjs checks exactly these values against the committed
+@@ -9,8 +8,9 @@ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus} from './RegionJour
+  * Route: island exit (same approach as 04→05) → 24 m rainbow bridge (same shape) → lands on the empty south bank (flat
+  * 0.56–0.59 m from z 23 to 39) → walks 11.5 m straight toward the lake and stops 2.5 m from the shore, facing the board.
+  * Landing A machinery (RegionJourneyCore.arrivalPose/journeyCamera) with per-route overrides: lens on HER RIGHT, no late
+- * lift (no crane-up), lens position on an S-curve Hermite into the arrival pose (at rest when she stops), board centre as the focus
+- * so the arrival frame already looks at the level she is about to play. */
++ * lift (no crane-up), close fallback-like end pose. The lens is driven by her walked distance, and her walk has the S-curve
++ * time profile (timing), so the lens eases in/out with her and is at rest when she stops (no Hermite needed: the end pose
++ * is the follow pose's own neighbourhood). Board centre as the focus. */
+ export const LAKESIDE_CAMERA_LAYOUT={
+  /** Root Y rotation (Cocos setRotationFromEuler(0,yawDeg,0)): lakeside -Z (toward the lake) becomes the bridge's world +Z. */
+  yawDeg:180,
+@@ -22,25 +22,29 @@ export const LAKESIDE_CAMERA_LAYOUT={
+  walkLocal:[[1.2,.58,30],[1.2,.58,24.5]] as ReadonlyArray<Vec>,
+  /** Board centre (7×7 cells x −3.3…3.3, z 8.7…15.3) at piece height. */
+  focusLocal:[0,.3,12] as Vec,
+- /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). */
+- landing:{arrivalSideM:.8,arrivalLiftM:0,arrivalHermite:1,anchorSmoothM:1.5} as JourneyLanding,
++ /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). Close end pose
++  * (Funning on the c375304 video: the fallback's final frame reads the board and bridge better): the arrival pose is the
++  * default follow lens's final pose (6.8 m behind / 1.76 m right; 3.0 m up, 0.4 m under the 3.4 m follow height), view ≈ 8°
++  * down, aim turned 60% of the way from the board centre toward her (her ≈ 34% across, board centre ≈ 74% at 360×780, as in
++  * the fallback frame). Over the 14.3 m arrival blend the lens height above her eases 3.4 → 3.0 m, so the lens never climbs
++  * in the world (it settles; no crane-up). */
++ landing:{arrivalBackM:6.8,arrivalSideM:1.76,arrivalUpM:3.0,arrivalPitchDeg:3.7,arrivalYawToHer:.6,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
+  /** Time profile (reviewer on c375304): the 39.2 m leg in 17 s, smootherstep ramps 4 s up from rest and 4 s down into
+   * the landing stop. Cruise 3.02 m/s (≤ 4.5), |a| ≤ 1.41 m/s² (≤ 3), |jerk| ≤ 1.09 m/s³ for her; the lens follows distance
+   * (K7: lens |a| ≤ 1.95 m/s², |jerk| ≤ 4.9 m/s³). */
+  timing:{durationS:17,easeInS:4,easeOutS:4} as JourneyTiming,
+- /** Landing → board: after she stops, the journey (world) camera blends from the final landing pose to the board camera
+-  * (lakesideAlignedBoardPose, mapped to world) in `seconds`, smootherstep in position, yaw/pitch (no roll) and FOV; the
+-  * board UI/lease then takes over at the identical pose. lateralExp > 1 delays the sideways part of the move so the lens
+-  * stays on her right while it is still behind her. */
+- landingBlend:{seconds:1,lateralExp:3},
+- /** Board framing: the 3D lake grid (wb_line grid, cell edges x ±3.85, z 8.15…15.85 on the water) is laid under the 2D board
+-  * grid of BoardLayout: board centre on the 2D grid centre and the centre row exactly the 2D grid width. pitchDeg is the
+-  * view pitch below horizontal; 58° (reviewer on c375304: more village/mountains above the tray) keeps the residual
+-  * perspective (near row wider, far row narrower) inside the opaque tray frame on portrait layouts 0.43…0.75 (≥ 0.05 cell)
+-  * while the strip above the tray reaches the village shore. Portrait FOV follows Voice Bot's lakesideBoardPose rule (handoff 61.928°, widened on taller screens). Landscape
+-  * (desktop preview; the board fills the height of the right column) needs a steeper, longer lens for the same fit. No
+-  * geometry is moved or added. */
+- board:{pitchDeg:58,landscape:{pitchDeg:75,fovVerticalDeg:40},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
++ /** Landing → board: after she stops (lens at rest), the journey (world) camera blends from the final landing pose to the
++  * board camera (lakesideAlignedBoardPose, mapped to world) in `seconds`. Position (lerp), view direction (slerp, never any
++  * roll) and FOV all follow the SAME smootherstep S, so all three start and end at zero velocity and zero acceleration, move
++  * monotonically (no overshoot) and peak together at mid-blend; the board UI/lease then takes over at the identical pose. */
++ landingBlend:{seconds:1},
++ /** Board framing. Portrait (reviewer, c375304 round 2: the pitch-58 overhead board view is void): the board camera stays at
++  * the close landing position (the fallback-like end pose, see landing); only its view direction and FOV change so the 3D
++  * lake grid (wb_line grid, cell edges x ±3.85, z 8.15…15.85 on the water) lies under the 2D board grid of BoardLayout with
++  * the board centre on the 2D grid centre and the centre row exactly the 2D grid width. The view is shallow (≈ 9–11° down),
++  * so the rows are strongly foreshortened: corner / cell errors are reported by the test, not hidden. Landscape (desktop
++  * preview; the board fills the height of the right column) keeps the overhead closed-form lens. No geometry is moved or added. */
++ board:{landscape:{pitchDeg:75,fovVerticalDeg:40},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
+ } as const;
+ const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
+ /** Placement + route pieces for RegionJourneyAdapter: model.setRotationFromEuler(0,yawDeg,0); model.setWorldPosition(...root);
+@@ -64,22 +68,39 @@ export function lakesideBoardRect(frame:LakesideBoardFrame):{x:number;y:number;s
+  const pitch=Math.max(20,Math.min(42.6*Math.min(1.3,Math.max(1,w/390)),(w-18)/(681/82)));
+  return {x:w/2,y:frame.boardTop+pitch*(723/82)/2,size:pitch*7};
+ }
+-/** Lakeside board-background camera for a board-UI frame. Closed form: with the view direction fixed (pitchDeg, facing −Z)
+- * the 3D centre row is at one depth D, so its projected width 7.7/(D·tan(fov/2)·aspect) (NDC) equals the 2D grid width;
+- * the camera then shifts in its own image plane so the 3D board centre lands on the 2D grid centre. */
++/** Lakeside close end pose (Local): Landing A arrival pose of the lakeside walk (her stop walkLocal[last], focus = board centre). */
++export function lakesideLandingLocal():AuthoredPose{const L=LAKESIDE_CAMERA_LAYOUT,e=arrivalPose(L.walkLocal,L.focusLocal,L.landing);
++ return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:48};}
++/** Lakeside board-background camera for a board-UI frame (Local).
++ * Portrait: position = lakesideLandingLocal().position; no roll; yaw/pitch solved (Newton) so the 3D board centre projects on
++ * the 2D grid centre, FOV solved (bisection) so the 3D centre row projects exactly the 2D grid width.
++ * Landscape: closed form — with the view direction fixed (landscape.pitchDeg, facing −Z) the 3D centre row is at one depth D,
++ * so its projected width 7.7/(D·tan(fov/2)·aspect) (NDC) equals the 2D grid width; the camera then shifts in its own image
++ * plane so the 3D board centre lands on the 2D grid centre. */
+ export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
+- const B=LAKESIDE_CAMERA_LAYOUT.board,G=B.grid,rect=lakesideBoardRect(frame),w=frame.width,h=frame.height,aspect=w/h;
+- const wide=w>h,fov=wide?B.landscape.fovVerticalDeg:lakesideBoardPose(aspect).fovVerticalDeg,t=Math.tan(fov*Math.PI/360),p=(wide?B.landscape.pitchDeg:B.pitchDeg)*Math.PI/180;
++ const B=LAKESIDE_CAMERA_LAYOUT.board,G=B.grid,rect=lakesideBoardRect(frame),w=frame.width,h=frame.height,aspect=w/h,c=G.centre;
++ const q=(v:number)=>+v.toFixed(4);
++ if(w<=h){
++  const pos=lakesideLandingLocal().position,xn=rect.x/w*2-1,yn=1-rect.y/h*2,wn=rect.size/w*2;
++  const dir=(yaw:number,pitch:number):V3=>[Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)];
++  const pose=(yaw:number,pitch:number,fov:number)=>{const d=dir(yaw,pitch);return fromLookAt({position:pos,target:[pos[0]+d[0]*20,pos[1]+d[1]*20,pos[2]+d[2]*20],fovVerticalDeg:fov},fov);};
++  const v:V3=[c[0]-pos[0],c[1]-pos[1],c[2]-pos[2]],aimAt=(fov:number)=>{let yaw=Math.atan2(v[0],v[2]),pitch=Math.atan2(v[1],Math.hypot(v[0],v[2]));
++   for(let i=0;i<30;i++){const pr=(y:number,p:number)=>projectPoint(pose(y,p,fov),aspect,c),p0=pr(yaw,pitch),ex=p0.x-xn,ey=p0.y-yn;if(Math.abs(ex)+Math.abs(ey)<1e-12)break;
++    const e=1e-6,py=pr(yaw+e,pitch),pp=pr(yaw,pitch+e),a11=(py.x-p0.x)/e,a21=(py.y-p0.y)/e,a12=(pp.x-p0.x)/e,a22=(pp.y-p0.y)/e,det=a11*a22-a12*a21;
++    yaw-=(a22*ex-a12*ey)/det;pitch-=(a11*ey-a21*ex)/det;}return {yaw,pitch};};
++  const width=(fov:number)=>{const a=aimAt(fov),p=pose(a.yaw,a.pitch,fov),l=projectPoint(p,aspect,[c[0]-G.halfX,c[1],c[2]]),r=projectPoint(p,aspect,[c[0]+G.halfX,c[1],c[2]]);return r.x-l.x;};
++  let lo=10,hi=120;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(width(m)>wn)lo=m;else hi=m;}
++  const fov=(lo+hi)/2,a=aimAt(fov),d=dir(a.yaw,a.pitch),D=Math.hypot(...v);
++  return {position:[q(pos[0]),q(pos[1]),q(pos[2])],target:[pos[0]+d[0]*D,pos[1]+d[1]*D,pos[2]+d[2]*D],fovVerticalDeg:fov};}
++ const fov=B.landscape.fovVerticalDeg,t=Math.tan(fov*Math.PI/360),p=B.landscape.pitchDeg*Math.PI/180;
+  const f:V3=[0,-Math.sin(p),-Math.cos(p)],r:V3=[1,0,0],up:V3=[0,Math.cos(p),-Math.sin(p)];
+- const D=2*G.halfX/(t*aspect*(rect.size/w*2)),X=(rect.x/w*2-1)*t*aspect*D,Y=(1-rect.y/h*2)*t*D,c=G.centre;
++ const D=2*G.halfX/(t*aspect*(rect.size/w*2)),X=(rect.x/w*2-1)*t*aspect*D,Y=(1-rect.y/h*2)*t*D;
+  const pos:V3=[c[0]-r[0]*X-up[0]*Y-f[0]*D,c[1]-r[1]*X-up[1]*Y-f[1]*D,c[2]-r[2]*X-up[2]*Y-f[2]*D];
+- const q=(v:number)=>+v.toFixed(4);
+  return {position:[q(pos[0]),q(pos[1]),q(pos[2])],target:[q(pos[0]+f[0]*D),q(pos[1]+f[1]*D),q(pos[2]+f[2]*D)],fovVerticalDeg:fov};
+ }
+ /** The same pose as the CameraPose applyCameraPose() takes (the lease's frame() writes this). */
+ export function lakesideAlignedBoardPose(frame:LakesideBoardFrame):CameraPose{const p=lakesideAlignedLookAt(frame);return fromLookAt(p,p.fovVerticalDeg);}
+ const smooth5=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
+-const yawPitch=(p:Readonly<{position:readonly number[];target:readonly number[]}>)=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],h=Math.hypot(d[0],d[2]);return {yaw:Math.atan2(d[0],d[2]),pitch:Math.atan2(d[1],h)};};
+ export type LakesideLandingBlend=Readonly<{seconds:number;from:Pose;boardLocal:AuthoredPose;boardWorld:Pose;
+  /** World camera pose t seconds after she stopped (clamped to 0…seconds): pass to WorldLease.setCamera each frame. */
+  at(t:number):Pose}>;
+@@ -87,18 +108,18 @@ export type LakesideLandingBlend=Readonly<{seconds:number;from:Pose;boardLocal:A
+  *   const b=lakesideLandingBlend(world.readCamera() /* = the final journey pose *\/, boardFrame, journey);
+  *   each frame: world.setCamera(b.at(elapsed)); when elapsed ≥ b.seconds: show the board (lease.frame → its camera is
+  *   lakesideAlignedBoardPose(boardFrame) = b.boardWorld seen from the lease's own origin, so the hand-off has no jump).
+- * `journey` is lakesideJourney(start) (yawDeg + root). Position eases with smootherstep (lateral part with lateralExp),
+- * view yaw/pitch with the same S (shortest yaw, never any roll), FOV linearly in the eased parameter. */
++ * `journey` is lakesideJourney(start) (yawDeg + root). One smootherstep e(t/seconds) drives position (lerp), view direction
++ * (slerp on the unit sphere; the pose is a look-at, so no roll) and FOV (lerp): zero velocity/acceleration at both ends. */
+ export function lakesideLandingBlend(from:Pose,frame:LakesideBoardFrame,journey:Readonly<{yawDeg:number;root:Vec}>,seconds:number=LAKESIDE_CAMERA_LAYOUT.landingBlend.seconds):LakesideLandingBlend{
+  if(!(seconds>0)||!Number.isFinite(seconds))throw Error('Invalid lakeside landing blend seconds');
+  const local=lakesideAlignedLookAt(frame),toW=(p:readonly number[]):Vec=>plus(rotY(journey.yawDeg,[p[0],p[1],p[2]]),journey.root);
+- const toL=(p:readonly number[]):Vec=>rotY(-journey.yawDeg,[p[0]-journey.root[0],p[1]-journey.root[1],p[2]-journey.root[2]]);
+  const boardWorld:Pose={position:toW(local.position),target:toW(local.target),fovVerticalDeg:local.fovVerticalDeg};
+- const A=toL(from.position),B=local.position,a=yawPitch(from),b=yawPitch(boardWorld),f0=from.fovVerticalDeg??48,f1=local.fovVerticalDeg,k=LAKESIDE_CAMERA_LAYOUT.landingBlend.lateralExp;
+- let dy=b.yaw-a.yaw;while(dy>Math.PI)dy-=2*Math.PI;while(dy<-Math.PI)dy+=2*Math.PI;
+- const at=(t:number):Pose=>{const u=Math.max(0,Math.min(1,t/seconds));if(u>=1)return boardWorld;const e=smooth5(u),el=Math.pow(e,k);
+-  const p=toW([A[0]+(B[0]-A[0])*el,A[1]+(B[1]-A[1])*e,A[2]+(B[2]-A[2])*e]),yaw=a.yaw+dy*e,pitch=a.pitch+(b.pitch-a.pitch)*e;
+-  const d:Vec=[Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)];
+-  return {position:p,target:[p[0]+d[0]*10,p[1]+d[1]*10,p[2]+d[2]*10],fovVerticalDeg:f0+(f1-f0)*e};};
++ const unit=(a:readonly number[],b:readonly number[]):V3=>{const d:V3=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],l=Math.hypot(...d);return [d[0]/l,d[1]/l,d[2]/l];};
++ const A=from.position,B=boardWorld.position,d0=unit(from.position,from.target),d1=unit(boardWorld.position,boardWorld.target),f0=from.fovVerticalDeg??48,f1=local.fovVerticalDeg;
++ const th=Math.acos(Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2]))),sn=Math.sin(th);
++ const at=(t:number):Pose=>{const u=Math.max(0,Math.min(1,t/seconds));if(u>=1)return boardWorld;const e=smooth5(u);
++  const p:Vec=[A[0]+(B[0]-A[0])*e,A[1]+(B[1]-A[1])*e,A[2]+(B[2]-A[2])*e],k0=th>1e-9?Math.sin((1-e)*th)/sn:1-e,k1=th>1e-9?Math.sin(e*th)/sn:e;
++  const d=[d0[0]*k0+d1[0]*k1,d0[1]*k0+d1[1]*k1,d0[2]*k0+d1[2]*k1],l=Math.hypot(d[0],d[1],d[2]);
++  return {position:p,target:[p[0]+d[0]/l*10,p[1]+d[1]/l*10,p[2]+d[2]/l*10],fovVerticalDeg:f0+(f1-f0)*e};};
+  return {seconds,from,boardLocal:local,boardWorld,at};
+ }
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index c6f1b3b..c97605d 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -57,7 +57,10 @@ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,
+  // kernel ±anchorSmoothM (narrowed to the distance left to either end), so polyline corners (approach→bridge, bridge→ground)
+  // no longer kick the lens: its acceleration stays finite and continuous. On straight runs it is exactly her position.
+  // The follow heading chord (headingWindowM) is taken between smoothed points as well.
+- anchorSmoothM:0} as const;
++ anchorSmoothM:0,
++ // 0 = off (Build05 routes: aim horizontally at the focus). 0…1 (route.landing only): the horizontal aim of the arrival pose
++ // turns from the focus toward her by this fraction of the angle between them (keeps her inside the frame on a close lens).
++ arrivalYawToHer:0} as const;
+ /** Per-route Landing A overrides (route.landing, needs route.focus). Same machinery as 08→09; any key left out keeps the
+  * JOURNEY_CAMERA value, so routes without `landing` (04→05, 08→09) are byte-for-byte unchanged. Used by island→lakeside. */
+ /** Optional time profile for a route (reviewer on c375304: island→lakeside in ~17 s instead of length/1.2 m/s). Her travel
+@@ -83,8 +86,8 @@ export function journeyDistanceAt(L:number,t:JourneyTiming,time:number):number{c
+  * remaining length, never shorter than the ramps need. */
+ export function remainingTiming(L:number,remaining:number,t:JourneyTiming):JourneyTiming{const k=remaining/L;let a=t.easeInS,b=t.easeOutS;if(a+b>t.durationS*k){const f=t.durationS*k/(a+b+.5);a*=f;b*=f;}
+  return {durationS:Math.max(a+b+.5*Math.min(1,k),t.durationS*k),easeInS:a,easeOutS:b};}
+-export type JourneyLanding = Readonly<Partial<Record<'arrivalBlendM'|'arrivalHoldM'|'arrivalLiftM'|'arrivalRiseM'|'arrivalDropM'|'arrivalBackM'|'arrivalSideM'|'arrivalUpM'|'arrivalAim'|'arrivalPitchDeg'|'arrivalHermite'|'anchorSmoothM',number>>>;
+-const LANDING_KEYS={arrivalBlendM:1,arrivalHoldM:1,arrivalLiftM:1,arrivalRiseM:1,arrivalDropM:1,arrivalBackM:1,arrivalSideM:1,arrivalUpM:1,arrivalAim:1,arrivalPitchDeg:1,arrivalHermite:1,anchorSmoothM:1} as const;
++export type JourneyLanding = Readonly<Partial<Record<'arrivalBlendM'|'arrivalHoldM'|'arrivalLiftM'|'arrivalRiseM'|'arrivalDropM'|'arrivalBackM'|'arrivalSideM'|'arrivalUpM'|'arrivalAim'|'arrivalPitchDeg'|'arrivalHermite'|'anchorSmoothM'|'arrivalYawToHer',number>>>;
++const LANDING_KEYS={arrivalBlendM:1,arrivalHoldM:1,arrivalLiftM:1,arrivalRiseM:1,arrivalDropM:1,arrivalBackM:1,arrivalSideM:1,arrivalUpM:1,arrivalAim:1,arrivalPitchDeg:1,arrivalHermite:1,anchorSmoothM:1,arrivalYawToHer:1} as const;
+ const landingCamera=(landing?:JourneyLanding)=>landing?{...JOURNEY_CAMERA,...landing}:JOURNEY_CAMERA;
+ /** Route point at d smoothed with a triangular kernel of half-width w=min(W, d, T−d), computed EXACTLY from the polyline's
+  * second arc-length integral I2 (Tri(d)=(I2(d+w)−2·I2(d)+I2(d−w))/w²): piecewise cubic, so the result has continuous velocity
+@@ -133,7 +136,8 @@ export function arrivalPose(path:readonly Vec[],focus:Vec,landing?:JourneyLandin
+  const position:Vec=[p[0]-u[0]*C.arrivalBackM+n[0]*C.arrivalSideM,p[1]+C.arrivalUpM,p[2]-u[1]*C.arrivalBackM+n[1]*C.arrivalSideM];
+  // Horizontally the view points straight at the focus (plaza centred); vertically it tilts from the focus toward her
+  // chest by arrivalAim so she stays in the lower part of the portrait frame.
+- const fx2=focus[0]-position[0],fz2=focus[2]-position[2],fh=Math.hypot(fx2,fz2)||1,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim+C.arrivalPitchDeg*Math.PI/180,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
++ const hx=focus[0]-position[0],hz=focus[2]-position[2],hl=Math.hypot(hx,hz)||1,yf=Math.atan2(hx,hz);let dyh=Math.atan2(p[0]-position[0],p[2]-position[2])-yf;while(dyh>Math.PI)dyh-=2*Math.PI;while(dyh<-Math.PI)dyh+=2*Math.PI;
++ const yh=yf+dyh*C.arrivalYawToHer,fx2=C.arrivalYawToHer?Math.sin(yh)*hl:hx,fz2=C.arrivalYawToHer?Math.cos(yh)*hl:hz,fh=hl,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim+C.arrivalPitchDeg*Math.PI/180,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
+  return {position,target:[position[0]+aim[0]*8,position[1]+aim[1]*8,position[2]+aim[2]*8]};
+ }
+ /** Her-relative lens offset moved on an orbit: horizontal angle, horizontal radius and height interpolate separately,
+diff --git a/tools/journey-integration/test-lakeside-camera.cjs b/tools/journey-integration/test-lakeside-camera.cjs
+index 5f2baa3..56e6b52 100644
+--- a/tools/journey-integration/test-lakeside-camera.cjs
++++ b/tools/journey-integration/test-lakeside-camera.cjs
+@@ -9,17 +9,20 @@
+  *     Reported, not hidden: the 04→05 set-off exemption (d < 1 m, only her legs behind the island prop strip).
+  *  K3 lens on her RIGHT for the whole leg (never left of behind).
+  *  K4 final landing frame at 360×780 (0.46) and 390×520 (0.75): whole body in frame, feet ≥ 5% above the bottom edge,
+- *     her centre 20–80% of the width, height 0.12–0.22 of the screen, board centre in frame.
++ *     her centre 20–80% of the width, height 0.12–0.26 of the screen (0.26: close fallback-like end pose), board centre in frame.
+  *  K5 view turn ≤ 20°/s on the timed walk (route.timing, 17 s); no crane-up: lens height above her never rises over the arrival (monotone).
+  *  K7 time domain on route.timing (RegionJourneyCore.journeyDistanceAt, the distance curve the walk action now gets), 60 Hz:
+  *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
+  *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
+- *  K8 landing→board blend (lakesideLandingBlend, 1 s): starts on the landing pose, ends exactly on the board camera
+- *     (world), lens ≥ 1.1 m every 1/120 of it, her face/head/chest never hidden, lens on her right while it is behind her.
++ *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): starts on the landing pose (lens at rest), ends exactly on
++ *     the board camera; one smootherstep for position/view (slerp)/FOV: monotonic, no overshoot, single-peak rates ≈ 0 at both ends;
++ *     lens ≥ 1.1 m on every 60 Hz frame, her face/head/chest never hidden, lens on her right while it is behind her; per-frame
++ *     displacement / speed / turn rate / FOV rate written to the report (perFrame) for the blend plots.
+  *  K6 board framing (lakesideAlignedBoardPose, the pose the lease's frame() writes) on 8 real BoardLayout layouts (0.43…0.75
+  *     portrait, notch/capsule, tablet, landscape): the 3D lake grid (16 LK_wb_line) lies under the 2D board — 3D board centre
+- *     on the 2D grid centre and centre-row width = 2D grid width (≤ 0.5 px), every grid vertex inside the opaque tray by
+- *     ≥ 0.05 cell, residual perspective (corner / cell-centre error) reported; portrait top edge reaches past the north shore
++ *     on the 2D grid centre and centre-row width = 2D grid width (≤ 0.5 px); landscape: every grid vertex inside the opaque tray by
++ *     ≥ 0.05 cell; portrait (close, fallback-like lens; reviewer round 2): grid-vs-tray margin reported only;
++ *     residual perspective (corner / cell-centre error) reported; portrait top edge reaches past the north shore
+  *     (scene above the tray); lens clearance ≥ 1.1 m. Scene = exactly the live lease's instances.
+  * Geometric evidence only; native visual acceptance is separate. */
+ const J=require('./journey-scene.cjs'),{fs,assert,H,S,Core,Lay,sampleRoute,routeLength,journeyCamera,start,start1,island,add,sub,bbox,blockers,clearance,rayHit}=J;
+@@ -67,7 +70,7 @@ const finals={};
+ for(const [W,Hh] of [[360,780],[390,520]])check(`K4 final landing frame ${W}x${Hh}: whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame`,()=>{
+  const a=W/Hh,c=cam(T),p=path.at(-1),feet=ndc(c,[p[0],p[1]+.05,p[2]],a),head=ndc(c,[p[0],p[1]+1.65,p[2]],a),chest=ndc(c,[p[0],p[1]+.9,p[2]],a),fc=ndc(c,j.focus,a);
+  const x=(chest[0]+1)/2,feetUp=(feet[1]+1)/2,headDown=(1-head[1])/2,h=(head[1]-feet[1])/2;
+- assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.05,'feet '+feetUp);assert(headDown>=.05,'head '+headDown);assert(x>=.2&&x<=.8,'her x '+x);assert(h>=.12&&h<=.22,'height '+h);assert(Math.abs(fc[0])<=.9&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc);
++ assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.05,'feet '+feetUp);assert(headDown>=.05,'head '+headDown);assert(x>=.2&&x<=.8,'her x '+x);assert(h>=.12&&h<=.26,'height '+h);assert(Math.abs(fc[0])<=.9&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc);
+  return finals[W+'x'+Hh]={herX:+x.toFixed(3),feetAboveBottom:+feetUp.toFixed(3),headBelowTop:+headDown.toFixed(3),herHeight:+h.toFixed(3),boardCentre:[+((fc[0]+1)/2).toFixed(3),+((1-fc[1])/2).toFixed(3)],cam:c.position.map(v=>+v.toFixed(3)),target:c.target.map(v=>+v.toFixed(3)),fov:c.fovVerticalDeg};});
+ check('K5 view turn ≤ 20°/s on the 17 s profile; no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
+  for(let t=0;t<DUR;t+=1/60){const a=cam(sAt(t)),b=cam(sAt(Math.min(DUR,t+1/60))),fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI*60;if(deg>maxAng){maxAng=deg;at=t;}}
+@@ -97,7 +100,7 @@ const K6_LAYOUTS=[['360x780 (0.46)',360,780,{top:0,bottom:0,left:0,right:0,capsu
+  ['390x520 (0.75)',390,520,{top:0,bottom:0,left:0,right:0,capsule:null}],
+  ['768x1024 tablet (0.75)',768,1024,{top:20,bottom:0,left:0,right:0,capsule:null}],
+  ['844x390 landscape',844,390,{top:0,bottom:21,left:47,right:47,capsule:null}]];
+-check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact, grid inside the opaque tray), scene above the tray, lens clear',()=>{const out={};
++check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact; tray inset asserted on landscape, reported on portrait), scene above the tray, lens clear',()=>{const out={};
+  const kept=lakeLocal.length;assert.equal(kept,SD.lakesideSceneInstances(LKS.transforms.instances).length,'scene = live lease instances');
+  const grid=lakeLocal.filter(o=>o.glb==='LK_wb_line.glb'),decor=lakeLocal.filter(o=>/LK_(lilypad|rope_float|buoy_lantern|chime_raft)\.glb/.test(o.glb));assert.equal(grid.length,16);
+  const all=lakeLocal.map(o=>({tag:'lakeside',name:o.name,tris:o.tris}));
+@@ -108,7 +111,8 @@ check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact,
+   const centrePx=Math.hypot(c[0]-g.grid.x,c[1]-g.grid.y),widthPx=Math.abs((r[0]-l[0])-g.grid.size);assert(centrePx<=.5,`${name} centre off ${centrePx}px`);assert(widthPx<=.5,`${name} width off ${widthPx}px`);
+   const P=g.pitch,inset=.05*P;let worst=1e9,corner=0;
+   for(const o of grid)for(let k=0;k<o.tris.length;k+=3){const q=scr([o.tris[k],o.tris[k+1],o.tris[k+2]]);worst=Math.min(worst,g.tray.width/2-Math.abs(q[0]-g.tray.x),g.tray.height/2-Math.abs(q[1]-g.tray.y));}
+-  assert(worst>=inset,`${name} 3D grid within ${worst.toFixed(1)}px of the tray edge (need ${inset.toFixed(1)})`);
++  // portrait (close fallback-like board lens, reviewer round 2): the foreshortened 3D grid is reported, not asserted inside the tray
++  if(W>Hh)assert(worst>=inset,`${name} 3D grid within ${worst.toFixed(1)}px of the tray edge (need ${inset.toFixed(1)})`);
+   for(const [x,z,cx,cy] of [[-3.85,8.15,-3.5,-3.5],[3.85,8.15,3.5,-3.5],[-3.85,15.85,-3.5,3.5],[3.85,15.85,3.5,3.5]]){const q=scr([x,0,z]);corner=Math.max(corner,Math.hypot(q[0]-(g.grid.x+cx*P),q[1]-(g.grid.y+cy*P))/P);}
+   let cellErr=0;for(let i=0;i<49;i++){const p=SD.lakesideCellCenter(i),q=scr(p),u=BL.cellCenter(g,i);cellErr=Math.max(cellErr,Math.hypot(q[0]-u.x,q[1]-u.y)/P);}
+   let decorOut=0;for(const o of decor){const cx=(o.box[0][0]+o.box[1][0])/2,cz=(o.box[0][2]+o.box[1][2])/2,q=scr([cx,0,cz]);if(Math.abs(q[0]-g.tray.x)>g.tray.width/2||Math.abs(q[1]-g.tray.y)>g.tray.height/2)if(q[0]>0&&q[0]<W&&q[1]>0&&q[1]<Hh)decorOut++;}
+@@ -122,24 +126,36 @@ check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact,
+   if(W<Hh&&!safe.left&&!safe.right){const e=LK.lakesideBoardRect({width:W,height:Hh,boardTop:frame.boardTop});out[name].fallbackRectErrPx=+Math.max(Math.abs(e.x-g.grid.x),Math.abs(e.y-g.grid.y),Math.abs(e.size-g.grid.size)).toFixed(3);
+    if(Math.abs(g.pitch-(W-18)/(681/82))<1e-6||Math.abs(g.pitch-42.6*Math.min(1.3,Math.max(1,W/390)))<1e-6)assert(out[name].fallbackRectErrPx<=1,name+' fallback rect');}}
+  return {layouts:out};});
+-// K8 landing → board blend (lakesideLandingBlend): starts on the final landing pose, ends exactly on the board camera
+-check(`K8 landing→board blend ${C.landingBlend.seconds} s: exact ends, lens ≥ ${CLEAR} m, her face/head/chest never hidden, lens on her right while behind her, S-curve`,()=>{const out={};
+- const BL8=H.load(S+'ui/BoardLayout.ts'),p=path.at(-1),[hx,hz]=heading(T);
++// K8 landing → board blend (lakesideLandingBlend): exact ends, one S-curve for position / view (slerp) / FOV, 60 Hz frames
++check(`K8 landing→board blend ${C.landingBlend.seconds} s @60 Hz: exact ends, landing lens at rest, zero velocity at both ends, monotonic (no overshoot) distance/view/FOV, single-peak speed and turn rate (no spikes), lens ≥ ${CLEAR} m, her face/head/chest never hidden, lens on her right while behind her`,()=>{const out={};
++ const BL8=H.load(S+'ui/BoardLayout.ts'),p=path.at(-1),[hx,hz]=heading(T),ang=(a,b)=>{const u=sub(a.target,a.position),v=sub(b.target,b.position);return Math.acos(Math.max(-1,Math.min(1,(u[0]*v[0]+u[1]*v[1]+u[2]*v[2])/Math.hypot(...u)/Math.hypot(...v))));};
++ // the landing lens itself is at rest when the blend starts (her last 1/60 s)
++ const cl=cam(sAt(DUR-1/60)),cT=cam(T),landV=Math.hypot(...sub(cT.position,cl.position))*60,landW=ang(cl,cT)*180/Math.PI*60;assert(landV<.01&&landW<.1,`landing lens moving at the stop: ${landV} m/s, ${landW}°/s`);
+  for(const [W,Hh] of [[360,780],[390,520]]){const g=BL8.boardLayout(W,Hh,{top:0,bottom:0,left:0,right:0,capsule:null},2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
+-  const from=cam(T),b=LK.lakesideLandingBlend(from,frame,j),n=120,P=[];let minLens=9,minObj=null,minSide=9,hiddenAt=[],ahead=null;
++  const from=cT,b=LK.lakesideLandingBlend(from,frame,j),n=Math.round(b.seconds*60),F=[];let minLens=9,minObj=null,minSide=9,hiddenAt=[],ahead=null;
+   const e0=b.at(0),e1=b.at(b.seconds),loc=LK.lakesideAlignedLookAt(frame),bw=[loc.position,loc.target].map(j.toWorld);
+-  const close=(x,y,eps=1e-9)=>x.every((v,k)=>Math.abs(v-y[k])<=eps);assert(close(e0.position,from.position)&&Math.abs(e0.fovVerticalDeg-from.fovVerticalDeg)<1e-9,'start != landing pose');
+-  const d0=sub(e0.target,e0.position),d1=sub(from.target,from.position),cosA=(d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])/Math.hypot(...d0)/Math.hypot(...d1);assert(cosA>1-1e-9,'start view != landing view');
++  const close=(x,y,eps=1e-9)=>x.every((v,k)=>Math.abs(v-y[k])<=eps);assert(close(e0.position,from.position)&&Math.abs(e0.fovVerticalDeg-from.fovVerticalDeg)<1e-9,'start != landing pose');assert(ang(e0,from)<1e-7,'start view != landing view');
+   assert(close(e1.position,bw[0],1e-6)&&close(e1.target,bw[1],1e-6)&&e1.fovVerticalDeg===loc.fovVerticalDeg,'end != board camera');
+-  for(let i=0;i<=n;i++){const t=b.seconds*i/n,c=b.at(t);P.push(c.position);const [lens,who]=clearance(c.position,objs);if(lens<minLens){minLens=lens;minObj=who;}
++  const totA=ang(from,e1),totD=Math.hypot(...sub(e1.position,from.position)),totF=e1.fovVerticalDeg-from.fovVerticalDeg;
++  for(let i=0;i<=n;i++){const t=b.seconds*i/n,c=b.at(t);const [lens,who]=clearance(c.position,objs);if(lens<minLens){minLens=lens;minObj=who;}
+    for(const h of [.9,1.5,1.6])if(blockers(objs,c.position,[p[0],p[1]+h,p[2]]).length)hiddenAt.push([+t.toFixed(3),h]);
+-   const o=sub(c.position,p),side=o[0]*-hz+o[2]*hx,behind=-(o[0]*hx+o[2]*hz);if(behind>0)minSide=Math.min(minSide,side);else if(ahead===null)ahead=+t.toFixed(3);}
++   const o=sub(c.position,p),side=o[0]*-hz+o[2]*hx,behind=-(o[0]*hx+o[2]*hz);if(behind>0)minSide=Math.min(minSide,side);else if(ahead===null)ahead=+t.toFixed(3);
++   const pr=F.at(-1),pc=pr?b.at(b.seconds*(i-1)/n):null;
++   F.push({t:+t.toFixed(4),dispM:Math.hypot(...sub(c.position,from.position)),angFromStartDeg:ang(from,c)*180/Math.PI,angToEndDeg:ang(c,e1)*180/Math.PI,fov:c.fovVerticalDeg,
++    speedMps:pc?Math.hypot(...sub(c.position,pc.position))*60:0,angVelDegS:pc?ang(pc,c)*180/Math.PI*60:0,fovRateDegS:pc?(c.fovVerticalDeg-pc.fovVerticalDeg)*60:0});}
+   assert(minLens>=CLEAR,`blend lens ${minLens} from ${minObj}`);assert.deepEqual(hiddenAt,[],'her hidden '+JSON.stringify(hiddenAt.slice(0,5)));assert(minSide>0,'lens left of her while behind: '+minSide);
+-  const dt=b.seconds/n,der=a=>a.slice(1).map((v,i)=>v.map((x,k)=>(x-a[i][k])/dt)),nn=x=>Math.hypot(...x),v=der(P),a=der(v);
+-  assert(nn(v[0])<.5&&nn(v.at(-1))<.5,'blend not at rest at its ends');
+-  out[W+'x'+Hh]={seconds:b.seconds,from:{position:from.position,fov:from.fovVerticalDeg},to:{position:bw[0].map(x=>+x.toFixed(3)),fov:loc.fovVerticalDeg},moveM:+Math.hypot(...sub(bw[0],from.position)).toFixed(3),
+-   minLensM:+minLens.toFixed(3),minLensObj:minObj,minRightWhileBehindM:+minSide.toFixed(3),passesHerAtS:ahead,peakSpeed:+Math.max(...v.map(nn)).toFixed(2),peakAccel:+Math.max(...a.map(nn)).toFixed(1)};}
+- return {blends:out};});
++  const eps=1e-9,mono=(k,s=1)=>F.every((f,i)=>!i||s*(f[k]-F[i-1][k])>=-eps);
++  assert(mono('dispM')&&mono('angFromStartDeg')&&mono('angToEndDeg',-1)&&mono('fov',Math.sign(totF)||1),'blend not monotonic (overshoot)');
++  assert(F.every(f=>f.dispM<=totD+1e-9&&f.angFromStartDeg<=totA*180/Math.PI+1e-6&&(f.fov-from.fovVerticalDeg)*(Math.sign(totF)||1)<=Math.abs(totF)+1e-9),'blend overshoots its end');
++  // single peak: rate rises to its maximum then falls (no second hump / spike), ends ≈ 0
++  const peak=(k)=>{const r=F.slice(1).map(f=>Math.abs(f[k])),m=Math.max(...r),im=r.indexOf(m);return {m,im,ok:r.every((x,i)=>i===0||(i<=im?x>=r[i-1]-1e-9:x<=r[i-1]+1e-9)),first:r[0],last:r.at(-1)};};
++  const pv=peak('speedMps'),pw=peak('angVelDegS'),pf=peak('fovRateDegS');
++  for(const [nm,q] of [['speed',pv],['turn',pw],['fov',pf]]){assert(q.ok,`${nm} rate not single-peaked`);if(q.m>1e-9)assert(q.first<=.02*q.m&&q.last<=.02*q.m,`${nm} rate not ≈ 0 at the ends (${q.first}, ${q.last} of peak ${q.m})`);}
++  const acc=F.slice(2).map((f,i)=>Math.abs(f.angVelDegS-F[i+1].angVelDegS)*60),r3=x=>+x.toFixed(3);
++  out[W+'x'+Hh]={seconds:b.seconds,frames:n+1,from:{position:from.position.map(r3),fov:r3(from.fovVerticalDeg)},to:{position:bw[0].map(r3),fov:r3(loc.fovVerticalDeg)},moveM:r3(totD),turnDeg:r3(totA*180/Math.PI),fovChangeDeg:r3(totF),
++   minLensM:r3(minLens),minLensObj:minObj,minRightWhileBehindM:r3(minSide),passesHerAtS:ahead,peakSpeedMps:r3(pv.m),peakTurnDegS:r3(pw.m),peakTurnAtS:r3((pw.im+1)/60),peakTurnAccelDegS2:r3(Math.max(...acc)),peakFovRateDegS:r3(pf.m),
++   endRates:{firstFrameTurnDegS:r3(pw.first),lastFrameTurnDegS:r3(pw.last),firstFrameFovDegS:r3(pf.first),lastFrameFovDegS:r3(pf.last)},perFrame:F.map(f=>Object.fromEntries(Object.entries(f).map(([k,v])=>[k,+v.toFixed(5)])))};}
++ return {landingLensAtStop:{speedMps:+landV.toFixed(5),turnDegS:+landW.toFixed(5)},blends:out};});
+ const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
+ if(process.env.QF_LAKESIDE_DUMP)fs.writeFileSync(process.env.QF_LAKESIDE_DUMP,JSON.stringify({path,focus:j.focus,root:j.root,yawDeg:j.yawDeg,landing:j.landing,start1,rows,route:{bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,speed:route.speed}}));
+-- 
+2.47.3
+

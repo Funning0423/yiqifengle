@@ -1,0 +1,22 @@
+PASS appended lines after baseline are read; old content is not
+PASS root that IS a WeappLog dir is scanned (review: root-is-WeappLog → files=0 in v1/v2)
+PASS root absent at start, created during the run → new files read from byte 0, rootSeen
+PASS truncation → incomplete + post-truncation content read
+PASS in-place rewrite that ends LARGER than the old offset (review: "增长超过旧 size") → detected via prefix
+PASS rotation by rename is followed by inode; the new file at the old path is read from 0
+PASS > 8 MiB appended in one go is read completely (review: over-8MiB-append missed)
+PASS byte budget exhausted → incomplete (never silent)
+PASS UTF-8 character and a line split across two writes are reassembled
+PASS historic file moved in during the run is read (its lines then need an own marker to count — see audit attribution)
+PASS long line (> 4000 chars) matched on full text, stored truncated, counted
+PASS spawnCli: output after the first chunk and after a long time is kept; exit code recorded; terminate() stops only that child
+PASS spawnCli refuses `quit` (global quit removed)
+PASS spawnCli non-zero exit → ok() false
+PASS verifyManifest detects a file appended after hashing and an unlisted new file
+PASS v4 E1 (Oi boundary): same inode, same size, same first 4096 B, SUFFIX rewritten → incomplete
+PASS v4 E2: rewrite in the MIDDLE of an already-read region (outside first and last 4 KiB) → caught by final full re-hash
+PASS v4 E3: rewrite of the pre-existing (baseline) region is also caught at stop
+PASS v4 E4: invalid UTF-8 is a protocol violation → incomplete (line still scanned)
+PASS v4 E5: pure append (incl. split multi-byte UTF-8 across writes) stays complete; final-rehash event ok
+
+20/20 passed

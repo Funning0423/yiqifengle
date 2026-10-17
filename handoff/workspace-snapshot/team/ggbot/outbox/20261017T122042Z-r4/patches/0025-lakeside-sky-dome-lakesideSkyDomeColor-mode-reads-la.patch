@@ -1,0 +1,40 @@
+From 467b36d495ccd456201bcb16f82b82ac8eae5aa6 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 19:37:39 +0800
+Subject: [PATCH 25/47] lakeside sky dome: lakesideSkyDomeColor(mode) reads
+ lakesideModeLighting(mode).skyDomeColor (same value as clearColor; one line +
+ test expectation)
+
+---
+ .../assets/scripts/region/LakesideJourneyAtmosphere.ts        | 4 ++--
+ tools/lakeside/test_lakeside_sky_follow.cjs                   | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+index bc45389..ec186fb 100644
+--- a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+@@ -77,5 +77,5 @@ export function reapplyLakesideJourney():boolean{const f=journeyReapply;if(!f)re
+  *  the same value in applyDir), as sRGB-8 bytes for the skyFollow API. NOT the waterSky* params: those are the water reflection only
+  *  (pre-compensated for the water tint). SkyFollowCore lerps the dome tint in LINEAR rgb, so every channel of what the dome shows moves
+  *  monotonically from the island sky to this colour and the hue stays on the short arc between them (no detour).
+- *  The one place to repoint (Voice Bot will export a per-mode skyDomeColor equal to the clear colour). Read-only. */
+-export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).clearColor);}
++ *  The one place to repoint: reads lakesideModeLighting(mode).skyDomeColor (= the clear colour per mode, Voice Bot). Read-only. */
++export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).skyDomeColor);}
+diff --git a/tools/lakeside/test_lakeside_sky_follow.cjs b/tools/lakeside/test_lakeside_sky_follow.cjs
+index 28216a7..298d14d 100644
+--- a/tools/lakeside/test_lakeside_sky_follow.cjs
++++ b/tools/lakeside/test_lakeside_sky_follow.cjs
+@@ -65,7 +65,7 @@ run('dome target = the board clear colour per mode (day 28/143/184 = lakesideDay
+  assert.deepEqual(domeOf('day'),[28,143,184]);assert.deepEqual(domeOf('day'),rgb(new Color(D.lakesideDayClearColor())));for(const m of ['day','night'])assert.deepEqual(domeOf(m),clearOf(m),m);
+  const src=fs.readFileSync(S+'region/LakesideJourneyLighting.ts','utf8'),at=fs.readFileSync(S+'region/LakesideJourneyAtmosphere.ts','utf8');
+  assert.match(src,/sky\(lakesideSkyDomeColor\(mode\),f\.weight\)/);assert.doesNotMatch(src,/waterSky/,'journey lighting never reads waterSky*');
+- const fn=at.slice(at.indexOf('export function lakesideSkyDomeColor'));assert.equal(fn.split('\n')[0],'export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).clearColor);}');
++ const fn=at.slice(at.indexOf('export function lakesideSkyDomeColor'));assert.equal(fn.split('\n')[0],'export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).skyDomeColor);}');
+  assert.equal(K.SKY_FOLLOW_MAX_GAIN,8,'gain clamp back to 8 (clear-colour gains fit)');});
+ // r4 sky-dome fix (lead): sample the blend 0..1 in 21 steps, day and night, on the REAL dome / cloud averages and the island base tints
+ // (WorldFlowComponent: day mainColor 1, night dome .18/.24/.46, cloud .22/.28/.43). What the mesh shows on average = mainColor × avg
+-- 
+2.47.3
+

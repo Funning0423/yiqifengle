@@ -1,0 +1,232 @@
+From dc34e4d5402413d62ab4662eb9e65866192e456d Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 07:48:12 -0400
+Subject: [PATCH 2/5] v3.2 size: idle_loop - drop 156 rest-constant channels,
+ bake at the 24 fps authoring rate
+
+Lossless: removed channels' keys equal the node rest TRS; every source key sits on the 1/24 s grid, so a 24 fps bake
+reproduces the keys (30 fps resampled them). JSON chunk only; mesh/Draco/image bytes identical. Dense estimate
+~0.56 MB vs 1.46 MB built (~-0.83 MiB). Occlusion fixture re-pinned to the new room glb sha (geometry identical).
+---
+ .../room/room_no_original_chair.glb           | Bin 5306012 -> 5290012 bytes
+ .../room/room_no_original_chair.glb.meta      |   4 ++--
+ .../occlusion/fixture-occluders.json          |   2 +-
+ tools/size/strip-rest-anim-channels.cjs       |  22 ++++++++++++++++++
+ tools/size/test_idle_loop_size.cjs            |  13 +++++++++++
+ 5 files changed, 38 insertions(+), 3 deletions(-)
+ create mode 100644 tools/size/strip-rest-anim-channels.cjs
+ create mode 100644 tools/size/test_idle_loop_size.cjs
+
+diff --git a/creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb b/creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb
+index 56887a87cc153f2b796e34636a261d1e60bcd70c..8f82086ff67edf53617b854095e2acbe6eafc3e1 100644
+GIT binary patch
+delta 3489
+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
+P1N;UU>&fVtV!Zob7diAr
+
+delta 8396
+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
+
+diff --git a/creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta b/creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta
+index 920a8af..47db65a 100644
+--- a/creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta
++++ b/creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta
+@@ -995,7 +995,7 @@
+       "userData": {
+         "gltfIndex": 0,
+         "wrapMode": 2,
+-        "sample": 30,
++        "sample": 24,
+         "span": {
+           "from": 0,
+           "to": 12.041666984558105
+@@ -1712,7 +1712,7 @@
+       {
+         "name": "idle_loop",
+         "duration": 12.041666984558105,
+-        "fps": 30,
++        "fps": 24,
+         "splits": [
+           {
+             "name": "idle_loop",
+diff --git a/tools/journey-integration/occlusion/fixture-occluders.json b/tools/journey-integration/occlusion/fixture-occluders.json
+index af3cd9b..ae1da8a 100644
+--- a/tools/journey-integration/occlusion/fixture-occluders.json
++++ b/tools/journey-integration/occlusion/fixture-occluders.json
+@@ -4,7 +4,7 @@
+   {
+    "id": "island",
+    "glb": "static_seat_preview/room/room_no_original_chair.glb",
+-   "sha256": "8ae5efeb5f318b22411c0033f450b6de7a935fa3a27fb45d3f3cf240f88e2e42",
++   "sha256": "f62e2832d326d3ec025161b5bcb55c56ab72560e10ee954d2a7fceffa39c8d29",
+    "box": [
+     [
+      -20,
+diff --git a/tools/size/strip-rest-anim-channels.cjs b/tools/size/strip-rest-anim-channels.cjs
+new file mode 100644
+index 0000000..9deae9f
+--- /dev/null
++++ b/tools/size/strip-rest-anim-channels.cjs
+@@ -0,0 +1,22 @@
++#!/usr/bin/env node
++'use strict';
++/* Lossless: drop glTF animation channels whose every key equals the node's rest TRS (|Δ| < 1e-6 per component).
++ * Creator bakes every channel densely at the clip's sample rate, so a constant rest channel costs ~362 frames x 12–16 B
++ * and changes nothing on screen (the node already sits at its rest TRS). Only the JSON chunk changes; the BIN chunk
++ * (meshes, Draco, images, unused accessors) is byte-identical. Usage: node strip-rest-anim-channels.cjs <in.glb> <out.glb> */
++const fs=require('fs');
++function strip(buf){const jl=buf.readUInt32LE(12),j=JSON.parse(buf.slice(20,20+jl).toString('utf8')),rest=buf.slice(20+jl),bin=rest.slice(8);
++ const NC={SCALAR:1,VEC2:2,VEC3:3,VEC4:4},rd=i=>{const a=j.accessors[i],bv=j.bufferViews[a.bufferView],n=NC[a.type],o=(bv.byteOffset||0)+(a.byteOffset||0),st=bv.byteStride||4*n,out=[];if(a.componentType!==5126)return null;for(let k=0;k<a.count;k++){const r=[];for(let c=0;c<n;c++)r.push(bin.readFloatLE(o+k*st+c*4));out.push(r);}return out;};
++ const report=[];
++ for(const a of j.animations||[]){const keep=[],used=new Map(),samplers=[];let dropped=0;
++  for(const c of a.channels){const s=a.samplers[c.sampler],v=rd(s.output),n=j.nodes[c.target.node];
++   const restv=c.target.path==='translation'?(n.translation||[0,0,0]):c.target.path==='rotation'?(n.rotation||[0,0,0,1]):c.target.path==='scale'?(n.scale||[1,1,1]):null;
++   const isRest=!!(v&&restv&&v.every(x=>x.every((y,i)=>Math.abs(y-restv[i])<1e-6)));
++   if(isRest){dropped++;continue;}
++   if(!used.has(c.sampler)){used.set(c.sampler,samplers.length);samplers.push(s);}keep.push({...c,sampler:used.get(c.sampler)});}
++  report.push({animation:a.name,channels:a.channels.length,dropped,kept:keep.length});a.channels=keep;a.samplers=samplers;}
++ let js=Buffer.from(JSON.stringify(j),'utf8');const pad=(4-js.length%4)%4;js=Buffer.concat([js,Buffer.alloc(pad,0x20)]);
++ const out=Buffer.alloc(12+8+js.length+rest.length);out.writeUInt32LE(0x46546C67,0);out.writeUInt32LE(2,4);out.writeUInt32LE(out.length,8);out.writeUInt32LE(js.length,12);out.writeUInt32LE(0x4E4F534A,16);js.copy(out,20);rest.copy(out,20+js.length);
++ return {out,report};}
++module.exports={strip};
++if(require.main===module){const [i,o]=process.argv.slice(2);const {out,report}=strip(fs.readFileSync(i));fs.writeFileSync(o,out);console.log(JSON.stringify(report));}
+diff --git a/tools/size/test_idle_loop_size.cjs b/tools/size/test_idle_loop_size.cjs
+new file mode 100644
+index 0000000..c558c73
+--- /dev/null
++++ b/tools/size/test_idle_loop_size.cjs
+@@ -0,0 +1,13 @@
++#!/usr/bin/env node
++'use strict';
++// v3.2 size: static_seat_preview idle_loop. (1) no channel left whose keys all equal the node rest TRS (lossless strip);
++// (2) Creator bake rate = 24 fps = the authoring key grid (every source key on 1/24 s), so the bake reproduces the keys.
++const fs=require('fs'),path=require('path'),assert=require('assert');const {strip}=require('./strip-rest-anim-channels.cjs');
++const G=path.resolve(__dirname,'../../creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb');
++const buf=fs.readFileSync(G),{report}=strip(buf);assert.equal(report[0].dropped,0,'rest-constant channels remain');assert.equal(report[0].kept,132);
++const jl=buf.readUInt32LE(12),j=JSON.parse(buf.slice(20,20+jl)),bin=buf.slice(20+jl+8);let off=0,n=0;
++for(const a of j.animations)for(const c of a.channels){const ac=j.accessors[a.samplers[c.sampler].input],bv=j.bufferViews[ac.bufferView],o=(bv.byteOffset||0)+(ac.byteOffset||0);for(let k=0;k<ac.count;k++){const t=bin.readFloatLE(o+4*k);n++;if(Math.abs(t*24-Math.round(t*24))>1e-3)off++;}}
++assert.equal(off,0,'source keys off the 24 fps grid');
++const m=JSON.parse(fs.readFileSync(G+'.meta','utf8'));assert.equal(m.subMetas.f2bf2.userData.sample,24);assert.equal(m.userData.animationImportSettings.find(s=>s.name==='idle_loop').fps,24);
++const W={translation:12,rotation:16,scale:12},dense=j.animations[0].channels.reduce((s,c)=>s+W[c.target.path],0)*Math.ceil(12.0417*24+1);
++console.log('PASS idle_loop: 132 animated channels, 24 fps bake on the authoring grid; dense estimate',dense,'B (was ~1,458,232 B built)');
+-- 
+2.47.3
+

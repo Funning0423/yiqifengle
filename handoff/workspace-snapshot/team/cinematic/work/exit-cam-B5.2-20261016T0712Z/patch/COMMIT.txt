@@ -1,0 +1,3 @@
+468b2d7796ff002c572acd91f6a8a728346f9fe7 6f593625153cbd68aaa7575bc0a5f14b12d187e9 exit-cam B5.2: wide end pose (-22,12,18)->(-1,2.5,1) fov56 (whole lighthouse+island+sea), peak 1.84 m/s (cap 2.2), settle 28 s, bearing/height lead shares 0.45/0.55 for prop+flyer clearance; side-pose wind fallback peaks >=3 s before end
+b12ff1fd1886c332e90ed09e4cbea8786bc6b9ba f5c745a18a6a5aee9bc7ccea83d6e40294ec4cc4 exit-cam B5.1: closer/lower end pose (-2.3,7,11)->(-2,0.8,4.6) fov48, single shared ease, peak<=4 m/s; exit tests check speed/jerk caps + right side; wind hold capped before end
+15b164c4b59467a60061c40ef671c154f6ca4671 5c53f36dc39e73ff37907801f8c36d936c9eaa76 Follow her out of the door at walking pace, then rise from her right in one smooth curve (exit camera B5).

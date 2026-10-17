@@ -1,0 +1,393 @@
+From 6942e9a142cfb09b3a7b01bf70687d7d1caf322f Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 12:36:33 +0800
+Subject: [PATCH 07/20] =?UTF-8?q?Lakeside=20camera:=20island=E2=86=92lakes?=
+ =?UTF-8?q?ide=20journey=20+=20Landing=20A=20arrival=20+=20board=20framing?=
+ =?UTF-8?q?=20(camera/journey=20config=20only)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- RegionJourneyCore: optional per-route `landing` (JourneyLanding) overrides of the Landing A arrival numbers; routes
+  without it (04→05, 08→09) are unchanged (asserted). Two new keys, default 0 = off: arrivalSettleM (lens progress eased
+  over the last metres so it comes to rest with zero velocity/acceleration exactly when she stops) and anchorSmoothM
+  (lens anchors on an exact triangular-kernel smoothing of her route, incl. the heading chord, so polyline corners no
+  longer kick it). validateJourneyRoute rejects landing without focus / unknown or non-finite keys.
+- region/LakesideCameraLayout.ts (pure): lakesideJourney(start) placement (yaw 180, root from the 04→05 approach end
+  + 24 m bridge) and route pieces; landing {arrivalSideM +0.8 (her right), arrivalLiftM 0 (no crane-up),
+  arrivalSettleM 6, anchorSmoothM 1.5}, focus = board centre; lakesideScenePose(aspect): 45° board camera solved per
+  aspect (board ±0.88 NDC, far edge at 34% from the top), handoff FOV 61.928.
+- test-lakeside-camera.cjs (+ lakeside/lakeside-scene.cjs, all 615 region_lakeside instances) in run-suite: K1-K7.
+- Not included (Voice Bot's wiring): 'lakeside' in JourneyRegion/Place/State, island→lakeside region order,
+  RegionJourneyAdapter.prepare mounting, board background lease using lakesideScenePose.
+
+(cherry picked from commit 7595b85d08a8bfb85a174a94db796c2534a87228)
+---
+ .../scripts/region/LakesideCameraLayout.ts    | 62 ++++++++++++
+ .../region/LakesideCameraLayout.ts.meta       |  9 ++
+ .../scripts/world-r1/RegionJourneyCore.ts     | 63 ++++++++++---
+ .../lakeside/lakeside-scene.cjs               | 18 ++++
+ tools/journey-integration/run-suite.cjs       |  1 +
+ .../test-lakeside-camera.cjs                  | 94 +++++++++++++++++++
+ 6 files changed, 233 insertions(+), 14 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta
+ create mode 100644 tools/journey-integration/lakeside/lakeside-scene.cjs
+ create mode 100644 tools/journey-integration/test-lakeside-camera.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
+new file mode 100644
+index 0000000..7e34053
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts
+@@ -0,0 +1,62 @@
++import type {Vec} from '../world-r1/WorldFlowCore';
++import type {JourneyLanding} from '../world-r1/RegionJourneyCore';
++import type {AuthoredPose} from '../world-r1/CameraPose';
++import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus} from './RegionJourneyLayout';
++/** Lakeside (r5h3) camera data: journey into the region, Landing A arrival and the board framing. Pure numbers and maths, no
++ * engine imports, so tools/journey-integration/test-lakeside-camera.cjs checks exactly these values against the committed
++ * region_lakeside GLBs placed by scene_r5h_slim_transforms.json. Coordinates marked Local are lakeside-root (Y-up, metres).
++ * Route: island exit (same approach as 04→05) → 24 m rainbow bridge (same shape) → lands on the empty south bank (flat
++ * 0.56–0.59 m from z 23 to 39) → walks 11.5 m straight toward the lake and stops 2.5 m from the shore, facing the board.
++ * Landing A machinery (RegionJourneyCore.arrivalPose/journeyCamera) with per-route overrides: lens on HER RIGHT, no late
++ * lift (no crane-up), lens settles over the last 6 m (zero velocity/acceleration when she stops), board centre as the focus
++ * so the arrival frame already looks at the level she is about to play. */
++export const LAKESIDE_CAMERA_LAYOUT={
++ /** Root Y rotation (Cocos setRotationFromEuler(0,yawDeg,0)): lakeside -Z (toward the lake) becomes the bridge's world +Z. */
++ yawDeg:180,
++ /** World offset of the bridge landing from the island approach end: the 04→05 bridge length and level (meadowOffset). */
++ offset:[0,0,24] as Vec,
++ bridgeArchM:2,
++ /** Bridge landing and walk on the south bank (Local). */
++ landingLocal:[1.2,.58,36] as Vec,
++ walkLocal:[[1.2,.58,30],[1.2,.58,24.5]] as ReadonlyArray<Vec>,
++ /** Board centre (7×7 cells x −3.3…3.3, z 8.7…15.3) at piece height. */
++ focusLocal:[0,.3,12] as Vec,
++ /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). */
++ landing:{arrivalSideM:.8,arrivalLiftM:0,arrivalSettleM:6,anchorSmoothM:1.5} as JourneyLanding,
++ /** Board framing: fixed 45° pitch over the board, whole board (rope ring incl. piece tops) at ±boardWidthNdc and its far
++  * edge at boardTopFrac of the screen height (scene in the top third). The handoff camera (COCOS_HANDOFF §4, 720×1280) is
++  * kept as the art reference only; its FOV is reused. */
++ board:{pitchDeg:45,fovVerticalDeg:61.928,boardWidthNdc:.88,boardTopFrac:.34,aimY:0,
++  extent:{x:4.4,zNear:16.5,zFar:7.7,topY:.8},minAspect:.4,maxAspect:.75},
++} as const;
++const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
++/** Placement + route pieces for RegionJourneyAdapter: model.setRotationFromEuler(0,yawDeg,0); model.setWorldPosition(...root);
++ * path=[...approach,...bridge.slice(1),...arrival]; route {focus,landing,startBlendM:0} as returned. */
++export function lakesideJourney(start:Vec){
++ const L=LAKESIDE_CAMERA_LAYOUT,approach=islandApproach(start),edge=approach[approach.length-1],landing=plus(edge,L.offset);
++ const yawDeg=L.yawDeg,r=rotY(yawDeg,L.landingLocal),root:Vec=[landing[0]-r[0],landing[1]-r[1],landing[2]-r[2]];
++ const toWorld=(p:Vec):Vec=>plus(rotY(yawDeg,p),root);
++ const bridge=bridgePath(edge,toWorld(L.landingLocal),L.bridgeArchM),arrival=L.walkLocal.map(toWorld);
++ return {yawDeg,root,toWorld,approach,bridge,arrival,focus:toWorld(L.focusLocal),landing:L.landing,startBlendM:0,speed:REGION_JOURNEY_LAYOUT.speedMps};
++}
++type V3=[number,number,number];
++function frameBoard(pos:V3,aim:V3,aspect:number):{maxX:number;top:number;bottom:number}{
++ const B=LAKESIDE_CAMERA_LAYOUT.board,E=B.extent,f=[aim[0]-pos[0],aim[1]-pos[1],aim[2]-pos[2]],fl=Math.hypot(f[0],f[1],f[2]);f[0]/=fl;f[1]/=fl;f[2]/=fl;
++ const rl=Math.hypot(f[2],f[0]),r=[-f[2]/rl,0,f[0]/rl],up=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],t=Math.tan(B.fovVerticalDeg*Math.PI/360);
++ let maxX=0,maxY=-9,minY=9;
++ for(const x of [-E.x,E.x])for(const z of [E.zNear,E.zFar])for(const y of [0,E.topY]){const v=[x-pos[0],y-pos[1],z-pos[2]],d=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];
++  const sx=Math.abs((v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(d*t*aspect)),sy=(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(d*t);maxX=Math.max(maxX,sx);maxY=Math.max(maxY,sy);minY=Math.min(minY,sy);}
++ return {maxX,top:(1-maxY)/2,bottom:(1-minY)/2};
++}
++/** Lakeside board-background camera for a viewport aspect (width/height). Aspects outside [minAspect,maxAspect] use the
++ * nearest bound (wider screens just show more scenery at the sides). Solved, not tabulated: the distance along the 45° view
++ * puts the board edge at ±boardWidthNdc, the aim point moves along the board axis to put the far edge at boardTopFrac. */
++export function lakesideScenePose(aspect:number):AuthoredPose{
++ if(!Number.isFinite(aspect)||aspect<=0)throw Error('Invalid lakeside aspect');
++ const B=LAKESIDE_CAMERA_LAYOUT.board,a=Math.min(B.maxAspect,Math.max(B.minAspect,aspect)),p=B.pitchDeg*Math.PI/180,cz=(B.extent.zNear+B.extent.zFar)/2;
++ const at=(aimZ:number,d:number):[V3,V3]=>{const aim:V3=[0,B.aimY,aimZ];return [[0,B.aimY+Math.sin(p)*d,aimZ+Math.cos(p)*d],aim];};
++ const fit=(aimZ:number)=>{let lo=4,hi=80;for(let i=0;i<48;i++){const d=(lo+hi)/2,[pos,aim]=at(aimZ,d);if(frameBoard(pos,aim,a).maxX>B.boardWidthNdc)lo=d;else hi=d;}return hi;};
++ let lo=cz-8,hi=cz+8;for(let i=0;i<40;i++){const m=(lo+hi)/2,[pos,aim]=at(m,fit(m));if(frameBoard(pos,aim,a).top<B.boardTopFrac)hi=m;else lo=m;}
++ const aimZ=(lo+hi)/2,[pos,aim]=at(aimZ,fit(aimZ));
++ return {position:[+pos[0].toFixed(4),+pos[1].toFixed(4),+pos[2].toFixed(4)],target:[+aim[0].toFixed(4),+aim[1].toFixed(4),+aim[2].toFixed(4)],fovVerticalDeg:B.fovVerticalDeg};
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta
+new file mode 100644
+index 0000000..75d92bc
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "b7729ae4-cada-53c4-83c0-92edefac4ed0",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+\ No newline at end of file
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 0969b66..4574980 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -1,7 +1,7 @@
+ import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
+ export type JourneyRegion = 'island'|'meadow'|'skycity';
+ export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
+-export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number }>;
++export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding }>;
+ export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
+ export interface JourneySceneAdapter {
+  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
+@@ -20,6 +20,7 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
+  if(!route.path||route.path.length<2||route.path.some(p=>p.length!==3||p.some(n=>!Number.isFinite(n))))throw Error('journey-invalid-path');
+  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
+  if(!((route.from==='island'&&route.to==='meadow')||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
++ if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
+ }
+ /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
+  * smoothed walking heading), so a bridge that turns keeps the lens behind her. Numbers are checked by
+@@ -45,9 +46,41 @@ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,
+  // with her whole body in frame (feet 21% above the bottom edge), plaza rock in the frame centre 5/25 samples. A small 2.5 m
+  // late lift keeps her head/chest clear over the sunk mushroom at d41-43. Blend 14.3 m: turn <=20 deg/s, right side until
+  // the last ~10 m.
+- arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:2.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:12,arrivalSideM:-1.5,arrivalUpM:2,arrivalAim:0,arrivalPitchDeg:2.5} as const;
+-export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
+- const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
++ arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:2.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:12,arrivalSideM:-1.5,arrivalUpM:2,arrivalAim:0,arrivalPitchDeg:2.5,
++ // 0 = off (Build05 routes). > 0 (route.landing only): over the last arrivalSettleM metres the lens's progress along the route is
++ // eased (settleDistance) so the lens reaches its final pose with zero velocity and acceleration exactly when she stops: she
++ // walks into a still frame instead of the lens stopping dead with her.
++ arrivalSettleM:0,
++ // 0 = off (Build05 routes). > 0 (route.landing only): the lens anchors on her route position smoothed with a triangular
++ // kernel ±anchorSmoothM (narrowed to the distance left to either end), so polyline corners (approach→bridge, bridge→ground)
++ // no longer kick the lens: its acceleration stays finite and continuous. On straight runs it is exactly her position.
++ // The follow heading chord (headingWindowM) is taken between smoothed points as well.
++ anchorSmoothM:0} as const;
++/** Per-route Landing A overrides (route.landing, needs route.focus). Same machinery as 08→09; any key left out keeps the
++ * JOURNEY_CAMERA value, so routes without `landing` (04→05, 08→09) are byte-for-byte unchanged. Used by island→lakeside. */
++export type JourneyLanding = Readonly<Partial<Record<'arrivalBlendM'|'arrivalHoldM'|'arrivalLiftM'|'arrivalRiseM'|'arrivalDropM'|'arrivalBackM'|'arrivalSideM'|'arrivalUpM'|'arrivalAim'|'arrivalPitchDeg'|'arrivalSettleM'|'anchorSmoothM',number>>>;
++const LANDING_KEYS={arrivalBlendM:1,arrivalHoldM:1,arrivalLiftM:1,arrivalRiseM:1,arrivalDropM:1,arrivalBackM:1,arrivalSideM:1,arrivalUpM:1,arrivalAim:1,arrivalPitchDeg:1,arrivalSettleM:1,anchorSmoothM:1} as const;
++const landingCamera=(landing?:JourneyLanding)=>landing?{...JOURNEY_CAMERA,...landing}:JOURNEY_CAMERA;
++/** Lens progress for her distance d on a route of length T: identity until T−S, then T−S·g(u), u=(T−d)/S, g=6u³−8u⁴+3u⁵
++ * (g(1)=1, g'(1)=1, g''(1)=0: no kink where it starts; g'(0)=g''(0)=0: velocity and acceleration reach 0 at the end). */
++export function settleDistance(d:number,T:number,S:number):number{if(!(S>0)||d<=T-S)return d;const u=Math.max(0,Math.min(1,(T-d)/S));return T-S*u*u*u*(6-8*u+3*u*u);}
++/** Route point at d smoothed with a triangular kernel of half-width w=min(W, d, T−d), computed EXACTLY from the polyline's
++ * second arc-length integral I2 (Tri(d)=(I2(d+w)−2·I2(d)+I2(d−w))/w²): piecewise cubic, so the result has continuous velocity
++ * and acceleration across polyline corners. W 0 = sampleRoute. */
++const integrals=new WeakMap<readonly Vec[],{s:number[];c1:Vec[];c2:Vec[]}>();
++function routeIntegrals(path:readonly Vec[]){let r=integrals.get(path);if(r)return r;const s=[0],c1:Vec[]=[[0,0,0]],c2:Vec[]=[[0,0,0]];
++ for(let i=1;i<path.length;i++){const a=path[i-1],b=path[i],l=dist(a,b),u:Vec=l>0?[(b[0]-a[0])/l,(b[1]-a[1])/l,(b[2]-a[2])/l]:[0,0,0],p=c1[i-1],q=c2[i-1];
++  const i1=(k:number)=>p[k]+a[k]*l+u[k]*l*l/2,i2=(k:number)=>q[k]+p[k]*l+a[k]*l*l/2+u[k]*l*l*l/6;c1.push([i1(0),i1(1),i1(2)]);c2.push([i2(0),i2(1),i2(2)]);s.push(s[i-1]+l);}
++ r={s,c1,c2};integrals.set(path,r);return r;}
++function integral2(path:readonly Vec[],x:number):Vec{const R=routeIntegrals(path),n=path.length;let i=1;while(i<n-1&&R.s[i]<x)i++;
++ const a=path[i-1],b=path[i],l=R.s[i]-R.s[i-1],u:Vec=l>0?[(b[0]-a[0])/l,(b[1]-a[1])/l,(b[2]-a[2])/l]:[0,0,0],t=x-R.s[i-1],p=R.c1[i-1],q=R.c2[i-1];
++ const v=(k:number)=>q[k]+p[k]*t+a[k]*t*t/2+u[k]*t*t*t/6;return [v(0),v(1),v(2)];}
++export function smoothRoutePoint(path:readonly Vec[],d:number,W:number):Vec{const T=routeLength(path),w=Math.min(W,d,T-d);if(!(w>1e-3))return sampleRoute(path,d);
++ const A=integral2(path,d-w),B=integral2(path,d),C=integral2(path,d+w);const v=(k:number)=>(A[k]-2*B[k]+C[k])/(w*w);return [v(0),v(1),v(2)];}
++/** C1 soft clamp of x to [lo,hi] with quadratic blends of half-width k (used for the heading chord ends). */
++function softClamp(x:number,lo:number,hi:number,k:number):number{const sl=(v:number)=>v>=k?v:v<=-k?0:(v+k)*(v+k)/(4*k);return hi-sl(hi-(lo+sl(x-lo)));}
++export function journeyHeading(path:readonly Vec[],distance:number,smoothM:number=0):[number,number]{
++ const w=JOURNEY_CAMERA.headingWindowM,T=routeLength(path),at=(d:number)=>smoothM>0?smoothRoutePoint(path,softClamp(d,0,T,smoothM),smoothM):sampleRoute(path,d),a=at(smoothM>0?distance-w:Math.max(0,distance-w)),b=at(distance+w),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
+  return l>1e-6?[x/l,z/l]:[0,1];
+ }
+ const smooth=(v:number)=>{const u=Math.min(1,Math.max(0,v));return u*u*(3-2*u);};
+@@ -65,14 +98,14 @@ export function lensAt(keys:readonly LensKey[]|undefined,distance:number){
+  return full(keys[keys.length-1]);
+ }
+ /** Pure path-frame follow pose (no start blend, no arrival). */
+-export function followPose(path:readonly Vec[],distance:number,keys?:readonly LensKey[]):{position:Vec;target:Vec}{
+- const p=sampleRoute(path,distance),[hx,hz]=journeyHeading(path,distance),sx=hz,sz=-hx,o=lensAt(keys,distance);
++export function followPose(path:readonly Vec[],distance:number,keys?:readonly LensKey[],smoothM:number=0):{position:Vec;target:Vec}{
++ const p=sampleRoute(path,distance),[hx,hz]=journeyHeading(path,distance,smoothM),sx=hz,sz=-hx,o=lensAt(keys,distance);
+  return {position:[p[0]-hx*o.backM+sx*o.sideM,p[1]+o.upM,p[2]-hz*o.backM+sz*o.sideM],target:[p[0]+hx*JOURNEY_CAMERA.leadM,p[1]+o.lookM,p[2]+hz*JOURNEY_CAMERA.leadM]};
+ }
+ /** Arrival hero pose for a focused route: behind her on the far side of the line to the focus, pulled back, raised and
+  * offset sideways (clear of the terminus post), aimed horizontally at the focus (plaza centred) and tilted toward her chest by arrivalAim. */
+-export function arrivalPose(path:readonly Vec[],focus:Vec):{position:Vec;target:Vec}{
+- const C=JOURNEY_CAMERA,p=path[path.length-1],fx=focus[0]-p[0],fz=focus[2]-p[2],fl=Math.hypot(fx,fz)||1,u=[fx/fl,fz/fl],n=[-u[1],u[0]];
++export function arrivalPose(path:readonly Vec[],focus:Vec,landing?:JourneyLanding):{position:Vec;target:Vec}{
++ const C=landingCamera(landing),p=path[path.length-1],fx=focus[0]-p[0],fz=focus[2]-p[2],fl=Math.hypot(fx,fz)||1,u=[fx/fl,fz/fl],n=[-u[1],u[0]];
+  const position:Vec=[p[0]-u[0]*C.arrivalBackM+n[0]*C.arrivalSideM,p[1]+C.arrivalUpM,p[2]-u[1]*C.arrivalBackM+n[1]*C.arrivalSideM];
+  // Horizontally the view points straight at the focus (plaza centred); vertically it tilts from the focus toward her
+  // chest by arrivalAim so she stays in the lower part of the portrait frame.
+@@ -88,8 +121,10 @@ export function orbitOffset(a:Vec,b:Vec,t:number,turn=0):Vec{
+  while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;if(Math.abs(d)>Math.PI*.75){if(turn>0&&d<0)d+=2*Math.PI;if(turn<0&&d>0)d-=2*Math.PI;}
+  const ang=aa+d*t,r=ra>1e-3&&rb>1e-3?ra*Math.pow(rb/ra,t):ra+(rb-ra)*t;return [Math.sin(ang)*r,a[1]+(b[1]-a[1])*t,Math.cos(ang)*r];
+ }
+-export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[],startBlendM:number=JOURNEY_CAMERA.blendM):Pose {
+- const C=JOURNEY_CAMERA,T=routeLength(path),p=sampleRoute(path,distance),f=followPose(path,distance,keys);
++export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[],startBlendM:number=JOURNEY_CAMERA.blendM,landing?:JourneyLanding):Pose {
++ const C=landingCamera(landing),T=routeLength(path);if(focus&&C.arrivalSettleM>0)distance=settleDistance(distance,T,Math.min(C.arrivalSettleM,T));
++ const raw=sampleRoute(path,distance),p=C.anchorSmoothM>0?smoothRoutePoint(path,distance,C.anchorSmoothM):raw,f0=followPose(path,distance,keys,C.anchorSmoothM),dp:Vec=[p[0]-raw[0],p[1]-raw[1],p[2]-raw[2]];
++ const f={position:[f0.position[0]+dp[0],f0.position[1]+dp[1],f0.position[2]+dp[2]] as Vec,target:[f0.target[0]+dp[0],f0.target[1]+dp[1],f0.target[2]+dp[2]] as Vec};
+  const rel=(q:Vec,o:Vec):Vec=>[q[0]-o[0],q[1]-o[1],q[2]-o[2]],at=(o:Vec):Vec=>[p[0]+o[0],p[1]+o[1],p[2]+o[2]];
+  // The lens is a her-relative offset plus an AIM POINT that stays within a few metres of her, so moving between poses
+  // never swings her out of the frame; the view direction is derived from the two.
+@@ -98,7 +133,7 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
+  const blend=startBlendM>0?smooth(distance/startBlendM):1;
+  if(blend<1){const o=orbitOffset(rel(start.position,path[0]),offset,blend,C.startTurn);offset=[o[0],o[1]+C.blendLiftM*Math.sin(Math.PI*blend),o[2]];aim=lerp([p[0],p[1]+lensAt(keys,distance).lookM,p[2]],aim,blend);}
+  if(focus){const w=smoother((C.arrivalBlendM-(T-distance))/(C.arrivalBlendM-C.arrivalHoldM));
+-  if(w>0){const e=arrivalPose(path,focus),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
++  if(w>0){const e=arrivalPose(path,focus,landing),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
+    const o=orbitOffset(offset,eo,w,0);const left=T-distance,lift=C.arrivalLiftM*smooth((C.arrivalBlendM-left)/C.arrivalRiseM)*smooth(left/C.arrivalDropM);offset=[o[0],o[1]+lift,o[2]];aim=lerp(aim,at([eo[0]+ed[0]*r,eo[1]+ed[1]*r,eo[2]+ed[2]*r]),w);}}
+  const position=at(offset);let dir=unit(rel(aim,position));
+  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
+@@ -138,7 +173,7 @@ export class RegionJourneyController {
+   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
+   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
+   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
+-  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);
++  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);
+   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
+  }
+  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
+@@ -151,14 +186,14 @@ export class RegionJourneyController {
+    // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
+    const fade=this.distance===0&&this.lease.route.startBlendM===0&&this.lease.route.from==='island'&&typeof world.fadeCover==='function';
+    if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
+-    this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0);world.setCamera(this.camera);}
++    this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0,this.lease.route.landing);world.setCamera(this.camera);}
+    this.show(true);token.check();
+    if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
+    if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
+     await token.wait(actor.perform({kind:'walk',path,duration:routeLength(path)/this.lease.route.speed},token));token.check();}
+    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
+    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
+-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
++   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+   }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
+    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
+diff --git a/tools/journey-integration/lakeside/lakeside-scene.cjs b/tools/journey-integration/lakeside/lakeside-scene.cjs
+new file mode 100644
+index 0000000..320e0c0
+--- /dev/null
++++ b/tools/journey-integration/lakeside/lakeside-scene.cjs
+@@ -0,0 +1,18 @@
++'use strict';
++/* Lakeside (r5h3) scene geometry for the camera contracts: every instance of scene_r5h_slim_transforms.json
++ * (Y-up metres, LK_board_frame already removed upstream) placed from the committed region_lakeside GLBs.
++ * Triangle soup per instance in LAKESIDE-LOCAL coordinates (the region root), plus bbox, for clearance and ray tests. */
++const fs=require('node:fs'),path=require('node:path');
++const {load:loadGlb}=require('../occlusion/lib-glb.cjs');
++const ROOT=path.resolve(__dirname,'../../..'),B=ROOT+'/creator-build-project/assets/bundles/region_lakeside/';
++const T=JSON.parse(fs.readFileSync(B+'scene_r5h_slim_transforms.json','utf8'));
++function qm([x,y,z,w],[sx,sy,sz],[tx,ty,tz]){return [(1-2*(y*y+z*z))*sx,(2*(x*y+z*w))*sx,(2*(x*z-y*w))*sx,0,(2*(x*y-z*w))*sy,(1-2*(x*x+z*z))*sy,(2*(y*z+x*w))*sy,0,(2*(x*z+y*w))*sz,(2*(y*z-x*w))*sz,(1-2*(x*x+y*y))*sz,0,tx,ty,tz,1];}
++const cache={};
++function glb(name){if(!cache[name]){const nodes=loadGlb(B+'models/'+name).filter(n=>n.tris&&n.tris.length);let n=0;for(const x of nodes)n+=x.tris.length;const t=new Float64Array(n);let o=0;for(const x of nodes){t.set(x.tris,o);o+=x.tris.length;}cache[name]=t;}return cache[name];}
++function bbox(t){const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];for(let k=0;k<t.length;k++){const c=k%3;if(t[k]<a[c])a[c]=t[k];if(t[k]>b[c])b[c]=t[k];}return [a,b];}
++let built=null;
++/** All placed instances: {name,glb,group,tris,box}. Sky-only layers (clouds) are kept; they are far above every lens. */
++function instances(){if(built)return built;built=T.instances.map(i=>{const m=qm(i.rot_quat_xyzw,i.scale,i.pos),src=glb(i.glb),t=new Float64Array(src.length);
++ for(let k=0;k<src.length;k+=3){const x=src[k],y=src[k+1],z=src[k+2];t[k]=m[0]*x+m[4]*y+m[8]*z+m[12];t[k+1]=m[1]*x+m[5]*y+m[9]*z+m[13];t[k+2]=m[2]*x+m[6]*y+m[10]*z+m[14];}
++ return {name:i.name,glb:i.glb,group:i.group,tris:t,box:bbox(t)};});return built;}
++module.exports={instances,bbox,transforms:T,B};
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 886ee8e..1a26a3e 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -63,6 +63,7 @@ const tests=[
+  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
+  ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
+  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
++ ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/journey-integration/test-lakeside-camera.cjs b/tools/journey-integration/test-lakeside-camera.cjs
+new file mode 100644
+index 0000000..f704fd8
+--- /dev/null
++++ b/tools/journey-integration/test-lakeside-camera.cjs
+@@ -0,0 +1,94 @@
++#!/usr/bin/env node
++'use strict';
++/* Lakeside (r5h3) camera contract: island → lakeside journey, Landing A arrival, board framing. Builds the leg exactly as
++ * LakesideCameraLayout.lakesideJourney() places it (real TS through the board-ui harness) against the real geometry: the
++ * Build05 island fixture + palms (journey-scene.cjs, as 04→05) and every instance of region_lakeside
++ * scene_r5h_slim_transforms.json (lakeside/lakeside-scene.cjs), plus the rainbow bridge strip itself. Samples every 0.05 m.
++ *  K1 route: continuity passes validateJourneyRoute (region order is Voice Bot's wiring, still rejected here); landing overrides need a focus and known keys; 04→05/08→09 unchanged.
++ *  K2 her face (1.5 m), head (1.6) and chest (0.9) never hidden, at most one low graze; lens clearance ≥ 1.1 m everywhere.
++ *     Reported, not hidden: the 04→05 set-off exemption (d < 1 m, only her legs behind the island prop strip).
++ *  K3 lens on her RIGHT for the whole leg (never left of behind).
++ *  K4 final landing frame at 360×780 (0.46) and 390×520 (0.75): whole body in frame, feet ≥ 5% above the bottom edge,
++ *     her centre 20–80% of the width, height 0.12–0.22 of the screen, board centre in frame.
++ *  K5 view turn ≤ 20°/s at walk speed; no crane-up: lens height above her never rises over the arrival (monotone).
++ *  K7 time domain at the controller's walk (route length / 1.2 m/s, as RegionJourneyController.walk; the real walk driver
++ *     reports this distance linearly), 60 Hz, after the 0.6 s set-off fade: lens |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³, and it
++ *     comes to rest with her (≤ 0.2 m/s over the last 0.5 s, 0 at the stop). The fallback lens is reported for comparison.
++ *  K6 board framing (lakesideScenePose) for 0.42…1.0: every board-group vertex of the rope ring and inside it (decor outside the
++ *     ring — chime rafts, buoy lanterns, outer lily pads — is reported) inside ±0.90 NDC across and with ≥ 6% bottom
++ *     margin, far edge at 30–38% from the top (scene in the top third), 49 cell centres unoccluded, lens clearance ≥ 1.1 m.
++ * Geometric evidence only; native visual acceptance is separate. */
++const J=require('./journey-scene.cjs'),{fs,assert,H,S,Core,Lay,sampleRoute,routeLength,journeyCamera,start,start1,island,add,sub,bbox,blockers,clearance,rayHit}=J;
++const LKS=require('./lakeside/lakeside-scene.cjs'),LK=H.load(S+'region/LakesideCameraLayout.ts'),C=LK.LAKESIDE_CAMERA_LAYOUT;
++// Same set-off exemption as 04→05 (identical island approach): only her LEGS behind the island prop strip in the first metre.
++const EXEMPT_M=1,STEP=+(process.env.QF_OCCLUSION_STEP||.05),HEIGHTS=[.15,.5,.9,1.25,1.6],CLEAR=1.1;
++const results=[];const check=(id,fn)=>{try{results.push({id,status:'PASS',...fn()});}catch(e){results.push({id,status:'FAIL',error:String(e.stack||e)});}};
++const j=LK.lakesideJourney(start),path=[...j.approach,...j.bridge.slice(1),...j.arrival],T=routeLength(path);
++const route={from:'island',to:'lakeside',path,bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing};
++const lakeLocal=LKS.instances(),lake=lakeLocal.map(o=>{const t=new Float64Array(o.tris.length);for(let k=0;k<t.length;k+=3){const w=j.toWorld([o.tris[k],o.tris[k+1],o.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lakeside',name:o.name,group:o.group,tris:t};});
++// rainbow bridge strip exactly as RegionJourneyAdapter.rainbowBridge (full width, one ribbon)
++const strip=(()=>{const w=Lay.REGION_JOURNEY_LAYOUT.bridgeWidthM,P=j.bridge,t=[];for(let i=1;i<P.length;i++){const q=[P[i-1],P[i]].map((p,k)=>{const a=P[Math.max(0,i-1+k-1)],b=P[Math.min(P.length-1,i+k)],dx=b[0]-a[0],dz=b[2]-a[2],L=Math.hypot(dx,dz)||1;return [-.5,.5].map(s=>[p[0]+dz/L*s*w,p[1]-.015,p[2]-dx/L*s*w]);});t.push(...q[0][0],...q[1][0],...q[0][1],...q[0][1],...q[1][0],...q[1][1]);}return {tag:'bridge',name:'RainbowBridgeStrip',tris:Float64Array.from(t)};})();
++const objs=[...island,...lake,strip];
++const cam=d=>journeyCamera(path,d,start1,j.focus,undefined,0,j.landing);
++const heading=d=>Core.journeyHeading(path,d);
++function ndc(c,p,aspect){const f=sub(c.target,c.position),fl=Math.hypot(...f),fw=f.map(x=>x/fl),rl=Math.hypot(fw[2],fw[0]),r=[-fw[2]/rl,0,fw[0]/rl],up=[r[1]*fw[2]-r[2]*fw[1],r[2]*fw[0]-r[0]*fw[2],r[0]*fw[1]-r[1]*fw[0]],th=Math.tan(c.fovVerticalDeg*Math.PI/360),v=sub(p,c.position),z=v[0]*fw[0]+v[1]*fw[1]+v[2]*fw[2];
++ return [(v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(z*th*aspect),(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(z*th),z];}
++check('K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged',()=>{
++ // Region order + 'lakeside' JourneyRegion/Place/State are Voice Bot's wiring (README); the continuity and landing checks run on
++ // the same route with the order label of the Build05 island leg.
++ const asIsland={...route,to:'meadow'};Core.validateJourneyRoute(asIsland,start);assert.throws(()=>Core.validateJourneyRoute(route,start),/journey-region-order/);
++ assert.throws(()=>Core.validateJourneyRoute({...asIsland,focus:undefined},start),/journey-invalid-landing/);
++ assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{arrivalSideM:NaN}},start),/journey-invalid-landing/);
++ assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{fovDeg:30}},start),/journey-invalid-landing/);
++ assert.throws(()=>Core.validateJourneyRoute({...route,from:'meadow'},start),/journey-region-order/);
++ for(const leg of J.legs)for(let d=0;d<=routeLength(leg.path);d+=.5)assert.deepEqual(journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM,undefined),journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM));
++ const foot=[];for(let d=route.bridgeEnd;d<=T+1e-9;d+=.25){const p=sampleRoute(path,d),hit=rayHit([p[0],p[1]+3,p[2]],[0,-1,0],10,lake.find(o=>o.name==='LK_terrain_i').tris);assert(hit!==null,'no bank under her at d='+d.toFixed(2));foot.push(+(p[1]+3-hit-p[1]).toFixed(3));}
++ assert(foot.every(h=>Math.abs(h)<=.03),'feet off the bank: '+foot);
++ return {totalM:+T.toFixed(3),durationS:+(T/route.speed).toFixed(2),bridgeStart:+route.bridgeStart.toFixed(3),bridgeEnd:+route.bridgeEnd.toFixed(3),walkOnBankM:+(T-route.bridgeEnd).toFixed(3),footVsBankM:[Math.min(...foot),Math.max(...foot)],root:j.root.map(v=>+v.toFixed(3)),yawDeg:j.yawDeg};});
++const rows=[];let worst={lens:9};const fails=[],grazes=[],exempted=[];
++for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(path,d),c=cam(d),hit=HEIGHTS.map(h=>blockers(objs,c.position,[p[0],p[1]+h,p[2]])),face=blockers(objs,c.position,[p[0],p[1]+1.5,p[2]]),[lens,lensObj]=clearance(c.position,objs);
++ const [hx,hz]=heading(d),o=sub(c.position,p),side=o[0]*-hz+o[2]*hx,behind=-(o[0]*hx+o[2]*hz),up=o[1];
++ const rec={d:+d.toFixed(2),lens:+lens.toFixed(3),lensObj,side:+side.toFixed(3),behind:+behind.toFixed(3),up:+up.toFixed(3),cam:c.position.map(v=>+v.toFixed(3)),target:c.target.map(v=>+v.toFixed(3)),fov:c.fovVerticalDeg,root:p.map(v=>+v.toFixed(3))};rows.push(rec);
++ if(lens<worst.lens)worst=rec;const hidden=hit.filter(h=>h.length).length;
++ const legsOnly=!face.length&&!hit[2].length&&!hit[3].length&&!hit[4].length;
++ if((hit[2].length||hit[4].length||face.length||hidden>1)&&!(d<EXEMPT_M&&legsOnly))fails.push({...rec,hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length)),face});else if(hidden)(d<EXEMPT_M&&hidden>1?exempted:grazes).push({d:rec.d,hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length))});}
++check(`K2 face/head/chest visible + lens ≥ ${CLEAR} m every ${STEP} m (island + lakeside + bridge strip)`,()=>{assert.deepEqual(fails,[],JSON.stringify(fails.slice(0,5)));assert(worst.lens>=CLEAR,`lens ${worst.lens} m from ${worst.lensObj} at d=${worst.d}`);
++ return {samples:rows.length,minLensM:worst.lens,minLensAt:worst.d,minLensObj:worst.lensObj,setOffLegsOnlyExempted:exempted,partialGrazes:grazes};});
++check('K3 lens on her right for the whole leg',()=>{const m=rows.reduce((a,r)=>r.side<a.side?r:a);assert(m.side>.3,`lens ${m.side} m right of her at d=${m.d}`);return {minRightM:m.side,at:m.d,finalRightM:rows.at(-1).side};});
++const finals={};
++for(const [W,Hh] of [[360,780],[390,520]])check(`K4 final landing frame ${W}x${Hh}: whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame`,()=>{
++ const a=W/Hh,c=cam(T),p=path.at(-1),feet=ndc(c,[p[0],p[1]+.05,p[2]],a),head=ndc(c,[p[0],p[1]+1.65,p[2]],a),chest=ndc(c,[p[0],p[1]+.9,p[2]],a),fc=ndc(c,j.focus,a);
++ const x=(chest[0]+1)/2,feetUp=(feet[1]+1)/2,headDown=(1-head[1])/2,h=(head[1]-feet[1])/2;
++ assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.05,'feet '+feetUp);assert(headDown>=.05,'head '+headDown);assert(x>=.2&&x<=.8,'her x '+x);assert(h>=.12&&h<=.22,'height '+h);assert(Math.abs(fc[0])<=.9&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc);
++ return finals[W+'x'+Hh]={herX:+x.toFixed(3),feetAboveBottom:+feetUp.toFixed(3),headBelowTop:+headDown.toFixed(3),herHeight:+h.toFixed(3),boardCentre:[+((fc[0]+1)/2).toFixed(3),+((1-fc[1])/2).toFixed(3)],cam:c.position.map(v=>+v.toFixed(3)),target:c.target.map(v=>+v.toFixed(3)),fov:c.fovVerticalDeg};});
++check('K5 view turn ≤ 20°/s at 1.2 m/s; no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
++ for(let d=0;d<T;d+=.05){const a=cam(d),b=cam(Math.min(T,d+.05)),u=J.Core?null:null,fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI/(.05/route.speed);if(deg>maxAng){maxAng=deg;at=d;}}
++ assert(maxAng<=20,`turn ${maxAng.toFixed(2)}°/s at d=${at.toFixed(2)}`);
++ // No crane-up: over the arrival the lens never climbs in the world, and its height above her only falls (≤ 2 cm total of
++ // up-steps allowed: the smoothed anchor rounds the bridge→bank corner by a few mm).
++ const s=T-Core.JOURNEY_CAMERA.arrivalBlendM;let worldRise=0,wa=0,relUp=0,ra=0;for(let i=1;i<rows.length;i++)if(rows[i].d>=s){const dw=rows[i].cam[1]-rows[i-1].cam[1],du=rows[i].up-rows[i-1].up;if(dw>worldRise){worldRise=dw;wa=rows[i].d;}if(du>0){relUp+=du;ra=rows[i].d;}}
++ assert(worldRise<=.001,`lens climbs ${worldRise} m per ${STEP} m at d=${wa}`);assert(relUp<=.02,`lens rises ${relUp} m above her (last at d=${ra})`);
++ const arr=rows.filter(r=>r.d>=s),maxUp=Math.max(...rows.map(r=>r.up));
++ return {maxTurnDegS:+maxAng.toFixed(2),at:+at.toFixed(2),arrivalWorldMaxClimbPerStepM:+worldRise.toFixed(4),arrivalRelativeUpStepsSumM:+relUp.toFixed(4),arrivalLensAboveHerM:[+arr[0].up.toFixed(3),+arr.at(-1).up.toFixed(3)],arrivalLensWorldY:[arr[0].cam[1],arr.at(-1).cam[1]],maxLensAboveHerM:+maxUp.toFixed(3)};});
++check('K7 lens kinematics: S-curve settle, |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³ after the set-off fade, at rest when she stops',()=>{
++ const kin=fn=>{const dt=1/60,D=T/route.speed,P=[];for(let t=0;t<=D+1+1e-9;t+=dt)P.push(fn(Math.min(T,t*route.speed)).position);const der=a=>a.slice(1).map((v,i)=>v.map((x,k)=>(x-a[i][k])/dt)),n=x=>Math.hypot(...x),v=der(P),a=der(v),jk=der(a);
++  const from=Math.round(.6/dt),end=Math.round(D/dt),pk=(arr,o)=>arr.reduce((m,x,i)=>i+o>=from&&n(x)>m.v?{v:n(x),t:(i+o)*dt}:m,{v:0,t:0});
++  return {peakSpeed:pk(v,1),peakAccel:pk(a,1),peakJerk:pk(jk,2),last05sMaxSpeed:Math.max(...v.slice(end-30,end).map(n)),speedAfterStop:n(v[end+1])};};
++ const nw=kin(cam),fb=kin(d=>journeyCamera(path,d,start1,undefined,undefined,0));
++ assert(nw.peakAccel.v<=1.2,'accel '+JSON.stringify(nw.peakAccel));assert(nw.peakJerk.v<=5,'jerk '+JSON.stringify(nw.peakJerk));assert(nw.last05sMaxSpeed<=.2&&nw.speedAfterStop<1e-9,'not at rest '+nw.last05sMaxSpeed);
++ const r=o=>JSON.parse(JSON.stringify(o,(k,v)=>typeof v==='number'?+v.toFixed(4):v));return {new:r(nw),fallback:r(fb)};});
++// K6 board framing
++const boardV=lakeLocal.filter(o=>o.group==='board');
++check('K6 board framing 0.42…1.0: whole board inside with margins, scene top third, cells unoccluded, lens clearance',()=>{const out={};
++ const bg=lakeLocal.filter(o=>o.group==='bg').map(o=>({tag:'lakeside',name:o.name,tris:o.tris}));
++ for(const a of [.42,.45,360/780,.5,.5625,.62,.7,.75,390/520+.0001,.8,1]){const pose=LK.lakesideScenePose(a),c={position:pose.position,target:pose.target,fovVerticalDeg:pose.fovVerticalDeg};
++  let maxX=0,minY=9,maxY=-9,decor=0;for(const o of boardV){const cx=(o.box[0][0]+o.box[1][0])/2,cz=(o.box[0][2]+o.box[1][2])/2,isDecor=Math.abs(cx)>C.board.extent.x+.05||cz<C.board.extent.zFar-.05||cz>C.board.extent.zNear+.05;for(let k=0;k<o.tris.length;k+=3){const q=ndc(c,[o.tris[k],o.tris[k+1],o.tris[k+2]],a);if(isDecor){decor=Math.max(decor,Math.abs(q[0]));continue;}maxX=Math.max(maxX,Math.abs(q[0]));minY=Math.min(minY,q[1]);maxY=Math.max(maxY,q[1]);}}
++  const top=(1-maxY)/2,bottom=(1-minY)/2,lim=a<=C.board.maxAspect+1e-9?.9:.9;assert(maxX<=lim,`a=${a} board x ${maxX}`);assert(bottom<=.94,`a=${a} bottom ${bottom}`);assert(top>=.30&&top<=.38,`a=${a} top ${top}`);
++  const blocked=[];for(let r=0;r<7;r++)for(let k=0;k<7;k++){const cell=[-3.3+1.1*k,.3,8.7+1.1*r];if(blockers(bg,c.position,cell).length)blocked.push([r,k]);}assert.deepEqual(blocked,[],'cells hidden '+JSON.stringify(blocked));
++  const [lens,who]=clearance(c.position,lakeLocal.map(o=>({tag:'lakeside',name:o.name,tris:o.tris})));assert(lens>=CLEAR,`lens ${lens} from ${who}`);
++  out[a.toFixed(4)]={pose,boardMaxAbsX:+maxX.toFixed(3),boardTopFrac:+top.toFixed(3),boardBottomFrac:+bottom.toFixed(3),decorMaxAbsX:+decor.toFixed(3),lensClearM:+lens.toFixed(2)};}
++ return {aspects:out};});
++const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
++fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
++if(process.env.QF_LAKESIDE_DUMP)fs.writeFileSync(process.env.QF_LAKESIDE_DUMP,JSON.stringify({path,focus:j.focus,root:j.root,yawDeg:j.yawDeg,landing:j.landing,start1,rows,route:{bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,speed:route.speed}}));
++console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,error:r.error&&r.error.split('\n')[0].slice(0,400)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
+-- 
+2.47.3
+

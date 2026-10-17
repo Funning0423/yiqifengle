@@ -1,0 +1,6 @@
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default [log] [QF-AUDIT-HEARTBEAT] b331f22f6b65b756
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default [error] [QF-AUDIT-CANARY] b331f22f6b65b756
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default [log] [QF-AUDIT-HEARTBEAT-LATE] b331f22f6b65b756
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default [error] [QF-AUDIT-CANARY-LATE] b331f22f6b65b756
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/copies/QFFirstOpen-20261010T013520477Z-e0b7-6605e4-default [log] invalid utf8: ÿ

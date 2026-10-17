@@ -1,0 +1,15 @@
+{
+ "G2_DRESS_R5G2": {
+  "verts": 6678,
+  "in_seat_box": 1531,
+  "in_seat_back_centre": 573,
+  "max_depth_m": 0.5281772974095748
+ },
+ "G2_APRON_R5G2": {
+  "verts": 729,
+  "in_seat_box": 0,
+  "in_seat_back_centre": 0,
+  "max_depth_m": 0.0
+ },
+ "thigh_min_z_over_seat": 0.4499139889572916
+}

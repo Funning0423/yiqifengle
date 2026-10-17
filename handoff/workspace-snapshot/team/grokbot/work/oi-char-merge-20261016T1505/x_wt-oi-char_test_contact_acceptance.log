@@ -1,0 +1,167 @@
+{
+  "status": "PASS_PRIMARY_60HZ_AND_30HZ_CPU_NOT_GPU",
+  "results": [
+    {
+      "limitMm": 12,
+      "off": {
+        "L": 4.198,
+        "hz": 60,
+        "solver": false,
+        "slide": {
+          "byClip": {
+            "walk_start": 16.5,
+            "walk_loop": 28.33,
+            "walk_stop_bodyL": 9.85
+          },
+          "foot.L": {
+            "worstMm": 16.5,
+            "where": "walk_start@0.62",
+            "windows": 804
+          },
+          "foot.R": {
+            "worstMm": 28.33,
+            "where": "walk_loop@4.70",
+            "windows": 882
+          }
+        },
+        "endMm": 0.000023157593974213827,
+        "minimumSoleHeightMm": -1.4771495398266943,
+        "maximumIkCorrectionMm": 0,
+        "unreachableSolves": 0
+      },
+      "on": {
+        "L": 4.198,
+        "hz": 60,
+        "solver": true,
+        "slide": {
+          "byClip": {
+            "walk_start": 6.57,
+            "walk_loop": 8.82,
+            "walk_stop_bodyL": 4.28
+          },
+          "foot.L": {
+            "worstMm": 6.57,
+            "where": "walk_start@0.63",
+            "windows": 816
+          },
+          "foot.R": {
+            "worstMm": 8.82,
+            "where": "walk_loop@4.70",
+            "windows": 882
+          }
+        },
+        "endMm": 0.000023157593974213827,
+        "minimumSoleHeightMm": -0.00013706864127049911,
+        "maximumIkCorrectionMm": 34.86829074428428,
+        "unreachableSolves": 10
+      }
+    },
+    {
+      "limitMm": 16.47,
+      "off": {
+        "L": 3.2,
+        "hz": 60,
+        "solver": false,
+        "slide": {
+          "byClip": {
+            "walk_start": 16.67,
+            "walk_loop": 26.25,
+            "walk_stop_bodyL": 10.11
+          },
+          "foot.L": {
+            "worstMm": 17.29,
+            "where": "walk_loop@2.23",
+            "windows": 663
+          },
+          "foot.R": {
+            "worstMm": 26.25,
+            "where": "walk_loop@4.30",
+            "windows": 735
+          }
+        },
+        "endMm": 0.000023157594251255577,
+        "minimumSoleHeightMm": -1.2441336481688603,
+        "maximumIkCorrectionMm": 0,
+        "unreachableSolves": 0
+      },
+      "on": {
+        "L": 3.2,
+        "hz": 60,
+        "solver": true,
+        "slide": {
+          "byClip": {
+            "walk_start": 6.65,
+            "walk_loop": 5.87,
+            "walk_stop_bodyL": 4.28
+          },
+          "foot.L": {
+            "worstMm": 6.65,
+            "where": "walk_start@0.72",
+            "windows": 678
+          },
+          "foot.R": {
+            "worstMm": 5.87,
+            "where": "walk_loop@4.28",
+            "windows": 735
+          }
+        },
+        "endMm": 0.000023157594251255577,
+        "minimumSoleHeightMm": -0.000137065132854719,
+        "maximumIkCorrectionMm": 34.89322325568491,
+        "unreachableSolves": 3
+      }
+    }
+  ],
+  "thirtyFps": {
+    "L": 4.198,
+    "hz": 30,
+    "solver": true,
+    "slide": {
+      "byClip": {
+        "walk_start": 6.54,
+        "walk_loop": 6.17,
+        "walk_stop_bodyL": 6.3
+      },
+      "foot.L": {
+        "worstMm": 6.54,
+        "where": "walk_start@0.63",
+        "windows": 786
+      },
+      "foot.R": {
+        "worstMm": 6.3,
+        "where": "walk_stop_bodyL@4.73",
+        "windows": 882
+      }
+    },
+    "endMm": 0.000023157593974213827,
+    "minimumSoleHeightMm": -0.00013706864127049911,
+    "maximumIkCorrectionMm": 34.86829074428428,
+    "unreachableSolves": 10
+  },
+  "thirtyFpsOff": {
+    "L": 4.198,
+    "hz": 30,
+    "solver": false,
+    "slide": {
+      "byClip": {
+        "walk_start": 16.06,
+        "walk_loop": 26.68,
+        "walk_stop_bodyL": 9.19
+      },
+      "foot.L": {
+        "worstMm": 16.06,
+        "where": "walk_start@0.63",
+        "windows": 786
+      },
+      "foot.R": {
+        "worstMm": 26.68,
+        "where": "walk_loop@4.67",
+        "windows": 882
+      }
+    },
+    "endMm": 0.000023157593974213827,
+    "minimumSoleHeightMm": -1.4771495398266943,
+    "maximumIkCorrectionMm": 0,
+    "unreachableSolves": 0
+  }
+}

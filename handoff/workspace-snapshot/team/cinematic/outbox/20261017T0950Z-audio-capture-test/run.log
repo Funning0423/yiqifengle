@@ -1,0 +1,32 @@
+2026-10-17T09:43:58.078Z home ready
+2026-10-17T09:43:58.091Z renderer ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)
+2026-10-17T09:43:58.094Z step {"op":"eval","js":"__worldIntegration.leave()"}
+2026-10-17T09:44:28.901Z eval -> {"ok":true}
+2026-10-17T09:44:28.902Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()==='island'","timeout":180000}
+2026-10-17T09:44:29.040Z until ok
+2026-10-17T09:44:29.040Z step {"op":"wait","ms":2000}
+2026-10-17T09:44:31.043Z step {"op":"startRec"}
+2026-10-17T09:44:31.046Z recording
+2026-10-17T09:44:31.046Z step {"op":"wait","ms":800}
+2026-10-17T09:44:31.848Z step {"op":"marker"}
+2026-10-17T09:44:31.850Z marker {"beepPerf":37401.93533335717,"ctxTime":37.071333333333335}
+2026-10-17T09:44:32.454Z step {"op":"wait","ms":2500}
+2026-10-17T09:44:34.954Z step {"op":"marker"}
+2026-10-17T09:44:34.955Z marker {"beepPerf":40505.975333381015,"ctxTime":40.175333333333334}
+2026-10-17T09:44:35.559Z step {"op":"play","js":"window.__boot.composition.enterRegion('lake')"}
+2026-10-17T09:44:35.559Z step {"op":"wait","ms":4000}
+2026-10-17T09:44:39.562Z step {"op":"marker"}
+2026-10-17T09:44:39.563Z marker {"beepPerf":45113.942333357176,"ctxTime":44.78333333333333}
+2026-10-17T09:44:40.164Z step {"op":"wait","ms":4000}
+2026-10-17T09:44:44.165Z step {"op":"marker"}
+2026-10-17T09:44:44.166Z marker {"beepPerf":49716.524333381014,"ctxTime":49.386}
+2026-10-17T09:44:44.768Z step {"op":"wait","ms":4000}
+2026-10-17T09:44:48.770Z step {"op":"marker"}
+2026-10-17T09:44:48.772Z marker {"beepPerf":54324.524333381014,"ctxTime":53.994}
+2026-10-17T09:44:49.375Z step {"op":"wait","ms":3000}
+2026-10-17T09:44:52.377Z step {"op":"marker"}
+2026-10-17T09:44:52.377Z marker {"beepPerf":57929.84133333333,"ctxTime":57.599333333333334}
+2026-10-17T09:44:52.979Z step {"op":"wait","ms":500}
+2026-10-17T09:44:53.484Z stopped
+2026-10-17T09:44:53.675Z saved 1336 frames 1337 cam frames webaudio:263/wl:262
+2026-10-17T09:44:53.685Z play err Error: page.evaluate: Target page, context or browser has been closed

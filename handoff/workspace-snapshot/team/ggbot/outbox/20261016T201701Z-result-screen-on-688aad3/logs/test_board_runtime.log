@@ -1,0 +1,1 @@
+{"status":"PASS","checks":16,"scope":"Real board-ui ManagedMobileBoardUI + panels on Cocos memory doubles (tools/board-ui/harness.cjs); not rendering, device touch or WeChat"}

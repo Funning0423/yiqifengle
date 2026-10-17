@@ -1,0 +1,68 @@
+{
+ "day": {
+  "max_abs_pixel_diff_before_vs_after_0_255": 0.0,
+  "before": {
+   "caption_vs_adjacent_halo_1px": {
+    "median": 2.79,
+    "p5": 1.88
+   },
+   "caption_vs_glass_without_text_effects": {
+    "median": 2.07,
+    "p5": 1.99,
+    "min": 1.91
+   }
+  },
+  "after": {
+   "caption_vs_adjacent_halo_1px": {
+    "median": 2.79,
+    "p5": 1.88
+   },
+   "caption_vs_glass_without_text_effects": {
+    "median": 2.07,
+    "p5": 1.99,
+    "min": 1.91
+   }
+  },
+  "base_layer_mean_alpha_inside_card": {
+   "before": 0.0839
+  },
+  "card_body_mean_luminance": {
+   "backdrop": 0.3056,
+   "before": 0.4263,
+   "after": 0.4263
+  }
+ },
+ "night": {
+  "max_abs_pixel_diff_before_vs_after_0_255": 198.0,
+  "before": {
+   "caption_vs_adjacent_halo_1px": {
+    "median": 3.92,
+    "p5": 2.25
+   },
+   "caption_vs_glass_without_text_effects": {
+    "median": 3.1,
+    "p5": 2.67,
+    "min": 2.51
+   }
+  },
+  "after": {
+   "caption_vs_adjacent_halo_1px": {
+    "median": 12.46,
+    "p5": 4.26
+   },
+   "caption_vs_glass_without_text_effects": {
+    "median": 3.78,
+    "p5": 3.6,
+    "min": 3.18
+   }
+  },
+  "base_layer_mean_alpha_inside_card": {
+   "before": 0.0839
+  },
+  "card_body_mean_luminance": {
+   "backdrop": 0.1694,
+   "before": 0.2982,
+   "after": 0.149
+  }
+ }
+}

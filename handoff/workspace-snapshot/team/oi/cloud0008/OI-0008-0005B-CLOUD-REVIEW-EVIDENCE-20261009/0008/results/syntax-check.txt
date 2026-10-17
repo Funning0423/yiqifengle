@@ -1,0 +1,11 @@
+PASS tools/finalize_wechat_local_firstopen.cjs
+PASS tools/qf-wechat-env.cjs
+PASS tools/wechat_first_open_audit.cjs
+PASS tools/wechat_first_open_condition.cjs
+PASS tools/first-open-audit-shim.js
+PASS test/fake-finalize_wechat_local.cjs
+PASS test/fake-wechat-cli.cjs
+PASS test/test_first_open_audit_dryrun.cjs
+PASS test/test_first_open_condition.cjs
+PASS test/test_shim.cjs
+PASS test/fake-automator-server/server.cjs

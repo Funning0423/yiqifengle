@@ -1,0 +1,6 @@
+/workspace/wechat-game/team/ggbot/outbox/20261017T112236Z-r4-journey-fixes/ggbot-build05-r4-journey-fixes.bundle is okay
+The bundle contains this ref:
+939049ceb815434fbb65c4dfdc187d8266d08a24 refs/heads/ggbot/build05-r4-journey-fixes
+The bundle requires this ref:
+9581c232a9aae3dbec449d80eaef5edc2f7a8b8c 
+The bundle uses this hash algorithm: sha1

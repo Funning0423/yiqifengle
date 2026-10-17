@@ -1,0 +1,204 @@
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+[enter-level] cover motion false
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+[enter-level] cover motion false
+[enter-level] cover motion false
+[enter-level] cover motion false
+[enter-level] cover motion false
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+WorldLease.wait missing; camera span timing degrades
+[enter-level] cover motion false
+WorldLease.wait missing; camera span timing degrades
+✖ actual asset facts bind all 49 anchors and 24 renderer nodes (1.50322ms)
+✖ full home / island / level / island / home flow, with close before sit (19.257861ms)
+✔ missing/unvalidated character blocks movement without inventing a character (0.311224ms)
+✔ duplicate actions and mode switches while busy are rejected (1.587841ms)
+✔ fixed camera mode does not start animated camera jobs (1.344182ms)
+✔ hide/show during standing rolls back home and requires explicit resume (0.944865ms)
+✔ hide/show during turning-out rolls back home and requires explicit resume (0.556835ms)
+✔ hide/show during walking-out rolls back home and requires explicit resume (3.088612ms)
+✔ hide/show during opening-door rolls back home and requires explicit resume (0.644374ms)
+✔ hide/show during crossing-out rolls back home and requires explicit resume (0.914523ms)
+✖ cancel walking-home returns to island with no sit/door leftovers (1.75024ms)
+✖ cancel crossing-in returns to island with no sit/door leftovers (1.20063ms)
+✖ cancel closing-door returns to island with no sit/door leftovers (1.121685ms)
+✖ cancel walking-to-seat returns to island with no sit/door leftovers (2.004904ms)
+✖ cancel sitting returns to island with no sit/door leftovers (6.550581ms)
+✔ late world load after destroy is released exactly once (0.249358ms)
+✔ late level load after hide is released; no layer takeover (0.576907ms)
+✔ level hide/show stays paused until explicit resume and duplicate show is no-op (0.543893ms)
+✔ load interruption can be explicitly resumed and retried without stale takeover (0.129985ms)
+✔ rejecting level entry restores island; errors never create a level lease (0.715886ms)
+✔ pointOnPath preserves endpoints, clamps progress, and uses arc length (0.433336ms)
+✔ coordinate mismatch does not replace an existing calibrated adapter (0.137284ms)
+✔ R4 exit failure keeps level mounted and world hidden for retry (0.563118ms)
+✔ effect error cancels its concurrent camera and restores stable home (5.306532ms)
+✔ level resume failure stays explicitly paused for retry (0.618497ms)
+✔ shared update clock caps gaps and freezes character when paused (0.189675ms)
+✔ skip during standing = same end state as watching through (6.485684ms)
+✔ skip during turning-out = same end state as watching through (0.751007ms)
+✔ skip during walking-out = same end state as watching through (0.721277ms)
+✔ skip during opening-door = same end state as watching through (0.775138ms)
+✔ skip during crossing-out = same end state as watching through (0.89103ms)
+✔ quick exit reaches the same end state (12.745894ms)
+✔ skip outside an exit does nothing (0.097133ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 26
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1466.088789
+
+✖ failing tests:
+
+test at wf.skip.test.cjs:27:1
+✖ actual asset facts bind all 49 anchors and 24 renderer nodes (1.50322ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  28 !== 24
+  
+      at TestContext.<anonymous> (/tmp/wte/ut/wf.skip.test.cjs:28:65)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 28,
+    expected: 24,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at wf.skip.test.cjs:33:1
+✖ full home / island / level / island / home flow, with close before sit (19.257861ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(closed>0&&sit>closed)
+  
+      at TestContext.<anonymous> (/tmp/wte/ut/wf.skip.test.cjs:40:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at wf.skip.test.cjs:56:94
+✖ cancel walking-home returns to island with no sit/door leftovers (1.75024ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  45 !== 86.4
+  
+      at TestContext.<anonymous> (/tmp/wte/ut/wf.skip.test.cjs:57:267)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 45,
+    expected: 86.4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at wf.skip.test.cjs:56:94
+✖ cancel crossing-in returns to island with no sit/door leftovers (1.20063ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  45 !== 86.4
+  
+      at TestContext.<anonymous> (/tmp/wte/ut/wf.skip.test.cjs:57:267)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 45,
+    expected: 86.4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at wf.skip.test.cjs:56:94
+✖ cancel closing-door returns to island with no sit/door leftovers (1.121685ms)
+  AssertionError [ERR_ASSERTION]: pending effect to reach closing-door
+      at Object.until (/tmp/wte/ut/wf.skip.test.cjs:23:159)
+      at async TestContext.<anonymous> (/tmp/wte/ut/wf.skip.test.cjs:57:99)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at wf.skip.test.cjs:56:94
+✖ cancel walking-to-seat returns to island with no sit/door leftovers (2.004904ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  45 !== 86.4
+  
+      at TestContext.<anonymous> (/tmp/wte/ut/wf.skip.test.cjs:57:267)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 45,
+    expected: 86.4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at wf.skip.test.cjs:56:94
+✖ cancel sitting returns to island with no sit/door leftovers (6.550581ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  45 !== 86.4
+  
+      at TestContext.<anonymous> (/tmp/wte/ut/wf.skip.test.cjs:57:267)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 45,
+    expected: 86.4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

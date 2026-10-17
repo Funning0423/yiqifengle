@@ -1,0 +1,2169 @@
+[
+  {
+    "tag": "walk_to_door",
+    "side": "L",
+    "time": 4.915073529411765,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      485,
+      489,
+      494,
+      495,
+      498,
+      499,
+      1159,
+      1160
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.14229627494610508,
+        -4.018516139734904
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        485,
+        489,
+        494,
+        495,
+        498,
+        499,
+        1159,
+        1160
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "R",
+    "time": 5.313970588235295,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      282,
+      283,
+      284,
+      285,
+      495,
+      499,
+      504,
+      505,
+      506,
+      1145,
+      1163
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.026540299943401905,
+        -3.622741571504475
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        282,
+        283,
+        284,
+        285,
+        495,
+        499,
+        504,
+        505,
+        506,
+        1145,
+        1163
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "L",
+    "time": 5.7128676470588236,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      292,
+      293,
+      295,
+      485,
+      491,
+      494,
+      498,
+      1164,
+      1165
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.18139294643932938,
+        -3.227338271153416
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        292,
+        293,
+        295,
+        485,
+        491,
+        494,
+        498,
+        1164,
+        1165
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "R",
+    "time": 6.1117647058823525,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      298,
+      299,
+      300,
+      301,
+      495,
+      498,
+      499,
+      501,
+      504,
+      508,
+      1167
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.012913689873756557,
+        -2.8243328482456453
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        298,
+        299,
+        300,
+        301,
+        495,
+        498,
+        499,
+        501,
+        504,
+        508,
+        1167
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "L",
+    "time": 6.510661764705882,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      308,
+      309,
+      310,
+      311,
+      484,
+      485,
+      490,
+      491,
+      494,
+      500,
+      1168,
+      1169,
+      1558
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.22084693625648788,
+        -2.4289295478945867
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        308,
+        309,
+        310,
+        311,
+        484,
+        485,
+        490,
+        491,
+        494,
+        500,
+        1168,
+        1169,
+        1558
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "R",
+    "time": 6.909558823529411,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      494,
+      495,
+      500,
+      501,
+      504,
+      1559,
+      1560
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.052367679690915034,
+        -2.0259241249868154
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        494,
+        495,
+        500,
+        501,
+        504,
+        1559,
+        1560
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "L",
+    "time": 7.308455882352941,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      484,
+      485,
+      490,
+      493,
+      1170,
+      1235
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.2603009260736464,
+        -1.6305208246357559
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        484,
+        485,
+        490,
+        493,
+        1170,
+        1235
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "R",
+    "time": 7.70735294117647,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      494,
+      503,
+      1565,
+      1566
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.09182166950807354,
+        -1.2275154017279855
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        494,
+        503,
+        1565,
+        1566
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "L",
+    "time": 8.10625,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      484,
+      492,
+      493,
+      1240
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.29948304360554745,
+        -0.8376138314977024
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        484,
+        492,
+        493,
+        1240
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "R",
+    "time": 8.505147058823528,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      494,
+      502,
+      1242,
+      1569
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.12534725747231193,
+        -0.5490764908072903
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        494,
+        502,
+        1242,
+        1569
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_door",
+    "side": "L",
+    "time": 8.904044117647057,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      484,
+      492,
+      1242,
+      2622
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.3189492879528106,
+        -0.4436861357698661
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        484,
+        492,
+        1242,
+        2622
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "R",
+    "time": 11.829441624365483,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      394,
+      395,
+      2620,
+      2621,
+      2955
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.1303428388537508,
+        -0.23005747427580392
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        394,
+        395,
+        2620,
+        2621,
+        2955
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "L",
+    "time": 12.126395939086294,
+    "ground_height_m": -0.0012098996750065372,
+    "support_triangles": [
+      2624,
+      2625,
+      2956,
+      2965
+    ],
+    "door_halfspace_shift_m": 0.0012098996750065372,
+    "support_fit": {
+      "normal_game": [
+        0.0011826328653199883,
+        0.9996776957434088,
+        0.025359534945549062
+      ],
+      "slope_xz": [
+        -0.001183014155818016,
+        -0.025367711066805868
+      ],
+      "support_plane_center_xz": [
+        -0.31860282356589786,
+        0.18295451531607532
+      ],
+      "plane_center_y": -0.001572683009030524,
+      "foot_tilt_degrees": 1.4547297353102675,
+      "support_triangle_indices": [
+        2624,
+        2625,
+        2956,
+        2965
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "R",
+    "time": 12.423350253807106,
+    "ground_height_m": -0.003999989999999995,
+    "support_triangles": [
+      2625,
+      2965,
+      2966
+    ],
+    "door_halfspace_shift_m": 0.003999989999999995,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.13034283885375078,
+        0.4379425257241961
+      ],
+      "plane_center_y": -0.00399999,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        2625,
+        2965,
+        2966
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "L",
+    "time": 12.720304568527919,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      1572,
+      2626
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.31850732157503375,
+        0.7968547390756008
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        1572,
+        2626
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "R",
+    "time": 13.017258883248731,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      1171,
+      1172,
+      1173,
+      1572,
+      1573
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.1303428388537508,
+        1.0298788101571124
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        1171,
+        1172,
+        1173,
+        1572,
+        1573
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "L",
+    "time": 13.314213197969544,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      1245,
+      1246
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.3185073215750337,
+        1.318827796772064
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        1245,
+        1246
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "R",
+    "time": 13.611167512690356,
+    "ground_height_m": 0.0009191411425411994,
+    "support_triangles": [
+      1147,
+      1174,
+      1246,
+      1247
+    ],
+    "door_halfspace_shift_m": 0.0009191411425411994,
+    "support_fit": {
+      "normal_game": [
+        -0.014421255509005434,
+        0.9998842534060565,
+        -0.0048484203775383755
+      ],
+      "slope_xz": [
+        0.014422924913438868,
+        0.004848981630646217
+      ],
+      "support_plane_center_xz": [
+        -0.1291829779478008,
+        1.5467650565016298
+      ],
+      "plane_center_y": 0.0007861529158078326,
+      "foot_tilt_degrees": 0.8717579755020134,
+      "support_triangle_indices": [
+        1147,
+        1174,
+        1246,
+        1247
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "exit",
+    "side": "L",
+    "time": 13.908121827411168,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      1247,
+      1248
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.3185073215750337,
+        1.6591410383116314
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        1247,
+        1248
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_return",
+    "side": "L",
+    "time": 14.81,
+    "ground_height_m": 0.001491116851223287,
+    "support_triangles": [
+      1131,
+      1174,
+      1175,
+      1247,
+      1248
+    ],
+    "door_halfspace_shift_m": 0.001491116851223287,
+    "support_fit": {
+      "normal_game": [
+        -0.030155072213233592,
+        0.9995420810558392,
+        -0.0025099438991521934
+      ],
+      "slope_xz": [
+        0.03016888711816925,
+        0.002511093776563046
+      ],
+      "support_plane_center_xz": [
+        -0.24356087403375842,
+        1.788600526190349
+      ],
+      "plane_center_y": 0.0015399621136115613,
+      "foot_tilt_degrees": 1.7339976702247808,
+      "support_triangle_indices": [
+        1131,
+        1174,
+        1175,
+        1247,
+        1248
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_return",
+    "side": "R",
+    "time": 15.32,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      1246,
+      1247,
+      1248
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.2775543611742952,
+        1.6002213224223338
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        1246,
+        1247,
+        1248
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_return",
+    "side": "L",
+    "time": 15.83,
+    "ground_height_m": 0.0018215123542733719,
+    "support_triangles": [
+      1147,
+      1174,
+      1246,
+      1247
+    ],
+    "door_halfspace_shift_m": 0.0018215123542733719,
+    "support_fit": {
+      "normal_game": [
+        -0.04382529148429733,
+        0.9988043897414817,
+        -0.0216595212196058
+      ],
+      "slope_xz": [
+        0.043877752174918384,
+        0.021685448564369932
+      ],
+      "support_plane_center_xz": [
+        -0.10831137541446828,
+        1.6912131361083533
+      ],
+      "plane_center_y": 0.002527386855590488,
+      "foot_tilt_degrees": 2.802049006730798,
+      "support_triangle_indices": [
+        1147,
+        1174,
+        1246,
+        1247
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "return_approach",
+    "side": "R",
+    "time": 16.370103092783502,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      1173,
+      1245
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.1202250287617343,
+        1.3274803850940535
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        1173,
+        1245
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "return_approach",
+    "side": "L",
+    "time": 16.71546391752577,
+    "ground_height_m": 0.0024268163538550686,
+    "support_triangles": [
+      1575,
+      1576,
+      1577
+    ],
+    "door_halfspace_shift_m": 0.0024268163538550686,
+    "support_fit": {
+      "normal_game": [
+        -0.033341642873699305,
+        0.99936550527002,
+        -0.012526840259224898
+      ],
+      "slope_xz": [
+        0.03336281140171101,
+        0.012534793519654506
+      ],
+      "support_plane_center_xz": [
+        0.16128996161074227,
+        1.2216801853425077
+      ],
+      "plane_center_y": 0.0029739239052171424,
+      "foot_tilt_degrees": 2.0411485165055328,
+      "support_triangle_indices": [
+        1575,
+        1576,
+        1577
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "return_approach",
+    "side": "R",
+    "time": 17.06082474226804,
+    "ground_height_m": 6.859781128326636e-06,
+    "support_triangles": [
+      1171,
+      1573,
+      1574
+    ],
+    "door_halfspace_shift_m": 6.859781128326636e-06,
+    "support_fit": {
+      "normal_game": [
+        -0.00025458827281649594,
+        0.9999999674741713,
+        -1.5377514608409148e-05
+      ],
+      "slope_xz": [
+        0.00025458828109719075,
+        1.537751510857557e-05
+      ],
+      "support_plane_center_xz": [
+        0.09757503728415934,
+        0.9499461252565057
+      ],
+      "plane_center_y": 1.1087648714542573e-05,
+      "foot_tilt_degrees": 0.014613418324603954,
+      "support_triangle_indices": [
+        1171,
+        1573,
+        1574
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "return_approach",
+    "side": "L",
+    "time": 17.406185567010308,
+    "ground_height_m": 0.00031088260327491457,
+    "support_triangles": [
+      1342,
+      1574,
+      1575,
+      2619
+    ],
+    "door_halfspace_shift_m": 0.00031088260327491457,
+    "support_fit": {
+      "normal_game": [
+        -0.002709993723454415,
+        0.9999961815305702,
+        0.000541163836271446
+      ],
+      "slope_xz": [
+        0.0027100040715221166,
+        -0.0005411659026969018
+      ],
+      "support_plane_center_xz": [
+        0.3166803891260955,
+        0.9469864428033832
+      ],
+      "plane_center_y": 0.0003639917368897932,
+      "foot_tilt_degrees": 0.15833700558594935,
+      "support_triangle_indices": [
+        1342,
+        1574,
+        1575,
+        2619
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_handle",
+    "side": "R",
+    "time": 17.93,
+    "ground_height_m": 5.4347321745015775e-05,
+    "support_triangles": [
+      1342,
+      1572,
+      1573,
+      1574,
+      2619,
+      2626
+    ],
+    "door_halfspace_shift_m": 5.4347321745015775e-05,
+    "support_fit": {
+      "normal_game": [
+        -0.0017783072281916878,
+        0.9999979475482524,
+        -0.0009708360751064276
+      ],
+      "slope_xz": [
+        0.0017783108780889572,
+        0.0009708380677047162
+      ],
+      "support_plane_center_xz": [
+        0.16798903243076568,
+        0.8576807758259171
+      ],
+      "plane_center_y": 8.807483582967079e-05,
+      "foot_tilt_degrees": 0.11608448591275392,
+      "support_triangle_indices": [
+        1342,
+        1572,
+        1573,
+        1574,
+        2619,
+        2626
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_handle",
+    "side": "L",
+    "time": 18.38,
+    "ground_height_m": 0.00012052779939830671,
+    "support_triangles": [
+      1574,
+      1575
+    ],
+    "door_halfspace_shift_m": 0.00012052779939830671,
+    "support_fit": {
+      "normal_game": [
+        -0.0017018172466666246,
+        0.9999984590690806,
+        -0.00043090314807901374
+      ],
+      "slope_xz": [
+        0.00170181986905348,
+        0.000430903812072021
+      ],
+      "support_plane_center_xz": [
+        0.22955838485023586,
+        1.007933699476862
+      ],
+      "plane_center_y": 0.00015172955248928368,
+      "foot_tilt_degrees": 0.10058408528542165,
+      "support_triangle_indices": [
+        1574,
+        1575
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "R",
+    "time": 18.882741116751266,
+    "ground_height_m": 0.011999999999999997,
+    "support_triangles": [
+      2625,
+      2966,
+      2968,
+      2969,
+      2970
+    ],
+    "door_halfspace_shift_m": 0.04238010029244637,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.24533144184276626,
+        0.6749702589464133
+      ],
+      "plane_center_y": 0.012,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        2625,
+        2966,
+        2968,
+        2969,
+        2970
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "L",
+    "time": 19.243147208121826,
+    "ground_height_m": 0.009128172226374937,
+    "support_triangles": [
+      1572,
+      2625,
+      2626,
+      2966,
+      2967,
+      2968
+    ],
+    "door_halfspace_shift_m": 0.009128172226374937,
+    "support_fit": {
+      "normal_game": [
+        1.9280826948647384e-17,
+        0.9945226496991527,
+        0.10452128603962182
+      ],
+      "slope_xz": [
+        -1.9387016428916843e-17,
+        -0.10509693878891542
+      ],
+      "support_plane_center_xz": [
+        -0.09171459767233724,
+        0.7501124864660349
+      ],
+      "plane_center_y": 0.007784291686043916,
+      "foot_tilt_degrees": 5.999586510140406,
+      "support_triangle_indices": [
+        1572,
+        2625,
+        2626,
+        2966,
+        2967,
+        2968
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "R",
+    "time": 19.603553299492383,
+    "ground_height_m": -0.003999989999999995,
+    "support_triangles": [
+      2625,
+      2965,
+      2966
+    ],
+    "door_halfspace_shift_m": 0.003999989999999995,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.1380477171460359,
+        0.3835863979929305
+      ],
+      "plane_center_y": -0.00399999,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        2625,
+        2965,
+        2966
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "L",
+    "time": 19.963959390862943,
+    "ground_height_m": -0.0010355468299791254,
+    "support_triangles": [
+      2624,
+      2625,
+      2956,
+      2965
+    ],
+    "door_halfspace_shift_m": 0.030861756538095943,
+    "support_fit": {
+      "normal_game": [
+        -0.013877459762894501,
+        0.999516102976541,
+        0.027838390778165287
+      ],
+      "slope_xz": [
+        0.013884178275435158,
+        -0.027851868214291954
+      ],
+      "support_plane_center_xz": [
+        -0.37242491359599217,
+        0.18439827682488158
+      ],
+      "plane_center_y": -0.0015779139231383533,
+      "foot_tilt_degrees": 1.782508542968646,
+      "support_triangle_indices": [
+        2624,
+        2625,
+        2956,
+        2965
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "R",
+    "time": 20.46,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      394,
+      395,
+      2620,
+      2621,
+      2955
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.21159392552419243,
+        -0.21950252264825665
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        394,
+        395,
+        2620,
+        2621,
+        2955
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "L",
+    "time": 20.8,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      394,
+      472,
+      473,
+      482,
+      483,
+      484,
+      492,
+      2620,
+      2621,
+      2622
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.36177814218412063,
+        -0.2843700031302276
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        394,
+        472,
+        473,
+        482,
+        483,
+        484,
+        492,
+        2620,
+        2621,
+        2622
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "R",
+    "time": 21.1,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      394,
+      494,
+      502,
+      1242,
+      2621,
+      2622
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.1431048376058519,
+        -0.39896284698036383
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        394,
+        494,
+        502,
+        1242,
+        2621,
+        2622
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "close_follow",
+    "side": "L",
+    "time": 21.42,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      484,
+      492,
+      1242,
+      2622
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.3171912808098014,
+        -0.42498840375507646
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        484,
+        492,
+        1242,
+        2622
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_chair",
+    "side": "L",
+    "time": 22.009999999999998,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      394,
+      395,
+      484,
+      485,
+      492,
+      493,
+      494,
+      502,
+      2620,
+      2621,
+      2622
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.21884357335014687,
+        -0.28399129261623346
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        394,
+        395,
+        484,
+        485,
+        492,
+        493,
+        494,
+        502,
+        2620,
+        2621,
+        2622
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_chair",
+    "side": "R",
+    "time": 22.52,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      484,
+      492,
+      1242,
+      2622
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.29105473014380423,
+        -0.4567325802092357
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        484,
+        492,
+        1242,
+        2622
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_chair",
+    "side": "L",
+    "time": 23.029999999999998,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      494,
+      502,
+      1242,
+      2622
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.10284624357256596,
+        -0.4530438482648365
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        494,
+        502,
+        1242,
+        2622
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "R",
+    "time": 23.615073529411763,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      484,
+      492,
+      493,
+      1240,
+      1568
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.2722750768926019,
+        -0.8414235715552195
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        484,
+        492,
+        493,
+        1240,
+        1568
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "L",
+    "time": 24.013970588235292,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      494,
+      495,
+      503,
+      1565,
+      1566
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.06489472705472135,
+        -1.230460039982779
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        494,
+        495,
+        503,
+        1565,
+        1566
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "R",
+    "time": 24.41286764705882,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      484,
+      485,
+      490,
+      491,
+      493,
+      494,
+      500,
+      1170,
+      1235
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.23357768115791386,
+        -1.6341186936939616
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        484,
+        485,
+        490,
+        491,
+        493,
+        494,
+        500,
+        1170,
+        1235
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "L",
+    "time": 24.81176470588235,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      494,
+      495,
+      501,
+      504,
+      508,
+      1559,
+      1560
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.025843662118629963,
+        -2.0303998835163473
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        494,
+        495,
+        501,
+        504,
+        508,
+        1559,
+        1560
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "R",
+    "time": 25.21066176470588,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      306,
+      307,
+      308,
+      309,
+      311,
+      485,
+      491,
+      494,
+      500,
+      501,
+      1146,
+      1167,
+      1168,
+      1169,
+      1557,
+      1558
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.19452661622182255,
+        -2.43405853722753
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        306,
+        307,
+        308,
+        309,
+        311,
+        485,
+        491,
+        494,
+        500,
+        501,
+        1146,
+        1167,
+        1168,
+        1169,
+        1557,
+        1558
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "L",
+    "time": 25.609558823529408,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      296,
+      298,
+      299,
+      301,
+      495,
+      498,
+      499,
+      501,
+      504,
+      508,
+      509,
+      1166,
+      1167
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.013207402817461349,
+        -2.830339727049914
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        296,
+        298,
+        299,
+        301,
+        495,
+        498,
+        499,
+        501,
+        504,
+        508,
+        509,
+        1166,
+        1167
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "R",
+    "time": 26.008455882352937,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      292,
+      293,
+      485,
+      491,
+      494,
+      495,
+      498,
+      1163,
+      1164,
+      1165
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.1554755512857312,
+        -3.2339983807610957
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        292,
+        293,
+        485,
+        491,
+        494,
+        495,
+        498,
+        1163,
+        1164,
+        1165
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "L",
+    "time": 26.40735294117647,
+    "ground_height_m": 0.006000000000000005,
+    "support_triangles": [
+      282,
+      283,
+      285,
+      312,
+      313,
+      504,
+      505,
+      506,
+      1145,
+      1163
+    ],
+    "door_halfspace_shift_m": 0.006000000000000005,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.05225846775355273,
+        -3.630279570583482
+      ],
+      "plane_center_y": 0.006,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        282,
+        283,
+        285,
+        312,
+        313,
+        504,
+        505,
+        506,
+        1145,
+        1163
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "R",
+    "time": 26.80625,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      494,
+      495,
+      498,
+      499,
+      1159,
+      1546
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.11669358213222389,
+        -4.028425943424269
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        494,
+        495,
+        498,
+        499,
+        1159,
+        1546
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "L",
+    "time": 27.205147058823528,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      505,
+      506,
+      507,
+      1545,
+      1546
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.08544167479241965,
+        -4.3100195338867735
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        505,
+        506,
+        507,
+        1545,
+        1546
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "walk_to_chair",
+    "side": "R",
+    "time": 27.604044117647057,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      495,
+      498,
+      499,
+      1158,
+      1545
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        -0.09742613730371143,
+        -4.423109080148851
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        495,
+        498,
+        499,
+        1158,
+        1545
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_sit",
+    "side": "L",
+    "time": 28.15,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      504,
+      505,
+      506,
+      507,
+      1158,
+      1544,
+      1545
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.07313635139174417,
+        -4.491044000511278
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        504,
+        505,
+        506,
+        507,
+        1158,
+        1544,
+        1545
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_sit",
+    "side": "R",
+    "time": 28.599999999999998,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      495,
+      499,
+      504,
+      505,
+      506,
+      507,
+      1545,
+      1546
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.02516594506249349,
+        -4.333715295498174
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        495,
+        499,
+        504,
+        505,
+        506,
+        507,
+        1545,
+        1546
+      ],
+      "iterations": 3
+    }
+  },
+  {
+    "tag": "turn_to_sit",
+    "side": "L",
+    "time": 29.05,
+    "ground_height_m": 0.0,
+    "support_triangles": [
+      495,
+      499,
+      504,
+      505,
+      506,
+      507,
+      1545
+    ],
+    "door_halfspace_shift_m": 0.0,
+    "support_fit": {
+      "normal_game": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "slope_xz": [
+        0.0,
+        0.0
+      ],
+      "support_plane_center_xz": [
+        0.07448623096597214,
+        -4.458825087026506
+      ],
+      "plane_center_y": 0.0,
+      "foot_tilt_degrees": 0.0,
+      "support_triangle_indices": [
+        495,
+        499,
+        504,
+        505,
+        506,
+        507,
+        1545
+      ],
+      "iterations": 3
+    }
+  }
+]

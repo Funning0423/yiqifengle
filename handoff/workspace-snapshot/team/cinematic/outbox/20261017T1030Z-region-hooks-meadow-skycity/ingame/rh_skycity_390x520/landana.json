@@ -1,0 +1,29 @@
+{
+ "run": "rh_skycity_390x520",
+ "windowS": 19.33,
+ "frames": 1160,
+ "gapAtWindowStart": {
+  "positionM": 51.981,
+  "viewDeg": 17.269,
+  "fovDeg": 7
+ },
+ "gapAtArrival": {
+  "positionCm": 0.0,
+  "viewDeg": 0.0,
+  "fovDeg": 0
+ },
+ "maxGrowPerFrame": {
+  "positionM": 0,
+  "viewDeg": 0,
+  "fovDeg": 0
+ },
+ "maxTurnDps": 2.09,
+ "maxFovRateDps": 0.849,
+ "frameDtMedianMs": 16.60000000000582,
+ "hitchesOver40ms": [],
+ "coverHold": {
+  "frames": 47,
+  "maxPosFromBoardCm": 0.0,
+  "maxFovFromBoardDeg": 0
+ }
+}

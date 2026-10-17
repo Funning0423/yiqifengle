@@ -1,0 +1,152 @@
+[
+  {
+    "file": "MATERIAL-PARAMS.md",
+    "sha256": "c3cef4b5bbe6e29456561971b22883db48ae6e3c44598bd7b8fa58793779d275",
+    "matches": true
+  },
+  {
+    "file": "README.md",
+    "sha256": "e528560c2a8d02032c7c85223391bdb00cb0425f24e32172dcff2515dcda138f",
+    "matches": true
+  },
+  {
+    "file": "effects/meadow-grass-wind.effect",
+    "sha256": "f39d89e7bf06f9b8a0b9580f5c959dfc57784e84b48c6a677363effd2f8b1f80",
+    "matches": true
+  },
+  {
+    "file": "effects/sky-unlit.effect",
+    "sha256": "be5ad18ba295af0bca4bde1e62b18efda5f0a59e1b2a4b974218910726f90494",
+    "matches": true
+  },
+  {
+    "file": "patches/0001-MeadowInstancer-wind-bounds-root-color.diff",
+    "sha256": "addbb9926e6eb3a5b7d45c2a5d31dfb3fc39a6adecff2cf01f5accf845340308",
+    "matches": true
+  },
+  {
+    "file": "patches/0002-E4-v1-to-v1.1.diff",
+    "sha256": "d8e10aee42deb04cd54951d1765c091e9b7b320b8e68d0e4db96ca052bf1a5bb",
+    "matches": true
+  },
+  {
+    "file": "scripts/GrassWindQuality.ts",
+    "sha256": "3ef2be275f154cda647ad5103ba43753cbe79421974b54aa61d47f1152f6200b",
+    "matches": true
+  },
+  {
+    "file": "scripts/MeadowInstancer.ts",
+    "sha256": "4da0636bfc6b0412674e1bbee224557e79af8c9c08795f4195dc6bef040b7601",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/build-offline-mappings.mjs",
+    "sha256": "7143a9b66f4ed4f27ec3399d6cc72724a0b3d13287d09eff95c66fe41354e330",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/compile.js",
+    "sha256": "71795766ac8910129a1ab0dd0674ab00f71b543cb42d11327bd70ea8345280b2",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/constants.ts",
+    "sha256": "f7ff8d89c89239800580f07c03fc0c119acb998ee892163940818cf4e4453c9f",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/core-stub.ts",
+    "sha256": "d995971dd290398ee3c19f114047bca28e595a51f0a05a9576eb6a8d0b2bedaa",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/gc-object.ts",
+    "sha256": "e658fffd52d556c572f8f2f490a0123b1592ecc782b5284bc68ec7efde658826",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/gfx-stub.ts",
+    "sha256": "8719ccbe0feaca1a802fe0285fce513dea055956ed24f6b61bdc79fa7025583c",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/package.json",
+    "sha256": "bbe4be773348e5e8d3cfc11f372101579cd936cfbda01d24857a39dbb7ffda96",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/pal-stub.ts",
+    "sha256": "b3bd371a358fc835f30ad65b2788245abc3669985d5ce24e439ded55703f209c",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/rendering-define.ts",
+    "sha256": "d5f9fe00011e66c934469521e48b2be63f54e08b104aa337c916f295333ea9fe",
+    "matches": true
+  },
+  {
+    "file": "selftest/cc-compiler-setup/setup.sh",
+    "sha256": "de91c7e8ea334b503faa4fe2a9f941f9024be055bdecaf116703a60d52fe6e1c",
+    "matches": true
+  },
+  {
+    "file": "selftest/meadow-instancer-test.js",
+    "sha256": "2be27e9ba0e2a678bf734ca30b22b1ca743e9f76820dd6bc3d98dea2ba622e23",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/glslang-variants.json",
+    "sha256": "e4a4808cc108c216a4fdbc9065e4b0bc3f864ab90ac3fbef01f32a6c9bd63272",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/meadow-COLOR_0-stats.json",
+    "sha256": "a42ba819b27ca9dd425e3bbd6d543614d79e6abe15624d42b024dae6a75d8d1c",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/meadow-grass-wind.compiled.json",
+    "sha256": "38f42207f5a42c23560e88367012a8fa4c8de443f44eca86a63ba8ad844335d1",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/selftest-results.json",
+    "sha256": "eed6aba473ef3860821f41a287ee1e65753b45329a27b7e381ef405a31207956",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/selftest-results.md",
+    "sha256": "aa5e8b7169b1a2bd01789c01d8efb4aa7ae433c29b3f0a3c0fef36e1fcd1d0ba",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/sky-night-texture-check.json",
+    "sha256": "352af42950ce95bbeb5511c11f0d061527302e4e1b52505f14d567f5958be260",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/sky-unlit.compiled.json",
+    "sha256": "254107dd637ab472c92a0ce1c42999bf37d2f0c94cf83b4af1a3e5f1fd1b90f1",
+    "matches": true
+  },
+  {
+    "file": "selftest/out/windOffset.transpiled.js",
+    "sha256": "2d8d67db2022197a3d80dd0d42b0511770d6e1e1dda762733287916fa5c5be37",
+    "matches": true
+  },
+  {
+    "file": "selftest/run-selftest.js",
+    "sha256": "5126530cf3c3d1dc72832f3ad1d0045f57bc2bdc9a8369a9cf4502809a1c914d",
+    "matches": true
+  },
+  {
+    "file": "selftest/sky-texture-check.py",
+    "sha256": "e8357ab4ef88462c34da8d2d5ac2af861ee93a62d627f3922b1ac2819e86c110",
+    "matches": true
+  },
+  {
+    "file": "selftest/wind-reference.js",
+    "sha256": "250eaba95539fd1cb8c0bc7386679b7ce8d93b7911078127b8d238ee043b710a",
+    "matches": true
+  }
+]

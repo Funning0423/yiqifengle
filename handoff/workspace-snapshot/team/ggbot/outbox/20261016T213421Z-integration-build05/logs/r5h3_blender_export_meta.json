@@ -1,0 +1,555 @@
+{
+ "glb": {
+  "LK_barrel": {
+   "tris": 60,
+   "bytes": 5864,
+   "prims": 1,
+   "instances": 4
+  },
+  "LK_boardwalk": {
+   "tris": 40,
+   "bytes": 4520,
+   "prims": 1,
+   "instances": 1
+  },
+  "LK_boardwalk_rail": {
+   "tris": 40,
+   "bytes": 4532,
+   "prims": 1,
+   "instances": 1
+  },
+  "LK_bridge": {
+   "tris": 1040,
+   "bytes": 85072,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_bridge_steps": {
+   "tris": 212,
+   "bytes": 18172,
+   "prims": 1,
+   "instances": 3
+  },
+  "LK_buoy_lantern": {
+   "tris": 112,
+   "bytes": 9528,
+   "prims": 1,
+   "instances": 4
+  },
+  "LK_bush": {
+   "tris": 180,
+   "bytes": 7104,
+   "prims": 1,
+   "instances": 15
+  },
+  "LK_chime_post": {
+   "tris": 84,
+   "bytes": 7584,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_chime_raft": {
+   "tris": 140,
+   "bytes": 12284,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_cliff_rock": {
+   "tris": 56,
+   "bytes": 7524,
+   "prims": 1,
+   "instances": 0
+  },
+  "LK_clothesline": {
+   "tris": 86,
+   "bytes": 8048,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_cloud": {
+   "tris": 560,
+   "bytes": 38588,
+   "prims": 1,
+   "instances": 7
+  },
+  "LK_contact_shadow": {
+   "tris": 8,
+   "bytes": 1348,
+   "prims": 1,
+   "instances": 49
+  },
+  "LK_dragonfly": {
+   "tris": 80,
+   "bytes": 8104,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_driftwood": {
+   "tris": 52,
+   "bytes": 6136,
+   "prims": 1,
+   "instances": 0
+  },
+  "LK_duck": {
+   "tris": 288,
+   "bytes": 26552,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_duckling": {
+   "tris": 84,
+   "bytes": 8912,
+   "prims": 1,
+   "instances": 8
+  },
+  "LK_far_hills": {
+   "tris": 822,
+   "bytes": 95180,
+   "prims": 1,
+   "instances": 1
+  },
+  "LK_far_shore": {
+   "tris": 492,
+   "bytes": 39852,
+   "prims": 1,
+   "instances": 1
+  },
+  "LK_fishnet": {
+   "tris": 144,
+   "bytes": 10512,
+   "prims": 1,
+   "instances": 1
+  },
+  "LK_float_rope_soft": {
+   "tris": 576,
+   "bytes": 16384,
+   "prims": 1,
+   "instances": 1
+  },
+  "LK_flower_clump": {
+   "tris": 104,
+   "bytes": 12484,
+   "prims": 1,
+   "instances": 16
+  },
+  "LK_flowerpot": {
+   "tris": 76,
+   "bytes": 7984,
+   "prims": 1,
+   "instances": 6
+  },
+  "LK_grass_tuft": {
+   "tris": 9,
+   "bytes": 2500,
+   "prims": 1,
+   "instances": 83
+  },
+  "LK_house_A": {
+   "tris": 928,
+   "bytes": 75948,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_house_B": {
+   "tris": 928,
+   "bytes": 75960,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_house_C": {
+   "tris": 984,
+   "bytes": 80616,
+   "prims": 1,
+   "instances": 3
+  },
+  "LK_lake": {
+   "tris": 512,
+   "bytes": 14868,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_lantern": {
+   "tris": 60,
+   "bytes": 5744,
+   "prims": 1,
+   "instances": 6
+  },
+  "LK_lantern_boat": {
+   "tris": 68,
+   "bytes": 6648,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_lilypad": {
+   "tris": 30,
+   "bytes": 3544,
+   "prims": 1,
+   "instances": 57
+  },
+  "LK_lotus": {
+   "tris": 52,
+   "bytes": 5244,
+   "prims": 1,
+   "instances": 12
+  },
+  "LK_paper_boat": {
+   "tris": 16,
+   "bytes": 2864,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_pavilion": {
+   "tris": 486,
+   "bytes": 38096,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_piece_bell_pad": {
+   "tris": 96,
+   "bytes": 8640,
+   "prims": 1,
+   "instances": 11
+  },
+  "LK_piece_bobber": {
+   "tris": 132,
+   "bytes": 11808,
+   "prims": 1,
+   "instances": 7
+  },
+  "LK_piece_lake_light": {
+   "tris": 68,
+   "bytes": 7088,
+   "prims": 1,
+   "instances": 4
+  },
+  "LK_piece_lotus_lamp": {
+   "tris": 144,
+   "bytes": 12736,
+   "prims": 1,
+   "instances": 6
+  },
+  "LK_piece_paper_boat": {
+   "tris": 37,
+   "bytes": 4292,
+   "prims": 1,
+   "instances": 13
+  },
+  "LK_piece_shell": {
+   "tris": 104,
+   "bytes": 9468,
+   "prims": 1,
+   "instances": 11
+  },
+  "LK_porch_steps": {
+   "tris": 60,
+   "bytes": 6160,
+   "prims": 1,
+   "instances": 4
+  },
+  "LK_reed_card": {
+   "tris": 2,
+   "bytes": 1688,
+   "prims": 1,
+   "instances": 68
+  },
+  "LK_ripple_ring": {
+   "tris": 28,
+   "bytes": 2636,
+   "prims": 1,
+   "instances": 49
+  },
+  "LK_rock": {
+   "tris": 40,
+   "bytes": 6048,
+   "prims": 1,
+   "instances": 23
+  },
+  "LK_rope_float": {
+   "tris": 24,
+   "bytes": 2660,
+   "prims": 1,
+   "instances": 18
+  },
+  "LK_shore_foam": {
+   "tris": 288,
+   "bytes": 13600,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_signpost": {
+   "tris": 60,
+   "bytes": 6160,
+   "prims": 1,
+   "instances": 1
+  },
+  "LK_splash_crown": {
+   "tris": 60,
+   "bytes": 6624,
+   "prims": 1,
+   "instances": 0
+  },
+  "LK_splash_drop": {
+   "tris": 20,
+   "bytes": 3784,
+   "prims": 1,
+   "instances": 0
+  },
+  "LK_terrain": {
+   "tris": 1380,
+   "bytes": 113816,
+   "prims": 1,
+   "instances": 2
+  },
+  "LK_tree_conifer": {
+   "tris": 58,
+   "bytes": 5900,
+   "prims": 1,
+   "instances": 25
+  },
+  "LK_tree_far": {
+   "tris": 24,
+   "bytes": 3428,
+   "prims": 1,
+   "instances": 0
+  },
+  "LK_tree_round": {
+   "tris": 172,
+   "bytes": 8272,
+   "prims": 1,
+   "instances": 42
+  },
+  "LK_wb_line": {
+   "tris": 2,
+   "bytes": 1596,
+   "prims": 1,
+   "instances": 16
+  },
+  "LK_windchime": {
+   "tris": 126,
+   "bytes": 10684,
+   "prims": 1,
+   "instances": 10
+  }
+ },
+ "bg_tris": 40167,
+ "board_tris": 9983,
+ "unmatched": {
+  "Torus": 1,
+  "LK_board_frame": 1,
+  "LK_board_cell": 1
+ },
+ "camera": {
+  "pos": [
+   0.0,
+   13.2,
+   26.5
+  ],
+  "rot_quat_xyzw": [
+   0.53327,
+   0.0,
+   -0.0,
+   0.84594
+  ],
+  "forward_yup": [
+   0.0,
+   -0.4312,
+   -0.9022
+  ],
+  "sensor_fit": "AUTO",
+  "lens_mm": 30.0,
+  "sensor_w": 36.0,
+  "fov_vertical_deg": 61.928,
+  "clip": [
+   0.10000000149011612,
+   1000.0
+  ],
+  "res": [
+   720,
+   1280
+  ]
+ },
+ "lights": [
+  {
+   "name": "Sun",
+   "type": "SUN",
+   "dir_to_target_yup": [
+    -0.4182,
+    -0.3983,
+    0.8164
+   ],
+   "color": [
+    1.0,
+    0.6,
+    0.32
+   ],
+   "energy": 7.2,
+   "angle_deg": 1.2,
+   "volume_factor": 2.2,
+   "linked_receivers": null
+  },
+  {
+   "name": "Sun.001",
+   "type": "SUN",
+   "dir_to_target_yup": [
+    0.5014,
+    -0.6217,
+    -0.6017
+   ],
+   "color": [
+    0.212,
+    0.631,
+    0.745
+   ],
+   "energy": 0.55,
+   "angle_deg": 0.53,
+   "volume_factor": 1.0,
+   "linked_receivers": null
+  },
+  {
+   "name": "SUN_mtn_sky",
+   "type": "SUN",
+   "dir_to_target_yup": [
+    -0.7318,
+    -0.575,
+    -0.3659
+   ],
+   "color": [
+    1.0,
+    0.72,
+    0.48
+   ],
+   "energy": 1.6,
+   "angle_deg": 1.15,
+   "volume_factor": 1.0,
+   "linked_receivers": "MTN_RECV"
+  },
+  {
+   "name": "SUN_dusk_side",
+   "type": "SUN",
+   "dir_to_target_yup": [
+    -0.9629,
+    -0.223,
+    0.152
+   ],
+   "color": [
+    1.0,
+    0.55,
+    0.28
+   ],
+   "energy": 2.2,
+   "angle_deg": 1.72,
+   "volume_factor": 0.0,
+   "linked_receivers": null
+  },
+  {
+   "name": "pl",
+   "type": "POINT",
+   "dir_to_target_yup": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.434,
+    0.117
+   ],
+   "energy": 60.0,
+   "angle_deg": 0.0,
+   "volume_factor": 1.0,
+   "linked_receivers": null
+  },
+  {
+   "name": "pl.001",
+   "type": "POINT",
+   "dir_to_target_yup": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.434,
+    0.117
+   ],
+   "energy": 60.0,
+   "angle_deg": 0.0,
+   "volume_factor": 1.0,
+   "linked_receivers": null
+  },
+  {
+   "name": "pl.002",
+   "type": "POINT",
+   "dir_to_target_yup": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.434,
+    0.117
+   ],
+   "energy": 60.0,
+   "angle_deg": 0.0,
+   "volume_factor": 1.0,
+   "linked_receivers": null
+  },
+  {
+   "name": "pl.003",
+   "type": "POINT",
+   "dir_to_target_yup": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.434,
+    0.117
+   ],
+   "energy": 60.0,
+   "angle_deg": 0.0,
+   "volume_factor": 1.0,
+   "linked_receivers": null
+  },
+  {
+   "name": "pl.004",
+   "type": "POINT",
+   "dir_to_target_yup": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.434,
+    0.117
+   ],
+   "energy": 60.0,
+   "angle_deg": 0.0,
+   "volume_factor": 1.0,
+   "linked_receivers": null
+  },
+  {
+   "name": "pl.005",
+   "type": "POINT",
+   "dir_to_target_yup": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.434,
+    0.117
+   ],
+   "energy": 60.0,
+   "angle_deg": 0.0,
+   "volume_factor": 1.0,
+   "linked_receivers": null
+  }
+ ],
+ "exposure": 0.3199999928474426,
+ "view": "AgX/AgX - Punchy"
+}

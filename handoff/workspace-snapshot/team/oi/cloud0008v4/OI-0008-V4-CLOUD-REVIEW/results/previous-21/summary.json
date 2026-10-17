@@ -1,0 +1,1689 @@
+{
+  "scope": "Cloud fake CLI, vm console, local files only; no network/browser/DevTools/Mac.",
+  "sourceSha256": "d466c6413f75fd7224ee4858ea3fca23509585de0f7382a63a09c108e9485ae2",
+  "rows": [
+    {
+      "scenario": "healthy",
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/healthy/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 980,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "missing-root-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "error",
+          "id": "js-error",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/copies/QFFirstOpen-20261010T013251497Z-adb2-8c9761-default [error] TypeError: new root contains startup error"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1243,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "truncate-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "error",
+          "id": "js-error",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/copies/QFFirstOpen-20261010T013253293Z-2534-c35bac-default [error] TypeError: after truncation"
+        }
+      ],
+      "missing": [
+        "WeappLog capture incomplete / protocol violated: truncated /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/logs/WeappLog/review.log: size 189 < read offset 6000",
+        "WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": true,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 3,
+          "ownLines": 3,
+          "ownBootCanary": false,
+          "ownLateCanary": true,
+          "bytes": 592,
+          "incomplete": [
+            "truncated /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/truncate-error/logs/WeappLog/review.log: size 189 < read offset 6000"
+          ]
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "unrelated-only",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it) | 1 finding(s) not attributable to this project (weapplog:error)",
+      "errors": [],
+      "missing": [
+        "WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it)",
+        "1 finding(s) not attributable to this project (weapplog:error)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unrelated-only/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 1,
+          "ownLines": 0,
+          "ownBootCanary": false,
+          "ownLateCanary": false,
+          "bytes": 59,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "cli-exit7",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: own cli auto did not finish cleanly (code=7, signal=null, error=null, timedOut=false, terminatedAfterDrain=false)",
+      "errors": [],
+      "missing": [
+        "own cli auto did not finish cleanly (code=7, signal=null, error=null, timedOut=false, terminatedAfterDrain=false)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-exit7/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 990,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": false,
+          "launch": {
+            "code": 7,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "close-exit5",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: cli close --project <own copy> not confirmed (code=5)",
+      "errors": [],
+      "missing": [
+        "cli close --project <own copy> not confirmed (code=5)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/close-exit5/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1000,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": false
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "cli-lingers-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): cli.stderr",
+      "errors": [
+        {
+          "source": "cli.stderr",
+          "level": "unknown",
+          "id": "js-error",
+          "text": "TypeError: late CLI error"
+        }
+      ],
+      "missing": [
+        "own cli auto did not finish cleanly (code=null, signal=SIGTERM, error=null, timedOut=false, terminatedAfterDrain=true)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-lingers-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1030,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": false,
+          "launch": {
+            "code": null,
+            "signal": "SIGTERM",
+            "error": null,
+            "timedOut": false,
+            "terminated": true,
+            "lines": 1
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "cli-lingers-clean",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: own cli auto did not finish cleanly (code=null, signal=SIGTERM, error=null, timedOut=false, terminatedAfterDrain=true)",
+      "errors": [],
+      "missing": [
+        "own cli auto did not finish cleanly (code=null, signal=SIGTERM, error=null, timedOut=false, terminatedAfterDrain=true)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-lingers-clean/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1030,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": false,
+          "launch": {
+            "code": null,
+            "signal": "SIGTERM",
+            "error": null,
+            "timedOut": false,
+            "terminated": true,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "no-logs",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: WeappLog root never appeared: /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs | WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it)",
+      "errors": [],
+      "missing": [
+        "WeappLog root never appeared: /workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs",
+        "WeappLog did not show this case's exact own BOOT canary — log channel not proven for this project from boot (other windows' lines cannot prove it)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/no-logs/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": false,
+          "files": 0,
+          "lines": 0,
+          "ownLines": 0,
+          "ownBootCanary": false,
+          "ownLateCanary": false,
+          "bytes": 0,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "weapp-generic-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "error",
+          "id": "plain-error",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T013306198Z-a229-491257-default [console.error] Error: ordinary runtime failure"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1246,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "weapp-unclassified-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "error",
+          "id": "unrecognised-error-level",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/copies/QFFirstOpen-20261010T013308001Z-4712-d47311-default [console.error] plain fatal diagnostic"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unclassified-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1267,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "weapp-unattributed-generic",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: 1 finding(s) not attributable to this project (weapplog:error)",
+      "errors": [],
+      "missing": [
+        "1 finding(s) not attributable to this project (weapplog:error)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unattributed-generic/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1142,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "weapp-bracket-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "unknown",
+          "id": "bracket-error-category",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-bracket-error/copies/QFFirstOpen-20261010T013311592Z-6170-1c8045-default [其他错误] 资源加载失败"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-bracket-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1232,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "cli-generic-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): cli.stderr",
+      "errors": [
+        {
+          "source": "cli.stderr",
+          "level": "unknown",
+          "id": "plain-error",
+          "text": "Error: ordinary launch failure"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-generic-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1030,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 1
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "canary-mixed-error",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "unknown",
+          "id": "js-error",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T013315195Z-a908-c6c1cb-default [QF-AUDIT-CANARY] e087acfaeddb159c TypeError: real failure on same line"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1264,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "canary-mixed-console",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 3 own error(s): automator.console.error, shim.console.error, weapplog",
+      "errors": [
+        {
+          "source": "automator.console.error",
+          "level": "error",
+          "id": "js-error",
+          "text": "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+        },
+        {
+          "source": "shim.console.error",
+          "level": "error",
+          "id": "js-error",
+          "text": "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+        },
+        {
+          "source": "weapplog",
+          "level": "error",
+          "id": "js-error",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 3,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1283,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "canary-boot-missing",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: shim: exact BOOT canary record missing (a LATE canary cannot stand in for it) | shim: canaryAtBoot flag is not true",
+      "errors": [],
+      "missing": [
+        "shim: exact BOOT canary record missing (a LATE canary cannot stand in for it)",
+        "shim: canaryAtBoot flag is not true"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": false,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": false,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-boot-missing/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1040,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "known-notice-denied",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: known IDE notice \"[app.json 或自定义编译条件错误] …启动页面\" in this project (weapplog); forbidden unless QF_FIRST_OPEN_ALLOW_APPJSON_NOTICE=1",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1343,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "known-notice-allowlisted",
+      "status": "PASS_WITH_ALLOWLISTED_IDE_NOTICE",
+      "exit": 3,
+      "reason": "default: only events whose WHOLE normalised payload is the exact allowlisted app.json IDE notice (1 own, 0 not attributable); every other event classified: 0 errors; boot+late canaries proven; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-allowlisted/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1373,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "unattributed-notice-allowlisted",
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: 1 finding(s) not attributable to this project (weapplog:error)",
+      "errors": [],
+      "missing": [
+        "1 finding(s) not attributable to this project (weapplog:error)"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1259,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "mixed-error-notice-allowlisted",
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "unknown",
+          "id": "js-error",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/mixed-error-notice-allowlisted/copies/QFFirstOpen-20261010T013326052Z-5a48-0cd7fe-default TypeError: actual failure; [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面 (env: macOS,mg,2.02.2608080; lib: 3.17.3)"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/mixed-error-notice-allowlisted/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1436,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    }
+  ]
+}

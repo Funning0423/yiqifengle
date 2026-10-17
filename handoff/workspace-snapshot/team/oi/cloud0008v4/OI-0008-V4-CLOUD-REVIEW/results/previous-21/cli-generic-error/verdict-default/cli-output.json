@@ -1,0 +1,44 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-generic-error/copies/QFFirstOpen-20261010T013313384Z-5399-367b74-default",
+      "--auto-port",
+      "42013"
+    ],
+    "pid": 607,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 52,
+    "lines": [
+      {
+        "t": "2026-10-10T01:33:13.550Z",
+        "stream": "stderr",
+        "line": "Error: ordinary launch failure"
+      }
+    ]
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/cli-generic-error/copies/QFFirstOpen-20261010T013313384Z-5399-367b74-default"
+    ],
+    "pid": 618,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 61,
+    "lines": []
+  }
+}

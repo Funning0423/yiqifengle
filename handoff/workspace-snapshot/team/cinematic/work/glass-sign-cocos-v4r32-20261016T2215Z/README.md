@@ -1,0 +1,11 @@
+# Glass sign v4-refined3.2 in Cocos 3.8.8 (运镜bot)
+Commit 50afbbca9dcabe3a88c8f52e73dc7cd42d73d377 (tree 00c559bf8e7cf28cd1326048ad706aa4e1fbc6cc) on local branch cine/glass-v4r32, parent 77b76c3, not pushed.
+- world-r1/GlassSign.ts: one world-space quad. Same geometry as the prototype: 0.80x0.28 m at (0.05,1.02,-4.70) on world axes, bob 0.012 m / 3.2 s. Shown in the home room view. Tapping the projected card plays the prototype feedback (scale, ring, ripple, fade, 27 frames) and then calls the same leaveHome as the door.
+- resources/world/glass-sign.effect: capsule SDF fill (160deg gradient, inset glow, drop shadow), refined2 rim (inset 0.75, 1.3 CSS px, white .43 r^.6) and top highlight (inset 2.2, white .8, 1.2 r^.6 px, ends faded over 15 %). Edge AA uses smoothstep(fwidth) and derivative-based line coverage. WebGL1 path: #pragma extension OES_standard_derivatives, plus a uniform fallback. No MSAA/FXAA change. depthTest off (the card sits at the wall plane, like the HTML overlay). Cost: one quad of about 240x120 CSS px with a few dozen ALU ops, well under 0.1 ms (estimate, not measured on a phone).
+- Caption: world-camera Label (RenderRoot2D), system font. No new font or texture assets.
+- Not reproduced: CSS backdrop-filter blur(14px) saturate(1.4). That would need a scene-colour grab pass, so the glass is a translucent tint over the unblurred wall.
+Geometry check: projected card box in the web build at 0.46 is CSS l93.9 r217.1 t395.5 b452.5, against the prototype tap box l93.2 r216.4 t396.0 b453.1 (difference about 0.7 px, bob phase).
+Tap: a real mouse click on the card in the web build gives state turning-out (check/patch_0.46.json, shots/after_0.46_dpr2_tap_feedback.png).
+Web builds: Creator 3.8.8 CLI on the Mac, both exit 36. Size delta for the whole web build: +30,410 B (main index.js +16,113 B, resources bundle +14,297 B).
+Suite: patch 37/42, base 77b76c3 37/42, with the same failures in both (production-integrity, legacy-board-ui-pure, reward-background-return, cloud-web-contract fail; navigation-guard BLOCKED_BROWSER).
+Scope cut by reviewer: no video. Stills only: shots/compare_{0.46,0.75}_dpr2.png and shots/edge_zoom4x_{0.46,0.75}_dpr2_before_after_prototype.png.

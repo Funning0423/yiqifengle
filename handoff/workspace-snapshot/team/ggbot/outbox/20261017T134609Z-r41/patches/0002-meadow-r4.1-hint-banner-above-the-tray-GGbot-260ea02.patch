@@ -1,0 +1,274 @@
+From fd1a39d454db4e025a61f7ab449535ba73c9cc1d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=E8=BF=90=E9=95=9Cbot?= <cine-bot@local>
+Date: Sat, 17 Oct 2026 20:50:10 +0800
+Subject: [PATCH 2/5] =?UTF-8?q?meadow=20r4.1=20(hint=20banner=20above=20th?=
+ =?UTF-8?q?e=20tray,=20GGbot=20260ea02):=20she=20stops=20left=20of=20the?=
+ =?UTF-8?q?=203-tool=20row=20below=20the=20tray=20on=20all=207=20portrait?=
+ =?UTF-8?q?=20screens,=20gap=20=E2=89=A516=20pt;=20O5/F7b=20hold=20per=20s?=
+ =?UTF-8?q?creen?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- MEADOW_STAND_LOCAL: 6.5 m stand line from player_spawn up the left of the trodden path, kept to the strip where the 08→09
+  follow lens stays on her right (F7b); per-screen stop by regionGirlStand
+- regionGirlStand(accept): the adapter only lets stops whose 08→09 walk keeps O5 (meadowExitExtraM ≤ MEADOW_EXIT_BUDGET_M 0.432 m)
+- girlStandUi: tool icons + selection ring / count badge (2/2/4 pt), hint banner at layout.toast.maxWidth x height + shadow;
+  framing bonus only with gap ≥ 13 pt; a line wholly behind the camera returns a non-clear stop instead of throwing
+- girl-frame / region-landing-hook: 7 portrait screens (+320x568, 768x1024; 1024x768 landscape skipped: portrait-only mini-game),
+  independent fixture = GGbot toolbar rects + his r4.1 banner/tray footprints, widest hint measured from the game's strings
+  with PopupKit.measure + sizeToast; O5 budget per screen; swap/landing on 7 screens x 2 regions
+---
+ .../scripts/region/RegionBoardLanding.ts      | 28 ++++++++++--------
+ .../scripts/region/RegionJourneyAdapter.ts    |  8 +++--
+ .../scripts/region/RegionJourneyLayout.ts     | 25 ++++++++++------
+ tools/journey-integration/girl-frame.cjs      | 29 +++++++++++++++++--
+ tools/journey-integration/journey-scene.cjs   |  3 +-
+ .../test-region-landing-hook.cjs              | 25 ++++++++++------
+ 6 files changed, 81 insertions(+), 37 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/RegionBoardLanding.ts b/creator-build-project/assets/scripts/region/RegionBoardLanding.ts
+index eef82eb..6aafb76 100644
+--- a/creator-build-project/assets/scripts/region/RegionBoardLanding.ts
++++ b/creator-build-project/assets/scripts/region/RegionBoardLanding.ts
+@@ -93,17 +93,20 @@ export async function regionLandingToBoard(context:Readonly<{region:BoardLanding
+  *  so the walk end decides whether the board UI covers her. Her box (REGION_CAMERA.islandCharacter: 1.7253 m tall, ±0.3 m,
+  *  model axes) is projected through that board camera for this screen (vertical FOV, aspect = layout width/height) and tested
+  *  against the board UI of this screen: boardLayout(width, height, safe, 4 goals) tray, goal plate, the tool row with THREE
+- *  tools (toolSlots(layout, 3), icon squares), the pause hit box, the capsule, the safe-area bands and the screen edges.
++ *  tools (toolSlots(layout, 3), icon squares grown by the selection ring / count badge: 2 pt sides+top, 4 pt bottom), the hint
++ *  hint banner (r4.1, GGbot 260ea02: BoardLayout.toast above the tray; taken at its max width layout.toast.maxWidth x height,
++ *  + 2 pt shadow below; a shorter hint is narrower on the same centre), the pause hit box, the capsule, the safe-area bands and the screen edges.
+  *  Stops are tried every 0.1 m along her stand line; a stop is clear when her box overlaps none of them; its score is
+- *  min(gap to the nearest of them, 16 pt) + 8 if inside REGION_CAMERA.frameLimits; the best score wins, ties go to the later
+- *  stop. No clear stop (an unknown screen): the stop that leaves the least of her covered, logged by the caller. */
+-export const GIRL_STAND={stepM:.1,capPt:16,framingBonus:8,goals:4,tools:3} as const;
++ *  min(gap to the nearest of them, 16 pt) + 8 if inside REGION_CAMERA.frameLimits with gap ≥ minGapPt (13); the best score wins, ties go to the later
++ *  stop. `accept` (the adapter: the O5 08→09 budget) drops stops before scoring. No clear stop (an unknown screen): the stop that leaves the least of her covered, logged by the caller. */
++export const GIRL_STAND={stepM:.1,capPt:16,framingBonus:8,goals:4,tools:3,iconPadPt:{side:2,top:2,bottom:4},toastShadowPt:2,minGapPt:13} as const;
+ export type GirlStand=Readonly<{region:BoardLandingRegion;distanceM:number;local:Vec;yawDeg:number;path:ReadonlyArray<Vec>;clear:boolean;gapPt:number;inFrameLimits:boolean;boxPt:Readonly<{l:number;t:number;r:number;b:number}>}>;
+ type Rect=Readonly<{l:number;t:number;r:number;b:number}>;
+ /** The board UI rectangles (pt) her copy must stay clear of. */
+ export function girlStandUi(width:number,height:number,safe:SafeArea):Rect[]{
+  const g=boardLayout(width,height,safe,GIRL_STAND.goals),c=(o:{x:number;y:number;width:number;height:number}):Rect=>({l:o.x-o.width/2,t:o.y-o.height/2,r:o.x+o.width/2,b:o.y+o.height/2});
+- const out:Rect[]=[c(g.tray),c(g.plate),...toolSlots(g,GIRL_STAND.tools).map(x=>c({x,y:g.tools.y,width:g.tools.size,height:g.tools.size})),c({x:g.pause.x,y:g.pause.y,width:g.pause.hit,height:g.pause.hit}),
++ const out:Rect[]=[c(g.tray),c(g.plate),...toolSlots(g,GIRL_STAND.tools).map(x=>{const q=c({x,y:g.tools.y,width:g.tools.size,height:g.tools.size}),P=GIRL_STAND.iconPadPt;return {l:q.l-P.side,t:q.t-P.top,r:q.r+P.side,b:q.b+P.bottom};}),
++  {l:g.toast.x-g.toast.maxWidth/2,t:g.toast.y-g.toast.height/2,r:g.toast.x+g.toast.maxWidth/2,b:g.toast.y+g.toast.height/2+GIRL_STAND.toastShadowPt},c({x:g.pause.x,y:g.pause.y,width:g.pause.hit,height:g.pause.hit}),
+   {l:0,t:0,r:width,b:Math.max(0,safe.top)},{l:0,t:height-Math.max(0,safe.bottom),r:width,b:height}];
+  if(safe.capsule&&safe.capsule.bottom>safe.capsule.top)out.push({l:safe.capsule.left,t:safe.capsule.top,r:safe.capsule.right,b:safe.capsule.bottom});
+  return out;}
+@@ -121,19 +124,20 @@ const len=(pts:ReadonlyArray<Vec>)=>{let s=0;for(let i=1;i<pts.length;i++)s+=Mat
+ /** Her stand line for a region, model coordinates, starting where the old route leaves off (meadow: player_spawn). */
+ export function girlStandLine(region:BoardLandingRegion,start:Vec):Vec[]|null{return region==='meadow'?[[start[0],start[1],start[2]],...MEADOW_STAND_LOCAL.map(p=>[p[0],p[1],p[2]] as Vec)]:null;}
+ /** Pure: the stop for one screen. `camera` = that screen's board camera, `line` = her stand line (both model coordinates). */
+-export function girlStandStop(region:BoardLandingRegion,line:ReadonlyArray<Vec>,camera:AuthoredPose,width:number,height:number,safe:SafeArea):GirlStand{
+- const ui=girlStandUi(width,height,safe),L=len(line),FL=REGION_CAMERA.frameLimits,G=GIRL_STAND;let best:any=null,least:any=null;
+- for(let k=0,n=Math.floor(L/G.stepM+1e-9);k<=n+1;k++){const d=Math.min(L,k*G.stepM),{p,i}=at(line,d),box=girlBoxPt(camera,p,width,height);if(!box){if(d>=L)break;continue;}
++export function girlStandStop(region:BoardLandingRegion,line:ReadonlyArray<Vec>,camera:AuthoredPose,width:number,height:number,safe:SafeArea,accept?:(local:Vec)=>boolean):GirlStand{
++ const ui=girlStandUi(width,height,safe),L=len(line),FL=REGION_CAMERA.frameLimits,G=GIRL_STAND;let best:any=null,least:any=null,behind:any=null;
++ for(let k=0,n=Math.floor(L/G.stepM+1e-9);k<=n+1;k++){const d=Math.min(L,k*G.stepM),{p,i}=at(line,d);if(accept&&!accept(p)){if(d>=L)break;continue;}const box=girlBoxPt(camera,p,width,height);if(!box){behind={d,p,i,box:{l:NaN,t:NaN,r:NaN,b:NaN},gap:-1,inFL:false,cover:1};if(d>=L)break;continue;}
+   const edge:Rect[]=[{l:-1e9,t:-1e9,r:0,b:1e9},{l:width,t:-1e9,r:1e9,b:1e9},{l:-1e9,t:-1e9,r:1e9,b:0},{l:-1e9,t:height,r:1e9,b:1e9}];let gap=Infinity,cover=0;const area=Math.max(1e-9,(box.r-box.l)*(box.b-box.t));
+   for(const q of [...ui,...edge]){const ox=Math.min(box.r,q.r)-Math.max(box.l,q.l),oy=Math.min(box.b,q.b)-Math.max(box.t,q.t);if(ox>0&&oy>0){cover+=ox*oy/area;gap=-1;}else if(gap>=0)gap=Math.min(gap,Math.hypot(Math.max(q.l-box.r,box.l-q.r,0),Math.max(q.t-box.b,box.t-q.b,0)));}
+   const nx=[box.l/width*2-1,box.r/width*2-1],ny=[1-box.b/height*2,1-box.t/height*2],inFL=nx[0]>=-FL.maxAbsX&&nx[1]<=FL.maxAbsX&&ny[0]>=FL.minY&&ny[1]<=FL.maxY;
+   const row={d,p,i,box,gap,inFL,cover};
+-  if(gap>=0){const s=Math.min(gap,G.capPt)+(inFL?G.framingBonus:0);if(!best||s>best.s+1e-9||(Math.abs(s-best.s)<=1e-9&&d>best.d))best={...row,s};}
++  if(gap>=0){const s=Math.min(gap,G.capPt)+(inFL&&gap>=G.minGapPt?G.framingBonus:0);if(!best||s>best.s+1e-9||(Math.abs(s-best.s)<=1e-9&&d>best.d))best={...row,s};}
+   else if(!least||cover<least.cover-1e-9||(Math.abs(cover-least.cover)<=1e-9&&d>least.d))least=row;
+   if(d>=L)break;}
+- const w=best||least;if(!w)throw Error('girl-stand-unprojectable');
++ // whole line behind the camera (meadow landscape preview): the end of the line, not clear (the caller logs it).
++ const w=best||least||behind;if(!w)throw Error('girl-stand-empty-line');
+  const path=[...line.slice(0,w.i).map(p=>[p[0],p[1],p[2]] as Vec),w.p as Vec],a=path.length>1?path[path.length-2]:line[0],b=w.p as Vec;
+  return {region,distanceM:w.d,local:b,yawDeg:Math.atan2(b[0]-a[0],b[2]-a[2])*180/Math.PI,path,clear:!!best,gapPt:best?w.gap:0,inFrameLimits:w.inFL,boxPt:w.box};}
+ /** The stop for this screen from a journey copy's map (model coordinates in, model coordinates out; the adapter maps the path). */
+-export function regionGirlStand(src:RegionBoardSource,start:Vec,width:number,height:number,safe:SafeArea):GirlStand|null{
+- const line=girlStandLine(src.region,start);if(!line)return null;return girlStandStop(src.region,line,regionBoardCamera(src,width/height),width,height,safe);}
++export function regionGirlStand(src:RegionBoardSource,start:Vec,width:number,height:number,safe:SafeArea,accept?:(local:Vec)=>boolean):GirlStand|null{
++ const line=girlStandLine(src.region,start);if(!line)return null;return girlStandStop(src.region,line,regionBoardCamera(src,width/height),width,height,safe,accept);}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 1e5a990..1d9bf1e 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -6,7 +6,7 @@ import {SkyNightTexture} from '../render/SkyNightTexture';
+ import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials, meadowGroundMaterials, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
+ import {rotate} from '../world-r1/CameraPose';
+ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
+-import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom} from './RegionJourneyLayout';
++import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom,meadowExitExtraM,MEADOW_EXIT_BUDGET_M} from './RegionJourneyLayout';
+ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
+@@ -98,10 +98,12 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+      model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-incoming[0],landing[1]-incoming[1],landing[2]-incoming[2]]));
+      bridge=bridgePath(edge,anchor(model,'player_spawn'),REGION_JOURNEY_LAYOUT.meadowBridgeArchM);arrival=[];
+      // 运镜bot (r4): from the bridge end she walks her stand line and stops where THIS screen's meadow board UI (tray, goal plate,
+-     // 3-tool row, safe area, capsule) leaves her most room in the board camera (RegionBoardLanding.regionGirlStand); her frozen
++     // 3-tool row + ring/badge, widest hint toast, safe area, capsule) leaves her most room, among stops inside the O5 08→09 budget, in the board camera (RegionBoardLanding.regionGirlStand); her frozen
+      // board copy is mounted exactly there. If the screen or the map cannot be read: the old walk_path_01 → 02.
+      try{boardSrc=journeyBoardSource('meadow',model,boardLocal!);const v=lakesideViewport(view.getFrameSize()),spawn=anchor(model,'player_spawn');
+-      stand=regionGirlStand(boardSrc,boardSrc.map.toBoard(spawn),v.width,v.height,boardSafeInsets(v.width,v.height));
++      const exit:Vec[]=[];for(let i=2;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)exit.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
++      const src=boardSrc,o5=(p:Vec)=>meadowExitExtraM(src.map.toJourney(p) as Vec,exit)<=MEADOW_EXIT_BUDGET_M;// r4.1: only stops whose 08→09 walk keeps O5
++      stand=regionGirlStand(boardSrc,boardSrc.map.toBoard(spawn),v.width,v.height,boardSafeInsets(v.width,v.height),o5);
+       if(stand){arrival=stand.path.slice(1).map(p=>boardSrc!.map.toJourney(p));if(!stand.clear)console.warn('[QF_REGION] meadow stand: no clear stop for '+v.width+'x'+v.height+', least covered '+JSON.stringify(stand.boxPt));}}
+      catch(error){stand=null;arrival=[];try{console.error('[QF_REGION] meadow stand unavailable: '+String(error));}catch{}}
+      if(!arrival.length)for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts b/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts
+index 9181b2b..056c334 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts
+@@ -58,15 +58,17 @@ export function skyDeckRoute(end:Vec,gate:Vec):{rim:Vec;deck:Vec[];arrival:Vec}{
+ }
+ /** Route lens keys from bridge-relative metres to route metres. */
+ export function lensKeys(keys:ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,bridgeStart:number){return keys.map(k=>({...k,at:k.at+bridgeStart}));}
+-/** 运镜bot (r4, Grok Bot: "she stays visible on the meadow board with up to 3 tools, on every screen"): her last walk on 04→05,
+- *  in the MEADOW MODEL's own metres (GLB / board copy coordinates; the adapter maps it onto the journey copy). It replaces the
+- *  old arrival walk_path_01 → walk_path_02 (that spot sat under the left tool icon with 3 tools on 390x844 / 414x896 / 360x780
+- *  and 63% under it on 375x667). From player_spawn (the rainbow bridge end) she steps left off the trodden path onto the grass
+- *  and walks up the left side of it; y is the meadow_terrain top under each point (≤ 1 m apart, so her feet follow the
+- *  ground). There is no single spot that is clear of the tray and the 3-tool row on all five reference screens (375x667 has
+- *  20 pt between tray and tools), so she STOPS on this line where the board UI of THIS screen leaves her most room
+- *  (RegionBoardLanding.regionGirlStand): 390x844 / 414x896 at the end, 375x667 / 360x780 at ~6.6 m, 390x520 at ~3.2 m. */
+-export const MEADOW_STAND_LOCAL:ReadonlyArray<Vec>=[[-0.15,1.298,19.333],[-0.3,1.338,18.667],[-0.45,1.419,18],[-0.617,1.504,17.333],[-0.783,1.587,16.667],[-0.95,1.66,16],[-1.05,1.726,15.45],[-1.15,1.788,14.9],[-1.05,1.86,14.2],[-0.825,1.915,13.7],[-0.6,1.972,13.2],[-0.317,2.046,12.55],[-0.033,2.119,11.9],[0.25,2.193,11.25]];
++/** 04→05 landing (r4.1, 3 tools, hint banner above the tray per GGbot 260ea02): her stand line after the rainbow bridge,
++ *  meadow model coordinates (= board copy local), y = meadow_terrain top (≤ 0.8 m apart, feet within 3 cm). The old arrival
++ *  walk_path_01 → 02 sat under the left tool icon. From player_spawn she walks 6.5 m up the left of the trodden path into the
++ *  lower-left of the board view, between the tray and the tool row (left of the icons). She STOPS where THIS screen's board UI
++ *  leaves her most room (RegionBoardLanding.regionGirlStand: tray, goal plate, 3 tool icons + ring/badge, hint banner at its
++ *  max width, pause, capsule, safe bands) among the stops whose 08→09 walk keeps O5 (meadowExitExtraM ≤ MEADOW_EXIT_BUDGET_M).
++ *  The line keeps to the strip where the 08→09 follow lens stays on her right (F7b) when she sets off from it. */
++export const MEADOW_STAND_LOCAL:ReadonlyArray<Vec>=[[-0.267,1.304,19.333],[-0.533,1.347,18.667],[-0.8,1.429,18.0],[-1.033,1.505,17.417],[-1.267,1.575,16.833],[-1.5,1.641,16.25],[-1.5,1.667,16.0],[-1.25,1.722,15.5],[-1.0,1.778,15.0],[-0.8,1.829,14.5],[-0.8,1.88,14.0]];
++/** O5 (lead: 08→09 ≤ Build05 + 3 s at 1.2 m/s). Leaving from walk_path_02 the r4 route is already +2.64 s, so a stand may add at
++ *  most (3 - 2.64) s x 1.2 m/s = 0.432 m to the 08→09 walk; test-journey-occlusion O5 checks the total. */
++export const MEADOW_EXIT_BUDGET_M=0.432;
+ /** 08→09 leaves the meadow from wherever she stands: the meadow exit anchors (walk_path_03..08, world) still ahead of her.
+  *  Her spot is projected (x/z) onto the polyline walk_path_02..08; anchors less than 1 m past that point are behind her. She
+  *  then heads for the first anchor ahead whose onward path turns ≤ meadowRejoinTurnDeg from her heading to it, so the follow
+@@ -82,3 +84,8 @@ export function meadowExitFrom(start:Vec,path02to08:ReadonlyArray<Vec>):Vec[]{
+  const head=(a:Vec,b:Vec)=>Math.atan2(b[0]-a[0],b[2]-a[2]),turn=(x:number,y:number)=>{let d=Math.abs(x-y)%(2*Math.PI);return (d>Math.PI?2*Math.PI-d:d)*180/Math.PI;};
+  let k=-1;for(let i=1;i<P.length;i++)if(arc[i]>s0+MEADOW_REJOIN.aheadM){if(k<0)k=i;if(i===P.length-1||turn(head(start,P[i]),head(P[i],P[i+1]))<=MEADOW_REJOIN.turnDeg){k=i;break;}}
+  return k<0?[cp(P[P.length-1])]:P.slice(k).map(cp);}
++
++/** Extra 08→09 walk (m, x/z) when she leaves from `start` instead of walk_path_02 (path02to08[0]). */
++export function meadowExitExtraM(start:Vec,path02to08:ReadonlyArray<Vec>):number{
++ const L=(p:ReadonlyArray<Vec>)=>{let s=0;for(let i=1;i<p.length;i++)s+=Math.hypot(p[i][0]-p[i-1][0],p[i][2]-p[i-1][2]);return s;};
++ return L([start,...meadowExitFrom(start,path02to08)])-L(path02to08);}
+diff --git a/tools/journey-integration/girl-frame.cjs b/tools/journey-integration/girl-frame.cjs
+index f23f74c..9112b28 100644
+--- a/tools/journey-integration/girl-frame.cjs
++++ b/tools/journey-integration/girl-frame.cjs
+@@ -4,7 +4,26 @@ const Jn=require('./journey-scene.cjs');const {legs,routeLength,rotY,add,sub,mOf
+ const RB=H.load(S+'region/RegionBoardLanding.ts'),BL=H.load(S+'ui/BoardLayout.ts'),RC=H.load(S+'world-r1/RegionCameraData.ts');
+ const SRC={meadow:{region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}},skycity:{region:'skycity',map:{toJourney:p=>add(rotY(yaw,p),sOff),toBoard:p=>rotY(-yaw,sub(p,sOff))},anchors:{spawn:sA('anchor_spawn_girl'),court:sA('anchor_starcourt_center')}}};
+ const C=RC.REGION_CAMERA.islandCharacter;const out=[];
+-for(const region of ['meadow','skycity'])for(const [w,h] of [[390,844],[414,896],[360,780],[375,667],[390,520]]){
++// The widest hint the board can say: every string literal passed to say() in ManagedMobileBoardUI plus the ManagedTools reasons and
++// "<tool name> · 点选目标", measured with the game's own PopupKit.measure(text, 15) + 40 (ManagedMobileBoardUI.sizeToast), capped by
++// this screen's layout.toast.maxWidth (r4.1, GGbot 260ea02: the banner sits above the tray, ≤ 330 pt, 12 pt in from the edges).
++const SRCDIR=Jn.ROOT+'/creator-build-project/assets/scripts/',fsx=require('fs'),ui=fsx.readFileSync(SRCDIR+'ManagedMobileBoardUI.ts','utf8'),mt=fsx.readFileSync(SRCDIR+'world-r2/ManagedTools.ts','utf8'),pk=fsx.readFileSync(SRCDIR+'ui/PopupKit.ts','utf8');
++const measureSrc=pk.match(/export function measure\(text: string, size: number\): number \{([\s\S]*?)\n\}/)[1],measure=new Function('text','size',measureSrc);
++const sayW=(ui.match(/tw = measure\(text, (\d+)\), w = Math\.min\(this\.geo\?\.toast\.maxWidth \?\? (\d+), tw \+ (\d+)\)/)||[]).slice(1).map(Number);// [font, fallback cap, pad]
++const names=[...mt.matchAll(/(\w+):'([^']+)'/g)].filter(m=>/[\u4e00-\u9fff]/.test(m[2])).map(m=>m[2]);
++const hintTexts=[...new Set([...[...ui.matchAll(/this\.say\('([^']+)'/g)].map(m=>m[1]),...[...ui.matchAll(/\|\| '([^']+)'\)/g)].map(m=>m[1]),...[...mt.matchAll(/'([^']*[\u4e00-\u9fff][^']*)'/g)].map(m=>m[1]),...names.map(n=>n+' · 点选目标')])];
++const widestText=Math.max(...hintTexts.map(t=>measure(t,sayW[0])+sayW[2]));const hintW=lay=>Math.min(lay.toast.maxWidth,widestText);
++// GGbot's banner + tray footprints for r4.1 (team/ggbot/outbox/20261017T124421Z-r41-hint-above-tray/footprint.json, 260ea02), copied here.
++const GGFP={'390x844':{b:[30,360,168,200],t:[18.1,371.9,212,587.6]},'375x667':{b:[22.5,352.5,162,194],t:[45.7,329.3,200,501]},'414x896':{b:[42,372,169.7,201.7],t:[19.2,394.8,215.4,614.2]},
++ '320x568':{b:[12,308,162,194],t:[64.9,255.1,200,402]},'360x780':{b:[15,345,167.1,199.1],t:[9,351,210.1,573.2]},'768x1024':{b:[219,549,176.4,208.4],t:[154,614,228.8,717.1]},'390x520':{b:[30,360,139.7,171.7],t:[112,278,177.7,354]}};
++module.exports.hint={sayW,widestTextPt:widestText,widest:hintTexts.slice().sort((a,b)=>measure(b,15)-measure(a,15)).slice(0,3),count:hintTexts.length};
++// GGbot's toolbar keep-outs (pt, top-left origin, count badges + selection ring included, 3 tools), as sent 2026-10-17: an
++// independent fixture, not derived from BoardLayout. The hint banner is checked at the widest hint (hintW below) and against GGFP.
++const GG={'390x844':{y:[693,772],x:[[76,151],[158,233],[240,315]]},'375x667':{y:[521,589],x:[[85,149],[155,220],[226,290]]},'414x896':{y:[742,826],x:[[80,160],[167,247],[254,334]]},
++ '320x568':{y:[422,488],x:[[62,126],[128,192],[194,258]]},'768x1024':{y:[865,959],x:[[241,331],[339,429],[437,527]]},'1024x768':{y:[153,219],x:[[69,133],[135,199],[201,265]]}};
++// 1024x768 landscape is out of scope (the WeChat mini-game is portrait only; Grok Bot 2026-10-17).
++const SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520],[320,568],[768,1024]];
++for(const region of ['meadow','skycity'])for(const [w,h] of SCREENS){
+  // r4: meadow = the route for THIS screen (her stand stop, Jn.leg1For), skycity = the 08→09 route as built (unchanged end).
+  const path=region==='meadow'?Jn.leg1For(w,h):legs.find(l=>l.id==='08-09').path,L=routeLength(path),root=sampleRoute(path,L).slice(0,3),b=RB.regionBoardEnd(SRC[region],w/h);
+  const f=sub(b.target,b.position),fl=Math.hypot(...f);const F=f.map(x=>x/fl),R=[F[2],0,-F[0]].map((x,_,a)=>x/Math.hypot(a[0],a[2])),U=[R[1]*F[2]-R[2]*F[1],R[2]*F[0]-R[0]*F[2],R[0]*F[1]-R[1]*F[0]].map(x=>-x);
+@@ -17,10 +36,14 @@ for(const region of ['meadow','skycity'])for(const [w,h] of [[390,844],[414,896]
+  const px={l:(ndc.minX+1)/2*w,r:(ndc.maxX+1)/2*w,t:(1-ndc.maxY)/2*h,b:(1-ndc.minY)/2*h};const cl={l:Math.max(0,px.l),r:Math.min(w,px.r),t:Math.max(0,px.t),b:Math.min(h,px.b)};
+  const vis=cl.r>cl.l&&cl.b>cl.t;const rect=r=>({l:r.x-r.width/2,r:r.x+r.width/2,t:r.y-r.height/2,b:r.y+r.height/2});const ov=(a,q)=>Math.max(0,Math.min(a.r,q.r)-Math.max(a.l,q.l))*Math.max(0,Math.min(a.b,q.b)-Math.max(a.t,q.t));
+  const area=vis?(cl.r-cl.l)*(cl.b-cl.t):0,tray=rect(lay.tray),plate=rect(lay.plate);
+- const ui=[['tray',tray],['plate',plate],...BL.toolSlots(lay,3).map((x,i)=>['tool'+i,{l:x-lay.tools.size/2,r:x+lay.tools.size/2,t:lay.tools.y-lay.tools.size/2,b:lay.tools.y+lay.tools.size/2}]),['pause',{l:lay.pause.x-lay.pause.hit/2,r:lay.pause.x+lay.pause.hit/2,t:lay.pause.y-lay.pause.hit/2,b:lay.pause.y+lay.pause.hit/2}],['capsule',{l:safe.capsule.left,r:safe.capsule.right,t:safe.capsule.top,b:safe.capsule.bottom}],['safeTop',{l:0,r:w,t:0,b:safe.top}],['safeBottom',{l:0,r:w,t:h-safe.bottom,b:h}]];
++ const ui=[['tray',tray],['plate',plate],...BL.toolSlots(lay,3).map((x,i)=>['tool'+i,{l:x-lay.tools.size/2,r:x+lay.tools.size/2,t:lay.tools.y-lay.tools.size/2,b:lay.tools.y+lay.tools.size/2}]),['pause',{l:lay.pause.x-lay.pause.hit/2,r:lay.pause.x+lay.pause.hit/2,t:lay.pause.y-lay.pause.hit/2,b:lay.pause.y+lay.pause.hit/2}],...(safe.capsule?[['capsule',{l:safe.capsule.left,r:safe.capsule.right,t:safe.capsule.top,b:safe.capsule.bottom}]]:[]),
++  // selection ring / count badge around each icon, and the hint toast (≤330 x 32 pt + shadow) centred on layout.toast
++  ...BL.toolSlots(lay,3).map((x,i)=>['toolRing'+i,{l:x-lay.tools.size/2-2,r:x+lay.tools.size/2+2,t:lay.tools.y-lay.tools.size/2-2,b:lay.tools.y+lay.tools.size/2+4}]),['hintBanner',{l:lay.toast.x-hintW(lay)/2,r:lay.toast.x+hintW(lay)/2,t:lay.toast.y-lay.toast.height/2,b:lay.toast.y+lay.toast.height/2+2}],
++  ...(GGFP[`${w}x${h}`]?[['ggbotBanner',{l:GGFP[`${w}x${h}`].b[0],r:GGFP[`${w}x${h}`].b[1],t:GGFP[`${w}x${h}`].b[2],b:GGFP[`${w}x${h}`].b[3]}],['ggbotTray',{l:GGFP[`${w}x${h}`].t[0],r:GGFP[`${w}x${h}`].t[1],t:GGFP[`${w}x${h}`].t[2],b:GGFP[`${w}x${h}`].t[3]}]]:[]),
++  ...(GG[`${w}x${h}`]?[...GG[`${w}x${h}`].x.map(([l,r],i)=>['ggbotTool'+i,{l,r,t:GG[`${w}x${h}`].y[0],b:GG[`${w}x${h}`].y[1]}])]:[]),['safeTop',{l:0,r:w,t:0,b:safe.top}],['safeBottom',{l:0,r:w,t:h-safe.bottom,b:h}]];
+  const hits=vis?ui.filter(([,q])=>ov(px,q)>0).map(([n])=>n):[],gapPt=vis&&!hits.length?Math.min(...ui.map(([,q])=>Math.hypot(Math.max(q.l-px.r,px.l-q.r,0),Math.max(q.t-px.b,px.t-q.b,0))),px.l,w-px.r,px.t,h-px.b):null;
+  out.push({region,screen:`${w}x${h}`,foot:root.map(v=>+v.toFixed(3)),cropped:vis&&(px.l<0||px.r>w||px.t<0||px.b>h),coveredBy3ToolUi:hits,clearOf3ToolUi:vis&&!hits.length&&!(px.l<0||px.r>w||px.t<0||px.b>h),gapPt:gapPt===null?null:+gapPt.toFixed(1),distanceM:+Math.min(...pts.map(p=>p[2])).toFixed(2),visible:vis,boxPt:{l:+px.l.toFixed(1),r:+px.r.toFixed(1),t:+px.t.toFixed(1),b:+px.b.toFixed(1)},widthFrac:vis?+((cl.r-cl.l)/w).toFixed(3):null,heightFrac:vis?+((cl.b-cl.t)/h).toFixed(3):null,ndcX:[+ndc.minX.toFixed(2),+ndc.maxX.toFixed(2)],
+   inFrameLimits:ndc.minX>=-RC.REGION_CAMERA.frameLimits.maxAbsX&&ndc.maxX<=RC.REGION_CAMERA.frameLimits.maxAbsX&&ndc.minY>=RC.REGION_CAMERA.frameLimits.minY&&ndc.maxY<=RC.REGION_CAMERA.frameLimits.maxY,
+   trayPt:{l:+tray.l.toFixed(1),r:+tray.r.toFixed(1),t:+tray.t.toFixed(1),b:+tray.b.toFixed(1)},underTrayShareOfHer:area?+(ov(cl,tray)/area).toFixed(3):0,underPlateShareOfHer:area?+(ov(cl,plate)/area).toFixed(3):0,
+   underToolIconsShareOfHer:Object.fromEntries([1,2,3].map(n=>[n+'tools',area?+(BL.toolSlots(lay,n).reduce((a,x)=>a+ov(cl,{l:x-lay.tools.size/2,r:x+lay.tools.size/2,t:lay.tools.y-lay.tools.size/2,b:lay.tools.y+lay.tools.size/2}),0)/area).toFixed(3):0]))});}
+-if(require.main===module)console.log(JSON.stringify(out,null,0).replace(/\},\{/g,'},\n{'));module.exports=out;
++if(require.main===module)console.log(JSON.stringify(out,null,0).replace(/\},\{/g,'},\n{'));const hint=module.exports.hint;module.exports=out;out.hint=hint;
+diff --git a/tools/journey-integration/journey-scene.cjs b/tools/journey-integration/journey-scene.cjs
+index bdc25dc..60ceab3 100644
+--- a/tools/journey-integration/journey-scene.cjs
++++ b/tools/journey-integration/journey-scene.cjs
+@@ -31,7 +31,8 @@ const meadow=place(local.meadow,'meadow',180,1,mOff),mA=n=>add(rotY(180,mp(n)),m
+ // (RegionBoardLanding.regionGirlStand, exactly as RegionJourneyAdapter); the shared fixture uses 390x844, standFor(w,h) any screen.
+ const RBL=H.load(S+'region/RegionBoardLanding.ts'),BLy=H.load(S+'ui/BoardLayout.ts');
+ const meadowSrc={region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}};
+-const standFor=(w,h)=>RBL.regionGirlStand(meadowSrc,meadowSrc.map.toBoard(mA('player_spawn')),w,h,BLy.boardSafeInsets(w,h));
++const exitFor=()=>{const e=[];for(let i=2;i<=L.meadowExitPathIndex;i++)e.push(mA('walk_path_'+String(i).padStart(2,'0')));return e;};
++const standFor=(w,h)=>{const ex=exitFor();return RBL.regionGirlStand(meadowSrc,meadowSrc.map.toBoard(mA('player_spawn')),w,h,BLy.boardSafeInsets(w,h),p=>Lay.meadowExitExtraM(meadowSrc.map.toJourney(p),ex)<=Lay.MEADOW_EXIT_BUDGET_M);};
+ const bridge1=Lay.bridgePath(edge1,mA('player_spawn'),L.meadowBridgeArchM),leg1For=(w,h)=>[...appr1,...bridge1.slice(1),...standFor(w,h).path.slice(1).map(meadowSrc.map.toJourney)],leg1=leg1For(390,844);
+ const exit02to08=[];for(let i=2;i<=L.meadowExitPathIndex;i++)exit02to08.push(mA('walk_path_'+String(i).padStart(2,'0')));
+ const appr2=[leg1.at(-1),...Lay.meadowExitFrom(leg1.at(-1),exit02to08)];const edge2=appr2.at(-1);
+diff --git a/tools/journey-integration/test-region-landing-hook.cjs b/tools/journey-integration/test-region-landing-hook.cjs
+index ff9d36b..456db31 100644
+--- a/tools/journey-integration/test-region-landing-hook.cjs
++++ b/tools/journey-integration/test-region-landing-hook.cjs
+@@ -25,7 +25,7 @@ const results=[];let fail=0;const T=async(id,f)=>{try{const r=await f();results.
+ const ok=(c,m)=>{if(!c)throw Error(m);};
+ const dir=p=>{const d=sub(p.target,p.position),l=Math.hypot(...d);return d.map(x=>x/l);};
+ const ang=(a,b)=>{const u=dir(a),v=dir(b),c=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];return Math.atan2(Math.hypot(...c),u[0]*v[0]+u[1]*v[1]+u[2]*v[2])*180/Math.PI;};
+-const SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520]];
++const SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520],[320,568],[768,1024]],GIRL_SCREENS=SCREENS;
+ // journey copy placement exactly as journey-scene / the adapter: meadow yaw 180 + mOff, skycity yaw + sOff (prefab root identity)
+ const SRC={meadow:{region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}},
+  skycity:{region:'skycity',map:{toJourney:p=>add(rotY(yaw,p),sOff),toBoard:p=>rotY(-yaw,sub(p,sOff))},anchors:{spawn:sA('anchor_spawn_girl'),court:sA('anchor_starcourt_center')}}};
+@@ -93,16 +93,23 @@ await T('routes without board unchanged; invalid board rejected',async()=>{const
+ await T('her board copy at the board camera (r4: walk end, 3 tools)',async()=>{const g=require('./girl-frame.cjs');
+   // meadow: on every screen her box (independent projection) is fully on screen and clear of tray, goal plate, the 3-tool row,
+   // pause, capsule and safe bands, ≥ 8 pt gap, ≤ 80% width, and it is the TS stop (RegionBoardLanding.regionGirlStand).
+-  for(const r of g.filter(r=>r.region==='meadow')){const [w,h]=r.screen.split('x').map(Number),st=Jn.standFor(w,h);
+-   ok(r.visible&&r.clearOf3ToolUi,'meadow covered/cropped '+r.screen+' '+r.coveredBy3ToolUi);ok(r.gapPt>=8,'meadow gap '+r.screen+' '+r.gapPt);ok(r.widthFrac<=.8,'too wide '+r.screen);
+-   ok(st.clear&&Math.abs(st.gapPt-r.gapPt)<.2&&Math.abs(st.boxPt.l-r.boxPt.l)<.2&&Math.abs(st.boxPt.b-r.boxPt.b)<.2,'TS stop vs independent box '+r.screen+' '+JSON.stringify([st.gapPt,r.gapPt,st.boxPt,r.boxPt]));}
++  // 7 portrait screens: the 5 reference ones + 320x568 and 768x1024. 1024x768 landscape is SKIPPED: out of scope, the WeChat
++  // mini-game is portrait only (Grok Bot 2026-10-17). r4.1: the hint banner sits above the tray (GGbot 260ea02). The independent
++  // check also holds her clear of GGbot's toolbar keep-outs (badge + ring), his banner + tray footprints (footprint.json) and the
++  // banner at the widest hint the board can say (game strings, PopupKit.measure, sizeToast cap). Gap ≥ 13 pt on every screen.
++  const GAP_MIN={};ok(g.filter(r=>r.region==='meadow').length===7,'meadow screens');
++  ok(g.hint.widestTextPt>=330&&g.hint.count>=20,'widest hint fills the banner at its max width '+JSON.stringify(g.hint));
++  for(const r of g.filter(r=>r.region==='meadow')){const [w,h]=r.screen.split('x').map(Number),st=Jn.standFor(w,h),min=GAP_MIN[r.screen]??13;
++   ok(r.visible&&r.clearOf3ToolUi,'meadow covered/cropped '+r.screen+' '+r.coveredBy3ToolUi);ok(r.gapPt>=min,'meadow gap '+r.screen+' '+r.gapPt);ok(r.widthFrac<=.8,'too wide '+r.screen);
++   ok(st.clear&&st.gapPt>=min&&Math.abs(st.boxPt.l-r.boxPt.l)<.2&&Math.abs(st.boxPt.r-r.boxPt.r)<.2&&Math.abs(st.boxPt.t-r.boxPt.t)<.2&&Math.abs(st.boxPt.b-r.boxPt.b)<.2,'TS stop vs independent box '+r.screen+' '+JSON.stringify([st.gapPt,r.gapPt,st.boxPt,r.boxPt]));
++   const ex=Jn.exit02to08,extra=Jn.Lay.meadowExitExtraM(Jn.meadowSrc.map.toJourney(st.local),ex);ok(extra<=Jn.Lay.MEADOW_EXIT_BUDGET_M+1e-9,'O5 budget '+r.screen+' '+extra);r.exitExtraM=+extra.toFixed(3);}
+   // skycity: PENDING the 08→09 end decision (the walk end has not moved): recorded as not in frame so a change shows up here.
+-  for(const r of g.filter(r=>r.region==='skycity'))ok(!r.visible,'skycity state changed: '+r.screen+' now visible — update the r4 report');
+-  report.girlAtBoard=g;return {meadowClear3Tools:g.filter(r=>r.region==='meadow'&&r.clearOf3ToolUi).map(r=>r.screen+' gap '+r.gapPt+' pt'),skycityNotInFramePending:g.filter(r=>r.region==='skycity'&&!r.visible).map(r=>r.screen)};});
+-await T('meadow stand: walk on the ground, no clipping, she is seen by the board camera, 08→09 leaves cleanly (5 screens)',async()=>{
++  for(const r of g.filter(r=>r.region==='skycity'))ok(!r.visible||r.behindCamera,'skycity state changed: '+r.screen+' now visible — update the r4 report');
++  report.girlAtBoard=g;return {landscapeSkipped:'1024x768: out of scope (portrait-only WeChat mini-game)',hint:g.hint,meadowClear3Tools:g.filter(r=>r.region==='meadow'&&r.clearOf3ToolUi).map(r=>r.screen+' gap '+r.gapPt+' pt'),skycityNotInFramePending:g.filter(r=>r.region==='skycity'&&!r.visible).map(r=>r.screen)};});
++await T('meadow stand: walk on the ground, no clipping, she is seen by the board camera, 08→09 leaves cleanly (7 portrait screens)',async()=>{
+   const solid=Jn.meadow.filter(o=>!/grass|flower/.test(o.name)),ground=Jn.meadow.filter(o=>/meadow_terrain|meadow_path|meadow_river_bank/.test(o.name)),soft=/grass|flower/;
+   const groundY=p=>{let top=-1e9;for(const o of ground){o.bb??=Jn.bbox(o.tris);if(p[0]<o.bb[0][0]||p[0]>o.bb[1][0]||p[2]<o.bb[0][2]||p[2]>o.bb[1][2])continue;const t=Jn.rayHit([p[0],p[1]+5,p[2]],[0,-1,0],20,o.tris);if(t!==null)top=Math.max(top,p[1]+5-t);}return top;};
+-  const rows=[];for(const [w,h] of SCREENS){const st=Jn.standFor(w,h),line=st.path.map(Jn.meadowSrc.map.toJourney),Ls=routeLength(line);let worstFoot=0,minBody=9,who=null;
++  const rows=[];for(const [w,h] of GIRL_SCREENS){const st=Jn.standFor(w,h),line=st.path.map(Jn.meadowSrc.map.toJourney),Ls=routeLength(line);let worstFoot=0,minBody=9,who=null;
+    for(let d=0;d<=Ls+1e-9;d+=.1){const p=sampleRoute(line,Math.min(d,Ls)),gy=groundY(p);ok(gy>-1e8,'no ground under her at '+d);worstFoot=Math.max(worstFoot,Math.abs(p[1]-gy));
+     for(const hh of [.35,.9,1.5]){const q=[p[0],gy+hh,p[2]];const [c,o]=Jn.clearance(q,solid.filter(x=>!/meadow_terrain|meadow_path|meadow_river_bank/.test(x.name)),2);if(c<minBody){minBody=c;who=o;}}
+     // the river surface must not be above her feet (she never wades)
+@@ -127,7 +134,7 @@ await T('meadow stand: walk on the ground, no clipping, she is seen by the board
+  ok(/const pose=meadowScenePose\(layout\.width\/layout\.height\);if\(!applyCameraPose\(camera!,fromLookAt\(pose\)/.test(mb),'meadow background still writes meadowScenePose(aspect)');
+  ok(/pose=skycityVisitPose\(\[av\.x,av\.y,av\.z\],\[bv\.x,bv\.y,bv\.z\],layout\.width\/layout\.height\);if\(!applyCameraPose\(camera!,fromLookAt\(pose\)/.test(sb)&&/find\(model,'anchor_spawn_girl'\),b=find\(model,'anchor_starcourt_center'\)/.test(sb),'skycity background still writes skycityVisitPose(spawn, court, aspect)');
+  ok((core.match(/this\.lease\.route\.board\)/g)||[]).length===3,'controller passes route.board on every journeyCamera write');
+- ok(/stand=regionGirlStand\(boardSrc,boardSrc\.map\.toBoard\(spawn\),v\.width,v\.height,boardSafeInsets\(v\.width,v\.height\)\);/.test(ad)&&/arrival=stand\.path\.slice\(1\)\.map\(p=>boardSrc!\.map\.toJourney\(p\)\)/.test(ad),'adapter: 04→05 arrival = her stand stop for this screen (board UI viewport)');
++ ok(/stand=regionGirlStand\(boardSrc,boardSrc\.map\.toBoard\(spawn\),v\.width,v\.height,boardSafeInsets\(v\.width,v\.height\),o5\);/.test(ad)&&/o5=\(p:Vec\)=>meadowExitExtraM\(src\.map\.toJourney\(p\) as Vec,exit\)<=MEADOW_EXIT_BUDGET_M;/.test(ad)&&/arrival=stand\.path\.slice\(1\)\.map\(p=>boardSrc!\.map\.toJourney\(p\)\)/.test(ad),'adapter: 04→05 arrival = her stand stop for this screen (board UI viewport)');
+  ok(/if\(!arrival\.length\)for\(let i=1;i<=2;i\+\+\)arrival\.push\(anchor\(model,'walk_path_'/.test(ad),'adapter: old walk_path_01→02 kept as the fallback');
+  ok(/approach=\[start,\.\.\.meadowExitFrom\(start,exit\)\];/.test(ad),'adapter: 08→09 leaves through the exit anchors ahead of her');
+  {const ex=[];for(let i=2;i<=8;i++)ex.push(Jn.mA('walk_path_'+String(i).padStart(2,'0')));const o=Jn.Lay.meadowExitFrom(ex[0],ex);ok(JSON.stringify(o)===JSON.stringify(ex.slice(1)),'standing on walk_path_02 keeps 03..08 exactly');}});
+-- 
+2.47.3
+

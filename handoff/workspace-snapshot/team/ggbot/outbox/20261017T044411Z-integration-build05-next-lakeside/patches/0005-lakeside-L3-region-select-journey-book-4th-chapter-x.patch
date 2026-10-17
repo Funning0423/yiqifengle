@@ -1,0 +1,628 @@
+From ad17dfe6b938004b74b9636cf230fc5c2551302f Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 12:32:20 +0800
+Subject: [PATCH 5/7] =?UTF-8?q?lakeside=20L3:=20region=20select=20-=20jour?=
+ =?UTF-8?q?ney=20book=204th=20chapter=20=E9=A3=8E=E9=93=83=E6=B9=96?=
+ =?UTF-8?q?=E7=95=94=20(x/6=20challenges,=20opens=20after=20mainline=2012)?=
+ =?UTF-8?q?,=20chapter=20page=20enters=20lake;=20self-made=20chapter=20art?=
+ =?UTF-8?q?=20(region=20window=20cropped=20from=20the=20team's=20lakeside?=
+ =?UTF-8?q?=20render,=20Noto=20Sans=20CJK=20title,=20seal);=20debug=20harn?=
+ =?UTF-8?q?ess=20button?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../board_art/popup/reward_seal_lake.png      | Bin 0 -> 5389 bytes
+ .../board_art/popup/reward_seal_lake.png.meta |  42 ++++++++++++++++++
+ .../bundles/board_art/r2/chapter_lake.png     | Bin 0 -> 3730 bytes
+ .../board_art/r2/chapter_lake.png.meta        |  42 ++++++++++++++++++
+ .../bundles/board_art/r2/region_lake.png      | Bin 0 -> 9341 bytes
+ .../bundles/board_art/r2/region_lake.png.meta |  42 ++++++++++++++++++
+ .../assets/scripts/WorldIntegrationBoot.ts    |   2 +-
+ .../assets/scripts/ui/IslandPanels.ts         |  24 ++++++----
+ .../scripts/world-r2/IslandJourneyOverlay.ts  |   2 +-
+ 9 files changed, 143 insertions(+), 11 deletions(-)
+ create mode 100644 creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png
+ create mode 100644 creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png.meta
+ create mode 100644 creator-build-project/assets/bundles/board_art/r2/chapter_lake.png
+ create mode 100644 creator-build-project/assets/bundles/board_art/r2/chapter_lake.png.meta
+ create mode 100644 creator-build-project/assets/bundles/board_art/r2/region_lake.png
+ create mode 100644 creator-build-project/assets/bundles/board_art/r2/region_lake.png.meta
+
+diff --git a/creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png b/creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..c1285cb5330f993d8424bb6c6738215694f5d650
+GIT binary patch
+literal 5389
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png.meta b/creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png.meta
+new file mode 100644
+index 0000000..1a9586d
+--- /dev/null
++++ b/creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png.meta
+@@ -0,0 +1,42 @@
++{
++  "ver": "1.0.27",
++  "importer": "image",
++  "imported": true,
++  "uuid": "baa8a408-0374-4230-ba2f-c492490ec3f6",
++  "files": [
++    ".json",
++    ".png"
++  ],
++  "subMetas": {
++    "6c48a": {
++      "importer": "texture",
++      "uuid": "baa8a408-0374-4230-ba2f-c492490ec3f6@6c48a",
++      "displayName": "reward_seal_lake",
++      "id": "6c48a",
++      "name": "texture",
++      "userData": {
++        "wrapModeS": "clamp-to-edge",
++        "wrapModeT": "clamp-to-edge",
++        "minfilter": "linear",
++        "magfilter": "linear",
++        "mipfilter": "none",
++        "anisotropy": 0,
++        "isUuid": true,
++        "imageUuidOrDatabaseUri": "baa8a408-0374-4230-ba2f-c492490ec3f6",
++        "visible": false
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
++  "userData": {
++    "type": "texture",
++    "fixAlphaTransparencyArtifacts": false,
++    "hasAlpha": true,
++    "redirect": "baa8a408-0374-4230-ba2f-c492490ec3f6@6c48a"
++  }
++}
+diff --git a/creator-build-project/assets/bundles/board_art/r2/chapter_lake.png b/creator-build-project/assets/bundles/board_art/r2/chapter_lake.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..52ec6d574a6caf6e74cee41efe528f8e9c9768c8
+GIT binary patch
+literal 3730
+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
+YvqY<(<VTJ`|NGe*=$Y!4Yh!T#0h4RTDF6Tf
+
+literal 0
+HcmV?d00001
+
+diff --git a/creator-build-project/assets/bundles/board_art/r2/chapter_lake.png.meta b/creator-build-project/assets/bundles/board_art/r2/chapter_lake.png.meta
+new file mode 100644
+index 0000000..4f03b32
+--- /dev/null
++++ b/creator-build-project/assets/bundles/board_art/r2/chapter_lake.png.meta
+@@ -0,0 +1,42 @@
++{
++  "ver": "1.0.27",
++  "importer": "image",
++  "imported": true,
++  "uuid": "3ec5ff35-0fd3-4720-bdb8-7a3382c678de",
++  "files": [
++    ".json",
++    ".png"
++  ],
++  "subMetas": {
++    "6c48a": {
++      "importer": "texture",
++      "uuid": "3ec5ff35-0fd3-4720-bdb8-7a3382c678de@6c48a",
++      "displayName": "chapter_lake",
++      "id": "6c48a",
++      "name": "texture",
++      "userData": {
++        "wrapModeS": "clamp-to-edge",
++        "wrapModeT": "clamp-to-edge",
++        "minfilter": "linear",
++        "magfilter": "linear",
++        "mipfilter": "none",
++        "anisotropy": 0,
++        "isUuid": true,
++        "imageUuidOrDatabaseUri": "3ec5ff35-0fd3-4720-bdb8-7a3382c678de",
++        "visible": false
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
++  "userData": {
++    "type": "texture",
++    "fixAlphaTransparencyArtifacts": false,
++    "hasAlpha": true,
++    "redirect": "3ec5ff35-0fd3-4720-bdb8-7a3382c678de@6c48a"
++  }
++}
+diff --git a/creator-build-project/assets/bundles/board_art/r2/region_lake.png b/creator-build-project/assets/bundles/board_art/r2/region_lake.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..f508977e66bbfbe848102712985303a44daed0c2
+GIT binary patch
+literal 9341
+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
+TD%ZUK{%jyCsU%S=W)l2g_Ys*P
+
+literal 0
+HcmV?d00001
+
+diff --git a/creator-build-project/assets/bundles/board_art/r2/region_lake.png.meta b/creator-build-project/assets/bundles/board_art/r2/region_lake.png.meta
+new file mode 100644
+index 0000000..c7754e1
+--- /dev/null
++++ b/creator-build-project/assets/bundles/board_art/r2/region_lake.png.meta
+@@ -0,0 +1,42 @@
++{
++  "ver": "1.0.27",
++  "importer": "image",
++  "imported": true,
++  "uuid": "ee13b53d-e5bc-42ee-bd1b-1f4ae1ef5b0f",
++  "files": [
++    ".json",
++    ".png"
++  ],
++  "subMetas": {
++    "6c48a": {
++      "importer": "texture",
++      "uuid": "ee13b53d-e5bc-42ee-bd1b-1f4ae1ef5b0f@6c48a",
++      "displayName": "region_lake",
++      "id": "6c48a",
++      "name": "texture",
++      "userData": {
++        "wrapModeS": "clamp-to-edge",
++        "wrapModeT": "clamp-to-edge",
++        "minfilter": "linear",
++        "magfilter": "linear",
++        "mipfilter": "none",
++        "anisotropy": 0,
++        "isUuid": true,
++        "imageUuidOrDatabaseUri": "ee13b53d-e5bc-42ee-bd1b-1f4ae1ef5b0f",
++        "visible": false
++      },
++      "ver": "1.0.22",
++      "imported": true,
++      "files": [
++        ".json"
++      ],
++      "subMetas": {}
++    }
++  },
++  "userData": {
++    "type": "texture",
++    "fixAlphaTransparencyArtifacts": false,
++    "hasAlpha": true,
++    "redirect": "ee13b53d-e5bc-42ee-bd1b-1f4ae1ef5b0f@6c48a"
++  }
++}
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 8d9c9ca..22df054 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -506,7 +506,7 @@ export class WorldIntegrationBoot extends Component {
+  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+  private createNavigation(){setScreenCover((a,sec)=>this.fadeCover(a,sec));this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+  this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+- this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
++ this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('lake','风铃湖畔',()=>this.composition.enterRegion('lake'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},()=>this.glassSign);this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
+  if(DEBUG){
+diff --git a/creator-build-project/assets/scripts/ui/IslandPanels.ts b/creator-build-project/assets/scripts/ui/IslandPanels.ts
+index 09b4794..1070c7a 100644
+--- a/creator-build-project/assets/scripts/ui/IslandPanels.ts
++++ b/creator-build-project/assets/scripts/ui/IslandPanels.ts
+@@ -3,22 +3,28 @@ import { PopupPanel, PopupStack, uiNode } from './PopupKit';
+ import { tintRgb } from './NightTint';
+ /** Island-only panels (c-popups round2 compose_lite.journey_lite / compose2.island_rest): journey book, chapter page and
+  *  the island rest opened from the cabin. Layout numbers are 750-design px. */
+-export const CHAPTERS: ReadonlyArray<{ id: 'tide' | 'meadow' | 'sky'; name: string; description: string }> = [
++export const CHAPTERS: ReadonlyArray<{ id: 'tide' | 'meadow' | 'sky' | 'lake'; name: string; description: string }> = [
+   { id: 'tide', name: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。' },
+   { id: 'meadow', name: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。' },
+   { id: 'sky', name: '天空回声', description: '连起光的回声，探索云上的远方。' },
++  { id: 'lake', name: '风铃湖畔', description: '夕阳下的湖面，敲响漂在水上的风铃。' },
+ ];
++/** 风铃湖畔 has no mainline stages of its own: it opens after mainline 12 (journey record 11, same as the provider's
++ *  progress-journal LAKE_GATE_RECORD) and has 6 challenge stages. */
++export const LAKE_GATE_RECORD = 11, LAKE_STAGES = 6;
++export function chapterMilestone(region: number): number { return CHAPTERS[region]?.id === 'lake' ? LAKE_GATE_RECORD + 1 : (region + 1) * 4; }
+ export interface ChapterSummary { stars: number; challenges: number; locked: boolean }
+ /** Mainline stars only (x/12 per region, levels region*4..+3); challenge marks x/4; a region is locked until the mainline reaches it. */
+ export function chapterSummary(journey: any, challenges: Record<string, number> | null | undefined, region: number, gate?: any): ChapterSummary {
+   const records: any[] = Array.isArray(journey?.records) ? journey.records : [];
+-  let stars = 0; for (let i = region * 4; i < region * 4 + 4; i++) stars += Math.max(0, Math.min(3, Number(records[i]?.bestStars) || 0));
+-  const required = region * 4 + 3;
+-  return { stars, challenges: Math.max(0, Math.min(4, Number(challenges?.[CHAPTERS[region].id]) || 0)), locked: gate ? !gate.ok : !records[required]?.bestStars };
++  const lake = CHAPTERS[region]?.id === 'lake';
++  let stars = 0; if (!lake) for (let i = region * 4; i < region * 4 + 4; i++) stars += Math.max(0, Math.min(3, Number(records[i]?.bestStars) || 0));
++  const required = chapterMilestone(region) - 1;
++  return { stars, challenges: Math.max(0, Math.min(lake ? LAKE_STAGES : 4, Number(challenges?.[CHAPTERS[region].id]) || 0)), locked: gate ? !gate.ok : !records[required]?.bestStars };
+ }
+ const SIGN_W = 544, SIGN_H = 176, GAP = 32, WIN_W = 208, WIN_H = 136;
+ export function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void, gates?: any[]): PopupPanel {
+-  const ph = 104 + 3 * SIGN_H + 2 * GAP + 72, p = stack.open({ name: 'JourneyPanel', height: ph, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
++  const ph = 104 + CHAPTERS.length * SIGN_H + (CHAPTERS.length - 1) * GAP + 72, p = stack.open({ name: 'JourneyPanel', height: ph, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
+   for (let i = 0; i < CHAPTERS.length; i++) {
+     const c = CHAPTERS[i], s = chapterSummary(journey, challenges, i, gates?.find(x => x.region === c.id)), cy = 104 + i * (SIGN_H + GAP) + SIGN_H / 2, ix = -SIGN_W / 2 + 24, tx = ix + WIN_W + 24;
+     const b = p.button('secondary', '', 0, cy, SIGN_W, SIGN_H, () => openChapter(c.id), { name: 'Chapter-' + c.id });
+@@ -28,9 +34,9 @@ export function openJourney(stack: PopupStack, journey: any, challenges: Record<
+     const seal = p.sprite('popup/reward_seal_' + c.id, ix + 12, cy - WIN_H / 2 + 12, 64, 64); seal.grayscale = s.locked;
+     if (s.locked) p.sprite('r2/icon_lock', ix + WIN_W / 2, cy, undefined, 64);
+     const title = p.sprite('r2/chapter_' + c.id, 0, cy - 40); const tw = title.node.getComponent(UITransform)!.width; title.node.setPosition(tx + tw / 2, p.at(0, cy - 40)[1], 0); title.grayscale = s.locked;
+-    if (s.locked) { p.text('挑战需通关主线 ' + String((i + 1) * 4).padStart(2, '0'), tx, cy + 16, 24, 'grey', { align: 'left', width: 260, bold: false }); continue; }
+-    p.sprite('popup/star_full', tx + 16, cy + 8, 32, 32); p.text(s.stars + '/12', tx + 40, cy + 8, 24, 'brown', { align: 'left', width: 120 });
+-    const label = '挑战 ' + s.challenges + '/4', pill = uiNode('ChallengePill', p.body, 200, 36), pp = p.at(tx, cy + 52); pill.setPosition(pp[0], pp[1], 0);
++    if (s.locked) { p.text('挑战需通关主线 ' + String(chapterMilestone(i)).padStart(2, '0'), tx, cy + 16, 24, 'grey', { align: 'left', width: 260, bold: false }); continue; }
++    if (c.id !== 'lake') { p.sprite('popup/star_full', tx + 16, cy + 8, 32, 32); p.text(s.stars + '/12', tx + 40, cy + 8, 24, 'brown', { align: 'left', width: 120 }); }
++    const label = '挑战 ' + s.challenges + '/' + (c.id === 'lake' ? LAKE_STAGES : 4), pill = uiNode('ChallengePill', p.body, 200, 36), pp = p.at(tx, cy + 52); pill.setPosition(pp[0], pp[1], 0);
+     const w = 44 + label.length * 22;
+     p.tint.shape(pill.addComponent(Graphics), (g, night, a) => {
+       const fill = tintRgb('ui', night, [236, 244, 240]), edge = tintRgb('ui', night, [100, 168, 164]), flag = tintRgb('ui', night, [58, 120, 118]), al = Math.round(255 * a);
+@@ -51,7 +57,7 @@ export function openChapter(stack: PopupStack, id: string, a: ChapterActions): P
+   p.sprite('r2/region_' + c.id, 0, 104 + 104, 320, 320 * WIN_H / WIN_W);
+   p.text(c.description, 0, 104 + 208 + 32 + 20, 28, 'brown2', { bold: false, width: 600, name: 'ChapterDescription' });
+   const gate = a.gate(), reason = gate?.reason;
+-  const blocked = reason === 'stage-locked' ? '需通关主线 ' + String((CHAPTERS.indexOf(c) + 1) * 4).padStart(2, '0') : reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : '暂不可进入';
++  const blocked = reason === 'stage-locked' ? '需通关主线 ' + String(chapterMilestone(CHAPTERS.indexOf(c))).padStart(2, '0') : reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : '暂不可进入';
+   let y = 104 + 208 + 32 + 40 + 48 + 52;
+   const go = p.button('primary', gate?.ok ? '继续挑战' : blocked, 0, y, 480, 104, () => { if (a.gate()?.ok) a.enter(); }, { fontSize: 36, name: 'Continue-' + c.id }); go.setEnabled(!!gate?.ok);
+   y += 52;
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts b/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
+index 4167126..afc9d52 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
+@@ -11,7 +11,7 @@ import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type Prop
+ const TAP_TARGET:Record<string,PropTapTarget>={bag:'bag',journal:'book',settings:'settings'};
+ 
+ type Options={invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
+-type Page='bag'|'journal'|'settings'|'rest'|'tide'|'meadow'|'sky';
++type Page='bag'|'journal'|'settings'|'rest'|'tide'|'meadow'|'sky'|'lake';
+ export { CHAPTERS };
+ /** Island presentation only. Closed: three compact utilities (bag / journey book / full settings). Regions are chapters
+  * in the journey book, never a second wall of island buttons. The island rest opens from the cabin (openRest).
+-- 
+2.47.3
+

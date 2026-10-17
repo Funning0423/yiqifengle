@@ -1,0 +1,1 @@
+RW maxA 2.658 t 18.3 maxJ 26.01 peak 4.522

@@ -1,0 +1,135 @@
+{
+  "method": "Node v24 built-in type stripper; import and decorator removed only for mocked VM evaluation. Not a Cocos compiler, engine test, audible-output test, DevTools test, or device test.",
+  "sourceSha256": "7f6b580822dae4986f3217ecd70af34ad3b19153e2ffd6e8d3120e37bba3d377",
+  "testCount": 22,
+  "counts": {
+    "pass": 15,
+    "limitation": 1,
+    "defect": 6
+  },
+  "results": [
+    {
+      "name": "normal_play_and_ensure_single_instance",
+      "kind": "pass",
+      "status": "reproduced",
+      "detail": "Repeated ensure returns same component; two Cocos and four wx callbacks."
+    },
+    {
+      "name": "hidden_and_interrupted_union",
+      "kind": "pass",
+      "status": "reproduced",
+      "detail": "End alone cannot resume hidden audio; show resumes it."
+    },
+    {
+      "name": "duplicate_hide_show_without_new_event",
+      "kind": "pass",
+      "status": "reproduced",
+      "detail": "Simple duplicate callbacks are idempotent."
+    },
+    {
+      "name": "foreground_interruption_waits_end",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "show_recovers_missing_end_design",
+      "kind": "limitation",
+      "status": "reproduced",
+      "detail": "By design, show clears active interruption without an End; cannot guarantee silence during an ongoing call."
+    },
+    {
+      "name": "duplicate_show_erases_new_foreground_interruption",
+      "kind": "defect",
+      "status": "reproduced",
+      "detail": "Second show clears an interruption that began after first show. New SFX plays before End."
+    },
+    {
+      "name": "old_end_erases_new_interruption",
+      "kind": "defect",
+      "status": "reproduced",
+      "detail": "After show resets interruption 1, a late End 1 clears interruption 2; event API supplies no token. Needs explicit policy/ordering mitigation."
+    },
+    {
+      "name": "mute_during_suspend_remains_muted_normal_path",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "mute_does_not_repause_engine_resumed_loop",
+      "kind": "defect",
+      "status": "reproduced",
+      "detail": "If engine resumes loop after show callbacks while muted, update checks suspension only and does not pause. Real engine ordering untested; no loop clip assigned by current GameAudio."
+    },
+    {
+      "name": "suspend_update_repauses_engine_loop",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "muted_storage_read_and_write",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "storage_exception_does_not_crash",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "destroy_unregisters_and_releases_refs",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "no_wx_off_old_callbacks_inert",
+      "kind": "pass",
+      "status": "reproduced",
+      "detail": "Old callbacks retained by wx when no off exists, but alive guard makes them inert."
+    },
+    {
+      "name": "destroy_before_load_and_recreate_old_request",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "new_instance_old_load_result_ignored",
+      "kind": "pass",
+      "status": "reproduced",
+      "detail": "Instance identity guard rejects old asynchronous load callback."
+    },
+    {
+      "name": "manual_duplicate_component_is_not_prevented",
+      "kind": "defect",
+      "status": "reproduced",
+      "detail": "Repeated ensure is safe, but second component onLoad overwrites instance and keeps first live: four AudioSources/eight wx callbacks. Inherited R6 weakness."
+    },
+    {
+      "name": "setInnerAudioOption_fail_latches_success_flag",
+      "kind": "defect",
+      "status": "reproduced",
+      "detail": "Failure callback logs only; recreate never retries global audio option."
+    },
+    {
+      "name": "setInnerAudioOption_throw_latches_success_flag",
+      "kind": "defect",
+      "status": "reproduced"
+    },
+    {
+      "name": "no_wx_web_mode_lifecycle",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "audio_load_failure_silent",
+      "kind": "pass",
+      "status": "reproduced"
+    },
+    {
+      "name": "no_replay_queue_after_resume",
+      "kind": "pass",
+      "status": "reproduced"
+    }
+  ]
+}
+(node:6) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

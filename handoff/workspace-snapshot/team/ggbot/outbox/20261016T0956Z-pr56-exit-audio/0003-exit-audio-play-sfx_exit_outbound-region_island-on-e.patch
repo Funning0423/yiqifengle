@@ -1,0 +1,308 @@
+From b9197717a48144507e7598de6025e6c2ba7de773 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 05:56:15 -0400
+Subject: [PATCH 3/3] exit audio: play sfx_exit_outbound (region_island) on
+ exit frame 0; skip/cancel = 0.3 s fade, background = stop, both release the
+ WindAudio exit duck; sailboat gate open releases it too; natural end
+ untouched (file fades by 599); ExitAudioCue model + tests
+
+---
+ assets-MANIFEST-SHA256.json                   |  5 ++
+ .../assets/scripts/cine/ExitAudioCue.ts       | 48 ++++++++++++++
+ .../assets/scripts/cine/ExitAudioCue.ts.meta  |  9 +++
+ .../scripts/cine/SailboatTransitionDriver.ts  |  2 +
+ .../scripts/world-r1/WorldFlowComponent.ts    | 22 ++++++-
+ text-MANIFEST-SHA256.json                     | 17 +++--
+ tools/cine/test_exit_audio_cue.cjs            | 63 +++++++++++++++++++
+ 7 files changed, 158 insertions(+), 8 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/cine/ExitAudioCue.ts
+ create mode 100644 creator-build-project/assets/scripts/cine/ExitAudioCue.ts.meta
+ create mode 100644 tools/cine/test_exit_audio_cue.cjs
+
+diff --git a/assets-MANIFEST-SHA256.json b/assets-MANIFEST-SHA256.json
+index 69d07c9..494a60e 100644
+--- a/assets-MANIFEST-SHA256.json
++++ b/assets-MANIFEST-SHA256.json
+@@ -414,6 +414,11 @@
+     "bytes": 1755,
+     "sha256": "308a3218749e655609def03591fe9f3251ce3198f9f8f58400fcc720a74ad949"
+   },
++  {
++    "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3",
++    "bytes": 240475,
++    "sha256": "bfe9cb62e04893ebb68d208af0f94d8527697e5335407adf8ed5b5e82198d616"
++  },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_transition_island_to_meadow.mp3",
+     "bytes": 42256,
+diff --git a/creator-build-project/assets/scripts/cine/ExitAudioCue.ts b/creator-build-project/assets/scripts/cine/ExitAudioCue.ts
+new file mode 100644
+index 0000000..cf25710
+--- /dev/null
++++ b/creator-build-project/assets/scripts/cine/ExitAudioCue.ts
+@@ -0,0 +1,48 @@
++/**
++ * Exit cinematic sound (Voice Bot B5.3 convention, GGbot 2026-10-16).
++ * - sfx_exit_outbound starts on frame 0 of the exit shot: the flow enters 'standing' (leaveHome).
++ * - Skip (explicit skip(), or the exit is cancelled / fails / is disposed before 'island'):
++ *   0.3 s fade, same as the sailboat sting skip, and WindAudio.releaseExitDuck().
++ * - Background (Game.EVENT_HIDE / wx.onHide): stop at once and releaseExitDuck().
++ * - Natural end ('island'): nothing. The file fades itself to 0 by frame 599.
++ * Pure state machine; WorldFlowComponent applies the commands. No Cocos import.
++ */
++export const EXIT_AUDIO_PATH = 'audio_cine/sfx_exit_outbound';
++export const EXIT_AUDIO_BUNDLE = 'region_island';
++export const EXIT_AUDIO_SKIP_FADE_S = 0.3;
++export const EXIT_AUDIO_STATES: readonly string[] = ['standing', 'turning-out', 'walking-out', 'opening-door', 'crossing-out'];
++
++export type ExitAudioCommand =
++  | { kind: 'play'; path: string; bundle: string }
++  | { kind: 'fade'; seconds: number }
++  | { kind: 'stop' }
++  | { kind: 'release-duck' };
++
++export interface ExitAudioCue {
++  /** Feed every flow state change. */
++  state(next: string): ExitAudioCommand[];
++  /** Explicit skip of the exit shot. */
++  skip(): ExitAudioCommand[];
++  /** Game went to the background. */
++  background(): ExitAudioCommand[];
++  readonly playing: boolean;
++}
++
++export function createExitAudioCue(): ExitAudioCue {
++  let prev = '';
++  let playing = false;
++  const exiting = (s: string) => EXIT_AUDIO_STATES.indexOf(s) >= 0;
++  const end = (cmd: ExitAudioCommand): ExitAudioCommand[] => { if (!playing) return []; playing = false; return [cmd, { kind: 'release-duck' }]; };
++  return {
++    state(next: string) {
++      const was = prev; prev = next;
++      if (next === 'standing' && !exiting(was)) { playing = true; return [{ kind: 'play', path: EXIT_AUDIO_PATH, bundle: EXIT_AUDIO_BUNDLE }]; }
++      if (!playing || exiting(next)) return [];
++      if (next === 'island') { playing = false; return []; }
++      return end({ kind: 'fade', seconds: EXIT_AUDIO_SKIP_FADE_S });
++    },
++    skip() { return end({ kind: 'fade', seconds: EXIT_AUDIO_SKIP_FADE_S }); },
++    background() { return end({ kind: 'stop' }); },
++    get playing() { return playing; },
++  };
++}
+diff --git a/creator-build-project/assets/scripts/cine/ExitAudioCue.ts.meta b/creator-build-project/assets/scripts/cine/ExitAudioCue.ts.meta
+new file mode 100644
+index 0000000..9db5a12
+--- /dev/null
++++ b/creator-build-project/assets/scripts/cine/ExitAudioCue.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "31307884-9112-425e-99c0-9131edd51a45",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts b/creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts
+index 3b9bb95..2f17db5 100644
+--- a/creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts
++++ b/creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts
+@@ -14,6 +14,7 @@ import { islandPoseEntry } from '../world-r1/RegionCameraData';
+ import { Cancellation, Cancelled } from '../world-r1/WorldFlowCore';
+ import type { Pose } from '../world-r1/WorldFlowCore';
+ import { GameAudio } from '../audio/GameAudio';
++import { WindAudio } from '../audio/WindAudio';
+ import { SailboatPrefabSlot, SAILBOAT_PREFAB_RESOURCE, SAILBOAT_PREFAB_SLOT } from './SailboatPrefabSlot';
+ import { createSailboatCloudLayer, destroySailboatCloudLayer, syncSailboatCloudLayer } from './SailboatCloudLayer';
+ import type { SailboatCloudLayer } from './SailboatCloudLayer';
+@@ -136,6 +137,7 @@ export class SailboatTransitionDriver extends Component {
+       // Sail start (timing frame 0): boat shown, sting and countdown begin in this same update.
+       console.log('[sailboat] gate open', this.gate.reason, 'waited', this.gate.waitedSec.toFixed(3), 't', Date.now());
+       if (this.boat && isValid(this.boat, true)) this.boat.active = true;
++      try { WindAudio.releaseExitDuck(); } catch (error) { console.warn('[sailboat] wind duck release failed', error); }
+       this.apply(this.playback.begin());
+       return;
+     }
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 8cf1519..408e921 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -10,6 +10,10 @@ import { ShoreBreak } from '../render/ShoreBreak';
+ import { REGIONS } from '../region/RegionLoader';
+ import { requiresMeadowScene } from '../world-r2/LevelRegion';
+ import { playSailboatTransition } from '../cine/SailboatTransitionDriver';
++import { createExitAudioCue } from '../cine/ExitAudioCue';
++import type { ExitAudioCommand } from '../cine/ExitAudioCue';
++import { GameAudio } from '../audio/GameAudio';
++import { WindAudio } from '../audio/WindAudio';
+ import { prefetchSailboatMeadow, releaseSailboatMeadow } from '../cine/SailboatMeadowPrefetch';
+ import { SkyNightTexture } from '../render/SkyNightTexture';
+ import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
+@@ -148,6 +152,7 @@ export class WorldFlowComponent extends Component {
+   private readonly craneListeners=new Set<(info:{segment:'toIsland';progress:number;seconds:number})=>void>();
+   private readonly doorShutListeners=new Set<()=>void>();
+   private flowEventsOff:(()=>void)|null=null;
++  private readonly exitAudio=createExitAudioCue();
+   private doorShutOff:(()=>void)|null=null;
+   private windStrength=0;private readonly windListeners=new Set<(strength:number)=>void>();private windOff:(()=>void)|null=null;
+   /** T2+ hook (contract with GGbot T0): fires once per completed journey when the camera has reached cameraIsland /
+@@ -230,7 +235,7 @@ export class WorldFlowComponent extends Component {
+     this.installCameraDebug();
+     this.dayNightMode=localNight(new Date())?'night':'day';
+     const routes=createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE);this.islandRail=createIslandRail(routes);
+-    this.flow=new WorldFlow({config:routes,mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
++    this.flow=new WorldFlow({config:routes,mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);this.applyExitAudio(this.exitAudio.state(s.state));onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
+     this.doorShutOff?.();this.doorShutOff=this.flow.onDoorShut(()=>this.forwardDoorShut());
+     this.windOff?.();this.windOff=this.flow.onWindStrength(s=>{this.windStrength=s;Array.from(this.windListeners).forEach(fn=>{try{fn(s);}catch(error){console.warn('wind listener failed',String(error));}});});
+     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();
+@@ -473,7 +478,19 @@ export class WorldFlowComponent extends Component {
+     if (sail && isValid(sail, true)) { sail.active = false; sail.destroy(); }
+   }
+   lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);this.shore?.advance(dt);this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength(),this.shore?.surfaceWorldY());}}
+-  private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
++  /** Exit shot sound (cine/ExitAudioCue). Audio failures never touch the flow. */
++  private applyExitAudio(commands:ExitAudioCommand[]):void {
++    for(const c of commands){try{
++      if(c.kind==='release-duck'){WindAudio.releaseExitDuck();continue;}
++      const audio=GameAudio.ensure();if(!audio)continue;
++      if(c.kind==='play'){console.log('[exit] sfx start','t',Date.now());audio.playCineSlot(c.path,c.bundle);}
++      else if(c.kind==='fade')audio.fadeCineSlot(c.seconds);
++      else audio.stopCineSlot();
++    }catch(error){console.warn('[exit] audio failed',String(error));}}
++  }
++  /** Skip the exit shot's sound: 0.3 s fade + release the wind duck. For a future exit skip control. */
++  skipExitAudio():void {this.applyExitAudio(this.exitAudio.skip());}
++  private onHide():void {this.applyExitAudio(this.exitAudio.background());this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
+   private onShow():void {this.revealReturn();this.scheduleReturn();}
+   /** wx.onShow and EVENT_SHOW both land here. The place comes back paused; resume() stays explicit.
+    *  A paused director is resumed so the return can paint. An error fault is left blank. */
+@@ -536,6 +553,7 @@ export class WorldFlowComponent extends Component {
+     if(this.returnTimer!=null){clearTimeout(this.returnTimer);this.returnTimer=null;}
+     this.unbindWxLifecycle();
+     this.flowEventsOff?.();this.flowEventsOff=null;this.doorShutOff?.();this.doorShutOff=null;this.settledListeners.clear();this.craneListeners.clear();this.doorShutListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
++    this.applyExitAudio(this.exitAudio.background());
+     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
+     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
+     // The light belongs to the scene; a retry must capture the authored day baseline.
+diff --git a/text-MANIFEST-SHA256.json b/text-MANIFEST-SHA256.json
+index 3855c15..949b4d4 100644
+--- a/text-MANIFEST-SHA256.json
++++ b/text-MANIFEST-SHA256.json
+@@ -504,6 +504,11 @@
+     "bytes": 169,
+     "sha256": "30f6e7fa1f1f848f682e7dbb367b65295d09dffb08d7aa8ce1dd06ed6c8ce330"
+   },
++  {
++    "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta",
++    "bytes": 222,
++    "sha256": "becbc904033ca183a5ed4fbb912b2126b5daeea4c34902b16fda7bb14a040c9b"
++  },
+   {
+     "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_transition_island_to_meadow.mp3.meta",
+     "bytes": 222,
+@@ -1191,8 +1196,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts",
+-    "bytes": 13401,
+-    "sha256": "d9f3539691b0713548db0d712ace1af8d436d3e90d6632469b84d6a662513290"
++    "bytes": 15965,
++    "sha256": "84a59b290f94721dacc9e5c24dd7e5e09f4d4ab7de413d1fca670ea5007c644a"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts.meta",
+@@ -1276,8 +1281,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts",
+-    "bytes": 20813,
+-    "sha256": "5de4aee873b2fd0a852a080d7e4bf41d44bc396181546d720dfd227907803ceb"
++    "bytes": 20982,
++    "sha256": "6eb2994b203df318c9a4e3e56c58b7439b653320e320d5ba0410855d6aef8a58"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts.meta",
+@@ -2151,8 +2156,8 @@
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+-    "bytes": 55620,
+-    "sha256": "a0dfd67634887ed925ce9c9e731c8ec480681a559a1745406f3a2213865d844d"
++    "bytes": 56804,
++    "sha256": "f631397b81d619564b628d9dce2e563a5f2de7f7915c46f1479f80eb0130dd3f"
+   },
+   {
+     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
+diff --git a/tools/cine/test_exit_audio_cue.cjs b/tools/cine/test_exit_audio_cue.cjs
+new file mode 100644
+index 0000000..5f028e9
+--- /dev/null
++++ b/tools/cine/test_exit_audio_cue.cjs
+@@ -0,0 +1,63 @@
++'use strict';
++// Exit shot sound wiring (Voice Bot B5.3 convention). Model + static wiring checks; not a listening test.
++const fs = require('node:fs');
++const assert = require('node:assert/strict');
++const { stripTypeScriptTypes } = require('node:module');
++const src = fs.readFileSync('creator-build-project/assets/scripts/cine/ExitAudioCue.ts', 'utf8');
++const m = { exports: {} };
++new Function('module', 'exports', stripTypeScriptTypes(src, { mode: 'transform' }).replace(/^export /gm, '') +
++  '\nmodule.exports={createExitAudioCue,EXIT_AUDIO_PATH,EXIT_AUDIO_BUNDLE,EXIT_AUDIO_SKIP_FADE_S};')(m, m.exports);
++const { createExitAudioCue, EXIT_AUDIO_PATH, EXIT_AUDIO_BUNDLE, EXIT_AUDIO_SKIP_FADE_S } = m.exports;
++let pass = 0; const t = (name, fn) => { fn(); pass++; console.log('ok', name); };
++const kinds = c => c.map(x => x.kind + (x.seconds !== undefined ? ':' + x.seconds : ''));
++const exitRun = cue => ['home', 'standing', 'turning-out', 'walking-out', 'opening-door', 'crossing-out'].map(s => cue.state(s));
++
++t('frame 0: play on entering standing, from region_island', () => {
++  const cue = createExitAudioCue(); assert.deepEqual(cue.state('home'), []);
++  const c = cue.state('standing'); assert.deepEqual(c, [{ kind: 'play', path: EXIT_AUDIO_PATH, bundle: EXIT_AUDIO_BUNDLE }]);
++  assert.equal(EXIT_AUDIO_BUNDLE, 'region_island'); assert.equal(EXIT_AUDIO_PATH, 'audio_cine/sfx_exit_outbound');
++  for (const s of ['turning-out', 'walking-out', 'opening-door', 'crossing-out']) assert.deepEqual(cue.state(s), []);
++});
++t('natural end at island: no fade, no stop', () => {
++  const cue = createExitAudioCue(); exitRun(cue); assert.deepEqual(cue.state('island'), []); assert.equal(cue.playing, false);
++  assert.deepEqual(cue.skip(), []); assert.deepEqual(cue.background(), []);
++});
++t('skip: 0.3 s fade + releaseExitDuck, once', () => {
++  const cue = createExitAudioCue(); exitRun(cue); assert.equal(EXIT_AUDIO_SKIP_FADE_S, 0.3);
++  assert.deepEqual(kinds(cue.skip()), ['fade:0.3', 'release-duck']); assert.deepEqual(cue.skip(), []); assert.deepEqual(cue.state('island'), []);
++});
++t('cancel/error mid-exit counts as skip', () => {
++  for (const s of ['home', 'error', 'disposed']) { const cue = createExitAudioCue(); exitRun(cue); assert.deepEqual(kinds(cue.state(s)), ['fade:0.3', 'release-duck']); }
++});
++t('background: stop + release, later paused state adds nothing', () => {
++  const cue = createExitAudioCue(); exitRun(cue);
++  assert.deepEqual(kinds(cue.background()), ['stop', 'release-duck']); assert.deepEqual(cue.state('paused'), []); assert.deepEqual(cue.background(), []);
++});
++t('a second exit plays again from frame 0', () => {
++  const cue = createExitAudioCue(); exitRun(cue); cue.state('island'); cue.state('walking-home'); cue.state('home');
++  assert.equal(cue.state('standing')[0].kind, 'play');
++});
++t('no commands outside the exit (does not touch the sailboat sting slot)', () => {
++  const cue = createExitAudioCue(); for (const s of ['island', 'level-loading', 'level']) assert.deepEqual(cue.state(s), []);
++  assert.deepEqual(cue.skip(), []); assert.deepEqual(cue.background(), []);
++});
++const wf = fs.readFileSync('creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts', 'utf8');
++const drv = fs.readFileSync('creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts', 'utf8');
++t('WorldFlowComponent feeds every state, hides before flow.hide, maps commands', () => {
++  assert.match(wf, /onChange:s=>\{[^}]*this\.applyExitAudio\(this\.exitAudio\.state\(s\.state\)\)/);
++  assert.match(wf, /private onHide\(\):void \{this\.applyExitAudio\(this\.exitAudio\.background\(\)\);[^\n]*this\.flow\?\.hide\(\)/);
++  assert.match(wf, /c\.kind==='release-duck'\)\{WindAudio\.releaseExitDuck\(\)/);
++  assert.match(wf, /playCineSlot\(c\.path,c\.bundle\)/); assert.match(wf, /fadeCineSlot\(c\.seconds\)/); assert.match(wf, /stopCineSlot\(\)/);
++});
++t('sailboat gate open releases the duck', () => {
++  const i = drv.indexOf("console.log('[sailboat] gate open'"), j = drv.indexOf('this.apply(this.playback.begin())');
++  assert.ok(i > 0 && j > i && drv.slice(i, j).includes('WindAudio.releaseExitDuck()'));
++});
++t('mp3 + .meta live in region_island bundle', () => {
++  const d = 'creator-build-project/assets/bundles/region_island/audio_cine/';
++  assert.ok(fs.existsSync(d + 'sfx_exit_outbound.mp3') && fs.existsSync(d + 'sfx_exit_outbound.mp3.meta'));
++  const b = JSON.parse(fs.readFileSync('creator-build-project/assets/bundles/region_island.meta', 'utf8'));
++  assert.equal(b.userData.isBundle, true);
++  assert.ok(!fs.existsSync('creator-build-project/assets/resources/audio_cine/sfx_exit_outbound.mp3'));
++});
++console.log(`exit audio cue: ${pass}/${pass} passed`);
+-- 
+2.47.3
+

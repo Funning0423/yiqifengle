@@ -1,0 +1,106 @@
+From f60c8ec79e8ef16f52b1761352b1d2f4253f6394 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 12:39:48 +0800
+Subject: [PATCH 7/7] B1: lakeside scenery GPU instancing - one shared
+ USE_INSTANCING copy per source material (465 instances / 42 GLBs: ~465 -> ~42
+ base draw calls), copies destroyed on dispose; diagnostics
+ instancedMaterials; test lakeside-instancing
+
+---
+ .../scripts/region/LakesideBoardBackground.ts | 19 +++++++++++++++----
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_instancing.cjs   | 14 ++++++++++++++
+ 3 files changed, 30 insertions(+), 4 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_instancing.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index c1334eb..bc513e8 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -1,4 +1,4 @@
+-import {Animation,AssetManager,Camera,Color,JsonAsset,Node,Prefab,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
++import {Animation,AssetManager,Camera,Color,JsonAsset,Material,MeshRenderer,Node,Prefab,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
+ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+@@ -7,6 +7,16 @@ import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+ export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'LakesideScenery',camera:'LakesideBackgroundCamera',lights:'LakesideLights'});
++/** B1 (GGbot): 465 instances of 42 GLBs, each GLB with its own palette material -> ~465 draw calls unbatched. One shared copy
++ *  of every source material with USE_INSTANCING lets Cocos draw each GLB's instances as one GPU-instanced batch (~42).
++ *  Returns the copies so dispose() can destroy them. Free: no assets, no re-import. */
++export function enableLakesideInstancing(root:Node):Material[]{
++ const shared=new Map<Material,Material>();
++ for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
++  for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=shared.get(src);
++   if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});shared.set(src,m);}r.setSharedMaterial(m,k);}}
++ return [...shared.values()];
++}
+ function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
+ function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
+ function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
+@@ -14,9 +24,9 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
+ /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
+  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
+- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0;
++ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+- const dispose=()=>{if(dead)return;dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const a of held.splice(0))a.decRef();};
++ const dispose=()=>{if(dead)return;dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+@@ -33,6 +43,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   for(const i of list){const n=instantiate(byName.get(lakesidePrefabName(i.glb))!);n.name=i.name;n.setPosition(i.pos[0],i.pos[1],i.pos[2]);n.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);n.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(n);instances++;}
+   for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
+   for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
++  instanced=enableLakesideInstancing(scenery);
+   setLayer(scenery);
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+   for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+@@ -44,7 +55,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');},
+    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+   };
+  }catch(error){dispose();throw error;}
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index e6e38d2..c685852 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -58,6 +58,7 @@ const tests=[
+  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
+  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
++ ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_instancing.cjs b/tools/lakeside/test_lakeside_instancing.cjs
+new file mode 100644
+index 0000000..85aab9d
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_instancing.cjs
+@@ -0,0 +1,14 @@
++// B1: lakeside scenery is GPU-instanced (one shared USE_INSTANCING copy per source material), copies destroyed on dispose.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const s=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/LakesideBoardBackground.ts'),'utf8');
++assert(/m=new Material\(\);m\.copy\(src,\{defines:\{USE_INSTANCING:true\}\}\);shared\.set\(src,m\);\}r\.setSharedMaterial\(m,k\);/.test(s),'shared instanced copy');
++assert(/instanced=enableLakesideInstancing\(scenery\);\n  setLayer\(scenery\);/.test(s),'applied after instantiate');
++assert(/for\(const m of instanced\.splice\(0\)\)m\.destroy\(\);/.test(s),'destroyed on dispose');
++assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
++// Behaviour on stand-ins: 3 renderers over 2 source materials -> 2 copies, renderers sharing a source share the copy.
++const body=s.match(/export function enableLakesideInstancing\(root:Node\):Material\[\]\{\n([\s\S]*?)\n\}\n/)[1].replace(/:Material\[\]|<Material,Material>/g,'');
++class Material{copy(src,o){this.src=src;this.defines=o.defines;}}
++const A={},B={},rs=[A,A,B].map(m=>({sharedMaterials:[m],set:[],setSharedMaterial(x,k){this.set[k]=x;}}));
++const out=new Function('root','Material','MeshRenderer',body)({getComponentsInChildren:()=>rs},Material,{});
++assert.equal(out.length,2);assert(rs[0].set[0]===rs[1].set[0]&&rs[0].set[0]!==rs[2].set[0]&&rs[0].set[0].defines.USE_INSTANCING===true);
++console.log('lakeside instancing OK');
+-- 
+2.47.3
+

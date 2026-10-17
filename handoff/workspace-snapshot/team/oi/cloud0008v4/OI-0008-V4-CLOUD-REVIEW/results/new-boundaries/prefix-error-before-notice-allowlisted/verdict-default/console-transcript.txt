@@ -1,0 +1,13 @@
+2026-10-10T01:35:09.488Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 9a6a728361db05b6
+2026-10-10T01:35:09.489Z automator.error	[QF-AUDIT-CANARY-LATE] 9a6a728361db05b6
+2026-10-10T01:35:08.987Z shim.errors	[QF-AUDIT-CANARY] 9a6a728361db05b6
+2026-10-10T01:35:09.489Z shim.errors	[QF-AUDIT-CANARY-LATE] 9a6a728361db05b6
+2026-10-10T01:35:08.987Z shim.logs	[QF-AUDIT-HEARTBEAT] 9a6a728361db05b6
+2026-10-10T01:35:08.987Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:35:09.488Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 9a6a728361db05b6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-notice-allowlisted/copies/QFFirstOpen-20261010T013507840Z-0995-fd56bb-default [log] [QF-AUDIT-HEARTBEAT] 9a6a728361db05b6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-notice-allowlisted/copies/QFFirstOpen-20261010T013507840Z-0995-fd56bb-default [error] [QF-AUDIT-CANARY] 9a6a728361db05b6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-notice-allowlisted/copies/QFFirstOpen-20261010T013507840Z-0995-fd56bb-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-notice-allowlisted/copies/QFFirstOpen-20261010T013507840Z-0995-fd56bb-default TypeError: actual prefix failure [error] [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面 (env: macOS,mg,2.02.2608080; lib: 3.17.3)
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-notice-allowlisted/copies/QFFirstOpen-20261010T013507840Z-0995-fd56bb-default [log] [QF-AUDIT-HEARTBEAT-LATE] 9a6a728361db05b6
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-notice-allowlisted/copies/QFFirstOpen-20261010T013507840Z-0995-fd56bb-default [error] [QF-AUDIT-CANARY-LATE] 9a6a728361db05b6

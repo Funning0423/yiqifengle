@@ -1,0 +1,67 @@
+===== cine_open_stand
+-- f0-29
+   chair:bodyxchair_seat                              maxN    72  maxDepth   19.03 mm  frames 0-29 (30)
+   chair:bow(=body-body_nobow)xchair_seat             maxN    72  maxDepth   19.03 mm  frames 0-29 (30) [bow ribbon, reported separately, excluded]
+   garment[midsurface]:bowxdress                      maxN    54  maxDepth    4.75 mm  frames 0-28 (29) [bow ribbon, reported separately, excluded]
+   garment[visible]:bowxdress                         maxN   100  maxDepth    0.37 mm  frames 0-28 (29) [bow ribbon, reported separately, excluded]
+   garment[visible]:legLxdress                        maxN    16  maxDepth    0.05 mm  frames 14-26 (2) [FAIL]
+   layer_cross:apron_vs_dress                         maxN     7  maxDepth   19.56 mm  frames 0-27 (28) [FAIL]
+   proxy:body_nobowxcol_int_chair_back                maxN   353  maxDepth   20.76 mm  frames 0-23 (24) [info]
+   proxy:bodyxcol_int_chair_back                      maxN   354  maxDepth   20.76 mm  frames 0-23 (24) [info]
+   proxy:bodyxcol_int_chair_seat                      maxN   168  maxDepth  189.98 mm  frames 0-29 (30) [info]
+   proxy:hairxcol_int_chair_back                      maxN   906  maxDepth   23.49 mm  frames 0-23 (24) [info]
+   self:legLxlegL_ctrl                                maxN   378  maxDepth    0.00 mm  frames 0-29 (30) [control]
+-- f30-32
+   chair:bodyxchair_seat                              maxN    70  maxDepth   19.41 mm  frames 30-32 (3)
+   chair:bow(=body-body_nobow)xchair_seat             maxN    70  maxDepth   19.41 mm  frames 30-32 (3) [bow ribbon, reported separately, excluded]
+   garment[visible]:legLxdress                        maxN     6  maxDepth    0.00 mm  frames 32-32 (1) [FAIL]
+   layer_cross:apron_vs_dress                         maxN     1  maxDepth   17.90 mm  frames 30-31 (2) [FAIL]
+   proxy:bodyxcol_int_chair_seat                      maxN   157  maxDepth  189.33 mm  frames 30-32 (3) [info]
+   self:legLxlegL_ctrl                                maxN   360  maxDepth    0.00 mm  frames 30-32 (3) [control]
+-- f33-33
+   chair:bodyxchair_seat                              maxN    72  maxDepth   17.22 mm  frames 33-33 (1)
+   chair:bow(=body-body_nobow)xchair_seat             maxN    72  maxDepth   17.22 mm  frames 33-33 (1) [bow ribbon, reported separately, excluded]
+   layer_cross:apron_vs_dress                         maxN     1  maxDepth    2.00 mm  frames 33-33 (1) [FAIL]
+   proxy:bodyxcol_int_chair_seat                      maxN   156  maxDepth  186.09 mm  frames 33-33 (1) [info]
+   self:legLxlegL_ctrl                                maxN   342  maxDepth    0.00 mm  frames 33-33 (1) [control]
+-- f34-54
+   chair:bodyxchair_seat                              maxN    72  maxDepth   19.32 mm  frames 34-54 (21)
+   chair:bow(=body-body_nobow)xchair_seat             maxN    72  maxDepth   19.32 mm  frames 34-54 (21) [bow ribbon, reported separately, excluded]
+   garment[midsurface]:bowxdress                      maxN   108  maxDepth   10.66 mm  frames 37-54 (11) [bow ribbon, reported separately, excluded]
+   garment[visible]:apronxdress                       maxN     4  maxDepth    0.00 mm  frames 37-37 (1) [FAIL]
+   garment[visible]:bowxdress                         maxN   214  maxDepth    2.13 mm  frames 37-54 (11) [bow ribbon, reported separately, excluded]
+   garment[visible]:legLxdress                        maxN     8  maxDepth    0.00 mm  frames 35-37 (2) [FAIL]
+   garment[visible]:legRxdress                        maxN     6  maxDepth   29.58 mm  frames 35-42 (3) [FAIL]
+   layer_cross:apron_vs_dress                         maxN     5  maxDepth   14.37 mm  frames 34-54 (14) [FAIL]
+   proxy:bodyxcol_int_chair_seat                      maxN   155  maxDepth  189.84 mm  frames 34-54 (21) [info]
+   self:legLxlegL_ctrl                                maxN   384  maxDepth    0.00 mm  frames 34-54 (21) [control]
+-- f55-73
+   garment[midsurface]:bowxdress                      maxN    74  maxDepth    3.56 mm  frames 55-66 (5) [bow ribbon, reported separately, excluded]
+   garment[visible]:bowxdress                         maxN   138  maxDepth    0.20 mm  frames 55-66 (5) [bow ribbon, reported separately, excluded]
+   layer_cross:apron_vs_dress                         maxN     7  maxDepth   16.10 mm  frames 55-68 (9) [FAIL]
+   self:legLxlegL_ctrl                                maxN   358  maxDepth    0.00 mm  frames 55-73 (19) [control]
+-- f74-81
+   garment[midsurface]:bowxdress                      maxN   106  maxDepth    7.37 mm  frames 74-81 (8) [bow ribbon, reported separately, excluded]
+   garment[visible]:bowxdress                         maxN   206  maxDepth    0.36 mm  frames 74-81 (8) [bow ribbon, reported separately, excluded]
+   self:legLxlegL_ctrl                                maxN   354  maxDepth    0.00 mm  frames 74-81 (8) [control]
+-- f82-90
+   self:legLxlegL_ctrl                                maxN   324  maxDepth    0.00 mm  frames 82-90 (9) [control]
+===== cine_open_turn
+-- f0-45
+   self:legLxlegL_ctrl                                maxN   370  maxDepth    0.00 mm  frames 0-45 (46) [control]
+===== cine_open_safe_end
+-- f0-0
+   self:legLxlegL_ctrl                                maxN   292  maxDepth    0.00 mm  frames 0-0 (1) [control]
+===== cine_home_safe_end
+-- f0-0
+   chair:bodyxchair_seat                              maxN    68  maxDepth   17.88 mm  frames 0-0 (1)
+   chair:bow(=body-body_nobow)xchair_seat             maxN    68  maxDepth   17.88 mm  frames 0-0 (1) [bow ribbon, reported separately, excluded]
+   garment[midsurface]:bowxdress                      maxN    34  maxDepth    2.22 mm  frames 0-0 (1) [bow ribbon, reported separately, excluded]
+   garment[visible]:bowxdress                         maxN    64  maxDepth    0.14 mm  frames 0-0 (1) [bow ribbon, reported separately, excluded]
+   layer_cross:apron_vs_dress                         maxN     2  maxDepth    3.07 mm  frames 0-0 (1) [FAIL]
+   proxy:body_nobowxcol_int_chair_back                maxN   353  maxDepth   20.76 mm  frames 0-0 (1) [info]
+   proxy:bodyxcol_int_chair_back                      maxN   354  maxDepth   20.76 mm  frames 0-0 (1) [info]
+   proxy:bodyxcol_int_chair_seat                      maxN   168  maxDepth  189.97 mm  frames 0-0 (1) [info]
+   proxy:hairxcol_int_chair_back                      maxN   906  maxDepth   23.49 mm  frames 0-0 (1) [info]
+   self:legLxlegL_ctrl                                maxN   308  maxDepth    0.00 mm  frames 0-0 (1) [control]
+VERDICT zero visible clipping (bow ribbon excluded on all frames, reported separately): FAIL (11 category-ranges)

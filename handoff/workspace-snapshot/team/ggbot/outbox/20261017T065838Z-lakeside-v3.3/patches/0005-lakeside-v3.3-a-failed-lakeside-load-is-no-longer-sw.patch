@@ -1,0 +1,272 @@
+From 63f280311a3916c7d62cad4a709f1e2707b82b12 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 14:49:44 +0800
+Subject: [PATCH 5/8] =?UTF-8?q?lakeside=20v3.3:=20a=20failed=20lakeside=20?=
+ =?UTF-8?q?load=20is=20no=20longer=20swallowed=20-=20[QF=5FLAKESIDE]=20loa?=
+ =?UTF-8?q?d-failed=20{stageId,=20step,=20error}=20(always=20on),=20lease?=
+ =?UTF-8?q?=20disposed,=20one=20stable=20reason;=20WorldFlow=20keeps=20her?=
+ =?UTF-8?q?=20on=20the=20island;=20island=20HUD=20shows=20only=20=E3=80=8C?=
+ =?UTF-8?q?=E6=B9=96=E7=95=94=E6=9A=82=E6=97=B6=E6=B2=A1=E5=87=86=E5=A4=87?=
+ =?UTF-8?q?=E5=A5=BD=EF=BC=8C=E5=85=88=E5=9B=9E=E5=B0=8F=E5=B2=9B=E5=90=A7?=
+ =?UTF-8?q?=E3=80=8D=20in=20the=20board's=20concise=20toast=20style=20(ui/?=
+ =?UTF-8?q?IslandToast,=20no=20panel,=20inset=20from=20the=20top)=20and=20?=
+ =?UTF-8?q?the=20island=20stays=20usable;=20test=20lakeside-load-failure?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    | 11 ++++--
+ .../scripts/region/LakesideBoardBackground.ts | 27 +++++++++-----
+ .../assets/scripts/ui/IslandToast.ts          | 37 +++++++++++++++++++
+ .../assets/scripts/ui/IslandToast.ts.meta     |  9 +++++
+ .../world-r2/WorldNativeComposition.ts        |  7 +++-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_load_failure.cjs | 30 +++++++++++++++
+ 7 files changed, 106 insertions(+), 16 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/ui/IslandToast.ts
+ create mode 100644 creator-build-project/assets/scripts/ui/IslandToast.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_load_failure.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 22df054..989a1d5 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -4,6 +4,8 @@ import { DEBUG } from 'cc/env';
+ import {setScreenCover} from './world-r1/ScreenCover';
+ import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
+ import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
++import {IslandToast,LAKESIDE_NOT_READY_TEXT} from './ui/IslandToast';
++import {LAKESIDE_LOAD_FAILED} from './region/LakesideBoardBackground';
+ import {CabinHint} from './world-r2/CabinHint';
+ import {cabinHintSeen,markCabinHintSeen} from './ui/UiPrefs';
+ import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
+@@ -399,7 +401,7 @@ export class WorldIntegrationBoot extends Component {
+  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+  private islandProps:IslandProps|null=null;private propSign=false;
+  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private glassSign:GlassSign|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
+- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
++ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private islandToast:IslandToast|null=null;
+  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
+  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
+@@ -503,10 +505,11 @@ export class WorldIntegrationBoot extends Component {
+  }
+  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
+  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
+- private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
++ private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason===LAKESIDE_LOAD_FAILED){this.islandToast?.show(LAKESIDE_NOT_READY_TEXT);this.logSuppressedStatus('lakeside',r.reason);}else if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+  private createNavigation(){setScreenCover((a,sec)=>this.fadeCover(a,sec));this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+  this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('lake','风铃湖畔',()=>this.composition.enterRegion('lake'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
++ this.islandToast=new IslandToast(this.canvas);
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},()=>this.glassSign);this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
+  if(DEBUG){
+@@ -604,7 +607,7 @@ export class WorldIntegrationBoot extends Component {
+  const journey=s.journey;if(journey&&['region-loading','region-travel'].includes(s.state)){this.notice.string=journey.phase==='loading'?'正在准备'+(journey.target==='meadow'?'草原':'天空之城')+'，完成后继续前行':journey.phase==='bridge'?'沿着彩虹，去下一片天地':journey.phase==='arrival'?'快到了，跟着风往前走':'走向彩虹桥';this.notice.node.parent!.active=true;}else if(journey&&s.state!=='level'&&!s.needsResume&&['paused','failed'].includes(journey.phase)){this.notice.string=journey.phase==='failed'?'旅程暂时受阻，成绩已保留。点继续旅程重试':'旅程已暂停。点继续旅程从这里接着走';this.notice.node.parent!.active=true;}
+  const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(['island','meadow','skycity'].includes(s.state))for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
+  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
+- this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
++ this.islandToast?.update(dt,f.width,f.height);this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
+  this.controls.get('cancelVisit')!.getComponentsInChildren(Label)[0].string=s.state==='skycity-loading'?'取消前往':'暂停旅程';
+  for(const id of ['returnIsland','cancelVisit','home'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
+   if(s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity')for(const id of ['mainline','home'] as const){const n=this.controls.get(id);if(n?.active)this.placeNavigationControl(n,navigation.region[id]);}
+@@ -660,5 +663,5 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+  private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
+   if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
+  update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+- onDestroy(){setScreenCover(null);this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
++ onDestroy(){setScreenCover(null);this.islandToast?.dispose();this.islandToast=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ }
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index c248337..5b21431 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -24,8 +24,12 @@ function loadMaterial(b:AssetManager.Bundle,path:string){return new Promise<Mate
+ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
+ /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
+  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
+-export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
+- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
++/** v3.3: the one reason a failed lakeside load surfaces with (player copy is chosen by the HUD; details only in the [QF_LAKESIDE] log). */
++export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
++/** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
++export function logLakesideFailure(step:string,stageId:string,error:unknown){try{console.error('[QF_LAKESIDE] '+JSON.stringify({event:'load-failed',stageId,step,error:String((error as any)?.message??error)}));}catch{}}
++export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,selection,token})=>{
++ let step='start',rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
+   *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
+@@ -56,14 +60,14 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+-  token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('lakeside-background-owner-missing');
++  step='owner';token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('lakeside-background-owner-missing');
+   if(scene.getComponentsInChildren(Camera).some(c=>c.enabled&&(c.visibility&LAKESIDE_LAYER)!==0))throw Error('lakeside-background-layer-conflict');
+-  const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
+-  const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),token));token.check();
+-  const prefabs=await waitRegionAsset(loadPrefabs(bundle),token,30000);token.check();for(const p of prefabs)take(p);
+-  const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
++  step='bundle';const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
++  step='transforms';const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),token));token.check();
++  step='prefabs';const prefabs=await waitRegionAsset(loadPrefabs(bundle),token,30000);token.check();for(const p of prefabs)take(p);
++  step='water-material';const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
+   if(!isValid(parent,true)||!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
+-  const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
++  step='instantiate';const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
+   const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
+   rig=new Node(LAKESIDE_NODES.rig);rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
+   const scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
+@@ -83,7 +87,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
+     for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
+    waterTinted=tinted.size;}
+-  setLayer(scenery);
++  setLayer(scenery);step='lights-camera';
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+    const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
+@@ -97,5 +101,8 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+   };
+- }catch(error){dispose();throw error;}
++ }catch(error){dispose();
++  // Cancellation (player left / superseded entry) is not a failure. Anything else: log the real cause, surface one stable reason;
++  // WorldFlow keeps the player on the island (operate() restores the stable place).
++  if(token.cancelled)throw error;logLakesideFailure(step,String(selection?.stageId??''),error);throw Error(LAKESIDE_LOAD_FAILED);}
+ };
+diff --git a/creator-build-project/assets/scripts/ui/IslandToast.ts b/creator-build-project/assets/scripts/ui/IslandToast.ts
+new file mode 100644
+index 0000000..6c22748
+--- /dev/null
++++ b/creator-build-project/assets/scripts/ui/IslandToast.ts
+@@ -0,0 +1,37 @@
++import { Node, UITransform, UIOpacity, Graphics, Color, Label, Layers, isValid } from 'cc';
++import { makeLabel, measure } from './PopupKit';
++import { TOAST_S } from './BoardLayout';
++/** v3.3 (GGbot): the board's concise toast (ManagedMobileBoardUI.say/paintToast: cream pill, gold hairline, brown 15 px, 0.2 s in /
++ *  2 s / 0.3 s out), for the island, where no board exists to own one. One line, no panel, no buttons, never technical text: callers
++ *  pass player copy only (details go to the log). Inset below the top edge so it clears the WeChat capsule and the island dock. */
++export const ISLAND_TOAST = Object.freeze({ inS: 0.2, holdS: TOAST_S, outS: 0.3, font: 15, h: 32, maxW: 330, padX: 40, topInset: 132 });
++/** Copy (lead / UI设计部): shown when the lakeside scene cannot load and the player stays on the island. */
++export const LAKESIDE_NOT_READY_TEXT = '湖畔暂时没准备好，先回小岛吧';
++export function islandToastOpacity(t: number): number {
++  const T = ISLAND_TOAST; if (t < 0) return 0;
++  if (t < T.inS) return t / T.inS; if (t < T.inS + T.holdS) return 1; return Math.max(0, 1 - (t - T.inS - T.holdS) / T.outS);
++}
++export class IslandToast {
++  private root: Node; private bg: Graphics; private label: Label; private t = -1;
++  constructor(parent: Node) {
++    const n = new Node('IslandToast'); n.layer = Layers.Enum.UI_2D; parent.addChild(n); n.addComponent(UITransform).setContentSize(300, ISLAND_TOAST.h);
++    n.addComponent(UIOpacity).opacity = 0; n.active = false; this.root = n;
++    const plate = new Node('ToastPlate'); plate.layer = Layers.Enum.UI_2D; n.addChild(plate); plate.addComponent(UITransform).setContentSize(300, ISLAND_TOAST.h); this.bg = plate.addComponent(Graphics);
++    this.label = makeLabel(n, '', 0, 0, ISLAND_TOAST.font, { width: 320, name: 'ToastText' }); this.label.color = new Color(99, 63, 33, 255);
++  }
++  show(text: string) {
++    if (!text || !isValid(this.root, true)) return; const T = ISLAND_TOAST, w = Math.min(T.maxW, measure(text, T.font) + T.padX), h = T.h;
++    this.label.string = text; this.root.getComponent(UITransform)!.setContentSize(w, h); const g = this.bg; g.clear();
++    g.fillColor = new Color(40, 30, 20, 40); g.roundRect(-w / 2 + 1, -h / 2 - 2, w, h, h / 2); g.fill();
++    g.fillColor = new Color(248, 242, 226, 240); g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.fill();
++    g.strokeColor = new Color(201, 177, 133, 255); g.lineWidth = 1.5; g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.stroke();
++    this.t = 0; this.root.active = true; this.root.setSiblingIndex(this.root.parent!.children.length - 1);
++  }
++  update(dt: number, _width: number, height: number) {
++    if (this.t < 0 || !isValid(this.root, true)) return; this.t += dt; const k = islandToastOpacity(this.t);
++    this.root.setPosition(0, height / 2 - ISLAND_TOAST.topInset, 0); this.root.getComponent(UIOpacity)!.opacity = Math.round(255 * k);
++    if (k <= 0 && this.t > ISLAND_TOAST.inS) { this.t = -1; this.root.active = false; }
++  }
++  visible() { return this.t >= 0; }
++  dispose() { if (isValid(this.root, true)) this.root.destroy(); }
++}
+diff --git a/creator-build-project/assets/scripts/ui/IslandToast.ts.meta b/creator-build-project/assets/scripts/ui/IslandToast.ts.meta
+new file mode 100644
+index 0000000..8595f2c
+--- /dev/null
++++ b/creator-build-project/assets/scripts/ui/IslandToast.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "c0472bc9-5780-4698-80ef-112ea8c64e79",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+index 6489c50..484ed4a 100644
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -1,5 +1,5 @@
+ import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
+-import { createLakesideBoardBackground } from '../region/LakesideBoardBackground';
++import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED } from '../region/LakesideBoardBackground';
+ import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
+ import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
+ import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } from 'cc';
+@@ -70,7 +70,10 @@ export class WorldNativeComposition extends Component {
+     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
+     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
+     this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(this.selectionRegion(selection));if(!arrived.ok)return arrived;
+-    const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;return result;
++    const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;
++    // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); WorldFlow put her back on the island. Hand the HUD one stable reason.
++    if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED)){this.pendingJourneySelection=null;return {ok:false,reason:LAKESIDE_LOAD_FAILED};}
++    return result;
+   }
+   private selectionRegion(selection:Selection):JourneyRegion {
+     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 6ce6824..c203ce3 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -61,6 +61,7 @@ const tests=[
+  ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],['lakeside-water-fog','tools/lakeside/test_lakeside_water_fog.cjs'],
+  ['lakeside-meshopt','tools/lakeside/test_lakeside_meshopt.cjs'],
+  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
++ ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_load_failure.cjs b/tools/lakeside/test_lakeside_load_failure.cjs
+new file mode 100644
+index 0000000..fbfab13
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_load_failure.cjs
+@@ -0,0 +1,30 @@
++// v3.3: a failed lakeside load is no longer swallowed. The lease logs the real cause ([QF_LAKESIDE] load-failed, always on), rethrows one
++// stable reason; WorldFlow keeps the player on the island; the island HUD shows only the approved copy in the board's concise toast style.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts'),rd=f=>fs.readFileSync(path.join(S,f),'utf8');
++const bg=rd('region/LakesideBoardBackground.ts'),comp=rd('world-r2/WorldNativeComposition.ts'),boot=rd('WorldIntegrationBoot.ts'),toast=rd('ui/IslandToast.ts'),flow=rd('world-r1/WorldFlowCore.ts');
++assert(/export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';/.test(bg));
++assert(/console\.error\('\[QF_LAKESIDE\] '\+JSON\.stringify\(\{event:'load-failed',stageId,step,error:/.test(bg),'always-on log with step + cause');
++assert(/\}catch\(error\)\{dispose\(\);[\s\S]{0,400}if\(token\.cancelled\)throw error;logLakesideFailure\(step,String\(selection\?\.stageId\?\?''\),error\);throw Error\(LAKESIDE_LOAD_FAILED\);\}/.test(bg),'dispose, skip cancellations, log, stable reason');
++for(const st of ['bundle','transforms','prefabs','water-material','instantiate'])assert(bg.includes("step='"+st+"'"),'step '+st);
++// behaviour of the log helper (no cc needed)
++const src=bg.match(/export function logLakesideFailure[^\n]*\n/)[0].replace('export ','').replace(/:string|:unknown|as any/g,'');
++const lines=[];const orig=console.error;console.error=(...a)=>lines.push(a.join(' '));
++new Function(src+';logLakesideFailure("prefabs","r04-lake-01",new Error("lakeside-prefab-missing: x"));logLakesideFailure("bundle","r04-lake-02","plain");')();console.error=orig;
++assert.equal(lines.length,2);const j=JSON.parse(lines[0].replace('[QF_LAKESIDE] ',''));assert.deepEqual(j,{event:'load-failed',stageId:'r04-lake-01',step:'prefabs',error:'lakeside-prefab-missing: x'});
++// fallback stays the island: operate() restores the stable place on a non-cancel error
++assert(/token\.cancel\(\);this\.error=String\(err\);this\.restore\(\);this\.change\(this\.world\?this\.stable:'error'\);/.test(flow),'WorldFlow returns to the stable place');
++assert(/if\(result\.ok===false&&String\(result\.reason\)\.includes\(LAKESIDE_LOAD_FAILED\)\)\{this\.pendingJourneySelection=null;return \{ok:false,reason:LAKESIDE_LOAD_FAILED\};\}/.test(comp));
++// HUD: approved copy only, toast (no error panel, no raw reason), and it does not block the island (this.error stays empty)
++const m={exports:{}};const out=ts.transpileModule(toast.replace(/^import[^\n]*\n/gm,''),{compilerOptions:{module:1,target:6}}).outputText;
++new Function('module','exports','require','TOAST_S','makeLabel','measure',out)(m,m.exports,require,2,null,null);
++assert.equal(m.exports.LAKESIDE_NOT_READY_TEXT,'湖畔暂时没准备好，先回小岛吧');
++const op=m.exports.islandToastOpacity;assert.equal(op(-1),0);assert.equal(op(0.1),0.5);assert.equal(op(1),1);assert.equal(op(2.2),1);assert(op(2.35)<1&&op(2.35)>0);assert.equal(op(2.6),0);
++assert(/r\.reason===LAKESIDE_LOAD_FAILED\)\{this\.islandToast\?\.show\(LAKESIDE_NOT_READY_TEXT\);this\.logSuppressedStatus\('lakeside',r\.reason\);\}else if/.test(boot),'toast + log, error stays empty');
++assert(/this\.islandToast\?\.update\(dt,f\.width,f\.height\);/.test(boot)&&/this\.islandToast=new IslandToast\(this\.canvas\);/.test(boot));
++assert(!/湖畔[^'"]*(失败|错误|error)/i.test(toast+boot),'no technical wording on screen');
++// same look as the board toast (ManagedMobileBoardUI.paintToast)
++const board=rd('ManagedMobileBoardUI.ts');for(const c of ['new Color(40, 30, 20, 40)','new Color(201, 177, 133, 255)','g.lineWidth = 1.5'])assert(board.includes(c)&&toast.includes(c),c);
++assert(/new Color\(248, 242, 226, 240\)/.test(toast)&&/Math\.round\(248 \* k\), Math\.round\(242 \* k\), Math\.round\(226 \* k\), 240/.test(board));
++console.log('lakeside load-failure OK');
+-- 
+2.47.3
+

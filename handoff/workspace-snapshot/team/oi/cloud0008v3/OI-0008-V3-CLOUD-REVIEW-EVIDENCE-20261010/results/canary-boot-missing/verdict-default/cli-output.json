@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/canary-boot-missing/copies/QFFirstOpen-20261010T000648337Z-0aed-27e32b-default",
+      "--auto-port",
+      "42016"
+    ],
+    "pid": 733,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 55,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/canary-boot-missing/copies/QFFirstOpen-20261010T000648337Z-0aed-27e32b-default"
+    ],
+    "pid": 744,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 59,
+    "lines": []
+  }
+}

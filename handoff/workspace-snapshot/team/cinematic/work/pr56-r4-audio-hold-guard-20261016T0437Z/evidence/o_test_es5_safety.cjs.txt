@@ -1,0 +1,1 @@
+ALL PASS es5-safety (19 T2+ runtime files, TS 5.9.3 target ES5, downlevelIteration off, cc types on)

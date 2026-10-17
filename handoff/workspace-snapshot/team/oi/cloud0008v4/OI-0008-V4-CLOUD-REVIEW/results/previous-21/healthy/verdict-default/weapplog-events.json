@@ -1,0 +1,28 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/healthy/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 980,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T01:32:49.816Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T01:32:50.823Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/healthy/logs/WeappLog/review.log",
+      "size": 591
+    },
+    {
+      "t": "2026-10-10T01:32:51.430Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/healthy/logs/WeappLog/review.log",
+      "bytes": 980,
+      "ok": true
+    }
+  ]
+}

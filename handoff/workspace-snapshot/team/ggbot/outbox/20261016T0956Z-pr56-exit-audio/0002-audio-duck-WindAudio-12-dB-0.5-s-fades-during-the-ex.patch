@@ -1,0 +1,228 @@
+From 5c97cf28ecb26629cea42bf9e14d32bbe3e43e45 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 04:55:10 -0400
+Subject: [PATCH 2/3] audio: duck WindAudio -12 dB (0.5 s fades) during the
+ exit cinematic so sfx_exit_outbound carries the wind; release on island/sail
+ start (releaseExitDuck), cancel/abort, error, scene change, mute, destroy;
+ .meta for region_island/audio_cine + mp3; manifests refreshed
+
+---
+ .../audio_cine/sfx_exit_outbound.mp3.meta     | 14 ++++
+ .../assets/scripts/audio/WindAudio.ts         | 41 +++++++++-
+ tools/voice-bot/wind/test_wind_exit_duck.cjs  | 76 +++++++++++++++++++
+ 3 files changed, 128 insertions(+), 3 deletions(-)
+ create mode 100644 creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta
+ create mode 100644 tools/voice-bot/wind/test_wind_exit_duck.cjs
+
+diff --git a/creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta b/creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta
+new file mode 100644
+index 0000000..d42b097
+--- /dev/null
++++ b/creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta
+@@ -0,0 +1,14 @@
++{
++  "ver": "1.0.0",
++  "importer": "audio-clip",
++  "imported": true,
++  "uuid": "ff7178e1-8cb3-4566-ab6e-6e6de1ddba35",
++  "files": [
++    ".json",
++    ".mp3"
++  ],
++  "subMetas": {},
++  "userData": {
++    "downloadMode": 0
++  }
++}
+diff --git a/creator-build-project/assets/scripts/audio/WindAudio.ts b/creator-build-project/assets/scripts/audio/WindAudio.ts
+index d7082f3..f8986be 100644
+--- a/creator-build-project/assets/scripts/audio/WindAudio.ts
++++ b/creator-build-project/assets/scripts/audio/WindAudio.ts
+@@ -18,6 +18,12 @@
+ //     2) 在 WorldFlowComponent / WorldIntegrationBoot / 角色 adapter 上提供
+ //        onApronLift(listener:(strength:'full'|'soft', durationSec:number)=>void): ()=>void（返回取消订阅），
+ //        这里会用 typeof 找到并订阅，销毁时取消。
++// 出门过场让位（GGbot 2026-10-16，Grok Bot 定）：出门 B5.3 音轨 sfx_exit_outbound 自带风，WindAudio 在出门期间压低约 -12 dB，
++//   0.5 s 淡入淡出（按 dB 线性），帆船转场开始时恢复。驱动方式：每帧看 WorldFlow 的 state，处于出门段
++//   （standing/turning-out/walking-out/opening-door/crossing-out）就压；离开出门段（到 island、被取消回 home、error、
++//   disposed）、找不到 WorldFlowComponent（换场景）、allowed() 为 false、组件销毁，都会释放。
++//   帆船转场 / 跳过可以显式调用 WindAudio.releaseExitDuck()（或 globalThis.__voiceWind.releaseExitDuck()）提前恢复：
++//   释放后到离开出门段之前不会再压回去。
+ import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
+ import { GameAudio } from './GameAudio';
+ import { AmbienceAudio } from './AmbienceAudio';
+@@ -47,6 +53,11 @@ const ON_GAIN = 0.003;             // 低于这个当作无声
+ const IDLE_PAUSE_S = 1;            // 两条都无声超过这么久就暂停
+ const REFIND_S = 1;
+ const HOOK_RETRY_S = 2;
++export const EXIT_DUCK_DB = -12;
++export const EXIT_DUCK_FADE_S = 0.5;
++export const EXIT_STATES: readonly string[] = ['standing', 'turning-out', 'walking-out', 'opening-door', 'crossing-out'];
++/** Duck gain for fade progress u (0 = no duck, 1 = full -12 dB), linear in dB. */
++export function exitDuckGain(u: number): number { const k = Math.max(0, Math.min(1, u)); return Math.pow(10, (EXIT_DUCK_DB * k) / 20); }
+ 
+ export function smoothstep(a: number, b: number, x: number): number {
+   const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u);
+@@ -74,6 +85,8 @@ export class WindAudio extends Component {
+   private gust = -1;                          // 'soft' 包络已走的时间；<0 表示没有
+   private gustDur = SOFT_DEFAULT_S;
+   private alive = true;
++  private duckU = 0;                          // 出门让位淡入进度 0..1
++  private duckReleased = false;               // releaseExitDuck() 之后、离开出门段之前保持不压
+ 
+   static ensure() {
+     try {
+@@ -88,12 +101,32 @@ export class WindAudio extends Component {
+     if (w && w.alive) w.onApronLift(strength, durationSec);
+   }
+ 
++  /** 帆船转场开始 / 跳过时调用：0.5 s 淡回原音量。 */
++  static releaseExitDuck() { const w = WindAudio.instance; if (w && w.alive) w.duckReleased = true; }
++
++  private flowState(): string | null {
++    const f = this.flow; if (!f || !isValid(f, true) || typeof f.commands !== 'function') return null;
++    try { const s = f.commands().snapshot(); return s && typeof s.state === 'string' ? s.state : null; } catch { return null; }
++  }
++
++  /** 每帧推进让位包络，返回乘在风声音量上的增益。 */
++  private exitDuck(dt: number): number {
++    const st = this.flowState(), exiting = st !== null && EXIT_STATES.indexOf(st) >= 0;
++    if (!exiting) this.duckReleased = false;
++    const target = exiting && !this.duckReleased ? 1 : 0, step = Math.max(0, dt) / EXIT_DUCK_FADE_S;
++    this.duckU = target > this.duckU ? Math.min(target, this.duckU + step) : Math.max(target, this.duckU - step);
++    return exitDuckGain(this.duckU);
++  }
++
++  private resetDuck() { this.duckU = 0; this.duckReleased = false; }
++
+   onLoad() {
+     if (WindAudio.instance && WindAudio.instance !== this && isValid(WindAudio.instance, true)) { this.alive = false; return; }
+     WindAudio.instance = this;
+     (globalThis as any).__voiceWind = {
+       notifyApronLift: (strength: ApronLiftStrength, durationSec?: number) => WindAudio.notifyApronLift(strength, durationSec),
+       snapshot: () => this.snapshot(),
++      releaseExitDuck: () => WindAudio.releaseExitDuck(),
+     };
+     for (const p of [SOFT_PATH, STRONG_PATH, FLAP_PATH]) {
+       this.clips[p] = null;
+@@ -117,7 +150,7 @@ export class WindAudio extends Component {
+     }
+     this.softSrc = this.strongSrc = this.flapSrc = null;
+     for (const p in this.clips) { const c = this.clips[p]; if (c) c.decRef(); }
+-    this.clips = {}; this.flow = null; this.boot = null;
++    this.clips = {}; this.flow = null; this.boot = null; this.resetDuck();
+     if (owner) {
+       WindAudio.instance = null; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0);
+       const g = (globalThis as any).__voiceWind; if (g) delete (globalThis as any).__voiceWind;
+@@ -126,7 +159,8 @@ export class WindAudio extends Component {
+ 
+   snapshot() {
+     return { s: this.s, soft: this.softSrc ? this.softSrc.volume : 0, strong: this.strongSrc ? this.strongSrc.volume : 0,
+-      softPlaying: !!this.softSrc?.playing, strongPlaying: !!this.strongSrc?.playing, gust: this.gust, hooks: this.hooked.length };
++      softPlaying: !!this.softSrc?.playing, strongPlaying: !!this.strongSrc?.playing, gust: this.gust, hooks: this.hooked.length,
++      exitDuck: this.duckU, exitDuckGain: exitDuckGain(this.duckU) };
+   }
+ 
+   /** GameAudio.setWindDuck if present (older GameAudio / test stubs: no-op) */
+@@ -244,6 +278,7 @@ export class WindAudio extends Component {
+     const g = this.gustValue(dt);
+     const allowed = this.allowed();
+     if (!allowed) {
++      this.resetDuck();
+       this.s = 0; this.sWind = 0; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0); this.quietFor = IDLE_PAUSE_S;
+       this.pauseLoops();
+       return;
+@@ -257,7 +292,7 @@ export class WindAudio extends Component {
+     if (this.sWind < 1e-4 && wind === 0) this.sWind = 0;
+     AmbienceAudio.setWindExit(this.sWind);
+     WindAudio.duckBgm(this.s);   // BGM 让风：GameAudio 里 -4 dB x smoothstep(0.2, 1, s)，0.5 s 平滑
+-    const music = musicBed();
++    const music = musicBed() * this.exitDuck(dt);
+     if (music <= 0) {
+       for (const src of [this.softSrc, this.strongSrc]) if (src) src.volume = 0;
+       this.pauseLoops();
+diff --git a/tools/voice-bot/wind/test_wind_exit_duck.cjs b/tools/voice-bot/wind/test_wind_exit_duck.cjs
+new file mode 100644
+index 0000000..0546c50
+--- /dev/null
++++ b/tools/voice-bot/wind/test_wind_exit_duck.cjs
+@@ -0,0 +1,76 @@
++// Box test (mocked cc): WindAudio exit-cinematic duck (-12 dB, 0.5 s fades) and release on every exit path.
++// Usage: node tools/voice-bot/wind/test_wind_exit_duck.cjs   (typescript: VB_TS, else first resolvable fallback)
++'use strict';
++const path = require('path'), fs = require('fs'), Module = require('module');
++const ROOT = path.resolve(__dirname, '../../..');
++const DIR = path.join(ROOT, 'creator-build-project/assets/scripts/audio');
++const SRC = path.join(DIR, 'WindAudio.ts'), AMB = path.join(DIR, 'AmbienceAudio.ts');
++const cands = [process.env.VB_TS, '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript', '/tmp/ts5/node_modules/typescript', 'typescript'].filter(Boolean);
++let ts = null; for (const c of cands) { try { ts = require(c); break; } catch { /* next */ } }
++if (!ts) { console.error('typescript not found; set VB_TS'); process.exit(2); }
++const tr = (f) => ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true } }).outputText;
++const js = tr(SRC), ambJs = tr(AMB);
++let fail = 0, n = 0; const ok = (c, m, d) => { n++; console.log((c ? 'PASS ' : 'FAIL ') + m + (d === undefined ? '' : ' ' + JSON.stringify(d))); if (!c) fail++; };
++const near = (a, b, e = 2e-3) => Math.abs(a - b) <= e;
++const DUCK = Math.pow(10, -12 / 20);
++
++function env() {
++  const onceCbs = [];
++  class AudioSource { constructor() { this.volume = 1; this.clip = null; this.playing = false; } play() { this.playing = true; } stop() { this.playing = false; } pause() { this.playing = false; } destroy() { this.destroyed = true; } }
++  class Node { constructor() { this.comps = []; this.valid = true; } addComponent(C) { const c = new C(); c.node = this; this.comps.push(c); if (c.onLoad) c.onLoad(); return c; } getComponent(C) { return this.comps.find(c => c instanceof C) || null; } }
++  function Component() {}
++  const flow = { valid: true, wind: 1, visible: true, state: 'home', w: 1, rig: true,
++    getWindStrength() { return this.wind; }, isWorldVisible() { return this.visible; }, getRoomLightWeight() { return this.w; }, hasRoomLight() { return this.rig; },
++    commands() { const f = this; return { snapshot: () => ({ state: f.state }) }; } };
++  let present = true;
++  const audioNode = new Node();
++  const GameAudio = { instance: { can: true, canPlayAmbience() { return this.can; }, node: audioNode, play() {}, setWindDuck() {} }, ensure() { return this.instance; } };
++  const scene = { getComponentInChildren(nm) { return nm === 'WorldFlowComponent' && present ? flow : null; } };
++  const cc = { _decorator: { ccclass: () => (C) => C }, Component, AudioSource, AudioClip: class {},
++    isValid: (o) => !!o && o.valid !== false && o.destroyed !== true,
++    resources: { load(p, T, cb) { cb(null, { p, addRef() {}, decRef() {} }); } },
++    director: { getScene: () => scene, once(ev, cb) { onceCbs.push(cb); } }, Director: { EVENT_AFTER_SCENE_LAUNCH: 'x' } };
++  delete global.__voiceWind;
++  const load = (file, code, extra) => { const m = new Module(file); m.filename = file; m.paths = []; const o = m.require.bind(m);
++    m.require = (id) => id === 'cc' ? cc : id === './GameAudio' ? { GameAudio } : extra && extra[id] ? extra[id] : o(id); m._compile(code, file); return m.exports; };
++  const amb = load(AMB, ambJs); const mod = load(SRC, js, { './AmbienceAudio': amb });
++  onceCbs.splice(0, 1); onceCbs.forEach(cb => cb());
++  const w = audioNode.getComponent(mod.WindAudio);
++  const run = (sec, dt = 1 / 60) => { for (let t = 0; t < sec - 1e-9; t += dt) w.update(dt); };
++  return { mod, w, flow, run, GameAudio, setPresent: v => { present = v; if (!v) flow.valid = false; } };
++}
++const g = e => e.w.snapshot().exitDuckGain;
++const soft = e => e.w.snapshot().soft;
++const FULL_SOFT = 0.75;
++
++{ const e = env();
++  ok(near(e.mod.exitDuckGain(1), DUCK, 1e-6) && e.mod.exitDuckGain(0) === 1 && e.mod.EXIT_DUCK_FADE_S === 0.5, 'gain curve: 0 dB -> -12 dB, fade 0.5 s');
++  e.run(3); ok(near(soft(e), FULL_SOFT) && g(e) === 1, 'home: no duck, soft at full', e.w.snapshot());
++  e.flow.state = 'standing'; e.run(0.25); ok(near(g(e), e.mod.exitDuckGain(0.5), 0.02), 'duck fades in: half-way (-6 dB) after 0.25 s', g(e));
++  e.run(0.3); ok(near(g(e), DUCK) && near(soft(e), FULL_SOFT * DUCK), 'full -12 dB after 0.5 s', e.w.snapshot());
++  for (const st of ['turning-out', 'walking-out', 'opening-door', 'crossing-out']) { e.flow.state = st; e.run(0.5); }
++  ok(near(g(e), DUCK), 'stays ducked through all exit states');
++  e.flow.state = 'island'; e.run(0.25); ok(g(e) > DUCK + 0.1 && g(e) < 0.99, 'island reached: fades back (mid)', g(e));
++  e.run(0.3); ok(g(e) === 1 && near(soft(e), FULL_SOFT), 'restored to 0 dB after 0.5 s');
++}
++{ const e = env(); e.run(1); e.flow.state = 'crossing-out'; e.run(1); ok(near(g(e), DUCK), 'sail/skip: ducked before release');
++  e.mod.WindAudio.releaseExitDuck(); e.run(0.55); ok(g(e) === 1, 'releaseExitDuck() (sail transition start / skip) restores while state still crossing-out');
++  e.run(2); ok(g(e) === 1, 'no re-duck after release while still in exit state');
++  e.flow.state = 'island'; e.run(0.1); e.flow.state = 'standing'; e.run(0.6); ok(near(g(e), DUCK), 'next exit ducks again (release flag cleared)');
++  global.__voiceWind.releaseExitDuck(); e.run(0.6); ok(g(e) === 1, 'globalThis.__voiceWind.releaseExitDuck works');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1);
++  e.flow.state = 'home'; e.run(0.55); ok(g(e) === 1, 'abort (cancelled leaveHome -> back to home) restores');
++  e.flow.state = 'opening-door'; e.run(1); e.flow.state = 'error'; e.run(0.55); ok(g(e) === 1, 'failure (state error) restores');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1);
++  e.setPresent(false); e.run(0.05); ok(e.w.snapshot().exitDuck === 0, 'scene change (WorldFlowComponent gone) resets duck immediately');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1);
++  e.GameAudio.instance.can = false; e.run(0.05); ok(e.w.snapshot().exitDuck === 0, 'muted/hidden (not allowed) resets duck');
++  e.GameAudio.instance.can = true; e.flow.state = 'disposed'; e.run(0.6); ok(g(e) === 1, 'disposed state not ducked');
++}
++{ const e = env(); e.run(1); e.flow.state = 'walking-out'; e.run(1); e.w.onDestroy(); ok(e.w.snapshot().exitDuck === 0, 'component destroy resets duck'); }
++{ const e = env(); e.flow.commands = () => { throw Error('World not initialized'); }; e.flow.state = 'standing'; e.run(1); ok(g(e) === 1, 'commands() throwing -> treated as not exiting'); }
++console.log(JSON.stringify({ status: fail ? 'FAIL' : 'PASS_MOCK', cases: n, failed: fail, creatorBuild: 'NOT_RUN', deviceListening: 'NOT_RUN' }));
++process.exit(fail ? 1 : 0);
+-- 
+2.47.3
+

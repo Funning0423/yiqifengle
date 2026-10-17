@@ -1,0 +1,16 @@
+[
+  {
+    "t": "2026-10-10T01:32:58.537Z",
+    "type": "log",
+    "args": [
+      "[QF-AUDIT-HEARTBEAT-LATE] 7e8ef40d032d43d6"
+    ]
+  },
+  {
+    "t": "2026-10-10T01:32:58.537Z",
+    "type": "error",
+    "args": [
+      "[QF-AUDIT-CANARY-LATE] 7e8ef40d032d43d6"
+    ]
+  }
+]

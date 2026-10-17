@@ -1,0 +1,47 @@
+From 87c4c684cf37e20dae64a7b1d5f75cf125c7f0b9 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:59:39 +0800
+Subject: [PATCH 2/2] Glass sign round 2: denser base tint (+0.08), leaf icon
+ at prototype size, bold system caption face
+
+---
+ .../assets/resources/world/glass-sign.effect                | 1 +
+ creator-build-project/assets/scripts/world-r1/GlassSign.ts  | 6 +++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/creator-build-project/assets/resources/world/glass-sign.effect b/creator-build-project/assets/resources/world/glass-sign.effect
+index 026a347..8d5d5d9 100644
+--- a/creator-build-project/assets/resources/world/glass-sign.effect
++++ b/creator-build-project/assets/resources/world/glass-sign.effect
+@@ -94,6 +94,7 @@ CCProgram glass-sign-fs %{
+     float cover = 1.0 - smoothstep(-w, w, dq);
+     float t = clamp(dot(q - C, vec2(0.34202, 0.93969)) / 189.76 + 0.5, 0.0, 1.0);
+     float fa = t < 0.55 ? mix(0.34, 0.10, t / 0.55) : mix(0.10, 0.18, (t - 0.55) / 0.45);
++    fa += 0.08; // round 2: denser base tint (no blur available) so wall seams read less, closer to the prototype
+     float glow = 0.12 * (1.0 - phi(sdCapsule(q + vec2(0.0, 6.0), vec2(140.0, 50.0), 50.0) / 7.0));
+     float ca = (fa + glow * (1.0 - fa)) * cover;
+     col = over(vec4(ca, ca, ca, ca), col);
+diff --git a/creator-build-project/assets/scripts/world-r1/GlassSign.ts b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+index dfd7479..80677b7 100644
+--- a/creator-build-project/assets/scripts/world-r1/GlassSign.ts
++++ b/creator-build-project/assets/scripts/world-r1/GlassSign.ts
+@@ -58,13 +58,13 @@ export class GlassSign {
+     this.text.addComponent(RenderRoot2D); this.text.addComponent(UITransform).setContentSize(S.px[0], S.px[1]); this.textOpacity = this.text.addComponent(UIOpacity);
+     const add = (name: string, s: string, size: number, x: number, w: number) => {
+       const n = new Node(name); n.layer = this.root.layer; this.text.addChild(n); n.addComponent(UITransform).setContentSize(w, S.px[1]); n.setPosition(x, 1, 0);
+-      const l = n.addComponent(Label); l.string = s; l.fontSize = size; l.lineHeight = size + 4; l.isBold = true; l.fontFamily = 'Noto Sans CJK SC, PingFang SC, sans-serif';
++      const l = n.addComponent(Label); l.string = s; l.fontSize = size; l.lineHeight = size + 4; l.isBold = true; l.fontFamily = 'sans-serif'; // bold system face (CSS 600); an outline pass merged strokes into blobs
+       l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
+       l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
+     };
+     // CSS: leaf (30px) + 12px margin + caption (34px, letter-spacing 4px), centred as one line
+-    const capW = 5 * 34 + 5 * 4, leafW = 34, total = leafW + 12 + capW;
+-    add('Leaf', S.leaf, 30, -total / 2 + leafW / 2, leafW + 8); add('Caption', S.caption, 34, -total / 2 + leafW + 12 + capW / 2, capW + 8);
++    const capW = 5 * 34 + 5 * 4, leafW = 44, total = leafW + 12 + capW;
++    add('Leaf', S.leaf, 42, -total / 2 + leafW / 2, leafW + 8); add('Caption', S.caption, 34, -total / 2 + leafW + 12 + capW / 2, capW + 8);
+   }
+   /** Prototype tap feedback timeline (frames at 30 fps after the tap). */
+   private feedback() {
+-- 
+2.47.3
+

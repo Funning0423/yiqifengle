@@ -1,0 +1,87 @@
+{
+  "status": "PASS",
+  "runId": "f5cc2c15-3c23-403f-8e19-9ee1108d53b6",
+  "finishedAt": "2026-10-09T22:39:21.009Z",
+  "profile": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/output/playable-0004-loss-f5cc2c15-3c23-403f-8e19-9ee1108d53b6",
+  "checks": [
+    {
+      "name": "11-actual-swaps-win",
+      "attempt": "mla-000000000001"
+    },
+    {
+      "name": "actual-chest-reward-once",
+      "first": {
+        "ok": true,
+        "result": {
+          "level": 0,
+          "rewards": [
+            {
+              "kind": "charm",
+              "id": "seaRibbon",
+              "count": 1
+            }
+          ],
+          "newlyGrantedRewards": [
+            {
+              "kind": "charm",
+              "id": "seaRibbon",
+              "count": 1
+            }
+          ],
+          "duplicate": false,
+          "opened": true
+        },
+        "newlyGrantedRewards": [
+          {
+            "kind": "charm",
+            "id": "seaRibbon",
+            "count": 1
+          }
+        ],
+        "warnings": []
+      },
+      "duplicate": {
+        "ok": true,
+        "result": {
+          "level": 0,
+          "rewards": [],
+          "newlyGrantedRewards": [],
+          "duplicate": true,
+          "opened": true
+        },
+        "duplicate": true,
+        "newlyGrantedRewards": []
+      }
+    },
+    {
+      "name": "return-home-new-process-cold-storage-identical"
+    },
+    {
+      "name": "actual-cold-reenter-next-stage"
+    },
+    {
+      "name": "22-actual-swaps-loss-retry-new-attempt",
+      "old": "mla-000000000001",
+      "new": "mla-000000000002"
+    },
+    {
+      "name": "drag-outside-no-charge-consumed"
+    },
+    {
+      "name": "system-touch-cancel-does-not-consume"
+    },
+    {
+      "name": "real-drag-target-24-one-charge-consumed",
+      "action": [
+        "bomb",
+        24
+      ]
+    }
+  ],
+  "errors": [],
+  "browserWarnings": [
+    "Ignored attempt to cancel a touchcancel event with cancelable=false, for example because scrolling is in progress and cannot be interrupted."
+  ],
+  "buildFingerprint": "ced06a1458e2ec45f4fb85579cffcc6a00bc6b7e0a22a8d0cba17affe19687c0",
+  "scope": "Actual Cocos Web touch events and fresh isolated storage. No progress injection, direct action/recordWin or formal save writes. NOT WeChat or phone acceptance."
+}

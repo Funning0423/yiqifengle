@@ -1,0 +1,38 @@
+{
+ "C": {
+  "islandFrames": 81,
+  "minSignpostM": 11.825,
+  "minPalmM": 6.569,
+  "minIslandM": 7.319,
+  "faceHeadOccludedVisibleFrames": [],
+  "feetOccl": 0,
+  "start": [
+   -2.3,
+   7.0,
+   11.0
+  ],
+  "end": [
+   -2.569,
+   12.563,
+   16.743
+  ]
+ },
+ "A2": {
+  "islandFrames": 81,
+  "minSignpostM": 11.327,
+  "minPalmM": 6.569,
+  "minIslandM": 7.319,
+  "faceHeadOccludedVisibleFrames": [],
+  "feetOccl": 0,
+  "start": [
+   -2.3,
+   7.0,
+   11.0
+  ],
+  "end": [
+   -2.569,
+   12.563,
+   16.743
+  ]
+ }
+}

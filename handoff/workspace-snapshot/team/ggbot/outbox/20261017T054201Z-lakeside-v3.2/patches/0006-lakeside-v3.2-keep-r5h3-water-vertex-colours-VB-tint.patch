@@ -1,0 +1,103 @@
+From 21c187d7046906a92e144f4637fa72a617ece9f2 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 13:37:07 +0800
+Subject: [PATCH 6/6] lakeside v3.2: keep r5h3 water vertex colours (VB) - tint
+ near-white 0.9/1/1 (effect default, params, fallback mainColor 243/255/255);
+ sky-reflection floor 0.25 (specParams.w, streak unaffected) to cool near
+ water under the warm sun; tests
+
+---
+ .../region_lakeside/water/lakeside-water.effect       |  7 ++++---
+ .../assets/scripts/region/LakesideBoardBackground.ts  |  2 +-
+ .../assets/scripts/region/LakesideSceneData.ts        |  5 ++++-
+ tools/lakeside/test_lakeside_water_fog.cjs            | 11 ++++++++---
+ 4 files changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+index 1f97298..01c4bee 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+@@ -8,12 +8,12 @@ CCEffect %{
+     - vert: lk-water-vs:vert
+       frag: lk-water-fs:frag
+       properties:
+-        waterTint:     { value: [0.0782, 0.4125, 0.4342, 1.0], linear: true, editor: { type: color } }
++        waterTint:     { value: [0.9, 1.0, 1.0, 1.0], linear: true, editor: { type: color } }
+         skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], linear: true, editor: { type: color } }
+         skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
+         skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
+         fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
+-        specParams:    { value: [300.0, 1.6, 0.4, 0.0], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise' } }
++        specParams:    { value: [300.0, 1.6, 0.4, 0.25], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise, w sky-reflection floor (v3.2)' } }
+         waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
+ }%
+ 
+@@ -97,7 +97,8 @@ CCProgram lk-water-fs %{
+     float e = R.y;
+     vec3 sky = mix(skyHorizon.rgb, skyLow.rgb, smoothstep(0.0, 0.16, e));
+     sky = mix(sky, skyZenith.rgb, smoothstep(0.16, 0.38, e)) * cc_ambientSky.w * fresnelParams.w;
+-    col = mix(col, sky, clamp(F, 0.0, fresnelParams.z));
++    // v3.2: floor on the sky-reflection mix only (not the streak) - cools the near water under the warm sun without touching vertex colours.
++    col = mix(col, sky, clamp(max(F, specParams.w), 0.0, fresnelParams.z));
+     // Sunset streak: Blinn-Phong from the main light, its colour and intensity.
+     vec3 H = normalize(L + V);
+     // Streak: exponent wobbles +-specParams.z along x so the highlight breaks into a sunset band (cheap sin noise, no texture).
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 352c4fe..eee4f09 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -77,7 +77,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    let water:Material|null=null;
+    if(waterAsset){water=new Material();water.copy(waterAsset);const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
+     water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
+-    water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,0));
++    water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
+     water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));instanced.push(water);}
+    const tinted=new Set<Material>();
+    for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 4114ad4..17fc818 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -66,12 +66,15 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterGlbs: ['LK_lake.glb'] as const,
+   waterMaterialPath: 'water/lakeside-water',
+-  waterTintLinear: [0.0782, 0.4125, 0.4342] as const, // v3.1: linear of sRGB 79/172/176 (r5h3 water vertex-colour mean); Fresnel gives the blue
++  waterTintLinear: [0.9, 1.0, 1.0] as const, // v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
+   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85, waterSkyStrength: 1.0,
+   waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
+   waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
+   waterSpecExponent: 300, waterSpecNoise: 0.4, waterSpecIntensity: 1.6,
++  /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
++   *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
++  waterSkyReflectFloor: 0.25,
+   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
+   fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
+ });
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index 33952ad..c88cc13 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -37,9 +37,14 @@ assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.tes
+ assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
+ assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
+ assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
+-// v3.1 tint = linear sRGB 79/172/176 in params and effect default; fallback uses the same param
+-const lin=c=>+(((c/255+.055)/1.055)**2.4).toFixed(4);assert.deepEqual([...P.waterTintLinear],[79,172,176].map(lin));
+-assert(/waterTint:\s+\{ value: \[0\.0782, 0\.4125, 0\.4342, 1\.0\]/.test(fx));assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));
++// v3.2 tint: near-white (0.9,1,1) multiplies the r5h3 vertex colours (kept: shallow shore / deep middle); sky-reflection floor 0.25
++assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
++assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= SRGBToLinear\(v_color\.rgb\)/.test(fx));
++assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
++assert.equal(P.waterSkyReflectFloor,0.25);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.4, 0\.25\]/.test(fx));
++assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
++assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
++assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.linearToSrgb8(P.waterTintLinear),[243,255,255],'fallback mainColor ~white');
+ // fog modes + URL override (guarded for WeChat)
+ assert.equal(D.LAKESIDE_FOG_MODE,'layered');
+ assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');
+-- 
+2.47.3
+

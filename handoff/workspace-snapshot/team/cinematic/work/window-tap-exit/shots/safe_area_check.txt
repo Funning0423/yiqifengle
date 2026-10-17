@@ -1,0 +1,8 @@
+after_guide_aspect0.46_caption1_box.json viewport 360x780 aspect 0.46 box l87 t268 r169 b378 INSIDE safe(16 side,64 top,96 bottom)
+after_guide_aspect0.46_caption2_box.json viewport 360x780 aspect 0.46 box l83 t273 r174 b378 INSIDE safe(16 side,64 top,96 bottom)
+after_guide_aspect0.46_caption3_box.json viewport 360x780 aspect 0.46 box l85 t266 r172 b378 INSIDE safe(16 side,64 top,96 bottom)
+after_guide_aspect0.75_caption1_box.json viewport 390x520 aspect 0.75 box l119 t165 r203 b274 INSIDE safe(16 side,64 top,96 bottom)
+after_guide_aspect0.75_caption2_box.json viewport 390x520 aspect 0.75 box l115 t170 r206 b274 INSIDE safe(16 side,64 top,96 bottom)
+after_guide_aspect0.75_caption3_box.json viewport 390x520 aspect 0.75 box l123 t169 r198 b274 INSIDE safe(16 side,64 top,96 bottom)
+skip_button_aspect0.46_box.json viewport 360x780 box l256 t64 r344 b108 size 88x44 INSIDE safe (16 side, 64 top), tap >=44
+skip_button_aspect0.75_box.json viewport 390x520 box l286 t64 r374 b108 size 88x44 INSIDE safe (16 side, 64 top), tap >=44

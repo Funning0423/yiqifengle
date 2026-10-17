@@ -1,0 +1,33 @@
+From 92b07601dce550d6bbeded2f0a795d8a427a6c9f Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:09:43 +0800
+Subject: [PATCH 37/47] production-integrity: check every frozen file, then
+ fail once listing ALL mismatches
+
+Previously the loop asserted per file and stopped at the first mismatch. Now it hashes all
+entries, prints 'MISMATCH <path> / expected / actual' for each to stderr and then assert.fail()s
+with the count and the full list. Same exit code (1 via uncaught AssertionError), same PASS/FAIL
+semantics, frozen-production-inputs.json untouched (Voice Bot re-pins it separately). On the
+current list (f3d3614) it reports 20 of 311 files.
+---
+ tools/journey-integration/test-production-integrity.cjs | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tools/journey-integration/test-production-integrity.cjs b/tools/journey-integration/test-production-integrity.cjs
+index e20c39b..28f5ca1 100644
+--- a/tools/journey-integration/test-production-integrity.cjs
++++ b/tools/journey-integration/test-production-integrity.cjs
+@@ -2,7 +2,9 @@
+ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+ const root=path.resolve(__dirname,'../..'),expected=require('./frozen-production-inputs.json'),sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+ const checks=[];
+-for(const entry of expected.files){assert.equal(sha(fs.readFileSync(path.join(root,entry.path))),entry.sha256,'Frozen shipped asset/rule changed: '+entry.path);}
++// Check every frozen file first, then fail once listing ALL mismatches (path, expected, actual); same exit code/semantics as before.
++const mismatches=[];for(const entry of expected.files){const actual=sha(fs.readFileSync(path.join(root,entry.path)));if(actual!==entry.sha256)mismatches.push({path:entry.path,expected:entry.sha256,actual});}
++if(mismatches.length){for(const m of mismatches)console.error('MISMATCH '+m.path+'\n  expected '+m.expected+'\n  actual   '+m.actual);assert.fail('Frozen shipped asset/rule changed: '+mismatches.length+' of '+expected.files.length+' files (first: '+mismatches[0].path+')\n'+mismatches.map(m=>'  '+m.path+' expected '+m.expected+' actual '+m.actual).join('\n'));}
+ checks.push({id:'immutable-shipped-assets-and-engine',files:expected.files.length});
+ const boot=fs.readFileSync(path.join(root,'creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8'),section=boot.slice(boot.indexOf('class FlowReferenceStandin'),boot.indexOf("@ccclass('WorldIntegrationBoot')"));
+ checks.push(require('../legacy-test-repair/controller-integrity.cjs').verifyController(section,expected.characterControllerSectionSHA256));
+-- 
+2.47.3
+

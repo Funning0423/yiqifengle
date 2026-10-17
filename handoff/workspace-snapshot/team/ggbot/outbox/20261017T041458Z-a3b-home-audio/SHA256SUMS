@@ -1,0 +1,5 @@
+c31a8aa1425befd47a0e3225ecf861e1983dc82e73bb6be85ed0e976ad5a30c7  0001-A3-waves-bed-fades-in-from-0-when-something-else-sto.patch
+e8f686d989ff042bf92188036261fd4b3dd6d18643dabce7e03957459eb4eb47  0002-A3b-waves-bed-always-re-starts-from-0-incl.-self-pau.patch
+5f4750f6326025213c38fdc2368770a2e9d1cd7127d25f9ee24ff726ccf84413  fix-a3-home-sea-fadein-a3b.bundle
+d0b413fb051dec537b1a2c18033c91390c0eb1f839cefa55cf614d157fd477c9  README.md
+419d881f4a47c4471cc04ba6281d917d76bcaef1ca100095035db025f94a48b8  suite.txt

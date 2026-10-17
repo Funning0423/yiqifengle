@@ -1,0 +1,13 @@
+2026-10-10T00:06:30.205Z +0.0s config {"cli":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-cli.cjs","buildDir":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/build","workRoot":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-error/copies","finalizer":"/workspace/shared/game-first-open-0008-v3-review/extracted/20261009T2354Z-grokbot2-WECHAT-FIRST-OPEN-0008-v3/reference/finalize_wechat_local.12ef697+0008v2.cjs","cases":["default"],"allowAppJsonNotice":false,"mode":"auto","autoPort":42006,"settleMs":0,"cliDrainMs":100,"injectShim":true,"logDir":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-error/logs","logPollMs":20,"logMaxBytes":1000000,"automatorModule":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-automator.cjs","globalQuit":"removed"}
+2026-10-10T00:06:30.263Z +0.1s cli islogin pid=287 exit=0 (57ms, 1 lines)
+2026-10-10T00:06:30.264Z +0.1s [verdict:default] copy build → /workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-error/copies/QFFirstOpen-20261010T000630204Z-31db-7dd587-default
+2026-10-10T00:06:30.321Z +0.1s [verdict:default] finalizer exit=0 {"output":"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-error/copies/QFFirstOpen-20261010T000630204Z-31db-7dd587-default","compileType":"game","emptyCompileConditionsRemoved":true,"enhancementDisabled":true,"removedCondition":null,"changed":true,"action":"LOCAL_CONFIG_ONLY"}
+2026-10-10T00:06:30.321Z +0.1s [verdict:default] audit shim injected into COPY game.js (token a5f69b5536616ced)
+2026-10-10T00:06:30.322Z +0.1s [verdict:default] cli auto --project /workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-error/copies/QFFirstOpen-20261010T000630204Z-31db-7dd587-default --auto-port 42006
+2026-10-10T00:06:31.327Z +1.1s [verdict:default] automator connected
+2026-10-10T00:06:31.828Z +1.6s [verdict:default] settle 0ms (no Compile, no input)
+2026-10-10T00:06:31.880Z +1.7s cli close pid=314 exit=0 (50ms, 0 lines)
+2026-10-10T00:06:31.980Z +1.8s terminating own CLI child auto pid=303 (still running)
+2026-10-10T00:06:31.983Z +1.8s cli auto pid=303 exit=null signal=SIGTERM (terminated by audit) (1661ms, 1 lines)
+2026-10-10T00:06:32.035Z +1.8s [verdict:default] FAIL: 1 own error(s): cli.output
+2026-10-10T00:06:32.035Z +1.8s VERDICT FAIL: default: 1 own error(s): cli.output

@@ -1,0 +1,5 @@
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-prefix/copies/QFFirstOpen-20261010T013515068Z-2fd5-0b7dbb-default [log] [QF-AUDIT-HEARTBEAT] 5b238e96aabc849a
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-prefix/copies/QFFirstOpen-20261010T013515068Z-2fd5-0b7dbb-default [error] [QF-AUDIT-CANARY] 5b238e96aabc849a
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-prefix/copies/QFFirstOpen-20261010T013515068Z-2fd5-0b7dbb-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-prefix/copies/QFFirstOpen-20261010T013515068Z-2fd5-0b7dbb-default [log] [QF-AUDIT-HEARTBEAT-LATE] 5b238e96aabc849a
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-prefix/copies/QFFirstOpen-20261010T013515068Z-2fd5-0b7dbb-default [error] [QF-AUDIT-CANARY-LATE] 5b238e96aabc849a

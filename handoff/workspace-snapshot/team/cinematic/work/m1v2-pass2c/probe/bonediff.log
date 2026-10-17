@@ -1,0 +1,10 @@
+could not get a list of mounted file-systems
+BD cine_open_stand max body pos mm 5.5896 max body rot deg 0.761 max skirt rot 355.007
+BD cine_open_turn max body pos mm 7.5613 max body rot deg 1.0287 max skirt rot 0
+BD cine_open_safe_end max body pos mm 0.0002 max body rot deg 0 max skirt rot 0
+BD cine_home_safe_end max body pos mm 0.2007 max body rot deg 0 max skirt rot 322.918
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-pass2c/scene/cine_m1_anim_p2c1_snapshot.blend"
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/export/blend/cine_m1_v2wip.blend"
+
+Blender quit

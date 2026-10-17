@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "scope": "Actual engine/controller replay with temporary storage; no native/device claim",
+  "checks": [
+    {
+      "end": 4,
+      "preWinActions": 5,
+      "completedAfter": 4,
+      "gates": [
+        true,
+        false,
+        false
+      ],
+      "namespace": "dot-region-flow-test-mvbj3722-1-7nynmmby2wf:"
+    },
+    {
+      "end": 8,
+      "preWinActions": 14,
+      "completedAfter": 8,
+      "gates": [
+        true,
+        true,
+        false
+      ],
+      "namespace": "dot-region-flow-test-mvbj37ds-1-f7tc9phutde:"
+    },
+    {
+      "end": 12,
+      "preWinActions": 10,
+      "completedAfter": 12,
+      "gates": [
+        true,
+        true,
+        true
+      ],
+      "namespace": "dot-region-flow-test-mvbj384u-1-0n42gi7r6oc:"
+    }
+  ]
+}

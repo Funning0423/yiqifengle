@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T000635772Z-25e7-a883fe-default",
+      "--auto-port",
+      "42009"
+    ],
+    "pid": 432,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 49,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T000635772Z-25e7-a883fe-default"
+    ],
+    "pid": 443,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 72,
+    "lines": []
+  }
+}

@@ -1,0 +1,37 @@
+could not get a list of mounted file-systems
+F 29 42.784 9.6149 2.1518 -0.591187
+F 30 43.2032 12.6568 0.0814 -0.590687
+F 31 43.6308 16.1364 0.7356 -0.590155
+F 32 43.3063 13.6703 0.5353 -0.590432
+F 33 43.2085 10.3601 1.4019 -0.59035
+INFO Draco mesh compression is available, use library at /opt/blender-4.5.14-linux-x64/4.5/scripts/addons_core/io_scene_gltf2/libextern_draco.so
+21:34:55 | INFO: Starting glTF 2.0 export
+21:34:55 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+21:34:55 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+21:34:55 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+21:34:55 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+21:34:55 | INFO: Extracting primitive: NewAnatomicalArmsHandsContinuousFace.001
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: G2_DRESS_R5G2.001
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: G2_APRON_R5G2.001
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: NewAnatomicalArmsHandsContinuousFace.002
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: G2_DRESS_R5G2.002
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: G2_APRON_R5G2.002
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: NewAnatomicalArmsHandsContinuousFace.003
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: G2_DRESS_R5G2.003
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Extracting primitive: G2_APRON_R5G2.003
+21:34:55 | INFO: Primitives created: 1
+21:34:55 | INFO: Finished glTF 2.0 export in 0.3086833953857422 s
+
+DONE
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-pass2c/export/blend/cine_m1_pass2c_wip.blend"
+
+Blender quit

@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-bracket-error/copies/QFFirstOpen-20261010T013311592Z-6170-1c8045-default",
+      "--auto-port",
+      "42012"
+    ],
+    "pid": 564,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 54,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-bracket-error/copies/QFFirstOpen-20261010T013311592Z-6170-1c8045-default"
+    ],
+    "pid": 575,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 50,
+    "lines": []
+  }
+}

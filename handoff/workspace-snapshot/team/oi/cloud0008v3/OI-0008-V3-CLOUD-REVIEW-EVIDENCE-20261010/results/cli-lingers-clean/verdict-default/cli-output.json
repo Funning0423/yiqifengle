@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-clean/copies/QFFirstOpen-20261010T000632095Z-84b6-6f80cb-default",
+      "--auto-port",
+      "42007"
+    ],
+    "pid": 346,
+    "code": null,
+    "signal": "SIGTERM",
+    "error": null,
+    "timedOut": false,
+    "terminated": true,
+    "exited": true,
+    "ms": 1661,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/cli-lingers-clean/copies/QFFirstOpen-20261010T000632095Z-84b6-6f80cb-default"
+    ],
+    "pid": 357,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 51,
+    "lines": []
+  }
+}

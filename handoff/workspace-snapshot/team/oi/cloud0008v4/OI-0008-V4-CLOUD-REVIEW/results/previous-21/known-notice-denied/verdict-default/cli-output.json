@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default",
+      "--auto-port",
+      "42017"
+    ],
+    "pid": 779,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 50,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default"
+    ],
+    "pid": 790,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 61,
+    "lines": []
+  }
+}

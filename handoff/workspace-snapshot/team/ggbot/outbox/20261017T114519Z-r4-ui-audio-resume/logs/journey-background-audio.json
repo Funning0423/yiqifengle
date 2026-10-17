@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "hideAtS": 2,
+      "hiddenS": 5,
+      "positionAtHide": [
+        2.016667,
+        0
+      ],
+      "positionOnResume": [
+        2.016667,
+        0
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 9.5,
+      "hiddenS": 1,
+      "positionAtHide": [
+        9.5,
+        0
+      ],
+      "positionOnResume": [
+        9.5,
+        0
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 19.05,
+      "hiddenS": 3,
+      "positionAtHide": [
+        19.05,
+        0.05
+      ],
+      "positionOnResume": [
+        19.05,
+        0.05
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 19.125999999999998,
+      "hiddenS": 0.5,
+      "positionAtHide": [
+        19.133333,
+        0.133333
+      ],
+      "positionOnResume": [
+        19.133333,
+        0.133333
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 30,
+      "hiddenS": 10,
+      "positionAtHide": [
+        0,
+        11.016667
+      ],
+      "positionOnResume": [
+        0,
+        11.016667
+      ],
+      "offsetMs": 0
+    }
+  ],
+  "checks": [
+    "lake loop paused (not stopped) while hidden, position kept",
+    "resumes from that position after the auto-resume (offset ≤ 50 ms; measured 0)",
+    "no double sources outside the crossfade, incl. hide mid-crossfade",
+    "full level after fade-in",
+    "muted/gated: silent, no drift",
+    "3 sfxMuted gates unchanged",
+    "tripwire: no journey cue track / timing.json on this line"
+  ],
+  "scope": "LakeAmbienceCore + fake AudioSource (Cocos 3.8 AudioSource.play resumes a paused clip); no device audio"
+}

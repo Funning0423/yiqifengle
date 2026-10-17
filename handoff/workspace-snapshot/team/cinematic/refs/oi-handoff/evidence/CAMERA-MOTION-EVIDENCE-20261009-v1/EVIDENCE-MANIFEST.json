@@ -1,0 +1,418 @@
+{
+  "id": "CAMERA-MOTION-EVIDENCE-20261009-v1",
+  "created_utc": "2026-10-09T21:22:00Z",
+  "scope": "Existing game camera/motion/contact evidence; no game, art or Mac changes; no runtime or art acceptance implied.",
+  "source_root": "/workspace/shared/grok-takeover",
+  "source_file_count": 68,
+  "files": [
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/GATE_STATUS.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/GATE_STATUS.json",
+      "bytes": 2059,
+      "sha256": "42cd592af461e2f23adfa3ebdcc5e048468bc23f5e63bb74a04c3f9f0ce9f127"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/hip_curve_contract.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/hip_curve_contract.json",
+      "bytes": 809,
+      "sha256": "794cf667e0a2fa87dc27fcf8c1d85e565f7860823aa9c224ef83faeaa0f0fa39"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/clip_ranges.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/clip_ranges.json",
+      "bytes": 2189,
+      "sha256": "06fbb7088017bd3b316b22f383bb40e1cff2fd124ced1f272ec31ba219be74a0"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_integrated_upper.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_integrated_upper.py",
+      "bytes": 6013,
+      "sha256": "d264ce91a47e83316885d08fb3ea1a7d459bd1f0596f74ab50d7e26186332f2b"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/root_foot_preservation_comparison.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/root_foot_preservation_comparison.json",
+      "bytes": 811,
+      "sha256": "84c2d9df79d8c6989d00895bac467f91a0460fb86dbc95bd8bb8b9bcc5fd6efb"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_full_lower_scene.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_full_lower_scene.py",
+      "bytes": 5303,
+      "sha256": "445931e9de11dd5386b50537273a5c1f2da03cca9ad49aaa388d6fb27fe48545"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/UPPER_GATE_SUMMARY.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/UPPER_GATE_SUMMARY.json",
+      "bytes": 1714,
+      "sha256": "565df9c6b454a9fb4cb3eadd7572319c44eedfe71265d50747f9b4bc3df538c3"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_render_plan.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_render_plan.json",
+      "bytes": 308331,
+      "sha256": "cd6b4cdfe0f86dae95898e02a6d8becb31f9a7ac871be2edc1e7dd8f7ec0bf86"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/RISE_REFERENCE_COMPATIBILITY.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/RISE_REFERENCE_COMPATIBILITY.json",
+      "bytes": 1167,
+      "sha256": "9f04ddd58b4d0192938782e808bfe8293aed03374d1731f5201c04591c1a9e54"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/REFERENCE_HASHES.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/REFERENCE_HASHES.json",
+      "bytes": 690,
+      "sha256": "05989a81af843f476efb71ed79f9f0e2d0cb8fcee43789681d943e6400c4c975"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/heel_pivot_events.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/heel_pivot_events.json",
+      "bytes": 360,
+      "sha256": "c8dd6c36e2bbf987f92cd55310bd98bf939d7757f57fe3b3be467068c0a01116"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_preservation.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_preservation.py",
+      "bytes": 4232,
+      "sha256": "074cb7e180ac45c9ed31f20e21bb7da90116e95e0fa7017cd7dd03ad132baba9"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_visibility_audit.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_visibility_audit.json",
+      "bytes": 11526024,
+      "sha256": "1ae200dadf4a51cafab8a4158061f8fba9d7250ffa8e46e44a229a3cd088a8f3"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_full_dense.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/audit_full_dense.py",
+      "bytes": 9347,
+      "sha256": "c1e85c747f4fbe7f529cf752dc30545c0a64d09d7a99587c9a94ea37268ccc60"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/independent_lower_scene_floor_120hz_gate.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/independent_lower_scene_floor_120hz_gate.json",
+      "bytes": 2196448,
+      "sha256": "30f8fa6a2acb15181d92a86243ab0825136f5ab158cc7647833d01c25791d748"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/preservation_and_action_audit.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/preservation_and_action_audit.json",
+      "bytes": 76596,
+      "sha256": "824cd3bfd1b2cc13a1a87c56cf38d2ec140b84c77df56ce79d4c8ade5c3cbcdc"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/smoothed_world_hips.npz",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/smoothed_world_hips.npz",
+      "bytes": 155955,
+      "sha256": "770fab543a93baca5e81f12d95982c4371b86569c5cf9c1886965775563b4949"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/build_full_pose_prep.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/build_full_pose_prep.py",
+      "bytes": 29187,
+      "sha256": "3b3a88dbc3a6ea53d209d6c7129c9271dc20fdfbde4fb19ba30440d5aac03a6c"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/render_internal_motion.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/render_internal_motion.py",
+      "bytes": 2913,
+      "sha256": "851b81c256ee9ed500a99c8a27cc2c6028e14272c6ed03e169d7d9c493629870"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/render_short_tempo.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/render_short_tempo.py",
+      "bytes": 1936,
+      "sha256": "87c45ae115559ff048e095d3754b98eb1357123faccfc4dfd2da9f281bc1cfde"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/floor_plant_plan.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/floor_plant_plan.json",
+      "bytes": 39508,
+      "sha256": "54f19f6aeca4d7371f1df3df1ff22f58b5b08e3727877d948920b43405e7b313"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_route_hand_wrist_head_surface_gate.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_route_hand_wrist_head_surface_gate.json",
+      "bytes": 7593475,
+      "sha256": "b466ae933928d82ddbfb1aee1ef9ec4c49b84793b857d39dd561a53528c31d1b"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/foot_support_plan.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/foot_support_plan.json",
+      "bytes": 91835,
+      "sha256": "90f4196637f9eda7a353cbc0e1526daa438580166b0275387b306c371046b67e"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/assembly_contract.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/assembly_contract.json",
+      "bytes": 1355,
+      "sha256": "b4ddf85c092101ca3bb3b098ce6c5116adab0b59713d303a120af3face8725a9"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/root_reference_curve.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/root_reference_curve.json",
+      "bytes": 425427,
+      "sha256": "1ce712dd0c54ee5a79a12f50942d0be08aded4cc17cbf437faad9e6e68eaaeea"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/pose_matrices.npz",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/pose_matrices.npz",
+      "bytes": 1725846,
+      "sha256": "59adebb2a20a50c12709084874982202cc52554ea87d71be0542d42c9449d97a"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/independent_release_hand_gate.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/independent_release_hand_gate.json",
+      "bytes": 443469,
+      "sha256": "ef1ea91841b5adb0aa20879f7adc6555d30e0d1656d09b92f48400f1ec3dd028"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/dense_120hz_lower_body_audit.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/dense_120hz_lower_body_audit.json",
+      "bytes": 10852544,
+      "sha256": "a879663088e80bcdc35ecd04dcfa08bcfb780e03550e2770f9c506f182a4e3c3"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/door_components.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/door_components.json",
+      "bytes": 12609,
+      "sha256": "66876ad2edecfdc0f16ebbca7095fdd3a1c45606f05673346e1e3eb709720280"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/pose_metrics.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/pose_metrics.json",
+      "bytes": 2393060,
+      "sha256": "a10900d27c2fdc61240fc2a802317883324aee052c478331f02810887799ff36"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/README_DELIVERABLE.txt",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/README_DELIVERABLE.txt",
+      "bytes": 4404,
+      "sha256": "424784b3f775cab7b15070dceb507c5abed6979cf0b4a0eb275e6e9c634ba7d2"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/screen_smoothed_hips.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/screen_smoothed_hips.py",
+      "bytes": 2470,
+      "sha256": "bb4c5f35d8c093ba7ae9784b4e9301662db90200e284fe808cbe23e2547e155a"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/screen_natural_turn_hips.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/screen_natural_turn_hips.py",
+      "bytes": 2374,
+      "sha256": "221041f58d79a5f8bf4d4a9f0fc98e2f35ac2e37259cf69725f251da043027cd"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/sole_support_fit.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/sole_support_fit.py",
+      "bytes": 2359,
+      "sha256": "57cc19bc43fca512eabe1c538be697d37370076aab10fbd9847120b4b91460f1"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/actual_scene_support.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/frozen_helpers/actual_scene_support.py",
+      "bytes": 2816,
+      "sha256": "0411eb3953730bc9023ad36b051897ce0d0982ceb8954eac360513b44d60ef43"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/INTERNAL_FULL_CHAIN_R24_REAL_30FPS.mp4",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/INTERNAL_FULL_CHAIN_R24_REAL_30FPS.mp4",
+      "bytes": 2898367,
+      "sha256": "0059803843f6a21471c67629b19b946ba7ca2e1556aa48c3aa677955be420d89"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/VIDEO_VALIDATION.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/VIDEO_VALIDATION.json",
+      "bytes": 601,
+      "sha256": "57c5eaabfc6b1ea710f699b64d6f5b3c7e07cfdff979e7232fbb51c109ed3db1"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/render_manifest.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/render_manifest.json",
+      "bytes": 146582,
+      "sha256": "609e8355a111923d0a85e35f1814e063c905d528cdd532e93a65bb75ee39cef8"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/video_check_4s.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/video_check_4s.png",
+      "bytes": 219744,
+      "sha256": "c60d8b6a8e0a48b411dbbac9c6c28ecfb4c76ae40ef0147c7f6c1c776256c307"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/video_check_20s.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/full_motion_preview/video_check_20s.png",
+      "bytes": 150446,
+      "sha256": "859883e4bbe398045703388f861a4b36ae5e1ccc6690e56e21e1ebefb442d795"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_keyframes/FULL_CHAIN_CAMERA_SHEET_R24.jpg",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_keyframes/FULL_CHAIN_CAMERA_SHEET_R24.jpg",
+      "bytes": 609874,
+      "sha256": "1040cbc399a726ff8b4c5a0005213189f759b5db88759ab997decd20d6d694ce"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_keyframes/review_manifest.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_keyframes/review_manifest.json",
+      "bytes": 6850,
+      "sha256": "473d48bb639c4f2a2bb96ec25d5f097b90492907e10f2e76c223f07bf3bb5605"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_keyframes/render_manifest.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/camera_keyframes/render_manifest.json",
+      "bytes": 4028,
+      "sha256": "79ed3cdf885ce0fd508437fcb01966dcd4958ae1b6a76929a4514729d041ce93"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/tempo_short_30fps/close_original_speed_30fps.mp4",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/tempo_short_30fps/close_original_speed_30fps.mp4",
+      "bytes": 60944,
+      "sha256": "327dfcb0f7361e0b4bd5e9e5b4f31c510e8c0e61bf1e5c327d23e505cd86d5c3"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/tempo_short_30fps/pivot_original_speed_30fps.mp4",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/tempo_short_30fps/pivot_original_speed_30fps.mp4",
+      "bytes": 57295,
+      "sha256": "050927d646956fe177e50213bf5c5ad2323138bd67d3d1f07d12dfe414478050"
+    },
+    {
+      "package_path": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/tempo_short_30fps/manifest.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/tempo_short_30fps/manifest.json",
+      "bytes": 802,
+      "sha256": "02a795668b375ebb643ff0375bac88f4144a7e2a953bb58d045dfc32c4ca288c"
+    },
+    {
+      "package_path": "character/actual_motion_branch/camera_review_gate/audit_shot_plan_v10.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/camera_review_gate/audit_shot_plan_v10.py",
+      "bytes": 5277,
+      "sha256": "58161ebffecde2d9206f77ff3a55ca3dd66b8d1432872e7c10fffacc2794ca54"
+    },
+    {
+      "package_path": "character/actual_motion_branch/camera_review_gate/fit_cameras.py",
+      "local_source_path": "/workspace/shared/grok-takeover/character/actual_motion_branch/camera_review_gate/fit_cameras.py",
+      "bytes": 5991,
+      "sha256": "9e1564d7b68cec9c5a10cb704a387f64ac834b84d1dfb18c1ded4623184cbc18"
+    },
+    {
+      "package_path": "character/ACTUAL_SCENE_AXES_AND_SCALE.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/ACTUAL_SCENE_AXES_AND_SCALE.json",
+      "bytes": 2865,
+      "sha256": "8bcfb307200b74e2f0776c80099dc8de95015f419f3b93287f4233035539cd23"
+    },
+    {
+      "package_path": "character/VERTICAL_SLENDER_STAGE_R5/DISPLAY_MANIFEST.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/VERTICAL_SLENDER_STAGE_R5/DISPLAY_MANIFEST.json",
+      "bytes": 287,
+      "sha256": "e23fe3f93a88d6c78e181a237fe0ea9f69e5840b06aaa7b4e828531ba6e40635"
+    },
+    {
+      "package_path": "character/VERTICAL_SLENDER_STAGE_R5/full_front.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/VERTICAL_SLENDER_STAGE_R5/full_front.png",
+      "bytes": 524845,
+      "sha256": "e213b01cde3a1af45ef2479dbc8a286acb2353b5ac3e73a98892e5afb5988093"
+    },
+    {
+      "package_path": "character/VERTICAL_SLENDER_STAGE_R5/full_threequarter.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/VERTICAL_SLENDER_STAGE_R5/full_threequarter.png",
+      "bytes": 523872,
+      "sha256": "c59a1b8e946f3aca95e58fb28cf7fba556bf86599b9388da0811a15b5b44886c"
+    },
+    {
+      "package_path": "character/VERTICAL_SLENDER_STAGE_R5/arm_side.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/VERTICAL_SLENDER_STAGE_R5/arm_side.png",
+      "bytes": 567118,
+      "sha256": "4ee698d9c7b60fd6d55a4f48229417fc3b1528ce7c9262b6097b07d678a6b634"
+    },
+    {
+      "package_path": "character/VERTICAL_SLENDER_POSE_BINDING_R3_AXIAL/README.md",
+      "local_source_path": "/workspace/shared/grok-takeover/character/VERTICAL_SLENDER_POSE_BINDING_R3_AXIAL/README.md",
+      "bytes": 1518,
+      "sha256": "6fea2996f88e29adfbe6279a920ee3b060fc41eb2fa5911bf0b3c1e0c1b51318"
+    },
+    {
+      "package_path": "character/VERTICAL_SLENDER_POSE_BINDING_R3_AXIAL/FUNCTIONAL_POSE_PROBE.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/VERTICAL_SLENDER_POSE_BINDING_R3_AXIAL/FUNCTIONAL_POSE_PROBE.json",
+      "bytes": 859223,
+      "sha256": "8d2dd6372a248e9d6703dd73eb024cd0a486ed4a3adc06f7d7027a9306098c4b"
+    },
+    {
+      "package_path": "character/physical_cloth_trial/actual_seated_rise_R1/CURRENT_ACTUAL_CLOTH_STATUS.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/physical_cloth_trial/actual_seated_rise_R1/CURRENT_ACTUAL_CLOTH_STATUS.json",
+      "bytes": 3016,
+      "sha256": "8efa410b1d9e56f1062dbb4a888b5cb972a56018e37fcd0f89ac9cdc358bdca1"
+    },
+    {
+      "package_path": "character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/STOP81_DIAGNOSIS_SUMMARY.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/STOP81_DIAGNOSIS_SUMMARY.json",
+      "bytes": 2948,
+      "sha256": "eff367ab7ae75a6c5c35b08bfce19590c82c12cf7a5d571168bb6145699ab43e"
+    },
+    {
+      "package_path": "character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/same_camera_color_0080.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/same_camera_color_0080.png",
+      "bytes": 423821,
+      "sha256": "fd9b036eb69d3acf932d348701d0fc5bbbb5bcbc6a952f3ae1775bba9363ef74"
+    },
+    {
+      "package_path": "character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/same_camera_color_0081.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/same_camera_color_0081.png",
+      "bytes": 424238,
+      "sha256": "3eaadd6c86be43da2810ccdb9a235d26cae493bfe88012f47b5f99a3b75fc6e4"
+    },
+    {
+      "package_path": "character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/local_apron_gray_0081.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/physical_cloth_trial/actual_seated_rise_R1/native_air50_midsurface_trial05/local_apron_gray_0081.png",
+      "bytes": 456144,
+      "sha256": "6fc8a13877368d5bda1a16f016358483dabec7becd0a18029cdd05e6a6d6b544"
+    },
+    {
+      "package_path": "character/physical_cloth_trial/actual_seated_rise_R1/native_apron_angular_damping_trial06/SINGLE_ANGULAR_CONTROL_RESULT.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/physical_cloth_trial/actual_seated_rise_R1/native_apron_angular_damping_trial06/SINGLE_ANGULAR_CONTROL_RESULT.json",
+      "bytes": 4832,
+      "sha256": "f378809a0b321c2a6568f9b4b323e08be23706793d9323378f8631c382a43b28"
+    },
+    {
+      "package_path": "character/physical_cloth_trial/actual_seated_rise_R1/native_apron_angular_damping_trial06/same_camera_color_0084.png",
+      "local_source_path": "/workspace/shared/grok-takeover/character/physical_cloth_trial/actual_seated_rise_R1/native_apron_angular_damping_trial06/same_camera_color_0084.png",
+      "bytes": 424744,
+      "sha256": "a936a5920c8252c7de606ee886c13e9bc56654a130765d8c11210abd073b8b85"
+    },
+    {
+      "package_path": "character/GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/combined_anchors_m.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/combined_anchors_m.json",
+      "bytes": 41907,
+      "sha256": "e3b2684e6e7009ced805d2925b5cedef52cbd4213d3c46e7a41fa788467275cb"
+    },
+    {
+      "package_path": "character/GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/interior_anchors_m.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/interior_anchors_m.json",
+      "bytes": 40350,
+      "sha256": "07def237477d641d38831444385c47f7f6f7dc2cea87df4620a9c93cfdde254e"
+    },
+    {
+      "package_path": "character/GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/README.md",
+      "local_source_path": "/workspace/shared/grok-takeover/character/GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/README.md",
+      "bytes": 5589,
+      "sha256": "18f36b87ec7b1e2738d35e86b50d4f4d795a67c6c860cc0366665c4040fc056e"
+    },
+    {
+      "package_path": "character/GROK_ART_SAFE_HANDOFF_20261009_R5/START_HERE_GROK_美术交接.md",
+      "local_source_path": "/workspace/shared/grok-takeover/character/GROK_ART_SAFE_HANDOFF_20261009_R5/START_HERE_GROK_美术交接.md",
+      "bytes": 7218,
+      "sha256": "47fddf57a45aa187270932761318c021542fdd432c0f33081f26c3b1de543c13"
+    },
+    {
+      "package_path": "character/GROK_ART_SAFE_HANDOFF_20261009_R5/verification/VERTICAL_SLENDER_STAGE_R5_independent_static_gate.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/GROK_ART_SAFE_HANDOFF_20261009_R5/verification/VERTICAL_SLENDER_STAGE_R5_independent_static_gate.json",
+      "bytes": 815,
+      "sha256": "691fdb3a0e581996d103c751c46d242ad0e7e3fe30ce7afbb37b05e07cd60600"
+    },
+    {
+      "package_path": "character/GROK_ART_SAFE_HANDOFF_20261009_R5/verification/VERTICAL_SLENDER_STAGE_R5_independent_cold_world.json",
+      "local_source_path": "/workspace/shared/grok-takeover/character/GROK_ART_SAFE_HANDOFF_20261009_R5/verification/VERTICAL_SLENDER_STAGE_R5_independent_cold_world.json",
+      "bytes": 2050,
+      "sha256": "2c7a0a9bf767744c0b218996e6f25b8dccf74897afaeaebfc9f6399c0a4f59b0"
+    }
+  ],
+  "delivery_note": "Original R24 Blend is in existing MOTION-SCENE-REFERENCES Drive ZIP. These supplementary files must not replace current Cocos assets. Copied authoring scripts may retain historical absolute paths; audit before running. No unverified claim that this is a standalone full rebuild."
+}

@@ -1,0 +1,8 @@
+WITHDRAWN: 20261010T0157Z-grokbot2-E4-MATERIALS-v1.3.3.zip (SHA256 714ef7bc2af26dfa112d84fd0a4bc0954bcce51d9a594790b9a7c0af1ba36458)
+
+Superseded by 20261010T0207Z-grokbot2-E4-MATERIALS-v1.3.3.zip (E4 v1.3.3 final, same version number).
+Reason: in the 0157Z package the meadow night sky is black until the night texture has loaded.
+The final package shows a two-colour gradient measured from the v0.1a night PNG and crossfades to the texture over 0.3 s.
+Diff 0157Z -> final: tools/patches/0010-E4-v1.3.3-0157Z-to-final.diff inside the final zip.
+The renamed .zip.sha256 still names the original file; the hash of the bytes is unchanged.
+GGbot (grokbot2), 2026-10-09 21:07 CDT

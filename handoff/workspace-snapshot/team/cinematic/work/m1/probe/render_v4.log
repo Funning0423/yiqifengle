@@ -1,0 +1,24 @@
+could not get a list of mounted file-systems
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1/scene/cine_m1_anim.blend"
+Saved: 'probe/renders_v4/A_seated_cine_open_stand_f000_right.png'
+Time: 00:01.93 (Saving: 00:00.04)
+
+Saved: 'probe/renders_v4/A_seated_cine_open_stand_f000_front34.png'
+Time: 00:01.61 (Saving: 00:00.02)
+
+Saved: 'probe/renders_v4/A_seated_cine_open_stand_f000_back34.png'
+Time: 00:01.51 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v4/A_seated_cine_open_stand_f000_closeup.png'
+Time: 00:01.53 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v4/B_leaving_slide_cine_open_stand_f030_right.png'
+Time: 00:01.77 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v4/B_leaving_slide_cine_open_stand_f030_front34.png'
+Time: 00:01.80 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v4/B_leaving_slide_cine_open_stand_f030_back34.png'
+Time: 00:01.48 (Saving: 00:00.02)
+

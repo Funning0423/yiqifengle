@@ -1,0 +1,6 @@
+08-09 overhead (ray up from head, 0.5 m step, meadow+sky meshes): samples with geometry <8 m above head: 0; min overhead none (open sky everywhere)
+city world bbox x-389.1..704.7 z-88.6..690.3 y-146.2..72.2
+windmill_sails bbox x-7.5..4.9 z79.4..79.6 y6.3..18.7
+windmill_static_merged bbox x-8.7..2.0 z78.3..85.8 y5.3..17.6
+city solid (palette/strata/ruins/foliage) world bbox x10.6..103.3 z35.5..156.6 y-43.3..59.1
+windmill bbox ∩ city solid bboxes: none

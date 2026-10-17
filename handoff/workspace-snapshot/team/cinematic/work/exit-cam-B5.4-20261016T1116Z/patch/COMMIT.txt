@@ -1,0 +1,1 @@
+10009b7891b49239b47c78e2ad627d1ae3d2e75c 80665ee03c1bd9591755cdffd876bf4fe97511f6 exit-cam B5.4: end on island HOME pose v24-readable (-12,15.5,48)->(1,.5,1) fov42; follow side 2.0/sideIn 3.6, straight-line offset blend, trapezoid ease (in .3/out .25), heightShare .52, settle 32 -> 40.68 s, peak 1.99 m/s; craneDown lead 1.6 for return from home pose

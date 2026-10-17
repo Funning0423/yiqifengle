@@ -1,0 +1,499 @@
+From 228df2fee791ea14b6da683c8362a69d603d801a Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 15:28:45 +0800
+Subject: [PATCH 20/20] build05-next r2: day/night toggle inside lakeside
+ applies lakeside's own day/night look (fixes the reset to the island light)
+
+Bug: toggling day/night after arriving at the lakeside put the island main light back (WorldFlowComponent.applyDayNight
+wrote it and nothing re-applied the lakeside look).
+- DayNightContract: onDayNightChange/emitDayNightChange; applyDayNight emits after writing the island light and rig views;
+  __worldDayNight.reapply() re-writes the island look for the current mode without locking the override.
+- LakesideSceneData: LAKESIDE_NIGHT_LIGHT_PARAMS (moonlight same direction, cool ambient, #1c2740 clear, dark blue fog;
+  water main 0.8 / ambient 0.6 / sky 0.12; proxy values) + lakesideModeLighting(mode) (day = unchanged r5h3 dusk).
+- LakesideJourneyAtmosphere: targets per mode; island base per mode (day base x island scale, island light colour);
+  journey day-base registry; board-holding flag; journey reapply hook.
+- New region/LakesideJourneyLighting.ts (moved out of RegionJourneyAdapter): every write uses the current mode; a toggle
+  after the blend started re-writes at once, before the blend the island owns the light; while the board shows it stands
+  down; restore puts back the capture and, if the mode changed, asks the world to re-write the island look.
+- LakesideBoardBackground: applyDir/applyFog per mode incl. board clear colour and water lightParams/fresnel sky strength;
+  re-applied on toggle while visible; restore -> journey re-applies (lakeside stop) or the world re-writes (island).
+Test: tools/lakeside/test_lakeside_daynight.cjs (suite: lakeside-daynight) - real TS on a fake cc/world: toggle in lakeside
+day->night->day, mid-blend toggle, pre-blend toggle stays island, leave in night -> island night, leave then toggle on the
+island, board holding/hide; journey-atmosphere test follows the move.
+---
+ .../scripts/region/LakesideBoardBackground.ts | 34 ++++++---
+ .../region/LakesideJourneyAtmosphere.ts       | 44 ++++++++---
+ .../scripts/region/LakesideJourneyLighting.ts | 44 +++++++++++
+ .../region/LakesideJourneyLighting.ts.meta    |  9 +++
+ .../scripts/region/LakesideSceneData.ts       | 25 +++++++
+ .../scripts/region/RegionJourneyAdapter.ts    | 37 +--------
+ .../scripts/world-r1/DayNightContract.ts      |  6 ++
+ .../scripts/world-r1/WorldFlowComponent.ts    |  5 +-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_daynight.cjs     | 75 +++++++++++++++++++
+ .../test_lakeside_journey_atmosphere.cjs      |  6 +-
+ 11 files changed, 224 insertions(+), 62 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_daynight.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 4c4bf4f..b3c14ab 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -5,8 +5,9 @@ import {applyCameraPose} from '../world-r1/CameraPose';
+ import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+ import type {Cancellation} from '../world-r1/WorldFlowCore';
+-import {lakesideJourneyBaseIllum} from './LakesideJourneyAtmosphere';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
++import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
++import {onDayNightChange} from '../world-r1/DayNightContract';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+@@ -129,30 +130,39 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+  const held:Array<{decRef():unknown}>=[];
+  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
+   *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
+- let saved:{light:DirectionalLight;rot:Quat;color:Color;illum:number;vis:number;sky:Color;ground:Color;skyIllum:number}|null=null;
++ let saved:{light:DirectionalLight;rot:Quat;color:Color;illum:number;vis:number;sky:Color;ground:Color;skyIllum:number;mode:LakesideDayNight}|null=null,waterMat:Material|null=null;
+  const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
+  const applyDir=()=>{if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
+-  if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum};
+-  const P=LAKESIDE_DIR_LIGHT_PARAMS,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(P.sunColorLinear),sk=linearToSrgb8(P.ambientSkyColorLinear),gr=linearToSrgb8(P.ambientGroundColorLinear);
+-  l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);const bi=lakesideJourneyBaseIllum()??saved.illum/* build05-next: after the lakeside journey the light is already blended; scale from the island base */;l.illuminance=bi*P.sunIlluminanceScale;
++  const mode=lakesideDayNightMode();if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum,mode};
++  setLakesideBoardHolding(true);/* r2: the board owns the lakeside lighting while it shows (journey listener stands down) */
++  const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(M.sunColorLinear),sk=linearToSrgb8(M.ambientSkyColorLinear),gr=linearToSrgb8(M.ambientGroundColorLinear);
++  l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);const bi=(lakesideJourneyBaseIllum()??saved.illum/lakesideIslandLightScale(saved.mode))*lakesideIslandLightScale(mode)/* island main light for the current mode: day base (journey capture, else this capture) x island scale; no double scale after the blend */;l.illuminance=bi*M.sunIlluminanceScale;
+   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
+-  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*P.ambientSkyIllumToSun;applyFog();};
++  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
++  if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
++  if(waterMat){waterMat.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));waterMat.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
++  applyFog();};
+  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
+  let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
+  const fogMode=lakesideFogModeFromEnv();/* read once per lakeside load */
+  const applyFog=()=>{const P=LAKESIDE_DIR_LIGHT_PARAMS,fog=(director.getScene() as any)?.globals?.fog;if(!P.fogEnabled||!fog)return;
+   if(!savedFog)savedFog={enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd,top:fog.fogTop,range:fog.fogRange,atten:fog.fogAtten};
+   if(fogMode==='off'){fog.enabled=false;return;}
+-  const c=P.fogColorSrgb;fog.fogColor=new Color(c[0],c[1],c[2],255);
++  const c=lakesideModeLighting(lakesideDayNightMode()).fogColorSrgb;fog.fogColor=new Color(c[0],c[1],c[2],255);
+   if(fogMode==='layered'){const L=LAKESIDE_LAYERED_FOG;fog.type=3/* FogType.LAYERED (3.8.8 render-scene/scene/fog.ts: LINEAR 0, EXP 1, EXP_SQUARED 2, LAYERED 3) */;fog.fogTop=L.fogTop;fog.fogRange=L.fogRange;fog.fogAtten=L.fogAtten;}
+   else{fog.type=0/* FogType.LINEAR */;fog.fogStart=P.fogStart;fog.fogEnd=lakesideFogEnd(P);}
+   fog.enabled=true;};
+  const restoreFog=()=>{const f0=savedFog;savedFog=null;const fog=(director.getScene() as any)?.globals?.fog;if(!f0||!fog)return;
+   fog.type=f0.type;fog.fogColor=f0.color;fog.fogStart=f0.start;fog.fogEnd=f0.end;fog.fogTop=f0.top;fog.fogRange=f0.range;fog.fogAtten=f0.atten;fog.enabled=f0.enabled;};
+- const restoreDir=()=>{restoreFog();const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
++ const restoreDir=()=>{restoreFog();setLakesideBoardHolding(false);const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
+   s0.light.node.setRotation(s0.rot);s0.light.color=s0.color;s0.light.illuminance=s0.illum;if(typeof s0.vis==='number')(s0.light as any).visibility=s0.vis;
+-  if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}};
+- const dispose=()=>{if(dead)return;restoreDir();dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
++  if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}
++  // r2: what was saved may be the other mode's look. Back at the lakeside stop the journey re-applies its look for the current
++  // mode; with no journey (island) and a toggle since, the island re-writes its own look (no override lock).
++  try{if(!reapplyLakesideJourney()&&s0.mode!==lakesideDayNightMode())(globalThis as any).__worldDayNight?.reapply?.();}catch{}};
++ /** r2: day/night toggle while the board shows -> the lakeside look for the new mode (the world has just written the island's). */
++ const offDayNight=onDayNightChange(()=>{if(visible&&!dead)applyDir();});
++ const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+@@ -170,7 +180,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    * load, v2 fallback: tint the lease's instanced palette copy. Assets untouched; copies destroyed with the lease. */
+    const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
+    let water:Material|null=null;
+-   if(waterAsset){water=new Material();water.copy(waterAsset);const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
++   if(waterAsset){water=new Material();water.copy(waterAsset);waterMat=water;const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
+     water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
+     water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
+     water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+index 9b9db74..8dd22f6 100644
+--- a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+@@ -1,4 +1,5 @@
+-import {LAKESIDE_CLEAR_COLOR,LAKESIDE_DIR_LIGHT_PARAMS,LAKESIDE_LAYERED_FOG,LAKESIDE_LIGHT_MODE,lakesideFogEnd,linearToSrgb8,type LakesideFogMode} from './LakesideSceneData';
++import {LAKESIDE_DIR_LIGHT_PARAMS,LAKESIDE_LAYERED_FOG,LAKESIDE_LIGHT_MODE,lakesideFogEnd,lakesideModeLighting,linearToSrgb8,type LakesideDayNight,type LakesideFogMode} from './LakesideSceneData';
++import {resolveDayNight} from '../world-r1/DayNightContract';
+ /** build05-next (lead, 03:00): the island→lakeside journey's final stretch takes the lakeside board lighting (v3.2: main
+  *  directional light direction/colour/illuminance, ambient sky/ground/illum, clear colour, layered fog), so the landing frame
+  *  matches the board. One smootherstep weight over the last part of the route (mid-bridge → 1 m before her stop): no pop.
+@@ -29,24 +30,45 @@ export function hexRgb(hex:string):Rgb{const h=String(hex).replace('#','');retur
+ const mix=(a:Rgb,b:Rgb,w:number):Rgb=>[Math.round(a[0]+(b[0]-a[0])*w),Math.round(a[1]+(b[1]-a[1])*w),Math.round(a[2]+(b[2]-a[2])*w)];
+ /** True when the board uses the directional-light look (the journey then blends toward it; otherwise nothing is touched). */
+ export const LAKESIDE_JOURNEY_ATMOSPHERE_ON=LAKESIDE_LIGHT_MODE==='dir';
+-/** The board's targets for a base (LakesideBoardBackground.applyDir: illum × sunIlluminanceScale, skyIllum = illum × ambientSkyIllumToSun). */
+-export function lakesideAtmosphereTarget(base:LakesideAtmosphereBase):LakesideAtmosphereBase{
+- const P=LAKESIDE_DIR_LIGHT_PARAMS;
+- return {illum:base.illum*P.sunIlluminanceScale,color:linearToSrgb8(P.sunColorLinear),sky:linearToSrgb8(P.ambientSkyColorLinear),ground:linearToSrgb8(P.ambientGroundColorLinear),skyIllum:base.illum*P.ambientSkyIllumToSun,clear:hexRgb(LAKESIDE_CLEAR_COLOR)};
++/** The board's targets for a base = the island values in the SAME day/night mode (LakesideBoardBackground.applyDir: illum ×
++ *  sunIlluminanceScale, skyIllum = illum × ambientSkyIllumToSun; colours, clear and fog colour from lakesideModeLighting(mode)). */
++export function lakesideAtmosphereTarget(base:LakesideAtmosphereBase,mode:LakesideDayNight='day'):LakesideAtmosphereBase{
++ const M=lakesideModeLighting(mode);
++ return {illum:base.illum*M.sunIlluminanceScale,color:linearToSrgb8(M.sunColorLinear),sky:linearToSrgb8(M.ambientSkyColorLinear),ground:linearToSrgb8(M.ambientGroundColorLinear),skyIllum:base.illum*M.ambientSkyIllumToSun,clear:hexRgb(M.clearColor)};
++}
++/** build05-next r2: current world day/night mode (the island's __worldDayNight; day when absent). */
++export function lakesideDayNightMode():LakesideDayNight{try{return (globalThis as any).__worldDayNight?.snapshot?.()?.mode==='night'?'night':'day';}catch{return 'day';}}
++/** Island main-light scale for a mode (DayNightContract: night 0.35). */
++export function lakesideIslandLightScale(mode:LakesideDayNight):number{return resolveDayNight(mode,true).lightScale;}
++/** Island values for `mode` from a capture taken in `capturedMode`: main light = day base × the mode's island scale and the
++ *  island's light colour for that mode (WorldFlowComponent.applyDayNight writes exactly these); ambient/clear do not change with
++ *  the island mode (applyDayNight does not write them). */
++export function lakesideIslandBaseFor(captured:LakesideAtmosphereBase,capturedMode:LakesideDayNight,mode:LakesideDayNight):LakesideAtmosphereBase{
++ if(mode===capturedMode)return captured;const day=captured.illum/lakesideIslandLightScale(capturedMode),c=resolveDayNight(mode,true).lightColor;
++ return {...captured,illum:day*lakesideIslandLightScale(mode),color:[c[0],c[1],c[2]]};
+ }
+ /** Scene values at weight w. Fog (same mode switch as the board, ?lakefog): layered = the board's slab with fogRange/w
+  *  (density ∝ w, so it grows from nothing; type/enable never change during the blend, no shader-variant switch mid-walk);
+  *  (waterY: world height of the lakeside root, the slab is authored relative to the lake; the board rig sits at 0);
+  *  linear60 = the board's start/end pushed out by (1-w)·linearFogPushM; off = fog untouched (null). */
+-export function lakesideAtmosphereAt(base:LakesideAtmosphereBase,weight:number,fogMode:LakesideFogMode,waterY:number=0):LakesideAtmosphereFrame{
+- const w=Math.max(0,Math.min(1,Number.isFinite(weight)?weight:0)),t=lakesideAtmosphereTarget(base),P=LAKESIDE_DIR_LIGHT_PARAMS,L=LAKESIDE_LAYERED_FOG,A=LAKESIDE_JOURNEY_ATMOSPHERE;
++export function lakesideAtmosphereAt(base:LakesideAtmosphereBase,weight:number,fogMode:LakesideFogMode,waterY:number=0,mode:LakesideDayNight='day'):LakesideAtmosphereFrame{
++ const w=Math.max(0,Math.min(1,Number.isFinite(weight)?weight:0)),t=lakesideAtmosphereTarget(base,mode),M=lakesideModeLighting(mode),P=LAKESIDE_DIR_LIGHT_PARAMS,L=LAKESIDE_LAYERED_FOG,A=LAKESIDE_JOURNEY_ATMOSPHERE;
+  const fog:LakesideAtmosphereFog|null=!P.fogEnabled||fogMode==='off'?null:fogMode==='layered'
+-  ?{type:3,color:P.fogColorSrgb,top:L.fogTop+waterY,range:L.fogRange/Math.max(A.minFogWeight,w),atten:L.fogAtten,start:P.fogStart,end:lakesideFogEnd(P)}
+-  :{type:0,color:P.fogColorSrgb,top:L.fogTop,range:L.fogRange,atten:L.fogAtten,start:P.fogStart+(1-w)*A.linearFogPushM,end:lakesideFogEnd(P)+(1-w)*A.linearFogPushM};
++  ?{type:3,color:M.fogColorSrgb,top:L.fogTop+waterY,range:L.fogRange/Math.max(A.minFogWeight,w),atten:L.fogAtten,start:P.fogStart,end:lakesideFogEnd(P)}
++  :{type:0,color:M.fogColorSrgb,top:L.fogTop,range:L.fogRange,atten:L.fogAtten,start:P.fogStart+(1-w)*A.linearFogPushM,end:lakesideFogEnd(P)+(1-w)*A.linearFogPushM};
+  return {weight:w,illum:base.illum+(t.illum-base.illum)*w,color:mix(base.color,t.color,w),sky:mix(base.sky,t.sky,w),ground:mix(base.ground,t.ground,w),skyIllum:base.skyIllum+(t.skyIllum-base.skyIllum)*w,clear:mix(base.clear,t.clear,w),fog};
+ }
+-/** While a journey holds the lighting, the island main-light illuminance it captured. The board lease scales from this
+- *  base instead of the (already blended) current value, so the board lands on the same numbers (no double scale). */
++/** While a journey holds the lighting, the island main-light illuminance it captured, as the DAY base (illum / island scale of
++ *  the capture mode). The board scales from base × the current mode's island scale instead of the (already blended) current
++ *  value, so the board lands on the same numbers (no double scale) in both modes. */
+ let journeyBaseIllum:number|null=null;
+ export function setLakesideJourneyBaseIllum(v:number|null){journeyBaseIllum=typeof v==='number'&&Number.isFinite(v)?v:null;}
+ export function lakesideJourneyBaseIllum():number|null{return journeyBaseIllum;}
++/** build05-next r2: while the board shows it owns the lighting (its fog slab, its water); the journey's day/night listener
++ *  stands down, and when the board hides the journey re-applies its own look for the current mode. */
++let boardHolding=false,journeyReapply:(()=>void)|null=null;
++export function setLakesideBoardHolding(v:boolean){boardHolding=!!v;}
++export function lakesideBoardHolding():boolean{return boardHolding;}
++export function setLakesideJourneyReapply(fn:(()=>void)|null){journeyReapply=fn;}
++/** true when a journey took over (it re-applied); false when no journey holds the lighting. */
++export function reapplyLakesideJourney():boolean{const f=journeyReapply;if(!f)return false;try{f();}catch{}return true;}
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts b/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts
+new file mode 100644
+index 0000000..d48f853
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts
+@@ -0,0 +1,44 @@
++import {Camera,Color,DirectionalLight,Quat,Vec3,director,isValid} from 'cc';
++import {LAKESIDE_DIR_LIGHT_PARAMS,lakesideFogModeFromEnv,type LakesideDayNight} from './LakesideSceneData';
++import {onDayNightChange} from '../world-r1/DayNightContract';
++import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideBoardHolding,lakesideDayNightMode,lakesideIslandBaseFor,lakesideIslandLightScale,setLakesideJourneyBaseIllum,setLakesideJourneyReapply,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
++/** build05-next: island→lakeside journey lighting (LakesideJourneyAtmosphere). prime() runs when the journey scenes are
++ *  shown (under the set-off fade's full black): it captures the island values and switches the fog to the board's mode at
++ *  ~zero density, so the CC_USE_FOG shader-variant change happens under black (and the board entry later needs no switch).
++ *  apply(w) writes the blended values every walked frame; restore() puts back exactly what it captured (dispose / 主页).
++ *  r2 (lead): day/night. Every write uses the CURRENT mode: the island base for that mode (lakesideIslandBaseFor) and the
++ *  lakeside look for that mode (lakesideModeLighting). A toggle once the blend has started (w > 0) re-writes at once (the
++ *  world's own applyDayNight has just put the island light back); before the blend the island owns the light. While the board
++ *  shows, the board owns it (its fog slab/water) and calls reapply() when it hides. On restore, if the mode changed since the
++ *  capture, the island look is re-written for the current mode (__worldDayNight.reapply, no override lock). */
++export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number){
++ type Saved={light:DirectionalLight|null;rot:Quat|null;wrot:Quat|null;color:Color|null;illum:number;sky:Color|null;ground:Color|null;skyIllum:number;clear:Color|null;
++  fog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null;base:LakesideAtmosphereBase;mode:LakesideDayNight};
++ let saved:Saved|null=null,lastW=0,offDayNight:(()=>void)|null=null;const fogMode=lakesideFogModeFromEnv(),target=new Quat(),q=new Quat();
++ const rgb=(c:Color|null|undefined,f:Rgb):Rgb=>c?[c.r,c.g,c.b]:f,col=(c:Rgb)=>new Color(c[0],c[1],c[2],255);
++ const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
++ const write=(w:number)=>{const s=saved;if(!s)return;lastW=w;const mode=lakesideDayNightMode(),base=lakesideIslandBaseFor(s.base,s.mode,mode);
++  const f=lakesideAtmosphereAt(base,w,fogMode,waterY(),mode),g=(director.getScene() as any)?.globals;
++  if(s.light&&isValid(s.light,true)&&s.wrot){const v=LAKESIDE_DIR_LIGHT_PARAMS.sunForward;Quat.fromViewUp(target,new Vec3(-v[0],-v[1],-v[2]).normalize(),Vec3.UP);Quat.slerp(q,s.wrot,target,f.weight);s.light.node.setWorldRotation(q);
++   s.light.color=col(f.color);s.light.illuminance=f.illum;}
++  const amb=g?.ambient;if(amb){amb.skyLightingColor=col(f.sky);amb.groundLightingColor=col(f.ground);amb.skyIllum=f.skyIllum;}
++  if(camera&&isValid(camera,true))camera.clearColor=col(f.clear);
++  const fog=g?.fog;if(fog&&f.fog){if(fog.type!==f.fog.type)fog.type=f.fog.type;fog.fogColor=col(f.fog.color);fog.fogTop=f.fog.top;fog.fogRange=f.fog.range;fog.fogAtten=f.fog.atten;fog.fogStart=f.fog.start;fog.fogEnd=f.fog.end;if(!fog.enabled)fog.enabled=true;}};
++ const onToggle=()=>{if(!saved||lakesideBoardHolding())return;if(lastW>0)write(lastW);};
++ return {
++  prime(){if(saved||!LAKESIDE_JOURNEY_ATMOSPHERE_ON)return;try{const l=mainLight(),g=(director.getScene() as any)?.globals,amb=g?.ambient,fog=g?.fog,lv=l&&isValid(l,true)?l:null;
++   const illum=lv?lv.illuminance:0,skyIllum=amb?amb.skyIllum:0,mode=lakesideDayNightMode();
++   saved={light:lv,rot:lv?lv.node.rotation.clone():null,wrot:lv?lv.node.worldRotation.clone():null,color:lv?lv.color.clone():null,illum,sky:amb?amb.skyLightingColor.clone():null,ground:amb?amb.groundLightingColor.clone():null,skyIllum,
++    clear:camera&&isValid(camera,true)?camera.clearColor.clone():null,fog:fog?{enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd,top:fog.fogTop,range:fog.fogRange,atten:fog.fogAtten}:null,
++    base:{illum,color:rgb(lv?.color,[255,255,255]),sky:rgb(amb?.skyLightingColor,[255,255,255]),ground:rgb(amb?.groundLightingColor,[255,255,255]),skyIllum,clear:rgb(camera?.clearColor,[51,51,51])},mode};
++   setLakesideJourneyBaseIllum(lv?illum/lakesideIslandLightScale(mode):null);setLakesideJourneyReapply(()=>write(lastW));offDayNight=onDayNightChange(onToggle);write(0);}
++   catch(error){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'journey-atmosphere-skipped',error:String((error as any)?.message||error)}));}catch{}}},
++  apply(w:number){try{write(w);}catch{}},
++  restore(){const s=saved;saved=null;lastW=0;offDayNight?.();offDayNight=null;setLakesideJourneyBaseIllum(null);setLakesideJourneyReapply(null);if(!s)return;try{const g=(director.getScene() as any)?.globals,amb=g?.ambient,fog=g?.fog;
++   if(s.light&&isValid(s.light,true)){if(s.rot)s.light.node.setRotation(s.rot);if(s.color)s.light.color=s.color;s.light.illuminance=s.illum;}
++   if(amb){if(s.sky)amb.skyLightingColor=s.sky;if(s.ground)amb.groundLightingColor=s.ground;amb.skyIllum=s.skyIllum;}
++   if(s.clear&&camera&&isValid(camera,true))camera.clearColor=s.clear;
++   if(fog&&s.fog){fog.type=s.fog.type;fog.fogColor=s.fog.color;fog.fogStart=s.fog.start;fog.fogEnd=s.fog.end;fog.fogTop=s.fog.top;fog.fogRange=s.fog.range;fog.fogAtten=s.fog.atten;fog.enabled=s.fog.enabled;}
++   if(lakesideDayNightMode()!==s.mode)(globalThis as any).__worldDayNight?.reapply?.();}catch{}},
++ };
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts.meta b/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts.meta
+new file mode 100644
+index 0000000..8b0b78a
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "cd95e9b4-f51b-4f7a-84ad-142871f72a6b",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 5d6a099..fa0d3ea 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -87,6 +87,31 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
+   fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
+ });
++/** build05-next r2 (lead): lakeside's own NIGHT look for the day/night toggle (board + journey). Same structure as the day values
++ *  (LAKESIDE_DIR_LIGHT_PARAMS, the r5h3 dusk); relative to the island's current-mode main light, so the island's 0.35 night scale
++ *  carries over. Moonlight from the same direction (shadows do not jump), cool blue ambient, dark blue clear and fog; water: more
++ *  ambient share (night ambient is dark), much less reflected (dusk-orange) sky. Proxy values - Mac day/night screenshots decide. */
++export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
++  sunColorLinear: [0.36, 0.46, 0.78] as const,
++  sunIlluminanceScale: 1.0,
++  ambientSkyColorLinear: [0.012, 0.03, 0.09] as const,
++  ambientGroundColorLinear: [0.02, 0.022, 0.04] as const,
++  ambientSkyIllumToSun: 0.6,
++  clearColor: '#1c2740',
++  fogColorSrgb: [44, 54, 84] as const,
++  waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
++});
++export type LakesideDayNight = 'day' | 'night';
++export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
++  ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number];
++  waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number }>;
++/** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
++export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
++  if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
++  const P = LAKESIDE_DIR_LIGHT_PARAMS;
++  return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
++    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: LAKESIDE_CLEAR_COLOR, fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
++}
+ /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
+ /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
+  *  mountains (LK_far_hills y -2..40.8, far-shore trees from y~5.7) keep their upper halves deep green; 'linear60' = LINEAR from
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 25922c5..cb82d52 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -1,5 +1,5 @@
+ import {waitRegionAsset} from './RegionAssetDeadline';
+-import {Animation, Camera, Color, DirectionalLight, Material, Mesh, MeshRenderer, Node, Quat, Vec3, director, gfx, isValid, utils} from 'cc';
++import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isValid, utils} from 'cc';
+ import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
+ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+ import {SkyNightTexture} from '../render/SkyNightTexture';
+@@ -11,8 +11,8 @@ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/R
+ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+ import {mountLakesideScenery} from './LakesideBoardBackground';
+ import {lakesideJourney} from './LakesideCameraLayout';
+-import {LAKESIDE_DIR_LIGHT_PARAMS,lakesideFogModeFromEnv} from './LakesideSceneData';
+-import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideAtmosphereWeight,setLakesideJourneyBaseIllum,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
++import {lakesideAtmosphereWeight} from './LakesideJourneyAtmosphere';
++import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
+ function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
+ function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
+ /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
+@@ -127,34 +127,3 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
+   return {route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
+ }
+-/** build05-next: island→lakeside journey lighting (LakesideJourneyAtmosphere). prime() runs when the journey scenes are
+- *  shown (under the set-off fade's full black): it captures the island values and switches the fog to the board's mode at
+- *  ~zero density, so the CC_USE_FOG shader-variant change happens under black (and the board entry later needs no switch).
+- *  apply(w) writes the blended values every walked frame; restore() puts back exactly what it captured (dispose / 主页). */
+-function lakesideJourneyAtmosphere(camera:Camera,waterY:()=>number){
+- type Saved={light:DirectionalLight|null;rot:Quat|null;wrot:Quat|null;color:Color|null;illum:number;sky:Color|null;ground:Color|null;skyIllum:number;clear:Color|null;
+-  fog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null;base:LakesideAtmosphereBase};
+- let saved:Saved|null=null;const fogMode=lakesideFogModeFromEnv(),target=new Quat(),q=new Quat();
+- const rgb=(c:Color|null|undefined,f:Rgb):Rgb=>c?[c.r,c.g,c.b]:f,col=(c:Rgb)=>new Color(c[0],c[1],c[2],255);
+- const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
+- const write=(w:number)=>{const s=saved;if(!s)return;const f=lakesideAtmosphereAt(s.base,w,fogMode,waterY()),g=(director.getScene() as any)?.globals;
+-  if(s.light&&isValid(s.light,true)&&s.wrot){const v=LAKESIDE_DIR_LIGHT_PARAMS.sunForward;Quat.fromViewUp(target,new Vec3(-v[0],-v[1],-v[2]).normalize(),Vec3.UP);Quat.slerp(q,s.wrot,target,f.weight);s.light.node.setWorldRotation(q);
+-   s.light.color=col(f.color);s.light.illuminance=f.illum;}
+-  const amb=g?.ambient;if(amb){amb.skyLightingColor=col(f.sky);amb.groundLightingColor=col(f.ground);amb.skyIllum=f.skyIllum;}
+-  if(camera&&isValid(camera,true))camera.clearColor=col(f.clear);
+-  const fog=g?.fog;if(fog&&f.fog){if(fog.type!==f.fog.type)fog.type=f.fog.type;fog.fogColor=col(f.fog.color);fog.fogTop=f.fog.top;fog.fogRange=f.fog.range;fog.fogAtten=f.fog.atten;fog.fogStart=f.fog.start;fog.fogEnd=f.fog.end;if(!fog.enabled)fog.enabled=true;}};
+- return {
+-  prime(){if(saved||!LAKESIDE_JOURNEY_ATMOSPHERE_ON)return;try{const l=mainLight(),g=(director.getScene() as any)?.globals,amb=g?.ambient,fog=g?.fog,lv=l&&isValid(l,true)?l:null;
+-   const illum=lv?lv.illuminance:0,skyIllum=amb?amb.skyIllum:0;
+-   saved={light:lv,rot:lv?lv.node.rotation.clone():null,wrot:lv?lv.node.worldRotation.clone():null,color:lv?lv.color.clone():null,illum,sky:amb?amb.skyLightingColor.clone():null,ground:amb?amb.groundLightingColor.clone():null,skyIllum,
+-    clear:camera&&isValid(camera,true)?camera.clearColor.clone():null,fog:fog?{enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd,top:fog.fogTop,range:fog.fogRange,atten:fog.fogAtten}:null,
+-    base:{illum,color:rgb(lv?.color,[255,255,255]),sky:rgb(amb?.skyLightingColor,[255,255,255]),ground:rgb(amb?.groundLightingColor,[255,255,255]),skyIllum,clear:rgb(camera?.clearColor,[51,51,51])}};
+-   setLakesideJourneyBaseIllum(lv?illum:null);write(0);}catch(error){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'journey-atmosphere-skipped',error:String((error as any)?.message||error)}));}catch{}}},
+-  apply(w:number){try{write(w);}catch{}},
+-  restore(){const s=saved;saved=null;setLakesideJourneyBaseIllum(null);if(!s)return;try{const g=(director.getScene() as any)?.globals,amb=g?.ambient,fog=g?.fog;
+-   if(s.light&&isValid(s.light,true)){if(s.rot)s.light.node.setRotation(s.rot);if(s.color)s.light.color=s.color;s.light.illuminance=s.illum;}
+-   if(amb){if(s.sky)amb.skyLightingColor=s.sky;if(s.ground)amb.groundLightingColor=s.ground;amb.skyIllum=s.skyIllum;}
+-   if(s.clear&&camera&&isValid(camera,true))camera.clearColor=s.clear;
+-   if(fog&&s.fog){fog.type=s.fog.type;fog.fogColor=s.fog.color;fog.fogStart=s.fog.start;fog.fogEnd=s.fog.end;fog.fogTop=s.fog.top;fog.fogRange=s.fog.range;fog.fogAtten=s.fog.atten;fog.enabled=s.fog.enabled;}}catch{}},
+- };
+-}
+diff --git a/creator-build-project/assets/scripts/world-r1/DayNightContract.ts b/creator-build-project/assets/scripts/world-r1/DayNightContract.ts
+index 1e3f7dc..b8bab92 100644
+--- a/creator-build-project/assets/scripts/world-r1/DayNightContract.ts
++++ b/creator-build-project/assets/scripts/world-r1/DayNightContract.ts
+@@ -37,3 +37,9 @@ export function writeNightBlend(material: { setProperty?: (n: string, v: number)
+   material.setProperty('nightBlend', value);
+   return true;
+ }
++/** build05-next r2: day/night change listeners (lakeside lighting re-applies its own day/night look on top of the island's).
++ *  WorldFlowComponent.applyDayNight emits after it has written the island main light and the rigs' views. Listener errors are
++ *  swallowed; a listener must never throw into the world. */
++const dayNightListeners = new Set<(mode: DayNightMode) => void>();
++export function onDayNightChange(fn: (mode: DayNightMode) => void): () => void { dayNightListeners.add(fn); return () => { dayNightListeners.delete(fn); }; }
++export function emitDayNightChange(mode: DayNightMode): void { for (const fn of Array.from(dayNightListeners)) { try { fn(mode); } catch (e) { void e; } } }
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 12fcb84..7613c0d 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -23,7 +23,7 @@ import { createFirstsliceRoutes } from './FirstsliceRoutes';
+ import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate, CAMERA_FIXED } from './CameraPose';
+ import type { CameraPose, V3 } from './CameraPose';
+ import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
+-import { localNight, resolveDayNight, writeNightBlend, type DayNightMode } from './DayNightContract';
++import { localNight, resolveDayNight, writeNightBlend, type DayNightMode, emitDayNightChange } from './DayNightContract';
+ /** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
+ export const CABIN_MIN_X=2.6;
+ const {ccclass,property}=_decorator;
+@@ -434,7 +434,7 @@ export class WorldFlowComponent extends Component {
+         const a=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:.46;
+         return {...frameCheck(last,a,characterBox([c.root[0],c.root[1],c.root[2]],c.heightM,c.halfWidthM),REGION_CAMERA.frameLimits),note:'LOG ONLY: last written pose + fixed box; not camera readback, not skinned bounds, not occlusion/HUD acceptance'};},
+     };
+-    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight(),exteriorKey:()=>self.roomLighting?.getExteriorKey()??0,windStrength:()=>self.getWindStrength(),hasRoomLight:()=>self.hasRoomLight(),isWorldVisible:()=>self.isWorldVisible()};
++    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),reapply:()=>self.applyDayNight()/* build05-next r2: re-write the island look for the current mode without locking it (lakeside restore-on-leave) */,set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight(),exteriorKey:()=>self.roomLighting?.getExteriorKey()??0,windStrength:()=>self.getWindStrength(),hasRoomLight:()=>self.hasRoomLight(),isWorldVisible:()=>self.isWorldVisible()};
+   }
+   update(dt:number):void {
+     if(!this.flow||this.disposed||this.safetyFailure)return;
+@@ -522,6 +522,7 @@ export class WorldFlowComponent extends Component {
+     this.doorSpill?.setView(this.interiorVisible,this.exteriorVisible,this.dayNightMode==='night');
+     this.atmosphere?.setView(this.exteriorVisible,this.dayNightMode==='night');
+     this.shore?.setView(this.exteriorVisible,this.backdropVisible,this.dayNightMode==='night');
++    emitDayNightChange(this.dayNightMode); // build05-next r2: lakeside lighting re-applies its own day/night look on top
+   }
+   private dayNightSnapshot(){const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);return {mode:this.dayNightMode,override:this.nightOverride,exteriorVisible:this.exteriorVisible,nightRenderersEnabled:view.nightRenderersEnabled,nightSkyBackdropsEnabled:this.dayNightMode==='night'&&this.backdropVisible,nightRendererCount:this.nightRenderers.length,skyNightBlend:this.appliedBlend,lightScale:view.lightScale};}
+   private setDayNight(mode:DayNightMode,lock:boolean){if(mode!=='day'&&mode!=='night')return this.dayNightSnapshot();this.dayNightMode=mode;if(lock)this.nightOverride=mode==='night';this.applyDayNight();return this.dayNightSnapshot();}
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index caf952c..e5210a2 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -65,6 +65,7 @@ const tests=[
+  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
+  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
+  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
++ ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],
+ ];
+diff --git a/tools/lakeside/test_lakeside_daynight.cjs b/tools/lakeside/test_lakeside_daynight.cjs
+new file mode 100644
+index 0000000..f8f5dde
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_daynight.cjs
+@@ -0,0 +1,75 @@
++// build05-next r2 (lead): toggling day/night inside lakeside (the journey once its blend has started, and the board) applies
++// lakeside's OWN day/night lighting (main light, ambient, clear colour, fog; board also the water-only light scales), consistent
++// with the journey blend target; leaving restores the island and a toggle back on the island gives the island look again.
++// Real TS (LakesideJourneyLighting + LakesideJourneyAtmosphere + DayNightContract + LakesideSceneData) on a fake cc and a fake
++// world whose __worldDayNight does what WorldFlowComponent.applyDayNight does (island main light, then emitDayNightChange).
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++// ---- fake cc
++class Color{constructor(r=0,g=0,b=0,a=255){if(typeof r==='string'){const h=r.replace('#','');this.r=parseInt(h.slice(0,2),16);this.g=parseInt(h.slice(2,4),16);this.b=parseInt(h.slice(4,6),16);this.a=255;}else Object.assign(this,{r,g,b,a});}clone(){return new Color(this.r,this.g,this.b,this.a);}}
++class Vec3{constructor(x=0,y=0,z=0){Object.assign(this,{x,y,z});}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this;}}Vec3.UP=new Vec3(0,1,0);
++class Quat{constructor(x=0,y=0,z=0,w=1){Object.assign(this,{x,y,z,w});}clone(){return new Quat(this.x,this.y,this.z,this.w);}
++ static fromViewUp(o){o.x=0.1;o.y=0.2;o.z=0.3;o.w=0.927;return o;}static slerp(o,a,b,t){o.x=a.x+(b.x-a.x)*t;o.y=a.y+(b.y-a.y)*t;o.z=a.z+(b.z-a.z)*t;o.w=a.w+(b.w-a.w)*t;return o;}}
++class DirectionalLight{}
++const light=Object.assign(new DirectionalLight(),{illuminance:0,color:new Color(255,255,255),node:{rotation:new Quat(),worldRotation:new Quat(),setRotation(q){this.rotation=q.clone();this.worldRotation=q.clone();},setWorldRotation(q){this.worldRotation=q.clone();}}});
++const globals={ambient:{skyLightingColor:new Color(200,220,255),groundLightingColor:new Color(120,110,90),skyIllum:20000},fog:{enabled:false,type:0,fogColor:new Color(200,200,200),fogStart:0,fogEnd:300,fogTop:4,fogRange:10,fogAtten:5}};
++const scene={globals,getChildByName:n=>n==='Main Light'?{getComponent:()=>light}:null,getComponentInChildren:()=>light};
++const cc={Color,Vec3,Quat,DirectionalLight,Camera:class{},director:{getScene:()=>scene},isValid:o=>!!o};
++// ---- tiny TS module loader (one instance per file, so the DayNightContract listener registry is shared)
++const cache=new Map();
++function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(file).exports;const m={exports:{}};cache.set(file,m);
++ const out=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:1,target:7}}).outputText;
++ const req=spec=>spec==='cc'?cc:load(path.resolve(path.dirname(file),spec)+'.ts');
++ vm.runInThisContext('(function(exports,require,module){'+out+'\n})')(m.exports,req,m);return m.exports;}
++const DN=load(S+'world-r1/DayNightContract.ts'),D=load(S+'region/LakesideSceneData.ts'),A=load(S+'region/LakesideJourneyAtmosphere.ts'),Lt=load(S+'region/LakesideJourneyLighting.ts');
++// ---- fake world: WorldFlowComponent.applyDayNight for the island main light (+ emit)
++const lightHome=60000;let mode='day';const calls={reapply:0};
++const applyDayNight=()=>{const v=DN.resolveDayNight(mode,true);light.illuminance=lightHome*v.lightScale;light.color=new Color(v.lightColor[0],v.lightColor[1],v.lightColor[2],255);DN.emitDayNightChange(mode);};
++globalThis.__worldDayNight={snapshot:()=>({mode}),reapply:()=>{calls.reapply++;applyDayNight();},toggle:()=>{mode=mode==='night'?'day':'night';applyDayNight();}};
++applyDayNight();
++const camera={clearColor:new Color(51,51,51)};
++const rgb=c=>[c.r,c.g,c.b],near=(a,b,eps=1e-6)=>Math.abs(a-b)<=eps*Math.max(1,Math.abs(b));
++function expectLake(m,label){const M=D.lakesideModeLighting(m),isl=lightHome*DN.resolveDayNight(m,true).lightScale;
++ assert(near(light.illuminance,isl*M.sunIlluminanceScale),label+' illum '+light.illuminance);assert.deepEqual(rgb(light.color),D.linearToSrgb8(M.sunColorLinear),label+' sun colour');
++ assert.deepEqual(rgb(globals.ambient.skyLightingColor),D.linearToSrgb8(M.ambientSkyColorLinear),label+' ambient sky');assert.deepEqual(rgb(globals.ambient.groundLightingColor),D.linearToSrgb8(M.ambientGroundColorLinear),label+' ambient ground');
++ assert(near(globals.ambient.skyIllum,isl*M.ambientSkyIllumToSun),label+' skyIllum');assert.deepEqual(rgb(camera.clearColor),rgb(new Color(M.clearColor)),label+' clear');
++ assert.deepEqual(rgb(globals.fog.fogColor),[...M.fogColorSrgb],label+' fog colour');assert.equal(globals.fog.type,3);assert.equal(globals.fog.enabled,true);}
++function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);assert(near(light.illuminance,lightHome*v.lightScale),label+' island illum '+light.illuminance);assert.deepEqual(rgb(light.color),[...v.lightColor],label+' island colour');
++ assert.deepEqual(rgb(globals.ambient.skyLightingColor),[200,220,255],label+' island ambient');assert.equal(globals.ambient.skyIllum,20000);assert.deepEqual(rgb(camera.clearColor),[51,51,51],label+' island clear');
++ if(primed){assert.equal(globals.fog.enabled,true);assert(globals.fog.fogRange>=D.LAKESIDE_LAYERED_FOG.fogRange*999,label+' primed fog ~invisible');}else{assert.equal(globals.fog.enabled,false,label+' island fog off');assert.equal(globals.fog.type,0);}}
++const run=(name,f)=>{f();console.log('PASS',name);};
++const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
++run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.linearToSrgb8(N.sunColorLinear),D.linearToSrgb8(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.LAKESIDE_CLEAR_COLOR);
++ assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
++// journey 1: day -> lake -> night -> day -> night -> leave -> toggle back on the island
++let J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();
++run('before the blend (w=0) a toggle stays the island look',()=>{globalThis.__worldDayNight.toggle();expectIsland('night','pre-blend night',true);globalThis.__worldDayNight.toggle();expectIsland('day','pre-blend day',true);});
++J.apply(0.4);J.apply(1);
++run('blend done: lakeside day',()=>expectLake('day','lake day'));
++run('toggle in lakeside day -> night: lakeside night',()=>{globalThis.__worldDayNight.toggle();expectLake('night','lake night');});
++run('toggle in lakeside night -> day: lakeside day',()=>{globalThis.__worldDayNight.toggle();expectLake('day','lake day again');});
++run('mid-blend toggle: blends toward the night target from the island night base',()=>{J.apply(0.5);globalThis.__worldDayNight.toggle();const isl=lightHome*0.35;assert(near(light.illuminance,isl+(isl*N.sunIlluminanceScale-isl)*0.5));J.apply(1);expectLake('night','night after mid-blend');});
++run('leave in night (主页): island NIGHT look (world re-applies, no lock)',()=>{const r0=calls.reapply;J.restore();assert.equal(calls.reapply,r0+1,'reapply once');expectIsland('night','after leave');});
++run('leave-then-toggle back on the island: island day, lakeside no longer writes',()=>{globalThis.__worldDayNight.toggle();expectIsland('day','island day');globalThis.__worldDayNight.toggle();expectIsland('night','island night');globalThis.__worldDayNight.toggle();expectIsland('day','island day 2');});
++// journey 2: arrive in night; leave in the same mode -> no reapply
++J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);globalThis.__worldDayNight.toggle();J.prime();J.apply(1);
++run('arrive at night: lakeside night; leave at night: captured island restored, no reapply needed',()=>{expectLake('night','arrive night');const r0=calls.reapply;J.restore();assert.equal(calls.reapply,r0);expectIsland('night','leave night');globalThis.__worldDayNight.toggle();expectIsland('day','toggle on island');});
++// journey 3: board holds the lighting -> journey listener stands down; board hide -> journey re-applies the current mode
++J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();J.apply(1);
++run('board holding: journey does not write on toggle; on board hide reapplyLakesideJourney gives the current mode',()=>{A.setLakesideBoardHolding(true);globalThis.__worldDayNight.toggle();
++ assert(near(light.illuminance,lightHome*0.35),'only the island writer ran (board would re-apply its own)');A.setLakesideBoardHolding(false);assert.equal(A.reapplyLakesideJourney(),true);expectLake('night','after board hide');
++ assert(near(A.lakesideJourneyBaseIllum(),lightHome),'journey day base (illum / island scale)');J.restore();assert.equal(A.reapplyLakesideJourney(),false,'no journey -> board falls back to the world reapply');globalThis.__worldDayNight.toggle();expectIsland(mode,'island after');});
++// board: same numbers as the journey target, in both modes (formula in LakesideBoardBackground.applyDir)
++run('board applyDir = journey target in both modes; board re-applies on toggle and restores via journey/world',()=>{
++ const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
++ for(const m of ['day','night']){const dayBase=lightHome,bi=dayBase*A.lakesideIslandLightScale(m),M=D.lakesideModeLighting(m);
++  const t=A.lakesideAtmosphereTarget({illum:bi,color:[0,0,0],sky:[0,0,0],ground:[0,0,0],skyIllum:0,clear:[0,0,0]},m);assert(near(t.illum,bi*M.sunIlluminanceScale)&&near(t.skyIllum,bi*M.ambientSkyIllumToSun));}
++ assert(/const offDayNight=onDayNightChange\(\(\)=>\{if\(visible&&!dead\)applyDir\(\);\}\);/.test(bg),'board re-applies on toggle');
++ assert(/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);/.test(bg),'unsubscribed on dispose');
++ assert(/M=lakesideModeLighting\(mode\)/.test(bg)&&/camera\.clearColor=new Color\(M\.clearColor\)/.test(bg),'board colours + clear per mode');
++ assert(/waterMat\.setProperty\('lightParams',new Vec4\(M\.waterMainLightScale,M\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\);waterMat\.setProperty\('fresnelParams',new Vec4\(P\.waterFresnelPower,P\.waterFresnelF0,P\.waterFresnelMax,M\.waterSkyStrength\)\);/.test(bg),'water-only light scales per mode');
++ assert(/const c=lakesideModeLighting\(lakesideDayNightMode\(\)\)\.fogColorSrgb;/.test(bg),'fog colour per mode');
++ assert(/restoreDir=\(\)=>\{restoreFog\(\);setLakesideBoardHolding\(false\);/.test(bg)&&/if\(!reapplyLakesideJourney\(\)&&s0\.mode!==lakesideDayNightMode\(\)\)\(globalThis as any\)\.__worldDayNight\?\.reapply\?\.\(\);/.test(bg),'restore-on-leave chain');
++ const wf=fs.readFileSync(S+'world-r1/WorldFlowComponent.ts','utf8');assert(/emitDayNightChange\(this\.dayNightMode\);/.test(wf)&&/reapply:\(\)=>self\.applyDayNight\(\)/.test(wf),'world emits + non-locking reapply');});
++console.log('lakeside day/night OK');
+diff --git a/tools/lakeside/test_lakeside_journey_atmosphere.cjs b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+index 7aadbc9..0384e31 100644
+--- a/tools/lakeside/test_lakeside_journey_atmosphere.cjs
++++ b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+@@ -38,13 +38,13 @@ assert.equal(A.lakesideAtmosphereAt(nb,1,'off').fog,null);const lf=A.lakesideAtm
+ // base-illum registry (board scales from the island base, not the blended value)
+ assert.equal(A.lakesideJourneyBaseIllum(),null);A.setLakesideJourneyBaseIllum(123);assert.equal(A.lakesideJourneyBaseIllum(),123);A.setLakesideJourneyBaseIllum(null);assert.equal(A.lakesideJourneyBaseIllum(),null);
+ // wiring
+-const rd=f=>fs.readFileSync(path.join(S,f),'utf8'),core=rd('world-r1/RegionJourneyCore.ts'),ad=rd('region/RegionJourneyAdapter.ts'),bg=rd('region/LakesideBoardBackground.ts');
++const rd=f=>fs.readFileSync(path.join(S,f),'utf8'),core=rd('world-r1/RegionJourneyCore.ts'),ad=rd('region/RegionJourneyAdapter.ts'),lt=rd('region/LakesideJourneyLighting.ts'),bg=rd('region/LakesideBoardBackground.ts');
+ assert(/progress\?\(distance:number\):void;/.test(core));
+ assert((core.match(/this\.leaseProgress\(\);/g)||[]).length===2,'observe + stop');
+ assert(/private leaseProgress\(\)\{const l=this\.lease;if\(!l\?\.progress\)return;try\{l\.progress\(this\.distance\);\}catch\{\}\}/.test(core),'a lighting error never breaks the walk');
+ assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)atmosphere\.prime\(\);\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
+ assert(/const release=\(\)=>\{if\(dead\)return;dead=true;atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
+ assert(/landing:L\.landing,timing:L\.timing/.test(ad),'17 s S-curve walk from 运镜bot layout');
+-assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(ad)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(ad),'sun direction slerps to sunForward');
+-assert(/const bi=lakesideJourneyBaseIllum\(\)\?\?saved\.illum/.test(bg)&&/l\.illuminance=bi\*P\.sunIlluminanceScale/.test(bg)&&/amb\.skyIllum=bi\*P\.ambientSkyIllumToSun/.test(bg),'board: no double scale after the journey');
++assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(lt)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(lt),'sun direction slerps to sunForward (r2: LakesideJourneyLighting.ts)');
++assert(/const bi=\(lakesideJourneyBaseIllum\(\)\?\?saved\.illum\/lakesideIslandLightScale\(saved\.mode\)\)\*lakesideIslandLightScale\(mode\)/.test(bg)&&/l\.illuminance=bi\*M\.sunIlluminanceScale/.test(bg)&&/amb\.skyIllum=bi\*M\.ambientSkyIllumToSun/.test(bg),'board: no double scale after the journey (r2: day base x mode scale)');
+ console.log('lakeside journey atmosphere OK');
+-- 
+2.47.3
+

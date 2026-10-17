@@ -1,0 +1,6 @@
+branch integration/build05-20261016T2048
+base b0020ed4ea1f632802ac414c44d0655afdeb34ee
+head b3b5ae7ea88de30576b45f816e25ad3aa7efa085
+tree f4becd6b491ca154a2fcf8ce8d0db19c8e3c00bc
+bundle (b0020ed..head) fetched into a fresh repo with the base -> head b3b5ae7ea88de30576b45f816e25ad3aa7efa085 tree f4becd6b491ca154a2fcf8ce8d0db19c8e3c00bc match: yes
+previous head 62382c4f3c3285193e499b81c3899d6ad4f082bb; new: 6b1334f (merge d6a0019), b3b5ae7 (lakeside r5h3)

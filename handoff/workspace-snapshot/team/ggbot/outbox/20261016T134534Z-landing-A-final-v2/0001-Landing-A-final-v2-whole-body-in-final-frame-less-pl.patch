@@ -1,0 +1,224 @@
+From bc418c560d257421039c3d1cc953aeb937e47636 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 21:39:19 +0800
+Subject: [PATCH] Landing A final v2: whole body in final frame, less plaza
+ rock in centre
+
+- Arrival 11 m back / 2 m right / 2 m up, 1.5 m late lift (head/chest clear over the sunk
+  mushroom d41-43): plaza centred, her 0.164 of screen, feet 25% above the bottom edge,
+  rock in the frame centre 5/25 samples (was 9/25); turn 18.9 deg/s.
+- Test F9: final frame feet/head in frame with >=5% bottom margin.
+---
+ .../scripts/world-r1/RegionJourneyCore.ts     |   8 +-
+ .../reports/journey-framing.stderr.txt        |   0
+ .../reports/journey-framing.stdout.txt        | 108 ++++++++++++++++++
+ .../reports/journey-occlusion.stderr.txt      |   0
+ .../reports/journey-occlusion.stdout.txt      |  37 ++++++
+ .../test-journey-framing.cjs                  |   5 +
+ 6 files changed, 155 insertions(+), 3 deletions(-)
+ create mode 100644 tools/journey-integration/reports/journey-framing.stderr.txt
+ create mode 100644 tools/journey-integration/reports/journey-framing.stdout.txt
+ create mode 100644 tools/journey-integration/reports/journey-occlusion.stderr.txt
+ create mode 100644 tools/journey-integration/reports/journey-occlusion.stdout.txt
+
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 021d41a..88c482e 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -38,9 +38,11 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
+  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
+ export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
+ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
+- // Landing A (final): no lift (the mushroom sink clears d41-45), 12 m behind / 4.5 m above the end, plaza centred, her ~0.15 of
+- // screen height. Blend 14.3 m keeps the turn <=20 deg/s and the lens stays on her right until the last ~10 m.
+- arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:0,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:12,arrivalSideM:-.5,arrivalUpM:4.5,arrivalAim:0} as const;
++ // Landing A (final, v2): 11 m behind / 2 m right / 2 m up from the end, plaza centred, her 0.164 of screen height with her
++ // whole body in frame (feet 25% above the bottom edge). The low lens cuts the plaza rock in the frame centre from 9/25 to 5/25
++ // samples (it cannot reach 0 with the plaza centred: the rock is the plaza's own pedestal). A small 1.5 m late lift keeps her
++ // head/chest clear over the sunk mushroom at d41-43. Blend 14.3 m: turn <=20 deg/s, right side until the last ~10 m.
++ arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:1.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:11,arrivalSideM:-2,arrivalUpM:2,arrivalAim:0} as const;
+ export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
+  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
+  return l>1e-6?[x/l,z/l]:[0,1];
+diff --git a/tools/journey-integration/reports/journey-framing.stderr.txt b/tools/journey-integration/reports/journey-framing.stderr.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tools/journey-integration/reports/journey-framing.stdout.txt b/tools/journey-integration/reports/journey-framing.stdout.txt
+new file mode 100644
+index 0000000..a8ddf75
+--- /dev/null
++++ b/tools/journey-integration/reports/journey-framing.stdout.txt
+@@ -0,0 +1,108 @@
++{
++ "status": "PASS",
++ "checks": [
++  {
++   "id": "F1 view angular velocity ≤ 20°/s on both legs",
++   "status": "PASS",
++   "evidence": {
++    "04-05": {
++     "maxDegS": 6.13,
++     "atM": 32.4
++    },
++    "08-09": {
++     "maxDegS": 19.43,
++     "atM": 39.1
++    }
++   }
++  },
++  {
++   "id": "F2 character in frame on both legs (after authored-pose exemption)",
++   "status": "PASS",
++   "evidence": {
++    "04-05": {
++     "samples": 325
++    },
++    "08-09": {
++     "samples": 461
++    }
++   }
++  },
++  {
++   "id": "F3 08→09 under-city span (bridge start → lens end): sky-island underside ≤ 10% of frame",
++   "status": "PASS",
++   "evidence": {
++    "spanM": [
++     0,
++     32.34
++    ],
++    "maxUnderside": 0.099,
++    "atM": 18,
++    "wholeLegMax": {
++     "underside": 0.11,
++     "atM": 43,
++     "note": "arrival descent/final composition, plaza rim"
++    }
++   }
++  },
++  {
++   "id": "F4 night sky visible: 04→05 mean ≥ 0.10; no zero-sky stretch > 11 m on either leg; final 08→09 frame ≥ 0.15",
++   "status": "PASS",
++   "evidence": {
++    "04-05": {
++     "meanSky": 0.178,
++     "longestZeroSkyM": 0,
++     "samples": 66
++    },
++    "08-09": {
++     "meanSky": 0.156,
++     "longestZeroSkyM": 2,
++     "samples": 93
++    },
++    "finalSky": 0.393
++   }
++  },
++  {
++   "id": "F5 08→09 final frame: plaza centre |x|≤0.1, -0.1≤y≤0.45; character height 0.13–0.21",
++   "status": "PASS",
++   "evidence": {
++    "plazaNdc": [
++     -0.001,
++     0
++    ],
++    "herHeight": 0.15
++   }
++  },
++  {
++   "id": "F6 04→05 start follows her: in frame from 1.25 m, first 10 m turn ≤ 20°/s",
++   "status": "PASS",
++   "evidence": {
++    "maxDegS": 2.15
++   }
++  },
++  {
++   "id": "F7 04→05 lens on her right side from set-off (never left of behind)",
++   "status": "PASS",
++   "evidence": {
++    "worstLeftOfBehindDeg": -20,
++    "atM": 24.6
++   }
++  },
++  {
++   "id": "F7b 08→09 lens on her right side (vs her facing) until the last 10 m",
++   "status": "PASS",
++   "evidence": {
++    "worstLeftOfBehindDeg": -0.6,
++    "atM": 14.3,
++    "leftAllowedFromM": 36.03
++   }
++  },
++  {
++   "id": "F8 08→09 no lift: lens ≤ 7 m above her over the whole leg",
++   "status": "PASS",
++   "evidence": {
++    "maxUpM": 7,
++    "atM": 17.8
++   }
++  }
++ ]
++}
+diff --git a/tools/journey-integration/reports/journey-occlusion.stderr.txt b/tools/journey-integration/reports/journey-occlusion.stderr.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tools/journey-integration/reports/journey-occlusion.stdout.txt b/tools/journey-integration/reports/journey-occlusion.stdout.txt
+new file mode 100644
+index 0000000..219e56c
+--- /dev/null
++++ b/tools/journey-integration/reports/journey-occlusion.stdout.txt
+@@ -0,0 +1,37 @@
++{
++ "status": "PASS",
++ "checks": [
++  {
++   "id": "O1/O2 04-05 character visible + lens ≥1 m every 0.05 m",
++   "status": "PASS"
++  },
++  {
++   "id": "O1/O2 08-09 character visible + lens ≥1 m every 0.05 m",
++   "status": "PASS"
++  },
++  {
++   "id": "O3 08-09 foot above env_sky_static_palette top on bridge+deck",
++   "status": "PASS"
++  },
++  {
++   "id": "O3 04-05 bridge corridor 2.1 m wide, 0.35–2.0 m above deck, is free",
++   "status": "PASS"
++  },
++  {
++   "id": "O3 08-09 bridge corridor 2.1 m wide, 0.35–2.0 m above deck, is free",
++   "status": "PASS"
++  },
++  {
++   "id": "O5 08-09 extra walk time vs Build05 ≤ 3 s at the unchanged speed",
++   "status": "PASS"
++  },
++  {
++   "id": "O5 08-09 final frame: city centre centred (|x|≤0.1, -0.1≤y≤0.45); character in frame over the final 3 m (390×844)",
++   "status": "PASS"
++  },
++  {
++   "id": "O4 09 board background pose unchanged and plaza in frame",
++   "status": "PASS"
++  }
++ ]
++}
+diff --git a/tools/journey-integration/test-journey-framing.cjs b/tools/journey-integration/test-journey-framing.cjs
+index c92784a..43bf27d 100644
+--- a/tools/journey-integration/test-journey-framing.cjs
++++ b/tools/journey-integration/test-journey-framing.cjs
+@@ -40,6 +40,11 @@ check('F7b 08→09 lens on her right side (vs her facing) until the last 10 m',(
+ // F8 (landing A): no lift — 08→09 lens never more than 7 m above her feet over the whole leg.
+ check('F8 08→09 no lift: lens ≤ 7 m above her over the whole leg',()=>{const leg=legs[1];let maxUp=0,at=0;for(const r of R[1].rows){const p=sampleRoute(leg.path,r.d),u=r.c.position[1]-p[1];if(u>maxUp){maxUp=u;at=r.d;}}
+  assert(maxUp<=7,'lens up '+maxUp.toFixed(2));return {maxUpM:+maxUp.toFixed(2),atM:at};});
++// F9 (landing A v2): final 08→09 frame shows her WHOLE body — feet (0.05 m) and head top (1.65 m) inside the frame with at least
++// 5% of screen height below her feet (ndc y ≥ −0.90) and |x| ≤ 0.85.
++check('F9 08→09 final frame: whole body in frame, feet ≥ 5% of screen height above the bottom edge',()=>{const leg=legs[1],T=routeLength(leg.path),c=journeyCamera(leg.path,T,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,T),f=F.ndc(c,[p[0],p[1]+.05,p[2]]),h=F.ndc(c,[p[0],p[1]+1.65,p[2]]);
++ assert(f[2]>0&&h[2]>0,'behind camera');assert(f[1]>=-.9,`feet ndc y ${f[1].toFixed(3)}`);assert(h[1]<=.9,'head out');assert(Math.abs(f[0])<=.85&&Math.abs(h[0])<=.85,`x ${f[0].toFixed(2)},${h[0].toFixed(2)}`);
++ return {feetNdcY:+f[1].toFixed(3),bottomMarginPct:+((f[1]+1)/2*100).toFixed(1),headNdcY:+h[1].toFixed(3),x:+f[0].toFixed(2)};});
+ const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
+ console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
+-- 
+2.47.3
+

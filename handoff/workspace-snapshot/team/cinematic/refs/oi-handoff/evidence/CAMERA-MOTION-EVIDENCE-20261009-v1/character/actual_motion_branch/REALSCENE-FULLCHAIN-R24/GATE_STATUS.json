@@ -1,0 +1,44 @@
+{
+  "blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "status": "Internal full-chain kinematic preview candidate; clothing/body garment self-contact unaccepted",
+  "passed": [
+    {
+      "scope": "Own 33s dense120Hz lower cross-leg, actual shoe-vertex floor clearance, fixed-foot drift and joint continuity",
+      "report": "dense_120hz_lower_body_audit.json"
+    },
+    {
+      "scope": "Independent 21.4\u201323.3s exposed hand/wrist release vs body and24realenv",
+      "report": "independent_release_hand_gate.json"
+    },
+    {
+      "scope": "Immutable body/garment rest geometry, UV, weights,22bones,119actualenvironment objects",
+      "report": "preservation_and_action_audit.json"
+    },
+    {
+      "scope": "R22-to-R24 controller root curve and full source foot transforms exact unchanged",
+      "report": "root_foot_preservation_comparison.json"
+    },
+    {
+      "scope": "Independent full33s 3961\u00d7120Hz actual thighs/shins/shoes against24env and actual low-top-surface vertex clearance",
+      "report": "independent_lower_scene_floor_120hz_gate.json"
+    },
+    {
+      "scope": "Own full33s 3961\u00d7120Hz exposed hands/wrists/head/neck/hat vs24env and complete body surface:0; maxarm jointgap0.399um",
+      "report": "full_route_hand_wrist_head_surface_gate.json"
+    },
+    {
+      "scope": "Complete33.000s internal textured motion preview:990 unique source-frame renders,30fps render/playback,all-frame H264 decode clean",
+      "report": "full_motion_preview/VIDEO_VALIDATION.json"
+    }
+  ],
+  "pending": [
+    "Overall full-speed tempo/art-direction playback review",
+    "Runtime import, channel reduction and performance"
+  ],
+  "known_unaccepted": [
+    "Original LBS sleeves/cuffs/skirt/apron and bow-tail contacts",
+    "Same-leg knee skin self-contact",
+    "Runtime action import, key reduction and performance"
+  ],
+  "no_extra_requirement": "No pressure/muscle/dynamics proof is imposed; support area diagnostics distinguish true near-contact area and convex support envelope."
+}

@@ -1,0 +1,331 @@
+From 9060208df341919adc00333d04e3850e5129f16d Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 15:10:42 +0800
+Subject: [PATCH 16/20] =?UTF-8?q?build05-next=20(c):=20island=E2=86=92lake?=
+ =?UTF-8?q?side=20journey=20takes=20the=20lakeside=20board=20lighting=20wi?=
+ =?UTF-8?q?th=20one=20smooth=20blend?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+New pure region/LakesideJourneyAtmosphere.ts: smootherstep weight from mid-bridge (15.5 m) to 1 m before
+her stop (38.2 m of 39.2 m; on the 17 s timed walk 7.15 -> 14.97 s, max 1/255 colour step per 60 Hz frame).
+Targets = LakesideBoardBackground.applyDir/applyFog from the same island base: main light direction
+(slerp to sunForward), colour, illuminance x sunIlluminanceScale, ambient sky/ground, skyIllum = base x
+ambientSkyIllumToSun, world camera clear colour -> LAKESIDE_CLEAR_COLOR, fog per ?lakefog (layered:
+board slab with fogRange/w, slab offset by the lakeside root y; linear60 pushed out; off untouched).
+RegionJourneyAdapter: prime() when the journey scenes are shown (under the set-off black) captures the
+island values and enables the fog at ~zero density (fog shader variant switch under black, none at board
+entry); progress(d) writes the blend; restore() on dispose/主页 puts back exactly what was captured.
+RegionJourneyCore: optional JourneySceneLease.progress(distance), called each observed frame and at the stop
+(errors swallowed, never break the walk). Board: scales from lakesideJourneyBaseIllum() so the board lands
+on the same numbers (no double scale). Route gets timing:L.timing (运镜bot's lakesideJourney contract).
+Test: tools/lakeside/test_lakeside_journey_atmosphere.cjs (suite: lakeside-journey-atmosphere).
+
+(cherry picked from commit bd325bea6b3a2a79c319592ec3efb6443ca15d2f)
+---
+ .../scripts/region/LakesideBoardBackground.ts |  5 +-
+ .../region/LakesideJourneyAtmosphere.ts       | 52 +++++++++++++++++++
+ .../region/LakesideJourneyAtmosphere.ts.meta  |  9 ++++
+ .../scripts/region/RegionJourneyAdapter.ts    | 48 ++++++++++++++---
+ .../scripts/world-r1/RegionJourneyCore.ts     |  7 ++-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ .../test_lakeside_journey_atmosphere.cjs      | 50 ++++++++++++++++++
+ 7 files changed, 161 insertions(+), 11 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_journey_atmosphere.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 1de3c3f..6de8196 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -4,6 +4,7 @@ import {applyCameraPose} from '../world-r1/CameraPose';
+ import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+ import type {Cancellation} from '../world-r1/WorldFlowCore';
++import {lakesideJourneyBaseIllum} from './LakesideJourneyAtmosphere';
+ import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+@@ -74,9 +75,9 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+  const applyDir=()=>{if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
+   if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum};
+   const P=LAKESIDE_DIR_LIGHT_PARAMS,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(P.sunColorLinear),sk=linearToSrgb8(P.ambientSkyColorLinear),gr=linearToSrgb8(P.ambientGroundColorLinear);
+-  l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);l.illuminance=saved.illum*P.sunIlluminanceScale;
++  l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);const bi=lakesideJourneyBaseIllum()??saved.illum/* build05-next: after the lakeside journey the light is already blended; scale from the island base */;l.illuminance=bi*P.sunIlluminanceScale;
+   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
+-  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;applyFog();};
++  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*P.ambientSkyIllumToSun;applyFog();};
+  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
+  let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
+  const fogMode=lakesideFogModeFromEnv();/* read once per lakeside load */
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+new file mode 100644
+index 0000000..9b9db74
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+@@ -0,0 +1,52 @@
++import {LAKESIDE_CLEAR_COLOR,LAKESIDE_DIR_LIGHT_PARAMS,LAKESIDE_LAYERED_FOG,LAKESIDE_LIGHT_MODE,lakesideFogEnd,linearToSrgb8,type LakesideFogMode} from './LakesideSceneData';
++/** build05-next (lead, 03:00): the island→lakeside journey's final stretch takes the lakeside board lighting (v3.2: main
++ *  directional light direction/colour/illuminance, ambient sky/ground/illum, clear colour, layered fog), so the landing frame
++ *  matches the board. One smootherstep weight over the last part of the route (mid-bridge → 1 m before her stop): no pop.
++ *  Pure numbers only (no engine imports); RegionJourneyAdapter writes them to the scene and restores everything on dispose.
++ *  Targets are exactly LakesideBoardBackground.applyDir/applyFog's values, computed from the SAME base (the island values
++ *  captured before the blend), so the board's own apply at entry is a no-op visually. */
++export const LAKESIDE_JOURNEY_ATMOSPHERE=Object.freeze({
++ /** Blend starts this fraction along the rainbow bridge (she is crossing into the lake world)... */
++ startBridgeFraction:.5,
++ /** ...and is complete this many metres before her stop, so the landing frame (and the 1 s landing→board blend) is fully lit. */
++ endBeforeStopM:1,
++ /** Layered fog strength floor while primed: fogRange/weight, weight ≥ this (density ∝ weight; 1e-3 ≈ invisible). */
++ minFogWeight:1e-3,
++ /** Linear-fog A/B (?lakefog=linear60): start/end pushed this far out at weight 0. */
++ linearFogPushM:2000,
++});
++export type Rgb=readonly [number,number,number];
++export type LakesideAtmosphereBase=Readonly<{illum:number;color:Rgb;sky:Rgb;ground:Rgb;skyIllum:number;clear:Rgb}>;
++export type LakesideAtmosphereFog=Readonly<{type:0|3;color:Rgb;top:number;range:number;atten:number;start:number;end:number}>;
++export type LakesideAtmosphereFrame=Readonly<{weight:number;illum:number;color:Rgb;sky:Rgb;ground:Rgb;skyIllum:number;clear:Rgb;fog:LakesideAtmosphereFog|null}>;
++const smooth5=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
++/** 0 before mid-bridge, 1 from (total - endBeforeStopM) on; C2-smooth in between. Distance = the controller's walked distance. */
++export function lakesideAtmosphereWeight(route:Readonly<{bridgeStart:number;bridgeEnd:number}>,total:number,distance:number):number{
++ const A=LAKESIDE_JOURNEY_ATMOSPHERE,a=route.bridgeStart+(route.bridgeEnd-route.bridgeStart)*A.startBridgeFraction,b=Math.max(a+1e-3,total-A.endBeforeStopM);
++ return Number.isFinite(distance)?smooth5((distance-a)/(b-a)):0;
++}
++export function hexRgb(hex:string):Rgb{const h=String(hex).replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
++const mix=(a:Rgb,b:Rgb,w:number):Rgb=>[Math.round(a[0]+(b[0]-a[0])*w),Math.round(a[1]+(b[1]-a[1])*w),Math.round(a[2]+(b[2]-a[2])*w)];
++/** True when the board uses the directional-light look (the journey then blends toward it; otherwise nothing is touched). */
++export const LAKESIDE_JOURNEY_ATMOSPHERE_ON=LAKESIDE_LIGHT_MODE==='dir';
++/** The board's targets for a base (LakesideBoardBackground.applyDir: illum × sunIlluminanceScale, skyIllum = illum × ambientSkyIllumToSun). */
++export function lakesideAtmosphereTarget(base:LakesideAtmosphereBase):LakesideAtmosphereBase{
++ const P=LAKESIDE_DIR_LIGHT_PARAMS;
++ return {illum:base.illum*P.sunIlluminanceScale,color:linearToSrgb8(P.sunColorLinear),sky:linearToSrgb8(P.ambientSkyColorLinear),ground:linearToSrgb8(P.ambientGroundColorLinear),skyIllum:base.illum*P.ambientSkyIllumToSun,clear:hexRgb(LAKESIDE_CLEAR_COLOR)};
++}
++/** Scene values at weight w. Fog (same mode switch as the board, ?lakefog): layered = the board's slab with fogRange/w
++ *  (density ∝ w, so it grows from nothing; type/enable never change during the blend, no shader-variant switch mid-walk);
++ *  (waterY: world height of the lakeside root, the slab is authored relative to the lake; the board rig sits at 0);
++ *  linear60 = the board's start/end pushed out by (1-w)·linearFogPushM; off = fog untouched (null). */
++export function lakesideAtmosphereAt(base:LakesideAtmosphereBase,weight:number,fogMode:LakesideFogMode,waterY:number=0):LakesideAtmosphereFrame{
++ const w=Math.max(0,Math.min(1,Number.isFinite(weight)?weight:0)),t=lakesideAtmosphereTarget(base),P=LAKESIDE_DIR_LIGHT_PARAMS,L=LAKESIDE_LAYERED_FOG,A=LAKESIDE_JOURNEY_ATMOSPHERE;
++ const fog:LakesideAtmosphereFog|null=!P.fogEnabled||fogMode==='off'?null:fogMode==='layered'
++  ?{type:3,color:P.fogColorSrgb,top:L.fogTop+waterY,range:L.fogRange/Math.max(A.minFogWeight,w),atten:L.fogAtten,start:P.fogStart,end:lakesideFogEnd(P)}
++  :{type:0,color:P.fogColorSrgb,top:L.fogTop,range:L.fogRange,atten:L.fogAtten,start:P.fogStart+(1-w)*A.linearFogPushM,end:lakesideFogEnd(P)+(1-w)*A.linearFogPushM};
++ return {weight:w,illum:base.illum+(t.illum-base.illum)*w,color:mix(base.color,t.color,w),sky:mix(base.sky,t.sky,w),ground:mix(base.ground,t.ground,w),skyIllum:base.skyIllum+(t.skyIllum-base.skyIllum)*w,clear:mix(base.clear,t.clear,w),fog};
++}
++/** While a journey holds the lighting, the island main-light illuminance it captured. The board lease scales from this
++ *  base instead of the (already blended) current value, so the board lands on the same numbers (no double scale). */
++let journeyBaseIllum:number|null=null;
++export function setLakesideJourneyBaseIllum(v:number|null){journeyBaseIllum=typeof v==='number'&&Number.isFinite(v)?v:null;}
++export function lakesideJourneyBaseIllum():number|null{return journeyBaseIllum;}
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts.meta b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts.meta
+new file mode 100644
+index 0000000..d77f05e
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "27c81d62-d8b1-4790-9521-4a4a41838d5d",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 9b1bfe5..25922c5 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -1,5 +1,5 @@
+ import {waitRegionAsset} from './RegionAssetDeadline';
+-import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isValid, utils} from 'cc';
++import {Animation, Camera, Color, DirectionalLight, Material, Mesh, MeshRenderer, Node, Quat, Vec3, director, gfx, isValid, utils} from 'cc';
+ import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
+ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+ import {SkyNightTexture} from '../render/SkyNightTexture';
+@@ -11,6 +11,8 @@ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/R
+ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+ import {mountLakesideScenery} from './LakesideBoardBackground';
+ import {lakesideJourney} from './LakesideCameraLayout';
++import {LAKESIDE_DIR_LIGHT_PARAMS,lakesideFogModeFromEnv} from './LakesideSceneData';
++import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideAtmosphereWeight,setLakesideJourneyBaseIllum,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
+ function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
+ function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
+ /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
+@@ -37,7 +39,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+  return new RegionJourneyController({
+   readCamera():Pose{const c=options.camera,p=c.node.worldPosition,q=c.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:c.fov};},
+   async prepare(from,to,start,token,progress){
+-   if(to==='lakeside')return prepareLakesideJourney(options.parent,from,start,token,progress);
++   if(to==='lakeside')return prepareLakesideJourney(options.parent,options.camera,from,start,token,progress);
+    const def=REGIONS[to];if(!def||to==='island')throw Error('journey-region-unavailable');
+    const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
+    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
+@@ -108,19 +110,51 @@ function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNigh
+ /** 风铃湖畔: island → lakeside journey (运镜bot's LakesideCameraLayout.lakesideJourney). The real r5h3 scene (same instances as
+  *  the board background, default world layer so the world camera sees it) is mounted rigidly at the layout's root/yaw; the
+  *  route carries the Landing A focus/landing overrides. Same rainbow bridge strips as the other legs. */
+-async function prepareLakesideJourney(parent:Node,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
++async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+  if(from!=='island')throw Error('journey-region-order');
+  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
+- const release=()=>{if(dead)return;dead=true;rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
++ let waterY=0;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
++ const release=()=>{if(dead)return;dead=true;atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+  try{
+   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
+   await mountLakesideScenery(model,token,take);token.check();progress(.86);
+   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
+-  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);
++  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];
+   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
+-  const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing};
++  const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
+   rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
+-  return {route,show(visible){if(!dead)rig.active=visible;},dispose:release};
++  return {route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
+ }
++/** build05-next: island→lakeside journey lighting (LakesideJourneyAtmosphere). prime() runs when the journey scenes are
++ *  shown (under the set-off fade's full black): it captures the island values and switches the fog to the board's mode at
++ *  ~zero density, so the CC_USE_FOG shader-variant change happens under black (and the board entry later needs no switch).
++ *  apply(w) writes the blended values every walked frame; restore() puts back exactly what it captured (dispose / 主页). */
++function lakesideJourneyAtmosphere(camera:Camera,waterY:()=>number){
++ type Saved={light:DirectionalLight|null;rot:Quat|null;wrot:Quat|null;color:Color|null;illum:number;sky:Color|null;ground:Color|null;skyIllum:number;clear:Color|null;
++  fog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null;base:LakesideAtmosphereBase};
++ let saved:Saved|null=null;const fogMode=lakesideFogModeFromEnv(),target=new Quat(),q=new Quat();
++ const rgb=(c:Color|null|undefined,f:Rgb):Rgb=>c?[c.r,c.g,c.b]:f,col=(c:Rgb)=>new Color(c[0],c[1],c[2],255);
++ const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
++ const write=(w:number)=>{const s=saved;if(!s)return;const f=lakesideAtmosphereAt(s.base,w,fogMode,waterY()),g=(director.getScene() as any)?.globals;
++  if(s.light&&isValid(s.light,true)&&s.wrot){const v=LAKESIDE_DIR_LIGHT_PARAMS.sunForward;Quat.fromViewUp(target,new Vec3(-v[0],-v[1],-v[2]).normalize(),Vec3.UP);Quat.slerp(q,s.wrot,target,f.weight);s.light.node.setWorldRotation(q);
++   s.light.color=col(f.color);s.light.illuminance=f.illum;}
++  const amb=g?.ambient;if(amb){amb.skyLightingColor=col(f.sky);amb.groundLightingColor=col(f.ground);amb.skyIllum=f.skyIllum;}
++  if(camera&&isValid(camera,true))camera.clearColor=col(f.clear);
++  const fog=g?.fog;if(fog&&f.fog){if(fog.type!==f.fog.type)fog.type=f.fog.type;fog.fogColor=col(f.fog.color);fog.fogTop=f.fog.top;fog.fogRange=f.fog.range;fog.fogAtten=f.fog.atten;fog.fogStart=f.fog.start;fog.fogEnd=f.fog.end;if(!fog.enabled)fog.enabled=true;}};
++ return {
++  prime(){if(saved||!LAKESIDE_JOURNEY_ATMOSPHERE_ON)return;try{const l=mainLight(),g=(director.getScene() as any)?.globals,amb=g?.ambient,fog=g?.fog,lv=l&&isValid(l,true)?l:null;
++   const illum=lv?lv.illuminance:0,skyIllum=amb?amb.skyIllum:0;
++   saved={light:lv,rot:lv?lv.node.rotation.clone():null,wrot:lv?lv.node.worldRotation.clone():null,color:lv?lv.color.clone():null,illum,sky:amb?amb.skyLightingColor.clone():null,ground:amb?amb.groundLightingColor.clone():null,skyIllum,
++    clear:camera&&isValid(camera,true)?camera.clearColor.clone():null,fog:fog?{enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd,top:fog.fogTop,range:fog.fogRange,atten:fog.fogAtten}:null,
++    base:{illum,color:rgb(lv?.color,[255,255,255]),sky:rgb(amb?.skyLightingColor,[255,255,255]),ground:rgb(amb?.groundLightingColor,[255,255,255]),skyIllum,clear:rgb(camera?.clearColor,[51,51,51])}};
++   setLakesideJourneyBaseIllum(lv?illum:null);write(0);}catch(error){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'journey-atmosphere-skipped',error:String((error as any)?.message||error)}));}catch{}}},
++  apply(w:number){try{write(w);}catch{}},
++  restore(){const s=saved;saved=null;setLakesideJourneyBaseIllum(null);if(!s)return;try{const g=(director.getScene() as any)?.globals,amb=g?.ambient,fog=g?.fog;
++   if(s.light&&isValid(s.light,true)){if(s.rot)s.light.node.setRotation(s.rot);if(s.color)s.light.color=s.color;s.light.illuminance=s.illum;}
++   if(amb){if(s.sky)amb.skyLightingColor=s.sky;if(s.ground)amb.groundLightingColor=s.ground;amb.skyIllum=s.skyIllum;}
++   if(s.clear&&camera&&isValid(camera,true))camera.clearColor=s.clear;
++   if(fog&&s.fog){fog.type=s.fog.type;fog.fogColor=s.fog.color;fog.fogStart=s.fog.start;fog.fogEnd=s.fog.end;fog.fogTop=s.fog.top;fog.fogRange=s.fog.range;fog.fogAtten=s.fog.atten;fog.enabled=s.fog.enabled;}}catch{}},
++ };
++}
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index bbca35f..1ea0280 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -2,7 +2,8 @@ import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease
+ export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
+ export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
+ export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming }>;
+-export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
++/** progress (optional, build05-next): walked distance along route.path, every observed frame and once at the stop. */
++export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; progress?(distance:number):void; }
+ export interface JourneySceneAdapter {
+  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
+  readCamera():Pose;
+@@ -208,6 +209,7 @@ export class RegionJourneyController {
+   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
+   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
+   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);
++  this.leaseProgress();
+   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
+  }
+  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
+@@ -228,7 +230,7 @@ export class RegionJourneyController {
+     await token.wait(actor.perform(timing?{kind:'walk',path,duration:timing.durationS,distanceAt:(time:number)=>journeyDistanceAt(L,timing,time)}:{kind:'walk',path,duration:L/this.lease.route.speed},token));token.check();}
+    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
+    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
+-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
++   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);this.leaseProgress();
+    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+   }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
+    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
+@@ -238,6 +240,7 @@ export class RegionJourneyController {
+  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
+  restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
+  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
++ private leaseProgress(){const l=this.lease;if(!l?.progress)return;try{l.progress(this.distance);}catch{}}
+  /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.
+   * Not a completion: region unlocks/records live in the campaign save, not here; the next trip simply walks the route again. */
+  returnToIsland():void{if(this.busy)throw Error('journey-busy');if(this.phase==='disposed')throw Error('journey-disposed');
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 9621076..e197e51 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -63,6 +63,7 @@ const tests=[
+  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
+  ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
+  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
++ ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/lakeside/test_lakeside_journey_atmosphere.cjs b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+new file mode 100644
+index 0000000..7aadbc9
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+@@ -0,0 +1,50 @@
++// build05-next (lead 03:00): the island→lakeside journey's final stretch takes the lakeside board lighting (main light
++// direction/colour/illuminance, ambient, clear colour, layered fog) with one smooth blend, so the landing frame matches the board.
++// Real TS (board-ui harness) on the real route (lakesideJourney + route.timing, 60 Hz); wiring checked in the sources.
++const J=require('../journey-integration/journey-scene.cjs'),{fs,assert,H,S,Core,routeLength,start}=J;
++const path=require('path');
++const A=H.load(S+'region/LakesideJourneyAtmosphere.ts'),LK=H.load(S+'region/LakesideCameraLayout.ts'),D=H.load(S+'region/LakesideSceneData.ts');
++const j=LK.lakesideJourney(start),P=[...j.approach,...j.bridge.slice(1),...j.arrival],T=routeLength(P);
++const route={bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)])};
++const W=d=>A.lakesideAtmosphereWeight(route,T,d);
++// weight: 0 until mid-bridge, 1 from 1 m before the stop, monotone and smooth
++const a=route.bridgeStart+(route.bridgeEnd-route.bridgeStart)*.5,b=T-1;
++assert.equal(W(0),0);assert.equal(W(a-0.01),0);assert.equal(W(b),1);assert.equal(W(T),1);
++// island day base (scene authored values are unknown here: use a neutral day + a night base; the blend must hit the board numbers exactly)
++const P0=D.LAKESIDE_DIR_LIGHT_PARAMS;
++for(const [label,base] of [['day',{illum:65000,color:[255,244,214],sky:[200,220,255],ground:[120,110,90],skyIllum:20000,clear:[51,51,51]}],['night',{illum:9000,color:[150,170,255],sky:[40,50,90],ground:[20,20,30],skyIllum:3000,clear:[51,51,51]}]]){
++ const t=A.lakesideAtmosphereTarget(base),f1=A.lakesideAtmosphereAt(base,W(T),'layered',j.root[1]);
++ assert.equal(f1.illum,base.illum*P0.sunIlluminanceScale);assert.equal(f1.skyIllum,base.illum*P0.ambientSkyIllumToSun,'board: skyIllum = base illum × ambientSkyIllumToSun');
++ assert.deepEqual([...f1.color],D.linearToSrgb8(P0.sunColorLinear));assert.deepEqual([...f1.sky],D.linearToSrgb8(P0.ambientSkyColorLinear));assert.deepEqual([...f1.ground],D.linearToSrgb8(P0.ambientGroundColorLinear));
++ assert.deepEqual([...f1.clear],[0xf2,0xb9,0x8a],'clear = LAKESIDE_CLEAR_COLOR');
++ assert.equal(f1.fog.type,3);assert.equal(f1.fog.range,D.LAKESIDE_LAYERED_FOG.fogRange);assert.equal(f1.fog.atten,D.LAKESIDE_LAYERED_FOG.fogAtten);
++ const f0=A.lakesideAtmosphereAt(base,0,'layered');assert.equal(f0.illum,base.illum);assert.deepEqual([...f0.color],base.color);assert(f0.fog.range>=D.LAKESIDE_LAYERED_FOG.fogRange*999,'primed fog ≈ invisible');
++ // time domain: the timed walk (journeyDistanceAt, route.timing) at 60 Hz -> per-frame steps (no pop)
++ const tm=j.timing;let prev=null,maxStep={colour:0,illumPct:0,w:0},t0=null,t1=null,maxDwDt=0;
++ for(let k=0;k<=tm.durationS*60;k++){const time=k/60,d=Core.journeyDistanceAt(T,tm,time),w=W(d),f=A.lakesideAtmosphereAt(base,w,'layered');
++  if(w>0&&t0==null)t0=time;if(w>=1&&t1==null)t1=time;
++  if(prev){maxStep.colour=Math.max(maxStep.colour,...[0,1,2].map(i=>Math.abs(f.color[i]-prev.color[i])),...[0,1,2].map(i=>Math.abs(f.sky[i]-prev.sky[i])),...[0,1,2].map(i=>Math.abs(f.ground[i]-prev.ground[i])),...[0,1,2].map(i=>Math.abs(f.clear[i]-prev.clear[i])));
++   maxStep.illumPct=Math.max(maxStep.illumPct,Math.abs(f.illum-prev.illum)/base.illum*100);maxDwDt=Math.max(maxDwDt,(w-prev.weight)*60);assert(w>=prev.weight-1e-12,'monotone');}
++  prev=f;}
++ assert(t0!=null&&t1!=null&&t1-t0>=3,'blend lasts ≥ 3 s ('+(t1-t0).toFixed(2)+' s)');
++ assert(maxStep.colour<=6,'no colour pop: max per-frame step '+maxStep.colour+' /255');
++ assert(t1<=tm.durationS,'fully lit before she stops');
++ console.log(label+': blend '+t0.toFixed(2)+'→'+t1.toFixed(2)+' s of '+tm.durationS+' s (d '+a.toFixed(1)+'→'+b.toFixed(1)+' m of '+T.toFixed(1)+' m); peak dw/dt '+maxDwDt.toFixed(3)+'/s; max per-frame step: colour '+maxStep.colour+'/255, sun illum '+maxStep.illumPct.toFixed(2)+'%');
++}
++console.log('lakeside root y (fog slab offset) '+j.root[1].toFixed(3)+' m');
++// linear A/B and off follow ?lakefog like the board
++const nb={illum:1,color:[1,1,1],sky:[1,1,1],ground:[1,1,1],skyIllum:1,clear:[1,1,1]};
++assert.equal(A.lakesideAtmosphereAt(nb,1,'off').fog,null);const lf=A.lakesideAtmosphereAt(nb,1,'linear60');assert.equal(lf.fog.type,0);assert.equal(lf.fog.end,D.lakesideFogEnd(D.LAKESIDE_DIR_LIGHT_PARAMS));
++// base-illum registry (board scales from the island base, not the blended value)
++assert.equal(A.lakesideJourneyBaseIllum(),null);A.setLakesideJourneyBaseIllum(123);assert.equal(A.lakesideJourneyBaseIllum(),123);A.setLakesideJourneyBaseIllum(null);assert.equal(A.lakesideJourneyBaseIllum(),null);
++// wiring
++const rd=f=>fs.readFileSync(path.join(S,f),'utf8'),core=rd('world-r1/RegionJourneyCore.ts'),ad=rd('region/RegionJourneyAdapter.ts'),bg=rd('region/LakesideBoardBackground.ts');
++assert(/progress\?\(distance:number\):void;/.test(core));
++assert((core.match(/this\.leaseProgress\(\);/g)||[]).length===2,'observe + stop');
++assert(/private leaseProgress\(\)\{const l=this\.lease;if\(!l\?\.progress\)return;try\{l\.progress\(this\.distance\);\}catch\{\}\}/.test(core),'a lighting error never breaks the walk');
++assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)atmosphere\.prime\(\);\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
++assert(/const release=\(\)=>\{if\(dead\)return;dead=true;atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
++assert(/landing:L\.landing,timing:L\.timing/.test(ad),'17 s S-curve walk from 运镜bot layout');
++assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(ad)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(ad),'sun direction slerps to sunForward');
++assert(/const bi=lakesideJourneyBaseIllum\(\)\?\?saved\.illum/.test(bg)&&/l\.illuminance=bi\*P\.sunIlluminanceScale/.test(bg)&&/amb\.skyIllum=bi\*P\.ambientSkyIllumToSun/.test(bg),'board: no double scale after the journey');
++console.log('lakeside journey atmosphere OK');
+-- 
+2.47.3
+

@@ -1,0 +1,25 @@
+00:00.071  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.394  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-clipfix/pipe/scene/cine_m1_anim.blend"
+00:00.659  system.path      | WARNING Could not get a list of mounted file-systems
+00:04.213  render           | Saved: 'evidence/stills_v4/v4_src_f004_lap_game_r24.png'
+00:07.344  render           | Saved: 'evidence/stills_v4/v4_src_f004_lap_game_portrait45.png'
+00:09.646  render           | Saved: 'evidence/stills_v4/v4_src_f004_lap_closeFront.png'
+00:12.614  render           | Saved: 'evidence/stills_v4/v4_src_f004_lap_closeRight.png'
+00:14.999  render           | Saved: 'evidence/stills_v4/v4_src_f004_lap_closeFront_marker.png'
+CU v4_src 4 lap
+00:17.945  render           | Saved: 'evidence/stills_v4/v4_src_f005_lap_game_r24.png'
+00:20.972  render           | Saved: 'evidence/stills_v4/v4_src_f005_lap_game_portrait45.png'
+00:23.489  render           | Saved: 'evidence/stills_v4/v4_src_f005_lap_closeFront.png'
+00:26.090  render           | Saved: 'evidence/stills_v4/v4_src_f005_lap_closeRight.png'
+00:28.479  render           | Saved: 'evidence/stills_v4/v4_src_f005_lap_closeFront_marker.png'
+CU v4_src 5 lap
+00:31.245  render           | Saved: 'evidence/stills_v4/v4_src_f037_lap_game_r24.png'
+00:34.346  render           | Saved: 'evidence/stills_v4/v4_src_f037_lap_game_portrait45.png'
+00:36.601  render           | Saved: 'evidence/stills_v4/v4_src_f037_lap_closeFront.png'
+00:39.100  render           | Saved: 'evidence/stills_v4/v4_src_f037_lap_closeRight.png'
+00:41.433  render           | Saved: 'evidence/stills_v4/v4_src_f037_lap_closeFront_marker.png'
+CU v4_src 37 lap
+CUDONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

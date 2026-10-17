@@ -1,0 +1,78 @@
+{
+ "cine_open_stand": {
+  "rootStart": {
+   "position": [
+    0.46267,
+    0.0,
+    -4.193909
+   ],
+   "yawDeg": -114.591553
+  },
+  "rootEnd": {
+   "position": [
+    -0.016249,
+    -0.0,
+    -4.413085
+   ],
+   "yawDeg": -114.591553
+  },
+  "frames": 91
+ },
+ "cine_open_turn": {
+  "rootStart": {
+   "position": [
+    -0.016249,
+    0.0,
+    -4.413085
+   ],
+   "yawDeg": -114.591553
+  },
+  "rootEnd": {
+   "position": [
+    -0.016249,
+    -0.0,
+    -4.413085
+   ],
+   "yawDeg": -2.82901
+  },
+  "frames": 46
+ },
+ "cine_open_safe_end": {
+  "rootStart": {
+   "position": [
+    -0.016249,
+    0.0,
+    -4.413085
+   ],
+   "yawDeg": -2.82901
+  },
+  "rootEnd": {
+   "position": [
+    -0.016249,
+    -0.0,
+    -4.413085
+   ],
+   "yawDeg": -2.82901
+  },
+  "frames": 1
+ },
+ "cine_home_safe_end": {
+  "rootStart": {
+   "position": [
+    0.46267,
+    0.0,
+    -4.193909
+   ],
+   "yawDeg": -114.591553
+  },
+  "rootEnd": {
+   "position": [
+    0.46267,
+    -0.591372,
+    -4.193909
+   ],
+   "yawDeg": -114.591553
+  },
+  "frames": 1
+ }
+}

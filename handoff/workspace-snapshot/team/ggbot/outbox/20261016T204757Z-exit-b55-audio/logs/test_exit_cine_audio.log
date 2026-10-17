@@ -1,0 +1,10 @@
+PASS stand-up preloads from region_island bundle; crossing-out plays from t=0; island keeps it
+PASS late clip joins the segment by seeking; > maxLateS is dropped (no desynced footsteps)
+PASS leaving the exit (cancel / home / level) stops and releases the voice; restart plays again
+PASS muted / sfx-muted never start the track
+PASS load failure is silent; __worldFlowLog gets timestamped events
+PASS 「主页」 transition fade applies to the exit track (it is an owned sfx voice)
+PASS Boot feeds world states to GameAudio.onWorldState
+asset sha256 0a929ecaf0bb3295e02cbdc8358eb81c9af2880e32458b7a96440d459936c322 60412
+PASS asset: re-encoded mono mp3 in region_island subpackage, fixed Cocos meta, budget size
+{"status":"PASS_MOCK","cases":8,"creatorBuild":"NOT_RUN","deviceListening":"NOT_RUN"}

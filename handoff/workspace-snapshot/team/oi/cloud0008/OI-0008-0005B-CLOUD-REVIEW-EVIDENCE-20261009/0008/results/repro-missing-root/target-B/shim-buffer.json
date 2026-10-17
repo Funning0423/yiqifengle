@@ -1,0 +1,14 @@
+{
+  "version": "0008-v1",
+  "token": "dae3281db387f952",
+  "installedAt": 1791587481677,
+  "heartbeat": true,
+  "wrapped": [
+    "error",
+    "warn"
+  ],
+  "errors": [],
+  "warns": [],
+  "onError": [],
+  "unhandled": []
+}

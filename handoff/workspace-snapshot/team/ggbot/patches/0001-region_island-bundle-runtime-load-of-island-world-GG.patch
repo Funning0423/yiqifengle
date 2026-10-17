@@ -1,0 +1,154 @@
+From bbb483ec6be02379e5cc9f049b0d0248d36602b0 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 9 Oct 2026 13:22:53 -0500
+Subject: [PATCH] region_island bundle + runtime load of island world (GGbot)
+
+---
+ assets/bundles.meta                           |   9 +++++++
+ assets/bundles/region_island.meta             |  14 ++++++++++
+ .../region_island}/combined_anchors_m.json    |   0
+ .../combined_anchors_m.json.meta              |   0
+ .../combined_collision_proxies.json           |   0
+ .../combined_collision_proxies.json.meta      |   0
+ .../region_island}/combined_visual_m.glb      | Bin
+ .../region_island}/combined_visual_m.glb.meta |   0
+ assets/scenes/WorldR5Integration.scene        |   4 ---
+ assets/scripts/WorldIntegrationBoot.ts        |  25 ++++++++++++++----
+ 10 files changed, 43 insertions(+), 9 deletions(-)
+ create mode 100644 assets/bundles.meta
+ create mode 100644 assets/bundles/region_island.meta
+ rename assets/{resources/firstslice => bundles/region_island}/combined_anchors_m.json (100%)
+ rename assets/{resources/firstslice => bundles/region_island}/combined_anchors_m.json.meta (100%)
+ rename assets/{resources/firstslice => bundles/region_island}/combined_collision_proxies.json (100%)
+ rename assets/{resources/firstslice => bundles/region_island}/combined_collision_proxies.json.meta (100%)
+ rename assets/{resources/firstslice => bundles/region_island}/combined_visual_m.glb (100%)
+ rename assets/{resources/firstslice => bundles/region_island}/combined_visual_m.glb.meta (100%)
+
+diff --git a/assets/bundles.meta b/assets/bundles.meta
+new file mode 100644
+index 0000000..86708f9
+--- /dev/null
++++ b/assets/bundles.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "1.2.0",
++  "importer": "directory",
++  "imported": true,
++  "uuid": "1677b966-2816-4602-8ece-b316bf972c87",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/assets/bundles/region_island.meta b/assets/bundles/region_island.meta
+new file mode 100644
+index 0000000..78d41dc
+--- /dev/null
++++ b/assets/bundles/region_island.meta
+@@ -0,0 +1,14 @@
++{
++  "ver": "1.2.0",
++  "importer": "directory",
++  "imported": true,
++  "uuid": "4625f7b4-6336-4e06-8b24-08b7f26f4a6e",
++  "files": [],
++  "subMetas": {},
++  "userData": {
++    "isBundle": true,
++    "bundleConfigID": "default",
++    "bundleName": "region_island",
++    "priority": 1
++  }
++}
+diff --git a/assets/resources/firstslice/combined_anchors_m.json b/assets/bundles/region_island/combined_anchors_m.json
+similarity index 100%
+rename from assets/resources/firstslice/combined_anchors_m.json
+rename to assets/bundles/region_island/combined_anchors_m.json
+diff --git a/assets/resources/firstslice/combined_anchors_m.json.meta b/assets/bundles/region_island/combined_anchors_m.json.meta
+similarity index 100%
+rename from assets/resources/firstslice/combined_anchors_m.json.meta
+rename to assets/bundles/region_island/combined_anchors_m.json.meta
+diff --git a/assets/resources/firstslice/combined_collision_proxies.json b/assets/bundles/region_island/combined_collision_proxies.json
+similarity index 100%
+rename from assets/resources/firstslice/combined_collision_proxies.json
+rename to assets/bundles/region_island/combined_collision_proxies.json
+diff --git a/assets/resources/firstslice/combined_collision_proxies.json.meta b/assets/bundles/region_island/combined_collision_proxies.json.meta
+similarity index 100%
+rename from assets/resources/firstslice/combined_collision_proxies.json.meta
+rename to assets/bundles/region_island/combined_collision_proxies.json.meta
+diff --git a/assets/resources/firstslice/combined_visual_m.glb b/assets/bundles/region_island/combined_visual_m.glb
+similarity index 100%
+rename from assets/resources/firstslice/combined_visual_m.glb
+rename to assets/bundles/region_island/combined_visual_m.glb
+diff --git a/assets/resources/firstslice/combined_visual_m.glb.meta b/assets/bundles/region_island/combined_visual_m.glb.meta
+similarity index 100%
+rename from assets/resources/firstslice/combined_visual_m.glb.meta
+rename to assets/bundles/region_island/combined_visual_m.glb.meta
+diff --git a/assets/scenes/WorldR5Integration.scene b/assets/scenes/WorldR5Integration.scene
+index 0103028..96c9090 100644
+--- a/assets/scenes/WorldR5Integration.scene
++++ b/assets/scenes/WorldR5Integration.scene
+@@ -294,10 +294,6 @@
+     },
+     "_enabled": true,
+     "__prefab": null,
+-    "model": {
+-      "__uuid__": "498b3fa5-2dd3-4e86-93b8-637ae51438fe@87291",
+-      "__expectedType__": "cc.Prefab"
+-    },
+     "smokeFixture": {
+       "__uuid__": "4bce6d5e-650d-4325-9ef1-68c769f374b1",
+       "__expectedType__": "cc.JsonAsset"
+diff --git a/assets/scripts/WorldIntegrationBoot.ts b/assets/scripts/WorldIntegrationBoot.ts
+index ab1931a..c035a4e 100644
+--- a/assets/scripts/WorldIntegrationBoot.ts
++++ b/assets/scripts/WorldIntegrationBoot.ts
+@@ -1,10 +1,13 @@
+-import {_decorator,Component,Prefab,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler} from 'cc';
++import {_decorator,Component,Prefab,assetManager,isValid,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler} from 'cc';
+ import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
+ import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
+ import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
+ import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/WorldFlowCore';
+ import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
+ const {ccclass,property}=_decorator;
++/** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
++const ISLAND_BUNDLE='region_island';
++const ISLAND_MODEL_UUID='498b3fa5-2dd3-4e86-93b8-637ae51438fe@87291';
+ /** Explicit flow-reference stand-in. The calibrated flag certifies only these reference coordinates,
+  * never B body/clothing/contact. No animation clips/root motion/collision acceptance. */
+ class FlowReferenceStandin implements CharacterAdapter {
+@@ -20,15 +23,27 @@ class FlowReferenceStandin implements CharacterAdapter {
+ }
+ @ccclass('WorldIntegrationBoot')
+ export class WorldIntegrationBoot extends Component {
+- @property(Prefab)model:Prefab|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
++ private model:Prefab|null=null;private loading=false;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private error='';
+- start(){profiler.hideStats();if(!this.model||!this.smokeFixture)throw Error('Bind existing model/fixture');const scene=director.getScene()!;const camera=scene.getComponentsInChildren(Camera)[0];camera.visibility&=~Layers.Enum.UI_2D;
+- const owner=new Node('IsolatedWorldComposition');scene.addChild(owner);this.composition=owner.addComponent(WorldNativeComposition);this.composition.firstsliceModel=this.model;this.composition.worldCamera=camera;this.composition.smokeFixture=this.smokeFixture;
++ start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+  const reference=new Node('FLOW_REFERENCE_PLACEHOLDER_NOT_B');scene.addChild(reference);const shape=new Node('GeometricFlowMarker_NOT_CHARACTER_ART');reference.addChild(shape);shape.setPosition(0,.78,0);const renderer=shape.addComponent(MeshRenderer);renderer.mesh=utils.createMesh(primitives.capsule(.12,.12,1.4));const mat=new Material();mat.initialize({effectName:'builtin-standard'});mat.setProperty('albedo',new Color('#b278bb'));mat.setProperty('roughness',1);renderer.setMaterial(mat,0);
+  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
+  const adapter=new FlowReferenceStandin(reference);
+- (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Flow reference placeholder, NOT B/calibrated clothing.'};
+  (this as any)._referenceAdapter=adapter;
++ for(const n of this.controls.values())n.active=false;this.loadWorld();
++ }
++ /** Loads the island bundle + prefab at runtime; shows progress text and a tap-to-retry plate on failure. */
++ private loadWorld(){if(this.loading||this.composition)return;this.loading=true;this.error='';this.setStatus('世界加载中…',false);
++  const fail=(stage:string,err:any)=>{this.loading=false;console.error('Island world '+stage+' failed',err);if(!isValid(this.node,true))return;this.error='世界加载失败，点这里重试';this.setStatus(this.error,true);};
++  assetManager.loadBundle(ISLAND_BUNDLE,(err,bundle)=>{if(!isValid(this.node,true)){this.loading=false;return;}if(err||!bundle)return fail('bundle',err);
++   assetManager.loadAny({uuid:ISLAND_MODEL_UUID},(e:any,prefab:Prefab)=>{if(!isValid(this.node,true)){this.loading=false;return;}if(e||!prefab)return fail('prefab',e);this.loading=false;this.model=prefab;this.mountWorld();});
++  });
++ }
++ private setStatus(text:string,retry:boolean){if(!this.status)return;this.status.string=text;const plate=this.status.node.parent!;plate.active=true;plate.off(Node.EventType.TOUCH_END,this.retryLoad,this);if(retry)plate.on(Node.EventType.TOUCH_END,this.retryLoad,this);}
++ private retryLoad(){if(this.composition)return;this.status.node.parent!.off(Node.EventType.TOUCH_END,this.retryLoad,this);this.loadWorld();}
++ private mountWorld(){const scene=director.getScene()!;const camera=scene.getComponentsInChildren(Camera)[0];camera.visibility&=~Layers.Enum.UI_2D;this.error='';
++ const owner=new Node('IsolatedWorldComposition');scene.addChild(owner);this.composition=owner.addComponent(WorldNativeComposition);this.composition.firstsliceModel=this.model;this.composition.worldCamera=camera;this.composition.smokeFixture=this.smokeFixture;
++ (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Flow reference placeholder, NOT B/calibrated clothing.'};
+  }
+  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
+  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
+-- 
+2.47.3
+

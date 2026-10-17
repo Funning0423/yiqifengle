@@ -1,0 +1,109 @@
+From 7619db583178073a3ef008bbfae13374bebe967d Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:07:09 +0800
+Subject: [PATCH 2/4] provenance: build guard and run-suite print HEAD, tree
+ and UTC time first; short SHA in log names
+
+build-wechat-guarded.sh: first line '== GUARD HEAD=<sha> tree=<tree> short=<7> utc=<Z> target=...';
+each Creator log starts with the same HEAD/tree/utc line and is named <out>.<short>.tryN.log;
+the old <out>.tryN.log is kept as a symlink to it so existing readers and copy steps still work;
+final PASSED line also carries HEAD/tree. Selftest case 1b covers header, log header, SHA name
+and the legacy link.
+run-suite.cjs: first stdout line '== SUITE HEAD=... tree=... short=... utc=... node=...';
+suite.json gains gitTree, gitShort, startedAtUTC (gitHead/startedAt unchanged) and is also written
+as reports/suite.<short>.json (gitignored, so the guard's clean-tree check is unaffected).
+Per-test <id>.stdout/stderr.txt names unchanged.
+---
+ .gitignore                                |  3 +++
+ tools/build-guard/build-wechat-guarded.sh | 11 ++++++++---
+ tools/build-guard/test_build_guard.sh     |  7 ++++++-
+ tools/journey-integration/run-suite.cjs   |  7 +++++--
+ 4 files changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/.gitignore b/.gitignore
+index 60d6e6f..1125e37 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -54,3 +54,6 @@ audio-preview/
+ # Per-run Web build logs, resolved configs, manifests, and generated packages.
+ /output/cloud-web-build/
+ tools/build-guard/logs/
++
++# run-suite.cjs per-commit copy of suite.json (suite.<shortsha>.json); suite.json stays as before
++tools/journey-integration/reports/suite.*.json
+diff --git a/tools/build-guard/build-wechat-guarded.sh b/tools/build-guard/build-wechat-guarded.sh
+index 6e5a542..7aa93cb 100755
+--- a/tools/build-guard/build-wechat-guarded.sh
++++ b/tools/build-guard/build-wechat-guarded.sh
+@@ -21,6 +21,10 @@ die(){ echo; echo "#############################################################
+ [ -d "$P/assets" ] || die "no creator-build-project/assets under $REPO"
+ cd "$REPO" || die "cd $REPO"
+ mkdir -p "$LOG_DIR"
++# Provenance (printed first, before any build): which commit/tree this guard output belongs to, and when (UTC).
++GUARD_HEAD=$(git rev-parse HEAD 2>/dev/null || echo unknown); GUARD_TREE=$(git rev-parse 'HEAD^{tree}' 2>/dev/null || echo unknown)
++GUARD_SHORT=$(git rev-parse --short=7 HEAD 2>/dev/null || echo nogit); GUARD_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
++echo "== GUARD HEAD=$GUARD_HEAD tree=$GUARD_TREE short=$GUARD_SHORT utc=$GUARD_UTC target=$TARGET"
+ # Untracked build products are fine; anything else in git status means the tree is not as committed.
+ dirty(){ git status --porcelain --untracked-files=all | grep -v -E '^\?\? creator-build-project/(build|library|temp|local|profiles)/' | grep -v -E '^\?\? tools/build-guard/logs/' ; }
+ bytes(){ [ -d "$1" ] || { echo 0; return; }; find "$1" -type f -exec wc -c {} + 2>/dev/null | awk '$2!="total"{s+=$1}END{print s+0}'; }
+@@ -38,10 +42,11 @@ build_one(){ # $1 = config json
+   cfg=$1; out=$(outname "$cfg"); [ -n "$out" ] || die "no outputName in $cfg"
+   dest="$P/build/$out"; try=1
+   while [ $try -le "$MAX_TRIES" ]; do
+-    log="$LOG_DIR/$out.try$try.log"
++    # Log name carries the short SHA; the old name <out>.tryN.log stays as a symlink to it for existing readers.
++    log="$LOG_DIR/$out.$GUARD_SHORT.try$try.log"; ln -sf "$(basename "$log")" "$LOG_DIR/$out.try$try.log"
+     echo "== [$out] try $try/$MAX_TRIES  free=$(df -k "$REPO" | tail -1 | awk '{print $4}') KiB"
+     clean_cache; rm -rf "$dest"
+-    "$CREATOR" --project "$P" --build "configPath=$cfg" > "$log" 2>&1; code=$?
++    { echo "== GUARD HEAD=$GUARD_HEAD tree=$GUARD_TREE utc=$GUARD_UTC config=$cfg try=$try"; "$CREATOR" --project "$P" --build "configPath=$cfg"; } > "$log" 2>&1; code=$?
+     size=$(bytes "$dest"); reason=""
+     [ "$size" -gt "$MIN_BYTES" ] || reason="$reason size=$size<=$MIN_BYTES"
+     if grep -q "$ERR_TEXT" "$log"; then reason="$reason log:'$ERR_TEXT'"; fi
+@@ -71,4 +76,4 @@ case "$TARGET" in
+   *) die "target must be wechat, web or both";;
+ esac
+ if [ "$KEEP_CACHE" != 1 ]; then clean_cache; echo "caches removed (library/temp); set KEEP_CACHE=1 to keep"; fi
+-echo "BUILD GUARD PASSED: $SUMMARY bytes  (output under creator-build-project/build/)"
++echo "BUILD GUARD PASSED: $SUMMARY bytes  (output under creator-build-project/build/)  HEAD=$GUARD_SHORT tree=$GUARD_TREE"
+diff --git a/tools/build-guard/test_build_guard.sh b/tools/build-guard/test_build_guard.sh
+index 9c9fa60..e0af672 100755
+--- a/tools/build-guard/test_build_guard.sh
++++ b/tools/build-guard/test_build_guard.sh
+@@ -28,6 +28,11 @@ R=$(mkrepo 1); c=$(run "$R" wechat 1 "bad bad good"); cat "$T/out1"
+ grep -q "BUILD GUARD PASSED: wechat-release 16000000" "$T/out1" || fail "case1 summary"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case1 dirty"
+ [ ! -d "$R/creator-build-project/library" ] && [ ! -d "$R/creator-build-project/temp" ] || fail "case1 caches left"
+ grep -q '"importer":"typescript"' "$R/creator-build-project/assets/scripts/a1.ts.meta" || fail "case1 meta not restored"
++# 1b) provenance: HEAD/tree/UTC printed first and in each log; log name carries the short SHA; old name kept as a link
++H=$(cd "$R" && git rev-parse HEAD); TR=$(cd "$R" && git rev-parse 'HEAD^{tree}'); S=$(cd "$R" && git rev-parse --short=7 HEAD)
++head -1 "$T/out1" | grep -Eq "^== GUARD HEAD=$H tree=$TR short=$S utc=[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]{8}Z" || fail "case1b header"
++L=$R/tools/build-guard/logs; [ -f "$L/wechat-release.$S.try3.log" ] || fail "case1b sha log name"; head -1 "$L/wechat-release.$S.try3.log" | grep -q "HEAD=$H tree=$TR" || fail "case1b log header"
++[ -L "$L/wechat-release.try3.log" ] && grep -q "HEAD=$H" "$L/wechat-release.try3.log" || fail "case1b legacy log name"
+ # 2) bad x3 -> loud failure, exit 2, metas restored, caches gone
+ R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
+ [ "$c" = 2 ] || fail "case2 exit $c"; grep -q "BUILD GUARD FAILED" "$T/out2" || fail "case2 not loud"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case2 dirty"
+@@ -36,4 +41,4 @@ R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
+ R=$(mkrepo 3); echo x >> "$R/creator-build-project/assets/scripts/a1.ts.meta"; c=$(run "$R" wechat 3 "good"); [ "$c" = 2 ] || fail "case3 exit $c"; grep -q "not clean before" "$T/out3" || fail "case3 msg"
+ # 4) both targets, each good first time
+ R=$(mkrepo 4); c=$(run "$R" both 4 "good good"); [ "$c" = 0 ] || fail "case4 exit $c"; grep -q "web-test 16000000" "$T/out4" || fail "case4 both"
+-echo "SELFTEST PASS (4 cases)"
++echo "SELFTEST PASS (4 cases + provenance)"
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index c1f2a6f..9dfdde0 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -73,6 +73,9 @@ const tests=[
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+ const git=a=>cp.execFileSync('git',a,{cwd:ROOT,encoding:'utf8'}).trim();
+-const report={startedAt:new Date().toISOString(),gitHead:git(['rev-parse','HEAD']),worktreeStatus:git(['status','--short']),testRuntime:process.version,typescriptModule:process.env.QF_TYPESCRIPT_MODULE||null,status:'RUNNING',renderedAcceptance:'BLOCKED_NOT_RUN',deviceAcceptance:'NOT_RUN',checks:[]};
++const startedAt=new Date().toISOString(),gitHead=git(['rev-parse','HEAD']),gitTree=git(['rev-parse','HEAD^{tree}']),gitShort=git(['rev-parse','--short=7','HEAD']);
++// Provenance first: which commit/tree and when (UTC) this suite output belongs to.
++console.log(`== SUITE HEAD=${gitHead} tree=${gitTree} short=${gitShort} utc=${startedAt} node=${process.version}`);
++const report={startedAt,startedAtUTC:startedAt,gitHead,gitTree,gitShort,worktreeStatus:git(['status','--short']),testRuntime:process.version,typescriptModule:process.env.QF_TYPESCRIPT_MODULE||null,status:'RUNNING',renderedAcceptance:'BLOCKED_NOT_RUN',deviceAcceptance:'NOT_RUN',checks:[]};
+ for(const [id,file]of selected){const p=path.join(ROOT,file);if(!fs.existsSync(p)){report.checks.push({id,file,status:'BLOCKED',reason:'Required development commit has not been integrated'});continue;}const content=fs.readFileSync(p,'utf8');if(/chromium\.launch|firefox\.launch|webkit\.launch|launchPersistentContext|chromiumExecutable/.test(content)){report.checks.push({id,file,status:'BLOCKED',reason:'Browser-launching legacy suite is excluded from this Node-only runner; use an authorized browser adapter and official artifact'});console.log(id+': BLOCKED_BROWSER');continue;}const started=Date.now(),r=cp.spawnSync(process.execPath,[file],{cwd:ROOT,env:{...process.env,QF_JOURNEY_SOURCE_ROOT:ROOT},encoding:'utf8',timeout:180000,maxBuffer:20*1024*1024});const stdout=r.stdout||'',stderr=r.stderr||'';fs.writeFileSync(path.join(out,id+'.stdout.txt'),stdout);fs.writeFileSync(path.join(out,id+'.stderr.txt'),stderr);report.checks.push({id,file,sourceSHA256:crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),status:r.status===0?'PASS':'FAIL',exitCode:r.status,signal:r.signal,error:r.error?String(r.error):null,durationMs:Date.now()-started,stdout:id+'.stdout.txt',stderr:id+'.stderr.txt'});console.log(id+': '+report.checks.at(-1).status);}
+-report.finishedAt=new Date().toISOString();report.status=report.checks.some(x=>x.status==='FAIL')?'FAIL':report.checks.some(x=>x.status==='BLOCKED')?'BLOCKED':'PASS';report.scope='Production logic and Cocos component doubles only. No official Creator build, actual browser/WebGL rendering, user data, physical device or WeChat execution.';fs.writeFileSync(path.join(out,'suite.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,total:report.checks.length,passed:report.checks.filter(x=>x.status==='PASS').length,renderedAcceptance:report.renderedAcceptance},null,2));if(report.status!=='PASS')process.exitCode=1;
++report.finishedAt=new Date().toISOString();report.status=report.checks.some(x=>x.status==='FAIL')?'FAIL':report.checks.some(x=>x.status==='BLOCKED')?'BLOCKED':'PASS';report.scope='Production logic and Cocos component doubles only. No official Creator build, actual browser/WebGL rendering, user data, physical device or WeChat execution.';fs.writeFileSync(path.join(out,'suite.json'),JSON.stringify(report,null,2)+'\n');fs.writeFileSync(path.join(out,`suite.${gitShort}.json`),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,total:report.checks.length,passed:report.checks.filter(x=>x.status==='PASS').length,renderedAcceptance:report.renderedAcceptance},null,2));if(report.status!=='PASS')process.exitCode=1;
+-- 
+2.47.3
+

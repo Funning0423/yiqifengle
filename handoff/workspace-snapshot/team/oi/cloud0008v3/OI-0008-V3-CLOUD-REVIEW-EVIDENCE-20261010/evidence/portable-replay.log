@@ -1,0 +1,66 @@
+healthy PASS 0
+missing-root-error FAIL 1
+truncate-error FAIL 1
+unrelated-only BLOCKED 2
+cli-exit7 BLOCKED 2
+close-exit5 BLOCKED 2
+cli-lingers-error FAIL 1
+cli-lingers-clean BLOCKED 2
+no-logs BLOCKED 2
+weapp-generic-error PASS 0
+weapp-unclassified-error PASS 0
+weapp-unattributed-generic PASS 0
+weapp-bracket-error PASS 0
+cli-generic-error PASS 0
+canary-mixed-error PASS 0
+canary-mixed-console PASS 0
+canary-boot-missing PASS 0
+known-notice-denied FAIL 1
+known-notice-allowlisted PASS_WITH_ALLOWLISTED_IDE_NOTICE 3
+unattributed-notice-allowlisted PASS_WITH_ALLOWLISTED_IDE_NOTICE 3
+mixed-error-notice-allowlisted PASS_WITH_ALLOWLISTED_IDE_NOTICE 3
+Evidence directory: /tmp/0008-v3-runtime-iO6VHx
+[
+  {
+    "name": "same_inode_size_and_4096_prefix_suffix_rewrite",
+    "result": "error_not_captured_no_incomplete",
+    "fileBytes": 4297,
+    "lines": [],
+    "incomplete": [],
+    "events": [
+      {
+        "t": "2026-10-10T00:09:24.060Z",
+        "event": "baseline",
+        "rootExists": true,
+        "files": 1
+      }
+    ]
+  },
+  {
+    "name": "classifier_coverage",
+    "text": "Error: ordinary failure",
+    "standalone": {
+      "kind": "forbidden",
+      "id": "js-error"
+    },
+    "auditStrongPatternHit": false
+  },
+  {
+    "name": "classifier_coverage",
+    "text": "[其他错误] 资源加载失败",
+    "standalone": {
+      "kind": "forbidden",
+      "id": "other-bracket-error"
+    },
+    "auditStrongPatternHit": false
+  },
+  {
+    "name": "classifier_coverage",
+    "text": "[console.error] ordinary failure",
+    "standalone": {
+      "kind": "unclassified",
+      "id": null
+    },
+    "auditStrongPatternHit": false
+  }
+]

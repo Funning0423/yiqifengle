@@ -1,0 +1,29 @@
+===== cine_open_stand
+self:legLxlegL_ctrl                                max    0.00mm @f90  maxN  384 nz 91 [0..90]
+garment[visible]:legLxdress                        max    0.05mm @f14  maxN   16 nz  6 [14..47]
+garment[visible]:legRxdress                        max   29.58mm @f40  maxN    6 nz  3 [35..42]
+garment[visible]:bowxdress                         max    0.12mm @f50  maxN   30 nz  8 [34..52]
+garment[visible]:apronxdress                       max    0.38mm @f19  maxN  324 nz 20 [15..49]
+garment[midsurface]:bowxdress                      max    0.00mm @f51  maxN   14 nz  5 [35..51]
+garment[midsurface]:apronxdress                    max    6.47mm @f48  maxN   77 nz 12 [15..49]
+thin_sheet:dress_self                              max    0.00mm @f78  maxN  372 nz 41 [16..78]
+thin_sheet:apron_self                              max    0.00mm @f77  maxN    4 nz  4 [74..77]
+layer_cross:apron_vs_dress                         max   27.00mm @f40  maxN    6 nz 57 [0..68]
+proxy:bodyxcol_int_chair_back                      max   32.27mm @f27  maxN  402 nz 43 [0..42]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f15  maxN  353 nz 24 [0..23]
+chair:dressxchair_front_edge                       max    0.00mm @f47  maxN    8 nz  5 [33..47]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f15  maxN  906 nz 24 [0..23]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 322}}
+===== cine_open_turn
+self:legLxlegL_ctrl                                max    0.00mm @f45  maxN  370 nz 46 [0..45]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 292}}
+===== cine_open_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  292 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 292}}
+===== cine_home_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  308 nz  1 [0..0]
+layer_cross:apron_vs_dress                         max    3.07mm @f0  maxN    2 nz  1 [0..0]
+proxy:bodyxcol_int_chair_back                      max   31.80mm @f0  maxN  402 nz  1 [0..0]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f0  maxN  353 nz  1 [0..0]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f0  maxN  906 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 308}, 'layer_cross:apron_vs_dress': {'verts_inside': 2, 'depth_mm': 3.07}, 'proxy:bodyxcol_int_chair_back': {'verts_inside': 402, 'depth_mm': 31.8}, 'proxy:body_nobowxcol_int_chair_back': {'verts_inside': 353, 'depth_mm': 20.76}, 'proxy:hairxcol_int_chair_back': {'verts_inside': 906, 'depth_mm': 23.49}}

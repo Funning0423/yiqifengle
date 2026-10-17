@@ -1,0 +1,88 @@
+--- v1.3.2/runtime/effects/sky-unlit.effect
++++ v1.3.3/runtime/effects/sky-unlit.effect
+@@ -12,6 +12,11 @@
+ //   没有夜景图的天空勾 SKY_NIGHT_TINT_ONLY（v1.2）：不采夜景图，夜晚 = 两色竖直渐变 × nightTint：
+ //     v = 0（天顶）= nightZenith，v = horizonV（地平线，0.857，定稿）= nightHorizon，地平线以下保持 nightHorizon；线性空间插值。
+ //     默认值 = 天空之城夜晚（美术定）：天顶 #101430，地平线 #7086B1。
++// 夜景图加载前（v1.3.3）：默认路径也用同一个两色渐变（nightZenith → nightHorizon，地平线以下保持 nightHorizon）垫底，
++//   nightTexMix（skyParams.z，0 = 渐变，1 = 夜景图）由 SkyNightTexture.ts 在贴图加载完成后 0.3 s 内从 0 推到 1（交叉淡入，没有硬切）。
++//   草甸的两色取自美术 v0.1a 夜景图：天顶 = 第 0 行、地平线 = 第 878 行的线性光平均（SkyNightTexture 设置，README 有实测值）。
++//   默认 nightTexMix = 0：没挂 SkyNightTexture、却在材质里直接拖了夜景图的天空，要把 nightTexMix 设成 1 才显示夜景图。
++//   白天（nightBlend = 0）输出与 v1.3.2 完全相同。
+ // 天空跟随相机（v1.2）：SkyFollowCamera.ts 在 director EVENT_BEFORE_DRAW 把天空节点的世界 X/Z 设成相机的，
+ //   CPU 包围盒跟着走，不会被视锥剔除。SKY_FOLLOW_CAMERA = 1 的 GPU 偏移是 cc_cameraPos.xz − 节点.xz，
+ //   节点已经在相机 XZ 时偏移为 0，两者叠加不会重复位移。GPU 偏移只在模型没被 CPU 剔除时起作用（被剔除的模型不画），
+@@ -35,8 +40,9 @@
+         tilingOffset:     { value: [1, 1, 0, 0] }
+         dayTint:          { value: [1, 1, 1, 1], editor: { type: color } }
+         nightTint:        { value: [1, 1, 1, 1], editor: { type: color } }
+-        nightZenith:      { value: [0.0627, 0.0784, 0.1882, 1], editor: { type: color, parent: SKY_NIGHT_TINT_ONLY } }
+-        nightHorizon:     { value: [0.4392, 0.5255, 0.6941, 1], editor: { type: color, parent: SKY_NIGHT_TINT_ONLY } }
++        nightZenith:      { value: [0.0627, 0.0784, 0.1882, 1], editor: { type: color } }
++        nightHorizon:     { value: [0.4392, 0.5255, 0.6941, 1], editor: { type: color } }
++        nightTexMix:      { value: 0.0, target: skyParams.z, editor: { slide: true, range: [0, 1], step: 0.01 } }
+         nightBlend:       { value: 0.0, target: skyParams.x, editor: { slide: true, range: [0, 1], step: 0.01 } }
+         intensity:        { value: 1.0, target: skyParams.y, editor: { range: [0, 4], step: 0.01 } }
+         scrollSpeed:      { value: 0.002, target: skyVSParams.x, editor: { parent: USE_UV_SCROLL, range: [-0.05, 0.05], step: 0.0005 } }
+@@ -112,9 +118,9 @@
+   uniform SkyFS {
+     vec4 dayTint;         // sRGB
+     vec4 nightTint;       // sRGB
+-    vec4 nightZenith;     // sRGB，SKY_NIGHT_TINT_ONLY：v = 0 的夜空色
+-    vec4 nightHorizon;    // sRGB，SKY_NIGHT_TINT_ONLY：v ≥ horizonV 的夜空色
+-    vec4 skyParams;       // x nightBlend  y intensity  zw reserved
++    vec4 nightZenith;     // sRGB，两色夜空渐变 v = 0 的颜色（SKY_NIGHT_TINT_ONLY 的夜晚 / 默认路径夜景图加载前的垫底）
++    vec4 nightHorizon;    // sRGB，两色夜空渐变 v ≥ horizonV 的颜色
++    vec4 skyParams;       // x nightBlend  y intensity  z nightTexMix（v1.3.3，默认路径：0 = 渐变，1 = 夜景图）  w reserved
+     vec4 horizonParams;   // x horizonFog  y horizonV（地平线的 v，从顶往下量）  z horizonWidth（往上淡出的 v 宽度）  w reserved
+   };
+ 
+@@ -133,7 +139,10 @@
+       float gt = clamp(v_v / max(horizonParams.y, 0.0001), 0.0, 1.0);
+       night = mix(SRGBToLinear(nightZenith.rgb), SRGBToLinear(nightHorizon.rgb), gt);
+     #elif SKY_SOURCE != 1
+-      night = SRGBToLinear(texture(nightTexture, v_uv).rgb);   // 与白天同一套 UV（美术保证对齐）
++      // v1.3.3：夜景图加载前用两色渐变垫底，加载后按 nightTexMix 交叉淡入（不再是黑色）
++      float gt = clamp(v_v / max(horizonParams.y, 0.0001), 0.0, 1.0);
++      vec3 grad = mix(SRGBToLinear(nightZenith.rgb), SRGBToLinear(nightHorizon.rgb), gt);
++      night = mix(grad, SRGBToLinear(texture(nightTexture, v_uv).rgb), skyParams.z);   // 与白天同一套 UV（美术保证对齐）
+       #if SKY_SOURCE == 2
+         night *= v_color;
+       #endif
+--- v1.3.2/runtime/scripts/BakedGroundTexture.ts
++++ v1.3.3/runtime/scripts/BakedGroundTexture.ts
+@@ -36,7 +36,8 @@
+   private tex:any=null;
+   private original:any=null;
+   private disposed=false;
+-  constructor(private target:GroundTextureTarget,private loader:GroundTextureLoader,public bundle:string,public path:string){}
++  /** label（v1.3.3）：只用于警告文字；SkyNightTexture 复用本类按需加载夜空图时传“夜空贴图”。默认值保持 v1.3.2 的文字。 */
++  constructor(private target:GroundTextureTarget,private loader:GroundTextureLoader,public bundle:string,public path:string,public label='烘焙地面贴图'){}
+   /** 现在贴着的烘焙贴图（没贴 = null）。 */
+   get applied():any{return this.tex;}
+   setWanted(on:boolean){
+@@ -57,13 +58,13 @@
+     if(err||!tex){
+       if(!current){this.stats.stale++;return;}
+       this.state='failed';this.stats.failed++;
+-      console.warn(`BakedGroundSwap: 烘焙地面贴图加载失败（${this.bundle}/${this.path}），地面保持原贴图`,err);
++      console.warn(`BakedGroundSwap: ${this.label}加载失败（${this.bundle}/${this.path}），保持原贴图`,err);
+       return;
+     }
+     this.ref(tex);
+     if(!current||!this.target.valid()){this.stats.stale++;this.unref(tex);if(current)this.state='failed';return;}
+     this.original=this.target.get();
+-    try{this.target.set(tex);}catch(e){console.warn('BakedGroundSwap: 换地面贴图失败',e);this.unref(tex);this.state='failed';this.stats.failed++;return;}
++    try{this.target.set(tex);}catch(e){console.warn(`BakedGroundSwap: 换${this.label}失败`,e);this.unref(tex);this.state='failed';this.stats.failed++;return;}
+     this.tex=tex;this.state='applied';this.stats.applied++;
+   }
+   private restore(){
+@@ -71,7 +72,7 @@
+     const t=this.tex;
+     if(t){
+       this.tex=null;
+-      if(this.target.valid()){try{this.target.set(this.original);this.stats.restored++;}catch(e){console.warn('BakedGroundSwap: 换回地面贴图失败',e);}}
++      if(this.target.valid()){try{this.target.set(this.original);this.stats.restored++;}catch(e){console.warn(`BakedGroundSwap: 换回原贴图失败（${this.label}）`,e);}}
+       this.unref(t);
+     }
+     this.original=null;this.state='idle';

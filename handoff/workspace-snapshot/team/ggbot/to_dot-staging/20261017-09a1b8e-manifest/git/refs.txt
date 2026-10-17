@@ -1,0 +1,28 @@
+# git for-each-ref --points-at 09a1b8e
+09a1b8e456fd38dadf632f627189883808307cbe commit	refs/heads/ggbot/audit-fixes-77b76c3
+09a1b8e456fd38dadf632f627189883808307cbe commit	refs/heads/integration/build05-20261016T2048
+
+# git branch -a --contains 09a1b8e
++ cine/lakeside-cam
+  fix/a3-home-sea-fadein
++ ggbot/audit-fixes-77b76c3
++ integration/build05-20261016T2048
+* integration/build05-a3b-20261017T063646Z
+  integration/build05-next-20261017T0438
++ integration/build05-next-20261017T0702Z
++ integration/build05-next-dirlight-20261017T0452
+  integration/build05-next-lights-20261017T0445
++ integration/build05-next-scenefix-20261017T0636
+  integration/build05-next-scenefix-20261017T0636-scenefix-only
++ scene-design/export-fix
+  test/lake-gate-0
++ voice/build05-lakeside-ambience
+  voice/build05-lakeside-journey-wire
+  voice/build05-lakeside-playable
+  voice/lk-pavilion
+  remotes/vb/lakeside
+
+# root commit
+d32920c4376d4f0293106b486860142ea668bcf3
+# rev-list --count 09a1b8e
+462

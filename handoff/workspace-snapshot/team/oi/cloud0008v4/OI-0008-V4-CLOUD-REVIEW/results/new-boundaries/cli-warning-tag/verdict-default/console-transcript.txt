@@ -1,0 +1,12 @@
+2026-10-10T01:35:18.503Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] b5660d94fe23de4e
+2026-10-10T01:35:18.503Z automator.error	[QF-AUDIT-CANARY-LATE] b5660d94fe23de4e
+2026-10-10T01:35:18.001Z shim.errors	[QF-AUDIT-CANARY] b5660d94fe23de4e
+2026-10-10T01:35:18.503Z shim.errors	[QF-AUDIT-CANARY-LATE] b5660d94fe23de4e
+2026-10-10T01:35:18.001Z shim.logs	[QF-AUDIT-HEARTBEAT] b5660d94fe23de4e
+2026-10-10T01:35:18.001Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:35:18.503Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] b5660d94fe23de4e
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/copies/QFFirstOpen-20261010T013516872Z-b59e-d37c7e-default [log] [QF-AUDIT-HEARTBEAT] b5660d94fe23de4e
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/copies/QFFirstOpen-20261010T013516872Z-b59e-d37c7e-default [error] [QF-AUDIT-CANARY] b5660d94fe23de4e
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/copies/QFFirstOpen-20261010T013516872Z-b59e-d37c7e-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/copies/QFFirstOpen-20261010T013516872Z-b59e-d37c7e-default [log] [QF-AUDIT-HEARTBEAT-LATE] b5660d94fe23de4e
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/copies/QFFirstOpen-20261010T013516872Z-b59e-d37c7e-default [error] [QF-AUDIT-CANARY-LATE] b5660d94fe23de4e

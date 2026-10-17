@@ -1,0 +1,54 @@
+{
+ "pose": "sit",
+ "seat": {
+  "xmin": -0.23,
+  "xmax": 0.23,
+  "ymin": -0.305,
+  "ymax": 0.095,
+  "zmin": 0.0,
+  "zmax": 0.4
+ },
+ "G2_DRESS_R5G2": {
+  "verts": 6678,
+  "loose_verts_ignored": 0,
+  "in_seat": 0,
+  "max_depth_m": 0.0,
+  "below_floor": 0,
+  "min_z": 0.30122401603141213,
+  "max_abs_x": 0.16580821505657894,
+  "y_range": [
+   -0.609389312574308,
+   0.09251262265636839
+  ],
+  "verts_resting_on_seat_top_within_2cm": 1135
+ },
+ "G2_APRON_R5G2": {
+  "verts": 729,
+  "loose_verts_ignored": 0,
+  "in_seat": 0,
+  "max_depth_m": 0.0,
+  "below_floor": 0,
+  "min_z": 0.25580958630622774,
+  "max_abs_x": 0.16876910512358734,
+  "y_range": [
+   -0.6419722119414359,
+   -0.05231771260340423
+  ]
+ },
+ "B_ANATOMICAL_VERTICAL_SLENDER_R5": {
+  "verts": 20326,
+  "loose_verts_ignored": 12146,
+  "in_seat": 0,
+  "max_depth_m": 0.0,
+  "below_floor": 0,
+  "min_z": 0.007697674851787406,
+  "max_abs_x": 0.1908218372392838,
+  "y_range": [
+   -0.7447914989164985,
+   0.21110308585329562
+  ]
+ },
+ "thigh_underside_min_z": 0.40704601735146184,
+ "thigh_gap_above_seat_m": 0.00704601735146182,
+ "feet_min_z": 0.007697674851787406
+}

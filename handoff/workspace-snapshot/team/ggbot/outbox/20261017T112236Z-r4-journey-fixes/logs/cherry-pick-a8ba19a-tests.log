@@ -1,0 +1,9 @@
+OK tools/lakeside/test_lakeside_journey_water_fallback.cjs
+OK tools/lakeside/test_lakeside_journey_sun.cjs
+OK tools/lakeside/test_lakeside_journey_water_prewarm.cjs
+OK tools/lakeside/test_lakeside_sky_follow.cjs
+OK tools/lakeside/test_lakeside_journey_atmosphere.cjs
+OK tools/journey-integration/test-lakeside-landing-hook.cjs
+OK tools/journey-integration/test-lakeside-journey-wire.cjs
+OK tools/journey-integration/test-lakeside-camera.cjs
+OK tools/lakeside/test_lakeside_board_preload.cjs

@@ -1,0 +1,26 @@
+node:assert:128
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: both SFX gates check sfxMuted
+
+3 !== 2
+
+    at /tmp/wt-glass/tools/board-ui/test_board_ui_pure.cjs:36:10
+    at ok (/tmp/wt-glass/tools/board-ui/test_board_ui_pure.cjs:8:47)
+    at Object.<anonymous> (/tmp/wt-glass/tools/board-ui/test_board_ui_pure.cjs:34:1)
+    at Module._compile (node:internal/modules/cjs/loader:1554:14)
+    at Object..js (node:internal/modules/cjs/loader:1706:10)
+    at Module.load (node:internal/modules/cjs/loader:1289:32)
+    at Function._load (node:internal/modules/cjs/loader:1108:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 3,
+  expected: 2,
+  operator: 'strictEqual'
+}
+
+Node.js v22.14.0

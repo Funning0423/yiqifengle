@@ -1,0 +1,52 @@
+{
+  "status": "PASS_LOCAL_LOGIC_ONLY",
+  "baselineByteIdentity": "not_run",
+  "finishedAt": "2026-10-09T19:49:14.253Z",
+  "compiler": "5.9.3",
+  "checks": [
+    "Exact shipped factory mock-interface isolation, zero factory writes, missing-mainline lock",
+    "No R5 Map fallback",
+    "Managed binder actual eight-action reference, animation callbacks, registered result caption",
+    "Durable attempt receipt logic, repeated restore no double clear",
+    "Disposed managed command and twice-delivered late animation callback rejected",
+    "Original NativeBoardUI and RegionalOverlay byte-identical; managed UI adds only host read accessors and stale result target cleanup"
+  ],
+  "compiled": [
+    {
+      "file": "world-r2/NativeWorldLevelAdapter.ts",
+      "sha256": "2b3002f06927fea3f0d528d76ca1ce755e878f92f256e0a93e929ce258810fb4"
+    },
+    {
+      "file": "world-r2/WorldNativeComposition.ts",
+      "sha256": "4f2243397c0d340e6a0af9373396a0e47f1eb916b95f84527e81140dc99fa83b"
+    },
+    {
+      "file": "world-r2/R5PersistenceProbe.ts",
+      "sha256": "028aed61e4a51cbef59ada1ecc290831b7ef4bc770c9353c2ce180a6716512ae"
+    },
+    {
+      "file": "WorldIntegrationBoot.ts",
+      "sha256": "f2c4e0311ea0fbf7d8f549511dfdccd8446c8ccbb49d9ddc374cf261f301c47d"
+    },
+    {
+      "file": "world-r2/PersistentR5Port.ts",
+      "sha256": "02ff661ed5052018a26824435fece891c7093a4d26eb0120b40c7232628c1b8b"
+    },
+    {
+      "file": "world-r2/ManagedMainlineBinding.ts",
+      "sha256": "f30a836d0a5b9ffc75e8d6a77e58624e567188268de675eed72eb57c82b1454a"
+    },
+    {
+      "file": "world-r2/MainlineHost.ts",
+      "sha256": "a324eef29f01a9dfd672fb2461d40b8825c11e6cc254b996d0454fe1a6aa2c4c"
+    },
+    {
+      "file": "world-r2/ManagedBoardSession.ts",
+      "sha256": "b052f6d3e6917087c7a54d4217320067145cd4defc2b32bc137b67b0f4c4cc1c"
+    }
+  ],
+  "storage": "MOCKED_INTERFACE_NOT_ACTUAL_COCOS",
+  "creatorBuild": "SEE_SEPARATE_ACTUAL_BUILD_AND_RUNTIME_REPORTS",
+  "realStorage": "NOT_RUN",
+  "realPhone": "NOT_RUN"
+}

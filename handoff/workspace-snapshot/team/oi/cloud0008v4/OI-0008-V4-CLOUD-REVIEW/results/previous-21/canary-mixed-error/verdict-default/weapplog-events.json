@@ -1,0 +1,28 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1264,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T01:33:15.330Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T01:33:16.336Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/logs/WeappLog/review.log",
+      "size": 853
+    },
+    {
+      "t": "2026-10-10T01:33:16.951Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-error/logs/WeappLog/review.log",
+      "bytes": 1264,
+      "ok": true
+    }
+  ]
+}

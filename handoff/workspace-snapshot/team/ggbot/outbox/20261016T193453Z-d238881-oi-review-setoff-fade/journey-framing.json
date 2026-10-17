@@ -1,0 +1,150 @@
+{
+ "status": "PASS",
+ "timeUTC": "2026-10-16T19:31:03.625Z",
+ "fixture": {
+  "json": "occlusion/fixture-occluders.json",
+  "jsonSha256": "1b25fab5e9169b22af987719ce8bb0e7907701d858ac1df48a977fbe2f6139be",
+  "binGz": "occlusion/fixture-occluders.bin.gz",
+  "binGzSha256": "189a697c96cb3f992d4f5a66ca02eec0fd410ea155b78dfa56219525083da33d",
+  "bytes": 3752676,
+  "binSha256": "92091dac28161f9d1bff1fe01f656765266d44e25f3420a9f7a8fccdedb03365",
+  "sources": [
+   {
+    "id": "island",
+    "glb": "static_seat_preview/room/room_no_original_chair.glb",
+    "sha256": "f62e2832d326d3ec025161b5bcb55c56ab72560e10ee954d2a7fceffa39c8d29"
+   },
+   {
+    "id": "palm_tall",
+    "glb": "region_island/ui-props/beach_palm_tall.glb",
+    "sha256": "869dbf0c0633c936b573de0e644653fb9b2430169cb2f9ae23c480b8ed9c4528"
+   },
+   {
+    "id": "palm_short",
+    "glb": "region_island/ui-props/beach_palm_short.glb",
+    "sha256": "0ae020ed15d77e93b48fa217f1b97dd2583d8b67386552deb5d09da7541e0f1d"
+   },
+   {
+    "id": "skycity",
+    "glb": "region_skycity/env_skycity.glb",
+    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
+   },
+   {
+    "id": "skycity_frame",
+    "glb": "region_skycity/env_skycity.glb",
+    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
+   }
+  ]
+ },
+ "scope": "Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.",
+ "camera": {
+  "blendM": 18,
+  "startAimM": 2,
+  "startTurn": 1,
+  "headingWindowM": 5,
+  "backM": 6.6,
+  "sideM": -2.4,
+  "upM": 3.4,
+  "leadM": 1.2,
+  "lookM": 2.4,
+  "blendLiftM": 2.5,
+  "fovDeg": 48,
+  "arrivalBlendM": 14,
+  "arrivalHoldM": 3,
+  "arrivalLiftM": 8,
+  "arrivalRiseM": 6,
+  "arrivalDropM": 4,
+  "arrivalBackM": 10,
+  "arrivalSideM": -1,
+  "arrivalUpM": 3.5,
+  "arrivalAim": 0.45
+ },
+ "checks": [
+  {
+   "id": "F1 view angular velocity ≤ 20°/s on both legs",
+   "status": "PASS",
+   "evidence": {
+    "04-05": {
+     "maxDegS": 6.13,
+     "atM": 32.4
+    },
+    "08-09": {
+     "maxDegS": 16.78,
+     "atM": 44.4
+    }
+   }
+  },
+  {
+   "id": "F2 character in frame on both legs (after authored-pose exemption)",
+   "status": "PASS",
+   "evidence": {
+    "04-05": {
+     "samples": 325
+    },
+    "08-09": {
+     "samples": 461
+    }
+   }
+  },
+  {
+   "id": "F3 08→09 under-city span (bridge start → lens end): sky-island underside ≤ 10% of frame",
+   "status": "PASS",
+   "evidence": {
+    "spanM": [
+     0,
+     32.34
+    ],
+    "maxUnderside": 0.074,
+    "atM": 31,
+    "wholeLegMax": {
+     "underside": 0.102,
+     "atM": 45,
+     "note": "arrival descent/final composition, plaza rim"
+    }
+   }
+  },
+  {
+   "id": "F4 night sky visible: 04→05 mean ≥ 0.10; no zero-sky stretch > 11 m on either leg; final 08→09 frame ≥ 0.15",
+   "status": "PASS",
+   "evidence": {
+    "04-05": {
+     "meanSky": 0.178,
+     "longestZeroSkyM": 0,
+     "samples": 66
+    },
+    "08-09": {
+     "meanSky": 0.067,
+     "longestZeroSkyM": 9.5,
+     "samples": 93
+    },
+    "finalSky": 0.258
+   }
+  },
+  {
+   "id": "F5 08→09 final frame: plaza centre |x|≤0.1, -0.1≤y≤0.45; character height 0.13–0.21",
+   "status": "PASS",
+   "evidence": {
+    "plazaNdc": [
+     -0.001,
+     0.276
+    ],
+    "herHeight": 0.172
+   }
+  },
+  {
+   "id": "F6 04→05 start follows her: in frame from 1.25 m, first 10 m turn ≤ 20°/s",
+   "status": "PASS",
+   "evidence": {
+    "maxDegS": 2.15
+   }
+  },
+  {
+   "id": "F7 04→05 lens on her right side from set-off (never left of behind)",
+   "status": "PASS",
+   "evidence": {
+    "worstLeftOfBehindDeg": -20,
+    "atM": 24.6
+   }
+  }
+ ]
+}

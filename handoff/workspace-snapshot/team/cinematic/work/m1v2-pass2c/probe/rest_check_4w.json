@@ -1,0 +1,363 @@
+{
+ "self:legLxlegL_ctrl": {
+  "tri_pairs": 314
+ },
+ "self:handLxlegL": {
+  "tri_pairs": 0
+ },
+ "self:handLxlegR": {
+  "tri_pairs": 0
+ },
+ "self:handRxlegR": {
+  "tri_pairs": 0
+ },
+ "self:handRxlegL": {
+  "tri_pairs": 0
+ },
+ "self:handLxtorso": {
+  "tri_pairs": 0
+ },
+ "self:handRxtorso": {
+  "tri_pairs": 0
+ },
+ "self:handLxhandR": {
+  "tri_pairs": 0
+ },
+ "self:armLxtorso": {
+  "tri_pairs": 0
+ },
+ "self:armRxtorso": {
+  "tri_pairs": 0
+ },
+ "self:legLxlegR": {
+  "tri_pairs": 0
+ },
+ "self:armLxlegL": {
+  "tri_pairs": 0
+ },
+ "self:armLxlegR": {
+  "tri_pairs": 0
+ },
+ "self:armRxlegL": {
+  "tri_pairs": 0
+ },
+ "self:armRxlegR": {
+  "tri_pairs": 0
+ },
+ "self:hairxtorso": {
+  "tri_pairs": 0
+ },
+ "self:hairxarmL": {
+  "tri_pairs": 0
+ },
+ "self:hairxarmR": {
+  "tri_pairs": 0
+ },
+ "self:hairxuarmL": {
+  "tri_pairs": 0
+ },
+ "self:hairxuarmR": {
+  "tri_pairs": 0
+ },
+ "self:hairxhandL": {
+  "tri_pairs": 0
+ },
+ "self:hairxhandR": {
+  "tri_pairs": 0
+ },
+ "garment[visible]:legLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:legLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:legRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:legRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:handLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:handLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:handRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:handRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:armLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:armLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:armRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:armRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:uarmLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:uarmLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:uarmRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:uarmRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:torsoxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:torsoxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:bowxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:bowxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[visible]:apronxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:legLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:legLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:legRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:legRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:handLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:handLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:handRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:handRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:armLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:armLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:armRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:armRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:uarmLxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:uarmLxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:uarmRxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:uarmRxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:torsoxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:torsoxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:bowxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:bowxapron": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "garment[midsurface]:apronxdress": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "thin_sheet:dress_self": {
+  "tri_pairs": 0
+ },
+ "thin_sheet:apron_self": {
+  "tri_pairs": 0
+ },
+ "layer_cross:apron_vs_dress": {
+  "verts_inside": 0,
+  "depth_mm": 0.0
+ },
+ "info_chair_variant:bodyxarmrest_mesh": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:bodyxENV_props_merged_minus_chair": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:bodyxenv_interior_shell": {
+  "tri_pairs": 88,
+  "wrong_side_verts": 14,
+  "depth_mm": 5.43
+ },
+ "info_chair_variant:body_nobowxarmrest_mesh": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:body_nobowxENV_props_merged_minus_chair": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:body_nobowxenv_interior_shell": {
+  "tri_pairs": 88,
+  "wrong_side_verts": 14,
+  "depth_mm": 5.43
+ },
+ "info_chair_variant:dressxarmrest_mesh": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:dressxENV_props_merged_minus_chair": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:dressxenv_interior_shell": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "info_chair_variant:apronxarmrest_mesh": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:apronxENV_props_merged_minus_chair": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:apronxenv_interior_shell": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "info_chair_variant:hairxarmrest_mesh": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:hairxENV_props_merged_minus_chair": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ },
+ "env:hairxenv_interior_shell": {
+  "tri_pairs": 0,
+  "wrong_side_verts": 0,
+  "depth_mm": 0.0
+ }
+}

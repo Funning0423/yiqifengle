@@ -1,0 +1,16 @@
+{
+  "portable_copy": "/tmp/0008v3-portable-1HtBFE",
+  "portable_full_replay_exit": 0,
+  "independent_end_to_end_cases": 21,
+  "false_PASS_cases": 8,
+  "incorrect_allowlist_acceptance_cases": 1,
+  "post_exit_manifests_valid": 21,
+  "own_project_only_close_assertions_passed": true,
+  "finalizer_rule_unit_passed": 33,
+  "shim_unit_passed": 8,
+  "tailer_cli_manifest_unit_passed": 15,
+  "real_mac_or_devtools_run": false,
+  "v2_auditor_run": false,
+  "source_unchanged": true,
+  "credential_pattern_scan_hits": 0
+}

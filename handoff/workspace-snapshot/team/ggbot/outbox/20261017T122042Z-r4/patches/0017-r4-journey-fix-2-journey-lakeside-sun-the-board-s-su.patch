@@ -1,0 +1,208 @@
+From d46640a3af941658a6a8505bf8c9b8adbeb32b0d Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 19:12:51 +0800
+Subject: [PATCH 17/47] r4 journey fix 2: journey lakeside sun = the board's
+ sun in the lake frame (one source, lakesideSunForward)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The journey mounts the r5h3 scene turned by lakesideJourney().yawDeg (180°) but
+slerped the main light to the unturned sunForward, so the light was mirrored
+against the lake at the landing swap. New LakesideSunDirection.ts
+(lakesideSunForward(yawDeg), LAKESIDE_BOARD_YAW_DEG=0) is read by the board's
+applyDir and by LakesideJourneyLighting with the journey lake's yaw (adapter
+passes ()=>lakeYaw = L.yawDeg). The blend is unchanged: slerp from the captured
+island rotation by w. lakesideModeLighting untouched.
+Test: lakeside-journey-sun (w=1 journey sun == board sun in lake frame for yaw
+180/90/0, old direction was mirrored, smooth slerp by w, wiring).
+---
+ .../scripts/region/LakesideBoardBackground.ts |  3 +-
+ .../scripts/region/LakesideJourneyLighting.ts |  9 ++--
+ .../scripts/region/LakesideSunDirection.ts    | 10 ++++
+ .../region/LakesideSunDirection.ts.meta       |  9 ++++
+ .../scripts/region/RegionJourneyAdapter.ts    |  4 +-
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ tools/lakeside/test_lakeside_journey_sun.cjs  | 49 +++++++++++++++++++
+ 7 files changed, 79 insertions(+), 7 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideSunDirection.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideSunDirection.ts.meta
+ create mode 100644 tools/lakeside/test_lakeside_journey_sun.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 190db92..e774790 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -10,6 +10,7 @@ import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,s
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+ import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
+ import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** water-ref candidate (VB) diagnostic, scene design asked: is tone mapping on? ONE console.log at the first board light apply,
+@@ -203,7 +204,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
+  const applyDir=()=>{if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
+   const mode=lakesideDayNightMode();if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum,mode};
+   setLakesideBoardHolding(true);/* r2: the board owns the lakeside lighting while it shows (journey listener stands down) */
+-  const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=P.sunForward,w=l.node.worldPosition,c=lakesideCocosLightColor(M.sunColorLinear),sk=lakesideCocosLightColor(M.ambientSkyColorLinear),gr=lakesideCocosLightColor(M.ambientGroundColorLinear)/* r2 VB: the one linear->Cocos-byte conversion (bytes/255 are read as linear) */;
++  const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=lakesideSunForward(LAKESIDE_BOARD_YAW_DEG)/* r4 journey fix 2: the one sun-direction source (journey: same, turned with its lake) */,w=l.node.worldPosition,c=lakesideCocosLightColor(M.sunColorLinear),sk=lakesideCocosLightColor(M.ambientSkyColorLinear),gr=lakesideCocosLightColor(M.ambientGroundColorLinear)/* r2 VB: the one linear->Cocos-byte conversion (bytes/255 are read as linear) */;
+   l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);const bi=(lakesideJourneyBaseIllum()??saved.illum/lakesideIslandLightScale(saved.mode))*lakesideIslandLightScale(mode)/* island main light for the current mode: day base (journey capture, else this capture) x island scale; no double scale after the blend */;l.illuminance=bi*M.sunIlluminanceScale;
+   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
+   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts b/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts
+index c3e3081..7c20b71 100644
+--- a/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts
+@@ -1,5 +1,6 @@
+ import {Camera,Color,DirectionalLight,Quat,Vec3,director,isValid} from 'cc';
+-import {LAKESIDE_DIR_LIGHT_PARAMS,lakesideFogModeFromEnv,type LakesideDayNight} from './LakesideSceneData';
++import {lakesideFogModeFromEnv,type LakesideDayNight} from './LakesideSceneData';
++import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+ import {islandSkyFade} from '../world-r1/SkyFollowCore';
+ import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideAtmosphereTarget,lakesideBoardHolding,lakesideDayNightMode,lakesideIslandBaseFor,lakesideIslandLightScale,setLakesideJourneyBaseIllum,setLakesideJourneyReapply,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
+@@ -12,7 +13,9 @@ import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideAtmosphereTa
+  *  world's own applyDayNight has just put the island light back); before the blend the island owns the light. While the board
+  *  shows, the board owns it (its fog slab/water) and calls reapply() when it hides. On restore, if the mode changed since the
+  *  capture, the island look is re-written for the current mode (__worldDayNight.reapply, no override lock). */
+-export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number){
++/** r4 journey fix 2: lakeYaw = the journey lake root's Y turn (lakesideJourney().yawDeg); the sun target is lakesideSunForward(lakeYaw), i.e.
++ *  the board's sun in the lake's frame (it was the unturned sunForward = mirrored against the 180° lake). */
++export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number,lakeYaw:()=>number=()=>LAKESIDE_BOARD_YAW_DEG){
+  type Saved={light:DirectionalLight|null;rot:Quat|null;wrot:Quat|null;color:Color|null;illum:number;sky:Color|null;ground:Color|null;skyIllum:number;clear:Color|null;
+   fog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null;base:LakesideAtmosphereBase;mode:LakesideDayNight};
+  let saved:Saved|null=null,lastW=0,offDayNight:(()=>void)|null=null,skyKey='';
+@@ -23,7 +26,7 @@ export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number){
+  const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
+  const write=(w:number)=>{const s=saved;if(!s)return;lastW=w;const mode=lakesideDayNightMode(),base=lakesideIslandBaseFor(s.base,s.mode,mode);
+   const f=lakesideAtmosphereAt(base,w,fogMode,waterY(),mode),g=(director.getScene() as any)?.globals;
+-  if(s.light&&isValid(s.light,true)&&s.wrot){const v=LAKESIDE_DIR_LIGHT_PARAMS.sunForward;Quat.fromViewUp(target,new Vec3(-v[0],-v[1],-v[2]).normalize(),Vec3.UP);Quat.slerp(q,s.wrot,target,f.weight);s.light.node.setWorldRotation(q);
++  if(s.light&&isValid(s.light,true)&&s.wrot){const v=lakesideSunForward(lakeYaw());Quat.fromViewUp(target,new Vec3(-v[0],-v[1],-v[2]).normalize(),Vec3.UP);Quat.slerp(q,s.wrot,target,f.weight);s.light.node.setWorldRotation(q);
+    s.light.color=col(f.color);s.light.illuminance=f.illum;}
+   const amb=g?.ambient;if(amb){amb.skyLightingColor=col(f.sky);amb.groundLightingColor=col(f.ground);amb.skyIllum=f.skyIllum;}
+   if(camera&&isValid(camera,true))camera.clearColor=col(f.clear);
+diff --git a/creator-build-project/assets/scripts/region/LakesideSunDirection.ts b/creator-build-project/assets/scripts/region/LakesideSunDirection.ts
+new file mode 100644
+index 0000000..9f9df4c
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideSunDirection.ts
+@@ -0,0 +1,10 @@
++import {LAKESIDE_DIR_LIGHT_PARAMS} from './LakesideSceneData';
++/** r4 journey fix 2: ONE source for the lakeside main-light (sun) direction. LAKESIDE_DIR_LIGHT_PARAMS.sunForward is authored in the
++ *  lakeside scene's own frame (r5h3 json Sun). The board rig is not turned (yaw 0), so its world direction is sunForward as-is; the
++ *  journey mounts the same scene turned by lakesideJourney().yawDeg (180), so its sun must be turned with it, otherwise the light
++ *  is mirrored relative to the lake at the landing swap. Same rotation as Cocos setRotationFromEuler(0,yawDeg,0) / LakesideCameraLayout
++ *  rotY. Pure, no cc import; does not touch lakesideModeLighting. */
++export const LAKESIDE_BOARD_YAW_DEG=0;
++export function lakesideSunForward(yawDeg:number=LAKESIDE_BOARD_YAW_DEG):[number,number,number]{
++ const f=LAKESIDE_DIR_LIGHT_PARAMS.sunForward,t=(Number.isFinite(yawDeg)?yawDeg:0)*Math.PI/180,c=Math.cos(t),s=Math.sin(t),z=(v:number)=>Math.abs(v)<1e-12?0:v;
++ return [z(c*f[0]+s*f[2]),f[1],z(-s*f[0]+c*f[2])];}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSunDirection.ts.meta b/creator-build-project/assets/scripts/region/LakesideSunDirection.ts.meta
+new file mode 100644
+index 0000000..eafc099
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideSunDirection.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "8dca0a0f-a0dc-4d9d-9a1e-e70811a7076e",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index f1b0ddc..8326fc7 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -125,7 +125,7 @@ export const LAKESIDE_BOARD_PRELOAD_W=.9;
+ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+  if(from!=='island')throw Error('journey-region-order');
+  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
+- let waterY=0,batching:JourneyBatching|null=null,offWater=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
++ let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+  const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+  try{
+@@ -140,7 +140,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
+   if(waterAsset){const water=lakesideWaterMaterial(waterAsset);owned.push(water);applyLakesideWaterMode(water,lakesideDayNightMode());useLakesideWater(model,water);
+    offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});}
+   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
+-  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);
++  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
+   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
+   const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
+   rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 0d0a606..32680d3 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -69,7 +69,7 @@ const tests=[
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-sky-follow','tools/lakeside/test_lakeside_sky_follow.cjs'],
+  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
+- ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],['lakeside-journey-water-fallback','tools/lakeside/test_lakeside_journey_water_fallback.cjs'],
++ ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],['lakeside-journey-water-fallback','tools/lakeside/test_lakeside_journey_water_fallback.cjs'],['lakeside-journey-sun','tools/lakeside/test_lakeside_journey_sun.cjs'],
+  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
+  ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+diff --git a/tools/lakeside/test_lakeside_journey_sun.cjs b/tools/lakeside/test_lakeside_journey_sun.cjs
+new file mode 100644
+index 0000000..44b54b6
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_journey_sun.cjs
+@@ -0,0 +1,49 @@
++// r4 journey fix 2 (GGbot): the journey's lakeside sun = the board's sun IN THE LAKE'S FRAME. The journey mounts the r5h3 scene turned by
++// lakesideJourney().yawDeg (180°) while the board rig is not turned; the journey used the unturned sunForward, so its light was mirrored
++// against the lake at the landing swap. Both now read lakesideSunForward (LakesideSunDirection.ts), the journey with its lake's yaw.
++// Real LakesideJourneyLighting with a fake cc that records the slerp target view vector; the blend from the island light stays a slerp by w.
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++class Color{constructor(r=0,g=0,b=0,a=255){if(typeof r==='string'){const h=r.replace('#','');this.r=parseInt(h.slice(0,2),16);this.g=parseInt(h.slice(2,4),16);this.b=parseInt(h.slice(4,6),16);this.a=255;}else Object.assign(this,{r,g,b,a});}clone(){return new Color(this.r,this.g,this.b,this.a);}}
++class Vec3{constructor(x=0,y=0,z=0){Object.assign(this,{x,y,z});}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this;}}Vec3.UP=new Vec3(0,1,0);
++const slerps=[];
++class Quat{constructor(x=0,y=0,z=0,w=1){Object.assign(this,{x,y,z,w});this.view=null;}clone(){const q=new Quat(this.x,this.y,this.z,this.w);q.view=this.view;return q;}
++ static fromViewUp(o,v){o.view=[v.x,v.y,v.z];return o;}static slerp(o,a,b,t){slerps.push({from:a.clone(),view:b.view,t});o.view=b.view;o.t=t;return o;}}
++class DirectionalLight{}
++const islandRot=Object.assign(new Quat(.3,.1,.2,.93),{view:['island']});
++const light=Object.assign(new DirectionalLight(),{illuminance:60000,color:new Color(255,244,214),node:{rotation:islandRot.clone(),worldRotation:islandRot.clone(),setRotation(q){this.rotation=q.clone();this.worldRotation=q.clone();},setWorldRotation(q){this.worldRotation=q.clone();}}});
++const globals={ambient:{skyLightingColor:new Color(200,220,255),groundLightingColor:new Color(120,110,90),skyIllum:20000},fog:{enabled:false,type:0,fogColor:new Color(200,200,200),fogStart:0,fogEnd:300,fogTop:4,fogRange:10,fogAtten:5}};
++const scene={globals,getChildByName:n=>n==='Main Light'?{getComponent:()=>light}:null,getComponentInChildren:()=>light};
++const cc={Color,Vec3,Quat,DirectionalLight,Camera:class{},director:{getScene:()=>scene},isValid:o=>!!o};
++const cache=new Map();
++function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(file).exports;const m={exports:{}};cache.set(file,m);
++ const out=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:1,target:7}}).outputText;
++ const req=spec=>spec==='cc'?cc:spec==='cc/env'?{DEBUG:false}:load(path.resolve(path.dirname(file),spec)+'.ts');
++ vm.runInThisContext('(function(exports,require,module){'+out+'\n})')(m.exports,req,m);return m.exports;}
++const D=load(S+'region/LakesideSceneData.ts'),SD=load(S+'region/LakesideSunDirection.ts'),Lt=load(S+'region/LakesideJourneyLighting.ts'),LK=load(S+'region/LakesideCameraLayout.ts');
++globalThis.__worldDayNight={snapshot:()=>({mode:'day'})};
++const rotY=(deg,p)=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
++const nrm=v=>{const l=Math.hypot(...v);return v.map(x=>x/l);};
++const close=(a,b,eps=1e-9,m='')=>{for(let i=0;i<3;i++)assert(Math.abs(a[i]-b[i])<=eps,m+' ['+a+'] vs ['+b+']');};
++const run=(n,f)=>{f();console.log('PASS',n);};
++const L=LK.lakesideJourney([0,0,0]),P=D.LAKESIDE_DIR_LIGHT_PARAMS;
++run('one source: board = lakesideSunForward(0) = authored sunForward; journey lake yaw is 180°',()=>{
++ close(SD.lakesideSunForward(SD.LAKESIDE_BOARD_YAW_DEG),[...P.sunForward],0,'board');assert.equal(L.yawDeg,180);
++ close(SD.lakesideSunForward(180),[-P.sunForward[0],P.sunForward[1],-P.sunForward[2]],1e-12,'180° turn');});
++for(const yaw of [L.yawDeg,90,0])run('journey sun at w=1 equals the board sun in the lake frame (yaw '+yaw+')',()=>{
++ slerps.length=0;light.node.setRotation(islandRot);const a=Lt.lakesideJourneyAtmosphere({clearColor:new Color(51,51,51)},()=>0,()=>yaw);a.prime();a.apply(1);
++ const s=slerps[slerps.length-1];assert.equal(s.t,1);const world=s.view.map(v=>-v)/* fromViewUp(-forward): light forward = -view */;
++ close(rotY(-yaw,world),nrm(SD.lakesideSunForward(SD.LAKESIDE_BOARD_YAW_DEG)),1e-9,'lake-local journey sun vs board');
++ if(yaw===180){const old=[...P.sunForward];assert(Math.hypot(...rotY(-yaw,old).map((v,i)=>v-P.sunForward[i]))>1,'old unturned direction was mirrored in the lake frame');}
++ a.restore();assert.deepEqual(light.node.rotation.view,['island'],'restore puts the island light back');});
++run('blend from the island light stays smooth: slerp(captured island rotation → lakeside target, w) every frame, w monotone',()=>{
++ slerps.length=0;light.node.setRotation(islandRot);const a=Lt.lakesideJourneyAtmosphere({clearColor:new Color(51,51,51)},()=>0,()=>L.yawDeg);a.prime();
++ const ws=[];for(let k=0;k<=60;k++){const w=k/60;ws.push(w);a.apply(w);}
++ const used=slerps.slice(-61);assert.deepEqual(used.map(s=>s.t),ws);for(const s of used){assert.deepEqual(s.from.view,['island'],'always from the captured island rotation (no jump)');close(s.view,used[0].view,0,'one fixed target');}a.restore();});
++run('wiring: board and journey read lakesideSunForward; adapter passes the lake yaw; nobody reads sunForward raw for the light',()=>{
++ const rd=f=>fs.readFileSync(S+f,'utf8'),bg=rd('region/LakesideBoardBackground.ts'),lt=rd('region/LakesideJourneyLighting.ts'),ad=rd('region/RegionJourneyAdapter.ts');
++ assert.match(bg,/f=lakesideSunForward\(LAKESIDE_BOARD_YAW_DEG\)/);assert.match(bg,/l\.node\.lookAt\(new Vec3\(w\.x\+f\[0\],w\.y\+f\[1\],w\.z\+f\[2\]\)\)/);
++ assert.match(lt,/const v=lakesideSunForward\(lakeYaw\(\)\);Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/);assert.doesNotMatch(lt,/sunForward;/);
++ assert.match(ad,/lakesideJourneyAtmosphere\(camera,\(\)=>waterY,\(\)=>lakeYaw\)/);assert.match(ad,/model\.setRotationFromEuler\(0,L\.yawDeg,0\)/);assert.match(ad,/lakeYaw=L\.yawDeg/);});
++console.log('lakeside journey sun OK');
+-- 
+2.47.3
+

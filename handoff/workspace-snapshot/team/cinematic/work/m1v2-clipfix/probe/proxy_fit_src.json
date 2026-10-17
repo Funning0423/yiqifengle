@@ -1,0 +1,2771 @@
+{
+"real_backrest_local_aabb_mm": {
+"min": [
+-243.6,
+153.6,
+364.5
+],
+"max": [
+243.6,
+279.0,
+897.2
+],
+"size": [
+487.3,
+125.3,
+532.7
+]
+},
+"current_proxy_local_corners_mm_min": [
+-247.3000030517578,
+160.8000030517578,
+380.0
+],
+"current_proxy_local_corners_mm_max": [
+247.3000030517578,
+273.79998779296875,
+892.0
+],
+"frames": [
+{
+"clip": "cine_open_stand",
+"frame": 0,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 1,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 2,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 3,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 4,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 5,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 6,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 7,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 8,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 9,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 10,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 11,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 12,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.21,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 13,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.22,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 14,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.24,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 15,
+"body_nobow_fitted": {
+"depth_mm": 25.97,
+"verts_inside": 591
+},
+"bow_fitted": {
+"depth_mm": 38.93,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.7,
+"verts_inside": 1267
+},
+"legs_fitted": {
+"depth_mm": -80.25,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 16,
+"body_nobow_fitted": {
+"depth_mm": 25.95,
+"verts_inside": 590
+},
+"bow_fitted": {
+"depth_mm": 38.92,
+"verts_inside": 121
+},
+"hair_fitted": {
+"depth_mm": 28.68,
+"verts_inside": 1265
+},
+"legs_fitted": {
+"depth_mm": -80.26,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 17,
+"body_nobow_fitted": {
+"depth_mm": 25.81,
+"verts_inside": 582
+},
+"bow_fitted": {
+"depth_mm": 38.84,
+"verts_inside": 118
+},
+"hair_fitted": {
+"depth_mm": 28.55,
+"verts_inside": 1242
+},
+"legs_fitted": {
+"depth_mm": -80.24,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 18,
+"body_nobow_fitted": {
+"depth_mm": 25.48,
+"verts_inside": 536
+},
+"bow_fitted": {
+"depth_mm": 38.62,
+"verts_inside": 114
+},
+"hair_fitted": {
+"depth_mm": 28.21,
+"verts_inside": 1177
+},
+"legs_fitted": {
+"depth_mm": -80.24,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 19,
+"body_nobow_fitted": {
+"depth_mm": 23.66,
+"verts_inside": 469
+},
+"bow_fitted": {
+"depth_mm": 38.19,
+"verts_inside": 110
+},
+"hair_fitted": {
+"depth_mm": 27.62,
+"verts_inside": 1073
+},
+"legs_fitted": {
+"depth_mm": -80.27,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 20,
+"body_nobow_fitted": {
+"depth_mm": 20.47,
+"verts_inside": 387
+},
+"bow_fitted": {
+"depth_mm": 38.87,
+"verts_inside": 98
+},
+"hair_fitted": {
+"depth_mm": 24.1,
+"verts_inside": 924
+},
+"legs_fitted": {
+"depth_mm": -80.39,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 21,
+"body_nobow_fitted": {
+"depth_mm": 18.69,
+"verts_inside": 294
+},
+"bow_fitted": {
+"depth_mm": 37.83,
+"verts_inside": 88
+},
+"hair_fitted": {
+"depth_mm": 21.21,
+"verts_inside": 764
+},
+"legs_fitted": {
+"depth_mm": -80.66,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 22,
+"body_nobow_fitted": {
+"depth_mm": 14.05,
+"verts_inside": 184
+},
+"bow_fitted": {
+"depth_mm": 36.35,
+"verts_inside": 80
+},
+"hair_fitted": {
+"depth_mm": 17.18,
+"verts_inside": 539
+},
+"legs_fitted": {
+"depth_mm": -81.14,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 23,
+"body_nobow_fitted": {
+"depth_mm": 9.34,
+"verts_inside": 97
+},
+"bow_fitted": {
+"depth_mm": 38.84,
+"verts_inside": 66
+},
+"hair_fitted": {
+"depth_mm": 11.99,
+"verts_inside": 325
+},
+"legs_fitted": {
+"depth_mm": -81.89,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 24,
+"body_nobow_fitted": {
+"depth_mm": 2.62,
+"verts_inside": 8
+},
+"bow_fitted": {
+"depth_mm": 39.28,
+"verts_inside": 61
+},
+"hair_fitted": {
+"depth_mm": 4.86,
+"verts_inside": 78
+},
+"legs_fitted": {
+"depth_mm": -82.9,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 25,
+"body_nobow_fitted": {
+"depth_mm": -6.55,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 39.23,
+"verts_inside": 66
+},
+"hair_fitted": {
+"depth_mm": -3.7,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -84.16,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 26,
+"body_nobow_fitted": {
+"depth_mm": -21.44,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 37.21,
+"verts_inside": 59
+},
+"hair_fitted": {
+"depth_mm": -18.68,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -85.57,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 27,
+"body_nobow_fitted": {
+"depth_mm": -37.85,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 39.41,
+"verts_inside": 51
+},
+"hair_fitted": {
+"depth_mm": -34.93,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -86.98,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 28,
+"body_nobow_fitted": {
+"depth_mm": -52.06,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 38.71,
+"verts_inside": 51
+},
+"hair_fitted": {
+"depth_mm": -51.77,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -88.23,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 29,
+"body_nobow_fitted": {
+"depth_mm": -60.5,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 38.24,
+"verts_inside": 56
+},
+"hair_fitted": {
+"depth_mm": -68.49,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -89.1,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 30,
+"body_nobow_fitted": {
+"depth_mm": -69.97,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 34.4,
+"verts_inside": 57
+},
+"hair_fitted": {
+"depth_mm": -84.54,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -89.42,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 31,
+"body_nobow_fitted": {
+"depth_mm": -74.58,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 37.61,
+"verts_inside": 46
+},
+"hair_fitted": {
+"depth_mm": -100.93,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -90.72,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 32,
+"body_nobow_fitted": {
+"depth_mm": -81.87,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 37.19,
+"verts_inside": 48
+},
+"hair_fitted": {
+"depth_mm": -119.06,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -94.73,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 33,
+"body_nobow_fitted": {
+"depth_mm": -92.24,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 29.63,
+"verts_inside": 42
+},
+"hair_fitted": {
+"depth_mm": -139.29,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -101.94,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 34,
+"body_nobow_fitted": {
+"depth_mm": -105.99,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 37.71,
+"verts_inside": 44
+},
+"hair_fitted": {
+"depth_mm": -161.73,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -112.75,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 35,
+"body_nobow_fitted": {
+"depth_mm": -122.7,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 36.78,
+"verts_inside": 40
+},
+"hair_fitted": {
+"depth_mm": -185.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -126.83,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 36,
+"body_nobow_fitted": {
+"depth_mm": -140.87,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 37.29,
+"verts_inside": 40
+},
+"hair_fitted": {
+"depth_mm": -210.08,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -142.76,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 37,
+"body_nobow_fitted": {
+"depth_mm": -157.99,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 38.98,
+"verts_inside": 32
+},
+"hair_fitted": {
+"depth_mm": -231.96,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -158.07,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 38,
+"body_nobow_fitted": {
+"depth_mm": -169.59,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 27.87,
+"verts_inside": 29
+},
+"hair_fitted": {
+"depth_mm": -248.4,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -169.59,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 39,
+"body_nobow_fitted": {
+"depth_mm": -174.08,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 37.05,
+"verts_inside": 24
+},
+"hair_fitted": {
+"depth_mm": -256.33,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -174.08,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 40,
+"body_nobow_fitted": {
+"depth_mm": -174.66,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 36.36,
+"verts_inside": 16
+},
+"hair_fitted": {
+"depth_mm": -259.11,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -174.66,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 41,
+"body_nobow_fitted": {
+"depth_mm": -176.36,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 22.44,
+"verts_inside": 11
+},
+"hair_fitted": {
+"depth_mm": -262.25,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -176.36,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 42,
+"body_nobow_fitted": {
+"depth_mm": -179.18,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": 10.33,
+"verts_inside": 8
+},
+"hair_fitted": {
+"depth_mm": -266.29,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -179.18,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 43,
+"body_nobow_fitted": {
+"depth_mm": -183.09,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -3.14,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -271.64,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -183.09,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 44,
+"body_nobow_fitted": {
+"depth_mm": -188.13,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -17.2,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -278.58,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -188.13,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 45,
+"body_nobow_fitted": {
+"depth_mm": -194.29,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -35.29,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -287.16,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -194.29,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 46,
+"body_nobow_fitted": {
+"depth_mm": -201.6,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -54.5,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -297.38,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -201.6,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 47,
+"body_nobow_fitted": {
+"depth_mm": -210.08,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -77.85,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -309.36,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -210.08,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 48,
+"body_nobow_fitted": {
+"depth_mm": -219.74,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -102.34,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -323.06,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -219.74,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 49,
+"body_nobow_fitted": {
+"depth_mm": -230.59,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -122.55,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -338.49,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -230.59,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 50,
+"body_nobow_fitted": {
+"depth_mm": -242.62,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -134.32,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -355.65,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -242.62,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 51,
+"body_nobow_fitted": {
+"depth_mm": -255.82,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -147.21,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -374.43,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -255.82,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 52,
+"body_nobow_fitted": {
+"depth_mm": -269.3,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -161.17,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -394.73,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -269.3,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 53,
+"body_nobow_fitted": {
+"depth_mm": -282.86,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -176.15,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -416.49,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -282.86,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 54,
+"body_nobow_fitted": {
+"depth_mm": -297.35,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -191.39,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -439.55,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -297.35,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 55,
+"body_nobow_fitted": {
+"depth_mm": -312.68,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -161.51,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -463.66,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -312.68,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 56,
+"body_nobow_fitted": {
+"depth_mm": -328.76,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -173.67,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -488.73,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -328.76,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 57,
+"body_nobow_fitted": {
+"depth_mm": -345.45,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -186.44,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -514.56,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -345.45,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 58,
+"body_nobow_fitted": {
+"depth_mm": -362.62,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -199.7,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -540.92,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -362.62,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 59,
+"body_nobow_fitted": {
+"depth_mm": -380.1,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -213.35,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -567.51,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -380.1,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 60,
+"body_nobow_fitted": {
+"depth_mm": -397.72,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -227.42,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -593.83,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -397.72,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 61,
+"body_nobow_fitted": {
+"depth_mm": -415.31,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -241.93,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -619.45,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -415.31,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 62,
+"body_nobow_fitted": {
+"depth_mm": -432.68,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -256.81,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -644.0,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -432.68,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 63,
+"body_nobow_fitted": {
+"depth_mm": -449.65,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -271.97,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -667.13,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -449.65,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 64,
+"body_nobow_fitted": {
+"depth_mm": -466.04,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -287.28,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -688.59,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -466.04,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 65,
+"body_nobow_fitted": {
+"depth_mm": -481.7,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -302.59,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -708.15,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -481.7,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 66,
+"body_nobow_fitted": {
+"depth_mm": -496.5,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -317.31,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -725.62,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -496.5,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 67,
+"body_nobow_fitted": {
+"depth_mm": -510.75,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -331.75,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -740.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -510.75,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 68,
+"body_nobow_fitted": {
+"depth_mm": -524.43,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -345.89,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -753.77,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -524.43,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 69,
+"body_nobow_fitted": {
+"depth_mm": -537.35,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -359.6,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -764.39,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -537.35,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 70,
+"body_nobow_fitted": {
+"depth_mm": -549.37,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -372.76,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -772.71,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -549.37,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 71,
+"body_nobow_fitted": {
+"depth_mm": -560.36,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -385.13,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -778.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -560.36,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 72,
+"body_nobow_fitted": {
+"depth_mm": -570.27,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -396.66,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.91,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -570.27,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 73,
+"body_nobow_fitted": {
+"depth_mm": -579.06,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -407.44,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -785.12,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -579.06,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 74,
+"body_nobow_fitted": {
+"depth_mm": -586.74,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -417.4,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -785.72,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -586.74,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 75,
+"body_nobow_fitted": {
+"depth_mm": -592.05,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -426.47,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -785.0,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -592.05,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 76,
+"body_nobow_fitted": {
+"depth_mm": -593.69,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -434.6,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -783.26,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -593.69,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 77,
+"body_nobow_fitted": {
+"depth_mm": -594.68,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -441.69,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -780.82,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -594.68,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 78,
+"body_nobow_fitted": {
+"depth_mm": -595.1,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -447.69,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -778.0,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -595.1,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 79,
+"body_nobow_fitted": {
+"depth_mm": -595.06,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -452.69,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -775.08,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -595.06,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 80,
+"body_nobow_fitted": {
+"depth_mm": -594.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -456.62,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -772.32,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -594.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 81,
+"body_nobow_fitted": {
+"depth_mm": -586.2,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -459.62,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -769.94,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -586.2,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 82,
+"body_nobow_fitted": {
+"depth_mm": -578.53,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -461.77,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -768.06,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -578.53,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 83,
+"body_nobow_fitted": {
+"depth_mm": -571.68,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -463.18,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.76,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -571.68,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 84,
+"body_nobow_fitted": {
+"depth_mm": -566.01,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -463.95,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.0,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -566.01,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 85,
+"body_nobow_fitted": {
+"depth_mm": -562.3,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.26,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.7,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -562.3,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 86,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.32,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 87,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.32,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 88,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.33,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 89,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.33,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_stand",
+"frame": 90,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.33,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 0,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.33,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 1,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.33,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 2,
+"body_nobow_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.33,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 3,
+"body_nobow_fitted": {
+"depth_mm": -563.99,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.33,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -563.99,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 4,
+"body_nobow_fitted": {
+"depth_mm": -563.99,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.35,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.67,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -563.99,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 5,
+"body_nobow_fitted": {
+"depth_mm": -563.97,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.38,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.68,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -563.97,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 6,
+"body_nobow_fitted": {
+"depth_mm": -563.93,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.41,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.68,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -563.93,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 7,
+"body_nobow_fitted": {
+"depth_mm": -563.85,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.45,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.69,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -563.85,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 8,
+"body_nobow_fitted": {
+"depth_mm": -563.7,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.45,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.71,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -563.7,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 9,
+"body_nobow_fitted": {
+"depth_mm": -561.18,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.4,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.74,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -561.18,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 10,
+"body_nobow_fitted": {
+"depth_mm": -549.59,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -464.22,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.81,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -549.59,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 11,
+"body_nobow_fitted": {
+"depth_mm": -536.41,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -463.86,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.93,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -536.41,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 12,
+"body_nobow_fitted": {
+"depth_mm": -507.09,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -463.21,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.09,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -507.09,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 13,
+"body_nobow_fitted": {
+"depth_mm": -507.2,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -462.27,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.37,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -507.2,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 14,
+"body_nobow_fitted": {
+"depth_mm": -507.47,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -460.74,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.77,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -507.47,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 15,
+"body_nobow_fitted": {
+"depth_mm": -507.98,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -458.81,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.3,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -507.98,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 16,
+"body_nobow_fitted": {
+"depth_mm": -508.87,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -456.64,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.28,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -508.87,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 17,
+"body_nobow_fitted": {
+"depth_mm": -508.73,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -454.2,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -764.4,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -508.73,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 18,
+"body_nobow_fitted": {
+"depth_mm": -508.84,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -451.83,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -764.07,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -508.84,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 19,
+"body_nobow_fitted": {
+"depth_mm": -509.58,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -450.3,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -764.31,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -509.58,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 20,
+"body_nobow_fitted": {
+"depth_mm": -510.73,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -450.19,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -765.31,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -510.73,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 21,
+"body_nobow_fitted": {
+"depth_mm": -510.93,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -452.07,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -767.14,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -510.93,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 22,
+"body_nobow_fitted": {
+"depth_mm": -495.8,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -456.41,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.59,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -512.01,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 23,
+"body_nobow_fitted": {
+"depth_mm": -476.49,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -463.49,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.27,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -545.1,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 24,
+"body_nobow_fitted": {
+"depth_mm": -455.0,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -473.35,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -766.58,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -544.56,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 25,
+"body_nobow_fitted": {
+"depth_mm": -432.35,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -485.72,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -767.21,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -542.42,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 26,
+"body_nobow_fitted": {
+"depth_mm": -413.33,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -500.07,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -767.93,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -539.73,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 27,
+"body_nobow_fitted": {
+"depth_mm": -397.91,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -515.71,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -769.19,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -531.84,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 28,
+"body_nobow_fitted": {
+"depth_mm": -384.04,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -531.83,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -770.96,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -516.56,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 29,
+"body_nobow_fitted": {
+"depth_mm": -372.99,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -547.65,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -772.99,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -506.37,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 30,
+"body_nobow_fitted": {
+"depth_mm": -364.3,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -562.48,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -775.17,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -499.61,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 31,
+"body_nobow_fitted": {
+"depth_mm": -357.45,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -575.81,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -777.11,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -501.2,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 32,
+"body_nobow_fitted": {
+"depth_mm": -352.39,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -587.32,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -778.88,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -511.07,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 33,
+"body_nobow_fitted": {
+"depth_mm": -348.81,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -596.86,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -780.38,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.08,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 34,
+"body_nobow_fitted": {
+"depth_mm": -346.37,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -600.07,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -781.51,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.27,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 35,
+"body_nobow_fitted": {
+"depth_mm": -344.46,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -602.15,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.0,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.15,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 36,
+"body_nobow_fitted": {
+"depth_mm": -343.2,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -603.54,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.34,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.07,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 37,
+"body_nobow_fitted": {
+"depth_mm": -342.42,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -604.43,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.57,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.05,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 38,
+"body_nobow_fitted": {
+"depth_mm": -341.97,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -604.97,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.71,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.05,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 39,
+"body_nobow_fitted": {
+"depth_mm": -341.73,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -605.26,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.79,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.05,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 40,
+"body_nobow_fitted": {
+"depth_mm": -341.61,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -605.4,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.82,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.05,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 41,
+"body_nobow_fitted": {
+"depth_mm": -341.57,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -605.45,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.05,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 42,
+"body_nobow_fitted": {
+"depth_mm": -341.55,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -605.47,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.05,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 43,
+"body_nobow_fitted": {
+"depth_mm": -341.55,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -605.47,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.14,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 44,
+"body_nobow_fitted": {
+"depth_mm": -341.55,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -605.47,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.39,
+"verts_inside": 0
+}
+},
+{
+"clip": "cine_open_turn",
+"frame": 45,
+"body_nobow_fitted": {
+"depth_mm": -341.55,
+"verts_inside": 0
+},
+"bow_fitted": {
+"depth_mm": -605.47,
+"verts_inside": 0
+},
+"hair_fitted": {
+"depth_mm": -782.84,
+"verts_inside": 0
+},
+"legs_fitted": {
+"depth_mm": -530.48,
+"verts_inside": 0
+}
+}
+]
+}

@@ -1,0 +1,35 @@
+{
+  "description": "\u9879\u76ee\u914d\u7f6e\u6587\u4ef6\u3002",
+  "miniprogramRoot": "./",
+  "setting": {
+    "urlCheck": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": false,
+    "enhance": false,
+    "useIsolateContext": true
+  },
+  "compileType": "game",
+  "libVersion": "widelyUsed",
+  "appid": "wx3bdd911c5c06f591",
+  "projectname": "ForestWorldR6AudioTemplateG",
+  "condition": {
+    "search": {
+      "current": -1,
+      "list": []
+    },
+    "conversation": {
+      "current": -1,
+      "list": []
+    },
+    "game": {
+      "currentL": -1,
+      "list": [],
+      "current": -1
+    },
+    "miniprogram": {
+      "current": -1,
+      "list": []
+    }
+  }
+}

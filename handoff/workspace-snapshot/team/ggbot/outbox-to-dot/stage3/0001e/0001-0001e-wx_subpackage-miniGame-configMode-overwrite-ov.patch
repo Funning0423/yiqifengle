@@ -1,0 +1,32 @@
+From f4a154240e9103a790cc641c67df84827f681b16 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 9 Oct 2026 16:09:27 -0500
+Subject: [PATCH] 0001e: wx_subpackage miniGame configMode=overwrite +
+ overwriteSettings.wechatgame subpackage in builder.json (align Oi 78a3dba)
+ (GGbot)
+
+---
+ settings/v2/packages/builder.json | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/settings/v2/packages/builder.json b/settings/v2/packages/builder.json
+index ef173f1..0e44563 100644
+--- a/settings/v2/packages/builder.json
++++ b/settings/v2/packages/builder.json
+@@ -13,6 +13,13 @@
+             "fallbackOptions": {
+               "compressionType": "merge_dep",
+               "isRemote": false
++            },
++            "configMode": "overwrite",
++            "overwriteSettings": {
++              "wechatgame": {
++                "isRemote": false,
++                "compressionType": "subpackage"
++              }
+             }
+           },
+           "native": {
+-- 
+2.47.3
+

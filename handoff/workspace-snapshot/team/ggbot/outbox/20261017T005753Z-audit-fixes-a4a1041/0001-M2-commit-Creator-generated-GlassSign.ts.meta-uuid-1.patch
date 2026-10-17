@@ -1,0 +1,30 @@
+From 6edc86f642a0f81ca8d3f485c94847dfe7d31bab Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 08:31:12 +0800
+Subject: [PATCH 1/4] M2: commit Creator-generated GlassSign.ts.meta (uuid
+ 1e879505-4df7-4703-b323-555cef1a7fa5; plain class, no scene/prefab
+ references)
+
+---
+ .../assets/scripts/world-r1/GlassSign.ts.meta            | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+ create mode 100644 creator-build-project/assets/scripts/world-r1/GlassSign.ts.meta
+
+diff --git a/creator-build-project/assets/scripts/world-r1/GlassSign.ts.meta b/creator-build-project/assets/scripts/world-r1/GlassSign.ts.meta
+new file mode 100644
+index 0000000..74c0e20
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r1/GlassSign.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "1e879505-4df7-4703-b323-555cef1a7fa5",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+-- 
+2.47.3
+

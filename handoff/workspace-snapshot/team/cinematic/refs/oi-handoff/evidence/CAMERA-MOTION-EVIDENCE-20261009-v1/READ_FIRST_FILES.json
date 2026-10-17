@@ -1,0 +1,48 @@
+{
+  "scope": "Existing file/package mapping, no newly accepted art or runtime. External packages retain original permissions.",
+  "external_packages": [
+    {
+      "role": "R5 core",
+      "drive_url": "https://drive.google.com/file/d/176l2eek6lgDJmElRY5bCNgk9DeeqwNMM/view",
+      "bytes": 93078039,
+      "local_package_sha256": "bbe6b534ff7b46925f52c9fddf1f4ae1bbee55acb0c20b54f6d1961367719014",
+      "remote_sha_verified": false,
+      "entrypoints": [
+        "GROK_ART_SAFE_HANDOFF_20261009_R5/character/VERTICAL_SLENDER_STAGE_R5/B_VERTICAL_SLENDER_STAGE_R5.blend",
+        "GROK_ART_SAFE_HANDOFF_20261009_R5/character/VERTICAL_SLENDER_STAGE_R5/B_R5_WEIGHTED_AUTHORING_REFERENCE.blend",
+        "GROK_ART_SAFE_HANDOFF_20261009_R5/character/physical_cloth_trial/standing_garment_proof_R8_art_gain_natural_body/comparison_true30/R8_NATURAL_BODY_LOCAL_CORNER_TRUE30.mp4",
+        "GROK_ART_SAFE_HANDOFF_20261009_R5/character/physical_cloth_trial/standing_garment_proof_R8_art_gain_natural_body/comparison_true30/R8_NATURAL_BODY_LOCAL_CORNER_COMPARISON_TRUE30.mp4"
+      ]
+    },
+    {
+      "role": "Motion and scene reference",
+      "drive_url": "https://drive.google.com/file/d/1PyaTLIjv6pqGZUVrknugV686AfTpzjTE/view",
+      "bytes": 49289783,
+      "local_package_sha256": "12817f116b2c3aa6dd0d877a908389c38f810f766f38eff22db21df0edb7a3a1",
+      "remote_sha_verified": false,
+      "entrypoints": [
+        "GROK_ART_SAFE_HANDOFF_20261009_R5/character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/B_ACTUAL_FULL_CHAIN_POSE_PREP_v24.blend",
+        "GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/combined_anchors_m.json",
+        "GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/interior_editable_m.blend"
+      ]
+    },
+    {
+      "role": "Current Cocos source baseline",
+      "drive_url": "https://drive.google.com/file/d/1W_LZObgS85wPdC3eA-fFdk7jkV9t8fLg/view",
+      "delivery_commit": "5b449faece59e07a01b06897290921c1c5f44b17",
+      "entrypoints": [
+        "creator-build-project/assets/scenes/WorldR5Integration.scene",
+        "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+        "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
+        "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+        "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
+        "creator-build-project/assets/scripts/world-r1/CharacterReference.ts",
+        "creator-build-project/assets/scripts/world-r1/FirstsliceFacts.ts"
+      ]
+    }
+  ],
+  "current_supplement_root": "CAMERA-MOTION-EVIDENCE-20261009-v1",
+  "current_supplement_motion_directory": "character/actual_motion_branch/REALSCENE-FULLCHAIN-R24/",
+  "scene_anchors_in_current_supplement": "character/GROK_ART_SAFE_HANDOFF_20261009_R5/scene_reference/combined_anchors_m.json",
+  "script_warning": "Historical authoring paths may be absolute; inspect dependencies first. R24 source NPZ skin matrices are not raw bone local TRS. Render-source images are384x496; the MP4 container is384x544 and includes presentation framing."
+}

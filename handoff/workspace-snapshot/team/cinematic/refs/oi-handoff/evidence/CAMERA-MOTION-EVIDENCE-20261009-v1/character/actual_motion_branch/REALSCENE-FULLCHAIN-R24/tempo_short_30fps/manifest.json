@@ -1,0 +1,32 @@
+{
+  "blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "render_mode": "Workbench with existing material base colors for motion-only review; original blend unchanged. Clothing remains failing. No duplicate/interpolated display frames.",
+  "clips": [
+    {
+      "clip": "pivot",
+      "source_start_seconds": 3.0,
+      "source_end_seconds": 4.5,
+      "unique_frames": 46,
+      "render_fps": 30,
+      "playback_fps": 30,
+      "camera_game_m": [
+        -1.15,
+        1.4,
+        -4.12
+      ]
+    },
+    {
+      "clip": "close",
+      "source_start_seconds": 19.8,
+      "source_end_seconds": 20.8,
+      "unique_frames": 31,
+      "render_fps": 30,
+      "playback_fps": 30,
+      "camera_game_m": [
+        -0.85,
+        1.35,
+        -1.4
+      ]
+    }
+  ]
+}

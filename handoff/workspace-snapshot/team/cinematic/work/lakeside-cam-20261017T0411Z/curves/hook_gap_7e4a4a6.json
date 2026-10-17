@@ -1,0 +1,52 @@
+{
+ "390x844": {
+  "gap": {
+   "positionM": 1.1102230246251565e-15,
+   "viewDeg": 1.2074182697257333e-06,
+   "fovDeg": 4.469567130627183e-06
+  },
+  "frames": 61,
+  "peakTurnDegS": 0,
+  "peakFovRateDegS": 0
+ },
+ "360x780": {
+  "gap": {
+   "positionM": 1.1102230246251565e-15,
+   "viewDeg": 1.7768804381260692,
+   "fovDeg": -2.1618716706790053
+  },
+  "frames": 61,
+  "peakTurnDegS": 3.3292,
+  "peakFovRateDegS": 4.0505
+ },
+ "414x896": {
+  "gap": {
+   "positionM": 1.1102230246251565e-15,
+   "viewDeg": 0.6738417107678905,
+   "fovDeg": 0.022805960561228744
+  },
+  "frames": 61,
+  "peakTurnDegS": 1.2625,
+  "peakFovRateDegS": 0.0427
+ },
+ "375x667": {
+  "gap": {
+   "positionM": 1.1102230246251565e-15,
+   "viewDeg": 2.25586189363288,
+   "fovDeg": -3.710233465871383
+  },
+  "frames": 61,
+  "peakTurnDegS": 4.2266,
+  "peakFovRateDegS": 6.9515
+ },
+ "390x520": {
+  "gap": {
+   "positionM": 1.1102230246251565e-15,
+   "viewDeg": 2.5695534538178966,
+   "fovDeg": 13.972043182078423
+  },
+  "frames": 61,
+  "peakTurnDegS": 4.8143,
+  "peakFovRateDegS": 26.1782
+ }
+}

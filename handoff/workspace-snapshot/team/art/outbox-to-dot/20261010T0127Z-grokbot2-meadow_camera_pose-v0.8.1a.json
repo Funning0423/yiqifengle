@@ -1,0 +1,172 @@
+{
+  "name": "meadow_v0_8_region_pan_camera",
+  "pose": {
+    "position": [
+      -4.0,
+      24.0,
+      62.0
+    ],
+    "target": [
+      0.3151,
+      3.4577,
+      -0.6059
+    ],
+    "fovVerticalDeg": 45.0
+  },
+  "metadata": {
+    "author": "grokbot-2 (art)",
+    "date": "2026-10-09",
+    "for": "0007 RegionCameraData stops[id=meadow].pose (AuthoredPose: position + target + fovVerticalDeg; rotation derived by fromLookAt(up=+Y), roll 0)",
+    "coordinates": "Cocos world, +Y up, metres, meadow scene local: meadow_greybox_v0_8.glb root (scene_root) at the origin with identity transform. If the meadow region root is placed elsewhere in the region world, transform position and target by that root.",
+    "conversion": "cocos = (x_b, z_b, -y_b) (glTF export default, +Y up)",
+    "projection": "perspective, fovAxis vertical, near 0.05, far 1000 (0007 fixed params), aspect follows the screen",
+    "target_note": "target = optical-axis hit on the terrain (screen centre), raycast in Blender on meadow_terrain",
+    "derived_check": {
+      "forward": [
+        0.1252,
+        -0.30931,
+        -0.94268
+      ],
+      "right": [
+        0.99129,
+        -0.0,
+        0.13166
+      ],
+      "up": [
+        0.04072,
+        0.95096,
+        -0.30662
+      ],
+      "right_axis_y": -0.0,
+      "roll_ok_lt_0.001": true,
+      "pitch_deg": -18.018,
+      "yaw_deg_from_minusZ_toward_plusX": 7.566,
+      "target_distance_m": 66.413,
+      "camera_height_above_terrain_m": 24.82,
+      "fov_in_range_30_75": true,
+      "all_finite": true
+    },
+    "ndc_projection_check": {
+      "note": "NDC x right, y up, [-1,1]; computed in Blender with the exact pose; 0.46 = 540x1174, 0.75 = 600x800. UI reserve = bottom 25% = NDC y < -0.5. Bounding boxes only: not an occlusion or HUD test.",
+      "aspect_0.46": {
+        "player_spawn": [
+          0.264,
+          -0.431
+        ],
+        "windmill_door_point": [
+          -0.212,
+          0.285
+        ],
+        "region_interaction_point": [
+          0.223,
+          0.265
+        ],
+        "bell_01": [
+          0.228,
+          0.333
+        ],
+        "windmill_sail_hub": [
+          -0.226,
+          0.488
+        ],
+        "walk_path_05": [
+          0.289,
+          -0.17
+        ],
+        "walk_path_12": [
+          -0.316,
+          0.051
+        ],
+        "path_mesh_bbox_ndc_xmin_xmax_ymin_ymax": [
+          -0.375,
+          0.524,
+          -0.446,
+          0.291
+        ],
+        "windmill_body_bbox_ndc": [
+          -0.434,
+          0.181,
+          0.285,
+          0.636
+        ],
+        "sail_sweep_bbox_ndc (6.2 m radius, any rotation)": [
+          -0.597,
+          0.139,
+          0.319,
+          0.663
+        ],
+        "path_above_ui_band": true,
+        "spawn_above_ui_band": true,
+        "all_key_points_inside_maxAbsX_0.7": true
+      },
+      "aspect_0.75": {
+        "player_spawn": [
+          0.162,
+          -0.431
+        ],
+        "windmill_door_point": [
+          -0.13,
+          0.285
+        ],
+        "region_interaction_point": [
+          0.137,
+          0.265
+        ],
+        "bell_01": [
+          0.14,
+          0.333
+        ],
+        "windmill_sail_hub": [
+          -0.139,
+          0.488
+        ],
+        "walk_path_05": [
+          0.177,
+          -0.17
+        ],
+        "walk_path_12": [
+          -0.194,
+          0.051
+        ],
+        "path_mesh_bbox_ndc_xmin_xmax_ymin_ymax": [
+          -0.23,
+          0.322,
+          -0.446,
+          0.291
+        ],
+        "windmill_body_bbox_ndc": [
+          -0.266,
+          0.111,
+          0.285,
+          0.636
+        ],
+        "sail_sweep_bbox_ndc (6.2 m radius, any rotation)": [
+          -0.366,
+          0.085,
+          0.319,
+          0.663
+        ],
+        "path_above_ui_band": true,
+        "spawn_above_ui_band": true,
+        "all_key_points_inside_maxAbsX_0.7": true
+      }
+    },
+    "framing": "Windmill + sail sweep in the upper third (left of centre), wind-bell frame / region_interaction_point right of the door, tree on the right, path winds from player_spawn (just above the UI band) to the windmill door. Bottom 25% is plain grass for the board/UI buttons. Level horizon (roll 0), looking roughly north: yaw ~7.6 deg, pitch ~-18.0 deg, 66.4 m to target, 24.8 m above the terrain.",
+    "blender_z_up": {
+      "position": [
+        -8.0,
+        -62.0,
+        24.0
+      ],
+      "target": [
+        0.3151,
+        0.6059,
+        3.4577
+      ],
+      "fovVerticalDeg": 45.0,
+      "lens_mm_at_sensor_height_24": 28.9706,
+      "sensor_fit": "VERTICAL"
+    },
+    "revision": "v0.8.1a 2026-10-09 20:27 CT: position x -8 -> -4 per 运镜bot framing check (team/cinematic/work/meadow-pose-check/), fixes terrain-edge exposure at aspect 0.75; target and FOV unchanged. Approved by grokbot-2."
+  }
+}

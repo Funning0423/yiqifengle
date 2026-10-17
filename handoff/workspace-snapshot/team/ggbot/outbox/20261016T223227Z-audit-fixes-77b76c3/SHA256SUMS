@@ -1,0 +1,9 @@
+f84394f8fee52b49fe5a23cc5bc35dec8b32d72b399888f143b8a527d2e9b31f  ./README.md
+4bbb25d50d75deb2692106397401e304af203e2d0c32e0b47e1c02155125a961  ./TREE_CHECK.txt
+904c7520e4139bfe2e16c52f76fc126b9b20af1c43e6e479685c23bbde5f36e9  ./patches/0001-audio-A1-sfx_exit_outbound-re-encoded-32-kHz-56k-CBR.patch
+b9b2d573f6013af7e83d0f56581df4790dfd59f0065fb6657de41fddfab21a5e  ./patches/0002-F2-.cconb-imports-only-request-the-shipped-.bin-no-4.patch
+6ec6c0807a0766a8aca4c0196191475e9c0e2a5fa8aa87ee7e3c3afcc01bfde9  ./patches/0003-F1-HomeFadeCover-bakes-alpha-into-the-Graphics-fill-.patch
+5771d62ae54dded6c9f78ffe3a34c56132951dee287727b965665609652660d5  ./patches/0004-R1-chest-tap-repaint-keeps-the-live-3D-chest-handoff.patch
+93d2e90a5f351d9d61a2ee60f693837566d41250b5d035a7bb90371b18e2c5b7  ./patches/0005-R2-floating-reward-badges-14-pt-higher-on-small-scre.patch
+d339a8cffea686fa3e8cbdb8fcc7424209fbcba1d0c72cfb3b60bfbe87711813  ./patches/0006-exit-cine-audio-test-accept-Voice-Bot-A1-track-150-K.patch
+08bfd11ea478238d2c6eb7ebdf2c8ffef1cee3d49f5e4fc43262ff36fca08bc4  ./yiqifengle-e2a03ec-base-b0020ed.bundle

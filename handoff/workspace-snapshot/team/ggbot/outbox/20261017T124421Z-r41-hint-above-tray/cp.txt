@@ -1,0 +1,12 @@
+Auto-merging creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+[tmp/r41-cpcheck 9ac847b] meadow 04→05: she stops where the board UI (3 tools) leaves her room on this screen; 08→09 leaves through the exit anchors ahead
+ Author: 运镜bot <cine-bot@local>
+ Date: Sat Oct 17 19:47:46 2026 +0800
+ 7 files changed, 149 insertions(+), 20 deletions(-)
+95d3eee exit 0
+[tmp/r41-cpcheck a7a76d4] r4.1 board hint banner above the tray: BoardLayout.toast centred in the plate→tray band (390x844 y168–200), every region alike, ≤330 pt and 12 pt in from the edges, clear of capsule/plate/tools/girl; short phones reserve the 44 pt band (tray ≤20 pt smaller, tall phones unchanged); landscape above the tray or left column; long hint text scales inside the pill; test board-hint-above-tray
+ Author: Cursor Agent <cursoragent@cursor.com>
+ Date: Sat Oct 17 20:38:03 2026 +0800
+ 4 files changed, 136 insertions(+), 9 deletions(-)
+ create mode 100644 tools/board-ui/test_board_hint_above_tray.cjs
+260ea02 exit 0

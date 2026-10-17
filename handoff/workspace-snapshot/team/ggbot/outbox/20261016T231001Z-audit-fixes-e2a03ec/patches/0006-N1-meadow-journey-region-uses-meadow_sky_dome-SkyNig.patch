@@ -1,0 +1,99 @@
+From 1fd266187c5fdc9c3dd2133aff5a94037f9fd16e Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 07:02:44 +0800
+Subject: [PATCH 6/6] N1: meadow journey/region uses meadow_sky_dome +
+ SkyNightTexture as a night-only sky (was disabled, so the reused island sky
+ read as day); applyDayNight toggles it; test meadow-night-sky
+
+---
+ .../assets/scripts/region/RegionJourneyAdapter.ts  | 14 ++++++++++++++
+ .../assets/scripts/world-r1/WorldFlowComponent.ts  |  2 +-
+ tools/journey-integration/run-suite.cjs            |  1 +
+ tools/test_meadow_night_sky.cjs                    | 14 ++++++++++++++
+ 4 files changed, 30 insertions(+), 1 deletion(-)
+ create mode 100644 tools/test_meadow_night_sky.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index e02535d..196269d 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -2,6 +2,7 @@ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isValid, utils} from 'cc';
+ import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
+ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
++import {SkyNightTexture} from '../render/SkyNightTexture';
+ import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion} from './MeadowBoardBackground';
+ import {rotate} from '../world-r1/CameraPose';
+ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
+@@ -47,6 +48,10 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+      const grass=validateModel(model);configureMeadowVertexColors(model);
+      // These local backdrops enclose the source island when both scenes coexist. Reuse the world's existing sky.
+      for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(backdrop)for(const r of backdrop.getComponentsInChildren(MeshRenderer))r.enabled=false;}
++     // N1 (e2a03ec audit): at night the reused island sky reads as day out here. Keep the meadow dome as a night-only sky
++     // with SkyNightTexture (night picture on demand, gradient until it lands); WorldFlowComponent.applyDayNight drives
++     // nightBlend and the dome's visibility on every day/night change. Day keeps the old path (dome off).
++     mountMeadowNightSky(model);
+      effect=await waitRegionAsset(loadWindEffect(),token);token.check();effect.addRef();
+      const material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('journey-meadow-wind-material-missing');owned.push(material);
+      for(const r of grass)for(let i=0;i<r.sharedMaterials.length;i++)r.setSharedMaterial(material,i);
+@@ -82,3 +87,12 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+   }
+  });
+ }
++/** N1: meadow_sky_dome as a night-only sky (SkyNightTexture on its renderer). Returns the component, or null without a dome. */
++export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):SkyNightTexture|null{
++ const dome=find(model,'meadow_sky_dome');const r=dome?dome.getComponentsInChildren(MeshRenderer)[0]:null;if(!dome||!r)return null;
++ const sky=dome.getComponent(SkyNightTexture)||dome.addComponent(SkyNightTexture);sky.skyRenderer=r;(sky as any).__qfNightOnly=true;
++ r.enabled=night;sky.setNightBlend(night?1:0);
++ try{if((globalThis as any).__worldFlowLog)console.info('[QF_SKY] '+JSON.stringify({event:'meadow-night-sky',night}));}catch{}
++ return sky;
++}
++function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index f694b0c..25ae5ee 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -515,7 +515,7 @@ export class WorldFlowComponent extends Component {
+     for(const r of this.nightRenderers)if(r.isValid)r.enabled=this.dayNightMode==='night'&&(r.node.name.startsWith('env_sky_')?this.backdropVisible:this.exteriorVisible);
+     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome*view.lightScale;this.mainLight.color=new Color(view.lightColor[0],view.lightColor[1],view.lightColor[2],255);}
+     const scene=director.getScene();
+-    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture))sky.setNightBlend(view.skyNightBlend);
++    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture)){sky.setNightBlend(view.skyNightBlend);if((sky as any).__qfNightOnly&&sky.skyRenderer?.isValid)sky.skyRenderer.enabled=view.skyNightBlend>0;} // N1: meadow night-only dome
+     for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome))writeNightBlend(dome.getMaterialInstance(0),view.skyNightBlend);
+     Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(isValid(r,true))b.setNight(this.dayNightMode==='night');});
+     this.roomLighting?.setView(this.interiorVisible,this.backdropVisible,this.dayNightMode==='night');
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 6758e03..0efa9dc 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -49,6 +49,7 @@ const tests=[
+  ['fade-cover-alpha','tools/test_fade_cover_alpha.cjs'],
+  ['result-chest-handoff','tools/board-ui/test_result_chest_handoff.cjs'],
+  ['result-float-lift','tools/board-ui/test_result_float_lift.cjs'],
++ ['meadow-night-sky','tools/test_meadow_night_sky.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/test_meadow_night_sky.cjs b/tools/test_meadow_night_sky.cjs
+new file mode 100644
+index 0000000..d3d58c9
+--- /dev/null
++++ b/tools/test_meadow_night_sky.cjs
+@@ -0,0 +1,14 @@
++'use strict';
++// N1: at night the meadow journey/region keeps meadow_sky_dome on as a night-only sky with SkyNightTexture (nightBlend 1);
++// by day it stays off (old path). WorldFlowComponent.applyDayNight toggles it. Cocos doubles only, not a render.
++const fs=require('node:fs'),assert=require('node:assert/strict'),{createHarness}=require('./board-ui/harness.cjs');
++const H=createHarness(),A=H.load('region/RegionJourneyAdapter'),cc=H.cc;
++const mk=()=>{const root=new cc.Node('meadow');const dome=new cc.Node('meadow_sky_dome');root.addChild(dome);const r=dome.addComponent(cc.MeshRenderer);
++ const props={};r.getMaterialInstance=()=>({setProperty:(k,v)=>{props[k]=v;},getProperty:k=>props[k],passes:[]});return {root,dome,r,props};};
++{const m=mk();const sky=A.mountMeadowNightSky(m.root,true);assert(sky,'component');assert.equal(sky.skyRenderer,m.r);assert.equal(m.r.enabled,true,'night: dome on');assert.equal(m.props.nightBlend,1);assert.equal(sky.__qfNightOnly,true);}
++{const m=mk();A.mountMeadowNightSky(m.root,false);assert.equal(m.r.enabled,false,'day: dome off as before');assert.equal(m.props.nightBlend,0);}
++{const m=mk();globalThis.__worldDayNight={snapshot:()=>({mode:'night'})};A.mountMeadowNightSky(m.root);assert.equal(m.r.enabled,true,'reads the world day/night');delete globalThis.__worldDayNight;}
++assert.equal(A.mountMeadowNightSky(new cc.Node('x'),true),null,'no dome: no-op');
++const adapter=fs.readFileSync('creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts','utf8');assert(/mountMeadowNightSky\(model\);/.test(adapter),'journey mount calls it');
++const wf=fs.readFileSync('creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts','utf8');assert(/__qfNightOnly&&sky\.skyRenderer\?\.isValid\)sky\.skyRenderer\.enabled=view\.skyNightBlend>0/.test(wf),'day/night toggle drives the dome');
++console.log('PASS meadow night sky: night dome + SkyNightTexture, day unchanged, toggle wired');
+-- 
+2.47.3
+

@@ -1,0 +1,227 @@
+From a995c4158ff447ec1fb82f26b198db2265a0c36a Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 12:14:51 +0800
+Subject: [PATCH 2/2] =?UTF-8?q?A3b:=20waves=20bed=20always=20(re)starts=20?=
+ =?UTF-8?q?from=200=20incl.=20self-pause=20(slider-at-0=20resume=20stays?=
+ =?UTF-8?q?=20immediate),=20[QF=5FAUDIO]=20waves-start=20log;=20click=20sf?=
+ =?UTF-8?q?x=20-2.5=20dB=20in=20code;=2080=20ms=20duck=20to=200.6x=20on=20?=
+ =?UTF-8?q?=E5=9B=9E=E5=AE=B6=20from=20a=20region=20(home-duck=20log);=20t?=
+ =?UTF-8?q?ests?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    |  2 +-
+ .../assets/scripts/audio/AmbienceAudio.ts     | 20 ++++++---
+ .../assets/scripts/audio/GameAudio.ts         | 17 ++++++--
+ tools/test_home_sea_fadein.cjs                | 43 +++++++++++--------
+ tools/voice-bot/wind/test_wind_audio.cjs      | 20 +++++++++
+ 5 files changed, 76 insertions(+), 26 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index da5c7ea..8d9c9ca 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -646,7 +646,7 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+   if(!inRegion)return runHomeTransition({now:wall,wait,cover:()=>{},audioOut:()=>{},audioIn:()=>{},audioRestore:()=>{},act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},{outS:0,timeoutS:60});
+   const audio=GameAudio.instance as any;
+   return runHomeTransition({now:wall,wait,cover:(a,sec)=>this.fadeCover(a,sec),
+-   audioOut:sec=>{audio?.fadeTransition?.(0,sec);},
++   audioOut:sec=>typeof audio?.homeDuckOut==='function'?audio.homeDuckOut(sec,wait):audio?.fadeTransition?.(0,sec),
+    audioIn:()=>{const t=SCENE_TRACKS.island;audio?.switchTrackAfterTransition?.(t.path,t.bundle);},
+    audioRestore:()=>{audio?.fadeTransition?.(1,.2);},
+    act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},HOME_FADE).then(r=>{(globalThis as any).__worldHomeTransition={...r,at:Date.now()};return r;});
+diff --git a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+index 97228e4..96a9820 100644
+--- a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
++++ b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+@@ -34,6 +34,11 @@ function musicBed(): number {
+   return ambienceBedGain(Number(audio.getMusicVolume()), typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1);
+ }
+ 
++function musicSlider(): number {
++  const audio: any = GameAudio.instance;
++  return audio && typeof audio.getMusicVolume === 'function' ? Number(audio.getMusicVolume()) : 1;
++}
++
+ const WAVES_PATH = 'audio_amb/amb_waves_loop';
+ const WAVES_MAX_VOL = 0.55;
+ const GULLS: SfxName[] = ['sfx_amb_gull_1', 'sfx_amb_gull_2', 'sfx_amb_gull_3'];
+@@ -415,7 +420,8 @@ export class AmbienceAudio extends Component {
+ 
+   private static smoothstep(a: number, b: number, x: number) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
+ 
+-  private bedOn = false;   // A3: did this update leave the waves bed playing?
++  private sliderPaused = false;   // A3b: paused only because the music slider is at 0
++  private startArmed = false;     // A3b: vol was zeroed for this start; play once it ramps audible
+   /** V1 follow-up: drop the smoothed waves bed at once (GameAudio.quietAmbience); it fades back in from 0 if still outdoors. */
+   quiet() { this.vol = 0; const src = this.src; if (!src) return; try { src.volume = 0; if (src.playing) src.pause(); } catch { /* ignore */ } }
+   update(dt: number) {
+@@ -435,8 +441,6 @@ export class AmbienceAudio extends Component {
+     const duck = 1 - E.waveWindDuck * AmbienceAudio.smoothstep(0.3, 1.0, wind);
+     const target = allowed && outdoor >= 0 ? Math.max(outdoor * WAVES_MAX_VOL, floor) * duck : 0;
+     const k = Math.min(1, dt * SMOOTH_PER_S);
+-    // A3: we left the bed playing but something else stopped it (meadow -> home): fade back in from 0, not the stale level.
+-    if (this.bedOn && !src.playing) this.vol = 0;
+     this.vol += (target - this.vol) * k;
+     if (!allowed) this.vol = 0;
+     // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
+@@ -446,12 +450,18 @@ export class AmbienceAudio extends Component {
+     if (!allowed || heard < 0.002) {
+       try { src.volume = 0; } catch { /* ignore */ }
+       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
++      // A3b: remember whether only the music slider at 0 silenced it (that resume stays immediate); a stale level disarms the 0-start.
++      this.sliderPaused = allowed && musicSlider() <= 0.001;
++      if (this.vol > 0.05) this.startArmed = false;
++    } else if (!src.playing && !this.sliderPaused && !this.startArmed) {
++      // A3b: every (re)start of the bed fades in from 0, whatever stopped it (self-pause in a transition, scene change, hide).
++      this.vol = 0; this.startArmed = true;
++      try { src.volume = 0; } catch { /* ignore */ }
+     } else {
+       src.volume = heard;
+       this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('waves-level', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); }
+-      if (!src.playing) { try { src.play(); qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
++      if (!src.playing) { try { src.play(); qfAudioLog('waves-start', { vol: +heard.toFixed(3), from: this.sliderPaused ? 'slider' : 'zero' }); this.startArmed = false; this.sliderPaused = false; qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+     }
+-    this.bedOn = src.playing;
+     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
+     if (wind < E.exitOn) { this.exitActive = false; this.distantDone = []; }
+     else {
+diff --git a/creator-build-project/assets/scripts/audio/GameAudio.ts b/creator-build-project/assets/scripts/audio/GameAudio.ts
+index 2bd11f9..7843b12 100644
+--- a/creator-build-project/assets/scripts/audio/GameAudio.ts
++++ b/creator-build-project/assets/scripts/audio/GameAudio.ts
+@@ -73,6 +73,11 @@ const UI_PRESS: Record<UiTapTarget, SfxName> = {
+   bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_click', signpost: 'sfx_ui_signpost',
+ };
+ const UI_TAP_VOLUME = 1;
++/** A3b (Mac readme-v2-a3): the generic click stacked on the meadow wind hit full scale ~50 ms after 「主页/回家」. -2.5 dB in code, asset untouched. */
++export const UI_CLICK_VOLUME = Math.pow(10, -2.5 / 20);   // ≈ 0.750
++/** A3b: on 回家 from a region the bed (region bgm + wind + live sfx) first dips to 0.6x over 80 ms, then continues the normal fade-out. */
++export const HOME_DUCK = { gain: 0.6, seconds: 0.08 } as const;
++const tapVol = (name: string) => name === 'sfx_ui_click' ? UI_CLICK_VOLUME : UI_TAP_VOLUME;
+ const UI_CONFIRM_AFTER_PRESS_MS = 150;
+ 
+ /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
+@@ -507,6 +512,12 @@ export class GameAudio extends Component {
+     if (this.transAt === null) this.transFrom = v;
+     this.applyTransition();
+   }
++  /** A3b: 回家 fade-out with a quick 80 ms duck to 0.6x first (click + meadow wind headroom), then down to 0 over the rest of `seconds`. */
++  homeDuckOut(seconds: number, wait: (s: number) => Promise<void>): Promise<void> {
++    const d = HOME_DUCK; this.fadeTransition(d.gain, d.seconds);
++    qfAudioLog('home-duck', { gain: d.gain, s: d.seconds, outS: seconds });
++    return wait(d.seconds).then(() => { if (this.transTo === d.gain) this.fadeTransition(0, Math.max(0, seconds - d.seconds)); });
++  }
+   /** End of the fade-out: stop the region bed and sfx (already silent), restore the gain and fade the next track in. */
+   switchTrackAfterTransition(path: string, bundle: string | null) {
+     this.stopAllSfx();
+@@ -1067,7 +1078,7 @@ export class GameAudio extends Component {
+     return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && (this.gestureSeen || this.audioProven);
+   }
+ 
+-  onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
++  onButton() { this.play('sfx_ui_click', UI_CLICK_VOLUME); }
+   /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。
+    *  按下音已经播出时，同一目标 150 ms 内的 confirm 丢掉（点一次道具不再叠两声）。没播成按下音、已满 150 ms，
+    *  或另一个目标，confirm 照播。 */
+@@ -1077,7 +1088,7 @@ export class GameAudio extends Component {
+       const name = UI_PRESS[target];
+       if (!name) return;
+       const t = GameAudio.now();
+-      this.play(name, UI_TAP_VOLUME);
++      this.play(name, tapVol(name));
+       if (this.lastPlay.get(name) === t) { this.uiPressTarget = target; this.uiPressAt = t; }
+     } else if (phase === 'confirm') {
+       if (this.uiPressTarget === target && GameAudio.now() - this.uiPressAt < UI_CONFIRM_AFTER_PRESS_MS) return;
+@@ -1087,7 +1098,7 @@ export class GameAudio extends Component {
+   /** A5：关闭面板 / 返回上一页（目前是岛上旅程册弹层的 × 和“返回章节”，由 AudioBridge 按节点名接入） */
+   onUiBack() { this.play('sfx_ui_back', UI_TAP_VOLUME); }
+   /** 道具槽只点不拖时：挂在 endToolDrag() 里 !d.moved 的分支（审稿 E） */
+-  onToolTap() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
++  onToolTap() { this.play('sfx_ui_click', UI_CLICK_VOLUME); }
+ }
+ 
+ declare const wx: any;
+diff --git a/tools/test_home_sea_fadein.cjs b/tools/test_home_sea_fadein.cjs
+index ff15e79..6bae0a6 100644
+--- a/tools/test_home_sea_fadein.cjs
++++ b/tools/test_home_sea_fadein.cjs
+@@ -1,18 +1,27 @@
+-// A3: returning home from the meadow the waves bed fades in from 0 (no stale level stacking on the BGM fade-in).
++// A3 / A3b: 回家 audio headroom. (1) waves bed restarts from 0 (behaviour: tools/voice-bot/wind/test_wind_audio.cjs "A3b" block),
++// (2) generic click -2.5 dB in code, (3) 80 ms duck to 0.6x on 回家 from a region before the fade-out.
+ const fs=require('fs'),path=require('path'),assert=require('assert');
+-const aa=fs.readFileSync(path.join(__dirname,'..','creator-build-project/assets/scripts/audio/AmbienceAudio.ts'),'utf8');
+-const reset='    if (this.bedOn && !src.playing) this.vol = 0;';
+-assert(aa.includes('const k = Math.min(1, dt * SMOOTH_PER_S);\n    // A3:')&&aa.includes(reset),'reset before smoothing');
+-assert(/console\.warn\('\[AmbienceAudio\] waves play failed', e\); \} \}\n    \}\n    this\.bedOn = src\.playing;\n/.test(aa),'bedOn recorded after play/pause');
+-assert(/private bedOn = false;/.test(aa));
+-// Stand-in loop with the same statements: bed playing at 0.441, then externally stopped on the home transition.
+-const self={vol:0.441,bedOn:true},src={playing:false},k=4/60,bed=1;let first=-1;
+-for(let i=0;i<120;i++){
+-  if(self.bedOn&&!src.playing)self.vol=0;
+-  self.vol+=(0.55-self.vol)*k;const heard=self.vol*bed;
+-  if(heard>=0.002&&!src.playing){src.playing=true;if(first<0)first=heard;}
+-  self.bedOn=src.playing;
+-}
+-assert(first>0&&first<0.05,'restart starts near 0, got '+first);
+-assert(self.vol>0.4,'reaches bed level in ~2 s, got '+self.vol);
+-console.log('home sea fade-in OK first='+first.toFixed(4));
++const S=path.join(__dirname,'..','creator-build-project/assets/scripts'),rd=f=>fs.readFileSync(path.join(S,f),'utf8');
++const aa=rd('audio/AmbienceAudio.ts'),ga=rd('audio/GameAudio.ts'),wb=rd('WorldIntegrationBoot.ts');
++// (1) waves: armed 0-start on every not-playing -> play, except the slider-at-0 resume; first-frame log.
++assert(/\} else if \(!src\.playing && !this\.sliderPaused && !this\.startArmed\) \{\n[^\n]*\n      this\.vol = 0; this\.startArmed = true;/.test(aa),'0-start before play');
++assert(/this\.sliderPaused = allowed && musicSlider\(\) <= 0\.001;/.test(aa),'slider exception');
++assert(/qfAudioLog\('waves-start', \{ vol: \+heard\.toFixed\(3\), from: this\.sliderPaused \? 'slider' : 'zero' \}\)/.test(aa),'waves-start log');
++// (2) click gain
++const m=ga.match(/export const UI_CLICK_VOLUME = Math\.pow\(10, (-?[\d.]+) \/ 20\);/);assert(m&&+m[1]===-2.5,'click -2.5 dB');
++const click=Math.pow(10,-2.5/20);
++for(const re of [/onButton\(\) \{ this\.play\('sfx_ui_click', UI_CLICK_VOLUME\); \}/,/onToolTap\(\) \{ this\.play\('sfx_ui_click', UI_CLICK_VOLUME\); \}/,/this\.play\(name, tapVol\(name\)\);/])assert(re.test(ga),'click gain applied '+re);
++assert(!/'sfx_ui_click', UI_TAP_VOLUME/.test(ga),'no full-gain click left');
++// (3) duck triggered on 回家 from a region
++assert(/export const HOME_DUCK = \{ gain: 0\.6, seconds: 0\.08 \} as const;/.test(ga));
++assert(/homeDuckOut\(seconds: number, wait: \(s: number\) => Promise<void>\): Promise<void> \{\n    const d = HOME_DUCK; this\.fadeTransition\(d\.gain, d\.seconds\);\n    qfAudioLog\('home-duck'/.test(ga),'duck first');
++assert(/if \(this\.transTo === d\.gain\) this\.fadeTransition\(0, Math\.max\(0, seconds - d\.seconds\)\);/.test(ga),'then fade to 0 in the rest of outS');
++assert(wb.includes("audioOut:sec=>typeof audio?.homeDuckOut==='function'?audio.homeDuckOut(sec,wait):audio?.fadeTransition?.(0,sec),"),'goHome uses the duck');
++// Headroom model at the Mac peak (+50 ms after the tap): old = click(1.0x) + wind bed(1.0x) reached 1.000.
++// New: click x0.750, and both (live sfx + bed) x transition gain; old fade 0->0 over 0.4 s gave 0.875 at 50 ms, duck gives 1-0.4*50/80 = 0.75.
++const oldG=1-50/400,newG=1-(1-0.6)*50/80,oldPeak=1.0;
++const worst=oldPeak/oldG*newG*Math.max(click,1)*1, clickShare=0.5;   // click and wind roughly equal at the peak
++const est=oldPeak/oldG*newG*(clickShare*click+(1-clickShare));
++assert(est<0.80&&20*Math.log10(est)<-1.9,'estimated peak <= -1.9 dBFS, got '+est.toFixed(3));
++assert(worst<0.9,'even with no click gain the duck alone keeps it under 0.9: '+worst.toFixed(3));
++console.log('home audio headroom OK est='+est.toFixed(3)+' ('+(20*Math.log10(est)).toFixed(1)+' dBFS)');
+diff --git a/tools/voice-bot/wind/test_wind_audio.cjs b/tools/voice-bot/wind/test_wind_audio.cjs
+index 60404ac..58ffa25 100644
+--- a/tools/voice-bot/wind/test_wind_audio.cjs
++++ b/tools/voice-bot/wind/test_wind_audio.cjs
+@@ -230,4 +230,24 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
+   music = 0.2; e.run(1 / 60);
+   ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.2: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+ }
++// A3b (GGbot): every (re)start of the waves bed fades in from 0 - also when the bed paused ITSELF (transition gain -> 0, heard < 0.002),
++// which is the real meadow -> home path (Mac readme-v2-a3: waves-play heard 0.516). The slider-at-0 resume stays immediate (above).
++{ const e = env({ withAmbience: true }); let tg = 1; const logs = [];
++  e.GameAudio.instance.getMusicVolume = () => 0.4; e.GameAudio.instance.transitionGain = () => tg;
++  const ci = console.info; console.info = (m) => { if (String(m).startsWith('[QF_AUDIO]')) logs.push(JSON.parse(String(m).slice(11))); };
++  global.__worldFlowLog = true;
++  try {
++    e.flow.w = 0; e.run(4); const full = e.a.src.volume;
++    ok(e.a.src.playing && full > 0.3, 'A3b: outdoors waves at the bed level', full);
++    tg = 0; e.run(0.5); ok(!e.a.src.playing && e.a.vol > 0.3, 'A3b: transition gain 0 -> waves self-pause, smoothed vol still stale', { playing: e.a.src.playing, vol: e.a.vol });
++    tg = 1; let first = -1;
++    for (let i = 0; i < 180 && first < 0; i++) { e.run(1 / 60); if (e.a.src.playing) first = e.a.src.volume; }
++    ok(first > 0 && first < 0.05, 'A3b: self-pause restart: first audible frame near 0 (not the stale ~0.5)', first);
++    const st = logs.filter(l => l.event === 'waves-start').pop();
++    ok(st && st.from === 'zero' && near(st.vol, +first.toFixed(3), 1e-3), 'A3b: [QF_AUDIO] waves-start logs the first-frame vol', st);
++    e.run(2.5); ok(near(e.a.src.volume, full, 0.03), 'A3b: back at the bed level ~2.5 s later', e.a.src.volume);
++    e.a.quiet(); let q = -1; for (let i = 0; i < 180 && q < 0; i++) { e.run(1 / 60); if (e.a.src.playing) q = e.a.src.volume; }
++    ok(q > 0 && q < 0.05, 'A3b: restart after quiet() (hide / external stop) also from 0', q);
++  } finally { console.info = ci; delete global.__worldFlowLog; }
++}
+ console.log(fail ? 'FAILED ' + fail : 'ALL PASS wind-audio'); process.exitCode = fail ? 1 : 0;
+-- 
+2.47.3
+

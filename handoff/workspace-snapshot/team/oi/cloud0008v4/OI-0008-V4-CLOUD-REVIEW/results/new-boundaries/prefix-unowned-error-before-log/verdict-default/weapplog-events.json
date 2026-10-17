@@ -1,0 +1,28 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-unowned-error-before-log/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1178,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T01:35:09.790Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T01:35:10.798Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-unowned-error-before-log/logs/WeappLog/review.log",
+      "size": 735
+    },
+    {
+      "t": "2026-10-10T01:35:11.406Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-unowned-error-before-log/logs/WeappLog/review.log",
+      "bytes": 1178,
+      "ok": true
+    }
+  ]
+}

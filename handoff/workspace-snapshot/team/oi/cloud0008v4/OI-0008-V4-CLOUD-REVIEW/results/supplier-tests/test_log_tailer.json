@@ -1,0 +1,86 @@
+{
+  "passed": 20,
+  "total": 20,
+  "results": [
+    {
+      "name": "appended lines after baseline are read; old content is not",
+      "ok": true
+    },
+    {
+      "name": "root that IS a WeappLog dir is scanned (review: root-is-WeappLog → files=0 in v1/v2)",
+      "ok": true
+    },
+    {
+      "name": "root absent at start, created during the run → new files read from byte 0, rootSeen",
+      "ok": true
+    },
+    {
+      "name": "truncation → incomplete + post-truncation content read",
+      "ok": true
+    },
+    {
+      "name": "in-place rewrite that ends LARGER than the old offset (review: \"增长超过旧 size\") → detected via prefix",
+      "ok": true
+    },
+    {
+      "name": "rotation by rename is followed by inode; the new file at the old path is read from 0",
+      "ok": true
+    },
+    {
+      "name": "> 8 MiB appended in one go is read completely (review: over-8MiB-append missed)",
+      "ok": true
+    },
+    {
+      "name": "byte budget exhausted → incomplete (never silent)",
+      "ok": true
+    },
+    {
+      "name": "UTF-8 character and a line split across two writes are reassembled",
+      "ok": true
+    },
+    {
+      "name": "historic file moved in during the run is read (its lines then need an own marker to count — see audit attribution)",
+      "ok": true
+    },
+    {
+      "name": "long line (> 4000 chars) matched on full text, stored truncated, counted",
+      "ok": true
+    },
+    {
+      "name": "spawnCli: output after the first chunk and after a long time is kept; exit code recorded; terminate() stops only that child",
+      "ok": true
+    },
+    {
+      "name": "spawnCli refuses `quit` (global quit removed)",
+      "ok": true
+    },
+    {
+      "name": "spawnCli non-zero exit → ok() false",
+      "ok": true
+    },
+    {
+      "name": "verifyManifest detects a file appended after hashing and an unlisted new file",
+      "ok": true
+    },
+    {
+      "name": "v4 E1 (Oi boundary): same inode, same size, same first 4096 B, SUFFIX rewritten → incomplete",
+      "ok": true
+    },
+    {
+      "name": "v4 E2: rewrite in the MIDDLE of an already-read region (outside first and last 4 KiB) → caught by final full re-hash",
+      "ok": true
+    },
+    {
+      "name": "v4 E3: rewrite of the pre-existing (baseline) region is also caught at stop",
+      "ok": true
+    },
+    {
+      "name": "v4 E4: invalid UTF-8 is a protocol violation → incomplete (line still scanned)",
+      "ok": true
+    },
+    {
+      "name": "v4 E5: pure append (incl. split multi-byte UTF-8 across writes) stays complete; final-rehash event ok",
+      "ok": true
+    }
+  ]
+}

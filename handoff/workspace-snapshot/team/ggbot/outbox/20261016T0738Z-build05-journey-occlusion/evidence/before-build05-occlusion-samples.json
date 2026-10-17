@@ -1,0 +1,2628 @@
+{
+ "04-05": {
+  "total": 32.366,
+  "bad": [
+   {
+    "d": 0,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.05,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.1,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.15,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.2,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.25,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.3,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.35,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.4,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.45,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.5,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.55,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.6,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.65,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.7,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.75,
+    "hidden": 3,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.8,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.85,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.9,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 0.95,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 1,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 1.05,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 1.1,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 1.3,
+    "hidden": 2,
+    "by": "env_island_props_merged+env_prop_palm_lean_01",
+    "lens": 3,
+    "lensObj": null,
+    "foot": null
+   },
+   {
+    "d": 2.9,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 1.8,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 2.95,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 1.43,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 3,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 1.24,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 3.05,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 1.07,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 3.1,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 0.96,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 5.85,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 2.96,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 6.75,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 2.45,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 6.8,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 2.42,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 6.85,
+    "hidden": 4,
+    "by": "beach_palm_tall",
+    "lens": 2.4,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 6.9,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 2.37,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 6.95,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 2.35,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 2.33,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.05,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 2.31,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.1,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 2.28,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.15,
+    "hidden": 5,
+    "by": "beach_palm_tall",
+    "lens": 2.26,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.2,
+    "hidden": 4,
+    "by": "beach_palm_tall",
+    "lens": 2.23,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.25,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 2.21,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.3,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 2.18,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.75,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 1.98,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.8,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 1.96,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.85,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 1.94,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.9,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.92,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 7.95,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.91,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 1.89,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.05,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 1.88,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.1,
+    "hidden": 4,
+    "by": "beach_palm_tall",
+    "lens": 1.87,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.15,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 1.85,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.2,
+    "hidden": 4,
+    "by": "beach_palm_tall",
+    "lens": 1.84,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.25,
+    "hidden": 4,
+    "by": "beach_palm_tall",
+    "lens": 1.83,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.3,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 1.81,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.35,
+    "hidden": 4,
+    "by": "beach_palm_tall",
+    "lens": 1.77,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.4,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 1.74,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.45,
+    "hidden": 3,
+    "by": "beach_palm_tall",
+    "lens": 1.71,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.5,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.69,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.55,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.66,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.7,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.58,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.75,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 1.56,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.8,
+    "hidden": 1,
+    "by": "beach_palm_tall",
+    "lens": 1.53,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.85,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.51,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 8.9,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.49,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 9,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.45,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   },
+   {
+    "d": 9.05,
+    "hidden": 2,
+    "by": "beach_palm_tall",
+    "lens": 1.44,
+    "lensObj": "palm_tall:beach_palm_tall",
+    "foot": null
+   }
+  ]
+ },
+ "08-09": {
+  "total": 42.8654,
+  "bad": [
+   {
+    "d": 25.55,
+    "hidden": 1,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.96
+   },
+   {
+    "d": 25.6,
+    "hidden": 1,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.99
+   },
+   {
+    "d": 25.65,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.96
+   },
+   {
+    "d": 25.7,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.93
+   },
+   {
+    "d": 25.75,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.91
+   },
+   {
+    "d": 25.8,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.89
+   },
+   {
+    "d": 25.85,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.87
+   },
+   {
+    "d": 25.9,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.84
+   },
+   {
+    "d": 25.95,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.82
+   },
+   {
+    "d": 26,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.79
+   },
+   {
+    "d": 26.05,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.77
+   },
+   {
+    "d": 26.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.75
+   },
+   {
+    "d": 26.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.73
+   },
+   {
+    "d": 26.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.71
+   },
+   {
+    "d": 26.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.69
+   },
+   {
+    "d": 26.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.67
+   },
+   {
+    "d": 26.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.65
+   },
+   {
+    "d": 26.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.63
+   },
+   {
+    "d": 26.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.61
+   },
+   {
+    "d": 26.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.59
+   },
+   {
+    "d": 26.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.57
+   },
+   {
+    "d": 26.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.55
+   },
+   {
+    "d": 26.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.53
+   },
+   {
+    "d": 26.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.51
+   },
+   {
+    "d": 26.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.49
+   },
+   {
+    "d": 26.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.46
+   },
+   {
+    "d": 26.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.44
+   },
+   {
+    "d": 26.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.42
+   },
+   {
+    "d": 26.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.4
+   },
+   {
+    "d": 27,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.38
+   },
+   {
+    "d": 27.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.36
+   },
+   {
+    "d": 27.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.34
+   },
+   {
+    "d": 27.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.32
+   },
+   {
+    "d": 27.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.3
+   },
+   {
+    "d": 27.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.28
+   },
+   {
+    "d": 27.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.26
+   },
+   {
+    "d": 27.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.24
+   },
+   {
+    "d": 27.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.22
+   },
+   {
+    "d": 27.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.2
+   },
+   {
+    "d": 27.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.18
+   },
+   {
+    "d": 27.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.16
+   },
+   {
+    "d": 27.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.14
+   },
+   {
+    "d": 27.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.12
+   },
+   {
+    "d": 27.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.1
+   },
+   {
+    "d": 27.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.08
+   },
+   {
+    "d": 27.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.06
+   },
+   {
+    "d": 27.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.04
+   },
+   {
+    "d": 27.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4.02
+   },
+   {
+    "d": 27.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -4
+   },
+   {
+    "d": 28,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.98
+   },
+   {
+    "d": 28.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.96
+   },
+   {
+    "d": 28.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.94
+   },
+   {
+    "d": 28.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.92
+   },
+   {
+    "d": 28.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.9
+   },
+   {
+    "d": 28.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.88
+   },
+   {
+    "d": 28.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.87
+   },
+   {
+    "d": 28.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.85
+   },
+   {
+    "d": 28.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.83
+   },
+   {
+    "d": 28.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.81
+   },
+   {
+    "d": 28.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.79
+   },
+   {
+    "d": 28.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.77
+   },
+   {
+    "d": 28.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.75
+   },
+   {
+    "d": 28.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.73
+   },
+   {
+    "d": 28.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.71
+   },
+   {
+    "d": 28.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.69
+   },
+   {
+    "d": 28.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.68
+   },
+   {
+    "d": 28.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.66
+   },
+   {
+    "d": 28.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.64
+   },
+   {
+    "d": 28.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.62
+   },
+   {
+    "d": 29,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.6
+   },
+   {
+    "d": 29.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.58
+   },
+   {
+    "d": 29.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.56
+   },
+   {
+    "d": 29.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.54
+   },
+   {
+    "d": 29.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.52
+   },
+   {
+    "d": 29.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.5
+   },
+   {
+    "d": 29.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.48
+   },
+   {
+    "d": 29.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.46
+   },
+   {
+    "d": 29.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.44
+   },
+   {
+    "d": 29.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.42
+   },
+   {
+    "d": 29.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.4
+   },
+   {
+    "d": 29.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.39
+   },
+   {
+    "d": 29.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 3,
+    "lensObj": null,
+    "foot": -3.37
+   },
+   {
+    "d": 29.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.97,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.35
+   },
+   {
+    "d": 29.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.93,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.33
+   },
+   {
+    "d": 29.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.89,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.31
+   },
+   {
+    "d": 29.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.85,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.29
+   },
+   {
+    "d": 29.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.82,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.28
+   },
+   {
+    "d": 29.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.78,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.26
+   },
+   {
+    "d": 29.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.74,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.24
+   },
+   {
+    "d": 30,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.7,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.22
+   },
+   {
+    "d": 30.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.67,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.2
+   },
+   {
+    "d": 30.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.63,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.18
+   },
+   {
+    "d": 30.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.6,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.17
+   },
+   {
+    "d": 30.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.56,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.15
+   },
+   {
+    "d": 30.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.53,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.13
+   },
+   {
+    "d": 30.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.49,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.11
+   },
+   {
+    "d": 30.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.46,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.09
+   },
+   {
+    "d": 30.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.42,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.07
+   },
+   {
+    "d": 30.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.39,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.05
+   },
+   {
+    "d": 30.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.36,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.03
+   },
+   {
+    "d": 30.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.32,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.02
+   },
+   {
+    "d": 30.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.29,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3
+   },
+   {
+    "d": 30.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.26,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.98
+   },
+   {
+    "d": 30.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.23,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.96
+   },
+   {
+    "d": 30.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.2,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.94
+   },
+   {
+    "d": 30.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.17,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.92
+   },
+   {
+    "d": 30.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.15,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.9
+   },
+   {
+    "d": 30.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.12,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.88
+   },
+   {
+    "d": 30.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.09,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.86
+   },
+   {
+    "d": 31,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.07,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.84
+   },
+   {
+    "d": 31.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.04,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.82
+   },
+   {
+    "d": 31.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 2.02,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.8
+   },
+   {
+    "d": 31.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.99,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.78
+   },
+   {
+    "d": 31.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.97,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.77
+   },
+   {
+    "d": 31.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.95,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.75
+   },
+   {
+    "d": 31.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.92,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.73
+   },
+   {
+    "d": 31.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.89,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.71
+   },
+   {
+    "d": 31.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.86,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.69
+   },
+   {
+    "d": 31.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.83,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.67
+   },
+   {
+    "d": 31.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.8,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.66
+   },
+   {
+    "d": 31.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.77,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.64
+   },
+   {
+    "d": 31.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.75,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.62
+   },
+   {
+    "d": 31.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.72,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.6
+   },
+   {
+    "d": 31.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.69,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.79
+   },
+   {
+    "d": 31.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.67,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.84
+   },
+   {
+    "d": 31.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.65,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.9
+   },
+   {
+    "d": 31.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.62,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.95
+   },
+   {
+    "d": 31.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.6,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.9
+   },
+   {
+    "d": 31.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.58,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.81
+   },
+   {
+    "d": 32,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.56,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.72
+   },
+   {
+    "d": 32.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.54,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.68
+   },
+   {
+    "d": 32.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.53,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.63
+   },
+   {
+    "d": 32.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.51,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.58
+   },
+   {
+    "d": 32.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.5,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.53
+   },
+   {
+    "d": 32.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.48,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.48
+   },
+   {
+    "d": 32.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.47,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.43
+   },
+   {
+    "d": 32.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.46,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.39
+   },
+   {
+    "d": 32.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.45,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.34
+   },
+   {
+    "d": 32.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.44,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.29
+   },
+   {
+    "d": 32.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.44,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.24
+   },
+   {
+    "d": 32.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.19
+   },
+   {
+    "d": 32.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.15
+   },
+   {
+    "d": 32.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.12
+   },
+   {
+    "d": 32.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.42,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.09
+   },
+   {
+    "d": 32.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.42,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.05
+   },
+   {
+    "d": 32.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.02
+   },
+   {
+    "d": 32.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -3.99
+   },
+   {
+    "d": 32.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.07
+   },
+   {
+    "d": 32.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.44,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2.03
+   },
+   {
+    "d": 33,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.45,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -2
+   },
+   {
+    "d": 33.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.46,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.99
+   },
+   {
+    "d": 33.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.47,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.97
+   },
+   {
+    "d": 33.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.48,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.96
+   },
+   {
+    "d": 33.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.49,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.94
+   },
+   {
+    "d": 33.25,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.51,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.92
+   },
+   {
+    "d": 33.3,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.52,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.91
+   },
+   {
+    "d": 33.35,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.54,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.89
+   },
+   {
+    "d": 33.4,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.56,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.87
+   },
+   {
+    "d": 33.45,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.58,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.86
+   },
+   {
+    "d": 33.5,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.6,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.84
+   },
+   {
+    "d": 33.55,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.61,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.83
+   },
+   {
+    "d": 33.6,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.63,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.81
+   },
+   {
+    "d": 33.65,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.64,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.8
+   },
+   {
+    "d": 33.7,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.66,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.78
+   },
+   {
+    "d": 33.75,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.68,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.77
+   },
+   {
+    "d": 33.8,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.69,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.75
+   },
+   {
+    "d": 33.85,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.71,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.73
+   },
+   {
+    "d": 33.9,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.72,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.72
+   },
+   {
+    "d": 33.95,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.74,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.7
+   },
+   {
+    "d": 34,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.75,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.69
+   },
+   {
+    "d": 34.05,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.77,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.67
+   },
+   {
+    "d": 34.1,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.78,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.66
+   },
+   {
+    "d": 34.15,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.8,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.64
+   },
+   {
+    "d": 34.2,
+    "hidden": 5,
+    "by": "env_sky_static_palette",
+    "lens": 1.81,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.63
+   },
+   {
+    "d": 34.25,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.83,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.61
+   },
+   {
+    "d": 34.3,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.84,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.6
+   },
+   {
+    "d": 34.35,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.86,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.58
+   },
+   {
+    "d": 34.4,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.87,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -1.57
+   },
+   {
+    "d": 34.45,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.88,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.98
+   },
+   {
+    "d": 34.5,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.9,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.96
+   },
+   {
+    "d": 34.55,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.91,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.95
+   },
+   {
+    "d": 34.6,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.92,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.93
+   },
+   {
+    "d": 34.65,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.94,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.91
+   },
+   {
+    "d": 34.7,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.95,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.89
+   },
+   {
+    "d": 34.75,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.96,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.87
+   },
+   {
+    "d": 34.8,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.98,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.85
+   },
+   {
+    "d": 34.85,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 1.99,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.83
+   },
+   {
+    "d": 34.9,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.01,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.81
+   },
+   {
+    "d": 34.95,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.02,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.79
+   },
+   {
+    "d": 35,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.03,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.77
+   },
+   {
+    "d": 35.05,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.05,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.75
+   },
+   {
+    "d": 35.1,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.06,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.74
+   },
+   {
+    "d": 35.15,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.07,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.72
+   },
+   {
+    "d": 35.2,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.08,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.69
+   },
+   {
+    "d": 35.25,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.1,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.66
+   },
+   {
+    "d": 35.3,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.11,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.63
+   },
+   {
+    "d": 35.35,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.12,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.6
+   },
+   {
+    "d": 35.4,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.14,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.57
+   },
+   {
+    "d": 35.45,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.15,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.54
+   },
+   {
+    "d": 35.5,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.16,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.51
+   },
+   {
+    "d": 35.55,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.18,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.48
+   },
+   {
+    "d": 35.6,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.19,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.45
+   },
+   {
+    "d": 35.65,
+    "hidden": 4,
+    "by": "env_sky_static_palette",
+    "lens": 2.2,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.42
+   },
+   {
+    "d": 35.7,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.21,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.39
+   },
+   {
+    "d": 35.75,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.23,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.36
+   },
+   {
+    "d": 35.8,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.24,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.34
+   },
+   {
+    "d": 35.85,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.24,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.31
+   },
+   {
+    "d": 35.9,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.25,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.28
+   },
+   {
+    "d": 35.95,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.26,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.24
+   },
+   {
+    "d": 36,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.27,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.19
+   },
+   {
+    "d": 36.05,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.27,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.15
+   },
+   {
+    "d": 36.1,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.28,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.1
+   },
+   {
+    "d": 36.15,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.29,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.06
+   },
+   {
+    "d": 36.2,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.29,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -5.01
+   },
+   {
+    "d": 36.25,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.3,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.96
+   },
+   {
+    "d": 36.3,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.31,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.92
+   },
+   {
+    "d": 36.35,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.32,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.87
+   },
+   {
+    "d": 36.4,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.33,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.83
+   },
+   {
+    "d": 36.45,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.34,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.78
+   },
+   {
+    "d": 36.5,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.35,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.72
+   },
+   {
+    "d": 36.55,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.36,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.64
+   },
+   {
+    "d": 36.6,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.37,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.55
+   },
+   {
+    "d": 36.65,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.39,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.46
+   },
+   {
+    "d": 36.7,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.4,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.38
+   },
+   {
+    "d": 36.75,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.41,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -4.29
+   },
+   {
+    "d": 36.8,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.42,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.97
+   },
+   {
+    "d": 36.85,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.96
+   },
+   {
+    "d": 36.9,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.44,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.95
+   },
+   {
+    "d": 36.95,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.45,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.94
+   },
+   {
+    "d": 37,
+    "hidden": 3,
+    "by": "env_sky_static_palette",
+    "lens": 2.46,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.93
+   },
+   {
+    "d": 37.05,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.47,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.91
+   },
+   {
+    "d": 37.1,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.48,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.9
+   },
+   {
+    "d": 37.15,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.49,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.89
+   },
+   {
+    "d": 37.2,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.49,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.88
+   },
+   {
+    "d": 37.25,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.46,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.87
+   },
+   {
+    "d": 37.3,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.43,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.86
+   },
+   {
+    "d": 37.35,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.39,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.84
+   },
+   {
+    "d": 37.4,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.36,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.83
+   },
+   {
+    "d": 37.45,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.33,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.82
+   },
+   {
+    "d": 37.5,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.3,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.81
+   },
+   {
+    "d": 37.55,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.28,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.8
+   },
+   {
+    "d": 37.6,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.25,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.79
+   },
+   {
+    "d": 37.65,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.22,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.78
+   },
+   {
+    "d": 37.7,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.19,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.76
+   },
+   {
+    "d": 37.75,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.16,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.75
+   },
+   {
+    "d": 37.8,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.13,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.73
+   },
+   {
+    "d": 37.85,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.11,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.72
+   },
+   {
+    "d": 37.9,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.08,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.71
+   },
+   {
+    "d": 37.95,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.05,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.69
+   },
+   {
+    "d": 38,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 2.02,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.68
+   },
+   {
+    "d": 38.05,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.99,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.67
+   },
+   {
+    "d": 38.1,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.96,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.65
+   },
+   {
+    "d": 38.15,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.94,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.64
+   },
+   {
+    "d": 38.2,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.91,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.62
+   },
+   {
+    "d": 38.25,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.88,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.61
+   },
+   {
+    "d": 38.3,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.85,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.6
+   },
+   {
+    "d": 38.35,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.83,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.58
+   },
+   {
+    "d": 38.4,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.8,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.57
+   },
+   {
+    "d": 38.45,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.77,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.56
+   },
+   {
+    "d": 38.5,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.74,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.54
+   },
+   {
+    "d": 38.55,
+    "hidden": 2,
+    "by": "env_sky_static_palette",
+    "lens": 1.71,
+    "lensObj": "sky:env_sky_static_palette",
+    "foot": -0.53
+   }
+  ]
+ }
+}

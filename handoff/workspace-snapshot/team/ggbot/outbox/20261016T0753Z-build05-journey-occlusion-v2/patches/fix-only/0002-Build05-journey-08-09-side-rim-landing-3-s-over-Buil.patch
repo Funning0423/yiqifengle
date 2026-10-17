@@ -1,0 +1,1815 @@
+From a373227b7aadb9e9af7522d3993e7de5fc0fbc6f Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 03:53:09 -0400
+Subject: [PATCH 2/2] =?UTF-8?q?Build05=20journey=2008-09:=20side-rim=20lan?=
+ =?UTF-8?q?ding,=20=E2=89=A43=20s=20over=20Build05,=20plaza-focused=20arri?=
+ =?UTF-8?q?val=20lens?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Lead feedback on d28ee16 (08-09 +16.4 m / +13.7 s; city stayed off to +X):
+- Bridge keeps the same +X heading and meadow-local line (z≈3.20) but ends 18 m out
+  (was 24) just outside the terminus platform's SIDE rim next to the city's cloud bridge;
+  the city is turned (yaw 241.17°) so the bridge arrives straight in. Deck walk is one
+  diagonal to the cloud-bridge step + the unchanged 2.4 m arrival root (8.7+2.05 m, was 17.6 m).
+  08-09 total 46.03 m (Build05 42.865 m): +2.64 s at the unchanged 1.2 m/s.
+- journeyCamera takes an optional route focus (skycity: anchor_starcourt_center). Over the
+  last 5→3 m the lens swings to 2.5 m behind her on the line to the plaza, 1.5 m up, aimed
+  halfway between her chest and the plaza: city horizontally centred, both in frame.
+  04-05 has no focus and is unchanged.
+- test-journey-occlusion: O5 extra duration ≤3 s; city centre |ndc x|≤0.15, |y|≤0.35 and her
+  chest in frame over the final 3 m. All occlusion checks and the 09 plaza check still pass.
+---
+ .../scripts/region/RegionJourneyAdapter.ts    |   11 +-
+ .../scripts/region/RegionJourneyLayout.ts     |   46 +-
+ .../scripts/world-r1/RegionJourneyCore.ts     |   20 +-
+ .../reports/journey-occlusion.json            | 1031 +++++++----------
+ .../test-journey-occlusion.cjs                |   16 +-
+ 5 files changed, 456 insertions(+), 668 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index b27c3f1..79427dc 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -56,7 +56,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+     let approach:Vec[];
+     if(from==='island')approach=islandApproach(start);
+     else{const meadow=mounted.get('meadow');if(!meadow)throw Error('journey-meadow-lease-missing');approach=[start];for(let i=3;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)approach.push(anchor(meadow,'walk_path_'+String(i).padStart(2,'0')));}
+-    const edge=approach[approach.length-1];let bridge:Vec[],arrival:Vec[];
++    const edge=approach[approach.length-1];let bridge:Vec[],arrival:Vec[],focus:Vec|undefined;
+     if(to==='meadow'){
+      model.setRotationFromEuler(0,180,0);
+      const incoming=anchor(model,'player_spawn'),landing=plus(edge,REGION_JOURNEY_LAYOUT.meadowOffset);
+@@ -64,16 +64,17 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+      bridge=bridgePath(edge,anchor(model,'player_spawn'),REGION_JOURNEY_LAYOUT.meadowBridgeArchM);arrival=[];
+      for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
+     }else{
+-     // Face the city's own cloud bridge back at the meadow exit, then put the terminus platform's OUTER rim on the
+-     // rainbow bridge. Arrive at the same real entrance (2.4 m in from anchor_cloudbridge_end) as before.
++     // Turn the city so the rainbow bridge meets the terminus platform's SIDE rim radially, put that landing on the bridge,
++     // then step onto the city's cloud bridge and arrive at the same real entrance (2.4 m in from anchor_cloudbridge_end).
++     // The follow lens turns to the plaza (anchor_starcourt_center) over the last metres.
+      model.setRotationFromEuler(0,0,0);
+      model.setRotationFromEuler(0,skycityYawDeg(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),0);
+      const placed=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),landing=plus(edge,REGION_JOURNEY_LAYOUT.skycityOffset);
+      model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-placed.rim[0],landing[1]-placed.rim[1],landing[2]-placed.rim[2]]));
+      const deck=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start'));
+-     bridge=bridgePath(edge,deck.rim,REGION_JOURNEY_LAYOUT.skyBridgeArchM);arrival=[...deck.deck,deck.arrival];
++     bridge=bridgePath(edge,deck.rim,REGION_JOURNEY_LAYOUT.skyBridgeArchM);arrival=[...deck.deck,deck.arrival];focus=anchor(model,'anchor_starcourt_center');
+     }
+-    const path=[...approach,...bridge.slice(1),...arrival],route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps};
++    const path=[...approach,...bridge.slice(1),...arrival],route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,...(focus?{focus}:{})};
+     rainbowBridge(rig,bridge,owned);token.check();mounted.set(to,model);progress(.98);
+     const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
+     return lease;
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts b/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts
+index a04ca11..cd07a5b 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyLayout.ts
+@@ -14,33 +14,39 @@ export const REGION_JOURNEY_LAYOUT={
+  /** Kept for older readers: forward component of islandApproach. */
+  islandApproachM:3.2,
+  meadowOffset:[0,0,24] as Vec,
+- /** World offset of the sky platform's OUTER rim from the meadow exit (walk_path_08). Was [0,12,24] to the inner anchor. */
+- skycityOffset:[24,12,0] as Vec,
+- /** World heading (deg, 0=+Z, 90=+X) of the city's own cloud bridge (end→start). Must equal the skycityOffset heading
+-  * so the rainbow bridge arrives head-on at the rim. Was an implicit 0 (yaw 215 on this GLB). */
++ /** World offset of the sky platform LANDING point from the meadow exit (walk_path_08). d28ee16: [24,12,0] to the far
++  * outer rim, then a 17.6 m walk round the post (+13.7 s, rejected). Build05 original: [0,12,24] to the inner anchor. */
++ skycityOffset:[18,12,0] as Vec,
++ /** World heading (deg, 0=+Z, 90=+X) of the rainbow bridge as it arrives at the landing; the city is turned so the
++  * bridge meets the platform rim radially there. Same +X heading as d28ee16, so the bridge centreline does not move sideways. */
+  skyHeadingDeg:90,
+- /** Deck frame on the terminus platform: along = end→start, lateral = 90° left of along. Measured on
+-  * env_sky_static_palette: deck radius ≈ 7.5 m centred 6.5 m outward from anchor_cloudbridge_end, post radius ≈ 2.2 m. */
+- skyPlatformRimM:13.6,
+- /** [along, lateral, height above anchor_cloudbridge_end]. The deck is domed (+0.21 m near the post), so each
+-  * waypoint carries its measured deck height + ~3 cm; linear segments between them stay on or just above the deck. */
+- skyPlatformWalk:[[-10,3.4,.2],[-6.5,3.8,.24],[-3,3.4,.14]] as ReadonlyArray<readonly [number,number,number]>,
+- skyRimLiftM:.02,
+- /** The city's cloud-bridge deck starts 0.26 m ABOVE the platform right after anchor_cloudbridge_end (a step the old
+-  * straight entry walked through). Cross it onto the deck 0.35 m in, then keep the original 2.4 m arrival root. */
++ /** Deck frame on the terminus platform: along = end→start (metres from anchor_cloudbridge_end), lateral = 90° left of
++  * along, height above that anchor. Measured on env_sky_static_palette: deck radius ≈ 7.5 m centred at along −6.5,
++  * centre post at along −8…−4 / |lateral| ≤ 1, city cloud-bridge deck +0.28 m from along 0.35, |lateral| ≤ 1.
++  * The rim slab reaches r ≈ 8.1 m. The bridge now ends just outside the SIDE rim (r 8.33, next to the city's cloud bridge)
++  * and the walk carries straight on across the deck to the cloud-bridge step: 8.6 m plus the unchanged 2.05 m entry,
++  * instead of 17.6 m round the post. */
++ skyLanding:[-3.47,7.78,.06] as readonly [number,number,number],
++ skyPlatformWalk:[[-.29,1.3,.08],[-.05,.8,.3]] as ReadonlyArray<readonly [number,number,number]>,
++ /** The city's cloud-bridge deck starts 0.26 m ABOVE the platform just past anchor_cloudbridge_end. Step onto it 0.35 m in,
++  * then keep the original 2.4 m arrival root. */
+  skyStepOnto:[.35,0,.31] as readonly [number,number,number],
+  bridgeWidthM:2.1,meadowBridgeArchM:2,skyBridgeArchM:2,speedMps:1.2,bridgeSamples:32,meadowExitPathIndex:8,skyEntryWalkM:2.4,
+ } as const;
+ export const plus=(a:Vec,b:Vec):Vec=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+ export function bridgePath(a:Vec,b:Vec,arch:number):Vec[]{const out:Vec[]=[];for(let i=0;i<=REGION_JOURNEY_LAYOUT.bridgeSamples;i++){const t=i/REGION_JOURNEY_LAYOUT.bridgeSamples;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t+Math.sin(Math.PI*t)*arch,a[2]+(b[2]-a[2])*t]);}return out;}
+ export function islandApproach(start:Vec):Vec[]{return [start,plus(start,REGION_JOURNEY_LAYOUT.islandApproach)];}
+-/** Y rotation (deg, Cocos setRotationFromEuler) that turns the city's end→start direction, measured UNROTATED, to skyHeadingDeg. */
+-export function skycityYawDeg(endLocal:Vec,startLocal:Vec):number{const a=Math.atan2(startLocal[0]-endLocal[0],startLocal[2]-endLocal[2])*180/Math.PI;return REGION_JOURNEY_LAYOUT.skyHeadingDeg-a;}
+-/** Deck route from already-placed anchors. rim → around the post → onto the cloud-bridge deck → the original arrival root
+- * (2.4 m from anchor_cloudbridge_end toward anchor_cloudbridge_start, unchanged from Build05). */
++/** Deck-frame helpers from (already placed or unrotated) anchors. */
++function deckFrame(end:Vec,gate:Vec){const dx=gate[0]-end[0],dz=gate[2]-end[2],h=Math.hypot(dx,dz)||1,u=[dx/h,dz/h],n=[-u[1],u[0]];
++ const at=(a:number,l:number,lift:number):Vec=>[end[0]+u[0]*a+n[0]*l,end[1]+lift,end[2]+u[1]*a+n[1]*l];return {u,n,at};}
++/** Horizontal direction the bridge travels as it reaches the landing: straight on toward the first deck waypoint. */
++export function skyApproachDir(end:Vec,gate:Vec):[number,number]{const L=REGION_JOURNEY_LAYOUT,{at}=deckFrame(end,gate),a=at(L.skyLanding[0],L.skyLanding[1],0),w=L.skyPlatformWalk[0]??L.skyStepOnto,c=at(w[0],w[1],0),x=c[0]-a[0],z=c[2]-a[2],h=Math.hypot(x,z)||1;return [x/h,z/h];}
++/** Y rotation (deg, Cocos setRotationFromEuler) that turns the inbound approach direction, measured UNROTATED, to skyHeadingDeg. */
++export function skycityYawDeg(endLocal:Vec,startLocal:Vec):number{const [x,z]=skyApproachDir(endLocal,startLocal);return REGION_JOURNEY_LAYOUT.skyHeadingDeg-Math.atan2(x,z)*180/Math.PI;}
++/** Deck route from already-placed anchors: side-rim landing → onto the cloud-bridge deck → the original arrival root
++ * (2.4 m from anchor_cloudbridge_end toward anchor_cloudbridge_start, unchanged from Build05). `rim` = landing point. */
+ export function skyDeckRoute(end:Vec,gate:Vec):{rim:Vec;deck:Vec[];arrival:Vec}{
+- const L=REGION_JOURNEY_LAYOUT,dx=gate[0]-end[0],dz=gate[2]-end[2],h=Math.hypot(dx,dz)||1,u=[dx/h,dz/h],n=[-u[1],u[0]];
+- const at=(a:number,l:number,lift:number):Vec=>[end[0]+u[0]*a+n[0]*l,end[1]+lift,end[2]+u[1]*a+n[1]*l];
++ const L=REGION_JOURNEY_LAYOUT,{at}=deckFrame(end,gate);
+  const length=Math.hypot(gate[0]-end[0],gate[1]-end[1],gate[2]-end[2]),t=Math.min(1,L.skyEntryWalkM/length);
+- return {rim:at(-L.skyPlatformRimM,0,L.skyRimLiftM),deck:[...L.skyPlatformWalk.map(([a,l,lift])=>at(a,l,lift)),at(...L.skyStepOnto)],arrival:[end[0]+(gate[0]-end[0])*t,end[1]+(gate[1]-end[1])*t,end[2]+(gate[2]-end[2])*t]};
++ return {rim:at(...L.skyLanding),deck:[...L.skyPlatformWalk.map(([a,l,lift])=>at(a,l,lift)),at(...L.skyStepOnto)],arrival:[end[0]+(gate[0]-end[0])*t,end[1]+(gate[1]-end[1])*t,end[2]+(gate[2]-end[2])*t]};
+ }
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 1fc3d78..0331245 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -1,7 +1,7 @@
+ import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
+ export type JourneyRegion = 'island'|'meadow'|'skycity';
+ export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
+-export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number }>;
++export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec }>;
+ export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
+ export interface JourneySceneAdapter {
+  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
+@@ -27,15 +27,23 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
+  * than beside the windmill or inside the post. The first blendM metres rejoin from the actual live lens; during that
+  * swing the lens arcs up by blendLiftM so it passes over the beach palms instead of through their canopies.
+  * Numbers are checked by tools/journey-integration/test-journey-occlusion.cjs against the real region GLB geometry. */
+-export const JOURNEY_CAMERA={blendM:4,headingWindowM:3,backM:6.2,sideM:-3,upM:5,leadM:.8,lookM:1.05,blendLiftM:5.5,fovDeg:48} as const;
++export const JOURNEY_CAMERA={blendM:4,headingWindowM:3,backM:6.2,sideM:-3,upM:5,leadM:.8,lookM:1.05,blendLiftM:5.5,fovDeg:48,focusStartM:5,focusFullM:3,focusBackM:2.5,focusUpM:1.5,focusAim:.5} as const;
+ export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
+  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
+  return l>1e-6?[x/l,z/l]:[0,1];
+ }
+-export function journeyCamera(path:readonly Vec[],distance:number,start:Pose):Pose {
++/** Optional end focus (08→09: the city plaza). From focusStartM to focusFullM before the end the lens swings to
++ * focusBackM straight behind her on the line to the focus, at focusUpM, and aims halfway (by angle, focusAim) between
++ * her chest and the focus: the city is horizontally centred with her in front of it, both inside the portrait frame.
++ * Low and close so it stays clear of the platform's centre post. Routes without focus (04→05) are unaffected. */
++export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec):Pose {
+  const C=JOURNEY_CAMERA,p=sampleRoute(path,distance),[hx,hz]=journeyHeading(path,distance),sx=hz,sz=-hx;
+  const u=Math.min(1,Math.max(0,distance/C.blendM)),blend=u*u*(3-2*u);
+- const target:Vec=[p[0]+hx*C.leadM,p[1]+C.lookM,p[2]+hz*C.leadM],position:Vec=[p[0]-hx*C.backM+sx*C.sideM,p[1]+C.upM,p[2]-hz*C.backM+sz*C.sideM];
++ let target:Vec=[p[0]+hx*C.leadM,p[1]+C.lookM,p[2]+hz*C.leadM],position:Vec=[p[0]-hx*C.backM+sx*C.sideM,p[1]+C.upM,p[2]-hz*C.backM+sz*C.sideM];
++ if(focus){const left=routeLength(path)-distance,v=Math.min(1,Math.max(0,(C.focusStartM-left)/(C.focusStartM-C.focusFullM))),w=v*v*(3-2*v);
++  if(w>0){const fx=focus[0]-p[0],fz=focus[2]-p[2],fl=Math.hypot(fx,fz)||1,pos:Vec=[p[0]-fx/fl*C.focusBackM,p[1]+C.focusUpM,p[2]-fz/fl*C.focusBackM];
++   position=[position[0]+(pos[0]-position[0])*w,position[1]+(pos[1]-position[1])*w,position[2]+(pos[2]-position[2])*w];const dir=(q:Vec,o:Vec):Vec=>{const x=q[0]-o[0],y=q[1]-o[1],z=q[2]-o[2],l=Math.hypot(x,y,z)||1;return [x/l,y/l,z/l];},df=dir(focus,pos),dc=dir([p[0],p[1]+C.lookM,p[2]],pos),aim=dir([df[0]*C.focusAim+dc[0]*(1-C.focusAim),df[1]*C.focusAim+dc[1]*(1-C.focusAim),df[2]*C.focusAim+dc[2]*(1-C.focusAim)],[0,0,0]),ft:Vec=[pos[0]+aim[0]*8,pos[1]+aim[1]*8,pos[2]+aim[2]*8];
++   target=[target[0]+(ft[0]-target[0])*w,target[1]+(ft[1]-target[1])*w,target[2]+(ft[2]-target[2])*w];}}
+  const mix=(a:Vec,b:Vec):Vec=>[a[0]+(b[0]-a[0])*blend,a[1]+(b[1]-a[1])*blend,a[2]+(b[2]-a[2])*blend];
+  const m=mix(start.position,position),lens:Vec=[m[0],m[1]+C.blendLiftM*Math.sin(Math.PI*blend),m[2]];
+  return {position:lens,target:mix(start.target,target),fovVerticalDeg:(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend};
+@@ -71,7 +79,7 @@ export class RegionJourneyController {
+   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
+   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
+   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
+-  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera);world.setCamera(this.camera);
++  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus);world.setCamera(this.camera);
+   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
+  }
+  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
+@@ -84,7 +92,7 @@ export class RegionJourneyController {
+     await token.wait(actor.perform({kind:'walk',path,duration:routeLength(path)/this.lease.route.speed},token));token.check();}
+    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
+    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
+-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
++   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+   }catch(error){if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
+   finally{if(serial===this.serial)this.busy=false;}
+diff --git a/tools/journey-integration/reports/journey-occlusion.json b/tools/journey-integration/reports/journey-occlusion.json
+index f8c0a89..63e9fbe 100644
+--- a/tools/journey-integration/reports/journey-occlusion.json
++++ b/tools/journey-integration/reports/journey-occlusion.json
+@@ -1,6 +1,6 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-16T07:34:27.660Z",
++ "timeUTC": "2026-10-16T07:52:41.495Z",
+  "scope": "Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.",
+  "camera": {
+   "blendM": 4,
+@@ -11,7 +11,12 @@
+   "leadM": 0.8,
+   "lookM": 1.05,
+   "blendLiftM": 5.5,
+-  "fovDeg": 48
++  "fovDeg": 48,
++  "focusStartM": 5,
++  "focusFullM": 3,
++  "focusBackM": 2.5,
++  "focusUpM": 1.5,
++  "focusAim": 0.5
+  },
+  "layout": {
+   "islandApproach": [
+@@ -26,30 +31,28 @@
+    24
+   ],
+   "skycityOffset": [
+-   24,
++   18,
+    12,
+    0
+   ],
+   "skyHeadingDeg": 90,
+-  "skyPlatformRimM": 13.6,
++  "skyLanding": [
++   -3.47,
++   7.78,
++   0.06
++  ],
+   "skyPlatformWalk": [
+    [
+-    -10,
+-    3.4,
+-    0.2
+-   ],
+-   [
+-    -6.5,
+-    3.8,
+-    0.24
++    -0.29,
++    1.3,
++    0.08
+    ],
+    [
+-    -3,
+-    3.4,
+-    0.14
++    -0.05,
++    0.8,
++    0.3
+    ]
+   ],
+-  "skyRimLiftM": 0.02,
+   "skyStepOnto": [
+    0.35,
+    0,
+@@ -63,7 +66,31 @@
+   "meadowExitPathIndex": 8,
+   "skyEntryWalkM": 2.4
+  },
+- "skyYawDeg": -54.974,
++ "skyYawDeg": 241.1651,
++ "placement": {
++  "meadowRootWorld": [
++   -1.3135000586509729,
++   -1.1634941101074219,
++   52.48140020370484
++  ],
++  "meadowYawDeg": 180,
++  "skycityRootWorld": [
++   59.063729656884824,
++   18.818369446771143,
++   117.2121345055905
++  ],
++  "skycityYawDeg": 241.16508129660997,
++  "phases": {
++   "04-05": {
++    "bridgeStart": 3.2984845004941277,
++    "bridgeEnd": 27.704256678831825
++   },
++   "08-09": {
++    "bridgeStart": 13.338607016041834,
++    "bridgeEnd": 35.28996590645467
++   }
++  }
++ },
+  "checks": [
+   {
+    "id": "O1/O2 04-05 character visible + lens ≥1 m every 0.05 m",
+@@ -373,9 +400,9 @@
+   {
+    "id": "O1/O2 08-09 character visible + lens ≥1 m every 0.05 m",
+    "status": "PASS",
+-   "total": 59.2723,
+-   "samples": 1186,
+-   "minLensM": 3,
++   "total": 46.0279,
++   "samples": 921,
++   "minLensM": 1.45,
+    "exemptedAuthoredIslandPoseSamples": [],
+    "partialGrazes": []
+   },
+@@ -383,11 +410,11 @@
+    "id": "O3 08-09 foot above env_sky_static_palette top on bridge+deck",
+    "status": "PASS",
+    "worstFootClearanceM": {
+-    "d": 40.14,
+-    "clear": -0.012,
++    "d": 43.54,
++    "clear": 0.026,
+     "who": "env_sky_static_palette"
+    },
+-   "deckSamples": 399,
++   "deckSamples": 208,
+    "oiReference": "Build05: −2.27 m at 32.22 m (Oi); this harness measured −6.11 m at 32.0 m on the old route"
+   },
+   {
+@@ -400,6 +427,41 @@
+    "status": "PASS",
+    "segments": 32
+   },
++  {
++   "id": "O5 08-09 extra walk time vs Build05 ≤ 3 s at the unchanged speed",
++   "status": "PASS",
++   "totalM": 46.028,
++   "build05M": 42.865,
++   "extraS": 2.64,
++   "durationS": 38.36
++  },
++  {
++   "id": "O5 08-09 city centre (anchor_starcourt_center) near screen centre over the final 3 m (390×844)",
++   "status": "PASS",
++   "samples": 31,
++   "first": {
++    "d": 43.03,
++    "cityNdc": [
++     0,
++     -0.264
++    ],
++    "herChestNdc": [
++     0,
++     0.396
++    ]
++   },
++   "last": {
++    "d": 46.03,
++    "cityNdc": [
++     0,
++     -0.266
++    ],
++    "herChestNdc": [
++     0,
++     0.398
++    ]
++   }
++  },
+   {
+    "id": "O4 09 board background pose unchanged and plaza in frame",
+    "status": "PASS",
+@@ -1183,7 +1245,7 @@
+    ]
+   },
+   "08-09": {
+-   "total": 59.2723,
++   "total": 46.0279,
+    "rows": [
+     {
+      "d": 0,
+@@ -1422,9 +1484,9 @@
+      "y": 1.64,
+      "z": 46.689,
+      "cam": [
+-      -7.31,
++      -7.3,
+       6.64,
+-      42.18
++      42.17
+      ]
+     },
+     {
+@@ -1433,9 +1495,9 @@
+      "y": 1.685,
+      "z": 47.151,
+      "cam": [
+-      -7.44,
++      -7.4,
+       6.68,
+-      43.04
++      42.98
+      ]
+     },
+     {
+@@ -1444,9 +1506,9 @@
+      "y": 1.72,
+      "z": 47.606,
+      "cam": [
+-      -7.56,
++      -7.5,
+       6.72,
+-      43.97
++      43.86
+      ]
+     },
+     {
+@@ -1455,9 +1517,9 @@
+      "y": 1.755,
+      "z": 48.06,
+      "cam": [
+-      -7.65,
++      -7.57,
+       6.76,
+-      44.95
++      44.8
+      ]
+     },
+     {
+@@ -1466,9 +1528,9 @@
+      "y": 1.79,
+      "z": 48.515,
+      "cam": [
+-      -7.71,
++      -7.63,
+       6.79,
+-      46
++      45.79
+      ]
+     },
+     {
+@@ -1477,1032 +1539,735 @@
+      "y": 1.825,
+      "z": 48.97,
+      "cam": [
+-      -7.73,
++      -7.66,
+       6.82,
+-      47.11
++      46.87
+      ]
+     },
+     {
+      "d": 13.5,
+-     "x": -0.832,
+-     "y": 1.946,
++     "x": -0.847,
++     "y": 1.964,
+      "z": 49.278,
+      "cam": [
+-      -7.63,
+-      6.95,
+-      48.15
++      -7.59,
++      6.96,
++      47.88
+      ]
+     },
+     {
+      "d": 14,
+-     "x": -0.434,
+-     "y": 2.249,
++     "x": -0.496,
++     "y": 2.32,
+      "z": 49.278,
+      "cam": [
+-      -7.31,
+-      7.25,
+-      48.93
++      -7.36,
++      7.32,
++      48.66
+      ]
+     },
+     {
+      "d": 14.5,
+-     "x": -0.036,
+-     "y": 2.552,
++     "x": -0.145,
++     "y": 2.676,
+      "z": 49.278,
+      "cam": [
+-      -6.91,
+-      7.55,
+-      49.7
++      -7.03,
++      7.68,
++      49.46
+      ]
+     },
+     {
+      "d": 15,
+-     "x": 0.362,
+-     "y": 2.854,
++     "x": 0.207,
++     "y": 3.031,
+      "z": 49.278,
+      "cam": [
+-      -6.42,
+-      7.85,
+-      50.47
++      -6.61,
++      8.03,
++      50.27
+      ]
+     },
+     {
+      "d": 15.5,
+-     "x": 0.761,
+-     "y": 3.156,
++     "x": 0.559,
++     "y": 3.386,
+      "z": 49.278,
+      "cam": [
+-      -5.85,
+-      8.16,
+-      51.19
++      -6.09,
++      8.39,
++      51.07
+      ]
+     },
+     {
+      "d": 16,
+-     "x": 1.16,
+-     "y": 3.457,
++     "x": 0.913,
++     "y": 3.739,
+      "z": 49.278,
+      "cam": [
+-      -5.22,
+-      8.46,
+-      51.86
++      -5.49,
++      8.74,
++      51.81
+      ]
+     },
+     {
+      "d": 16.5,
+-     "x": 1.561,
+-     "y": 3.756,
++     "x": 1.267,
++     "y": 4.092,
+      "z": 49.278,
+      "cam": [
+-      -4.64,
+-      8.76,
++      -4.93,
++      9.09,
+       52.28
+      ]
+     },
+     {
+      "d": 17,
+-     "x": 1.961,
+-     "y": 4.055,
++     "x": 1.624,
++     "y": 4.442,
+      "z": 49.278,
+      "cam": [
+-      -4.24,
+-      9.06,
++      -4.58,
++      9.44,
+       52.28
+      ]
+     },
+     {
+      "d": 17.5,
+-     "x": 2.363,
+-     "y": 4.353,
++     "x": 1.982,
++     "y": 4.792,
+      "z": 49.278,
+      "cam": [
+-      -3.84,
+-      9.35,
++      -4.22,
++      9.79,
+       52.28
+      ]
+     },
+     {
+      "d": 18,
+-     "x": 2.766,
+-     "y": 4.649,
++     "x": 2.341,
++     "y": 5.139,
+      "z": 49.278,
+      "cam": [
+-      -3.43,
+-      9.65,
++      -3.86,
++      10.14,
+       52.28
+      ]
+     },
+     {
+      "d": 18.5,
+-     "x": 3.171,
+-     "y": 4.943,
++     "x": 2.704,
++     "y": 5.483,
+      "z": 49.278,
+      "cam": [
+-      -3.03,
+-      9.94,
++      -3.5,
++      10.48,
+       52.28
+      ]
+     },
+     {
+      "d": 19,
+-     "x": 3.576,
+-     "y": 5.236,
++     "x": 3.068,
++     "y": 5.826,
+      "z": 49.278,
+      "cam": [
+-      -2.62,
+-      10.24,
++      -3.13,
++      10.83,
+       52.28
+      ]
+     },
+     {
+      "d": 19.5,
+-     "x": 3.984,
+-     "y": 5.525,
++     "x": 3.435,
++     "y": 6.166,
+      "z": 49.278,
+      "cam": [
+-      -2.22,
+-      10.53,
++      -2.77,
++      11.17,
+       52.28
+      ]
+     },
+     {
+      "d": 20,
+-     "x": 4.392,
+-     "y": 5.813,
++     "x": 3.805,
++     "y": 6.502,
+      "z": 49.278,
+      "cam": [
+-      -1.81,
+-      10.81,
++      -2.4,
++      11.5,
+       52.28
+      ]
+     },
+     {
+      "d": 20.5,
+-     "x": 4.803,
+-     "y": 6.099,
++     "x": 4.177,
++     "y": 6.835,
+      "z": 49.278,
+      "cam": [
+-      -1.4,
+-      11.1,
++      -2.02,
++      11.84,
+       52.28
+      ]
+     },
+     {
+      "d": 21,
+-     "x": 5.215,
+-     "y": 6.381,
++     "x": 4.554,
++     "y": 7.165,
+      "z": 49.278,
+      "cam": [
+-      -0.98,
+-      11.38,
++      -1.65,
++      12.16,
+       52.28
+      ]
+     },
+     {
+      "d": 21.5,
+-     "x": 5.629,
+-     "y": 6.661,
++     "x": 4.934,
++     "y": 7.489,
+      "z": 49.278,
+      "cam": [
+-      -0.57,
+-      11.66,
++      -1.27,
++      12.49,
+       52.28
+      ]
+     },
+     {
+      "d": 22,
+-     "x": 6.046,
+-     "y": 6.938,
++     "x": 5.317,
++     "y": 7.811,
+      "z": 49.278,
+      "cam": [
+-      -0.15,
+-      11.94,
++      -0.88,
++      12.81,
+       52.28
+      ]
+     },
+     {
+      "d": 22.5,
+-     "x": 6.464,
+-     "y": 7.212,
++     "x": 5.704,
++     "y": 8.127,
+      "z": 49.278,
+      "cam": [
+-      0.26,
+-      12.21,
++      -0.5,
++      13.13,
+       52.28
+      ]
+     },
+     {
+      "d": 23,
+-     "x": 6.886,
+-     "y": 7.481,
++     "x": 6.096,
++     "y": 8.437,
+      "z": 49.278,
+      "cam": [
+-      0.69,
+-      12.48,
++      -0.1,
++      13.44,
+       52.28
+      ]
+     },
+     {
+      "d": 23.5,
+-     "x": 7.308,
+-     "y": 7.749,
++     "x": 6.492,
++     "y": 8.743,
+      "z": 49.278,
+      "cam": [
+-      1.11,
+-      12.75,
++      0.29,
++      13.74,
+       52.28
+      ]
+     },
+     {
+      "d": 24,
+-     "x": 7.734,
+-     "y": 8.01,
++     "x": 6.892,
++     "y": 9.043,
+      "z": 49.278,
+      "cam": [
+-      1.53,
+-      13.01,
++      0.69,
++      14.04,
+       52.28
+      ]
+     },
+     {
+      "d": 24.5,
+-     "x": 8.162,
+-     "y": 8.268,
++     "x": 7.298,
++     "y": 9.335,
+      "z": 49.278,
+      "cam": [
+-      1.96,
+-      13.27,
++      1.1,
++      14.34,
+       52.28
+      ]
+     },
+     {
+      "d": 25,
+-     "x": 8.593,
+-     "y": 8.522,
++     "x": 7.707,
++     "y": 9.622,
+      "z": 49.278,
+      "cam": [
+-      2.39,
+-      13.52,
++      1.51,
++      14.62,
+       52.28
+      ]
+     },
+     {
+      "d": 25.5,
+-     "x": 9.027,
+-     "y": 8.771,
++     "x": 8.122,
++     "y": 9.902,
+      "z": 49.278,
+      "cam": [
+-      2.83,
+-      13.77,
++      1.92,
++      14.9,
+       52.28
+      ]
+     },
+     {
+      "d": 26,
+-     "x": 9.462,
+-     "y": 9.017,
++     "x": 8.541,
++     "y": 10.174,
+      "z": 49.278,
+      "cam": [
+-      3.26,
+-      14.02,
++      2.34,
++      15.17,
+       52.28
+      ]
+     },
+     {
+      "d": 26.5,
+-     "x": 9.902,
+-     "y": 9.255,
++     "x": 8.966,
++     "y": 10.438,
+      "z": 49.278,
+      "cam": [
+-      3.7,
+-      14.26,
++      2.77,
++      15.44,
+       52.28
+      ]
+     },
+     {
+      "d": 27,
+-     "x": 10.342,
+-     "y": 9.491,
++     "x": 9.395,
++     "y": 10.694,
+      "z": 49.278,
+      "cam": [
+-      4.14,
+-      14.49,
++      3.19,
++      15.69,
+       52.28
+      ]
+     },
+     {
+      "d": 27.5,
+-     "x": 10.787,
+-     "y": 9.719,
++     "x": 9.828,
++     "y": 10.943,
+      "z": 49.278,
+      "cam": [
+-      4.59,
+-      14.72,
++      3.63,
++      15.94,
+       52.28
+      ]
+     },
+     {
+      "d": 28,
+-     "x": 11.234,
+-     "y": 9.943,
++     "x": 10.267,
++     "y": 11.184,
+      "z": 49.278,
+      "cam": [
+-      5.03,
+-      14.94,
++      4.07,
++      16.18,
+       52.28
+      ]
+     },
+     {
+      "d": 28.5,
+-     "x": 11.684,
+-     "y": 10.162,
++     "x": 10.71,
++     "y": 11.414,
+      "z": 49.278,
+      "cam": [
+-      5.48,
+-      15.16,
++      4.51,
++      16.41,
+       52.28
+      ]
+     },
+     {
+      "d": 29,
+-     "x": 12.137,
+-     "y": 10.374,
++     "x": 11.158,
++     "y": 11.637,
+      "z": 49.278,
+      "cam": [
+-      5.94,
+-      15.37,
++      4.96,
++      16.64,
+       52.28
+      ]
+     },
+     {
+      "d": 29.5,
+-     "x": 12.591,
+-     "y": 10.583,
++     "x": 11.61,
++     "y": 11.851,
+      "z": 49.278,
+      "cam": [
+-      6.39,
+-      15.58,
++      5.41,
++      16.85,
+       52.28
+      ]
+     },
+     {
+      "d": 30,
+-     "x": 13.049,
+-     "y": 10.783,
++     "x": 12.065,
++     "y": 12.058,
+      "z": 49.278,
+      "cam": [
+-      6.85,
+-      15.78,
++      5.87,
++      17.06,
+       52.28
+      ]
+     },
+     {
+      "d": 30.5,
+-     "x": 13.51,
+-     "y": 10.978,
++     "x": 12.524,
++     "y": 12.256,
+      "z": 49.278,
+      "cam": [
+-      7.31,
+-      15.98,
++      6.32,
++      17.26,
+       52.28
+      ]
+     },
+     {
+      "d": 31,
+-     "x": 13.972,
+-     "y": 11.169,
++     "x": 12.987,
++     "y": 12.445,
+      "z": 49.278,
+      "cam": [
+-      7.77,
+-      16.17,
++      6.79,
++      17.45,
+       52.28
+      ]
+     },
+     {
+      "d": 31.5,
+-     "x": 14.437,
+-     "y": 11.351,
++     "x": 13.452,
++     "y": 12.628,
+      "z": 49.278,
+      "cam": [
+-      8.24,
+-      16.35,
++      7.25,
++      17.63,
+       52.28
+      ]
+     },
+     {
+      "d": 32,
+-     "x": 14.904,
+-     "y": 11.529,
++     "x": 13.92,
++     "y": 12.804,
+      "z": 49.278,
+      "cam": [
+-      8.7,
+-      16.53,
++      7.72,
++      17.8,
+       52.28
+      ]
+     },
+     {
+      "d": 32.5,
+-     "x": 15.374,
+-     "y": 11.701,
++     "x": 14.391,
++     "y": 12.974,
+      "z": 49.278,
+      "cam": [
+-      9.17,
+-      16.7,
++      8.19,
++      17.97,
+       52.28
+      ]
+     },
+     {
+      "d": 33,
+-     "x": 15.846,
+-     "y": 11.867,
++     "x": 14.863,
++     "y": 13.139,
+      "z": 49.278,
+      "cam": [
+-      9.65,
+-      16.87,
++      8.66,
++      18.14,
+       52.28
+      ]
+     },
+     {
+      "d": 33.5,
+-     "x": 16.319,
+-     "y": 12.029,
++     "x": 15.336,
++     "y": 13.299,
+      "z": 49.278,
+      "cam": [
+-      10.12,
+-      17.03,
++      9.14,
++      18.3,
+       52.28
+      ]
+     },
+     {
+      "d": 34,
+-     "x": 16.794,
+-     "y": 12.183,
++     "x": 15.811,
++     "y": 13.455,
+      "z": 49.278,
+      "cam": [
+-      10.59,
+-      17.18,
++      9.61,
++      18.45,
+       52.28
+      ]
+     },
+     {
+      "d": 34.5,
+-     "x": 17.271,
+-     "y": 12.334,
++     "x": 16.287,
++     "y": 13.609,
+      "z": 49.278,
+      "cam": [
+-      11.07,
+-      17.33,
++      10.09,
++      18.61,
+       52.28
+      ]
+     },
+     {
+      "d": 35,
+-     "x": 17.749,
+-     "y": 12.48,
++     "x": 16.763,
++     "y": 13.761,
+      "z": 49.278,
+      "cam": [
+-      11.55,
+-      17.48,
++      10.56,
++      18.76,
+       52.28
+      ]
+     },
+     {
+      "d": 35.5,
+-     "x": 18.229,
+-     "y": 12.62,
++     "x": 17.25,
++     "y": 13.849,
+      "z": 49.278,
+      "cam": [
+-      12.03,
+-      17.62,
++      11.05,
++      18.85,
+       52.28
+      ]
+     },
+     {
+      "d": 36,
+-     "x": 18.71,
+-     "y": 12.757,
++     "x": 17.75,
++     "y": 13.851,
+      "z": 49.278,
+      "cam": [
+-      12.51,
+-      17.76,
++      11.55,
++      18.85,
+       52.28
+      ]
+     },
+     {
+      "d": 36.5,
+-     "x": 19.192,
+-     "y": 12.89,
++     "x": 18.25,
++     "y": 13.852,
+      "z": 49.278,
+      "cam": [
+-      12.99,
+-      17.89,
++      12.05,
++      18.85,
+       52.28
+      ]
+     },
+     {
+      "d": 37,
+-     "x": 19.675,
+-     "y": 13.018,
++     "x": 18.75,
++     "y": 13.853,
+      "z": 49.278,
+      "cam": [
+-      13.48,
+-      18.02,
++      12.55,
++      18.85,
+       52.28
+      ]
+     },
+     {
+      "d": 37.5,
+-     "x": 20.159,
+-     "y": 13.144,
++     "x": 19.25,
++     "y": 13.855,
+      "z": 49.278,
+      "cam": [
+-      13.95,
+-      18.14,
+-      52.25
++      13.05,
++      18.85,
++      52.28
+      ]
+     },
+     {
+      "d": 38,
+-     "x": 20.644,
+-     "y": 13.267,
++     "x": 19.75,
++     "y": 13.856,
+      "z": 49.278,
+      "cam": [
+-      14.26,
+-      18.27,
+-      51.87
++      13.55,
++      18.86,
++      52.28
+      ]
+     },
+     {
+      "d": 38.5,
+-     "x": 21.129,
+-     "y": 13.388,
++     "x": 20.25,
++     "y": 13.858,
+      "z": 49.278,
+      "cam": [
+-      14.6,
+-      18.39,
+-      51.47
++      14.05,
++      18.86,
++      52.28
+      ]
+     },
+     {
+      "d": 39,
+-     "x": 21.615,
+-     "y": 13.507,
++     "x": 20.75,
++     "y": 13.859,
+      "z": 49.278,
+      "cam": [
+-      14.96,
+-      18.51,
+-      51.05
++      14.55,
++      18.86,
++      52.28
+      ]
+     },
+     {
+      "d": 39.5,
+-     "x": 22.101,
+-     "y": 13.624,
++     "x": 21.25,
++     "y": 13.86,
+      "z": 49.278,
+      "cam": [
+-      15.34,
+-      18.62,
+-      50.61
++      15.05,
++      18.86,
++      52.28
+      ]
+     },
+     {
+      "d": 40,
+-     "x": 22.587,
+-     "y": 13.741,
++     "x": 21.75,
++     "y": 13.862,
+      "z": 49.278,
+      "cam": [
+-      15.76,
+-      18.74,
+-      50.16
++      15.55,
++      18.86,
++      52.28
+      ]
+     },
+     {
+      "d": 40.5,
+-     "x": 23.065,
+-     "y": 13.85,
+-     "z": 49.302,
++     "x": 22.25,
++     "y": 13.863,
++     "z": 49.278,
+      "cam": [
+-      16.19,
+-      18.85,
+-      49.73
++      16.05,
++      18.86,
++      52.28
+      ]
+     },
+     {
+      "d": 41,
+-     "x": 23.428,
+-     "y": 13.868,
+-     "z": 49.645,
++     "x": 22.75,
++     "y": 13.864,
++     "z": 49.278,
+      "cam": [
+-      16.54,
+-      18.87,
+-      49.62
++      16.55,
++      18.86,
++      52.28
+      ]
+     },
+     {
+      "d": 41.5,
+-     "x": 23.791,
+-     "y": 13.886,
+-     "z": 49.988,
++     "x": 23.25,
++     "y": 13.866,
++     "z": 49.278,
+      "cam": [
+-      16.92,
+-      18.89,
+-      49.51
++      17.67,
++      18.37,
++      51.08
+      ]
+     },
+     {
+      "d": 42,
+-     "x": 24.155,
+-     "y": 13.904,
+-     "z": 50.331,
++     "x": 23.75,
++     "y": 13.867,
++     "z": 49.278,
+      "cam": [
+-      17.33,
+-      18.9,
+-      49.42
++      20.11,
++      17.19,
++      49.11
+      ]
+     },
+     {
+      "d": 42.5,
+-     "x": 24.518,
+-     "y": 13.923,
+-     "z": 50.674,
++     "x": 24.25,
++     "y": 13.869,
++     "z": 49.278,
+      "cam": [
+-      17.75,
+-      18.92,
+-      49.41
++      22.76,
++      15.97,
++      47.46
+      ]
+     },
+     {
+      "d": 43,
+-     "x": 24.881,
+-     "y": 13.941,
+-     "z": 51.017,
++     "x": 24.715,
++     "y": 14.05,
++     "z": 49.274,
+      "cam": [
+-      18.12,
+-      18.94,
+-      49.7
++      24.34,
++      15.55,
++      46.8
+      ]
+     },
+     {
+      "d": 43.5,
+-     "x": 25.244,
+-     "y": 13.959,
+-     "z": 51.36,
++     "x": 25.208,
++     "y": 14.093,
++     "z": 49.276,
+      "cam": [
+-      18.49,
+-      18.96,
+-      50.03
++      24.86,
++      15.59,
++      46.8
+      ]
+     },
+     {
+      "d": 44,
+-     "x": 25.608,
+-     "y": 13.977,
+-     "z": 51.703,
++     "x": 25.707,
++     "y": 14.099,
++     "z": 49.28,
+      "cam": [
+-      18.79,
+-      18.98,
+-      50.74
++      25.38,
++      15.6,
++      46.8
+      ]
+     },
+     {
+      "d": 44.5,
+-     "x": 25.971,
+-     "y": 13.995,
+-     "z": 52.046,
++     "x": 25.927,
++     "y": 14.101,
++     "z": 49.729,
+      "cam": [
+-      19.11,
+-      19,
+-      51.45
++      25.61,
++      15.6,
++      47.25
+      ]
+     },
+     {
+      "d": 45,
+-     "x": 26.334,
+-     "y": 14.013,
+-     "z": 52.389,
++     "x": 26.148,
++     "y": 14.104,
++     "z": 50.178,
+      "cam": [
+-      19.45,
+-      19.01,
+-      52.17
++      25.83,
++      15.6,
++      47.7
+      ]
+     },
+     {
+      "d": 45.5,
+-     "x": 26.719,
+-     "y": 14.03,
+-     "z": 52.687,
++     "x": 26.368,
++     "y": 14.106,
++     "z": 50.627,
+      "cam": [
+-      19.83,
+-      19.03,
+-      52.85
++      26.06,
++      15.61,
++      48.15
+      ]
+     },
+     {
+      "d": 46,
+-     "x": 27.215,
+-     "y": 14.035,
+-     "z": 52.744,
+-     "cam": [
+-      20.35,
+-      19.04,
+-      53.31
+-     ]
+-    },
+-    {
+-     "d": 46.5,
+-     "x": 27.712,
+-     "y": 14.041,
+-     "z": 52.8,
+-     "cam": [
+-      20.91,
+-      19.04,
+-      53.87
+-     ]
+-    },
+-    {
+-     "d": 47,
+-     "x": 28.209,
+-     "y": 14.047,
+-     "z": 52.857,
+-     "cam": [
+-      21.5,
+-      19.05,
+-      54.42
+-     ]
+-    },
+-    {
+-     "d": 47.5,
+-     "x": 28.706,
+-     "y": 14.052,
+-     "z": 52.914,
+-     "cam": [
+-      22.13,
+-      19.05,
+-      54.96
+-     ]
+-    },
+-    {
+-     "d": 48,
+-     "x": 29.202,
+-     "y": 14.058,
+-     "z": 52.971,
+-     "cam": [
+-      22.79,
+-      19.06,
+-      55.48
+-     ]
+-    },
+-    {
+-     "d": 48.5,
+-     "x": 29.699,
+-     "y": 14.064,
+-     "z": 53.027,
+-     "cam": [
+-      23.45,
+-      19.06,
+-      55.92
+-     ]
+-    },
+-    {
+-     "d": 49,
+-     "x": 30.196,
+-     "y": 14.067,
+-     "z": 53.071,
+-     "cam": [
+-      24,
+-      19.07,
+-      56.08
+-     ]
+-    },
+-    {
+-     "d": 49.5,
+-     "x": 30.692,
+-     "y": 14.053,
+-     "z": 53.015,
+-     "cam": [
+-      24.57,
+-      19.05,
+-      56.17
+-     ]
+-    },
+-    {
+-     "d": 50,
+-     "x": 31.189,
+-     "y": 14.039,
+-     "z": 52.958,
+-     "cam": [
+-      25.3,
+-      19.04,
+-      56.54
+-     ]
+-    },
+-    {
+-     "d": 50.5,
+-     "x": 31.686,
+-     "y": 14.025,
+-     "z": 52.901,
+-     "cam": [
+-      26.08,
+-      19.02,
+-      56.91
+-     ]
+-    },
+-    {
+-     "d": 51,
+-     "x": 32.182,
+-     "y": 14.01,
+-     "z": 52.844,
+-     "cam": [
+-      26.9,
+-      19.01,
+-      57.26
+-     ]
+-    },
+-    {
+-     "d": 51.5,
+-     "x": 32.679,
+-     "y": 13.996,
+-     "z": 52.788,
+-     "cam": [
+-      27.75,
+-      19,
+-      57.6
+-     ]
+-    },
+-    {
+-     "d": 52,
+-     "x": 33.175,
+-     "y": 13.982,
+-     "z": 52.731,
+-     "cam": [
+-      28.62,
+-      18.98,
+-      57.9
+-     ]
+-    },
+-    {
+-     "d": 52.5,
+-     "x": 33.662,
+-     "y": 13.97,
+-     "z": 52.655,
+-     "cam": [
+-      29.42,
+-      18.97,
+-      58.08
+-     ]
+-    },
+-    {
+-     "d": 53,
+-     "x": 34.013,
+-     "y": 13.988,
+-     "z": 52.299,
+-     "cam": [
+-      30.1,
+-      18.99,
+-      57.97
+-     ]
+-    },
+-    {
+-     "d": 53.5,
+-     "x": 34.364,
+-     "y": 14.005,
+-     "z": 51.943,
+-     "cam": [
+-      30.79,
+-      19.01,
+-      57.83
+-     ]
+-    },
+-    {
+-     "d": 54,
+-     "x": 34.714,
+-     "y": 14.023,
+-     "z": 51.587,
+-     "cam": [
+-      31.48,
+-      19.02,
+-      57.67
+-     ]
+-    },
+-    {
+-     "d": 54.5,
+-     "x": 35.065,
+-     "y": 14.041,
+-     "z": 51.231,
+-     "cam": [
+-      31.98,
+-      19.04,
+-      57.39
+-     ]
+-    },
+-    {
+-     "d": 55,
+-     "x": 35.416,
+-     "y": 14.059,
+-     "z": 50.875,
+-     "cam": [
+-      32.28,
+-      19.06,
+-      57.01
+-     ]
+-    },
+-    {
+-     "d": 55.5,
+-     "x": 35.767,
+-     "y": 14.077,
+-     "z": 50.519,
+-     "cam": [
+-      32.55,
+-      19.08,
+-      56.61
+-     ]
+-    },
+-    {
+-     "d": 56,
+-     "x": 36.117,
+-     "y": 14.094,
+-     "z": 50.163,
+-     "cam": [
+-      32.51,
+-      19.09,
+-      56.03
+-     ]
+-    },
+-    {
+-     "d": 56.5,
+-     "x": 36.468,
+-     "y": 14.112,
+-     "z": 49.807,
+-     "cam": [
+-      32.58,
+-      19.11,
+-      55.49
+-     ]
+-    },
+-    {
+-     "d": 57,
+-     "x": 36.819,
+-     "y": 14.13,
+-     "z": 49.451,
+-     "cam": [
+-      32.77,
+-      19.13,
+-      55.03
+-     ]
+-    },
+-    {
+-     "d": 57.5,
+-     "x": 37.246,
+-     "y": 14.14,
+-     "z": 49.278,
+-     "cam": [
+-      33.02,
+-      19.14,
+-      54.71
+-     ]
+-    },
+-    {
+-     "d": 58,
+-     "x": 37.746,
+-     "y": 14.143,
+-     "z": 49.278,
+-     "cam": [
+-      33.29,
+-      19.14,
+-      54.53
+-     ]
+-    },
+-    {
+-     "d": 58.5,
+-     "x": 38.246,
+-     "y": 14.145,
+-     "z": 49.278,
+-     "cam": [
+-      33.52,
+-      19.15,
+-      54.29
+-     ]
+-    },
+-    {
+-     "d": 59,
+-     "x": 38.746,
+-     "y": 14.148,
+-     "z": 49.278,
+-     "cam": [
+-      33.69,
+-      19.15,
+-      53.96
+-     ]
+-    },
+-    {
+-     "d": 59.25,
+-     "x": 38.996,
+-     "y": 14.149,
+-     "z": 49.278,
++     "x": 26.588,
++     "y": 14.109,
++     "z": 51.076,
+      "cam": [
+-      33.75,
+-      19.15,
+-      53.74
++      26.29,
++      15.61,
++      48.59
+      ]
+     }
+    ]
+diff --git a/tools/journey-integration/test-journey-occlusion.cjs b/tools/journey-integration/test-journey-occlusion.cjs
+index 3d95c76..da00062 100644
+--- a/tools/journey-integration/test-journey-occlusion.cjs
++++ b/tools/journey-integration/test-journey-occlusion.cjs
+@@ -45,7 +45,7 @@ const sp=n=>nodePos(skyNodes,n),yaw=Lay.skycityYawDeg(sp('anchor_cloudbridge_end
+ const deck0=Lay.skyDeckRoute(rotY(yaw,sp('anchor_cloudbridge_end')),rotY(yaw,sp('anchor_cloudbridge_start'))),sOff=sub(add(edge2,L.skycityOffset),deck0.rim);
+ const sky=place(local.skycity,'skycity',yaw,1,sOff),sA=n=>add(rotY(yaw,sp(n)),sOff);
+ const deck=Lay.skyDeckRoute(sA('anchor_cloudbridge_end'),sA('anchor_cloudbridge_start')),bridge2=Lay.bridgePath(edge2,deck.rim,L.skyBridgeArchM);
+-const leg2=[...appr2,...bridge2.slice(1),...deck.deck,deck.arrival];
++const leg2=[...appr2,...bridge2.slice(1),...deck.deck,deck.arrival],focus2=sA('anchor_starcourt_center');
+ // ---------- ray tests ----------
+ function bbox(t){const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];for(let k=0;k<t.length;k++){const c=k%3;if(t[k]<a[c])a[c]=t[k];if(t[k]>b[c])b[c]=t[k];}return [a,b];}
+ function segBox(o,e,[a,b]){let t0=0,t1=1;for(let c=0;c<3;c++){const d=e[c]-o[c];if(Math.abs(d)<1e-12){if(o[c]<a[c]||o[c]>b[c])return false;continue;}let p=(a[c]-o[c])/d,q=(b[c]-o[c])/d;if(p>q)[p,q]=[q,p];t0=Math.max(t0,p);t1=Math.min(t1,q);if(t0>t1)return false;}return true;}
+@@ -55,10 +55,10 @@ function ptTri(p,a,b,c){const ab=sub(b,a),ac=sub(c,a),ap=sub(p,a),dot=(x,y)=>x[0
+ function clearance(p,objs,cap=3){let best=cap,who=null;for(const o of objs){o.bb??=bbox(o.tris);let dd=0;for(let c=0;c<3;c++){const v=Math.max(o.bb[0][c]-p[c],0,p[c]-o.bb[1][c]);dd+=v*v;}if(Math.sqrt(dd)>=best)continue;const t=o.tris;for(let k=0;k<t.length;k+=9){if(Math.abs(t[k]-p[0])>best+25||Math.abs(t[k+2]-p[2])>best+25||Math.abs(t[k+1]-p[1])>best+25)continue;const q=ptTri(p,[t[k],t[k+1],t[k+2]],[t[k+3],t[k+4],t[k+5]],[t[k+6],t[k+7],t[k+8]]),d=Math.hypot(...sub(q,p));if(d<best){best=d;who=o.tag+':'+o.name;}}}return [best,who];}
+ const readPose=p=>{const f=sub(p.target,p.position),l=Math.hypot(...f);return {position:p.position,target:add(p.position,f.map(x=>x/l*8)),fovVerticalDeg:p.fovVerticalDeg};};
+ const STEP=+(process.env.QF_OCCLUSION_STEP||.05),EXEMPT=1.25,HEIGHTS=[.15,.5,.9,1.25,1.6];
+-const start1=readPose(Cam.islandPoseEntry()),legs=[{id:'04-05',path:leg1,objs:[...island,...meadow],start:start1,exempt:EXEMPT,bridge:bridge1},{id:'08-09',path:leg2,objs:[...island,...meadow,...sky],start:readPose(journeyCamera(leg1,routeLength(leg1),start1)),exempt:0,bridge:bridge2}];
++const start1=readPose(Cam.islandPoseEntry()),legs=[{id:'04-05',path:leg1,objs:[...island,...meadow],start:start1,exempt:EXEMPT,bridge:bridge1},{id:'08-09',path:leg2,objs:[...island,...meadow,...sky],start:readPose(journeyCamera(leg1,routeLength(leg1),start1)),exempt:0,bridge:bridge2,focus:focus2}];
+ const profile={};
+ for(const leg of legs){const T=routeLength(leg.path),fails=[],exempted=[],grazes=[],rows=[];let minLens=9;
+- for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
++ for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start,leg.focus),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
+   if(d>=leg.exempt)minLens=Math.min(minLens,lens);// Occluded = chest (0.9 m) or head (1.6 m) hidden, or more than one of the five body points hidden. A lone graze of
+   // one low point by a pebble/grass edge is reported in partialGrazes, not failed.
+   const rec={d:+d.toFixed(2),hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length)),lens:+lens.toFixed(2),lensObj};
+@@ -76,6 +76,14 @@ check('O3 08-09 foot above env_sky_static_palette top on bridge+deck',()=>{const
+ for(const [id,br,objs] of [['04-05',bridge1,[...island,...meadow]],['08-09',bridge2,[...island,...meadow,...sky]]])check(`O3 ${id} bridge corridor 2.1 m wide, 0.35–2.0 m above deck, is free`,()=>{const hits=[];
+  for(let i=1;i<br.length;i++){const a=br[i-1],b=br[i],dx=b[0]-a[0],dz=b[2]-a[2],l=Math.hypot(dx,dz)||1,n=[dz/l,0,-dx/l];for(const side of [-1.05,-.5,0,.5,1.05])for(const h of [.35,1,2]){const o=add(a,[n[0]*side,h,n[2]*side]),e=add(b,[n[0]*side,h,n[2]*side]),hit=blockers(objs,o,e).filter(x=>!/grass|flower/.test(x));if(hit.length)hits.push({seg:i,side,h,hit});}}
+  assert.deepEqual(hits,[],JSON.stringify(hits.slice(0,6)));return {segments:br.length-1};});
++// O5 duration budget and arrival framing (lead feedback on d28ee16: +13.7 s rejected)
++const BUILD05_0809_M=42.865,ASPECT=390/844;
++check('O5 08-09 extra walk time vs Build05 ≤ 3 s at the unchanged speed',()=>{assert.equal(L.speedMps,1.2,'speed must stay 1.2 m/s');const T=routeLength(leg2),extra=(T-BUILD05_0809_M)/L.speedMps;assert(extra<=3,`08-09 is ${T.toFixed(2)} m, +${extra.toFixed(2)} s over Build05`);return {totalM:+T.toFixed(3),build05M:BUILD05_0809_M,extraS:+extra.toFixed(2),durationS:+(T/L.speedMps).toFixed(2)};});
++check('O5 08-09 city centre (anchor_starcourt_center) near screen centre over the final 3 m (390×844)',()=>{const T=routeLength(leg2),start=legs[1].start,rows=[];
++ for(let d=T-3;d<=T+1e-9;d+=.1){const c=journeyCamera(leg2,Math.min(T,d),start,focus2),f=sub(c.target,c.position),fl=Math.hypot(...f),fw=f.map(x=>x/fl),r=[fw[2],0,-fw[0]].map(x=>x/Math.hypot(fw[2],fw[0])),up=[r[1]*fw[2]-r[2]*fw[1],r[2]*fw[0]-r[0]*fw[2],r[0]*fw[1]-r[1]*fw[0]],th=Math.tan(c.fovVerticalDeg*Math.PI/360),v=sub(focus2,c.position),z=v[0]*fw[0]+v[1]*fw[1]+v[2]*fw[2],x=(v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(z*th*ASPECT),y=(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(z*th);
++  const p=sampleRoute(leg2,Math.min(T,d)),hz=sub([p[0],p[1]+.9,p[2]],c.position),hzz=hz[0]*fw[0]+hz[1]*fw[1]+hz[2]*fw[2],hx=(hz[0]*r[0]+hz[1]*r[1]+hz[2]*r[2])/(hzz*th*ASPECT),hy=(hz[0]*up[0]+hz[1]*up[1]+hz[2]*up[2])/(hzz*th);
++  rows.push({d:+d.toFixed(2),cityNdc:[+x.toFixed(3),+y.toFixed(3)],herChestNdc:[+hx.toFixed(3),+hy.toFixed(3)]});assert(z>0&&Math.abs(x)<=.15&&Math.abs(y)<=.35,`city off centre at d=${d.toFixed(2)}: ${x.toFixed(3)},${y.toFixed(3)}`);assert(hzz>0&&Math.abs(hx)<=.9&&Math.abs(hy)<=.9,`character out of frame at d=${d.toFixed(2)}: ${hx.toFixed(3)},${hy.toFixed(3)}`);}
++ return {samples:rows.length,first:rows[0],last:rows.at(-1)};});
+ // O4 09 arrival composition
+ check('O4 09 board background pose unchanged and plaza in frame',()=>{
+  const base=JSON.parse(fs.readFileSync(__dirname+'/occlusion/build05-arrival-baseline.json','utf8'));
+@@ -86,6 +94,6 @@ check('O4 09 board background pose unchanged and plaza in frame',()=>{
+  const plaza=[sp('anchor_starcourt_center'),...[[-4.8,-4.8],[4.8,-4.8],[-4.8,4.8],[4.8,4.8]].map(([x,z])=>[x,0,30+z])].map(ndc);for(const [x,y,z] of plaza)assert(z>0&&Math.abs(x)<=1.05&&Math.abs(y)<=1,'plaza out of frame '+[x,y]);
+  const rel=sub(deck.arrival,sA('anchor_cloudbridge_end')),relModel=rotY(-yaw,rel),relBase=base.arrivalFromEndModel;assert(Math.hypot(...sub(relModel,relBase))<1e-6,'arrival root moved relative to the city');
+  return {pose:pose,plazaNdc:plaza.map(p=>p.map(v=>+v.toFixed(3))),arrivalFromEndModel:relModel.map(v=>+v.toFixed(4))};});
+-const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.',camera:JOURNEY_CAMERA,layout:L,skyYawDeg:+yaw.toFixed(4),checks:results,routeProfile:profile};
++const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.',camera:JOURNEY_CAMERA,layout:L,skyYawDeg:+yaw.toFixed(4),placement:{meadowRootWorld:mOff,meadowYawDeg:180,skycityRootWorld:sOff,skycityYawDeg:yaw,phases:{'04-05':{bridgeStart:routeLength(appr1),bridgeEnd:routeLength([...appr1,...bridge1.slice(1)])},'08-09':{bridgeStart:routeLength(appr2),bridgeEnd:routeLength([...appr2,...bridge2.slice(1)])}}},checks:results,routeProfile:profile};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-occlusion.json',JSON.stringify(report,null,1)+'\n');
+ console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,error:r.error&&r.error.split('\n')[0].slice(0,400)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
+-- 
+2.47.3
+

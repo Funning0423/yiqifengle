@@ -1,0 +1,14 @@
+<html><body style="margin:0;background:#000"><canvas id=c width=1160 height=260></canvas><script>
+const c=document.getElementById('c'),g=c.getContext('2d');
+function card(ox,title,after){g.save();g.translate(ox,30);g.fillStyle='#7fb3c9';g.fillRect(0,0,560,230);g.translate(0,20);g.scale(2,2);
+ g.fillStyle='rgba(255,255,255,.28)';g.strokeStyle='rgba(255,255,255,.8)';g.lineWidth=1.5;g.beginPath();g.roundRect(0,0,280,100,50);g.fill();g.stroke();
+ const font='bold 34px sans-serif';g.font=font;g.textBaseline='middle';g.shadowColor='rgba(0,40,60,.45)';g.shadowBlur=6;g.shadowOffsetY=1;g.fillStyle='#fff';
+ const cap='出发去看海';
+ if(!after){const capW=5*34+5*4,leafW=44,total=leafW+12+capW;g.font='42px sans-serif';g.textAlign='center';g.fillText('🍃',140-total/2+leafW/2,52);g.font=font;g.fillText(cap,140-total/2+leafW+12+capW/2,52);}
+ else{const capW=g.measureText(cap).width,total=42+12+capW;g.textAlign='left';g.fillText(cap,140-total/2+54,52);g.shadowColor='transparent';
+  const s=42,h=s*.46,w=s*.3,co=Math.cos(.6),sn=Math.sin(.6),cx=140-total/2+21,cy=51;const P=(x,y,dy=0)=>[cx+x*co-y*sn,cy+(x*sn+y*co)+dy];
+  const body=dy=>{g.beginPath();g.moveTo(...P(0,-h,dy));g.bezierCurveTo(...P(w*1.6,-h*.45,dy),...P(w*1.4,h*.55,dy),...P(0,h,dy));g.bezierCurveTo(...P(-w*1.4,h*.55,dy),...P(-w*1.6,-h*.45,dy),...P(0,-h,dy));g.closePath();g.fill();};
+  g.fillStyle='rgba(0,40,60,.24)';body(1.5);g.fillStyle='rgb(178,226,142)';body(0);g.strokeStyle='rgba(255,255,255,.82)';g.lineWidth=2.3;g.lineCap='round';g.beginPath();g.moveTo(...P(0,-h*.7));g.lineTo(...P(0,h*1.15));g.stroke();}
+ g.restore();g.fillStyle='#fff';g.font='16px sans-serif';g.textAlign='left';g.fillText(title,ox+8,18);}
+card(10,'before (a4a1041): 🍃 emoji, fixed 198px caption box',false);card(590,'after (G2): Graphics leaf 42px, measured group centred',true);
+</script></body></html>

@@ -1,0 +1,3 @@
+77283a1bc3e4821ba3c2fb342e5ccfbcaaf9f0346af97c7daa92f514ef39ba0e  ./0001-0003-v3-region_skycity-bundle-wx_subpackage-via-buil.patch
+3a121d0d30d3748fade999ca4888c9d8388cb2b3b62b1c025e99b322e647071d  ./README-0003-v3.md
+3e74ac49d392c63a740884e2fc9466022eb26623db4b66cc07fc1f9411d6970c  ./check_wechat_build.py

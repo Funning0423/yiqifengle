@@ -1,0 +1,8 @@
+{
+  "functionalStartup": "PASS_OBSERVED_B: fresh independent output opened by official CLI; no manual Compile; start screen then normal start click entered full B home room.",
+  "errorAudit": "NOT_CLOSED: A showed app.json/custom-condition error yet later start screen. B debugger panel blank; cannot assert zero error.",
+  "configCandidate": "B uses condition.game/miniprogram current=-1,list=[]; not adopted to finalizer.",
+  "manualCompileUsed": false,
+  "globalPreferencesModified": false,
+  "privateConfigCopied": false
+}

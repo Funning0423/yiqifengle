@@ -1,0 +1,33 @@
+00:00.079  system.path      | WARNING Could not get a list of mounted file-systems
+15:15:26 | INFO: Data are loaded, start creating Blender stuff
+15:15:26 | INFO: Blender create Mesh node LOD0_G2_APRON
+15:15:26 | INFO: Blender create Mesh node LOD0_G2_BODY
+15:15:26 | INFO: Blender create Mesh node LOD0_G2_BOW
+15:15:26 | INFO: Blender create Mesh node LOD0_G2_DRESS
+15:15:26 | INFO: glTF import finished in 0.18s
+15:15:26 | INFO: Data are loaded, start creating Blender stuff
+15:15:26 | INFO: Blender create Mesh node Cone
+15:15:26 | INFO: glTF import finished in 0.01s
+/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/tools/render.py:29: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('g');m.use_nodes=True;m.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(.55,.6,.5,1);pl.data.materials.append(m)
+/workspace/wechat-game/team/grokbot/work/oi-char-merge-20261016T1505/tools/render.py:31: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w');sc.world=w;w.use_nodes=True;w.node_tree.nodes['Background'].inputs[0].default_value=(.75,.82,.9,1);w.node_tree.nodes['Background'].inputs[1].default_value=.8
+00:11.309  render           | Saved: 'stills/base_sit_hold0.5_front.png'
+00:25.381  render           | Saved: 'stills/base_sit_hold0.5_side.png'
+00:39.683  render           | Saved: 'stills/base_sit_hold0.5_back.png'
+01:00.408  render           | Saved: 'stills/base_sit_hold0.5_closeseat.png'
+01:20.937  render           | Saved: 'stills/base_sit_hold0.5_closeside.png'
+01:36.680  render           | Saved: 'stills/base_sit_hold0.5_closefeet.png'
+01:54.606  render           | Saved: 'stills/base_sit_hold0.5_closehands.png'
+02:11.348  render           | Saved: 'stills/base_idle_breathing_loop0.5_front.png'
+02:26.828  render           | Saved: 'stills/base_idle_breathing_loop0.5_side.png'
+02:42.711  render           | Saved: 'stills/base_idle_breathing_loop0.5_back.png'
+02:59.568  render           | Saved: 'stills/base_idle_breathing_loop0.5_closeseat.png'
+03:18.338  render           | Saved: 'stills/base_idle_breathing_loop0.5_closeside.png'
+03:37.675  render           | Saved: 'stills/base_idle_breathing_loop0.5_closefeet.png'
+03:51.914  render           | Saved: 'stills/base_idle_breathing_loop0.5_closehands.png'
+CLIP sit_hold <Vector (0.0000, 60.0000)> 30
+CLIP idle_breathing_loop <Vector (0.0000, 54.0000)> 27
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

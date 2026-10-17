@@ -1,0 +1,5 @@
+2d6e417c1c6b28dcf0fd8f2c774d8accac17805d8590729f3fd200ba1099347d  0001-v3.2-night-sea-tint-the-live-sea-uniform-lazy-verifi.patch
+a3912aebc699b4fc57c62b460fa668ce0be4d2ab2eb875e1136b19a565f8b77f  0002-v3.2-size-idle_loop-drop-156-rest-constant-channels-.patch
+04c462b9453f38c7c9ef5cfe814d56bf525de804f0387555e28849518902767d  0003-v3.2-size-bgm-48-40-kbps-CBR-main-meadow-skycity-228.patch
+3d59549fc421399c21e18257ca4d360e404ddc7eea864a9d35a3c3b1f572abcd  0004-v3.2-camera-fix-3-04-05-follows-her-from-set-off-no-.patch
+a7cfb259939d81a6d758cbd487b7f878d0f17f1a4d2c4ed942bd340ad75da48c  0005-occlusion-fixture-rebuild-triangles-from-the-1c21428.patch

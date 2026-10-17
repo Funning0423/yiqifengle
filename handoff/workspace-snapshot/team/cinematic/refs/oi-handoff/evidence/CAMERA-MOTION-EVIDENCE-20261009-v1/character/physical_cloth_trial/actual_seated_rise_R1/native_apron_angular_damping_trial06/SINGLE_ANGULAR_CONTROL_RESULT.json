@@ -1,0 +1,107 @@
+{
+  "status": "One approved angular damping control completed and rejected at automatic first-failure84;91not reached.",
+  "source_physics_sha256": "ef011a1654c52038b3f38f3a81a55f7186fbe5f9c62350ea4a96f2d46212c652",
+  "candidate_physics_sha256": "abdc6b538c0154949ea27e422637fc4769788b082dacfac17cb7d1ccf5596a85",
+  "only_physical_field_change": "Apron angular bending_damping:0 through31, calculated0.0003157491319373456 from32. Yellow and all other settings unchanged.",
+  "coefficient_derivation": "Actual RNA is direct scalar D in\u2212D(a\u00b7v)a. Dihedral effective mass/angle stiffness local \u03b6target.7 medianD=.00046200433; capped by whole-apron1976hinge damping-only dt\u03bb\u2264.8 gives chosenD=.00031574913. Not calibrated material damping and not whole coupled stability proof.",
+  "exact_invariants": "White first31 native points, yellow/body first81 native points all bitwise equal. Two layers remain separate and visible display has zero geometric thickness.",
+  "outcome": {
+    "frame81": "All actual single-middle/native/body/layer/24scene tests0; old5apron crossings avoided.",
+    "frame84": "Yellow native/display3crossing pairs, others0; longest8.8534mm independently measured.",
+    "material84": {
+      "B_YELLOW_PROOF_MIDSURFACE": {
+        "finite": true,
+        "pin_error_m": 2.468610558139877e-07,
+        "structural_edge_rest_ratio_min_median_max": [
+          0.823834832144354,
+          1.0000292065257201,
+          1.3137372924489237
+        ],
+        "rms_last_halfsecond_m": 0.12977749109268188,
+        "material_triangle_principal_stretch_min_max": [
+          0.8227296156612587,
+          1.3159473591598134
+        ],
+        "material_triangles_beyond10percent": 49
+      },
+      "B_APRON_PROOF_MIDSURFACE": {
+        "finite": true,
+        "pin_error_m": 5.963374150042e-08,
+        "structural_edge_rest_ratio_min_median_max": [
+          0.8402742937476777,
+          1.0000774798001857,
+          1.4373449298974978
+        ],
+        "rms_last_halfsecond_m": 0.13538280129432678,
+        "material_triangle_principal_stretch_min_max": [
+          0.753935629643635,
+          1.5885886179430384
+        ],
+        "material_triangles_beyond10percent": 12
+      }
+    },
+    "tracked_angles81": [
+      {
+        "edge": [
+          112,
+          139
+        ],
+        "old": {
+          "frame": 81,
+          "principal_angle_deg": -168.00405496327934,
+          "continuous_angle_deg": 191.99594503672066,
+          "angular_rate_deg_per_s": 2237.6235359571306
+        },
+        "candidate": {
+          "frame": 81,
+          "principal_angle_deg": 116.39600119153812,
+          "continuous_angle_deg": 116.39600119153812,
+          "angular_rate_deg_per_s": 112.53681621129239
+        },
+        "old_rate_peak76to81": 2237.6235359571306,
+        "candidate_rate_peak76to81": 218.91557254544585
+      },
+      {
+        "edge": [
+          172,
+          200
+        ],
+        "old": {
+          "frame": 81,
+          "principal_angle_deg": -178.32080334355075,
+          "continuous_angle_deg": 181.67919665644925,
+          "angular_rate_deg_per_s": 968.3956653958928
+        },
+        "candidate": {
+          "frame": 81,
+          "principal_angle_deg": -14.811952868607028,
+          "continuous_angle_deg": -14.811952868607028,
+          "angular_rate_deg_per_s": -3938.864927541645
+        },
+        "old_rate_peak76to81": 968.3956653958928,
+        "candidate_rate_peak76to81": 3938.864927541645
+      }
+    ],
+    "prediction": "One old hinge rate peak reduced, the other has3938.865deg/s reverse unfolding. No overall angular-rate suppression or stable material result.",
+    "actual_new_trajectory_damping_only_dt_lambda_range": [
+      0.7784991157975095,
+      0.7999999999999821
+    ]
+  },
+  "interpretation": "The control changes the local failure trajectory but does not establish a repair. Finite damping adds dissipation, not an inversion barrier; the coupled nonlinear membrane/hinge problem remains. Recorded frozen-operator bounds stay satisfied, which does not certify coupled-system stability. No further sweep or continuation is active.",
+  "source_motion_time_s": 2.3728878600823045,
+  "actual3second_output_started": false,
+  "review_reports": [
+    "contact-review/ACTUAL_ROOM_APRON_ANGULAR_DAMPING_TRIAL06_independent_81_84_gate.json",
+    "contact-review/ACTUAL_ROOM_APRON_ANGULAR_DAMPING_TRIAL06_independent_material_81_84.json",
+    "contact-review/ACTUAL_ROOM_APRON_DAMPING_TRIAL06_independent_ablation.json"
+  ],
+  "safe_static_blend": "B_DAMPING_CONTROL_STOPPED_0084.blend",
+  "safe_static_blend_sha256": "08d04147078395276c99d3b7cac7f20538d7d4bf615b11f0b0ae3f0ae64b5cc9",
+  "images": [
+    "same_camera_color_0081.png",
+    "same_camera_color_0084.png",
+    "local_apron_gray_0081.png",
+    "local_apron_gray_0084.png"
+  ]
+}

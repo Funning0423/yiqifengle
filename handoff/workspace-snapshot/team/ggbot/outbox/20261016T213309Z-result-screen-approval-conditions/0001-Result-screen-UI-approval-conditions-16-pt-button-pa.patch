@@ -1,0 +1,227 @@
+From e2bd7074eb4c40b37b25b35227579aeeadc74217 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 05:14:53 +0800
+Subject: [PATCH] =?UTF-8?q?Result=20screen:=20UI=E8=AE=BE=E8=AE=A1?=
+ =?UTF-8?q?=E9=83=A8=20approval=20conditions=20=E2=80=94=2016=20pt=20butto?=
+ =?UTF-8?q?n=20padding,=20chest=20centre=20y485,=20crisper=20outline,=20ca?=
+ =?UTF-8?q?ption=20guard?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+a) 下一关 / 回小岛 (drop shadow included) keep 16 pt from the panel's inner edge (23 pt 9-slice border) on the sides
+   and bottom on every phone size, 390×844 / 375×667 / 320×568 included; buttons are 128 wide on 390. Stress
+   viewports under 480 pt tall (not phones) keep the previous spacing so the score stays on one page.
+b) test_result_screen_style asserts the preview caption text (work/rsv2/drive.py) is absent from
+   creator-build-project assets / build-templates / build-resources / settings.
+c) Look-at 0.68 kept; the chest art (3D node, 2D fallback, contact shadow) moves 7 down so its visual centre is
+   y 485 on 390×844 (was 478). Lid-in-frame over the whole sweep stays covered by test_result_chest_3d.
+d) Outline edge: RenderTexture 1024² (was 512²) with bilinear filtering, so the up-to-900 px frame is only ever
+   minified: ≈ 1 px anti-aliased edge instead of a 2 px upscale blur at dpr 3. Tested.
+---
+ .../assets/scripts/ResultChest3D.ts           |  9 ++++--
+ .../assets/scripts/ui/BoardPanels.ts          | 30 +++++++++++--------
+ tools/board-ui/test_result_screen_style.cjs   | 20 ++++++++++++-
+ tools/test_result_chest_3d.cjs                |  4 +--
+ 4 files changed, 45 insertions(+), 18 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/ResultChest3D.ts b/creator-build-project/assets/scripts/ResultChest3D.ts
+index 0deaa09..025eafc 100644
+--- a/creator-build-project/assets/scripts/ResultChest3D.ts
++++ b/creator-build-project/assets/scripts/ResultChest3D.ts
+@@ -6,7 +6,12 @@ import { ISLAND_PROPS } from './world-r2/IslandPropsLayout';
+  *  M_env_palette material (same palette UVs). The lid (child `chest_lid`, origin on the hinge) follows the GLB's
+  *  `chest_open` keys: 0.5 s, 0 → −126° → −114° → −118°, ending open so the inside is visible from the 36° camera. */
+ export const CHEST_LAYER = 1 << 19;
+-export const CHEST_PIXELS = 512;
++/** RenderTexture side. 1024, not 512: the frame shows up to 300 pt (900 px at dpr 3), and upscaling a 512 render there
++ *  turns the silhouette/outline edge into a 2 px blur. At 1024 it's only ever minified with bilinear filtering, which
++ *  gives a ≈ 1 px anti-aliased edge (the RT has no MSAA, so this resample is the anti-aliasing). 4 MB GPU, no package bytes. */
++export const CHEST_PIXELS = 1024;
++/** Texture filtering for the render and its outline copies: bilinear (Texture2D.Filter.LINEAR = 2), never POINT (jaggies). */
++export const CHEST_FILTER = 2;
+ const ORIGIN = new Vec3(10000, 10000, 10000);
+ /** chest_open rotation keys (degrees about +X), sampled every 1/30 s from the GLB. */
+ export const LID_KEYS: readonly number[] = [0, -4.32, -15.9, -32.67, -52.54, -73.46, -93.33, -110.1, -121.68, -126, -122.89, -117.11, -114, -115.04, -116.96, -118];
+@@ -98,7 +103,7 @@ export class ResultChest3D {
+       cn.lookAt(new Vec3(ORIGIN.x + CHEST_CAMERA.target[0], ORIGIN.y + CHEST_CAMERA.target[1], ORIGIN.z + CHEST_CAMERA.target[2]));
+       const cam = cn.addComponent(Camera); cam.projection = Camera.ProjectionType.PERSPECTIVE; cam.fov = CHEST_CAMERA.fovDeg; cam.fovAxis = Camera.FOVAxis.VERTICAL;
+       cam.near = 0.5; cam.far = 30; cam.visibility = CHEST_LAYER; cam.clearFlags = Camera.ClearFlag.SOLID_COLOR; cam.clearColor = new Color(0, 0, 0, 0); cam.priority = 45; cam.usePostProcess = false;
+-      const rt = new RenderTexture(); rt.reset({ width: CHEST_PIXELS, height: CHEST_PIXELS }); cam.targetTexture = rt; this.texture = rt; this.camera = cam;
++      const rt = new RenderTexture(); rt.reset({ width: CHEST_PIXELS, height: CHEST_PIXELS }); (rt as any).setFilters?.(CHEST_FILTER, CHEST_FILTER); cam.targetTexture = rt; this.texture = rt; this.camera = cam;
+       const f = new SpriteFrame(); f.texture = rt; f.packable = false; this.frame = f;
+       if (!isValid(this.sprite, true)) throw Error('host destroyed');
+       this.sprite.spriteFrame = f; for (let k = 0; k < this.outline.length; k++) this.outline[k].spriteFrame = f; this.sync(); this.apply(); this.state = 'ready'; return true;
+diff --git a/creator-build-project/assets/scripts/ui/BoardPanels.ts b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+index 62f9888..c3914d7 100644
+--- a/creator-build-project/assets/scripts/ui/BoardPanels.ts
++++ b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+@@ -256,7 +256,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     if (target === page) return;
+     resetPresses(p.root); page = target; showPage();
+   }
+-  let compactViewport = false, shortPhone = false, specCompact = false;
++  let compactViewport = false, shortPhone = false, specCompact = false, padRoom = true;
++  // 16 pt inner padding on every phone (shortest 320×568); sub-phone stress viewports under 480 pt tall keep the previous 26/24 (12 when narrow).
+   let chestRig: ResultChest3D | null = null;
+   let raysNode: Node | null = null, haloNode: Node | null = null;
+   let floatNodes: { node: Node; x: number; y: number; phase: number; fromY: number }[] = [];
+@@ -305,7 +306,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   const CHEST_OPEN_W = 176 / 180, FLAT_OPEN_ASPECT = 387 / 400, /* chest_v3 fallback art (400 × 327 closed / 400 × 387 open, outline + contact shadow baked in) */ GLOW_R = 74, GLOW_R_OPEN = 78, GLOW_R_C = 50, RAY_LIFT = 48;
+   // Glow hugs the chest (radius ≤ 0.45 × chest width): closed centre 4 below the chest centre, open 26 above; peak α 47% (night 59%) / open 59%.
+   // SPEC v2.2: the chest sits 8 right of centre so the shadow to its right/back doesn't pull it off-centre visually.
+-  const CHEST_DX = 8, GLOW_DY = -4, GLOW_DY_OPEN = 26, GLOW_A = 0.47, GLOW_A_NIGHT = 0.59, GLOW_A_OPEN = 0.59, BADGE_GLOW_R = 40, BADGE_GLOW_A = 0.43;
++  // UI设计部 condition for look-at 0.68: the chest's visual centre at y ≈ 485 on 390×844 (the row centre lands at 478), so the
++  // chest art (3D node, 2D fallback, contact shadow) moves 7 down; the camera stays as it is.
++  const CHEST_DX = 8, CHEST_DY = -7, GLOW_DY = -4, GLOW_DY_OPEN = 26, GLOW_A = 0.47, GLOW_A_NIGHT = 0.59, GLOW_A_OPEN = 0.59, BADGE_GLOW_R = 40, BADGE_GLOW_A = 0.43;
+   // Bottom actions match the home-screen wooden buttons: 56 high, plate art 0.6, a 5-unit drop shadow, equal widths.
+   const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 6, GUIDE_PERIOD = 1.6;
+   // Rewards float above the open chest: icon + name, a gentle rise then bob. No card module under the chest.
+@@ -313,7 +316,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   const FLOAT_PLATE = true; // SPEC v2.1 RewardBadge (existing icon on a cream round badge)
+   const FLOAT_ICON = 68, FLOAT_ICON_DENSE = 56, FLOAT_NAME = 22, FLOAT_GAP = 28, FLOAT_STEP = 76, FLOAT_STEP_MANY = 64;
+   // Bottom row keeps clear of the panel edge (28 inside a 12-unit panel inset = 40 from a 390-wide screen) and the bottom.
+-  const ACTION_SIDE = 26, ACTION_SIDE_TIGHT = 12, ACTION_GAP = 16, ACTION_BOTTOM = 24, ACTION_H_C = 52;
++  // SPEC: buttons (drop shadow included) keep 16 pt from the panel's inner edge (the ≈ 23 pt 9-slice border) on the sides and bottom, every size.
++  const ACTION_INNER_PAD = 16, ACTION_PAD = PANEL_EDGE_PT + ACTION_INNER_PAD, ACTION_SIDE = ACTION_PAD, ACTION_GAP = 16, ACTION_BOTTOM = ACTION_PAD, ACTION_H_C = 52;
+   (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
+   let floatDiag: { name: string; x: number; y: number; icon: number }[] = []; const guideDiag: any = { pulsing: false, period: GUIDE_PERIOD };
+   let hintLabel: Label | null = null;
+@@ -335,7 +339,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   // Measure the same content used by reflow. Tall phones no longer turn a short
+   // result into a near-full-screen panel with a vertically centred empty area.
+   const naturalHeight = (w: number) => {
+-    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 92 : 68, heights: number[] = [];
++    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = padRoom ? ACTION_PAD + ACTION_SHADOW + (specCompact ? ACTION_H_C : ACTION_H) + 12 : roomy ? 92 : 68, heights: number[] = [];
+     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
+     heights.push(shortPhone ? 44 : 88);
+     if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
+@@ -357,7 +361,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     // Spec v2: 350-wide panel on a 390 screen (20 each side); narrower screens keep a 12-unit inset.
+     const w = Math.min(350, Math.max(1, width - left - right - (width - left - right >= 360 ? 40 : 24)));
+     const maxHeight = Math.max(1, height - top - bottom - 24);
+-    shortPhone = height <= 700 && width >= 360 && width < height; specCompact = height <= 700;
++    shortPhone = height <= 700 && width >= 360 && width < height; specCompact = height <= 700; padRoom = height >= 480;
+     compactViewport = maxHeight < 400 || shortPhone; rowGap = compactViewport ? 1 : 6;
+     const h = Math.min(maxHeight, naturalHeight(w));
+     return { width: w, height: h, scale: 1, titleY: h / 2 - 23, offsetX: (left - right) / 2, offsetY: (bottom - top) / 2 };
+@@ -366,7 +370,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     // Opening animation must not rebuild the pages or reset a held finger.
+     if (layoutKey === key) return; layoutKey = key;
+     resetPresses(p.root);
+-    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 92 : 68, dense = compactViewport;
++    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = padRoom ? ACTION_PAD + ACTION_SHADOW + (specCompact ? ACTION_H_C : ACTION_H) + 12 : roomy ? 92 : 68, dense = compactViewport;
+     // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
+     const supported = w >= 192 && h >= 172;
+     p.body.getChildByName('TitlePlank')!.active = supported;
+@@ -417,12 +421,12 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     counter.node.setPosition(0, h / 2 - 46, 0); counter.node.getComponent(UITransform)!.setContentSize(titleWidth, 20);
+     for (const [b, x] of [[previous, -w / 2 + 24], [next, w / 2 - 24]] as const) { layoutButton(b.node, 48); b.node.setPosition(x, h / 2 - 28, 0); }
+     for (let i = 0; i < actions.length; i++) {
+-      const side = roomy ? ACTION_SIDE : ACTION_SIDE_TIGHT, span = Math.max(1, w - 2 * side);
++      const side = padRoom ? ACTION_PAD : roomy ? 26 : 12, span = Math.max(1, w - 2 * side);
+       const a = actions[i], width = actions.length === 1 ? Math.min(240, span) : (span - ACTION_GAP) / 2;
+       const x = actions.length === 1 ? 0 : (i - 0.5) * (width + ACTION_GAP);
+       const bh = specCompact ? ACTION_H_C : ACTION_H;
+       layoutButton(a.handle.node, width, undefined, bh, ACTION_ART); actionShadow(a.handle.node, width, bh);
+-      a.handle.node.setPosition(x, -h / 2 + (roomy ? ACTION_BOTTOM : 12) + bh / 2, 0);
++      a.handle.node.setPosition(x, -h / 2 + (padRoom ? ACTION_PAD + ACTION_SHADOW : roomy ? 24 : 12) + bh / 2, 0); // drop shadow included in the 16 pt
+     }
+     const stars = groups.ResultStars.node;
+     if (m.kind !== 'lose' && dense && !shortPhone && textWidth(scoreText, 20) <= inner - 100) {
+@@ -577,7 +581,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+       if (!floor) { floor = uiNode('ResultChestFloor', row.node, 220, 60); const fl = floor; fl.addComponent(Graphics); (fl as any).__draw = (night: boolean) => {
+         const g = fl.getComponent(Graphics)!, n = 10, a0 = night ? 0.30 : 0.45, st = 1 - Math.pow(1 - a0, 1 / n); g.clear();
+         for (let k = 0; k < n; k++) { const f = 1 - k / n * 0.6; g.fillColor = new Color(0x3C, 0x26, 0x14, Math.round(255 * st)); g.ellipse(0, 0, 110 * f, 30 * f); g.fill(); } }; }
+-      (floor as any).__draw(isNight()); floor.setScale(chestW / 220, chestW / 220, 1); add(row, floor, chestW * 0.06, chestY - chestH / 2 + chestW * 0.06); floor.active = !!chestRig?.ready;
++      (floor as any).__draw(isNight()); floor.setScale(chestW / 220, chestW / 220, 1); add(row, floor, chestW * 0.06, chestY + CHEST_DY * sk - chestH / 2 + chestW * 0.06); floor.active = !!chestRig?.ready;
+       if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
+       else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
+       const rs = Math.min(RAY * sk, inner, rowH); raysNode.getComponent(UITransform)!.setContentSize(rs, rs); add(row, raysNode, 0, Math.max(-rowH / 2 + rs / 2, Math.min(chestY + RAY_LIFT * sk, rowH / 2 - rs / 2))); raysNode.active = opened; // rays only once open
+@@ -585,8 +589,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+         flat.name = 'ResultChestArt';
+         // 2D fallback: popup/chest_open once claimed (bottom-aligned with the closed art), popup/chest_closed before.
+         const openFrame = opened ? BoardArt.shared().frame('popup/chest_open') : null, sp = flat.getComponent(Sprite);
+-        if (openFrame && sp) { sp.spriteFrame = openFrame; const ow = chestW * CHEST_OPEN_W, oh = ow * FLAT_OPEN_ASPECT; fitBox(flat, ow, oh); add(row, flat, CHEST_DX * sk, chestY - chestH / 2 + oh / 2); }
+-        else { fitBox(flat, chestW, chestH); add(row, flat, CHEST_DX * sk, chestY); }
++        if (openFrame && sp) { sp.spriteFrame = openFrame; const ow = chestW * CHEST_OPEN_W, oh = ow * FLAT_OPEN_ASPECT; fitBox(flat, ow, oh); add(row, flat, CHEST_DX * sk, chestY + CHEST_DY * sk - chestH / 2 + oh / 2); }
++        else { fitBox(flat, chestW, chestH); add(row, flat, CHEST_DX * sk, chestY + CHEST_DY * sk); }
+         if (chestRig?.ready) flat.active = false;
+       }
+       for (let j = 0; j < art.length; j++) { const n = art[j]; if (n !== flat) n.active = false; } // no stamp: the open lid says it
+@@ -597,9 +601,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+         const shown = flat;
+         const fl0 = floor; void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; if (fl0 && isValid(fl0, true)) fl0.active = true; });
+       } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
+-      // The 512² RenderTexture is square: show it square (no squash) so the closed chest body spans chestW
++      // The 1024² RenderTexture is square: show it square (no squash) so the closed chest body spans chestW
+       // (it fills 60% of the frame width and sits 15.5% below the frame centre, measured on result_chest.glb).
+-      const frameSide = chestW / CHEST_FRAME.width, frameY = chestY + CHEST_FRAME.offsetY * frameSide;
++      const frameSide = chestW / CHEST_FRAME.width, frameY = chestY + CHEST_DY * sk + CHEST_FRAME.offsetY * frameSide;
+       chestRig.node.setPosition(CHEST_DX * sk, frameY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(frameSide, frameSide);
+       chestPose = { node: chestRig.node, flat: flat || null, y: chestY, rigY: frameY, w: chestW, h: chestH }; if (flat) flatScale = { x: flat.scale.x, y: flat.scale.y };
+       guideDiag.pulsing = r.state === 'ready' && anyReady(); guideDiag.chest = { w: chestW, h: chestH, halo: body, hit: Math.max(44, body) };
+diff --git a/tools/board-ui/test_result_screen_style.cjs b/tools/board-ui/test_result_screen_style.cjs
+index 95c7343..dd19dc6 100644
+--- a/tools/board-ui/test_result_screen_style.cjs
++++ b/tools/board-ui/test_result_screen_style.cjs
+@@ -22,6 +22,13 @@ const { createHarness } = require('./harness.cjs');
+   const texts = root => { const out = []; const v = n => { if (!n.activeInHierarchy) return; const l = n.getComponent(H.cc.Label); if (l && l.string) out.push(l.string); n.children.forEach(v); }; v(root); return out; };
+   const HOST = w => ({ top: 47, bottom: 34, left: 0, right: 0, capsule: { top: 51, bottom: 87, left: w - 93, right: w - 6 } });
+   const report = {};
++  { // UI设计部 condition (b): the black caption on the preview stills/videos (work/rsv2/drive.py) is preview tooling only.
++    const fs = require('node:fs'), path = require('node:path'), root = path.resolve(__dirname, '../../creator-build-project');
++    const CAPTION = ['非实机', 'harness 合成', '动效预览', '布局/动效', 'SPEC v2.2 布局'], hits = [];
++    const walk = d => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) { if (!['library', 'temp', 'local', 'build', 'node_modules'].includes(e.name)) walk(f); continue; }
++      if (!/\.(ts|js|json|meta|txt|html|css|md|plist|fnt)$/.test(e.name)) continue; const t = fs.readFileSync(f, 'utf8'); for (const c of CAPTION) if (t.includes(c)) hits.push(path.relative(root, f) + ': ' + c); } };
++    for (const d of ['assets', 'build-templates', 'build-resources', 'settings']) if (fs.existsSync(path.join(root, d))) walk(path.join(root, d));
++    assert.deepEqual(hits, [], 'preview caption text never ships'); report.previewCaptionShipped = hits.length; }
+   for (const [w, h] of [[390, 844], [375, 667], [320, 568]]) {
+     const key = w + 'x' + h, compact = h <= 700; H.state.viewport = { width: w, height: h, safeInsets: HOST(w) };
+     const calls = []; const p = P.openResult(stack, model('ready', calls), null); settle();
+@@ -51,10 +58,21 @@ const { createHarness } = require('./harness.cjs');
+     assert.equal(nb.w, hb.w); assert.equal(nb.h, compact ? 52 : 56); assert.equal(ns.y, hs.y); assert.equal(d.action.artScale, 0.6);
+     for (const b of [next, home]) { const s = b.getChildByName('ActionShadow'); assert(s && s.active && s.__offset >= 4 && b.children.indexOf(s) === 0); }
+     const leftEdge = ns.x - nb.w / 2, rightEdge = w - (hs.x + hb.w / 2), gap = (hs.x - hb.w / 2) - (ns.x + nb.w / 2);
+-    if (w === 390) { assert.equal(nb.w, 141, 'spec width 141'); assert(leftEdge >= 40 && rightEdge >= 40, 'side margin ≥ 40'); }
++    if (w === 390) { assert.equal(nb.w, 128, '(350 − 2 × (23 + 16) − 16) / 2'); assert(leftEdge >= 40 && rightEdge >= 40, 'side margin ≥ 40'); }
++    { // UI设计部 condition (a): 16 pt from the panel's inner edge (9-slice border ≈ 23 pt) on the sides and the bottom, drop shadow included.
++      const fr = p.body.getChildByName('PanelFrame'), fb = box(fr), fs = screen(fr, w, h), edge = 212 * Math.abs(fr.scale.x);
++      const inL = fs.x - fb.w / 2 + edge, inR = fs.x + fb.w / 2 - edge, inB = fs.y + fb.h / 2 - edge;
++      for (const [b, bb, bs] of [[next, nb, ns], [home, hb, hs]]) { const sh = b.getChildByName('ActionShadow').__offset;
++        const l = bs.x - bb.w / 2 - inL, r = inR - (bs.x + bb.w / 2), bot = inB - (bs.y + bb.h / 2 + sh);
++        report.pad = report.pad || {}; report.pad[key + ':' + b.name] = { left: +l.toFixed(2), right: +r.toFixed(2), bottom: +bot.toFixed(2) };
++        assert(Math.min(l, r) >= 16 - 0.5 && bot >= 16 - 0.5, key + ' ' + b.name + ' 16 pt from the inner edge ' + JSON.stringify(report.pad[key + ':' + b.name])); }
++      assert(Math.abs(report.pad[key + ':Next'].left - 16) < 0.5 && Math.abs(report.pad[key + ':Home'].right - 16) < 0.5, 'exactly 16 at the sides'); }
+     assert(Math.abs(gap - 16) < 0.5, 'gap 16');
+     const bottomGap = h - 34 - (ns.y + nb.h / 2); assert(bottomGap >= 24, 'clear of the bottom safe line');
+     report[key] = { chest: { ...d.guide.chest, centre: screen(tap, w, h) }, next: { ...ns, w: nb.w, h: nb.h }, home: { ...hs, w: hb.w, h: hb.h }, sideMargin: +leftEdge.toFixed(1), gap: +gap.toFixed(1), bottomToSafe: +bottomGap.toFixed(1) };
++    { // condition (c): visual chest centre = the 3D frame centre less CHEST_FRAME.offsetY (2.8% of the frame side) ≈ y 485 on 390×844.
++      const rig = p.root.find('ResultChest3D'), side = box(rig).w, vc = screen(rig, w, h).y + 0.028 * side;
++      report[key + ':chestVisualCentre'] = +vc.toFixed(1); if (w === 390) assert(Math.abs(vc - 485) <= 1, 'chest visual centre ≈ 485, got ' + vc); }
+     // tap the chest: one claim of everything, double tap ignored.
+     H.tap(tap); H.tap(tap); assert.deepEqual(calls, ['chest', 'regionReward'], 'one tap claims everything once');
+     assert.equal(tap.activeInHierarchy, false);
+diff --git a/tools/test_result_chest_3d.cjs b/tools/test_result_chest_3d.cjs
+index 802e93c..b0be389 100644
+--- a/tools/test_result_chest_3d.cjs
++++ b/tools/test_result_chest_3d.cjs
+@@ -40,13 +40,13 @@ function glb() {
+     const lidAt = deg => corners([-0.82, 0.82], [-0.09, 0.5235], [-0.05, 1.158]).map(([x, y, z]) => { const a = deg * Math.PI / 180; return [x, y * Math.cos(a) - z * Math.sin(a) + 0.8, y * Math.sin(a) + z * Math.cos(a) - 0.52]; });
+     for (const deg of [0, -93, -118, -126]) for (const q of [...corners([-0.84, 0.84], [0, 0.81], [-0.56, 0.595]), ...lidAt(deg)]) { const [x, y] = proj(q); assert(Math.abs(x) < 0.5 && Math.abs(y) < 0.5, 'inside at ' + deg + '°'); }
+     const L = M.CHEST_LOOK.lights; assert(L.key.pos[1] > 4 && L.key.pos[0] < 0, 'key from the top-left'); assert(L.fill.lum < 0.5 * L.key.lum / 4 + 0.3, 'fill weaker'); assert(L.rim.pos[2] < 0 && L.rim.pos[1] > 2, 'rim behind/above');
+-    assert.deepEqual(M.CHEST_LOOK.material.albedoScale, [1.10, 1.06, 1.0]); assert.equal(M.CHEST_LOOK.material.roughness, 0.6); assert.equal(M.CHEST_OUTLINE.width, 1.5);
++    assert(M.CHEST_PIXELS >= 900, 'outline edge: the render is never upscaled (300 pt frame × dpr 3)'); assert.equal(M.CHEST_FILTER, 2, 'bilinear, not point'); assert.deepEqual(M.CHEST_LOOK.material.albedoScale, [1.10, 1.06, 1.0]); assert.equal(M.CHEST_LOOK.material.roughness, 0.6); assert.equal(M.CHEST_OUTLINE.width, 1.5);
+   });
+   const lid = new cc.Node('chest_lid'), prefab = { lid };
+   cc.instantiate = () => { const m = new cc.Node('result_chest'); const l = new cc.Node('chest_lid'); m.addChild(l); m.addChild(new cc.Node('chest_body')); l.addComponent(cc.MeshRenderer).sharedMaterials = [null]; return m; };
+   let paletteOk = true; cc.assetManager.loadAny = (_o, cb) => Promise.resolve().then(() => cb(paletteOk ? null : Error('x'), paletteOk ? new cc.Material() : null));
+   const art = BoardArt.shared(); let prefabResult = prefab; art.chestPrefab = () => Promise.resolve(prefabResult);
+-  await ok('load: rig at the off-screen origin on CHEST_LAYER, perspective camera only sees that layer into a 512² RenderTexture on the Sprite; open() reaches −118° in 0.5 s', async () => {
++  await ok('load: rig at the off-screen origin on CHEST_LAYER, perspective camera only sees that layer into a 1024² RenderTexture on the Sprite; open() reaches −118° in 0.5 s', async () => {
+     const host = new cc.Node('Host'); cc._scene.addChild(host); const c = new M.ResultChest3D(host, 340);
+     assert.equal(await c.load(), true); assert.equal(c.diagnostics().state, 'ready');
+     const rig = cc._scene.getChildByName('ResultChestRig'); assert(rig); assert.deepEqual([rig.position.x, rig.position.y, rig.position.z], [10000, 10000, 10000]);
+-- 
+2.47.3
+

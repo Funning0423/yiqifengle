@@ -1,0 +1,33 @@
+From ee012f42fb82182fd62f93f1313913f671b63449 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 16 Oct 2026 22:46:28 +0800
+Subject: [PATCH 1/2] Add missing SeaNightTint.ts.meta (typescript importer
+ 4.0.24)
+
+SeaNightTint is a plain class (no @ccclass), so no scene/prefab/meta references
+its uuid; none exists in history (6b414a1/fd434fe added the .ts without a .meta),
+team outboxes or zips. The Mac build's auto-generated uuid was recorded only as
+the prefix c0440362-, so a fresh v4 uuid is used.
+---
+ .../assets/scripts/world-r2/SeaNightTint.ts.meta         | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+ create mode 100644 creator-build-project/assets/scripts/world-r2/SeaNightTint.ts.meta
+
+diff --git a/creator-build-project/assets/scripts/world-r2/SeaNightTint.ts.meta b/creator-build-project/assets/scripts/world-r2/SeaNightTint.ts.meta
+new file mode 100644
+index 0000000..3f53310
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r2/SeaNightTint.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "7d49796a-a9c1-4c41-937b-7dc366ccf71b",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+-- 
+2.47.3
+

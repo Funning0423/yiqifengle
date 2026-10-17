@@ -1,0 +1,26 @@
+From a9b814ca5f640d3234e35e6829fd6cf799f6efdb Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 15:05:31 -0400
+Subject: [PATCH 3/5] Oi review 3/5 audio test: correct the MPEG-1 L3
+ bitrate-index comment (40 kbps = index 2 = 0b0010; assertion unchanged)
+
+---
+ tools/voice-bot/bgm/test_scene_bgm.cjs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/voice-bot/bgm/test_scene_bgm.cjs b/tools/voice-bot/bgm/test_scene_bgm.cjs
+index b6b901b..b3f4eab 100644
+--- a/tools/voice-bot/bgm/test_scene_bgm.cjs
++++ b/tools/voice-bot/bgm/test_scene_bgm.cjs
+@@ -323,7 +323,7 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
+   ok(dup.length === 0, 'no duplicate uuids across assets/**/*.meta (' + allMetas.length + ' metas)', dup);
+   for (const [f, minS, maxS] of [['bundles/region_meadow/audio/bgm_meadow.mp3', 72, 73.5], ['bundles/region_skycity/audio/bgm_skycity.mp3', 71.5, 73], ['bundles/audio_bgm_island/audio/bgm_main.mp3', 83, 84.5]]) {
+     const p = path.join(P, 'assets', f), m = J(p + '.meta'), buf = fs.readFileSync(p);
+-    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0101 = 40 kbps since v3.2 size pass (was 48), mode != 3 (stereo)
++    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0010 = 40 kbps (MPEG-1 L3 table index 2; 48 = 0b0011) since v3.2 size pass (was 48), mode != 3 (stereo)
+     let i = 0; if (buf.slice(0, 3).toString() === 'ID3') i = 10 + ((buf[6] << 21) | (buf[7] << 14) | (buf[8] << 7) | buf[9]);
+     while (i < buf.length - 4 && !(buf[i] === 0xff && (buf[i + 1] & 0xe0) === 0xe0)) i++;
+     const KB = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
+-- 
+2.47.3
+

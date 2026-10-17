@@ -1,0 +1,2674 @@
+{
+ "status": "PASS",
+ "route": {
+  "totalM": 39.204,
+  "bridgeStart": 3.2984845004941277,
+  "bridgeEnd": 27.704256678831825,
+  "landing": {
+   "arrivalSideM": 0.8,
+   "arrivalLiftM": 0,
+   "arrivalHermite": 1,
+   "anchorSmoothM": 1.5
+  },
+  "focus": [
+   -0.11350005865097343,
+   -0.27999999999999997,
+   56.48140020370484
+  ]
+ },
+ "finals": {
+  "360x780": {
+   "herX": 0.418,
+   "feetAboveBottom": 0.374,
+   "headBelowTop": 0.478,
+   "herHeight": 0.148,
+   "boardCentre": [
+    0.5,
+    0.549
+   ],
+   "cam": [
+    -3.257,
+    2,
+    32.113
+   ],
+   "target": [
+    -2.234,
+    1.609,
+    40.038
+   ],
+   "fov": 48
+  },
+  "390x520": {
+   "herX": 0.449,
+   "feetAboveBottom": 0.374,
+   "headBelowTop": 0.478,
+   "herHeight": 0.148,
+   "boardCentre": [
+    0.5,
+    0.549
+   ],
+   "cam": [
+    -3.257,
+    2,
+    32.113
+   ],
+   "target": [
+    -2.234,
+    1.609,
+    40.038
+   ],
+   "fov": 48
+  }
+ },
+ "results": [
+  {
+   "id": "K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged",
+   "status": "PASS",
+   "totalM": 39.204,
+   "durationS": 32.67,
+   "bridgeStart": 3.298,
+   "bridgeEnd": 27.704,
+   "walkOnBankM": 11.5,
+   "footVsBankM": [
+    -0.011,
+    0.009
+   ],
+   "root": [
+    -0.114,
+    -0.58,
+    68.481
+   ],
+   "yawDeg": 180
+  },
+  {
+   "id": "K2 face/head/chest visible + lens ≥ 1.1 m every 0.05 m (island + lakeside + bridge strip)",
+   "status": "PASS",
+   "samples": 785,
+   "minLensM": 1.367,
+   "minLensAt": 14.35,
+   "minLensObj": "island:env_prop_palm_lean_01",
+   "setOffLegsOnlyExempted": [
+    {
+     "d": 0,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.05,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.1,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.15,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.2,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.25,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.3,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.35,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.4,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.45,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.5,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.55,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.6,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.65,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.7,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.75,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.8,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.85,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.9,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    }
+   ],
+   "partialGrazes": [
+    {
+     "d": 0.95,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.05,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.1,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.15,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.2,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.25,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.3,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 2.75,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 2.8,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 2.85,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "K3 lens on her right for the whole leg",
+   "status": "PASS",
+   "minRightM": 1.943,
+   "at": 38.55,
+   "finalRightM": 1.943
+  },
+  {
+   "id": "K4 final landing frame 360x780: whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "status": "PASS",
+   "herX": 0.418,
+   "feetAboveBottom": 0.374,
+   "headBelowTop": 0.478,
+   "herHeight": 0.148,
+   "boardCentre": [
+    0.5,
+    0.549
+   ],
+   "cam": [
+    -3.257,
+    2,
+    32.113
+   ],
+   "target": [
+    -2.234,
+    1.609,
+    40.038
+   ],
+   "fov": 48
+  },
+  {
+   "id": "K4 final landing frame 390x520: whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "status": "PASS",
+   "herX": 0.449,
+   "feetAboveBottom": 0.374,
+   "headBelowTop": 0.478,
+   "herHeight": 0.148,
+   "boardCentre": [
+    0.5,
+    0.549
+   ],
+   "cam": [
+    -3.257,
+    2,
+    32.113
+   ],
+   "target": [
+    -2.234,
+    1.609,
+    40.038
+   ],
+   "fov": 48
+  },
+  {
+   "id": "K5 view turn ≤ 20°/s at 1.2 m/s; no crane-up over the arrival (lens height above her never rises)",
+   "status": "PASS",
+   "maxTurnDegS": 2.17,
+   "at": 0,
+   "arrivalWorldMaxClimbPerStepM": 0,
+   "arrivalRelativeUpStepsSumM": 0.031,
+   "arrivalLensAboveHerM": [
+    3.398,
+    2
+   ],
+   "arrivalLensWorldY": [
+    4.082,
+    2
+   ],
+   "maxLensAboveHerM": 3.463
+  },
+  {
+   "id": "K7 lens kinematics: S-curve settle, |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³ after the set-off fade, at rest when she stops",
+   "status": "PASS",
+   "new": {
+    "peakSpeed": {
+     "v": 1.2105,
+     "t": 22.55
+    },
+    "peakAccel": {
+     "v": 0.3522,
+     "t": 2.75
+    },
+    "peakJerk": {
+     "v": 2.0568,
+     "t": 5.4333
+    },
+    "last05sMaxSpeed": 0.0143,
+    "speedAfterStop": 0
+   },
+   "fallback": {
+    "peakSpeed": {
+     "v": 1.2,
+     "t": 27.2167
+    },
+    "peakAccel": {
+     "v": 56.676,
+     "t": 32.6667
+    },
+    "peakJerk": {
+     "v": 3400.5574,
+     "t": 32.6667
+    },
+    "last05sMaxSpeed": 1.2,
+    "speedAfterStop": 0
+   }
+  },
+  {
+   "id": "K6 board framing: 3D lake grid under the 2D board (centre + scale exact, grid inside the opaque tray), scene above the tray, lens clear",
+   "status": "PASS",
+   "layouts": {
+    "360x780 (0.46)": {
+     "pose": {
+      "position": [
+       0,
+       12.5077,
+       18.8529
+      ],
+      "target": [
+       0,
+       -0.2965,
+       12.6079
+      ],
+      "fovVerticalDeg": 72.353
+     },
+     "grid2d": {
+      "x": 180,
+      "y": 364.7,
+      "size": 288.3,
+      "pitch": 41.18
+     },
+     "trayTopFrac": 0.235,
+     "centreErrPx": 0.001,
+     "widthErrPx": 0.001,
+     "gridInsideTrayMinPx": 7.1,
+     "cornerErrCells": 0.839,
+     "cellCentreErrCells": 0.669,
+     "decorVisibleOutsideTray": 11,
+     "topEdgeGroundZ": -4.8,
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "390x844 notch+capsule": {
+     "pose": {
+      "position": [
+       0,
+       13.1579,
+       19.0552
+      ],
+      "target": [
+       0,
+       -0.2513,
+       12.5151
+      ],
+      "fovVerticalDeg": 72.288
+     },
+     "grid2d": {
+      "x": 195,
+      "y": 399.8,
+      "size": 298.2,
+      "pitch": 42.6
+     },
+     "trayTopFrac": 0.251,
+     "centreErrPx": 0.001,
+     "widthErrPx": 0,
+     "gridInsideTrayMinPx": 8.3,
+     "cornerErrCells": 0.809,
+     "cellCentreErrCells": 0.645,
+     "decorVisibleOutsideTray": 25,
+     "topEdgeGroundZ": -5.8,
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "375x667 (0.56)": {
+     "pose": {
+      "position": [
+       0,
+       13.2235,
+       18.2883
+      ],
+      "target": [
+       0,
+       0.0635,
+       11.8697
+      ],
+      "fovVerticalDeg": 61.953
+     },
+     "grid2d": {
+      "x": 187.5,
+      "y": 339,
+      "size": 292.2,
+      "pitch": 41.74
+     },
+     "trayTopFrac": 0.232,
+     "centreErrPx": 0,
+     "widthErrPx": 0,
+     "gridInsideTrayMinPx": 7.8,
+     "cornerErrCells": 0.758,
+     "cellCentreErrCells": 0.598,
+     "decorVisibleOutsideTray": 19,
+     "topEdgeGroundZ": -2.1,
+     "lensClearM": 3,
+     "fallbackRectErrPx": 6.04
+    },
+    "414x896": {
+     "pose": {
+      "position": [
+       0,
+       13.0232,
+       19.3313
+      ],
+      "target": [
+       0,
+       -0.3859,
+       12.7913
+      ],
+      "fovVerticalDeg": 72.292
+     },
+     "grid2d": {
+      "x": 207,
+      "y": 411.8,
+      "size": 316.6,
+      "pitch": 45.22
+     },
+     "trayTopFrac": 0.237,
+     "centreErrPx": 0,
+     "widthErrPx": 0.001,
+     "gridInsideTrayMinPx": 8.8,
+     "cornerErrCells": 0.835,
+     "cellCentreErrCells": 0.668,
+     "decorVisibleOutsideTray": 25,
+     "topEdgeGroundZ": -5.3,
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "330x770 (0.43)": {
+     "pose": {
+      "position": [
+       0,
+       12.678,
+       19.5189
+      ],
+      "target": [
+       0,
+       -0.5262,
+       13.0788
+      ],
+      "fovVerticalDeg": 75
+     },
+     "grid2d": {
+      "x": 165,
+      "y": 344,
+      "size": 263,
+      "pitch": 37.57
+     },
+     "trayTopFrac": 0.232,
+     "centreErrPx": 0,
+     "widthErrPx": 0.001,
+     "gridInsideTrayMinPx": 7,
+     "cornerErrCells": 0.869,
+     "cellCentreErrCells": 0.697,
+     "decorVisibleOutsideTray": 12,
+     "topEdgeGroundZ": -5.9,
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "390x520 (0.75)": {
+     "pose": {
+      "position": [
+       0,
+       17.0249,
+       20.0858
+      ],
+      "target": [
+       0,
+       0.0858,
+       11.8241
+      ],
+      "fovVerticalDeg": 61.928
+     },
+     "grid2d": {
+      "x": 195,
+      "y": 264.5,
+      "size": 177,
+      "pitch": 25.29
+     },
+     "trayTopFrac": 0.294,
+     "centreErrPx": 0,
+     "widthErrPx": 0,
+     "gridInsideTrayMinPx": 7.6,
+     "cornerErrCells": 0.664,
+     "cellCentreErrCells": 0.528,
+     "decorVisibleOutsideTray": 36,
+     "topEdgeGroundZ": -6.1,
+     "lensClearM": 3,
+     "fallbackRectErrPx": 121.157
+    },
+    "768x1024 tablet (0.75)": {
+     "pose": {
+      "position": [
+       0,
+       14.6589,
+       20.6094
+      ],
+      "target": [
+       0,
+       -0.5752,
+       13.1793
+      ],
+      "fovVerticalDeg": 61.928
+     },
+     "grid2d": {
+      "x": 384,
+      "y": 445.9,
+      "size": 387.7,
+      "pitch": 55.38
+     },
+     "trayTopFrac": 0.197,
+     "centreErrPx": 0.003,
+     "widthErrPx": 0.001,
+     "gridInsideTrayMinPx": 14.2,
+     "cornerErrCells": 0.812,
+     "cellCentreErrCells": 0.653,
+     "decorVisibleOutsideTray": 35,
+     "topEdgeGroundZ": -1.9,
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "844x390 landscape": {
+     "pose": {
+      "position": [
+       -3.4984,
+       14.6858,
+       16.0675
+      ],
+      "target": [
+       -3.4984,
+       -0.0331,
+       12.1236
+      ],
+      "fovVerticalDeg": 40
+     },
+     "grid2d": {
+      "x": 545,
+      "y": 190.5,
+      "size": 270.7,
+      "pitch": 38.67
+     },
+     "trayTopFrac": 0.051,
+     "centreErrPx": 0.001,
+     "widthErrPx": 0,
+     "gridInsideTrayMinPx": 6.7,
+     "cornerErrCells": 0.529,
+     "cellCentreErrCells": 0.42,
+     "decorVisibleOutsideTray": 32,
+     "topEdgeGroundZ": 5.8,
+     "lensClearM": 3
+    }
+   }
+  }
+ ],
+ "profile": [
+  {
+   "d": 0,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -5.556,
+    3.4,
+    -0.84
+   ],
+   "target": [
+    -2.016,
+    2.427,
+    6.268
+   ],
+   "fov": 48,
+   "root": [
+    -2.114,
+    0,
+    5.281
+   ]
+  },
+  {
+   "d": 0.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -5.345,
+    3.4,
+    -0.404
+   ],
+   "target": [
+    -1.909,
+    2.427,
+    6.755
+   ],
+   "fov": 48,
+   "root": [
+    -1.992,
+    0,
+    5.766
+   ]
+  },
+  {
+   "d": 1,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -5.148,
+    3.4,
+    0.04
+   ],
+   "target": [
+    -1.8,
+    2.427,
+    7.241
+   ],
+   "fov": 48,
+   "root": [
+    -1.871,
+    0,
+    6.252
+   ]
+  },
+  {
+   "d": 1.5,
+   "lens": 2.839,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -4.962,
+    3.4,
+    0.491
+   ],
+   "target": [
+    -1.689,
+    2.427,
+    7.726
+   ],
+   "fov": 48,
+   "root": [
+    -1.75,
+    0,
+    6.737
+   ]
+  },
+  {
+   "d": 2,
+   "lens": 2.438,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -4.784,
+    3.4,
+    0.948
+   ],
+   "target": [
+    -1.577,
+    2.427,
+    8.212
+   ],
+   "fov": 48,
+   "root": [
+    -1.628,
+    0,
+    7.222
+   ]
+  },
+  {
+   "d": 2.5,
+   "lens": 2.081,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.406,
+   "behind": 6.601,
+   "up": 3.406,
+   "cam": [
+    -4.62,
+    3.406,
+    1.408
+   ],
+   "target": [
+    -1.47,
+    2.433,
+    8.697
+   ],
+   "fov": 48,
+   "root": [
+    -1.507,
+    0,
+    7.707
+   ]
+  },
+  {
+   "d": 3,
+   "lens": 1.795,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.431,
+   "behind": 6.604,
+   "up": 3.432,
+   "cam": [
+    -4.481,
+    3.432,
+    1.872
+   ],
+   "target": [
+    -1.38,
+    2.459,
+    9.182
+   ],
+   "fov": 48,
+   "root": [
+    -1.386,
+    0,
+    8.192
+   ]
+  },
+  {
+   "d": 3.5,
+   "lens": 1.607,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.439,
+   "behind": 6.604,
+   "up": 3.441,
+   "cam": [
+    -4.378,
+    3.492,
+    2.338
+   ],
+   "target": [
+    -1.322,
+    2.519,
+    9.667
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.051,
+    8.676
+   ]
+  },
+  {
+   "d": 4,
+   "lens": 1.563,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.404,
+   "behind": 6.603,
+   "up": 3.409,
+   "cam": [
+    -4.309,
+    3.586,
+    2.804
+   ],
+   "target": [
+    -1.298,
+    2.613,
+    10.151
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.177,
+    9.16
+   ]
+  },
+  {
+   "d": 4.5,
+   "lens": 1.665,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.381,
+   "behind": 6.607,
+   "up": 3.4,
+   "cam": [
+    -4.256,
+    3.703,
+    3.267
+   ],
+   "target": [
+    -1.296,
+    2.73,
+    10.636
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.303,
+    9.644
+   ]
+  },
+  {
+   "d": 5,
+   "lens": 1.88,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.357,
+   "behind": 6.615,
+   "up": 3.399,
+   "cam": [
+    -4.205,
+    3.826,
+    3.729
+   ],
+   "target": [
+    -1.303,
+    2.853,
+    11.12
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.427,
+    10.128
+   ]
+  },
+  {
+   "d": 5.5,
+   "lens": 2.149,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.38,
+   "behind": 6.607,
+   "up": 3.398,
+   "cam": [
+    -4.147,
+    3.949,
+    4.188
+   ],
+   "target": [
+    -1.312,
+    2.976,
+    11.605
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.551,
+    10.613
+   ]
+  },
+  {
+   "d": 6,
+   "lens": 2.479,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.395,
+   "behind": 6.602,
+   "up": 3.398,
+   "cam": [
+    -4.081,
+    4.069,
+    4.644
+   ],
+   "target": [
+    -1.322,
+    3.096,
+    12.09
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.671,
+    11.098
+   ]
+  },
+  {
+   "d": 6.5,
+   "lens": 2.847,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.398,
+   "cam": [
+    -4.006,
+    4.187,
+    5.098
+   ],
+   "target": [
+    -1.334,
+    3.214,
+    12.576
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.79,
+    11.584
+   ]
+  },
+  {
+   "d": 7,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.397,
+   "cam": [
+    -3.925,
+    4.302,
+    5.552
+   ],
+   "target": [
+    -1.346,
+    3.329,
+    13.062
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.905,
+    12.071
+   ]
+  },
+  {
+   "d": 7.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.404,
+   "behind": 6.598,
+   "up": 3.397,
+   "cam": [
+    -3.848,
+    4.414,
+    6.009
+   ],
+   "target": [
+    -1.358,
+    3.441,
+    13.549
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.016,
+    12.558
+   ]
+  },
+  {
+   "d": 8,
+   "lens": 2.976,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.421,
+   "behind": 6.592,
+   "up": 3.396,
+   "cam": [
+    -3.783,
+    4.521,
+    6.473
+   ],
+   "target": [
+    -1.368,
+    3.548,
+    14.037
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.125,
+    13.046
+   ]
+  },
+  {
+   "d": 8.5,
+   "lens": 2.726,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.426,
+   "behind": 6.59,
+   "up": 3.397,
+   "cam": [
+    -3.74,
+    4.624,
+    6.946
+   ],
+   "target": [
+    -1.374,
+    3.651,
+    14.526
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.228,
+    13.535
+   ]
+  },
+  {
+   "d": 9,
+   "lens": 2.538,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.406,
+   "behind": 6.597,
+   "up": 3.397,
+   "cam": [
+    -3.72,
+    4.722,
+    7.428
+   ],
+   "target": [
+    -1.377,
+    3.749,
+    15.016
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.326,
+    14.026
+   ]
+  },
+  {
+   "d": 9.5,
+   "lens": 2.432,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    4.815,
+    7.918
+   ],
+   "target": [
+    -1.378,
+    3.842,
+    15.507
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.42,
+    14.517
+   ]
+  },
+  {
+   "d": 10,
+   "lens": 2.413,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.903,
+    8.41
+   ],
+   "target": [
+    -1.378,
+    3.93,
+    15.999
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.507,
+    15.009
+   ]
+  },
+  {
+   "d": 10.5,
+   "lens": 2.367,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.984,
+    8.903
+   ],
+   "target": [
+    -1.378,
+    4.011,
+    16.492
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.588,
+    15.502
+   ]
+  },
+  {
+   "d": 11,
+   "lens": 2.385,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.059,
+    9.397
+   ],
+   "target": [
+    -1.378,
+    4.086,
+    16.987
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.665,
+    15.996
+   ]
+  },
+  {
+   "d": 11.5,
+   "lens": 2.344,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.127,
+    9.893
+   ],
+   "target": [
+    -1.378,
+    4.154,
+    17.482
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.732,
+    16.492
+   ]
+  },
+  {
+   "d": 12,
+   "lens": 2.02,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.187,
+    10.389
+   ],
+   "target": [
+    -1.378,
+    4.214,
+    17.978
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.793,
+    16.988
+   ]
+  },
+  {
+   "d": 12.5,
+   "lens": 1.75,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.393,
+   "cam": [
+    -3.714,
+    5.241,
+    10.886
+   ],
+   "target": [
+    -1.378,
+    4.268,
+    18.475
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.848,
+    17.485
+   ]
+  },
+  {
+   "d": 13,
+   "lens": 1.548,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.286,
+    11.384
+   ],
+   "target": [
+    -1.378,
+    4.313,
+    18.973
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.892,
+    17.983
+   ]
+  },
+  {
+   "d": 13.5,
+   "lens": 1.408,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.324,
+    11.882
+   ],
+   "target": [
+    -1.378,
+    4.351,
+    19.472
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.93,
+    18.482
+   ]
+  },
+  {
+   "d": 14,
+   "lens": 1.377,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.392,
+   "cam": [
+    -3.714,
+    5.354,
+    12.381
+   ],
+   "target": [
+    -1.378,
+    4.381,
+    19.971
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.962,
+    18.981
+   ]
+  },
+  {
+   "d": 14.5,
+   "lens": 1.373,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.375,
+    12.88
+   ],
+   "target": [
+    -1.378,
+    4.402,
+    20.47
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.981,
+    19.48
+   ]
+  },
+  {
+   "d": 15,
+   "lens": 1.483,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.388,
+    13.38
+   ],
+   "target": [
+    -1.378,
+    4.415,
+    20.97
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.994,
+    19.98
+   ]
+  },
+  {
+   "d": 15.5,
+   "lens": 1.613,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.392,
+   "cam": [
+    -3.714,
+    5.392,
+    13.88
+   ],
+   "target": [
+    -1.378,
+    4.419,
+    21.469
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    2,
+    20.48
+   ]
+  },
+  {
+   "d": 16,
+   "lens": 1.822,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.388,
+    14.38
+   ],
+   "target": [
+    -1.378,
+    4.415,
+    21.969
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.994,
+    20.98
+   ]
+  },
+  {
+   "d": 16.5,
+   "lens": 2.091,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.375,
+    14.88
+   ],
+   "target": [
+    -1.378,
+    4.402,
+    22.469
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.981,
+    21.48
+   ]
+  },
+  {
+   "d": 17,
+   "lens": 2.416,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.392,
+   "cam": [
+    -3.714,
+    5.354,
+    15.379
+   ],
+   "target": [
+    -1.378,
+    4.381,
+    22.968
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.962,
+    21.979
+   ]
+  },
+  {
+   "d": 17.5,
+   "lens": 2.747,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.324,
+    15.878
+   ],
+   "target": [
+    -1.378,
+    4.351,
+    23.467
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.93,
+    22.478
+   ]
+  },
+  {
+   "d": 18,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.287,
+    16.376
+   ],
+   "target": [
+    -1.378,
+    4.314,
+    23.966
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.892,
+    22.977
+   ]
+  },
+  {
+   "d": 18.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.393,
+   "cam": [
+    -3.714,
+    5.241,
+    16.874
+   ],
+   "target": [
+    -1.378,
+    4.268,
+    24.464
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.848,
+    23.475
+   ]
+  },
+  {
+   "d": 19,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.188,
+    17.371
+   ],
+   "target": [
+    -1.378,
+    4.215,
+    24.961
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.793,
+    23.972
+   ]
+  },
+  {
+   "d": 19.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.127,
+    17.868
+   ],
+   "target": [
+    -1.378,
+    4.154,
+    25.457
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.732,
+    24.468
+   ]
+  },
+  {
+   "d": 20,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.059,
+    18.363
+   ],
+   "target": [
+    -1.378,
+    4.086,
+    25.952
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.665,
+    24.964
+   ]
+  },
+  {
+   "d": 20.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.984,
+    18.857
+   ],
+   "target": [
+    -1.378,
+    4.011,
+    26.447
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.589,
+    25.458
+   ]
+  },
+  {
+   "d": 21,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.903,
+    19.35
+   ],
+   "target": [
+    -1.378,
+    3.93,
+    26.94
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.507,
+    25.951
+   ]
+  },
+  {
+   "d": 21.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    4.816,
+    19.843
+   ],
+   "target": [
+    -1.378,
+    3.843,
+    27.432
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.421,
+    26.444
+   ]
+  },
+  {
+   "d": 22,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.397,
+   "cam": [
+    -3.714,
+    4.723,
+    20.334
+   ],
+   "target": [
+    -1.378,
+    3.75,
+    27.923
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.326,
+    26.935
+   ]
+  },
+  {
+   "d": 22.5,
+   "lens": 2.969,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.625,
+    20.824
+   ],
+   "target": [
+    -1.378,
+    3.652,
+    28.414
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.228,
+    27.425
+   ]
+  },
+  {
+   "d": 23,
+   "lens": 2.883,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.522,
+    21.313
+   ],
+   "target": [
+    -1.378,
+    3.549,
+    28.903
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.125,
+    27.914
+   ]
+  },
+  {
+   "d": 23.5,
+   "lens": 2.805,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.397,
+   "cam": [
+    -3.714,
+    4.414,
+    21.802
+   ],
+   "target": [
+    -1.378,
+    3.441,
+    29.391
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.017,
+    28.402
+   ]
+  },
+  {
+   "d": 24,
+   "lens": 2.728,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.397,
+   "cam": [
+    -3.714,
+    4.303,
+    22.289
+   ],
+   "target": [
+    -1.378,
+    3.33,
+    29.878
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.905,
+    28.89
+   ]
+  },
+  {
+   "d": 24.5,
+   "lens": 2.656,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.398,
+   "cam": [
+    -3.714,
+    4.188,
+    22.776
+   ],
+   "target": [
+    -1.378,
+    3.215,
+    30.365
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.79,
+    29.376
+   ]
+  },
+  {
+   "d": 25,
+   "lens": 2.589,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.398,
+   "cam": [
+    -3.713,
+    4.07,
+    23.262
+   ],
+   "target": [
+    -1.378,
+    3.097,
+    30.851
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.672,
+    29.862
+   ]
+  },
+  {
+   "d": 25.5,
+   "lens": 2.526,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -3.713,
+    3.951,
+    23.748
+   ],
+   "target": [
+    -1.378,
+    2.976,
+    31.337
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.551,
+    30.347
+   ]
+  },
+  {
+   "d": 26,
+   "lens": 2.471,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.398,
+   "behind": 6.597,
+   "up": 3.404,
+   "cam": [
+    -3.712,
+    3.832,
+    24.235
+   ],
+   "target": [
+    -1.378,
+    2.849,
+    31.823
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.428,
+    30.832
+   ]
+  },
+  {
+   "d": 26.5,
+   "lens": 2.421,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.395,
+   "behind": 6.592,
+   "up": 3.41,
+   "cam": [
+    -3.708,
+    3.714,
+    24.724
+   ],
+   "target": [
+    -1.377,
+    2.716,
+    32.311
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.304,
+    31.316
+   ]
+  },
+  {
+   "d": 27,
+   "lens": 2.374,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.389,
+   "behind": 6.586,
+   "up": 3.417,
+   "cam": [
+    -3.702,
+    3.595,
+    25.214
+   ],
+   "target": [
+    -1.377,
+    2.582,
+    32.801
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.178,
+    31.8
+   ]
+  },
+  {
+   "d": 27.5,
+   "lens": 2.334,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.38,
+   "behind": 6.58,
+   "up": 3.426,
+   "cam": [
+    -3.693,
+    3.477,
+    25.704
+   ],
+   "target": [
+    -1.376,
+    2.462,
+    33.293
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.052,
+    32.284
+   ]
+  },
+  {
+   "d": 28,
+   "lens": 2.297,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.367,
+   "behind": 6.585,
+   "up": 3.36,
+   "cam": [
+    -3.681,
+    3.36,
+    26.193
+   ],
+   "target": [
+    -1.377,
+    2.369,
+    33.789
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    32.777
+   ]
+  },
+  {
+   "d": 28.5,
+   "lens": 2.264,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.352,
+   "behind": 6.599,
+   "up": 3.245,
+   "cam": [
+    -3.665,
+    3.245,
+    26.678
+   ],
+   "target": [
+    -1.379,
+    2.301,
+    34.286
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    33.277
+   ]
+  },
+  {
+   "d": 29,
+   "lens": 2.234,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.333,
+   "behind": 6.619,
+   "up": 3.131,
+   "cam": [
+    -3.647,
+    3.131,
+    27.158
+   ],
+   "target": [
+    -1.383,
+    2.245,
+    34.78
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    33.777
+   ]
+  },
+  {
+   "d": 29.5,
+   "lens": 2.207,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.312,
+   "behind": 6.647,
+   "up": 3.02,
+   "cam": [
+    -3.626,
+    3.02,
+    27.63
+   ],
+   "target": [
+    -1.391,
+    2.19,
+    35.267
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    34.277
+   ]
+  },
+  {
+   "d": 30,
+   "lens": 2.185,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.288,
+   "behind": 6.685,
+   "up": 2.912,
+   "cam": [
+    -3.602,
+    2.912,
+    28.092
+   ],
+   "target": [
+    -1.402,
+    2.131,
+    35.744
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    34.777
+   ]
+  },
+  {
+   "d": 30.5,
+   "lens": 2.164,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.262,
+   "behind": 6.738,
+   "up": 2.808,
+   "cam": [
+    -3.575,
+    2.808,
+    28.539
+   ],
+   "target": [
+    -1.419,
+    2.067,
+    36.207
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    35.277
+   ]
+  },
+  {
+   "d": 31,
+   "lens": 2.146,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.234,
+   "behind": 6.807,
+   "up": 2.709,
+   "cam": [
+    -3.547,
+    2.709,
+    28.97
+   ],
+   "target": [
+    -1.44,
+    2.002,
+    36.655
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    35.777
+   ]
+  },
+  {
+   "d": 31.5,
+   "lens": 2.131,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.205,
+   "behind": 6.896,
+   "up": 2.614,
+   "cam": [
+    -3.518,
+    2.614,
+    29.382
+   ],
+   "target": [
+    -1.467,
+    1.936,
+    37.084
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    36.277
+   ]
+  },
+  {
+   "d": 32,
+   "lens": 2.117,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.175,
+   "behind": 7.007,
+   "up": 2.525,
+   "cam": [
+    -3.488,
+    2.525,
+    29.77
+   ],
+   "target": [
+    -1.499,
+    1.87,
+    37.491
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    36.777
+   ]
+  },
+  {
+   "d": 32.5,
+   "lens": 2.106,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.145,
+   "behind": 7.143,
+   "up": 2.442,
+   "cam": [
+    -3.458,
+    2.442,
+    30.134
+   ],
+   "target": [
+    -1.538,
+    1.808,
+    37.874
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    37.277
+   ]
+  },
+  {
+   "d": 33,
+   "lens": 2.096,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.116,
+   "behind": 7.307,
+   "up": 2.366,
+   "cam": [
+    -3.429,
+    2.366,
+    30.47
+   ],
+   "target": [
+    -1.582,
+    1.749,
+    38.229
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    37.777
+   ]
+  },
+  {
+   "d": 33.5,
+   "lens": 2.088,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.087,
+   "behind": 7.501,
+   "up": 2.297,
+   "cam": [
+    -3.401,
+    2.297,
+    30.776
+   ],
+   "target": [
+    -1.631,
+    1.695,
+    38.555
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    38.277
+   ]
+  },
+  {
+   "d": 34,
+   "lens": 2.082,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.061,
+   "behind": 7.726,
+   "up": 2.235,
+   "cam": [
+    -3.374,
+    2.235,
+    31.051
+   ],
+   "target": [
+    -1.683,
+    1.649,
+    38.848
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    38.777
+   ]
+  },
+  {
+   "d": 34.5,
+   "lens": 2.076,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.036,
+   "behind": 7.984,
+   "up": 2.181,
+   "cam": [
+    -3.35,
+    2.181,
+    31.293
+   ],
+   "target": [
+    -1.739,
+    1.61,
+    39.108
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    39.277
+   ]
+  },
+  {
+   "d": 35,
+   "lens": 2.072,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 2.014,
+   "behind": 8.276,
+   "up": 2.135,
+   "cam": [
+    -3.328,
+    2.135,
+    31.501
+   ],
+   "target": [
+    -1.796,
+    1.58,
+    39.334
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    39.777
+   ]
+  },
+  {
+   "d": 35.5,
+   "lens": 2.069,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 1.995,
+   "behind": 8.601,
+   "up": 2.096,
+   "cam": [
+    -3.308,
+    2.096,
+    31.676
+   ],
+   "target": [
+    -1.854,
+    1.559,
+    39.524
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    40.277
+   ]
+  },
+  {
+   "d": 36,
+   "lens": 2.066,
+   "lensObj": "bridge:RainbowBridgeStrip",
+   "side": 1.979,
+   "behind": 8.959,
+   "up": 2.065,
+   "cam": [
+    -3.292,
+    2.065,
+    31.818
+   ],
+   "target": [
+    -1.911,
+    1.547,
+    39.681
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    40.777
+   ]
+  },
+  {
+   "d": 36.5,
+   "lens": 2.044,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.966,
+   "behind": 9.349,
+   "up": 2.04,
+   "cam": [
+    -3.279,
+    2.04,
+    31.928
+   ],
+   "target": [
+    -1.968,
+    1.542,
+    39.804
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    41.277
+   ]
+  },
+  {
+   "d": 37,
+   "lens": 2.026,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.956,
+   "behind": 9.769,
+   "up": 2.023,
+   "cam": [
+    -3.27,
+    2.023,
+    32.008
+   ],
+   "target": [
+    -2.022,
+    1.546,
+    39.896
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    41.777
+   ]
+  },
+  {
+   "d": 37.5,
+   "lens": 2.013,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.949,
+   "behind": 10.215,
+   "up": 2.011,
+   "cam": [
+    -3.263,
+    2.011,
+    32.063
+   ],
+   "target": [
+    -2.075,
+    1.555,
+    39.961
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    42.277
+   ]
+  },
+  {
+   "d": 38,
+   "lens": 2.006,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.945,
+   "behind": 10.683,
+   "up": 2.004,
+   "cam": [
+    -3.259,
+    2.004,
+    32.094
+   ],
+   "target": [
+    -2.125,
+    1.569,
+    40.002
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    42.777
+   ]
+  },
+  {
+   "d": 38.5,
+   "lens": 2.003,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.944,
+   "behind": 11.168,
+   "up": 2.001,
+   "cam": [
+    -3.257,
+    2.001,
+    32.109
+   ],
+   "target": [
+    -2.172,
+    1.585,
+    40.024
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    43.277
+   ]
+  },
+  {
+   "d": 39,
+   "lens": 2.002,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.943,
+   "behind": 11.664,
+   "up": 2,
+   "cam": [
+    -3.257,
+    2,
+    32.113
+   ],
+   "target": [
+    -2.217,
+    1.602,
+    40.035
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    43.777
+   ]
+  },
+  {
+   "d": 39.2,
+   "lens": 2.002,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.943,
+   "behind": 11.864,
+   "up": 2,
+   "cam": [
+    -3.257,
+    2,
+    32.113
+   ],
+   "target": [
+    -2.234,
+    1.609,
+    40.038
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0,
+    43.977
+   ]
+  }
+ ]
+}

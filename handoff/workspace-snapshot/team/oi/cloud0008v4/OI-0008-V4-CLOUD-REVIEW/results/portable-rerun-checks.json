@@ -1,0 +1,18 @@
+[
+  {
+    "suite": "previous-21",
+    "rerunWithFinalPortableScripts": true,
+    "sameScenarioStatusExit": true,
+    "scenarios": 21,
+    "expectedRunnerExit": 0,
+    "allRerunManifestsOK": true
+  },
+  {
+    "suite": "new-boundaries",
+    "rerunWithFinalPortableScripts": true,
+    "sameScenarioStatusExit": true,
+    "scenarios": 12,
+    "expectedRunnerExit": 1,
+    "allRerunManifestsOK": true
+  }
+]

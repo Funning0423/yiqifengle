@@ -1,0 +1,7 @@
+246e5801aaea4be6d86c4f7d49f56b3acb430fe9a8048399ade6c9d8b265c428  ./0001-Glass-sign-v4-refined3.2-in-Cocos-world-space-capsul.patch
+8193d504985f649965b10b7582948c00ac23c230d44200a2a31a66f726838661  ./0002-Glass-sign-round-2-denser-base-tint-0.08-leaf-icon-a.patch
+253dab406cb7d4882f26de81f0b0eca9fe61862e4ff3eba3237214f1ebdca12d  ./sanity/after_0.46_dpr2_on_e2a03ec.png
+83a18a7902f67b0a01d195c3b5a587588cf8411b03056c90b36327707da87ecc  ./sanity/after_0.46_dpr2_sign_zoom4x.png
+335f0e0da1f38187ed73cdc9594768fb82cf40cf395adb36d2d54e08c72cc8d6  ./tests/suite_patch_on_e2a03ec.log
+335f0e0da1f38187ed73cdc9594768fb82cf40cf395adb36d2d54e08c72cc8d6  ./tests/suite_base_e2a03ec.log
+af12f49610af9746b26394a3e18745493b98b300f5bd4fd30180582204adbece  ./README.md

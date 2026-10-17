@@ -1,0 +1,6 @@
+$ git bundle verify /workspace/wechat-game/team/ggbot/outbox/20261017T041004Z-integration-build05-milestone-readme-v2.1/qfl-build05-09a1b8e-full.bundle   (run inside /workspace/wechat-game/yiqifengle, git 2.47.3)
+/workspace/wechat-game/team/ggbot/outbox/20261017T041004Z-integration-build05-milestone-readme-v2.1/qfl-build05-09a1b8e-full.bundle is okay
+The bundle contains this ref:
+09a1b8e456fd38dadf632f627189883808307cbe refs/heads/integration/build05-20261016T2048
+The bundle records a complete history.
+The bundle uses this hash algorithm: sha1

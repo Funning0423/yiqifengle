@@ -1,0 +1,10 @@
+PASS installs once, heartbeat logged with token, wraps error/warn/log/info
+PASS console.error/warn/log captured AND still forwarded
+PASS wx.onError / onUnhandledRejection captured
+PASS late ping returns token and logs late heartbeat
+PASS buffer capped at 500 and overflow counted (v3: dropped)
+PASS v3 boot canary: console.error "[QF-AUDIT-CANARY] <token>" recorded and forwarded
+PASS v3 ping also emits the late canary
+PASS v3 capability record: wx handlers registered, no install errors, stillWrapped tracks later console replacement
+
+8/8 passed

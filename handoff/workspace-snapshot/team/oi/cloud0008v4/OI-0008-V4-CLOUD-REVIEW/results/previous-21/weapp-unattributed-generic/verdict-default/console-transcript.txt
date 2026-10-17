@@ -1,0 +1,13 @@
+2026-10-10T01:33:11.424Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 7ca15c5be6309c56
+2026-10-10T01:33:11.424Z automator.error	[QF-AUDIT-CANARY-LATE] 7ca15c5be6309c56
+2026-10-10T01:33:10.922Z shim.errors	[QF-AUDIT-CANARY] 7ca15c5be6309c56
+2026-10-10T01:33:11.424Z shim.errors	[QF-AUDIT-CANARY-LATE] 7ca15c5be6309c56
+2026-10-10T01:33:10.922Z shim.logs	[QF-AUDIT-HEARTBEAT] 7ca15c5be6309c56
+2026-10-10T01:33:10.922Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:33:11.424Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 7ca15c5be6309c56
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unattributed-generic/copies/QFFirstOpen-20261010T013309794Z-24a0-2ac5c5-default [log] [QF-AUDIT-HEARTBEAT] 7ca15c5be6309c56
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unattributed-generic/copies/QFFirstOpen-20261010T013309794Z-24a0-2ac5c5-default [error] [QF-AUDIT-CANARY] 7ca15c5be6309c56
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unattributed-generic/copies/QFFirstOpen-20261010T013309794Z-24a0-2ac5c5-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(unattributed)	OTHER-PROJECT [console.error] Error: unattributed ordinary failure
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unattributed-generic/copies/QFFirstOpen-20261010T013309794Z-24a0-2ac5c5-default [log] [QF-AUDIT-HEARTBEAT-LATE] 7ca15c5be6309c56
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-unattributed-generic/copies/QFFirstOpen-20261010T013309794Z-24a0-2ac5c5-default [error] [QF-AUDIT-CANARY-LATE] 7ca15c5be6309c56

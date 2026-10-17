@@ -1,0 +1,149 @@
+From 0af613176120cc660b8775bad17f9c0c22bb6d6c Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 14:58:28 +0800
+Subject: [PATCH 06/20] lakeside v3.3 prewarm: warm
+ bundle/transforms/prefabs/water material when the lake chapter opens
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Opening the 风铃湖畔 chapter card (only when its gate is open) starts
+prewarmLakesideAssets(): bundle, transforms JSON, every prefab and the
+water material are loaded and addRef'd, so the first entry does no
+network/decode/upload work. The lease drops the prewarm refs after taking
+its own; unused prewarm is released after 120 s. Failures only log.
+Shader variants are not precompiled: lake entry flips the fog macro
+(island fog off -> lake LAYERED), so a pre-entry compile would hit the
+wrong variant.
+
+Test: tools/lakeside/test_lakeside_prewarm.cjs (suite: lakeside-prewarm).
+(cherry picked from commit 888daeb803e09d59528c84207b6957c14f8d3535)
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    |  4 ++--
+ .../scripts/region/LakesideBoardBackground.ts | 20 +++++++++++++++++++
+ .../scripts/world-r2/IslandJourneyOverlay.ts  |  4 +++-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_prewarm.cjs      | 17 ++++++++++++++++
+ 5 files changed, 43 insertions(+), 3 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_prewarm.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 989a1d5..0926650 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -5,7 +5,7 @@ import {setScreenCover} from './world-r1/ScreenCover';
+ import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
+ import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
+ import {IslandToast,LAKESIDE_NOT_READY_TEXT} from './ui/IslandToast';
+-import {LAKESIDE_LOAD_FAILED} from './region/LakesideBoardBackground';
++import {LAKESIDE_LOAD_FAILED,prewarmLakesideAssets} from './region/LakesideBoardBackground';
+ import {CabinHint} from './world-r2/CabinHint';
+ import {cabinHintSeen,markCabinHintSeen} from './ui/UiPrefs';
+ import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
+@@ -510,7 +510,7 @@ export class WorldIntegrationBoot extends Component {
+  this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('lake','风铃湖畔',()=>this.composition.enterRegion('lake'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandToast=new IslandToast(this.canvas);
+- this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
++ this.islandJourney=new IslandJourneyOverlay(this.canvas,{prewarm:id=>{if(id==='lake')void prewarmLakesideAssets();},invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},()=>this.glassSign);this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
+  if(DEBUG){
+  this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 5b21431..5f9ef07 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -24,6 +24,25 @@ function loadMaterial(b:AssetManager.Bundle,path:string){return new Promise<Mate
+ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
+ /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
+  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
++/** v3.3 prewarm: when the 风铃湖畔 chapter page opens (gate open), load the bundle, transforms, the 48 model prefabs (mesh decode + GPU
++ *  upload happen in Mesh.onLoaded) and the water material, so the entry frame no longer pays for them. Refs are held until the lease
++ *  takes its own (or 120 s pass), then dropped; the asset manager shares in-flight requests, so an early tap costs nothing extra.
++ *  Shader variants are NOT compiled here: they depend on the scene fog macro (island fog off -> lake layered), which only exists
++ *  while the lake shows. Never throws; failures only log. */
++let prewarm:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}|null=null;
++export function prewarmLakesideAssets():Promise<void>{
++ if(prewarm)return prewarm.promise;
++ const st:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}={promise:Promise.resolve(),held:[],timer:null};prewarm=st;
++ const keep=<T extends {addRef():unknown;decRef(auto?:boolean):unknown}>(a:T|null)=>{if(a&&prewarm===st){a.addRef();st.held.push(a);}return a;};
++ st.promise=(async()=>{try{const t0=Date.now(),b=await loadBundle(LAKESIDE_BUNDLE);keep(await loadJson(b,LAKESIDE_TRANSFORMS));
++   for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
++   try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm',ms:Date.now()-t0,assets:st.held.length}));}catch{}
++  }catch(error){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm-failed',error:String((error as any)?.message??error)}));}catch{}}
++  if(prewarm===st)st.timer=setTimeout(releaseLakesidePrewarm,120000);})();
++ return st.promise;
++}
++/** Drops the prewarm refs (the lease holds its own by then). Assets nobody else holds are released by the asset manager. */
++export function releaseLakesidePrewarm(){const st=prewarm;prewarm=null;if(!st)return;if(st.timer)clearTimeout(st.timer);for(const a of st.held.splice(0)){try{a.decRef();}catch{}}}
+ /** v3.3: the one reason a failed lakeside load surfaces with (player copy is chosen by the HUD; details only in the [QF_LAKESIDE] log). */
+ export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
+ /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
+@@ -93,6 +112,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
+   const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
+   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
++  releaseLakesidePrewarm();
+   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=LAKESIDE_LIGHT_MODE==='dir'?(()=>{const c=linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);return new Color(c[0],c[1],c[2],255);})():new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
+   return {
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts b/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
+index afc9d52..87a4734 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
+@@ -10,7 +10,7 @@ import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
+ import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type PropButtonSlot } from './IslandPropsLayout';
+ const TAP_TARGET:Record<string,PropTapTarget>={bag:'bag',journal:'book',settings:'settings'};
+ 
+-type Options={invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
++type Options={prewarm?:(region:string)=>void;invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
+ type Page='bag'|'journal'|'settings'|'rest'|'tide'|'meadow'|'sky'|'lake';
+ export { CHAPTERS };
+ /** Island presentation only. Closed: three compact utilities (bag / journey book / full settings). Regions are chapters
+@@ -89,6 +89,8 @@ export class IslandJourneyOverlay {
+  }
+  private chapter(region:string){
+   const serial=this.serial,live=()=>!this.dead&&this.enabled&&serial===this.serial&&!!this.page;
++  // v3.3: an open chapter is the earliest moment the region is likely next; let the host warm its assets (never throws).
++  if(this.gate(region)?.ok){try{this.options.prewarm?.(region);}catch{}}
+   openChapter(this.popups,region,{gate:()=>this.gate(region),r4Open:()=>!!this.safeRead(this.options.gates)?.r4?.some((x:any)=>x.unlocked),
+    enter:()=>{if(live())this.dispatch(()=>this.options.enterRegion(region));},skycity:()=>{if(live())this.dispatch(this.options.enterSkycity);},
+    legacyTide:()=>{if(live())this.dispatch(this.options.enterR4);},back:()=>{}}).options.onClose=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index c203ce3..886ee8e 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -62,6 +62,7 @@ const tests=[
+  ['lakeside-meshopt','tools/lakeside/test_lakeside_meshopt.cjs'],
+  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
+  ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
++ ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_prewarm.cjs b/tools/lakeside/test_lakeside_prewarm.cjs
+new file mode 100644
+index 0000000..9511b04
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_prewarm.cjs
+@@ -0,0 +1,17 @@
++// v3.3 first-entry hitch (Mac v3.2: 1683 ms frame on the first lake entry): lakeside assets are warmed when the 风铃湖畔 chapter opens.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts'),rd=f=>fs.readFileSync(path.join(S,f),'utf8');
++const bg=rd('region/LakesideBoardBackground.ts'),ov=rd('world-r2/IslandJourneyOverlay.ts'),boot=rd('WorldIntegrationBoot.ts');
++assert(/export function prewarmLakesideAssets\(\):Promise<void>\{\n if\(prewarm\)return prewarm\.promise;/.test(bg),'one prewarm at a time');
++for(const re of [/keep\(await loadJson\(b,LAKESIDE_TRANSFORMS\)\)/,/for\(const p of await loadPrefabs\(b\)\)keep\(p\)/,/keep\(await loadMaterial\(b,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)\)/])assert(re.test(bg),String(re));
++assert(/if\(a&&prewarm===st\)\{a\.addRef\(\);st\.held\.push\(a\);\}/.test(bg),'no refs kept after release');
++assert(/st\.timer=setTimeout\(releaseLakesidePrewarm,120000\)/.test(bg),'released if never used');
++assert(/releaseLakesidePrewarm\(\);\n  camera\.priority=44;/.test(bg),'lease drops prewarm refs after taking its own');
++assert(/catch\(error\)\{try\{console\.warn\('\[QF_LAKESIDE\] '\+JSON\.stringify\(\{event:'prewarm-failed'/.test(bg),'never throws');
++assert(/if\(this\.gate\(region\)\?\.ok\)\{try\{this\.options\.prewarm\?\.\(region\);\}catch\{\}\}/.test(ov),'only for an open chapter');
++assert(/prewarm:id=>\{if\(id==='lake'\)void prewarmLakesideAssets\(\);\}/.test(boot));
++// behaviour of release on stand-ins
++const body=bg.match(/export function releaseLakesidePrewarm\(\)\{([^\n]*)\}\n/)[1];
++let n=0;const st={held:[{decRef(){n++;}},{decRef(){n++;}}],timer:null};
++new Function('ctx','let prewarm=ctx;'+body)(st);assert.equal(n,2);
++console.log('lakeside prewarm OK');
+-- 
+2.47.3
+

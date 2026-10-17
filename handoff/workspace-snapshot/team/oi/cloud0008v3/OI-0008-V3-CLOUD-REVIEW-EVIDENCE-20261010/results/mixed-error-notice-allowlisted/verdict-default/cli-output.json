@@ -1,0 +1,38 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/mixed-error-notice-allowlisted/copies/QFFirstOpen-20261010T000655526Z-3b0a-b8cfe9-default",
+      "--auto-port",
+      "42020"
+    ],
+    "pid": 905,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 59,
+    "lines": []
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/mixed-error-notice-allowlisted/copies/QFFirstOpen-20261010T000655526Z-3b0a-b8cfe9-default"
+    ],
+    "pid": 916,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 56,
+    "lines": []
+  }
+}

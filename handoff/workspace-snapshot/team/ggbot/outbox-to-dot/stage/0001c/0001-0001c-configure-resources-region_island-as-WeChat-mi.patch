@@ -1,0 +1,97 @@
+From 6ad9166ae9f7195390aae44880b9ad3dc5fbd31e Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 9 Oct 2026 15:37:57 -0500
+Subject: [PATCH] 0001c: configure resources + region_island as WeChat
+ mini-game subpackages (GGbot)
+
+---
+ assets/bundles/region_island.meta | 10 ++++++++--
+ assets/resources.meta             | 10 ++++++++--
+ settings/v2/packages/builder.json | 33 ++++++++++++++++++++++++++++++-
+ 3 files changed, 48 insertions(+), 5 deletions(-)
+
+diff --git a/assets/bundles/region_island.meta b/assets/bundles/region_island.meta
+index 78d41dc..cfbcb9e 100644
+--- a/assets/bundles/region_island.meta
++++ b/assets/bundles/region_island.meta
+@@ -7,8 +7,14 @@
+   "subMetas": {},
+   "userData": {
+     "isBundle": true,
+-    "bundleConfigID": "default",
++    "bundleConfigID": "wx_subpackage",
+     "bundleName": "region_island",
+-    "priority": 1
++    "priority": 1,
++    "compressionType": {
++      "wechatgame": "subpackage"
++    },
++    "isRemoteBundle": {
++      "wechatgame": false
++    }
+   }
+ }
+diff --git a/assets/resources.meta b/assets/resources.meta
+index 972580f..3e2b142 100644
+--- a/assets/resources.meta
++++ b/assets/resources.meta
+@@ -7,8 +7,14 @@
+   "subMetas": {},
+   "userData": {
+     "isBundle": true,
+-    "bundleConfigID": "default",
++    "bundleConfigID": "wx_subpackage",
+     "bundleName": "resources",
+-    "priority": 8
++    "priority": 8,
++    "compressionType": {
++      "wechatgame": "subpackage"
++    },
++    "isRemoteBundle": {
++      "wechatgame": false
++    }
+   }
+ }
+diff --git a/settings/v2/packages/builder.json b/settings/v2/packages/builder.json
+index 7526e40..ef173f1 100644
+--- a/settings/v2/packages/builder.json
++++ b/settings/v2/packages/builder.json
+@@ -1,3 +1,34 @@
+ {
+-  "__version__": "1.3.9"
++  "__version__": "1.3.9",
++  "bundleConfig": {
++    "custom": {
++      "wx_subpackage": {
++        "displayName": "wx_subpackage",
++        "configs": {
++          "miniGame": {
++            "preferredOptions": {
++              "isRemote": false,
++              "compressionType": "subpackage"
++            },
++            "fallbackOptions": {
++              "compressionType": "merge_dep",
++              "isRemote": false
++            }
++          },
++          "native": {
++            "preferredOptions": {
++              "isRemote": false,
++              "compressionType": "merge_dep"
++            }
++          },
++          "web": {
++            "preferredOptions": {
++              "isRemote": false,
++              "compressionType": "merge_dep"
++            }
++          }
++        }
++      }
++    }
++  }
+ }
+-- 
+2.47.3
+

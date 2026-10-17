@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "source": "/workspace/wechat-game/yiqifengle-rs688",
+  "sourceSha256": {
+    "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts": "a038953ae1597a57594a36906bf36d8b166b8a9d69f7ffa050b485f7ec70f0b7",
+    "creator-build-project/assets/scripts/ui/PopupKit.ts": "773ac3695876be1cc88a3ebe64feaad14bac30c40c2c44b08119d630bd10bd7d",
+    "creator-build-project/assets/scripts/ui/BoardPanels.ts": "74fb1fbf05a2215763394ce4ae4d71b5fac5f31e479d20f62c4612836e794283"
+  },
+  "testSha256": "807c823a109d28928aa3073d43be5a8077733b4d548bae9d747e8586507485aa",
+  "scope": "Actual TS/Cocos node doubles; logical UI geometry, host clamp, CSS/wx insets and input lifecycle. Not engine rendering, actual device projection or native storage.",
+  "supportedContract": "Safe rectangle, after capsule top-band reservation, at least 216 × 196 logical units; only sampled rows certified.",
+  "samples": 10191,
+  "supportedSamples": 10186,
+  "supportedFailures": 0,
+  "unsupportedSamples": 5,
+  "unsupportedFailures": 5,
+  "checks": 7645,
+  "failedChecks": [],
+  "firstFailures": []
+}

@@ -1,0 +1,10 @@
+PASS asset deadline fails honestly; only completed asset promises succeed
+PASS real preparation validates route and never moves actor
+PASS mid-bridge pause preserves exact position camera and travelled distance
+PASS resume walks remaining path continuously and lands in meadow
+PASS double-load rejected and cancelled late completion disposed without visibility
+PASS load failure retries actual preparation and only one traversal
+PASS double walk rejected and all scene resources disposed exactly once
+[enter-level] cover fixed false
+[enter-level] cover fixed false
+PASS WorldFlow retained saved result preload, explicit resume and meadow level origin

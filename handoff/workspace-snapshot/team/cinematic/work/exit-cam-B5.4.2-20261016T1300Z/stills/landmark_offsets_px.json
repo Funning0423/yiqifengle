@@ -1,0 +1,77 @@
+{
+ "scale": "both images at 471x1024 px (0.46 portrait; screenshot 1206x2622 downscaled x0.3905). Offsets in these px; x2.56 for screenshot-native px",
+ "method": "normalised cross-correlation of edge magnitude, search +/-40 px",
+ "landmarks": {
+  "lighthouseTop (finial+lantern roof)": {
+   "renderBox": [
+    150,
+    270,
+    225,
+    335
+   ],
+   "offsetPx_screenshot_minus_render": [
+    0,
+    0
+   ],
+   "ncc": 0.806
+  },
+  "cottageRoof": {
+   "renderBox": [
+    235,
+    385,
+    330,
+    445
+   ],
+   "offsetPx_screenshot_minus_render": [
+    0,
+    0
+   ],
+   "ncc": 0.578
+  },
+  "lighthouseDoorArch": {
+   "renderBox": [
+    170,
+    425,
+    235,
+    470
+   ],
+   "offsetPx_screenshot_minus_render": [
+    0,
+    0
+   ],
+   "ncc": 0.567
+  },
+  "horizonY": {
+   "render": 179.5,
+   "screenshot": 178.5,
+   "offsetPx_screenshot_minus_render": -1.0
+  }
+ },
+ "islandBBox": {
+  "render": {
+   "top": 298,
+   "bottom": 639,
+   "left": 7,
+   "right": 467,
+   "centerX": 234.7,
+   "centerY": 509.4
+  },
+  "screenshot": {
+   "top": 298,
+   "bottom": 639,
+   "left": 7,
+   "right": 466,
+   "centerX": 233.6,
+   "centerY": 507.9
+  },
+  "note": "non-water mask, rows 240-640 (UI sign below); rough: preview sea colour differs",
+  "offset_screenshot_minus_render": {
+   "top": 0,
+   "bottom": 0,
+   "left": 0,
+   "right": -1,
+   "centerX": -1.1,
+   "centerY": -1.5
+  }
+ }
+}

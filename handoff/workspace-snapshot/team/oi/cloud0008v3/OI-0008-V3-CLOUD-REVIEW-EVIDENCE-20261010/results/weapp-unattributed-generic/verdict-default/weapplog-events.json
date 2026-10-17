@@ -1,0 +1,21 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/weapp-unattributed-generic/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1192,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T00:06:39.511Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T00:06:40.517Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/weapp-unattributed-generic/logs/WeappLog/review.log",
+      "size": 745
+    }
+  ]
+}

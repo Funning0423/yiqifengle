@@ -1,0 +1,18 @@
+{
+  "scope": "Cloud-only fake CLI intentionally remains alive 21 seconds after printing a target error, VM client; no real DevTools.",
+  "status": "PASS",
+  "exit": 0,
+  "targetCli": {
+    "label": "auto",
+    "note": "cli still running after connect; output so far not final"
+  },
+  "targetErrors": [],
+  "manifestMismatches": [
+    {
+      "file": "run.log",
+      "expected": "b421f282ecfc643c67b98362dcf41a80b449ec226563f6e1d8393643215b48e5",
+      "actual": "110fe4ee85f67d8a0efb8e891a99cb2a68c52c7d6f58dade624738bea08957b6"
+    }
+  ],
+  "runLog": "2026-10-09T23:12:02.802Z +0.0s config {\"cli\":\"/workspace/shared/game-audit-0008-0005b/evidence/0008-review/review-fake-cli.cjs\",\"buildDir\":\"/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/build\",\"workRoot\":\"/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies\",\"target\":\"B\",\"control\":\"A\",\"mode\":\"auto\",\"autoPort\":41100,\"settleMs\":0,\"injectShim\":true,\"quitFirst\":false,\"logDir\":\"/workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/logs\",\"automatorModule\":\"/workspace/shared/game-audit-0008-0005b/evidence/0008-review/review-fake-automator.cjs\"}\n2026-10-09T23:12:02.910Z +0.1s cli islogin exit=0 (106ms)\n2026-10-09T23:12:02.912Z +0.1s [target:B] copy build → /workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-a723a8-B\n2026-10-09T23:12:02.914Z +0.1s [target:B] [first-open-condition] B project.config.json: changed\n2026-10-09T23:12:02.915Z +0.1s [target:B] audit shim injected into COPY game.js (token b6c3ffab2f0c3b90)\n2026-10-09T23:12:02.916Z +0.1s [target:B] cli auto --project /workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-a723a8-B --auto-port 41100\n2026-10-09T23:12:18.929Z +16.1s [target:B] automator connected\n2026-10-09T23:12:19.430Z +16.6s [target:B] settle 0ms (no Compile, no input)\n2026-10-09T23:12:19.538Z +16.7s cli close exit=0 (105ms)\n2026-10-09T23:12:19.539Z +16.7s [target:B] PASS: 0 errors in automator console/exception, shim buffer, WeappLog delta and CLI output\n2026-10-09T23:12:19.540Z +16.7s [control:A] copy build → /workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-4e7ce4-A\n2026-10-09T23:12:19.540Z +16.7s [control:A] [first-open-condition] variant A: no change to /workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-4e7ce4-A/project.config.json\n2026-10-09T23:12:19.540Z +16.7s [control:A] audit shim injected into COPY game.js (token b434181d9e0bdc30)\n2026-10-09T23:12:19.541Z +16.7s [control:A] cli auto --project /workspace/shared/game-audit-0008-0005b/evidence/0008-review/lingering-fixture-Pls4ld/copies/QFFirstOpen-20261009T231202Z-4e7ce4-A --auto-port 41101\n2026-10-09T23:12:19.643Z +16.8s cli auto exit=0 (102ms)\n2026-10-09T23:12:20.545Z +17.7s [control:A] automator connected\n2026-10-09T23:12:21.046Z +18.2s [control:A] settle 0ms (no Compile, no input)\n2026-10-09T23:12:21.154Z +18.4s cli close exit=0 (106ms)\n2026-10-09T23:12:21.155Z +18.4s [control:A] FAIL: 1 error(s): weapplog\n2026-10-09T23:12:21.155Z +18.4s VERDICT PASS: target B: 0 console errors on first open without manual Compile; positive control A error detected (weapplog)\n2026-10-09T23:12:24.033Z +21.2s cli auto exit=0 (21117ms)\n"
+}

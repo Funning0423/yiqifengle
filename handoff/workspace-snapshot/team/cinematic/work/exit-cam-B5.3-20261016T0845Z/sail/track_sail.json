@@ -1,0 +1,2329 @@
+{
+"source": "d317b2f SailboatTransitionDriver/Model + resources/cine/transition_island_to_meadow.timing.json",
+"frames": [
+{
+"frame": 0,
+"t": 0.0,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 1,
+"t": 0.03333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 2,
+"t": 0.06666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 3,
+"t": 0.1,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 4,
+"t": 0.13333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 5,
+"t": 0.16666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 6,
+"t": 0.2,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 7,
+"t": 0.23333333333333334,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 8,
+"t": 0.26666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 9,
+"t": 0.3,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 10,
+"t": 0.3333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 11,
+"t": 0.36666666666666664,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 12,
+"t": 0.4,
+"scene": "island",
+"phase": "outbound",
+"departure": 0,
+"position": [
+-15.5,
+9.0,
+14.0
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 60.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": true
+},
+{
+"frame": 13,
+"t": 0.43333333333333335,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.027777777777777776,
+"position": [
+-15.651233807559422,
+9.072816277713795,
+14.145632555427591
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 59.583333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 14,
+"t": 0.4666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.05555555555555555,
+"position": [
+-15.802467615118841,
+9.145632555427591,
+14.29126511085518
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 59.166666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 15,
+"t": 0.5,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.08333333333333333,
+"position": [
+-15.953701422678263,
+9.218448833141386,
+14.436897666282771
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 58.75,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 16,
+"t": 0.5333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.1111111111111111,
+"position": [
+-16.104935230237682,
+9.29126511085518,
+14.582530221710362
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 58.333333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 17,
+"t": 0.5666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.1388888888888889,
+"position": [
+-16.256169037797104,
+9.364081388568977,
+14.728162777137953
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 57.916666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 18,
+"t": 0.6,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.16666666666666666,
+"position": [
+-16.407402845356525,
+9.436897666282771,
+14.873795332565543
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 57.5,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 19,
+"t": 0.6333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.19444444444444445,
+"position": [
+-16.558636652915947,
+9.509713943996566,
+15.019427887993134
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 57.083333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 20,
+"t": 0.6666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.2222222222222222,
+"position": [
+-16.70987046047537,
+9.582530221710362,
+15.165060443420725
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 56.666666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 21,
+"t": 0.7,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.25,
+"position": [
+-16.861104268034786,
+9.655346499424157,
+15.310692998848314
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 56.25,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 22,
+"t": 0.7333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.2777777777777778,
+"position": [
+-17.012338075594208,
+9.728162777137953,
+15.456325554275905
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 55.833333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 23,
+"t": 0.7666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.3055555555555556,
+"position": [
+-17.16357188315363,
+9.800979054851748,
+15.601958109703496
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 55.416666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 24,
+"t": 0.8,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.3333333333333333,
+"position": [
+-17.31480569071305,
+9.873795332565543,
+15.747590665131085
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 55.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 25,
+"t": 0.8333333333333334,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.3611111111111111,
+"position": [
+-17.466039498272472,
+9.946611610279337,
+15.893223220558676
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 54.583333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 26,
+"t": 0.8666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.3888888888888889,
+"position": [
+-17.617273305831894,
+10.019427887993134,
+16.038855775986267
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 54.166666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 27,
+"t": 0.9,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.4166666666666667,
+"position": [
+-17.768507113391312,
+10.092244165706928,
+16.184488331413856
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 53.75,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 28,
+"t": 0.9333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.4444444444444444,
+"position": [
+-17.919740920950733,
+10.165060443420725,
+16.33012088684145
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 53.333333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 29,
+"t": 0.9666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.4722222222222222,
+"position": [
+-18.070974728510155,
+10.23787672113452,
+16.47575344226904
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 52.916666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 30,
+"t": 1.0,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.5,
+"position": [
+-18.222208536069576,
+10.310692998848314,
+16.621385997696628
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 52.5,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 31,
+"t": 1.0333333333333334,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.5277777777777778,
+"position": [
+-18.373442343628998,
+10.38350927656211,
+16.76701855312422
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 52.083333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 32,
+"t": 1.0666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.5555555555555556,
+"position": [
+-18.524676151188416,
+10.456325554275905,
+16.91265110855181
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 51.666666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 33,
+"t": 1.1,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.5833333333333334,
+"position": [
+-18.675909958747837,
+10.5291418319897,
+17.0582836639794
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 51.25,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 34,
+"t": 1.1333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.6111111111111112,
+"position": [
+-18.82714376630726,
+10.601958109703496,
+17.20391621940699
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 50.83333333333333,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 35,
+"t": 1.1666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.6388888888888888,
+"position": [
+-18.97837757386668,
+10.67477438741729,
+17.34954877483458
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 50.41666666666667,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 36,
+"t": 1.2,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.6666666666666666,
+"position": [
+-19.129611381426102,
+10.747590665131085,
+17.49518133026217
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 50.0,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 37,
+"t": 1.2333333333333334,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.6944444444444444,
+"position": [
+-19.28084518898552,
+10.82040694284488,
+17.64081388568976
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 49.583333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 38,
+"t": 1.2666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.7222222222222222,
+"position": [
+-19.43207899654494,
+10.893223220558676,
+17.786446441117352
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 49.166666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 39,
+"t": 1.3,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.75,
+"position": [
+-19.583312804104363,
+10.96603949827247,
+17.93207899654494
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 48.75,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 40,
+"t": 1.3333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.7777777777777778,
+"position": [
+-19.734546611663784,
+11.038855775986267,
+18.077711551972534
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 48.333333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 41,
+"t": 1.3666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.8055555555555556,
+"position": [
+-19.885780419223206,
+11.111672053700062,
+18.223344107400123
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 47.916666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 42,
+"t": 1.4,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.8333333333333334,
+"position": [
+-20.037014226782627,
+11.184488331413856,
+18.368976662827713
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 47.5,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 43,
+"t": 1.4333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.8611111111111112,
+"position": [
+-20.188248034342045,
+11.257304609127653,
+18.514609218255305
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 47.08333333333333,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 44,
+"t": 1.4666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.8888888888888888,
+"position": [
+-20.339481841901467,
+11.330120886841447,
+18.660241773682895
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 46.66666666666667,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 45,
+"t": 1.5,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.9166666666666666,
+"position": [
+-20.49071564946089,
+11.402937164555244,
+18.805874329110488
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 46.25,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 46,
+"t": 1.5333333333333334,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.9444444444444444,
+"position": [
+-20.64194945702031,
+11.475753442269038,
+18.951506884538077
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45.833333333333336,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 47,
+"t": 1.5666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 0.9722222222222222,
+"position": [
+-20.79318326457973,
+11.548569719982833,
+19.097139439965666
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45.416666666666664,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 48,
+"t": 1.6,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 49,
+"t": 1.6333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 50,
+"t": 1.6666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 51,
+"t": 1.7,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 52,
+"t": 1.7333333333333334,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 53,
+"t": 1.7666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 54,
+"t": 1.8,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 55,
+"t": 1.8333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 56,
+"t": 1.8666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 57,
+"t": 1.9,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 58,
+"t": 1.9333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 59,
+"t": 1.9666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 60,
+"t": 2.0,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 61,
+"t": 2.033333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 62,
+"t": 2.066666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 63,
+"t": 2.1,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 64,
+"t": 2.1333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 65,
+"t": 2.1666666666666665,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 66,
+"t": 2.2,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 67,
+"t": 2.2333333333333334,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 68,
+"t": 2.2666666666666666,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 69,
+"t": 2.3,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 70,
+"t": 2.3333333333333335,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 71,
+"t": 2.3666666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 72,
+"t": 2.4,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 73,
+"t": 2.433333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 74,
+"t": 2.466666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 75,
+"t": 2.5,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 76,
+"t": 2.533333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 77,
+"t": 2.566666666666667,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 78,
+"t": 2.6,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 79,
+"t": 2.6333333333333333,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 80,
+"t": 2.6666666666666665,
+"scene": "island",
+"phase": "outbound",
+"departure": 1,
+"position": [
+-20.944417072139153,
+11.621385997696628,
+19.242771995393255
+],
+"target": [
+-2.0,
+2.5,
+1.0
+],
+"fovVerticalDeg": 45,
+"root": [
+-2.1135,
+0,
+5.2814
+],
+"actorVisible": false
+},
+{
+"frame": 81,
+"t": 2.7,
+"scene": "meadow"
+},
+{
+"frame": 82,
+"t": 2.7333333333333334,
+"scene": "meadow"
+},
+{
+"frame": 83,
+"t": 2.7666666666666666,
+"scene": "meadow"
+},
+{
+"frame": 84,
+"t": 2.8,
+"scene": "meadow"
+},
+{
+"frame": 85,
+"t": 2.8333333333333335,
+"scene": "meadow"
+},
+{
+"frame": 86,
+"t": 2.8666666666666667,
+"scene": "meadow"
+},
+{
+"frame": 87,
+"t": 2.9,
+"scene": "meadow"
+},
+{
+"frame": 88,
+"t": 2.933333333333333,
+"scene": "meadow"
+},
+{
+"frame": 89,
+"t": 2.966666666666667,
+"scene": "meadow"
+},
+{
+"frame": 90,
+"t": 3.0,
+"scene": "meadow"
+},
+{
+"frame": 91,
+"t": 3.033333333333333,
+"scene": "meadow"
+},
+{
+"frame": 92,
+"t": 3.066666666666667,
+"scene": "meadow"
+},
+{
+"frame": 93,
+"t": 3.1,
+"scene": "meadow"
+},
+{
+"frame": 94,
+"t": 3.1333333333333333,
+"scene": "meadow"
+},
+{
+"frame": 95,
+"t": 3.1666666666666665,
+"scene": "meadow"
+},
+{
+"frame": 96,
+"t": 3.2,
+"scene": "meadow"
+},
+{
+"frame": 97,
+"t": 3.2333333333333334,
+"scene": "meadow"
+},
+{
+"frame": 98,
+"t": 3.2666666666666666,
+"scene": "meadow"
+},
+{
+"frame": 99,
+"t": 3.3,
+"scene": "meadow"
+},
+{
+"frame": 100,
+"t": 3.3333333333333335,
+"scene": "meadow"
+},
+{
+"frame": 101,
+"t": 3.3666666666666667,
+"scene": "meadow"
+},
+{
+"frame": 102,
+"t": 3.4,
+"scene": "meadow"
+},
+{
+"frame": 103,
+"t": 3.433333333333333,
+"scene": "meadow"
+},
+{
+"frame": 104,
+"t": 3.466666666666667,
+"scene": "meadow"
+},
+{
+"frame": 105,
+"t": 3.5,
+"scene": "meadow"
+},
+{
+"frame": 106,
+"t": 3.533333333333333,
+"scene": "meadow"
+},
+{
+"frame": 107,
+"t": 3.566666666666667,
+"scene": "meadow"
+},
+{
+"frame": 108,
+"t": 3.6,
+"scene": "meadow"
+},
+{
+"frame": 109,
+"t": 3.6333333333333333,
+"scene": "meadow"
+},
+{
+"frame": 110,
+"t": 3.6666666666666665,
+"scene": "meadow"
+},
+{
+"frame": 111,
+"t": 3.7,
+"scene": "meadow"
+},
+{
+"frame": 112,
+"t": 3.7333333333333334,
+"scene": "meadow"
+},
+{
+"frame": 113,
+"t": 3.7666666666666666,
+"scene": "meadow"
+},
+{
+"frame": 114,
+"t": 3.8,
+"scene": "meadow"
+},
+{
+"frame": 115,
+"t": 3.8333333333333335,
+"scene": "meadow"
+},
+{
+"frame": 116,
+"t": 3.8666666666666667,
+"scene": "meadow"
+},
+{
+"frame": 117,
+"t": 3.9,
+"scene": "meadow"
+},
+{
+"frame": 118,
+"t": 3.933333333333333,
+"scene": "meadow"
+},
+{
+"frame": 119,
+"t": 3.966666666666667,
+"scene": "meadow"
+},
+{
+"frame": 120,
+"t": 4.0,
+"scene": "meadow"
+},
+{
+"frame": 121,
+"t": 4.033333333333333,
+"scene": "meadow"
+},
+{
+"frame": 122,
+"t": 4.066666666666666,
+"scene": "meadow"
+},
+{
+"frame": 123,
+"t": 4.1,
+"scene": "meadow"
+},
+{
+"frame": 124,
+"t": 4.133333333333334,
+"scene": "meadow"
+},
+{
+"frame": 125,
+"t": 4.166666666666667,
+"scene": "meadow"
+},
+{
+"frame": 126,
+"t": 4.2,
+"scene": "meadow"
+},
+{
+"frame": 127,
+"t": 4.233333333333333,
+"scene": "meadow"
+},
+{
+"frame": 128,
+"t": 4.266666666666667,
+"scene": "meadow"
+},
+{
+"frame": 129,
+"t": 4.3,
+"scene": "meadow"
+},
+{
+"frame": 130,
+"t": 4.333333333333333,
+"scene": "meadow"
+},
+{
+"frame": 131,
+"t": 4.366666666666666,
+"scene": "meadow"
+},
+{
+"frame": 132,
+"t": 4.4,
+"scene": "meadow"
+},
+{
+"frame": 133,
+"t": 4.433333333333334,
+"scene": "meadow"
+},
+{
+"frame": 134,
+"t": 4.466666666666667,
+"scene": "meadow"
+},
+{
+"frame": 135,
+"t": 4.5,
+"scene": "meadow"
+},
+{
+"frame": 136,
+"t": 4.533333333333333,
+"scene": "meadow"
+},
+{
+"frame": 137,
+"t": 4.566666666666666,
+"scene": "meadow"
+},
+{
+"frame": 138,
+"t": 4.6,
+"scene": "meadow"
+},
+{
+"frame": 139,
+"t": 4.633333333333334,
+"scene": "meadow"
+},
+{
+"frame": 140,
+"t": 4.666666666666667,
+"scene": "meadow"
+},
+{
+"frame": 141,
+"t": 4.7,
+"scene": "meadow"
+},
+{
+"frame": 142,
+"t": 4.733333333333333,
+"scene": "meadow"
+},
+{
+"frame": 143,
+"t": 4.766666666666667,
+"scene": "meadow"
+},
+{
+"frame": 144,
+"t": 4.8,
+"scene": "meadow"
+},
+{
+"frame": 145,
+"t": 4.833333333333333,
+"scene": "meadow"
+},
+{
+"frame": 146,
+"t": 4.866666666666666,
+"scene": "meadow"
+},
+{
+"frame": 147,
+"t": 4.9,
+"scene": "meadow"
+},
+{
+"frame": 148,
+"t": 4.933333333333334,
+"scene": "meadow"
+},
+{
+"frame": 149,
+"t": 4.966666666666667,
+"scene": "meadow"
+},
+{
+"frame": 150,
+"t": 5.0,
+"scene": "meadow"
+},
+{
+"frame": 151,
+"t": 5.033333333333333,
+"scene": "meadow"
+},
+{
+"frame": 152,
+"t": 5.066666666666666,
+"scene": "meadow"
+},
+{
+"frame": 153,
+"t": 5.1,
+"scene": "meadow"
+},
+{
+"frame": 154,
+"t": 5.133333333333334,
+"scene": "meadow"
+},
+{
+"frame": 155,
+"t": 5.166666666666667,
+"scene": "meadow"
+},
+{
+"frame": 156,
+"t": 5.2,
+"scene": "meadow"
+}
+]
+}

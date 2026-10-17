@@ -1,0 +1,50 @@
+{
+  "stage": "static only; shader compilation not_run",
+  "same_ubo_layout": true,
+  "ubo_layout": {
+    "SkyVS": [
+      [
+        "vec4",
+        "tilingOffset"
+      ],
+      [
+        "vec4",
+        "skyVSParams"
+      ]
+    ],
+    "SkyFS": [
+      [
+        "vec4",
+        "dayTint"
+      ],
+      [
+        "vec4",
+        "nightTint"
+      ],
+      [
+        "vec4",
+        "nightZenith"
+      ],
+      [
+        "vec4",
+        "nightHorizon"
+      ],
+      [
+        "vec4",
+        "skyParams"
+      ],
+      [
+        "vec4",
+        "horizonParams"
+      ]
+    ]
+  },
+  "total_ubo_bytes_assuming_vec4": 128,
+  "nightTexMix_property_target_z": true,
+  "nightTexMix_default_zero": true,
+  "horizonV": 0.857,
+  "first_below_horizon_texel_1024": 878,
+  "first_below_horizon_texel_512": 439,
+  "shader_fallback_expression": "mix(grad, SRGBToLinear(texture(nightTexture, v_uv).rgb), skyParams.z)",
+  "day_branch_unchanged": true
+}

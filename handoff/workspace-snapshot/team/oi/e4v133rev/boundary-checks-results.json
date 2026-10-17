@@ -1,0 +1,78 @@
+{
+  "scope": "independent boundary extension with cc mocks; not actual engine or shader execution",
+  "passed": 12,
+  "failed": 0,
+  "results": [
+    {
+      "name": "both selection branches round/clamp and handle empty inputs",
+      "status": "pass",
+      "detail": {
+        "cases": 512
+      }
+    },
+    {
+      "name": "forced fallback leaves original asset instancing enabled",
+      "status": "pass"
+    },
+    {
+      "name": "quality toggles preserve forced non-instancing for grass and flowers",
+      "status": "pass"
+    },
+    {
+      "name": "forced base copies and quality copies all destroyed without original asset",
+      "status": "pass",
+      "detail": {
+        "copies": 4,
+        "originalValid": true
+      }
+    },
+    {
+      "name": "two regions register same material root twice",
+      "status": "pass"
+    },
+    {
+      "name": "first region unload preserves live shared variant",
+      "status": "pass"
+    },
+    {
+      "name": "last region unload releases variant but preserves asset",
+      "status": "pass"
+    },
+    {
+      "name": "unchanged scale does not repeatedly refresh",
+      "status": "pass",
+      "detail": {
+        "refresh": 0
+      }
+    },
+    {
+      "name": "ancestor nonuniform scale triggers one refresh",
+      "status": "pass",
+      "detail": {
+        "refresh": 1
+      }
+    },
+    {
+      "name": "explicit dirty and re-enable each refresh once",
+      "status": "pass",
+      "detail": {
+        "refresh": 3
+      }
+    },
+    {
+      "name": "teardown removes continuous bounds listener",
+      "status": "pass",
+      "detail": {
+        "remaining": 0
+      }
+    },
+    {
+      "name": "late BEFORE_DRAW writer using syncAll respects contract",
+      "status": "pass",
+      "detail": {
+        "skyX": 900,
+        "lateWrites": 0
+      }
+    }
+  ]
+}

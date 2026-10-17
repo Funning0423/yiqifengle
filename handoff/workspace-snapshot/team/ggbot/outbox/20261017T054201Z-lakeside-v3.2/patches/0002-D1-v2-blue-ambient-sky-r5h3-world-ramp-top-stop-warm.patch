@@ -1,0 +1,319 @@
+From 209d4e8847e07f95a7001412a1166b5c491bd565 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 13:03:59 +0800
+Subject: [PATCH 2/6] D1 v2: blue ambient sky (r5h3 world ramp top stop), warm
+ ground, ambient 0.75x sun, lake water tint (runtime, lease-owned instanced
+ copy) and blue clear colour; all in LAKESIDE_DIR_LIGHT_PARAMS; tests
+
+---
+ .../scripts/region/LakesideBoardBackground.ts | 10 +++++++---
+ .../scripts/region/LakesideSceneData.ts       | 19 +++++++++++++------
+ .../reports/composition-boundaries.json       |  2 +-
+ .../reports/composition-boundaries.stdout.txt |  2 +-
+ .../reports/independent-journey.stdout.txt    |  4 ++--
+ .../reports/independent-mainline.stdout.txt   |  2 +-
+ .../reports/journey-framing.json              |  2 +-
+ .../reports/journey-lifecycle.json            |  4 ++--
+ .../reports/journey-occlusion.json            |  2 +-
+ .../reports/journey-start-continuity.json     |  2 +-
+ .../reports/journey-types.json                |  2 +-
+ .../reports/journey-types.stdout.txt          |  2 +-
+ .../reports/mainline-boundaries.json          |  2 +-
+ .../reports/production-integrity.stderr.txt   |  2 +-
+ .../reports/world-region-exit.json            |  2 +-
+ .../reports/world-region-exit.stdout.txt      |  2 +-
+ tools/lakeside/test_lakeside_dirlight.cjs     | 11 ++++++++---
+ tools/lakeside/test_lakeside_instancing.cjs   |  2 +-
+ 18 files changed, 45 insertions(+), 29 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index fa8cda6..6b2d290 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -24,7 +24,7 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
+ /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
+  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
+- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[];
++ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
+   *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
+@@ -57,18 +57,22 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
+   for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
+   instanced=enableLakesideInstancing(scenery);
++  if(LAKESIDE_LIGHT_MODE==='dir'){/* v2: water tint on the lease's own instanced copy of the lake material (asset untouched; destroyed with the lease). */
++   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),tinted=new Set<Material>(),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
++   for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m&&!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}
++   waterTinted=tinted.size;}
+   setLayer(scenery);
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+    const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
+   const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
+   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
+-  camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
++  camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=LAKESIDE_LIGHT_MODE==='dir'?(()=>{const c=linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);return new Color(c[0],c[1],c[2],255);})():new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
+   return {
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+   };
+  }catch(error){dispose();throw error;}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 582e6de..c5fd760 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -49,17 +49,24 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
+  *  DirectionalLight (reused while the lake shows, restored after), SUN_dusk_side 0.31 -> ambient sky/ground, Sun.001 0.08 dropped,
+  *  SUN_mtn_sky (MTN_RECV only) not placed, no point lights, shadows untouched. 'points' = the previous 3 SphereLights. */
+ export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
+-/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). Derived by GGbot from scene_r5h3_lighting.json:
+- *  - sunForward / sunColorLinear: json Sun exactly; sunIlluminanceScale x the scene's current main-light illuminance (handoff §5: main = 1.0).
+- *  - ambient: SUN_dusk_side colour [1,0.55,0.28] (linear) as sky colour, ground = half of it (biased to the sky side; the dusk light
+- *    comes in low from the side, 13° below horizontal); skyIllum = 0.31 x main illuminance (its handoff ratio). */
++/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). v2 (GGbot), derived from r5h3:
++ *  - sunForward / sunColorLinear: scene_r5h3_lighting.json Sun exactly; sunIlluminanceScale x the scene's main-light illuminance.
++ *  - ambientSkyColorLinear: the blue top stop of the r5h3 world sky ramp (lakeside_r5h3.blend, z>=0.38) - not the dusk light's yellow.
++ *  - ambientGroundColorLinear: warm (half of SUN_dusk_side [1,0.55,0.28]); the dusk light is otherwise dropped, like Sun.001.
++ *  - ambientSkyIllumToSun 0.75: tuned in the Blender proxy so the frame's mean colour matches the r5h3 render (74/115/101 sRGB).
++ *  - waterTintLinear: multiplies the lake material (vertex colour x palette) so the warm sun no longer turns it green; tuned in the
++ *    proxy against the r5h3 water (81/160/151 sRGB near the board). Runtime-only on the lease's own instanced copy (no asset edit).
++ *  - clearColorLinear: same blue sky stop, behind the mountains (was peach #f2b98a). */
+ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   sunForward: [-0.4182, -0.3983, 0.8164] as const,
+   sunColorLinear: [1.0, 0.6, 0.32] as const,
+   sunIlluminanceScale: 1.0,
+-  ambientSkyColorLinear: [1.0, 0.55, 0.28] as const,
++  ambientSkyColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   ambientGroundColorLinear: [0.5, 0.275, 0.14] as const,
+-  ambientSkyIllumToSun: 0.31,
++  ambientSkyIllumToSun: 0.75,
++  waterTintLinear: [0.06, 0.55, 1.0] as const,
++  waterGlbs: ['LK_lake.glb'] as const,
++  clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+ });
+ export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
+ const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
+diff --git a/tools/journey-integration/reports/composition-boundaries.json b/tools/journey-integration/reports/composition-boundaries.json
+index f6d380e..2ed1ff8 100644
+--- a/tools/journey-integration/reports/composition-boundaries.json
++++ b/tools/journey-integration/reports/composition-boundaries.json
+@@ -1,6 +1,6 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:49.459Z",
++  "timeUTC": "2026-10-17T05:03:55.017Z",
+   "scope": "Actual production WorldNativeComposition and mainline controller, legal progression, explicit world-command doubles. Tests command ordering/ownership only, not rendered movement.",
+   "checks": [
+     {
+diff --git a/tools/journey-integration/reports/composition-boundaries.stdout.txt b/tools/journey-integration/reports/composition-boundaries.stdout.txt
+index f6d380e..2ed1ff8 100644
+--- a/tools/journey-integration/reports/composition-boundaries.stdout.txt
++++ b/tools/journey-integration/reports/composition-boundaries.stdout.txt
+@@ -1,6 +1,6 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:49.459Z",
++  "timeUTC": "2026-10-17T05:03:55.017Z",
+   "scope": "Actual production WorldNativeComposition and mainline controller, legal progression, explicit world-command doubles. Tests command ordering/ownership only, not rendered movement.",
+   "checks": [
+     {
+diff --git a/tools/journey-integration/reports/independent-journey.stdout.txt b/tools/journey-integration/reports/independent-journey.stdout.txt
+index 1407638..f4400df 100644
+--- a/tools/journey-integration/reports/independent-journey.stdout.txt
++++ b/tools/journey-integration/reports/independent-journey.stdout.txt
+@@ -1,7 +1,7 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:37.365Z",
+-  "sourceRoot": "/tmp/wt-lake",
++  "timeUTC": "2026-10-17T05:03:38.321Z",
++  "sourceRoot": "/tmp/a3wt",
+   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
+   "checks": [
+     {
+diff --git a/tools/journey-integration/reports/independent-mainline.stdout.txt b/tools/journey-integration/reports/independent-mainline.stdout.txt
+index d041874..f057fce 100644
+--- a/tools/journey-integration/reports/independent-mainline.stdout.txt
++++ b/tools/journey-integration/reports/independent-mainline.stdout.txt
+@@ -1,6 +1,6 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:36.812Z",
++  "timeUTC": "2026-10-17T05:03:37.431Z",
+   "scope": "Real production mainline/reward controllers, deterministic legal actions, isolated Map storage. No Cocos engine, pixels, GPU, browser, phone, or normal user save acceptance.",
+   "campaignStatus": "PRESENT",
+   "checks": [
+diff --git a/tools/journey-integration/reports/journey-framing.json b/tools/journey-integration/reports/journey-framing.json
+index d5a7c8a..165e8ea 100644
+--- a/tools/journey-integration/reports/journey-framing.json
++++ b/tools/journey-integration/reports/journey-framing.json
+@@ -1,6 +1,6 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-17T04:22:43.598Z",
++ "timeUTC": "2026-10-17T05:03:47.645Z",
+  "fixture": {
+   "json": "occlusion/fixture-occluders.json",
+   "jsonSha256": "78bfa24c852a9a27d749b07a26feb91a6b70daba67f3b98baa2213c9701d320b",
+diff --git a/tools/journey-integration/reports/journey-lifecycle.json b/tools/journey-integration/reports/journey-lifecycle.json
+index 1407638..f4400df 100644
+--- a/tools/journey-integration/reports/journey-lifecycle.json
++++ b/tools/journey-integration/reports/journey-lifecycle.json
+@@ -1,7 +1,7 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:37.365Z",
+-  "sourceRoot": "/tmp/wt-lake",
++  "timeUTC": "2026-10-17T05:03:38.321Z",
++  "sourceRoot": "/tmp/a3wt",
+   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
+   "checks": [
+     {
+diff --git a/tools/journey-integration/reports/journey-occlusion.json b/tools/journey-integration/reports/journey-occlusion.json
+index 42dafe8..797b1a3 100644
+--- a/tools/journey-integration/reports/journey-occlusion.json
++++ b/tools/journey-integration/reports/journey-occlusion.json
+@@ -1,6 +1,6 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-17T04:22:42.080Z",
++ "timeUTC": "2026-10-17T05:03:45.048Z",
+  "fixture": {
+   "json": "occlusion/fixture-occluders.json",
+   "jsonSha256": "78bfa24c852a9a27d749b07a26feb91a6b70daba67f3b98baa2213c9701d320b",
+diff --git a/tools/journey-integration/reports/journey-start-continuity.json b/tools/journey-integration/reports/journey-start-continuity.json
+index 173030f..26fb84d 100644
+--- a/tools/journey-integration/reports/journey-start-continuity.json
++++ b/tools/journey-integration/reports/journey-start-continuity.json
+@@ -1,6 +1,6 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-17T04:22:44.417Z",
++ "timeUTC": "2026-10-17T05:03:48.791Z",
+  "scope": "journeyCamera geometry + real RegionJourneyController with a recording world. Not a render or device acceptance.",
+  "checks": [
+   {
+diff --git a/tools/journey-integration/reports/journey-types.json b/tools/journey-integration/reports/journey-types.json
+index 8774e74..f03cf09 100644
+--- a/tools/journey-integration/reports/journey-types.json
++++ b/tools/journey-integration/reports/journey-types.json
+@@ -1,6 +1,6 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:29.056Z",
++  "timeUTC": "2026-10-17T05:03:25.353Z",
+   "typescript": "5.9.3",
+   "scope": "Strict type-check of engine-independent world/journey modules only; official Cocos declarations and engine build not available",
+   "diagnostics": []
+diff --git a/tools/journey-integration/reports/journey-types.stdout.txt b/tools/journey-integration/reports/journey-types.stdout.txt
+index 8774e74..f03cf09 100644
+--- a/tools/journey-integration/reports/journey-types.stdout.txt
++++ b/tools/journey-integration/reports/journey-types.stdout.txt
+@@ -1,6 +1,6 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:29.056Z",
++  "timeUTC": "2026-10-17T05:03:25.353Z",
+   "typescript": "5.9.3",
+   "scope": "Strict type-check of engine-independent world/journey modules only; official Cocos declarations and engine build not available",
+   "diagnostics": []
+diff --git a/tools/journey-integration/reports/mainline-boundaries.json b/tools/journey-integration/reports/mainline-boundaries.json
+index d041874..f057fce 100644
+--- a/tools/journey-integration/reports/mainline-boundaries.json
++++ b/tools/journey-integration/reports/mainline-boundaries.json
+@@ -1,6 +1,6 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:36.812Z",
++  "timeUTC": "2026-10-17T05:03:37.431Z",
+   "scope": "Real production mainline/reward controllers, deterministic legal actions, isolated Map storage. No Cocos engine, pixels, GPU, browser, phone, or normal user save acceptance.",
+   "campaignStatus": "PRESENT",
+   "checks": [
+diff --git a/tools/journey-integration/reports/production-integrity.stderr.txt b/tools/journey-integration/reports/production-integrity.stderr.txt
+index f3aad2c..93b3a0d 100644
+--- a/tools/journey-integration/reports/production-integrity.stderr.txt
++++ b/tools/journey-integration/reports/production-integrity.stderr.txt
+@@ -7,7 +7,7 @@ AssertionError [ERR_ASSERTION]: Frozen shipped asset/rule changed: creator-build
+ 
+ + '183993fbb55f983368fc91d67333ee07620bbf79625cbcee0b4b782212cd6e28'
+ - '21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a'
+-    at Object.<anonymous> (/tmp/wt-lake/tools/journey-integration/test-production-integrity.cjs:5:43)
++    at Object.<anonymous> (/tmp/a3wt/tools/journey-integration/test-production-integrity.cjs:5:43)
+     at Module._compile (node:internal/modules/cjs/loader:1529:14)
+     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+     at Module.load (node:internal/modules/cjs/loader:1275:32)
+diff --git a/tools/journey-integration/reports/world-region-exit.json b/tools/journey-integration/reports/world-region-exit.json
+index 0e010a6..d2cf155 100644
+--- a/tools/journey-integration/reports/world-region-exit.json
++++ b/tools/journey-integration/reports/world-region-exit.json
+@@ -1,6 +1,6 @@
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:49.954Z",
++  "timeUTC": "2026-10-17T05:03:55.579Z",
+   "scope": "Actual WorldFlow and RegionJourneyController with explicit actor/scene/board doubles; no runtime pixels",
+   "checks": [
+     {
+diff --git a/tools/journey-integration/reports/world-region-exit.stdout.txt b/tools/journey-integration/reports/world-region-exit.stdout.txt
+index 781f9c3..13b4d71 100644
+--- a/tools/journey-integration/reports/world-region-exit.stdout.txt
++++ b/tools/journey-integration/reports/world-region-exit.stdout.txt
+@@ -2,7 +2,7 @@
+ [enter-level] cover fixed false
+ {
+   "status": "PASS",
+-  "timeUTC": "2026-10-17T04:22:49.954Z",
++  "timeUTC": "2026-10-17T05:03:55.579Z",
+   "scope": "Actual WorldFlow and RegionJourneyController with explicit actor/scene/board doubles; no runtime pixels",
+   "checks": [
+     {
+diff --git a/tools/lakeside/test_lakeside_dirlight.cjs b/tools/lakeside/test_lakeside_dirlight.cjs
+index 17d773f..ee27e57 100644
+--- a/tools/lakeside/test_lakeside_dirlight.cjs
++++ b/tools/lakeside/test_lakeside_dirlight.cjs
+@@ -8,9 +8,12 @@ const L=n=>J.lights.find(l=>l.name===n);
+ assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');
+ assert.deepEqual([...P.sunForward],L('Sun').forward,'main = json Sun direction');assert.deepEqual([...P.sunColorLinear],L('Sun').colorLinear,'main = json Sun colour');
+ assert.equal(P.sunIlluminanceScale,L('Sun').illuminanceRatio);
+-assert.deepEqual([...P.ambientSkyColorLinear],L('SUN_dusk_side').colorLinear,'ambient sky = dusk colour');
+-assert(P.ambientGroundColorLinear.every((c,i)=>c<P.ambientSkyColorLinear[i]),'biased to the sky side');
+-assert.equal(P.ambientSkyIllumToSun,L('SUN_dusk_side').illuminanceRatio);
++// v2: blue sky (r5h3 world ramp top stop), warm ground, bluer water, blue clear colour
++const sky=P.ambientSkyColorLinear;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
++const gr=P.ambientGroundColorLinear;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
++assert(P.ambientSkyIllumToSun>0.31&&P.ambientSkyIllumToSun<=1,'ambient raised so the scene is not grey');
++const wt=P.waterTintLinear;assert(wt[2]>=wt[1]&&wt[1]>wt[0]&&wt.every(c=>c>=0&&c<=1),'water tint cyan-blue, a valid Color');assert.deepEqual([...P.waterGlbs],['LK_lake.glb']);
++assert.deepEqual([...P.clearColorLinear],[...sky],'clear colour = sky stop');assert.deepEqual(D.linearToSrgb8(P.clearColorLinear),[28,143,184]);
+ assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
+ assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),[255,203,153]);
+ const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
+@@ -20,5 +23,7 @@ assert(/l\.node\.lookAt\(new Vec3\(w\.x\+f\[0\],w\.y\+f\[1\],w\.z\+f\[2\]\)\)/.t
+ assert(/visibility=saved\.vis\|LAKESIDE_LAYER/.test(bg),'main light reaches the lake layer');
+ assert(/setVisible:value=>\{[^}]*if\(value\)applyDir\(\);else restoreDir\(\);\}/.test(bg)&&/dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);/.test(bg),'apply on show, restore on hide/dispose');
+ assert(/s0\.light\.node\.setRotation\(s0\.rot\);s0\.light\.color=s0\.color;s0\.light\.illuminance=s0\.illum;/.test(bg)&&/amb\.skyLightingColor=s0\.sky;amb\.groundLightingColor=s0\.ground;amb\.skyIllum=s0\.skyIllum;/.test(bg),'full restore');
++assert(/m\.setProperty\('mainColor',new Color\(wc\[0\],wc\[1\],wc\[2\],255\)\)/.test(bg)&&/instanced\.includes\(m\)/.test(bg),'water tint only on the lease-owned instanced copy');
++assert(/camera\.clearColor=LAKESIDE_LIGHT_MODE==='dir'\?/.test(bg),'dir mode clear colour from params');
+ assert(!/shadowEnabled|shadowFixedArea|ShadowType/.test(bg),'shadows untouched');
+ console.log('lakeside dirlight OK');
+diff --git a/tools/lakeside/test_lakeside_instancing.cjs b/tools/lakeside/test_lakeside_instancing.cjs
+index 85aab9d..95f9d70 100644
+--- a/tools/lakeside/test_lakeside_instancing.cjs
++++ b/tools/lakeside/test_lakeside_instancing.cjs
+@@ -2,7 +2,7 @@
+ const fs=require('fs'),path=require('path'),assert=require('assert');
+ const s=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/LakesideBoardBackground.ts'),'utf8');
+ assert(/m=new Material\(\);m\.copy\(src,\{defines:\{USE_INSTANCING:true\}\}\);shared\.set\(src,m\);\}r\.setSharedMaterial\(m,k\);/.test(s),'shared instanced copy');
+-assert(/instanced=enableLakesideInstancing\(scenery\);\n  setLayer\(scenery\);/.test(s),'applied after instantiate');
++assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,1200}?  setLayer\(scenery\);/.test(s),'applied after instantiate');
+ assert(/for\(const m of instanced\.splice\(0\)\)m\.destroy\(\);/.test(s),'destroyed on dispose');
+ assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
+ // Behaviour on stand-ins: 3 renderers over 2 source materials -> 2 copies, renderers sharing a source share the copy.
+-- 
+2.47.3
+

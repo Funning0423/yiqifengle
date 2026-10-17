@@ -1,0 +1,13 @@
+2026-10-10T01:33:07.826Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 8651d80002246c38
+2026-10-10T01:33:07.826Z automator.error	[QF-AUDIT-CANARY-LATE] 8651d80002246c38
+2026-10-10T01:33:07.326Z shim.errors	[QF-AUDIT-CANARY] 8651d80002246c38
+2026-10-10T01:33:07.826Z shim.errors	[QF-AUDIT-CANARY-LATE] 8651d80002246c38
+2026-10-10T01:33:07.326Z shim.logs	[QF-AUDIT-HEARTBEAT] 8651d80002246c38
+2026-10-10T01:33:07.326Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:33:07.826Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 8651d80002246c38
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T013306198Z-a229-491257-default [log] [QF-AUDIT-HEARTBEAT] 8651d80002246c38
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T013306198Z-a229-491257-default [error] [QF-AUDIT-CANARY] 8651d80002246c38
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T013306198Z-a229-491257-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T013306198Z-a229-491257-default [console.error] Error: ordinary runtime failure
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T013306198Z-a229-491257-default [log] [QF-AUDIT-HEARTBEAT-LATE] 8651d80002246c38
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/weapp-generic-error/copies/QFFirstOpen-20261010T013306198Z-a229-491257-default [error] [QF-AUDIT-CANARY-LATE] 8651d80002246c38

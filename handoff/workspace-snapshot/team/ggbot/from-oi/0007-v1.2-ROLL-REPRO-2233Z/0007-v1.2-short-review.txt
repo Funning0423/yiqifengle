@@ -1,0 +1,46 @@
+0007 v1.2 相机补丁：数值复现与短审查
+审查时间：2026-10-09 UTC
+
+到件身份
+- Drive：19aWoRJG5TYmvD4q-5gm0ARbK3snMcRQM
+- ZIP：20261009T2227Z-grokbot2-REGION-PAN-CAMERA-0007-v1.2.zip
+- 大小：30,037 B
+- SHA256：3d5440effa7dc994446ea78356d151540da1e26f406f00a8d0808ba430a26cf8
+- ZIP CRC、内部 SHA256SUMS 所列 6 个载荷文件均匹配；连清单共 7 个条目。
+
+结论
+已回应统一 CameraPose/FOV、区分入口、6 m 仅为候选三项方向，但补丁存在可数值复现的运动相机拒写风险，应修订后再排运行验证。本次未修改工程、未操作 Mac、未应用补丁，也未执行供应方的 selftest。
+
+主要阻塞：slerp 与零 roll 拒写冲突
+1. 取补丁中的真实路径：
+   cameraOutside position = (-0.58, 1.65, 1.6)
+   cameraOutside target   = (-0.2, 1.1, 2.6)
+   temporary-6m position  = (-5.796, 3.323, 9.352)
+   temporary-6m target    = (-2.114, 0.9, 5.281)
+2. 两端 fromLookAt 均可得到单位四元数，且相机右轴 Y 约为 0。
+3. slerp 进度 0.5 的相机右轴 Y 约为 -0.01658571868491418。
+4. CameraPose.ts 的 validateCameraPose 以 abs(右轴 Y) > 0.001 判为 roll-not-zero；applyCameraPose 随即返回 false，位置/旋转/FOV 都不写。
+5. WorldFlowComponent.ts 的 animateCamera 忽略该 false。数学上可预期中间大量帧保留旧机位，接近终点又恢复写入，造成停住后跳变；实际引擎表现仍须验证。
+
+复现
+- Python 3 标准库即可，不需 scipy、Node、Creator 或任何安装。
+- 执行：python3 reproduce_0007_slerp_roll.py
+- stdout 为 JSON；同目录 reproduction-result.json 是本次实际运行输出。
+- 脚本只做独立数学计算及“拒写则保持上一位置”的模拟，不加载或执行供应方补丁，不联网、不修改工程。
+- 121 个归一化等距采样不是实际 clip 时长或设备帧率；只用于展示被拒写的区间。
+- 当前包内自测验证了插值端点及单位四元数，没有验证整段插值是否通过实际写入器。
+
+最小修订与回归要求
+- 明确且一致地实现“保持地平线”与旋转插值策略，不要只静默放宽拒写阈值。
+- 整条 outside→island 及反向路径逐采样通过实际 applyCameraPose，检查接受写入、旋转有效、预期 roll 和位置连续；不能只测端点。
+- 对拒写返回值进行明确处理，避免流程继续而相机暗中停住。
+- 修订后再检查完整基线上的补丁与 Creator 构建，覆盖 fixed/motion 往返。当前玩法补测不受影响。
+
+另外两项已确认的接入差异
+- 文档允许终版 position+rotation、不带 target；实际 PoseEntry 仍为 LookAtPose，FirstsliceRoutes.dataPose 无条件读取 e.target，fromLookAt 也需要 target。须支持 rotation 分支，或统一改为明确必填 target 的契约。
+- mountWorld 的 camera.fov=55 仍在此次补丁之外，尚不能声称完全唯一写入。liveFrameCheck 读取的是 cameraWriteLog.last 和固定人物盒，不是实际相机读回、导入人物蒙皮边界与引擎 viewport；不可用其结果充当真实遮挡/HUD 验收。
+
+保持的边界
+- 6 m 候选不代表最终构图或防遮挡通过。
+- 包内没有导航按钮移到底部 25% 安全区的布局修改，该项须另交并实测。
+- 0006 的取消后稳定态硬切、安全姿态及恢复契约仍是后续待解项，当前补丁未实现。

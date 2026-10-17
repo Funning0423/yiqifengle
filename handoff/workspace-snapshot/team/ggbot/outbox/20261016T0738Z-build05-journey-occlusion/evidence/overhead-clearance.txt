@@ -1,0 +1,27 @@
+BEFORE 08-09 T 40.72 samples with overhead <8m above head: 24
+   23 1.28 env_sky_static_palette
+   23.5 3.32 env_sky_static_palette
+   24 3.13 env_sky_static_palette
+   24.5 2.9 env_sky_static_palette
+   25 2.68 env_sky_static_palette
+   25.5 2.46 env_sky_static_palette
+   26 2.25 env_sky_static_palette
+   26.5 2.04 env_sky_static_palette
+   27 1.83 env_sky_static_palette
+   27.5 1.63 env_sky_static_palette
+   28 1.43 env_sky_static_palette
+   28.5 1.24 env_sky_static_palette
+   29 1.05 env_sky_static_palette
+   29.5 0.87 env_sky_static_palette
+   30 0.69 env_sky_static_palette
+   30.5 0.52 env_sky_static_palette
+   31 0.27 env_sky_static_palette
+   31.5 0.2 env_sky_static_palette
+   32 0.04 env_sky_static_palette
+   32.5 4.31 env_sky_static_palette
+   33 4.12 env_sky_static_palette
+   33.5 3.83 env_sky_static_palette
+   34 1.64 env_sky_static_palette
+   34.5 1.96 env_sky_static_palette
+placement check err 0.0013
+AFTER 08-09 T 59.09 samples with overhead <8m above head: 0

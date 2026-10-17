@@ -1,0 +1,19 @@
+base d238881c85df7787fc63a37092a46968bb6f3d34 tree d0296913f46202d21debd804efd99578447cdc8c
+series (git format-patch d238881..450f1f5), patches/0001-0005:
+1 e869b092445a1bb8eb24e11e1a5ac2dacc4fc8dc tree 947aaa63baa1db417d31757f653b4870ff15268a  night sea   (same patch-id as 021b935)
+2 1eeae1883cab5bb7d7649850a5483147ad2cb67a tree 647a4991ea69e8ec1473a38b0deb7317cadeb3f4  strip tool  (same patch-id as 147edea)
+3 a9b814ca5f640d3234e35e6829fd6cf799f6efdb tree 34dad11f27fdb84324381911c4d1e9651c850ad2  audio test  (same patch-id as a2fdecf)
+4 c76b6fe890f6c2331a05274f177a1331246c8b14 tree c40c737699923e5ff1a2460d10ff2cdecb568ae7  geometry    (patch-id differs from 1e06f12: report fixture hashes rebased onto different context)
+5 450f1f5774672ef376f26c53bf6af3170847de41 tree dd463b5a045678fd76bd46e1cea88a44b20f880b  camera (same patch-id as efbbc2a)
+FIXED HEAD 450f1f5774672ef376f26c53bf6af3170847de41
+FIXED TREE dd463b5a045678fd76bd46e1cea88a44b20f880b
+git am on fresh d238881 worktree -> tree dd463b5a045678fd76bd46e1cea88a44b20f880b : MATCH
+(am HEAD commit id differs, 25cc7f4…, only because committer/date are the applier's; tree identical)
+
+the 5 SHAs named in the request (021b935 147edea a2fdecf 1e06f12 efbbc2a) are NOT on d238881:
+021b935849e2259c6cb6d92a4ac70c308aaa1cd5 parent 0005d7a (exit-audio line, 25 unrelated commits above d238881)
+147edea6db2115e8f161c7d0f99b71eda348b864
+a2fdecf85464581257f6aebe698a0faed5a055c2
+1e06f124ee7215b531c2c879c5d1d420bca6658a
+efbbc2a1dd489557207bf7a259579f15abdf14f5 tree 9745ac3a4c4d0b328fa43139692889a90e27d3be
+They are the same 5 fixes re-applied on the later line; the d238881-based chain is e869b09..450f1f5 above.

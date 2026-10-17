@@ -1,0 +1,25 @@
+{
+  "r24_blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "source_R9_pose_npz_sha256": "3b04a2d2e582bb308666d158df0f72b352be85ee648e26275f849f7230e3ac3b",
+  "mapping": "R9 frame11..101 -> R24 frame1..91, same time0..3s; R24 has additional60Hz keys. Return sit uses the reversed same rise at29.2..32.2s.",
+  "integer_sample_count": 91,
+  "arm_source_skin_matrix_max_element_delta_by_bone": {
+    "upper_arm.L": 1.5869450187278034e-07,
+    "forearm.L": 3.7540465669394507e-07,
+    "hand.L": 2.980232238769531e-07,
+    "upper_arm.R": 1.2522409192916584e-07,
+    "forearm.R": 3.5564514233588085e-07,
+    "hand.R": 2.980232238769531e-07
+  },
+  "lower_source_skin_matrix_max_element_delta_by_bone": {
+    "hips": 0.0,
+    "thigh.L": 0.0,
+    "shin.L": 0.0,
+    "foot.L": 0.0,
+    "thigh.R": 0.0,
+    "shin.R": 0.0,
+    "foot.R": 0.0
+  },
+  "head_neck": "Counterpose R1 is integrated separately; do not overwrite it from R9.",
+  "scope": "This confirms reference-matrix compatibility only, not new sleeve surfaces. New geometry still requires exact integrated scene/body/self gates including between-key samples and later door reaches."
+}

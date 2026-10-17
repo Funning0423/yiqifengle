@@ -1,0 +1,22 @@
+{
+  "baseline_extraction": "Exact added-file hunks from verified OI-R6-AUDIO-NATIVE-ACCEPTANCE-INCREMENT.zip/delta-from-5df737a.patch",
+  "apply_check_pass": true,
+  "apply_pass": true,
+  "changed_paths": [
+    "creator-build-project/assets/scripts/audio/GameAudio.ts"
+  ],
+  "sources": [
+    {
+      "file": "GameAudio.ts",
+      "baseline_sha256": "a2f40503278f6237c325aabb7816372da37db718b9caacec18b51a830ef7272e",
+      "candidate_sha256": "7f6b580822dae4986f3217ecd70af34ad3b19153e2ffd6e8d3120e37bba3d377",
+      "unchanged": false
+    },
+    {
+      "file": "AudioBridge.ts",
+      "baseline_sha256": "e20ff1da689696cd0c92e854ef7eb04f8d84d56ed481c8ad20cbcfbba51d3a75",
+      "candidate_sha256": "e20ff1da689696cd0c92e854ef7eb04f8d84d56ed481c8ad20cbcfbba51d3a75",
+      "unchanged": true
+    }
+  ]
+}

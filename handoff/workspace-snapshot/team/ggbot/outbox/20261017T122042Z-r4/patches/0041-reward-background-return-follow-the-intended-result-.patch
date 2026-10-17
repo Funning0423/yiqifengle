@@ -1,0 +1,52 @@
+From 332abcce93ffd9212f6bef224db01113ace0a10b Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:16:53 +0800
+Subject: [PATCH 41/47] reward-background-return: follow the intended
+ result-screen reward flow (no RewardPanel there since 3765e34)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Stale test, not a game bug. Bisect with Node 22.23.3 over 2611f08..f3d3614: first failing commit is
+3765e34 'Result screen: 回小岛 claims are saved before leaving; no 获得 popup on the result screen',
+which intentionally stopped watchClaims from opening RewardPanel while the result screen is up
+(SPEC v2.1: rewards show on the panel itself; RewardPanel still opens elsewhere, e.g. bag chests).
+The test still tapped RewardPanel 'Accept' (line 38: assert(reward)).
+Now it asserts the same guarantee on the current UI: after the chest claim the ResultPanel shows
+the open chest (resultDiagnostics().chestOpen) and reward badges (ResultReward-0), no RewardPanel,
+no ResultChestTap left; and after each of 3 background hide/show cycles the same panel, same
+popups, unchanged storage, no global resume, and the rewards still shown. No game code changed.
+---
+ tools/board-ui/test_reward_background_return.cjs | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/tools/board-ui/test_reward_background_return.cjs b/tools/board-ui/test_reward_background_return.cjs
+index 95690ac..87ee7ab 100644
+--- a/tools/board-ui/test_reward_background_return.cjs
++++ b/tools/board-ui/test_reward_background_return.cjs
+@@ -27,15 +27,19 @@ const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mai
+  const actions={mainNext:()=>next++,chest:()=>session.command('openChest',0),regionReward:()=>session.command('claimRegion',0)};
+  const owner={board:()=>u,controls,resultActions:actions};const update=()=>paint.call(owner,flow.snapshot());
+  const bytes=()=>JSON.stringify([...values]);update();const initialPanel=u.popups.find('ResultPanel');assert(initialPanel.root.find('ResultChestTap'));
++ // The claimed rewards are visible on the result panel (open chest, every reward slot claimed) and stay so across background trips.
++ const shown=()=>{const p=u.popups.find('ResultPanel');assert(p,'result panel still up');assert(p.resultDiagnostics().chestOpen,'chest shown open');assert(p.root.find('ResultReward-0'),'reward badges shown on the result panel');assert(!u.popups.find('RewardPanel'));};
+  const checks=[];
+  for(const which of ['before-claim','after-chest','after-region']){
+   for(let i=0;i<3;i++){const saved=bytes(),panel=u.popups.find('ResultPanel'),names=u.popups.names().join(',');flow.hide();update();flow.hide();flow.show();flow.show();update();step();
+    assert.equal(flow.snapshot().state,'level');assert.equal(controls.get('resume').active,false);assert.equal(bytes(),saved);assert.equal(u.popups.names().join(','),names);assert.equal(u.popups.find('ResultPanel'),panel);
+-   assert.equal(H.cc._scene.getComponentsInChildren(UI).length,1);}
+-  checks.push({which,cycles:3,duplicateEvents:true,storageUnchanged:true,sameResultPanel:true,noGlobalResume:true});
++   assert.equal(H.cc._scene.getComponentsInChildren(UI).length,1);
++   if(which!=='before-claim')shown();}
++  checks.push({which,cycles:3,rewardsShownOnResult:which!=='before-claim',duplicateEvents:true,storageUnchanged:true,sameResultPanel:true,noGlobalResume:true});
+   if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('ResultChestTap'));update();assert(session.snapshot().journey.chests[0].opened);assert(session.snapshot().journey.regionRewards[0].claimed);}
+   if(which==='after-chest'){
+-   const reward=u.popups.find('RewardPanel');assert(reward);H.tap(reward.root.find('Accept'));step();update();
++   // SPEC v2.1 / 3765e34: on the result screen the rewards show on the ResultPanel itself (open chest + reward badges), no 「获得」 RewardPanel.
++   assert(!u.popups.find('RewardPanel'),'no separate RewardPanel on the result screen');
+    assert(!u.popups.find('ResultPanel').root.find('ResultChestTap'),'both rewards leave with the one claim');
+   }
+  }
+-- 
+2.47.3
+

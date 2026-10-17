@@ -1,0 +1,41 @@
+2026-10-17T10:57:56Z start rh_meadow_360x780
+{"run": "rh_meadow_360x780", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0.0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0.0, "dPosCm": 0.0}, "pass": true}
+kept 55 dropped 2013
+2026-10-17T10:59:11Z done rh_meadow_360x780 2026-10-17T10:59:09.911Z saved 2068 frames 2097 cam frames webaudio:415/wl:414
+2026-10-17T10:59:11Z start rh_meadow_375x667
+{"run": "rh_meadow_375x667", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0.0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0.0, "dPosCm": 0.0}, "pass": true}
+kept 35 dropped 1305
+2026-10-17T11:00:32Z done rh_meadow_375x667 2026-10-17T11:00:30.548Z saved 1340 frames 1932 cam frames webaudio:449/wl:448
+2026-10-17T11:00:32Z start rh_meadow_390x520
+{"run": "rh_meadow_390x520", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0.0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0.0, "dPosCm": 0.0}, "pass": true}
+kept 31 dropped 1558
+2026-10-17T11:01:57Z done rh_meadow_390x520 2026-10-17T11:01:56.014Z saved 1589 frames 2149 cam frames webaudio:430/wl:430
+2026-10-17T11:01:57Z start rh_meadow_390x844
+{"run": "rh_meadow_390x844", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0.0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0.0, "dPosCm": 0.0}, "pass": true}
+kept 21 dropped 1118
+2026-10-17T11:03:26Z done rh_meadow_390x844 2026-10-17T11:03:24.184Z saved 1139 frames 2274 cam frames webaudio:460/wl:460
+2026-10-17T11:03:26Z start rh_meadow_414x896
+{"run": "rh_meadow_414x896", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0.0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0.0, "dPosCm": 0.0}, "pass": true}
+kept 30 dropped 1409
+2026-10-17T11:04:59Z done rh_meadow_414x896 2026-10-17T11:04:57.564Z saved 1439 frames 2427 cam frames webaudio:509/wl:508
+2026-10-17T11:04:59Z start rh_skycity_360x780
+{"run": "rh_skycity_360x780", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0, "dPosCm": 0.0}, "pass": true}
+kept 38 dropped 3447
+2026-10-17T11:07:12Z done rh_skycity_360x780 2026-10-17T11:07:10.966Z saved 3485 frames 4663 cam frames webaudio:925/wl:925
+2026-10-17T11:07:13Z start rh_skycity_375x667
+{"run": "rh_skycity_375x667", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0, "dPosCm": 0.0}, "pass": true}
+kept 23 dropped 2670
+2026-10-17T11:09:31Z done rh_skycity_375x667 2026-10-17T11:09:27.495Z saved 2693 frames 4591 cam frames webaudio:949/wl:948
+2026-10-17T11:09:31Z start rh_skycity_390x520
+{"run": "rh_skycity_390x520", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0, "dPosCm": 0.0}, "pass": true}
+kept 54 dropped 3703
+2026-10-17T11:11:49Z done rh_skycity_390x520 2026-10-17T11:11:49.313Z saved 3757 frames 4582 cam frames webaudio:904/wl:903
+2026-10-17T11:11:49Z start rh_skycity_390x844
+{"run": "rh_skycity_390x844", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0, "dPosCm": 0.0}, "pass": true}
+kept 55 dropped 4249
+2026-10-17T11:13:37Z done rh_skycity_390x844 2026-10-17T11:13:37.528Z saved 4304 frames 4312 cam frames webaudio:844/wl:844
+2026-10-17T11:13:37Z start rh_skycity_414x896
+{"run": "rh_skycity_414x896", "swapDelta": {"angleDeg": 0.0, "fovDeg": 0, "positionCm": 0.0}, "maxStepInWindow": {"dAngleDeg": 0.0, "dFovDeg": 0, "dPosCm": 0.0}, "pass": true}
+kept 54 dropped 4087
+2026-10-17T11:15:28Z done rh_skycity_414x896 2026-10-17T11:15:28.435Z saved 4141 frames 4146 cam frames webaudio:879/wl:878
+ALLDONE

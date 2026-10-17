@@ -1,0 +1,18 @@
+{
+  "officialInstalledCreator": "3.8.8",
+  "templateSha256": "578af3e67575fdc13b24cbaef0594117267ac3da654ab75fe32c14c2d1c97de8",
+  "conditionGame": {
+    "currentL": -1,
+    "list": [],
+    "current": -1
+  },
+  "preFinalizerActualOutput": "evidence/wechat-0001c/project.config.before.json",
+  "originalFinalizerDrive": "1MMcNCucukyosEkyXAllVCmpeLFCvbRcP",
+  "originalFinalizerBytes": 1317,
+  "originalFinalizerSha256": "613273428bd91756e08f9a49c27a8ca218ac674c2055fa763d164de278266b09",
+  "diagnosticDrive": "1olBUir_edrcmdiU50jbx9_Sn_fKJYyZR",
+  "diagnosticBytes": 3217,
+  "diagnosticSha256": "e679b44237d417208aa6b28904428023449c498674ab6ab1475f1c8cfe007fd4",
+  "bothFilesRoundtripExact": true,
+  "installedDevToolsAsarSha256": "994006be8aec1954a7be9c3d196b2239d23a7c145d5c8ba6cf6e125f0e675672"
+}

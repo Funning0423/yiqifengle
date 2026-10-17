@@ -1,0 +1,16 @@
+{
+  "description": "项目配置文件。",
+  "miniprogramRoot": "./",
+  "setting": {
+    "urlCheck": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": false,
+    "enhance": true,
+    "useIsolateContext": true
+  },
+  "compileType": "game",
+  "libVersion": "widelyUsed",
+  "appid": "wx3bdd911c5c06f591",
+  "projectname": "QFFirstOpen-20261009T231118Z-a82b2d-B"
+}

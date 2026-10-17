@@ -1,0 +1,202 @@
+{
+ "summary": {
+  "max_pose_jump": [
+   "root",
+   0.0
+  ],
+  "max_angvel_mismatch": [
+   "hand.L",
+   1.1446,
+   0.9875
+  ],
+  "max_linvel_delta": [
+   "hand.L",
+   0.856
+  ],
+  "max_pos_jump_mm": 0.001
+ },
+ "bones": {
+  "root": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "hips": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "spine": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "chest": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "neck": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "head": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "upper_arm.L": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.7486,
+   "angvel_out": 0.6477,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "forearm.L": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 1.1212,
+   "angvel_out": 0.9667,
+   "linvel_delta_mm_per_frame": 0.42
+  },
+  "hand.L": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 1.1446,
+   "angvel_out": 0.9875,
+   "linvel_delta_mm_per_frame": 0.856
+  },
+  "upper_arm.R": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.7507,
+   "angvel_out": 0.6465,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "forearm.R": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 1.1205,
+   "angvel_out": 0.9667,
+   "linvel_delta_mm_per_frame": 0.42
+  },
+  "hand.R": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 1.144,
+   "angvel_out": 0.9883,
+   "linvel_delta_mm_per_frame": 0.856
+  },
+  "thigh.L": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "shin.L": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.001,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "foot.L": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.001,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "thigh.R": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "shin.R": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "foot.R": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.001,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "skirt.front": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "skirt.front.low": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "skirt.left": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "skirt.left.low": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.001
+  },
+  "skirt.back": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "skirt.back.low": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "skirt.right": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  },
+  "skirt.right.low": {
+   "pose_jump_deg": 0.0,
+   "pos_jump_mm": 0.0,
+   "angvel_in": 0.0,
+   "angvel_out": 0.0,
+   "linvel_delta_mm_per_frame": 0.0
+  }
+ }
+}

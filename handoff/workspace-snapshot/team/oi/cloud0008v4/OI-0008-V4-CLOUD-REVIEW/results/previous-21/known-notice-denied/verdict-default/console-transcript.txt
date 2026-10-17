@@ -1,0 +1,13 @@
+2026-10-10T01:33:22.276Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 8341254b4f5d2571
+2026-10-10T01:33:22.276Z automator.error	[QF-AUDIT-CANARY-LATE] 8341254b4f5d2571
+2026-10-10T01:33:21.775Z shim.errors	[QF-AUDIT-CANARY] 8341254b4f5d2571
+2026-10-10T01:33:22.276Z shim.errors	[QF-AUDIT-CANARY-LATE] 8341254b4f5d2571
+2026-10-10T01:33:21.774Z shim.logs	[QF-AUDIT-HEARTBEAT] 8341254b4f5d2571
+2026-10-10T01:33:21.775Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:33:22.276Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 8341254b4f5d2571
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default [log] [QF-AUDIT-HEARTBEAT] 8341254b4f5d2571
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default [error] [QF-AUDIT-CANARY] 8341254b4f5d2571
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面 (env: macOS,mg,2.02.2608080; lib: 3.17.3)
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default [log] [QF-AUDIT-HEARTBEAT-LATE] 8341254b4f5d2571
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-denied/copies/QFFirstOpen-20261010T013320643Z-f94e-712f5f-default [error] [QF-AUDIT-CANARY-LATE] 8341254b4f5d2571

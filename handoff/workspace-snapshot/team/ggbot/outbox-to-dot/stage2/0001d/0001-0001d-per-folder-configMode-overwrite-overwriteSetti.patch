@@ -1,0 +1,50 @@
+From 75e6f71e4edcdb37d671534469e0c36bed6a6785 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 9 Oct 2026 15:50:17 -0500
+Subject: [PATCH] 0001d: per-folder configMode=overwrite +
+ overwriteSettings.wechatgame subpackage (matches Oi 78a3dba) (GGbot)
+
+---
+ assets/bundles/region_island.meta | 7 +++++++
+ assets/resources.meta             | 7 +++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/assets/bundles/region_island.meta b/assets/bundles/region_island.meta
+index cfbcb9e..a1aa08b 100644
+--- a/assets/bundles/region_island.meta
++++ b/assets/bundles/region_island.meta
+@@ -15,6 +15,13 @@
+     },
+     "isRemoteBundle": {
+       "wechatgame": false
++    },
++    "configMode": "overwrite",
++    "overwriteSettings": {
++      "wechatgame": {
++        "isRemote": false,
++        "compressionType": "subpackage"
++      }
+     }
+   }
+ }
+diff --git a/assets/resources.meta b/assets/resources.meta
+index 3e2b142..28f5a57 100644
+--- a/assets/resources.meta
++++ b/assets/resources.meta
+@@ -15,6 +15,13 @@
+     },
+     "isRemoteBundle": {
+       "wechatgame": false
++    },
++    "configMode": "overwrite",
++    "overwriteSettings": {
++      "wechatgame": {
++        "isRemote": false,
++        "compressionType": "subpackage"
++      }
+     }
+   }
+ }
+-- 
+2.47.3
+

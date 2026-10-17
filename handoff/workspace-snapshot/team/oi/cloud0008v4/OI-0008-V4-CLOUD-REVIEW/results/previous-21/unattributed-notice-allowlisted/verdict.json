@@ -1,0 +1,248 @@
+{
+  "tool": "wechat_first_open_audit.cjs",
+  "version": "0008-v4",
+  "runId": "20261010T013324258Z-c005",
+  "startedAt": "2026-10-10T01:33:24.259Z",
+  "host": {
+    "platform": "linux",
+    "node": "v24.19.0"
+  },
+  "dryRun": true,
+  "scope": "DRY_RUN_FAKE_CLI — exercises the script only; NOT evidence of WeChat DevTools behaviour",
+  "status": "BLOCKED",
+  "reason": "default: 1 finding(s) not attributable to this project (weapplog:error)",
+  "variants": [
+    {
+      "role": "verdict",
+      "variant": "default",
+      "projectDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default",
+      "projectname": "QFFirstOpen-20261010T013324258Z-c005-24b350-default",
+      "port": 42019,
+      "steps": {
+        "originalProjectname": "review",
+        "finalizer": {
+          "path": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+          "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79",
+          "exit": 0,
+          "stdout": "{\"output\":\"/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default\",\"compileType\":\"game\",\"emptyCompileConditionsRemoved\":true,\"enhancementDisabled\":true,\"removedCondition\":null,\"changed\":true,\"action\":\"LOCAL_CONFIG_ONLY\"}",
+          "stderr": ""
+        },
+        "removedConditionReportedByFinalizer": null,
+        "shimInjected": true,
+        "pingResult": "7553b00cad16629f",
+        "screenshotError": "fake screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default"
+          ],
+          "pid": 876,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 55,
+          "lines": []
+        },
+        "cliLaunch": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default",
+            "--auto-port",
+            "42019"
+          ],
+          "pid": 865,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 52,
+          "lines": []
+        }
+      },
+      "channels": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1259,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "errors": [],
+      "knownNotice": [],
+      "knownNoticeUnattributed": [],
+      "unattributed": [
+        {
+          "source": "weapplog",
+          "level": "unknown",
+          "id": "bracket-error-category",
+          "text": "OTHER-PROJECT [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面 (env: macOS,mg,2.02.2608080; lib: 3.17.3)",
+          "kind": "error"
+        }
+      ],
+      "warnings": [],
+      "missing": [
+        "1 finding(s) not attributable to this project (weapplog:error)"
+      ],
+      "status": "BLOCKED",
+      "reason": "1 finding(s) not attributable to this project (weapplog:error)",
+      "token": "7553b00cad16629f",
+      "attributionMarkers": [
+        "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T013324258Z-c005-24b350-default",
+        "QFFirstOpen-20261010T013324258Z-c005-24b350-default",
+        "7553b00cad16629f"
+      ],
+      "mode": "auto",
+      "shim": {
+        "version": "0008v3",
+        "token": "7553b00cad16629f",
+        "installedAt": 1791596005376,
+        "heartbeat": true,
+        "canaryAtBoot": true,
+        "wrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "stillWrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "onErrorRegistered": true,
+        "onUnhandledRejectionRegistered": true,
+        "installErrors": [],
+        "dropped": 0,
+        "errors": [
+          {
+            "t": 1791596005377,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY] 7553b00cad16629f"
+          },
+          {
+            "t": 1791596005878,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY-LATE] 7553b00cad16629f"
+          }
+        ],
+        "warns": [],
+        "logs": [
+          {
+            "t": 1791596005376,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT] 7553b00cad16629f"
+          },
+          {
+            "t": 1791596005377,
+            "level": "log",
+            "msg": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+          },
+          {
+            "t": 1791596005878,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT-LATE] 7553b00cad16629f"
+          }
+        ],
+        "onError": [],
+        "unhandled": []
+      },
+      "loadSceneSeen": true,
+      "unclassifiedInfo": []
+    }
+  ],
+  "config": {
+    "cli": "/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-cli.cjs",
+    "buildDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/build",
+    "workRoot": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/copies",
+    "finalizer": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+    "cases": [
+      "default"
+    ],
+    "allowAppJsonNotice": true,
+    "mode": "auto",
+    "autoPort": 42019,
+    "settleMs": 0,
+    "cliDrainMs": 100,
+    "injectShim": true,
+    "logDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/unattributed-notice-allowlisted/logs",
+    "logPollMs": 20,
+    "logMaxBytes": 1000000,
+    "automatorModule": "/workspace/shared/game-first-open-0008-v4-review/evidence/replay/fake-automator.cjs",
+    "globalQuit": "removed"
+  },
+  "sourceBuild": {
+    "projectConfigSha256": "44d16e30a37434fd804bceb7c7567d6947a291a92fe65e156f4f44af53f5ffbb",
+    "gameJsonSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "fileCount": 3
+  },
+  "islogin": {
+    "code": 0,
+    "output": "fake logged in"
+  },
+  "diagnostics": [],
+  "noticeSeenInDefault": false,
+  "finishedAt": "2026-10-10T01:33:25.991Z",
+  "ownChildrenRunningAtFreeze": 0
+}

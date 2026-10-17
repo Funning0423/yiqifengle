@@ -1,0 +1,442 @@
+{
+  "scope": "independent static checks only; no supplied script executed",
+  "passed": 86,
+  "failed": 0,
+  "creator_3_8_8_import_compile": "not_run",
+  "glslang": "not_run",
+  "tsc_creator_declarations": "not_run",
+  "wechat_devtools": "not_run",
+  "real_device": "not_run",
+  "results": [
+    {
+      "check": "sky-unlit.effect: SkyVS std140 simple layout",
+      "status": "pass",
+      "detail": "2 vec4s"
+    },
+    {
+      "check": "sky-unlit.effect: SkyFS std140 simple layout",
+      "status": "pass",
+      "detail": "4 vec4s"
+    },
+    {
+      "check": "sky-unlit.effect: vert entry",
+      "status": "pass",
+      "detail": "sky-vs:vert"
+    },
+    {
+      "check": "sky-unlit.effect: frag entry",
+      "status": "pass",
+      "detail": "sky-fs:frag"
+    },
+    {
+      "check": "sky-unlit.effect: property mainTexture",
+      "status": "pass",
+      "detail": "mainTexture"
+    },
+    {
+      "check": "sky-unlit.effect: property nightTexture",
+      "status": "pass",
+      "detail": "nightTexture"
+    },
+    {
+      "check": "sky-unlit.effect: property tilingOffset",
+      "status": "pass",
+      "detail": "tilingOffset"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap tilingOffset",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property dayTint",
+      "status": "pass",
+      "detail": "dayTint"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap dayTint",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property nightTint",
+      "status": "pass",
+      "detail": "nightTint"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap nightTint",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property nightBlend",
+      "status": "pass",
+      "detail": "skyParams.x"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap nightBlend",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property intensity",
+      "status": "pass",
+      "detail": "skyParams.y"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap intensity",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property scrollSpeed",
+      "status": "pass",
+      "detail": "skyVSParams.x"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap scrollSpeed",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property horizonFog",
+      "status": "pass",
+      "detail": "horizonParams.x"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap horizonFog",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property horizonV",
+      "status": "pass",
+      "detail": "horizonParams.y"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap horizonV",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: property horizonWidth",
+      "status": "pass",
+      "detail": "horizonParams.z"
+    },
+    {
+      "check": "sky-unlit.effect: no overlap horizonWidth",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky-unlit.effect: authored varyings match",
+      "status": "pass",
+      "detail": "{'v_color': 'vec3', 'v_uv': 'vec2', 'v_v': 'float'}"
+    },
+    {
+      "check": "sky-unlit.effect: material UBO byte count",
+      "status": "pass",
+      "detail": "96"
+    },
+    {
+      "check": "sky-unlit.effect: no authored main()",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky horizon default correct",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky horizon fade expression correct",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky depthWrite disabled",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "sky fog monotonic and correct endpoints",
+      "status": "pass",
+      "detail": "{'0': 0, '0.737': 0, '0.797': 0.5000000000000007, '0.857': 1, '1': 1}"
+    },
+    {
+      "check": "meadow-grass-wind.effect: GrassWindVS std140 simple layout",
+      "status": "pass",
+      "detail": "6 vec4s"
+    },
+    {
+      "check": "meadow-grass-wind.effect: GrassWindFS std140 simple layout",
+      "status": "pass",
+      "detail": "3 vec4s"
+    },
+    {
+      "check": "meadow-grass-wind.effect: vert entry",
+      "status": "pass",
+      "detail": "grass-vs:vert"
+    },
+    {
+      "check": "meadow-grass-wind.effect: frag entry",
+      "status": "pass",
+      "detail": "grass-fs:frag"
+    },
+    {
+      "check": "meadow-grass-wind.effect: property mainTexture",
+      "status": "pass",
+      "detail": "mainTexture"
+    },
+    {
+      "check": "meadow-grass-wind.effect: property tilingOffset",
+      "status": "pass",
+      "detail": "tilingOffset"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap tilingOffset",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property mainColor",
+      "status": "pass",
+      "detail": "mainColor"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap mainColor",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property tipColor",
+      "status": "pass",
+      "detail": "tipColor"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap tipColor",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property tipMix",
+      "status": "pass",
+      "detail": "colorParams.y"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap tipMix",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property rootBlendStart",
+      "status": "pass",
+      "detail": "colorParams.z"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap rootBlendStart",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property rootBlendEnd",
+      "status": "pass",
+      "detail": "colorParams.w"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap rootBlendEnd",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property alphaThreshold",
+      "status": "pass",
+      "detail": "colorParams.x"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap alphaThreshold",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property rootColor",
+      "status": "pass",
+      "detail": "rootColor"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap rootColor",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property windDir",
+      "status": "pass",
+      "detail": "windDirSpeed.xy"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap windDir",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property windSpeed",
+      "status": "pass",
+      "detail": "windDirSpeed.z"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap windSpeed",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property windWavelength",
+      "status": "pass",
+      "detail": "windDirSpeed.w"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap windWavelength",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property windStrength",
+      "status": "pass",
+      "detail": "windShape.x"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap windStrength",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property amplitudeScale",
+      "status": "pass",
+      "detail": "windShape.y"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap amplitudeScale",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property waveWeight",
+      "status": "pass",
+      "detail": "windShape.z"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap waveWeight",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property swayWeight",
+      "status": "pass",
+      "detail": "windShape.w"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap swayWeight",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property gustStrength",
+      "status": "pass",
+      "detail": "gustParams.x"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap gustStrength",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property gustFreq",
+      "status": "pass",
+      "detail": "gustParams.y"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap gustFreq",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property gustWavelength",
+      "status": "pass",
+      "detail": "gustParams.z"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap gustWavelength",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property bendDrop",
+      "status": "pass",
+      "detail": "gustParams.w"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap bendDrop",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property normalUpBlend",
+      "status": "pass",
+      "detail": "lightParams.x"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap normalUpBlend",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property wrapLighting",
+      "status": "pass",
+      "detail": "lightParams.y"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap wrapLighting",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property lightScale",
+      "status": "pass",
+      "detail": "lightParams.z"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap lightScale",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: property ambientScale",
+      "status": "pass",
+      "detail": "lightParams.w"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no overlap ambientScale",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "meadow-grass-wind.effect: authored varyings match",
+      "status": "pass",
+      "detail": "{'v_uv': 'vec2', 'v_bend': 'float', 'v_root': 'vec3', 'v_light': 'vec3'}"
+    },
+    {
+      "check": "meadow-grass-wind.effect: material UBO byte count",
+      "status": "pass",
+      "detail": "144"
+    },
+    {
+      "check": "meadow-grass-wind.effect: no authored main()",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "check": "grass normalized wind direction",
+      "status": "pass",
+      "detail": "0.9999916405000001"
+    }
+  ]
+}

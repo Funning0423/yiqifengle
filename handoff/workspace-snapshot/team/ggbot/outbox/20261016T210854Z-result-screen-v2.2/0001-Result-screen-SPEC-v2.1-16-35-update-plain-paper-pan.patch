@@ -1,0 +1,106 @@
+From f7354d3e3492f848ff35e7a09d04c8c3329af44c Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 04:38:27 +0800
+Subject: [PATCH 1/3] Result screen SPEC v2.1 (16:35 update): plain paper
+ panel, tighter chest glow, softer badge glow
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Result panel 9-slice: its own SpriteFrame on the same texture with inset 212 (shared frame keeps 276 for the other
+  popups), scaled so the border shows ≈ 23 pt; the centre is the asset's plain paper, no light/colour layer.
+- Chest glow hugs the chest: r74 closed (centre 4 below the chest), r78 open (26 above), compact r50, never more than
+  0.45 × chest width; peak α 47% (night 59%) closed, 59% open (≈ 55–65% of the previous strength), edge fades to 0.
+- RewardBadge outer glow r40, peak α 43%.
+- test_result_screen_style checks the panel inset/edge and the glow radius.
+---
+ .../assets/scripts/ui/BoardPanels.ts          | 28 +++++++++++++------
+ tools/board-ui/test_result_screen_style.cjs   |  5 ++++
+ 2 files changed, 24 insertions(+), 9 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/ui/BoardPanels.ts b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+index def6e9f..cb92743 100644
+--- a/creator-build-project/assets/scripts/ui/BoardPanels.ts
++++ b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+@@ -1,4 +1,4 @@
+-import { Color, Graphics, Label, Node, Sprite, UIOpacity, UITransform, isValid } from 'cc';
++import { Color, Graphics, Label, Node, Sprite, SpriteFrame, UIOpacity, UITransform, isValid } from 'cc';
+ import { GameAudio } from '../audio/GameAudio';
+ import { PopupPanel, PopupStack, resetPresses, uiNode, measure, type ArtButtonHandle, type ButtonOptions } from './PopupKit';
+ import { toolArt, type ToolArtSource } from './CommonPanels';
+@@ -166,7 +166,13 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   const scoreText = scoreLabel.string;
+   const rewardIcons = rewards.map(g => g.node.children.filter(n => !n.name.startsWith('Claim-') && !n.getComponent(Label)));
+   const goalIcons = groups.ResultGoals?.node.children.filter(n => !n.getComponent(Label)) || [];
+-  const frame = p.body.getChildByName('PanelFrame')!; frame.setScale(frame.scale.x * 0.45, frame.scale.y * 0.45, 1);
++  // SPEC v2.1 (2026-10-16 16:35): result panel 9-slice inset 212 source px (the shared frame keeps 276 for other popups),
++  // shown ≈ 23 pt; the centre is the asset's own plain paper, no light or colour layer on top.
++  const frame = p.body.getChildByName('PanelFrame')!, PANEL_INSET = 212, PANEL_EDGE_PT = 23;
++  { const sp = frame.getComponent(Sprite), sf: any = sp?.spriteFrame;
++    let own: any = null; if (sf && sf.texture) { own = new SpriteFrame(); own.texture = sf.texture; }
++    if (sp && own) { own.insetLeft = own.insetTop = own.insetRight = own.insetBottom = PANEL_INSET; sp.spriteFrame = own; const pd = p.destroy.bind(p); p.destroy = () => { pd(); try { own.destroy?.(); } catch { } }; }
++    const k = own ? PANEL_EDGE_PT / (PANEL_INSET * Math.abs(frame.scale.x || 1)) : 0.45; frame.setScale(frame.scale.x * k, frame.scale.y * k, 1); }
+   const plateScales = new Map<Node, number>();
+   const buttonTextInset = 16;
+   let rowGap = 6;
+@@ -296,7 +302,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   // SPEC v2.1: chest shown 180 wide closed / 176 open (compact 120), hit area 220 (compact 160), glow r120 closed / r150 open
+   // (compact r80), rays 300 centred 48 above the chest, only once open. 2D fallback art aspect: closed 380×329, open 380×412.
+   const CHEST_W = 180, CHEST_H = 156, CHEST_W_C = 120, CHEST_H_C = 104, HALO = 220, HALO_C = 160, RAY = 300, CHEST_MIN_H = 72;
+-  const CHEST_OPEN_W = 176 / 180, FLAT_OPEN_ASPECT = 412 / 380, GLOW_R = 120, GLOW_R_OPEN = 150, GLOW_R_C = 80, RAY_LIFT = 48;
++  const CHEST_OPEN_W = 176 / 180, FLAT_OPEN_ASPECT = 412 / 380, GLOW_R = 74, GLOW_R_OPEN = 78, GLOW_R_C = 50, RAY_LIFT = 48;
++  // Glow hugs the chest (radius ≤ 0.45 × chest width): closed centre 4 below the chest centre, open 26 above; peak α 47% (night 59%) / open 59%.
++  const GLOW_DY = -4, GLOW_DY_OPEN = 26, GLOW_A = 0.47, GLOW_A_NIGHT = 0.59, GLOW_A_OPEN = 0.59, BADGE_GLOW_R = 40, BADGE_GLOW_A = 0.43;
+   // Bottom actions match the home-screen wooden buttons: 56 high, plate art 0.6, a 5-unit drop shadow, equal widths.
+   const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 6, GUIDE_PERIOD = 1.6;
+   // Rewards float above the open chest: icon + name, a gentle rise then bob. No card module under the chest.
+@@ -493,9 +501,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+           plate = uiNode('ResultFloatPlate', holder, icon, icon); const pn = plate;
+           pn.addComponent(Graphics); (pn as any).__draw = () => {
+             const g = pn.getComponent(Graphics)!, ui = pn.getComponent(UITransform)!, s2 = ui.width / 2; g.clear();
+-            // RewardBadge: glow r46 #FFE28C α78% → 6pt base #C4A06C (night #A0805C) → outer #FFF8E4 → inner #FAECCC Ø60/68.
++            // RewardBadge: glow r40 #FFE28C peak α43% → 6pt base #C4A06C (night #A0805C) → outer #FFF8E4 → inner #FAECCC Ø60/68.
+             const night = !!(pn as any).__night, k2 = s2 / 34;
+-            for (let k = 0; k < 8; k++) { const r = 46 * k2 * (1 - k / 8) + s2 * (k / 8); g.fillColor = new Color(0xFF, 0xE2, 0x8C, Math.round(199 / 8 * (0.4 + k / 8))); g.circle(0, 0, r); g.fill(); }
++            { const n = 8, st = 1 - Math.pow(1 - BADGE_GLOW_A, 1 / n); for (let k = 0; k < n; k++) { const r = BADGE_GLOW_R * k2 * (1 - k / n) + s2 * (k / n); g.fillColor = new Color(0xFF, 0xE2, 0x8C, Math.round(255 * st)); g.circle(0, 0, r); g.fill(); } }
+             g.fillColor = night ? new Color(0xA0, 0x80, 0x5C, 255) : new Color(0xC4, 0xA0, 0x6C, 255); g.circle(0, -6 * k2, s2); g.fill();
+             g.fillColor = new Color(0xFF, 0xF8, 0xE4, 255); g.circle(0, 0, s2); g.fill();
+             g.fillColor = new Color(0xFA, 0xEC, 0xCC, 255); g.circle(0, 0, s2 * 60 / 68); g.fill();
+@@ -548,12 +556,14 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+       if (!haloNode || !isValid(haloNode, true)) {
+         haloNode = uiNode('ResultChestHalo', row.node, chestW, chestH); const hn = haloNode; hn.addComponent(Graphics);
+         (hn as any).__draw = (open: boolean, night: boolean) => {
+-          const g = hn.getComponent(Graphics)!, r0 = hn.getComponent(UITransform)!.width / 2, c = open ? [0xFF, 0xD6, 0x78] : [0xFF, 0xDE, 0x8C], a0 = open ? 0.9 : night ? 0.94 : 0.82; g.clear();
+-          for (let k = 0; k < 16; k++) { const f = 1 - k / 16; g.fillColor = new Color(c[0], c[1], c[2], Math.round(255 * a0 * (k === 0 ? 0.06 : 0.11) * (0.35 + 0.65 * (1 - f)))); g.circle(0, 0, r0 * f); g.fill(); }
++          const g = hn.getComponent(Graphics)!, r0 = hn.getComponent(UITransform)!.width / 2, c = open ? [0xFF, 0xD6, 0x78] : [0xFF, 0xDE, 0x8C], a0 = open ? GLOW_A_OPEN : night ? GLOW_A_NIGHT : GLOW_A; g.clear();
++          // 16 stacked discs: the centre reaches the peak α, the edge fades out completely (soft, not an ellipse block).
++          const n = 16, step = 1 - Math.pow(1 - a0, 1 / n);
++          for (let k = 0; k < n; k++) { const f = 1 - k / n; g.fillColor = new Color(c[0], c[1], c[2], Math.round(255 * step)); g.circle(0, 0, r0 * f); g.fill(); }
+         };
+       }
+-      const sk = chestW / (specCompact ? CHEST_W_C : CHEST_W), glowD = 2 * (specCompact ? GLOW_R_C : opened ? GLOW_R_OPEN : GLOW_R) * sk;
+-      haloNode.getComponent(UITransform)!.setContentSize(glowD, glowD); add(row, haloNode, 0, chestY); (haloNode as any).__draw(opened, isNight());
++      const sk = chestW / (specCompact ? CHEST_W_C : CHEST_W), glowD = 2 * Math.min(0.45 * chestW, (specCompact ? GLOW_R_C : opened ? GLOW_R_OPEN : GLOW_R) * sk);
++      haloNode.getComponent(UITransform)!.setContentSize(glowD, glowD); add(row, haloNode, 0, chestY + (opened ? GLOW_DY_OPEN : GLOW_DY) * sk); (haloNode as any).__draw(opened, isNight());
+       // FloorShadow 140 × 20 #5A3A1E α25% under the chest.
+       let floor = row.node.getChildByName('ResultChestFloor');
+       if (!floor) { floor = uiNode('ResultChestFloor', row.node, 140, 20); const g = floor.addComponent(Graphics); g.fillColor = new Color(0x50, 0x32, 0x1A, 89); g.ellipse(0, 0, 70, 10); g.fill(); }
+diff --git a/tools/board-ui/test_result_screen_style.cjs b/tools/board-ui/test_result_screen_style.cjs
+index 13ee4ed..a85cc75 100644
+--- a/tools/board-ui/test_result_screen_style.cjs
++++ b/tools/board-ui/test_result_screen_style.cjs
+@@ -40,6 +40,11 @@ const { createHarness } = require('./harness.cjs');
+     const tb = box(tap); assert(tb.w >= 44 && tb.h >= 44, 'hit area ≥ 44'); assert.equal(tb.w, d.guide.chest.hit);
+     assert(d.guide.pulsing, 'ready chest pulses'); assert(!p.root.find('ResultChestRays').activeInHierarchy, 'rays only after opening');
+     assert(all.includes('✦ 点宝箱领取 ✦'), 'hint under the chest'); assert(!all.includes('主线 05 · 潮汐挑战已开放'), 'unlock hint waits for the open chest');
++    // SPEC 16:35: glow hugs the chest (r74 closed, ≤ 0.45 × chest width); panel 9-slice inset 212, edge ≈ 23 pt, plain paper.
++    const hb0 = box(halo); assert(hb0.w <= 0.9 * d.guide.chest.w + 0.5, 'glow radius ≤ 0.45 × chest width'); if (!compact) assert(Math.abs(hb0.w / 2 / halo.scale.x - 74) < 0.5 || Math.abs(hb0.w / 2 - 74) < 4, 'glow r74');
++    const pf = p.body.getChildByName('PanelFrame'), psf = pf.getComponent(H.cc.Sprite).spriteFrame;
++    assert.equal(psf.insetLeft, 212); assert(Math.abs(212 * Math.abs(pf.scale.x) - 23) < 0.5, 'panel edge ≈ 23');
++    assert(!p.root.find('InnerLight'), 'no warm light layer inside the panel');
+     const s0 = halo.scale.x; settle(16); assert.notEqual(halo.scale.x, s0, 'halo breathes');
+     // 4) buttons: equal width, 56 (52 compact), art 0.6, shadow ≥ 4, ≥ 40 from the screen edge on 390, gap 16, bottom clearance.
+     const next = p.root.find('Next'), home = p.root.find('Home'), nb = box(next), hb = box(home), ns = screen(next, w, h), hs = screen(home, w, h);
+-- 
+2.47.3
+

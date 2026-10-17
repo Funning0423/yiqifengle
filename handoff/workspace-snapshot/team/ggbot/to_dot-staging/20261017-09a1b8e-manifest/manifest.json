@@ -1,0 +1,177 @@
+{
+ "schema": "ggbot-handoff-manifest/1",
+ "for": "Oi",
+ "project": "咦 起风了 (WeChat mini-game, Cocos Creator 3.8.8)",
+ "generated": "2026-10-17T03:10-04:00 (EDT)",
+ "generated_by": "GGbot (box), local only, nothing pushed/uploaded",
+ "commit": {
+  "sha": "09a1b8e456fd38dadf632f627189883808307cbe",
+  "tree": "082f1c0ee20c38403d3f3bbb3ff5fb27d2ecf14a",
+  "parent": "455ee48b314cd477b90c5c71b9635e88906404ad",
+  "author_date": "2026-10-17T10:28:31+08:00 (= 2026-10-16 22:28:31 EDT)",
+  "subject": "E1: tools/build-guard/build-wechat-guarded.sh - Creator CLI build guard ...",
+  "first_parent_chain": [
+   "09a1b8e456fd38dadf632f627189883808307cbe",
+   "455ee48b314cd477b90c5c71b9635e88906404ad",
+   "511953eebda301e354149faf8e07ddde2031fbd8",
+   "c08dbf33f1e0a53b56f0208f3226a0380a44cfbd",
+   "d9f87b23781153c5ffa9013a3a279108372071b8",
+   "1bf0bfae96cc2e30727f6f3c256a2c10231ae189"
+  ],
+  "bases": {
+   "b0020ed4ea1f632802ac414c44d0655afdeb34ee": "ancestor, 57 commits below",
+   "77b76c3d15ec552bc110c66484873abfd64994ca": "ancestor, 28 commits below",
+   "root": "d32920c4376d4f0293106b486860142ea668bcf3"
+  },
+  "total_commits_in_history": 462,
+  "refs_pointing_at": [
+   "refs/heads/integration/build05-20261016T2048",
+   "refs/heads/ggbot/audit-fixes-77b76c3"
+  ],
+  "full_chain_file": "git/chain_b0020ed..09a1b8e.txt",
+  "local_only": true,
+  "merge_commits_in_history": 88,
+  "merge_commits_b0020ed..09a1b8e": 5,
+  "first_parent_length": 254,
+  "first_parent_chain_note": "first 6 shown; full b0020ed..09a1b8e (57 commits incl. merges) in git/chain_b0020ed..09a1b8e.txt"
+ },
+ "readme": {
+  "file": "readme/README_v2.1.md",
+  "source": "team/ggbot/outbox/20261017T041004Z-integration-build05-milestone-readme-v2.1/README.md",
+  "sha256": "50ef036b641161f65e98b3093e49e5922db07e3d28f06686b60c536bb1f98c3b",
+  "bytes": 4727
+ },
+ "bundle": {
+  "name": "qfl-build05-09a1b8e-full.bundle",
+  "bytes": 138105148,
+  "sha256": "5d4ed05d6ab3eafc0a14894109384adfea9fcb797a47a08f63be6a409568c2e2",
+  "paths": [
+   "/workspace/wechat-game/team/ggbot/outbox/20261017T041004Z-integration-build05-milestone-readme-v2.1/qfl-build05-09a1b8e-full.bundle",
+   "/workspace/wechat-game/team/ggbot/outbox/20261017T033129Z-integration-build05-milestone-readme-v2/qfl-build05-09a1b8e-full.bundle"
+  ],
+  "note": "two identical copies (same SHA256) but NOT hard links: different inodes, link count 1 each",
+  "heads": {
+   "refs/heads/integration/build05-20261016T2048": "09a1b8e456fd38dadf632f627189883808307cbe"
+  },
+  "prerequisites": [],
+  "verify_result": "okay; records a complete history; hash algorithm sha1",
+  "commands": {
+   "checksum": "shasum -a 256 qfl-build05-09a1b8e-full.bundle",
+   "verify": "git init -q /tmp/v && git -C /tmp/v bundle verify $PWD/qfl-build05-09a1b8e-full.bundle",
+   "list_heads": "git bundle list-heads qfl-build05-09a1b8e-full.bundle",
+   "clone": "git clone -b integration/build05-20261016T2048 qfl-build05-09a1b8e-full.bundle qfl-milestone && git -C qfl-milestone rev-parse HEAD HEAD^{tree}"
+  },
+  "other_bundle_note": "界面验收部 milestone run verified the earlier INCREMENTAL bundle integration-build05.bundle (sha256 1f1f33dfdef7c23e85288b03b8b9515ee7f64aed6b690179f18fab6e84eeca08, needs b0020ed, outbox 20261017T025522Z, superseded). The full bundle 5d4ed05d... was verified on the Mac in the later readme-v2-a3 and a3b-a17395c runs, which rebuilt 09a1b8e to the same sizes."
+ },
+ "build": {
+  "tool": "Cocos Creator 3.8.8 CLI via tools/build-guard/build-wechat-guarded.sh both",
+  "command": "CREATOR=\"$HOME/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator\" bash tools/build-guard/build-wechat-guarded.sh both",
+  "build_inputs_sha256": "build/build-inputs_at_09a1b8e.sha256.txt",
+  "configs": [
+   "build/wechat-release.json",
+   "build/web-test.json"
+  ],
+  "build_time": "2026-10-17 10:58 CST on Mac (= 2026-10-16 22:58 EDT)",
+  "md5Cache": false,
+  "debug": false,
+  "appid": "wx3bdd911c5c06f591",
+  "runs": [
+   {
+    "who": "界面验收部 milestone clone ~/qf-ms-tmp/repo",
+    "guard_out": "build/guard.out",
+    "raw_logs": [
+     "build/raw-logs/wechat-release.try1.log.gz",
+     "build/raw-logs/web-test.try1.log.gz"
+    ],
+    "wechat_bytes": 19125680,
+    "web_bytes": 19867113,
+    "retries": 0
+   },
+   {
+    "who": "界面验收部 layman README clone",
+    "guard_out": "build/guard2_layman.out",
+    "raw_logs": [
+     "build/raw-logs/layman_wechat-release.try1.log.gz",
+     "build/raw-logs/layman_web-test.try1.log.gz",
+     "build/raw-logs/layman_web-test.try2.log.gz"
+    ],
+    "wechat_bytes": 19125680,
+    "web_bytes": 19867113,
+    "retries": "web try1 rejected (2309217 B, 当前初始场景不存在, 400 dirty), try2 OK"
+   },
+   {
+    "who": "界面验收部 readme-v2 rerun from full bundle ~/qfl-milestone",
+    "guard_out": "build/guard_readme-v2-rerun.out",
+    "wechat_bytes": 19125680,
+    "web_bytes": 19867113,
+    "raw_logs": "not copied; at ui-audit/2026-10-16/readme-v2-a3/logs/"
+   }
+  ],
+  "wechat_subpackages": {
+   "ROOT": 1862250,
+   "audio_bgm_island": 418907,
+   "board_art": 2112160,
+   "internal": 297535,
+   "main": 1176053,
+   "region_island": 2967101,
+   "region_lakeside": 464387,
+   "region_meadow": 2934449,
+   "region_skycity": 3326944,
+   "resources": 445828,
+   "shared_effects": 563694,
+   "static_seat_preview": 2556372
+  },
+  "safety_gate_bytes": 24641536
+ },
+ "artifacts": {
+  "status": "MISSING (sha256)",
+  "known": [
+   {
+    "name": "wechat-release",
+    "bytes": 19125680,
+    "sha256": null
+   },
+   {
+    "name": "web-test",
+    "bytes": 19867113,
+    "sha256": null
+   }
+  ],
+  "why": "no artifact-level or per-file SHA256 was ever recorded (md5Cache=false; guard prints byte totals only); outputs were built on the Mac and deleted after acceptance; no copy on the box. The current Mac desktop package ~/Desktop/QIFENGLE-test-build05 (wechat-release + web-test of 09a1b8e) was not hashed.",
+  "searched": [
+   "/workspace/wechat-game/ui-audit/** (rg 09a1b8e, 19125680, sha256)",
+   "find / -xdev for wechat-release/web-test dirs, *QIFENGLE*, *09a1b8e*",
+   "team/ggbot/outbox, team/*, work/*"
+  ],
+  "remedy": "界面验收部 runs on Mac: cd ~/Desktop/QIFENGLE-test-build05 && find wechat-release web -type f -print0 | sort -z | xargs -0 shasum -a 256 > files.sha256 ; shasum -a 256 files.sha256 ; and tar/zip-free tree hash from that list"
+ },
+ "tests": {
+  "source": "ui-audit/2026-10-16/milestone-09a1b8e (same Mac session as build run 1)",
+  "summary": "tests/ui-audit_milestone-09a1b8e_summary.md",
+  "runs": {
+   "day_390": [
+    "tests/raw/recday.log",
+    "tests/raw/ib_day_390.json",
+    "tests/raw/ib_day_390_worldFlowLog.txt.gz"
+   ],
+   "night_390": [
+    "tests/raw/recnight.log",
+    "tests/raw/ib_night_390.json",
+    "tests/raw/ib_night_390_worldFlowLog.txt.gz"
+   ],
+   "bg_switch_1_walking-out_vis3000": [
+    "tests/raw/recvis3.log",
+    "tests/raw/ib_day_390_vis3000.json",
+    "tests/raw/ib_day_390_vis3000_worldFlowLog.txt.gz"
+   ],
+   "bg_switch_2_crossing-out_vis18000": [
+    "tests/raw/recvis18.log",
+    "tests/raw/ib_day_390_vis18000.json",
+    "tests/raw/ib_day_390_vis18000_worldFlowLog.txt.gz"
+   ]
+  },
+  "hash_linkage": "PARTIAL: linked by commit (HEAD 09a1b8e / tree 082f1c0e verified in summary §0), same session and build sizes (19125680 / 19867113). NOT linked by artifact SHA256 - raw test logs carry no artifact hash or served URL/path. Artifact-hash linkage MISSING.",
+  "not_copied_large": "videos *.webm, audio *.wav, screenshots *.png - referenced in source-files.sha256.txt / source-files.bytes.tsv"
+ },
+ "integrity": "SHA256SUMS (sha256sum -c SHA256SUMS)"
+}

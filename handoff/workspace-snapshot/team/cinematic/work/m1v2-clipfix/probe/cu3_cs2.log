@@ -1,0 +1,55 @@
+00:00.072  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.512  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-clipfix/pipe/scene/cine_m1_anim_cs2.blend"
+00:00.748  system.path      | WARNING Could not get a list of mounted file-systems
+00:05.330  render           | Saved: 'evidence/stills_v3/v3_cs2_f037_lap_game_r24.png'
+00:09.205  render           | Saved: 'evidence/stills_v3/v3_cs2_f037_lap_game_portrait45.png'
+00:12.416  render           | Saved: 'evidence/stills_v3/v3_cs2_f037_lap_closeFront.png'
+00:15.822  render           | Saved: 'evidence/stills_v3/v3_cs2_f037_lap_closeRight.png'
+00:18.737  render           | Saved: 'evidence/stills_v3/v3_cs2_f037_lap_closeFront_marker.png'
+CU v3_cs2 37 lap
+00:22.406  render           | Saved: 'evidence/stills_v3/v3_cs2_f076_lap_game_r24.png'
+00:26.062  render           | Saved: 'evidence/stills_v3/v3_cs2_f076_lap_game_portrait45.png'
+00:28.504  render           | Saved: 'evidence/stills_v3/v3_cs2_f076_lap_closeFront.png'
+00:31.133  render           | Saved: 'evidence/stills_v3/v3_cs2_f076_lap_closeRight.png'
+00:34.107  render           | Saved: 'evidence/stills_v3/v3_cs2_f076_lap_closeFront_marker.png'
+CU v3_cs2 76 lap
+00:37.491  render           | Saved: 'evidence/stills_v3/v3_cs2_f077_lap_game_r24.png'
+00:40.667  render           | Saved: 'evidence/stills_v3/v3_cs2_f077_lap_game_portrait45.png'
+00:42.973  render           | Saved: 'evidence/stills_v3/v3_cs2_f077_lap_closeFront.png'
+00:45.623  render           | Saved: 'evidence/stills_v3/v3_cs2_f077_lap_closeRight.png'
+00:48.102  render           | Saved: 'evidence/stills_v3/v3_cs2_f077_lap_closeFront_marker.png'
+CU v3_cs2 77 lap
+00:52.017  render           | Saved: 'evidence/stills_v3/v3_cs2_f078_lap_game_r24.png'
+00:55.198  render           | Saved: 'evidence/stills_v3/v3_cs2_f078_lap_game_portrait45.png'
+00:57.531  render           | Saved: 'evidence/stills_v3/v3_cs2_f078_lap_closeFront.png'
+01:00.784  render           | Saved: 'evidence/stills_v3/v3_cs2_f078_lap_closeRight.png'
+01:03.539  render           | Saved: 'evidence/stills_v3/v3_cs2_f078_lap_closeFront_marker.png'
+CU v3_cs2 78 lap
+01:07.144  render           | Saved: 'evidence/stills_v3/v3_cs2_f079_lap_game_r24.png'
+01:10.293  render           | Saved: 'evidence/stills_v3/v3_cs2_f079_lap_game_portrait45.png'
+01:12.899  render           | Saved: 'evidence/stills_v3/v3_cs2_f079_lap_closeFront.png'
+01:16.130  render           | Saved: 'evidence/stills_v3/v3_cs2_f079_lap_closeRight.png'
+01:19.131  render           | Saved: 'evidence/stills_v3/v3_cs2_f079_lap_closeFront_marker.png'
+CU v3_cs2 79 lap
+01:23.213  render           | Saved: 'evidence/stills_v3/v3_cs2_f080_lap_game_r24.png'
+01:26.329  render           | Saved: 'evidence/stills_v3/v3_cs2_f080_lap_game_portrait45.png'
+01:28.848  render           | Saved: 'evidence/stills_v3/v3_cs2_f080_lap_closeFront.png'
+01:31.723  render           | Saved: 'evidence/stills_v3/v3_cs2_f080_lap_closeRight.png'
+01:34.462  render           | Saved: 'evidence/stills_v3/v3_cs2_f080_lap_closeFront_marker.png'
+CU v3_cs2 80 lap
+01:38.134  render           | Saved: 'evidence/stills_v3/v3_cs2_f081_lap_game_r24.png'
+01:41.823  render           | Saved: 'evidence/stills_v3/v3_cs2_f081_lap_game_portrait45.png'
+01:44.363  render           | Saved: 'evidence/stills_v3/v3_cs2_f081_lap_closeFront.png'
+01:47.279  render           | Saved: 'evidence/stills_v3/v3_cs2_f081_lap_closeRight.png'
+01:49.554  render           | Saved: 'evidence/stills_v3/v3_cs2_f081_lap_closeFront_marker.png'
+CU v3_cs2 81 lap
+01:53.119  render           | Saved: 'evidence/stills_v3/v3_cs2_f082_lap_game_r24.png'
+01:56.834  render           | Saved: 'evidence/stills_v3/v3_cs2_f082_lap_game_portrait45.png'
+01:59.470  render           | Saved: 'evidence/stills_v3/v3_cs2_f082_lap_closeFront.png'
+02:02.503  render           | Saved: 'evidence/stills_v3/v3_cs2_f082_lap_closeRight.png'
+02:04.733  render           | Saved: 'evidence/stills_v3/v3_cs2_f082_lap_closeFront_marker.png'
+CU v3_cs2 82 lap
+CUDONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

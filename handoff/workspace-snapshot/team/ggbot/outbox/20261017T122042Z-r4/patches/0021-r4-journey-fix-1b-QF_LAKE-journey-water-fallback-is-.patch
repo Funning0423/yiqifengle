@@ -1,0 +1,92 @@
+From 5bb9e0da057efde43879b7cd1e98adf8f09c7788 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 19:28:04 +0800
+Subject: [PATCH 21/47] r4 journey fix 1b: [QF_LAKE] journey-water-fallback is
+ an ERROR line (console.error), not a warn
+
+Lead: the journey water fallback must surface as an error. Same message and
+fields (event journey-water-fallback, bundle, asset, reason, look), same
+fallback (old water look, no throw, cancellation still propagates, nothing on
+a normal run). Test lakeside-journey-water-fallback now captures console.error,
+asserts no console.warn line, and locks the console.error call in the source.
+---
+ .../assets/scripts/region/LakesideJourneyWater.ts  |  4 ++--
+ .../assets/scripts/region/RegionJourneyAdapter.ts  |  2 +-
+ .../test_lakeside_journey_water_fallback.cjs       | 14 ++++++++------
+ 3 files changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts b/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts
+index a91f1e7..3e2943c 100644
+--- a/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyWater.ts
+@@ -2,11 +2,11 @@ import {MeshRenderer,Node,director,isValid,type Camera,type Material} from 'cc';
+ import {LAKESIDE_BUNDLE,LAKESIDE_DIR_LIGHT_PARAMS} from './LakesideSceneData';
+ /** r4 journey fix 1: the island→lakeside journey's lake keeps the imported water look when its own lakeside-water.mtl copy cannot be
+  *  made (bundle or material load failed, timed out, or the copy threw). That fallback is no longer silent: one always-on
+- *  [QF_LAKE] warn line with the reason and the asset path (not gated by __worldFlowLog, so any device log shows it). A normal run
++ *  [QF_LAKE] ERROR line (console.error; lead) with the reason and the asset path (not gated by __worldFlowLog, so any device log shows it). A normal run
+  *  never prints it. Never throws (the walk goes on with the old look). */
+ export function logLakesideJourneyWaterFallback(error:unknown,asset:string=LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath,bundle:string=LAKESIDE_BUNDLE):string{
+  let reason='unknown';try{reason=String((error as any)?.message??error);}catch{}
+- try{console.warn('[QF_LAKE] '+JSON.stringify({event:'journey-water-fallback',bundle,asset,reason,look:'imported water (pre-r4 look)'}));}catch{}
++ try{console.error('[QF_LAKE] '+JSON.stringify({event:'journey-water-fallback',bundle,asset,reason,look:'imported water (pre-r4 look)'}));}catch{}
+  return reason;}
+ /** r4 journey fix 3: the journey lake's water shader/pipeline state is built on its FIRST DRAW (WebGL links the program and the PSO is
+  *  made lazily), which used to be whenever the lake first entered the walking camera's view: a hitch mid-walk. The prewarm draws the
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 1e85cab..201ca5e 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -135,7 +135,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
+   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
+   // r4-prep D (lead): the journey's lake reads the SAME water source as the board (its own lakeside-water.mtl copy written by
+   // lakesideWaterMaterial / applyLakesideWaterMode from LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting). Not loaded = old look,
+-  // r4 journey fix 1: and one always-on [QF_LAKE] journey-water-fallback warn with the reason + asset path (no throw, the walk goes on).
++  // r4 journey fix 1: and one always-on [QF_LAKE] journey-water-fallback ERROR line with the reason + asset path (no throw, the walk goes on).
+   let waterAsset:Material|null=null;try{waterAsset=await loadLakesideWaterAsset(token,take);}catch(error){if(token.cancelled||dead)throw error;logLakesideJourneyWaterFallback(error);waterAsset=null;}token.check();
+   if(waterAsset){const water=lakesideWaterMaterial(waterAsset);owned.push(water);applyLakesideWaterMode(water,lakesideDayNightMode());useLakesideWater(model,water);
+    offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});journeyWater=water;}
+diff --git a/tools/lakeside/test_lakeside_journey_water_fallback.cjs b/tools/lakeside/test_lakeside_journey_water_fallback.cjs
+index b00a1b5..ed64a3f 100644
+--- a/tools/lakeside/test_lakeside_journey_water_fallback.cjs
++++ b/tools/lakeside/test_lakeside_journey_water_fallback.cjs
+@@ -1,5 +1,5 @@
+ // r4 journey fix 1 (GGbot): the journey lake's water-material failure path is loud, not silent. loadLakesideWaterAsset rejects with the
+-// reason + asset path (it used to resolve null), the adapter catch logs one always-on [QF_LAKE] journey-water-fallback warn and keeps the
++// reason + asset path (it used to resolve null), the adapter catch logs one always-on [QF_LAKE] journey-water-fallback ERROR (console.error) and keeps the
+ // old look (waterAsset=null, no throw); cancellation still propagates; the success path prints nothing.
+ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+ const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
+@@ -16,22 +16,24 @@ function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(
+  vm.runInThisContext('(function(exports,require,module){'+out+'\n})')(m.exports,req,m);return m.exports;}
+ const B=load(S+'region/LakesideBoardBackground.ts'),W=load(S+'region/LakesideJourneyWater.ts'),D=load(S+'region/LakesideSceneData.ts'),F=load(S+'world-r1/WorldFlowCore.ts');
+ const P=D.LAKESIDE_DIR_LIGHT_PARAMS,held=[],take=a=>{a.addRef();held.push(a);return a;};
+-const capture=async f=>{const lines=[],w=console.warn;console.warn=(...a)=>lines.push(a.join(' '));try{return {r:await f(),lines};}finally{console.warn=w;}};
++// lead: the fallback is an ERROR line (console.error), not a warn; nothing on console.warn
++const capture=async f=>{const lines=[],warns=[],e=console.error,w=console.warn;console.error=(...a)=>lines.push(a.join(' '));console.warn=(...a)=>warns.push(a.join(' '));try{const r=await f();assert.deepEqual(warns,[],'no warn line');return {r,lines};}finally{console.error=e;console.warn=w;}};
+ // the adapter's catch, verbatim semantics (also locked against the source below)
+ async function journeyWater(token){let waterAsset=null,dead=false;try{waterAsset=await B.loadLakesideWaterAsset(token,take);}catch(error){if(token.cancelled||dead)throw error;W.logLakesideJourneyWaterFallback(error);waterAsset=null;}token.check();return waterAsset;}
+ const tests=[];const t=(n,f)=>tests.push([n,f]);
+-t('material load fails → [QF_LAKE] warn with reason + asset path, old look (null), no throw',async()=>{
++t('material load fails → [QF_LAKE] ERROR (console.error) with reason + asset path, old look (null), no throw',async()=>{
+  materialMode='fail';const {r,lines}=await capture(()=>journeyWater(new F.Cancellation()));assert.equal(r,null);assert.equal(lines.length,1,lines.join('\n'));
+  assert(lines[0].startsWith('[QF_LAKE] '));const j=JSON.parse(lines[0].slice(10));assert.equal(j.event,'journey-water-fallback');assert.equal(j.asset,P.waterMaterialPath);assert.equal(j.bundle,D.LAKESIDE_BUNDLE);
+  assert.match(j.reason,/404 Not Found/);assert(j.reason.includes(P.waterMaterialPath),'reason names the path');assert.deepEqual(loads.slice(-1),[P.waterMaterialPath]);});
+-t('loader returns no asset → same warn (reason "no asset"), no throw',async()=>{materialMode='null';const {r,lines}=await capture(()=>journeyWater(new F.Cancellation()));assert.equal(r,null);assert.equal(lines.length,1);assert.match(JSON.parse(lines[0].slice(10)).reason,/no asset/);});
+-t('bundle fails → same warn with the bundle reason',async()=>{bundleMode='fail';try{const {r,lines}=await capture(()=>journeyWater(new F.Cancellation()));assert.equal(r,null);assert.equal(lines.length,1);assert.match(JSON.parse(lines[0].slice(10)).reason,/unreachable/);}finally{bundleMode='ok';}});
++t('loader returns no asset → same error line (reason "no asset"), no throw',async()=>{materialMode='null';const {r,lines}=await capture(()=>journeyWater(new F.Cancellation()));assert.equal(r,null);assert.equal(lines.length,1);assert.match(JSON.parse(lines[0].slice(10)).reason,/no asset/);});
++t('bundle fails → same error line with the bundle reason',async()=>{bundleMode='fail';try{const {r,lines}=await capture(()=>journeyWater(new F.Cancellation()));assert.equal(r,null);assert.equal(lines.length,1);assert.match(JSON.parse(lines[0].slice(10)).reason,/unreachable/);}finally{bundleMode='ok';}});
+ t('normal run: material loads → held, no [QF_LAKE] line',async()=>{materialMode='ok';const n=held.length;const {r,lines}=await capture(()=>journeyWater(new F.Cancellation()));assert(r instanceof Material);assert.equal(held.length,n+1);assert.equal(r.refs,1);assert.equal(lines.length,0);});
+ t('cancelled journey: rethrows, no fallback log',async()=>{materialMode='fail';const tok=new F.Cancellation();const p=capture(()=>journeyWater(tok).then(()=>'resolved',e=>'threw'));tok.cancel();const {r,lines}=await p;assert.equal(r,'threw');assert.equal(lines.length,0);});
+-t('logger never throws (console.warn throwing, odd errors)',async()=>{const w=console.warn;console.warn=()=>{throw Error('x');};try{assert.equal(W.logLakesideJourneyWaterFallback({get message(){throw Error('y');}}),'unknown');assert.equal(W.logLakesideJourneyWaterFallback(null),'null');}finally{console.warn=w;}});
++t('logger never throws (console.error throwing, odd errors)',async()=>{const w=console.error;console.error=()=>{throw Error('x');};try{assert.equal(W.logLakesideJourneyWaterFallback({get message(){throw Error('y');}}),'unknown');assert.equal(W.logLakesideJourneyWaterFallback(null),'null');}finally{console.error=w;}});
+ t('wiring: the adapter catch logs + keeps the old look; the loader rejects instead of resolving null',async()=>{
+  const ja=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8'),bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
+  assert.match(ja,/try\{waterAsset=await loadLakesideWaterAsset\(token,take\);\}catch\(error\)\{if\(token\.cancelled\|\|dead\)throw error;logLakesideJourneyWaterFallback\(error\);waterAsset=null;\}token\.check\(\);/);
++ assert.match(fs.readFileSync(S+'region/LakesideJourneyWater.ts','utf8'),/console\.error\('\[QF_LAKE\] '\+JSON\.stringify\(\{event:'journey-water-fallback',bundle,asset,reason,/);
+  assert.match(bg,/waitRegionAsset\(loadMaterialOrReason\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\),token\);token\.check\(\);return take\(a\);\}/);});
+ (async()=>{let fail=0;for(const [n,f] of tests){try{await f();console.log('PASS',n);}catch(e){fail++;console.log('FAIL',n,'\n',e.stack||e);}}
+  console.log(fail?'FAIL '+fail:'lakeside journey water fallback OK');process.exit(fail?1:0);})();
+-- 
+2.47.3
+

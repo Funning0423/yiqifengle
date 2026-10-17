@@ -1,0 +1,137 @@
+From ebd96582f1e59959ca64f3549f8e1076d5932cba Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 19:15:30 +0800
+Subject: [PATCH 2/3] Result screen: no rewards on screen until the chest
+ opens; badges rise out of its mouth once, never replayed
+
+Funning (Mac, desktop package 09a1b8e): the reward badges already showed above the closed chest.
+floating() let any side reward whose state was already 'claimed' (e.g. a replayed level whose region
+tool was taken before) hover over a closed chest. Now, with a chest on the page, nothing of the
+rewards (badge, icon, count, name) is placed until that chest is open.
+
+The rise from the chest mouth (existing 0.42 s backOut, 0.09 s stagger, gentle bob) plays only on
+the panel shown as the chest opens (tap within CHEST_HANDOFF_MS). A later panel of an already-open
+chest (restore / re-entry) shows the badges settled at once, and the rise also follows the wall clock,
+so coming back from the background mid-rise lands them in place instead of resuming the animation.
+resultDiagnostics() reports floatRise.
+
+reward-background-return (on top of ec0de1f): asserts no reward node active/visible before opening
+(across 3 hide/show cycles), badges start at the mouth (below, transparent) and settle above the
+chest, positions/opacity unchanged across 3 background cycles after opening (only the 3-pt bob),
+plus the replayed-level case (closed chest + already-claimed tool shows nothing; an open chest shown
+later is settled with no rise) at 390x844 and 320x568. Fails on the old floating() rule.
+---
+ .../assets/scripts/ui/BoardPanels.ts          | 17 +++++++---
+ .../test_reward_background_return.cjs         | 33 ++++++++++++++++---
+ 2 files changed, 41 insertions(+), 9 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/ui/BoardPanels.ts b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+index 0813cb1..63f5331 100644
+--- a/creator-build-project/assets/scripts/ui/BoardPanels.ts
++++ b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+@@ -267,6 +267,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   let floatNodes: { node: Node; x: number; y: number; phase: number; fromY: number }[] = [];
+   let chestPose: { node: Node; flat: Node | null; y: number; rigY: number; w: number; h: number } | null = null;
+   let guideT = 0, riseT = 0, flatScale = { x: 1, y: 1 };
++  const builtAt = Date.now();
++  /** Badges rise out of the chest's mouth only when this panel is the one shown as the chest opens (tap within the hand-off window). */
++  const riseLive = !m.rewards.some(r => (r.iconKind === 'chest' || r.id === 'chest') && r.state === 'claimed') || Date.now() - chestTappedAt < CHEST_HANDOFF_MS;
+   let liveScoreY: number | null = null; // R1a: where the score is on screen now (eased), carried through every repaint in the window
+   let adoptedScoreY: number | null = null, scoreEase: { node: Node; base: number; delta: number; t: number } | null = null;
+   // delta holds the score's previous WORLD y; the offset is re-derived each frame because the panel scale can still change.
+@@ -277,7 +280,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   // Pulsing light guide on a ready chest; floating rewards rise out of the open chest, then bob gently.
+   const baseUpdate = p.update.bind(p);
+   p.update = (dt: number) => {
+-    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT += d; chestRig?.update(d); if (scoreEase) { scoreEase.t += d; applyScoreEase(); } else if (Date.now() - chestTappedAt < CHEST_HANDOFF_MS) liveScoreY = scoreWorldY(p.root);
++    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT = Math.max(riseT + d, (Date.now() - builtAt) / 1000); chestRig?.update(d); if (scoreEase) { scoreEase.t += d; applyScoreEase(); } else if (Date.now() - chestTappedAt < CHEST_HANDOFF_MS) liveScoreY = scoreWorldY(p.root);
+     const still = reducedMotion(), wave = Math.sin(guideT * 2 * Math.PI / GUIDE_PERIOD);
+     if (guideDiag.pulsing && !still) {
+       const sine = 0.5 - 0.5 * Math.cos(guideT * 2 * Math.PI / GUIDE_PERIOD); // sineInOut 0→1→0
+@@ -295,7 +298,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     if (raysNode && isValid(raysNode, true) && raysNode.active && !still) raysNode.setRotationFromEuler(0, 0, -riseT * 18); // 20 s per turn
+     for (const f of floatNodes) {
+       if (!isValid(f.node, true)) continue;
+-      const k = still ? 1 : Math.max(0, Math.min(1, (riseT - f.phase) / 0.42)), e = backOut(k, 1.4), bob = still || k < 1 ? 0 : 3 * Math.sin((riseT - f.phase - 0.42) * Math.PI);
++      // Rise out of the chest only on the panel shown right after the tap; any later panel of an open chest (restore,
++      // re-entry) shows them settled. Wall clock too: back from the background mid-rise they are already in place.
++      const k = still || !riseLive ? 1 : Math.max(0, Math.min(1, (riseT - f.phase) / 0.42)), e = backOut(k, 1.4), bob = still || k < 1 ? 0 : 3 * Math.sin((riseT - f.phase - 0.42) * Math.PI);
+       const sc = 0.3 + 0.7 * e;
+       // The plate + icon scale 0.3 → 1; the name keeps its readable 16-unit size throughout.
+       for (const c of f.node.children) { if (c.getComponent(Label)) continue; const b = (c as any).__floatBase || ((c as any).__floatBase = { x: c.scale.x, y: c.scale.y }); c.setScale(b.x * sc, b.y * sc, 1); }
+@@ -341,13 +346,15 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   // Bottom row keeps clear of the panel edge (28 inside a 12-unit panel inset = 40 from a 390-wide screen) and the bottom.
+   // SPEC: buttons (drop shadow included) keep 16 pt from the panel's inner edge (the ≈ 23 pt 9-slice border) on the sides and bottom, every size.
+   const ACTION_INNER_PAD = 16, ACTION_PAD = PANEL_EDGE_PT + ACTION_INNER_PAD, ACTION_SIDE = ACTION_PAD, ACTION_GAP = 16, ACTION_BOTTOM = ACTION_PAD, ACTION_H_C = 52;
+-  (p as any).resultDiagnostics = () => ({ floatLift: specCompact ? FLOAT_COMPACT_LIFT : 0, chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
++  (p as any).resultDiagnostics = () => ({ floatLift: specCompact ? FLOAT_COMPACT_LIFT : 0, chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, floatRise: riseLive, guide: guideDiag });
+   let floatDiag: { name: string; x: number; y: number; icon: number }[] = []; const guideDiag: any = { pulsing: false, period: GUIDE_PERIOD };
+   let hintLabel: Label | null = null;
+   const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
+   const hasChest = () => m.rewards.some(isChest);
+-  /** Items float over the chest once it is open (or on their own when there is no chest). */
+-  const floating = () => sideRewards().filter(r => !hasChest() || m.rewards.some(c => isChest(c) && c.state === 'claimed') || r.state === 'claimed');
++  /** Items float over the chest once it is open (or on their own when there is no chest).
++   *  Funning (Mac, 09a1b8e): a closed chest shows NO reward of any kind above it, not even one already claimed earlier
++   *  (a replayed level whose region tool was taken before). They only come out of the chest when it opens. */
++  const floating = () => sideRewards().filter(() => !hasChest() || chestOpened());
+   const floatBand = (dense: boolean) => floating().length ? (dense ? FLOAT_ICON_DENSE : FLOAT_ICON) + FLOAT_NAME + 12 : 0;
+   const chestOpened = () => m.rewards.some(c => isChest(c) && c.state === 'claimed');
+   const chestReady = () => m.rewards.some(c => isChest(c) && c.state === 'ready' && !!c.claim);
+diff --git a/tools/board-ui/test_reward_background_return.cjs b/tools/board-ui/test_reward_background_return.cjs
+index c8f9855..4bc7ba2 100644
+--- a/tools/board-ui/test_reward_background_return.cjs
++++ b/tools/board-ui/test_reward_background_return.cjs
+@@ -27,14 +27,29 @@ const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mai
+  const bytes=()=>JSON.stringify([...values]);update();const initialPanel=u.popups.find('ResultPanel');assert(initialPanel.root.find('ResultChestTap'));
+  // The claimed rewards are visible on the result panel (open chest, every reward slot claimed) and stay so across background trips.
+  const shown=()=>{const p=u.popups.find('ResultPanel');assert(p,'result panel still up');assert(p.resultDiagnostics().chestOpen,'chest shown open');assert(p.root.find('ResultReward-0'),'reward badges shown on the result panel');assert(!u.popups.find('RewardPanel'));};
+- const checks=[];
++ const checks=[];let settledPose=null,riseChecked=0;
++ // Funning (Mac, 09a1b8e): nothing of the rewards may be on screen while the chest is closed: no badge, icon, count or name.
++ // A reward node is every float holder / plate / count / name and every side-reward slot (ResultReward-1..); visible = active in hierarchy, opacity > 0.
++ const REWARD=/^(ResultFloat|ResultCountBadge|ResultRewardState|stamp_claimed)|^ResultReward-[1-9]/;
++ const visibleRewards=p=>{const out=[];const walk=(n,inside)=>{const r=inside||REWARD.test(n.name);const o=n.getComponent?.(H.cc.UIOpacity);if(r&&n.activeInHierarchy&&(!o||o.opacity>0))out.push(n.name);for(const c of n.children)walk(c,r);};walk(p.root,false);return out;};
++ const holders=p=>{const out=[];const walk=n=>{if(/^ResultFloat-\d+$/.test(n.name)&&n.activeInHierarchy)out.push(n);for(const c of n.children)walk(c);};walk(p.root);return out;};
++ const pose=p=>holders(p).map(n=>({name:n.name,x:+n.position.x.toFixed(2),y:n.position.y,opacity:n.getComponent(H.cc.UIOpacity)?.opacity??255}));
++ const closed=()=>{const p=u.popups.find('ResultPanel');assert(p,'result panel up');assert(!p.resultDiagnostics().chestOpen,'chest still closed');assert.deepEqual(visibleRewards(p),[],'no reward of any kind on screen before the chest opens');assert.equal(p.resultDiagnostics().float.length,0,'no badge placed while closed');};
++ const settled=(a,b,label)=>{assert.equal(a.length,b.length,label);for(let i=0;i<a.length;i++){assert.equal(a[i].name,b[i].name,label);assert.equal(a[i].x,b[i].x,label+' x');assert(Math.abs(a[i].y-b[i].y)<=3.01,label+' y (only the 3-pt bob)');assert.equal(b[i].opacity,255,label+' opacity');}};
++ closed();
+  for(const which of ['before-claim','after-chest','after-region']){
+   for(let i=0;i<3;i++){const saved=bytes(),panel=u.popups.find('ResultPanel'),names=u.popups.names().join(',');flow.hide();update();flow.hide();flow.show();flow.show();update();step();
+    assert.equal(flow.snapshot().state,'level');assert.equal(controls.get('resume').active,false);assert.equal(bytes(),saved);assert.equal(u.popups.names().join(','),names);assert.equal(u.popups.find('ResultPanel'),panel);
+    assert.equal(H.cc._scene.getComponentsInChildren(UI).length,1);
+-   if(which!=='before-claim')shown();}
++   if(which==='before-claim')closed();else{shown();const now=pose(u.popups.find('ResultPanel'));settled(settledPose,now,which+' cycle '+i+': badges stay in their final place, no replayed rise');}}
+   checks.push({which,cycles:3,rewardsShownOnResult:which!=='before-claim',duplicateEvents:true,storageUnchanged:true,sameResultPanel:true,noGlobalResume:true});
+-  if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('ResultChestTap'));update();assert(session.snapshot().journey.chests[0].opened);assert(session.snapshot().journey.regionRewards[0].claimed);}
++  if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('ResultChestTap'));update();assert(session.snapshot().journey.chests[0].opened);assert(session.snapshot().journey.regionRewards[0].claimed);
++   // The moment it opens the badges come out of the chest's mouth (below their final place, transparent) and rise into place.
++   u.update(1/60);const opened=u.popups.find('ResultPanel');assert(opened.resultDiagnostics().chestOpen&&opened.resultDiagnostics().floatRise,'the panel shown as the chest opens plays the rise');
++   const first=pose(opened),target=opened.resultDiagnostics().float;assert(first.length>=1,'badges placed once open');
++   for(let k=0;k<first.length;k++){assert(first[k].y<target[k].y-20,'badge starts at the chest mouth, below its place');assert(first[k].opacity<255,'badge fades in as it leaves the chest');}
++   for(let i=0;i<60;i++)u.update(1/60);settledPose=pose(opened);for(let k=0;k<settledPose.length;k++){assert(Math.abs(settledPose[k].y-target[k].y)<=3.01,'badge settled above the chest');assert.equal(settledPose[k].opacity,255);}
++   riseChecked=first.length;}
+   if(which==='after-chest'){
+    // SPEC v2.1 / 3765e34: on the result screen the rewards show on the ResultPanel itself (open chest + reward badges), no 「获得」 RewardPanel.
+    assert(!u.popups.find('RewardPanel'),'no separate RewardPanel on the result screen');
+@@ -45,5 +60,15 @@ const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mai
+  const beforeDuplicate=bytes();assert(session.command('openChest',0).duplicate);assert(session.command('claimRegion',0).duplicate);assert.equal(bytes(),beforeDuplicate);
+  H.tap(u.popups.find('ResultPanel').root.find('Next'));assert.equal(next,1);
+  lease.dispose();assert.equal(H.cc._scene.getComponentsInChildren(UI).length,0);
+- console.log(JSON.stringify({status:'PASS',scope:'Actual production TS, controller witness actions, Map-only storage, Cocos doubles. No native input/GPU/phone lockscreen claim.',checks,nextButtonRouted:true,duplicateRewardsZeroWrites:true,disposed:true},null,2));
++ // Replayed level: its region tool was claimed long ago, this level's chest is still closed. Before the fix that claimed tool
++ // floated above the closed chest (Funning's Mac report). Real BoardPanels.openResult, same Cocos doubles.
++ const A=H.load('ui/BoardArt'),K=H.load('ui/PopupKit'),P=H.load('ui/BoardPanels');await Promise.all(['board','popup','r2'].map(d=>A.BoardArt.shared().load(d)));
++ const stackOwner=new H.cc.Node('ReplayProbe');H.cc._scene.addChild(stackOwner);const stack=new K.PopupStack(stackOwner,()=>H.state.viewport);const settle=n=>{for(let i=0;i<n;i++)stack.update(1/60);};
++ const replay=chest=>({kind:'win',score:630,stars:3,movesUsed:11,movesLeft:11,goalsLeft:[],chestHint:false,next:()=>{},home:()=>{},rewards:[{id:'chest',label:'打开宝箱',icon:'popup/chest_closed',iconKind:'chest',state:chest,claim:chest==='ready'?()=>{}:undefined},{id:'regionReward',label:'潮汐网',icon:'',tool:'tideNet',iconKind:'tool',state:'claimed',count:2}]});
++ for(const [w,h] of [[390,844],[320,568]]){H.state.viewport={width:w,height:h,safeInsets:{top:47,bottom:34,left:0,right:0}};
++  const c=P.openResult(stack,replay('ready'),null);settle(90);assert.deepEqual(visibleRewards(c),[],w+'x'+h+' closed chest + already-claimed tool: nothing shown');assert.equal(c.resultDiagnostics().float.length,0);stack.clear();settle(30);
++  // An open chest shown later (restore / re-entry, the tap long past): badges settled at once, no second rise.
++  const realNow=Date.now;Date.now=()=>realNow()+60000;try{const o=P.openResult(stack,replay('claimed'),null);stack.update(1/60);assert.equal(o.resultDiagnostics().floatRise,false,'no replay');const at=pose(o),tg=o.resultDiagnostics().float;assert(at.length>=1);for(let k=0;k<at.length;k++){assert.equal(at[k].opacity,255,'settled at once');assert(Math.abs(at[k].y-tg[k].y)<=3.01,'already in its final place');}stack.clear();settle(30);}finally{Date.now=realNow;}}
++ checks.push({which:'replayed-level-closed-chest',claimedToolHidden:true,openChestLaterSettledNoRise:true,viewports:['390x844','320x568']});
++ console.log(JSON.stringify({status:'PASS',scope:'Actual production TS, controller witness actions, Map-only storage, Cocos doubles. No native input/GPU/phone lockscreen claim.',checks,noRewardBeforeOpen:true,badgesRiseFromChestMouth:riseChecked,noReplayAfterBackground:true,nextButtonRouted:true,duplicateRewardsZeroWrites:true,disposed:true},null,2));
+ })().catch(e=>{console.error(e);process.exitCode=1});
+-- 
+2.47.3
+

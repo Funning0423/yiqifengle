@@ -1,0 +1,13 @@
+2026-10-10T00:06:55.354Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] a27f0b45d27a87c5
+2026-10-10T00:06:55.354Z automator.error	[QF-AUDIT-CANARY-LATE] a27f0b45d27a87c5
+2026-10-10T00:06:54.852Z shim.errors	[QF-AUDIT-CANARY] a27f0b45d27a87c5
+2026-10-10T00:06:55.354Z shim.errors	[QF-AUDIT-CANARY-LATE] a27f0b45d27a87c5
+2026-10-10T00:06:54.852Z shim.logs	[QF-AUDIT-HEARTBEAT] a27f0b45d27a87c5
+2026-10-10T00:06:54.853Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T00:06:55.354Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] a27f0b45d27a87c5
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T000653724Z-ac77-5618e7-default [log] [QF-AUDIT-HEARTBEAT] a27f0b45d27a87c5
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T000653724Z-ac77-5618e7-default [error] [QF-AUDIT-CANARY] a27f0b45d27a87c5
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T000653724Z-ac77-5618e7-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(unattributed)	OTHER-PROJECT [app.json 或自定义编译条件错误] app.json 中未定义自定义编译中指定的启动页面 (env: macOS,mg,2.02.2608080; lib: 3.17.3)
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T000653724Z-ac77-5618e7-default [log] [QF-AUDIT-HEARTBEAT-LATE] a27f0b45d27a87c5
+weapplog(own)	/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/unattributed-notice-allowlisted/copies/QFFirstOpen-20261010T000653724Z-ac77-5618e7-default [error] [QF-AUDIT-CANARY-LATE] a27f0b45d27a87c5

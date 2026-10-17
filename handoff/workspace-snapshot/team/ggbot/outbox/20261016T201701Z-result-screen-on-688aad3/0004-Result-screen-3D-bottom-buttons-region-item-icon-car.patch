@@ -1,0 +1,384 @@
+From 64b1449516b8bd5dfd6a187a880cb3b7091ffefb Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 15:05:25 -0400
+Subject: [PATCH 4/5] Result screen: 3D bottom buttons, region item icon cards,
+ chest stays open after claiming
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- 「下一关」「回小岛」: home-style wooden buttons, height 56, plate artScale 0.6 (was 0.45/48), 5-unit drop
+  shadow behind the face, identical widths, one centred row (y raised to clear the shadow; reserve 72/60 -> 80/68).
+- Chest hero fits what the page has left: 240 × 216 on 390 × 844 with WeChat capsule/home insets, min 96 × 86,
+  rays sized with it; a ready chest is named by 「全部领取」 under it (no duplicate 打开宝箱 line).
+- Region items are icon cards (120 × 120, 120 × 96 on short pages): chest-style rays + icon on top, item name
+  below (TOOL_NAMES, e.g. 潮汐网), cream well with border and a 4-unit shadow, centred row; the long per-item
+  claim bar is gone (「全部领取」 is the only claim). Claimed cards carry the stamp.
+- Claimed chest: ResultChest3D.open(false) so the lid stays at the chest_open end pose (-118°).
+- Short pages (available < 600 / < 520) shrink the stars so the whole result stays on one page.
+- New tools/board-ui/test_result_screen_style.cjs (added to run-suite as result-screen-style) and
+  test_claim_batch.cjs (result-claim-batch); test_result_safe_area accepts the chest named by 全部领取.
+---
+ .../assets/scripts/ManagedMobileBoardUI.ts    |   2 +-
+ .../assets/scripts/ui/BoardPanels.ts          | 133 +++++++++++-------
+ tools/board-ui/test_result_safe_area.cjs      |   2 +-
+ tools/board-ui/test_result_screen_style.cjs   |  64 +++++++++
+ tools/journey-integration/run-suite.cjs       |   2 +
+ 5 files changed, 147 insertions(+), 56 deletions(-)
+ create mode 100644 tools/board-ui/test_result_screen_style.cjs
+
+diff --git a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+index a3a5276..3582afe 100644
+--- a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
++++ b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+@@ -895,7 +895,7 @@ export class ManagedMobileBoardUI extends Component {
+     const goalsLeft = Object.keys(a.goals || {}).filter(k => (a.goals[k] || 0) > 0).map(k => ({ art: goalArt(k), count: a.goals[k] }));
+     const chest = mainline ? s.journey?.chests?.find((x: any) => x.level === a.level) : null, rewards: ResultReward[] = [];
+     if (kind === 'win' && mainline && chest?.earned) rewards.push({ id: 'chest', label: chest.opened ? '宝箱已打开' : '打开宝箱', icon: 'popup/chest_closed', iconKind: 'chest', state: chest.opened ? 'claimed' : h.chest?.visible ? 'ready' : 'locked', claim: h.chest?.run });
+-    if (kind === 'win' && mainline) { const region = s.journey?.regionRewards?.find((x: any) => x.region === Math.floor((a.level ?? 0) / 4)); if (region?.unlocked) { const tool = ['tideNet', 'sunSeed', 'starShears'][region.region] || 'tideNet'; rewards.push({ id: 'regionReward', label: region.claimed ? '地区道具已领取' : '领取地区道具', icon: '', iconKind: 'tool', tool, state: region.claimed ? 'claimed' : h.regionReward?.visible ? 'ready' : 'locked', claim: h.regionReward?.run }); } }
++    if (kind === 'win' && mainline) { const region = s.journey?.regionRewards?.find((x: any) => x.region === Math.floor((a.level ?? 0) / 4)); if (region?.unlocked) { const tool = ['tideNet', 'sunSeed', 'starShears'][region.region] || 'tideNet'; rewards.push({ id: 'regionReward', label: TOOL_NAMES[tool] || (region.claimed ? '地区道具已领取' : '地区道具'), icon: '', iconKind: 'tool', tool, state: region.claimed ? 'claimed' : h.regionReward?.visible ? 'ready' : 'locked', claim: h.regionReward?.run }); } }
+     if (kind === 'win' && s.provider === 'regional-r05' && (h.claim?.visible || s.progress?.claimedRegions?.includes(a.region))) { const owned = !!s.progress?.claimedRegions?.includes(a.region); rewards.push({ id: 'claim', label: owned ? '地区印记已领取' : '领取地区印记', icon: 'popup/reward_seal_' + (a.region || 'tide'), iconKind: 'seal', state: owned ? 'claimed' : 'ready', claim: h.claim?.run }); }
+     const next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : null;
+     return { kind, score: a.score || 0, stars, movesUsed: Array.isArray(a.actions) ? a.actions.length : null, movesLeft: a.moves ?? null, goalsLeft, chestHint: mainline && kind !== 'readonly', rewards,
+diff --git a/creator-build-project/assets/scripts/ui/BoardPanels.ts b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+index 80537b3..f125547 100644
+--- a/creator-build-project/assets/scripts/ui/BoardPanels.ts
++++ b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+@@ -159,10 +159,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   const goalIcons = groups.ResultGoals?.node.children.filter(n => !n.getComponent(Label)) || [];
+   const frame = p.body.getChildByName('PanelFrame')!; frame.setScale(frame.scale.x * 0.45, frame.scale.y * 0.45, 1);
+   const plateScales = new Map<Node, number>();
+-  const buttonTextInset = 16, rewardIconLane = 96;
++  const buttonTextInset = 16;
+   let rowGap = 6;
+   const buttonTextWidth = (width: number) => width - buttonTextInset;
+-  const rewardTextWidth = (cell: number) => buttonTextWidth(cell - rewardIconLane);
+   for (const g of Object.values(groups)) for (const v of g.original) original.set(v.node, v);
+   for (const g of Object.values(groups)) g.node.active = false;
+   const getRow = (id: string, height: number): Row => {
+@@ -176,10 +175,24 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     const k = Math.min(w / Math.max(1, ow), h / Math.max(1, oh));
+     n.setScale((v?.sx ?? 1) * k, (v?.sy ?? 1) * k, 1);
+   };
+-  const layoutButton = (n: Node, w: number, text?: string, height = 48) => {
++  /** Soft drop shadow under a wooden button or card: same rounded box, offset down, dark warm brown. */
++  const dropShadow = (host: Node, name: string, w: number, h: number, offset: number, radius: number) => {
++    let n = host.getChildByName(name);
++    if (!n) {
++      n = uiNode(name, host, w, h); n.setSiblingIndex(0); const shadowNode = n;
++      p.tint.shape(n.addComponent(Graphics), (g, night, alpha) => {
++        const ui = shadowNode.getComponent(UITransform)!, off = (shadowNode as any).__offset ?? offset;
++        g.fillColor = new Color(Math.round(74 - 30 * night), Math.round(50 - 20 * night), Math.round(30 - 6 * night), Math.round(110 * alpha));
++        g.roundRect(-ui.width / 2, -ui.height / 2 - off, ui.width, ui.height, radius); g.fill();
++      });
++    }
++    (n as any).__offset = offset; n.getComponent(UITransform)!.setContentSize(w, h); n.setPosition(0, 0, 0); n.active = true; return n;
++  };
++  const actionShadow = (n: Node, w: number, h: number) => dropShadow(n, 'ActionShadow', w - 4, h - 2, ACTION_SHADOW, Math.min(18, h / 2));
++  const layoutButton = (n: Node, w: number, text?: string, height = 48, artK = 0.45) => {
+     const plate = n.getChildByName('Face')!.getChildByName('Plate')!;
+     if (!plateScales.has(plate)) plateScales.set(plate, plate.scale.x);
+-    const artScale = plateScales.get(plate)! * (w < 80 ? 0.25 : 0.45); plate.setScale(artScale, artScale, 1);
++    const artScale = plateScales.get(plate)! * (w < 80 ? 0.25 : artK); plate.setScale(artScale, artScale, 1);
+     fitResultButton(n, w, height, 16); n.setScale(1, 1, 1);
+     const face = n.getChildByName('Face')!, label = face.getChildByName('Label')?.getComponent(Label);
+     const icon = face.getChildByName('Icon'); if (icon) icon.active = false;
+@@ -236,15 +249,20 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   const prevDestroy = p.destroy.bind(p);
+   p.destroy = () => { chestRig?.dispose(); chestRig = null; prevDestroy(); };
+   const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
+-  const CHEST_W = 120, CHEST_H = 108, RAY = 156;
++  // Chest hero: 240 × 216 when the page has room, never under 96 × 86 (the 3D render keeps its aspect).
++  const CHEST_W = 240, CHEST_H = 216, RAY = 240, CHEST_MIN_H = 86;
++  // Bottom actions match the home-screen wooden buttons: 56 high, plate art 0.6, a 5-unit drop shadow, equal widths.
++  const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 5;
++  // Region items are icon cards (icon above, name below) in one centred row under the chest.
++  const CARD_W = 120, CARD_H = 120, CARD_H_DENSE = 96, CARD_GAP = 12, CARD_SHADOW = 4;
++  (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW }, card: { width: CARD_W, height: CARD_H, shadow: CARD_SHADOW } });
+   const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
+   const heroHeightFor = (inner: number, _r: ResultReward) => Math.min(inner, Math.max(RAY, CHEST_H)) + (anyReady() ? 64 : 0);
+   const sideRewards = () => m.rewards.filter(r => !isChest(r));
+-  const pairedRewards = (inner: number) => { const side = sideRewards(); return side.length === 2 && inner >= 400 && side.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2)); };
+   // Measure the same content used by reflow. Tall phones no longer turn a short
+   // result into a near-full-screen panel with a vertically centred empty area.
+   const naturalHeight = (w: number) => {
+-    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, heights: number[] = [];
++    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 80 : 68, heights: number[] = [];
+     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
+     heights.push(shortPhone ? 44 : 88);
+     if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
+@@ -252,10 +270,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
+     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
+     if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
+-    const paired = pairedRewards(inner);
+-    const side = sideRewards(), cell = paired ? (inner - 12) / 2 : inner, cardH = shortPhone ? 64 : 96;
+-    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { lines(r.label, 16); heights.push(heroHeightFor(inner, r)); continue; } if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); }
+-    side.forEach((_r, i) => { if (!paired || i === 0) heights.push(cardH); });
++    const side = sideRewards(), cardH = shortPhone ? CARD_H_DENSE : CARD_H;
++    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { if (!(r.state === 'ready' && anyReady())) lines(r.label, 16); heights.push(heroHeightFor(inner, r)); } }
++    if (side.length) heights.push(cardH);
+     if (anyReady() && !m.rewards.some(isChest)) heights.push(56);
+     return contentTop + reserve + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
+   };
+@@ -276,7 +293,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     // Opening animation must not rebuild the pages or reset a held finger.
+     if (layoutKey === key) return; layoutKey = key;
+     resetPresses(p.root);
+-    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, dense = compactViewport;
++    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 80 : 68, dense = compactViewport;
+     // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
+     const supported = w >= 192 && h >= 172;
+     p.body.getChildByName('TitlePlank')!.active = supported;
+@@ -303,6 +320,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+       return;
+     }
+     available = h - contentTop - reserve;
++    // Short pages (SE-class) keep everything on one page: smaller stars, compact cards, the claim button names the chest.
++    const tight = !dense && available < 520, snug = !dense && available < 600;
+     const rows: Row[] = [];
+     const labelRows = (id: string, text: string, size = 16, role: 'brown' | 'brown2' | 'teal' | 'grey' = 'brown') => {
+       const lines = wrap(text, inner - 4, size);
+@@ -327,7 +346,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     for (let i = 0; i < actions.length; i++) {
+       const a = actions[i], width = actions.length === 1 ? Math.min(320, inner) : (inner - 8) / 2;
+       const x = actions.length === 1 ? 0 : (i - 0.5) * (width + 8);
+-      layoutButton(a.handle.node, width); a.handle.node.setPosition(x, -h / 2 + (roomy ? 44 : 32), 0);
++      layoutButton(a.handle.node, width, undefined, ACTION_H, ACTION_ART); actionShadow(a.handle.node, width, ACTION_H);
++      a.handle.node.setPosition(x, -h / 2 + (roomy ? 48 : 38), 0);
+     }
+     const stars = groups.ResultStars.node;
+     if (m.kind !== 'lose' && dense && !shortPhone && textWidth(scoreText, 20) <= inner - 100) {
+@@ -335,7 +355,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+       add(row, scoreLabel.node, 50); scoreLabel.fontSize = 20; scoreLabel.lineHeight = 28;
+       scoreLabel.node.getComponent(UITransform)!.setContentSize(inner - 100, 28); rows.push(row);
+     } else {
+-      const starH = shortPhone ? 44 : dense ? 44 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : 0.32;
++      const starH = shortPhone ? 44 : dense ? 44 : tight ? 56 : snug ? 64 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : tight ? 0.2 : snug ? 0.24 : 0.32;
+       const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
+       scoreLabel.node.active = false;
+       if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
+@@ -372,9 +392,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+       }
+     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
+     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
+-    const paired = pairedRewards(inner);
+-    const cell = paired ? (inner - 12) / 2 : inner;
+     let sideIndex = 0, claimPlaced = false;
++    const sideCount = m.rewards.filter(r => !isChest(r)).length;
++    const sideRowH = Math.max(1, Math.min(dense || tight ? CARD_H_DENSE : CARD_H, available));
+     // 56 is the settled claim control. A short page keeps it inside the content band
+     // (4 units of slack sit above the action buttons) and never under 44.
+     const claimFit = available >= 44 ? Math.min(56, available) : (available >= 40 ? 44 : Math.max(1, available));
+@@ -396,8 +416,13 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     for (let i = 0; i < rewards.length; i++) {
+       const r = m.rewards[i], g = rewards[i], claim = g.original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
+       if (isChest(r)) {
+-        let chestW = Math.min(CHEST_W, inner), chestH = CHEST_H * (chestW / CHEST_W), raySize = Math.min(RAY, inner), body = Math.max(raySize, chestH);
+         const claimH = anyReady() && claimAll ? 56 : 0, gap = claimH ? 8 : 0;
++        // Fit the hero into what this page has left after the rows above, its label, the claim and the card row.
++        const usedAbove = rows.reduce((sum, row) => sum + row.height + rowGap, 0);
++        const chestLabelInClaim = claimH > 0 && r.state === 'ready';
++        const room = available - usedAbove - (chestLabelInClaim ? 0 : 22 + rowGap) - (claimH ? claimH + gap : 0) - (sideCount ? sideRowH + rowGap : 0);
++        let chestH = Math.max(CHEST_MIN_H, Math.min(CHEST_H, room, inner * CHEST_H / CHEST_W)), chestW = chestH * CHEST_W / CHEST_H;
++        let raySize = Math.min(inner, chestH * RAY / CHEST_H, Math.max(chestH, room)), body = Math.max(raySize, chestH);
+         let rowH = body + gap + claimH, claimInRow = claimH > 0;
+         const budget = Math.max(1, available);
+         if (rowH > budget) {
+@@ -407,7 +432,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+         }
+         const row = getRow('reward-chest', rowH), chestY = rowH / 2 - body / 2, art = rewardIcons[i];
+         const flat = art.find(n => n.name !== 'stamp_claimed') || art[0];
+-        labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
++        if (!chestLabelInClaim) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+         if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
+         else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
+         add(row, raysNode, 0, chestY);
+@@ -416,6 +441,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+         if (claimInRow) placeClaim(row, -rowH / 2 + claimH / 2, claimH);
+         if (!chestRig) {
+           chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
++          // Claimed: the chest stays open (lid at the end of chest_open) instead of returning to the closed pose.
++          if (r.state === 'claimed') chestRig.open(false);
+           const shown = flat;
+           void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
+         } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
+@@ -427,45 +454,43 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+         }
+         continue;
+       }
+-      const columnX = paired ? (sideIndex - 0.5) * (cell + 12) : 0, sideAt = sideIndex++;
+-      // Use the actual CLAMP label width, including its padding and icon lane.
+-      const label = r.label, long = textWidth(label, 16) > rewardTextWidth(cell);
+-      if (long) labelRows('ResultRewardLabel-' + i, label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+-      const cardHeight = Math.min(dense ? 64 : 96, Math.max(48, available));
+-      const row = getRow(paired ? 'reward-pair' : 'reward-' + i, cardHeight);
+-      const art = rewardIcons[i];
+-      let card: Node;
+-      if (claim) {
+-        layoutButton(claim, cell, long ? '领取' : label, cardHeight); add(row, claim, columnX);
+-        card = claim.getChildByName('Face')!;
+-        const l = card.getChildByName('Label')!.getComponent(Label)!;
+-        l.node.setPosition(rewardIconLane / 2, 0, 0);
+-        l.node.getComponent(UITransform)!.setContentSize(rewardTextWidth(cell), 40);
+-      } else {
+-        let well = row.node.getChildByName('ResultRewardCard-' + i);
+-        if (!well) {
+-          well = uiNode('ResultRewardCard-' + i, row.node, cell, cardHeight);
+-          const cardNode = well;
+-          p.tint.shape(well.addComponent(Graphics), (g, night, alpha) => {
+-            const ui = cardNode.getComponent(UITransform)!, k = 1 - .4 * night;
+-            g.fillColor = new Color(Math.round(236 * k), Math.round(229 * k), Math.round(207 * k), Math.round(255 * alpha));
+-            g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.fill();
+-          });
+-        }
+-        well.getComponent(UITransform)!.setContentSize(cell, cardHeight); add(row, well, columnX); card = well;
+-        let l = card.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
+-        if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: card });
+-        l.string = long ? (r.state === 'claimed' ? '已领取' : '未解锁') : label; l.fontSize = 16; l.lineHeight = 22;
+-        l.node.getComponent(UITransform)!.setContentSize(rewardTextWidth(cell), 40); l.node.setPosition(rewardIconLane / 2, 0, 0);
++      // Icon card: chest-style rays + icon on top, name underneath, cream well with a 4-unit drop shadow.
++      const sideAt = sideIndex++, cardW = Math.min(CARD_W, (inner - CARD_GAP * (sideCount - 1)) / sideCount), cardH = sideRowH;
++      const columnX = (sideAt - (sideCount - 1) / 2) * (cardW + CARD_GAP);
++      const row = getRow('reward-cards', cardH);
++      if (claim) claim.active = false; // 「全部领取」 is the one claim on this page.
++      let card = row.node.getChildByName('ResultRewardCard-' + i);
++      if (!card) {
++        card = uiNode('ResultRewardCard-' + i, row.node, cardW, cardH);
++        const cardNode = card;
++        p.tint.shape(card.addComponent(Graphics), (g, night, alpha) => {
++          const ui = cardNode.getComponent(UITransform)!, k = 1 - .4 * night;
++          g.fillColor = new Color(Math.round(246 * k), Math.round(236 * k), Math.round(210 * k), Math.round(255 * alpha));
++          g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.fill();
++          g.strokeColor = new Color(Math.round(196 * k), Math.round(166 * k), Math.round(120 * k), Math.round(255 * alpha)); g.lineWidth = 2;
++          g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.stroke();
++        });
+       }
+-      // Art shares the card/pressed-face transform and stays inside its hit area.
+-      // Claimed stamps get their own small badge, rather than covering the icon.
++      card.getComponent(UITransform)!.setContentSize(cardW, cardH); add(row, card, columnX);
++      dropShadow(row.node, 'ResultRewardCardShadow-' + i, cardW, cardH, CARD_SHADOW, 16).setPosition(columnX, 0, 0);
++      const nameH = 22, iconBox = Math.max(32, Math.min(cardW - 24, cardH - nameH - 20)), iconY = cardH / 2 - 8 - iconBox / 2;
++      let rays = card.getChildByName('ResultRewardCardRays');
++      if (!rays) { rays = p.sprite('popup/fx_rays', 0, 0, iconBox * 1.3, iconBox * 1.3, 'half').node; rays.name = 'ResultRewardCardRays'; card.addChild(rays); }
++      rays.getComponent(UITransform)!.setContentSize(iconBox * 1.3, iconBox * 1.3); rays.setPosition(0, iconY, 0); rays.active = r.state !== 'locked';
++      let l = card.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
++      if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: card });
++      const fits = textWidth(r.label, 16) <= cardW - 8;
++      if (!fits) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
++      l.string = fits ? r.label : (r.state === 'claimed' ? '已领取' : r.state === 'locked' ? '未解锁' : '道具'); l.fontSize = 16; l.lineHeight = nameH;
++      l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
++      l.node.getComponent(UITransform)!.setContentSize(cardW - 8, nameH); l.node.setPosition(0, -cardH / 2 + 8 + nameH / 2, 0);
++      const art = rewardIcons[i];
+       for (let j = 0; j < art.length; j++) {
+-        const n = art[j], badge = j > 0, size = badge ? 24 : Math.min(72, cardHeight - 12);
+-        fitArt(n, size, size); card.addChild(n); n.active = true;
+-        n.setPosition(-cell / 2 + rewardIconLane / 2 + (badge ? 25 : 0), badge ? -cardHeight / 2 + 18 : 0, 0);
++        const n = art[j], badge = n.name === 'stamp_claimed';
++        fitArt(n, badge ? 32 : iconBox, badge ? 32 : iconBox); card.addChild(n); n.active = true;
++        n.setPosition(badge ? cardW / 2 - 20 : 0, badge ? cardH / 2 - 20 : iconY, 0);
+       }
+-      if (!paired || sideAt === 0) rows.push(row);
++      if (sideAt === 0) rows.push(row);
+     }
+     if (claimAll && !claimPlaced && anyReady()) { const row = getRow('claim-all', claimFit); placeClaim(row, 0, claimFit); rows.push(row); }
+     else if (claimAll && !claimPlaced) claimAll.active = false;
+diff --git a/tools/board-ui/test_result_safe_area.cjs b/tools/board-ui/test_result_safe_area.cjs
+index e538af3..64ca4cb 100644
+--- a/tools/board-ui/test_result_safe_area.cjs
++++ b/tools/board-ui/test_result_safe_area.cjs
+@@ -151,7 +151,7 @@ async function matrix() {
+                                 if (m.kind === 'win') {
+                                     const summary = [m.movesUsed !== null ? m.movesUsed + ' 步' : '', m.movesLeft !== null ? '剩 ' + m.movesLeft + ' 步' : '', '已保存'].filter(Boolean).join(' · ');
+                                     assert.equal(fragments('ResultSummary'), summary + (m.unlockHint ? ' · ' + m.unlockHint : ''));
+-                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); assert.equal(full || short, r.label); });
++                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); if (!full && !short && (r.iconKind === 'chest' || r.id === 'chest') && r.state === 'ready' && r.claim) { assert(p.root.find('ClaimAll'), 'a ready chest is named by 全部领取 under it'); return; } assert.equal(full || short, r.label); });
+                                 }
+                                 if (m.kind === 'readonly')
+                                     assert.equal(fragments('ResultNotice'), '记录暂时不能写入，这局只看不存');
+diff --git a/tools/board-ui/test_result_screen_style.cjs b/tools/board-ui/test_result_screen_style.cjs
+new file mode 100644
+index 0000000..d97e8c3
+--- /dev/null
++++ b/tools/board-ui/test_result_screen_style.cjs
+@@ -0,0 +1,64 @@
++'use strict';
++// Result screen (Funning 2026-10-16): 3D bottom buttons, region item icon cards, chest stays open after claiming.
++// Actual BoardPanels TS on the in-memory Cocos doubles (harness.cjs). Logical UI units, not device pixels or rendering.
++const assert = require('node:assert/strict');
++const { createHarness } = require('./harness.cjs');
++(async () => {
++  const H = createHarness(), A = H.load('ui/BoardArt'), K = H.load('ui/PopupKit'), P = H.load('ui/BoardPanels');
++  await Promise.all(['board', 'popup', 'r2'].map(dir => A.BoardArt.shared().load(dir)));
++  const owner = new H.cc.Node('ResultStyleProbe'); H.cc._scene.addChild(owner);
++  const stack = new K.PopupStack(owner, () => H.state.viewport);
++  const settle = () => { for (let i = 0; i < 40; i++) stack.update(.025); };
++  const model = (chest, region) => ({ kind: 'win', score: 630, stars: 3, movesUsed: 11, movesLeft: 11, goalsLeft: [], chestHint: false, next: () => {}, home: () => {},
++    rewards: [
++      { id: 'chest', label: chest === 'claimed' ? '宝箱已打开' : '打开宝箱', icon: 'popup/chest_closed', iconKind: 'chest', state: chest, claim: chest === 'ready' ? () => {} : undefined },
++      { id: 'regionReward', label: region === 'claimed' ? '已领取' : '潮汐网', icon: '', tool: 'tideNet', iconKind: 'tool', state: region, claim: region === 'ready' ? () => {} : undefined },
++    ] });
++  const box = n => { const ui = n.getComponent(H.cc.UITransform); return { w: ui.width * Math.abs(n.scale.x), h: ui.height * Math.abs(n.scale.y) }; };
++  const world = n => { let x = 0, y = 0; for (let c = n; c; c = c.parent) { x += c.position.x; y += c.position.y; } return { x, y }; };
++  const report = { buttons: {}, cards: {}, chest: {} };
++  const HOST = (w, h) => ({ top: 47, bottom: 34, left: 0, right: 0, capsule: { top: 51, bottom: 87, left: w - 93, right: w - 6 } });
++  for (const [w, h, insets] of [[390, 844, true], [390, 844, false], [320, 568, false], [375, 667, true]]) {
++    H.state.viewport = insets ? { width: w, height: h, safeInsets: HOST(w, h) } : { width: w, height: h }; const p = P.openResult(stack, model('ready', 'ready'), null); settle();
++    const next = p.root.find('Next'), home = p.root.find('Home'); assert(next && home);
++    const nb = box(next), hb = box(home), nw = world(next), hw = world(home);
++    // 2) bottom buttons: same height 56, identical widths, same row, plate art 0.6, drop shadow >= 4.
++    assert.equal(nb.h, 56, 'Next is 56 high'); assert.equal(hb.h, 56, 'Home is 56 high');
++    assert.equal(nb.w, hb.w, '下一关 and 回小岛 have identical widths'); assert.equal(nw.y, hw.y, 'one row');
++    assert(Math.abs(nw.x + hw.x) < 0.5, 'row centred');
++    for (const b of [next, home]) {
++      const s = b.getChildByName('ActionShadow'); assert(s && s.active, 'drop shadow under ' + b.name);
++      assert(s.__offset >= 4, 'shadow offset >= 4'); assert.equal(b.children.indexOf(s), 0, 'shadow drawn behind the face');
++    }
++    const d = p.resultDiagnostics(); assert.equal(d.action.artScale, 0.6); assert.equal(d.action.height, 56); assert(d.action.shadow >= 4);
++    const plate = next.getChildByName('Face').getChildByName('Plate'), claim = p.root.find('ClaimAll').getChildByName('Face').getChildByName('Plate');
++    assert(plate.scale.x > 0 && claim.scale.x > 0);
++    report.buttons[w + 'x' + h + (insets ? '-wx' : '')] = { next: { x: +nw.x.toFixed(1), y: +nw.y.toFixed(1), w: nb.w, h: nb.h }, home: { x: +hw.x.toFixed(1), y: +hw.y.toFixed(1), w: hb.w, h: hb.h } };
++    // 3) region item is an icon card: icon above its name, rays behind, no long claim button, shadow.
++    const pageCount = Number(p.root.find('ResultPageNumber').getComponent(H.cc.Label).string.split('/')[1]) || 1; const pager = p.root.find('ResultPageNumber').active;
++    const card = p.root.find('ResultRewardCard-1'); assert(card && card.activeInHierarchy, 'region item renders as a card on the first page (pages ' + (pager ? pageCount : 1) + ', panel ' + p.height + ')');
++    assert(!pager, 'whole result fits on one page');
++    const cb = box(card); assert(cb.w <= 120 && cb.w >= 96, 'card about 120 wide'); assert(cb.h >= 64 && cb.h <= 132, 'card height');
++    const name = card.getChildByName('ResultRewardState-1'), rays = card.getChildByName('ResultRewardCardRays');
++    assert(name && rays && rays.active, 'name + rays'); assert.equal(name.getComponent(H.cc.Label).string, '潮汐网');
++    const icon = card.children.find(n => n !== name && n !== rays && n.name !== 'stamp_claimed'); assert(icon, 'icon inside card');
++    assert(icon.position.y > name.position.y, 'icon above name');
++    const ib = box(icon); assert(Math.abs(icon.position.x) + ib.w / 2 <= cb.w / 2 + 0.5 && Math.abs(icon.position.y) + ib.h / 2 <= cb.h / 2 + 0.5, 'icon inside the card');
++    const shadow = card.parent.getChildByName('ResultRewardCardShadow-1'); assert(shadow && shadow.__offset >= 4, 'card shadow >= 4');
++    const toolClaim = p.root.find('Claim-regionReward'); assert(!toolClaim || !toolClaim.activeInHierarchy, 'no separate long claim bar for the region item');
++    // same style as the chest: the chest hero is centred, rays behind it.
++    const chestArt = p.root.find('ResultChestArt'), cr = p.root.find('ResultChestRays'); assert(chestArt && cr);
++    const ca = box(chestArt); assert(Math.abs(world(chestArt).x - world(p.body).x) < 0.5, 'chest centred');
++    report.cards[w + 'x' + h + (insets ? '-wx' : '')] = { w: cb.w, h: cb.h, icon: +ib.w.toFixed(1) }; report.chest[w + 'x' + h + (insets ? '-wx' : '')] = { w: +ca.w.toFixed(1), h: +ca.h.toFixed(1) };
++    if (w === 390) assert(ca.w >= 240 && ca.h >= 216, 'chest hero at least 240 × 216 on 390 × 844 (annotation ①)');
++    // 4) before claiming the chest is closed.
++    assert.equal(d.chestOpen, false); assert(d.chest && d.chest.t === 0, 'ready chest is closed');
++    stack.clear(); settle();
++    const q = P.openResult(stack, model('claimed', 'claimed'), null); settle();
++    const e = q.resultDiagnostics(); assert.equal(e.chestOpen, true); assert(e.chest && e.chest.t >= 0.5 && e.chest.angle <= -110, 'claimed chest shows the open lid');
++    assert(!q.root.find('ClaimAll') || !q.root.find('ClaimAll').activeInHierarchy, '全部领取 gone after claiming');
++    const claimedCard = q.root.find('ResultRewardCard-1'); assert(claimedCard.children.some(n => n.name === 'stamp_claimed'), 'claimed card carries the stamp');
++    stack.clear(); settle();
++  }
++  console.log(JSON.stringify({ status: 'PASS', report }, null, 1));
++})().catch(e => { console.error(e); process.exitCode = 1; });
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 9a9c1ed..85dce68 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -38,6 +38,8 @@ const tests=[
+  ['board-art-retry','tools/board-ui/test_board_art_retry.cjs'],
+  ['deferred-entry-art','tools/board-ui/test_deferred_entry_art.cjs'],
+  ['child-first-teardown','tools/board-ui/test_child_first_teardown.cjs'],
++ ['result-claim-batch','tools/board-ui/test_claim_batch.cjs'],
++ ['result-screen-style','tools/board-ui/test_result_screen_style.cjs'],
+  ['navigation-guard','tools/test_world_navigation_guard.cjs'],
+  ['retry-protection','tools/test_retry_protection.cjs'],
+  ['cloud-web-contract','tools/cloud-web/test.cjs'],
+-- 
+2.47.3
+

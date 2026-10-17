@@ -1,0 +1,118 @@
+From 83de245b872065fe0efa790f08801c504ea503d8 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 08:33:08 +0800
+Subject: [PATCH 3/4] =?UTF-8?q?V1:=20backgrounding=20during=20the=20home?=
+ =?UTF-8?q?=20exit=20no=20longer=20strands=20her=20seated=20behind=20?=
+ =?UTF-8?q?=E7=BB=A7=E7=BB=AD=20-=20show()=20restarts=20the=20cancelled=20?=
+ =?UTF-8?q?exit=20from=20the=20seat;=20seated/island=20background=20unchan?=
+ =?UTF-8?q?ged;=20test?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/world-r1/WorldFlowCore.ts  | 12 +++++-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ .../test-exit-background-resume.cjs           | 40 +++++++++++++++++++
+ 3 files changed, 52 insertions(+), 1 deletion(-)
+ create mode 100644 tools/journey-integration/test-exit-background-resume.cjs
+
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+index fcc62b6..490c045 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+@@ -8,6 +8,8 @@ export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity';
+ export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
+   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
+   'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
++/** V1: home-exit states (seat to island) that a background/foreground round trip restarts. */
++export const EXIT_STATES:readonly State[]=['standing','turning-out','walking-out','opening-door','crossing-out'];
+ /** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
+  * island camera (adapter-owned subset), without interior lighting. Omitted = false (old behaviour). */
+ export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean; doorwayInterior?:boolean}>;
+@@ -624,8 +626,12 @@ export class WorldFlow {
+     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
+     if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world);}
+   }
++  /** V1: hide() cancels a running transition by design (stable pose restored, see show()). When that transition was the
++   *  exit from home, show() restarts it cleanly from the seat instead of leaving her seated behind a resume button. */
++  private resumeExit=false;
+   hide():void {
+-    if(this.state==='disposed'||this.hidden)return;if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
++    if(this.state==='disposed'||this.hidden)return;
++    this.resumeExit=this.stable==='home'&&!!this.current&&EXIT_STATES.indexOf(this.state)>=0;if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
+     this.level?.hide();this.visit?.hide();this.restore();this.change('paused');
+   }
+   /** Back from background: the place the player left is visible again, still paused until resume().
+@@ -635,6 +641,10 @@ export class WorldFlow {
+     if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
+       this.needsResume=false;this.restore();this.change('level');return;
+     }
++    if(this.state!=='error'&&this.resumeExit&&this.stable==='home'&&this.world&&!this.current){
++      this.resumeExit=false;this.needsResume=false;this.restore();this.change('home');void this.leaveHome();return;
++    }
++    this.resumeExit=false;
+     if(this.state!=='error')this.presentPausedView();this.emit(this.snapshot());
+   }
+   /** Home/island layers and the character, or the sky visit. A level keeps world layers NONE; the board is the screen. */
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 8b9f43b..9814fa3 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -52,6 +52,7 @@ const tests=[
+  ['meadow-night-sky','tools/test_meadow_night_sky.cjs'],
+  ['wind-audio','tools/voice-bot/wind/test_wind_audio.cjs'],
+  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
++ ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/journey-integration/test-exit-background-resume.cjs b/tools/journey-integration/test-exit-background-resume.cjs
+new file mode 100644
+index 0000000..b0ec18d
+--- /dev/null
++++ b/tools/journey-integration/test-exit-background-resume.cjs
+@@ -0,0 +1,40 @@
++'use strict';
++// V1 (a4a1041 Mac re-check): backgrounding during the home exit cancelled it (exit-cine cancel:left-exit) and left her
++// seated behind 「继续」. hide() still cancels (stable pose), but show() now restarts the exit from the seat by itself.
++const assert=require('node:assert/strict'),{createHarness}=require('../board-ui/harness.cjs');
++const H=createHarness(),{WorldFlow,EXIT_STATES}=H.load('world-r1/WorldFlowCore');
++const pose={position:[3,3,-6],target:[0,1,0]},zero=[0,0,0],seat={position:zero,back:[0,0,-1],yawRad:0,seatedFoot:zero,standingFoot:zero,seatedControllerRoot:zero,standingControllerRoot:zero};
++const config={seat,toDoor:[zero,[0,0,1]],outCrossing:[[0,0,1],[0,0,2]],toIsland:[[0,0,2],[0,0,3]],toThreshold:[[0,0,3],[0,0,2]],inCrossing:[[0,0,2],[0,0,1]],toSeat:[[0,0,1],zero],cameraHome:pose,cameraToDoor:[pose,pose],cameraInside:pose,cameraOutside:pose,cameraIsland:pose,openDeg:90,speed:1};
++const flush=()=>new Promise(r=>setImmediate(r));
++function make(){let hold=null;const states=[];
++ const actor={calibrated:true,coordinates:{units:'m',up:'+Y',forward:'+Z',rootMotion:'controller-only',standingRoot:zero,seatedRoot:zero,seatYawRad:0,clearanceRadiusM:.1},advance(){},walkProgress:()=>1,
++  perform:async(action,token)=>{if(action.kind==='walk'&&hold){await new Promise((res,rej)=>{hold.release=res;token?.onCancel?.(()=>rej(new Error('cancelled')));});}},
++  cancelAndReset(){},setVisible(){},dispose(){}};
++ const world={setCamera(){},setLayers(){},setDoor(){},cancelTransient(){},assertStaticWorld(){},dispose(){},animateCamera:async()=>{},animateDoor:async()=>{}};
++ const flow=new WorldFlow({config,character:actor,skycity:{enter:async()=>({show(){},hide(){},dispose(){}})},levels:{enter:async()=>({requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){}})},loadWorld:async()=>world});
++ flow.subscribe?.(s=>states.push(s.state));
++ return {flow,states,holdWalks:()=>{hold={};return hold;}};}
++const until=async(f,n=2000)=>{for(let i=0;i<n;i++){if(f())return;await flush();}throw Error('timeout');};
++(async()=>{
++ assert.deepEqual([...EXIT_STATES],['standing','turning-out','walking-out','opening-door','crossing-out']);
++ for(const at of ['walking-out','crossing-out']){
++  const x=make();assert((await x.flow.load()).ok);assert.equal(x.flow.snapshot().state,'home');
++  const h=x.holdWalks();
++  if(at==='crossing-out'){// let the first walk (to the door) pass, hold the outdoor one
++   const p=x.flow.leaveHome();await until(()=>h.release);h.release();h.release=null;await until(()=>h.release&&x.flow.snapshot().state==='crossing-out');
++   x.flow.hide();await p.catch(()=>{});
++  }else{const p=x.flow.leaveHome();await until(()=>x.flow.snapshot().state==='walking-out'&&h.release);x.flow.hide();await p.catch(()=>{});}
++  let s=x.flow.snapshot();assert.equal(s.state,'paused');assert.equal(s.needsResume,true);assert.equal(s.stable,'home');
++  x.flow.show();s=x.flow.snapshot();
++  assert.equal(s.needsResume,false,'foreground needs no 继续');assert.equal(s.hidden,false);assert(EXIT_STATES.includes(s.state)||s.state==='island','exit restarted: '+s.state);
++  // finish the restarted exit
++  for(let i=0;i<20&&x.flow.snapshot().state!=='island';i++){await until(()=>h.release||x.flow.snapshot().state==='island');if(h.release){const r=h.release;h.release=null;r();}}
++  assert.equal(x.flow.snapshot().state,'island','exit reaches the island after a background trip at '+at);
++  console.log('PASS background during',at,'-> exit restarted, reached island');
++ }
++ // Backgrounding while seated (no exit running) keeps the old paused + resume behaviour.
++ {const x=make();assert((await x.flow.load()).ok);x.flow.hide();x.flow.show();const s=x.flow.snapshot();assert.equal(s.needsResume,true);assert.equal(s.state,'paused');
++  assert(x.flow.resume().ok);assert.equal(x.flow.snapshot().state,'home');console.log('PASS seated background unchanged');}
++ // Backgrounding on the island after the exit does not replay it.
++ {const x=make();assert((await x.flow.load()).ok);assert((await x.flow.leaveHome()).ok);x.flow.hide();x.flow.show();assert.equal(x.flow.snapshot().needsResume,true);assert(x.flow.resume().ok);assert.equal(x.flow.snapshot().state,'island');console.log('PASS island background unchanged');}
++})().catch(e=>{console.error(e);process.exit(1);});
+-- 
+2.47.3
+

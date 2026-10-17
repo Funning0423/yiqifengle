@@ -1,0 +1,13 @@
+2026-10-10T01:32:53.123Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] 2cf0f4b6f0b8d694
+2026-10-10T01:32:53.123Z automator.error	[QF-AUDIT-CANARY-LATE] 2cf0f4b6f0b8d694
+2026-10-10T01:32:52.622Z shim.errors	[QF-AUDIT-CANARY] 2cf0f4b6f0b8d694
+2026-10-10T01:32:53.123Z shim.errors	[QF-AUDIT-CANARY-LATE] 2cf0f4b6f0b8d694
+2026-10-10T01:32:52.621Z shim.logs	[QF-AUDIT-HEARTBEAT] 2cf0f4b6f0b8d694
+2026-10-10T01:32:52.622Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:32:53.123Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] 2cf0f4b6f0b8d694
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/copies/QFFirstOpen-20261010T013251497Z-adb2-8c9761-default [log] [QF-AUDIT-HEARTBEAT] 2cf0f4b6f0b8d694
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/copies/QFFirstOpen-20261010T013251497Z-adb2-8c9761-default [error] [QF-AUDIT-CANARY] 2cf0f4b6f0b8d694
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/copies/QFFirstOpen-20261010T013251497Z-adb2-8c9761-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/copies/QFFirstOpen-20261010T013251497Z-adb2-8c9761-default [error] TypeError: new root contains startup error
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/copies/QFFirstOpen-20261010T013251497Z-adb2-8c9761-default [log] [QF-AUDIT-HEARTBEAT-LATE] 2cf0f4b6f0b8d694
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/missing-root-error/copies/QFFirstOpen-20261010T013251497Z-adb2-8c9761-default [error] [QF-AUDIT-CANARY-LATE] 2cf0f4b6f0b8d694

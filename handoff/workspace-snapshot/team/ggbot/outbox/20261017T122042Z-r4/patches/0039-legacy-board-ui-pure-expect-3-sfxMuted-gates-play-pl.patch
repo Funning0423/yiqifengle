@@ -1,0 +1,55 @@
+From 494d2189ce472ac9c77c3a18e596e3f6be564352 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 18:16:51 +0800
+Subject: [PATCH 39/47] legacy-board-ui-pure: expect 3 sfxMuted gates (play,
+ playCheer, exit cine) and the 4th chapter 'lake'
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Two stale expectations, both from intended code changes; the behavioural checks are unchanged.
+
+1) Line 36 counts `this.muted || this.sfxMuted || this.reasons.size > 0` in audio/GameAudio.ts and
+   expected 2 (play, playCheer). 0005d7a (GGbot, Exit B5.5 audio) intentionally added a third gate in
+   the exit-cine playback path (skips sfx_exit_outbound when muted/suspended, marks 'skipped-muted'),
+   so it failed "3 !== 2" although every SFX path honours sfxMuted. Verified at f3d3614/7c1047b: 3
+   matches (play, exit cine, playCheer); the two original gates are unchanged. Count 2 -> 3, message
+   names the three gates.
+
+2) Line 112 (journey book summary) pinned CHAPTERS ids to ['tide','meadow','sky']. ad17dfe (Voice
+   Bot, lakeside L3) intentionally added the 4th chapter 风铃湖畔 (id 'lake', opens after mainline 12).
+   This was hidden behind the Node 20 stop at line 38 and surfaced only with a TypeScript stand-in for
+   stripTypeScriptTypes. Expectation -> ['tide','meadow','sky','lake']; the tide/meadow/sky summary
+   assertions that follow are unchanged.
+
+With a scratch TypeScript stand-in for node:module.stripTypeScriptTypes (not committed) all 13 checks
+pass on Node 20. Without it the test needs Node >= 22.6 (handled in the next commit).
+---
+ tools/board-ui/test_board_ui_pure.cjs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/board-ui/test_board_ui_pure.cjs b/tools/board-ui/test_board_ui_pure.cjs
+index 253d108..2cfd1b9 100644
+--- a/tools/board-ui/test_board_ui_pure.cjs
++++ b/tools/board-ui/test_board_ui_pure.cjs
+@@ -33,7 +33,7 @@ ok('UI flags live in localStorage under qfl.ui.* (seenTools JSON list, cabinHint
+ });
+ ok('GameAudio sfxMuted: qfl.audio.sfxMuted persists, mutes every SFX (UI clicks included) but not music; restored on next load', () => {
+   const src = read('audio/GameAudio.ts'); assert(src.includes("const SFX_MUTE_KEY = 'qfl.audio.sfxMuted'"));
+-  assert.equal((src.match(/this\.muted \|\| this\.sfxMuted \|\| this\.reasons\.size > 0/g) || []).length, 2, 'both SFX gates check sfxMuted');
++  assert.equal((src.match(/this\.muted \|\| this\.sfxMuted \|\| this\.reasons\.size > 0/g) || []).length, 3, 'all three SFX gates (play, playCheer, exit cine) check sfxMuted');
+   const plain = src.replace(/^import .* from 'cc';\n/m, '').replace(/^@ccclass\('GameAudio'\)\n/m, '').replace(/export /g, '');
+   const code = stripTypeScriptTypes(plain, { mode: 'transform' }) + '\nglobalThis.AudioClass = GameAudio;';
+   const make = data => {
+@@ -109,7 +109,7 @@ ok('cabin hint curve: 0.4 s in to 0.25, 3 × (0.7 s up to 1, 0.9 s down to 0.25)
+ });
+ ok('journey book summary: mainline stars per chapter x/12, challenge lock until the same chapter milestone 04/08/12 is cleared, challenge marks x/4', () => {
+   const { chapterSummary, CHAPTERS } = H.load('ui/IslandPanels');
+-  assert.deepEqual(CHAPTERS.map(c => c.id), ['tide', 'meadow', 'sky']); assert.equal(CHAPTERS[0].description, '听潮声，捡起海浪送来的贝壳。');
++  assert.deepEqual(CHAPTERS.map(c => c.id), ['tide', 'meadow', 'sky', 'lake']); assert.equal(CHAPTERS[0].description, '听潮声，捡起海浪送来的贝壳。');
+   const journey = { unlocked: 5, records: Array.from({ length: 12 }, (_, i) => ({ bestStars: i < 4 ? 3 : i === 4 ? 2 : 0 })) };
+   const a = chapterSummary(journey, { tide: 3 }, 0), b = chapterSummary(journey, null, 1), c = chapterSummary(journey, {}, 2);
+   assert.equal(a.stars, 12); assert.equal(a.locked, false); assert.equal(a.challenges, 3); assert.equal(b.stars, 2); assert.equal(b.locked, true, 'mainline 05 open is not mainline 08 completed'); assert.equal(b.challenges, 0); assert.equal(c.locked, true);
+-- 
+2.47.3
+

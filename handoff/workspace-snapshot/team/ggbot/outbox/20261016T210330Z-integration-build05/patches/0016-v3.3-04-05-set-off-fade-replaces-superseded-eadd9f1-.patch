@@ -1,0 +1,392 @@
+From 30a5048af8342b562fb1ca3e13914d4303f24a07 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 03:24:37 +0800
+Subject: [PATCH 16/21] =?UTF-8?q?v3.3=2004=E2=86=9205=20set-off=20fade=20(?=
+ =?UTF-8?q?replaces=20superseded=20eadd9f1=20ease):=20island=20lens=20->?=
+ =?UTF-8?q?=20black=200.25=20s,=20cut=20to=20the=20d238881=20follow=20pose?=
+ =?UTF-8?q?=20(FOV=2048)=20and=20show=20journey=20scenes=20only=20under=20?=
+ =?UTF-8?q?full=20black,=20fade=20in=200.35=20s=20while=20she=20walks;=20s?=
+ =?UTF-8?q?hared=20ScreenCover=20(Graphics+UIOpacity=20cover=20ported=20mi?=
+ =?UTF-8?q?nimally=20from=2088506aa=20=E4=B8=BB=E9=A1=B5)=20registered=20b?=
+ =?UTF-8?q?y=20WorldIntegrationBoot,=20WorldLease.fadeCover;=20audio=20unt?=
+ =?UTF-8?q?ouched;=20journeyCamera=20and=20F1/F6/occlusion=20tests=20uncha?=
+ =?UTF-8?q?nged;=20start-continuity=20test=20asserts=20the=20sequence?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+(cherry picked from commit 3f3e865cb6ce9c862783d612ffeae793cfd27f36)
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    |  5 +-
+ .../scripts/world-r1/RegionJourneyCore.ts     | 13 ++-
+ .../assets/scripts/world-r1/ScreenCover.ts    |  8 ++
+ .../scripts/world-r1/ScreenCover.ts.meta      |  9 ++
+ .../scripts/world-r1/WorldFlowComponent.ts    |  3 +
+ .../assets/scripts/world-r1/WorldFlowCore.ts  |  2 +
+ .../reports/journey-start-continuity.json     | 82 +++++++++--------
+ .../test-journey-start-continuity.cjs         | 90 +++++++++++++------
+ tools/test_startup_ready_gate.cjs             |  2 +-
+ 9 files changed, 145 insertions(+), 69 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/world-r1/ScreenCover.ts
+ create mode 100644 creator-build-project/assets/scripts/world-r1/ScreenCover.ts.meta
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 7524b44..381f2a4 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -1,6 +1,7 @@
+ import './SharedBundles';
+ import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
+ import { DEBUG } from 'cc/env';
++import {setScreenCover} from './world-r1/ScreenCover';
+ import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
+ import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
+ import {CabinHint} from './world-r2/CabinHint';
+@@ -501,7 +502,7 @@ export class WorldIntegrationBoot extends Component {
+  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
+  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
+  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+- private createNavigation(){this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
++ private createNavigation(){setScreenCover((a,sec)=>this.fadeCover(a,sec));this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+  this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+@@ -653,5 +654,5 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+  private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;c.op.opacity=Math.round(255*(c.from+(c.to-c.from)*t));
+   if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
+  update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+- onDestroy(){this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
++ onDestroy(){setScreenCover(null);this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ }
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 156f148..5ed943f 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -37,6 +37,8 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
+  *    Position and view direction both move on smootherstep over arrivalBlendM metres; direction is slerped, so the
+  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
+ export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
++/** 04→05 set-off: black cover ramps (s), same cover/style as 主页 (HOME_FADE 0.4/0.5 in 88506aa). */
++export const SETOFF_FADE={outS:.25,inS:.35} as const;
+ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
+  // Landing A (final, v3, Mac check 379e137): 12 m behind / 1.5 m right / 2 m up from the end, view pitched 2.5 deg up over the
+  // plaza-centred aim: plaza 50% across / 55% down, her centre at 75% of the width (was 86-89%), her 0.153 of screen height
+@@ -110,6 +112,7 @@ export class RegionJourneyController {
+  private phase:JourneyPhase='idle';private region:JourneyRegion='island';private target:JourneyRegion|null=null;
+  private lease:JourneySceneLease|null=null;private scenes:JourneySceneLease[]=[];private loadProgress=0;private distance=0;private error:string|null=null;
+  private root:Vec|null=null;private yaw=0;private camera:Pose|null=null;private startCamera:Pose|null=null;
++ fadeState:'clear'|'out'|'black'|'in'='clear';
+  private activePath:readonly Vec[]|null=null;private startDistance=0;private serial=0;private busy=false;
+  constructor(private adapter:JourneySceneAdapter){}
+  snapshot():JourneySnapshot {return Object.freeze({phase:this.phase,region:this.region,target:this.target,loadProgress:this.loadProgress,distance:this.distance,total:this.lease?routeLength(this.lease.route.path):0,error:this.error,canRetry:this.phase==='failed',canResume:this.phase==='paused'});}
+@@ -143,14 +146,22 @@ export class RegionJourneyController {
+   if(!actor.walkProgress)throw Error('journey-needs-distance-signal');
+   this.busy=true;this.error=null;const serial=++this.serial,path=remainingRoute(this.lease.route.path,this.distance);this.startDistance=this.distance;
+   try{
++   // v3.3 set-off fade (Grok Bot: no hard cut, no camera swoop): leaving the live island lens on a startBlendM-0 route,
++   // fade to black (SETOFF_FADE.outS), cut to the follow pose (FOV straight to 48) and show the journey scenes only under
++   // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
++   const fade=this.distance===0&&this.lease.route.startBlendM===0&&typeof world.fadeCover==='function';
++   if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
++    this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0);world.setCamera(this.camera);}
+    this.show(true);token.check();
++   if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
+    if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
+     await token.wait(actor.perform({kind:'walk',path,duration:routeLength(path)/this.lease.route.speed},token));token.check();}
+    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
+    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
+    this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+-  }catch(error){if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
++  }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
++   if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
+   finally{if(serial===this.serial)this.busy=false;}
+  }
+  /** Called BEFORE cancelling the action token, while its distance signal is still available. */
+diff --git a/creator-build-project/assets/scripts/world-r1/ScreenCover.ts b/creator-build-project/assets/scripts/world-r1/ScreenCover.ts
+new file mode 100644
+index 0000000..2e8da2c
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r1/ScreenCover.ts
+@@ -0,0 +1,8 @@
++/** v3.3: one full-screen black cover shared by flow transitions (04→05 set-off fade; 主页 uses the same cover in 88506aa).
++ * Pure registry (no cc imports): WorldIntegrationBoot registers its UI cover; WorldFlowComponent's WorldLease.fadeCover
++ * forwards here. No cover registered = transitions run without a fade (old behaviour). */
++export type ScreenCoverFn=(alpha:number,seconds:number)=>Promise<void>;
++let cover:ScreenCoverFn|null=null;
++export function setScreenCover(fn:ScreenCoverFn|null):void{cover=fn;}
++export function hasScreenCover():boolean{return !!cover;}
++export function screenCover(alpha:number,seconds:number):Promise<void>{return cover?cover(alpha,seconds):Promise.resolve();}
+diff --git a/creator-build-project/assets/scripts/world-r1/ScreenCover.ts.meta b/creator-build-project/assets/scripts/world-r1/ScreenCover.ts.meta
+new file mode 100644
+index 0000000..1697ab9
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r1/ScreenCover.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "797a461e-9f81-4800-bf73-23280c79d33f",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 00a0460..f694b0c 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -15,6 +15,7 @@ import { ShoreBreak } from '../render/ShoreBreak';
+ import { REGIONS } from '../region/RegionLoader';
+ import { SkyNightTexture } from '../render/SkyNightTexture';
+ import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
++import { hasScreenCover, screenCover } from './ScreenCover';
+ import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
+ import { CHARACTER_REFERENCE } from './CharacterReference';
+ import { FIRSTSLICE } from './FirstsliceFacts';
+@@ -385,6 +386,8 @@ export class WorldFlowComponent extends Component {
+         setDoor,setCamera,assertStaticWorld,
+         animateDoor:(from,to,seconds,t)=>this.run(seconds,t,p=>setDoor(from+(to-from)*p)),
+         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
++        // v3.3 set-off fade: the shared black screen cover (registered by WorldIntegrationBoot); absent = no fade.
++        get fadeCover(){return hasScreenCover()?(a:number,s:number)=>screenCover(a,s):undefined;},
+         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
+         // writes the end pose (see createCameraTrack); never continues silently.
+         playEnterLevel:(token)=>{
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+index fdf53b6..fcc62b6 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+@@ -93,6 +93,8 @@ export interface WorldLease {
+   // `path`); drives the wind-strength channel. Leases that omit it simply never report wind (stays 0).
+   /** T2+ optional: resolve after `seconds` of the same world job clock (used for timed camera marks). */
+   wait?(seconds:number,token:Cancellation):Promise<void>;
++  /** v3.3 optional full-screen black cover ramp (alpha 0..1 over seconds, wall clock); resolves at the target. Omitted = no fade. */
++  fadeCover?(alpha:number,seconds:number):Promise<void>|void;
+   cancelTransient():void;
+   /** T5 room-light API (optional; owner GGbot; contract in render/RoomLightingRig.ts + docs/T5-material-swap.md "API").
+    * WorldFlowCore itself never drives w; camera-segment owners call these. Older adapters may omit them. */
+diff --git a/tools/journey-integration/reports/journey-start-continuity.json b/tools/journey-integration/reports/journey-start-continuity.json
+index 0ff1bad..d625177 100644
+--- a/tools/journey-integration/reports/journey-start-continuity.json
++++ b/tools/journey-integration/reports/journey-start-continuity.json
+@@ -1,60 +1,66 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-16T19:06:16.509Z",
+- "scope": "Geometry/continuity of the real journeyCamera. Not a render or device acceptance.",
++ "timeUTC": "2026-10-16T19:24:13.033Z",
++ "scope": "journeyCamera geometry + real RegionJourneyController with a recording world. Not a render or device acceptance.",
+  "checks": [
+   {
+-   "id": "K1 04→05 startBlendM=0: continuous after set-off (d 0–10 m)",
++   "id": "G1 journeyCamera unchanged vs d238881; continuous, ≤ 20°/s from the cut (0–10 m)",
+    "status": "PASS",
+-   "maxPosStepPer1cm": 0.01,
+-   "maxTurnDegS": 2.19,
+-   "atM": 0,
++   "maxStepPerFrameM": 0.02,
++   "maxTurnDegS": 2.18,
+    "fov": 48
+   },
+   {
+-   "id": "K2 before→after hand-over at set-off is a CUT (pinned, reported for design/device review)",
++   "id": "G2 fade-in frames: in frame, chest/head/face unoccluded (no palm), lens ≥ 1 m",
+    "status": "PASS",
+-   "cut": true,
+-   "positionJumpM": 50.727,
+-   "viewTurnDeg": 132.07,
++   "fadeInM": 0.42,
++   "frames": 22,
++   "lowPointsBehind": [
++    "island:env_island_props_merged"
++   ]
++  },
++  {
++   "id": "C1 controller: fade out -> cut + show only under full black -> fade in -> walk",
++   "status": "PASS",
++   "sequence": [
++    "cover",
++    "coverDone",
++    "camera",
++    "show",
++    "cover",
++    "walk"
++   ],
++   "cutUnderAlpha": 1,
++   "cutJumpM": 50.727,
++   "cutTurnDeg": 132.07,
+    "fov": [
+     42,
+     48
+    ],
+-   "before": {
+-    "position": [
+-     -12,
+-     15.5,
+-     48
+-    ],
+-    "target": [
+-     -9.961567874056541,
+-     13.1479629316037,
+-     40.63028385235826
+-    ],
+-    "fovVerticalDeg": 42
+-   },
+-   "after": {
+-    "position": [
+-     -5.556268201935414,
+-     3.4,
+-     -0.839657508127801
+-    ],
+-    "target": [
+-     -2.0162809028334334,
+-     2.42699148917896,
+-     6.2682074568294315
+-    ],
+-    "fovVerticalDeg": 48
++   "fade": {
++    "outS": 0.25,
++    "inS": 0.35
+    }
+   },
+   {
+-   "id": "K3 control: default blend starts exactly on the live lens",
++   "id": "C2 lease without fadeCover: old path, no cover",
++   "status": "PASS"
++  },
++  {
++   "id": "C3 cancel during the fade-out: cover goes back to 0, no cut, no walk",
+    "status": "PASS",
+-   "blendM": 18
++   "sequence": [
++    "cover",
++    "coverDone",
++    "cover"
++   ]
++  },
++  {
++   "id": "C4 08→09 (default blend): no fade",
++   "status": "PASS"
+   },
+   {
+-   "id": "K4 wiring: startBlendM 0 only on island 04→05",
++   "id": "C5 wiring: startBlendM 0 on island 04→05; WorldLease.fadeCover -> ScreenCover <- WorldIntegrationBoot cover; no audio in the set-off path",
+    "status": "PASS"
+   }
+  ]
+diff --git a/tools/journey-integration/test-journey-start-continuity.cjs b/tools/journey-integration/test-journey-start-continuity.cjs
+index ee69aca..6c37ce0 100644
+--- a/tools/journey-integration/test-journey-start-continuity.cjs
++++ b/tools/journey-integration/test-journey-start-continuity.cjs
+@@ -1,31 +1,67 @@
+ #!/usr/bin/env node
+ 'use strict';
+-/* Oi review 16:05Z (patch 4): startBlendM=0 makes the 04→05 lens start ON her follow pose, and the old angular-rate sampler
+- * set its first point to 0, so the hand-over from the live island lens (before set-off) to d=0 (after) was never measured.
+- * Real TS (RegionJourneyCore.journeyCamera) on the real leg from journey-scene.cjs. Asserts:
+- *  K1 after set-off (d ∈ [0, 10] m, 0.01 m steps) the startBlendM=0 lens is continuous: d=0 equals the d→0+ limit, no
+- *     position step > 0.02 m per 0.01 m, view turn ≤ 20°/s at the route speed, FOV constant;
+- *  K2 the before→after hand-over is a CUT, and it is pinned + reported (not hidden): position jump, view turn, FOV change
+- *     between the live island entry lens and d=0. Changing it must update this pin deliberately;
+- *  K3 control: with the default blend (startBlendM>0, kept for 08→09) d=0 equals the live lens exactly (no cut);
+- *  K4 wiring: only the island 04→05 route passes startBlendM 0; 08→09 keeps the default.
+- * Whether a cut at set-off is acceptable is a design/visual call (device video), not something this geometry test decides. */
+-const fs=require('fs'),assert=require('assert/strict');const S=require('./journey-scene.cjs');const {legs,journeyCamera,L}=S;
+-const results=[];const check=(id,fn)=>{try{results.push({id,status:'PASS',...fn()});}catch(e){results.push({id,status:'FAIL',error:String(e.stack||e)});}};
++/* 04→05 set-off (Oi review 16:05Z; Grok Bot 2026-10-16: no hard cut in view, no camera swoop). v3.3 set-off FADE:
++ * live island lens -> black over SETOFF_FADE.outS (0.25 s) -> under full black cut to the d238881 follow pose (FOV 48) and
++ * show the journey scenes -> fade in over inS (0.35 s) while she walks. journeyCamera itself is unchanged from d238881.
++ *  G1 journeyCamera == d238881 (pinned poses incl. d=0); continuous and ≤ 20°/s from the cut on (60 fps, 0–10 m)
++ *  G2 fade-in frames (d 0 → inS·speed): she is in frame, chest/head/face not occluded (no palm), lens ≥ 1 m
++ *  C1 real RegionJourneyController + recording world: cover 0→1 first; NO camera write / scene show / walk until the
++ *     cover reports full black; then cut (= G1 d=0 pose), show, cover 1→0 (0.35 s), walk; one cut only, under alpha 1
++ *  C2 lease without fadeCover: old path (no cover); C3 cancel during the fade-out uncovers; C4 08→09: no fade
++ *  C5 wiring: island route startBlendM 0; WorldLease.fadeCover forwards the ScreenCover registered by
++ *     WorldIntegrationBoot (same Graphics+UIOpacity cover as 主页 88506aa); set-off path never touches audio.
++ * The cut magnitude (hidden under black) is reported. Geometry + controller only; not a render or device acceptance. */
++const fs=require('fs'),path=require('path'),assert=require('assert/strict');const S=require('./journey-scene.cjs');const {legs,journeyCamera,L,routeLength}=S;
++const {createHarness}=require('../board-ui/harness.cjs');const H=createHarness(),SRC=S.ROOT+'/creator-build-project/assets/scripts/';
++const {RegionJourneyController,SETOFF_FADE}=H.load(SRC+'world-r1/RegionJourneyCore.ts'),{Cancellation}=H.load(SRC+'world-r1/WorldFlowCore.ts');
++const results=[];const check=async(id,fn)=>{try{results.push({id,status:'PASS',...await fn()});}catch(e){results.push({id,status:'FAIL',error:String(e.stack||e)});}};
+ const dir=p=>{const v=p.target.map((x,i)=>x-p.position[i]),l=Math.hypot(...v);return v.map(x=>x/l);},ang=(a,b)=>{const u=dir(a),v=dir(b);return Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]+u[2]*v[2])))*180/Math.PI;},dp=(a,b)=>Math.hypot(...a.position.map((x,i)=>x-b.position[i]));
+-const leg=legs[0],cam=(d,b)=>journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,b);
+-check('K1 04→05 startBlendM=0: continuous after set-off (d 0–10 m)',()=>{const h=.01;let maxStep=0,maxRate=0,at=0;const lim=cam(1e-6,0),c0=cam(0,0);
+- assert(dp(c0,lim)<1e-4&&ang(c0,lim)<1e-3,'d=0 differs from d→0+');
+- for(let d=0;d<10-1e-9;d+=h){const a=cam(d,0),b=cam(d+h,0),s=dp(a,b),r=ang(a,b)/(h/L.speedMps);if(s>maxStep)maxStep=s;if(r>maxRate){maxRate=r;at=d;}assert.equal(b.fovVerticalDeg,c0.fovVerticalDeg);}
+- assert(maxStep<=.02,'position step '+maxStep);assert(maxRate<=20,`view turn ${maxRate.toFixed(2)}°/s at d=${at.toFixed(2)}`);
+- return {maxPosStepPer1cm:+maxStep.toFixed(4),maxTurnDegS:+maxRate.toFixed(2),atM:+at.toFixed(2),fov:c0.fovVerticalDeg};});
+-const PIN={jumpM:50.727,turnDeg:132.07,fovFrom:42,fovTo:48};
+-check('K2 before→after hand-over at set-off is a CUT (pinned, reported for design/device review)',()=>{const c0=cam(0,0),j=dp(leg.start,c0),t=ang(leg.start,c0);
+- assert(Math.abs(j-PIN.jumpM)<.01,'jump '+j);assert(Math.abs(t-PIN.turnDeg)<.05,'turn '+t);assert.equal(leg.start.fovVerticalDeg,PIN.fovFrom);assert.equal(c0.fovVerticalDeg,PIN.fovTo);
+- return {cut:true,positionJumpM:+j.toFixed(3),viewTurnDeg:+t.toFixed(2),fov:[leg.start.fovVerticalDeg,c0.fovVerticalDeg],before:leg.start,after:c0};});
+-check('K3 control: default blend starts exactly on the live lens',()=>{const c=cam(0,S.JOURNEY_CAMERA.blendM);assert(dp(c,leg.start)<1e-6&&ang(c,leg.start)<1e-4);return {blendM:S.JOURNEY_CAMERA.blendM};});
+-check('K4 wiring: startBlendM 0 only on island 04→05',()=>{assert.equal(legs[0].startBlendM,0);assert.equal(legs[1].startBlendM,undefined);
+- const src=fs.readFileSync(S.ROOT+'/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts','utf8');assert(/startBlendM:0/.test(src.replace(/\s/g,'')),'adapter passes startBlendM 0');return {};});
+-const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Geometry/continuity of the real journeyCamera. Not a render or device acceptance.',checks:results};
++const leg=legs[0],cam=d=>journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,0),FR=L.speedMps/60;
++const PIN={"0":[-5.556268,3.4,-0.839658,-2.016281,2.426991,6.268207,48],"0.78":[-5.233083,3.4,-0.156411,-1.848599,2.426991,7.0268,48],"1":[-5.147828,3.4,0.040089,-1.800326,2.426991,7.240608,48],"2":[-4.784309,3.4,0.947897,-1.57697,2.426991,8.211934,48],"5":[-4.246386,3.827481,3.747258,-1.296961,2.854472,11.119784,48],"10":[-3.7135,4.906931,8.408973,-1.37828,3.933922,15.998439,48],"20":[-3.7135,5.065319,18.363713,-1.37828,4.09231,25.95318,48]};
++const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
++const app=S.appr1,bridgeStart=routeLength(app),bridgeEnd=bridgeStart+routeLength(S.bridge1);
++function rig({cover=true,route={}}={}){const log=[];let alpha=0,progress=0,covers=[];
++ const lease={route:{from:'island',to:'meadow',path:leg.path,bridgeStart,bridgeEnd,speed:L.speedMps,startBlendM:0,...route},show:v=>log.push({k:'show',v,alpha}),dispose:()=>{}};
++ const scene={prepare:async()=>lease,readCamera:()=>structuredClone(leg.start)};const controller=new RegionJourneyController(scene);
++ const world={setCamera:p=>log.push({k:'camera',p:structuredClone(p),alpha})};
++ if(cover)world.fadeCover=(a,s)=>{const d=deferred();log.push({k:'cover',a,s,from:alpha});covers.push({a,s,d,done:()=>{alpha=a;log.push({k:'coverDone',a});d.resolve();}});return d.promise;};
++ const performed=[];const actor={walkProgress:()=>progress,perform:(action)=>{log.push({k:'walk',alpha});const d=deferred();performed.push(d);return d.promise;},cancelAndReset:()=>{},setVisible:()=>{}};
++ return {controller,world,actor,log,covers,performed,setProgress:p=>{progress=p;controller.observe(actor,world);},alpha:()=>alpha};}
++const tick=()=>new Promise(r=>setImmediate(r));
++(async()=>{
++await check('G1 journeyCamera unchanged vs d238881; continuous, ≤ 20°/s from the cut (0–10 m)',()=>{for(const [d,v] of Object.entries(PIN)){const c=cam(+d),g=[...c.position,...c.target,c.fovVerticalDeg];g.forEach((x,i)=>assert(Math.abs(x-v[i])<1e-5,`d=${d}[${i}] ${x} vs ${v[i]}`));}
++ let mS=0,mT=0;for(let d=0;d<10-1e-9;d+=FR){const a=cam(d),b=cam(d+FR);mS=Math.max(mS,dp(a,b));mT=Math.max(mT,ang(a,b)*60);assert.equal(b.fovVerticalDeg,48);}
++ assert(mS<=.05,'step '+mS);assert(mT<=20,'turn '+mT);return {maxStepPerFrameM:+mS.toFixed(4),maxTurnDegS:+mT.toFixed(2),fov:48};});
++await check('G2 fade-in frames: in frame, chest/head/face unoccluded (no palm), lens ≥ 1 m',()=>{const end=SETOFF_FADE.inS*L.speedMps,rows=[];
++ for(let d=0;d<=end+1e-9;d+=FR){const c=cam(d),p=S.sampleRoute(leg.path,d),f=dir(c),r=[f[2],0,-f[0]].map(x=>x/Math.hypot(f[2],f[0])),up=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan(c.fovVerticalDeg*Math.PI/360),asp=390/844;
++  const ndc=q=>{const v=q.map((x,i)=>x-c.position[i]),z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];return [(v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(z*th*asp),(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(z*th),z];};
++  for(const h of [.15,.9,1.6]){const [x,y,z]=ndc([p[0],p[1]+h,p[2]]);assert(z>0&&Math.abs(x)<=1&&Math.abs(y)<=1,`d=${d.toFixed(2)} h=${h} out of frame`);}
++  for(const h of [.9,1.25,1.5,1.6]){const b=S.blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]]);assert.deepEqual(b,[],`d=${d.toFixed(2)} h=${h} hidden by ${b}`);}
++  const low=S.blockers(leg.objs,c.position,[p[0],p[1]+.15,p[2]]).concat(S.blockers(leg.objs,c.position,[p[0],p[1]+.5,p[2]]));assert(!low.some(n=>/palm/.test(n)),'palm on her legs '+low);
++  rows.push({d:+d.toFixed(3),legsBehind:[...new Set(low)]});}
++ const [lens]=S.clearance(cam(0).position,leg.objs);assert(lens>=1);return {fadeInM:+end.toFixed(3),frames:rows.length,lowPointsBehind:[...new Set(rows.flatMap(r=>r.legsBehind))]};});
++await check('C1 controller: fade out -> cut + show only under full black -> fade in -> walk',async()=>{const R=rig(),token=new Cancellation();await R.controller.prepare('meadow',leg.path[0],token);
++ const w=R.controller.walk(R.actor,R.world,token);await tick();
++ assert.deepEqual(R.log.map(e=>e.k),['cover'],'only the fade-out may start first: '+R.log.map(e=>e.k));assert.equal(R.log[0].a,1);assert.equal(R.log[0].s,SETOFF_FADE.outS);
++ R.covers[0].done();await tick();await tick();
++ const k=R.log.map(e=>e.k);assert.deepEqual(k,['cover','coverDone','camera','show','cover','walk'],k.join(','));
++ const cut=R.log.find(e=>e.k==='camera');assert.equal(cut.alpha,1,'cut not under full black');const c0=cam(0);assert(dp(cut.p,c0)<1e-9&&ang(cut.p,c0)<1e-6&&cut.p.fovVerticalDeg===48);
++ assert.equal(R.log.find(e=>e.k==='show').alpha,1);const fin=R.log[4];assert.equal(fin.a,0);assert.equal(fin.s,SETOFF_FADE.inS);
++ R.setProgress(.001);const after=R.log.filter(e=>e.k==='camera');assert.equal(after.length,2);assert(dp(after[0].p,after[1].p)<.2,'second write continues from the cut');
++ R.covers[1].done();assert.equal(R.controller.fadeState,'in');await tick();assert.equal(R.controller.fadeState,'clear');
++ for(let i=1;i<=200;i++)R.setProgress(i/200);R.performed[0].resolve();await w;const cams=R.log.filter(e=>e.k==='camera');let cuts=0;for(let i=1;i<cams.length;i++)if(dp(cams[i-1].p,cams[i].p)>5)cuts++;
++ assert.equal(cuts,0,'no cut after the black one');return {sequence:k,cutUnderAlpha:1,cutJumpM:+dp(leg.start,c0).toFixed(3),cutTurnDeg:+ang(leg.start,c0).toFixed(2),fov:[leg.start.fovVerticalDeg,48],fade:SETOFF_FADE};});
++await check('C2 lease without fadeCover: old path, no cover',async()=>{const R=rig({cover:false}),token=new Cancellation();await R.controller.prepare('meadow',leg.path[0],token);const w=R.controller.walk(R.actor,R.world,token);await tick();
++ assert.deepEqual(R.log.map(e=>e.k),['show','walk']);R.setProgress(1);R.performed[0].resolve();await w;return {};});
++await check('C3 cancel during the fade-out: cover goes back to 0, no cut, no walk',async()=>{const R=rig(),token=new Cancellation();await R.controller.prepare('meadow',leg.path[0],token);const w=R.controller.walk(R.actor,R.world,token).catch(e=>e);await tick();
++ token.cancel();R.covers[0].done();const e=await w;assert(e instanceof Error);const k=R.log.map(e=>e.k);assert(!k.includes('walk'),k.join());const last=R.log.filter(e=>e.k==='cover').at(-1);assert.equal(last.a,0);return {sequence:k};});
++await check('C4 08→09 (default blend): no fade',async()=>{const R=rig({route:{startBlendM:undefined}}),token=new Cancellation();await R.controller.prepare('meadow',leg.path[0],token);const w=R.controller.walk(R.actor,R.world,token);await tick();
++ assert(!R.log.some(e=>e.k==='cover'));R.setProgress(1);R.performed[0].resolve();await w;return {};});
++await check('C5 wiring: startBlendM 0 on island 04→05; WorldLease.fadeCover -> ScreenCover <- WorldIntegrationBoot cover; no audio in the set-off path',()=>{
++ const rd=f=>fs.readFileSync(SRC+f,'utf8');assert(/startBlendM:0/.test(rd('region/RegionJourneyAdapter.ts').replace(/\s/g,'')));assert.equal(legs[1].startBlendM,undefined);
++ assert(/get fadeCover\(\)\{return hasScreenCover\(\)\?/.test(rd('world-r1/WorldFlowComponent.ts')));const b=rd('WorldIntegrationBoot.ts');assert(/setScreenCover\(\(a,sec\)=>this\.fadeCover\(a,sec\)\)/.test(b)&&/setScreenCover\(null\)/.test(b)&&/addComponent\(UIOpacity\)/.test(b)&&/this\.tickCover\(\);this\.tickLoading/.test(b));
++ const core=rd('world-r1/RegionJourneyCore.ts'),wk=core.slice(core.indexOf(' async walk('),core.indexOf(' restore(actor')).replace(/\/\/.*$/gm,'');assert(wk.length>200&&!/Audio|audio|duck|volume/.test(wk),'set-off must not touch audio');assert.deepEqual({...SETOFF_FADE},{outS:.25,inS:.35});return {};});
++const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'journeyCamera geometry + real RegionJourneyController with a recording world. Not a render or device acceptance.',checks:results};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-start-continuity.json',JSON.stringify(report,null,1)+'\n');
+-console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
++console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,error:r.error&&r.error.split('\n').slice(0,2).join(' ').slice(0,400)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
++})();
+diff --git a/tools/test_startup_ready_gate.cjs b/tools/test_startup_ready_gate.cjs
+index 534c579..10939f5 100644
+--- a/tools/test_startup_ready_gate.cjs
++++ b/tools/test_startup_ready_gate.cjs
+@@ -37,7 +37,7 @@ const ref={seatedRoot:[.4327299768730942,0,-4.207611558444886],standingRoot:[-.0
+ const gate=compile('world-r2/StartupReadyGate.ts',()=>{throw Error('pure module has no dependencies');});
+ class Composition {constructor(){this.ready=deferred();scenario.compositions.push(this);}initializeWorld(){scenario.initializeCalls++;return this.ready.promise;}attachCalibratedCharacter(adapter){adapter.cancelAndReset({kind:'seated',seat:{seatedControllerRoot:ref.seatedRoot,yawRad:ref.seatYawRad}});this.adapter=adapter;scenario.bindCalls++;return {ok:true};}worldCommands(){return {snapshot:()=>({state:'home'})};}onDestroy(){this.adapter?.dispose();scenario.disposals++;}}
+ const motion=compile('CharacterMotion.ts',()=>{throw Error('pure module has no dependencies');}); // walk driver core (engine-free)
+-const Boot=compile('WorldIntegrationBoot.ts',name=>{if(name==='cc')return cc;if(name.endsWith('CharacterMotion'))return motion;if(name.includes('StartupReadyGate'))return gate;if(name.includes('WorldNativeComposition'))return {WorldNativeComposition:Composition};if(name.includes('CharacterReference'))return {CHARACTER_REFERENCE:ref};if(name.includes('WorldFlowCore'))return {Cancelled:gate.StartupCancelled,pointOnPath(){}};if(name.includes('IslandPropTaps'))return {emitPropTap(){},setPropTapLook(){},onPropTap(){return ()=>{};}};if(name.endsWith('IslandProps'))return {IslandProps:class{get ready(){return false;}load(){return Promise.resolve(false);}dispose(){}}};if(name.includes('FirstsliceFacts'))return {FIRSTSLICE:{anchors:{seat_anchor:{position:ref.seatedRoot}}}};if(name.includes('RegionLoader'))return {REGIONS:{island:{}},loadRegionPrefab(){scenario.regionCalls++;return scenario.region.promise;}};return {};}).WorldIntegrationBoot;
++const Boot=compile('WorldIntegrationBoot.ts',name=>{if(name==='cc')return cc;if(name.endsWith('world-r1/ScreenCover'))return {setScreenCover(){}};if(name.endsWith('CharacterMotion'))return motion;if(name.includes('StartupReadyGate'))return gate;if(name.includes('WorldNativeComposition'))return {WorldNativeComposition:Composition};if(name.includes('CharacterReference'))return {CHARACTER_REFERENCE:ref};if(name.includes('WorldFlowCore'))return {Cancelled:gate.StartupCancelled,pointOnPath(){}};if(name.includes('IslandPropTaps'))return {emitPropTap(){},setPropTapLook(){},onPropTap(){return ()=>{};}};if(name.endsWith('IslandProps'))return {IslandProps:class{get ready(){return false;}load(){return Promise.resolve(false);}dispose(){}}};if(name.includes('FirstsliceFacts'))return {FIRSTSLICE:{anchors:{seat_anchor:{position:ref.seatedRoot}}}};if(name.includes('RegionLoader'))return {REGIONS:{island:{}},loadRegionPrefab(){scenario.regionCalls++;return scenario.region.promise;}};return {};}).WorldIntegrationBoot;
+ function fixture(){scenario={scene:new Node('Scene'),region:deferred(),regionCalls:0,characterCalls:0,instances:0,instanceKinds:[],loadPaths:[],girls:[],compositions:[],initializeCalls:0,bindCalls:0,disposals:0,clipNames:['idle_breathing_loop','wind_sway_loop','walk_loop','sit_hold','stand_up','sit_down','door_reach'],ambientCallbacks:[]};scenario.scene.addComponent(Camera);const b=new Boot();b.node=new Node('Boot');b.smokeFixture={json:{}};b.paintNavigation=()=>{assert.equal(b.composition.worldCommands().snapshot().state,'home');scenario.navigationPaints=(scenario.navigationPaints||0)+1;};b.resize=()=>{};b.createNavigation=()=>{b.loadingBackdrop=new Node('Loading');b.loadingMask=new Node('Opaque');b.status={string:'',node:new Node('Status')};b.status.node.parent=new Node('Plate');b.notice={node:new Node('Notice')};b.notice.node.parent=new Node('NoticePlate');};b.start();return b;}
+ async function reachMount(b){scenario.region.resolve({});await turn();assert.equal(scenario.instances,2);assert.equal(scenario.initializeCalls,1);assert.equal(b.loadingBackdrop.active,true);assert.equal(b.loadingMask.active,true);assert.equal(b.loadPhase,'loading');}
+ (async()=>{
+-- 
+2.47.3
+

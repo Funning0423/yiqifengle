@@ -1,0 +1,163 @@
+{
+  "finding": "CONFIRMED: zero-roll endpoints do not imply zero-roll slerp interior",
+  "scope": "independent math + reject/retain emulation; no engine or device execution",
+  "source": {
+    "drive_file_id": "19aWoRJG5TYmvD4q-5gm0ARbK3snMcRQM",
+    "zip_name": "20261009T2227Z-grokbot2-REGION-PAN-CAMERA-0007-v1.2.zip",
+    "zip_bytes": 30037,
+    "zip_sha256": "3d5440effa7dc994446ea78356d151540da1e26f406f00a8d0808ba430a26cf8",
+    "patch_sha256": "0c4b642f23b6765dc9c90a0bfdc4e45e45e10158315633ab4babb62e1ba3fdad"
+  },
+  "path": {
+    "from": {
+      "position": [
+        -0.58,
+        1.65,
+        1.6
+      ],
+      "target": [
+        -0.2,
+        1.1,
+        2.6
+      ]
+    },
+    "to": {
+      "position": [
+        -5.796,
+        3.323,
+        9.352
+      ],
+      "target": [
+        -2.114,
+        0.9,
+        5.281
+      ]
+    }
+  },
+  "roll_check": "abs(rotate(quaternion, [1,0,0])[1]) > 0.001",
+  "fov_note": "FOV 45 or 55 is within range and does not change this roll rejection.",
+  "samples": [
+    {
+      "progress": 0,
+      "quaternion": [
+        0.042475296412040196,
+        0.9559643430683024,
+        0.2313524693539353,
+        -0.17551085123300736
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -1.3877787807814457e-17,
+      "applyCameraPose_would_reject": false
+    },
+    {
+      "progress": 0.01,
+      "quaternion": [
+        0.044514217229068974,
+        0.9541520377441536,
+        0.23078280240295712,
+        -0.18534203907424884
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -0.0006008482058629111,
+      "applyCameraPose_would_reject": false
+    },
+    {
+      "progress": 0.1,
+      "quaternion": [
+        0.06262996216398906,
+        0.9333840240384292,
+        0.22457935621153,
+        -0.2728293684205955
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -0.005628075610993988,
+      "applyCameraPose_would_reject": true
+    },
+    {
+      "progress": 0.25,
+      "quaternion": [
+        0.09157291470229388,
+        0.8813565524614343,
+        0.2100553478180016,
+        -0.4131607188241398
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -0.012156460192963014,
+      "applyCameraPose_would_reject": true
+    },
+    {
+      "progress": 0.5,
+      "quaternion": [
+        0.13472672506789138,
+        0.7495417364147972,
+        0.17512396941653005,
+        -0.6239931812612779
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -0.01658571868491407,
+      "applyCameraPose_would_reject": true
+    },
+    {
+      "progress": 0.75,
+      "quaternion": [
+        0.16913570320089147,
+        0.5690757211871946,
+        0.12882565745616478,
+        -0.7943235407810858
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -0.012156460192962959,
+      "applyCameraPose_would_reject": true
+    },
+    {
+      "progress": 0.9,
+      "quaternion": [
+        0.1846262106746196,
+        0.4422066097822713,
+        0.09681554467704155,
+        -0.872349257411095
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -0.00562807561099396,
+      "applyCameraPose_would_reject": true
+    },
+    {
+      "progress": 0.99,
+      "quaternion": [
+        0.19186161208623226,
+        0.36090664465310257,
+        0.07646932951786245,
+        -0.9094437625801829
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": -0.0006008482058628695,
+      "applyCameraPose_would_reject": false
+    },
+    {
+      "progress": 1,
+      "quaternion": [
+        0.1925664337123536,
+        0.3516721814490051,
+        0.07416553932007215,
+        -0.9130960070986877
+      ],
+      "quaternion_norm": 1.0,
+      "camera_right_y": 5.551115123125783e-17,
+      "applyCameraPose_would_reject": false
+    }
+  ],
+  "normalized_121_sample_reject_retain_emulation": {
+    "accepted_count": 6,
+    "rejected_count": 115,
+    "first_rejected_progress": 0.025,
+    "last_rejected_progress": 0.975,
+    "largest_successive_position_jump_m": 9.175652192926428,
+    "note": "Illustrates current reject-without-write behavior; not an engine measurement."
+  },
+  "minimum_regression": [
+    "Sample the full outside->island and reverse paths through the actual applyCameraPose, not only blendPose endpoints.",
+    "Assert accepted writes, finite/unit rotations, intended horizon policy and continuous transforms at every sample.",
+    "Handle rejected writes explicitly; the animation caller currently ignores false.",
+    "Then verify fixed/motion modes in Creator and WeChat DevTools on the exact integrated baseline."
+  ]
+}

@@ -1,0 +1,13 @@
+# 0008 — 可选集成片段（伪 diff，非 git apply 可用）
+# GGbot 手上没有 Oi 的 tools/finalize_wechat_local.cjs 源码，无法给出能直接 apply 的 git diff。
+# 二选一：
+#   (1) 不改 Oi 的文件：用 tools/finalize_wechat_local_firstopen.cjs 包一层（参数原样透传，默认关 = 现行为）。
+#   (2) 把下面 4 行加到 finalize_wechat_local.cjs 的末尾——必须在“删除空编译条件”和写回 project.config.json 之后、
+#       包体闸门（package gate）判定之前或之后都可以（条件块不影响包体）；<outputDir> 换成脚本里表示输出目录的变量名。
+--- a/tools/finalize_wechat_local.cjs
++++ b/tools/finalize_wechat_local.cjs
+@@ (文件末尾，空条件处理与写回之后) @@
++// 0008 optional first-open compile condition. Default off (unset/A) = unchanged behaviour.
++const __qfFirstOpen = process.env.QF_FIRST_OPEN_CONDITION;
++if (__qfFirstOpen && !/^(a|off|0|none)$/i.test(__qfFirstOpen))
++  require('./wechat_first_open_condition.cjs').applyFirstOpenCondition(<outputDir>, __qfFirstOpen, {log: (s) => console.error(s)});

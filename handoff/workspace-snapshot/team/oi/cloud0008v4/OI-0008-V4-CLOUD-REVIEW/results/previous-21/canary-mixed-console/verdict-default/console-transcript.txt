@@ -1,0 +1,15 @@
+2026-10-10T01:33:18.662Z automator.log	[QF-AUDIT-HEARTBEAT-LATE] e22e4f09b5b17947
+2026-10-10T01:33:18.662Z automator.error	[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947
+2026-10-10T01:33:18.662Z automator.error	[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended
+2026-10-10T01:33:18.161Z shim.errors	[QF-AUDIT-CANARY] e22e4f09b5b17947
+2026-10-10T01:33:18.662Z shim.errors	[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947
+2026-10-10T01:33:18.662Z shim.errors	[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended
+2026-10-10T01:33:18.160Z shim.logs	[QF-AUDIT-HEARTBEAT] e22e4f09b5b17947
+2026-10-10T01:33:18.161Z shim.logs	LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+2026-10-10T01:33:18.662Z shim.logs	[QF-AUDIT-HEARTBEAT-LATE] e22e4f09b5b17947
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [log] [QF-AUDIT-HEARTBEAT] e22e4f09b5b17947
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY] e22e4f09b5b17947
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [log] [QF-AUDIT-HEARTBEAT-LATE] e22e4f09b5b17947
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY-LATE] e22e4f09b5b17947
+weapplog(own)	/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-mixed-console/copies/QFFirstOpen-20261010T013317023Z-4a05-62fcbf-default [error] [QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended

@@ -1,0 +1,108 @@
+{
+  "scope": "inspected E4 runtime logic with self-authored cc mocks, not Creator/GPU or actual asset release",
+  "passed": 21,
+  "failed": 1,
+  "results": [
+    {
+      "name": "ground never loaded at construction",
+      "status": "pass"
+    },
+    {
+      "name": "ground remains original while asynchronous load pending",
+      "status": "pass"
+    },
+    {
+      "name": "loaded ground replaces original and retains one ref",
+      "status": "pass"
+    },
+    {
+      "name": "restore reinstates original and releases retained ref",
+      "status": "pass"
+    },
+    {
+      "name": "out of order old load does not overwrite current texture",
+      "status": "pass"
+    },
+    {
+      "name": "duplicate callback ignored without extra retain",
+      "status": "pass"
+    },
+    {
+      "name": "dispose idempotently restores and releases applied texture",
+      "status": "pass"
+    },
+    {
+      "name": "unload during load discards callback with balanced refs",
+      "status": "pass"
+    },
+    {
+      "name": "disposed swap will not launch further load",
+      "status": "pass"
+    },
+    {
+      "name": "failed load leaves original intact and permits next off-on retry",
+      "status": "pass"
+    },
+    {
+      "name": "off-on retry launches second request",
+      "status": "pass"
+    },
+    {
+      "name": "invalid target ignores loaded texture with balanced refs",
+      "status": "pass"
+    },
+    {
+      "name": "WIND_QUALITY OFF leaves grass present and starts no ground request: hardware=true",
+      "status": "pass"
+    },
+    {
+      "name": "instanced mode does not monitor slow frames or switch ground",
+      "status": "pass"
+    },
+    {
+      "name": "WIND_QUALITY OFF leaves grass present and starts no ground request: hardware=false",
+      "status": "pass"
+    },
+    {
+      "name": "noninstancing sustained slow frames disable only grass and request ground once",
+      "status": "pass",
+      "detail": {
+        "grass": 300,
+        "flowers": 75,
+        "request": {
+          "bundle": "region_meadow",
+          "path": "textures/tex_meadow_ground_grassoff_1024/texture"
+        }
+      }
+    },
+    {
+      "name": "budget remains sticky across quality changes and clearing manual reason",
+      "status": "pass"
+    },
+    {
+      "name": "MeadowInstancer unload restores ground and releases baked ref",
+      "status": "pass"
+    },
+    {
+      "name": "manual API can still hide instanced grass (document default-only restriction)",
+      "status": "pass"
+    },
+    {
+      "name": "debug quality opt-in can still hide grass (must remain false in production)",
+      "status": "pass"
+    },
+    {
+      "name": "forceNoInstancing deliberately activates budget fallback on capable hardware",
+      "status": "pass"
+    },
+    {
+      "name": "exception in target.get is caught and retained ref released",
+      "status": "fail",
+      "detail": {
+        "threw": true,
+        "remainingRefs": 1,
+        "state": "idle"
+      }
+    }
+  ]
+}

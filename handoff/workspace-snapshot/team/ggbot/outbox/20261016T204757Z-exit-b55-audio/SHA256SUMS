@@ -1,0 +1,15 @@
+dad37a5fb09c7d59b24f49e70adc1d60dccce53984d4dc7678d29db15a880446  0001-Follow-her-out-of-the-door-at-walking-pace-then-rise.patch
+0c639614c445b84984a1da6d645cb3928a2d492ac13b6533280cd95c6d4392bf  0002-exit-cam-B5.1-closer-lower-end-pose-2.3-7-11-2-0.8-4.patch
+7f18d1a364aa291556148f2746b98e0ed935a052a5eb087ead32b9bf06904e56  0003-exit-cam-B5.2-wide-end-pose-22-12-18-1-2.5-1-fov56-w.patch
+5b198b4b6b0190e931609f4f752e9f51aea3f72177e82bf2be013872fb5e435b  0004-exit-cam-B5.3-end-pose-15.5-9-14-2-2.5-1-fov60-16-m-.patch
+9def32cadb32aaedc499991b69efadc33d3ae49245973da3d0d020d8363066ea  0005-exit-cam-B5.4-end-on-island-HOME-pose-v24-readable-1.patch
+3f67f48d3562242b1e4276a66dbc80ea15d3ff3f41497c3bd4453ce4a5f4b755  0006-exit-cam-B5.4.2-1.1-m-prop-clearance-C2-height-bump-.patch
+f069cb0927f328561fff55fff68f9c58b7f49893846154296fefdb7231a2b3ea  0007-exit-cam-B5.4.3-30-s-settle-22-ramp-out-.15-last-3-s.patch
+e739f372b22f09ac79e7f181dbe2b85956d2c9bb195ecefc5d6696fb92f44cd1  0008-exit-cam-B5.5-20-s-S-curve-retime-from-3.6-s-3-s-eas.patch
+2f5f88c1530c32485a5a74fe80dd4a521ea52ac823464d1f990aa824a0296cbf  0009-audio-sfx_exit_outbound.mp3-for-exit-cam-B5.5-20.0-s.patch
+0b9791fff95377dd497c4e72adab836d0703aa1daebb7bc270b9567656a847f5  0010-Exit-B5.5-audio-re-encode-sfx_exit_outbound-to-24-kb.patch
+ccd3df395e6ef6d6352f661fa81b9b2baded98279d95dd88f1c762f5e195d106  TREE_CHECK.txt
+b1041d7c798d4194381ca063debdb4afbd63de68f6f011a57fa0bb91ddaf3e5f  logs/package_delta_vs_b0020ed_source_bytes.txt
+0f3084e955dff43f958c87355535e28963bef5017593e660e77a1f52495a5281  logs/test-suite.log
+e153dc8638b8e493c1154caca661b9e72d095eb111a883130db352d31e079e4b  logs/test_camera_frames.log
+630f85207695f95011bcd547ebc6ec2b5bde76652eb006699550a7d0d4e755e9  logs/test_exit_cine_audio.log

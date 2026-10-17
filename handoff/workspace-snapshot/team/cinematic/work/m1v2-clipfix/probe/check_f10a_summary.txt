@@ -1,0 +1,31 @@
+===== cine_open_stand
+self:legLxlegL_ctrl                                max    0.00mm @f90  maxN  384 nz 91 [0..90]
+garment[visible]:legLxdress                        max   32.09mm @f35  maxN   16 nz  6 [14..47]
+garment[visible]:legRxdress                        max   16.95mm @f42  maxN    6 nz  3 [35..42]
+garment[visible]:armLxapron                        max    0.34mm @f39  maxN    4 nz  2 [39..40]
+garment[visible]:armRxapron                        max    0.00mm @f35  maxN    4 nz  1 [35..35]
+garment[visible]:uarmLxapron                       max    0.34mm @f39  maxN    4 nz  2 [39..40]
+garment[visible]:bowxdress                         max    0.00mm @f50  maxN   16 nz  4 [35..50]
+garment[visible]:apronxdress                       max    0.35mm @f18  maxN  158 nz 11 [16..49]
+garment[midsurface]:apronxdress                    max    0.34mm @f36  maxN   38 nz  6 [18..49]
+thin_sheet:dress_self                              max    0.00mm @f78  maxN  248 nz 37 [16..78]
+thin_sheet:apron_self                              max    0.00mm @f76  maxN    5 nz  4 [40..76]
+layer_cross:apron_vs_dress                         max   23.74mm @f51  maxN    8 nz 57 [0..67]
+proxy:bodyxcol_int_chair_back                      max   32.27mm @f27  maxN  402 nz 43 [0..42]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f15  maxN  353 nz 24 [0..23]
+chair:dressxchair_front_edge                       max    0.00mm @f47  maxN   16 nz  5 [33..47]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f15  maxN  906 nz 24 [0..23]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 322}}
+===== cine_open_turn
+self:legLxlegL_ctrl                                max    0.00mm @f45  maxN  370 nz 46 [0..45]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 292}}
+===== cine_open_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  292 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 292}}
+===== cine_home_safe_end
+self:legLxlegL_ctrl                                max    0.00mm @f0  maxN  308 nz  1 [0..0]
+layer_cross:apron_vs_dress                         max    3.07mm @f0  maxN    2 nz  1 [0..0]
+proxy:bodyxcol_int_chair_back                      max   31.80mm @f0  maxN  402 nz  1 [0..0]
+proxy:body_nobowxcol_int_chair_back                max   20.76mm @f0  maxN  353 nz  1 [0..0]
+proxy:hairxcol_int_chair_back                      max   23.49mm @f0  maxN  906 nz  1 [0..0]
+LAST FRAME nonzero: {'self:legLxlegL_ctrl': {'tri_pairs': 308}, 'layer_cross:apron_vs_dress': {'verts_inside': 2, 'depth_mm': 3.07}, 'proxy:bodyxcol_int_chair_back': {'verts_inside': 402, 'depth_mm': 31.8}, 'proxy:body_nobowxcol_int_chair_back': {'verts_inside': 353, 'depth_mm': 20.76}, 'proxy:hairxcol_int_chair_back': {'verts_inside': 906, 'depth_mm': 23.49}}

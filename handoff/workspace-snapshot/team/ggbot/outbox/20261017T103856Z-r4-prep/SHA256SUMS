@@ -1,0 +1,12 @@
+74e3333736600e285767b3c1f1855cbd1de4aa101c0e79190302471b5ad19229  ./README.md
+4c78da804623c01947d9798ceba0137e393571c507cb53093bb2f68dcb91c76b  ./ggbot-build05-r4-prep.bundle
+b4cbc1010ad179df92b6950f214de438dbf0e74f1d01e3c526eea7804aa6e745  ./patches/0001-r4-prep-1-3-landing-from-the-journey-into-a-board-no.patch
+c4709ccb8b7b79b771e6754b1b5123a7a8f5ea9d61de413f9afe15fe42a70228  ./patches/0002-r4-prep-2-3-island-sky-dome-cloud-layer-follow-the-l.patch
+1671d891f119b0fd4db2aaea0044a05cb55038de0b54127436d5ccf10f1672e7  ./patches/0003-r4-prep-3-3-first-lakeside-entry-the-board-reuses-th.patch
+9e9f572e85eddc97ce9736d5afd3de78feb14a6912ff4456a6d5e7db16929ddf  ./patches/0004-r4-prep-C-island-only-sky-dome-cloud-layer-and-gulls.patch
+c005939d6eeae1352f1b78bb317ae6466968f25a056fb16de544c96b22d331c2  ./patches/0005-r4-prep-D-journey-lake-reads-the-board-s-water-sourc.patch
+6da54c43caee95e6d8f5986e1f2e0b478e5ff9a8b139a29125630bde61da5321  ./patches/0006-r4-prep-B-she-stays-in-frame-after-landing-frozen-co.patch
+ae6f28d2257ff844906daab550663141e7946436b892d512382a8e330e973f5b  ./patches/0007-r4-prep-A-preload-the-board-during-the-arrival-landi.patch
+d156d61813c0818a389fbaa7f4426eda740777fc1b23749b3d28b31bf5f8cd3e  ./patches/0008-r4-prep-B-she-stays-where-she-landed-in-the-meadow-a.patch
+b37c94eded03801d8da5169f805856f79246970b96e81e04c7903778a24d374b  ./patches/0009-r4-prep-D-test-lakeside-daynight-reads-the-water-day.patch
+326412e830f4095fde28ee5ab32f3d4c7f3db0fd3151cb01ce4fedb718094d58  ./suite.json

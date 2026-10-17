@@ -1,0 +1,20 @@
+PASS HUD: only the pause button and the info plate (title, goals, moves); no back / bag / retry / hint / status line
+PASS toast: tool prompts show for 2 s then fade out; a new message restarts the timer
+PASS auto hint: after 5 s idle the managed hint lights cells, again 8 s later; input clears it; no action or command is sent
+PASS lock return: hidden→visible while paused opens the full pause panel on the next tick; leaving run.paused closes it
+PASS pause panel: pause → PausePanel (3 tiles, music + sfx toggles, resume, home); resume sends resume after the close animation
+PASS pause → 重来 asks first (留下 keeps the pause page); 重来 restarts; 回到小岛 exits at once without a confirm
+PASS pause → 行囊 (level bag: tools, no pearl, earned chests open via openChest) and → 设置 (full settings); toggles drive GameAudio
+[RESULT_CHEST] 3D chest unavailable Error: chest prefab unavailable
+[RESULT_CHEST] 3D chest unavailable Error: chest prefab unavailable
+[RESULT_CHEST] 3D chest unavailable Error: chest prefab unavailable
+PASS result pages: win with host chest/next actions, 差一点点 lose + replay, 还没存上 grey chest + retry save, 旅途回顾 read-only
+PASS reward popup: a chest opened while the board is up shows 获得 with the gained tools; closing queues the first-time intro
+PASS tool intro: each bar tool is introduced once (qfl.ui.seenTools), never again on the next board
+PASS night: board sprites multiply by K_UI, text recolours, board tiles too; back to day restores
+PASS beacon cell: lighthouse + ring on the current target, faint dots for beaconRoute.slice(cursor + 1)
+PASS invalid swap: no commit, both pieces shake (reduced motion: no shake)
+PASS settings music slider: drag updates the volume, release and cancel keep it
+PASS info plate: goals, divider, moves icon and count stay inside hud_levelplate; title stays on the top row
+PASS teardown: onDestroy clears popups and host; later updates are inert
+{"status":"PASS","checks":16,"scope":"Real board-ui ManagedMobileBoardUI + panels on Cocos memory doubles (tools/board-ui/harness.cjs); not rendering, device touch or WeChat"}

@@ -1,0 +1,6 @@
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/copies/QFFirstOpen-20261010T013511467Z-8d23-2d415b-default [log] [QF-AUDIT-HEARTBEAT] 9b8d7f34def69f66
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/copies/QFFirstOpen-20261010T013511467Z-8d23-2d415b-default [error] [QF-AUDIT-CANARY] 9b8d7f34def69f66
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/copies/QFFirstOpen-20261010T013511467Z-8d23-2d415b-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/copies/QFFirstOpen-20261010T013511467Z-8d23-2d415b-default source-prefix [error] plain fatal diagnostic
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/copies/QFFirstOpen-20261010T013511467Z-8d23-2d415b-default [log] [QF-AUDIT-HEARTBEAT-LATE] 9b8d7f34def69f66
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/copies/QFFirstOpen-20261010T013511467Z-8d23-2d415b-default [error] [QF-AUDIT-CANARY-LATE] 9b8d7f34def69f66

@@ -1,0 +1,23 @@
+[
+  {
+    "t": "2026-10-10T01:33:18.662Z",
+    "type": "log",
+    "args": [
+      "[QF-AUDIT-HEARTBEAT-LATE] e22e4f09b5b17947"
+    ]
+  },
+  {
+    "t": "2026-10-10T01:33:18.662Z",
+    "type": "error",
+    "args": [
+      "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947"
+    ]
+  },
+  {
+    "t": "2026-10-10T01:33:18.662Z",
+    "type": "error",
+    "args": [
+      "[QF-AUDIT-CANARY-LATE] e22e4f09b5b17947 TypeError: real error appended"
+    ]
+  }
+]

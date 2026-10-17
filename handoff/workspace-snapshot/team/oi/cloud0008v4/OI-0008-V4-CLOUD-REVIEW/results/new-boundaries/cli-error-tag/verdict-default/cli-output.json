@@ -1,0 +1,44 @@
+{
+  "launch": {
+    "label": "auto",
+    "args": [
+      "auto",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-tag/copies/QFFirstOpen-20261010T013513258Z-6246-7a70ce-default",
+      "--auto-port",
+      "42006"
+    ],
+    "pid": 295,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 52,
+    "lines": [
+      {
+        "t": "2026-10-10T01:35:13.431Z",
+        "stream": "stderr",
+        "line": "[console.error] plain fatal diagnostic"
+      }
+    ]
+  },
+  "close": {
+    "label": "close",
+    "args": [
+      "close",
+      "--project",
+      "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-tag/copies/QFFirstOpen-20261010T013513258Z-6246-7a70ce-default"
+    ],
+    "pid": 306,
+    "code": 0,
+    "signal": null,
+    "error": null,
+    "timedOut": false,
+    "terminated": false,
+    "exited": true,
+    "ms": 63,
+    "lines": []
+  }
+}

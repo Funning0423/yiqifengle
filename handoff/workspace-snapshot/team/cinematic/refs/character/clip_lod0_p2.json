@@ -1,0 +1,32 @@
+[
+ {
+  "pose": "rest",
+  "legs_poking_out_of_dress": 0,
+  "legs_max_out_m": -0.021000639419071376,
+  "arm_verts_inside_dress": 0,
+  "arm_verts_inside_apron": 0,
+  "arm_min_signed_m": 0.0360520587710198,
+  "apron_verts_inside_dress": 0,
+  "apron_min_signed_m": 0.0019749653552025848
+ },
+ {
+  "pose": "walk",
+  "legs_poking_out_of_dress": 0,
+  "legs_max_out_m": -0.0033490097703179345,
+  "arm_verts_inside_dress": 0,
+  "arm_verts_inside_apron": 0,
+  "arm_min_signed_m": 0.010960387095110491,
+  "apron_verts_inside_dress": 0,
+  "apron_min_signed_m": 0.0024250250698969467
+ },
+ {
+  "pose": "sit",
+  "legs_poking_out_of_dress": 0,
+  "legs_max_out_m": -0.015255071499268524,
+  "arm_verts_inside_dress": 62,
+  "arm_verts_inside_apron": 94,
+  "arm_min_signed_m": -0.017309694085270166,
+  "apron_verts_inside_dress": 0,
+  "apron_min_signed_m": -0.0002518374858482275
+ }
+]

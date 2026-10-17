@@ -1,0 +1,9 @@
+169 creator-build-project/assets/bundles/region_island/audio_cine.meta
+60412 creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3
+222 creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta
+155 creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+5033 creator-build-project/assets/scripts/audio/GameAudio.ts
+108 creator-build-project/assets/scripts/world-r1/CameraPose.ts
+12504 creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
+1145 creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+32 creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts

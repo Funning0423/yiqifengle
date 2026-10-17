@@ -1,0 +1,29 @@
+From e2a03ec3ca7866570a0e04ae46564bec783163f3 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 06:28:51 +0800
+Subject: [PATCH 6/6] exit-cine-audio test: accept Voice Bot A1 track (<=150
+ KB, assert MPEG-1 32 kHz mono header) instead of the old 64 KB 22.05k budget
+
+---
+ tools/test_exit_cine_audio.cjs | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/tools/test_exit_cine_audio.cjs b/tools/test_exit_cine_audio.cjs
+index efe23a2..1136d5d 100644
+--- a/tools/test_exit_cine_audio.cjs
++++ b/tools/test_exit_cine_audio.cjs
+@@ -54,7 +54,10 @@ test('「主页」 transition fade applies to the exit track (it is an owned sfx
+ test('Boot feeds world states to GameAudio.onWorldState',()=>{const b=fs.readFileSync('creator-build-project/assets/scripts/WorldIntegrationBoot.ts','utf8');assert(/trackTransitionHud\(state:string\)\{[^\n]*\n[^\n]*onWorldState\?\.\(state\)/.test(b));});
+ test('asset: re-encoded mono mp3 in region_island subpackage, fixed Cocos meta, budget size',()=>{
+  const p='creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3',bytes=fs.readFileSync(p);
+- assert(bytes.length<=64000,'size '+bytes.length);
++ // A1 (Voice Bot f57b8d2): 32 kHz 56k CBR mono, 140,660 B; budget 150 KB. Header must be MPEG-1 Layer III 32 kHz (not 22.05k).
++ assert(bytes.length<=150000,'size '+bytes.length);
++ {let i=bytes[0]===0x49&&bytes[1]===0x44&&bytes[2]===0x33?10+((bytes[6]&127)<<21|(bytes[7]&127)<<14|(bytes[8]&127)<<7|(bytes[9]&127)):0;while(i<bytes.length-1&&!(bytes[i]===0xff&&(bytes[i+1]&0xe0)===0xe0))i++;
++  const ver=(bytes[i+1]>>3)&3,sr=(bytes[i+2]>>2)&3,ch=(bytes[i+3]>>6)&3;assert.equal(ver,3,'MPEG-1');assert.equal(sr,2,'32 kHz');assert.equal(ch,3,'mono');}
+  const m=JSON.parse(fs.readFileSync(p+'.meta','utf8'));assert.equal(m.importer,'audio-clip');assert.equal(m.uuid,'f3058b2d-c395-491f-abb5-9bbf5ac15871');
+  const d=JSON.parse(fs.readFileSync('creator-build-project/assets/bundles/region_island/audio_cine.meta','utf8'));assert.equal(d.importer,'directory');
+  const isl=JSON.parse(fs.readFileSync('creator-build-project/assets/bundles/region_island.meta','utf8'));assert.equal(isl.userData.bundleName,'region_island');
+-- 
+2.47.3
+

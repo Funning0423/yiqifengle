@@ -1,0 +1,31 @@
+From 260c3d5ad8dda6937808da3743e8ebba0c28c178 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 04:50:09 +0800
+Subject: [PATCH 18/21] Character GLB: enable lossless meshCompress 'compress'
+ only (no quantize/encode) for the package budget (plan option A / C1). Revert
+ this commit on any walk/sit/stand/skirt deformation
+
+---
+ .../chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta b/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta
+index 13179be..d8445b2 100644
+--- a/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta
++++ b/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta
+@@ -1061,6 +1061,12 @@
+       "scenes": [
+         "dce9f061-7913-4893-9eb9-35e039adda3c@6af54"
+       ]
++    },
++    "meshCompress": {
++      "enable": true,
++      "compress": true,
++      "encode": false,
++      "quantize": false
+     }
+   }
+ }
+-- 
+2.47.3
+

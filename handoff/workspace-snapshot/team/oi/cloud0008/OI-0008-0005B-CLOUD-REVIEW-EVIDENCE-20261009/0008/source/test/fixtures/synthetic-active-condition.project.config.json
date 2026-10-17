@@ -1,0 +1,6 @@
+{
+  "compileType": "game",
+  "appid": "wx3bdd911c5c06f591",
+  "projectname": "SyntheticActive",
+  "condition": { "game": { "current": 0, "list": [ { "name": "debug", "query": "x=1" } ] } }
+}

@@ -1,0 +1,171 @@
+Wechat Lib:3.17.3, 2026.10.9 19:51:01
+Sat Oct 10 2026 06:47:09 GMT+0800 (中国标准时间) 接口提示
+小程序基础库从 3.7.0 起正式支持 HarmonyOS 平台，开发者可通过 wx.getDeviceInfo() 判断平台进行兼容处理，让小程序在 HarmonyOS 也获得最佳体验，查看指引[https://developers.weixin.qq.com/community/develop/doc/00008e041106f0259bb33530164409]
+Object
+WAGame.js:1 Error: MiniProgramError
+module '@babel/runtime/helpers/Objectvalues.js' is not defined, require args is '../../@babel/runtime/helpers/Objectvalues'
+    at P (WAGameSubContext.js:1)
+    at n (WAGameSubContext.js:1)
+    at game.js:5
+    at Module.d (WAGameSubContext.js:1)
+    at p (WAGameSubContext.js:1)
+    at WAGameSubContext.js:1
+    at Object.runWith (WAGameSubContext.js:1)
+    at P (WAGameSubContext.js:1)
+    at <anonymous>:1:60
+    at doWhenAllScriptLoaded (game.js:73)
+(anonymous) @ WAGame.js:1
+errorReport @ WAGame.js:1
+thirdErrorReport @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+d @ WAGameSubContext.js:1
+p @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+runWith @ WAGameSubContext.js:1
+P @ WAGameSubContext.js:1
+(anonymous) @ VM67:1
+doWhenAllScriptLoaded @ game.js:73
+(anonymous) @ game.js:58
+d @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+setTimeout (async)
+setTimeout @ WAGame.js:1
+(anonymous) @ WAGameSubContext.js:1
+globalThis.setTimeout @ WAGameSubContext.js:1
+doWhenAllScriptLoaded @ game.js:56
+scriptLoaded @ game.js:97
+script.onload @ game.js:105
+script (async)
+(anonymous) @ game.js:101
+(anonymous) @ game.js:115
+WAGame.js:1 Error: MiniProgramError
+module '@babel/runtime/helpers/Objectvalues.js' is not defined, require args is '../../@babel/runtime/helpers/Objectvalues'
+    at P (WAGameSubContext.js:1)
+    at n (WAGameSubContext.js:1)
+    at game.js:5
+    at Module.d (WAGameSubContext.js:1)
+    at p (WAGameSubContext.js:1)
+    at WAGameSubContext.js:1
+    at Object.runWith (WAGameSubContext.js:1)
+    at P (WAGameSubContext.js:1)
+    at <anonymous>:1:60
+    at doWhenAllScriptLoaded (game.js:73)
+(anonymous) @ WAGame.js:1
+errorReport @ WAGame.js:1
+thirdErrorReport @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+a @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+_privEmit @ WAGameSubContext.js:1
+emit @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+i @ WAGameSubContext.js:1
+qe @ WAGameSubContext.js:1
+Qe @ WAGameSubContext.js:1
+le @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+doWhenAllScriptLoaded @ game.js:73
+(anonymous) @ game.js:58
+d @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+(anonymous) @ WAGameSubContext.js:1
+setTimeout (async)
+setTimeout @ WAGame.js:1
+(anonymous) @ WAGameSubContext.js:1
+globalThis.setTimeout @ WAGameSubContext.js:1
+doWhenAllScriptLoaded @ game.js:56
+scriptLoaded @ game.js:97
+script.onload @ game.js:105
+script (async)
+(anonymous) @ game.js:101
+(anonymous) @ game.js:115
+WAGame.js:1 Error: Unable to instantiate virtual:///prerequisite-imports/main from undefined
+    at M.instantiate (system.bundle.js? [sm]:1)
+    at r.instantiate (system.bundle.js? [sm]:1)
+    at M.instantiate (system.bundle.js? [sm]:1)
+    at M.instantiate (system.bundle.js? [sm]:1)
+    at M.instantiate (system.bundle.js? [sm]:1)
+    at system.bundle.js? [sm]:1
+(anonymous) @ WAGame.js:1
+(anonymous) @ game.js? [sm]:64
+setTimeout (async)
+globalThis.setTimeout @ WAGame.js:1
+wxRequestAnimationFrame @ gamePage.html:52
+requestAnimationFrame @ WAGame.js:1
+(anonymous) @ WAGameSubContext.js:1
+Ne @ cc.js? [sm]:1
+Ye @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+e.dispatch @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+o @ cc.js? [sm]:1
+onComplete @ cc.js? [sm]:1
+e.dispatch @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+e.parse @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+e._flow @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+(anonymous) @ cc.js? [sm]:1
+a @ cc.js? [sm]:1
+(anonymous) @ engine-adapter.js? [sm]:1
+(anonymous) @ web-adapter.js? [sm]:1
+success @ web-adapter.js? [sm]:1
+t @ WAGameSubContext.js:1
+S.forEach.p.<computed> @ WAGame.js:1
+h @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+n @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+J @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+r @ WAGame.js:1
+s @ WAGame.js:1
+Promise.then (async)
+invoke @ WAGame.js:1
+d @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+se @ WAGame.js:1
+o @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+S @ WAGame.js:1
+h @ WAGame.js:1
+t @ WAGameSubContext.js:1
+readFile @ web-adapter.js? [sm]:1
+readJson @ web-adapter.js? [sm]:1
+w @ engine-adapter.js? [sm]:1
+v @ engine-adapter.js? [sm]:1
+E @ engine-adapter.js? [sm]:1
+(anonymous) @ engine-adapter.js? [sm]:1
+success @ web-adapter.js? [sm]:1
+t @ WAGameSubContext.js:1
+S.forEach.p.<computed> @ WAGame.js:1
+h @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+Ph @ WAGame.js:1
+a @ WAGame.js:1
+Promise.then (async)
+handleLoadSubpackageSuccess @ WAGame.js:1
+S @ WAGame.js:1
+h @ WAGame.js:1
+onLoadSubpackageSuccess @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+Gh @ WAGame.js:1
+c.emit @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+(anonymous) @ WAGame.js:1
+_emit @ WAGame.js:1
+emit @ WAGame.js:1
+emit @ VM4 sandbox_bundle:2
+onMessage @ VM4 sandbox_bundle:2
+Show 8 more frames

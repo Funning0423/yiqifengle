@@ -1,0 +1,161 @@
+From 268b58e452ad618bcab9a65587a1febe907d12d4 Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 12:46:26 +0800
+Subject: [PATCH] L1 (DC fallback): drop the 0.08 lakeside sun (folded into
+ ambient +8% skyIllum while visible, restored on hide/dispose); remaining suns
+ at 20 m / range 40 around the board with centre illuminance kept;
+ LAKESIDE_LIGHT_TRIM switch (keepMainFull = 1.0 sun at 220 m/600); test
+ lakeside-lights-trim
+
+---
+ .../scripts/region/LakesideBoardBackground.ts | 15 ++++++----
+ .../scripts/region/LakesideSceneData.ts       | 21 +++++++++++++
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ tools/lakeside/test_lakeside_entry.cjs        |  2 +-
+ tools/lakeside/test_lakeside_lights_trim.cjs  | 30 +++++++++++++++++++
+ 5 files changed, 62 insertions(+), 8 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_lights_trim.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index bc513e8..1e050f2 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -2,7 +2,7 @@ import {Animation,AssetManager,Camera,Color,JsonAsset,Material,MeshRenderer,Node
+ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPlacements,lakesideLightSrgb,LAKESIDE_LIGHT_TRIM,lakesideSceneInstances,lakesidePrefabName,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+@@ -24,9 +24,12 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
+ /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
+  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
+- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[];
++ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[],ambientSaved:number|null=null;
++ /** L1: the dropped 0.08 sun is folded into the scene ambient (+ambientFold sky illuminance) only while the lake shows; restored on hide/dispose. */
++ const foldAmbient=(on:boolean)=>{const T=LAKESIDE_LIGHT_TRIM;if(!T.enabled||!(T.ambientFold>0))return;const amb=(director.getScene() as any)?.globals?.ambient;if(!amb)return;
++  if(on&&ambientSaved===null){ambientSaved=amb.skyIllum;amb.skyIllum=ambientSaved!*(1+T.ambientFold);}else if(!on&&ambientSaved!==null){amb.skyIllum=ambientSaved;ambientSaved=null;}};
+  const held:Array<{decRef():unknown}>=[];
+- const dispose=()=>{if(dead)return;dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
++ const dispose=()=>{if(dead)return;foldAmbient(false);dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+@@ -46,14 +49,14 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   instanced=enableLakesideInstancing(scenery);
+   setLayer(scenery);
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+-  for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+-   const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
++  for(const pl of lakesideLightPlacements()){const l=pl.light,n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=pl.position;n.setPosition(p[0],p[1],p[2]);
++   const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=pl.range;s.size=30;s.luminance*=pl.luminanceScale;s.visibility=LAKESIDE_LAYER;}
+   const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
+   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
+   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
+   return {
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');},
+-   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;},
++   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;foldAmbient(value);},
+    setPaused:value=>{if(dead)return;paused=value;},
+    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 52542a9..e7beb3f 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -45,6 +45,27 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
+   const c = LAKESIDE_BOARD_BOUNDS.center, d = LAKESIDE_SUN_DISTANCE;
+   return [+(c[0] - l.forward[0] * d).toFixed(3), +(c[1] - l.forward[1] * d).toFixed(3), +(c[2] - l.forward[2] * d).toFixed(3)];
+ }
++/** L1 (lead ruling, draw-call fallback): drop the 0.08 sun (folded into ambient, +8 % sky illuminance while the lake shows) and pull
++ *  the other suns in from 220 m / range 600 to `distance` 20 m / range 40 along the same direction. At 20 m the board corners
++ *  are 15.5–24.9 m away (half-diagonal 5.44 m), inside 40 with margin; best corner uniformity for r=40 was at d=20 (scan 8–39).
++ *  Luminance is rescaled so the board centre gets the same light as before: (d/220)² · window(220/600) / window(d/r)
++ *  (Cocos sphere-light window (1-(d/r)^4)^2: 0.964 at 220/600, 0.879 at 20/40). `keepMainFull` = Voice Bot variant: the 1.0 sun stays at 220 m / 600. */
++export const LAKESIDE_LIGHT_TRIM = Object.freeze({ enabled: true, dropRatioBelow: 0.1, distance: 20, range: 40, keepMainFull: false, ambientFold: 0.08 });
++export const LAKESIDE_FULL_RANGE = 600;
++export type LakesideLightPlacement = { light: LakesideLight; position: [number, number, number]; range: number; luminanceScale: number };
++export function lakesideLightPlacements(trim: { enabled: boolean; dropRatioBelow: number; distance: number; range: number; keepMainFull: boolean } = LAKESIDE_LIGHT_TRIM): LakesideLightPlacement[] {
++  const c = LAKESIDE_BOARD_BOUNDS.center, out: LakesideLightPlacement[] = [];
++  for (const l of LAKESIDE_LIGHTS) {
++    if (l.onlyLayer) continue;
++    const full = !trim.enabled || (trim.keepMainFull && l.ratio >= 1);
++    if (trim.enabled && l.ratio < trim.dropRatioBelow) continue;
++    if (full) { out.push({ light: l, position: lakesideLightPosition(l), range: LAKESIDE_FULL_RANGE, luminanceScale: 12 * l.ratio }); continue; }
++    const d = trim.distance, n = Math.hypot(l.forward[0], l.forward[1], l.forward[2]), u = d / trim.range, win = Math.pow(1 - Math.pow(u, 4), 2);
++    out.push({ light: l, position: [+(c[0] - l.forward[0] / n * d).toFixed(3), +(c[1] - l.forward[1] / n * d).toFixed(3), +(c[2] - l.forward[2] / n * d).toFixed(3)],
++      range: trim.range, luminanceScale: 12 * l.ratio * Math.pow(d / LAKESIDE_SUN_DISTANCE, 2) * Math.pow(1 - Math.pow(LAKESIDE_SUN_DISTANCE / LAKESIDE_FULL_RANGE, 4), 2) / win });
++  }
++  return out;
++}
+ const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
+ export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
+ /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index c685852..e6fbaaa 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -58,7 +58,7 @@ const tests=[
+  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
+  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
+- ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],
++ ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-lights-trim','tools/lakeside/test_lakeside_lights_trim.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_entry.cjs b/tools/lakeside/test_lakeside_entry.cjs
+index dc614c8..145f51e 100644
+--- a/tools/lakeside/test_lakeside_entry.cjs
++++ b/tools/lakeside/test_lakeside_entry.cjs
+@@ -59,7 +59,7 @@ t('lights follow scene_r5h3_lighting.json (direction, colour, ratios); the MTN_R
+  const D=H.load('region/LakesideSceneData'),lit=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h3_lighting.json'),'utf8'));
+  assert.deepEqual(D.LAKESIDE_LIGHTS.map(l=>[l.name,l.forward,l.colorLinear,l.ratio]),lit.lights.map(l=>[l.name,l.forward,l.colorLinear,l.illuminanceRatio]));
+  for(const l of D.LAKESIDE_LIGHTS){const p=D.lakesideLightPosition(l),c=D.LAKESIDE_BOARD_BOUNDS.center,d=[c[0]-p[0],c[1]-p[1],c[2]-p[2]],len=Math.hypot(...d);for(let i=0;i<3;i++)assert(Math.abs(d[i]/len-l.forward[i]/Math.hypot(...l.forward))<1e-3);assert(p[1]>0,'sun above board');}
+- const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');assert(/if\(l\.onlyLayer\)continue;/.test(bg));assert(/camera\.priority=44/.test(bg));assert(/LAKESIDE_LAYER=1<<20/.test(bg));});
++ const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');assert(/for\(const pl of lakesideLightPlacements\(\)\)/.test(bg)&&!D.lakesideLightPlacements().some(p=>p.light.onlyLayer));/* L1: onlyLayer skip moved into lakesideLightPlacements */assert(/camera\.priority=44/.test(bg));assert(/LAKESIDE_LAYER=1<<20/.test(bg));});
+ t('scene instances: every kept GLB is in the subpackage (with .meta), 3D pieces / shadows / ripples / frame dropped',()=>{
+  const D=H.load('region/LakesideSceneData'),tr=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h_slim_transforms.json'),'utf8'));
+  const keep=D.lakesideSceneInstances(tr.instances),models=path.join(A,'bundles/region_lakeside/models');
+diff --git a/tools/lakeside/test_lakeside_lights_trim.cjs b/tools/lakeside/test_lakeside_lights_trim.cjs
+new file mode 100644
+index 0000000..d1717b1
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_lights_trim.cjs
+@@ -0,0 +1,30 @@
++// L1: lights trim fallback - 0.08 sun dropped (folded into ambient), the others at 20 m / range 40 covering the board; variant switch.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const A=path.join(__dirname,'../../creator-build-project/assets'),F=path.join(A,'scripts/region/LakesideSceneData.ts');
++const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(F,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2019}}).outputText)(m,m.exports,require);
++const D=m.exports,T=D.LAKESIDE_LIGHT_TRIM,B=D.LAKESIDE_BOARD_BOUNDS;
++assert.deepEqual({e:T.enabled,r:T.range,d:T.distance,k:T.keepMainFull,f:T.ambientFold},{e:true,r:40,d:20,k:false,f:0.08});
++const P=D.lakesideLightPlacements();
++assert.deepEqual(P.map(p=>p.light.name),['Sun','SUN_dusk_side'],'0.08 sun and MTN_RECV sun not placed');
++const corners=[[B.min[0],0,B.min[2]],[B.max[0],0,B.min[2]],[B.min[0],0,B.max[2]],[B.max[0],0,B.max[2]]];
++const win=(d,r)=>Math.pow(Math.max(0,1-Math.pow(d/r,4)),2);
++for(const p of P){
++  assert.equal(p.range,40);assert(p.position[1]>0,'above the water');
++  const ds=corners.map(c=>Math.hypot(c[0]-p.position[0],c[1]-p.position[1],c[2]-p.position[2]));
++  assert(Math.max(...ds)<0.7*p.range,p.light.name+' board corners well inside range '+ds.map(x=>x.toFixed(1)));
++  // same light at the board centre as the 220 m / 600 original (inverse square x window)
++  const before=12*p.light.ratio/220/220*win(220,600),after=p.luminanceScale/20/20*win(20,40);
++  assert(Math.abs(after/before-1)<0.01,'centre illuminance kept '+(after/before).toFixed(3));
++  const c=B.center,dir=[c[0]-p.position[0],c[1]-p.position[1],c[2]-p.position[2]],n=Math.hypot(...dir),f=p.light.forward,fn=Math.hypot(...f);
++  for(let i=0;i<3;i++)assert(Math.abs(dir[i]/n-f[i]/fn)<1e-3,'same direction');
++}
++const V=D.lakesideLightPlacements({...T,keepMainFull:true});
++assert.deepEqual(V.map(p=>[p.light.name,p.range]),[['Sun',600],['SUN_dusk_side',40]],'variant: main sun full range');
++assert.deepEqual(V[0].position,D.lakesideLightPosition(V[0].light));
++const O=D.lakesideLightPlacements({...T,enabled:false});
++assert.deepEqual(O.map(p=>[p.light.name,p.range]),[['Sun',600],['Sun.001',600],['SUN_dusk_side',600]],'disabled: original three');
++const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
++assert(/for\(const pl of lakesideLightPlacements\(\)\)/.test(bg)&&/s\.range=pl\.range;s\.size=30;s\.luminance\*=pl\.luminanceScale;/.test(bg),'lease uses placements');
++assert(/amb\.skyIllum=ambientSaved!\*\(1\+T\.ambientFold\)/.test(bg)&&/foldAmbient\(value\)/.test(bg)&&/dispose=\(\)=>\{if\(dead\)return;foldAmbient\(false\);/.test(bg),'ambient fold on show, restored on hide/dispose');
++console.log('lakeside lights trim OK');
+-- 
+2.47.3
+

@@ -1,0 +1,12 @@
+{
+  "base": "4ba0580",
+  "head": "e87c40924fcfb1fec6680593574175d930be9355",
+  "branch": "cocos/wechat-world-r5-e2fix-20261009",
+  "excluded": [
+    "browser profiles",
+    "global editor preferences",
+    "user saves",
+    "full generated build trees",
+    "previous OI-0001c ZIP"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "path": "/workspace/shared/game-first-open-0008-v3-review/extracted/20261009T2354Z-grokbot2-WECHAT-FIRST-OPEN-0008-v3/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+  "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79",
+  "exit": 0,
+  "stdout": "{\"output\":\"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/canary-mixed-error/copies/QFFirstOpen-20261010T000644749Z-7eb5-49a9c6-default\",\"compileType\":\"game\",\"emptyCompileConditionsRemoved\":true,\"enhancementDisabled\":true,\"removedCondition\":null,\"changed\":true,\"action\":\"LOCAL_CONFIG_ONLY\"}",
+  "stderr": ""
+}

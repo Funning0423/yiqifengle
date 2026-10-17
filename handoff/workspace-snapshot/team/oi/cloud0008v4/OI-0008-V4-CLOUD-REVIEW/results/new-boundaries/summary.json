@@ -1,0 +1,953 @@
+{
+  "scope": "Cloud fake CLI, vm console, local files only; no network/browser/DevTools/Mac.",
+  "sourceSha256": "d466c6413f75fd7224ee4858ea3fca23509585de0f7382a63a09c108e9485ae2",
+  "rows": [
+    {
+      "scenario": "healthy",
+      "expected": "PASS",
+      "expectedExit": 0,
+      "ok": true,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 995,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "prefix-error-before-log",
+      "expected": "FAIL",
+      "expectedExit": 1,
+      "ok": false,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-log/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1288,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "prefix-error-before-canary",
+      "expected": "FAIL",
+      "expectedExit": 1,
+      "ok": false,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-canary/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1334,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "prefix-error-before-notice-allowlisted",
+      "expected": "FAIL",
+      "expectedExit": 1,
+      "ok": false,
+      "status": "PASS_WITH_ALLOWLISTED_IDE_NOTICE",
+      "exit": 3,
+      "reason": "default: only events whose WHOLE normalised payload is the exact allowlisted app.json IDE notice (1 own, 0 not attributable); every other event classified: 0 errors; boot+late canaries proven; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-error-before-notice-allowlisted/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1516,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "prefix-unowned-error-before-log",
+      "expected": "BLOCKED",
+      "expectedExit": 2,
+      "ok": false,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-unowned-error-before-log/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1178,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "prefix-benign-before-error",
+      "expected": "FAIL",
+      "expectedExit": 1,
+      "ok": true,
+      "status": "FAIL",
+      "exit": 1,
+      "reason": "default: 1 own error(s): weapplog",
+      "errors": [
+        {
+          "source": "weapplog",
+          "level": "error",
+          "id": "unrecognised-error-level",
+          "text": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/copies/QFFirstOpen-20261010T013511467Z-8d23-2d415b-default source-prefix [error] plain fatal diagnostic"
+        }
+      ],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1303,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "cli-error-tag",
+      "expected": "FAIL",
+      "expectedExit": 1,
+      "ok": false,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-tag/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1025,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 1
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "cli-error-prefix",
+      "expected": "FAIL",
+      "expectedExit": 1,
+      "ok": false,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-error-prefix/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1040,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 1
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "cli-warning-tag",
+      "expected": "PASS",
+      "expectedExit": 0,
+      "ok": true,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/cli-warning-tag/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1035,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 1
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "utf8-truncated-eof",
+      "expected": "BLOCKED",
+      "expectedExit": 2,
+      "ok": false,
+      "status": "PASS",
+      "exit": 0,
+      "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-truncated-eof/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1233,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "utf8-invalid-control",
+      "expected": "BLOCKED",
+      "expectedExit": 2,
+      "ok": true,
+      "status": "BLOCKED",
+      "exit": 2,
+      "reason": "default: WeappLog capture incomplete / protocol violated: protocol: invalid UTF-8 in /workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/logs/WeappLog/review.log near byte 1243",
+      "errors": [],
+      "missing": [
+        "WeappLog capture incomplete / protocol violated: protocol: invalid UTF-8 in /workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/logs/WeappLog/review.log near byte 1243"
+      ],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 6,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1243,
+          "incomplete": [
+            "protocol: invalid UTF-8 in /workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/utf8-invalid-control/logs/WeappLog/review.log near byte 1243"
+          ]
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    },
+    {
+      "scenario": "unattributed-exact-notice-allowlisted",
+      "expected": "PASS_WITH_ALLOWLISTED_IDE_NOTICE",
+      "expectedExit": 3,
+      "ok": true,
+      "status": "PASS_WITH_ALLOWLISTED_IDE_NOTICE",
+      "exit": 3,
+      "reason": "default: only events whose WHOLE normalised payload is the exact allowlisted app.json IDE notice (0 own, 1 not attributable); every other event classified: 0 errors; boot+late canaries proven; LoadScene seen",
+      "errors": [],
+      "missing": [],
+      "canaries": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/unattributed-exact-notice-allowlisted/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 6,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 1290,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "manifest": {
+        "ok": true,
+        "mismatched": [],
+        "unlisted": [],
+        "files": 15
+      },
+      "ownOnlyClose": true
+    }
+  ]
+}

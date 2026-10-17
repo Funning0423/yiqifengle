@@ -1,0 +1,35 @@
+{
+  "method": "Unchanged R6 AudioBridge evaluated in Node VM with cc/GameAudio mocks; not engine lifecycle validation.",
+  "sourceSha256": "e20ff1da689696cd0c92e854ef7eb04f8d84d56ed481c8ad20cbcfbba51d3a75",
+  "testCount": 7,
+  "results": [
+    {
+      "name": "mount_listener_registered_once",
+      "status": "pass"
+    },
+    {
+      "name": "ensure_does_not_duplicate_component",
+      "status": "pass"
+    },
+    {
+      "name": "tag_is_idempotent_and_tap_plays_once",
+      "status": "pass"
+    },
+    {
+      "name": "destroy_removes_owned_callbacks_and_tag",
+      "status": "pass"
+    },
+    {
+      "name": "new_bridge_retags_cleanly_after_destroy",
+      "status": "pass"
+    },
+    {
+      "name": "old_bridge_destroy_does_not_clear_new_instance",
+      "status": "pass"
+    },
+    {
+      "name": "board_destroy_resets_render_baseline",
+      "status": "pass"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+Bundle: integration-build05.bundle (b0020ed..integration/build05-20261016T2048)
+Prereq: b0020ed4ea1f632802ac414c44d0655afdeb34ee
+Expected HEAD: 77b76c3d15ec552bc110c66484873abfd64994ca tree 3028671bd72fdd51703f05cc936a645ccfd78ff7
+Fetched  HEAD: 77b76c3d15ec552bc110c66484873abfd64994ca tree 3028671bd72fdd51703f05cc936a645ccfd78ff7
+Result: MATCH (fresh git init holding only b0020ed, then fetch from bundle)

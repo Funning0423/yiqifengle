@@ -1,0 +1,488 @@
+From 88506aa4ddad315bc7b5dbdedff0017b2b91e83c Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 14:35:39 -0400
+Subject: [PATCH] =?UTF-8?q?=E4=B8=BB=E9=A1=B5=20from=20journey=20regions:?=
+ =?UTF-8?q?=200.4=20s=20fade=20(picture=20+=20bgm/wind/sfx),=20place=20her?=
+ =?UTF-8?q?=20at=20home,=20resolve=20=E2=89=A410=20s=20with=20overall=20ti?=
+ =?UTF-8?q?meout;=20region=20buttons=20in=20one=20low=20equal-width=20row?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- WorldFlowCore.returnHome from meadow / journey-skycity / paused journey: release journey, restore seated at home, {ok:true} (no walk)
+- world-r2/HomeTransition.ts: pure orchestrator (cover+audio out 0.4 s -> act -> state home -> audio/cover in 0.5 s), 10 s timeout, all failures resolve
+- GameAudio transition gain (fadeTransition / switchTrackAfterTransition), wind + waves beds scale by it; island bgm fades in
+- Night root cause: walk home not hung; flow dt capped at 0.1 s/frame so <10 fps stretches the 20 s walk (44-48 s day, >127 s night on Mac)
+- WorldNavigationLayout.region row: 继续旅程 / 主页 equal width, bottom safe area, below her feet; island slots unchanged
+- tests: test-home-transition (day/night simulated clock, timeout, failures), test-region-nav-layout, scene-bgm transition block
+- WorldFlowComponent: [OI_WORLD_FLOW] full snapshot console line only in DEBUG or with globalThis.__worldFlowLog=true (release console no longer flooded); snapshot() unchanged; test-world-flow-log-gate
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    | 35 ++++++++++--
+ .../assets/scripts/audio/AmbienceAudio.ts     |  3 +-
+ .../assets/scripts/audio/GameAudio.ts         | 41 +++++++++++++-
+ .../assets/scripts/audio/WindAudio.ts         |  3 +-
+ .../scripts/world-r1/WorldFlowComponent.ts    |  7 ++-
+ .../assets/scripts/world-r1/WorldFlowCore.ts  |  5 +-
+ .../assets/scripts/world-r2/HomeTransition.ts | 30 +++++++++++
+ .../scripts/world-r2/WorldNavigationLayout.ts | 12 ++++-
+ .../test-home-transition.cjs                  | 54 +++++++++++++++++++
+ .../test-region-nav-layout.cjs                | 21 ++++++++
+ .../test-world-flow-log-gate.cjs              | 21 ++++++++
+ .../test-world-region-home.cjs                |  4 +-
+ tools/voice-bot/bgm/test_scene_bgm.cjs        | 20 +++++++
+ 13 files changed, 244 insertions(+), 12 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/world-r2/HomeTransition.ts
+ create mode 100644 tools/journey-integration/test-home-transition.cjs
+ create mode 100644 tools/journey-integration/test-region-nav-layout.cjs
+ create mode 100644 tools/journey-integration/test-world-flow-log-gate.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 5967b31..6a4b935 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -27,6 +27,9 @@ import {StartupLoadingLayer} from './ui/StartupLoadingLayer';
+ import {ART as STARTUP_ART} from './ui/StartupLoadingLayout';
+ import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
+ import {validateSkycity} from './region/RegionValidation';
++import {runHomeTransition,HOME_FADE} from './world-r2/HomeTransition';
++import {GameAudio} from './audio/GameAudio';
++import {SCENE_TRACKS} from './audio/SceneMusic';
+ const {ccclass,property}=_decorator;
+ /** R3: flow states in which the T9 signpost is hidden (everything except island-idle, level/skycity + loading, paused, error). */
+ const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting','region-loading','region-travel','meadow'];
+@@ -468,7 +471,7 @@ export class WorldIntegrationBoot extends Component {
+  (globalThis as any).__characterCandidateIdentity={candidate:'layer-clearance-task21',glbSHA256:'42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec',metadataSHA256:'cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6',motionSHA256:'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657',prefabUUID:(this.characterPrefab as any)._uuid,metadataSource:((this as any)._referenceAdapter).diagnostics().motion.metaSource,visualName:girl.name,staticHomeInstantiated:!!this.homeSeatedVisual,meshNames:girl.getComponentsInChildren(MeshRenderer).map(r=>r.node.name),acceptance:'OPEN'};
+  console.info('UNIFIED_CHARACTER_CANDIDATE_LOADED',(globalThis as any).__characterCandidateIdentity);
+  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
+- (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.resumeJourney(),journey:()=>this.composition.worldCommands().journeySnapshot(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. OPEN layer-clearance task21 GLB SHA 42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
++ (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.goHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.resumeJourney(),journey:()=>this.composition.worldCommands().journeySnapshot(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. OPEN layer-clearance task21 GLB SHA 42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
+  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
+  }
+  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
+@@ -476,7 +479,7 @@ export class WorldIntegrationBoot extends Component {
+  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+  private createNavigation(){this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+  this.createLoadingBackdrop();this.notice=this.label('流程参考占位 · 非新版B',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+- this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
++ this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
+  if(DEBUG){
+@@ -576,6 +579,7 @@ export class WorldIntegrationBoot extends Component {
+  this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
+  this.controls.get('cancelVisit')!.getComponentsInChildren(Label)[0].string=s.state==='skycity-loading'?'取消前往':'暂停旅程';
+  for(const id of ['returnIsland','cancelVisit','home'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
++  if(s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity')for(const id of ['mainline','home'] as const){const n=this.controls.get(id);if(n?.active)this.placeNavigationControl(n,navigation.region[id]);}
+  // Result actions are drawn by the board's result page (ui/BoardPanels.openResult); the host only owns availability + commands.
+  // Do not rebuild the result behind a live RewardPanel while the app is hidden.
+  // Its dismissal callback owns that exact panel; on show the settled lease restores level before painting.
+@@ -598,6 +602,31 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+  // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
+ 
+  }
+- update(dt:number){this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
++ /** 「主页」 (Mac re-check 2607de6): from a journey region fade picture + region bgm/wind/sfx out (0.4 s), release the
++  * journey and place her at home, resolve {ok:true} once the state is home, then fade in with the island bgm.
++  * Island (no journey) keeps the walk home; both paths carry an overall timeout and always resolve. */
++ private homeWaits:{at:number;r:()=>void}[]=[];
++ private homeCover:{node:Node;op:UIOpacity;from:number;to:number;at:number;s:number;done:(()=>void)|null}|null=null;
++ goHome():Promise<{ok:boolean;reason?:string;seconds?:number}>{
++  const cmd=this.composition.worldCommands(),s=cmd.snapshot() as any;
++  const inRegion=s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity'||!!(s.journey&&s.state==='island'&&['paused','failed'].includes(s.journey.phase));
++  const wall=()=>Date.now()/1000,wait=(sec:number)=>new Promise<void>(r=>this.homeWaits.push({at:Date.now()+sec*1000,r}));   // ticked by update (wall clock, no timers)
++  if(!inRegion)return runHomeTransition({now:wall,wait,cover:()=>{},audioOut:()=>{},audioIn:()=>{},audioRestore:()=>{},act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},{outS:0,timeoutS:60});
++  const audio=GameAudio.instance as any;
++  return runHomeTransition({now:wall,wait,cover:(a,sec)=>this.fadeCover(a,sec),
++   audioOut:sec=>{audio?.fadeTransition?.(0,sec);},
++   audioIn:()=>{const t=SCENE_TRACKS.island;audio?.switchTrackAfterTransition?.(t.path,t.bundle);},
++   audioRestore:()=>{audio?.fadeTransition?.(1,.2);},
++   act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},HOME_FADE).then(r=>{(globalThis as any).__worldHomeTransition={...r,at:Date.now()};return r;});
++ }
++ private fadeCover(to:number,seconds:number):Promise<void>{
++  if(!this.homeCover){const node=new Node('HomeFadeCover');node.layer=Layers.Enum.UI_2D;this.canvas.addChild(node);node.addComponent(UITransform).setContentSize(4000,4000);
++   const g=node.addComponent(Graphics);g.fillColor=new Color(0,0,0,255);g.rect(-2000,-2000,4000,4000);g.fill();const op=node.addComponent(UIOpacity);op.opacity=0;this.homeCover={node,op,from:0,to:0,at:0,s:0,done:null};}
++  const c=this.homeCover;c.node.setSiblingIndex(this.canvas.children.length-1);c.done?.();c.from=c.op.opacity/255;c.to=to;c.at=Date.now()/1000;c.s=Math.max(0,seconds);c.node.active=true;
++  return new Promise<void>(r=>{c.done=r;this.tickCover();});
++ }
++ private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;c.op.opacity=Math.round(255*(c.from+(c.to-c.from)*t));
++  if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
++ update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+  onDestroy(){this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ }
+diff --git a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+index 018e597..0380096 100644
+--- a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
++++ b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+@@ -22,7 +22,8 @@ function musicBed(): number {
+   const audio: any = GameAudio.instance;
+   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
+   const value = Number(audio.getMusicVolume());
+-  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1;
++  const trans = typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1;   // 「主页」 fade
++  return (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1) * (Number.isFinite(trans) ? Math.max(0, Math.min(1, trans)) : 1);
+ }
+ 
+ const WAVES_PATH = 'audio_amb/amb_waves_loop';
+diff --git a/creator-build-project/assets/scripts/audio/GameAudio.ts b/creator-build-project/assets/scripts/audio/GameAudio.ts
+index d69c538..711f502 100644
+--- a/creator-build-project/assets/scripts/audio/GameAudio.ts
++++ b/creator-build-project/assets/scripts/audio/GameAudio.ts
+@@ -173,6 +173,9 @@ export class GameAudio extends Component {
+   private windDuckAt = -1;      // 上次平滑的 GameAudio.now()（ms）
+   private musicGeneration = 0;
+   private musicVolume = 0.4;
++  /** Screen-transition gain (「主页」 fade, Mac re-check 2607de6): ramps music, wind/waves beds and live sfx_* together. */
++  private transFrom = 1; private transTo = 1; private transAt: number | null = null; private transS = 0;
++  private sfxBase = new Map<AudioSource, number>();
+   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
+   private musicError: string | null = null;
+   private gestureSeen = false;
+@@ -357,6 +360,7 @@ export class GameAudio extends Component {
+   update() {
+     if (!GameAudio.usable(this)) return;
+     this.observeSfxVoices();
++    if (this.transAt !== null || this.transTo < 1) this.applyTransition();
+     if (this.reasons.size > 0 || this.muted || !this.gestureSeen || this.musicVolume === 0) {
+       if (this.loopRequested || this.loopSource?.playing) this.pauseLoop();
+       if (this.loopPartner || this.fadeOutSource) this.retireMusicExtras();
+@@ -404,6 +408,7 @@ export class GameAudio extends Component {
+   }
+   private retireSfx(source: AudioSource) {
+     // Remove ownership first: synchronous and late native events must not affect a new voice.
++    this.sfxBase.delete(source);
+     if (!this.sfxVoices.delete(source)) return;
+     try { source.volume = 0; } catch (e) { console.warn('[GameAudio] sfx silence failed', e); }
+     try { source.stop(); } catch (e) { console.warn('[GameAudio] sfx stop failed', e); }
+@@ -467,6 +472,37 @@ export class GameAudio extends Component {
+   }
+   isSfxMuted() { return this.sfxMuted; }
+   getMusicVolume() { return this.musicVolume; }
++  /** 0..1 transition gain; WindAudio / AmbienceAudio multiply their bed by it (the slider value stays untouched). */
++  transitionGain() {
++    if (this.transAt === null) return this.transTo;
++    const t = this.transS > 0 ? (GameAudio.now() - this.transAt) / (this.transS * 1000) : 1;
++    if (t >= 1) { this.transAt = null; this.transFrom = this.transTo; return this.transTo; }
++    return this.transFrom + (this.transTo - this.transFrom) * Math.max(0, t);
++  }
++  /** Ramp music + beds + live sfx to `to` over `seconds` (existing music gain path; no new assets). */
++  fadeTransition(to: number, seconds: number) {
++    const from = this.transitionGain(), v = Math.max(0, Math.min(1, Number(to)));
++    this.transFrom = from; this.transTo = v; this.transS = Math.max(0, Number(seconds) || 0); this.transAt = this.transS > 0 ? GameAudio.now() : null;
++    if (this.transAt === null) this.transFrom = v;
++    this.applyTransition();
++  }
++  /** End of the fade-out: stop the region bed and sfx (already silent), restore the gain and fade the next track in. */
++  switchTrackAfterTransition(path: string, bundle: string | null) {
++    this.stopAllSfx();
++    this.setMusic(null);
++    this.transFrom = this.transTo = 1; this.transAt = null;
++    this.setMusic(path, bundle, { fadeIn: true });
++    this.applyTransition();
++  }
++  private applyTransition() {
++    this.applyMusicGains();
++    const g = this.transitionGain();
++    this.sfxVoices.forEach((_v, source) => {
++      let base = this.sfxBase.get(source);
++      if (base === undefined) { try { base = Number(source.volume); } catch (e) { base = 1; } this.sfxBase.set(source, base); }
++      try { source.volume = base * g; } catch (e) { /* ignore */ }
++    });
++  }
+ 
+   /** 只读：当前是否挂起，以及原因（给日志/验收用，AudioBridge 不需要） */
+   isSuspended() { return this.reasons.size > 0; }
+@@ -662,14 +698,15 @@ export class GameAudio extends Component {
+    *  The wind duck stays a ratio on the player's level (up to -4 dB); it does not replace the slider.
+    *  Waves and wind read getMusicVolume() and scale their own design curves by it. */
+   private applyMusicGains() {
+-    const v = this.musicVolume * this.windDuckGain();
++    const tg = this.transitionGain();
++    const v = this.musicVolume * this.windDuckGain() * tg;
+     const scene = this.sceneFadeIn ? GameAudio.eqIn(this.sceneT()) : 1;
+     const loopOut = this.loopPartner && this.loopXfadeAt !== null ? GameAudio.eqOut(this.loopT()) : 1;
+     const loopIn = this.loopPartner ? (this.loopXfadeAt !== null ? GameAudio.eqIn(this.loopT()) : 0) : 0;
+     const musicScale = this.fadeOutAtVolume > 1e-4 ? this.musicVolume / this.fadeOutAtVolume : 1;
+     try { if (this.loopSource) this.loopSource.volume = v * scene * loopOut; } catch (e) { /* native getter/setter may fail */ }
+     try { if (this.loopPartner) this.loopPartner.volume = v * scene * loopIn; } catch (e) { /* ignore */ }
+-    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * musicScale * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
++    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * musicScale * tg * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
+   }
+   private retireMusicSource(source: AudioSource | null) {
+     if (!source) return;
+diff --git a/creator-build-project/assets/scripts/audio/WindAudio.ts b/creator-build-project/assets/scripts/audio/WindAudio.ts
+index d7082f3..65f3e91 100644
+--- a/creator-build-project/assets/scripts/audio/WindAudio.ts
++++ b/creator-build-project/assets/scripts/audio/WindAudio.ts
+@@ -28,7 +28,8 @@ function musicBed(): number {
+   const audio: any = GameAudio.instance;
+   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
+   const value = Number(audio.getMusicVolume());
+-  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1;
++  const trans = typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1;   // 「主页」 fade
++  return (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1) * (Number.isFinite(trans) ? Math.max(0, Math.min(1, trans)) : 1);
+ }
+ 
+ export type ApronLiftStrength = 'full' | 'soft';
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 337e536..7af45f2 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -1,3 +1,6 @@
++import { DEBUG } from 'cc/env';
++/** Full world-snapshot console line: debug builds or explicit opt-in only. */
++export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{return !!debug||optIn===true;}
+ import { createRegionJourney } from '../region/RegionJourneyAdapter';
+ import type { JourneyRegion } from './RegionJourneyCore';
+ import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
+@@ -212,7 +215,9 @@ export class WorldFlowComponent extends Component {
+     // Periodic telemetry must not keep resetting the IDE's storage persistence debounce.
+     // State transitions remain inspectable; tick details remain in console.
+     try {if(event!=='tick')sys.localStorage.setItem('dot-runtime-diagnostics-20261010:world-flow',JSON.stringify(data));}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}
+-    console.info('[OI_WORLD_FLOW]',JSON.stringify(data));
++    // build05 DevTools check: the full snapshot (~11.7 KB) flooded the release console. Debug builds, or an explicit
++    // opt-in (globalThis.__worldFlowLog = true, e.g. for a recording session), only. snapshot() itself is untouched.
++    if(worldFlowConsoleEnabled(DEBUG,(globalThis as any).__worldFlowLog))console.info('[OI_WORLD_FLOW]',JSON.stringify(data));
+   }
+   /** Called once by a composition root, after real adapters are ready. Character may be omitted for scene inspection. */
+   async initialize(levels:LevelAdapter,character?:CharacterAdapter,mode:Mode='fixed',onStatus?:(s:Snapshot)=>void) {
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+index d904c0c..fdf53b6 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+@@ -530,7 +530,10 @@ export class WorldFlow {
+     if(!['island','meadow','skycity'].includes(this.state))return null;
+     if(j.snapshot().region==='island'&&!j.isInTransit())return null;
+     try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
+-    this.stable='island';this.restore();this.change('island');this.cameraEvent({kind:'settled',place:'island'});return null;
++    // Mac re-check 2607de6: walking island→home from a region took 44-48 s (day) / >127 s (night, frame-dt
++    // capped at 0.1 s while fps<10). From a journey region the host covers the screen with a fade, so place
++    // her straight at home (seated pose, home camera/layers) instead of replaying the walk.
++    this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});return {ok:true};
+   }
+   async returnHome():Promise<Result> {
+     const left=this.leaveJourneyForIsland();if(left)return left;
+diff --git a/creator-build-project/assets/scripts/world-r2/HomeTransition.ts b/creator-build-project/assets/scripts/world-r2/HomeTransition.ts
+new file mode 100644
+index 0000000..00681a0
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r2/HomeTransition.ts
+@@ -0,0 +1,30 @@
++/** 「主页」 from a journey region (Mac re-check 2607de6): fade out picture + audio, release the journey and place
++ * her at home, resolve as soon as the flow state is home, then fade back in. Pure (no cc imports): the host
++ * injects the cover, audio and a wall clock so tests can drive simulated time. Every path resolves. */
++export const HOME_FADE={outS:.4,inS:.5,timeoutS:10} as const;
++export type HomeResult={ok:boolean;reason?:string};
++export interface HomeTransitionHost{
++  now():number;                       // wall-clock seconds
++  wait(seconds:number):Promise<void>; // wall-clock wait (rejecting is treated as a failure)
++  cover(alpha:number,seconds:number):Promise<void>|void; // full-screen black cover ramp
++  audioOut(seconds:number):Promise<void>|void; // region bgm + wind + sfx_* fade with the picture
++  audioIn(seconds:number):void;       // island/home bgm fades in (after the region bed has stopped)
++  audioRestore():void;                // failure: undo audioOut
++  act():Promise<HomeResult>;          // flow.returnHome()
++  state():string;
++}
++export async function runHomeTransition(h:HomeTransitionHost,o:{outS?:number;inS?:number;timeoutS?:number}={}):Promise<HomeResult&{seconds:number}>{
++  const outS=o.outS??HOME_FADE.outS,inS=o.inS??HOME_FADE.inS,timeoutS=o.timeoutS??HOME_FADE.timeoutS,t0=h.now();
++  let timer=false;const timeout=h.wait(timeoutS).then(()=>{timer=true;return {ok:false,reason:'return-home-timeout'} as HomeResult;},()=>({ok:false,reason:'return-home-timer-failed'} as HomeResult));
++  const work=(async():Promise<HomeResult>=>{
++    await Promise.all([h.cover(1,outS),h.audioOut(outS)]);
++    if(timer)return {ok:false,reason:'return-home-timeout'};
++    const r=await h.act();if(!r?.ok)return {ok:false,reason:r?.reason??'return-home-failed'};
++    return h.state()==='home'?{ok:true}:{ok:false,reason:'return-home-wrong-state:'+h.state()};
++  })().catch(e=>({ok:false,reason:String((e as Error)?.message??e)}));
++  const r=await Promise.race([work,timeout]);
++  const uncover=(s:number)=>{try{void Promise.resolve(h.cover(0,s)).catch(()=>{});}catch{}};
++  if(r.ok){try{h.audioIn(inS);}catch{}uncover(inS);}
++  else{try{h.audioRestore();}catch{}uncover(.2);}
++  return {...r,seconds:h.now()-t0};
++}
+diff --git a/creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts b/creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts
+index 10684c1..ee8d0ec 100644
+--- a/creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts
+@@ -9,5 +9,15 @@ export function worldNavigationLayout(width:number,height:number){
+   return {portrait,supported:width>=320&&height>=320,
+     buttons:{mainline:{x:landscapeRow?-width/2+24+primaryWidth/2:0,y:landscapeRow?-height/2+58:-height/2+bottom+(portrait&&height<680?104:116),width:primaryWidth,height:52}},
+     back:{x:0,y:-height/2+bottom+23,width:Math.min(220,width-64),height:46},
+-    dayNight:{x:0,y:height/2-(portrait?82:32),width:144,height:36}};
++    dayNight:{x:0,y:height/2-(portrait?82:32),width:144,height:36},
++    region:regionNavigationRow(width,height)};
++}
++/** Journey regions (meadow / journey-skycity): 继续旅程 and 主页 share one low row
++ * with equal widths so neither covers her body at the arrival framing (her feet sit
++ * at ~84-88% of the screen height). Island slots above are deliberately unchanged. */
++export const REGION_NAV_GAP=12;
++export function regionNavigationRow(width:number,height:number){
++  const portrait=width<height,h=48,safe=portrait?(height>=780?42:16):16;
++  const w=Math.min(170,(width-48-REGION_NAV_GAP)/2),y=-height/2+safe+h/2,dx=(w+REGION_NAV_GAP)/2;
++  return {mainline:{x:-dx,y,width:w,height:h},home:{x:dx,y,width:w,height:h}};
+ }
+diff --git a/tools/journey-integration/test-home-transition.cjs b/tools/journey-integration/test-home-transition.cjs
+new file mode 100644
+index 0000000..483f6d7
+--- /dev/null
++++ b/tools/journey-integration/test-home-transition.cjs
+@@ -0,0 +1,54 @@
++'use strict';
++// 「主页」 ≤10 s (Mac re-check 2607de6). Simulated wall clock, day and night: from meadow / journey-skycity / a paused
++// journey, runHomeTransition (fade 0.4 s → WorldFlow.returnHome places her at home → resolve) must resolve {ok:true}
++// in ≤10 s with state home. Walks run on SIMULATED frames whose flow dt is capped at 0.1 s (WorldFlowComponent.update),
++// so a low-fps night stretches any walk; the teleport path takes no walk at all. Every failure path resolves.
++const assert=require('node:assert/strict'),{createHarness}=require('../board-ui/harness.cjs');
++const H=createHarness(),{WorldFlow}=H.load('world-r1/WorldFlowCore'),{RegionJourneyController}=H.load('world-r1/RegionJourneyCore'),{runHomeTransition,HOME_FADE}=H.load('world-r2/HomeTransition');
++const pose={position:[3,3,-6],target:[0,1,0]},zero=[0,0,0],seat={position:zero,back:[0,0,-1],yawRad:0,seatedFoot:zero,standingFoot:zero,seatedControllerRoot:zero,standingControllerRoot:zero};
++const config={seat,toDoor:[zero,[0,0,1]],outCrossing:[[0,0,1],[0,0,2]],toIsland:[[0,0,2],[0,0,3]],toThreshold:[[0,0,3],[0,0,2]],inCrossing:[[0,0,2],[0,0,1]],toSeat:[[0,0,1],zero],cameraHome:pose,cameraToDoor:[pose,pose],cameraInside:pose,cameraOutside:pose,cameraIsland:pose,openDeg:90,speed:1};
++// virtual wall clock
++function clock(){let now=0;const timers=[];const wait=s=>new Promise(r=>timers.push({at:now+s*1000,r}));
++ const flush=()=>new Promise(r=>setImmediate(r));
++ async function drive(p){let done=false,val;p.then(v=>{done=true;val=v;});for(let i=0;i<100000;i++){await flush();if(done)return val;timers.sort((a,b)=>a.at-b.at);const t=timers.shift();if(!t)throw Error('stalled: no timer and promise pending');now=Math.max(now,t.at);t.r();}throw Error('runaway');}
++ return {now:()=>now/1000,wait,drive};}
++function make(ck,{fps=60,holdJourney=false}={}){let root=zero,camera=pose;const walks=[];let release=null;
++ // a walk of L metres at speed 1 needs L s of FLOW time; flow dt per frame = min(1/fps, 0.1) → wall = L * (1/fps)/min(1/fps,.1)
++ const dil=(1/fps)/Math.min(1/fps,.1);
++ const actor={calibrated:true,coordinates:{units:'m',up:'+Y',forward:'+Z',rootMotion:'controller-only',standingRoot:zero,seatedRoot:zero,seatYawRad:0,clearanceRadiusM:.1},advance(){},walkProgress:()=>holdJourney?.4:1,
++  perform:async(action,token)=>{if(action.kind==='walk'){walks.push(action.path);if(holdJourney&&action.path.length>2){await new Promise((res,rej)=>{release=res;token?.onCancel?.(()=>rej(new Error('cancelled')));});}
++   else{let L=0;for(let i=1;i<action.path.length;i++)L+=Math.hypot(...action.path[i].map((v,k)=>v-action.path[i-1][k]));await ck.wait(L*dil);}root=action.path.at(-1);}},
++  cancelAndReset:p=>{root=p.kind==='standing'?p.controllerRoot:p.seat.seatedControllerRoot;},setVisible(){},dispose(){}};
++ const world={setCamera:p=>{camera=p;},setLayers(){},setDoor(){},cancelTransient(){},assertStaticWorld(){},dispose(){},animateCamera:async()=>{},animateDoor:async()=>{}};
++ const journey=new RegionJourneyController({readCamera:()=>camera,prepare:async(from,to,start)=>({route:{from,to,path:[start,[start[0],start[1]+1,start[2]+4],[start[0],start[1]+1,start[2]+8]],bridgeStart:1,bridgeEnd:6,speed:1},show(){},dispose(){}})});
++ const flow=new WorldFlow({config,character:actor,journey,skycity:{enter:async()=>({show(){},hide(){},dispose(){}})},levels:{enter:async()=>({requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){},isSettledResult:()=>true})},loadWorld:async()=>world});
++ return {flow,journey,walks,root:()=>root};}
++function host(ck,flow,log,over={}){return {now:ck.now,wait:ck.wait,
++ cover:(a,s)=>{log.push(['cover',a,s,ck.now()]);return ck.wait(s);},audioOut:s=>{log.push(['audioOut',s,ck.now()]);return ck.wait(s);},
++ audioIn:s=>log.push(['audioIn',s,ck.now()]),audioRestore:()=>log.push(['audioRestore',ck.now()]),act:()=>flow.returnHome(),state:()=>flow.snapshot().state,...over};}
++const results=[],timings=[];const test=async(name,fn)=>{await fn();results.push(name);console.log('PASS',name);};
++(async()=>{
++ for(const [phase,fps] of [['day',60],['night',1.6]])for(const [region,stage,legs] of [['meadow','mainline-05',['meadow']],['journey-skycity','mainline-09',['meadow','skycity']]])
++  await test(`${phase} (${fps} fps): 主页 from ${region} resolves ok ≤10 s, state home, fade then audio in`,async()=>{
++   const ck=clock(),x=make(ck,{fps}),log=[];
++   assert((await ck.drive(x.flow.load())).ok);assert((await ck.drive(x.flow.leaveHome())).ok);
++   for(const r of legs)assert((await ck.drive(x.flow.travelRegion(r))).ok);
++   assert((await ck.drive(x.flow.enterLevel(stage))).ok);assert(x.flow.exitLevel().ok);
++   const t0=ck.now(),r=await ck.drive(runHomeTransition(host(ck,x.flow,log)));const dt=ck.now()-t0;
++   assert.equal(r.ok,true,JSON.stringify(r));assert(dt<=10,'resolved in '+dt+' s');assert.equal(x.flow.snapshot().state,'home');
++   assert.deepEqual(log.map(e=>e[0]),['cover','audioOut','audioIn','cover']);assert.equal(log[0][1],1);assert.equal(log[3][1],0);
++   assert(log[1][1]>=.3&&log[1][1]<=.5,'audio fade 0.3-0.5 s');timings.push({phase,fps,region,seconds:+dt.toFixed(3)});});
++ await test('night: 主页 from a paused journey on the island resolves ok ≤10 s',async()=>{const ck=clock(),x=make(ck,{fps:1.6,holdJourney:true}),log=[];
++  await ck.drive(x.flow.load());await ck.drive(x.flow.leaveHome());const p=x.flow.travelRegion('meadow');await new Promise(r=>setTimeout(r,5));x.flow.cancelTransition();await p;
++  const t0=ck.now(),r=await ck.drive(runHomeTransition(host(ck,x.flow,log)));assert.equal(r.ok,true,JSON.stringify(r));assert(ck.now()-t0<=10);assert.equal(x.flow.snapshot().state,'home');timings.push({phase:'night',fps:1.6,region:'paused-journey',seconds:+(ck.now()-t0).toFixed(3)});});
++ await test('root cause model: the old island walk home at night (1.6 fps, dt cap 0.1 s) takes ~6x its day wall time',async()=>{
++  const w={};for(const [k,fps] of [['day',60],['night',1.6]]){const ck=clock(),x=make(ck,{fps});await ck.drive(x.flow.load());await ck.drive(x.flow.leaveHome());const t0=ck.now();assert((await ck.drive(x.flow.returnHome())).ok);w[k]=ck.now()-t0;}
++  assert(w.night/w.day>5.5&&w.night/w.day<6.8,JSON.stringify(w));timings.push({model:'legacy-walk',...w});});
++ await test('timeout: a returnHome that never settles resolves {ok:false, reason:return-home-timeout} at 10 s and restores audio + cover',async()=>{const ck=clock(),log=[];
++  const r=await ck.drive(runHomeTransition(host(ck,null,log,{act:()=>new Promise(()=>{}),state:()=>'walking-home'})));
++  assert.deepEqual([r.ok,r.reason],[false,'return-home-timeout']);assert(Math.abs(r.seconds-HOME_FADE.timeoutS)<1e-6);assert(log.some(e=>e[0]==='audioRestore'));assert.equal(log.at(-1)[0],'cover');assert.equal(log.at(-1)[1],0);});
++ await test('failure paths all resolve: act rejects / act {ok:false} / wrong state / cover throws',async()=>{const ck=clock();
++  for(const over of [{act:async()=>{throw Error('boom');}},{act:async()=>({ok:false,reason:'wrong-state'})},{act:async()=>({ok:true}),state:()=>'island'},{cover:()=>{throw Error('cover');}}]){const log=[];
++   const r=await ck.drive(runHomeTransition(host(ck,null,log,{act:async()=>({ok:true}),state:()=>'home',...over})));assert.equal(r.ok,false,JSON.stringify(r));assert(r.reason);assert(log.some(e=>e[0]==='audioRestore'));}});
++ console.log(JSON.stringify({status:'PASS',checks:results.length,timings}));
++})().catch(e=>{console.error('FAIL',e);process.exitCode=1;});
+diff --git a/tools/journey-integration/test-region-nav-layout.cjs b/tools/journey-integration/test-region-nav-layout.cjs
+new file mode 100644
+index 0000000..afe117a
+--- /dev/null
++++ b/tools/journey-integration/test-region-nav-layout.cjs
+@@ -0,0 +1,21 @@
++'use strict';
++// Journey-region buttons (Mac re-check 2607de6): 继续旅程 + 主页 share one low row, equal widths, inside a bottom safe area,
++// and never over her body at the arrival framing of 04→05 (meadow) and 08→09 (skycity). Island slots (signpost/mainline,
++// back, day-night) are byte-for-byte the values of 2607de6, so no sign moves or resizes.
++const assert=require('node:assert/strict'),cp=require('child_process'),fs=require('fs'),path=require('path'),Module=require('module');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript'),ROOT=path.resolve(__dirname,'../..');
++const load=src=>{const m=new Module('x');m._compile(ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2019}}).outputText,'x.js');return m.exports;};
++const F='creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts';
++const NEW=load(fs.readFileSync(path.join(ROOT,F),'utf8')),OLD=load(cp.execSync('git show 2607de6:'+F,{cwd:ROOT}).toString());
++const S=require('./journey-scene.cjs'),FR=require('./journey-framing-lib.cjs');
++const sizes=[[390,844],[375,812],[375,667],[414,896],[360,780],[320,568],[430,932]];let n=0;const rows=[];
++for(const [w,h] of sizes){const a=NEW.worldNavigationLayout(w,h),b=OLD.worldNavigationLayout(w,h);
++ assert.deepEqual({buttons:a.buttons,back:a.back,dayNight:a.dayNight},{buttons:b.buttons,back:b.back,dayNight:b.dayNight},'island slots unchanged '+w+'x'+h);n++;
++ const {mainline:m,home:o}=a.region;assert.equal(m.width,o.width,'equal widths');assert.equal(m.height,o.height);assert(m.height>=44,'tap target');
++ const top=h/2-(m.y+m.height/2),bottomGap=h/2+(m.y-m.height/2);assert(bottomGap>=(h>=780?34:16),'bottom safe area '+bottomGap);
++ assert(m.x+m.width/2<o.x-o.width/2,'no overlap');assert(m.x-m.width/2>=16&&true||-w/2+16<=m.x-m.width/2,'side margin');assert(-w/2+16<=m.x-m.width/2&&o.x+o.width/2<=w/2-16);
++ for(const L of S.legs){const T=S.routeLength(L.path),c=S.journeyCamera(L.path,T,L.start,L.focus,L.lens,L.startBlendM),p=S.sampleRoute(L.path,T);
++  const feet=(1-FR.ndc(c,[p[0],p[1]+.02,p[2]])[1])/2*h;assert(top>feet,`${L.id} ${w}x${h}: row top ${top.toFixed(1)} below her feet ${feet.toFixed(1)}`);n++;
++  if(w===390||w===375&&h===812)rows.push({leg:L.id,size:w+'x'+h,feetY:+feet.toFixed(1),rowTopY:+top.toFixed(1)});}
++ if(w===390||w===375&&h===812)rows.push({size:w+'x'+h,mainline:{x:w/2+m.x-m.width/2,y:top,w:m.width,h:m.height},home:{x:w/2+o.x-o.width/2,y:top,w:o.width,h:o.height}});}
++console.log(JSON.stringify({status:'PASS',checks:n,rows}));
+diff --git a/tools/journey-integration/test-world-flow-log-gate.cjs b/tools/journey-integration/test-world-flow-log-gate.cjs
+new file mode 100644
+index 0000000..9e0bf54
+--- /dev/null
++++ b/tools/journey-integration/test-world-flow-log-gate.cjs
+@@ -0,0 +1,21 @@
++'use strict';
++// build05 DevTools check: the [OI_WORLD_FLOW] full snapshot (~11.7 KB) must not print in release; snapshot() return unchanged.
++const assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),cp=require('child_process');
++const ROOT=path.resolve(__dirname,'../..'),S=path.join(ROOT,'creator-build-project/assets/scripts');
++const src=fs.readFileSync(path.join(S,'world-r1/WorldFlowComponent.ts'),'utf8');
++const m=src.match(/export function worldFlowConsoleEnabled\(debug:boolean,optIn:unknown\):boolean\{([^}]*)\}/);assert(m,'gate function present');
++const gate=new Function('debug','optIn',m[1]);
++assert.equal(gate(false,undefined),false,'release: no snapshot print');assert.equal(gate(false,1),false);assert.equal(gate(true,undefined),true,'debug prints');assert.equal(gate(false,true),true,'explicit opt-in prints');
++const prints=src.split('\n').filter(l=>/console\.(log|info|debug)\(\s*'\[OI_WORLD_FLOW\]'/.test(l));
++assert.equal(prints.length,1);assert(/if\(worldFlowConsoleEnabled\(DEBUG,/.test(prints[0]),'the only snapshot print is gated');
++assert(/^import \{ DEBUG \} from 'cc\/env';/m.test(src));
++// no other console line dumps flow.snapshot() unconditionally per tick
++for(const f of cp.execSync('git ls-files "creator-build-project/assets/scripts/*.ts"',{cwd:ROOT}).toString().trim().split('\n')){const t=fs.readFileSync(path.join(ROOT,f),'utf8');
++ for(const l of t.split('\n'))if(/console\.(log|info)\([^;]*JSON\.stringify\([^;]*snapshot\(\)/.test(l))assert.fail('unguarded snapshot dump in '+f);
++ // [sailboat] sting start (Voice Bot A/V sync) must stay ungated wherever it exists
++ for(const l of t.split('\n'))if(l.includes('[sailboat] sting start'))assert(!/DEBUG|worldFlowConsoleEnabled/.test(l),'sting start must print in release: '+f);}
++const sting=cp.execSync('git grep -c "\\[sailboat\\] sting start" -- creator-build-project || true',{cwd:ROOT}).toString().trim();
++// snapshot() code path not modified by the gate: WorldFlowCore.snapshot unchanged vs 2607de6
++const core=f=>f.match(/\n  snapshot\(\)[\s\S]*?\n  \}/)?.[0];
++assert.equal(core(fs.readFileSync(path.join(S,'world-r1/WorldFlowCore.ts'),'utf8')),core(cp.execSync('git show 2607de6:creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts',{cwd:ROOT}).toString()),'snapshot() unchanged');
++console.log(JSON.stringify({status:'PASS',stingStartLines:sting||'none in this tree'}));
+diff --git a/tools/journey-integration/test-world-region-home.cjs b/tools/journey-integration/test-world-region-home.cjs
+index 6da75ae..fe0ff3a 100644
+--- a/tools/journey-integration/test-world-region-home.cjs
++++ b/tools/journey-integration/test-world-region-home.cjs
+@@ -18,14 +18,14 @@ function make({hold=false}={}){let root=zero,camera=pose,release=null;const walk
+ const results=[];const test=async(name,fn)=>{await fn();results.push(name);console.log('PASS',name);};
+ (async()=>{
+  for(const [region,stage,legs] of [['meadow','mainline-05',['meadow']],['skycity','mainline-09',['meadow','skycity']]])
+-  await test(`returnHome after arriving in ${region} (${stage}) and exitLevel walks her home; journey reset, not completed`,async()=>{
++  await test(`returnHome after arriving in ${region} (${stage}) and exitLevel places her at home (no walk); journey reset, not completed`,async()=>{
+    const x=make();assert((await x.flow.load()).ok);assert((await x.flow.leaveHome()).ok);
+    for(const r of legs)assert((await x.flow.travelRegion(r)).ok,'travel '+r);
+    assert((await x.flow.enterLevel(stage)).ok);assert(x.flow.exitLevel().ok);assert.equal(x.flow.snapshot().state,region);
+    const walks=x.walks.length,r=await x.flow.returnHome();assert.deepEqual(r,{ok:true});
+    assert.equal(x.flow.snapshot().state,'home');assert.deepEqual(x.root(),zero,'seated at home');
+    const j=x.journey.snapshot();assert.equal(j.region,'island');assert.equal(j.phase,'idle');assert.equal(j.target,null);assert.equal(x.scenes.disposed,x.scenes.made,'journey scenes released');
+-   assert(x.walks.length>walks,'walked home');
++   assert.equal(x.walks.length,walks,'placed at home directly (host fade covers it), no walk');
+    // the next trip starts from the island again and walks the whole route (nothing was marked arrived/complete)
+    assert((await x.flow.leaveHome()).ok);for(const r2 of legs)assert((await x.flow.travelRegion(r2)).ok);assert.equal(x.flow.snapshot().state,region);
+    assert((await x.flow.enterLevel(stage)).ok,'stage re-enterable after the second trip');});
+diff --git a/tools/voice-bot/bgm/test_scene_bgm.cjs b/tools/voice-bot/bgm/test_scene_bgm.cjs
+index b6b901b..aeeb561 100644
+--- a/tools/voice-bot/bgm/test_scene_bgm.cjs
++++ b/tools/voice-bot/bgm/test_scene_bgm.cjs
+@@ -337,5 +337,25 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
+   ok(J(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3.meta')).uuid === '24969762-d70f-41d5-abe0-6cf06ce46946', 'island bgm_main.mp3 keeps its uuid 24969762-… after the move');
+   ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3'))).digest('hex') === '183993fbb55f983368fc91d67333ee07620bbf79625cbcee0b4b782212cd6e28', 'island bgm_main.mp3 = v3.2 40 kbps re-encode of 21ca21ac… (sha256 183993fb…)');
+ }
++// ---------- 「主页」 transition (GGbot, Mac re-check 2607de6): region bgm + wind/waves bed + sfx_* fade with the picture, then island bgm fades in ----------
++{ const w = world({ noInitial: true }); unlock(w); const a = w.a;
++  a.setMusic('audio/bgm_skycity', 'region_skycity'); const sb = w.mkBundle('region_skycity'); w.bundles.region_skycity = sb; w.bundleLoads[0].cb(null, sb); sb.loads[0].cb(null, w.clip('bgm_skycity', 72));
++  w.step(.5); const sky = w.live().find(x => x.clip && x.clip.name === 'bgm_skycity'); const v0 = sky && sky.volume;
++  a.clips.set('sfx_tap', w.clip('sfx_tap', 3)); a.play('sfx_tap', .8); const sfx = w.live().find(x => x.clip && x.clip.name === 'sfx_tap');
++  ok(!!sky && v0 > 0 && !!sfx, 'transition setup: skycity bgm + one sfx playing', { v0 });
++  a.fadeTransition(0, .4); w.step(.2);
++  ok(near(a.transitionGain(), .5, .06) && near(sky.volume, v0 * .5, v0 * .08) && near(sfx.volume, .4, .06), 'mid fade (0.2 of 0.4 s): bgm, sfx and the bed gain all at ~50% together (no hard cut)', { g: a.transitionGain(), bgm: sky.volume, sfx: sfx.volume });
++  ok(a.getMusicVolume() === .4, 'the settings slider value is untouched by the transition', a.getMusicVolume());
++  w.step(.25);
++  ok(a.transitionGain() === 0 && sky.volume === 0 && sfx.volume === 0, 'end of the 0.4 s fade-out: region bgm and sfx silent', { bgm: sky.volume, sfx: sfx.volume });
++  const island = w.SM.SCENE_TRACKS.island; a.switchTrackAfterTransition(island.path, island.bundle);
++  ok(!sky.playing && !sfx.playing && a.transitionGain() === 1, 'after returnHome: skycity bgm stopped, sfx stopped, gain restored', { sky: sky.playing, sfx: sfx.playing });
++  const ib = w.mkBundle(island.bundle); w.bundles[island.bundle] = ib; w.bundleLoads.at(-1).cb(null, ib); ib.loads[0].cb(null, w.clip('bgm_main', 60));
++  w.step(.3); const isl = w.live().find(x => x.clip && x.clip.name === 'bgm_main'); const vIn = isl && isl.volume; w.step(1.5);
++  ok(!!isl && isl.playing && vIn > 0 && vIn < isl.volume - 1e-3 && near(isl.volume, .4, .02), 'island bgm fades in (not a hard start) and reaches the slider level', { vIn, v: isl && isl.volume });
++  ok(w.live().filter(x => x.clip && x.clip.name === 'bgm_skycity').length === 0 && a.musicDiagnostics().path === island.path, 'region (skycity) bgm is not playing on the island; island bgm is the music', a.musicDiagnostics().path);
++  a.setMusic('audio/bgm_main_x', null); a.fadeTransition(0, .4); w.step(.1); a.fadeTransition(1, .2); w.step(.3);
++  ok(a.transitionGain() === 1, 'failure path: fadeTransition(1) restores the gain', a.transitionGain());
++}
+ console.log((fail ? 'FAILED ' + fail : 'ALL PASS') + ' scene-bgm (' + pass + ' checks)');
+ process.exitCode = fail ? 1 : 0;
+-- 
+2.47.3
+

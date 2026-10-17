@@ -1,0 +1,775 @@
+{
+ "sha": "0ea1564cc3d8263a1a855b7bade7658619da050f",
+ "branch": "cine/region-hooks-meadow-r4.1-on-260ea02",
+ "base": "260ea02 (GGbot hint above tray) + abeb1fa (= 95d3eee cherry-picked)",
+ "conventions": {
+  "model": "meadow GLB local = board copy local (meadowScenePose frame); y = terrain top under feet",
+  "journeyWorld": "island-journey world (meadow placed yaw 180 + offset)",
+  "yawDeg": "atan2(dx,dz) of her last walk segment, 0=+Z, +90=+X; GGbot copies her actual landed transform so no constant needs to be hard-coded",
+  "ui": "boardLayout(260ea02) + toolSlots(lay,3) icons +2 pt sides/top +4 pt bottom, hint banner layout.toast at maxWidth x 32 (+2 shadow), goals 4, boardSafeInsets; independently checked against GGbot toolbar rects + r4.1 banner/tray footprints; 1024x768 landscape out of scope"
+ },
+ "meadow": [
+  {
+   "screen": "390x844",
+   "stopAlongStandLineM": 6.49,
+   "clear": true,
+   "tsYawDeg": 180,
+   "tsLocal": [
+    -0.8,
+    1.88,
+    14
+   ],
+   "model": {
+    "position": [
+     -0.8,
+     1.88,
+     14
+    ],
+    "yawDeg": 180,
+    "forwardXZ": [
+     0,
+     -1
+    ]
+   },
+   "journeyWorld": {
+    "position": [
+     -0.514,
+     0.717,
+     38.481
+    ],
+    "yawDeg": 0
+   },
+   "walkFromSpawnM": 6.45,
+   "pathModel": [
+    [
+     0,
+     1.163,
+     20
+    ],
+    [
+     -0.267,
+     1.304,
+     19.333
+    ],
+    [
+     -0.533,
+     1.347,
+     18.667
+    ],
+    [
+     -0.8,
+     1.429,
+     18
+    ],
+    [
+     -1.033,
+     1.505,
+     17.417
+    ],
+    [
+     -1.267,
+     1.575,
+     16.833
+    ],
+    [
+     -1.5,
+     1.641,
+     16.25
+    ],
+    [
+     -1.5,
+     1.667,
+     16
+    ],
+    [
+     -1.25,
+     1.722,
+     15.5
+    ],
+    [
+     -1,
+     1.778,
+     15
+    ],
+    [
+     -0.8,
+     1.829,
+     14.5
+    ],
+    [
+     -0.8,
+     1.88,
+     14
+    ]
+   ],
+   "visibility": {
+    "visible": true,
+    "cropped": false,
+    "coveredBy3ToolUi": [],
+    "gapPt": 24.5,
+    "boxPt": {
+     "l": 24.5,
+     "r": 48.3,
+     "t": 660.4,
+     "b": 715.2
+    },
+    "widthFrac": 0.061,
+    "inFrameLimits": false
+   }
+  },
+  {
+   "screen": "414x896",
+   "stopAlongStandLineM": 6.49,
+   "clear": true,
+   "tsYawDeg": 180,
+   "tsLocal": [
+    -0.8,
+    1.88,
+    14
+   ],
+   "model": {
+    "position": [
+     -0.8,
+     1.88,
+     14
+    ],
+    "yawDeg": 180,
+    "forwardXZ": [
+     0,
+     -1
+    ]
+   },
+   "journeyWorld": {
+    "position": [
+     -0.514,
+     0.717,
+     38.481
+    ],
+    "yawDeg": 0
+   },
+   "walkFromSpawnM": 6.45,
+   "pathModel": [
+    [
+     0,
+     1.163,
+     20
+    ],
+    [
+     -0.267,
+     1.304,
+     19.333
+    ],
+    [
+     -0.533,
+     1.347,
+     18.667
+    ],
+    [
+     -0.8,
+     1.429,
+     18
+    ],
+    [
+     -1.033,
+     1.505,
+     17.417
+    ],
+    [
+     -1.267,
+     1.575,
+     16.833
+    ],
+    [
+     -1.5,
+     1.641,
+     16.25
+    ],
+    [
+     -1.5,
+     1.667,
+     16
+    ],
+    [
+     -1.25,
+     1.722,
+     15.5
+    ],
+    [
+     -1,
+     1.778,
+     15
+    ],
+    [
+     -0.8,
+     1.829,
+     14.5
+    ],
+    [
+     -0.8,
+     1.88,
+     14
+    ]
+   ],
+   "visibility": {
+    "visible": true,
+    "cropped": false,
+    "coveredBy3ToolUi": [],
+    "gapPt": 26,
+    "boxPt": {
+     "l": 26,
+     "r": 51.3,
+     "t": 701.1,
+     "b": 759.3
+    },
+    "widthFrac": 0.061,
+    "inFrameLimits": false
+   }
+  },
+  {
+   "screen": "360x780",
+   "stopAlongStandLineM": 6.49,
+   "clear": true,
+   "tsYawDeg": 180,
+   "tsLocal": [
+    -0.8,
+    1.88,
+    14
+   ],
+   "model": {
+    "position": [
+     -0.8,
+     1.88,
+     14
+    ],
+    "yawDeg": 180,
+    "forwardXZ": [
+     0,
+     -1
+    ]
+   },
+   "journeyWorld": {
+    "position": [
+     -0.514,
+     0.717,
+     38.481
+    ],
+    "yawDeg": 0
+   },
+   "walkFromSpawnM": 6.45,
+   "pathModel": [
+    [
+     0,
+     1.163,
+     20
+    ],
+    [
+     -0.267,
+     1.304,
+     19.333
+    ],
+    [
+     -0.533,
+     1.347,
+     18.667
+    ],
+    [
+     -0.8,
+     1.429,
+     18
+    ],
+    [
+     -1.033,
+     1.505,
+     17.417
+    ],
+    [
+     -1.267,
+     1.575,
+     16.833
+    ],
+    [
+     -1.5,
+     1.641,
+     16.25
+    ],
+    [
+     -1.5,
+     1.667,
+     16
+    ],
+    [
+     -1.25,
+     1.722,
+     15.5
+    ],
+    [
+     -1,
+     1.778,
+     15
+    ],
+    [
+     -0.8,
+     1.829,
+     14.5
+    ],
+    [
+     -0.8,
+     1.88,
+     14
+    ]
+   ],
+   "visibility": {
+    "visible": true,
+    "cropped": false,
+    "coveredBy3ToolUi": [],
+    "gapPt": 18,
+    "boxPt": {
+     "l": 22.4,
+     "r": 44.5,
+     "t": 610.4,
+     "b": 661
+    },
+    "widthFrac": 0.061,
+    "inFrameLimits": false
+   }
+  },
+  {
+   "screen": "375x667",
+   "stopAlongStandLineM": 6.49,
+   "clear": true,
+   "tsYawDeg": 180,
+   "tsLocal": [
+    -0.8,
+    1.88,
+    14
+   ],
+   "model": {
+    "position": [
+     -0.8,
+     1.88,
+     14
+    ],
+    "yawDeg": 180,
+    "forwardXZ": [
+     0,
+     -1
+    ]
+   },
+   "journeyWorld": {
+    "position": [
+     -0.514,
+     0.717,
+     38.481
+    ],
+    "yawDeg": 0
+   },
+   "walkFromSpawnM": 6.45,
+   "pathModel": [
+    [
+     0,
+     1.163,
+     20
+    ],
+    [
+     -0.267,
+     1.304,
+     19.333
+    ],
+    [
+     -0.533,
+     1.347,
+     18.667
+    ],
+    [
+     -0.8,
+     1.429,
+     18
+    ],
+    [
+     -1.033,
+     1.505,
+     17.417
+    ],
+    [
+     -1.267,
+     1.575,
+     16.833
+    ],
+    [
+     -1.5,
+     1.641,
+     16.25
+    ],
+    [
+     -1.5,
+     1.667,
+     16
+    ],
+    [
+     -1.25,
+     1.722,
+     15.5
+    ],
+    [
+     -1,
+     1.778,
+     15
+    ],
+    [
+     -0.8,
+     1.829,
+     14.5
+    ],
+    [
+     -0.8,
+     1.88,
+     14
+    ]
+   ],
+   "visibility": {
+    "visible": true,
+    "cropped": false,
+    "coveredBy3ToolUi": [],
+    "gapPt": 13.4,
+    "boxPt": {
+     "l": 52.7,
+     "r": 71.6,
+     "t": 521.9,
+     "b": 565.2
+    },
+    "widthFrac": 0.05,
+    "inFrameLimits": false
+   }
+  },
+  {
+   "screen": "390x520",
+   "stopAlongStandLineM": 4.3,
+   "clear": true,
+   "tsYawDeg": 180,
+   "tsLocal": [
+    -1.5,
+    1.665,
+    16.022
+   ],
+   "model": {
+    "position": [
+     -1.5,
+     1.665,
+     16.022
+    ],
+    "yawDeg": 180,
+    "forwardXZ": [
+     0,
+     -1
+    ]
+   },
+   "journeyWorld": {
+    "position": [
+     0.186,
+     0.501,
+     36.46
+    ],
+    "yawDeg": 0
+   },
+   "walkFromSpawnM": 4.27,
+   "pathModel": [
+    [
+     0,
+     1.163,
+     20
+    ],
+    [
+     -0.267,
+     1.304,
+     19.333
+    ],
+    [
+     -0.533,
+     1.347,
+     18.667
+    ],
+    [
+     -0.8,
+     1.429,
+     18
+    ],
+    [
+     -1.033,
+     1.505,
+     17.417
+    ],
+    [
+     -1.267,
+     1.575,
+     16.833
+    ],
+    [
+     -1.5,
+     1.641,
+     16.25
+    ],
+    [
+     -1.5,
+     1.665,
+     16.022
+    ]
+   ],
+   "visibility": {
+    "visible": true,
+    "cropped": false,
+    "coveredBy3ToolUi": [],
+    "gapPt": 16.3,
+    "boxPt": {
+     "l": 64.8,
+     "r": 81.1,
+     "t": 427.4,
+     "b": 463.4
+    },
+    "widthFrac": 0.042,
+    "inFrameLimits": true
+   }
+  },
+  {
+   "screen": "320x568",
+   "stopAlongStandLineM": 5,
+   "clear": true,
+   "tsYawDeg": 153.4349488229221,
+   "tsLocal": [
+    -1.198,
+    1.734,
+    15.396
+   ],
+   "model": {
+    "position": [
+     -1.198,
+     1.734,
+     15.396
+    ],
+    "yawDeg": 153.4,
+    "forwardXZ": [
+     0.447,
+     -0.894
+    ]
+   },
+   "journeyWorld": {
+    "position": [
+     -0.115,
+     0.57,
+     37.085
+    ],
+    "yawDeg": -26.6
+   },
+   "walkFromSpawnM": 4.96,
+   "pathModel": [
+    [
+     0,
+     1.163,
+     20
+    ],
+    [
+     -0.267,
+     1.304,
+     19.333
+    ],
+    [
+     -0.533,
+     1.347,
+     18.667
+    ],
+    [
+     -0.8,
+     1.429,
+     18
+    ],
+    [
+     -1.033,
+     1.505,
+     17.417
+    ],
+    [
+     -1.267,
+     1.575,
+     16.833
+    ],
+    [
+     -1.5,
+     1.641,
+     16.25
+    ],
+    [
+     -1.5,
+     1.667,
+     16
+    ],
+    [
+     -1.25,
+     1.722,
+     15.5
+    ],
+    [
+     -1.198,
+     1.734,
+     15.396
+    ]
+   ],
+   "visibility": {
+    "visible": true,
+    "cropped": false,
+    "coveredBy3ToolUi": [],
+    "gapPt": 16.5,
+    "boxPt": {
+     "l": 28.3,
+     "r": 45.5,
+     "t": 459.7,
+     "b": 498.3
+    },
+    "widthFrac": 0.054,
+    "inFrameLimits": false
+   }
+  },
+  {
+   "screen": "768x1024",
+   "stopAlongStandLineM": 6.49,
+   "clear": true,
+   "tsYawDeg": 180,
+   "tsLocal": [
+    -0.8,
+    1.88,
+    14
+   ],
+   "model": {
+    "position": [
+     -0.8,
+     1.88,
+     14
+    ],
+    "yawDeg": 180,
+    "forwardXZ": [
+     0,
+     -1
+    ]
+   },
+   "journeyWorld": {
+    "position": [
+     -0.514,
+     0.717,
+     38.481
+    ],
+    "yawDeg": 0
+   },
+   "walkFromSpawnM": 6.45,
+   "pathModel": [
+    [
+     0,
+     1.163,
+     20
+    ],
+    [
+     -0.267,
+     1.304,
+     19.333
+    ],
+    [
+     -0.533,
+     1.347,
+     18.667
+    ],
+    [
+     -0.8,
+     1.429,
+     18
+    ],
+    [
+     -1.033,
+     1.505,
+     17.417
+    ],
+    [
+     -1.267,
+     1.575,
+     16.833
+    ],
+    [
+     -1.5,
+     1.641,
+     16.25
+    ],
+    [
+     -1.5,
+     1.667,
+     16
+    ],
+    [
+     -1.25,
+     1.722,
+     15.5
+    ],
+    [
+     -1,
+     1.778,
+     15
+    ],
+    [
+     -0.8,
+     1.829,
+     14.5
+    ],
+    [
+     -0.8,
+     1.88,
+     14
+    ]
+   ],
+   "visibility": {
+    "visible": true,
+    "cropped": false,
+    "coveredBy3ToolUi": [],
+    "gapPt": 32.5,
+    "boxPt": {
+     "l": 177.1,
+     "r": 206.1,
+     "t": 801.3,
+     "b": 867.7
+    },
+    "widthFrac": 0.038,
+    "inFrameLimits": true
+   }
+  }
+ ],
+ "skycity": {
+  "status": "DEFERRED to r5 (option B: rainbow bridge onto star court front rim, pending scene design)",
+  "currentArrivalJourneyWorld": [
+   -42.26,
+   -4.71,
+   60.32
+  ],
+  "visibleOnAnyScreen": false,
+  "inFrameCandidatesWorld": {
+   "390x844/414x896/360x780": [
+    -0.8,
+    -0.2,
+    44.6
+   ],
+   "375x667": [
+    -1,
+    -0.18,
+    43.5
+   ],
+   "390x520": [
+    -2,
+    -0.1,
+    40
+   ]
+  },
+  "blockers": [
+   "only walkable link terminus->court is the cloud bridge (anchor_cloudbridge_end -> _start); static deck missing 12.5-15.1 m (broken-bridge state)",
+   "state_bridge_before plank floats 1.7-2.5 m above deck => head clip; both bridge states are in the GLB with nothing toggling them (engine-side hiding not verified)",
+   "walk arrival->court front ~61 m (~+50 s at 1.2 m/s) breaks O5 (<=3 s) and O4"
+  ],
+  "options": {
+   "A": "walk over the cloud bridge: needs bridge state decision (show after-state only) + waive O5 (+~50 s)",
+   "B": "re-layout so the rainbow bridge lands on the court front rim (flat y -0.25, z~48.5, x~-1); ~5-10 m walk, duration ~unchanged; changes O4 real-entrance decision + lens/occlusion retune",
+   "C": "change skycity board camera composition to include the current arrival (09 plaza files SHA-frozen; design decision)"
+  }
+ }
+}

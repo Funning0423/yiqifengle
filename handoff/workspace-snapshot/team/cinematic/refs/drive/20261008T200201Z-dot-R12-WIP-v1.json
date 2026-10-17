@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "template": false,
+  "handoff_id": "20261008T200201Z-dot-R12-WIP-v1",
+  "agent": "dot",
+  "task_id": "R12-WIP-SYNC",
+  "created_at_utc": "2026-10-08T20:02:01Z",
+  "status": "wip_files_uploaded_private_metadata_verified",
+  "goal": "同步最新自然姿态WIP与诊断／查询早退增量，保持外部默认基线不变",
+  "input_baseline": {
+    "base": "CommonR11-WIP",
+    "sha256": "099e3a3db9d32c500338f28a56a1a82c32a6bd43fdf86b3bab8dfbc71e9b3240",
+    "bytes": 13326361,
+    "drive_file_id": "1bk21GNHF-5UO_Ec7-JZv1RDC_dKBc8Mi",
+    "drive_url": "https://drive.google.com/file/d/1bk21GNHF-5UO_Ec7-JZv1RDC_dKBc8Mi/view",
+    "assets": "CommonR2 对应 fixed/motion assets/world-art"
+  },
+  "delivered_delta": {
+    "artifact_id": "CommonR12-WIP-delta",
+    "role": "dot_owned_wip_delta_not_external_default",
+    "name": null,
+    "description": "R12 增量",
+    "bytes": 55390,
+    "sha256": "20ccc8dbf9b57fed34cf873355caa85160a4309756bb99030a516693e7da7fa7",
+    "drive_file_id": "1NN9EJ-BlNsgdB22ARLDyJbN002IBGeqd",
+    "drive_url": "https://drive.google.com/file/d/1NN9EJ-BlNsgdB22ARLDyJbN002IBGeqd/view",
+    "drive_revision": null,
+    "drive_parent_id": "1YwMmM1AC2KAAK92ffaoPu3YFnjO2xnQZ",
+    "upload_status": "已上传并读回核实大小、父目录与权限",
+    "permission_verified": "private_owner_only",
+    "shared": false,
+    "requires": [
+      "CommonR11-WIP",
+      "CommonR2 对应 fixed/motion assets 与 world-art"
+    ],
+    "changed_files": [
+      "fixed/shared/white-character.js",
+      "fixed/shared/garment-body-response.js",
+      "motion/shared/white-character.js",
+      "motion/shared/garment-body-response.js"
+    ],
+    "verification": "68 姿几何等值；R12 evidence/COMMON-R12-MANIFEST.json 核对317源码",
+    "changes": "诊断修正、无用查询早退",
+    "not_passed": [
+      "原有衣手穿模",
+      "完整衣物接触",
+      "手机运行预算"
+    ],
+    "not_integrated": [
+      "未通过的 Blender 动力研究",
+      "未通过的肩部研究"
+    ],
+    "may_replace_shared_baseline": false
+  },
+  "wip_folder_url": "https://drive.google.com/drive/folders/1YwMmM1AC2KAAK92ffaoPu3YFnjO2xnQZ",
+  "did": [
+    "将 R11 源码检查点和 R12 增量归档至私人 WIP 子目录",
+    "R12 修正诊断并对无用查询早退，保留已验证68姿几何等值",
+    "主整合者读回核对两文件大小、父目录、shared=false及仅所有者权限",
+    "本地当前状态与manifest已同步；线上同ID更新和本日志上传由主整合者执行"
+  ],
+  "file_list": [
+    "fixed/shared/white-character.js",
+    "fixed/shared/garment-body-response.js",
+    "motion/shared/white-character.js",
+    "motion/shared/garment-body-response.js"
+  ],
+  "tests": [
+    {
+      "name": "68姿几何等值",
+      "status": "passed",
+      "scope": "仅对应姿态的几何等值，依据R12工程交接"
+    },
+    {
+      "name": "Drive元信息复核",
+      "status": "passed",
+      "scope": "两包大小、父目录与私人原权限；不将元信息复核等同重新下载整包哈希测试"
+    },
+    {
+      "name": "原有衣手穿模与完整接触验收",
+      "status": "not_run",
+      "scope": "本次同步未新增完整接触验收；已知衣手穿模仍未通过，不能因等值PASS清零"
+    },
+    {
+      "name": "微信手机帧率与预算",
+      "status": "not_run",
+      "scope": "本次同步未提交新的真机通过证据，原预算问题仍开放"
+    },
+    {
+      "name": "本地文档JSON校验",
+      "status": "passed",
+      "scope": "仅状态与manifest格式"
+    }
+  ],
+  "apply_steps": [
+    "独立新目录展开 R11",
+    "复制 CommonR2 各自对应线 assets/world-art",
+    "按 R11 源 manifest 核验",
+    "覆盖 R12 每线两个指定 shared 文件",
+    "按 R12 manifest 核验317源码"
+  ],
+  "recovery_script": {
+    "status": "pending_delivery",
+    "delivered": false,
+    "note": "工程将补可执行恢复脚本，当前尚未交付，不得宣称已有脚本"
+  },
+  "not_integrated": [
+    "未过的Blender动力研究",
+    "未过的肩部研究"
+  ],
+  "shared_default_unchanged": "R2+R6",
+  "github_head_unchanged": "1468f921a51264a496bc33259877718dd098bf7a",
+  "github_contains_this_wip": false,
+  "grokbot": {
+    "checked_at_utc": "2026-10-08T19:45:00Z",
+    "result": "templates_only_no_actual_receipt",
+    "execution_started_confirmed": false
+  },
+  "next": [
+    "主整合者更新当前状态／manifest并追加本记录",
+    "工程补交并验证可执行恢复脚本后另发新交接",
+    "继续衣手接触与手机预算验证；外部代理不得覆盖dot WIP"
+  ],
+  "rollback": "保留原R11和R12独立包；有问题在独立目录回到已校验R11，不改外部R2+R6或GitHub旧HEAD。",
+  "known_unpassed_issues": [
+    "原有衣手穿模",
+    "完整衣物接触",
+    "手机运行预算"
+  ]
+}

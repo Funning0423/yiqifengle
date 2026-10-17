@@ -1,0 +1,14 @@
+(node:843758) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert(reward)
+
+    at /tmp/wt-glass/tools/board-ui/test_reward_background_return.cjs:36:46 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: true,
+  operator: '=='
+}
+[RESULT_CHEST] 3D chest unavailable Error: chest prefab unavailable

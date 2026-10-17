@@ -1,0 +1,12 @@
+9a8e9da1a85ade143c9cdccfb7f37b92d7351528612294d37a92d8f90899ffac  ./0001-Result-screen-SPEC-v2.1-16-35-update-plain-paper-pan.patch
+82a28eb3e15c6ffb3180fd1649a91ea3c3e1b481a93ea88ecac806f76c1d8e38  ./0002-Result-screen-claims-are-saved-before-leaving-no-pop.patch
+634c9c4b36667943db0d5db9967214e1d91de1638cdd76f87933277737852bc6  ./0003-Result-screen-SPEC-v2.2-solid-3-4-chest-text-cut-to-.patch
+23a0a79b025885f5c9c003a912790e9408d3b5ce462ce79758a66106c0af0f45  ./COMMITS
+9711488ba077630279349fa535f6c049ab9272a894c089f194d26528b6895f96  ./TREE_CHECK
+2654f7dfdd4bd19876ee89102b706ad5f816276b51dd6a68c2eea9f8a2787a71  ./media/result_day.mp4
+86810ee098686dc319eac840e154847f6b7d9dbf0af46526954dda75a5bb915d  ./media/result_day_open.png
+a26d79ec8e1cae21a180940fce8dcea4996c32729194361cdc20dc1a1b9b5527  ./media/result_day_ready.png
+dfeb9667b313e24e3d0abcda2391db906283084da36842211f2daa7662f73538  ./media/result_night.mp4
+852b5d0944ca7f968d00654aa90536e4a9177c1021d7aef925b19f01854bbb42  ./media/result_night_open.png
+60af991c7bf631b8ed829150cd94f3a86a2537629c74cea88fe974a71ddcf9e0  ./media/result_night_ready.png
+7a4a2f94f15e5e2400bfd69b16d51ccd117b2e39b587f841193f99b4432d76b9  ./suite.log

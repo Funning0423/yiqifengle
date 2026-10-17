@@ -1,0 +1,20 @@
+{
+  "subpackages": [
+    "internal",
+    "resources",
+    "main",
+    "region_island",
+    "region_skycity"
+  ],
+  "subpackageBytes": {
+    "subpackages/internal": 297535,
+    "subpackages/resources": 907197,
+    "subpackages/main": 439538,
+    "subpackages/region_island": 11534654,
+    "subpackages/region_skycity": 11305848
+  },
+  "mainBytes": 1819486,
+  "totalBytes": 26304258,
+  "missing": []
+}
+PASS

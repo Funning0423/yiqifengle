@@ -1,0 +1,10 @@
+{
+  "file": "20261009T2354Z-grokbot2-WECHAT-FIRST-OPEN-0008-v3.zip",
+  "bytes": 806286,
+  "sha256": "9deb1c8e2bf0894dd489eb6de341215a3572eb5cf0ed55a7676470fda1db3f4d",
+  "sidecar_match": true,
+  "crc_pass": true,
+  "path_safety_pass": true,
+  "archive_files": 845,
+  "all_contents_verified": true
+}

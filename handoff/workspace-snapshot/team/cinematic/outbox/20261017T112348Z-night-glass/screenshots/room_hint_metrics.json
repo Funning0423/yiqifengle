@@ -1,0 +1,48 @@
+{
+ "day": {
+  "before": {
+   "text_vs_adjacent_1px": {
+    "median": 5.45,
+    "p5": 2.39
+   },
+   "text_vs_floor_no_outline": {
+    "median": 2.25,
+    "p5": 1.95
+   }
+  },
+  "after": {
+   "text_vs_adjacent_1px": {
+    "median": 5.45,
+    "p5": 2.39
+   },
+   "text_vs_floor_no_outline": {
+    "median": 2.25,
+    "p5": 1.95
+   }
+  },
+  "max_abs_pixel_diff": 0
+ },
+ "night": {
+  "before": {
+   "text_vs_adjacent_1px": {
+    "median": 6.84,
+    "p5": 2.69
+   },
+   "text_vs_floor_no_outline": {
+    "median": 4.44,
+    "p5": 3.44
+   }
+  },
+  "after": {
+   "text_vs_adjacent_1px": {
+    "median": 10.76,
+    "p5": 3.25
+   },
+   "text_vs_floor_no_outline": {
+    "median": 4.44,
+    "p5": 3.44
+   }
+  },
+  "max_abs_pixel_diff": null
+ }
+}

@@ -1,0 +1,79 @@
+{
+  "status": "Stopped at81 due five true apron native self-crossings; no continuation to106/136 or parameter changes.",
+  "first75_native_and_body_exact": true,
+  "last_clean_inspected_frame": 80,
+  "stop_frame": 81,
+  "source_motion_time_s": 2.434156378600823,
+  "preheat_elapsed_s": 2.6666666666666665,
+  "reverse_phase_elapsed_s": 1.6666666666666667,
+  "actual_seated_output_started": false,
+  "native_ids": [
+    111,
+    112,
+    113,
+    138,
+    139,
+    140,
+    171,
+    172,
+    173,
+    199,
+    200,
+    201
+  ],
+  "none_are_pins": true,
+  "grid_domain": "rows4\u20137, columns3\u201312 of27-column authored apron, below fixed waist",
+  "world_bounds_m": [
+    [
+      -0.09356376528739929,
+      4.4481964111328125,
+      0.8152716755867004
+    ],
+    [
+      -0.008038713596761227,
+      4.534938335418701,
+      0.885835587978363
+    ]
+  ],
+  "maximum_finite_crossing_m": 0.01872486551725245,
+  "body_and_yellow_clearance_review_report": "contact-review/ACTUAL_ROOM_TRIAL05_failed_patch_finite_clearance.json",
+  "input_budget": {
+    "root_speed76to81_mps": [
+      0.13225287332668711,
+      0.15779733269207
+    ],
+    "root_max_norm_acceleration76to81_mps2": 0.16872991202559484,
+    "root_rotation_scale_max_change": 0.0,
+    "apron_max_pin_frame_displacement76to81_m": [
+      0.009620144963264465,
+      0.011537845246493816
+    ],
+    "pin_rms_acceleration76to81_range_mps2": [
+      0.2534123361110687,
+      0.45013418793678284
+    ],
+    "local_max_point_frame_displacement80to81_m": [
+      0.013200746160152295,
+      0.02921098178904419
+    ],
+    "local_edge_lengths81_m": [
+      0.013765172920599074,
+      0.023863411763357375,
+      0.03017167443438231
+    ],
+    "substep_real_s": 0.0020833333333333333,
+    "self_detection_envelope_m": 0.002,
+    "estimated_max_local_step_displacement81_m": 0.001825686361815262,
+    "estimate_limitation": "Frame displacement divided by16 does not reveal within-substep peak speed or establish timestep as causal. No substep trajectory recorded."
+  },
+  "topology": "Display vs fixed Cloth triangles exactly rowwise at76\u201381; points differ only world-transform float roundoff. No render-only diagonal issue.",
+  "mechanism_supported": "Free local folds pass180 with finite principal-angle restoring law; no local inversion barrier. Native selfcollision excludes3 shared-vertex failed pairs. Two nonshared failures remain; no unique parameter cause proven.",
+  "angle_energy_note": "The reported half-k-angle-squared quantity is only the integral of the scalar angular force law. Source distributes forces along averaged face normals rather than explicitly multiplying the full angle gradient, so this is not asserted to be full mechanical energy or Joules.",
+  "images": [
+    "same_camera_color_0080.png",
+    "same_camera_color_0081.png",
+    "local_apron_gray_0080.png",
+    "local_apron_gray_0081.png"
+  ],
+  "static_safe_blend": "B_SINGLE_MIDDLE_STOPPED_0081.blend"
+}

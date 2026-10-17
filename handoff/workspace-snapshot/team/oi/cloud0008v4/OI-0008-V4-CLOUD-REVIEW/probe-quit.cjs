@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process'),assert=require('node:assert/strict');
+const source=process.env.REVIEW_SOURCE||path.resolve(__dirname,'source');
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'0008-v4-quit-refusal-'));
+const out=path.join(tmp,'evidence'),state=path.join(tmp,'state.json');
+const r=cp.spawnSync(process.execPath,[path.join(source,'tools/wechat_first_open_audit.cjs')],{encoding:'utf8',timeout:5000,env:{...process.env,QF_DEVTOOLS_QUIT_FIRST:'1',QF_FIRST_OPEN_DRY_RUN:'1',QF_FIRST_OPEN_OUT:out,QF_WECHAT_CLI:path.join(__dirname,'new-replay/fake-cli.cjs'),QF_REVIEW_STATE:state}});
+const v=JSON.parse(fs.readFileSync(path.join(out,'verdict.json'),'utf8'));
+assert.equal(r.status,2);assert.equal(v.status,'BLOCKED');assert.match(v.reason,/no global quit/);assert.equal(fs.existsSync(state+'.actions'),false);
+const result={status:v.status,exit:r.status,reason:v.reason,cliWasInvoked:false,manifest:require(path.join(source,'tools/wechat_first_open_audit.cjs')).verifyManifest(out)};assert.ok(result.manifest.ok);
+if(process.argv[2])fs.writeFileSync(process.argv[2],JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));

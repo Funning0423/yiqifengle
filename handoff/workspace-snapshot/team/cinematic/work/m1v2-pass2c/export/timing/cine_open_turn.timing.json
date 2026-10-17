@@ -1,0 +1,135 @@
+{
+ "clip": "cine_open_turn",
+ "fps": 30,
+ "frameConvention": "frames 0..lastFrame inclusive; frameCount=lastFrame+1; durationSec=lastFrame/fps",
+ "cameraAuthored": false,
+ "doorStartFrame": null,
+ "doorEndFrame": null,
+ "handOnDoorFrame": null,
+ "rootConvention": "0006 v1.2 A2: root track in controller-local space, first frame XZ=0 & yaw=0; rootStart = controller world pose at clip start, rootEnd = root world pose at last frame (game coords, m / deg)",
+ "lastFrame": 45,
+ "frameCount": 46,
+ "durationSec": 1.5,
+ "events": {
+  "turnStartFrame": 0,
+  "turnEndFrame": 44,
+  "footEvents": [
+   {
+    "frame": 2,
+    "bone": "foot.R",
+    "anatomical": "left",
+    "type": "lift"
+   },
+   {
+    "frame": 12,
+    "bone": "foot.R",
+    "anatomical": "left",
+    "type": "contact"
+   },
+   {
+    "frame": 12,
+    "bone": "foot.L",
+    "anatomical": "right",
+    "type": "lift"
+   },
+   {
+    "frame": 22,
+    "bone": "foot.L",
+    "anatomical": "right",
+    "type": "contact"
+   },
+   {
+    "frame": 22,
+    "bone": "foot.R",
+    "anatomical": "left",
+    "type": "lift"
+   },
+   {
+    "frame": 33,
+    "bone": "foot.R",
+    "anatomical": "left",
+    "type": "contact"
+   },
+   {
+    "frame": 33,
+    "bone": "foot.L",
+    "anatomical": "right",
+    "type": "lift"
+   },
+   {
+    "frame": 43,
+    "bone": "foot.L",
+    "anatomical": "right",
+    "type": "contact"
+   }
+  ],
+  "direction": "anatomical LEFT (counter-clockwise from above, yaw increasing)",
+  "turnDeg": 111.763,
+  "note": "last foot contact f43; audio may overrun the clip (team 16:59)"
+ },
+ "fovVerticalDeg": [
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0,
+  45.0
+ ],
+ "note": "fovVerticalDeg placeholder (camera not authored in M1).",
+ "rootStart": {
+  "position": [
+   -0.016249,
+   0.0,
+   -4.413085
+  ],
+  "yawDeg": -114.591553
+ },
+ "rootEnd": {
+  "position": [
+   -0.016249,
+   -0.0,
+   -4.413085
+  ],
+  "yawDeg": -2.82901
+ }
+}

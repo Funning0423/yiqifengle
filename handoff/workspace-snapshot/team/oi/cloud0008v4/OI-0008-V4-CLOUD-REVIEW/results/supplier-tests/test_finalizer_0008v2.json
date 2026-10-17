@@ -1,0 +1,138 @@
+{
+  "passed": 33,
+  "total": 33,
+  "results": [
+    {
+      "name": "Oi finalizer SHA256 = 613273…6b09 (12ef697), same file as from-oi/r6-finalizer-2310Z",
+      "ok": true
+    },
+    {
+      "name": "git apply --check OK; applied result == reference/finalize_wechat_local.12ef697+0008v2.cjs; node --check OK",
+      "ok": true
+    },
+    {
+      "name": "patch touches only tools/finalize_wechat_local.cjs and reverse-applies (git apply -R --check)",
+      "ok": true
+    },
+    {
+      "name": "patched source keeps the compileType + AppID asserts, the refusal message and enhance=false line verbatim",
+      "ok": true
+    },
+    {
+      "name": "template fixture carries Oi's exact fields: game {currentL:-1,list:[],current:-1}; search/conversation/miniprogram {current:-1,list:[]}; enhance true; miniprogramRoot \"./\"",
+      "ok": true
+    },
+    {
+      "name": "v3: reconstructed template condition == Oi's REAL official template in G/F (r6efg), including key order and currentL",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (creator388Template)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (oiE_noCondition)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (oiF_officialTemplate)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (oiG_officialTemplate)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (r6Audio)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (r6NoEnhanceD)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (r6GameRootC)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (r6FirstOpenA)",
+      "ok": true
+    },
+    {
+      "name": "patched == original: byte-identical output, same JSON fields (r6FirstOpenB)",
+      "ok": true
+    },
+    {
+      "name": "template: every non-condition field preserved, key order kept, only enhance flipped",
+      "ok": true
+    },
+    {
+      "name": "idempotent: 2nd run changed=false, file bytes and mtime untouched",
+      "ok": true
+    },
+    {
+      "name": "nothing written outside project.config.json (no sibling/log files)",
+      "ok": true
+    },
+    {
+      "name": "refuses compileType miniprogram; file untouched",
+      "ok": true
+    },
+    {
+      "name": "refuses wrong AppID; file untouched",
+      "ok": true
+    },
+    {
+      "name": "refuses active game condition; file untouched",
+      "ok": true
+    },
+    {
+      "name": "refuses active miniprogram condition (pathName); file untouched",
+      "ok": true
+    },
+    {
+      "name": "refuses branch without list; file untouched",
+      "ok": true
+    },
+    {
+      "name": "refuses branch null (original crashed with TypeError; patched refuses with the same message); file untouched",
+      "ok": true
+    },
+    {
+      "name": "A/audio console (Oi raw copy): KNOWN_NOTICE_ONLY — 1 notice, LoadScene seen, 0 forbidden, 0 unclassified",
+      "ok": true
+    },
+    {
+      "name": "D (enhance=false) console: same KNOWN_NOTICE_ONLY",
+      "ok": true
+    },
+    {
+      "name": "B reopened console: FAIL (babel helper + prerequisite-imports), no LoadScene → not a valid zero-red control",
+      "ok": true
+    },
+    {
+      "name": "notice position in A and D: right after the WAGame.js device-info log, right before LoadScene; it carries no source location",
+      "ok": true
+    },
+    {
+      "name": "expected console after the change (A/D minus nothing): exact allowlist only, everything else forbidden",
+      "ok": true
+    },
+    {
+      "name": "log-line parsing (v4): notice is known only as the WHOLE payload after timestamp/marker/level; extra text → error, page name → error",
+      "ok": true
+    },
+    {
+      "name": "E first open (pure wx canvas, no Cocos, no condition): the exact known notice, right AFTER the game's own marker line",
+      "ok": true
+    },
+    {
+      "name": "E/F reopen: marker, no notice; G reopen (official template condition): notice + LoadScene → KNOWN_NOTICE_ONLY",
+      "ok": true
+    },
+    {
+      "name": "installed DevTools source (Oi read-only trace): message is JSON_CUSTOM_COMPILE_PATH_NOT_EXISTS shown on realNotFound with the launch path as %s",
+      "ok": true
+    }
+  ]
+}

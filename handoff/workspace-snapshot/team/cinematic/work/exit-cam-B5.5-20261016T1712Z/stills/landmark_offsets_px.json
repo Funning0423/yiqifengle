@@ -1,0 +1,50 @@
+{
+ "scale": "both images at 471x1024 px (0.46 portrait; screenshot 1206x2622 downscaled x0.3905). Offsets in these px; x2.56 for screenshot-native px",
+ "method": "normalised cross-correlation of edge magnitude, search +/-40 px",
+ "landmarks": {
+  "lighthouseTop (finial+lantern roof)": {
+   "renderBox": [
+    150,
+    270,
+    225,
+    335
+   ],
+   "offsetPx_screenshot_minus_render": [
+    0,
+    0
+   ],
+   "ncc": 0.813
+  },
+  "cottageRoof": {
+   "renderBox": [
+    235,
+    385,
+    330,
+    445
+   ],
+   "offsetPx_screenshot_minus_render": [
+    0,
+    0
+   ],
+   "ncc": 0.587
+  },
+  "lighthouseDoorArch": {
+   "renderBox": [
+    170,
+    425,
+    235,
+    470
+   ],
+   "offsetPx_screenshot_minus_render": [
+    0,
+    0
+   ],
+   "ncc": 0.567
+  },
+  "horizonY": {
+   "render": 179.5,
+   "screenshot": 178.5,
+   "offsetPx_screenshot_minus_render": -1.0
+  }
+ }
+}

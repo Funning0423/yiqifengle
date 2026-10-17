@@ -1,0 +1,50 @@
+[
+ {
+  "pose": "rest",
+  "legs_x_dress_tri_pairs": 0,
+  "legs_x_dress_body_verts_involved": 0,
+  "legs_x_apron_tri_pairs": 0,
+  "legs_x_apron_body_verts_involved": 0,
+  "forearm_hand_x_dress_tri_pairs": 0,
+  "forearm_hand_x_dress_body_verts_involved": 0,
+  "forearm_hand_x_apron_tri_pairs": 0,
+  "forearm_hand_x_apron_body_verts_involved": 0,
+  "upper_arm_x_dress_tri_pairs": 0,
+  "upper_arm_x_dress_body_verts_involved": 0,
+  "upper_arm_x_apron_tri_pairs": 0,
+  "upper_arm_x_apron_body_verts_involved": 0,
+  "apron_x_dress_tri_pairs": 0
+ },
+ {
+  "pose": "walk",
+  "legs_x_dress_tri_pairs": 15,
+  "legs_x_dress_body_verts_involved": 9,
+  "legs_x_apron_tri_pairs": 0,
+  "legs_x_apron_body_verts_involved": 0,
+  "forearm_hand_x_dress_tri_pairs": 0,
+  "forearm_hand_x_dress_body_verts_involved": 0,
+  "forearm_hand_x_apron_tri_pairs": 36,
+  "forearm_hand_x_apron_body_verts_involved": 38,
+  "upper_arm_x_dress_tri_pairs": 0,
+  "upper_arm_x_dress_body_verts_involved": 0,
+  "upper_arm_x_apron_tri_pairs": 0,
+  "upper_arm_x_apron_body_verts_involved": 0,
+  "apron_x_dress_tri_pairs": 0
+ },
+ {
+  "pose": "sit",
+  "legs_x_dress_tri_pairs": 0,
+  "legs_x_dress_body_verts_involved": 0,
+  "legs_x_apron_tri_pairs": 0,
+  "legs_x_apron_body_verts_involved": 0,
+  "forearm_hand_x_dress_tri_pairs": 0,
+  "forearm_hand_x_dress_body_verts_involved": 0,
+  "forearm_hand_x_apron_tri_pairs": 0,
+  "forearm_hand_x_apron_body_verts_involved": 0,
+  "upper_arm_x_dress_tri_pairs": 0,
+  "upper_arm_x_dress_body_verts_involved": 0,
+  "upper_arm_x_apron_tri_pairs": 0,
+  "upper_arm_x_apron_body_verts_involved": 0,
+  "apron_x_dress_tri_pairs": 0
+ }
+]

@@ -1,0 +1,42 @@
+{
+  "blend_sha256": "1ff76c18e3ce759f44fae7cac208326fe5600f4993b822fbaeaf9dd0126e07c4",
+  "samples": 3961,
+  "sampling_hz": 120,
+  "fixture_bad_samples": 0,
+  "self_bad_samples": 0,
+  "scope": "3961 evaluated samples at120Hz, actual exposed hand/wrist/head/neck/hat source triangles vs all24 actual room and exterior render meshes and complete source body surface. Does not infer nonexistent anatomical skin beneath sleeves, certify garment deformation or judge motion solely from counts. Joints measured from evaluated saved rig. Explicit shared-topology 1mm locality,10um strict plane threshold.",
+  "arms": {
+    "L": {
+      "torso_abduction_range_deg": [
+        7.213521212749159,
+        42.74676908089726
+      ],
+      "elbow_bend_range_deg": [
+        11.853739076394305,
+        132.99598309945736
+      ],
+      "max_joint_gap_m": 3.9815062859993957e-07,
+      "max_relative_length_error": 7.901560364897975e-07,
+      "max_wrist_speed_m_s": 2.2712553847051633,
+      "max_wrist_speed_time_s": 10.4125,
+      "max_second_difference_wrist_acceleration_m_s2": 70.13957402635663,
+      "first_to_last_wrist_displacement_m": 5.506177929246194e-08
+    },
+    "R": {
+      "torso_abduction_range_deg": [
+        8.86159479667976,
+        20.245164025716633
+      ],
+      "elbow_bend_range_deg": [
+        11.853725191242305,
+        137.91441912517894
+      ],
+      "max_joint_gap_m": 3.910418148761447e-07,
+      "max_relative_length_error": 7.922509077662454e-07,
+      "max_wrist_speed_m_s": 1.4705527710658222,
+      "max_wrist_speed_time_s": 13.0625,
+      "max_second_difference_wrist_acceleration_m_s2": 64.98206191444145,
+      "first_to_last_wrist_displacement_m": 5.65637808023579e-08
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"output":"/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-wechat-world-r5-e2fix-20261009/creator-build-project/build/wechat-world-r6-audio","compileType":"game","emptyCompileConditionsRemoved":true,"enhancementDisabled":true,"action":"LOCAL_CONFIG_ONLY"}

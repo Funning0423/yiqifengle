@@ -1,0 +1,234 @@
+{
+  "tool": "wechat_first_open_audit.cjs",
+  "version": "0008-v3",
+  "runId": "20261010T000619424Z-9426",
+  "startedAt": "2026-10-10T00:06:19.425Z",
+  "host": {
+    "platform": "linux",
+    "node": "v24.19.0"
+  },
+  "dryRun": true,
+  "scope": "DRY_RUN_FAKE_CLI — exercises the script only; NOT evidence of WeChat DevTools behaviour",
+  "status": "PASS",
+  "reason": "default: 0 errors, no app.json notice; automator/shim/WeappLog channels proven by this case's own canary; own CLI exited 0; own window closed; LoadScene seen",
+  "variants": [
+    {
+      "role": "verdict",
+      "variant": "default",
+      "projectDir": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/copies/QFFirstOpen-20261010T000619424Z-9426-62fbf8-default",
+      "projectname": "QFFirstOpen-20261010T000619424Z-9426-62fbf8-default",
+      "port": 42000,
+      "steps": {
+        "originalProjectname": "review",
+        "finalizer": {
+          "path": "/workspace/shared/game-first-open-0008-v3-review/extracted/20261009T2354Z-grokbot2-WECHAT-FIRST-OPEN-0008-v3/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+          "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79",
+          "exit": 0,
+          "stdout": "{\"output\":\"/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/copies/QFFirstOpen-20261010T000619424Z-9426-62fbf8-default\",\"compileType\":\"game\",\"emptyCompileConditionsRemoved\":true,\"enhancementDisabled\":true,\"removedCondition\":null,\"changed\":true,\"action\":\"LOCAL_CONFIG_ONLY\"}",
+          "stderr": ""
+        },
+        "removedConditionReportedByFinalizer": null,
+        "shimInjected": true,
+        "pingResult": "8615cbe3dc08a79d",
+        "screenshotError": "fake screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/copies/QFFirstOpen-20261010T000619424Z-9426-62fbf8-default"
+          ],
+          "pid": 48,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 56,
+          "lines": []
+        },
+        "cliLaunch": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/copies/QFFirstOpen-20261010T000619424Z-9426-62fbf8-default",
+            "--auto-port",
+            "42000"
+          ],
+          "pid": 37,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 51,
+          "lines": []
+        }
+      },
+      "channels": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "canaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/logs",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownCanary": true,
+          "bytes": 1030,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "errors": [],
+      "knownNotice": [],
+      "knownNoticeUnattributed": [],
+      "unattributed": [],
+      "warnings": [],
+      "missing": [],
+      "status": "PASS",
+      "reason": "0 errors, no app.json notice; automator/shim/WeappLog channels proven by this case's own canary; own CLI exited 0; own window closed; LoadScene seen",
+      "token": "8615cbe3dc08a79d",
+      "attributionMarkers": [
+        "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/copies/QFFirstOpen-20261010T000619424Z-9426-62fbf8-default",
+        "QFFirstOpen-20261010T000619424Z-9426-62fbf8-default",
+        "8615cbe3dc08a79d"
+      ],
+      "mode": "auto",
+      "shim": {
+        "version": "0008v3",
+        "token": "8615cbe3dc08a79d",
+        "installedAt": 1791590780537,
+        "heartbeat": true,
+        "canaryAtBoot": true,
+        "wrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "stillWrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "onErrorRegistered": true,
+        "onUnhandledRejectionRegistered": true,
+        "installErrors": [],
+        "dropped": 0,
+        "errors": [
+          {
+            "t": 1791590780538,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY] 8615cbe3dc08a79d"
+          },
+          {
+            "t": 1791590781039,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY-LATE] 8615cbe3dc08a79d"
+          }
+        ],
+        "warns": [],
+        "logs": [
+          {
+            "t": 1791590780537,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT] 8615cbe3dc08a79d"
+          },
+          {
+            "t": 1791590780538,
+            "level": "log",
+            "msg": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+          },
+          {
+            "t": 1791590781039,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT-LATE] 8615cbe3dc08a79d"
+          }
+        ],
+        "onError": [],
+        "unhandled": []
+      },
+      "loadSceneSeen": true,
+      "unclassifiedInfo": []
+    }
+  ],
+  "config": {
+    "cli": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-cli.cjs",
+    "buildDir": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/build",
+    "workRoot": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/copies",
+    "finalizer": "/workspace/shared/game-first-open-0008-v3-review/extracted/20261009T2354Z-grokbot2-WECHAT-FIRST-OPEN-0008-v3/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+    "cases": [
+      "default"
+    ],
+    "allowAppJsonNotice": false,
+    "mode": "auto",
+    "autoPort": 42000,
+    "settleMs": 0,
+    "cliDrainMs": 100,
+    "injectShim": true,
+    "logDir": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/results-final/fixtures/healthy/logs",
+    "logPollMs": 20,
+    "logMaxBytes": 1000000,
+    "automatorModule": "/workspace/shared/game-first-open-0008-v3-review/evidence/runtime/fake-automator.cjs",
+    "globalQuit": "removed"
+  },
+  "sourceBuild": {
+    "projectConfigSha256": "44d16e30a37434fd804bceb7c7567d6947a291a92fe65e156f4f44af53f5ffbb",
+    "gameJsonSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "fileCount": 3
+  },
+  "islogin": {
+    "code": 0,
+    "output": "fake logged in"
+  },
+  "diagnostics": [],
+  "noticeSeenInDefault": false,
+  "finishedAt": "2026-10-10T00:06:21.151Z",
+  "ownChildrenRunningAtFreeze": 0
+}

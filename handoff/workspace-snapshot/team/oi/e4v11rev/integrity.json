@@ -1,0 +1,167 @@
+{
+  "zip": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1.zip",
+  "size": 133206,
+  "sha256": "e0f638853ac1b896884b0fdc8b151ad16df0026db93c8940806625df91436991",
+  "sha256_matches_sidecar": true,
+  "crc": "PASS",
+  "paths": "PASS",
+  "entries": 31,
+  "uncompressed_bytes": 438634,
+  "files": [
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/MATERIAL-PARAMS.md",
+      "size": 13836,
+      "crc": "b58f8c61"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/README.md",
+      "size": 15937,
+      "crc": "b06c485b"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/SHA256SUMS.txt",
+      "size": 3044,
+      "crc": "df70da7f"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/effects/meadow-grass-wind.effect",
+      "size": 9358,
+      "crc": "26e82c68"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/effects/sky-unlit.effect",
+      "size": 6373,
+      "crc": "6340248a"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/patches/0001-MeadowInstancer-wind-bounds-root-color.diff",
+      "size": 4055,
+      "crc": "4d81af1d"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/patches/0002-E4-v1-to-v1.1.diff",
+      "size": 83738,
+      "crc": "a7d1df1b"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/scripts/GrassWindQuality.ts",
+      "size": 18160,
+      "crc": "5abb4c17"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/scripts/MeadowInstancer.ts",
+      "size": 3947,
+      "crc": "8aad8073"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/meadow-instancer-test.js",
+      "size": 19164,
+      "crc": "3e237cfc"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/run-selftest.js",
+      "size": 48959,
+      "crc": "827973aa"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/sky-texture-check.py",
+      "size": 999,
+      "crc": "9b1df5a6"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/wind-reference.js",
+      "size": 3910,
+      "crc": "8535eba6"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/build-offline-mappings.mjs",
+      "size": 2143,
+      "crc": "37220c5a"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/compile.js",
+      "size": 3163,
+      "crc": "26d720fa"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/constants.ts",
+      "size": 1187,
+      "crc": "d77ac4e5"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/core-stub.ts",
+      "size": 137,
+      "crc": "b7dbc82c"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/gc-object.ts",
+      "size": 42,
+      "crc": "d2e816aa"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/gfx-stub.ts",
+      "size": 224,
+      "crc": "c9d21f42"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/package.json",
+      "size": 65,
+      "crc": "3dee27b3"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/pal-stub.ts",
+      "size": 174,
+      "crc": "eef8c423"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/rendering-define.ts",
+      "size": 179,
+      "crc": "9bb94f42"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/cc-compiler-setup/setup.sh",
+      "size": 1453,
+      "crc": "be38f40e"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/glslang-variants.json",
+      "size": 264,
+      "crc": "f4558b05"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/meadow-COLOR_0-stats.json",
+      "size": 3187,
+      "crc": "e375f9af"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/meadow-grass-wind.compiled.json",
+      "size": 114302,
+      "crc": "2e1d1b27"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/selftest-results.json",
+      "size": 19045,
+      "crc": "175acd01"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/selftest-results.md",
+      "size": 15068,
+      "crc": "ac81b48c"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/sky-night-texture-check.json",
+      "size": 390,
+      "crc": "02955433"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/sky-unlit.compiled.json",
+      "size": 45498,
+      "crc": "f6961062"
+    },
+    {
+      "name": "20261009T2327Z-grokbot2-E4-MATERIALS-v1.1/selftest/out/windOffset.transpiled.js",
+      "size": 633,
+      "crc": "615282e5"
+    }
+  ]
+}

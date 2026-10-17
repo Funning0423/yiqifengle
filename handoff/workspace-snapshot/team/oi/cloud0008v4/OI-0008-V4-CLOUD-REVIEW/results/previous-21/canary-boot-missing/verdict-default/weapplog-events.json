@@ -1,0 +1,28 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-boot-missing/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1040,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T01:33:18.962Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T01:33:19.968Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-boot-missing/logs/WeappLog/review.log",
+      "size": 627
+    },
+    {
+      "t": "2026-10-10T01:33:20.572Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/canary-boot-missing/logs/WeappLog/review.log",
+      "bytes": 1040,
+      "ok": true
+    }
+  ]
+}

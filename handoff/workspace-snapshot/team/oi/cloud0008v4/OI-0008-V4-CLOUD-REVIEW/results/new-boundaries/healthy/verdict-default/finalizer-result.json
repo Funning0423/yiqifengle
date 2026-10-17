@@ -1,0 +1,7 @@
+{
+  "path": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+  "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79",
+  "exit": 0,
+  "stdout": "{\"output\":\"/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default\",\"compileType\":\"game\",\"emptyCompileConditionsRemoved\":true,\"enhancementDisabled\":true,\"removedCondition\":null,\"changed\":true,\"action\":\"LOCAL_CONFIG_ONLY\"}",
+  "stderr": ""
+}

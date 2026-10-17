@@ -1,0 +1,65 @@
+From c86578116cd2ab1b7fd2001e872970e024944551 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:07:20 +0800
+Subject: [PATCH 36/47] reward-background-return: require Node >=22.6
+ explicitly; report BLOCKED_NODE on older Node (never a pass)
+
+The test needs node:module.stripTypeScriptTypes (Node >=22.6). On older Node it now prints
+'BLOCKED_NODE: reward-background-return requires Node >=22.6 (node:module.stripTypeScriptTypes),
+found vX' and exits 78; run-suite.cjs maps exit 78 + that marker to status BLOCKED with the reason
+(console: BLOCKED_NODE (...)), mirroring navigation-guard's BLOCKED_BROWSER. Any other non-zero
+exit is still FAIL. README: how to run it on the Mac with Node 22 (npx node@22 / nvm).
+---
+ README.md                                        | 13 +++++++++++++
+ tools/board-ui/test_reward_background_return.cjs |  2 ++
+ tools/journey-integration/run-suite.cjs          |  2 +-
+ 3 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index d24eba7..88a4a9d 100644
+--- a/README.md
++++ b/README.md
+@@ -38,3 +38,16 @@ Native Cocos UI branch update: see docs/NATIVE-BOARD-20261009.md for the current
+ Mobile native board revision: see docs/MOBILE-NATIVE-BOARD-20261009.md. Official Cocos 3.8.8 Web build and three viewport touch/recovery cases passed.
+ 
+ Isolated world/R5 integration: docs/WORLD-R5-INTEGRATION-20261009.md. Original UI/scene/GLB retained; three regional witness replays validated; current-session only, no score registration or rewards.
++
++## reward-background-return 需要 Node ≥22.6
++`tools/board-ui/test_reward_background_return.cjs` 用到 `node:module` 的 `stripTypeScriptTypes`，Node 22.6 才有。Node 版本更低时，测试会打印 `BLOCKED_NODE: … requires Node >=22.6 …, found vX` 并以退出码 78 结束，`run-suite.cjs` 把它记成 BLOCKED（`BLOCKED_NODE`）。它**不会**被算作通过。
++在 Mac 上用正确的 Node 跑（任选一种，不影响系统里的 Node）：
++```bash
++cd ~/qfl-milestone            # 仓库根目录
++npx -y node@22 --version      # 应 ≥ v22.6
++npx -y node@22 tools/board-ui/test_reward_background_return.cjs; echo exit=$?
++# 或者用 nvm：nvm install 22 && nvm exec 22 node tools/board-ui/test_reward_background_return.cjs
++# 也可以只用 Node 22 跑这一项：nvm exec 22 node tools/journey-integration/run-suite.cjs reward-background-return
++```
++
++注意（2026-10-17 在 box 上用 Node v22.23.3 实测，基于 f3d3614）：环境满足以后，这个测试仍然**失败**，位置是 `test_reward_background_return.cjs:38` 的 `assert(reward)`，原因是找不到 `RewardPanel` 弹窗。所以它不只是环境问题，测试或代码还需要单独修。
+diff --git a/tools/board-ui/test_reward_background_return.cjs b/tools/board-ui/test_reward_background_return.cjs
+index c66a785..95690ac 100644
+--- a/tools/board-ui/test_reward_background_return.cjs
++++ b/tools/board-ui/test_reward_background_return.cjs
+@@ -8,6 +8,8 @@ const start=boot.indexOf(' const board=this.board(),b=board?.hostPresentation();
+ const gate=boot.slice(start,boot.indexOf('\n const f=this.navLayout()',start));
+ const transfer=boot.split('\n').find(x=>x.startsWith(' if(board){const actions:any='));
+ const {stripTypeScriptTypes}=require('node:module');
++// Needs node:module.stripTypeScriptTypes (Node >=22.6). Older Node: report the reason and exit 78 (run-suite: BLOCKED_NODE); never a pass.
++if(typeof stripTypeScriptTypes!=='function'){console.error('BLOCKED_NODE: reward-background-return requires Node >=22.6 (node:module.stripTypeScriptTypes), found '+process.version);process.exit(78);}
+ const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mainNext','chest','regionReward','next','claim'];\n"+gate+'\n'+transfer,{mode:'transform'}));
+ (async()=>{
+  const H=createHarness(),values=new Map(),port=Port.createPort({getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,String(v))});port.inspect=()=>[...values];
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 59bc75b..6f9e4b3 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -85,5 +85,5 @@ const startedAt=new Date().toISOString(),gitHead=git(['rev-parse','HEAD']),gitTr
+ // Provenance first: which commit/tree and when (UTC) this suite output belongs to.
+ console.log(`== SUITE HEAD=${gitHead} tree=${gitTree} short=${gitShort} utc=${startedAt} node=${process.version}`);
+ const report={startedAt,startedAtUTC:startedAt,gitHead,gitTree,gitShort,worktreeStatus:git(['status','--short']),testRuntime:process.version,typescriptModule:process.env.QF_TYPESCRIPT_MODULE||null,status:'RUNNING',renderedAcceptance:'BLOCKED_NOT_RUN',deviceAcceptance:'NOT_RUN',checks:[]};
+-for(const [id,file]of selected){const p=path.join(ROOT,file);if(!fs.existsSync(p)){report.checks.push({id,file,status:'BLOCKED',reason:'Required development commit has not been integrated'});continue;}const content=fs.readFileSync(p,'utf8');if(/chromium\.launch|firefox\.launch|webkit\.launch|launchPersistentContext|chromiumExecutable/.test(content)){report.checks.push({id,file,status:'BLOCKED',reason:'Browser-launching legacy suite is excluded from this Node-only runner; use an authorized browser adapter and official artifact'});console.log(id+': BLOCKED_BROWSER');continue;}const started=Date.now(),r=cp.spawnSync(process.execPath,[file],{cwd:ROOT,env:{...process.env,QF_JOURNEY_SOURCE_ROOT:ROOT},encoding:'utf8',timeout:180000,maxBuffer:20*1024*1024});const stdout=r.stdout||'',stderr=r.stderr||'';fs.writeFileSync(path.join(out,id+'.stdout.txt'),stdout);fs.writeFileSync(path.join(out,id+'.stderr.txt'),stderr);report.checks.push({id,file,sourceSHA256:crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),status:r.status===0?'PASS':'FAIL',exitCode:r.status,signal:r.signal,error:r.error?String(r.error):null,durationMs:Date.now()-started,stdout:id+'.stdout.txt',stderr:id+'.stderr.txt'});console.log(id+': '+report.checks.at(-1).status);}
++for(const [id,file]of selected){const p=path.join(ROOT,file);if(!fs.existsSync(p)){report.checks.push({id,file,status:'BLOCKED',reason:'Required development commit has not been integrated'});continue;}const content=fs.readFileSync(p,'utf8');if(/chromium\.launch|firefox\.launch|webkit\.launch|launchPersistentContext|chromiumExecutable/.test(content)){report.checks.push({id,file,status:'BLOCKED',reason:'Browser-launching legacy suite is excluded from this Node-only runner; use an authorized browser adapter and official artifact'});console.log(id+': BLOCKED_BROWSER');continue;}const started=Date.now(),r=cp.spawnSync(process.execPath,[file],{cwd:ROOT,env:{...process.env,QF_JOURNEY_SOURCE_ROOT:ROOT},encoding:'utf8',timeout:180000,maxBuffer:20*1024*1024});const stdout=r.stdout||'',stderr=r.stderr||'';fs.writeFileSync(path.join(out,id+'.stdout.txt'),stdout);fs.writeFileSync(path.join(out,id+'.stderr.txt'),stderr);report.checks.push({id,file,sourceSHA256:crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),status:r.status===0?'PASS':r.status===78&&/^BLOCKED_NODE: /m.test(stderr)?'BLOCKED':'FAIL',reason:r.status===78&&/^BLOCKED_NODE: /m.test(stderr)?(stderr.match(/^BLOCKED_NODE: (.*)$/m)||[])[1]:undefined,exitCode:r.status,signal:r.signal,error:r.error?String(r.error):null,durationMs:Date.now()-started,stdout:id+'.stdout.txt',stderr:id+'.stderr.txt'});console.log(id+': '+(report.checks.at(-1).reason&&report.checks.at(-1).status==='BLOCKED'?'BLOCKED_NODE ('+report.checks.at(-1).reason+')':report.checks.at(-1).status));}
+ report.finishedAt=new Date().toISOString();report.status=report.checks.some(x=>x.status==='FAIL')?'FAIL':report.checks.some(x=>x.status==='BLOCKED')?'BLOCKED':'PASS';report.scope='Production logic and Cocos component doubles only. No official Creator build, actual browser/WebGL rendering, user data, physical device or WeChat execution.';fs.writeFileSync(path.join(out,'suite.json'),JSON.stringify(report,null,2)+'\n');fs.writeFileSync(path.join(out,`suite.${gitShort}.json`),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,total:report.checks.length,passed:report.checks.filter(x=>x.status==='PASS').length,renderedAcceptance:report.renderedAcceptance},null,2));if(report.status!=='PASS')process.exitCode=1;
+-- 
+2.47.3
+

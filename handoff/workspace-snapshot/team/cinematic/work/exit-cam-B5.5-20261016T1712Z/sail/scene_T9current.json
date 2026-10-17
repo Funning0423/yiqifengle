@@ -1,0 +1,180 @@
+{
+ "island": "/workspace/wechat-game/yiqifengle/creator-project/assets/firstslice/combined_visual_m.glb",
+ "hide": [
+  "_night_v22",
+  "env_interior",
+  "character_height",
+  "floor_skirt"
+ ],
+ "props": [
+  {
+   "name": "signpost",
+   "glb": "/tmp/t9-0ec1701-ui_signpost.glb",
+   "pos": [
+    -4.08,
+    0.127,
+    0.7
+   ],
+   "yaw": 5.58,
+   "scale": 0.79
+  },
+  {
+   "name": "beach_palm_tall",
+   "glb": "/tmp/t9-0ec1701-beach_palm_tall.glb",
+   "pos": [
+    -0.5,
+    -0.3,
+    9.0
+   ],
+   "yaw": 200,
+   "scale": 0.9
+  },
+  {
+   "name": "beach_palm_short",
+   "glb": "/tmp/t9-0ec1701-beach_palm_short.glb",
+   "pos": [
+    7.0,
+    -0.36,
+    7.4
+   ],
+   "yaw": 180,
+   "scale": 1
+  }
+ ],
+ "chars": [
+  {
+   "glb": "/tmp/scc/C/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+   "pos": [
+    -2.1135,
+    0,
+    5.2814
+   ],
+   "yaw": 0
+  }
+ ],
+ "camera": {
+  "pos": [
+   -12,
+   15.5,
+   48
+  ],
+  "quat": [
+   -0.14730292557751434,
+   -0.1330210092004142,
+   -0.01999627425808109,
+   0.9799017339730572
+  ],
+  "fov": 42
+ },
+ "res": [
+  402,
+  874
+ ],
+ "view": "far",
+ "night": false,
+ "legs": null,
+ "text": {
+  "quad": [
+   [
+    -4.389735761806229,
+    1.05288,
+    0.8810753530531288
+   ],
+   [
+    -3.370747327771322,
+    1.05288,
+    0.7815217649556194
+   ],
+   [
+    -3.370747327771322,
+    0.7495200000000001,
+    0.7815217649556194
+   ],
+   [
+    -4.389735761806229,
+    0.7495200000000001,
+    0.8810753530531288
+   ]
+  ],
+  "string": "\u7ee7\u7eed\u65c5\u7a0b",
+  "color": "#633f21",
+  "outlinePx": 0
+ },
+ "plate": null,
+ "plateStyle": null,
+ "feet": [
+  [
+   -4.394502603097194,
+   0.127,
+   0.7307264160794782
+  ],
+  [
+   -3.3723691430313147,
+   0.127,
+   0.630865563821174
+  ]
+ ],
+ "signRectUi": {
+  "x": -113.7355894852546,
+  "y": 0.776593934792848,
+  "width": 45.85422806448485,
+  "height": 38.806552566435656
+ },
+ "tags": [
+  {
+   "x": -120.6,
+   "y": -390.99,
+   "width": 53,
+   "height": 27,
+   "fontSize": 15,
+   "label": "\u884c\u56ca"
+  },
+  {
+   "x": 0,
+   "y": -390.99,
+   "width": 68,
+   "height": 27,
+   "fontSize": 15,
+   "label": "\u65c5\u7a0b\u518c"
+  },
+  {
+   "x": 120.6,
+   "y": -390.99,
+   "width": 53,
+   "height": 27,
+   "fontSize": 15,
+   "label": "\u8bbe\u7f6e"
+  }
+ ],
+ "sign": {
+  "position": [
+   -4.08,
+   0.127,
+   0.7
+  ],
+  "yaw": 5.58,
+  "scale": 0.79
+ },
+ "palms": [
+  {
+   "prefab": "beach_palm_tall",
+   "position": [
+    2,
+    0.04,
+    6.6
+   ],
+   "yawDeg": 180,
+   "scale": 0.65
+  },
+  {
+   "prefab": "beach_palm_short",
+   "position": [
+    7,
+    -0.36,
+    7.4
+   ],
+   "yawDeg": 180,
+   "scale": 1
+  }
+ ]
+}

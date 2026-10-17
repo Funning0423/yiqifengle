@@ -1,0 +1,94 @@
+From 2aa5957b3be2d6ad657d88e3cdac145dc25b60cf Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 14:47:49 +0800
+Subject: [PATCH 04/20] lakeside v3.3 load fix B: Array.from instead of
+ [...map.values()] (line 18) and [...new Set()] (line 67) - the ES5 build
+ emits [].concat(x), so the Set became one element and every load threw
+ lakeside-prefab-missing; repo-wide TS AST scan (112 spreads) found no other
+ non-array spread; test es5-iterator-spread fails on the old lines
+
+(cherry picked from commit 04da6330489738cadd7bc561110c2155ccb77223)
+---
+ .../scripts/region/LakesideBoardBackground.ts |  4 +--
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/test_es5_iterator_spread.cjs            | 34 +++++++++++++++++++
+ 3 files changed, 37 insertions(+), 2 deletions(-)
+ create mode 100644 tools/test_es5_iterator_spread.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index eee4f09..c248337 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -15,7 +15,7 @@ export function enableLakesideInstancing(root:Node):Material[]{
+  for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
+   for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=shared.get(src);
+    if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});shared.set(src,m);}r.setSharedMaterial(m,k);}}
+- return [...shared.values()];
++ return Array.from(shared.values()); // not [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
+ }
+ function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
+ function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
+@@ -64,7 +64,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
+   if(!isValid(parent,true)||!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
+   const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
+-  const missing=[...new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n)))];if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
++  const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
+   rig=new Node(LAKESIDE_NODES.rig);rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
+   const scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
+   for(const i of list){const n=instantiate(byName.get(lakesidePrefabName(i.glb))!);n.name=i.name;n.setPosition(i.pos[0],i.pos[1],i.pos[2]);n.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);n.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(n);instances++;}
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index dab67c6..6ce6824 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -60,6 +60,7 @@ const tests=[
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
+  ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],['lakeside-water-fog','tools/lakeside/test_lakeside_water_fog.cjs'],
+  ['lakeside-meshopt','tools/lakeside/test_lakeside_meshopt.cjs'],
++ ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/test_es5_iterator_spread.cjs b/tools/test_es5_iterator_spread.cjs
+new file mode 100644
+index 0000000..7deaebf
+--- /dev/null
++++ b/tools/test_es5_iterator_spread.cjs
+@@ -0,0 +1,34 @@
++// v3.3 load fix B guard: Cocos' ES5 (loose) build compiles `[...x]` to `[].concat(x)` and `f(...x)` to `f.apply(void 0, x)`.
++// That is only correct when x is an ARRAY. A Set / Map / iterator / string becomes ONE element (Mac v3.2: `[...new Set(..)]` -> length 1
++// -> "lakeside-prefab-missing: [object Set]"; `[...map.values()]` -> the iterator itself handed out as a material).
++// Rule: spread only arrays; use Array.from(...) for anything iterable. Scans every TS file under assets/scripts with the TS AST.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++// 1) the hazard itself, as the loose transform emits it
++assert.equal([].concat(new Set(['a','b'])).length,1,'loose spread of a Set keeps the Set as one element');
++assert.equal(Array.from(new Set(['a','b'])).length,2);
++const ROOT=path.resolve(__dirname,'../creator-build-project/assets/scripts'),files=[];
++(function walk(d){for(const f of fs.readdirSync(d)){const p=path.join(d,f);if(fs.statSync(p).isDirectory())walk(p);else if(/\.ts$/.test(f)&&!/\.d\.ts$/.test(f))files.push(p);}})(ROOT);
++const ITER_METHODS=/^(values|keys|entries|matchAll)$/,bad=[];
++for(const file of files){const sf=ts.createSourceFile(file,fs.readFileSync(file,'utf8'),ts.ScriptTarget.ES2019,true);
++ // identifiers declared as Set/Map/iterables in this file (initializer `new Set|Map|WeakSet` or a Set/Map/Iterable type annotation)
++ const iterNames=new Set();
++ (function d(n){if((ts.isVariableDeclaration(n)||ts.isPropertyDeclaration(n)||ts.isParameter(n))&&n.name&&ts.isIdentifier(n.name)){
++   const init=n.initializer,ty=n.type&&n.type.getText(sf);
++   if((init&&ts.isNewExpression(init)&&/^(Set|Map|WeakSet|WeakMap)$/.test(init.expression.getText(sf)))||(ty&&/^(ReadonlySet|Set|ReadonlyMap|Map|Iterable|IterableIterator|Generator)\b/.test(ty)))iterNames.add(n.name.text);}
++  ts.forEachChild(n,d);})(sf);
++ const isIterExpr=e=>{e=ts.isParenthesizedExpression(e)?e.expression:e;
++  if(ts.isNewExpression(e)&&/^(Set|Map)$/.test(e.expression.getText(sf)))return true;
++  if(ts.isStringLiteral(e)||ts.isNoSubstitutionTemplateLiteral(e)||ts.isTemplateExpression(e))return true;
++  if(ts.isCallExpression(e)&&ts.isPropertyAccessExpression(e.expression)&&ITER_METHODS.test(e.expression.name.text)&&!/^Object$/.test(e.expression.expression.getText(sf)))return true;
++  if(ts.isIdentifier(e)&&iterNames.has(e.text))return true;
++  if(ts.isPropertyAccessExpression(e)&&e.expression.kind===ts.SyntaxKind.ThisKeyword&&iterNames.has(e.name.text))return true;
++  return false;};
++ (function v(n){if(ts.isSpreadElement(n)&&isIterExpr(n.expression)){const {line}=sf.getLineAndCharacterOfPosition(n.getStart());bad.push(path.relative(ROOT,file)+':'+(line+1)+'  ...'+n.expression.getText(sf).slice(0,60));}ts.forEachChild(n,v);})(sf);}
++assert.deepEqual(bad,[],'spread of a non-array (use Array.from):\n'+bad.join('\n'));
++// 2) the scanner catches the two v3.2 lines (self-check on the old text)
++const old=' const shared=new Map();return [...shared.values()];const missing=[...new Set(list)];';
++const sf=ts.createSourceFile('x.ts',old,ts.ScriptTarget.ES2019,true);let hits=0;(function v(n){if(ts.isSpreadElement(n))hits++;ts.forEachChild(n,v);})(sf);assert.equal(hits,2);
++const bg=fs.readFileSync(path.join(ROOT,'region/LakesideBoardBackground.ts'),'utf8');
++assert(/return Array\.from\(shared\.values\(\)\);/.test(bg)&&/const missing=Array\.from\(new Set\(/.test(bg),'lakeside uses Array.from');
++console.log('es5 iterator spread OK ('+files.length+' TS files)');
+-- 
+2.47.3
+

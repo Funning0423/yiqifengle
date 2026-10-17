@@ -1,0 +1,5 @@
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default [log] [QF-AUDIT-HEARTBEAT] 32e81b8673bb69e1
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default [error] [QF-AUDIT-CANARY] 32e81b8673bb69e1
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default [log] LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default [log] [QF-AUDIT-HEARTBEAT-LATE] 32e81b8673bb69e1
+/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default [error] [QF-AUDIT-CANARY-LATE] 32e81b8673bb69e1

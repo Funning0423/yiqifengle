@@ -1,0 +1,12 @@
+composition              exit 1
+door_spill               exit 0
+es5_safety               exit 0
+frames-default           exit 0
+frames-es5-real-walk     exit 1
+frames-es5               exit 0
+frames-real-walk         exit 1
+sit_timing               exit 0
+suite                    sit_timing               exit 0
+turn_targets             exit 0
+wind_api                 exit 0
+logs: /tmp/b51/tests

@@ -1,0 +1,146 @@
+From 24b30d17ec16f0eec22eea71b40c41b7d5efdcea Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 07:27:57 +0800
+Subject: [PATCH 2/5] A1c: wind/sea beds normalised to the default music slider
+ (0.4 = design level, was x0.4 = -8 dB on top of their curves -> ~12 dB under
+ the bgm outdoors); mute/background unchanged; [QF_AUDIO]
+ wind-level/waves-level once a second
+
+---
+ .../assets/scripts/audio/AmbienceAudio.ts          | 14 +++++++++++---
+ .../assets/scripts/audio/WindAudio.ts              | 14 +++++++++++---
+ tools/journey-integration/run-suite.cjs            |  1 +
+ tools/voice-bot/wind/test_wind_audio.cjs           |  9 ++++++---
+ 4 files changed, 29 insertions(+), 9 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+index 913a556..5c97427 100644
+--- a/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
++++ b/creator-build-project/assets/scripts/audio/AmbienceAudio.ts
+@@ -18,14 +18,20 @@ import { GameAudio, SfxName } from './GameAudio';
+ /** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
+ function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
+ const { ccclass } = _decorator;
++/** A1c: wind/sea used to be multiplied by the raw music slider (default 0.4 → ×0.4, −8 dB) on top of their own curves,
++ *  while the bgm sits at the same 0.4 → about 12 dB under the bgm outdoors. The slider is now normalised to its default
++ *  (0.4 → 1, 0 → silent, capped at 1), times the 「主页」 transition fade. Mute / background still gate via canPlayAmbience(). */
++export const AMBIENCE_BED_REF = 0.4;
++export function ambienceBedGain(slider: number, transition = 1): number {
++  const v = Number.isFinite(slider) ? Math.max(0, Math.min(1, slider)) : 1, t = Number.isFinite(transition) ? Math.max(0, Math.min(1, transition)) : 1;
++  return Math.min(1, v / AMBIENCE_BED_REF) * t;
++}
+ 
+ /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+ function musicBed(): number {
+   const audio: any = GameAudio.instance;
+   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
+-  const value = Number(audio.getMusicVolume());
+-  const trans = typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1;   // 「主页」 fade
+-  return (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1) * (Number.isFinite(trans) ? Math.max(0, Math.min(1, trans)) : 1);
++  return ambienceBedGain(Number(audio.getMusicVolume()), typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1);
+ }
+ 
+ const WAVES_PATH = 'audio_amb/amb_waves_loop';
+@@ -206,6 +212,7 @@ export class AmbienceAudio extends Component {
+   }
+ 
+   private lastGate = '';
++  private levelLogIn = 0;
+   static ensure() {
+     try {
+       const a = GameAudio.ensure();
+@@ -436,6 +443,7 @@ export class AmbienceAudio extends Component {
+       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
+     } else {
+       src.volume = heard;
++      this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('waves-level', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); }
+       if (!src.playing) { try { src.play(); qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+     }
+     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
+diff --git a/creator-build-project/assets/scripts/audio/WindAudio.ts b/creator-build-project/assets/scripts/audio/WindAudio.ts
+index 570dfcc..e80e3a9 100644
+--- a/creator-build-project/assets/scripts/audio/WindAudio.ts
++++ b/creator-build-project/assets/scripts/audio/WindAudio.ts
+@@ -22,6 +22,14 @@ import { _decorator, Component, AudioSource, AudioClip, resources, director, Dir
+ import { GameAudio } from './GameAudio';
+ import { AmbienceAudio } from './AmbienceAudio';
+ const { ccclass } = _decorator;
++/** A1c: wind/sea used to be multiplied by the raw music slider (default 0.4 → ×0.4, −8 dB) on top of their own curves,
++ *  while the bgm sits at the same 0.4 → about 12 dB under the bgm outdoors. The slider is now normalised to its default
++ *  (0.4 → 1, 0 → silent, capped at 1), times the 「主页」 transition fade. Mute / background still gate via canPlayAmbience(). */
++export const AMBIENCE_BED_REF = 0.4;
++export function ambienceBedGain(slider: number, transition = 1): number {
++  const v = Number.isFinite(slider) ? Math.max(0, Math.min(1, slider)) : 1, t = Number.isFinite(transition) ? Math.max(0, Math.min(1, transition)) : 1;
++  return Math.min(1, v / AMBIENCE_BED_REF) * t;
++}
+ /** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
+ function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
+ 
+@@ -29,9 +37,7 @@ function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((g
+ function musicBed(): number {
+   const audio: any = GameAudio.instance;
+   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
+-  const value = Number(audio.getMusicVolume());
+-  const trans = typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1;   // 「主页」 fade
+-  return (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1) * (Number.isFinite(trans) ? Math.max(0, Math.min(1, trans)) : 1);
++  return ambienceBedGain(Number(audio.getMusicVolume()), typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1);
+ }
+ 
+ export type ApronLiftStrength = 'full' | 'soft';
+@@ -236,6 +242,7 @@ export class WindAudio extends Component {
+   }
+ 
+   private lastGate = '';
++  private levelLogIn = 0;
+   private gate(g: string) { if (g === this.lastGate) return; this.lastGate = g; qfAudioLog('wind-gate', { gate: g, wind: +this.windStrength().toFixed(3), clips: Object.keys(this.clips).filter(k => this.clips[k]).length }); }
+   private pauseLoops() {
+     for (const src of [this.softSrc, this.strongSrc]) {
+@@ -278,6 +285,7 @@ export class WindAudio extends Component {
+       return;
+     }
+     this.quietFor = 0;
++    this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('wind-level', { s: +this.s.toFixed(3), soft: +sv.toFixed(3), strong: +st.toFixed(3), bed: +music.toFixed(3) }); }
+     if (sv >= ON_GAIN) this.startLoop('soft', sv); else if (this.softSrc) this.softSrc.volume = 0;
+     if (st >= ON_GAIN) this.startLoop('strong', st); else if (this.strongSrc) this.strongSrc.volume = 0;
+   }
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 0efa9dc..c244271 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -50,6 +50,7 @@ const tests=[
+  ['result-chest-handoff','tools/board-ui/test_result_chest_handoff.cjs'],
+  ['result-float-lift','tools/board-ui/test_result_float_lift.cjs'],
+  ['meadow-night-sky','tools/test_meadow_night_sky.cjs'],
++ ['wind-audio','tools/voice-bot/wind/test_wind_audio.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+diff --git a/tools/voice-bot/wind/test_wind_audio.cjs b/tools/voice-bot/wind/test_wind_audio.cjs
+index efda937..60404ac 100644
+--- a/tools/voice-bot/wind/test_wind_audio.cjs
++++ b/tools/voice-bot/wind/test_wind_audio.cjs
+@@ -4,7 +4,7 @@ const path = require('path'), fs = require('fs'), Module = require('module');
+ const ROOT = path.resolve(__dirname, '../../..');
+ const DIR = path.join(ROOT, 'creator-build-project/assets/scripts/audio');
+ const SRC = path.join(DIR, 'WindAudio.ts'), AMB = path.join(DIR, 'AmbienceAudio.ts');
+-const VN = process.env.VB_TS || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript';
++const VN = process.env.VB_TS || process.env.QF_TYPESCRIPT_MODULE || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript';
+ const ts = require(VN);
+ const tr = (f) => ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true } }).outputText;
+ const js = tr(SRC), ambJs = tr(AMB);
+@@ -224,7 +224,10 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
+   ok(z.soft === 0 && z.strong === 0 && !z.softPlaying && !z.strongPlaying && e.a.src.volume === 0 && !e.a.src.playing, 'music 0: wind and waves inaudible on the next frame', { wind: z, waves: e.a.src.volume, playing: e.a.src.playing });
+   music = 1; e.run(1 / 60);
+   ok(near(e.w.snapshot().strong, full.strong, 0.02) && near(e.w.snapshot().soft, full.soft, 0.02) && e.a.src.playing && near(e.a.src.volume, full.waves, 0.02), 'music back to 1 restores the design full level', { wind: e.w.snapshot(), waves: e.a.src.volume, full });
+-  music = 0.5; e.run(1 / 60);
+-  ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.5: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
++  // A1c (GGbot): the default slider 0.4 is the design level (was ×0.4 → ~12 dB under the bgm outdoors); below it the bed scales linearly.
++  music = 0.4; e.run(1 / 60);
++  ok(near(e.w.snapshot().strong, full.strong, 0.02) && near(e.a.src.volume, full.waves, 0.02), 'music 0.4 (default): design full level', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
++  music = 0.2; e.run(1 / 60);
++  ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.2: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+ }
+ console.log(fail ? 'FAILED ' + fail : 'ALL PASS wind-audio'); process.exitCode = fail ? 1 : 0;
+-- 
+2.47.3
+

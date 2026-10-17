@@ -1,0 +1,11 @@
+[RESULT_CHEST] 3D chest unavailable Error: chest prefab unavailable
+{
+  "status": "PASS",
+  "geometrySamples": 9661,
+  "geometrySamplesFailed": 0,
+  "failureTypes": {},
+  "contentTransformObservationSamples": 0,
+  "inputChecks": 323,
+  "inputChecksFailed": 0,
+  "inputFailures": []
+}

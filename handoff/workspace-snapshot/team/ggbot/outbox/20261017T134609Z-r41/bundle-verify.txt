@@ -1,0 +1,6 @@
+/workspace/wechat-game/team/ggbot/outbox/20261017T134609Z-r41/r41-build05.bundle is okay
+The bundle contains this ref:
+e4a05b982aaa5b98053ef71eeacff91f37cb8f56 refs/heads/integration/build05-r41-20261017T125738Z
+The bundle requires this ref:
+2153a65cd4c97208a202746d251e3a458d4bb98f 
+The bundle uses this hash algorithm: sha1

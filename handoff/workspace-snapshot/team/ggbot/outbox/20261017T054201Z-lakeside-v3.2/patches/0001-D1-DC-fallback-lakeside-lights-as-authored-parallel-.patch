@@ -1,0 +1,150 @@
+From 6392d39e6db069a25e7e5e4b5a6fe7439abdff7f Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 12:52:50 +0800
+Subject: [PATCH 1/6] D1 (DC fallback): lakeside lights as authored parallel
+ suns - scene main DirectionalLight carries the r5h3 Sun (json
+ direction/colour), SUN_dusk_side folded into ambient sky/ground, Sun.001
+ dropped, no SphereLights; saved/restored on show/hide/dispose;
+ LAKESIDE_LIGHT_MODE 'dir'|'points', all values in LAKESIDE_DIR_LIGHT_PARAMS;
+ test lakeside-dirlight
+
+---
+ .../scripts/region/LakesideBoardBackground.ts | 27 ++++++++++++++-----
+ .../scripts/region/LakesideSceneData.ts       | 17 ++++++++++++
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ tools/lakeside/test_lakeside_dirlight.cjs     | 24 +++++++++++++++++
+ 4 files changed, 62 insertions(+), 8 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_dirlight.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index bc513e8..fa8cda6 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -1,8 +1,8 @@
+-import {Animation,AssetManager,Camera,Color,JsonAsset,Material,MeshRenderer,Node,Prefab,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
++import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,MeshRenderer,Node,Prefab,Quat,Vec3,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
+ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+@@ -26,7 +26,20 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
+  let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+- const dispose=()=>{if(dead)return;dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
++ /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
++  *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
++ let saved:{light:DirectionalLight;rot:Quat;color:Color;illum:number;vis:number;sky:Color;ground:Color;skyIllum:number}|null=null;
++ const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
++ const applyDir=()=>{if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
++  if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum};
++  const P=LAKESIDE_DIR_LIGHT_PARAMS,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(P.sunColorLinear),sk=linearToSrgb8(P.ambientSkyColorLinear),gr=linearToSrgb8(P.ambientGroundColorLinear);
++  l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);l.illuminance=saved.illum*P.sunIlluminanceScale;
++  if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
++  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;};
++ const restoreDir=()=>{const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
++  s0.light.node.setRotation(s0.rot);s0.light.color=s0.color;s0.light.illuminance=s0.illum;if(typeof s0.vis==='number')(s0.light as any).visibility=s0.vis;
++  if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}};
++ const dispose=()=>{if(dead)return;restoreDir();dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+@@ -46,16 +59,16 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   instanced=enableLakesideInstancing(scenery);
+   setLayer(scenery);
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+-  for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
++  if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+    const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
+   const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
+   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
+   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
+   return {
+-   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');},
+-   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;},
++   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
++   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+   };
+  }catch(error){dispose();throw error;}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 52542a9..582e6de 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -45,6 +45,23 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
+   const c = LAKESIDE_BOARD_BOUNDS.center, d = LAKESIDE_SUN_DISTANCE;
+   return [+(c[0] - l.forward[0] * d).toFixed(3), +(c[1] - l.forward[1] * d).toFixed(3), +(c[2] - l.forward[2] * d).toFixed(3)];
+ }
++/** D1 lighting mode: 'dir' = the r5h3 suns as they were authored (parallel lights): main Sun 1.0 -> the scene's single main
++ *  DirectionalLight (reused while the lake shows, restored after), SUN_dusk_side 0.31 -> ambient sky/ground, Sun.001 0.08 dropped,
++ *  SUN_mtn_sky (MTN_RECV only) not placed, no point lights, shadows untouched. 'points' = the previous 3 SphereLights. */
++export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
++/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). Derived by GGbot from scene_r5h3_lighting.json:
++ *  - sunForward / sunColorLinear: json Sun exactly; sunIlluminanceScale x the scene's current main-light illuminance (handoff §5: main = 1.0).
++ *  - ambient: SUN_dusk_side colour [1,0.55,0.28] (linear) as sky colour, ground = half of it (biased to the sky side; the dusk light
++ *    comes in low from the side, 13° below horizontal); skyIllum = 0.31 x main illuminance (its handoff ratio). */
++export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
++  sunForward: [-0.4182, -0.3983, 0.8164] as const,
++  sunColorLinear: [1.0, 0.6, 0.32] as const,
++  sunIlluminanceScale: 1.0,
++  ambientSkyColorLinear: [1.0, 0.55, 0.28] as const,
++  ambientGroundColorLinear: [0.5, 0.275, 0.14] as const,
++  ambientSkyIllumToSun: 0.31,
++});
++export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
+ const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
+ export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
+ /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index c685852..a99abb5 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -58,7 +58,7 @@ const tests=[
+  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
+  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
+- ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],
++ ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_dirlight.cjs b/tools/lakeside/test_lakeside_dirlight.cjs
+new file mode 100644
+index 0000000..17d773f
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_dirlight.cjs
+@@ -0,0 +1,24 @@
++// D1: lakeside 'dir' lighting - main DirectionalLight = json Sun (exact), dusk 0.31 -> ambient, 0.08 dropped, no point lights, saved/restored.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const A=path.join(__dirname,'../../creator-build-project/assets');
++const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2019}}).outputText)(m,m.exports,require);
++const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS,J=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h3_lighting.json'),'utf8'));
++const L=n=>J.lights.find(l=>l.name===n);
++assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');
++assert.deepEqual([...P.sunForward],L('Sun').forward,'main = json Sun direction');assert.deepEqual([...P.sunColorLinear],L('Sun').colorLinear,'main = json Sun colour');
++assert.equal(P.sunIlluminanceScale,L('Sun').illuminanceRatio);
++assert.deepEqual([...P.ambientSkyColorLinear],L('SUN_dusk_side').colorLinear,'ambient sky = dusk colour');
++assert(P.ambientGroundColorLinear.every((c,i)=>c<P.ambientSkyColorLinear[i]),'biased to the sky side');
++assert.equal(P.ambientSkyIllumToSun,L('SUN_dusk_side').illuminanceRatio);
++assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
++assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),[255,203,153]);
++const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
++assert(/if\(LAKESIDE_LIGHT_MODE==='points'\)for\(const l of LAKESIDE_LIGHTS\)/.test(bg),'SphereLights only in points mode');
++assert(/getChildByName\('Main Light'\)/.test(bg)&&!/addComponent\(DirectionalLight\)/.test(bg),'reuses the scene main light, never adds one');
++assert(/l\.node\.lookAt\(new Vec3\(w\.x\+f\[0\],w\.y\+f\[1\],w\.z\+f\[2\]\)\)/.test(bg),'forward = sunForward');
++assert(/visibility=saved\.vis\|LAKESIDE_LAYER/.test(bg),'main light reaches the lake layer');
++assert(/setVisible:value=>\{[^}]*if\(value\)applyDir\(\);else restoreDir\(\);\}/.test(bg)&&/dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);/.test(bg),'apply on show, restore on hide/dispose');
++assert(/s0\.light\.node\.setRotation\(s0\.rot\);s0\.light\.color=s0\.color;s0\.light\.illuminance=s0\.illum;/.test(bg)&&/amb\.skyLightingColor=s0\.sky;amb\.groundLightingColor=s0\.ground;amb\.skyIllum=s0\.skyIllum;/.test(bg),'full restore');
++assert(!/shadowEnabled|shadowFixedArea|ShadowType/.test(bg),'shadows untouched');
++console.log('lakeside dirlight OK');
+-- 
+2.47.3
+

@@ -1,0 +1,2 @@
+ea97db5230ba785c124b2fb62a3b9b8939319a2d947366d3b9bb7f04059c5787  0001-0004-playable-loop-fixes-mainline-retry-after-loss-t.patch
+221117c3f39a851615eca3192af254e02a71be5339e0aef2b8b5c4fbdfacca0f  README-0004.md

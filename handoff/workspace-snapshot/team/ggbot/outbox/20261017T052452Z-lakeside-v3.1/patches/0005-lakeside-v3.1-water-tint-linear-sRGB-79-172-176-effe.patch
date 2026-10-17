@@ -1,0 +1,169 @@
+From 6d77c5f8e47c402d27fe5dab6bd35836047a557e Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 13:20:02 +0800
+Subject: [PATCH 5/5] lakeside v3.1: water tint = linear sRGB 79/172/176
+ (effect default + v2 fallback); LAKESIDE_FOG_MODE layered (default; LAYERED
+ top 1.5 range 30 atten 17) | linear60 (60->235 m) | off, colour 215/170/150;
+ web ?lakefog= override read once per load, guarded for WeChat; tests
+
+---
+ .../water/lakeside-water.effect               |  2 +-
+ .../scripts/region/LakesideBoardBackground.ts | 17 +++++++----
+ .../scripts/region/LakesideSceneData.ts       | 28 ++++++++++++++++---
+ tools/lakeside/test_lakeside_water_fog.cjs    | 24 +++++++++++++---
+ 4 files changed, 56 insertions(+), 15 deletions(-)
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+index 7926b5e..1f97298 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+@@ -8,7 +8,7 @@ CCEffect %{
+     - vert: lk-water-vs:vert
+       frag: lk-water-fs:frag
+       properties:
+-        waterTint:     { value: [0.06, 0.55, 1.0, 1.0], linear: true, editor: { type: color } }
++        waterTint:     { value: [0.0782, 0.4125, 0.4342, 1.0], linear: true, editor: { type: color } }
+         skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], linear: true, editor: { type: color } }
+         skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
+         skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 0dcc5ee..352c4fe 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -2,7 +2,7 @@ import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,
+ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+@@ -38,12 +38,17 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
+   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;applyFog();};
+  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
+- let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number}|null=null;
++ let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
++ const fogMode=lakesideFogModeFromEnv();/* read once per lakeside load */
+  const applyFog=()=>{const P=LAKESIDE_DIR_LIGHT_PARAMS,fog=(director.getScene() as any)?.globals?.fog;if(!P.fogEnabled||!fog)return;
+-  if(!savedFog)savedFog={enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd};
+-  const c=P.fogColorSrgb;fog.enabled=true;fog.type=0/* FogType.LINEAR (3.8.8 render-scene/scene/fog.ts) */;fog.fogColor=new Color(c[0],c[1],c[2],255);fog.fogStart=P.fogStart;fog.fogEnd=lakesideFogEnd(P);};
++  if(!savedFog)savedFog={enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd,top:fog.fogTop,range:fog.fogRange,atten:fog.fogAtten};
++  if(fogMode==='off'){fog.enabled=false;return;}
++  const c=P.fogColorSrgb;fog.fogColor=new Color(c[0],c[1],c[2],255);
++  if(fogMode==='layered'){const L=LAKESIDE_LAYERED_FOG;fog.type=3/* FogType.LAYERED (3.8.8 render-scene/scene/fog.ts: LINEAR 0, EXP 1, EXP_SQUARED 2, LAYERED 3) */;fog.fogTop=L.fogTop;fog.fogRange=L.fogRange;fog.fogAtten=L.fogAtten;}
++  else{fog.type=0/* FogType.LINEAR */;fog.fogStart=P.fogStart;fog.fogEnd=lakesideFogEnd(P);}
++  fog.enabled=true;};
+  const restoreFog=()=>{const f0=savedFog;savedFog=null;const fog=(director.getScene() as any)?.globals?.fog;if(!f0||!fog)return;
+-  fog.type=f0.type;fog.fogColor=f0.color;fog.fogStart=f0.start;fog.fogEnd=f0.end;fog.enabled=f0.enabled;};
++  fog.type=f0.type;fog.fogColor=f0.color;fog.fogStart=f0.start;fog.fogEnd=f0.end;fog.fogTop=f0.top;fog.fogRange=f0.range;fog.fogAtten=f0.atten;fog.enabled=f0.enabled;};
+  const restoreDir=()=>{restoreFog();const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
+   s0.light.node.setRotation(s0.rot);s0.light.color=s0.color;s0.light.illuminance=s0.illum;if(typeof s0.vis==='number')(s0.light as any).visibility=s0.vis;
+   if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}};
+@@ -89,7 +94,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+   };
+  }catch(error){dispose();throw error;}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 81a3a39..4114ad4 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -54,8 +54,8 @@ export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
+  *  - ambientSkyIllumToSun: proxy-tuned (VB: physical 0.139, v2 0.75) - device check.
+  *  - water*: lakeside-water.effect. Tint (VB/v2), Schlick F0 0.02 / power 5 (VB), reflection colour by reflect-vector elevation
+  *    across zenith / low sky / horizon = the r5h3 sky ramp stops (VB), Blinn exponent 300 +-40% sin noise for a streak (VB 200–500).
+- *  - fog*: VB #FFCEA6, 45 m -> 130 m at max 0.4. Cocos LINEAR fog has no max amount, so the end is stretched to 45 + 85/0.4 =
+- *    257.5 m: identical amount up to 130 m (0.4 there), clouds beyond (to 163 m) reach ~0.55. Board 16–24 m, near shore <30 m: clear. */
++ *  - fog*: v3.1 sRGB 215/170/150; mode in LAKESIDE_FOG_MODE. linear60: 60 m -> 0.4 at 130 m; Cocos LINEAR has no max amount, so
++ *    the end is stretched to 60 + 70/0.4 = 235 m (clouds at ~163 m reach ~0.44). Board 16–24 m, near shore <30 m: clear. */
+ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   sunForward: [-0.4182, -0.3983, 0.8164] as const,
+   sunColorLinear: [1.0, 0.6, 0.32] as const,
+@@ -66,16 +66,36 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterGlbs: ['LK_lake.glb'] as const,
+   waterMaterialPath: 'water/lakeside-water',
+-  waterTintLinear: [0.06, 0.55, 1.0] as const,
++  waterTintLinear: [0.0782, 0.4125, 0.4342] as const, // v3.1: linear of sRGB 79/172/176 (r5h3 water vertex-colour mean); Fresnel gives the blue
+   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85, waterSkyStrength: 1.0,
+   waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
+   waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
+   waterSpecExponent: 300, waterSpecNoise: 0.4, waterSpecIntensity: 1.6,
+   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
+-  fogEnabled: true, fogColorSrgb: [255, 206, 166] as const, fogStart: 45, fogMaxAt: 130, fogMaxAmount: 0.4,
++  fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
+ });
+ /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
++/** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
++ *  mountains (LK_far_hills y -2..40.8, far-shore trees from y~5.7) keep their upper halves deep green; 'linear60' = LINEAR from
++ *  60 m (same end logic: 0.4 at 130 m -> end 60+70/0.4 = 235 m); 'off' = no fog. Colour sRGB 215/170/150 for both.
++ *  Web builds can override once per lakeside load with ?lakefog=layered|linear60|off (no rebuild); WeChat has no location -> constant. */
++export type LakesideFogMode = 'layered' | 'linear60' | 'off';
++export const LAKESIDE_FOG_MODE: LakesideFogMode = 'layered';
++/** LAYERED: Cocos 3.8.8 LayeredFog(): camera (y 13.2) above fogTop -> density ~ (2D/fogAtten)*(fogTop-y)/fogRange for low slabs, so it grows
++ *  with horizontal distance D and with depth below fogTop. top 1.5 m = just above water/far shore (0..0.3 m), range 30 / atten 17:
++ *  water at the far shore (~77 m) 0.36, lake end (100 m) 0.44, anything above 1.5 m none; board water (18-24 m) ~0.10-0.13. */
++export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 1.5, fogRange: 30, fogAtten: 17 });
++export function lakesideFogMode(search?: string | null, fallback: LakesideFogMode = LAKESIDE_FOG_MODE): LakesideFogMode {
++  const m = /[?&]lakefog=([a-z0-9]+)/.exec(search || '');
++  return m && (m[1] === 'layered' || m[1] === 'linear60' || m[1] === 'off') ? m[1] : fallback;
++}
++/** Reads window.location.search only when it exists (web); WeChat mini-game -> null -> constant. Never throws. */
++export function lakesideFogModeFromEnv(): LakesideFogMode {
++  let q: string | null = null;
++  try { const w: any = typeof window !== 'undefined' ? window : null; q = w && w.location && typeof w.location.search === 'string' ? w.location.search : null; } catch { q = null; }
++  return lakesideFogMode(q);
++}
+ export function lakesideFogEnd(p: { fogStart: number; fogMaxAt: number; fogMaxAmount: number } = LAKESIDE_DIR_LIGHT_PARAMS): number { return p.fogStart + (p.fogMaxAt - p.fogStart) / p.fogMaxAmount; }
+ export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
+ const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index d0ca1a9..33952ad 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -9,8 +9,8 @@ assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.5457,0.1441]);
+ assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
+ assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
+ assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise>0);
+-assert.deepEqual([...P.fogColorSrgb],[255,206,166]);assert.equal(P.fogStart,45);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
+-const end=D.lakesideFogEnd();assert.equal(end,257.5);
++assert.deepEqual([...P.fogColorSrgb],[215,170,150]);assert.equal(P.fogStart,60);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
++const end=D.lakesideFogEnd();assert.equal(end,235);
+ const amount=d=>Math.min(1,Math.max(0,(d-P.fogStart)/(end-P.fogStart)));assert(Math.abs(amount(130)-0.4)<1e-9);
+ // board / near shore clear: farthest board corner and near-shore props are < fogStart from the board camera
+ const cam=[0,13.2,26.5],B=D.LAKESIDE_BOARD_BOUNDS,dist=p=>Math.hypot(p[0]-cam[0],p[1]-cam[1],p[2]-cam[2]);
+@@ -35,6 +35,22 @@ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTAN
+ const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
+ assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\);water\.copy\(waterAsset\);/.test(bg)&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
+ assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
+-assert(/fog\.enabled=true;fog\.type=0/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
+-assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.enabled=f0\.enabled;/.test(bg));
++assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
++assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
++// v3.1 tint = linear sRGB 79/172/176 in params and effect default; fallback uses the same param
++const lin=c=>+(((c/255+.055)/1.055)**2.4).toFixed(4);assert.deepEqual([...P.waterTintLinear],[79,172,176].map(lin));
++assert(/waterTint:\s+\{ value: \[0\.0782, 0\.4125, 0\.4342, 1\.0\]/.test(fx));assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));
++// fog modes + URL override (guarded for WeChat)
++assert.equal(D.LAKESIDE_FOG_MODE,'layered');
++assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');
++assert.equal(D.lakesideFogMode('?lakefog=bogus'),'layered');assert.equal(D.lakesideFogMode(null),'layered');assert.equal(D.lakesideFogMode(''),'layered');
++assert.equal(typeof window,'undefined');assert.equal(D.lakesideFogModeFromEnv(),'layered','no window (WeChat) -> constant');
++global.window={location:{search:'?lakefog=linear60'}};assert.equal(D.lakesideFogModeFromEnv(),'linear60');
++global.window={get location(){throw new Error('x');}};assert.equal(D.lakesideFogModeFromEnv(),'layered','throwing location tolerated');delete global.window;
++assert(/const fogMode=lakesideFogModeFromEnv\(\);/.test(bg)&&/if\(fogMode==='off'\)\{fog\.enabled=false;return;\}/.test(bg));
++// layered: slab above water, below mountains/trees; fog factor per 3.8.8 LayeredFog()
++const Lf=D.LAKESIDE_LAYERED_FOG;assert(Lf.fogTop>0.3&&Lf.fogTop<5.7&&Lf.fogTop<cam[1]);
++const lay=(Dh,y)=>{if(y>=Lf.fogTop)return 0;const dD=Dh/Lf.fogAtten*2,dY=(Lf.fogTop-y)/Lf.fogRange*2;return 1-Math.exp(-Math.sqrt(1+(dD/dY)**2)*dY*dY/2);};
++assert(lay(77,0)>0.3&&lay(77,0)<0.45&&lay(20,0)<0.15&&lay(85,2)===0);
++assert(/fog\.fogTop=L\.fogTop;fog\.fogRange=L\.fogRange;fog\.fogAtten=L\.fogAtten;/.test(bg));
+ console.log('lakeside water+fog OK fogEnd='+end);
+-- 
+2.47.3
+

@@ -1,0 +1,167 @@
+{
+  "screenCaptureAlreadyAuthorized" : true,
+  "windows" : [
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR6MinimalControlE",
+      "kCGWindowNumber" : 19678,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR6MinimalControlF",
+      "kCGWindowNumber" : 19674,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR6AudioNoEnhanceD",
+      "kCGWindowNumber" : 19623,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR6Audio",
+      "kCGWindowNumber" : 19585,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR5PlayableE2Fix",
+      "kCGWindowNumber" : 19286,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR5Validation",
+      "kCGWindowNumber" : 19271,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR5Integration",
+      "kCGWindowNumber" : 19164,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR5Integration",
+      "kCGWindowNumber" : 18609,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    },
+    {
+      "kCGWindowAlpha" : 1,
+      "kCGWindowBounds" : {
+        "Height" : 846,
+        "Width" : 1250,
+        "X" : 110,
+        "Y" : 33
+      },
+      "kCGWindowIsOnscreen" : true,
+      "kCGWindowLayer" : 0,
+      "kCGWindowMemoryUsage" : 2432,
+      "kCGWindowName" : "ForestWorldR5Integration",
+      "kCGWindowNumber" : 18543,
+      "kCGWindowOwnerName" : "微信开发者工具",
+      "kCGWindowOwnerPID" : 47759,
+      "kCGWindowSharingState" : 1,
+      "kCGWindowStoreType" : 1
+    }
+  ]
+}

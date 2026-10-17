@@ -1,0 +1,55 @@
+{
+ "B5.1": {
+  "doorKeyT": 2.5409,
+  "exitSeconds": 10.342,
+  "totalT": 12.883333333333333,
+  "peakSpeed": [
+   3.332,
+   8.833
+  ],
+  "smoothedMaxAccel": 2.324,
+  "smoothedMaxJerk": 13.468,
+  "rawMaxAccelAfterDoor": 2.466,
+  "rawMaxJerkAfterDoor": 49.41,
+  "accel8to10": [
+   1.653,
+   2.324
+  ],
+  "jerk8to10max": 13.468,
+  "kinkFrames": [
+   [
+    3.7,
+    11.49
+   ],
+   [
+    3.717,
+    12.36
+   ],
+   [
+    3.733,
+    10.07
+   ]
+  ],
+  "kinkCount": 3
+ },
+ "B5.2": {
+  "doorKeyT": 2.5409,
+  "exitSeconds": 34.142,
+  "totalT": 36.68333333333333,
+  "peakSpeed": [
+   1.838,
+   14.433
+  ],
+  "smoothedMaxAccel": 1.33,
+  "smoothedMaxJerk": 11.364,
+  "rawMaxAccelAfterDoor": 1.536,
+  "rawMaxJerkAfterDoor": 48.6,
+  "accel8to10": [
+   0.218,
+   0.783
+  ],
+  "jerk8to10max": 11.364,
+  "kinkFrames": [],
+  "kinkCount": 0
+ }
+}

@@ -1,0 +1,60 @@
+{
+  "version": "0008v3",
+  "token": "e03d7b4b5ac3b022",
+  "installedAt": 1791590807675,
+  "heartbeat": true,
+  "canaryAtBoot": true,
+  "wrapped": [
+    "error",
+    "warn",
+    "log",
+    "info"
+  ],
+  "stillWrapped": [
+    "error",
+    "warn",
+    "log",
+    "info"
+  ],
+  "onErrorRegistered": true,
+  "onUnhandledRejectionRegistered": true,
+  "installErrors": [],
+  "dropped": 0,
+  "errors": [
+    {
+      "t": 1791590807676,
+      "level": "error",
+      "msg": "[QF-AUDIT-CANARY] e03d7b4b5ac3b022"
+    },
+    {
+      "t": 1791590808177,
+      "level": "error",
+      "msg": "[QF-AUDIT-CANARY-LATE] e03d7b4b5ac3b022"
+    },
+    {
+      "t": 1791590808177,
+      "level": "error",
+      "msg": "[QF-AUDIT-CANARY-LATE] e03d7b4b5ac3b022 TypeError: real error appended"
+    }
+  ],
+  "warns": [],
+  "logs": [
+    {
+      "t": 1791590807675,
+      "level": "log",
+      "msg": "[QF-AUDIT-HEARTBEAT] e03d7b4b5ac3b022"
+    },
+    {
+      "t": 1791590807676,
+      "level": "log",
+      "msg": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+    },
+    {
+      "t": 1791590808177,
+      "level": "log",
+      "msg": "[QF-AUDIT-HEARTBEAT-LATE] e03d7b4b5ac3b022"
+    }
+  ],
+  "onError": [],
+  "unhandled": []
+}

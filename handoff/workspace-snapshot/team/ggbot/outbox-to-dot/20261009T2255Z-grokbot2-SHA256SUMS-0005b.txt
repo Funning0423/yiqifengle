@@ -1,0 +1,7 @@
+# SHA256 for 20261009T2255Z-grokbot2-AUDIO-0005b-v1.zip and its inner files (GGbot AUDIO-0005b v1)
+# zip:
+87bf8268a11c9f0622c60256fe05f911498defb6a3c0aaf41512cac866de0378  20261009T2255Z-grokbot2-AUDIO-0005b-v1.zip
+# inner files (paths inside zip):
+18667c7e0e0330efb1d3b073dca703c5de78d1e8862d81117d44b776abf8e8bd  0001-0005b-GameAudio-v0.3.1-interrupt-suspend-Voice-Bot-o.patch
+5cfc89cbc89d163862072617e701581111f0520f243160e26c0e86d1cfa2997b  0005b-combined-vs-0005.diff
+4930620e753fa3278e6861d18de6c2a080d4499d17766132399fae4512887fd5  README-0005b.md

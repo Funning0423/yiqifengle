@@ -1,0 +1,156 @@
+From a94a66efb280ad11a6cf0d12ef0494d387b0cd00 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 15:55:15 -0400
+Subject: [PATCH 08/10] exit-cam B5.5: ~20 s, S-curve retime (from 3.6 s, ~3 s
+ ease-in / ~3.3 s ease-out, constant cruise), peak 4.52 m/s, max accel 2.57
+ const / 2.66 real-walk, followTau 0.29, heightRampOut .4, heightShare .62;
+ clearance 1.256 m; tests: peak cap 4.7, accel cap 3
+
+---
+ .../assets/scripts/world-r1/CameraPose.ts     |  2 +-
+ .../scripts/world-r1/FirstsliceRoutes.ts      | 26 ++++++++++++++++---
+ .../scripts/world-r1/RegionCameraData.ts      |  6 ++---
+ .../scripts/world-r1/WorldFlowComponent.ts    |  2 +-
+ tools/camera-frame-test/flow_sim.cjs          |  2 +-
+ .../camera-frame-test/test_camera_frames.cjs  |  2 +-
+ 6 files changed, 29 insertions(+), 11 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/world-r1/CameraPose.ts b/creator-build-project/assets/scripts/world-r1/CameraPose.ts
+index 541181c..84b32e5 100644
+--- a/creator-build-project/assets/scripts/world-r1/CameraPose.ts
++++ b/creator-build-project/assets/scripts/world-r1/CameraPose.ts
+@@ -97,7 +97,7 @@ export function sampleLookAtPath(path: readonly LookAtPose[], progress: readonly
+  * - easeIn / easeOut: fraction of the track time used to accelerate from / decelerate to zero speed. C2 time remap
+  *   (velocity AND acceleration continuous at the joins); the end pose is still reached exactly at p=1.
+  */
+-export type TrackOptions = Readonly<{ interpolation?: 'linear' | 'pchip'; easeIn?: number; easeOut?: number }>;
++export type TrackOptions = Readonly<{ interpolation?: 'linear' | 'pchip'; easeIn?: number; easeOut?: number; /** createProgressFollower tau (s) for distance-driven progress; default 0.25 */ followTauSeconds?: number }>;
+ /** C2 ease-in / linear / ease-out remap of [0,1] onto [0,1], f(0)=0, f(1)=1, f'(0)=0 if easeIn>0, f'(1)=0 if easeOut>0. */
+ export function remapProgress(p: number, o?: TrackOptions): number {
+   const x = Math.max(0, Math.min(1, p)); if (!o) return x;
+diff --git a/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts b/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
+index f4ef550..fe044c8 100644
+--- a/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
++++ b/creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts
+@@ -30,7 +30,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
+ }
+ type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{turn?:-1|1;shiftX?:number;hop?:number;rayTau?:number;straightM?:number;rayMps?:number;preTurnDeg?:number;minZ?:number;blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number;b5?:B5Opts}>;
+ /** B5 exit (运镜bot 2026-10-16): follow her, then one minimum-jerk rise. All times in seconds after the doorway key. */
+-type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean|number;cruiseRampIn?:number;nudge?:Readonly<{at:number;width:number;up:number;out?:number}>}>;
++type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean|number;cruiseRampIn?:number;heightRampOut?:number;retime?:Readonly<{geomSpan:number;easeIn:number;easeOut:number;from?:number}>;nudge?:Readonly<{at:number;width:number;up:number;out?:number}>}>;
+ type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
+ /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
+ function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
+@@ -126,10 +126,12 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
+     const unwrapNear=(a:number,ref:number)=>{while(a-ref>Math.PI)a-=2*Math.PI;while(a-ref<-Math.PI)a+=2*Math.PI;return a;};
+     const bf=unwrapNear(cf.b,c0.b);let b3=unwrapNear(c3.b,bf);const rightB=Math.atan2(rx,rz);
+     const passR=unwrapNear(rightB,bf);if(!(Math.min(bf,b3)<=passR&&passR<=Math.max(bf,b3)))b3+=b3<bf?2*Math.PI:-2*Math.PI;
++    const spanG=b.retime?Math.max(span,b.retime.geomSpan):span; // B5.5: path geometry is built on the geomSpan schedule, then re-timed onto span
+     const rr=b.cruiseRamp??0,eI=(x:number)=>x*x*x*x*(x*x-3*x+2.5),
+       ra0=b.cruiseRampIn??rr,tot=1-(ra0+rr)/2,ez=(u:number)=>{if(!(rr>0))return s5(u);const x=Math.max(0,Math.min(1,u));return (x<ra0?ra0*eI(x/ra0):x>1-rr?tot-rr*eI((1-x)/rr):ra0*.5+(x-ra0))/tot;}; // smooth-trapezoid speed profile (s5-shaped ramp-in ra0, ramp-out rr): peak = mean/tot
+-    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=ez((tau-b.riseAt)/(span-b.riseAt)),wb=ez((tau-b.riseAt)/((span-b.riseAt)*b.turnShare));
+-      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=ez((tau-b.riseAt)/((span-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
++    const hR=b.heightRampOut??rr,totH=1-(ra0+hR)/2,ezH=(u:number)=>{if(!(hR>0))return ez(u);const x=Math.max(0,Math.min(1,u));return (x<ra0?ra0*eI(x/ra0):x>1-hR?totH-hR*eI((1-x)/hR):ra0*.5+(x-ra0))/totH;}; // height channel: own (longer) ramp-out so the end of the rise is a gentle bend
++    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=ez((tau-b.riseAt)/(spanG-b.riseAt)),wb=ez((tau-b.riseAt)/((spanG-b.riseAt)*b.turnShare));
++      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=ezH((tau-b.riseAt)/((spanG-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
+       let p:Vec=[h[0]+Math.sin(be)*ra,yy,h[2]+Math.cos(be)*ra];
+       if(b.cartesian){ // straight-line (Cartesian) offset blend follow -> island: shortest lens path, stays on her right because both ends do
+         const bF=c0.b+(bf-c0.b)*wS,rF=c0.r+(cf.r-c0.r)*wS,ox=Math.sin(bF)*rF,oz=Math.cos(bF)*rF,ex=Math.sin(c3.b)*c3.r,ez2=Math.cos(c3.b)*c3.r;
+@@ -151,8 +153,24 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
+     const cP=corr([d0.position,d1.position,d2.position],[r0.p,r1.p,r2.p]),cT=corr([d0.target,d1.target,d2.target],[r0.tg,r1.tg,r2.tg]);
+     const fade=(tau:number)=>{const g=1-s5(tau/b.matchSeconds);return g;};
+     const add=(v:Vec,c:{e0:number[];dv:number[];da:number[]},tau:number):Vec=>{const g=fade(tau);return [0,1,2].map(k=>v[k]+(c.e0[k]+c.dv[k]*tau+.5*c.da[k]*tau*tau)*g) as unknown as Vec;};
+-    const atTau=(tau:number):Look=>{if(tau>=span-1e-9)return {position:[...island.position] as unknown as Vec,target:[...island.target] as unknown as Vec,fovVerticalDeg:f1};
++    const atTauG=(tau:number):Look=>{if(tau>=spanG-1e-9)return {position:[...island.position] as unknown as Vec,target:[...island.target] as unknown as Vec,fovVerticalDeg:f1};
+       const r=raw(tau);return {position:add(r.p,cP,tau),target:add(r.tg,cT,tau),fovVerticalDeg:r.fov};};
++    /** B5.5 retime: same lens path (atTauG over [0,spanG]) re-timed by arc length onto [0,span] with an S-curve speed
++     *  profile: v0 (the door key speed) -> smootherstep ramp over easeIn -> constant cruise -> smootherstep ramp to rest over easeOut.
++     *  Peak accel = 1.875*dv/ease, jerk continuous; cruise speed solved so the arc length lands exactly on the end pose. */
++    const atTau=(()=>{if(!b.retime)return atTauG;
++      const N=Math.max(400,Math.ceil(spanG*240)),TG:number[]=[],SG:number[]=[];let prev=atTauG(0).position,acc=0;
++      for(let i=0;i<=N;i++){const tg=spanG*i/N,p=atTauG(tg).position;if(i)acc+=Math.hypot(p[0]-prev[0],p[1]-prev[1],p[2]-prev[2]);TG.push(tg);SG.push(acc);prev=p;}
++      // identity (original timing, she is still followed) until `from`, then the S-curve on the remaining arc
++      const F0=Math.max(0,Math.min(span*.5,b.retime.from??0)),iF=Math.round(F0/spanG*N),sF=SG[iF],tF=TG[iF],v0=iF<N?(SG[iF+1]-sF)/(TG[iF+1]-tF):0;
++      const L=acc-sF,R=span-F0,Ei=Math.min(b.retime.easeIn,R*.45),Eo=Math.min(b.retime.easeOut,R*.45);
++      const vc=(L-Ei*v0/2)/(R-Ei/2-Eo/2);if(!(vc>0))throw Error('B5 retime: span too short');
++      const iS5=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*t*(t*(t-3)+2.5);}; // integral of s5 on [0,x]
++      const sOf=(t:number)=>{if(t<=0)return 0;if(t<Ei)return v0*t+(vc-v0)*Ei*iS5(t/Ei);const sI=Ei*(v0+vc)/2;
++        if(t<R-Eo)return sI+vc*(t-Ei);const u=(t-(R-Eo))/Eo;return Math.min(L,sI+vc*(R-Eo-Ei)+vc*Eo*(Math.min(1,u)-iS5(u)));};
++      const tgOf=(s1:number)=>{const s0=s1+sF;if(s0<=0)return 0;if(s0>=acc)return spanG;let lo=0,hi=N;while(hi-lo>1){const m=(lo+hi)>>1;if(SG[m]<s0)lo=m;else hi=m;}
++        const d=SG[hi]-SG[lo];return TG[lo]+(d>1e-12?(s0-SG[lo])/d:0)*(TG[hi]-TG[lo]);};
++      return (tau:number):Look=>tau<=F0?atTauG(tau*tF/(F0||1)):tau>=span-1e-9?atTauG(spanG):atTauG(tgOf(sOf(tau-F0)));})();
+     const tOfQ=(q:number)=>invertProgress(q,track)*T;
+     const poseQ=(q:number):Look=>q<=qCrossEnd?doorAtS(SOfQ(q)):atTau(tOfQ(q)-tC);
+     const nS=Math.ceil(span*60);for(let j=1;j<=nS;j++){const t=tC+span*j/nS,q=j===nS?1:qOfT(t);push(poseQ(q),q);}
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+index 4251c5f..a7409aa 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+@@ -137,7 +137,7 @@ export const TRANSITION_CAMERA = Object.freeze({
+     homeToDoor: { interpolation: 'pchip', easeIn: .3, easeOut: .3 },
+     standTurn: { interpolation: 'pchip', easeIn: .35, easeOut: .12 },
+     toDoor: { interpolation: 'pchip', easeIn: .15, easeOut: .15 },
+-    outbound: { interpolation: 'pchip', easeIn: .02, easeOut: .11 },
++    outbound: { interpolation: 'pchip', easeIn: .02, easeOut: .11, followTauSeconds: 0.29 },
+     inbound: { interpolation: 'pchip', easeIn: .35, easeOut: .08 },
+     toSeat: { interpolation: 'pchip', easeIn: .2, easeOut: .2 },
+   },
+@@ -189,14 +189,14 @@ export const TRANSITION_CAMERA = Object.freeze({
+    *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
+    *  frontalDeg: wind reaches 1 the first time the lens is within this many
+    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
+-  crane: { settleSeconds: 22,
++  crane: { settleSeconds: 11.33,
+     pace: { sampleMetres: 0.05, rampSeconds: 1.03, cruiseMps: 7,
+       depart: { turn: 1, straightM: 0.45, rayMps: 1.15, blendMetres: 0.5, aimDeg: 22, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
+       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36,
+       /** B5 (运镜bot 2026-10-16, Funning rejected B4: mid-way surge + abrupt lift). Follow her at walking pace, then ONE
+        *  minimum-jerk (smootherstep) rise from her right to cameraIsland; all seconds after the doorway key. */
+       /* Rollback to B4: delete this b5 entry (depart above is the B4 arc). */
+-      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.6, riseAt: 1.2, side: 2.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.52, cruiseRamp: 0.15, cartesian: 1, cruiseRampIn: 0.3, nudge: { at: 4.8, width: 4.5, up: 0.35 } } } },
++      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.6, riseAt: 1.2, side: 2.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.62, cruiseRamp: 0.15, cartesian: 1, cruiseRampIn: 0.3, heightRampOut: 0.4, nudge: { at: 4.8, width: 4.5, up: 0.35 }, retime: { geomSpan: 28.142, easeIn: 3, easeOut: 3.3, from: 3.6 } } } },
+   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
+    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when
+    *  the exit arc first faces her -> held while she stays in front -> eases to exactly 0 when the camera settles on
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 7af45f2..00a0460 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -400,7 +400,7 @@ export class WorldFlowComponent extends Component {
+           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
+           // onSample (wind channel): eased key progress of each written sample.
+           const tick=(v:number)=>{const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
+-          if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds);return this.run(seconds,t,p=>tick(follow(p,progress())));},
++          if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds,options?.followTauSeconds??0.25);return this.run(seconds,t,p=>tick(follow(p,progress())));},
+         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
+         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
+       };
+diff --git a/tools/camera-frame-test/flow_sim.cjs b/tools/camera-frame-test/flow_sim.cjs
+index 2c93667..9bc9f69 100644
+--- a/tools/camera-frame-test/flow_sim.cjs
++++ b/tools/camera-frame-test/flow_sim.cjs
+@@ -32,7 +32,7 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
+     animateCamera:(path,seconds,t,options,progress,onSample)=>{const tr=C.createCameraTrack(cam,path,'sim.animateCamera',options);log('track',{keys:path.length,seconds,options:options||null,byDistance:!!progress});
+       // mirrors WorldFlowComponent: CameraPose.createProgressFollower (smoothed distance correction, monotone, ends on 1)
+       const tick=v=>{const e=tr.tick(v);if(onSample&&e>=0)onSample(e);};
+-      if(!progress)return runJob(seconds,t,tick);const follow=C.createProgressFollower(seconds);return runJob(seconds,t,p=>tick(follow(p,progress())));},
++      if(!progress)return runJob(seconds,t,tick);const follow=C.createProgressFollower(seconds,options?.followTauSeconds??0.25);return runJob(seconds,t,p=>tick(follow(p,progress())));},
+     // T5 133018c contract: clamp 0..1, effective only with the interior view on (else false / get 0); linear cancellable blend.
+     setRoomLightWeight(w){if(!world.layers?.interior||!Number.isFinite(w))return false;world.weight=Math.max(0,Math.min(1,w));log('weight',w);return true;},
+     getRoomLightWeight:()=>world.layers?.interior?world.weight:0,
+diff --git a/tools/camera-frame-test/test_camera_frames.cjs b/tools/camera-frame-test/test_camera_frames.cjs
+index 7614d67..1f74475 100644
+--- a/tools/camera-frame-test/test_camera_frames.cjs
++++ b/tools/camera-frame-test/test_camera_frames.cjs
+@@ -229,7 +229,7 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
+   // then rises in one smooth ease. Checked on BOTH clocks (constant walk here, real walk driver below):
+   // peak speed <= EXIT_LIMITS.peakMps, smoothed |accel| / |jerk| caps (no spikes/kinks), and the lens on her right side
+   // (lateral offset on her right axis >= -EXIT_LIMITS.leftToleranceM). No cruise band, no door-angle condition.
+-  const EXIT_LIMITS={peakMps:2.6,clearM:1.1,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
++  const EXIT_LIMITS={peakMps:4.7,clearM:1.1,accel:3.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
+   const exitKin=(frames,dtE,tFrom)=>{const ex=frames.filter(f=>f.state==='crossing-out'&&f.t>=tFrom-.5);const n=ex.length,h=EXIT_LIMITS.smoothFrames>>1;
+     const w=[];for(let k=-h;k<=h;k++){let c=1;for(let q=0;q<k+h;q++)c=c*(2*h-q)/(q+1);w.push(c);}const ws=w.reduce((p,q)=>p+q,0);
+     const P=ex.map((f,i)=>{let x=[0,0,0];for(let k=-h;k<=h;k++){const g=ex[Math.max(0,Math.min(n-1,i+k))].cam.position;for(let c=0;c<3;c++)x[c]+=g[c]*w[k+h]/ws;}return x;});
+-- 
+2.47.3
+

@@ -1,0 +1,238 @@
+{
+  "tool": "wechat_first_open_audit.cjs",
+  "version": "0008-v4",
+  "runId": "20261010T013502426Z-dc1e",
+  "startedAt": "2026-10-10T01:35:02.426Z",
+  "host": {
+    "platform": "linux",
+    "node": "v24.19.0"
+  },
+  "dryRun": true,
+  "scope": "DRY_RUN_FAKE_CLI — exercises the script only; NOT evidence of WeChat DevTools behaviour",
+  "status": "PASS",
+  "reason": "default: 0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+  "variants": [
+    {
+      "role": "verdict",
+      "variant": "default",
+      "projectDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default",
+      "projectname": "QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default",
+      "port": 42000,
+      "steps": {
+        "originalProjectname": "review",
+        "finalizer": {
+          "path": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+          "sha256": "de7cd7536398b0cc39733bc0ea609c341e4d50f9a5f98804baf9f5df5dbf6d79",
+          "exit": 0,
+          "stdout": "{\"output\":\"/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default\",\"compileType\":\"game\",\"emptyCompileConditionsRemoved\":true,\"enhancementDisabled\":true,\"removedCondition\":null,\"changed\":true,\"action\":\"LOCAL_CONFIG_ONLY\"}",
+          "stderr": ""
+        },
+        "removedConditionReportedByFinalizer": null,
+        "shimInjected": true,
+        "pingResult": "32e81b8673bb69e1",
+        "screenshotError": "fake screenshot unavailable",
+        "cliClose": {
+          "label": "close",
+          "args": [
+            "close",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default"
+          ],
+          "pid": 48,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 52,
+          "lines": []
+        },
+        "cliLaunch": {
+          "label": "auto",
+          "args": [
+            "auto",
+            "--project",
+            "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default",
+            "--auto-port",
+            "42000"
+          ],
+          "pid": 37,
+          "code": 0,
+          "signal": null,
+          "error": null,
+          "timedOut": false,
+          "terminated": false,
+          "exited": true,
+          "ms": 56,
+          "lines": []
+        }
+      },
+      "channels": {
+        "automatorConsole": {
+          "enabled": true,
+          "connected": true,
+          "messages": 2,
+          "lateHeartbeat": true,
+          "lateCanary": true
+        },
+        "automatorException": {
+          "enabled": true,
+          "events": 0
+        },
+        "shim": {
+          "readable": true,
+          "bootCanaryRecord": true,
+          "lateCanaryRecord": true,
+          "reportedCanaryAtBoot": true,
+          "wrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "stillWrapped": [
+            "error",
+            "warn",
+            "log",
+            "info"
+          ],
+          "onErrorRegistered": true,
+          "onUnhandledRejectionRegistered": true,
+          "dropped": 0,
+          "installErrors": []
+        },
+        "weappLog": {
+          "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/logs",
+          "protocol": "append-only UTF-8 text lines (README §4)",
+          "rootExistedAtStart": false,
+          "rootSeen": true,
+          "files": 1,
+          "lines": 5,
+          "ownLines": 5,
+          "ownBootCanary": true,
+          "ownLateCanary": true,
+          "bytes": 995,
+          "incomplete": []
+        },
+        "cli": {
+          "launchOk": true,
+          "launch": {
+            "code": 0,
+            "signal": null,
+            "error": null,
+            "timedOut": false,
+            "terminated": false,
+            "lines": 0
+          },
+          "closeOk": true
+        }
+      },
+      "errors": [],
+      "knownNotice": [],
+      "knownNoticeUnattributed": [],
+      "unattributed": [],
+      "warnings": [],
+      "missing": [],
+      "status": "PASS",
+      "reason": "0 errors (every event classified by one rule set), no app.json notice; boot canary (shim+WeappLog) and late canary (automator+shim) proven; own CLI exited 0; own window closed; LoadScene seen",
+      "token": "32e81b8673bb69e1",
+      "attributionMarkers": [
+        "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies/QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default",
+        "QFFirstOpen-20261010T013502426Z-dc1e-5dd02c-default",
+        "32e81b8673bb69e1"
+      ],
+      "mode": "auto",
+      "shim": {
+        "version": "0008v3",
+        "token": "32e81b8673bb69e1",
+        "installedAt": 1791596103556,
+        "heartbeat": true,
+        "canaryAtBoot": true,
+        "wrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "stillWrapped": [
+          "error",
+          "warn",
+          "log",
+          "info"
+        ],
+        "onErrorRegistered": true,
+        "onUnhandledRejectionRegistered": true,
+        "installErrors": [],
+        "dropped": 0,
+        "errors": [
+          {
+            "t": 1791596103557,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY] 32e81b8673bb69e1"
+          },
+          {
+            "t": 1791596104058,
+            "level": "error",
+            "msg": "[QF-AUDIT-CANARY-LATE] 32e81b8673bb69e1"
+          }
+        ],
+        "warns": [],
+        "logs": [
+          {
+            "t": 1791596103556,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT] 32e81b8673bb69e1"
+          },
+          {
+            "t": 1791596103557,
+            "level": "log",
+            "msg": "LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms"
+          },
+          {
+            "t": 1791596104058,
+            "level": "log",
+            "msg": "[QF-AUDIT-HEARTBEAT-LATE] 32e81b8673bb69e1"
+          }
+        ],
+        "onError": [],
+        "unhandled": []
+      },
+      "loadSceneSeen": true,
+      "unclassifiedInfo": []
+    }
+  ],
+  "config": {
+    "cli": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-replay/fake-cli.cjs",
+    "buildDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/build",
+    "workRoot": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/copies",
+    "finalizer": "/workspace/shared/game-first-open-0008-v4-review/extracted/20261010T0120Z-grokbot2-WECHAT-FIRST-OPEN-0008-v4/reference/finalize_wechat_local.12ef697+0008v2.cjs",
+    "cases": [
+      "default"
+    ],
+    "allowAppJsonNotice": false,
+    "mode": "auto",
+    "autoPort": 42000,
+    "settleMs": 0,
+    "cliDrainMs": 100,
+    "injectShim": true,
+    "logDir": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/healthy/logs",
+    "logPollMs": 20,
+    "logMaxBytes": 1000000,
+    "automatorModule": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-replay/fake-automator.cjs",
+    "globalQuit": "removed"
+  },
+  "sourceBuild": {
+    "projectConfigSha256": "44d16e30a37434fd804bceb7c7567d6947a291a92fe65e156f4f44af53f5ffbb",
+    "gameJsonSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "fileCount": 3
+  },
+  "islogin": {
+    "code": 0,
+    "output": "fake logged in"
+  },
+  "diagnostics": [],
+  "noticeSeenInDefault": false,
+  "finishedAt": "2026-10-10T01:35:04.165Z",
+  "ownChildrenRunningAtFreeze": 0
+}

@@ -1,0 +1,27 @@
+From eb8aa92458468a034d920a9cf22b59955ec0e165 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 19:08:53 +0800
+Subject: [PATCH 32/47] girl-frame: screen-right sign (was mirrored); verified
+ against the in-game meadow board capture
+
+390x844 meadow: her copy at x 99-123 pt, y 703-762 pt (Mac GPU board_bgonly.png shows her there, bottom-left on
+the path). With 3 tools she is under the 1st (left) tool icon; skycity she is beside the camera, off the left edge.
+---
+ tools/journey-integration/girl-frame.cjs | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/journey-integration/girl-frame.cjs b/tools/journey-integration/girl-frame.cjs
+index 2994ad1..eed8580 100644
+--- a/tools/journey-integration/girl-frame.cjs
++++ b/tools/journey-integration/girl-frame.cjs
+@@ -7,6 +7,7 @@ const C=RC.REGION_CAMERA.islandCharacter;const out=[];
+ for(const region of ['meadow','skycity'])for(const [w,h] of [[390,844],[414,896],[360,780],[375,667],[390,520]]){
+  const leg=legs.find(l=>l.id===(region==='meadow'?'04-05':'08-09')),L=routeLength(leg.path),root=sampleRoute(leg.path,L).slice(0,3),b=RB.regionBoardEnd(SRC[region],w/h);
+  const f=sub(b.target,b.position),fl=Math.hypot(...f);const F=f.map(x=>x/fl),R=[F[2],0,-F[0]].map((x,_,a)=>x/Math.hypot(a[0],a[2])),U=[R[1]*F[2]-R[2]*F[1],R[2]*F[0]-R[0]*F[2],R[0]*F[1]-R[1]*F[0]].map(x=>-x);
++ for(let k=0;k<3;k++)R[k]=-R[k];// screen right = F x up (the vector above was screen-left; U is built from it, so flip after)
+  const t=Math.tan(b.fovVerticalDeg*Math.PI/360),asp=w/h;const pts=[];
+  for(const dx of [-C.halfWidthM,C.halfWidthM])for(const dz of [-C.halfWidthM,C.halfWidthM])for(const y of [0,C.heightM]){const q=sub([root[0]+dx,root[1]+y,root[2]+dz],b.position),z=q[0]*F[0]+q[1]*F[1]+q[2]*F[2];pts.push(z>0?[(q[0]*R[0]+q[1]*R[1]+q[2]*R[2])/(z*t*asp),(q[0]*U[0]+q[1]*U[1]+q[2]*U[2])/(z*t),z]:null);}
+  const lay=BL.boardLayout(w,h,BL.boardSafeInsets(w,h));
+-- 
+2.47.3
+

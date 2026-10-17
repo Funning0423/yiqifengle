@@ -1,0 +1,204 @@
+{
+  "budget": {
+    "scene_triangles_max": 120000,
+    "draw_calls_max": 80,
+    "texture_edge_recommended_max": 1024,
+    "texture_edge_hard_max": 2048,
+    "active_texture_mib_max": 64,
+    "main_package_mb_max": 4.0,
+    "total_package_mb_max": 20.0
+  },
+  "reports": [
+    {
+      "file": "../../src/QIFENGLE-COCOS-5b449fa-SOURCE/creator-build-project/assets/resources/firstslice/combined_visual_m.glb",
+      "sha256": "158f0b42c534234ae46d68fc574cf84810900bb451d22c8b29656bcd6b28cf6c",
+      "bytes": 6225724,
+      "generator": "pygltflib@v1.16.5",
+      "extensionsUsed": [
+        "KHR_materials_specular",
+        "KHR_materials_unlit"
+      ],
+      "size_breakdown_bytes": {
+        "json": 152100,
+        "bin_total": 6073596,
+        "images": 378099,
+        "animations": 964592,
+        "geometry_and_other": 4730905
+      },
+      "counts": {
+        "meshes": 39,
+        "mesh_nodes": 24,
+        "skinned_nodes": 12,
+        "materials": 8,
+        "textures": 5,
+        "images": 3,
+        "animations": 1,
+        "skins": 12,
+        "nodes": 184
+      },
+      "triangles_scene": 74799,
+      "draw_calls_est": 24,
+      "checks": [
+        {
+          "item": "场景三角面",
+          "value": 74799,
+          "budget": "≤120000",
+          "result": "green"
+        },
+        {
+          "item": "draw call 估算（未合批：每个实例的每个 primitive 算 1 次）",
+          "value": 24,
+          "budget": "≤80",
+          "result": "green"
+        },
+        {
+          "item": "最大贴图边长",
+          "value": 1024,
+          "budget": "建议≤1024，上限2048",
+          "result": "green"
+        },
+        {
+          "item": "贴图显存估算 MiB（RGBA8+mip，未压缩）",
+          "value": 3.33,
+          "budget": "≤64",
+          "result": "green"
+        },
+        {
+          "item": "GLB 文件体积 MB（能否进主包）",
+          "value": 5.94,
+          "budget": "主包整体≤4.0",
+          "result": "red"
+        }
+      ],
+      "images": [
+        {
+          "index": 0,
+          "name": "env_palette_emissive_256",
+          "format": "png",
+          "width": 256,
+          "height": 256,
+          "file_bytes": 403,
+          "gpu_bytes_est": 349525,
+          "flag": "ok"
+        },
+        {
+          "index": 1,
+          "name": "env_palette_256",
+          "format": "png",
+          "width": 256,
+          "height": 256,
+          "file_bytes": 2412,
+          "gpu_bytes_est": 349525,
+          "flag": "ok"
+        },
+        {
+          "index": 2,
+          "name": "env_window_views_1024",
+          "format": "png",
+          "width": 1024,
+          "height": 512,
+          "file_bytes": 375284,
+          "gpu_bytes_est": 2796202,
+          "flag": "ok"
+        }
+      ],
+      "top_meshes": [
+        {
+          "mesh": "env_island_props_merged",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 26748
+        },
+        {
+          "mesh": "env_cloud_layer",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 7914
+        },
+        {
+          "mesh": "env_interior_props_merged",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 7707
+        },
+        {
+          "mesh": "env_lighthouse_ext",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 7609
+        },
+        {
+          "mesh": "env_sea_surface",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5688
+        },
+        {
+          "mesh": "env_interior_shell",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 5189
+        },
+        {
+          "mesh": "env_island_main",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 4312
+        },
+        {
+          "mesh": "env_prop_palm_young_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 924
+        },
+        {
+          "mesh": "env_lighthouse_door",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 844
+        },
+        {
+          "mesh": "env_prop_palm_tall_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 810
+        },
+        {
+          "mesh": "env_int_anim_small_props",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 782
+        },
+        {
+          "mesh": "env_sea_foam",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 720
+        },
+        {
+          "mesh": "env_prop_palm_lean_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 706
+        },
+        {
+          "mesh": "env_sky_dome",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 672
+        },
+        {
+          "mesh": "env_anim_turtle_01",
+          "instances": 1,
+          "primitives": 1,
+          "triangles_each": 644
+        }
+      ],
+      "notes": [
+        "静态分析，不等于 Cocos 导入结果或真机数据。",
+        "draw call 是未合批上限估算；同材质静态合批或 GPU instancing 后会更低。",
+        "Cocos 导入后包体以构建产物为准（导入会转成 .bin/.json，体积可能与 GLB 不同）。"
+      ]
+    }
+  ]
+}

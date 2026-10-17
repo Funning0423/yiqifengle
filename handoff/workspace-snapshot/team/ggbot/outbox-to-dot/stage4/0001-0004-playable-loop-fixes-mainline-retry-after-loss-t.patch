@@ -1,0 +1,207 @@
+From d92a45ae5fd457896350843b1781f6ecb68dcd7b Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Fri, 9 Oct 2026 16:15:45 -0500
+Subject: [PATCH] 0004: playable-loop fixes - mainline retry after loss, tool
+ drag-to-board, result buttons layout, R5 one-time first-clear reward (GGbot)
+
+---
+ assets/scripts/ManagedMobileBoardUI.ts        | 21 +++++++++--
+ assets/scripts/WorldIntegrationBoot.ts        | 15 +++++---
+ assets/scripts/world-r2/MainlineHost.ts       |  5 ++-
+ .../scripts/world-r2/R5FirstClearRewards.ts   | 35 +++++++++++++++++++
+ .../world-r2/R5FirstClearRewards.ts.meta      |  9 +++++
+ .../world-r2/WorldNativeComposition.ts        | 11 ++++++
+ 6 files changed, 89 insertions(+), 7 deletions(-)
+ create mode 100644 assets/scripts/world-r2/R5FirstClearRewards.ts
+ create mode 100644 assets/scripts/world-r2/R5FirstClearRewards.ts.meta
+
+diff --git a/assets/scripts/ManagedMobileBoardUI.ts b/assets/scripts/ManagedMobileBoardUI.ts
+index ae572f8..e496751 100644
+--- a/assets/scripts/ManagedMobileBoardUI.ts
++++ b/assets/scripts/ManagedMobileBoardUI.ts
+@@ -43,13 +43,30 @@ export class ManagedMobileBoardUI extends Component {
+     }
+     const steps=this.box('Moves',this.hud,0,0,58,42);const stepBadge=steps.addComponent(Graphics);stepBadge.fillColor=new Color('#153b3da6');stepBadge.roundRect(-29,-21,58,42,16);stepBadge.fill();this.drawIcon(this.box('Footstep',steps,-16,0,22,24),'steps');this.moves=this.text(steps,'',13,0,21,30);this.targets.moves=steps;
+     this.back=this.iconButton('back',this.root,()=>this.command('requestExit'));this.pause=this.iconButton('pause',this.root,()=>this.command(this.snapshot.state==='run.paused'?'resume':'pause'));
+-    for(let i=0;i<3;i++){const n=this.iconButton('slot',this.tray,()=>{if(this.managed){const r=this.managed.useTool(this.selected);if(!r.ok)this.status.string='暂不可操作 · '+r.reason;}else this.status.string='道具尚未开放';});this.tools.push(n);}
++    for(let i=0;i<3;i++)this.tools.push(this.toolSlot());
+     this.status=this.text(this.root,'',0,0,12,250);
+     this.stagePanel=this.box('NativeStageSelection',this.root,0,0,1,1);this.resultPanel=this.box('NativeResult',this.root,0,0,1,1);
+     this.layout();this.bind();if(!this.managed){game.on(Game.EVENT_HIDE,this.hide);game.on(Game.EVENT_SHOW,this.show);}view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
+     resources.load('ui/pieces',ImageAsset,(error,asset)=>{if(!isValid(this.node,true))return;if(error){console.error('Project piece atlas failed',error);return;}const texture=new Texture2D();texture.image=asset;for(let i=0;i<6;i++){const frame=new SpriteFrame();frame.texture=texture;frame.rect=new Rect(i%3*320,Math.floor(i/3)*320,320,320);this.frames.push(frame);}this.spriteReady=true;this.paint();});
+     if(!this.managed)(globalThis as any).__nativeBoard={snapshot:()=>this.controller.snapshot(),storage:()=>Array.from(this.values),coldReload:()=>this.coldReload(),hide:()=>this.hide(),show:()=>this.show(),fixture:()=>this.fixture,layout:()=>this.measureLayout(),scope:'Native Cocos UI; existing project art; disposable memory'};
+   }
++  /** GGbot fix-2: tool slots support both tap (tap a cell first, then the tool) and drag-from-tray onto a board cell. */
++  private toolDrag:{start:{x:number,y:number},moved:boolean}|null=null;private toolGhost:Node|null=null;
++  private useToolAt(index:number){if(!this.managed){this.status.string='道具尚未开放';return;}const r=this.managed.useTool(index);
++    if(!r.ok)this.status.string=r.reason==='no-stage-tool'?'本关没有可用道具':(index<0?'先选一个格子，或把道具拖到格子上':'暂不可操作 · '+r.reason);}
++  private cellAt(x:number,y:number){const d=this.layoutInfo;if(!d)return -1;const g=this.grid.worldPosition;const lx=x-d.width/2-g.x,ly=y-d.height/2-g.y;
++    const col=Math.round(lx/this.cell)+3,row=3-Math.round(ly/this.cell);if(Math.abs(lx)>this.cell*3.5||Math.abs(ly)>this.cell*3.5||col<0||col>6||row<0||row>6)return -1;return row*7+col;}
++  private moveGhost(x:number,y:number){const d=this.layoutInfo;if(!this.toolGhost){this.toolGhost=this.box('ToolDragGhost',this.root,0,0,40,40);const g=this.toolGhost.addComponent(Graphics);g.fillColor=new Color('#fff2cfcc');g.circle(0,0,16);g.fill();}
++    this.toolGhost.active=true;this.toolGhost.setWorldPosition(x-d.width/2,y-d.height/2,0);}
++  private endToolDrag(e:EventTouch){const d=this.toolDrag;this.toolDrag=null;if(this.toolGhost)this.toolGhost.active=false;if(!d)return;
++    if(this.snapshot?.state!=='run.ready'||this.snapshot?.readOnly){this.selected=-1;this.paint();return;}
++    if(!d.moved){this.useToolAt(this.selected);return;}
++    const p=e.getUILocation(),i=this.cellAt(p.x,p.y);this.selected=-1;this.paint();
++    if(i<0){this.status.string='把道具拖到棋盘格子上再松手';return;}this.useToolAt(i);}
++  private toolSlot(){const n=this.box('slot',this.tray,0,0,46,46);this.drawIcon(n,'slot',true);
++    n.on(Node.EventType.TOUCH_START,(e:EventTouch)=>{if(this.snapshot?.state!=='run.ready'||this.snapshot?.readOnly)return;const p=e.getUILocation();this.toolDrag={start:{x:p.x,y:p.y},moved:false};},this);
++    n.on(Node.EventType.TOUCH_MOVE,(e:EventTouch)=>{const d=this.toolDrag;if(!d)return;const p=e.getUILocation();if(!d.moved&&Math.hypot(p.x-d.start.x,p.y-d.start.y)<12)return;d.moved=true;this.moveGhost(p.x,p.y);const i=this.cellAt(p.x,p.y);if(i!==this.selected){this.selected=i;this.paint();}},this);
++    n.on(Node.EventType.TOUCH_END,(e:EventTouch)=>this.endToolDrag(e),this);n.on(Node.EventType.TOUCH_CANCEL,(e:EventTouch)=>this.endToolDrag(e),this);return n;}
+   private safeInsets(w:number,h:number){
+     const portrait=w<h*1.1;let top=portrait?62:12,bottom=portrait?34:21,left=portrait?0:44,right=left;
+     if(typeof document!=='undefined'){const css=getComputedStyle(document.documentElement);const read=(name:string)=>parseFloat(css.getPropertyValue(name))||0;top=Math.max(top,read('--safe-top'));bottom=Math.max(bottom,read('--safe-bottom'));left=Math.max(left,read('--safe-left'));right=Math.max(right,read('--safe-right'));}
+@@ -95,7 +112,7 @@ export class ManagedMobileBoardUI extends Component {
+     this.snapshot=s;if(s.visual?.kind)this.frameKinds.add(s.visual.kind);if(!this.managed)(globalThis as any).__forestLiveSnapshot=s;const book=['book.ready','stage.detail'].includes(s.state),result=s.state.startsWith('result.')||s.state==='run.unsaved'||s.state==='error.readonly';this.grid.active=!book&&!result;this.stagePanel.active=book;this.resultPanel.active=result;this.hud.active=!book;this.pause.active=!book&&!result;this.tray.active=!book&&!result;this.back.active=!book;
+     this.moves.string=s.active?String(s.active.moves):'';const goalKeys=s.provider==='mainline-v33'?(s.active?.goalOrder||[]):s.provider==='regional-r05'?Object.keys(s.active?.goals||{}):['beacons','moss','type5'];this.goalKeys=goalKeys;this.goalNodes.forEach((n,i)=>{n.active=i<goalKeys.length;if(goalKeys.length===4){const d=this.layoutInfo;if(d.safe.portrait){const step=Math.min(61,(d.width-134)/4);n.setPosition(-d.width/2+d.safe.left+72+step/2+i*step,d.height/2-d.safe.top-23);n.setScale(Math.min(1,step/60),1,1);}else{n.setScale(1,1,1);n.setPosition(-d.width/2+d.safe.left+58,99-i*53);}}else n.setScale(1,1,1);});this.tools.forEach((n,i)=>{n.active=s.provider!=='mainline-v33'||i===0;if(s.provider==='mainline-v33'&&i===0){this.drawIcon(n,'bomb',true);let l=n.getComponentInChildren(Label);if(!l)l=this.text(n,'',0,-28,12,110);l.string='局内炸弹 '+(s.active?.bombs??0);this.targets.bomb=n;}});this.goalLabels.forEach((l,i)=>l.string=String(s.active?.goals[goalKeys[i]]??0));this.status.string=s.uiStatus||'';this.drawIcon(this.pause,s.state==='run.paused'?'play':'pause',true);this.paint();
+     if(book){this.clearChildren(this.stagePanel);this.targets={moves:this.targets.moves};const stages=s.stages.filter((x:any)=>x.region==='tide').slice(0,3);stages.forEach((x:any,i:number)=>{const n=this.button(this.stagePanel,`${x.ordinal}  ${x.name}${x.record?'  \u2713':!x.unlocked?'  \u00b7':''}`,0,70-i*62,Math.min(290,this.layoutInfo.width-40),48,()=>{if(this.snapshot.active){this.status.string='\u8bf7\u5148\u7ee7\u7eed\u5f53\u524d\u65c5\u7a0b';return;}if(!this.command('selectStage',x.id).ok)return;this.command('startStage',x.id,{seed:x.id===this.fixture.stageId?this.fixture.seed:undefined,attemptId:'native-ui-'+(++this.attempt)});});this.targets['stage'+i]=n;});if(s.active)this.targets.resume=this.button(this.stagePanel,'\u7ee7\u7eed',0,-135,150,44,()=>this.command('resumeActive'));}
+-    if(result){delete this.targets.resultBack;delete this.targets.retry;this.clearChildren(this.resultPanel);const badge=this.box('ResultContrastBadge',this.resultPanel,0,57,172,114);const bg=badge.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-86,-57,172,114,18);bg.fill();bg.strokeColor=new Color('#fff2cf');bg.lineWidth=2;bg.roundRect(-86,-57,172,114,18);bg.stroke();this.text(this.resultPanel,s.active?.status==='won'?'\u2713':'\u00b7',0,78,44,120);this.text(this.resultPanel,String(s.active?.score||0),0,26,28,130);if(s.uiResultCaption){const caption=this.button(this.resultPanel,s.uiResultCaption,0,(s.state==='run.unsaved'||s.state==='result.unsaved')?-162:-110,Math.min(360,this.layoutInfo.width-30),42,()=>{});caption.children[0].getComponent(Label)!.fontSize=12;}this.targets.resultBack=this.button(this.resultPanel,'\u8fd4\u56de',0,-46,130,46,()=>this.command('requestExit'));if(s.state==='result.unsaved'||s.state==='run.unsaved')this.targets.retry=this.button(this.resultPanel,'\u91cd\u8bd5\u4fdd\u5b58',0,-104,150,44,()=>this.command('retrySave'));}
++    if(result){delete this.targets.resultBack;delete this.targets.retry;delete this.targets.replay;this.clearChildren(this.resultPanel);const badge=this.box('ResultContrastBadge',this.resultPanel,0,57,172,114);const bg=badge.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-86,-57,172,114,18);bg.fill();bg.strokeColor=new Color('#fff2cf');bg.lineWidth=2;bg.roundRect(-86,-57,172,114,18);bg.stroke();this.text(this.resultPanel,s.active?.status==='won'?'\u2713':'\u00b7',0,78,44,120);this.text(this.resultPanel,String(s.active?.score||0),0,26,28,130);if(s.uiResultCaption){const caption=this.button(this.resultPanel,s.uiResultCaption,0,(s.state==='run.unsaved'||s.state==='result.unsaved')?-162:-110,Math.min(360,this.layoutInfo.width-30),42,()=>{});caption.children[0].getComponent(Label)!.fontSize=12;}this.targets.resultBack=this.button(this.resultPanel,'\u8fd4\u56de',0,-46,130,46,()=>this.command('requestExit'));if(s.state==='result.unsaved'||s.state==='run.unsaved')this.targets.retry=this.button(this.resultPanel,'\u91cd\u8bd5\u4fdd\u5b58',0,-104,150,44,()=>this.command('retrySave'));else if(s.provider==='mainline-v33'&&s.active?.status==='lost'&&s.state==='result.saved')this.targets.replay=this.button(this.resultPanel,'\u518d\u8bd5\u4e00\u6b21',0,-170,150,44,()=>this.command('startStage',s.active.stageId,{}));}
+   }
+   private clearChildren(n:Node){for(const child of [...n.children]){child.removeFromParent();child.destroy();}}
+   private paint(){if(!this.root||!isValid(this.root,true)||!this.snapshot?.active)return;this.goalNodes.forEach((n,i)=>{const icon=n.getChildByName('Icon')!,art=icon.getChildByName('GoalPieceArt')!,sprite=art.getComponent(Sprite)!,key=this.goalKeys[i]||'';const piece=/^type[0-5]$/.test(key);art.active=piece;if(piece){icon.getComponent(Graphics)!.clear();sprite.sizeMode=Sprite.SizeMode.CUSTOM;sprite.spriteFrame=this.frames[Number(key.slice(4))]||null;}else this.drawIcon(icon,({beacons:'lamp',type5:'shell',roots:'roots',moss:'moss',pearls:'pearls',blooms:'blooms',relays:'relays'} as any)[key]||key);});this.cells.forEach((n,i)=>{const g=n.getComponent(Graphics)!;g.clear();const half=this.cell*.47;g.fillColor=new Color(this.selected===i?'#fff0b5dc':'#eff5e5bb');g.roundRect(-half,-half,half*2,half*2,Math.min(10,this.cell*.18));g.fill();const tile=this.snapshot.active.board[i],sprite=n.children[0].getComponent(Sprite)!;const marks=n.children[1].getComponent(Graphics)!;marks.clear();sprite.sizeMode=Sprite.SizeMode.CUSTOM;sprite.spriteFrame=tile?this.frames[tile.type%6]||null:null;n.children[0].getComponent(UITransform)!.setContentSize(this.cell*.88,this.cell*.88);
+diff --git a/assets/scripts/WorldIntegrationBoot.ts b/assets/scripts/WorldIntegrationBoot.ts
+index bfd8bfb..6831352 100644
+--- a/assets/scripts/WorldIntegrationBoot.ts
++++ b/assets/scripts/WorldIntegrationBoot.ts
+@@ -53,25 +53,32 @@ export class WorldIntegrationBoot extends Component {
+  }
+  private mountWorld(){const scene=director.getScene()!;this.applyMarkerMaterial();const camera=scene.getComponentsInChildren(Camera)[0];camera.visibility&=~Layers.Enum.UI_2D;this.error='';
+  const owner=new Node('IsolatedWorldComposition');scene.addChild(owner);this.composition=owner.addComponent(WorldNativeComposition);this.composition.firstsliceModel=this.model;this.composition.worldCamera=camera;this.composition.smokeFixture=this.smokeFixture;
+- (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Flow reference placeholder, NOT B/calibrated clothing.'};
++ (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),hostResult:()=>this.composition.lastHostReply(),r5FirstClear:()=>({status:this.composition.r5FirstClearStatus(),storage:this.composition.r5FirstClearStorage()}),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Flow reference placeholder, NOT B/calibrated clothing.'};
+  }
+  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
+  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
+  private async invoke(fn:()=>any){if(this.busy)return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok)this.error=({ 'stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;this.paintNavigation();}}
+  private createNavigation(){this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+  this.notice=this.label('流程参考占位 · 非新版B',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+- this.button('mainline','主线 · 开始 / 继续',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区挑战 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径 · 01 / 继续',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸 · 01 / 继续',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声 · 01 / 继续',()=>this.composition.enterRegion('sky'));this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.worldCommands().resume());}
++ this.button('mainline','主线 · 开始 / 继续',()=>this.composition.enterMainline());this.button('r5Reward','领取首通奖励',()=>this.composition.claimR5FirstClear());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区挑战 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径 · 01 / 继续',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸 · 01 / 继续',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声 · 01 / 继续',()=>this.composition.enterRegion('sky'));this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.worldCommands().resume());}
+  private label(text:string,x:number,y:number,size:number,w:number){const n=new Node('LabelPlate');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,size+10);const bg=n.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-w/2,-(size+10)/2,w,size+10,10);bg.fill();const t=new Node('VisibleLabel');t.layer=Layers.Enum.UI_2D;n.addChild(t);t.addComponent(UITransform).setContentSize(w,size+10);const l=t.addComponent(Label);l.string=text;l.fontSize=size;l.lineHeight=size+4;l.color=new Color('#fff2cf');l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;return l;}
+  private button(id:string,text:string,fn:()=>any){const n=new Node(id);n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);const g=n.addComponent(Graphics);g.fillColor=new Color('#123233');g.roundRect(-120,-23,240,46,16);g.fill();const l=this.label(text,0,0,17,230);const plate=l.node.parent!;plate.removeFromParent();n.addChild(plate);n.on(Node.EventType.TOUCH_END,()=>this.invoke(fn));this.controls.set(id,n);}
+  private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,f.height/2-130,0);let i=0;for(const [k,n]of this.controls){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);};
+  private navLayout(){const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();return {width:f.width,height:f.height,targets:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>[k,{x:n.worldPosition.x+f.width/2,y:f.height/2-n.worldPosition.y}])),targetRects:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>{const t=n.getComponent(UITransform)!;return [k,{x:n.worldPosition.x+f.width/2-t.width/2,y:f.height/2-n.worldPosition.y-t.height/2,width:t.width,height:t.height}]})),managedBoards:director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).filter(x=>x.node.isValid).length||0};}
++ /** GGbot fix-3: lay out only the visible mainline result buttons below the board result panel (its caption ends ~131px under
++  * the board centre, so the first button centre is never above centre-158), kept inside the screen on short phones. */
++ private placeResultButtons(d:any){const keys=['mainNext','chest','regionReward'].filter(k=>this.controls.get(k)!.active);if(!keys.length)return;
++  if(d.width>d.height){const w=Math.min(240,(d.width-40)/keys.length-10);keys.forEach((k,i)=>this.controls.get(k)!.setPosition((i-(keys.length-1)/2)*(w+10),d.boardCenter.y-172,0));return;}
++  const floor=-d.height/2+26,n=keys.length;let first=d.boardCenter.y-172,step=50;
++  if(n>1&&first-(n-1)*step<floor){first=Math.min(d.boardCenter.y-158,floor+(n-1)*step);if(first-(n-1)*step<floor)step=Math.max(46,(first-floor)/(n-1));}
++  keys.forEach((k,i)=>this.controls.get(k)!.setPosition(0,first-i*step,0));}
+  private paintNavigation(){let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;return;}this.ready=true;}
+  this.notice.node.parent!.active=s.stable!=='level';this.status.node.parent!.active=s.stable!=='level';this.status.string=this.error||({home:'主页 · 参考角色流程',island:'海岛 · 选择地区旅程'} as any)[s.state]||s.state;
+  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
+  for(const [k,n]of this.controls)n.active=k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='home'||['mainline','r4','tide','meadow','sky'].includes(k)?s.state==='island':false);
+  const islandIds=['mainline','r4','tide','meadow','sky','home'];if(s.state==='island'){const f=this.navLayout(),portrait=f.width<f.height;islandIds.forEach((k,i)=>this.controls.get(k)!.setPosition(portrait?0:(i%2-.5)*260,portrait?140-i*54:70-Math.floor(i/2)*60,0));}
+- if(b?.provider==='mainline-v33'&&board){const region=b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4));this.controls.get('regionReward')!.getComponentsInChildren(Label)[0].string=region?.claimed?'地区工具已领取':'领取地区工具';const chest=b.journey.chests?.find((x:any)=>x.level===b.active.level);this.controls.get('chest')!.getComponentsInChildren(Label)[0].string=chest?.opened?'本关宝箱已领取':'打开本关宝箱';const d=board.hostLayout(),base=d.boardCenter.y-172;['mainNext','chest','regionReward'].forEach((k,i)=>this.controls.get(k)!.setPosition(d.width>d.height?(i-1)*260:0,base-(d.width>d.height?0:i*50),0));}
+- if(registered&&board){const d=board.hostLayout();for(const k of ['next','claim']){const n=this.controls.get(k)!;n.setPosition(0,d.boardCenter.y+(d.width>d.height?-158:-172),0);}const owned=b.progress.claimedRegions.includes(b.active.region);this.controls.get('claim')!.getComponentsInChildren(Label)[0].string=owned?'地区印记已领取':'领取地区印记';}
++ if(b?.provider==='mainline-v33'&&board){const region=b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4));this.controls.get('regionReward')!.getComponentsInChildren(Label)[0].string=region?.claimed?'地区工具已领取':'领取地区工具';const chest=b.journey.chests?.find((x:any)=>x.level===b.active.level);this.controls.get('chest')!.getComponentsInChildren(Label)[0].string=chest?.opened?'本关宝箱已领取':'打开本关宝箱';this.placeResultButtons(board.hostLayout());}
++ {const fc=this.composition.r5FirstClearStatus(),n=this.controls.get('r5Reward')!;n.active=!!(registered&&board&&fc&&fc.rewards);if(n.active){n.getComponentsInChildren(Label)[0].string=fc!.claimed?'首通奖励已领取':'领取首通奖励';const d=board!.hostLayout();n.setPosition(d.width>d.height?260:0,d.boardCenter.y+(d.width>d.height?-158:-222),0);}}if(registered&&board){const d=board.hostLayout();for(const k of ['next','claim']){const n=this.controls.get(k)!;n.setPosition(0,d.boardCenter.y+(d.width>d.height?-158:-172),0);}const owned=b.progress.claimedRegions.includes(b.active.region);this.controls.get('claim')!.getComponentsInChildren(Label)[0].string=owned?'地区印记已领取':'领取地区印记';}
+ 
+  }
+  update(){if(!this.composition)return;this.paintNavigation();}
+diff --git a/assets/scripts/world-r2/MainlineHost.ts b/assets/scripts/world-r2/MainlineHost.ts
+index ebb8f78..87b6b95 100644
+--- a/assets/scripts/world-r2/MainlineHost.ts
++++ b/assets/scripts/world-r2/MainlineHost.ts
+@@ -10,7 +10,10 @@ export function openMainlineSession(options: {
+   const initial = controller.snapshot();
+   if (initial.readOnly) throw Error('Mainline storage requires recovery');
+   if (initial.active) {
+-    if (initial.active.stageId !== options.stageId) {
++    // GGbot fix-1: a finished attempt (lost, or won with its completion recorded) is not resumable; start a fresh attempt
++    // of the requested stage. An unrecorded win is kept so its save can be retried.
++    const finished = initial.active.status === 'lost' || (initial.active.status === 'won' && !!initial.result?.completionRecorded);
++    if (initial.active.stageId !== options.stageId || finished) {
+       const opened = controller.startStage(options.stageId, { seed: options.seed });
+       if (!opened.ok) throw Error('Preserved active mainline attempt: ' + opened.reason);
+     }
+diff --git a/assets/scripts/world-r2/R5FirstClearRewards.ts b/assets/scripts/world-r2/R5FirstClearRewards.ts
+new file mode 100644
+index 0000000..e3cc417
+--- /dev/null
++++ b/assets/scripts/world-r2/R5FirstClearRewards.ts
+@@ -0,0 +1,35 @@
++import { sys } from 'cc';
++/**
++ * GGbot fix-4 (Funning decision 2026-10-09): every R5 regional challenge stage grants a one-time first-clear reward.
++ * - Ledger key: <R5 namespace>forest-regional-r05-firstclear-v1 (same isolated namespace as R5 saves, survives cold start).
++ * - Reward content reuses the mainline chest table: R5 stage (region, ordinal) -> mainline level regionIndex*4 + ordinal-1,
++ *   read at runtime from the mainline journey snapshot (journey.chests[level].rewards). To change rewards, edit
++ *   rewardsFor() below (or replace it with a dedicated table); nothing else depends on the mapping.
++ * - Recording only: rewards are written to this ledger, not yet merged into the mainline inventory (that save format is
++ *   signed by the vendored progression module and is out of scope for this fix).
++ */
++export const R5_FIRSTCLEAR_KEY='forest-regional-r05-firstclear-v1';
++const REGION_INDEX:Record<string,number>={tide:0,meadow:1,sky:2};
++type Ledger={version:1;claimed:Record<string,{at:number;rewards:any[]}>};
++export function createR5FirstClearRewards(namespace:string,mainlineChests:()=>any[]){
++  const key=namespace+R5_FIRSTCLEAR_KEY;
++  const read=():Ledger|null=>{const raw=sys.localStorage.getItem(key);if(!raw)return {version:1,claimed:{}};
++    try{const v=JSON.parse(raw);return v&&v.version===1&&v.claimed&&typeof v.claimed==='object'?v:null;}catch{return null;}};
++  const rewardsFor=(region:string,ordinal:number)=>{const r=REGION_INDEX[region];if(r===undefined||!(ordinal>=1&&ordinal<=4))return null;
++    const chest=(mainlineChests()||[]).find((c:any)=>c.level===r*4+ordinal-1);return chest?JSON.parse(JSON.stringify(chest.rewards)):null;};
++  return {
++    claimed:(stageId:string)=>!!read()?.claimed[stageId],
++    rewardsFor,
++    /** Caller must have verified a recorded first clear (result.saved + completionRecorded). Idempotent. */
++    claim(stageId:string,region:string,ordinal:number){
++      const ledger=read();if(!ledger)return {ok:false,reason:'firstclear-ledger-corrupt',newlyGrantedRewards:[]};
++      if(ledger.claimed[stageId])return {ok:true,duplicate:true,rewards:ledger.claimed[stageId].rewards,newlyGrantedRewards:[]};
++      const rewards=rewardsFor(region,ordinal);if(!rewards)return {ok:false,reason:'no-reward-config',newlyGrantedRewards:[]};
++      ledger.claimed[stageId]={at:Date.now(),rewards};const text=JSON.stringify(ledger);
++      try{sys.localStorage.setItem(key,text);}catch(e){return {ok:false,reason:'persistence-error',newlyGrantedRewards:[]};}
++      if(sys.localStorage.getItem(key)!==text)return {ok:false,reason:'persistence-error',newlyGrantedRewards:[]};
++      return {ok:true,duplicate:false,rewards,newlyGrantedRewards:rewards};
++    },
++    inspect:()=>[R5_FIRSTCLEAR_KEY,sys.localStorage.getItem(key)],
++  };
++}
+diff --git a/assets/scripts/world-r2/R5FirstClearRewards.ts.meta b/assets/scripts/world-r2/R5FirstClearRewards.ts.meta
+new file mode 100644
+index 0000000..df568c8
+--- /dev/null
++++ b/assets/scripts/world-r2/R5FirstClearRewards.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "70995ba4-3a74-42b4-8aa9-1f9217a8c1f4",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/assets/scripts/world-r2/WorldNativeComposition.ts b/assets/scripts/world-r2/WorldNativeComposition.ts
+index 6f73fe4..9117c3c 100644
+--- a/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -10,6 +10,7 @@ import { createPersistentMainlinePort } from './PersistentMainlinePort';
+ import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
+ import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
+ import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
++import { createR5FirstClearRewards } from './R5FirstClearRewards';
+ const {ccclass,property}=_decorator;
+ /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
+ @ccclass('WorldNativeComposition')
+@@ -81,6 +82,16 @@ export class WorldNativeComposition extends Component {
+     const stages=(RegionalAPI as any).catalog.filter((x:any)=>x.region===s.active.region);if(stages.length!==4||!stages.every((x:any)=>s.progress.records[x.id]))return {ok:false,reason:'region-incomplete'};
+     return this.hostReply=this.activeSession.claimMemento(s.active.region);
+   }
++  /** GGbot fix-4: one-time first-clear reward per R5 stage (ledger in the R5 namespace; see R5FirstClearRewards.ts). */
++  private firstClear(){return createR5FirstClearRewards((this.persistence as any).namespace,()=>this.mainline.createController().snapshot().journey?.chests||[]);}
++  private firstClearCache:any=null;
++  r5FirstClearStatus(){const s=this.activeSession?.snapshot();if(!s||s.provider!=='regional-r05'||s.state!=='result.saved'||!s.result?.completionRecorded)return null;
++    const ns=(this.persistence as any).namespace;if(this.firstClearCache?.stageId===s.active.stageId&&this.firstClearCache.ns===ns)return this.firstClearCache.status;
++    const stage=(RegionalAPI as any).getStage(s.active.stageId);if(!stage)return null;const f=this.firstClear();const status={stageId:stage.id,claimed:f.claimed(stage.id),rewards:f.rewardsFor(stage.region,stage.ordinal)};this.firstClearCache={stageId:stage.id,ns,status};return status;}
++  claimR5FirstClear(){const s=this.activeSession?.snapshot();if(!s||s.provider!=='regional-r05'||s.state!=='result.saved'||!s.result?.completionRecorded)return {ok:false,reason:'claim-requires-registered-win'};
++    const stage=(RegionalAPI as any).getStage(s.active.stageId);if(!stage)return {ok:false,reason:'unknown-stage'};
++    this.firstClearCache=null;return this.hostReply=this.firstClear().claim(stage.id,stage.region,stage.ordinal);}
++  r5FirstClearStorage(){return this.firstClear().inspect();}
+   lastHostReply(){return this.hostReply;}
+   useIsolatedTestProfile(namespace:string,journeyNamespace:string):Result {
+     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-profile-only-outside-level'};
+-- 
+2.47.3
+

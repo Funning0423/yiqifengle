@@ -1,0 +1,40 @@
+From 887194d9630b3144ad932f6175ceaba420b3780d Mon Sep 17 00:00:00 2001
+From: GGbot <ggbot@local>
+Date: Sat, 17 Oct 2026 12:44:08 +0800
+Subject: [PATCH] TEST ONLY (do not merge): lake gate = mainline 1
+ (LAKE_GATE_RECORD 0) for quick Mac testing
+
+---
+ .../assets/scripts/regional-r05/runtime/progress-journal.js     | 2 +-
+ creator-build-project/assets/scripts/ui/IslandPanels.ts         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js b/creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js
+index e1bae7e..c4644c8 100644
+--- a/creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js
++++ b/creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js
+@@ -4,7 +4,7 @@ var API=require('./index'),Store=require('./durable-store'),copy=Store.clone,PAC
+ // no persistence/reward authority; a changed proof must be replayed again.
+ var verifiedProofs=new Map();
+ // 风铃湖畔 opens after the last current mainline stage (mainline-12, journey record 11) and has 6 stages.
+-var LAKE_GATE_RECORD=11,LAKE_STAGE_COUNT=6;
++var LAKE_GATE_RECORD=0,LAKE_STAGE_COUNT=6;
+ function need(ok,message){if(!ok)throw Error(message);}
+ function metric(x){return Number.isSafeInteger(x)&&x>=0;}
+ function attemptId(sequence){return 'r5a-'+String(sequence).padStart(12,'0');}
+diff --git a/creator-build-project/assets/scripts/ui/IslandPanels.ts b/creator-build-project/assets/scripts/ui/IslandPanels.ts
+index 1070c7a..4d1320d 100644
+--- a/creator-build-project/assets/scripts/ui/IslandPanels.ts
++++ b/creator-build-project/assets/scripts/ui/IslandPanels.ts
+@@ -11,7 +11,7 @@ export const CHAPTERS: ReadonlyArray<{ id: 'tide' | 'meadow' | 'sky' | 'lake'; n
+ ];
+ /** 风铃湖畔 has no mainline stages of its own: it opens after mainline 12 (journey record 11, same as the provider's
+  *  progress-journal LAKE_GATE_RECORD) and has 6 challenge stages. */
+-export const LAKE_GATE_RECORD = 11, LAKE_STAGES = 6;
++export const LAKE_GATE_RECORD = 0, LAKE_STAGES = 6;
+ export function chapterMilestone(region: number): number { return CHAPTERS[region]?.id === 'lake' ? LAKE_GATE_RECORD + 1 : (region + 1) * 4; }
+ export interface ChapterSummary { stars: number; challenges: number; locked: boolean }
+ /** Mainline stars only (x/12 per region, levels region*4..+3); challenge marks x/4; a region is locked until the mainline reaches it. */
+-- 
+2.47.3
+

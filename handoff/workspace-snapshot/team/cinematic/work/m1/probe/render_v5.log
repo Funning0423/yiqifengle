@@ -1,0 +1,90 @@
+could not get a list of mounted file-systems
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1/scene/cine_m1_anim.blend"
+Saved: 'probe/renders_v5/A_seated_cine_open_stand_f000_right.png'
+Time: 00:02.36 (Saving: 00:00.05)
+
+Saved: 'probe/renders_v5/A_seated_cine_open_stand_f000_front34.png'
+Time: 00:01.73 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/A_seated_cine_open_stand_f000_back34.png'
+Time: 00:01.57 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/A_seated_cine_open_stand_f000_closeup.png'
+Time: 00:01.66 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_slide_cine_open_stand_f030_right.png'
+Time: 00:01.93 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_slide_cine_open_stand_f030_front34.png'
+Time: 00:01.94 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_slide_cine_open_stand_f030_back34.png'
+Time: 00:01.60 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_slide_cine_open_stand_f030_closeup.png'
+Time: 00:01.84 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_seatoff_cine_open_stand_f045_right.png'
+Time: 00:02.16 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_seatoff_cine_open_stand_f045_front34.png'
+Time: 00:02.08 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_seatoff_cine_open_stand_f045_back34.png'
+Time: 00:01.88 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/B_leaving_seatoff_cine_open_stand_f045_closeup.png'
+Time: 00:01.82 (Saving: 00:00.04)
+
+Saved: 'probe/renders_v5/C_stand_end_cine_open_stand_f090_right.png'
+Time: 00:01.64 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/C_stand_end_cine_open_stand_f090_front34.png'
+Time: 00:01.71 (Saving: 00:00.02)
+
+Saved: 'probe/renders_v5/C_stand_end_cine_open_stand_f090_back34.png'
+Time: 00:01.46 (Saving: 00:00.04)
+
+Saved: 'probe/renders_v5/C_stand_end_cine_open_stand_f090_closeup.png'
+Time: 00:01.50 (Saving: 00:00.04)
+
+Saved: 'probe/renders_v5/D_turn_step1_cine_open_turn_f012_right.png'
+Time: 00:02.39 (Saving: 00:00.04)
+
+Saved: 'probe/renders_v5/D_turn_step1_cine_open_turn_f012_front34.png'
+Time: 00:02.17 (Saving: 00:00.05)
+
+Saved: 'probe/renders_v5/D_turn_step1_cine_open_turn_f012_back34.png'
+Time: 00:01.89 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/D_turn_step1_cine_open_turn_f012_closeup.png'
+Time: 00:02.29 (Saving: 00:00.08)
+
+Saved: 'probe/renders_v5/D_turn_mid_cine_open_turn_f024_right.png'
+Time: 00:02.50 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/D_turn_mid_cine_open_turn_f024_front34.png'
+Time: 00:02.19 (Saving: 00:00.06)
+
+Saved: 'probe/renders_v5/D_turn_mid_cine_open_turn_f024_back34.png'
+Time: 00:02.12 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/D_turn_mid_cine_open_turn_f024_closeup.png'
+Time: 00:01.77 (Saving: 00:00.09)
+
+Saved: 'probe/renders_v5/E_turn_end_cine_open_turn_f045_right.png'
+Time: 00:02.36 (Saving: 00:00.09)
+
+Saved: 'probe/renders_v5/E_turn_end_cine_open_turn_f045_front34.png'
+Time: 00:01.74 (Saving: 00:00.03)
+
+Saved: 'probe/renders_v5/E_turn_end_cine_open_turn_f045_back34.png'
+Time: 00:02.21 (Saving: 00:00.04)
+
+Saved: 'probe/renders_v5/E_turn_end_cine_open_turn_f045_closeup.png'
+Time: 00:01.60 (Saving: 00:00.05)
+
+DONE
+
+Blender quit

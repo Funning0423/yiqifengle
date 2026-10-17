@@ -1,0 +1,741 @@
+{
+ "generatedFrom": null,
+ "conventions": {
+  "cocos": "Cocos Creator 3.8: right-handed, +Y up, metres. A camera looks down its local -Z with local +Y up. rotationQuatXYZW is the node world rotation (x,y,z,w). eulerDegXYZ = Cocos Quat.getEulerAngles (degrees, Cocos engine Euler convention) for reference only; the quaternion is authoritative.",
+  "frame": "sceneryLocal = pose in the LakesideScenery node frame (= the r5h3 scene/scene_r5h_slim_transforms.json frame the board mounts). In r3 the board rig and LakesideScenery are identity, so world == sceneryLocal.",
+  "blender": "Z-up right-handed. Point: (x,y,z)_cocos -> (x,-z,y)_blender (rotate +90 deg about X). Rotation: q_blender = qX(+90deg) * q_cocos; both camera conventions look down local -Z with +Y up, so no extra camera-local correction. blender.rotation_quaternion is WXYZ (Blender order); rotation_euler is XYZ radians. Lens: camera.sensor_fit=VERTICAL, camera.angle_y = radians(fovVerticalDeg); render resolution = viewport w x h (aspect = w/h). clip_start/clip_end = near/far.",
+  "fov": "Vertical FOV (Camera.fovAxis VERTICAL)."
+ },
+ "screens": {
+  "390x844": {
+   "source": {
+    "scene": "WorldR5Integration",
+    "nodePath": "WorldR5Integration/IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/LakesideLiveScene/LakesideBackgroundCamera",
+    "component": "cc.Camera (LakesideBoardBackground.ts, pose = applyCameraPose(lakesideAlignedBoardPose(layout)) from LakesideCameraLayout.ts)",
+    "run": "v3_390x844"
+   },
+   "camera": {
+    "projection": "PERSPECTIVE",
+    "fovAxis": "VERTICAL",
+    "fovDeg": 57.35256446956713,
+    "near": 0.1,
+    "far": 1000,
+    "aspect": 0.46208530805687204,
+    "priority": 44,
+    "visibility": 1048576
+   },
+   "viewport": {
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "dpr": 2,
+    "canvas": [
+     780,
+     1688
+    ]
+   },
+   "safeInsets": {
+    "top": 47,
+    "bottom": 34,
+    "left": 0,
+    "right": 0,
+    "portrait": true,
+    "capsule": {
+     "top": 51,
+     "bottom": 83,
+     "left": 297,
+     "right": 384
+    }
+   },
+   "boardLayout": {
+    "width": 390,
+    "height": 844,
+    "board": 298.2
+   },
+   "world": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.10517083232076975,
+     0.07573696152188789,
+     0.0080333343460924,
+     0.991533395417256
+    ],
+    "eulerDegXYZ": [
+     -12.109320859945385,
+     8.735960510640682,
+     -3.975693351829396e-16
+    ],
+    "forward": [
+     -0.148501708313788,
+     -0.20977762560826835,
+     -0.9664060173767773
+    ]
+   },
+   "sceneryLocal": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.10517083232076975,
+     0.07573696152188789,
+     0.0080333343460924,
+     0.991533395417256
+    ],
+    "eulerDegXYZ": [
+     -12.109320859945385,
+     8.735960510640682,
+     -3.975693351829396e-16
+    ]
+   },
+   "sceneryNodeWorld": {
+    "sceneryWorldPosition": [
+     0,
+     0,
+     0
+    ],
+    "sceneryWorldRotation": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "sceneryWorldScale": [
+     1,
+     1,
+     1
+    ]
+   },
+   "forwardCocos": [
+    -0.148501708313788,
+    -0.20977762560826838,
+    -0.9664060173767772
+   ],
+   "blender": {
+    "location": [
+     2.9447784998228568,
+     -31.16376380032755,
+     3.58
+    ],
+    "rotation_mode": "QUATERNION",
+    "rotation_quaternion_wxyz": [
+     0.7754869963895138,
+     0.6267529789554145,
+     0.047873693886930815,
+     0.05923454427025228
+    ],
+    "rotation_euler_xyz_rad": [
+     1.3594488076084186,
+     2.7755575615628914e-17,
+     0.15247127423488505
+    ],
+    "rotation_euler_xyz_deg": [
+     77.89067914005462,
+     1.5902773407317584e-15,
+     8.735960510640684
+    ],
+    "sensor_fit": "VERTICAL",
+    "angle_y_rad": 1.0009910844562615,
+    "clip_start": 0.1,
+    "clip_end": 1000,
+    "resolution": [
+     390,
+     844
+    ],
+    "forwardBlender": [
+     -0.148501708313788,
+     0.9664060173767773,
+     -0.2097776256082684
+    ]
+   }
+  },
+  "414x896": {
+   "source": {
+    "scene": "WorldR5Integration",
+    "nodePath": "WorldR5Integration/IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/LakesideLiveScene/LakesideBackgroundCamera",
+    "component": "cc.Camera (LakesideBoardBackground.ts, pose = applyCameraPose(lakesideAlignedBoardPose(layout)) from LakesideCameraLayout.ts)",
+    "run": "v3_414x896"
+   },
+   "camera": {
+    "projection": "PERSPECTIVE",
+    "fovAxis": "VERTICAL",
+    "fovDeg": 57.375365960561226,
+    "near": 0.1,
+    "far": 1000,
+    "aspect": 0.46205357142857145,
+    "priority": 44,
+    "visibility": 1048576
+   },
+   "viewport": {
+    "innerWidth": 414,
+    "innerHeight": 896,
+    "dpr": 2,
+    "canvas": [
+     828,
+     1792
+    ]
+   },
+   "safeInsets": {
+    "top": 47,
+    "bottom": 34,
+    "left": 0,
+    "right": 0,
+    "portrait": true,
+    "capsule": {
+     "top": 51,
+     "bottom": 83,
+     "left": 321,
+     "right": 408
+    }
+   },
+   "boardLayout": {
+    "width": 414,
+    "height": 896,
+    "board": 316.551
+   },
+   "world": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.11099957239266864,
+     0.07568841329975697,
+     0.008478554915149199,
+     0.9908978116472762
+    ],
+    "eulerDegXYZ": [
+     -12.783162640627678,
+     8.735960510640677,
+     1.987846675914698e-16
+    ],
+    "forward": [
+     -0.1481167342713889,
+     -0.22126192349256252,
+     -0.9639007180416199
+    ]
+   },
+   "sceneryLocal": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.11099957239266864,
+     0.07568841329975697,
+     0.008478554915149199,
+     0.9908978116472762
+    ],
+    "eulerDegXYZ": [
+     -12.783162640627678,
+     8.735960510640677,
+     1.987846675914698e-16
+    ]
+   },
+   "sceneryNodeWorld": {
+    "sceneryWorldPosition": [
+     0,
+     0,
+     0
+    ],
+    "sceneryWorldRotation": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "sceneryWorldScale": [
+     1,
+     1,
+     1
+    ]
+   },
+   "forwardCocos": [
+    -0.1481167342713889,
+    -0.22126192349256255,
+    -0.9639007180416198
+   ],
+   "blender": {
+    "location": [
+     2.9447784998228568,
+     -31.16376380032755,
+     3.58
+    ],
+    "rotation_mode": "QUATERNION",
+    "rotation_quaternion_wxyz": [
+     0.7791591124263625,
+     0.6221820117310362,
+     0.04752454662634369,
+     0.05951503397667275
+    ],
+    "rotation_euler_xyz_rad": [
+     1.347688049898011,
+     2.7755575615628914e-17,
+     0.15247127423488496
+    ],
+    "rotation_euler_xyz_deg": [
+     77.21683735937233,
+     1.5902773407317584e-15,
+     8.735960510640679
+    ],
+    "sensor_fit": "VERTICAL",
+    "angle_y_rad": 1.0013890455484724,
+    "clip_start": 0.1,
+    "clip_end": 1000,
+    "resolution": [
+     414,
+     896
+    ],
+    "forwardBlender": [
+     -0.1481167342713889,
+     0.9639007180416199,
+     -0.22126192349256246
+    ]
+   }
+  },
+  "360x780": {
+   "source": {
+    "scene": "WorldR5Integration",
+    "nodePath": "WorldR5Integration/IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/LakesideLiveScene/LakesideBackgroundCamera",
+    "component": "cc.Camera (LakesideBoardBackground.ts, pose = applyCameraPose(lakesideAlignedBoardPose(layout)) from LakesideCameraLayout.ts)",
+    "run": "v3_360x780"
+   },
+   "camera": {
+    "projection": "PERSPECTIVE",
+    "fovAxis": "VERTICAL",
+    "fovDeg": 55.19068832932099,
+    "near": 0.1,
+    "far": 1000,
+    "aspect": 0.46153846153846156,
+    "priority": 44,
+    "visibility": 1048576
+   },
+   "viewport": {
+    "innerWidth": 360,
+    "innerHeight": 780,
+    "dpr": 2,
+    "canvas": [
+     720,
+     1560
+    ]
+   },
+   "safeInsets": {
+    "top": 47,
+    "bottom": 34,
+    "left": 0,
+    "right": 0,
+    "portrait": true,
+    "capsule": {
+     "top": 51,
+     "bottom": 83,
+     "left": 267,
+     "right": 354
+    }
+   },
+   "boardLayout": {
+    "width": 360,
+    "height": 780,
+    "board": 288.264
+   },
+   "world": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.08978388343033578,
+     0.07585241806332775,
+     0.006858022690993131,
+     0.9930449297362551
+    ],
+    "eulerDegXYZ": [
+     -10.33244049173499,
+     8.735960510640677,
+     2.981770013872047e-16
+    ],
+    "forward": [
+     -0.14941823851234326,
+     -0.17935925563354183,
+     -0.9723705299002281
+    ]
+   },
+   "sceneryLocal": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.08978388343033578,
+     0.07585241806332775,
+     0.006858022690993131,
+     0.9930449297362551
+    ],
+    "eulerDegXYZ": [
+     -10.33244049173499,
+     8.735960510640677,
+     2.981770013872047e-16
+    ]
+   },
+   "sceneryNodeWorld": {
+    "sceneryWorldPosition": [
+     0,
+     0,
+     0
+    ],
+    "sceneryWorldRotation": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "sceneryWorldScale": [
+     1,
+     1,
+     1
+    ]
+   },
+   "forwardCocos": [
+    -0.14941823851234326,
+    -0.17935925563354183,
+    -0.9723705299002281
+   ],
+   "blender": {
+    "location": [
+     2.9447784998228568,
+     -31.16376380032755,
+     3.58
+    ],
+    "rotation_mode": "QUATERNION",
+    "rotation_quaternion_wxyz": [
+     0.7656755966542775,
+     0.6387020110245716,
+     0.048786404831643565,
+     0.05848511353230847
+    ],
+    "rotation_euler_xyz_rad": [
+     1.390461220447739,
+     1.3877787807814457e-17,
+     0.1524712742348849
+    ],
+    "rotation_euler_xyz_deg": [
+     79.667559508265,
+     7.951386703658792e-16,
+     8.735960510640675
+    ],
+    "sensor_fit": "VERTICAL",
+    "angle_y_rad": 0.9632592277886598,
+    "clip_start": 0.1,
+    "clip_end": 1000,
+    "resolution": [
+     360,
+     780
+    ],
+    "forwardBlender": [
+     -0.14941823851234326,
+     0.9723705299002279,
+     -0.17935925563354205
+    ]
+   }
+  },
+  "375x667": {
+   "source": {
+    "scene": "WorldR5Integration",
+    "nodePath": "WorldR5Integration/IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/LakesideLiveScene/LakesideBackgroundCamera",
+    "component": "cc.Camera (LakesideBoardBackground.ts, pose = applyCameraPose(lakesideAlignedBoardPose(layout)) from LakesideCameraLayout.ts)",
+    "run": "v3_375x667"
+   },
+   "camera": {
+    "projection": "PERSPECTIVE",
+    "fovAxis": "VERTICAL",
+    "fovDeg": 53.642326534128614,
+    "near": 0.1,
+    "far": 1000,
+    "aspect": 0.5622188905547226,
+    "priority": 44,
+    "visibility": 1048576
+   },
+   "viewport": {
+    "innerWidth": 375,
+    "innerHeight": 667,
+    "dpr": 2,
+    "canvas": [
+     750,
+     1334
+    ]
+   },
+   "safeInsets": {
+    "top": 47,
+    "bottom": 34,
+    "left": 0,
+    "right": 0,
+    "portrait": true,
+    "capsule": {
+     "top": 51,
+     "bottom": 83,
+     "left": 282,
+     "right": 369
+    }
+   },
+   "boardLayout": {
+    "width": 375,
+    "height": 667,
+    "board": 254.846
+   },
+   "world": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.08563228096822514,
+     0.07588042121097516,
+     0.006540908050800169,
+     0.9934115414343115
+    ],
+    "eulerDegXYZ": [
+     -9.853459036228045,
+     8.735960510640679,
+     -1.987846675914698e-16
+    ],
+    "forward": [
+     -0.14964074664777244,
+     -0.17112884618235513,
+     -0.9738185482660477
+    ]
+   },
+   "sceneryLocal": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.08563228096822514,
+     0.07588042121097516,
+     0.006540908050800169,
+     0.9934115414343115
+    ],
+    "eulerDegXYZ": [
+     -9.853459036228045,
+     8.735960510640679,
+     -1.987846675914698e-16
+    ]
+   },
+   "sceneryNodeWorld": {
+    "sceneryWorldPosition": [
+     0,
+     0,
+     0
+    ],
+    "sceneryWorldRotation": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "sceneryWorldScale": [
+     1,
+     1,
+     1
+    ]
+   },
+   "forwardCocos": [
+    -0.14964074664777244,
+    -0.17112884618235513,
+    -0.9738185482660479
+   ],
+   "blender": {
+    "location": [
+     2.9447784998228568,
+     -31.16376380032755,
+     3.58
+    ],
+    "rotation_mode": "QUATERNION",
+    "rotation_quaternion_wxyz": [
+     0.7629992040182864,
+     0.6418968708960788,
+     0.049030439959733586,
+     0.05828068083541055
+    ],
+    "rotation_euler_xyz_rad": [
+     1.3988210239023298,
+     1.3877787807814457e-17,
+     0.15247127423488496
+    ],
+    "rotation_euler_xyz_deg": [
+     80.14654096377194,
+     7.951386703658792e-16,
+     8.735960510640679
+    ],
+    "sensor_fit": "VERTICAL",
+    "angle_y_rad": 0.9362352164504627,
+    "clip_start": 0.1,
+    "clip_end": 1000,
+    "resolution": [
+     375,
+     667
+    ],
+    "forwardBlender": [
+     -0.14964074664777244,
+     0.9738185482660477,
+     -0.17112884618235535
+    ]
+   }
+  },
+  "390x520": {
+   "source": {
+    "scene": "WorldR5Integration",
+    "nodePath": "WorldR5Integration/IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/LakesideLiveScene/LakesideBackgroundCamera",
+    "component": "cc.Camera (LakesideBoardBackground.ts, pose = applyCameraPose(lakesideAlignedBoardPose(layout)) from LakesideCameraLayout.ts)",
+    "run": "v3_390x520"
+   },
+   "camera": {
+    "projection": "PERSPECTIVE",
+    "fovAxis": "VERTICAL",
+    "fovDeg": 71.32460318207842,
+    "near": 0.1,
+    "far": 1000,
+    "aspect": 0.75,
+    "priority": 44,
+    "visibility": 1048576
+   },
+   "viewport": {
+    "innerWidth": 390,
+    "innerHeight": 520,
+    "dpr": 2,
+    "canvas": [
+     780,
+     1040
+    ]
+   },
+   "safeInsets": {
+    "top": 47,
+    "bottom": 34,
+    "left": 0,
+    "right": 0,
+    "portrait": true,
+    "capsule": {
+     "top": 51,
+     "bottom": 83,
+     "left": 297,
+     "right": 384
+    }
+   },
+   "boardLayout": {
+    "width": 390,
+    "height": 520,
+    "board": 140
+   },
+   "world": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.0829125239725378,
+     0.07589804244764364,
+     0.006333163024880419,
+     0.9936422351969644
+    ],
+    "eulerDegXYZ": [
+     -9.539767476042888,
+     8.735960510640677,
+     2.981770013872047e-16
+    ],
+    "forward": [
+     -0.14978080402725666,
+     -0.16573212064396917,
+     -0.9747300010422382
+    ]
+   },
+   "sceneryLocal": {
+    "position": [
+     2.9447784998228568,
+     3.58,
+     31.16376380032755
+    ],
+    "rotationQuatXYZW": [
+     -0.0829125239725378,
+     0.07589804244764364,
+     0.006333163024880419,
+     0.9936422351969644
+    ],
+    "eulerDegXYZ": [
+     -9.539767476042888,
+     8.735960510640677,
+     2.981770013872047e-16
+    ]
+   },
+   "sceneryNodeWorld": {
+    "sceneryWorldPosition": [
+     0,
+     0,
+     0
+    ],
+    "sceneryWorldRotation": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "sceneryWorldScale": [
+     1,
+     1,
+     1
+    ]
+   },
+   "forwardCocos": [
+    -0.14978080402725666,
+    -0.16573212064396917,
+    -0.9747300010422381
+   ],
+   "blender": {
+    "location": [
+     2.9447784998228568,
+     -31.16376380032755,
+     3.58
+    ],
+    "rotation_mode": "QUATERNION",
+    "rotation_quaternion_wxyz": [
+     0.7612391705274055,
+     0.6439831546348581,
+     0.049189797972260405,
+     0.0581462430147661
+    ],
+    "rotation_euler_xyz_rad": [
+     1.4042959744632788,
+     1.3877787807814457e-17,
+     0.15247127423488493
+    ],
+    "rotation_euler_xyz_deg": [
+     80.4602325239571,
+     7.951386703658792e-16,
+     8.735960510640677
+    ],
+    "sensor_fit": "VERTICAL",
+    "angle_y_rad": 1.244849163205693,
+    "clip_start": 0.1,
+    "clip_end": 1000,
+    "resolution": [
+     390,
+     520
+    ],
+    "forwardBlender": [
+     -0.14978080402725663,
+     0.9747300010422381,
+     -0.16573212064396936
+    ]
+   }
+  }
+ }
+}

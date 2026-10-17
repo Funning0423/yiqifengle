@@ -1,0 +1,1054 @@
+From 218b03062e3ab07bdcf0e735012ab79faae1f34e Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 16 Oct 2026 07:54:35 -0400
+Subject: [PATCH 4/5] =?UTF-8?q?v3.2=20camera=20fix=203:=2004=E2=86=9205=20?=
+ =?UTF-8?q?follows=20her=20from=20set-off=20(no=20wide=20authored-pose=20b?=
+ =?UTF-8?q?lend;=20route.startBlendM=200),=20right-side=20+=20face=20check?=
+ =?UTF-8?q?s?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../scripts/region/RegionJourneyAdapter.ts    |   2 +-
+ .../scripts/world-r1/RegionJourneyCore.ts     |  13 +-
+ tools/journey-integration/journey-scene.cjs   |   2 +-
+ .../reports/journey-framing.json              |  20 +-
+ .../reports/journey-occlusion.json            | 379 +++++++++++-------
+ .../test-journey-framing.cjs                  |  10 +-
+ .../test-journey-occlusion.cjs                |  15 +-
+ .../voice-build05-journey-ground/dumpcam.cjs  |   2 +-
+ 8 files changed, 273 insertions(+), 170 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 09098a4..5efab10 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -74,7 +74,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+      const deck=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start'));
+      bridge=bridgePath(edge,deck.rim,REGION_JOURNEY_LAYOUT.skyBridgeArchM);arrival=[...deck.deck,deck.arrival];focus=anchor(model,'anchor_starcourt_center');
+     }
+-    const path=[...approach,...bridge.slice(1),...arrival],route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{})};
++    const path=[...approach,...bridge.slice(1),...arrival],route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,...(from==='island'?{startBlendM:0}:{}),...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{})};
+     rainbowBridge(rig,bridge,owned);token.check();mounted.set(to,model);progress(.98);
+     const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
+     return lease;
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 47f8939..ba74762 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -1,7 +1,7 @@
+ import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
+ export type JourneyRegion = 'island'|'meadow'|'skycity';
+ export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
+-export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[] }>;
++export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number }>;
+ export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
+ export interface JourneySceneAdapter {
+  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
+@@ -81,20 +81,21 @@ export function orbitOffset(a:Vec,b:Vec,t:number,turn=0):Vec{
+  while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;if(Math.abs(d)>Math.PI*.75){if(turn>0&&d<0)d+=2*Math.PI;if(turn<0&&d>0)d-=2*Math.PI;}
+  const ang=aa+d*t,r=ra>1e-3&&rb>1e-3?ra*Math.pow(rb/ra,t):ra+(rb-ra)*t;return [Math.sin(ang)*r,a[1]+(b[1]-a[1])*t,Math.cos(ang)*r];
+ }
+-export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[]):Pose {
++export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[],startBlendM:number=JOURNEY_CAMERA.blendM):Pose {
+  const C=JOURNEY_CAMERA,T=routeLength(path),p=sampleRoute(path,distance),f=followPose(path,distance,keys);
+  const rel=(q:Vec,o:Vec):Vec=>[q[0]-o[0],q[1]-o[1],q[2]-o[2]],at=(o:Vec):Vec=>[p[0]+o[0],p[1]+o[1],p[2]+o[2]];
+  // The lens is a her-relative offset plus an AIM POINT that stays within a few metres of her, so moving between poses
+  // never swings her out of the frame; the view direction is derived from the two.
+  let offset=rel(f.position,p),aim=f.target;
+- const blend=smooth(distance/C.blendM);
++ // startBlendM 0 (v3.2, 04→05): no wide authored-pose blend; the lens is on her follow pose (right, behind) from set-off.
++ const blend=startBlendM>0?smooth(distance/startBlendM):1;
+  if(blend<1){const o=orbitOffset(rel(start.position,path[0]),offset,blend,C.startTurn);offset=[o[0],o[1]+C.blendLiftM*Math.sin(Math.PI*blend),o[2]];aim=lerp([p[0],p[1]+lensAt(keys,distance).lookM,p[2]],aim,blend);}
+  if(focus){const w=smoother((C.arrivalBlendM-(T-distance))/(C.arrivalBlendM-C.arrivalHoldM));
+   if(w>0){const e=arrivalPose(path,focus),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
+    const o=orbitOffset(offset,eo,w,0);const left=T-distance,lift=C.arrivalLiftM*smooth((C.arrivalBlendM-left)/C.arrivalRiseM)*smooth(left/C.arrivalDropM);offset=[o[0],o[1]+lift,o[2]];aim=lerp(aim,at([eo[0]+ed[0]*r,eo[1]+ed[1]*r,eo[2]+ed[2]*r]),w);}}
+  const position=at(offset);let dir=unit(rel(aim,position));
+  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
+- if(distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
++ if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
+  const fov=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;
+  return {position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
+ }
+@@ -129,7 +130,7 @@ export class RegionJourneyController {
+   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
+   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
+   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
+-  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens);world.setCamera(this.camera);
++  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);
+   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
+  }
+  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
+@@ -142,7 +143,7 @@ export class RegionJourneyController {
+     await token.wait(actor.perform({kind:'walk',path,duration:routeLength(path)/this.lease.route.speed},token));token.check();}
+    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
+    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
+-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
++   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+   }catch(error){if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
+   finally{if(serial===this.serial)this.busy=false;}
+diff --git a/tools/journey-integration/journey-scene.cjs b/tools/journey-integration/journey-scene.cjs
+index 49afb6a..3755aa1 100644
+--- a/tools/journey-integration/journey-scene.cjs
++++ b/tools/journey-integration/journey-scene.cjs
+@@ -42,6 +42,6 @@ function blockers(objs,o,e){const d=sub(e,o),l=Math.hypot(...d),u=d.map(x=>x/l),
+ function ptTri(p,a,b,c){const ab=sub(b,a),ac=sub(c,a),ap=sub(p,a),dot=(x,y)=>x[0]*y[0]+x[1]*y[1]+x[2]*y[2];const d1=dot(ab,ap),d2=dot(ac,ap);if(d1<=0&&d2<=0)return a;const bp=sub(p,b),d3=dot(ab,bp),d4=dot(ac,bp);if(d3>=0&&d4<=d3)return b;const vc=d1*d4-d3*d2;if(vc<=0&&d1>=0&&d3<=0){const v=d1/(d1-d3);return add(a,ab.map(x=>x*v));}const cp=sub(p,c),d5=dot(ab,cp),d6=dot(ac,cp);if(d6>=0&&d5<=d6)return c;const vb=d5*d2-d1*d6;if(vb<=0&&d2>=0&&d6<=0){const w=d2/(d2-d6);return add(a,ac.map(x=>x*w));}const va=d3*d6-d5*d4;if(va<=0&&d4-d3>=0&&d5-d6>=0){const w=(d4-d3)/(d4-d3+d5-d6);return add(b,sub(c,b).map(x=>x*w));}const den=1/(va+vb+vc),v=vb*den,w=vc*den;return add(a,add(ab.map(x=>x*v),ac.map(x=>x*w)));}
+ function clearance(p,objs,cap=3){let best=cap,who=null;for(const o of objs){o.bb??=bbox(o.tris);let dd=0;for(let c=0;c<3;c++){const v=Math.max(o.bb[0][c]-p[c],0,p[c]-o.bb[1][c]);dd+=v*v;}if(Math.sqrt(dd)>=best)continue;const t=o.tris;for(let k=0;k<t.length;k+=9){if(Math.abs(t[k]-p[0])>best+25||Math.abs(t[k+2]-p[2])>best+25||Math.abs(t[k+1]-p[1])>best+25)continue;const q=ptTri(p,[t[k],t[k+1],t[k+2]],[t[k+3],t[k+4],t[k+5]],[t[k+6],t[k+7],t[k+8]]),d=Math.hypot(...sub(q,p));if(d<best){best=d;who=o.tag+':'+o.name;}}}return [best,who];}
+ const readPose=p=>{const f=sub(p.target,p.position),l=Math.hypot(...f);return {position:p.position,target:add(p.position,f.map(x=>x/l*8)),fovVerticalDeg:p.fovVerticalDeg};};
+-const start1=readPose(Cam.islandPoseEntry()),legs=[{id:'04-05',path:leg1,objs:[...island,...meadow],start:start1,exempt:EXEMPT,bridge:bridge1},{id:'08-09',path:leg2,objs:[...island,...meadow,...sky],start:readPose(journeyCamera(leg1,routeLength(leg1),start1)),exempt:0,bridge:bridge2,focus:focus2,lens:Lay.lensKeys(L.skyLens,routeLength(appr2))}];
++const start1=readPose(Cam.islandPoseEntry()),legs=[{id:'04-05',path:leg1,objs:[...island,...meadow],start:start1,startBlendM:0,exempt:1,bridge:bridge1},{id:'08-09',path:leg2,objs:[...island,...meadow,...sky],start:readPose(journeyCamera(leg1,routeLength(leg1),start1,undefined,undefined,0)),exempt:0,bridge:bridge2,focus:focus2,lens:Lay.lensKeys(L.skyLens,routeLength(appr2))}];
+ const skyFrame=place(local.skycity_frame||[],'skycity',yaw,1,sOff);
+ module.exports={fs,path,zlib,crypto,assert,createHarness,loadGlb,ROOT,B,S,H,Lay,Core,Cam,Visit,L,sampleRoute,routeLength,journeyCamera,JOURNEY_CAMERA,sha,meta,bin,f32,local,meadowNodes,skyNodes,rotY,place,nodePos,add,sub,props,island,anchorsIsland,start,mp,appr1,edge1,mOff,meadow,mA,bridge1,leg1,appr2,edge2,sp,yaw,deck0,sOff,sky,sA,deck,bridge2,leg2,focus2,bbox,segBox,rayHit,blockers,ptTri,clearance,readPose,start1,legs,EXEMPT,skyFrame};
+diff --git a/tools/journey-integration/reports/journey-framing.json b/tools/journey-integration/reports/journey-framing.json
+index 45f1712..52285da 100644
+--- a/tools/journey-integration/reports/journey-framing.json
++++ b/tools/journey-integration/reports/journey-framing.json
+@@ -1,6 +1,6 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-16T10:07:50.345Z",
++ "timeUTC": "2026-10-16T11:54:28.187Z",
+  "scope": "Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.",
+  "camera": {
+   "blendM": 18,
+@@ -30,8 +30,8 @@
+    "status": "PASS",
+    "evidence": {
+     "04-05": {
+-     "maxDegS": 19.44,
+-     "atM": 8.4
++     "maxDegS": 6.13,
++     "atM": 32.4
+     },
+     "08-09": {
+      "maxDegS": 16.78,
+@@ -73,8 +73,8 @@
+    "status": "PASS",
+    "evidence": {
+     "04-05": {
+-     "meanSky": 0.115,
+-     "longestZeroSkyM": 8,
++     "meanSky": 0.178,
++     "longestZeroSkyM": 0,
+      "samples": 66
+     },
+     "08-09": {
+@@ -100,7 +100,15 @@
+    "id": "F6 04→05 start follows her: in frame from 1.25 m, first 10 m turn ≤ 20°/s",
+    "status": "PASS",
+    "evidence": {
+-    "maxDegS": 19.44
++    "maxDegS": 2.15
++   }
++  },
++  {
++   "id": "F7 04→05 lens on her right side from set-off (never left of behind)",
++   "status": "PASS",
++   "evidence": {
++    "worstLeftOfBehindDeg": -20,
++    "atM": 24.6
+    }
+   }
+  ]
+diff --git a/tools/journey-integration/reports/journey-occlusion.json b/tools/journey-integration/reports/journey-occlusion.json
+index e01596f..0030119 100644
+--- a/tools/journey-integration/reports/journey-occlusion.json
++++ b/tools/journey-integration/reports/journey-occlusion.json
+@@ -1,6 +1,6 @@
+ {
+  "status": "PASS",
+- "timeUTC": "2026-10-16T10:07:48.766Z",
++ "timeUTC": "2026-10-16T11:54:26.002Z",
+  "scope": "Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.",
+  "camera": {
+   "blendM": 18,
+@@ -125,7 +125,7 @@
+    "status": "PASS",
+    "total": 32.4645,
+    "samples": 650,
+-   "minLensM": 2.35,
++   "minLensM": 1.37,
+    "exemptedAuthoredIslandPoseSamples": [
+     {
+      "d": 0,
+@@ -133,11 +133,8 @@
+       "0.15": [
+        "island:env_island_props_merged"
+       ],
+-      "0.9": [
+-       "island:env_prop_palm_lean_01"
+-      ],
+-      "1.25": [
+-       "island:env_prop_palm_lean_01"
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -149,11 +146,8 @@
+       "0.15": [
+        "island:env_island_props_merged"
+       ],
+-      "0.9": [
+-       "island:env_prop_palm_lean_01"
+-      ],
+-      "1.25": [
+-       "island:env_prop_palm_lean_01"
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -165,11 +159,8 @@
+       "0.15": [
+        "island:env_island_props_merged"
+       ],
+-      "0.9": [
+-       "island:env_prop_palm_lean_01"
+-      ],
+-      "1.25": [
+-       "island:env_prop_palm_lean_01"
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -181,8 +172,8 @@
+       "0.15": [
+        "island:env_island_props_merged"
+       ],
+-      "0.9": [
+-       "island:env_prop_palm_lean_01"
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -194,8 +185,8 @@
+       "0.15": [
+        "island:env_island_props_merged"
+       ],
+-      "0.9": [
+-       "island:env_prop_palm_lean_01"
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -207,8 +198,8 @@
+       "0.15": [
+        "island:env_island_props_merged"
+       ],
+-      "0.9": [
+-       "island:env_prop_palm_lean_01"
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -220,8 +211,8 @@
+       "0.15": [
+        "island:env_island_props_merged"
+       ],
+-      "0.9": [
+-       "island:env_prop_palm_lean_01"
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -234,7 +225,7 @@
+        "island:env_island_props_merged"
+       ],
+       "0.5": [
+-       "island:env_prop_palm_lean_01"
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -247,7 +238,7 @@
+        "island:env_island_props_merged"
+       ],
+       "0.5": [
+-       "island:env_prop_palm_lean_01"
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -260,7 +251,7 @@
+        "island:env_island_props_merged"
+       ],
+       "0.5": [
+-       "island:env_prop_palm_lean_01"
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -273,19 +264,20 @@
+        "island:env_island_props_merged"
+       ],
+       "0.5": [
+-       "island:env_prop_palm_lean_01"
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+      "lensObj": null
+-    }
+-   ],
+-   "partialGrazes": [
++    },
+     {
+      "d": 0.55,
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -295,8 +287,10 @@
+      "d": 0.6,
+      "hidden": {
+       "0.15": [
+-       "island:env_island_props_merged",
+-       "island:env_prop_palm_lean_01"
++       "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -306,8 +300,10 @@
+      "d": 0.65,
+      "hidden": {
+       "0.15": [
+-       "island:env_island_props_merged",
+-       "island:env_prop_palm_lean_01"
++       "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -318,6 +314,9 @@
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -328,6 +327,9 @@
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -338,6 +340,9 @@
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -348,6 +353,9 @@
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+@@ -358,11 +366,16 @@
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
++      ],
++      "0.5": [
++       "island:env_island_props_merged"
+       ]
+      },
+      "lens": 3,
+      "lensObj": null
+-    },
++    }
++   ],
++   "partialGrazes": [
+     {
+      "d": 0.95,
+      "hidden": {
+@@ -374,7 +387,47 @@
+      "lensObj": null
+     },
+     {
+-     "d": 2.2,
++     "d": 1,
++     "hidden": {
++      "0.15": [
++       "island:env_island_props_merged"
++      ]
++     },
++     "lens": 3,
++     "lensObj": null
++    },
++    {
++     "d": 1.05,
++     "hidden": {
++      "0.15": [
++       "island:env_island_props_merged"
++      ]
++     },
++     "lens": 3,
++     "lensObj": null
++    },
++    {
++     "d": 1.1,
++     "hidden": {
++      "0.15": [
++       "island:env_island_props_merged"
++      ]
++     },
++     "lens": 3,
++     "lensObj": null
++    },
++    {
++     "d": 1.15,
++     "hidden": {
++      "0.15": [
++       "island:env_island_props_merged"
++      ]
++     },
++     "lens": 3,
++     "lensObj": null
++    },
++    {
++     "d": 1.2,
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
+@@ -384,7 +437,7 @@
+      "lensObj": null
+     },
+     {
+-     "d": 2.25,
++     "d": 1.25,
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
+@@ -394,7 +447,7 @@
+      "lensObj": null
+     },
+     {
+-     "d": 2.3,
++     "d": 1.3,
+      "hidden": {
+       "0.15": [
+        "island:env_island_props_merged"
+@@ -402,6 +455,36 @@
+      },
+      "lens": 3,
+      "lensObj": null
++    },
++    {
++     "d": 2.75,
++     "hidden": {
++      "0.15": [
++       "island:env_island_props_merged"
++      ]
++     },
++     "lens": 1.91,
++     "lensObj": "island:env_island_props_merged"
++    },
++    {
++     "d": 2.8,
++     "hidden": {
++      "0.15": [
++       "island:env_island_props_merged"
++      ]
++     },
++     "lens": 1.88,
++     "lensObj": "island:env_island_props_merged"
++    },
++    {
++     "d": 2.85,
++     "hidden": {
++      "0.15": [
++       "island:env_island_props_merged"
++      ]
++     },
++     "lens": 1.85,
++     "lensObj": "island:env_island_props_merged"
+     }
+    ]
+   },
+@@ -541,9 +624,9 @@
+      "y": 0,
+      "z": 5.281,
+      "cam": [
+-      -12,
+-      15.5,
+-      48
++      -5.56,
++      3.4,
++      -0.84
+      ]
+     },
+     {
+@@ -552,9 +635,9 @@
+      "y": 0,
+      "z": 5.766,
+      "cam": [
+-      -11.46,
+-      15.49,
+-      48.39
++      -5.35,
++      3.4,
++      -0.4
+      ]
+     },
+     {
+@@ -563,9 +646,9 @@
+      "y": 0,
+      "z": 6.252,
+      "cam": [
+-      -10.15,
+-      15.46,
+-      48.59
++      -5.15,
++      3.4,
++      0.04
+      ]
+     },
+     {
+@@ -574,9 +657,9 @@
+      "y": 0,
+      "z": 6.737,
+      "cam": [
+-      -8.15,
+-      15.42,
+-      48.55
++      -4.96,
++      3.4,
++      0.49
+      ]
+     },
+     {
+@@ -585,9 +668,9 @@
+      "y": 0,
+      "z": 7.222,
+      "cam": [
+-      -5.57,
+-      15.35,
+-      48.21
++      -4.78,
++      3.4,
++      0.95
+      ]
+     },
+     {
+@@ -596,9 +679,9 @@
+      "y": 0,
+      "z": 7.707,
+      "cam": [
+-      -2.56,
+-      15.28,
+-      47.52
++      -4.61,
++      3.4,
++      1.41
+      ]
+     },
+     {
+@@ -607,9 +690,9 @@
+      "y": 0,
+      "z": 8.192,
+      "cam": [
+-      0.74,
+-      15.18,
+-      46.42
++      -4.45,
++      3.4,
++      1.87
+      ]
+     },
+     {
+@@ -618,9 +701,9 @@
+      "y": 0.051,
+      "z": 8.676,
+      "cam": [
+-      4.12,
+-      15.12,
+-      44.86
++      -4.34,
++      3.45,
++      2.34
+      ]
+     },
+     {
+@@ -629,9 +712,9 @@
+      "y": 0.177,
+      "z": 9.16,
+      "cam": [
+-      7.41,
+-      15.12,
+-      42.85
++      -4.3,
++      3.58,
++      2.81
+      ]
+     },
+     {
+@@ -640,9 +723,9 @@
+      "y": 0.303,
+      "z": 9.644,
+      "cam": [
+-      10.5,
+-      15.09,
+-      40.39
++      -4.27,
++      3.7,
++      3.28
+      ]
+     },
+     {
+@@ -651,9 +734,9 @@
+      "y": 0.427,
+      "z": 10.128,
+      "cam": [
+-      13.27,
+-      15.04,
+-      37.53
++      -4.25,
++      3.83,
++      3.75
+      ]
+     },
+     {
+@@ -662,9 +745,9 @@
+      "y": 0.551,
+      "z": 10.613,
+      "cam": [
+-      15.56,
+-      14.96,
+-      34.38
++      -4.17,
++      3.95,
++      4.2
+      ]
+     },
+     {
+@@ -673,9 +756,9 @@
+      "y": 0.671,
+      "z": 11.098,
+      "cam": [
+-      17.3,
+-      14.85,
+-      31.03
++      -4.09,
++      4.07,
++      4.65
+      ]
+     },
+     {
+@@ -684,9 +767,9 @@
+      "y": 0.79,
+      "z": 11.584,
+      "cam": [
+-      18.46,
+-      14.7,
+-      27.6
++      -4.01,
++      4.19,
++      5.1
+      ]
+     },
+     {
+@@ -695,9 +778,9 @@
+      "y": 0.905,
+      "z": 12.071,
+      "cam": [
+-      19.03,
+-      14.51,
+-      24.21
++      -3.92,
++      4.3,
++      5.55
+      ]
+     },
+     {
+@@ -706,9 +789,9 @@
+      "y": 1.016,
+      "z": 12.558,
+      "cam": [
+-      19.03,
+-      14.28,
+-      20.98
++      -3.84,
++      4.42,
++      6.01
+      ]
+     },
+     {
+@@ -717,9 +800,9 @@
+      "y": 1.125,
+      "z": 13.046,
+      "cam": [
+-      18.51,
+-      13.99,
+-      18
++      -3.76,
++      4.52,
++      6.46
+      ]
+     },
+     {
+@@ -728,9 +811,9 @@
+      "y": 1.228,
+      "z": 13.535,
+      "cam": [
+-      17.54,
+-      13.66,
+-      15.31
++      -3.71,
++      4.63,
++      6.94
+      ]
+     },
+     {
+@@ -739,9 +822,9 @@
+      "y": 1.326,
+      "z": 14.026,
+      "cam": [
+-      16.2,
+-      13.28,
+-      12.96
++      -3.71,
++      4.73,
++      7.43
+      ]
+     },
+     {
+@@ -750,9 +833,9 @@
+      "y": 1.42,
+      "z": 14.517,
+      "cam": [
+-      14.57,
+-      12.85,
+-      11.04
++      -3.71,
++      4.82,
++      7.92
+      ]
+     },
+     {
+@@ -761,9 +844,9 @@
+      "y": 1.507,
+      "z": 15.009,
+      "cam": [
+-      12.74,
+-      12.37,
+-      9.57
++      -3.71,
++      4.91,
++      8.41
+      ]
+     },
+     {
+@@ -772,9 +855,9 @@
+      "y": 1.588,
+      "z": 15.502,
+      "cam": [
+-      10.82,
+-      11.85,
+-      8.54
++      -3.71,
++      4.99,
++      8.9
+      ]
+     },
+     {
+@@ -783,9 +866,9 @@
+      "y": 1.665,
+      "z": 15.996,
+      "cam": [
+-      8.87,
+-      11.31,
+-      7.92
++      -3.71,
++      5.06,
++      9.4
+      ]
+     },
+     {
+@@ -794,9 +877,9 @@
+      "y": 1.732,
+      "z": 16.492,
+      "cam": [
+-      6.98,
+-      10.73,
+-      7.68
++      -3.71,
++      5.13,
++      9.89
+      ]
+     },
+     {
+@@ -805,9 +888,9 @@
+      "y": 1.793,
+      "z": 16.988,
+      "cam": [
+-      5.2,
+-      10.15,
+-      7.77
++      -3.71,
++      5.19,
++      10.39
+      ]
+     },
+     {
+@@ -816,9 +899,9 @@
+      "y": 1.848,
+      "z": 17.485,
+      "cam": [
+-      3.57,
+-      9.56,
+-      8.11
++      -3.71,
++      5.25,
++      10.89
+      ]
+     },
+     {
+@@ -827,9 +910,9 @@
+      "y": 1.892,
+      "z": 17.983,
+      "cam": [
+-      2.11,
+-      8.97,
+-      8.67
++      -3.71,
++      5.29,
++      11.38
+      ]
+     },
+     {
+@@ -838,9 +921,9 @@
+      "y": 1.93,
+      "z": 18.482,
+      "cam": [
+-      0.84,
+-      8.4,
+-      9.38
++      -3.71,
++      5.33,
++      11.88
+      ]
+     },
+     {
+@@ -849,9 +932,9 @@
+      "y": 1.962,
+      "z": 18.981,
+      "cam": [
+-      -0.25,
+-      7.85,
+-      10.2
++      -3.71,
++      5.36,
++      12.38
+      ]
+     },
+     {
+@@ -860,9 +943,9 @@
+      "y": 1.981,
+      "z": 19.48,
+      "cam": [
+-      -1.16,
+-      7.34,
+-      11.07
++      -3.71,
++      5.38,
++      12.88
+      ]
+     },
+     {
+@@ -871,9 +954,9 @@
+      "y": 1.994,
+      "z": 19.98,
+      "cam": [
+-      -1.9,
+-      6.87,
+-      11.96
++      -3.71,
++      5.39,
++      13.38
+      ]
+     },
+     {
+@@ -882,9 +965,9 @@
+      "y": 2,
+      "z": 20.48,
+      "cam": [
+-      -2.5,
+-      6.45,
+-      12.84
++      -3.71,
++      5.4,
++      13.88
+      ]
+     },
+     {
+@@ -893,9 +976,9 @@
+      "y": 1.994,
+      "z": 20.98,
+      "cam": [
+-      -2.95,
+-      6.08,
+-      13.68
++      -3.71,
++      5.39,
++      14.38
+      ]
+     },
+     {
+@@ -904,9 +987,9 @@
+      "y": 1.981,
+      "z": 21.48,
+      "cam": [
+-      -3.29,
+-      5.77,
+-      14.47
++      -3.71,
++      5.38,
++      14.88
+      ]
+     },
+     {
+@@ -915,9 +998,9 @@
+      "y": 1.962,
+      "z": 21.979,
+      "cam": [
+-      -3.53,
+-      5.54,
+-      15.19
++      -3.71,
++      5.36,
++      15.38
+      ]
+     },
+     {
+@@ -926,9 +1009,9 @@
+      "y": 1.93,
+      "z": 22.478,
+      "cam": [
+-      -3.67,
+-      5.38,
+-      15.83
++      -3.71,
++      5.33,
++      15.88
+      ]
+     },
+     {
+diff --git a/tools/journey-integration/test-journey-framing.cjs b/tools/journey-integration/test-journey-framing.cjs
+index 0e148fa..997bcec 100644
+--- a/tools/journey-integration/test-journey-framing.cjs
++++ b/tools/journey-integration/test-journey-framing.cjs
+@@ -7,12 +7,13 @@
+  * F4 night sky visible (sky band mean ≥ 0.10 per leg, final frame ≥ 0.15);
+  * F5 08→09 final frame: plaza centre centred, character ≈ 1/6 of screen height;
+  * F6 04→05 start follows her: in frame from d ≥ 1.25 m and peak turn ≤ 20°/s.
++ * F7 04→05 lens on her right side from set-off (v3.2 camera rule).
+  * Geometry on real GLB triangles + real TS; not a rendered or device acceptance. */
+ const sc=require('./journey-scene.cjs'),F=require('./journey-framing-lib.cjs');
+-const {fs,assert,legs,sampleRoute,routeLength,journeyCamera,island,meadow,skyFrame,focus2,JOURNEY_CAMERA,L}=sc;
++const {fs,assert,Core,legs,sampleRoute,routeLength,journeyCamera,island,meadow,skyFrame,focus2,JOURNEY_CAMERA,L}=sc;
+ const results=[];function check(id,fn){try{results.push({id,status:'PASS',evidence:fn()});}catch(e){results.push({id,status:'FAIL',error:String(e&&e.stack||e)});}}
+ const STEP=.1,isMass=o=>o.tag==='skycity',bvh=F.buildBvh([...island,...meadow,...skyFrame]);
+-const run=leg=>{const T=routeLength(leg.path),rows=[];let prev=null;for(let d=0;d<=T+1e-9;d+=STEP){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens),dv=F.dir(c),b=F.body(c,sampleRoute(leg.path,dd));
++const run=leg=>{const T=routeLength(leg.path),rows=[];let prev=null;for(let d=0;d<=T+1e-9;d+=STEP){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),dv=F.dir(c),b=F.body(c,sampleRoute(leg.path,dd));
+  rows.push({d:+dd.toFixed(2),c,angDegS:prev?F.angle(prev,dv)/(STEP/L.speedMps):0,inFrame:b.inFrame,height:b.height});prev=dv;}return {T,rows};};
+ const R=legs.map(run),cov={};
+ const covOf=(i)=>cov[i]||(cov[i]=R[i].rows.filter((_,k)=>k%5===0||k===R[i].rows.length-1).map(r=>({d:r.d,...F.coverage(r.c,bvh,isMass)})));
+@@ -25,6 +26,11 @@ check('F4 night sky visible: 04→05 mean ≥ 0.10; no zero-sky stretch > 11 m o
+  const fin=covOf(1).at(-1);assert(fin.sky>=.15,'final sky '+fin.sky);out.finalSky=+fin.sky.toFixed(3);return out;});
+ check('F5 08→09 final frame: plaza centre |x|≤0.1, -0.1≤y≤0.45; character height 0.13–0.21',()=>{const r=R[1].rows.at(-1),[x,y,z]=F.ndc(r.c,focus2);assert(z>0&&Math.abs(x)<=.1&&y>=-.1&&y<=.45,`plaza ndc ${x},${y}`);assert(r.height>=.13&&r.height<=.21,'height '+r.height);return {plazaNdc:[+x.toFixed(3),+y.toFixed(3)],herHeight:+r.height.toFixed(3)};});
+ check('F6 04→05 start follows her: in frame from 1.25 m, first 10 m turn ≤ 20°/s',()=>{const rows=R[0].rows.filter(r=>r.d<=10),m=Math.max(...rows.map(r=>r.angDegS));assert(m<=20,'start turn '+m);assert(rows.filter(r=>r.d>=1.25).every(r=>r.inFrame));return {maxDegS:+m.toFixed(2)};});
++// F7 (v3.2 camera rule): the lens stays on her RIGHT. Bearing of the lens from her, measured against her walking heading
++// (journeyHeading), must never be left of directly behind. Checked on 04→05 from set-off (no exemption).
++check('F7 04→05 lens on her right side from set-off (never left of behind)',()=>{const leg=legs[0],T=routeLength(leg.path);let worst=-999,at=0;
++ for(let d=0;d<=T+1e-9;d+=.1){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,dd),[hx,hz]=Core.journeyHeading(leg.path,dd),vx=c.position[0]-p[0],vz=c.position[2]-p[2],back=-(vx*hx+vz*hz),right=vx*(-hz)+vz*hx,a=Math.atan2(-right,back)*180/Math.PI;if(a>worst){worst=a;at=dd;}}
++ assert(worst<=0,`lens ${worst.toFixed(1)}° left of behind at d=${at.toFixed(1)}`);return {worstLeftOfBehindDeg:+worst.toFixed(1),atM:+at.toFixed(1)};});
+ const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
+ fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
+ console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
+diff --git a/tools/journey-integration/test-journey-occlusion.cjs b/tools/journey-integration/test-journey-occlusion.cjs
+index 9194fe9..cf244fb 100644
+--- a/tools/journey-integration/test-journey-occlusion.cjs
++++ b/tools/journey-integration/test-journey-occlusion.cjs
+@@ -6,24 +6,29 @@
+  * (meadow read directly; Draco GLBs via the SHA-pinned fixture in occlusion/). Samples every 0.05 m and asserts:
+  *   O1 character not occluded: camera→body segments at 0.15/0.5/0.9/1.25/1.6 m (Möller–Trumbore); chest and head must
+  *      be visible and at most one low point may graze an edge (grazes are listed in the report)
++ *      v3.2: the face point (1.5 m) must be visible as well.
+  *   O2 lens clearance ≥ 1 m from all geometry (no near-plane close-ups)
+  *   O3 foot point is above the sky platform/rock top along bridge + deck; bridge corridor (2.1 m × 2 m) is free
+  *   O4 09 arrival: the board background (own camera, SkycityVisitPose) pose is byte-for-byte the Build05 pose and
+  *      still frames the plaza; the arrival root relative to the city is unchanged.
+- * Exemption, reported not hidden: leg 04→05 samples with d < 1.25 m, where the lens is still ≥80% the authored
+- * island pose (v24-readable). That pose is unchanged by this fix and owned by the island camera work.
++ * Exemption, reported not hidden: leg 04→05 samples with d < 1 m where ONLY her legs (0.15/0.5 m) are behind the island
++ * prop strip (v3.2: the lens follows her from set-off; face/head/chest and clearance are never exempt).
+  * No browser, engine or rendering. A pass is geometric evidence, not native visual acceptance. */
+ const {fs,path,zlib,crypto,assert,createHarness,loadGlb,ROOT,B,S,H,Lay,Core,Cam,Visit,L,sampleRoute,routeLength,journeyCamera,JOURNEY_CAMERA,sha,meta,bin,f32,local,meadowNodes,skyNodes,rotY,place,nodePos,add,sub,props,island,anchorsIsland,start,mp,appr1,edge1,mOff,meadow,mA,bridge1,leg1,appr2,edge2,sp,yaw,deck0,sOff,sky,sA,deck,bridge2,leg2,focus2,bbox,segBox,rayHit,blockers,ptTri,clearance,readPose,start1,legs}=require('./journey-scene.cjs');
+ const results=[];const check=(id,fn)=>{try{results.push({id,status:'PASS',...fn()});}catch(e){results.push({id,status:'FAIL',error:String(e.stack||e)});}};
+ const STEP=+(process.env.QF_OCCLUSION_STEP||.05),EXEMPT=1.25,HEIGHTS=[.15,.5,.9,1.25,1.6];
+ const profile={};
+ for(const leg of legs){const T=routeLength(leg.path),fails=[],exempted=[],grazes=[],rows=[];let minLens=9;
+- for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
++ for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
+   if(d>=leg.exempt)minLens=Math.min(minLens,lens);// Occluded = chest (0.9 m) or head (1.6 m) hidden, or more than one of the five body points hidden. A lone graze of
+   // one low point by a pebble/grass edge is reported in partialGrazes, not failed.
+   const rec={d:+d.toFixed(2),hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length)),lens:+lens.toFixed(2),lensObj};
+-  const bad=hit[2].length>0||hit[4].length>0||hidden>1||lens<1;
+-  if(bad)(d<leg.exempt?exempted:fails).push(rec);else if(hidden)grazes.push(rec);
++  const face=blockers(leg.objs,c.position,[p[0],p[1]+1.5,p[2]]);if(face.length)rec.face=face;// v3.2 camera rule: face (1.5 m) must be visible too
++  const bad=hit[2].length>0||hit[4].length>0||face.length>0||hidden>1||lens<1;
++  // v3.2: the start exemption only covers her LEGS (0.15/0.5 m) behind the island prop strip in the first metre; face, head,
++  // chest and lens clearance are enforced from set-off.
++  const legsOnly=!face.length&&!hit[2].length&&!hit[3].length&&!hit[4].length&&lens>=1;
++  if(bad)(d<leg.exempt&&legsOnly?exempted:fails).push(rec);else if(hidden)grazes.push(rec);
+   if(Math.abs(d/.5-Math.round(d/.5))<1e-6||i*STEP>T-STEP)rows.push({d:+d.toFixed(2),x:+p[0].toFixed(3),y:+p[1].toFixed(3),z:+p[2].toFixed(3),cam:c.position.map(v=>+v.toFixed(2))});}
+  profile[leg.id]={total:+T.toFixed(4),rows};
+  check(`O1/O2 ${leg.id} character visible + lens ≥1 m every ${STEP} m`,()=>{assert.deepEqual(fails,[],JSON.stringify(fails.slice(0,8)));return {total:+T.toFixed(4),samples:Math.floor(T/STEP)+1,minLensM:+minLens.toFixed(2),exemptedAuthoredIslandPoseSamples:exempted,partialGrazes:grazes};});}
+diff --git a/tools/voice-build05-journey-ground/dumpcam.cjs b/tools/voice-build05-journey-ground/dumpcam.cjs
+index 89d05c8..5af9c32 100644
+--- a/tools/voice-build05-journey-ground/dumpcam.cjs
++++ b/tools/voice-build05-journey-ground/dumpcam.cjs
+@@ -1,5 +1,5 @@
+ const S=require('/tmp/gg3/tools/journey-integration/journey-scene.cjs');
+ const leg=S.legs.find(l=>l.id==='08-09'),T=S.routeLength(leg.path),out={yaw:S.yaw,sOff:S.sOff,T,poses:{}};
+ const inv=p=>S.rotY(-S.yaw,S.sub(p,S.sOff));
+-for(const d of process.argv.slice(2).map(Number)){const c=S.journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens);out.poses[d]={position:inv(c.position),target:inv(c.target),fov:c.fovVerticalDeg,char:inv(S.sampleRoute(leg.path,d))};}
++for(const d of process.argv.slice(2).map(Number)){const c=S.journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM);out.poses[d]={position:inv(c.position),target:inv(c.target),fov:c.fovVerticalDeg,char:inv(S.sampleRoute(leg.path,d))};}
+ console.log(JSON.stringify(out));
+-- 
+2.47.3
+

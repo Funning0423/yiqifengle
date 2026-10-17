@@ -1,0 +1,13 @@
+commit 274ac39fb3d261b5fbf9d0ece3cb38695e08dc83
+Author: Cursor Agent <cursoragent@cursor.com>
+Date:   Fri Oct 16 15:55:15 2026 -0400
+
+    exit-cam B5.5: ~20 s, S-curve retime (from 3.6 s, ~3 s ease-in / ~3.3 s ease-out, constant cruise), peak 4.52 m/s, max accel 2.57 const / 2.66 real-walk, followTau 0.29, heightRampOut .4, heightShare .62; clearance 1.256 m; tests: peak cap 4.7, accel cap 3
+
+ .../assets/scripts/world-r1/CameraPose.ts          |  2 +-
+ .../assets/scripts/world-r1/FirstsliceRoutes.ts    | 26 ++++++++++++++++++----
+ .../assets/scripts/world-r1/RegionCameraData.ts    |  6 ++---
+ .../assets/scripts/world-r1/WorldFlowComponent.ts  |  2 +-
+ tools/camera-frame-test/flow_sim.cjs               |  2 +-
+ tools/camera-frame-test/test_camera_frames.cjs     |  2 +-
+ 6 files changed, 29 insertions(+), 11 deletions(-)

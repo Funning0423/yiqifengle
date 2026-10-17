@@ -1,0 +1,9 @@
+00:00.089  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.462  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-clipfix/pipe/scene/cine_m1_base.blend"
+00:00.629  system.path      | WARNING Could not get a list of mounted file-systems
+01:53.778  system.path      | WARNING Could not get a list of mounted file-systems
+Info: Saved as "cine_m1_anim.blend"
+DONE {"stand_root": [-0.016248999163508415, 4.4130859375, 0.0], "yaw_end": -0.04937561571266458, "turn_deg": 111.76254463496913, "stand_foot_ik_err_mm_max": 8.529613272737944e-05, "turn_foot_ik_err_mm_max": 3.7538266545668115, "ground_under_feet": {"L": 0.0, "R": -2.9802322387695312e-08}}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

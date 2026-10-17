@@ -1,0 +1,11 @@
+could not get a list of mounted file-systems
+WARN (bke.modifier): source/blender/blenkernel/intern/modifier.cc:425 BKE_modifier_set_error: Object: "B_YELLOW_PROOF_MIDSURFACE_R8WIND_REFERENCE_MDD", Modifier: "EXACT_ORIGINAL_YELLOW_MOTION", No such file or directory
+WARN (bke.modifier): source/blender/blenkernel/intern/modifier.cc:425 BKE_modifier_set_error: Object: "B_APRON_PROOF_MIDSURFACE_R8WIND_REFERENCE_MDD", Modifier: "LOCAL_FREE_CORNER_ARAP_ANIMATION", No such file or directory
+Info: 1432 vertex weights limited
+Info: 182 vertex weights limited
+Info: Saved as "cine_m1_base.blend"
+REP {"char_blend": "/workspace/wechat-game/team/cinematic/work/m1v2/src_copy/B_R5G2_FIX_PASS2B_SOURCE_grokbot2.blend", "char_blend_sha256": "b5df09f878458247b36136a9b2717bf141ad34c2dad03043c2c50e95ba9841f3", "K": 1.061164379119873, "weights_B_ANATOMICAL_VERTICAL_SLENDER_R5": {"verts_over4_before": 0, "max_influences_after": 4}, "weights_G2_DRESS_R5G2": {"verts_over4_before": 1432, "max_influences_after": 4}, "weights_G2_APRON_R5G2": {"verts_over4_before": 180, "max_influences_after": 4}, "weights_G2_HAIR_BOB_R5G2": {"verts_over4_before": 0, "max_influences_after": 1}, "char_scale_mode": "bakeK", "char_scale_total": 1.061164379119873, "scale_after_B_ANATOMICAL_VERTICAL_SLENDER_R5": [1.0, 1.0, 1.0], "scale_after_G2_DRESS_R5G2": [1.0, 1.0, 1.0], "scale_after_G2_APRON_R5G2": [1.0, 1.0, 1.0], "scale_after_G2_HAIR_BOB_R5G2": [1.0, 1.0, 1.0], "scale_after_R5G2_RIG_22P4": [1.0, 1.0, 1.0], "props_merged_chair_verts_removed": 290, "bbox_z_B_ANATOMICAL_VERTICAL_SLENDER_R5": 1.7253, "bbox_z_G2_DRESS_R5G2": 1.1567, "bbox_z_G2_APRON_R5G2": 1.1612, "bbox_z_G2_HAIR_BOB_R5G2": 1.6441, "bow_tail_verts": 155}
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/src_copy/B_R5G2_FIX_PASS2B_SOURCE_grokbot2.blend"
+
+Blender quit

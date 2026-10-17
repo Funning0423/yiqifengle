@@ -1,0 +1,28 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1303,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T01:35:11.583Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T01:35:12.591Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/logs/WeappLog/review.log",
+      "size": 870
+    },
+    {
+      "t": "2026-10-10T01:35:13.197Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/new-boundaries/fixtures/prefix-benign-before-error/logs/WeappLog/review.log",
+      "bytes": 1303,
+      "ok": true
+    }
+  ]
+}

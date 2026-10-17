@@ -1,0 +1,756 @@
+From f85ddbf37a74647b86e6e593cabb2a5bdc39e01e Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 14:37:06 +0800
+Subject: [PATCH 2/8] lakeside: drop 4 zero-instance GLBs from region_lakeside
+ subpackage (LK_boardwalk, LK_boardwalk_rail, LK_fishnet, LK_signpost: 25,724
+ B GLB + 11,793 B meta); repo-wide grep shows no scene/prefab/TS/JSON/uuid
+ reference; check_region_export PASS (581/431); handoff note
+
+---
+ art-src/regions/lakeside/COCOS_HANDOFF.md     |   2 +-
+ .../region_lakeside/models/LK_boardwalk.glb   | Bin 4520 -> 0 bytes
+ .../models/LK_boardwalk.glb.meta              | 130 ------------------
+ .../models/LK_boardwalk_rail.glb              | Bin 4532 -> 0 bytes
+ .../models/LK_boardwalk_rail.glb.meta         | 130 ------------------
+ .../region_lakeside/models/LK_fishnet.glb     | Bin 10512 -> 0 bytes
+ .../models/LK_fishnet.glb.meta                | 130 ------------------
+ .../region_lakeside/models/LK_signpost.glb    | Bin 6160 -> 0 bytes
+ .../models/LK_signpost.glb.meta               | 130 ------------------
+ 9 files changed, 1 insertion(+), 521 deletions(-)
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb
+ delete mode 100644 creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta
+
+diff --git a/art-src/regions/lakeside/COCOS_HANDOFF.md b/art-src/regions/lakeside/COCOS_HANDOFF.md
+index 7ee0eb6..a3cd12d 100644
+--- a/art-src/regions/lakeside/COCOS_HANDOFF.md
++++ b/art-src/regions/lakeside/COCOS_HANDOFF.md
+@@ -5,7 +5,7 @@
+ 
+ ## 1. 进分包的 GLB 清单（models/，55 个）
+ 共享调色板贴图 `models/T_LK_palette_256.png`（256×256，所有 GLB 外部引用同一张）。`LK_board_frame.glb` 不进分包，已移到 `models/_excluded/`。
+-实例数为 r5h3 最终渲染中可见的实例（不含 ASSETS 模板）；`LK_boardwalk`、`LK_boardwalk_rail`、`LK_fishnet`、`LK_signpost` 以前只在原点的模板里出现，场景里实际是 0 个实例，可以考虑移出分包（共 25,724 B）；实例数 0 的是动态生成（水花）或备用资产。
++实例数为 r5h3 最终渲染中可见的实例（不含 ASSETS 模板）；`LK_boardwalk`、`LK_boardwalk_rail`、`LK_fishnet`、`LK_signpost` 以前只在原点的模板里出现，场景里实际是 0 个实例，已于 2026-10-17 从游戏分包 `creator-build-project/assets/bundles/region_lakeside/models/` 移除（GLB 25,724 B + .meta 11,793 B；源模型仍在 blend 里，下表保留其原始数据作记录；若以后要摆放，需先把 GLB 放回 models/，否则导出脚本会按 no_glb 丢掉该物体、检查脚本会报 GLB not in models）；实例数 0 的是动态生成（水花）或备用资产。
+ 
+ | 文件 | 归属 | 三角面/个 | 字节 | 实例数 | 合计三角面 |
+ |---|---|---|---|---|---|
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb
+deleted file mode 100644
+index 458490674f6c5124f775865400556fa41019d3d1..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 4520
+zcmeHIO>7%Q6n>;BKP`m@XrYBd7=B9~cYpl1h9phgBu(SQD6uM}sEXG1+F4=mTI+Rw
+zYDEg?9N-qEQaEwoRB=bCB@U60;2!0W8xm(E&gRYRj=i?mP7b|PVxxWY_RaUb_syFb
+zr%+5!4*<Z=LjXUW2e`kKTBs4VQqgP@uaSagXqIZ57KxL&Rm(KY%5VWG!;?kL$Z6K_
+z?CsR>S~w^LLjnnqHO;E%rh#B7D3GlHsbnz$i3_e*A@SuJG1L;q$P$|i5W~!AbV7Kz
+z^|19-BPFe}%BU_rIk%EARV%ly7QZDFT2gJz($%7qHD^{cMQusXX*m+Nt*VB(oI>*}
+zNG+>H&9*fZS<YDVnynU#dUnyQ7FG?df*EQgqgJ$pSv0M*wqaK-lvpD=E^-4!;8IF1
+zXIjm&e&CucPH)D7F@Zgzs7Qh$DO*e@E`+VHx%9TBpdw2z>9)S+f>hhK^i0*JpEdGz
+zYH2n-n_6J4SV%3-Pb5iP43PBHH;Ghg@$QO1;!=PlQpwaJ^<~tGvh^&bhgw~tt6&|r
+zo#i=QtEi=NQN!(}TVz(PEZr?CS}&=EcF}218&{-o1Y23Pblk|!iD20%unkhPD57Fo
+zPN_^apVzDhy0*@$WzACAG&I9bZ<euWSd=0Gk~OOa9=vFb>c++|3&BuSp-)VaqM{g)
+zl~6zkMp#IR#e}FLM8$wePlJx<Zh6FyfWe5fFOnP!iLr2035<wAL2%Ltp@@v@iD43(
+zX(11$5;7iNJQE(x*z?mg_oL$;ot-XqRmYv|rZY*+j<u?XaBmFLDyc>N5x)+d%aQ#O
+zvLH(+N_ZmNj7y1$<isM|(pE#fo60scvuSHd%_!J-YZVzclLk`xJo_o3$yBRAe^um=
+z5|LVJPUo^@XJtnu?3A~%7>i=-&q|j<sMJfBP;EOMFBm@<UD{<4Yqim%a)e$d_ntXT
+z!>cu|7xBjn8x@u4S=WtbK#7GY!D+PHWKU;hAr!-V{P#tG$=L<?{<nXh{`p7p0APFk
+z6o1r%>E+Wrbx$5YpK^KJ&mZ&X>F09|6w}K;aBJ~Av~H)*HSjzf!{Yd_4Ic09J$*9s
+zUA><#%kntK`1$j{>Z3Hz!awWvem>=LjGuqUzRdCr9_H))e9GmR9{vH<<6?UH9`1pk
+zk85FES94FFayiD&r+fZ*?;7@ad%T}d_kd%1`7}>HpKs>z^C_3dd-$UsJw1Jo20SnH
+zVfx#Aj~<rCt=r~PCXf61H0C_p<L=1LBR$`IrZqM(9oQD4#p8TF`eOR!>6qiS+wyQs
+z$JmCcJ6~LfZyt{6k;maqKDx^0|GJ*4qt7_hck{EkQ!otc#a!5|Fy8O-k7K>^bYm!z
+zufx%H3Wn7<1;ex<hK(&fZMArw4otH@EKYmUoyXDZ?OQjdtrpAGI!|<tKh3o>Jv}fT
+ze7^rY2OW8=na}04VLEDXtS^RR-LVbh=I*TNi}A_x3!aaA7=K>JA5i}W>i>Uy9{Ml<
+z=iwp@;QKPX2(Q2uv{&E_cnjW!A+$sA8oUax!#T9)@Cd&IZ^9+Cm*54s3Kw7y?I2u+
+zYw#Wrv;;nYVfYAcqP+>9!pHC#jG!HXFW__d5Z=W<8G>ko_#J@T5JnpY2}B6N4YW7l
+zItcI%ypMmMz%8`5@H+-y!UWn07=y219Olr@!9BPS^Du*U2JXTnOo4({fe4JkEF{n-
+zAPPyi197x*n1-XHqsH#;Zi9{|CnwGKS;cpDb{dC=hwN>5o?dZ^<#Qf5<NL*VjPktC
+U{{DW$G|dJbkB^U=@3V^k2O~^mkN^Mx
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
+deleted file mode 100644
+index a28ef6d..0000000
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
++++ /dev/null
+@@ -1,130 +0,0 @@
+-{
+-  "ver": "2.3.14",
+-  "importer": "gltf",
+-  "imported": true,
+-  "uuid": "0868bc53-0016-5d8c-920f-1116029ce836",
+-  "files": [],
+-  "subMetas": {
+-    "96477": {
+-      "importer": "gltf-scene",
+-      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@96477",
+-      "displayName": "",
+-      "id": "96477",
+-      "name": "LK_boardwalk.prefab",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "e1093": {
+-      "importer": "gltf-mesh",
+-      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@e1093",
+-      "displayName": "",
+-      "id": "e1093",
+-      "name": "LK_boardwalk.mesh",
+-      "userData": {
+-        "gltfIndex": 0,
+-        "triangleCount": 40
+-      },
+-      "ver": "1.1.1",
+-      "imported": true,
+-      "files": [
+-        ".bin",
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "e39f7": {
+-      "importer": "texture",
+-      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@e39f7",
+-      "displayName": "",
+-      "id": "e39f7",
+-      "name": "UnnamedTexture.texture",
+-      "userData": {
+-        "wrapModeS": "repeat",
+-        "wrapModeT": "repeat",
+-        "minfilter": "nearest",
+-        "magfilter": "nearest",
+-        "mipfilter": "nearest",
+-        "anisotropy": 0,
+-        "isUuid": false,
+-        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      },
+-      "ver": "1.0.22",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "a448d": {
+-      "importer": "gltf-material",
+-      "uuid": "0868bc53-0016-5d8c-920f-1116029ce836@a448d",
+-      "displayName": "",
+-      "id": "a448d",
+-      "name": "M_LK_palette.material",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    }
+-  },
+-  "userData": {
+-    "tangents": 1,
+-    "imageMetas": [
+-      {
+-        "name": "T_LK_palette_256",
+-        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      }
+-    ],
+-    "lods": {
+-      "enable": false,
+-      "hasBuiltinLOD": false,
+-      "options": [
+-        {
+-          "screenRatio": 0.25,
+-          "faceCount": 1
+-        },
+-        {
+-          "screenRatio": 0.125,
+-          "faceCount": 0.25
+-        },
+-        {
+-          "screenRatio": 0.01,
+-          "faceCount": 0.1
+-        }
+-      ]
+-    },
+-    "meshCompress": {
+-      "enable": true,
+-      "compress": true,
+-      "quantize": true,
+-      "encode": true
+-    },
+-    "assetFinder": {
+-      "meshes": [
+-        "0868bc53-0016-5d8c-920f-1116029ce836@e1093"
+-      ],
+-      "skeletons": [],
+-      "textures": [
+-        "0868bc53-0016-5d8c-920f-1116029ce836@e39f7"
+-      ],
+-      "materials": [
+-        "0868bc53-0016-5d8c-920f-1116029ce836@a448d"
+-      ],
+-      "scenes": [
+-        "0868bc53-0016-5d8c-920f-1116029ce836@96477"
+-      ]
+-    }
+-  }
+-}
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb
+deleted file mode 100644
+index 32f001e42cf9f5fea7220e9bdfca55df153272ba..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 4532
+zcmeHIOK%%h6h1AaK*}qW1}GHVTLP52&b<8~iAmg~q;X<MqN-A;qOmh}2F5dCJWi8Z
+zkr02N{Q(IZen7flnW!xbBm}Ix%_b5O8zjUgn{e*+TzmXX7L~eyiG1#vbHDT5@0@$@
+zq+rcYoCJU$`vC6u09>ET%v6Y8Dj6P0R7k<F4OjOZmn6v4vg_DRDOA9e(3oY|ONJYo
+z9L$7P)rb^P1QI5zhFdZn8^KaUARA#)${_(s2)<V$iG>QW^&-Z|9GeRh+gUQ`gm7!)
+zR{gC)ibiRfrTX~v)MD1r-KE>Q_4T5wn--z?qV5^4sasX*C8wOVj5%}3SRx6}EgMK!
+zU2S?1^H+4s@H_*Ru4LV5!_zIx%*{IG!m@3YkfB1dddWyRmgCMFYhKw!ofTqYrE91J
+z>nZv<6MBv{1q*X|dMy@-3G5NYxFp1-_y*I7)vz*a^|#i8vRt!hdgiK+)IHBNvt^II
+zR><d>xykv-%nWPFOlEd^G))p>n9PsgOl2~&R~H46kisODNoQuMFQZ`8ZsusZQg0P4
+zh4tF2)>v&_NiVKg25vOnET`<|=)O_qW>GIRDxVMZa#2z>>}T0EaZ8&gA}e-*?UJ5D
+z5hcg1E|o3k^M-rFG;Xuia!zr@u?^dsUthsRRZ-HyB<GZEJc7{})s5X>5F>&Zr%w!f
+zs;QzJ4GWRDsM1zTqM}B%s3c-YPy|I4VyYx-iY$m)j2;pb&*Z`tIvG_}DJDguimF95
+zK?w_C8fGj=gkeFA2^!{jObod(o|5q-<H-n!#-<-7x?4JK((%)!mep}9Thp1OTFdII
+zE4Vqf;}&(xyu&X=b2)N5LKb9%qJ&4nXPirorblPlp4J-@+*P)t*>%rI8+O6N3mlhm
+zH)$Y~&$F)zCDYvk{lLgdT$Ac*j?QId$IaFx>{M`NF&4$vA2(f6P-!q-LbZ+Qc*FR?
+zXwfc<xK=}YRMzNy@-JGoX?V9LObb6@*r=#P54&mC0`Zta6RM5&n;ht@EGRL&$e}+@
+z1B^}1;8(o*{Qg^dx0|2O=aU@M&VTgt*f7n%H?XnO&8N8>)6ReR=&vEl^XvA&a5tak
+za!dz*C&1Iu59IE&^RX7z7hiKnpXPE*J0BkZu=D2^H<P`OFAjI}zZw3jhUw({Ji7s&
+z7T?ch@pk@~cfU(=J>7h+fnqxOTu*>!x7p_!0z3@E<Fpo8{(I!^PyY;c^Yi&rNsj5{
+z`#d`Vo)+KFW$|`C)yegA^SK6!>Ev@g0iK;^pKA#4Fbt2=vkdU<18T?a^e5@Ke=hR?
+zeHNoWjUk539f4ukAf|V{#PWWTzaQzu(~7CD$F&`SVQU<LVcHPG#=4${wKz``rq&-8
+zr#)%qsr9D|reQ6H<Mma0!)=v|_q+q9DZi?bGgL<&tMU0cK~(b`e{YLP`n>+wfN9p#
+z4bzQ>&o%Kiti>^W^sx<?rhMLuwwP`_O><AHKlkwdtf7|w%J>lf@6&q!AD>1aPQbI!
+z3n%dR96S%Fp$}~zybLeGD{vO=S$GXzg%{u%{CgYv(e~r}>+lAgM|&R5!CUYS^q}p5
+zlkg^9x>NY~5}ZMM2H!()5iX&<1Rucr@FB=(We`9D6$a4`LKr@VD{ukr1$Y+*K!nR^
+zFT;DFz(+vP5{N(yK7moRqc8$Pkc26;Q}7vFhiSNm_8MG;F&Kw9+Bj%143m&Tn}R5$
+z;ZsPUO~3>=j&r!RwZ(pifu~cPV)<ME&hp#Ed5q=-pM!&g!|m<uLplbZCl%k@+dJIc
+Q+&rY?{{DXL_oU+g0@=NPHvj+t
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
+deleted file mode 100644
+index 112d29b..0000000
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
++++ /dev/null
+@@ -1,130 +0,0 @@
+-{
+-  "ver": "2.3.14",
+-  "importer": "gltf",
+-  "imported": true,
+-  "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f",
+-  "files": [],
+-  "subMetas": {
+-    "9239c": {
+-      "importer": "gltf-mesh",
+-      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@9239c",
+-      "displayName": "",
+-      "id": "9239c",
+-      "name": "LK_boardwalk_rail.mesh",
+-      "userData": {
+-        "gltfIndex": 0,
+-        "triangleCount": 40
+-      },
+-      "ver": "1.1.1",
+-      "imported": true,
+-      "files": [
+-        ".bin",
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "e39f7": {
+-      "importer": "texture",
+-      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@e39f7",
+-      "displayName": "",
+-      "id": "e39f7",
+-      "name": "UnnamedTexture.texture",
+-      "userData": {
+-        "wrapModeS": "repeat",
+-        "wrapModeT": "repeat",
+-        "minfilter": "nearest",
+-        "magfilter": "nearest",
+-        "mipfilter": "nearest",
+-        "anisotropy": 0,
+-        "isUuid": false,
+-        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      },
+-      "ver": "1.0.22",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "a448d": {
+-      "importer": "gltf-material",
+-      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@a448d",
+-      "displayName": "",
+-      "id": "a448d",
+-      "name": "M_LK_palette.material",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "4789f": {
+-      "importer": "gltf-scene",
+-      "uuid": "869d61ba-46c5-5d5b-8cdd-1e32c348110f@4789f",
+-      "displayName": "",
+-      "id": "4789f",
+-      "name": "LK_boardwalk_rail.prefab",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    }
+-  },
+-  "userData": {
+-    "tangents": 1,
+-    "imageMetas": [
+-      {
+-        "name": "T_LK_palette_256",
+-        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      }
+-    ],
+-    "lods": {
+-      "enable": false,
+-      "hasBuiltinLOD": false,
+-      "options": [
+-        {
+-          "screenRatio": 0.25,
+-          "faceCount": 1
+-        },
+-        {
+-          "screenRatio": 0.125,
+-          "faceCount": 0.25
+-        },
+-        {
+-          "screenRatio": 0.01,
+-          "faceCount": 0.1
+-        }
+-      ]
+-    },
+-    "meshCompress": {
+-      "enable": true,
+-      "compress": true,
+-      "quantize": true,
+-      "encode": true
+-    },
+-    "assetFinder": {
+-      "meshes": [
+-        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@9239c"
+-      ],
+-      "skeletons": [],
+-      "textures": [
+-        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@e39f7"
+-      ],
+-      "materials": [
+-        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@a448d"
+-      ],
+-      "scenes": [
+-        "869d61ba-46c5-5d5b-8cdd-1e32c348110f@4789f"
+-      ]
+-    }
+-  }
+-}
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb b/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb
+deleted file mode 100644
+index 6798bac1fda1a23f9a3ff9d4dacffc09f273f16c..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 10512
+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
+H*!%Eb%2~~-
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta
+deleted file mode 100644
+index 8f00d14..0000000
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_fishnet.glb.meta
++++ /dev/null
+@@ -1,130 +0,0 @@
+-{
+-  "ver": "2.3.14",
+-  "importer": "gltf",
+-  "imported": true,
+-  "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b",
+-  "files": [],
+-  "subMetas": {
+-    "15461": {
+-      "importer": "gltf-scene",
+-      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@15461",
+-      "displayName": "",
+-      "id": "15461",
+-      "name": "LK_fishnet.prefab",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "ce883": {
+-      "importer": "gltf-mesh",
+-      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@ce883",
+-      "displayName": "",
+-      "id": "ce883",
+-      "name": "LK_fishnet.mesh",
+-      "userData": {
+-        "gltfIndex": 0,
+-        "triangleCount": 144
+-      },
+-      "ver": "1.1.1",
+-      "imported": true,
+-      "files": [
+-        ".bin",
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "e39f7": {
+-      "importer": "texture",
+-      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@e39f7",
+-      "displayName": "",
+-      "id": "e39f7",
+-      "name": "UnnamedTexture.texture",
+-      "userData": {
+-        "wrapModeS": "repeat",
+-        "wrapModeT": "repeat",
+-        "minfilter": "nearest",
+-        "magfilter": "nearest",
+-        "mipfilter": "nearest",
+-        "anisotropy": 0,
+-        "isUuid": false,
+-        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      },
+-      "ver": "1.0.22",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "a448d": {
+-      "importer": "gltf-material",
+-      "uuid": "8f38651c-6c86-5ad3-9b5d-a9089b24716b@a448d",
+-      "displayName": "",
+-      "id": "a448d",
+-      "name": "M_LK_palette.material",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    }
+-  },
+-  "userData": {
+-    "tangents": 1,
+-    "imageMetas": [
+-      {
+-        "name": "T_LK_palette_256",
+-        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      }
+-    ],
+-    "lods": {
+-      "enable": false,
+-      "hasBuiltinLOD": false,
+-      "options": [
+-        {
+-          "screenRatio": 0.25,
+-          "faceCount": 1
+-        },
+-        {
+-          "screenRatio": 0.125,
+-          "faceCount": 0.25
+-        },
+-        {
+-          "screenRatio": 0.01,
+-          "faceCount": 0.1
+-        }
+-      ]
+-    },
+-    "meshCompress": {
+-      "enable": true,
+-      "compress": true,
+-      "quantize": true,
+-      "encode": true
+-    },
+-    "assetFinder": {
+-      "meshes": [
+-        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@ce883"
+-      ],
+-      "skeletons": [],
+-      "textures": [
+-        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@e39f7"
+-      ],
+-      "materials": [
+-        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@a448d"
+-      ],
+-      "scenes": [
+-        "8f38651c-6c86-5ad3-9b5d-a9089b24716b@15461"
+-      ]
+-    }
+-  }
+-}
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb b/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb
+deleted file mode 100644
+index 9f6eb4cb16f7c8884ed785ee2454c3337485cba4..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 6160
+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
+U^54IIfBM3O3)5_MUk}Uw4|3mzIsgCw
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta b/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta
+deleted file mode 100644
+index 0cc1adc..0000000
+--- a/creator-build-project/assets/bundles/region_lakeside/models/LK_signpost.glb.meta
++++ /dev/null
+@@ -1,130 +0,0 @@
+-{
+-  "ver": "2.3.14",
+-  "importer": "gltf",
+-  "imported": true,
+-  "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395",
+-  "files": [],
+-  "subMetas": {
+-    "4898a": {
+-      "importer": "gltf-mesh",
+-      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@4898a",
+-      "displayName": "",
+-      "id": "4898a",
+-      "name": "LK_signpost.mesh",
+-      "userData": {
+-        "gltfIndex": 0,
+-        "triangleCount": 60
+-      },
+-      "ver": "1.1.1",
+-      "imported": true,
+-      "files": [
+-        ".bin",
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "e39f7": {
+-      "importer": "texture",
+-      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@e39f7",
+-      "displayName": "",
+-      "id": "e39f7",
+-      "name": "UnnamedTexture.texture",
+-      "userData": {
+-        "wrapModeS": "repeat",
+-        "wrapModeT": "repeat",
+-        "minfilter": "nearest",
+-        "magfilter": "nearest",
+-        "mipfilter": "nearest",
+-        "anisotropy": 0,
+-        "isUuid": false,
+-        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      },
+-      "ver": "1.0.22",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "a448d": {
+-      "importer": "gltf-material",
+-      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@a448d",
+-      "displayName": "",
+-      "id": "a448d",
+-      "name": "M_LK_palette.material",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    },
+-    "5949d": {
+-      "importer": "gltf-scene",
+-      "uuid": "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@5949d",
+-      "displayName": "",
+-      "id": "5949d",
+-      "name": "LK_signpost.prefab",
+-      "userData": {
+-        "gltfIndex": 0
+-      },
+-      "ver": "1.0.14",
+-      "imported": true,
+-      "files": [
+-        ".json"
+-      ],
+-      "subMetas": {}
+-    }
+-  },
+-  "userData": {
+-    "tangents": 1,
+-    "imageMetas": [
+-      {
+-        "name": "T_LK_palette_256",
+-        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+-      }
+-    ],
+-    "lods": {
+-      "enable": false,
+-      "hasBuiltinLOD": false,
+-      "options": [
+-        {
+-          "screenRatio": 0.25,
+-          "faceCount": 1
+-        },
+-        {
+-          "screenRatio": 0.125,
+-          "faceCount": 0.25
+-        },
+-        {
+-          "screenRatio": 0.01,
+-          "faceCount": 0.1
+-        }
+-      ]
+-    },
+-    "meshCompress": {
+-      "enable": true,
+-      "compress": true,
+-      "quantize": true,
+-      "encode": true
+-    },
+-    "assetFinder": {
+-      "meshes": [
+-        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@4898a"
+-      ],
+-      "skeletons": [],
+-      "textures": [
+-        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@e39f7"
+-      ],
+-      "materials": [
+-        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@a448d"
+-      ],
+-      "scenes": [
+-        "bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@5949d"
+-      ]
+-    }
+-  }
+-}
+-- 
+2.47.3
+

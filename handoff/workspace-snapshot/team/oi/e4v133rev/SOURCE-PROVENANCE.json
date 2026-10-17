@@ -1,0 +1,16 @@
+{
+  "version": "v1.3.3 0207Z",
+  "zip_id": "13mBN6WSjyv0lPrBtIXl8IxTSdZJTH9rS",
+  "sidecar_id": "1w6oE6pGsZB3OeIjBuYrCC4AEobJCRpJC",
+  "bytes": 1695803,
+  "sha256": "278b8d0775b03e83a483974c69caf6f303e0cdf677c7115c30feacfabba1284d",
+  "retrieval": "Drive metadata then fetch raw streamed reference, tool-provided Sediment materialization",
+  "withdrawn_0157Z_package_fetched": false,
+  "project_files_changed": false,
+  "art_modified": false,
+  "creator": "not_run",
+  "real_device": "not_run",
+  "devtools": "not_run",
+  "gpu_memory": "not_run",
+  "performance": "not_run"
+}

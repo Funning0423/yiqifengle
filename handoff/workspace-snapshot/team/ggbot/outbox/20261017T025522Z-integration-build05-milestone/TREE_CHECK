@@ -1,0 +1,7 @@
+branch=integration/build05-20261016T2048
+head=09a1b8e456fd38dadf632f627189883808307cbe
+tree=082f1c0ee20c38403d3f3bbb3ff5fb27d2ecf14a
+bundle_head=09a1b8e456fd38dadf632f627189883808307cbe
+bundle_tree=082f1c0ee20c38403d3f3bbb3ff5fb27d2ecf14a
+base=77b76c3 (fast-forward, 28 commits)
+audit_branch_head=09a1b8e456fd38dadf632f627189883808307cbe

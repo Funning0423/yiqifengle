@@ -1,0 +1,30 @@
+could not get a list of mounted file-systems
+DIAG cine_open_turn 6 legL legR 0 {} {} z None None
+DIAG cine_open_turn 10 legL legR 31 {'foot.L': 31} {'foot.R': 31} z 0.027 0.057
+DIAG cine_open_turn 12 legL legR 42 {'foot.L': 42} {'foot.R': 42} z 0.003 0.066
+DIAG cine_open_turn 14 legL legR 15 {'foot.L': 15} {'foot.R': 15} z 0.014 0.033
+DIAG cine_open_turn 30 legL legR 0 {} {} z None None
+DIAG cine_open_turn 33 legL legR 26 {'foot.L': 26} {'foot.R': 26} z 0.003 0.041
+DIAG cine_open_turn 36 legL legR 0 {} {} z None None
+DIAG cine_open_turn 40 legL legR 0 {} {} z None None
+DIAG cine_open_stand 20 handL legL 0 {} {} z None None
+DIAG cine_open_stand 20 handR legR 0 {} {} z None None
+DIAG cine_open_stand 25 handL legL 0 {} {} z None None
+DIAG cine_open_stand 25 handR legR 0 {} {} z None None
+DIAG cine_open_stand 30 handL legL 0 {} {} z None None
+DIAG cine_open_stand 30 handR legR 0 {} {} z None None
+DIAG cine_open_stand 35 handL legL 0 {} {} z None None
+DIAG cine_open_stand 35 handR legR 0 {} {} z None None
+DIAG cine_open_stand 40 handL legL 0 {} {} z None None
+DIAG cine_open_stand 40 handR legR 0 {} {} z None None
+DIAG cine_open_stand 45 handL legL 0 {} {} z None None
+DIAG cine_open_stand 45 handR legR 0 {} {} z None None
+DIAG cine_open_stand 50 handL legL 0 {} {} z None None
+DIAG cine_open_stand 50 handR legR 0 {} {} z None None
+DIAG cine_open_stand 55 handL legL 0 {} {} z None None
+DIAG cine_open_stand 55 handR legR 0 {} {} z None None
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/scene/cine_m1_anim.blend"
+
+Blender quit
+QDONE

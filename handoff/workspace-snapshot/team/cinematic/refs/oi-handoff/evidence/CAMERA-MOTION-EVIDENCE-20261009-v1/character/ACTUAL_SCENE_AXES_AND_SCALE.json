@@ -1,0 +1,100 @@
+{
+  "status": "Measured source conventions and provisional character stature candidate; not final scene/animation acceptance",
+  "source_to_blender_matrix": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      -1
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "determinant": 1,
+  "game_axes": {
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "actor_face_forward_in_rest": [
+      0,
+      0,
+      1
+    ],
+    "physical_actor_right_when_facing_positive_z": [
+      -1,
+      0,
+      0
+    ],
+    "physical_actor_left_when_facing_positive_z": [
+      1,
+      0,
+      0
+    ]
+  },
+  "legacy_bone_labels": {
+    "warning": "Names are preserved as stable rig IDs; do not infer anatomical side from the label or rename/swap joints.",
+    "physical_right_hand_for_front_positive_z": "hand.L",
+    "physical_left_hand_for_front_positive_z": "hand.R"
+  },
+  "chair": {
+    "floor_world_game_m": [
+      0.4203000068664551,
+      0,
+      -4.2133002281188965
+    ],
+    "seat_top_m": 0.38,
+    "yaw_rad": -2,
+    "geometry_front_world_game": [
+      -0.9092974268256817,
+      0,
+      -0.4161468365471424
+    ],
+    "geometry_front_world_blender": [
+      -0.9092974268256817,
+      0.4161468365471424,
+      0
+    ],
+    "geometry_unchanged": true
+  },
+  "door": {
+    "hinge_game_m": [
+      0.7202203273773193,
+      0,
+      0
+    ],
+    "grip_anchor_closed_game_m": [
+      -0.4300000071525574,
+      1.1287000179290771,
+      -0.042399998754262924
+    ],
+    "open_angle_deg": 86.4,
+    "max_angle_deg": 105,
+    "positive_rotation_about_blender_z_is_anatomical_left": true,
+    "hinge_appears_left_from_inside": true,
+    "grip_appears_right_from_inside": true,
+    "grip_anchor_note": "Source empty is on ring centreline, not a complete hand surface-contact solution. Actual 64-vertex ring component must govern contact."
+  },
+  "candidate_uniform_stature_conversion": {
+    "source_rest_shoe_to_head_no_hat": 1.532279127046881,
+    "target_rest_shoe_to_head_m": 1.626,
+    "scale": 1.0611643605259733,
+    "source_rest_including_hat": 1.625856570455877,
+    "candidate_rest_including_hat_m": 1.7253010478947628,
+    "approved_physical_calibration": false,
+    "body_proportions_changed": false,
+    "environment_multiplier_applied_to_character": false,
+    "posed_stature_warning": "Measure final poses separately. A pelvis pose below its source rest height reduces posed standing stature; this does not change source proportions."
+  },
+  "current_source_scene": "/workspace/shared/grok-takeover/assets/candidate-firstslice-v0.1/interior_editable_m.blend",
+  "source_scene_sha256": "d156e485ae1b142a8aa51fa4bd852f5ccc9426b40f3e776274e3164cb9a48f31",
+  "root_motion_contract": "dot controller alone owns world position/yaw. Diagnostic reference parent is preview-only. Character clips export in place with separate trajectory/events."
+}

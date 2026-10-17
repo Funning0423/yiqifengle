@@ -1,0 +1,91 @@
+{
+ "package": "GROKBOT-ART-001-INTERIOR-v2.1.0",
+ "version": "2.1.0",
+ "generated_utc": "2026-10-08T23:20:11Z",
+ "summary": {
+  "passed": 8,
+  "failed": 0,
+  "not_run": 4
+ },
+ "tests": [
+  {
+   "name": "gltf-transform validate (Khronos glTF-Validator) on every GLB in the package (metre + game_units + scene)",
+   "status": "passed",
+   "scope": "54 GLB; errors 0, warnings 0",
+   "failures": [],
+   "evidence": "evidence/gltf-validate.json"
+  },
+  {
+   "name": "game_units copies: GU_root scale 1.415282 + bounds ratio (non-skinned)",
+   "status": "passed",
+   "scope": "27 files",
+   "failures": [],
+   "evidence": "evidence/game-units-check.json"
+  },
+  {
+   "name": "Blender 4.3.2 opens every .blend (counts identical to 4.5.14) + 4.3.2 re-export validates",
+   "status": "passed",
+   "scope": "{\"total\": 27, \"passed\": 27, \"failed\": 0, \"fallback_copies\": 0}",
+   "evidence": "evidence/blender43-compat.json"
+  },
+  {
+   "name": "FBX/blend export checks (no unapplied modifiers except skin ARMATURE, no non-unit object scale)",
+   "status": "passed",
+   "scope": "60 fbx + 60 blend in env_assets checked",
+   "evidence": "evidence/verify_exports.json"
+  },
+  {
+   "name": "Door handle at CommonR2 handleAt, door size unchanged",
+   "status": "passed",
+   "scope": "grip delta closed 0.0000 m / open 86.4 deg 0.0000 m (v2.0: 0.1157 m); tris 844->844; leaf x/y extents identical; bbox z-min +1.79 mm (handle depth only)",
+   "evidence": "evidence/door_handle_test.json"
+  },
+  {
+   "name": "Walkable points: all interior route points / foot + door anchors on col_int_floor_walkable",
+   "status": "passed",
+   "scope": "40 points (18 interior), off walkable 0, walkable 15.21 m2",
+   "evidence": "evidence/walkable_points.json"
+  },
+  {
+   "name": "Interior path clearance (exit / return / stand-up)",
+   "status": "passed",
+   "scope": "walls >=0.50 m, door frame >=0.52 m, side table >=0.31 m; stand-up steps touch the chair by design",
+   "evidence": "evidence/path_clearance.json"
+  },
+  {
+   "name": "Chair geometry / seat_anchor unchanged vs v2.0",
+   "status": "passed",
+   "scope": "node-by-node mesh hash compare v2.0 -> v2.1: only env_lighthouse_door mesh changed"
+  },
+  {
+   "name": "Engine import (Cocos Creator 3.8.x) + WeChat device run",
+   "status": "not_run",
+   "reason": "no engine/device on this box"
+  },
+  {
+   "name": "Budget 120k tris / 80 draw calls in engine",
+   "status": "not_run",
+   "reason": "to be tested in engine - not passed"
+  },
+  {
+   "name": "game_units scale calibration in engine",
+   "status": "not_run",
+   "reason": "x1.415282 is source-derived only"
+  },
+  {
+   "name": "Sit/stand with col_int_chair_seat/back disabled",
+   "status": "not_run",
+   "reason": "engine-side"
+  }
+ ],
+ "known_diffs": [
+  "Decision (a): real -X tower window kept (theta -43.715 deg, sill 1.816 m, from original-room-geometry / dot spec). Exit camera t=12 s shows a 4.1 % (399 px) thin-strip silhouette XOR vs v1.0 - accepted known diff."
+ ],
+ "open_items": [
+  "Indoor fixed camera (CommonR2 layoutFirst z -7.30 m) is outside the tower: recommend dot moves it to z -4.95 m (inside) or uses camera-world t=0. source/ not touched.",
+  "-X window 4.1 % diff at exit t=12 s vs v1.0 (accepted, see known_diffs).",
+  "Disable col_int_chair_seat / col_int_chair_back during the sit/stand animation (engine side).",
+  "fence_segment_01 at (-1.66, 1.30) (v2.0 prop, not changed) is 0.38-0.44 m from the girl routes; v2.1 extras keep >= 0.5 m.",
+  "Budgets 120k tris / 80 draw calls: to be tested in engine - not passed."
+ ]
+}

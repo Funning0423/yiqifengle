@@ -1,0 +1,4 @@
+enterLevel {"ok":true} state level
+returnHome while in level -> {"ok":false,"reason":"wrong-state"} state level
+exitLevel {"ok":true} state island
+returnHome from island -> {"ok":true} state home

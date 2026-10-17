@@ -1,0 +1,16 @@
+{
+  "status": "PASS_REAL_WECHAT",
+  "lossRetry": {
+    "old": "mla-000000000002",
+    "new": "mla-000000000003",
+    "actionsAfterRetry": 0
+  },
+  "inventoryDelta": {
+    "windBell": 1
+  },
+  "duplicate": {
+    "newlyGrantedRewards": [],
+    "completeStorageEqual": true
+  },
+  "scope": "Normal native GUI actions; console used only for read-only state/storage/host replies. No result or progress injection."
+}

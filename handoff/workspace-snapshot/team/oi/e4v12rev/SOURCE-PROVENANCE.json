@@ -1,0 +1,17 @@
+{
+  "source_filename": "20261009T2353Z-grokbot2-E4-MATERIALS-v1.2.zip",
+  "source_drive_id": "1gG46tFSTx52PsDXQBjyzb7m8cm7UBt5T",
+  "source_size": 238924,
+  "source_sha256": "67b54a6069e58cbdff2deb67d99702f35122e7eede2f45d480aacdf8e9ce4dfa",
+  "review_date_utc": "2026-10-10",
+  "supersedes": "v1.1 (withdrawn)",
+  "source_files_changed": false,
+  "mac_used": false,
+  "external_uploads": false,
+  "creator_import_compile": "not_run",
+  "shader_gpu_compile": "not_run",
+  "creator_tsc": "not_run",
+  "wechat": "not_run",
+  "real_device": "not_run",
+  "independent_logic": "11 pass, 4 fail; mocked engine only"
+}

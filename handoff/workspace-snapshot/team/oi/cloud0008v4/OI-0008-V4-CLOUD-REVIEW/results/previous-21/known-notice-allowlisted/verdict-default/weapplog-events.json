@@ -1,0 +1,28 @@
+{
+  "root": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-allowlisted/logs",
+  "rootExistedAtStart": false,
+  "rootSeen": true,
+  "bytes": 1373,
+  "incomplete": [],
+  "events": [
+    {
+      "t": "2026-10-10T01:33:22.585Z",
+      "event": "baseline",
+      "rootExists": false,
+      "files": 0
+    },
+    {
+      "t": "2026-10-10T01:33:23.592Z",
+      "event": "new-file",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-allowlisted/logs/WeappLog/review.log",
+      "size": 950
+    },
+    {
+      "t": "2026-10-10T01:33:24.196Z",
+      "event": "final-rehash",
+      "file": "/workspace/shared/game-first-open-0008-v4-review/evidence/previous-21/fixtures/known-notice-allowlisted/logs/WeappLog/review.log",
+      "bytes": 1373,
+      "ok": true
+    }
+  ]
+}

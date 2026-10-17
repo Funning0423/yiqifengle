@@ -1,0 +1,593 @@
+From 7f6dac0d35f2dcf06ab18c13065fb70c8753d806 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 02:42:49 +0800
+Subject: [PATCH 2/5] =?UTF-8?q?Result=20screen:=20one=20=E3=80=8C=E5=85=A8?=
+ =?UTF-8?q?=E9=83=A8=E9=A2=86=E5=8F=96=E3=80=8D=20claims=20every=20settlem?=
+ =?UTF-8?q?ent=20reward,=20merged=20=E8=8E=B7=E5=BE=97=20panel=20(from=20P?=
+ =?UTF-8?q?R=20#55=205575c78)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Taken: BoardPanels.ts; ManagedMobileBoardUI reward-merge (rewardShown/rewardChest, one RewardPanel);
+result tests (safe_area, viewports, reward_background_return, user_priority_defects, board_runtime ClaimAll line).
+Excluded from 5575c78: loading/StartupLoading*, day-night (NightTint, DayNightContract, IslandAtmosphereFx,
+RoomLightingRig), island entrance (WorldIntegrationBoot), tool bubble + rule-guide memory, settings hit boxes,
+tool-intro mark, WorldFlowComponent, IslandProps, builder.json, build options, ui01_reward_dedup (absent on base).
+
+(cherry picked from commit 5575c78689c66419a0e0a19a6be56493e6113272, partial)
+---
+ .../assets/scripts/ManagedMobileBoardUI.ts    |  12 +-
+ .../assets/scripts/ui/BoardPanels.ts          | 144 ++++++++++--------
+ tools/board-ui/test_board_runtime.cjs         |   2 +-
+ tools/board-ui/test_result_safe_area.cjs      |  38 ++---
+ tools/board-ui/test_result_viewports.cjs      |  33 ++--
+ .../test_reward_background_return.cjs         |   6 +-
+ tools/board-ui/test_user_priority_defects.cjs |  18 ++-
+ 7 files changed, 137 insertions(+), 116 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+index e844081..a3a5276 100644
+--- a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
++++ b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+@@ -52,6 +52,7 @@ export class ManagedMobileBoardUI extends Component {
+   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
+   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
+   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
++  private rewardShown: RewardItem[] = []; private rewardChest = false;
+   private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null; private boardArtRequest: Promise<boolean> | null = null;
+   /** World entry sets this before initializeManaged so a finger cannot land until presentForPlay. Standalone and test boards stay presented. */
+   deferPresentation = false;
+@@ -919,10 +920,15 @@ export class ManagedMobileBoardUI extends Component {
+     if (now.charms > before.charms) items.push({ kind: 'charm', count: now.charms - before.charms, label: '装扮 ×' + (now.charms - before.charms), seal: 'r2/icon_charm' });
+     if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
+     if (!items.length) items.push({ kind: 'seal', count: 0, label: '一份海风的礼物', seal: 'popup/star_full' });
+-    const gained = items.map(i => i.kind);
+     const behind = this.popups.find('ResultPanel'); if (behind) behind.root.active = false;
+-    const desc = memento ? '地区印记收进旅程册了。' : region && !chest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
+-    openReward(this.popups, items, this.toolArt, { chest: !!chest, description: desc, done: () => { if (behind && behind.alive) behind.root.active = true; for (const k of gained) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); this.flushIntro(); } });
++    const open = this.popups.find('RewardPanel');
++    const merged = open ? this.rewardShown.slice() : [];
++    for (let i = 0; i < items.length; i++) { const it = items[i]; let hit: RewardItem | null = null; for (let j = 0; j < merged.length; j++) if (merged[j].kind === it.kind && merged[j].label === it.label) hit = merged[j]; if (hit) hit.count += it.count; else merged.push(it); }
++    this.rewardShown = merged.length ? merged : items.slice(); this.rewardChest = (open && this.rewardChest) || !!chest;
++    if (open) open.destroy();
++    const desc = memento ? '地区印记收进旅程册了。' : region && !chest && !this.rewardChest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
++    const shown = this.rewardShown.slice(), hadChest = this.rewardChest;
++    openReward(this.popups, shown, this.toolArt, { chest: hadChest, description: desc, done: () => { this.rewardShown = []; this.rewardChest = false; if (behind && behind.alive) behind.root.active = true; for (let i = 0; i < shown.length; i++) { const k = shown[i].kind; if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); } this.flushIntro(); } });
+   }
+   private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
+   onDestroy() {
+diff --git a/creator-build-project/assets/scripts/ui/BoardPanels.ts b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+index 6e111c0..5c9bd5b 100644
+--- a/creator-build-project/assets/scripts/ui/BoardPanels.ts
++++ b/creator-build-project/assets/scripts/ui/BoardPanels.ts
+@@ -50,6 +50,16 @@ export interface ResultModel {
+   unlockHint?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
+ }
+ const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
++/** Steps, saved and the unlock hint are one secondary line under the score. */
++function resultSummary(m: ResultModel): string {
++  if (m.kind !== 'win') return '';
++  const parts: string[] = [];
++  if (m.movesUsed !== null) parts.push(m.movesUsed + ' 步');
++  if (m.movesLeft !== null) parts.push('剩 ' + m.movesLeft + ' 步');
++  parts.push('已保存');
++  if (m.unlockHint) parts.push(m.unlockHint);
++  return parts.join(' · ');
++}
+ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
+   const wideReward = m.kind === 'win' && m.rewards.some(r => r.label.length >= 6);
+   // Include the real 88-design-px claim hit area, not just its 64px painted face.
+@@ -72,10 +82,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
+     : p.text(m.score + ' 分', 0, 336, 64, 'brown', { name: 'Score' }));
+   if (m.kind === 'win') {
+     section('ResultDetails', 0, 416, () => {
+-      const line = (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步';
+-      p.sprite('board/icon_moves', -150, 416, undefined, 48).node.name = 'MovesSymbol';
+-      p.text(line, -118, 416, 28, 'brown', { align: 'left', width: 400, bold: false, name: 'MovesInfo' });
+-      p.well(0, 472, 196, 48, [224, 238, 232], 24).name = 'SavedWell'; p.text('成绩已保存', 0, 472, 28, 'teal', { bold: false, width: 196, name: 'SavedText' });
++      p.text(resultSummary(m), 0, 416, 14, 'brown2', { bold: false, width: 560, name: 'ResultSummary' });
+     });
+     let y = 600;
+     if (m.rewards.length) {
+@@ -84,6 +91,8 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
+         section(name, x, y, () => rewardSlot(p, m.rewards[i], x, y, legacy, wideReward)); rewards.push(groups[name]); }
+       y += rewardsH;
+     }
++    const ready = m.rewards.filter(r => r.state === 'ready' && r.claim);
++    if (ready.length) p.button('primary', '全部领取', 0, y, 220, 56, () => { for (let i = 0; i < ready.length; i++) ready[i].claim?.(); }, { fontSize: 26, name: 'ClaimAll' });
+     if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
+     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
+   } else if (m.kind === 'lose') {
+@@ -220,9 +229,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+   const prevDestroy = p.destroy.bind(p);
+   p.destroy = () => { chestRig?.dispose(); chestRig = null; prevDestroy(); };
+   const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
+-  const chestSizeFor = (inner: number) => Math.min(inner, shortPhone ? 132 : 160);
+-  const raySizeFor = (inner: number) => Math.min(inner, shortPhone ? 156 : 180);
+-  const heroHeightFor = (inner: number, r: ResultReward) => Math.max(raySizeFor(inner), chestSizeFor(inner)) + (r.state === 'ready' && r.claim ? 64 : 28);
++  const CHEST_W = 120, CHEST_H = 108, RAY = 156;
++  const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
++  const heroHeightFor = (inner: number, _r: ResultReward) => Math.min(inner, Math.max(RAY, CHEST_H)) + (anyReady() ? 64 : 0);
+   const sideRewards = () => m.rewards.filter(r => !isChest(r));
+   const pairedRewards = (inner: number) => { const side = sideRewards(); return side.length === 2 && inner >= 400 && side.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2)); };
+   // Measure the same content used by reflow. Tall phones no longer turn a short
+@@ -231,18 +240,16 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, heights: number[] = [];
+     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
+     heights.push(shortPhone ? 44 : 88);
+-    if (shortPhone && m.kind !== 'lose') lines(scoreText, 24, 32); else lines(scoreText, m.kind === 'lose' ? 16 : 30);
+-    if (m.kind === 'win') {
+-      lines((m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步', 16);
+-      if (!shortPhone) lines('成绩已保存', 16);
+-      if (m.unlockHint) lines(m.unlockHint, 16);
+-    } else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
++    if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
++    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) lines(summary, 16); }
++    else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
+     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
+     if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
+     const paired = pairedRewards(inner);
+     const side = sideRewards(), cell = paired ? (inner - 12) / 2 : inner, cardH = shortPhone ? 64 : 96;
+-    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { heights.push(heroHeightFor(inner, r)); continue; } if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); }
++    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { lines(r.label, 16); heights.push(heroHeightFor(inner, r)); continue; } if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); }
+     side.forEach((_r, i) => { if (!paired || i === 0) heights.push(cardH); });
++    if (anyReady() && !m.rewards.some(isChest)) heights.push(56);
+     return contentTop + reserve + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
+   };
+   p.setLayoutStrategy((width, height, safeInsets) => {
+@@ -267,8 +274,15 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+     const supported = w >= 192 && h >= 172;
+     p.body.getChildByName('TitlePlank')!.active = supported;
+     for (const a of actions) a.handle.node.active = supported;
++    const walkNamed = (n: Node, name: string): Node | null => {
++      if (n.name === name) return n;
++      for (let i = 0; i < n.children.length; i++) { const f = walkNamed(n.children[i], name); if (f) return f; }
++      return null;
++    };
++    const claimAll = walkNamed(p.root, 'ClaimAll');
+     spaceNotice.node.active = !supported; readableTitle.node.active = false;
+     if (!supported) {
++      if (claimAll) claimAll.active = false;
+       // A bounded host fallback, not another text shrink. Keep the modal guard,
+       // cancel every old gesture and require a larger safe rectangle to act.
+       for (const n of pool.values()) n.active = false;
+@@ -317,27 +331,25 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+       const starH = shortPhone ? 44 : dense ? 44 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : 0.32;
+       const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
+       scoreLabel.node.active = false;
+-      // Keep a long numeric score together on a compact page. The readable floor
+-      // is the same 16-unit body size; ordinary compact scores remain 20 units.
+-      // A short portrait phone uses a 24/32 score line so both rewards stay on one page.
+-      if (shortPhone && m.kind !== 'lose') {
+-        const lines = wrap(scoreText, inner - 4, 24);
++      if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
++      else {
++        // 34/46 is the settled score. A number that cannot stay on one page at that size
++        // drops to the 16-unit body so the opening scale (0.92) still clears the 14px floor.
++        const big = wrap(scoreText, inner - 4, 34);
++        const block = big.length * 46 + Math.max(0, big.length - 1) * rowGap;
++        const scoreSize = block <= available ? 34 : 16, scoreLine = scoreSize === 34 ? 46 : 22;
++        const lines = scoreSize === 34 ? big : wrap(scoreText, inner - 4, scoreSize);
+         for (let i = 0; i < lines.length; i++) {
+-          const scoreRow = getRow('Score-' + i, 32); scoreRow.keepWithNext = i + 1 < lines.length;
++          const scoreRow = getRow('Score-' + i, scoreLine); scoreRow.keepWithNext = i + 1 < lines.length;
+           let l = scoreRow.node.getComponentInChildren(Label);
+-          if (!l) l = p.text('', 0, 0, 24, 'brown', { name: i ? 'Score-continued-' + i : 'Score', bold: true, width: inner, parent: scoreRow.node });
+-          l.string = lines[i]; l.fontSize = 24; l.lineHeight = 32; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+-          l.node.getComponent(UITransform)!.setContentSize(inner, 32); l.node.setPosition(0, 0, 0); rows.push(scoreRow);
++          if (!l) l = p.text('', 0, 0, scoreSize, 'brown', { name: i ? 'Score-continued-' + i : 'Score', bold: true, width: inner, parent: scoreRow.node });
++          l.string = lines[i]; l.fontSize = scoreSize; l.lineHeight = scoreLine; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
++          l.node.getComponent(UITransform)!.setContentSize(inner, scoreLine); l.node.setPosition(0, 0, 0); rows.push(scoreRow);
+         }
+-      } else {
+-        const scoreSize = m.kind === 'lose' ? 16 : dense ? (available >= 55 && textWidth(scoreText, 20) <= (inner - 4) * 2 ? 20 : 16) : 30;
+-        labelRows(m.kind === 'lose' ? 'ResultMessage' : 'Score', scoreText, scoreSize);
+       }
+     }
+-    if (m.kind === 'win') {
+-      labelRows('MovesInfo', (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步');
+-      if (!shortPhone) labelRows('SavedText', '成绩已保存', 16, 'teal');
+-    } else if (m.kind === 'lose') {
++    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) labelRows('ResultSummary', summary, 16, 'brown2'); }
++    else if (m.kind === 'lose') {
+       const goals = groups.ResultGoals;
+       if (goals) {
+         const sourceLabels = goals.original.filter(v => v.font !== undefined);
+@@ -352,56 +364,59 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+         }
+       }
+     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
+-    if (m.kind === 'win' && m.unlockHint) labelRows('ResultUnlockHint', m.unlockHint, 16, 'teal');
+     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
+     const paired = pairedRewards(inner);
+     const cell = paired ? (inner - 12) / 2 : inner;
+-    let sideIndex = 0;
++    let sideIndex = 0, claimPlaced = false;
++    // 56 is the settled claim control. A short page keeps it inside the content band
++    // (4 units of slack sit above the action buttons) and never under 44.
++    const claimFit = available >= 44 ? Math.min(56, available) : (available >= 40 ? 44 : Math.max(1, available));
++    const placeClaim = (row: Row, y: number, height = 56) => {
++      if (!claimAll || claimPlaced || !anyReady()) return;
++      const bw = Math.min(220, inner);
++      layoutButton(claimAll, bw, '全部领取', height);
++      const face = claimAll.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
++      l.string = '全部领取'; l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
++      add(row, claimAll, 0, y); claimPlaced = true;
++    };
++    const fitBox = (n: Node, boxW: number, boxH: number) => {
++      const v = original.get(n), ui = n.getComponent(UITransform)!;
++      const ow = Math.max(1, v ? v.width * Math.abs(v.sx) : ui.width * Math.abs(n.scale.x));
++      const oh = Math.max(1, v ? v.height * Math.abs(v.sy) : ui.height * Math.abs(n.scale.y));
++      const sx = v?.sx ?? 1, sy = v?.sy ?? 1;
++      n.setScale(sx * (boxW / ow), sy * (boxH / oh), 1);
++    };
+     for (let i = 0; i < rewards.length; i++) {
+       const r = m.rewards[i], g = rewards[i], claim = g.original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
+       if (isChest(r)) {
+-        let chestSize = chestSizeFor(inner), raySize = raySizeFor(inner), body = Math.max(raySize, chestSize);
+-        const claimH = claim ? 56 : 0, gap = claim ? 8 : 0, labelH = claim ? 0 : 28;
+-        let rowH = body + gap + claimH + labelH, claimInRow = !!claim;
++        let chestW = Math.min(CHEST_W, inner), chestH = CHEST_H * (chestW / CHEST_W), raySize = Math.min(RAY, inner), body = Math.max(raySize, chestH);
++        const claimH = anyReady() && claimAll ? 56 : 0, gap = claimH ? 8 : 0;
++        let rowH = body + gap + claimH, claimInRow = claimH > 0;
+         const budget = Math.max(1, available);
+         if (rowH > budget) {
+-          const chrome = gap + claimH + labelH, room = budget - chrome;
+-          if (room >= 48) { body = room; chestSize = Math.min(chestSize, body); raySize = Math.min(raySize, body); rowH = body + chrome; }
+-          else { claimInRow = false; body = Math.min(body, budget); chestSize = Math.min(chestSize, body); raySize = Math.min(raySize, body); rowH = body; }
++          const chrome = gap + claimH, room = budget - chrome;
++          if (room >= 48) { body = room; raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body + chrome; }
++          else { claimInRow = false; body = Math.min(body, budget); raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body; }
+         }
+         const row = getRow('reward-chest', rowH), chestY = rowH / 2 - body / 2, art = rewardIcons[i];
+         const flat = art.find(n => n.name !== 'stamp_claimed') || art[0];
+-        const bw = Math.min(220, inner), longChest = textWidth(r.label, 16) > buttonTextWidth(bw);
+-        if (longChest) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
++        labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+         if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
+         else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
+         add(row, raysNode, 0, chestY);
+-        if (flat) { flat.name = 'ResultChestArt'; fitArt(flat, chestSize, chestSize); add(row, flat, 0, chestY); if (chestRig?.ready) flat.active = false; }
+-        for (let j = 0; j < art.length; j++) { const n = art[j]; if (n === flat) continue; fitArt(n, 24, 24); add(row, n, chestSize * 0.28, chestY - chestSize * 0.28); }
+-        if (claim && claimInRow) {
+-          layoutButton(claim, bw, longChest ? '领取' : r.label, 56);
+-          const face = claim.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
+-          l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
+-          add(row, claim, 0, -rowH / 2 + claimH / 2);
+-        } else if (!claim) {
+-          let l = row.node.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
+-          if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: row.node });
+-          l.string = longChest ? (r.state === 'claimed' ? '已领取' : '未解锁') : r.label; l.fontSize = 16; l.lineHeight = 22;
+-          l.node.getComponent(UITransform)!.setContentSize(Math.max(1, inner), 22); add(row, l.node, 0, -rowH / 2 + labelH / 2);
+-        }
++        if (flat) { flat.name = 'ResultChestArt'; fitBox(flat, chestW, chestH); add(row, flat, 0, chestY); if (chestRig?.ready) flat.active = false; }
++        for (let j = 0; j < art.length; j++) { const n = art[j]; if (n === flat) continue; fitArt(n, 24, 24); add(row, n, chestW * 0.28, chestY - chestH * 0.28); }
++        if (claimInRow) placeClaim(row, -rowH / 2 + claimH / 2, claimH);
+         if (!chestRig) {
+-          chestRig = new ResultChest3D(row.node, chestSize); chestRig.node.active = false;
++          chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
+           const shown = flat;
+           void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
+         } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
+-        chestRig.node.setPosition(0, chestY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(chestSize, chestSize);
++        chestRig.node.setPosition(0, chestY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(chestW, chestH);
+         rows.push(row);
+-        if (claim && !claimInRow) {
+-          const buttonH = Math.min(56, budget), buttonRow = getRow('reward-chest-claim', buttonH);
+-          layoutButton(claim, bw, longChest ? '领取' : r.label, buttonH);
+-          const face = claim.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
+-          l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
+-          add(buttonRow, claim, 0, 0); rows.push(buttonRow);
++        if (!claimInRow && claimH) {
++          const buttonRow = getRow('reward-chest-claim', claimFit);
++          placeClaim(buttonRow, 0, claimFit); rows.push(buttonRow);
+         }
+         continue;
+       }
+@@ -445,6 +460,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
+       }
+       if (!paired || sideAt === 0) rows.push(row);
+     }
++    if (claimAll && !claimPlaced && anyReady()) { const row = getRow('claim-all', claimFit); placeClaim(row, 0, claimFit); rows.push(row); }
++    else if (claimAll && !claimPlaced) claimAll.active = false;
+     pages = [[]]; let used = 0;
+     for (let i = 0; i < rows.length; i++) {
+       const row = rows[i]; let needed = row.height;
+@@ -463,9 +480,8 @@ function rewardSlot(p: PopupPanel, r: ResultReward, x: number, y: number, legacy
+   if (r.iconKind === 'tool' && r.tool) toolArt(p, r.tool, x, y - 36, 120, legacy);
+   else { const s = p.sprite(r.icon, x, y - 36, r.iconKind === 'seal' ? undefined : 150, r.iconKind === 'seal' ? 112 : undefined, r.iconKind === 'chest' ? 'half' : 'ui'); if (r.state === 'locked') s.grayscale = true; }
+   const by = y + 112, bw = wide && r.label.length >= 6 ? 248 : 176;
+-  if (r.state === 'claimed') { p.sprite('popup/stamp_claimed', x + 40, y - 32, 112, 112).node.setRotationFromEuler(0, 0, 12); p.text(r.label, x, by, 24, 'brown2', { bold: false, width: bw }); }
+-  else if (r.state === 'ready' && r.claim) p.button('secondary', r.label, x, by, bw, 64, r.claim, { fontSize: r.label.length >= 6 ? 24 : 26, name: 'Claim-' + r.id });
+-  else p.text(r.label, x, by, 24, 'grey', { bold: false, width: bw });
++  if (r.state === 'claimed') p.sprite('popup/stamp_claimed', x + 40, y - 32, 112, 112).node.setRotationFromEuler(0, 0, 12);
++  p.text(r.label, x, by, 24, r.state === 'locked' ? 'grey' : 'brown2', { bold: false, width: bw });
+ }
+ /** Three stars, middle one larger; empty stars dimmed (alpha 0.75). Chest and stars take the half night tint. */
+ function stars(p: PopupPanel, cy: number, filled: number): Node[] {
+diff --git a/tools/board-ui/test_board_runtime.cjs b/tools/board-ui/test_board_runtime.cjs
+index b42e50b..22d5841 100644
+--- a/tools/board-ui/test_board_runtime.cjs
++++ b/tools/board-ui/test_board_runtime.cjs
+@@ -101,7 +101,7 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
+     s.state = 'result.saved'; s.active.status = 'won'; s.result = { stars: 3 }; s.journey.chests = [{ level: 0, earned: true, opened: false }]; b.render();
+     u.setHostActions({ chest: { visible: true, run: () => chest++ }, mainNext: { visible: true, run: () => next++ } }); b.step(0.3);
+     let p = u.popups.find('ResultPanel'); assert(p); assert.equal(p.options.title, '过关啦'); assert.equal(u.hostModalOpen(), false, 'result page is not a board modal');
+-    H.tap(inPopup(b, 'ResultPanel', 'Claim-chest')); assert.equal(chest, 1); H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
++    H.tap(inPopup(b, 'ResultPanel', 'ClaimAll')); assert.equal(chest, 1); H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
+     H.tap(inPopup(b, 'ResultPanel', 'Home')); assert.deepEqual(log.commands.at(-1), ['requestExit']);
+     const reg = await board(); reg.s.state = 'result.saved'; reg.s.active.status = 'won'; reg.s.result = { stars: 1 }; reg.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; reg.render();
+     const net = inPopup(reg, 'ResultPanel', 'tool_tidenet'); assert(net, 'result region reward uses the tide-net slice');
+diff --git a/tools/board-ui/test_result_safe_area.cjs b/tools/board-ui/test_result_safe_area.cjs
+index aa0d7b0..e538af3 100644
+--- a/tools/board-ui/test_result_safe_area.cjs
++++ b/tools/board-ui/test_result_safe_area.cjs
+@@ -133,7 +133,7 @@ async function matrix() {
+                             if (i + 1 < pageCount(H, p))
+                                 H.tap(p.root.find('ResultNextPage'));
+                         }
+-                        const expected = [...(m.kind === 'win' ? m.rewards.filter(r => r.state === 'ready').map(r => 'Claim-' + r.id) : []), ...(m.kind === 'win' && m.next ? ['Next'] : []), ...(m.kind === 'lose' && m.replay ? ['Replay'] : []), ...(m.kind === 'unsaved' ? ['RetrySave'] : []), 'Home'];
++                        const expected = [...(m.kind === 'win' && m.rewards.some(r => r.state === 'ready' && r.claim) ? ['ClaimAll'] : []), ...(m.kind === 'win' && m.next ? ['Next'] : []), ...(m.kind === 'lose' && m.replay ? ['Replay'] : []), ...(m.kind === 'unsaved' ? ['RetrySave'] : []), 'Home'];
+                         record(`reachable ${width}x${height} ${mode} ${spec.name} ${loaded}/${reduced}`, () => { if (p.root.find('Home').activeInHierarchy) {
+                             for (const name of expected)
+                                 assert(seen.has(name), name);
+@@ -149,11 +149,9 @@ async function matrix() {
+                                     assert.equal(fragments('Score'), m.score + ' 分');
+                     if (spec.name === 'win-extreme') assert.equal(new Set([...allText.values()].filter(b => b.name === 'Score' || b.name.startsWith('Score-continued-')).map(b => b.page)).size, 1, 'full numeric score remains on one page');
+                                 if (m.kind === 'win') {
+-                                    assert.equal(fragments('MovesInfo'), (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + m.movesLeft + ' 步');
+-                                    const saved = fragments('SavedText'), shortPhone = height <= 700 && width < height;
+-                                    if (saved) assert.equal(saved, '成绩已保存');
+-                                    else assert(shortPhone, '成绩已保存 stays on every layout except a short portrait phone');
+-                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = [...allText.values()].find(b => b.owner === 'Claim-' + r.id)?.text || fragments('ResultRewardState-' + i); assert.equal(full || short, r.label); });
++                                    const summary = [m.movesUsed !== null ? m.movesUsed + ' 步' : '', m.movesLeft !== null ? '剩 ' + m.movesLeft + ' 步' : '', '已保存'].filter(Boolean).join(' · ');
++                                    assert.equal(fragments('ResultSummary'), summary + (m.unlockHint ? ' · ' + m.unlockHint : ''));
++                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); assert.equal(full || short, r.label); });
+                                 }
+                                 if (m.kind === 'readonly')
+                                     assert.equal(fragments('ResultNotice'), '记录暂时不能写入，这局只看不存');
+@@ -203,12 +201,7 @@ async function host() {
+                     assert(!rows.at(-1).supported);
+                     assert.equal(calls.length, 0);
+                     return;
+-                } for (const [name, id] of [['Claim-chest', 'chest'], ['Claim-regionReward', 'regionReward'], ['Next', 'next']]) {
+-                    const n = reveal(H, p, name);
+-                    assert(n.activeInHierarchy);
+-                    H.tap(n);
+-                    assert.equal(calls.at(-1), id);
+-                } const n = p.root.find('Next'); n.emit('touch-start', H.event(H.point(n), 1)); const before = calls.length; H.setViewport(640, 360); H.cc.view.emit('canvas-resize'); n.emit('touch-end', H.event(H.point(n), 1)); assert.equal(calls.length, before); H.tap(n); assert.equal(calls.length, before + 1); });
++                } const claim = reveal(H, p, 'ClaimAll'); H.tap(claim); assert.deepEqual(calls.slice(0, 2), ['chest', 'regionReward']); const n = reveal(H, p, 'Next'); n.emit('touch-start', H.event(H.point(n), 1)); const before = calls.length; H.setViewport(640, 360); H.cc.view.emit('canvas-resize'); n.emit('touch-end', H.event(H.point(n), 1)); assert.equal(calls.length, before); H.tap(n); assert.equal(calls.length, before + 1); });
+                 b.u.onDestroy();
+                 record('host teardown', () => assert.equal(H.cc.game.listeners('hide'), 0));
+             }
+@@ -229,7 +222,8 @@ async function lifecycle() {
+     let viewport = { width: 320, height: 320, safeInsets: insetModes.host(320, 320) };
+     H.setViewport(320, 320);
+     const stack = new K.PopupStack(owner, () => viewport);
+-    const targets = [['Claim-chest', cases[0]], ['Claim-regionReward', cases[0]], ['Next', cases[0]], ['Home', cases[0]], ['Replay', cases.find(c => c.kind === 'lose' && c.replay)], ['RetrySave', cases.find(c => c.kind === 'unsaved')]];
++    const targets = [['ClaimAll', cases[0]], ['Next', cases[0]], ['Home', cases[0]], ['Replay', cases.find(c => c.kind === 'lose' && c.replay)], ['RetrySave', cases.find(c => c.kind === 'unsaved')]];
++    const fired = (target, spec) => target === 'ClaimAll' ? (spec.rewards || []).filter(r => (r.state || 'ready') === 'ready').map(r => 'Claim-' + r.id) : [target];
+     for (const [target, spec] of targets)
+         for (const mode of ['other-pointer', 'outside', 'cancel', 'hide', 'node-hide', 'ancestor-hide', 'disable', 'cover', 'page-away', 'rotate', 'inset-only', 'unchanged', 'destroy', 'closing']) {
+             const calls = [], p = P.openResult(stack, model(spec, calls), null);
+@@ -241,7 +235,7 @@ async function lifecycle() {
+                     n.emit('touch-end', H.event(point, 2));
+                     assert.deepEqual(calls, []);
+                     n.emit('touch-end', H.event(point, 1));
+-                    assert.deepEqual(calls, [target]);
++                    assert.deepEqual(calls, fired(target, spec));
+                     return;
+                 }
+                 if (mode === 'outside')
+@@ -290,7 +284,7 @@ async function lifecycle() {
+                     stack.layout();
+                     stack.update(.01);
+                     n.emit('touch-end', H.event(point, 1));
+-                    assert.deepEqual(calls, [target]);
++                    assert.deepEqual(calls, fired(target, spec));
+                     return;
+                 }
+                 if (mode === 'destroy') {
+@@ -311,7 +305,7 @@ async function lifecycle() {
+                 const again = reveal(H, p, target);
+                 assert(again.activeInHierarchy);
+                 H.tap(again);
+-                assert.deepEqual(calls, [target]);
++                assert.deepEqual(calls, fired(target, spec));
+             });
+             stack.clear();
+             viewport = { width: 320, height: 320, safeInsets: insetModes.host(320, 320) };
+@@ -330,7 +324,7 @@ async function transitions() {
+         H.setViewport(320, 320);
+         const s = new K.PopupStack(o, () => v), calls = [], p = P.openResult(s, model(cases[0], calls), null);
+         settle(s);
+-        const n = reveal(H, p, 'Claim-chest');
++        const n = reveal(H, p, 'ClaimAll');
+         n.emit('touch-start', H.event(H.point(n), 1));
+         const pending = Promise.all(['board', 'popup', 'r2'].map(d => A.BoardArt.shared().load(d)));
+         v = { width: 568, height: 320, safeInsets: insetModes.host(568, 320) };
+@@ -343,8 +337,8 @@ async function transitions() {
+         record('delayed art ' + destroyed, () => { n.emit('touch-end', H.event(destroyed ? { x: 0, y: 0 } : H.point(n), 1)); assert.deepEqual(calls, []); if (!destroyed) {
+             assert.equal(s.find('ResultPanel'), p);
+             snapshot(H, p, v, { case: 'delayed-art', phase: 'settled', insets: 'host', page: 1 });
+-            H.tap(reveal(H, p, 'Claim-chest'));
+-            assert.deepEqual(calls, ['Claim-chest']);
++            H.tap(reveal(H, p, 'ClaimAll'));
++            assert.deepEqual(calls, ['Claim-chest', 'Claim-regionReward']);
+         }
+         else
+             assert(!p.alive); });
+@@ -414,13 +408,13 @@ async function transitions() {
+     b.u.setHostActions({ chest: { visible: true, run: () => { calls.push('chest'); Promise.resolve().then(() => { state.journey.chests[0].opened = true; b.render(); }); } }, regionReward: { visible: true, run: () => { calls.push('regionReward'); Promise.resolve().then(() => { state.journey.regionRewards[0].claimed = true; b.render(); }); } }, mainNext: { visible: true, run: () => calls.push('next') } });
+     b.render();
+     b.step(1);
+-    for (const [target, id] of [['Claim-chest', 'chest'], ['Claim-regionReward', 'regionReward']]) {
++    {
+         let p = b.u.popups.find('ResultPanel');
+-        const n = reveal(H, p, target);
++        const n = reveal(H, p, 'ClaimAll');
+         H.tap(n);
+         await H.flush();
+         b.step(1);
+-        record('actual host asynchronous ' + id + ' claimed return', () => { assert.equal(calls.filter(x => x === id).length, 1); assert(!p.alive); const replacement = b.u.popups.find('ResultPanel'); assert(replacement); assert(!replacement.root.find(target), 'claimed action must be removed'); assert(b.u.popups.find('RewardPanel')); n.emit('touch-end', H.event({ x: 0, y: 0 }, 1)); assert.equal(calls.filter(x => x === id).length, 1); const upper = b.u.popups.find('RewardPanel'); H.tap(upper.root.find('Accept')); b.step(1); assert(replacement.root.activeInHierarchy); assert.equal(b.u.popups.top(), replacement); const home = replacement.root.find('Home'); assert(home.activeInHierarchy); });
++        record('actual host asynchronous claim-all returns one reward panel', () => { assert.equal(calls.filter(x => x === 'chest').length, 1); assert.equal(calls.filter(x => x === 'regionReward').length, 1); assert(!p.alive); const replacement = b.u.popups.find('ResultPanel'); assert(replacement); assert(!replacement.root.find('ClaimAll'), 'claimed action must be removed'); assert(b.u.popups.find('RewardPanel')); n.emit('touch-end', H.event({ x: 0, y: 0 }, 1)); assert.equal(calls.filter(x => x === 'chest').length, 1); const upper = b.u.popups.find('RewardPanel'); H.tap(upper.root.find('Accept')); b.step(1); assert(replacement.root.activeInHierarchy); assert.equal(b.u.popups.top(), replacement); const home = replacement.root.find('Home'); assert(home.activeInHierarchy); });
+     }
+     record('actual host last page keeps Next after both rewards', () => { const p = b.u.popups.find('ResultPanel'); for (let i = 1; i < pageCount(H, p); i++)
+         H.tap(p.root.find('ResultNextPage')); H.tap(p.root.find('Next')); assert.equal(calls.at(-1), 'next'); });
+diff --git a/tools/board-ui/test_result_viewports.cjs b/tools/board-ui/test_result_viewports.cjs
+index 4619fc6..b2ce21a 100644
+--- a/tools/board-ui/test_result_viewports.cjs
++++ b/tools/board-ui/test_result_viewports.cjs
+@@ -61,7 +61,7 @@ function makeModel(spec, calls = []) {
+ }
+ 
+ function expectedActions(model) {
+-  if (model.kind === 'win') return [...model.rewards.filter(r => r.state === 'ready' && r.claim).map(r => 'Claim-' + r.id), ...(model.next ? ['Next'] : []), 'Home'].sort();
++  if (model.kind === 'win') return [...(model.rewards.some(r => r.state === 'ready' && r.claim) ? ['ClaimAll'] : []), ...(model.next ? ['Next'] : []), 'Home'].sort();
+   if (model.kind === 'lose') return [...(model.replay ? ['Replay'] : []), 'Home'].sort();
+   if (model.kind === 'unsaved') return ['Home', 'RetrySave'];
+   return ['Home'];
+@@ -181,14 +181,17 @@ function revealAction(H, panel, target) {
+ }
+ function send(H, node, type, point = H.point(node), pointer = 1) { node.emit('touch-' + type, H.event(point, pointer)); }
+ const targetCases = [
+-  ['Claim-chest', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
+-  ['Claim-regionReward', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
++  ['ClaimAll', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
+   ['Next', { kind: 'win', hasNext: true, rewards: [reward('chest')] }],
+   ['Home', { kind: 'win', hasNext: true, rewards: [reward('chest')] }],
+   ['Replay', { kind: 'lose', hasReplay: true, chestHint: true }],
+   ['RetrySave', { kind: 'unsaved', chestHint: true }],
+ ];
+ 
++function fired(spec, target) {
++  if (target !== 'ClaimAll') return [target];
++  return (spec.rewards || []).filter(r => (r.state || 'ready') === 'ready').map(r => 'Claim-' + r.id);
++}
+ async function runInputChecks() {
+   const H = createHarness(), K = H.load('ui/PopupKit'), P = H.load('ui/BoardPanels');
+   await Promise.all(['board', 'popup', 'r2', 'r3'].map(dir => H.load('ui/BoardArt').BoardArt.shared().load(dir)));
+@@ -196,7 +199,7 @@ async function runInputChecks() {
+   const stack = new K.PopupStack(owner, () => H.state.viewport);
+   const modes = ['foreign-end', 'foreign-move', 'foreign-cancel', 'second-start', 'outside-end', 'outside-positive-end', 'out-in', 'cancel-late-end', 'node-hide', 'ancestor-hide', 'component-disable', 'game-hide', 'unchanged-layout', 'modal-cover', 'modal-cover-rotation', 'closing', 'closing-rotation', 'destroy', 'teardown-after-reflow'];
+   for (const viewport of [[320, 568], [568, 320], [480, 240]]) for (const [target, spec] of targetCases) for (const mode of modes) await check(`${target} ${mode} ${viewport.join('x')}`, () => {
+-    H.setViewport(...viewport); const calls = [], panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
++    H.setViewport(...viewport); const calls = [], expected = fired(spec, target), panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
+     const node = panel.root.find(target); assert(node, target + ' is real Result action'); revealAction(H, panel, target);
+     const point = H.point(node); send(H, node, 'start', point);
+     try {
+@@ -204,24 +207,24 @@ async function runInputChecks() {
+       if (mode === 'foreign-move') send(H, node, 'move', { x: -100, y: -100 }, 2);
+       if (mode === 'foreign-cancel') send(H, node, 'cancel', point, 2);
+       if (mode === 'second-start') { send(H, node, 'start', point, 2); send(H, node, 'end', point, 2); }
+-      if (mode.startsWith('foreign-') || mode === 'second-start') { assert.deepEqual(calls, []); send(H, node, 'end', point); assert.deepEqual(calls, [target]); send(H, node, 'end', point); assert.deepEqual(calls, [target]); }
+-      else if (mode === 'outside-end' || mode === 'outside-positive-end') { send(H, node, 'end', mode === 'outside-end' ? { x: -100, y: -100 } : { x: 4000, y: 4000 }); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, [target]); }
+-      else if (mode === 'out-in') { send(H, node, 'move', { x: -100, y: -100 }); send(H, node, 'move', point); send(H, node, 'end', point); assert.deepEqual(calls, [target]); }
+-      else if (mode === 'cancel-late-end') { send(H, node, 'cancel', point); send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, [target]); }
++      if (mode.startsWith('foreign-') || mode === 'second-start') { assert.deepEqual(calls, []); send(H, node, 'end', point); assert.deepEqual(calls, expected); send(H, node, 'end', point); assert.deepEqual(calls, expected); }
++      else if (mode === 'outside-end' || mode === 'outside-positive-end') { send(H, node, 'end', mode === 'outside-end' ? { x: -100, y: -100 } : { x: 4000, y: 4000 }); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected); }
++      else if (mode === 'out-in') { send(H, node, 'move', { x: -100, y: -100 }); send(H, node, 'move', point); send(H, node, 'end', point); assert.deepEqual(calls, expected); }
++      else if (mode === 'cancel-late-end') { send(H, node, 'cancel', point); send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected); }
+       else if (mode === 'node-hide' || mode === 'ancestor-hide' || mode === 'component-disable' || mode === 'game-hide') {
+         if (mode === 'node-hide') { node.active = false; node.active = true; }
+         if (mode === 'ancestor-hide') { panel.body.active = false; panel.body.active = true; }
+         if (mode === 'component-disable') { const guard = node.components.find(c => typeof c.reset === 'function' && typeof c.cleanup === 'function'); assert(guard); guard.enabled = false; guard.enabled = true; }
+         if (mode === 'game-hide') { H.cc.game.emit(H.cc.Game.EVENT_HIDE); H.cc.game.emit(H.cc.Game.EVENT_SHOW); }
+-        send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, [target]);
++        send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected);
+       }
+-      else if (mode === 'unchanged-layout') { for (let j = 0; j < 8; j++) { stack.layout(); stack.update(.016); } send(H, node, 'end', point); assert.deepEqual(calls, [target]); }
++      else if (mode === 'unchanged-layout') { for (let j = 0; j < 8; j++) { stack.layout(); stack.update(.016); } send(H, node, 'end', point); assert.deepEqual(calls, expected); }
+       else if (mode === 'modal-cover' || mode === 'modal-cover-rotation') {
+         const upper = stack.open({ name: 'CoverProbe', height: 300, title: 'Cover' });
+         if (mode === 'modal-cover-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
+         send(H, node, 'end', H.point(node)); H.tap(node); assert.deepEqual(calls, [], 'covered result must reject old and fresh input');
+         upper.close(); stack.update(.05); H.tap(node); assert.deepEqual(calls, [], 'closing upper modal still covers result');
+-        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'covered gesture must not revive'); revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, [target]);
++        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'covered gesture must not revive'); revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
+       }
+       else if (mode === 'closing' || mode === 'closing-rotation') {
+         panel.close(); if (mode === 'closing-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
+@@ -236,7 +239,7 @@ async function runInputChecks() {
+     return { callbackCount: calls.length };
+   });
+   for (const [target, spec] of targetCases) for (const pair of [[[320, 568], [568, 320]], [[568, 320], [480, 240]], [[480, 240], [390, 844]], [[480, 297], [480, 299]], [[480, 307], [480, 309]], [[390, 844], [320, 568]]]) await check(`${target} same-panel rotation ${pair.map(v => v.join('x')).join(' -> ')}`, () => {
+-    const calls = []; H.setViewport(...pair[0]); const panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
++    const calls = [], expected = fired(spec, target); H.setViewport(...pair[0]); const panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
+     revealAction(H, panel, target);
+     const node = panel.root.find(target), root = panel.root, body = panel.body, point = H.point(node);
+     const meta = { case: 'same-panel-' + target + '-' + pair.map(v => v.join('x')).join('-to-'), loadedArt: true, reducedMotion: false, tint: 'day', primaryViewport: true };
+@@ -247,9 +250,9 @@ async function runInputChecks() {
+       assert.equal(stack.find('ResultPanel'), panel); assert.equal(panel.root, root); assert.equal(panel.body, body); assert.equal(panel.root.find(target), node, 'reflow retains real action identity');
+       send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'pre-reflow owned press must not activate at the new hit center');
+       send(H, node, 'end', point); assert.deepEqual(calls, [], 'old-coordinate late END must not activate');
+-      revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, [target]);
+-      send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, [target]);
+-      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, [target, target]);
++      revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
++      send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, expected);
++      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, expected.concat(expected));
+     } finally { stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0); }
+   });
+   for (const [target, spec] of targetCases) await check(`${target} child-first null-field teardown after reflow`, () => {
+diff --git a/tools/board-ui/test_reward_background_return.cjs b/tools/board-ui/test_reward_background_return.cjs
+index 5ac6729..170c59e 100644
+--- a/tools/board-ui/test_reward_background_return.cjs
++++ b/tools/board-ui/test_reward_background_return.cjs
+@@ -24,17 +24,17 @@ const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mai
+  let next=0;const controls=new Map(['mainNext','chest','regionReward','next','claim','resume'].map(k=>[k,{active:false}]));
+  const actions={mainNext:()=>next++,chest:()=>session.command('openChest',0),regionReward:()=>session.command('claimRegion',0)};
+  const owner={board:()=>u,controls,resultActions:actions};const update=()=>paint.call(owner,flow.snapshot());
+- const bytes=()=>JSON.stringify([...values]);update();const initialPanel=u.popups.find('ResultPanel');assert(initialPanel.root.find('Claim-chest'));
++ const bytes=()=>JSON.stringify([...values]);update();const initialPanel=u.popups.find('ResultPanel');assert(initialPanel.root.find('ClaimAll'));
+  const checks=[];
+  for(const which of ['before-claim','after-chest','after-region']){
+   for(let i=0;i<3;i++){const saved=bytes(),panel=u.popups.find('ResultPanel'),names=u.popups.names().join(',');flow.hide();update();flow.hide();flow.show();flow.show();update();step();
+    assert.equal(flow.snapshot().state,'level');assert.equal(controls.get('resume').active,false);assert.equal(bytes(),saved);assert.equal(u.popups.names().join(','),names);assert.equal(u.popups.find('ResultPanel'),panel);
+    assert.equal(H.cc._scene.getComponentsInChildren(UI).length,1);}
+   checks.push({which,cycles:3,duplicateEvents:true,storageUnchanged:true,sameResultPanel:true,noGlobalResume:true});
+-  if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('Claim-chest'));update();assert(session.snapshot().journey.chests[0].opened);}
++  if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('ClaimAll'));update();assert(session.snapshot().journey.chests[0].opened);assert(session.snapshot().journey.regionRewards[0].claimed);}
+   if(which==='after-chest'){
+    const reward=u.popups.find('RewardPanel');assert(reward);H.tap(reward.root.find('Accept'));step();update();
+-   const button=u.popups.find('ResultPanel').root.find('Claim-regionReward');assert(button);H.tap(button);update();assert(session.snapshot().journey.regionRewards[0].claimed);
++   assert(!u.popups.find('ResultPanel').root.find('ClaimAll'),'both rewards leave with the one claim');
+   }
+  }
+  const reward=u.popups.find('RewardPanel');if(reward)H.tap(reward.root.find('Accept'));step();update();
+diff --git a/tools/board-ui/test_user_priority_defects.cjs b/tools/board-ui/test_user_priority_defects.cjs
+index 44053df..e7ad80f 100644
+--- a/tools/board-ui/test_user_priority_defects.cjs
++++ b/tools/board-ui/test_user_priority_defects.cjs
+@@ -22,17 +22,19 @@ const {createHarness}=require('./harness.cjs');
+  for(const [width,height] of [[390,844],[320,568],[844,390]]){
+   H.setViewport(width,height);const panel=P.openResult(stack,model,null);for(let i=0;i<40;i++)stack.update(.025);
+   if(height>600)assert(panel.height<height-80,'portrait panel must shrink to current result content');
+-  const count=Number(panel.root.find('ResultPageNumber').getComponent(H.cc.Label).string.split('/')[1])||1, checked=new Set();
++  const count=Number(panel.root.find('ResultPageNumber').getComponent(H.cc.Label).string.split('/')[1])||1;
++  let claim=null,tool=null,tapped=false;
+   for(let page=0;page<count;page++){
+-   for(const id of ['chest','tool']){const claim=panel.root.find('Claim-'+id);if(!claim.activeInHierarchy)continue;
+-    if(id==='chest'){const art=panel.root.find('ResultChestArt');assert(art&&art.activeInHierarchy,'chest is a centered hero');const ui=art.getComponent(H.cc.UITransform),w=ui.width*Math.abs(art.scale.x),h=ui.height*Math.abs(art.scale.y);assert(Math.max(w,h)>=120,'chest hero at least 120');const face=claim.getChildByName('Face'),inside=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert.equal(inside.length,0,'chest claim is the button under the hero');checked.add(id);H.tap(claim);continue;}
+-    const face=claim.getChildByName('Face'),art=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert(art.length,'reward art lives inside pressed button face');
+-    for(const icon of art){const ui=icon.getComponent(H.cc.UITransform),w=ui.width*icon.scale.x,h=ui.height*icon.scale.y;assert(Math.max(w,h)>=50,'actual loaded reward icon visibly larger than old 44×36');const card=claim.getComponent(H.cc.UITransform);assert(Math.abs(icon.position.x)+w/2<=card.width/2);assert(Math.abs(icon.position.y)+h/2<=card.height/2);}
+-    checked.add(id);H.tap(claim);
+-   }
++   const live=panel.root.find('ClaimAll');if(live&&live.activeInHierarchy)claim=live;
++   const art=panel.root.find('ResultChestArt');
++   if(art&&art.activeInHierarchy){const ui=art.getComponent(H.cc.UITransform),w=ui.width*Math.abs(art.scale.x),h=ui.height*Math.abs(art.scale.y);assert(Math.max(w,h)>=120,'chest hero at least 120');}
++   const icon=panel.root.find('tool_tidenet');if(icon&&icon.activeInHierarchy)tool=icon;
++   if(claim&&claim.activeInHierarchy&&!tapped){const face=claim.getChildByName('Face'),inside=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert.equal(inside.length,0,'claim-all is the button under the hero');H.tap(claim);tapped=true;}
+    if(page+1<count)H.tap(panel.root.find('ResultNextPage'));
+   }
+-  assert.equal(checked.size,2);H.tap(panel.root.find('Next'));assert(!calls.includes('next'),'unavailable meadow cannot advance');
++  assert(tapped,'one claim-all button');assert(calls.includes('chest')&&calls.includes('tool'),'one tap claims every ready reward');
++  assert(tool,'region reward art stays on the result');const ui=tool.getComponent(H.cc.UITransform),tw=ui.width*Math.abs(tool.scale.x),th=ui.height*Math.abs(tool.scale.y);assert(Math.max(tw,th)>=50,'actual loaded reward icon visibly larger than old 44×36');
++  H.tap(panel.root.find('Next'));assert(!calls.includes('next'),'unavailable meadow cannot advance');
+   layouts.push({width,height,panelHeight:panel.height,pages:count});stack.clear();
+  }
+  const record=JSON.parse(fs.readFileSync('docs/user-defects/2026-10-14-priority.json'));assert.equal(record.defects.length,4);assert(record.defects.every(d=>d.status==='OPEN'));
+-- 
+2.47.3
+

@@ -1,0 +1,24 @@
+PASS fixtures: Oi A has no condition key; Oi B differs from A only by projectname + condition
+PASS A (default/off) is a no-op: file byte-identical, no log dir
+PASS B on Oi A keeps Oi's \u-escaped style: text = A text + condition block only
+PASS B on Oi A reproduces Oi-verified B config exactly (deep-equal after projectname)
+PASS B on Oi A is BYTE-identical to Oi's verified first-open-b-project.config.json (projectname aside)
+PASS B preserves every other field and key order; backup + log written OUTSIDE the output dir
+PASS idempotent: second B run changes nothing, keeps single backup, no new log line
+PASS B on already-B (Oi B file) is untouched byte-for-byte (keeps Oi's \u escapes)
+PASS empty Cocos-template condition (game.currentL typo) is replaced by B
+PASS active (non-empty) condition is refused and file untouched
+PASS B1 creates project.private.config.json with the same condition
+PASS B1 preserves existing private config fields and order
+PASS B2 writes game-only condition
+PASS switching B -> B2 on the same output is allowed (B condition counts as empty)
+PASS --check writes nothing
+PASS unknown variant rejected; missing project.config.json rejected
+PASS CLI entry: prints JSON report, exit 0; active condition exit 1
+PASS wrapper default off == original finalizer alone (byte-identical output)
+PASS wrapper with env B: finalizer runs first, then B applied
+PASS wrapper flag --first-open-condition=B is stripped before the finalizer sees argv
+PASS wrapper propagates finalizer rejection and applies nothing
+PASS wrapper re-run on its own output is stable (finalizer strips B, wrapper re-applies B → identical)
+
+22/22 passed

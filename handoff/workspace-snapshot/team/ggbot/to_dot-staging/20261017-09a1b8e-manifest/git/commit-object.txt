@@ -1,0 +1,6 @@
+tree 082f1c0ee20c38403d3f3bbb3ff5fb27d2ecf14a
+parent 455ee48b314cd477b90c5c71b9635e88906404ad
+author Cursor Agent <cursoragent@cursor.com> 1792204111 +0800
+committer Cursor Agent <cursoragent@cursor.com> 1792204111 +0800
+
+E1: tools/build-guard/build-wechat-guarded.sh - Creator CLI build guard (size > 15 MB, no 当前初始场景不存在, clean git status; else restore metas, drop library/temp, retry x3, fail loudly; prints total bytes, cleans caches); configs wechat-release/web-test; fake-builder self-test

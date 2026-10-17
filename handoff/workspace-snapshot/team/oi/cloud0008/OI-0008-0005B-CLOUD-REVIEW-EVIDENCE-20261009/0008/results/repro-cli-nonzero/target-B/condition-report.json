@@ -1,0 +1,42 @@
+{
+  "tool": "wechat_first_open_condition.cjs",
+  "version": "0008-v1",
+  "time": "2026-10-09T23:11:30.950Z",
+  "outDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/fixtures-Qw7PHJ/cli-nonzero/copies/QFFirstOpen-20261009T231130Z-463da5-B",
+  "variant": "B",
+  "note": "Oi-verified R6 config: game+miniprogram current=-1 list=[] in project.config.json",
+  "check": false,
+  "files": [
+    {
+      "file": "project.config.json",
+      "existed": true,
+      "changed": true,
+      "preservedKeys": [
+        "description",
+        "miniprogramRoot",
+        "setting",
+        "compileType",
+        "libVersion",
+        "appid",
+        "projectname"
+      ],
+      "previousCondition": "(absent)",
+      "newCondition": {
+        "game": {
+          "current": -1,
+          "list": []
+        },
+        "miniprogram": {
+          "current": -1,
+          "list": []
+        }
+      },
+      "sha256Before": "b06a000641ba7bc7e40b3f319e108f28f19c9760b55b3bbdb456b38cd6f3feb5",
+      "sha256After": "2bd64992f0687182b4ce3e0236dd8f5e409d630158e879c443590ccc1ab5e014",
+      "diff": "--- a/project.config.json\n+++ b/project.config.json\n@@ -1,16 +1,26 @@\n {\n   \"description\": \"项目配置文件。\",\n   \"miniprogramRoot\": \"./\",\n   \"setting\": {\n     \"urlCheck\": true,\n     \"postcss\": true,\n     \"minified\": true,\n     \"newFeature\": false,\n     \"enhance\": true,\n     \"useIsolateContext\": true\n   },\n   \"compileType\": \"game\",\n   \"libVersion\": \"widelyUsed\",\n   \"appid\": \"wx3bdd911c5c06f591\",\n-  \"projectname\": \"QFFirstOpen-20261009T231130Z-463da5-B\"\n+  \"projectname\": \"QFFirstOpen-20261009T231130Z-463da5-B\",\n+  \"condition\": {\n+    \"game\": {\n+      \"current\": -1,\n+      \"list\": []\n+    },\n+    \"miniprogram\": {\n+      \"current\": -1,\n+      \"list\": []\n+    }\n+  }\n }\n",
+      "backup": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/repro-cli-nonzero/target-B/condition-log/project.config.json.before-first-open.bak"
+    }
+  ],
+  "logDir": "/workspace/shared/game-audit-0008-0005b/evidence/0008-review/repro-cli-nonzero/target-B/condition-log",
+  "changed": true
+}
