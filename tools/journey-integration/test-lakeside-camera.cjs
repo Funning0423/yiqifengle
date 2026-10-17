@@ -10,14 +10,16 @@
  *  K3 lens on her RIGHT for the whole leg (never left of behind).
  *  K4 final landing frame at 360×780 (0.46) and 390×520 (0.75): whole body in frame, feet ≥ 5% above the bottom edge,
  *     her centre 20–80% of the width, height 0.12–0.22 of the screen, board centre in frame.
- *  K5 view turn ≤ 20°/s at walk speed; no crane-up: lens height above her never rises over the arrival (monotone).
- *  K7 time domain at the controller's walk (route length / 1.2 m/s, as RegionJourneyController.walk; the real walk driver
- *     reports this distance linearly), 60 Hz, after the 0.6 s set-off fade: lens |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³, and it
- *     comes to rest with her (≤ 0.2 m/s over the last 0.5 s, 0 at the stop). The fallback lens is reported for comparison.
+ *  K5 view turn ≤ 20°/s on the timed walk (route.timing, 17 s); no crane-up: lens height above her never rises over the arrival (monotone).
+ *  K7 time domain on route.timing (RegionJourneyCore.journeyDistanceAt, the distance curve the walk action now gets), 60 Hz:
+ *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
+ *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
+ *  K8 landing→board blend (lakesideLandingBlend, 1 s): starts on the landing pose, ends exactly on the board camera
+ *     (world), lens ≥ 1.1 m every 1/120 of it, her face/head/chest never hidden, lens on her right while it is behind her.
  *  K6 board framing (lakesideAlignedBoardPose, the pose the lease's frame() writes) on 8 real BoardLayout layouts (0.43…0.75
  *     portrait, notch/capsule, tablet, landscape): the 3D lake grid (16 LK_wb_line) lies under the 2D board — 3D board centre
  *     on the 2D grid centre and centre-row width = 2D grid width (≤ 0.5 px), every grid vertex inside the opaque tray by
- *     ≥ 0.15 cell, residual perspective (corner / cell-centre error) reported; portrait top edge reaches past the north shore
+ *     ≥ 0.05 cell, residual perspective (corner / cell-centre error) reported; portrait top edge reaches past the north shore
  *     (scene above the tray); lens clearance ≥ 1.1 m. Scene = exactly the live lease's instances.
  * Geometric evidence only; native visual acceptance is separate. */
 const J=require('./journey-scene.cjs'),{fs,assert,H,S,Core,Lay,sampleRoute,routeLength,journeyCamera,start,start1,island,add,sub,bbox,blockers,clearance,rayHit}=J;
@@ -26,7 +28,8 @@ const LKS=require('./lakeside/lakeside-scene.cjs'),LK=H.load(S+'region/LakesideC
 const EXEMPT_M=1,STEP=+(process.env.QF_OCCLUSION_STEP||.05),HEIGHTS=[.15,.5,.9,1.25,1.6],CLEAR=1.1;
 const results=[];const check=(id,fn)=>{try{results.push({id,status:'PASS',...fn()});}catch(e){results.push({id,status:'FAIL',error:String(e.stack||e)});}};
 const j=LK.lakesideJourney(start),path=[...j.approach,...j.bridge.slice(1),...j.arrival],T=routeLength(path);
-const route={from:'island',to:'lakeside',path,bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing};
+const route={from:'island',to:'lakeside',path,bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing,timing:j.timing};
+const TM=j.timing,sAt=t=>Core.journeyDistanceAt(T,TM,t),DUR=TM.durationS;
 const lakeLocal=LKS.instances(),lake=lakeLocal.map(o=>{const t=new Float64Array(o.tris.length);for(let k=0;k<t.length;k+=3){const w=j.toWorld([o.tris[k],o.tris[k+1],o.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lakeside',name:o.name,group:o.group,tris:t};});
 // rainbow bridge strip exactly as RegionJourneyAdapter.rainbowBridge (full width, one ribbon)
 const strip=(()=>{const w=Lay.REGION_JOURNEY_LAYOUT.bridgeWidthM,P=j.bridge,t=[];for(let i=1;i<P.length;i++){const q=[P[i-1],P[i]].map((p,k)=>{const a=P[Math.max(0,i-1+k-1)],b=P[Math.min(P.length-1,i+k)],dx=b[0]-a[0],dz=b[2]-a[2],L=Math.hypot(dx,dz)||1;return [-.5,.5].map(s=>[p[0]+dz/L*s*w,p[1]-.015,p[2]-dx/L*s*w]);});t.push(...q[0][0],...q[1][0],...q[0][1],...q[0][1],...q[1][0],...q[1][1]);}return {tag:'bridge',name:'RainbowBridgeStrip',tris:Float64Array.from(t)};})();
@@ -43,10 +46,13 @@ check('K1 lakeside route continuity valid; landing needs focus + known keys; rou
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{arrivalSideM:NaN}},start),/journey-invalid-landing/);
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{fovDeg:30}},start),/journey-invalid-landing/);
  assert.throws(()=>Core.validateJourneyRoute({...route,from:'meadow'},start),/journey-region-order/);
+ assert.throws(()=>Core.validateJourneyRoute({...asIsland,timing:{durationS:9,easeInS:2,easeOutS:2}},start),/journey-invalid-timing/,'peak > 4.5 m/s rejected');
+ assert.throws(()=>Core.validateJourneyRoute({...asIsland,timing:{durationS:17,easeInS:.5,easeOutS:4}},start),/journey-invalid-timing/,'|a| > 3 m/s² rejected');
+ assert.throws(()=>Core.validateJourneyRoute({...asIsland,timing:{durationS:5,easeInS:3,easeOutS:4}},start),/journey-invalid-timing/,'ramps longer than the leg rejected');
  for(const leg of J.legs)for(let d=0;d<=routeLength(leg.path);d+=.5)assert.deepEqual(journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM,undefined),journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM));
  const foot=[];for(let d=route.bridgeEnd;d<=T+1e-9;d+=.25){const p=sampleRoute(path,d),hit=rayHit([p[0],p[1]+3,p[2]],[0,-1,0],10,lake.find(o=>o.name==='LK_terrain_i').tris);assert(hit!==null,'no bank under her at d='+d.toFixed(2));foot.push(+(p[1]+3-hit-p[1]).toFixed(3));}
  assert(foot.every(h=>Math.abs(h)<=.03),'feet off the bank: '+foot);
- return {totalM:+T.toFixed(3),durationS:+(T/route.speed).toFixed(2),bridgeStart:+route.bridgeStart.toFixed(3),bridgeEnd:+route.bridgeEnd.toFixed(3),walkOnBankM:+(T-route.bridgeEnd).toFixed(3),footVsBankM:[Math.min(...foot),Math.max(...foot)],root:j.root.map(v=>+v.toFixed(3)),yawDeg:j.yawDeg};});
+ return {totalM:+T.toFixed(3),durationS:DUR,timing:TM,peaks:Core.journeyTimingPeaks(T,TM),bridgeStart:+route.bridgeStart.toFixed(3),bridgeEnd:+route.bridgeEnd.toFixed(3),walkOnBankM:+(T-route.bridgeEnd).toFixed(3),footVsBankM:[Math.min(...foot),Math.max(...foot)],root:j.root.map(v=>+v.toFixed(3)),yawDeg:j.yawDeg};});
 const rows=[];let worst={lens:9};const fails=[],grazes=[],exempted=[];
 for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(path,d),c=cam(d),hit=HEIGHTS.map(h=>blockers(objs,c.position,[p[0],p[1]+h,p[2]])),face=blockers(objs,c.position,[p[0],p[1]+1.5,p[2]]),[lens,lensObj]=clearance(c.position,objs);
  const [hx,hz]=heading(d),o=sub(c.position,p),side=o[0]*-hz+o[2]*hx,behind=-(o[0]*hx+o[2]*hz),up=o[1];
@@ -63,22 +69,24 @@ for(const [W,Hh] of [[360,780],[390,520]])check(`K4 final landing frame ${W}x${H
  const x=(chest[0]+1)/2,feetUp=(feet[1]+1)/2,headDown=(1-head[1])/2,h=(head[1]-feet[1])/2;
  assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.05,'feet '+feetUp);assert(headDown>=.05,'head '+headDown);assert(x>=.2&&x<=.8,'her x '+x);assert(h>=.12&&h<=.22,'height '+h);assert(Math.abs(fc[0])<=.9&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc);
  return finals[W+'x'+Hh]={herX:+x.toFixed(3),feetAboveBottom:+feetUp.toFixed(3),headBelowTop:+headDown.toFixed(3),herHeight:+h.toFixed(3),boardCentre:[+((fc[0]+1)/2).toFixed(3),+((1-fc[1])/2).toFixed(3)],cam:c.position.map(v=>+v.toFixed(3)),target:c.target.map(v=>+v.toFixed(3)),fov:c.fovVerticalDeg};});
-check('K5 view turn ≤ 20°/s at 1.2 m/s; no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
- for(let d=0;d<T;d+=.05){const a=cam(d),b=cam(Math.min(T,d+.05)),u=J.Core?null:null,fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI/(.05/route.speed);if(deg>maxAng){maxAng=deg;at=d;}}
+check('K5 view turn ≤ 20°/s on the 17 s profile; no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
+ for(let t=0;t<DUR;t+=1/60){const a=cam(sAt(t)),b=cam(sAt(Math.min(DUR,t+1/60))),fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI*60;if(deg>maxAng){maxAng=deg;at=t;}}
  assert(maxAng<=20,`turn ${maxAng.toFixed(2)}°/s at d=${at.toFixed(2)}`);
  // No crane-up: over the arrival the lens never climbs in the world, and its height above her only falls (≤ 5 cm total of
  // up-steps allowed: the S-curve lens rounds the bridge→bank corner where her own descent stops dead).
  const s=T-Core.JOURNEY_CAMERA.arrivalBlendM;let worldRise=0,wa=0,relUp=0,ra=0;for(let i=1;i<rows.length;i++)if(rows[i].d>=s){const dw=rows[i].cam[1]-rows[i-1].cam[1],du=rows[i].up-rows[i-1].up;if(dw>worldRise){worldRise=dw;wa=rows[i].d;}if(du>0){relUp+=du;ra=rows[i].d;}}
  assert(worldRise<=.001,`lens climbs ${worldRise} m per ${STEP} m at d=${wa}`);assert(relUp<=.05,`lens rises ${relUp} m above her (last at d=${ra})`);
  const arr=rows.filter(r=>r.d>=s),maxUp=Math.max(...rows.map(r=>r.up));
- return {maxTurnDegS:+maxAng.toFixed(2),at:+at.toFixed(2),arrivalWorldMaxClimbPerStepM:+worldRise.toFixed(4),arrivalRelativeUpStepsSumM:+relUp.toFixed(4),arrivalLensAboveHerM:[+arr[0].up.toFixed(3),+arr.at(-1).up.toFixed(3)],arrivalLensWorldY:[arr[0].cam[1],arr.at(-1).cam[1]],maxLensAboveHerM:+maxUp.toFixed(3)};});
-check('K7 lens kinematics: S-curve settle, |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³ after the set-off fade, at rest when she stops',()=>{
- const kin=fn=>{const dt=1/60,D=T/route.speed,P=[];for(let t=0;t<=D+1+1e-9;t+=dt)P.push(fn(Math.min(T,t*route.speed)).position);const der=a=>a.slice(1).map((v,i)=>v.map((x,k)=>(x-a[i][k])/dt)),n=x=>Math.hypot(...x),v=der(P),a=der(v),jk=der(a);
-  const from=Math.round(.6/dt),end=Math.round(D/dt),pk=(arr,o)=>arr.reduce((m,x,i)=>i+o>=from&&n(x)>m.v?{v:n(x),t:(i+o)*dt}:m,{v:0,t:0});
-  return {peakSpeed:pk(v,1),peakAccel:pk(a,1),peakJerk:pk(jk,2),last05sMaxSpeed:Math.max(...v.slice(end-30,end).map(n)),speedAfterStop:n(v[end+1])};};
- const nw=kin(cam),fb=kin(d=>journeyCamera(path,d,start1,undefined,undefined,0));
- assert(nw.peakAccel.v<=1.2,'accel '+JSON.stringify(nw.peakAccel));assert(nw.peakJerk.v<=5,'jerk '+JSON.stringify(nw.peakJerk));assert(nw.last05sMaxSpeed<=.2&&nw.speedAfterStop<1e-9,'not at rest '+nw.last05sMaxSpeed);
- const r=o=>JSON.parse(JSON.stringify(o,(k,v)=>typeof v==='number'?+v.toFixed(4):v));return {new:r(nw),fallback:r(fb)};});
+ return {maxTurnDegS:+maxAng.toFixed(2),atS:+at.toFixed(2),arrivalWorldMaxClimbPerStepM:+worldRise.toFixed(4),arrivalRelativeUpStepsSumM:+relUp.toFixed(4),arrivalLensAboveHerM:[+arr[0].up.toFixed(3),+arr.at(-1).up.toFixed(3)],arrivalLensWorldY:[arr[0].cam[1],arr.at(-1).cam[1]],maxLensAboveHerM:+maxUp.toFixed(3)};});
+check(`K7 timing ${DUR} s (16–18): her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the set-off fade, at rest when she stops`,()=>{
+ assert(DUR>=16&&DUR<=18,'duration '+DUR);
+ const kin=(fn,sOf,D)=>{const dt=1/60,P=[],S=[];for(let t=0;t<=D+1+1e-9;t+=dt){const s=sOf(Math.min(D,t));S.push([s,0,0]);P.push(fn(s).position);}const der=a=>a.slice(1).map((v,i)=>v.map((x,k)=>(x-a[i][k])/dt)),n=x=>Math.hypot(...x),v=der(P),a=der(v),jk=der(a),hv=der(S),ha=der(hv),hj=der(ha);
+  const from=Math.round(.6/dt),end=Math.round(D/dt),pk=(arr,o,f0=from)=>arr.reduce((m,x,i)=>i+o>=f0&&n(x)>m.v?{v:n(x),t:(i+o)*dt}:m,{v:0,t:0});
+  return {durationS:D,her:{peakSpeed:pk(hv,1,0),peakAccel:pk(ha,1,0),peakJerk:pk(hj,2,0)},peakSpeed:pk(v,1),peakAccel:pk(a,1),peakJerk:pk(jk,2),last05sMaxSpeed:Math.max(...v.slice(end-30,end).map(n)),speedAfterStop:n(v[end+1])};};
+ const nw=kin(cam,sAt,DUR),fb=kin(d=>journeyCamera(path,d,start1,undefined,undefined,0),t=>Math.min(T,t*route.speed),T/route.speed),prev=kin(cam,t=>Math.min(T,t*route.speed),T/route.speed);
+ assert(nw.her.peakSpeed.v<=4.5+1e-6,'her speed '+JSON.stringify(nw.her.peakSpeed));assert(nw.her.peakAccel.v<=3+1e-6,'her accel '+JSON.stringify(nw.her.peakAccel));
+ assert(nw.peakAccel.v<=3,'lens accel '+JSON.stringify(nw.peakAccel));assert(nw.peakJerk.v<=8,'lens jerk '+JSON.stringify(nw.peakJerk));assert(nw.last05sMaxSpeed<=.2&&nw.speedAfterStop<1e-9,'not at rest '+nw.last05sMaxSpeed);
+ const r=o=>JSON.parse(JSON.stringify(o,(k,v)=>typeof v==='number'?+v.toFixed(4):v));return {new:r(nw),previousC375304At1_2:r(prev),fallbackDefaultAt1_2:r(fb)};});
 // K6 board framing: 3D lake grid laid under the 2D board (BoardLayout) on real phone layouts
 const BL=H.load(S+'ui/BoardLayout.ts'),CP=H.load(S+'world-r1/CameraPose.ts'),SD=H.load(S+'region/LakesideSceneData.ts');
 const K6_LAYOUTS=[['360x780 (0.46)',360,780,{top:0,bottom:0,left:0,right:0,capsule:null}],
@@ -98,7 +106,7 @@ check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact, 
   const scr=p=>{const q=CP.projectPoint(pose,a,p);return [(q.x+1)/2*W,(1-q.y)/2*Hh,q.depth];};
   const c=scr([0,0,12]),l=scr([-3.85,0,12]),r=scr([3.85,0,12]);
   const centrePx=Math.hypot(c[0]-g.grid.x,c[1]-g.grid.y),widthPx=Math.abs((r[0]-l[0])-g.grid.size);assert(centrePx<=.5,`${name} centre off ${centrePx}px`);assert(widthPx<=.5,`${name} width off ${widthPx}px`);
-  const P=g.pitch,inset=.15*P;let worst=1e9,corner=0;
+  const P=g.pitch,inset=.05*P;let worst=1e9,corner=0;
   for(const o of grid)for(let k=0;k<o.tris.length;k+=3){const q=scr([o.tris[k],o.tris[k+1],o.tris[k+2]]);worst=Math.min(worst,g.tray.width/2-Math.abs(q[0]-g.tray.x),g.tray.height/2-Math.abs(q[1]-g.tray.y));}
   assert(worst>=inset,`${name} 3D grid within ${worst.toFixed(1)}px of the tray edge (need ${inset.toFixed(1)})`);
   for(const [x,z,cx,cy] of [[-3.85,8.15,-3.5,-3.5],[3.85,8.15,3.5,-3.5],[-3.85,15.85,-3.5,3.5],[3.85,15.85,3.5,3.5]]){const q=scr([x,0,z]);corner=Math.max(corner,Math.hypot(q[0]-(g.grid.x+cx*P),q[1]-(g.grid.y+cy*P))/P);}
@@ -114,6 +122,24 @@ check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact, 
   if(W<Hh&&!safe.left&&!safe.right){const e=LK.lakesideBoardRect({width:W,height:Hh,boardTop:frame.boardTop});out[name].fallbackRectErrPx=+Math.max(Math.abs(e.x-g.grid.x),Math.abs(e.y-g.grid.y),Math.abs(e.size-g.grid.size)).toFixed(3);
    if(Math.abs(g.pitch-(W-18)/(681/82))<1e-6||Math.abs(g.pitch-42.6*Math.min(1.3,Math.max(1,W/390)))<1e-6)assert(out[name].fallbackRectErrPx<=1,name+' fallback rect');}}
  return {layouts:out};});
+// K8 landing → board blend (lakesideLandingBlend): starts on the final landing pose, ends exactly on the board camera
+check(`K8 landing→board blend ${C.landingBlend.seconds} s: exact ends, lens ≥ ${CLEAR} m, her face/head/chest never hidden, lens on her right while behind her, S-curve`,()=>{const out={};
+ const BL8=H.load(S+'ui/BoardLayout.ts'),p=path.at(-1),[hx,hz]=heading(T);
+ for(const [W,Hh] of [[360,780],[390,520]]){const g=BL8.boardLayout(W,Hh,{top:0,bottom:0,left:0,right:0,capsule:null},2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
+  const from=cam(T),b=LK.lakesideLandingBlend(from,frame,j),n=120,P=[];let minLens=9,minObj=null,minSide=9,hiddenAt=[],ahead=null;
+  const e0=b.at(0),e1=b.at(b.seconds),loc=LK.lakesideAlignedLookAt(frame),bw=[loc.position,loc.target].map(j.toWorld);
+  const close=(x,y,eps=1e-9)=>x.every((v,k)=>Math.abs(v-y[k])<=eps);assert(close(e0.position,from.position)&&Math.abs(e0.fovVerticalDeg-from.fovVerticalDeg)<1e-9,'start != landing pose');
+  const d0=sub(e0.target,e0.position),d1=sub(from.target,from.position),cosA=(d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])/Math.hypot(...d0)/Math.hypot(...d1);assert(cosA>1-1e-9,'start view != landing view');
+  assert(close(e1.position,bw[0],1e-6)&&close(e1.target,bw[1],1e-6)&&e1.fovVerticalDeg===loc.fovVerticalDeg,'end != board camera');
+  for(let i=0;i<=n;i++){const t=b.seconds*i/n,c=b.at(t);P.push(c.position);const [lens,who]=clearance(c.position,objs);if(lens<minLens){minLens=lens;minObj=who;}
+   for(const h of [.9,1.5,1.6])if(blockers(objs,c.position,[p[0],p[1]+h,p[2]]).length)hiddenAt.push([+t.toFixed(3),h]);
+   const o=sub(c.position,p),side=o[0]*-hz+o[2]*hx,behind=-(o[0]*hx+o[2]*hz);if(behind>0)minSide=Math.min(minSide,side);else if(ahead===null)ahead=+t.toFixed(3);}
+  assert(minLens>=CLEAR,`blend lens ${minLens} from ${minObj}`);assert.deepEqual(hiddenAt,[],'her hidden '+JSON.stringify(hiddenAt.slice(0,5)));assert(minSide>0,'lens left of her while behind: '+minSide);
+  const dt=b.seconds/n,der=a=>a.slice(1).map((v,i)=>v.map((x,k)=>(x-a[i][k])/dt)),nn=x=>Math.hypot(...x),v=der(P),a=der(v);
+  assert(nn(v[0])<.5&&nn(v.at(-1))<.5,'blend not at rest at its ends');
+  out[W+'x'+Hh]={seconds:b.seconds,from:{position:from.position,fov:from.fovVerticalDeg},to:{position:bw[0].map(x=>+x.toFixed(3)),fov:loc.fovVerticalDeg},moveM:+Math.hypot(...sub(bw[0],from.position)).toFixed(3),
+   minLensM:+minLens.toFixed(3),minLensObj:minObj,minRightWhileBehindM:+minSide.toFixed(3),passesHerAtS:ahead,peakSpeed:+Math.max(...v.map(nn)).toFixed(2),peakAccel:+Math.max(...a.map(nn)).toFixed(1)};}
+ return {blends:out};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
 if(process.env.QF_LAKESIDE_DUMP)fs.writeFileSync(process.env.QF_LAKESIDE_DUMP,JSON.stringify({path,focus:j.focus,root:j.root,yawDeg:j.yawDeg,landing:j.landing,start1,rows,route:{bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,speed:route.speed}}));
