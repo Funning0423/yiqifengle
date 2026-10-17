@@ -14,3 +14,6 @@ assert.equal(w.s,0);assert.equal(w.sWind,0);assert.equal(w.gust,-1);assert.equal
 const aq=aa.match(/  quiet\(\) \{ ([^\n]*) \}\n/)[1];const a={vol:.5,src:{volume:.5,playing:true,pause(){this.playing=false;}}};
 new Function(aq.replace(/this\./g,'self.').replace(/^/,'const self=this;')).call(a);assert.equal(a.vol,0);assert.equal(a.src.volume,0);assert.equal(a.src.playing,false);
 console.log('exit restart quiet OK');
+// V1r: backgrounding zeroes the beds immediately (not only pauses them).
+assert(/private onHide\(\) \{ GameAudio\.quietAmbience\('hide'\); this\.suspend\('hidden'\); \}/.test(ga),'quiet on hide');
+console.log('hide quiet OK');

@@ -893,7 +893,7 @@ export class GameAudio extends Component {
   }
 
   // R6 的 Cocos 事件入口（保留名字）
-  private onHide() { this.suspend('hidden'); }
+  private onHide() { GameAudio.quietAmbience('hide'); this.suspend('hidden'); }   // V1r: wind/waves volume 0 at once (no ~50 ms stale-buffer tail on return)
   private onShow() { this.onShowEvent(); }
 
   private registerWx(onName: string, offName: string, cb: (...a: any[]) => void) {
