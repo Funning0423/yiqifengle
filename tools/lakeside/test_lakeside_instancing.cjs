@@ -6,7 +6,7 @@ assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,4000}?  setLaye
 assert(/for\(const m of instanced\.splice\(0\)\)m\.destroy\(\);/.test(s),'destroyed on dispose');
 assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
 // Behaviour on stand-ins: 3 renderers over 2 source materials -> 2 copies, renderers sharing a source share the copy.
-const body=s.match(/export function enableLakesideInstancing\(root:Node\):Material\[\]\{\n([\s\S]*?)\n\}\n/)[1].replace(/:Material\[\]|<Material,Material>/g,'');
+const body=s.match(/export function enableLakesideInstancing\(root:Node\):Material\[\]\{\n([\s\S]*?)\n\}\n/)[1].replace(/<string,Map<Material,Material>>|:Material\[\]|<Material,Material>/g,'');
 class Material{copy(src,o){this.src=src;this.defines=o.defines;}}
 const A={},B={},rs=[A,A,B].map(m=>({sharedMaterials:[m],set:[],setSharedMaterial(x,k){this.set[k]=x;}}));
 const run=(glbOf,landOf)=>{const inits=[];const out=new Function('root','Material','MeshRenderer','lakesideTopGlb','lakesideLandFillClass','lakesideDayNightMode','initLakesideLandFill',body)(
