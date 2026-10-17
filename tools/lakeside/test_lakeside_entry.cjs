@@ -59,7 +59,7 @@ t('lights follow scene_r5h3_lighting.json (direction, colour, ratios); the MTN_R
  const D=H.load('region/LakesideSceneData'),lit=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h3_lighting.json'),'utf8'));
  assert.deepEqual(D.LAKESIDE_LIGHTS.map(l=>[l.name,l.forward,l.colorLinear,l.ratio]),lit.lights.map(l=>[l.name,l.forward,l.colorLinear,l.illuminanceRatio]));
  for(const l of D.LAKESIDE_LIGHTS){const p=D.lakesideLightPosition(l),c=D.LAKESIDE_BOARD_BOUNDS.center,d=[c[0]-p[0],c[1]-p[1],c[2]-p[2]],len=Math.hypot(...d);for(let i=0;i<3;i++)assert(Math.abs(d[i]/len-l.forward[i]/Math.hypot(...l.forward))<1e-3);assert(p[1]>0,'sun above board');}
- const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');assert(/if\(l\.onlyLayer\)continue;/.test(bg));assert(/camera\.priority=44/.test(bg));assert(/LAKESIDE_LAYER=1<<20/.test(bg));});
+ const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');assert(/for\(const pl of lakesideLightPlacements\(\)\)/.test(bg)&&!D.lakesideLightPlacements().some(p=>p.light.onlyLayer));/* L1: onlyLayer skip moved into lakesideLightPlacements */assert(/camera\.priority=44/.test(bg));assert(/LAKESIDE_LAYER=1<<20/.test(bg));});
 t('scene instances: every kept GLB is in the subpackage (with .meta), 3D pieces / shadows / ripples / frame dropped',()=>{
  const D=H.load('region/LakesideSceneData'),tr=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h_slim_transforms.json'),'utf8'));
  const keep=D.lakesideSceneInstances(tr.instances),models=path.join(A,'bundles/region_lakeside/models');

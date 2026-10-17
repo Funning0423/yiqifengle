@@ -45,6 +45,27 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
   const c = LAKESIDE_BOARD_BOUNDS.center, d = LAKESIDE_SUN_DISTANCE;
   return [+(c[0] - l.forward[0] * d).toFixed(3), +(c[1] - l.forward[1] * d).toFixed(3), +(c[2] - l.forward[2] * d).toFixed(3)];
 }
+/** L1 (lead ruling, draw-call fallback): drop the 0.08 sun (folded into ambient, +8 % sky illuminance while the lake shows) and pull
+ *  the other suns in from 220 m / range 600 to `distance` 20 m / range 40 along the same direction. At 20 m the board corners
+ *  are 15.5–24.9 m away (half-diagonal 5.44 m), inside 40 with margin; best corner uniformity for r=40 was at d=20 (scan 8–39).
+ *  Luminance is rescaled so the board centre gets the same light as before: (d/220)² · window(220/600) / window(d/r)
+ *  (Cocos sphere-light window (1-(d/r)^4)^2: 0.964 at 220/600, 0.879 at 20/40). `keepMainFull` = Voice Bot variant: the 1.0 sun stays at 220 m / 600. */
+export const LAKESIDE_LIGHT_TRIM = Object.freeze({ enabled: true, dropRatioBelow: 0.1, distance: 20, range: 40, keepMainFull: false, ambientFold: 0.08 });
+export const LAKESIDE_FULL_RANGE = 600;
+export type LakesideLightPlacement = { light: LakesideLight; position: [number, number, number]; range: number; luminanceScale: number };
+export function lakesideLightPlacements(trim: { enabled: boolean; dropRatioBelow: number; distance: number; range: number; keepMainFull: boolean } = LAKESIDE_LIGHT_TRIM): LakesideLightPlacement[] {
+  const c = LAKESIDE_BOARD_BOUNDS.center, out: LakesideLightPlacement[] = [];
+  for (const l of LAKESIDE_LIGHTS) {
+    if (l.onlyLayer) continue;
+    const full = !trim.enabled || (trim.keepMainFull && l.ratio >= 1);
+    if (trim.enabled && l.ratio < trim.dropRatioBelow) continue;
+    if (full) { out.push({ light: l, position: lakesideLightPosition(l), range: LAKESIDE_FULL_RANGE, luminanceScale: 12 * l.ratio }); continue; }
+    const d = trim.distance, n = Math.hypot(l.forward[0], l.forward[1], l.forward[2]), u = d / trim.range, win = Math.pow(1 - Math.pow(u, 4), 2);
+    out.push({ light: l, position: [+(c[0] - l.forward[0] / n * d).toFixed(3), +(c[1] - l.forward[1] / n * d).toFixed(3), +(c[2] - l.forward[2] / n * d).toFixed(3)],
+      range: trim.range, luminanceScale: 12 * l.ratio * Math.pow(d / LAKESIDE_SUN_DISTANCE, 2) * Math.pow(1 - Math.pow(LAKESIDE_SUN_DISTANCE / LAKESIDE_FULL_RANGE, 4), 2) / win });
+  }
+  return out;
+}
 const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
 export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
 /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */

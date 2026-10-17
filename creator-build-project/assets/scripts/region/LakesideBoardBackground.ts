@@ -2,7 +2,7 @@ import {Animation,AssetManager,Camera,Color,JsonAsset,Material,MeshRenderer,Node
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {applyCameraPose} from '../world-r1/CameraPose';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPlacements,lakesideLightSrgb,LAKESIDE_LIGHT_TRIM,lakesideSceneInstances,lakesidePrefabName,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
 /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
@@ -24,9 +24,12 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
 /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
 export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[];
+ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[],ambientSaved:number|null=null;
+ /** L1: the dropped 0.08 sun is folded into the scene ambient (+ambientFold sky illuminance) only while the lake shows; restored on hide/dispose. */
+ const foldAmbient=(on:boolean)=>{const T=LAKESIDE_LIGHT_TRIM;if(!T.enabled||!(T.ambientFold>0))return;const amb=(director.getScene() as any)?.globals?.ambient;if(!amb)return;
+  if(on&&ambientSaved===null){ambientSaved=amb.skyIllum;amb.skyIllum=ambientSaved!*(1+T.ambientFold);}else if(!on&&ambientSaved!==null){amb.skyIllum=ambientSaved;ambientSaved=null;}};
  const held:Array<{decRef():unknown}>=[];
- const dispose=()=>{if(dead)return;dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
+ const dispose=()=>{if(dead)return;foldAmbient(false);dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
  off=token.onCancel(dispose);
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
  try{
@@ -46,14 +49,14 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   instanced=enableLakesideInstancing(scenery);
   setLayer(scenery);
   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
-  for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
-   const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
+  for(const pl of lakesideLightPlacements()){const l=pl.light,n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=pl.position;n.setPosition(p[0],p[1],p[2]);
+   const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=pl.range;s.size=30;s.luminance*=pl.luminanceScale;s.visibility=LAKESIDE_LAYER;}
   const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
   return {
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');},
-   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;},
+   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;foldAmbient(value);},
    setPaused:value=>{if(dead)return;paused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
    dispose,

@@ -58,7 +58,7 @@ const tests=[
  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
- ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],
+ ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-lights-trim','tools/lakeside/test_lakeside_lights_trim.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
