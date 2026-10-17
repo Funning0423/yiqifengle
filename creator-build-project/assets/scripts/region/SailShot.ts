@@ -31,10 +31,17 @@ function addMesh(parent:Node,mesh:FrameMesh,color:Color):MeshRenderer{
  const r=node.addComponent(MeshRenderer);r.mesh=geo;r.setSharedMaterial(material,0);
  return r;
 }
-function partColor(name:string,tint:(r:number,g:number,b:number)=>Color):Color{
- if(name==='sail_root')return tint(255,112,18);
+function partColor(name:string,tint:(r:number,g:number,b:number)=>Color,night:boolean):Color{
+ if(name==='sail_root')return tint(255,102,0);
  if(name==='transport_sail_mast')return tint(48,26,14);
- if(name==='transport_sailboat_keel')return tint(92,46,24);
+ if(name==='transport_sailboat_keel')return tint(72,36,18);
+ if(name==='transport_sailboat')return tint(255,228,196);
+ if(name==='env_sea_surface')return tint(16,128,198);
+ if(name==='meadow_sky_dome')return tint(18,28,72);
+ if(name==='env_sky_dome')return night?tint(18,28,72):tint(120,198,236);
+ if(name==='transit_sea_cards')return tint(52,164,88);
+ if(name==='transit_clouds'||name==='transit_clouds_mid')return tint(255,255,255);
+ if(name==='meadow_terrain')return tint(78,186,64);
  return tint(255,246,230);
 }
 /**
@@ -69,7 +76,7 @@ export function startSailShot(scene:Node,rider?:Node|null):void{
   meshes.push(meadowSlab(m0));
   boardMs=(typeof performance!=='undefined'?performance.now():Date.now())-t0;
  }
- const renderers=meshes.map(m=>addMesh(root,m,partColor(m.name,tint)));
+ const renderers=meshes.map(m=>addMesh(root,m,partColor(m.name,tint,night)));
  const c=Math.cos(v.yaw),s=Math.sin(v.yaw),lx=0,ly=0.62,lz=-0.2;
  const seat=new Node('seat_bench');root.addChild(seat);
  seat.setWorldPosition(v.pos[0]+c*lx+s*lz,v.pos[1]+ly,v.pos[2]-s*lx+c*lz);
@@ -105,8 +112,5 @@ export function startSailShot(scene:Node,rider?:Node|null):void{
   (globalThis as any).__sailShot.fps=fps;
  };
  director.on?.('after-update' as any,tick);
- (globalThis as any).__sailShot={ready:false,beat:beatAt(tl,t).id,t,night,dc:countDc(meshes)+(character?1:0),renderers:renderers.length+(character?1:0),fps,boardMs,character,clip:character?'sit_hold':''};
- let left=character?8:2;
- const arm=()=>{left--;if(left>0)return;director.off?.('after-update' as any,arm);(globalThis as any).__sailShot.ready=true;};
- director.on?.('after-update' as any,arm);
+ (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,t,night,dc:countDc(meshes)+(character?1:0),renderers:renderers.length+(character?1:0),fps,boardMs,character,clip:character?'sit_hold':''};
 }
