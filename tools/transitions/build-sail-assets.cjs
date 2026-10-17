@@ -32,22 +32,52 @@ function glb(nodes,meshes,materials){
  const bh=Buffer.alloc(8);bh.writeUInt32LE(bin.length,0);bh.writeUInt32LE(0x004E4942,4);
  return Buffer.concat([header,jh,jsonBuf,bh,bin]);
 }
-const HULL=[0.90,0.32,0.22],SAIL=[0.98,0.93,0.72],SEA=[0.12,0.55,0.62],CLOUD=[0.95,0.97,1],ISLE=[0.20,0.62,0.38],BEACON=[0.95,0.75,0.20];
+const HULL=[0.96,0.93,0.86],KEEL=[0.36,0.18,0.10],MAST=[0.22,0.12,0.07],SAIL=[1,0.45,0.08],SEA=[0.12,0.55,0.62],CLOUD=[0.95,0.97,1],ISLE=[0.20,0.62,0.38],BEACON=[0.95,0.75,0.20];
 function paint(n,c){const o=[];for(let i=0;i<n;i++)o.push(c[0],c[1],c[2]);return o;}
-function hull(){
+function soup(local,color){
  const positions=[],indices=[];
- const ring=(z,y,w)=>{positions.push(-w,y,z,w,y,z,0,y+0.35,z);};
- ring(-2.1,0,0.15);ring(-1.2,0,0.55);ring(0,0.05,0.6);ring(1.2,0.05,0.45);ring(2.1,0.1,0.05);
- for(let i=0;i<4;i++){const a=i*3;indices.push(a,a+3,a+1,a+1,a+3,a+4,a,a+2,a+3,a+2,a+5,a+3,a+1,a+4,a+2,a+2,a+4,a+5);}
- // deck
- indices.push(0,1,3,1,4,3);
- const colors=paint(positions.length/3,HULL);
- return {positions,indices,colors,material:0};
+ for(let i=0;i<local.length;i+=3){indices.push(positions.length/3);positions.push(local[i],local[i+1],local[i+2]);}
+ return {positions,indices,colors:paint(positions.length/3,color)};
 }
-function sailCloth(){
- const positions=[-0.05,0.55,-0.2,0.05,0.55,-0.2,0,2.3,-0.15,-0.9,1.7,0.15,0.9,1.7,0.15,0,2.35,0.2];
- const indices=[0,1,2,2,3,5,2,5,4];
- return {positions,indices,colors:paint(positions.length/3,SAIL),material:1};
+/** Same silhouette as TransitBackdrop.boatLocal: cream hull, dark keel and mast, orange sail facing the follow camera. */
+function boatParts(){
+ const hull=[],keel=[],mast=[],sail=[];
+ const addTri=(out,a,b,c,outward)=>{
+  const ab=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],ac=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];
+  const n=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
+  const tri=(n[0]*outward[0]+n[1]*outward[1]+n[2]*outward[2]>=0)?[a,b,c]:[a,c,b];
+  for(const p of tri)out.push(p[0],p[1],p[2]);
+ };
+ const addQuad=(out,a,b,c,d,o)=>{addTri(out,a,b,c,o);addTri(out,a,c,d,o);};
+ const stations=[[-2.05,0.42,0.58,-0.02],[-1.1,0.78,0.7,-0.28],[0.15,0.84,0.74,-0.34],[1.2,0.58,0.62,-0.18],[2.2,0.08,0.46,0.08]];
+ const ring=(z,w,deck,ky)=>({keel:[0,ky,z],pl:[-w*0.78,0.02,z],gl:[-w,deck,z],gr:[w,deck,z],pr:[w*0.78,0.02,z]});
+ const rings=stations.map(s=>ring(s[0],s[1],s[2],s[3]));
+ for(let i=0;i<rings.length-1;i++){
+  const a=rings[i],b=rings[i+1];
+  addQuad(hull,a.pl,b.pl,b.gl,a.gl,[-1,0.15,0]);
+  addQuad(hull,a.pr,a.gr,b.gr,b.pr,[1,0.15,0]);
+  addQuad(hull,a.gl,b.gl,b.gr,a.gr,[0,1,0]);
+  addQuad(keel,a.keel,a.pl,b.pl,b.keel,[-0.2,-1,0]);
+  addQuad(keel,a.keel,b.keel,b.pr,a.pr,[0.2,-1,0]);
+ }
+ const fan=(out,origin,rest,o)=>{for(let i=0;i<rest.length-1;i++)addTri(out,origin,rest[i],rest[i+1],o);};
+ const stern=rings[0],bow=rings[rings.length-1];
+ fan(keel,stern.keel,[stern.pr,stern.gr,stern.gl,stern.pl],[0,0,-1]);
+ fan(keel,bow.keel,[bow.pl,bow.gl,bow.gr,bow.pr],[0,0,1]);
+ const box=(out,cx,cy,cz,sx,sy,sz)=>{
+  const x0=cx-sx,x1=cx+sx,y0=cy-sy,y1=cy+sy,z0=cz-sz,z1=cz+sz,P=(x,y,z)=>[x,y,z];
+  addQuad(out,P(x0,y0,z1),P(x1,y0,z1),P(x1,y1,z1),P(x0,y1,z1),[0,0,1]);
+  addQuad(out,P(x1,y0,z0),P(x0,y0,z0),P(x0,y1,z0),P(x1,y1,z0),[0,0,-1]);
+  addQuad(out,P(x0,y0,z0),P(x0,y0,z1),P(x0,y1,z1),P(x0,y1,z0),[-1,0,0]);
+  addQuad(out,P(x1,y0,z1),P(x1,y0,z0),P(x1,y1,z0),P(x1,y1,z1),[1,0,0]);
+  addQuad(out,P(x0,y1,z1),P(x1,y1,z1),P(x1,y1,z0),P(x0,y1,z0),[0,1,0]);
+  addQuad(out,P(x0,y0,z0),P(x1,y0,z0),P(x1,y0,z1),P(x0,y0,z1),[0,-1,0]);
+ };
+ box(mast,0,1.85,-0.28,0.045,1.28,0.045);
+ box(mast,0.7,0.78,-0.62,0.62,0.035,0.04);
+ addQuad(sail,[0.08,0.9,-0.22],[0.08,3.15,-0.16],[1.55,2.45,-0.85],[1.7,0.92,-1.2],[0.28,0.05,-1]);
+ const mesh=(local,color,material)=>{const m=soup(local,color);m.material=material;return m;};
+ return [mesh(hull,HULL,0),mesh(keel,KEEL,1),mesh(mast,MAST,2),mesh(sail,SAIL,3)];
 }
 function cards(){
  const positions=[],indices=[],colors=[];
@@ -70,14 +100,16 @@ function clouds(){
  for(let i=0;i<8;i++){const u=i/8*Math.PI*2;blob(Math.sin(u)*12,2,Math.cos(u)*12,1.4+ (i%3)*0.3);}
  return {positions,indices,colors,material:0};
 }
-const mat=(rgba,name)=>({name,pbrMetallicRoughness:{baseColorFactor:rgba,metallicFactor:0,roughnessFactor:0.8},doubleSided:false});
+const mat=(rgba,name)=>({name,pbrMetallicRoughness:{baseColorFactor:rgba,metallicFactor:0,roughnessFactor:0.85},doubleSided:true});
 const boat=glb([
- {name:'transport_sailboat',children:[1,2,3,4]},
+ {name:'transport_sailboat',children:[1,2,3,4,5,6]},
  {name:'hull',mesh:0},
- {name:'sail_root',mesh:1},
- {name:'seat_bench',translation:[0,0.55,-0.15]},
+ {name:'keel',mesh:1},
+ {name:'mast',mesh:2},
+ {name:'sail_root',mesh:3},
+ {name:'seat_bench',translation:[0,0.62,-0.2]},
  {name:'wake_root',translation:[0,0.05,-2.2]},
-],[hull(),sailCloth()],[mat([0.9,0.32,0.22,1],'hull'),mat([0.98,0.93,0.72,1],'sail')]);
+],boatParts(),[mat([...HULL,1],'hull'),mat([...KEEL,1],'keel'),mat([...MAST,1],'mast'),mat([...SAIL,1],'sail')]);
 const sea=glb([{name:'transit_sea_cards',mesh:0}],[cards()],[mat([0.2,0.62,0.38,1],'cards')]);
 const cloud=glb([{name:'transit_clouds',mesh:0}],[clouds()],[mat([0.95,0.97,1,1],'clouds')]);
 fs.writeFileSync(path.join(OUT,'transport_sailboat.glb'),boat);

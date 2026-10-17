@@ -1,7 +1,7 @@
-import {Camera, Color, Material, MeshRenderer, Node, Vec3, director, gfx, utils} from 'cc';
+import {Camera, Color, DirectionalLight, Material, MeshRenderer, Node, Vec3, director, gfx, utils} from 'cc';
 import {transportQaEnabled} from './JourneyTransport';
 import {beatAt, sailBeats, sailCamera, sailM0World, sailRoute, sailVehicle} from './TransportLeg';
-import {boatMesh, cardMesh, cloudMesh, countDc, domeMesh, meadowSlab, seaMesh, vehicleNightScale, type FrameMesh} from './TransitBackdrop';
+import {boatPartMeshes, cardMesh, cloudMesh, countDc, domeMesh, meadowSlab, seaMesh, vehicleNightScale, type FrameMesh} from './TransitBackdrop';
 /** QA / web-test only. `?sailshot=1` shows the sail. Release WeChat ignores it. No on-screen text. */
 export function sailShotRequested(search?:string,host:any=(globalThis as any).wx):boolean{
  let q=search;if(q===undefined){try{q=String((globalThis as any).location?.search||'');}catch{q='';}}
@@ -31,8 +31,17 @@ function addMesh(parent:Node,mesh:FrameMesh,color:Color):MeshRenderer{
  const r=node.addComponent(MeshRenderer);r.mesh=geo;r.setSharedMaterial(material,0);
  return r;
 }
-/** One still of the requested beat. The page probe reads `__sailShot` for DC, fps and the board-slab time. */
-export function startSailShot(scene:Node):void{
+function partColor(name:string,tint:(r:number,g:number,b:number)=>Color):Color{
+ if(name==='sail_root')return tint(255,112,18);
+ if(name==='transport_sail_mast')return tint(48,26,14);
+ if(name==='transport_sailboat_keel')return tint(92,46,24);
+ return tint(255,246,230);
+}
+/**
+ * One still of the requested beat. Pass the stand-in root after `sit_hold` is bound.
+ * The page probe reads `__sailShot` for DC, fps and the board-slab time. No on-screen text.
+ */
+export function startSailShot(scene:Node,rider?:Node|null):void{
  const night=/^(1|night)$/i.test(qparam('night'));
  const want=(qparam('beat')||'S-d').toLowerCase();
  const route=sailRoute();
@@ -51,7 +60,7 @@ export function startSailShot(scene:Node):void{
   cardMesh([eye[0],0,eye[2]]),
   cloudMesh([eye[0],0,eye[2]],60,220),
   cloudMesh([eye[0],0,eye[2]],28,90,'transit_clouds_mid'),
-  boatMesh(v.pos,v.yaw),
+  ...boatPartMeshes(v.pos,v.yaw),
  ];
  const m0=sailM0World();
  let boardMs=0;
@@ -60,20 +69,34 @@ export function startSailShot(scene:Node):void{
   meshes.push(meadowSlab(m0));
   boardMs=(typeof performance!=='undefined'?performance.now():Date.now())-t0;
  }
- const colors=[tint(20,140,190),night?new Color(18,28,72,255):new Color(96,186,235,255),tint(70,150,120),new Color(255,255,255,255),new Color(198,220,245,255),tint(230,96,72),tint(96,186,72)];
- const renderers=meshes.map((m,i)=>addMesh(root,m,colors[i]||tint(255,255,255)));
- const rider=new Node('seat_bench');root.addChild(rider);rider.setWorldPosition(v.pos[0],v.pos[1]+0.55,v.pos[2]);
- addMesh(rider,{name:'rider',tag:'rider',tris:Float32Array.from([-.15,0,-.1,.15,0,-.1,0,.7,-.1,-.2,.35,.05,.2,.35,.05,0,.9,.05]),dc:1},tint(240,200,150));
- let camNode:Node|null=null;
+ const renderers=meshes.map(m=>addMesh(root,m,partColor(m.name,tint)));
+ const c=Math.cos(v.yaw),s=Math.sin(v.yaw),lx=0,ly=0.62,lz=-0.2;
+ const seat=new Node('seat_bench');root.addChild(seat);
+ seat.setWorldPosition(v.pos[0]+c*lx+s*lz,v.pos[1]+ly,v.pos[2]-s*lx+c*lz);
+ seat.setRotationFromEuler(v.roll*180/Math.PI,v.yaw*180/Math.PI,0);
+ let character=false;
+ if(rider&&rider.isValid){
+  rider.setParent(seat,false);
+  rider.setPosition(0,0,0);
+  rider.setRotationFromEuler(0,0,0);
+  rider.active=true;
+  character=true;
+ }
  const cams=scene.getComponentsInChildren(Camera);
- for(const c of cams)c.enabled=false;
- camNode=new Node('SailShotCamera');scene.addChild(camNode);
+ for(const cam of cams)cam.enabled=false;
+ const camNode=new Node('SailShotCamera');scene.addChild(camNode);
  const cam=camNode.addComponent(Camera);
  cam.priority=1000;
  cam.near=0.1;cam.far=900;cam.fov=pose.fovVerticalDeg||48;cam.clearFlags=Camera.ClearFlag.SOLID_COLOR;
  cam.clearColor=night?new Color(18,28,72,255):new Color(120,196,235,255);
+ cam.visibility=0xffffffff;
  camNode.setWorldPosition(pose.position[0],pose.position[1],pose.position[2]);
  camNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
+ const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
+ const sun=sunNode.addComponent(DirectionalLight);
+ sun.illuminance=night?40000:120000;
+ sunNode.setWorldPosition(pose.position[0],pose.position[1]+1,pose.position[2]);
+ sunNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
  let frames=0,acc=0,fps=60,last=typeof performance!=='undefined'?performance.now():Date.now();
  const tick=()=>{
   const now=typeof performance!=='undefined'?performance.now():Date.now();
@@ -82,5 +105,8 @@ export function startSailShot(scene:Node):void{
   (globalThis as any).__sailShot.fps=fps;
  };
  director.on?.('after-update' as any,tick);
- (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,t,night,dc:countDc(meshes)+1,renderers:renderers.length+1,fps,boardMs};
+ (globalThis as any).__sailShot={ready:false,beat:beatAt(tl,t).id,t,night,dc:countDc(meshes)+(character?1:0),renderers:renderers.length+(character?1:0),fps,boardMs,character,clip:character?'sit_hold':''};
+ let left=character?8:2;
+ const arm=()=>{left--;if(left>0)return;director.off?.('after-update' as any,arm);(globalThis as any).__sailShot.ready=true;};
+ director.on?.('after-update' as any,arm);
 }

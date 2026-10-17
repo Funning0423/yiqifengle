@@ -408,12 +408,36 @@ export class WorldIntegrationBoot extends Component {
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private status!:Label;private devMark:DevPreviewMark|null=null;
  /** Back from the background during a journey cutscene: resume it by itself (no 「继续」 tap). Set while the cutscene runs. */
  private cutsceneRunning=false;private cutsceneAutoResume=false;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private islandToast:IslandToast|null=null;
- start(){profiler.hideStats();if(typeof sailShotRequested==='function'&&sailShotRequested()){startSailShot(director.getScene()!);return;}if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+ start(){profiler.hideStats();if(typeof sailShotRequested==='function'&&sailShotRequested()){void this.presentSailShot();return;}if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
  Array.from(this.controls.values()).forEach(n=>{n.active=false;});this.status.string='咦，起风了';if(this.loadingLayer)this.status.node.parent!.active=false;this.resize();
  (globalThis as any).__worldLoading={snapshot:()=>({phase:this.loadPhase,progress:this.loadProgress,error:this.error,approvedArt:true,backgroundSha256:STARTUP_ART.compositeSha256,art:this.loadingLayer?this.loadingLayer.diagnostics():null,gate:this.startup.snapshot(),initialClip:this.selectedSeatedClip,characterRoot:REF.seatedRoot,childOffset:[0,0,0]}),layout:()=>this.navLayout(),motion:()=>((this as any)._referenceAdapter)?.diagnostics()||null};
  void this.loadWorld();
+ }
+ /** QA still: bind the real stand-in on sit_hold, then frame the boat. Release WeChat never calls this. */
+ private async presentSailShot(){
+  const scene=director.getScene()!;
+  try{
+   if(!assetManager.getBundle('region_island'))await new Promise<void>((ok,fail)=>assetManager.loadBundle('region_island',(e,b)=>e||!b?fail(e||Error('region_island')):ok()));
+   const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta()]);
+   const character=loaded[0],meta=loaded[1];
+   const reference=new Node('FLOW_REFERENCE_PLACEHOLDER_NOT_B');this.startupReference=reference;scene.addChild(reference);
+   const adapter=new FlowReferenceStandin(reference);(this as any)._referenceAdapter=adapter;
+   const girl=instantiate(character);this.startupGirl=girl;girl.name='B_PASS2G_CURSOR';
+   {const pre=girl.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<pre.length;i++){pre[i].playOnLoad=false;pre[i].useBakedAnimation=!CHARACTER_POSE_BLEND;}}
+   reference.addChild(girl);girl.setScale(1,1,1);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,0,0);
+   const animations=girl.getComponentsInChildren(SkeletalAnimation);
+   const seated=animations.filter(a=>a.clips.some(clip=>clip?.name==='sit_hold'));
+   if(!seated.length)throw Error('Required initial seated clip missing: sit_hold');
+   this.selectedSeatedClip='sit_hold';this.characterAnimations=seated;
+   for(const a of animations){a.playOnLoad=false;a.stop();}
+   for(const a of seated){a.useBakedAnimation=!CHARACTER_POSE_BLEND;const clip=a.clips.find(x=>x?.name==='sit_hold')!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip;}
+   adapter.setAnimMeta(meta);adapter.bindVisual(girl);
+   for(const a of seated){const state=a.getState('sit_hold');if(state){state.time=0;state.sample();}}
+   girl.active=true;
+   startSailShot(scene,reference);
+  }catch(error){console.error('Sail shot character failed',error);startSailShot(scene,null);}
  }
  /** The loading picture is startup only; actual dependencies and initial seated pose unlock the room. */
  private loadWorld():Promise<void>{
