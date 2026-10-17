@@ -1,4 +1,4 @@
-import {Color, Material, MeshRenderer, Node, Prefab, Texture2D, Vec4, assetManager, director, gfx, instantiate} from 'cc';
+import {Color, Material, MeshRenderer, Node, PointLight, Prefab, Texture2D, Vec4, assetManager, director, gfx, instantiate} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {SAIL_BERTH_X, SAIL_I6, SAIL_SEA_Y, sailRoute, type SailPose} from './TransportLeg';
 const SEA_SCALE=3.2;
@@ -73,7 +73,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  rocks.forEach((p,i)=>{const n=i===0?ring:ring?instantiate(ring):null;if(n&&i)props.addChild(n);place(n,p[0],SAIL_SEA_Y+0.02,p[2]);});
  place(findNode(props,'foam_strip_a'),start[0]-SAIL_BERTH_X,SAIL_SEA_Y,start[2]-1.2);
  place(findNode(props,'foam_strip_b'),end[0],SAIL_SEA_Y,end[2]-6);
- place(findNode(far,'far_island_lighthouse'),start[0]-16,SAIL_SEA_Y,start[2]-150);
+ const lighthouseCard=findNode(far,'far_island_lighthouse');
+ if(lighthouseCard)lighthouseCard.active=false;
  place(findNode(far,'far_islet_a'),start[0]+70,SAIL_SEA_Y,start[2]-120);
  place(findNode(far,'far_islet_b'),start[0]-90,SAIL_SEA_Y,start[2]+40);
  place(findNode(far,'far_islet_c'),end[0]+80,SAIL_SEA_Y,end[2]+30);
@@ -81,7 +82,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  if(coast)coast.active=!meadow?.active;
  const mid:Vec=[(start[0]+end[0])*0.5,0,(start[2]+end[2])*0.5];
  ['cloud_a','cloud_b','cloud_c','cloud_d','cloud_e','cloud_f'].forEach((name,i)=>{
-  const a=i/6*Math.PI*2;place(findNode(clouds,name),mid[0]+Math.cos(a)*78,16+ (i%3)*6,mid[2]+Math.sin(a)*78);
+  const a=i/6*Math.PI*2;place(findNode(clouds,name),mid[0]+Math.cos(a)*150,38+(i%3)*12,mid[2]+Math.sin(a)*150);
  });
  if(stars)stars.setWorldPosition(mid[0],0,mid[2]);
  let wakeMat:Material|null=null,foamMat:Material|null=null,seaMat:Material|null=null;
@@ -107,7 +108,18 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const scene=director.getScene();
  if(scene)walk(scene,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))if(r.enabled){r.enabled=false;hidden.push(r);}});
  const dome=scene?findNode(scene,'env_sky_dome'):null;
+ const cloudLayer=scene?findNode(scene,'env_cloud_layer'):null;
  const domeHome=dome?[dome.worldPosition.x,dome.worldPosition.y,dome.worldPosition.z]:null;
+ const layerHome=cloudLayer?[cloudLayer.worldPosition.x,cloudLayer.worldPosition.y,cloudLayer.worldPosition.z]:null;
+ const matOf=(n:Node|null):Material|null=>{try{return n?.getComponent(MeshRenderer)?.getMaterialInstance(0)??null;}catch{return null;}};
+ const domeMat=matOf(dome),layerMat=matOf(cloudLayer);
+ let lampLight:PointLight|null=null;
+ if(lamp){
+  lampLight=lamp.getComponent(PointLight)||lamp.addComponent(PointLight);
+  lampLight.color=new Color(255,186,96,255);
+  lampLight.range=8;
+  lampLight.luminance=1400;
+ }
  let time=0,cruise=4.4;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
  return {
@@ -122,17 +134,25 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(sailRoot&&open>0.18)sailRoot.setScale(1,Math.max(0.15,open),1);
    if(jib&&open>0.18)jib.setScale(1,Math.max(0.15,open),1);
    if(lamp)lamp.active=night;
+   if(lampLight)lampLight.enabled=night;
    if(stars)stars.active=night;
+   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.18,0.24,0.46,1):new Vec4(1,1,1,1));
+   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.22,0.28,0.43,1):new Vec4(1,1,1,1));
+   if(seaMat)seaMat.setProperty('mainColor',night?new Color(90,130,170,255):new Color(255,255,255,255));
    const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.42:0;
    paint(wakeMat,alpha);paint(foamMat,alpha*0.85);
    if(plane)plane.setWorldPosition(cam[0],SAIL_SEA_Y,cam[2]);
    seaOff.z=cam[0]/13+time*0.018;seaOff.w=cam[2]/13+time*0.011;
    if(seaMat)seaMat.setProperty('tilingOffset',seaOff);
    if(dome&&dome.active)dome.setWorldPosition(cam[0],domeHome?domeHome[1]:dome.worldPosition.y,cam[2]);
+   if(cloudLayer&&cloudLayer.active)cloudLayer.setWorldPosition(cam[0],layerHome?layerHome[1]:cloudLayer.worldPosition.y,cam[2]);
   },
   dispose(){
    for(const r of hidden)if(r.isValid)r.enabled=true;
    if(dome?.isValid&&domeHome)dome.setWorldPosition(domeHome[0],domeHome[1],domeHome[2]);
+   if(cloudLayer?.isValid&&layerHome)cloudLayer.setWorldPosition(layerHome[0],layerHome[1],layerHome[2]);
+   if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));
+   if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));
    if(root.isValid)root.destroy();
   },
  };

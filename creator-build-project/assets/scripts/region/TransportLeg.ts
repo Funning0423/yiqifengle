@@ -5,7 +5,8 @@ import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
 export const SAIL_I6:Vec=[-1.9,-0.6,10.1];
 export const SAIL_M0_LOCAL:Vec=[0.2,1.4,17];
 export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];
-/** Waterline the GBT hull sits on. The transit sheet is 1 cm lower (`SAIL_SEA_Y`). */
+/** Drops the sail copy of the meadow so the sea covers its southern lowland. Bridge mode still uses meadowOffset. */
+export const SAIL_MEADOW_SINK=1.35;
 export const SAIL_WATER_Y=-0.9;
 export const SAIL_SEA_Y=-0.91;
 /** Boat parks on the port side of the I6 pier so the hull does not sit inside the deck. */
@@ -17,7 +18,7 @@ const smoother=(u:number)=>{const t=Math.min(1,Math.max(0,u));return t*t*t*(t*(t
 /** Meadow root after yaw 180 so the estuary sits `sailMeadowOffset` (default +Z 52 m) from I6. */
 export function sailMeadowRoot(i6:Vec=SAIL_I6,m0:Vec=SAIL_M0_LOCAL,offset:Vec=REGION_JOURNEY_LAYOUT.sailMeadowOffset):Vec{
  const mouth:Vec=[i6[0]+offset[0],SAIL_WATER_Y+offset[1]+(m0[1]-SAIL_WATER_Y),i6[2]+offset[2]];
- return [mouth[0]+m0[0],mouth[1]-m0[1],mouth[2]+m0[2]];
+ return [mouth[0]+m0[0],mouth[1]-m0[1]-SAIL_MEADOW_SINK,mouth[2]+m0[2]];
 }
 export function rotY180(p:Vec,root:Vec):Vec{return [root[0]-p[0],root[1]+p[1],root[2]-p[2]];}
 export function sailM0World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M0_LOCAL,sailMeadowRoot(i6));}
@@ -132,7 +133,7 @@ export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{
 export type SailScreen={w:number;h:number};
 type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};
 const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
-const K2:SailOff={back:-9.6,side:1.5,up:3.3,fov:52,look:-8,orb:0};
+const K2:SailOff={back:-9.6,side:2.8,up:3.3,fov:52,look:-8,orb:0};
 const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
 const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
 const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};

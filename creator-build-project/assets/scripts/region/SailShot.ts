@@ -1,7 +1,7 @@
-import {Camera, Color, DirectionalLight, Node, SkeletalAnimation, Vec3, director} from 'cc';
+import {Camera, Color, DirectionalLight, Node, SkeletalAnimation, Vec3} from 'cc';
 import {transportQaEnabled} from './JourneyTransport';
-import {beatAt, sailBeats, sailCamera, sailM0World, sailM1World, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
-import {mountSailArt, type SailArt} from './SailArt';
+import {beatAt, sailBeats, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
+import {mountSailArt, findNode, type SailArt} from './SailArt';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {mountMeadowNightSky} from './RegionJourneyAdapter';
 /** QA / web-test only. `?sailshot=1&k=1` frames a real K still. Release WeChat ignores it. No on-screen text. */
@@ -59,14 +59,14 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  let character=false;
  if(rider&&rider.isValid){
   if(k===1){
-   rider.setParent(scene);
-   rider.setWorldPosition(SAIL_PIER_X, -0.18, v.pos[2]-0.2);
-   rider.setRotationFromEuler(0,0,0);
+   const pier=findNode(scene,'transit_pier');
+   if(pier){rider.setParent(pier);rider.setPosition(0.15,0.42,2.6);rider.setRotationFromEuler(0,90,0);}
+   else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,-0.18,v.pos[2]);rider.setRotationFromEuler(0,90,0);}
   }else if(k===6){
-   const m0=sailM0World(),m1=sailM1World();
+   const fx=Math.sin(v.yaw),fz=Math.cos(v.yaw);
    rider.setParent(scene);
-   rider.setWorldPosition(m0[0]*0.65+m1[0]*0.35,m0[1]*0.65+m1[1]*0.35,m0[2]*0.65+m1[2]*0.35);
-   rider.setRotationFromEuler(0,Math.atan2(m1[0]-m0[0],m1[2]-m0[2])*180/Math.PI,0);
+   rider.setWorldPosition(v.pos[0]+fx*3.4+0.6,v.pos[1]+0.15,v.pos[2]+fz*3.4);
+   rider.setRotationFromEuler(0,v.yaw*180/Math.PI,0);
   }else if(art?.seat){
    rider.setParent(art.seat,false);
    rider.setPosition(0,0,0);
@@ -88,12 +88,12 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  camNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
  const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
  const sun=sunNode.addComponent(DirectionalLight);
- sun.illuminance=night?18000:90000;
+ sun.illuminance=night?6000:90000;
+ if(night)sun.color=new Color(150,170,220,255);
  sunNode.setWorldPosition(pose.position[0]-8,pose.position[1]+12,pose.position[2]-6);
  sunNode.lookAt(new Vec3(v.pos[0],v.pos[1]+1,v.pos[2]));
+ if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,8000);
  const globals=(scene as any).globals;
- if(globals?.ambient){globals.ambient.skyIllum=night?5000:28000;}
+ if(globals?.ambient){globals.ambient.skyIllum=night?1200:28000;if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(18,28,64,255);}
  (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,k,t,night,character,clip:character?clip:'',art:!!art};
- void director;
 }
-const SAIL_PIER_X=-1.9+0.7;
