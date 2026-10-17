@@ -12,6 +12,7 @@
 | `29a7c13be97821eb65f573df230516c7f1a409b3` | `3b6aaabe521a8e842849439b2da79f9dbcc23cc5` | 可见挖方缩短，水下仍沿航线清龙骨；K6 机位外拉 |
 | `59f830c6bb2a6b76c06c28ca8b7f634c19e8bc64` | `bce99b38927819f58efde37e37b9211bdeb52e88` | K6 改到右舷看栈桥；夜间加近镜头星星 |
 | `bc65266827536fc162fe197492da8fe275b18b07` | `550cf180b73fd196fd07356a6c6e87c89dbeccbe` | 女孩站到草地上；K7 星星挂到相机子节点 |
+| `4cf82882d90da69539246c5ca17dc88eaa01e6aa` | `74d4885cdff2bf4367bd8ab76a01bb2eb802e067` | 七张静帧、俯视检查图、对比图和本报告 |
 
 `meadowOffset`、`JOURNEY_TRANSPORT['island-meadow']='sail'` 和桥路径没有改。`SAIL_MEADOW_SINK=1.35` 保留；靠岸靠的是「终点不爬坡 + 局部挖河口」，不是再加深整片草地。
 
