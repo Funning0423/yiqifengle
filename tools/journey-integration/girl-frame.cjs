@@ -7,6 +7,7 @@ const C=RC.REGION_CAMERA.islandCharacter;const out=[];
 for(const region of ['meadow','skycity'])for(const [w,h] of [[390,844],[414,896],[360,780],[375,667],[390,520]]){
  const leg=legs.find(l=>l.id===(region==='meadow'?'04-05':'08-09')),L=routeLength(leg.path),root=sampleRoute(leg.path,L).slice(0,3),b=RB.regionBoardEnd(SRC[region],w/h);
  const f=sub(b.target,b.position),fl=Math.hypot(...f);const F=f.map(x=>x/fl),R=[F[2],0,-F[0]].map((x,_,a)=>x/Math.hypot(a[0],a[2])),U=[R[1]*F[2]-R[2]*F[1],R[2]*F[0]-R[0]*F[2],R[0]*F[1]-R[1]*F[0]].map(x=>-x);
+ for(let k=0;k<3;k++)R[k]=-R[k];// screen right = F x up (the vector above was screen-left; U is built from it, so flip after)
  const t=Math.tan(b.fovVerticalDeg*Math.PI/360),asp=w/h;const pts=[];
  for(const dx of [-C.halfWidthM,C.halfWidthM])for(const dz of [-C.halfWidthM,C.halfWidthM])for(const y of [0,C.heightM]){const q=sub([root[0]+dx,root[1]+y,root[2]+dz],b.position),z=q[0]*F[0]+q[1]*F[1]+q[2]*F[2];pts.push(z>0?[(q[0]*R[0]+q[1]*R[1]+q[2]*R[2])/(z*t*asp),(q[0]*U[0]+q[1]*U[1]+q[2]*U[2])/(z*t),z]:null);}
  const lay=BL.boardLayout(w,h,BL.boardSafeInsets(w,h));
