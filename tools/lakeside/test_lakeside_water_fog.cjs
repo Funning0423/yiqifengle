@@ -33,7 +33,7 @@ assert.equal(em.importer,'effect');assert.equal(mm.importer,'material');assert.e
 assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
 // lease wiring
 const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
-assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\);water\.copy\(waterAsset\);/.test(bg)&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
+assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\),[^;]*;water\.copy\(asset\);/.test(bg)&&/water=lakesideWaterMaterial\(waterAsset\)/.test(bg)/* r4-prep D: shared helper */&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
 assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
 assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
 assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
