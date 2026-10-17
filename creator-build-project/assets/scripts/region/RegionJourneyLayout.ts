@@ -58,3 +58,27 @@ export function skyDeckRoute(end:Vec,gate:Vec):{rim:Vec;deck:Vec[];arrival:Vec}{
 }
 /** Route lens keys from bridge-relative metres to route metres. */
 export function lensKeys(keys:ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,bridgeStart:number){return keys.map(k=>({...k,at:k.at+bridgeStart}));}
+/** 运镜bot (r4, Grok Bot: "she stays visible on the meadow board with up to 3 tools, on every screen"): her last walk on 04→05,
+ *  in the MEADOW MODEL's own metres (GLB / board copy coordinates; the adapter maps it onto the journey copy). It replaces the
+ *  old arrival walk_path_01 → walk_path_02 (that spot sat under the left tool icon with 3 tools on 390x844 / 414x896 / 360x780
+ *  and 63% under it on 375x667). From player_spawn (the rainbow bridge end) she steps left off the trodden path onto the grass
+ *  and walks up the left side of it; y is the meadow_terrain top under each point (≤ 1 m apart, so her feet follow the
+ *  ground). There is no single spot that is clear of the tray and the 3-tool row on all five reference screens (375x667 has
+ *  20 pt between tray and tools), so she STOPS on this line where the board UI of THIS screen leaves her most room
+ *  (RegionBoardLanding.regionGirlStand): 390x844 / 414x896 at the end, 375x667 / 360x780 at ~6.6 m, 390x520 at ~3.2 m. */
+export const MEADOW_STAND_LOCAL:ReadonlyArray<Vec>=[[-0.15,1.298,19.333],[-0.3,1.338,18.667],[-0.45,1.419,18],[-0.617,1.504,17.333],[-0.783,1.587,16.667],[-0.95,1.66,16],[-1.05,1.726,15.45],[-1.15,1.788,14.9],[-1.05,1.86,14.2],[-0.825,1.915,13.7],[-0.6,1.972,13.2],[-0.317,2.046,12.55],[-0.033,2.119,11.9],[0.25,2.193,11.25]];
+/** 08→09 leaves the meadow from wherever she stands: the meadow exit anchors (walk_path_03..08, world) still ahead of her.
+ *  Her spot is projected (x/z) onto the polyline walk_path_02..08; anchors less than 1 m past that point are behind her. She
+ *  then heads for the first anchor ahead whose onward path turns ≤ meadowRejoinTurnDeg from her heading to it, so the follow
+ *  lens never has to swing round a sharp corner right after set-off (08→09 framing F1/F7b). Standing on walk_path_02 (the old
+ *  landing) gives 03..08: byte-for-byte the old route. */
+export const MEADOW_REJOIN={aheadM:1,turnDeg:45} as const;
+export function meadowExitFrom(start:Vec,path02to08:ReadonlyArray<Vec>):Vec[]{
+ const P=path02to08,cp=(p:Vec):Vec=>[p[0],p[1],p[2]];if(P.length<2)return P.slice(1).map(cp);
+ const arc:number[]=[0];for(let i=1;i<P.length;i++)arc.push(arc[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]));
+ let best=Infinity,s0=0;
+ for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],dx=b[0]-a[0],dz=b[2]-a[2],l2=dx*dx+dz*dz||1,t=Math.max(0,Math.min(1,((start[0]-a[0])*dx+(start[2]-a[2])*dz)/l2)),
+  d=Math.hypot(a[0]+dx*t-start[0],a[2]+dz*t-start[2]);if(d<best-1e-9){best=d;s0=arc[i-1]+t*Math.sqrt(l2);}}
+ const head=(a:Vec,b:Vec)=>Math.atan2(b[0]-a[0],b[2]-a[2]),turn=(x:number,y:number)=>{let d=Math.abs(x-y)%(2*Math.PI);return (d>Math.PI?2*Math.PI-d:d)*180/Math.PI;};
+ let k=-1;for(let i=1;i<P.length;i++)if(arc[i]>s0+MEADOW_REJOIN.aheadM){if(k<0)k=i;if(i===P.length-1||turn(head(start,P[i]),head(P[i],P[i+1]))<=MEADOW_REJOIN.turnDeg){k=i;break;}}
+ return k<0?[cp(P[P.length-1])]:P.slice(k).map(cp);}

@@ -30,12 +30,14 @@ const SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520]];
 const SRC={meadow:{region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}},
  skycity:{region:'skycity',map:{toJourney:p=>add(rotY(yaw,p),sOff),toBoard:p=>rotY(-yaw,sub(p,sOff))},anchors:{spawn:sA('anchor_spawn_girl'),court:sA('anchor_starcourt_center')}}};
 const boardCamera=(region,aspect)=>region==='meadow'?MS.meadowScenePose(aspect):Visit.skycityVisitPose(sp('anchor_spawn_girl'),sp('anchor_starcourt_center'),aspect);
-const LEG={meadow:legs.find(l=>l.id==='04-05'),skycity:legs.find(l=>l.id==='08-09')};
+const LEG0={meadow:legs.find(l=>l.id==='04-05'),skycity:legs.find(l=>l.id==='08-09')};
+// r4: 04→05 ends on her stand stop for the screen (RegionBoardLanding.regionGirlStand), so the meadow leg is per screen.
+const legFor=(region,w,h)=>region==='meadow'?{...LEG0.meadow,path:Jn.leg1For(w,h)}:LEG0.skycity;const LEG=LEG0;
 const report={limits:{angleDeg:.1,fovDeg:.1,positionCm:1,clearanceM:1.1,turnDps:20},blendM:RB.REGION_BOARD_LANDING.blendM,swapTable:[],landing:[]};
 const toBoardPose=(region,p)=>({position:SRC[region].map.toBoard(p.position),target:SRC[region].map.toBoard(p.target),fovVerticalDeg:p.fovVerticalDeg});
 (async()=>{
-for(const region of ['meadow','skycity']){const leg=LEG[region],L=routeLength(leg.path);
- for(const [w,h] of SCREENS){const key=`${region} ${w}x${h}`;
+for(const region of ['meadow','skycity']){
+ for(const [w,h] of SCREENS){const key=`${region} ${w}x${h}`,leg=legFor(region,w,h),L=routeLength(leg.path);
   await T('swap '+key,async()=>{
    const board=RB.regionBoardEnd(SRC[region],w/h),route={from:region==='meadow'?'island':'meadow',to:region,path:leg.path,bridgeStart:1,bridgeEnd:2,speed:1.2,...(leg.focus?{focus:leg.focus,lens:leg.lens}:{}),board};
    Core.validateJourneyRoute(route,leg.path[0]);
@@ -88,10 +90,32 @@ await T('routes without board unchanged; invalid board rejected',async()=>{const
  const base={from:'meadow',to:'skycity',path:leg.path,bridgeStart:1,bridgeEnd:2,speed:1.2,focus:leg.focus};const good=RB.regionBoardEnd(SRC.skycity,390/844);
  Core.validateJourneyRoute({...base,board:good},leg.path[0]);
  for(const bad of [{...good,blendM:0},{...good,blendM:L+1},{...good,fovVerticalDeg:NaN},{...good,target:good.position}]){let threw=false;try{Core.validateJourneyRoute({...base,board:bad},leg.path[0]);}catch{threw=true;}ok(threw,'invalid board accepted '+JSON.stringify(bad).slice(0,80));}});
-await T('her board copy at the board camera (r4-prep B+)',async()=>{const g=require('./girl-frame.cjs');
-  // camera rules where she is visible: ≤ 80% of frame width, inside frameLimits, not under the board tray / goal plate (reported: tool icons)
-  for(const r of g)if(r.visible){ok(r.widthFrac<=.8,'too wide '+r.region+' '+r.screen);ok(r.inFrameLimits,'outside frameLimits '+r.region+' '+r.screen);ok(r.underTrayShareOfHer===0&&r.underPlateShareOfHer===0,'under the board '+r.region+' '+r.screen);}
-  report.girlAtBoard=g;return {visible:g.filter(r=>r.visible).map(r=>r.region+' '+r.screen),notVisible:g.filter(r=>!r.visible).map(r=>r.region+' '+r.screen)};});
+await T('her board copy at the board camera (r4: walk end, 3 tools)',async()=>{const g=require('./girl-frame.cjs');
+  // meadow: on every screen her box (independent projection) is fully on screen and clear of tray, goal plate, the 3-tool row,
+  // pause, capsule and safe bands, ≥ 8 pt gap, ≤ 80% width, and it is the TS stop (RegionBoardLanding.regionGirlStand).
+  for(const r of g.filter(r=>r.region==='meadow')){const [w,h]=r.screen.split('x').map(Number),st=Jn.standFor(w,h);
+   ok(r.visible&&r.clearOf3ToolUi,'meadow covered/cropped '+r.screen+' '+r.coveredBy3ToolUi);ok(r.gapPt>=8,'meadow gap '+r.screen+' '+r.gapPt);ok(r.widthFrac<=.8,'too wide '+r.screen);
+   ok(st.clear&&Math.abs(st.gapPt-r.gapPt)<.2&&Math.abs(st.boxPt.l-r.boxPt.l)<.2&&Math.abs(st.boxPt.b-r.boxPt.b)<.2,'TS stop vs independent box '+r.screen+' '+JSON.stringify([st.gapPt,r.gapPt,st.boxPt,r.boxPt]));}
+  // skycity: PENDING the 08→09 end decision (the walk end has not moved): recorded as not in frame so a change shows up here.
+  for(const r of g.filter(r=>r.region==='skycity'))ok(!r.visible,'skycity state changed: '+r.screen+' now visible — update the r4 report');
+  report.girlAtBoard=g;return {meadowClear3Tools:g.filter(r=>r.region==='meadow'&&r.clearOf3ToolUi).map(r=>r.screen+' gap '+r.gapPt+' pt'),skycityNotInFramePending:g.filter(r=>r.region==='skycity'&&!r.visible).map(r=>r.screen)};});
+await T('meadow stand: walk on the ground, no clipping, she is seen by the board camera, 08→09 leaves cleanly (5 screens)',async()=>{
+  const solid=Jn.meadow.filter(o=>!/grass|flower/.test(o.name)),ground=Jn.meadow.filter(o=>/meadow_terrain|meadow_path|meadow_river_bank/.test(o.name)),soft=/grass|flower/;
+  const groundY=p=>{let top=-1e9;for(const o of ground){o.bb??=Jn.bbox(o.tris);if(p[0]<o.bb[0][0]||p[0]>o.bb[1][0]||p[2]<o.bb[0][2]||p[2]>o.bb[1][2])continue;const t=Jn.rayHit([p[0],p[1]+5,p[2]],[0,-1,0],20,o.tris);if(t!==null)top=Math.max(top,p[1]+5-t);}return top;};
+  const rows=[];for(const [w,h] of SCREENS){const st=Jn.standFor(w,h),line=st.path.map(Jn.meadowSrc.map.toJourney),Ls=routeLength(line);let worstFoot=0,minBody=9,who=null;
+   for(let d=0;d<=Ls+1e-9;d+=.1){const p=sampleRoute(line,Math.min(d,Ls)),gy=groundY(p);ok(gy>-1e8,'no ground under her at '+d);worstFoot=Math.max(worstFoot,Math.abs(p[1]-gy));
+    for(const hh of [.35,.9,1.5]){const q=[p[0],gy+hh,p[2]];const [c,o]=Jn.clearance(q,solid.filter(x=>!/meadow_terrain|meadow_path|meadow_river_bank/.test(x.name)),2);if(c<minBody){minBody=c;who=o;}}
+    // the river surface must not be above her feet (she never wades)
+    }
+   ok(worstFoot<=.05,'feet off the ground '+worstFoot+' '+w+'x'+h);ok(minBody>=.3,'body clips '+who+' '+minBody+' '+w+'x'+h);
+   // seen by the board camera (journey copy = board copy mapped): chest, head and face unblocked, ≤ 1 of the 5 body points grazed
+   const cam=RB.regionBoardPose(SRC.meadow,w/h),f=Jn.meadowSrc.map.toJourney(st.local),hid=[.15,.5,.9,1.25,1.5,1.6].map(hh=>Jn.blockers(Jn.meadow,cam.position,[f[0],f[1]+hh,f[2]]).filter(x=>!soft.test(x)));
+   ok(!hid[2].length&&!hid[4].length&&!hid[5].length&&hid.filter(x=>x.length).length<=1,'hidden at the board '+w+'x'+h+' '+JSON.stringify(hid));
+   // 08→09 from this stand: rejoin the exit anchors ahead, the leg's approach on the ground and clear, lens rules F1/F7b-like on the approach
+   const exitP=[f,...Jn.Lay.meadowExitFrom(f,Jn.exit02to08)];let appMin=9,appWho=null;for(let d=0,LA=routeLength(exitP);d<=LA;d+=.1){const p=sampleRoute(exitP,d);for(const hh of [.35,.9,1.5]){const [c,o]=Jn.clearance([p[0],groundY(p)+hh,p[2]],solid.filter(x=>!/meadow_terrain|meadow_path|meadow_river_bank/.test(x.name)),2);if(c<appMin){appMin=c;appWho=o;}}}
+   ok(appMin>=.3,'08→09 approach clips '+appWho+' '+appMin+' '+w+'x'+h);
+   rows.push({screen:`${w}x${h}`,stopM:+st.distanceM.toFixed(2),standModel:st.local.map(v=>+v.toFixed(3)),yawModelDeg:+st.yawDeg.toFixed(1),gapPt:+st.gapPt.toFixed(1),inFrameLimits:st.inFrameLimits,worstFootM:+worstFoot.toFixed(3),minBodyClearanceM:+minBody.toFixed(2),nearest:who,hiddenAtBoard:hid.map((x,k)=>x.length?[.15,.5,.9,1.25,1.5,1.6][k]:null).filter(x=>x!==null),rejoinModel:Jn.meadowSrc.map.toBoard(exitP[1]).map(v=>+v.toFixed(2)),approachMinClearanceM:+appMin.toFixed(2)});}
+  report.meadowStand=rows;return {rows};});
  await T('wiring',async()=>{const src=f=>fs.readFileSync(S+f,'utf8').replace(/\s+/g,' ');
  const ad=src('region/RegionJourneyAdapter.ts'),co=src('world-r2/WorldNativeComposition.ts'),mb=src('region/MeadowBoardBackground.ts'),sb=src('region/SkycityBoardBackground.ts'),core=src('world-r1/RegionJourneyCore.ts');
  ok(/model=mountRegion\(def,prefab,rig\);[^;]*boardLocal=new Mat4\(\);Mat4\.fromRTS\(boardLocal,model\.rotation,model\.position,model\.scale\);/.test(ad),'adapter: board copy transform captured right after mountRegion');
@@ -102,7 +126,11 @@ await T('her board copy at the board camera (r4-prep B+)',async()=>{const g=requ
  ok(/finally\{if\(held\)this\.world\?\.holdEnterLevel\?\.\(false\);\}/.test(co),'composition: hold cleared');
  ok(/const pose=meadowScenePose\(layout\.width\/layout\.height\);if\(!applyCameraPose\(camera!,fromLookAt\(pose\)/.test(mb),'meadow background still writes meadowScenePose(aspect)');
  ok(/pose=skycityVisitPose\(\[av\.x,av\.y,av\.z\],\[bv\.x,bv\.y,bv\.z\],layout\.width\/layout\.height\);if\(!applyCameraPose\(camera!,fromLookAt\(pose\)/.test(sb)&&/find\(model,'anchor_spawn_girl'\),b=find\(model,'anchor_starcourt_center'\)/.test(sb),'skycity background still writes skycityVisitPose(spawn, court, aspect)');
- ok((core.match(/this\.lease\.route\.board\)/g)||[]).length===3,'controller passes route.board on every journeyCamera write');});
+ ok((core.match(/this\.lease\.route\.board\)/g)||[]).length===3,'controller passes route.board on every journeyCamera write');
+ ok(/stand=regionGirlStand\(boardSrc,boardSrc\.map\.toBoard\(spawn\),v\.width,v\.height,boardSafeInsets\(v\.width,v\.height\)\);/.test(ad)&&/arrival=stand\.path\.slice\(1\)\.map\(p=>boardSrc!\.map\.toJourney\(p\)\)/.test(ad),'adapter: 04→05 arrival = her stand stop for this screen (board UI viewport)');
+ ok(/if\(!arrival\.length\)for\(let i=1;i<=2;i\+\+\)arrival\.push\(anchor\(model,'walk_path_'/.test(ad),'adapter: old walk_path_01→02 kept as the fallback');
+ ok(/approach=\[start,\.\.\.meadowExitFrom\(start,exit\)\];/.test(ad),'adapter: 08→09 leaves through the exit anchors ahead of her');
+ {const ex=[];for(let i=2;i<=8;i++)ex.push(Jn.mA('walk_path_'+String(i).padStart(2,'0')));const o=Jn.Lay.meadowExitFrom(ex[0],ex);ok(JSON.stringify(o)===JSON.stringify(ex.slice(1)),'standing on walk_path_02 keeps 03..08 exactly');}});
 const out={status:fail?'FAIL':'PASS',passed:results.length-fail,total:results.length,...report,results};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/region-landing-hook.json',JSON.stringify(out,null,1)+'\n');
 console.log(JSON.stringify({status:out.status,passed:out.passed,total:out.total}));process.exit(fail?1:0);

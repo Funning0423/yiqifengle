@@ -6,7 +6,7 @@ import {SkyNightTexture} from '../render/SkyNightTexture';
 import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials, meadowGroundMaterials, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
-import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
 import {applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
@@ -17,7 +17,7 @@ import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
-import {regionBoardEnd,regionBoardSource,setRegionBoardSource,type BoardLandingRegion,type RegionBoardSource} from './RegionBoardLanding';
+import {regionBoardEnd,regionBoardSource,regionGirlStand,setRegionBoardSource,type BoardLandingRegion,type GirlStand,type RegionBoardSource} from './RegionBoardLanding';
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
@@ -60,7 +60,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
    const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
-   let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null;
+   let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null;
    const release=()=>{if(dead)return;dead=true;if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
    try{
     model=mountRegion(def,prefab,rig);
@@ -86,14 +86,24 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     progress(.86);
     let approach:Vec[];
     if(from==='island')approach=islandApproach(start);
-    else{const meadow=mounted.get('meadow');if(!meadow)throw Error('journey-meadow-lease-missing');approach=[start];for(let i=3;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)approach.push(anchor(meadow,'walk_path_'+String(i).padStart(2,'0')));}
+    else{const meadow=mounted.get('meadow');if(!meadow)throw Error('journey-meadow-lease-missing');const exit:Vec[]=[];for(let i=2;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)exit.push(anchor(meadow,'walk_path_'+String(i).padStart(2,'0')));
+     // 运镜bot (r4): she may stand off walk_path_02 now (04→05 stops where the meadow board UI leaves her room); leave from there
+     // through the exit anchors still ahead of her (standing on walk_path_02 = the old 03..08 exactly).
+     approach=[start,...meadowExitFrom(start,exit)];}
     const edge=approach[approach.length-1];let bridge:Vec[],arrival:Vec[],focus:Vec|undefined;
     if(to==='meadow'){
      model.setRotationFromEuler(0,180,0);
      const incoming=anchor(model,'player_spawn'),landing=plus(edge,REGION_JOURNEY_LAYOUT.meadowOffset);
      model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-incoming[0],landing[1]-incoming[1],landing[2]-incoming[2]]));
      bridge=bridgePath(edge,anchor(model,'player_spawn'),REGION_JOURNEY_LAYOUT.meadowBridgeArchM);arrival=[];
-     for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
+     // 运镜bot (r4): from the bridge end she walks her stand line and stops where THIS screen's meadow board UI (tray, goal plate,
+     // 3-tool row, safe area, capsule) leaves her most room in the board camera (RegionBoardLanding.regionGirlStand); her frozen
+     // board copy is mounted exactly there. If the screen or the map cannot be read: the old walk_path_01 → 02.
+     try{boardSrc=journeyBoardSource('meadow',model,boardLocal!);const v=lakesideViewport(view.getFrameSize()),spawn=anchor(model,'player_spawn');
+      stand=regionGirlStand(boardSrc,boardSrc.map.toBoard(spawn),v.width,v.height,boardSafeInsets(v.width,v.height));
+      if(stand){arrival=stand.path.slice(1).map(p=>boardSrc!.map.toJourney(p));if(!stand.clear)console.warn('[QF_REGION] meadow stand: no clear stop for '+v.width+'x'+v.height+', least covered '+JSON.stringify(stand.boxPt));}}
+     catch(error){stand=null;arrival=[];try{console.error('[QF_REGION] meadow stand unavailable: '+String(error));}catch{}}
+     if(!arrival.length)for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
     }else{
      // Turn the city so the rainbow bridge meets the terminus platform's SIDE rim radially, put that landing on the bridge,
      // then step onto the city's cloud bridge and arrive at the same real entrance (2.4 m in from anchor_cloudbridge_end).
