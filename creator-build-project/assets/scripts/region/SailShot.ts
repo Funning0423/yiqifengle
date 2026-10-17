@@ -27,7 +27,7 @@ export function sailShotTime(k:number):{t:number;night:boolean}{
  if(k===2)return {t:at('S-c',0.98),night:false};
  if(k===4)return {t:at('S-d',0.56),night:false};
  if(k===5)return {t:at('S-d',0.68),night:false};
- if(k===6)return {t:at('S-g',0.35),night:false};
+ if(k===6)return {t:at('S-g',0.12),night:false};
  return {t:at('S-d',0.4),night:k===7||/^(1|night)$/i.test(qparam('night'))};
 }
 /**
@@ -68,8 +68,8 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
    else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,-0.18,v.pos[2]);rider.setRotationFromEuler(0,90,0);}
   }else if(k===6){
    const pier=findNode(scene,'transit_pier_land');
-   if(pier){rider.setParent(pier);rider.setPosition(0,0.42,3.1);rider.setRotationFromEuler(0,0,0);}
-   else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,0.2,v.pos[2]);rider.setRotationFromEuler(0,-90,0);}
+   if(pier){rider.setParent(pier);rider.setPosition(0.15,0.42,2.4);rider.setRotationFromEuler(0,-20,0);}
+   else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-2.2,0.25,v.pos[2]+0.4);rider.setRotationFromEuler(0,-90,0);}
   }else if(art?.seat){
    rider.setParent(art.seat,false);
    rider.setPosition(0,0,0);

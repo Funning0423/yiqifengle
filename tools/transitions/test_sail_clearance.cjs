@@ -14,7 +14,7 @@ function load(rel,req){
 }
 const layout=load('region/RegionJourneyLayout.ts',()=>({}));
 const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:{});
-const channel=load('region/SailChannel.ts',()=>({}));
+const channel=load('region/SailChannel.ts',spec=>spec.includes('TransportLeg')?leg:{});
 const root=leg.sailMeadowRoot();
 const worldOf=p=>[root[0]-p[0],root[1]+p[1],root[2]-p[2]];
 const nodes=loadGlb(path.resolve(__dirname,'../../creator-build-project/assets/bundles/region_meadow/env_meadow.glb'));
@@ -27,7 +27,7 @@ for(const n of nodes){
  const tr=n.tris;
  for(let i=0;i<tr.length;i+=9){
   const pts=[0,1,2].map(k=>worldOf([tr[i+k*3],tr[i+k*3+1],tr[i+k*3+2]]));
-  for(const carved of channel.carveTriangle(pts[0],pts[1],pts[2],rect))tris.push(carved);
+  for(const carved of channel.carveTriangle(pts[0],pts[1],pts[2],rect,samples))tris.push(carved);
  }
 }
 function heightAt(wx,wz){

@@ -91,7 +91,7 @@ function digChannel(renderer:MeshRenderer,samples:readonly Vec[]){
  for(let t=0;t+2<idx.length;t+=3){
   const id=[idx[t],idx[t+1],idx[t+2]];
   const corners=id.map(i=>toW(src[i*3],src[i*3+1],src[i*3+2]));
-  for(const tri of carveTriangle(corners[0],corners[1],corners[2],rect)){
+  for(const tri of carveTriangle(corners[0],corners[1],corners[2],rect,samples)){
    const ids=tri.map(p=>{
     let best=0,bd=1e9;
     for(let c=0;c<3;c++){const d=Math.hypot(p[0]-corners[c][0],p[2]-corners[c][2]);if(d<bd){bd=d;best=c;}}
@@ -140,12 +140,13 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  if(pier){
   const land=instantiate(pier);land.name='transit_pier_land';props.addChild(land);
   // Local +Z runs to world −X (starboard, toward M0). Scale keeps the 5 m deck to about 2 m, across the cut onto the grass.
-  land.setWorldScale(1,1,0.4);
+  // Local +Z of the pier mesh runs along the deck; yaw −90 aims it to world −X (toward M0).
+  land.setWorldScale(1,1,0.55);
   land.setRotationFromEuler(0,-90,0);
-  place(land,end[0]-0.85,-0.17,end[2]);
+  place(land,end[0]-0.35,-0.17,end[2]+0.2);
  }
- // Mouth mesh is 16 m long; sit it downriver of the hull so its banks do not fill the landing cut.
- place(mouth,end[0],SAIL_SEA_Y,end[2]-22);
+ // Mouth banks sit upstream of the short landing cut so K3–K5 keep open water.
+ place(mouth,end[0],SAIL_SEA_Y,end[2]-14);
  place(findNode(props,'buoy_red'),end[0]+5.3,SAIL_SEA_Y,end[2]-14);
  place(findNode(props,'buoy_green'),end[0]-5.4,SAIL_SEA_Y,end[2]-13.6);
  const rocks:[[number,number,number],[number,number,number],[number,number,number]]=[
@@ -169,7 +170,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  ['cloud_a','cloud_b','cloud_c','cloud_d','cloud_e','cloud_f'].forEach((name,i)=>{
   const a=i/6*Math.PI*2;place(findNode(clouds,name),mid[0]+Math.cos(a)*150,38+(i%3)*12,mid[2]+Math.sin(a)*150);
  });
- if(stars){stars.setWorldPosition(mid[0],8,mid[2]);stars.setScale(1.8,1.8,1.8);}
+ if(stars){stars.setWorldPosition(mid[0],55,mid[2]);stars.setScale(2.4,2.4,2.4);}
  let wakeMat:Material|null=null,foamMat:Material|null=null,seaMat:Material|null=null;
  const seaOff=new Vec4(SEA_SCALE,SEA_SCALE,0,0);
  walk(root,n=>{
@@ -206,12 +207,13 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  let lampLight:PointLight|null=null;
  if(lamp){
   lampLight=lamp.getComponent(PointLight)||lamp.addComponent(PointLight);
-  lampLight.color=new Color(255,186,96,255);
-  lampLight.range=1.8;
-  lampLight.luminance=4;
+  // Keep the stern lamp as a tiny warm pool; a brighter point light washes the cockpit white.
+  lampLight.color=new Color(255,170,90,255);
+  lampLight.range=1.1;
+  lampLight.luminance=1.2;
  }
  const lampMat=lamp?.getComponent(MeshRenderer)?.getMaterialInstance(0)??null;
- if(lampMat){lampMat.setProperty('emissive',new Color(255,176,80,255));try{lampMat.setProperty('emissiveScale',0.35);}catch{/* shared gltf may omit the slot */}}
+ if(lampMat){lampMat.setProperty('emissive',new Color(255,168,72,255));try{lampMat.setProperty('emissiveScale',0.18);}catch{/* shared gltf may omit the slot */}}
  type Grade={m:Material;base:number[];wind:boolean;cloud:boolean;prop:boolean};
  const grades:Grade[]=[];
  const linToSrgb=(c:number)=>c<=0.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-0.055;
@@ -255,7 +257,10 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(jib&&open>0.18)jib.setScale(1,Math.max(0.15,open),1);
    if(lamp)lamp.active=night;
    if(lampLight)lampLight.enabled=night;
-   if(stars)stars.active=night;
+   if(stars){
+    stars.active=night;
+    if(night)stars.setWorldPosition(cam[0],cam[1]+42,cam[2]+18);
+   }
    grade(night);
    if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.07,0.11,0.26,1):new Vec4(1,1,1,1));
    if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.12,0.16,0.32,1):new Vec4(1,1,1,1));
