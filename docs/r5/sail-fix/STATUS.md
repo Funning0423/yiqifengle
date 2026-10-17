@@ -7,4 +7,4 @@
 - 2026-10-18 03:56 CST · 构建 · `d76fbc5278` wechat-release 19,430,814 B，web-test 20,219,097 B。`transport_sail` 21,542 B。
 - 2026-10-18 04:08 CST · 配色 · 静帧曾把海、天、船体涂成同一种米色。`49b133e9d0` 分开上色后再编：wechat-release 19,430,968 B（相对 r4 +95,213 B），web-test 20,219,251 B。
 - 2026-10-18 04:10 CST · 截图 · `?sailshot=1` 在 `sit_hold` 绑定之后构图。S-b / S-d / S-e / S-g / 夜间 S-d，390×844。`__sailShot.character=true`，clip `sit_hold`，DC 15，fps 60，boardMs 0。没有从 mainline-04 实机播到中段：这个入口在棋盘就绪前返回，公开的 `__worldIntegration` 没有 04→05 中段拖动。
-- 下一步 · 写 REPORT，清理构建产物，释放锁。不 push。
+- 2026-10-18 04:12 CST · 报告 · `c25fdcab245d`，tree `92a43f41df`。清理构建缓存并释放锁。不 push。

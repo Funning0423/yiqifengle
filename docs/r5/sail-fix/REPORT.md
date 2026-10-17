@@ -8,8 +8,9 @@
 | --- | --- | --- |
 | `d76fbc5278ac3a2d22e5ff5a61d90c5257b6b977` | `04bce4559889d84236357a6624599369abaed9f9` | 等 `FlowReferenceStandin` 进入 `sit_hold` 再构图；船体 / 桅杆 / 橙帆分开 |
 | `49b133e9d06f3f64e8ee07d42b2ad689025b48c6` | `ab4ff746ae54ba50d1d8df4d3d4a5575596ee9e8` | 静帧海、天、草地、船体、帆分色，避免糊成一块米色 |
+| `c25fdcab245d5478e4ff996c25341011e3e2e7e3` | `92a43f41df4e479de382f8c860716b6db5dd4d78` | 验收静帧和本报告 |
 
-截图和本报告在随后的提交里。基线是上一轮 `ca5a363e6f9e97dcc49fced19ab77f4ffe3ec095`。没有 push。
+基线是上一轮 `ca5a363e6f9e97dcc49fced19ab77f4ffe3ec095`。没有 push。
 
 ## 画面
 
