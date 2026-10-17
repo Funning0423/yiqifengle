@@ -25,14 +25,15 @@ export const LAKESIDE_CAMERA_LAYOUT={
  /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). Close end pose
   * (Funning on the c375304 video: the fallback's final frame reads the board and bridge better): the arrival pose is the
   * fallback's close neighbourhood (6.8 m behind / 1.1 m right of her; 3.0 m up, 0.4 m under the 3.4 m follow height) and it
-  * ENDS ON THE BOARD CAMERA (reviewer): aim, pitch and FOV are those of lakesideAlignedLookAt at the 360×780 reference
+  * ENDS ON THE BOARD CAMERA (reviewer): aim, pitch and FOV are those of lakesideAlignedLookAt at the 390×844 reference with
+  * the board UI's default insets (ManagedMobileBoardUI: top 47 / bottom 34 + capsule; iPhone 12–15 class)
   * (board centre on the 2D grid centre: horizontal aim at the focus, arrivalPitchDeg below the focus pitch, arrivalFovDeg),
   * so the landing→board hook closes no gap there and only a small one on other screens (≤ ~2.5° view, a few ° FOV; the
   * test reports it per layout). If BoardLayout or the landing position changes, re-derive the two numbers (the test fails
-  * when the 360×780 gap exceeds 0.01° / 0.01° FOV). Over the 14.3 m arrival blend the lens height above her eases
+  * when the 390×844 gap exceeds 0.01° / 0.01° FOV). Over the 14.3 m arrival blend the lens height above her eases
   * 3.4 → 3.0 m and the FOV 48 → arrivalFovDeg with the same smoother as the view, so the lens never climbs in the world
-  * (no crane-up). Her ≈ 29% across at 360×780, 37% at 390×520. */
- landing:{arrivalBackM:6.8,arrivalSideM:1.1,arrivalUpM:3.0,arrivalPitchDeg:-2.80422,arrivalFovDeg:55.2171,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
+  * (no crane-up). */
+ landing:{arrivalBackM:6.8,arrivalSideM:1.1,arrivalUpM:3.0,arrivalPitchDeg:-2.507461,arrivalFovDeg:57.35256,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
  /** Time profile (reviewer on c375304): the 39.2 m leg in 17 s, smootherstep ramps 4 s up from rest and 4 s down into
   * the landing stop. Cruise 3.02 m/s (≤ 4.5), |a| ≤ 1.41 m/s² (≤ 3), |jerk| ≤ 1.09 m/s³ for her; the lens follows distance
   * (K7: lens |a| ≤ 1.95 m/s², |jerk| ≤ 4.9 m/s³). */
@@ -74,7 +75,7 @@ export function lakesideBoardRect(frame:LakesideBoardFrame):{x:number;y:number;s
 }
 /** Lakeside close end pose (Local): Landing A arrival pose of the lakeside walk (her stop walkLocal[last], focus = board centre). */
 export function lakesideLandingLocal():AuthoredPose{const L=LAKESIDE_CAMERA_LAYOUT,e=arrivalPose(L.walkLocal,L.focusLocal,L.landing);
- return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:48};}
+ return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:L.landing.arrivalFovDeg||48};}
 /** Lakeside board-background camera for a board-UI frame (Local).
  * Portrait: position = lakesideLandingLocal().position; no roll; yaw/pitch solved (Newton) so the 3D board centre projects on
  * the 2D grid centre, FOV solved (bisection) so the 3D centre row projects exactly the 2D grid width.

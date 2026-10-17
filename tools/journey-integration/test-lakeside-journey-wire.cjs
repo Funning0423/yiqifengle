@@ -50,7 +50,8 @@ t('landing→board hook call site',()=>{
  assert.match(comp,/if\(region==='lakeside'\)await lakesideLandingToBoard\(/);
  const i=comp.indexOf('lakesideLandingToBoard({'),e=comp.indexOf('ensureRegion(region)'),l=comp.indexOf("enterLevel(selection.stageId)");assert(e>0&&e<i&&i<l,'between arrival and enterLevel');
  const p=Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});assert(p&&typeof p.then==='function');
- assert.match(src('region/LakesideLandingHook.ts'),/TODO\(运镜bot\)/);});
+ // 运镜bot's hook replaced the stub: the call site injects deps; without deps it still resolves at once (old cut). Behaviour: test-lakeside-landing-hook.
+ assert.doesNotMatch(src('region/LakesideLandingHook.ts'),/TODO\(运镜bot\)/);assert.match(comp,/lakesideLandingToBoard\(\{stageId:selection\.stageId,journey:[^\n]*deps:this\.lakesideLandingDeps\(\)\}\)/);});
 t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{/* build05-next: 运镜bot b0c21d2 dropped the portrait board.pitchDeg (pitch 58 void; portrait is solved from the landing pose). The wiring still must not override the layout: landscape stays 75, and the adapter only reads lakesideJourney. */assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,undefined);assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.landscape.pitchDeg,75);assert.doesNotMatch(src('region/RegionJourneyAdapter.ts'),/pitchDeg\s*[:=]/);});
 (async()=>{
  const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
