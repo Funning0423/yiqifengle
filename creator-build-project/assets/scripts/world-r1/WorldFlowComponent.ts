@@ -118,7 +118,7 @@ function bindIslandSourceAlpha(renderer:MeshRenderer):()=>void {
     return release;
   }catch(error){release();throw error;}
 }
-type UnlitBackdropBinding={setNight:(night:boolean)=>void;release:()=>void;setFollow?:(target:readonly number[]|null,w:number)=>boolean};
+type UnlitBackdropBinding={setNight:(night:boolean)=>void;release:()=>void;setFollow?:(target:readonly number[]|null,w:number,fade?:number)=>boolean};
 /** r4-prep: mean linear vertex colour of the backdrop mesh (what builtin-unlit multiplies mainColor with); [1,1,1] without vertex colours. */
 function backdropAverage(renderer:MeshRenderer,shared:any):[number,number,number]{
   try{if(!shared?.passes?.[0]?.defines?.USE_VERTEX_COLOR)return [1,1,1];const mesh:any=renderer.mesh;if(!mesh)return [1,1,1];
@@ -138,13 +138,20 @@ function bindUnlitBackdrop(renderer:MeshRenderer):UnlitBackdropBinding {
   let instance:ReturnType<MeshRenderer['getMaterialInstance']>=null,released=false,last:boolean|null=null;
   // r4-prep: sky dome + cloud layer can follow the lakeside journey sky (SkyFollowCore). follow=null → exactly the old day/night writes.
   const follows=name==='env_sky_dome'||name==='env_cloud_layer',average=follows?backdropAverage(renderer,shared):[1,1,1];let follow:{target:number[];w:number}|null=null;
-  const followWrite=()=>{const b=last?tint:[1,1,1],c=skyFollowColor(b,follow?follow.target:null,average,follow?follow.w:0);instance!.setProperty('mainColor',new Vec4(c[0],c[1],c[2],alpha));};
+  // r4-prep (C/D): fade < 1 → this instance's pass blends SRC_ALPHA/ONE_MINUS_SRC_ALPHA without depth write (transparent queue, still
+  // one draw); fade back to 1 → the shared pass's own blend/depth/cull states again. Only the instance; the shared material is untouched.
+  let fade=1,blended=false;
+  const sp:any=shared.passes[0],orig={cull:sp.rasterizerState.cullMode,test:sp.depthStencilState.depthTest,write:sp.depthStencilState.depthWrite,func:sp.depthStencilState.depthFunc,t:sp.blendState.targets[0]};
+  const setBlend=(on:boolean)=>{if(on===blended)return;const t=orig.t;
+    instance!.overridePipelineStates(on?{rasterizerState:{cullMode:orig.cull},depthStencilState:{depthTest:orig.test,depthWrite:false,depthFunc:orig.func},blendState:{targets:[{blend:true,blendEq:gfx.BlendOp.ADD,blendSrc:gfx.BlendFactor.SRC_ALPHA,blendDst:gfx.BlendFactor.ONE_MINUS_SRC_ALPHA,blendAlphaEq:gfx.BlendOp.ADD,blendSrcAlpha:gfx.BlendFactor.ONE,blendDstAlpha:gfx.BlendFactor.ONE_MINUS_SRC_ALPHA}]}}
+      :{rasterizerState:{cullMode:orig.cull},depthStencilState:{depthTest:orig.test,depthWrite:orig.write,depthFunc:orig.func},blendState:{targets:[{blend:t.blend,blendEq:t.blendEq,blendSrc:t.blendSrc,blendDst:t.blendDst,blendAlphaEq:t.blendAlphaEq,blendSrcAlpha:t.blendSrcAlpha,blendDstAlpha:t.blendDstAlpha}]}},0);blended=on;};
+  const followWrite=()=>{const b=last?tint:[1,1,1],c=skyFollowColor(b,follow?follow.target:null,average,follow?follow.w:0);setBlend(fade<1);instance!.setProperty('mainColor',new Vec4(c[0],c[1],c[2],alpha*fade));};
   const release=()=>{if(released)return;released=true;if(isValid(renderer,true)&&isValid(renderer.node,true)&&isValid(shared,true))renderer.setSharedMaterial(shared,0,true);else if(instance&&isValid(instance,true))instance.destroy();};
   try {
     instance=renderer.getMaterialInstance(0);if(!instance||instance===shared)throw Error('Backdrop instance not isolated');
     return {release,
-    setFollow:follows?(target,w)=>{if(released||!isValid(renderer,true)||!isValid(renderer.node,true))return false;const next=target&&target.length>=3&&Number.isFinite(w)&&w>0?{target:[target[0],target[1],target[2]],w:Math.min(1,w)}:null;
-      if(!next&&!follow)return true;follow=next;if(last===null)last=false;try{followWrite();return true;}catch(error){follow=null;release();throw error;}}:undefined,
+    setFollow:follows?(target,w,f=1)=>{if(released||!isValid(renderer,true)||!isValid(renderer.node,true))return false;const next=target&&target.length>=3&&Number.isFinite(w)&&w>0?{target:[target[0],target[1],target[2]],w:Math.min(1,w)}:null;
+      const nf=next&&Number.isFinite(f)?Math.max(0,Math.min(1,f)):1;if(!next&&!follow&&fade===1)return true;follow=next;fade=nf;if(last===null)last=false;try{followWrite();return true;}catch(error){follow=null;fade=1;release();throw error;}}:undefined,
     setNight:(value:boolean)=>{if(released||!isValid(renderer,true)||!isValid(renderer.node,true))return;if(follow){if(value!==last){last=value;try{followWrite();}catch(error){release();throw error;}}return;}if(value===last)return;try {
       instance!.setProperty('mainColor',value?night:day);const v=read(instance);
       if(![v.x,v.y,v.z,v.w].every(Number.isFinite)||Math.abs(v.w-alpha)>1e-6||(value?Math.max(v.x,v.y,v.z)>=.5:Math.max(Math.abs(v.x-1),Math.abs(v.y-1),Math.abs(v.z-1))>1e-6))throw Error('Backdrop day/night uniform postcondition failed');
@@ -447,7 +454,7 @@ export class WorldFlowComponent extends Component {
         const a=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:.46;
         return {...frameCheck(last,a,characterBox([c.root[0],c.root[1],c.root[2]],c.heightM,c.halfWidthM),REGION_CAMERA.frameLimits),note:'LOG ONLY: last written pose + fixed box; not camera readback, not skinned bounds, not occlusion/HUD acceptance'};},
     };
-    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),skyFollow:(target:readonly number[]|null,w:number)=>self.skyFollow(target,w)/* r4-prep: lakeside journey blend */,reapply:()=>self.applyDayNight()/* build05-next r2: re-write the island look for the current mode without locking it (lakeside restore-on-leave) */,set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight(),exteriorKey:()=>self.roomLighting?.getExteriorKey()??0,windStrength:()=>self.getWindStrength(),hasRoomLight:()=>self.hasRoomLight(),isWorldVisible:()=>self.isWorldVisible()};
+    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),skyFollow:(target:readonly number[]|null,w:number,fade?:number)=>self.skyFollow(target,w,fade)/* r4-prep: lakeside journey blend */,reapply:()=>self.applyDayNight()/* build05-next r2: re-write the island look for the current mode without locking it (lakeside restore-on-leave) */,set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight(),exteriorKey:()=>self.roomLighting?.getExteriorKey()??0,windStrength:()=>self.getWindStrength(),hasRoomLight:()=>self.hasRoomLight(),isWorldVisible:()=>self.isWorldVisible()};
   }
   update(dt:number):void {
     if(!this.flow||this.disposed||this.safetyFailure)return;
@@ -524,7 +531,8 @@ export class WorldFlowComponent extends Component {
   /** r4-prep: the island sky dome + cloud layer follow the lakeside journey sky (target = lakeside end clear sRGB bytes, w = blend
    *  weight); target null restores the island day/night look. Only the two existing instances' mainColor moves (no DC). Returns how
    *  many backdrops follow. */
-  private skyFollow(target:readonly number[]|null,w:number):number{let n=0;Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(b.setFollow&&isValid(r,true)){try{if(b.setFollow(target,w))n++;}catch(error){console.warn('[QF_SKY] sky follow skipped',String(error));}}});return n;}
+  private skyFollow(target:readonly number[]|null,w:number,fade=1):number{let n=0;const f=target?fade:1;Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(b.setFollow&&isValid(r,true)){try{if(b.setFollow(target,w,f))n++;}catch(error){console.warn('[QF_SKY] sky follow skipped',String(error));}}});
+    /* r4-prep (C): the island-only gulls fade with the dome/clouds (lakeside has no gulls); target null → back to 1 */try{this.atmosphere?.setIslandFade(f);}catch{}return n;}
   /** Does not read or write WorldFlow state. Night meshes stay off until mode is night and the exterior layer is on. */
   private applyDayNight():void {
     const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);this.appliedBlend=view.skyNightBlend;

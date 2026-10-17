@@ -13,7 +13,7 @@ const HERO = 'FLOW_REFERENCE_PLACEHOLDER_NOT_B';
 export class GullFlock {
   private root: Node | null = null; private gulls: GullNodes[] = []; private material: Material | null = null; private base: Color | null = null; private tintKey = ''; private wingMat: Material | null = null; private wingMeshes: Mesh[] = []; private wingKey = '';
   private flock: Flock | null = null; private scene: Scene; private hero: Node | null = null;
-  private wi: any = null; private subscribedFn: any = null; private off: (() => void) | null = null; private exterior = false;
+  private wi: any = null; private subscribedFn: any = null; private off: (() => void) | null = null; private exterior = false; private fade = 1;
   constructor(scene: Scene, parent: Node) {
     this.scene = scene;
     const find = (n: string) => { const all = scene.getComponentsInChildren(MeshRenderer); for (let i = 0; i < all.length; i++) if (all[i].node.name === n && all[i].mesh) return all[i]; return null; };
@@ -38,6 +38,8 @@ export class GullFlock {
       this.gulls.push({ node: n, wingL: part(n, 'fx_gull_' + i + '_wing_L', wingL, -.04, .03, wmat), wingR: part(n, 'fx_gull_' + i + '_wing_R', wingR, .04, .03, wmat), shown: false }); }
     this.flock = new Flock((Date.now() & 0x7fffffff) ^ 0x5eed);
   }
+  /** r4-prep (C): island-only gulls fade out over the lakeside journey's arrival (1 = normal, 0 = none shown); restored to 1 on leave. */
+  setFade(f: number) { this.fade = Number.isFinite(f) ? Math.max(0, Math.min(1, f)) : 1; if (this.fade <= 1e-3) this.hide(); }
   setView(exterior: boolean) { this.exterior = exterior; if (this.flock) this.flock.setView(exterior); if (!exterior) this.hide(); }
   private hide() { for (let i = 0; i < this.gulls.length; i++) { const g = this.gulls[i]; if (isValid(g.node, true)) g.node.active = false; g.shown = false; } }
   /** Re-subscribes whenever __worldIntegration (or its onGullCall) appears or is rebuilt. */
@@ -61,10 +63,11 @@ export class GullFlock {
     if (!this.hero || !isValid(this.hero, true)) this.hero = this.scene.getChildByName(HERO);
     const h = this.hero && isValid(this.hero, true) ? this.hero.worldPosition : null, hero: V3 | null = h ? [h.x, h.y, h.z] : null;
     const poses = f.advance(dt, cam, night, hero);
-    while (f.requests.length) { const r = f.requests.shift()!; try { if (this.wi && typeof this.wi.requestGullCall === 'function') this.wi.requestGullCall(r.dist, r.yawWorldDeg); } catch (e) { /* optional */ } }
+    while (f.requests.length) { const r = f.requests.shift()!; if (this.fade <= 1e-3) continue; try { if (this.wi && typeof this.wi.requestGullCall === 'function') this.wi.requestGullCall(r.dist, r.yawWorldDeg); } catch (e) { /* optional */ } }
     for (let i = 0; i < poses.length && i < this.gulls.length; i++) { const s = poses[i], g = this.gulls[i];
-      if (g.shown !== s.visible) { g.node.active = s.visible; g.shown = s.visible; } if (!s.visible) continue;
-      g.node.setWorldPosition(s.pos[0], s.pos[1], s.pos[2]); g.node.setWorldRotation(s.rot[0], s.rot[1], s.rot[2], s.rot[3]); g.node.setScale(s.size, s.size, s.size);
+      const vis = s.visible && this.fade > 1e-3, k = s.size * this.fade;
+      if (g.shown !== vis) { g.node.active = vis; g.shown = vis; } if (!vis) continue;
+      g.node.setWorldPosition(s.pos[0], s.pos[1], s.pos[2]); g.node.setWorldRotation(s.rot[0], s.rot[1], s.rot[2], s.rot[3]); g.node.setScale(k, k, k);
       g.wingL.setRotation(s.wingL[0], s.wingL[1], s.wingL[2], s.wingL[3]); g.wingR.setRotation(s.wingR[0], s.wingR[1], s.wingR[2], s.wingR[3]);
       g.wingL.setScale(s.wingScaleX, 1, 1); g.wingR.setScale(s.wingScaleX, 1, 1); }
     if (this.material && this.base) { const t = Flock.tint(night), b = this.base, r = Math.round(b.r * t[0]), gg = Math.round(b.g * t[1]), bl = Math.round(b.b * t[2]), key = r + ',' + gg + ',' + bl;

@@ -1,6 +1,7 @@
 import {Camera,Color,DirectionalLight,Quat,Vec3,director,isValid} from 'cc';
 import {LAKESIDE_DIR_LIGHT_PARAMS,lakesideFogModeFromEnv,type LakesideDayNight} from './LakesideSceneData';
 import {onDayNightChange} from '../world-r1/DayNightContract';
+import {islandSkyFade} from '../world-r1/SkyFollowCore';
 import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideAtmosphereTarget,lakesideBoardHolding,lakesideDayNightMode,lakesideIslandBaseFor,lakesideIslandLightScale,setLakesideJourneyBaseIllum,setLakesideJourneyReapply,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
 /** build05-next: island→lakeside journey lighting (LakesideJourneyAtmosphere). prime() runs when the journey scenes are
  *  shown (under the set-off fade's full black): it captures the island values and switches the fog to the board's mode at
@@ -15,8 +16,9 @@ export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number){
  type Saved={light:DirectionalLight|null;rot:Quat|null;wrot:Quat|null;color:Color|null;illum:number;sky:Color|null;ground:Color|null;skyIllum:number;clear:Color|null;
   fog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null;base:LakesideAtmosphereBase;mode:LakesideDayNight};
  let saved:Saved|null=null,lastW=0,offDayNight:(()=>void)|null=null,skyKey='';
- /** r4-prep: the island sky dome + clouds follow the blend (WorldFlowComponent skyFollow: mainColor only, no DC). w 0 = island look. */
- const sky=(target:readonly number[]|null,w:number)=>{const k=target&&w>0?target.join(',')+'@'+w.toFixed(4):'';if(k===skyKey)return;skyKey=k;try{(globalThis as any).__worldDayNight?.skyFollow?.(k?target:null,k?w:0);}catch{}};const fogMode=lakesideFogModeFromEnv(),target=new Quat(),q=new Quat();
+ /** r4-prep: the island sky dome + clouds follow the blend (WorldFlowComponent skyFollow: mainColor only, no DC). w 0 = island look.
+  *  r4-prep C/D: they (and the gulls) also fade out over ISLAND_SKY_FADE of w, so the journey end sky is the shared clear colour. */
+ const sky=(target:readonly number[]|null,w:number)=>{const k=target&&w>0?target.join(',')+'@'+w.toFixed(4):'';if(k===skyKey)return;skyKey=k;try{(globalThis as any).__worldDayNight?.skyFollow?.(k?target:null,k?w:0,k?islandSkyFade(w):1);}catch{}};const fogMode=lakesideFogModeFromEnv(),target=new Quat(),q=new Quat();
  const rgb=(c:Color|null|undefined,f:Rgb):Rgb=>c?[c.r,c.g,c.b]:f,col=(c:Rgb)=>new Color(c[0],c[1],c[2],255);
  const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
  const write=(w:number)=>{const s=saved;if(!s)return;lastW=w;const mode=lakesideDayNightMode(),base=lakesideIslandBaseFor(s.base,s.mode,mode);

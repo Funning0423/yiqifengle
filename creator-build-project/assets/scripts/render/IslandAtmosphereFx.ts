@@ -52,6 +52,8 @@ export class IslandAtmosphereFx {
     mr.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; mr.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF;
     return { node, material, applied: '' };
   }
+  /** r4-prep (C): lakeside journey arrival fade for the island-only gulls (1 normal .. 0 none). */
+  setIslandFade(f: number): void { if (this.gulls) this.gulls.setFade(f); }
   /** Called from WorldFlowComponent.applyDayNight (same inputs as DoorSpillHint/RoomLightingRig). */
   setView(exterior: boolean, night: boolean): void { this.exterior = exterior; this.night = night; if (this.gulls) this.gulls.setView(exterior); if (!exterior) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); } }
   /** lateUpdate: after WorldFlow wrote this frame's camera. camera = main world camera node (live position). */

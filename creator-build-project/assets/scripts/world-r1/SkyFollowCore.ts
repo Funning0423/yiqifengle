@@ -23,3 +23,13 @@ export function skyFollowColor(base:Rgb3,target:Rgb3|null,average:Rgb3,w:number)
  for(let i=0;i<3;i++){const a=Math.max(1e-4,average[i]),gain=Math.min(SKY_FOLLOW_MAX_GAIN,srgb8ToLinear(target[i])/a);out[i]=base[i]+(gain-base[i])*t;}
  return out;
 }
+/** r4-prep (C/D, lead): far view = the same set on both sides of the journey→board swap. The lakeside far hills / far shore are in
+ *  the journey from the set-off and come IN with the blend (the layered fog thins as w rises); the island-only sky props (sky dome,
+ *  cloud layer, gulls) then fade OUT over [start, end] of the blend weight, done before the landing (w reaches 1 before she stops).
+ *  With the dome gone the sky IS the camera clear colour, which the journey end and the board take from the same
+ *  lakesideModeLighting(mode).clearColor. Returns the props' visibility: 1 = island look, 0 = gone. */
+export const ISLAND_SKY_FADE={start:.6,end:.95} as const;
+export function islandSkyFade(w:number):number{
+ const t=Math.max(0,Math.min(1,((Number.isFinite(w)?w:0)-ISLAND_SKY_FADE.start)/(ISLAND_SKY_FADE.end-ISLAND_SKY_FADE.start)));
+ return 1-t*t*(3-2*t);
+}
