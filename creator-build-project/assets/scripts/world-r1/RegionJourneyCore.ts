@@ -124,17 +124,18 @@ const lerp=(a:Vec,b:Vec,t:number):Vec=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[
 export function slerpDir(a:Vec,b:Vec,t:number):Vec{const d=Math.max(-1,Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])),w=Math.acos(d);if(w<1e-5)return unit(lerp(a,b,t));const s=Math.sin(w),k0=Math.sin((1-t)*w)/s,k1=Math.sin(t*w)/s;return unit([a[0]*k0+b[0]*k1,a[1]*k0+b[1]*k1,a[2]*k0+b[2]*k1]);}
 /** 运镜bot (region hooks, cine/region-hooks-meadow-skycity): the board camera a route ENDS on (route.board, journey world).
  * Over the last blendM metres of the walk the lens leaves its own pose (follow / Landing A) for this pose on ONE smootherstep
- * e = smoother(1 - left/blendM) that drives position (lerp), view direction (slerp, a look-at: no roll) and FOV (lerp)
- * together, so all three start with zero velocity/acceleration relative to the lens they leave, move monotonically toward the
- * board pose (no overshoot) and come to rest exactly where she stops (de/dd = 0 at left = 0), even though her walk stops at
- * full speed. At left = 0 the pose IS route.board, so the board background's camera takes over at the identical pose.
+ * e = smoother(1 - left/blendM) that drives position (lerp from the moving lens), view direction (slerp from the lens's view at
+ * the blend START, a look-at: no roll) and FOV (lerp) together. The view is taken from the blend start (`from`), not from the
+ * moving lens, so the angle to the board camera falls strictly ((1-e)·θ0): the deck corners of 08→09 swing the Landing A view
+ * by up to 70° in the last 17 m and would otherwise turn the camera away and back. All three come to rest exactly where she
+ * stops (de/dd = 0 at left = 0), even though her walk stops at full speed. At left = 0 the pose IS route.board, so the board background's camera takes over at the identical pose.
  * Routes without `board` are byte-for-byte unchanged. Set per screen at runtime by RegionJourneyAdapter (RegionBoardLanding). */
 export type JourneyBoardEnd = Readonly<{position:Vec;target:Vec;fovVerticalDeg:number;blendM:number}>;
 export function journeyBoardEndOk(b:JourneyBoardEnd,length:number):boolean{return !!b&&[...(b.position||[]),...(b.target||[]),b.fovVerticalDeg,b.blendM].every(Number.isFinite)&&b.position.length===3&&b.target.length===3&&b.fovVerticalDeg>1&&b.fovVerticalDeg<170&&b.blendM>0&&b.blendM<=length&&Math.hypot(b.target[0]-b.position[0],b.target[1]-b.position[1],b.target[2]-b.position[2])>1e-6;}
-export function boardEndBlend(pose:Pose,length:number,distance:number,board:JourneyBoardEnd):Pose{
+export function boardEndBlend(pose:Pose,length:number,distance:number,board:JourneyBoardEnd,from?:Pose):Pose{
  const left=length-distance;if(!(left<board.blendM))return pose;
  if(left<=0)return {position:[board.position[0],board.position[1],board.position[2]],target:[board.target[0],board.target[1],board.target[2]],fovVerticalDeg:board.fovVerticalDeg};
- const e=smoother(1-left/board.blendM),p=lerp(pose.position,board.position,e),d=slerpDir(unit(rel3(pose.target,pose.position)),unit(rel3(board.target,board.position)),e),f0=pose.fovVerticalDeg??JOURNEY_CAMERA.fovDeg;
+ const e=smoother(1-left/board.blendM),p=lerp(pose.position,board.position,e),v=from??pose,d=slerpDir(unit(rel3(v.target,v.position)),unit(rel3(board.target,board.position)),e),f0=pose.fovVerticalDeg??JOURNEY_CAMERA.fovDeg;
  return {position:p,target:[p[0]+d[0]*8,p[1]+d[1]*8,p[2]+d[2]*8],fovVerticalDeg:f0+(board.fovVerticalDeg-f0)*e};
 }
 const rel3=(q:Vec,o:Vec):Vec=>[q[0]-o[0],q[1]-o[1],q[2]-o[2]];
@@ -196,7 +197,7 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
  if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
  const fov0=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;const fov=focus&&C.arrivalFovDeg>0&&wArr>0?fov0+(C.arrivalFovDeg-fov0)*Math.min(1,wArr):fov0;
  const out:Pose={position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
- return board?boardEndBlend(out,T,distance,board):out;
+ return board?boardEndBlend(out,T,distance,board,distance>T-board.blendM?journeyCamera(path,Math.max(0,T-board.blendM),start,focus,keys,startBlendM,landing):undefined):out;
 }
 /** No timers, persistence, fake percentages or character assets. All movement is through the existing adapter.
  * The flow owns the sole clock. Assets become ready only after real prefab/anchor/material validation succeeds. */
