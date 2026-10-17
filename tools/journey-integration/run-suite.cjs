@@ -56,7 +56,7 @@ const tests=[
  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
- ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
+ ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

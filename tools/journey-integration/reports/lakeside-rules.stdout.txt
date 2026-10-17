@@ -1,0 +1,8 @@
+PASS 6 levels, region lake, rules.chimes, tool null, no period fields
+PASS shipped catalog unchanged: lakeside is not in regional-r05 catalog
+PASS phase() falls back to calm without a period; guide renders lake text
+PASS tool actions are rejected when the stage has no tool
+PASS chime rings once per wave from its cell or a 4-neighbour, completes at hits, goal counts open chimes
+PASS shipped seeds replay their greedy witnesses to a win within the draft moves
+PASS unshipped seed needs authoring mode
+{"status":"PASS","cases":7}
