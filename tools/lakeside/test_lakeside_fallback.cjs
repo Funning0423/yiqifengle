@@ -25,6 +25,8 @@ function host({travel,enter}){const h=Object.create(Comp.prototype),ev=[],snap={
  ];
  for(const [name,io,reason,events,stage] of cases){logs.length=0;const {h,ev}=host(io);const r=await h.enterSelectedLevel();
   assert.equal(r.reason,reason,name);assert.deepEqual(JSON.parse(JSON.stringify(ev)),events,name);
+  const lakeErrors=logs.filter(l=>l.startsWith('[QF_LAKE]'));/* r4.2 item 3: soft stops log nothing; a real failure exactly one error */
+  assert.equal(lakeErrors.length,stage?1:0,name+' [QF_LAKE] error count: '+JSON.stringify(lakeErrors));
   if(stage){assert.equal(h.pendingJourneySelection,null,name);const j=logs.map(l=>l.startsWith('[QF_LAKE] {')?JSON.parse(l.slice(10)):null).find(Boolean);assert(j&&j.event==='lakeside-fallback'&&j.stage===stage&&j.island==='ok',name+' logged');}
   console.log('PASS',name);}
  // WorldFlow.abandonLakesideJourney on stubs (real method text)

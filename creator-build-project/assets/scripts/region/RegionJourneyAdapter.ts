@@ -185,5 +185,5 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
   const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
   return lease;
- }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
+ }catch(error){/* r4.2 item 3: a cancelled prepare (player left / background) is not a failure: no error line */if(!token.cancelled&&(error as any)?.name!=='Cancelled'){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}}release();throw error;}
 }
