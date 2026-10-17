@@ -57,7 +57,11 @@ export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_
   | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear'
   | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable'
   | 'sfx_amb_gull_1' | 'sfx_amb_gull_2' | 'sfx_amb_gull_3'
-  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back';
+  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back'
+  // r4 exit footsteps (FootstepAudio / FootstepCore): region_island/audio_steps, 4 pitch-baked variants per surface
+  | 'step_wood_1' | 'step_wood_2' | 'step_wood_3' | 'step_wood_4' | 'step_rug_1' | 'step_rug_2' | 'step_rug_3' | 'step_rug_4'
+  | 'step_stone_1' | 'step_stone_2' | 'step_stone_3' | 'step_stone_4' | 'step_path_1' | 'step_path_2' | 'step_path_3' | 'step_path_4'
+  | 'step_grass_1' | 'step_grass_2' | 'step_grass_3' | 'step_grass_4';
 
 /** A2（Voice bot）：连击鼓励音，第 2/3/4/5+ 波各一档，配合文字飘字。同一时间只保留一条，更高档顶掉正在播的低档。 */
 const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_cheer_3_amazing', 'sfx_cheer_4_unbelievable'];
@@ -119,8 +123,11 @@ const WIND_DUCK_TO = 1.0;
 const POS_EXTRAPOLATE_MAX_S = 0.35;
 
 /** B5.5 exit (出门) track, Voice Bot 8b22546: 20 s, t=0 = the doorway key (state 'crossing-out'), in the region_island
- *  subpackage. Re-encoded 24 kbps mono 22.05 kHz for the package budget. Preloaded when she stands up; played on
- *  'crossing-out'; stopped when the flow leaves the exit (anything but crossing-out / island). */
+ *  subpackage (A1: 32 kHz 56k mono). Preloaded when she stands up; played on 'crossing-out'; stopped when the flow leaves
+ *  the exit (anything but crossing-out / island). r4 exit footsteps: the baked footsteps are gone from this file (they
+ *  ran on a fixed 0.56 s grid from the doorway on, never in the room, and were the loudest thing in it); it now carries
+ *  the camera whoosh + a near-silent air bed and is kept because its start also proves audio for wind/waves.
+ *  Steps are live, one per animation foot plant: FootstepAudio (played through play(), so mute / sfx mute / background apply). */
 export const EXIT_CINE = { bundle: 'region_island', path: 'audio_cine/sfx_exit_outbound', volume: 1, maxLateS: 1.5 } as const;
 /** States from stand-up to the doorway: preload only. */
 const EXIT_PRELOAD_STATES = ['standing', 'turning-out', 'walking-out', 'opening-door'];
@@ -392,6 +399,21 @@ export class GameAudio extends Component {
       if (this.loopPartner || this.fadeOutSource) this.retireMusicExtras();
     } else { this.observeLoopRequest(); this.tickMusic(); }
   }
+
+  /** r4 exit footsteps: take ownership of extra one-shot clips loaded elsewhere (FootstepAudio loads region_island/audio_steps).
+   *  Same ref-counting as the audio_sfx clips; released in onDestroy. Returns how many are now playable by name. */
+  adoptClips(list: AudioClip[]): number {
+    if (!GameAudio.usable(this) || GameAudio.instance !== this || !Array.isArray(list)) return 0;
+    let n = 0;
+    for (let i = 0; i < list.length; i++) {
+      const c = list[i]; if (!c || !c.name) continue;
+      const previous = this.clips.get(c.name); n++;
+      if (previous === c) continue;
+      c.addRef(); this.clips.set(c.name, c); previous?.decRef();
+    }
+    return n;
+  }
+  hasClip(name: string): boolean { return this.clips.has(name); }
 
   // ---------- 通用 ----------
   play(name: SfxName, volume = 1) {
