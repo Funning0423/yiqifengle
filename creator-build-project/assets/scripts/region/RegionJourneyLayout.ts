@@ -58,15 +58,16 @@ export function skyDeckRoute(end:Vec,gate:Vec):{rim:Vec;deck:Vec[];arrival:Vec}{
 }
 /** Route lens keys from bridge-relative metres to route metres. */
 export function lensKeys(keys:ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,bridgeStart:number){return keys.map(k=>({...k,at:k.at+bridgeStart}));}
-/** 运镜bot (r4, Grok Bot: "she stays visible on the meadow board with up to 3 tools, on every screen"): her last walk on 04→05,
- *  in the MEADOW MODEL's own metres (GLB / board copy coordinates; the adapter maps it onto the journey copy). It replaces the
- *  old arrival walk_path_01 → walk_path_02 (that spot sat under the left tool icon with 3 tools on 390x844 / 414x896 / 360x780
- *  and 63% under it on 375x667). From player_spawn (the rainbow bridge end) she steps left off the trodden path onto the grass
- *  and walks up the left side of it; y is the meadow_terrain top under each point (≤ 1 m apart, so her feet follow the
- *  ground). There is no single spot that is clear of the tray and the 3-tool row on all five reference screens (375x667 has
- *  20 pt between tray and tools), so she STOPS on this line where the board UI of THIS screen leaves her most room
- *  (RegionBoardLanding.regionGirlStand): 390x844 / 414x896 at the end, 375x667 / 360x780 at ~6.6 m, 390x520 at ~3.2 m. */
-export const MEADOW_STAND_LOCAL:ReadonlyArray<Vec>=[[-0.15,1.298,19.333],[-0.3,1.338,18.667],[-0.45,1.419,18],[-0.617,1.504,17.333],[-0.783,1.587,16.667],[-0.95,1.66,16],[-1.05,1.726,15.45],[-1.15,1.788,14.9],[-1.05,1.86,14.2],[-0.825,1.915,13.7],[-0.6,1.972,13.2],[-0.317,2.046,12.55],[-0.033,2.119,11.9],[0.25,2.193,11.25]];
+/** 04→05 landing (r4, 3 tools): where she walks after the rainbow bridge, meadow model coordinates (= board copy local).
+ *  The old arrival walk_path_01 → walk_path_02 sat under the left tool icon with 3 tools. Keep-outs (RegionBoardLanding
+ *  girlStandUi): tray, goal plate, the 3 tool icons grown by selection ring / count badge, the hint toast at its widest
+ *  (330 x 36 pt, the line ~20-25 pt above the tool row), pause, capsule, safe bands. Between tray and toast there is no room
+ *  for her on 360x780 / 375x667 / 320x568 (17-20 pt) and only ~6 pt on 390x844, so the clear place on every portrait screen
+ *  is the open grass in the lower-left corner, left of the tool row and below the toast: from player_spawn (bottom-left,
+ *  half off screen) she walks ~3-4 m up and left into frame and STOPS where THIS screen leaves her most room
+ *  (RegionBoardLanding.regionGirlStand). y is the meadow_terrain top under each point (feet within 4 cm between points).
+ *  Landscape (1024x768 desktop preview) looks the other way (camera at z 9 looking -z): she is behind it there, as before. */
+export const MEADOW_STAND_LOCAL:ReadonlyArray<Vec>=[[0.2,1.387,18.5],[0.25,1.43,17.75],[0.1,1.5,17.2],[-0.3,1.553,16.85],[-0.8,1.599,16.55],[-1.3,1.622,16.4],[-1.75,1.639,16.3]];
 /** 08→09 leaves the meadow from wherever she stands: the meadow exit anchors (walk_path_03..08, world) still ahead of her.
  *  Her spot is projected (x/z) onto the polyline walk_path_02..08; anchors less than 1 m past that point are behind her. She
  *  then heads for the first anchor ahead whose onward path turns ≤ meadowRejoinTurnDeg from her heading to it, so the follow
