@@ -28,6 +28,11 @@ R=$(mkrepo 1); c=$(run "$R" wechat 1 "bad bad good"); cat "$T/out1"
 grep -q "BUILD GUARD PASSED: wechat-release 16000000" "$T/out1" || fail "case1 summary"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case1 dirty"
 [ ! -d "$R/creator-build-project/library" ] && [ ! -d "$R/creator-build-project/temp" ] || fail "case1 caches left"
 grep -q '"importer":"typescript"' "$R/creator-build-project/assets/scripts/a1.ts.meta" || fail "case1 meta not restored"
+# 1b) provenance: HEAD/tree/UTC printed first and in each log; log name carries the short SHA; old name kept as a link
+H=$(cd "$R" && git rev-parse HEAD); TR=$(cd "$R" && git rev-parse 'HEAD^{tree}'); S=$(cd "$R" && git rev-parse --short=7 HEAD)
+head -1 "$T/out1" | grep -Eq "^== GUARD HEAD=$H tree=$TR short=$S utc=[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]{8}Z" || fail "case1b header"
+L=$R/tools/build-guard/logs; [ -f "$L/wechat-release.$S.try3.log" ] || fail "case1b sha log name"; head -1 "$L/wechat-release.$S.try3.log" | grep -q "HEAD=$H tree=$TR" || fail "case1b log header"
+[ -L "$L/wechat-release.try3.log" ] && grep -q "HEAD=$H" "$L/wechat-release.try3.log" || fail "case1b legacy log name"
 # 2) bad x3 -> loud failure, exit 2, metas restored, caches gone
 R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
 [ "$c" = 2 ] || fail "case2 exit $c"; grep -q "BUILD GUARD FAILED" "$T/out2" || fail "case2 not loud"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case2 dirty"
@@ -36,4 +41,4 @@ R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
 R=$(mkrepo 3); echo x >> "$R/creator-build-project/assets/scripts/a1.ts.meta"; c=$(run "$R" wechat 3 "good"); [ "$c" = 2 ] || fail "case3 exit $c"; grep -q "not clean before" "$T/out3" || fail "case3 msg"
 # 4) both targets, each good first time
 R=$(mkrepo 4); c=$(run "$R" both 4 "good good"); [ "$c" = 0 ] || fail "case4 exit $c"; grep -q "web-test 16000000" "$T/out4" || fail "case4 both"
-echo "SELFTEST PASS (4 cases)"
+echo "SELFTEST PASS (4 cases + provenance)"

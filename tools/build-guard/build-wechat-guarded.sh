@@ -21,6 +21,10 @@ die(){ echo; echo "#############################################################
 [ -d "$P/assets" ] || die "no creator-build-project/assets under $REPO"
 cd "$REPO" || die "cd $REPO"
 mkdir -p "$LOG_DIR"
+# Provenance (printed first, before any build): which commit/tree this guard output belongs to, and when (UTC).
+GUARD_HEAD=$(git rev-parse HEAD 2>/dev/null || echo unknown); GUARD_TREE=$(git rev-parse 'HEAD^{tree}' 2>/dev/null || echo unknown)
+GUARD_SHORT=$(git rev-parse --short=7 HEAD 2>/dev/null || echo nogit); GUARD_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+echo "== GUARD HEAD=$GUARD_HEAD tree=$GUARD_TREE short=$GUARD_SHORT utc=$GUARD_UTC target=$TARGET"
 # Untracked build products are fine; anything else in git status means the tree is not as committed.
 dirty(){ git status --porcelain --untracked-files=all | grep -v -E '^\?\? creator-build-project/(build|library|temp|local|profiles)/' | grep -v -E '^\?\? tools/build-guard/logs/' ; }
 bytes(){ [ -d "$1" ] || { echo 0; return; }; find "$1" -type f -exec wc -c {} + 2>/dev/null | awk '$2!="total"{s+=$1}END{print s+0}'; }
@@ -38,10 +42,11 @@ build_one(){ # $1 = config json
   cfg=$1; out=$(outname "$cfg"); [ -n "$out" ] || die "no outputName in $cfg"
   dest="$P/build/$out"; try=1
   while [ $try -le "$MAX_TRIES" ]; do
-    log="$LOG_DIR/$out.try$try.log"
+    # Log name carries the short SHA; the old name <out>.tryN.log stays as a symlink to it for existing readers.
+    log="$LOG_DIR/$out.$GUARD_SHORT.try$try.log"; ln -sf "$(basename "$log")" "$LOG_DIR/$out.try$try.log"
     echo "== [$out] try $try/$MAX_TRIES  free=$(df -k "$REPO" | tail -1 | awk '{print $4}') KiB"
     clean_cache; rm -rf "$dest"
-    "$CREATOR" --project "$P" --build "configPath=$cfg" > "$log" 2>&1; code=$?
+    { echo "== GUARD HEAD=$GUARD_HEAD tree=$GUARD_TREE utc=$GUARD_UTC config=$cfg try=$try"; "$CREATOR" --project "$P" --build "configPath=$cfg"; } > "$log" 2>&1; code=$?
     size=$(bytes "$dest"); reason=""
     [ "$size" -gt "$MIN_BYTES" ] || reason="$reason size=$size<=$MIN_BYTES"
     if grep -q "$ERR_TEXT" "$log"; then reason="$reason log:'$ERR_TEXT'"; fi
@@ -71,4 +76,4 @@ case "$TARGET" in
   *) die "target must be wechat, web or both";;
 esac
 if [ "$KEEP_CACHE" != 1 ]; then clean_cache; echo "caches removed (library/temp); set KEEP_CACHE=1 to keep"; fi
-echo "BUILD GUARD PASSED: $SUMMARY bytes  (output under creator-build-project/build/)"
+echo "BUILD GUARD PASSED: $SUMMARY bytes  (output under creator-build-project/build/)  HEAD=$GUARD_SHORT tree=$GUARD_TREE"
