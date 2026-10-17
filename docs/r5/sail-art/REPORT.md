@@ -15,6 +15,7 @@
 | `5221eb5cc8235570aa81951e8aa69573c2360323` | `3f16ee3477c9ef63d078f6ae6f6d1190e395e6a4` | 草地调色板关掉缺失顶点色；远景卡片同样处理。 |
 | `48b0305b582228d26b16eb1584f18aa82ded3a5d` | `4e5a9b9abbad35d57a00e28d2e7bccd7adb45fe5` | 入河镜头改到爬坡之前，船尾灯不再照白座舱。 |
 | `97d8b20e8050e286f83f854c4dcd28880bdc2627` | `298730e00567dfd38fabcc034f7cfcd47276e228` | 入河镜头再提前到距 M0 约 18 m 的水面，夜空压成深蓝。 |
+| `91f0bfca4ff5f2654e08c1828ca2113c75ad57b0` | `669d3d72766fe43e041d1325033111222f403bb8` | 七张静帧、对比图和本报告。把这一行写回文件的提交是它的下一次。 |
 
 `meadowOffset`、`JOURNEY_TRANSPORT['island-meadow']='sail'` 和桥路径没有改。帆船草地只用 `sailMeadowRoot` 多下沉 `SAIL_MEADOW_SINK=1.35`，让海面盖住南侧低地。
 
