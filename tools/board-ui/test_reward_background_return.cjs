@@ -8,6 +8,8 @@ const start=boot.indexOf(' const board=this.board(),b=board?.hostPresentation();
 const gate=boot.slice(start,boot.indexOf('\n const f=this.navLayout()',start));
 const transfer=boot.split('\n').find(x=>x.startsWith(' if(board){const actions:any='));
 const {stripTypeScriptTypes}=require('node:module');
+// Needs node:module.stripTypeScriptTypes (Node >=22.6). Older Node: report the reason and exit 78 (run-suite: BLOCKED_NODE); never a pass.
+if(typeof stripTypeScriptTypes!=='function'){console.error('BLOCKED_NODE: reward-background-return requires Node >=22.6 (node:module.stripTypeScriptTypes), found '+process.version);process.exit(78);}
 const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mainNext','chest','regionReward','next','claim'];\n"+gate+'\n'+transfer,{mode:'transform'}));
 (async()=>{
  const H=createHarness(),values=new Map(),port=Port.createPort({getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,String(v))});port.inspect=()=>[...values];
