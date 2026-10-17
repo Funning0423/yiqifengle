@@ -32,7 +32,7 @@ await run('kept on both copies: journey and board mount the whole region model; 
  const code=t=>t.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
  for(const f of files.filter(f=>fs.existsSync(S+f)/* RegionBoardLanding arrives with 运镜bot's region hooks */))assert.doesNotMatch(code(fs.readFileSync(S+f,'utf8')),/chr_robot|anchor_robot_root/,f+' must not single out the robot');
  assert.match(fs.readFileSync(S+'region/SkycityBoardBackground.ts','utf8'),/const model=mountRegion\(REGIONS\.skycity,prefab,rig\);setLayer\(model\);/);});
-function pair(){scene=new Node('scene');const jr=new Node('RegionJourney-skycity');scene.addChild(jr);const jm=new Node('env_skycity');jr.addChild(jm);jr.addChild(new Node('RainbowBridgeStrip0'));
+function pair(){scene=new Node('scene');const jr=new Node('RegionJourney-skycity');scene.addChild(jr);const jm=new Node('env_skycity');jr.addChild(jm);jr.addChild(new Node('RainbowBridgeDeck'));
  const ja=jm.addComponent(SkeletalAnimation);ja.add('sky_ambient_loop',true,13.37);ja.add('robot_idle',true,1.9);ja.add('robot_watering',false,0);ja.add('robot_give_flower',false,0);
  const parent=new Node('ManagedNativeBoardHost');scene.addChild(parent);let ba=null,visible=false,disposed=0;
  const factory=async({parent})=>{const rig=new Node('SkycityLiveBackground');parent.addChild(rig);const bm=new Node('env_skycity');rig.addChild(bm);rig.addChild(new Node('SkycityBackgroundCamera'));

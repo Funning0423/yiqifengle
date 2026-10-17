@@ -41,8 +41,11 @@ const j=LK.lakesideJourney(start),path=[...j.approach,...j.bridge.slice(1),...j.
 const route={from:'island',to:'lakeside',path,bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing,timing:j.timing};
 const TM=j.timing,sAt=t=>Core.journeyDistanceAt(T,TM,t),DUR=TM.durationS;
 const lakeLocal=LKS.instances(),lake=lakeLocal.map(o=>{const t=new Float64Array(o.tris.length);for(let k=0;k<t.length;k+=3){const w=j.toWorld([o.tris[k],o.tris[k+1],o.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lakeside',name:o.name,group:o.group,tris:t};});
-// rainbow bridge strip exactly as RegionJourneyAdapter.rainbowBridge (full width, one ribbon)
-const strip=(()=>{const w=Lay.REGION_JOURNEY_LAYOUT.bridgeWidthM,P=j.bridge,t=[];for(let i=1;i<P.length;i++){const q=[P[i-1],P[i]].map((p,k)=>{const a=P[Math.max(0,i-1+k-1)],b=P[Math.min(P.length-1,i+k)],dx=b[0]-a[0],dz=b[2]-a[2],L=Math.hypot(dx,dz)||1;return [-.5,.5].map(s=>[p[0]+dz/L*s*w,p[1]-.015,p[2]-dx/L*s*w]);});t.push(...q[0][0],...q[1][0],...q[0][1],...q[0][1],...q[1][0],...q[1][1]);}return {tag:'bridge',name:'RainbowBridgeStrip',tris:Float64Array.from(t)};})();
+// r5 彩虹桥: the bridge deck exactly as RegionJourneyAdapter mounts it (RainbowBridge.rainbowEnd + RainbowBridgeMesh deck: thick,
+// curbs, island tongue, lakeside end) as one occluder.
+const strip=(()=>{const RBr=H.load(S+'region/RainbowBridge.ts'),RBm=H.load(S+'region/RainbowBridgeMesh.ts'),P=j.bridge;
+ const g=RBm.rainbowDeckGeometry(P,[RBr.rainbowEnd('island',P[0],j.approach),RBr.rainbowEnd('lakeside',P[P.length-1],j.arrival)]),t=[];
+ for(const i of g.indices)t.push(g.positions[i*3],g.positions[i*3+1],g.positions[i*3+2]);return {tag:'bridge',name:'RainbowBridgeDeck',tris:Float64Array.from(t)};})();
 const objs=[...island,...lake,strip];
 const cam=(d,landing=j.landing)=>journeyCamera(path,d,start1,j.focus,undefined,0,landing);
 // Per-screen route landing (what RegionJourneyAdapter hands the route at runtime): the journey ends on that screen's board camera.

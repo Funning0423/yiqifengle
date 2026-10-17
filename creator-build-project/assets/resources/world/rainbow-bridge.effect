@@ -1,0 +1,130 @@
+// 彩虹桥 deck (r5, GGbot from 场景设计部's approved draft). ONE mesh, ONE draw call, built at runtime by RainbowBridgeMesh.ts.
+// Unlit, translucent, softly self-lit. Output is premultiplied sRGB like glass-sign / meadow-grass-wind (sRGB-ready forward RT).
+// Lead review vs the concept art: alpha and saturation are clearly lower (water / grass show through, no "rainbow slide"),
+// the 1.2 m horizontal white light seams are REMOVED, and night is dimmer than day (no glow-out) — numbers in RAINBOW_LOOK.
+// Vertex layout (RainbowBridgeMesh.rainbowDeckGeometry):
+//   a_position  world-space vertex (node at identity)          a_normal  ring normal (only used without derivatives)
+//   a_texCoord  x = band 0..1, y = arc metres from the start    a_color   r = part (0 top, .33 curb, .66 side, 1 under), g = baked shade, b = end fade, a = 1
+// Creator 3.8.8 checks (verified with the 3.8.8 effect compiler, see tools/rainbow-bridge/test_rainbow_bridge_effects.cjs):
+//   - derivatives: `#pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])` (same as builtin-graphics.effect) emits a
+//     guarded #extension for GLSL ES 1.0; dFdx/dFdy are only used under `#ifdef GL_OES_standard_derivatives` (or GLSL ES 3), else the
+//     vertex normal is used, so a WebGL1 device without the extension still compiles.
+//   - priority: `priority: max - 10` (= 245) is the 3.8.8 pass syntax; transparent queues sort model priority → pass priority → depth,
+//     so the ground halo (max - 11) draws first, then this deck, then the motes (max - 9).
+//   - depth: no depthBias here (3.8.8 WebGL/WebGL2 never enable POLYGON_OFFSET_FILL, so depthBias is a no-op); the end zones are moved
+//     a few mm along the view ray instead (same pixels, nearer depth).
+CCEffect %{
+  techniques:
+  - name: transparent
+    passes:
+    - vert: rb-vs:vert
+      frag: rb-fs:frag
+      priority: max - 10
+      properties:
+        rbParams0: { value: [1.0, 0.5, 0.58, 0.0], editor: { tooltip: "emit, alpha, saturation, night (0..1)" } }
+        rbParams1: { value: [0.6, 7.0, 0.1, 0.3], editor: { tooltip: "flow speed m/s, flow period m, streak, sparkle" } }
+      rasterizerState: { cullMode: back }
+      depthStencilState: { depthTest: true, depthWrite: false }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+}%
+CCProgram rb-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  in vec3 a_position;
+  in vec3 a_normal;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+  out vec2 v_uv;
+  out vec4 v_attr;
+  out vec3 v_wpos;
+  out vec3 v_normal;
+  vec4 vert () {
+    vec4 wp = cc_matWorld * vec4(a_position, 1.0);
+    // depthBias replacement: pull the fading end zones up to 4 cm toward the camera along the view ray (screen position unchanged)
+    vec3 toCam = cc_cameraPos.xyz - wp.xyz;
+    float dist = max(length(toCam), 1e-3);
+    wp.xyz += toCam / dist * min(0.04, 0.0012 * dist) * (1.0 - a_color.b);
+    v_uv = a_texCoord; v_attr = a_color; v_wpos = wp.xyz;
+    v_normal = normalize((cc_matWorld * vec4(a_normal, 0.0)).xyz);
+    return cc_matViewProj * wp;
+  }
+}%
+CCProgram rb-fs %{
+  precision highp float;
+  #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
+  #include <builtin/uniforms/cc-global>
+  in vec2 v_uv;
+  in vec4 v_attr;
+  in vec3 v_wpos;
+  in vec3 v_normal;
+  uniform RainbowBridge { vec4 rbParams0; vec4 rbParams1; };
+  // 7 bands, sRGB (RainbowBridgeMesh.RAINBOW_BANDS); paled by rbParams0.z below
+  vec3 band (float u) {
+    u = clamp(u, 0.0, 1.0) * 6.0;
+    vec3 c0 = vec3(0.95,0.30,0.38), c1 = vec3(1.00,0.56,0.22), c2 = vec3(1.00,0.84,0.30), c3 = vec3(0.42,0.84,0.45),
+         c4 = vec3(0.26,0.78,0.90), c5 = vec3(0.38,0.52,0.98), c6 = vec3(0.70,0.42,0.92);
+    float f = fract(u); f = f * f * (3.0 - 2.0 * f);
+    if (u < 1.0) return mix(c0, c1, f); if (u < 2.0) return mix(c1, c2, f); if (u < 3.0) return mix(c2, c3, f);
+    if (u < 4.0) return mix(c3, c4, f); if (u < 5.0) return mix(c4, c5, f); return mix(c5, c6, f);
+  }
+  vec2 hash2 (vec2 p) { p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return fract(sin(p) * 43758.5453); }
+  vec3 facetNormal () {
+    #if __VERSION__ < 300
+      #ifdef GL_OES_standard_derivatives
+        vec3 n = cross(dFdx(v_wpos), dFdy(v_wpos));
+      #else
+        vec3 n = v_normal;
+      #endif
+    #else
+      vec3 n = cross(dFdx(v_wpos), dFdy(v_wpos));
+    #endif
+    n = normalize(n);
+    // the derivative cross product flips with the render target's y; always face the viewer
+    return dot(n, cc_cameraPos.xyz - v_wpos) < 0.0 ? -n : n;
+  }
+  vec4 frag () {
+    float part = v_attr.r, shade = v_attr.g, fade = v_attr.b;
+    float isCurb = step(0.2, part) * (1.0 - step(0.6, part));
+    float isSide = step(0.6, part) * (1.0 - step(0.85, part));
+    float isBottom = step(0.85, part);
+    float isTop = 1.0 - step(0.15, part);
+    vec3 c = band(v_uv.x);
+    float l = dot(c, vec3(0.299, 0.587, 0.114));
+    c = mix(mix(vec3(l), c, rbParams0.z), vec3(1.0), 0.18);          // paler than the concept, still bright
+    c = mix(c, mix(c, vec3(1.0, 0.95, 0.82), 0.55), isCurb);         // soft white-gold rim curbs
+    c = mix(c, c * vec3(0.78, 0.74, 0.94), isBottom);                // violet underside
+    float lit = (0.82 + 0.22 * max(dot(facetNormal(), normalize(vec3(-0.35, 0.82, 0.45))), 0.0)) * shade;
+    c *= lit;
+    // faint flowing streak (UV scroll) + sparse sparkle grains on the walk surface; no seam lines
+    float s = v_uv.y;
+    float ff = fract((s - cc_time.x * rbParams1.x) / rbParams1.y);
+    float streak = smoothstep(0.0, 0.12, ff) * (1.0 - smoothstep(0.12, 0.42, ff)) * rbParams1.z * isTop;
+    vec2 g = vec2(v_uv.x * 2.1, s) * 9.0, gi = floor(g);
+    vec2 o = 0.2 + 0.6 * hash2(gi);
+    float tw = 0.5 + 0.5 * sin(cc_time.x * 2.3 + hash2(gi + 7.0).x * 6.28);
+    float spark = (1.0 - smoothstep(0.315, 0.63, length(g - gi - o))) * step(0.7, hash2(gi + 3.0).y) * isTop * rbParams1.w * tw;
+    c += vec3(1.0, 0.97, 0.9) * (streak + spark);
+    c = min(c * rbParams0.x, vec3(1.0));
+    // alpha per part x end dissolve (petal-sized cells drop out by their own random value as fade -> 0)
+    float a = clamp(rbParams0.y + 0.1 * isCurb - 0.05 * isSide - 0.18 * isBottom, 0.0, 1.0);
+    if (fade < 0.999) {
+      vec2 q = vec2(v_uv.x * 2.1, s) * 3.6, qi = floor(q);
+      float best = 9.0, rnd = 0.0;
+      for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+        vec2 cell = qi + vec2(float(x), float(y)), pnt = cell + hash2(cell);
+        float d = length(q - pnt); if (d < best) { best = d; rnd = hash2(cell + 19.0).x; }
+      }
+      float keep = smoothstep(0.0, 0.08, fade * 1.35 - rnd);
+      float petal = max(1.0 - smoothstep(0.36, 0.5, best + (1.0 - fade) * 0.3), smoothstep(0.85, 1.0, fade));
+      a *= keep * petal * smoothstep(0.0, 0.12, fade);
+    }
+    return vec4(c * a, a);
+  }
+}%

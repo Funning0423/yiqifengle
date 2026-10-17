@@ -1,5 +1,6 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
-import {Animation, Camera, Color, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, gfx, isValid, utils, view} from 'cc';
+import {mountRainbowBridge,rainbowEnd} from './RainbowBridge';
+import {Animation, Camera, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, isValid, view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkyNightTexture} from '../render/SkyNightTexture';
@@ -25,21 +26,8 @@ function find(node:Node,name:string):Node|null {if(node.name===name)return node;
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
 /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
 export {REGION_JOURNEY_LAYOUT};
-/** First-pass bridge surface, not replacement region art. Seven narrow mesh strips share the exact controller
- * centreline; no animated/scaled actor, imported model edits, alpha loading cover or scene replacement. */
-function rainbowBridge(parent:Node,path:readonly Vec[],owned:Array<Mesh|Material>):void{
- const colors=['#e88c92','#efaf83','#f3d990','#a5d6ac','#8ccbd5','#9aaee0','#c3a4df'],width=REGION_JOURNEY_LAYOUT.bridgeWidthM;
- for(let band=0;band<colors.length;band++){
-  const positions:number[]=[],normals:number[]=[],indices:number[]=[];
-  path.forEach((p,i)=>{const a=path[Math.max(0,i-1)],b=path[Math.min(path.length-1,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],L=Math.hypot(dx,dz)||1;
-   for(const side of [band/7-.5,(band+1)/7-.5]){positions.push(p[0]+dz/L*side*width,p[1]-.015,p[2]-dx/L*side*width);normals.push(0,1,0);}
-   if(i){const j=i*2;indices.push(j-2,j,j-1,j-1,j,j+1);}});
-  // Creator 3.8.8 accepts asset pipeline states at initialization; runtime overrides require MaterialInstance.
-  const mesh=utils.createMesh({positions,normals,indices},undefined,{calculateBounds:true}),material=new Material();
-  material.initialize({effectName:'builtin-standard',defines:{USE_VERTEX_COLOR:false},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});material.setProperty('mainColor',new Color(colors[band]));material.setProperty('roughness',.9);
-  const node=new Node('RainbowBridgeStrip'+band);parent.addChild(node);const renderer=node.addComponent(MeshRenderer);renderer.mesh=mesh;renderer.setSharedMaterial(material,0);owned.push(mesh,material);
- }
-}
+/** r5 彩虹桥: the bridge (deck + both ends) is RainbowBridge.mountRainbowBridge — one runtime-built deck mesh on the exact controller
+ *  centreline (sin² arch, RegionJourneyLayout.bridgePath), replacing the 7 flat RainbowBridgeStrip* ribbons. */
 /** 运镜bot: map between the board copy (board rig coordinates; boardLocal = the prefab root's own transform) and this placed
  *  journey copy (world): toJourney = J·B⁻¹, toBoard = B·J⁻¹ (rigid, both copies share the prefab scale). Skycity also takes
  *  the two framing anchors from the journey copy (world). */
@@ -124,10 +112,11 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     try{boardSrc=journeyBoardSource(to as BoardLandingRegion,model,boardLocal!);const v=lakesideViewport(view.getFrameSize());board=regionBoardEnd(boardSrc,v.width/v.height);}catch(error){boardSrc=null;board=undefined;try{console.error('[QF_REGION] board landing unavailable: '+String(error));}catch{}}
     const path=[...approach,...bridge.slice(1),...arrival];if(board&&!(board.blendM<routeLength(path)))board=undefined;
     const route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{}),...(board?{board}:{})};
-    rainbowBridge(rig,bridge,owned);token.check();
-    // N3: at night the path, windmill and the (journey-owned, shared) rainbow bridge strips dim to x0.6 with the same night weight.
-    if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT),
-     ...meadowGroundMaterials(rig.children.filter(n=>n.name.startsWith('RainbowBridgeStrip')),MEADOW_PROP_NIGHT,true));mounted.set(to,model);progress(.98);
+    // r5 彩虹桥: island → meadow gets both baked ends (halo, petals, flowers, motes); the sky-city leg keeps capless ends until plan B §8.4.
+    await waitRegionAsset(mountRainbowBridge(rig,bridge,owned,to==='meadow'?[rainbowEnd('island',bridge[0],approach),rainbowEnd('meadow',bridge[bridge.length-1],arrival)]:[null,null]),token);token.check();
+    // N3: at night the path and windmill dim to x0.6 with the same night weight. The r5 bridge is self-lit and follows the night
+    // weight itself (RainbowBridgeLook: dimmer, never brighter, at night), so it is no longer in this list.
+    if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT));mounted.set(to,model);progress(.98);
     if(boardSrc&&route.board)setRegionBoardSource(to as BoardLandingRegion,boardSrc);
     const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
     return lease;
@@ -146,7 +135,7 @@ export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):S
 function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 /** 风铃湖畔: island → lakeside journey (运镜bot's LakesideCameraLayout.lakesideJourney). The real r5h3 scene (same instances as
  *  the board background, default world layer so the world camera sees it) is mounted rigidly at the layout's root/yaw; the
- *  route carries the Landing A focus/landing overrides. Same rainbow bridge strips as the other legs. */
+ *  route carries the Landing A focus/landing overrides. Same r5 rainbow bridge as the other legs (island + lakeside ends). */
 /** 运镜bot: the lakeside route ends on THIS screen's board camera (the board UI's frame: viewport + boardSafeInsets); the
  *  base landing is kept if anything about the screen cannot be read. */
 function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
@@ -177,7 +166,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
   const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
-  rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
+  await waitRegionAsset(mountRainbowBridge(rig,L.bridge,owned,[rainbowEnd('island',L.bridge[0],L.approach),rainbowEnd('lakeside',L.bridge[L.bridge.length-1],L.arrival)]),token);token.check();progress(.98);
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};

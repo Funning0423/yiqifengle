@@ -40,7 +40,10 @@ console.log('meadow night grade OK',want.map(v=>v.toFixed(3)).join(','));
  assert(/return f\?f\.map\(k=>1\+\(k-1\)\*t\)/.test(bg),'factor uses per-entry f');
  assert(/meadowGroundFactor\(night,g\.f\)/.test(bg),'motion passes per-entry factor');
  assert(/meadowGroundMaterials\(\[find\(model,'meadow_path'\),find\(model,'windmill_static_merged'\),find\(model,'windmill_sails'\)\],MEADOW_PROP_NIGHT\)/.test(ad),'path + windmill wired');
- assert(/meadowGroundMaterials\(rig\.children\.filter\(n=>n\.name\.startsWith\('RainbowBridgeStrip'\)\),MEADOW_PROP_NIGHT,true\)/.test(ad),'rainbow bridge wired');
+ // r5 彩虹桥: the self-lit bridge left the x0.6 list (场景设计部 §5.3); it follows the night weight itself (RainbowBridgeLook,
+ // dimmer but never brighter at night — test_rainbow_bridge_mesh.cjs) and the old RainbowBridgeStrip* nodes are gone.
+ assert(!/RainbowBridgeStrip/.test(ad.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'')),'no strips left in the night list');
+ assert(/mountRainbowBridge\(rig,bridge,owned,/.test(ad),'r5 bridge mounted on the region legs');
  assert(/if\(motion&&model\)motion\.grounds\.push/.test(ad),'meadow journey only');
  console.log('meadow prop night grade OK');
 }

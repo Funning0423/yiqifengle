@@ -40,7 +40,14 @@ export const REGION_JOURNEY_LAYOUT={
  bridgeWidthM:2.1,meadowBridgeArchM:2,skyBridgeArchM:2,speedMps:1.2,bridgeSamples:32,meadowExitPathIndex:8,skyEntryWalkM:2.4,
 } as const;
 export const plus=(a:Vec,b:Vec):Vec=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
-export function bridgePath(a:Vec,b:Vec,arch:number):Vec[]{const out:Vec[]=[];for(let i=0;i<=REGION_JOURNEY_LAYOUT.bridgeSamples;i++){const t=i/REGION_JOURNEY_LAYOUT.bridgeSamples;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t+Math.sin(Math.PI*t)*arch,a[2]+(b[2]-a[2])*t]);}return out;}
+/** r5 彩虹桥 (场景设计部 plan §1.3, Grok Bot approved): the arch is sin²(πt) — same peak height as the old sin(πt), but the
+ *  slope is 0 at both landings (was ≈15°), so the deck lays down on the ground instead of plunging into it. The walk path and the
+ *  rendered deck (RainbowBridgeMesh) share this one centreline. `profile` stays a parameter so a leg with its own shape (sky city
+ *  plan B §8.4, not final) can drop its curve in later without touching the others. */
+export const bridgeArchSin2=(t:number):number=>Math.sin(Math.PI*t)**2;
+/** Pre-r5 profile, kept for comparisons/tests only. */
+export const bridgeArchSin=(t:number):number=>Math.sin(Math.PI*t);
+export function bridgePath(a:Vec,b:Vec,arch:number,profile:(t:number)=>number=bridgeArchSin2):Vec[]{const out:Vec[]=[];for(let i=0;i<=REGION_JOURNEY_LAYOUT.bridgeSamples;i++){const t=i/REGION_JOURNEY_LAYOUT.bridgeSamples;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t+profile(t)*arch,a[2]+(b[2]-a[2])*t]);}return out;}
 export function islandApproach(start:Vec):Vec[]{return [start,plus(start,REGION_JOURNEY_LAYOUT.islandApproach)];}
 /** Deck-frame helpers from (already placed or unrotated) anchors. */
 function deckFrame(end:Vec,gate:Vec){const dx=gate[0]-end[0],dz=gate[2]-end[2],h=Math.hypot(dx,dz)||1,u=[dx/h,dz/h],n=[-u[1],u[0]];

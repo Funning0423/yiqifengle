@@ -18,6 +18,8 @@ const results=[];const check=async(id,fn)=>{try{results.push({id,status:'PASS',.
 const dir=p=>{const v=p.target.map((x,i)=>x-p.position[i]),l=Math.hypot(...v);return v.map(x=>x/l);},ang=(a,b)=>{const u=dir(a),v=dir(b);return Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]+u[2]*v[2])))*180/Math.PI;},dp=(a,b)=>Math.hypot(...a.position.map((x,i)=>x-b.position[i]));
 const leg=legs[0],cam=d=>journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,0),FR=L.speedMps/60;
 const PIN={"0":[-5.556268,3.4,-0.839658,-2.016281,2.426991,6.268207,48],"0.78":[-5.233083,3.4,-0.156411,-1.848599,2.426991,7.0268,48],"1":[-5.147828,3.4,0.040089,-1.800326,2.426991,7.240608,48],"2":[-4.784309,3.4,0.947897,-1.57697,2.426991,8.211934,48],"5":[-4.246386,3.827481,3.747258,-1.296961,2.854472,11.119784,48],"10":[-3.7135,4.906931,8.408973,-1.37828,3.933922,15.998439,48],"20":[-3.7135,5.065319,18.363713,-1.37828,4.09231,25.95318,48]};
+/** r5 彩虹桥 sin² arch: the same poses on the shipped 04→05 leg (journeyCamera unchanged; only the bridge heights moved). */
+const PIN_R5={"0":[-5.546083,3.4,-0.845375,-2.017922,2.426991,6.268368,48],"0.78":[-5.222803,3.4,-0.161891,-1.850239,2.426991,7.026925,48],"1":[-5.137764,3.4,0.034789,-1.801928,2.426991,7.240721,48],"2":[-4.775755,3.4,0.943601,-1.57832,2.426991,8.212003,48],"5":[-4.243539,3.50047,3.796632,-1.297404,2.527461,11.170473,48],"10":[-3.7135,4.551125,8.46238,-1.37828,3.578116,16.051847,48],"20":[-3.7135,4.794819,18.328754,-1.37828,3.821811,25.91822,48]};
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
 const app=S.appr1,bridgeStart=routeLength(app),bridgeEnd=bridgeStart+routeLength(S.bridge1);
 function rig({cover=true,route={}}={}){const log=[];let alpha=0,progress=0,covers=[];
@@ -29,7 +31,13 @@ function rig({cover=true,route={}}={}){const log=[];let alpha=0,progress=0,cover
  return {controller,world,actor,log,covers,performed,setProgress:p=>{progress=p;controller.observe(actor,world);},alpha:()=>alpha};}
 const tick=()=>new Promise(r=>setImmediate(r));
 (async()=>{
-await check('G1 journeyCamera unchanged vs d238881; continuous, ≤ 20°/s from the cut (0–10 m)',()=>{for(const [d,v] of Object.entries(PIN)){const c=cam(+d),g=[...c.position,...c.target,c.fovVerticalDeg];g.forEach((x,i)=>assert(Math.abs(x-v[i])<1e-5,`d=${d}[${i}] ${x} vs ${v[i]}`));}
+await check('G1 journeyCamera unchanged vs d238881; continuous, ≤ 20°/s from the cut (0–10 m)',()=>{
+ // r5 彩虹桥: the bridge arch is sin² now (RegionJourneyLayout.bridgePath), so the 04→05 path — and the follow lens that reads it —
+ // moved. journeyCamera itself is unchanged: on the same leg rebuilt with the pre-r5 sin arch it still gives the d238881 PIN exactly;
+ // the shipped sin² leg is pinned separately (PIN_R5) and keeps the same continuity / turn limits below.
+ const sinB=S.Lay.bridgePath(S.edge1,S.mA('player_spawn'),L.meadowBridgeArchM,S.Lay.bridgeArchSin),nb=S.bridge1.length,legSin=[...leg.path.slice(0,2),...sinB.slice(1),...leg.path.slice(2+nb-1)];
+ for(const [d,v] of Object.entries(PIN)){const c=journeyCamera(legSin,+d,leg.start,leg.focus,leg.lens,0),g=[...c.position,...c.target,c.fovVerticalDeg];g.forEach((x,i)=>assert(Math.abs(x-v[i])<1e-5,`sin leg d=${d}[${i}] ${x} vs ${v[i]}`));}
+ for(const [d,v] of Object.entries(PIN_R5)){const c=cam(+d),g=[...c.position,...c.target,c.fovVerticalDeg];g.forEach((x,i)=>assert(Math.abs(x-v[i])<1e-5,`d=${d}[${i}] ${x} vs ${v[i]}`));}
  let mS=0,mT=0;for(let d=0;d<10-1e-9;d+=FR){const a=cam(d),b=cam(d+FR);mS=Math.max(mS,dp(a,b));mT=Math.max(mT,ang(a,b)*60);assert.equal(b.fovVerticalDeg,48);}
  assert(mS<=.05,'step '+mS);assert(mT<=20,'turn '+mT);return {maxStepPerFrameM:+mS.toFixed(4),maxTurnDegS:+mT.toFixed(2),fov:48};});
 await check('G2 fade-in frames: in frame, chest/head/face unoccluded (no palm), lens ≥ 1 m',()=>{const end=SETOFF_FADE.inS*L.speedMps,rows=[];
