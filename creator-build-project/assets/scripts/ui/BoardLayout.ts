@@ -89,3 +89,20 @@ export class IdleHintClock {
   }
   count() { return this.shown; }
 }
+/** Safe-area insets of the board UI (moved verbatim from ManagedMobileBoardUI.safeInsets, which now delegates here) so the
+ *  lakeside landing→board hook predicts the exact BoardLayout frame the board UI will report. Reads CSS env + wx only. */
+export function boardSafeInsets(w: number, h: number): SafeArea & { portrait: boolean } {
+  const portrait = w < h * 1.1; let top = portrait ? 47 : 12, bottom = portrait ? 34 : 21, left = portrait ? 0 : 44, right = left;
+  if (typeof document !== 'undefined' && document.documentElement && typeof getComputedStyle === 'function') { const css = getComputedStyle(document.documentElement); const read = (name: string) => parseFloat(css.getPropertyValue(name)) || 0; top = Math.max(top, read('--safe-top')); bottom = Math.max(bottom, read('--safe-bottom')); left = Math.max(left, read('--safe-left')); right = Math.max(right, read('--safe-right')); }
+  const wx = (globalThis as any).wx; let info: any = null, capsule: any = null;
+  try { info = wx?.getWindowInfo?.(); } catch { } if (!info) try { info = wx?.getSystemInfoSync?.(); } catch { }
+  const ww = Number(info?.windowWidth) || w, hh = Number(info?.windowHeight) || h, sx = w / ww, sy = h / hh;
+  const finite = (x: any) => typeof x === 'number' && Number.isFinite(x);
+  if (ww > 0 && hh > 0 && Number.isFinite(sx) && Number.isFinite(sy)) {
+    const a = info?.safeArea;
+    if (a && [a.top, a.bottom, a.left, a.right].every(finite) && a.top >= 0 && a.bottom >= a.top && a.bottom <= hh && a.left >= 0 && a.right >= a.left && a.right <= ww) { top = Math.max(top, a.top * sy); bottom = Math.max(bottom, (hh - a.bottom) * sy); left = Math.max(left, a.left * sx); right = Math.max(right, (ww - a.right) * sx); }
+    try { const r = wx?.getMenuButtonBoundingClientRect?.(); if (r && [r.top, r.bottom, r.left, r.right].every(finite) && r.top >= 0 && r.bottom > r.top && r.bottom < hh * .35 && r.left >= 0 && r.right > r.left && r.right <= ww) capsule = { top: r.top * sy, bottom: r.bottom * sy, left: r.left * sx, right: r.right * sx }; } catch { }
+  }
+  if (!capsule && portrait) capsule = { top: top + 4, bottom: top + 36, left: w - 93, right: w - 6 };
+  return { top, bottom, left, right, portrait, capsule };
+}
