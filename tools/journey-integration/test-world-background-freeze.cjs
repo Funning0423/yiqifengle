@@ -11,12 +11,17 @@
 //  - GameAudio (mock Cocos AudioSource with 3.8.8 semantics: play() on a PLAYING source restarts at 0, pause keeps the
 //    position): BGM paused not stopped and resumed at the same offset (no restart), exit track held mid-'crossing-out' and
 //    continued at its offset with one voice; island tail / interruption keep the old rule;
-//  - footsteps (FootstepTracker on the frozen motion clock): no extra, missing or doubled plant across the trip.
+//  - footsteps (FootstepTracker on the frozen motion clock): no extra, missing or doubled plant across the trip;
+//  - r4.1b: the home-walk watchdog (runHomeTransition, timeoutS 60 as in Boot.goHome) runs on ForegroundTimers, so a
+//    background stay of 3 s / 10 s / 60 s / 75 s / 10 min (longer than the limit) mid-walk-home neither times out nor
+//    snaps; a wall-clock host (the r4.1 Boot) does time out (the case bites). GameAudio hidden 3 s…10 min: BGM and the
+//    exit track continue at the hide offset (no jump by the hidden duration), also when the exit clip lands while hidden.
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const ROOT=path.resolve(__dirname,'../..'),S=ROOT+'/creator-build-project/assets/scripts/';
 const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness();
 const {WorldFlow,EXIT_STATES,RETURN_STATES,pointOnPath,pathDuration}=H.load('world-r1/WorldFlowCore');
 const {FootstepTracker,crossedPlants}=H.load(S+'audio/FootstepCore.ts');
+const {runHomeTransition}=H.load(S+'world-r2/HomeTransition.ts');const {ForegroundTimers,FOREGROUND_MAX_STEP_S}=H.load(S+'world-r2/ForegroundClock.ts');
 const DT=1/60,results=[];
 // ---------- A. world flow on a frame clock ----------
 const zero=[0,0,0],seat={position:zero,back:[0,0,-1],yawRad:0,seatedFoot:zero,standingFoot:zero,seatedControllerRoot:zero,standingControllerRoot:[0,0,.3]};
@@ -91,6 +96,8 @@ async function trip(at,hiddenS,ticksWhileHidden,route){
  {const r=rig();assert((await r.flow.load()).ok);const p=r.flow.leaveHome();await untilState(r,s=>s==='walking-out');r.flow.hide();assert(r.flow.cancelTransition().ok);await p;r.flow.show();const s=r.flow.snapshot();assert.equal(s.needsResume,true);assert.equal(s.stable,'home');}
  // hide → show → hide → show in quick succession: still one walk, still frozen exactly.
  {const r=rig();assert((await r.flow.load()).ok);const p=r.flow.leaveHome();await untilState(r,s=>s==='crossing-out');for(let i=0;i<10;i++)await r.frame();const b=r.probe();r.flow.hide();r.flow.show();r.flow.hide();await r.frame();r.flow.show();assert.deepEqual(r.probe(),b);await untilState(r,s=>s==='island');assert((await p).ok);assert.equal(r.leaves(),1);}
+ // ---------- E. r4.1b: home-walk watchdog on foreground time, long backgrounds ----------
+ const watchdog=await watchdogCases(ref);
  // ---------- B. GameAudio: BGM + exit track across the trip ----------
  const audio=gameAudioCases();
  // ---------- C. footsteps on the frozen clock ----------
@@ -100,7 +107,7 @@ async function trip(at,hiddenS,ticksWhileHidden,route){
  assert(/if\(!Number\.isFinite\(dt\)\|\|dt<=0\|\|this\.flow\.snapshot\(\)\.needsResume\)return;/.test(comp),'job clock stops while needsResume');
  assert(/this\.flow\.show\(\);this\.syncHostPause\(\);/.test(comp),'show re-applies the ambient / room-light pause from the visible layers');
  const core=fs.readFileSync(S+'world-r1/WorldFlowCore.ts','utf8');assert(!/void this\.leaveHome\(\)/.test(core),'show() never restarts leaveHome');
- console.log(JSON.stringify({status:'PASS',worldCases:results.length,cases:results,audio,steps,checks:['exit + walk home frozen on hide (every state, 3 s / 10 s, with/without hidden frames): pos, clip time, camera, door, wind, jobs unchanged','show continues the same walk by itself: no paused/home/standing re-entry, no cancelAndReset, no second leaveHome/load, same states + active time as uninterrupted','seated / island / cancel keep paused + 继续','BGM paused (not stopped), resumed at the same offset, no restart','exit track held on crossing-out and continued at its offset, one voice; island tail / interruption unchanged','footsteps: same plants as uninterrupted, none doubled'],scope:'WorldFlowCore + GameAudio + FootstepCore on mocks (frame clock = WorldFlowComponent.update rule); no engine, no device audio'},null,2));
+ console.log(JSON.stringify({status:'PASS',worldCases:results.length,cases:results,watchdog,audio,steps,checks:['exit + walk home frozen on hide (every state, 3 s / 10 s, with/without hidden frames): pos, clip time, camera, door, wind, jobs unchanged','show continues the same walk by itself: no paused/home/standing re-entry, no cancelAndReset, no second leaveHome/load, same states + active time as uninterrupted','seated / island / cancel keep paused + 继续','BGM paused (not stopped), resumed at the same offset, no restart','exit track held on crossing-out and continued at its offset, one voice; island tail / interruption unchanged','footsteps: same plants as uninterrupted, none doubled','r4.1b: home-walk watchdog on foreground time: 3 s / 10 s / 60 s / 75 s / 10 min backgrounds (> 60 s limit) mid-walk-home resolve ok, no snap; wall-clock host times out','r4.1b: BGM / exit track offsets do not jump by the hidden duration (3 s … 10 min); exit clip landing while hidden starts at the held offset'],scope:'WorldFlowCore + GameAudio + FootstepCore on mocks (frame clock = WorldFlowComponent.update rule); no engine, no device audio'},null,2));
 })().catch(e=>{console.error(e);process.exit(1);});
 
 function gameAudioCases(){
@@ -125,7 +132,7 @@ function gameAudioCases(){
   return {A,a,all,loads,clip,play,hide,show};
  };
  const out=[];
- for(const hiddenS of [3,10]){
+ for(const hiddenS of [3,10,60,600]){
   const h=make(),a=h.a;a.onGesture();a.setMusic('audio/bgm_main','audio_bgm_island');const m=h.loads.find(l=>l.p==='audio/bgm_main');m.cb(null,h.clip('bgm_main',83.478));
   const loop=h.all.find(s=>s.clip?.name==='bgm_main');assert(loop&&loop.playing,'bgm playing');
   for(const s of ['home','standing','turning-out','walking-out','opening-door'])a.onWorldState(s);const ex=h.loads.find(l=>l.p==='audio_cine/sfx_exit_outbound');ex.cb(null,h.clip('sfx_exit_outbound',20));
@@ -133,6 +140,7 @@ function gameAudioCases(){
   const bgmAt=loop.currentTime,exitAt=v1.currentTime;
   // Background mid-'crossing-out'. The flow freezes the walk, so no world state reaches GameAudio (Boot feeds changes only).
   const stops0=loop.stops;h.hide();assert(!loop.playing&&loop.stops===stops0,'BGM paused, not stopped');
+  h.play(hiddenS);assert(Math.abs(loop.currentTime-bgmAt)<1e-9,'nothing plays while hidden');   // wall time passes while hidden
   h.show();assert(loop.playing,'BGM back');assert.equal(loop.restarts,0,'BGM never restarted');assert.equal(loop.stops,stops0,'no stop');assert(Math.abs(loop.currentTime-bgmAt)<1e-9,'BGM resumes at '+bgmAt+' s');
   const voices=h.all.filter(s=>s.clip?.name==='sfx_exit_outbound'&&s.playing);assert.equal(voices.length,1,'one exit voice');assert(voices[0]!==v1);
   assert(Math.abs(voices[0].currentTime-exitAt)<=.05,'exit track continues at its offset: '+voices[0].currentTime+' vs '+exitAt);const bgmOnShow=loop.currentTime,exitOnShow=voices[0].currentTime;
@@ -141,6 +149,13 @@ function gameAudioCases(){
   h.play(2);a.onWorldState('island');assert(voices[0].playing,'island keeps the tail');
   out.push({hiddenS,bgmOffsetAtHideS:+bgmAt.toFixed(3),bgmOffsetOnShowS:+bgmOnShow.toFixed(3),exitTrackAtHideS:+exitAt.toFixed(3),exitTrackOnShowS:+exitOnShow.toFixed(3),bgmRestarts:loop.restarts});
  }
+ // r4.1b: the exit clip lands while hidden (held, loading): it waits for the return, then starts at the held offset (not
+ // 'skipped-muted', not late by the hidden time).
+ for(const hiddenS of [10,600]){const h=make(),a=h.a;a.onGesture();for(const s of ['home','standing','opening-door'])a.onWorldState(s);const ex=h.loads.find(l=>l.p==='audio_cine/sfx_exit_outbound');
+  a.onWorldState('crossing-out');h.play(1.5);h.hide();h.play(hiddenS/2);ex.cb(null,h.clip('sfx_exit_outbound',20));h.play(hiddenS/2);
+  assert.equal(h.all.filter(s=>s.clip?.name==='sfx_exit_outbound').length,0,'no voice while hidden');h.show();
+  const v=h.all.filter(s=>s.clip?.name==='sfx_exit_outbound'&&s.playing);assert.equal(v.length,1,'one exit voice after the return');assert(Math.abs(v[0].currentTime-1.5)<=.05,'starts at the held 1.5 s: '+v[0].currentTime);
+  out.push({clipLandedWhileHidden:true,hiddenS,exitTrackOnShowS:+v[0].currentTime.toFixed(3)});}
  // Old rules kept: background on the island tail (flow goes paused) does not resume it; an interruption is not held.
  {const h=make(),a=h.a;a.onGesture();for(const s of ['standing','opening-door'])a.onWorldState(s);h.loads.find(l=>l.p==='audio_cine/sfx_exit_outbound').cb(null,h.clip('sfx_exit_outbound',20));a.onWorldState('crossing-out');h.play(3);a.onWorldState('island');h.play(1);
   h.hide();a.onWorldState('paused');h.play(3);h.show();assert.equal(h.all.filter(s=>s.clip?.name==='sfx_exit_outbound'&&s.playing).length,0,'island tail stays cut');}
@@ -151,6 +166,48 @@ function gameAudioCases(){
   h.hide();a.onWorldState('paused');h.show();assert.equal(h.all.filter(s=>s.clip?.name==='sfx_exit_outbound'&&s.playing).length,0);}
  assert.equal((fs.readFileSync(S+'audio/GameAudio.ts','utf8').match(/this\.muted \|\| this\.sfxMuted \|\| this\.reasons\.size > 0/g)||[]).length,3,'3 sfxMuted gates unchanged');
  return out;
+}
+async function watchdogCases(ref){
+ // Boot.goHome island path: runHomeTransition({now,wait,act:returnHome,state},{outS:0,timeoutS:60}); Boot.update ticks the
+ // clock with paused = snapshot.hidden||needsResume, then flushes the waits (tickCover). Wall clock: the r4.1 host.
+ const walkS=ref.totalT-ref.exitT,out=[];assert(walkS>1&&walkS<60,'walk home '+walkS);
+ const run=async({clock,at,hiddenS,ticks,timeoutS})=>{
+  const r=rig();assert((await r.flow.load()).ok);const p=r.flow.leaveHome();await untilState(r,s=>s==='island');assert((await p).ok);
+  const fg=new ForegroundTimers();let wall=0;const waits=[];
+  const host=clock==='foreground'?{now:fg.now,wait:fg.wait}:{now:()=>wall,wait:s=>new Promise(res=>waits.push({at:wall+s,res}))};
+  const flushWall=()=>{for(const w of waits.splice(0))if(w.at<=wall)w.res();else waits.push(w);};
+  let done=null;const pr=runHomeTransition({...host,cover:()=>{},audioOut:()=>{},audioIn:()=>{},audioRestore:()=>{},act:()=>r.flow.returnHome(),state:()=>r.flow.snapshot().state},{outS:0,timeoutS}).then(x=>{done=x;});
+  const bootFrame=async(dt=DT)=>{const s=r.flow.snapshot();fg.tick(dt,!!s.hidden||!!s.needsResume);fg.flush();wall+=dt;flushWall();await r.frame();};
+  let i=0;while(r.flow.snapshot().state!==at&&!done&&i++<6000)await bootFrame();for(let k=0;k<20;k++)await bootFrame();
+  const before=r.probe(),fgAt=fg.now(),resets=r.log.reset;r.flow.hide();
+  if(ticks){for(let k=0,n=Math.round(hiddenS/DT);k<n;k++)await bootFrame();}       // web: director keeps ticking while hidden
+  else{wall+=hiddenS;flushWall();await r.flush();await bootFrame(hiddenS);}        // mini-game: no frames, then one long dt on return
+  const hiddenOk=!done&&JSON.stringify(r.probe())===JSON.stringify(before);
+  r.flow.show();await bootFrame();const snapResets=r.log.reset-resets,after=r.probe();
+  assert(after.abs>before.abs||after.clip!==before.clip||after.cam>before.cam,'continues from the frozen frame');assert.deepEqual(r.flow.snapshot().state,at,'same state after the return');
+  for(let k=0;k<12000&&!done;k++)await bootFrame();await pr;
+  return {done,hiddenOk,resets:snapResets,state:r.flow.snapshot().state,pos:r.ch.pos,fgDuringHide:+(fg.now()-fgAt).toFixed(4),before};
+ };
+ for(const at of ['walking-home','crossing-in','walking-to-seat'])for(const hiddenS of [3,10,60,75,600])for(const ticks of (hiddenS>=600?[false]:[false,true])){
+  const x=await run({clock:'foreground',at,hiddenS,ticks,timeoutS:60});
+  assert(x.hiddenOk,'frozen and not resolved while hidden ('+at+', '+hiddenS+' s)');
+  assert.deepEqual(x.done&&{ok:x.done.ok,reason:x.done.reason},{ok:true,reason:undefined},'walk home resolves ok after a '+hiddenS+' s background at '+at+': '+JSON.stringify(x.done));
+  assert.equal(x.state,'home');assert.equal(x.resets,0,'no snap (cancelAndReset) on hide / show / next frame');assert.deepEqual(x.pos,[...seat.seatedControllerRoot],'seated');
+  assert(x.done.seconds<=walkS+FOREGROUND_MAX_STEP_S+DT*4,'watchdog counted foreground time only: '+x.done.seconds.toFixed(3)+' s vs walk '+walkS.toFixed(3));
+  out.push({at,hiddenS,framesWhileHidden:ticks,ok:true,watchdogSeconds:+x.done.seconds.toFixed(3)});
+ }
+ // Tight limit (walk + 1 s): a 75 s / 10 min background still cannot trip it.
+ for(const hiddenS of [75,600]){const x=await run({clock:'foreground',at:'walking-home',hiddenS,ticks:false,timeoutS:walkS+1});assert(x.done.ok,'tight limit, '+hiddenS+' s: '+JSON.stringify(x.done));out.push({at:'walking-home',hiddenS,timeoutS:+(walkS+1).toFixed(3),ok:true});}
+ // The r4.1 wall-clock host times out on the same trip (proves the case bites); the flow itself still walks home.
+ {const x=await run({clock:'wall',at:'walking-home',hiddenS:75,ticks:false,timeoutS:60});assert.equal(x.done.ok,false);assert.equal(x.done.reason,'return-home-timeout');out.push({clock:'wall (r4.1)',hiddenS:75,result:x.done.reason});}
+ // Boot wiring: watchdog / waits / cover ramp on ForegroundTimers, ticked with the flow's hidden/needsResume.
+ const boot=fs.readFileSync(S+'WorldIntegrationBoot.ts','utf8');
+ assert(/const wall=this\.fg\.now,wait=this\.fg\.wait;/.test(boot),'goHome on foreground time');
+ assert(/update\(dt:number\)\{this\.fg\.tick\(dt,this\.flowPaused\(\)\);this\.tickCover\(\);/.test(boot),'ticked per frame, paused with the flow');
+ assert(/return !!s&&\(!!s\.hidden\|\|!!s\.needsResume\)/.test(boot),'paused = hidden || needsResume');
+ const cover=boot.slice(boot.indexOf('goHome():Promise'),boot.indexOf(' update(dt:number)'));assert(!/Date\.now\(\)(?!\};return r)/.test(cover.replace(/__worldHomeTransition=\{\.\.\.r,at:Date\.now\(\)\}/,'')),'no wall clock in goHome / fadeCover / tickCover');
+ assert(!/homeWaits/.test(boot));
+ return {walkHomeS:+walkS.toFixed(3),cases:out};
 }
 function footstepCases(){
  // walk_loop-like clip with two plants per 1.1 s cycle; frozen clock while hidden (abs does not move; Boot may still tick).

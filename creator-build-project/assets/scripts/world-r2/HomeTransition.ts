@@ -1,13 +1,13 @@
 /** 「主页」 from a journey region (Mac re-check 2607de6): fade out picture + audio, release the journey and place
  * her at home, resolve as soon as the flow state is home, then fade back in. Pure (no cc imports): the host
- * injects the cover, audio and a wall clock so tests can drive simulated time. Every path resolves. */
+ * injects the cover, audio and a clock (foreground time in Boot) so tests can drive simulated time. Every path resolves. */
 export const HOME_FADE={outS:.4,inS:.5,timeoutS:10} as const;
 /** Cover alpha (0..1) → fill-colour byte; Graphics fills carry their own alpha (UIOpacity does not affect them). */
 export function coverAlphaByte(a:number):number{return Math.max(0,Math.min(255,Math.round(255*(Number.isFinite(a)?a:0))));}
 export type HomeResult={ok:boolean;reason?:string};
 export interface HomeTransitionHost{
-  now():number;                       // wall-clock seconds
-  wait(seconds:number):Promise<void>; // wall-clock wait (rejecting is treated as a failure)
+  now():number;                       // host clock seconds (Boot: foreground time, r4.1b; background trips do not count)
+  wait(seconds:number):Promise<void>; // wait on that clock (rejecting is treated as a failure)
   cover(alpha:number,seconds:number):Promise<void>|void; // full-screen black cover ramp
   audioOut(seconds:number):Promise<void>|void; // region bgm + wind + sfx_* fade with the picture
   audioIn(seconds:number):void;       // island/home bgm fades in (after the region bed has stopped)

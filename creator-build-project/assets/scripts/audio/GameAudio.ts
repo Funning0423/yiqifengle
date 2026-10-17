@@ -1066,6 +1066,7 @@ export class GameAudio extends Component {
   private startExitCine(resumeAt?: number) {
     if (this.exitCineSource && !this.sfxVoices.has(this.exitCineSource)) this.exitCineSource = null;
     if (this.exitCineAt === null || this.exitCineSource || !this.exitCineClip) return;
+    if (resumeAt === undefined && this.exitCineHeldS !== null) return;   // r4.1b: clip landed while held (hidden): resumeExitCine starts it at the held offset
     const late = resumeAt !== undefined ? resumeAt : (GameAudio.now() - this.exitCineAt) / 1000;
     if (resumeAt === undefined && late > EXIT_CINE.maxLateS) { this.exitCineMark('dropped-late', late); this.exitCineAt = null; return; }
     if (resumeAt !== undefined) { let d = NaN; try { d = Number((this.exitCineClip as any).getDuration?.()); } catch { d = NaN; } if (d > 0 && late >= d) { this.exitCineMark('resume-past-end', late); return; } }

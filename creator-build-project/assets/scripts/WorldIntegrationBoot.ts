@@ -33,6 +33,7 @@ import {ART as STARTUP_ART} from './ui/StartupLoadingLayout';
 import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
 import {validateSkycity} from './region/RegionValidation';
 import {runHomeTransition,HOME_FADE,coverAlphaByte} from './world-r2/HomeTransition';
+import {ForegroundTimers} from './world-r2/ForegroundClock';
 import {GameAudio} from './audio/GameAudio';
 import {FootstepAudio} from './audio/FootstepAudio';
 import {SCENE_TRACKS} from './audio/SceneMusic';
@@ -649,7 +650,10 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  /** 「主页」 (Mac re-check 2607de6): from a journey region fade picture + region bgm/wind/sfx out (0.4 s), release the
   * journey and place her at home, resolve {ok:true} once the state is home, then fade in with the island bgm.
   * Island (no journey) keeps the walk home; both paths carry an overall timeout and always resolve. */
- private homeWaits:{at:number;r:()=>void}[]=[];
+ /** r4.1b: the home watchdog, its waits and the cover ramps run on foreground time (not wall time): a background trip mid
+  * walk home freezes the walk (WorldFlowCore.hide) and this clock with it, so it never times out or snaps on return. */
+ private fg=new ForegroundTimers();
+ private flowPaused():boolean{try{const s=this.composition?.worldCommands().snapshot() as any;return !!s&&(!!s.hidden||!!s.needsResume);}catch{return false;}}
  private homeCover:{node:Node;g:Graphics;alpha:number;from:number;to:number;at:number;s:number;done:(()=>void)|null}|null=null;
  /** F1 (77b76c3 audit): the cover used to fade via UIOpacity, which Cocos 3.8 Graphics ignores (its colour is baked into the fill
   * vertices), so the black appeared at full strength the instant the node went active and vanished at the end: a hard cut both ways.
@@ -658,7 +662,7 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  goHome():Promise<{ok:boolean;reason?:string;seconds?:number}>{
   const cmd=this.composition.worldCommands(),s=cmd.snapshot() as any;
   const inRegion=s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'||!!(s.journey&&s.state==='island'&&['paused','failed'].includes(s.journey.phase));
-  const wall=()=>Date.now()/1000,wait=(sec:number)=>new Promise<void>(r=>this.homeWaits.push({at:Date.now()+sec*1000,r}));   // ticked by update (wall clock, no timers)
+  const wall=this.fg.now,wait=this.fg.wait;   // ticked by update (foreground time, no timers; r4.1b)
   if(!inRegion)return runHomeTransition({now:wall,wait,cover:()=>{},audioOut:()=>{},audioIn:()=>{},audioRestore:()=>{},act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},{outS:0,timeoutS:60});
   const audio=GameAudio.instance as any;
   return runHomeTransition({now:wall,wait,cover:(a,sec)=>this.fadeCover(a,sec),
@@ -670,12 +674,12 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  private fadeCover(to:number,seconds:number):Promise<void>{
   if(!this.homeCover){const node=new Node('HomeFadeCover');node.layer=Layers.Enum.UI_2D;this.canvas.addChild(node);node.addComponent(UITransform).setContentSize(4000,4000);
    const g=node.addComponent(Graphics);this.homeCover={node,g,alpha:-1,from:0,to:0,at:0,s:0,done:null};this.paintCover(this.homeCover,0);}
-  const c=this.homeCover;c.node.setSiblingIndex(this.canvas.children.length-1);c.done?.();c.from=Math.max(0,c.alpha)/255;c.to=to;c.at=Date.now()/1000;c.s=Math.max(0,seconds);c.node.active=true;
+  const c=this.homeCover;c.node.setSiblingIndex(this.canvas.children.length-1);c.done?.();c.from=Math.max(0,c.alpha)/255;c.to=to;c.at=this.fg.now();c.s=Math.max(0,seconds);c.node.active=true;
   return new Promise<void>(r=>{c.done=r;this.tickCover();});
  }
- private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
+ private tickCover(){this.fg.flush();const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(this.fg.now()-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
   if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
- update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+ update(dt:number){this.fg.tick(dt,this.flowPaused());this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
  /** r4 exit footsteps: after every update() of the frame (WorldFlowComponent has advanced the character). */
  lateUpdate(dt:number){try{this.footsteps?.tick(dt);}catch(error){console.warn('footsteps tick failed',String(error));}}
  onDestroy(){this.footsteps?.dispose();this.footsteps=null;setScreenCover(null);this.islandToast?.dispose();this.islandToast=null;this.devMark?.dispose();this.devMark=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
