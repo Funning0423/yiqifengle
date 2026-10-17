@@ -15,7 +15,7 @@ export function enableLakesideInstancing(root:Node):Material[]{
  for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
   for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=shared.get(src);
    if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});shared.set(src,m);}r.setSharedMaterial(m,k);}}
- return [...shared.values()];
+ return Array.from(shared.values()); // not [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
 }
 function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
@@ -64,7 +64,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
   if(!isValid(parent,true)||!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
   const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
-  const missing=[...new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n)))];if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
+  const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
   rig=new Node(LAKESIDE_NODES.rig);rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
   const scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
   for(const i of list){const n=instantiate(byName.get(lakesidePrefabName(i.glb))!);n.name=i.name;n.setPosition(i.pos[0],i.pos[1],i.pos[2]);n.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);n.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(n);instances++;}
