@@ -10,7 +10,7 @@ import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
 import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type PropButtonSlot } from './IslandPropsLayout';
 const TAP_TARGET:Record<string,PropTapTarget>={bag:'bag',journal:'book',settings:'settings'};
 
-type Options={invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
+type Options={prewarm?:(region:string)=>void;invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
 type Page='bag'|'journal'|'settings'|'rest'|'tide'|'meadow'|'sky'|'lake';
 export { CHAPTERS };
 /** Island presentation only. Closed: three compact utilities (bag / journey book / full settings). Regions are chapters
@@ -89,6 +89,8 @@ export class IslandJourneyOverlay {
  }
  private chapter(region:string){
   const serial=this.serial,live=()=>!this.dead&&this.enabled&&serial===this.serial&&!!this.page;
+  // v3.3: an open chapter is the earliest moment the region is likely next; let the host warm its assets (never throws).
+  if(this.gate(region)?.ok){try{this.options.prewarm?.(region);}catch{}}
   openChapter(this.popups,region,{gate:()=>this.gate(region),r4Open:()=>!!this.safeRead(this.options.gates)?.r4?.some((x:any)=>x.unlocked),
    enter:()=>{if(live())this.dispatch(()=>this.options.enterRegion(region));},skycity:()=>{if(live())this.dispatch(this.options.enterSkycity);},
    legacyTide:()=>{if(live())this.dispatch(this.options.enterR4);},back:()=>{}}).options.onClose=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};
