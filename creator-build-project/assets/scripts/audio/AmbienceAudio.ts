@@ -179,6 +179,8 @@ export class AmbienceAudio extends Component {
 
   /** WindAudio 每帧调用：平滑后的 getWindStrength()（被静音/看不见世界时传 0） */
   static windExit = 0;
+  /** 风铃湖畔（LakeAmbience 每帧写）：湖声在放时海浪和随机海鸥让路（按"看不见世界"处理，海浪平滑淡出、离开湖畔再淡回）。 */
+  static lakeActive = false;
   private static nearRequests = 0;
   private static inst: AmbienceAudio | null = null;
   private static listeners: GullCallListener[] = [];
@@ -425,7 +427,8 @@ export class AmbienceAudio extends Component {
     const canSound = !!audio && audio.canPlayAmbience();
     this.canSoundNow = canSound;
     const allowed = canSound && !!this.clip;
-    const outdoor = this.outdoorAmount(dt);
+    const outdoorRaw = this.outdoorAmount(dt);
+    const outdoor = AmbienceAudio.lakeActive ? -1 : outdoorRaw;
     this.lastOutdoor = outdoor;
     this.trackCamera(dt);
     const wind = outdoor >= 0 ? AmbienceAudio.windExit : 0;
@@ -438,7 +441,7 @@ export class AmbienceAudio extends Component {
     if (!allowed) this.vol = 0;
     // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
     const heard = this.vol * musicBed();
-    { const g = !audio ? 'no-gameaudio' : !canSound ? 'gameaudio:' + ((audio as any).ambienceGate?.() ?? '?') : !this.clip ? 'no-clip' : outdoor < 0 ? 'no-world' : 'ok';
+    { const g = !audio ? 'no-gameaudio' : !canSound ? 'gameaudio:' + ((audio as any).ambienceGate?.() ?? '?') : !this.clip ? 'no-clip' : AmbienceAudio.lakeActive ? 'lakeside' : outdoor < 0 ? 'no-world' : 'ok';
       if (g !== this.lastGate) { this.lastGate = g; qfAudioLog('waves-gate', { gate: g, outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } }
     if (!allowed || heard < 0.002) {
       try { src.volume = 0; } catch { /* ignore */ }
