@@ -179,7 +179,7 @@ export function rainbowGroundGeometry(path:readonly Vec[],ends:readonly [Rainbow
  return {positions,normals,uvs,colors,indices,...bounds(positions.length?positions:[0,0,0],[.05,.25,0,.05]),halos,petals,flowers};
 }
 /** Mote kinds (a_normal.y): 1 glow dot (additive, rises), 2 falling petal (alpha, spins), 3 curb sparkle (additive, twinkles).
- *  Each is one camera-facing quad animated in rainbow-bridge-additive.effect (vertMotes); a_color.w = rise (1) / drop (2). */
+ *  Each is one camera-facing quad animated in rainbow-bridge-additive.effect (the mote path of rbh-vs:vert); a_color.w = rise (1) / drop (2). */
 export function rainbowMotesGeometry(path:readonly Vec[],ends:readonly [RainbowEnd|null,RainbowEnd|null],deck?:{top:(s:number)=>number}):RainbowGeometry&{count:{glow:number;petals:number;curb:number;total:number}}{
  const positions:number[]=[],normals:number[]=[],uvs:number[]=[],colors:number[]=[],indices:number[]=[];const count={glow:0,petals:0,curb:0,total:0};
  const P=pathSampler(path),top=deck?deck.top:(s:number)=>P.at(s)[1]-RB.feetM;

@@ -1,5 +1,6 @@
 // 彩虹桥 ends (r5, GGbot): ground halo + petals + little flowers (technique 0) and the GPU motes (technique 1).
 // Both are built at runtime by RainbowBridgeMesh.ts (no GLB, no ParticleSystem module). a_normal = (seed, kind, size):
+//   (both techniques run the same program `rbh-vs:vert`; the mesh's kinds pick the ground or the mote path)
 //   kind 0 halo     additive (premultiplied with alpha 0)      kind 4 ground petal / flower stem / flower head, opaque look (alpha 1)
 //   kind 1 glow dot additive, rises a_color.w metres            kind 2 falling petal, alpha, falls a_color.w metres and spins
 //   kind 3 curb sparkle, additive twinkle
@@ -12,7 +13,7 @@ CCEffect %{
   techniques:
   - name: ground
     passes:
-    - vert: rbh-vs:vertGround
+    - vert: rbh-vs:vert
       frag: rbh-fs:frag
       priority: max - 11
       properties: &props
@@ -28,7 +29,7 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
   - name: motes
     passes:
-    - vert: rbh-vs:vertMotes
+    - vert: rbh-vs:vert
       frag: rbh-fs:frag
       priority: max - 9
       properties: *props
@@ -53,14 +54,14 @@ CCProgram rbh-vs %{
     wp.xyz += toCam / dist * min(cap, k * dist);
     return wp;
   }
-  vec4 vertGround () {
-    vec4 wp = toCamera(cc_matWorld * vec4(a_position, 1.0), 0.003, 0.06);
-    v_color = a_color; v_kind = a_normal.y; v_shape = vec3(0.0);
-    return cc_matViewProj * wp;
-  }
-  vec4 vertMotes () {
+  // ONE program for both techniques (one shader in the built effect JSON, ~10 KB less package): the vertex kind picks the path
+  vec4 vert () {
     float seed = a_normal.x, kind = a_normal.y, size = a_normal.z;
     vec4 wp = cc_matWorld * vec4(a_position, 1.0);
+    if (kind < 0.5 || kind > 3.5) {          // ground: halo / petals / flowers stay put, nudged toward the camera
+      v_color = a_color; v_kind = kind; v_shape = vec3(0.0);
+      return cc_matViewProj * toCamera(wp, 0.003, 0.06);
+    }
     vec2 corner = a_texCoord;
     float life = kind < 1.5 ? 2.5 + seed : (kind < 2.5 ? 3.0 : 1.6 + seed);
     float t = fract(cc_time.x / life + seed * 7.31);

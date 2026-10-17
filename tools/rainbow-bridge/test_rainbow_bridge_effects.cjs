@@ -6,7 +6,7 @@
  *     fallback, no white seam term, camera-offset depth fallback present, property / uniform names == what RainbowBridge.ts sets,
  *     band colours == RAINBOW_BANDS, metas valid with unique uuids, TS effect paths exist.
  *  E2 3.8.8 shdc (when QF_CC_SHDC or /workspace/wechat-game/team/ggbot/tools/cc-shdc-3.8.8 exists, else SKIP-as-PASS): no errors,
- *     priorities 244 / 245 / 246, glsl1 + glsl3 emitted, the GLSL1 frag carries the guarded #extension, no defines (one variant each).
+ *     priorities 244 / 245 / 246, ONE shader per effect, glsl1 + glsl3 emitted, the GLSL1 frag carries the guarded #extension, no defines (one variant each).
  *  E3 headless Chrome (when E2 ran and Chrome exists, else SKIP-as-PASS): every variant compiles + links on WebGL1 without
  *     derivatives, WebGL1 with them, and WebGL2. Not a Creator build / phone GPU: the Mac + 真机 run stays the acceptance. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
@@ -26,7 +26,7 @@ check('E1 static lint: layout, order, states, derivative guard, no depthBias / s
  assert.deepEqual([...ey.matchAll(/- name: (\w+)/g)].map(m=>m[1]),['ground','motes'],'technique order == RainbowBridge.ts technique 0 / 1');
  assert.deepEqual([...dy.matchAll(/priority: (.*)/g)].map(m=>m[1].trim()),['max - 10']);
  assert.deepEqual([...ey.matchAll(/priority: (.*)/g)].map(m=>m[1].trim()),['max - 11','max - 9']);
- assert.match(dy,/vert: rb-vs:vert\s+frag: rb-fs:frag/);assert.match(ey,/vert: rbh-vs:vertGround\s+frag: rbh-fs:frag/);assert.match(ey,/vert: rbh-vs:vertMotes\s+frag: rbh-fs:frag/);
+ assert.match(dy,/vert: rb-vs:vert\s+frag: rb-fs:frag/);assert.equal((ey.match(/vert: rbh-vs:vert\s+frag: rbh-fs:frag/g)||[]).length,2,'ground + motes share ONE program (one shader in the build)');
  // states
  for(const y of [dy,ey]){assert.doesNotMatch(y,/depthBias|polygonOffset/i,'depthBias is a no-op on 3.8.8 WebGL/WebGL2 — use the vertex camera offset');
   assert.match(y,/depthStencilState: \{ depthTest: true, depthWrite: false \}/);
@@ -36,7 +36,7 @@ check('E1 static lint: layout, order, states, derivative guard, no depthBias / s
  assert.match(ey,/properties: &props/);assert.match(ey,/properties: \*props/);assert.match(ey,/blendState: &blend/);assert.match(ey,/blendState: \*blend/);
  // programs referenced exist
  const dp=programs(deck),ep=programs(ends);assert.deepEqual(Object.keys(dp).sort(),['rb-fs','rb-vs']);assert.deepEqual(Object.keys(ep).sort(),['rbh-fs','rbh-vs']);
- assert.match(dp['rb-vs'],/vec4 vert \(\)/);assert.match(dp['rb-fs'],/vec4 frag \(\)/);assert.match(ep['rbh-vs'],/vec4 vertGround \(\)/);assert.match(ep['rbh-vs'],/vec4 vertMotes \(\)/);assert.match(ep['rbh-fs'],/vec4 frag \(\)/);
+ assert.match(dp['rb-vs'],/vec4 vert \(\)/);assert.match(dp['rb-fs'],/vec4 frag \(\)/);assert.match(ep['rbh-vs'],/vec4 vert \(\)/);assert.match(ep['rbh-vs'],/if \(kind < 0\.5 \|\| kind > 3\.5\)/);assert.match(ep['rbh-fs'],/vec4 frag \(\)/);
  // derivatives: pragma + every dFdx/dFdy/fwidth inside the guard, with the vertex-normal fallback
  for(const [n,src] of Object.entries({...dp,...ep})){const code=stripComments(src),uses=(code.match(/\b(dFdx|dFdy|fwidth)\s*\(/g)||[]).length;if(!uses)continue;
   assert.match(code,/#pragma extension\(\[GL_OES_standard_derivatives, __VERSION__ < 300\]\)/,n+': derivatives without the 3.8.8 extension pragma');
@@ -52,7 +52,7 @@ check('E1 static lint: layout, order, states, derivative guard, no depthBias / s
  const df=stripComments(dp['rb-fs']);assert.doesNotMatch(df,/seam/i);assert.match(df,/fade < 0\.999/);assert.match(df,/streak/);
  // the depth fallback: distance-scaled step toward the camera in both vertex programs
  assert.match(stripComments(dp['rb-vs']),/toCam \/ dist \* min\(0\.04, 0\.0012 \* dist\) \* \(1\.0 - a_color\.b\)/);
- assert.match(stripComments(ep['rbh-vs']),/toCamera\(cc_matWorld \* vec4\(a_position, 1\.0\), 0\.003, 0\.06\)/);
+ assert.match(stripComments(ep['rbh-vs']),/toCamera\(wp, 0\.003, 0\.06\)/);
  // property + uniform names == what the TS sets
  const props=y=>[...y.matchAll(/^\s+(\w+): \{ value:/gm)].map(m=>m[1]);
  assert.deepEqual(props(dy),['rbParams0','rbParams1']);assert.deepEqual(props(ey),['endParams']);
@@ -71,13 +71,14 @@ check('E1 static lint: layout, order, states, derivative guard, no depthBias / s
   const m=JSON.parse(read(path.join(P,f+'.meta')));assert.match(m.uuid,/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);assert.equal(m.importer,f.endsWith('.effect')?'effect':'typescript');metas[f]=m.uuid;}
  return {metas,uuidsScanned:uuids.size};});
 const SHDC=process.env.QF_CC_SHDC||'/workspace/wechat-game/team/ggbot/tools/cc-shdc-3.8.8';
-check('E2 Cocos 3.8.8 effect compiler (shdc from the 3.8.8 editor + 3.8.8 chunks): no errors, priorities 244/245/246, glsl1 + glsl3',()=>{
+check('E2 Cocos 3.8.8 effect compiler (shdc from the 3.8.8 editor + 3.8.8 chunks): no errors, priorities 244/245/246, glsl1 + glsl3, one shader per effect',()=>{
  if(!fs.existsSync(path.join(SHDC,'compile.js')))return {skipped:true,reason:'no 3.8.8 shdc at '+SHDC+' (set QF_CC_SHDC)'};
  const build=require(path.join(SHDC,'compile.js')).make(path.join(SHDC,'engine'));compiled=[];const rows=[];
  for(const [f,want] of [['rainbow-bridge',{transparent:245}],['rainbow-bridge-additive',{ground:244,motes:246}]]){const r=build(path.join(W,f+'.effect'));
   assert.deepEqual(r.errors,[],f+' errors');const e=r.effect;
   assert.deepEqual(Object.fromEntries(e.techniques.map(t=>[t.name,t.passes[0].priority])),want);
   for(const t of e.techniques){const p=t.passes[0];assert.equal(p.depthStencilState.depthWrite,false);assert.equal(p.blendState.targets[0].blendSrc,1);assert.equal(p.blendState.targets[0].blendDst,4);assert(!('depthBias' in (p.rasterizerState||{})));}
+  assert.equal(e.shaders.length,1,f+': one shader');
   for(const s of e.shaders){assert.equal(s.defines.length,0,s.name+' has defines (variants)');assert(s.glsl1&&s.glsl1.vert&&s.glsl1.frag,s.name+' glsl1');assert(s.glsl3&&s.glsl3.vert&&s.glsl3.frag,s.name+' glsl3');
    if(/dFdx/.test(s.glsl1.frag))assert.match(s.glsl1.frag,/#ifdef GL_OES_standard_derivatives\s*\n\s*#extension GL_OES_standard_derivatives: enable/,'guarded #extension in GLSL1');
    compiled.push({name:s.name,glsl1:s.glsl1,glsl3:s.glsl3});rows.push({shader:s.name,glsl1:s.glsl1.vert.length+s.glsl1.frag.length,glsl3:s.glsl3.vert.length+s.glsl3.frag.length});}
