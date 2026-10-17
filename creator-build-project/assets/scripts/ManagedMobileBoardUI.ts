@@ -62,6 +62,10 @@ export class ManagedMobileBoardUI extends Component {
   private visualStamp = 0; private visualDone: (() => void) | null = null; private visualLeft = -1;
   /** Last presentation was hidden (lock / background). The next visible paused frame asks update() to open the pause panel. */
   private boardWasHidden = false; private returnPause = false;
+  /** r4-prep (lead): set by the world adapter for 风铃湖畔 boards, which are only reached by landing from the island→lakeside
+   *  journey. A restored unfinished attempt there resumes straight into a playable board on reveal (steps shown as usual,
+   *  first-time tool intros still queue on run.ready) instead of opening 「暂停一下」. Other boards keep the explicit Resume. */
+  resumeRestoredOnPresent = false;
   private pressHandles: PressHandle[] = [];
   private resetOnHide = () => this.resetInput();
   private presentationActive = () => { if (this.root && !this.root.activeInHierarchy) this.resetInput(); };
@@ -293,7 +297,10 @@ export class ManagedMobileBoardUI extends Component {
     // Restored attempts intentionally stay paused. Unlike an OS hide/show,
     // a new view has no boardWasHidden edge to request the recovery controls.
     // Offer explicit Resume on its first visible update; never unlock silently.
-    if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden) this.returnPause = true;
+    if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden) {
+      if (this.resumeRestoredOnPresent && this.snapshot.active && !this.modalOpen()) { let r: any = null; try { r = this.managed?.intercept?.('resume') ?? this.host.command('resume'); } catch { r = null; } if (!r || r.ok === false) this.returnPause = true; }
+      else this.returnPause = true;
+    }
   }
   private cancelToolInput() { for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */

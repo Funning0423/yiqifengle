@@ -9,6 +9,7 @@ import type { LevelAdapter, LevelLease, Cancellation, Result } from '../world-r1
 import { createManagedBoardSession } from './ManagedBoardSession';
 import type { Selection, DisposableStores } from './ManagedBoardSession';
 import { paintRegionalOverlay } from './RegionalOverlay';
+import { requiresLakesideScene } from './LevelRegion';
 /** Direct adapter to the ACTUAL NativeBoardUI with the managed-mode patch. No idealized boardFactory. */
 export function createNativeWorldLevelAdapter(options:{
   uiParent:Node; select:(stageId:string)=>Selection; fixture:any;
@@ -70,6 +71,8 @@ export function createNativeWorldLevelAdapter(options:{
       if(typeof (ui as any).initializeManaged!=='function')throw Error('Apply NativeBoardUI managed-mode patch before use');
       // Hold touches until WorldFlow reveals, after the shot and a finger-ready board. Test boards leave this unset.
       (ui as any).deferPresentation=true;
+      // r4-prep: 风铃湖畔 is entered by landing from the journey; a restored attempt resumes on reveal (no 「暂停一下」 first).
+      (ui as any).resumeRestoredOnPresent=requiresLakesideScene(selection);
       (ui as any).initializeManaged(options.fixture,session.binding,background.frame,()=>background.diagnostics());token.check();
       // These existing local dialogs do not change the controller's run state.
       // Observe their active event once, so original boardTime also freezes for bag/restart dialogs.
