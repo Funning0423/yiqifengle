@@ -1,0 +1,136 @@
+branch	sha	owner	status	on_origin	push	in	note
+cine/cinematic-handoff-20261017	24cb9611086aa9e3b82d50c73b2e2c396dcfc96c	運鏡bot	進行中	否	是		運鏡bot HANDOFF 文件分支（含 ad05040、4bc614d）
+cine/exit-cam-B5	274ac39fb3d261b5fbf9d0ece3cb38695e08dc83	運鏡bot	已驗收	否	是		Funning 10/16 定稿 B5.5
+cine/glass-v4r32	8b6a54c50dd619180d5d8e057cc5a264a8a1befc	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/glass-v4r32-on-e2a03ec	87c4c684cf37e20dae64a7b1d5f75cf125c7f0b9	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/lakeside-cam	f49ce470ea78f9b8dd1db364a1671ac00e57ae03	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/lakeside-enter-hold-r3	c3cbf8932f1631692715397ff41c5facbe04442d	運鏡bot	已驗收	否	是		已在 r4 歷史（patch 等價）
+cine/lakeside-hook-on-be1cd5a	7e4a4a619004a6809e97e7b824b4c550921b6566	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/lakeside-hook-on-r2	26be951cc0b3b6f7f072b0c19345274bdc7cae1d	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/lakeside-hook-r2-v2	4bd6ba3c937e476cbc4470990c33350ead5436d7	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/lakeside-hook-v2-on-journey-merge	d71aa62abf6ac18ae06fa5efd62d49de2b84b836	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/lakeside-hook-v2-on-voice-r2	3d0650ae162c932a7893efb6669c1f5063fb5d15	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/lakeside-hook-v3-on-r3	a8ba19a301b1867d68fbe8a9ea9eaab8fc9d3570	運鏡bot	已驗收	否	是		已在 r4 歷史（patch 等價）
+cine/m1v2-src-apron-ease	023a47c9a97cc2fcbb21bceba66cc21daaa7403d	運鏡bot	已驗收	否	是		508b87b 已驗收；023a47c 只改 PROBLEM_BRIEF；獨立歷史根（無共同祖先），單獨推送
+cine/meadow-early-preload	3ee63f6e9cd2e6469d341021c7026308fed5239a	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/meadow-early-preload-r2	0a23588836d6536ad230e799083240517f933eb2	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/meadow-early-preload-r2-f2adb78	ca2aa1a1b6dfb3c8de302240511315ea29651fd0	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/night-glass-r4	9c8fb36656abb4aae4a6db81176df8969535f02e	運鏡bot	已驗收	否	是		9c8fb36，已在 r4；需 Mac 夜間照片
+cine/pr56-r4-instantiate-split	7f51b59335a4379874c9f144360d424276942900	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/region-hooks-meadow-r4-ggkeepout	2665429bcc6c6229faad2d2f08368731fb588e7d	運鏡bot	被取代	否	是		2665429，r4 不用
+cine/region-hooks-meadow-r4.1	95d3eeed53e6c67a85ac05e47b9105672976fde7	運鏡bot	被取代	否	是		同 95d3eee 的舊名
+cine/region-hooks-meadow-r4.1-on-260ea02	0ea1564cc3d8263a1a855b7bade7658619da050f	運鏡bot	進行中	否	是		已交付待合：0ea1564 草甸 r4.1 落點，已進 r4.1 為 fd1a39d；Mac GPU 切換複核待做
+cine/region-hooks-meadow-skycity	768b272d8d950fc2512dbeef0c271ebabf078abf	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/region-hooks-meadow-skycity-r4	95d3eeed53e6c67a85ac05e47b9105672976fde7	運鏡bot	已驗收	否	是		95d3eee（r4 採用，Mac 零跳變）
+cine/region-hooks-meadow-skycity-r4-head	5b1f41dc96733891e38fd5bdabf1bca6cb0d5667	運鏡bot	已驗收	否	是		5b1f41d girl-frame，已在 r4
+cine/sail-start-gate-r3	f2adb78813e80d6e343ca8f7387268fbe07cee2a	運鏡bot	被取代	否	是		放棄/被取代（封存）
+cine/skycity-bridge-r2-cam	e4a05b982aaa5b98053ef71eeacff91f37cb8f56	運鏡bot	進行中	否	是	r4.1	天空之城 B r2 鏡頭；尚無自己的提交（= r4.1 e4a05b9）
+cinematic/window-tap-exit-proto	5c54f7a6706abe157e23e4386969b80f8b1c6852	運鏡bot	封存	否	是		舊原型
+fix/a3-home-sea-fadein	a17395c2c99d24239a724bcc2d98eec73095fa6b	GGbot	已驗收	否	是	r4	a3b-a17395c Mac 通過，已在 r4 歷史
+ggbot/7ecd289-fixes	688aad34343120b0ab12340a8483099729f5bbd4	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/audit-fixes-77b76c3	09a1b8e456fd38dadf632f627189883808307cbe	GGbot	已驗收	否	是	r4	= 09a1b8e 桌面包基線
+ggbot/build05-day-clear-fix	8e7599f89a3deaa1892c1b32b13d460eccb280cb	GGbot	未驗收	否	是		未見驗收記錄
+ggbot/build05-final-mac2	88506aa4ddad315bc7b5dbdedff0017b2b91e83c	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/build05-journey-occlusion	a373227b7aadb9e9af7522d3993e7de5fc0fbc6f	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/build05-journey-v3	f338e0b037c7d9c59a95547640a58165999c873f	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/build05-journey-v3.1	f05c6a3ab150802881e7e32d8394843f79bc0332	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/build05-landing-A-final	ee012f42fb82182fd62f93f1313913f671b63449	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/build05-r4-dryrun	6235d3c400923af7861bb274047c02d8cea795f2	GGbot	被取代	否	是		作廢，勿用
+ggbot/build05-r4-dryrun2	02e7fd4147913032c84531a5f779338321d14f2f	GGbot	已驗收	否	是	r4	r4 中間線（已併入 r4）
+ggbot/build05-r4-dryrun3	6f42df4b9202df285186b25a632d8d49a6ff693d	GGbot	已驗收	否	是	r4	r4 中間線（已併入 r4）
+ggbot/build05-r4-journey-fixes	5bb9e0da057efde43879b7cd1e98adf8f09c7788	GGbot	已驗收	否	是	r4	已併入 r4
+ggbot/build05-r4-prep	97b761d11f14f8d24e3b690e370cb0da04ff9127	GGbot	已驗收	否	是	r4	已併入 r4
+ggbot/build05-r4-rewardfix	ec0de1f934797000df3585a4dc0f11363490770a	GGbot	已驗收	否	是		測試線內容，已併入 r4
+ggbot/build05-r4-skycity-figure	bfdcf1968cd9821106fb2ca1fa9fe487d10afa14	GGbot	已驗收	否	是		bfdcf19 園丁動畫接續，已驗收併入 r4
+ggbot/build05-r4-tests	e79bfcad4a3e2077a3bae62872a7a524206d756a	GGbot	已驗收	否	是		= voice/build05-r4-tests e79bfca，已併入 r4
+ggbot/build05-r4-tests-reward	dc25cec64cf9200b3c02a93eb447d053836789d7	GGbot	已驗收	否	是		最終測試線，已併入 r4
+ggbot/build05-r4-ui-fixes	50a3074da5d74344b5a4465c3ea9f5b815b9d287	GGbot	已驗收	否	是		50a3074 已驗收，併入 r4（為 02e7fd4 等）
+ggbot/build05-r41-hint-above-tray	260ea024dd15b9ff17e02f225210ce806f5e8fc6	GGbot	已驗收	否	是		r4.1 提示牌移到托盤上方（Grok Bot 選項 1）；已進 r4.1 為 74c696e
+ggbot/build05-r42-fixes	e4a05b982aaa5b98053ef71eeacff91f37cb8f56	GGbot	進行中	否	是	r4.1	剛建立（= r4.1 e4a05b9），尚無自己的提交
+ggbot/build05-r5-rainbow-bridge	fb37a67c55a01ec345a0509f51461bfe3deb4b0b	GGbot	進行中	否	是		彩虹橋引擎實作（基於 r4.1 fd1a39d），未做真機截圖
+ggbot/build05-v3-stack	764dcd8997ccf21a79bdeff1bd7484441124e6ab	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/build05-v3.2	9c03ab5c6b6ed5f29a85afd8a3314a5eb4cbb187	GGbot	被取代	否	是		被 v3.2-final 取代
+ggbot/build05-v3.2-final	d238881c85df7787fc63a37092a46968bb6f3d34	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/d238881-oi-review	eadd9f1cc68d5874847484c7625611ee11891a12	GGbot	未驗收	否	是		Oi 審查分支
+ggbot/d238881-oi-review-fade	3f3e865cb6ce9c862783d612ffeae793cfd27f36	GGbot	未驗收	否	是		Oi 審查分支
+ggbot/exit-audio-duck	3ad4f9135b9afb211e9eec184543cbb4cf3e0a4e	GGbot	被取代	否	是		舊出門音訊
+ggbot/exit-b55-audio	0005d7a4808a9a903a7dece91b141e8e4ee210ef	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
+ggbot/pr56-exit-audio	b9197717a48144507e7598de6025e6c2ba7de773	GGbot	被取代	否	是		舊出門音訊
+ggbot/result-screen	f318da4e39cbec3be785c341b75eab0d704817e4	GGbot	被取代	否	是		被 result-screen-on-688aad3 取代
+ggbot/result-screen-on-688aad3	e2bd7074eb4c40b37b25b35227579aeeadc74217	GGbot	未驗收	否	是	r4	結算畫面；d6a0019 (=本分支~1, 設計 v2.2) 程式碼已併入 build05/r4，但設計待 Funning 最終選定、未做真機驗收
+ggbot/scratch-landing-A2	f8a830c6b53699d25470d9fe0f10486bceddbbd5	GGbot	封存	否	是		草稿
+ggbot/skycity-mesh-compress	2506984d2a4352209b0a1b033625d7acb639dd24	GGbot	未驗收	否	是		未見驗收記錄
+grok/build05-oi-char-20261016T1505	7ecd2890c39043530961e91a0815ddbac986b7ad	Grok Bot/Oi	已驗收	否	是	r4	已併入 build05（09a1b8e）
+handoff/20261017	77ef6ad55cccca2cf6969f2329053f0d36b3ec7a	GGbot	進行中	否	是	r4.1	本交接分支（r4.1 77ef6ad + handoff/ 文件與快照）
+integration/build05-20261016T2048	09a1b8e456fd38dadf632f627189883808307cbe	GGbot	已驗收	否	是	r4	= Funning 桌面包 build05 基線 09a1b8e（milestone 驗收通過）
+integration/build05-a3b-20261017T063646Z	a995c4158ff447ec1fb82f26b198db2265a0c36a	GGbot	已驗收	否	是		Mac a3b-a995c41 通過；主工作區所在分支；後續 r3/r4 線另行集成
+integration/build05-next-20261017T0438	f60c8ec79e8ef16f52b1761352b1d2f4253f6394	GGbot	被取代	否	是	r4	next-f60c8ec（Mac 除湖畔外通過）
+integration/build05-next-20261017T0702Z	be1cd5aae04463e835080fcbca095a024bf2d2a7	GGbot	被取代	否	是	r4	
+integration/build05-next-20261017T0702Z-optional-water-dc	c2eaf64a3f9b1fa868051776e5150b8ebac0d494	GGbot	被取代	否	是	r4	
+integration/build05-next-20261017T0725Z	228df2fee791ea14b6da683c8362a69d603d801a	GGbot	被取代	否	是	r4	next-r2 228df2f，已被取代
+integration/build05-next-20261017T0725Z-journey-merge	55d1922353f29f32b73754c298081099d4d1fd10	GGbot	被取代	否	是		
+integration/build05-next-20261017T0807Z-r3	5bb26c51020105f57e28fb2aa896d40a31b81cdc	GGbot	被取代	否	是		r3 早期
+integration/build05-next-20261017T0818Z-r3	f3d3614361dd2dc23098353ff314a520c3e1c00e	GGbot	被取代	否	是	r4	r3 Mac 驗收未過（lakemerge off DC71 等），由 r4 取代；為 r4 基底
+integration/build05-next-20261017T0818Z-r3-diag	385a9340d04e55e1e27063ea65f6d4240456667c	GGbot	封存	否	是		r3 診斷
+integration/build05-next-dirlight-20261017T0452	21c187d7046906a92e144f4637fa72a617ece9f2	GGbot	被取代	否	是	r4	
+integration/build05-next-lights-20261017T0445	268b58e452ad618bcab9a65587a1febe907d12d4	GGbot	被取代	否	是		
+integration/build05-next-scenefix-20261017T0636	888daeb803e09d59528c84207b6957c14f8d3535	GGbot	被取代	否	是		
+integration/build05-next-scenefix-20261017T0636-scenefix-only	f85ddbf37a74647b86e6e593cabb2a5bdc39e01e	GGbot	被取代	否	是		
+integration/build05-r4-20261017T122042Z	2153a65cd4c97208a202746d251e3a458d4bb98f	GGbot	已驗收	否	是	r4	r4 最終；內容已驗收，Mac 驗收進行中（界面驗收部）
+integration/build05-r41-20261017T125738Z	77ef6ad55cccca2cf6969f2329053f0d36b3ec7a	GGbot	進行中	否	是	r4.1	r4.1 集成線；含 74c696e(260ea02)/fd1a39d(0ea1564)/b1e41b2(cfe6429)/77883aa 切後台續走/e4a05b9(f125cd2)/77ef6ad 前景計時看門狗；待 Mac 驗收
+mac/task21-web-ui	5c54f7a6706abe157e23e4386969b80f8b1c6852	Cursor CLI(Mac)	封存	是(相同)	是		舊 Mac task21（origin 已有）
+oi/base-1c21428	1c21428d3235f16866d879a078df7cf324117d98	Oi	已驗收	否	是	r4	已併入 build05（09a1b8e）
+oi/d238881	d238881c85df7787fc63a37092a46968bb6f3d34	Oi	已驗收	否	是	r4	已併入 build05（09a1b8e）
+pr58-remote	0b1181db2c50a85be53864173bf730edac32aa72	(舊 PR58)	封存	否	是		舊 PR58 遠端分支本地副本
+scene-design/bamboo-s2	b9f04f7632fd3fb36101386338a47c9832abb160	場景設計部	進行中	否	是		竹排 S2 預留，尚無 S2 提交（同 b9f04f7）
+scene-design/export-fix	b9f04f7632fd3fb36101386338a47c9832abb160	場景設計部	未驗收	否	是		區域導出修正 + 湖畔 r5h3 重新導出
+test/lake-gate-0	887194d9630b3144ad932f6175ceaba420b3780d	GGbot	封存	否	是		實驗
+voice-bot/exit-audio-B5_3	2fba62f68c90291476b87d10e482e509c1e2d5e5	Voice Bot	封存	否	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
+voice/audio-cc0-20261015	127e2fbb9997dba627fb3564d40d8b829f6df9b6	Voice Bot	未驗收	否	否		不推送：含 bgm_reference_NOT_FOR_SHIP 轉檔；留在 box
+voice/build05-a2-clip	08bd1caaec9bb91fe6e01a78c16f3a34aee10149	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1)
+voice/build05-exit-audio-B5.5	8b225463f278aacfbd8891d64130c42fc8ca0942	Voice Bot	已驗收	否	是		Voice Bot: merged (patch-equal in r4.1); superseded by a1 + cfe6429
+voice/build05-exit-audio-a1	f57b8d20631fbc463fc1fc8c94ce281aa3b29b7e	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1); baked steps later removed by cfe6429
+voice/build05-journey-ground	599994d8132bd3aeb7b07243f9997e024f39efbc	Voice Bot	被取代	否	是		Voice Bot: superseded (by -v2)
+voice/build05-journey-ground-v2	4c30cf72a6ea3b9a21eb803f27a4dc4ff9196810	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1)
+voice/build05-journey-ground-v3	0a9161c85ca35f4272d037f8ded311b078a8cb42	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1)
+voice/build05-lakeside-ambience	f3fce67261e417de4df11954df4a898414751738	Voice Bot	已驗收	否	是		Voice Bot: merged (replayed as 88ed387 + 5bdfdc5)
+voice/build05-lakeside-art-engine	48e71ba7fecd1dc329f96fbfb5504060045b8506	Voice Bot	已驗收	否	是		Voice Bot: merged/superseded (2 commits patch-equal in r4.1; 48e71ba replayed as 78b23c5)
+voice/build05-lakeside-art-engine-r2	f7f892f06bb49bf25c0c176384c4ef3f2def83e2	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1)
+voice/build05-lakeside-journey-wire	4728814a9b0b7daafc15b4a5a06abbe663546699	Voice Bot	已驗收	否	是		Voice Bot: merged (replayed as 88ed387)
+voice/build05-lakeside-olive	a6f39edba9cebca9eb735d154107d817f229b661	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1)
+voice/build05-lakeside-playable	0932b6b59621f41e5b70e3d8e5fbc03039f39796	Voice Bot	已驗收	否	是		Voice Bot: merged (4 patch-equal in r4.1; d8cd409 replayed as 30440cc)
+voice/build05-lakeside-r4	c7141d6f1d7823e0e999f0ddd72784610a31a488	Voice Bot	被取代	否	是		Voice Bot: superseded (by landfill-5bb9e0d)
+voice/build05-lakeside-r4-fill-props	32be13f677d5cca7b34aad2bccb0f0b6e029d358	Voice Bot	已驗收	否	是		Voice Bot: **accepted (r4)**; stacked on 467b36d
+voice/build05-lakeside-r4-landfill-5bb9e0d	467b36d495ccd456201bcb16f82b82ac8eae5aa6	Voice Bot	已驗收	否	是	r4	Voice Bot: **accepted (r4)**
+voice/build05-lakeside-r4-on-f492dc1	7aa9317e957aadd3c8d4b75a2581d56b60e4f9eb	Voice Bot	被取代	否	是		Voice Bot: superseded
+voice/build05-lakeside-water-fix-r3	f492dc1898300f270bf7d55478efd2666737b1c2	Voice Bot	被取代	否	是		Voice Bot: superseded; S f492dc1 went into r4 via c4965cb, D 10a7820 via 193b4f1
+voice/build05-lakeside-water-ref	a47c8fe672777cea88343b94a941ed19d71e8f6b	Voice Bot	被取代	否	是		Voice Bot: not accepted (candidate; superseded by water-fix-r3)
+voice/build05-landing-rockcut-preview	dca9c301a0ba51184ca953dc03f044f1bcf75c3a	Voice Bot	未驗收	否	是		Voice Bot: not accepted (PREVIEW, not for merge)
+voice/build05-meadow-bgm-loop	700ec499ca42cd13919665907bb5c2bbfeebca0a	Voice Bot	已驗收	否	是		Voice Bot: merged (patch-equal in r4.1)
+voice/build05-mushroom-sink	08fdfeafa506705e219e0bb2731f8c8d285a3f01	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1)
+voice/build05-r4-exit-footsteps	f125cd21d8c056ca1ec25072a4fc5855a40a4c60	Voice Bot	已驗收	否	是		f125cd2（= r4.1 e4a05b9；父提交 cfe6429 已驗收）
+voice/build05-r4-tests	e79bfcad4a3e2077a3bae62872a7a524206d756a	Voice Bot	已驗收	否	是		Voice Bot: **accepted** (886a340/7c2a7f5/e79bfca); GGbot dc25cec is the final test line
+voice/build05-skycity-bgm-loop	ce0e4ff309026463ea474309cdce75c176e1fe8e	Voice Bot	已驗收	否	是		Voice Bot: merged (patch-equal in r4.1)
+voice/build05-stones-oct	3b1f5a800be44dce76c8e5956b7a4e64eb088dc4	Voice Bot	未驗收	否	是		Voice Bot: not merged (not in r4.1; no acceptance on record)
+voice/build05-v4-ground	1c21428d3235f16866d879a078df7cf324117d98	Voice Bot	已驗收	否	是	r4	Voice Bot: merged (ancestor of r4.1)
+voice/exit-audio-B5_3	2fba62f68c90291476b87d10e482e509c1e2d5e5	Voice Bot	被取代	否	是		Voice Bot: superseded (by B5.5); new voice/* ref for old voice-bot/exit-audio-B5_3
+voice/home-sign-A	3080d07b794e3c66a6dbc119ab5484dddc4eccca	Voice Bot	未驗收	否	是		Voice Bot: not merged (candidate); new ref for voicebot/home-sign-A
+voice/home-sign-A2	3e6b7df6f38414d720468ab71417caeb1be55674	Voice Bot	未驗收	否	是		Voice Bot: not merged (candidate); new ref for voicebot/home-sign-A2
+voice/home-sign-A2-first	f4e26a2b922ababeb054b6689a734f31b7b36131	Voice Bot	被取代	否	是		Voice Bot: superseded (first A2, was only a patch; ref added)
+voice/home-sign-B	50eceeaf5705b704ba711cc3901f003677891421	Voice Bot	未驗收	否	是		Voice Bot: not merged (candidate); new ref for voicebot/home-sign-B
+voice/home-sign-C	2936c308e9586ce1f283bf843bc6d8abc21c8df1	Voice Bot	未驗收	否	是		Voice Bot: not merged (candidate); new ref for voicebot/home-sign-C
+voice/home-sign-C-first	53926de4d7e69bebbbe475ebf6977a543d3f847d	Voice Bot	被取代	否	是		Voice Bot: superseded (first C, was only a patch; ref added)
+voice/lk-pavilion	0932b6b59621f41e5b70e3d8e5fbc03039f39796	Voice Bot	未驗收	否	是		Voice Bot: same SHA as -playable (alias)
+voice/meadow-art-20261015	9237c5331d82b6ce3b0ffec46db60c6b1461acc6	Voice Bot	被取代	否	是		Voice Bot: superseded meadow art line v1-v7.5 (not in r4.1); new ref for voicebot/meadow-art-20261015
+voice/meadow-art-v7_2-v7_3	4431f38045abd9246ef9330f2f11f413005a04fb	Voice Bot	被取代	否	是		Voice Bot: superseded (was only a patch; ref added)
+voice/meadow-art-v7_2-v7_4	cd4d6a132319f98cd8357928d28ce95e7dba22d8	Voice Bot	被取代	否	是		Voice Bot: superseded (was only a patch; ref added)
+voice/meadow-art-v7_2-v7_5	099f8eb6305ad6a9bc896e94b323239da5276c3b	Voice Bot	被取代	否	是		Voice Bot: superseded (was only a patch; ref added)
+voice/meadow-art-v7_6	2e6b485ff4b100ec836d147f7b7d77fd7ff0e7c7	Voice Bot	未驗收	否	是		Voice Bot: not merged (not in r4.1); new ref for voicebot/meadow-art-v7_6 (worktree /workspace/v76/wt, clean)
+voice/meadow-birds-v7_7	1d9d485d961b372c0ab36aab8da4d0e003674f60	Voice Bot	未驗收	否	是		Voice Bot: not merged (not in r4.1)
+voicebot/audio-cc0-20261015	127e2fbb9997dba627fb3564d40d8b829f6df9b6	Voice Bot	封存	是(SHA 不同)	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
+voicebot/home-sign-A	3080d07b794e3c66a6dbc119ab5484dddc4eccca	Voice Bot	封存	否	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
+voicebot/home-sign-A2	3e6b7df6f38414d720468ab71417caeb1be55674	Voice Bot	封存	否	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
+voicebot/home-sign-B	50eceeaf5705b704ba711cc3901f003677891421	Voice Bot	封存	否	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
+voicebot/home-sign-C	2936c308e9586ce1f283bf843bc6d8abc21c8df1	Voice Bot	封存	否	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
+voicebot/meadow-art-20261015	9237c5331d82b6ce3b0ffec46db60c6b1461acc6	Voice Bot	封存	是(SHA 不同)	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
+voicebot/meadow-art-v7_6	2e6b485ff4b100ec836d147f7b7d77fd7ff0e7c7	Voice Bot	封存	否	否		舊別名，不推送（voice/* 已有同 SHA 名稱）
