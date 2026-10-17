@@ -8,6 +8,8 @@ export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity';
 export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
   'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
+/** V1: home-exit states (seat to island) that a background/foreground round trip restarts. */
+export const EXIT_STATES:readonly State[]=['standing','turning-out','walking-out','opening-door','crossing-out'];
 /** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
  * island camera (adapter-owned subset), without interior lighting. Omitted = false (old behaviour). */
 export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean; doorwayInterior?:boolean}>;
@@ -624,8 +626,12 @@ export class WorldFlow {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
     if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world);}
   }
+  /** V1: hide() cancels a running transition by design (stable pose restored, see show()). When that transition was the
+   *  exit from home, show() restarts it cleanly from the seat instead of leaving her seated behind a resume button. */
+  private resumeExit=false;
   hide():void {
-    if(this.state==='disposed'||this.hidden)return;if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
+    if(this.state==='disposed'||this.hidden)return;
+    this.resumeExit=this.stable==='home'&&!!this.current&&EXIT_STATES.indexOf(this.state)>=0;if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
     this.level?.hide();this.visit?.hide();this.restore();this.change('paused');
   }
   /** Back from background: the place the player left is visible again, still paused until resume().
@@ -635,6 +641,10 @@ export class WorldFlow {
     if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
       this.needsResume=false;this.restore();this.change('level');return;
     }
+    if(this.state!=='error'&&this.resumeExit&&this.stable==='home'&&this.world&&!this.current){
+      this.resumeExit=false;this.needsResume=false;this.restore();this.change('home');void this.leaveHome();return;
+    }
+    this.resumeExit=false;
     if(this.state!=='error')this.presentPausedView();this.emit(this.snapshot());
   }
   /** Home/island layers and the character, or the sky visit. A level keeps world layers NONE; the board is the screen. */
