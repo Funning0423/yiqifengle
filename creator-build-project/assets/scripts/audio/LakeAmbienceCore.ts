@@ -43,7 +43,9 @@ export class LakeAmbienceCore {
     if (this.heard < 0.002) {
       for (const s of [this.cur, this.next]) { try { s.volume = 0; if (s.playing) s.pause(); } catch { } }
       if (this.wasPlaying) { this.wasPlaying = false; this.log('lake-pause', { wanted, canSound }); }
-      if (!wanted && this.xfading) { try { this.next.stop(); } catch { } this.xfading = false; }
+      // Both loop sources are paused at aligned positions (same file, partner = cur − loopS). Keep the crossfade as it is:
+      // a background trip / auto-resumed journey (snapshot 'paused' reads as not wanted) resumes both exactly where they were.
+      // Stopping the partner here restarted it at 0 against cur, a misaligned crossfade after the return.
       return;
     }
     if (!this.cur.playing) { try { this.cur.play(); } catch (e) { this.log('lake-play-failed', { err: String(e) }); } }
