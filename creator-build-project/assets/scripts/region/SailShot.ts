@@ -92,11 +92,19 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  cam.priority=1000;cam.near=0.1;cam.far=900;cam.fov=pose.fovVerticalDeg||48;cam.clearFlags=Camera.ClearFlag.SOLID_COLOR;
  cam.clearColor=night?new Color(12,18,48,255):new Color(120,196,235,255);
  cam.visibility=0xffffffff;
- const above=k===6&&qparam('view')==='above';
+ const viewMode=qparam('view');
+ const above=k===6&&viewMode==='above';
+ const meadowView=viewMode==='meadow'||viewMode==='arrival';
  if(above){
   cam.fov=42;
   camNode.setWorldPosition(v.pos[0]+6,v.pos[1]+9,v.pos[2]+4);
   camNode.lookAt(new Vec3(v.pos[0]-0.4,v.pos[1],v.pos[2]));
+ }else if(meadowView){
+  // Meadow play lens looking toward the shore seam (landing stays on meadow after sail dispose).
+  cam.fov=48;
+  camNode.setWorldPosition(-1.2,3.8,66.5);
+  camNode.lookAt(new Vec3(-2.9,0.2,56.0));
+  art?.dispose();
  }else{
   camNode.setWorldPosition(pose.position[0],pose.position[1],pose.position[2]);
   camNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
