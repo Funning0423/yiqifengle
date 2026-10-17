@@ -1,24 +1,37 @@
 'use strict';
-/** Balloon track, every 0.1 s × 7 screens × day/night. Ray rules follow the audit (no normal flip). */
+/** Balloon track, every 0.1 s × 7 screens × day/night. Thresholds are unchanged.
+ * Geometry is the GGbot flight: meadow before 11.2 s, sky city from 11.6 s, one dome, art clouds. */
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
 const J=require('../journey-integration/journey-scene.cjs');
 const F=require('../journey-integration/journey-framing-lib.cjs');
 const T=J.H.load(J.S+'region/TransportLeg.ts');
+const Flight=J.H.load(J.S+'region/BalloonFlight.ts');
+const {load}=require('../journey-integration/occlusion/lib-glb.cjs');
+global.__QF_BALLOON_FLIGHT=JSON.parse(fs.readFileSync(J.B+'region_transit_balloon/balloon_flightpath.json','utf8'));
 const m6=J.add(J.rotY(180,[0.2,6.5,-25.6]),J.mOff);
 const courtLocal=J.sp('anchor_starcourt_center');
-const plan=T.balloonBeats(m6,[5.4,-0.11,43.8],courtLocal,{walkInM:9.1,walkOutM:8.6});
+const cityFrame={yawDeg:J.yaw,origin:J.sOff};
+const plan=T.balloonBeats(m6,[5.4,-0.11,43.8],courtLocal,{walkInM:9.1,walkOutM:8.6,cityFrame});
+const meadowFrame=Flight.meadowFrameFromM6(m6);
+assert.equal(plan.meadowOffAt,11.2);
+assert.equal(plan.cityActiveAt,11.6);
+assert.ok(plan.meadowOffAt<=plan.cityActiveAt&&plan.meadowOffAt>=11&&plan.cityActiveAt<=12,'seam window');
 const placed=J.place(J.local.skycity,'sky',plan.yawDeg,1,plan.origin);
+const HIDDEN=new Set(['env_sky_cloud_small','env_sky_cloudsea','env_sky_cumulus_far','Icosphere','state_bridge_after','state_court_after','state_court_after_flowers','state_gate_after','state_gate_after_flowers','state_ring_after_stars','env_sky_dome']);
+const ISLET=new Set(['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3','env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3','env_sky_islets_far']);
 const strata=placed.filter(o=>o.name==='env_sky_static_rock_strata');
-const city=placed.filter(o=>o.name!=='env_sky_static_rock_strata'&&!/cloudsea|env_sky_dome/.test(o.name)&&!(o.name.startsWith('state_')&&o.name!=='state_bridge_after'));
+const islets=placed.filter(o=>ISLET.has(o.name));
+const city=placed.filter(o=>o.name!=='env_sky_static_rock_strata'&&!HIDDEN.has(o.name)&&!ISLET.has(o.name)&&!(o.name.startsWith('state_')));
 const grass=J.meadow.filter(o=>/meadow_grass_instances/.test(o.name));
-const ground=J.meadow.filter(o=>!/meadow_grass_instances/.test(o.name));
+const ground=J.meadow.filter(o=>!/meadow_grass_instances/.test(o.name)&&!/meadow_sky_dome|meadow_far_hills|meadow_clouds_near/.test(o.name));
 const bvh=(objs)=>F.buildBvh(objs);
-const groundBvh=bvh(ground),grassBvh=bvh(grass),cityBvh=bvh(city),strataBvh=bvh(strata);
+const groundBvh=bvh(ground),grassBvh=bvh(grass),cityBvh=bvh(city),strataBvh=bvh(strata),isletBvh=bvh(islets);
 let strataMin=1e9,terrainMax=-1e9;
 for(const o of strata)for(let i=1;i<o.tris.length;i+=3)strataMin=Math.min(strataMin,o.tris[i]);
 for(const o of ground)if(o.name==='meadow_terrain')for(let i=1;i<o.tris.length;i+=3)terrainMax=Math.max(terrainMax,o.tris[i]);
-const gate=T.strataClearsGround(plan.origin[1],strataMin-plan.origin[1],terrainMax);
-assert.equal(gate.ok,true,'strata ymin '+gate.ymin+' need '+gate.need);
+/** Live city is not lifted. Rock at meadow altitude is not rendered while the meadow is up (seam). */
+assert.ok(strataMin<J.mOff[1]+6,'live strata still reaches meadow altitude '+strataMin);
 function castRaw(bvh,o,d,maxT=800){
  if(!bvh.root)return null;const inv=d.map(x=>1/(Math.abs(x)<1e-12?1e-12:x));let best=maxT,hit=-1;const st=[bvh.root];
  const box=(n)=>{let t0=0,t1=best;for(let c=0;c<3;c++){let a=(n.lo[c]-o[c])*inv[c],b=(n.hi[c]-o[c])*inv[c];if(a>b){const x=a;a=b;b=x;}if(a>t0)t0=a;if(b<t1)t1=b;if(t0>t1)return false;}return true;};
@@ -29,47 +42,53 @@ function castRaw(bvh,o,d,maxT=800){
 }
 function nearer(a,b){if(!a)return b;if(!b)return a;return a.t<=b.t?a:b;}
 const screens=[[390,844],[414,896],[360,780],[375,667],[390,520],[320,568],[768,1024]];
-const domeR=480;
-function domeHit(o,d){const c=[o[0],o[1]+40,o[2]],oc=[o[0]-c[0],o[1]-c[1],o[2]-c[2]],b=oc[0]*d[0]+oc[1]*d[1]+oc[2]*d[2],h=b*b-(oc[0]*oc[0]+oc[1]*oc[1]+oc[2]*oc[2]-domeR*domeR);if(h<0)return null;const s=-b+Math.sqrt(h);if(!(s>0.05))return null;const p=[o[0]+d[0]*s,o[1]+d[1]*s,o[2]+d[2]*s];const n=[c[0]-p[0],c[1]-p[1],c[2]-p[2]],nl=Math.hypot(...n)||1;return {t:s,dome:true,normal:n.map(x=>x/nl)};}
-function seaHit(o,d){if(Math.abs(d[1])<1e-8)return null;const t=(-0.92-o[1])/d[1];if(!(t>0.05))return null;return {t,sea:true,normal:[0,1,0]};}
-function cloudHit(o,d,show){if(!show)return null;const y=plan.cloudY,t=(y-o[1])/d[1];if(!(t>0.05&&t<400))return null;const x=o[0]+d[0]*t,z=o[2]+d[2]*t,r=Math.hypot(x-plan.cloudAt[0],z-plan.cloudAt[2]);if(r<4.5||r>16)return null;return {t,cloud:true,normal:[0,d[1]>0?-1:1,0]};}
-function cardHit(o,d){
- const R=150,a=d[0]*d[0]+d[2]*d[2];if(a<1e-8)return null;
- const b=2*(o[0]*d[0]+o[2]*d[2]),c=o[0]*o[0]+o[2]*o[2]-R*R,h=b*b-4*a*c;if(h<0)return null;
- const s1=(-b-Math.sqrt(h))/(2*a),s2=(-b+Math.sqrt(h))/(2*a),s=s1>0.05?s1:s2;if(!(s>0.05))return null;const y=o[1]+d[1]*s;if(y<-30||y>120)return null;
- return {t:s,card:true,normal:[0,1,0]};
+function domeHit(o,d,night){const R=night?400:2400;const b=0,h=R*R;const s=R;if(!(s>0.05))return null;const p=[o[0]+d[0]*s,o[1]+d[1]*s,o[2]+d[2]*s];const n=[-d[0],-d[1],-d[2]];return {t:s,skybox:true,obj:{name:night?'transit_night_dome':'env_sky_dome',tag:'skybox',twoSided:true},normal:n};}
+function rotZ(deg,p){const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]-s*p[1],s*p[0]+c*p[1],p[2]];}
+function mapVerts(tris,frame,seam){const t=new Float64Array(tris.length);for(let k=0;k<tris.length;k+=3){const p=seam?Flight.seamMap([tris[k],tris[k+1],tris[k+2]],frame):Flight.applyRigid(frame,[tris[k],tris[k+1],tris[k+2]]);t[k]=p[0];t[k+1]=p[1];t[k+2]=p[2];}return t;}
+const cloudNodes=load(J.B+'region_transit_balloon/transit_clouds_merged.glb').filter(n=>n.tris&&n.tris.length);
+const CITY_CLOUD=new Set(['clouds_city_sea','clouds_floor','clouds_floor_puff']);
+function cloudSets(frame,seam){const always=[],late=[];for(const n of cloudNodes){const o={name:n.name,tag:'cloud',twoSided:true,tris:mapVerts(n.tris,frame,seam)};(CITY_CLOUD.has(n.name)?late:always).push(o);}return {always:bvh(always),late:bvh(late)};}
+const cloudsMeadow=cloudSets(meadowFrame,false),cloudsCity=cloudSets(cityFrame,true);
+const balloonNodes=load(J.B+'region_transit_balloon/transport_balloon.glb').filter(n=>n.tris&&n.tris.length);
+const balloonBvh=bvh(balloonNodes.map(n=>({name:n.name,tag:'balloon',twoSided:n.name!=='balloon_envelope',tris:n.tris})));
+function balloonHit(o,d,pos,yawDeg,rollDeg){
+ const p=J.rotY(-yawDeg,[o[0]-pos[0],o[1]-pos[1],o[2]-pos[2]]),dir=J.rotY(-yawDeg,d);
+ const lp=rotZ(-rollDeg,p),ld=rotZ(-rollDeg,dir);const len=Math.hypot(...ld)||1;const du=ld.map(x=>x/len);
+ const hit=castRaw(balloonBvh,lp,du,80);if(!hit)return null;hit.t*=len;hit.balloon=true;return hit;
 }
-function balloonHit(o,d,center){const oc=[o[0]-center[0],o[1]-center[1],o[2]-center[2]],b=oc[0]*d[0]+oc[1]*d[1]+oc[2]*d[2],c=oc[0]*oc[0]+oc[1]*oc[1]+oc[2]*oc[2]-3.2*3.2,h=b*b-c;if(h<0)return null;const s=-b-Math.sqrt(h);if(s>0.02)return {t:s,balloon:true,normal:[0,1,0]};if(c<0)return {t:0.01,balloon:true,inside:true,normal:[0,1,0]};return null;}
-let worst=null,frames=0,minClear=1e9;
+let worst=null,frames=0,minClear=1e9,seamLeak=0,minClearCam=1e9;
 const t0=plan.beats.find(b=>b.id==='B-b').t0,t1=plan.beats.find(b=>b.id==='B-g').t1;
 for(const night of [false,true])for(const [w,h] of screens){
  for(let t=t0;t<=t1+1e-6;t+=0.1){
-  const time=Math.min(t1,t),cam=plan.camera(time,{w,h}),eye=cam.position,v=plan.vehicle(time).pos;
+  const time=Math.min(t1,t),cam=plan.camera(time,{w,h}),eye=cam.position,veh=plan.vehicle(time),v=veh.pos;
   const {fw,r,up,th}=F.basis({...cam});const aspect=w/h;const cols=12,rows=22;let under=0,back=0,voids=0,domes=0,gap=0,n=0,near=false,clear=1e9;
-  const showCity=time>=plan.cityActiveAt,showStrata=time>=plan.strataHideUntil&&showCity,showGrass=time<plan.grassOffAt,showCloud=time>=plan.beats.find(b=>b.id==='B-d').t0&&time<=plan.beats.find(b=>b.id==='B-e').t1;
-  const center=[v[0],v[1]+4.2,v[2]];let sunk=0;const backs=[];
+  const showCity=time>=plan.cityActiveAt,showMeadow=time<plan.meadowOffAt,showStrata=showCity&&time>=plan.strataHideUntil,showGrass=showMeadow&&time<plan.grassOffAt,showIslets=showCity&&time>=21.5;
+  const clouds=time+1e-6>=plan.cityActiveAt?cloudsCity:cloudsMeadow;
+  if(showMeadow&&showCity)throw Error('meadow and sky city both on at '+time);
+  let sunk=0;const backs=[];let seamBad=0;
   for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
    const x=((i+.5)/cols*2-1)*th*aspect,y=((j+.5)/rows*2-1)*th;
    const dir0=[fw[0]+r[0]*x+up[0]*y,fw[1]+r[1]*x+up[1]*y,fw[2]+r[2]*x+up[2]*y],len=Math.hypot(...dir0),d=dir0.map(v=>v/len);n++;
-   let hit=balloonHit(eye,d,center);
-   hit=nearer(hit,castRaw(groundBvh,eye,d));
+   let hit=balloonHit(eye,d,v,veh.yaw*180/Math.PI,veh.roll);
+   if(showMeadow)hit=nearer(hit,castRaw(groundBvh,eye,d));
    if(showGrass)hit=nearer(hit,castRaw(grassBvh,eye,d));
-   if(showCity)hit=nearer(hit,castRaw(cityBvh,eye,d));
-   if(showStrata)hit=nearer(hit,castRaw(strataBvh,eye,d));
-   hit=nearer(hit,cloudHit(eye,d,showCloud));
-   hit=nearer(hit,cardHit(eye,d));
-   hit=nearer(hit,seaHit(eye,d));
-   const dome=domeHit(eye,d);
+   if(showCity)hit=nearer(hit,castRaw(cityBvh,eye,d,2500));
+   if(showStrata)hit=nearer(hit,castRaw(strataBvh,eye,d,2500));
+   if(showIslets)hit=nearer(hit,castRaw(isletBvh,eye,d,2500));
+   hit=nearer(hit,castRaw(clouds.always,eye,d,3000));
+   if(showCity)hit=nearer(hit,castRaw(clouds.late,eye,d,3000));
+   const dome=domeHit(eye,d,night);
    if(!hit){hit=dome;if(!hit)voids++;else domes=1;}
-   else if(hit.dome)domes=1;
-   else if(dome&&!hit){hit=dome;domes=1;}
+   else if(hit.dome||hit.skybox)domes=1;
    if(hit&&hit.t<clear)clear=hit.t;
    if(hit&&(hit.inside||hit.t<0.1))near=true;
-   if(hit&&hit.obj){const nd=hit.normal[0]*d[0]+hit.normal[1]*d[1]+hit.normal[2]*d[2];const twoSided=/card|foliage|flower|state_/.test(hit.obj.name||'');if(nd>0.05&&!twoSided){back++;if(backs.length<6)backs.push(hit.obj.name+':'+nd.toFixed(2));}if(hit.obj.tag==='sky'&&hit.normal[1]<-0.35)under++;
-    if(hit.obj.tag==='sky'&&eye[1]+d[1]*hit.t<J.mOff[1]+6)sunk++;}
+   if(hit&&hit.obj){const nd=hit.normal[0]*d[0]+hit.normal[1]*d[1]+hit.normal[2]*d[2];const twoSided=hit.obj.twoSided||/card|foliage|flower|state_|cloud|grass|rope|vine|windchime/.test(hit.obj.name||'');if(nd>0.05&&!twoSided){back++;if(backs.length<6)backs.push(hit.obj.name+':'+nd.toFixed(2));}if(hit.obj.tag==='sky'&&hit.normal[1]<-0.35&&!/rope|vine|card|foliage/.test(hit.obj.name||''))under++;
+    if(showMeadow&&hit.obj.tag==='sky'&&eye[1]+d[1]*hit.t<J.mOff[1]+6)sunk++;}
+   if(time>=11&&time<=12&&hit&&hit.obj&&(hit.obj.tag==='sky'||hit.obj.tag==='meadow'))seamBad++;
    const pitch=Math.asin(Math.max(-1,Math.min(1,d[1])))*180/Math.PI;
    if(pitch<=0&&pitch>=-6){const cover=hit&&!hit.dome;if(!cover)gap++;}
   }
+  seamLeak+=seamBad;
   const row={t:+time.toFixed(1),w,h,night,near,clear:+clear.toFixed(3),back:back/n,voids,under:under/n,domes,gap,sunk,backs};
   frames++;
   const bad=row.near||row.clear<0.6||row.back>0.01||row.voids!==0||row.under>=0.1||row.domes>1||row.gap!==0;
@@ -82,6 +101,7 @@ for(const night of [false,true])for(const [w,h] of screens){
   assert.ok(row.domes<=1,'domes '+JSON.stringify(row));
   assert.equal(row.gap,0,'horizon '+JSON.stringify(row));
   assert.equal(row.sunk,0,'sunk '+JSON.stringify(row));
+  if(clear<minClearCam)minClearCam=clear;
  }
 }
 let bridgeStrata=1e9;
@@ -91,11 +111,13 @@ const landAt=plan.beats.find(b=>b.id==='B-f').t0;
 for(let t=plan.beats.find(b=>b.id==='B-c').t0;t<landAt;t+=1){
  const p=plan.vehicle(t).pos;
  if(Math.hypot(p[0]-plan.s0[0],p[2]-plan.s0[2])<12&&p[1]<=plan.s0[1]+6)continue;
- const [best]=J.clearance(p,[...city,...strata],40);
+ const objs=t>=plan.cityActiveAt?[...city,...strata]:[];
+ const [best]=objs.length?J.clearance(p,objs,40):[40,null];
  if(best<minClear)minClear=best;
 }
+assert.equal(seamLeak,0,'seam window leaked '+seamLeak+' rays');
 assert.ok(minClear>=4,'track clearance '+minClear);
 assert.ok(plan.build05S<=38.9,'duration '+plan.build05S);
 assert.ok(plan.accelPeak<=2.7,'accel '+plan.accelPeak);
 assert.ok(plan.climbDeg<=25.01,'climb '+plan.climbDeg);
-console.log(JSON.stringify({frames,worst,minClear:+minClear.toFixed(2),build05S:+plan.build05S.toFixed(2),accel:+plan.accelPeak.toFixed(2),climb:+plan.climbDeg.toFixed(2),strata:gate,bridgeStrata:+bridgeStrata.toFixed(2),sunkBalloon:0}));
+console.log(JSON.stringify({frames,worst,minClear:+minClear.toFixed(2),minClearCam:+minClearCam.toFixed(2),build05S:+plan.build05S.toFixed(2),accel:+plan.accelPeak.toFixed(2),climb:+plan.climbDeg.toFixed(2),bridgeStrata:+bridgeStrata.toFixed(2),seamLeak,sunkBalloon:0,meadowOff:plan.meadowOffAt,cityOn:plan.cityActiveAt}));

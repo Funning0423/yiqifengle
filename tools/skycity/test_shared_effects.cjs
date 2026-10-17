@@ -14,7 +14,7 @@ assert.deepStrictEqual(fs.readdirSync(P+'/bundles/shared_effects').sort(),['mat_
 const src=fs.readFileSync(P+'/scripts/SharedBundles.ts','utf8'),js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2019}}).outputText;
 const log=[],loaded=new Set();let fail=null;const am={getBundle:n=>loaded.has(n)?{name:n}:null,loadBundle(n,a,b){const cb=typeof a==='function'?a:b;log.push(n);setImmediate(()=>{if(fail===n)return cb(Error('x'),null);loaded.add(n);cb(null,{name:n});});}};
 const m=new Module('SharedBundles');m.paths=module.paths;const req=m.require.bind(m);m.require=id=>id==='cc'?{assetManager:am}:req(id);m._compile(js,'SharedBundles.js');
-assert(am.__qfSharedDeps);const L=m.exports;L.installSharedBundleDeps(am);assert.deepStrictEqual([...L.SHARED_DEPENDENTS].sort(),['board_art','region_island','region_meadow','region_skycity','static_seat_preview']);
+assert(am.__qfSharedDeps);const L=m.exports;L.installSharedBundleDeps(am);assert.deepStrictEqual([...L.SHARED_DEPENDENTS].sort(),['board_art','region_island','region_lakeside','region_meadow','region_skycity','region_transit_balloon','static_seat_preview']);
 (async()=>{const load=(n,o)=>new Promise((ok,ko)=>o?am.loadBundle(n,o,(e,b)=>e?ko(e):ok(b)):am.loadBundle(n,(e,b)=>e?ko(e):ok(b)));
  assert.equal((await load('audio_bgm_island')).name,'audio_bgm_island');assert.deepStrictEqual(log,['audio_bgm_island'],'non-dependent untouched');
  fail='shared_effects';await assert.rejects(load('region_skycity'));assert(!loaded.has('region_skycity'),'dependent never loads without the shared effect');fail=null;log.length=0;

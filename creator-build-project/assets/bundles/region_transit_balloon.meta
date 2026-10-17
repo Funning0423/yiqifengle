@@ -2,13 +2,13 @@
   "ver": "1.2.0",
   "importer": "directory",
   "imported": true,
-  "uuid": "c3a91e04-7b2d-4e55-9c10-6f4a2b8d71e0",
+  "uuid": "ee3974ca-8d31-4891-9387-6026731239fd",
   "files": [],
   "subMetas": {},
   "userData": {
     "isBundle": true,
     "bundleConfigID": "wx_subpackage",
-    "bundleName": "transport_balloon",
+    "bundleName": "region_transit_balloon",
     "priority": 1,
     "compressionType": {
       "wechatgame": "subpackage"

@@ -1,29 +1,36 @@
 {
+  "format": "r5-balloon-flightpath/2.1",
+  "instancing": false,
+  "totalTris": 18345,
+  "bytes": 959447,
   "rows": [
     {
       "name": "transport_balloon.glb",
-      "tris": 125,
+      "bytes": 111600,
+      "tris": 1085,
       "materials": 2,
-      "bytes": 7116,
-      "holeM": 0
+      "meshes": 3,
+      "extensions": []
     },
     {
-      "name": "transit_cloud_band.glb",
-      "tris": 56,
+      "name": "transit_clouds_merged.glb",
+      "bytes": 515960,
+      "tris": 15052,
       "materials": 1,
-      "bytes": 3920,
-      "holeM": 9
+      "meshes": 7,
+      "extensions": []
     },
     {
-      "name": "transit_sky_cards.glb",
-      "tris": 8,
+      "name": "transit_night_dome.glb",
+      "bytes": 270088,
+      "tris": 2208,
       "materials": 1,
-      "bytes": 1904,
-      "holeM": 0
+      "meshes": 1,
+      "extensions": [
+        "KHR_materials_unlit"
+      ]
     }
   ],
-  "totalTris": 189,
-  "bytes": 12940,
-  "license": "original procedural (this script)",
-  "holeM": 9
+  "jsonBytes": 61799,
+  "note": "source bytes before Creator meshopt/quantize; night dome texture is embedded"
 }

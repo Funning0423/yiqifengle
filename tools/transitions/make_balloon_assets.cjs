@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 'use strict';
-/** Original procedural glTF (no Blender). Saturated meadow-green/gold balloon, cream cloud band with an ≥8 m hole, four far cards. */
+/** Deprecated. GGbot v2.1 lives in assets/bundles/region_transit_balloon. This script no longer writes procedural GLBs. */
+console.log('make_balloon_assets.cjs is deprecated; region_transit_balloon holds the GGbot GLBs.');
+process.exit(0);
+/** Original procedural glTF (kept below only as a historical reference; it does not run). */
 const fs=require('node:fs'),path=require('node:path');
 const OUT=path.resolve(__dirname,'../../creator-build-project/assets/bundles/transport_balloon');
 const TAU=Math.PI*2;
