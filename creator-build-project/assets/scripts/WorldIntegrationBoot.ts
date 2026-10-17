@@ -646,7 +646,7 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
   if(!inRegion)return runHomeTransition({now:wall,wait,cover:()=>{},audioOut:()=>{},audioIn:()=>{},audioRestore:()=>{},act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},{outS:0,timeoutS:60});
   const audio=GameAudio.instance as any;
   return runHomeTransition({now:wall,wait,cover:(a,sec)=>this.fadeCover(a,sec),
-   audioOut:sec=>{audio?.fadeTransition?.(0,sec);},
+   audioOut:sec=>typeof audio?.homeDuckOut==='function'?audio.homeDuckOut(sec,wait):audio?.fadeTransition?.(0,sec),
    audioIn:()=>{const t=SCENE_TRACKS.island;audio?.switchTrackAfterTransition?.(t.path,t.bundle);},
    audioRestore:()=>{audio?.fadeTransition?.(1,.2);},
    act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},HOME_FADE).then(r=>{(globalThis as any).__worldHomeTransition={...r,at:Date.now()};return r;});

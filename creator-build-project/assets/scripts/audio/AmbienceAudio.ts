@@ -34,6 +34,11 @@ function musicBed(): number {
   return ambienceBedGain(Number(audio.getMusicVolume()), typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1);
 }
 
+function musicSlider(): number {
+  const audio: any = GameAudio.instance;
+  return audio && typeof audio.getMusicVolume === 'function' ? Number(audio.getMusicVolume()) : 1;
+}
+
 const WAVES_PATH = 'audio_amb/amb_waves_loop';
 const WAVES_MAX_VOL = 0.55;
 const GULLS: SfxName[] = ['sfx_amb_gull_1', 'sfx_amb_gull_2', 'sfx_amb_gull_3'];
@@ -415,7 +420,8 @@ export class AmbienceAudio extends Component {
 
   private static smoothstep(a: number, b: number, x: number) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
 
-  private bedOn = false;   // A3: did this update leave the waves bed playing?
+  private sliderPaused = false;   // A3b: paused only because the music slider is at 0
+  private startArmed = false;     // A3b: vol was zeroed for this start; play once it ramps audible
   /** V1 follow-up: drop the smoothed waves bed at once (GameAudio.quietAmbience); it fades back in from 0 if still outdoors. */
   quiet() { this.vol = 0; const src = this.src; if (!src) return; try { src.volume = 0; if (src.playing) src.pause(); } catch { /* ignore */ } }
   update(dt: number) {
@@ -435,8 +441,6 @@ export class AmbienceAudio extends Component {
     const duck = 1 - E.waveWindDuck * AmbienceAudio.smoothstep(0.3, 1.0, wind);
     const target = allowed && outdoor >= 0 ? Math.max(outdoor * WAVES_MAX_VOL, floor) * duck : 0;
     const k = Math.min(1, dt * SMOOTH_PER_S);
-    // A3: we left the bed playing but something else stopped it (meadow -> home): fade back in from 0, not the stale level.
-    if (this.bedOn && !src.playing) this.vol = 0;
     this.vol += (target - this.vol) * k;
     if (!allowed) this.vol = 0;
     // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
@@ -446,12 +450,18 @@ export class AmbienceAudio extends Component {
     if (!allowed || heard < 0.002) {
       try { src.volume = 0; } catch { /* ignore */ }
       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
+      // A3b: remember whether only the music slider at 0 silenced it (that resume stays immediate); a stale level disarms the 0-start.
+      this.sliderPaused = allowed && musicSlider() <= 0.001;
+      if (this.vol > 0.05) this.startArmed = false;
+    } else if (!src.playing && !this.sliderPaused && !this.startArmed) {
+      // A3b: every (re)start of the bed fades in from 0, whatever stopped it (self-pause in a transition, scene change, hide).
+      this.vol = 0; this.startArmed = true;
+      try { src.volume = 0; } catch { /* ignore */ }
     } else {
       src.volume = heard;
       this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('waves-level', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); }
-      if (!src.playing) { try { src.play(); qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+      if (!src.playing) { try { src.play(); qfAudioLog('waves-start', { vol: +heard.toFixed(3), from: this.sliderPaused ? 'slider' : 'zero' }); this.startArmed = false; this.sliderPaused = false; qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
     }
-    this.bedOn = src.playing;
     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
     if (wind < E.exitOn) { this.exitActive = false; this.distantDone = []; }
     else {

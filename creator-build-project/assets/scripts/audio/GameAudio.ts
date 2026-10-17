@@ -73,6 +73,11 @@ const UI_PRESS: Record<UiTapTarget, SfxName> = {
   bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_click', signpost: 'sfx_ui_signpost',
 };
 const UI_TAP_VOLUME = 1;
+/** A3b (Mac readme-v2-a3): the generic click stacked on the meadow wind hit full scale ~50 ms after 「主页/回家」. -2.5 dB in code, asset untouched. */
+export const UI_CLICK_VOLUME = Math.pow(10, -2.5 / 20);   // ≈ 0.750
+/** A3b: on 回家 from a region the bed (region bgm + wind + live sfx) first dips to 0.6x over 80 ms, then continues the normal fade-out. */
+export const HOME_DUCK = { gain: 0.6, seconds: 0.08 } as const;
+const tapVol = (name: string) => name === 'sfx_ui_click' ? UI_CLICK_VOLUME : UI_TAP_VOLUME;
 const UI_CONFIRM_AFTER_PRESS_MS = 150;
 
 /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
@@ -506,6 +511,12 @@ export class GameAudio extends Component {
     this.transFrom = from; this.transTo = v; this.transS = Math.max(0, Number(seconds) || 0); this.transAt = this.transS > 0 ? GameAudio.now() : null;
     if (this.transAt === null) this.transFrom = v;
     this.applyTransition();
+  }
+  /** A3b: 回家 fade-out with a quick 80 ms duck to 0.6x first (click + meadow wind headroom), then down to 0 over the rest of `seconds`. */
+  homeDuckOut(seconds: number, wait: (s: number) => Promise<void>): Promise<void> {
+    const d = HOME_DUCK; this.fadeTransition(d.gain, d.seconds);
+    qfAudioLog('home-duck', { gain: d.gain, s: d.seconds, outS: seconds });
+    return wait(d.seconds).then(() => { if (this.transTo === d.gain) this.fadeTransition(0, Math.max(0, seconds - d.seconds)); });
   }
   /** End of the fade-out: stop the region bed and sfx (already silent), restore the gain and fade the next track in. */
   switchTrackAfterTransition(path: string, bundle: string | null) {
@@ -1067,7 +1078,7 @@ export class GameAudio extends Component {
     return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && (this.gestureSeen || this.audioProven);
   }
 
-  onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
+  onButton() { this.play('sfx_ui_click', UI_CLICK_VOLUME); }
   /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。
    *  按下音已经播出时，同一目标 150 ms 内的 confirm 丢掉（点一次道具不再叠两声）。没播成按下音、已满 150 ms，
    *  或另一个目标，confirm 照播。 */
@@ -1077,7 +1088,7 @@ export class GameAudio extends Component {
       const name = UI_PRESS[target];
       if (!name) return;
       const t = GameAudio.now();
-      this.play(name, UI_TAP_VOLUME);
+      this.play(name, tapVol(name));
       if (this.lastPlay.get(name) === t) { this.uiPressTarget = target; this.uiPressAt = t; }
     } else if (phase === 'confirm') {
       if (this.uiPressTarget === target && GameAudio.now() - this.uiPressAt < UI_CONFIRM_AFTER_PRESS_MS) return;
@@ -1087,7 +1098,7 @@ export class GameAudio extends Component {
   /** A5：关闭面板 / 返回上一页（目前是岛上旅程册弹层的 × 和“返回章节”，由 AudioBridge 按节点名接入） */
   onUiBack() { this.play('sfx_ui_back', UI_TAP_VOLUME); }
   /** 道具槽只点不拖时：挂在 endToolDrag() 里 !d.moved 的分支（审稿 E） */
-  onToolTap() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
+  onToolTap() { this.play('sfx_ui_click', UI_CLICK_VOLUME); }
 }
 
 declare const wx: any;
