@@ -1,4 +1,4 @@
-import {Camera, Color, DirectionalLight, MeshRenderer, Node, SkeletalAnimation, Vec3} from 'cc';
+import {Camera, Color, DirectionalLight, Material, MeshRenderer, Node, SkeletalAnimation, Vec3, gfx, utils} from 'cc';
 import {transportQaEnabled} from './JourneyTransport';
 import {beatAt, sailBeats, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
 import {mountSailArt, findNode, type SailArt} from './SailArt';
@@ -67,9 +67,10 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
    if(pier){rider.setParent(pier);rider.setPosition(-0.2,0.42,1.8);rider.setRotationFromEuler(0,90,0);}
    else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,-0.18,v.pos[2]);rider.setRotationFromEuler(0,90,0);}
   }else if(k===6){
-   const pier=findNode(scene,'transit_pier_land');
-   if(pier){rider.setParent(pier);rider.setPosition(0.1,0.42,1.6);rider.setRotationFromEuler(0,10,0);}
-   else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-2.4,0.25,v.pos[2]+0.2);rider.setRotationFromEuler(0,-90,0);}
+   // Stand on the grass just past the pier end (local pier Z is scaled; parenting there left her in the air).
+   rider.setParent(scene);
+   rider.setWorldPosition(v.pos[0]-2.55,0.28,v.pos[2]+0.15);
+   rider.setRotationFromEuler(0,v.yaw*180/Math.PI-40,0);
   }else if(art?.seat){
    rider.setParent(art.seat,false);
    rider.setPosition(0,0,0);
@@ -98,8 +99,8 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  }
  const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
  const sun=sunNode.addComponent(DirectionalLight);
- sun.illuminance=night?1400:90000;
- if(night)sun.color=new Color(150,176,220,255);
+ sun.illuminance=night?2200:90000;
+ if(night)sun.color=new Color(160,185,230,255);
  sunNode.setWorldPosition(pose.position[0]-8,pose.position[1]+12,pose.position[2]-6);
  sunNode.lookAt(new Vec3(v.pos[0],v.pos[1]+1,v.pos[2]));
  if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,800);
@@ -108,6 +109,17 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
   globals.ambient.skyIllum=night?280:28000;
   if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(16,28,64,255);
   if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(10,16,32,255);
+ }
+ if(night){
+  const stars=new Node('SailShotStars');camNode.addChild(stars);
+  const mat=new Material();
+  mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
+  mat.setProperty('mainColor',new Color(255,255,255,255));
+  const s=0.08,mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
+  [[-0.35,0.55,-2.2],[0.05,0.72,-2.0],[0.42,0.48,-2.4],[-0.18,0.88,-1.8],[0.28,0.65,-2.6]].forEach((p,i)=>{
+   const n=new Node('star_'+i);stars.addChild(n);n.setPosition(p[0],p[1],p[2]);
+   const r=n.addComponent(MeshRenderer);r.mesh=mesh;r.setSharedMaterial(mat,0);
+  });
  }
  (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,k,t,night,character,clip:character?clip:'',art:!!art};
 }

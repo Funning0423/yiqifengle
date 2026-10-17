@@ -11,7 +11,7 @@ export type SailRect={x0:number;x1:number;z0:number;z1:number};
  */
 export function sailLandingRect(samples:readonly Vec[]):SailRect{
  const end=samples[samples.length-1];
- return {x0:end[0]-1.85,x1:end[0]+5.0,z0:end[2]-10.5,z1:end[2]+3.6};
+ return {x0:end[0]-3.4,x1:end[0]+4.6,z0:end[2]-10.5,z1:end[2]+3.6};
 }
 function nearLateRoute(x:number,z:number,samples:readonly Vec[],radius:number):boolean{
  if(samples.length<2)return false;
