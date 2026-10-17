@@ -60,25 +60,28 @@ export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
  *  path, Ambient.skyLightingColor / groundLightingColor -> Color.x without SRGBToLinear; only fog colour is linearised). The lease sends
  *  linearToSrgb8(<linear r5h3 colour>), so Cocos saw sRGB bytes as linear: sky ambient (0.110,0.565,0.718) instead of r5h3
  *  (0.0116,0.2747,0.4793) - ~2x too bright and cyan - and ambient w = 0.75 x sun; ACES then washed the light stone bridge to
- *  cyan-white (Mac v3.2 bridge 179/217/214 vs r5h3 104/128/116; same cause for the lime grass). Fix, data only (call sites untouched):
- *  lakesideCocosLightColor(lin) returns the value whose linearToSrgb8() is round(lin*255), i.e. Cocos gets the r5h3 linear colour.
- *  The authored r5h3 values stay readable as LAKESIDE_R5H3_LIGHT_LINEAR. */
+ *  cyan-white (Mac v3.2 bridge 179/217/214 vs r5h3 104/128/116; same cause for the lime grass).
+ *  r2 (VB, owner of the light colour conversion): EXACTLY ONE conversion. Every *ColorLinear light param (day AND night) is authored
+ *  linear; the light call sites (LakesideBoardBackground.applyDir main light + ambient sky/ground, LakesideJourneyAtmosphere
+ *  lakesideAtmosphereTarget = journey end values, also used by the day/night toggle) turn it into Cocos Color bytes with
+ *  lakesideCocosLightColor(lin) = round(lin x 255), which Cocos reads back as lin. No linearToSrgb8 on those paths (test
+ *  lakeside-light-encoding). linearToSrgb8 stays for colours Cocos treats as sRGB: clear colour, water fallback mainColor. Fog is sRGB. */
 export function lakesideCocosLightColor(lin: readonly number[]): [number, number, number] {
-  const dec = (x: number) => { const v = Math.max(0, Math.min(1, x)); return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
-  return [dec(lin[0]), dec(lin[1]), dec(lin[2])];
+  const b = (x: number) => Math.round(Math.max(0, Math.min(1, Number.isFinite(x) ? x : 0)) * 255);
+  return [b(lin[0]), b(lin[1]), b(lin[2])];
 }
 export const LAKESIDE_R5H3_LIGHT_LINEAR = Object.freeze({
   sun: [1.0, 0.6, 0.32] as const, ambientSky: [0.0116, 0.2747, 0.4793] as const, ambientGround: [1.0, 0.5457, 0.1441] as const,
 });
 export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   sunForward: [-0.4182, -0.3983, 0.8164] as const,
-  /** pre-encoded for Cocos (see lakesideCocosLightColor): linearToSrgb8() of these = r5h3 linear x 255. */
-  sunColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.sun) as readonly number[],
+  /** linear (r5h3); the call sites convert once with lakesideCocosLightColor. */
+  sunColorLinear: LAKESIDE_R5H3_LIGHT_LINEAR.sun as readonly number[],
   /** v3.4: 1.0 -> 0.5 and ambient 0.75 -> 0.2 of the base illuminance (= 0.4 x lakeside sun). With the colours now really linear,
    *  a grid search on the Mac-calibrated Blender G-buffer emulator vs r5h3 (bridge, grass, trees, roof) put the land score 1535 -> 326. */
   sunIlluminanceScale: 0.5,
-  ambientSkyColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientSky) as readonly number[],
-  ambientGroundColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround) as readonly number[],
+  ambientSkyColorLinear: LAKESIDE_R5H3_LIGHT_LINEAR.ambientSky as readonly number[],
+  ambientGroundColorLinear: LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround as readonly number[],
   ambientSkyIllumToSun: 0.2,
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,
@@ -110,13 +113,16 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
 /** build05-next r2 (lead): lakeside's own NIGHT look for the day/night toggle (board + journey). Same structure as the day values
  *  (LAKESIDE_DIR_LIGHT_PARAMS, the r5h3 dusk); relative to the island's current-mode main light, so the island's 0.35 night scale
  *  carries over. Moonlight from the same direction (shadows do not jump), cool blue ambient, dark blue clear and fog; water: more
- *  ambient share (night ambient is dark), much less reflected (dusk-orange) sky. Proxy values - Mac day/night screenshots decide. */
+ *  ambient share (night ambient is dark), much less reflected (dusk-orange) sky. Proxy values - Mac day/night screenshots decide.
+ *  r2 (VB, one conversion): the colours are now really linear in Cocos (before, linearToSrgb8 bytes were read as linear: moon
+ *  0.635/0.710/0.898, sky 0.114/0.188/0.333, ground 0.153/0.161/0.220). The illuminance ratios are re-derived so night/day keeps
+ *  the r2 balance per term (luminance): moon/sun 0.857, hemisphere ambient night/day 0.219, against the CURRENT day values. */
 export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   sunColorLinear: [0.36, 0.46, 0.78] as const,
-  sunIlluminanceScale: 1.0,
+  sunIlluminanceScale: 0.617, // r2 one-conversion: 1.0 -> 0.617 keeps moon/sun 0.857 (luminance)
   ambientSkyColorLinear: [0.012, 0.03, 0.09] as const,
   ambientGroundColorLinear: [0.02, 0.022, 0.04] as const,
-  ambientSkyIllumToSun: 0.6,
+  ambientSkyIllumToSun: 0.694, // r2 one-conversion: 0.6 -> 0.694 keeps hemisphere ambient night/day 0.219
   clearColor: '#1c2740',
   fogColorSrgb: [44, 54, 84] as const,
   waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,

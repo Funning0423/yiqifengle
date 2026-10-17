@@ -7,7 +7,7 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 import type {Cancellation} from '../world-r1/WorldFlowCore';
 import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
 /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
@@ -135,7 +135,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
  const applyDir=()=>{if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
   const mode=lakesideDayNightMode();if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum,mode};
   setLakesideBoardHolding(true);/* r2: the board owns the lakeside lighting while it shows (journey listener stands down) */
-  const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(M.sunColorLinear),sk=linearToSrgb8(M.ambientSkyColorLinear),gr=linearToSrgb8(M.ambientGroundColorLinear);
+  const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=P.sunForward,w=l.node.worldPosition,c=lakesideCocosLightColor(M.sunColorLinear),sk=lakesideCocosLightColor(M.ambientSkyColorLinear),gr=lakesideCocosLightColor(M.ambientGroundColorLinear)/* r2 VB: the one linear->Cocos-byte conversion (bytes/255 are read as linear) */;
   l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);const bi=(lakesideJourneyBaseIllum()??saved.illum/lakesideIslandLightScale(saved.mode))*lakesideIslandLightScale(mode)/* island main light for the current mode: day base (journey capture, else this capture) x island scale; no double scale after the blend */;l.illuminance=bi*M.sunIlluminanceScale;
   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
@@ -178,7 +178,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   instanced=enableLakesideInstancing(scenery);
   if(LAKESIDE_LIGHT_MODE==='dir'){/* v3: the lake gets the lease's own copy of lakeside-water.mtl (Fresnel sky + sun streak + fog); if it failed to
    * load, v2 fallback: tint the lease's instanced palette copy. Assets untouched; copies destroyed with the lease. */
-   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
+   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=lakesideCocosLightColor(P.waterTintLinear)/* r2 VB: legacy standard albedo (mainColor) uniform is used as linear, Color -> bytes/255 */,waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
    let water:Material|null=null;
    if(waterAsset){water=new Material();water.copy(waterAsset);waterMat=water;const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
     water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));

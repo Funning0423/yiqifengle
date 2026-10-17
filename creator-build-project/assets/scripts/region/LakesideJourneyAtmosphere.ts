@@ -1,4 +1,4 @@
-import {LAKESIDE_DIR_LIGHT_PARAMS,LAKESIDE_LAYERED_FOG,LAKESIDE_LIGHT_MODE,lakesideFogEnd,lakesideModeLighting,linearToSrgb8,type LakesideDayNight,type LakesideFogMode} from './LakesideSceneData';
+import {LAKESIDE_DIR_LIGHT_PARAMS,LAKESIDE_LAYERED_FOG,LAKESIDE_LIGHT_MODE,lakesideFogEnd,lakesideModeLighting,lakesideCocosLightColor,type LakesideDayNight,type LakesideFogMode} from './LakesideSceneData';
 import {resolveDayNight} from '../world-r1/DayNightContract';
 /** build05-next (lead, 03:00): the island→lakeside journey's final stretch takes the lakeside board lighting (v3.2: main
  *  directional light direction/colour/illuminance, ambient sky/ground/illum, clear colour, layered fog), so the landing frame
@@ -34,7 +34,7 @@ export const LAKESIDE_JOURNEY_ATMOSPHERE_ON=LAKESIDE_LIGHT_MODE==='dir';
  *  sunIlluminanceScale, skyIllum = illum × ambientSkyIllumToSun; colours, clear and fog colour from lakesideModeLighting(mode)). */
 export function lakesideAtmosphereTarget(base:LakesideAtmosphereBase,mode:LakesideDayNight='day'):LakesideAtmosphereBase{
  const M=lakesideModeLighting(mode);
- return {illum:base.illum*M.sunIlluminanceScale,color:linearToSrgb8(M.sunColorLinear),sky:linearToSrgb8(M.ambientSkyColorLinear),ground:linearToSrgb8(M.ambientGroundColorLinear),skyIllum:base.illum*M.ambientSkyIllumToSun,clear:hexRgb(M.clearColor)};
+ return {illum:base.illum*M.sunIlluminanceScale,color:lakesideCocosLightColor(M.sunColorLinear),sky:lakesideCocosLightColor(M.ambientSkyColorLinear),ground:lakesideCocosLightColor(M.ambientGroundColorLinear),skyIllum:base.illum*M.ambientSkyIllumToSun,clear:hexRgb(M.clearColor)};
 }
 /** build05-next r2: current world day/night mode (the island's __worldDayNight; day when absent). */
 export function lakesideDayNightMode():LakesideDayNight{try{return (globalThis as any).__worldDayNight?.snapshot?.()?.mode==='night'?'night':'day';}catch{return 'day';}}

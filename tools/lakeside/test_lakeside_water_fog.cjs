@@ -5,7 +5,7 @@ const A=path.join(__dirname,'../../creator-build-project/assets'),W=path.join(A,
 const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);
 const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
 // Voice Bot verified values
-assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.linearToSrgb8(P.ambientGroundColorLinear),[255,139,37],"v3.4 Cocos bytes = linear x 255");
+assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.lakesideCocosLightColor(D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround),[255,139,37],"v3.4 Cocos bytes = linear x 255");
 assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
 assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
 assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise===0,'v3.3: streak noise off (its x-striped sin made moving bands)');
@@ -44,7 +44,7 @@ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTAN
 assert.equal(P.waterSkyReflectFloor,0.3);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.3\]/.test(fx));
 assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
 assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
-assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.linearToSrgb8(P.waterTintLinear),[243,255,255],'fallback mainColor ~white');
+assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(P.waterTintLinear),[230,255,255],'r2: fallback mainColor (legacy albedo uniform, linear) = tint x 255, was sRGB 243/255/255');
 // fog modes + URL override (guarded for WeChat)
 assert.equal(D.LAKESIDE_FOG_MODE,'layered');
 assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');

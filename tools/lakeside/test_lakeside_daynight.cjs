@@ -31,8 +31,8 @@ applyDayNight();
 const camera={clearColor:new Color(51,51,51)};
 const rgb=c=>[c.r,c.g,c.b],near=(a,b,eps=1e-6)=>Math.abs(a-b)<=eps*Math.max(1,Math.abs(b));
 function expectLake(m,label){const M=D.lakesideModeLighting(m),isl=lightHome*DN.resolveDayNight(m,true).lightScale;
- assert(near(light.illuminance,isl*M.sunIlluminanceScale),label+' illum '+light.illuminance);assert.deepEqual(rgb(light.color),D.linearToSrgb8(M.sunColorLinear),label+' sun colour');
- assert.deepEqual(rgb(globals.ambient.skyLightingColor),D.linearToSrgb8(M.ambientSkyColorLinear),label+' ambient sky');assert.deepEqual(rgb(globals.ambient.groundLightingColor),D.linearToSrgb8(M.ambientGroundColorLinear),label+' ambient ground');
+ assert(near(light.illuminance,isl*M.sunIlluminanceScale),label+' illum '+light.illuminance);assert.deepEqual(rgb(light.color),D.lakesideCocosLightColor(M.sunColorLinear),label+' sun colour');
+ assert.deepEqual(rgb(globals.ambient.skyLightingColor),D.lakesideCocosLightColor(M.ambientSkyColorLinear),label+' ambient sky');assert.deepEqual(rgb(globals.ambient.groundLightingColor),D.lakesideCocosLightColor(M.ambientGroundColorLinear),label+' ambient ground');
  assert(near(globals.ambient.skyIllum,isl*M.ambientSkyIllumToSun),label+' skyIllum');assert.deepEqual(rgb(camera.clearColor),rgb(new Color(M.clearColor)),label+' clear');
  assert.deepEqual(rgb(globals.fog.fogColor),[...M.fogColorSrgb],label+' fog colour');assert.equal(globals.fog.type,3);assert.equal(globals.fog.enabled,true);}
 function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);assert(near(light.illuminance,lightHome*v.lightScale),label+' island illum '+light.illuminance);assert.deepEqual(rgb(light.color),[...v.lightColor],label+' island colour');
@@ -40,7 +40,7 @@ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);a
  if(primed){assert.equal(globals.fog.enabled,true);assert(globals.fog.fogRange>=D.LAKESIDE_LAYERED_FOG.fogRange*999,label+' primed fog ~invisible');}else{assert.equal(globals.fog.enabled,false,label+' island fog off');assert.equal(globals.fog.type,0);}}
 const run=(name,f)=>{f();console.log('PASS',name);};
 const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
-run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.linearToSrgb8(N.sunColorLinear),D.linearToSrgb8(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.LAKESIDE_CLEAR_COLOR);
+run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.LAKESIDE_CLEAR_COLOR);
  assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
 // journey 1: day -> lake -> night -> day -> night -> leave -> toggle back on the island
 let J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();

@@ -15,7 +15,7 @@ const P0=D.LAKESIDE_DIR_LIGHT_PARAMS;
 for(const [label,base] of [['day',{illum:65000,color:[255,244,214],sky:[200,220,255],ground:[120,110,90],skyIllum:20000,clear:[51,51,51]}],['night',{illum:9000,color:[150,170,255],sky:[40,50,90],ground:[20,20,30],skyIllum:3000,clear:[51,51,51]}]]){
  const t=A.lakesideAtmosphereTarget(base),f1=A.lakesideAtmosphereAt(base,W(T),'layered',j.root[1]);
  assert.equal(f1.illum,base.illum*P0.sunIlluminanceScale);assert.equal(f1.skyIllum,base.illum*P0.ambientSkyIllumToSun,'board: skyIllum = base illum × ambientSkyIllumToSun');
- assert.deepEqual([...f1.color],D.linearToSrgb8(P0.sunColorLinear));assert.deepEqual([...f1.sky],D.linearToSrgb8(P0.ambientSkyColorLinear));assert.deepEqual([...f1.ground],D.linearToSrgb8(P0.ambientGroundColorLinear));
+ assert.deepEqual([...f1.color],D.lakesideCocosLightColor(P0.sunColorLinear));assert.deepEqual([...f1.sky],D.lakesideCocosLightColor(P0.ambientSkyColorLinear));assert.deepEqual([...f1.ground],D.lakesideCocosLightColor(P0.ambientGroundColorLinear));
  assert.deepEqual([...f1.clear],[0xf2,0xb9,0x8a],'clear = LAKESIDE_CLEAR_COLOR');
  assert.equal(f1.fog.type,3);assert.equal(f1.fog.range,D.LAKESIDE_LAYERED_FOG.fogRange);assert.equal(f1.fog.atten,D.LAKESIDE_LAYERED_FOG.fogAtten);
  const f0=A.lakesideAtmosphereAt(base,0,'layered');assert.equal(f0.illum,base.illum);assert.deepEqual([...f0.color],base.color);assert(f0.fog.range>=D.LAKESIDE_LAYERED_FOG.fogRange*999,'primed fog ≈ invisible');
