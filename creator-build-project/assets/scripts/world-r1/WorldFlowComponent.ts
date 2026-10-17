@@ -13,6 +13,7 @@ import { DoorSpillHint } from '../render/DoorSpillHint';
 import { IslandAtmosphereFx } from '../render/IslandAtmosphereFx';
 import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
+import { preloadMeadowForSail } from '../region/SailPreload';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import { hasScreenCover, screenCover } from './ScreenCover';
@@ -257,6 +258,12 @@ export class WorldFlowComponent extends Component {
     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();
     return this.flow.load();
   }
+  /** mainline-04 board: warm the meadow rig inactive. 6 s timeout falls back to the rainbow bridge. */
+  preloadHiddenRegion(target:JourneyRegion):Promise<{ok:boolean;reason?:string}>{
+   if(target!=='meadow')return Promise.resolve({ok:false,reason:'unsupported'});
+   const scene=director.getScene();if(!scene)return Promise.resolve({ok:false,reason:'no-scene'});
+   return preloadMeadowForSail(scene).then(()=>({ok:true}));
+  }
   /** UI receives this command facade, never scene/model/camera references. */
   commands() {
     const flow=()=>{if(!this.flow)throw Error('World not initialized');return this.flow;};
@@ -264,6 +271,7 @@ export class WorldFlowComponent extends Component {
       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
       prepareRegion:(target:JourneyRegion)=>flow().prepareRegion(target),travelRegion:(target:JourneyRegion)=>flow().travelRegion(target),journeySnapshot:()=>flow().snapshot().journey,abandonLakesideJourney:()=>flow().abandonLakesideJourney(),
+      preloadHiddenRegion:(target:JourneyRegion)=>this.preloadHiddenRegion(target),
       cancelTransition:()=>{const settling=!!this.roomLookToken;this.cancelRoomLook();return settling?{ok:true}:flow().cancelTransition();},setMode:(m:Mode)=>{this.cancelRoomLook();return flow().setMode(m);},
       dayNight:()=>this.dayNightSnapshot(),toggleDayNight:()=>this.toggleDayNight(),setDayNight:(mode:DayNightMode)=>this.setDayNight(mode,true)});
   }

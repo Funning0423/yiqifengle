@@ -31,6 +31,7 @@ import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
 import {StartupLoadingLayer} from './ui/StartupLoadingLayer';
 import {ART as STARTUP_ART} from './ui/StartupLoadingLayout';
 import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
+import {sailShotRequested,startSailShot} from './region/SailShot';
 import {validateSkycity} from './region/RegionValidation';
 import {runHomeTransition,HOME_FADE,coverAlphaByte} from './world-r2/HomeTransition';
 import {ForegroundTimers} from './world-r2/ForegroundClock';
@@ -407,7 +408,7 @@ export class WorldIntegrationBoot extends Component {
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private status!:Label;private devMark:DevPreviewMark|null=null;
  /** Back from the background during a journey cutscene: resume it by itself (no 「继续」 tap). Set while the cutscene runs. */
  private cutsceneRunning=false;private cutsceneAutoResume=false;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private islandToast:IslandToast|null=null;
- start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+ start(){profiler.hideStats();if(typeof sailShotRequested==='function'&&sailShotRequested()){startSailShot(director.getScene()!);return;}if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
  Array.from(this.controls.values()).forEach(n=>{n.active=false;});this.status.string='咦，起风了';if(this.loadingLayer)this.status.node.parent!.active=false;this.resize();

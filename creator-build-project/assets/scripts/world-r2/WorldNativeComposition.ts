@@ -89,6 +89,7 @@ export class WorldNativeComposition extends Component {
     else if(region==='meadow'||region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&(region==='meadow'?requiresMeadowScene(selection):requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
     let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(result.ok)this.pendingJourneySelection=null;
+    if(result.ok&&selection.stageId==='mainline-04'){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload('meadow');}
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
     return result;

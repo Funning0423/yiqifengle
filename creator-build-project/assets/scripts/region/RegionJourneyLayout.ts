@@ -14,6 +14,10 @@ export const REGION_JOURNEY_LAYOUT={
  /** Kept for older readers: forward component of islandApproach. */
  islandApproachM:3.2,
  meadowOffset:[0,0,24] as Vec,
+ /** Sail only: estuary M0 sits this far from dock I6. Bridge mode still uses meadowOffset. */
+ sailMeadowOffset:[0,0,52] as Vec,
+ /** Last metres of the sail route follow the river centreline. */
+ sailRiverEntryM:12,
  /** World offset of the sky platform LANDING point from the meadow exit (walk_path_08). d28ee16: [24,12,0] to the far
   * outer rim, then a 17.6 m walk round the post (+13.7 s, rejected). Build05 original: [0,12,24] to the inner anchor. */
  skycityOffset:[18,12,0] as Vec,

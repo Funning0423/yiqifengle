@@ -635,7 +635,7 @@ export class WorldFlow {
   }
   advance(seconds:number):void {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
-    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world);}
+    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world,Math.min(seconds,.1));}
   }
   /** r4.1 (Grok Bot, Mac evidence C_show_snapback_strip): a background trip during the home exit or the walk home no
    *  longer cancels it. V1 cancelled the transition (token + jobs), restore()d the stable pose (home = the seat) and on

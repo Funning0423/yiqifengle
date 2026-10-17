@@ -21,6 +21,11 @@ import {regionBoardEnd,regionBoardSource,regionGirlStand,setRegionBoardSource,ty
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
+import {transportFor} from './JourneyTransport';
+import {SAIL_I6,sailBeats,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
+import {createSailDriver,playSailBeats} from './SailRide';
+import {mountSailboat} from './TransportVehicle';
+import {takeSailWarm} from './SailPreload';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
 /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
@@ -64,9 +69,13 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
    let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null;
    const release=()=>{if(dead)return;dead=true;if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
    try{
+    const sail=to==='meadow'&&from==='island'&&transportFor(from,to)==='sail';
+    const warmed=sail?takeSailWarm():null;
     model=mountRegion(def,prefab,rig);
     // 运镜bot: the prefab's own root transform = the board copy's transform in its (identity) board rig, before the journey places it.
-    boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
+    boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);
+    if(warmed){model.removeFromParent();model.destroy();model=warmed;rig.addChild(model);boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);}
+    for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
     if(to==='meadow'){
      for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
      const grass=validateModel(model);configureMeadowVertexColors(model);
@@ -94,6 +103,10 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     const edge=approach[approach.length-1];let bridge:Vec[],arrival:Vec[],focus:Vec|undefined;
     if(to==='meadow'){
      model.setRotationFromEuler(0,180,0);
+     if(sail){
+      const root=sailMeadowRoot();model.setWorldPosition(root[0],root[1],root[2]);
+      bridge=[edge,plus(edge,[0,0,.02])];arrival=[];
+     }else{
      const incoming=anchor(model,'player_spawn'),landing=plus(edge,REGION_JOURNEY_LAYOUT.meadowOffset);
      model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-incoming[0],landing[1]-incoming[1],landing[2]-incoming[2]]));
      bridge=bridgePath(edge,anchor(model,'player_spawn'),REGION_JOURNEY_LAYOUT.meadowBridgeArchM);arrival=[];
@@ -107,6 +120,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
       if(stand){arrival=stand.path.slice(1).map(p=>boardSrc!.map.toJourney(p));if(!stand.clear)console.warn('[QF_REGION] meadow stand: no clear stop for '+v.width+'x'+v.height+', least covered '+JSON.stringify(stand.boxPt));}}
      catch(error){stand=null;arrival=[];try{console.error('[QF_REGION] meadow stand unavailable: '+String(error));}catch{}}
      if(!arrival.length)for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
+     }
     }else{
      // Turn the city so the rainbow bridge meets the terminus platform's SIDE rim radially, put that landing on the bridge,
      // then step onto the city's cloud bridge and arrive at the same real entrance (2.4 m in from anchor_cloudbridge_end).
@@ -122,14 +136,32 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     // for the board UI's viewport, mapped onto this journey copy); if the screen or the map cannot be read, the old end is kept.
     let board:JourneyBoardEnd|undefined;
     try{boardSrc=journeyBoardSource(to as BoardLandingRegion,model,boardLocal!);const v=lakesideViewport(view.getFrameSize());board=regionBoardEnd(boardSrc,v.width/v.height);}catch(error){boardSrc=null;board=undefined;try{console.error('[QF_REGION] board landing unavailable: '+String(error));}catch{}}
-    const path=[...approach,...bridge.slice(1),...arrival];if(board&&!(board.blendM<routeLength(path)))board=undefined;
-    const route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{}),...(board?{board}:{})};
-    rainbowBridge(rig,bridge,owned);token.check();
+    let route:JourneyRoute;
+    let sailDriver:ReturnType<typeof createSailDriver>|null=null;
+    let sailPlan:Parameters<typeof playSailBeats>[4]|null=null;
+    if(sail){
+     const sr=sailRoute(),m0=sailM0World(),m1=sailM1World(),built=sailJourneyPath(start,m0,m1,sr.samples);
+     const sailPath=built.path;if(board&&!(board.blendM<routeLength(sailPath)))board=undefined;
+     route={from,to,path:sailPath,bridgeStart:built.bridgeStart,bridgeEnd:built.bridgeEnd,speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(board?{board}:{})};
+     let boat:Node|null=null,seat:Node|null=null,sailNode:Node|null=null;
+     try{const mountedBoat=await mountSailboat(rig);boat=mountedBoat.root;seat=mountedBoat.seat;sailNode=mountedBoat.sail;}catch(error){try{console.info('[QF_SAIL] '+String((error as Error)?.message||error));}catch{}}
+     const tl=sailBeats(sr.length);
+     const rider=find(options.parent,'FLOW_REFERENCE_PLACEHOLDER_NOT_B');
+     sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:[m0,m1],boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
+     const deck:Vec=[SAIL_I6[0],SAIL_I6[1]+0.45,SAIL_I6[2]+2];
+     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,shore:[m0,m1],sit:seatFromBench(deck,0),stand:seatFromBench(m0,0),boardS:0.8,shoreS:tl.shoreS};
+    }else{
+     const path=[...approach,...bridge.slice(1),...arrival];if(board&&!(board.blendM<routeLength(path)))board=undefined;
+     route={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{}),...(board?{board}:{})};
+     rainbowBridge(rig,bridge,owned);
+    }
+    token.check();
     // N3: at night the path, windmill and the (journey-owned, shared) rainbow bridge strips dim to x0.6 with the same night weight.
     if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT),
      ...meadowGroundMaterials(rig.children.filter(n=>n.name.startsWith('RainbowBridgeStrip')),MEADOW_PROP_NIGHT,true));mounted.set(to,model);progress(.98);
     if(boardSrc&&route.board)setRegionBoardSource(to as BoardLandingRegion,boardSrc);
-    const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
+    const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
+     ...(sailDriver&&sailPlan?{onFrame:(dt:number)=>sailDriver!.onFrame(dt,false),ride:(actor,world,token)=>playSailBeats(sailDriver!,actor,world,token,sailPlan!)}:{})};
     return lease;
    }catch(error){release();throw error;}
   }

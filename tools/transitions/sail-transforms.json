@@ -1,0 +1,70 @@
+{
+  "instance_count": 3,
+  "source": "procedural-self",
+  "license": "CC0-self",
+  "instances": [
+    {
+      "name": "Sailboat",
+      "glb": "transport_sailboat.glb",
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "rot_quat_xyzw": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "group": "sail"
+    },
+    {
+      "name": "SeaCards",
+      "glb": "transit_sea_cards.glb",
+      "pos": [
+        0,
+        0,
+        80
+      ],
+      "rot_quat_xyzw": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "group": "cards"
+    },
+    {
+      "name": "MidClouds",
+      "glb": "transit_clouds.glb",
+      "pos": [
+        0,
+        28,
+        0
+      ],
+      "rot_quat_xyzw": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "group": "clouds"
+    }
+  ]
+}
