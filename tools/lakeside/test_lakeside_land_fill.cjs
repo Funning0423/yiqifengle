@@ -55,4 +55,9 @@ run('day/night writer: night values on land only; water material and bridge unto
  assert.match(ad,/offLand=onDayNightChange\(\(\)=>\{if\(!dead\)applyLakesideLandFill\(model,lakesideDayNightMode\(\)\);\}\);/);assert.match(ad,/dead=true;offWater\(\);offLand\(\);/);});
 run('night land fill is cool and small (no brown)',()=>{const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
  for(const k of ['landFillNearLinear','landFillFarLinear']){const c=N[k];assert(c[2]>=c[1]&&c[1]>=c[0]&&c[2]>c[0],'night '+k+' blue >= green >= red');assert(Math.max(...c)<Math.max(...Dy[k])*0.5,'night '+k+' far below day');}});
+run('skyDomeColor = the clear colour per mode (not the reflected-sky inputs)',()=>{for(const m of ['day','night']){const L=D.lakesideModeLighting(m);
+ assert.equal(L.skyDomeColor,L.clearColor,m+' sky dome = clear colour');}
+ assert.equal(D.lakesideModeLighting('day').skyDomeColor,D.lakesideDayClearColor());assert.equal(D.lakesideModeLighting('night').skyDomeColor,D.LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor);
+ const hx=h=>[1,3,5].map(i=>parseInt(String(h).slice(i,i+2),16));assert.deepEqual(hx(D.lakesideModeLighting('day').skyDomeColor),[28,143,184],'day sky dome 28/143/184');assert.deepEqual(hx(D.lakesideModeLighting('night').skyDomeColor),[28,39,64],'night sky dome = #1c2740');
+ const sd=fs.readFileSync(S+'LakesideSceneData.ts','utf8');assert.equal((sd.match(/skyDomeColor\s*:\s*['"#]/g)||[]).length,0,'skyDomeColor is derived from the clear colour, never a literal');});
 console.log('lakeside land fill OK');

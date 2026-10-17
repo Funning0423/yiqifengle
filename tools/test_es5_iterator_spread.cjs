@@ -30,5 +30,6 @@ assert.deepEqual(bad,[],'spread of a non-array (use Array.from):\n'+bad.join('\n
 const old=' const shared=new Map();return [...shared.values()];const missing=[...new Set(list)];';
 const sf=ts.createSourceFile('x.ts',old,ts.ScriptTarget.ES2019,true);let hits=0;(function v(n){if(ts.isSpreadElement(n))hits++;ts.forEachChild(n,v);})(sf);assert.equal(hits,2);
 const bg=fs.readFileSync(path.join(ROOT,'region/LakesideBoardBackground.ts'),'utf8');
-assert(/return Array\.from\(shared\.values\(\)\);/.test(bg)&&/const missing=Array\.from\(new Set\(/.test(bg),'lakeside uses Array.from');
+// r4 land fill (VB): enableLakesideInstancing collects its copies in a plain array (out.push) instead of Array.from(shared.values())
+assert((/return Array\.from\(shared\.values\(\)\);/.test(bg)||/out\.push\(m\);\}r\.setSharedMaterial\(m,k\);\}\}\n return out;/.test(bg))&&/const missing=Array\.from\(new Set\(/.test(bg),'lakeside uses Array.from');
 console.log('es5 iterator spread OK ('+files.length+' TS files)');

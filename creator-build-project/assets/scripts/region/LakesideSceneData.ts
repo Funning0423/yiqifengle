@@ -163,16 +163,23 @@ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[];
   /** r4: the reflected sky + tint + mix floor are per mode too (written by applyLakesideWaterMode on the board AND journey copies). */
   waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[];
   /** r4: land fill (emissive, linear) per landform class - see LAKESIDE_DIR_LIGHT_PARAMS.landFill*Glbs. */
-  landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[] }>;
+  landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[];
+  /** r4 (VB): the colour of the visible SKY DOME / backdrop for this mode, sRGB hex = the board camera clear colour (day lakesideDayClearColor(),
+   *  night LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor; day 28/143/184, night #1c2740 = 28/39/64). Read by
+   *  lakesideSkyDomeColor(mode) (journey sky sphere target). NOT waterSkyZenith/Low/HorizonLinear: those are the
+   *  water's REFLECTED-sky inputs, pre-compensated for the water tint (their mean comes out lavender), not colours of the sky itself. */
+  skyDomeColor: string }>;
 /** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
 export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
-  if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
+  if (mode === 'night') return LAKESIDE_NIGHT_MODE_LIGHTING;
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
     ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
     waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
-    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear };
+    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear, skyDomeColor: lakesideDayClearColor() };
 }
+/** night mode lighting = the night params + the derived sky dome colour (same value as the night clear colour, no second literal). */
+const LAKESIDE_NIGHT_MODE_LIGHTING: LakesideModeLighting = Object.freeze(Object.assign({}, LAKESIDE_NIGHT_LIGHT_PARAMS, { skyDomeColor: LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor }));
 export type LakesideLandFillClass = 'near' | 'far';
 /** r4 land fill: which landform class a GLB is (null = not land: never filled). */
 export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {

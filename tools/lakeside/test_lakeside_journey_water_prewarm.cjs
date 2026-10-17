@@ -43,7 +43,7 @@ t('ordering: prewarm runs on the first show(true) right after prime(), under the
  assert.match(prep,/const warmWater=\(\)=>\{if\(warm\|\|dead\|\|!journeyWater\)return;warm=prewarmLakesideWaterDraw\(camera,journeyWater,lakesideWaterSourceRenderer\(lakeModel,isLakesideWaterNode\)\);\};/);
  assert.match(prep,/useLakesideWater\(model,water\);[\s\S]{0,200}journeyWater=water;\}/,'the journey copy, after it is on the lake');
  assert.doesNotMatch(prep.slice(prep.indexOf('progress(d)')),/warmWater\(\)/,'not from the walk');
- assert.match(prep,/const release=\(\)=>\{if\(dead\)return;dead=true;offWater\(\);atmosphere\.restore\(\);releaseLakesideBoardPreload\(\)[^;]*;warm\?\.cancel\(\)/);
+ assert.match(prep,/const release=\(\)=>\{if\(dead\)return;dead=true;offWater\(\);(offLand\(\);)?atmosphere\.restore\(\);releaseLakesideBoardPreload\(\)[^;]*;warm\?\.cancel\(\)/);
  const black=core.indexOf("this.fadeState='black'"),show=core.indexOf('this.show(true);',black),fadeIn=core.indexOf("this.fadeState='in'",black);
  assert(black>0&&show>black&&fadeIn>show,'show(true) happens under full black, before the fade-in');});
 (async()=>{let fail=0;for(const [n,f] of tests){try{await f();console.log('PASS',n);}catch(e){fail++;console.log('FAIL',n,'\n',e.stack||e);}}
