@@ -1,0 +1,16 @@
+oc_night_375 0 tz "Etc/GMT-4"
+oc_night_375 0.03 goto 
+oc_night_375 1.579 home 
+oc_night_375 9.849 nightKeys "{}"
+oc_night_375 18.85 seatShot 
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at sleep (/Users/<mac-user>/qf-oc-tmp/rec6.cjs:16:19)
+    at /Users/<mac-user>/qf-oc-tmp/rec6.cjs:21:313 {
+  log: []
+}
+
+Node.js v24.14.0

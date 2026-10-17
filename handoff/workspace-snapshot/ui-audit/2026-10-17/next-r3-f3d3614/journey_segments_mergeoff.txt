@@ -1,0 +1,20 @@
+== lk_day_mergeoff_journey_samples.json
+  island             frames    1   0.0s fps  0.0 dist 0→0  DC med 92 max 92 | heap max 111.2 MB tex max 103.2 MB buf 25.0 MB
+  region-loading     frames    3   0.0s fps 78.4 dist 0→0  DC med 68 max 69 | heap max 118.6 MB tex max 103.3 MB buf 22.8 MB
+  travel:ready       frames   16   0.2s fps 60.0 dist 0→0  DC med 69 max 69 | heap max 103.3 MB tex max 102.9 MB buf 25.1 MB
+  travel:approach    frames   79   1.3s fps 60.9 dist 0.11→3.29  DC med 62 max 68 | heap max 130.7 MB tex max 102.9 MB buf 25.3 MB
+  travel:bridge      frames  635  10.6s fps 60.0 dist 3.33→27.7  DC med 64 max 74 | heap max 152.1 MB tex max 102.9 MB buf 25.6 MB
+  travel:arrival     frames  300   5.0s fps 60.0 dist 27.74→39.19  DC med 56 max 64 | heap max 161.9 MB tex max 102.9 MB buf 25.6 MB
+  lakeside           frames  120   2.0s fps 60.0 dist 39.2→39.2  DC med 58 max 61 | heap max 140.1 MB tex max 103.4 MB buf 32.4 MB
+  level-loading      frames   46   0.8s fps 58.7 dist 39.2→39.2  DC med 52 max 56 | heap max 132.3 MB tex max 114.4 MB buf 32.4 MB
+  level              frames    2   0.0s fps 416.7 dist 39.2→39.2  DC med 103 max 103 | heap max 114.4 MB tex max 115.2 MB buf 46.2 MB
+== lk_night_mergeoff_journey_samples.json
+  island             frames    1   0.0s fps  0.0 dist 0→0  DC med 106 max 106 | heap max 134.3 MB tex max 103.2 MB buf 25.0 MB
+  region-loading     frames    3   0.0s fps 65.6 dist 0→0  DC med 82 max 83 | heap max 140.8 MB tex max 103.3 MB buf 22.9 MB
+  travel:ready       frames   16   0.2s fps 60.9 dist 0→0  DC med 83 max 83 | heap max 121.2 MB tex max 102.9 MB buf 25.1 MB
+  travel:approach    frames   79   1.3s fps 60.8 dist 0.11→3.29  DC med 60 max 62 | heap max 144.4 MB tex max 102.9 MB buf 25.4 MB
+  travel:bridge      frames  635  10.6s fps 60.0 dist 3.33→27.7  DC med 61 max 70 | heap max 164.6 MB tex max 102.9 MB buf 25.6 MB
+  travel:arrival     frames  300   5.0s fps 60.0 dist 27.74→39.19  DC med 56 max 62 | heap max 174.6 MB tex max 102.9 MB buf 25.7 MB
+  lakeside           frames  122   2.0s fps 60.0 dist 39.2→39.2  DC med 58 max 58 | heap max 191.4 MB tex max 103.4 MB buf 32.5 MB
+  level-loading      frames   46   0.8s fps 58.7 dist 39.2→39.2  DC med 46 max 53 | heap max 127.4 MB tex max 114.4 MB buf 32.5 MB
+  level              frames    3   0.0s fps 109.9 dist 39.2→39.2  DC med 103 max 103 | heap max 120.4 MB tex max 115.2 MB buf 46.3 MB

@@ -1,0 +1,32 @@
+{
+ "tag": "04_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   3.39
+  ],
+  [
+   "ERROR Error: node not found {\"name\":\"DebugJump\",\"text\":\"主线04末步\"}",
+   34.92
+  ]
+ ],
+ "checks": {},
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

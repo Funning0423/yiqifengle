@@ -1,0 +1,23 @@
+rs_night_390x844_chest 0 tz "Etc/GMT-2"
+rs_night_390x844_chest 0.021 goto 
+rs_night_390x844_chest 3.632 home 
+rs_night_390x844_chest 18.326 homeHold12s 
+rs_night_390x844_chest 18.738 leave "{}"
+rs_night_390x844_chest 105.635 island 
+rs_night_390x844_chest 109.875 tapMainline {"x":282,"y":575}
+rs_night_390x844_chest 117.104 board {"stage":"mainline-01","moves":22}
+rs_night_390x844_chest 156.167 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rs_night_390x844_chest 159.832 tapChest1 {"x":195,"y":478.09999999999997}
+rs_night_390x844_chest 164.256 pop1 ["ResultPanel"]
+rs_night_390x844_chest 164.534 tapChest2 
+rs_night_390x844_chest 167.16 pop2 ["ResultPanel"]
+rs_night_390x844_chest 168.106 storageDiffKeys {"d01":["dot-mainline-r1-isolated-20261009:forest-v33-journey"],"d12":[]}
+rs_night_390x844_chest 168.106 end 
+/Users/<mac-user>/qf-ib-tmp/rec11.cjs:50
+mon=false;try{const b64=await p.evaluate(()=>window.__rec.stop());fs.writeFileSync(OUT+'/'+tag+'.audio.webm',Buffer.from(b64,'base64'));M('audioSaved',await p.evaluate(()=>({start:window.__rec.startEpoch,run:window.__rec.runningEpoch,first:window.__rec.firstSoundEpoch,err:window.__rec.err})).then(o=>({startMs:o.start-T0abs,runMs:(o.run||0)-T0abs,firstMs:(o.first||0)-T0abs,err:o.err})).catch(e=>String(e)))}catch(e){M('audioFail',String(e).slice(0,200))}
+   ^
+
+ReferenceError: mon is not defined
+    at /Users/<mac-user>/qf-ib-tmp/rec11.cjs:50:4
+
+Node.js v24.14.0

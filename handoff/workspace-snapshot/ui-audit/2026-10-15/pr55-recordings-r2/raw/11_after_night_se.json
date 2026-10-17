@@ -1,0 +1,72 @@
+{
+ "tag": "11_after_night_se",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   1.47
+  ],
+  [
+   "board",
+   27.32
+  ],
+  [
+   "entry1",
+   27.32
+  ],
+  [
+   "resumed1",
+   28.17
+  ],
+  [
+   "island",
+   37.47
+  ],
+  [
+   "entry2",
+   41
+  ],
+  [
+   "resumed2",
+   42.52
+  ],
+  [
+   "end",
+   49.2
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1",
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [
+   [
+    "Toast",
+    "星光"
+   ],
+   [
+    "ToastText",
+    "星光"
+   ]
+  ],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

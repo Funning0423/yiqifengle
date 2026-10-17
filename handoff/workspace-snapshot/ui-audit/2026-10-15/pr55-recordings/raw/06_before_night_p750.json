@@ -1,0 +1,62 @@
+{
+ "tag": "06_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.1
+  ],
+  [
+   "home",
+   7.98
+  ],
+  [
+   "settings",
+   42.16
+  ],
+  [
+   "toggle1",
+   45.01
+  ],
+  [
+   "toggle2",
+   47.56
+  ],
+  [
+   "end",
+   50.08
+  ]
+ ],
+ "checks": {
+  "mode0": {
+   "error": "",
+   "text": ""
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

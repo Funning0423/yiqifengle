@@ -1,0 +1,48 @@
+PREBUILD Sat Oct 17 05:10:38 CST 2026 free 10190316
+wx exit 36
+TOTAL 19013276
+ROOT 1862250
+SUB audio_bgm_island 418907
+SUB board_art 2112160
+SUB internal 297535
+SUB main 1158694
+SUB region_island 2886856
+SUB region_lakeside 462448
+SUB region_meadow 2934382
+SUB region_skycity 3326944
+SUB resources 433034
+SUB shared_effects 563694
+SUB static_seat_preview 2556372
+LKFILES 1 36568
+web exit 36
+POSTBUILD Sat Oct 17 05:11:28 CST 2026 free 10030556
+GITSTATUS
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_barrel.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_bridge_steps.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_buoy_lantern.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_bush.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_chime_post.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_chime_raft.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_clothesline.glb.meta
+STRSCAN done
+wx2(lk off) exit 36
+== LK OFF
+TOTAL 19088986
+ROOT 1862250
+SUB audio_bgm_island 418907
+SUB board_art 2112160
+SUB internal 297535
+SUB main 1158694
+SUB region_island 2886856
+SUB region_lakeside 538158
+SUB region_meadow 2934382
+SUB region_skycity 3326944
+SUB resources 433034
+SUB shared_effects 563694
+SUB static_seat_preview 2556372
+LKFILES 1 112320
+META RESTORED
+DONE free 10139128

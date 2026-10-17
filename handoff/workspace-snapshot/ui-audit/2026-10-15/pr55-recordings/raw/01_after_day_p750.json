@@ -1,0 +1,30 @@
+{
+ "tag": "01_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.19
+  ],
+  [
+   "end",
+   4.2
+  ]
+ ],
+ "checks": {
+  "textScan": []
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

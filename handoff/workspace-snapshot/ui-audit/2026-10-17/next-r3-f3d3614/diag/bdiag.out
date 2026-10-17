@@ -1,0 +1,148 @@
++ cd /Users/<mac-user>/qfl-a3b
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
++ sleep 30
++ grep -q RUNALL_DONE r3/runall.out
+++ date
++ echo 'WAITED_DONE Sat Oct 17 17:05:55 CST 2026'
+WAITED_DONE Sat Oct 17 17:05:55 CST 2026
++ D=/Users/<mac-user>/qfl-a3b/diag
++ cd /Users/<mac-user>/qfl-a3b/repo
++ shasum -a 256 /Users/<mac-user>/qfl-a3b/diag/lakeside-water-fix-r3.bundle
+d5555d649558401d373188327dfc46cbab4062ffd7bd857d5a1f3766230454d2  /Users/<mac-user>/qfl-a3b/diag/lakeside-water-fix-r3.bundle
++ git fetch -q /Users/<mac-user>/qfl-a3b/diag/lakeside-water-fix-r3.bundle voice/build05-lakeside-water-fix-r3:refs/remotes/vb/fixr3
++ git checkout -q 10a78208412ca31b0903c7865feccefe9136f4bd
+++ git rev-parse HEAD
+++ git rev-parse 'HEAD^'
+++ git rev-parse 'HEAD^{tree}'
++ echo 'HEAD 10a78208412ca31b0903c7865feccefe9136f4bd PARENT f3d3614361dd2dc23098353ff314a520c3e1c00e TREE 832770215b5ecca297baa1ae9126e56ef8f8e556'
+HEAD 10a78208412ca31b0903c7865feccefe9136f4bd PARENT f3d3614361dd2dc23098353ff314a520c3e1c00e TREE 832770215b5ecca297baa1ae9126e56ef8f8e556
++ git diff --stat f3d3614 HEAD
+ .../assets/scripts/region/LakesideBoardBackground.ts | 14 ++++++++++++++
+ tools/journey-integration/run-suite.cjs              |  2 +-
+ tools/lakeside/test_lakeside_diag.cjs                | 20 ++++++++++++++++++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
++ P=creator-build-project
++ CREATOR=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
+++ df -k /Users/<mac-user>
+++ tail -1
+++ awk '{print $4}'
++ echo 'free before build 9715964 KiB'
+free before build 9715964 KiB
++ ok=0
++ for t in 1 2 3
++ rm -rf creator-build-project/library creator-build-project/temp creator-build-project/build/web-debug
++ /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator --project creator-build-project --build configPath=/Users/<mac-user>/qfl-a3b/diag/web-debug.json
+++ find creator-build-project/build/web-debug -type f -exec wc -c '{}' +
+++ awk '$2!="total"{s+=$1}END{print s+0}'
++ sz=24666348
+++ git status --porcelain --untracked-files=all
+++ grep -v -E '^\?\? creator-build-project/(build|library|temp|local|profiles)/'
+++ tr -d ' '
+++ wc -l
++ nd=0
++ echo 'try 1 size=24666348 dirty=0'
+try 1 size=24666348 dirty=0
++ '[' 24666348 -gt 15000000 ']'
++ grep -q $'å½\223å\211\215å\210\235å§\213å\234ºæ\231¯ä¸\215å\255\230å\234¨' /Users/<mac-user>/qfl-a3b/diag/creator_try1.log
++ '[' 0 = 0 ']'
++ ok=1
++ break
++ rm -rf creator-build-project/library creator-build-project/temp
++ '[' 1 = 1 ']'
++ rm -rf /Users/<mac-user>/qfl-a3b/diag/web-debug
++ mv creator-build-project/build/web-debug /Users/<mac-user>/qfl-a3b/diag/web-debug
++ rm -rf creator-build-project/build
++ cd /Users/<mac-user>/qfl-a3b/diag/web-debug
++ find . -type f
++ sort
++ xargs shasum -a 256
+++ wc -l
+++ shasum -a 256 /Users/<mac-user>/qfl-a3b/diag/files-web-debug.sha256
+++ cut -c1-64
++ echo 'web-debug files      615 agg aa23ab3d815936c52593928b1363e74f63a8f8eb5b56d4472b9f2475efaa4212'
+web-debug files      615 agg aa23ab3d815936c52593928b1363e74f63a8f8eb5b56d4472b9f2475efaa4212
++ grep -l QF_LAKE_DIAG -r /Users/<mac-user>/qfl-a3b/diag/web-debug
++ head
+/Users/<mac-user>/qfl-a3b/diag/web-debug/assets/main/index.js
++ git checkout -q integration/build05-next-20261017T0818Z-r3
++ cd /Users/<mac-user>/qfl-a3b/r3
++ export 'QF_CHROMIUM_EXECUTABLE=/Users/<mac-user>/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'
++ QF_CHROMIUM_EXECUTABLE='/Users/<mac-user>/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'
++ sleep 2
++ nohup python3 ../srv.py 8898 /Users/<mac-user>/qfl-a3b/diag/web-debug
++ PORT=8898
++ URLQ='?lakediag=1'
++ QUICK=1
++ TAG=_diag
++ node lk.cjs day
++ pkill -f 'srv.py 8898'
++ cp raw/lk_day_diag.audio.webm raw/lk_day_diag.json raw/lk_day_diag.webm raw/lk_day_diag_board.png raw/lk_day_diag_chapter_lake.png raw/lk_day_diag_island.png raw/lk_day_diag_j08.png raw/lk_day_diag_j16.png raw/lk_day_diag_j24.png raw/lk_day_diag_j30.png raw/lk_day_diag_j36.png raw/lk_day_diag_journey_samples.json raw/lk_day_diag_worldFlowLog.txt /Users/<mac-user>/qfl-a3b/diag/
+diag/bdiag.sh: line 37: 48214 Terminated: 15          nohup python3 ../srv.py 8898 $D/web-debug > $D/srv_diag.log 2>&1
++ grep -h QF_LAKE_DIAG /Users/<mac-user>/qfl-a3b/diag/lk_day_diag.log raw/lk_day_diag.json raw/lk_day_diag_journey_samples.json
++ head -5
++ echo DIAG_DONE
+DIAG_DONE

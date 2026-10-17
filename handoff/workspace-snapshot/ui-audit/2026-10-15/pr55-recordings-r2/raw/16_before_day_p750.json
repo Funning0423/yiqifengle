@@ -1,0 +1,49 @@
+{
+ "tag": "16_before_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.07
+  ],
+  [
+   "home",
+   5.1
+  ],
+  [
+   "island",
+   33.14
+  ],
+  [
+   "pull0",
+   33.14
+  ],
+  [
+   "pull1",
+   38.12
+  ],
+  [
+   "pull2",
+   42.48
+  ],
+  [
+   "pinch",
+   46.73
+  ],
+  [
+   "release",
+   51.57
+  ],
+  [
+   "end",
+   57.27
+  ]
+ ],
+ "checks": {},
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

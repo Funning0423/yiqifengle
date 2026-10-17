@@ -1,0 +1,52 @@
+[
+[
+21.221,
+"log",
+"[meadow-preload] start late t 21217"
+],
+[
+21.293,
+"log",
+"[meadow-preload] ready late t 21289 took 72"
+],
+[
+27.72,
+"log",
+"[sailboat] gate open settled waited 0.075 t 1792124279703"
+],
+[
+27.72,
+"log",
+"[sailboat] sting start t 1792124279704"
+],
+[
+30.527,
+"log",
+"[sailboat] hold enter t 1792124282511"
+],
+[
+30.536,
+"log",
+"[sailboat] hold leave t 1792124282520"
+],
+[
+40.922,
+"log",
+"[meadow-preload] skip result next mainline-09"
+],
+[
+40.945,
+"log",
+"[meadow-preload] skip result next mainline-09"
+],
+[
+43.458,
+"log",
+"[meadow-preload] skip result next mainline-09"
+],
+[
+43.461,
+"log",
+"[meadow-preload] skip chest next mainline-09"
+]
+]

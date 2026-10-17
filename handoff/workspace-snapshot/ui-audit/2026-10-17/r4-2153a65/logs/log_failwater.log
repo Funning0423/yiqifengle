@@ -1,0 +1,51 @@
+lk4_lake_failwater 0.488 ctxEpoch 1792242946136
+lk4_lake_failwater 0.49 tz "Etc/GMT+1"
+lk4_lake_failwater 0.491 failPat "region_lakeside/import/0e/0e32e8040\\.json"
+lk4_lake_failwater 0.526 goto ""
+lk4_lake_failwater 1.794 home 
+lk4_lake_failwater 36.616 leave {"ok":true}
+lk4_lake_failwater 36.738 island 
+lk4_lake_failwater 39.742 cleared 12
+lk4_lake_failwater 39.744 lightIsland {"dl":[{"n":"Main Light","color":"255/255/255","illum":125000,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"day"}
+lk4_lake_failwater 39.849 mainlineNext "{\"next\":null,\"active\":null}"
+lk4_lake_failwater 39.88 tap {"name":"Island-journal","pt":{"x":195,"y":762.4},"epoch":1792242986016}
+lk4_lake_failwater 41.911 tap {"name":"Chapter-lake","pt":{"x":195.04999999999998,"y":592.55},"epoch":1792242988047}
+lk4_lake_failwater 42.119 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 43.917 chapterTexts ["挑战需通关主线 04","挑战需通关主线 08","挑战需通关主线 12","挑战 0/6","夕阳下的湖面，敲响漂在水上的风铃。","继续挑战","返回章节","继续旅程"]
+lk4_lake_failwater 44.042 tap {"name":"Continue-lake","pt":{"x":195,"y":484.45},"epoch":1792242990178}
+lk4_lake_failwater 44.042 tapContinue 
+lk4_lake_failwater 44.043 state "region-loading"
+lk4_lake_failwater 44.043 phase ["loading",0]
+lk4_lake_failwater 44.126 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 46.129 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 48.134 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 48.186 state "region-travel"
+lk4_lake_failwater 48.186 phase ["ready",0]
+lk4_lake_failwater 48.563 phase ["approach",0.2691256914089601]
+lk4_lake_failwater 49.887 phase ["bridge",3.333284270744045]
+lk4_lake_failwater 52.795 journeyLabels ["开发预览画面，不代表最终效果"]
+lk4_lake_failwater 60.474 phase ["arrival",27.739778959540775]
+lk4_lake_failwater 62.984 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 64.986 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 65.455 state "lakeside"
+lk4_lake_failwater 65.455 phase ["arrived",39.204256678831825]
+lk4_lake_failwater 66.989 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 67.541 state "level-loading"
+lk4_lake_failwater 67.542 llmark 
+lk4_lake_failwater 68.995 abortReq "/assets/region_lakeside/import/0e/0e32e8040.json"
+lk4_lake_failwater 69.461 state "level"
+lk4_lake_failwater 69.464 board "r04-lake-01"
+lk4_lake_failwater 69.892 entryFrames {"n":1545,"maxMs":116.7,"at":48057,"p50":16.7,"p95":17.2,"p99":17.6,"over16_7":51,"over33":1,"over50":1,"over100":1}
+lk4_lake_failwater 69.892 swapFrames {"k":1403,"durPrev":16.9,"durSwap":42.6,"durNext":2.3,"next3":[2.3,21.6,16.4],"camsPrev":{"Main Camera":[57.35,-3.058,3,37.318,0]},"camsSwap":{"Main Camera":[57.35,-3.058,3,37.318,0],"LakesideBackgroundCamera":[57.35,2.945,3.58,31.164,44]},"sunPrev":["Main Light",-0.418,-0.398,0.816],"sunSwap":["Main Light",-0.418,-0.398,0.816]}
+lk4_lake_failwater 69.893 frJourney {"n":1545,"maxMs":116.7,"at":48057,"p50":16.7,"p95":17.2,"p99":17.6,"over16_7":51,"over33":1,"over50":1,"over100":1}
+lk4_lake_failwater 69.893 vis []
+lk4_lake_failwater 69.894 navEpoch 1792242946628.3
+lk4_lake_failwater 71.1 popupsPre {"popups":["RuleGuidePanel"],"keys":["moves","pause","GotIt"]}
+lk4_lake_failwater 71.219 dismissTap {"key":"GotIt","x":195,"y":528.08}
+lk4_lake_failwater 72.725 popupNoResume null
+lk4_lake_failwater 72.728 popupsPost {"popups":[]}
+lk4_lake_failwater 72.859 boardDiag "{\"state\":\"ready\",\"stageId\":\"r04-lake-01\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"lake\",\"bundle\":\"region_lakeside\",\"instances\":431,\"instancedMaterials\":38,\"lightMode\":\"dir\",\"waterTinted\":1,\"waterShaded\":0,\"fogHeld\":true,\"fogMode\":\"layered\",\"mainLightHeld\":true,\"visible\":true,\"paused\":false,\"layer\":1048576,\"cameraPriority\":44,\"nodes\":{\"rig\":\"LakesideLiveScene\",\"scenery\":\"LakesideScenery\",\"camera\":\"LakesideBackgroundCamera\",\"lights\":\"LakesideLights\"},\"dynamicTextureUploads\":0,\"staticMerge\":{\"chunks\":7,\"pieces\":428,\"vertices\":55200,\"ms\":26},\"guest\":4,\"preloaded\":true,\"cameraOn\":true}}"
+lk4_lake_failwater 72.861 lightBoard {"dl":[{"n":"Main Light","color":"255/153/82","illum":118750,"euler":[-23.471,152.876],"fwd":[-0.418,-0.398,0.816]}],"amb":{"skyIllum":29500},"fog":{"on":true,"type":3,"color":"231/165/125","start":60,"end":235},"cams":[{"n":"Main Camera","clear":"28/143/184","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60},{"n":"NativeUICamera","clear":"51/51/51","flags":6,"prio":50},{"n":"LakesideBackgroundCamera","clear":"28/143/184","flags":7,"prio":44}],"dn":"day"}
+lk4_lake_failwater 76.866 perfBoard {"frames":203,"fps":50.9,"dcMed":45,"dcMax":53,"trisMed":60382,"heapMB":134.9,"texMB":114.1,"bufMB":45.2}
+lk4_lake_failwater 76.867 end 
+lk4_lake_failwater 76.891 audioEpochs {"rec":1792242946783,"first":1792242962865,"running":1792242946784}

@@ -1,0 +1,52 @@
+{
+ "tag": "14_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.08
+  ],
+  [
+   "home",
+   3.86
+  ],
+  [
+   "board",
+   31.38
+  ],
+  [
+   "watch",
+   34.23
+  ],
+  [
+   "paused",
+   44.63
+  ],
+  [
+   "resumed",
+   47.65
+  ],
+  [
+   "end",
+   50.16
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1",
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "stage": "mainline-08"
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

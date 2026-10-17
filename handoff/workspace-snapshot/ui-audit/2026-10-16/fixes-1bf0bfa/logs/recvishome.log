@@ -1,0 +1,37 @@
+ib_day_390_vishome 0 tz "Etc/GMT-11"
+ib_day_390_vishome 0.025 goto 
+ib_day_390_vishome 1.178 home 
+ib_day_390_vishome 7.18 homeHide "home"
+ib_day_390_vishome 11.22 homeShow "paused"
+ib_day_390_vishome 13.222 homeAfter2s "paused/true"
+ib_day_390_vishome 13.374 glassDiag "{\"effect\":\"ready\",\"frames\":477,\"visible\":false,\"box\":null,\"corners\":null,\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+ib_day_390_vishome 13.386 realTapHome [195,160]
+ib_day_390_vishome 19.469 homeHold12s 
+ib_day_390_vishome 19.47 leave "{}"
+ib_day_390_vishome 259.661 islandFail 
+ib_day_390_vishome 259.661 island 
+ib_day_390_vishome 322.377 board {"stage":null,"moves":null}
+ib_day_390_vishome 322.38 levelEnd {"st":null,"status":null,"moves":null,"pop":null}
+ib_day_390_vishome 328.556 resultPop 
+ib_day_390_vishome 388.619 islandViaBtnFail "paused"
+ib_day_390_vishome 388.621 exitLevel false
+ib_day_390_vishome 448.654 island2 "paused"
+ib_day_390_vishome 451.655 travelCall 
+ib_day_390_vishome 451.657 travelRet "{\"ok\":false,\"reason\":\"paused\"}"
+ib_day_390_vishome 571.95 arrived 
+ib_day_390_vishome 636.07 homeFail2 
+ib_day_390_vishome 636.07 home2 
+ib_day_390_vishome 644.16 nightProp "false"
+ib_day_390_vishome 644.16 end 
+ib_day_390_vishome 644.312 audioSaved {"startMs":128,"runMs":129,"firstMs":13464,"err":[]}
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at sleep (/Users/<mac-user>/qf-fx4-tmp/rec10.cjs:16:19)
+    at /Users/<mac-user>/qf-fx4-tmp/rec10.cjs:20:280 {
+  log: []
+}
+
+Node.js v24.14.0

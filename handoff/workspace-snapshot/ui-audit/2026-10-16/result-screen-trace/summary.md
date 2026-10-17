@@ -1,0 +1,7 @@
+# Result screen trace (2026-10-16)
+Conclusion: yes. The chest/claim fix was done in PR #55 (draft, open, "不要合并"), but it is not on the 379e137 / 2607de6 chain. The bottom-button 3D style (issue #9) was never done by anyone.
+- Earlier reports: 2026-10-15 issues.md #1 (high: chest at the left) #2 (high: 8px padding) #3 (high: SE pagination) #6 (medium: hint line wrap) #9 (low: bottom buttons artScale 0.45 too thin); round2 R2 (high: three sections + claim all at once, mockups/R2-result-before-after.png).
+- Fix: branch origin/ui/audit-fix-20261015 (PR #55, head ea111f7, base int/v2-slim edc65d5). Result-screen commits: 6344f39, 16d7ca1 "land the audited settlement UI" (10-15), 5575c78 "Claim every settlement reward in one step" (10-15), bd10569, 3b6589d (10-16). BoardPanels.ts +158/-60: centered ResultChest3D, ClaimAll 220×56 "全部领取", inner w-48. Recording checks pr55-recordings-r2 #4★ passed (day/night).
+- Chain: 379e137/2607de6 = 751905c → bc90315 → bc418c5/ee012f4/87f9ec2/379e137/2607de6. merge-base(PR55, 751905c) = 751905c. None of 16d7ca1/5575c78/3b6589d/6754233 is an ancestor of 751905c or bc90315; bc90315 does not change BoardPanels relative to 751905c, and p1–p5 do not touch BoardPanels. The build05 line branched off 751905c on its own, and PR55 is still a draft, so it never came in.
+- No outbox mentions merging PR55 into build05.
+- Not done by anyone: #9 bottom buttons (artScale/height unchanged in PR55); the region item as an icon card (PR55 kept it as a secondary row).

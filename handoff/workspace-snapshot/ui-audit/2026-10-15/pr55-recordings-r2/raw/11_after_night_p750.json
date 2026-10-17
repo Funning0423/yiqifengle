@@ -1,0 +1,69 @@
+{
+ "tag": "11_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.09
+  ],
+  [
+   "board",
+   26.56
+  ],
+  [
+   "entry1",
+   26.56
+  ],
+  [
+   "resumed1",
+   27.41
+  ],
+  [
+   "island",
+   36.09
+  ],
+  [
+   "entry2",
+   39.56
+  ],
+  [
+   "resumed2",
+   40.41
+  ],
+  [
+   "end",
+   46.95
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1",
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [
+   [
+    "Toast",
+    "星光"
+   ],
+   [
+    "ToastText",
+    "星光"
+   ]
+  ],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": []
+}

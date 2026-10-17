@@ -1,0 +1,26 @@
+{
+ "tag": "05_before_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.06
+  ],
+  [
+   "home",
+   3.04
+  ],
+  [
+   "end",
+   6.04
+  ]
+ ],
+ "checks": {
+  "textScan": [
+   "地区流程测试",
+   "独立测试进度 · 主线 00"
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

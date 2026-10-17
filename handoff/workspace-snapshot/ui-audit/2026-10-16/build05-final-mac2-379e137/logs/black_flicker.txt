@@ -1,0 +1,4 @@
+25_fin_day_p750 n 1422 black(<8) frames: [np.float64(0.2)] one-sample luma spikes (>25 up&down): [0.2, 120.2]
+25_fin_night_p750 n 1630 black(<8) frames: [np.float64(0.8), np.float64(1.0)] one-sample luma spikes (>25 up&down): []
+24_fin_day_p750 n 1131 black(<8) frames: [np.float64(0.4), np.float64(0.6)] one-sample luma spikes (>25 up&down): []
+24_fin_night_p750 n 1575 black(<8) frames: [np.float64(0.4)] one-sample luma spikes (>25 up&down): [0.4]

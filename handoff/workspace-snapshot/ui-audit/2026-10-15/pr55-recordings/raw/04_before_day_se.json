@@ -1,0 +1,159 @@
+{
+ "tag": "04_before_day_se",
+ "marks": [
+  [
+   "goto",
+   0.06
+  ],
+  [
+   "home",
+   3.15
+  ],
+  [
+   "board",
+   28.55
+  ],
+  [
+   "swap",
+   31.3
+  ],
+  [
+   "result",
+   33.79
+  ],
+  [
+   "claim",
+   36.34
+  ],
+  [
+   "accept",
+   39.39
+  ],
+  [
+   "end",
+   41.92
+  ]
+ ],
+ "checks": {
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "result": [
+   [
+    "PopupPanel",
+    "1130 分|用了 6 步 · 剩余 22 步|成绩已保存|下一关|回小岛|‹|›|1 / 2|过关啦|1130 分|用了 6 步 · 剩余 22 步|成绩已保",
+    12,
+    95,
+    351,
+    526
+   ],
+   [
+    "Next",
+    "下一关",
+    20,
+    565,
+    164,
+    48
+   ],
+   [
+    "Home",
+    "回小岛",
+    192,
+    565,
+    164,
+    48
+   ],
+   [
+    "ResultNextPage",
+    "›",
+    315,
+    99,
+    48,
+    48
+   ],
+   [
+    "ResultStars",
+    "",
+    110,
+    217,
+    155,
+    57
+   ],
+   [
+    "ResultFlow-Score-0",
+    "1130 分",
+    20,
+    291,
+    335,
+    41
+   ],
+   [
+    "Score",
+    "1130 分",
+    20,
+    291,
+    335,
+    41
+   ],
+   [
+    "Claim-chest",
+    "打开宝箱",
+    20,
+    422,
+    335,
+    96
+   ],
+   [
+    "chest_closed",
+    "",
+    32,
+    437,
+    72,
+    65
+   ]
+  ],
+  "rewardPanels": 1,
+  "reward": [
+   [
+    "ResultChest3D",
+    "",
+    119,
+    247,
+    138,
+    138
+   ],
+   [
+    "Gain-charm",
+    "",
+    98,
+    222,
+    178,
+    138
+   ],
+   [
+    "GainList",
+    "装扮 ×1",
+    160,
+    393,
+    55,
+    28
+   ],
+   [
+    "Accept",
+    "收下",
+    83,
+    461,
+    210,
+    52
+   ]
+  ],
+  "popupsAfter": [
+   "ResultPanel"
+  ],
+  "claimLeft": []
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

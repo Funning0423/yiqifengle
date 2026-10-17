@@ -1,0 +1,180 @@
+== lake_day (srv_lake_day)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_night (srv_lake_night)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_mo (srv_lake_day_mo)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_night_mo (srv_lake_night_mo)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_cap (srv_lake_day_cap)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_night_cap (srv_lake_night_cap)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_cap_360x780 (srv_lake_day_cap360)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_cap_375x667 (srv_lake_day_cap375)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_cap_390x520 (srv_lake_day_cap390s)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_probe (srv_probe)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== meadow_day (srv_meadow_day)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== meadow_night (srv_meadow_night)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== sky_day (srv_sky_day)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== sky_night (srv_sky_night)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_bg3 (srv_lake_day_bg3)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 1 {'[QF_LAKE] lakeside journey not reached: cancelled': 1}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_bg10 (srv_lake_day_bg10)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 1 {'[QF_LAKE] lakeside journey not reached: cancelled': 1}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_failwater (srv_failwater)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 6 {'download failed: assets/region_lakeside/import/0e/0e32e8040.json, status: 0(error) Error: download failed: assets/region_lakeside/import/0e/0e32e8040.json, stat': 5, '[QF_LAKE] {"event":"journey-water-fallback","bundle":"region_lakeside","asset":"water/lakeside-
+C HTTP>=400 0 [] 白名单(favicon 404) 0
+D 网络失败 8 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_ab (srv_ab_r4)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_abf3d (srv_ab_f3d)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_diag (srv_diag)
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== rec day
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 1 {'Ignored attempt to cancel a touchstart event with cancelable=false, for example because scrolling is in progress and cannot be interrupted.': 1}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== rec night
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 1 {'Ignored attempt to cancel a touchstart event with cancelable=false, for example because scrolling is in progress and cannot be interrupted.': 1}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== meadow_day_ml
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== meadow_night_ml
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== sky_day_ml
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== sky_night_ml
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_ab2
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_ab3
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_abf3d2
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+== lake_day_abf3d3
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []

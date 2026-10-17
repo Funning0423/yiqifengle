@@ -1,0 +1,42 @@
+{
+ "tag": "14_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   1.14
+  ],
+  [
+   "board",
+   27.46
+  ],
+  [
+   "watch",
+   30.09
+  ],
+  [
+   "paused",
+   40.47
+  ],
+  [
+   "resumed",
+   43.52
+  ],
+  [
+   "end",
+   46.02
+  ]
+ ],
+ "checks": {
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "stage": "mainline-08"
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

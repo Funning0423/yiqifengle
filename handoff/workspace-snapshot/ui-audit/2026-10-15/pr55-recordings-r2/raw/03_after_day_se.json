@@ -1,0 +1,113 @@
+{
+ "tag": "03_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.07
+  ],
+  [
+   "home",
+   3.77
+  ],
+  [
+   "triDouble1",
+   4.77
+  ],
+  [
+   "keyFallbackOpen",
+   7.85
+  ],
+  [
+   "pickMeadow",
+   8.69
+  ],
+  [
+   "jump",
+   8.72
+  ],
+  [
+   "arrived",
+   34.26
+  ],
+  [
+   "ERROR TimeoutError: page.waitForFunction: Timeout 180000ms exceeded.",
+   218.67
+  ]
+ ],
+ "checks": {
+  "panelAfterTri1": 0,
+  "btns": [
+   [
+    "主页",
+    159,
+    48
+   ],
+   [
+    "小岛",
+    159,
+    48
+   ],
+   [
+    "天空城",
+    159,
+    48
+   ],
+   [
+    "主线",
+    159,
+    48
+   ],
+   [
+    "潮汐",
+    159,
+    48
+   ],
+   [
+    "草甸",
+    159,
+    48
+   ],
+   [
+    "天空",
+    159,
+    48
+   ],
+   [
+    "原地区",
+    159,
+    48
+   ],
+   [
+    "主线04末步",
+    159,
+    48
+   ],
+   [
+    "主线08末步",
+    159,
+    48
+   ],
+   [
+    "主线12末步",
+    159,
+    48
+   ],
+   [
+    "退出流程",
+    159,
+    48
+   ],
+   [
+    "关闭",
+    159,
+    48
+   ]
+  ],
+  "arrivedStage": "r05-meadow-01",
+  "triOnBoard": 0
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

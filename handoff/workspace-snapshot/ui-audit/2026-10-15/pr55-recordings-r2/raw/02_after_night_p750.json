@@ -1,0 +1,133 @@
+{
+ "tag": "02_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.1
+  ],
+  [
+   "home",
+   7.45
+  ],
+  [
+   "island",
+   33.07
+  ],
+  [
+   "watchStart",
+   36.08
+  ],
+  [
+   "end",
+   48.08
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1",
+  "textScan": [],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": true,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 1,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -8.561030190873032,
+      -0.8374390351742527,
+      24.75781948165079
+     ],
+     "s": 2.07573997638523
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.783785452290233,
+      -0.8374390351742527,
+      25.525993558280074
+     ],
+     "s": 2.134047279092682
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -3.0065407137074285,
+      -0.8374390351742562,
+      26.29416763490935
+     ],
+     "s": 1.8071380384324351
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: the server responded with a status of 404 (File not found)",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

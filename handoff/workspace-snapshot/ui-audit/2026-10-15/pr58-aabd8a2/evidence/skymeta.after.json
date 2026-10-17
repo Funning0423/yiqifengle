@@ -1,0 +1,3349 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22",
+  "files": [
+    "__original-animation-0.bin",
+    "__original-animation-1.bin",
+    "__original-animation-10.bin",
+    "__original-animation-11.bin",
+    "__original-animation-12.bin",
+    "__original-animation-13.bin",
+    "__original-animation-14.bin",
+    "__original-animation-15.bin",
+    "__original-animation-16.bin",
+    "__original-animation-17.bin",
+    "__original-animation-18.bin",
+    "__original-animation-19.bin",
+    "__original-animation-2.bin",
+    "__original-animation-20.bin",
+    "__original-animation-21.bin",
+    "__original-animation-22.bin",
+    "__original-animation-23.bin",
+    "__original-animation-24.bin",
+    "__original-animation-25.bin",
+    "__original-animation-26.bin",
+    "__original-animation-27.bin",
+    "__original-animation-28.bin",
+    "__original-animation-29.bin",
+    "__original-animation-3.bin",
+    "__original-animation-4.bin",
+    "__original-animation-5.bin",
+    "__original-animation-6.bin",
+    "__original-animation-7.bin",
+    "__original-animation-8.bin",
+    "__original-animation-9.bin"
+  ],
+  "subMetas": {
+    "10486": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@10486",
+      "displayName": "",
+      "id": "10486",
+      "name": "UnnamedTexture-16.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@46e50"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "14738": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@14738",
+      "displayName": "",
+      "id": "14738",
+      "name": "UnnamedTexture-20.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "20916": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@20916",
+      "displayName": "",
+      "id": "20916",
+      "name": "anim_flag_1_tail.mesh",
+      "userData": {
+        "gltfIndex": 17,
+        "triangleCount": 3
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "29397": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@29397",
+      "displayName": "",
+      "id": "29397",
+      "name": "anim_butterfly_0.mesh",
+      "userData": {
+        "gltfIndex": 11,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "31883": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@31883",
+      "displayName": "",
+      "id": "31883",
+      "name": "anim_bird_1_3.mesh",
+      "userData": {
+        "gltfIndex": 10,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "50743": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@50743",
+      "displayName": "",
+      "id": "50743",
+      "name": "UnnamedTexture-5.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "55257": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@55257",
+      "displayName": "",
+      "id": "55257",
+      "name": "UnnamedTexture-12.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@8e3f8"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "57063": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@57063",
+      "displayName": "",
+      "id": "57063",
+      "name": "anim_bird_0_1_flap.animation",
+      "userData": {
+        "gltfIndex": 5,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "67093": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@67093",
+      "displayName": "",
+      "id": "67093",
+      "name": "robot_watering.animation",
+      "userData": {
+        "gltfIndex": 2,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "72767": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@72767",
+      "displayName": "",
+      "id": "72767",
+      "name": "anim_windchime_0.mesh",
+      "userData": {
+        "gltfIndex": 22,
+        "triangleCount": 180
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "79961": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@79961",
+      "displayName": "",
+      "id": "79961",
+      "name": "state_ring_before_stars.mesh",
+      "userData": {
+        "gltfIndex": 52,
+        "triangleCount": 84
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "81615": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@81615",
+      "displayName": "",
+      "id": "81615",
+      "name": "anim_petals_0.mesh",
+      "userData": {
+        "gltfIndex": 19,
+        "triangleCount": 32
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "87154": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@87154",
+      "displayName": "",
+      "id": "87154",
+      "name": "tex_sky_rock_strata_normal_512.image",
+      "userData": {
+        "gltfIndex": 8,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "92839": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@92839",
+      "displayName": "",
+      "id": "92839",
+      "name": "state_gate_after.mesh",
+      "userData": {
+        "gltfIndex": 47,
+        "triangleCount": 474
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "95919": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@95919",
+      "displayName": "",
+      "id": "95919",
+      "name": "anim_butterfly_1_flutter.animation",
+      "userData": {
+        "gltfIndex": 14,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "98962": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@98962",
+      "displayName": "",
+      "id": "98962",
+      "name": "UnnamedTexture-19.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@e2a3e"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "29b30": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@29b30",
+      "displayName": "",
+      "id": "29b30",
+      "name": "chr_robot_gardener_cards.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 62
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d9e13": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d9e13",
+      "displayName": "",
+      "id": "d9e13",
+      "name": "chr_robot_gardener_deco.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 878
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "79db1": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@79db1",
+      "displayName": "",
+      "id": "79db1",
+      "name": "chr_robot_gardener_mesh.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 13434
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d40d1": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d40d1",
+      "displayName": "",
+      "id": "d40d1",
+      "name": "anim_bird_0_0.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2d16b": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2d16b",
+      "displayName": "",
+      "id": "2d16b",
+      "name": "anim_bird_0_1.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "85b53": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@85b53",
+      "displayName": "",
+      "id": "85b53",
+      "name": "anim_bird_0_2.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8e3c3": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@8e3c3",
+      "displayName": "",
+      "id": "8e3c3",
+      "name": "anim_bird_0_3.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1ea28": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1ea28",
+      "displayName": "",
+      "id": "1ea28",
+      "name": "anim_bird_1_0.mesh",
+      "userData": {
+        "gltfIndex": 7,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5e66b": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@5e66b",
+      "displayName": "",
+      "id": "5e66b",
+      "name": "anim_bird_1_1.mesh",
+      "userData": {
+        "gltfIndex": 8,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e5fd3": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e5fd3",
+      "displayName": "",
+      "id": "e5fd3",
+      "name": "anim_bird_1_2.mesh",
+      "userData": {
+        "gltfIndex": 9,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e28db": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e28db",
+      "displayName": "",
+      "id": "e28db",
+      "name": "anim_butterfly_1.mesh",
+      "userData": {
+        "gltfIndex": 12,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "53e37": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@53e37",
+      "displayName": "",
+      "id": "53e37",
+      "name": "anim_butterfly_2.mesh",
+      "userData": {
+        "gltfIndex": 13,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "30fbc": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@30fbc",
+      "displayName": "",
+      "id": "30fbc",
+      "name": "anim_butterfly_3.mesh",
+      "userData": {
+        "gltfIndex": 14,
+        "triangleCount": 4
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "41c12": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@41c12",
+      "displayName": "",
+      "id": "41c12",
+      "name": "anim_flag_0_tail.mesh",
+      "userData": {
+        "gltfIndex": 15,
+        "triangleCount": 3
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8a8d3": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@8a8d3",
+      "displayName": "",
+      "id": "8a8d3",
+      "name": "anim_flag_0.mesh",
+      "userData": {
+        "gltfIndex": 16,
+        "triangleCount": 2
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e076c": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e076c",
+      "displayName": "",
+      "id": "e076c",
+      "name": "anim_flag_1.mesh",
+      "userData": {
+        "gltfIndex": 18,
+        "triangleCount": 2
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "90b34": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@90b34",
+      "displayName": "",
+      "id": "90b34",
+      "name": "anim_petals_1.mesh",
+      "userData": {
+        "gltfIndex": 20,
+        "triangleCount": 32
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "34fa4": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@34fa4",
+      "displayName": "",
+      "id": "34fa4",
+      "name": "anim_waterfall_scroll.mesh",
+      "userData": {
+        "gltfIndex": 21,
+        "triangleCount": 84
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "65aea": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@65aea",
+      "displayName": "",
+      "id": "65aea",
+      "name": "anim_windchime_1.mesh",
+      "userData": {
+        "gltfIndex": 23,
+        "triangleCount": 180
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "88f43": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@88f43",
+      "displayName": "",
+      "id": "88f43",
+      "name": "anim_windchime_2.mesh",
+      "userData": {
+        "gltfIndex": 24,
+        "triangleCount": 180
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8edab": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@8edab",
+      "displayName": "",
+      "id": "8edab",
+      "name": "anim_windmill_rotor_0.mesh",
+      "userData": {
+        "gltfIndex": 25,
+        "triangleCount": 228
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8c515": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@8c515",
+      "displayName": "",
+      "id": "8c515",
+      "name": "anim_windmill_rotor_1.mesh",
+      "userData": {
+        "gltfIndex": 26,
+        "triangleCount": 228
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a8826": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a8826",
+      "displayName": "",
+      "id": "a8826",
+      "name": "env_sky_island_top.mesh",
+      "userData": {
+        "gltfIndex": 27,
+        "triangleCount": 7775
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c1be1": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@c1be1",
+      "displayName": "",
+      "id": "c1be1",
+      "name": "env_sky_cloudbridge.mesh",
+      "userData": {
+        "gltfIndex": 28,
+        "triangleCount": 6454
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ff272": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@ff272",
+      "displayName": "",
+      "id": "ff272",
+      "name": "env_sky_greattree_trunk.mesh",
+      "userData": {
+        "gltfIndex": 29,
+        "triangleCount": 34991
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "450cf": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@450cf",
+      "displayName": "",
+      "id": "450cf",
+      "name": "env_laputa_lowercity.mesh",
+      "userData": {
+        "gltfIndex": 30,
+        "triangleCount": 13069
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a8335": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a8335",
+      "displayName": "",
+      "id": "a8335",
+      "name": "env_sky_cards_grass.mesh",
+      "userData": {
+        "gltfIndex": 31,
+        "triangleCount": 7142
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8e556": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@8e556",
+      "displayName": "",
+      "id": "8e556",
+      "name": "env_sky_waterfall.mesh",
+      "userData": {
+        "gltfIndex": 32,
+        "triangleCount": 480
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "998e3": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@998e3",
+      "displayName": "",
+      "id": "998e3",
+      "name": "env_sky_cloudsea_c00.mesh",
+      "userData": {
+        "gltfIndex": 33,
+        "triangleCount": 12062
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9a96c": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@9a96c",
+      "displayName": "",
+      "id": "9a96c",
+      "name": "env_sky_floatingrocks.mesh",
+      "userData": {
+        "gltfIndex": 34,
+        "triangleCount": 3749
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4c83a": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4c83a",
+      "displayName": "",
+      "id": "4c83a",
+      "name": "env_sky_greattree_canopy.mesh",
+      "userData": {
+        "gltfIndex": 35,
+        "triangleCount": 2296
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b65dd": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@b65dd",
+      "displayName": "",
+      "id": "b65dd",
+      "name": "env_sky_greattree_canopy_cards.mesh",
+      "userData": {
+        "gltfIndex": 36,
+        "triangleCount": 352
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "19e04": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@19e04",
+      "displayName": "",
+      "id": "19e04",
+      "name": "env_sky_starcourt_plaza.mesh",
+      "userData": {
+        "gltfIndex": 37,
+        "triangleCount": 7893
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c2a7a": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@c2a7a",
+      "displayName": "",
+      "id": "c2a7a",
+      "name": "env_sky_stargate.mesh",
+      "userData": {
+        "gltfIndex": 38,
+        "triangleCount": 1900
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1af31": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1af31",
+      "displayName": "",
+      "id": "1af31",
+      "name": "env_sky_starring.mesh",
+      "userData": {
+        "gltfIndex": 39,
+        "triangleCount": 836
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0a7f2": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0a7f2",
+      "displayName": "",
+      "id": "0a7f2",
+      "name": "state_ring_after_stars.mesh",
+      "userData": {
+        "gltfIndex": 40,
+        "triangleCount": 84
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "cdd5c": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@cdd5c",
+      "displayName": "",
+      "id": "cdd5c",
+      "name": "state_bridge_after.mesh",
+      "userData": {
+        "gltfIndex": 41,
+        "triangleCount": 1840
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d5f17": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d5f17",
+      "displayName": "",
+      "id": "d5f17",
+      "name": "state_bridge_after_lamps.mesh",
+      "userData": {
+        "gltfIndex": 42,
+        "triangleCount": 780
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4b43f": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4b43f",
+      "displayName": "",
+      "id": "4b43f",
+      "name": "state_bridge_before.mesh",
+      "userData": {
+        "gltfIndex": 43,
+        "triangleCount": 680
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ad813": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@ad813",
+      "displayName": "",
+      "id": "ad813",
+      "name": "state_court_after.mesh",
+      "userData": {
+        "gltfIndex": 44,
+        "triangleCount": 38
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1e8b2": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1e8b2",
+      "displayName": "",
+      "id": "1e8b2",
+      "name": "state_court_after_flowers.mesh",
+      "userData": {
+        "gltfIndex": 45,
+        "triangleCount": 128
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "62d24": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@62d24",
+      "displayName": "",
+      "id": "62d24",
+      "name": "state_court_before.mesh",
+      "userData": {
+        "gltfIndex": 46,
+        "triangleCount": 38
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "62c1e": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@62c1e",
+      "displayName": "",
+      "id": "62c1e",
+      "name": "state_gate_after_flowers.mesh",
+      "userData": {
+        "gltfIndex": 48,
+        "triangleCount": 24
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b6eeb": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@b6eeb",
+      "displayName": "",
+      "id": "b6eeb",
+      "name": "state_gate_before.mesh",
+      "userData": {
+        "gltfIndex": 49,
+        "triangleCount": 144
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3f2fb": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3f2fb",
+      "displayName": "",
+      "id": "3f2fb",
+      "name": "state_gate_before_vines.mesh",
+      "userData": {
+        "gltfIndex": 50,
+        "triangleCount": 8
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3d21f": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3d21f",
+      "displayName": "",
+      "id": "3d21f",
+      "name": "state_ring_before.mesh",
+      "userData": {
+        "gltfIndex": 51,
+        "triangleCount": 944
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5edaf": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@5edaf",
+      "displayName": "",
+      "id": "5edaf",
+      "name": "robot_give_flower.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "955da": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@955da",
+      "displayName": "",
+      "id": "955da",
+      "name": "robot_idle.animation",
+      "userData": {
+        "gltfIndex": 1,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 3.3333332538604736
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "1e797": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1e797",
+      "displayName": "",
+      "id": "1e797",
+      "name": "anim_birds_flock_0_orbit.animation",
+      "userData": {
+        "gltfIndex": 3,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "e1ee6": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e1ee6",
+      "displayName": "",
+      "id": "e1ee6",
+      "name": "anim_bird_0_0_flap.animation",
+      "userData": {
+        "gltfIndex": 4,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "da965": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@da965",
+      "displayName": "",
+      "id": "da965",
+      "name": "anim_bird_0_2_flap.animation",
+      "userData": {
+        "gltfIndex": 6,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "dc301": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@dc301",
+      "displayName": "",
+      "id": "dc301",
+      "name": "anim_bird_0_3_flap.animation",
+      "userData": {
+        "gltfIndex": 7,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "5c043": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@5c043",
+      "displayName": "",
+      "id": "5c043",
+      "name": "anim_birds_flock_1_orbit.animation",
+      "userData": {
+        "gltfIndex": 8,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "ca65c": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@ca65c",
+      "displayName": "",
+      "id": "ca65c",
+      "name": "anim_bird_1_0_flap.animation",
+      "userData": {
+        "gltfIndex": 9,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "851e9": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@851e9",
+      "displayName": "",
+      "id": "851e9",
+      "name": "anim_bird_1_1_flap.animation",
+      "userData": {
+        "gltfIndex": 10,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "e1566": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e1566",
+      "displayName": "",
+      "id": "e1566",
+      "name": "anim_bird_1_2_flap.animation",
+      "userData": {
+        "gltfIndex": 11,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "96f70": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@96f70",
+      "displayName": "",
+      "id": "96f70",
+      "name": "anim_bird_1_3_flap.animation",
+      "userData": {
+        "gltfIndex": 12,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "f1a4c": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f1a4c",
+      "displayName": "",
+      "id": "f1a4c",
+      "name": "anim_butterfly_0_flutter.animation",
+      "userData": {
+        "gltfIndex": 13,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "b7298": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@b7298",
+      "displayName": "",
+      "id": "b7298",
+      "name": "anim_butterfly_2_flutter.animation",
+      "userData": {
+        "gltfIndex": 15,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "9350b": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@9350b",
+      "displayName": "",
+      "id": "9350b",
+      "name": "anim_butterfly_3_flutter.animation",
+      "userData": {
+        "gltfIndex": 16,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "951de": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@951de",
+      "displayName": "",
+      "id": "951de",
+      "name": "anim_flag_0_wave.animation",
+      "userData": {
+        "gltfIndex": 17,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "bcc14": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@bcc14",
+      "displayName": "",
+      "id": "bcc14",
+      "name": "anim_flag_0_tail_wave.animation",
+      "userData": {
+        "gltfIndex": 18,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "fc468": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@fc468",
+      "displayName": "",
+      "id": "fc468",
+      "name": "anim_flag_1_wave.animation",
+      "userData": {
+        "gltfIndex": 19,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "0a932": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0a932",
+      "displayName": "",
+      "id": "0a932",
+      "name": "anim_flag_1_tail_wave.animation",
+      "userData": {
+        "gltfIndex": 20,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "b9ed9": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@b9ed9",
+      "displayName": "",
+      "id": "b9ed9",
+      "name": "anim_petals_0_drift.animation",
+      "userData": {
+        "gltfIndex": 21,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "32d6f": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@32d6f",
+      "displayName": "",
+      "id": "32d6f",
+      "name": "anim_petals_1_drift.animation",
+      "userData": {
+        "gltfIndex": 22,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "bc7ba": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@bc7ba",
+      "displayName": "",
+      "id": "bc7ba",
+      "name": "anim_wind_driver_move.animation",
+      "userData": {
+        "gltfIndex": 23,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "d174f": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d174f",
+      "displayName": "",
+      "id": "d174f",
+      "name": "anim_windchime_0_swing.animation",
+      "userData": {
+        "gltfIndex": 24,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "38cf3": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@38cf3",
+      "displayName": "",
+      "id": "38cf3",
+      "name": "anim_windchime_1_swing.animation",
+      "userData": {
+        "gltfIndex": 25,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "d1763": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d1763",
+      "displayName": "",
+      "id": "d1763",
+      "name": "anim_windchime_2_swing.animation",
+      "userData": {
+        "gltfIndex": 26,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "1bba4": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1bba4",
+      "displayName": "",
+      "id": "1bba4",
+      "name": "anim_windmill_rotor_0_spin.animation",
+      "userData": {
+        "gltfIndex": 27,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "2db65": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2db65",
+      "displayName": "",
+      "id": "2db65",
+      "name": "anim_windmill_rotor_1_spin.animation",
+      "userData": {
+        "gltfIndex": 28,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 6.041666507720947
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "77c51": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@77c51",
+      "displayName": "",
+      "id": "77c51",
+      "name": "anim_starring_rotate.animation",
+      "userData": {
+        "gltfIndex": 29,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 60.04166793823242
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "525f1": {
+      "importer": "gltf-skeleton",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@525f1",
+      "displayName": "",
+      "id": "525f1",
+      "name": "chr_robot_gardener_rig.skeleton",
+      "userData": {
+        "gltfIndex": 0,
+        "jointsLength": 18
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a9fef": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a9fef",
+      "displayName": "",
+      "id": "a9fef",
+      "name": "tex_sky_foliage_512.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": true,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "d2a4d": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d",
+      "displayName": "",
+      "id": "d2a4d",
+      "name": "tex_sky_palette_256.image",
+      "userData": {
+        "gltfIndex": 1,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "388c3": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@388c3",
+      "displayName": "",
+      "id": "388c3",
+      "name": "tex_robot_metal_normal_1024.image",
+      "userData": {
+        "gltfIndex": 2,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "df638": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@df638",
+      "displayName": "",
+      "id": "df638",
+      "name": "tex_robot_metal_albedo_1024.image",
+      "userData": {
+        "gltfIndex": 3,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "05e0d": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@05e0d",
+      "displayName": "",
+      "id": "05e0d",
+      "name": "tex_robot_metal_orm_1024.image",
+      "userData": {
+        "gltfIndex": 4,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dc463": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@dc463",
+      "displayName": "",
+      "id": "dc463",
+      "name": "tex_sky_grass_tint_normal_512.image",
+      "userData": {
+        "gltfIndex": 5,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "031fb": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@031fb",
+      "displayName": "",
+      "id": "031fb",
+      "name": "tex_sky_grass_tint_albedo_512.image",
+      "userData": {
+        "gltfIndex": 6,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1a9f4": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1a9f4",
+      "displayName": "",
+      "id": "1a9f4",
+      "name": "tex_sky_grass_tint_orm_512.image",
+      "userData": {
+        "gltfIndex": 7,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8e3f8": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@8e3f8",
+      "displayName": "",
+      "id": "8e3f8",
+      "name": "tex_sky_rock_strata_albedo_512.image",
+      "userData": {
+        "gltfIndex": 9,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "29be0": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@29be0",
+      "displayName": "",
+      "id": "29be0",
+      "name": "tex_sky_rock_strata_orm_512.image",
+      "userData": {
+        "gltfIndex": 10,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f0fd9": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f0fd9",
+      "displayName": "",
+      "id": "f0fd9",
+      "name": "tex_laputa_stone_normal_1024.image",
+      "userData": {
+        "gltfIndex": 11,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "286ea": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@286ea",
+      "displayName": "",
+      "id": "286ea",
+      "name": "tex_laputa_stone_albedo_1024.image",
+      "userData": {
+        "gltfIndex": 12,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "46e50": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@46e50",
+      "displayName": "",
+      "id": "46e50",
+      "name": "tex_laputa_stone_orm_1024.image",
+      "userData": {
+        "gltfIndex": 13,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f5ffa": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f5ffa",
+      "displayName": "",
+      "id": "f5ffa",
+      "name": "tex_sky_bark_normal_512.image",
+      "userData": {
+        "gltfIndex": 14,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e786b": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e786b",
+      "displayName": "",
+      "id": "e786b",
+      "name": "tex_sky_bark_albedo_512.image",
+      "userData": {
+        "gltfIndex": 15,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e2a3e": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e2a3e",
+      "displayName": "",
+      "id": "e2a3e",
+      "name": "tex_sky_bark_orm_512.image",
+      "userData": {
+        "gltfIndex": 16,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@a9fef"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0089c": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0089c",
+      "displayName": "",
+      "id": "0089c",
+      "name": "UnnamedTexture-2.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@388c3"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9b633": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@9b633",
+      "displayName": "",
+      "id": "9b633",
+      "name": "UnnamedTexture-3.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@df638"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9b782": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@9b782",
+      "displayName": "",
+      "id": "9b782",
+      "name": "UnnamedTexture-4.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@05e0d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "99ea5": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@99ea5",
+      "displayName": "",
+      "id": "99ea5",
+      "name": "UnnamedTexture-6.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "006bd": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@006bd",
+      "displayName": "",
+      "id": "006bd",
+      "name": "UnnamedTexture-7.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "531b0": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@531b0",
+      "displayName": "",
+      "id": "531b0",
+      "name": "UnnamedTexture-8.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@dc463"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9c3d2": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@9c3d2",
+      "displayName": "",
+      "id": "9c3d2",
+      "name": "UnnamedTexture-9.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@031fb"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f7e17": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f7e17",
+      "displayName": "",
+      "id": "f7e17",
+      "name": "UnnamedTexture-10.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@1a9f4"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a2905": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a2905",
+      "displayName": "",
+      "id": "a2905",
+      "name": "UnnamedTexture-11.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@87154"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "809d9": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@809d9",
+      "displayName": "",
+      "id": "809d9",
+      "name": "UnnamedTexture-13.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@29be0"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b4841": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@b4841",
+      "displayName": "",
+      "id": "b4841",
+      "name": "UnnamedTexture-14.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f0fd9"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3c999": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3c999",
+      "displayName": "",
+      "id": "3c999",
+      "name": "UnnamedTexture-15.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@286ea"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d4524": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d4524",
+      "displayName": "",
+      "id": "d4524",
+      "name": "UnnamedTexture-17.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f5ffa"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d932b": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d932b",
+      "displayName": "",
+      "id": "d932b",
+      "name": "UnnamedTexture-18.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@e786b"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0c93e": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0c93e",
+      "displayName": "",
+      "id": "0c93e",
+      "name": "UnnamedTexture-21.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dc311": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@dc311",
+      "displayName": "",
+      "id": "dc311",
+      "name": "M_sky_foliage_cards.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4a919": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4a919",
+      "displayName": "",
+      "id": "4a919",
+      "name": "M_sky_palette.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "aaed8": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@aaed8",
+      "displayName": "",
+      "id": "aaed8",
+      "name": "M_robot_metal.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a2f67": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a2f67",
+      "displayName": "",
+      "id": "a2f67",
+      "name": "M_sky_palette_emissive.material",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d2274": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2274",
+      "displayName": "",
+      "id": "d2274",
+      "name": "M_sky_waterfall_scroll.material",
+      "userData": {
+        "gltfIndex": 4
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "eeaa1": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@eeaa1",
+      "displayName": "",
+      "id": "eeaa1",
+      "name": "M_sky_grass_tint.material",
+      "userData": {
+        "gltfIndex": 5
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e17d2": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e17d2",
+      "displayName": "",
+      "id": "e17d2",
+      "name": "M_sky_rock_strata.material",
+      "userData": {
+        "gltfIndex": 6
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2eb2d": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2eb2d",
+      "displayName": "",
+      "id": "2eb2d",
+      "name": "M_laputa_stone.material",
+      "userData": {
+        "gltfIndex": 7
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f0fd4": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f0fd4",
+      "displayName": "",
+      "id": "f0fd4",
+      "name": "M_sky_bark.material",
+      "userData": {
+        "gltfIndex": 8
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1086c": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1086c",
+      "displayName": "",
+      "id": "1086c",
+      "name": "M_sky_cloud.material",
+      "userData": {
+        "gltfIndex": 9
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2eeae": {
+      "importer": "gltf-scene",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae",
+      "displayName": "",
+      "id": "2eeae",
+      "name": "env_skycity.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "encode": false,
+      "quantize": false
+    },
+    "imageMetas": [
+      {
+        "name": "tex_sky_foliage_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@a9fef"
+      },
+      {
+        "name": "tex_sky_palette_256",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      {
+        "name": "tex_robot_metal_normal_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@388c3"
+      },
+      {
+        "name": "tex_robot_metal_albedo_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@df638"
+      },
+      {
+        "name": "tex_robot_metal_orm_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@05e0d"
+      },
+      {
+        "name": "tex_sky_grass_tint_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@dc463"
+      },
+      {
+        "name": "tex_sky_grass_tint_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@031fb"
+      },
+      {
+        "name": "tex_sky_grass_tint_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@1a9f4"
+      },
+      {
+        "name": "tex_sky_rock_strata_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@87154"
+      },
+      {
+        "name": "tex_sky_rock_strata_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@8e3f8"
+      },
+      {
+        "name": "tex_sky_rock_strata_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@29be0"
+      },
+      {
+        "name": "tex_laputa_stone_normal_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f0fd9"
+      },
+      {
+        "name": "tex_laputa_stone_albedo_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@286ea"
+      },
+      {
+        "name": "tex_laputa_stone_orm_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@46e50"
+      },
+      {
+        "name": "tex_sky_bark_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f5ffa"
+      },
+      {
+        "name": "tex_sky_bark_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@e786b"
+      },
+      {
+        "name": "tex_sky_bark_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@e2a3e"
+      }
+    ],
+    "animationImportSettings": [
+      {
+        "name": "robot_give_flower",
+        "duration": 2.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "robot_give_flower",
+            "from": 0,
+            "to": 2.5,
+            "wrapMode": 2,
+            "previousId": "5edaf"
+          }
+        ]
+      },
+      {
+        "name": "robot_idle",
+        "duration": 3.3333332538604736,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "robot_idle",
+            "from": 0,
+            "to": 3.3333332538604736,
+            "wrapMode": 2,
+            "previousId": "955da"
+          }
+        ]
+      },
+      {
+        "name": "robot_watering",
+        "duration": 2.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "robot_watering",
+            "from": 0,
+            "to": 2.5,
+            "wrapMode": 2,
+            "previousId": "67093"
+          }
+        ]
+      },
+      {
+        "name": "anim_birds_flock_0_orbit",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_birds_flock_0_orbit",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "1e797"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_0_0_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_0_0_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "e1ee6"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_0_1_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_0_1_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "57063"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_0_2_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_0_2_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "da965"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_0_3_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_0_3_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "dc301"
+          }
+        ]
+      },
+      {
+        "name": "anim_birds_flock_1_orbit",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_birds_flock_1_orbit",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "5c043"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_1_0_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_1_0_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "ca65c"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_1_1_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_1_1_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "851e9"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_1_2_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_1_2_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "e1566"
+          }
+        ]
+      },
+      {
+        "name": "anim_bird_1_3_flap",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_bird_1_3_flap",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "96f70"
+          }
+        ]
+      },
+      {
+        "name": "anim_butterfly_0_flutter",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_butterfly_0_flutter",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "f1a4c"
+          }
+        ]
+      },
+      {
+        "name": "anim_butterfly_1_flutter",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_butterfly_1_flutter",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "95919"
+          }
+        ]
+      },
+      {
+        "name": "anim_butterfly_2_flutter",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_butterfly_2_flutter",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "b7298"
+          }
+        ]
+      },
+      {
+        "name": "anim_butterfly_3_flutter",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_butterfly_3_flutter",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "9350b"
+          }
+        ]
+      },
+      {
+        "name": "anim_flag_0_wave",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_flag_0_wave",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "951de"
+          }
+        ]
+      },
+      {
+        "name": "anim_flag_0_tail_wave",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_flag_0_tail_wave",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "bcc14"
+          }
+        ]
+      },
+      {
+        "name": "anim_flag_1_wave",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_flag_1_wave",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "fc468"
+          }
+        ]
+      },
+      {
+        "name": "anim_flag_1_tail_wave",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_flag_1_tail_wave",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "0a932"
+          }
+        ]
+      },
+      {
+        "name": "anim_petals_0_drift",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_petals_0_drift",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "b9ed9"
+          }
+        ]
+      },
+      {
+        "name": "anim_petals_1_drift",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_petals_1_drift",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "32d6f"
+          }
+        ]
+      },
+      {
+        "name": "anim_wind_driver_move",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_wind_driver_move",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "bc7ba"
+          }
+        ]
+      },
+      {
+        "name": "anim_windchime_0_swing",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_windchime_0_swing",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "d174f"
+          }
+        ]
+      },
+      {
+        "name": "anim_windchime_1_swing",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_windchime_1_swing",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "38cf3"
+          }
+        ]
+      },
+      {
+        "name": "anim_windchime_2_swing",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_windchime_2_swing",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "d1763"
+          }
+        ]
+      },
+      {
+        "name": "anim_windmill_rotor_0_spin",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_windmill_rotor_0_spin",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "1bba4"
+          }
+        ]
+      },
+      {
+        "name": "anim_windmill_rotor_1_spin",
+        "duration": 6.041666507720947,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_windmill_rotor_1_spin",
+            "from": 0,
+            "to": 6.041666507720947,
+            "wrapMode": 2,
+            "previousId": "2db65"
+          }
+        ]
+      },
+      {
+        "name": "anim_starring_rotate",
+        "duration": 60.04166793823242,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "anim_starring_rotate",
+            "from": 0,
+            "to": 60.04166793823242,
+            "wrapMode": 2,
+            "previousId": "77c51"
+          }
+        ]
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@29b30",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d9e13",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@79db1",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d40d1",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@2d16b",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@85b53",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@8e3c3",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1ea28",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@5e66b",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e5fd3",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@31883",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@29397",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e28db",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@53e37",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@30fbc",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@41c12",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@8a8d3",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@20916",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e076c",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@81615",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@90b34",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@34fa4",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@72767",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@65aea",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@88f43",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@8edab",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@8c515",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@a8826",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@c1be1",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@ff272",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@450cf",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@a8335",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@8e556",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@998e3",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@9a96c",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4c83a",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@b65dd",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@19e04",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@c2a7a",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1af31",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@0a7f2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@cdd5c",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d5f17",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4b43f",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@ad813",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1e8b2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@62d24",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@92839",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@62c1e",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@b6eeb",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@3f2fb",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@3d21f",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@79961"
+      ],
+      "skeletons": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@525f1"
+      ],
+      "textures": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@3effa",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@221a5",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@0089c",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@9b633",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@9b782",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@50743",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@99ea5",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@006bd",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@531b0",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@9c3d2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@f7e17",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@a2905",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@55257",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@809d9",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@b4841",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@3c999",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@10486",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d4524",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d932b",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@98962",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@14738",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@0c93e"
+      ],
+      "materials": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@dc311",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4a919",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@aaed8",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@a2f67",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d2274",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@eeaa1",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e17d2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@2eb2d",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@f0fd4",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1086c"
+      ],
+      "scenes": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae"
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+ "tag": "16_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.1
+  ],
+  [
+   "home",
+   3.32
+  ],
+  [
+   "island",
+   32.07
+  ],
+  [
+   "pull0",
+   32.07
+  ],
+  [
+   "pull1",
+   37.05
+  ],
+  [
+   "pull2",
+   41.39
+  ],
+  [
+   "pinch",
+   45.84
+  ],
+  [
+   "release",
+   50.58
+  ],
+  [
+   "end",
+   55.6
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1"
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

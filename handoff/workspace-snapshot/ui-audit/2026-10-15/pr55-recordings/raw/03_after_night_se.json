@@ -1,0 +1,38 @@
+{
+ "tag": "03_after_night_se",
+ "marks": [
+  [
+   "goto",
+   0.06
+  ],
+  [
+   "ERROR Error: STARTUP FATAL: World startup failed Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/ma",
+   7.78
+  ]
+ ],
+ "checks": {},
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: World startup failed Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/ma"
+ ]
+}

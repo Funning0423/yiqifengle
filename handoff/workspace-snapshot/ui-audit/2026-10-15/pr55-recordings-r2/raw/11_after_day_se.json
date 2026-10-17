@@ -1,0 +1,81 @@
+{
+ "tag": "11_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.07
+  ],
+  [
+   "home",
+   7.91
+  ],
+  [
+   "board",
+   33.84
+  ],
+  [
+   "entry1",
+   33.84
+  ],
+  [
+   "resumed1",
+   34.71
+  ],
+  [
+   "island",
+   43.64
+  ],
+  [
+   "entry2",
+   47.18
+  ],
+  [
+   "resumed2",
+   48.03
+  ],
+  [
+   "end",
+   54.61
+  ]
+ ],
+ "checks": {
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [
+   [
+    "Toast",
+    "星光"
+   ],
+   [
+    "ToastText",
+    "星光"
+   ]
+  ],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

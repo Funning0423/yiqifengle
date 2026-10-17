@@ -1,0 +1,806 @@
+{
+ "dev": "android360",
+ "D": {
+  "w": 360,
+  "h": 800,
+  "safe": [
+   24,
+   0
+  ]
+ },
+ "mode": "night",
+ "log": [
+  {
+   "k": "targets",
+   "v": {
+    "mainline": {
+     "x": 263,
+     "y": 545
+    },
+    "flowTests": {
+     "x": 180,
+     "y": 166
+    }
+   }
+  },
+  {
+   "k": "cabinTap",
+   "v": {
+    "x": 219.6,
+    "y": 320
+   }
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-03b-rest-panel-day.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-03-island.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-04-island-bag.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-05-settings.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-06-journal.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-06b-chapter-sky.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-07-board.png"
+  },
+  {
+   "k": "boardLayout",
+   "v": {
+    "targets": {
+     "moves": {
+      "x": 226.68428223844282,
+      "y": 139.93430656934305
+     },
+     "tool-bomb": {
+      "x": 180,
+      "y": 686
+     },
+     "bomb": {
+      "x": 180,
+      "y": 686
+     },
+     "pause": {
+      "x": 38,
+      "y": 67
+     }
+    },
+    "pause": {
+     "x": 38,
+     "y": 67
+    }
+   }
+  },
+  {
+   "k": "boardNodes",
+   "v": [
+    [
+     "WorldNavigationCanvas",
+     "流程参考占位 · 非新版B|继续旅程  →|主线下一关|打开本关宝箱|领取主线地区奖励|原地区 · 潮汐|出门 · 选择地区|回主页|潮汐小径|花粉草甸|天空回",
+     0,
+     0,
+     360,
+     800
+    ],
+    [
+     "LabelPlate",
+     "独立测试进度 · 主线 04 最后一步 4行3列 ↔ 5行3列",
+     12,
+     95,
+     336,
+     40
+    ],
+    [
+     "VisibleLabel",
+     "独立测试进度 · 主线 04 最后一步 4行3列 ↔ 5行3列",
+     33,
+     104,
+     294,
+     21
+    ],
+    [
+     "NativeBoardCanvas",
+     "04  小径守卫|0|3|0|0|23|2",
+     -5,
+     0,
+     369,
+     800
+    ],
+    [
+     "LightGoalHUD",
+     "04  小径守卫|0|3|0|0|23",
+     16,
+     45,
+     271,
+     356
+    ],
+    [
+     "InfoPlate",
+     "04  小径守卫|0|3|0|0|23",
+     63,
+     95,
+     224,
+     67
+    ],
+    [
+     "Plate",
+     "",
+     73,
+     95,
+     214,
+     67
+    ],
+    [
+     "LevelTitle",
+     "04  小径守卫",
+     83,
+     103,
+     193,
+     21
+    ],
+    [
+     "Goal-0",
+     "0",
+     63,
+     124,
+     64,
+     31
+    ],
+    [
+     "GoalPieceArt",
+     "",
+     94,
+     129,
+     22,
+     22
+    ],
+    [
+     "Count",
+     "0",
+     118,
+     124,
+     9,
+     30
+    ],
+    [
+     "Goal-1",
+     "3",
+     105,
+     124,
+     68,
+     31
+    ],
+    [
+     "GoalPieceArt",
+     "",
+     137,
+     127,
+     26,
+     26
+    ],
+    [
+     "Count",
+     "3",
+     164,
+     124,
+     9,
+     30
+    ],
+    [
+     "Moves",
+     "23",
+     201,
+     124,
+     60,
+     31
+    ],
+    [
+     "MovesLeft",
+     "23",
+     242,
+     124,
+     19,
+     30
+    ],
+    [
+     "CompactToolTray",
+     "2",
+     148,
+     400,
+     64,
+     319
+    ],
+    [
+     "slot-0",
+     "2",
+     148,
+     654,
+     64,
+     64
+    ],
+    [
+     "Face",
+     "2",
+     144,
+     650,
+     73,
+     73
+    ],
+    [
+     "ToolSelection",
+     "",
+     148,
+     654,
+     64,
+     64
+    ],
+    [
+     "OriginalToolArt",
+     "",
+     144,
+     650,
+     73,
+     73
+    ],
+    [
+     "ToolCount",
+     "2",
+     189,
+     654,
+     24,
+     24
+    ],
+    [
+     "Quantity",
+     "2",
+     197,
+     656,
+     7,
+     19
+    ],
+    [
+     "ToastPlate",
+     "",
+     30,
+     606,
+     300,
+     40
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-08-pause.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-09-result.png"
+  },
+  {
+   "k": "resultNodes",
+   "v": [
+    [
+     "ResultPanel",
+     "1130 分|用了 6 步 · 剩余 22 步|成绩已保存|下一关|回小岛|‹|›|1 / 1|过关啦|1130 分|用了 6 步 · 剩余 22 步|成绩已保",
+     0,
+     0,
+     360,
+     800
+    ],
+    [
+     "PopupShade",
+     "",
+     0,
+     0,
+     360,
+     800
+    ],
+    [
+     "PopupPanel",
+     "1130 分|用了 6 步 · 剩余 22 步|成绩已保存|下一关|回小岛|‹|›|1 / 1|过关啦|1130 分|用了 6 步 · 剩余 22 步|成绩已保",
+     12,
+     140,
+     336,
+     569
+    ],
+    [
+     "PanelFrame",
+     "",
+     12,
+     140,
+     336,
+     569
+    ],
+    [
+     "TitlePlank",
+     "",
+     117,
+     141,
+     126,
+     44
+    ],
+    [
+     "Plank",
+     "",
+     117,
+     141,
+     126,
+     44
+    ],
+    [
+     "Title",
+     "",
+     150,
+     154,
+     60,
+     21
+    ],
+    [
+     "Next",
+     "下一关",
+     20,
+     653,
+     156,
+     48
+    ],
+    [
+     "Face",
+     "下一关",
+     20,
+     653,
+     156,
+     48
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     653,
+     156,
+     48
+    ],
+    [
+     "Label",
+     "下一关",
+     28,
+     657,
+     140,
+     40
+    ],
+    [
+     "Home",
+     "回小岛",
+     184,
+     653,
+     156,
+     48
+    ],
+    [
+     "Face",
+     "回小岛",
+     184,
+     653,
+     156,
+     48
+    ],
+    [
+     "Plate",
+     "",
+     184,
+     653,
+     156,
+     48
+    ],
+    [
+     "Label",
+     "回小岛",
+     192,
+     657,
+     140,
+     40
+    ],
+    [
+     "ResultFlow-stars",
+     "",
+     180,
+     400,
+     0,
+     0
+    ],
+    [
+     "ResultStars",
+     "",
+     103,
+     218,
+     155,
+     57
+    ],
+    [
+     "Star-0",
+     "",
+     103,
+     233,
+     46,
+     42
+    ],
+    [
+     "Star-1",
+     "",
+     151,
+     218,
+     59,
+     54
+    ],
+    [
+     "Star-2",
+     "",
+     212,
+     233,
+     46,
+     42
+    ],
+    [
+     "ResultFlow-Score-0",
+     "1130 分",
+     20,
+     292,
+     320,
+     41
+    ],
+    [
+     "Score",
+     "1130 分",
+     20,
+     292,
+     320,
+     41
+    ],
+    [
+     "ResultFlow-MovesInfo-0",
+     "用了 6 步 · 剩余 22 步",
+     20,
+     339,
+     320,
+     22
+    ],
+    [
+     "MovesInfo",
+     "用了 6 步 · 剩余 22 步",
+     20,
+     339,
+     320,
+     22
+    ],
+    [
+     "ResultFlow-SavedText-0",
+     "成绩已保存",
+     20,
+     367,
+     320,
+     22
+    ],
+    [
+     "SavedText",
+     "成绩已保存",
+     20,
+     367,
+     320,
+     22
+    ],
+    [
+     "ResultFlow-ResultUnlockHint-0",
+     "主线 05 与潮汐挑战已开放；前往风车草",
+     20,
+     395,
+     320,
+     22
+    ],
+    [
+     "ResultUnlockHint",
+     "主线 05 与潮汐挑战已开放；前往风车草",
+     20,
+     395,
+     320,
+     22
+    ],
+    [
+     "ResultFlow-ResultUnlockHint-1",
+     "甸",
+     20,
+     423,
+     320,
+     22
+    ],
+    [
+     "ResultUnlockHint-continued-1",
+     "甸",
+     20,
+     423,
+     320,
+     22
+    ],
+    [
+     "ResultFlow-reward-0",
+     "打开宝箱",
+     20,
+     451,
+     320,
+     96
+    ],
+    [
+     "Claim-chest",
+     "打开宝箱",
+     20,
+     451,
+     320,
+     96
+    ],
+    [
+     "Face",
+     "打开宝箱",
+     20,
+     451,
+     320,
+     96
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     451,
+     320,
+     96
+    ],
+    [
+     "Label",
+     "打开宝箱",
+     124,
+     479,
+     208,
+     40
+    ],
+    [
+     "chest_closed",
+     "",
+     32,
+     466,
+     72,
+     65
+    ],
+    [
+     "ResultFlow-reward-1",
+     "领取地区道具",
+     20,
+     553,
+     320,
+     96
+    ],
+    [
+     "Claim-regionReward",
+     "领取地区道具",
+     20,
+     553,
+     320,
+     96
+    ],
+    [
+     "Face",
+     "领取地区道具",
+     20,
+     553,
+     320,
+     96
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     553,
+     320,
+     96
+    ],
+    [
+     "Label",
+     "领取地区道具",
+     124,
+     581,
+     208,
+     40
+    ],
+    [
+     "tool_tidenet",
+     "",
+     32,
+     567,
+     72,
+     68
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-10-chest-reward.png"
+  },
+  {
+   "k": "rewardNodes",
+   "v": [
+    [
+     "RewardPanel",
+     "装扮 ×1|海风吹开了宝箱，收进行囊吧。|收下",
+     0,
+     0,
+     360,
+     800
+    ],
+    [
+     "PopupShade",
+     "",
+     0,
+     0,
+     360,
+     800
+    ],
+    [
+     "PopupPanel",
+     "装扮 ×1|海风吹开了宝箱，收进行囊吧。|收下",
+     17,
+     210,
+     326,
+     384
+    ],
+    [
+     "PanelFrame",
+     "",
+     17,
+     235,
+     326,
+     359
+    ],
+    [
+     "TitlePlank",
+     "",
+     108,
+     210,
+     144,
+     50
+    ],
+    [
+     "Plank",
+     "",
+     108,
+     210,
+     144,
+     50
+    ],
+    [
+     "Title",
+     "",
+     157,
+     224,
+     46,
+     24
+    ],
+    [
+     "fx_rays",
+     "",
+     50,
+     229,
+     260,
+     260
+    ],
+    [
+     "ChestShadow",
+     "",
+     108,
+     421,
+     144,
+     29
+    ],
+    [
+     "ResultChest3D",
+     "",
+     114,
+     316,
+     132,
+     132
+    ],
+    [
+     "Gain-charm",
+     "",
+     94,
+     292,
+     171,
+     132
+    ],
+    [
+     "icon_charm",
+     "",
+     94,
+     292,
+     171,
+     132
+    ],
+    [
+     "GainList",
+     "装扮 ×1",
+     154,
+     457,
+     53,
+     27
+    ],
+    [
+     "Text",
+     "海风吹开了宝箱，收进行囊吧。",
+     86,
+     488,
+     188,
+     24
+    ],
+    [
+     "Accept",
+     "收下",
+     79,
+     522,
+     202,
+     50
+    ],
+    [
+     "Face",
+     "收下",
+     79,
+     522,
+     202,
+     50
+    ],
+    [
+     "Plate",
+     "",
+     79,
+     522,
+     202,
+     50
+    ],
+    [
+     "Label",
+     "收下",
+     162,
+     529,
+     36,
+     32
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-11-result-after-claim.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android360-night-12-skycity.png"
+  },
+  {
+   "k": "skyTargets",
+   "v": {
+    "returnIsland": {
+     "x": 180,
+     "y": 727
+    }
+   }
+  }
+ ],
+ "errors": []
+}

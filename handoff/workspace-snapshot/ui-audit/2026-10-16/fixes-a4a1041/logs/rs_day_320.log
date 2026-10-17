@@ -1,0 +1,19 @@
+rs_day_320x568_chest 0 tz "Etc/GMT-12"
+rs_day_320x568_chest 0.026 goto 
+rs_day_320x568_chest 1.221 home 
+rs_day_320x568_chest 7.305 glassDiag "{\"effect\":\"ready\",\"frames\":358,\"visible\":true,\"box\":{\"l\":194.60121522241758,\"r\":373.9807389811688,\"t\":559.510537211271,\"b\":476.4272883864808},\"corners\":[[194.60121522241758,551.5725342831029],[373.9807389811688,559.510537211271],[373.68651464112577,493.9033294977257],[195.38458995020733,476.4272883864808]],\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+rs_day_320x568_chest 7.305 signBoxCss {"l":97.30060761120879,"r":186.9903694905844,"top":288.2447313943645,"bot":329.7863558067596,"cx":142.1454885508966,"cy":309.01554360056207}
+rs_day_320x568_chest 7.316 tapSign [142.1454885508966,309.01554360056207]
+rs_day_320x568_chest 8.358 signLeaveState "standing"
+rs_day_320x568_chest 9.434 homeHold12s 
+rs_day_320x568_chest 39.188 island 
+rs_day_320x568_chest 41.777 tapMainline {"x":219,"y":387}
+rs_day_320x568_chest 48.789 board {"stage":"mainline-01","moves":22}
+rs_day_320x568_chest 77.965 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rs_day_320x568_chest 80.582 tapChest1 {"x":159.95,"y":338.35}
+rs_day_320x568_chest 84.19 pop1 ["ResultPanel"]
+rs_day_320x568_chest 84.209 tapChest2 
+rs_day_320x568_chest 86.717 pop2 ["ResultPanel"]
+rs_day_320x568_chest 86.822 storageDiffKeys {"d01":["dot-mainline-r1-isolated-20261009:forest-v33-journey"],"d12":[]}
+rs_day_320x568_chest 86.822 end 
+rs_day_320x568_chest 86.842 audioSaved {"startMs":129,"runMs":130,"firstMs":7390,"err":[]}

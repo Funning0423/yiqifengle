@@ -1,0 +1,18 @@
+{
+ "tag": "12_sail_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.14
+  ],
+  [
+   "ERROR Error: STARTUP FATAL: Each script can have at most one Component.",
+   4.04
+  ]
+ ],
+ "checks": {},
+ "errors": [
+  "error: Each script can have at most one Component.",
+  "error: TypeError: Cannot set properties of null (setting '_sealed')\n    at CCClass (http://127.0.0.1:8803/cocos-js/cc.js:3313:21)\n    at http://127.0.0.1:8803/cocos-js/cc.js:14174:19\n    at http://127.0.0.1:"
+ ]
+}

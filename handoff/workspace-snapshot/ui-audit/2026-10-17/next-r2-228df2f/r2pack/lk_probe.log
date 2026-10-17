@@ -1,0 +1,11 @@
+lk_probe 0.913 tz "Etc/GMT-5"
+lk_probe 0.949 goto ""
+lk_probe 2.188 home 
+lk_probe 36.979 leave {"ok":true}
+lk_probe 37.131 island 
+lk_probe 40.134 lsKeys [["dot-runtime-diagnostics-20261010:world-flow",17309]]
+lk_probe 40.137 mainline "{\"provider\":\"mainline-v33\",\"storageKey\":\"forest-mainline-cocos-r1-active\",\"progressKey\":\"forest-v33-journey\",\"state\":\"book.ready\",\"active\":null,\"visual\":null,\"hidden\":false,\"readOnly\":false,\"error\":null,\"stages\":[{\"id\":\"mainline-01\",\"level\":0,\"ordinal\":1,\"regionOrdinal\":1,\"region\":\"tide\",\"regionId\":\"island\",\"chapter\":1,\"chapterName\":\"潮汐小岛\",\"name\":\"露珠问候\",\"sourceName\":\"露珠问候\",\"description\":\"收集草莓，学会相邻交换。\",\"learningBeat\":\"introduce\",\"strategy\":\"先收集一种果实，熟悉相邻交换。\",\"moves\":22,\"goals\":{\"type0\":15},\"goalOrder\":[\"type0\"],\"
+lk_probe 40.142 gates "{\"r4\":[{\"id\":\"tide-c01-001\",\"region\":\"tide\",\"ordinal\":1,\"name\":\"潮线三灯\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-002\",\"region\":\"tide\",\"ordinal\":2,\"name\":\"竖潮转弯\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-003\",\"region\":\"tide\",\"ordinal\":3,\"name\":\"双汊岸根\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-004\",\"region\":\"tide\",\"ordinal\":4,\"name\":\"贝湾短航\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-005\",\"region\":\"tide\",\"ordinal\":5,\"name\":\"长堤短湾\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-006\",
+lk_probe 40.143 cleared -1
+lk_probe 40.144 seed "nokey"
+lk_probe 40.144 end 

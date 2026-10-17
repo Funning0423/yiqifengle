@@ -1,0 +1,91 @@
+{
+ "tag": "09_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.06
+  ],
+  [
+   "home",
+   1.76
+  ],
+  [
+   "board",
+   27.39
+  ],
+  [
+   "pause",
+   30.98
+  ],
+  [
+   "settings",
+   65.55
+  ],
+  [
+   "end",
+   67.13
+  ]
+ ],
+ "checks": {
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "pause": [
+   [
+    "PauseLine",
+    "04 小径守卫 · 还剩 23 步",
+    111,
+    224,
+    153,
+    25
+   ],
+   [
+    "Tile-重来",
+    "",
+    61,
+    267,
+    75,
+    75
+   ],
+   [
+    "Tile-行囊",
+    "",
+    150,
+    267,
+    75,
+    75
+   ],
+   [
+    "Tile-设置",
+    "",
+    239,
+    267,
+    75,
+    75
+   ],
+   [
+    "Resume",
+    "继续",
+    68,
+    394,
+    240,
+    52
+   ],
+   [
+    "Home",
+    "回到小岛",
+    68,
+    456,
+    240,
+    48
+   ]
+  ],
+  "tileErr": "Error: node not found {\"popup\":\"PausePanel\",\"name\":\"Tile-settings\"}",
+  "settings": []
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

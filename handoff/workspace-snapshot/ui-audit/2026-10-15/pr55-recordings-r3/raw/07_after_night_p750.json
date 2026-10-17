@@ -1,0 +1,29 @@
+{
+ "tag": "07_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1
+  ],
+  [
+   "leave",
+   2
+  ],
+  [
+   "island",
+   26.05
+  ],
+  [
+   "end",
+   32.06
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+2"
+ },
+ "errors": []
+}

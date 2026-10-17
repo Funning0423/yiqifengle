@@ -1,0 +1,31 @@
+ib_day_390_vis 0 tz "Etc/GMT-12"
+ib_day_390_vis 0.025 goto 
+ib_day_390_vis 1.328 home 
+ib_day_390_vis 7.411 glassDiag "{\"effect\":\"ready\",\"frames\":352,\"visible\":true,\"box\":{\"l\":203.66795427674677,\"r\":470.21083462134254,\"t\":831.3894447015618,\"b\":707.9352952622874},\"corners\":[[203.66795427674677,819.5948384562637],[470.21083462134254,831.3894447015618],[469.7736419176873,733.9026340748173],[204.83198352718063,707.9352952622874]],\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+ib_day_390_vis 7.412 signBoxCss {"l":101.83397713837338,"r":235.10541731067127,"top":428.3052776492191,"bot":490.0323523688563,"cx":168.46969722452232,"cy":459.1688150090377}
+ib_day_390_vis 7.43 tapSign [168.46969722452232,459.1688150090377]
+ib_day_390_vis 8.503 signLeaveState "standing"
+ib_day_390_vis 9.596 homeHold12s 
+ib_day_390_vis 30.599 visHide 
+ib_day_390_vis 34.609 visShow 
+ib_day_390_vis 37.633 muteOn "ok"
+ib_day_390_vis 40.638 muteOff "ok"
+ib_day_390_vis 40.639 afterVis "{\"state\":\"paused\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":true,\"characterReady\":true,\"error\":null,\"journey\":{\"phase\":\"idle\",\"region\":\"island\",\"target\":null,\"loadProgress\":0,\"distance\":0,\"total\":0,\"error\":null,\"canRetry\":false,\"canResume\":false}}"
+ib_day_390_vis 40.741 tapResume [195,422]
+ib_day_390_vis 42.243 afterResumeTap "paused"
+ib_day_390_vis 249.787 islandFail 
+ib_day_390_vis 249.788 island 
+ib_day_390_vis 312.524 board {"stage":null,"moves":null}
+ib_day_390_vis 312.528 levelEnd {"st":null,"status":null,"moves":null,"pop":null}
+ib_day_390_vis 318.713 resultPop 
+ib_day_390_vis 378.776 islandViaBtnFail "paused"
+ib_day_390_vis 378.778 exitLevel false
+ib_day_390_vis 438.809 island2 "paused"
+ib_day_390_vis 441.811 travelCall 
+ib_day_390_vis 441.812 travelRet "{\"ok\":false,\"reason\":\"paused\"}"
+ib_day_390_vis 561.846 arrived 
+ib_day_390_vis 625.981 homeFail2 
+ib_day_390_vis 625.983 home2 
+ib_day_390_vis 634.069 nightProp "false"
+ib_day_390_vis 634.069 end 
+ib_day_390_vis 634.21 audioSaved {"startMs":133,"runMs":134,"firstMs":7507,"err":[]}

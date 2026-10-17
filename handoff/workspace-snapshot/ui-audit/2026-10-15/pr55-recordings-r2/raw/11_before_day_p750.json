@@ -1,0 +1,59 @@
+{
+ "tag": "11_before_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.83
+  ],
+  [
+   "board",
+   27.53
+  ],
+  [
+   "entry1",
+   27.53
+  ],
+  [
+   "resumed1",
+   28.38
+  ],
+  [
+   "island",
+   37.07
+  ],
+  [
+   "entry2",
+   40.55
+  ],
+  [
+   "resumed2",
+   41.39
+  ],
+  [
+   "end",
+   48.14
+  ]
+ ],
+ "checks": {
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": []
+}

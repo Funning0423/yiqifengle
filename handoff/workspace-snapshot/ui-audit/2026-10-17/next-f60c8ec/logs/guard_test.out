@@ -1,0 +1,5 @@
+== [web-test] try 1/3  free=10011620 KiB
+   exit=36 size=19896457 dirty=0 log=/Users/<mac-user>/qfl-milestone/tools/build-guard/logs/web-test.try1.log
+OK [web-test] TOTAL_BYTES=19896457
+caches removed (library/temp); set KEEP_CACHE=1 to keep
+BUILD GUARD PASSED: web-test 19896457 bytes  (output under creator-build-project/build/)

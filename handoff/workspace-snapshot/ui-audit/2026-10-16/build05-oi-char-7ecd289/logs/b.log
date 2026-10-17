@@ -1,0 +1,19 @@
+PREBUILD Sat Oct 17 03:40:04 CST 2026 free 9859744
+wx exit 36
+web exit 36
+POSTBUILD Sat Oct 17 03:40:57 CST 2026 free 8643204
+?? creator-build-project/assets/scripts/world-r2/HomeTransition.ts.meta
+TOTAL 24545955
+ROOT 1862103
+SUB audio_bgm_island 418907
+SUB board_art 2112889
+SUB internal 297535
+SUB main 1127809
+SUB region_island 8912286
+SUB region_meadow 2934382
+SUB region_skycity 3326944
+SUB resources 433034
+SUB shared_effects 563694
+SUB static_seat_preview 2556372
+STR 流程参考占位 -build-project/build/wechat-release/subpackages/main/game.js
+DONE free 8733068

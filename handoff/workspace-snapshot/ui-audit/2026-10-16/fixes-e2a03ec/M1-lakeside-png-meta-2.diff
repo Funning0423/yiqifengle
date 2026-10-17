@@ -1,0 +1,26 @@
+diff --git a/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta b/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta
+index 7fbfbb3..05c1941 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta
+@@ -36,7 +36,7 @@
+   "userData": {
+     "type": "texture",
+     "fixAlphaTransparencyArtifacts": false,
+-    "hasAlpha": true,
++    "hasAlpha": false,
+     "redirect": "2d786f80-a6ed-5df2-8bf0-7de41c757b8a@6c48a"
+   }
+ }
+diff --git a/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta b/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta
+index a31f908..f0a4279 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta
++++ b/creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta
+@@ -36,7 +36,7 @@
+   "userData": {
+     "type": "texture",
+     "fixAlphaTransparencyArtifacts": false,
+-    "hasAlpha": true,
++    "hasAlpha": false,
+     "redirect": "ee274b5d-13cc-5dcb-ba5f-38b730992c93@6c48a"
+   }
+ }

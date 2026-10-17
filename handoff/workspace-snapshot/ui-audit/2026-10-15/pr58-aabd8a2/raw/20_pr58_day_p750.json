@@ -1,0 +1,100 @@
+{
+ "tag": "20_pr58_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.05
+  ],
+  [
+   "home",
+   1.25
+  ],
+  [
+   "board",
+   26.28
+  ],
+  [
+   "arrive",
+   26.28
+  ],
+  [
+   "resumedTut",
+   28.36
+  ],
+  [
+   "watchEnd",
+   46.36
+  ],
+  [
+   "paused",
+   46.6
+  ],
+  [
+   "resumed",
+   50.61
+  ],
+  [
+   "end",
+   54.61
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-9",
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "stage": "mainline-08",
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": false,
+   "active": false,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 0,
+   "fadeMaterials": 0,
+   "lampLight": "sphere-light",
+   "nightWeight": 0,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": false,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "s": 1
+    },
+    {
+     "role": "journal",
+     "active": false,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "s": 1
+    },
+    {
+     "role": "settings",
+     "active": false,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "s": 1
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": []
+}

@@ -1,0 +1,82 @@
+{
+ "tag": "02_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   1.22
+  ],
+  [
+   "island",
+   25.45
+  ],
+  [
+   "watchStart",
+   28.45
+  ],
+  [
+   "end",
+   40.46
+  ]
+ ],
+ "checks": {
+  "textScan": [],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": false,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 0,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -9.0893485062607,
+      -0.8507236547057495,
+      24.076934640849046
+     ],
+     "s": 2.090766008898903
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.646386443699255,
+      -0.8507236547057495,
+      25.029243296451156
+     ],
+     "s": 2.149495391171346
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -2.2034243811378023,
+      -0.8507236547057531,
+      25.98155195205325
+     ],
+     "s": 1.8202196937607007
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

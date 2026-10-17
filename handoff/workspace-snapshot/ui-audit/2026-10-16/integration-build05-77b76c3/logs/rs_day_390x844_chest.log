@@ -1,0 +1,16 @@
+rs_day_390x844_chest 0 tz "Etc/GMT+9"
+rs_day_390x844_chest 0.027 goto 
+rs_day_390x844_chest 1.664 home 
+rs_day_390x844_chest 15.097 homeHold12s 
+rs_day_390x844_chest 15.253 leave "{}"
+rs_day_390x844_chest 68.769 island 
+rs_day_390x844_chest 73.038 tapMainline {"x":282,"y":575}
+rs_day_390x844_chest 80.243 board {"stage":"mainline-01","moves":22}
+rs_day_390x844_chest 120.576 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rs_day_390x844_chest 124.419 tapChest1 {"x":195.05,"y":474.65}
+rs_day_390x844_chest 129.133 pop1 ["ResultPanel"]
+rs_day_390x844_chest 129.364 tapChest2 
+rs_day_390x844_chest 132.024 pop2 ["ResultPanel"]
+rs_day_390x844_chest 133.267 storageDiffKeys {"d01":["dot-mainline-r1-isolated-20261009:forest-v33-journey"],"d12":[]}
+rs_day_390x844_chest 133.268 end 
+rs_day_390x844_chest 133.883 audioSaved {"startMs":139,"runMs":140,"firstMs":37977,"err":[]}

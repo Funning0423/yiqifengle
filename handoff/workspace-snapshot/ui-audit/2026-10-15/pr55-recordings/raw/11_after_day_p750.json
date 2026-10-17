@@ -1,0 +1,77 @@
+{
+ "tag": "11_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.19
+  ],
+  [
+   "board",
+   26.47
+  ],
+  [
+   "entry1",
+   26.47
+  ],
+  [
+   "resumed1",
+   27.32
+  ],
+  [
+   "island",
+   36.03
+  ],
+  [
+   "entry2",
+   39.49
+  ],
+  [
+   "resumed2",
+   40.34
+  ],
+  [
+   "end",
+   46.88
+  ]
+ ],
+ "checks": {
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [
+   [
+    "Toast",
+    "星光"
+   ],
+   [
+    "ToastText",
+    "星光"
+   ]
+  ],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

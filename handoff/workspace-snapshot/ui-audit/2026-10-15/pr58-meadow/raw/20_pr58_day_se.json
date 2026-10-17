@@ -1,0 +1,108 @@
+{
+ "tag": "20_pr58_day_se",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   4.81
+  ],
+  [
+   "board",
+   29.88
+  ],
+  [
+   "arrive",
+   29.88
+  ],
+  [
+   "resumedTut",
+   31.94
+  ],
+  [
+   "watchEnd",
+   49.94
+  ],
+  [
+   "paused",
+   50.18
+  ],
+  [
+   "resumed",
+   54.19
+  ],
+  [
+   "end",
+   58.19
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-11",
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "stage": "mainline-08",
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": false,
+   "active": false,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 0,
+   "fadeMaterials": 0,
+   "lampLight": "sphere-light",
+   "nightWeight": 0,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": false,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "s": 1
+    },
+    {
+     "role": "journal",
+     "active": false,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "s": 1
+    },
+    {
+     "role": "settings",
+     "active": false,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "s": 1
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: the server responded with a status of 404 (File not found)",
+  "error: Failed to load resource: the server responded with a status of 404 (File not found)",
+  "error: Failed to load resource: the server responded with a status of 404 (File not found)"
+ ]
+}

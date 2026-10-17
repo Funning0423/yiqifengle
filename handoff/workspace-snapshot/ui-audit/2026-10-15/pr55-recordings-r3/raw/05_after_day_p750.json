@@ -1,0 +1,22 @@
+{
+ "tag": "05_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   0.95
+  ],
+  [
+   "end",
+   3.96
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-11",
+  "textScan": []
+ },
+ "errors": []
+}

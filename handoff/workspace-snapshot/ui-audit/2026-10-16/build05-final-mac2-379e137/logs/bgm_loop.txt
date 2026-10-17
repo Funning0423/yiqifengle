@@ -1,0 +1,5 @@
+final tree 36519a4a (bc418c5 + ee012f4 + 87f9ec2 + 379e137), source mp3 decoded with ffmpeg (gapless):
+bgm_main    40000 bps 83.51s  seam 2.7 dB (-18.7 -> -16.0)  in-track adjacent-20ms p99 4.4  (unchanged)
+bgm_meadow  40000 bps 72.67s  seam 1.5 dB (-24.7 -> -26.2)  p99 3.9   (was 2.0)
+bgm_skycity 40000 bps 72.05s  seam 0.7 dB (-25.4 -> -24.7)  p99 5.8   (was 7.4 > p99)
+no lead/trail silence; wrap sample jump 0.014/0.024/0.022 vs median |diff| 0.006/0.009/0.007

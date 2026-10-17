@@ -1,0 +1,12 @@
+a3b-a995c41    ib_day_390     tap@118.86 home@119.30(+0.43) | tap±200ms peak 0.717 (-2.9 dBFS) n>=.999 0 n>=.98 0 | whole peak 0.845 n>=.999 0
+    click 30ms rms -11.9 dB @+55ms, peak 0.717 | bed(tap-1.2..-0.2) rms -22.0 dB peak 0.324 | click-bed +10.1 dB rms, +6.9 dB peak | post-home 0-3s peak 0.292
+    rms100ms home-0.6..+2.4: -22 -19 -15 -25 -28 -33 -25 -26 -30 -34 -35 -34 -32 -31 -30 -31 -26 -25 -27 -27 -25 -27 -26 -26 -28 -28 -27 -28 -28 -28 -28
+    +0.000 {"event":"home-duck","t":1792221907522,"gain":0.6,"s":0.08,"outS":0.4}
+    +0.178 {"event":"waves-level","t":1792221907700,"vol":0.249,"outdoor":1,"wind":0}
+    +1.194 {"event":"waves-level","t":1792221908717,"vol":0.021,"outdoor":0,"wind":0}
+a3b-a995c41    ib_night_390   tap@119.00 home@119.42(+0.42) | tap±200ms peak 0.584 (-4.7 dBFS) n>=.999 0 n>=.98 0 | whole peak 0.823 n>=.999 0
+    click 30ms rms -13.1 dB @+50ms, peak 0.584 | bed(tap-1.2..-0.2) rms -22.0 dB peak 0.287 | click-bed +8.9 dB rms, +6.2 dB peak | post-home 0-3s peak 0.209
+    rms100ms home-0.6..+2.4: -19 -19 -16 -24 -28 -33 -27 -26 -31 -35 -36 -34 -33 -31 -29 -31 -26 -24 -27 -27 -24 -27 -26 -26 -28 -28 -27 -28 -28 -28 -28
+    +0.000 {"event":"home-duck","t":1792222039088,"gain":0.6,"s":0.08,"outS":0.4}
+    +0.161 {"event":"waves-level","t":1792222039249,"vol":0.269,"outdoor":1,"wind":0}
+    +1.161 {"event":"waves-level","t":1792222040249,"vol":0.025,"outdoor":0,"wind":0}

@@ -1,0 +1,30 @@
+rs_night_320x568_chest 0 tz "Etc/GMT+1"
+rs_night_320x568_chest 0.026 goto 
+rs_night_320x568_chest 1.226 home 
+rs_night_320x568_chest 7.303 glassDiag "{\"effect\":\"ready\",\"frames\":350,\"visible\":true,\"box\":{\"l\":194.60128719498692,\"r\":373.9807119709491,\"t\":559.5045143747553,\"b\":476.42047040515007},\"corners\":[[194.60128719498692,551.5656303120779],[373.9807119709491,559.5045143747553],[373.6864879245442,493.89737213772395],[195.38466102635067,476.42047040515007]],\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+rs_night_320x568_chest 7.303 signBoxCss {"l":97.30064359749346,"r":186.99035598547454,"top":288.24774281262233,"bot":329.78976479742494,"cx":142.14549979148399,"cy":309.01875380502366}
+rs_night_320x568_chest 7.324 tapSign [142.14549979148399,309.01875380502366]
+rs_night_320x568_chest 8.406 signLeaveState "standing"
+rs_night_320x568_chest 9.498 homeHold12s 
+rs_night_320x568_chest 39.056 island 
+rs_night_320x568_chest 41.672 tapMainline {"x":219,"y":387}
+rs_night_320x568_chest 48.683 board {"stage":"mainline-01","moves":22}
+rs_night_320x568_chest 77.925 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rs_night_320x568_chest 80.543 tapChest1 {"x":159.95,"y":338.35}
+rs_night_320x568_chest 84.14 pop1 ["ResultPanel"]
+rs_night_320x568_chest 84.151 tapChest2 
+rs_night_320x568_chest 86.659 pop2 ["ResultPanel"]
+rs_night_320x568_chest 86.758 storageDiffKeys {"d01":["dot-mainline-r1-isolated-20261009:forest-v33-journey"],"d12":[]}
+rs_night_320x568_chest 86.758 end 
+rs_night_320x568_chest 86.777 audioSaved {"startMs":128,"runMs":129,"firstMs":7400,"err":[]}
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at sleep (/Users/<mac-user>/qf-fx3-tmp/rec11.cjs:16:19)
+    at /Users/<mac-user>/qf-fx3-tmp/rec11.cjs:20:280 {
+  log: []
+}
+
+Node.js v24.14.0

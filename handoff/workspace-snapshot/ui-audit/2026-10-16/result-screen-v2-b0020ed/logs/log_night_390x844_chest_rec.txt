@@ -1,0 +1,15 @@
+rv_night_390x844_chest 0 tz "Etc/GMT-3"
+rv_night_390x844_chest 0.026 goto 
+rv_night_390x844_chest 1.653 home 
+rv_night_390x844_chest 9.711 leave "{}"
+rv_night_390x844_chest 76.911 island 
+rv_night_390x844_chest 81.176 tapMainline {"x":282,"y":575}
+rv_night_390x844_chest 88.401 board {"stage":"mainline-01","moves":22}
+rv_night_390x844_chest 129.537 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rv_night_390x844_chest 132.06 resultReady {"n":34}
+rv_night_390x844_chest 135.756 chestNode {"n":"ResultFlow-reward-chest","d":2,"l":"","x":40.7,"y":290.7,"w":308.6,"h":323.4,"s":1}
+rv_night_390x844_chest 135.916 tapChest1 {"x":195,"y":452.4}
+rv_night_390x844_chest 143.331 afterTap1 {"lsChanged":true,"pop":["ResultPanel","RewardPanel"]}
+rv_night_390x844_chest 143.596 tapChest2 
+rv_night_390x844_chest 146.194 afterTap2 {"lsChanged":false,"pop":["ResultPanel","RewardPanel"]}
+rv_night_390x844_chest 146.951 end 

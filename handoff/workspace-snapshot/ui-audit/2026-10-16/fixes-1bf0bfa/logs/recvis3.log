@@ -1,0 +1,49 @@
+ib_day_390_vis3000 0 tz "Etc/GMT-11"
+ib_day_390_vis3000 0.026 goto 
+ib_day_390_vis3000 1.228 home 
+ib_day_390_vis3000 7.305 glassDiag "{\"effect\":\"ready\",\"frames\":352,\"visible\":true,\"box\":{\"l\":203.66800290091643,\"r\":470.210816373427,\"t\":831.3853757153391,\"b\":707.9306890813201},\"corners\":[[203.66800290091643,819.5901741812304],[470.210816373427,831.3853757153391],[469.77362386815173,733.8986093240853],[204.83203154573079,707.9306890813201]],\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+ib_day_390_vis3000 7.305 signBoxCss {"l":101.83400145045822,"r":235.1054081867135,"top":428.30731214233043,"bot":490.03465545933994,"cx":168.46970481858585,"cy":459.1709838008352}
+ib_day_390_vis3000 7.323 tapSign [168.46970481858585,459.1709838008352]
+ib_day_390_vis3000 8.398 signLeaveState "standing"
+ib_day_390_vis3000 9.489 homeHold12s 
+ib_day_390_vis3000 12.492 visHide "walking-out"
+ib_day_390_vis3000 16.499 visShow "paused"
+ib_day_390_vis3000 17.1 afterShow "standing/false"
+ib_day_390_vis3000 17.602 afterShow "standing/false"
+ib_day_390_vis3000 18.105 afterShow "turning-out/false"
+ib_day_390_vis3000 18.607 afterShow "turning-out/false"
+ib_day_390_vis3000 19.109 afterShow "turning-out/false"
+ib_day_390_vis3000 19.612 afterShow "walking-out/false"
+ib_day_390_vis3000 20.115 afterShow "walking-out/false"
+ib_day_390_vis3000 20.617 afterShow "walking-out/false"
+ib_day_390_vis3000 21.119 afterShow "walking-out/false"
+ib_day_390_vis3000 21.621 afterShow "walking-out/false"
+ib_day_390_vis3000 22.123 afterShow "walking-out/false"
+ib_day_390_vis3000 22.626 afterShow "walking-out/false"
+ib_day_390_vis3000 47.456 island 
+ib_day_390_vis3000 50.087 tapMainline {"x":282,"y":575}
+ib_day_390_vis3000 57.1 board {"stage":"mainline-01","moves":22}
+ib_day_390_vis3000 86.285 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+ib_day_390_vis3000 88.942 tapChest [194.95000000000002,474.55]
+ib_day_390_vis3000 92.57 resultPop ["ResultPanel"]
+ib_day_390_vis3000 92.591 tapBackIsland [267,708.5]
+ib_day_390_vis3000 92.592 island2 "island"
+ib_day_390_vis3000 95.594 travelCall 
+ib_day_390_vis3000 123.066 travelRet "{\"ok\":true}"
+ib_day_390_vis3000 123.067 arrived 
+ib_day_390_vis3000 127.206 tapHome {"x":283.5,"y":776}
+ib_day_390_vis3000 127.71 home2 
+ib_day_390_vis3000 135.802 nightProp "false"
+ib_day_390_vis3000 135.802 end 
+ib_day_390_vis3000 135.83 audioSaved {"startMs":128,"runMs":129,"firstMs":7391,"err":[]}
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at sleep (/Users/<mac-user>/qf-fx4-tmp/rec10.cjs:16:19)
+    at /Users/<mac-user>/qf-fx4-tmp/rec10.cjs:20:280 {
+  log: []
+}
+
+Node.js v24.14.0

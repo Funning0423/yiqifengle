@@ -1,0 +1,8 @@
+# ui-audit 推送建议（草案）：录屏、音频大文件排除，或者改用 LFS
+*.webm
+*.mp4
+*.wav
+# macOS AppleDouble 垃圾文件和 Python 缓存
+._*
+.DS_Store
+__pycache__/

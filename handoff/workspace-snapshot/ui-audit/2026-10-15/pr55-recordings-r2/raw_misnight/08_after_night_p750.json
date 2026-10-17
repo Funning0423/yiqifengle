@@ -1,0 +1,64 @@
+{
+ "tag": "08_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.1
+  ],
+  [
+   "home",
+   4.01
+  ],
+  [
+   "settings",
+   33.63
+  ],
+  [
+   "edgeTap_Day",
+   33.67
+  ],
+  [
+   "edgeTap_Night",
+   35.5
+  ],
+  [
+   "end",
+   37.3
+  ]
+ ],
+ "checks": {
+  "mode0": {
+   "error": "",
+   "text": ""
+  },
+  "rect_Day": [
+   180,
+   372,
+   68,
+   44
+  ],
+  "rect_Night": [
+   258,
+   372,
+   68,
+   44
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

@@ -1,0 +1,68 @@
+{
+ "tag": "11_after_night_se",
+ "marks": [
+  [
+   "goto",
+   0.05
+  ],
+  [
+   "home",
+   1.16
+  ],
+  [
+   "board",
+   26.48
+  ],
+  [
+   "entry1",
+   26.48
+  ],
+  [
+   "resumed1",
+   27.33
+  ],
+  [
+   "island",
+   36.02
+  ],
+  [
+   "entry2",
+   39.5
+  ],
+  [
+   "resumed2",
+   40.34
+  ],
+  [
+   "end",
+   46.88
+  ]
+ ],
+ "checks": {
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [
+   [
+    "Toast",
+    "星光"
+   ],
+   [
+    "ToastText",
+    "星光"
+   ]
+  ],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": []
+}

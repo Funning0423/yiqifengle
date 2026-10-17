@@ -1,0 +1,114 @@
+{
+ "tag": "03_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.08
+  ],
+  [
+   "home",
+   4.03
+  ],
+  [
+   "triDouble1",
+   5.03
+  ],
+  [
+   "keyFallbackOpen",
+   8.12
+  ],
+  [
+   "pickMeadow",
+   8.97
+  ],
+  [
+   "jump",
+   9
+  ],
+  [
+   "arrived",
+   35.14
+  ],
+  [
+   "ERROR TimeoutError: page.waitForFunction: Timeout 180000ms exceeded.",
+   219.78
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1",
+  "panelAfterTri1": 0,
+  "btns": [
+   [
+    "主页",
+    159,
+    48
+   ],
+   [
+    "小岛",
+    159,
+    48
+   ],
+   [
+    "天空城",
+    159,
+    48
+   ],
+   [
+    "主线",
+    159,
+    48
+   ],
+   [
+    "潮汐",
+    159,
+    48
+   ],
+   [
+    "草甸",
+    159,
+    48
+   ],
+   [
+    "天空",
+    159,
+    48
+   ],
+   [
+    "原地区",
+    159,
+    48
+   ],
+   [
+    "主线04末步",
+    159,
+    48
+   ],
+   [
+    "主线08末步",
+    159,
+    48
+   ],
+   [
+    "主线12末步",
+    159,
+    48
+   ],
+   [
+    "退出流程",
+    159,
+    48
+   ],
+   [
+    "关闭",
+    159,
+    48
+   ]
+  ],
+  "arrivedStage": "r05-meadow-01",
+  "triOnBoard": 0
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: the server responded with a status of 404 (File not found)"
+ ]
+}

@@ -1,0 +1,779 @@
+{
+ "dev": "iphone15pro",
+ "D": {
+  "w": 393,
+  "h": 852,
+  "safe": [
+   59,
+   34
+  ]
+ },
+ "mode": "day",
+ "log": [
+  {
+   "k": "targets",
+   "v": {
+    "mainline": {
+     "x": 284.5,
+     "y": 581
+    },
+    "flowTests": {
+     "x": 196.5,
+     "y": 166
+    }
+   }
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-03-island.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-04-island-bag.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-05-settings.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-06-journal.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-06b-chapter-sky.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-07-board.png"
+  },
+  {
+   "k": "boardLayout",
+   "v": {
+    "targets": {
+     "moves": {
+      "x": 243.18428223844282,
+      "y": 151.93430656934305
+     },
+     "tool-bomb": {
+      "x": 196.5,
+      "y": 738
+     },
+     "bomb": {
+      "x": 196.5,
+      "y": 738
+     },
+     "pause": {
+      "x": 38,
+      "y": 79
+     }
+    },
+    "pause": {
+     "x": 38,
+     "y": 79
+    }
+   }
+  },
+  {
+   "k": "boardNodes",
+   "v": [
+    [
+     "WorldNavigationCanvas",
+     "流程参考占位 · 非新版B|继续旅程  →|主线下一关|打开本关宝箱|领取主线地区奖励|原地区 · 潮汐|出门 · 选择地区|回主页|潮汐小径|花粉草甸|天空回",
+     0,
+     0,
+     393,
+     852
+    ],
+    [
+     "LabelPlate",
+     "独立测试进度 · 主线 04 最后一步 4行3列 ↔ 5行3列",
+     17,
+     95,
+     360,
+     40
+    ],
+    [
+     "VisibleLabel",
+     "独立测试进度 · 主线 04 最后一步 4行3列 ↔ 5行3列",
+     50,
+     104,
+     294,
+     21
+    ],
+    [
+     "NativeBoardCanvas",
+     "04  小径守卫|0|3|0|0|23|2",
+     0,
+     0,
+     393,
+     852
+    ],
+    [
+     "LightGoalHUD",
+     "04  小径守卫|0|3|0|0|23",
+     16,
+     57,
+     288,
+     370
+    ],
+    [
+     "InfoPlate",
+     "04  小径守卫|0|3|0|0|23",
+     80,
+     107,
+     224,
+     67
+    ],
+    [
+     "Plate",
+     "",
+     90,
+     107,
+     214,
+     67
+    ],
+    [
+     "LevelTitle",
+     "04  小径守卫",
+     100,
+     115,
+     193,
+     21
+    ],
+    [
+     "Goal-0",
+     "0",
+     80,
+     136,
+     64,
+     31
+    ],
+    [
+     "GoalPieceArt",
+     "",
+     111,
+     141,
+     22,
+     22
+    ],
+    [
+     "Count",
+     "0",
+     134,
+     136,
+     9,
+     30
+    ],
+    [
+     "Goal-1",
+     "3",
+     122,
+     136,
+     68,
+     31
+    ],
+    [
+     "GoalPieceArt",
+     "",
+     153,
+     139,
+     26,
+     26
+    ],
+    [
+     "Count",
+     "3",
+     180,
+     136,
+     9,
+     30
+    ],
+    [
+     "Moves",
+     "23",
+     217,
+     136,
+     60,
+     31
+    ],
+    [
+     "MovesLeft",
+     "23",
+     259,
+     136,
+     19,
+     30
+    ],
+    [
+     "CompactToolTray",
+     "2",
+     165,
+     426,
+     64,
+     345
+    ],
+    [
+     "slot-0",
+     "2",
+     165,
+     706,
+     64,
+     64
+    ],
+    [
+     "Face",
+     "2",
+     159,
+     700,
+     76,
+     76
+    ],
+    [
+     "ToolSelection",
+     "",
+     165,
+     706,
+     64,
+     64
+    ],
+    [
+     "OriginalToolArt",
+     "",
+     159,
+     700,
+     76,
+     76
+    ],
+    [
+     "ToolCount",
+     "2",
+     206,
+     705,
+     24,
+     24
+    ],
+    [
+     "Quantity",
+     "2",
+     215,
+     707,
+     8,
+     20
+    ],
+    [
+     "ToastPlate",
+     "",
+     47,
+     656,
+     300,
+     40
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-08-pause.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-09-result.png"
+  },
+  {
+   "k": "resultNodes",
+   "v": [
+    [
+     "ResultPanel",
+     "1130 分|用了 6 步 · 剩余 22 步|成绩已保存|下一关|回小岛|‹|›|1 / 1|过关啦|1130 分|用了 6 步 · 剩余 22 步|成绩已保",
+     0,
+     0,
+     393,
+     852
+    ],
+    [
+     "PopupShade",
+     "",
+     0,
+     0,
+     393,
+     852
+    ],
+    [
+     "PopupPanel",
+     "1130 分|用了 6 步 · 剩余 22 步|成绩已保存|下一关|回小岛|‹|›|1 / 1|过关啦|1130 分|用了 6 步 · 剩余 22 步|成绩已保",
+     12,
+     186,
+     369,
+     541
+    ],
+    [
+     "PanelFrame",
+     "",
+     12,
+     186,
+     369,
+     541
+    ],
+    [
+     "TitlePlank",
+     "",
+     134,
+     187,
+     126,
+     44
+    ],
+    [
+     "Plank",
+     "",
+     134,
+     187,
+     126,
+     44
+    ],
+    [
+     "Title",
+     "",
+     166,
+     200,
+     60,
+     21
+    ],
+    [
+     "Next",
+     "下一关",
+     20,
+     671,
+     173,
+     48
+    ],
+    [
+     "Face",
+     "下一关",
+     20,
+     671,
+     173,
+     48
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     671,
+     173,
+     48
+    ],
+    [
+     "Label",
+     "下一关",
+     28,
+     675,
+     157,
+     40
+    ],
+    [
+     "Home",
+     "回小岛",
+     201,
+     671,
+     173,
+     48
+    ],
+    [
+     "Face",
+     "回小岛",
+     201,
+     671,
+     173,
+     48
+    ],
+    [
+     "Plate",
+     "",
+     201,
+     671,
+     173,
+     48
+    ],
+    [
+     "Label",
+     "回小岛",
+     209,
+     675,
+     157,
+     40
+    ],
+    [
+     "ResultFlow-stars",
+     "",
+     197,
+     426,
+     0,
+     0
+    ],
+    [
+     "ResultStars",
+     "",
+     119,
+     264,
+     155,
+     57
+    ],
+    [
+     "Star-0",
+     "",
+     119,
+     279,
+     46,
+     42
+    ],
+    [
+     "Star-1",
+     "",
+     167,
+     264,
+     59,
+     54
+    ],
+    [
+     "Star-2",
+     "",
+     228,
+     279,
+     46,
+     42
+    ],
+    [
+     "ResultFlow-Score-0",
+     "1130 分",
+     20,
+     338,
+     353,
+     41
+    ],
+    [
+     "Score",
+     "1130 分",
+     20,
+     338,
+     353,
+     41
+    ],
+    [
+     "ResultFlow-MovesInfo-0",
+     "用了 6 步 · 剩余 22 步",
+     20,
+     385,
+     353,
+     22
+    ],
+    [
+     "MovesInfo",
+     "用了 6 步 · 剩余 22 步",
+     20,
+     385,
+     353,
+     22
+    ],
+    [
+     "ResultFlow-SavedText-0",
+     "成绩已保存",
+     20,
+     413,
+     353,
+     22
+    ],
+    [
+     "SavedText",
+     "成绩已保存",
+     20,
+     413,
+     353,
+     22
+    ],
+    [
+     "ResultFlow-ResultUnlockHint-0",
+     "主线 05 与潮汐挑战已开放；前往风车草甸",
+     20,
+     441,
+     353,
+     22
+    ],
+    [
+     "ResultUnlockHint",
+     "主线 05 与潮汐挑战已开放；前往风车草甸",
+     20,
+     441,
+     353,
+     22
+    ],
+    [
+     "ResultFlow-reward-0",
+     "打开宝箱",
+     20,
+     469,
+     353,
+     96
+    ],
+    [
+     "Claim-chest",
+     "打开宝箱",
+     20,
+     469,
+     353,
+     96
+    ],
+    [
+     "Face",
+     "打开宝箱",
+     20,
+     469,
+     353,
+     96
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     469,
+     353,
+     96
+    ],
+    [
+     "Label",
+     "打开宝箱",
+     124,
+     497,
+     241,
+     40
+    ],
+    [
+     "chest_closed",
+     "",
+     32,
+     484,
+     72,
+     65
+    ],
+    [
+     "ResultFlow-reward-1",
+     "领取地区道具",
+     20,
+     571,
+     353,
+     96
+    ],
+    [
+     "Claim-regionReward",
+     "领取地区道具",
+     20,
+     571,
+     353,
+     96
+    ],
+    [
+     "Face",
+     "领取地区道具",
+     20,
+     571,
+     353,
+     96
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     571,
+     353,
+     96
+    ],
+    [
+     "Label",
+     "领取地区道具",
+     124,
+     599,
+     241,
+     40
+    ],
+    [
+     "tool_tidenet",
+     "",
+     32,
+     585,
+     72,
+     68
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-10-chest-reward.png"
+  },
+  {
+   "k": "rewardNodes",
+   "v": [
+    [
+     "RewardPanel",
+     "装扮 ×1|海风吹开了宝箱，收进行囊吧。|收下",
+     0,
+     0,
+     393,
+     852
+    ],
+    [
+     "PopupShade",
+     "",
+     0,
+     0,
+     393,
+     852
+    ],
+    [
+     "PopupPanel",
+     "装扮 ×1|海风吹开了宝箱，收进行囊吧。|收下",
+     18,
+     218,
+     356,
+     419
+    ],
+    [
+     "PanelFrame",
+     "",
+     18,
+     246,
+     356,
+     392
+    ],
+    [
+     "TitlePlank",
+     "",
+     118,
+     218,
+     157,
+     55
+    ],
+    [
+     "Plank",
+     "",
+     118,
+     218,
+     157,
+     55
+    ],
+    [
+     "Title",
+     "",
+     172,
+     234,
+     50,
+     26
+    ],
+    [
+     "fx_rays",
+     "",
+     54,
+     239,
+     284,
+     284
+    ],
+    [
+     "ChestShadow",
+     "",
+     118,
+     449,
+     157,
+     31
+    ],
+    [
+     "ResultChest3D",
+     "",
+     124,
+     335,
+     145,
+     145
+    ],
+    [
+     "Gain-charm",
+     "",
+     103,
+     309,
+     187,
+     145
+    ],
+    [
+     "icon_charm",
+     "",
+     103,
+     309,
+     187,
+     145
+    ],
+    [
+     "GainList",
+     "装扮 ×1",
+     168,
+     489,
+     57,
+     30
+    ],
+    [
+     "Text",
+     "海风吹开了宝箱，收进行囊吧。",
+     94,
+     522,
+     205,
+     26
+    ],
+    [
+     "Accept",
+     "收下",
+     86,
+     559,
+     220,
+     54
+    ],
+    [
+     "Face",
+     "收下",
+     86,
+     559,
+     220,
+     54
+    ],
+    [
+     "Plate",
+     "",
+     86,
+     559,
+     220,
+     54
+    ],
+    [
+     "Label",
+     "收下",
+     177,
+     567,
+     40,
+     35
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-11-result-after-claim.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/iphone15pro-day-12-skycity.png"
+  },
+  {
+   "k": "skyTargets",
+   "v": {
+    "returnIsland": {
+     "x": 196.5,
+     "y": 779
+    }
+   }
+  }
+ ],
+ "errors": []
+}

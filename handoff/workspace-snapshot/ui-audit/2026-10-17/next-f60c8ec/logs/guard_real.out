@@ -1,0 +1,26 @@
+== [wechat-release] try 1/3  free=10349228 KiB
+   exit=36 size=19154482 dirty=0 log=/Users/<mac-user>/qfl-milestone/tools/build-guard/logs/wechat-release.try1.log
+OK [wechat-release] TOTAL_BYTES=19154482
+   ROOT 1862250
+   SUB audio_bgm_island 418907
+   SUB board_art 2131356
+   SUB internal 297535
+   SUB main 1185659
+   SUB region_island 2967101
+   SUB region_lakeside 464387
+   SUB region_meadow 2934449
+   SUB region_skycity 3326944
+   SUB resources 445828
+   SUB shared_effects 563694
+   SUB static_seat_preview 2556372
+== [web-test] try 1/3  free=10215228 KiB
+   exit=36 size=2309217 dirty=405 log=/Users/<mac-user>/qfl-milestone/tools/build-guard/logs/web-test.try1.log
+   REJECTED: size=2309217<=15000000 log:'当前初始场景不存在' git-status:405-changed -> restoring .meta, clearing library/temp, retrying
+== [web-test] try 2/3  free=10293844 KiB
+   exit=36 size=2309217 dirty=405 log=/Users/<mac-user>/qfl-milestone/tools/build-guard/logs/web-test.try2.log
+   REJECTED: size=2309217<=15000000 log:'当前初始场景不存在' git-status:405-changed -> restoring .meta, clearing library/temp, retrying
+== [web-test] try 3/3  free=10295692 KiB
+   exit=36 size=19896460 dirty=0 log=/Users/<mac-user>/qfl-milestone/tools/build-guard/logs/web-test.try3.log
+OK [web-test] TOTAL_BYTES=19896460
+caches removed (library/temp); set KEEP_CACHE=1 to keep
+BUILD GUARD PASSED: wechat-release 19154482 | web-test 19896460 bytes  (output under creator-build-project/build/)

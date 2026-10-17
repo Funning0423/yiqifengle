@@ -1,0 +1,82 @@
+{
+ "tag": "02_after_night_se",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   1.18
+  ],
+  [
+   "island",
+   25.43
+  ],
+  [
+   "watchStart",
+   28.45
+  ],
+  [
+   "end",
+   40.45
+  ]
+ ],
+ "checks": {
+  "textScan": [],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": false,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 0,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -9.089305292004855,
+      -0.8509664128500347,
+      24.076579456633667
+     ],
+     "s": 2.090797050367599
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.646292112006726,
+      -0.8509664128500312,
+      25.028902251101243
+     ],
+     "s": 2.149527304591402
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -2.2032789320085904,
+      -0.8509664128500383,
+      25.9812250455688
+     ],
+     "s": 1.8202467184456237
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

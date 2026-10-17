@@ -1,0 +1,4 @@
+ffprobe: bgm_main 40000 bps / 83.51s; bgm_meadow 40000 / 72.67s; bgm_skycity 40000 / 72.05s (44.1k stereo CBR)
+decoded (ffmpeg, LAME gapless trim): lead/trail silence 0.0 ms all three
+wrap sample jump vs median|diff|: main 0.0142/0.0057, meadow 0.0143/0.0089, skycity 0.0103/0.0068
+seam RMS step (last 20ms -> first 20ms): main -18.7->-16.0 dB (2.7; p97 of in-track steps), meadow -27.5->-26.3... (2.0; p91), skycity -32.1->-24.7 (7.4 dB; >p99 5.9)

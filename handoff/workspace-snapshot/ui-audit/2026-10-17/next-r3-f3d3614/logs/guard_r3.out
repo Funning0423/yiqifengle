@@ -1,0 +1,20 @@
+== [wechat-release] try 1/3  free=9830928 KiB
+   exit=36 size=19294468 dirty=0 log=/Users/<mac-user>/qfl-a3b/repo/tools/build-guard/logs/wechat-release.try1.log
+OK [wechat-release] TOTAL_BYTES=19294468
+   ROOT 1870865
+   SUB audio_bgm_island 418907
+   SUB board_art 2131356
+   SUB internal 297535
+   SUB main 1239082
+   SUB region_island 2967101
+   SUB region_lakeside 542335
+   SUB region_meadow 2934449
+   SUB region_skycity 3326944
+   SUB resources 445828
+   SUB shared_effects 563694
+   SUB static_seat_preview 2556372
+== [web-test] try 1/3  free=9731412 KiB
+   exit=36 size=20079413 dirty=0 log=/Users/<mac-user>/qfl-a3b/repo/tools/build-guard/logs/web-test.try1.log
+OK [web-test] TOTAL_BYTES=20079413
+caches removed (library/temp); set KEEP_CACHE=1 to keep
+BUILD GUARD PASSED: wechat-release 19294468 | web-test 20079413 bytes  (output under creator-build-project/build/)

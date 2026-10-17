@@ -1,0 +1,22 @@
+24_fin_day_p750 goto
+24_fin_day_p750 home
+24_fin_day_p750 homeHold
+24_fin_day_p750 homeHoldEnd
+24_fin_day_p750 board4
+24_fin_day_p750 result
+24_fin_day_p750 result4
+24_fin_day_p750 chest4
+24_fin_day_p750 travelStart4
+24_fin_day_p750 travelEnd4
+24_fin_day_p750 arrive05
+24_fin_day_p750 arrived05+4s
+24_fin_day_p750 BACK [156.32,"before",null,"level"]
+24_fin_day_p750 BACK [156.65,"exitLevel",{"ok":true},"meadow"]
+24_fin_day_p750 BACK [157.41,"travelRegion(island)",{"ok":false,"reason":"Error: journey-region-unavailable"},"meadow"]
+24_fin_day_p750 BACK [157.61,"afterTravel",null,"meadow"]
+24_fin_day_p750 BACK [157.9,"returnHome",{"ok":false,"reason":"finish-region-journey-first"},"meadow"]
+24_fin_day_p750 backHomeFail
+24_fin_day_p750 BACK [218.02,"final",null,"meadow"]
+24_fin_day_p750 backHome+4s
+24_fin_day_p750 end
+24_fin_day_p750 end

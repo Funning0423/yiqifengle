@@ -1,0 +1,4 @@
+a=$1; b=$(basename $a .mp4); it=${b%%_*}; rest=${b#*_before_}; other=after; [ $it = 12 -o $it = 13 ] && other=sail
+c=mp4/${it}_${other}_${rest}.mp4; [ -f $c ] || exit 0; o=sbs/${it}_before-vs-${other}_${rest}.mp4; [ -s $o ] && exit 0
+da=$(ffprobe -v error -show_entries format=duration -of csv=p=0 $a); dc=$(ffprobe -v error -show_entries format=duration -of csv=p=0 $c); d=$(python3 -c "print(max($da,$dc))")
+ffmpeg -loglevel error -y -i $a -i $c -filter_complex "[0:v]scale=750:-2,tpad=stop_mode=clone:stop_duration=$d,drawtext=text='BEFORE':x=10:y=10:fontsize=36:fontcolor=red:box=1[l];[1:v]scale=750:-2,tpad=stop_mode=clone:stop_duration=$d,drawtext=text='AFTER ($other)':x=10:y=10:fontsize=36:fontcolor=lime:box=1[r];[l][r]hstack[v]" -map "[v]" -t $d -r 30 -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p $o.tmp.mp4 && mv $o.tmp.mp4 $o

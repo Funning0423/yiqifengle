@@ -1,0 +1,93 @@
+{
+ "tag": "02_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.97
+  ],
+  [
+   "island",
+   27.14
+  ],
+  [
+   "watchStart",
+   30.14
+  ],
+  [
+   "end",
+   42.14
+  ]
+ ],
+ "checks": {
+  "textScan": [],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": false,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 0,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -9.089694365148127,
+      -0.8487807759021635,
+      24.079777305038395
+     ],
+     "s": 1.896560941291242
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.647141413409794,
+      -0.848780775902167,
+      25.03197280232772
+     ],
+     "s": 1.9498351250353785
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -2.2045884616714595,
+      -0.8487807759021635,
+      25.984168299617046
+     ],
+     "s": 1.6511448727701987
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: the server responded with a status of 404 (File not found)",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

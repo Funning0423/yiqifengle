@@ -1,0 +1,53 @@
+{
+ "tag": "06_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.06
+  ],
+  [
+   "home",
+   3.31
+  ],
+  [
+   "settings",
+   32.72
+  ],
+  [
+   "toggle1",
+   32.76
+  ],
+  [
+   "toggle2",
+   34.8
+  ],
+  [
+   "end",
+   37.3
+  ]
+ ],
+ "checks": {
+  "mode0": {
+   "error": "",
+   "text": ""
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/main/index.js:49396:17)",
+  "error: Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/main/index.js:49396:17)",
+  "error: Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/main/index.js:49396:17)",
+  "error: Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/main/index.js:49396:17)",
+  "error: Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/main/index.js:49396:17)",
+  "error: Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/main/index.js:49396:17)",
+  "error: Error: Backdrop day/night uniform postcondition failed\n    at paint (http://127.0.0.1:8802/assets/main/index.js:49369:172)\n    at Object.setWeight (http://127.0.0.1:8802/assets/main/index.js:49396:17)"
+ ]
+}

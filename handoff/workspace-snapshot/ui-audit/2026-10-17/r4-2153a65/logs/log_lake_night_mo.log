@@ -1,0 +1,41 @@
+lk4_lake_night_mo 0.459 ctxEpoch 1792241638883
+lk4_lake_night_mo 0.466 tz "Etc/GMT-11"
+lk4_lake_night_mo 0.492 goto "?lakemerge=off"
+lk4_lake_night_mo 1.694 home 
+lk4_lake_night_mo 36.519 leave {"ok":true}
+lk4_lake_night_mo 36.642 island 
+lk4_lake_night_mo 39.646 cleared 12
+lk4_lake_night_mo 39.649 lightIsland {"dl":[{"n":"Main Light","color":"180/198/232","illum":43750,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"night"}
+lk4_lake_night_mo 39.79 tap {"name":"Island-journal","pt":{"x":195,"y":762.4},"epoch":1792241678673}
+lk4_lake_night_mo 41.839 tap {"name":"Chapter-lake","pt":{"x":195.04999999999998,"y":592.55},"epoch":1792241680722}
+lk4_lake_night_mo 43.848 chapterTexts ["挑战需通关主线 04","挑战需通关主线 08","挑战需通关主线 12","挑战 0/6","夕阳下的湖面，敲响漂在水上的风铃。","继续挑战","返回章节","继续旅程"]
+lk4_lake_night_mo 43.984 tap {"name":"Continue-lake","pt":{"x":195,"y":484.45},"epoch":1792241682867}
+lk4_lake_night_mo 43.985 tapContinue 
+lk4_lake_night_mo 43.986 state "region-loading"
+lk4_lake_night_mo 43.986 phase ["loading",0]
+lk4_lake_night_mo 44.067 state "region-travel"
+lk4_lake_night_mo 44.067 phase ["ready",0]
+lk4_lake_night_mo 44.509 phase ["approach",0.349379110990766]
+lk4_lake_night_mo 45.843 phase ["bridge",3.403390706161796]
+lk4_lake_night_mo 48.741 journeyLabels ["开发预览画面，不代表最终效果"]
+lk4_lake_night_mo 56.439 phase ["arrival",27.848167198594016]
+lk4_lake_night_mo 61.421 state "lakeside"
+lk4_lake_night_mo 61.421 phase ["arrived",39.204256678831825]
+lk4_lake_night_mo 63.471 state "level-loading"
+lk4_lake_night_mo 63.474 llmark 
+lk4_lake_night_mo 64.256 state "level"
+lk4_lake_night_mo 64.258 board "r04-lake-01"
+lk4_lake_night_mo 64.652 entryFrames {"n":1232,"maxMs":116.7,"at":44027,"p50":16.7,"p95":18.6,"p99":18.7,"over16_7":159,"over33":3,"over50":1,"over100":1}
+lk4_lake_night_mo 64.653 swapFrames {"k":1205,"durPrev":16.6,"durSwap":36.8,"durNext":3.9,"next3":[3.9,9.6,16],"camsPrev":{"Main Camera":[57.35,-3.058,3,37.318,0]},"camsSwap":{"Main Camera":[57.35,-3.058,3,37.318,0],"LakesideBackgroundCamera":[57.35,2.945,3.58,31.164,44]},"sunPrev":["Main Light",-0.418,-0.398,0.816],"sunSwap":["Main Light",-0.418,-0.398,0.816]}
+lk4_lake_night_mo 64.654 frJourney {"n":1232,"maxMs":116.7,"at":44027,"p50":16.7,"p95":18.6,"p99":18.7,"over16_7":159,"over33":3,"over50":1,"over100":1}
+lk4_lake_night_mo 64.654 vis []
+lk4_lake_night_mo 64.655 navEpoch 1792241639350.7
+lk4_lake_night_mo 65.859 popupsPre {"popups":["RuleGuidePanel"],"keys":["moves","pause","GotIt"]}
+lk4_lake_night_mo 65.965 dismissTap {"key":"GotIt","x":195,"y":528.08}
+lk4_lake_night_mo 67.469 popupNoResume null
+lk4_lake_night_mo 67.472 popupsPost {"popups":[]}
+lk4_lake_night_mo 67.611 boardDiag "{\"state\":\"ready\",\"stageId\":\"r04-lake-01\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"lake\",\"bundle\":\"region_lakeside\",\"instances\":431,\"instancedMaterials\":39,\"lightMode\":\"dir\",\"waterTinted\":0,\"waterShaded\":1,\"fogHeld\":true,\"fogMode\":\"layered\",\"mainLightHeld\":true,\"visible\":true,\"paused\":false,\"layer\":1048576,\"cameraPriority\":44,\"nodes\":{\"rig\":\"LakesideLiveScene\",\"scenery\":\"LakesideScenery\",\"camera\":\"LakesideBackgroundCamera\",\"lights\":\"LakesideLights\"},\"dynamicTextureUploads\":0,\"staticMerge\":null,\"guest\":4,\"preloaded\":true,\"cameraOn\":true}}"
+lk4_lake_night_mo 67.612 lightBoard {"dl":[{"n":"Main Light","color":"92/117/199","illum":51318.75,"euler":[-23.471,152.876],"fwd":[-0.418,-0.398,0.816]}],"amb":{"skyIllum":28131.25},"fog":{"on":true,"type":3,"color":"44/54/84","start":60,"end":235},"cams":[{"n":"Main Camera","clear":"28/39/64","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60},{"n":"NativeUICamera","clear":"51/51/51","flags":6,"prio":50},{"n":"LakesideBackgroundCamera","clear":"28/39/64","flags":7,"prio":44}],"dn":"night"}
+lk4_lake_night_mo 71.615 perfBoard {"frames":240,"fps":60,"dcMed":72,"dcMax":80,"trisMed":51899,"heapMB":197.5,"texMB":114.1,"bufMB":45.5}
+lk4_lake_night_mo 71.615 end 
+lk4_lake_night_mo 71.634 audioEpochs {"rec":1792241639491,"first":1792241655521,"running":1792241639493}

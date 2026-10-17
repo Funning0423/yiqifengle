@@ -1,0 +1,21 @@
+ib_night_390 0 tz "Etc/GMT-2"
+ib_night_390 0.031 goto 
+ib_night_390 1.695 home 
+ib_night_390 22.961 homeHold18s 
+ib_night_390 23.321 leave "{}"
+ib_night_390 118.881 island 
+ib_night_390 123.55 tapMainline {"x":282,"y":575}
+ib_night_390 130.762 board {"stage":"mainline-01","moves":22}
+ib_night_390 170.297 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+ib_night_390 174.224 tapChest [195,474.6]
+ib_night_390 178.821 resultPop ["ResultPanel"]
+ib_night_390 179.308 tapBackIsland [267,708.5]
+ib_night_390 179.628 island2 "island"
+ib_night_390 182.629 travelCall 
+ib_night_390 214.177 travelRet "{\"ok\":true}"
+ib_night_390 214.253 arrived 
+ib_night_390 219.237 tapHome {"x":283.5,"y":776}
+ib_night_390 220.091 home2 
+ib_night_390 231.021 nightProp "true"
+ib_night_390 231.021 end 
+ib_night_390 232.743 audioSaved {"startMs":155,"runMs":156,"firstMs":68460,"err":[]}

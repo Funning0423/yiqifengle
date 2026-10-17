@@ -1,0 +1,63 @@
+{
+ "tag": "15_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.08
+  ],
+  [
+   "home",
+   4.35
+  ],
+  [
+   "island",
+   32.41
+  ],
+  [
+   "bagPopup",
+   34.04
+  ],
+  [
+   "board",
+   80.83
+  ],
+  [
+   "board2",
+   84.06
+  ],
+  [
+   "end",
+   84.36
+  ]
+ ],
+ "checks": {
+  "rects": {
+   "mainline": {
+    "x": 180,
+    "y": 483,
+    "width": 183,
+    "height": 142
+   },
+   "flowTests": {
+    "x": 67.5,
+    "y": 143,
+    "width": 240,
+    "height": 46
+   }
+  },
+  "bagPopup": [],
+  "closeBtn": [],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "pauseBtn": {
+   "x": 38,
+   "y": 67
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

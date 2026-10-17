@@ -1,0 +1,16 @@
+### day
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 431
+### night
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 431

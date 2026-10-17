@@ -1,0 +1,16 @@
+rs_day_390x844_next 0 tz "Etc/GMT+9"
+rs_day_390x844_next 0.031 goto 
+rs_day_390x844_next 1.834 home 
+rs_day_390x844_next 15.206 homeHold12s 
+rs_day_390x844_next 15.371 leave "{}"
+rs_day_390x844_next 71.87 island 
+rs_day_390x844_next 75.971 tapMainline {"x":282,"y":575}
+rs_day_390x844_next 83.164 board {"stage":"mainline-01","moves":22}
+rs_day_390x844_next 123.332 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rs_day_390x844_next 127.047 tapBtn {"x":123,"y":708.5}
+rs_day_390x844_next 134.301 stateAfter "level"
+rs_day_390x844_next 134.365 popAfter []
+rs_day_390x844_next 140.336 reloaded 
+rs_day_390x844_next 140.337 storageDiffKeys {"d01":["dot-runtime-diagnostics-20261010:world-flow","dot-mainline-r1-isolated-20261009:forest-mainline-cocos-r1-active","dot-mainline-r1-isolated-20261009:forest-v33-journey"],"d12":["dot-runtime-diagnostics-20261010:world-flow"]}
+rs_day_390x844_next 140.337 end 
+rs_day_390x844_next 141.167 audioSaved {"startMs":135217,"runMs":135218,"firstMs":-1792187975500,"err":[]}

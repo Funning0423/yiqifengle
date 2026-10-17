@@ -1,0 +1,25 @@
+PREBUILD Sat Oct 17 04:22:23 CST 2026 free 8749556
+wx exit 36
+web exit 36
+POSTBUILD Sat Oct 17 04:23:14 CST 2026 free 8561420
+GITSTATUS:
+TOTAL 24553771
+ROOT 1862103
+SUB audio_bgm_island 418907
+SUB board_art 2109392
+SUB internal 297535
+SUB main 1139122
+SUB region_island 8912286
+SUB region_meadow 2934382
+SUB region_skycity 3326944
+SUB resources 433034
+SUB shared_effects 563694
+SUB static_seat_preview 2556372
+STRSCAN done
+bar_fill.png
+first_screen_composite.jpg
+pinwheel.png
+/Users/<mac-user>/qf-rv-tmp/repo/creator-build-project/build/web-test/startup-art/pinwheel.png
+/Users/<mac-user>/qf-rv-tmp/repo/creator-build-project/build/web-test/startup-art/bar_fill.png
+/Users/<mac-user>/qf-rv-tmp/repo/creator-build-project/build/web-test/startup-art/first_screen_composite.jpg
+DONE free 8650280

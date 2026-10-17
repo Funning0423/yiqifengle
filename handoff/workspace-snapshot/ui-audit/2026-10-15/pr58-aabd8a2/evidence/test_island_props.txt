@@ -1,0 +1,40 @@
+PASS layout: 3 slots per frame, inside the screen, hit covers prop + tag, no overlaps, tag above 30 px bottom inset (portrait)
+PASS screen props stand on the sea under their anchor at the runtime island camera (round trip within 0.5 px), scale sane
+PASS signpost: main-button size (>= 1.8x the 1653f02 scale 1.2, >= 40 % of the portrait width), hugs the front-right shore (posts in shallow water just below the waterline, panel overlaps sand <= 30 %), inside the 8 px safe inset, clear of bottom-row hits and the girl
+PASS signpost mainline hit area: >= 88x88 logical px on every viewport, covers the whole sign, inside the 8 px inset, clear of bottom-row hits and the girl
+PASS sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world props: palms on the beach band, sign base under sea level, Tangents=Exclude metas, all prefabs present
+PASS IslandPropTaps: subscribe/unsubscribe, info flags, listener errors isolated
+PASS overlay prop mode: same three WarmButton nodes become invisible hit areas at the prop slots, cream tags with labels; off restores
+PASS overlay taps: press+confirm per target (journal -> book), same action; blocked confirm runs nothing; dock hidden while open
+PASS WorldIntegrationBoot wiring (source): mainline emits signpost press/confirm from its bound action; props optional; overlay prop mode only after load ok
+PASS signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTransitionHud, transpiled): buttons first (0.25 s, cubic ease-out, 24 px), mainline hit area never moved/scaled, then the signpost rises 24 px + fades in with the same duration/easing; hit area live only after; level round trip -> stays shown (no entrance, no flicker)
+PASS R3 (Mac r3: board floating near the shore on the walk home, mirrored text): REAL Boot gate - the sign fades OUT (mirror of the entrance: 0.25 s, cubic, sinking 24 px) when the return walk starts, stays 0 on the whole return (walking-home incl. crane, crossing-in, door, seat, home) and the next leave (crossing-out), then buttons + entrance on arrival; a cancelled return fades back IN from where it was (no pop)
+PASS R3: IslandProps.setSignEntrance(0) hides the whole sign set (sign node, water shadow + ripple NODES, lamp SphereLight, both additive glows); tickWater keeps the lamp light off at entrance 0; night sea tint is not tied to the sign
+PASS night sign text: day ink stays #633f21; night ink stays #3a220f
+PASS T9n night tags: day = T9 cream colours, night = warm grey card + deeper brown text; contrast >= 4.5:1 at every step of the blend; night card about as dark as the 0.35 night light
+PASS T9n night weight: switch fades over nightFadeS (0.5 s), monotone, both ways; lamp light off at day, smoothstep in (0 slope at both ends), full = luminanceScale
+PASS T9n overlay tags follow the props night weight (real overlay): day colours, repaint to night colours after setPropNightWeight(1)+sync, intermediate weight mixes, back to day
+PASS T9n lamp light wiring (source): night-only SphereLight on the sign layer only (Light.visibility), camera-layer guard, follows lampLightAt(night weight); warm additive water pool; sign text colour by weight; lamp glass swap at mid-fade; no global material / RoomLightingRig / Boot change
+PASS T9n-2 lamp + sea: amber unlit lamp glass (not white), soft glow, board light gentle (scale <= 0.6, range <= 2 sign-m), subtle warm water; night sea tint: exact authored colour at w=0, authored x tint at w=1, only the renderer instance (never shared M_env_sea), restored on dispose
+node:internal/assert/utils:281
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: the unfixed prop really does balloon, width 108
+    at /workspace/tmp-aabd/wt/w/tools/t9-island-props/test_island_props.cjs:299:39
+    at ok (/workspace/tmp-aabd/wt/w/tools/t9-island-props/test_island_props.cjs:9:56)
+    at Object.<anonymous> (/workspace/tmp-aabd/wt/w/tools/t9-island-props/test_island_props.cjs:248:1)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+    at node:internal/main/run_main_module:28:49 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+
+Node.js v20.19.2

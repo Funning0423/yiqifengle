@@ -1,0 +1,44 @@
+{
+ "tag": "12_sail_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.72
+  ],
+  [
+   "enterTap",
+   3.77
+  ],
+  [
+   "leftHome",
+   3.78
+  ],
+  [
+   "sailStart",
+   27.64
+  ],
+  [
+   "sailGone",
+   33.12
+  ],
+  [
+   "boardReady",
+   33.13
+  ],
+  [
+   "end",
+   35.13
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+3",
+  "sailSeen": true,
+  "audioStartMs": 131,
+  "audioErr": []
+ },
+ "errors": []
+}

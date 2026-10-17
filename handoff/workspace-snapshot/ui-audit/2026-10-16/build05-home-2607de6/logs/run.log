@@ -1,0 +1,181 @@
++ cd /Users/<mac-user>/qf-h-tmp
++ T=/Users/<mac-user>/qf-h-tmp
+++ date
+++ df -k /Users/<mac-user>
+++ tail -1
+++ awk '{print $4}'
++ echo 'START Sat Oct 17 01:17:47 CST 2026 free 9649732'
+START Sat Oct 17 01:17:47 CST 2026 free 9649732
++ git init -q repo
++ cd repo
++ git remote add origin https://github.com/Funning0423/yiqifengle.git
++ git remote set-url --push origin DISABLED
++ git fetch -q --depth 1 origin 751905c985e4e0c898f395456c3b2a41ff7a1376
++ git fetch -q /Users/<mac-user>/qf-h-tmp/b.bundle la2-base:la2-base
++ git checkout -q la2-base
++ for p in p1 p2 p3 p4 p5
++ git -c user.name=audit -c user.email=a@l am -q /Users/<mac-user>/qf-h-tmp/p1.patch
+++ git rev-parse 'HEAD^{tree}'
++ echo 'p1 tree b30d3794612fb1ea3415225a962a06b10ac075e2'
+p1 tree b30d3794612fb1ea3415225a962a06b10ac075e2
++ for p in p1 p2 p3 p4 p5
++ git -c user.name=audit -c user.email=a@l am -q /Users/<mac-user>/qf-h-tmp/p2.patch
+++ git rev-parse 'HEAD^{tree}'
++ echo 'p2 tree 8329218555ba0c6121eff52d879dbcf05eeaeb29'
+p2 tree 8329218555ba0c6121eff52d879dbcf05eeaeb29
++ for p in p1 p2 p3 p4 p5
++ git -c user.name=audit -c user.email=a@l am -q /Users/<mac-user>/qf-h-tmp/p3.patch
+++ git rev-parse 'HEAD^{tree}'
++ echo 'p3 tree e5b4a680bbaf9cf0a1f02bdad03c1e2640c45e01'
+p3 tree e5b4a680bbaf9cf0a1f02bdad03c1e2640c45e01
++ for p in p1 p2 p3 p4 p5
++ git -c user.name=audit -c user.email=a@l am -q /Users/<mac-user>/qf-h-tmp/p4.patch
+++ git rev-parse 'HEAD^{tree}'
++ echo 'p4 tree 36519a4acab373963ad5b4272456a6eade36edd8'
+p4 tree 36519a4acab373963ad5b4272456a6eade36edd8
++ for p in p1 p2 p3 p4 p5
++ git -c user.name=audit -c user.email=a@l am -q /Users/<mac-user>/qf-h-tmp/p5.patch
+++ git rev-parse 'HEAD^{tree}'
++ echo 'p5 tree 9a5e289be2101f9f78351a3c11c63e91f5bb7d0e'
+p5 tree 9a5e289be2101f9f78351a3c11c63e91f5bb7d0e
+++ git rev-parse 'HEAD^{tree}'
++ echo 'FINALTREE 9a5e289be2101f9f78351a3c11c63e91f5bb7d0e'
+FINALTREE 9a5e289be2101f9f78351a3c11c63e91f5bb7d0e
++ git remote -v
+origin	https://github.com/Funning0423/yiqifengle.git (fetch)
+origin	DISABLED (push)
+++ git rev-parse 'HEAD^{tree}'
++ '[' 9a5e289be2101f9f78351a3c11c63e91f5bb7d0e = 9a5e289be2101f9f78351a3c11c63e91f5bb7d0e ']'
++ pgrep -fl CocosCreator
+++ df -k /Users/<mac-user>
+++ tail -1
+++ awk '{print $4}'
++ F=9317740
++ echo 'PREBUILD free 9317740'
+PREBUILD free 9317740
++ '[' 9317740 -lt 3000000 ']'
++ C=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
++ P=/Users/<mac-user>/qf-h-tmp/repo/creator-build-project
++ /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator --project /Users/<mac-user>/qf-h-tmp/repo/creator-build-project --build configPath=/Users/<mac-user>/qf-h-tmp/wx.json
++ echo 'wx exit 36'
+wx exit 36
++ /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator --project /Users/<mac-user>/qf-h-tmp/repo/creator-build-project --build configPath=/Users/<mac-user>/qf-h-tmp/web.json
++ echo 'web exit 36'
+web exit 36
+++ tail -1
+++ df -k /Users/<mac-user>
+++ awk '{print $4}'
++ echo 'POSTBUILD free 9139132'
+POSTBUILD free 9139132
++ git status --short
++ B=/Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'TOTAL 24539994'
+TOTAL 24539994
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release -type f -not -path '*/subpackages/*' -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'ROOT 1861999'
+ROOT 1861999
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/audio_bgm_island
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/audio_bgm_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB audio_bgm_island 418907'
+SUB audio_bgm_island 418907
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/board_art
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/board_art -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB board_art 2112889'
+SUB board_art 2112889
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/internal
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/internal -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB internal 297535'
+SUB internal 297535
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/main
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/main -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB main 1121972'
+SUB main 1121972
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/region_island
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/region_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_island 8912266'
+SUB region_island 8912266
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/region_meadow
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/region_meadow -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_meadow 2934382'
+SUB region_meadow 2934382
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/region_skycity
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/region_skycity -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_skycity 3326944'
+SUB region_skycity 3326944
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/resources
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/resources -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB resources 433034'
+SUB resources 433034
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/shared_effects
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/shared_effects -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB shared_effects 563694'
+SUB shared_effects 563694
++ for d in '$B/subpackages/*'
+++ basename /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/static_seat_preview
+++ find /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release/subpackages/static_seat_preview -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB static_seat_preview 2556372'
+SUB static_seat_preview 2556372
++ python3 - /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/wechat-release
++ rm -rf /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/library /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/temp
+++ df -k /Users/<mac-user>
+++ tail -1
+++ awk '{print $4}'
++ echo 'LIBCLEAN free 9243820'
+LIBCLEAN free 9243820
++ cd /Users/<mac-user>/qf-h-tmp/repo/creator-build-project/build/web-rec
++ echo 75475
++ python3 -m http.server 8861 --bind 127.0.0.1
++ sleep 2
++ cd /Users/<mac-user>/qf-h-tmp
++ export QF_CHROMIUM_EXECUTABLE=/Users/<mac-user>/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
++ QF_CHROMIUM_EXECUTABLE=/Users/<mac-user>/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
++ for m in day night
++ for i in 25 24
++ AUDIO=1
++ node rec4.cjs h 25 day p750
++ echo 'REC 25 day 0'
+REC 25 day 0
++ for i in 25 24
++ AUDIO=1
++ node rec4.cjs h 24 day p750
++ echo 'REC 24 day 0'
+REC 24 day 0
++ for m in day night
++ for i in 25 24
++ AUDIO=1
++ node rec4.cjs h 25 night p750
++ echo 'REC 25 night 0'
+REC 25 night 0
++ for i in 25 24
++ AUDIO=1
++ node rec4.cjs h 24 night p750
++ echo 'REC 24 night 0'
+REC 24 night 0
+++ date
+++ df -k /Users/<mac-user>
+++ tail -1
+++ awk '{print $4}'
++ echo 'RECDONE Sat Oct 17 01:36:27 CST 2026 free 9197088'
+RECDONE Sat Oct 17 01:36:27 CST 2026 free 9197088

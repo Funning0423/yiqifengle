@@ -1,0 +1,127 @@
++ cd /Users/<mac-user>/qfl-a3b
++ cat ch/fb.00 ch/fb.01 ch/fb.02 ch/fb.03 ch/fb.04 ch/fb.05 ch/fb.06 ch/fb.07 ch/fb.08 ch/fb.09 ch/fb.10 ch/fb.11 ch/fb.12 ch/fb.13 ch/fb.14 ch/fb.15 ch/fb.16 ch/fb.17 ch/fb.18 ch/fb.19 ch/fb.20 ch/fb.21 ch/fb.22 ch/fb.23 ch/fb.24 ch/fb.25 ch/fb.26 ch/fb.27 ch/fb.28 ch/fb.29 ch/fb.30 ch/fb.31 ch/fb.32 ch/fb.33 ch/fb.34 ch/fb.35 ch/fb.36 ch/fb.37 ch/fb.38 ch/fb.39 ch/fb.40 ch/fb.41 ch/fb.42 ch/fb.43 ch/fb.44 ch/fb.45 ch/fb.46 ch/fb.47 ch/fb.48 ch/fb.49 ch/fb.50 ch/fb.51 ch/fb.52 ch/fb.53 ch/fb.54 ch/fb.55 ch/fb.56 ch/fb.57 ch/fb.58 ch/fb.59 ch/fb.60 ch/fb.61 ch/fb.62 ch/fb.63 ch/fb.64 ch/fb.65
++ shasum -a 256 full.bundle
+5d4ed05d6ab3eafc0a14894109384adfea9fcb797a47a08f63be6a409568c2e2  full.bundle
++ rm -rf ch
++ git clone -q full.bundle repo
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+warning: remote HEAD refers to nonexistent ref, unable to checkout
++ cd repo
++ git checkout -q 09a1b8e456fd38dadf632f627189883808307cbe
++ git log -1 '--format=%H %T'
+09a1b8e456fd38dadf632f627189883808307cbe 082f1c0ee20c38403d3f3bbb3ff5fb27d2ecf14a
++ git fetch -q ../qfl-build05-a3b-a995c4158ff4.bundle HEAD:integration/build05-a3b-20261017T063646Z
++ git checkout -q integration/build05-a3b-20261017T063646Z
++ git log -1 '--format=HEAD %H TREE %T'
+HEAD a995c4158ff447ec1fb82f26b198db2265a0c36a TREE f359fb23533427d2360cf8edd2a952a49a010ae4
++ git status --short
++ wc -l
+       0
++ export CREATOR=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
++ CREATOR=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
++ bash tools/build-guard/build-wechat-guarded.sh both
++ echo 'guard exit 0'
+guard exit 0
++ B=creator-build-project/build
++ for d in wechat-release web-test
++ cd creator-build-project/build/wechat-release
++ find . -type f -print0
++ sort -z
++ xargs -0 shasum -a 256
+++ wc -l
+++ shasum -a 256 /Users/<mac-user>/qfl-a3b/files-wechat-release.sha256
+++ cut -c1-64
++ echo 'wechat-release files      630 agg 1a0bc327635d42268cfba61cf96abf3493aab39d86c1daf716fc5c40767c357a'
+wechat-release files      630 agg 1a0bc327635d42268cfba61cf96abf3493aab39d86c1daf716fc5c40767c357a
++ for d in wechat-release web-test
++ cd creator-build-project/build/web-test
++ find . -type f -print0
++ sort -z
++ xargs -0 shasum -a 256
+++ wc -l
+++ shasum -a 256 /Users/<mac-user>/qfl-a3b/files-web-test.sha256
+++ cut -c1-64
++ echo 'web-test files      610 agg f9cce21b5d15bf5dec300f8cd21bf66d90eaad8e45fb3fab89511fee2e7ceaf2'
+web-test files      610 agg f9cce21b5d15bf5dec300f8cd21bf66d90eaad8e45fb3fab89511fee2e7ceaf2
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/audio_bgm_island
+++ find creator-build-project/build/wechat-release/subpackages/audio_bgm_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB audio_bgm_island 418907'
+SUB audio_bgm_island 418907
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/board_art
+++ find creator-build-project/build/wechat-release/subpackages/board_art -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB board_art 2112160'
+SUB board_art 2112160
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/internal
+++ find creator-build-project/build/wechat-release/subpackages/internal -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB internal 297535'
+SUB internal 297535
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/main
+++ find creator-build-project/build/wechat-release/subpackages/main -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB main 1176922'
+SUB main 1176922
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_island
+++ find creator-build-project/build/wechat-release/subpackages/region_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_island 2967101'
+SUB region_island 2967101
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_lakeside
+++ find creator-build-project/build/wechat-release/subpackages/region_lakeside -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_lakeside 464387'
+SUB region_lakeside 464387
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_meadow
+++ find creator-build-project/build/wechat-release/subpackages/region_meadow -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_meadow 2934449'
+SUB region_meadow 2934449
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_skycity
+++ find creator-build-project/build/wechat-release/subpackages/region_skycity -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_skycity 3326944'
+SUB region_skycity 3326944
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/resources
+++ find creator-build-project/build/wechat-release/subpackages/resources -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB resources 445828'
+SUB resources 445828
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/shared_effects
+++ find creator-build-project/build/wechat-release/subpackages/shared_effects -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB shared_effects 563694'
+SUB shared_effects 563694
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/static_seat_preview
+++ find creator-build-project/build/wechat-release/subpackages/static_seat_preview -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB static_seat_preview 2556372'
+SUB static_seat_preview 2556372
++ rm -rf /Users/<mac-user>/qfl-a3b/web
++ cp -R creator-build-project/build/web-test /Users/<mac-user>/qfl-a3b/web
++ echo BDONE
+BDONE

@@ -1,0 +1,29 @@
+{
+ "tag": "03_before_day_se",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   3.08
+  ],
+  [
+   "triDouble1",
+   4.08
+  ],
+  [
+   "keyTried",
+   10.37
+  ],
+  [
+   "end",
+   11.37
+  ]
+ ],
+ "checks": {
+  "panelAfterTri1": 0
+ },
+ "errors": []
+}

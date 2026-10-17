@@ -1,0 +1,116 @@
++ cd /Users/<mac-user>/qfl-a3b/repo
++ shasum -a 256 ../r2inc.bundle
+edf2005927d25cf695318f68243d02d101bc30d421dcd1fe91c686cdd1c783be  ../r2inc.bundle
++ git fetch -q ../r2inc.bundle r2b:integration/build05-next-20261017T0725Z
++ git checkout -q integration/build05-next-20261017T0725Z
++ git log -1 '--format=HEAD %H TREE %T'
+HEAD 228df2fee791ea14b6da683c8362a69d603d801a TREE 9af6e8dd49dfbd8f5216b9b16e21f8c17e8bf134
++ git status --short
++ wc -l
+       0
++ export CREATOR=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
++ CREATOR=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
++ bash tools/build-guard/build-wechat-guarded.sh both
++ echo 'guard exit 0'
+guard exit 0
++ B=creator-build-project/build
++ for d in wechat-release web-test
++ cd creator-build-project/build/wechat-release
++ find . -type f -print0
++ sort -z
++ xargs -0 shasum -a 256
+++ wc -l
+++ shasum -a 256 /Users/<mac-user>/qfl-a3b/r2-files-wechat-release.sha256
+++ cut -c1-64
++ echo 'wechat-release files      635 agg bb54ade2a973e5e5db8a24ac8aaae479c7ef231e37b0a978fc99ce6c00fb99fa'
+wechat-release files      635 agg bb54ade2a973e5e5db8a24ac8aaae479c7ef231e37b0a978fc99ce6c00fb99fa
++ for d in wechat-release web-test
++ cd creator-build-project/build/web-test
++ find . -type f -print0
++ sort -z
++ xargs -0 shasum -a 256
+++ wc -l
+++ shasum -a 256 /Users/<mac-user>/qfl-a3b/r2-files-web-test.sha256
+++ cut -c1-64
++ echo 'web-test files      615 agg b90a69cc61d27d810869a589ad67bbf39a0904d74eb7914ab384cf9e20b3701b'
+web-test files      615 agg b90a69cc61d27d810869a589ad67bbf39a0904d74eb7914ab384cf9e20b3701b
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/audio_bgm_island
+++ find creator-build-project/build/wechat-release/subpackages/audio_bgm_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB audio_bgm_island 418907'
+SUB audio_bgm_island 418907
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/board_art
+++ find creator-build-project/build/wechat-release/subpackages/board_art -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB board_art 2131356'
+SUB board_art 2131356
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/internal
+++ find creator-build-project/build/wechat-release/subpackages/internal -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB internal 297535'
+SUB internal 297535
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/main
+++ find creator-build-project/build/wechat-release/subpackages/main -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB main 1231957'
+SUB main 1231957
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_island
+++ find creator-build-project/build/wechat-release/subpackages/region_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_island 2967101'
+SUB region_island 2967101
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_lakeside
+++ find creator-build-project/build/wechat-release/subpackages/region_lakeside -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_lakeside 542934'
+SUB region_lakeside 542934
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_meadow
+++ find creator-build-project/build/wechat-release/subpackages/region_meadow -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_meadow 2934449'
+SUB region_meadow 2934449
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_skycity
+++ find creator-build-project/build/wechat-release/subpackages/region_skycity -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_skycity 3326944'
+SUB region_skycity 3326944
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/resources
+++ find creator-build-project/build/wechat-release/subpackages/resources -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB resources 445828'
+SUB resources 445828
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/shared_effects
+++ find creator-build-project/build/wechat-release/subpackages/shared_effects -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB shared_effects 563694'
+SUB shared_effects 563694
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/static_seat_preview
+++ find creator-build-project/build/wechat-release/subpackages/static_seat_preview -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB static_seat_preview 2556372'
+SUB static_seat_preview 2556372
+++ find creator-build-project/build/wechat-release -type f -not -path '*/subpackages/*' -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'ROOT 1870865'
+ROOT 1870865
++ rm -rf /Users/<mac-user>/qfl-a3b/web-r2
++ cp -R creator-build-project/build/web-test /Users/<mac-user>/qfl-a3b/web-r2
++ grep -c decodeVertexBuffer /Users/<mac-user>/qfl-a3b/web-r2/cocos-js/cc.js /Users/<mac-user>/qfl-a3b/web-r2/cocos-js/meshopt_decoder.asm-BJdS0cGn.js /Users/<mac-user>/qfl-a3b/web-r2/cocos-js/meshopt_decoder.wasm-Cvy1kpGq.js /Users/<mac-user>/qfl-a3b/web-r2/cocos-js/meshopt_decoder.wasm-DKe5VOQW.js
++ grep -v :0
++ head -3
+/Users/<mac-user>/qfl-a3b/web-r2/cocos-js/cc.js:1
+/Users/<mac-user>/qfl-a3b/web-r2/cocos-js/meshopt_decoder.asm-BJdS0cGn.js:1
+/Users/<mac-user>/qfl-a3b/web-r2/cocos-js/meshopt_decoder.wasm-DKe5VOQW.js:1
++ echo BDONE
+BDONE

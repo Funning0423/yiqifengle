@@ -1,0 +1,790 @@
+{
+ "dev": "android412",
+ "D": {
+  "w": 412,
+  "h": 915,
+  "safe": [
+   28,
+   16
+  ]
+ },
+ "mode": "night",
+ "log": [
+  {
+   "k": "targets",
+   "v": {
+    "mainline": {
+     "x": 301,
+     "y": 623.5
+    },
+    "flowTests": {
+     "x": 206,
+     "y": 166
+    }
+   }
+  },
+  {
+   "k": "cabinTap",
+   "v": {
+    "x": 251.32,
+    "y": 366
+   }
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-03b-rest-panel-day.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-03-island.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-04-island-bag.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-05-settings.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-06-journal.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-06b-chapter-sky.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-07-board.png"
+  },
+  {
+   "k": "boardLayout",
+   "v": {
+    "targets": {
+     "moves": {
+      "x": 252.68428223844282,
+      "y": 139.93430656934305
+     },
+     "tool-bomb": {
+      "x": 206,
+      "y": 801
+     },
+     "bomb": {
+      "x": 206,
+      "y": 801
+     },
+     "pause": {
+      "x": 38,
+      "y": 67
+     }
+    },
+    "pause": {
+     "x": 38,
+     "y": 67
+    }
+   }
+  },
+  {
+   "k": "boardNodes",
+   "v": [
+    [
+     "WorldNavigationCanvas",
+     "流程参考占位 · 非新版B|继续旅程  →|主线下一关|打开本关宝箱|领取主线地区奖励|原地区 · 潮汐|出门 · 选择地区|回主页|潮汐小径|花粉草甸|天空回",
+     0,
+     0,
+     412,
+     915
+    ],
+    [
+     "LabelPlate",
+     "独立测试进度 · 主线 04 最后一步 4行3列 ↔ 5行3列",
+     26,
+     95,
+     360,
+     40
+    ],
+    [
+     "VisibleLabel",
+     "独立测试进度 · 主线 04 最后一步 4行3列 ↔ 5行3列",
+     59,
+     104,
+     294,
+     21
+    ],
+    [
+     "NativeBoardCanvas",
+     "04  小径守卫|0|3|0|0|23|2",
+     -5,
+     0,
+     423,
+     915
+    ],
+    [
+     "LightGoalHUD",
+     "04  小径守卫|0|3|0|0|23",
+     16,
+     45,
+     297,
+     413
+    ],
+    [
+     "InfoPlate",
+     "04  小径守卫|0|3|0|0|23",
+     89,
+     95,
+     224,
+     67
+    ],
+    [
+     "Plate",
+     "",
+     99,
+     95,
+     214,
+     67
+    ],
+    [
+     "LevelTitle",
+     "04  小径守卫",
+     109,
+     103,
+     193,
+     21
+    ],
+    [
+     "Goal-0",
+     "0",
+     89,
+     124,
+     64,
+     31
+    ],
+    [
+     "GoalPieceArt",
+     "",
+     120,
+     129,
+     22,
+     22
+    ],
+    [
+     "Count",
+     "0",
+     144,
+     124,
+     9,
+     30
+    ],
+    [
+     "Goal-1",
+     "3",
+     131,
+     124,
+     68,
+     31
+    ],
+    [
+     "GoalPieceArt",
+     "",
+     163,
+     127,
+     26,
+     26
+    ],
+    [
+     "Count",
+     "3",
+     190,
+     124,
+     9,
+     30
+    ],
+    [
+     "Moves",
+     "23",
+     227,
+     124,
+     60,
+     31
+    ],
+    [
+     "MovesLeft",
+     "23",
+     268,
+     124,
+     19,
+     30
+    ],
+    [
+     "CompactToolTray",
+     "2",
+     174,
+     457,
+     64,
+     376
+    ],
+    [
+     "slot-0",
+     "2",
+     174,
+     769,
+     64,
+     64
+    ],
+    [
+     "Face",
+     "2",
+     166,
+     761,
+     79,
+     79
+    ],
+    [
+     "ToolSelection",
+     "",
+     174,
+     769,
+     64,
+     64
+    ],
+    [
+     "OriginalToolArt",
+     "",
+     166,
+     761,
+     79,
+     79
+    ],
+    [
+     "ToolCount",
+     "2",
+     217,
+     767,
+     24,
+     24
+    ],
+    [
+     "Quantity",
+     "2",
+     225,
+     769,
+     8,
+     20
+    ],
+    [
+     "ToastPlate",
+     "",
+     56,
+     716,
+     300,
+     40
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-08-pause.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-09-result.png"
+  },
+  {
+   "k": "resultNodes",
+   "v": [
+    [
+     "ResultPanel",
+     "1130 分|用了 6 步 · 剩余 22 步|成绩已保存|下一关|回小岛|‹|›|1 / 1|过关啦|1130 分|用了 6 步 · 剩余 22 步|成绩已保",
+     0,
+     0,
+     412,
+     915
+    ],
+    [
+     "PopupShade",
+     "",
+     0,
+     0,
+     412,
+     915
+    ],
+    [
+     "PopupPanel",
+     "1130 分|用了 6 步 · 剩余 22 步|成绩已保存|下一关|回小岛|‹|›|1 / 1|过关啦|1130 分|用了 6 步 · 剩余 22 步|成绩已保",
+     12,
+     212,
+     388,
+     541
+    ],
+    [
+     "PanelFrame",
+     "",
+     12,
+     212,
+     388,
+     541
+    ],
+    [
+     "TitlePlank",
+     "",
+     143,
+     212,
+     126,
+     44
+    ],
+    [
+     "Plank",
+     "",
+     143,
+     212,
+     126,
+     44
+    ],
+    [
+     "Title",
+     "",
+     176,
+     225,
+     60,
+     21
+    ],
+    [
+     "Next",
+     "下一关",
+     20,
+     697,
+     182,
+     48
+    ],
+    [
+     "Face",
+     "下一关",
+     20,
+     697,
+     182,
+     48
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     697,
+     182,
+     48
+    ],
+    [
+     "Label",
+     "下一关",
+     28,
+     701,
+     166,
+     40
+    ],
+    [
+     "Home",
+     "回小岛",
+     210,
+     697,
+     182,
+     48
+    ],
+    [
+     "Face",
+     "回小岛",
+     210,
+     697,
+     182,
+     48
+    ],
+    [
+     "Plate",
+     "",
+     210,
+     697,
+     182,
+     48
+    ],
+    [
+     "Label",
+     "回小岛",
+     218,
+     701,
+     166,
+     40
+    ],
+    [
+     "ResultFlow-stars",
+     "",
+     206,
+     458,
+     0,
+     0
+    ],
+    [
+     "ResultStars",
+     "",
+     129,
+     290,
+     155,
+     57
+    ],
+    [
+     "Star-0",
+     "",
+     129,
+     304,
+     46,
+     42
+    ],
+    [
+     "Star-1",
+     "",
+     177,
+     290,
+     59,
+     54
+    ],
+    [
+     "Star-2",
+     "",
+     238,
+     304,
+     46,
+     42
+    ],
+    [
+     "ResultFlow-Score-0",
+     "1130 分",
+     20,
+     364,
+     372,
+     41
+    ],
+    [
+     "Score",
+     "1130 分",
+     20,
+     364,
+     372,
+     41
+    ],
+    [
+     "ResultFlow-MovesInfo-0",
+     "用了 6 步 · 剩余 22 步",
+     20,
+     411,
+     372,
+     22
+    ],
+    [
+     "MovesInfo",
+     "用了 6 步 · 剩余 22 步",
+     20,
+     411,
+     372,
+     22
+    ],
+    [
+     "ResultFlow-SavedText-0",
+     "成绩已保存",
+     20,
+     439,
+     372,
+     22
+    ],
+    [
+     "SavedText",
+     "成绩已保存",
+     20,
+     439,
+     372,
+     22
+    ],
+    [
+     "ResultFlow-ResultUnlockHint-0",
+     "主线 05 与潮汐挑战已开放；前往风车草甸",
+     20,
+     467,
+     372,
+     22
+    ],
+    [
+     "ResultUnlockHint",
+     "主线 05 与潮汐挑战已开放；前往风车草甸",
+     20,
+     467,
+     372,
+     22
+    ],
+    [
+     "ResultFlow-reward-0",
+     "打开宝箱",
+     20,
+     495,
+     372,
+     96
+    ],
+    [
+     "Claim-chest",
+     "打开宝箱",
+     20,
+     495,
+     372,
+     96
+    ],
+    [
+     "Face",
+     "打开宝箱",
+     20,
+     495,
+     372,
+     96
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     495,
+     372,
+     96
+    ],
+    [
+     "Label",
+     "打开宝箱",
+     124,
+     523,
+     260,
+     40
+    ],
+    [
+     "chest_closed",
+     "",
+     32,
+     510,
+     72,
+     65
+    ],
+    [
+     "ResultFlow-reward-1",
+     "领取地区道具",
+     20,
+     597,
+     372,
+     96
+    ],
+    [
+     "Claim-regionReward",
+     "领取地区道具",
+     20,
+     597,
+     372,
+     96
+    ],
+    [
+     "Face",
+     "领取地区道具",
+     20,
+     597,
+     372,
+     96
+    ],
+    [
+     "Plate",
+     "",
+     20,
+     597,
+     372,
+     96
+    ],
+    [
+     "Label",
+     "领取地区道具",
+     124,
+     625,
+     260,
+     40
+    ],
+    [
+     "tool_tidenet",
+     "",
+     32,
+     610,
+     72,
+     68
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-10-chest-reward.png"
+  },
+  {
+   "k": "rewardNodes",
+   "v": [
+    [
+     "RewardPanel",
+     "装扮 ×1|海风吹开了宝箱，收进行囊吧。|收下",
+     0,
+     0,
+     412,
+     915
+    ],
+    [
+     "PopupShade",
+     "",
+     0,
+     0,
+     412,
+     915
+    ],
+    [
+     "PopupPanel",
+     "装扮 ×1|海风吹开了宝箱，收进行囊吧。|收下",
+     19,
+     240,
+     374,
+     440
+    ],
+    [
+     "PanelFrame",
+     "",
+     19,
+     269,
+     374,
+     411
+    ],
+    [
+     "TitlePlank",
+     "",
+     124,
+     240,
+     165,
+     58
+    ],
+    [
+     "Plank",
+     "",
+     124,
+     240,
+     165,
+     58
+    ],
+    [
+     "Title",
+     "",
+     180,
+     256,
+     52,
+     27
+    ],
+    [
+     "fx_rays",
+     "",
+     60,
+     264,
+     293,
+     293
+    ],
+    [
+     "ChestShadow",
+     "",
+     124,
+     482,
+     165,
+     33
+    ],
+    [
+     "ResultChest3D",
+     "",
+     130,
+     362,
+     152,
+     152
+    ],
+    [
+     "Gain-charm",
+     "",
+     108,
+     334,
+     196,
+     152
+    ],
+    [
+     "icon_charm",
+     "",
+     108,
+     334,
+     196,
+     152
+    ],
+    [
+     "GainList",
+     "装扮 ×1",
+     176,
+     523,
+     60,
+     31
+    ],
+    [
+     "Text",
+     "海风吹开了宝箱，收进行囊吧。",
+     98,
+     558,
+     215,
+     27
+    ],
+    [
+     "Accept",
+     "收下",
+     91,
+     597,
+     231,
+     57
+    ],
+    [
+     "Face",
+     "收下",
+     91,
+     597,
+     231,
+     57
+    ],
+    [
+     "Plate",
+     "",
+     91,
+     597,
+     231,
+     57
+    ],
+    [
+     "Label",
+     "收下",
+     185,
+     606,
+     42,
+     37
+    ]
+   ]
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-11-result-after-claim.png"
+  },
+  {
+   "k": "shot",
+   "v": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/output/ui-audit-transfer/raw/android412-night-12-skycity.png"
+  },
+  {
+   "k": "skyTargets",
+   "v": {
+    "returnIsland": {
+     "x": 206,
+     "y": 842
+    }
+   }
+  }
+ ],
+ "errors": []
+}

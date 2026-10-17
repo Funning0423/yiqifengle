@@ -1,0 +1,31 @@
+{
+ "tag": "01_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.05
+  ],
+  [
+   "home",
+   2.97
+  ],
+  [
+   "end",
+   5.97
+  ]
+ ],
+ "checks": {
+  "textScan": []
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

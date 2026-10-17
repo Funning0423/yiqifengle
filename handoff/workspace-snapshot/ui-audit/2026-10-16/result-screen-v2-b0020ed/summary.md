@@ -1,0 +1,14 @@
+# Result screen v2 b0020ed check (2026-10-16)
+- [x] SHA256SUMS all OK; TREE_CHECK match; read SPEC v2.1
+- [x] Mac start free 9,069,552 KiB; no Creator running
+- [x] bundle (751905c..ggbot/result-screen-on-688aad3, sha1 046ecc9d, 4 chunks of 2MB) sha1 matches on both sides; Mac ~/qf-rv-tmp clone checked out b0020ed, tree b44238ef ✅, push=DISABLED
+- [x] Build exit 36 ×2. Total 24,553,771 B ✅ (limit 24,641,536; vs 7ecd289 +7,816, lower than GGbot's +22,190 estimate). Root 1,862,103 (main 1,139,122) · board_art 2,109,392 · audio_bgm_island 418,907 · internal 297,535 · region_island 8,912,286 · region_meadow 2,934,382 · region_skycity 3,326,944 · resources 433,034 · shared_effects 563,694 · static_seat_preview 2,556,372
+- [x] 「流程参考占位」 etc. strings: 0 in wechat-release + web-test ✅; after the build git status shows no untracked/modified files (no HomeTransition.ts.meta or other .meta) ✅; web-test/startup-art has all 3 images
+- [x] Steering 16:36 ET: visual acceptance postponed until GGbot's next visual commit; only logic/state checks done on b0020ed
+- [x] startup-art 404: across all 7 web runs net404 shows no startup-art (0 hits for "startup-art" in worldFlowLog) ✅. The only 404: night 320×568 at 1.0s, /assets/region_island/import/dc/dce9f061-…@b043a.cconb (one-off, not startup-art; to recheck)
+- [x] Tap the chest (5 runs: day 390/375×812/375×667, night 390/320×568, night=true ×7): first tap writes forest-v33-journey, regionClaims [F,F,F]→[T,F,F], openedChests []→[0], inventory tideNet 0→1 ✅; second tap leaves storage unchanged ✅. But after the first tap the popups include "RewardPanel" (all 5 runs), which does not match SPEC's "no separate 获得 popup" ⚠ (raw/*_open_a.png for visual confirmation)
+- [x] Unopened 「下一关」 (Face 141×56 @(46,718), tapped at (116.5,746)): auto-claim with the same three changes ✅, no popup (popsSeen=[]) ✅, goes straight to the next level (attemptId 2)
+- [x] Unopened 「回小岛」 (Face 141×56 @(203,718), tapped at (273.5,746)): no popup ✅, back to island ✅; but forest-v33-journey was not written (regionClaims/openedChests/inventory unchanged; checked 8 s after the tap) ❌ no auto-claim → rewards would be missed
+- [x] Back on the box: tar sha1 1a4b6db8 matches on both sides, 9 chunks of 2MB, Mac copy deleted. Raw screenshots/nodes json are in raw/ (no visual acceptance; webm not brought back)
+- [x] Cleanup: before 12,105,992 KiB → after 12,533,212 KiB; ~/qf-rv-tmp (clone, both builds, library) deleted, 8899 stopped, no Creator. Desktop package untouched
+- Deferred to the new commit: day/night result-screen recordings, chest centred/glow/brightness, reward float position, button 3D style, ✦, small screen, 3–4× zoom, before/after comparison

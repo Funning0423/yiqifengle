@@ -1,0 +1,40 @@
+{
+ "tag": "14_before_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.11
+  ],
+  [
+   "home",
+   3.05
+  ],
+  [
+   "board",
+   29
+  ],
+  [
+   "watch",
+   31.85
+  ],
+  [
+   "paused",
+   42.2
+  ],
+  [
+   "resumed",
+   45.22
+  ],
+  [
+   "end",
+   47.72
+  ]
+ ],
+ "checks": {
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "stage": "mainline-08"
+ },
+ "errors": []
+}

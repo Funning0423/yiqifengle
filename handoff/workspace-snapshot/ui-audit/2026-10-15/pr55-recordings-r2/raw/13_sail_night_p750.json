@@ -1,0 +1,50 @@
+{
+ "tag": "13_sail_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.08
+  ],
+  [
+   "home",
+   5.22
+  ],
+  [
+   "enterTap",
+   7.46
+  ],
+  [
+   "leftHome",
+   7.51
+  ],
+  [
+   "earlyTap",
+   7.64
+  ],
+  [
+   "skipTap",
+   8.15
+  ],
+  [
+   "boardReady",
+   32.35
+  ],
+  [
+   "end",
+   34.36
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1"
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

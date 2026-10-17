@@ -1,0 +1,39 @@
+lk4_meadow_night_ml 0.515 ctxEpoch 1792243630734
+lk4_meadow_night_ml 0.517 tz "Etc/GMT-10"
+lk4_meadow_night_ml 0.545 goto ""
+lk4_meadow_night_ml 1.757 home 
+lk4_meadow_night_ml 36.533 leave {"ok":true}
+lk4_meadow_night_ml 36.672 island 
+lk4_meadow_night_ml 39.676 cleared 4
+lk4_meadow_night_ml 39.68 lightIsland {"dl":[{"n":"Main Light","color":"180/198/232","illum":43750,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"night"}
+lk4_meadow_night_ml 39.815 mainlineNext "{\"next\":null,\"active\":null}"
+lk4_meadow_night_ml 39.819 mainlineTarget {"x":282,"y":575}
+lk4_meadow_night_ml 39.842 tapMainline {"q":{"x":282,"y":575},"epoch":1792243670576}
+lk4_meadow_night_ml 39.844 state "region-loading"
+lk4_meadow_night_ml 39.844 phase ["loading",0]
+lk4_meadow_night_ml 40.009 state "region-travel"
+lk4_meadow_night_ml 40.009 phase ["ready",0]
+lk4_meadow_night_ml 40.257 phase ["approach",0]
+lk4_meadow_night_ml 42.999 phase ["bridge",3.298799999999995]
+lk4_meadow_night_ml 48.676 journeyLabels ["开发预览画面，不代表最终效果"]
+lk4_meadow_night_ml 63.351 phase ["arrival",27.71952000002753]
+lk4_meadow_night_ml 71.121 state "level-loading"
+lk4_meadow_night_ml 71.122 phase ["arrived",36.9260210673453]
+lk4_meadow_night_ml 71.137 llmark 
+lk4_meadow_night_ml 71.922 state "level"
+lk4_meadow_night_ml 71.94 board "mainline-05"
+lk4_meadow_night_ml 72.461 capN 191
+lk4_meadow_night_ml 72.464 entryFrames {"n":1952,"maxMs":50.1,"at":39795,"p50":16.7,"p95":17.5,"p99":17.6,"over16_7":66,"over33":3,"over50":1,"over100":0}
+lk4_meadow_night_ml 72.465 swapFrames {"k":1897,"durPrev":16.8,"durSwap":36.1,"durNext":20.7,"next3":[20.7,18.9,15.4],"camsPrev":{"Main Camera":[49.43,-10.314,17.837,10.481,0]},"camsSwap":{"Main Camera":[49.43,-10.314,17.837,10.481,0],"MeadowBackgroundCamera":[49.43,9,19,42,44]},"sunPrev":["Main Light",0.433,-0.5,-0.75],"sunSwap":["Main Light",0.433,-0.5,-0.75]}
+lk4_meadow_night_ml 72.471 frJourney {"n":1953,"maxMs":50.1,"at":39795,"p50":16.7,"p95":17.5,"p99":17.6,"over16_7":67,"over33":3,"over50":1,"over100":0}
+lk4_meadow_night_ml 72.473 vis []
+lk4_meadow_night_ml 72.474 navEpoch 1792243631252.8
+lk4_meadow_night_ml 73.676 popupsPre {"popups":["ToolIntroPanel"],"keys":["moves","tool-bomb","bomb","pause","GotIt"]}
+lk4_meadow_night_ml 73.818 dismissTap {"key":"GotIt","x":195,"y":555.12}
+lk4_meadow_night_ml 75.32 popupNoResume null
+lk4_meadow_night_ml 75.321 popupsPost {"popups":[]}
+lk4_meadow_night_ml 75.506 boardDiag "{\"state\":\"ready\",\"stageId\":\"mainline-05\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"meadow\",\"bundle\":\"region_meadow\",\"prefabName\":\"env_meadow\",\"source\":{\"version\":\"v0.8.0\",\"zipSHA256\":\"24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8\",\"sourceGLBSHA256\":\"8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712\",\"derivedGLBSHA256\":\"de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db\",\"windmillSeconds\":8,\"windPeriodSeconds\":4,\"nodeCount\":67,\"meshCount\":23,\"grassInstances\":1000,\"flowerInstances\":150},\"visible\":true,\"paused\":false,\"cameraPriority\":44,\"layer\":1048576,\"motion\":{\"seconds\
+lk4_meadow_night_ml 75.508 lightBoard {"dl":[{"n":"Main Light","color":"180/198/232","illum":43750,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60},{"n":"MeadowBackgroundCamera","clear":"135/191/201","flags":7,"prio":44},{"n":"NativeUICamera","clear":"51/51/51","flags":6,"prio":50}],"dn":"night"}
+lk4_meadow_night_ml 79.51 perfBoard {"frames":240,"fps":60,"dcMed":59,"dcMax":63,"trisMed":102340,"heapMB":151.9,"texMB":132,"bufMB":34.4}
+lk4_meadow_night_ml 79.511 end 
+lk4_meadow_night_ml 79.537 audioEpochs {"rec":1792243631398,"first":1792243647399,"running":1792243631400}

@@ -1,0 +1,424 @@
+02202000009129,6242972,1212461296],"- plugin 1 (@cocos/ccbuild|external-loader) - load":[1.1028640000076848,258184,1212930948],"- plugin 2 (@cocos/ccbuild|module-overrides) - load":[2.1268140000101994,534380,1212934012],"- plugin 3 (virtual) - load":[0.8031200000077661,321736,1212935004],"- plugin 7 (json) - transform":[1.522140000035506,708440,1212993260],"- plugin 8 (commonjs) - transform":[7.558860999986791,2072648,1212995916],"- plugin 10 (babel) - transform":[31.358969999986584,7306212,1213047136],"generate ast":[285.2653439999958,-9228560,1213042748],"- plugin 4 (@cocos/ccbuild|module-query-plugin) - resolveId":[5.906046000052811,-2143760,1212462464],"- plugin 5 (ts-paths) - resolveId":[4.436926999995194,-4275548,1212825668],"- plugin 9 (@cocos/typescript) - resolveId":[367.74314299998514,59401036,1212906916],"- plugin 10 (babel) - resolveId":[0.5632540000005974,85712,1212908204],"- plugin 6 (node-resolve) - resolveId":[0.5288740000105463,-270992,1183968092],"- plugin 6 (node-resolve) - load":[0.745338000018819,182952,1212936012],"- plugin 8 (commonjs) - load":[0.8791209999781131,109084,1212937004],"- plugin 9 (@cocos/typescript) - load":[13.84718400003112,-11358868,1212969136],"- plugin 10 (babel) - load":[59.8884169999983,9584208,1184006000],"## sort and bind modules":[73.35541700000067,6789104,1221181084],"## mark included statements":[700.3907920000001,45747888,1266929004],"treeshaking pass 1":[260.587125,40881504,1262262340],"treeshaking pass 2":[110.47708299999977,1024060,1263286432],"treeshaking pass 3":[52.08033299999988,1838348,1265124812],"treeshaking pass 4":[46.7427919999991,-568348,1264556496],"treeshaking pass 5":[44.65412500000093,1214076,1265770604],"treeshaking pass 6":[35.65099999999984,-1114284,1264656352],"treeshaking pass 7":[31.357875000001513,1059380,1265715764],"treeshaking pass 8":[30.431667000000743,-338072,1265377724],"treeshaking pass 9":[29.329334000000017,7003140,1272380896],"treeshaking pass 10":[29.2293750000008,-2587136,1269793792],"treeshaking pass 11":[29.317041999998764,-2865084,1266928740],"- plugin 8 (commonjs) - buildEnd":[0.005332999999154708,244,1266931652],"- plugin 9 (@cocos/typescript) - buildEnd":[5.6412079999990965,813008,1267744692]}====             ====
+
+2026-10-17 17:06:39 - debug: execute-script-end with buildEngineCommand 15079ms
+
+2026-10-17 17:06:39 - debug: build engine done: output: /var/folders/mj/mrt0w4m97fb6xs3g4rsj5b8w0000gn/T/CocosCreator/3.8.8/builder/engine/069f2249340a9e0c67af71f0a384c1af
+
+2026-10-17 17:06:39 - debug: 构建引擎脚本 in (15107 ms) √, progress: 17%
+
+2026-10-17 17:06:39 - debug: Copy plugin script ..., progress: 17%
+
+2026-10-17 17:06:39 - debug: Generate import-map..., progress: 17%
+
+2026-10-17 17:06:39 - debug: // ---- build task 打包脚本 ---- (22196ms)
+
+2026-10-17 17:06:39 - log: run build task 打包脚本 success in 22 s√, progress: 22%
+
+2026-10-17 17:06:39 - debug: [Build Memory track]: 打包脚本 start:354.06MB, end 278.18MB, increase: -77699.37KB
+
+2026-10-17 17:06:39 - debug: Build Assets start, progress: 22%
+
+2026-10-17 17:06:39 - debug: // ---- build task Build Assets ----
+
+2026-10-17 17:06:39 - debug: Build bundles..., progress: 22%
+
+2026-10-17 17:06:39 - debug: Pack Images start, progress: 22%
+
+2026-10-17 17:06:39 - debug: Pack Images start, progress: 13%
+
+2026-10-17 17:06:39 - debug: Number of pac assets: 1
+
+2026-10-17 17:06:39 - debug: No pack results
+
+2026-10-17 17:06:39 - debug: Compress image start..., progress: 22%
+
+2026-10-17 17:06:39 - debug: Compress image start..., progress: 13%
+
+2026-10-17 17:06:39 - group: Compress image...
+
+2026-10-17 17:06:39 - debug: sort compress task {}
+
+2026-10-17 17:06:39 - debug: Num of all image compress task 0, really: 0, configTasks: 0
+
+2026-10-17 17:06:39 - debug: No image need to compress
+
+2026-10-17 17:06:39 - groupEnd: Compress image...
+
+2026-10-17 17:06:39 - debug: Compress image success..., progress: 22%
+
+2026-10-17 17:06:39 - debug: Compress image success..., progress: 13%
+
+2026-10-17 17:06:39 - debug: Output asset in bundles start, progress: 22%
+
+2026-10-17 17:06:39 - debug: Output asset in bundles start, progress: 13%
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle internal
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle resources
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle main
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle shared_effects
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle audio_bgm_island
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle board_art
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle region_island
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle region_lakeside
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle region_meadow
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle region_skycity
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Handle all json groups in bundle static_seat_preview
+
+2026-10-17 17:06:39 - debug: handle json group
+
+2026-10-17 17:06:39 - debug: Error: Exit process with code:null, signal:SIGTERM in task build-engine    at ChildProcess.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2409)    at ChildProcess.emit (node:events:519:28)    at Process.ChildProcess._handle.onexit (node:internal/child_process:294:12)
+
+2026-10-17 17:06:39 - debug: Json group(0f7852dde) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Json group(0772fd222) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Json group(06d564de3) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0a1ef6745) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(03868cada) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Json group(094681f53) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0ddfde4b6) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(04fbd8921) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0a87942dd) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(08a63af22) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0c9891da6) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0537eea30) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0c2f9bfd4) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0b6be3cfe) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0d65a0a06) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0cbe0b5a3) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Json group(05d95700c) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0b89018c7) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0e32e8040) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(057e0de9b) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(01e73edc5) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Json group(0950390ae) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0cf69bfa1) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(09dd2d851) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Json group(0e0161382) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0a0f394d0) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0a94de66c) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(038cb4afd) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0287d444f) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: handle single json
+
+2026-10-17 17:06:39 - debug: Json group(0e9c2f4b5) compile success，json number: 6
+
+2026-10-17 17:06:39 - debug: Json group(0ccb9fd61) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(099ed5d59) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0751c73c9) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0baf63c19) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0cc10cbbd) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0fe336f96) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0bffa8239) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0298c8e3f) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(09d2a2ac2) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: handle single json
+
+2026-10-17 17:06:40 - debug: Json group(0a835fe08) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0baa4ffcd) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0e0abcacb) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(07f6bf3dd) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(050103b30) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0c8a09e03) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(04ad9648a) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(090a6b811) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0a1988c02) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0b92632bc) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0719da8aa) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(09062f667) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0f90ba8d5) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0254bf541) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0531816ba) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0c5b6179e) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(080f1d844) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0ac0b9e23) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0af4779e6) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0154457e0) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0bd8593e9) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(04a051acf) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(024c07057) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0407b5b17) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: Json group(0a9342b4f) compile success，json number: 6
+
+2026-10-17 17:06:40 - debug: handle single json
+
+2026-10-17 17:06:40 - debug: Output asset in bundles success, progress: 22%
+
+2026-10-17 17:06:40 - debug: Output asset in bundles success, progress: 13%
+
+2026-10-17 17:06:40 - debug: Output asset in bundles start, progress: 22%
+
+2026-10-17 17:06:40 - debug: Output asset in bundles start, progress: 13%
+
+2026-10-17 17:06:40 - debug: output config of bundle internal
+
+2026-10-17 17:06:40 - debug: output config of bundle internal success
+
+2026-10-17 17:06:40 - debug: output config of bundle resources
+
+2026-10-17 17:06:40 - debug: output config of bundle resources success
+
+2026-10-17 17:06:40 - debug: output config of bundle main
+
+2026-10-17 17:06:40 - debug: output config of bundle main success
+
+2026-10-17 17:06:40 - debug: output config of bundle shared_effects
+
+2026-10-17 17:06:40 - debug: output config of bundle shared_effects success
+
+2026-10-17 17:06:40 - debug: output config of bundle audio_bgm_island
+
+2026-10-17 17:06:40 - debug: output config of bundle audio_bgm_island success
+
+2026-10-17 17:06:40 - debug: output config of bundle board_art
+
+2026-10-17 17:06:40 - debug: output config of bundle board_art success
+
+2026-10-17 17:06:40 - debug: output config of bundle region_island
+
+2026-10-17 17:06:40 - debug: output config of bundle region_island success
+
+2026-10-17 17:06:40 - debug: output config of bundle region_lakeside
+
+2026-10-17 17:06:40 - debug: output config of bundle region_lakeside success
+
+2026-10-17 17:06:40 - debug: output config of bundle region_meadow
+
+2026-10-17 17:06:40 - debug: output config of bundle region_meadow success
+
+2026-10-17 17:06:40 - debug: output config of bundle region_skycity
+
+2026-10-17 17:06:40 - debug: output config of bundle region_skycity success
+
+2026-10-17 17:06:40 - debug: output config of bundle static_seat_preview
+
+2026-10-17 17:06:40 - debug: output config of bundle static_seat_preview success
+
+2026-10-17 17:06:40 - debug: Output asset in bundles success, progress: 22%
+
+2026-10-17 17:06:40 - debug: Output asset in bundles success, progress: 13%
+
+2026-10-17 17:06:40 - debug: // ---- build task Build Assets ---- (588ms)
+
+2026-10-17 17:06:40 - log: run build task Build Assets success in 588 ms√, progress: 27%
+
+2026-10-17 17:06:40 - debug: [Build Memory track]: Build Assets start:278.22MB, end 353.14MB, increase: 74.92MB
+
+2026-10-17 17:06:40 - debug: 整理部分构建选项内数据到 settings.json start, progress: 27%
+
+2026-10-17 17:06:40 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ----
+
+2026-10-17 17:06:40 - log: run build task 整理部分构建选项内数据到 settings.json success in √, progress: 29%
+
+2026-10-17 17:06:40 - debug: [Build Memory track]: 整理部分构建选项内数据到 settings.json start:353.25MB, end 353.27MB, increase: 23.24KB
+
+2026-10-17 17:06:40 - debug: 填充脚本数据到 settings.json start, progress: 29%
+
+2026-10-17 17:06:40 - debug: // ---- build task 填充脚本数据到 settings.json ----
+
+2026-10-17 17:06:40 - debug: // ---- build task 填充脚本数据到 settings.json ---- (1ms)
+
+2026-10-17 17:06:40 - log: run build task 填充脚本数据到 settings.json success in 1 ms√, progress: 31%
+
+2026-10-17 17:06:40 - debug: [Build Memory track]: 填充脚本数据到 settings.json start:353.31MB, end 353.35MB, increase: 37.60KB
+
+2026-10-17 17:06:40 - debug: 整理部分构建选项内数据到 settings.json start, progress: 31%
+
+2026-10-17 17:06:40 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ----
+
+2026-10-17 17:06:40 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ---- (295ms)
+
+2026-10-17 17:06:40 - log: run build task 整理部分构建选项内数据到 settings.json success in 295 ms√, progress: 32%
+
+2026-10-17 17:06:40 - debug: [Build Memory track]: 整理部分构建选项内数据到 settings.json start:353.39MB, end 353.57MB, increase: 184.57KB
+
+2026-10-17 17:06:40 - debug: web-mobile:(onBeforeCompressSettings) start..., progress: 32%
+
+2026-10-17 17:06:40 - debug: // ---- build task web-mobile：onBeforeCompressSettings ----
+
+2026-10-17 17:06:40 - debug: // ---- build task web-mobile：onBeforeCompressSettings ---- (1ms)
+
+2026-10-17 17:06:40 - debug: web-mobile:(onBeforeCompressSettings) in 1 ms ✓, progress: 34%
+
+2026-10-17 17:06:40 - debug: cocos-service:(onBeforeCompressSettings) start..., progress: 34%
+
+2026-10-17 17:06:40 - debug: // ---- build task cocos-service：onBeforeCompressSettings ----
+
+2026-10-17 17:06:40 - debug: // ---- build task cocos-service：onBeforeCompressSettings ---- (2ms)
+
+2026-10-17 17:06:40 - debug: cocos-service:(onBeforeCompressSettings) in 2 ms ✓, progress: 36%
+
+2026-10-17 17:06:40 - debug: 整理静态模板文件 start, progress: 36%
+
+2026-10-17 17:06:40 - debug: // ---- build task 整理静态模板文件 ----
+
+2026-10-17 17:06:40 - debug: // ---- build task 整理静态模板文件 ---- (39ms)
+
+2026-10-17 17:06:40 - log: run build task 整理静态模板文件 success in 39 ms√, progress: 41%
+
+2026-10-17 17:06:40 - debug: [Build Memory track]: 整理静态模板文件 start:353.77MB, end 358.65MB, increase: 4.89MB
+
+2026-10-17 17:06:40 - debug: cocos-service:(onAfterCompressSettings) start..., progress: 41%
+
+2026-10-17 17:06:40 - debug: // ---- build task cocos-service：onAfterCompressSettings ----
+
+2026-10-17 17:06:40 - debug: // ---- build task cocos-service：onAfterCompressSettings ---- (2ms)
+
+2026-10-17 17:06:40 - debug: cocos-service:(onAfterCompressSettings) in 2 ms ✓, progress: 43%
+
+2026-10-17 17:06:40 - debug: web-mobile:(onBeforeCopyBuildTemplate) start..., progress: 43%
+
+2026-10-17 17:06:40 - debug: // ---- build task web-mobile：onBeforeCopyBuildTemplate ----
+
+2026-10-17 17:06:40 - debug: // ---- build task web-mobile：onBeforeCopyBuildTemplate ---- (8ms)
+
+2026-10-17 17:06:40 - debug: web-mobile:(onBeforeCopyBuildTemplate) in 8 ms ✓, progress: 45%
+
+2026-10-17 17:06:40 - debug: 给所有的资源加上 MD5 后缀 start, progress: 45%
+
+2026-10-17 17:06:40 - debug: // ---- build task 给所有的资源加上 MD5 后缀 ----
+
+2026-10-17 17:06:40 - log: run build task 给所有的资源加上 MD5 后缀 success in √, progress: 55%
+
+2026-10-17 17:06:40 - debug: [Build Memory track]: 给所有的资源加上 MD5 后缀 start:356.92MB, end 357.07MB, increase: 150.82KB
+
+2026-10-17 17:06:40 - debug: web-mobile:(onAfterBuild) start..., progress: 55%
+
+2026-10-17 17:06:40 - debug: // ---- build task web-mobile：onAfterBuild ----
+
+2026-10-17 17:06:40 - debug: // ---- build task web-mobile：onAfterBuild ---- (1ms)
+
+2026-10-17 17:06:40 - debug: web-mobile:(onAfterBuild) in 1 ms ✓, progress: 56%
+
+2026-10-17 17:06:40 - debug: cocos-service:(onAfterBuild) start..., progress: 56%
+
+2026-10-17 17:06:40 - debug: // ---- build task cocos-service：onAfterBuild ----
+
+2026-10-17 17:06:40 - debug: // ---- build task cocos-service：onAfterBuild ---- (1ms)
+
+2026-10-17 17:06:40 - debug: cocos-service:(onAfterBuild) in 1 ms ✓, progress: 58%
+
+2026-10-17 17:06:40 - debug: adsense-h5g-plugin:(onAfterBuild) start..., progress: 58%
+
+2026-10-17 17:06:40 - debug: // ---- build task adsense-h5g-plugin：onAfterBuild ----
+
+2026-10-17 17:06:40 - debug: // ---- build task adsense-h5g-plugin：onAfterBuild ---- (1ms)
+
+2026-10-17 17:06:40 - debug: adsense-h5g-plugin:(onAfterBuild) in 1 ms ✓, progress: 60%
+
+2026-10-17 17:06:40 - log: Asset DB is resume!
+
+2026-10-17 17:06:40 - debug: builder:build-project-total (23934ms)
+
+2026-10-17 17:06:40 - debug: build task(web-debug) in 23934!
+
+2026-10-17 17:06:40 - debug: [Build Memory track]: builder:build-project-total start:306.69MB, end 363.06MB, increase: 56.37MB
+
+2026-10-17 17:06:40 - debug: ================================ build Task (web-debug) Finished in (23 s)ms ================================
+

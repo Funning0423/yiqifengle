@@ -1,0 +1,29 @@
+lk4_sky_night 0.453 ctxEpoch 1792242609776
+lk4_sky_night 0.459 tz "Etc/GMT-10"
+lk4_sky_night 0.486 goto ""
+lk4_sky_night 1.696 home 
+lk4_sky_night 36.492 leave {"ok":true}
+lk4_sky_night 36.495 island 
+lk4_sky_night 39.5 cleared 12
+lk4_sky_night 39.503 lightIsland {"dl":[{"n":"Main Light","color":"180/198/232","illum":43750,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"night"}
+lk4_sky_night 39.618 mainlineNext "{\"next\":null,\"active\":null}"
+lk4_sky_night 39.642 tap {"name":"Island-journal","pt":{"x":195,"y":762.4},"epoch":1792242649418}
+lk4_sky_night 41.689 tap {"name":"Chapter-sky","pt":{"x":195.04999999999998,"y":484.35},"epoch":1792242651465}
+lk4_sky_night 43.694 chapterTexts ["挑战需通关主线 04","挑战需通关主线 08","挑战需通关主线 12","挑战 0/6","连起光的回声，探索云上的远方。","请先继续当前挑战","前往天空城 · 3D 场景","返回章节","继续旅程"]
+lk4_sky_night 43.815 tap {"name":"Continue-sky","pt":{"x":195,"y":453.25},"epoch":1792242653591}
+lk4_sky_night 43.816 tapContinue 
+lk4_sky_night 43.817 state "island"
+lk4_sky_night 43.817 phase ["idle",0]
+lk4_sky_night 164.556 capN 0
+lk4_sky_night 164.562 entryFrames {"n":7242,"maxMs":65.6,"at":163783,"p50":16.7,"p95":17.5,"p99":17.7,"over16_7":335,"over33":1,"over50":1,"over100":0}
+lk4_sky_night 164.564 frJourney {"n":7243,"maxMs":65.6,"at":163783,"p50":16.7,"p95":17.5,"p99":17.7,"over16_7":335,"over33":1,"over50":1,"over100":0}
+lk4_sky_night 164.565 vis []
+lk4_sky_night 164.565 navEpoch 1792242610236.1
+lk4_sky_night 165.767 popupsPre {"keys":[]}
+lk4_sky_night 165.867 popupNoResume null
+lk4_sky_night 165.867 popupsPost {}
+lk4_sky_night 165.957 boardDiag "null"
+lk4_sky_night 165.958 lightBoard {"dl":[{"n":"Main Light","color":"180/198/232","illum":43750,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"night"}
+lk4_sky_night 169.962 perfBoard {"frames":240,"fps":60,"dcMed":108,"dcMax":110,"trisMed":120598,"heapMB":157.6,"texMB":88.5,"bufMB":24.1}
+lk4_sky_night 169.962 end 
+lk4_sky_night 170.012 audioEpochs {"rec":1792242610373,"first":1792242626385,"running":1792242610375}

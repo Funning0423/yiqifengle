@@ -1,0 +1,138 @@
+{
+ "tag": "09_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.07
+  ],
+  [
+   "home",
+   9.44
+  ],
+  [
+   "board",
+   35.06
+  ],
+  [
+   "pause",
+   38.77
+  ],
+  [
+   "settings",
+   73.45
+  ],
+  [
+   "end",
+   74.97
+  ]
+ ],
+ "checks": {
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "pause": [
+   [
+    "PauseLine",
+    "04 小径守卫 · 还剩 23 步",
+    111,
+    224,
+    153,
+    25
+   ],
+   [
+    "Tile-重来",
+    "",
+    61,
+    267,
+    75,
+    75
+   ],
+   [
+    "Tile-行囊",
+    "",
+    150,
+    267,
+    75,
+    75
+   ],
+   [
+    "Tile-设置",
+    "",
+    239,
+    267,
+    75,
+    75
+   ],
+   [
+    "MusicToggle",
+    "",
+    120,
+    391,
+    55,
+    44
+   ],
+   [
+    "SfxToggle",
+    "",
+    259,
+    391,
+    55,
+    44
+   ],
+   [
+    "Resume",
+    "继续",
+    68,
+    454,
+    240,
+    52
+   ],
+   [
+    "Home",
+    "回到小岛",
+    68,
+    516,
+    240,
+    48
+   ]
+  ],
+  "tileErr": "Error: node not found {\"popup\":\"PausePanel\",\"name\":\"Tile-settings\"}",
+  "settings": [
+   "SfxToggle"
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

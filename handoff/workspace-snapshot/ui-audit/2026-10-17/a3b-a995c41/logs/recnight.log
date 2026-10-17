@@ -1,0 +1,25 @@
+ib_night_390 0 tz "Etc/GMT+8"
+ib_night_390 0.029 goto 
+ib_night_390 1.304 home 
+ib_night_390 7.41 glassDiag "{\"effect\":\"ready\",\"frames\":348,\"visible\":true,\"box\":{\"l\":203.66430790268765,\"r\":470.212203046906,\"t\":831.6945811840458,\"b\":708.2807172372368},\"corners\":[[203.66430790268765,819.944617004872],[470.212203046906,831.6945811840458],[469.77499546645043,734.2044532745604],[204.82838256956353,708.2807172372368]],\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+ib_night_390 7.41 signBoxCss {"l":101.83215395134383,"r":235.106101523453,"top":428.1527094079771,"bot":489.8596413813816,"cx":168.46912773739842,"cy":459.00617539467936}
+ib_night_390 7.419 tapSign [168.46912773739842,459.00617539467936]
+ib_night_390 8.549 signLeaveState "standing"
+ib_night_390 9.658 homeHold12s 
+ib_night_390 39.278 island 
+ib_night_390 41.934 tapMainline {"x":282,"y":575}
+ib_night_390 48.954 board {"stage":"mainline-01","moves":22}
+ib_night_390 78.11 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+ib_night_390 80.738 tapChest [194.95000000000002,474.55]
+ib_night_390 84.374 resultPop ["ResultPanel"]
+ib_night_390 84.39 tapBackIsland [267,708.5]
+ib_night_390 84.391 island2 "island"
+ib_night_390 87.391 travelCall 
+ib_night_390 114.883 travelRet "{\"ok\":true}"
+ib_night_390 114.884 arrived 
+ib_night_390 119.002 tapHome {"x":283.5,"y":776}
+ib_night_390 119.508 home2 
+ib_night_390 127.623 nightProp "true"
+ib_night_390 127.624 end 
+ib_night_390 127.852 audioSaved {"startMs":147,"runMs":148,"firstMs":7492,"err":[]}
+RECDONE

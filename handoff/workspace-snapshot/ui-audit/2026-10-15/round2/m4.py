@@ -1,0 +1,16 @@
+exec(open('mk.py').read())
+def dash(d,box,c,w=4):
+  x0,y0,x1,y1=box
+  for x in range(x0,x1,16):d.line([x,y0,min(x+8,x1),y0],fill=c,width=w);d.line([x,y1,min(x+8,x1),y1],fill=c,width=w)
+  for y in range(y0,y1,16):d.line([x0,y,x0,min(y+8,y1)],fill=c,width=w);d.line([x1,y,x1,min(y+8,y1)],fill=c,width=w)
+b=Image.open(R1+'p750-day-05-settings.png').convert('RGB');a=b.copy()
+db=ImageDraw.Draw(b);da=ImageDraw.Draw(a)
+for x0 in (388,536):dash(db,(x0,758,x0+140,822),(230,30,30))
+db.text((300,840),'可点高 62设计px≈32pt',fill=(230,30,30),font=f(26))
+for x0 in (380,532):dash(da,(x0,744,x0+144,836),(20,160,60))
+da.text((290,850),'可点区 136×88 设计px(≥44pt),视觉不变',fill=(20,140,60),font=f(24))
+pair(b,a,'R6-settings-hit-before-after.png',note='R6 昼夜分段钮：视觉高度不变，UITransform 扩到 88 设计px 高，中心距 ≥148')
+p=Image.open(R1+'p750-day-08-pause.png').convert('RGB');q=p.copy()
+q.paste(p.crop((0,860,750,1624)),(0,760));q.paste(p.crop((0,1524,750,1624)),(0,1524))
+dp=ImageDraw.Draw(p);dp.rectangle([40,770,710,856],outline=(230,30,30),width=5);dp.text((60,862),'与“设置”入口重复',fill=(230,30,30),font=f(26))
+pair(p,q,'R7-pause-before-after.png',note='R7 暂停面板去掉音乐/音效行（openPause L24–25），继续/回到小岛上移，面板矮 120 设计px')

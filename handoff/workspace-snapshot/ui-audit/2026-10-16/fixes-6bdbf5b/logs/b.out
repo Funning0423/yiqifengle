@@ -1,0 +1,20 @@
+PREBUILD Sat Oct 17 07:12:17 CST 2026 free 8656756
+wx exit 36
+TOTAL 19100765
+ROOT 1862250
+SUB audio_bgm_island 418907
+SUB board_art 2112160
+SUB internal 297535
+SUB main 1163999
+SUB region_island 2967101
+SUB region_lakeside 464387
+SUB region_meadow 2934382
+SUB region_skycity 3326944
+SUB resources 433034
+SUB shared_effects 563694
+SUB static_seat_preview 2556372
+web exit 36
+POSTBUILD Sat Oct 17 07:13:07 CST 2026 free 9688644
+       0 /Users/<mac-user>/qf-fx2-tmp/gitstatus.txt
+       0
+BUILD_DONE

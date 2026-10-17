@@ -1,0 +1,61 @@
+{
+ "tag": "11_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.73
+  ],
+  [
+   "board",
+   27.54
+  ],
+  [
+   "entry1",
+   27.54
+  ],
+  [
+   "resumed1",
+   28.39
+  ],
+  [
+   "island",
+   37.08
+  ],
+  [
+   "entry2",
+   40.56
+  ],
+  [
+   "resumed2",
+   41.4
+  ],
+  [
+   "end",
+   47.95
+  ]
+ ],
+ "checks": {
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

@@ -1,0 +1,35 @@
+{
+ "tag": "21_pr58_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.34
+  ],
+  [
+   "island",
+   28.51
+  ],
+  [
+   "skycity",
+   29.57
+  ],
+  [
+   "shot",
+   34.67
+  ],
+  [
+   "end",
+   35.68
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-9",
+  "enter": "ok",
+  "night": false
+ },
+ "errors": []
+}

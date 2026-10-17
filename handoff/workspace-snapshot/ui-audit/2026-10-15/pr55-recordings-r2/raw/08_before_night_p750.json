@@ -1,0 +1,58 @@
+{
+ "tag": "08_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.14
+  ],
+  [
+   "home",
+   4.37
+  ],
+  [
+   "settings",
+   34.22
+  ],
+  [
+   "edgeTap_Day",
+   34.24
+  ],
+  [
+   "edgeTap_Night",
+   36.08
+  ],
+  [
+   "end",
+   37.88
+  ]
+ ],
+ "checks": {
+  "mode0": {
+   "error": "",
+   "text": ""
+  },
+  "rect_Day": [
+   194,
+   372,
+   68,
+   44
+  ],
+  "rect_Night": [
+   265,
+   372,
+   68,
+   44
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

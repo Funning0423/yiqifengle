@@ -1,0 +1,895 @@
+0.073	error	Failed to load resource: the server responded with a status of 404 (File not found)
+0.563	timeEnd	LoadScene db://assets/scenes/WorldR5Integration.scene: 18.953125 ms
+0.572	error	Failed to load resource: net::ERR_CONNECTION_RESET
+0.595	info	[QF_AUDIO] {"event":"waves-gate","t":1792215869671,"gate":"gameaudio:no-gesture","outdoor":-1,"wind":0}
+0.595	info	[QF_AUDIO] {"event":"wind-gate","t":1792215869672,"gate":"gameaudio:no-gesture","wind":0,"clips":0}
+0.643	error	Failed to load resource: net::ERR_CONNECTION_RESET
+0.643	error	Failed to load resource: net::ERR_CONNECTION_RESET
+0.667	error	Failed to load resource: net::ERR_CONNECTION_RESET
+0.685	info	[QF_AUDIO] {"event":"wind-loaded","t":1792215869761,"path":"audio_amb/amb_wind_strong_loop"}
+0.712	info	[QF_AUDIO] {"event":"wind-loaded","t":1792215869788,"path":"audio_amb/amb_wind_soft_loop"}
+0.712	info	[QF_AUDIO] {"event":"waves-loaded","t":1792215869788}
+0.728	info	[QF_AUDIO] {"event":"wind-loaded","t":1792215869804,"path":"audio_sfx/sfx_apron_flap"}
+3.052	warning	[walk-driver] rebuilt states without clip evaluator: stand_up:direct-trs,idle_breathing_loop:direct-trs,wind_sway_loop:direct-trs,walk_loop:direct-trs,sit_hold:direct-trs,sit_down:direct-trs,door_reach:direct-trs,walk_start:direct-trs,walk_stop_bodyL:direct-trs,walk_stop_bodyR:direct-trs,walk_turn_90_bodyL:direct-trs,walk_turn_90_bodyR:direct-trs,walk_turn_180:direct-trs,walk_turn_180_bodyR:direct-trs
+3.145	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:loading","utc":"2026-10-17T05:44:32.221Z","world":{"state":"loading","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":false,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":0,"rawSeconds":0,"appliedSeconds":0,"maxDt":0,"lastTickUtc":"","hideEvents":0,"showEvents":0},"jobs":[],"camera":null,"motion":{"clip":"sit_hold","time":0,"duration":2,"loop":true,"manualClock":true,"action":null,"root":[0,0,0],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{"name":"walk_turn_90_bodyR","duration":1.4666666984558105},{"name":"walk_turn_180","duration":1.5},{"name":"walk_turn_180_bodyR","duration":1.4666666984558105}],"events":[{"clip":"sit_hold","duration":2,"fade":0,"utc":"2026-10-17T05:44:32.132Z"}],"motion":{"blend":tr
+3.173	info	[OI_REAR_GLASS_ALPHA] {"version":1,"node":"env_rear_window_glass","sourceAlpha":0.06,"before":[1,1,1,1],"after":[1,1,1,0.05999999865889549],"sharedUnchanged":true,"passesUnchanged":true,"scope":"Imported alpha restoration only; native window pixels still require visual check"}
+3.173	info	[OI_ISLAND_ALPHA] {"version":1,"node":"env_interior_glass","sourceAlpha":0.16,"before":[1,1,1,1],"after":[1,1,1,0.1599999964237213],"sharedUnchanged":true,"passesUnchanged":true,"beamBlend":null,"scope":"Source transparency/beam blend configuration; native island pixels still require visual check"}
+3.174	info	[OI_ISLAND_ALPHA] {"version":1,"node":"env_lighthouse_lamp_glow_v22","sourceAlpha":0.85,"before":[1,1,1,1],"after":[1,1,1,0.8500000238418579],"sharedUnchanged":true,"passesUnchanged":true,"beamBlend":null,"scope":"Source transparency/beam blend configuration; native island pixels still require visual check"}
+3.174	info	[OI_ISLAND_ALPHA] {"version":1,"node":"env_lighthouse_beam_night_v22","sourceAlpha":0.1,"before":[1,0.809999942779541,0.38440001010894775,1],"after":[1,0.809999942779541,0.38440001010894775,0.10000000149011612],"sharedUnchanged":true,"passesUnchanged":false,"beamBlend":"SRC_ALPHA/ONE","scope":"Source transparency/beam blend configuration; native island pixels still require visual check"}
+3.174	info	[OI_REAR_PALM_BIND] {"node":"env_rear_window_palm","skeletonHash":4226273243,"joints":9,"expectedSourceSkeletonHash":4226273243,"scope":"Skeleton binding only; native window visibility still requires visual check"}
+3.175	info	[SeaSampler] {"width":64,"height":64,"mipLevels":7,"gpuLevels":7,"min":2,"mag":2,"mip":2,"anisotropy":0}
+3.185	info	[OI_WINDOW_SKY] {"node":"env_cloud_layer","night":false,"tintSRGB":[1,1,1],"uniformLinear":[1,1,1,1],"scope":"Material uniform readback; native pixels still require visual check"}
+3.185	info	[OI_SHORE_FOAM] {"node":"env_sea_foam","night":false,"tintSRGB":[1,1,1],"uniformLinear":[1,1,1,0.8999999761581421],"scope":"Material uniform readback; native pixels still require visual check"}
+3.185	info	[OI_SHORE_FOAM] {"node":"env_sea_surf_foam_v22","night":false,"tintSRGB":[1,1,1],"uniformLinear":[1,1,1,0.47999998927116394],"scope":"Material uniform readback; native pixels still require visual check"}
+3.185	info	[OI_SHORE_FOAM] {"node":"env_sea_wave_line_01_v22","night":false,"tintSRGB":[1,1,1],"uniformLinear":[1,1,1,0.3400000035762787],"scope":"Material uniform readback; native pixels still require visual check"}
+3.185	info	[OI_SHORE_FOAM] {"node":"env_sea_wave_line_02_v22","night":false,"tintSRGB":[1,1,1],"uniformLinear":[1,1,1,0.3799999952316284],"scope":"Material uniform readback; native pixels still require visual check"}
+3.185	info	[OI_WINDOW_SKY] {"node":"env_sky_dome","night":false,"tintSRGB":[1,1,1],"uniformLinear":[1,1,1,1],"scope":"Material uniform readback; native pixels still require visual check"}
+3.185	info	[OI_WINDOW_SKY] {"node":"env_window_blind_cards","night":false,"tintSRGB":[1,1,1],"uniformLinear":[1,1,1,1],"scope":"Material uniform readback; native pixels still require visual check"}
+3.194	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:home","utc":"2026-10-17T05:44:32.271Z","world":{"state":"home","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":false,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":0,"rawSeconds":0,"appliedSeconds":0,"maxDt":0,"lastTickUtc":"","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-1.32022071,1.38613379,-2.11374307],"rotation":[-0.029623525457172287,-0.2604569275828355,-0.007995513168932813,0.9649977758434282],"fovVerticalDeg":75},"motion":{"clip":"sit_hold","time":0,"duration":2,"loop":true,"manualClock":true,"action":null,"root":[0,0,0],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{"name":"walk_turn_90_bodyR","duration":1.4666666984558105},{"name":"walk_turn_180","duration":1.5},{"name":"walk
+3.195	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:home","utc":"2026-10-17T05:44:32.271Z","world":{"state":"home","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":0,"rawSeconds":0,"appliedSeconds":0,"maxDt":0,"lastTickUtc":"","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-1.32022071,1.38613379,-2.11374307],"rotation":[-0.029623525457172287,-0.2604569275828355,-0.007995513168932813,0.9649977758434282],"fovVerticalDeg":75},"motion":{"clip":"sit_hold","time":0,"duration":2,"loop":true,"manualClock":true,"action":null,"root":[0.4327299768730942,0,-4.207611558444886],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{"name":"walk_turn_90_bodyR","duration":1.4666666984558105},{"name":"walk_turn_1
+3.277	info	HOME_SEATED_VISUAL {stationary: false, dynamicAdapter: layer-clearance-task21-keeps-waist14-ankle13, visualAcceptance: false}
+3.277	info	UNIFIED_CHARACTER_CANDIDATE_LOADED {candidate: layer-clearance-task21, glbSHA256: 42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec, metadataSHA256: cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6, motionSHA256: 3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657, prefabUUID: dce9f061-7913-4893-9eb9-35e039adda3c@6af54}
+3.277	info	WORLD_STARTUP_READY {initialClip: sit_hold, controllerRoot: Array(3), childOffset: Array(3), scale: 1, motionAcceptance: false}
+8.198	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:44:37.271Z","world":{"state":"home","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":285,"rawSeconds":5.167300000011914,"appliedSeconds":4.9176999999880735,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:37.271Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-1.32022071,1.38613379,-2.11374307],"rotation":[-0.029623525457172287,-0.2604569275828355,-0.007995513168932813,0.9649977758434282],"fovVerticalDeg":75},"motion":{"clip":"sit_hold","time":0.9176999999881108,"duration":2,"loop":true,"manualClock":true,"action":null,"root":[0.4327299768730942,0,-4.207611558444886],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{"name
+12.322	info	[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":445}
+12.322	info	[AudioUnlock] first gesture accepted {"source":"canvas","event":"touchstart","ms":11972,"status":"ready","playbackState":"playing"}
+12.329	info	[QF_AUDIO] {"event":"waves-gate","t":1792215881405,"gate":"ok","outdoor":0,"wind":0}
+12.329	info	[QF_AUDIO] {"event":"wind-gate","t":1792215881406,"gate":"ok","wind":0,"clips":3}
+12.352	error	Failed to load resource: the server responded with a status of 404 (File not found)
+13.214	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:standing","utc":"2026-10-17T05:44:42.288Z","world":{"state":"standing","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":585,"rawSeconds":10.165300000011909,"appliedSeconds":9.915699999988066,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:42.269Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-1.32022071,1.38613379,-2.11374307],"rotation":[-0.029623525457172287,-0.2604569275828355,-0.007995513168932813,0.9649977758434282],"fovVerticalDeg":75},"motion":{"clip":"sit_hold","time":1.915699999988135,"duration":2,"loop":true,"manualClock":true,"action":null,"root":[0.4327299768730942,0,-4.207611558444886],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration
+13.228	info	[QF_AUDIO] {"event":"ambience-quiet","t":1792215882304,"reason":"standing","quieters":2}
+13.228	info	[QF_AUDIO] {"event":"ensure-ambience","t":1792215882304,"state":"standing","mounters":2,"gate":"ok"}
+13.279	info	[GameAudio] exit-cine {"event":"loaded","at":1792215882355}
+14.461	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:turning-out","utc":"2026-10-17T05:44:43.537Z","world":{"state":"turning-out","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":661,"rawSeconds":11.431999999999993,"appliedSeconds":11.18239999997615,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:43.535Z","hideEvents":0,"showEvents":0},"jobs":[{"elapsed":1.2666999999880786,"seconds":2.7666670083999634}],"camera":{"position":[-1.1015317094566965,1.7156735296136902,-2.761245032943441],"rotation":[-0.1465571619907601,-0.2835447528624249,-0.043896211638106045,0.9466765519422267],"fovVerticalDeg":72.68570506590217},"motion":{"clip":"idle_breathing_loop","time":0,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-0.016162758009872102,0,-4.413050709661525],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration"
+14.477	info	[QF_AUDIO] {"event":"ensure-ambience","t":1792215883554,"state":"turning-out","mounters":2,"gate":"ok"}
+15.965	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:walking-out","utc":"2026-10-17T05:44:45.040Z","world":{"state":"walking-out","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":751,"rawSeconds":12.93380000001191,"appliedSeconds":12.684199999988067,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:45.037Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-1.934,1.82,-3.55],"rotation":[-0.18800017159396668,-0.5291850954464031,-0.1215568212751113,0.8184393743213428],"fovVerticalDeg":67.2},"motion":{"clip":"idle_breathing_loop","time":0,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-0.016162758009872102,0,-4.413050709661525],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","durat
+15.977	info	[QF_AUDIO] {"event":"ensure-ambience","t":1792215885054,"state":"walking-out","mounters":2,"gate":"ok"}
+20.979	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:44:50.054Z","world":{"state":"walking-out","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":1051,"rawSeconds":17.949500000000032,"appliedSeconds":17.699899999976186,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:50.053Z","hideEvents":0,"showEvents":0},"jobs":[{"elapsed":5.01569999998807,"seconds":5.997133480494136}],"camera":{"position":[-1.172059079646295,1.6976055063771402,-2.4705860263798556],"rotation":[0.03166449370724859,0.9628504477697356,0.12997496617369658,-0.23456957014077887],"fovVerticalDeg":69.48282525863135},"motion":{"clip":"walk_stop_bodyL","time":0.3380184974180644,"duration":1.4666666984558105,"loop":false,"manualClock":true,"action":"walk","root":[-0.039432258432571816,0,-0.6936142101325573],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duratio
+21.962	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:opening-door","utc":"2026-10-17T05:44:51.037Z","world":{"state":"opening-door","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":1110,"rawSeconds":18.931900000035817,"appliedSeconds":18.68230000001197,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:51.035Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-1.214,1.694,-2.307],"rotation":[0.03404667565346769,0.9620954732694115,0.1423521581652222,-0.23010646939440452],"fovVerticalDeg":68},"motion":{"clip":"walk_stop_bodyL","time":1.4666666984558105,"duration":1.4666666984558105,"loop":false,"manualClock":true,"action":null,"root":[-0.21199999749660475,0,-0.3321000039577489],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_
+21.976	info	[QF_AUDIO] {"event":"ensure-ambience","t":1792215891053,"state":"opening-door","mounters":2,"gate":"ok"}
+23.962	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:crossing-out","utc":"2026-10-17T05:44:53.038Z","world":{"state":"crossing-out","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":1229,"rawSeconds":20.932800000012026,"appliedSeconds":20.68319999998818,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:53.036Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-1.214,1.694,-2.307],"rotation":[0.03404667565346769,0.9620954732694115,0.1423521581652222,-0.23010646939440452],"fovVerticalDeg":68},"motion":{"clip":"idle_breathing_loop","time":0.00003333332141242096,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-0.21199999749660475,0,-0.3321000039577489],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"wal
+23.976	info	[QF_AUDIO] {"event":"ensure-ambience","t":1792215893052,"state":"crossing-out","mounters":2,"gate":"ok"}
+23.976	info	[GameAudio] exit-cine {"event":"segment-start","at":1792215893053}
+23.976	info	[GameAudio] exit-cine {"event":"play","at":1792215893053,"offsetS":0}
+24.11	info	[QF_AUDIO] {"event":"wind-level","t":1792215893186,"s":0.001,"soft":0.004,"strong":0,"bed":1}
+24.11	info	[QF_AUDIO] {"event":"wind-play","t":1792215893187,"which":"soft","vol":0.004,"s":0.001}
+24.977	info	[QF_AUDIO] {"event":"waves-level","t":1792215894053,"vol":0.002,"outdoor":0,"wind":0.14}
+24.977	info	[QF_AUDIO] {"event":"waves-start","t":1792215894054,"vol":0.002,"from":"zero"}
+24.977	info	[QF_AUDIO] {"event":"waves-play","t":1792215894054,"vol":0.002,"outdoor":0,"wind":0.14}
+25.11	info	[QF_AUDIO] {"event":"wind-level","t":1792215894186,"s":0.145,"soft":0.408,"strong":0,"bed":1}
+25.992	info	[QF_AUDIO] {"event":"waves-level","t":1792215895068,"vol":0.009,"outdoor":0,"wind":0.15}
+26.11	info	[QF_AUDIO] {"event":"wind-level","t":1792215895186,"s":0.15,"soft":0.41,"strong":0,"bed":1}
+26.993	info	[QF_AUDIO] {"event":"waves-level","t":1792215896069,"vol":0.047,"outdoor":0.148,"wind":0.152}
+27.127	info	[QF_AUDIO] {"event":"wind-level","t":1792215896203,"s":0.155,"soft":0.412,"strong":0,"bed":1}
+28.01	info	[QF_AUDIO] {"event":"waves-level","t":1792215897086,"vol":0.223,"outdoor":0.481,"wind":0.203}
+28.143	info	[QF_AUDIO] {"event":"wind-level","t":1792215897219,"s":0.217,"soft":0.437,"strong":0,"bed":1}
+28.979	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:44:58.054Z","world":{"state":"crossing-out","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":1530,"rawSeconds":25.949400000036043,"appliedSeconds":25.699800000012196,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:44:58.053Z","hideEvents":0,"showEvents":0},"jobs":[{"elapsed":5.016600000023835,"seconds":19.987996942497332},{"elapsed":5.016600000023835,"seconds":11.129115406071874},{"elapsed":2.4499000000357607,"seconds":3.0468609651101715}],"camera":{"position":[-1.2816249076034818,1.8948885493918033,1.0741196417956755],"rotation":[0.01291989955206603,0.9710889844718806,0.23216106047771312,-0.05404167309400675],"fovVerticalDeg":72.96932345881207},"motion":{"clip":"walk_loop","time":0.2865529417793189,"duration":1.4333332777023315,"loop":true,"manualClock":true,"action":"walk","root":[-1.0341851322960818,0,3.3543854377437663],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"
+29.009	info	[QF_AUDIO] {"event":"wind-play","t":1792215898085,"which":"strong","vol":0.003,"s":0.323}
+29.027	info	[QF_AUDIO] {"event":"waves-level","t":1792215898103,"vol":0.406,"outdoor":0.815,"wind":0.323}
+29.16	info	[QF_AUDIO] {"event":"wind-level","t":1792215898236,"s":0.345,"soft":0.488,"strong":0.012,"bed":1}
+30.043	info	[QF_AUDIO] {"event":"waves-level","t":1792215899119,"vol":0.527,"outdoor":1,"wind":0.487}
+30.177	info	[QF_AUDIO] {"event":"wind-level","t":1792215899253,"s":0.513,"soft":0.555,"strong":0.221,"bed":1}
+31.061	info	[QF_AUDIO] {"event":"waves-level","t":1792215900136,"vol":0.489,"outdoor":1,"wind":0.664}
+31.193	info	[QF_AUDIO] {"event":"wind-level","t":1792215900269,"s":0.69,"soft":0.626,"strong":0.584,"bed":1}
+32.076	info	[QF_AUDIO] {"event":"waves-level","t":1792215901153,"vol":0.447,"outdoor":1,"wind":0.796}
+32.21	info	[QF_AUDIO] {"event":"wind-level","t":1792215901286,"s":0.809,"soft":0.673,"strong":0.816,"bed":1}
+33.093	info	[QF_AUDIO] {"event":"waves-level","t":1792215902169,"vol":0.428,"outdoor":1,"wind":0.871}
+33.225	info	[QF_AUDIO] {"event":"wind-level","t":1792215902302,"s":0.883,"soft":0.703,"strong":0.925,"bed":1}
+33.993	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:03.069Z","world":{"state":"crossing-out","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":1831,"rawSeconds":30.965100000024265,"appliedSeconds":30.715500000000418,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:03.068Z","hideEvents":0,"showEvents":0},"jobs":[{"elapsed":10.032300000011919,"seconds":19.987996942497332},{"elapsed":10.032300000011919,"seconds":11.129115406071874},{"elapsed":0.8656999999880791,"seconds":9.83}],"camera":{"position":[-5.461377252255697,9.325862227970887,12.497911337853246],"rotation":[-0.3667496630448275,-0.21253207543670657,-0.08645475834079197,0.9015821517351077],"fovVerticalDeg":66.42475188942403},"motion":{"clip":"idle_breathing_loop","time":0.8657333333690964,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.113500036344973,0,5.281400197482565],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_re
+34.11	info	[QF_AUDIO] {"event":"waves-level","t":1792215903186,"vol":0.416,"outdoor":1,"wind":0.951}
+34.227	info	[QF_AUDIO] {"event":"wind-level","t":1792215903303,"s":0.959,"soft":0.734,"strong":0.99,"bed":1}
+35.11	info	[QF_AUDIO] {"event":"waves-level","t":1792215904186,"vol":0.413,"outdoor":1,"wind":0.996}
+35.243	info	[QF_AUDIO] {"event":"wind-level","t":1792215904319,"s":0.998,"soft":0.749,"strong":1,"bed":1}
+36.125	info	[QF_AUDIO] {"event":"waves-level","t":1792215905202,"vol":0.413,"outdoor":1,"wind":1}
+36.26	info	[QF_AUDIO] {"event":"wind-level","t":1792215905336,"s":1,"soft":0.75,"strong":1,"bed":1}
+37.126	info	[QF_AUDIO] {"event":"waves-level","t":1792215906203,"vol":0.413,"outdoor":1,"wind":0.995}
+37.276	info	[QF_AUDIO] {"event":"wind-level","t":1792215906352,"s":0.988,"soft":0.745,"strong":0.999,"bed":1}
+38.143	info	[QF_AUDIO] {"event":"waves-level","t":1792215907219,"vol":0.416,"outdoor":1,"wind":0.907}
+38.276	info	[QF_AUDIO] {"event":"wind-level","t":1792215907353,"s":0.885,"soft":0.704,"strong":0.928,"bed":1}
+38.995	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:08.070Z","world":{"state":"crossing-out","stable":"home","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":2131,"rawSeconds":35.96619999998847,"appliedSeconds":35.71659999996462,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:08.070Z","hideEvents":0,"showEvents":0},"jobs":[{"elapsed":15.03339999997617,"seconds":19.987996942497332},{"elapsed":5.866799999952305,"seconds":9.83}],"camera":{"position":[-9.293427819428334,15.5,33.30440289458449],"rotation":[-0.21319674459204027,-0.1419813614685579,-0.03133115644232069,0.9661298048020658],"fovVerticalDeg":52.110287216690416},"motion":{"clip":"idle_breathing_loop","time":0.46683347638456496,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.113500036344973,0,5.281400197482565],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"nam
+39.16	info	[QF_AUDIO] {"event":"waves-level","t":1792215908236,"vol":0.447,"outdoor":1,"wind":0.73}
+39.293	info	[QF_AUDIO] {"event":"wind-level","t":1792215908369,"s":0.699,"soft":0.63,"strong":0.604,"bed":1}
+40.16	info	[QF_AUDIO] {"event":"waves-level","t":1792215909236,"vol":0.506,"outdoor":1,"wind":0.511}
+40.31	info	[QF_AUDIO] {"event":"wind-level","t":1792215909386,"s":0.473,"soft":0.539,"strong":0.153,"bed":1}
+41.176	info	[QF_AUDIO] {"event":"waves-level","t":1792215910253,"vol":0.547,"outdoor":1,"wind":0.286}
+41.327	info	[QF_AUDIO] {"event":"wind-level","t":1792215910403,"s":0.252,"soft":0.451,"strong":0,"bed":1}
+42.176	info	[QF_AUDIO] {"event":"waves-level","t":1792215911253,"vol":0.55,"outdoor":1,"wind":0.107}
+42.344	info	[QF_AUDIO] {"event":"wind-level","t":1792215911420,"s":0.082,"soft":0.383,"strong":0,"bed":1}
+43.192	info	[QF_AUDIO] {"event":"waves-level","t":1792215912268,"vol":0.55,"outdoor":1,"wind":0.014}
+43.36	info	[QF_AUDIO] {"event":"wind-level","t":1792215912436,"s":0.008,"soft":0.035,"strong":0,"bed":1}
+43.977	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:island","utc":"2026-10-17T05:45:13.053Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":2429,"rawSeconds":40.93269999998832,"appliedSeconds":40.683099999964476,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:13.036Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.033333619435634176,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","dur
+44.193	info	[QF_AUDIO] {"event":"waves-level","t":1792215913269,"vol":0.55,"outdoor":1,"wind":0}
+44.995	info	[QF_AUDIO] {"event":"wind-pause","t":1792215914070}
+44.995	info	[QF_AUDIO] {"event":"wind-pause","t":1792215914070}
+45.21	info	[QF_AUDIO] {"event":"waves-level","t":1792215914286,"vol":0.55,"outdoor":1,"wind":0}
+46.211	info	[QF_AUDIO] {"event":"waves-level","t":1792215915287,"vol":0.55,"outdoor":1,"wind":0}
+47.227	info	[QF_AUDIO] {"event":"waves-level","t":1792215916303,"vol":0.55,"outdoor":1,"wind":0}
+48.243	info	[QF_AUDIO] {"event":"waves-level","t":1792215917319,"vol":0.55,"outdoor":1,"wind":0}
+48.978	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:18.053Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":2718,"rawSeconds":45.94950000000016,"appliedSeconds":45.652199999988234,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:18.053Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.4024337148265786,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5
+49.244	info	[QF_AUDIO] {"event":"waves-level","t":1792215918320,"vol":0.55,"outdoor":1,"wind":0}
+49.851	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:level-loading","utc":"2026-10-17T05:45:18.927Z","world":{"state":"level-loading","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":2770,"rawSeconds":46.81619999998823,"appliedSeconds":46.518899999976306,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:18.920Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.4691337624983234,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90
+49.851	info	[enter-level] cover motion true
+49.851	info	[enter-level] shot motion
+49.859	info	[GameAudio] exit-cine {"event":"cancel:left-exit","at":1792215918935}
+50.259	info	[QF_AUDIO] {"event":"waves-level","t":1792215919335,"vol":0.55,"outdoor":1,"wind":0}
+50.635	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:level","utc":"2026-10-17T05:45:19.710Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":2816,"rawSeconds":47.59940000003589,"appliedSeconds":47.30210000002397,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:19.703Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.252333762545959,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":
+50.643	info	[QF_AUDIO] {"event":"waves-gate","t":1792215919720,"gate":"no-world","outdoor":-1,"wind":0}
+50.643	info	[QF_AUDIO] {"event":"wind-gate","t":1792215919720,"gate":"world-hidden","wind":0,"clips":3}
+51.26	info	[QF_AUDIO] {"event":"waves-level","t":1792215920336,"vol":0.04,"outdoor":-1,"wind":0}
+55.645	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:24.720Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":3116,"rawSeconds":52.61610000002381,"appliedSeconds":52.31880000001189,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:24.720Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.8690339055848391,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{
+60.645	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:29.720Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":3416,"rawSeconds":57.61590000003569,"appliedSeconds":57.318600000023764,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:29.720Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.46883404864762923,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5}
+65.662	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:34.737Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":3716,"rawSeconds":62.632600000023714,"appliedSeconds":62.33530000001179,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:34.736Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.08553419168656973,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5}
+70.662	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:39.737Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":4013,"rawSeconds":67.63260000002353,"appliedSeconds":67.33530000001166,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:39.736Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.4855342870537172,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{
+75.662	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:44.737Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":4313,"rawSeconds":72.63269999998771,"appliedSeconds":72.33539999997583,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:44.736Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.0856344300688079,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{
+80.662	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:49.737Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":4613,"rawSeconds":77.63260000002327,"appliedSeconds":77.3353000000114,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:49.737Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.685534573155401,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{"n
+85.662	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:54.737Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":4913,"rawSeconds":82.6326999999875,"appliedSeconds":82.33539999997562,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:54.736Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.28563471617048464,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{
+90.663	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:45:59.738Z","world":{"state":"level","stable":"level","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":5212,"rawSeconds":87.63260000002309,"appliedSeconds":87.33530000001122,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:45:59.737Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.685534811573362,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5},{"
+95.26	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:island","utc":"2026-10-17T05:46:04.335Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":5487,"rawSeconds":92.21569999998712,"appliedSeconds":91.91839999997525,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:04.320Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.8686349545884511,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","durati
+95.264	info	[QF_AUDIO] {"event":"waves-gate","t":1792215964340,"gate":"ok","outdoor":1,"wind":0}
+95.264	info	[QF_AUDIO] {"event":"wind-gate","t":1792215964340,"gate":"ok","wind":0,"clips":3}
+95.294	info	[QF_AUDIO] {"event":"waves-start","t":1792215964370,"vol":0.064,"from":"zero"}
+95.294	info	[QF_AUDIO] {"event":"waves-play","t":1792215964370,"vol":0.064,"outdoor":1,"wind":0}
+95.56	info	[QF_AUDIO] {"event":"waves-level","t":1792215964636,"vol":0.389,"outdoor":1,"wind":0}
+96.56	info	[QF_AUDIO] {"event":"waves-level","t":1792215965636,"vol":0.547,"outdoor":1,"wind":0}
+97.578	info	[QF_AUDIO] {"event":"waves-level","t":1792215966653,"vol":0.55,"outdoor":1,"wind":0}
+98.576	info	[QF_AUDIO] {"event":"waves-level","t":1792215967653,"vol":0.55,"outdoor":1,"wind":0}
+99.593	info	[QF_AUDIO] {"event":"waves-level","t":1792215968669,"vol":0.55,"outdoor":1,"wind":0}
+100.261	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:09.336Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":5786,"rawSeconds":97.23230000001085,"appliedSeconds":96.93499999999898,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:09.336Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.48523509766496886,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5
+100.594	info	[QF_AUDIO] {"event":"waves-level","t":1792215969669,"vol":0.55,"outdoor":1,"wind":0}
+101.593	info	[QF_AUDIO] {"event":"waves-level","t":1792215970669,"vol":0.55,"outdoor":1,"wind":0}
+102.61	info	[QF_AUDIO] {"event":"waves-level","t":1792215971686,"vol":0.55,"outdoor":1,"wind":0}
+103.626	info	[QF_AUDIO] {"event":"waves-level","t":1792215972702,"vol":0.55,"outdoor":1,"wind":0}
+104.627	info	[QF_AUDIO] {"event":"waves-level","t":1792215973703,"vol":0.55,"outdoor":1,"wind":0}
+105.261	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:14.336Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":6085,"rawSeconds":102.23230000001068,"appliedSeconds":101.93499999999881,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:14.336Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.08523524071891586,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1
+105.644	info	[QF_AUDIO] {"event":"waves-level","t":1792215974720,"vol":0.55,"outdoor":1,"wind":0}
+106.659	info	[QF_AUDIO] {"event":"waves-level","t":1792215975735,"vol":0.55,"outdoor":1,"wind":0}
+107.675	info	[QF_AUDIO] {"event":"waves-level","t":1792215976752,"vol":0.55,"outdoor":1,"wind":0}
+108.677	info	[QF_AUDIO] {"event":"waves-level","t":1792215977753,"vol":0.55,"outdoor":1,"wind":0}
+109.692	info	[QF_AUDIO] {"event":"waves-level","t":1792215978768,"vol":0.55,"outdoor":1,"wind":0}
+110.261	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:19.336Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":6385,"rawSeconds":107.23230000001054,"appliedSeconds":106.93499999999867,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:19.336Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.4852353360891613,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.
+110.694	info	[QF_AUDIO] {"event":"waves-level","t":1792215979770,"vol":0.55,"outdoor":1,"wind":0}
+111.71	info	[QF_AUDIO] {"event":"waves-level","t":1792215980786,"vol":0.55,"outdoor":1,"wind":0}
+112.71	info	[QF_AUDIO] {"event":"waves-level","t":1792215981786,"vol":0.55,"outdoor":1,"wind":0}
+113.726	info	[QF_AUDIO] {"event":"waves-level","t":1792215982803,"vol":0.55,"outdoor":1,"wind":0}
+114.744	info	[QF_AUDIO] {"event":"waves-level","t":1792215983820,"vol":0.55,"outdoor":1,"wind":0}
+115.261	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:24.336Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":6684,"rawSeconds":112.23230000001037,"appliedSeconds":111.9349999999985,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:24.336Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.0852354791430514,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.5
+115.773	info	[QF_AUDIO] {"event":"waves-level","t":1792215984836,"vol":0.55,"outdoor":1,"wind":0}
+116.76	info	[QF_AUDIO] {"event":"waves-level","t":1792215985836,"vol":0.55,"outdoor":1,"wind":0}
+117.777	info	[QF_AUDIO] {"event":"waves-level","t":1792215986853,"vol":0.55,"outdoor":1,"wind":0}
+118.777	info	[QF_AUDIO] {"event":"waves-level","t":1792215987853,"vol":0.55,"outdoor":1,"wind":0}
+119.794	info	[QF_AUDIO] {"event":"waves-level","t":1792215988869,"vol":0.55,"outdoor":1,"wind":0}
+120.26	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:29.336Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":6983,"rawSeconds":117.23219999998639,"appliedSeconds":116.93489999997452,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:29.336Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.6851356221730072,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_90_bodyL","duration":1.
+120.811	info	[QF_AUDIO] {"event":"waves-level","t":1792215989887,"vol":0.55,"outdoor":1,"wind":0}
+121.827	info	[QF_AUDIO] {"event":"waves-level","t":1792215990903,"vol":0.55,"outdoor":1,"wind":0}
+122.827	info	[QF_AUDIO] {"event":"waves-level","t":1792215991903,"vol":0.55,"outdoor":1,"wind":0}
+123.533	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:level-loading","utc":"2026-10-17T05:46:32.609Z","world":{"state":"level-loading","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":null,"journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":7179,"rawSeconds":120.49890000003404,"appliedSeconds":120.20160000002217,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:32.602Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.35183571758993537,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"name":"walk_turn_
+123.533	info	[enter-level] cover motion true
+123.533	info	[enter-level] shot motion
+123.614	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 595ec052-5f1d-5077-9bd7-ed34f86f4ac6@d5587, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.615	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 4ff64f6f-87f2-5a4c-9e07-26d7814068b1@23bdc, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.615	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 5a842c4b-8cc2-5847-81d0-59aa8736d560@a960e, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.615	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 458831aa-c0c7-5eda-b3d8-07fb4aa97163@afe07, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.615	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 50157b8a-c078-5267-8ac6-3d80faa253fa@fbf99, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.615	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 2af21b73-23d0-5305-908c-d39f9e28ee1e@d27dd, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.615	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 4e6ad81c-ed68-5e0b-af5f-5638e0fa3b6a@a48b3, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.616	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 2306f547-9804-5a7c-9536-998c9f8f2732@ce5a5, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.616	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 28f50aa7-006f-57d4-82b7-aa9d410f455a@ca32a, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.617	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 16edafc4-5247-5574-938b-a3ef1a47d89f@2f49d, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.617	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 0c54012f-34c8-5ce5-b3b6-3119420a26c8@b3abd, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.617	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 00655f62-d835-5648-9c7a-3e0854a3b34b@d0603, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.617	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 0868bc53-0016-5d8c-920f-1116029ce836@e1093, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.618	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 0b4d26b9-3f2c-5c32-9bb0-a5a258e8f9f3@86a5b, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.647	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 0a38d7ac-bde3-5369-b4a7-9204734228fa@9cbf2, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.663	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: c572af1b-2bc3-5bf9-861c-36872cfd364c@004eb, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.664	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: bc3eaaa0-f88b-5539-ae82-54f7841a1bb4@79735, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.664	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: c64adaa1-df65-5539-a333-87452c993e50@dd574, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.664	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: c7975370-bde6-57a5-9d25-bd490a30a5a2@11762, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.664	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: cc5048f6-6129-51a6-96cc-bc9779fe12f2@b842e, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.665	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@c658d, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.666	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: e1aeb084-2929-5bd8-8735-7aed66993d9b@2d325, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.666	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: f75059db-8524-5fac-a297-9c1525a6a438@7b008, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.666	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: edc7e22a-14df-504d-89de-d505d32fc54d@feec0, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.666	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: d76b166c-2051-5058-8ff7-dd2d79f89c09@bc66e, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.667	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: ea4f9e69-0a6d-5609-8fa1-7047b1ec3882@ca646, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.668	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: f03e7c77-66cb-53b7-9b63-b437bb5f3db5@d37ac, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.668	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: f9aa9e88-8afa-5033-a1d6-361dde00772c@edeb6, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.68	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: b9ace526-7405-5943-a3f9-4b5640b13d08@50d7c, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.68	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: bb0a829c-bad9-5b4a-8eab-b8a4edd8d395@4898a, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.713	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 7a8bf9f7-a3ef-58f0-8c9c-28e3038732ed@f210f, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.713	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 7ea3ab81-37bd-5c96-997c-1b385970871d@6fdc5, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.713	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 843dba45-f48d-5762-a19b-e41182fbbd33@73ffa, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.714	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 8f38651c-6c86-5ad3-9b5d-a9089b24716b@ce883, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.714	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 98055214-3c22-5fca-9f14-914e30037393@76787, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.715	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 9dde3c40-c60e-5179-afc5-74eb56a7b49f@31384, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.715	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 8584243a-61da-50d5-b2e5-d8f73488f8b2@01068, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.715	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: a57b7262-182a-5143-b135-4cd686a3386a@9f339, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.715	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 869d61ba-46c5-5d5b-8cdd-1e32c348110f@9239c, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.715	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 9c0815ae-5cb0-5c2c-934e-066c8df3b2f6@6b9a6, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.716	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: a7c2c666-5240-5e81-b3c0-72fa01a489fb@82bb0, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.716	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: ae75f199-8730-5a97-89d8-8b285fceacf6@a5c24, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.716	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: b4dca0ad-fce8-5cef-9e52-00e796743acc@dbb42, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.746	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 7971f28d-6c38-5d02-8235-680d13256a50@2937c, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.746	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 71216830-d5b0-57ff-b7a7-1346a5b59fbf@5ae85, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.749	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 6d6a20e4-7ab2-58bd-8dde-33834d370b6a@134a4, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.75	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 65ccdee0-d0c1-5e4f-a385-adb532fd3f86@45577, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.75	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 67b963d8-3cf6-55db-8ad9-6a59fd409017@62e77, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.75	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 626408f6-a1cc-56c7-81f2-981cb790b71c@0eabd, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.751	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 6d616ec7-a272-5666-a6b5-198ed3c672be@04575, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.751	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 5e6e6fce-7698-5524-8839-47328f2d6ea5@ba25d, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.779	error	Error 16352, please go to https://github.com/cocos/cocos-engine/blob/3.8.8/EngineErrorMap.md#16352 to see details. Arguments: 5ef9b86d-7c39-5030-8447-d91e521176a2@f38e2, ek.decodeVertexBuffer is not a function, TypeError: ek.decodeVertexBuffer is not a function
+    at Ak (http://127.0.0.1:8899/cocos-js/cc.js:1:790169)
+    at i.initialize (http://127.0.0.1:8899/cocos-js/cc.js:1:774990)
+    at i.onLoaded (http://127.0.0.1:8899/cocos-js/cc.js:1:774808)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:464471)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:304620
+    at http://127.0.0.1:8899/cocos-js/cc.js:1:462844
+    at a (http://127.0.0.1:8899/cocos-js/cc.js:1:443177)
+    at t.onComplete (http://127.0.0.1:8899/cocos-js/cc.js:1:462722)
+    at e.dispatch (http://127.0.0.1:8899/cocos-js/cc.js:1:305747)
+123.794	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"state:island","utc":"2026-10-17T05:46:32.871Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":7195,"rawSeconds":120.76560000002209,"appliedSeconds":120.46830000001022,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:32.869Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.6185357175781689,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984
+123.794	info	[OI_HUD] suppressed {"kind":"error","text":"Error: lakeside-prefab-missing: [object Set]"}
+123.842	info	[QF_AUDIO] {"event":"waves-level","t":1792215992919,"vol":0.55,"outdoor":1,"wind":0}
+124.844	info	[QF_AUDIO] {"event":"waves-level","t":1792215993919,"vol":0.55,"outdoor":1,"wind":0}
+125.86	info	[QF_AUDIO] {"event":"waves-level","t":1792215994936,"vol":0.55,"outdoor":1,"wind":0}
+126.877	info	[QF_AUDIO] {"event":"waves-level","t":1792215995953,"vol":0.55,"outdoor":1,"wind":0}
+127.894	info	[QF_AUDIO] {"event":"waves-level","t":1792215996969,"vol":0.55,"outdoor":1,"wind":0}
+128.811	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:37.886Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":7496,"rawSeconds":125.78230000000994,"appliedSeconds":125.48499999999807,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:37.886Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.2352358606201932,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+128.909	info	[QF_AUDIO] {"event":"waves-level","t":1792215997986,"vol":0.55,"outdoor":1,"wind":0}
+129.91	info	[QF_AUDIO] {"event":"waves-level","t":1792215998986,"vol":0.55,"outdoor":1,"wind":0}
+130.927	info	[QF_AUDIO] {"event":"waves-level","t":1792216000003,"vol":0.55,"outdoor":1,"wind":0}
+131.943	info	[QF_AUDIO] {"event":"waves-level","t":1792216001019,"vol":0.55,"outdoor":1,"wind":0}
+132.958	info	[QF_AUDIO] {"event":"waves-level","t":1792216002034,"vol":0.55,"outdoor":1,"wind":0}
+133.811	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:42.886Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":7796,"rawSeconds":130.7821999999856,"appliedSeconds":130.48489999997375,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:42.886Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.635135955966561,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"
+133.96	info	[QF_AUDIO] {"event":"waves-level","t":1792216003036,"vol":0.55,"outdoor":1,"wind":0}
+134.977	info	[QF_AUDIO] {"event":"waves-level","t":1792216004053,"vol":0.55,"outdoor":1,"wind":0}
+135.976	info	[QF_AUDIO] {"event":"waves-level","t":1792216005052,"vol":0.55,"outdoor":1,"wind":0}
+136.994	info	[QF_AUDIO] {"event":"waves-level","t":1792216006069,"vol":0.55,"outdoor":1,"wind":0}
+138.008	info	[QF_AUDIO] {"event":"waves-level","t":1792216007084,"vol":0.55,"outdoor":1,"wind":0}
+138.812	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:47.886Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":8096,"rawSeconds":135.78219999998493,"appliedSeconds":135.48489999997307,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:47.886Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.2351360990205933,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+139.008	info	[QF_AUDIO] {"event":"waves-level","t":1792216008084,"vol":0.55,"outdoor":1,"wind":0}
+140.01	info	[QF_AUDIO] {"event":"waves-level","t":1792216009086,"vol":0.55,"outdoor":1,"wind":0}
+141.026	info	[QF_AUDIO] {"event":"waves-level","t":1792216010101,"vol":0.55,"outdoor":1,"wind":0}
+142.027	info	[QF_AUDIO] {"event":"waves-level","t":1792216011103,"vol":0.55,"outdoor":1,"wind":0}
+143.043	info	[QF_AUDIO] {"event":"waves-level","t":1792216012119,"vol":0.55,"outdoor":1,"wind":0}
+143.811	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:52.886Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":8396,"rawSeconds":140.78210000002002,"appliedSeconds":140.48480000000816,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:52.886Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.835036242110391,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{
+144.059	info	[QF_AUDIO] {"event":"waves-level","t":1792216013135,"vol":0.55,"outdoor":1,"wind":0}
+145.06	info	[QF_AUDIO] {"event":"waves-level","t":1792216014136,"vol":0.55,"outdoor":1,"wind":0}
+146.077	info	[QF_AUDIO] {"event":"waves-level","t":1792216015153,"vol":0.55,"outdoor":1,"wind":0}
+147.093	info	[QF_AUDIO] {"event":"waves-level","t":1792216016169,"vol":0.55,"outdoor":1,"wind":0}
+148.11	info	[QF_AUDIO] {"event":"waves-level","t":1792216017186,"vol":0.55,"outdoor":1,"wind":0}
+148.811	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:46:57.886Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":8696,"rawSeconds":145.78219999998328,"appliedSeconds":145.48489999997142,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:46:57.886Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.43513638512857256,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+149.127	info	[QF_AUDIO] {"event":"waves-level","t":1792216018203,"vol":0.55,"outdoor":1,"wind":0}
+150.127	info	[QF_AUDIO] {"event":"waves-level","t":1792216019202,"vol":0.55,"outdoor":1,"wind":0}
+151.145	info	[QF_AUDIO] {"event":"waves-level","t":1792216020220,"vol":0.55,"outdoor":1,"wind":0}
+152.159	info	[QF_AUDIO] {"event":"waves-level","t":1792216021235,"vol":0.55,"outdoor":1,"wind":0}
+153.161	info	[QF_AUDIO] {"event":"waves-level","t":1792216022237,"vol":0.55,"outdoor":1,"wind":0}
+153.811	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:02.886Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":8996,"rawSeconds":150.7821000000182,"appliedSeconds":150.48480000000635,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:02.886Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.035036528218270746,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+154.177	info	[QF_AUDIO] {"event":"waves-level","t":1792216023252,"vol":0.55,"outdoor":1,"wind":0}
+155.193	info	[QF_AUDIO] {"event":"waves-level","t":1792216024269,"vol":0.55,"outdoor":1,"wind":0}
+156.209	info	[QF_AUDIO] {"event":"waves-level","t":1792216025285,"vol":0.55,"outdoor":1,"wind":0}
+157.21	info	[QF_AUDIO] {"event":"waves-level","t":1792216026286,"vol":0.55,"outdoor":1,"wind":0}
+158.227	info	[QF_AUDIO] {"event":"waves-level","t":1792216027303,"vol":0.55,"outdoor":1,"wind":0}
+158.829	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:07.903Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":9297,"rawSeconds":155.79880000000543,"appliedSeconds":155.50149999999357,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:07.903Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.451736623576494,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{
+159.243	info	[QF_AUDIO] {"event":"waves-level","t":1792216028319,"vol":0.55,"outdoor":1,"wind":0}
+160.243	info	[QF_AUDIO] {"event":"waves-level","t":1792216029319,"vol":0.55,"outdoor":1,"wind":0}
+161.258	info	[QF_AUDIO] {"event":"waves-level","t":1792216030334,"vol":0.55,"outdoor":1,"wind":0}
+162.26	info	[QF_AUDIO] {"event":"waves-level","t":1792216031336,"vol":0.55,"outdoor":1,"wind":0}
+163.276	info	[QF_AUDIO] {"event":"waves-level","t":1792216032352,"vol":0.55,"outdoor":1,"wind":0}
+163.828	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:12.903Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":9597,"rawSeconds":160.79869999998076,"appliedSeconds":160.5013999999689,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:12.903Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.0516367666035649,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{
+164.276	info	[QF_AUDIO] {"event":"waves-level","t":1792216033353,"vol":0.55,"outdoor":1,"wind":0}
+165.293	info	[QF_AUDIO] {"event":"waves-level","t":1792216034369,"vol":0.55,"outdoor":1,"wind":0}
+166.293	info	[QF_AUDIO] {"event":"waves-level","t":1792216035369,"vol":0.55,"outdoor":1,"wind":0}
+167.31	info	[QF_AUDIO] {"event":"waves-level","t":1792216036386,"vol":0.55,"outdoor":1,"wind":0}
+168.31	info	[QF_AUDIO] {"event":"waves-level","t":1792216037386,"vol":0.55,"outdoor":1,"wind":0}
+168.845	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:17.919Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":9898,"rawSeconds":165.81530000000365,"appliedSeconds":165.5179999999918,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:17.919Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.6682369096755565,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{
+169.326	info	[QF_AUDIO] {"event":"waves-level","t":1792216038401,"vol":0.55,"outdoor":1,"wind":0}
+170.326	info	[QF_AUDIO] {"event":"waves-level","t":1792216039402,"vol":0.55,"outdoor":1,"wind":0}
+171.342	info	[QF_AUDIO] {"event":"waves-level","t":1792216040419,"vol":0.55,"outdoor":1,"wind":0}
+172.343	info	[QF_AUDIO] {"event":"waves-level","t":1792216041419,"vol":0.55,"outdoor":1,"wind":0}
+173.36	info	[QF_AUDIO] {"event":"waves-level","t":1792216042436,"vol":0.55,"outdoor":1,"wind":0}
+173.845	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:22.919Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":10198,"rawSeconds":170.8153000000028,"appliedSeconds":170.51799999999093,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:22.919Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.26823705272329335,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+174.377	info	[QF_AUDIO] {"event":"waves-level","t":1792216043452,"vol":0.55,"outdoor":1,"wind":0}
+175.394	info	[QF_AUDIO] {"event":"waves-level","t":1792216044469,"vol":0.55,"outdoor":1,"wind":0}
+176.408	info	[QF_AUDIO] {"event":"waves-level","t":1792216045484,"vol":0.55,"outdoor":1,"wind":0}
+177.409	info	[QF_AUDIO] {"event":"waves-level","t":1792216046485,"vol":0.55,"outdoor":1,"wind":0}
+178.427	info	[QF_AUDIO] {"event":"waves-level","t":1792216047502,"vol":0.55,"outdoor":1,"wind":0}
+178.845	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:27.919Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":10498,"rawSeconds":175.81530000000203,"appliedSeconds":175.51799999999017,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:27.919Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.6682371480875702,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+179.443	info	[QF_AUDIO] {"event":"waves-level","t":1792216048519,"vol":0.55,"outdoor":1,"wind":0}
+180.459	info	[QF_AUDIO] {"event":"waves-level","t":1792216049535,"vol":0.55,"outdoor":1,"wind":0}
+181.476	info	[QF_AUDIO] {"event":"waves-level","t":1792216050552,"vol":0.55,"outdoor":1,"wind":0}
+182.476	info	[QF_AUDIO] {"event":"waves-level","t":1792216051552,"vol":0.55,"outdoor":1,"wind":0}
+183.494	info	[QF_AUDIO] {"event":"waves-level","t":1792216052569,"vol":0.55,"outdoor":1,"wind":0}
+183.861	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:32.936Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":10799,"rawSeconds":180.8319000000251,"appliedSeconds":180.53460000001323,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:32.936Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.2848372911594481,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+184.509	info	[QF_AUDIO] {"event":"waves-level","t":1792216053585,"vol":0.55,"outdoor":1,"wind":0}
+185.527	info	[QF_AUDIO] {"event":"waves-level","t":1792216054602,"vol":0.55,"outdoor":1,"wind":0}
+186.543	info	[QF_AUDIO] {"event":"waves-level","t":1792216055619,"vol":0.55,"outdoor":1,"wind":0}
+187.56	info	[QF_AUDIO] {"event":"waves-level","t":1792216056636,"vol":0.55,"outdoor":1,"wind":0}
+188.577	info	[QF_AUDIO] {"event":"waves-level","t":1792216057652,"vol":0.55,"outdoor":1,"wind":0}
+188.861	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:37.936Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":11099,"rawSeconds":185.8318000000005,"appliedSeconds":185.53449999998864,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:37.936Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.8847374341835064,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+189.577	info	[QF_AUDIO] {"event":"waves-level","t":1792216058652,"vol":0.55,"outdoor":1,"wind":0}
+190.593	info	[QF_AUDIO] {"event":"waves-level","t":1792216059669,"vol":0.55,"outdoor":1,"wind":0}
+191.61	info	[QF_AUDIO] {"event":"waves-level","t":1792216060686,"vol":0.55,"outdoor":1,"wind":0}
+192.625	info	[QF_AUDIO] {"event":"waves-level","t":1792216061701,"vol":0.55,"outdoor":1,"wind":0}
+193.627	info	[QF_AUDIO] {"event":"waves-level","t":1792216062702,"vol":0.55,"outdoor":1,"wind":0}
+193.861	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:42.936Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":11399,"rawSeconds":190.8319000000234,"appliedSeconds":190.53460000001155,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:42.936Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.4848375772552913,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+194.644	info	[QF_AUDIO] {"event":"waves-level","t":1792216063719,"vol":0.55,"outdoor":1,"wind":0}
+195.66	info	[QF_AUDIO] {"event":"waves-level","t":1792216064735,"vol":0.55,"outdoor":1,"wind":0}
+196.676	info	[QF_AUDIO] {"event":"waves-level","t":1792216065752,"vol":0.55,"outdoor":1,"wind":0}
+197.692	info	[QF_AUDIO] {"event":"waves-level","t":1792216066768,"vol":0.55,"outdoor":1,"wind":0}
+198.692	info	[QF_AUDIO] {"event":"waves-level","t":1792216067768,"vol":0.55,"outdoor":1,"wind":0}
+198.861	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:47.936Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":11699,"rawSeconds":195.8317999999986,"appliedSeconds":195.53449999998674,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:47.936Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.08473772027943482,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+199.71	info	[QF_AUDIO] {"event":"waves-level","t":1792216068786,"vol":0.55,"outdoor":1,"wind":0}
+200.727	info	[QF_AUDIO] {"event":"waves-level","t":1792216069802,"vol":0.55,"outdoor":1,"wind":0}
+201.744	info	[QF_AUDIO] {"event":"waves-level","t":1792216070819,"vol":0.55,"outdoor":1,"wind":0}
+202.759	info	[QF_AUDIO] {"event":"waves-level","t":1792216071835,"vol":0.55,"outdoor":1,"wind":0}
+203.776	info	[QF_AUDIO] {"event":"waves-level","t":1792216072852,"vol":0.55,"outdoor":1,"wind":0}
+203.877	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:52.953Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":12000,"rawSeconds":200.84849999998568,"appliedSeconds":200.55119999997382,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:52.952Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.501437815631931,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+204.792	info	[QF_AUDIO] {"event":"waves-level","t":1792216073868,"vol":0.55,"outdoor":1,"wind":0}
+205.793	info	[QF_AUDIO] {"event":"waves-level","t":1792216074869,"vol":0.55,"outdoor":1,"wind":0}
+206.81	info	[QF_AUDIO] {"event":"waves-level","t":1792216075885,"vol":0.55,"outdoor":1,"wind":0}
+207.826	info	[QF_AUDIO] {"event":"waves-level","t":1792216076902,"vol":0.55,"outdoor":1,"wind":0}
+208.826	info	[QF_AUDIO] {"event":"waves-level","t":1792216077902,"vol":0.55,"outdoor":1,"wind":0}
+208.894	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:47:57.969Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":12301,"rawSeconds":205.86510000000888,"appliedSeconds":205.56779999999702,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:47:57.969Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.1180379587036953,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+209.842	info	[QF_AUDIO] {"event":"waves-level","t":1792216078918,"vol":0.55,"outdoor":1,"wind":0}
+210.844	info	[QF_AUDIO] {"event":"waves-level","t":1792216079919,"vol":0.55,"outdoor":1,"wind":0}
+211.859	info	[QF_AUDIO] {"event":"waves-level","t":1792216080935,"vol":0.55,"outdoor":1,"wind":0}
+212.859	info	[QF_AUDIO] {"event":"waves-level","t":1792216081935,"vol":0.55,"outdoor":1,"wind":0}
+213.875	info	[QF_AUDIO] {"event":"waves-level","t":1792216082951,"vol":0.55,"outdoor":1,"wind":0}
+213.91	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:02.985Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":12602,"rawSeconds":210.88090000002,"appliedSeconds":210.58360000000815,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:02.985Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.7338381017636948,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},{"
+214.877	info	[QF_AUDIO] {"event":"waves-level","t":1792216083952,"vol":0.55,"outdoor":1,"wind":0}
+215.892	info	[QF_AUDIO] {"event":"waves-level","t":1792216084968,"vol":0.55,"outdoor":1,"wind":0}
+216.909	info	[QF_AUDIO] {"event":"waves-level","t":1792216085985,"vol":0.55,"outdoor":1,"wind":0}
+217.926	info	[QF_AUDIO] {"event":"waves-level","t":1792216087002,"vol":0.55,"outdoor":1,"wind":0}
+218.926	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:08.002Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":12902,"rawSeconds":215.89829999999543,"appliedSeconds":215.60099999998357,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:08.001Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.35123824478790766,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105
+218.942	info	[QF_AUDIO] {"event":"waves-level","t":1792216088018,"vol":0.55,"outdoor":1,"wind":0}
+219.943	info	[QF_AUDIO] {"event":"waves-level","t":1792216089019,"vol":0.55,"outdoor":1,"wind":0}
+220.96	info	[QF_AUDIO] {"event":"waves-level","t":1792216090035,"vol":0.55,"outdoor":1,"wind":0}
+221.976	info	[QF_AUDIO] {"event":"waves-level","t":1792216091052,"vol":0.55,"outdoor":1,"wind":0}
+222.993	info	[QF_AUDIO] {"event":"waves-level","t":1792216092069,"vol":0.55,"outdoor":1,"wind":0}
+223.928	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:13.002Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":13202,"rawSeconds":220.89829999999435,"appliedSeconds":220.6009999999825,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:13.002Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.7512383401526392,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+224.009	info	[QF_AUDIO] {"event":"waves-level","t":1792216093085,"vol":0.55,"outdoor":1,"wind":0}
+225.01	info	[QF_AUDIO] {"event":"waves-level","t":1792216094085,"vol":0.55,"outdoor":1,"wind":0}
+226.027	info	[QF_AUDIO] {"event":"waves-level","t":1792216095102,"vol":0.55,"outdoor":1,"wind":0}
+227.043	info	[QF_AUDIO] {"event":"waves-level","t":1792216096119,"vol":0.55,"outdoor":1,"wind":0}
+228.059	info	[QF_AUDIO] {"event":"waves-level","t":1792216097135,"vol":0.55,"outdoor":1,"wind":0}
+228.944	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:18.019Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":13502,"rawSeconds":225.91499999998132,"appliedSeconds":225.61769999996946,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:18.019Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.3679384831890218,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+229.075	info	[QF_AUDIO] {"event":"waves-level","t":1792216098151,"vol":0.55,"outdoor":1,"wind":0}
+230.093	info	[QF_AUDIO] {"event":"waves-level","t":1792216099169,"vol":0.55,"outdoor":1,"wind":0}
+231.109	info	[QF_AUDIO] {"event":"waves-level","t":1792216100185,"vol":0.55,"outdoor":1,"wind":0}
+232.11	info	[QF_AUDIO] {"event":"waves-level","t":1792216101185,"vol":0.55,"outdoor":1,"wind":0}
+233.126	info	[QF_AUDIO] {"event":"waves-level","t":1792216102202,"vol":0.55,"outdoor":1,"wind":0}
+233.944	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:23.019Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":13802,"rawSeconds":230.91490000001636,"appliedSeconds":230.6176000000045,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:23.019Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.9678386262729362,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+234.143	info	[QF_AUDIO] {"event":"waves-level","t":1792216103219,"vol":0.55,"outdoor":1,"wind":0}
+235.16	info	[QF_AUDIO] {"event":"waves-level","t":1792216104235,"vol":0.55,"outdoor":1,"wind":0}
+236.159	info	[QF_AUDIO] {"event":"waves-level","t":1792216105235,"vol":0.55,"outdoor":1,"wind":0}
+237.16	info	[QF_AUDIO] {"event":"waves-level","t":1792216106235,"vol":0.55,"outdoor":1,"wind":0}
+238.176	info	[QF_AUDIO] {"event":"waves-level","t":1792216107252,"vol":0.55,"outdoor":1,"wind":0}
+238.944	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:28.019Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":14101,"rawSeconds":235.9149000000157,"appliedSeconds":235.61760000000385,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:28.019Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.5678387693211562,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105},
+239.192	info	[QF_AUDIO] {"event":"waves-level","t":1792216108268,"vol":0.55,"outdoor":1,"wind":0}
+240.193	info	[QF_AUDIO] {"event":"waves-level","t":1792216109269,"vol":0.55,"outdoor":1,"wind":0}
+241.211	info	[QF_AUDIO] {"event":"waves-level","t":1792216110286,"vol":0.55,"outdoor":1,"wind":0}
+242.21	info	[QF_AUDIO] {"event":"waves-level","t":1792216111286,"vol":0.55,"outdoor":1,"wind":0}
+243.278	info	[QF_AUDIO] {"event":"waves-level","t":1792216112302,"vol":0.55,"outdoor":1,"wind":0}
+243.959	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:33.035Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":14402,"rawSeconds":240.93149999997917,"appliedSeconds":240.6341999999673,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:33.035Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":0.18443891233351906,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+244.242	info	[QF_AUDIO] {"event":"waves-level","t":1792216113318,"vol":0.55,"outdoor":1,"wind":0}
+245.242	info	[QF_AUDIO] {"event":"waves-level","t":1792216114318,"vol":0.55,"outdoor":1,"wind":0}
+246.242	info	[QF_AUDIO] {"event":"waves-level","t":1792216115319,"vol":0.55,"outdoor":1,"wind":0}
+247.261	info	[QF_AUDIO] {"event":"waves-level","t":1792216116336,"vol":0.55,"outdoor":1,"wind":0}
+248.275	info	[QF_AUDIO] {"event":"waves-level","t":1792216117352,"vol":0.55,"outdoor":1,"wind":0}
+248.961	info	[OI_WORLD_FLOW] {"version":2,"integrationSource":"fb338ef+Oi-auto-room-action-clock","event":"tick","utc":"2026-10-17T05:48:38.035Z","world":{"state":"island","stable":"island","mode":"motion","hidden":false,"needsResume":false,"characterReady":true,"error":"Error: lakeside-prefab-missing: [object Set]","journey":{"phase":"idle","region":"island","target":null,"loadProgress":0,"distance":0,"total":0,"error":null,"canRetry":false,"canResume":false}},"clock":{"updates":14702,"rawSeconds":245.93160000000213,"appliedSeconds":245.63429999999028,"maxDt":0.256,"lastTickUtc":"2026-10-17T05:48:38.035Z","hideEvents":0,"showEvents":0},"jobs":[],"camera":{"position":[-12,15.5,48],"rotation":[-0.14730292557751434,-0.1330210092004142,-0.01999627425808109,0.9799017339730572],"fovVerticalDeg":42},"motion":{"clip":"idle_breathing_loop","time":1.5845390077218156,"duration":1.7999999523162842,"loop":true,"manualClock":true,"action":null,"root":[-2.1135000586509705,0,5.281400203704834],"disposed":false,"availableClips":[{"name":"stand_up","duration":1.2666670083999634},{"name":"idle_breathing_loop","duration":1.7999999523162842},{"name":"wind_sway_loop","duration":4},{"name":"walk_loop","duration":1.4333332777023315},{"name":"sit_hold","duration":2},{"name":"sit_down","duration":1.2000000476837158},{"name":"door_reach","duration":2},{"name":"walk_start","duration":1.9333332777023315},{"name":"walk_stop_bodyL","duration":1.4666666984558105},{"name":"walk_stop_bodyR","duration":1.4666666984558105}
+249.276	info	[QF_AUDIO] {"event":"waves-level","t":1792216118352,"vol":0.55,"outdoor":1,"wind":0}
+250.276	info	[QF_AUDIO] {"event":"waves-level","t":1792216119352,"vol":0.55,"outdoor":1,"wind":0}
+251.305	info	[QF_AUDIO] {"event":"waves-level","t":1792216120379,"vol":0.55,"outdoor":1,"wind":0}
+252.31	info	[QF_AUDIO] {"event":"waves-level","t":1792216121385,"vol":0.55,"outdoor":1,"wind":0}
+253.326	info	[QF_AUDIO] {"event":"waves-level","t":1792216122401,"vol":0.55,"outdoor":1,"wind":0}

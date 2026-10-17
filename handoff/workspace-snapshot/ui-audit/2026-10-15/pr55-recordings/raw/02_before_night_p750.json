@@ -1,0 +1,83 @@
+{
+ "tag": "02_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   2.96
+  ],
+  [
+   "island",
+   27.31
+  ],
+  [
+   "watchStart",
+   30.31
+  ],
+  [
+   "end",
+   42.31
+  ]
+ ],
+ "checks": {
+  "textScan": [
+   "地区流程测试",
+   "独立测试进度 · 主线 00"
+  ],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": true,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 1,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -8.54047294536279,
+      -0.9050000000000011,
+      24.624466892889643
+     ],
+     "s": 1.8338288858967446
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.748061059428882,
+      -0.9050000000000047,
+      25.39683613793519
+     ],
+     "s": 1.8853409332533932
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -2.955649173494976,
+      -0.9050000000000011,
+      26.169205382980742
+     ],
+     "s": 1.5965303811565346
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": []
+}

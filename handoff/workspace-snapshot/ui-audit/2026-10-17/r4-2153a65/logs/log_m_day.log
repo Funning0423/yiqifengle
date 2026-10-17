@@ -1,0 +1,39 @@
+lk4_meadow_day_ml 0.49 ctxEpoch 1792243547852
+lk4_meadow_day_ml 0.5 tz "Etc/GMT+1"
+lk4_meadow_day_ml 0.528 goto ""
+lk4_meadow_day_ml 1.809 home 
+lk4_meadow_day_ml 36.579 leave {"ok":true}
+lk4_meadow_day_ml 36.716 island 
+lk4_meadow_day_ml 39.719 cleared 4
+lk4_meadow_day_ml 39.721 lightIsland {"dl":[{"n":"Main Light","color":"255/255/255","illum":125000,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"day"}
+lk4_meadow_day_ml 39.831 mainlineNext "{\"next\":null,\"active\":null}"
+lk4_meadow_day_ml 39.834 mainlineTarget {"x":282,"y":575}
+lk4_meadow_day_ml 39.859 tapMainline {"q":{"x":282,"y":575},"epoch":1792243587711}
+lk4_meadow_day_ml 39.86 state "region-loading"
+lk4_meadow_day_ml 39.861 phase ["loading",0]
+lk4_meadow_day_ml 40.027 state "region-travel"
+lk4_meadow_day_ml 40.027 phase ["ready",0]
+lk4_meadow_day_ml 40.275 phase ["approach",0]
+lk4_meadow_day_ml 43.083 phase ["bridge",3.379919999957078]
+lk4_meadow_day_ml 48.685 journeyLabels ["开发预览画面，不代表最终效果"]
+lk4_meadow_day_ml 63.413 phase ["arrival",27.759719999956086]
+lk4_meadow_day_ml 71.074 state "level-loading"
+lk4_meadow_day_ml 71.074 phase ["arrived",36.9260210673453]
+lk4_meadow_day_ml 71.075 llmark 
+lk4_meadow_day_ml 71.887 state "level"
+lk4_meadow_day_ml 71.905 board "mainline-05"
+lk4_meadow_day_ml 72.443 capN 187
+lk4_meadow_day_ml 72.446 entryFrames {"n":1944,"maxMs":66.5,"at":69978,"p50":16.7,"p95":17.6,"p99":17.7,"over16_7":101,"over33":4,"over50":3,"over100":0}
+lk4_meadow_day_ml 72.446 swapFrames {"k":1905,"durPrev":15.5,"durSwap":39.3,"durNext":18.8,"next3":[18.8,18,14.1],"camsPrev":{"Main Camera":[49.43,-10.314,17.837,10.481,0]},"camsSwap":{"Main Camera":[49.43,-10.314,17.837,10.481,0],"MeadowBackgroundCamera":[49.43,9,19,42,44]},"sunPrev":["Main Light",0.433,-0.5,-0.75],"sunSwap":["Main Light",0.433,-0.5,-0.75]}
+lk4_meadow_day_ml 72.45 frJourney {"n":1945,"maxMs":66.5,"at":69978,"p50":16.7,"p95":17.6,"p99":17.7,"over16_7":101,"over33":4,"over50":3,"over100":0}
+lk4_meadow_day_ml 72.451 vis []
+lk4_meadow_day_ml 72.452 navEpoch 1792243548353.3
+lk4_meadow_day_ml 73.654 popupsPre {"popups":["ToolIntroPanel"],"keys":["moves","tool-bomb","bomb","pause","GotIt"]}
+lk4_meadow_day_ml 73.817 dismissTap {"key":"GotIt","x":195,"y":555.12}
+lk4_meadow_day_ml 75.319 popupNoResume null
+lk4_meadow_day_ml 75.32 popupsPost {"popups":[]}
+lk4_meadow_day_ml 75.512 boardDiag "{\"state\":\"ready\",\"stageId\":\"mainline-05\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"meadow\",\"bundle\":\"region_meadow\",\"prefabName\":\"env_meadow\",\"source\":{\"version\":\"v0.8.0\",\"zipSHA256\":\"24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8\",\"sourceGLBSHA256\":\"8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712\",\"derivedGLBSHA256\":\"de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db\",\"windmillSeconds\":8,\"windPeriodSeconds\":4,\"nodeCount\":67,\"meshCount\":23,\"grassInstances\":1000,\"flowerInstances\":150},\"visible\":true,\"paused\":false,\"cameraPriority\":44,\"layer\":1048576,\"motion\":{\"seconds\
+lk4_meadow_day_ml 75.513 lightBoard {"dl":[{"n":"Main Light","color":"255/255/255","illum":125000,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60},{"n":"MeadowBackgroundCamera","clear":"135/191/201","flags":7,"prio":44},{"n":"NativeUICamera","clear":"51/51/51","flags":6,"prio":50}],"dn":"day"}
+lk4_meadow_day_ml 79.517 perfBoard {"frames":240,"fps":60,"dcMed":59,"dcMax":63,"trisMed":102340,"heapMB":125.5,"texMB":132,"bufMB":34.4}
+lk4_meadow_day_ml 79.517 end 
+lk4_meadow_day_ml 79.541 audioEpochs {"rec":1792243548505,"first":1792243564548,"running":1792243548507}

@@ -1,0 +1,23 @@
+rs_day_390x844_next 0 tz "Etc/GMT+9"
+rs_day_390x844_next 0.027 goto 
+rs_day_390x844_next 1.439 home 
+rs_day_390x844_next 14.634 homeHold12s 
+rs_day_390x844_next 14.768 leave "{}"
+rs_day_390x844_next 60.321 island 
+rs_day_390x844_next 64.103 tapMainline {"x":282,"y":575}
+rs_day_390x844_next 71.261 board {"stage":"mainline-01","moves":22}
+rs_day_390x844_next 110.002 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rs_day_390x844_next 113.501 tapBtn {"x":116.5,"y":719}
+rs_day_390x844_next 120.785 stateAfter "level"
+rs_day_390x844_next 120.84 popAfter []
+rs_day_390x844_next 126.406 reloaded 
+rs_day_390x844_next 126.407 storageDiffKeys {"d01":["dot-runtime-diagnostics-20261010:world-flow","dot-mainline-r1-isolated-20261009:forest-mainline-cocos-r1-active","dot-mainline-r1-isolated-20261009:forest-v33-journey"],"d12":["dot-runtime-diagnostics-20261010:world-flow"]}
+rs_day_390x844_next 126.408 end 
+/Users/<mac-user>/qf-ib-tmp/rec11.cjs:50
+mon=false;try{const b64=await p.evaluate(()=>window.__rec.stop());fs.writeFileSync(OUT+'/'+tag+'.audio.webm',Buffer.from(b64,'base64'));M('audioSaved',await p.evaluate(()=>({start:window.__rec.startEpoch,run:window.__rec.runningEpoch,first:window.__rec.firstSoundEpoch,err:window.__rec.err})).then(o=>({startMs:o.start-T0abs,runMs:(o.run||0)-T0abs,firstMs:(o.first||0)-T0abs,err:o.err})).catch(e=>String(e)))}catch(e){M('audioFail',String(e).slice(0,200))}
+   ^
+
+ReferenceError: mon is not defined
+    at /Users/<mac-user>/qf-ib-tmp/rec11.cjs:50:4
+
+Node.js v24.14.0

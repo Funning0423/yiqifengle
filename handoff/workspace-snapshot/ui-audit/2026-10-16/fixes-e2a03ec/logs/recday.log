@@ -1,0 +1,32 @@
+ib_day_390 0 tz "Etc/GMT+10"
+ib_day_390 0.035 goto 
+ib_day_390 1.281 home 
+ib_day_390 13.358 homeHold12s 
+ib_day_390 13.36 leave "{}"
+ib_day_390 44.143 island 
+ib_day_390 46.802 tapMainline {"x":282,"y":575}
+ib_day_390 53.815 board {"stage":"mainline-01","moves":22}
+ib_day_390 82.987 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+ib_day_390 85.638 tapChest [195,474.6]
+ib_day_390 89.283 resultPop ["ResultPanel"]
+ib_day_390 89.308 tapBackIsland [267,708.5]
+ib_day_390 89.309 island2 "island"
+ib_day_390 92.309 travelCall 
+ib_day_390 119.762 travelRet "{\"ok\":true}"
+ib_day_390 119.764 arrived 
+ib_day_390 123.899 tapHome {"x":283.5,"y":776}
+ib_day_390 124.405 home2 
+ib_day_390 132.481 nightProp "false"
+ib_day_390 132.481 end 
+ib_day_390 132.516 audioSaved {"startMs":155,"runMs":157,"firstMs":24259,"err":[]}
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at sleep (/Users/<mac-user>/qf-fx-tmp/rec10.cjs:16:19)
+    at /Users/<mac-user>/qf-fx-tmp/rec10.cjs:20:280 {
+  log: []
+}
+
+Node.js v24.14.0

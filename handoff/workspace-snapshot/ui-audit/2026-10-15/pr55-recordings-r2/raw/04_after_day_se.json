@@ -1,0 +1,198 @@
+{
+ "tag": "04_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.06
+  ],
+  [
+   "home",
+   3.88
+  ],
+  [
+   "board",
+   29.58
+  ],
+  [
+   "swap",
+   33.94
+  ],
+  [
+   "result",
+   36.47
+  ],
+  [
+   "claim",
+   39.1
+  ],
+  [
+   "accept",
+   42.62
+  ],
+  [
+   "end",
+   45.53
+  ]
+ ],
+ "checks": {
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "result": [
+   [
+    "PopupPanel",
+    "1130 分|6 步 · 剩 22 步 · 已保存 · 主线 05 与潮汐挑战已开放；前往风车草甸|打开宝箱|领取地区道具|下一关|回小岛|‹|›|1 / 2|",
+    12,
+    95,
+    351,
+    526
+   ],
+   [
+    "Next",
+    "下一关",
+    36,
+    553,
+    148,
+    48
+   ],
+   [
+    "Home",
+    "回小岛",
+    192,
+    553,
+    148,
+    48
+   ],
+   [
+    "ResultNextPage",
+    "›",
+    315,
+    99,
+    48,
+    48
+   ],
+   [
+    "ResultStars",
+    "",
+    128,
+    159,
+    120,
+    44
+   ],
+   [
+    "ResultFlow-Score-0",
+    "1130 分",
+    36,
+    206,
+    303,
+    46
+   ],
+   [
+    "Score",
+    "1130 分",
+    36,
+    206,
+    303,
+    46
+   ],
+   [
+    "ResultFlow-reward-chest",
+    "全部领取",
+    78,
+    322,
+    220,
+    220
+   ],
+   [
+    "ClaimAll",
+    "全部领取",
+    78,
+    486,
+    220,
+    56
+   ]
+  ],
+  "rewardPanels": 1,
+  "reward": [
+   [
+    "ResultChest3D",
+    "",
+    119,
+    247,
+    138,
+    138
+   ],
+   [
+    "Gain-charm",
+    "",
+    46,
+    236,
+    142,
+    110
+   ],
+   [
+    "Gain-tideNet",
+    "×1",
+    203,
+    236,
+    110,
+    110
+   ],
+   [
+    "GainList",
+    "装扮 ×1  ·  潮汐网 ×1",
+    113,
+    393,
+    148,
+    28
+   ],
+   [
+    "Accept",
+    "收下",
+    83,
+    461,
+    210,
+    52
+   ]
+  ],
+  "popupsAfter": [
+   "ResultPanel"
+  ],
+  "claimLeft": []
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

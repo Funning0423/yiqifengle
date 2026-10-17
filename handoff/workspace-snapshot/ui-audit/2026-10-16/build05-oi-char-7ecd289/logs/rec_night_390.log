@@ -1,0 +1,18 @@
+oc_night_390 0.001 tz "Etc/GMT-4"
+oc_night_390 0.03 goto 
+oc_night_390 3.444 home 
+oc_night_390 11.591 nightKeys "{}"
+oc_night_390 20.593 seatShot 
+oc_night_390 23.86 leave "{}"
+oc_night_390 102.92 island 
+oc_night_390 108.647 tapMainline {"x":282,"y":575}
+oc_night_390 116.917 board {"stage":"mainline-01","moves":22,"goals":{"type0":15},"pop":["ToolIntroPanel"]}
+oc_night_390 125.15 playShot 
+oc_night_390 156.114 levelEnd {"st":"result.saved","status":"won","moves":11,"goals":{"type0":0},"pop":["ResultPanel"]}
+oc_night_390 159.116 resultShot 
+oc_night_390 159.518 exitLevel {"ok":true}
+oc_night_390 159.806 island2 "island"
+oc_night_390 162.807 returnHomeCall 
+oc_night_390 202.81 returnHomeRet "TIMEOUT 40s"
+oc_night_390 237.816 homeAgain "home"
+oc_night_390 248.466 end 

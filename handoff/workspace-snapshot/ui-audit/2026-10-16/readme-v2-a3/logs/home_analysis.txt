@@ -1,0 +1,15 @@
+readme-v2-a3 ib_day_390: home@119.65 peak 0.942 n>=0.999 0 n>=0.98 0 | whole-file peak 0.942 n>=0.999 0
+   rms(0.25s) home-0.5..+2.75: -17 -27 -27 -34 -33 -30 -25 -26 -26 -28 -28 -28 -28 -28
+    119.375 {"event":"waves-level","t":1792209370841,"vol":0.355,"outdoor":1,"wind":0}
+    119.657 {"event":"waves-play","t":1792209371122,"vol":0.515,"outdoor":0,"wind":0}
+    120.408 {"event":"waves-level","t":1792209371874,"vol":0.023,"outdoor":0,"wind":0}
+readme-v2-a3 ib_night_390: home@119.39 peak 1.000 n>=0.999 8 n>=0.98 11 | whole-file peak 1.000 n>=0.999 8
+   rms(0.25s) home-0.5..+2.75: -16 -27 -27 -35 -33 -30 -25 -26 -26 -28 -28 -28 -28 -28
+    119.162 {"event":"waves-level","t":1792209499102,"vol":0.287,"outdoor":1,"wind":0}
+    119.394 {"event":"waves-play","t":1792209499334,"vol":0.516,"outdoor":0,"wind":0}
+    120.195 {"event":"waves-level","t":1792209500135,"vol":0.019,"outdoor":0,"wind":0}
+readme-v2-a3 ib_day_390_vis3000: home@129.77 peak 0.779 n>=0.999 0 n>=0.98 0 | whole-file peak 0.879 n>=0.999 0
+   rms(0.25s) home-0.5..+2.75: -18 -32 -34 -35 -33 -30 -25 -26 -26 -28 -28 -28 -28 -28
+    129.522 {"event":"waves-level","t":1792209637681,"vol":0.307,"outdoor":1,"wind":0}
+    129.77 {"event":"waves-play","t":1792209637929,"vol":0.516,"outdoor":0,"wind":0}
+    130.554 {"event":"waves-level","t":1792209638713,"vol":0.02,"outdoor":0,"wind":0}

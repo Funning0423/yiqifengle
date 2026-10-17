@@ -1,0 +1,1756 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22",
+  "files": [
+    "__original-animation-0.bin",
+    "__original-animation-1.bin",
+    "__original-animation-2.bin",
+    "__original-animation-3.bin"
+  ],
+  "subMetas": {
+    "67093": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@67093",
+      "displayName": "",
+      "id": "67093",
+      "name": "robot_watering.animation",
+      "userData": {
+        "gltfIndex": 1,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "79961": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@79961",
+      "displayName": "",
+      "id": "79961",
+      "name": "state_ring_before_stars.mesh",
+      "userData": {
+        "gltfIndex": 44,
+        "triangleCount": 84
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "92839": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@92839",
+      "displayName": "",
+      "id": "92839",
+      "name": "state_gate_after.mesh",
+      "userData": {
+        "gltfIndex": 40,
+        "triangleCount": 92
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "26d35": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@26d35",
+      "displayName": "",
+      "id": "26d35",
+      "name": "env_sky_cloud_small.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 584
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "af3a7": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@af3a7",
+      "displayName": "",
+      "id": "af3a7",
+      "name": "env_sky_cloudsea.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 3037
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4b425": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4b425",
+      "displayName": "",
+      "id": "4b425",
+      "name": "env_sky_cumulus_far.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 1036
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e3905": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e3905",
+      "displayName": "",
+      "id": "e3905",
+      "name": "env_sky_islets_far.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 1040
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "79db1": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@79db1",
+      "displayName": "",
+      "id": "79db1",
+      "name": "chr_robot_gardener_mesh.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 16308
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4f04f": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4f04f",
+      "displayName": "",
+      "id": "4f04f",
+      "name": "env_sky_birds.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 28
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "458fa": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@458fa",
+      "displayName": "",
+      "id": "458fa",
+      "name": "env_sky_floatingrocks.001.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 270
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c06f6": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@c06f6",
+      "displayName": "",
+      "id": "c06f6",
+      "name": "env_sky_floatingrocks.002.mesh",
+      "userData": {
+        "gltfIndex": 7,
+        "triangleCount": 270
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "de555": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@de555",
+      "displayName": "",
+      "id": "de555",
+      "name": "env_sky_floatingrocks.003.mesh",
+      "userData": {
+        "gltfIndex": 8,
+        "triangleCount": 270
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4bd23": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4bd23",
+      "displayName": "",
+      "id": "4bd23",
+      "name": "env_sky_floatingrocks_cards.001.mesh",
+      "userData": {
+        "gltfIndex": 9,
+        "triangleCount": 100
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e21d1": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e21d1",
+      "displayName": "",
+      "id": "e21d1",
+      "name": "env_sky_floatingrocks_cards.002.mesh",
+      "userData": {
+        "gltfIndex": 10,
+        "triangleCount": 128
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "98dd8": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@98dd8",
+      "displayName": "",
+      "id": "98dd8",
+      "name": "env_sky_floatingrocks_cards.003.mesh",
+      "userData": {
+        "gltfIndex": 11,
+        "triangleCount": 124
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4c83a": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4c83a",
+      "displayName": "",
+      "id": "4c83a",
+      "name": "env_sky_greattree_canopy.mesh",
+      "userData": {
+        "gltfIndex": 12,
+        "triangleCount": 10480
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b65dd": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@b65dd",
+      "displayName": "",
+      "id": "b65dd",
+      "name": "env_sky_greattree_canopy_cards.mesh",
+      "userData": {
+        "gltfIndex": 13,
+        "triangleCount": 440
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f71a8": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f71a8",
+      "displayName": "",
+      "id": "f71a8",
+      "name": "env_sky_island_vine_cards.mesh",
+      "userData": {
+        "gltfIndex": 14,
+        "triangleCount": 184
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a7218": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a7218",
+      "displayName": "",
+      "id": "a7218",
+      "name": "env_sky_island_vines.mesh",
+      "userData": {
+        "gltfIndex": 15,
+        "triangleCount": 6992
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "fa084": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@fa084",
+      "displayName": "",
+      "id": "fa084",
+      "name": "env_sky_island_windcore.mesh",
+      "userData": {
+        "gltfIndex": 16,
+        "triangleCount": 50
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7f5e0": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@7f5e0",
+      "displayName": "",
+      "id": "7f5e0",
+      "name": "env_sky_pennant_01.mesh",
+      "userData": {
+        "gltfIndex": 17,
+        "triangleCount": 28
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dbfd3": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@dbfd3",
+      "displayName": "",
+      "id": "dbfd3",
+      "name": "env_sky_pennant_02.mesh",
+      "userData": {
+        "gltfIndex": 18,
+        "triangleCount": 28
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2107d": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2107d",
+      "displayName": "",
+      "id": "2107d",
+      "name": "env_sky_rope_root_01.mesh",
+      "userData": {
+        "gltfIndex": 19,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "99cb6": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@99cb6",
+      "displayName": "",
+      "id": "99cb6",
+      "name": "env_sky_rope_root_02.mesh",
+      "userData": {
+        "gltfIndex": 20,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e9db6": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e9db6",
+      "displayName": "",
+      "id": "e9db6",
+      "name": "env_sky_rope_root_03.mesh",
+      "userData": {
+        "gltfIndex": 21,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7f47c": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@7f47c",
+      "displayName": "",
+      "id": "7f47c",
+      "name": "env_sky_rope_root_04.mesh",
+      "userData": {
+        "gltfIndex": 22,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1d43b": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1d43b",
+      "displayName": "",
+      "id": "1d43b",
+      "name": "env_sky_rope_root_05.mesh",
+      "userData": {
+        "gltfIndex": 23,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c6b9f": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@c6b9f",
+      "displayName": "",
+      "id": "c6b9f",
+      "name": "env_sky_rope_root_06.mesh",
+      "userData": {
+        "gltfIndex": 24,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "93e4b": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@93e4b",
+      "displayName": "",
+      "id": "93e4b",
+      "name": "env_sky_rope_root_07.mesh",
+      "userData": {
+        "gltfIndex": 25,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d85b2": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d85b2",
+      "displayName": "",
+      "id": "d85b2",
+      "name": "env_sky_rope_root_08.mesh",
+      "userData": {
+        "gltfIndex": 26,
+        "triangleCount": 198
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6a532": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@6a532",
+      "displayName": "",
+      "id": "6a532",
+      "name": "env_sky_ruins.mesh",
+      "userData": {
+        "gltfIndex": 27,
+        "triangleCount": 6637
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1af31": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1af31",
+      "displayName": "",
+      "id": "1af31",
+      "name": "env_sky_starring.mesh",
+      "userData": {
+        "gltfIndex": 28,
+        "triangleCount": 1188
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0a7f2": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0a7f2",
+      "displayName": "",
+      "id": "0a7f2",
+      "name": "state_ring_after_stars.mesh",
+      "userData": {
+        "gltfIndex": 29,
+        "triangleCount": 84
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "786ee": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@786ee",
+      "displayName": "",
+      "id": "786ee",
+      "name": "env_sky_static_foliage_cards.mesh",
+      "userData": {
+        "gltfIndex": 30,
+        "triangleCount": 5790
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9de8f": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@9de8f",
+      "displayName": "",
+      "id": "9de8f",
+      "name": "env_sky_static_palette.mesh",
+      "userData": {
+        "gltfIndex": 31,
+        "triangleCount": 20028
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "bf591": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@bf591",
+      "displayName": "",
+      "id": "bf591",
+      "name": "env_sky_static_rock_strata.mesh",
+      "userData": {
+        "gltfIndex": 32,
+        "triangleCount": 1873
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "80c82": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@80c82",
+      "displayName": "",
+      "id": "80c82",
+      "name": "env_sky_waterfall_mist.mesh",
+      "userData": {
+        "gltfIndex": 33,
+        "triangleCount": 320
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "61c88": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@61c88",
+      "displayName": "",
+      "id": "61c88",
+      "name": "env_sky_windchime_01.mesh",
+      "userData": {
+        "gltfIndex": 34,
+        "triangleCount": 60
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "cdd5c": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@cdd5c",
+      "displayName": "",
+      "id": "cdd5c",
+      "name": "state_bridge_after.mesh",
+      "userData": {
+        "gltfIndex": 35,
+        "triangleCount": 404
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4b43f": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4b43f",
+      "displayName": "",
+      "id": "4b43f",
+      "name": "state_bridge_before.mesh",
+      "userData": {
+        "gltfIndex": 36,
+        "triangleCount": 44
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ad813": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@ad813",
+      "displayName": "",
+      "id": "ad813",
+      "name": "state_court_after.mesh",
+      "userData": {
+        "gltfIndex": 37,
+        "triangleCount": 38
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1e8b2": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1e8b2",
+      "displayName": "",
+      "id": "1e8b2",
+      "name": "state_court_after_flowers.mesh",
+      "userData": {
+        "gltfIndex": 38,
+        "triangleCount": 144
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "62d24": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@62d24",
+      "displayName": "",
+      "id": "62d24",
+      "name": "state_court_before.mesh",
+      "userData": {
+        "gltfIndex": 39,
+        "triangleCount": 38
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "62c1e": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@62c1e",
+      "displayName": "",
+      "id": "62c1e",
+      "name": "state_gate_after_flowers.mesh",
+      "userData": {
+        "gltfIndex": 41,
+        "triangleCount": 24
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b6eeb": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@b6eeb",
+      "displayName": "",
+      "id": "b6eeb",
+      "name": "state_gate_before.mesh",
+      "userData": {
+        "gltfIndex": 42,
+        "triangleCount": 12
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3d21f": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3d21f",
+      "displayName": "",
+      "id": "3d21f",
+      "name": "state_ring_before.mesh",
+      "userData": {
+        "gltfIndex": 43,
+        "triangleCount": 1188
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6173d": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@6173d",
+      "displayName": "",
+      "id": "6173d",
+      "name": "sky_ambient_loop.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 24.03333282470703
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "955da": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@955da",
+      "displayName": "",
+      "id": "955da",
+      "name": "robot_idle.animation",
+      "userData": {
+        "gltfIndex": 2,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2.6666667461395264
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "5edaf": {
+      "importer": "gltf-animation",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@5edaf",
+      "displayName": "",
+      "id": "5edaf",
+      "name": "robot_give_flower.animation",
+      "userData": {
+        "gltfIndex": 3,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 2
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "525f1": {
+      "importer": "gltf-skeleton",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@525f1",
+      "displayName": "",
+      "id": "525f1",
+      "name": "chr_robot_gardener_rig.skeleton",
+      "userData": {
+        "gltfIndex": 0,
+        "jointsLength": 18
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d2a4d": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d",
+      "displayName": "",
+      "id": "d2a4d",
+      "name": "tex_sky_palette_256.image",
+      "userData": {
+        "gltfIndex": 1,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "a9fef": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a9fef",
+      "displayName": "",
+      "id": "a9fef",
+      "name": "tex_sky_foliage_512.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": true,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "f20ef": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f20ef",
+      "displayName": "",
+      "id": "f20ef",
+      "name": "tex_sky_rock_strata_512.image",
+      "userData": {
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        },
+        "legacyUnmatchedImage": true
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@a9fef"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0089c": {
+      "importer": "texture",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0089c",
+      "displayName": "",
+      "id": "0089c",
+      "name": "UnnamedTexture-2.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f20ef"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1086c": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1086c",
+      "displayName": "",
+      "id": "1086c",
+      "name": "M_sky_cloud.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4a919": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4a919",
+      "displayName": "",
+      "id": "4a919",
+      "name": "M_sky_palette.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a2f67": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@a2f67",
+      "displayName": "",
+      "id": "a2f67",
+      "name": "M_sky_palette_emissive.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dc311": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@dc311",
+      "displayName": "",
+      "id": "dc311",
+      "name": "M_sky_foliage_cards.material",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e17d2": {
+      "importer": "gltf-material",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e17d2",
+      "displayName": "",
+      "id": "e17d2",
+      "name": "M_sky_rock_strata.material",
+      "userData": {
+        "gltfIndex": 4
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2eeae": {
+      "importer": "gltf-scene",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae",
+      "displayName": "",
+      "id": "2eeae",
+      "name": "env_skycity.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0c882": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0c882",
+      "displayName": "",
+      "id": "0c882",
+      "name": "tex_robot_metal_normal_1024.image",
+      "userData": {
+        "gltfIndex": 2,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "3a753": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3a753",
+      "displayName": "",
+      "id": "3a753",
+      "name": "tex_robot_metal_albedo_1024.image",
+      "userData": {
+        "gltfIndex": 3,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "2ac06": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2ac06",
+      "displayName": "",
+      "id": "2ac06",
+      "name": "tex_robot_metal_orm_1024.image",
+      "userData": {
+        "gltfIndex": 4,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "d6ddf": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d6ddf",
+      "displayName": "",
+      "id": "d6ddf",
+      "name": "tex_sky_grass_tint_normal_512.image",
+      "userData": {
+        "gltfIndex": 5,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "86222": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@86222",
+      "displayName": "",
+      "id": "86222",
+      "name": "tex_sky_grass_tint_albedo_512.image",
+      "userData": {
+        "gltfIndex": 6,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "e6539": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e6539",
+      "displayName": "",
+      "id": "e6539",
+      "name": "tex_sky_grass_tint_orm_512.image",
+      "userData": {
+        "gltfIndex": 7,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "f5bc6": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f5bc6",
+      "displayName": "",
+      "id": "f5bc6",
+      "name": "tex_sky_rock_strata_normal_512.image",
+      "userData": {
+        "gltfIndex": 8,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "f4622": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f4622",
+      "displayName": "",
+      "id": "f4622",
+      "name": "tex_sky_rock_strata_albedo_512.image",
+      "userData": {
+        "gltfIndex": 9,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "946cb": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@946cb",
+      "displayName": "",
+      "id": "946cb",
+      "name": "tex_sky_rock_strata_orm_512.image",
+      "userData": {
+        "gltfIndex": 10,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "397be": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@397be",
+      "displayName": "",
+      "id": "397be",
+      "name": "tex_laputa_stone_normal_1024.image",
+      "userData": {
+        "gltfIndex": 11,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "52729": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@52729",
+      "displayName": "",
+      "id": "52729",
+      "name": "tex_laputa_stone_albedo_1024.image",
+      "userData": {
+        "gltfIndex": 12,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "428fb": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@428fb",
+      "displayName": "",
+      "id": "428fb",
+      "name": "tex_laputa_stone_orm_1024.image",
+      "userData": {
+        "gltfIndex": 13,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "474c9": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@474c9",
+      "displayName": "",
+      "id": "474c9",
+      "name": "tex_sky_bark_normal_512.image",
+      "userData": {
+        "gltfIndex": 14,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "81084": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@81084",
+      "displayName": "",
+      "id": "81084",
+      "name": "tex_sky_bark_albedo_512.image",
+      "userData": {
+        "gltfIndex": 15,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "3fdf7": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3fdf7",
+      "displayName": "",
+      "id": "3fdf7",
+      "name": "tex_sky_bark_orm_512.image",
+      "userData": {
+        "gltfIndex": 16,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "encode": false,
+      "quantize": false
+    },
+    "imageMetas": [
+      {
+        "name": "tex_sky_palette_256",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d2a4d"
+      },
+      {
+        "name": "tex_sky_foliage_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@a9fef"
+      },
+      {
+        "name": "tex_sky_rock_strata_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f20ef"
+      },
+      {
+        "name": "tex_robot_metal_normal_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@0c882"
+      },
+      {
+        "name": "tex_robot_metal_albedo_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@3a753"
+      },
+      {
+        "name": "tex_robot_metal_orm_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@2ac06"
+      },
+      {
+        "name": "tex_sky_grass_tint_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d6ddf"
+      },
+      {
+        "name": "tex_sky_grass_tint_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@86222"
+      },
+      {
+        "name": "tex_sky_grass_tint_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@e6539"
+      },
+      {
+        "name": "tex_sky_rock_strata_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f5bc6"
+      },
+      {
+        "name": "tex_sky_rock_strata_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f4622"
+      },
+      {
+        "name": "tex_sky_rock_strata_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@946cb"
+      },
+      {
+        "name": "tex_laputa_stone_normal_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@397be"
+      },
+      {
+        "name": "tex_laputa_stone_albedo_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@52729"
+      },
+      {
+        "name": "tex_laputa_stone_orm_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@428fb"
+      },
+      {
+        "name": "tex_sky_bark_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@474c9"
+      },
+      {
+        "name": "tex_sky_bark_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@81084"
+      },
+      {
+        "name": "tex_sky_bark_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@3fdf7"
+      }
+    ],
+    "animationImportSettings": [
+      {
+        "name": "sky_ambient_loop",
+        "duration": 24.03333282470703,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "sky_ambient_loop",
+            "from": 0,
+            "to": 24.03333282470703,
+            "wrapMode": 2,
+            "previousId": "6173d"
+          }
+        ]
+      },
+      {
+        "name": "robot_watering",
+        "duration": 2,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "robot_watering",
+            "from": 0,
+            "to": 2,
+            "wrapMode": 2,
+            "previousId": "67093"
+          }
+        ]
+      },
+      {
+        "name": "robot_idle",
+        "duration": 2.6666667461395264,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "robot_idle",
+            "from": 0,
+            "to": 2.6666667461395264,
+            "wrapMode": 2,
+            "previousId": "955da"
+          }
+        ]
+      },
+      {
+        "name": "robot_give_flower",
+        "duration": 2,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "robot_give_flower",
+            "from": 0,
+            "to": 2,
+            "wrapMode": 2,
+            "previousId": "5edaf"
+          }
+        ]
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@26d35",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@af3a7",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4b425",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e3905",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@79db1",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4f04f",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@458fa",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@c06f6",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@de555",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4bd23",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e21d1",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@98dd8",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4c83a",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@b65dd",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@f71a8",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@a7218",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@fa084",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@7f5e0",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@dbfd3",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@2107d",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@99cb6",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e9db6",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@7f47c",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1d43b",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@c6b9f",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@93e4b",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d85b2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@6a532",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1af31",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@0a7f2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@786ee",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@9de8f",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@bf591",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@80c82",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@61c88",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@cdd5c",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4b43f",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@ad813",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1e8b2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@62d24",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@92839",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@62c1e",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@b6eeb",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@3d21f",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@79961"
+      ],
+      "skeletons": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@525f1"
+      ],
+      "textures": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@3effa",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@221a5",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@0089c"
+      ],
+      "materials": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@1086c",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@4a919",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@a2f67",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@dc311",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@e17d2"
+      ],
+      "scenes": [
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae"
+      ]
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+ "tag": "15_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.13
+  ],
+  [
+   "home",
+   4.64
+  ],
+  [
+   "island",
+   34.15
+  ],
+  [
+   "bagPopup",
+   36.05
+  ],
+  [
+   "board",
+   83.51
+  ],
+  [
+   "board2",
+   88.26
+  ],
+  [
+   "end",
+   88.9
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+1",
+  "rects": {
+   "mainline": {
+    "x": 180,
+    "y": 483,
+    "width": 183,
+    "height": 142
+   }
+  },
+  "bagPopup": [],
+  "closeBtn": [],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "pauseBtn": {
+   "x": 38,
+   "y": 67
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

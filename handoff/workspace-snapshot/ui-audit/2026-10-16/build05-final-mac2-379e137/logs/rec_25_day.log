@@ -1,0 +1,22 @@
+25_fin_day_p750 goto
+25_fin_day_p750 home
+25_fin_day_p750 homeHold
+25_fin_day_p750 homeHoldEnd
+25_fin_day_p750 board8
+25_fin_day_p750 result
+25_fin_day_p750 result8
+25_fin_day_p750 chest8
+25_fin_day_p750 travelStart8
+25_fin_day_p750 travelEnd8
+25_fin_day_p750 arrive09
+25_fin_day_p750 arrived09+4s
+25_fin_day_p750 BACK [205.66,"before",null,"level"]
+25_fin_day_p750 BACK [206.72,"exitLevel",{"ok":true},"skycity"]
+25_fin_day_p750 BACK [207.81,"exitSkycity",{"ok":false,"reason":"return-route-not-yet-available"},"skycity"]
+25_fin_day_p750 BACK [208.46,"travelRegion(island)",{"ok":false,"reason":"journey-wrong-origin"},"skycity"]
+25_fin_day_p750 BACK [209.18,"afterTravel",null,"skycity"]
+25_fin_day_p750 BACK [209.78,"returnHome",{"ok":false,"reason":"wrong-state"},"skycity"]
+25_fin_day_p750 backHomeFail
+25_fin_day_p750 BACK [272.35,"final",null,"skycity"]
+25_fin_day_p750 backHome+4s
+25_fin_day_p750 end

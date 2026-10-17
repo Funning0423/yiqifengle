@@ -1,0 +1,15 @@
+25_la2_night_p750 goto
+25_la2_night_p750 home
+25_la2_night_p750 homeHold
+25_la2_night_p750 homeHoldEnd
+25_la2_night_p750 board8
+25_la2_night_p750 result
+25_la2_night_p750 result8
+25_la2_night_p750 chest8
+25_la2_night_p750 travelStart8
+25_la2_night_p750 travelEnd8
+25_la2_night_p750 arrive09
+25_la2_night_p750 arrived09+4s
+25_la2_night_p750 backHomeFail
+25_la2_night_p750 backHome+4s
+25_la2_night_p750 end

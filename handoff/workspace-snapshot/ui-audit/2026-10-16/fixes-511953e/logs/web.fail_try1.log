@@ -1,0 +1,1286 @@
+init **** success
+Arguments:
+  /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator: true
+  project: /Users/<mac-user>/qf-fx5-tmp/repo/creator-build-project
+  build: configPath=/Users/<mac-user>/qf-fx5-tmp/webm.json
+  dev: false
+  home: /Users/<mac-user>/.CocosCreator
+ 
+[Package] metrics@1.0.0 enable
+[Package] menu@1.0.0 enable
+[Package] profile@1.0.0 enable
+[Package] project@1.0.6 enable
+[Package] messages@1.0.0 enable
+[Package] utils@1.0.0 enable
+[Package] program@1.0.4 enable
+[Package] tester@1.0.0 enable
+[Package] information@1.0.1 enable
+[Package] preferences@1.0.0 enable
+[EditorQuickCompiler]Version information looks good.
+Note, quick compiler does not get launched.
+engine:compile-builtin-engine-success (57ms)
+Load engine in /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine
+Register native engine in /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/native
+[Package] engine@1.0.12 enable
+[Package] programming@1.0.0 enable
+[Package] window@1.0.0 enable
+Request namespace: device-list
+[Package] device@1.0.1 enable
+[Package] ui-kit@1.0.1 enable
+[Package] asset-db@1.0.0 enable
+[Package] scene@1.0.3 enable
+[Package] server@1.0.0 enable
+[Package] preview@1.0.1 enable
+Preview import map: {
+  "imports": {
+    "cc": "cce:/internal/x/cc",
+    "cc/env": "cc/editor/populate-internal-constants",
+    "cce.env": "cc/editor/populate-internal-constants",
+    "cc/userland/macro": "./userland/macro"
+  }
+}
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1434: Unexpected keyword or identifier.
+@cocos/rollup-plugin-typescript TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1109: Expression expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+@cocos/rollup-plugin-typescript TS1005: ',' expected.
+@cocos/rollup-plugin-typescript TS1005: ')' expected.
+@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+@cocos/rollup-plugin-typescript TS1005: ';' expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[Package] animator@1.0.0 enable
+[Build] internalRegister pkg(scene) in android platform success!
+[Package] builder@1.3.9 enable
+[Build] internalRegister pkg(scene) in google-play platform success!
+[Build] internalRegister pkg(scene) in ohos platform success!
+[Build] internalRegister pkg(scene) in harmonyos-next platform success!
+[Build] internalRegister pkg(scene) in huawei-agc platform success!
+[Build] internalRegister pkg(scene) in ios platform success!
+[Build] internalRegister pkg(scene) in windows platform success!
+[Build] internalRegister pkg(scene) in mac platform success!
+[Build] internalRegister pkg(scene) in linux platform success!
+[Build] internalRegister pkg(scene) in alipay-mini-game platform success!
+[Build] internalRegister pkg(scene) in taobao-creative-app platform success!
+[Build] internalRegister pkg(scene) in taobao-mini-game platform success!
+[Build] internalRegister pkg(scene) in bytedance-mini-game platform success!
+[Build] internalRegister pkg(scene) in oppo-mini-game platform success!
+[Build] internalRegister pkg(scene) in huawei-quick-game platform success!
+[Build] internalRegister pkg(scene) in migu-mini-game platform success!
+[Build] internalRegister pkg(scene) in honor-mini-game platform success!
+[Build] internalRegister pkg(scene) in vivo-mini-game platform success!
+[Build] internalRegister pkg(scene) in xiaomi-quick-game platform success!
+[Build] internalRegister pkg(scene) in baidu-mini-game platform success!
+[Build] internalRegister pkg(scene) in wechatgame platform success!
+[Build] internalRegister pkg(scene) in wechatprogram platform success!
+[Build] internalRegister pkg(scene) in link-sure platform success!
+[Build] internalRegister pkg(scene) in qtt platform success!
+[Build] internalRegister pkg(scene) in fb-instant-games platform success!
+[Build] internalRegister pkg(scene) in web-desktop platform success!
+[Build] internalRegister pkg(scene) in web-mobile platform success!
+[Build] internalRegister pkg(scene) in cocos-runtime platform success!
+[Build] internalRegister pkg(scene) in platform-example platform success!
+[Build] internalRegister pkg(scene) in online platform success!
+[Build] internalRegister pkg(scene) in xr-meta platform success!
+[Build] internalRegister pkg(scene) in xr-huaweivr platform success!
+[Build] internalRegister pkg(scene) in xr-pico platform success!
+[Build] internalRegister pkg(scene) in xr-rokid platform success!
+[Build] internalRegister pkg(scene) in xr-monado platform success!
+[Build] internalRegister pkg(scene) in xr-spaces platform success!
+[Build] internalRegister pkg(scene) in xr-seed platform success!
+[Build] internalRegister pkg(scene) in ar-android platform success!
+[Build] internalRegister pkg(scene) in ar-ios platform success!
+[Build] internalRegister pkg(scene) in xr-gsxr platform success!
+[Build] internalRegister pkg(scene) in xr-yvr platform success!
+[Build] internalRegister pkg(scene) in xr-htc platform success!
+[Build] internalRegister pkg(scene) in xr-iqiyi platform success!
+[Build] internalRegister pkg(scene) in xr-skyworth platform success!
+[Build] internalRegister pkg(scene) in xr-ffalcon platform success!
+[Build] internalRegister pkg(scene) in xr-nreal platform success!
+[Build] internalRegister pkg(scene) in xr-inmo platform success!
+[Build] internalRegister pkg(scene) in xr-lenovo platform success!
+[Build] internalRegister pkg(scene) in android-hmi platform success!
+[Build-plugin] register pkg scene: 10ms
+Builder PluginManager init: 10ms
+[Package] shortcuts@1.0.1 enable
+[Package] animation-graph@1.0.0 enable
+[Package] about@1.0.0 enable
+[Package] assets@1.0.0 enable
+[Package] console@1.0.0 enable
+[Package] crash-reporter@1.0.0 enable
+[Package] extension@3.1.4 enable
+[Package] feedback@1.0.0 enable
+[Package] hierarchy@1.0.0 enable
+[Package] inspector@1.0.0 enable
+[Package] light-probe@1.0.4 enable
+[Package] lightmap@1.0.4 enable
+[Package] node-library@1.0.1 enable
+[Package] package-asset@1.0.3 enable
+[Package] process@1.0.0 enable
+[Package] reference-image@1.0.0 enable
+[Package] reflection-probe@1.0.4 enable
+[Package] engine-extends@1.0.0 enable
+[Package] adsense-h5g-plugin@1.0.1 enable
+[Build] internalRegister pkg(adsense-h5g-plugin) in android platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in google-play platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ohos platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in harmonyos-next platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in huawei-agc platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ios platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in windows platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in mac platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in linux platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in alipay-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in taobao-creative-app platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in taobao-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in bytedance-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in oppo-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in huawei-quick-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in migu-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in honor-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in vivo-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xiaomi-quick-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in baidu-mini-game platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in wechatgame platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in wechatprogram platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in link-sure platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in qtt platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in fb-instant-games platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-desktop platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-mobile platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in cocos-runtime platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in platform-example platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in online platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-meta platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-huaweivr platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-pico platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-rokid platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-monado platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-spaces platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-seed platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ar-android platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in ar-ios platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-gsxr platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-yvr platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-htc platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-iqiyi platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-skyworth platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-ffalcon platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-nreal platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-inmo platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in xr-lenovo platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in android-hmi platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-desktop platform success!
+[Build] internalRegister pkg(adsense-h5g-plugin) in web-mobile platform success!
+[Build-plugin] register pkg adsense-h5g-plugin: 1ms
+[Package] alipay-mini-game@1.0.2 enable
+[Build] internalRegister pkg(alipay-mini-game) in alipay-mini-game platform success!
+[Build-plugin] register pkg alipay-mini-game: 1ms
+[Package] android@1.0.1 enable
+[Build] internalRegister pkg(android) in android platform success!
+[Build] internalRegister pkg(android) in huawei-agc platform success!
+[Build-plugin] register pkg android: 2ms
+[Package] bytedance-mini-game@1.0.3 enable
+[Build] internalRegister pkg(bytedance-mini-game) in bytedance-mini-game platform success!
+[Build-plugin] register pkg bytedance-mini-game: 1ms
+[Package] certificate@1.0.0 enable
+[Package] channel-upload-tools@1.0.0 enable
+[Package] fb-instant-games@1.0.0 enable
+[Build] internalRegister pkg(fb-instant-games) in fb-instant-games platform success!
+[Build-plugin] register pkg fb-instant-games: 1ms
+[Package] google-play@1.0.1 enable
+[Build] internalRegister pkg(google-play) in google-play platform success!
+[Build-plugin] register pkg google-play: 2ms
+[Package] harmonyos-next@1.0.0 enable
+[Build] internalRegister pkg(harmonyos-next) in harmonyos-next platform success!
+[Build-plugin] register pkg harmonyos-next: 2ms
+[Package] honor-mini-game@1.0.0 enable
+[Build] internalRegister pkg(honor-mini-game) in honor-mini-game platform success!
+[Build-plugin] register pkg honor-mini-game: 1ms
+[Package] huawei-agc@1.0.0 enable
+[Build] internalRegister pkg(huawei-agc) in huawei-agc platform success!
+[Build-plugin] register pkg huawei-agc: 0ms
+[Package] huawei-quick-game@1.0.3 enable
+[Build] internalRegister pkg(huawei-quick-game) in huawei-quick-game platform success!
+[Build-plugin] register pkg huawei-quick-game: 1ms
+[Package] ios@1.0.1 enable
+[Build] internalRegister pkg(ios) in ios platform success!
+[Build-plugin] register pkg ios: 1ms
+init builder manager success
+[Package] linux@1.0.0 enable
+平台 linux 不存在，无法添加该平台
+[Package] mac@1.0.0 enable
+[Build] internalRegister pkg(mac) in mac platform success!
+[Build-plugin] register pkg mac: 1ms
+[Package] migu-mini-game@1.0.0 enable
+平台 migu-mini-game 不存在，无法添加该平台
+[Package] native@1.0.2 enable
+[Build] internalRegister pkg(native) in ios platform success!
+[Build] internalRegister pkg(native) in android platform success!
+[Build] internalRegister pkg(native) in huawei-agc platform success!
+[Build] internalRegister pkg(native) in windows platform success!
+[Build] internalRegister pkg(native) in mac platform success!
+[Build] internalRegister pkg(native) in google-play platform success!
+[Build] internalRegister pkg(native) in ohos platform success!
+[Build] internalRegister pkg(native) in harmonyos-next platform success!
+平台 linux 不存在，不支持向该平台注册任何内容
+[Build] internalRegister pkg(native) in xr-huaweivr platform success!
+[Build] internalRegister pkg(native) in xr-meta platform success!
+[Build] internalRegister pkg(native) in xr-pico platform success!
+[Build] internalRegister pkg(native) in xr-rokid platform success!
+[Build] internalRegister pkg(native) in xr-monado platform success!
+[Build] internalRegister pkg(native) in ar-android platform success!
+[Build] internalRegister pkg(native) in ar-ios platform success!
+[Build] internalRegister pkg(native) in xr-spaces platform success!
+[Build] internalRegister pkg(native) in xr-seed platform success!
+[Build] internalRegister pkg(native) in xr-gsxr platform success!
+[Build] internalRegister pkg(native) in xr-yvr platform success!
+[Build] internalRegister pkg(native) in xr-htc platform success!
+[Build] internalRegister pkg(native) in xr-iqiyi platform success!
+[Build] internalRegister pkg(native) in xr-skyworth platform success!
+[Build] internalRegister pkg(native) in xr-ffalcon platform success!
+[Build] internalRegister pkg(native) in xr-nreal platform success!
+[Build] internalRegister pkg(native) in xr-inmo platform success!
+[Build] internalRegister pkg(native) in xr-lenovo platform success!
+[Build-plugin] register pkg native: 2ms
+[Package] ohos@1.0.0 enable
+[Build] internalRegister pkg(ohos) in ohos platform success!
+[Build-plugin] register pkg ohos: 1ms
+[Package] oppo-mini-game@1.0.3 enable
+[Build] internalRegister pkg(oppo-mini-game) in oppo-mini-game platform success!
+[Build-plugin] register pkg oppo-mini-game: 1ms
+[Package] runtime-dev-tools@1.0.0 enable
+[Package] taobao-mini-game@1.0.1 enable
+[Build] internalRegister pkg(taobao-mini-game) in taobao-mini-game platform success!
+[Build-plugin] register pkg taobao-mini-game: 1ms
+[Package] vivo-mini-game@1.0.3 enable
+[Build] internalRegister pkg(vivo-mini-game) in vivo-mini-game platform success!
+[Build-plugin] register pkg vivo-mini-game: 1ms
+[Package] web-desktop@1.0.1 enable
+[Build] internalRegister pkg(web-desktop) in web-desktop platform success!
+[Build-plugin] register pkg web-desktop: 1ms
+[Package] web-mobile@1.0.1 enable
+[Build] internalRegister pkg(web-mobile) in web-mobile platform success!
+[Build-plugin] register pkg web-mobile: 1ms
+[Package] wechatgame@1.0.4 enable
+[Build] internalRegister pkg(wechatgame) in wechatgame platform success!
+[Build-plugin] register pkg wechatgame: 1ms
+[Package] wechatprogram@1.0.2 enable
+平台 wechatprogram 不存在，无法添加该平台
+[Package] windows@1.0.1 enable
+[Build-plugin] register pkg windows: 2ms
+[Package] xiaomi-quick-game@1.0.2 enable
+平台 xiaomi-quick-game 不存在，无法添加该平台
+[Package] cocos-service@3.0.9 enable
+[Build] internalRegister pkg(cocos-service) in android platform success!
+[Build] internalRegister pkg(cocos-service) in google-play platform success!
+[Build] internalRegister pkg(cocos-service) in ohos platform success!
+[Build] internalRegister pkg(cocos-service) in harmonyos-next platform success!
+[Build] internalRegister pkg(cocos-service) in huawei-agc platform success!
+[Build] internalRegister pkg(cocos-service) in ios platform success!
+[Build] internalRegister pkg(cocos-service) in windows platform success!
+[Build] internalRegister pkg(cocos-service) in mac platform success!
+[Build] internalRegister pkg(cocos-service) in linux platform success!
+[Build] internalRegister pkg(cocos-service) in alipay-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in taobao-creative-app platform success!
+[Build] internalRegister pkg(cocos-service) in taobao-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in bytedance-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in oppo-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in huawei-quick-game platform success!
+[Build] internalRegister pkg(cocos-service) in migu-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in honor-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in vivo-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in xiaomi-quick-game platform success!
+[Build] internalRegister pkg(cocos-service) in baidu-mini-game platform success!
+[Build] internalRegister pkg(cocos-service) in wechatgame platform success!
+[Build] internalRegister pkg(cocos-service) in wechatprogram platform success!
+[Build] internalRegister pkg(cocos-service) in link-sure platform success!
+[Build] internalRegister pkg(cocos-service) in qtt platform success!
+[Build] internalRegister pkg(cocos-service) in fb-instant-games platform success!
+[Build] internalRegister pkg(cocos-service) in web-desktop platform success!
+[Build] internalRegister pkg(cocos-service) in web-mobile platform success!
+[Build] internalRegister pkg(cocos-service) in cocos-runtime platform success!
+[Build] internalRegister pkg(cocos-service) in platform-example platform success!
+[Build] internalRegister pkg(cocos-service) in online platform success!
+[Build] internalRegister pkg(cocos-service) in xr-meta platform success!
+[Build] internalRegister pkg(cocos-service) in xr-huaweivr platform success!
+[Build] internalRegister pkg(cocos-service) in xr-pico platform success!
+[Build] internalRegister pkg(cocos-service) in xr-rokid platform success!
+[Build] internalRegister pkg(cocos-service) in xr-monado platform success!
+[Build] internalRegister pkg(cocos-service) in xr-spaces platform success!
+[Build] internalRegister pkg(cocos-service) in xr-seed platform success!
+[Build] internalRegister pkg(cocos-service) in ar-android platform success!
+[Build] internalRegister pkg(cocos-service) in ar-ios platform success!
+[Build] internalRegister pkg(cocos-service) in xr-gsxr platform success!
+[Build] internalRegister pkg(cocos-service) in xr-yvr platform success!
+[Build] internalRegister pkg(cocos-service) in xr-htc platform success!
+[Build] internalRegister pkg(cocos-service) in xr-iqiyi platform success!
+[Build] internalRegister pkg(cocos-service) in xr-skyworth platform success!
+[Build] internalRegister pkg(cocos-service) in xr-ffalcon platform success!
+[Build] internalRegister pkg(cocos-service) in xr-nreal platform success!
+[Build] internalRegister pkg(cocos-service) in xr-inmo platform success!
+[Build] internalRegister pkg(cocos-service) in xr-lenovo platform success!
+[Build] internalRegister pkg(cocos-service) in android-hmi platform success!
+[Build-plugin] register pkg cocos-service: 2ms
+[Package] im-plugin@3.0.14 enable
+[Package] placeholder@1.0.0 enable
+Start enter command build with options {"configPath":"/Users/<mac-user>/qf-fx5-tmp/webm.json"}
+Read config from path /Users/<mac-user>/qf-fx5-tmp/webm.json...
+Warn: [Assets] Importer exec warning: {asset[/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/editor/assets/default_file_content/animation-graph/ts-animation-graph](f102759d-fcb3-4103-82e5-9a955401466a)}: The importer version is lower than asset
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at ImportTask.importAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:158:25)
+    at ImportTask.exec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:68:36)
+    at ParallelQueue._generate (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/asset-db.ccc:202:54)
+Warn: [Assets] Importer exec warning: {asset[/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/editor/assets/default_file_content/effect-header/chunk](1f505ca8-b164-4d35-b697-504d100015e4)}: The importer version is lower than asset
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at ImportTask.importAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:158:25)
+    at ImportTask.exec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:68:36)
+    at ParallelQueue._generate (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/asset-db.ccc:202:54)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:449:9)
+Warn: [Assets] Importer exec warning: {asset[/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/editor/assets/default_file_content/render-pipeline/ts-render-flow](4584ab47-6c1b-44fc-a41d-e32ba87e9660)}: The importer version is lower than asset
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at ImportTask.importAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:158:25)
+    at ImportTask.exec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:68:36)
+    at ParallelQueue._generate (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/asset-db.ccc:202:54)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:449:9)
+Warn: [Assets] Importer exec warning: {asset[/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/editor/assets/default_file_content/render-pipeline/ts-render-pipeline](400f1cd3-9a46-4349-b3c1-f451e22a219b)}: The importer version is lower than asset
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at ImportTask.importAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:158:25)
+    at ImportTask.exec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:68:36)
+    at ParallelQueue._generate (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/asset-db.ccc:202:54)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:449:9)
+Warn: [Assets] Importer exec warning: {asset[/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/editor/assets/default_file_content/render-pipeline/ts-render-stage](aa709c4b-426b-46f3-a856-4a0f22f52d6d)}: The importer version is lower than asset
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at ImportTask.importAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:158:25)
+    at ImportTask.exec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:68:36)
+    at ParallelQueue._generate (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/asset-db.ccc:202:54)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:449:9)
+Warn: [Assets] Importer exec warning: {asset[/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/editor/assets/default_file_content/typescript/ts](3e7d59d5-5478-474a-bb27-6eddb22dc614)}: The importer version is lower than asset
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at ImportTask.importAsset (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:158:25)
+    at ImportTask.exec (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/task.ccc:68:36)
+    at ParallelQueue._generate (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/asset-db/libs/asset-db.ccc:202:54)
+[[Facet.reload]], before lock, count: 1
+[[Facet.reload]], after lock, count: 1
+[[Facet.reload]], before unlock, count: 1
+[[Facet.reload]], after unlock, count: 1
+trackTimeEnd failed! Can not find the track time asset-db:worker-startup-database[internal] start
+trackTimeEnd failed! Can not find the track time asset-db:worker-startup-database[assets] start
+asset-db is ready!
+auto refresh because script compiled or scene changed
+Check and complete build options {
+  platform: 'web-mobile',
+  debug: false,
+  outputName: 'web-test',
+  name: 'ForestWorldR5Task21UI',
+  startScene: '260c2ebc-0660-4be6-8c4b-7885436222ea',
+  scenes: [
+    {
+      url: 'db://assets/scenes/WorldR5Integration.scene',
+      uuid: '260c2ebc-0660-4be6-8c4b-7885436222ea'
+    }
+  ],
+  mainBundleCompressionType: 'merge_dep',
+  taskName: 'web-test',
+  buildMode: 'normal'
+}
+start preview settings manager
+Error: 当前初始场景不存在或在 Bundle 中，无法设置为初始场景。
+    at console.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@editor/sentry/dist/main/main.ccc:41:45)
+    at console.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at console.error (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@base/electron-logger/lib/browser/index.js:1:1710)
+    at getCommonOptions (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/share/common-options-validator.ccc:1:3854)
+    at PluginManager.getOptionsByPlatform (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/browser/plugin.ccc:1:7656)
+    at PluginManager.checkOptions (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/browser/plugin.ccc:1:5334)
+    at /Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/browser/tasks.ccc:1:3233
+[[Facet.reload]], before lock, count: 2
+[[Facet.reload]], after lock, count: 2
+[[Facet.reload]], before unlock, count: 2
+[[Facet.reload]], after unlock, count: 2
+2026-10-17 10:00:20 - debug: =================================== build Task (web-test) Start ================================
+
+2026-10-17 10:00:20 - debug: Start build task, options:{"platform":"web-mobile","debug":false,"outputName":"web-test","name":"ForestWorldR5Task21UI","startScene":"260c2ebc-0660-4be6-8c4b-7885436222ea","scenes":[{"url":"db://assets/scenes/WorldR5Integration.scene","uuid":"260c2ebc-0660-4be6-8c4b-7885436222ea"}],"mainBundleCompressionType":"merge_dep","taskName":"web-test","buildMode":"normal","packages":{"adsense-h5g-plugin":{"enableAdsense":false,"enableTestAd":false},"web-mobile":{"useWebGPU":false,"orientation":"auto","embedWebDebugger":false}},"server":"","engineModulesConfigKey":"defaultConfig","buildPath":"project://build","mangleProperties":false,"md5Cache":false,"skipCompressTexture":false,"sourceMaps":false,"overwriteProjectSettings":{"includeModules":{"gfx-webgl2":"on","physics":"inherit-project-setting","physics-2d":"inherit-project-setting"},"macroConfig":{"cleanupImageCache":"inherit-project-setting"}},"nativeCodeBundleMode":"both","polyfills":{"asyncFunctions":true},"experimentalEraseModules":false,"startSceneAssetBundle":false,"bundleConfigs":[],"inlineEnum":true,"useBuiltinServer":false,"md5CacheOptions":{"excludes":[],"includes":[],"replaceOnly":[],"handleTemplateMd5Link":true},"mainBundleIsRemote":false,"useSplashScreen":true,"bundleCommonChunk":false,"packAutoAtlas":true,"wasmCompressionMode":false,"binGroupConfig":{"threshold":16,"enable":false},"logDest":"project://temp/builder/log/web-mobile10-17-2026 10-00.log"}
+
+2026-10-17 10:00:20 - debug: Build with Cocos Creator 3.8.8
+
+2026-10-17 10:00:20 - debug: cocos-service:(onBeforeBuild) start..., progress: 0%
+
+2026-10-17 10:00:20 - debug: // ---- build task cocos-service：onBeforeBuild ----
+
+2026-10-17 10:00:20 - debug: // ---- build task cocos-service：onBeforeBuild ---- (1ms)
+
+2026-10-17 10:00:20 - debug: cocos-service:(onBeforeBuild) in 1 ms ✓, progress: 2%
+
+2026-10-17 10:00:20 - debug: scene:(onBeforeBuild) start..., progress: 2%
+
+2026-10-17 10:00:20 - debug: // ---- build task scene：onBeforeBuild ----
+
+2026-10-17 10:00:20 - debug: // ---- build task scene：onBeforeBuild ---- (1ms)
+
+2026-10-17 10:00:20 - debug: scene:(onBeforeBuild) in 1 ms ✓, progress: 4%
+
+2026-10-17 10:00:20 - debug: Start lock asset db..., progress: 4%
+
+2026-10-17 10:00:20 - log: Asset DB is paused with build!
+
+2026-10-17 10:00:20 - debug: Query all assets info in project
+
+2026-10-17 10:00:20 - debug: init custom config: keepNodeUuid: false, useCache: true
+
+2026-10-17 10:00:20 - debug: web-mobile:(onAfterInit) start..., progress: 4%
+
+2026-10-17 10:00:20 - debug: // ---- build task web-mobile：onAfterInit ----
+
+2026-10-17 10:00:20 - debug: // ---- build task web-mobile：onAfterInit ---- (1ms)
+
+2026-10-17 10:00:20 - debug: web-mobile:(onAfterInit) in 1 ms ✓, progress: 5%
+
+2026-10-17 10:00:20 - debug: cocos-service:(onAfterInit) start..., progress: 5%
+
+2026-10-17 10:00:20 - debug: // ---- build task cocos-service：onAfterInit ----
+
+2026-10-17 10:00:20 - debug: // ---- build task cocos-service：onAfterInit ---- (1ms)
+
+2026-10-17 10:00:20 - debug: cocos-service:(onAfterInit) in 1 ms ✓, progress: 7%
+
+2026-10-17 10:00:20 - debug: Skip compress image, progress: 0%
+
+2026-10-17 10:00:20 - debug: adsense-h5g-plugin:(onBeforeBundleInit) start..., progress: 7%
+
+2026-10-17 10:00:20 - debug: adsense-h5g-plugin:(onBeforeBundleInit) start..., progress: 0%
+
+2026-10-17 10:00:20 - debug: // ---- build task adsense-h5g-plugin：onBeforeBundleInit ----
+
+2026-10-17 10:00:20 - debug: [adsense-h5g-plugin] remove script success
+
+2026-10-17 10:00:20 - debug: // ---- build task adsense-h5g-plugin：onBeforeBundleInit ---- (1ms)
+
+2026-10-17 10:00:20 - debug(2): adsense-h5g-plugin:(onBeforeBundleInit) in 1 ms ✓, progress: 7%
+
+2026-10-17 10:00:20 - debug(2): Init all bundles start..., progress: 7%
+
+2026-10-17 10:00:20 - debug(2): Num of bundles: 11..., progress: 7%
+
+2026-10-17 10:00:20 - debug(2): web-mobile:(onAfterBundleInit) start..., progress: 7%
+
+2026-10-17 10:00:20 - debug: // ---- build task web-mobile：onAfterBundleInit ----
+
+2026-10-17 10:00:20 - debug: web-mobile:(onAfterBundleInit) in 0 ms ✓, progress: 7%
+
+2026-10-17 10:00:20 - debug: web-mobile:(onAfterBundleInit) in 0 ms ✓, progress: 13%
+
+2026-10-17 10:00:20 - debug: 查询 Asset Bundle start, progress: 7%
+
+2026-10-17 10:00:20 - debug: // ---- build task 查询 Asset Bundle ----
+
+2026-10-17 10:00:20 - debug: Init bundle root assets start..., progress: 7%
+
+2026-10-17 10:00:20 - debug: Init bundle root assets start..., progress: 13%
+
+2026-10-17 10:00:20 - debug: Query preload assets/scripts from cc.config.json: 60f7195c-ec2a-45eb-ba94-8955f60e81d0,1c02ae6f-4492-4915-b8f8-7492a3b1e4cd,810e96e4-e456-4468-9b59-f4e8f39732c0,efe8e2a3-eace-427b-b4f1-cb8a937ec77d,e9aa9a3e-5b2b-4ac7-a2c7-073de2b2b24f,8bbdbcdd-5cd4-4100-b6d5-b7c9625b6107,50f4348b-c883-4e2f-8f11-ce233b859fa1,fda095cb-831d-4601-ad94-846013963de8,f92806d7-1768-443f-afe8-12bcde84d0f0,dd3a144d-ab7f-41f0-82b8-2e43a090d496,f0416e68-0200-4b77-a926-4f9d16e494da,511d2633-09a7-4bdd-ac42-f778032124b3,5d45aa00-e064-4938-b314-4265f0c2258c,9361fd90-ba52-4f84-aa93-6e878fd576ca,970b0598-bcb0-4714-91fb-2e81440dccd8,bcd64cc6-2dd9-43f6-abbe-66318d332032,d930590d-bb92-4cc8-8bd1-23cd027f9edf,a3cd009f-0ab0-420d-9278-b9fdab939bbc,6a2d0734-bd9e-4ddf-946e-caa52498cb75,871c3b6c-7379-419d-bda3-794b239ab90d,ff9b0199-ce04-4cfe-86cc-6c719f08d6e4,de1c2107-70c8-4021-8459-6399f24d01c6,cbf30902-517f-40dc-af90-a550bac27cf1,5c601d96-e4c7-4698-991b-7ee674b11079
+
+2026-10-17 10:00:20 - debug:   Number of all scenes: 0
+
+2026-10-17 10:00:20 - debug:   Number of all scripts: 0
+
+2026-10-17 10:00:20 - debug:   Number of other assets: 9
+
+2026-10-17 10:00:20 - debug: Init bundle root assets success..., progress: 7%
+
+2026-10-17 10:00:20 - debug: Init bundle root assets success..., progress: 13%
+
+2026-10-17 10:00:20 - debug: No script need reload.
+
+2026-10-17 10:00:20 - debug: Init bundle share assets start..., progress: 7%
+
+2026-10-17 10:00:20 - debug: Init bundle share assets start..., progress: 13%
+
+2026-10-17 10:00:20 - debug: Init bundle share assets success..., progress: 7%
+
+2026-10-17 10:00:20 - debug: Init bundle share assets success..., progress: 13%
+
+2026-10-17 10:00:20 - debug: handle json group in bundle internal
+
+2026-10-17 10:00:20 - debug: handle json group in bundle internal success
+
+2026-10-17 10:00:20 - debug: handle json group in bundle resources
+
+2026-10-17 10:00:20 - debug: handle json group in bundle main
+
+2026-10-17 10:00:20 - debug: handle json group in bundle main success
+
+2026-10-17 10:00:20 - debug: handle json group in bundle shared_effects
+
+2026-10-17 10:00:20 - debug: handle json group in bundle shared_effects success
+
+2026-10-17 10:00:20 - debug: handle json group in bundle audio_bgm_island
+
+2026-10-17 10:00:20 - debug: handle json group in bundle audio_bgm_island success
+
+2026-10-17 10:00:20 - debug: handle json group in bundle board_art
+
+2026-10-17 10:00:20 - debug: handle json group in bundle board_art success
+
+auto refresh because script compiled or scene changed
+2026-10-17 10:00:20 - debug: handle json group in bundle region_island
+
+2026-10-17 10:00:20 - debug: handle json group in bundle region_lakeside
+
+2026-10-17 10:00:20 - debug: handle json group in bundle region_meadow
+
+2026-10-17 10:00:20 - debug: handle json group in bundle region_skycity
+
+2026-10-17 10:00:20 - debug: handle json group in bundle region_skycity success
+
+2026-10-17 10:00:20 - debug: handle json group in bundle static_seat_preview
+
+2026-10-17 10:00:20 - debug: handle json group in bundle static_seat_preview success
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle internal
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle main
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle shared_effects
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle audio_bgm_island
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle board_art
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle region_skycity
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle static_seat_preview
+
+2026-10-17 10:00:20 - debug: handle json group in bundle resources success
+
+2026-10-17 10:00:20 - debug: handle json group in bundle region_meadow success
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle resources
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle region_meadow
+
+2026-10-17 10:00:20 - debug: handle json group in bundle region_island success
+
+2026-10-17 10:00:20 - debug: handle json group in bundle region_lakeside success
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle region_island
+
+2026-10-17 10:00:20 - debug: init image compress task 0 in bundle region_lakeside
+
+2026-10-17 10:00:20 - debug: // ---- build task 查询 Asset Bundle ---- (9ms)
+
+2026-10-17 10:00:20 - log: run build task 查询 Asset Bundle success in 9 ms√, progress: 12%
+
+2026-10-17 10:00:20 - debug: [Build Memory track]: 查询 Asset Bundle start:373.14MB, end 374.86MB, increase: 1.71MB
+
+2026-10-17 10:00:20 - debug: 查询 Asset Bundle start, progress: 12%
+
+2026-10-17 10:00:20 - debug: // ---- build task 查询 Asset Bundle ----
+
+2026-10-17 10:00:20 - debug: // ---- build task 查询 Asset Bundle ---- (1ms)
+
+2026-10-17 10:00:20 - log: run build task 查询 Asset Bundle success in 1 ms√, progress: 17%
+
+2026-10-17 10:00:20 - debug: [Build Memory track]: 查询 Asset Bundle start:374.90MB, end 375.03MB, increase: 137.32KB
+
+2026-10-17 10:00:20 - debug: 打包脚本 start, progress: 17%
+
+2026-10-17 10:00:20 - debug: // ---- build task 打包脚本 ----
+
+2026-10-17 10:00:20 - log: [buildPolyfillsCommand]enter sub process 71634, 9229, see: chrome://inspect/#devices
+
+2026-10-17 10:00:21 - debug: execute-script-end with buildPolyfillsCommand 1267ms
+
+2026-10-17 10:00:21 - debug: Generate systemJs..., progress: 17%
+
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1434: Unexpected keyword or identifier.
+[warning]@cocos/rollup-plugin-typescript TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+Warn: [Assets] [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.
+[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.
+[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+    at console.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/node_modules/@sentry/core/src/utils-hoist/instrument/console.ts:40:14)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/asset-db/dist/worker/console.ccc:1:1637)
+    at NewConsole.warn (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/console.ccc:1:2358)
+    at Socket.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2763)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.
+
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1434: Unexpected keyword or identifier.[warning]@cocos/rollup-plugin-typescript TS1068: Unexpected token. A constructor, method, accessor, or property was expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.
+
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.
+
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1109: Expression expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.
+
+2026-10-17 10:00:22 - warn: [buildSystemJsCommand]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1139: Type parameter declaration expected.[warning]@cocos/rollup-plugin-typescript TS1005: ',' expected.[warning]@cocos/rollup-plugin-typescript TS1005: ')' expected.[warning]@cocos/rollup-plugin-typescript TS1011: An element access expression should take an argument.[warning]@cocos/rollup-plugin-typescript TS1005: ';' expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.[warning]@cocos/rollup-plugin-typescript TS1128: Declaration or statement expected.
+
+2026-10-17 10:00:22 - debug: execute-script-end with buildSystemJsCommand 939ms
+
+2026-10-17 10:00:22 - debug: 构建项目脚本 start..., progress: 17%
+
+2026-10-17 10:00:22 - debug: 构建项目脚本 start..., progress: 13%
+
+2026-10-17 10:00:22 - log: [buildScriptCommand]Number of non-entry chunks: 11
+
+2026-10-17 10:00:22 - debug: execute-script-end with buildScriptCommand 336ms
+
+2026-10-17 10:00:22 - debug: Copy externalScripts success!
+
+2026-10-17 10:00:22 - debug: 构建项目脚本 in (350 ms) √, progress: 17%
+
+2026-10-17 10:00:22 - debug: 构建项目脚本 in (350 ms) √, progress: 13%
+
+2026-10-17 10:00:22 - debug: 构建引擎脚本 start..., progress: 17%
+
+2026-10-17 10:00:22 - debug: mangleProperties is enabled, found engine-mangle-config.json, use it
+
+2026-10-17 10:00:22 - debug: Use cache engine: {link(/var/folders/mj/mrt0w4m97fb6xs3g4rsj5b8w0000gn/T/CocosCreator/3.8.8/builder/engine/26fce9d63001939492857f6b74e51d79)}
+
+2026-10-17 10:00:22 - debug: Use cache, md5String: debug=false,sourceMaps=false,includeModules=["2d","3d","animation","audio","base","custom-pipeline","gfx-webgl","gfx-webgl2","graphics","primitive","profiler","skeletal-animation","tween","ui","ui-skew","custom-pipeline-builtin-scripts"],engineVersion="3.8.8",platformType="HTML5",split=false,nativeCodeBundleMode="both",targets=undefined,entry="/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine",noDeprecatedFeatures=undefined,loose=true,assetURLFormat="runtime-resolved",flags={"DEBUG":false,"LOAD_BULLET_MANUALLY":false,"LOAD_SPINE_MANUALLY":false,"WEBGPU":false},preserveType=undefined,wasmCompressionMode=false,enableNamedRegisterForSystemJSModuleFormat=undefined,mangleProperties=false,inlineEnum=true,
+
+2026-10-17 10:00:22 - debug: Use cache, options: {  "entry": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine",  "debug": false,  "mangleProperties": false,  "inlineEnum": true,  "sourceMaps": false,  "includeModules": [    "2d",    "3d",    "animation",    "audio",    "base",    "custom-pipeline",    "gfx-webgl",    "gfx-webgl2",    "graphics",    "primitive",    "profiler",    "skeletal-animation",    "tween",    "ui",    "ui-skew",    "custom-pipeline-builtin-scripts"  ],  "engineVersion": "3.8.8",  "md5Map": [],  "engineName": "cocos-js",  "output": "/Users/<mac-user>/qf-fx5-tmp/repo/creator-build-project/build/web-test/cocos-js",  "platformType": "HTML5",  "useCache": true,  "nativeCodeBundleMode": "both",  "wasmCompressionMode": false,  "split": false,  "assetURLFormat": "runtime-resolved",  "flags": {    "DEBUG": false,    "LOAD_BULLET_MANUALLY": false,    "LOAD_SPINE_MANUALLY": false,    "WEBGPU": false  }}
+
+2026-10-17 10:00:22 - debug: Error: Exit process with code:null, signal:SIGTERM in task build-script    at ChildProcess.<anonymous> (/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar/builtin/builder/dist/worker/worker-pools/sub-process-manager.ccc:1:2409)    at ChildProcess.emit (node:events:519:28)    at Process.ChildProcess._handle.onexit (node:internal/child_process:294:12)
+
+2026-10-17 10:00:22 - debug: 构建引擎脚本 in (21 ms) √, progress: 17%
+
+2026-10-17 10:00:22 - debug: Copy plugin script ..., progress: 17%
+
+2026-10-17 10:00:22 - debug: Generate import-map..., progress: 17%
+
+2026-10-17 10:00:22 - debug: // ---- build task 打包脚本 ---- (2581ms)
+
+2026-10-17 10:00:22 - log: run build task 打包脚本 success in 2 s√, progress: 22%
+
+2026-10-17 10:00:22 - debug: [Build Memory track]: 打包脚本 start:375.18MB, end 374.63MB, increase: -566.93KB
+
+2026-10-17 10:00:22 - debug: Build Assets start, progress: 22%
+
+2026-10-17 10:00:22 - debug: // ---- build task Build Assets ----
+
+2026-10-17 10:00:22 - debug: Build bundles..., progress: 22%
+
+2026-10-17 10:00:22 - debug: Pack Images start, progress: 22%
+
+2026-10-17 10:00:22 - debug: Pack Images start, progress: 13%
+
+2026-10-17 10:00:22 - debug: Number of pac assets: 1
+
+2026-10-17 10:00:22 - debug: No pack results
+
+2026-10-17 10:00:22 - debug: Compress image start..., progress: 22%
+
+2026-10-17 10:00:22 - debug: Compress image start..., progress: 13%
+
+2026-10-17 10:00:22 - group: Compress image...
+
+2026-10-17 10:00:22 - debug: sort compress task {}
+
+2026-10-17 10:00:22 - debug: Num of all image compress task 0, really: 0, configTasks: 0
+
+2026-10-17 10:00:22 - debug: No image need to compress
+
+2026-10-17 10:00:22 - groupEnd: Compress image...
+
+2026-10-17 10:00:22 - debug: Compress image success..., progress: 22%
+
+2026-10-17 10:00:22 - debug: Compress image success..., progress: 13%
+
+2026-10-17 10:00:22 - debug: Output asset in bundles start, progress: 22%
+
+2026-10-17 10:00:22 - debug: Output asset in bundles start, progress: 13%
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle internal
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle resources
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle main
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle shared_effects
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle audio_bgm_island
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle board_art
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle region_island
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle region_lakeside
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle region_meadow
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle region_skycity
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Handle all json groups in bundle static_seat_preview
+
+2026-10-17 10:00:22 - debug: handle json group
+
+2026-10-17 10:00:22 - debug: handle single json
+
+2026-10-17 10:00:22 - debug: Output asset in bundles success, progress: 22%
+
+2026-10-17 10:00:22 - debug: Output asset in bundles success, progress: 13%
+
+2026-10-17 10:00:22 - debug: Output asset in bundles start, progress: 22%
+
+2026-10-17 10:00:22 - debug: Output asset in bundles start, progress: 13%
+
+2026-10-17 10:00:22 - debug: compress config of bundle internal...
+
+2026-10-17 10:00:22 - debug: compress config of bundle internal success
+
+2026-10-17 10:00:22 - debug: compress config of bundle resources...
+
+2026-10-17 10:00:22 - debug: compress config of bundle resources success
+
+2026-10-17 10:00:22 - debug: compress config of bundle main...
+
+2026-10-17 10:00:22 - debug: compress config of bundle main success
+
+2026-10-17 10:00:22 - debug: compress config of bundle shared_effects...
+
+2026-10-17 10:00:22 - debug: compress config of bundle shared_effects success
+
+2026-10-17 10:00:22 - debug: compress config of bundle audio_bgm_island...
+
+2026-10-17 10:00:22 - debug: compress config of bundle audio_bgm_island success
+
+2026-10-17 10:00:22 - debug: compress config of bundle board_art...
+
+2026-10-17 10:00:22 - debug: compress config of bundle board_art success
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_island...
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_island success
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_lakeside...
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_lakeside success
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_meadow...
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_meadow success
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_skycity...
+
+2026-10-17 10:00:22 - debug: compress config of bundle region_skycity success
+
+2026-10-17 10:00:22 - debug: compress config of bundle static_seat_preview...
+
+2026-10-17 10:00:22 - debug: compress config of bundle static_seat_preview success
+
+2026-10-17 10:00:22 - debug: output config of bundle internal
+
+2026-10-17 10:00:22 - debug: output config of bundle internal success
+
+2026-10-17 10:00:22 - debug: output config of bundle resources
+
+2026-10-17 10:00:22 - debug: output config of bundle resources success
+
+2026-10-17 10:00:22 - debug: output config of bundle main
+
+2026-10-17 10:00:22 - debug: output config of bundle main success
+
+2026-10-17 10:00:22 - debug: output config of bundle shared_effects
+
+2026-10-17 10:00:22 - debug: output config of bundle shared_effects success
+
+2026-10-17 10:00:22 - debug: output config of bundle audio_bgm_island
+
+2026-10-17 10:00:22 - debug: output config of bundle audio_bgm_island success
+
+2026-10-17 10:00:22 - debug: output config of bundle board_art
+
+2026-10-17 10:00:22 - debug: output config of bundle board_art success
+
+2026-10-17 10:00:22 - debug: output config of bundle region_island
+
+2026-10-17 10:00:22 - debug: output config of bundle region_island success
+
+2026-10-17 10:00:22 - debug: output config of bundle region_lakeside
+
+2026-10-17 10:00:22 - debug: output config of bundle region_lakeside success
+
+2026-10-17 10:00:22 - debug: output config of bundle region_meadow
+
+2026-10-17 10:00:22 - debug: output config of bundle region_meadow success
+
+2026-10-17 10:00:22 - debug: output config of bundle region_skycity
+
+2026-10-17 10:00:22 - debug: output config of bundle region_skycity success
+
+2026-10-17 10:00:22 - debug: output config of bundle static_seat_preview
+
+2026-10-17 10:00:22 - debug: output config of bundle static_seat_preview success
+
+2026-10-17 10:00:22 - debug: Output asset in bundles success, progress: 22%
+
+2026-10-17 10:00:22 - debug: Output asset in bundles success, progress: 13%
+
+2026-10-17 10:00:22 - debug: // ---- build task Build Assets ---- (33ms)
+
+2026-10-17 10:00:22 - log: run build task Build Assets success in 33 ms√, progress: 27%
+
+2026-10-17 10:00:22 - debug: [Build Memory track]: Build Assets start:374.67MB, end 376.65MB, increase: 1.98MB
+
+2026-10-17 10:00:22 - debug: 整理部分构建选项内数据到 settings.json start, progress: 27%
+
+2026-10-17 10:00:22 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ----
+
+2026-10-17 10:00:22 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ---- (3ms)
+
+2026-10-17 10:00:22 - log: run build task 整理部分构建选项内数据到 settings.json success in 3 ms√, progress: 29%
+
+2026-10-17 10:00:22 - debug: [Build Memory track]: 整理部分构建选项内数据到 settings.json start:376.75MB, end 376.83MB, increase: 83.93KB
+
+2026-10-17 10:00:22 - debug: 填充脚本数据到 settings.json start, progress: 29%
+
+2026-10-17 10:00:22 - debug: // ---- build task 填充脚本数据到 settings.json ----
+
+2026-10-17 10:00:22 - debug: // ---- build task 填充脚本数据到 settings.json ---- (1ms)
+
+2026-10-17 10:00:22 - log: run build task 填充脚本数据到 settings.json success in 1 ms√, progress: 31%
+
+2026-10-17 10:00:22 - debug: [Build Memory track]: 填充脚本数据到 settings.json start:376.86MB, end 376.89MB, increase: 28.42KB
+
+2026-10-17 10:00:22 - debug: 整理部分构建选项内数据到 settings.json start, progress: 31%
+
+2026-10-17 10:00:22 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ----
+
+2026-10-17 10:00:23 - debug: // ---- build task 整理部分构建选项内数据到 settings.json ---- (238ms)
+
+2026-10-17 10:00:23 - log: run build task 整理部分构建选项内数据到 settings.json success in 238 ms√, progress: 32%
+
+2026-10-17 10:00:23 - debug: [Build Memory track]: 整理部分构建选项内数据到 settings.json start:376.92MB, end 377.01MB, increase: 92.75KB
+
+2026-10-17 10:00:23 - debug: web-mobile:(onBeforeCompressSettings) start..., progress: 32%
+
+2026-10-17 10:00:23 - debug: // ---- build task web-mobile：onBeforeCompressSettings ----
+
+2026-10-17 10:00:23 - debug: // ---- build task web-mobile：onBeforeCompressSettings ---- (1ms)
+
+2026-10-17 10:00:23 - debug: web-mobile:(onBeforeCompressSettings) in 1 ms ✓, progress: 34%
+
+2026-10-17 10:00:23 - debug: cocos-service:(onBeforeCompressSettings) start..., progress: 34%
+
+2026-10-17 10:00:23 - debug: // ---- build task cocos-service：onBeforeCompressSettings ----
+
+2026-10-17 10:00:23 - debug: // ---- build task cocos-service：onBeforeCompressSettings ---- (4ms)
+
+2026-10-17 10:00:23 - debug: cocos-service:(onBeforeCompressSettings) in 4 ms ✓, progress: 36%
+
+2026-10-17 10:00:23 - debug: 整理静态模板文件 start, progress: 36%
+
+2026-10-17 10:00:23 - debug: // ---- build task 整理静态模板文件 ----
+
+2026-10-17 10:00:23 - debug: // ---- build task 整理静态模板文件 ---- (49ms)
+
+2026-10-17 10:00:23 - log: run build task 整理静态模板文件 success in 49 ms√, progress: 41%
+
+2026-10-17 10:00:23 - debug: [Build Memory track]: 整理静态模板文件 start:377.19MB, end 380.34MB, increase: 3.15MB
+
+2026-10-17 10:00:23 - debug: cocos-service:(onAfterCompressSettings) start..., progress: 41%
+
+2026-10-17 10:00:23 - debug: // ---- build task cocos-service：onAfterCompressSettings ----
+
+2026-10-17 10:00:23 - debug: // ---- build task cocos-service：onAfterCompressSettings ---- (2ms)
+
+2026-10-17 10:00:23 - debug: cocos-service:(onAfterCompressSettings) in 2 ms ✓, progress: 43%
+
+2026-10-17 10:00:23 - debug: web-mobile:(onBeforeCopyBuildTemplate) start..., progress: 43%
+
+2026-10-17 10:00:23 - debug: // ---- build task web-mobile：onBeforeCopyBuildTemplate ----
+
+2026-10-17 10:00:23 - debug: // ---- build task web-mobile：onBeforeCopyBuildTemplate ---- (9ms)
+
+2026-10-17 10:00:23 - debug: web-mobile:(onBeforeCopyBuildTemplate) in 9 ms ✓, progress: 45%
+
+2026-10-17 10:00:23 - debug: 给所有的资源加上 MD5 后缀 start, progress: 45%
+
+2026-10-17 10:00:23 - debug: // ---- build task 给所有的资源加上 MD5 后缀 ----
+
+2026-10-17 10:00:23 - log: run build task 给所有的资源加上 MD5 后缀 success in √, progress: 55%
+
+2026-10-17 10:00:23 - debug: [Build Memory track]: 给所有的资源加上 MD5 后缀 start:379.07MB, end 379.09MB, increase: 18.61KB
+
+2026-10-17 10:00:23 - debug: web-mobile:(onAfterBuild) start..., progress: 55%
+
+2026-10-17 10:00:23 - debug: // ---- build task web-mobile：onAfterBuild ----
+
+2026-10-17 10:00:23 - debug: // ---- build task web-mobile：onAfterBuild ---- (1ms)
+
+2026-10-17 10:00:23 - debug: web-mobile:(onAfterBuild) in 1 ms ✓, progress: 56%
+
+2026-10-17 10:00:23 - debug: cocos-service:(onAfterBuild) start..., progress: 56%
+
+2026-10-17 10:00:23 - debug: // ---- build task cocos-service：onAfterBuild ----
+
+2026-10-17 10:00:23 - debug: // ---- build task cocos-service：onAfterBuild ---- (1ms)
+
+2026-10-17 10:00:23 - debug: cocos-service:(onAfterBuild) in 1 ms ✓, progress: 58%
+
+2026-10-17 10:00:23 - debug: adsense-h5g-plugin:(onAfterBuild) start..., progress: 58%
+
+2026-10-17 10:00:23 - debug: // ---- build task adsense-h5g-plugin：onAfterBuild ----
+
+2026-10-17 10:00:23 - debug: adsense-h5g-plugin:(onAfterBuild) in 0 ms ✓, progress: 60%
+
+2026-10-17 10:00:23 - log: Asset DB is resume!
+
+2026-10-17 10:00:23 - debug: builder:build-project-total (2955ms)
+
+2026-10-17 10:00:23 - debug: build task(web-test) in 2955!
+
+2026-10-17 10:00:23 - debug: [Build Memory track]: builder:build-project-total start:370.05MB, end 379.85MB, increase: 9.80MB
+
+2026-10-17 10:00:23 - debug: ================================ build Task (web-test) Finished in (2 s)ms ================================
+

@@ -1,0 +1,42 @@
+lk4_lake_day_cap_375x667 0.446 ctxEpoch 1792241939336
+lk4_lake_day_cap_375x667 0.469 tz "Etc/GMT"
+lk4_lake_day_cap_375x667 0.495 goto ""
+lk4_lake_day_cap_375x667 1.7 home 
+lk4_lake_day_cap_375x667 36.471 leave {"ok":true}
+lk4_lake_day_cap_375x667 36.593 island 
+lk4_lake_day_cap_375x667 39.598 cleared 12
+lk4_lake_day_cap_375x667 39.601 lightIsland {"dl":[{"n":"Main Light","color":"255/255/255","illum":125000,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"day"}
+lk4_lake_day_cap_375x667 39.719 tap {"name":"Island-journal","pt":{"x":187.5,"y":596},"epoch":1792241979054}
+lk4_lake_day_cap_375x667 41.767 tap {"name":"Chapter-lake","pt":{"x":187.5,"y":497.5},"epoch":1792241981103}
+lk4_lake_day_cap_375x667 43.773 chapterTexts ["挑战需通关主线 04","挑战需通关主线 08","挑战需通关主线 12","挑战 0/6","夕阳下的湖面，敲响漂在水上的风铃。","继续挑战","返回章节","继续旅程"]
+lk4_lake_day_cap_375x667 43.898 tap {"name":"Continue-lake","pt":{"x":187.5,"y":393.5},"epoch":1792241983234}
+lk4_lake_day_cap_375x667 43.898 tapContinue 
+lk4_lake_day_cap_375x667 43.899 state "region-loading"
+lk4_lake_day_cap_375x667 43.899 phase ["loading",0]
+lk4_lake_day_cap_375x667 44.064 state "region-travel"
+lk4_lake_day_cap_375x667 44.064 phase ["ready",0]
+lk4_lake_day_cap_375x667 44.407 phase ["approach",0.2691256914089601]
+lk4_lake_day_cap_375x667 45.742 phase ["bridge",3.3614190902154784]
+lk4_lake_day_cap_375x667 48.644 journeyLabels ["开发预览画面，不代表最终效果"]
+lk4_lake_day_cap_375x667 56.343 phase ["arrival",27.806426195839734]
+lk4_lake_day_cap_375x667 61.361 state "lakeside"
+lk4_lake_day_cap_375x667 61.361 phase ["arrived",39.204256678831825]
+lk4_lake_day_cap_375x667 63.411 state "level-loading"
+lk4_lake_day_cap_375x667 63.425 llmark 
+lk4_lake_day_cap_375x667 64.211 state "level"
+lk4_lake_day_cap_375x667 64.228 board "r04-lake-01"
+lk4_lake_day_cap_375x667 64.738 capN 258
+lk4_lake_day_cap_375x667 64.741 entryFrames {"n":1241,"maxMs":116.7,"at":43919,"p50":16.7,"p95":17.3,"p99":17.6,"over16_7":32,"over33":2,"over50":2,"over100":1}
+lk4_lake_day_cap_375x667 64.741 swapFrames {"k":1207,"durPrev":16.5,"durSwap":36.8,"durNext":18.4,"next3":[18.4,15.6,17.7],"camsPrev":{"Main Camera":[53.64,-3.058,3,37.318,0]},"camsSwap":{"Main Camera":[53.64,-3.058,3,37.318,0],"LakesideBackgroundCamera":[53.64,2.945,3.58,31.164,44]},"sunPrev":["Main Light",-0.418,-0.398,0.816],"sunSwap":["Main Light",-0.418,-0.398,0.816]}
+lk4_lake_day_cap_375x667 64.742 frJourney {"n":1241,"maxMs":116.7,"at":43919,"p50":16.7,"p95":17.3,"p99":17.6,"over16_7":32,"over33":2,"over50":2,"over100":1}
+lk4_lake_day_cap_375x667 64.743 vis []
+lk4_lake_day_cap_375x667 64.743 navEpoch 1792241939806.9
+lk4_lake_day_cap_375x667 65.947 popupsPre {"popups":["RuleGuidePanel"],"keys":["moves","pause","GotIt"]}
+lk4_lake_day_cap_375x667 66.043 dismissTap {"key":"GotIt","x":187.5,"y":435.5}
+lk4_lake_day_cap_375x667 67.548 popupNoResume null
+lk4_lake_day_cap_375x667 67.551 popupsPost {"popups":[]}
+lk4_lake_day_cap_375x667 67.661 boardDiag "{\"state\":\"ready\",\"stageId\":\"r04-lake-01\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"lake\",\"bundle\":\"region_lakeside\",\"instances\":431,\"instancedMaterials\":39,\"lightMode\":\"dir\",\"waterTinted\":0,\"waterShaded\":1,\"fogHeld\":true,\"fogMode\":\"layered\",\"mainLightHeld\":true,\"visible\":true,\"paused\":false,\"layer\":1048576,\"cameraPriority\":44,\"nodes\":{\"rig\":\"LakesideLiveScene\",\"scenery\":\"LakesideScenery\",\"camera\":\"LakesideBackgroundCamera\",\"lights\":\"LakesideLights\"},\"dynamicTextureUploads\":0,\"staticMerge\":{\"chunks\":7,\"pieces\":428,\"vertices\":55200,\"ms\":25},\"guest\":4,\"preloaded\":true,\"cameraOn\":true}}"
+lk4_lake_day_cap_375x667 67.662 lightBoard {"dl":[{"n":"Main Light","color":"255/153/82","illum":118750,"euler":[-23.471,152.876],"fwd":[-0.418,-0.398,0.816]}],"amb":{"skyIllum":29500},"fog":{"on":true,"type":3,"color":"231/165/125","start":60,"end":235},"cams":[{"n":"Main Camera","clear":"28/143/184","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60},{"n":"NativeUICamera","clear":"51/51/51","flags":6,"prio":50},{"n":"LakesideBackgroundCamera","clear":"28/143/184","flags":7,"prio":44}],"dn":"day"}
+lk4_lake_day_cap_375x667 71.665 perfBoard {"frames":240,"fps":60,"dcMed":45,"dcMax":53,"trisMed":60382,"heapMB":198.2,"texMB":114,"bufMB":45.2}
+lk4_lake_day_cap_375x667 71.665 end 
+lk4_lake_day_cap_375x667 71.684 audioEpochs {"rec":1792241939949,"first":1792241955931,"running":1792241939951}

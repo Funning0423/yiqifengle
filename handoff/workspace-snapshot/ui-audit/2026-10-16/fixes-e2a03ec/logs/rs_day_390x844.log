@@ -1,0 +1,27 @@
+rs_day_390x844_chest 0 tz "Etc/GMT+10"
+rs_day_390x844_chest 0.028 goto 
+rs_day_390x844_chest 1.297 home 
+rs_day_390x844_chest 13.391 homeHold12s 
+rs_day_390x844_chest 13.394 leave "{}"
+rs_day_390x844_chest 44.305 island 
+rs_day_390x844_chest 46.945 tapMainline {"x":282,"y":575}
+rs_day_390x844_chest 53.957 board {"stage":"mainline-01","moves":22}
+rs_day_390x844_chest 83.142 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+rs_day_390x844_chest 85.778 tapChest1 {"x":195,"y":474.6}
+rs_day_390x844_chest 89.41 pop1 ["ResultPanel"]
+rs_day_390x844_chest 89.422 tapChest2 
+rs_day_390x844_chest 91.926 pop2 ["ResultPanel"]
+rs_day_390x844_chest 92.058 storageDiffKeys {"d01":["dot-mainline-r1-isolated-20261009:forest-v33-journey"],"d12":[]}
+rs_day_390x844_chest 92.058 end 
+rs_day_390x844_chest 92.077 audioSaved {"startMs":140,"runMs":141,"firstMs":24283,"err":[]}
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at sleep (/Users/<mac-user>/qf-fx-tmp/rec11.cjs:16:19)
+    at /Users/<mac-user>/qf-fx-tmp/rec11.cjs:20:280 {
+  log: []
+}
+
+Node.js v24.14.0

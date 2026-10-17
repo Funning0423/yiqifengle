@@ -1,0 +1,25 @@
+{
+ "tag": "05_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.02
+  ],
+  [
+   "end",
+   4.03
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+2",
+  "textScan": []
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

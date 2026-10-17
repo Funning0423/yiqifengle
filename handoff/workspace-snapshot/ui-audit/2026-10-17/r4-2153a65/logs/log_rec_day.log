@@ -1,0 +1,29 @@
+r4rec_day_390 0 tz "Etc/GMT+1"
+r4rec_day_390 0.03 goto 
+r4rec_day_390 1.245 home 
+r4rec_day_390 7.335 glassDiag "{\"effect\":\"ready\",\"frames\":329,\"night\":0,\"visible\":true,\"box\":{\"l\":203.6647298770003,\"r\":470.2120446870817,\"t\":831.6592695375399,\"b\":708.2407435037887},\"corners\":[[203.6647298770003,819.9041391053943],[470.2120446870817,831.6592695375399],[469.7748388282434,734.1695255205046],[204.82879928804235,708.2407435037887]],\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+r4rec_day_390 7.336 signBoxCss {"l":101.83236493850015,"r":235.10602234354084,"top":428.17036523123005,"bot":489.87962824810563,"cx":168.4691936410205,"cy":459.0249967396678}
+r4rec_day_390 7.352 tapSign [168.4691936410205,459.0249967396678]
+r4rec_day_390 8.426 signLeaveState "standing"
+r4rec_day_390 9.497 homeHold12s 
+r4rec_day_390 39.229 island 
+r4rec_day_390 41.869 tapMainline {"x":282,"y":575}
+r4rec_day_390 48.881 board {"stage":"mainline-01","moves":22}
+r4rec_day_390 78.066 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+r4rec_day_390 80.699 resultLabelsClosed ["下一关","回小岛","630 分"]
+r4rec_day_390 80.699 resultNodesClosed ["ResultPanel","PopupShade","PopupPanel","PanelFrame","TitlePlank","Plank","Title","Next","ActionShadow","Face","Plate","Label","Home","ResultFlow-stars","ResultStars","Star-0","Star-1","Star-2","ResultFlow-Score-0","Score","ResultFlow-reward-chest","ResultChestHalo","ResultChestFloor","ResultChest3D","ChestOutline-0","ChestOutline-1","ChestOutline-2","ChestOutline-3","ChestOutline-4","ChestOutlin
+r4rec_day_390 80.722 tapChest [195.05,474.65000000000003]
+r4rec_day_390 85.137 resultLabelsOpen ["下一关","回小岛","630 分"]
+r4rec_day_390 85.524 chestBgHide {"method":"override","vs":"visible"}
+r4rec_day_390 88.651 chestBgShow 
+r4rec_day_390 91.687 resultPop ["ResultPanel"]
+r4rec_day_390 91.709 tapBackIsland [267,708.5]
+r4rec_day_390 91.71 island2 "island"
+r4rec_day_390 94.71 travelCall 
+r4rec_day_390 125.899 travelRet "{\"ok\":true}"
+r4rec_day_390 125.901 arrived 
+r4rec_day_390 130.089 tapHome {"x":283.5,"y":776}
+r4rec_day_390 130.593 home2 
+r4rec_day_390 138.686 nightProp "false"
+r4rec_day_390 138.686 end 
+r4rec_day_390 138.784 audioSaved {"startMs":151,"runMs":153,"firstMs":7444,"err":[]}

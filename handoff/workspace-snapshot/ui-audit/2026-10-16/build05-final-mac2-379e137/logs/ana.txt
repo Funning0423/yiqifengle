@@ -1,0 +1,78 @@
+25day
+  + 0 flatgreen   0.0%  sea {'area': np.float64(5.9), 'hue': 186, 'Y': np.float64(0.322), 'rgb': [43, 91, 96]}
+  + 2 flatgreen  13.0%  sea {'area': np.float64(5.8), 'hue': 197, 'Y': np.float64(0.525), 'rgb': [81, 145, 170]}
+  + 4 flatgreen  14.0%  sea {'area': np.float64(5.0), 'hue': 196, 'Y': np.float64(0.559), 'rgb': [80, 156, 185]}
+  + 6 flatgreen  18.5%  sea {'area': np.float64(5.3), 'hue': 190, 'Y': np.float64(0.6), 'rgb': [90, 168, 183]}
+  + 8 flatgreen  24.3%  sea {'area': np.float64(3.7), 'hue': 188, 'Y': np.float64(0.641), 'rgb': [105, 177, 189]}
+  +10 flatgreen  20.7%  sea {'area': np.float64(3.9), 'hue': 193, 'Y': np.float64(0.664), 'rgb': [115, 181, 200]}
+  +12 flatgreen  14.4%  sea {'area': np.float64(9.5), 'hue': 193, 'Y': np.float64(0.655), 'rgb': [93, 184, 208]}
+  +14 flatgreen  11.0%  sea {'area': np.float64(21.7), 'hue': 192, 'Y': np.float64(0.634), 'rgb': [76, 182, 209]}
+  +16 flatgreen  11.2%  sea {'area': np.float64(26.4), 'hue': 192, 'Y': np.float64(0.625), 'rgb': [70, 181, 209]}
+  +18 flatgreen   5.7%  sea {'area': np.float64(30.4), 'hue': 193, 'Y': np.float64(0.639), 'rgb': [80, 182, 210]}
+  +20 flatgreen   4.0%  sea {'area': np.float64(35.4), 'hue': 193, 'Y': np.float64(0.64), 'rgb': [79, 183, 211]}
+  +22 flatgreen   1.4%  sea {'area': np.float64(34.9), 'hue': 193, 'Y': np.float64(0.64), 'rgb': [80, 183, 211]}
+  +24 flatgreen   0.0%  sea {'area': np.float64(39.2), 'hue': 193, 'Y': np.float64(0.637), 'rgb': [76, 182, 212]}
+  +26 flatgreen   0.0%  sea {'area': np.float64(40.4), 'hue': 193, 'Y': np.float64(0.634), 'rgb': [74, 182, 211]}
+  +28 flatgreen   0.0%  sea {'area': np.float64(39.5), 'hue': 192, 'Y': np.float64(0.636), 'rgb': [75, 183, 211]}
+  +30 flatgreen   0.6%  sea {'area': np.float64(36.4), 'hue': 192, 'Y': np.float64(0.635), 'rgb': [75, 182, 210]}
+  +32 flatgreen   1.4%  sea {'area': np.float64(35.1), 'hue': 192, 'Y': np.float64(0.631), 'rgb': [73, 181, 208]}
+  +34 flatgreen   2.0%  sea {'area': np.float64(30.5), 'hue': 192, 'Y': np.float64(0.597), 'rgb': [66, 172, 199]}
+  +36 flatgreen   2.4%  sea {'area': np.float64(33.4), 'hue': 196, 'Y': np.float64(0.518), 'rgb': [48, 151, 187]}
+  +38 flatgreen   4.6%  sea {'area': np.float64(38.0), 'hue': 197, 'Y': np.float64(0.495), 'rgb': [41, 145, 186]}
+  +40 flatgreen   8.9%  sea {'area': np.float64(37.4), 'hue': 194, 'Y': np.float64(0.542), 'rgb': [47, 159, 193]}
+  +42 flatgreen  13.1%  sea {'area': np.float64(39.2), 'hue': 192, 'Y': np.float64(0.56), 'rgb': [47, 165, 196]}
+  +44 flatgreen  11.8%  sea {'area': np.float64(37.7), 'hue': 193, 'Y': np.float64(0.532), 'rgb': [41, 158, 190]}
+  +46 flatgreen   7.7%  sea {'area': np.float64(16.0), 'hue': 198, 'Y': np.float64(0.447), 'rgb': [32, 132, 173]}
+  +48 flatgreen   4.6%  sea {'area': np.float64(15.6), 'hue': 200, 'Y': np.float64(0.434), 'rgb': [41, 125, 166]}
+  +50 flatgreen   2.6%  sea {'area': np.float64(17.5), 'hue': 203, 'Y': np.float64(0.391), 'rgb': [39, 111, 155]}
+  +52 flatgreen   1.0%  sea {'area': np.float64(17.9), 'hue': 204, 'Y': np.float64(0.378), 'rgb': [37, 108, 154]}
+  +54 flatgreen   1.0%  sea {'area': np.float64(18.4), 'hue': 204, 'Y': np.float64(0.383), 'rgb': [39, 109, 155]}
+  +56 flatgreen   0.5%  sea {'area': np.float64(18.7), 'hue': 203, 'Y': np.float64(0.389), 'rgb': [39, 111, 157]}
+  +58 flatgreen   0.7%  sea {'area': np.float64(18.8), 'hue': 204, 'Y': np.float64(0.385), 'rgb': [37, 110, 158]}
+  +60 flatgreen   0.6%  sea {'area': np.float64(19.0), 'hue': 205, 'Y': np.float64(0.36), 'rgb': [29, 103, 157]}
+  +62 flatgreen   0.6%  sea {'area': np.float64(26.2), 'hue': 208, 'Y': np.float64(0.328), 'rgb': [23, 94, 157]}
+25night
+  + 0 flatgreen   0.0%  sea {'area': np.float64(0.7), 'hue': 193, 'Y': np.float64(0.193), 'rgb': [18, 56, 66]}
+  + 2 flatgreen  14.2%  sea {'area': np.float64(9.1), 'hue': 216, 'Y': np.float64(0.275), 'rgb': [45, 72, 113]}
+  + 4 flatgreen  16.4%  sea {'area': np.float64(8.4), 'hue': 218, 'Y': np.float64(0.258), 'rgb': [41, 68, 114]}
+  + 6 flatgreen  20.9%  sea {'area': np.float64(6.8), 'hue': 215, 'Y': np.float64(0.292), 'rgb': [45, 77, 122]}
+  + 8 flatgreen  25.6%  sea {'area': np.float64(4.1), 'hue': 212, 'Y': np.float64(0.352), 'rgb': [56, 94, 137]}
+  +10 flatgreen  25.3%  sea {'area': np.float64(4.3), 'hue': 210, 'Y': np.float64(0.391), 'rgb': [62, 105, 149]}
+  +12 flatgreen  19.9%  sea {'area': np.float64(5.8), 'hue': 208, 'Y': np.float64(0.464), 'rgb': [76, 125, 169]}
+  +14 flatgreen  15.6%  sea {'area': np.float64(9.0), 'hue': 209, 'Y': np.float64(0.471), 'rgb': [78, 127, 172]}
+  +16 flatgreen  15.4%  sea {'area': np.float64(11.2), 'hue': 209, 'Y': np.float64(0.442), 'rgb': [71, 119, 164]}
+  +18 flatgreen  14.8%  sea {'area': np.float64(12.9), 'hue': 210, 'Y': np.float64(0.44), 'rgb': [72, 118, 164]}
+  +20 flatgreen   8.8%  sea {'area': np.float64(18.2), 'hue': 208, 'Y': np.float64(0.494), 'rgb': [83, 133, 178]}
+  +22 flatgreen   5.4%  sea {'area': np.float64(17.2), 'hue': 207, 'Y': np.float64(0.525), 'rgb': [88, 142, 185]}
+  +24 flatgreen   1.4%  sea {'area': np.float64(17.9), 'hue': 208, 'Y': np.float64(0.504), 'rgb': [85, 136, 180]}
+  +26 flatgreen   0.4%  sea {'area': np.float64(17.6), 'hue': 208, 'Y': np.float64(0.506), 'rgb': [85, 136, 181]}
+  +28 flatgreen   0.2%  sea {'area': np.float64(18.6), 'hue': 209, 'Y': np.float64(0.467), 'rgb': [78, 125, 171]}
+  +30 flatgreen   0.7%  sea {'area': np.float64(19.1), 'hue': 210, 'Y': np.float64(0.433), 'rgb': [71, 116, 162]}
+  +32 flatgreen   1.4%  sea {'area': np.float64(18.6), 'hue': 211, 'Y': np.float64(0.412), 'rgb': [67, 110, 157]}
+  +34 flatgreen   2.2%  sea {'area': np.float64(23.7), 'hue': 215, 'Y': np.float64(0.323), 'rgb': [51, 86, 135]}
+  +36 flatgreen   3.1%  sea {'area': np.float64(35.3), 'hue': 221, 'Y': np.float64(0.193), 'rgb': [25, 50, 103]}
+  +38 flatgreen   6.0%  sea {'area': np.float64(31.3), 'hue': 222, 'Y': np.float64(0.175), 'rgb': [22, 45, 98]}
+  +40 flatgreen  12.8%  sea {'area': np.float64(26.3), 'hue': 223, 'Y': np.float64(0.165), 'rgb': [21, 42, 94]}
+  +42 flatgreen  12.2%  sea {'area': np.float64(25.2), 'hue': 224, 'Y': np.float64(0.121), 'rgb': [12, 31, 83]}
+  +44 flatgreen   9.4%  sea {'area': np.float64(15.6), 'hue': 222, 'Y': np.float64(0.162), 'rgb': [22, 42, 88]}
+  +46 flatgreen   5.2%  sea {'area': np.float64(10.6), 'hue': 211, 'Y': np.float64(0.312), 'rgb': [56, 83, 111]}
+  +48 flatgreen   3.3%  sea {'area': np.float64(14.5), 'hue': 213, 'Y': np.float64(0.278), 'rgb': [48, 74, 106]}
+  +50 flatgreen   1.5%  sea {'area': np.float64(18.7), 'hue': 215, 'Y': np.float64(0.27), 'rgb': [46, 71, 105]}
+  +52 flatgreen   1.0%  sea {'area': np.float64(21.0), 'hue': 215, 'Y': np.float64(0.267), 'rgb': [46, 70, 105]}
+  +54 flatgreen   0.9%  sea {'area': np.float64(21.0), 'hue': 217, 'Y': np.float64(0.255), 'rgb': [44, 67, 103]}
+  +56 flatgreen   0.7%  sea {'area': np.float64(25.2), 'hue': 220, 'Y': np.float64(0.216), 'rgb': [36, 56, 95]}
+  +58 flatgreen   0.9%  sea {'area': np.float64(27.0), 'hue': 220, 'Y': np.float64(0.214), 'rgb': [36, 55, 95]}
+  +60 flatgreen  15.3%  sea {'area': np.float64(3.7), 'hue': 203, 'Y': np.float64(0.575), 'rgb': [116, 152, 175]}
+  +62 flatgreen  15.8%  sea {'area': np.float64(0.8), 'hue': 203, 'Y': np.float64(0.351), 'rgb': [67, 94, 110]}
+24night
+  + 1 flatgreen   0.0%  sea {'area': np.float64(4.9), 'hue': 182, 'Y': np.float64(0.421), 'rgb': [59, 120, 122]}
+  + 3 flatgreen   8.0%  sea {'area': np.float64(30.0), 'hue': 221, 'Y': np.float64(0.167), 'rgb': [20, 43, 94]}
+  + 6 flatgreen   2.7%  sea {'area': np.float64(29.0), 'hue': 220, 'Y': np.float64(0.191), 'rgb': [24, 50, 101]}
+  +10 flatgreen   4.0%  sea {'area': np.float64(30.9), 'hue': 219, 'Y': np.float64(0.236), 'rgb': [35, 62, 112]}
+  +16 flatgreen   5.2%  sea {'area': np.float64(32.4), 'hue': 219, 'Y': np.float64(0.24), 'rgb': [35, 63, 113]}
+24day
+  + 1 flatgreen   0.0%  sea {'area': np.float64(9.7), 'hue': 183, 'Y': np.float64(0.44), 'rgb': [60, 125, 129]}
+  + 3 flatgreen   2.4%  sea {'area': np.float64(37.3), 'hue': 196, 'Y': np.float64(0.529), 'rgb': [50, 154, 190]}
+  + 6 flatgreen   3.5%  sea {'area': np.float64(37.4), 'hue': 196, 'Y': np.float64(0.548), 'rgb': [59, 158, 193]}
+  +10 flatgreen   4.2%  sea {'area': np.float64(40.7), 'hue': 195, 'Y': np.float64(0.562), 'rgb': [60, 162, 195]}
+  +16 flatgreen   7.4%  sea {'area': np.float64(32.7), 'hue': 196, 'Y': np.float64(0.544), 'rgb': [56, 157, 192]}

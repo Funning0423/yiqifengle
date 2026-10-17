@@ -1,0 +1,47 @@
+{
+ "tag": "21_base_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   2.8
+  ],
+  [
+   "island",
+   29.95
+  ],
+  [
+   "skycity",
+   32.51
+  ],
+  [
+   "shot",
+   37.62
+  ],
+  [
+   "end",
+   38.63
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-9",
+  "enter": "ok",
+  "night": false
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

@@ -1,0 +1,4 @@
+frames/final_25_h_day_142.05.png dress px 71 centre x 298/374 = 79.8%  x-range 294-306  y-range 562-691
+frames/final_25_h_night_224.55.png no dress
+../build05-final-mac2-379e137/frames/final_fin_day_194.0.png dress px 58 centre x 336/374 = 89.9%  x-range 272-351  y-range 524-687
+../build05-final-mac2-379e137/frames/final_fin_night_245.9.png no dress

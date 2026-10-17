@@ -1,0 +1,21 @@
+25_h_day_p750 goto
+25_h_day_p750 home
+25_h_day_p750 homeHold
+25_h_day_p750 homeHoldEnd
+25_h_day_p750 board8
+25_h_day_p750 result
+25_h_day_p750 result8
+25_h_day_p750 chest8
+25_h_day_p750 travelStart8
+25_h_day_p750 travelEnd8
+25_h_day_p750 arrive09
+25_h_day_p750 arrived09+4s
+25_h_day_p750 BACK [150.56,"before",null,"level"]
+25_h_day_p750 BACK [151.09,"exitLevel",{"ok":true},"skycity"]
+25_h_day_p750 UI [{"name":"WorldNavigationCanvas","label":"快到了，跟着风往前走|继续旅程  →|主线下一关|打开本关宝箱|领取主线地区奖励|原地区 · 潮汐|出门 · 选择地区|主页|潮汐小径|花粉草甸|天空回声|天空","x":0,"y":0,"w":375,"h":812},{"name":"mainline","label":"继续旅程  →","x":62.5,"y":620,"w":250,"h":52},{"name":"LabelPlate","label":"继续旅程  →","x":68.5,"y":631.4,"w":238,"h":25.2},{"name":"VisibleLabel","label":"继续旅程  →","x":145.8,"y":631.4,"w":83.3,"h":25.2},{"name":"home","label":"主页","x":67.5,"y":714,"w":240,"h":48},{"name":"LabelPlate","label":"主页","x":83.5,"y":724.4,"w":208,"h":25.2},{"name":"VisibleLabel","label":"主页","x":172.5,"y":724.4,"w":30,"h":25.2}]
+25_h_day_p750 regionUI
+25_h_day_p750 BACK [186.56,"returnHome","TIMEOUT 30s","walking-to-seat"]
+25_h_day_p750 backHome
+25_h_day_p750 BACK [204.3,"final",null,"home"]
+25_h_day_p750 backHome+10s
+25_h_day_p750 end

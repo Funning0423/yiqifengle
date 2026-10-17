@@ -1,0 +1,81 @@
+{
+ "tag": "02_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.02
+  ],
+  [
+   "island",
+   25.16
+  ],
+  [
+   "watchStart",
+   28.16
+  ],
+  [
+   "end",
+   40.16
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-11",
+  "textScan": [],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": false,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 0,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -8.55876828174127,
+      -0.848184637664037,
+      24.74253243254179
+     ],
+     "s": 2.0771052501353235
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.779696869595167,
+      -0.848184637664037,
+      25.511211759305606
+     ],
+     "s": 2.1354509032290077
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -3.000625457449061,
+      -0.848184637664037,
+      26.27989108606942
+     ],
+     "s": 1.8083266449798503
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": []
+}

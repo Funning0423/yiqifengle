@@ -1,0 +1,47 @@
+{
+ "tag": "11_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   4.71
+  ],
+  [
+   "board",
+   29.62
+  ],
+  [
+   "entry1",
+   29.62
+  ],
+  [
+   "island",
+   38.02
+  ],
+  [
+   "home2",
+   58.21
+  ],
+  [
+   "ERROR TimeoutError: page.waitForFunction: Timeout 180000ms exceeded.",
+   238.69
+  ]
+ ],
+ "checks": {
+  "entry1": [],
+  "entry1b": [
+   "PausePanel"
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

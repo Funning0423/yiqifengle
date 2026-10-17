@@ -1,0 +1,48 @@
+{
+ "tag": "08_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   1.23
+  ],
+  [
+   "settings",
+   30.47
+  ],
+  [
+   "edgeTap_Night",
+   30.51
+  ],
+  [
+   "edgeTap_Day",
+   32.34
+  ],
+  [
+   "end",
+   34.14
+  ]
+ ],
+ "checks": {
+  "mode0": {
+   "error": "",
+   "text": ""
+  },
+  "rect_Night": [
+   258,
+   372,
+   68,
+   44
+  ],
+  "rect_Day": [
+   180,
+   372,
+   68,
+   44
+  ]
+ },
+ "errors": []
+}

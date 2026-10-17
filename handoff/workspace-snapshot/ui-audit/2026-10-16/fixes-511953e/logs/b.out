@@ -1,0 +1,22 @@
+PREBUILD Sat Oct 17 10:02:53 CST 2026 free 9731496
+wx try1 exit 36 total 19125656 scene-err 0
+TOTAL 19125656
+ROOT 1862250
+SUB audio_bgm_island 418907
+SUB board_art 2112160
+SUB internal 297535
+SUB main 1176029
+SUB region_island 2967101
+SUB region_lakeside 464387
+SUB region_meadow 2934449
+SUB region_skycity 3326944
+SUB resources 445828
+SUB shared_effects 563694
+SUB static_seat_preview 2556372
+       0
+web try1 exit 36 total 2309217 scene-err 1
+web try2 exit 36 total 19867089 scene-err 0
+POSTBUILD Sat Oct 17 10:03:59 CST 2026 free 9697648
+       0
+       0
+BUILD_DONE

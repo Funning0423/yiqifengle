@@ -1,0 +1,81 @@
+{
+ "tag": "15_after_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.01
+  ],
+  [
+   "island",
+   28.79
+  ],
+  [
+   "bagPopup",
+   30.44
+  ],
+  [
+   "board",
+   53.21
+  ],
+  [
+   "board2",
+   56.29
+  ],
+  [
+   "end",
+   56.44
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+2",
+  "rects": {
+   "mainline": {
+    "x": 15.5,
+    "y": 361,
+    "width": 88,
+    "height": 88
+   },
+   "bag": {
+    "x": 35.41326587192404,
+    "y": 666.1416898154873,
+    "width": 77,
+    "height": 116
+   },
+   "journal": {
+    "x": 150,
+    "y": 672.8248922544974,
+    "width": 75,
+    "height": 109
+   },
+   "settings": {
+    "x": 262.5,
+    "y": 672.1523490188151,
+    "width": 75,
+    "height": 110
+   }
+  },
+  "bagKey": "bag",
+  "bagPopup": [],
+  "closeBtn": [
+   [
+    "Close",
+    318,
+    186,
+    48,
+    48
+   ]
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "pauseBtn": {
+   "x": 38,
+   "y": 67
+  }
+ },
+ "errors": []
+}

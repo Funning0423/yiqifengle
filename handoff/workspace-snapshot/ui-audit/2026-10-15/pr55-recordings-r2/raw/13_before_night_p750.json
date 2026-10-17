@@ -1,0 +1,41 @@
+{
+ "tag": "13_before_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.76
+  ],
+  [
+   "enterTap",
+   3.83
+  ],
+  [
+   "leftHome",
+   3.83
+  ],
+  [
+   "earlyTap",
+   3.94
+  ],
+  [
+   "skipTap",
+   4.46
+  ],
+  [
+   "boardReady",
+   27.94
+  ],
+  [
+   "end",
+   29.95
+  ]
+ ],
+ "checks": {},
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

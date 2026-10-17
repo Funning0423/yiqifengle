@@ -1,0 +1,61 @@
+{
+ "tag": "17_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   1.16
+  ],
+  [
+   "triHome",
+   2.66
+  ],
+  [
+   "jump",
+   6.54
+  ],
+  [
+   "arrived",
+   7.06
+  ],
+  [
+   "tutDismissed",
+   12.46
+  ],
+  [
+   "panel",
+   13.77
+  ],
+  [
+   "tapHome",
+   13.8
+  ],
+  [
+   "afterHome",
+   13.86
+  ],
+  [
+   "end",
+   15.86
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-10",
+  "triHome": 0,
+  "tutorials": [
+   "RuleGuidePanel"
+  ],
+  "popsBefore": [],
+  "triBoard": 1,
+  "homeOk": true,
+  "homeMs": 56,
+  "stateAfter": "home",
+  "panelAfter": 0
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

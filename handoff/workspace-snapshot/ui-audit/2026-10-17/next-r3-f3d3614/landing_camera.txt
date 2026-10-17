@@ -1,0 +1,93 @@
+== lk_day samples 348 fov start 53.31 end 57.35 reversals 2
+    61016.9 region-travel  arrival  [53.31, -3.341, 3.173, 30.435, 0] ['Main Camera']
+    61034.8 region-travel  arrival  [53.36, -3.337, 3.171, 30.476, 0] ['Main Camera']
+    61051.4 region-travel  arrival  [53.41, -3.334, 3.169, 30.514, 0] ['Main Camera']
+   --
+    63999.3 region-travel  arrival  [57.35, -3.058, 3, 37.294, 0] ['Main Camera']
+    64017.7 region-travel  arrival  [57.35, -3.058, 3, 37.294, 0] ['Main Camera']
+    64036.2 lakeside       arrived  [57.35, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    64053.5 lakeside       arrived  [57.35, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    64068.4 lakeside       arrived  [57.35, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+   --
+    66035.3 lakeside       arrived  [57.35, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    66050.1 lakeside       arrived  [57.35, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    66067.2 level-loading  arrived  [57.32, -3.056, 2.997, 37.329, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    66083.9 level-loading  arrived  [57.26, -3.052, 2.991, 37.358, 0] ['Main Camera']
+    66100.4 level-loading  arrived  [57.16, -3.046, 2.982, 37.399, 0] ['Main Camera']
+   --
+    66816.9 level-loading  arrived  [51.36, -2.672, 2.455, 39.829, 0] ['Main Camera']
+    66833.9 level-loading  arrived  [51.35, -2.672, 2.455, 39.83, 0] ['Main Camera']
+    66870.6 level          arrived  [57.35, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+   --
+   max per-frame delta 6.0 (66833.89999997616, 'level-loading', 'level', [51.35, -2.672, 2.455, 39.83, 0], [57.35, -3.058, 3, 37.318, 0])
+== lk_day_360x780 samples 350 fov start 52.09 end 55.19 reversals 2
+    60643.8 region-travel  arrival  [52.09, -3.34, 3.173, 30.442, 0] ['Main Camera']
+    60662.8 region-travel  arrival  [52.13, -3.337, 3.17, 30.485, 0] ['Main Camera']
+    60679.2 region-travel  arrival  [52.16, -3.333, 3.168, 30.523, 0] ['Main Camera']
+   --
+    63629.3 region-travel  arrival  [55.19, -3.058, 3, 37.307, 0] ['Main Camera']
+    63645.8 region-travel  arrival  [55.19, -3.058, 3, 37.307, 0] ['Main Camera']
+    63665.1 lakeside       arrived  [55.19, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    63679.1 lakeside       arrived  [55.19, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    63695.4 lakeside       arrived  [55.19, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+   --
+    65679.3 lakeside       arrived  [55.19, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65694.7 lakeside       arrived  [55.19, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65711.6 level-loading  arrived  [55.16, -3.056, 2.998, 37.329, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65726.1 level-loading  arrived  [55.11, -3.053, 2.993, 37.354, 0] ['Main Camera']
+    65744.9 level-loading  arrived  [55, -3.046, 2.985, 37.4, 0] ['Main Camera']
+   --
+    66462.5 level-loading  arrived  [49.19, -2.67, 2.534, 39.844, 0] ['Main Camera']
+    66478.8 level-loading  arrived  [49.19, -2.67, 2.534, 39.846, 0] ['Main Camera']
+    66518.3 level          arrived  [55.19, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+    66520.9 level          arrived  [55.19, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+   --
+   max per-frame delta 6.0 (66478.80000001192, 'level-loading', 'level', [49.19, -2.67, 2.534, 39.846, 0], [55.19, -3.058, 3, 37.318, 0])
+== lk_day_375x667 samples 352 fov start 51.21 end 53.64 reversals 2
+    60907.2 region-travel  arrival  [51.21, -3.34, 3.172, 30.45, 0] ['Main Camera']
+    60923.7 region-travel  arrival  [51.24, -3.336, 3.17, 30.488, 0] ['Main Camera']
+    60940.5 region-travel  arrival  [51.27, -3.333, 3.168, 30.526, 0] ['Main Camera']
+   --
+    63888.3 region-travel  arrival  [53.64, -3.058, 3, 37.305, 0] ['Main Camera']
+    63907.5 region-travel  arrival  [53.64, -3.058, 3, 37.305, 0] ['Main Camera']
+    63927.2 lakeside       arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    63942.6 lakeside       arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    63957.3 lakeside       arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+   --
+    65923.4 lakeside       arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65941.4 lakeside       arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65955.0 level-loading  arrived  [53.62, -3.057, 2.999, 37.326, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65973.0 level-loading  arrived  [53.56, -3.053, 2.994, 37.354, 0] ['Main Camera']
+    65989.7 level-loading  arrived  [53.46, -3.046, 2.986, 37.395, 0] ['Main Camera']
+   --
+    66706.4 level-loading  arrived  [47.65, -2.67, 2.555, 39.847, 0] ['Main Camera']
+    66720.9 level-loading  arrived  [47.64, -2.669, 2.555, 39.85, 0] ['Main Camera']
+    66760.3 level          arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+    66762.3 level          arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+    66790.1 level          arrived  [53.64, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+   --
+   max per-frame delta 6.0 (66720.90000003576, 'level-loading', 'level', [47.64, -2.669, 2.555, 39.85, 0], [53.64, -3.058, 3, 37.318, 0])
+== lk_day_390x520 samples 305 fov start 53.18 end 71.32 reversals 2
+    59754.2 region-travel  arrival  [53.18, -3.567, 3.311, 27.775, 0] ['Main Camera']
+    59771.0 region-travel  arrival  [53.28, -3.565, 3.309, 27.813, 0] ['Main Camera']
+    59804.6 region-travel  arrival  [53.48, -3.559, 3.306, 27.889, 0] ['Main Camera']
+   --
+    63904.9 region-travel  arrival  [71.32, -3.058, 3, 37.301, 0] ['Main Camera']
+    63938.1 region-travel  arrival  [71.32, -3.058, 3, 37.301, 0] ['Main Camera']
+    63975.4 lakeside       arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    63990.4 lakeside       arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    64023.2 lakeside       arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+   --
+    65920.4 lakeside       arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65954.5 lakeside       arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    65986.2 level-loading  arrived  [71.24, -3.053, 2.994, 37.354, 0] ['Main Camera', 'WarmButtonBakeCamera']
+    66002.8 level-loading  arrived  [71.14, -3.046, 2.987, 37.395, 0] ['Main Camera']
+    66036.3 level-loading  arrived  [70.88, -3.029, 2.968, 37.505, 0] ['Main Camera']
+   --
+    66703.3 level-loading  arrived  [65.35, -2.671, 2.571, 39.841, 0] ['Main Camera']
+    66736.8 level-loading  arrived  [65.32, -2.669, 2.569, 39.852, 0] ['Main Camera']
+    66776.7 level          arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+    66779.3 level          arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+    66786.9 level          arrived  [71.32, -3.058, 3, 37.318, 0] ['Main Camera', 'LakesideBackgroundCamera']
+   --
+   max per-frame delta 6.0 (66736.80000001192, 'level-loading', 'level', [65.32, -2.669, 2.569, 39.852, 0], [71.32, -3.058, 3, 37.318, 0])

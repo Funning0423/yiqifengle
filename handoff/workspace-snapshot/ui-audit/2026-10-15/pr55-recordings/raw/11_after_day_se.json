@@ -1,0 +1,68 @@
+{
+ "tag": "11_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.06
+  ],
+  [
+   "board",
+   26.33
+  ],
+  [
+   "entry1",
+   26.33
+  ],
+  [
+   "resumed1",
+   27.18
+  ],
+  [
+   "island",
+   35.89
+  ],
+  [
+   "entry2",
+   39.36
+  ],
+  [
+   "resumed2",
+   40.21
+  ],
+  [
+   "end",
+   46.76
+  ]
+ ],
+ "checks": {
+  "entry1": [
+   "ToolIntroPanel"
+  ],
+  "entry1b": [
+   "ToolIntroPanel"
+  ],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "entry2": [],
+  "entry2b": [],
+  "bubbles": [
+   [
+    "Toast",
+    "星光"
+   ],
+   [
+    "ToastText",
+    "星光"
+   ]
+  ],
+  "storage": [
+   "qfl.ui.seenTools"
+  ]
+ },
+ "errors": []
+}

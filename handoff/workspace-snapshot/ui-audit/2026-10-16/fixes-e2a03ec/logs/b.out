@@ -1,0 +1,26 @@
+PREBUILD Sat Oct 17 06:35:29 CST 2026 free 10782816
+wx exit 36
+TOTAL 19097915
+ROOT 1862250
+SUB audio_bgm_island 418907
+SUB board_art 2112160
+SUB internal 297535
+SUB main 1161149
+SUB region_island 2967101
+SUB region_lakeside 464387
+SUB region_meadow 2934382
+SUB region_skycity 3326944
+SUB resources 433034
+SUB shared_effects 563694
+SUB static_seat_preview 2556372
+web exit 36
+POSTBUILD Sat Oct 17 06:36:24 CST 2026 free 9751568
+      54 /Users/<mac-user>/qf-fx-tmp/gitstatus.txt
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_barrel.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk_rail.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta
+ M creator-build-project/assets/bundles/region_lakeside/models/LK_bridge_steps.glb.meta
+ 54 files changed, 4901 insertions(+), 103 deletions(-)
+       0
+BUILD_DONE

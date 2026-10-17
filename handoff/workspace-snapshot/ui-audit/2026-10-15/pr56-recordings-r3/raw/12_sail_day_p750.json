@@ -1,0 +1,44 @@
+{
+ "tag": "12_sail_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.71
+  ],
+  [
+   "enterTap",
+   3.62
+  ],
+  [
+   "leftHome",
+   3.63
+  ],
+  [
+   "sailStart",
+   27.5
+  ],
+  [
+   "sailGone",
+   33.6
+  ],
+  [
+   "boardReady",
+   33.6
+  ],
+  [
+   "end",
+   35.61
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-10",
+  "sailSeen": true,
+  "audioStartMs": 163,
+  "audioErr": []
+ },
+ "errors": []
+}

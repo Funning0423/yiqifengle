@@ -1,0 +1,22 @@
+{
+ "tag": "01_after_night_se",
+ "marks": [
+  [
+   "goto",
+   0.05
+  ],
+  [
+   "home",
+   1.13
+  ],
+  [
+   "end",
+   4.13
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+2",
+  "textScan": []
+ },
+ "errors": []
+}

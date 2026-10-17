@@ -1,0 +1,32 @@
+{
+ "tag": "03_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.16
+  ],
+  [
+   "triDouble1",
+   2.16
+  ],
+  [
+   "ERROR Error: node not found {\"name\":\"DebugJump\",\"text\":\"草甸\"}",
+   34.05
+  ]
+ ],
+ "checks": {
+  "panelAfterTri1": 0,
+  "btns": []
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

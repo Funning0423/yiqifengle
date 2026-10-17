@@ -1,0 +1,70 @@
+{
+ "tag": "15_after_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.07
+  ],
+  [
+   "home",
+   3.95
+  ],
+  [
+   "island",
+   32.01
+  ],
+  [
+   "bagPopup",
+   33.68
+  ],
+  [
+   "board",
+   80.55
+  ],
+  [
+   "board2",
+   83.57
+  ],
+  [
+   "end",
+   83.82
+  ]
+ ],
+ "checks": {
+  "rects": {
+   "mainline": {
+    "x": 180,
+    "y": 483,
+    "width": 183,
+    "height": 142
+   }
+  },
+  "bagPopup": [],
+  "closeBtn": [],
+  "tutorials": [
+   "ToolIntroPanel"
+  ],
+  "pauseBtn": {
+   "x": 38,
+   "y": 67
+  }
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

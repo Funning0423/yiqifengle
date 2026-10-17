@@ -1,0 +1,39 @@
+{
+ "tag": "21_base_night_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.74
+  ],
+  [
+   "island",
+   30.05
+  ],
+  [
+   "skycity",
+   32.55
+  ],
+  [
+   "shot",
+   37.65
+  ],
+  [
+   "end",
+   38.65
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT+4",
+  "enter": "ok",
+  "night": true
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

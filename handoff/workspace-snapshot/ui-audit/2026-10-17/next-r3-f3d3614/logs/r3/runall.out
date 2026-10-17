@@ -1,0 +1,19 @@
+done day 
+lkrun.sh: line 8: 44371 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+done night 
+lkrun.sh: line 8: 44979 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+done day_mergeoff 
+lkrun.sh: line 8: 45447 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+done night_mergeoff 
+lkrun.sh: line 8: 45962 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+done fail 
+lkrun.sh: line 8: 46404 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+done day 360
+lkrun.sh: line 8: 46522 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+done day 375
+lkrun.sh: line 8: 46657 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+done day 390
+lkrun.sh: line 8: 46811 Terminated: 15          nohup python3 ../srv.py 8899 ~/qfl-a3b/web-r3 > srv_$S.log 2>&1
+run.sh: line 3: 47033 Terminated: 15          nohup python3 srv.py 8899 ~/qfl-a3b/web-r3 > r3srv_$m.log 2>&1
+run.sh: line 3: 47240 Terminated: 15          nohup python3 srv.py 8899 ~/qfl-a3b/web-r3 > r3srv_$m.log 2>&1
+RUNALL_DONE

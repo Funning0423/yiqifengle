@@ -1,0 +1,81 @@
+{
+ "tag": "02_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   1.09
+  ],
+  [
+   "island",
+   25.22
+  ],
+  [
+   "watchStart",
+   28.22
+  ],
+  [
+   "end",
+   40.23
+  ]
+ ],
+ "checks": {
+  "tz": "Etc/GMT-11",
+  "textScan": [],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": false,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 0,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -9.089772974679622,
+      -0.8483391831079459,
+      24.080423408140692
+     ],
+     "s": 2.090461106665151
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.6473130088708245,
+      -0.8483391831079459,
+      25.032593185917598
+     ],
+     "s": 2.149181924268104
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -2.2048530430620232,
+      -0.8483391831079494,
+      25.984762963694497
+     ],
+     "s": 1.8199542460500573
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": []
+}

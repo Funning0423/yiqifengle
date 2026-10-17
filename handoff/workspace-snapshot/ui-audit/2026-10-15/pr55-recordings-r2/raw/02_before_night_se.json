@@ -1,0 +1,83 @@
+{
+ "tag": "02_before_night_se",
+ "marks": [
+  [
+   "goto",
+   0.05
+  ],
+  [
+   "home",
+   2.93
+  ],
+  [
+   "island",
+   27.51
+  ],
+  [
+   "watchStart",
+   30.51
+  ],
+  [
+   "end",
+   42.52
+  ]
+ ],
+ "checks": {
+  "textScan": [
+   "地区流程测试",
+   "独立测试进度 · 主线 00"
+  ],
+  "props": {
+   "version": "T9-2026-10-11",
+   "ready": true,
+   "failure": null,
+   "night": true,
+   "active": true,
+   "prefabs": 6,
+   "renderers": 7,
+   "rebound": 6,
+   "lampSwaps": 1,
+   "label": "render-root-2d",
+   "water": "procedural",
+   "entrance": 1,
+   "fadeMaterials": 2,
+   "lampLight": "sphere-light",
+   "nightWeight": 1,
+   "sea": "skipped:no-mainColor",
+   "buttons": [
+    {
+     "role": "bag",
+     "active": true,
+     "p": [
+      -9.079686577599826,
+      -0.9050000000000011,
+      23.997521852562055
+     ],
+     "s": 1.9030827233149383
+    },
+    {
+     "role": "journal",
+     "active": true,
+     "p": [
+      -5.6252955775987346,
+      -0.9050000000000011,
+      24.9529917036262
+     ],
+     "s": 1.956540103183337
+    },
+    {
+     "role": "settings",
+     "active": true,
+     "p": [
+      -2.170904577597639,
+      -0.9049999999999976,
+      25.90846155469033
+     ],
+     "s": 1.6568227324768507
+    }
+   ],
+   "cameraFov": 42
+  }
+ },
+ "errors": []
+}

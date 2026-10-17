@@ -1,0 +1,108 @@
+{
+ "tag": "03_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.04
+  ],
+  [
+   "home",
+   2.98
+  ],
+  [
+   "triDouble1",
+   3.98
+  ],
+  [
+   "keyFallbackOpen",
+   7
+  ],
+  [
+   "pickMeadow",
+   7.83
+  ],
+  [
+   "jump",
+   7.86
+  ],
+  [
+   "ERROR TimeoutError: page.waitForFunction: Timeout 180000ms exceeded.",
+   187.87
+  ]
+ ],
+ "checks": {
+  "panelAfterTri1": 0,
+  "btns": [
+   [
+    "主页",
+    159,
+    48
+   ],
+   [
+    "小岛",
+    159,
+    48
+   ],
+   [
+    "天空城",
+    159,
+    48
+   ],
+   [
+    "主线",
+    159,
+    48
+   ],
+   [
+    "潮汐",
+    159,
+    48
+   ],
+   [
+    "草甸",
+    159,
+    48
+   ],
+   [
+    "天空",
+    159,
+    48
+   ],
+   [
+    "原地区",
+    159,
+    48
+   ],
+   [
+    "主线04末步",
+    159,
+    48
+   ],
+   [
+    "主线08末步",
+    159,
+    48
+   ],
+   [
+    "主线12末步",
+    159,
+    48
+   ],
+   [
+    "退出流程",
+    159,
+    48
+   ],
+   [
+    "关闭",
+    159,
+    48
+   ]
+  ]
+ },
+ "errors": [
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET",
+  "error: Failed to load resource: net::ERR_CONNECTION_RESET"
+ ]
+}

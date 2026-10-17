@@ -1,0 +1,51 @@
+lake_day_v32_linear60 0 tz "Etc/GMT-6"
+lake_day_v32_linear60 0.01 gpu "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)"
+lake_day_v32_linear60 0.042 url "?lakefog=linear60"
+lake_day_v32_linear60 0.043 goto 
+lake_day_v32_linear60 1.39 home 
+lake_day_v32_linear60 10.397 perfHome {"fps":52,"rafFps":60,"frames":156,"dcMed":62,"dcMax":62,"dcMin":61,"trisMed":111950,"instMed":0,"gameFrameRate":60}
+lake_day_v32_linear60 10.423 tapSign 
+lake_day_v32_linear60 42.286 island 
+lake_day_v32_linear60 47.913 perfIsland {"fps":51,"rafFps":60,"frames":153,"dcMed":78,"dcMax":81,"dcMin":75,"trisMed":110212,"instMed":0,"gameFrameRate":60}
+lake_day_v32_linear60 47.936 tapMainline {"x":282,"y":575}
+lake_day_v32_linear60 54.952 board {"stage":"mainline-01","moves":22}
+lake_day_v32_linear60 57.955 perfLevel1 {"fps":51,"rafFps":60,"frames":153,"dcMed":45,"dcMax":45,"dcMin":45,"trisMed":3808,"instMed":0,"gameFrameRate":60}
+lake_day_v32_linear60 87.289 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+lake_day_v32_linear60 89.83 tapChest 
+lake_day_v32_linear60 93.366 tapBackIsland 
+lake_day_v32_linear60 93.372 island2 
+lake_day_v32_linear60 96.885 gates "{\"r4\":[{\"id\":\"tide-c01-001\",\"region\":\"tide\",\"ordinal\":1,\"name\":\"潮线三灯\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-002\",\"region\":\"tide\",\"ordinal\":2,\"name\":\"竖潮转弯\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-003\",\"region\":\"tide\",\"ordinal\":3,\"name\":\"双汊岸根\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-004\",\"region\":\"tide\",\"ordinal\":4,\"name\":\"贝湾短航\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-005\",\"region\":\"tide\",\"ordinal\":5,\"name\":\"长堤短湾\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-006\",\"region\":\"tide\",\"ordinal\":6,\"name\":\"借潮成线\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-007\",\"region\":\"tide\",\"ordinal\":7,\"name\":\"三礁成线\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-008\",\"region\":\"tide\",\"ordinal\":8,\"name\":\"潮洞双响\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-009\",\"region\":\"tide\",\"ordinal\":9,\"name\":\"贝湾留白\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-010\",\"region\":\"tide\",\"ordinal\":10,\"name\":\"回潮再访\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-011\",\"region\":\"tide\",\"ordinal\":11,\"name\":\"错层回潮\",\"unlocked\":false,\"record\":null},{\"id\":\"tide-c01-012\",\"region\":\"tide\",\"ordinal\":12,\"name\":\"灯后留一线\",\"unlocked\":false,\"record\":null},{\"id\":\"meadow-c01-001\",\"region\":\"meadow\",\"ordinal\":1,\"name\":\"田埂两边\",\"unlocked\":false,\"record\":null},{\"id\":\"mea
+lake_day_v32_linear60 99.409 tap {"name":"Island-journal","pt":{"x":195,"y":762.4}}
+lake_day_v32_linear60 101.54 journalBox {"w":390,"h":844,"panel":{"n":"JourneyPanel","d":0,"l":"","x":0,"y":0,"w":390,"h":844},"chapters":[["Chapter-tide",53.6,222.3,282.9,91.5],["Chapter-meadow",53.6,330.5,282.9,91.5],["Chapter-sky",53.6,438.6,282.9,91.5],["Chapter-lake",53.6,546.8,282.9,91.5]]}
+lake_day_v32_linear60 101.549 tap {"name":"Close","pt":{"x":355.15,"y":180.75}}
+lake_day_v32_linear60 105.61 tap {"name":"Island-journal","pt":{"x":187.5,"y":596}}
+lake_day_v32_linear60 107.722 journalBox {"w":375,"h":667,"panel":{"n":"JourneyPanel","d":0,"l":"","x":0,"y":0,"w":375,"h":667},"chapters":[["Chapter-tide",51.5,141.5,272,88],["Chapter-meadow",51.5,245.5,272,88],["Chapter-sky",51.5,349.5,272,88],["Chapter-lake",51.5,453.5,272,88]]}
+lake_day_v32_linear60 107.732 tap {"name":"Close","pt":{"x":341.5,"y":101.5}}
+lake_day_v32_linear60 111.788 tap {"name":"Island-journal","pt":{"x":160,"y":497}}
+lake_day_v32_linear60 113.882 journalBox {"w":320,"h":568,"panel":{"n":"JourneyPanel","d":0,"l":"","x":0,"y":0,"w":320,"h":568},"chapters":[["Chapter-tide",43.9,120.2,232.1,75.1],["Chapter-meadow",43.9,208.9,232.1,75.1],["Chapter-sky",43.9,297.7,232.1,75.1],["Chapter-lake",43.9,386.4,232.1,75.1]]}
+lake_day_v32_linear60 113.899 tap {"name":"Close","pt":{"x":291.4,"y":86}}
+lake_day_v32_linear60 117.46 tap {"name":"Island-journal","pt":{"x":195,"y":762.4}}
+lake_day_v32_linear60 119.492 tap {"name":"Chapter-lake","pt":{"x":195.04999999999998,"y":592.55}}
+lake_day_v32_linear60 121.603 continueBtn [["Continue-lake","",70.2,457.4,249.6,54.1]]
+lake_day_v32_linear60 121.603 chapterTexts ["挑战需通关主线 04","挑战需通关主线 08","挑战需通关主线 12","挑战 0/6","夕阳下的湖面，敲响漂在水上的风铃。","继续挑战","返回章节","继续旅程"]
+lake_day_v32_linear60 121.62 tap {"name":"Continue-lake","pt":{"x":195,"y":484.45}}
+lake_day_v32_linear60 122.907 lakeBoard {"stage":"r04-lake-01","moves":25}
+lake_day_v32_linear60 127.913 entryFrames {"n":306,"maxMs":1000,"top":[[1000,0.28],[166.8,1.73],[49.9,1.68],[33.3,0.25],[18.7,0.23],[18.7,4.7]],"over100":2,"over50":2}
+lake_day_v32_linear60 128.041 boardBgDiag "{\"background\":{\"state\":\"ready\",\"stageId\":\"r04-lake-01\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"lake\",\"bundle\":\"region_lakeside\",\"instances\":431,\"instancedMaterials\":39,\"lightMode\":\"dir\",\"waterTinted\":0,\"waterShaded\":1,\"fogHeld\":true,\"fogMode\":\"linear60\",\"mainLightHeld\":true,\"visible\":true,\"paused\":false,\"layer\":1048576,\"cameraPriority\":44,\"nodes\":{\"rig\":\"LakesideLiveScene\",\"scenery\":\"LakesideScenery\",\"camera\":\"LakesideBackgroundCamera\",\"lights\":\"LakesideLights\"},\"dynamicTextureUploads\":0}}}"
+lake_day_v32_linear60 128.045 boardKeys ["presentationError","inputGate","background","snapshot","checkpoint","presentation","layout","storage","frameKinds","goalSemantics","toolBar","popups","hintCells","hints","toast","art"]
+lake_day_v32_linear60 132.051 perfLake {"fps":54.2,"rafFps":60.2,"frames":217,"dcMed":79,"dcMax":79,"dcMin":79,"trisMed":33767,"instMed":364,"gameFrameRate":60}
+lake_day_v32_linear60 132.055 waterMat [{"n":"LK_lake","mat":"","eff":"../bundles/region_lakeside/water/lakeside-water","mainColor":null,"defs":{"USE_VERTEX_COLOR":true,"USE_WAVES":true,"USE_INSTANCING":true,"CC_USE_HDR":true,"CC_USE_FLOAT_OUTPUT":false,"CC_SHADOWMAP_FORMAT":0,"CC_SHADOWMAP_USE_LINEAR_DEPTH":0,"CC_SUPPORT_CASCADED_SHADOW_MAP":true,"CC_SHADOW_TYPE":2,"CC_DIR_SHADOW_PCF_TYPE":2,"CC_DIR_LIGHT_SHADOW_TYPE":0,"CC_CASCADED_LAYERS_TRANSITION":false,"CC_USE_IBL":0,"CC_USE_DIFFUSEMAP":0,"CC_IBL_CONVOLUTED":false,"CC_USE_FOG":0,"CC_USE_ACCURATE_FOG":0,"CC_TONE_MAPPING_TYPE":0}}]
+lake_day_v32_linear60 132.057 dirLights {"dir":[{"n":"Main Light","active":true,"enabled":true,"shadowEnabled":false,"illum":125000,"color":"ffffff","vis":-325058561,"euler":[-23.5,152.9,0]}],"shadowsGlobal":{"enabled":true,"type":1},"ambient":{"illum":93750}}
+lake_day_v32_linear60 132.058 lights [["SignLampLight",false,0]]
+lake_day_v32_linear60 132.06 off001 []
+lake_day_v32_linear60 136.868 perfLakeNo001 {"fps":53.5,"rafFps":60,"frames":214,"dcMed":79,"dcMax":79,"dcMin":79,"trisMed":33767,"instMed":364,"gameFrameRate":60}
+lake_day_v32_linear60 136.987 offAllButSun []
+lake_day_v32_linear60 141.793 perfLakeSunOnly {"fps":54,"rafFps":60,"frames":216,"dcMed":79,"dcMax":79,"dcMin":79,"trisMed":33767,"instMed":364,"gameFrameRate":60}
+lake_day_v32_linear60 141.795 offAll []
+lake_day_v32_linear60 146.602 perfLakeNoLights {"fps":54.2,"rafFps":60,"frames":217,"dcMed":79,"dcMax":79,"dcMin":79,"trisMed":33767,"instMed":364,"gameFrameRate":60}
+lake_day_v32_linear60 150.527 camsOff ["Main Camera:0","WorldNavigationCamera:60","NativeUICamera:50"]
+lake_day_v32_linear60 155.132 flickDone 
+lake_day_v32_linear60 157.135 perfBgOnly {"fps":55,"rafFps":60,"frames":110,"dcMed":36,"dcMax":36,"dcMin":36,"trisMed":29875,"instMed":364,"gameFrameRate":60}
+lake_day_v32_linear60 157.137 camsOn ["Main Camera","WorldNavigationCamera","NativeUICamera"]
+lake_day_v32_linear60 160.642 perfLake360 {"fps":56,"rafFps":60,"frames":168,"dcMed":79,"dcMax":79,"dcMin":79,"trisMed":33767,"instMed":364,"gameFrameRate":60}
+lake_day_v32_linear60 177.676 end 

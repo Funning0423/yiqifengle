@@ -1,0 +1,83 @@
+'use strict';
+// usage: node rec.cjs <build:before|after|sail> <item> <day|night> <p750|se>
+const fs=require('fs'),path=require('path');
+const {chromium}=require('/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/cursor-worktree/tools/qf-env.cjs').playwright();
+const [build,item,mode,size]=process.argv.slice(2);
+const PORT={before:8801,after:8802,sail:8803}[build],BASE=`http://127.0.0.1:${PORT}/`;
+const VP=size==='se'?{width:375,height:667}:{width:375,height:812};
+const OUT=path.join(__dirname,'raw');fs.mkdirSync(OUT,{recursive:true});
+const tag=`${item}_${build}_${mode}_${size}`;
+const marks=[],checks={},errors=[];let t0=0;const M=k=>{marks.push([k,+((Date.now()-t0)/1000).toFixed(2)]);console.log(tag,k);};
+(async()=>{
+const b=await chromium.launch({executablePath:process.env.QF_CHROMIUM_EXECUTABLE});
+const ctx=await b.newContext({viewport:VP,deviceScaleFactor:2,hasTouch:true,timezoneId:mode==='day'?'America/Los_Angeles':'Asia/Shanghai',recordVideo:{dir:OUT+'/tmp-'+tag,size:{width:750,height:VP.height*2}}});
+const p=await ctx.newPage();t0=Date.now();let FATAL=null;p.on('pageerror',e=>{errors.push(String(e).slice(0,300));if(/at most one Component|CCClass/.test(String(e)))FATAL=String(e).slice(0,200);});p.on('console',m=>{const t=m.text();if(m.type()==='error'||/sailboat/.test(t))errors.push(m.type()+': '+t.slice(0,200));if(/World startup failed|at most one Component/.test(t))FATAL=FATAL||t.slice(0,200);});
+const sleep=ms=>p.waitForTimeout(ms);
+const snap=()=>p.evaluate(()=>{try{return __worldIntegration.snapshot()}catch{return null}});
+const waitState=async(s,to=180000)=>p.waitForFunction(s=>{try{return __worldIntegration.snapshot().state===s}catch{return false}},s,{timeout:to});
+const nodes=(spec={})=>p.evaluate(async({popup,name,text})=>{const {director,UITransform,Label}=await System.import('cc');const W=innerWidth,H=innerHeight,out=[];
+ const visit=(n,inP)=>{if(!n.activeInHierarchy)return;const here=inP||(!popup||n.name===popup);if(here){const t=n.getComponent(UITransform);if(t){const label=n.getComponentsInChildren(Label).map(l=>l.string).filter(Boolean).join('|');if((!name||n.name===name)&&(!text||label.includes(text))){const bb=t.getBoundingBoxToWorld();out.push({name:n.name,label:label.slice(0,80),x:bb.x+W/2,y:H/2-bb.y-bb.height,width:bb.width,height:bb.height,cx:bb.x+bb.width/2+W/2,cy:H/2-bb.y-bb.height/2});}}}for(const c of n.children)visit(c,here);};
+ visit(director.getScene(),false);return out;},spec);
+const tapNode=async(spec,to=30000)=>{const s=Date.now();let h=[];while(Date.now()-s<to){h=await nodes(spec);if(h.length)break;await sleep(200);}if(!h.length)throw Error('node not found '+JSON.stringify(spec));const n=h[h.length-1];await p.touchscreen.tap(n.cx,n.cy);return n;};
+const board=()=>p.evaluate(()=>{try{return __worldIntegration.board()}catch{return null}});
+const popups=async()=>((await board())?.popups)||[];
+const nav=async(key,to=60000)=>{const s=Date.now();let prev=null;for(;;){const r=await p.evaluate(k=>{try{const r=__worldIntegration.layout().targetRects[k];return r&&r.width>0?r:null}catch{return null}},key);if(r&&prev&&Math.abs(r.x-prev.x)<.5&&Math.abs(r.y-prev.y)<.5)break;prev=r;if(Date.now()-s>to)throw Error('nav '+key);await sleep(150);}const q=await p.evaluate(k=>__worldIntegration.layout().targets[k],key);await p.touchscreen.tap(q.x,q.y);};
+const textScan=async()=>{const all=await nodes({});return [...new Set(all.map(n=>n.label).filter(l=>/测试|test|Test|调试|debug|进度/.test(l)).flatMap(l=>l.split('|')).filter(l=>/测试|test|Test|调试|debug|进度/.test(l)))];};
+const cdp=await ctx.newCDPSession(p);
+const tri=async()=>{const pts=[[120,400],[190,420],[260,400]].map(([x,y],i)=>({x,y,id:i+1}));await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:pts});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});};
+const triDouble=async()=>{await tri();await sleep(150);await tri();};
+const ready=async()=>{const s0=Date.now();for(;;){const ok=await p.evaluate(()=>{try{const s=__worldIntegration.snapshot();return s.state==='home'&&s.characterReady!==false}catch{return false}}).catch(()=>false);if(ok)return;if(FATAL){await sleep(2500);throw Error('STARTUP FATAL: '+FATAL);}if(Date.now()-s0>90000)throw Error('startup timeout 90s');await sleep(200);}};
+const ns='task21-web-qa-'+Date.now();
+const open=async(q='')=>{await p.goto(BASE+q,{waitUntil:'commit'});M('goto');await ready();M('home');};
+const dismissTut=async()=>{const T={ToolIntroPanel:'GotIt',RuleGuidePanel:'GotIt'};for(let i=0;i<6;i++){await sleep(600);const pp=await popups();const top=pp.find(x=>T[x]);if(!top)break;checks.tutorials=(checks.tutorials||[]).concat(top);await tapNode({popup:top,name:T[top]});}};
+const resume=async()=>{await dismissTut();const s=(await board())?.snapshot?.state;if(s==='run.paused'){await tapNode({popup:'PausePanel',name:'Resume'});}await p.waitForFunction(()=>{const b=__worldIntegration.board();return b&&b.snapshot.state==='run.ready'},{},{timeout:60000});await dismissTut();};
+// enter checkpoint N "last step" using the build's own test entry
+const enterLast=async(n)=>{
+ if(build==='after'){await p.keyboard.press('Control+Shift+D');await sleep(800);await tapNode({name:'DebugJump',text:'主线'+String(n).padStart(2,'0')+'末步'});}
+ else{await nav('flowTests');await nav('flowTest'+n);}
+ await p.waitForFunction(n=>{const b=__worldIntegration.board();return b&&b.snapshot.active?.stageId==='mainline-'+String(n).padStart(2,'0')&&['run.paused','run.ready'].includes(b.snapshot.state)},n,{timeout:180000});M('board');};
+const finalSwap=async()=>{const t=await p.evaluate(()=>__worldIntegration.regionFlowTest());const a=t.lastAction;const L=(await board()).layout.tiles;await p.touchscreen.tap(L[a[1]].x,L[a[1]].y);await p.touchscreen.tap(L[a[2]].x,L[a[2]].y);await p.waitForFunction(()=>{const b=__worldIntegration.board();return b.snapshot.state==='result.saved'&&b.popups.includes('ResultPanel')},{},{timeout:60000});M('result');};
+const q=build==='after'?'':'?testNamespace='+ns;
+try{
+ if(item==='01'||item==='05'){await open(q);await sleep(3000);M('end');checks.textScan=await textScan();}
+ else if(item==='02'){await open(q);await p.evaluate(()=>__worldIntegration.leave());await waitState('island');M('island');await sleep(3000);M('watchStart');await sleep(12000);M('end');checks.textScan=await textScan();checks.props=await p.evaluate(()=>{try{return __worldIntegration.props()}catch{return null}});}
+ else if(item==='03'){await open(q);await sleep(1000);M('triDouble1');await triDouble();await sleep(1500);checks.panelAfterTri1=(await nodes({name:'DebugJumpPanel'})).length;
+   if(build==='after'){if(!checks.panelAfterTri1){await p.keyboard.press('Control+Shift+D');await sleep(1200);M('keyFallbackOpen');}checks.btns=(await nodes({name:'DebugJump'})).map(n=>[n.label,Math.round(n.width),Math.round(n.height)]);await tapNode({name:'DebugJump',text:'草甸'});await sleep(800);M('pickMeadow');await tapNode({name:'DebugJump',text:'草甸01'});M('jump');
+     await p.waitForFunction(()=>{const b=__worldIntegration.board();return b&&b.snapshot.active?.stageId==='r05-meadow-01'},{},{timeout:180000});M('arrived');checks.arrivedStage=(await board()).snapshot.active.stageId;await sleep(2500);
+     await triDouble();await sleep(800);checks.triOnBoard=(await nodes({name:'DebugJumpPanel'})).length;if(!checks.triOnBoard){await p.keyboard.press('Control+Shift+D');await sleep(800);}await tapNode({name:'DebugJump',text:'主页'});await waitState('home');M('backHome');await sleep(1500);
+     await triDouble();await sleep(1200);checks.reopen=(await nodes({name:'DebugJumpPanel'})).length;M('reopened');await sleep(500);await triDouble();await sleep(1200);checks.closedAfterTri=(await nodes({name:'DebugJumpPanel'})).length;M('closedByTri');
+     await p.keyboard.press('Control+Shift+D');await sleep(1200);checks.keyOpen=(await nodes({name:'DebugJumpPanel'})).length;M('keyOpen');await p.keyboard.press('Control+Shift+D');await sleep(1200);checks.keyClose=(await nodes({name:'DebugJumpPanel'})).length;M('keyClose');}
+   else{await sleep(3000);await p.keyboard.press('Control+Shift+D');await sleep(1500);M('keyTried');}
+   await sleep(1000);M('end');}
+ else if(item==='04'){await open(q);await enterLast(4);await resume();await sleep(500);M('swap');await finalSwap();await sleep(2500);
+   checks.result=(await nodes({popup:'ResultPanel'})).filter(n=>/Claim|chest|Next|Home|Score|ResultStars|PopupPanel/.test(n.name)).map(n=>[n.name,n.label,Math.round(n.x),Math.round(n.y),Math.round(n.width),Math.round(n.height)]);
+   if(build==='after'){await tapNode({popup:'ResultPanel',name:'ClaimAll'});}else{await tapNode({popup:'ResultPanel',name:'Claim-chest'});}
+   M('claim');await sleep(3000);checks.rewardPanels=(await popups()).filter(x=>x==='RewardPanel').length;checks.reward=(await nodes({popup:'RewardPanel'})).filter(n=>/Gain|Accept|ResultChest3D/.test(n.name)).map(n=>[n.name,n.label,Math.round(n.x),Math.round(n.y),Math.round(n.width),Math.round(n.height)]);
+   await tapNode({popup:'RewardPanel',name:'Accept'});M('accept');await sleep(2500);checks.popupsAfter=await popups();
+   checks.claimLeft=(await nodes({popup:'ResultPanel'})).filter(n=>/^Claim/.test(n.name)).map(n=>n.name);M('end');}
+ else if(item==='06'||item==='08'){await open(q);await p.evaluate(()=>__worldIntegration.leave());await waitState('island');await sleep(3500);await tapNode({name:'Island-settings'});await sleep(1500);M('settings');
+   const S=async()=>(await snap())?.mode;checks.mode0=await p.evaluate(()=>{try{return __worldIntegration.navigationStatus?.()}catch{return null}});
+   if(item==='06'){const tgt=mode==='day'?'Night':'Day',back=mode==='day'?'Day':'Night';await tapNode({name:tgt});M('toggle1');await sleep(2000);await tapNode({name:back});M('toggle2');await sleep(2500);}
+   else{for(const nm of [mode==='day'?'Night':'Day',mode==='day'?'Day':'Night']){const n=(await nodes({name:nm})).pop();const y=n.cy+ (n.height/2)-4;checks['rect_'+nm]=[Math.round(n.x),Math.round(n.y),Math.round(n.width),Math.round(n.height)];
+     // edge tap: 10pt below the visual (visual ~62 design ≈ 32 css → half 16), i.e. cy+16+10 clipped inside node hit
+     await p.touchscreen.tap(n.cx-n.width/2+6,n.cy+Math.min(n.height/2-2,26));M('edgeTap_'+nm);await sleep(1800);}}
+   M('end');}
+ else if(item==='07'){await open(q);await sleep(1000);M('leave');await p.evaluate(()=>__worldIntegration.leave());await waitState('island');M('island');await sleep(6000);M('end');}
+ else if(item==='09'){await open(q);await enterLast(4);await resume();await sleep(800);const pz=(await board()).layout.pause;await p.touchscreen.tap(pz.x,pz.y);await sleep(600);M('pause');await sleep(3000);
+   checks.pause=(await nodes({popup:'PausePanel'})).filter(n=>/Tile|Resume|Home|Toggle|Sfx|Music|PauseLine/.test(n.name)).map(n=>[n.name,n.label,Math.round(n.x),Math.round(n.y),Math.round(n.width),Math.round(n.height)]);
+   await tapNode({popup:'PausePanel',name:'Tile-settings'}).catch(e=>checks.tileErr=String(e));await sleep(1500);M('settings');checks.settings=(await nodes({})).filter(n=>/MusicVolume|SfxToggle/.test(n.name)).map(n=>n.name);await sleep(1500);M('end');}
+ else if(item==='10'){await open(q);await sleep(1000);M('watchStart');await sleep(15000);M('end');}
+ else if(item==='11'){await open(q);await enterLast(4);M('entry1');const resumeIfPaused=async()=>{if((await popups()).includes('PausePanel'))await tapNode({popup:'PausePanel',name:'Resume'});};await sleep(800);await resumeIfPaused();M('resumed1');await sleep(1500);checks.entry1=await popups();await sleep(5000);checks.entry1b=await popups();await dismissTut();
+   if(!(await popups()).includes('PausePanel')){const pz=(await board()).layout.pause;await p.touchscreen.tap(pz.x,pz.y);await sleep(800);}
+   await tapNode({popup:'PausePanel',name:'Home'});await waitState('island');M('island');await sleep(2500);await nav('mainline');
+   await p.waitForFunction(()=>{const b=__worldIntegration.board();return b&&b.snapshot.active?.stageId==='mainline-04'&&__worldIntegration.snapshot().state==='level'},{},{timeout:120000});M('entry2');await sleep(800);await resumeIfPaused();M('resumed2');await sleep(1500);checks.entry2=await popups();await sleep(5000);checks.entry2b=await popups();
+   checks.bubbles=(await nodes({})).filter(n=>/Bubble|Hint|Toast|Tip/i.test(n.name)&&n.label).map(n=>[n.name,n.label]);M('end');
+   checks.storage=await p.evaluate(()=>Object.keys(localStorage).filter(k=>/qfl\.ui/.test(k)));}
+ else if(item==='12'||item==='13'){await open('?testNamespace='+ns);await nav('flowTests');await nav('flowTest8');M('enterTap');
+   // wait for transition start: state leaves home
+   await p.waitForFunction(()=>__worldIntegration.snapshot().state!=='home',{},{timeout:60000});M('leftHome');
+   if(item==='13'){await sleep(100);await p.touchscreen.tap(187,500);M('earlyTap');await sleep(500);await p.touchscreen.tap(187,500);M('skipTap');}
+   await p.waitForFunction(()=>{const b=__worldIntegration.board();return b&&b.snapshot.active?.stageId==='mainline-08'},{},{timeout:180000});M('boardReady');await sleep(2000);M('end');}
+}catch(e){M('ERROR '+String(e).slice(0,300));}
+const v=p.video();await ctx.close();await b.close();fs.renameSync(await v.path(),OUT+'/'+tag+'.webm');fs.rmSync(OUT+'/tmp-'+tag,{recursive:true,force:true});
+fs.writeFileSync(OUT+'/'+tag+'.json',JSON.stringify({tag,marks,checks,errors},null,1));})();

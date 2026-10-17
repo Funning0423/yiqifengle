@@ -1,0 +1,23 @@
+{
+ "tag": "10_before_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.06
+  ],
+  [
+   "home",
+   2.86
+  ],
+  [
+   "watchStart",
+   3.87
+  ],
+  [
+   "end",
+   18.87
+  ]
+ ],
+ "checks": {},
+ "errors": []
+}

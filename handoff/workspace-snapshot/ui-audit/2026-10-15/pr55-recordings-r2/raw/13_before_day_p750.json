@@ -1,0 +1,39 @@
+{
+ "tag": "13_before_day_p750",
+ "marks": [
+  [
+   "goto",
+   0.03
+  ],
+  [
+   "home",
+   2.9
+  ],
+  [
+   "enterTap",
+   3.82
+  ],
+  [
+   "leftHome",
+   3.83
+  ],
+  [
+   "earlyTap",
+   3.93
+  ],
+  [
+   "skipTap",
+   4.45
+  ],
+  [
+   "boardReady",
+   27.9
+  ],
+  [
+   "end",
+   29.9
+  ]
+ ],
+ "checks": {},
+ "errors": []
+}

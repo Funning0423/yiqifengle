@@ -1,0 +1,113 @@
++ cd /Users/<mac-user>/qfl-a3b/repo
++ shasum -a 256 ../r3.bundle
+98ee3a01f0182930690bfcdadc91902475e569716bf356fcc0c50f4b56c43d0b  ../r3.bundle
++ git fetch -q ../r3.bundle integration/build05-next-20261017T0818Z-r3:integration/build05-next-20261017T0818Z-r3
++ git checkout -q integration/build05-next-20261017T0818Z-r3
++ git log -1 '--format=HEAD %H TREE %T'
+HEAD f3d3614361dd2dc23098353ff314a520c3e1c00e TREE f3a0a03a93e2582665a7ae997ac5d254a6a5134e
++ git status --short
++ wc -l
+       0
++ export CREATOR=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
++ CREATOR=/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator
++ bash tools/build-guard/build-wechat-guarded.sh both
++ echo 'guard exit 0'
+guard exit 0
++ B=creator-build-project/build
++ for d in wechat-release web-test
++ cd creator-build-project/build/wechat-release
++ find . -type f -print0
++ sort -z
++ xargs -0 shasum -a 256
+++ wc -l
+++ shasum -a 256 /Users/<mac-user>/qfl-a3b/r3-files-wechat-release.sha256
+++ cut -c1-64
++ echo 'wechat-release files      635 agg 95fd39ca32818e6332324761f4a0d2799841a2c36480f00a2fc2d20dd48b9ee3'
+wechat-release files      635 agg 95fd39ca32818e6332324761f4a0d2799841a2c36480f00a2fc2d20dd48b9ee3
++ for d in wechat-release web-test
++ cd creator-build-project/build/web-test
++ find . -type f -print0
++ sort -z
++ xargs -0 shasum -a 256
+++ wc -l
+++ shasum -a 256 /Users/<mac-user>/qfl-a3b/r3-files-web-test.sha256
+++ cut -c1-64
++ echo 'web-test files      615 agg f5a3f21d5d62baae626e1eaa76472487dc0944ae0dd0078b789da45886617d36'
+web-test files      615 agg f5a3f21d5d62baae626e1eaa76472487dc0944ae0dd0078b789da45886617d36
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/audio_bgm_island
+++ find creator-build-project/build/wechat-release/subpackages/audio_bgm_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB audio_bgm_island 418907'
+SUB audio_bgm_island 418907
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/board_art
+++ find creator-build-project/build/wechat-release/subpackages/board_art -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB board_art 2131356'
+SUB board_art 2131356
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/internal
+++ find creator-build-project/build/wechat-release/subpackages/internal -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB internal 297535'
+SUB internal 297535
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/main
+++ find creator-build-project/build/wechat-release/subpackages/main -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB main 1239082'
+SUB main 1239082
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_island
+++ find creator-build-project/build/wechat-release/subpackages/region_island -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_island 2967101'
+SUB region_island 2967101
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_lakeside
+++ find creator-build-project/build/wechat-release/subpackages/region_lakeside -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_lakeside 542335'
+SUB region_lakeside 542335
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_meadow
+++ find creator-build-project/build/wechat-release/subpackages/region_meadow -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_meadow 2934449'
+SUB region_meadow 2934449
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/region_skycity
+++ find creator-build-project/build/wechat-release/subpackages/region_skycity -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB region_skycity 3326944'
+SUB region_skycity 3326944
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/resources
+++ find creator-build-project/build/wechat-release/subpackages/resources -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB resources 445828'
+SUB resources 445828
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/shared_effects
+++ find creator-build-project/build/wechat-release/subpackages/shared_effects -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB shared_effects 563694'
+SUB shared_effects 563694
++ for d in '$B/wechat-release/subpackages/*'
+++ basename creator-build-project/build/wechat-release/subpackages/static_seat_preview
+++ find creator-build-project/build/wechat-release/subpackages/static_seat_preview -type f -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'SUB static_seat_preview 2556372'
+SUB static_seat_preview 2556372
+++ find creator-build-project/build/wechat-release -type f -not -path '*/subpackages/*' -exec stat -f%z '{}' +
+++ awk '{s+=$1}END{print s}'
++ echo 'ROOT 1870865'
+ROOT 1870865
++ rm -rf /Users/<mac-user>/qfl-a3b/web-r3
++ cp -R creator-build-project/build/web-test /Users/<mac-user>/qfl-a3b/web-r3
++ rm -rf creator-build-project/build
++ echo BDONE
+BDONE
++ cd /Users/<mac-user>/qfl-a3b
++ bash r3/runall.sh

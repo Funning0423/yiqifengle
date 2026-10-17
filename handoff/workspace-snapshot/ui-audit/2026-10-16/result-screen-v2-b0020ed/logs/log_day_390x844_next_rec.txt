@@ -1,0 +1,8 @@
+rv_day_390x844_next 0 tz "Etc/GMT+8"
+rv_day_390x844_next 0.027 goto 
+rv_day_390x844_next 1.61 home 
+rv_day_390x844_next 4.958 leave "{}"
+rv_day_390x844_next 42.422 island 
+rv_day_390x844_next 45.426 tapMainline {"x":282,"y":575}
+rv_day_390x844_next 52.637 board {"stage":"mainline-01","moves":22}
+rv_day_390x844_next 88.018 FAIL "Error: page.waitForTimeout: Target page, context or browser has been closed"

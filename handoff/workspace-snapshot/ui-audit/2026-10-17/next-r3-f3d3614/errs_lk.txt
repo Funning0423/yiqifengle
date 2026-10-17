@@ -1,0 +1,69 @@
+### day
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 495
+### night
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 495
+### day_mergeoff
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 495
+### night_mergeoff
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 495
+### fail
+C HTTP>=400 0 [] 白名单(favicon 404) 0
+D 网络失败 8 白名单(前2s且后来200的RESET/ABORTED) 0
+   44.702 /assets/region_lakeside/config.json net::ERR_FAILED 后来200=False 白名单=False
+   44.702 /assets/region_lakeside/index.js net::ERR_FAILED 后来200=False 白名单=False
+   46.705 /assets/region_lakeside/config.json net::ERR_FAILED 后来200=False 白名单=False
+   46.705 /assets/region_lakeside/index.js net::ERR_FAILED 后来200=False 白名单=False
+   48.710 /assets/region_lakeside/config.json net::ERR_FAILED 后来200=False 白名单=False
+   48.710 /assets/region_lakeside/index.js net::ERR_FAILED 后来200=False 白名单=False
+   50.715 /assets/region_lakeside/config.json net::ERR_FAILED 后来200=False 白名单=False
+   50.715 /assets/region_lakeside/index.js net::ERR_FAILED 后来200=False 白名单=False
+E 脚本错误 [] []
+服务器请求数 344
+### day_360x780
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 151
+### day_375x667
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 346
+### day_390x520
+A pageerror 0 []
+B console.error(去重，不含 Failed to load resource 回显) 0 {}
+  (Failed to load resource 回显条数 2 )
+C HTTP>=400 1 [('/favicon.ico', 404)] 白名单(favicon 404) 1
+D 网络失败 0 白名单(前2s且后来200的RESET/ABORTED) 0
+E 脚本错误 [] []
+服务器请求数 151

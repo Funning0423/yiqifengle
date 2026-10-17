@@ -1,0 +1,26 @@
+{
+ "tag": "03_after_day_se",
+ "marks": [
+  [
+   "goto",
+   0.05
+  ],
+  [
+   "home",
+   1.2
+  ],
+  [
+   "triDouble1",
+   2.21
+  ],
+  [
+   "ERROR Error: node not found {\"name\":\"DebugJump\",\"text\":\"草甸\"}",
+   34.15
+  ]
+ ],
+ "checks": {
+  "panelAfterTri1": 0,
+  "btns": []
+ },
+ "errors": []
+}

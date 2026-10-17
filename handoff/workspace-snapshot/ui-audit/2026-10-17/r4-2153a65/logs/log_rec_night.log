@@ -1,0 +1,29 @@
+r4rec_night_390 0 tz "Etc/GMT-10"
+r4rec_night_390 0.027 goto 
+r4rec_night_390 1.275 home 
+r4rec_night_390 7.384 glassDiag "{\"effect\":\"ready\",\"frames\":307,\"night\":1,\"visible\":true,\"box\":{\"l\":203.6647298770003,\"r\":470.2120446870817,\"t\":831.6592695375399,\"b\":708.2407435037888},\"corners\":[[203.6647298770003,819.9041391053943],[470.2120446870817,831.6592695375399],[469.7748388282434,734.1695255205046],[204.82879928804235,708.2407435037888]],\"tapped\":false,\"left\":false,\"layer\":1073741824}"
+r4rec_night_390 7.384 signBoxCss {"l":101.83236493850015,"r":235.10602234354084,"top":428.17036523123005,"bot":489.8796282481056,"cx":168.4691936410205,"cy":459.0249967396678}
+r4rec_night_390 7.394 tapSign [168.4691936410205,459.0249967396678]
+r4rec_night_390 8.507 signLeaveState "standing"
+r4rec_night_390 9.623 homeHold12s 
+r4rec_night_390 39.328 island 
+r4rec_night_390 41.974 tapMainline {"x":282,"y":575}
+r4rec_night_390 48.981 board {"stage":"mainline-01","moves":22}
+r4rec_night_390 78.176 levelEnd {"st":"result.saved","status":"won","moves":11,"pop":["ResultPanel"]}
+r4rec_night_390 80.796 resultLabelsClosed ["下一关","回小岛","630 分"]
+r4rec_night_390 80.796 resultNodesClosed ["ResultPanel","PopupShade","PopupPanel","PanelFrame","TitlePlank","Plank","Title","Next","ActionShadow","Face","Plate","Label","Home","ResultFlow-stars","ResultStars","Star-0","Star-1","Star-2","ResultFlow-Score-0","Score","ResultFlow-reward-chest","ResultChestHalo","ResultChestFloor","ResultChest3D","ChestOutline-0","ChestOutline-1","ChestOutline-2","ChestOutline-3","ChestOutline-4","ChestOutlin
+r4rec_night_390 80.815 tapChest [194.95000000000002,474.55]
+r4rec_night_390 85.154 resultLabelsOpen ["下一关","回小岛","630 分"]
+r4rec_night_390 85.542 chestBgHide {"method":"override","vs":"visible"}
+r4rec_night_390 88.664 chestBgShow 
+r4rec_night_390 91.63 resultPop ["ResultPanel"]
+r4rec_night_390 91.651 tapBackIsland [267,708.5]
+r4rec_night_390 91.652 island2 "island"
+r4rec_night_390 94.652 travelCall 
+r4rec_night_390 125.822 travelRet "{\"ok\":true}"
+r4rec_night_390 125.823 arrived 
+r4rec_night_390 129.993 tapHome {"x":283.5,"y":776}
+r4rec_night_390 130.506 home2 
+r4rec_night_390 138.615 nightProp "true"
+r4rec_night_390 138.615 end 
+r4rec_night_390 138.731 audioSaved {"startMs":136,"runMs":138,"firstMs":7448,"err":[]}

@@ -1,0 +1,45 @@
+lk4_sky_night_ml 0.5 ctxEpoch 1792243831552
+lk4_sky_night_ml 0.516 tz "Etc/GMT-10"
+lk4_sky_night_ml 0.542 goto ""
+lk4_sky_night_ml 1.755 home 
+lk4_sky_night_ml 36.559 leave {"ok":true}
+lk4_sky_night_ml 36.562 island 
+lk4_sky_night_ml 39.566 cleared 8
+lk4_sky_night_ml 39.569 lightIsland {"dl":[{"n":"Main Light","color":"180/198/232","illum":43750,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"night"}
+lk4_sky_night_ml 39.685 mainlineNext "{\"next\":null,\"active\":null}"
+lk4_sky_night_ml 39.686 mainlineTarget {"x":282,"y":575}
+lk4_sky_night_ml 39.706 tapMainline {"q":{"x":282,"y":575},"epoch":1792243871258}
+lk4_sky_night_ml 39.708 state "region-loading"
+lk4_sky_night_ml 39.708 phase ["loading",0]
+lk4_sky_night_ml 39.89 state "region-travel"
+lk4_sky_night_ml 39.89 phase ["ready",0]
+lk4_sky_night_ml 40.153 phase ["approach",0.08172000002861021]
+lk4_sky_night_ml 42.899 phase ["bridge",3.3799200000286027]
+lk4_sky_night_ml 48.467 journeyLabels ["开发预览画面，不代表最终效果"]
+lk4_sky_night_ml 63.231 phase ["arrival",27.7604399999849]
+lk4_sky_night_ml 70.973 state "region-loading"
+lk4_sky_night_ml 70.973 phase ["loading",36.9260210673453]
+lk4_sky_night_ml 71.104 state "region-travel"
+lk4_sky_night_ml 71.105 phase ["approach",0]
+lk4_sky_night_ml 78.582 phase ["bridge",8.699559999942952]
+lk4_sky_night_ml 96.899 phase ["arrival",30.679479999970454]
+lk4_sky_night_ml 105.793 phase ["arrived",41.33378227532876]
+lk4_sky_night_ml 105.905 state "level-loading"
+lk4_sky_night_ml 105.919 llmark 
+lk4_sky_night_ml 106.639 state "level"
+lk4_sky_night_ml 106.64 board "mainline-09"
+lk4_sky_night_ml 107.366 capN 323
+lk4_sky_night_ml 107.369 entryFrames {"n":4051,"maxMs":83.4,"at":106511,"p50":16.7,"p95":17.3,"p99":17.6,"over16_7":115,"over33":3,"over50":1,"over100":0}
+lk4_sky_night_ml 107.37 swapFrames {"k":3715,"durPrev":16.5,"durSwap":40.4,"durNext":19.8,"next3":[19.8,9.2,30.7],"camsPrev":{"Main Camera":[55,6.426,30.701,94.252,0]},"camsSwap":{"Main Camera":[55,6.426,30.701,94.252,0],"SkycityBackgroundCamera":[55,5.273,11.882,57.184,44]},"sunPrev":["Main Light",0.433,-0.5,-0.75],"sunSwap":["Main Light",0.433,-0.5,-0.75]}
+lk4_sky_night_ml 107.371 frJourney {"n":4051,"maxMs":83.4,"at":106511,"p50":16.7,"p95":17.3,"p99":17.6,"over16_7":115,"over33":3,"over50":1,"over100":0}
+lk4_sky_night_ml 107.372 vis []
+lk4_sky_night_ml 107.372 navEpoch 1792243832068.9
+lk4_sky_night_ml 108.575 popupsPre {"popups":["ToolIntroPanel"],"keys":["moves","tool-bomb","bomb","pause","GotIt"]}
+lk4_sky_night_ml 108.715 dismissTap {"key":"GotIt","x":195,"y":555.12}
+lk4_sky_night_ml 110.218 popupNoResume null
+lk4_sky_night_ml 110.219 popupsPost {"popups":[]}
+lk4_sky_night_ml 110.372 boardDiag "{\"state\":\"ready\",\"stageId\":\"mainline-09\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"skycity\",\"bundle\":\"region_skycity\",\"visible\":true,\"paused\":false,\"layer\":1048576,\"cameraPriority\":44,\"dynamicTextureUploads\":0,\"guest\":4,\"ambientSynced\":0}}"
+lk4_sky_night_ml 110.373 lightBoard {"dl":[{"n":"Main Light","color":"180/198/232","illum":43750,"euler":[-30,-30],"fwd":[0.433,-0.5,-0.75]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60},{"n":"SkycityBackgroundCamera","clear":"156/202/223","flags":7,"prio":44},{"n":"NativeUICamera","clear":"51/51/51","flags":6,"prio":50}],"dn":"night"}
+lk4_sky_night_ml 114.377 perfBoard {"frames":240,"fps":60,"dcMed":59,"dcMax":63,"trisMed":76163,"heapMB":245.8,"texMB":135,"bufMB":40.7}
+lk4_sky_night_ml 114.38 end 
+lk4_sky_night_ml 114.412 audioEpochs {"rec":1792243832212,"first":1792243848224,"running":1792243832213}

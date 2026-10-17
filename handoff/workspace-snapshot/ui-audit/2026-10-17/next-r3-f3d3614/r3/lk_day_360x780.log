@@ -1,0 +1,32 @@
+lk_day_360x780 0.471 tz "Etc/GMT-4"
+lk_day_360x780 0.496 goto ""
+lk_day_360x780 1.637 home 
+lk_day_360x780 36.43 leave {"ok":true}
+lk_day_360x780 36.433 island 
+lk_day_360x780 39.438 cleared 12
+lk_day_360x780 39.44 lakeUnlocked "{\"id\":\"mainline-12\",\"level\":11,\"ordinal\":12,\"regionOrdinal\":4,\"region\":\"sky\",\"regionId\":\"skycity\",\"chapter\":3,\"chapterName\":\"天空之城\",\"name\":\"天空之城的回声\",\"sourceName\":\"森林的心愿\",\"description\":\"把中心与边缘目标串起来，完成三地区旅程。\",\"learningBeat\":\"finale\",\"strategy\":\"把中心与边缘目标串起来，完成三地区旅程。\",\"moves\":42,\"goals\":{\"moss\":13,\"roots"
+lk_day_360x780 39.444 lightIsland {"dl":[{"n":"Main Light","color":"255/255/255","illum":125000,"euler":[-30,-30]}],"amb":{"skyIllum":20000},"fog":{"on":false,"type":0,"color":"200/200/200","start":0.5,"end":300,"dens":0.3},"cams":[{"n":"Main Camera","clear":"51/51/51","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"day"}
+lk_day_360x780 42.451 perfIsland {"frames":179,"fps":59.7,"dcMed":80,"dcMax":87,"trisMed":110282,"heapMB":154.7,"texMB":87.1,"bufMB":17.3}
+lk_day_360x780 42.58 tap {"name":"Island-journal","pt":{"x":180,"y":705.3}}
+lk_day_360x780 44.611 tap {"name":"Chapter-lake","pt":{"x":179.95000000000002,"y":547.45}}
+lk_day_360x780 46.615 chapterTexts ["挑战需通关主线 04","挑战需通关主线 08","挑战需通关主线 12","挑战 0/6","夕阳下的湖面，敲响漂在水上的风铃。","继续挑战","返回章节","继续旅程"]
+lk_day_360x780 46.741 tap {"name":"Continue-lake","pt":{"x":180,"y":447.55}}
+lk_day_360x780 46.741 tapContinue 
+lk_day_360x780 46.742 state "region-loading"
+lk_day_360x780 46.845 state "region-travel"
+lk_day_360x780 50.731 jshot ["j08",8.171781384790606,39.204256678831825,"bridge"]
+lk_day_360x780 54.214 jshot ["j16",16.208654003951445,39.204256678831825,"bridge"]
+lk_day_360x780 57.597 jshot ["j24",24.01076230956041,39.204256678831825,"bridge"]
+lk_day_360x780 60.248 jshot ["j30",30.117632433804136,39.204256678831825,"arrival"]
+lk_day_360x780 60.249 lightJ30 {"dl":[{"n":"Main Light","color":"255/177/122","illum":96273.794,"euler":[-24.342,-165.727]}],"amb":{"skyIllum":51598.827},"fog":{"on":true,"type":3,"color":"215/170/150","start":60,"end":235,"dens":0.3},"cams":[{"n":"Main Camera","clear":"33/121/153","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60}],"dn":"day"}
+lk_day_360x780 62.904 jshot ["j36",36.23326586237199,39.204256678831825,"arrival"]
+lk_day_360x780 64.146 state "lakeside"
+lk_day_360x780 66.244 state "level-loading"
+lk_day_360x780 66.245 llmark 
+lk_day_360x780 66.993 state "level"
+lk_day_360x780 66.997 board "r04-lake-01"
+lk_day_360x780 67.056 entryFrames {"n":1212,"maxMs":116.7,"at":46744,"over100":1,"over50":1}
+lk_day_360x780 68.655 boardDiag "{\"state\":\"ready\",\"stageId\":\"r04-lake-01\",\"rendering\":{\"renderer\":\"region-live-3d\",\"region\":\"lake\",\"bundle\":\"region_lakeside\",\"instances\":431,\"instancedMaterials\":39,\"lightMode\":\"dir\",\"waterTinted\":0,\"waterShaded\":1,\"fogHeld\":true,\"fogMode\":\"layered\",\"mainLightHeld\":true,\"visible\":true,\"paused\":true,\"layer\":1048576,\"cameraPriority\":44,\"nodes\":{\"rig\":\"LakesideLiveScene\",\"scenery\":\"LakesideScenery\",\"camera\":\"LakesideBackgroundCamera\",\"lights\":\"LakesideLights\"},\"dynamicTextureUploads\":0,\"staticMerge\":{\"chunks\":2,\"pieces\":
+lk_day_360x780 68.656 lightBoard {"dl":[{"n":"Main Light","color":"255/153/82","illum":87500,"euler":[-23.471,152.876]}],"amb":{"skyIllum":61250},"fog":{"on":true,"type":3,"color":"215/170/150","start":60,"end":235,"dens":0.3},"cams":[{"n":"Main Camera","clear":"28/143/184","flags":14,"prio":0},{"n":"WorldNavigationCamera","clear":"51/51/51","flags":6,"prio":60},{"n":"LakesideBackgroundCamera","clear":"28/143/184","flags":7,"prio":44},{"n":"NativeUICamera","clear":"51/51/51","flags":6,"prio":50}],"dn":"day"}
+lk_day_360x780 72.661 perfBoard {"frames":240,"fps":60,"dcMed":70,"dcMax":70,"trisMed":36030,"heapMB":189.5,"texMB":115.2,"bufMB":49.7}
+lk_day_360x780 72.661 end 

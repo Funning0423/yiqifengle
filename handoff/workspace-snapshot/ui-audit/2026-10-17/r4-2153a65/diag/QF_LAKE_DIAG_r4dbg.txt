@@ -1,0 +1,1 @@
+63.417	log	[QF_LAKE_DIAG] {"isHDR":true,"toneMappingType":0,"pipeline":"WebPipeline","usePostProcess":false,"exposure":0.00002604165625,"aperture":19,"shutter":7,"iso":0,"mainLightIlluminance":118750,"skyIllum":29500,"missing":[]}
