@@ -119,9 +119,11 @@ export const LAKESIDE_WATER_SKY = Object.freeze({
     tintLinear: Object.freeze([0.714, 0.858, 1.0]), mainLightScale: 2.51, ambientScale: 2.87, skyStrength: 0.387, skyReflectFloor: 0.323,
     sky: Object.freeze({ zenithLinear: Object.freeze([0.3, 0.15, 0.465]), lowLinear: Object.freeze([0.173, 0.221, 0.481]), horizonLinear: Object.freeze([0.204, 0.297, 0.003]) }),
   }) as LakesideWaterSkyMode,
+  // r4 night: its own reflected sky (r3 reused the day dusk beige/orange x 0.12 -> the orange-brown night lake centre). Dark
+  // blue-teal: zenith = the night clear colour #1c2740 (linear), low/horizon dark teal; sky reflection stays on (0.6) at night.
   night: Object.freeze({
-    tintLinear: Object.freeze([0.9, 1.0, 1.0]), mainLightScale: 0.8, ambientScale: 0.6, skyStrength: 0.12, skyReflectFloor: 0.31,
-    sky: Object.freeze({ zenithLinear: Object.freeze([0.0116, 0.2747, 0.4793]), lowLinear: Object.freeze([0.9216, 0.5776, 0.2705]), horizonLinear: Object.freeze([1.0, 0.5457, 0.1441]) }),
+    tintLinear: Object.freeze([0.7, 0.95, 1.0]), mainLightScale: 0.8, ambientScale: 1.0, skyStrength: 0.6, skyReflectFloor: 0.28,
+    sky: Object.freeze({ zenithLinear: Object.freeze([0.011, 0.02, 0.051]), lowLinear: Object.freeze([0.014, 0.045, 0.065]), horizonLinear: Object.freeze([0.018, 0.06, 0.068]) }),
   }) as LakesideWaterSkyMode,
 });
 export type LakesideWaterUniformName = 'waterTint' | 'skyZenith' | 'skyLow' | 'skyHorizon' | 'fresnelParams' | 'specParams' | 'waveParams' | 'lightParams';
