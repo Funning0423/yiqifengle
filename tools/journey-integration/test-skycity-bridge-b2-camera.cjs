@@ -17,11 +17,13 @@
  *  C8 the crane starts on the bridge, inside its 30° (A) / 28° (B) section, and before the last 10 m.
  *  C9 before the crane she is at most 80% across the frame (F9 rule); her x at the stop is reported (board-UI dictated).
  *  C10 O5 (plan B budget, Grok Bot): 08→09 ≤ Build05 + 6 s; extra vs Build05 and vs the r4 route reported.
+ *  C11 UI gap at the stop (board camera = last frame): her box (RegionBoardLanding.girlBoxPt) overlaps none of girlStandUi (tray, plate,
+ *      3-tool row, r4.1 hint banner above the tray — GGbot 260ea02 footprint, pause, capsule, safe bands) and keeps ≥ GIRL_STAND.minGapPt.
  * Geometry on triangles + real TS; not a render or device acceptance. */
 const fs=require('fs'),zlib=require('zlib'),crypto=require('crypto');
 const Jn=require('./journey-scene.cjs'),F=require('./journey-framing-lib.cjs');
 const {H,S,add,sub,rotY,sampleRoute,routeLength}=Jn;
-const Core=H.load(S+'world-r1/RegionJourneyCore.ts'),Cam=H.load(S+'region/SkycityBridgeCamera.ts'),Visit=H.load(S+'region/SkycityVisitPose.ts');
+const RBL=H.load(S+'region/RegionBoardLanding.ts'),BLy=H.load(S+'ui/BoardLayout.ts'),Core=H.load(S+'world-r1/RegionJourneyCore.ts'),Cam=H.load(S+'region/SkycityBridgeCamera.ts'),Visit=H.load(S+'region/SkycityVisitPose.ts');
 const D=Math.PI/180,STEP=.02,DT=STEP/1.2,BUILD05=42.865,SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520],[320,568],[768,1024]];
 const lay=JSON.parse(fs.readFileSync(__dirname+'/skycity-b2/r2-layout.json','utf8')),meta=JSON.parse(fs.readFileSync(__dirname+'/skycity-b2/fixture-skycity-full.json','utf8'));
 const bin=zlib.gunzipSync(fs.readFileSync(__dirname+'/skycity-b2/fixture-skycity-full.bin.gz'));
@@ -71,6 +73,9 @@ for(const plan of ['A','B']){const P=lay.plans[plan],toW=q=>{const r=rotY(P.city
    if(d<T-10){const a=sampleRoute(path,d),q=sampleRoute(path,d+.08);let x=q[0]-a[0],z=q[2]-a[2];const l=Math.hypot(x,z)||1;x/=l;z/=l;const vx=c.position[0]-her[0],vz=c.position[2]-her[2],back=-(vx*x+vz*z),right=vx*(-z)+vz*x,ang=Math.atan2(-right,back)/D;if(ang>F7b){F7b=ang;F7bAt=d;}}
    if(pv){angV=Math.max(angV,F.angle(pv,dv)/DT);}if(pd){const v=sub(c.position,pd).map(x=>x/DT);lastSpeed=Math.hypot(...v);if(pvel){const a=Math.hypot(...sub(v,pvel))/DT;if(a>amax){amax=a;amaxAt=d;}}pvel=v;}if(pf!==null)fovR=Math.max(fovR,Math.abs(c.fovVerticalDeg-pf)/DT);
    pv=dv;pd=c.position;pf=c.fovVerticalDeg;if(d>=T)break;}
+  {const ui=RBL.girlStandUi(w,h,BLy.boardSafeInsets(w,h)),box=RBL.girlBoxPt(camL,rotY(-P.city.yawDeg,sub(stop,P.city.offsetWorld)),w,h);let gap=Infinity,over=0;
+   for(const q of ui){const ox=Math.min(box.r,q.r)-Math.max(box.l,q.l),oy=Math.min(box.b,q.b)-Math.max(box.t,q.t);if(ox>0&&oy>0)over+=ox*oy;gap=Math.min(gap,Math.hypot(Math.max(q.l-box.r,box.l-q.r,0),Math.max(q.t-box.b,box.t-q.b,0)));}
+   gap=Math.min(gap,box.l,box.t,w-box.r,h-box.b);r.uiGap={gapPt:+gap.toFixed(1),overlapPt2:+over.toFixed(1),boxPt:Object.fromEntries(Object.entries(box).map(([k,v])=>[k,+v.toFixed(1)]))};}
   const end=cam(T),stopNd=[.05,1.2,1.7253].map(y=>ndc(end,[stop[0],stop[1]+y,stop[2]],asp));
   Object.assign(r,{minClearanceM:+minC.d.toFixed(3),minClearanceAtM:+(minC.at||0).toFixed(2),minClearanceWho:minC.who,occludedSamples:los.length,occluded:los.slice(0,4),outOfFrameSamples:out.length,outOfFrame:out.slice(0,4),
    F7bWorstLeftOfBehindDeg:+F7b.toFixed(2),F7bAtM:+F7bAt.toFixed(2),maxTurnDegS:+angV.toFixed(2),maxAccelMps2:+amax.toFixed(3),maxAccelAtM:+amaxAt.toFixed(2),maxFovRateDegS:+fovR.toFixed(3),lastFrameSpeedMps:+lastSpeed.toFixed(4),
@@ -88,6 +93,7 @@ for(const plan of ['A','B']){const P=lay.plans[plan],toW=q=>{const r=rotY(P.city
  check(tag+'C7 swap = board camera (≤0.1°, ≤1 cm, FOV ≤0.1°), at rest',()=>{for(const r of all){ok(r.swap.deg<=.1&&r.swap.cm<=1&&r.swap.fovDeg<=.1,JSON.stringify(r.swap));ok(r.lastFrameSpeedMps<=.05,'moving '+r.lastFrameSpeedMps);}return {maxDeg:Math.max(...all.map(r=>r.swap.deg)),maxCm:Math.max(...all.map(r=>r.swap.cm))};});
  check(tag+'C8 crane starts inside the held section and before the last 10 m',()=>{for(const [k,r] of Object.entries(rows.screens)){ok(r.craneStartBridgeM>=sec[0]-1e-6&&r.craneStartBridgeM<=sec[1]+1e-6,`${k} crane at bridge ${r.craneStartBridgeM} m, section ${sec}`);ok(r.craneM>10,k);}return {section:rows.heldSectionBridgeM,starts:Object.fromEntries(Object.entries(rows.screens).map(([k,r])=>[k,r.craneStartBridgeM]))};});
  check(tag+'C9 her x ≤ 80% of the width before the crane',()=>{const m=Math.max(...all.map(r=>r.herMaxXFollowPct));ok(m<=80,'max '+m+'%');return {maxPct:m,atStopPct:Object.fromEntries(Object.entries(rows.screens).map(([k,r])=>[k,r.herXAtStopPct])),note:'at the stop she is where the board UI leaves room (right of the tool row), not a lens choice'};});
+ check(tag+'C11 UI gap at the stop (260ea02 board UI) ≥ minGapPt, no overlap',()=>{for(const [k,r] of Object.entries(rows.screens))ok(r.uiGap.overlapPt2===0&&r.uiGap.gapPt>=RBL.GIRL_STAND.minGapPt,k+' '+JSON.stringify(r.uiGap));return Object.fromEntries(Object.entries(rows.screens).map(([k,r])=>[k,r.uiGap.gapPt]));});
  check(tag+'C10 O5 08→09 ≤ Build05 + 6 s',()=>{const m=Math.max(...all.map(r=>r.O5.vsBuild05S));ok(m<=6,'+'+m+' s');return Object.fromEntries(Object.entries(rows.screens).map(([k,r])=>[k,r.O5]));});
 }
 report.status=results.every(r=>r.status==='PASS')?'PASS':'FAIL';report.timeUTC=new Date().toISOString();report.checks=results;
