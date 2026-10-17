@@ -1,5 +1,5 @@
 // r4-prep (lead): during the lakeside blend the island sky dome (+ cloud layer) follows the blended lakeside sky instead of
-// covering it: w=0 exactly the island look (no pop), w=1 the dome average = lakeside end clear, day and night, no new draw, freed once.
+// covering it: w=0 exactly the island look (no pop), w=1 the dome average = the lakeside sky (r4 journey fix 4: mean of waterSkyZenithLinear + waterSkyLowLinear, linear; not Horizon, not the clear colour), day and night, no new draw, freed once.
 // world whose __worldDayNight does what WorldFlowComponent.applyDayNight does (island main light, then emitDayNightChange).
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
@@ -41,6 +41,8 @@ const run=(name,f)=>{f();console.log('PASS',name);};
 const sky=[];globalThis.__worldDayNight.skyFollow=(t,w)=>{sky.push(t?{t:[...t],w}:null);return 2;};
 const lin=K.srgb8ToLinear;
 const clearOf=m=>{const c=new Color(D.lakesideModeLighting(m).clearColor);return [c.r,c.g,c.b];};
+// r4 journey fix 4: the dome target is the lakeside SKY (mean of waterSkyZenithLinear + waterSkyLowLinear, linear; never the Horizon = olive shore)
+const domeOf=m=>K.skyFollowTargetFromLinear(A.lakesideSkyDomeTargetLinear(m));
 // Real island dome / cloud vertex colours (room_no_original_chair.glb is Draco-compressed; decoded offline with DracoPy 2026-10-17):
 // mean SRGBToLinear(COLOR_0) — the runtime reads the same stream from the imported mesh (backdropAverage).
 const REAL={env_sky_dome:{count:1376,avg:[0.0247,0.142,0.2784]},env_cloud_layer:{count:16292,avg:[0.5138,0.5832,0.6169]}};
@@ -51,17 +53,22 @@ run('pure: w=0 is exactly the island base (day 1, night tint); w=1 maps the dome
  // continuity at 60 Hz over the 7.8 s blend: no pop anywhere
  let prev=K.skyFollowColor([1,1,1],clearOf('day'),avg,0),maxStep=0;for(let i=1;i<=470;i++){const c=K.skyFollowColor([1,1,1],clearOf('day'),avg,i/470);maxStep=Math.max(maxStep,...c.map((v,k)=>Math.abs(v-prev[k])));prev=c;}assert(maxStep<0.01,'per-frame step '+maxStep);});
 run('real island dome / cloud vertex colours: the day/night gains stay inside the clamp (no saturation); colour stream averaging',()=>{
- for(const [name,{avg}] of Object.entries(REAL)){for(const m of ['day','night'])for(let i=0;i<3;i++){const g=lin(clearOf(m)[i])/avg[i];assert(g>0&&g<K.SKY_FOLLOW_MAX_GAIN,name+' '+m+' gain '+g);}
-  console.log('  '+name+' -> day gain '+clearOf('day').map((c,i)=>(lin(c)/avg[i]).toFixed(2)).join('/')+', night gain '+clearOf('night').map((c,i)=>(lin(c)/avg[i]).toFixed(2)).join('/'));}
+ for(const [name,{avg}] of Object.entries(REAL)){for(const m of ['day','night'])for(let i=0;i<3;i++){const g=lin(domeOf(m)[i])/avg[i];assert(g>0&&g<K.SKY_FOLLOW_MAX_GAIN,name+' '+m+' gain '+g);}
+  console.log('  '+name+' -> day gain '+domeOf('day').map((c,i)=>(lin(c)/avg[i]).toFixed(2)).join('/')+', night gain '+domeOf('night').map((c,i)=>(lin(c)/avg[i]).toFixed(2)).join('/'));}
  const f=K.vertexColorAverageLinear([1,0,0.5,0.5,1,0],3,false);assert(Math.abs(f[0]-(1+K.srgbToLinear(.5))/2)<1e-12);assert.deepEqual(K.vertexColorAverageLinear(null,3),[1,1,1]);
  const u=K.vertexColorAverageLinear(new Uint8Array([255,255,255,255]),4,true);assert(u.every(v=>Math.abs(v-1)<1e-12));});
 // journey: the lighting drives skyFollow with the blend weight and the CURRENT mode's lakeside clear
 let J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);
 run('prime / w=0: the dome is never touched (island look, no pop at the start)',()=>{J.prime();J.apply(0);assert.equal(sky.length,0);});
-run('blend: target = lakeside DAY end clear (28/143/184), w = blend weight; repeated identical frames are not re-sent',()=>{J.apply(0.25);J.apply(0.25);J.apply(1);assert.equal(sky.length,2);assert.deepEqual(sky[0],{t:clearOf('day'),w:0.25});assert.deepEqual(sky[1],{t:[28,143,184],w:1});});
-run('toggle in lakeside: the dome follows the NIGHT lakeside clear, then back to day',()=>{globalThis.__worldDayNight.toggle();assert.deepEqual(sky.at(-1),{t:clearOf('night'),w:1});globalThis.__worldDayNight.toggle();assert.deepEqual(sky.at(-1),{t:clearOf('day'),w:1});});
+run('blend: target = lakeside DAY sky (zenith/low, linear), w = blend weight; repeated identical frames are not re-sent',()=>{J.apply(0.25);J.apply(0.25);J.apply(1);assert.equal(sky.length,2);assert.deepEqual(sky[0],{t:domeOf('day'),w:0.25});assert.deepEqual(sky[1],{t:domeOf('day'),w:1});});
+run('dome target reads zenith + low (linear, exact round trip), not Horizon and not the clear colour',()=>{for(const m of ['day','night']){const M=D.lakesideModeLighting(m),want=[0,1,2].map(i=>(M.waterSkyZenithLinear[i]+M.waterSkyLowLinear[i])/2);
+ const got=domeOf(m).map(lin);for(let i=0;i<3;i++)assert(Math.abs(got[i]-want[i])<1e-12,m+' ch '+i);assert.notDeepEqual(domeOf(m),clearOf(m));
+ const hz=[0,1,2].map(i=>(M.waterSkyZenithLinear[i]+M.waterSkyHorizonLinear[i])/2);assert(Math.hypot(...hz.map((v,i)=>v-want[i]))>1e-6||m==='night','horizon not used');}
+ const src=fs.readFileSync(S+'region/LakesideJourneyLighting.ts','utf8'),at=fs.readFileSync(S+'region/LakesideJourneyAtmosphere.ts','utf8');assert.match(src,/sky\(skyFollowTargetFromLinear\(lakesideSkyDomeTargetLinear\(mode\)\),f\.weight\)/);
+ const fn=at.slice(at.indexOf('export function lakesideSkyDomeTargetLinear'));assert.match(fn,/M\.waterSkyZenithLinear/);assert.match(fn,/M\.waterSkyLowLinear/);assert.doesNotMatch(fn.split('\n')[0],/Horizon/);});
+run('toggle in lakeside: the dome follows the NIGHT lakeside sky, then back to day',()=>{globalThis.__worldDayNight.toggle();assert.deepEqual(sky.at(-1),{t:domeOf('night'),w:1});globalThis.__worldDayNight.toggle();assert.deepEqual(sky.at(-1),{t:domeOf('day'),w:1});});
 run('leave: exactly one restore (null) and nothing after; a second restore does nothing',()=>{const n=sky.length;J.restore();assert.equal(sky.length,n+1);assert.equal(sky.at(-1),null);J.restore();globalThis.__worldDayNight.toggle();globalThis.__worldDayNight.toggle();assert.equal(sky.length,n+1);});
-run('journey at night: target is the night clear from the first blended frame',()=>{globalThis.__worldDayNight.toggle();J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();J.apply(0.5);assert.deepEqual(sky.at(-1),{t:clearOf('night'),w:0.5});J.restore();assert.equal(sky.at(-1),null);globalThis.__worldDayNight.toggle();});
+run('journey at night: target is the night lakeside sky from the first blended frame',()=>{globalThis.__worldDayNight.toggle();J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();J.apply(0.5);assert.deepEqual(sky.at(-1),{t:domeOf('night'),w:0.5});J.restore();assert.equal(sky.at(-1),null);globalThis.__worldDayNight.toggle();});
 run('wiring: WorldFlowComponent moves only the existing dome/cloud instances (no node, no renderer, no pass) and exposes skyFollow',()=>{
  const w=fs.readFileSync(S+'world-r1/WorldFlowComponent.ts','utf8'),b=w.slice(w.indexOf('function bindUnlitBackdrop'),w.indexOf('/** Add to a NEW, identity scene-root sibling'));
  assert.match(w,/skyFollow:\(target:readonly number\[\]\|null,w:number,fade\?:number\)=>self\.skyFollow\(target,w,fade\)/);assert.match(b,/const follows=name==='env_sky_dome'\|\|name==='env_cloud_layer'/);

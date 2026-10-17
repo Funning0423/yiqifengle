@@ -72,3 +72,9 @@ export function lakesideBoardHolding():boolean{return boardHolding;}
 export function setLakesideJourneyReapply(fn:(()=>void)|null){journeyReapply=fn;}
 /** true when a journey took over (it re-applied); false when no journey holds the lighting. */
 export function reapplyLakesideJourney():boolean{const f=journeyReapply;if(!f)return false;try{f();}catch{}return true;}
+/** r4 journey fix 4 (VB: the sky the lake reflects): the island sky dome / cloud layer follow the lakeside SKY during the blend, i.e.
+ *  lakesideModeLighting(mode).waterSkyZenithLinear and waterSkyLowLinear (linear; NOT waterSkyHorizonLinear, which is the reflected
+ *  olive shore). One mainColor tint per mesh, so the dome's average goes to the mean of zenith and low (its own vertex gradient keeps
+ *  the top/bottom shape). Read-only on lakesideModeLighting. Linear; LakesideJourneyLighting hands it to skyFollow via
+ *  skyFollowTargetFromLinear (exact round trip). */
+export function lakesideSkyDomeTargetLinear(mode:LakesideDayNight):[number,number,number]{const M=lakesideModeLighting(mode),z=M.waterSkyZenithLinear,l=M.waterSkyLowLinear;return [(z[0]+l[0])/2,(z[1]+l[1])/2,(z[2]+l[2])/2];}

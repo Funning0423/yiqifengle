@@ -7,8 +7,11 @@
  *  own camera). Pure, no cc import. */
 export type Rgb3=readonly [number,number,number]|readonly number[];
 export const srgb8ToLinear=(b:number)=>{const c=Math.max(0,Math.min(255,b))/255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);};
+/** r4 journey fix 4: a LINEAR sky target in the skyFollow API's sRGB-8 form: float "bytes", exact inverse of srgb8ToLinear (no rounding),
+ *  so skyFollowColor gets the linear value back unchanged. Unlit dome tint only (no light colour goes through here). */
+export function skyFollowTargetFromLinear(c:Rgb3):[number,number,number]{const e=(l:number)=>{const v=Math.max(0,Math.min(1,Number.isFinite(l)?l:0));return 255*(v<=.0031308?v*12.92:1.055*Math.pow(v,1/2.4)-.055);};return [e(c[0]),e(c[1]),e(c[2])];}
 export const srgbToLinear=(c:number)=>{c=Math.max(0,Math.min(1,c));return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);};
-export const SKY_FOLLOW_MAX_GAIN=8;
+export const SKY_FOLLOW_MAX_GAIN=12/* r4 journey fix 4: 8 -> 12, the day lakeside sky (zenith/low) needs 9.6 on the dome's red */;
 /** Mean SRGBToLinear(vertex colour) (rgb) of a colour stream with `stride` components per vertex. Bytes (0..255) when `normalized8`. */
 export function vertexColorAverageLinear(colors:ArrayLike<number>|null|undefined,stride:number,normalized8=false):[number,number,number]{
  if(!colors||!(stride>=3)||colors.length<stride)return [1,1,1];
