@@ -8,14 +8,20 @@
  *  K2 her face (1.5 m), head (1.6) and chest (0.9) never hidden, at most one low graze; lens clearance ≥ 1.1 m everywhere.
  *     Reported, not hidden: the 04→05 set-off exemption (d < 1 m, only her legs behind the island prop strip).
  *  K3 lens on her RIGHT for the whole leg (never left of behind).
- *  K4 final landing frame at 360×780 (0.46) and 390×520 (0.75): whole body in frame, feet ≥ 5% above the bottom edge,
+ *  K4 final landing frame on every screen (390×844, 414×896, 360×780, 375×667, 390×520) with that screen's route landing
+ *     (lakesideScreenLanding: ends on its board camera): whole body in frame, feet ≥ 5% above the bottom edge,
  *     her centre 20–80% of the width, height 0.12–0.26 of the screen (0.26: close fallback-like end pose), board centre in frame.
- *  K5 view turn ≤ 20°/s on the timed walk (route.timing, 17 s); no crane-up: lens height above her never rises over the arrival (monotone).
+ *  K5 view turn ≤ 20°/s on the timed walk (route.timing, 17 s) for the base and every screen landing; no crane-up: lens height
+ *     above her never rises over the arrival (monotone). The screen landings change only the aim / FOV, never the lens position,
+ *     so K1–K3 / K7 (positions) hold for every screen.
  *  K7 time domain on route.timing (RegionJourneyCore.journeyDistanceAt, the distance curve the controller hands the walk action
  *     as distanceAt; NOTE the frozen FlowReferenceStandin does not follow it until its reviewed patch lands), 60 Hz:
  *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
  *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
- *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): starts on the landing pose (lens at rest), ends exactly on
+ *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): on every portrait layout the route landing of that screen
+ *     ends ON its board camera (gap ≤ 1e-6 m / 1e-4° / 1e-4° FOV; the base end pose's difference is reported). The blend itself is
+ *     exercised from the BASE end pose to zero-inset 360×780 / 390×520 boards (a viewport change after the journey was planned, the only
+ *     case with a real residual): starts on the landing pose (lens at rest), ends exactly on
  *     the board camera; one smootherstep for position/view (slerp)/FOV: monotonic, no overshoot, single-peak rates ≈ 0 at both ends;
  *     lens ≥ 1.1 m on every 60 Hz frame, her face/head/chest never hidden, lens on her right while it is behind her; per-frame
  *     displacement / speed / turn rate / FOV rate written to the report (perFrame) for the blend plots.
@@ -38,7 +44,9 @@ const lakeLocal=LKS.instances(),lake=lakeLocal.map(o=>{const t=new Float64Array(
 // rainbow bridge strip exactly as RegionJourneyAdapter.rainbowBridge (full width, one ribbon)
 const strip=(()=>{const w=Lay.REGION_JOURNEY_LAYOUT.bridgeWidthM,P=j.bridge,t=[];for(let i=1;i<P.length;i++){const q=[P[i-1],P[i]].map((p,k)=>{const a=P[Math.max(0,i-1+k-1)],b=P[Math.min(P.length-1,i+k)],dx=b[0]-a[0],dz=b[2]-a[2],L=Math.hypot(dx,dz)||1;return [-.5,.5].map(s=>[p[0]+dz/L*s*w,p[1]-.015,p[2]-dx/L*s*w]);});t.push(...q[0][0],...q[1][0],...q[0][1],...q[0][1],...q[1][0],...q[1][1]);}return {tag:'bridge',name:'RainbowBridgeStrip',tris:Float64Array.from(t)};})();
 const objs=[...island,...lake,strip];
-const cam=d=>journeyCamera(path,d,start1,j.focus,undefined,0,j.landing);
+const cam=(d,landing=j.landing)=>journeyCamera(path,d,start1,j.focus,undefined,0,landing);
+// Per-screen route landing (what RegionJourneyAdapter hands the route at runtime): the journey ends on that screen's board camera.
+const BLs=H.load(S+'ui/BoardLayout.ts'),SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520]],screenLanding=(W,Hh)=>LK.lakesideScreenLanding(j,LK.lakesideScreenFrame(W,Hh,BLs.boardSafeInsets(W,Hh)));
 const heading=d=>Core.journeyHeading(path,d);
 function ndc(c,p,aspect){const f=sub(c.target,c.position),fl=Math.hypot(...f),fw=f.map(x=>x/fl),rl=Math.hypot(fw[2],fw[0]),r=[-fw[2]/rl,0,fw[0]/rl],up=[r[1]*fw[2]-r[2]*fw[1],r[2]*fw[0]-r[0]*fw[2],r[0]*fw[1]-r[1]*fw[0]],th=Math.tan(c.fovVerticalDeg*Math.PI/360),v=sub(p,c.position),z=v[0]*fw[0]+v[1]*fw[1]+v[2]*fw[2];
  return [(v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(z*th*aspect),(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(z*th),z];}
@@ -68,13 +76,13 @@ check(`K2 face/head/chest visible + lens ≥ ${CLEAR} m every ${STEP} m (island 
  return {samples:rows.length,minLensM:worst.lens,minLensAt:worst.d,minLensObj:worst.lensObj,setOffLegsOnlyExempted:exempted,partialGrazes:grazes};});
 check('K3 lens on her right for the whole leg',()=>{const m=rows.reduce((a,r)=>r.side<a.side?r:a);assert(m.side>.3,`lens ${m.side} m right of her at d=${m.d}`);return {minRightM:m.side,at:m.d,finalRightM:rows.at(-1).side};});
 const finals={};
-for(const [W,Hh] of [[360,780],[390,520]])check(`K4 final landing frame ${W}x${Hh}: whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame`,()=>{
- const a=W/Hh,c=cam(T),p=path.at(-1),feet=ndc(c,[p[0],p[1]+.05,p[2]],a),head=ndc(c,[p[0],p[1]+1.65,p[2]],a),chest=ndc(c,[p[0],p[1]+.9,p[2]],a),fc=ndc(c,j.focus,a);
+for(const [W,Hh] of SCREENS)check(`K4 final landing frame ${W}x${Hh} (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame`,()=>{
+ const a=W/Hh,c=cam(T,screenLanding(W,Hh)),p=path.at(-1),feet=ndc(c,[p[0],p[1]+.05,p[2]],a),head=ndc(c,[p[0],p[1]+1.65,p[2]],a),chest=ndc(c,[p[0],p[1]+.9,p[2]],a),fc=ndc(c,j.focus,a);
  const x=(chest[0]+1)/2,feetUp=(feet[1]+1)/2,headDown=(1-head[1])/2,h=(head[1]-feet[1])/2;
  assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.05,'feet '+feetUp);assert(headDown>=.05,'head '+headDown);assert(x>=.2&&x<=.8,'her x '+x);assert(h>=.12&&h<=.26,'height '+h);assert(Math.abs(fc[0])<=.9&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc);
  return finals[W+'x'+Hh]={herX:+x.toFixed(3),feetAboveBottom:+feetUp.toFixed(3),headBelowTop:+headDown.toFixed(3),herHeight:+h.toFixed(3),boardCentre:[+((fc[0]+1)/2).toFixed(3),+((1-fc[1])/2).toFixed(3)],cam:c.position.map(v=>+v.toFixed(3)),target:c.target.map(v=>+v.toFixed(3)),fov:c.fovVerticalDeg};});
-check('K5 view turn ≤ 20°/s on the 17 s profile; no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
- for(let t=0;t<DUR;t+=1/60){const a=cam(sAt(t)),b=cam(sAt(Math.min(DUR,t+1/60))),fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI*60;if(deg>maxAng){maxAng=deg;at=t;}}
+check('K5 view turn ≤ 20°/s on the 17 s profile (base + every screen landing); no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
+ for(const ld of [j.landing,...SCREENS.map(([W,Hh])=>screenLanding(W,Hh))])for(let t=0;t<DUR;t+=1/60){const a=cam(sAt(t),ld),b=cam(sAt(Math.min(DUR,t+1/60)),ld),fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI*60;if(deg>maxAng){maxAng=deg;at=t;}}
  assert(maxAng<=20,`turn ${maxAng.toFixed(2)}°/s at d=${at.toFixed(2)}`);
  // No crane-up: over the arrival the lens never climbs in the world, and its height above her only falls (≤ 5 cm total of
  // up-steps allowed: the S-curve lens rounds the bridge→bank corner where her own descent stops dead).
@@ -129,7 +137,7 @@ check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact; 
  return {layouts:out};});
 // K8 landing → board blend (lakesideLandingBlend): exact ends, one S-curve for position / view (slerp) / FOV, 60 Hz frames
 check(`K8 landing→board blend ${C.landingBlend.seconds} s @60 Hz: exact ends, landing lens at rest, zero velocity at both ends, monotonic (no overshoot) distance/view/FOV, single-peak speed and turn rate (no spikes), lens ≥ ${CLEAR} m, her face/head/chest never hidden, lens on her right while behind her`,()=>{const out={};
- const BL8=H.load(S+'ui/BoardLayout.ts'),p=path.at(-1),[hx,hz]=heading(T),ang=(a,b)=>{const u=sub(a.target,a.position),v=sub(b.target,b.position);return Math.acos(Math.max(-1,Math.min(1,(u[0]*v[0]+u[1]*v[1]+u[2]*v[2])/Math.hypot(...u)/Math.hypot(...v))));};
+ const BL8=H.load(S+'ui/BoardLayout.ts'),p=path.at(-1),[hx,hz]=heading(T),ang=(a,b)=>{const u=sub(a.target,a.position),v=sub(b.target,b.position),c=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];return Math.atan2(Math.hypot(...c),u[0]*v[0]+u[1]*v[1]+u[2]*v[2]);};
  // the landing lens itself is at rest when the blend starts (her last 1/60 s)
  const cl=cam(sAt(DUR-1/60)),cT=cam(T),landV=Math.hypot(...sub(cT.position,cl.position))*60,landW=ang(cl,cT)*180/Math.PI*60;assert(landV<.01&&landW<.1,`landing lens moving at the stop: ${landV} m/s, ${landW}°/s`);
  for(const [W,Hh] of [[360,780],[390,520]]){const g=BL8.boardLayout(W,Hh,{top:0,bottom:0,left:0,right:0,capsule:null},2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
@@ -145,18 +153,27 @@ check(`K8 landing→board blend ${C.landingBlend.seconds} s @60 Hz: exact ends, 
    F.push({t:+t.toFixed(4),dispM:Math.hypot(...sub(c.position,from.position)),angFromStartDeg:ang(from,c)*180/Math.PI,angToEndDeg:ang(c,e1)*180/Math.PI,fov:c.fovVerticalDeg,
     speedMps:pc?Math.hypot(...sub(c.position,pc.position))*60:0,angVelDegS:pc?ang(pc,c)*180/Math.PI*60:0,fovRateDegS:pc?(c.fovVerticalDeg-pc.fovVerticalDeg)*60:0});}
   assert(minLens>=CLEAR,`blend lens ${minLens} from ${minObj}`);assert.deepEqual(hiddenAt,[],'her hidden '+JSON.stringify(hiddenAt.slice(0,5)));assert(minSide>0,'lens left of her while behind: '+minSide);
-  const eps=1e-9,mono=(k,s=1)=>F.every((f,i)=>!i||s*(f[k]-F[i-1][k])>=-eps);
+  // tolerances: acos/float noise (the gap can be a few hundredths of a degree when the landing ends on the board pose)
+  const eps=1e-6,mono=(k,s=1)=>F.every((f,i)=>!i||s*(f[k]-F[i-1][k])>=-eps);
   assert(mono('dispM')&&mono('angFromStartDeg')&&mono('angToEndDeg',-1)&&mono('fov',Math.sign(totF)||1),'blend not monotonic (overshoot)');
   assert(F.every(f=>f.dispM<=totD+1e-9&&f.angFromStartDeg<=totA*180/Math.PI+1e-6&&(f.fov-from.fovVerticalDeg)*(Math.sign(totF)||1)<=Math.abs(totF)+1e-9),'blend overshoots its end');
   // single peak: rate rises to its maximum then falls (no second hump / spike), ends ≈ 0
-  const peak=(k)=>{const r=F.slice(1).map(f=>Math.abs(f[k])),m=Math.max(...r),im=r.indexOf(m);return {m,im,ok:r.every((x,i)=>i===0||(i<=im?x>=r[i-1]-1e-9:x<=r[i-1]+1e-9)),first:r[0],last:r.at(-1)};};
+  const peak=(k)=>{const r=F.slice(1).map(f=>Math.abs(f[k])),m=Math.max(...r),im=r.indexOf(m),tol=Math.max(1e-6,1e-3*m);return {m,im,ok:r.every((x,i)=>i===0||(i<=im?x>=r[i-1]-tol:x<=r[i-1]+tol)),first:r[0],last:r.at(-1)};};
   const pv=peak('speedMps'),pw=peak('angVelDegS'),pf=peak('fovRateDegS');
-  for(const [nm,q] of [['speed',pv],['turn',pw],['fov',pf]]){assert(q.ok,`${nm} rate not single-peaked`);if(q.m>1e-9)assert(q.first<=.02*q.m&&q.last<=.02*q.m,`${nm} rate not ≈ 0 at the ends (${q.first}, ${q.last} of peak ${q.m})`);}
+  for(const [nm,q] of [['speed',pv],['turn',pw],['fov',pf]]){assert(q.ok,`${nm} rate not single-peaked`);if(q.m>1e-4)assert(q.first<=.02*q.m&&q.last<=.02*q.m,`${nm} rate not ≈ 0 at the ends (${q.first}, ${q.last} of peak ${q.m})`);}
   const acc=F.slice(2).map((f,i)=>Math.abs(f.angVelDegS-F[i+1].angVelDegS)*60),r3=x=>+x.toFixed(3);
   out[W+'x'+Hh]={seconds:b.seconds,frames:n+1,from:{position:from.position.map(r3),fov:r3(from.fovVerticalDeg)},to:{position:bw[0].map(r3),fov:r3(loc.fovVerticalDeg)},moveM:r3(totD),turnDeg:r3(totA*180/Math.PI),fovChangeDeg:r3(totF),
    minLensM:r3(minLens),minLensObj:minObj,minRightWhileBehindM:r3(minSide),passesHerAtS:ahead,peakSpeedMps:r3(pv.m),peakTurnDegS:r3(pw.m),peakTurnAtS:r3((pw.im+1)/60),peakTurnAccelDegS2:r3(Math.max(...acc)),peakFovRateDegS:r3(pf.m),
    endRates:{firstFrameTurnDegS:r3(pw.first),lastFrameTurnDegS:r3(pw.last),firstFrameFovDegS:r3(pf.first),lastFrameFovDegS:r3(pf.last)},perFrame:F.map(f=>Object.fromEntries(Object.entries(f).map(([k,v])=>[k,+v.toFixed(5)])))};}
- return {landingLensAtStop:{speedMps:+landV.toFixed(5),turnDegS:+landW.toFixed(5)},blends:out};});
+ // landing END = board camera of the SAME screen (route landing solved per screen at runtime): every portrait layout, the
+ // board UI's own frame (BoardLayout + boardSafeInsets) and the K6 layouts' explicit safe areas; base end pose difference reported
+ const gaps={};const layouts=[...SCREENS.map(([W,Hh])=>[`${W}x${Hh} (boardSafeInsets)`,W,Hh,BLs.boardSafeInsets(W,Hh)]),...K6_LAYOUTS.filter(([,W,Hh])=>W<=Hh)];
+ for(const [name,W,Hh,safe] of layouts){const fr=LK.lakesideScreenFrame(W,Hh,safe),ld=LK.lakesideScreenLanding(j,fr),end=cam(T,ld),b=LK.lakesideLandingBlend(end,fr,j),b0=LK.lakesideLandingBlend(cT,fr,j);
+  assert(b.done(b.seconds)&&!b.done(b.seconds-1e-3)&&b.at(b.seconds)===b.boardWorld,'done()/at() swap frame');
+  assert(b.gap.positionM<=1e-6&&b.gap.viewDeg<=1e-4&&Math.abs(b.gap.fovDeg)<=1e-4,name+': journey end != board camera of this screen '+JSON.stringify(b.gap));
+  gaps[name]={endToBoard:{positionM:+b.gap.positionM.toExponential(2),viewDeg:+b.gap.viewDeg.toExponential(2),fovDeg:+b.gap.fovDeg.toExponential(2)},baseEndToBoard:{viewDeg:+b0.gap.viewDeg.toFixed(4),fovDeg:+b0.gap.fovDeg.toFixed(4)},
+   screenLanding:{arrivalYawDeg:+ld.arrivalYawDeg.toFixed(4),arrivalPitchDeg:+ld.arrivalPitchDeg.toFixed(4),arrivalFovDeg:+ld.arrivalFovDeg.toFixed(4)}};}
+ return {landingLensAtStop:{speedMps:+landV.toFixed(5),turnDegS:+landW.toFixed(5)},landingToBoardGap:gaps,blends:out};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
 if(process.env.QF_LAKESIDE_DUMP)fs.writeFileSync(process.env.QF_LAKESIDE_DUMP,JSON.stringify({path,focus:j.focus,root:j.root,yawDeg:j.yawDeg,landing:j.landing,start1,rows,route:{bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,speed:route.speed}}));

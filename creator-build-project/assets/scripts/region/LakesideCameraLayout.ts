@@ -1,5 +1,6 @@
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
-import {arrivalPose,type JourneyLanding,type JourneyTiming} from '../world-r1/RegionJourneyCore';
+import {arrivalPose,journeyCamera,routeLength,type JourneyLanding,type JourneyTiming} from '../world-r1/RegionJourneyCore';
+import {boardLayout,type SafeArea} from '../ui/BoardLayout';
 import {fromLookAt,projectPoint,type AuthoredPose,type CameraPose} from '../world-r1/CameraPose';
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus} from './RegionJourneyLayout';
 /** Lakeside (r5h3) camera data: journey into the region, Landing A arrival and the board framing. Pure numbers and maths, no
@@ -24,11 +25,17 @@ export const LAKESIDE_CAMERA_LAYOUT={
  focusLocal:[0,.3,12] as Vec,
  /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). Close end pose
   * (Funning on the c375304 video: the fallback's final frame reads the board and bridge better): the arrival pose is the
-  * default follow lens's final pose (6.8 m behind / 1.76 m right; 3.0 m up, 0.4 m under the 3.4 m follow height), view ≈ 8°
-  * down, aim turned 60% of the way from the board centre toward her (her ≈ 34% across, board centre ≈ 74% at 360×780, as in
-  * the fallback frame). Over the 14.3 m arrival blend the lens height above her eases 3.4 → 3.0 m, so the lens never climbs
-  * in the world (it settles; no crane-up). */
- landing:{arrivalBackM:6.8,arrivalSideM:1.76,arrivalUpM:3.0,arrivalPitchDeg:3.7,arrivalYawToHer:.6,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
+  * fallback's close neighbourhood (6.8 m behind / 1.1 m right of her; 3.0 m up, 0.4 m under the 3.4 m follow height). These
+  * numbers are the BASE end pose; aim (horizontal at the focus, arrivalPitchDeg below the focus pitch) and arrivalFovDeg are
+  * set near a common phone's board camera so that the per-screen correction stays small. The journey does NOT end on this base
+  * pose: at runtime the adapter back-solves the current screen's board camera (lakesideScreenLanding: BoardLayout +
+  * boardSafeInsets, the frame the board UI will report) and replaces the arrival aim (arrivalYawDeg / arrivalPitchDeg) and
+  * arrivalFovDeg by that camera's, so the arrival blend (one smootherstep over the last arrivalBlendM = 14.3 m, ≥ 3 s of the
+  * walk; the screen difference is never put into the 1 s hook) ends ON the board camera of that screen and the hook has
+  * (almost) nothing left to close. One weight for view and FOV keeps the zoom monotonic (an extra short correction on top
+  * of the arrival FOV ramp would reverse the zoom on screens whose board FOV is below the base). Over the 14.3 m arrival blend the lens height above her eases 3.4 → 3.0 m and the FOV 48 →
+  * arrivalFovDeg with the same smoother as the view, so the lens never climbs in the world (no crane-up). */
+ landing:{arrivalBackM:6.8,arrivalSideM:1.1,arrivalUpM:3.0,arrivalPitchDeg:-2.507461,arrivalFovDeg:57.35256,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
  /** Time profile (reviewer on c375304): the 39.2 m leg in 17 s, smootherstep ramps 4 s up from rest and 4 s down into
   * the landing stop. Cruise 3.02 m/s (≤ 4.5), |a| ≤ 1.41 m/s² (≤ 3), |jerk| ≤ 1.09 m/s³ for her; the lens follows distance
   * (K7: lens |a| ≤ 1.95 m/s², |jerk| ≤ 4.9 m/s³). */
@@ -39,7 +46,7 @@ export const LAKESIDE_CAMERA_LAYOUT={
   * monotonically (no overshoot) and peak together at mid-blend; the board UI/lease then takes over at the identical pose. */
  landingBlend:{seconds:1},
  /** Board framing. Portrait (reviewer, c375304 round 2: the pitch-58 overhead board view is void): the board camera stays at
-  * the close landing position (the fallback-like end pose, see landing); only its view direction and FOV change so the 3D
+  * the close landing position (the fallback-like end pose, see landing; the journey ends on this camera for the current screen); only its view direction and FOV change so the 3D
   * lake grid (wb_line grid, cell edges x ±3.85, z 8.15…15.85 on the water) lies under the 2D board grid of BoardLayout with
   * the board centre on the 2D grid centre and the centre row exactly the 2D grid width. The view is shallow (≈ 9–11° down),
   * so the rows are strongly foreshortened: corner / cell errors are reported by the test, not hidden. Landscape (desktop
@@ -68,9 +75,26 @@ export function lakesideBoardRect(frame:LakesideBoardFrame):{x:number;y:number;s
  const pitch=Math.max(20,Math.min(42.6*Math.min(1.3,Math.max(1,w/390)),(w-18)/(681/82)));
  return {x:w/2,y:frame.boardTop+pitch*(723/82)/2,size:pitch*7};
 }
+/** Board-UI frame (LakesideBoardFrame) the board UI will report for a viewport: BoardLayout with the board UI's own safe area
+ * (ui/BoardLayout.boardSafeInsets); the portrait plate width does not depend on the goal count (2 used). */
+export function lakesideScreenFrame(width:number,height:number,safe:SafeArea):LakesideBoardFrame{
+ const g=boardLayout(width,height,safe,2);return {width,height,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};}
+const yawPitch=(p:Readonly<{position:readonly number[];target:readonly number[]}>)=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2]);
+ return {yaw:Math.atan2(d[0],d[2]),pitch:Math.asin(Math.max(-1,Math.min(1,d[1]/l)))};};
+/** Route landing for THIS screen (RegionJourneyAdapter, at journey prepare): the base landing with the arrival aim and FOV
+ * replaced by this screen's board camera (lakesideAlignedLookAt(frame); same position, so only arrivalYawDeg (from the
+ * horizontal focus direction), arrivalPitchDeg (from the focus pitch) and arrivalFovDeg change): the journey's final pose IS
+ * that camera. */
+export function lakesideScreenLanding(journey:Readonly<{landing:JourneyLanding}>,frame:LakesideBoardFrame):JourneyLanding{
+ const L=LAKESIDE_CAMERA_LAYOUT,b=lakesideAlignedLookAt(frame),base=arrivalPose(L.walkLocal,L.focusLocal,journey.landing),f=L.focusLocal,p=base.position;
+ if(journey.landing.arrivalAim)throw Error('lakesideScreenLanding: arrivalAim must be 0');
+ const a=yawPitch(b),yf=Math.atan2(f[0]-p[0],f[2]-p[2]),pf=Math.atan2(f[1]-p[1],Math.hypot(f[0]-p[0],f[2]-p[2])),k=180/Math.PI;
+ let dy=a.yaw-yf;while(dy>Math.PI)dy-=2*Math.PI;while(dy<-Math.PI)dy+=2*Math.PI;
+ return {...journey.landing,arrivalYawDeg:dy*k,arrivalPitchDeg:(a.pitch-pf)*k,arrivalFovDeg:b.fovVerticalDeg};
+}
 /** Lakeside close end pose (Local): Landing A arrival pose of the lakeside walk (her stop walkLocal[last], focus = board centre). */
 export function lakesideLandingLocal():AuthoredPose{const L=LAKESIDE_CAMERA_LAYOUT,e=arrivalPose(L.walkLocal,L.focusLocal,L.landing);
- return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:48};}
+ return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:L.landing.arrivalFovDeg||48};}
 /** Lakeside board-background camera for a board-UI frame (Local).
  * Portrait: position = lakesideLandingLocal().position; no roll; yaw/pitch solved (Newton) so the 3D board centre projects on
  * the 2D grid centre, FOV solved (bisection) so the 3D centre row projects exactly the 2D grid width.
@@ -91,7 +115,7 @@ export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
   const width=(fov:number)=>{const a=aimAt(fov),p=pose(a.yaw,a.pitch,fov),l=projectPoint(p,aspect,[c[0]-G.halfX,c[1],c[2]]),r=projectPoint(p,aspect,[c[0]+G.halfX,c[1],c[2]]);return r.x-l.x;};
   let lo=10,hi=120;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(width(m)>wn)lo=m;else hi=m;}
   const fov=(lo+hi)/2,a=aimAt(fov),d=dir(a.yaw,a.pitch),D=Math.hypot(...v);
-  return {position:[q(pos[0]),q(pos[1]),q(pos[2])],target:[pos[0]+d[0]*D,pos[1]+d[1]*D,pos[2]+d[2]*D],fovVerticalDeg:fov};}
+  return {position:[pos[0],pos[1],pos[2]],target:[pos[0]+d[0]*D,pos[1]+d[1]*D,pos[2]+d[2]*D],fovVerticalDeg:fov};}
  const fov=B.landscape.fovVerticalDeg,t=Math.tan(fov*Math.PI/360),p=B.landscape.pitchDeg*Math.PI/180;
  const f:V3=[0,-Math.sin(p),-Math.cos(p)],r:V3=[1,0,0],up:V3=[0,Math.cos(p),-Math.sin(p)];
  const D=2*G.halfX/(t*aspect*(rect.size/w*2)),X=(rect.x/w*2-1)*t*aspect*D,Y=(1-rect.y/h*2)*t*D;
@@ -102,12 +126,17 @@ export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
 export function lakesideAlignedBoardPose(frame:LakesideBoardFrame):CameraPose{const p=lakesideAlignedLookAt(frame);return fromLookAt(p,p.fovVerticalDeg);}
 const smooth5=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
 export type LakesideLandingBlend=Readonly<{seconds:number;from:Pose;boardLocal:AuthoredPose;boardWorld:Pose;
+ gap:Readonly<{positionM:number;viewDeg:number;fovDeg:number}>;
  /** World camera pose t seconds after she stopped (clamped to 0…seconds): pass to WorldLease.setCamera each frame. */
- at(t:number):Pose}>;
-/** Landing → board hook for the region wiring (Voice Bot). Call once when the lakeside journey is 'arrived':
+ at(t:number):Pose;
+ /** true once at(t) returns boardWorld exactly (t ≥ seconds): the frame on which to swap to the board. */
+ done(t:number):boolean}>;
+/** Landing → board hook for the region wiring (Voice Bot). Preload the board scene (lakeside lease + board UI, hidden) BEFORE
+ * the journey arrives; call once when the lakeside journey is 'arrived':
  *   const b=lakesideLandingBlend(world.readCamera() /* = the final journey pose *\/, boardFrame, journey);
- *   each frame: world.setCamera(b.at(elapsed)); when elapsed ≥ b.seconds: show the board (lease.frame → its camera is
- *   lakesideAlignedBoardPose(boardFrame) = b.boardWorld seen from the lease's own origin, so the hand-off has no jump).
+ *   each frame: world.setCamera(b.at(elapsed)); when b.done(elapsed) the pose IS b.boardWorld: swap to the board on that
+ *   frame (lease.frame → its camera is lakesideAlignedBoardPose(boardFrame) = b.boardWorld seen from the lease's own origin,
+ *   identical pose, so the frame is continuous). b.gap = residual landing→board difference (m / ° view / ° FOV).
  * `journey` is lakesideJourney(start) (yawDeg + root). One smootherstep e(t/seconds) drives position (lerp), view direction
  * (slerp on the unit sphere; the pose is a look-at, so no roll) and FOV (lerp): zero velocity/acceleration at both ends. */
 export function lakesideLandingBlend(from:Pose,frame:LakesideBoardFrame,journey:Readonly<{yawDeg:number;root:Vec}>,seconds:number=LAKESIDE_CAMERA_LAYOUT.landingBlend.seconds):LakesideLandingBlend{
@@ -121,5 +150,5 @@ export function lakesideLandingBlend(from:Pose,frame:LakesideBoardFrame,journey:
   const p:Vec=[A[0]+(B[0]-A[0])*e,A[1]+(B[1]-A[1])*e,A[2]+(B[2]-A[2])*e],k0=th>1e-9?Math.sin((1-e)*th)/sn:1-e,k1=th>1e-9?Math.sin(e*th)/sn:e;
   const d=[d0[0]*k0+d1[0]*k1,d0[1]*k0+d1[1]*k1,d0[2]*k0+d1[2]*k1],l=Math.hypot(d[0],d[1],d[2]);
   return {position:p,target:[p[0]+d[0]/l*10,p[1]+d[1]/l*10,p[2]+d[2]/l*10],fovVerticalDeg:f0+(f1-f0)*e};};
- return {seconds,from,boardLocal:local,boardWorld,at};
+ return {seconds,from,boardLocal:local,boardWorld,gap:{positionM:Math.hypot(B[0]-A[0],B[1]-A[1],B[2]-A[2]),viewDeg:th*180/Math.PI,fovDeg:f1-f0},at,done:(t:number)=>t>=seconds};
 }
