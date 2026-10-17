@@ -7,15 +7,53 @@ export const MARKER_PT=32;
 export const MARKER_HIT_PT=48;
 export const ROUTE_SPACING_M=0.8;
 export const ROUTE_MAX=24;
-/** One instanced footprint material. The markers themselves are screen-space UI. */
+/** One shared unlit mesh for every gem and footprint. */
 export const ROUTE_HINT_DC=1;
+/** Gem height sits between 1/4 and 1/3 of the 1.725 m body. */
+export const MARKER_GEM_H=0.5;
+export const MARKER_GEM_R=0.15;
+export const MARKER_LIFT_M=0.16;
+/** Pushed beside her feet when she stands on the node, so the gem does not intersect her. */
+export const MARKER_BESIDE_M=0.66;
 export type MarkerDraw=Readonly<{fill:string;scale:number;opacity:number;label:string}>;
 
 export function markerDraw(phase:NodePhase,seconds:number,occluded=false):MarkerDraw{
  const opacity=occluded?0.4:1;
  if(phase==='passed')return {fill:'#e2b657',scale:1,opacity,label:'passed'};
- if(phase==='playable'){const wave=Math.sin((seconds%1.6)/1.6*Math.PI*2);return {fill:'#fffaf2',scale:1+0.04*wave,opacity,label:'playable'};}
+ if(phase==='playable'){const wave=Math.sin((seconds%1.6)/1.6*Math.PI*2);return {fill:'#f0d7a2',scale:1+0.04*wave,opacity,label:'playable'};}
  return {fill:'#9aa0a6',scale:1,opacity,label:'locked'};
+}
+/** Ground point for one gem. On the node when she is away; beside her feet when she is standing there. */
+export function markerAnchor(at:Vec,girl:Vec):Vec{
+ const dx=at[0]-girl[0],dz=at[2]-girl[2];
+ if(Math.hypot(dx,dz)<0.85)return [girl[0]+MARKER_BESIDE_M,at[1],girl[2]+0.2];
+ return [at[0],at[1],at[2]];
+}
+function shade(fill:string,k:number):[number,number,number,number]{
+ const n=parseInt(fill.slice(1),16);
+ return [((n>>16)&255)/255*k,((n>>8)&255)/255*k,(n&255)/255*k,1];
+}
+/**
+ * Low-poly crystal in local space (apex up). Vertex colors carry the light so one unlit
+ * material still reads as a volume. `foot` is a flat route hint, not a second gem.
+ */
+export function gemLocal(phase:NodePhase,seconds:number,foot=false):{positions:number[];normals:number[];colors:number[];indices:number[]}{
+ const look=markerDraw(phase,seconds);
+ const h=foot?0.045:MARKER_GEM_H*look.scale,r=foot?0.07:MARKER_GEM_R*look.scale;
+ const y0=foot?0.02:MARKER_LIFT_M+(phase==='playable'?0.05*Math.sin((seconds%1.6)/1.6*Math.PI*2):0);
+ const fill=look.fill;
+ const top=shade(fill,1),side=shade(fill,phase==='playable'?0.78:0.62),bot=shade(fill,0.42);
+ const positions:number[]=[],normals:number[]=[],colors:number[]=[],indices:number[]=[];
+ const push=(x:number,y:number,z:number,ny:number,c:[number,number,number,number])=>{positions.push(x,y,z);normals.push(0,ny,0);colors.push(c[0],c[1],c[2],c[3]);};
+ const sides=6,eq:number[]=[];
+ push(0,y0+h,0,1,top);
+ for(let i=0;i<sides;i++){const a=i/sides*Math.PI*2;eq.push(positions.length/3);push(Math.cos(a)*r,y0+h*0.42,Math.sin(a)*r,0.2,side);}
+ const botI=positions.length/3;push(0,y0,0,-1,bot);
+ for(let i=0;i<sides;i++){
+  const n=eq[(i+1)%sides];
+  indices.push(0,eq[i],n,botI,n,eq[i]);
+ }
+ return {positions,normals,colors,indices};
 }
 export function footprints(from:Vec,to:Vec,spacing=ROUTE_SPACING_M,max=ROUTE_MAX):Vec[]{
  const dx=to[0]-from[0],dy=to[1]-from[1],dz=to[2]-from[2],L=Math.hypot(dx,dy,dz);

@@ -3,7 +3,7 @@ import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAss
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view } from 'cc';
-import { DEBUG } from 'cc/env';
+import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
@@ -257,8 +257,9 @@ export class WorldNativeComposition extends Component {
     }
     return this.mainlineReward('claimRegion',index);
   }
-  /** URL `qa=1` only. No banner, and the release build does not attach this unless that query is present. */
+  /** URL `qa=1` only, and only in the web-test build. `MINIGAME` is true for wechat-release, so this body is not in the player package. */
   async qaShot(spec:{region?:'island'|'meadow'|'skycity';lens?:string;prop?:string;night?:boolean}){
+    if(MINIGAME)return {ok:false,reason:'player-build'};
     const search=(()=>{try{const s=(globalThis as any).location?.search;return typeof s==='string'?s:'';}catch{return '';}})();
     if(!qaUnlocked(search))return {ok:false,reason:'qa-only'};
     if(!this.world)return {ok:false,reason:'world-not-ready'};
@@ -281,8 +282,15 @@ export class WorldNativeComposition extends Component {
     }
     if(spec?.night){try{const day=this.world.commands().dayNight?.();if(!String(day?.mode||day||'').includes('night'))this.world.commands().toggleDayNight();}catch{/* day stays */}}
     const stage=this.stage();if(stage){stage.bindCharacter(this.boundCharacter);await stage.frame({region,lens:spec?.lens,prop:spec?.prop});}
+    let pause=false;
+    if(spec?.lens==='board'){
+     const reveal=()=>{const scene=director.getScene();if(!scene)return;for(const c of scene.getComponentsInChildren(Component)){const fn=(c as any).revealPlayfield;if(typeof fn==='function')fn.call(c);}};
+     reveal();await new Promise<void>(resolve=>this.scheduleOnce(()=>resolve(),0));reveal();
+     const scene=director.getScene();
+     pause=!!scene?.getChildByName('PausePanel')||!!(scene as any)?.getComponentsInChildren?.(Component)?.some((c:any)=>c.node?.name==='PausePanel'&&c.node.activeInHierarchy);
+    }
     (globalThis as any).__qaFrame=spec?.lens||'world';
-    return {ok:true};
+    return {ok:true,pause};
   }
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}
   private releaseOwned(){if(this.worldCamera&&this.previousCameraVisibility!==null)this.worldCamera.visibility=this.previousCameraVisibility;this.owner?.destroy();this.uiParent?.destroy();this.owner=null;this.uiParent=null;this.world=null;this.previousCameraVisibility=null;}

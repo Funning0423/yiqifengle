@@ -52,7 +52,13 @@ assert.ok(fb.seconds>=0.3&&fb.seconds<=0.6);
 assert.equal(M.ROUTE_HINT_DC,1);
 assert.equal(M.markerDraw('passed',0).fill,'#e2b657');
 assert.equal(M.markerDraw('playable',0).label,'playable');
+assert.equal(M.markerDraw('playable',0).fill,'#f0d7a2');
+assert.notEqual(M.markerDraw('playable',0).fill.toLowerCase(),'#ffffff');
+assert.notEqual(M.markerDraw('playable',0).fill.toLowerCase(),'#fffaf2');
 assert.equal(M.markerDraw('locked',0).fill,'#9aa0a6');
+assert.ok(M.MARKER_GEM_H<=C.BODY_M/3+1e-9&&M.MARKER_GEM_H>=C.BODY_M/4-1e-9);
+const beside=M.markerAnchor([2,0,4],[2.05,0,4.05]);
+assert.ok(Math.hypot(beside[0]-2.05,beside[2]-4.05)>=0.6,'gem steps aside when she stands on the node');
 
 const comp=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts'),'utf8');
 const stage=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts'),'utf8');
@@ -62,6 +68,9 @@ assert.ok(comp.includes("qaUnlocked(search)"));
 assert.ok(stage.includes('applyCameraPose'));
 assert.ok(stage.includes('presentNodeWalkWorld'));
 assert.ok(stage.includes('builtin-unlit'));
+assert.ok(stage.includes('finaleLook'));
+assert.ok(stage.includes('guardLens'));
+assert.ok(stage.includes('MINIGAME'));
 assert.equal(stage.split('addComponent(MeshRenderer)').length,2);
 
 console.log('region-nodes-scene-wiring PASS');

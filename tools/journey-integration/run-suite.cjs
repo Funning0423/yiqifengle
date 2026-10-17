@@ -95,6 +95,7 @@ const tests=[
  ['node-markers','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

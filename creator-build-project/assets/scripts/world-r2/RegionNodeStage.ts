@@ -1,8 +1,9 @@
-import {_decorator,Camera,Color,Component,Material,MeshRenderer,Node,Vec3,director,utils,view} from 'cc';
+import {_decorator,Camera,Color,Component,Material,MeshRenderer,Node,Vec3,director,geometry,utils,view} from 'cc';
+import {MINIGAME} from 'cc/env';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
-import {BLEND_S,blendPose,finalePose,followLookUp,followPose,mapPose,type LensState} from '../region/ExploreCameraCore';
+import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,followLookUp,followPose,mapPose,markersLook,propLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
 import {setExploreEnabled} from '../region/ExploreGate';
 import {REGION_NODES,type RegionId} from '../region/RegionNodes';
 import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
@@ -10,7 +11,7 @@ import {planWalk} from '../region/NodeWalker';
 import {performBounded,runRewardWalk,runSkyFinale,type PathPlace} from '../region/RegionNodePlay';
 import {emitTransitCue} from '../region/TransitAudioHooks';
 import {PROP_NODES,SCENE_PROPS,propFeedback,resolveTap,pickMarker,type Gesture} from './ExploreInput';
-import {markerDraw,footprints,routeHintVisible} from '../ui/NodeMarkers';
+import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarkers';
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 const {ccclass}=_decorator;
@@ -27,11 +28,6 @@ function findAll(n:Node|null,name:string,out:Node[]){
  if(!n)return;if(n.name===name)out.push(n);
  for(const c of n.children)findAll(c,name,out);
 }
-function hex(fill:string):[number,number,number]{
- const n=parseInt(fill.slice(1),16);
- return [(n>>16)&255,(n>>8)&255,n&255];
-}
-
 /** Drives the live world camera, the girl, and one shared marker mesh. */
 @ccclass('RegionNodeStage')
 export class RegionNodeStage extends Component{
@@ -48,6 +44,8 @@ export class RegionNodeStage extends Component{
  private anim:{t:number;seconds:number;sample:(t:number)=>void;done:()=>void}|null=null;
  private shotPhases:Readonly<Record<string,NodePhase>>|null=null;
  private markerWait=0;
+ private markerClock=0;
+ private holdPulse=0;
  private dragHome:Vec|null=null;
  private completed:readonly string[]=[];
 
@@ -80,9 +78,48 @@ export class RegionNodeStage extends Component{
   const cam=this.camera!;const n=cam.node,p=n.worldPosition,f=n.forward;
   return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:cam.fov};
  }
- private writePose(pose:Pose){
+ private writePose(pose:Pose,clear=false){
   const cam=this.camera;if(!cam?.node?.isValid)return;
-  applyCameraPose(cam,fromLookAt(pose,pose.fovVerticalDeg??cam.fov),'region.node-lens');
+  const next=clear?this.guardLens(pose):pose;
+  applyCameraPose(cam,fromLookAt(next,next.fovVerticalDeg??cam.fov),'region.node-lens');
+ }
+ /** Finale and free-explore lenses: AABB retreat, then a 0.6 m ray so the near plane cannot enter a mesh. */
+ private guardLens(pose:Pose):Pose{
+  const boxes=this.sceneBoxes();
+  let next=retreatClear(pose,boxes,LENS_CLEAR_M);
+  const scene=director.getScene();if(!scene)return next;
+  const dir=this.viewDir(next);
+  const ray=new geometry.Ray();
+  const rends=scene.getComponentsInChildren(MeshRenderer);
+  for(let step=0;step<8;step++){
+   ray.o.set(next.position[0],next.position[1],next.position[2]);
+   ray.d.set(dir[0],dir[1],dir[2]);
+   let push=0;
+   for(const r of rends){
+    if(!r.enabled||!r.node.activeInHierarchy||!r.model||r.node===this.markerNode)continue;
+    const t=geometry.intersect.rayModel(ray,r.model,{mode:geometry.ERaycastMode.CLOSEST,distance:LENS_CLEAR_M,doubleSided:true});
+    if(t>0&&t<LENS_CLEAR_M)push=Math.max(push,LENS_CLEAR_M-t+0.05);
+   }
+   if(push<=0)break;
+   const p=next.position;
+   next={position:[p[0]-dir[0]*push,p[1]-dir[1]*push,p[2]-dir[2]*push],target:[0,0,0],fovVerticalDeg:next.fovVerticalDeg};
+   next.target=[next.position[0]+dir[0]*10,next.position[1]+dir[1]*10,next.position[2]+dir[2]*10];
+  }
+  return next;
+ }
+ private viewDir(pose:Pose):Vec{
+  const d=[pose.target[0]-pose.position[0],pose.target[1]-pose.position[1],pose.target[2]-pose.position[2]];
+  const L=Math.hypot(d[0],d[1],d[2])||1;return [d[0]/L,d[1]/L,d[2]/L];
+ }
+ private sceneBoxes():Aabb[]{
+  const scene=director.getScene();if(!scene)return [];
+  const out:Aabb[]=[];
+  for(const r of scene.getComponentsInChildren(MeshRenderer)){
+   if(!r.node.activeInHierarchy||r.node===this.markerNode||!r.model?.worldBounds)continue;
+   const b=r.model.worldBounds,c=b.center,h=b.halfExtents;
+   out.push({min:[c.x-h.x,c.y-h.y,c.z-h.z],max:[c.x+h.x,c.y+h.y,c.z+h.z]});
+  }
+  return out;
  }
  private flow(){return director.getScene()?.getComponentInChildren(WorldFlowComponent)||null;}
 
@@ -151,7 +188,8 @@ export class RegionNodeStage extends Component{
   this.lens='FollowWalk';setExploreEnabled(true);
   try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);}
   this.lens='FollowWalk';
-  await this.blend(0.6,this.readPose(),()=>this.starPose(this.girl(),w,h));
+  const star=this.guardLens(this.starPose(this.girl(),w,h));
+  await this.blend(0.6,this.readPose(),()=>star);
   this.openExplore('skycity');
  }
  private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
@@ -159,24 +197,25 @@ export class RegionNodeStage extends Component{
   const base=finalePose(g,this.yaw(),w,h);
   const ring=this.named('env_sky_starring');if(!ring)return base;
   const p=ring.worldPosition;
-  return {position:[g[0],g[1]+2.2,g[2]+6.5],target:[p.x,p.y,p.z],fovVerticalDeg:base.fovVerticalDeg};
+  return finaleLook(g,[p.x,p.y,p.z]);
  }
  private propPose(id:string,g:Vec,w:number,h:number):Pose{
   const base=followPose(g,this.yaw(),w,h,0);
   const node=this.named(PROP_NODES[id]||'');if(!node)return base;
   const p=node.worldPosition;
-  return {position:[p.x,p.y+1.6,p.z+4.2],target:[p.x,p.y+0.6,p.z],fovVerticalDeg:base.fovVerticalDeg};
+  return propLook([p.x,p.y,p.z],g);
  }
  openExplore(region:RegionId){
   this.region=region;this.exploring=true;this.lens='MapExplore';this.focus=this.girl();this.zoom=1.6;
-  const {w,h}=this.viewport();this.writePose(mapPose(this.focus,this.zoom,w,h));
+  const {w,h}=this.viewport();this.writePose(mapPose(this.focus,this.zoom,w,h),true);
   setExploreEnabled(true);
   emitTransitCue('explore-unlocked',{t:0,region});
   this.rebuildMarkers();
  }
 
- /** QA frames only. No banner. */
+ /** QA frames only. The wechat player build constant-folds this body out (`MINIGAME`). */
  async frame(spec:{region?:RegionId;lens?:string;prop?:string}){
+  if(MINIGAME)return;
   const region:RegionId=spec.region==='meadow'||spec.region==='skycity'?spec.region:'island';
   if(spec.lens==='board'){this.restoreBoard();return;}
   this.showWorld(region);
@@ -196,21 +235,25 @@ export class RegionNodeStage extends Component{
   const {w,h}=this.viewport();const g=this.girl();
   const follow=followPose(g,this.yaw(),w,h,region==='skycity'?8:0);
   let pose:Pose=follow;
-  if(spec.lens==='map'||spec.lens==='tap')pose=mapPose(g,1.6,w,h);
-  else if(spec.lens==='finale'||spec.lens==='look')pose=this.starPose(g,w,h);
-  else if(spec.lens==='prop')pose=this.propPose(spec.prop||SCENE_PROPS[region][0],g,w,h);
-  else if(spec.lens==='blend'){
+  const lens=spec.lens||'';
+  if(lens==='map'||lens==='tap')pose=mapPose(g,1.6,w,h);
+  else if(lens==='finale'||lens==='look')pose=this.starPose(g,w,h);
+  else if(lens==='prop')pose=this.propPose(spec.prop||SCENE_PROPS[region][0],g,w,h);
+  else if(lens==='markers')pose=this.markerFrame(g);
+  else if(lens==='blend'){
    const board:Pose={position:[follow.position[0],follow.position[1]+5,follow.position[2]+7],target:[g[0],g[1]+1,g[2]],fovVerticalDeg:48};
    pose=blendPose(board,follow,0.3,BLEND_S.boardToFollow);
   }
-  this.writePose(pose);
+  const guarded=lens==='map'||lens==='tap'||lens==='finale'||lens==='look'||lens==='prop'||lens==='markers';
+  this.writePose(pose,guarded);
   this.lens=spec.lens==='map'||spec.lens==='tap'?'MapExplore':'FollowWalk';
   this.shotPhases={};
   const forced:Record<string,NodePhase>={};
   nodes.forEach((n,i)=>{forced[n.key]=i%3===0?'passed':i%3===1?'playable':'locked';});
   this.shotPhases=forced;
+  if(spec.lens==='markers')this.markerClock=0.4;
   this.rebuildMarkers();
-  if(spec.lens==='prop')this.pulse(spec.prop||SCENE_PROPS[region][0],region);
+  if(spec.lens==='prop')this.pulse(spec.prop||SCENE_PROPS[region][0],region,true);
   if(spec.lens==='map'||spec.lens==='tap'){this.exploring=true;setExploreEnabled(true);}
   if(spec.lens==='tap'){
    const target=nodes.find(n=>this.phase(n.key)==='playable'&&n.key!==key);
@@ -224,9 +267,9 @@ export class RegionNodeStage extends Component{
    return;
   }
   const {w,h}=this.viewport();
-  if(gesture==='drag'){if(!this.dragHome)this.dragHome=[this.focus[0],this.focus[1],this.focus[2]];this.focus=[this.dragHome[0]-x*0.02,this.focus[1],this.dragHome[2]+y*0.02];this.writePose(mapPose(this.focus,this.zoom,w,h));return;}
+  if(gesture==='drag'){if(!this.dragHome)this.dragHome=[this.focus[0],this.focus[1],this.focus[2]];this.focus=[this.dragHome[0]-x*0.02,this.focus[1],this.dragHome[2]+y*0.02];this.writePose(mapPose(this.focus,this.zoom,w,h),true);return;}
   this.dragHome=null;
-  if(gesture==='pinch'){this.zoom=Math.max(0.7,Math.min(1.6,this.zoom+(y>x?0.04:-0.04)));this.writePose(mapPose(this.focus,this.zoom,w,h));return;}
+  if(gesture==='pinch'){this.zoom=Math.max(0.7,Math.min(1.6,this.zoom+(y>x?0.04:-0.04)));this.writePose(mapPose(this.focus,this.zoom,w,h),true);return;}
   if(gesture!=='tap'||!this.camera)return;
   const hits=this.projectNodes().filter(h=>Math.hypot(h.x-x,h.y-y)<=48);
   const id=pickMarker(hits.map(h=>({id:h.id,distancePt:Math.hypot(h.x-x,h.y-y),toGirl:h.toGirl})));
@@ -246,10 +289,16 @@ export class RegionNodeStage extends Component{
   this.lens='FollowWalk';
   await performBounded(this.character,{kind:'walk',path,duration:Math.max(0.4,Math.hypot(dest[0]-from[0],dest[2]-from[2])/1.2)},dest,0);
   this.lens='MapExplore';
-  const {w,h}=this.viewport();this.focus=this.girl();this.writePose(mapPose(this.focus,this.zoom,w,h));
+  const {w,h}=this.viewport();this.focus=this.girl();this.writePose(mapPose(this.focus,this.zoom,w,h),true);
+ }
+ private markerFrame(g:Vec):Pose{
+  const nodes=REGION_NODES[this.region].nodes;
+  const world=nodes.slice(0,3).map(n=>this.toWorld(this.region,[n.at])[0]);
+  while(world.length<3)world.push(g);
+  return markersLook(world[0],world[1],world[2]);
  }
 
- pulse(id:string,region:RegionId){
+ pulse(id:string,region:RegionId,hold=false){
   const name=PROP_NODES[id];if(!name)return;
   const nodes:Node[]=[];findAll(director.getScene(),name,nodes);
   const fb=propFeedback(id);
@@ -258,6 +307,7 @@ export class RegionNodeStage extends Component{
    this.pulses.push({node,sx:s.x,sy:s.y,sz:s.z,ey:e.y,left:fb.seconds,motion:fb.motion});
   }
   if(id==='robot'){const rig=director.getScene()?.getComponentInChildren(SkycityRobotInteract);try{rig?.playGesture?.('robot_give_flower');}catch{/* clip optional */}}
+  if(hold)this.holdPulse=0.85;
   emitTransitCue('scene-tap',{t:0,region,id});
   const hook=(globalThis as any).__worldIntegration;if(typeof hook?.onSceneTap==='function')hook.onSceneTap(id);
  }
@@ -295,28 +345,30 @@ export class RegionNodeStage extends Component{
   this.markerNode.active=true;
   const positions:number[]=[],normals:number[]=[],colors:number[]=[],indices:number[]=[];
   const nodes=REGION_NODES[this.region].nodes;
-  const pushGem=(at:Vec,phase:NodePhase,scale:number)=>{
-   const c=hex(markerDraw(phase,this.anim?.t||0).fill),o=positions.length/3;
-   const s=0.72*scale;const pts=[[0,s,0],[s,0,0],[0,0,s],[-s,0,0],[0,0,-s],[0,-s*0.55,0]];
-   for(const p of pts){positions.push(at[0]+p[0],at[1]+0.9+p[1],at[2]+p[2]);normals.push(0,1,0);colors.push(c[0]/255,c[1]/255,c[2]/255,1);}
-   const faces=[[0,1,2],[0,2,3],[0,3,4],[0,4,1],[5,2,1],[5,3,2],[5,4,3],[5,1,4]];
-   for(const f of faces)indices.push(o+f[0],o+f[1],o+f[2]);
+   const pushGem=(at:Vec,phase:NodePhase,foot=false)=>{
+   const gem=gemLocal(phase,this.markerClock,foot),o=positions.length/3;
+   const anchor=foot?at:markerAnchor(at,this.girl());
+   for(let i=0;i<gem.positions.length;i+=3){positions.push(anchor[0]+gem.positions[i],anchor[1]+gem.positions[i+1],anchor[2]+gem.positions[i+2]);normals.push(gem.normals[i],gem.normals[i+1],gem.normals[i+2]);colors.push(gem.colors[i/3*4],gem.colors[i/3*4+1],gem.colors[i/3*4+2],gem.colors[i/3*4+3]);}
+   for(const ix of gem.indices)indices.push(o+ix);
   };
-  for(const n of nodes)pushGem(this.toWorld(this.region,[n.at])[0],this.phase(n.key),this.phase(n.key)==='playable'?1.04:1);
+  for(const n of nodes)pushGem(this.toWorld(this.region,[n.at])[0],this.phase(n.key));
   const states=derive({completed:this.completed},null);
   const next=nodes.find(n=>this.phase(n.key)==='playable');
   if(next&&routeHintVisible(this.lens==='MapExplore'?'MapExplore':'FollowWalk',states.explore[this.region],true)){
    const from=this.girl();
-   for(const p of footprints(from,this.toWorld(this.region,[next.at])[0]).slice(0,24))pushGem(p,'passed',0.28);
+   for(const p of footprints(from,this.toWorld(this.region,[next.at])[0]).slice(0,24))pushGem(p,'passed',true);
   }
   const mesh=utils.createMesh({positions,normals,colors,indices});
   const renderer=this.markerNode.getComponent(MeshRenderer)!;renderer.mesh=mesh;
  }
  update(dt:number){
   if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
+  this.markerClock+=dt;
+  if(this.holdPulse>0)this.holdPulse=Math.max(0,this.holdPulse-dt);
   for(let i=this.pulses.length-1;i>=0;i--){
    const p=this.pulses[i];if(!p.node.isValid){this.pulses.splice(i,1);continue;}
-   p.left-=dt;const u=1-Math.max(0,p.left)/0.45;const wave=Math.sin(u*Math.PI);
+   if(this.holdPulse<=0)p.left-=dt;
+   const u=this.holdPulse>0?0.5:1-Math.max(0,p.left)/0.45;const wave=Math.sin(Math.max(0,Math.min(1,u))*Math.PI);
    if(p.motion==='spin')p.node.setRotationFromEuler(0,p.ey+wave*40,0);
    else if(p.motion==='pulse')p.node.setScale(p.sx*(1+0.12*wave),p.sy*(1+0.12*wave),p.sz*(1+0.12*wave));
    else p.node.setRotationFromEuler(wave*12,p.ey,0);

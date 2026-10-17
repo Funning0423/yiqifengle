@@ -119,3 +119,75 @@ export const BLEND_S={boardToFollow:0.6,followToBoard:0.8} as const;
 /** S6 terrace: look up at the star ring (y≈20), steeper than the 8° approach lift. */
 export const FINALE_LOOK_DEG=34;
 export function finalePose(girl:Vec,yawRad:number,w:number,h:number):Pose{return followPose(girl,yawRad,w,h,FINALE_LOOK_DEG);}
+/** Camera origin and the near point stay at least this far from scene meshes. Near clip is 0.1 m. */
+export const LENS_CLEAR_M=0.6;
+export type Aabb=Readonly<{min:Vec;max:Vec}>;
+export function projectNdc(pose:Pose,p:Vec,w:number,h:number):{x:number;y:number;z:number}{
+ const {forward,right,up}=viewOf(pose);
+ const fov=(pose.fovVerticalDeg??48)*Math.PI/180,half=Math.tan(fov/2),aspect=Math.max(1e-4,w/h);
+ const r=sub(p,pose.position),z=r[0]*forward[0]+r[1]*forward[1]+r[2]*forward[2];
+ const sx=r[0]*right[0]+r[1]*right[1]+r[2]*right[2],sy=r[0]*up[0]+r[1]*up[1]+r[2]*up[2];
+ const denom=Math.max(1e-4,z);
+ return {x:sx/(denom*half*aspect),y:sy/(denom*half),z};
+}
+/**
+ * S6 finale. The ring sits ~20 m above the terrace and only a few metres north of her, so a
+ * world-axis offset (+Z) lands inside the island once the city is yawed. This stands back
+ * along the girl→ring ground direction, a little to the side, and bisects her head and the ring
+ * so both stay inside a 48° portrait frame.
+ */
+export function finaleLook(girl:Vec,ring:Vec):Pose{
+ const dx=ring[0]-girl[0],dz=ring[2]-girl[2],L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L,sx=fz,sz=-fx;
+ const back=22,side=-3.4,up=2.6;
+ const position:Vec=[girl[0]-fx*back+sx*side,girl[1]+up,girl[2]-fz*back+sz*side];
+ const head:Vec=[girl[0],girl[1]+BODY_M*0.9,girl[2]];
+ const ag=unit(sub(head,position)),ar=unit(sub(ring,position));
+ const F=unit([ag[0]+ar[0],ag[1]+ar[1],ag[2]+ar[2]]);
+ return {position,target:[position[0]+F[0]*10,position[1]+F[1]*10,position[2]+F[2]*10],fovVerticalDeg:FOLLOW.fovDeg};
+}
+/** Object tap: stand off the prop, on the side toward her, looking at its middle. */
+export function propLook(prop:Vec,girl:Vec):Pose{
+ const dx=prop[0]-girl[0],dz=prop[2]-girl[2],L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L;
+ const position:Vec=[prop[0]-fx*3.4,prop[1]+1.35,prop[2]-fz*3.4];
+ return {position,target:[prop[0],prop[1]+0.65,prop[2]],fovVerticalDeg:42};
+}
+/** Three node gems in one portrait frame. Pulls back until the narrow horizontal FOV holds all three. */
+export function markersLook(a:Vec,b:Vec,c:Vec,w=390,h=844):Pose{
+ const mid:Vec=[(a[0]+b[0]+c[0])/3,(a[1]+b[1]+c[1])/3+0.45,(a[2]+b[2]+c[2])/3];
+ const dx=c[0]-a[0],dz=c[2]-a[2],L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L,sx=fz,sz=-fx;
+ let back=6;
+ const pts=[a,b,c];
+ for(let i=0;i<8;i++){
+  const position:Vec=[mid[0]-fx*back+sx*1.8,mid[1]+1.4+back*0.08,mid[2]-fz*back+sz*1.8];
+  const pose:Pose={position,target:mid,fovVerticalDeg:FOLLOW.fovDeg};
+  const xs=pts.map(p=>Math.abs(projectNdc(pose,p,w,h).x));
+  const ys=pts.map(p=>Math.abs(projectNdc(pose,p,w,h).y));
+  if(Math.max(...xs)<0.82&&Math.max(...ys)<0.9)return pose;
+  back+=2.5;
+ }
+ const position:Vec=[mid[0]-fx*back+sx*1.8,mid[1]+1.4+back*0.08,mid[2]-fz*back+sz*1.8];
+ return {position,target:mid,fovVerticalDeg:FOLLOW.fovDeg};
+}
+function boxSpan(b:Aabb):number{return Math.max(b.max[0]-b.min[0],b.max[1]-b.min[1],b.max[2]-b.min[2]);}
+/** Distance to an AABB. A camera buried inside a huge shell (sky, merged island) is not a hit. */
+export function boxGap(p:Vec,b:Aabb):number{
+ let inside=true;const c=[0,0,0];
+ for(let k=0;k<3;k++){if(p[k]<b.min[k]||p[k]>b.max[k])inside=false;c[k]=Math.max(b.min[k],Math.min(b.max[k],p[k]));}
+ if(inside&&boxSpan(b)>25)return 1e9;
+ if(inside)return 0;
+ return Math.hypot(p[0]-c[0],p[1]-c[1],p[2]-c[2]);
+}
+export function nearestGap(p:Vec,boxes:readonly Aabb[]):number{let g=1e9;for(const b of boxes){const d=boxGap(p,b);if(d<g)g=d;}return g;}
+/** Pull the lens backward until the origin and a 0.2 m near point clear every box. */
+export function retreatClear(pose:Pose,boxes:readonly Aabb[],clear=LENS_CLEAR_M):Pose{
+ const dir=unit(sub(pose.target,pose.position));
+ let p:Vec=[pose.position[0],pose.position[1],pose.position[2]];
+ for(let i=0;i<18;i++){
+  const near:Vec=[p[0]+dir[0]*0.2,p[1]+dir[1]*0.2,p[2]+dir[2]*0.2];
+  const g=Math.min(nearestGap(p,boxes),nearestGap(near,boxes));
+  if(g>=clear)break;
+  const step=Math.max(0.2,clear-g+0.08);
+  p=[p[0]-dir[0]*step,p[1]-dir[1]*step,p[2]-dir[2]*step];
+ }
+ return {position:p,target:[p[0]+dir[0]*10,p[1]+dir[1]*10,p[2]+dir[2]*10],fovVerticalDeg:pose.fovVerticalDeg};
+}
