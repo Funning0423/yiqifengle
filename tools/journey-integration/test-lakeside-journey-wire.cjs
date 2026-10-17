@@ -47,7 +47,7 @@ t('adapter mounts the lakeside model via lakesideJourney(start) (shared scene lo
  assert.match(b,/instances=await mountLakesideScenery\(scenery,token,take\)/);assert.match(b,/lakesideSceneInstances\(/);});
 t('landing→board hook call site',()=>{
  const comp=src('world-r2/WorldNativeComposition.ts');assert.equal((comp.match(/lakesideLandingToBoard\(/g)||[]).length,1);
- assert.match(comp,/if\(region==='lakeside'\)\{const landed=await lakesideLandingToBoard\(/);assert.match(comp,/if\(landed\?\.ok===false\)return this\.lakesideFallback\('board',landed\.reason\);\}/);
+ assert.match(comp,/if\(region==='lakeside'\)\{const landed=await lakesideLandingToBoard\(/);assert.match(comp,/if\(landed\?\.ok===false\)return this\.lakesideFallback\('board',landed\.reason\);held=true;this\.world\?\.holdEnterLevel\?\.\(true\);\}/);
  const i=comp.indexOf('lakesideLandingToBoard({'),e=comp.indexOf('ensureRegion(region)'),l=comp.indexOf("enterLevel(selection.stageId)");assert(e>0&&e<i&&i<l,'between arrival and enterLevel');
  const p=Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});assert(p&&typeof p.then==='function');
  // 运镜bot's hook replaced the stub: the call site injects deps; without deps it still resolves at once (old cut). Behaviour: test-lakeside-landing-hook.
