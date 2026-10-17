@@ -84,6 +84,7 @@ const tests=[
  ['lakeside-merge-share','tools/lakeside/test_lakeside_merge_share.cjs'],
  ['rider-parenting','tools/transitions/test_rider_parenting.cjs'],
  ['transport-sail','tools/transitions/test_transport_sail.cjs'],
+ ['sail-art','tools/transitions/test_sail_art.cjs'],
  ['frame-background','tools/transitions/test_frame_background.cjs'],
  ['asset-budget','tools/transitions/asset-budget.cjs'],
  ['transport-flag','tools/transitions/test_transport_flag.cjs'],

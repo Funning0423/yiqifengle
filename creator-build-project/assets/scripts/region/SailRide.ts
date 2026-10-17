@@ -2,14 +2,18 @@ import type {Node} from 'cc';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import {emitTransit, setTransitHidden} from './TransitAudioHooks';
 import {beatAt, sailCamera, sailVehicle, seatFromBench, type SailTimeline} from './TransportLeg';
-import {applySailScale, attachRider, detachRider, placeBoat} from './TransportVehicle';
+import {attachRider, detachRider, placeBoat} from './TransportVehicle';
+import type {SailArt} from './SailArt';
+function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 /** Drives the sail from foreground frame steps. The journey controller calls `onFrame` while region-travel is active. */
 export function createSailDriver(opts:{
  timeline:SailTimeline;route:readonly Vec[];shore:Vec[];boat:Node|null;sail:Node|null;seat:Node|null;rider:Node|null;riderHome:Node|null;
+ art?:SailArt|null;
  screen:()=>{w:number;h:number};
 }){
  let t=0,last=0,fade=0,attached=false;
  const viewSize=opts.screen;
+ const seated=()=>beatAt(opts.timeline,t).id==='S-c'||beatAt(opts.timeline,t).id==='S-d'||beatAt(opts.timeline,t).id==='S-e';
  const step=(dt:number,hidden:boolean)=>{
   if(hidden){setTransitHidden(true);return;}
   setTransitHidden(false);
@@ -21,9 +25,11 @@ export function createSailDriver(opts:{
   if(prev==='S-d'&&beat.id!=='S-d')emitTransit('sail-cruise-loop-stop',{t,region:'meadow'});
   const v=sailVehicle(opts.timeline,opts.route,t);
   if(opts.boat)placeBoat(opts.boat,v.pos,v.yaw,v.roll);
-  applySailScale(opts.sail,v.sail);
-  if(beat.id==='S-c'&&!attached&&opts.rider&&opts.seat){attachRider(opts.rider,opts.seat);attached=true;}
+  if(seated()&&!attached&&opts.rider&&opts.seat){attachRider(opts.rider,opts.seat);attached=true;}
+  if(attached&&opts.rider&&seated()){opts.rider.setPosition(0,0,0);opts.rider.setRotationFromEuler(0,0,0);}
   if(beat.id==='S-f'&&attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}
+  const pose=sailCamera(opts.timeline,opts.route,t,viewSize());
+  opts.art?.sync(v,pose.position,dt,sailNight());
  };
  return {
   get t(){return t;},

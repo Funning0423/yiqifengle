@@ -54,28 +54,9 @@ function addTri(out:number[],a:V3,b:V3,c:V3,outward:V3){
  for(const p of tri)out.push(p[0],p[1],p[2]);
 }
 function addQuad(out:number[],a:V3,b:V3,c:V3,d:V3,outward:V3){addTri(out,a,b,c,outward);addTri(out,a,c,d,outward);}
-/** Local boat, +Z forward. Hull, mast and an orange mainsail that faces the starboard-quarter follow camera. */
+/** Occlusion stand-in for the GBT hull (4.2 × 1.6 m, mast to 4.3 m). The picture uses sailboat.glb; this is not drawn. */
 function boatLocal():{hull:number[];keel:number[];mast:number[];sail:number[]}{
  const hull:number[]=[],keel:number[]=[],mast:number[]=[],sail:number[]=[];
- const stations:[number,number,number,number][]=[[-2.05,0.42,0.58,-0.02],[-1.1,0.78,0.7,-0.28],[0.15,0.84,0.74,-0.34],[1.2,0.58,0.62,-0.18],[2.2,0.08,0.46,0.08]];
- const ring=(z:number,w:number,deck:number,ky:number)=>({
-  keel:[0,ky,z] as V3,pl:[-w*0.78,0.02,z] as V3,gl:[-w,deck,z] as V3,gr:[w,deck,z] as V3,pr:[w*0.78,0.02,z] as V3,
- });
- const rings=stations.map(s=>ring(s[0],s[1],s[2],s[3]));
- for(let i=0;i<rings.length-1;i++){
-  const a=rings[i],b=rings[i+1];
-  addQuad(hull,a.pl,b.pl,b.gl,a.gl,[-1,0.15,0]);
-  addQuad(hull,a.pr,a.gr,b.gr,b.pr,[1,0.15,0]);
-  addQuad(hull,a.gl,b.gl,b.gr,a.gr,[0,1,0]);
-  addQuad(keel,a.keel,a.pl,b.pl,b.keel,[-0.2,-1,0]);
-  addQuad(keel,a.keel,b.keel,b.pr,a.pr,[0.2,-1,0]);
- }
- const stern=rings[0],bow=rings[rings.length-1],cap=(r:ReturnType<typeof ring>,o:V3,order:V3[])=>{
-  for(let i=1;i<order.length-1;i++)addTri(keel,order[0],order[i],order[i+1],o);
-  void r;
- };
- cap(stern,[0,0,-1],[stern.keel,stern.pr,stern.gr,stern.gl,stern.pl]);
- cap(bow,[0,0,1],[bow.keel,bow.pl,bow.gl,bow.gr,bow.pr]);
  const box=(out:number[],cx:number,cy:number,cz:number,sx:number,sy:number,sz:number)=>{
   const x0=cx-sx,x1=cx+sx,y0=cy-sy,y1=cy+sy,z0=cz-sz,z1=cz+sz;
   const P=(x:number,y:number,z:number):V3=>[x,y,z];
@@ -86,9 +67,10 @@ function boatLocal():{hull:number[];keel:number[];mast:number[];sail:number[]}{
   addQuad(out,P(x0,y1,z1),P(x1,y1,z1),P(x1,y1,z0),P(x0,y1,z0),[0,1,0]);
   addQuad(out,P(x0,y0,z0),P(x1,y0,z0),P(x1,y0,z1),P(x0,y0,z1),[0,-1,0]);
  };
- box(mast,0,1.85,-0.28,0.045,1.28,0.045);
- box(mast,0.7,0.78,-0.62,0.62,0.035,0.04);
- addQuad(sail,[0.08,0.9,-0.22],[0.08,3.15,-0.16],[1.55,2.45,-0.85],[1.7,0.92,-1.2],[0.28,0.05,-1]);
+ box(hull,0,0.28,0,0.8,0.34,2.1);
+ box(keel,0,-0.12,0,0.12,0.1,1.9);
+ box(mast,0,2.15,0.95,0.06,2.15,0.06);
+ box(sail,0.4,2.3,0.95,0.35,1.15,0.05);
  return {hull,keel,mast,sail};
 }
 function placeLocal(pos:Vec,yaw:number,local:number[]):Float32Array{

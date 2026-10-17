@@ -22,9 +22,9 @@ import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor} from './JourneyTransport';
-import {SAIL_I6,sailBeats,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
+import {SAIL_I6,sailBeats,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
 import {createSailDriver,playSailBeats} from './SailRide';
-import {mountSailboat} from './TransportVehicle';
+import {mountSailArt,type SailArt} from './SailArt';
 import {takeSailWarm} from './SailPreload';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
@@ -66,8 +66,8 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
    const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
-   let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null;
-   const release=()=>{if(dead)return;dead=true;if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
+   let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null,sailArt:SailArt|null=null;
+   const release=()=>{if(dead)return;dead=true;sailArt?.dispose();if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
    try{
     const sail=to==='meadow'&&from==='island'&&transportFor(from,to)==='sail';
     const warmed=sail?takeSailWarm():null;
@@ -144,12 +144,13 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      const sailPath=built.path;if(board&&!(board.blendM<routeLength(sailPath)))board=undefined;
      route={from,to,path:sailPath,bridgeStart:built.bridgeStart,bridgeEnd:built.bridgeEnd,speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(board?{board}:{})};
      let boat:Node|null=null,seat:Node|null=null,sailNode:Node|null=null;
-     try{const mountedBoat=await mountSailboat(rig);boat=mountedBoat.root;seat=mountedBoat.seat;sailNode=mountedBoat.sail;}catch(error){try{console.info('[QF_SAIL] '+String((error as Error)?.message||error));}catch{}}
+     try{sailArt=await mountSailArt(rig,model);boat=sailArt.boat;seat=sailArt.seat;sailNode=sailArt.sail;}catch(error){try{console.info('[QF_SAIL] '+String((error as Error)?.message||error));}catch{}}
      const tl=sailBeats(sr.length);
      const rider=find(options.parent,'FLOW_REFERENCE_PLACEHOLDER_NOT_B');
-     sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:[m0,m1],boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
-     const deck:Vec=[SAIL_I6[0],SAIL_I6[1]+0.45,SAIL_I6[2]+2];
-     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,shore:[m0,m1],sit:seatFromBench(deck,0),stand:seatFromBench(m0,0),boardS:0.8,shoreS:tl.shoreS};
+     sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:[m0,m1],boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,art:sailArt,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
+     const dock=sr.samples[0];
+     const deck:Vec=[SAIL_I6[0]+0.75,-0.18,dock[2]];
+     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,shore:[m0,m1],sit:sailDockSeat(sr.samples),stand:seatFromBench(m0,0),boardS:0.8,shoreS:tl.shoreS};
     }else{
      const path=[...approach,...bridge.slice(1),...arrival];if(board&&!(board.blendM<routeLength(path)))board=undefined;
      route={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{}),...(board?{board}:{})};

@@ -436,8 +436,8 @@ export class WorldIntegrationBoot extends Component {
    adapter.setAnimMeta(meta);adapter.bindVisual(girl);
    for(const a of seated){const state=a.getState('sit_hold');if(state){state.time=0;state.sample();}}
    girl.active=true;
-   startSailShot(scene,reference);
-  }catch(error){console.error('Sail shot character failed',error);startSailShot(scene,null);}
+   await startSailShot(scene,reference);
+  }catch(error){console.error('Sail shot character failed',error);if(!(globalThis as any).__sailShot)await startSailShot(scene,null);}
  }
  /** The loading picture is startup only; actual dependencies and initial seated pose unlock the room. */
  private loadWorld():Promise<void>{

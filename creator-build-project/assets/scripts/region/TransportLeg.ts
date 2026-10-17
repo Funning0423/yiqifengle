@@ -5,7 +5,11 @@ import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
 export const SAIL_I6:Vec=[-1.9,-0.6,10.1];
 export const SAIL_M0_LOCAL:Vec=[0.2,1.4,17];
 export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];
-export const SAIL_WATER_Y=-0.15;
+/** Waterline the GBT hull sits on. The transit sheet is 1 cm lower (`SAIL_SEA_Y`). */
+export const SAIL_WATER_Y=-0.9;
+export const SAIL_SEA_Y=-0.91;
+/** Boat parks on the port side of the I6 pier so the hull does not sit inside the deck. */
+export const SAIL_BERTH_X=1.85;
 export const SAIL_LIMITS={totalS:30.5,accel:2.7,decel:2.5,yawDegS:20,cruiseMinS:6,clearM:0.6,chordM:52,riverM:12,dockClearM:2,walkMps:1.2,boardBlendS:0.8,saS:7.6} as const;
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
 const dist=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
@@ -21,7 +25,7 @@ export function sailM1World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M1_LOCAL,sai
 export function shoreWalkM():number{return dist(SAIL_M0_LOCAL,SAIL_M1_LOCAL);}
 /** Gentle S (radius ≥ 25 m) then 12 m straight up the river centreline. Samples about every 0.5 m. */
 export function sailRoute(i6:Vec=SAIL_I6,m0:Vec=sailM0World(i6)):{samples:Vec[];length:number;minRadius:number}{
- const z0=i6[2]+SAIL_LIMITS.dockClearM,z1=m0[2],x0=i6[0],span=z1-z0;
+ const z0=i6[2]+SAIL_LIMITS.dockClearM,z1=m0[2],x0=i6[0]+SAIL_BERTH_X,span=z1-z0;
  const river=REGION_JOURNEY_LAYOUT.sailRiverEntryM;
  const raw:Vec[]=[];
  const steps=Math.max(8,Math.ceil(Math.abs(span)/0.5));
@@ -51,9 +55,11 @@ export function sailRoute(i6:Vec=SAIL_I6,m0:Vec=sailM0World(i6)):{samples:Vec[];
 export type SailSpeed={v:number;accelS:number;cruiseS:number;decelS:number;aAcc:number;aDec:number;motionS:number;length:number};
 /** Cruise speed that covers `length` with a 2 s ease-in and a 2.2 s ease-out. */
 export function sailSpeed(length:number,cruiseS=9):SailSpeed{
- const accelS=2,decelS=2.2;
- const v=length/(cruiseS+accelS*0.5+decelS*0.5);
- return {v,accelS,cruiseS,decelS,aAcc:v/accelS,aDec:v/decelS,motionS:accelS+cruiseS+decelS,length};
+ const accelS=2,decelS=2.2,cap=4.4;
+ let cruise=cruiseS;
+ let v=length/(cruise+accelS*0.5+decelS*0.5);
+ if(v>cap){cruise=Math.max(6,length/cap-accelS*0.5-decelS*0.5);v=length/(cruise+accelS*0.5+decelS*0.5);}
+ return {v,accelS,cruiseS:cruise,decelS,aAcc:v/accelS,aDec:v/decelS,motionS:accelS+cruise+decelS,length};
 }
 export function sailDistanceAt(sp:SailSpeed,t:number):number{
  const {v,accelS,cruiseS,decelS,length}=sp;
@@ -74,7 +80,9 @@ export type SailTimeline={beats:SailBeat[];totalS:number;build05S:number;speed:S
 export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline{
  const speed=sailSpeed(routeM);
  const shoreS=shoreM/SAIL_LIMITS.walkMps;
- const sa=SAIL_LIMITS.saS,sb=2.2,sc=speed.accelS,sd=speed.cruiseS,se=speed.decelS,sf=1.3,sg=shoreS,blend=SAIL_LIMITS.boardBlendS;
+ const sb=2.2,sc=speed.accelS,sd=speed.cruiseS,se=speed.decelS,sf=1.3,sg=shoreS,blend=SAIL_LIMITS.boardBlendS;
+ const rest=sb+speed.motionS+sf+sg+blend;
+ const sa=Math.min(SAIL_LIMITS.saS,Math.max(5.9,30.5-rest));
  let t=0;const beats:SailBeat[]=[];
  const push=(id:string,dur:number,cue?:string)=>{beats.push({id,t0:t,t1:t+dur,cue});t+=dur;};
  push('S-a',sa,'node-walk-start');
@@ -122,25 +130,49 @@ export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{
  return max;
 }
 export type SailScreen={w:number;h:number};
-/** Follow offsets in the boat frame. Her right matches the journey lens (positive X when she faces +Z is her left). */
+type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};
+const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
+const K2:SailOff={back:-9.6,side:1.5,up:3.3,fov:52,look:-8,orb:0};
+const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
+const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
+const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};
+const K6:SailOff={back:5.8,side:3.6,up:3.7,fov:48,look:5.4,orb:0};
+const mixOff=(a:SailOff,b:SailOff,u:number):SailOff=>{const s=smoother(u);return {back:lerp(a.back,b.back,s),side:lerp(a.side,b.side,s),up:lerp(a.up,b.up,s),fov:lerp(a.fov,b.fov,s),look:lerp(a.look,b.look,s),orb:lerp(a.orb,b.orb,s)};};
+/** Keep the lens outside the 4.2 m hull. A straight blend from astern to ahead would cross the mast. */
+function guardOff(o:SailOff):SailOff{const r=Math.hypot(o.back,o.side);if(r>=7.2)return o;const k=7.2/Math.max(1e-3,r);return {...o,back:o.back*k,side:o.side*k};}
+function sailOffset(b:SailBeat,t:number):SailOff{
+ const u=(t-b.t0)/Math.max(1e-3,b.t1-b.t0);
+ if(b.id==='S-a'||b.id==='S-b')return K1;
+ if(b.id==='S-c')return mixOff(K1,K2,u);
+ if(b.id==='S-d'){
+  if(u<0.2)return mixOff(K2,K3,u/0.2);
+  if(u<0.58)return K3;
+  if(u<0.78)return mixOff(K3,K4,(u-0.58)/0.2);
+  return K4;
+ }
+ if(b.id==='S-e')return mixOff(K4,K5,u);
+ return K6;
+}
+/** K1–K7 in the boat frame (README §5), held outside the hull. Positive side is port (+X, her left). */
 export function sailCamera(tl:SailTimeline,route:readonly Vec[],t:number,screen:SailScreen={w:390,h:844}):Pose{
  const v=sailVehicle(tl,route,t),b=beatAt(tl,t);
- const fx=Math.sin(v.yaw),fz=Math.cos(v.yaw),rx=fz,rz=-fx;
- let back=6.6,side=2.4,up=3.4,fov=48;
- if(b.id==='S-b'){back=7.5;side=3;up=3;}
- else if(b.id==='S-c'){const u=smoother((t-b.t0)/Math.max(1e-3,b.t1-b.t0));back=lerp(7.5,10,u);side=lerp(3,2.4,u);up=lerp(3,4.5,u);fov=lerp(48,52,u);}
- else if(b.id==='S-d'){
-  const u=(t-b.t0)/Math.max(1e-3,b.t1-b.t0),orb=u*15*Math.PI/180;
-  back=10;up=4.5;fov=52;side=2.4;
-  if(screen.h<=520||(screen.w===375&&screen.h===667))up+=0.6;
-  if(screen.w===768&&screen.h===1024)back-=1.5;
-  const pyaw=v.yaw+orb;
-  const pos:Vec=[v.pos[0]-Math.sin(pyaw)*back+Math.cos(pyaw)*side,v.pos[1]+up,v.pos[2]-Math.cos(pyaw)*back-Math.sin(pyaw)*side];
-  return {position:pos,target:[v.pos[0],v.pos[1]+1.1,v.pos[2]],fovVerticalDeg:fov};
+ let o=guardOff(sailOffset(b,t));
+ if(b.id==='S-d'&&o.orb>8){
+  if(screen.h<=520||(screen.w===375&&screen.h===667))o={...o,up:o.up+0.6};
+  if(screen.w===768&&screen.h===1024)o={...o,back:o.back-(o.back>0?1.5:-1.5)};
  }
- else if(b.id==='S-e'){const u=smoother((t-b.t0)/Math.max(1e-3,b.t1-b.t0));back=lerp(10,6.6,u);up=lerp(4.5,3.4,u);fov=lerp(52,48,u);}
- const pos:Vec=[v.pos[0]-fx*back+rx*side,v.pos[1]+up,v.pos[2]-fz*back+rz*side];
- return {position:pos,target:[v.pos[0]+fx*1.2,v.pos[1]+1.1,v.pos[2]+fz*1.2],fovVerticalDeg:fov};
+ const orb=o.orb*Math.PI/180;
+ const pyaw=v.yaw+orb,fx=Math.sin(pyaw),fz=Math.cos(pyaw),rx=fz,rz=-fx;
+ const pos:Vec=[v.pos[0]-fx*o.back+rx*o.side,v.pos[1]+o.up,v.pos[2]-fz*o.back+rz*o.side];
+ const look=o.look;
+ return {position:pos,target:[v.pos[0]+fx*look,v.pos[1]+1.05,v.pos[2]+fz*look],fovVerticalDeg:o.fov};
+}
+/** Seated root on the hull at `pos` (waterline), matching `seated_root_anchor`. */
+export function sailDockSeat(route:readonly Vec[]){
+ const p=route[0],q=route[Math.min(route.length-1,3)];
+ const yaw=Math.hypot(q[0]-p[0],q[2]-p[2])>1e-4?Math.atan2(q[0]-p[0],q[2]-p[2]):0;
+ const fx=Math.sin(yaw),fz=Math.cos(yaw);
+ return seatFromBench([p[0]+fx*-0.55,p[1]+0.06,p[2]+fz*-0.55],yaw);
 }
 export function sailJourneyPath(start:Vec,m0:Vec,m1:Vec,route:readonly Vec[]):{path:Vec[];bridgeStart:number;bridgeEnd:number}{
  const dock:Vec=[SAIL_I6[0],start[1],SAIL_I6[2]];
