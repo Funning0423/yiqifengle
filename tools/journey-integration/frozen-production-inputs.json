@@ -11,7 +11,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/bgm_main.mp3",
-      "sha256": "21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a"
+      "sha256": "183993fbb55f983368fc91d67333ee07620bbf79625cbcee0b4b782212cd6e28"
     },
     {
       "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/bgm_main.mp3.meta",
@@ -271,7 +271,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/board_art/popup/chest_closed.png",
-      "sha256": "c2b7695656a4667f0e72997dbbf425ae6e686f4f741ef72f55db1f1060689b91"
+      "sha256": "77b18d10b99091e102cd8e685d0555bf1c39a4435477adc60306779aa3940b90"
     },
     {
       "path": "creator-build-project/assets/bundles/board_art/popup/chest_closed.png.meta",
@@ -755,11 +755,11 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
-      "sha256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec"
+      "sha256": "bb37efb59f558e4a80dbed1082dd048914084adf3518353292980e35474fab3f"
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-      "sha256": "59291cdef0974d5c39e42f000182c9551cffe86d39e2a3f9dd41598d1cf6a3da"
+      "sha256": "6740cdd7b3a2ee7b0664468dbc0e9da48b10d18478253c2f4b3a9e575083b8be"
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
@@ -767,7 +767,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character_support/reading_chair.glb",
-      "sha256": "d156b7a05017713e88ec965254c1b832ffe4f10ee75fc554f8cc7ab19ff5bf2a"
+      "sha256": "cadb9b3f16cb9079504d999e31b40c91106e75323ca1e14e2474bd394365630b"
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character_support/reading_chair.glb.meta",
@@ -851,7 +851,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3",
-      "sha256": "eb173a0d679f52e69a457c0a3512623e427efe5c2cf679e6caa9e1cb243cd87f"
+      "sha256": "f6fd8bac1abc4f0ca9a7ddc5dd6fb22a5761c2ad1b12ba92b240da5290a45fb5"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3.meta",
@@ -867,7 +867,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
-      "sha256": "2f8c1a1fb5b9bff7f44500de9e64d9a4fcdc4cd9e4df0d74dd8b4eb7bb208ccd"
+      "sha256": "d39822f382e265aebd12757aad5077deb041508ed78bac536ef86dcc86e9ce39"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect.meta",
@@ -891,7 +891,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3",
-      "sha256": "88016beea998d5993d6ad68a0013da269a1e3e32c7ee082b3df2e38baab2c3b5"
+      "sha256": "1e78794879d20ac80fe32e9a7b553a35bbf4b176548221edf562d1a3569576a2"
     },
     {
       "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3.meta",
@@ -911,11 +911,11 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-      "sha256": "0bf5d3e51130d833b97b41e9bd7eb2065818b1415d178b7ea48a9da9ad2997d7"
+      "sha256": "d3bf7e1d92c74d667796096fc03f68314fa5ed5328736c9611334c4526193564"
     },
     {
       "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-      "sha256": "0587f317ab810c0bcfb7f69fdf8fbe2c8b311bca50844ec507c29a49eca157de"
+      "sha256": "ad7e3b2bca85cd1b574e3378098b13268a19d1f40bbba122da83a5b216496a72"
     },
     {
       "path": "creator-build-project/assets/bundles/static_seat_preview.meta",
@@ -927,11 +927,11 @@
     },
     {
       "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
-      "sha256": "8ae5efeb5f318b22411c0033f450b6de7a935fa3a27fb45d3f3cf240f88e2e42"
+      "sha256": "f62e2832d326d3ec025161b5bcb55c56ab72560e10ee954d2a7fceffa39c8d29"
     },
     {
       "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta",
-      "sha256": "f0e8db6e1694f07186e9e4a5bf7c86923087aacae145ada81c04326bf5c4ffb1"
+      "sha256": "d54b095d9c6eb338d21e1d2d9e56bcf7706dd2a6ef312452b8da5c5f015878e6"
     },
     {
       "path": "creator-build-project/assets/resources/audio_amb.meta",
@@ -1051,7 +1051,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_1_great.mp3",
-      "sha256": "a033e1c9a307e0afa1d21a620ea7eea9e3e4c5598a8d150b2c6362d35f6a86fa"
+      "sha256": "a326cd7acbefca2972a7ac9c029d13492dd3f3d6d459cce006967590b1b48e7f"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_1_great.mp3.meta",
@@ -1059,7 +1059,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_2_excellent.mp3",
-      "sha256": "ff839634a38f5a566263c7411f399634843017781ee8e1c4a240796f2a1a2257"
+      "sha256": "9d18d64402c763b56a67747c9e116391503e3db503434d5e767eaab6591411b0"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_2_excellent.mp3.meta",
@@ -1067,7 +1067,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_3_amazing.mp3",
-      "sha256": "07ee73a43fd10c190f90ba3077c914bc683a19ec541c000deb5c018c7ef1fd48"
+      "sha256": "cd2629e26c5f37784d465f4b391872661d9b73529c9526846718a29fbe28837e"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_3_amazing.mp3.meta",
@@ -1075,7 +1075,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_4_unbelievable.mp3",
-      "sha256": "1521c23d1e058955d60681d19466620c582ba42a893a62d7f735c70d97e7710e"
+      "sha256": "337f3204c115e6b2d30ccd8ee8b27a79f7437fa5dea9a2dbb13d6a1946029a56"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_4_unbelievable.mp3.meta",
@@ -1091,7 +1091,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_1.mp3",
-      "sha256": "facda9edc4169f42158e1ff9aeccf337d9ca8864c7c526fabdb5b19106481568"
+      "sha256": "fcfade90929eaa6a85cdcc3f5290472849d8ba4c16aa8b6917a83e5b0f97eaf6"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_1.mp3.meta",
@@ -1099,7 +1099,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_2.mp3",
-      "sha256": "9af4891a971de97e886b50d8830d4e296566674687e1bb37c348a874bf7052bf"
+      "sha256": "00d060bb171241f8c782e2adf39e91744cbb66b0d8cdff9e5dec9f31e51418d4"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_2.mp3.meta",
@@ -1107,7 +1107,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_3.mp3",
-      "sha256": "fa67628227195d833dea182cf2cf8fbd5b5100dd4847dca8001f43394d6a8a59"
+      "sha256": "388fc4be6d508a552889f8a5181bdd64863871a78c7262d3559472516b9fdcc4"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_3.mp3.meta",
@@ -1123,7 +1123,7 @@
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_match_normal.mp3",
-      "sha256": "fcad04e03b7504a1acdbdc1b97d83d621a3d5a9f76aaee54886d681eef1eb5e9"
+      "sha256": "dae31be5a7386a17fd6361d07374982d42b33fcaded42d1c46744e9461f27d22"
     },
     {
       "path": "creator-build-project/assets/resources/audio_sfx/sfx_match_normal.mp3.meta",
