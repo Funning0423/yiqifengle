@@ -88,7 +88,11 @@ await T('routes without board unchanged; invalid board rejected',async()=>{const
  const base={from:'meadow',to:'skycity',path:leg.path,bridgeStart:1,bridgeEnd:2,speed:1.2,focus:leg.focus};const good=RB.regionBoardEnd(SRC.skycity,390/844);
  Core.validateJourneyRoute({...base,board:good},leg.path[0]);
  for(const bad of [{...good,blendM:0},{...good,blendM:L+1},{...good,fovVerticalDeg:NaN},{...good,target:good.position}]){let threw=false;try{Core.validateJourneyRoute({...base,board:bad},leg.path[0]);}catch{threw=true;}ok(threw,'invalid board accepted '+JSON.stringify(bad).slice(0,80));}});
-await T('wiring',async()=>{const src=f=>fs.readFileSync(S+f,'utf8').replace(/\s+/g,' ');
+await T('her board copy at the board camera (r4-prep B+)',async()=>{const g=require('./girl-frame.cjs');
+  // camera rules where she is visible: ≤ 80% of frame width, inside frameLimits, not under the board tray / goal plate (reported: tool icons)
+  for(const r of g)if(r.visible){ok(r.widthFrac<=.8,'too wide '+r.region+' '+r.screen);ok(r.inFrameLimits,'outside frameLimits '+r.region+' '+r.screen);ok(r.underTrayShareOfHer===0&&r.underPlateShareOfHer===0,'under the board '+r.region+' '+r.screen);}
+  report.girlAtBoard=g;return {visible:g.filter(r=>r.visible).map(r=>r.region+' '+r.screen),notVisible:g.filter(r=>!r.visible).map(r=>r.region+' '+r.screen)};});
+ await T('wiring',async()=>{const src=f=>fs.readFileSync(S+f,'utf8').replace(/\s+/g,' ');
  const ad=src('region/RegionJourneyAdapter.ts'),co=src('world-r2/WorldNativeComposition.ts'),mb=src('region/MeadowBoardBackground.ts'),sb=src('region/SkycityBoardBackground.ts'),core=src('world-r1/RegionJourneyCore.ts');
  ok(/model=mountRegion\(def,prefab,rig\);[^;]*boardLocal=new Mat4\(\);Mat4\.fromRTS\(boardLocal,model\.rotation,model\.position,model\.scale\);/.test(ad),'adapter: board copy transform captured right after mountRegion');
  ok(/board=regionBoardEnd\(boardSrc,v\.width\/v\.height\)/.test(ad)&&/lakesideViewport\(view\.getFrameSize\(\)\)/.test(ad),'adapter: route.board from the board UI viewport');
