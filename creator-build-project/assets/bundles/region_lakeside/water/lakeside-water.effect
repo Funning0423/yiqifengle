@@ -86,7 +86,7 @@ CCProgram lk-water-fs %{
     vec3 L = normalize(-cc_mainLitDir.xyz);
     vec3 albedo = waterTint.rgb;
     #if USE_VERTEX_COLOR
-      albedo *= SRGBToLinear(v_color.rgb);
+      albedo *= v_color.rgb; // glTF COLOR_0 is linear and Cocos passes it through as a_color; SRGBToLinear here decoded it a second time
     #endif
     // Diffuse: the same terms as legacy/shading-standard-base (direct NL/PI + hemispheric ambient), so it sits with the palette props.
     float NL = max(dot(N, L), 0.0);

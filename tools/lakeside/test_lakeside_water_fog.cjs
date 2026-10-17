@@ -39,7 +39,7 @@ assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAY
 assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
 // v3.2 tint: near-white (0.9,1,1) multiplies the r5h3 vertex colours (kept: shallow shore / deep middle); sky-reflection floor 0.25
 assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
-assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= SRGBToLinear\(v_color\.rgb\)/.test(fx));
+assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= v_color\.rgb;/.test(fx)&&!/SRGBToLinear\(v_color/.test(fx),'glTF COLOR_0 is linear: no second decode in the shader');
 assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
 assert.equal(P.waterSkyReflectFloor,0.31);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.31\]/.test(fx));
 assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
