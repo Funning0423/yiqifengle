@@ -1,0 +1,1 @@
+cine_open_stand:37:0.0943:4.3299:0.4747:lap;cine_open_stand:76:-0.1026:4.4404:0.7819:lap;cine_open_stand:77:-0.1050:4.4417:0.7904:lap;cine_open_stand:78:-0.1077:4.4431:0.7983:lap;cine_open_stand:79:-0.1107:4.4445:0.8058:lap;cine_open_stand:80:-0.1137:4.4458:0.8130:lap;cine_open_stand:81:-0.1168:4.4470:0.8197:lap;cine_open_stand:82:-0.1193:4.4480:0.8255:lap

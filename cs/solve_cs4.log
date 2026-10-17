@@ -1,0 +1,14 @@
+00:00.081  system.path      | WARNING Could not get a list of mounted file-systems
+trees 7.3
+orig overlaps (excluded, shell-overlap/design contacts): {'sd': 4, 'sa': 44, 'ad': 0, 'db': 0, 'ab': 0, 'dc': 0, 'ac': 0}
+== LAM 3.0 accel [50.26, 44.73]
+IT 0 lam 3.0 new 18455 cons 14128 overlaps {'sd': 1149, 'sa': 14, 'ad': 57, 'db': 445, 'ab': 24, 'dc': 46, 'ac': 0} viol_mm {'unary_0': 9.118, 'unary_1': 1.773, 'layer': np.float64(16.413)} accel [50.26, 44.73] detect 4.4 s
+  qp clamps 6 [(0, 3608, 15, 0.07623117270250576), (0, 505, 12, 0.030265765451292833), (0, 2805, 18, 0.03317037588509242), (0, 2807, 5, 0.035088241011254545), (0, 3608, 15, 0.07760197521246957)]
+  sweep 1.0 s max shift from orig mm [41.8, 17.7] accel [50.32, 44.73]
+IT 1 lam 3.0 new 38253 cons 33679 overlaps {'sd': 5042, 'sa': 36, 'ad': 4, 'db': 198, 'ab': 0, 'dc': 6, 'ac': 0} viol_mm {'unary_0': 11.66, 'unary_1': 0, 'layer': np.float64(9.248)} accel [50.32, 44.73] detect 5.2 s
+  qp clamps 77 [(0, 507, 39, 0.030385559312375236), (0, 509, 9, 0.07595656016533275), (0, 570, 40, 0.05820817162583417), (0, 1795, 63, 0.03069901023400376), (0, 1940, 20, 0.03406644694130101)]
+  sweep 5.2 s max shift from orig mm [49.9, 21.9] accel [83.65, 44.73]
+IT 2 lam 3.0 new 163424 cons 113370 overlaps {'sd': 23978, 'sa': 133, 'ad': 144, 'db': 1382, 'ab': 0, 'dc': 256, 'ac': 0} viol_mm {'unary_0': 33.292, 'unary_1': 0.614, 'layer': np.float64(9.562)} accel [83.65, 44.73] detect 9.6 s
+  qp clamps 401 [(0, 27, 128, 0.1206639098009681), (0, 28, 71, 0.18951426864797963), (0, 36, 153, 0.06525006885764917), (0, 37, 119, 0.05034153441957696), (0, 90, 256, 0.3840811922984122)]
+  sweep 90.2 s max shift from orig mm [52.3, 39.9] accel [150.77, 58.64]
+IT 3 lam 3.0 new 489447 cons 330938 overlaps {'sd': 71636, 'sa': 584, 'ad': 2840, 'db': 3297, 'ab': 156, 'dc': 624, 'ac': 0} viol_mm {'unary_0': 43.443, 'unary_1': 13.72, 'layer': np.float64(12.996)} accel [150.77, 58.64] detect 20.9 s

@@ -1,0 +1,55 @@
+00:00.080  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.543  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/scene/cine_m1_anim.blend"
+00:00.825  system.path      | WARNING Could not get a list of mounted file-systems
+00:05.645  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f037_lap_game_r24.png'
+00:09.776  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f037_lap_game_portrait45.png'
+00:12.965  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f037_lap_closeFront.png'
+00:16.644  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f037_lap_closeRight.png'
+00:20.220  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f037_lap_closeFront_marker.png'
+CU v3_before_v2g 37 lap
+00:23.559  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f076_lap_game_r24.png'
+00:26.974  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f076_lap_game_portrait45.png'
+00:29.266  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f076_lap_closeFront.png'
+00:31.813  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f076_lap_closeRight.png'
+00:34.344  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f076_lap_closeFront_marker.png'
+CU v3_before_v2g 76 lap
+00:37.478  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f077_lap_game_r24.png'
+00:40.634  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f077_lap_game_portrait45.png'
+00:42.869  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f077_lap_closeFront.png'
+00:45.488  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f077_lap_closeRight.png'
+00:48.123  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f077_lap_closeFront_marker.png'
+CU v3_before_v2g 77 lap
+00:51.394  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f078_lap_game_r24.png'
+00:54.670  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f078_lap_game_portrait45.png'
+00:57.240  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f078_lap_closeFront.png'
+01:00.259  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f078_lap_closeRight.png'
+01:02.980  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f078_lap_closeFront_marker.png'
+CU v3_before_v2g 78 lap
+01:06.264  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f079_lap_game_r24.png'
+01:09.442  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f079_lap_game_portrait45.png'
+01:11.732  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f079_lap_closeFront.png'
+01:14.611  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f079_lap_closeRight.png'
+01:16.737  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f079_lap_closeFront_marker.png'
+CU v3_before_v2g 79 lap
+01:20.552  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f080_lap_game_r24.png'
+01:23.786  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f080_lap_game_portrait45.png'
+01:25.950  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f080_lap_closeFront.png'
+01:28.520  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f080_lap_closeRight.png'
+01:31.204  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f080_lap_closeFront_marker.png'
+CU v3_before_v2g 80 lap
+01:34.529  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f081_lap_game_r24.png'
+01:37.643  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f081_lap_game_portrait45.png'
+01:40.260  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f081_lap_closeFront.png'
+01:42.948  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f081_lap_closeRight.png'
+01:45.577  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f081_lap_closeFront_marker.png'
+CU v3_before_v2g 81 lap
+01:49.228  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f082_lap_game_r24.png'
+01:52.282  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f082_lap_game_portrait45.png'
+01:55.128  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f082_lap_closeFront.png'
+01:58.131  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f082_lap_closeRight.png'
+02:00.944  render           | Saved: 'evidence/stills_v3/v3_before_v2g_f082_lap_closeFront_marker.png'
+CU v3_before_v2g 82 lap
+CUDONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

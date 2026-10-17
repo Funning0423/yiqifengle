@@ -1,0 +1,14 @@
+# bulky / reproducible / superseded artifacts kept on the box only
+*.pid
+__pycache__/
+*.partial
+cs/*.npz
+pipe/src/
+pipe/export/
+pipe/scene/cine_m1_base.blend
+pipe/scene/cine_m1_anim.blend
+pipe/scene/cine_m1_anim_cs2.blend
+evidence/stills/
+evidence/stills_v3/
+probe/check_f1*.json
+probe/check_cs2.json

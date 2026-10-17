@@ -1,0 +1,1 @@
+cine_open_stand:4:0.1806:4.2727:0.4861:lap;cine_open_stand:5:0.1806:4.2727:0.4861:lap;cine_open_stand:37:0.0943:4.3292:0.4743:lap

@@ -1,0 +1,37 @@
+00:00.079  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.363  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2/scene/cine_m1_anim.blend"
+00:00.517  system.path      | WARNING Could not get a list of mounted file-systems
+00:02.823  render           | Saved: 'evidence/stills/before_f042_legs_apron_dress_game_r24.png'
+00:04.939  render           | Saved: 'evidence/stills/before_f042_legs_apron_dress_game_portrait45.png'
+00:06.262  render           | Saved: 'evidence/stills/before_f042_legs_apron_dress_closeFront.png'
+00:07.731  render           | Saved: 'evidence/stills/before_f042_legs_apron_dress_closeRight.png'
+00:09.851  render           | Saved: 'evidence/stills/before_f042_legs_apron_dress_closeFront_marker.png'
+CU before 42 legs_apron_dress
+00:12.471  render           | Saved: 'evidence/stills/before_f060_legs_dress_f60_game_r24.png'
+00:14.906  render           | Saved: 'evidence/stills/before_f060_legs_dress_f60_game_portrait45.png'
+00:16.563  render           | Saved: 'evidence/stills/before_f060_legs_dress_f60_closeFront.png'
+00:18.391  render           | Saved: 'evidence/stills/before_f060_legs_dress_f60_closeRight.png'
+00:20.052  render           | Saved: 'evidence/stills/before_f060_legs_dress_f60_closeFront_marker.png'
+CU before 60 legs_dress_f60
+00:22.937  render           | Saved: 'evidence/stills/before_f032_chairback_proxy_game_r24.png'
+00:25.888  render           | Saved: 'evidence/stills/before_f032_chairback_proxy_game_portrait45.png'
+00:27.514  render           | Saved: 'evidence/stills/before_f032_chairback_proxy_closeFront.png'
+00:29.199  render           | Saved: 'evidence/stills/before_f032_chairback_proxy_closeRight.png'
+00:30.900  render           | Saved: 'evidence/stills/before_f032_chairback_proxy_closeFront_marker.png'
+CU before 32 chairback_proxy
+00:33.634  render           | Saved: 'evidence/stills/before_f014_after_min_clear_game_r24.png'
+00:36.514  render           | Saved: 'evidence/stills/before_f014_after_min_clear_game_portrait45.png'
+00:39.261  render           | Saved: 'evidence/stills/before_f014_after_min_clear_closeFront.png'
+00:41.998  render           | Saved: 'evidence/stills/before_f014_after_min_clear_closeRight.png'
+00:44.606  render           | Saved: 'evidence/stills/before_f014_after_min_clear_closeFront_marker.png'
+CU before 14 after_min_clear
+00:47.665  render           | Saved: 'evidence/stills/before_f042_after_hem_graze_game_r24.png'
+00:50.477  render           | Saved: 'evidence/stills/before_f042_after_hem_graze_game_portrait45.png'
+00:52.278  render           | Saved: 'evidence/stills/before_f042_after_hem_graze_closeFront.png'
+00:54.289  render           | Saved: 'evidence/stills/before_f042_after_hem_graze_closeRight.png'
+00:56.167  render           | Saved: 'evidence/stills/before_f042_after_hem_graze_closeFront_marker.png'
+CU before 42 after_hem_graze
+CUDONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

@@ -1,0 +1,81 @@
+00:00.073  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.399  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-clipfix/pipe/scene/cine_m1_anim.blend"
+00:00.563  system.path      | WARNING Could not get a list of mounted file-systems
+FC 7 {'G2_DRESS_R5G2': {'mask_mean': 0.853, 'mask_zero_frac': 0.032, 'max_shift_mm': 0.15}, 'G2_APRON_R5G2': {'mask_mean': 0.798, 'mask_zero_frac': 0.01, 'max_shift_mm': 1.08}}
+FC 10 {'G2_DRESS_R5G2': {'mask_mean': 0.842, 'mask_zero_frac': 0.043, 'max_shift_mm': 0.63}, 'G2_APRON_R5G2': {'mask_mean': 0.775, 'mask_zero_frac': 0.025, 'max_shift_mm': 1.48}}
+FC 12 {'G2_DRESS_R5G2': {'mask_mean': 0.842, 'mask_zero_frac': 0.045, 'max_shift_mm': 2.89}, 'G2_APRON_R5G2': {'mask_mean': 0.778, 'mask_zero_frac': 0.027, 'max_shift_mm': 10.31}}
+FC 13 {'G2_DRESS_R5G2': {'mask_mean': 0.84, 'mask_zero_frac': 0.044, 'max_shift_mm': 4.06}, 'G2_APRON_R5G2': {'mask_mean': 0.761, 'mask_zero_frac': 0.027, 'max_shift_mm': 7.96}}
+FC 14 {'G2_DRESS_R5G2': {'mask_mean': 0.842, 'mask_zero_frac': 0.039, 'max_shift_mm': 3.09}, 'G2_APRON_R5G2': {'mask_mean': 0.762, 'mask_zero_frac': 0.033, 'max_shift_mm': 2.51}}
+FC 15 {'G2_DRESS_R5G2': {'mask_mean': 0.843, 'mask_zero_frac': 0.037, 'max_shift_mm': 1.46}, 'G2_APRON_R5G2': {'mask_mean': 0.758, 'mask_zero_frac': 0.036, 'max_shift_mm': 4.93}}
+FC 16 {'G2_DRESS_R5G2': {'mask_mean': 0.846, 'mask_zero_frac': 0.032, 'max_shift_mm': 1.56}, 'G2_APRON_R5G2': {'mask_mean': 0.772, 'mask_zero_frac': 0.021, 'max_shift_mm': 7.83}}
+FC 17 {'G2_DRESS_R5G2': {'mask_mean': 0.847, 'mask_zero_frac': 0.03, 'max_shift_mm': 6.55}, 'G2_APRON_R5G2': {'mask_mean': 0.776, 'mask_zero_frac': 0.018, 'max_shift_mm': 15.46}}
+FC 18 {'G2_DRESS_R5G2': {'mask_mean': 0.853, 'mask_zero_frac': 0.025, 'max_shift_mm': 1.8}, 'G2_APRON_R5G2': {'mask_mean': 0.791, 'mask_zero_frac': 0.01, 'max_shift_mm': 7.38}}
+FC 19 {'G2_DRESS_R5G2': {'mask_mean': 0.85, 'mask_zero_frac': 0.025, 'max_shift_mm': 2.45}, 'G2_APRON_R5G2': {'mask_mean': 0.804, 'mask_zero_frac': 0.001, 'max_shift_mm': 10.9}}
+FC 20 {'G2_DRESS_R5G2': {'mask_mean': 0.839, 'mask_zero_frac': 0.029, 'max_shift_mm': 14.26}, 'G2_APRON_R5G2': {'mask_mean': 0.807, 'mask_zero_frac': 0.003, 'max_shift_mm': 15.32}}
+FC 21 {'G2_DRESS_R5G2': {'mask_mean': 0.856, 'mask_zero_frac': 0.023, 'max_shift_mm': 2.46}, 'G2_APRON_R5G2': {'mask_mean': 0.836, 'mask_zero_frac': 0.0, 'max_shift_mm': 2.65}}
+FC 22 {'G2_DRESS_R5G2': {'mask_mean': 0.858, 'mask_zero_frac': 0.022, 'max_shift_mm': 3.99}, 'G2_APRON_R5G2': {'mask_mean': 0.835, 'mask_zero_frac': 0.001, 'max_shift_mm': 5.64}}
+FC 23 {'G2_DRESS_R5G2': {'mask_mean': 0.846, 'mask_zero_frac': 0.026, 'max_shift_mm': 6.36}, 'G2_APRON_R5G2': {'mask_mean': 0.811, 'mask_zero_frac': 0.0, 'max_shift_mm': 4.48}}
+FC 24 {'G2_DRESS_R5G2': {'mask_mean': 0.82, 'mask_zero_frac': 0.043, 'max_shift_mm': 5.0}, 'G2_APRON_R5G2': {'mask_mean': 0.757, 'mask_zero_frac': 0.011, 'max_shift_mm': 6.96}}
+FC 25 {'G2_DRESS_R5G2': {'mask_mean': 0.785, 'mask_zero_frac': 0.059, 'max_shift_mm': 10.8}, 'G2_APRON_R5G2': {'mask_mean': 0.695, 'mask_zero_frac': 0.034, 'max_shift_mm': 6.7}}
+FC 26 {'G2_DRESS_R5G2': {'mask_mean': 0.808, 'mask_zero_frac': 0.05, 'max_shift_mm': 3.95}, 'G2_APRON_R5G2': {'mask_mean': 0.74, 'mask_zero_frac': 0.019, 'max_shift_mm': 6.65}}
+FC 27 {'G2_DRESS_R5G2': {'mask_mean': 0.823, 'mask_zero_frac': 0.039, 'max_shift_mm': 5.85}, 'G2_APRON_R5G2': {'mask_mean': 0.755, 'mask_zero_frac': 0.012, 'max_shift_mm': 4.8}}
+FC 28 {'G2_DRESS_R5G2': {'mask_mean': 0.824, 'mask_zero_frac': 0.035, 'max_shift_mm': 3.19}, 'G2_APRON_R5G2': {'mask_mean': 0.741, 'mask_zero_frac': 0.026, 'max_shift_mm': 6.21}}
+FC 29 {'G2_DRESS_R5G2': {'mask_mean': 0.817, 'mask_zero_frac': 0.038, 'max_shift_mm': 6.48}, 'G2_APRON_R5G2': {'mask_mean': 0.709, 'mask_zero_frac': 0.038, 'max_shift_mm': 8.27}}
+FC 30 {'G2_DRESS_R5G2': {'mask_mean': 0.803, 'mask_zero_frac': 0.051, 'max_shift_mm': 13.72}, 'G2_APRON_R5G2': {'mask_mean': 0.664, 'mask_zero_frac': 0.051, 'max_shift_mm': 15.33}}
+FC 31 {'G2_DRESS_R5G2': {'mask_mean': 0.799, 'mask_zero_frac': 0.052, 'max_shift_mm': 6.36}, 'G2_APRON_R5G2': {'mask_mean': 0.628, 'mask_zero_frac': 0.085, 'max_shift_mm': 8.88}}
+FC 32 {'G2_DRESS_R5G2': {'mask_mean': 0.78, 'mask_zero_frac': 0.068, 'max_shift_mm': 9.01}, 'G2_APRON_R5G2': {'mask_mean': 0.594, 'mask_zero_frac': 0.123, 'max_shift_mm': 6.18}}
+FC 33 {'G2_DRESS_R5G2': {'mask_mean': 0.767, 'mask_zero_frac': 0.079, 'max_shift_mm': 6.79}, 'G2_APRON_R5G2': {'mask_mean': 0.572, 'mask_zero_frac': 0.14, 'max_shift_mm': 4.11}}
+FC 34 {'G2_DRESS_R5G2': {'mask_mean': 0.767, 'mask_zero_frac': 0.083, 'max_shift_mm': 11.2}, 'G2_APRON_R5G2': {'mask_mean': 0.573, 'mask_zero_frac': 0.132, 'max_shift_mm': 5.78}}
+FC 35 {'G2_DRESS_R5G2': {'mask_mean': 0.765, 'mask_zero_frac': 0.076, 'max_shift_mm': 11.48}, 'G2_APRON_R5G2': {'mask_mean': 0.566, 'mask_zero_frac': 0.119, 'max_shift_mm': 18.99}}
+FC 36 {'G2_DRESS_R5G2': {'mask_mean': 0.773, 'mask_zero_frac': 0.076, 'max_shift_mm': 8.58}, 'G2_APRON_R5G2': {'mask_mean': 0.553, 'mask_zero_frac': 0.148, 'max_shift_mm': 5.82}}
+FC 37 {'G2_DRESS_R5G2': {'mask_mean': 0.777, 'mask_zero_frac': 0.077, 'max_shift_mm': 6.11}, 'G2_APRON_R5G2': {'mask_mean': 0.552, 'mask_zero_frac': 0.154, 'max_shift_mm': 7.79}}
+FC 38 {'G2_DRESS_R5G2': {'mask_mean': 0.785, 'mask_zero_frac': 0.071, 'max_shift_mm': 5.06}, 'G2_APRON_R5G2': {'mask_mean': 0.565, 'mask_zero_frac': 0.156, 'max_shift_mm': 8.16}}
+FC 39 {'G2_DRESS_R5G2': {'mask_mean': 0.795, 'mask_zero_frac': 0.064, 'max_shift_mm': 13.86}, 'G2_APRON_R5G2': {'mask_mean': 0.594, 'mask_zero_frac': 0.134, 'max_shift_mm': 20.88}}
+FC 40 {'G2_DRESS_R5G2': {'mask_mean': 0.797, 'mask_zero_frac': 0.058, 'max_shift_mm': 12.71}, 'G2_APRON_R5G2': {'mask_mean': 0.622, 'mask_zero_frac': 0.1, 'max_shift_mm': 18.67}}
+FC 41 {'G2_DRESS_R5G2': {'mask_mean': 0.815, 'mask_zero_frac': 0.051, 'max_shift_mm': 7.1}, 'G2_APRON_R5G2': {'mask_mean': 0.647, 'mask_zero_frac': 0.092, 'max_shift_mm': 4.66}}
+FC 42 {'G2_DRESS_R5G2': {'mask_mean': 0.821, 'mask_zero_frac': 0.05, 'max_shift_mm': 4.12}, 'G2_APRON_R5G2': {'mask_mean': 0.66, 'mask_zero_frac': 0.085, 'max_shift_mm': 4.91}}
+FC 43 {'G2_DRESS_R5G2': {'mask_mean': 0.825, 'mask_zero_frac': 0.045, 'max_shift_mm': 5.13}, 'G2_APRON_R5G2': {'mask_mean': 0.679, 'mask_zero_frac': 0.067, 'max_shift_mm': 7.6}}
+FC 44 {'G2_DRESS_R5G2': {'mask_mean': 0.824, 'mask_zero_frac': 0.044, 'max_shift_mm': 12.39}, 'G2_APRON_R5G2': {'mask_mean': 0.694, 'mask_zero_frac': 0.04, 'max_shift_mm': 17.0}}
+FC 45 {'G2_DRESS_R5G2': {'mask_mean': 0.816, 'mask_zero_frac': 0.047, 'max_shift_mm': 16.18}, 'G2_APRON_R5G2': {'mask_mean': 0.698, 'mask_zero_frac': 0.037, 'max_shift_mm': 19.74}}
+FC 46 {'G2_DRESS_R5G2': {'mask_mean': 0.833, 'mask_zero_frac': 0.041, 'max_shift_mm': 3.01}, 'G2_APRON_R5G2': {'mask_mean': 0.703, 'mask_zero_frac': 0.036, 'max_shift_mm': 4.98}}
+FC 47 {'G2_DRESS_R5G2': {'mask_mean': 0.839, 'mask_zero_frac': 0.034, 'max_shift_mm': 4.63}, 'G2_APRON_R5G2': {'mask_mean': 0.701, 'mask_zero_frac': 0.037, 'max_shift_mm': 12.29}}
+FC 48 {'G2_DRESS_R5G2': {'mask_mean': 0.848, 'mask_zero_frac': 0.025, 'max_shift_mm': 5.55}, 'G2_APRON_R5G2': {'mask_mean': 0.7, 'mask_zero_frac': 0.026, 'max_shift_mm': 9.22}}
+FC 49 {'G2_DRESS_R5G2': {'mask_mean': 0.856, 'mask_zero_frac': 0.018, 'max_shift_mm': 5.7}, 'G2_APRON_R5G2': {'mask_mean': 0.699, 'mask_zero_frac': 0.018, 'max_shift_mm': 2.94}}
+FC 50 {'G2_DRESS_R5G2': {'mask_mean': 0.851, 'mask_zero_frac': 0.021, 'max_shift_mm': 16.43}, 'G2_APRON_R5G2': {'mask_mean': 0.692, 'mask_zero_frac': 0.011, 'max_shift_mm': 7.39}}
+FC 51 {'G2_DRESS_R5G2': {'mask_mean': 0.873, 'mask_zero_frac': 0.014, 'max_shift_mm': 7.36}, 'G2_APRON_R5G2': {'mask_mean': 0.752, 'mask_zero_frac': 0.008, 'max_shift_mm': 10.4}}
+FC 52 {'G2_DRESS_R5G2': {'mask_mean': 0.881, 'mask_zero_frac': 0.013, 'max_shift_mm': 2.91}, 'G2_APRON_R5G2': {'mask_mean': 0.787, 'mask_zero_frac': 0.014, 'max_shift_mm': 4.08}}
+FC 53 {'G2_DRESS_R5G2': {'mask_mean': 0.881, 'mask_zero_frac': 0.02, 'max_shift_mm': 3.65}, 'G2_APRON_R5G2': {'mask_mean': 0.807, 'mask_zero_frac': 0.015, 'max_shift_mm': 5.75}}
+FC 54 {'G2_DRESS_R5G2': {'mask_mean': 0.883, 'mask_zero_frac': 0.02, 'max_shift_mm': 5.71}, 'G2_APRON_R5G2': {'mask_mean': 0.817, 'mask_zero_frac': 0.015, 'max_shift_mm': 7.99}}
+FC 55 {'G2_DRESS_R5G2': {'mask_mean': 0.863, 'mask_zero_frac': 0.019, 'max_shift_mm': 18.67}, 'G2_APRON_R5G2': {'mask_mean': 0.814, 'mask_zero_frac': 0.008, 'max_shift_mm': 8.48}}
+FC 56 {'G2_DRESS_R5G2': {'mask_mean': 0.879, 'mask_zero_frac': 0.02, 'max_shift_mm': 3.59}, 'G2_APRON_R5G2': {'mask_mean': 0.798, 'mask_zero_frac': 0.022, 'max_shift_mm': 7.67}}
+FC 57 {'G2_DRESS_R5G2': {'mask_mean': 0.88, 'mask_zero_frac': 0.024, 'max_shift_mm': 6.7}, 'G2_APRON_R5G2': {'mask_mean': 0.778, 'mask_zero_frac': 0.03, 'max_shift_mm': 3.31}}
+FC 58 {'G2_DRESS_R5G2': {'mask_mean': 0.881, 'mask_zero_frac': 0.024, 'max_shift_mm': 3.29}, 'G2_APRON_R5G2': {'mask_mean': 0.763, 'mask_zero_frac': 0.036, 'max_shift_mm': 2.05}}
+FC 59 {'G2_DRESS_R5G2': {'mask_mean': 0.879, 'mask_zero_frac': 0.017, 'max_shift_mm': 2.87}, 'G2_APRON_R5G2': {'mask_mean': 0.75, 'mask_zero_frac': 0.029, 'max_shift_mm': 7.46}}
+FC 60 {'G2_DRESS_R5G2': {'mask_mean': 0.867, 'mask_zero_frac': 0.017, 'max_shift_mm': 16.89}, 'G2_APRON_R5G2': {'mask_mean': 0.725, 'mask_zero_frac': 0.033, 'max_shift_mm': 8.55}}
+FC 62 {'G2_DRESS_R5G2': {'mask_mean': 0.882, 'mask_zero_frac': 0.018, 'max_shift_mm': 2.8}, 'G2_APRON_R5G2': {'mask_mean': 0.751, 'mask_zero_frac': 0.032, 'max_shift_mm': 5.56}}
+FC 63 {'G2_DRESS_R5G2': {'mask_mean': 0.881, 'mask_zero_frac': 0.017, 'max_shift_mm': 2.22}, 'G2_APRON_R5G2': {'mask_mean': 0.767, 'mask_zero_frac': 0.025, 'max_shift_mm': 8.3}}
+FC 64 {'G2_DRESS_R5G2': {'mask_mean': 0.876, 'mask_zero_frac': 0.014, 'max_shift_mm': 2.73}, 'G2_APRON_R5G2': {'mask_mean': 0.784, 'mask_zero_frac': 0.015, 'max_shift_mm': 4.92}}
+FC 65 {'G2_DRESS_R5G2': {'mask_mean': 0.852, 'mask_zero_frac': 0.012, 'max_shift_mm': 15.71}, 'G2_APRON_R5G2': {'mask_mean': 0.769, 'mask_zero_frac': 0.015, 'max_shift_mm': 7.77}}
+FC 67 {'G2_DRESS_R5G2': {'mask_mean': 0.909, 'mask_zero_frac': 0.019, 'max_shift_mm': 11.34}, 'G2_APRON_R5G2': {'mask_mean': 0.773, 'mask_zero_frac': 0.037, 'max_shift_mm': 6.09}}
+FC 68 {'G2_DRESS_R5G2': {'mask_mean': 0.908, 'mask_zero_frac': 0.02, 'max_shift_mm': 20.3}, 'G2_APRON_R5G2': {'mask_mean': 0.771, 'mask_zero_frac': 0.038, 'max_shift_mm': 3.99}}
+FC 69 {'G2_DRESS_R5G2': {'mask_mean': 0.913, 'mask_zero_frac': 0.013, 'max_shift_mm': 3.53}, 'G2_APRON_R5G2': {'mask_mean': 0.791, 'mask_zero_frac': 0.022, 'max_shift_mm': 2.92}}
+FC 70 {'G2_DRESS_R5G2': {'mask_mean': 0.917, 'mask_zero_frac': 0.005, 'max_shift_mm': 24.58}, 'G2_APRON_R5G2': {'mask_mean': 0.82, 'mask_zero_frac': 0.003, 'max_shift_mm': 16.86}}
+FC 72 {'G2_DRESS_R5G2': {'mask_mean': 0.927, 'mask_zero_frac': 0.01, 'max_shift_mm': 7.05}, 'G2_APRON_R5G2': {'mask_mean': 0.844, 'mask_zero_frac': 0.021, 'max_shift_mm': 3.84}}
+FC 73 {'G2_DRESS_R5G2': {'mask_mean': 0.927, 'mask_zero_frac': 0.013, 'max_shift_mm': 5.65}, 'G2_APRON_R5G2': {'mask_mean': 0.851, 'mask_zero_frac': 0.029, 'max_shift_mm': 4.42}}
+FC 74 {'G2_DRESS_R5G2': {'mask_mean': 0.925, 'mask_zero_frac': 0.013, 'max_shift_mm': 7.55}, 'G2_APRON_R5G2': {'mask_mean': 0.867, 'mask_zero_frac': 0.026, 'max_shift_mm': 5.33}}
+FC 75 {'G2_DRESS_R5G2': {'mask_mean': 0.916, 'mask_zero_frac': 0.012, 'max_shift_mm': 20.47}, 'G2_APRON_R5G2': {'mask_mean': 0.885, 'mask_zero_frac': 0.025, 'max_shift_mm': 21.08}}
+FC 76 {'G2_DRESS_R5G2': {'mask_mean': 0.923, 'mask_zero_frac': 0.019, 'max_shift_mm': 5.84}, 'G2_APRON_R5G2': {'mask_mean': 0.917, 'mask_zero_frac': 0.026, 'max_shift_mm': 4.65}}
+FC 77 {'G2_DRESS_R5G2': {'mask_mean': 0.922, 'mask_zero_frac': 0.022, 'max_shift_mm': 17.12}, 'G2_APRON_R5G2': {'mask_mean': 0.924, 'mask_zero_frac': 0.023, 'max_shift_mm': 5.02}}
+FC 78 {'G2_DRESS_R5G2': {'mask_mean': 0.942, 'mask_zero_frac': 0.014, 'max_shift_mm': 29.02}, 'G2_APRON_R5G2': {'mask_mean': 0.95, 'mask_zero_frac': 0.023, 'max_shift_mm': 0.85}}
+FC 79 {'G2_DRESS_R5G2': {'mask_mean': 0.964, 'mask_zero_frac': 0.008, 'max_shift_mm': 4.79}, 'G2_APRON_R5G2': {'mask_mean': 0.959, 'mask_zero_frac': 0.022, 'max_shift_mm': 4.53}}
+FC 80 {'G2_DRESS_R5G2': {'mask_mean': 0.959, 'mask_zero_frac': 0.009, 'max_shift_mm': 29.57}, 'G2_APRON_R5G2': {'mask_mean': 0.961, 'mask_zero_frac': 0.022, 'max_shift_mm': 26.17}}
+FC 82 {'G2_DRESS_R5G2': {'mask_mean': 0.981, 'mask_zero_frac': 0.007, 'max_shift_mm': 7.51}, 'G2_APRON_R5G2': {'mask_mean': 0.96, 'mask_zero_frac': 0.023, 'max_shift_mm': 2.03}}
+FC 83 {'G2_DRESS_R5G2': {'mask_mean': 0.98, 'mask_zero_frac': 0.01, 'max_shift_mm': 2.86}, 'G2_APRON_R5G2': {'mask_mean': 0.954, 'mask_zero_frac': 0.033, 'max_shift_mm': 2.73}}
+FC 84 {'G2_DRESS_R5G2': {'mask_mean': 0.98, 'mask_zero_frac': 0.009, 'max_shift_mm': 16.52}, 'G2_APRON_R5G2': {'mask_mean': 0.953, 'mask_zero_frac': 0.033, 'max_shift_mm': 15.76}}
+FC 85 {'G2_DRESS_R5G2': {'mask_mean': 0.982, 'mask_zero_frac': 0.008, 'max_shift_mm': 2.86}, 'G2_APRON_R5G2': {'mask_mean': 0.953, 'mask_zero_frac': 0.032, 'max_shift_mm': 2.73}}
+00:31.912  system.path      | WARNING Could not get a list of mounted file-systems
+Info: Saved as "cine_m1_anim_f10a.blend"
+FCDONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

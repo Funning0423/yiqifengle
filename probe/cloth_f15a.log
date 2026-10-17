@@ -1,0 +1,7 @@
+00:00.072  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.379  blend            | Read blend: "/workspace/wechat-game/team/cinematic/work/m1v2-clipfix/pipe/scene/cine_m1_anim_f15a.blend"
+00:00.550  system.path      | WARNING Could not get a list of mounted file-systems
+CDONE {"cine_open_stand": {"G2_DRESS_R5G2": {"max_speed_mm_per_frame": 45.96, "speed_p99": 45.43, "max_accel_mm_per_frame2": 59.98, "accel_at_frame": 80}, "G2_APRON_R5G2": {"max_speed_mm_per_frame": 44.25, "speed_p99": 43.93, "max_accel_mm_per_frame2": 43.13, "accel_at_frame": 20}, "G2_BOW_TAILS_R5G2": {"max_speed_mm_per_frame": 117.31, "speed_p99": 116.46, "max_accel_mm_per_frame2": 114.55, "accel_at_frame": 55}}, "cine_open_turn": {"G2_DRESS_R5G2": {"max_speed_mm_per_frame": 31.17, "speed_p99": 31.11, "max_accel_mm_per_frame2": 3.95, "accel_at_frame": 24}, "G2_APRON_R5G2": {"max_speed_mm_per_frame": 37.49, "speed_p99": 37.41, "max_accel_mm_per_frame2": 4.66, "accel_at_frame": 24}, "G2_BOW_TAILS_R5G2": {"max_speed_mm_per_frame": 24.07, "speed_p99": 24.05, "max_accel_mm_per_frame2": 3.02, "accel_at_frame": 24}}}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit
