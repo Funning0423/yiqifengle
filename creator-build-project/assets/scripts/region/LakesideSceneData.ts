@@ -49,17 +49,24 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
  *  DirectionalLight (reused while the lake shows, restored after), SUN_dusk_side 0.31 -> ambient sky/ground, Sun.001 0.08 dropped,
  *  SUN_mtn_sky (MTN_RECV only) not placed, no point lights, shadows untouched. 'points' = the previous 3 SphereLights. */
 export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
-/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). Derived by GGbot from scene_r5h3_lighting.json:
- *  - sunForward / sunColorLinear: json Sun exactly; sunIlluminanceScale x the scene's current main-light illuminance (handoff §5: main = 1.0).
- *  - ambient: SUN_dusk_side colour [1,0.55,0.28] (linear) as sky colour, ground = half of it (biased to the sky side; the dusk light
- *    comes in low from the side, 13° below horizontal); skyIllum = 0.31 x main illuminance (its handoff ratio). */
+/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). v2 (GGbot), derived from r5h3:
+ *  - sunForward / sunColorLinear: scene_r5h3_lighting.json Sun exactly; sunIlluminanceScale x the scene's main-light illuminance.
+ *  - ambientSkyColorLinear: the blue top stop of the r5h3 world sky ramp (lakeside_r5h3.blend, z>=0.38) - not the dusk light's yellow.
+ *  - ambientGroundColorLinear: warm (half of SUN_dusk_side [1,0.55,0.28]); the dusk light is otherwise dropped, like Sun.001.
+ *  - ambientSkyIllumToSun 0.75: tuned in the Blender proxy so the frame's mean colour matches the r5h3 render (74/115/101 sRGB).
+ *  - waterTintLinear: multiplies the lake material (vertex colour x palette) so the warm sun no longer turns it green; tuned in the
+ *    proxy against the r5h3 water (81/160/151 sRGB near the board). Runtime-only on the lease's own instanced copy (no asset edit).
+ *  - clearColorLinear: same blue sky stop, behind the mountains (was peach #f2b98a). */
 export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   sunForward: [-0.4182, -0.3983, 0.8164] as const,
   sunColorLinear: [1.0, 0.6, 0.32] as const,
   sunIlluminanceScale: 1.0,
-  ambientSkyColorLinear: [1.0, 0.55, 0.28] as const,
+  ambientSkyColorLinear: [0.0116, 0.2747, 0.4793] as const,
   ambientGroundColorLinear: [0.5, 0.275, 0.14] as const,
-  ambientSkyIllumToSun: 0.31,
+  ambientSkyIllumToSun: 0.75,
+  waterTintLinear: [0.06, 0.55, 1.0] as const,
+  waterGlbs: ['LK_lake.glb'] as const,
+  clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
 });
 export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
 const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));

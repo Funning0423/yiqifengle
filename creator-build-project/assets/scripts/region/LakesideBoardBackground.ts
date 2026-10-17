@@ -24,7 +24,7 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
 /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
 export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,instanced:Material[]=[];
+ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,instanced:Material[]=[];
  const held:Array<{decRef():unknown}>=[];
  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
   *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
@@ -57,18 +57,22 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
   for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
   instanced=enableLakesideInstancing(scenery);
+  if(LAKESIDE_LIGHT_MODE==='dir'){/* v2: water tint on the lease's own instanced copy of the lake material (asset untouched; destroyed with the lease). */
+   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),tinted=new Set<Material>(),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
+   for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m&&!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}
+   waterTinted=tinted.size;}
   setLayer(scenery);
   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
    const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
   const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
-  camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
+  camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=LAKESIDE_LIGHT_MODE==='dir'?(()=>{const c=linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);return new Color(c[0],c[1],c[2],255);})():new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
   return {
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
    dispose,
   };
  }catch(error){dispose();throw error;}

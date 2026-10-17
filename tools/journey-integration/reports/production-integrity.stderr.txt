@@ -7,7 +7,7 @@ AssertionError [ERR_ASSERTION]: Frozen shipped asset/rule changed: creator-build
 
 + '183993fbb55f983368fc91d67333ee07620bbf79625cbcee0b4b782212cd6e28'
 - '21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a'
-    at Object.<anonymous> (/tmp/wt-lake/tools/journey-integration/test-production-integrity.cjs:5:43)
+    at Object.<anonymous> (/tmp/a3wt/tools/journey-integration/test-production-integrity.cjs:5:43)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)

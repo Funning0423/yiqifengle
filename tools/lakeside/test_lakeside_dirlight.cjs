@@ -8,9 +8,12 @@ const L=n=>J.lights.find(l=>l.name===n);
 assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');
 assert.deepEqual([...P.sunForward],L('Sun').forward,'main = json Sun direction');assert.deepEqual([...P.sunColorLinear],L('Sun').colorLinear,'main = json Sun colour');
 assert.equal(P.sunIlluminanceScale,L('Sun').illuminanceRatio);
-assert.deepEqual([...P.ambientSkyColorLinear],L('SUN_dusk_side').colorLinear,'ambient sky = dusk colour');
-assert(P.ambientGroundColorLinear.every((c,i)=>c<P.ambientSkyColorLinear[i]),'biased to the sky side');
-assert.equal(P.ambientSkyIllumToSun,L('SUN_dusk_side').illuminanceRatio);
+// v2: blue sky (r5h3 world ramp top stop), warm ground, bluer water, blue clear colour
+const sky=P.ambientSkyColorLinear;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
+const gr=P.ambientGroundColorLinear;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
+assert(P.ambientSkyIllumToSun>0.31&&P.ambientSkyIllumToSun<=1,'ambient raised so the scene is not grey');
+const wt=P.waterTintLinear;assert(wt[2]>=wt[1]&&wt[1]>wt[0]&&wt.every(c=>c>=0&&c<=1),'water tint cyan-blue, a valid Color');assert.deepEqual([...P.waterGlbs],['LK_lake.glb']);
+assert.deepEqual([...P.clearColorLinear],[...sky],'clear colour = sky stop');assert.deepEqual(D.linearToSrgb8(P.clearColorLinear),[28,143,184]);
 assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
 assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),[255,203,153]);
 const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
@@ -20,5 +23,7 @@ assert(/l\.node\.lookAt\(new Vec3\(w\.x\+f\[0\],w\.y\+f\[1\],w\.z\+f\[2\]\)\)/.t
 assert(/visibility=saved\.vis\|LAKESIDE_LAYER/.test(bg),'main light reaches the lake layer');
 assert(/setVisible:value=>\{[^}]*if\(value\)applyDir\(\);else restoreDir\(\);\}/.test(bg)&&/dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);/.test(bg),'apply on show, restore on hide/dispose');
 assert(/s0\.light\.node\.setRotation\(s0\.rot\);s0\.light\.color=s0\.color;s0\.light\.illuminance=s0\.illum;/.test(bg)&&/amb\.skyLightingColor=s0\.sky;amb\.groundLightingColor=s0\.ground;amb\.skyIllum=s0\.skyIllum;/.test(bg),'full restore');
+assert(/m\.setProperty\('mainColor',new Color\(wc\[0\],wc\[1\],wc\[2\],255\)\)/.test(bg)&&/instanced\.includes\(m\)/.test(bg),'water tint only on the lease-owned instanced copy');
+assert(/camera\.clearColor=LAKESIDE_LIGHT_MODE==='dir'\?/.test(bg),'dir mode clear colour from params');
 assert(!/shadowEnabled|shadowFixedArea|ShadowType/.test(bg),'shadows untouched');
 console.log('lakeside dirlight OK');
