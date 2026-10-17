@@ -20,6 +20,7 @@ import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
 import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
 import {lakesideLandingToBoard,lakesideViewport,type LakesideLandingDeps} from '../region/LakesideLandingHook';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
+import {regionBoardPose,regionBoardSource,regionLandingToBoard,type BoardLandingRegion,type RegionLandingDeps} from '../region/RegionBoardLanding';
 import {boardSafeInsets} from '../ui/BoardLayout';
 /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
@@ -80,6 +81,9 @@ export class WorldNativeComposition extends Component {
     // 运镜bot: lakeside assets still not ready after the hook's 3 s wait → the existing lakeside fallback (toast + island), never an empty board.
     let held=false;
     if(region==='lakeside'){const landed=await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null,deps:this.lakesideLandingDeps()});if(landed?.ok===false)return this.lakesideFallback('board',landed.reason);held=true;this.world?.holdEnterLevel?.(true);}
+    // 运镜bot (region hooks): 04→05 / 08→09 end on the meadow / skycity board camera (RegionBoardLanding); hold the push-in only
+    // when the hook put the world camera ON that pose and that board background will render. Otherwise today's path, unchanged.
+    else if((region==='meadow'&&requiresMeadowScene(selection))||(region==='skycity'&&requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps:this.regionLandingDeps(region)});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
     let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(result.ok)this.pendingJourneySelection=null;
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
@@ -107,6 +111,18 @@ export class WorldNativeComposition extends Component {
       safe:(w,h)=>boardSafeInsets(w,h),
       preload:()=>prewarmLakesideAssets(),
       log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_LAKESIDE] '+JSON.stringify(entry));}catch{}},
+    };
+  }
+  /** 运镜bot: world camera read/write, frame clock, the board UI's viewport and the board pose on the journey copy. Never throws. */
+  private regionLandingDeps(region:BoardLandingRegion):RegionLandingDeps|undefined{
+    const camera=this.worldCamera;if(!camera||!camera.node?.isValid)return undefined;
+    return {
+      readCamera:()=>{const n=camera.node;if(!n.isValid)return null;const p=n.worldPosition,f=n.forward;return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:camera.fov};},
+      setCamera:pose=>camera.node.isValid&&applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),region+'.landing-board'),
+      nextFrame:()=>new Promise<number>(resolve=>this.scheduleOnce(()=>resolve(director.getDeltaTime()),0)),
+      viewport:()=>lakesideViewport(view.getFrameSize()),
+      boardPose:v=>{const src=regionBoardSource(region);return src?regionBoardPose(src,v.width/v.height):null;},
+      log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_REGION] '+JSON.stringify(entry));}catch{}},
     };
   }
   private selectionRegion(selection:Selection):JourneyRegion {
