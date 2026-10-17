@@ -132,7 +132,7 @@ describes the post-install state: root playwright-core 1.56.1 plus the nested op
 
 **Does this belong to a real project?**
 - `~` is not a git repository (`git rev-parse`: "not a git repository"), so there is no history to compare against.
-- Lock name: "shineanl". Both files were created on 2026-03-19 (package-lock.json 2026-03-18 16:38 EDT, package.json 17:48 EDT).
+- Lock name: "<mac-user>". Both files were created on 2026-03-19 (package-lock.json 2026-03-18 16:38 EDT, package.json 17:48 EDT).
   Before today, their last change can't be recovered.
 - The lock also lists openclaw 2026.3.13. The openclaw process actually running comes from the pnpm global install, not
   from `~/node_modules`.

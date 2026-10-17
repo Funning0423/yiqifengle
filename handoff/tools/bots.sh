@@ -13,4 +13,4 @@ cp team/oi/e2fix-0001b/evidence/wechat-e2fix/HANDOFF.md $B/oi-e2fix-0001b-HANDOF
 cp team/oi/oi0004/evidence/character-interim/HANDOFF.md $B/oi-oi0004-character-interim-HANDOFF.md
 cp inbox-from-oi/20261016-build05-journey/handoff.md $B/oi-20261016-build05-journey-handoff.md
 cp team/cinematic/work/m1v2-clipfix/PROBLEM_BRIEF.md $B/m1v2-cloth-PROBLEM_BRIEF.md
-perl -pi -e 's#/Users/(shineanl|jonas)\b#/Users/<mac-user>#g' $B/*.md
+perl -pi -e 's#/Users/[^/<]+\b#/Users/<mac-user>#g' $B/*.md

@@ -12,8 +12,8 @@ rm -rf "$S"; mkdir -p "$S"
 cd /workspace/wechat-game && tar -cf - -T /workspace/handoff-prep/inc.txt | tar -xf - -C "$S"
 mkdir -p "$S/_box-tmp" && cp -a /tmp/amb "$S/_box-tmp/amb"
 cd "$S"
-rg -uu -l '/Users/(shineanl|jonas)' -g '!*.patch' . > /workspace/handoff-prep/redacted_files.txt || true
-[ -s /workspace/handoff-prep/redacted_files.txt ] && xargs -d '\n' perl -pi -e 's#/Users/(shineanl|jonas)\b#/Users/<mac-user>#g' < /workspace/handoff-prep/redacted_files.txt
+rg -uu -l '/Users/[^/<]+' -g '!*.patch' . > /workspace/handoff-prep/redacted_files.txt || true
+[ -s /workspace/handoff-prep/redacted_files.txt ] && xargs -d '\n' perl -pi -e 's#/Users/[^/<]+\b#/Users/<mac-user>#g' < /workspace/handoff-prep/redacted_files.txt
 cat /workspace/handoff-prep/select.out
 echo "redacted files: $(wc -l < /workspace/handoff-prep/redacted_files.txt)"
 du -sh "$S"

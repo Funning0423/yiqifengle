@@ -1450,8 +1450,8 @@ index 8f0494c98ed0d7e8856eec3a50edd57c166f57f4..24b1d65abbf30324761d19df6ae07d27
      "autoFit": true,
      "logo": {
        "type": "custom",
--      "image": "/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-r5-fb338ef-integrated-20261010/tools/branding/game-title-temporary.png"
-+      "image": "/Users/shineanl/Documents/Codex/2026-10-15/task-21/creator-web-20261015/source-build05/creator-build-project/build-resources/game-title-temporary.png"
+-      "image": "/Users/<mac-user>/Documents/Codex/2026-10-09/task/cocos-r5-fb338ef-integrated-20261010/tools/branding/game-title-temporary.png"
++      "image": "/Users/<mac-user>/Documents/Codex/2026-10-15/task-21/creator-web-20261015/source-build05/creator-build-project/build-resources/game-title-temporary.png"
      },
      "background": {
        "type": "color",

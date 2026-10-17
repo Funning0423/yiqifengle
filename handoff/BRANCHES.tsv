@@ -24,7 +24,7 @@ cine/region-hooks-meadow-skycity	768b272d8d950fc2512dbeef0c271ebabf078abf	運鏡
 cine/region-hooks-meadow-skycity-r4	95d3eeed53e6c67a85ac05e47b9105672976fde7	運鏡bot	已驗收	否	是		95d3eee（r4 採用，Mac 零跳變）
 cine/region-hooks-meadow-skycity-r4-head	5b1f41dc96733891e38fd5bdabf1bca6cb0d5667	運鏡bot	已驗收	否	是		5b1f41d girl-frame，已在 r4
 cine/sail-start-gate-r3	f2adb78813e80d6e343ca8f7387268fbe07cee2a	運鏡bot	被取代	否	是		放棄/被取代（封存）
-cine/skycity-bridge-r2-cam	e4a05b982aaa5b98053ef71eeacff91f37cb8f56	運鏡bot	進行中	否	是	r4.1	天空之城 B r2 鏡頭；尚無自己的提交（= r4.1 e4a05b9）
+cine/skycity-bridge-r2-cam	e5b16a47b76c8248e590c0b21371fd4fc2d38f83	運鏡bot	進行中	否	是	r4.1	天空之城 B r2 鏡頭；尚無自己的提交（= r4.1 e4a05b9）
 cinematic/window-tap-exit-proto	5c54f7a6706abe157e23e4386969b80f8b1c6852	運鏡bot	封存	否	是		舊原型
 fix/a3-home-sea-fadein	a17395c2c99d24239a724bcc2d98eec73095fa6b	GGbot	已驗收	否	是	r4	a3b-a17395c Mac 通過，已在 r4 歷史
 ggbot/7ecd289-fixes	688aad34343120b0ab12340a8483099729f5bbd4	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
@@ -46,8 +46,8 @@ ggbot/build05-r4-tests	e79bfcad4a3e2077a3bae62872a7a524206d756a	GGbot	已驗收	
 ggbot/build05-r4-tests-reward	dc25cec64cf9200b3c02a93eb447d053836789d7	GGbot	已驗收	否	是		最終測試線，已併入 r4
 ggbot/build05-r4-ui-fixes	50a3074da5d74344b5a4465c3ea9f5b815b9d287	GGbot	已驗收	否	是		50a3074 已驗收，併入 r4（為 02e7fd4 等）
 ggbot/build05-r41-hint-above-tray	260ea024dd15b9ff17e02f225210ce806f5e8fc6	GGbot	已驗收	否	是		r4.1 提示牌移到托盤上方（Grok Bot 選項 1）；已進 r4.1 為 74c696e
-ggbot/build05-r42-fixes	e4a05b982aaa5b98053ef71eeacff91f37cb8f56	GGbot	進行中	否	是	r4.1	剛建立（= r4.1 e4a05b9），尚無自己的提交
-ggbot/build05-r5-rainbow-bridge	fb37a67c55a01ec345a0509f51461bfe3deb4b0b	GGbot	進行中	否	是		彩虹橋引擎實作（基於 r4.1 fd1a39d），未做真機截圖
+ggbot/build05-r42-fixes	3068ef49155eb8b1d9c476da88855cb687af3a4f	GGbot	進行中	否	是	r4.1	剛建立（= r4.1 e4a05b9），尚無自己的提交
+ggbot/build05-r5-rainbow-bridge	961131282d0392628c4fdaa599ee440eb7ddabca	GGbot	進行中	否	是		彩虹橋引擎實作（基於 r4.1 fd1a39d），未做真機截圖
 ggbot/build05-v3-stack	764dcd8997ccf21a79bdeff1bd7484441124e6ab	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
 ggbot/build05-v3.2	9c03ab5c6b6ed5f29a85afd8a3314a5eb4cbb187	GGbot	被取代	否	是		被 v3.2-final 取代
 ggbot/build05-v3.2-final	d238881c85df7787fc63a37092a46968bb6f3d34	GGbot	已驗收	否	是	r4	已併入 build05（09a1b8e）
@@ -61,7 +61,7 @@ ggbot/result-screen-on-688aad3	e2bd7074eb4c40b37b25b35227579aeeadc74217	GGbot	�
 ggbot/scratch-landing-A2	f8a830c6b53699d25470d9fe0f10486bceddbbd5	GGbot	封存	否	是		草稿
 ggbot/skycity-mesh-compress	2506984d2a4352209b0a1b033625d7acb639dd24	GGbot	未驗收	否	是		未見驗收記錄
 grok/build05-oi-char-20261016T1505	7ecd2890c39043530961e91a0815ddbac986b7ad	Grok Bot/Oi	已驗收	否	是	r4	已併入 build05（09a1b8e）
-handoff/20261017	77ef6ad55cccca2cf6969f2329053f0d36b3ec7a	GGbot	進行中	否	是	r4.1	本交接分支（r4.1 77ef6ad + handoff/ 文件與快照）
+handoff/20261017	(本分支 HEAD，見 PUSH_ON_MAC 輸出)	GGbot	進行中	否	是	r4.1	本交接分支（r4.1 f569ff0 + handoff/ 文件與快照）
 integration/build05-20261016T2048	09a1b8e456fd38dadf632f627189883808307cbe	GGbot	已驗收	否	是	r4	= Funning 桌面包 build05 基線 09a1b8e（milestone 驗收通過）
 integration/build05-a3b-20261017T063646Z	a995c4158ff447ec1fb82f26b198db2265a0c36a	GGbot	已驗收	否	是		Mac a3b-a995c41 通過；主工作區所在分支；後續 r3/r4 線另行集成
 integration/build05-next-20261017T0438	f60c8ec79e8ef16f52b1761352b1d2f4253f6394	GGbot	被取代	否	是	r4	next-f60c8ec（Mac 除湖畔外通過）
@@ -77,7 +77,7 @@ integration/build05-next-lights-20261017T0445	268b58e452ad618bcab9a65587a1febe90
 integration/build05-next-scenefix-20261017T0636	888daeb803e09d59528c84207b6957c14f8d3535	GGbot	被取代	否	是		
 integration/build05-next-scenefix-20261017T0636-scenefix-only	f85ddbf37a74647b86e6e593cabb2a5bdc39e01e	GGbot	被取代	否	是		
 integration/build05-r4-20261017T122042Z	2153a65cd4c97208a202746d251e3a458d4bb98f	GGbot	已驗收	否	是	r4	r4 最終；內容已驗收，Mac 驗收進行中（界面驗收部）
-integration/build05-r41-20261017T125738Z	77ef6ad55cccca2cf6969f2329053f0d36b3ec7a	GGbot	進行中	否	是	r4.1	r4.1 集成線；含 74c696e(260ea02)/fd1a39d(0ea1564)/b1e41b2(cfe6429)/77883aa 切後台續走/e4a05b9(f125cd2)/77ef6ad 前景計時看門狗；待 Mac 驗收
+integration/build05-r41-20261017T125738Z	f569ff0d9eeb9f6ab26bdc56276fa234e60c5ac4	GGbot	進行中	否	是	r4.1	r4.1 集成線；含 74c696e(260ea02)/fd1a39d(0ea1564)/b1e41b2(cfe6429)/77883aa 切後台續走/e4a05b9(f125cd2)/f569ff0 前景計時看門狗；待 Mac 驗收
 mac/task21-web-ui	5c54f7a6706abe157e23e4386969b80f8b1c6852	Cursor CLI(Mac)	封存	是(相同)	是		舊 Mac task21（origin 已有）
 oi/base-1c21428	1c21428d3235f16866d879a078df7cf324117d98	Oi	已驗收	否	是	r4	已併入 build05（09a1b8e）
 oi/d238881	d238881c85df7787fc63a37092a46968bb6f3d34	Oi	已驗收	否	是	r4	已併入 build05（09a1b8e）

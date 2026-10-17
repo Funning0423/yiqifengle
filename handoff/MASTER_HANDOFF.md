@@ -1,14 +1,14 @@
 # 《咦 起風了》總交接文件（MASTER_HANDOFF）
 
 > 產生時間：2026-10-17 21:56（美東 EDT）。本文件給接手的 Grok Bot（新帳號）、Cursor CLI 與各 bot 使用。
-> 交接分支：`handoff/20261017`（本機準備，**尚未推送**；目的地待 Funning 決定）。
-> 交接分支基底：r4.1 集成線 `integration/build05-r41-20261017T125738Z` 當時的 HEAD `77ef6ad`（背景計時修正 77ef6ad 已到並已快轉進本分支；若 r4.1 再有新提交，需把本分支重新放到最終 r4.1 上）。
+> 交接分支：`handoff/20261017`（box 上準備；Funning 已確認推到**公開** origin `Funning0423/yiqifengle`，由 Funning 的 Mac 以 git bundle + Cursor CLI 推送）。
+> 交接分支基底：r4.1 集成線 `integration/build05-r41-20261017T125738Z` 當時的 HEAD `f569ff0`（背景計時修正 r4.1b f569ff0 已到並已重定基底進本分支；早先的 77ef6ad 為修訂前版本，已作廢、不推送；若 r4.1 再有新提交，需把本分支重新放到最終 r4.1 上）。
 
 ## 1. 專案概況
 - 遊戲：《咦 起風了》微信小遊戲，引擎 **Cocos Creator 3.8.8**（Mac M4 上建置；box 上沒有 Creator，也無法截真實引擎畫面）。
 - 玩法：小島／家中出門 → 旅途（草甸、湖畔、天空之城等地區）→ 棋盤關卡 → 結算 → 回小島。
 - 主倉庫（box）：`/workspace/wechat-game/yiqifengle`。實際 Creator 工程在 `creator-build-project/`。
-- 舊 origin：`https://github.com/Funning0423/yiqifengle`（**公開**倉庫）。交接要求推到**私有**倉庫，見 §9。
+- 舊 origin：`https://github.com/Funning0423/yiqifengle`（**公開**倉庫）。Funning 已確認交接內容（含工作區快照）直接推到這個公開倉庫，見 §9。
 - 微信 AppID：`wx3bdd911c5c06f591`（工程設定，非密鑰；不碰週年小程式）。
 - Funning 桌面測試包：build05 `09a1b8e`（湖畔驗收通過前不更新）。
 
@@ -28,7 +28,7 @@
 
 ## 3. 開發計畫與目前狀態
 1. **r4**：`integration/build05-r4-20261017T122042Z` = `2153a65`，內容已驗收，**Mac 驗收進行中**（界面驗收部 `ui-audit/2026-10-17/r4-2153a65`，仍在寫入）。初步發現（非最終）列在 §7.3。
-2. **r4.1**：`integration/build05-r41-20261017T125738Z`（目前 `77ef6ad`），**待 Mac 驗收**。疊放：`74c696e` 提示牌移到托盤上方（原 260ea02）→ `fd1a39d` 運鏡bot 草甸落點（原 0ea1564）→ `b1e41b2` Voice 出門實時腳步（原 cfe6429）→ `77883aa` 出門／回家途中切後台不閃回椅子、續播 → `e4a05b9` 戶外腳步響度（原 f125cd2）→ `77ef6ad` r4.1b 回家路上的看門狗改用前景時間（後台停留任意長度都不會超時或閃回）。是否為最終 SHA 以 GGbot r4.1 worker 的通知為準。待 Grok Bot 接受：08→09 比 Build05 慢 1.19 s（最小屏 +2.98 s）。
+2. **r4.1**：`integration/build05-r41-20261017T125738Z`（目前 `f569ff0`），**待 Mac 驗收**。疊放：`74c696e` 提示牌移到托盤上方（原 260ea02）→ `fd1a39d` 運鏡bot 草甸落點（原 0ea1564）→ `b1e41b2` Voice 出門實時腳步（原 cfe6429）→ `77883aa` 出門／回家途中切後台不閃回椅子、續播 → `e4a05b9` 戶外腳步響度（原 f125cd2）→ `f569ff0` r4.1b 回家路上的看門狗改用前景時間（後台停留任意長度都不會超時或閃回）。是否為最終 SHA 以 GGbot r4.1 worker 的通知為準。待 Grok Bot 接受：08→09 比 Build05 慢 1.19 s（最小屏 +2.98 s）。
 3. **彩虹橋實作（r5）**：`ggbot/build05-r5-rainbow-bridge`（`fb37a67`，基於 r4.1 `fd1a39d`），**進行中**。方案：`product/2026-10-17/rainbow-bridge/IMPLEMENTATION.md`（概念已驗收）。要求：1 DC 有厚度和護沿的橋身、sin² 拱、alpha/飽和度調低、無白光縫、夜間不過曝、粒子 ≤88、新增包體 ≤約 35 KB；effect 尚未在 Creator 3.8.8 編譯（導數擴展、priority 語法、WebGL1 depthBias 待確認）；海島端帽需按真實落點重新貼地；最後以真機截圖驗收。
 4. **天空之城方案 B r2（r5）**：`IMPLEMENTATION.md` §8.5（42° 舊版 §8.R1 作廢）。已交付未驗收。最陡 30°、7 屏離 UI ≥13.3 pt、比 Build05 最多 +4.59 s。待真機確認：城底沉入草地山谷是否可見；360×780 只多 0.3 pt。運鏡bot 鏡頭分支 `cine/skycity-bridge-r2-cam`（尚無提交）。
 5. **野餐布 D**：r2 方向已認可；**r3 扣下不交付**；r3b 進行中（`product/2026-10-16/gameplay-integration-concepts/D_refine_r3b/`）。C_palm r2 排隊；竹排 S2 導出排隊（快照需在管線跑完後重新同步）；B/A/N1 未開始。
@@ -112,9 +112,10 @@ QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript node tools/journey-integra
 - 時間一律報美東時間（EDT）。
 
 ## 9. 推送狀態與注意事項（重要）
-- **尚未推送。** 現有 origin `Funning0423/yiqifengle` 是**公開**倉庫；要求是私有倉庫；box 也沒有 git 推送憑證。目的地由 Funning 決定。
+- 目的地：公開 origin `Funning0423/yiqifengle`（Funning 已確認，含工作區快照）。box 沒有 git 推送憑證，所以在 box 上打成 git bundle，到 Funning 的 Mac 上用 Cursor CLI 推送，**不用 --force**；步驟見 box 上 `/workspace/handoff-prep/bundle/PUSH_ON_MAC.md`。
+- 公開前已重掃：gitleaks（快照目錄 + 全部推送分支歷史）只有誤報（測試用 canary token、二進位 patch 內容、測試常數）；快照內的 `/Users/<mac-user>` 路徑已改成佔位符（含 patch 副本）。
 - 已在公開 origin 上的歷史（無法靠這次交接撤回）：
-  - 舊提交作者資訊含 Mac 使用者名與主機名（`shineanl@Funnings-MacBook-Air-…`）及 Apple 私密轉寄信箱。
+  - 舊提交作者資訊含 Mac 使用者名與主機名（`<mac-user>@<mac-hostname>`）及 Apple 私密轉寄信箱。
   - 多個追蹤檔含 `/Users/<mac-user>/…` 路徑（如 `tools/observe_*_build.swift`、`docs/*-20261014.md`、`tools/wechat-world-r6-audio-build-options.json`）。依指示**不改寫歷史**。
   - origin 上 `voicebot/audio-cc0-20261015`（提交 9def3a4）已含 `bgm_reference_NOT_FOR_SHIP` 參考轉檔；是否從公開倉庫移除由 Funning 決定。
 - 推送清單：`handoff/BRANCHES.tsv` 中「推送=是」的分支（共 125 條）+ `handoff/20261017`。**不推**：`voice/audio-cc0-20261015`（含 NOT_FOR_SHIP 轉檔，留在 box）、舊別名 `voicebot/*`、`voice-bot/*`（`voice/*` 已有同 SHA 名稱）。
@@ -151,7 +152,7 @@ QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript node tools/journey-integra
 | `cine/region-hooks-meadow-skycity-r4` | `95d3eee` | 運鏡bot | 已驗收 | 否 | 是 |  | 95d3eee（r4 採用，Mac 零跳變） |
 | `cine/region-hooks-meadow-skycity-r4-head` | `5b1f41d` | 運鏡bot | 已驗收 | 否 | 是 |  | 5b1f41d girl-frame，已在 r4 |
 | `cine/sail-start-gate-r3` | `f2adb78` | 運鏡bot | 被取代 | 否 | 是 |  | 放棄/被取代（封存） |
-| `cine/skycity-bridge-r2-cam` | `e4a05b9` | 運鏡bot | 進行中 | 否 | 是 | r4.1 | 天空之城 B r2 鏡頭；尚無自己的提交（= r4.1 e4a05b9） |
+| `cine/skycity-bridge-r2-cam` | `e5b16a4` | 運鏡bot | 進行中 | 否 | 是 | r4.1 | 天空之城 B r2 鏡頭；尚無自己的提交（= r4.1 e4a05b9） |
 | `cinematic/window-tap-exit-proto` | `5c54f7a` | 運鏡bot | 封存 | 否 | 是 |  | 舊原型 |
 | `fix/a3-home-sea-fadein` | `a17395c` | GGbot | 已驗收 | 否 | 是 | r4 | a3b-a17395c Mac 通過，已在 r4 歷史 |
 | `ggbot/7ecd289-fixes` | `688aad3` | GGbot | 已驗收 | 否 | 是 | r4 | 已併入 build05（09a1b8e） |
@@ -173,8 +174,8 @@ QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript node tools/journey-integra
 | `ggbot/build05-r4-tests-reward` | `dc25cec` | GGbot | 已驗收 | 否 | 是 |  | 最終測試線，已併入 r4 |
 | `ggbot/build05-r4-ui-fixes` | `50a3074` | GGbot | 已驗收 | 否 | 是 |  | 50a3074 已驗收，併入 r4（為 02e7fd4 等） |
 | `ggbot/build05-r41-hint-above-tray` | `260ea02` | GGbot | 已驗收 | 否 | 是 |  | r4.1 提示牌移到托盤上方（Grok Bot 選項 1）；已進 r4.1 為 74c696e |
-| `ggbot/build05-r42-fixes` | `e4a05b9` | GGbot | 進行中 | 否 | 是 | r4.1 | 剛建立（= r4.1 e4a05b9），尚無自己的提交 |
-| `ggbot/build05-r5-rainbow-bridge` | `fb37a67` | GGbot | 進行中 | 否 | 是 |  | 彩虹橋引擎實作（基於 r4.1 fd1a39d），未做真機截圖 |
+| `ggbot/build05-r42-fixes` | `3068ef4` | GGbot | 進行中 | 否 | 是 | r4.1 | 剛建立（= r4.1 e4a05b9），尚無自己的提交 |
+| `ggbot/build05-r5-rainbow-bridge` | `9611312` | GGbot | 進行中 | 否 | 是 |  | 彩虹橋引擎實作（基於 r4.1 fd1a39d），未做真機截圖 |
 | `ggbot/build05-v3-stack` | `764dcd8` | GGbot | 已驗收 | 否 | 是 | r4 | 已併入 build05（09a1b8e） |
 | `ggbot/build05-v3.2` | `9c03ab5` | GGbot | 被取代 | 否 | 是 |  | 被 v3.2-final 取代 |
 | `ggbot/build05-v3.2-final` | `d238881` | GGbot | 已驗收 | 否 | 是 | r4 | 已併入 build05（09a1b8e） |
@@ -188,7 +189,7 @@ QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript node tools/journey-integra
 | `ggbot/scratch-landing-A2` | `f8a830c` | GGbot | 封存 | 否 | 是 |  | 草稿 |
 | `ggbot/skycity-mesh-compress` | `2506984` | GGbot | 未驗收 | 否 | 是 |  | 未見驗收記錄 |
 | `grok/build05-oi-char-20261016T1505` | `7ecd289` | Grok Bot/Oi | 已驗收 | 否 | 是 | r4 | 已併入 build05（09a1b8e） |
-| `handoff/20261017` | `77ef6ad` | GGbot | 進行中 | 否 | 是 | r4.1 | 本交接分支（r4.1 77ef6ad + handoff/ 文件與快照） |
+| `handoff/20261017` | （本分支 HEAD） | GGbot | 進行中 | 否 | 是 | r4.1 | 本交接分支（r4.1 f569ff0 + handoff/ 文件與快照） |
 | `integration/build05-20261016T2048` | `09a1b8e` | GGbot | 已驗收 | 否 | 是 | r4 | = Funning 桌面包 build05 基線 09a1b8e（milestone 驗收通過） |
 | `integration/build05-a3b-20261017T063646Z` | `a995c41` | GGbot | 已驗收 | 否 | 是 |  | Mac a3b-a995c41 通過；主工作區所在分支；後續 r3/r4 線另行集成 |
 | `integration/build05-next-20261017T0438` | `f60c8ec` | GGbot | 被取代 | 否 | 是 | r4 | next-f60c8ec（Mac 除湖畔外通過） |
@@ -204,7 +205,7 @@ QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript node tools/journey-integra
 | `integration/build05-next-scenefix-20261017T0636` | `888daeb` | GGbot | 被取代 | 否 | 是 |  |  |
 | `integration/build05-next-scenefix-20261017T0636-scenefix-only` | `f85ddbf` | GGbot | 被取代 | 否 | 是 |  |  |
 | `integration/build05-r4-20261017T122042Z` | `2153a65` | GGbot | 已驗收 | 否 | 是 | r4 | r4 最終；內容已驗收，Mac 驗收進行中（界面驗收部） |
-| `integration/build05-r41-20261017T125738Z` | `77ef6ad` | GGbot | 進行中 | 否 | 是 | r4.1 | r4.1 集成線；含 74c696e(260ea02)/fd1a39d(0ea1564)/b1e41b2(cfe6429)/77883aa 切後台續走/e4a05b9(f125cd2)/77ef6ad 前景計時看門狗；待 Mac 驗收 |
+| `integration/build05-r41-20261017T125738Z` | `f569ff0` | GGbot | 進行中 | 否 | 是 | r4.1 | r4.1 集成線；含 74c696e(260ea02)/fd1a39d(0ea1564)/b1e41b2(cfe6429)/77883aa 切後台續走/e4a05b9(f125cd2)/f569ff0 前景計時看門狗；待 Mac 驗收 |
 | `mac/task21-web-ui` | `5c54f7a` | Cursor CLI(Mac) | 封存 | 是(相同) | 是 |  | 舊 Mac task21（origin 已有） |
 | `oi/base-1c21428` | `1c21428` | Oi | 已驗收 | 否 | 是 | r4 | 已併入 build05（09a1b8e） |
 | `oi/d238881` | `d238881` | Oi | 已驗收 | 否 | 是 | r4 | 已併入 build05（09a1b8e） |
@@ -317,11 +318,11 @@ QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript node tools/journey-integra
 
 ## 12. 未結事項總表
 1. r4 Mac 驗收（§7.3 的 5 個初步問題待定案）。
-2. r4.1（77ef6ad 含背景計時修正）全套測試確認 → Mac 驗收（提示牌 7 屏 + 橫屏、草甸落點→棋盤 7 屏、出門／回家有聲錄屏 + `recording_levels.py`、切後台 3 s/10 s）。
+2. r4.1（f569ff0 含背景計時修正）全套測試確認 → Mac 驗收（提示牌 7 屏 + 橫屏、草甸落點→棋盤 7 屏、出門／回家有聲錄屏 + `recording_levels.py`、切後台 3 s/10 s）。
 3. Grok Bot 是否接受 08→09 慢 1.19 s（最小屏 +2.98 s）；r4.1 短屏托盤下移 20 pt、長提示文字縮到約 0.92×。
 4. 彩虹橋 effect 在 Creator 3.8.8 編譯與真機截圖；天空之城 B r2 實作（r5）。
 5. 湖畔 DC 實測 ≤60；夜間玻璃牌 Mac 夜間照片。
 6. 結算畫面 v2.2 Funning 最終選定與真機驗收。
 7. m1v2 布料重做（ChatGPT 6 Pro）。
 8. 野餐布 D r3b、C_palm r2、竹排 S2 導出（後台進程 pid 見場景設計部 HANDOFF §3；不要打斷，同時只能有 1 個 Blender）。
-9. 推送目的地（私有倉庫）與 GitHub 憑證；公開 origin 上已有資料的處理（§9）。
+9. 在 Funning 的 Mac 上完成推送並回報 SHA；公開 origin 上已有資料的處理（§9）。

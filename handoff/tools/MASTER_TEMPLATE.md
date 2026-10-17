@@ -114,7 +114,7 @@ QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript node tools/journey-integra
 ## 9. 推送狀態與注意事項（重要）
 - **尚未推送。** 現有 origin `Funning0423/yiqifengle` 是**公開**倉庫；要求是私有倉庫；box 也沒有 git 推送憑證。目的地由 Funning 決定。
 - 已在公開 origin 上的歷史（無法靠這次交接撤回）：
-  - 舊提交作者資訊含 Mac 使用者名與主機名（`shineanl@Funnings-MacBook-Air-…`）及 Apple 私密轉寄信箱。
+  - 舊提交作者資訊含 Mac 使用者名與主機名（`<mac-user>@<mac-hostname>`）及 Apple 私密轉寄信箱。
   - 多個追蹤檔含 `/Users/<mac-user>/…` 路徑（如 `tools/observe_*_build.swift`、`docs/*-20261014.md`、`tools/wechat-world-r6-audio-build-options.json`）。依指示**不改寫歷史**。
   - origin 上 `voicebot/audio-cc0-20261015`（提交 9def3a4）已含 `bgm_reference_NOT_FOR_SHIP` 參考轉檔；是否從公開倉庫移除由 Funning 決定。
 - 推送清單：`handoff/BRANCHES.tsv` 中「推送=是」的分支（共 @@NPUSH@@ 條）+ `handoff/20261017`。**不推**：`voice/audio-cc0-20261015`（含 NOT_FOR_SHIP 轉檔，留在 box）、舊別名 `voicebot/*`、`voice-bot/*`（`voice/*` 已有同 SHA 名稱）。
