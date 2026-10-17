@@ -1,0 +1,11 @@
+# 帆船转场 STATUS
+
+- 2026-10-18 02:23 CST · T0 基线 Node 22 · 94/95 PASS，唯一非 PASS 是 `navigation-guard: BLOCKED_BROWSER`（套件状态 BLOCKED，退出码 1，与 f569ff0 口径一致）· 基线 `f569ff0d9e`
+- 2026-10-18 02:23 CST · T0 基线 Node 20 · 92/95 PASS，另有 `legacy-board-ui-pure`、`reward-background-return` 为 `BLOCKED_NODE`（需要 Node ≥ 22.6），以及 `navigation-guard: BLOCKED_BROWSER` · 基线 `f569ff0d9e`
+- 2026-10-18 02:23 CST · T0 审计 · 本机没有 Blender，`/tmp` 下也没有已解码的 `room_no_original_chair.glb` / `env_skycity.glb`，`audit-current-transitions.cjs` 未能在本地重跑。任务包里的 `audit-day.txt` / `audit-night.txt` 与 DESIGN §8.1 一致：04→05 为 34.2 m / 28.5 s，最小净空 1.38 m（`island:env_prop_palm_lean_01`，t=11.46 s）；08→09 为 44.3 m / 36.9 s，最小净空 1.9 m。下一步不改这些旧转场。
+- 2026-10-18 02:23 CST · rider-parenting · `parent-after-sit_hold`，30 s 移动 50 m 的座位偏差约 0 m（≤ 1 cm）。不启用每帧 `cancelAndReset`。单次 `seatFromBench` 约 0.44 µs，低于 0.3 ms。· `39ec45b042`
+- 2026-10-18 02:23 CST · 资产 · `tools/transitions/build-sail-assets.cjs` 程序化生成 GLB（自制，CC0-self）。三角面：船 29、海卡 10、云 32，合计 71。分包字节 6544，低于 0.25 MiB 目标。`check_region_export.py` 对 `tools/transitions/sail-transforms.json` 为 CHECK PASS（3 个实例；Sailboat 在原点，检查不因此失败）。顶点色代替 256² 色板，避免未压缩贴图撑破 0.25 MiB。· `39ec45b042`
+- 2026-10-18 02:23 CST · 航线时长 · 弦长保持 52 m，河口最后 12 m 走河道中心线。巡航速度按 2 s 加速 / 9 s 巡航 / 2.2 s 减速解出，约 4.52 m/s（不是文案里的 3.6 m/s：3.6 m/s 盖不住 52 m 且会超过 30.5 s）。加速度 2.26 / 2.06 m/s²，转向 6.95 °/s，半径 46.6 m。Build05 口径 30.069 s（≤ 30.5）。上岸点上移到草地局部 z=17，岸上步行 5.96 m。逻辑桥长 1 cm，只为通过 `bridgeEnd > bridgeStart`，不画彩虹条。· `39ec45b042`
+- 2026-10-18 02:23 CST · 预加载 · mainline-04 进关后对 inactive 的 `SailWarm-meadow` 预热草地，不调用 `journey.prepare`（那会让 `isInTransit` 挡住棋盘）。6 s 超时记下一次 bridge 回退。· `39ec45b042`
+- 2026-10-18 02:23 CST · 测试 · Node 22：100/101 PASS，唯一非 PASS 仍是 `navigation-guard: BLOCKED_BROWSER`。Node 20：98/101 PASS，非 PASS 为上述两项 `BLOCKED_NODE` 加 `navigation-guard`。新增 `rider-parenting`、`transport-sail`、`frame-background`、`asset-budget`、`transport-flag`、`transit-background-resume` 均为 PASS。frame-background：4214 帧，nearHit=false，clearM≥0.6，back≤1%，void=0，domes=1，horizonGap=0。· `39ec45b042`
+- 下一步 · Creator 冒烟与 `build-wechat-guarded.sh both`，然后截帆船转场（`?sailshot=1`）。磁盘约 6.5 GB，低于 4 GB 则停止构建。
