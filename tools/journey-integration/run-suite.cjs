@@ -44,6 +44,7 @@ const tests=[
  ['child-first-teardown','tools/board-ui/test_child_first_teardown.cjs'],
  ['result-claim-batch','tools/board-ui/test_claim_batch.cjs'],
  ['result-screen-style','tools/board-ui/test_result_screen_style.cjs'],
+ ['board-hint-above-tray','tools/board-ui/test_board_hint_above_tray.cjs'],
  ['navigation-guard','tools/test_world_navigation_guard.cjs'],
  ['retry-protection','tools/test_retry_protection.cjs'],
  ['cloud-web-contract','tools/cloud-web/test.cjs'],
