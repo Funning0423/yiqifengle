@@ -11,7 +11,26 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 export const LAKESIDE_GUEST_SOURCE='FLOW_REFERENCE_PLACEHOLDER_NOT_B';
 export const LAKESIDE_GUEST_JOURNEY_SCENE='LakesideJourneyScene';
 export const LAKESIDE_GUEST_NODE='LakesideBoardGuest';
-export type LakesideGuest={node:Node;renderers:number;dispose():void};
+export type LakesideGuest={node:Node;renderers:number;morph:GuestMorphCopy;dispose():void};
+export type GuestMorphCopy={renderers:number;morphRenderers:number;weights:number;mismatched:number};
+/** r4-prep B2 (lead): the apron must not jump on the swap frame. CharacterMotion's MorphDriver writes the apron / dress shape
+ *  weights with setWeight every frame; those runtime weights are not guaranteed to reach the copy's new model (morph instance re-created from the mesh), so the apron could snap to its rest shape.
+ *  Pairs source/copy renderers by hierarchy order (same node name required) and copies, per renderer: every sub-mesh's every
+ *  target weight (getWeight → setWeights), enableMorph, shared materials, shadow cast/receive flags. Pure over the renderer
+ *  interface (getWeight/setWeights/mesh.struct.morph.subMeshMorphs); never throws per renderer. */
+export function copyGuestRendererState(src:ReadonlyArray<any>,dst:ReadonlyArray<any>):GuestMorphCopy{
+ const out:GuestMorphCopy={renderers:0,morphRenderers:0,weights:0,mismatched:0};
+ for(let i=0;i<dst.length;i++){const a=src[i],b=dst[i];
+  if(!a||!b||(a.node&&b.node&&a.node.name!==b.node.name)){out.mismatched++;continue;}out.renderers++;
+  try{if(typeof a.enableMorph==='boolean')b.enableMorph=a.enableMorph;
+   if(a.shadowCastingMode!==undefined)b.shadowCastingMode=a.shadowCastingMode;if(a.receiveShadow!==undefined)b.receiveShadow=a.receiveShadow;
+   const mats=a.sharedMaterials;if(mats&&typeof b.setSharedMaterial==='function')for(let m=0;m<mats.length;m++)if(b.getSharedMaterial?.(m)!==mats[m])b.setSharedMaterial(mats[m],m);
+   const subs=a.mesh&&a.mesh.struct&&a.mesh.struct.morph&&a.mesh.struct.morph.subMeshMorphs;
+   if(!subs||!subs.length||typeof a.getWeight!=='function'||typeof b.setWeights!=='function')continue;let any=false;
+   for(let s=0;s<subs.length;s++){const n=subs[s]&&subs[s].targets?subs[s].targets.length:0;if(!n)continue;const w:number[]=[];
+    for(let t=0;t<n;t++){const v=Number(a.getWeight(s,t));w.push(Number.isFinite(v)?v:0);}b.setWeights(w,s);out.weights+=n;any=true;}
+   if(any)out.morphRenderers++;}catch{out.mismatched++;}}
+ return out;}
 function findDeep(n:Node|null|undefined,name:string):Node|null{if(!n)return null;if(n.name===name)return n;const k=n.children;for(let i=0;i<k.length;i++){const hit=findDeep(k[i],name);if(hit)return hit;}return null;}
 function setLayer(n:Node,layer:number){n.layer=layer;const k=n.children;for(let i=0;i<k.length;i++)setLayer(k[i],layer);}
 /** Pure: her transform in the lakeside scene's own frame from her world transform and the journey scene's world transform (scale 1). */
@@ -39,10 +58,13 @@ export function mountBoardGuest(boardScene:Node,layer:number,journey:Node|null):
   // before it enters the scene: nothing plays or ticks (joint nodes keep the pose they were copied with)
   const anims=copy.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<anims.length;i++){anims[i].playOnLoad=false;(anims[i] as any).useBakedAnimation=false;anims[i].enabled=false;}
   const comps=copy.getComponentsInChildren(Component);for(let i=0;i<comps.length;i++)if(!(comps[i] instanceof MeshRenderer))comps[i].enabled=false;
-  setLayer(copy,layer);copy.setPosition(local.pos);copy.setRotation(local.rot);copy.setScale(scale.x/k,scale.y/k,scale.z/k);copy.active=true;boardScene.addChild(copy);
+  setLayer(copy,layer);copy.setPosition(local.pos);copy.setRotation(local.rot);copy.setScale(scale.x/k,scale.y/k,scale.z/k);copy.active=true;
+  // morph weights + renderer state from the original, before (stored weights) and after (live morph instance) it enters the scene
+  const srcR=src.getComponentsInChildren(MeshRenderer);copyGuestRendererState(srcR,copy.getComponentsInChildren(MeshRenderer));boardScene.addChild(copy);
+  const morph=copyGuestRendererState(srcR,copy.getComponentsInChildren(MeshRenderer));
   const renderers=copy.getComponentsInChildren(MeshRenderer).length,node=copy;let dead=false;
-  try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest',board:boardScene.name,renderers,pos:[local.pos.x,local.pos.y,local.pos.z]}));}catch{}
-  return {node,renderers,dispose(){if(dead)return;dead=true;if(isValid(node,true))node.destroy();}};
+  try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest',board:boardScene.name,renderers,morph,pos:[local.pos.x,local.pos.y,local.pos.z]}));}catch{}
+  return {node,renderers,morph,dispose(){if(dead)return;dead=true;if(isValid(node,true))node.destroy();}};
  }catch(error){try{if(copy&&isValid(copy,true))copy.destroy();}catch{}try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest-skipped',error:String((error as any)?.message||error)}));}catch{}return null;}
 }
 /** r4-prep B (extended) without touching the meadow / sky-city lease files (运镜bot's 04→05 / 08→09 work; the 09 plaza file is
