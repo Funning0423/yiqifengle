@@ -63,8 +63,8 @@ CCProgram cloud-fs %{
   // skirt blue (171,216,236) so cloud gaps read as sea. Only the bright tail goes white.
   vec4 frag () {
     float l = dot(v_color, vec3(0.30, 0.59, 0.11));
-    vec3 deep = vec3(0.549, 0.745, 0.863);
-    vec3 sea = vec3(0.671, 0.847, 0.925);
+    vec3 deep = vec3(0.510, 0.639, 0.761);
+    vec3 sea = vec3(0.635, 0.725, 0.820);
     float shade = clamp((l - 0.70) / 0.14, 0.0, 1.0);
     vec3 base = mix(deep, sea, shade);
     float u = clamp((l - 0.84) / 0.08, 0.0, 1.0);
@@ -146,7 +146,7 @@ CCProgram card-fs %{
   vec4 frag () {
     vec3 tex = texture(mainTexture, v_uv).rgb;
     float skirt = smoothstep(0.05, 0.12, tex.b - tex.r);
-    vec3 sea = vec3(0.671, 0.847, 0.925);
+    vec3 sea = vec3(0.635, 0.725, 0.820);
     return vec4(mix(tex, sea, skirt), 1.0);
   }
 }%
