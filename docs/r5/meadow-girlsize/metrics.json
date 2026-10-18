@@ -1,0 +1,2994 @@
+[
+ {
+  "screen": "390x844",
+  "node": "M1",
+  "option": "off",
+  "heightFrac": 0.0612,
+  "boxPt": [
+   135.6,
+   628.3,
+   155.4,
+   680
+  ],
+  "covered": false,
+  "uiGapPt": 10.5,
+  "distM": 34.92,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -11.9,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M1",
+  "option": "A",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 11.52,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.02,
+   0.52,
+   53.45
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M1",
+  "option": "B",
+  "heightFrac": 0.1249,
+  "boxPt": [
+   14.5,
+   646.3,
+   58.2,
+   751.7
+  ],
+  "covered": false,
+  "uiGapPt": 14.5,
+  "distM": 25.32,
+  "fovDeg": 34.11,
+  "clearM": 14.66,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.05,
+   0.7,
+   60.6
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.6,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M1",
+  "option": "C0",
+  "heightFrac": 0.0821,
+  "boxPt": [
+   21.4,
+   664.3,
+   51.5,
+   733.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.4,
+  "distM": 26.89,
+  "fovDeg": 49.43,
+  "clearM": 17.42,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.09,
+   0.37,
+   61.33
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M1",
+  "option": "C",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 11.52,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.02,
+   0.52,
+   53.45
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M1",
+  "option": "D",
+  "heightFrac": 0.1084,
+  "boxPt": [
+   14.2,
+   652.9,
+   57.9,
+   744.4
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 19.54,
+  "fovDeg": 49.43,
+  "clearM": 14.75,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0,
+   0.51,
+   53.22
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -20.7,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M2",
+  "option": "off",
+  "heightFrac": 0.0459,
+  "boxPt": [
+   99.1,
+   509.4,
+   115,
+   548.2
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 44.68,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -14.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 40.016791769376326,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M2",
+  "option": "A",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 10.76,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.29,
+   0.47,
+   43.07
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 13.957284332338414,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M2",
+  "option": "B",
+  "heightFrac": 0.1249,
+  "boxPt": [
+   14.5,
+   646.3,
+   58.2,
+   751.7
+  ],
+  "covered": false,
+  "uiGapPt": 14.5,
+  "distM": 25.32,
+  "fovDeg": 34.11,
+  "clearM": 12.72,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.39,
+   0.62,
+   50.22
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.6,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 20.812725655487508,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M2",
+  "option": "C0",
+  "heightFrac": 0.0821,
+  "boxPt": [
+   21.4,
+   664.3,
+   51.5,
+   733.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.4,
+  "distM": 26.89,
+  "fovDeg": 49.43,
+  "clearM": 15.54,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.12,
+   0.29,
+   50.95
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 21.948107041640682,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M2",
+  "option": "C",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 10.76,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.29,
+   0.47,
+   43.07
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 13.957284332338414,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M2",
+  "option": "D",
+  "heightFrac": 0.1084,
+  "boxPt": [
+   14.2,
+   652.9,
+   57.9,
+   744.4
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 19.54,
+  "fovDeg": 49.43,
+  "clearM": 14.69,
+  "clearWho": "meadow_grass_instances.2",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.27,
+   0.51,
+   42.44
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -20.7,
+  "followToBoard": {
+   "wDegS": 126,
+   "aDegS2": 485,
+   "gap": {
+    "positionM": 14.923489272320154,
+    "viewDeg": 53.836913897528625,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M3",
+  "option": "off",
+  "heightFrac": 0.0375,
+  "boxPt": [
+   113.2,
+   443.4,
+   126.1,
+   475
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 53.7,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -13.4,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 49.15225537430169,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M3",
+  "option": "A",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 11.12,
+  "clearWho": "meadow_path",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.39,
+   0.41,
+   33.77
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 13.957284332338457,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M3",
+  "option": "B",
+  "heightFrac": 0.1249,
+  "boxPt": [
+   14.5,
+   646.3,
+   58.2,
+   751.7
+  ],
+  "covered": false,
+  "uiGapPt": 14.5,
+  "distM": 25.32,
+  "fovDeg": 34.11,
+  "clearM": 12.66,
+  "clearWho": "meadow_grass_instances.2",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.51,
+   0.53,
+   40.92
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.6,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 20.812725655487487,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M3",
+  "option": "C0",
+  "heightFrac": 0.0821,
+  "boxPt": [
+   21.4,
+   664.3,
+   51.5,
+   733.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.4,
+  "distM": 26.89,
+  "fovDeg": 49.43,
+  "clearM": 15.36,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.16,
+   0.2,
+   41.65
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 21.94810704164075,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M3",
+  "option": "C",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 11.12,
+  "clearWho": "meadow_path",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.39,
+   0.41,
+   33.77
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 13.957284332338457,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M3",
+  "option": "D",
+  "heightFrac": 0.1084,
+  "boxPt": [
+   14.2,
+   652.9,
+   57.9,
+   744.4
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 19.54,
+  "fovDeg": 49.43,
+  "clearM": 14.78,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.37,
+   0.48,
+   33.06
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -20.7,
+  "followToBoard": {
+   "wDegS": 126,
+   "aDegS2": 485,
+   "gap": {
+    "positionM": 14.923489272320184,
+    "viewDeg": 53.836913897528625,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "390x844",
+  "node": "M4",
+  "option": "off",
+  "heightFrac": 0.0332,
+  "boxPt": [
+   231.6,
+   389.6,
+   242,
+   417.6
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 59.98,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -5.9,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 53.69790622909336,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 52.834246469501196,
+    "viewDeg": 10.357818090144256,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "390x844",
+  "node": "M4",
+  "option": "A",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 10.82,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.75,
+   0.23,
+   27.34
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 13.821493142442268,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 11.244386205155074,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "390x844",
+  "node": "M4",
+  "option": "B",
+  "heightFrac": 0.1249,
+  "boxPt": [
+   14.5,
+   646.3,
+   58.2,
+   751.7
+  ],
+  "covered": false,
+  "uiGapPt": 14.5,
+  "distM": 25.32,
+  "fovDeg": 34.11,
+  "clearM": 14.08,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.85,
+   0.31,
+   34.5
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.6,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 19.95058353569776,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 17.9125609839818,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": 13.886069323737765
+   }
+  }
+ },
+ {
+  "screen": "390x844",
+  "node": "M4",
+  "option": "C0",
+  "heightFrac": 0.0821,
+  "boxPt": [
+   21.4,
+   664.3,
+   51.5,
+   733.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.4,
+  "distM": 26.89,
+  "fovDeg": 49.43,
+  "clearM": 16.55,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.76,
+   0.03,
+   35.22
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 21.823149142663514,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 19.559742680998763,
+    "viewDeg": 10.357818090144267,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "390x844",
+  "node": "M4",
+  "option": "C",
+  "heightFrac": 0.119,
+  "boxPt": [
+   14.3,
+   648.9,
+   58,
+   749.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.3,
+  "distM": 18.54,
+  "fovDeg": 49.43,
+  "clearM": 10.82,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.75,
+   0.23,
+   27.34
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.3,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 13.821493142442268,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 11.244386205155074,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "390x844",
+  "node": "M4",
+  "option": "D",
+  "heightFrac": 0.1084,
+  "boxPt": [
+   14.2,
+   652.9,
+   57.9,
+   744.4
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 19.54,
+  "fovDeg": 49.43,
+  "clearM": 15,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0.02,
+  "windmillNdc": [
+   -0.79,
+   0.3,
+   26.92
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -20.7,
+  "followToBoard": {
+   "wDegS": 90.1,
+   "aDegS2": 347,
+   "gap": {
+    "positionM": 15.043218631234883,
+    "viewDeg": 38.492656125438096,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 56.2,
+   "aDegS2": 288,
+   "gap": {
+    "positionM": 12.7345101652934,
+    "viewDeg": 18.007151877972646,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "360x780",
+  "node": "M1",
+  "option": "off",
+  "heightFrac": 0.0612,
+  "boxPt": [
+   125.1,
+   580.7,
+   143.4,
+   628.4
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 34.92,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -11.9,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M1",
+  "option": "A",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 14.86,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.04,
+   0.43,
+   57.07
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M1",
+  "option": "B",
+  "heightFrac": 0.1037,
+  "boxPt": [
+   14.2,
+   619.2,
+   47.8,
+   700.1
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 30.61,
+  "fovDeg": 34.11,
+  "clearM": 17.5,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.03,
+   0.58,
+   65.68
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.7,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M1",
+  "option": "C0",
+  "heightFrac": 0.0682,
+  "boxPt": [
+   19.5,
+   633.1,
+   42.6,
+   686.2
+  ],
+  "covered": false,
+  "uiGapPt": 19.5,
+  "distM": 32.61,
+  "fovDeg": 49.43,
+  "clearM": 20.87,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.15,
+   0.27,
+   66.58
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M1",
+  "option": "C",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 14.86,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.04,
+   0.43,
+   57.07
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M1",
+  "option": "D",
+  "heightFrac": 0.0897,
+  "boxPt": [
+   14,
+   624.5,
+   47.6,
+   694.5
+  ],
+  "covered": false,
+  "uiGapPt": 14,
+  "distM": 23.72,
+  "fovDeg": 49.43,
+  "clearM": 18.46,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.06,
+   0.42,
+   57.05
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -21,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M2",
+  "option": "off",
+  "heightFrac": 0.0459,
+  "boxPt": [
+   91.4,
+   470.8,
+   106.1,
+   506.6
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 44.68,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -14.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 40.016791769376326,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M2",
+  "option": "A",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 13.27,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.19,
+   0.36,
+   46.69
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 17.677780160658354,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M2",
+  "option": "B",
+  "heightFrac": 0.1037,
+  "boxPt": [
+   14.2,
+   619.2,
+   47.8,
+   700.1
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 30.61,
+  "fovDeg": 34.11,
+  "clearM": 16.09,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.28,
+   0.49,
+   55.3
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.7,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 25.93601800910701,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M2",
+  "option": "C0",
+  "heightFrac": 0.0682,
+  "boxPt": [
+   19.5,
+   633.1,
+   42.6,
+   686.2
+  ],
+  "covered": false,
+  "uiGapPt": 19.5,
+  "distM": 32.61,
+  "fovDeg": 49.43,
+  "clearM": 19.6,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.02,
+   0.19,
+   56.2
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 27.532023329400577,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M2",
+  "option": "C",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 13.27,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.19,
+   0.36,
+   46.69
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 17.677780160658354,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M2",
+  "option": "D",
+  "heightFrac": 0.0897,
+  "boxPt": [
+   14,
+   624.5,
+   47.6,
+   694.5
+  ],
+  "covered": false,
+  "uiGapPt": 14,
+  "distM": 23.72,
+  "fovDeg": 49.43,
+  "clearM": 18.05,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.18,
+   0.4,
+   46.27
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -21,
+  "followToBoard": {
+   "wDegS": 126,
+   "aDegS2": 485,
+   "gap": {
+    "positionM": 18.900377353448818,
+    "viewDeg": 53.836913897528625,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M3",
+  "option": "off",
+  "heightFrac": 0.0375,
+  "boxPt": [
+   104.4,
+   409.8,
+   116.4,
+   439
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 53.7,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -13.4,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 49.15225537430169,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M3",
+  "option": "A",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 13.67,
+  "clearWho": "meadow_path",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.26,
+   0.28,
+   37.39
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 17.677780160658312,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M3",
+  "option": "B",
+  "heightFrac": 0.1037,
+  "boxPt": [
+   14.2,
+   619.2,
+   47.8,
+   700.1
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 30.61,
+  "fovDeg": 34.11,
+  "clearM": 15.37,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.36,
+   0.37,
+   46
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.7,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 25.936018009107034,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M3",
+  "option": "C0",
+  "heightFrac": 0.0682,
+  "boxPt": [
+   19.5,
+   633.1,
+   42.6,
+   686.2
+  ],
+  "covered": false,
+  "uiGapPt": 19.5,
+  "distM": 32.61,
+  "fovDeg": 49.43,
+  "clearM": 18.89,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.04,
+   0.09,
+   46.9
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 27.53202332940051,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M3",
+  "option": "C",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 13.67,
+  "clearWho": "meadow_path",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.26,
+   0.28,
+   37.39
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 17.677780160658312,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M3",
+  "option": "D",
+  "heightFrac": 0.0897,
+  "boxPt": [
+   14,
+   624.5,
+   47.6,
+   694.5
+  ],
+  "covered": false,
+  "uiGapPt": 14,
+  "distM": 23.72,
+  "fovDeg": 49.43,
+  "clearM": 18.39,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0.02,
+  "windmillNdc": [
+   0.24,
+   0.34,
+   36.89
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -21,
+  "followToBoard": {
+   "wDegS": 126,
+   "aDegS2": 485,
+   "gap": {
+    "positionM": 18.90037735344884,
+    "viewDeg": 53.836913897528625,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "360x780",
+  "node": "M4",
+  "option": "off",
+  "heightFrac": 0.0332,
+  "boxPt": [
+   213.8,
+   360.1,
+   223.4,
+   385.9
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 59.98,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.1,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -5.9,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 53.69790622909336,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 52.834246469501196,
+    "viewDeg": 10.357818090144256,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "360x780",
+  "node": "M4",
+  "option": "A",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 13.51,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.76,
+   0.1,
+   30.96
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 17.59191052380238,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 15.199275403208427,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "360x780",
+  "node": "M4",
+  "option": "B",
+  "heightFrac": 0.1037,
+  "boxPt": [
+   14.2,
+   619.2,
+   47.8,
+   700.1
+  ],
+  "covered": false,
+  "uiGapPt": 14.2,
+  "distM": 30.61,
+  "fovDeg": 34.11,
+  "clearM": 16.79,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.86,
+   0.16,
+   39.57
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -15.7,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 25.134220466103287,
+    "viewDeg": 36.33874564564622,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 23.19934625669528,
+    "viewDeg": 10.357818090144255,
+    "fovDeg": 13.886069323737765
+   }
+  }
+ },
+ {
+  "screen": "360x780",
+  "node": "M4",
+  "option": "C0",
+  "heightFrac": 0.0682,
+  "boxPt": [
+   19.5,
+   633.1,
+   42.6,
+   686.2
+  ],
+  "covered": false,
+  "uiGapPt": 19.5,
+  "distM": 32.61,
+  "fovDeg": 49.43,
+  "clearM": 20.27,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.78,
+   -0.08,
+   40.47
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 27.45215556364503,
+    "viewDeg": 36.33874564564622,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 25.295408626922256,
+    "viewDeg": 10.357818090144255,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "360x780",
+  "node": "M4",
+  "option": "C",
+  "heightFrac": 0.0988,
+  "boxPt": [
+   14.1,
+   621.2,
+   47.7,
+   698.3
+  ],
+  "covered": false,
+  "uiGapPt": 14.1,
+  "distM": 22.49,
+  "fovDeg": 49.43,
+  "clearM": 13.51,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.76,
+   0.1,
+   30.96
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -19.5,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 17.59191052380238,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 15.199275403208427,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "360x780",
+  "node": "M4",
+  "option": "D",
+  "heightFrac": 0.0897,
+  "boxPt": [
+   14,
+   624.5,
+   47.6,
+   694.5
+  ],
+  "covered": false,
+  "uiGapPt": 14,
+  "distM": 23.72,
+  "fovDeg": 49.43,
+  "clearM": 18.1,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0.04,
+  "windmillNdc": [
+   -0.8,
+   0.16,
+   30.75
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -21,
+  "followToBoard": {
+   "wDegS": 90.1,
+   "aDegS2": 347,
+   "gap": {
+    "positionM": 19.063075298032835,
+    "viewDeg": 38.492656125438096,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 56.2,
+   "aDegS2": 288,
+   "gap": {
+    "positionM": 16.89842005804826,
+    "viewDeg": 18.007151877972646,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "768x1024",
+  "node": "M1",
+  "option": "off",
+  "heightFrac": 0.0612,
+  "boxPt": [
+   311.9,
+   762.3,
+   336,
+   825
+  ],
+  "covered": false,
+  "uiGapPt": 38,
+  "distM": 34.92,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.06,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -11.9,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M1",
+  "option": "A",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 6.43,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.06,
+   0.72,
+   45.33
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M1",
+  "option": "B",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   68.3,
+   740.8,
+   167.1,
+   968
+  ],
+  "covered": false,
+  "uiGapPt": 22,
+  "distM": 14.35,
+  "fovDeg": 34.11,
+  "clearM": 7.48,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.09,
+   0.99,
+   49.83
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -18.2,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M1",
+  "option": "C0",
+  "heightFrac": 0.153,
+  "boxPt": [
+   81.7,
+   775.8,
+   154.5,
+   932.5
+  ],
+  "covered": false,
+  "uiGapPt": 57.5,
+  "distM": 14.63,
+  "fovDeg": 49.43,
+  "clearM": 8.67,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0,
+   0.6,
+   49.57
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M1",
+  "option": "C",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 6.43,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.06,
+   0.72,
+   45.33
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M1",
+  "option": "D",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   56.5,
+   739.4,
+   174.6,
+   966.6
+  ],
+  "covered": false,
+  "uiGapPt": 22.3,
+  "distM": 9.67,
+  "fovDeg": 49.43,
+  "clearM": 7.1,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.07,
+   0.76,
+   43.78
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -25.1,
+  "followToBoard": null,
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M2",
+  "option": "off",
+  "heightFrac": 0.0459,
+  "boxPt": [
+   267.7,
+   618.1,
+   287,
+   665.1
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 44.68,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.06,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -14.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 40.016791769376326,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M2",
+  "option": "A",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 6.45,
+  "clearWho": "meadow_path",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.28,
+   0.73,
+   34.96
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 6.342823427271656,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M2",
+  "option": "B",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   68.3,
+   740.8,
+   167.1,
+   968
+  ],
+  "covered": false,
+  "uiGapPt": 22,
+  "distM": 14.35,
+  "fovDeg": 34.11,
+  "clearM": 7.41,
+  "clearWho": "meadow_grass_instances.2",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.38,
+   0.97,
+   39.45
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -18.2,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 10.291283455030017,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M2",
+  "option": "C0",
+  "heightFrac": 0.153,
+  "boxPt": [
+   81.7,
+   775.8,
+   154.5,
+   932.5
+  ],
+  "covered": false,
+  "uiGapPt": 57.5,
+  "distM": 14.63,
+  "fovDeg": 49.43,
+  "clearM": 8.76,
+  "clearWho": "meadow_grass_instances.2",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.18,
+   0.58,
+   39.19
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 9.981919875835702,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M2",
+  "option": "C",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 6.45,
+  "clearWho": "meadow_path",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.28,
+   0.73,
+   34.96
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 6.342823427271656,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M2",
+  "option": "D",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   56.5,
+   739.4,
+   174.6,
+   966.6
+  ],
+  "covered": false,
+  "uiGapPt": 22.3,
+  "distM": 9.67,
+  "fovDeg": 49.43,
+  "clearM": 7.63,
+  "clearWho": "meadow_path",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.31,
+   0.85,
+   33
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -25.1,
+  "followToBoard": {
+   "wDegS": 126,
+   "aDegS2": 485,
+   "gap": {
+    "positionM": 6.111148267267407,
+    "viewDeg": 53.836913897528625,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M3",
+  "option": "off",
+  "heightFrac": 0.0375,
+  "boxPt": [
+   284.7,
+   538,
+   300.4,
+   576.4
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 53.7,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.06,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -13.4,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 49.15225537430169,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M3",
+  "option": "A",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 5.58,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.4,
+   0.74,
+   25.66
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 6.342823427271656,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M3",
+  "option": "B",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   68.3,
+   740.8,
+   167.1,
+   968
+  ],
+  "covered": false,
+  "uiGapPt": 22,
+  "distM": 14.35,
+  "fovDeg": 34.11,
+  "clearM": 7.69,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.52,
+   0.95,
+   30.15
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -18.2,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 10.291283455030023,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M3",
+  "option": "C0",
+  "heightFrac": 0.153,
+  "boxPt": [
+   81.7,
+   775.8,
+   154.5,
+   932.5
+  ],
+  "covered": false,
+  "uiGapPt": 57.5,
+  "distM": 14.63,
+  "fovDeg": 49.43,
+  "clearM": 8.81,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.25,
+   0.54,
+   29.89
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 9.9819198758357,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M3",
+  "option": "C",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 5.58,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.4,
+   0.74,
+   25.66
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 124.1,
+   "aDegS2": 478,
+   "gap": {
+    "positionM": 6.342823427271656,
+    "viewDeg": 53.011170131260045,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M3",
+  "option": "D",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   56.5,
+   739.4,
+   174.6,
+   966.6
+  ],
+  "covered": false,
+  "uiGapPt": 22.3,
+  "distM": 9.67,
+  "fovDeg": 49.43,
+  "clearM": 6.7,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.45,
+   0.92,
+   23.62
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -25.1,
+  "followToBoard": {
+   "wDegS": 126,
+   "aDegS2": 485,
+   "gap": {
+    "positionM": 6.111148267267403,
+    "viewDeg": 53.836913897528625,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": null
+ },
+ {
+  "screen": "768x1024",
+  "node": "M4",
+  "option": "off",
+  "heightFrac": 0.0332,
+  "boxPt": [
+   428.4,
+   472.7,
+   441,
+   506.7
+  ],
+  "covered": true,
+  "uiGapPt": -1,
+  "distM": 59.98,
+  "fovDeg": 49.43,
+  "clearM": 20.32,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   0.06,
+   0.29,
+   69.73
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -5.9,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 53.69790622909336,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 52.834246469501196,
+    "viewDeg": 10.357818090144256,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "768x1024",
+  "node": "M4",
+  "option": "A",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 6.64,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.54,
+   0.6,
+   19.23
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 7.086040412944049,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 3.0113298059332365,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "768x1024",
+  "node": "M4",
+  "option": "B",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   68.3,
+   740.8,
+   167.1,
+   968
+  ],
+  "covered": false,
+  "uiGapPt": 22,
+  "distM": 14.35,
+  "fovDeg": 34.11,
+  "clearM": 7.8,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.65,
+   0.74,
+   23.72
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -18.2,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 9.896620641252563,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": -13.886069323737765
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 6.936501784555368,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": 13.886069323737765
+   }
+  }
+ },
+ {
+  "screen": "768x1024",
+  "node": "M4",
+  "option": "C0",
+  "heightFrac": 0.153,
+  "boxPt": [
+   81.7,
+   775.8,
+   154.5,
+   932.5
+  ],
+  "covered": false,
+  "uiGapPt": 57.5,
+  "distM": 14.63,
+  "fovDeg": 49.43,
+  "clearM": 9.06,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.56,
+   0.37,
+   23.46
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 10.682253319355539,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 7.379155558389428,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "768x1024",
+  "node": "M4",
+  "option": "C",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   64,
+   741.4,
+   169.7,
+   968.5
+  ],
+  "covered": false,
+  "uiGapPt": 21.5,
+  "distM": 10.09,
+  "fovDeg": 49.43,
+  "clearM": 6.64,
+  "clearWho": "meadow_grass_instances.1",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.54,
+   0.6,
+   19.23
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -23.3,
+  "followToBoard": {
+   "wDegS": 85.1,
+   "aDegS2": 327,
+   "gap": {
+    "positionM": 7.086040412944049,
+    "viewDeg": 36.338745645646235,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 32.3,
+   "aDegS2": 165,
+   "gap": {
+    "positionM": 3.0113298059332365,
+    "viewDeg": 10.357818090144258,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "screen": "768x1024",
+  "node": "M4",
+  "option": "D",
+  "heightFrac": 0.2218,
+  "boxPt": [
+   56.5,
+   739.4,
+   174.6,
+   966.6
+  ],
+  "covered": false,
+  "uiGapPt": 22.3,
+  "distM": 9.67,
+  "fovDeg": 49.43,
+  "clearM": 7.88,
+  "clearWho": "meadow_terrain",
+  "headOccluder": null,
+  "chestOccluder": null,
+  "void": 0,
+  "windmillNdc": [
+   -0.57,
+   0.81,
+   17.48
+  ],
+  "windmillInFrame": true,
+  "lensBearingDeg": -25.1,
+  "followToBoard": {
+   "wDegS": 90.1,
+   "aDegS2": 347,
+   "gap": {
+    "positionM": 7.116183752129877,
+    "viewDeg": 38.49265612543809,
+    "fovDeg": 1.4263531149479078
+   }
+  },
+  "boardToFollow": {
+   "wDegS": 56.2,
+   "aDegS2": 288,
+   "gap": {
+    "positionM": 3.624453401295227,
+    "viewDeg": 18.007151877972646,
+    "fovDeg": -1.4263531149479078
+   }
+  }
+ },
+ {
+  "freeView": [
+   {
+    "yaw": 0,
+    "dist": 9,
+    "mode": "none",
+    "heightFrac": 0.2194,
+    "clearM": 5.38,
+    "void": 0,
+    "windmillNdc": [
+     -0.3,
+     1.35,
+     40.45
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 0,
+    "dist": 9,
+    "mode": "sphere",
+    "heightFrac": 0.2194,
+    "clearM": 5.6,
+    "void": 0,
+    "windmillNdc": [
+     -0.28,
+     0.97,
+     43.15
+    ],
+    "camGroundDropM": 0.28
+   },
+   {
+    "yaw": 0,
+    "dist": 9,
+    "mode": "cyl",
+    "heightFrac": 0.2194,
+    "clearM": 5.6,
+    "void": 0,
+    "windmillNdc": [
+     -0.28,
+     0.97,
+     43.14
+    ],
+    "camGroundDropM": 0.28
+   },
+   {
+    "yaw": 0,
+    "dist": 14,
+    "mode": "none",
+    "heightFrac": 0.141,
+    "clearM": 7.27,
+    "void": 0,
+    "windmillNdc": [
+     -0.27,
+     1.2,
+     45.45
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 0,
+    "dist": 14,
+    "mode": "sphere",
+    "heightFrac": 0.141,
+    "clearM": 7.85,
+    "void": 0,
+    "windmillNdc": [
+     -0.25,
+     0.87,
+     48.15
+    ],
+    "camGroundDropM": 0.67
+   },
+   {
+    "yaw": 0,
+    "dist": 14,
+    "mode": "cyl",
+    "heightFrac": 0.141,
+    "clearM": 7.85,
+    "void": 0,
+    "windmillNdc": [
+     -0.25,
+     0.87,
+     48.14
+    ],
+    "camGroundDropM": 0.67
+   },
+   {
+    "yaw": 90,
+    "dist": 9,
+    "mode": "none",
+    "heightFrac": 0.2194,
+    "clearM": 4.06,
+    "void": 0,
+    "windmillNdc": [
+     24.95,
+     2.85,
+     7.37
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 90,
+    "dist": 9,
+    "mode": "sphere",
+    "heightFrac": 0.2194,
+    "clearM": 4.34,
+    "void": 0,
+    "windmillNdc": [
+     18.25,
+     0.83,
+     10.07
+    ],
+    "camGroundDropM": 0.28
+   },
+   {
+    "yaw": 90,
+    "dist": 9,
+    "mode": "cyl",
+    "heightFrac": 0.2194,
+    "clearM": 4.06,
+    "void": 0,
+    "windmillNdc": [
+     18.27,
+     0.84,
+     10.06
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 90,
+    "dist": 14,
+    "mode": "none",
+    "heightFrac": 0.141,
+    "clearM": 6.4,
+    "void": 0,
+    "windmillNdc": [
+     14.86,
+     1.7,
+     12.37
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 90,
+    "dist": 14,
+    "mode": "sphere",
+    "heightFrac": 0.141,
+    "clearM": 6.94,
+    "void": 0.06,
+    "windmillNdc": [
+     12.2,
+     0.56,
+     15.07
+    ],
+    "camGroundDropM": 0.67
+   },
+   {
+    "yaw": 90,
+    "dist": 14,
+    "mode": "cyl",
+    "heightFrac": 0.141,
+    "clearM": 6.4,
+    "void": 0,
+    "windmillNdc": [
+     12.21,
+     0.56,
+     15.06
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 225,
+    "dist": 9,
+    "mode": "none",
+    "heightFrac": 0.2321,
+    "clearM": 4.29,
+    "void": 0,
+    "windmillNdc": [
+     5.59,
+     0.39,
+     -21.71
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 225,
+    "dist": 9,
+    "mode": "sphere",
+    "heightFrac": 0.2321,
+    "clearM": 4.56,
+    "void": 0,
+    "windmillNdc": [
+     6.38,
+     1.11,
+     -19.01
+    ],
+    "camGroundDropM": 0.28
+   },
+   {
+    "yaw": 225,
+    "dist": 9,
+    "mode": "cyl",
+    "heightFrac": 0.2321,
+    "clearM": 4.44,
+    "void": 0,
+    "windmillNdc": [
+     6.38,
+     1.11,
+     -19.02
+    ],
+    "camGroundDropM": 0.14
+   },
+   {
+    "yaw": 225,
+    "dist": 14,
+    "mode": "none",
+    "heightFrac": 0.1492,
+    "clearM": 6.5,
+    "void": 0,
+    "windmillNdc": [
+     7.26,
+     0.51,
+     -16.71
+    ],
+    "camGroundDropM": 0
+   },
+   {
+    "yaw": 225,
+    "dist": 14,
+    "mode": "sphere",
+    "heightFrac": 0.1492,
+    "clearM": 7.1,
+    "void": 0,
+    "windmillNdc": [
+     8.66,
+     1.51,
+     -14.01
+    ],
+    "camGroundDropM": 0.67
+   },
+   {
+    "yaw": 225,
+    "dist": 14,
+    "mode": "cyl",
+    "heightFrac": 0.1492,
+    "clearM": 6.85,
+    "void": 0,
+    "windmillNdc": [
+     8.66,
+     1.5,
+     -14.02
+    ],
+    "camGroundDropM": 0.34
+   }
+  ]
+ }
+]
