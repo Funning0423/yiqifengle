@@ -1,4 +1,4 @@
-import {Director, Mat4, MeshRenderer, Node, Quat, SkeletalAnimation, SkinnedMeshRenderer, Vec3, director, gfx, utils} from 'cc';
+import {Director, Mat3, Mat4, MeshRenderer, Node, Quat, SkeletalAnimation, SkinnedMeshRenderer, Vec3, director, gfx, utils} from 'cc';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import {emitTransit, setTransitHidden} from './TransitAudioHooks';
 import {beatAt, sailCamera, sailFollowCamera, sailPresentationT, sailVehicle, seatFromBench, type SailTimeline} from './TransportLeg';
@@ -55,72 +55,136 @@ export function createSailDriver(opts:{
  const frozenNodes:Node[]=[];
  const hiddenSkins:SkinnedMeshRenderer[]=[];
  let poseFrozen=false;
- /** The island long shot was still drawing the bind pose while the joint nodes sat. Bake the live skin once and draw that. */
+ /** The island long shot was still drawing the bind pose while the joint nodes sat. Bake the live skin once and draw that.
+  *  Every submesh keeps its own material. Normals are skinned (inverse-transpose) and vertex colors are copied:
+  *  a static mesh with no a_color is (0,0,0) under USE_VERTEX_COLOR, which turned the torso pure black while the
+  *  dress (no vertex color) stayed yellow-green. Morph deltas are applied in mesh space before skinning. */
  const freezeDrawnPose=()=>{
   if(poseFrozen||!opts.rider)return;
-  const tmp=new Vec3(),acc=new Vec3(),local=new Vec3(),inv=new Mat4(),skinM=new Mat4();
+  let hipY:number|null=null,footY:number|null=null;
+  const walkH=(n:Node)=>{
+   if(/hips$/i.test(n.name))hipY=n.worldPosition.y;
+   if(/foot/i.test(n.name))footY=footY==null?n.worldPosition.y:Math.min(footY,n.worldPosition.y);
+   for(const c of n.children)walkH(c);
+  };
+  walkH(opts.rider);
+  if(hipY==null||footY==null||hipY-footY>=0.5)return;
+  const tmp=new Vec3(),nacc=new Vec3(),acc=new Vec3(),local=new Vec3(),inv=new Mat4(),toLocal=new Mat3();
+  const bindP=new Vec3(),bindN=new Vec3();
+  let bakedAny=false;
   for(const skin of opts.rider.getComponentsInChildren(SkinnedMeshRenderer)){
-   const mesh=skin.mesh,skelData=skin.skeleton,root=skin.skinningRoot||opts.rider;
+   const mesh=skin.mesh as any,skelData=skin.skeleton,root=skin.skinningRoot||opts.rider;
    if(!mesh||!skelData||!skelData.joints.length)continue;
-   const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
-   const joints=mesh.readAttribute(0,gfx.AttributeName.ATTR_JOINTS);
-   const weights=mesh.readAttribute(0,gfx.AttributeName.ATTR_WEIGHTS);
-   const indices=mesh.readIndices(0);
-   if(!(src instanceof Float32Array)||!joints||!weights||!indices)continue;
-   if(!Mat4.invert(inv,skin.node.worldMatrix))continue;
-   const bones=skelData.joints.map(path=>root.getChildByPath(path));
+   const prims=mesh.struct?.primitives?.length||0;
+   if(!prims||!Mat4.invert(inv,skin.node.worldMatrix))continue;
+   Mat3.fromMat4(toLocal,inv);Mat3.transpose(toLocal,toLocal);
+   const bones=skelData.joints.map((path:string)=>root.getChildByPath(path));
    for(const bone of bones){try{bone?.updateWorldTransform();}catch{/* */}}
-   let hipY:number|null=null,footY:number|null=null;
-   const walkH=(n:Node)=>{
-    if(/hips$/i.test(n.name))hipY=n.worldPosition.y;
-    if(/foot/i.test(n.name))footY=footY==null?n.worldPosition.y:Math.min(footY,n.worldPosition.y);
-    for(const c of n.children)walkH(c);
-   };
-   walkH(opts.rider);
-   if(hipY==null||footY==null||hipY-footY>=0.5)continue;
-   const binds=skelData.bindposes;
-   const count=src.length/3;
-   const jStride=joints.length/count,wStride=(weights as ArrayLike<number>).length/count;
-   if(jStride<1||wStride<1)continue;
-   const pos=new Float32Array(src.length);
-   let minY=Infinity,maxY=-Infinity;
-   for(let v=0;v<count;v++){
-    acc.set(0,0,0);let wsum=0;
-    const px=src[v*3],py=src[v*3+1],pz=src[v*3+2];
-    const kn=Math.min(4,jStride,wStride);
-    for(let k=0;k<kn;k++){
-     const ji=(joints as ArrayLike<number>)[v*jStride+k]|0;
-     const w=(weights as ArrayLike<number>)[v*wStride+k];
-     const bone=bones[ji];
-     if(!w||!bone||!binds[ji])continue;
-     Mat4.multiply(skinM,bone.worldMatrix,binds[ji]);
-     Vec3.transformMat4(tmp,new Vec3(px,py,pz),skinM);
-     acc.x+=tmp.x*w;acc.y+=tmp.y*w;acc.z+=tmp.z*w;wsum+=w;
+   const binds=skelData.bindposes as Mat4[];
+   const skinMs=binds.map((bind,i)=>{const m=new Mat4();if(bones[i]&&bind)Mat4.multiply(m,bones[i]!.worldMatrix,bind);return m;});
+   const nrmMs=skinMs.map(m=>{const n=new Mat3();Mat3.fromMat4(n,m);if(Math.abs(Mat3.determinant(n))<1e-8||!Mat3.invert(n,n))return null;Mat3.transpose(n,n);return n;});
+   const maps=mesh.struct.jointMaps as number[][]|undefined;
+   const made:Node[]=[];
+   let minY=Infinity,maxY=-Infinity,ok=true;
+   for(let prim=0;prim<prims;prim++){
+    const src=mesh.readAttribute(prim,gfx.AttributeName.ATTR_POSITION);
+    const joints=mesh.readAttribute(prim,gfx.AttributeName.ATTR_JOINTS);
+    const weights=mesh.readAttribute(prim,gfx.AttributeName.ATTR_WEIGHTS);
+    const indices=mesh.readIndices(prim);
+    if(!(src instanceof Float32Array)||!joints||!weights||!indices){ok=false;break;}
+    const count=src.length/3;
+    const jStride=joints.length/count,wStride=(weights as ArrayLike<number>).length/count;
+    if(jStride<1||wStride<1){ok=false;break;}
+    const pos=new Float32Array(src.length);
+    const srcN=mesh.readAttribute(prim,gfx.AttributeName.ATTR_NORMAL);
+    const nrm=new Float32Array(src.length);
+    const morph=mesh.struct.morph?.subMeshMorphs?.[prim];
+    const posAi=morph?morph.attributes.indexOf(gfx.AttributeName.ATTR_POSITION):-1;
+    const nrmAi=morph?morph.attributes.indexOf(gfx.AttributeName.ATTR_NORMAL):-1;
+    const morphW:{w:number;data:Float32Array|null;nd:Float32Array|null}[]=[];
+    if(morph){
+     const table=(skin as {_subMeshShapesWeights?:number[][]})._subMeshShapesWeights;
+     for(let ti=0;ti<morph.targets.length;ti++){
+      let w=0;
+      if(table&&table[prim]&&ti<table[prim].length)w=table[prim][ti];
+      else {try{w=skin.getWeight(prim,ti);}catch{w=morph.weights?.[ti]||0;}}
+      if(!w)continue;
+      const view=posAi>=0?morph.targets[ti].displacements[posAi]:null;
+      const nview=nrmAi>=0?morph.targets[ti].displacements[nrmAi]:null;
+      const data=view?new Float32Array(mesh.data.buffer,mesh.data.byteOffset+view.offset,view.count):null;
+      const nd=nview?new Float32Array(mesh.data.buffer,mesh.data.byteOffset+nview.offset,nview.count):null;
+      morphW.push({w,data,nd});
+     }
     }
-    if(wsum<=0){pos[v*3]=px;pos[v*3+1]=py;pos[v*3+2]=pz;continue;}
-    acc.x/=wsum;acc.y/=wsum;acc.z/=wsum;
-    if(acc.y<minY)minY=acc.y;if(acc.y>maxY)maxY=acc.y;
-    Vec3.transformMat4(local,acc,inv);
-    pos[v*3]=local.x;pos[v*3+1]=local.y;pos[v*3+2]=local.z;
+    const map=maps&&maps[prim];
+    const kn=Math.min(4,jStride,wStride);
+    for(let v=0;v<count;v++){
+     bindP.set(src[v*3],src[v*3+1],src[v*3+2]);
+     const hasN=srcN&&(srcN as ArrayLike<number>).length>=(v+1)*3;
+     if(hasN)bindN.set((srcN as ArrayLike<number>)[v*3],(srcN as ArrayLike<number>)[v*3+1],(srcN as ArrayLike<number>)[v*3+2]);
+     else bindN.set(0,1,0);
+     for(const mw of morphW){
+      const d=mw.data,nd=mw.nd,w=mw.w;
+      if(d&&d.length>=(v+1)*3){bindP.x+=d[v*3]*w;bindP.y+=d[v*3+1]*w;bindP.z+=d[v*3+2]*w;}
+      if(nd&&nd.length>=(v+1)*3){bindN.x+=nd[v*3]*w;bindN.y+=nd[v*3+1]*w;bindN.z+=nd[v*3+2]*w;}
+     }
+     acc.set(0,0,0);nacc.set(0,0,0);let wsum=0;
+     for(let k=0;k<kn;k++){
+      let ji=(joints as ArrayLike<number>)[v*jStride+k]|0;
+      if(map&&ji<map.length)ji=map[ji];
+      const w=(weights as ArrayLike<number>)[v*wStride+k];
+      if(!w||!skinMs[ji]||!bones[ji])continue;
+      Vec3.transformMat4(tmp,bindP,skinMs[ji]);
+      acc.x+=tmp.x*w;acc.y+=tmp.y*w;acc.z+=tmp.z*w;wsum+=w;
+      const nm=nrmMs[ji];
+      if(nm){Vec3.transformMat3(tmp,bindN,nm);nacc.x+=tmp.x*w;nacc.y+=tmp.y*w;nacc.z+=tmp.z*w;}
+     }
+     if(wsum<=0){pos[v*3]=bindP.x;pos[v*3+1]=bindP.y;pos[v*3+2]=bindP.z;nrm[v*3]=bindN.x;nrm[v*3+1]=bindN.y;nrm[v*3+2]=bindN.z;continue;}
+     acc.x/=wsum;acc.y/=wsum;acc.z/=wsum;
+     if(acc.y<minY)minY=acc.y;if(acc.y>maxY)maxY=acc.y;
+     Vec3.transformMat4(local,acc,inv);
+     pos[v*3]=local.x;pos[v*3+1]=local.y;pos[v*3+2]=local.z;
+     if(nacc.lengthSqr()>1e-8)nacc.normalize();else nacc.set(0,1,0);
+     Vec3.transformMat3(tmp,nacc,toLocal);
+     if(tmp.lengthSqr()>1e-8)tmp.normalize();else tmp.set(0,1,0);
+     nrm[v*3]=tmp.x;nrm[v*3+1]=tmp.y;nrm[v*3+2]=tmp.z;
+    }
+    const uvs=mesh.readAttribute(prim,gfx.AttributeName.ATTR_TEX_COORD);
+    const cols=mesh.readAttribute(prim,gfx.AttributeName.ATTR_COLOR);
+    const geo:any={positions:pos,normals:nrm,indices:Array.from(indices as ArrayLike<number>)};
+    if(uvs)geo.uvs=uvs;
+    if(cols){
+     const cc=(cols as ArrayLike<number>).length/count;
+     const rgba=new Float32Array(count*4);
+     for(let v=0;v<count;v++){
+      rgba[v*4]=(cols as ArrayLike<number>)[v*cc];
+      rgba[v*4+1]=cc>1?(cols as ArrayLike<number>)[v*cc+1]:1;
+      rgba[v*4+2]=cc>2?(cols as ArrayLike<number>)[v*cc+2]:1;
+      rgba[v*4+3]=cc>3?(cols as ArrayLike<number>)[v*cc+3]:1;
+      if(rgba[v*4]>1.5){rgba[v*4]/=255;rgba[v*4+1]/=255;rgba[v*4+2]/=255;if(cc>3)rgba[v*4+3]/=255;}
+     }
+     geo.colors=rgba;
+    }
+    let baked;
+    try{baked=utils.createMesh(geo,undefined,{calculateBounds:true});}
+    catch{ok=false;break;}
+    const node=new Node('sail_frozen_pose');
+    node.layer=skin.node.layer;
+    skin.node.addChild(node);node.setPosition(0,0,0);node.setRotationFromEuler(0,0,0);node.setScale(1,1,1);
+    const rend=node.addComponent(MeshRenderer);
+    rend.mesh=baked;
+    rend.shadowCastingMode=skin.shadowCastingMode;
+    const shared=skin.sharedMaterials;
+    const mat=shared[prim]||shared[0];
+    if(mat)rend.setSharedMaterial(mat,0);
+    made.push(node);
    }
-   // A standing bind-pose bake is about 1.6 m. Sitting is about a metre. Keep the skin if this bake is still standing.
-   if(!(maxY-minY>0.4&&maxY-minY<1.25))continue;
-   const uvs=mesh.readAttribute(0,gfx.AttributeName.ATTR_TEX_COORD);
-   const geo:any={positions:Array.from(pos),indices:Array.from(indices)};
-   if(uvs)geo.uvs=Array.from(uvs as ArrayLike<number>);
-   let baked;
-   try{baked=utils.createMesh(geo,undefined,{calculateBounds:true});}
-   catch{continue;}
-   const node=new Node('sail_frozen_pose');
-   skin.node.addChild(node);node.setPosition(0,0,0);node.setRotationFromEuler(0,0,0);node.setScale(1,1,1);
-   const rend=node.addComponent(MeshRenderer);
-   rend.mesh=baked;
-   const shared=skin.sharedMaterials;
-   for(let i=0;i<shared.length;i++)if(shared[i])rend.setSharedMaterial(shared[i],i);
-   skin.enabled=false;
-   frozenNodes.push(node);hiddenSkins.push(skin);
+   // A standing bind-pose bake is about 1.6 m. Sitting is about a metre. Accessories (hat) are shorter.
+   if(!ok||!(maxY-minY>0.05&&maxY-minY<1.25)){for(const n of made)n.destroy();continue;}
+   for(const n of made)frozenNodes.push(n);
+   skin.enabled=false;hiddenSkins.push(skin);bakedAny=true;
   }
-  poseFrozen=frozenNodes.length>0;
+  poseFrozen=bakedAny;
  };
  const dropFrozenPose=()=>{
   for(const n of frozenNodes){if(n.isValid)n.destroy();}

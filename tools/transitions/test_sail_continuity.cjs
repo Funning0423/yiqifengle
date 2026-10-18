@@ -222,4 +222,41 @@ function assertQa3(file){
 const q3=path.join(__dirname,'../../docs/r5/sail-qa3/metrics_after.csv');
 const q3n=path.join(__dirname,'../../docs/r5/sail-qa3/metrics_after-night.csv');
 assertQa3(q3);assertQa3(q3n);
-console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3),soleVerts:verts,sailCamStep:+worst.toFixed(3),arrivalCamStep:+aw.toFixed(3),boardCamStep:+bw.toFixed(3)}));
+function assertQa4(file){
+ assert(fs.existsSync(file),'missing '+file);
+ const text=fs.readFileSync(file,'utf8').trim().split('\n');
+ const head=text[0].split(','),col=n=>head.indexOf(n);
+ assert(col('upperDark')>=0&&col('skirtYG')>=0,'dress pixels missing from '+path.basename(file));
+ const rows=text.slice(1).map(l=>l.split(','));
+ let base=null;
+ const sail=[];
+ let prev=null,jump=0;
+ for(const c of rows){
+  const dark=c[col('upperDark')],yg=c[col('skirtYG')],n=c[col('torsoN')];
+  if(dark===''||dark==null)continue;
+  const rec={dark:+dark,yg:+yg,n:+n,beat:c[col('beat')],dep:c[col('departed')]==='1',real:+c[col('real')],rgb:c[col('torsoRGB')]||''};
+  if(!(rec.n>=180))continue;
+  if(!rec.dep&&(rec.beat==='S-a'||rec.beat==='S-b')&&rec.real>=8&&rec.real<10.8)base=rec.dark;
+  if(rec.dep&&(rec.beat==='S-c'||rec.beat==='S-d'||rec.beat==='S-e'))sail.push(rec);
+  if(prev&&prev.beat===rec.beat&&Math.abs(prev.n-rec.n)<Math.max(80,prev.n*0.35)){
+   const d=Math.abs(rec.dark-prev.dark);
+   if(d>jump)jump=d;
+   assert(d<0.35,'dress darkness jump '+d.toFixed(2)+' at '+rec.beat+' real '+rec.real+' in '+path.basename(file));
+  }
+  prev=rec;
+ }
+ assert(base!=null,'no pre-bake close-up in '+path.basename(file));
+ assert(sail.length>8,'sailing dress was not measured in '+path.basename(file));
+ let worst=0,yellow=0;
+ for(const s of sail){
+  if(s.dark>worst)worst=s.dark;
+  if(s.yg>=0.04)yellow++;
+  assert(s.dark<base+0.22,'upper body near-black '+s.dark.toFixed(2)+' vs pre-bake '+base.toFixed(2)+' at real '+s.real+' in '+path.basename(file));
+ }
+ assert(yellow>=3,'yellow-green skirt missing while the baked pose is on screen in '+path.basename(file));
+ return {base:+base.toFixed(3),worst:+worst.toFixed(3),yellow,jump:+jump.toFixed(1),sail:sail.length};
+}
+const q4=path.join(__dirname,'../../docs/r5/sail-qa4/metrics_after.csv');
+const q4n=path.join(__dirname,'../../docs/r5/sail-qa4/metrics_after-night.csv');
+const dressDay=assertQa4(q4),dressNight=assertQa4(q4n);
+console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3),soleVerts:verts,sailCamStep:+worst.toFixed(3),arrivalCamStep:+aw.toFixed(3),boardCamStep:+bw.toFixed(3),dressDay,dressNight}));

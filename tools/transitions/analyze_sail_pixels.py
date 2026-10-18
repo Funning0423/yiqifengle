@@ -142,6 +142,55 @@ def screen_pose(im, gx, iy, bones=None):
         return 'mid'
     return ''
 
+def dress_colors(im, row):
+    """Torso near-black ratio and skirt yellow-green ratio inside the head–foot screen box.
+    Hair is the top of the box and is left out. Cocos worldToScreen is framebuffer pixels, origin at the bottom."""
+    w, h = im.size
+    try:
+        hx, hy, fx, fy = float(row.get('hsx') or 'nan'), float(row.get('hsy') or 'nan'), float(row.get('fsx') or 'nan'), float(row.get('fsy') or 'nan')
+    except ValueError:
+        return None
+    if not all(v == v for v in (hx, hy, fx, fy)):
+        return None
+    scale = 2 if max(hx, fx) > w + 2 or max(hy, fy) > h + 2 else 1
+    hx, fx, hy, fy = hx / scale, fx / scale, h - hy / scale, h - fy / scale
+    top, bot = (hy, fy) if hy < fy else (fy, hy)
+    span = bot - top
+    if span < 10:
+        return None
+    cx = (hx + fx) / 2
+    half = max(6, span * 0.48)
+    x0, x1 = int(max(0, cx - half)), int(min(w - 1, cx + half))
+    if x1 - x0 < 4:
+        return None
+    px = im.load()
+
+    def region(a, b):
+        y0, y1 = int(max(0, top + span * a)), int(min(h - 1, top + span * b))
+        if y1 <= y0:
+            return None
+        dark = yg = n = 0
+        rs = gs = bs = 0
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                r, g, b = px[x, y]
+                n += 1
+                rs += r
+                gs += g
+                bs += b
+                L = 0.2126 * r + 0.7152 * g + 0.0722 * b
+                if L < 40 and max(r, g, b) < 52:
+                    dark += 1
+                if r > 100 and g > 130 and b < 150 and g > b + 20 and g + 30 > r:
+                    yg += 1
+        return dark / n, yg / n, n, rs / n, gs / n, bs / n
+
+    torso = region(0.20, 0.62)
+    skirt = region(0.58, 0.98)
+    if not torso:
+        return None
+    return {'dark': torso[0], 'yg': skirt[1] if skirt else torso[1], 'n': torso[2], 'r': torso[3], 'g': torso[4], 'b': torso[5]}
+
 def inside(x, y, pts):
     c = False
     j = len(pts) - 1
@@ -211,6 +260,11 @@ for shot in shots:
         row['screenPose'] = screen_pose(im, gx, iy, bone_box(row, h))
     else:
         row['screenPose'] = screen_pose(im, float('nan'), float('nan'), bone_box(row, h))
+    dress = dress_colors(im, row)
+    row['upperDark'] = '' if dress is None else f'{dress["dark"]:.4f}'
+    row['skirtYG'] = '' if dress is None else f'{dress["yg"]:.4f}'
+    row['torsoN'] = '' if dress is None else str(dress['n'])
+    row['torsoRGB'] = '' if dress is None else f'{dress["r"]:.1f}:{dress["g"]:.1f}:{dress["b"]:.1f}'
     if float(row.get('real') or 0) > 1:
         water_max = max(water_max, wr)
     # Clear-color holes: near-black or the camera clear, outside the top/bottom chrome.
@@ -264,7 +318,7 @@ for (beat, i), hist in peaks.items():
         flicker.append({'beat': beat, 'cell': i, 'peaks': count})
 
 fieldnames = list(rows[0].keys())
-for extra in ('water', 'clearRatio', 'luma', 'screenPose'):
+for extra in ('water', 'clearRatio', 'luma', 'screenPose', 'upperDark', 'skirtYG', 'torsoN', 'torsoRGB'):
     if extra not in fieldnames:
         fieldnames.append(extra)
 with open(csv_path, 'w', newline='') as f:
