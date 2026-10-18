@@ -119,6 +119,17 @@ export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline
  return {beats,totalS:speed.motionS+sb+sf,build05S:t,speed,routeM,shoreM,shoreS:shoreM/SAIL_LIMITS.walkMps,arrivalM,arrivalS};
 }
 export function beatAt(tl:SailTimeline,t:number):SailBeat{return tl.beats.find(b=>t>=b.t0&&t<b.t1)||tl.beats[tl.beats.length-1];}
+/** Real seconds → sail timeline. The hull stays before S-c until `departAt` (she has finished sitting). Motion is compressed into `motionBudget` so the walk itself is never sped up. */
+export function sailPresentationT(real:number,departAt:number|null,motionStart:number,motionEnd:number,buildEnd:number,motionBudget:number):number{
+ if(departAt==null)return Math.min(Math.max(0,real),Math.max(0,motionStart-1e-4));
+ const motionS=Math.max(1e-3,motionEnd-motionStart);
+ const budget=Math.max(0.4,motionBudget);
+ const rate=motionS/Math.min(motionS,budget);
+ const since=Math.max(0,real-departAt);
+ const motionReal=Math.min(motionS,budget);
+ if(since<=motionReal+1e-6)return Math.min(motionEnd,motionStart+since*rate);
+ return Math.min(buildEnd,motionEnd+(since-motionReal));
+}
 function samplePoly(samples:readonly Vec[],distance:number):Vec{
  let left=Math.max(0,distance);
  for(let i=1;i<samples.length;i++){const d=dist(samples[i-1],samples[i]);if(d>0&&left<=d){const a=samples[i-1],b=samples[i],u=left/d;return [lerp(a[0],b[0],u),lerp(a[1],b[1],u),lerp(a[2],b[2],u)];}left-=d;}
@@ -141,7 +152,7 @@ export function sailVehicle(tl:SailTimeline,route:readonly Vec[],t:number):SailP
  const pos=samplePoly(route,Math.min(tl.speed.length,distM));
  const yaw=heading(route,Math.min(tl.speed.length,distM));
  const roll=t>=sd.t0&&t<se.t0?Math.sin((t-sd.t0)/3.2*Math.PI*2)*4*Math.PI/180:0;
- const bob=t>=tl.beats[1].t0&&t<sc.t0?Math.sin(t*2)*0.02:0;
+ const bob=0;
  return {pos:[pos[0],pos[1]+bob,pos[2]],yaw,roll,sail:sailOpen,speed,distance:distM};
 }
 export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{
@@ -161,27 +172,40 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
  */
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
-const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
-const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
-const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};
-/** Art K6: berth +(3.15,4.5,−6.4) look +(1.15,0.9,4.5). Jetty is port (+X); boat on the right of frame. */
-const K6:SailOff={back:6.4,side:3.15,up:4.5,fov:48,look:4.5,orb:0};
-const mixOff=(a:SailOff,b:SailOff,u:number):SailOff=>{const s=smoother(u);return {back:lerp(a.back,b.back,s),side:lerp(a.side,b.side,s),up:lerp(a.up,b.up,s),fov:lerp(a.fov,b.fov,s),look:lerp(a.look,b.look,s),orb:lerp(a.orb,b.orb,s)};};
+/** Beam on her port side, so the swing off the bow does not look through the sail. */
+const Kbeam:SailOff={back:0.8,side:10.2,up:5.1,fov:52,look:0.2,orb:0};
+/** Quarter view, fov still 52 so the K7 star still (this pose) keeps its pixel size. Port side clears the sail. */
+const K3:SailOff={back:8.2,side:7.8,up:5.0,fov:52,look:0.2,orb:0};
+/** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
+const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
+/** Channel centre: boat x≈−4.4, side≈0.9 → camera x≈−3.5, between the inner banks. */
+const K5:SailOff={back:10.2,side:0.92,up:7.6,fov:48,look:2.2,orb:0};
+/** Same channel, a little closer. The old side 4.2 still sat in the left bank. */
+const K6:SailOff={back:8.4,side:0.85,up:6.8,fov:48,look:2.8,orb:0};
+/** Blend on a constant-radius arc. A straight lerp from ahead of the bow to astern crosses the hull and guardOff then teleports. */
+function orbitMix(a:SailOff,b:SailOff,u:number):SailOff{
+ const s=smoother(u);
+ let ang=Math.atan2(a.side,a.back),bng=Math.atan2(b.side,b.back),d=bng-ang;
+ while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
+ const th=ang+d*s,r=lerp(Math.hypot(a.back,a.side),Math.hypot(b.back,b.side),s);
+ return {back:Math.cos(th)*r,side:Math.sin(th)*r,up:lerp(a.up,b.up,s),fov:lerp(a.fov,b.fov,s),look:lerp(a.look,b.look,s),orb:lerp(a.orb,b.orb,s)};
+}
 /** Keep the lens outside the 4.2 m hull. A straight blend from astern to ahead would cross the mast. */
 function guardOff(o:SailOff):SailOff{const r=Math.hypot(o.back,o.side);if(r>=7.2)return o;const k=7.2/Math.max(1e-3,r);return {...o,back:o.back*k,side:o.side*k};}
 function sailOffset(b:SailBeat,t:number):SailOff{
  const u=(t-b.t0)/Math.max(1e-3,b.t1-b.t0);
  if(b.id==='S-a'||b.id==='S-b')return K1;
- if(b.id==='S-c')return u>=0.9?K2:mixOff(K1,K2,u/0.9);
+ if(b.id==='S-c')return u>=0.9?K2:orbitMix(K1,K2,u/0.9);
  if(b.id==='S-d'){
-  if(u<0.18)return mixOff(K2,K3,u/0.18);
+  if(u<0.12)return orbitMix(K2,Kbeam,u/0.12);
+  if(u<0.24)return orbitMix(Kbeam,K3,(u-0.12)/0.12);
   if(u<0.42)return K3;
-  if(u<0.52)return mixOff(K3,K4,(u-0.42)/0.10);
-  if(u<0.60)return K4;
-  if(u<0.66)return mixOff(K4,K5,(u-0.60)/0.06);
+  if(u<0.56)return orbitMix(K3,K4,(u-0.42)/0.14);
+  if(u<0.64)return K4;
+  if(u<0.82)return orbitMix(K4,K5,(u-0.64)/0.18);
   return K5;
  }
- if(b.id==='S-e')return K5;
+ if(b.id==='S-e')return u<0.62?K5:orbitMix(K5,K6,(u-0.62)/0.38);
  return K6;
 }
 /** K1–K7 in the boat frame (README §5), held outside the hull. Positive side is port (+X, her left). */
@@ -197,6 +221,44 @@ export function sailCamera(tl:SailTimeline,route:readonly Vec[],t:number,screen:
  const pos:Vec=[v.pos[0]-fx*o.back+rx*o.side,v.pos[1]+o.up,v.pos[2]-fz*o.back+rz*o.side];
  const look=o.look;
  return {position:pos,target:[v.pos[0]+fx*look,v.pos[1]+1.05,v.pos[2]+fz*look],fovVerticalDeg:o.fov};
+}
+/** Shore walk lens. `state.yaw` eases toward the path heading so a corner does not snap the camera. */
+export function sailFollowCamera(path:readonly Vec[],u:number,from:Pose,to:Pose,state:{yaw:number|null}):Pose{
+ const s=smoother(Math.min(1,Math.max(0,u)));
+ let L=0;for(let i=1;i<path.length;i++)L+=dist(path[i-1],path[i]);
+ let left=L*Math.min(1,Math.max(0,u)),at=path[0]||[0,0,0],seg=0;
+ for(let i=1;i<path.length;i++){
+  const d=dist(path[i-1],path[i]);
+  const h=Math.atan2(path[i][0]-path[i-1][0],path[i][2]-path[i-1][2]);
+  if(d>0&&left<=d){const k=left/d;at=[lerp(path[i-1][0],path[i][0],k),lerp(path[i-1][1],path[i][1],k),lerp(path[i-1][2],path[i][2],k)];seg=h;break;}
+  left-=d;at=path[i];seg=h;
+ }
+ if(state.yaw==null)state.yaw=seg;
+ else{
+  let d=seg-state.yaw;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
+  const max=2.5*Math.PI/180;
+  state.yaw+=Math.max(-max,Math.min(max,d));
+ }
+ const yaw=state.yaw,back=4.8,side=1.35,up=3.3;
+ const fx=Math.sin(yaw),fz=Math.cos(yaw),rx=fz,rz=-fx;
+ const follow:Pose={
+  position:[at[0]-fx*back+rx*side,at[1]+up,at[2]-fz*back+rz*side],
+  target:[at[0],at[1]+1.1,at[2]],
+  fovVerticalDeg:lerp(from.fovVerticalDeg||48,to.fovVerticalDeg||48,s),
+ };
+ const chase:Pose={
+  position:[lerp(from.position[0],follow.position[0],s),lerp(from.position[1],follow.position[1],s),lerp(from.position[2],follow.position[2],s)],
+  target:[lerp(from.target[0],follow.target[0],s),lerp(from.target[1],follow.target[1],s),lerp(from.target[2],follow.target[2],s)],
+  fovVerticalDeg:follow.fovVerticalDeg,
+ };
+ // The second half eases onto the meadow board. At u=1 the pose is already the map lens, so the handoff is not a cut.
+ const blendAt=0.5;
+ const m=u<=blendAt?0:smoother(Math.min(1,(u-blendAt)/(1-blendAt)));
+ return {
+  position:[lerp(chase.position[0],to.position[0],m),lerp(chase.position[1],to.position[1],m),lerp(chase.position[2],to.position[2],m)],
+  target:[lerp(chase.target[0],to.target[0],m),lerp(chase.target[1],to.target[1],m),lerp(chase.target[2],to.target[2],m)],
+  fovVerticalDeg:lerp(chase.fovVerticalDeg,to.fovVerticalDeg||chase.fovVerticalDeg,m),
+ };
 }
 /** Seated root on the hull at `pos` (waterline), matching `seated_root_anchor`. */
 export function sailDockSeat(route:readonly Vec[]){

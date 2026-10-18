@@ -1,5 +1,5 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
-import {Animation, Camera, Color, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, gfx, isValid, utils, view} from 'cc';
+import {Animation, Camera, Color, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, director, gfx, isValid, utils, view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkyNightTexture} from '../render/SkyNightTexture';
@@ -22,7 +22,7 @@ import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor, usesRainbowBridge} from './JourneyTransport';
-import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
+import {SAIL_I6,sailBeats,sailBerthWorld,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,sailVehicle,seatFromBench} from './TransportLeg';
 import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_PORT_STEP_LOCAL} from './SailLanding';
 import {createSailDriver,playSailBeats} from './SailRide';
 import {mountSailArt,type SailArt} from './SailArt';
@@ -158,16 +158,25 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      let boat:Node|null=null,seat:Node|null=null,sailNode:Node|null=null;
      try{sailArt=await mountSailArt(rig,model);boat=sailArt.boat;seat=sailArt.seat;sailNode=sailArt.sail;}catch(error){try{console.info('[QF_SAIL] '+String((error as Error)?.message||error));}catch{}}
      const tl=sailBeats(sr.length);
-     const rider=find(options.parent,'FLOW_REFERENCE_PLACEHOLDER_NOT_B');
+     const sceneRoot=options.parent.scene||director.getScene();
+     const rider=sceneRoot?find(sceneRoot,'FLOW_REFERENCE_PLACEHOLDER_NOT_B'):null;
+     if(!rider)console.error('[QF_SAIL] rider missing: FLOW_REFERENCE_PLACEHOLDER_NOT_B is not a scene-root child');
      const boardPose=board?{position:board.position as Vec,target:board.target as Vec,fovVerticalDeg:board.fovVerticalDeg}:null;
      sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:walk,boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,art:sailArt,boardPose,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
      const dock=sr.samples[0];
      const deck:Vec=[SAIL_I6[0]+0.75,-0.18,dock[2]];
      // Port rail (mirror of board_step) → landing_step ends the sail clock.
-     const port:Vec=[berth[0]+SAIL_PORT_STEP_LOCAL[0],berth[1]+SAIL_PORT_STEP_LOCAL[1],berth[2]+SAIL_PORT_STEP_LOCAL[2]];
-     const standAt=seatFromBench([berth[0],berth[1]+0.06,berth[2]-0.07],0);
+     const vEnd=sailVehicle(tl,sr.samples,tl.beats.find(b=>b.id==='S-e')!.t1);
+     const onBoat=(local:Vec):Vec=>{
+      const c=Math.cos(vEnd.yaw),s=Math.sin(vEnd.yaw);
+      return [berth[0]+local[0]*c+local[2]*s,berth[1]+local[1],berth[2]-local[0]*s+local[2]*c];
+     };
+     const standAt=seatFromBench(onBoat([0,0.06,-0.07]),vEnd.yaw);
+     const port=onBoat(SAIL_PORT_STEP_LOCAL);
+     const v0=sailVehicle(tl,sr.samples,0),fx=Math.sin(v0.yaw),fz=Math.cos(v0.yaw),p0=sr.samples[0];
+     const sit=seatFromBench([p0[0]-fx*0.55,p0[1]+0.06,p0[2]-fz*0.55],v0.yaw);
      const arrival=[step,...walk.slice(1),m0,m1];
-     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,disembark:[standAt.position as Vec,port,step],arrival,sit:sailDockSeat(sr.samples),stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
+     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,disembark:[standAt.position as Vec,port,step],arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
     }else{
      const path=[...approach,...bridge.slice(1),...arrival];if(board&&!(board.blendM<routeLength(path)))board=undefined;
      route={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{}),...(board?{board}:{})};

@@ -57,3 +57,7 @@ tools/build-guard/logs/
 
 # run-suite.cjs per-commit copy of suite.json (suite.<shortsha>.json); suite.json stays as before
 tools/journey-integration/reports/suite.*.json
+docs/r5/sail-qa1/frames/
+docs/r5/sail-qa2/frames/
+docs/r5/sail-qa3/frames/
+docs/r5/sail-qa4/frames/

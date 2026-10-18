@@ -1,10 +1,11 @@
-import {Color, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
+import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {sailChannelWorldY} from './SailChannel';
 import {inGrassClearLocal} from './SailLanding';
 import {SAIL_BERTH_X, SAIL_I6, SAIL_SEA_Y, sailBerthWorld, sailRoute, type SailPose} from './TransportLeg';
 import {SAIL_DAY_SAIL_RGB, SAIL_NIGHT_SAIL_RGB, SAIL_STAR_COUNT, sailStarRadius, sailStarWorld} from './SailStars';
+import {soleIndices, soleNormals, solePositions} from './SailSole';
 const SEA_SCALE=3.2;
 const ISLAND_SEA=['env_sea_surface','env_sea_foam','env_sea_surf_foam_v22','env_sea_wave_line_01_v22','env_sea_wave_line_02_v22'];
 export function findNode(node:Node|null,name:string):Node|null{if(!node)return null;if(node.name===name)return node;for(const c of node.children){const h=findNode(c,name);if(h)return h;}return null;}
@@ -140,6 +141,19 @@ export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
  }
  return kill.size;
 }
+/** The river-mouth banks are rectangular pads in the channel. Put every above-water vertex under the sea; the meadow shore stays. */
+function taperMouthShore(renderer:MeshRenderer,_side:'left'|'right'|'reeds'){
+ const mesh=renderer.mesh;if(!mesh)return;
+ const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
+ if(!(src instanceof Float32Array)||src.length<3)return;
+ const pos=new Float32Array(src);let changed=false;
+ for(let i=0;i<pos.length;i+=3){
+  // The waterline cap sits at local y ≈ 0.02. Leaving it made the rectangular pad.
+  if(pos[i+1]<=-0.08)continue;
+  pos[i+1]=-0.62;changed=true;
+ }
+ if(changed)writeMeshPositions(mesh,renderer,pos);
+}
 function unlit(renderer:MeshRenderer,color:Color,texture:Texture2D|null){
  const mat=new Material();
  const defines:Record<string,boolean>={};
@@ -170,6 +184,16 @@ function mountStarDiamonds(parent:Node):Node{
 }
 export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean,aim?:Vec)=>void;dispose:()=>void};
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
+/** Sole under the authored floor, following the inner hull. No walls, nothing past the foredeck bulkhead. */
+function mountCockpitSole(boat:Node):Node{
+ const mesh=utils.createMesh({positions:solePositions(),normals:soleNormals(),indices:soleIndices()},undefined,{calculateBounds:true});
+ const material=new Material();
+ material.initialize({effectName:'builtin-unlit',states:{rasterizerState:{cullMode:gfx.CullMode.NONE},depthStencilState:{depthTest:true,depthWrite:true}}});
+ material.setProperty('mainColor',new Color(96,68,44,255));
+ const node=new Node('cockpit_sole');boat.addChild(node);node.setPosition(0,0,0);
+ const renderer=node.addComponent(MeshRenderer);renderer.mesh=mesh;renderer.setMaterial(material,0);
+ return node;
+}
 export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt>{
  const names=['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth','transit_landing'];
  const prefabs=await Promise.all(names.map(n=>loadPrefab(n).catch(()=>null)));
@@ -191,6 +215,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   landing.setPosition(0,0,0);landing.setRotationFromEuler(0,0,0);landing.setScale(1,1,1);
   landing.active=true;
  }
+ const sole=mountCockpitSole(boat);
  const seat=findNode(boat,'seated_root_anchor'),stand=findNode(boat,'stand_anchor'),board=findNode(boat,'board_step_anchor');
  const sailRoot=findNode(boat,'sail_root'),jib=findNode(boat,'jib_root'),furled=findNode(boat,'sail_furled'),boom=findNode(boat,'boom_pivot');
  const lamp=findNode(boat,'lantern_glow'),stars=findNode(clouds,'night_stars');
@@ -200,6 +225,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const tile=findNode(sea,'sea_tile_39m');
  const plane=findNode(sea,'sea_plane');if(plane)plane.setScale(SEA_SCALE,1,SEA_SCALE);
  const route=sailRoute().samples,end=route[route.length-1],start=route[0],berth=sailBerthWorld();
+ const seaHome=route[Math.floor(route.length/2)];
+ if(plane)plane.setWorldPosition(seaHome[0],SAIL_SEA_Y,seaHome[2]);
  if(meadow){
   for(const r of meadow.getComponentsInChildren(MeshRenderer)){
    if(CHANNEL_MESH.test(r.node.name))digChannel(r,route);
@@ -216,9 +243,9 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   }
   // Thin static water only under the jetty piles (not a foreground plate in meadow cam).
   if(tile){
-   const keep=instantiate(tile);keep.name='landing_sea_tile';keep.active=true;
+   const keep=instantiate(tile);keep.name='landing_sea_tile';keep.active=false;
    meadow.addChild(keep);
-   keep.setWorldPosition(berth[0]+0.6,SAIL_SEA_Y,berth[2]+3.8);
+   keep.setWorldPosition(berth[0]+0.6,SAIL_SEA_Y-0.08,berth[2]+3.8);
    keep.setWorldScale(0.55,1,0.9);
    keep.setRotationFromEuler(0,0,0);
   }
@@ -227,7 +254,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const pier=findNode(props,'transit_pier');
  place(pier,SAIL_I6[0],-0.6,SAIL_I6[2]-0.7);
  // Mouth between boat and jetty (game ≈ x −3.55, origin z ≈ 37.5).
- place(mouth,-3.55,SAIL_SEA_Y,37.5);
+ // The mouth banks are a rectangular cap in the channel. Mesh rewrites left that cap on screen, so drop the whole prefab under the sea. The meadow shore is the bank that should read.
+ place(mouth,-3.55,SAIL_SEA_Y-1.7,37.5);
  place(findNode(props,'buoy_red'),end[0]+5.0,SAIL_SEA_Y,end[2]-8);
  place(findNode(props,'buoy_green'),end[0]-4.6,SAIL_SEA_Y,end[2]-7.5);
  const rocks:[[number,number,number],[number,number,number],[number,number,number]]=[
@@ -238,8 +266,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  place(findNode(props,'sea_rock_c'),...rocks[2]);
  const ring=findNode(props,'foam_ring');
  rocks.forEach((p,i)=>{const n=i===0?ring:ring?instantiate(ring):null;if(n&&i)props.addChild(n);place(n,p[0],SAIL_SEA_Y+0.02,p[2]);});
- place(findNode(props,'foam_strip_a'),start[0]-SAIL_BERTH_X,SAIL_SEA_Y,start[2]-1.2);
- place(findNode(props,'foam_strip_b'),berth[0]-1.2,SAIL_SEA_Y,berth[2]+4);
+ place(findNode(props,'foam_strip_a'),start[0]-SAIL_BERTH_X,SAIL_SEA_Y+0.02,start[2]-1.2);
+ place(findNode(props,'foam_strip_b'),berth[0]-1.2,SAIL_SEA_Y+0.02,berth[2]+4);
  const lighthouseCard=findNode(far,'far_island_lighthouse');
  if(lighthouseCard)lighthouseCard.active=false;
  place(findNode(far,'far_islet_a'),start[0]+70,SAIL_SEA_Y,start[2]-120);
@@ -264,12 +292,13 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
     sailMats.push(unlit(r,new Color(SAIL_DAY_SAIL_RGB[0],SAIL_DAY_SAIL_RGB[1],SAIL_DAY_SAIL_RGB[2],255),tex));
    }
-   else if(n.name==='rm_reeds')copyMat(r,{cull:gfx.CullMode.NONE});
+   else if(n.name==='rm_reeds'){copyMat(r,{cull:gfx.CullMode.NONE});taperMouthShore(r,'reeds');}
    else if(n.name==='wake_strips')wakeMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='hull_foam_ring')foamMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='foam_strip_a'||n.name==='foam_strip_b'||n.name==='foam_ring'||n.name.startsWith('foam_ring'))copyMat(r,{cull:gfx.CullMode.NONE,alphaTest:0.4});
    else if(n.name==='sea_plane'||n.name==='landing_sea_tile'||n.name==='sea_tile_39m'){
     const m=copyMat(r,{cull:gfx.CullMode.NONE});
+    if(m){try{m.setProperty('roughness',1);m.setProperty('metallic',0);}catch{/* unlit sea has no PBR slots */}}
     if(n.name==='sea_plane')seaMat=m;
     const tex=m?.getProperty('mainTexture') as Texture2D|null;
     if(tex)tex.setWrapMode(Texture2D.WrapMode.REPEAT,Texture2D.WrapMode.REPEAT);
@@ -279,6 +308,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     if(n.name==='night_stars')unlit(r,new Color(210,220,255,255),null);
     else if(/^cloud_/.test(n.name))copyMat(r,{cull:gfx.CullMode.NONE});
     else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
+    else if(n.name==='rm_bank_left')taperMouthShore(r,'left');
+    else if(n.name==='rm_bank_right')taperMouthShore(r,'right');
     else if(n.name==='landing_jetty'||n.name==='landing_path')nearestPalette(tex);
    }
   });
@@ -342,12 +373,46 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   const sailC=new Color(rgb[0],rgb[1],rgb[2],255);
   for(const m of sailMats)m.setProperty('mainColor',sailC);
  };
- let time=0,cruise=4.4;
+ let time=0,cruise=4.4,savedNear:number|null=null,savedFar:number|null=null,worldCam:Camera|null=null;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
+ const shoreHidden:MeshRenderer[]=[];
+ const SHORE=/reed|flower|bush|shrub|cattail|rm_reeds/i;
+ const hideCloseShore=(cam:Vec)=>{
+  for(const r of shoreHidden)if(r.isValid)r.enabled=true;
+  shoreHidden.length=0;
+  let left=0;
+  for(const root of [meadow,landing]){
+   if(!root)continue;
+   walk(root,n=>{
+    if(!SHORE.test(n.name)||CHANNEL_MESH.test(n.name))return;
+    const r=n.getComponent(MeshRenderer);if(!r||!r.node.activeInHierarchy)return;
+    const b=r.model?.worldBounds;if(!b)return;
+    const c=b.center,he=b.halfExtents;
+    if(!c||!he||he.x>5||he.y>5||he.z>5)return;
+    const dx=Math.max(0,Math.abs(cam[0]-c.x)-he.x),dy=Math.max(0,Math.abs(cam[1]-c.y)-he.y),dz=Math.max(0,Math.abs(cam[2]-c.z)-he.z);
+    if(Math.hypot(dx,dy,dz)>=1.3)return;
+    if(r.enabled){r.enabled=false;shoreHidden.push(r);}else left++;
+   });
+  }
+  (globalThis as any).__QF_SAIL_SHORE_NEAR=left;
+ };
+ const applyOverride=()=>{
+  const ov=(globalThis as any).__QF_SAIL_CAM_OVERRIDE as {pos:number[];aim:number[]}|null|undefined;
+  if(!ov||!worldCam?.node?.isValid)return;
+  worldCam.node.setWorldPosition(ov.pos[0],ov.pos[1],ov.pos[2]);
+  worldCam.node.lookAt(new Vec3(ov.aim[0],ov.aim[1],ov.aim[2]));
+ };
+ try{director.on(Director.EVENT_BEFORE_DRAW,applyOverride);}catch{/* QA stills only */}
  return {
   boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
   sync(v,cam,dt,night,aim?:Vec){
+   (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=true;
    time+=Math.max(0,dt);
+   const sceneNow=director.getScene();
+   if(sceneNow)walk(sceneNow,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))r.enabled=false;});
+   if(!worldCam&&sceneNow)worldCam=sceneNow.getComponentsInChildren(Camera).find(c=>c.node.name==='WorldCamera')||sceneNow.getComponentsInChildren(Camera).find(c=>c.node.name!=='WorldNavigationCamera')||null;
+   // Scaled sea sheet reaches ~1180 m from its centre. near 0.3 keeps a 6 cm gap resolvable inside that far plane.
+   if(worldCam&&savedNear==null){savedNear=worldCam.near;savedFar=worldCam.far;worldCam.near=0.3;worldCam.far=1400;}
    const open=v.sail;
    if(sailRoot)sailRoot.active=open>0.18;
    if(jib)jib.active=open>0.18;
@@ -379,19 +444,24 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(seaMat)seaMat.setProperty('mainColor',night?new Color(150,185,220,255):new Color(255,255,255,255));
    const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.72:0;
    paint(wakeMat,alpha);paint(foamMat,alpha*0.9);
-   if(plane)plane.setWorldPosition(cam[0],SAIL_SEA_Y,cam[2]);
-   seaOff.z=cam[0]/13+time*0.018;seaOff.w=cam[2]/13+time*0.011;
+   seaOff.z=time*0.018;seaOff.w=time*0.011;
    if(seaMat)seaMat.setProperty('tilingOffset',seaOff);
    if(dome&&dome.active)dome.setWorldPosition(cam[0],domeHome?domeHome[1]:dome.worldPosition.y,cam[2]);
    if(cloudLayer&&cloudLayer.active)cloudLayer.setWorldPosition(cam[0],layerHome?layerHome[1]:cloudLayer.worldPosition.y,cam[2]);
+   if(sole.isValid)sole.active=(globalThis as any).__QF_SAIL_SOLE!==0;
+   hideCloseShore(cam);
   },
   dispose(){
+   (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=false;
+   try{director.off(Director.EVENT_BEFORE_DRAW,applyOverride);}catch{/* already torn down */}
+   for(const r of shoreHidden)if(r.isValid)r.enabled=true;
    for(const r of hidden)if(r.isValid)r.enabled=true;
    if(dome?.isValid&&domeHome)dome.setWorldPosition(domeHome[0],domeHome[1],domeHome[2]);
    if(cloudLayer?.isValid&&layerHome)cloudLayer.setWorldPosition(layerHome[0],layerHome[1],layerHome[2]);
-   grade(false);
-   if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));
+   const stillNight=(()=>{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}})();
+   grade(stillNight);
+   if(!stillNight){if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));}
+   if(worldCam&&savedNear!=null&&savedFar!=null){worldCam.near=savedNear;worldCam.far=savedFar;}
    // Leave landing + landing_sea_tile on the meadow model.
    if(root.isValid)root.destroy();
   },

@@ -8,6 +8,7 @@ import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
 import { qaTransportEnabled } from '../region/JourneyTransport';
+import { armSailQa } from '../region/SailQaProbe';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
 import { createNativeWorldLevelAdapter } from './NativeWorldLevelAdapter';
@@ -238,6 +239,18 @@ export class WorldNativeComposition extends Component {
     if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
     if(commands.snapshot().state==='island')return commands.travelRegion('meadow');
     return {ok:commands.snapshot().state==='meadow',reason:commands.snapshot().state==='meadow'?undefined:'not-meadow'};
+  }
+  /** Web / QA only (`?sailqa=1`). Real RegionJourney sail from the mainline-04 stand (I4). */
+  async previewSailJourney():Promise<Result>{
+    if(!qaTransportEnabled())return {ok:false,reason:'qa-only'};
+    if(!this.world)return {ok:false,reason:'world-not-ready'};
+    const commands=this.world.commands();
+    armSailQa();
+    if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
+    try{this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[4.5,0.231,-4.9],yawRad:0});}catch(error){console.error('[QF_SAIL] sailqa stand failed',error);}
+    try{const q=typeof location!=='undefined'?String(location.search||''):'';if(q.includes('night=1'))await (globalThis as any).__worldDayNight?.set?.('night');else await (globalThis as any).__worldDayNight?.set?.('day');}catch{}
+    if(commands.snapshot().state!=='island')return {ok:false,reason:'sailqa-not-island'};
+    return commands.travelRegion('meadow');
   }
   async startRegionFlowTest(checkpoint:number):Promise<Result>{
     if(!DEBUG)return {ok:false,reason:'test-build-only'};

@@ -88,6 +88,7 @@ const tests=[
  ['sail-clearance','tools/transitions/test_sail_clearance.cjs'],
  ['sail-dock-path','tools/transitions/test_sail_dock_path.cjs'],
  ['sail-k2k7','tools/transitions/test_sail_k2k7.cjs'],
+ ['sail-continuity','tools/transitions/test_sail_continuity.cjs'],
  ['frame-background','tools/transitions/test_frame_background.cjs'],
  ['asset-budget','tools/transitions/asset-budget.cjs'],
  ['transport-flag','tools/transitions/test_transport_flag.cjs'],
