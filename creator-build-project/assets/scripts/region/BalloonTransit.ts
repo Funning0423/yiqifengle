@@ -68,6 +68,24 @@ function tintFarCard(root:Node|null,night:boolean):void{
   try{m.setProperty('albedoScale',night?new Color(48,58,72,255):day);}catch{}
  }});
 }
+/**
+ * Sea fallback is vertex-color only; Cocos often shows magenta when the albedo slot is empty.
+ * Force a muted sea tint (and a darker night tint) so cruise/night never flash missing-texture pink or burn white.
+ */
+function paintSeaFallback(root:Node|null,night:boolean):void{
+ if(!root)return;
+ const day=new Color(72,118,148,255),nite=new Color(28,36,52,255),c=night?nite:day;
+ eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){
+  try{r.shadowCastingMode=MeshRenderer.ShadowCastingMode.OFF;}catch{}
+  const m=r.getMaterialInstance(0);if(!m)continue;
+  for(const key of ['mainColor','albedo','baseColor','emissive']){try{m.setProperty(key,key==='emissive'?new Color(0,0,0,255):c);}catch{}}
+  try{m.setProperty('albedoScale',c);}catch{}
+  try{m.setProperty('emissiveScale',0);}catch{}
+  try{m.setProperty('roughness',0.95);}catch{}
+  try{m.setProperty('metallic',0);}catch{}
+  try{m.setProperty('specularIntensity',0.02);}catch{}
+ }});
+}
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
  if(!root)return;const set=new Set(names);
  eachNamed(root,n=>{if(set.has(n.name))n.active=on;});
@@ -162,7 +180,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let seaFallback:Node|null=null;
   if(SEA_PLAN==='B'){
    const seaPrefab=await loadTransitPrefab('transit_sea_fallback');
-   if(seaPrefab){seaPrefab.addRef();owned.push({destroy(){seaPrefab.decRef();}});seaFallback=instantiate(seaPrefab);seaFallback.name='transit_sea_fallback';rig.addChild(seaFallback);seaFallback.active=false;}
+   if(seaPrefab){seaPrefab.addRef();owned.push({destroy(){seaPrefab.decRef();}});seaFallback=instantiate(seaPrefab);seaFallback.name='transit_sea_fallback';rig.addChild(seaFallback);seaFallback.active=false;showBothSides(seaFallback);paintSeaFallback(seaFallback,false);}
   }
   const sea=findSceneNamed('env_sea_surface');
   const seaHome=sea?{pos:sea.position.clone(),scale:sea.scale.clone(),euler:sea.eulerAngles.clone()}:null;
@@ -249,7 +267,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
     showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
     showNamed(model,['env_sky_islets_far'],false);
-    eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=cityOn&&t>=33;});
+    // Keep rock strata off for the whole ride — at land (t≈33.6) it was filling the lower third of the frame.
+    eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=false;});
     eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
@@ -266,7 +285,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    setRigid(transitFrame,frame);
    setRigid(clouds,frame);
    if(farRoot&&isValid(farRoot,true))setRigid(farRoot,frame);
-   if(seaFallback&&isValid(seaFallback,true))setRigid(seaFallback,frame);
+   if(seaFallback&&isValid(seaFallback,true)){setRigid(seaFallback,frame);paintSeaFallback(seaFallback,night);}
    applyBackdrop(t,handoff);
    applySea(t,handoff);
    if(handoff){seaRestored=true;backdropRestored=true;}

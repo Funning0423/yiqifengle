@@ -97,7 +97,7 @@
     },
     "legacyFbxImporter": false,
     "allowMeshDataAccess": true,
-    "addVertexColor": false,
+    "addVertexColor": true,
     "generateLightmapUVNode": false,
     "meshOptimizer": {
       "enable": false,
