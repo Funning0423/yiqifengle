@@ -13,6 +13,8 @@ export type SailQaSnap={
  riderPose:string;
  gsx:number|null;gsy:number|null;
  shoreNear:number;
+ terrainL:number;
+ terrainR:number;
 };
 function find(node:Node|null,name:string):Node|null{
  if(!node)return null;if(node.name===name)return node;
@@ -74,6 +76,7 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
  const feet:Node[]=[];collect(girl,/foot/i,feet);
  let footY:number|null=null;for(const f of feet)footY=footY==null?f.worldPosition.y:Math.min(footY,f.worldPosition.y);
  const riderPose=!hip||footY==null?'':(hip.worldPosition.y-footY<0.5?'sit':'stand');
+ const terrain=terrainNear(scene,partial.pose.position,partial.pose.target);
  if(girl&&cam&&gp){
   const out=new Vec3();cam.worldToScreen(new Vec3(gp.x,gp.y+0.35,gp.z),out);
   gsx=+out.x.toFixed(1);gsy=+out.y.toFixed(1);
@@ -91,8 +94,32 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
   fov:partial.pose.fovVerticalDeg||cam?.fov||0,near:cam?.near||0,far:cam?.far||0,
   clear,
   seas,clip,rate,cockpit,riderPose,gsx,gsy,shoreNear:+((globalThis as any).__QF_SAIL_SHORE_NEAR||0),
+  terrainL:terrain.l,terrainR:terrain.r,
  };
  g.frames.push(snap);
+}
+const TERRAIN=/bank|terrain/i;
+function terrainNear(scene:Node|null,cam:readonly number[],aim:readonly number[]):{l:number;r:number}{
+ const out={l:0,r:0};if(!scene)return out;
+ const fx=aim[0]-cam[0],fz=aim[2]-cam[2],fl=Math.hypot(fx,fz)||1;
+ const fvx=fx/fl,fvz=fz/fl;
+ const samples=[{side:'l' as const,p:[cam[0]+fvz*0.28+fvx*0.45,cam[1],cam[2]-fvx*0.28+fvz*0.45]},{side:'r' as const,p:[cam[0]-fvz*0.28+fvx*0.45,cam[1],cam[2]+fvx*0.28+fvz*0.45]}];
+ const visit=(n:Node)=>{
+  if(TERRAIN.test(n.name)){
+   const r=n.getComponent(MeshRenderer);
+   const b=r?.model?.worldBounds;
+   const c=b?.center,he=b?.halfExtents;
+   if(r&&r.enabled&&r.node.activeInHierarchy&&c&&he&&he.x<=12&&he.y<=12&&he.z<=12){
+    for(const s of samples){
+     const dx=Math.max(0,Math.abs(s.p[0]-c.x)-he.x),dy=Math.max(0,Math.abs(s.p[1]-c.y)-he.y),dz=Math.max(0,Math.abs(s.p[2]-c.z)-he.z);
+     if(Math.hypot(dx,dy,dz)<0.55){if(s.side==='l')out.l++;else out.r++;}
+    }
+   }
+  }
+  for(const ch of n.children)visit(ch);
+ };
+ visit(scene);
+ return out;
 }
 function findNamed(node:Node|null,re:RegExp):Node|null{
  if(!node)return null;if(re.test(node.name))return node;

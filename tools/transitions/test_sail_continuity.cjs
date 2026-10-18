@@ -165,4 +165,58 @@ function assertQa2(file){
 const q2=path.join(__dirname,'../../docs/r5/sail-qa2/metrics_after.csv');
 const q2n=path.join(__dirname,'../../docs/r5/sail-qa2/metrics_after-night.csv');
 assertQa2(q2);assertQa2(q2n);
-console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3),soleVerts:verts,sailCamStep:+worst.toFixed(3),arrivalCamStep:+aw.toFixed(3)}));
+const board={position:[from.position[0]+18,from.position[1]+12,from.position[2]+24],target:[from.target[0]-6,from.target[1]+4,from.target[2]-20],fovVerticalDeg:49.4};
+const yawBoard={yaw:null};
+let bp=null,bw=0;
+for(let e=0;e<=dur+1e-6;e+=1/30){
+ const cam=leg.sailFollowCamera(arrival,Math.min(1,e/dur),from,board,yawBoard);
+ if(bp){const s=camStep(cam,bp);bw=Math.max(bw,s.dp);assert(s.dp<=1.5&&s.ang<=25,'board blend jump '+s.dp.toFixed(2)+'m '+s.ang.toFixed(1)+'deg @ '+e.toFixed(2));}
+ bp=cam;
+}
+const end=leg.sailFollowCamera(arrival,1,from,board,{yaw:null});
+assert(Math.hypot(end.position[0]-board.position[0],end.position[1]-board.position[1],end.position[2]-board.position[2])<0.05,'arrival ends off the map camera');
+function assertQa3(file){
+ assert(fs.existsSync(file),'missing '+file);
+ const text=fs.readFileSync(file,'utf8').trim().split('\n');
+ const head=text[0].split(','),col=n=>head.indexOf(n);
+ const rows=text.slice(1).map(l=>l.split(','));
+ let islandSit=0,dock=0,mapHold=0;
+ const arrival=[];
+ for(const c of rows){
+  const beat=c[col('beat')],departed=c[col('departed')]==='1',fov=+c[col('fov')];
+  const sailing=departed&&(beat==='S-c'||beat==='S-d'||beat==='S-e');
+  const drawn=col('screenPose')>=0?c[col('screenPose')]:'';
+  if(sailing&&drawn==='stand')assert.fail('rendered stand '+beat+' frame '+c[col('frame')]+' real '+c[col('real')]);
+  if(departed&&fov>=51&&(beat==='S-c'||beat==='S-d')){
+   if(drawn==='sit')islandSit++;
+   else if(drawn)assert.fail('island shot pose '+drawn+' frame '+c[col('frame')]);
+  }
+  if(departed&&(beat==='S-d'||beat==='S-e')){
+   dock++;
+   if(col('terrainL')>=0)assert(+c[col('terrainL')]===0,'terrain left of lens frame '+c[col('frame')]);
+   if(col('terrainR')>=0)assert(+c[col('terrainR')]===0,'terrain right of lens frame '+c[col('frame')]);
+  }
+  if(beat==='arrival')arrival.push({t:+c[col('t')],cx:+c[col('cx')],cy:+c[col('cy')],cz:+c[col('cz')],cut:col('cameraCut')>=0?+c[col('cameraCut')]:0});
+ }
+ assert(islandSit>=8,'island long shot never measured a sitting girl in '+path.basename(file));
+ assert(dock>10,'no docking frames');
+ assert(arrival.length>10,'arrival was not sampled through the map handoff');
+ const lastT=arrival[arrival.length-1].t;
+ const hold=arrival.filter(a=>a.t>=lastT-2);
+ assert(hold.length>=8,'map camera was not held 2s');
+ let hx0=hold[0].cx,hy0=hold[0].cy,hz0=hold[0].cz;
+ for(const a of hold){
+  assert(!a.cut,'cut during map hold');
+  assert(Math.hypot(a.cx-hx0,a.cy-hy0,a.cz-hz0)<0.6,'map camera still moving');
+  mapHold++;
+ }
+ assert(hold[0].cy>8,'map hold is still the follow camera cy '+hold[0].cy);
+ const follow=arrival.filter(a=>a.cy<8);
+ assert(follow.length>5,'follow camera missing before the map blend');
+ assert(mapHold>=8);
+}
+const q3=path.join(__dirname,'../../docs/r5/sail-qa3/metrics_after.csv');
+const q3n=path.join(__dirname,'../../docs/r5/sail-qa3/metrics_after-night.csv');
+if(fs.existsSync(q3)&&fs.existsSync(q3n)){assertQa3(q3);assertQa3(q3n);}
+else console.log('qa3 csv not captured yet');
+console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3),soleVerts:verts,sailCamStep:+worst.toFixed(3),arrivalCamStep:+aw.toFixed(3),boardCamStep:+bw.toFixed(3)}));

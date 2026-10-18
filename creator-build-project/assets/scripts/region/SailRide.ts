@@ -1,4 +1,4 @@
-import {Director, Node, Quat, SkeletalAnimation, Vec3, director} from 'cc';
+import {Director, Node, Quat, SkeletalAnimation, SkinnedMeshRenderer, Vec3, director} from 'cc';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import {emitTransit, setTransitHidden} from './TransitAudioHooks';
 import {beatAt, sailCamera, sailFollowCamera, sailPresentationT, sailVehicle, seatFromBench, type SailTimeline} from './TransportLeg';
@@ -31,7 +31,19 @@ export function createSailDriver(opts:{
    (j.node as {isSkipTransformUpdate?:boolean}).isSkipTransformUpdate=false;
   }
  };
- const dropSeatedPose=()=>{try{director.off(Director.EVENT_BEFORE_DRAW,applySeatedPose);}catch{/* director not up */}seatedPose.length=0;};
+ /** Baked skinning draws the bind pose (standing) after the clip is stopped. Force the GPU pose to follow the locked joints. */
+ const drawSeated=()=>{
+  const skel=opts.rider?.getComponent(SkeletalAnimation)||opts.rider?.getComponentInChildren(SkeletalAnimation)||null;
+  if(skel&&skel.useBakedAnimation)skel.useBakedAnimation=false;
+  if(opts.rider){
+   for(const skin of opts.rider.getComponentsInChildren(SkinnedMeshRenderer)){
+    try{skin.setUseBakedAnimation(false);}catch{/* model not attached yet */}
+   }
+  }
+  applySeatedPose();
+  try{opts.rider?.updateWorldTransform();}catch{/* node not in a scene yet */}
+ };
+ const dropSeatedPose=()=>{try{director.off(Director.EVENT_BEFORE_DRAW,drawSeated);}catch{/* director not up */}seatedPose.length=0;};
  const fired=new Set<string>();
  const viewSize=opts.screen;
  const sc=opts.timeline.beats.find(b=>b.id==='S-c')!,se=opts.timeline.beats.find(b=>b.id==='S-e')!;
@@ -55,7 +67,7 @@ export function createSailDriver(opts:{
   emitCrossed(prevT,t);
   const v=sailVehicle(opts.timeline,opts.route,t);
   if(opts.boat)placeBoat(opts.boat,v.pos,v.yaw,v.roll);
-  if(seated()&&opts.rider){opts.rider.setPosition(0,0,0);opts.rider.setRotationFromEuler(0,0,0);applySeatedPose();}
+  if(seated()&&opts.rider){opts.rider.setPosition(0,0,0);opts.rider.setRotationFromEuler(0,0,0);drawSeated();}
   const pose=sailCamera(opts.timeline,opts.route,t,viewSize());
   opts.art?.sync(v,pose.position,dt,sailNight(),pose.target);
  };
@@ -64,6 +76,7 @@ export function createSailDriver(opts:{
   get real(){return real;},
   get phase(){return phase;},
   get arrivalU(){return arrivalU;},
+  get arrivalElapsed(){return arrivalElapsed;},
   get departed(){return departAt!=null;},
   bindRider(node:Node){opts.rider=node;opts.riderHome=node.parent;},
   arm(){const b=opts.timeline.beats[0];if(!b?.cue||fired.has(b.id))return;fired.add(b.id);emitTransit(b.cue as any,{t:0,region:'meadow',id:b.id});pushSailCue(b.cue,0);},
@@ -77,8 +90,8 @@ export function createSailDriver(opts:{
    captureSeated(opts.rider);
    const skel=opts.rider.getComponent(SkeletalAnimation)||opts.rider.getComponentInChildren(SkeletalAnimation);
    try{skel?.stop();}catch{/* clip graph may already be idle */}
-   applySeatedPose();
-   try{director.on(Director.EVENT_BEFORE_DRAW,applySeatedPose);}catch{/* draw hook is best-effort */}
+   drawSeated();
+   try{director.on(Director.EVENT_BEFORE_DRAW,drawSeated);}catch{/* draw hook is best-effort */}
    departAt=real;
   },
   releaseRider(){dropSeatedPose();if(attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}},
@@ -144,6 +157,8 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
   driver.beginArrival(plan.arrival,dur);
   const walking=walk(plan.arrival,true);
   while(driver.arrivalU<1-1e-4)await wait();
+  const held=driver.arrivalElapsed;
+  while(driver.arrivalElapsed<held+2)await wait();
   await walking;
  }
 }

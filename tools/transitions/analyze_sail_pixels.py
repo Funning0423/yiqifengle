@@ -44,6 +44,60 @@ def poly(pts, w, h):
     cy = sum(p[1] for p in flipped) / len(flipped)
     return [(cx + (x - cx) * 0.72, cy + (y - cy) * 0.72) for x, y in flipped]
 
+def screen_pose(im, gx, iy):
+    """Dress blob aspect. qa2 island long shot is ~1.7-1.9 (standing); the sit close-up is ~0.9."""
+    w, h = im.size
+    scale = h / 844.0
+    preds = (
+        lambda r, g, b: r > 185 and g > 190 and b < 85 and abs(r - g) < 50,
+        lambda r, g, b: r > 130 and g > 145 and b < 110 and g > b + 35 and g + 10 > r,
+    )
+    px = im.load()
+    anchor = gx == gx and iy == iy and 0 <= gx < w and 0 <= iy < h
+    for pred in preds:
+        pts = [(x, y) for y in range(h) for x in range(w) if pred(*px[x, y])]
+        clusters = []
+        dx, dy = 22 * scale, 36 * scale
+        for p in pts:
+            hit = None
+            for c in clusters:
+                if abs(p[0] - c[0]) < dx and abs(p[1] - c[1]) < dy:
+                    hit = c
+                    break
+            if hit is None:
+                clusters.append([float(p[0]), float(p[1]), [p]])
+            else:
+                hit[2].append(p)
+                hit[0] = sum(q[0] for q in hit[2]) / len(hit[2])
+                hit[1] = sum(q[1] for q in hit[2]) / len(hit[2])
+        kept = []
+        for c in clusters:
+            xs = [p[0] for p in c[2]]
+            ys = [p[1] for p in c[2]]
+            hh = max(ys) - min(ys)
+            ww = max(xs) - min(xs)
+            if len(c[2]) < 25 * scale:
+                continue
+            if not (8 * scale <= ww <= 70 * scale and 14 * scale <= hh <= 110 * scale):
+                continue
+            if c[1] < h * 0.42 or not (0.08 * w <= c[0] <= 0.92 * w):
+                continue
+            kept.append((len(c[2]), hh, max(ww, 8 * scale), c[0], c[1]))
+        if not kept:
+            continue
+        if anchor:
+            near = [k for k in kept if abs(k[3] - gx) < 90 * scale and abs(k[4] - iy) < 140 * scale]
+            if near:
+                kept = near
+        _count, hh, ww, _cx, _cy = max(kept, key=lambda k: k[0])
+        aspect = hh / ww
+        if aspect >= 1.45 and hh >= 40 * scale:
+            return 'stand'
+        if aspect <= 1.30:
+            return 'sit'
+        return 'mid'
+    return ''
+
 def inside(x, y, pts):
     c = False
     j = len(pts) - 1
@@ -110,6 +164,9 @@ for shot in shots:
                 if p[0] > 110 and p[1] > 80 and p[2] < 180 and p[0] > p[2] + 12 and p[1] > p[2]:
                     count += 1
         row['girlPx'] = str(count)
+        row['screenPose'] = screen_pose(im, gx, iy)
+    else:
+        row['screenPose'] = screen_pose(im, float('nan'), float('nan'))
     if float(row.get('real') or 0) > 1:
         water_max = max(water_max, wr)
     # Clear-color holes: near-black or the camera clear, outside the top/bottom chrome.
@@ -163,7 +220,7 @@ for (beat, i), hist in peaks.items():
         flicker.append({'beat': beat, 'cell': i, 'peaks': count})
 
 fieldnames = list(rows[0].keys())
-for extra in ('water', 'clearRatio', 'luma'):
+for extra in ('water', 'clearRatio', 'luma', 'screenPose'):
     if extra not in fieldnames:
         fieldnames.append(extra)
 with open(csv_path, 'w', newline='') as f:

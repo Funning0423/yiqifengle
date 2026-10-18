@@ -141,6 +141,22 @@ export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
  }
  return kill.size;
 }
+/** Seaward caps of the river mouth are rectangular pads. Slope them under the water so the shore does not start as a floating square. */
+function taperMouthShore(renderer:MeshRenderer,side:'left'|'right'|'reeds'){
+ const mesh=renderer.mesh;if(!mesh)return;
+ const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
+ if(!(src instanceof Float32Array)||src.length<3)return;
+ const pos=new Float32Array(src);let changed=false;
+ for(let i=0;i<pos.length;i+=3){
+  const z=pos[i+2];if(z>=6.4)continue;
+  const u=Math.min(1,(6.4-z)/3.4),s=u*u*(3-2*u);
+  pos[i+1]=pos[i+1]*(1-s)+(-0.42)*s;
+  const out=side==='left'?1:side==='right'?-1:(pos[i]<0?-1:1);
+  pos[i]+=out*s*1.6;
+  changed=true;
+ }
+ if(changed)writeMeshPositions(mesh,renderer,pos);
+}
 function unlit(renderer:MeshRenderer,color:Color,texture:Texture2D|null){
  const mat=new Material();
  const defines:Record<string,boolean>={};
@@ -278,7 +294,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
     sailMats.push(unlit(r,new Color(SAIL_DAY_SAIL_RGB[0],SAIL_DAY_SAIL_RGB[1],SAIL_DAY_SAIL_RGB[2],255),tex));
    }
-   else if(n.name==='rm_reeds')copyMat(r,{cull:gfx.CullMode.NONE});
+   else if(n.name==='rm_reeds'){copyMat(r,{cull:gfx.CullMode.NONE});taperMouthShore(r,'reeds');}
    else if(n.name==='wake_strips')wakeMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='hull_foam_ring')foamMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='foam_strip_a'||n.name==='foam_strip_b'||n.name==='foam_ring'||n.name.startsWith('foam_ring'))copyMat(r,{cull:gfx.CullMode.NONE,alphaTest:0.4});
@@ -294,6 +310,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     if(n.name==='night_stars')unlit(r,new Color(210,220,255,255),null);
     else if(/^cloud_/.test(n.name))copyMat(r,{cull:gfx.CullMode.NONE});
     else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
+    else if(n.name==='rm_bank_left')taperMouthShore(r,'left');
+    else if(n.name==='rm_bank_right')taperMouthShore(r,'right');
     else if(n.name==='landing_jetty'||n.name==='landing_path')nearestPalette(tex);
    }
   });

@@ -176,11 +176,12 @@ const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 const Kbeam:SailOff={back:0.8,side:10.2,up:5.1,fov:52,look:0.2,orb:0};
 /** Quarter view, fov still 52 so the K7 star still (this pose) keeps its pixel size. Port side clears the sail. */
 const K3:SailOff={back:8.2,side:7.8,up:5.0,fov:52,look:0.2,orb:0};
-const K4:SailOff={back:9.2,side:5.2,up:5.6,fov:50,look:2.4,orb:0};
-/** Port and high: the old starboard lens sat inside the meadow bank. */
-const K5:SailOff={back:10.2,side:5.6,up:7.4,fov:48,look:2.2,orb:0};
-/** Art K6 kept the port side. Raised so the blend out of K5 is not a cut, and the bank stays below the lens. */
-const K6:SailOff={back:8.4,side:4.2,up:6.4,fov:48,look:2.8,orb:0};
+/** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
+const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
+/** Channel centre: boat x≈−4.4, side≈0.9 → camera x≈−3.5, between the inner banks. */
+const K5:SailOff={back:10.2,side:0.92,up:7.6,fov:48,look:2.2,orb:0};
+/** Same channel, a little closer. The old side 4.2 still sat in the left bank. */
+const K6:SailOff={back:8.4,side:0.85,up:6.8,fov:48,look:2.8,orb:0};
 /** Blend on a constant-radius arc. A straight lerp from ahead of the bow to astern crosses the hull and guardOff then teleports. */
 function orbitMix(a:SailOff,b:SailOff,u:number):SailOff{
  const s=smoother(u);
@@ -245,10 +246,18 @@ export function sailFollowCamera(path:readonly Vec[],u:number,from:Pose,to:Pose,
   target:[at[0],at[1]+1.1,at[2]],
   fovVerticalDeg:lerp(from.fovVerticalDeg||48,to.fovVerticalDeg||48,s),
  };
- return {
+ const chase:Pose={
   position:[lerp(from.position[0],follow.position[0],s),lerp(from.position[1],follow.position[1],s),lerp(from.position[2],follow.position[2],s)],
   target:[lerp(from.target[0],follow.target[0],s),lerp(from.target[1],follow.target[1],s),lerp(from.target[2],follow.target[2],s)],
   fovVerticalDeg:follow.fovVerticalDeg,
+ };
+ // The second half eases onto the meadow board. At u=1 the pose is already the map lens, so the handoff is not a cut.
+ const blendAt=0.5;
+ const m=u<=blendAt?0:smoother(Math.min(1,(u-blendAt)/(1-blendAt)));
+ return {
+  position:[lerp(chase.position[0],to.position[0],m),lerp(chase.position[1],to.position[1],m),lerp(chase.position[2],to.position[2],m)],
+  target:[lerp(chase.target[0],to.target[0],m),lerp(chase.target[1],to.target[1],m),lerp(chase.target[2],to.target[2],m)],
+  fovVerticalDeg:lerp(chase.fovVerticalDeg,to.fovVerticalDeg||chase.fovVerticalDeg,m),
  };
 }
 /** Seated root on the hull at `pos` (waterline), matching `seated_root_anchor`. */
