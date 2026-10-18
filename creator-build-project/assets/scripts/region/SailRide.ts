@@ -1,4 +1,4 @@
-import {Director, Node, Quat, SkeletalAnimation, SkinnedMeshRenderer, Vec3, director} from 'cc';
+import {Director, Mat4, MeshRenderer, Node, Quat, SkeletalAnimation, SkinnedMeshRenderer, Vec3, director, gfx, utils} from 'cc';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import {emitTransit, setTransitHidden} from './TransitAudioHooks';
 import {beatAt, sailCamera, sailFollowCamera, sailPresentationT, sailVehicle, seatFromBench, type SailTimeline} from './TransportLeg';
@@ -50,8 +50,71 @@ export function createSailDriver(opts:{
   }
   applySeatedPose();
   try{opts.rider?.updateWorldTransform();}catch{/* node not in a scene yet */}
+  freezeDrawnPose();
  };
- const dropSeatedPose=()=>{try{director.off(Director.EVENT_BEFORE_DRAW,drawSeated);}catch{/* director not up */}seatedPose.length=0;};
+ const frozenNodes:Node[]=[];
+ const hiddenSkins:SkinnedMeshRenderer[]=[];
+ let poseFrozen=false;
+ /** The island long shot was still drawing the bind pose while the joint nodes sat. Bake the live skin once and draw that. */
+ const freezeDrawnPose=()=>{
+  if(poseFrozen||!opts.rider)return;
+  const tmp=new Vec3(),acc=new Vec3(),local=new Vec3(),inv=new Mat4(),skinM=new Mat4();
+  for(const skin of opts.rider.getComponentsInChildren(SkinnedMeshRenderer)){
+   const mesh=skin.mesh,skelData=skin.skeleton,root=skin.skinningRoot||opts.rider;
+   if(!mesh||!skelData||!skelData.joints.length)continue;
+   const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
+   const joints=mesh.readAttribute(0,gfx.AttributeName.ATTR_JOINTS);
+   const weights=mesh.readAttribute(0,gfx.AttributeName.ATTR_WEIGHTS);
+   const indices=mesh.readIndices(0);
+   if(!(src instanceof Float32Array)||!joints||!weights||!indices)continue;
+   if(!Mat4.invert(inv,skin.node.worldMatrix))continue;
+   const bones=skelData.joints.map(path=>root.getChildByPath(path));
+   const binds=skelData.bindposes;
+   const count=src.length/3;
+   const jStride=joints.length/count,wStride=(weights as ArrayLike<number>).length/count;
+   if(jStride<1||wStride<1)continue;
+   const pos=new Float32Array(src.length);
+   for(let v=0;v<count;v++){
+    acc.set(0,0,0);let wsum=0;
+    const px=src[v*3],py=src[v*3+1],pz=src[v*3+2];
+    const kn=Math.min(4,jStride,wStride);
+    for(let k=0;k<kn;k++){
+     const ji=(joints as ArrayLike<number>)[v*jStride+k]|0;
+     const w=(weights as ArrayLike<number>)[v*wStride+k];
+     const bone=bones[ji];
+     if(!w||!bone||!binds[ji])continue;
+     Mat4.multiply(skinM,bone.worldMatrix,binds[ji]);
+     Vec3.transformMat4(tmp,new Vec3(px,py,pz),skinM);
+     acc.x+=tmp.x*w;acc.y+=tmp.y*w;acc.z+=tmp.z*w;wsum+=w;
+    }
+    if(wsum>0){acc.x/=wsum;acc.y/=wsum;acc.z/=wsum;}
+    Vec3.transformMat4(local,acc,inv);
+    pos[v*3]=local.x;pos[v*3+1]=local.y;pos[v*3+2]=local.z;
+   }
+   const uvs=mesh.readAttribute(0,gfx.AttributeName.ATTR_TEX_COORD);
+   const geo:any={positions:Array.from(pos),indices:Array.from(indices)};
+   if(uvs)geo.uvs=Array.from(uvs as ArrayLike<number>);
+   let baked;
+   try{baked=utils.createMesh(geo,undefined,{calculateBounds:true});}
+   catch{continue;}
+   const node=new Node('sail_frozen_pose');
+   skin.node.addChild(node);node.setPosition(0,0,0);node.setRotationFromEuler(0,0,0);node.setScale(1,1,1);
+   const rend=node.addComponent(MeshRenderer);
+   rend.mesh=baked;
+   const shared=skin.sharedMaterials;
+   for(let i=0;i<shared.length;i++)if(shared[i])rend.setSharedMaterial(shared[i],i);
+   skin.enabled=false;
+   frozenNodes.push(node);hiddenSkins.push(skin);
+  }
+  poseFrozen=frozenNodes.length>0;
+ };
+ const dropFrozenPose=()=>{
+  for(const n of frozenNodes){if(n.isValid)n.destroy();}
+  frozenNodes.length=0;
+  for(const s of hiddenSkins){if(s.isValid)s.enabled=true;}
+  hiddenSkins.length=0;poseFrozen=false;
+ };
+ const dropSeatedPose=()=>{try{director.off(Director.EVENT_BEFORE_DRAW,drawSeated);}catch{/* director not up */}seatedPose.length=0;dropFrozenPose();};
  const fired=new Set<string>();
  const viewSize=opts.screen;
  const sc=opts.timeline.beats.find(b=>b.id==='S-c')!,se=opts.timeline.beats.find(b=>b.id==='S-e')!;
