@@ -15,6 +15,11 @@
     "sha256": "629f1531f5266b642da1ce5ff777db8a33ae45030ac5928828f16b7bddb80932"
   },
   {
+    "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/amb_island_shore_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "245940e19e2d601546683da64d740d9f78bbb6c6eedd65f366d886d9dead28be"
+  },
+  {
     "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/bgm_main.mp3.meta",
     "bytes": 222,
     "sha256": "2a1d2519c89d66d877591ed0daefa6fbeb2d1753e1446f8d055c1d1b6c457dcb"
@@ -600,9 +605,44 @@
     "sha256": "5168d9967c3fde5a10424c696746552a894cf497860e7e4e4d025b107fc47633"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_birds_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "7acc621b27a2a57dbb7d2c2f4e83f100b0783e665f3aeb7e4c2a39edd77639c7"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_insects_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "1fdcd36622087b9be95ad89a64a49c18953ea23a755bfb33fb57b27457e13eb3"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3.meta",
     "bytes": 222,
     "sha256": "b0d94518e28f748390997806438e09e595271fe5d6160cc5c1d7cc875a850d39"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_bird_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "9796242cba22d206d96911885dc3b46ccd6d04af398db41b4509e855c76925a1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_bird_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "2b9b99b86a36c7da2a008c3f2cbe43d75799d4d95dcf30d9094181cf6fa7e64a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_bird_3.mp3.meta",
+    "bytes": 222,
+    "sha256": "7d6c7635cf9505fd64a2a6c1a0497f2910410d539aa369397f988c2de6c96920"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_windmill_creak_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "c4e8d2f47b75c0413be84f2b32daf0c9db12f1d52bf161ebe51b040ca486df2b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_windmill_creak_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "a3bea24419e6773fc98488be8b9314a23c56c09a350f836c49f30a62eaaaa49d"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity.meta",
@@ -613,6 +653,11 @@
     "path": "creator-build-project/assets/bundles/region_skycity/audio.meta",
     "bytes": 169,
     "sha256": "3dad4f4f8c15d193ca2e67280465a7aa7fe3e24048b2de1427c169aad109f9a3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_air_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "daf78e349012458a707e2bcfeda974c16c1241f488c54feec556e780bfd67805"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3.meta",
@@ -658,6 +703,16 @@
     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta",
     "bytes": 166,
     "sha256": "8071902f9968006b72838e8b8dec6888f17b36bd0da36dafdd69627aa19d12e1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/audio_amb.meta",
+    "bytes": 169,
+    "sha256": "2447eebbfaee6f82d228a9e506d16917bc1fb7caa7400131629fae7d653dc9b5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/audio_amb/amb_sea_open_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "7c123d6a547306fd0e76a1e0c18ce78fd04fe18f05980bdc876eca9a65936c47"
   },
   {
     "path": "creator-build-project/assets/resources.meta",
