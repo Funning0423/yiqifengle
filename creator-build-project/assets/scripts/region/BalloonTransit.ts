@@ -424,7 +424,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(night)showNamed(clouds,['clouds_horizon'],false);
    eachNamed(meadow,n=>{
     if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;
-    // Re-assert meadow sky dressing every frame (other systems may park these inactive).
+    // Night meadow cloud cards sample a texture whose red/green channels swap for a few frames.
+    if(night&&(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'||n.name==='meadow_sky_dome')){n.active=false;return;}
     if(meadowOn&&(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'))n.active=true;
    });
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
