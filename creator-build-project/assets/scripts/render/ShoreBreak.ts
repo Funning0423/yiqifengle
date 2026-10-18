@@ -114,6 +114,7 @@ export class ShoreBreak {
   }
   /** lateUpdate, after the idle clip and RoomLightingRig. Playhead (or the paused fallback) is the only clock. */
   advance(dt: number): void {
+    if ((globalThis as any).__QF_SAIL_HOLD_ISLAND_FX) { if (this.root && this.root.active) this.root.active = false; return; }
     const root = this.root; if (this.disposed || !root || !isValid(root, true)) return;
     const step = Number.isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
     this.ownNight = this.synced ? approachNight(this.ownNight, this.night, step) : (this.night ? 1 : 0); this.synced = true;

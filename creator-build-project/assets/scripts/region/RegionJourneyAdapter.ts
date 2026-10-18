@@ -1,5 +1,5 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
-import {Animation, Camera, Color, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, gfx, isValid, utils, view} from 'cc';
+import {Animation, Camera, Color, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, director, gfx, isValid, utils, view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkyNightTexture} from '../render/SkyNightTexture';
@@ -158,7 +158,9 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      let boat:Node|null=null,seat:Node|null=null,sailNode:Node|null=null;
      try{sailArt=await mountSailArt(rig,model);boat=sailArt.boat;seat=sailArt.seat;sailNode=sailArt.sail;}catch(error){try{console.info('[QF_SAIL] '+String((error as Error)?.message||error));}catch{}}
      const tl=sailBeats(sr.length);
-     const rider=find(options.parent,'FLOW_REFERENCE_PLACEHOLDER_NOT_B');
+     const sceneRoot=options.parent.scene||director.getScene();
+     const rider=sceneRoot?find(sceneRoot,'FLOW_REFERENCE_PLACEHOLDER_NOT_B'):null;
+     if(!rider)console.error('[QF_SAIL] rider missing: FLOW_REFERENCE_PLACEHOLDER_NOT_B is not a scene-root child');
      const boardPose=board?{position:board.position as Vec,target:board.target as Vec,fovVerticalDeg:board.fovVerticalDeg}:null;
      sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:walk,boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,art:sailArt,boardPose,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
      const dock=sr.samples[0];

@@ -25,7 +25,7 @@ export function seatWorld(seatOrFloor:Node|Vec,yawRad?:number):ReturnType<typeof
  return seatFromBench([p.x,p.y,p.z],yaw);
 }
 /** sit_hold does not write worldPosition, so the anchor carries her. Local zero keeps her on the bench, not inside the hull. */
-export function attachRider(rider:Node,seat:Node):void{rider.setParent(seat,false);rider.setPosition(0,0,0);rider.setRotationFromEuler(0,0,0);}
+export function attachRider(rider:Node,seat:Node):void{rider.setParent(seat,true);rider.setPosition(0,0.04,0);rider.setRotationFromEuler(0,0,0);}
 export function detachRider(rider:Node,parent:Node):void{rider.setParent(parent,true);}
 /** @deprecated Furling is `SailArt.sync` (boom + sail_furled). Left so older callers still compile. */
 export function applySailScale(sail:Node|null,scale:number):void{if(sail)sail.setScale(1,Math.max(0.001,scale),1);}

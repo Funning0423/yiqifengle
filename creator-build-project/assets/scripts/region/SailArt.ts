@@ -1,4 +1,4 @@
-import {Color, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
+import {Camera, Color, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {sailChannelWorldY} from './SailChannel';
@@ -170,6 +170,19 @@ function mountStarDiamonds(parent:Node):Node{
 }
 export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean,aim?:Vec)=>void;dispose:()=>void};
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
+/** Opaque cockpit floor above the waterline, wider than the authored sole so rolled edges and the open stern cannot show the sea. */
+function mountCockpitSole(boat:Node):void{
+ const y=0.1,x0=-0.98,x1=0.98,z0=-2.15,z1=1.45;
+ const positions=[x0,y,z0,x1,y,z0,x1,y,z1,x0,y,z1];
+ const normals=[0,1,0,0,1,0,0,1,0,0,1,0];
+ const indices=[0,2,1,0,3,2];
+ const mesh=utils.createMesh({positions,normals,indices});
+ const material=new Material();
+ material.initialize({effectName:'builtin-unlit',states:{rasterizerState:{cullMode:gfx.CullMode.NONE},depthStencilState:{depthTest:true,depthWrite:true}}});
+ material.setProperty('mainColor',new Color(96,68,44,255));
+ const node=new Node('cockpit_sole');boat.addChild(node);node.setPosition(0,0,0);
+ const renderer=node.addComponent(MeshRenderer);renderer.mesh=mesh;renderer.setMaterial(material,0);renderer.priority=8;
+}
 export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt>{
  const names=['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth','transit_landing'];
  const prefabs=await Promise.all(names.map(n=>loadPrefab(n).catch(()=>null)));
@@ -191,6 +204,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   landing.setPosition(0,0,0);landing.setRotationFromEuler(0,0,0);landing.setScale(1,1,1);
   landing.active=true;
  }
+ mountCockpitSole(boat);
  const seat=findNode(boat,'seated_root_anchor'),stand=findNode(boat,'stand_anchor'),board=findNode(boat,'board_step_anchor');
  const sailRoot=findNode(boat,'sail_root'),jib=findNode(boat,'jib_root'),furled=findNode(boat,'sail_furled'),boom=findNode(boat,'boom_pivot');
  const lamp=findNode(boat,'lantern_glow'),stars=findNode(clouds,'night_stars');
@@ -216,9 +230,9 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   }
   // Thin static water only under the jetty piles (not a foreground plate in meadow cam).
   if(tile){
-   const keep=instantiate(tile);keep.name='landing_sea_tile';keep.active=true;
+   const keep=instantiate(tile);keep.name='landing_sea_tile';keep.active=false;
    meadow.addChild(keep);
-   keep.setWorldPosition(berth[0]+0.6,SAIL_SEA_Y,berth[2]+3.8);
+   keep.setWorldPosition(berth[0]+0.6,SAIL_SEA_Y-0.08,berth[2]+3.8);
    keep.setWorldScale(0.55,1,0.9);
    keep.setRotationFromEuler(0,0,0);
   }
@@ -227,7 +241,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const pier=findNode(props,'transit_pier');
  place(pier,SAIL_I6[0],-0.6,SAIL_I6[2]-0.7);
  // Mouth between boat and jetty (game ≈ x −3.55, origin z ≈ 37.5).
- place(mouth,-3.55,SAIL_SEA_Y,37.5);
+ place(mouth,-3.55,SAIL_SEA_Y-0.06,37.5);
  place(findNode(props,'buoy_red'),end[0]+5.0,SAIL_SEA_Y,end[2]-8);
  place(findNode(props,'buoy_green'),end[0]-4.6,SAIL_SEA_Y,end[2]-7.5);
  const rocks:[[number,number,number],[number,number,number],[number,number,number]]=[
@@ -342,12 +356,17 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   const sailC=new Color(rgb[0],rgb[1],rgb[2],255);
   for(const m of sailMats)m.setProperty('mainColor',sailC);
  };
- let time=0,cruise=4.4;
+ let time=0,cruise=4.4,savedNear:number|null=null,savedFar:number|null=null,worldCam:Camera|null=null;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
  return {
   boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
   sync(v,cam,dt,night,aim?:Vec){
+   (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=true;
    time+=Math.max(0,dt);
+   const sceneNow=director.getScene();
+   if(sceneNow)walk(sceneNow,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))r.enabled=false;});
+   if(!worldCam&&sceneNow)worldCam=sceneNow.getComponentsInChildren(Camera).find(c=>c.node.name!=='WorldNavigationCamera')||null;
+   if(worldCam&&savedNear==null){savedNear=worldCam.near;savedFar=worldCam.far;worldCam.near=0.35;worldCam.far=280;}
    const open=v.sail;
    if(sailRoot)sailRoot.active=open>0.18;
    if(jib)jib.active=open>0.18;
@@ -386,12 +405,14 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(cloudLayer&&cloudLayer.active)cloudLayer.setWorldPosition(cam[0],layerHome?layerHome[1]:cloudLayer.worldPosition.y,cam[2]);
   },
   dispose(){
+   (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=false;
    for(const r of hidden)if(r.isValid)r.enabled=true;
    if(dome?.isValid&&domeHome)dome.setWorldPosition(domeHome[0],domeHome[1],domeHome[2]);
    if(cloudLayer?.isValid&&layerHome)cloudLayer.setWorldPosition(layerHome[0],layerHome[1],layerHome[2]);
-   grade(false);
-   if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));
+   const stillNight=(()=>{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}})();
+   grade(stillNight);
+   if(!stillNight){if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));}
+   if(worldCam&&savedNear!=null&&savedFar!=null){worldCam.near=savedNear;worldCam.far=savedFar;}
    // Leave landing + landing_sea_tile on the meadow model.
    if(root.isValid)root.destroy();
   },

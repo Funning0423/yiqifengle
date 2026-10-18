@@ -58,6 +58,7 @@ export class IslandAtmosphereFx {
   setView(exterior: boolean, night: boolean): void { this.exterior = exterior; this.night = night; if (this.gulls) this.gulls.setView(exterior); if (!exterior) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); } }
   /** lateUpdate: after WorldFlow wrote this frame's camera. camera = main world camera node (live position). */
   advance(dt: number, camera: Node | null, wind: number, seaSurfaceY?: number): void {
+    if ((globalThis as any).__QF_SAIL_HOLD_ISLAND_FX) { if (this.root && this.root.active) this.root.active = false; return; }
     const root = this.root; if (!root || !isValid(root, true)) return;
     const step = Number.isFinite(dt) && dt > 0 ? Math.min(dt, .1) : 0; this.time += step;
     // Night weight: first sync snaps to the current mode, afterwards a switch fades over nightFadeS (T9n mechanism).

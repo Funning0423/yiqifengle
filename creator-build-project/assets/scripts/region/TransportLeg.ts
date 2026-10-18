@@ -119,6 +119,17 @@ export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline
  return {beats,totalS:speed.motionS+sb+sf,build05S:t,speed,routeM,shoreM,shoreS:shoreM/SAIL_LIMITS.walkMps,arrivalM,arrivalS};
 }
 export function beatAt(tl:SailTimeline,t:number):SailBeat{return tl.beats.find(b=>t>=b.t0&&t<b.t1)||tl.beats[tl.beats.length-1];}
+/** Real seconds → sail timeline. The hull stays before S-c until `departAt` (she has finished sitting). Motion is compressed into `motionBudget` so the walk itself is never sped up. */
+export function sailPresentationT(real:number,departAt:number|null,motionStart:number,motionEnd:number,buildEnd:number,motionBudget:number):number{
+ if(departAt==null)return Math.min(Math.max(0,real),Math.max(0,motionStart-1e-4));
+ const motionS=Math.max(1e-3,motionEnd-motionStart);
+ const budget=Math.max(0.4,motionBudget);
+ const rate=motionS/Math.min(motionS,budget);
+ const since=Math.max(0,real-departAt);
+ const motionReal=Math.min(motionS,budget);
+ if(since<=motionReal+1e-6)return Math.min(motionEnd,motionStart+since*rate);
+ return Math.min(buildEnd,motionEnd+(since-motionReal));
+}
 function samplePoly(samples:readonly Vec[],distance:number):Vec{
  let left=Math.max(0,distance);
  for(let i=1;i<samples.length;i++){const d=dist(samples[i-1],samples[i]);if(d>0&&left<=d){const a=samples[i-1],b=samples[i],u=left/d;return [lerp(a[0],b[0],u),lerp(a[1],b[1],u),lerp(a[2],b[2],u)];}left-=d;}
