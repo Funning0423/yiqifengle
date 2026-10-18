@@ -86,10 +86,11 @@ function forceUnlit(root:Node|null,color:Color,opts?:{keepTexture?:boolean}):voi
   try{r.setMaterialInstance(0,m);}catch{}
  }});
 }
-/** Night-tint far card; prefer albedo texture, else a muted meadow stand-in (never magenta). */
+/** Far card: keep albedo; day multiply cools the baked cyan sea-skirt toward true blue. */
 function tintFarCard(root:Node|null,night:boolean):void{
  if(!root)return;
- const day=new Color(210,220,190,255),nite=new Color(42,50,62,255);
+ // Day: cool blue-leaning multiply (texture sea ~130,176,173 → bluer). Night: solid dark (no magenta).
+ const day=new Color(150,185,255,255),nite=new Color(42,50,62,255);
  forceUnlit(root,night?nite:day,{keepTexture:!night});
 }
 /** Sea fallback: true blue (day) / dark (night). No vertex-color / empty-albedo path. */
@@ -347,9 +348,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
     showNamed(model,['env_sky_islets_far'],false);
     showNamed(model,CITY_RIDE_HIDE,false);
-    // Floating island body (grass + rock) + vines hanging from the belly — hide only on close land frames.
+    // Floating island body (grass + rock). Hide vines/roots — they read as free-floating brown rods in the cloud sea.
     showNamed(model,ISLAND_BODY,showIsland);
-    showNamed(model,ISLAND_VINES,showIsland);
+    showNamed(model,ISLAND_VINES,false);
     eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
