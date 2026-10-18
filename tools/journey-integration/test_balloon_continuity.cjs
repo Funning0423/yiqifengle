@@ -65,21 +65,24 @@ function analyzeMp4(file,night){
    acc=Buffer.concat([acc,chunk]);
    while(acc.length>=frameBytes){
     const buf=acc.subarray(0,frameBytes);acc=Buffer.from(acc.subarray(frameBytes));
-    let sum=0,girl=0,x0=W,y0=H,x1=0,y1=0;
+    let sum=0,girl=0,green=0,x0=W,y0=H,x1=0,y1=0;
+    const yCut=(H*0.62)|0;
     for(let p=0,i=0;p<N;p++,i+=3){
      const r=buf[i],g=buf[i+1],b=buf[i+2];
      sum+=0.299*r+0.587*g+0.114*b;
+     const y=(p/W)|0;
+     if(y>=yCut&&g>110&&g>r+40&&g>b+30&&r<140)green++;
      const warm=night?(r>90&&r>b+12&&g>50&&g<r+30):(r>145&&g>70&&g<190&&b<110&&r>g+15&&r>b+40);
      if(!warm)continue;
      girl++;
-     const x=p%W,y=(p/W)|0;
+     const x=p%W;
      if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
     }
     const luma=sum/N;
     // Full-screen handoff cover is black on purpose; the girl is behind it, not missing.
     const covered=luma<24;
     const wide=covered||(girl>=girlMin&&(x1-x0)>6&&(y1-y0)>8);
-    rows.push({luma,girl,inside:wide,covered});
+    rows.push({luma,girl,inside:wide,covered,green});
    }
   });
   ff.on('error',bad);
@@ -100,7 +103,9 @@ function analyzeMp4(file,night){
    }
    const girlFail=rows.map((r,i)=>r.inside?null:i).filter(i=>i!=null);
    const miss=girlFail.length,edge=rows.filter(r=>!r.inside&&r.girl>=girlMin).length;
-   ok({file,night,frames:rows.length,girlMin,miss,edge,spikes,girlFail:girlFail.slice(0,12),meanGirl:rows.reduce((s,r)=>s+r.girl,0)/rows.length});
+   const cruiseLo=Math.floor(rows.length*0.36),cruiseHi=Math.floor(rows.length*0.56);
+   const grass=night?[]:rows.map((r,i)=>(i>=cruiseLo&&i<cruiseHi&&r.green>40)?i:null).filter(i=>i!=null);
+   ok({file,night,frames:rows.length,girlMin,miss,edge,spikes,grass:grass.slice(0,8),grassFrames:grass.length,girlFail:girlFail.slice(0,12),meanGirl:rows.reduce((s,r)=>s+r.girl,0)/rows.length});
   });
  });
 }
@@ -112,6 +117,7 @@ async function main(){
   pixels=await analyzeMp4(mp4,process.env.BALLOON_RIDE_NIGHT==='1');
   assert.equal(pixels.miss,0,'girl not visible '+JSON.stringify({miss:pixels.miss,edge:pixels.edge,sample:pixels.girlFail}));
   assert.equal(pixels.spikes.length,0,'brightness spike '+JSON.stringify(pixels.spikes.slice(0,8)));
+  assert.equal(pixels.grassFrames,0,'cruise grass debris '+JSON.stringify(pixels.grass));
  }
  const report={cam:camReport,pixels};
  const out=process.env.BALLOON_CONTINUITY_OUT;

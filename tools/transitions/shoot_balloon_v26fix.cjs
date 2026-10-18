@@ -13,6 +13,7 @@ const FRAMES=[
  {name:'02_liftoff',t:5.2,night:0},
  {name:'03_clouds',t:11.4,night:0},
  {name:'04_cruise',t:18.5,night:0},
+ {name:'04b_rider',t:15.0,night:0},
  {name:'05_city',t:24.0,night:0},
  {name:'06_land',t:33.6,night:0},
  {name:'07_night',t:24.0,night:1},

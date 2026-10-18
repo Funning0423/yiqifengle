@@ -147,6 +147,10 @@ CCProgram card-fs %{
     vec3 tex = texture(mainTexture, v_uv).rgb;
     float skirt = smoothstep(0.05, 0.12, tex.b - tex.r);
     vec3 sea = vec3(0.635, 0.725, 0.820);
+    // Stray grass strips sit on the near edge of the card and read as meadow debris in the cloud sea.
+    float grass = step(0.08, tex.g - tex.r) * step(0.04, tex.g - tex.b) * step(tex.r, 0.62);
+    float debris = grass * smoothstep(0.62, 0.70, v_uv.y);
+    tex = mix(tex, sea, debris);
     return vec4(mix(tex, sea, skirt), 1.0);
   }
 }%

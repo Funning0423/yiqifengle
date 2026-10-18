@@ -128,7 +128,7 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
   const yawDeg=world?s.yawDeg:meadow.yawDeg+s.yawDeg;
   return {pos:map(s.pos,time,s.frame),yaw:yawDeg*Math.PI/180,roll:s.rollDeg};
  };
- const camera=(time:number,screen?:Screen):Pose=>{const s=local(time);return keepBalloonFramed({position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48}, map(s.pos,time,s.frame), screen);};
+ const camera=(time:number,screen?:Screen):Pose=>{const s=local(time);const subject=map(s.pos,time,s.frame);return keepBalloonFramed(closeOnRider({position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48},subject,time), subject, screen);};
  const routeAt=(time:number)=>worldAt(Math.max(0,Math.min(FLIGHT_DURATION,time)));
  const deck=doc.layout.cloudDeckY,deckMid=(deck[0]+deck[1])/2;
  const cloudAt=map(local(4.3).pos,4.3,local(4.3).frame);
@@ -143,6 +143,15 @@ export function strataClearsGround(originY:number,strataLocalMinY:number,meadowG
 }
 /** Seconds of foreground time. A hidden gap does not advance `t`. Gaps over 30 s request a 0.35 s fade on resume. */
 /** Down-sampled balloon route. path[0] is the standing root the journey was prepared from. */
+/** Pull in toward the basket through the clouds and early cruise so her face and hat read. Liftoff, the 18.5 s cruise still, and landing stay on the authored camera. */
+export function closeOnRider(pose:Pose,subject:Vec,time:number):Pose{
+ const inn=smooth01((time-12.4)/1.1)*(1-smooth01((time-16.6)/1.2));
+ if(inn<0.001)return pose;
+ const pull=0.62*inn;
+ const p=pose.position;
+ return {position:[p[0]+(subject[0]-p[0])*pull,p[1]+(subject[1]-p[1])*pull*0.35,p[2]+(subject[2]-p[2])*pull],target:pose.target,fovVerticalDeg:pose.fovVerticalDeg};
+}
+function smooth01(u:number):number{const t=Math.max(0,Math.min(1,u));return t*t*(3-2*t);}
 /** Pull the look target toward the basket only while she would leave a 390×844 frame. Inside the safe band the pose is unchanged. */
 export function keepBalloonFramed(pose:Pose,subject:Vec,screen?:Screen):Pose{
  const aspect=(screen?.w&&screen?.h)?screen.w/screen.h:390/844;
