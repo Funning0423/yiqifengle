@@ -25,3 +25,5 @@ qa3 片子上用头脚屏幕框量上身近黑比例：烘焙前约 0.06，16 s 
 `tools/transitions/test_sail_continuity.cjs` 保留 qa1–qa3，并要求白天和夜间的 `docs/r5/sail-qa4/metrics_after.csv`、`metrics_after-night.csv` 在烘焙期间上身近黑不明显高于烘焙前，裙摆有黄绿色，相邻帧黑像素比例不突变。
 
 短片 `sail_day.mp4`（1,237,425 字节）、`sail_night.mp4`（1,011,093 字节），各 703 帧、15 fps、390×844，时长 46.87 s。
+
+正式套件 122 项里 121 项 PASS，只有 `navigation-guard` 是 `BLOCKED_BROWSER`。带守卫的 wechat 包 20,286,150 字节（上限 24,641,536）。`transport_sail` 子包 206,639 字节。构建后已删掉 `library`、`temp`、`build`，锁已释放。
