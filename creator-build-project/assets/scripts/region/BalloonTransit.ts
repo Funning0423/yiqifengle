@@ -96,24 +96,23 @@ function tintFarCard(root:Node|null,night:boolean):void{
 function paintSeaFallback(root:Node|null,night:boolean):void{
  if(!root)return;
  // Day: blue sea around the far card (not teal). Night: dark so it never flashes magenta.
- forceUnlit(root,night?new Color(18,26,40,255):new Color(48,105,175,255));
+ forceUnlit(root,night?new Color(18,26,40,255):new Color(36,92,168,255));
 }
 /**
- * clouds_floor verts are authored ~0.2 grey (reads as flat mid-grey). Brighten to art's white→light-grey
- * volume; night uses a safe dark blue-grey unlit (no emissive / unbound-albedo magenta path).
+ * clouds_floor verts are authored ~0.2 grey (reads as flat mid-grey). Force solid unlit so the
+ * cloud sea reads white→light-grey with puff volume (day) / visible cool grey (night). Never touch
+ * glTF emissive instances (magenta path).
  */
 function paintCloudSea(clouds:Node|null,night:boolean):void{
  if(!clouds)return;
- const floor=find(clouds,'clouds_floor'),puff=find(clouds,'clouds_floor_puff'),citySea=find(clouds,'clouds_city_sea');
- if(night){
-  // Solid unlit — never getMaterialInstance on glTF cloud mats (drops albedo → magenta).
-  for(const n of [floor,puff,citySea])forceUnlit(n,new Color(52,62,78,255));
-  return;
- }
- // Day: ignore dark floor verts (solid light grey); puffs keep vertex shading for volume.
- forceUnlit(floor,new Color(235,238,242,255));
- forceUnlit(puff,new Color(255,255,255,255));
- forceUnlit(citySea,new Color(210,220,235,255));
+ const dayFloor=new Color(242,245,250,255),dayPuff=new Color(255,255,255,255),daySea=new Color(220,228,238,255);
+ // Night art keeps a readable cloud deck under the island (not void blue); solid unlit, no emissive.
+ const niteFloor=new Color(168,178,192,255),nitePuff=new Color(200,208,218,255),niteSea=new Color(148,158,172,255);
+ eachNamed(clouds,n=>{
+  if(n.name==='clouds_floor')forceUnlit(n,night?niteFloor:dayFloor);
+  else if(n.name==='clouds_floor_puff')forceUnlit(n,night?nitePuff:dayPuff);
+  else if(n.name==='clouds_city_sea')forceUnlit(n,night?niteSea:daySea);
+ });
 }
 /** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
@@ -355,11 +354,16 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
    showNamed(clouds,ALWAYS_CLOUD,true);
+   // Board (t≈0.9): keep far/horizon transit clouds so the sky matches meadow gameplay (not empty blue).
    // Liftoff (t≈5.2): hide near/mid clouds so none sit on the envelope (GBT defect 8).
-   if(t<7){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
+   if(t>=4.8&&t<7.5){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
    // City on screen: drop far/horizon cloud cards (DC budget) — city silhouette already fills the frame.
    if(cityOn){showNamed(clouds,['clouds_far','clouds_horizon','clouds_deck_loose'],false);}
-   eachNamed(meadow,n=>{if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;});
+   eachNamed(meadow,n=>{
+    if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;
+    // Re-assert meadow sky dressing every frame (other systems may park these inactive).
+    if(meadowOn&&(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'))n.active=true;
+   });
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
    const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
    if(farRoot&&isValid(farRoot,true)){
@@ -380,7 +384,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    (globalThis as any).__QF_BALLOON_LENS=true;
    for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day)skybox(n);}
    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
-   // Day/night cloud sea: bright volume by day; safe dark unlit at night (no emissive-instance magenta path).
+   // Cloud sea: solid unlit white/grey (day) or cool grey (night). Never emissive-instance (magenta).
    if(cityOn)paintCloudSea(clouds,night);
    else if(night)setEmissive(clouds,true);
    applyVehicleNight(vehicle,night);
