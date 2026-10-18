@@ -2321,8 +2321,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts",
-    "bytes": 21207,
-    "sha256": "15cc79a5034d35f60332772b737eb1c8dc02fccc226ad8781156df48e8a68794"
+    "bytes": 21663,
+    "sha256": "bc350f09987d5c43c4006dc897491c5f691045f034f254af55c4560b3e183859"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts.meta",

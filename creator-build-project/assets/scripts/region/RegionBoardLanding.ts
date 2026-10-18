@@ -50,14 +50,16 @@ export type BoardSize=Readonly<{width:number;height:number}>;
  *  'authored' when it falls back to the bridge + r4 stand line (that stop is picked in meadowScenePose, so it keeps that camera).
  *  Sticky for the session (boards 06–08 reuse the same lease camera, as today); default 'authored' (no journey yet: today's camera).
  *  No zone fits (very short screens): meadowScenePose(aspect), i.e. the old camera. refHeightPt: size for aspect-only callers. */
-export const MEADOW_BOARD_FRAMING={node:'M1',gapPt:13,fill:0.92,zone:'left',refHeightPt:844} as const;
+/** narrow: boards under belowWidthPt wide (360×780, 375×667, 320×568) have a thinner room left of the tools, where her box is
+ *  width-bound; there the room runs to edgePt from the screen edge (not UI) and she fills `fill` of it. ≥ 390 pt wide: unchanged. */
+export const MEADOW_BOARD_FRAMING={node:'M1',gapPt:13,fill:0.92,zone:'left',refHeightPt:844,narrow:{belowWidthPt:390,edgePt:6,fill:0.985}} as const;
 type GirlZone=Readonly<{id:string;l:number;t:number;r:number;b:number}>;
 /** UI-free room (pt) beside / below the board UI, already inset by gapPt: strip (tray→tools), left / right of the tool row. */
-export function meadowGirlZones(width:number,height:number,safe:SafeArea):GirlZone[]{
- const ui=girlStandUi(width,height,safe),g=MEADOW_BOARD_FRAMING.gapPt,tray=ui[0];let tl=width,tr=0,tt=height;
+export function meadowGirlZones(width:number,height:number,safe:SafeArea,edgePt?:number):GirlZone[]{
+ const ui=girlStandUi(width,height,safe),g=MEADOW_BOARD_FRAMING.gapPt,e=edgePt===undefined?g:edgePt,tray=ui[0];let tl=width,tr=0,tt=height;
  for(let i=2;i<5;i++){tl=Math.min(tl,ui[i].l);tr=Math.max(tr,ui[i].r);tt=Math.min(tt,ui[i].t);}
  const bottom=height-Math.max(0,safe.bottom)-g,top=tray.b+g;
- return [{id:'strip',l:g,t:top,r:width-g,b:tt-g},{id:'left',l:g,t:top,r:tl-g,b:bottom},{id:'right',l:tr+g,t:top,r:width-g,b:bottom}];
+ return [{id:'strip',l:e,t:top,r:width-e,b:tt-g},{id:'left',l:e,t:top,r:tl-g,b:bottom},{id:'right',l:tr+g,t:top,r:width-e,b:bottom}];
 }
 /** Option A for her foot (model / board-rig coordinates) on this screen; null if her box cannot be placed in the zone. */
 export function meadowFramedPose(base:AuthoredPose,foot:Vec,width:number,height:number,safe:SafeArea):AuthoredPose|null{
@@ -65,9 +67,10 @@ export function meadowFramedPose(base:AuthoredPose,foot:Vec,width:number,height:
  const fov=base.fovVerticalDeg,tv=Math.tan(fov*Math.PI/360),asp=width/height,mid=[foot[0],foot[1]+0.86,foot[2]];
  const place=(z:number,cx:number,cy:number):AuthoredPose=>{const nx=cx/width*2-1,ny=1-cy/height*2,d=[f[0]+r[0]*nx*tv*asp+u[0]*ny*tv,f[1]+r[1]*nx*tv*asp+u[1]*ny*tv,f[2]+r[2]*nx*tv*asp+u[2]*ny*tv];
   const p:Vec=[mid[0]-d[0]*z,mid[1]-d[1]*z,mid[2]-d[2]*z];return {position:p,target:[p[0]+f[0]*10,p[1]+f[1]*10,p[2]+f[2]*10],fovVerticalDeg:fov};};
- const zones=meadowGirlZones(width,height,safe);let q:GirlZone|null=null;
+ const NR=MEADOW_BOARD_FRAMING.narrow,narrow=width<NR.belowWidthPt,fill=narrow?NR.fill:MEADOW_BOARD_FRAMING.fill;
+ const zones=meadowGirlZones(width,height,safe,narrow?NR.edgePt:undefined);let q:GirlZone|null=null;
  for(let k=0;k<zones.length;k++)if(zones[k].id===MEADOW_BOARD_FRAMING.zone)q=zones[k];
- if(!q)return null;const zw=(q.r-q.l)*MEADOW_BOARD_FRAMING.fill,zh=(q.b-q.t)*MEADOW_BOARD_FRAMING.fill;if(zw<=4||zh<=4)return null;
+ if(!q)return null;const zw=(q.r-q.l)*fill,zh=(q.b-q.t)*fill;if(zw<=4||zh<=4)return null;
  const cx=(q.l+q.r)/2,cy=(q.t+q.b)/2;let z=REGION_CAMERA.islandCharacter.heightM/(2*tv*zh/height);
  for(let i=0;i<10;i++){const b=girlBoxPt(place(z,cx,cy),foot,width,height);if(!b)return null;z*=Math.max((b.b-b.t)/zh,(b.r-b.l)/zw);}
  const pose=place(z,cx,cy);return girlBoxPt(pose,foot,width,height)?pose:null;
