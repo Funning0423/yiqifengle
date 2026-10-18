@@ -1,0 +1,51 @@
+--- a/lk4.cjs	2026-10-19 03:13:37.510844940 +0800
++++ b/lk4.cjs	2026-10-19 03:13:48.414844940 +0800
+@@ -11,7 +11,7 @@
+ (async()=>{try{
+ const night=mode==='night'||process.env.NIGHT==='1';const want=night?23:12;const u=new Date().getUTCHours();let off=((want-u)%24+24)%24;if(off>12)off-=24;const TZ=off===0?'Etc/GMT':'Etc/GMT'+(off>0?'-':'+')+Math.abs(off);
+ ctxEpoch=Date.now();
+-ctx=await chromium.launchPersistentContext(path.join(__dirname,process.env.PROF||'prof'),{executablePath:process.env.QF_CHROMIUM_EXECUTABLE,args:['--autoplay-policy=no-user-gesture-required','--enable-precise-memory-info'],viewport:VP,deviceScaleFactor:2,hasTouch:true,timezoneId:TZ,recordVideo:{dir:OUT+'/tmp-'+tag,size:VP}});
++ctx=await chromium.launchPersistentContext(path.join(__dirname,process.env.PROF||'prof'),{executablePath:process.env.QF_CHROMIUM_EXECUTABLE,args:['--autoplay-policy=no-user-gesture-required','--enable-precise-memory-info'],viewport:VP,deviceScaleFactor:2,hasTouch:true,timezoneId:TZ,...(process.env.NOVIDEO==='1'?{}:{recordVideo:{dir:OUT+'/tmp-'+tag,size:VP}})});
+ p=ctx.pages()[0]||await ctx.newPage();M('ctxEpoch',ctxEpoch);
+ await p.addInitScript((SEED)=>{globalThis.__worldFlowLog=true;try{const k='dot-mainline-r1-isolated-20261009:forest-v3-completed';if(!localStorage.getItem(k)&&!localStorage.getItem('dot-mainline-r1-isolated-20261009:forest-v33-journey'))localStorage.setItem(k,SEED);}catch(e){}
+  window.__vis=[];document.addEventListener('visibilitychange',()=>window.__vis.push([Date.now(),performance.now(),document.visibilityState]));window.__navEpoch=Date.now()-performance.now();},process.env.SEED||'12');
+@@ -24,7 +24,8 @@
+ const sleep=ms=>p.waitForTimeout(ms);const ev=(f,a)=>p.evaluate(f,a).catch(e=>'ERR '+e.message);
+ const st=()=>ev(()=>{try{return __worldIntegration.snapshot().state}catch(e){return 'NA'}});
+ const waitSt=async(s,to)=>{const a=Date.now();while(Date.now()-a<to){if(await st()===s)return true;await sleep(250)}return false};
+-const shot=n=>p.screenshot({path:OUT+'/'+tag+'_'+n+'.png'}).catch(()=>{});
++let window_sampling=false;const NOSHOT=process.env.NOSHOT==='1';/* r5 G1 perf runs: no page.screenshot while the journey/level-loading is sampled (each one stalls the page 17-50 ms) */
++const shot=n=>(NOSHOT&&window_sampling)?Promise.resolve():p.screenshot({path:OUT+'/'+tag+'_'+n+'.png'}).catch(()=>{});
+ const nodes=()=>p.evaluate(async()=>{const {director,UITransform,Label}=await System.import('cc');const W=innerWidth,H=innerHeight,out=[];const visit=(n,d)=>{if(!n.activeInHierarchy)return;const t=n.getComponent(UITransform);if(t){const own=n.getComponent(Label);const bb=t.getBoundingBoxToWorld();out.push({n:n.name,d,l:own?own.string:'',x:+(bb.x+W/2).toFixed(1),y:+(H/2-bb.y-bb.height).toFixed(1),w:+bb.width.toFixed(1),h:+bb.height.toFixed(1)});}for(const c of n.children)visit(c,d+1)};visit(director.getScene(),0);return out;}).catch(e=>[]);
+ const tapNode=async(name,filt)=>{const N=await nodes();const n=N.filter(x=>x.n===name&&(!filt||filt(x))).sort((a,b)=>b.w*b.h-a.w*a.h)[0];if(!n){M('noNode',name);return false}const pt={x:n.x+n.w/2,y:n.y+n.h/2};await p.touchscreen.tap(pt.x,pt.y);M('tap',{name,pt,epoch:Date.now()});return true;};
+ const labels=async()=>(await nodes()).filter(n=>n.l).map(n=>n.l);
+@@ -35,8 +36,9 @@
+ const perf=(ms)=>ev(async(ms)=>{const cc=await System.import('cc');const d=cc.director,dev=d.root.device;const s=[];const h=()=>{s.push([dev.numDrawCalls,dev.numTris,performance.now()])};d.on(cc.Director.EVENT_AFTER_DRAW,h);await new Promise(r=>setTimeout(r,ms));d.off(cc.Director.EVENT_AFTER_DRAW,h);const dc=s.map(x=>x[0]).sort((a,b)=>a-b),tr=s.map(x=>x[1]).sort((a,b)=>a-b);const ms_=s.length>1?(s[s.length-1][2]-s[0][2]):1;const mem=performance.memory?performance.memory.usedJSHeapSize:null;const ms2=dev.memoryStatus||{};return {frames:s.length,fps:+((s.length-1)/ms_*1000).toFixed(1),dcMed:dc[dc.length>>1],dcMax:dc[dc.length-1],trisMed:tr[tr.length>>1],heapMB:mem&&+(mem/1048576).toFixed(1),texMB:ms2.textureSize!=null?+(ms2.textureSize/1048576).toFixed(1):null,bufMB:ms2.bufferSize!=null?+(ms2.bufferSize/1048576).toFixed(1):null}},ms);
+ const startSampler=(cap)=>ev(async(cap)=>{const cc=await System.import('cc');const d=cc.director,dev=d.root.device;window.__smp=[];window.__cap=[];let after=0;const cv=document.createElement('canvas');cv.width=390;cv.height=Math.round(390*cc.game.canvas.height/cc.game.canvas.width);const cx=cv.getContext('2d');
+  window.__smpH=()=>{let j=null;try{j=__worldIntegration.journey()}catch(e){}const m2=dev.memoryStatus||{};const s=(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})();const sc=cc.director.getScene();
+-  const cams={};for(const c of sc.getComponentsInChildren(cc.Camera)){if(!c.enabledInHierarchy||/UI|Navigation/.test(c.node.name))continue;const p=c.node.worldPosition;cams[c.node.name]=[+c.fov.toFixed(2),+p.x.toFixed(3),+p.y.toFixed(3),+p.z.toFixed(3),c.priority]}
+-  let sun=null;const L=sc.getComponentsInChildren(cc.DirectionalLight).filter(l=>l.enabledInHierarchy);if(L.length){const f=L[0].node.forward;sun=[L[0].node.name,+f.x.toFixed(3),+f.y.toFixed(3),+f.z.toFixed(3)]}
++  if(!window.__lc||window.__lcN++>=30||window.__lcS!==s){window.__lcN=0;window.__lcS=s;window.__lc=[sc.getComponentsInChildren(cc.Camera),sc.getComponentsInChildren(cc.DirectionalLight)];}/* r5 G1: no full-scene walk per frame */
++  const cams={};for(const c of window.__lc[0]){if(!c.enabledInHierarchy||/UI|Navigation/.test(c.node.name))continue;const p=c.node.worldPosition;cams[c.node.name]=[+c.fov.toFixed(2),+p.x.toFixed(3),+p.y.toFixed(3),+p.z.toFixed(3),c.priority]}
++  let sun=null;const L=window.__lc[1].filter(c=>c&&c.isValid).filter(l=>l.enabledInHierarchy);if(L.length){const f=L[0].node.forward;sun=[L[0].node.name,+f.x.toFixed(3),+f.y.toFixed(3),+f.z.toFixed(3)]}
+   const now=performance.now();window.__smp.push([now,dev.numDrawCalls,dev.numTris,j?+(+j.distance).toFixed(2):null,j?j.total:null,j?j.phase:null,s,performance.memory?performance.memory.usedJSHeapSize:null,m2.textureSize??null,m2.bufferSize??null,cams,sun,window.__skyW??null]);
+   if(cap){const near=j&&j.total&&(j.total-j.distance)<2.5;const on=(near||s==='lakeside'||s==='level-loading'||s==='level'||(j&&j.phase==='arrived'));if(s==='level')after++;if(on&&after<25&&window.__cap.length<400){try{cx.drawImage(cc.game.canvas,0,0,cv.width,cv.height);window.__cap.push([now,s,j?j.phase:null,Object.keys(cams).join('+'),cv.toDataURL('image/jpeg',0.85)])}catch(e){}}}};
+  d.on(cc.Director.EVENT_AFTER_DRAW,window.__smpH);return 'ok'},cap);
+@@ -58,7 +60,7 @@
+ M('lightIsland',await light());if(!process.env.QUICK)M('perfIsland',await perf(3000));await shot('island');
+ const ENTRY=process.env.ENTRY||'chapter';M('mainlineNext',await ev(()=>{try{const s=__worldIntegration.mainline();return JSON.stringify({next:s.nextStageId,active:s.active&&s.active.stageId})}catch(e){return 'ERR'}}));
+ if(ENTRY==='chapter'){await tapNode('Island-journal');await sleep(2000);await tapNode('Chapter-'+REGION);await sleep(2000);M('chapterTexts',await labels());await shot('chapter');}
+-const tStart=await ev(()=>performance.now());await startSampler(CAP);
++const tStart=await ev(()=>performance.now());window_sampling=true;await startSampler(CAP);
+ await ev(()=>{const w=globalThis.__worldDayNight;if(w&&w.skyFollow&&!w.__wrapped){const o=w.skyFollow;w.skyFollow=(t,x,f)=>{window.__skyW=x;window.__skyF=f;return o(t,x,f)};w.__wrapped=1}return !!w});
+ if(ENTRY==='chapter'){await tapNode('Continue-'+REGION);M('tapContinue');}else{const q=await ev(()=>__worldIntegration.layout().targets.mainline);M('mainlineTarget',q);if(q&&q.x){await p.touchscreen.tap(q.x,q.y);M('tapMainline',{q,epoch:Date.now()});}}
+ const jshots=[[8,'j08'],[16,'j16'],[24,'j24'],[30,'j30'],[36,'j36']];let ji=0;let ll=0;const a0=Date.now();let lastSt='',lastPh='';const skyT=[0.6,0.8,0.95];let si=0;let bgDone=false;let tLevel=null;let labelsDone=false;
+@@ -70,7 +72,7 @@
+  if(BG&&!bgDone&&j&&j.phase==='arrival'){bgDone=true;await hideShow(BG);}
+  if(mode==='fail'&&s==='island'&&Date.now()-a0>1500){await sleep(600);await shot('fail_toast');M('failLabels',await labels());break;}
+  const b=await ev(()=>{const b=__worldIntegration.board();return b&&b.snapshot&&b.snapshot.active?b.snapshot.active.stageId:null});if(b&&s==='level'){M('board',b);tLevel=Date.now();break;}if(s==='level-loading'&&!ll){ll=1;M('llmark');}await sleep(80);}
+-await sleep(300);const SS=await stopSampler();const smp=SS.smp||[];fs.writeFileSync(OUT+'/'+tag+'_journey_samples.json',JSON.stringify(smp));
++await sleep(300);const SS=await stopSampler();window_sampling=false;const smp=SS.smp||[];fs.writeFileSync(OUT+'/'+tag+'_journey_samples.json',JSON.stringify(smp));
+ if(CAP&&SS.cap){const d=OUT+'/'+tag+'_cap';fs.mkdirSync(d,{recursive:true});const idx=[];SS.cap.forEach((c,i)=>{fs.writeFileSync(d+'/c'+String(i).padStart(3,'0')+'.jpg',Buffer.from(c[4].split(',')[1],'base64'));idx.push([i,+c[0].toFixed(1),c[1],c[2],c[3]])});fs.writeFileSync(d+'/index.json',JSON.stringify(idx));M('capN',idx.length);}
+ M('entryFrames',await frStats(tStart));
+ // swap frame: first sample in state level (or LakesideBackgroundCamera / board camera present)

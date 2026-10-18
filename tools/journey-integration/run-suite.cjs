@@ -57,6 +57,7 @@ const tests=[
  ['meadow-night-sky','tools/test_meadow_night_sky.cjs'],
  ['wind-audio','tools/voice-bot/wind/test_wind_audio.cjs'],
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
+ ['region-board-staging','tools/meadow/test_region_board_staging.cjs'],/* r5 G1: meadow / sky-city board work spread over level-loading */
  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
  ['world-background-freeze','tools/journey-integration/test-world-background-freeze.cjs'],
  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
