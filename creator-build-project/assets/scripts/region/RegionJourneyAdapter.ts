@@ -22,6 +22,7 @@ import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor, usesRainbowBridge} from './JourneyTransport';
+import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
 import {SAIL_I6,sailBeats,sailBerthWorld,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,sailVehicle,seatFromBench} from './TransportLeg';
 import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_PORT_STEP_LOCAL} from './SailLanding';
 import {createSailDriver,playSailBeats} from './SailRide';
@@ -65,14 +66,12 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
   async prepare(from,to,start,token,progress){
    if(to==='lakeside')return prepareLakesideJourney(options.parent,options.camera,from,start,token,progress);
    if(to==='skycity'&&transportFor(from,to)==='balloon'){
-    let dropped=false;
-    const work=mountBalloonLease({parent:options.parent,meadow:mounted.get('meadow')??null,start,token,progress}).then(lease=>{if(dropped){lease.dispose();throw Error('balloon-dropped');}if(lease.model)mounted.set('skycity',lease.model);return lease;});
-    const timeout=new Promise<never>((_,reject)=>{const id=setTimeout(()=>reject(Error('balloon-timeout')),6000);token.onCancel(()=>clearTimeout(id));});
-    try{return await Promise.race([work,timeout]);}
-    catch(error){dropped=true;if(token.cancelled)throw error;}
+    const waited=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled,load:()=>mountBalloonLease({parent:options.parent,meadow:mounted.get('meadow')??null,start,token,progress})});
+    const lease=waited.value;if(lease.model)mounted.set('skycity',lease.model);return lease;
    }
    const def=REGIONS[to];if(!def||to==='island')throw Error('journey-region-unavailable');
-   const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
+   const sailWait=to==='meadow'&&from==='island'&&transportFor(from,to)==='sail';
+   const prefab=sailWait?(await awaitVehicle({kind:'sail',cancelled:()=>token.cancelled,load:()=>waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token,VEHICLE_ASSET_WAIT_MS)})).value:await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
    let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null,sailArt:SailArt|null=null;

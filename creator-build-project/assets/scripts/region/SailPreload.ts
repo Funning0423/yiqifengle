@@ -1,26 +1,25 @@
 import {Node} from 'cc';
 import {REGIONS,loadRegionPrefab,mountRegion} from './RegionLoader';
-import {noteSailPreloadFallback} from './JourneyTransport';
+import {awaitVehicle} from './TransportWait';
 /** Meadow art warmed while mainline-04 is on screen. The rig stays inactive (0 DC) until the sail adopts it.
- * A 6 s timeout records a bridge fallback and does not block the board. */
-const TIMEOUT_S=6;
+ * A slow or failed load retries on the sail. It does not switch the journey to the rainbow bridge. */
 let warm:Node|null=null;
 let warming:Promise<void>|null=null;
 export function sailWarmNode():Node|null{return warm;}
 export function takeSailWarm():Node|null{const n=warm;warm=null;if(n?.parent)n.parent.removeChild(n);return n;}
 export function resetSailWarm():void{warm=null;warming=null;}
 export function preloadMeadowForSail(parent:Node):Promise<void>{
- if(warm||warming)return warming||Promise.resolve();
- const started=Date.now();
- warming=new Promise<void>((ok)=>{
-  const timer=setTimeout(()=>{if(!warm)noteSailPreloadFallback('timeout-6s');ok();},TIMEOUT_S*1000);
-  loadRegionPrefab(REGIONS.meadow).then(prefab=>{
-   if(Date.now()-started>TIMEOUT_S*1000){noteSailPreloadFallback('timeout-6s');clearTimeout(timer);ok();return;}
+ if(warm)return Promise.resolve();
+ if(warming)return warming;
+ const job=awaitVehicle({
+  kind:'sail',
+  load:async()=>{
+   const prefab=await loadRegionPrefab(REGIONS.meadow);
+   if(warm)return warm;
    const rig=new Node('SailWarm-meadow');rig.active=false;parent.addChild(rig);
-   const model=mountRegion(REGIONS.meadow,prefab,rig);model.active=true;warm=model;
-   clearTimeout(timer);ok();
-  },(error)=>{noteSailPreloadFallback(String(error&&error.message||error));clearTimeout(timer);ok();});
- });
- return warming;
+   const model=mountRegion(REGIONS.meadow,prefab,rig);model.active=true;warm=model;return model;
+  },
+ }).then(()=>{},(error)=>{if(warming===job)warming=null;try{console.warn('[QF_SAIL] '+JSON.stringify({event:'preload-retry-exhausted',transport:'sail',reason:String((error as Error)?.message||error)}));}catch{/* ignore */}});
+ warming=job;
+ return job;
 }
-export const SAIL_PRELOAD_TIMEOUT_S=TIMEOUT_S;
