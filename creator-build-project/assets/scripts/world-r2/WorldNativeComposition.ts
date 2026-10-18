@@ -8,6 +8,7 @@ import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
 import { qaTransportEnabled } from '../region/JourneyTransport';
+import {lakesideReachEnabled,lakesideSideOrder} from '../region/LakesideReach';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
 import { createNativeWorldLevelAdapter } from './NativeWorldLevelAdapter';
@@ -153,6 +154,8 @@ export class WorldNativeComposition extends Component {
     const commands=this.world!.commands();
     let current=commands.snapshot().journey?.region||'island';
     if(current===target&&!commands.snapshot().journey?.target)return {ok:true};
+    const spur=lakesideSideOrder(current,target);
+    if(spur){while(current!==target){const next=spur[spur.indexOf(current)+1] as JourneyRegion;const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;}return {ok:true};}
     // 风铃湖畔 is a side branch off the island (island→lakeside, LakesideCameraLayout.lakesideJourney). It is not a mainline
     // campaign region (its r04-lake-* stages are gated by CampaignHost.inspectSelection in selectProvider/enterSelectedLevel).
     if(target!=='lakeside'){const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;}
@@ -229,6 +232,16 @@ export class WorldNativeComposition extends Component {
     if(commands.snapshot().state==='island'){const meadow=await commands.travelRegion('meadow');if(!meadow.ok)return meadow;}
     try{const q=typeof location!=='undefined'?String(location.search||''):'';const forced=/(?:^|[?&])balloonNight=([01])/.exec(q);if(forced)await (globalThis as any).__worldDayNight?.set?.(forced[1]==='1'?'night':'day');else if(q.includes('night=1'))await commands.toggleDayNight();}catch{}
     return commands.travelRegion('skycity');
+  }
+  /** Web / QA only (`?lakeside=1`). Meadow → lakeside → meadow. WeChat release ignores it. No on-screen text. */
+  async previewLakesideReach():Promise<Result>{
+    if(!lakesideReachEnabled()||!qaTransportEnabled())return {ok:false,reason:'lakeside-reach-off'};
+    if(!this.world)return {ok:false,reason:'world-not-ready'};
+    const commands=this.world.commands();
+    if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
+    if(commands.snapshot().state==='island'){const meadow=await commands.travelRegion('meadow');if(!meadow.ok)return meadow;}
+    const there=await this.ensureRegion('lakeside');if(!there.ok)return there;
+    return this.ensureRegion('meadow');
   }
   /** Web / QA only (`?meadowGameplay=1`). Stand in the live meadow without starting the balloon transit. */
   async previewMeadowGameplay():Promise<Result>{

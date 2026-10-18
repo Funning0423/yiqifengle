@@ -1,4 +1,5 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
+import {lakesideReachEnabled} from '../region/LakesideReach';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
@@ -20,10 +21,15 @@ export function remainingRoute(path:readonly Vec[],distance:number):Vec[] {
 export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  if(!route.path||route.path.length<2||route.path.some(p=>p.length!==3||p.some(n=>!Number.isFinite(n))))throw Error('journey-invalid-path');
  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
- if(!((route.from==='island'&&(route.to==='meadow'||route.to==='lakeside'))||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
+ if(!journeyRegionOrderOk(route.from,route.to))throw Error('journey-region-order');
  if(route.timing!==undefined&&!journeyTimingOk(routeLength(route.path),route.timing))throw Error('journey-invalid-timing');
  if(route.board!==undefined&&!journeyBoardEndOk(route.board,routeLength(route.path)))throw Error('journey-invalid-board-end');
  if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
+}
+/** Shipped legs: island→meadow, island→lakeside, meadow→skycity. Meadow↔lakeside exists only while `?lakeside=1` is on. */
+function journeyRegionOrderOk(from:string,to:string):boolean{
+ if((from==='island'&&(to==='meadow'||to==='lakeside'))||(from==='meadow'&&to==='skycity'))return true;
+ return lakesideReachEnabled()&&((from==='meadow'&&to==='lakeside')||(from==='lakeside'&&to==='meadow'));
 }
 /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
  * smoothed walking heading), so a bridge that turns keeps the lens behind her. Numbers are checked by
