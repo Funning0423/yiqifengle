@@ -45,6 +45,14 @@ function skybox(node:Node|null):void{
 function showBothSides(root:Node):void{
  eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;try{m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);}catch{/* unlit pass */}}});
 }
+/** Drop shadow passes during the transit — city + clouds otherwise push DC past 53. */
+function noShadow(root:Node|null):void{
+ if(!root)return;
+ eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){
+  try{r.shadowCastingMode=MeshRenderer.ShadowCastingMode.OFF;}catch{}
+  try{(r as any).receiveShadow=0;}catch{}
+ }});
+}
 function setEmissive(root:Node,night:boolean):void{
  const black=new Color(0,0,0,255);
  eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;
@@ -133,12 +141,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   if(!balloonPrefab)throw Error('balloon-art-missing');
   balloonPrefab.addRef();owned.push({destroy(){balloonPrefab.decRef();}});
   const vehicle=mountVehicle(balloonPrefab,rig);
-  showBothSides(vehicle);
+  showBothSides(vehicle);noShadow(vehicle);
   const cloudsPrefab=await loadTransitPrefab('transit_clouds_merged');
   if(!cloudsPrefab)throw Error('balloon-clouds-missing');
   cloudsPrefab.addRef();owned.push({destroy(){cloudsPrefab.decRef();}});
   const clouds=instantiate(cloudsPrefab);clouds.name='transit_clouds_merged';rig.addChild(clouds);
-  showBothSides(clouds);
+  showBothSides(clouds);noShadow(clouds);
   const nightPrefab=await loadTransitPrefab('transit_night_dome');
   let nightDome:Node|null=null;
   if(nightPrefab){nightPrefab.addRef();owned.push({destroy(){nightPrefab.decRef();}});nightDome=instantiate(nightPrefab);nightDome.name='transit_night_dome';rig.addChild(nightDome);nightDome.active=false;skybox(nightDome);}
@@ -229,14 +237,15 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(isValid(meadow,true))meadow.active=meadowOn;
    if(model){
     model.active=cityOn;
-    // DC: keep always-hidden + pre-islet rocks off; after islets-on still hide the always list.
-    showNamed(model,ISLET_NODES,cityOn&&t>=ISLETS_ON_T);
+    if(cityOn)noShadow(model);
+    // DC: hide always-list, card islets (keep rock islets from 21.5), strata until land approach.
     showNamed(model,ALWAYS_HIDDEN,false);
-    // Extra city mesh culling while approaching: hide strata underside until near land to cut DC.
-    if(cityOn&&t<31){
-     eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=t>=31;});
-    }else if(cityOn){
-     eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=true;});
+    showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
+    showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3','env_sky_islets_far'],cityOn&&t>=ISLETS_ON_T);
+    eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=cityOn&&t>=31;});
+    // Hide far static foliage cards while cruising — they add DCs without reading at 48° FOV.
+    if(cityOn&&t<33){
+     eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage/.test(n.name))n.active=false;});
     }
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
