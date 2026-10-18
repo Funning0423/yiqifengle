@@ -2,13 +2,14 @@ import {Animation, Camera, MeshRenderer, Node, Vec3, director} from 'cc';
 /** Web/QA only (`?sailqa=1`). Release pages never set the flag, so this records nothing. */
 const GIRL='FLOW_REFERENCE_PLACEHOLDER_NOT_B';
 export type SailQaSnap={
- t:number;beat:string;phase:string;
+ t:number;real:number;beat:string;phase:string;departed:boolean;
  girl:number[]|null;girlActive:boolean;girlRenderers:number;parent:string;
  boat:number[]|null;yaw:number;roll:number;
  cam:number[]|null;aim:number[]|null;fov:number;near:number;far:number;
  seas:Array<{name:string;y:number;active:boolean;enabled:boolean}>;
  clip:string;rate:number;
  cockpit:number[][];
+ clear:number[];
 };
 function find(node:Node|null,name:string):Node|null{
  if(!node)return null;if(node.name===name)return node;
@@ -28,7 +29,7 @@ export function armSailQa():void{
 export function pushSailCue(name:string,t:number):void{
  const g=(globalThis as any).__sailQa;if(!g)return;g.cues.push(name+'@'+t.toFixed(3));
 }
-export function pushSailFrame(partial:{t:number;beat:string;phase:string;yaw:number;roll:number;boat:Node|null;pose:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number}}):void{
+export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:string;yaw:number;roll:number;boat:Node|null;pose:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number};departed?:boolean}):void{
  const g=(globalThis as any).__sailQa;if(!g)return;
  const scene=director.getScene();
  const girl=find(scene,GIRL);
@@ -55,8 +56,10 @@ export function pushSailFrame(partial:{t:number;beat:string;phase:string;yaw:num
    cam.worldToScreen(w,out);cockpit.push([+out.x.toFixed(1),+out.y.toFixed(1)]);
   }
  }
- const snap:SailQaSnap={
-  t:+partial.t.toFixed(4),beat:partial.beat,phase:partial.phase,
+   let clear=[0,0,0];
+   try{const col=cam?.clearColor;if(col)clear=[col.r,col.g,col.b];}catch{/* camera has no clearColor */}
+   const snap:SailQaSnap={
+  t:+partial.t.toFixed(4),real:+(partial.real??partial.t).toFixed(4),beat:partial.beat,phase:partial.phase,departed:!!partial.departed,
   girl:gp?[+gp.x.toFixed(3),+gp.y.toFixed(3),+gp.z.toFixed(3)]:null,
   girlActive:!!girl?.activeInHierarchy,girlRenderers:renderers,parent:pathOf(girl),
   boat:bp?[+bp.x.toFixed(3),+bp.y.toFixed(3),+bp.z.toFixed(3)]:null,
@@ -64,6 +67,7 @@ export function pushSailFrame(partial:{t:number;beat:string;phase:string;yaw:num
   cam:cam?[+cam.node.worldPosition.x.toFixed(3),+cam.node.worldPosition.y.toFixed(3),+cam.node.worldPosition.z.toFixed(3)]:null,
   aim:[+partial.pose.target[0].toFixed(3),+partial.pose.target[1].toFixed(3),+partial.pose.target[2].toFixed(3)],
   fov:partial.pose.fovVerticalDeg||cam?.fov||0,near:cam?.near||0,far:cam?.far||0,
+  clear,
   seas,clip,rate,cockpit,
  };
  g.frames.push(snap);

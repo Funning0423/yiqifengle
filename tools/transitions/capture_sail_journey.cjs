@@ -70,15 +70,23 @@ function serve(root){
  const dumped=await page.evaluate(()=>window.__sailQa||{frames:[],cues:[]});
  fs.writeFileSync(path.join(FRAMES,'probe.json'),JSON.stringify({cues:dumped.cues,frames:dumped.frames}));
  fs.writeFileSync(path.join(FRAMES,'shots.json'),JSON.stringify(index));
- const cols=['frame','t','beat','phase','gx','gy','gz','girlActive','girlRenderers','parent','boatx','boaty','boatz','yaw','roll','cx','cy','cz','ax','ay','az','fov','near','far','clip','rate','seas'];
+ const cols=['frame','t','real','beat','phase','departed','gx','gy','gz','girlActive','girlRenderers','parent','boatx','boaty','boatz','yaw','roll','cx','cy','cz','fov','near','far','clip','rate','cockpit','clear','seas'];
  const lines=[cols.join(',')];
  (dumped.frames||[]).forEach((f,n)=>{
-  const g=f.girl||['','',''],b=f.boat||['','',''],c=f.cam||['','',''],a=f.aim||['','',''];
+  const g=f.girl||['','',''],b=f.boat||['','',''],c=f.cam||['','',''];
   const seas=(f.seas||[]).map(s=>s.name+':'+s.y+':'+(s.active?1:0)+':'+(s.enabled?1:0)).join('|');
-  lines.push([n,f.t,f.beat,f.phase,g[0],g[1],g[2],f.girlActive?1:0,f.girlRenderers,JSON.stringify(f.parent||''),b[0],b[1],b[2],f.yaw,f.roll,c[0],c[1],c[2],a[0],a[1],a[2],f.fov,f.near,f.far,JSON.stringify(f.clip||''),f.rate,JSON.stringify(seas)].join(','));
+  const cockpit=(f.cockpit||[]).map(p=>p.join(':')).join('|');
+  const clear=(f.clear||[]).join(':');
+  lines.push([n,f.t,f.real,f.beat,f.phase,f.departed?1:0,g[0],g[1],g[2],f.girlActive?1:0,f.girlRenderers,f.parent||'',b[0],b[1],b[2],f.yaw,f.roll,c[0],c[1],c[2],f.fov,f.near,f.far,f.clip||'',f.rate,cockpit,clear,seas].join(','));
  });
  const csvName='metrics_'+tag+(night?'-night':'')+'.csv';
  fs.writeFileSync(path.join(OUT,csvName),lines.join('\n'));
  console.log(JSON.stringify({tag,night,shots,frames:(dumped.frames||[]).length,cues:dumped.cues,csv:csvName,framesDir:FRAMES}));
+ const py=path.join(__dirname,'analyze_sail_pixels.py');
+ if(fs.existsSync(py)){
+  const {spawnSync}=require('node:child_process');
+  const pix=spawnSync('python3',[py,FRAMES,path.join(OUT,csvName)],{stdio:'inherit'});
+  if(pix.status)process.exit(pix.status||1);
+ }
  await browser.close();server.close();
 })().catch(e=>{console.error(e);process.exit(1);});

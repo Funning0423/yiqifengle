@@ -49,7 +49,7 @@ export function createSailDriver(opts:{
  const seated=()=>attached&&(beatAt(opts.timeline,t).id==='S-c'||beatAt(opts.timeline,t).id==='S-d'||beatAt(opts.timeline,t).id==='S-e');
  const emitCrossed=(prevT:number,nextT:number)=>{
   for(const b of opts.timeline.beats){
-   if(!b.cue||fired.has(b.id))continue;
+   if(!b.cue||fired.has(b.id)||b.cue==='sail-board')continue;
    if(b.t0>prevT+1e-4&&b.t0<=nextT+1e-4){fired.add(b.id);emitTransit(b.cue as any,{t:nextT,region:'meadow',id:b.id});pushSailCue(b.cue,nextT);}
   }
   const sd=opts.timeline.beats.find(b=>b.id==='S-d')!;
@@ -66,7 +66,7 @@ export function createSailDriver(opts:{
   emitCrossed(prevT,t);
   const v=sailVehicle(opts.timeline,opts.route,t);
   if(opts.boat)placeBoat(opts.boat,v.pos,v.yaw,v.roll);
-  if(seated()&&opts.rider){opts.rider.setPosition(0,0.04,0);opts.rider.setRotationFromEuler(0,0,0);}
+  if(seated()&&opts.rider){opts.rider.setPosition(0,0,0);opts.rider.setRotationFromEuler(0,0,0);}
   const pose=sailCamera(opts.timeline,opts.route,t,viewSize());
   opts.art?.sync(v,pose.position,dt,sailNight(),pose.target);
  };
@@ -77,12 +77,13 @@ export function createSailDriver(opts:{
   get arrivalU(){return arrivalU;},
   get departed(){return departAt!=null;},
   bindRider(node:Node){opts.rider=node;opts.riderHome=node.parent;},
+  markBoard(){if(fired.has('S-b'))return;fired.add('S-b');emitTransit('sail-board',{t,region:'meadow',id:'S-b'});pushSailCue('sail-board',t);},
   /** Sit has finished. Attach her to the seat, then let the hull leave. `budget` is real seconds for S-c..S-e. */
   depart(budget:number){
    if(departAt!=null)return;
    motionBudget=budget;
    if(!opts.rider||!opts.seat){console.error('[QF_SAIL] cannot depart: rider or seat missing');throw Error('sail-rider-missing');}
-   attachRider(opts.rider,opts.seat);opts.rider.setPosition(0,0.04,0);attached=true;
+   attachRider(opts.rider,opts.seat);opts.rider.setPosition(0,0,0);attached=true;
    departAt=real;
   },
   releaseRider(){if(attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}},
@@ -105,11 +106,11 @@ export function createSailDriver(opts:{
     const pose=followCam(arrivalPath,arrivalU,arrivalFrom,board);
     const boat=sailVehicle(opts.timeline,opts.route,opts.timeline.build05S);
     opts.art?.sync(boat,pose.position,dt,sailNight(),pose.target);
-    if(sailQaEnabled())pushSailFrame({t:arrivalElapsed,beat:'arrival',phase,yaw:boat.yaw,roll:boat.roll,boat:opts.boat,pose});
+    if(sailQaEnabled())pushSailFrame({t:arrivalElapsed,real,beat:'arrival',phase,yaw:boat.yaw,roll:boat.roll,boat:opts.boat,pose,departed:departAt!=null});
     return pose;
    }
    const pose=sailCamera(opts.timeline,opts.route,t,v);
-   if(sailQaEnabled()){const sv=sailVehicle(opts.timeline,opts.route,t);pushSailFrame({t,beat:beatAt(opts.timeline,t).id,phase,yaw:sv.yaw,roll:sv.roll,boat:opts.boat,pose});}
+   if(sailQaEnabled()){const sv=sailVehicle(opts.timeline,opts.route,t);pushSailFrame({t,real,beat:beatAt(opts.timeline,t).id,phase,yaw:sv.yaw,roll:sv.roll,boat:opts.boat,pose,departed:departAt!=null});}
    return pose;
   },
   get fade(){return fade;},
@@ -129,6 +130,7 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  const walk=(path:Vec[],stop:boolean)=>{const L=pathLen(path);const duration=Math.max(0.35,L/1.2);return actor.perform({kind:'walk',path,duration,stopAtEnd:stop} as any,token);};
  const board=[...plan.approach,plan.deck,plan.sit.position as unknown as Vec];
  await walk(board,true);
+ driver.markBoard();
  await actor.perform({kind:'sit',seat:plan.sit},token);
  const standS=actor.actionSeconds?.('stand')||1.2;
  const offS=Math.max(0.35,pathLen(plan.disembark)/1.2);

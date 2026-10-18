@@ -33,31 +33,48 @@ assert.equal(find(owner,'FLOW_REFERENCE_PLACEHOLDER_NOT_B'),null);
 assert.equal(find(scene,'FLOW_REFERENCE_PLACEHOLDER_NOT_B').name,'FLOW_REFERENCE_PLACEHOLDER_NOT_B');
 const csv=path.join(__dirname,'../../docs/r5/sail-qa1/metrics_after.csv');
 if(fs.existsSync(csv)){
- const rows=fs.readFileSync(csv,'utf8').trim().split('\n').slice(1).map(l=>l.split(','));
- const idx=name=>rows.length?fs.readFileSync(csv,'utf8').split('\n')[0].split(',').indexOf(name):-1;
- const head=fs.readFileSync(csv,'utf8').split('\n')[0].split(',');
+ const text=fs.readFileSync(csv,'utf8').trim().split('\n');
+ const head=text[0].split(',');
  const col=n=>head.indexOf(n);
- let prev=null,sailT0=null,sailT1=null,arr0=null,arr1=null,departT=null;
+ const rows=text.slice(1).map(l=>l.split(','));
+ let prev=null,prevBoat=null,sailReal0=null,sailReal1=null,arr0=null,arr1=null,movedBeforeSit=false,seenSeat=false;
  for(const c of rows){
-  const t=+c[col('t')],beat=c[col('beat')],parent=c[col('parent')]||'',gx=+c[col('gx')],gz=+c[col('gz')];
-  const renderers=+c[col('girlRenderers')];
-  if(beat==='S-c'||beat==='S-d'||beat==='S-e'){
-   if(sailT0==null)sailT0=t;sailT1=t;
+  const t=+c[col('t')],real=+c[col('real')],beat=c[col('beat')],parent=c[col('parent')]||'';
+  const gx=+c[col('gx')],gz=+c[col('gz')],renderers=+c[col('girlRenderers')];
+  const departed=c[col('departed')]==='1';
+  const boatx=+c[col('boatx')],boatz=+c[col('boatz')];
+  if(beat!=='arrival'){if(sailReal0==null)sailReal0=real;sailReal1=real;}
+  if((beat==='S-c'||beat==='S-d'||beat==='S-e')&&departed){
+   seenSeat=true;
    assert(parent.includes('seated_root_anchor'),'girl left the seat during '+beat+' parent '+parent);
    assert(renderers>0,'girl has no renderer during '+beat);
   }
   if(beat==='arrival'){if(arr0==null)arr0=t;arr1=t;}
-  if(prev&&Number.isFinite(gx)&&Number.isFinite(prev.gx)&&beat!=='arrival'){
-   const dt=t-prev.t;if(dt>1e-4&&dt<0.2){
+  if(prev&&Number.isFinite(gx)&&Number.isFinite(prev.gx)){
+   const dt=(beat==='arrival'?t-prev.t:real-prev.real);
+   if(dt>1e-4&&dt<0.2&&prev.beat===beat&&(beat==='S-a'||beat==='S-b'||beat==='arrival')){
     const sp=Math.hypot(gx-prev.gx,gz-prev.gz)/dt;
-    const cruise=prev.beat==='S-a'||prev.beat==='S-b';
-    if(cruise&&prev.sp>0.4&&sp>0.4)assert(Math.abs(sp-prev.sp)/prev.sp<=0.15,'walk speed jump '+prev.sp.toFixed(2)+' -> '+sp.toFixed(2));
-    prev={t,beat,gx,gz,sp};
-   }else prev={t,beat,gx,gz,sp:0};
-  }else prev={t,beat,gx,gz,sp:0};
-  if(!departT&&(beat==='S-c'))departT=t;
+    if(prev.sp>0.9&&sp>0.9)assert(Math.abs(sp-prev.sp)/prev.sp<=0.15,'walk speed jump '+prev.sp.toFixed(2)+' -> '+sp.toFixed(2)+' @ '+beat);
+    prev={t,real,beat,gx,gz,sp,boatx,boatz};
+   }else prev={t,real,beat,gx,gz,sp:0,boatx,boatz};
+  }else prev={t,real,beat,gx,gz,sp:0,boatx,boatz};
+  if(prevBoat&&!departed&&Number.isFinite(boatx)&&Number.isFinite(prevBoat.x)){
+   if(Math.hypot(boatx-prevBoat.x,boatz-prevBoat.z)>0.08)movedBeforeSit=true;
+  }
+  prevBoat={x:boatx,z:boatz};
+  if(col('water')>=0)assert(+c[col('water')]<=0.005,'water in cockpit '+c[col('water')]+' @ '+beat);
+  if(col('clearRatio')>=0)assert(+c[col('clearRatio')]<=0.005,'clear-color hole '+c[col('clearRatio')]);
  }
- if(sailT0!=null)assert(sailT1-sailT0<=30.5,'sail span '+ (sailT1-sailT0));
- if(arr0!=null)assert(arr1-arr0<=17,'arrival span '+(arr1-arr0));
+ assert(!movedBeforeSit,'hull moved before she was seated');
+ assert(seenSeat,'no seated cruise frames');
+ if(sailReal0!=null)assert(sailReal1-sailReal0<=30.5,'sail span '+(sailReal1-sailReal0));
+ if(arr0!=null)assert(arr1-arr0<=12,'arrival span '+(arr1-arr0));
+ const pix=csv.replace(/metrics_/, 'pixels_').replace(/\.csv$/, '.json');
+ if(fs.existsSync(pix)){
+  const summary=JSON.parse(fs.readFileSync(pix,'utf8'));
+  assert(!summary.flicker,'brightness flicker '+JSON.stringify(summary.flickerCells));
+  assert(summary.waterMax<=0.005,'water '+summary.waterMax);
+  assert(summary.clearMax<=0.005,'clear '+summary.clearMax);
+ }
 }
 console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3)}));

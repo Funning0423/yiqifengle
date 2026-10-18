@@ -152,7 +152,7 @@ export function sailVehicle(tl:SailTimeline,route:readonly Vec[],t:number):SailP
  const pos=samplePoly(route,Math.min(tl.speed.length,distM));
  const yaw=heading(route,Math.min(tl.speed.length,distM));
  const roll=t>=sd.t0&&t<se.t0?Math.sin((t-sd.t0)/3.2*Math.PI*2)*4*Math.PI/180:0;
- const bob=t>=tl.beats[1].t0&&t<sc.t0?Math.sin(t*2)*0.02:0;
+ const bob=0;
  return {pos:[pos[0],pos[1]+bob,pos[2]],yaw,roll,sail:sailOpen,speed,distance:distM};
 }
 export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{
