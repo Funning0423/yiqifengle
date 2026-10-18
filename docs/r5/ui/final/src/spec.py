@@ -26,7 +26,18 @@ TIERS = {  # 档位：N 常规 / C 紧凑 / M 矮屏（奖励放宝箱右侧）/
     'M': dict(top=56, star=(48, 40), starRow=48, g1=8,  score=40, g2=8,  chest=104, badge=48, g3=16, btnH=52, side=True,  inline=False),
     'X': dict(top=56, star=(32, 24), starRow=0,  g1=0,  score=40, g2=8,  chest=104, badge=48, g3=16, btnH=52, side=True,  inline=True),
 }
-ORDER = ['N', 'C', 'M', 'X']
+TIERS['N2'] = dict(TIERS['N'], g2=16, badge=56, g3=16)   # 开箱后高度修正（§3.5）：N 放不下时先收紧 N 的留白和徽章，再降到 C
+TIERS['CS'] = dict(TIERS['C'], side=True)                     # C 的星和宝箱，奖励放宝箱右侧（开箱后不再往上加徽章带）
+TIERS['XS'] = dict(TIERS['X'], top=48, chest=88, g3=8, btnH=44, rows=True)   # 极矮压缩：奖励按「图标 32 + 14 pt 名字」横行排
+for _t in TIERS.values(): _t.setdefault('rows', False)
+ORDER = ['N', 'N2', 'C', 'CS', 'M', 'X', 'XS']
+ROW_ICON, ROW_NAME_W, ROW_GAP = 32, 49, 6
+LID_OVERHANG = 0.10   # 打开态盖子超出闭合箱体右沿的量（RT 方框边的比例，render_chest_rt 实测 (565−500)/640）   # XS 横行：图标、名字列宽（14 pt「星光 ×2」）、间距
+CARD_GAP = 8      # 开箱后面板（含标题木牌）上沿离关卡卡片下沿的最小距离（PM 2026-10-18 15:32）
+def card_bottom(W, H):
+    """关卡卡片（BoardLayout.boardLayout(...).plate，竖屏）下沿 = plate.y + plate.height/2，y 向下。"""
+    d = json.load(open(LAYOUTS))['%dx%d' % (W, H)]; b = d.get('board_real') or d['board_fb']; p = b['plate']
+    return p['y'] + p['height'] / 2
 
 def chest_geo(cw):
     ch = cw * CHEST_ASPECT; F = cw / FRAME_K
@@ -40,7 +51,7 @@ def chest_rows(t, n_side):
         band = t['badge'] + 8 + NAME_LINE if n_side else 0
         rho = ceil8(band + 8 + g['lid'] + g['h'] / 2) if n_side else max(rhc, ceil8(g['lid'] + g['h'] / 2))
     else:
-        col = 2 * (side_badge(t, 2) + 4 + NAME_LINE) + 8   # 右侧一列总按 2 件留高（开箱前不知道箱里几件）
+        col = 2 * ROW_ICON + 8 if t['rows'] else 2 * (side_badge(t, 2) + 4 + NAME_LINE) + 8   # 右侧一列总按 2 件留高（开箱前不知道箱里几件）
         rho = max(ceil8(g['lid'] + g['h'] / 2), ceil8(col))
     return rhc, rho, g
 
@@ -66,16 +77,18 @@ def frame(W, H, safe=None, n_side=1):
     s = safe or safe_for(W, H); cap = s.get('capsule') or {}
     T = max(s['top'], cap.get('bottom', 0)); B = s['bottom']
     pw = min(round(680 * popup_scale(W, H)), W - s['left'] - s['right'] - 24)
-    A = H - T - B - 2 * MARGIN
+    card = card_bottom(W, H)
+    top_lim = max(T + MARGIN, card + CARD_GAP); bot_lim = H - B - MARGIN   # 面板上沿 / 下沿的界限
+    A = bot_lim - top_lim
     tier = None
     for k in ORDER:
         if heights(TIERS[k], 'win', n_side)[1] <= A: tier = k; break
-    return dict(W=W, H=H, T=T, B=B, A=A, pw=pw, ci=pw - 2 * C, tier=tier or 'pages', safe=s)
+    return dict(W=W, H=H, T=T, B=B, A=A, card=card, top_lim=top_lim, bot_lim=bot_lim, pw=pw, ci=pw - 2 * C, tier=tier or 'pages', safe=s)
 
 def layout(W, H, kind='win', state='open', n_side=1, names=('潮汐网',), safe=None, icons=('r2/tool_tidenet',)):
     """返回所有节点（屏幕坐标 pt，y 向下）。kind: win/lose/unsaved/readonly；state: closed/open（win）。"""
     n_side = min(n_side, 3); f = frame(W, H, safe, n_side); tk = f['tier'] if f['tier'] != 'pages' else 'X'; t = TIERS[tk]
-    pw, ci = f['pw'], f['ci']; band_top, band_bot = f['T'] + MARGIN, f['H'] - f['B'] - MARGIN
+    pw, ci = f['pw'], f['ci']; band_top, band_bot = f['top_lim'], f['bot_lim']
     if kind == 'win':
         hc, ho = heights(t, 'win', n_side); h = ho if state == 'open' else hc
         cy_open = (band_top + band_bot) / 2; cy_open = max(band_top + ho / 2, min(cy_open, band_bot - ho / 2))
@@ -117,7 +130,9 @@ def layout(W, H, kind='win', state='open', n_side=1, names=('潮汐网',), safe=
     if kind == 'win':
         rhc, rho, g = chest_rows(t, n_side); rh = rho if state == 'open' else rhc
         row_top = y; row_bot = y + rh; ccy = row_bot - g['h'] / 2; k = g['k']
-        group = g['w'] + 16 + 72 if (t['side'] and state == 'open' and n_side) else g['w']
+        sidew = ROW_ICON + ROW_GAP + ROW_NAME_W if t['rows'] else 72
+        sgap = min(16 + round(LID_OVERHANG * g['frame']), ci - g['w'] - sidew)   # 打开的盖子向右伸出约 0.10F，右列要让开
+        group = g['w'] + sgap + sidew if (t['side'] and state == 'open' and n_side) else g['w']
         ccx = -group / 2 + g['w'] / 2 if group != g['w'] else 0
         add('ResultChestRow', 0, y + rh / 2, ci, rh)
         if state == 'open':
@@ -140,6 +155,12 @@ def layout(W, H, kind='win', state='open', n_side=1, names=('潮汐网',), safe=
                     bx = (i - (n_side - 1) / 2) * colW
                     add('ResultFloat-%d' % i, bx, row_top + b / 2, b, b, badge=True, icon=icons[i % len(icons)])
                     add('ResultRewardName-%d' % i, bx, row_top + b + 8 + NAME_LINE / 2, colW - 4, NAME_LINE, text=names[i % len(names)], fs=16, role='brown', bold=True)
+            elif t['rows']:
+                n2 = min(n_side, 2); x0 = group / 2 - sidew; blk = n2 * ROW_ICON + (n2 - 1) * 8; y0 = row_top + (rh - blk) / 2
+                for i in range(n2):
+                    add('ResultFloat-%d' % i, x0 + ROW_ICON / 2, y0 + ROW_ICON / 2, ROW_ICON, ROW_ICON, badge=True, icon=icons[i % len(icons)])
+                    add('ResultRewardName-%d' % i, x0 + ROW_ICON + ROW_GAP + ROW_NAME_W / 2, y0 + ROW_ICON / 2, ROW_NAME_W, NAME_LINE, text=names[i % len(names)], fs=14, role='brown', bold=True, align='left')
+                    y0 += ROW_ICON + 8
             else:
                 n2 = min(n_side, 2); b = side_badge(t, n2); colx = group / 2 - 36; blk = n2 * (b + 4 + NAME_LINE) + (n2 - 1) * 8; y0 = row_top + (rh - blk) / 2
                 for i in range(n2):
@@ -167,7 +188,7 @@ def table():
         rows.append(dict(screen='%dx%d' % (W, H), safe=('真机行' if f['safe']['real'] else '无 wx 兜底'), T=f['T'], B=f['B'], A=f['A'],
                          scale=round(popup_scale(W, H), 4), pw=f['pw'], ci=f['ci'], tier=f['tier'], h_closed=hc, h_open=ho, h_lose=hl,
                          top_open=round(o['panel']['top'], 1), top_closed=round(c['panel']['top'], 1), bottom=round(o['panel']['bottom'], 1),
-                         lose_top=round(l['panel']['top'], 1), gap_bottom=round(H - f['B'] - o['panel']['bottom'], 1), gap_top=round(o['panel']['top'] - f['T'], 1),
+                         lose_top=round(l['panel']['top'], 1), card=f['card'], gap_card=round(o['panel']['top'] - f['card'], 1), gap_bottom=round(H - f['B'] - o['panel']['bottom'], 1), gap_top=round(o['panel']['top'] - f['T'], 1),
                          btn_w=round((f['ci'] - BTN_GAP) / 2, 1)))
     return rows
 if __name__ == '__main__':

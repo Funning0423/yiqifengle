@@ -102,7 +102,9 @@ def draw_result(W, H, kind='win', state='open', night=False, rewards=None, press
         elif nm == 'ResultChestFloor': floor(c, x, y, w, night)
         elif nm == 'ResultChest3D': put(c, mul(chest_rt('open' if state == 'open' else 'closed', w), kh), x, y)
         elif nm.startswith('ResultFloat-'): badge(c, x, y, w, n['icon'], night)
-        elif nm.startswith('ResultRewardName-'): text(c, n['text'], x, y, 16, T['brown'], True)
+        elif nm.startswith('ResultRewardName-'):
+            if n.get('align') == 'left': text(c, n['text'], x - w / 2, y, n.get('fs', 16), T['brown'], True, 'lm')
+            else: text(c, n['text'], x, y, n.get('fs', 16), T['brown'], True)
         elif nm.startswith('Btn-'): button(c, n['button'], x, y, w, h, n['text'], night, pressed == n['text'])
     return c, L
 
@@ -127,6 +129,8 @@ def redline(c, L, W, H):
         d.text(((x0 + x1) / 2 * S, (y - 4) * S), lab, font=F, fill=col, anchor='mb')
     vm(px1 + 4, P['bottom'], H - f['B'], '%.1f（≥16）' % (H - f['B'] - P['bottom']))
     vm(px1 + 4, f['T'], P['top'], '%.1f（≥16）' % (P['top'] - f['T']))
+    hl(f['card'], (230, 120, 20, 255), '关卡卡片下沿 %.0f' % f['card'], px0 + 100, px1 - 20)
+    vm(px0 + 34, f['card'], P['top'], '%.1f（≥8）' % (P['top'] - f['card']))
     btn = [n for n in L['nodes'] if n['name'].startswith('Btn-')]
     b0 = btn[0]; inner_b = P['bottom'] - 23; bb = b0['y'] + b0['h'] / 2 + 6
     vm(b0['x'], bb, inner_b, '%.0f' % (inner_b - bb))
