@@ -56,6 +56,7 @@ const tests=[
  ['result-float-lift','tools/board-ui/test_result_float_lift.cjs'],
  ['meadow-night-sky','tools/test_meadow_night_sky.cjs'],
  ['wind-audio','tools/voice-bot/wind/test_wind_audio.cjs'],
+ ['scene-audio-transitions','tools/voice-bot/bgm/test_scene_audio_transitions.cjs'],
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
  ['world-background-freeze','tools/journey-integration/test-world-background-freeze.cjs'],

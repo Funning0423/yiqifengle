@@ -656,7 +656,7 @@ export class GameAudio extends Component {
   /** Explicit path without extension, relative to `bundle` (null/omitted = resources, the original behaviour).
    * null path intentionally stops music. A missing asset is an observable error, never a successful silent fallback.
    * v0.4: while the current track is audibly playing, a different track crossfades in (SCENE_XFADE_S) once it is confirmed playing. */
-  setMusic(path: string | null, bundle?: string | null, opts?: { fadeIn?: boolean } | null) {
+  setMusic(path: string | null, bundle?: string | null, opts?: { fadeIn?: boolean; xfadeS?: number } | null) {
     if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
     const bundleName = bundle ? String(bundle) : null;
     if (path === this.musicPath && bundleName === this.musicBundle && (this.musicStatus === 'loading' || this.musicStatus === 'ready')) {
@@ -689,9 +689,11 @@ export class GameAudio extends Component {
     this.startPending = false;
     this.musicRequestedAt = GameAudio.now(); this.musicLoadedAt = null;
     // v0.5 进房淡入：只在没有旧曲在播（不是切场景交叉）时生效；第一次确认在播后开始 ROOM_FADE_IN_S 的等功率淡入。
+    // 区域过渡可传 opts.xfadeS（SceneAudioTable.SCENE_AUDIO_CROSSFADE_S = 2）；不传仍是 SCENE_XFADE_S（1.5）。
+    const requestedFade = opts && Number.isFinite(Number(opts.xfadeS)) ? Math.max(0.2, Math.min(4, Number(opts.xfadeS))) : SCENE_XFADE_S;
     this.musicFadeInRequested = !!(path && opts && opts.fadeIn && !crossfade);
     if (this.musicFadeInRequested) { this.sceneFadeIn = true; this.sceneFadeAt = null; this.sceneFadeS = ROOM_FADE_IN_S; }
-    else if (crossfade) this.sceneFadeS = SCENE_XFADE_S;
+    else if (crossfade) this.sceneFadeS = requestedFade;
     else { this.sceneFadeIn = false; this.sceneFadeAt = null; this.sceneFadeS = SCENE_XFADE_S; }
     this.applyMusicGains();
     if (!path) return;

@@ -34,6 +34,12 @@ export function ambienceBedGain(slider: number, transition = 1): number {
 function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 
 /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+/** 未发布场景表时沿用旧行为（风开着）。草原 / 室内 / 天空之城把 wind 关掉。 */
+function sceneWindAllowed(): boolean {
+  const g = (globalThis as any).__sceneAudioBed;
+  return !g || typeof g !== 'object' || g.wind !== false;
+}
+
 function musicBed(): number {
   const audio: any = GameAudio.instance;
   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
@@ -260,6 +266,12 @@ export class WindAudio extends Component {
   update(dt: number) {
     if (!this.alive) return;
     this.locate(dt);
+    if (!sceneWindAllowed()) {
+      this.s = 0; this.sWind = 0; this.gust = -1; this.quietFor = IDLE_PAUSE_S;
+      AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0);
+      this.pauseLoops();
+      return;
+    }
     const g = this.gustValue(dt);
     const allowed = this.allowed();
     this.gate(allowed ? 'ok' : !GameAudio.instance ? 'no-gameaudio' : !GameAudio.instance.canPlayAmbience() ? 'gameaudio:' + ((GameAudio.instance as any).ambienceGate?.() ?? '?') : !this.flow ? 'no-flow' : 'world-hidden');

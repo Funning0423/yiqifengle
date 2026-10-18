@@ -9,7 +9,7 @@ const path = require('path'), fs = require('fs'), Module = require('module'), cr
 const ROOT = path.resolve(__dirname, '../../..'), P = path.join(ROOT, 'creator-build-project'), S = path.join(P, 'assets/scripts');
 const ts = require(process.env.QF_TYPESCRIPT_MODULE || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript');
 const tr = f => ts.transpileModule(fs.readFileSync(path.join(S, f), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true, downlevelIteration: false } }).outputText;
-const CODE = { 'world-r2/LevelRegion.ts':tr('world-r2/LevelRegion.ts'), 'audio/GameAudio.ts': tr('audio/GameAudio.ts'), 'audio/SceneMusic.ts': tr('audio/SceneMusic.ts') };
+const CODE = { 'world-r2/LevelRegion.ts':tr('world-r2/LevelRegion.ts'), 'audio/SceneAudioTable.ts': tr('audio/SceneAudioTable.ts'), 'audio/GameAudio.ts': tr('audio/GameAudio.ts'), 'audio/SceneMusic.ts': tr('audio/SceneMusic.ts') };
 let fail = 0, pass = 0; const ok = (c, m, d) => { console.log((c ? 'PASS ' : 'FAIL ') + m + (d === undefined ? '' : ' ' + JSON.stringify(d))); if (c) pass++; else fail++; };
 const near = (a, b, e) => Math.abs(a - b) <= e;
 
@@ -42,7 +42,7 @@ function world(opts = {}) {
     game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, sys: { localStorage: { getItem: k => store.has(k) ? store.get(k) : null, setItem: (k, v) => store.set(k, String(v)) } },
     input, Input: { EventType: { TOUCH_END: 'touch', MOUSE_UP: 'mouse', KEY_DOWN: 'key' } } };
   const mods = {};
-  const req = from => id => { if (id === 'cc') return cc; const key = { './GameAudio': 'audio/GameAudio.ts', '../world-r2/LevelRegion':'world-r2/LevelRegion.ts' }[id]; if (!key) throw Error('unexpected import ' + id + ' from ' + from); return load(key); };
+  const req = from => id => { if (id === 'cc') return cc; const key = { './GameAudio': 'audio/GameAudio.ts', './SceneAudioTable': 'audio/SceneAudioTable.ts', '../world-r2/LevelRegion':'world-r2/LevelRegion.ts' }[id]; if (!key) throw Error('unexpected import ' + id + ' from ' + from); return load(key); };
   function load(key) { if (mods[key]) return mods[key].exports; const m = new Module(key); m.filename = path.join(S, key); m.paths = []; mods[key] = m; m.require = req(key); m._compile(CODE[key], m.filename); return m.exports; }
   const GA = load('audio/GameAudio.ts'), SM = load('audio/SceneMusic.ts');
   GA.GameAudio.now = () => now;
@@ -284,7 +284,7 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
   snap.snap = { state: 'level', stable: 'level' }; w.scene.byName.ManagedMobileBoardUI = [board]; pres = { provider: 'regional-r05', active: { region: 'meadow' } };
   w.step(0.3);
   ok(w.bundleLoads.length === 2 && w.bundleLoads[1].n === 'region_meadow' && w.a.musicDiagnostics().path === 'audio/bgm_meadow', 'meadow region board -> setMusic(audio/bgm_meadow, region_meadow)');
-  ok(w.a.musicDiagnostics().sceneCrossfade.fadingOut && w.a.musicDiagnostics().sceneCrossfade.xfadeS === 1.5, 'scene switch still uses the 1.5 s crossfade (no room fade-in flag)');
+  ok(w.a.musicDiagnostics().sceneCrossfade.fadingOut && w.a.musicDiagnostics().sceneCrossfade.xfadeS === 2, 'scene switch uses the 2 s region crossfade (no room fade-in flag)');
   w.bundleLoads[1].cb(new Error('missing'), null); w.step(0.3);
   ok(w.a.musicDiagnostics().path === ISL.p && w.a.musicDiagnostics().bundle === ISL.b, 'meadow BGM unavailable -> falls back to island BGM (cached audio_bgm_island bundle)');
   w.step(2); ok(w.bundleLoads.length === 2, 'fallback is sticky for this visit (no retry loop)');
