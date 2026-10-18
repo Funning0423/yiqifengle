@@ -89,3 +89,13 @@ tripwire in test-journey-background-audio still demands that no timing.json and 
 - the four shipped mp3s
 - `sail_mix_waveform.png`
 - `build_sail_audio.py`
+
+## Suite
+run-suite.cjs on the committed branch (Node 20.19.2): 118 passed.
+- PASS: journey-background-audio, production-integrity, exit-cine-audio, es5-iterator-spread, transport-sail and
+  asset-budget.
+- The only non-passing checks also fail or are blocked on the baseline:
+  - region-nodes-data and lens-clearance FAIL;
+  - legacy-board-ui-pure and reward-background-return are BLOCKED (need Node ≥ 22.6);
+  - navigation-guard is BLOCKED (no browser).
+- retry-protection, which fails on the baseline, passed in this run.
