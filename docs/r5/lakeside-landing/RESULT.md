@@ -92,7 +92,17 @@ v1 审计只检查了“气球放不放得下”，没有检查脚下有没有�
 ## 5. 预览（Blender 4.5 EEVEE，585×1266；女孩模型见下）
 - 女孩模型：`creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb`。工作区 blob `f94800dc7d2829b81ad368992ffd8b8a6958761c`，和 **bc81575f** 里的完全一样。
 - 注意：manifest 里记的这个 GLB 已经过期（1426060 B / 136489…），实际是 3584600 B / bb37efb5…，属于基线漂移，见 §7。
-- 图片清单和看图结论见 §6。
+- 图片在 `v2/`：
+  - `pair_k0…k8.png`：左边 e9dffc0、右边 v2，按时间比例对齐；
+  - `contact.png`：总览。
+- 看图：
+  - k0：t = 0，她站在 S6 的树根间；
+  - k1：t = 4 s，走路中，系泊的气球在岛边；
+  - k2：8.3 s，快到岛边；
+  - k3：10.2 s，淡入后已经在空中，她在篮里；
+  - k4–k5：14–19 s，俯瞰湖面、桥和湖心岛，气球全程在画面里；
+  - k6：24 s，下降；
+  - k7–k8：29–30 s，落在 E。旧的这一段镜头在树干里、篮子是空的、终点朝下看。
 
 ## 6. 热气球落地后：A / B（390×844 棋盘视角，她站在岸边）
 - **A 系在岸边、在棋盘画面外**：
@@ -101,7 +111,10 @@ v1 审计只检查了“气球放不放得下”，没有检查脚下有没有�
   - 离几何 ≥ 0.49 m；
   - 落地点要跟着改到系泊点，她再走到岸边，或者在落地混合里把气球挪过去。
 - **B 落地后飘走**：她下篮后，热气球 2 s 内升到 2.5 m，5 s 升到 8 m 并往湖心漂 2 m，9 s 升到 18 m、漂 6 m，然后从画面上方离开。
-- 渲染：`optA_board`、`optA_turn+35`、`optA_turn-35`、`optB_float1..3`、`optB_board_after`，合成图 `AB_board_390x844.png`。
+- 渲染：`optA_board`、`optA_turn-35`（往她右边转 35°）、`optB_float1..3`、`optB_board_after`，合成图 `AB_board_390x844.png`。每张图的说明里都写了用的 GLB（bc81575f，blob f94800dc）和代码提交 e72a0468。
+- 看图：
+  - A 的棋盘画面里只有她、桥和湖，往右转 35° 后热气球就停在岸边的草地上。
+  - B 的 +2 s 篮子在画面上沿，+5 s 起已经出画。棋盘画面最后和 A 一样干净。
 
 ## 7. manifest
 - v1 的 `--write`（changed 71 / added 266 / removed 3）**已全部撤回**，两个 manifest 回到 `e9dffc01` 的版本。
@@ -119,8 +132,16 @@ v1 审计只检查了“气球放不放得下”，没有检查脚下有没有�
   - `tools/lakeside-landing-cam/test_sampleroute_change.cjs`：两万条随机折线 × 401 个采样点，共 802 万次，新旧对比。只有终点前 1e-12 m 的采样点会不同，共 2 万次，最大差 1.7e-12 m。其他全部相同。
   - 所有区域的旅程测试都通过了：小岛、草甸、天空之城、湖边。run-suite 里涉及的项是 journey-types / occlusion / framing / start-continuity / lifecycle、region-journey-flow / host / entry / reentry / landing-hook / transit-background-resume、world-region-exit 等。另外 `tools/test_region_journey.cjs` 8/8、`test_lakeside_reach` 5/5 都通过。
 
-## 9. 测试
-见最终汇报。只有 navigation-guard 报 BLOCKED_BROWSER；lens-clearance 是环境问题，`/workspace/yiqifengle/r5-region-nodes-r3/maps/topmap.cjs` 在箱子上不存在。
+## 9. 测试（HEAD e72a0468，QF_TYPESCRIPT_MODULE=/tmp/qfts/node_modules/typescript，node 22）
+- `run-suite.cjs`：123 项里 121 项 PASS，含 journey-types，也就是 loose-ES5 的 TS 检查。
+  - navigation-guard：BLOCKED_BROWSER，允许。
+  - lens-clearance：FAIL，环境问题。
+  - region-transport-flag：提交前报 “adapter bytes drifted from HEAD”，提交后 PASS。
+- 另外单跑：
+  - `test_region_journey` 8/8；
+  - `test_lakeside_reach` 5/5；
+  - `test_sampleroute_change` PASS。
+- `test_manifests`：FAIL，453 条全部是基线漂移，见 §7。只有 navigation-guard 报 BLOCKED_BROWSER；lens-clearance 是环境问题，`/workspace/yiqifengle/r5-region-nodes-r3/maps/topmap.cjs` 在箱子上不存在。
 
 ## 10. 还要拍板的
 1. 系泊点用 [−8, .58, 53.5]（比要求往西 1 m）可以吗？登篮放在淡黑里、黑场里跳过 9 s 起飞，可以接受吗？
