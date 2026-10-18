@@ -38,5 +38,12 @@
  "mode": "day",
  "char_glb": "/workspace/yiqifengle/previews/角色动画bot/r5-wrist-footik/final/chr_b_r5g2_r5wrist_v4_final.glb",
  "island_glb": "bc81575f:creator-project/assets/firstslice/combined_visual_m.glb",
- "anim": "walk_loop@8"
+ "anim": "walk_loop@8",
+ "light": {
+  "sun": 1.9,
+  "sky": 0.6,
+  "view_transform": "Standard",
+  "exposure": 0.0,
+  "look": "None"
+ }
 }

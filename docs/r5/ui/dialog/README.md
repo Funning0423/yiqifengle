@@ -5,7 +5,8 @@
 
 > **2026-10-18 底图更正（覆盖下文 §0–§2 的底图说明和实测数）**：原来的底图 `evidence-mac/.../near/native/11-return-7s.jpg` 是 r4 时期在 1ee4a7f7 上拍的旧模型，不是当前基线，已停用（`src/scene_390_clean.png` 已删，`src/clean_scene.py` 作废）。`compare_390x844.jpg`、`compare_375x667.jpg` 已用 Blender 新渲的底图重出并覆盖：
 > 角色 GLB `/workspace/yiqifengle/previews/角色动画bot/r5-wrist-footik/final/chr_b_r5g2_r5wrist_v4_final.glb`，场景源 SHA `bc81575f`（`creator-project/assets/firstslice/combined_visual_m.glb` + `combined_anchors_m.json`），机位是游戏回家跟拍 `TRANSITION_CAMERA.returnFollow.out`（女孩背对镜头，position / target 见 `final/raw/bg/bg_*_day.json`）。两种屏都是真渲染，不再有合成图。
-> 新底图上重测（`src/measure.json`）：390×844 吐司和帽子重叠 3.0 pt，A / B 离女孩都是 35.0 pt；**375×667 上 A 只有 6.2 pt、B 3.2 pt，都不到 13**——对比稿固定 2 行、内边距偏大。定稿（`final/`）改成按离女孩的距离算每页行数，375 上 2 行、离女孩 15.2 pt，见 `final/IMPLEMENT.md` §5。
+> 新底图上重测（`src/measure.json`）：390×844 吐司和帽子重叠 3.0 pt，A / B 离女孩都是 35.0 pt；**375×667 上 A 只有 6.2 pt、B 3.2 pt，都不到 13**——对比稿固定 2 行、内边距偏大。定稿（`final/`）改成按离女孩的距离算每页行数，375 上 2 行、离女孩 14.2 pt（尾巴放大到 26×13 后），见 `final/IMPLEMENT.md` §5。
+> 2026-10-18 再更正：白天底图光照改为 sun 1.9 / 天空 0.6 / Standard（原 3.2 / 0.9 裙子过曝），两张对比图已重出；见 `../RESULT.md`「小修」一节。
 
 
 > 2026-10-18 · 棋盘UI美术bot。这一轮只出对比图给用户选方向：**不写代码，不出定稿和切图**。

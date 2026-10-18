@@ -60,10 +60,16 @@ if MODE == 'night':
     bg.inputs['Color'].default_value = (0.10, 0.16, 0.32, 1); bg.inputs['Strength'].default_value = 0.55
     sun.energy = 0.9; sun.color = (0.62, 0.72, 1.0)
 else:
-    bg.inputs['Color'].default_value = (0.70, 0.84, 1.0, 1); bg.inputs['Strength'].default_value = 0.9
-    sun.energy = 3.2; sun.color = (1.0, 0.97, 0.92)
+    # 白天（2026-10-18 修正）：原 sun 3.2 / 天空 0.9 + Standard → 黄裙子 88% 像素削顶。
+    # 先试 AgX（光照不变）：不削顶了，但整体发灰（全图饱和度 104→75）、裙子褪成米黄 → 按退路改为
+    # Standard + sun 1.9 / 天空 0.6（全图饱和度 107，裙子削顶 0%，亮/暗/褶皱分得开）。SUN/SKY/VIEW/EXPOSURE 环境变量可覆盖，复现对照用。
+    bg.inputs['Color'].default_value = (0.70, 0.84, 1.0, 1); bg.inputs['Strength'].default_value = float(os.environ.get('SKY', '0.6'))
+    sun.energy = float(os.environ.get('SUN', '1.9')); sun.color = (1.0, 0.97, 0.92)
 sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = int(os.environ.get('SAMPLES', '48')); sc.cycles.use_denoising = True
-sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'None'
+# 视图变换：夜间保持 Standard 不动；白天最终也是 Standard（AgX 发灰，见上），VIEW=AgX / EXPOSURE=-1 可复现对照。
+if MODE == 'night': sc.view_settings.view_transform = 'Standard'; sc.view_settings.exposure = 0.0
+else: sc.view_settings.view_transform = os.environ.get('VIEW', 'Standard'); sc.view_settings.exposure = float(os.environ.get('EXPOSURE', '0'))
+sc.view_settings.look = 'None'
 sc.render.resolution_x = round(W * SC); sc.render.resolution_y = round(H * SC); sc.render.resolution_percentage = 100
 sc.render.filepath = OUT; sc.render.image_settings.file_format = 'PNG'
 from bpy_extras.object_utils import world_to_camera_view
@@ -79,6 +85,7 @@ hp = world_to_camera_view(sc, cam, B((root[0], 1.45, root[1])))
 info = dict(W=W, H=H, scale=SC, progress=Q, s_m=round(s, 3), route_len_m=round(L, 3), girl_root=[round(root[0], 4), 0, round(root[1], 4)], girl_yaw_deg=round(math.degrees(yaw), 2),
             camera=dict(position=[round(v, 4) for v in cam_pos], target=[round(v, 4) for v in cam_tgt], fovVerticalDeg=RIG['fov'], rig='TRANSITION_CAMERA.returnFollow.out' + (' + targetHeight %+.2f m (对话镜头建议)' % float(os.environ.get('TARGET_DY', '0')) if os.environ.get('TARGET_DY') else '')),
             girl_bbox_pt=[round(v, 1) for v in bbox], girl_head_pt=[round(hp.x * W, 1), round((1 - hp.y) * H, 1)], mode=MODE, char_glb=CHAR,
-            island_glb='bc81575f:creator-project/assets/firstslice/combined_visual_m.glb', anim='walk_loop@8' if act else 'bind')
+            island_glb='bc81575f:creator-project/assets/firstslice/combined_visual_m.glb', anim='walk_loop@8' if act else 'bind',
+            light=dict(sun=round(sun.energy, 3), sky=round(bg.inputs['Strength'].default_value, 3), view_transform=sc.view_settings.view_transform, exposure=sc.view_settings.exposure, look=sc.view_settings.look))
 json.dump(info, open(os.path.splitext(OUT)[0] + '.json', 'w'), indent=1, ensure_ascii=False); print('INFO', json.dumps(info, ensure_ascii=False))
 bpy.ops.render.render(write_still=True); print('DONE', OUT)

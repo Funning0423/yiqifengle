@@ -19,7 +19,8 @@
   "top": 672,
   "h": 122,
   "tail_x": 194.9,
-  "gap_girl": 22.1,
+  "tail": "30×15",
+  "gap_girl": 22.0,
   "gap_safe": 16,
   "camera_needed": false
  },
@@ -33,8 +34,8 @@
   "x0": 14.0,
   "bottom": 846,
   "girl_bottom": 674.1,
-  "keep": 699.1,
-  "avail": 146.9,
+  "keep": 702.1,
+  "avail": 143.9,
   "fit": 3,
   "max_lines": 3,
   "pages": [
@@ -43,7 +44,8 @@
   "top": 724,
   "h": 122,
   "tail_x": 206.8,
-  "gap_girl": 36.4,
+  "tail": "30×15",
+  "gap_girl": 34.9,
   "gap_safe": 16,
   "camera_needed": false
  },
@@ -68,6 +70,7 @@
   "top": 634,
   "h": 96,
   "tail_x": 179.9,
+  "tail": "30×15",
   "gap_girl": 31.2,
   "gap_safe": 16,
   "camera_needed": false
@@ -82,8 +85,8 @@
   "x0": 14.0,
   "bottom": 617,
   "girl_bottom": 501.8,
-  "keep": 526.8,
-  "avail": 90.2,
+  "keep": 527.8,
+  "avail": 89.2,
   "fit": 2,
   "max_lines": 2,
   "pages": [
@@ -93,7 +96,8 @@
   "top": 529,
   "h": 88,
   "tail_x": 187.4,
-  "gap_girl": 15.2,
+  "tail": "26×13",
+  "gap_girl": 14.2,
   "gap_safe": 16,
   "camera_needed": false
  },
@@ -107,8 +111,8 @@
   "x0": 14.0,
   "bottom": 470,
   "girl_bottom": 391.2,
-  "keep": 416.2,
-  "avail": 53.8,
+  "keep": 417.2,
+  "avail": 52.8,
   "fit": 0,
   "max_lines": 1,
   "pages": [
@@ -119,7 +123,8 @@
   "top": 406,
   "h": 64,
   "tail_x": 194.9,
-  "gap_girl": 2.8,
+  "tail": "26×13",
+  "gap_girl": 1.8,
   "gap_safe": 16,
   "camera_needed": true
  },
@@ -145,6 +150,7 @@
   "top": 454,
   "h": 64,
   "tail_x": 159.9,
+  "tail": "26×13",
   "gap_girl": 10.8,
   "gap_safe": 16,
   "camera_needed": true
@@ -159,8 +165,8 @@
   "x0": 144.0,
   "bottom": 974,
   "girl_bottom": 770.4,
-  "keep": 795.4,
-  "avail": 178.6,
+  "keep": 798.4,
+  "avail": 175.6,
   "fit": 5,
   "max_lines": 3,
   "pages": [
@@ -169,7 +175,8 @@
   "top": 878,
   "h": 96,
   "tail_x": 383.8,
-  "gap_girl": 95.6,
+  "tail": "30×15",
+  "gap_girl": 92.6,
   "gap_safe": 16,
   "camera_needed": false
  }

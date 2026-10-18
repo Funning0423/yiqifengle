@@ -25,7 +25,7 @@ def rtri(w, h, rt=2.6, base_y=0.0, down=False, strip=0.0, sw=0.0):
     tip = (0, base_y + h); L = (-w/2, base_y); R = (w/2, base_y)
     # 尖角倒圆：在两条斜边上离尖 rt*1.6 处切开，中间用圆弧
     import math as m
-    ang = m.atan2(h, w/2); d = rt / m.tan((m.pi - 2 * ang) / 2 + 1e-6) if False else rt * 1.8
+    ang = m.atan2(h, w/2); d = rt * 1.8
     def lerp(a, b, t): return (a[0] + (b[0]-a[0]) * t, a[1] + (b[1]-a[1]) * t)
     ln = ((w/2) ** 2 + h ** 2) ** .5; t = d / ln
     pR = lerp(tip, R, t); pL = lerp(tip, L, t); arc = []
@@ -59,16 +59,22 @@ def mk(name, pts, t, sw, bevel, seg=3, rot=0):
     if rot: xform(bm, rot=[('Z', rot)])
     o = finish(bm, name, sw, bevel, seg, 30); return o
 os.makedirs(OUT, exist_ok=True)
-# 1) 气泡：可见 108×108 pt，圆角 30，厚 6，倒角 3（3 段）；画布四周各留 12 pt 给投影 → 132×132 pt = 396 px
-b = mk('bubble', rr(108, 108, 30, 16), 6, 'plaster', 3.0, 4); shot('bubble_9s', b, 132, 132)
-# 2) 小尾巴：底宽 22、高 12、圆尖；底下带一条宽 60 的平板（裁图后只留 5 pt 平面，盖在气泡平面上不露接缝）
-for nm, rot in (('tail_up', 0), ('tail_left', 90), ('tail_right', -90)):
-    o = mk(nm, rtri(22, 12, strip=10, sw=60), 6, 'plaster', 3.0, 4, rot)
-    if rot == 0: shot(nm, o, 34, 34, 0, 4)
-    else: shot(nm, o, 34, 34, -4 if rot == 90 else 4, 0)
-# 3) 名字胶囊：外圈（奶油）40×32 r16；里面白底 36×28 r14（代码按角色色乘色）。各留 6 pt 投影边
-o = mk('pill_rim', rr(40, 32, 16, 12), 4, 'plaster', 1.6, 3); shot('name_pill_rim_3s', o, 52, 52)
-o = mk('pill_fill', rr(36, 28, 14, 12), 4.5, 'white', 1.4, 3); shot('name_pill_fill_3s', o, 52, 52)
+ONLY = os.environ.get('ONLY', '')   # ONLY=tail：只重渲尾巴（2026-10-18 尾巴放大修正）
+if ONLY in ('', 'bubble'):
+    # 1) 气泡：可见 108×108 pt，圆角 30，厚 6，倒角 3（3 段）；画布四周各留 12 pt 给投影 → 132×132 pt = 396 px
+    b = mk('bubble', rr(108, 108, 30, 16), 6, 'plaster', 3.0, 4); shot('bubble_9s', b, 132, 132)
+if ONLY in ('', 'tail'):
+    # 2) 小尾巴（修正版）：底宽 30、高 15（390 常规档原大；紧凑档代码缩到 0.867 = 26×13）、尖角小圆 1.6；
+    #    倒角 2（比气泡的 3 小，尾巴小，倒角大了尖会被磨成小鼓包）；底下带一条宽 80 的平板（裁图后只留 5 pt 平面盖在气泡上）
+    for nm, rot in (('tail_up', 0), ('tail_left', 90), ('tail_right', -90)):
+        o = mk(nm, rtri(30, 15, rt=1.6, strip=10, sw=80), 6, 'plaster', 2.0, 4, rot)
+        if rot == 0: shot(nm, o, 44, 44, 0, 5)
+        else: shot(nm, o, 44, 44, -5 if rot == 90 else 5, 0)
+if ONLY in ('', 'pill'):
+    # 3) 名字胶囊：外圈（奶油）40×32 r16；里面白底 36×28 r14（代码按角色色乘色）。各留 6 pt 投影边
+    o = mk('pill_rim', rr(40, 32, 16, 12), 4, 'plaster', 1.6, 3); shot('name_pill_rim_3s', o, 52, 52)
+    o = mk('pill_fill', rr(36, 28, 14, 12), 4.5, 'white', 1.4, 3); shot('name_pill_fill_3s', o, 52, 52)
 # 4) 翻页提示：圆角朝下三角 14×10，橘色，厚 4
-o = mk('next_arrow', rtri(14, 10, rt=2.2, down=True), 4, 'orange', 1.2, 3); xform  # noqa
-o.location = (0, 5, 0); shot('next_arrow', o, 24, 24, 0, 0)
+if ONLY in ('', 'arrow'):
+    o = mk('next_arrow', rtri(14, 10, rt=2.2, down=True), 4, 'orange', 1.2, 3); xform  # noqa
+    o.location = (0, 5, 0); shot('next_arrow', o, 24, 24, 0, 0)

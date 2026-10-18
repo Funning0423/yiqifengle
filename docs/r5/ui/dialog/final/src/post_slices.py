@@ -15,10 +15,11 @@ def recolor(im, target, gray=False):
         l = l.point(lambda v: min(255, round(v * k))); return Image.merge('RGBA', (l, l, l, a))
     ch = [c.point(lambda v, f=t / max(1, fc): min(255, round(v * f))) for c, t, fc in zip((r, g, b), target, face[:3])]
     return Image.merge('RGBA', (*ch, a))
-def drop(im, off_pt, blur_pt, alpha, mask_rows=None, col=(90, 60, 30)):
+def drop(im, off_pt, blur_pt, alpha, mask_rows=None, col=(90, 60, 30), mask_box=None):
     a = im.split()[3]
-    if mask_rows is not None:
-        m = Image.new('L', im.size, 0); m.paste(255, (0, 0, im.width, mask_rows)); a = ImageChops.multiply(a, m)
+    if mask_rows is not None: mask_box = (0, 0, im.width, mask_rows)
+    if mask_box is not None:   # 只让伸出气泡的那部分投影（盖在气泡上的平板不投影）
+        m = Image.new('L', im.size, 0); m.paste(255, mask_box); a = ImageChops.multiply(a, m)
     sh = Image.new('L', im.size, 0); sh.paste(a, (0, round(off_pt * PX))); sh = sh.filter(ImageFilter.GaussianBlur(blur_pt * PX / 2)).point(lambda v: round(v * alpha))
     base = Image.new('RGBA', im.size, col + (0,)); base.putalpha(sh); base.alpha_composite(im); return base
 def save(im, name):
@@ -32,12 +33,18 @@ b = drop(recolor(load('bubble_9s'), CREAM), 3, 6, 0.22)
 meta['dialog_bubble_9s'] = dict(px=b.size, bytes=save(b, 'dialog_bubble_9s'), insets_px=[144, 144, 144, 144], insets_pt=[48, 48, 48, 48],
     shadow_margin_pt=12, visible_radius_pt=30, note='节点尺寸 = 可见气泡 + 四周各 12 pt；insetLeft/Top/Right/Bottom = 144 px（=48 pt：12 投影 + 30 圆角 + 6 余量）')
 # 尾巴：底边盖进气泡 5 pt（平面色和气泡相同，不露接缝）
-t = drop(recolor(load('tail_up'), CREAM), 1.5, 3, 0.18, mask_rows=63).crop((9, 18, 93, 78))
-meta['dialog_tail_up'] = dict(px=t.size, bytes=save(t, 'dialog_tail_up'), anchor=[0.5, 0.25], note='锚点 = 底边中点（离图下沿 5 pt）；放在气泡可见上沿上；尖朝上，高出上沿 12 pt，底宽 22 pt')
-t = recolor(load('tail_left'), CREAM).crop((18, 9, 78, 93))
-meta['dialog_tail_left'] = dict(px=t.size, bytes=save(t, 'dialog_tail_left'), anchor=[0.75, 0.5], note='锚点 = 底边中点（离图右沿 5 pt）；放在气泡可见左沿上；尖朝左，伸出 12 pt')
-t = recolor(load('tail_right'), CREAM).crop((24, 9, 84, 93))
-meta['dialog_tail_right'] = dict(px=t.size, bytes=save(t, 'dialog_tail_right'), anchor=[0.25, 0.5], note='锚点 = 底边中点（离图左沿 5 pt）；放在气泡可见右沿上；尖朝右，伸出 12 pt')
+# 修正版（2026-10-18）：可见底宽 30、高 15（原 22×12 + 倒角 3 → 尖被磨成 ~7 pt 小鼓包且无投影，见 IMPLEMENT §5.4）。
+# 原图 44×44 pt；尾巴底边在原图 y=27 pt（上）/ x=27 pt（左）/ x=17 pt（右）。投影只给伸出部分：偏移 1.5、模糊 3、不透明度 0.30。
+TAIL_NOTE = '；紧凑档（C/CS/XS）节点 scale 0.867 → 26×13 pt'
+t = drop(recolor(load('tail_up'), CREAM), 1.5, 3, 0.30, mask_rows=81).crop((12, 27, 120, 96))
+meta['dialog_tail_up'] = dict(px=t.size, bytes=save(t, 'dialog_tail_up'), anchor=[0.5, 15 / 69], visible_pt=[30, 15],
+    note='锚点 = 底边中点（离图下沿 5 pt）；放在气泡可见上沿上；尖朝上，高出上沿 15 pt，底宽 30 pt' + TAIL_NOTE)
+t = drop(recolor(load('tail_left'), CREAM), 1.5, 3, 0.30, mask_box=(0, 0, 81, 132)).crop((27, 12, 96, 120))
+meta['dialog_tail_left'] = dict(px=t.size, bytes=save(t, 'dialog_tail_left'), anchor=[54 / 69, 0.5], visible_pt=[15, 30],
+    note='锚点 = 底边中点（离图右沿 5 pt）；放在气泡可见左沿上；尖朝左，伸出 15 pt，底宽 30 pt' + TAIL_NOTE)
+t = drop(recolor(load('tail_right'), CREAM), 1.5, 3, 0.30, mask_box=(51, 0, 132, 132)).crop((36, 12, 105, 120))
+meta['dialog_tail_right'] = dict(px=t.size, bytes=save(t, 'dialog_tail_right'), anchor=[15 / 69, 0.5], visible_pt=[15, 30],
+    note='锚点 = 底边中点（离图左沿 5 pt）；放在气泡可见右沿上；尖朝右，伸出 15 pt，底宽 30 pt' + TAIL_NOTE)
 # 名字胶囊：外圈（奶油，带投影）+ 白底（代码乘角色色），两张同心
 r = drop(recolor(load('name_pill_rim_3s'), RIM), 1.5, 2.5, 0.28).crop((6, 18, 150, 138))
 meta['dialog_name_rim_3s'] = dict(px=r.size, bytes=save(r, 'dialog_name_rim_3s'), insets_px=[60, 0, 60, 0], insets_pt=[20, 0, 20, 0],

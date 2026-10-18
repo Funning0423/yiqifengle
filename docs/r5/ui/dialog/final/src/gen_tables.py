@@ -4,19 +4,20 @@ import dialog_spec as D
 F = D.FINAL; out = []
 rows = D.table(); json.dump(rows, open(os.path.join(D.HERE, 'screens_dialog.json'), 'w'), ensure_ascii=False, indent=1)
 out.append('### A1 七种竖屏（三行台词「阿芳」，尾巴指女孩头，默认跟拍镜头）\n')
-out.append('| 屏 | 档 | 字/行高 | 安全区下 | 气泡 x0 / 宽 | 气泡底 | 女孩底 | keepTop | 可用高 | 算出行数 | 每页行数 | 分页 | 气泡顶 / 高 | 尾巴 x | 离女孩 | 离安全区 | 要镜头让位 |')
+out.append('| 屏 | 档 | 字/行高 | 安全区下 | 气泡 x0 / 宽 | 气泡底 | 女孩底 | keepTop | 可用高 | 算出行数 | 每页行数 | 分页 | 气泡顶 / 高 | 尾巴 x / 尺寸 | 离女孩 | 离安全区 | 要镜头让位 |')
 out.append('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
 for r in rows:
-    out.append('| %s | %s | %d/%d | %d | %.0f / %.0f | %.0f | %.1f | %.1f | %.1f | %d | %d | %s | %.0f / %d | %s | %.1f | %.0f | %s |' % (
+    out.append('| %s | %s | %d/%d | %d | %.0f / %.0f | %.0f | %.1f | %.1f | %.1f | %d | %d | %s | %.0f / %d | %s / %s | %.1f | %.0f | %s |' % (
         r['screen'], '紧凑' if r['compact'] else '常规', r['fs'], r['lh'], r['safeB'], r['x0'], r['bw'], r['bottom'], r['girl_bottom'], r['keep'], r['avail'], r['fit'], r['max_lines'],
-        '+'.join(map(str, r['pages'])), r['top'], r['h'], r['tail_x'], r['gap_girl'], r['gap_safe'], '**是**' if r['camera_needed'] else '否'))
+        '+'.join(map(str, r['pages'])), r['top'], r['h'], r['tail_x'], r['tail'], r['gap_girl'], r['gap_safe'], '**是**' if r['camera_needed'] else '否'))
+LIGHT = lambda j: ('sun %g / 天空 %g / %s / exposure %g' % (j['light']['sun'], j['light']['sky'], j['light']['view_transform'], j['light']['exposure'])) if 'light' in j else '夜间：月光 0.9 / 冷环境 0.55 / Standard（未改）'
 out.append('\n### A2 底图来源和机位（每张底图一行）\n')
-out.append('| 文件 | 角色 GLB | 场景源 | 机位 position → target（Cocos 世界坐标，m） | fov（竖直） | 女孩 root / 朝向 | 女孩投影包围盒 pt | 头 pt |')
-out.append('|---|---|---|---|---|---|---|---|')
+out.append('| 文件 | 角色 GLB | 场景源 | 机位 position → target（Cocos 世界坐标，m） | fov（竖直） | 女孩 root / 朝向 | 女孩投影包围盒 pt | 头 pt | 光照 |')
+out.append('|---|---|---|---|---|---|---|---|---|')
 for p in sorted(glob.glob(os.path.join(F, 'raw', 'bg', '*.json'))):
     j = json.load(open(p)); c = j['camera']
-    out.append('| `raw/bg/%s` | `%s` | `%s` | %s → %s%s | %.0f° | %s / %.1f° | %s | %s |' % (os.path.basename(p).replace('.json', '.jpg'), os.path.basename(j['char_glb']), j['island_glb'],
-               c['position'], c['target'], ('（' + c['rig'].split('+ ')[1] + '）') if '+' in c['rig'] else '', c['fovVerticalDeg'], j['girl_root'], j['girl_yaw_deg'], j['girl_bbox_pt'], j['girl_head_pt']))
+    out.append('| `raw/bg/%s` | `%s` | `%s` | %s → %s%s | %.0f° | %s / %.1f° | %s | %s | %s |' % (os.path.basename(p).replace('.json', '.jpg'), os.path.basename(j['char_glb']), j['island_glb'],
+               c['position'], c['target'], ('（' + c['rig'].split('+ ')[1] + '）') if '+' in c['rig'] else '', c['fovVerticalDeg'], j['girl_root'], j['girl_yaw_deg'], j['girl_bbox_pt'], j['girl_head_pt'], LIGHT(j)))
 m = json.load(open(os.path.join(D.HERE, 'measure_final.json')))
 out.append('\n### A3 对比度（WCAG，≥ 4.5）\n')
 out.append('| 模式 | 文字 | 前景 | 背景 | 对比度 |'); out.append('|---|---|---|---|---|')

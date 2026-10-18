@@ -63,7 +63,7 @@ def draw_dialog(c, L, night=False, chars=None):
     b = SL['dialog_bubble_9s']; c.alpha_composite(sp(nine(asset('dialog_bubble_9s'), b['insets_px'], x1 - x0 + 2 * M, bot - top + 2 * M)), (round((x0 - M) * S), round((top - M) * S)))
     t = L['tail']
     if t:
-        n = 'dialog_tail_' + t['dir']; place(c, sp(scaled(n)), t['x'], t['y'], *SL[n]['anchor'])
+        n = 'dialog_tail_' + t['dir']; place(c, sp(scaled(n, S / 3 * t['k'])), t['x'], t['y'], *SL[n]['anchor'])
     g = L['tag']
     if g:
         Wt = g['Wt']; rim = sp(nine(asset('dialog_name_rim_3s'), SL['dialog_name_rim_3s']['insets_px'], Wt + 8, 40))
@@ -188,7 +188,7 @@ def summary():
         meta.append(dict(screen='%dx%d' % (W, H), camera_variant=cam, camera=info['camera'], girl_bbox=info['girl_bbox_pt'], max_lines=L['max_lines'], pages=[len(p) for p in L['pages']],
                          gap_girl=L['gap_girl'], gap_safe=L['gap_safe'], camera_needed=L['camera_needed'], top=L['top'], h=L['h']))
     out = flow([tiles[:4] + [tiles[6]], tiles[4:6] + tiles[7:]], 'U2 对话框定稿 · 7 种竖屏汇总（三行台词）',
-                ['同一句三行台词按 §5 公式排：每页行数 = 底部到「女孩底 +13（+尾巴 12 / 名字胶囊 16）」之间放得下几行，上限 3。红线 = 女孩投影底边和 +13。',
+                ['同一句三行台词按 §5 公式排：每页行数 = 底部到「女孩底 +13（+尾巴 15，紧凑档 13 / 名字胶囊 16）」之间放得下几行，上限 3。红线 = 女孩投影底边和 +13。',
                  '后两格：390×520、320×568 在默认跟拍镜头下 1 行都放不下，按 §4.4 建议对话时镜头 targetHeight −0.10 m 重渲后的效果。'],
                 [SRC_A, SRC_B, '所有格子同一比例（1 pt = 1.24 px）。底图 1× 渲染放大（汇总图只看布局）。机位见 raw/bg/*.json；夜间、红线、单屏 7 状态见其他图。'])
     return out, meta
@@ -215,9 +215,9 @@ def redline():
             ya = L['text_y0'] + i * m['lh']; d.rectangle((*P(L['text_x'], ya), *P(x1 - m['padX'], ya + m['lh'])), outline=(40, 170, 90, 255), width=2)
             d.text(P(L['text_x'] + 6, ya + m['lh'] / 2), '第 %d 行 · %d pt 字 / 行高 %d' % (i + 1, m['fs'], m['lh']), font=f, fill=(40, 140, 80, 255), anchor='lm')
         tg = L['tag']; hl(tg['x'], tg['x'] + tg['Wt'], top - 22, '胶囊 %d×32' % tg['Wt']); hl(x0, tg['x'], top - 4, '20', dy=-16)
-        t = L['tail']; d.text(P(t['x'] + 16, top - 6), '尾巴 22×12，x = clamp(头 %.0f) = %.0f' % (info['girl_head_pt'][0], t['x']), font=f, fill=RC, anchor='lm')
+        t = L['tail']; d.text(P(t['x'] + 16, top - 6), '尾巴 %d×%d，x = clamp(头 %.0f) = %.0f' % (t['w'], t['h'], info['girl_head_pt'][0], t['x']), font=f, fill=RC, anchor='lm')
         d.line((*P(0, g[3]), *P(W, g[3])), fill=(230, 60, 60, 200), width=2); d.text(P(W - 6, g[3] - 6), '女孩投影底边 %.0f' % g[3], font=f, fill=RC, anchor='rs')
-        vl(t['x'] - 30, g[3], top - D.TAIL_H, '≥13：%.1f' % (top - D.TAIL_H - g[3]), right=False)
+        vl(t['x'] - 30, g[3], top - t['h'], '≥13：%.1f' % (top - t['h'] - g[3]), right=False)
         vl(x1 - 70, top, top + m['padT'], 'padT %d' % m['padT'], right=False)
         vl(x1 - 70, bot - m['padB'], bot, 'padB %d' % m['padB'], right=False)
         hl(x1 - m['padX'], x1, L['text_y0'] + m['lh'] * 1.5, '%d' % m['padX'])
@@ -234,8 +234,8 @@ def redline():
     x = 820
     for n in ('dialog_tail_up', 'dialog_tail_left', 'dialog_tail_right', 'dialog_next_arrow'):
         im = asset(n); kit.alpha_composite(im, (x, y)); a = SL[n].get('anchor', [0.5, 0.5]); ax, ay = x + a[0] * im.width, y + (1 - a[1]) * im.height
-        d.ellipse((ax - 5, ay - 5, ax + 5, ay + 5), fill=(226, 48, 48)); d.text((x, y + 100), n.replace('dialog_', ''), font=fs_, fill=(80, 60, 40)); d.text((x, y + 128), '%d×%d' % im.size, font=fs_, fill=(80, 60, 40)); x += 170
-    d.text((820, y + 170), '尾巴锚点 = 底边中点；底下 5 pt 平板盖进气泡（同色，不露缝）', font=fs_, fill=(80, 60, 40))
+        d.ellipse((ax - 5, ay - 5, ax + 5, ay + 5), fill=(226, 48, 48)); d.text((x, y + 116), n.replace('dialog_', ''), font=fs_, fill=(80, 60, 40)); d.text((x, y + 144), '%d×%d' % im.size, font=fs_, fill=(80, 60, 40)); x += 170
+    d.text((820, y + 176), '尾巴可见 30×15 pt（紧凑档缩 0.867 → 26×13）', font=fs_, fill=(80, 60, 40)); d.text((820, y + 202), '锚点 = 底边中点；底下 5 pt 平板盖进气泡（同色，不露缝）', font=fs_, fill=(80, 60, 40))
     rim = asset('dialog_name_rim_3s'); fil = asset('dialog_name_fill_3s'); yy = y + 230
     kit.alpha_composite(rim, (820, yy)); kit.alpha_composite(fil, (1000, yy + 12))
     for xx, im_, ins_, oy in ((820, rim, 60, 0), (1000, fil, 48, 12)):
