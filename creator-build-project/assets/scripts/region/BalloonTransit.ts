@@ -91,6 +91,19 @@ function paintSeaFallback(root:Node|null,night:boolean):void{
 }
 /** City meshes that stay full-bright or press into the lens during the ride. */
 const CITY_RIDE_HIDE=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_island_vines','env_sky_island_vine_cards','env_sky_rope_root_02','env_sky_rope_root_03'];
+/** Dim skycity unlit/standard mats at night so deck grass cannot stay neon under the balloon. */
+function applyCityNight(model:Node|null,night:boolean):void{
+ if(!model)return;
+ const c=night?new Color(52,62,78,255):new Color(255,255,255,255);
+ eachNamed(model,n=>{
+  if(/palette|foliage|flower|Icosphere/i.test(n.name)){n.active=false;return;}
+  for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;
+   try{m.setProperty('mainColor',c);}catch{}
+   try{m.setProperty('albedoScale',c);}catch{}
+   if(night){try{m.setProperty('emissive',new Color(0,0,0,255));}catch{}try{m.setProperty('emissiveScale',0);}catch{}}
+  }
+ });
+}
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
  if(!root)return;const set=new Set(names);
  eachNamed(root,n=>{if(set.has(n.name))n.active=on;});
@@ -301,6 +314,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
    setEmissive(clouds,night);
    applyVehicleNight(vehicle,night);
+   if(model&&cityOn)applyCityNight(model,night);
    if(flame){const burn=t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    (globalThis as any).__QF_BALLOON_FADE=fade;
    (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn,meadowOn,cityOn};
