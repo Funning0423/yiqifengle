@@ -25,21 +25,9 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  if(route.board!==undefined&&!journeyBoardEndOk(route.board,routeLength(route.path)))throw Error('journey-invalid-board-end');
  if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
 }
-/** Shipped legs: island→meadow, island→lakeside, meadow→skycity. Meadow↔lakeside exists only while `?lakeside=1` is on. */
+/** Shipped legs: island→meadow, meadow→skycity, skycity→lakeside. */
 function journeyRegionOrderOk(from:string,to:string):boolean{
- if((from==='island'&&(to==='meadow'||to==='lakeside'))||(from==='meadow'&&to==='skycity'))return true;
- return lakesideReachQueryOn()&&((from==='meadow'&&to==='lakeside')||(from==='lakeside'&&to==='meadow'));
-}
-/** Same gate as region/LakesideReach.lakesideReachEnabled. Inlined so world-r1 stays free of a relative import
- *  (camera-frame and region-journey tests transpile this folder alone). */
-function lakesideReachQueryOn():boolean{
- try{
-  const host=globalThis as any;const wx=host?.wx;
-  if(wx){let env='';try{env=String(wx.getAccountInfoSync?.()?.miniProgram?.envVersion||'');}catch{return false;}if(env!=='develop'&&env!=='trial')return false;}
-  const flag=host?.__QF_LAKESIDE;if(flag==='1'||flag===1||flag===true)return true;
-  let q='';if(typeof host?.location?.search==='string')q=host.location.search;else if(typeof location!=='undefined'&&typeof (location as {search?:unknown}).search==='string')q=String((location as {search:string}).search||'');
-  return /(?:^|[?&])lakeside=1(?:&|$)/.test(q);
- }catch{return false;}
+ return (from==='island'&&to==='meadow')||(from==='meadow'&&to==='skycity')||(from==='skycity'&&to==='lakeside');
 }
 /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
  * smoothed walking heading), so a bridge that turns keeps the lens behind her. Numbers are checked by

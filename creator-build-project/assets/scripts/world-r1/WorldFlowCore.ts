@@ -459,7 +459,7 @@ export class WorldFlow {
     if(!this.journey)return {ok:false,reason:'journey-unavailable'};
     if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
     const fail=this.blocked(this.stable,true);if(fail)return fail;
-    if(!(this.stable==='island'||this.stable==='meadow'||(this.stable==='lakeside'&&lakesideReachQueryOn())))return {ok:false,reason:'journey-wrong-origin'};
+    if(!(this.stable==='island'||this.stable==='meadow'||this.stable==='skycity'))return {ok:false,reason:'journey-wrong-origin'};
     return this.operate('region-loading',async token=>{
       const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
       await this.journey!.prepare(target,pose.controllerRoot,token);token.check();
@@ -692,15 +692,4 @@ export class WorldFlow {
     if(this.state==='disposed')return;this.setWind(0);this.windListeners.clear();this.doorShutListeners.clear();this.invalidate();this.level?.dispose();this.level=null;this.visit?.dispose();this.visit=null;
     this.journey?.dispose();this.character?.dispose();this.character=null;this.world?.dispose();this.world=null;this.change('disposed');
   }
-}
-/** Same gate as region/LakesideReach.lakesideReachEnabled. Inlined so this file can be transpiled without the region folder
- *  (camera-frame and region-journey tests compile world-r1 alone). Default (flag off) never takes the lakeside arm. */
-function lakesideReachQueryOn():boolean{
- try{
-  const host=globalThis as any;const wx=host?.wx;
-  if(wx){let env='';try{env=String(wx.getAccountInfoSync?.()?.miniProgram?.envVersion||'');}catch{return false;}if(env!=='develop'&&env!=='trial')return false;}
-  const flag=host?.__QF_LAKESIDE;if(flag==='1'||flag===1||flag===true)return true;
-  let q='';if(typeof host?.location?.search==='string')q=host.location.search;else if(typeof location!=='undefined'&&typeof (location as {search?:unknown}).search==='string')q=String((location as {search:string}).search||'');
-  return /(?:^|[?&])lakeside=1(?:&|$)/.test(q);
- }catch{return false;}
 }

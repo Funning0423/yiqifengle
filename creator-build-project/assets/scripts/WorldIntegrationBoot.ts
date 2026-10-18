@@ -1,7 +1,6 @@
 import './SharedBundles';
 import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { qaTransportEnabled } from './region/JourneyTransport';
-import { lakesideReachEnabled } from './region/LakesideReach';
 import { DEBUG, MINIGAME } from 'cc/env';
 import {setScreenCover} from './world-r1/ScreenCover';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
@@ -540,7 +539,6 @@ export class WorldIntegrationBoot extends Component {
   if(q.includes('meadowGameplay=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewMeadowGameplay();}
   else if(q.includes('balloonPreview=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewBalloonTransit();}
   else if(q.includes('sailqa=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewSailJourney();}
-  else if(lakesideReachEnabled())void this.composition.previewLakesideReach();
  }catch{}
  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
  if(!MINIGAME){try{const q=(globalThis as any).location?.search;if(typeof q==='string'&&/(?:^|[?&])qa=1(?:&|$)/.test(q)){const api=(globalThis as any).__worldIntegration;api.qaShot=(spec:any)=>this.composition.qaShot(spec);}}catch{/* no location */}}
