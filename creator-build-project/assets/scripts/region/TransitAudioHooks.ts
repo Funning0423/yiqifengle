@@ -1,4 +1,4 @@
-/** Transit cues only. No audio files. Voice Bot subscribes later.
+/** Transit cues only (no audio here). Sail cues: audio/SailAudio.ts (Voice Bot r5) subscribes.
  * Sail uses hide/emitTransit. Region nodes use pause/emitTransitCue. Both share one listener set. */
 export type TransitCue='node-walk-start'|'node-arrive'|'node-locked-tap'|'scene-tap'|'explore-unlocked'
  |'sail-board'|'sail-unfurl'|'sail-cruise-loop-start'|'sail-cruise-loop-stop'|'sail-dock'
@@ -46,6 +46,8 @@ export function setTransitPaused(next:boolean):void{
  if(was&&!next){const pending=Array.from(loops);for(let i=0;i<pending.length;i++){const cue=pending[i];for(const fn of Array.from(listeners))fn(cue,{t:0,region:'',resumed:true});}}
 }
 export function transitPaused():boolean{return paused;}
+/** The sail ride's hidden flag (SailRide.step sets it every frame): its timeline does not advance while true. */
+export function transitHidden():boolean{return hidden;}
 export function resetTransitCues():void{listeners.clear();hidden=false;paused=false;pendingLoop=null;loops.clear();}
 export function resetTransitAudio():void{listeners.clear();loops.clear();paused=false;hidden=false;pendingLoop=null;}
 
