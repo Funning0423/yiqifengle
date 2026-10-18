@@ -54,9 +54,17 @@ function noShadow(root:Node|null):void{
  }});
 }
 function setEmissive(root:Node,night:boolean):void{
+ if(!night)return;
  const black=new Color(0,0,0,255);
- eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;
-  if(night){try{m.setProperty('emissive',black);}catch{}try{m.setProperty('emissiveScale',0);}catch{}}
+ eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){
+  const shared=r.getSharedMaterial(0);if(!shared)continue;
+  const m=r.getMaterialInstance(0);if(!m)continue;
+  // Rebind maps — getMaterialInstance alone drops glTF albedo and flashes magenta at night.
+  for(const key of ['mainTexture','albedoMap','metallicRoughnessMap','normalMap','emissiveMap']){
+   try{const tex=shared.getProperty(key);if(tex!=null)m.setProperty(key,tex);}catch{/* slot absent */}
+  }
+  try{m.setProperty('emissive',black);}catch{}
+  try{m.setProperty('emissiveScale',0);}catch{}
  }});
 }
 /**
@@ -302,7 +310,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    eachNamed(meadow,n=>{if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;});
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
    const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
-   if(farRoot&&isValid(farRoot,true)){farRoot.active=farOn;if(farOn)tintFarCard(farRoot,night);}
+   if(farRoot&&isValid(farRoot,true)){
+    farRoot.active=farOn;
+    eachNamed(farRoot,n=>{for(const r of n.getComponents(MeshRenderer))r.enabled=farOn;});
+    if(farOn)tintFarCard(farRoot,night);
+   }
    const frame=t+1e-9>=SEAM_T?postFrame:meadowFrame;
    setRigid(transitFrame,frame);
    setRigid(clouds,frame);
