@@ -22,6 +22,10 @@ qa2 在 11.27 s 把人画成直立站在舱中间，但 CSV 的 `riderPose` 仍�
 
 坐稳才开船；航行中挂在 `seated_root_anchor`；舱内海水 0；flicker 0；步速约 1.2 m/s；夜间分级；音频顺序未改；10.6–11.2 s 转镜头仍是原来的弧线；矩形木板断言仍在。白天像素：waterMax 0，clearMax 0.0003，plank 全 0。夜间 waterMax 0，clearMax 0.0025，flicker 0。
 
+## 套件和包体
+
+正式套件 122 项里 121 项 PASS，只有 `navigation-guard` 是 `BLOCKED_BROWSER`。带守卫的 wechat 包 20,283,791 字节（上限 24,641,536）。`transport_sail` 子包 206,639 字节。构建后已删掉 `library`、`temp`、`build`，锁已释放。
+
 ## 断言
 
 `tools/transitions/test_sail_continuity.cjs` 保留 qa1、qa2，并要求白天和夜间的 `docs/r5/sail-qa3/metrics_after.csv`、`metrics_after-night.csv` 都通过上面三条。离线镜头步长：航道 0.972 m，到达 0.176 m，地图混合 0.283 m。
