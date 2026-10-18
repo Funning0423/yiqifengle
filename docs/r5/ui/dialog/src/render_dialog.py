@@ -1,6 +1,6 @@
 """U2 对话框对比图：现有（IslandToast）· 方案 A 海风气泡 · 方案 B 折角纸牌。
-底图：390×844 = 真机截图（evidence-mac near/native 11-return-7s，去掉旧版过场字幕胶囊）；
-      375×667 = harness 合成（同一张真机图缩到 0.75，左右和底部镜像延展，模拟矮屏对话镜头）。
+底图（2026-10-18 重出）：两种屏都是 Blender 新渲——当前基线角色 + bc81575f 岛场景 + 游戏回家跟拍机位（final/src/render_scene_bg.py）。
+旧底图 evidence-mac 11-return-7s.jpg 是 r4 时期旧模型，已停用。
 单位 pt，2× 出图。只出对比图，不是定稿。"""
 import os, json
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -19,29 +19,17 @@ TAG = {'阿芳': (0xA0, 0x62, 0x0E), '阿宁': (0x2A, 0x7B, 0x80), '老铆': (0x
 BODY = (0x5A, 0x46, 0x36); CREAM = (0xFF, 0xF7, 0xE4); CREAM_B = (0xFB, 0xF2, 0xDC); RIM_B = (0xDC, 0xC5, 0x9A)
 ACCENT = (0xE0, 0x96, 0x3C); TEAL = (0x2F, 0x86, 0x8A)
 
-# 女孩占的区域（pt，390×844 真机图上量出来的；375 合成图按缩放换算）
-GIRL_390 = [(100, 142, 226, 204), (123, 169, 218, 239), (78, 239, 262, 576), (132, 576, 230, 655)]   # 帽、脸、身体手臂、腿鞋
-FACE_390 = (123, 169, 218, 239)
-SAFE = {(390, 844): dict(top=47, bottom=34), (375, 667): dict(top=20, bottom=34)}   # 与 U1 layouts_7screens 同源（375 真机行 top 20、home 34）
+# 2026-10-18 重出：底图换成当前基线 Blender 新渲（见 final/src/render_scene_bg.py），女孩区域 = 角色网格投影包围盒（json 里给）。
+SAFE = {(390, 844): dict(top=47, bottom=34), (375, 667): dict(top=20, bottom=34)}   # 与 U1 layouts_7screens 同源
+BGDIR = os.path.join(OUT, 'final', 'raw', 'bg')
+SRC_A = '底图：Blender 新渲 · 角色 GLB /workspace/yiqifengle/previews/角色动画bot/r5-wrist-footik/final/chr_b_r5g2_r5wrist_v4_final.glb'
+SRC_B = '场景源 SHA bc81575f：creator-project/assets/firstslice/combined_visual_m.glb + combined_anchors_m.json · 机位 TRANSITION_CAMERA.returnFollow.out（回家跟拍，position/target 见 final/raw/bg/*.json）'
 
 def scene(W, H):
-    src = Image.open(os.path.join(HERE, 'scene_390_clean.png')).convert('RGB').resize((390 * S, 844 * S), Image.LANCZOS)
-    if (W, H) == (390, 844):
-        return src, GIRL_390, FACE_390, 1.0, 0, 0
-    # 合成：先切掉真机图里烘进去的刘海、胶囊、圆角和 home 条（只留 pt y 70–805 的画面），缩到 0.75，
-    # 上方用顶行天空延展、左右和下方镜像延展；再把真机图上的小游戏胶囊 1:1 贴回右上角（375 机型无刘海，胶囊上沿 24）。
-    k, Y0, Y1, XL, XR = 0.75, 84, 805, 4, 386
-    body = src.crop((XL * S, Y0 * S, XR * S, Y1 * S))
-    sw, sh = round((XR - XL) * k * S), round((Y1 - Y0) * k * S); im = body.resize((sw, sh), Image.LANCZOS)
-    ox, oy = (W * S - sw) // 2, round(62 * S); c = Image.new('RGB', (W * S, H * S))
-    c.paste(im.crop((0, 0, sw, 1)).resize((sw, oy)), (ox, 0)); c.paste(im, (ox, oy))
-    rest = H * S - (oy + sh)
-    if rest > 0: c.paste(im.crop((0, sh - rest, sw, sh)).transpose(Image.FLIP_TOP_BOTTOM).filter(ImageFilter.GaussianBlur(2)), (ox, oy + sh))
-    l = c.crop((ox, 0, 2 * ox, H * S)).transpose(Image.FLIP_LEFT_RIGHT); rw = W * S - ox - sw; r = c.crop((ox + sw - rw, 0, ox + sw, H * S)).transpose(Image.FLIP_LEFT_RIGHT)
-    c.paste(l.filter(ImageFilter.GaussianBlur(3)), (0, 0)); c.paste(r.filter(ImageFilter.GaussianBlur(3)), (ox + sw, 0))
-    cap = src.crop((245 * S, 42 * S, 385 * S, 80 * S)); c.paste(cap, (W * S - cap.width - 7 * S, 20 * S))
-    T = lambda b: ((b[0] - XL) * k + ox / S, (b[1] - Y0) * k + oy / S, (b[2] - XL) * k + ox / S, (b[3] - Y0) * k + oy / S)
-    return c, [T(b) for b in GIRL_390], T(FACE_390), k, ox / S, oy / S
+    info = json.load(open(os.path.join(BGDIR, 'bg_%dx%d_day.json' % (W, H))))
+    im = Image.open(os.path.join(BGDIR, 'bg_%dx%d_day.jpg' % (W, H))).convert('RGB').resize((W * S, H * S), Image.LANCZOS)
+    g = tuple(info['girl_bbox_pt']); hx, hy = info['girl_head_pt']; face = (hx - 40, g[1], hx + 40, hy + 25)   # 背影：头部（帽子到后脑）
+    return im, [g], face, 1.0, 0, 0
 
 def rr(d, box, r, **kw): d.rounded_rectangle([v * S for v in box], radius=r * S, **kw)
 def shadow(c, box, r, off=4, blur=10, a=46, poly=None):
@@ -111,7 +99,7 @@ def gap(boxes, girl):
 
 def frame(W, H, kind):
     c, girl, face, k, ox, _ = scene(W, H); c = c.convert('RGBA'); compact = H < 700
-    sb = SAFE[(W, H)]['bottom']; gb = max(b[3] for b in girl); gcx = (girl[1][0] + girl[1][2]) / 2
+    sb = SAFE[(W, H)]['bottom']; gb = max(b[3] for b in girl); gcx = (face[0] + face[2]) / 2
     if kind == 'now': boxes = existing(c, W, H)
     elif kind == 'A':
         fs, lh = (16, 25) if compact else (17, 27); pad_t, pad_b = (26, 22) if compact else (30, 24); h = pad_t + lh * 2 + pad_b
@@ -135,7 +123,7 @@ def sheet(W, H, title, sub, note):
         x = gap_ + i * (fw + gap_); out.paste(im.convert('RGB'), (x, head)); d.rectangle((x - 2, head - 2, x + fw + 1, head + fh + 1), outline=(120, 100, 80), width=2)
         d.text((x + fw / 2, head + fh + 36), lab, font=F(28), fill=(60, 40, 22), anchor='mm')
         ok = m['gap'] >= 13 and m['safe'] >= 0
-        info = ('离女孩 %.1f pt · 离脸 %.1f pt · 离底部安全区 %.1f pt' % (m['gap'], m['face'], m['safe'])) if m['gap'] >= 0 else ('压住女孩 %.1f pt（离脸 %.1f pt）' % (-m['gap'], m['face']))
+        info = ('离女孩 %.1f pt · 离头 %.1f pt · 离底部安全区 %.1f pt' % (m['gap'], m['face'], m['safe'])) if m['gap'] >= 0 else ('压住女孩 %.1f pt（离头 %.1f pt）' % (-m['gap'], m['face']))
         d.text((x + fw / 2, head + fh + 76), info, font=F(22, False), fill=(40, 120, 60) if ok else (190, 50, 40), anchor='mm')
         meta[['now', 'A', 'B'][i]] = {k: v for k, v in m.items() if k != 'boxes'}
     y = head + fh + 120
@@ -149,11 +137,10 @@ def sheet(W, H, title, sub, note):
 
 if __name__ == '__main__':
     allm = {}
-    for (W, H), src in [((390, 844), '底图：真机截图（evidence-mac near/native 11-return-7s.jpg，近景回屋路上）；只去掉了旧版过场字幕胶囊「正在回屋…」。'),
-                        ((375, 667), '底图：harness 合成——同一张真机图切掉刘海/胶囊/圆角/home 条后缩到 0.75，上方天空延展、左右和底部镜像延展，胶囊贴回右上；模拟矮屏的对话镜头，真机上要由运镜定。')]:
+    for (W, H), src in [((390, 844), SRC_A), ((375, 667), SRC_A)]:
         im, meta = sheet(W, H, 'U2 对话框 · 对比 · %d×%d（只是对比图，不是定稿）' % (W, H),
                          '同一句台词、同一位说话人「阿芳」；名字用资源圆体 Bold，正文用思源黑体（Noto Sans SC）Bold；奶油色、圆角、按角色上色的名字胶囊',
-                         [src, '规则：界面元素离女孩 ≥ 13 pt、不压脸、避开底部安全区（再留 16）。绿色 = 满足，红色 = 不满足。右下：名字标签配色（阿芳 / 阿宁 / 老铆）。'])
+                         [src, SRC_B, '规则：界面元素离女孩 ≥ 13 pt、不压头、避开底部安全区（再留 16）。绿色 = 满足，红色 = 不满足。右下：名字标签配色（阿芳 / 阿宁 / 老铆，占位名）。2026-10-18 用新底图重出。'])
         p = os.path.join(OUT, 'compare_%dx%d.jpg' % (W, H)); q = 90
         while True:
             im.save(p, quality=q, optimize=True, progressive=True)
