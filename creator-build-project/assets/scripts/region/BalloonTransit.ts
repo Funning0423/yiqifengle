@@ -118,9 +118,10 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
  eachNamed(clouds,n=>{
   const graded=!night&&!!grade&&CLOUD_GRADE.includes(n.name);
   if(graded){
+   const technique=n.name==='clouds_horizon'?2:0;
    for(const r of n.getComponents(MeshRenderer)){
     const m=new Material();
-    m.initialize({effectAsset:grade!,technique:0});
+    m.initialize({effectAsset:grade!,technique});
     try{m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);}catch{/* */}
     try{r.setMaterialInstance(0,m);}catch{/* */}
    }
@@ -451,6 +452,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     vehicle.setWorldPosition(sample.pos[0],sample.pos[1],sample.pos[2]);
     const qq=balloonQuat(sample.yaw*180/Math.PI,sample.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
     const pose=plan.camera(t);world.setCamera(pose);
+    (globalThis as any).__QF_BALLOON_CAM={position:pose.position,target:pose.target,fov:pose.fovVerticalDeg,vehicle:sample.pos};
     const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
     paint(t);
