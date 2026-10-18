@@ -52,3 +52,12 @@ QF_TYPESCRIPT_MODULE=<typescript 路径> node docs/r5/ui/result/src/dump_layouts
 - 定稿图：`final/result_390x844.jpg`、`final/result_375x667.jpg`、`final/redline_*.jpg`、`final/reddot_A_*.jpg`、`final/result_night_390x844.jpg`、`final/result_7screens.jpg`
 - 新增切图只有 `final/assets/reddot.png`；其余都复用 `bundles/board_art`，见 `final/assets/kit_preview.png`。
 - 另记录了一个 bug：「存档出错提示行被删」（d6a0019f），见 IMPLEMENT §9。
+
+## U2 · 对话框重做（对比稿，2026-10-18）
+
+- 只出对比图，不写代码，不出定稿：[`dialog/README.md`](dialog/README.md)
+- 对比图：`dialog/compare_390x844.jpg`（底图是真机截图）、`dialog/compare_375x667.jpg`（harness 合成）
+  - 三栏：现有（IslandToast 吐司，仓库里没有角色对话框）· 方案 A 海风气泡 · 方案 B 折角纸牌。
+- 推荐 **A**：框外的水平名字胶囊加指向说话人的尾巴，和现有的吐司、弹窗同一家族；离女孩 20 / 17.8 pt。
+- 字体：名字用资源圆体 Bold，正文用思源黑体 Bold，都是 SIL OFL 1.1。只打包用到的字：名字约 4 KB，正文约 0.3–0.4 MB。
+- 要用户来定：A 还是 B；正文用思源子集还是系统字体；简繁。矮屏的对话镜头由运镜来定。
