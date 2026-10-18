@@ -14,6 +14,8 @@ for(const name of F.SKY_LAWN)assert.ok(!mount.includes("'"+name+"'")&&!mount.inc
 const tail=transit.slice(transit.lastIndexOf('arrived=true'),transit.lastIndexOf('paint(plan.total)')+20);
 assert.ok(tail.startsWith('arrived=true'),'ride end sets arrived before the last paint');
 assert.ok(transit.includes('skyNodeAfterArrival(n.name)'),'arrival paint applies skyNodeAfterArrival');
+const afterPaint=transit.slice(transit.lastIndexOf('paint(plan.total)'));
+assert.ok(afterPaint.includes('fadeCover(0,0)'),'arrival clears the handoff cover that is still black at t=total');
 const active=Object.fromEntries([...lawn,...transitOff].map(n=>[n,false]));
 for(const name of Object.keys(active)){const want=F.skyNodeAfterArrival(name);if(want==='on')active[name]=true;else if(want==='off')active[name]=false;}
 for(const name of lawn)assert.equal(active[name],true,name+' on after arrival');

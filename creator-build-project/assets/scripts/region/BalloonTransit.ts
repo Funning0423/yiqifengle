@@ -459,6 +459,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    arrived=true;
    if(model){model.active=true;showNamed(model,ISLET_NODES,true);}
    paint(plan.total);
+   // handoffFade(total) is still 1: the 0.15 s fade-out sits past the clock, so the black cover would stay up over the level.
+   try{if(typeof world.fadeCover==='function')void world.fadeCover(0,0);}catch{/* cover optional in tests */}}
   };
   progress(.98);
   const lease:JourneySceneLease&{model:Node|null}={model,route,ride,show(visible){if(dead)return;rig.active=visible;model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
