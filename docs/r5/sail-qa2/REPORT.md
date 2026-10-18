@@ -45,4 +45,4 @@ qa1 的成果都还在：人坐稳船才开，航行中挂在 `seated_root_ancho
 - `plank_before_after_day.png` / `plank_before_after_night.png`：2、15、21 s，左＝修前 / 右＝修后。
 - `metrics_after.csv`、`metrics_after-night.csv`。
 
-微信包字节在构建守卫通过后补在 STATUS。
+微信包：`build-wechat-guarded.sh wechat` 通过。GUARD HEAD `7747714e`，退出码 36，工作区干净。wechat-release **20,278,973** 字节（上限 24,641,536）。`transport_sail` **206,633** 字节。主包 ROOT 1,871,183。library、temp、build 已删，锁已释放。
