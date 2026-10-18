@@ -9,6 +9,10 @@
  * - env_rear_window_plant was a 20-triangle leaf card standing in the terracotta pot of env_rear_window_detail.
  *   It becomes a small solid leaf clump (core + six thick leaf lobes), parented to the same node so it keeps the
  *   RoomLightingRig sway.
+ * - Option B for the same window (ROOM360_RIGHT_WINDOW = 'open'): no shutter; the lighthouse wall facet that closes the
+ *   window from outside is cut away along the real arched opening of the shell (cutWallOpening, exact convex-polygon
+ *   subtraction with interpolated normals/UVs), and a wooden trim + sill (buildWindowTrim) lines the cut on the outside.
+ *   The glass and mullions stay, so it reads as a clear glazed window with whatever is really outside behind it.
  * Colours are cells of the shared env_palette_256 (M_env_palette): row r centre v = (r + 0.5) / 16. */
 
 export type FlatMesh = { positions: number[]; normals: number[]; uvs: number[]; indices: number[] };
@@ -21,6 +25,20 @@ export const ROOM360_WINDOW = Object.freeze({
   glassOff: -0.042, wallOff: 0.033,
   halfWidth: 0.385, halfHeight: 0.52, slatsPerLeaf: 12, slatTiltDeg: 30,
 });
+/** Right-front window variant: 'shutter' = A (closed louvred shutter), 'open' = B (wall cut open, real view). */
+export type Room360WindowMode = 'shutter' | 'open';
+export const ROOM360_RIGHT_WINDOW: Room360WindowMode = 'shutter';
+
+/** The shell's arched opening for that window, measured from env_interior_shell's jamb (window-local: t along
+ *  windowFrame().u from its centre, absolute y). Convex, counter-clockwise in (t, y). */
+export const ROOM360_OPENING: ReadonlyArray<[number, number]> = Object.freeze([
+  [-0.397, 1.816], [0.394, 1.816], [0.394, 2.607], [0.381, 2.709], [0.341, 2.805], [0.278, 2.887], [0.196, 2.95],
+  [0.101, 2.99], [-0.002, 3.003], [-0.104, 2.99], [-0.2, 2.95], [-0.282, 2.887], [-0.344, 2.805], [-0.384, 2.709],
+  [-0.397, 2.607],
+] as [number, number][]);
+/** The outer wall facet over the opening lies at n 0.014..0.057; the cut only touches wall-facing triangles there. */
+export const ROOM360_CUT = Object.freeze({ nMin: -0.02, nMax: 0.12, minFacing: 0.5, trimW: 0.05, trimN0: -0.004, trimN1: 0.085 });
+
 /** Pot top centre of the rear-window plant (node translation of env_rear_window_plant). */
 export const ROOM360_PLANT_ORIGIN: V3 = [1.3670506400771107, 1.91, -4.5682290187413335];
 
@@ -147,4 +165,93 @@ export function meshBounds(m: FlatMesh): { min: V3; max: V3 } {
     const x = m.positions[i + k]; if (x < min[k]) min[k] = x; if (x > max[k]) max[k] = x;
   }
   return { min, max };
+}
+
+type CutVert = { p: V3; nr: V3; uv: [number, number]; t: number; y: number };
+
+function lerpV(a: CutVert, b: CutVert, k: number): CutVert {
+  return {
+    p: [a.p[0] + (b.p[0] - a.p[0]) * k, a.p[1] + (b.p[1] - a.p[1]) * k, a.p[2] + (b.p[2] - a.p[2]) * k],
+    nr: [a.nr[0] + (b.nr[0] - a.nr[0]) * k, a.nr[1] + (b.nr[1] - a.nr[1]) * k, a.nr[2] + (b.nr[2] - a.nr[2]) * k],
+    uv: [a.uv[0] + (b.uv[0] - a.uv[0]) * k, a.uv[1] + (b.uv[1] - a.uv[1]) * k],
+    t: a.t + (b.t - a.t) * k, y: a.y + (b.y - a.y) * k,
+  };
+}
+
+/** Sutherland-Hodgman against one half-plane: keep side(v) >= 0 (keepPositive) or <= 0. */
+function clipHalf(poly: CutVert[], side: (v: CutVert) => number, keepPositive: boolean): CutVert[] {
+  const out: CutVert[] = [], sg = keepPositive ? 1 : -1;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length], da = sg * side(a), db = sg * side(b);
+    if (da >= 0) out.push(a);
+    if ((da >= 0) !== (db >= 0)) out.push(lerpV(a, b, da / (da - db)));
+  }
+  return out;
+}
+
+/** Remove the convex opening ROOM360_OPENING from the wall-facing triangles of `src` (room-model coordinates).
+ *  Untouched triangles keep their vertices; cut ones are re-emitted as exact pieces (tri minus polygon = one convex
+ *  piece per polygon edge), so the hole edge follows the shell's arch exactly. */
+export function cutWallOpening(src: FlatMesh): { mesh: FlatMesh; touched: number; removedArea: number } {
+  const f = windowFrame(), K = ROOM360_OPENING, C = ROOM360_CUT;
+  const out: FlatMesh = { positions: src.positions.slice(), normals: src.normals.slice(), uvs: src.uvs.slice(), indices: [] };
+  let tMin = 1e9, tMax = -1e9, yMin = 1e9, yMax = -1e9;
+  for (let i = 0; i < K.length; i++) { tMin = Math.min(tMin, K[i][0]); tMax = Math.max(tMax, K[i][0]); yMin = Math.min(yMin, K[i][1]); yMax = Math.max(yMax, K[i][1]); }
+  const vert = (i: number): CutVert => {
+    const p: V3 = [src.positions[i * 3], src.positions[i * 3 + 1], src.positions[i * 3 + 2]], d = sub(p, f.c);
+    return { p, nr: [src.normals[i * 3], src.normals[i * 3 + 1], src.normals[i * 3 + 2]], uv: [src.uvs[i * 2], src.uvs[i * 2 + 1]],
+      t: d[0] * f.u[0] + d[1] * f.u[1] + d[2] * f.u[2], y: p[1] };
+  };
+  const nOf = (v: CutVert): number => { const d = sub(v.p, f.c); return d[0] * f.n[0] + d[1] * f.n[1] + d[2] * f.n[2]; };
+  const edgeSide = (k: number) => (v: CutVert): number => {
+    const a = K[k], b = K[(k + 1) % K.length];
+    return (b[0] - a[0]) * (v.y - a[1]) - (b[1] - a[1]) * (v.t - a[0]);  // > 0 = inside (left of a CCW edge)
+  };
+  const area2 = (q: CutVert[]): number => { let s = 0; for (let i = 0; i < q.length; i++) { const a = q[i], b = q[(i + 1) % q.length]; s += a.t * b.y - b.t * a.y; } return Math.abs(s) / 2; };
+  let touched = 0, removed = 0;
+  for (let i = 0; i < src.indices.length; i += 3) {
+    const ia = src.indices[i], ib = src.indices[i + 1], ic = src.indices[i + 2];
+    const tri3 = [vert(ia), vert(ib), vert(ic)];
+    const fn = norm(cross(sub(tri3[1].p, tri3[0].p), sub(tri3[2].p, tri3[0].p)));
+    const facing = Math.abs(fn[0] * f.n[0] + fn[1] * f.n[1] + fn[2] * f.n[2]);
+    let lo = 1e9, hi = -1e9, t0 = 1e9, t1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (let k = 0; k < 3; k++) { const n = nOf(tri3[k]); lo = Math.min(lo, n); hi = Math.max(hi, n); t0 = Math.min(t0, tri3[k].t); t1 = Math.max(t1, tri3[k].t); y0 = Math.min(y0, tri3[k].y); y1 = Math.max(y1, tri3[k].y); }
+    const overlaps = facing >= C.minFacing && hi >= C.nMin && lo <= C.nMax && t1 > tMin && t0 < tMax && y1 > yMin && y0 < yMax;
+    if (!overlaps) { out.indices.push(ia, ib, ic); continue; }
+    touched++;
+    let inside: CutVert[] = tri3;
+    const before = area2(tri3);
+    let kept = 0;
+    for (let k = 0; k < K.length && inside.length >= 3; k++) {
+      const piece = clipHalf(inside, edgeSide(k), false);  // outside edge k, inside all previous edges
+      if (piece.length >= 3) {
+        kept += area2(piece);
+        const base = out.positions.length / 3;
+        for (let q = 0; q < piece.length; q++) {
+          const v = piece[q], nl = norm(v.nr);
+          out.positions.push(v.p[0], v.p[1], v.p[2]); out.normals.push(nl[0], nl[1], nl[2]); out.uvs.push(v.uv[0], v.uv[1]);
+        }
+        for (let q = 1; q + 1 < piece.length; q++) out.indices.push(base, base + q, base + q + 1);
+      }
+      inside = clipHalf(inside, edgeSide(k), true);
+    }
+    removed += before - kept;
+  }
+  return { mesh: out, touched, removedArea: removed };
+}
+
+/** Wooden trim around the cut on the outside face (and a deeper sill), boxes along every opening edge. */
+export function buildWindowTrim(): FlatMesh {
+  const f = windowFrame(), K = ROOM360_OPENING, C = ROOM360_CUT, P = ROOM360_PALETTE, m = emptyMesh();
+  const nMid = (C.trimN0 + C.trimN1) / 2, hn = (C.trimN1 - C.trimN0) / 2;
+  const at = (t: number, y: number, n: number): V3 => [f.c[0] + f.u[0] * t + f.n[0] * n, y + f.n[1] * n, f.c[2] + f.u[2] * t + f.n[2] * n];
+  for (let k = 0; k < K.length; k++) {
+    const a = K[k], b = K[(k + 1) % K.length], dt = b[0] - a[0], dy = b[1] - a[1], L = Math.sqrt(dt * dt + dy * dy);
+    const et = dt / L, ey = dy / L, ot = ey, oy = -et;  // outward (right of a CCW edge)
+    const sill = k === 0, w = sill ? C.trimW * 1.4 : C.trimW, ext = sill ? 0.06 : w * 0.6;
+    const ct = (a[0] + b[0]) / 2 + ot * w / 2, cy = (a[1] + b[1]) / 2 + oy * w / 2;
+    const u = norm([f.u[0] * et, ey, f.u[2] * et]), v = norm([f.u[0] * ot, oy, f.u[2] * ot]);
+    box(m, at(ct, cy, sill ? nMid + 0.02 : nMid), u, v, f.n, L / 2 + ext, w / 2, sill ? hn + 0.02 : hn, P.frame);
+  }
+  return m;
 }

@@ -14,15 +14,20 @@ extra = argv[3] if len(argv) > 3 else None
 mode = argv[4] if len(argv) > 4 else ''
 after = mode == 'after'
 close_only = mode == 'close'  # original look (culling emulated, cards shown), close-ups only
+# A/B for the right-front window, both with the runtime fixes (two-sided shell, solid rear plant):
+#   abA = closed shutter (EXTRA = room360_extra.glb), abB = wall cut open + trim (EXTRA = room360_extra.glb,room360_open.glb)
+ab = mode in ('abA', 'abB')
+if ab: after = True
 os.makedirs(out, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=room)
-if extra and extra != '-': bpy.ops.import_scene.gltf(filepath=extra)
+if extra and extra != '-':
+    for e in extra.split(','): bpy.ops.import_scene.gltf(filepath=e)
 for o in list(bpy.data.objects):
     if o.type in ('CAMERA', 'LIGHT'): bpy.data.objects.remove(o, do_unlink=True)
 keep2 = set()
 if after:
-    for name in ('env_window_blind_cards', 'env_rear_window_plant'):
+    for name in ('env_window_blind_cards', 'env_rear_window_plant') + (('env_lighthouse_ext', 'fx360_window_shutter') if mode == 'abB' else ()):
         o = bpy.data.objects.get(name)
         if o: o.hide_render = True; print('HIDE', name)
         else: print('MISSING', name)
@@ -53,18 +58,20 @@ lamp = bpy.data.objects.new('roomlamp', bpy.data.lights.new('roomlamp', 'POINT')
 lamp.data.energy = 220; lamp.data.shadow_soft_size = 1.5; lamp.location = g2b((-0.3, 3.2, -2.6))
 cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); sc.collection.objects.link(cam); sc.camera = cam
 cam.data.sensor_fit = 'VERTICAL'; cam.data.clip_start = 0.05; cam.data.clip_end = 1000; cam.data.angle = math.radians(75)
+ONLY = [x for x in os.environ.get('QF_SHOTS', '').split(',') if x]
 def shoot(pos, yaw, pitch, name):
+    if ONLY and not any(k in name for k in ONLY): return
     d = (math.cos(math.radians(pitch)) * math.sin(math.radians(yaw)), math.sin(math.radians(pitch)), math.cos(math.radians(pitch)) * math.cos(math.radians(yaw)))
     cam.location = g2b(pos); cam.rotation_euler = (g2b(d)).to_track_quat('-Z', 'Y').to_euler()
     sc.render.filepath = os.path.join(out, name); bpy.ops.render.render(write_still=True)
 HOME = (-1.32022071, 1.38613379, -2.11374307)
-for yaw in ([] if close_only else range(0, 360, 45)):
+for yaw in ([] if (close_only or ab) else range(0, 360, 45)):
     shoot(HOME, yaw, 0, '%s_home_yaw%03d.png' % (tag, yaw))
 # FreeOrbit 'home' (feat/free-camera-r1): pivot = seatedRoot + lookM 1.05, dist 3.35 shortened until inside keepInside, fov 60.
 PIV = (0.4327299768730942, 1.05, -4.207611558444886); BOX = ((-1.85, 0.7, -4.72), (1.05, 2.2, -1.55))
 cam.data.angle = math.radians(60)
 inside = lambda q: all(BOX[0][k] <= q[k] <= BOX[1][k] for k in range(3))
-for a in ([] if close_only else range(0, 360, 45)):
+for a in ([] if (close_only or ab) else range(0, 360, 45)):
     pr, ar = math.radians(10), math.radians(a)
     u = (math.cos(pr) * math.sin(ar), math.sin(pr), math.cos(pr) * math.cos(ar))
     d = 3.35
@@ -74,7 +81,21 @@ for a in ([] if close_only else range(0, 360, 45)):
     yaw = math.degrees(math.atan2(v[0], v[2])); pitch = math.degrees(math.asin(v[1] / math.sqrt(sum(x * x for x in v))))
     shoot(pos, yaw, pitch, '%s_orbit_yaw%03d.png' % (tag, a))
     print('ORBIT', a, [round(x, 2) for x in pos], round(d, 2))
-if after or close_only:
+if ab:
+    # clean review renders: normal game lenses, portrait 390x844 aspect
+    sc.cycles.samples = 96; sc.cycles.use_denoising = True; sc.cycles.denoiser = 'OPENIMAGEDENOISE'
+    sc.render.resolution_x, sc.render.resolution_y = 468, 1013
+    HY = math.degrees(math.atan2(0.04 + 1.32022071, -4.45 + 2.11374307)); HP = math.degrees(math.atan2(1.22 - 1.38613379, math.hypot(0.04 + 1.32022071, -4.45 + 2.11374307)))
+    cam.data.angle = math.radians(75)
+    for rel, rp, nm in ((-83, 12, 'home_window'), (-70, 8, 'home_wide')):  # RoomLook yaw/pitch offsets (range yaw -140..14, pitch -12..12)
+        shoot(HOME, HY + rel, HP + rp, '%s_%s.png' % (tag, nm))
+    cam.data.angle = math.radians(60)
+    shoot((0.43, 1.26, -4.72), 12, 14, '%s_orbit180.png' % tag)  # FreeOrbit 'home' at a = 180 (lens clamped into keepInside), turned toward the window
+    cam.data.angle = math.radians(50)
+    # close look through that window from inside (there is no free outside spot: the annex of env_lighthouse_ext closes
+    # it 0.6-3.4 m out on every side, with its top at y 2.98)
+    shoot((0.95, 2.2, -1.62), 45, 10, '%s_window_close.png' % tag)
+if (after and not ab) or close_only:
     cam.data.angle = math.radians(50)
     # shutter centre ~(1.79, 2.41, -0.78); rear plant origin (1.367, 1.91, -4.568); all looked at from inside the room
     shoot((0.95, 2.2, -1.62), 45, 10, '%s_close_shutter.png' % tag)
