@@ -1,4 +1,4 @@
-import { createSkycityBoardBackground as mountSkycityBoard } from '../region/SkycityBoardBackground';
+import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -33,9 +33,7 @@ import { RegionNodeStage } from './RegionNodeStage';
 import { ExploreInput } from './ExploreInput';
 import '../region/ExploreGate';
 import { withRegionBoardGuest } from '../region/LakesideBoardGuest';
-// r4-prep B (extended): she stays where she landed in the meadow / sky-city live boards (their lease files untouched; wrapped per entry).
-function hideOtherBoardStates(root:Node|null){if(!root)return;const walk=(n:Node)=>{if(n.name.startsWith('state_')&&n.name!=='state_bridge_after')n.active=false;for(const c of n.children)walk(c);};walk(root);}
-async function createSkycityBoardBackground(ctx:any){const lease=await mountSkycityBoard(ctx);hideOtherBoardStates(ctx.parent?.getChildByName?.('SkycityLiveBackground')??null);return lease;}
+// r4-prep B: meadow guest wrap stays here. Sky-city state hiding lives in SkycityBoardLive so the board import stays the r4.2 factory.
 const meadowBoardWithGuest=(context:any)=>withRegionBoardGuest('meadow','MeadowLiveScene',1<<20,createMeadowBoardBackground)(context),skycityBoardWithGuest=(context:any)=>withRegionBoardGuest('skycity','SkycityLiveBackground',1<<20,createSkycityBoardBackground)(context);
 const {ccclass,property}=_decorator;
 /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
@@ -94,7 +92,7 @@ export class WorldNativeComposition extends Component {
     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
     const region=this.selectionRegion(selection);
-    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside'){console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);if(!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);}return arrived;}
+    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){/* r4.2 item 3: a soft stop (player cancel/background pause/double tap) logs nothing; a real failure logs ONE error, lakesideFallback's (it carries the reason) */if(region==='lakeside'&&!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);return arrived;}
     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
     // 运镜bot: lakeside assets still not ready after the hook's 3 s wait → the existing lakeside fallback (toast + island), never an empty board.
     let held=false;

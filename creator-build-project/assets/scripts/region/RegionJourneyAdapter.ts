@@ -240,9 +240,16 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
-  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  // r4.2 (Mac r4 warning 6: the lake's first-appearance frame took 135-153 ms, same on f3d3614). The first show under the set-off black
+  // is staged over two rendered frames: frame 1 = the fog switch (island variants) + the tiny water draw (water variant), frame 2 = the
+  // lakeside scene itself (models + its own variants), still under ~95 % black (the 0.35 s fade-in has just begun). Later shows
+  // (resume after a pause) switch the scene on at once. A hide before the deferred frame cancels it.
+  let showSerial=0,shown=false;
+  const showScene=(s:number)=>{if(dead||s!==showSerial)return;rig.active=true;shown=true;};
+  const lease:JourneySceneLease={route,show(visible){if(dead)return;const s=++showSerial;if(!visible){rig.active=false;return;}atmosphere.prime();warmWater();
+    if(shown){showScene(s);return;}let fired=false;const go=()=>{if(fired)return;fired=true;showScene(s);};try{director.once('director_after_draw' as any,go);}catch{}setTimeout(go,50)/* paused game: never stall */;},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
   const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
   return lease;
- }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
+ }catch(error){/* r4.2 item 3: a cancelled prepare (player left / background) is not a failure: no error line */if(!token.cancelled&&(error as any)?.name!=='Cancelled'){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}}release();throw error;}
 }

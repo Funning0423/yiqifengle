@@ -39,7 +39,7 @@ t('no water copy / no mesh / no camera: nothing created, no throw',async()=>{con
 t('paused game (no draw event): removed after maxMs anyway',async()=>{const {model,camera}=lake();const p=W.prewarmLakesideWaterDraw(camera,water,W.lakesideWaterSourceRenderer(model,isWater),{afterDraw:()=>new Promise(()=>{}),maxMs:5});const n=p.node();assert.equal(await p.done,true);assert.equal(n.destroyed,1);});
 t('ordering: prewarm runs on the first show(true) right after prime(), under the set-off black, before the fade-in and any walked frame; freed on release',async()=>{
  const rd=f=>fs.readFileSync(S+f,'utf8'),ad=rd('region/RegionJourneyAdapter.ts'),core=rd('world-r1/RegionJourneyCore.ts'),prep=ad.slice(ad.indexOf('async function prepareLakesideJourney'));
- assert.match(prep,/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)\{atmosphere\.prime\(\);warmWater\(\);\}\}/);
+ assert.match(prep,/show\(visible\)\{if\(dead\)return;const s=\+\+showSerial;if\(!visible\)\{rig\.active=false;return;\}atmosphere\.prime\(\);warmWater\(\);/,'r4.2: prime + water prewarm first, the scene on the next drawn frame');
  assert.match(prep,/const warmWater=\(\)=>\{if\(warm\|\|dead\|\|!journeyWater\)return;warm=prewarmLakesideWaterDraw\(camera,journeyWater,lakesideWaterSourceRenderer\(lakeModel,isLakesideWaterNode\)\);\};/);
  assert.match(prep,/useLakesideWater\(model,water\);[\s\S]{0,200}journeyWater=water;\}/,'the journey copy, after it is on the lake');
  assert.doesNotMatch(prep.slice(prep.indexOf('progress(d)')),/warmWater\(\)/,'not from the walk');

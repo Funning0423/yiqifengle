@@ -15,6 +15,8 @@ export function logLakesideJourneyWaterFallback(error:unknown,asset:string=LAKES
  *  and after the fog switch, so the variant compiled is the one the lake (and the board's copy, same effect/defines) draws with.
  *  Same mesh (vertex layout), same material, same shadow flags and layer as the lake renderer. Never throws; one node, gone after. */
 export const LAKESIDE_WATER_PREWARM=Object.freeze({frames:2,maxMs:3000,sizeM:1e-3,distanceM:.5});
+/** r4.2: the last prewarm's result for diagnostics (was an info [QF_LAKE] line). */
+export let lastLakesideWaterPrewarm:{ok:boolean;frames:number;ms:number}|null=null;
 export type LakesideWaterPrewarm={done:Promise<boolean>;cancel():void;node():Node|null};
 /** First lakeside water renderer (with a mesh) under root's direct children, as mounted (isWater = isLakesideWaterNode). */
 export function lakesideWaterSourceRenderer(root:Node|null,isWater:(n:Node)=>boolean):MeshRenderer|null{
@@ -24,7 +26,8 @@ export function prewarmLakesideWaterDraw(camera:Camera|null,water:Material|null,
  const C=LAKESIDE_WATER_PREWARM,frames=opt.frames??C.frames,maxMs=opt.maxMs??C.maxMs,wait=opt.afterDraw??afterDraw;
  let node:Node|null=null,over=false;
  const end=()=>{over=true;const n=node;node=null;if(n&&isValid(n,true))n.destroy();};
- const skip=(why:string)=>{try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKE] '+JSON.stringify({event:'journey-water-prewarm-skipped',why}));}catch{}end();return {done:Promise.resolve(false),cancel(){},node:()=>null};};
+ /* r4.2 item 3: a normal run prints no [QF_LAKE] line at all (the info prewarm/skipped lines are gone; a missing water material already logged journey-water-fallback) */
+ const skip=(_why:string)=>{end();return {done:Promise.resolve(false),cancel(){},node:()=>null};};
  if(!water)return skip('no-water-material');if(!source||!source.mesh)return skip('no-water-mesh');if(!camera||!isValid(camera,true)||!isValid(camera.node,true))return skip('no-camera');
  try{
   const n=new Node('LakesideWaterPrewarm');node=n;n.layer=source.node.layer;camera.node.addChild(n);
@@ -35,5 +38,5 @@ export function prewarmLakesideWaterDraw(camera:Camera|null,water:Material|null,
  }catch(error){try{console.warn('[QF_LAKE] '+JSON.stringify({event:'journey-water-prewarm-failed',error:String((error as any)?.message??error)}));}catch{}end();return {done:Promise.resolve(false),cancel(){},node:()=>null};}
  const t0=Date.now();
  const done=(async()=>{let drawn=0;for(;drawn<frames&&!over;drawn++){let timer:any;const late=new Promise<void>(res=>{timer=setTimeout(res,maxMs);});try{await Promise.race([wait(),late]);}finally{clearTimeout(timer);}}
-  const ok=!over;end();try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKE] '+JSON.stringify({event:'journey-water-prewarm',ok,frames:drawn,ms:Date.now()-t0}));}catch{}return ok;})();
+  const ok=!over;end();lastLakesideWaterPrewarm={ok,frames:drawn,ms:Date.now()-t0};return ok;})();
  return {done,cancel:end,node:()=>node};}

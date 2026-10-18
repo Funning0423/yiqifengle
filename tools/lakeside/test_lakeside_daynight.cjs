@@ -74,7 +74,7 @@ run('board applyDir = journey target in both modes; board re-applies on toggle a
  const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
  for(const m of ['day','night']){const dayBase=lightHome,bi=dayBase*A.lakesideIslandLightScale(m),M=D.lakesideModeLighting(m);
   const t=A.lakesideAtmosphereTarget({illum:bi,color:[0,0,0],sky:[0,0,0],ground:[0,0,0],skyIllum:0,clear:[0,0,0]},m);assert(near(t.illum,bi*M.sunIlluminanceScale)&&near(t.skyIllum,bi*M.ambientSkyIllumToSun));}
- assert(/const offDayNight=onDayNightChange\(\(\)=>\{if\(visible&&!dead\)applyDir\(\);\}\);/.test(bg),'board re-applies on toggle');
+ assert(/const offDayNight=onDayNightChange\(\(\)=>\{if\(!dead&&drawing\(\)\)applyDir\(\);\}\);/.test(bg),'board re-applies on toggle');
  assert(/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);/.test(bg),'unsubscribed on dispose');
  assert(/M=lakesideModeLighting\(mode\)/.test(bg)&&/camera\.clearColor=new Color\(M\.clearColor\)/.test(bg),'board colours + clear per mode');
  assert(/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);/.test(bg)&&/water\.setProperty\('lightParams',new Vec4\(M\.waterMainLightScale,M\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\);water\.setProperty\('fresnelParams',new Vec4\(P\.waterFresnelPower,P\.waterFresnelF0,P\.waterFresnelMax,M\.waterSkyStrength\)\);/.test(bg),'water-only light scales per mode (r4-prep D: shared applyLakesideWaterMode)');

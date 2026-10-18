@@ -1,4 +1,4 @@
-import { Node } from 'cc';
+import { Node, director } from 'cc';
 import { LevelBackgroundBinding } from './LevelBackground';
 import type { LevelBackgroundFactory } from './LevelBackground';
 import { ManagedMobileBoardUI as NativeBoardUI } from '../ManagedMobileBoardUI';
@@ -79,6 +79,9 @@ export function createNativeWorldLevelAdapter(options:{
       const canvasRoot=root.getChildByName?.('NativeBoardCanvas');
       for(const name of ['Backpack','RetryConfirm']){const panel=canvasRoot?.getChildByName(name);if(panel){modalNodes.push(panel);panel.on(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED,syncPaused);}}
       syncPaused();
+      // r4.2 items 10/11: while the cover plays, the UI switches itself on hidden (a slice per frame); reveal then only toggles visibility.
+      const afterFrame=(go:()=>void)=>{let done=false;const run=()=>{if(done)return;done=true;if(!disposed&&!token.cancelled)go();};try{director.once('director_after_draw' as any,run);}catch{}};
+      const prewarm=(ui as any).prewarmPresentation;if(typeof prewarm==='function')prewarm.call(ui,afterFrame);
       const reveal=()=>{if(disposed)return;root.active=true;background.setVisible(true);const present=(ui as any).presentForPlay;if(typeof present==='function')present.call(ui);};
       const lease:LevelLease={requestExit:()=>session!.requestExit() as Result,
         hide:()=>{root.active=false;background.setPaused(true);try{session!.hide();}finally{background.setVisible(false);}},showPaused:()=>{background.setPaused(true);try{session!.show();}finally{root.active=true;background.setVisible(true);}},
@@ -86,8 +89,9 @@ export function createNativeWorldLevelAdapter(options:{
         isSettledResult:()=>{const s=session!.snapshot();return !s.readOnly&&s.state==='result.saved'&&!!s.active&&(s.active.status==='won'||s.active.status==='lost');},
         whenPlayable:()=>typeof (ui as any).whenInteractive==='function'?(ui as any).whenInteractive():Promise.resolve(),
         reveal};
-      // Host stays inactive so the island shot is what the player sees. setVisible keeps the background lease armed.
-      ownedLease=lease;background.setVisible(true);active=lease;options.onSession?.(session);return lease;
+      // Host stays hidden so the island shot is what the player sees. r4.2: the background stays invisible (camera off, no sun/fog write)
+      // until reveal; its scene is already active under the host by then, so the swap frame only turns its camera on.
+      ownedLease=lease;active=lease;options.onSession?.(session);return lease;
     }catch(e){dispose();throw e;}finally{entering=false;}
   }};
 }

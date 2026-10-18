@@ -42,7 +42,7 @@ const rd=f=>fs.readFileSync(path.join(S,f),'utf8'),core=rd('world-r1/RegionJourn
 assert(/progress\?\(distance:number\):void;/.test(core));
 assert((core.match(/this\.leaseProgress\(\);/g)||[]).length===2,'observe + stop');
 assert(/private leaseProgress\(\)\{const l=this\.lease;if\(!l\?\.progress\)return;try\{l\.progress\(this\.distance\);\}catch\{\}\}/.test(core),'a lighting error never breaks the walk');
-assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)\{atmosphere\.prime\(\);warmWater\(\);\}\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
+assert(/show\(visible\)\{if\(dead\)return;const s=\+\+showSerial;if\(!visible\)\{rig\.active=false;return;\}atmosphere\.prime\(\);warmWater\(\);/.test(ad)&&/progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad))/* r4.2: staged first show */;
 assert(/const release=\(\)=>\{if\(dead\)return;dead=true;(offWater\(\);)?(offLand\(\);)?atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
 assert(/landing:L\.landing,timing:L\.timing/.test(ad),'17 s S-curve walk from 运镜bot layout');
 assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(lt)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(lt),'sun direction slerps to sunForward (r2: LakesideJourneyLighting.ts)');

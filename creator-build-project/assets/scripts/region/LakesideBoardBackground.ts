@@ -164,8 +164,29 @@ export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){con
  water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
 /** The lakeside-water.mtl asset (dir light mode only; null otherwise). r4 journey fix 1: a failed bundle/material load REJECTS with
  *  the reason (and path) instead of resolving null, so the caller can log it ([QF_LAKE] journey-water-fallback) and keep its old look. */
+/** r4.2 item 4 (Mac r4 fault injection: the water pack blocked → B-class +2 deduplicated / +6 raw instead of exactly +1). Every
+ *  bundle.load of lakeside-water.mtl whose pack fails makes the engine's pack manager console.error 'download failed: …' (journey,
+ *  chapter prewarm, board preload, board build: 5 lines on the Mac), next to our one [QF_LAKE] journey-water-fallback. This probe
+ *  fetches the material's pack through assetManager.downloader.download (same handlers, retries and cache as the engine; the
+ *  downloader itself never logs) and nobody calls bundle.load for the water once it failed, so the fallback line is the only error.
+ *  'unknown' (not packed / no downloader API) keeps the normal load. A result is reused for LAKESIDE_WATER_PROBE_TTL_MS. Never rejects. */
+export type LakesideWaterProbe={state:'ok'|'failed'|'unknown';reason:string};
+export const LAKESIDE_WATER_PROBE_TTL_MS=60000;
+let waterProbe:{at:number;promise:Promise<LakesideWaterProbe>}|null=null;
+export function probeLakesideWaterPack(bundle:AssetManager.Bundle):Promise<LakesideWaterProbe>{
+ if(waterProbe&&(waterProbe.at<0||Date.now()-waterProbe.at<LAKESIDE_WATER_PROBE_TTL_MS))return waterProbe.promise;
+ const st:{at:number;promise:Promise<LakesideWaterProbe>}={at:-1,promise:Promise.resolve({state:'unknown',reason:''})};waterProbe=st;
+ st.promise=new Promise<LakesideWaterProbe>(resolve=>{const done=(r:LakesideWaterProbe)=>{st.at=Date.now();resolve(r);};
+  try{const path=LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath,b:any=bundle,info:any=b?.getInfoWithPath?.(path,Material),asset:any=info?.uuid?b.getAssetInfo?.(info.uuid):null,pack=asset?.packs?.[0];
+   const dl:any=(assetManager as any).downloader,tf:any=(assetManager as any).utils?.transform;
+   if(!pack||pack.ext!=='.json'||!dl||typeof dl.download!=='function'||typeof tf!=='function'){done({state:'unknown',reason:''});return;}
+   const url=String(tf(pack.uuid,{ext:pack.ext,bundle:b.name}));
+   dl.download(pack.uuid,url,pack.ext,{},(err:any)=>done(err?{state:'failed',reason:'lakeside-water-pack-unavailable: '+path+': '+String(err?.message??err)}:{state:'ok',reason:''}));}
+  catch{done({state:'unknown',reason:''});}});
+ return st.promise;}
 export async function loadLakesideWaterAsset(token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<Material|null>{
  if(LAKESIDE_LIGHT_MODE!=='dir')return null;const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
+ const probe=await waitRegionAsset(probeLakesideWaterPack(bundle),token);token.check();if(probe.state==='failed')throw Error(probe.reason)/* r4.2 item 4: the journey logs this as its one journey-water-fallback */;
  const a=await waitRegionAsset(loadMaterialOrReason(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token);token.check();return take(a);}
 /** Puts `water` on every renderer of the lakeside water instances under `root` (direct children, as mounted). Returns slots set. */
 export function useLakesideWater(root:Node,water:Material):number{let n=0;
@@ -197,7 +218,7 @@ export function prewarmLakesideAssets():Promise<void>{
  const st:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}={promise:Promise.resolve(),held:[],timer:null};prewarm=st;
  const keep=<T extends {addRef():unknown;decRef(auto?:boolean):unknown}>(a:T|null)=>{if(a&&prewarm===st){a.addRef();st.held.push(a);}return a;};
  st.promise=(async()=>{try{const t0=Date.now(),b=await loadBundle(LAKESIDE_BUNDLE);keep(await loadJson(b,LAKESIDE_TRANSFORMS));
-   for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
+   for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir'&&(await probeLakesideWaterPack(b)).state!=='failed')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
    try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm',ms:Date.now()-t0,assets:st.held.length}));}catch{}
   }catch(error){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm-failed',error:String((error as any)?.message??error)}));}catch{}}
   if(prewarm===st)st.timer=setTimeout(releaseLakesidePrewarm,120000);})();
@@ -253,7 +274,12 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   // mode; with no journey (island) and a toggle since, the island re-writes its own look (no override lock).
   try{if(!reapplyLakesideJourney()&&s0.mode!==lakesideDayNightMode())(globalThis as any).__worldDayNight?.reapply?.();}catch{}};
  /** r2: day/night toggle while the board shows -> the lakeside look for the new mode (the world has just written the island's). */
- const offDayNight=onDayNightChange(()=>{if(visible&&!dead)applyDir();});
+ const offDayNight=onDayNightChange(()=>{if(!dead&&drawing())applyDir();});
+ /** r4.2 item 7: the board takes the scene sun/ambient/fog ONLY while its camera actually draws (visible + camera enabled under an
+  *  active host). The level adapter marks the lease visible while its host is still hidden (level-loading: the island/journey camera
+  *  draws), which used to rotate the shared sun to the board yaw on the first level-loading frame - the x/z flip the Mac caught. */
+ const drawing=()=>visible&&!dead&&!!camera&&isValid(camera,true)&&camera.enabled&&!!camera.node&&camera.node.activeInHierarchy;
+ const syncDir=()=>{if(drawing())applyDir();else if(saved||savedFog)restoreDir();};
  const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(pre&&isValid(parent,true))parent.destroy()/* preload holder */;if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
  off=token.onCancel(dispose);
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
@@ -265,7 +291,8 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   // Voice Bot 4728814: the shared mountLakesideScenery (bundle, transforms, prefabs, Array.from missing-check, instantiate) also feeds the journey.
   step='scenery';if(pre)instances=await mountLakesideScenery(scenery,token,take,pre.yieldFrame);else instances=await mountLakesideScenery(scenery,token,take);if(!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
   step='water-material';const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
-  const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
+  const wp=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(probeLakesideWaterPack(bundle),token):null;token.check();/* r4.2 item 4: a failed water pack is not loaded again (no engine error); the board keeps its v2 tint like before */
+  const waterAsset=wp&&wp.state!=='failed'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
   const list=lakesideSceneInstances((((bundle.get(LAKESIDE_TRANSFORMS,JsonAsset) as JsonAsset|null)?.json as any)?.instances||[]) as LakesideInstance[]);
   instanced=enableLakesideInstancing(scenery);
   if(LAKESIDE_LIGHT_MODE==='dir'){/* v3: the lake gets the lease's own copy of lakeside-water.mtl (Fresnel sky + sun streak + fog); if it failed to
@@ -293,11 +320,12 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   // off (nothing draws it). The rig then stays active under the preload holder; only the camera follows "visible and the board host shown".
   if(pre){step='preload-activate';const kids=scenery.children.slice();for(const k of kids)k.active=false;rig.active=true;
    for(let i=0;i<kids.length;i++){if(isValid(kids[i],true))kids[i].active=true;if((i+1)%LAKESIDE_PRELOAD_BATCH===0){await pre.yieldFrame();token.check();}}}
-  const showCamera=()=>{if(!camera||!isValid(camera,true))return;camera.enabled=visible&&(!pre||(isValid(host,true)&&host.activeInHierarchy));};
+  else rig.active=true;/* r4.2 items 10/11: a direct build switches on with the (still hidden) board host, not on the swap frame */
+  const showCamera=()=>{if(!camera||!isValid(camera,true))return;camera.enabled=visible&&isValid(host,true)&&host.activeInHierarchy;};
   return {
-   adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();},
-   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();showCamera();},
-   setVisible:value=>{if(dead)return;visible=value;if(!pre)rig!.active=value;if(pre)showCamera();else camera!.enabled=value;if(value)applyDir();else restoreDir();},
+   adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();syncDir();},
+   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');showCamera();syncDir();},
+   setVisible:value=>{if(dead)return;visible=value;showCamera();if(value)syncDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null,guest:guest?guest.renderers:0,preloaded:!!pre,cameraOn:!!camera&&camera.enabled}),
    dispose,

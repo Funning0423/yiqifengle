@@ -110,6 +110,13 @@ const tests=[
  ['balloon-transport-flag','tools/journey-integration/test-transport-flag.cjs'],
  ['balloon-transit-background-resume','tools/journey-integration/test-transit-background-resume.cjs'],
  ['sky-arrival','tools/transitions/test_sky_arrival.cjs'],
+ ['lakeside-sun-continuity','tools/lakeside/test_lakeside_sun_continuity.cjs'],/* r4.2 item 7 */
+ ['board-prewarm-swap','tools/board-ui/test_board_prewarm_swap.cjs'],/* r4.2 items 10/11 */
+ ['region-board-night','tools/meadow/test_region_board_night.cjs'],/* r4.2 item 9 */
+ ['lakeside-quiet-logs','tools/lakeside/test_lakeside_quiet_logs.cjs'],/* r4.2 item 3 */
+ ['lakeside-water-probe','tools/lakeside/test_lakeside_water_probe.cjs'],/* r4.2 item 4 */
+ ['navigation-guard-timeout','tools/journey-integration/test-navigation-guard-timeout.cjs'],/* r4.2 item 20 */
+ ['lakeside-first-show-staged','tools/lakeside/test_lakeside_first_show_staged.cjs'],/* r4.2 warning 6 */
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

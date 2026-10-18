@@ -5,6 +5,9 @@ import { applyCameraPose, fromLookAt } from '../world-r1/CameraPose';
 import { uiNightWeight } from '../ui/NightTint';
 import type { LevelBackgroundFactory } from '../world-r2/LevelBackground';
 import { Cancellation } from '../world-r1/WorldFlowCore';
+import { SkyNightTexture } from '../render/SkyNightTexture';
+import { onDayNightChange } from '../world-r1/DayNightContract';
+import { hexToRgb, regionNightNow, writeRegionBoardClear } from './RegionBoardNight';
 const {ccclass} = _decorator;
 export const MEADOW_LAYER = 1 << 20;
 function find(n:Node,name:string):Node|null { if(n.name===name)return n;for(const child of n.children){const hit=find(child,name);if(hit)return hit;}return null; }
@@ -76,8 +79,11 @@ export function meadowCloudMaterials(node:Node|null):Material[]{
 @ccclass('MeadowSceneMotion')
 export class MeadowSceneMotion extends Component {
  /** N2: journey mode (93-120 s night journey). Grass gets the world's lit-night grade (windParams.w=1) and the unlit
-  *  meadow_clouds_near gets the env_cloud_layer night tint, both following uiNightWeight(). Board background keeps w=0. */
- journeyNight=false;clouds:Material[]=[];grounds:Array<{m:Material,base:number[],f?:readonly number[]}>=[];
+  *  meadow_clouds_near gets the env_cloud_layer night tint, both following uiNightWeight(). r4.2 item 9: the board background
+  *  uses the same grade (it showed a daytime meadow at night after the swap); day is unchanged (weight 0 = factor 1). */
+ journeyNight=false;
+ /** r4.2 item 9: board only - the camera whose clear colour (the board sky) eases from dayClear to the journey's night sky. */
+ boardCamera:Camera|null=null;dayClear:readonly number[]=[0x87,0xbf,0xc9];clouds:Material[]=[];grounds:Array<{m:Material,base:number[],f?:readonly number[]}>=[];
  material:Material|null=null;sail:Node|null=null;light:SphereLight|null=null;hostPaused=true;visible=false;
  private seconds=0;private hidden=false;
  onLoad(){game.on(Game.EVENT_HIDE,this.hide,this);game.on(Game.EVENT_SHOW,this.show,this);}
@@ -89,10 +95,15 @@ export class MeadowSceneMotion extends Component {
   this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,this.journeyNight?1:0));
   if(this.journeyNight)for(const g of this.grounds){const k=meadowGroundFactor(night,g.f);g.m.setProperty('mainColor',new Vec4(g.base[0]*k[0],g.base[1]*k[1],g.base[2]*k[2],g.base[3]));}
   if(this.journeyNight)for(const m of this.clouds){const c=meadowCloudColor(night);m.setProperty('mainColor',new Vec4(c[0],c[1],c[2],1));}
+  if(this.boardCamera&&isValid(this.boardCamera,true))writeRegionBoardClear(this.boardCamera,this.dayClear,night,(r,g,b)=>new Color(r,g,b,255));
  }
  diagnostics(){return {seconds:this.seconds,paused:this.hostPaused||this.hidden||!this.visible,windmillLoopSeconds:8,grassWaveSeconds:4};}
  onDestroy(){game.off(Game.EVENT_HIDE,this.hide,this);game.off(Game.EVENT_SHOW,this.show,this);this.material=null;this.sail=null;this.light=null;}
 }
+/** r4.2 item 9: the board's own meadow_sky_dome takes the night sky picture (not night-only: it stays this board's day sky). */
+export function mountMeadowBoardNightSky(model:Node):SkyNightTexture|null{
+ const dome=find(model,'meadow_sky_dome');const r=dome?dome.getComponentsInChildren(MeshRenderer)[0]:null;if(!dome||!r)return null;
+ const sky=dome.getComponent(SkyNightTexture)||dome.addComponent(SkyNightTexture);sky.skyRenderer=r;sky.setNightBlend(1);return sky;}
 /** The actual meadow model renders behind the board at camera priority 44.
  * No static picture/RenderTexture substitute, world-camera write, save or progression mutation.
  * Bit20 is excluded by the committed world camera masks; check again at runtime.
@@ -100,9 +111,9 @@ export class MeadowSceneMotion extends Component {
 export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
  let rig:Node|null=null,prefab:Prefab|null=null,effect:EffectAsset|null=null,material:Material|null=null,camera:Camera|null=null,motion:MeadowSceneMotion|null=null;
  const heldAssets:Array<{decRef():unknown}>=[];
- let disposed=false,visible=false,paused=true,offCancel=()=>{},anchor:ReturnType<typeof meadowScenePose>|null=null;
+ let disposed=false,visible=false,paused=true,offCancel=()=>{},anchor:ReturnType<typeof meadowScenePose>|null=null,offNight=()=>{},nightSky:SkyNightTexture|null=null;
  const dispose=()=>{
-  if(disposed)return;disposed=true;offCancel();
+  if(disposed)return;disposed=true;offCancel();offNight();nightSky=null;
   if(camera&&isValid(camera,true))camera.enabled=false;
   if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;motion=null;
   material?.destroy();material=null;for(const asset of heldAssets.splice(0))asset.decRef();effect=null;prefab=null;
@@ -132,12 +143,22 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=.1;camera.far=1000;camera.visibility=MEADOW_LAYER;
   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color('#87bfc9');camera.enabled=false;
   motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');motion.light=light;
+  // r4.2 item 9: night honours the world mode like the journey copy (same grade lists, see RegionJourneyAdapter) and the board's own
+  // meadow_sky_dome (kept on: it is this board's day sky) gets the night picture once the mode is night (SkyNightTexture, blend
+  // driven by WorldFlowComponent.applyDayNight from then on; day output unchanged at blend 0). Clear colour eases in motion.update.
+  motion.journeyNight=true;motion.clouds=meadowCloudMaterials(find(model,'meadow_clouds_near'));
+  motion.grounds=meadowGroundMaterials([find(model,'meadow_terrain'),find(model,'meadow_river_bank')]);
+  motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT));
+  motion.boardCamera=camera;motion.dayClear=hexToRgb('#87bfc9');
+  const syncNight=()=>{if(disposed)return;const night=regionNightNow();if(night&&!nightSky)nightSky=mountMeadowBoardNightSky(model);if(nightSky&&isValid(nightSky,true))nightSky.setNightBlend(night?1:0);};
+  syncNight();offNight=onDayNightChange(syncNight);
+  rig.active=true;/* r4.2 items 10/11: the scene switches on with the (still hidden) board host, not on the swap frame; visibility = camera */
   return {
    frame:(_portrait,layout)=>{if(disposed)return;token.check();if(!camera||!isValid(camera,true)||!isValid(camera.node,true))throw Error('Meadow camera owner destroyed');if(!layout||!(layout.width>0&&layout.height>0))throw Error('Meadow requires current board layout');
     const pose=meadowScenePose(layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');
     if(anchor&&!applyCameraPose(camera!,fromLookAt(anchor),'meadow.node-anchor'))throw Error('Meadow node anchor rejected');},
    setAnchor:pose=>{if(disposed)return;anchor=pose;},
-   setVisible:value=>{if(disposed)return;visible=value;rig!.active=value;camera!.enabled=value;motion!.visible=value;},
+   setVisible:value=>{if(disposed)return;visible=value;camera!.enabled=value;motion!.visible=value;},
    setPaused:value=>{if(disposed)return;paused=value;motion!.hostPaused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'meadow',bundle:REGIONS.meadow.bundle,prefabName:REGIONS.meadow.prefabName,source:MEADOW_SCENE_SOURCE,visible,paused,cameraPriority:44,layer:MEADOW_LAYER,motion:motion?.diagnostics()||null,dynamicTextureUploads:0}),
    dispose,
