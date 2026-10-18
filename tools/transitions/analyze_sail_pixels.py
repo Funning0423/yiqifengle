@@ -72,34 +72,31 @@ for shot in shots:
     w, h = im.size
     pix = im.load()
     sea = sea_ref(im)
+    # Disks on the sample points. The filled quad covers the sea beside the hull when the lens looks along the boat.
     wr = 0
+    hits = seen = 0
     for group in (row.get('cockpit') or '').split(';'):
-        raw = []
-        for part in group.split('|'):
+        for pi, part in enumerate(group.split('|')):
+            if pi:
+                continue
             if ':' not in part:
                 continue
             a, b = part.split(':')[:2]
             try:
-                raw.append((float(a), float(b)))
+                sx, sy = float(a), h - float(b)
             except ValueError:
-                pass
-        mask = poly(raw, w, h)
-        water = total = 0
-        if len(mask) >= 3 and all(8 < p[0] < w - 8 and 8 < p[1] < h - 8 for p in mask):
-            minx = max(0, int(min(p[0] for p in mask)) - 1)
-            maxx = min(w - 1, int(max(p[0] for p in mask)) + 1)
-            miny = max(0, int(min(p[1] for p in mask)) - 1)
-            maxy = min(h - 1, int(max(p[1] for p in mask)) + 1)
-            for y in range(miny, maxy + 1, 2):
-                for x in range(minx, maxx + 1, 2):
-                    if not inside(x, y, mask):
+                continue
+            if not (12 <= sx < w - 12 and 12 <= sy < h - 12):
+                continue
+            for y in range(int(sy) - 4, int(sy) + 5, 2):
+                for x in range(int(sx) - 4, int(sx) + 5, 2):
+                    if (x - sx) ** 2 + (y - sy) ** 2 > 16:
                         continue
-                    total += 1
+                    seen += 1
                     p = pix[x, y]
                     if p[2] > p[0] + 28 and p[2] > 120 and dist(p, sea) < 70:
-                        water += 1
-        if total:
-            wr = max(wr, water / total)
+                        hits += 1
+    wr = (hits / seen) if seen else 0
     try:
         gx, gy = float(row.get('gsx') or 'nan'), float(row.get('gsy') or 'nan')
     except ValueError:
@@ -110,7 +107,7 @@ for shot in shots:
         for y in range(max(0, int(iy - 70)), min(h, int(iy + 50))):
             for x in range(max(0, int(gx - 40)), min(w, int(gx + 40))):
                 p = pix[x, y]
-                if p[0] > 150 and p[1] > 110 and p[2] < 155 and p[0] + p[1] > p[2] * 2.2:
+                if p[0] > 110 and p[1] > 80 and p[2] < 180 and p[0] > p[2] + 12 and p[1] > p[2]:
                     count += 1
         row['girlPx'] = str(count)
     if float(row.get('real') or 0) > 1:
