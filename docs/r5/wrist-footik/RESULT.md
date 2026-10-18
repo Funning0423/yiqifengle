@@ -270,3 +270,9 @@ r5 上**动画片段本身**的滑步（脚底接地点、根运动按 anim_meta
 - v4：手臂是原 mocap，扫裙 0，裙子和围裙互穿 0，腿露出裙子和间隙都没变坏，交接 ≤ 3.2°，不抖。剩下的问题只有背面轻微不对称和 f28 的淡折痕，避让角最大 15.5°（只有 walk_loop 和 walk_start 超过 8°）。
 - v5：裙子和围裙互穿、交接跳 7°、下摆外翘，三项都不合格，不推荐。
 - 如果还想把 f28 的折痕再压淡，又不改手、不改网格，剩下能做的是在 walk_loop 里给 skirt.back 一点点跟随（让背片跟着侧片走），这一版没做。
+
+## v6 — skirt.back follows side panels 30% (REJECTED, final = v4)
+- skirt.back rotated about forward axis by 0.3×(left−right avoidance), sign chosen to follow the tucked panel; max 4.7° (walk_loop), 3.6° (start).
+- Metrics vs v4: penetrations 0/0, dress/apron crossing 0/0, handoffs equal (stop_bodyL 3.57°) — BUT legs-out-of-skirt worse (walk_start 6→8, walk_loop 7→9) and walk_loop leg↔dress clearance 0.3→0.0 mm.
+- Images img_v6/FB_back.png, FB_front.png (left v4, right v6): f28 back crease and her-right indent look the same; no visible improvement; front unchanged.
+- Decision per rule: keep v4. Final handoff → INTEGRATE.md.
