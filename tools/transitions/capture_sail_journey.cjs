@@ -32,17 +32,19 @@ function serve(root){
 (async()=>{
  const server=serve(WEB);await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const port=server.address().port;
- const browser=await chromium.launch({executablePath:CHROME,headless:true,args:['--use-gl=angle','--use-angle=swiftshader']});
+ const browser=await chromium.launch({executablePath:CHROME,headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,hasTouch:true,isMobile:true});
  await page.addInitScript(()=>{
-  let now=0;const origin=Date.now();
-  performance.now=()=>now;
-  Date.now=()=>origin+now;
+  let now=0,spins=0;const origin=Date.now();
+  performance.now=()=>{if(++spins>4000){spins=0;now+=1;}return now;};
+  Date.now=()=>origin+Math.floor(now);
   const q=[];
   window.requestAnimationFrame=(cb)=>{q.push(cb);return q.length;};
   window.cancelAnimationFrame=()=>{};
-  window.__stepFrame=()=>{now+=1000/30;const cbs=q.splice(0,q.length);for(const cb of cbs){try{cb(now);}catch(e){console.error(e);}}return now;};
+  window.__stepFrame=()=>{spins=0;now+=1000/30;const cbs=q.splice(0,q.length);for(const cb of cbs){try{cb(now);}catch(e){console.error(e);}}return {now,queued:q.length};};
  });
+ page.on('console',msg=>{const t=msg.text();if(/QF_SAIL|WORLD_STARTUP|sailqa|Error|error/.test(t))console.log('PAGE',t.slice(0,240));});
+ page.on('pageerror',err=>console.log('PAGEERROR',String(err).slice(0,400)));
  const q=night?'sailqa=1&night=1&transport=sail':'sailqa=1&transport=sail';
  await page.goto('http://127.0.0.1:'+port+'/index.html?'+q,{waitUntil:'domcontentloaded',timeout:120000});
  let shots=0,lastN=0,stable=0,seenSail=false;
@@ -61,8 +63,9 @@ function serve(root){
    index.push({file:name,i,state:info.state,beat:info.beat,t:info.t,n:info.n});
    shots++;
   }
+  if(i%30===0)console.log('step',i,'state',info.state,'frames',info.n,'beat',info.beat,'shots',shots);
   if(seenSail&&info.state==='meadow'&&stable>40)break;
-  if(!seenSail&&i>30*40){console.error('sail never started',info);break;}
+  if(!seenSail&&i>30*40){console.error('sail never started',JSON.stringify(info));break;}
  }
  const dumped=await page.evaluate(()=>window.__sailQa||{frames:[],cues:[]});
  fs.writeFileSync(path.join(FRAMES,'probe.json'),JSON.stringify({cues:dumped.cues,frames:dumped.frames}));
