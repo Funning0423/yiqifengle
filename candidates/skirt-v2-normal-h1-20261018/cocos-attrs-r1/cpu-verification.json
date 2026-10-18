@@ -1,0 +1,131 @@
+{
+  "scope": "Independent file re-open and CPU shader/geometry equivalence only. Actual Creator importer and GPU rerun pending. Keep h1-preview old-solver-disable gate.",
+  "source_sha256": "af5c0efa865211679610a785c39bdf19a1c8ea5720be8fa769ddae06da90c20d",
+  "output_sha256": "8a79b26ec12d4e248abe14310dd75febca433a15097b1f22ea94144cd3f5a592",
+  "checks": {
+    "expected_source_sha": true,
+    "old_bin_prefix_bitwise_equal": true,
+    "all_original_accessor_json_equal": true,
+    "all_original_bufferView_json_equal": true,
+    "all_original_accessor_values_equal": true,
+    "LOD0_G2_APRON_target_names_and_weights_equal": true,
+    "LOD0_G2_APRON_same_target_count_across_primitives": true,
+    "LOD0_G2_BODY_target_names_and_weights_equal": true,
+    "LOD0_G2_BODY_same_target_count_across_primitives": true,
+    "LOD0_G2_BOW_target_names_and_weights_equal": true,
+    "LOD0_G2_BOW_same_target_count_across_primitives": true,
+    "LOD0_G2_DRESS_target_names_and_weights_equal": true,
+    "LOD0_G2_DRESS_same_target_count_across_primitives": true,
+    "only_nine_normal_keys_two_accessors_added": true,
+    "all_other_json_exact": true,
+    "all_targets_canonical_delta_tensors_exact": true,
+    "zero_native_weights": true,
+    "metadata_only_glb_name_changed": true,
+    "source_files_untouched": true,
+    "345_walk_frames_AP_D_geometry_and_normal_vectors_exact": true
+  },
+  "primitive_attributes": [
+    {
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "targets": 53,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 0,
+      "targets": 16,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 1,
+      "targets": 16,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 2,
+      "targets": 16,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 3,
+      "targets": 16,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 4,
+      "targets": 16,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 5,
+      "targets": 16,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BOW",
+      "primitive": 0,
+      "targets": 0,
+      "attribute_sets": []
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "primitive": 0,
+      "targets": 49,
+      "attribute_sets": [
+        [
+          "NORMAL",
+          "POSITION"
+        ]
+      ]
+    }
+  ],
+  "shader_replay": {
+    "times": 345,
+    "mesh_pose_evaluations_compared": 690,
+    "max_position_component_difference": 0.0,
+    "max_final_normal_component_difference": 0.0,
+    "method": "Independent LINEAR/slerp FK, morph, direct weighted skin3x3, WorldIT, normalize; metadata driven; old solver disabled. Unchanged meshes/other clips additionally covered by exact original data and canonical delta tensors."
+  },
+  "metadata_sha256": "6d775f7779127f2254aa18f243f7cd2a0fcba177564c8ca1c921eed42684182c"
+}
