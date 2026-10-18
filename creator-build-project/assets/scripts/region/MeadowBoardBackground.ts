@@ -153,7 +153,7 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   const syncNight=()=>{if(disposed)return;const night=regionNightNow();if(night&&!nightSky)nightSky=mountMeadowBoardNightSky(model);if(nightSky&&isValid(nightSky,true))nightSky.setNightBlend(night?1:0);
    // The board dome is builtin-unlit, so SkyNightTexture cannot bind a night picture and the day texture covers the night clear.
    // Hide those day backdrops while night (the camera clear is the night sky). A real sky-unlit dome stays up. Day turns them back on.
-   for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(!backdrop)continue;for(const r of backdrop.getComponentsInChildren(MeshRenderer)){const effect=(r.getSharedMaterial(0) as {effectName?:string}|null)?.effectName||'';if(!/sky-unlit/.test(effect))r.enabled=!night;}}
+   for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(!backdrop)continue;for(const r of backdrop.getComponentsInChildren(MeshRenderer)){const shared=r.getSharedMaterial(0) as any;const effect=shared&&shared.effectName?String(shared.effectName):'';if(effect.indexOf('sky-unlit')<0)r.enabled=!night;}}
   };
   syncNight();offNight=onDayNightChange(syncNight);
   rig.active=true;/* r4.2 items 10/11: the scene switches on with the (still hidden) board host, not on the swap frame; visibility = camera */
