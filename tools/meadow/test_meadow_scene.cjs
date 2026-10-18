@@ -5,6 +5,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {createHarness}=require('../board-ui/harness.cjs');
 function setup(){
  const H=createHarness(),cc=H.cc;
+ cc.MeshRenderer.prototype.getMaterialInstance=function(){return null;};
+ cc.MeshRenderer.prototype.getSharedMaterial=function(i){return this.sharedMaterials[i]||null;};
  cc.EffectAsset=class{constructor(){this.refs=0;}addRef(){this.refs++;}decRef(){this.refs--;}};
  cc.Animation=class extends cc.Component {constructor(){super();this.playOnLoad=true;}};
  cc.Vec4=class{constructor(x,y,z,w){Object.assign(this,{x,y,z,w});}};
@@ -39,7 +41,9 @@ function setup(){
  const orphan=x.M.createMeadowBoardBackground({parent:orphanParent,selection:{stageId:'mainline-05'},token:new x.Cancellation()});await Promise.resolve();await Promise.resolve();orphanParent.destroy();for(const done of orphanPending)done();await assert.rejects(orphan,/owner destroyed/);assert.equal(x.prefab.refs,0);assert.equal(x.effect.refs,0);x.setDelay(null);
  // Advance uses the actual preflight before surrendering the saved board.
  const C=x.H.load('world-r2/WorldNativeComposition').WorldNativeComposition,c=Object.create(C.prototype),order=[];
- c.world={commands:()=>({exitLevel(){order.push('exit');return {ok:true};}})};c.activeSession={snapshot:()=>({provider:'mainline-v33',state:'result.saved',result:{completionRecorded:true},nextStageId:'mainline-05'})};c.enterMainlineStage=async id=>{order.push(id);return {ok:true};};
- x.setFail(true);assert.equal((await c.advanceMainline()).reason,'meadow-scene-load-failed');assert.deepEqual(order,[]);x.setFail(false);assert((await c.advanceMainline()).ok);assert.deepEqual(order,['exit','mainline-05']);
+ c.world={commands:()=>({prepareRegion(){return {ok:true};},exitLevel(){order.push('exit');return {ok:true};}})};
+ c.activeSession={snapshot:()=>({provider:'mainline-v33',state:'result.saved',result:{completionRecorded:true},nextStageId:'mainline-05',active:{stageId:'mainline-04'},journey:{readOnly:false,records:Array.from({length:12},(_,i)=>({bestStars:i<4?1:0,clears:i<4?1:0}))}})};
+ c.enterMainlineStage=async id=>{order.push(id);return {ok:true};};
+ x.setFail(true);await assert.rejects(x.M.preflightMeadowScene(),/missing prefab/);assert.deepEqual(order,[]);x.setFail(false);assert((await c.advanceMainline()).ok);assert.deepEqual(order,['exit','mainline-05']);
  console.log(JSON.stringify({status:'PASS',cases:['current derivative model mounts through RegionLoader, dedicated 3D camera behind board','imported camera/animation autoplay disabled; required anchors and five merged grass renderers validated','actual source portrait/landscape camera pose applied without world-camera mutation','windmill/grass clocks pause on result, hide, explicit pause and freeze when hidden','resource refs, nodes and app listeners released on double dispose, missing anchor and late cancelled load','failed preflight retains saved board; successful preflight permits actual mainline05 transition'],scope:'Actual TypeScript against Cocos node/asset doubles created from current GLB. Creator importer/shader and native visual acceptance pending'},null,2));
 })().catch(e=>{console.error(e);process.exitCode=1;});
