@@ -87,8 +87,19 @@
   - 最后 8 s 的落地混合里逐渐把偏移衰减到 0，保证 t = T 时正好落在 E。
 
 ## 7. 预览图（Blender 4.5 EEVEE，585×1266，左边旧、右边新，τ 相同）
-- 女孩模型：`chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb`，blob `f94800dc`，和 bc81575f 里的一致。
-- 文件：`pair_k0 … pair_k8.png`，另有总览图 `contact.png`。
+- 女孩模型：`region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb`。工作区 blob `f94800dc…`，和 bc81575f 里的完全一样，不是旧代理模型。
+- 文件：`pair_k0 … pair_k8.png`（新旧对比），`contact.png`（总览），单帧 `k*_old/new_*.png`。都是这次重新渲染的，没有用旧截图。
+- 第一批渲染的相机 up 轴写错了（`to_track_quat('-Z','Z')`），画面是歪的，已经改成 `'-Z','Y'` 并全部重新渲染。
+- 最值得看：
+  - `pair_k8`：飞完之后。旧的跳回天空之城机位，画面只剩草地和空中的碎片；新的就是 E，她在篮子里背对镜头面向湖，桥、湖和远山都在画面里。热气球的气囊占了画面上部约 1/3，见 §5 第 4 条。
+  - `pair_k3`（新 t = 12.9）：气球带着她从天空之城的大树和塔楼旁边离开，背景是湖。
+  - `pair_k5`（新 t = 23.1）：在湖面上空缓缓下降，她和气球都在画面里。旧的这一帧篮子是空的，她还站在 S6。
+  - `pair_k1`（新 t = 3.9）：起飞问题。镜头从篮子下方往上看，看不到她，旧的这一帧镜头在树干里。
 
-## 8. 测试
-`tools/journey-integration/run-suite.cjs`、`tools/lakeside/test_lakeside_reach.cjs`、`tools/test_manifests.cjs --write`，结果见最终汇报。
+## 8. 测试（box，node 22）
+- `tools/journey-integration/run-suite.cjs`（HEAD = 第一个提交 db51a59）：123 项里 121 项 PASS。
+  - `navigation-guard`：BLOCKED_BROWSER，允许。
+  - `lens-clearance`：FAIL，**环境问题**。`tools/region-nodes/test_lens_clearance.cjs` 要读 `/workspace/yiqifengle/r5-region-nodes-r3/maps/topmap.cjs`，这个箱子上没有这个文件（ENOENT），和这次的改动无关。
+  - 提交前 `region-transport-flag` 报过 “adapter bytes drifted from HEAD”，原因是它拿工作区和 HEAD 比对；提交后通过。
+- `tools/lakeside/test_lakeside_reach.cjs`：5 / 5 PASS。
+- `tools/test_manifests.cjs --write`：已重写 `assets-` 和 `text-MANIFEST-SHA256.json`，报告 changed 71、added 266、removed 3。其中大部分是基线分支本来就有的漂移。

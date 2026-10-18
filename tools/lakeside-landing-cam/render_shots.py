@@ -57,7 +57,7 @@ cam=bpy.data.objects.new('cam',bpy.data.cameras.new('cam'));sc.collection.object
 for sh in J['shots']:
     w_,h_=sh['res'];sc.render.resolution_x=w_;sc.render.resolution_y=h_;sc.render.resolution_percentage=100
     p=g2b(sh['cam']['position']);t=g2b(sh['cam']['target']);cam.location=p
-    d=(t-p).normalized();cam.rotation_mode='QUATERNION';cam.rotation_quaternion=d.to_track_quat('-Z','Z')
+    d=(t-p).normalized();cam.rotation_mode='QUATERNION';cam.rotation_quaternion=d.to_track_quat('-Z','Y')
     if sh.get('ortho'):cam.data.type='ORTHO';cam.data.ortho_scale=sh['ortho']
     else:cam.data.type='PERSP';cam.data.angle=math.radians(sh['cam']['fov'])
     v=sh.get('vehicle');balE.hide_render=v is None
