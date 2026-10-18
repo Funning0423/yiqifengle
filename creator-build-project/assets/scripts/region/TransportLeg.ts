@@ -128,7 +128,7 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
   const yawDeg=world?s.yawDeg:meadow.yawDeg+s.yawDeg;
   return {pos:map(s.pos,time,s.frame),yaw:yawDeg*Math.PI/180,roll:s.rollDeg};
  };
- const camera=(time:number,_screen?:Screen):Pose=>{const s=local(time);return {position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48};};
+ const camera=(time:number,screen?:Screen):Pose=>{const s=local(time);return keepBalloonFramed({position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48}, map(s.pos,time,s.frame), screen);};
  const routeAt=(time:number)=>worldAt(Math.max(0,Math.min(FLIGHT_DURATION,time)));
  const deck=doc.layout.cloudDeckY,deckMid=(deck[0]+deck[1])/2;
  const cloudAt=map(local(4.3).pos,4.3,local(4.3).frame);
@@ -143,6 +143,27 @@ export function strataClearsGround(originY:number,strataLocalMinY:number,meadowG
 }
 /** Seconds of foreground time. A hidden gap does not advance `t`. Gaps over 30 s request a 0.35 s fade on resume. */
 /** Down-sampled balloon route. path[0] is the standing root the journey was prepared from. */
+/** Pull the look target toward the basket only while she would leave a 390×844 frame. Inside the safe band the pose is unchanged. */
+export function keepBalloonFramed(pose:Pose,subject:Vec,screen?:Screen):Pose{
+ const aspect=(screen?.w&&screen?.h)?screen.w/screen.h:390/844;
+ const th=Math.tan(pose.fovVerticalDeg*Math.PI/360);
+ let target=pose.target;
+ for(let k=0;k<4;k++){
+  const f0=[target[0]-pose.position[0],target[1]-pose.position[1],target[2]-pose.position[2]];
+  const fl=Math.hypot(f0[0],f0[1],f0[2])||1,f=[f0[0]/fl,f0[1]/fl,f0[2]/fl];
+  let r=[f[2],0,-f[0]];const rl=Math.hypot(r[0],r[2])||1;r=[r[0]/rl,0,r[2]/rl];
+  const u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+  const d=[subject[0]-pose.position[0],subject[1]-pose.position[1],subject[2]-pose.position[2]];
+  const z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];if(!(z>0.5))break;
+  const nx=(d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/(z*th*aspect);
+  const ny=(d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/(z*th);
+  const ex=Math.max(0,Math.abs(nx)-0.70),ey=Math.max(0,Math.abs(ny)-0.72);
+  if(ex<0.02&&ey<0.02)break;
+  const pull=Math.min(0.45,Math.max(ex,ey)*0.55);
+  target=[target[0]+(subject[0]-target[0])*pull,target[1]+(subject[1]-target[1])*pull,target[2]+(subject[2]-target[2])*pull];
+ }
+ return target===pose.target?pose:{position:pose.position,target,fovVerticalDeg:pose.fovVerticalDeg};
+}
 export function balloonRoutePoints(start:Vec,plan:BalloonPlan):Vec[]{
  const out:Vec[]=[start];
  const push=(p:Vec)=>{const q=out[out.length-1];if(Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2])>1.25)out.push([p[0],p[1],p[2]]);};

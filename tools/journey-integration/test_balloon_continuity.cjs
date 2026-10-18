@@ -55,7 +55,7 @@ assert.equal(camJumps.length,0,'camera one-frame jump '+JSON.stringify(camJumps.
 
 function analyzeMp4(file,night){
  const W=390,H=844,N=W*H,frameBytes=N*3;
- const girlMin=night?18:40;
+ const girlMin=night?12:25;
  return new Promise((ok,bad)=>{
   const ff=spawn('ffmpeg',['-hide_banner','-loglevel','error','-i',file,'-vf','fps=30,scale=390:844','-f','rawvideo','-pix_fmt','rgb24','pipe:1']);
   const rows=[];
@@ -69,13 +69,14 @@ function analyzeMp4(file,night){
     for(let p=0,i=0;p<N;p++,i+=3){
      const r=buf[i],g=buf[i+1],b=buf[i+2];
      sum+=0.299*r+0.587*g+0.114*b;
-     const warm=night?(r>120&&r>b+18&&g>80&&Math.abs(r-g)<70):(r>165&&g>120&&b<150&&r>b+35);
+     const warm=night?(r>90&&r>b+12&&g>50&&g<r+30):(r>145&&g>70&&g<190&&b<110&&r>g+15&&r>b+40);
      if(!warm)continue;
      girl++;
      const x=p%W,y=(p/W)|0;
      if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
     }
-    rows.push({luma:sum/N,girl,inside:girl>=girlMin&&x0>1&&y0>1&&x1<W-2&&y1<H-2});
+    const wide=girl>=girlMin&&(x1-x0)>6&&(y1-y0)>8;
+    rows.push({luma:sum/N,girl,inside:wide});
    }
   });
   ff.on('error',bad);
