@@ -148,7 +148,8 @@ function taperMouthShore(renderer:MeshRenderer,_side:'left'|'right'|'reeds'){
  if(!(src instanceof Float32Array)||src.length<3)return;
  const pos=new Float32Array(src);let changed=false;
  for(let i=0;i<pos.length;i+=3){
-  if(pos[i+1]<=0.02)continue;
+  // The waterline cap sits at local y ≈ 0.02. Leaving it made the rectangular pad.
+  if(pos[i+1]<=-0.08)continue;
   pos[i+1]=-0.62;changed=true;
  }
  if(changed)writeMeshPositions(mesh,renderer,pos);
