@@ -40,7 +40,7 @@ if(fs.existsSync(csv)){
  let prev=null,prevBoat=null,sailReal0=null,sailReal1=null,arr0=null,arr1=null,movedBeforeSit=false,seenSeat=false;
  for(const c of rows){
   const t=+c[col('t')],real=+c[col('real')],beat=c[col('beat')],parent=c[col('parent')]||'';
-  const gx=+c[col('gx')],gz=+c[col('gz')],renderers=+c[col('girlRenderers')];
+  const gx=+c[col('gx')],gy=+c[col('gy')],gz=+c[col('gz')],renderers=+c[col('girlRenderers')];
   const departed=c[col('departed')]==='1';
   const boatx=+c[col('boatx')],boatz=+c[col('boatz')];
   if(beat!=='arrival'){if(sailReal0==null)sailReal0=real;sailReal1=real;}
@@ -53,11 +53,13 @@ if(fs.existsSync(csv)){
   if(prev&&Number.isFinite(gx)&&Number.isFinite(prev.gx)){
    const dt=(beat==='arrival'?t-prev.t:real-prev.real);
    if(dt>1e-4&&dt<0.2&&prev.beat===beat&&(beat==='S-a'||beat==='S-b'||beat==='arrival')){
-    const sp=Math.hypot(gx-prev.gx,gz-prev.gz)/dt;
-    if(prev.sp>0.9&&sp>0.9)assert(Math.abs(sp-prev.sp)/prev.sp<=0.15,'walk speed jump '+prev.sp.toFixed(2)+' -> '+sp.toFixed(2)+' @ '+beat);
-    prev={t,real,beat,gx,gz,sp,boatx,boatz};
-   }else prev={t,real,beat,gx,gz,sp:0,boatx,boatz};
-  }else prev={t,real,beat,gx,gz,sp:0,boatx,boatz};
+    const sp=Math.hypot(gx-prev.gx,gy-prev.gy,gz-prev.gz)/dt;
+    // Cruise band. One dock corner changes heading in a single frame (~17%); the old 0.66→2.4 m/s bug is far outside this.
+    if(prev.sp>1&&sp>1)assert(Math.abs(sp-prev.sp)/prev.sp<=0.2,'walk speed jump '+prev.sp.toFixed(2)+' -> '+sp.toFixed(2)+' @ '+beat);
+    if(prev.sp>1.05&&sp<0.45)assert.fail('walk stalled '+prev.sp.toFixed(2)+' -> '+sp.toFixed(2));
+    prev={t,real,beat,gx,gy,gz,sp,boatx,boatz};
+   }else prev={t,real,beat,gx,gy,gz,sp:0,boatx,boatz};
+  }else prev={t,real,beat,gx,gy,gz,sp:0,boatx,boatz};
   if(prevBoat&&!departed&&Number.isFinite(boatx)&&Number.isFinite(prevBoat.x)){
    if(Math.hypot(boatx-prevBoat.x,boatz-prevBoat.z)>0.08)movedBeforeSit=true;
   }
@@ -68,6 +70,8 @@ if(fs.existsSync(csv)){
  assert(!movedBeforeSit,'hull moved before she was seated');
  assert(seenSeat,'no seated cruise frames');
  if(sailReal0!=null)assert(sailReal1-sailReal0<=30.5,'sail span '+(sailReal1-sailReal0));
+ // Jetty→published M1 is ~19 m. At the required 1.2 m/s that walk is ~16.4 s.
+ // 12 s cannot reach M1 without speeding the walk, which the brief forbids.
  if(arr0!=null)assert(arr1-arr0<=16.8,'arrival span '+(arr1-arr0));
  const pix=csv.replace(/metrics_/, 'pixels_').replace(/\.csv$/, '.json');
  if(fs.existsSync(pix)){

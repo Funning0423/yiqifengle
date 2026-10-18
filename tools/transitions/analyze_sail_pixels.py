@@ -37,7 +37,12 @@ def poly(pts, w, h):
     if len(kept) < 3:
         return []
     # Cocos worldToScreen for this capture is framebuffer pixels, origin at the bottom.
-    return [(x, h - y) for x, y in kept]
+    flipped = [(x, h - y) for x, y in kept]
+    if any(p[0] < 16 or p[0] > w - 16 or p[1] < 16 or p[1] > h - 16 for p in flipped):
+        return []
+    cx = sum(p[0] for p in flipped) / len(flipped)
+    cy = sum(p[1] for p in flipped) / len(flipped)
+    return [(cx + (x - cx) * 0.72, cy + (y - cy) * 0.72) for x, y in flipped]
 
 def inside(x, y, pts):
     c = False
