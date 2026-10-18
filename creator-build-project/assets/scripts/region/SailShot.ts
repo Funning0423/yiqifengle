@@ -96,14 +96,14 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  const above=k===6&&viewMode==='above';
  const meadowView=viewMode==='meadow'||viewMode==='arrival';
  if(above){
-  cam.fov=42;
-  camNode.setWorldPosition(v.pos[0]+6,v.pos[1]+9,v.pos[2]+4);
-  camNode.lookAt(new Vec3(v.pos[0]-0.4,v.pos[1],v.pos[2]));
+  cam.fov=40;
+  camNode.setWorldPosition(v.pos[0]+4.5,v.pos[1]+11,v.pos[2]+7);
+  camNode.lookAt(new Vec3(v.pos[0]+0.8,v.pos[1]+0.2,v.pos[2]+4));
  }else if(meadowView){
   // Meadow play lens looking toward the shore seam (landing stays on meadow after sail dispose).
-  cam.fov=48;
-  camNode.setWorldPosition(-1.2,3.8,66.5);
-  camNode.lookAt(new Vec3(-2.9,0.2,56.0));
+  cam.fov=46;
+  camNode.setWorldPosition(-0.4,4.2,64.8);
+  camNode.lookAt(new Vec3(-2.6,0.5,54.5));
   art?.dispose();
  }else{
   camNode.setWorldPosition(pose.position[0],pose.position[1],pose.position[2]);
@@ -111,28 +111,28 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  }
  const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
  const sun=sunNode.addComponent(DirectionalLight);
- sun.illuminance=night?4800:90000;
- if(night)sun.color=new Color(160,185,230,255);
+ sun.illuminance=night?9200:90000;
+ if(night)sun.color=new Color(170,195,235,255);
  sunNode.setWorldPosition(pose.position[0]-8,pose.position[1]+12,pose.position[2]-6);
  sunNode.lookAt(new Vec3(v.pos[0],v.pos[1]+1,v.pos[2]));
- if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,1600);
+ if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,2800);
  const globals=(scene as any).globals;
  if(globals?.ambient){
-  globals.ambient.skyIllum=night?900:28000;
-  if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(28,42,88,255);
-  if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(14,22,48,255);
+  globals.ambient.skyIllum=night?2200:28000;
+  if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(36,54,108,255);
+  if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(22,34,68,255);
  }
  if(night){
-  // Tiny sky pinpoints (a few pixels), not near-field diamonds.
+  // Tiny sky pinpoints far above the boat (a few screen pixels), not near-field diamonds.
   const stars=new Node('SailShotStars');scene.addChild(stars);
-  stars.setWorldPosition(v.pos[0],v.pos[1]+14,v.pos[2]);
+  stars.setWorldPosition(v.pos[0],v.pos[1]+28,v.pos[2]-8);
   const mat=new Material();
   mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
-  mat.setProperty('mainColor',new Color(210,220,255,255));
-  const s=0.05,mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
-  for(let i=0;i<24;i++){
-   const a=i/24*Math.PI*2,rr=10+((i*5)%9),y=((i*3)%7);
-   const n=new Node('star_'+i);stars.addChild(n);n.setPosition(Math.cos(a)*rr,y,Math.sin(a)*rr*0.6);
+  mat.setProperty('mainColor',new Color(195,210,240,255));
+  const s=0.014,mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
+  for(let i=0;i<36;i++){
+   const a=i/36*Math.PI*2,rr=22+((i*7)%15),y=8+((i*5)%12);
+   const n=new Node('star_'+i);stars.addChild(n);n.setPosition(Math.cos(a)*rr,y,Math.sin(a)*rr*0.5);
    const r=n.addComponent(MeshRenderer);r.mesh=mesh;r.setSharedMaterial(mat,0);
   }
  }

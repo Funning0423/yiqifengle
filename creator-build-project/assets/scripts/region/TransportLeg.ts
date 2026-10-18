@@ -155,7 +155,8 @@ export type SailScreen={w:number;h:number};
 type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};
 const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
 /** Starboard and ahead, looking back: hull + seated girl in frame with a readable wake. */
-const K2:SailOff={back:-8.6,side:-4.4,up:3.0,fov:52,look:-7.2,orb:0};
+/** Farther starboard + back so hull and seated girl clear the right crop; wake stays readable. */
+const K2:SailOff={back:-10.4,side:-5.8,up:3.15,fov:50,look:-6.0,orb:0};
 const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
 const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
 const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};
