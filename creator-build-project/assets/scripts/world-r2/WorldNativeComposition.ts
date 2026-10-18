@@ -290,7 +290,8 @@ export class WorldNativeComposition extends Component {
      pause=!!scene?.getChildByName('PausePanel')||!!(scene as any)?.getComponentsInChildren?.(Component)?.some((c:any)=>c.node?.name==='PausePanel'&&c.node.activeInHierarchy);
     }
     (globalThis as any).__qaFrame=spec?.lens||'world';
-    return {ok:true,pause};
+    const note=(stage as any)?.shotNote||'';
+    return {ok:true,pause,note};
   }
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}
   private releaseOwned(){if(this.worldCamera&&this.previousCameraVisibility!==null)this.worldCamera.visibility=this.previousCameraVisibility;this.owner?.destroy();this.uiParent?.destroy();this.owner=null;this.uiParent=null;this.world=null;this.previousCameraVisibility=null;}

@@ -3,7 +3,7 @@ import {MINIGAME} from 'cc/env';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
-import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,followLookUp,followPose,mapPose,markersLook,propLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
+import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
 import {setExploreEnabled} from '../region/ExploreGate';
 import {REGION_NODES,type RegionId} from '../region/RegionNodes';
 import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
@@ -47,6 +47,11 @@ export class RegionNodeStage extends Component{
  private markerClock=0;
  private holdPulse=0;
  private hideTree=false;
+ private occluders:MeshRenderer[]=[];
+ private buried:Node[]=[];
+ private holdPose:Pose|null=null;
+ private walkToken=0;
+ private shotNote='';
  private dragHome:Vec|null=null;
  private completed:readonly string[]=[];
 
@@ -79,10 +84,12 @@ export class RegionNodeStage extends Component{
   const cam=this.camera!;const n=cam.node,p=n.worldPosition,f=n.forward;
   return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:cam.fov};
  }
- private writePose(pose:Pose,clear=false){
-  const cam=this.camera;if(!cam?.node?.isValid)return;
+ private writePose(pose:Pose,clear=false):Pose{
+  const cam=this.camera;if(!cam?.node?.isValid)return pose;
   const next=clear?this.guardLens(pose):pose;
-  applyCameraPose(cam,fromLookAt(next,next.fovVerticalDeg??cam.fov),'region.node-lens');
+  const ok=applyCameraPose(cam,fromLookAt(next,next.fovVerticalDeg??cam.fov),'region.node-lens');
+  if(!ok)this.shotNote=(this.shotNote?this.shotNote+' ':'')+'rejected';
+  return next;
  }
  /** Finale and free-explore lenses: AABB retreat, then a 0.6 m ray so the near plane cannot enter a mesh. */
  private guardLens(pose:Pose):Pose{
@@ -214,14 +221,54 @@ export class RegionNodeStage extends Component{
   this.openExplore('skycity');
  }
  private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
- /** Great-tree canopy sits on the finale sightline. Hide every node of that name, and keep the renderer off. */
+ /** Great-tree canopy sits on the finale sightline. Hide it by name, and drop the mesh the lens ray hits before the ring. */
  private treeVisible(on:boolean){
   const scene=director.getScene();if(!scene)return;
   const visit=(n:Node)=>{
-   if(n.name==='env_sky_greattree_canopy'||n.name==='env_sky_greattree_canopy_cards'||/greattree/.test(n.name)){n.active=on;const r=n.getComponent(MeshRenderer);if(r)r.enabled=on;}
+   const mesh=n.getComponent(MeshRenderer)?.mesh as {name?:string}|null;
+   if(n.name==='env_sky_greattree_canopy'||n.name==='env_sky_greattree_canopy_cards'||/greattree|canopy/.test(n.name+' '+(mesh?.name||'')))this.bury(n,on);
    for(const c of n.children)visit(c);
   };
   visit(scene);
+  if(on)this.restoreOccluders();
+ }
+ private bury(n:Node,on:boolean){
+  if(!on){
+   if(this.buried.indexOf(n)<0)this.buried.push(n);
+   n.active=false;n.setScale(0,0,0);
+   const r=n.getComponent(MeshRenderer);if(r){r.enabled=false;if(this.occluders.indexOf(r)<0)this.occluders.push(r);}
+   return;
+  }
+  n.active=true;n.setScale(1,1,1);
+  const r=n.getComponent(MeshRenderer);if(r)r.enabled=true;
+ }
+ private restoreOccluders(){
+  for(const n of this.buried)if(n.isValid){n.active=true;n.setScale(1,1,1);}
+  this.buried.length=0;
+  for(const r of this.occluders)if(r.isValid)r.enabled=true;
+  this.occluders.length=0;
+ }
+ /** Canopy span is ~45 m and is the first hit (~26 m). Hide that mesh even when its node name differs; never the island palette. */
+ private stripFinaleOccluders(pose:Pose){
+  const scene=director.getScene();if(!scene)return;
+  const dir=this.viewDir(pose),ray=new geometry.Ray();
+  let n=0;
+  for(let pass=0;pass<4;pass++){
+   ray.o.set(pose.position[0],pose.position[1],pose.position[2]);ray.d.set(dir[0],dir[1],dir[2]);
+   let best:MeshRenderer|null=null,bestT=50;
+   for(const r of scene.getComponentsInChildren(MeshRenderer)){
+    if(!r.enabled||!r.node.activeInHierarchy||!r.model||r.node===this.markerNode)continue;
+    const label=r.node.name+' '+((r.mesh as {name?:string}|null)?.name||'');
+    if(/starring|state_ring|FLOW_REFERENCE|RegionNodeMarkers|palette|GGbot|girl/.test(label))continue;
+    const h=r.model.worldBounds?.halfExtents;if(!h)continue;
+    const span=Math.max(h.x,h.y,h.z)*2;if(!(span>15&&span<70))continue;
+    const t=geometry.intersect.rayModel(ray,r.model,{mode:geometry.ERaycastMode.CLOSEST,distance:50,doubleSided:true});
+    if(t>0&&t<bestT){best=r;bestT=t;}
+   }
+   if(!best)break;
+   this.bury(best.node,false);n++;
+  }
+  this.shotNote='occluders:'+n+' buried:'+this.buried.length;
  }
  private starPose(g:Vec,w:number,h:number):Pose{
   const base=finalePose(g,this.yaw(),w,h);
@@ -237,14 +284,33 @@ export class RegionNodeStage extends Component{
   return null;
  }
  private propSpan(id:string):number{return id==='robot'?6.5:id==='palm'?5.5:id==='bell'?3.2:2.6;}
+ private propNode(id:string):Node|null{
+  const name=id==='robot'?'anchor_robot_root':(PROP_NODES[id]||'');if(!name)return null;
+  const nodes:Node[]=[];findAll(director.getScene(),name,nodes);
+  const rig=findDeep(director.getScene(),'RegionJourney-'+this.region);
+  const child=(n:Node,root:Node)=>{for(let p:Node|null=n;p;p=p.parent)if(p===root)return true;return false;};
+  return (rig&&nodes.find(n=>child(n,rig)&&n.activeInHierarchy))||nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;
+ }
  private propPose(id:string,g:Vec,w:number,h:number):Pose{
   const base=followPose(g,this.yaw(),w,h,0);
+  const node=this.propNode(id);
+  const live=node?[node.worldPosition.x,node.worldPosition.y,node.worldPosition.z] as Vec:null;
   const local=this.propLocal(id);
   const baked=local?this.toWorld(this.region,[local])[0]:null;
-  const node=this.named(PROP_NODES[id]||'');
-  const p=baked||(node?[node.worldPosition.x,node.worldPosition.y+this.propSpan(id)*0.35,node.worldPosition.z]:null);
+  const p=live||baked;
+  this.shotNote='prop:'+id+' live:'+(live?1:0);
   if(!p)return base;
-  return propLook(p,g,this.propSpan(id));
+  if(id==='bell'){
+   const off=new Vec3(0.34,1.55,6.08),rot=new Vec3();
+   const model=this.model(this.region);
+   if(model)Vec3.transformQuat(rot,off,model.worldRotation);else rot.set(off);
+   return {position:[p[0]+rot.x,p[1]+rot.y,p[2]+rot.z],target:[p[0],p[1]+1.2,p[2]],fovVerticalDeg:42};
+  }
+  const dx=g[0]-p[0],dz=g[2]-p[2],L=Math.hypot(dx,dz)||1;
+  const back=id==='robot'?12:id==='palm'?9:Math.max(4.2,this.propSpan(id)*1.7);
+  const lift=id==='robot'?4.2:id==='palm'?3.2:this.propSpan(id)*0.55;
+  const aim=id==='robot'?3:id==='palm'?2.2:this.propSpan(id)*0.35;
+  return {position:[p[0]+dx/L*back,p[1]+lift,p[2]+dz/L*back],target:[p[0],p[1]+aim,p[2]],fovVerticalDeg:40};
  }
  openExplore(region:RegionId){
   this.region=region;this.exploring=true;this.lens='MapExplore';this.focus=this.girl();this.zoom=1.6;
@@ -258,7 +324,8 @@ export class RegionNodeStage extends Component{
  async frame(spec:{region?:RegionId;lens?:string;prop?:string}){
   if(MINIGAME)return;
   const region:RegionId=spec.region==='meadow'||spec.region==='skycity'?spec.region:'island';
-  if(spec.lens==='board'){this.hideTree=false;this.treeVisible(true);this.restoreBoard();return;}
+  if(spec.lens==='board'){this.hideTree=false;this.holdPose=null;this.walkToken++;this.treeVisible(true);this.restoreBoard();return;}
+  this.walkToken++;
   this.showWorld(region);
   this.hideTree=spec.lens==='finale'||spec.lens==='look';
   this.treeVisible(!this.hideTree);
@@ -288,8 +355,9 @@ export class RegionNodeStage extends Component{
    pose=blendPose(board,follow,0.3,BLEND_S.boardToFollow);
   }
   const guarded=lens==='map'||lens==='tap'||lens==='finale'||lens==='look'||lens==='markers';
-  this.writePose(pose,guarded);
-  if(this.hideTree)this.treeVisible(false);
+  const applied=this.writePose(pose,guarded);
+  this.holdPose=lens==='prop'||lens==='finale'||lens==='look'?applied:null;
+  if(this.hideTree){this.treeVisible(false);this.stripFinaleOccluders(applied);}
   this.lens=spec.lens==='map'||spec.lens==='tap'?'MapExplore':'FollowWalk';
   this.shotPhases={};
   const forced:Record<string,NodePhase>={};
@@ -327,11 +395,13 @@ export class RegionNodeStage extends Component{
  private skipWalk(){/* a tap during FollowWalk is swallowed until the segment timeout cuts it */}
  private async walkTo(at:Vec){
   if(!this.character)return;
+  const token=this.walkToken;
   const from=this.girl();
   const dest=this.toWorld(this.region,[at])[0];
   const path=[from,dest] as [Vec,Vec];
   this.lens='FollowWalk';
   await performBounded(this.character,{kind:'walk',path,duration:Math.max(0.4,Math.hypot(dest[0]-from[0],dest[2]-from[2])/1.2)},dest,0);
+  if(token!==this.walkToken)return;
   this.lens='MapExplore';
   const {w,h}=this.viewport();this.focus=this.girl();this.writePose(mapPose(this.focus,this.zoom,w,h),true);
  }
@@ -408,14 +478,15 @@ export class RegionNodeStage extends Component{
  }
  update(dt:number){
   if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
-  if(this.hideTree)this.treeVisible(false);
+  if(this.holdPose)this.writePose(this.holdPose,false);
+  if(this.hideTree){this.treeVisible(false);if(this.holdPose)this.stripFinaleOccluders(this.holdPose);}
   this.markerClock+=dt;
   if(this.holdPulse>0)this.holdPulse=Math.max(0,this.holdPulse-dt);
   for(let i=this.pulses.length-1;i>=0;i--){
    const p=this.pulses[i];if(!p.node.isValid){this.pulses.splice(i,1);continue;}
    if(this.holdPulse<=0)p.left-=dt;
    const u=this.holdPulse>0?0.5:1-Math.max(0,p.left)/0.45;const wave=Math.sin(Math.max(0,Math.min(1,u))*Math.PI);
-   const grow=1+0.7*wave;
+   const grow=1+0.35*wave;
    p.node.setScale(p.sx*grow,p.sy*grow,p.sz*grow);
    if(p.motion==='spin')p.node.setRotationFromEuler(0,p.ey+wave*50,0);
    else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*28,p.ey+wave*36,0);
