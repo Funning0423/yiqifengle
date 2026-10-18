@@ -36,6 +36,13 @@ def shoot(pos, tgt, fov, name):
     sc.render.filepath = os.path.join(out, name)
     bpy.ops.render.render(write_still=True)
 piv = (-3.0, 4.0 + 1.15, -8.4)
+if len(argv) > 5 and argv[5] == 'river':  # both river ends: along the river from inside the meadow + oblique from above
+    sc.render.resolution_x, sc.render.resolution_y = (720, 480)
+    shoot((45, 7, 27), (86, -5, 33), 45, '%s_river_east_along.png' % tag)
+    shoot((66, 24, 2), (85, -5, 35), 50, '%s_river_east_above.png' % tag)
+    shoot((-45, 7, 50), (-86, -5, 43), 45, '%s_river_west_along.png' % tag)
+    shoot((-64, 24, 72), (-85, -5, 42), 50, '%s_river_west_above.png' % tag)
+    print('DONE', tag); sys.exit(0)
 if len(argv) > 5 and argv[5] == 'extra':  # ring overview + outside/back-slope check (not a gameplay lens)
     sc.render.resolution_x, sc.render.resolution_y = 640, 400
     shoot((0, 120, 150), (0, 0, -20), 50, '%s_x_aerial.png' % tag)

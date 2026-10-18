@@ -1,7 +1,7 @@
 {
   "sourceSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
-  "derivedSHA256": "de91dcc3e2860ebdd5fbd02be97e7e141c581be56aab8e2c5044c45e5543d041",
-  "derivedBytes": 6605552,
+  "derivedSHA256": "e85f608b0f786a97b4f2e4ab90d77f0d8857638754668ae141bcb6107b8e3c9c",
+  "derivedBytes": 6640724,
   "expanded": [
     {
       "node": "meadow_flower_instances.0",
