@@ -59,6 +59,7 @@ const tests=[
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
  ['world-background-freeze','tools/journey-integration/test-world-background-freeze.cjs'],
+ ['bg-resume','tools/journey-integration/test-bg-resume.cjs'],
  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
  ['glass-sign-night','tools/test_glass_sign_night.cjs'],
  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],

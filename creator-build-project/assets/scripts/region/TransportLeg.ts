@@ -395,6 +395,12 @@ export function balloonRoutePoints(start:Vec,plan:BalloonPlan):Vec[]{
  push(plan.s0);
  return out.length>1?out:[start,plan.s0];
 }
+/** Page or flow is in the background. Sail/balloon clocks must not advance on a stray frame. */
+export function transitAppHidden():boolean {
+  if(typeof document!=='undefined'&&!!document.hidden)return true;
+  try{const s=(globalThis as any).__worldIntegration?.snapshot?.();if(s&&(s.hidden||s.needsResume))return true;}catch{/* no host */}
+  return false;
+}
 export function stepTransitClock(state:{t:number;hiddenFor:number;fade:number},dt:number,hidden:boolean):{t:number;hiddenFor:number;fade:number;jumped:boolean}{
  if(hidden)return {t:state.t,hiddenFor:state.hiddenFor+Math.max(0,dt),fade:state.fade,jumped:false};
  const resumed=state.hiddenFor>30;return {t:state.t+Math.max(0,Math.min(dt,0.1)),hiddenFor:0,fade:resumed?0.35:Math.max(0,state.fade-Math.max(0,dt)),jumped:false};

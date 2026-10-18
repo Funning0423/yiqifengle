@@ -5,7 +5,7 @@ import {routeLength} from '../world-r1/RegionJourneyCore';
 import type {JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, CharacterAdapter, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import {REGION_JOURNEY_LAYOUT, meadowExitFrom, plus, skyDeckRoute, skycityYawDeg} from './RegionJourneyLayout';
-import {balloonBeats, balloonRoutePoints, stepTransitClock} from './TransportLeg';
+import {balloonBeats, balloonRoutePoints, stepTransitClock, transitAppHidden} from './TransportLeg';
 import {basketFloor, loadBundlePrefab, mountVehicle, applyVehicleNight} from './TransportVehicle';
 import {emitTransitCue} from './TransitAudioHooks';
 import {onDayNightChange} from '../world-r1/DayNightContract';
@@ -431,7 +431,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    await new Promise<void>((ok,bad)=>{
     const off=rideToken.onCancel(()=>bad(Error('cancelled')));
     driver.step=(dt)=>{
-     const hidden=typeof document!=='undefined'&&!!document.hidden;
+     const hidden=transitAppHidden();
      if(!(hold!=null&&clock.t>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
      const t=apply();
      for(const [ct,name] of cues){if(fired.has(name)||t<ct||hidden)continue;fired.add(name);emitTransitCue(name as any,{t,region:'meadow-skycity',id:name});}

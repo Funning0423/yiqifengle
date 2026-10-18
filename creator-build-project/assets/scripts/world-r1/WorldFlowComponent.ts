@@ -261,7 +261,7 @@ export class WorldFlowComponent extends Component {
     this.flow=new WorldFlow({config:routes,mode,levels,character,journey:createRegionJourney({parent:this.node,camera:this.worldCamera}),skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
     this.doorShutOff?.();this.doorShutOff=this.flow.onDoorShut(()=>this.forwardDoorShut());
     this.windOff?.();this.windOff=this.flow.onWindStrength(s=>{this.windStrength=s;Array.from(this.windListeners).forEach(fn=>{try{fn(s);}catch(error){console.warn('wind listener failed',String(error));}});});
-    game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();
+    game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();this.bindPageVisibility();
     return this.flow.load();
   }
   /** mainline-04 board: warm the meadow rig inactive. 6 s timeout falls back to the rainbow bridge. */
@@ -537,6 +537,15 @@ export class WorldFlowComponent extends Component {
     if(this.returnTimer!=null||this.disposed)return;
     this.returnTimer=setTimeout(()=>{this.returnTimer=null;if(!this.disposed)this.revealReturn();},0);
   }
+  /** Web pages hide via visibilitychange. Cocos usually emits EVENT_HIDE for it; this listener does too.
+   *  hide()/show() are idempotent, so a second delivery from the engine is a no-op. */
+  private pageVisibility:(()=>void)|null=null;
+  private bindPageVisibility():void {
+    if(typeof document==='undefined'||typeof document.addEventListener!=='function')return;
+    const fn=()=>{if(typeof document==='undefined')return;game.emit(document.hidden?Game.EVENT_HIDE:Game.EVENT_SHOW);};
+    document.addEventListener('visibilitychange',fn);this.pageVisibility=()=>{document.removeEventListener('visibilitychange',fn);};
+  }
+  private unbindPageVisibility():void {this.pageVisibility?.();this.pageVisibility=null;}
   /** WeChat lock often delivers wx.onHide/onShow without Game.EVENT_HIDE/EVENT_SHOW. Same handlers, idempotent. */
   private bindWxLifecycle():void {
     const w:any=(typeof wx!=='undefined')?(wx as any):null;
@@ -586,7 +595,7 @@ export class WorldFlowComponent extends Component {
   onEnable():void {if(this.flow){this.flow.show();this.syncHostPause();}} // remains paused (explicit resume) unless a frozen exit / walk home resumed
   onDestroy():void {
     if(this.returnTimer!=null){clearTimeout(this.returnTimer);this.returnTimer=null;}
-    this.unbindWxLifecycle();
+    this.unbindPageVisibility();this.unbindWxLifecycle();
     this.flowEventsOff?.();this.flowEventsOff=null;this.doorShutOff?.();this.doorShutOff=null;this.settledListeners.clear();this.craneListeners.clear();this.doorShutListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;

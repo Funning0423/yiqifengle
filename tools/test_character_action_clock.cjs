@@ -109,17 +109,16 @@ async function finish(a, p) { assert.equal(a.diagnostics().action, null, 'action
   const lease = { setCamera() {}, setLayers() {}, setDoor() {}, cancelTransient() {}, assertStaticWorld() {}, dispose() {}, animateCamera: async () => {}, animateDoor: async () => {} };
   const flow = new W.WorldFlow({ config, character: real.a, mode: 'motion', levels: { enter: async () => { throw Error('unused'); } }, loadWorld: async () => lease });
   assert((await flow.load()).ok);
-  const interrupted = real.a.perform({ kind: 'stand', seat }, new W.Cancellation()).catch(e => e);
+  const standing = real.a.perform({ kind: 'stand', seat }, new W.Cancellation());
   flow.advance(5); near(real.r.node.worldPosition.x, .1 / 1.25, 'production flow caps a long frame to 0.1 seconds');
-  flow.hide(); assert((await interrupted) instanceof W.Cancelled);
+  flow.hide(); assert.equal(flow.snapshot().state, 'home'); assert.equal(flow.snapshot().needsResume, true);
   const pausedRoot = root(real.r), pausedSamples = [...real.r.states.values()].reduce((n, s) => n + s.samples.length, 0);
   for (let i = 0; i < 10; i++) flow.advance(5);
-  flow.show(); assert(flow.snapshot().needsResume); flow.advance(5);
-  assert.deepEqual(root(real.r), pausedRoot); assert.equal([...real.r.states.values()].reduce((n, s) => n + s.samples.length, 0), pausedSamples);
-  assert(flow.resume().ok); const resumed = real.a.perform({ kind: 'stand', seat }, new W.Cancellation());
+  assert.deepEqual(root(real.r), pausedRoot, 'hidden seated clip does not advance'); assert.equal([...real.r.states.values()].reduce((n, s) => n + s.samples.length, 0), pausedSamples);
+  flow.show(); assert.equal(flow.snapshot().needsResume, false); assert.equal(flow.snapshot().state, 'home'); assert.equal(flow.resume().ok, false);
   for (let i = 0; i < 13; i++) flow.advance(5);
-  await finish(real.a, resumed); assert.deepEqual(root(real.r), [1, 0, 0]);
-  flow.dispose(); rows.push({ check: 'actual-WorldFlow-long-frame-cap-hide-show-explicit-resume', hostFrameCapSeconds: .1, pausedNoRootOrClipWrites: true });
+  await finish(real.a, standing); assert.deepEqual(root(real.r), [1, 0, 0]);
+  flow.dispose(); rows.push({ check: 'actual-WorldFlow-long-frame-cap-hide-show-seated-continues', hostFrameCapSeconds: .1, pausedNoRootOrClipWrites: true, seatedContinuesWithoutResume: true });
 
   const report = { status: 'PASS_PURE_NODE_STUBS_NOT_RENDER_ACCEPTANCE', checks: rows, typescript: ts.version,
     scope: 'Actual production FlowReferenceStandin + AnimRig + CharacterMotion + WorldFlow. Cocos node/clip boundaries are structural doubles; no Creator, GUI, asset import, browser, physical-device or visual acceptance.' };
