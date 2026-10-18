@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {lakesideBalloonFlight} from './LakesideBalloon';
+import {LAKESIDE_BALLOON_LANDING,lakesideBalloonRide} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import type {Pose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
@@ -243,9 +243,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // camera, LAKESIDE_CAMERA_LAYOUT.landing via lakesideRouteLanding): the flight lens ends exactly on E, so the 1 s landing hook
   // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.
   const shore=L.arrival[L.arrival.length-1],E=arrivalPose(L.arrival,L.focus,L.landing),landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
-  const flight=lakesideBalloonFlight(start,shore,landPose),path=flight.path;
-  let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:flight.bridgeStart,bridgeEnd:flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
-  const total=flight.total;route={...route,timing:flight.timing};token.check();progress(.98);
+  // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
+  const K=LAKESIDE_BALLOON_LANDING,R=lakesideBalloonRide([start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),shore,landPose),flight=R.flight,path=R.path,walkM=routeLength(R.walk);
+  let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
+  const total=routeLength(path);route={...route,timing:{durationS:R.T,easeInS:K.walkEaseS,easeOutS:flight.timing.easeOutS}};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
   token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
@@ -256,17 +257,21 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const ticker=rig.addComponent(LakesideBalloonTicker);
-   const timing=route.timing!,from=readLens()/* the skycity camera at set-off: the flight blends out of it, orbiting round her */;
-   const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined,prev=girl?girl.parent:null;
-   if(girl&&isValid(girl,true)){girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,flight.girlYawRad*180/Math.PI,0);}
+   const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
+   const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined;let prev:Node|null=null,aboard=false;
+   const fade=typeof world.fadeCover==='function'?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
+   let walkDone=false,blackDone=!fade,fadingOut=false,fadingIn=false;
+   const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    await new Promise<void>((ok,bad)=>{
+    walking.catch(bad);
     const off=rideToken.onCancel(()=>{director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
+    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,flight.girlYawRad*180/Math.PI,0);};
     const apply=()=>{
-     const t=Math.min(clock.t,timing.durationS),d=journeyDistanceAt(total,timing,t);
-     const pos=flight.vehicle(t);
+     const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
-     lastPose=flight.camera(t,from);world.setCamera(lastPose);
-     lease.progress!(d)/* atmosphere + the board preload follow the flight */;
+     if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
+     lastPose=R.camera(t,from);world.setCamera(lastPose);
+     lease.progress!(t<R.cutT?R.walkAt(t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
     };
     beforeDraw=()=>{if(!dead)apply();};
     director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
@@ -274,14 +279,18 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      const hidden=typeof document!=='undefined'&&!!document.hidden;
      const next=stepTransitClock(clock,dt,hidden);
      const resumed=clock.fade<=0&&next.fade>0;
-     clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;
-     if(resumed&&typeof world.fadeCover==='function'){try{void world.fadeCover(next.fade,0.35);}catch{/* cover optional */}}
+     // the shot clock waits for her: at the basket until the walk has really ended, in the black until the cover is down
+     let t=next.t;if(!walkDone&&t>R.fadeOutAt)t=R.fadeOutAt;if(!blackDone&&t>R.cutT)t=R.cutT;
+     clock.t=t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;
+     if(fade&&walkDone&&!fadingOut&&t>=R.fadeOutAt){fadingOut=true;void fade(1,K.boardFadeOutS).then(()=>{blackDone=true;});}
+     if(fade&&blackDone&&!fadingIn&&t>=R.cutT+K.boardBlackS/2){fadingIn=true;void fade(0,K.boardFadeInS);}
+     if(resumed&&fade){try{void fade(next.fade,0.35);}catch{/* cover optional */}}
      apply();
-     if(clock.t+1e-4>=timing.durationS){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
+     if(clock.t+1e-4>=R.T){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
     };
    });
    rideToken.check();
-   if(girl&&isValid(girl,true)){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
+   if(girl&&isValid(girl,true)&&aboard){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:flight.girlYawRad/* along the flight heading: she faces the lake */});
   };
   const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},onFrame(){return lastPose||undefined;}/* keeps the controller from re-applying its set-off camera after the ride */,dispose:release,ride};

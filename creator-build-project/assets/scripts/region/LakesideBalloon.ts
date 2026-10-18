@@ -15,22 +15,45 @@ export const LAKESIDE_BALLOON_LANDING={
   *  S6 sits in the great tree's roots, right against the trunk: the basket lifts off up and to her left (west) into the
   *  free corridor under the canopy (side −6 m, 10–11 m up; the canopy underside is ~24 m, the envelope top stays ≤ 22 m),
   *  floats out north, rises once clear of the canopy (the lake opens below), then settles almost vertically onto the bank. */
- pathKeys:[[0,0,0],[.031,-2.6,3.5],[.109,-5,8],[.238,-6,10.5],[.444,-6,11],[.625,-4.5,12.5],[.755,-2.5,15.5],[.858,-1,13],[.948,-.8,4],[1,0,0]] as ReadonlyArray<readonly [number,number,number]>,
+ pathKeys:[[0,0,0],[.05,0,1.5],[.15,-1,4.5],[.3,-1,8],[.45,0,10],[.55,0,11],[.66,0,13],[.76,0,13.5],[.86,0,9],[.95,0,2.5],[1,0,0]] as ReadonlyArray<readonly [number,number,number]>,
  /** Peak basket altitude (m), kept for older readers (= max of pathKeys). */
- climbM:13.2,
+ climbM:13.5,
  /** Kept for older readers: the descent is the last 22 % of the run. */
  descentM:8.5,
+ /** v2 departure (lake-local, the lake is placed from S6 by lakesideJourney): S6 is in the great tree's roots and no spot of
+  *  the skycity floor fits the parked balloon (the envelope always meets env_sky_static_palette), and the point
+  *  [-7, 0.58, 53] the review asked for has no floor under it (west of the island edge, which runs x ≈ -3.5 at z 55).
+  *  So the balloon is MOORED off the edge at deck level ([-8, .58, 53.5]: 0.7–0.8 m from all geometry, the nearest free
+  *  spot to [-7, .58, 53]); she walks from S6 round the roots to the edge (walkLocal, production walk at walkMps) and
+  *  boards under a short fade (no stepping-through-the-wall; there is no boarding clip). */
+ launchLocal:[-8,.58,53.5] as readonly [number,number,number],
+ walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
+ /** NodeWalker.WALK_SPEED_MPS: the speed the production walk clip is calibrated for (no foot sliding). */
+ walkMps:1.2,
+ /** Walk start/stop ease (s), passed to the walk as distanceAt. */
+ walkEaseS:.8,
+ /** Walk corners rounded with this radius (m). */
+ walkCornerM:1.6,
+ /** Boarding: fade to black, (cut + seat her in the basket), fade back in; the basket lifts liftHoldS after the cut. */
+ boardFadeOutS:.5,
+ boardBlackS:.3,
+ boardFadeInS:.7,
+ liftHoldS:0,
+ /** Flight time skipped at the cut (s). */
+ flightSkipS:9,
+ /** Walk lens, her-relative on the walk heading: [back, side (right +), up, aimAhead, aimUp (from chest), fov]. */
+ walkLens:[12.75,-1.76,.3,1.03,.29,48] as readonly [number,number,number,number,number,number],
  /** Ride time: at least durationS (longer when the route needs it: cruise ≤ 4.2 m/s, |a| ≤ 3 m/s²). */
  durationS:30,
  easeInS:5,
  easeOutS:7,
  /** Lens keys on ride time τ (0…1): [τ, along, side, up] of the LENS in the flight frame (absolute: the skycity tree and
   *  the bank are fixed in this frame), then her-relative aim [ahead, side, up] from her chest (basket + 1.2 m), FOV. */
- keys:[[0,5.7,-2.5,1.5,0,0,1,48],[.2,14.8,-4.6,2.8,0,0,1.2,48],[.38,24.3,-16.1,17.8,0,0,1.2,48],[.55,25.5,-26.4,15,0,0,.5,48],[.72,20,-12,20,1,0,-1,48],[.88,25,-4,15,1.5,0,-1,50],[1,32,1,3,6,0,-1.5,54]] as ReadonlyArray<readonly [number,number,number,number,number,number,number,number]>,
+ keys:[[0,-4.66,3.47,6,0,0,0,48],[.15,-.55,15.47,7.63,0,0,3.32,48],[.35,6.93,7.01,12.25,0,0,1.79,48],[.55,3.25,.02,13.58,0,0,-2.28,48],[.72,7.18,-4.99,18.57,1,0,.99,48],[.88,17.21,-2.39,17.4,1.5,0,-.22,50],[1,24.6,3.7,3,6,0,-1.5,54]] as ReadonlyArray<readonly [number,number,number,number,number,number,number,number]>,
  /** Start: blend from the camera she had in the skycity, at least this long (longer for big view / position gaps,
   *  SPEC §6.1: T = max(blendInS, √(5.7735·Δ°/120), √(5.7735·L/3))), never more than blendInMaxFrac of the ride. */
- blendInS:7,
- blendInMaxFrac:.3,
+ blendInS:7.5,
+ blendInMaxFrac:1,
  /** End: smootherstep from the keyed lens onto the landing pose over the last blendOutS (position lerp, view slerp, FOV). */
  blendOutS:8,
  /** Atmosphere (lake light/fog): route.bridgeStart/End at these run fractions; LakesideJourneyAtmosphere ramps from their
@@ -139,4 +162,47 @@ export function lakesideBalloonFlight(start:Vec,bank:Vec,landing:Pose,knobs:Ball
   const o=T-knobs.blendOutS;if(t>o)pose=blendPose(pose,landing,smooth5((t-o)/knobs.blendOutS));
   return pose;};
  return {path:f.path,bridgeStart:f.bridgeStart,bridgeEnd:f.bridgeEnd,timing,total,heading:h,vehicle,follow,camera,girlYawRad:Math.atan2(h[0],h[1])+knobs.yawDeg*Math.PI/180};
+}
+
+export type LakesideBalloonRide=Readonly<{flight:LakesideBalloonFlight;walk:Vec[];walkS:number;walkTiming:JourneyTiming;walkAt(t:number):number;fadeOutAt:number;cutT:number;liftT:number;T:number;path:Vec[];
+ vehicle(t:number):Vec;girl(t:number):Vec;girlYaw(t:number):number;cover(t:number):number;camera(t:number,from:Pose|null):Pose}>;
+/** v2 ride: walk S6 → the moored basket (production walk), board under a fade, fly launch → bank, end on `landing`.
+ *  walk = world points from her start (S6) to the boarding spot; launch = world basket position (moored at the edge). */
+/** Round each inner corner of a walk polyline with a quadratic arc of up to `r` m (dense points), so she turns smoothly. */
+export function roundWalk(pts:readonly Vec[],r:number):Vec[]{
+ if(pts.length<3)return pts.map(p=>[p[0],p[1],p[2]] as Vec);const out:Vec[]=[[pts[0][0],pts[0][1],pts[0][2]]];
+ for(let i=1;i<pts.length-1;i++){const a=pts[i-1],b=pts[i],c=pts[i+1],l0=seg(a,b),l1=seg(b,c),k=Math.min(r,l0/2,l1/2);
+  const p:Vec=[b[0]+(a[0]-b[0])*k/l0,b[1]+(a[1]-b[1])*k/l0,b[2]+(a[2]-b[2])*k/l0],q:Vec=[b[0]+(c[0]-b[0])*k/l1,b[1]+(c[1]-b[1])*k/l1,b[2]+(c[2]-b[2])*k/l1];
+  for(let j=0;j<=8;j++){const u=j/8,w0=(1-u)*(1-u),w1=2*u*(1-u),w2=u*u;out.push([w0*p[0]+w1*b[0]+w2*q[0],w0*p[1]+w1*b[1]+w2*q[1],w0*p[2]+w1*b[2]+w2*q[2]]);}}
+ const e=pts[pts.length-1];out.push([e[0],e[1],e[2]]);return out;
+}
+export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:Pose,knobs:BalloonKnobs=LAKESIDE_BALLOON_LANDING):LakesideBalloonRide{
+ const walk=roundWalk(walkKeys,knobs.walkCornerM);
+ const flight=lakesideBalloonFlight(launch,bank,landing,knobs),wl=routeLength(walk);
+ // the walk starts and stops with the production walk's own ease (distanceAt), cruising at walkMps (no foot sliding)
+ const walkTiming:JourneyTiming={durationS:wl/knobs.walkMps+(knobs.walkEaseS*2)/2,easeInS:knobs.walkEaseS,easeOutS:knobs.walkEaseS},walkS=walkTiming.durationS,walkAt=(t:number)=>journeyDistanceAt(wl,walkTiming,Math.max(0,Math.min(walkS,t)));
+ const fadeOutAt=walkS,cutT=walkS+knobs.boardFadeOutS+knobs.boardBlackS/2,fadeInAt=walkS+knobs.boardFadeOutS+knobs.boardBlackS;
+ // the cut under black also skips the lift-off out of the island's edge (flightSkipS of flight time): the shot opens on the
+ // basket already aloft and drifting out under the canopy (no frames of the envelope grazing the rim)
+ const liftT=cutT-knobs.flightSkipS,T=liftT+flight.timing.durationS;
+ const wd=heading(walk[0],walk[walk.length-1]),wr:[number,number]=[-wd[1],wd[0]];
+ const girl=(t:number):Vec=>t<cutT?sampleRoute(walk,walkAt(t)):flight.vehicle(t-liftT);
+ const girlYaw=(t:number):number=>{if(t>=cutT)return flight.girlYawRad;const d=walkAt(t),a=sampleRoute(walk,Math.max(0,d-.3)),b=sampleRoute(walk,Math.min(wl,d+.3));return Math.atan2(b[0]-a[0],b[2]-a[2]);};
+ const vehicle=(t:number):Vec=>t<cutT?flight.vehicle(0):flight.vehicle(t-liftT);
+ const cover=(t:number):number=>t<fadeOutAt?0:t<fadeOutAt+knobs.boardFadeOutS?(t-fadeOutAt)/knobs.boardFadeOutS:t<fadeInAt?1:t<fadeInAt+knobs.boardFadeInS?1-(t-fadeInAt)/knobs.boardFadeInS:0;
+ const WL=knobs.walkLens;
+ const walkLens=(t:number):Pose=>{const p=girl(Math.min(t,walkS)),c:Vec=[p[0],p[1]+CHEST,p[2]];
+  return {position:[p[0]-wd[0]*WL[0]+wr[0]*WL[1],p[1]+CHEST+WL[2],p[2]-wd[1]*WL[0]+wr[1]*WL[1]],target:[c[0]+wd[0]*WL[3],c[1]+WL[4],c[2]+wd[1]*WL[3]],fovVerticalDeg:WL[5]};};
+ let turn=0,fromKey:Pose|null=null;
+ const camera=(t:number,from:Pose|null):Pose=>{
+  if(t>=T)return landing;
+  if(t>=cutT)return flight.camera(Math.max(0,t-liftT),null)/* cut under full black */;
+  let pose=walkLens(t);
+  if(from&&t<knobs.blendInS){const p=girl(t),c:Vec=[p[0],p[1]+CHEST,p[2]];
+   if(from!==fromKey){fromKey=from;const q=walkLens(0).position,p0=girl(0),da=Math.atan2(q[0]-p0[0],q[2]-p0[2])-Math.atan2(from.position[0]-p0[0],from.position[2]-p0[2]);turn=Math.sin(da)>=0?1:-1;}
+   const e=smooth5(t/knobs.blendInS),a:Vec=[from.position[0]-c[0],from.position[1]-c[1],from.position[2]-c[2]],b:Vec=[pose.position[0]-c[0],pose.position[1]-c[1],pose.position[2]-c[2]],o=orbitOffset(a,b,e,turn);
+   const v=blendPose(from,pose,e),q:Vec=[c[0]+o[0],c[1]+o[1],c[2]+o[2]],d=unit(v.position,v.target);
+   pose={position:q,target:[q[0]+d[0]*10,q[1]+d[1]*10,q[2]+d[2]*10],fovVerticalDeg:v.fovVerticalDeg};}
+  return pose;};
+ return {flight,walk,walkS,walkTiming,walkAt,fadeOutAt,cutT,liftT,T,path:[...walk.map(v=>[v[0],v[1],v[2]] as Vec),...flight.path],vehicle,girl,girlYaw,cover,camera};
 }
