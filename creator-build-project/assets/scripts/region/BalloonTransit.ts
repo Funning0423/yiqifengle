@@ -425,7 +425,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    eachNamed(meadow,n=>{
     if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;
     // Night meadow cloud cards sample a texture whose red/green channels swap for a few frames.
-    if(night&&(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'||n.name==='meadow_sky_dome')){n.active=false;return;}
+    if(night&&/cloud|hill|sky|far_|mountain/.test(n.name)&&!n.name.startsWith('meadow_grass')){n.active=false;return;}
     if(meadowOn&&(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'))n.active=true;
    });
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
@@ -449,7 +449,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day){if(gradeEffect&&!skyHome.length){for(const r of n.getComponents(MeshRenderer))skyHome.push({r,shared:r.getSharedMaterial(0)});ditherSky(n,gradeEffect);}else skybox(n);}}
    if(nightDome){nightDome.active=night;if(night){if(!nightDomeFlat){nightDomeFlat=true;forceUnlit(nightDome,new Color(24,40,82,255));}}}
    // Cloud sea: double-sided unlit × vertex shade (day white / night blue-grey). Never emissive.
-   if(cityOn)paintCloudSea(clouds,night,gradeEffect);
+   if(cityOn||night)paintCloudSea(clouds,night,gradeEffect);
    else if(night)setEmissive(clouds,true);
    applyVehicleNight(vehicle,night);
    if(model&&cityOn){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
