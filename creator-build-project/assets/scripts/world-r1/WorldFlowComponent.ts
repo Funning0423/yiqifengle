@@ -4,7 +4,7 @@ export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{ret
 import { createRegionJourney } from '../region/RegionJourneyAdapter';
 import type { JourneyRegion } from './RegionJourneyCore';
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
-import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry } from 'cc';
+import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry, view } from 'cc';
 import { RoomLook } from './RoomLook';
 import { createIslandRail, IslandRail } from './IslandRail';
 import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
@@ -24,6 +24,7 @@ import { createFirstsliceRoutes } from './FirstsliceRoutes';
 import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate, CAMERA_FIXED } from './CameraPose';
 import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
+import { DIALOG_CAMERA_YIELD, dialogCameraOpen, dialogYieldPitchDeg, createYieldMotion, stepYieldMotion, yieldPose } from './DialogCameraYield';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode, emitDayNightChange } from './DayNightContract';
 import { skyFollowColor, vertexColorAverageLinear } from './SkyFollowCore';
 /** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
@@ -206,6 +207,8 @@ export class WorldFlowComponent extends Component {
   private safetyFailure:string|null=null;
   private onStatus:((status:Snapshot)=>void)|undefined;
   private savedCamera:CameraPose|null=null;
+  // 运镜bot r5 dialog yield: base = the pose the flow/jobs/room look wrote, last = what the post-pass wrote on top of it.
+  private yieldMotion=createYieldMotion();private yieldBase:CameraPose|null=null;private yieldLast:CameraPose|null=null;
   private dayNightMode:DayNightMode='day';
   /** null follows the clock. true/false is the player's switch and blocks the clock. */
   private nightOverride:boolean|null=null;
@@ -498,7 +501,21 @@ export class WorldFlowComponent extends Component {
       try {j.tick(Math.min(1,j.elapsed/j.seconds));if(j.elapsed>=j.seconds){this.jobs.delete(j);j.off();j.resolve();}}
       catch(e){this.jobs.delete(j);j.off();j.reject(e instanceof Error?e:Error(String(e)));}
     }
+    this.applyDialogYield(frameDt);
     if(Date.now()-this.lastDiagnosticAt>=5000)this.reportRuntime('tick');
+  }
+  /** 运镜bot r5 dialog yield (DialogCameraYield.ts): a post-pass after every camera writer this frame. Pitches the lens down
+   *  while setDialogCameraOpen(true) on short screens and eases back on close. It never moves the lens position. */
+  private applyDialogYield(dt:number):void {
+    const cam=this.worldCamera;if(!cam||!cam.node||!isValid(cam.node))return;
+    const m=this.yieldMotion,fs=typeof window!=='undefined'&&window.innerHeight>0?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();
+    const deg=dialogYieldPitchDeg(fs.width,fs.height),goal=dialogCameraOpen()&&deg>0?1:0;
+    if(goal===0&&m.x<=0&&m.v===0&&m.goal===0){this.yieldBase=null;this.yieldLast=null;return;}
+    const p=cam.node.worldPosition,q=cam.node.worldRotation,cur:CameraPose={position:[p.x,p.y,p.z],rotation:[q.x,q.y,q.z,q.w],fovVerticalDeg:cam.fov};
+    const l=this.yieldLast,same=!!l&&Math.abs(l.position[0]-cur.position[0])+Math.abs(l.position[1]-cur.position[1])+Math.abs(l.position[2]-cur.position[2])<1e-5&&Math.abs(l.rotation[0]-cur.rotation[0])+Math.abs(l.rotation[1]-cur.rotation[1])+Math.abs(l.rotation[2]-cur.rotation[2])+Math.abs(l.rotation[3]-cur.rotation[3])<1e-5&&Math.abs(l.fovVerticalDeg-cur.fovVerticalDeg)<1e-4;
+    if(!same||!this.yieldBase)this.yieldBase=cur;
+    const x=stepYieldMotion(m,goal,dt,DIALOG_CAMERA_YIELD.seconds),pose=x>0?yieldPose(this.yieldBase,deg*x):this.yieldBase;
+    if(applyCameraPose(cam,pose,'dialog.yield'))this.yieldLast=pose;else this.yieldLast=null;
   }
   /** T5 passthrough: see RoomLightingRig.setRoomLightWeight. false when no rig / not in an interior view. */
   setRoomLightWeight(weight:number):boolean {return !!this.roomLighting?.setRoomLightWeight(weight);}
