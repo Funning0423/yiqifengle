@@ -4,6 +4,7 @@ import {emitTransit, setTransitHidden} from './TransitAudioHooks';
 import {beatAt, sailCamera, sailVehicle, seatFromBench, SAIL_LIMITS, type SailTimeline} from './TransportLeg';
 import {attachRider, detachRider, placeBoat} from './TransportVehicle';
 import type {SailArt} from './SailArt';
+import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
 const smoother=(u:number)=>{const t=Math.min(1,Math.max(0,u));return t*t*t*(t*(t*6-15)+10);};
@@ -51,8 +52,8 @@ export function createSailDriver(opts:{
   const prev=beatAt(opts.timeline,t).id;
   t+=Math.max(0,dt);
   const beat=beatAt(opts.timeline,t);
-  if(beat.id!==prev&&beat.cue)emitTransit(beat.cue as any,{t,region:'meadow',id:beat.id});
-  if(prev==='S-d'&&beat.id!=='S-d')emitTransit('sail-cruise-loop-stop',{t,region:'meadow'});
+  if(beat.id!==prev&&beat.cue){emitTransit(beat.cue as any,{t,region:'meadow',id:beat.id});pushSailCue(beat.cue,t);}
+  if(prev==='S-d'&&beat.id!=='S-d'){emitTransit('sail-cruise-loop-stop',{t,region:'meadow'});pushSailCue('sail-cruise-loop-stop',t);}
   const v=sailVehicle(opts.timeline,opts.route,t);
   if(opts.boat)placeBoat(opts.boat,v.pos,v.yaw,v.roll);
   if(seated()&&!attached&&opts.rider&&opts.seat){attachRider(opts.rider,opts.seat);attached=true;}
@@ -84,9 +85,12 @@ export function createSailDriver(opts:{
     const pose=followCam(arrivalPath,arrivalU,arrivalFrom,board);
     const boat=sailVehicle(opts.timeline,opts.route,opts.timeline.build05S);
     opts.art?.sync(boat,pose.position,dt,sailNight(),pose.target);
+    if(sailQaEnabled())pushSailFrame({t,beat:'arrival',phase,yaw:boat.yaw,roll:boat.roll,boat:opts.boat,pose});
     return pose;
    }
-   return sailCamera(opts.timeline,opts.route,t,v);
+   const pose=sailCamera(opts.timeline,opts.route,t,v);
+   if(sailQaEnabled()){const sv=sailVehicle(opts.timeline,opts.route,t);pushSailFrame({t,beat:beatAt(opts.timeline,t).id,phase,yaw:sv.yaw,roll:sv.roll,boat:opts.boat,pose});}
+   return pose;
   },
   get fade(){return fade;},
   seat(){const v=sailVehicle(opts.timeline,opts.route,t);return seatFromBench(v.pos,v.yaw);},
