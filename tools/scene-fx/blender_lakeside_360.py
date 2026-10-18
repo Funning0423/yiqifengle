@@ -47,6 +47,15 @@ cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); sc.collection.ob
 cam.data.sensor_fit = 'VERTICAL'; cam.data.clip_start = .05; cam.data.clip_end = 3000; cam.data.angle = math.radians(48)
 sc.render.resolution_x, sc.render.resolution_y = 360, 780; sc.render.resolution_percentage = 100
 piv = (1.2, 0.58 + 1.2, 36.0)
+BOARD = os.environ.get('QF_BOARD')  # 'px,py,pz,qx,qy,qz,qw,fovV,W,H': one board-background still (Cocos pose, lens looks -z)
+if BOARD:
+    v = [float(t) for t in BOARD.split(',')]
+    sc.render.resolution_x, sc.render.resolution_y = int(v[8]), int(v[9]); cam.data.angle = math.radians(v[7])
+    q = Quaternion((v[6], v[3], v[4], v[5]))
+    cam.location = g2b(v[:3]); cam.rotation_mode = 'QUATERNION'
+    cam.rotation_quaternion = C.to_quaternion() @ q  # glTF Y-up -> Blender Z-up (both cameras look -z, up +y locally)
+    sc.render.filepath = os.path.join(OUT, '%s_board_portrait.png' % TAG); bpy.ops.render.render(write_still=True)
+    print('ALLDONE'); sys.exit(0)
 for a in range(0, 360, 45):
     p, ar = math.radians(PITCH), math.radians(a)
     pos = (piv[0] + DIST * math.cos(p) * math.sin(ar), piv[1] + DIST * math.sin(p), piv[2] + DIST * math.cos(p) * math.cos(ar))
