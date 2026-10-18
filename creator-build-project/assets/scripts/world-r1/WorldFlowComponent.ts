@@ -402,8 +402,8 @@ export class WorldFlowComponent extends Component {
       const camera=this.worldCamera!;
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).
-      const toCameraPose=(pose:Pose):CameraPose=>fromLookAt(pose,camera.fov);
-      const setCamera=(pose:Pose)=>{this.roomLook.reset();this.islandRail?.reset();if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
+      const toCameraPose=(pose:Pose):CameraPose=>fromLookAt(pose,(globalThis as any).__QF_BALLOON_LENS&&pose.fovVerticalDeg?pose.fovVerticalDeg:camera.fov);
+      const setCamera=(pose:Pose)=>{this.roomLook.reset();this.islandRail?.reset();if((globalThis as any).__QF_BALLOON_LENS){camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=0.3;if(!(camera.far>=2500))camera.far=2500;}if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
       let alive=true;
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
@@ -569,8 +569,9 @@ export class WorldFlowComponent extends Component {
     for(const r of this.nightRenderers)if(r.isValid)r.enabled=this.dayNightMode==='night'&&(r.node.name.startsWith('env_sky_')?this.backdropVisible:this.exteriorVisible);
     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome*view.lightScale;this.mainLight.color=new Color(view.lightColor[0],view.lightColor[1],view.lightColor[2],255);}
     const scene=director.getScene();
-    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture)){sky.setNightBlend(view.skyNightBlend);if((sky as any).__qfNightOnly&&sky.skyRenderer?.isValid)sky.skyRenderer.enabled=view.skyNightBlend>0;} // N1: meadow night-only dome
-    for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome))writeNightBlend(dome.getMaterialInstance(0),view.skyNightBlend);
+    const holdSky=(globalThis as any).__QF_BALLOON_HOLD_SKY as {night?:boolean}|false|undefined;
+    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture)){if(holdSky){if(sky.skyRenderer?.isValid)sky.skyRenderer.enabled=false;continue;}sky.setNightBlend(view.skyNightBlend);if((sky as any).__qfNightOnly&&sky.skyRenderer?.isValid)sky.skyRenderer.enabled=view.skyNightBlend>0;} // N1: meadow night-only dome. Balloon transit keeps a single dome.
+    for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome)){if(holdSky){dome.enabled=!holdSky.night;if(dome.node)dome.node.active=!holdSky.night;}else writeNightBlend(dome.getMaterialInstance(0),view.skyNightBlend);}
     Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(isValid(r,true))b.setNight(this.dayNightMode==='night');});
     this.roomLighting?.setView(this.interiorVisible,this.backdropVisible,this.dayNightMode==='night');
     this.doorSpill?.setView(this.interiorVisible,this.exteriorVisible,this.dayNightMode==='night');

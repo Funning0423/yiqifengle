@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict'),{createHarness}=require('../board-ui/harness.cjs');
+const T=createHarness().load('region/TransportLeg.ts');
+let s={t:4,hiddenFor:0,fade:0};
+s=T.stepTransitClock(s,2,true);
+assert.equal(s.t,4);assert.ok(s.hiddenFor>=2);
+s=T.stepTransitClock(s,0.5,false);
+assert.equal(s.t,4.1);assert.equal(s.hiddenFor,0);assert.equal(s.fade,0);assert.equal(s.jumped,false);
+s={t:1,hiddenFor:31,fade:0};
+s=T.stepTransitClock(s,0.05,false);
+assert.equal(s.fade,0.35);assert.equal(s.t,1.05);assert.equal(s.jumped,false);
+console.log('resume-ok');

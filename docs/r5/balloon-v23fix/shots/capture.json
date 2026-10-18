@@ -1,0 +1,40 @@
+[
+  {
+    "name": "07_night",
+    "ok": true,
+    "fps": 17,
+    "info": {
+      "b": {
+        "t": 24.021266666928888,
+        "total": 36,
+        "beat": "B-d",
+        "alt": 11.99969049953149,
+        "wind": 0.35,
+        "night": true,
+        "meadow": false,
+        "city": true,
+        "dc": 36,
+        "dcWorst": 44,
+        "dcAt": 0.06910000002384185,
+        "frames": 364,
+        "hold": true,
+        "seam": true,
+        "far": true,
+        "seaPlan": "B"
+      },
+      "h": {
+        "t": 24.021266666928888,
+        "coverT": 35.9,
+        "fade": 0,
+        "seaRestored": false,
+        "backdropRestored": false,
+        "seaPlan": "B",
+        "farOn": false,
+        "meadowOn": false,
+        "cityOn": true,
+        "showIsland": true
+      },
+      "dc": 36
+    }
+  }
+]

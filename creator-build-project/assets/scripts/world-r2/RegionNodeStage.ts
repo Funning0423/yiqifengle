@@ -170,9 +170,9 @@ export class RegionNodeStage extends Component{
  /** Island and meadow keep RainbowBridgeStrip only while that leg is still the bridge. Lakeside strips stay on their own rig. */
  private hideIdleBridges(region:RegionId){
   const scene=director.getScene();if(!scene)return;
-  const meadow=usesRainbowBridge(transportFor('island','meadow',null));
-  const sky=usesRainbowBridge(transportFor('meadow','skycity',null));
-  const lake=usesRainbowBridge(transportFor('island','lakeside',null));
+  const meadow=usesRainbowBridge(transportFor('island','meadow'));
+  const sky=usesRainbowBridge(transportFor('meadow','skycity'));
+  const lake=usesRainbowBridge(transportFor('island','lakeside'));
   const visit=(n:Node,underLake:boolean)=>{
    const inLake=underLake||n.name==='RegionJourney-lakeside';
    if(n.name.startsWith('RainbowBridge')){

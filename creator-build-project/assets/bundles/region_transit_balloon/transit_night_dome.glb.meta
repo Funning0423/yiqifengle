@@ -1,0 +1,149 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "ff0a0518-3df9-46d1-848e-36846e713760",
+  "files": [],
+  "subMetas": {
+    "2cdb7": {
+      "importer": "gltf-mesh",
+      "uuid": "ff0a0518-3df9-46d1-848e-36846e713760@2cdb7",
+      "displayName": "",
+      "id": "2cdb7",
+      "name": "transit_night_dome.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 2208
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ccf1a": {
+      "importer": "gltf-embeded-image",
+      "uuid": "ff0a0518-3df9-46d1-848e-36846e713760@ccf1a",
+      "displayName": "",
+      "id": "ccf1a",
+      "name": "transit_night_dome_equirect_2048.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "ff0a0518-3df9-46d1-848e-36846e713760@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "ff0a0518-3df9-46d1-848e-36846e713760@ccf1a"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0954e": {
+      "importer": "gltf-material",
+      "uuid": "ff0a0518-3df9-46d1-848e-36846e713760@0954e",
+      "displayName": "",
+      "id": "0954e",
+      "name": "M_transit_night_dome.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c70f4": {
+      "importer": "gltf-scene",
+      "uuid": "ff0a0518-3df9-46d1-848e-36846e713760@c70f4",
+      "displayName": "",
+      "id": "c70f4",
+      "name": "transit_night_dome.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    },
+    "imageMetas": [
+      {
+        "name": "transit_night_dome_equirect_2048",
+        "uri": "ff0a0518-3df9-46d1-848e-36846e713760@ccf1a"
+      }
+    ],
+    "assetFinder": {
+      "meshes": [
+        "ff0a0518-3df9-46d1-848e-36846e713760@2cdb7"
+      ],
+      "skeletons": [],
+      "textures": [
+        "ff0a0518-3df9-46d1-848e-36846e713760@e39f7"
+      ],
+      "materials": [
+        "ff0a0518-3df9-46d1-848e-36846e713760@0954e"
+      ],
+      "scenes": [
+        "ff0a0518-3df9-46d1-848e-36846e713760@c70f4"
+      ]
+    }
+  }
+}

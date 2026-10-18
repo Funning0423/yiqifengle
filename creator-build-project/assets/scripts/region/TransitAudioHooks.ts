@@ -48,3 +48,8 @@ export function setTransitPaused(next:boolean):void{
 export function transitPaused():boolean{return paused;}
 export function resetTransitCues():void{listeners.clear();hidden=false;paused=false;pendingLoop=null;loops.clear();}
 export function resetTransitAudio():void{listeners.clear();loops.clear();paused=false;hidden=false;pendingLoop=null;}
+
+/** Balloon: skip the cue while the caller says the transit is hidden. */
+export function emitTransitCueGated(cue:TransitCue,info:TransitInfo,hiddenFlag:boolean):boolean{
+ if(hiddenFlag)return false;emitTransitCue(cue,info);return true;
+}

@@ -24,6 +24,7 @@ export const REGIONS:Record<string,RegionDef>={
   island:{bundle:'static_seat_preview',prefabUuid:'61fa04e2-644b-5997-bfd1-812b61d3586b@f06f9',ambientClipUuids:['61fa04e2-644b-5997-bfd1-812b61d3586b@f2bf2']},
   // Exact prefab UUID from Creator 3.8.8 import; the .glb.meta is committed.
   skycity:{bundle:'region_skycity',prefabUuid:'0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae',prefabName:'env_skycity',ambientClips:['sky_ambient_loop','robot_idle'],gestureClips:['robot_watering','robot_give_flower']},
+  transitBalloon:{bundle:'region_transit_balloon',prefabName:'transport_balloon'},
 };
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 /** Loads the region's bundle and prefab. Rejects on failure so callers can show retry UI. */

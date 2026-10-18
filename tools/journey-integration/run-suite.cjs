@@ -105,6 +105,9 @@ const tests=[
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
+ ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
+ ['balloon-transport-flag','tools/journey-integration/test-transport-flag.cjs'],
+ ['balloon-transit-background-resume','tools/journey-integration/test-transit-background-resume.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

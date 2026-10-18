@@ -1,0 +1,52 @@
+{
+  "format": "r5-balloon-flightpath/2.2",
+  "instancing": false,
+  "totalTris": 40994,
+  "bytes": 1054380,
+  "rows": [
+    {
+      "name": "transport_balloon.glb",
+      "bytes": 111600,
+      "tris": 1085,
+      "materials": 2,
+      "meshes": 3,
+      "extensions": []
+    },
+    {
+      "name": "transit_clouds_merged.glb",
+      "bytes": 510896,
+      "tris": 14880,
+      "materials": 1,
+      "meshes": 7,
+      "extensions": []
+    },
+    {
+      "name": "far_meadow_card.glb",
+      "bytes": 69840,
+      "tris": 2112,
+      "materials": 1,
+      "meshes": 1,
+      "extensions": []
+    },
+    {
+      "name": "transit_sea_fallback.glb",
+      "bytes": 10104,
+      "tris": 336,
+      "materials": 1,
+      "meshes": 1,
+      "extensions": []
+    },
+    {
+      "name": "transit_night_dome.glb",
+      "bytes": 270088,
+      "tris": 2208,
+      "materials": 1,
+      "meshes": 1,
+      "extensions": [
+        "KHR_materials_unlit"
+      ]
+    }
+  ],
+  "jsonBytes": 81852,
+  "note": "v2.3 source bytes before Creator meshopt; totalTris includes girl 20373; plan B sea fallback included"
+}

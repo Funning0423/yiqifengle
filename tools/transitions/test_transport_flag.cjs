@@ -6,10 +6,10 @@ const S=path.resolve(__dirname,'../../creator-build-project/assets/scripts');
 function load(rel,req){const file=path.join(S,rel);const js=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;const m={exports:{}};vm.runInNewContext(js,{module:m,exports:m.exports,require:req,console},{filename:file});return m.exports;}
 const jt=load('region/JourneyTransport.ts',()=>({}));
 assert.equal(jt.JOURNEY_TRANSPORT['island-meadow'],'sail');
-assert.equal(jt.JOURNEY_TRANSPORT['meadow-skycity'],'bridge');
+assert.equal(jt.JOURNEY_TRANSPORT['meadow-skycity'],'balloon');
 assert.equal(jt.JOURNEY_TRANSPORT['island-lakeside'],'bridge');
 assert.equal(jt.transportFor('island','meadow',null),'sail');
-assert.equal(jt.transportFor('meadow','skycity',null),'bridge');
+assert.equal(jt.transportFor('meadow','skycity',null),'balloon');
 assert.equal(jt.transportFor('skycity','island',null),'bridge');
 assert.equal(jt.transportQaOverride('?transport=bridge',null),'bridge');
 assert.equal(jt.transportQaOverride('?transport=bridge',{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})}),null);

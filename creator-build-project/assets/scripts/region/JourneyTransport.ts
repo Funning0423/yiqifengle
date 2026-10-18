@@ -1,10 +1,11 @@
 import type {JourneyRegion as CoreJourneyRegion} from '../world-r1/RegionJourneyCore';
-/** Rainbow-bridge switch. island→meadow is the sail leg. meadow→skycity stays on the bridge until the balloon merge.
- * Unknown pairs fall back to the bridge. `?transport=bridge` is a QA override. A 6 s sail preload timeout falls back too. */
+/** Rainbow-bridge switch. island→meadow is sail, meadow→skycity is balloon, island→lakeside stays the bridge.
+ * Unknown pairs fall back to the bridge. `?transport=` and `__QF_TRANSPORT` are QA overrides.
+ * A 6 s sail preload timeout falls back to the bridge for the next island→meadow prepare. */
 export type TransportKind='bridge'|'sail'|'balloon';
 export type JourneyRegion=CoreJourneyRegion;
 export const JOURNEY_TRANSPORT:{'island-meadow':TransportKind;'meadow-skycity':TransportKind;'island-lakeside':TransportKind}={
- 'island-meadow':'sail','meadow-skycity':'bridge','island-lakeside':'bridge',
+ 'island-meadow':'sail','meadow-skycity':'balloon','island-lakeside':'bridge',
 };
 /** Set when the meadow bundle does not finish warming within 6 s. The next island→meadow prepare takes the bridge. */
 let sailPreloadFallback=false;
@@ -18,6 +19,15 @@ export function transportQaEnabled(host:any=(globalThis as any).wx):boolean{
  if(!host)return true;
  try{const env=host.getAccountInfoSync?.()?.miniProgram?.envVersion;return env==='develop'||env==='trial';}catch{return false;}
 }
+/** Balloon callers pass a host (`globalThis` or `{wx,__QF_TRANSPORT,location}`). No wx means QA is on. */
+export function qaTransportEnabled(host:any=globalThis):boolean{
+ try{
+  const wx=host?.wx;if(!wx)return true;
+  const env=wx.getAccountInfoSync?.()?.miniProgram?.envVersion;
+  if(env==='develop'||env==='trial')return true;
+  return false;
+ }catch{return false;}
+}
 export function transportQaOverride(search?:string,host:any=(globalThis as any).wx):TransportKind|null{
  let q=search;
  if(q===undefined){try{q=String((globalThis as any).location?.search||'');}catch{q='';}}
@@ -25,7 +35,20 @@ export function transportQaOverride(search?:string,host:any=(globalThis as any).
  if(!m||!transportQaEnabled(host))return null;
  return m[1] as TransportKind;
 }
-export function transportFor(from:JourneyRegion|string,to:JourneyRegion|string,override:TransportKind|null=transportQaOverride()):TransportKind{
+function isKind(v:unknown):v is TransportKind{return v==='bridge'||v==='sail'||v==='balloon';}
+function overrideFromHost(host:any):TransportKind|null{
+ if(!qaTransportEnabled(host))return null;
+ const direct=host?.__QF_TRANSPORT;if(isKind(direct))return direct;
+ try{const q=host?.location?.search;if(typeof q==='string'&&q.includes('transport=')){const v=new URLSearchParams(q).get('transport');if(isKind(v))return v;}}catch{}
+ return null;
+}
+/** Third argument is a sail QA kind (`'bridge'`), `null` (no override), or a balloon host object. Omitted: read the page query, then `globalThis`. */
+export function transportFor(from:JourneyRegion|string,to:JourneyRegion|string,third?:TransportKind|null|object):TransportKind{
+ let override:TransportKind|null=null;
+ if(isKind(third))override=third;
+ else if(third===null)override=null;
+ else if(third===undefined)override=transportQaOverride()??overrideFromHost(globalThis);
+ else override=overrideFromHost(third);
  if(override)return override;
  if(from==='island'&&to==='meadow'&&sailPreloadFallback)return 'bridge';
  if(from==='island'&&to==='meadow')return JOURNEY_TRANSPORT['island-meadow'];

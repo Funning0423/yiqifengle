@@ -42,6 +42,8 @@ export const REGION_JOURNEY_LAYOUT={
   * the 66° corner) and ramps up from 11 m before the bridge, keeping the underside ≤ 10% (F3) and the night sky in view (F4) with no lift. */
  skyLens:[{at:-11},{at:-7,upM:6.5,backM:9,lookM:2.4,sideM:-1.2},{at:-0.2,upM:6.5,backM:9,lookM:2.4,sideM:-8},{at:1.3,upM:6.5,backM:9,lookM:2.4,sideM:-5.5},{at:4.5,upM:7,backM:9,lookM:2.4,sideM:-1},{at:8,upM:6.5,backM:9,lookM:2.4,sideM:-0.5},{at:15,upM:6.5,backM:9,lookM:2.4,sideM:-0.5},{at:19}] as ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,
  bridgeWidthM:2.1,meadowBridgeArchM:2,skyBridgeArchM:2,speedMps:1.2,bridgeSamples:32,meadowExitPathIndex:8,skyEntryWalkM:2.4,
+ /** Meadow → sky city balloon placement. liftM is +40 (the §10 cap): +30 leaves the rock strata below meadow terrain + 8 m. */
+ balloonSkyOffset:{liftM:40,rangeM:45,groundClearM:8} as const,
 } as const;
 export const plus=(a:Vec,b:Vec):Vec=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
 export function bridgePath(a:Vec,b:Vec,arch:number):Vec[]{const out:Vec[]=[];for(let i=0;i<=REGION_JOURNEY_LAYOUT.bridgeSamples;i++){const t=i/REGION_JOURNEY_LAYOUT.bridgeSamples;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t+Math.sin(Math.PI*t)*arch,a[2]+(b[2]-a[2])*t]);}return out;}

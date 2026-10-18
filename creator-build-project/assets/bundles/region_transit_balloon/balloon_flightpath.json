@@ -1,0 +1,8195 @@
+{
+"format": "r5-balloon-flightpath/2.2",
+"units": "m, s, deg",
+"frames": {
+"meadow": "meadow region frame = env_meadow.glb / meadow_greybox_v0_8.glb root local (game/glTF, Y-up). M6=(0.2,6.5,-25.6). In game: world = meadowRootWorld * p",
+"world": "game world (WorldFlowComponent node, island at identity) with env_meadow / env_skycity exactly where RegionJourneyAdapter.ts places them (sky city NOT moved). city local = skycityRootWorld^-1 * p"
+},
+"frame": "keys with t < seam.t are in frame \"meadow\"; keys with t >= seam.t are in frame \"world\" (each key carries its frame)",
+"origin_meaning": "pos = transport_balloon root (basket bottom centre). Girl controllerRoot = node basket_floor / stand_point (+0.10 m Y).",
+"yaw_meaning": "balloon node rotation = Ry(yawDeg) * Rz(rollDeg) in the key frame; +Z of the balloon is forward. meadow keys: yawDeg in meadow frame (world yaw = yawDeg + 180); world keys: yawDeg already in game world",
+"sampleRate_hz": 10,
+"duration_s": 36.0,
+"beats": [
+{
+"id": "B-b_board",
+"t0": 0.0,
+"t1": 1.8
+},
+{
+"id": "B-c_liftoff",
+"t0": 1.8,
+"t1": 5.8
+},
+{
+"id": "B-d_climb_cloud",
+"t0": 5.8,
+"t1": 27.0
+},
+{
+"id": "B-e_city_approach",
+"t0": 27.0,
+"t1": 31.0
+},
+{
+"id": "B-f_land",
+"t0": 31.0,
+"t1": 35.0
+},
+{
+"id": "B-g_exit",
+"t0": 35.0,
+"t1": 36.0
+}
+],
+"interpolation": "linear between neighbouring keys of the SAME frame only. t in [seam.t-0.1, seam.t): lerp keys[t=seam.t-0.1] -> seam.preKey (meadow). t >= seam.t: world keys. Never interpolate across the seam.",
+"cues": {
+"balloon-burner": 0.4,
+"balloon-liftoff": 1.8,
+"balloon-cloud-enter": 4.3,
+"meadow-unload": 11.2,
+"far-meadow-card-on": 11.2,
+"frame-seam": 11.4,
+"sky-city-enable": 11.6,
+"balloon-cloud-exit": 15.0,
+"sky-islets-enable": 21.5,
+"balloon-land": 35.0
+},
+"seam": {
+"t": 11.4,
+"fullScreenCloudWindow_t": [
+11.0,
+12.0
+],
+"why_here": "after meadow-unload (11.2) and before sky-city-enable (11.6): neither existing scene is drawn, screen is 100% cloud",
+"preKey": {
+"t": 11.4,
+"frame": "meadow",
+"pos": [
+8.1569,
+26.814,
+3.5454
+],
+"yawDeg": 352.0,
+"rollDeg": 1.3,
+"cam": [
+17.4707,
+28.314,
+-5.2439
+],
+"camLook": [
+7.8785,
+31.814,
+5.5259
+]
+},
+"postKey": {
+"t": 11.4,
+"frame": "world",
+"pos": [
+-94.6258,
+-22.4777,
+54.6983
+],
+"yawDeg": 67.747,
+"rollDeg": 1.3,
+"cam": [
+-100.8514,
+-20.9777,
+43.5072
+],
+"camLook": [
+-92.7748,
+-17.4777,
+55.4557
+]
+},
+"meadowRootWorld": {
+"meaning": "game placement of env_meadow root (RegionJourneyAdapter.ts: setRotationFromEuler(0,180,0), player_spawn on islandApproach end + meadowOffset)",
+"yawDeg": 180.0,
+"quaternion_xyzw": [
+0.0,
+1.0,
+0.0,
+0.0
+],
+"translation": [
+-1.3135,
+-1.163494,
+52.4814
+],
+"matrix_rowmajor": [
+[
+-1.0,
+0,
+0.0,
+-1.313500059
+],
+[
+0,
+1,
+0,
+-1.16349411
+],
+[
+-0.0,
+0,
+-1.0,
+52.481400204
+],
+[
+0,
+0,
+0,
+1
+]
+],
+"formula": "p_out = Ry(yawDeg) * p_in + translation (Y-up, right-handed; Cocos setRotationFromEuler(0,yawDeg,0))"
+},
+"skycityRootWorld": {
+"meaning": "game placement of env_skycity root (RegionJourneyAdapter.ts: skycityYawDeg(), rim landing = walk_path_08 + skycityOffset [18,12,0]); unchanged by the balloon",
+"yawDeg": 241.165081,
+"quaternion_xyzw": [
+0.0,
+0.860897104,
+0.0,
+-0.508779104
+],
+"translation": [
+59.06373,
+18.818369,
+117.212135
+],
+"matrix_rowmajor": [
+[
+-0.482287647,
+0,
+-0.876012914,
+59.063729657
+],
+[
+0,
+1,
+0,
+18.818369447
+],
+[
+0.876012914,
+0,
+-0.482287647,
+117.212134506
+],
+[
+0,
+0,
+0,
+1
+]
+],
+"formula": "p_out = Ry(yawDeg) * p_in + translation (Y-up, right-handed; Cocos setRotationFromEuler(0,yawDeg,0))"
+},
+"designCityInMeadowFrame": {
+"meaning": "v2.1 design placement of env_skycity in the meadow frame (balloonSkyOffset): the post-seam path keeps this RELATIVE layout to the city",
+"yawDeg": 165.418055,
+"quaternion_xyzw": [
+0.0,
+0.991914451,
+0.0,
+0.126908322
+],
+"translation": [
+-14.593751,
+68.11,
+167.895198
+],
+"matrix_rowmajor": [
+[
+-0.967788556,
+0,
+0.251764396,
+-14.59375145
+],
+[
+0,
+1,
+0,
+68.11
+],
+[
+-0.251764396,
+0,
+-0.967788556,
+167.895198488
+],
+[
+0,
+0,
+0,
+1
+]
+],
+"formula": "p_out = Ry(yawDeg) * p_in + translation (Y-up, right-handed; Cocos setRotationFromEuler(0,yawDeg,0))"
+},
+"meadowToWorld_postSeam": {
+"meaning": "P = skycityRootWorld * designCityInMeadowFrame^-1 : a design (meadow-frame) point -> game world after the seam",
+"yawDeg": 75.747026,
+"quaternion_xyzw": [
+0.0,
+0.613920352,
+0.0,
+0.789367976
+],
+"translation": [
+-100.070307,
+-49.291631,
+61.731203
+],
+"matrix_rowmajor": [
+[
+0.246203603,
+0,
+0.969218131,
+-100.070306701
+],
+[
+0,
+1,
+0,
+-49.291630553
+],
+[
+-0.969218131,
+0,
+0.246203603,
+61.731203286
+],
+[
+0,
+0,
+0,
+1
+]
+],
+"formula": "p_out = Ry(yawDeg) * p_in + translation (Y-up, right-handed; Cocos setRotationFromEuler(0,yawDeg,0))"
+},
+"worldJump": {
+"meaning": "S = P * meadowRootWorld^-1 : what was at world point q just before the seam is at S*q just after it (rigid; apply to every teleported object and to the camera)",
+"yawDeg": 255.747026,
+"quaternion_xyzw": [
+0.0,
+-0.789367976,
+0.0,
+0.613920352
+],
+"translation": [
+-49.527771,
+-48.128136,
+75.925381
+],
+"matrix_rowmajor": [
+[
+-0.246203603,
+0,
+-0.969218131,
+-49.527770512
+],
+[
+0,
+1,
+0,
+-48.128136443
+],
+[
+0.969218131,
+0,
+-0.246203603,
+75.925381153
+],
+[
+0,
+0,
+0,
+1
+]
+],
+"formula": "p_out = Ry(yawDeg) * p_in + translation (Y-up, right-handed; Cocos setRotationFromEuler(0,yawDeg,0))"
+},
+"teleport": {
+"at_t": 11.4,
+"objects": [
+"transport_balloon (+ girl, she is its child via stand_point)",
+"transit camera (position and look target; FOV unchanged)",
+"transit_clouds_merged root (all groups)",
+"far_meadow_card",
+"env_sea_surface (world backdrop, see worldBackdrops)"
+],
+"how": "easiest: keep the transit content under one node transitFrame. Before the seam transitFrame.world = meadowRootWorld (same as env_meadow root); at the seam set transitFrame.world = meadowToWorld_postSeam. Balloon + camera are driven by the keys (meadow keys under meadowRootWorld, world keys directly). Do it in ONE frame (same update).",
+"not_teleported": [
+"env_skycity (stays where the game puts it)",
+"env_meadow (already unloaded at meadow-unload)",
+"sky domes (skybox: camera-centred, drawn first)",
+"directional light (see lighting)"
+]
+},
+"continuity": {
+"method": "camera-relative pose (position in camera space + rotation) of balloon / transit_clouds root / far card root, pre (meadow key under meadowRootWorld) vs post (world key)",
+"from_rounded_json_keys": {
+"balloon": {
+"pos_err_m": 3.1542080240920256e-05,
+"rot_err_deg": 0.00014975880935758984
+},
+"transit_clouds_root": {
+"pos_err_m": 6.352248695540858e-05,
+"rot_err_deg": 0.00017541672479953106
+},
+"far_meadow_card_root": {
+"pos_err_m": 6.352248695540858e-05,
+"rot_err_deg": 0.00017541672479953106
+}
+},
+"full_precision": {
+"balloon": {
+"pos_err_m": 1.0986160316453369e-14,
+"rot_err_deg": 0.0
+},
+"transit_clouds_root": {
+"pos_err_m": 1.0950198975068616e-14,
+"rot_err_deg": 0.0
+},
+"far_meadow_card_root": {
+"pos_err_m": 1.0950198975068616e-14,
+"rot_err_deg": 0.0
+}
+}
+},
+"lighting": {
+"worldJump_yawDeg": -104.253,
+"note": "the world light does not move with the teleport, so its direction relative to the camera turns by worldJump_yawDeg at the seam. Recommended: from t=10.7 (cloud cover >= 0.99) to the seam, add a yaw of -worldJump_yawDeg (= +104.253 deg) to the Main Light, ramped; at the seam set it back to the game value in the same frame as the teleport. The screen is 100% cloud, so the city/meadow are never lit by the ramped light."
+},
+"landing": {
+"S0_local": [
+5.4,
+-0.11,
+43.8
+],
+"S0_game_world": [
+18.09,
+18.7084,
+100.8184
+],
+"key_t35_pos": [
+18.09,
+18.7084,
+100.8184
+],
+"residual_m": 3.281412440082326e-05,
+"residual_full_precision_m": 6.703246762680666e-14,
+"note": "S0 = transitions-DESIGN.md S0 table point in env_skycity local coords (no S0 symbol exists in the repo); its in-game position = skycityRootWorld * S0_local"
+}
+},
+"layout": {
+"frame": "meadow (design)",
+"takeoff": [
+12.0,
+6.51934814453125,
+-23.8
+],
+"liftoffTop": [
+12.0,
+14.51934814453125,
+-23.8
+],
+"climbEnd": [
+-6.2178267311746644,
+72.8,
+105.82657273064147
+],
+"cruiseEnd": [
+-8.444596346535718,
+72.8,
+121.6708618305066
+],
+"landing_S0": [
+-8.792529098935884,
+68.0,
+124.14653200236052
+],
+"climbDeg": 24.0,
+"cruiseClearanceAboveLawn_m": 4.8,
+"horizontal_takeoff_to_S0_m": 149.4,
+"cloudDeckY": [
+20.5,
+38.5
+],
+"path_length_m": 171.3
+},
+"balloonSkyOffset": {
+"note": "v2.1 DESIGN placement (meadow frame) - used only to build the post-seam path relative to the city; the game does NOT move env_skycity",
+"yawDeg": 165.4181,
+"translation": [
+-14.5938,
+68.11,
+167.8952
+],
+"formula": "design: meadowFrame = Ry(yawDeg) * cityLocal + translation",
+"S0_local": [
+5.4,
+-0.11,
+43.8
+],
+"S0_design_meadow": [
+-8.7925,
+68.0,
+124.1465
+],
+"approachLocalBearingDeg": 186.582,
+"strata_ymin_design": 18.308
+},
+"gamePlacementSource": {
+"sources": [
+"creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts (prepare: meadow + skycity placement)",
+"creator-build-project/assets/scripts/region/RegionJourneyLayout.ts (REGION_JOURNEY_LAYOUT, skycityYawDeg, skyDeckRoute)",
+"tools/journey-integration/reports/journey-occlusion.json (placement: meadowRootWorld / skycityRootWorld / yaw)",
+"bundles: region_meadow/env_meadow.glb, region_skycity/env_skycity.glb, static_seat_preview/room/room_no_original_chair.glb (anchors)"
+],
+"check_vs_repo_report": {
+"meadowRootWorld_err_m": 0.0,
+"meadowYaw_err_deg": 0.0,
+"skycityRootWorld_err_m": 4.973799150320701e-14,
+"skycityYaw_err_deg": 2.842170943040401e-14
+}
+},
+"renderingHints": {
+"skyDomes": "env_sky_dome (day) and transit_night_dome (night) render as a SKYBOX: drawn first (lowest priority / own queue before opaque), depthWrite=false (depthTest off or LEQUAL with depth cleared after), camera-centred (follow camera position, not rotation). Exactly one dome enabled at a time.",
+"opaqueOrder": "balloon, transit clouds, far_meadow_card, env_sea_surface, env_skycity: normal opaque queue, depthWrite on, after the skybox",
+"cameraFar_m": 2500,
+"cameraNear_m": 0.3,
+"fovVerticalDeg": 48
+},
+"visibilityRules": {
+"sceneSwitch": {
+"fullScreenCloudWindow_t": [
+11.0,
+12.0
+],
+"meadowOff_t": 11.2,
+"seam_t": 11.4,
+"skyCityOn_t": 11.6,
+"rule": "env_meadow rendered only for t < meadowOff_t; env_skycity rendered only for t >= skyCityOn_t; meadowOff_t < seam_t < skyCityOn_t, all inside the full-screen cloud window, so the two scenes are never rendered at the same moment",
+"preload": "load region_skycity (inactive) during the climb, before meadowOff_t; destroy/unload region_meadow after meadowOff_t"
+},
+"farMeadowCard": {
+"object": "far_meadow_card (glb/far_meadow_card.glb, 1 opaque material, no alpha, no emission)",
+"on_t": 11.2,
+"off_t": 36.0,
+"frame": "meadow frame identity (exactly where env_meadow was) until the seam; teleported with the clouds at the seam",
+"rule": "turn on in the SAME frame as meadow-unload (never together with env_meadow); stays under the cloud plain (>= 4 m to every cloud); seen only through the cloud-plain gaps, always below the horizon",
+"drawOrder": "opaque queue (after the skybox)",
+"version": "2.3 (drop-in replacement of glb/far_meadow_card.glb: same file, node, material names; node transform and frame convention unchanged)",
+"nodeTransform": "identity in the meadow frame (child of transitFrame like transit_clouds_merged); unchanged from v2.2",
+"geometry": {
+"kind": "hazed miniature of the meadow island + hazed-sea skirt, baked into the vertices",
+"uniformScaleK": 0.13,
+"islandCentre_meadowFrame_xz": [
+-53.0,
+44.0
+],
+"islandSize_m": 20.8,
+"cardSeaLevel_y": 0.845,
+"gameSea_y_meadowFrame": 0.244949,
+"bbox_meadowFrame": {
+"x": [
+-111.09,
+7.0
+],
+"y": [
+0.845,
+2.162
+],
+"z": [
+-16.0,
+86.46
+]
+},
+"tris": 2112
+},
+"haze": {
+"bakedIntoBaseColour": true,
+"islandAmount": 0.6,
+"tint_srgb": [
+0.6,
+0.74,
+0.84
+],
+"skirt": "inner = hazed sea, outer rings fade to the game-sea albedo"
+},
+"optionalEngineFog": {
+"required": false,
+"note": "NOT needed: haze is baked. If the scene already uses Cocos fog during the transit, keep it LINEAR and far so it does not double-haze the card or grey the clouds",
+"type": "LINEAR",
+"color_srgb": [
+153,
+189,
+214
+],
+"start_m": 400,
+"end_m": 2400
+},
+"recedeOverTime": {
+"used": false,
+"note": "static is enough: the gaps scroll over the island as the balloon climbs/cruises (card visible 14.2-20.6 s); no per-frame transform needed"
+},
+"visibleThroughGaps_t": [
+14.2,
+20.6
+],
+"clearance_m": {
+"cloud_to_card_min": 4.36,
+"card_to_cloud_min": 4.35,
+"card_to_cloud_plain_vertical_min": 6.36,
+"balloon_min_after_on": 29.09,
+"camera_min_after_on": 37.69,
+"above_game_sea": 0.6
+}
+},
+"skyCity": "env_skycity hidden for t < 11.6 (inside the full-screen cloud), shown after; no geometry cut",
+"skyCityAlwaysHidden": [
+"env_sky_cloud_small",
+"env_sky_cloudsea",
+"env_sky_cumulus_far",
+"Icosphere",
+"state_bridge_after",
+"state_court_after",
+"state_court_after_flowers",
+"state_gate_after",
+"state_gate_after_flowers",
+"state_ring_after_stars"
+],
+"skyIslets": {
+"objects": [
+"env_sky_floatingrocks_1",
+"env_sky_floatingrocks_2",
+"env_sky_floatingrocks_3",
+"env_sky_floatingrocks_cards_1",
+"env_sky_floatingrocks_cards_2",
+"env_sky_floatingrocks_cards_3",
+"env_sky_islets_far"
+],
+"enableFrom_t": 21.5
+},
+"citySeaClouds": "cloud groups clouds_city_sea, clouds_floor and clouds_floor_puff follow skyCity visibility (on from skyCityOn_t)",
+"transitClouds": "clouds_deck, clouds_deck_loose, clouds_far, clouds_horizon: on for the whole transit",
+"meadowHidden": [
+"meadow_clouds_near",
+"meadow_far_hills",
+"meadow_sky_dome"
+],
+"meadowGrassOffFrom_t": 5.8,
+"worldBackdrops": {
+"env_sea_surface": "game sea (island model, y=-0.9185). Teleport with worldJump at the seam (post-seam world y = -49.047) so its height under the clouds/city matches the design; scale x/z by 6 for the transit (renders). Put it back (identity, scale 1) at the hand-off after the landing.",
+"hide_from_meadowOff_until_handoff": [
+"env_cloud_layer",
+"env_sea_foam",
+"env_sea_surf_foam_v22",
+"env_sea_wave_line_01_v22",
+"env_sea_wave_line_02_v22",
+"island model meshes (lighthouse, house, palms ...)"
+],
+"night_hide_whole_transit": [
+"env_sky_moon_night_v22",
+"env_sky_moon_halo_night_v22 (transit_night_dome has its own moon)"
+]
+},
+"dayDome": "env_sky_dome for the whole transit = exactly one sky layer, rendered as skybox (renderingHints)",
+"nightDome": "transit_night_dome only, rendered as skybox; env_sky_dome and meadow_sky_dome disabled",
+"night": {
+"dome": "transit_night_dome only (exactly one sky layer)",
+"M_transit_cloud_emissive": "set emissiveFactor to [0,0,0] at night (clouds stay opaque, lit by moon/ambient only)",
+"day_emissiveFactor": "as exported (0.18 x [0.82,0.87,1.0])"
+},
+"girl": "girl stands on balloon node basket_floor / stand_point; the render stand-in faces the 离地 camera (yaw -76.6 deg relative to the basket)"
+},
+"keys": [
+{
+"t": 0.0,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.1,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.2,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.3,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.4,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.5,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.6,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.7,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.8,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 0.9,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.0,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.1,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.2,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.3,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.4,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.5,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.6,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.7,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.8,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5193,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.0,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5193,
+-23.8
+]
+},
+{
+"t": 1.9,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5273,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.009,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5304,
+-23.8
+]
+},
+{
+"t": 2.0,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5508,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.031,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.5721,
+-23.8
+]
+},
+{
+"t": 2.1,
+"frame": "meadow",
+"pos": [
+12.0,
+6.5895,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.059,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.6516,
+-23.8
+]
+},
+{
+"t": 2.2,
+"frame": "meadow",
+"pos": [
+12.0,
+6.6427,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.085,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.7686,
+-23.8
+]
+},
+{
+"t": 2.3,
+"frame": "meadow",
+"pos": [
+12.0,
+6.71,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.101,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+11.918,
+-23.8
+]
+},
+{
+"t": 2.4,
+"frame": "meadow",
+"pos": [
+12.0,
+6.791,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.101,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+12.091,
+-23.8
+]
+},
+{
+"t": 2.5,
+"frame": "meadow",
+"pos": [
+12.0,
+6.8851,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.08,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+12.2771,
+-23.8
+]
+},
+{
+"t": 2.6,
+"frame": "meadow",
+"pos": [
+12.0,
+6.9918,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": 0.033,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+12.4659,
+-23.8
+]
+},
+{
+"t": 2.7,
+"frame": "meadow",
+"pos": [
+12.0,
+7.1107,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -0.04,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+12.6485,
+-23.8
+]
+},
+{
+"t": 2.8,
+"frame": "meadow",
+"pos": [
+12.0,
+7.2412,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -0.142,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+12.8199,
+-23.8
+]
+},
+{
+"t": 2.9,
+"frame": "meadow",
+"pos": [
+12.0,
+7.3829,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -0.269,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+12.9798,
+-23.8
+]
+},
+{
+"t": 3.0,
+"frame": "meadow",
+"pos": [
+12.0,
+7.5352,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -0.418,
+"cam": [
+27.3,
+8.0193,
+-10.9
+],
+"camLook": [
+12.0,
+13.1352,
+-23.8
+]
+},
+{
+"t": 3.1,
+"frame": "meadow",
+"pos": [
+12.0,
+7.6977,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -0.584,
+"cam": [
+27.3054,
+8.0252,
+-10.9131
+],
+"camLook": [
+12.0,
+13.2963,
+-23.8
+]
+},
+{
+"t": 3.2,
+"frame": "meadow",
+"pos": [
+12.0,
+7.8699,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -0.761,
+"cam": [
+27.3404,
+8.0641,
+-10.9974
+],
+"camLook": [
+12.0,
+13.4595,
+-23.8
+]
+},
+{
+"t": 3.3,
+"frame": "meadow",
+"pos": [
+12.0,
+8.0514,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -0.94,
+"cam": [
+27.4266,
+8.1632,
+-11.2053
+],
+"camLook": [
+12.0,
+13.6186,
+-23.8
+]
+},
+{
+"t": 3.4,
+"frame": "meadow",
+"pos": [
+12.0,
+8.2415,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.113,
+"cam": [
+27.578,
+8.3437,
+-11.5704
+],
+"camLook": [
+12.0,
+13.7696,
+-23.8
+]
+},
+{
+"t": 3.5,
+"frame": "meadow",
+"pos": [
+12.0,
+8.4398,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.271,
+"cam": [
+27.8016,
+8.6205,
+-12.1094
+],
+"camLook": [
+12.0,
+13.9102,
+-23.8
+]
+},
+{
+"t": 3.6,
+"frame": "meadow",
+"pos": [
+12.0,
+8.6459,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.404,
+"cam": [
+28.0982,
+9.0026,
+-12.8246
+],
+"camLook": [
+12.0,
+14.0396,
+-23.8
+]
+},
+{
+"t": 3.7,
+"frame": "meadow",
+"pos": [
+12.0,
+8.8592,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.505,
+"cam": [
+28.4637,
+9.4929,
+-13.7059
+],
+"camLook": [
+12.0,
+14.1584,
+-23.8
+]
+},
+{
+"t": 3.8,
+"frame": "meadow",
+"pos": [
+12.0,
+9.0792,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.566,
+"cam": [
+28.8894,
+10.0884,
+-14.7324
+],
+"camLook": [
+12.0,
+14.2684,
+-23.8
+]
+},
+{
+"t": 3.9,
+"frame": "meadow",
+"pos": [
+12.0,
+9.3055,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.594,
+"cam": [
+29.3634,
+10.7808,
+-15.8752
+],
+"camLook": [
+12.0,
+14.3722,
+-23.8
+]
+},
+{
+"t": 4.0,
+"frame": "meadow",
+"pos": [
+12.0,
+9.5375,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.599,
+"cam": [
+29.871,
+11.5564,
+-17.099
+],
+"camLook": [
+12.0,
+14.4731,
+-23.8
+]
+},
+{
+"t": 4.1,
+"frame": "meadow",
+"pos": [
+12.0,
+9.7748,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.582,
+"cam": [
+30.3957,
+12.3971,
+-18.3644
+],
+"camLook": [
+12.0,
+14.5748,
+-23.8
+]
+},
+{
+"t": 4.2,
+"frame": "meadow",
+"pos": [
+12.0,
+10.0169,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.543,
+"cam": [
+30.9205,
+13.2807,
+-19.6297
+],
+"camLook": [
+12.0,
+14.6813,
+-23.8
+]
+},
+{
+"t": 4.3,
+"frame": "meadow",
+"pos": [
+12.0,
+10.2633,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.483,
+"cam": [
+31.4281,
+14.1826,
+-20.8535
+],
+"camLook": [
+12.0,
+14.7965,
+-23.8
+]
+},
+{
+"t": 4.4,
+"frame": "meadow",
+"pos": [
+12.0,
+10.5134,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.401,
+"cam": [
+31.9021,
+15.0762,
+-21.9963
+],
+"camLook": [
+12.0,
+14.9242,
+-23.8
+]
+},
+{
+"t": 4.5,
+"frame": "meadow",
+"pos": [
+12.0,
+10.7669,
+-23.8
+],
+"yawDeg": 352.0,
+"rollDeg": -1.3,
+"cam": [
+32.3278,
+15.9348,
+-23.0228
+],
+"camLook": [
+12.0,
+15.0676,
+-23.8
+]
+},
+{
+"t": 4.6,
+"frame": "meadow",
+"pos": [
+11.9999,
+11.0232,
+-23.7993
+],
+"yawDeg": 352.0,
+"rollDeg": -1.181,
+"cam": [
+32.6932,
+16.7335,
+-23.9035
+],
+"camLook": [
+11.9999,
+15.2295,
+-23.7993
+]
+},
+{
+"t": 4.7,
+"frame": "meadow",
+"pos": [
+11.9988,
+11.2816,
+-23.7915
+],
+"yawDeg": 352.0,
+"rollDeg": -1.045,
+"cam": [
+32.9888,
+17.4503,
+-24.6115
+],
+"camLook": [
+11.9988,
+15.4113,
+-23.7915
+]
+},
+{
+"t": 4.8,
+"frame": "meadow",
+"pos": [
+11.9964,
+11.5415,
+-23.7743
+],
+"yawDeg": 352.0,
+"rollDeg": -0.894,
+"cam": [
+33.21,
+18.069,
+-25.1338
+],
+"camLook": [
+11.9964,
+15.6133,
+-23.7743
+]
+},
+{
+"t": 4.9,
+"frame": "meadow",
+"pos": [
+11.9926,
+11.8018,
+-23.7471
+],
+"yawDeg": 352.0,
+"rollDeg": -0.731,
+"cam": [
+33.3576,
+18.5812,
+-25.4716
+],
+"camLook": [
+11.9926,
+15.8345,
+-23.7471
+]
+},
+{
+"t": 5.0,
+"frame": "meadow",
+"pos": [
+11.9872,
+12.0616,
+-23.7093
+],
+"yawDeg": 352.0,
+"rollDeg": -0.557,
+"cam": [
+33.4384,
+18.9895,
+-25.6411
+],
+"camLook": [
+11.9872,
+16.072,
+-23.7093
+]
+},
+{
+"t": 5.1,
+"frame": "meadow",
+"pos": [
+11.9803,
+12.3198,
+-23.6601
+],
+"yawDeg": 352.0,
+"rollDeg": -0.376,
+"cam": [
+33.4664,
+19.3099,
+-25.6758
+],
+"camLook": [
+11.9803,
+16.3212,
+-23.6601
+]
+},
+{
+"t": 5.2,
+"frame": "meadow",
+"pos": [
+11.9718,
+12.5753,
+-23.5992
+],
+"yawDeg": 352.0,
+"rollDeg": -0.189,
+"cam": [
+33.4633,
+19.5753,
+-25.6279
+],
+"camLook": [
+11.9718,
+16.5753,
+-23.5992
+]
+},
+{
+"t": 5.3,
+"frame": "meadow",
+"pos": [
+11.9615,
+12.8269,
+-23.5263
+],
+"yawDeg": 352.0,
+"rollDeg": -0.0,
+"cam": [
+33.453,
+19.8269,
+-25.555
+],
+"camLook": [
+11.9615,
+16.8269,
+-23.5263
+]
+},
+{
+"t": 5.4,
+"frame": "meadow",
+"pos": [
+11.9496,
+13.0735,
+-23.4413
+],
+"yawDeg": 352.0,
+"rollDeg": 0.189,
+"cam": [
+33.4411,
+20.0735,
+-25.47
+],
+"camLook": [
+11.9496,
+17.0735,
+-23.4413
+]
+},
+{
+"t": 5.5,
+"frame": "meadow",
+"pos": [
+11.936,
+13.3137,
+-23.3443
+],
+"yawDeg": 352.0,
+"rollDeg": 0.376,
+"cam": [
+33.4275,
+20.3137,
+-25.373
+],
+"camLook": [
+11.936,
+17.3137,
+-23.3443
+]
+},
+{
+"t": 5.6,
+"frame": "meadow",
+"pos": [
+11.9207,
+13.5465,
+-23.2356
+],
+"yawDeg": 352.0,
+"rollDeg": 0.557,
+"cam": [
+33.4122,
+20.5465,
+-25.2643
+],
+"camLook": [
+11.9207,
+17.5465,
+-23.2356
+]
+},
+{
+"t": 5.7,
+"frame": "meadow",
+"pos": [
+11.9038,
+13.7707,
+-23.1158
+],
+"yawDeg": 352.0,
+"rollDeg": 0.731,
+"cam": [
+33.3953,
+20.7707,
+-25.1446
+],
+"camLook": [
+11.9038,
+17.7707,
+-23.1158
+]
+},
+{
+"t": 5.8,
+"frame": "meadow",
+"pos": [
+11.8856,
+13.9854,
+-22.9858
+],
+"yawDeg": 352.0,
+"rollDeg": 0.894,
+"cam": [
+33.3771,
+20.9854,
+-25.0145
+],
+"camLook": [
+11.8856,
+17.9854,
+-22.9858
+]
+},
+{
+"t": 5.9,
+"frame": "meadow",
+"pos": [
+11.8653,
+14.1963,
+-22.8418
+],
+"yawDeg": 352.0,
+"rollDeg": 1.045,
+"cam": [
+33.3568,
+21.1963,
+-24.8705
+],
+"camLook": [
+11.8653,
+18.1963,
+-22.8418
+]
+},
+{
+"t": 6.0,
+"frame": "meadow",
+"pos": [
+11.8424,
+14.4085,
+-22.6788
+],
+"yawDeg": 352.0,
+"rollDeg": 1.181,
+"cam": [
+33.3339,
+21.4085,
+-24.7075
+],
+"camLook": [
+11.8424,
+18.4085,
+-22.6788
+]
+},
+{
+"t": 6.1,
+"frame": "meadow",
+"pos": [
+11.8167,
+14.62,
+-22.4961
+],
+"yawDeg": 352.0,
+"rollDeg": 1.3,
+"cam": [
+33.3082,
+21.62,
+-24.5248
+],
+"camLook": [
+11.8167,
+18.62,
+-22.4961
+]
+},
+{
+"t": 6.2,
+"frame": "meadow",
+"pos": [
+11.7882,
+14.8289,
+-22.2929
+],
+"yawDeg": 352.0,
+"rollDeg": 1.401,
+"cam": [
+33.2797,
+21.8289,
+-24.3216
+],
+"camLook": [
+11.7882,
+18.8289,
+-22.2929
+]
+},
+{
+"t": 6.3,
+"frame": "meadow",
+"pos": [
+11.7567,
+15.0333,
+-22.069
+],
+"yawDeg": 352.0,
+"rollDeg": 1.483,
+"cam": [
+33.2482,
+22.0333,
+-24.0977
+],
+"camLook": [
+11.7567,
+19.0333,
+-22.069
+]
+},
+{
+"t": 6.4,
+"frame": "meadow",
+"pos": [
+11.7223,
+15.2315,
+-21.8244
+],
+"yawDeg": 352.0,
+"rollDeg": 1.543,
+"cam": [
+33.2138,
+22.2315,
+-23.8531
+],
+"camLook": [
+11.7223,
+19.2315,
+-21.8244
+]
+},
+{
+"t": 6.5,
+"frame": "meadow",
+"pos": [
+11.6851,
+15.4219,
+-21.5595
+],
+"yawDeg": 352.0,
+"rollDeg": 1.582,
+"cam": [
+33.1728,
+22.4201,
+-23.5912
+],
+"camLook": [
+11.685,
+19.4222,
+-21.5588
+]
+},
+{
+"t": 6.6,
+"frame": "meadow",
+"pos": [
+11.6451,
+15.6033,
+-21.2748
+],
+"yawDeg": 352.0,
+"rollDeg": 1.599,
+"cam": [
+33.1074,
+22.5899,
+-23.3265
+],
+"camLook": [
+11.6444,
+19.606,
+-21.2695
+]
+},
+{
+"t": 6.7,
+"frame": "meadow",
+"pos": [
+11.6024,
+15.7746,
+-20.971
+],
+"yawDeg": 352.0,
+"rollDeg": 1.594,
+"cam": [
+33.0005,
+22.7318,
+-23.0733
+],
+"camLook": [
+11.6,
+19.7832,
+-20.954
+]
+},
+{
+"t": 6.8,
+"frame": "meadow",
+"pos": [
+11.5571,
+15.9351,
+-20.6489
+],
+"yawDeg": 352.0,
+"rollDeg": 1.566,
+"cam": [
+32.839,
+22.839,
+-22.8429
+],
+"camLook": [
+11.5518,
+19.9543,
+-20.6108
+]
+},
+{
+"t": 6.9,
+"frame": "meadow",
+"pos": [
+11.5096,
+16.088,
+-20.3109
+],
+"yawDeg": 352.0,
+"rollDeg": 1.516,
+"cam": [
+32.6139,
+22.9106,
+-22.645
+],
+"camLook": [
+11.4998,
+20.1235,
+-20.2406
+]
+},
+{
+"t": 7.0,
+"frame": "meadow",
+"pos": [
+11.4607,
+16.2447,
+-19.9626
+],
+"yawDeg": 352.0,
+"rollDeg": 1.444,
+"cam": [
+32.3203,
+22.9551,
+-22.4895
+],
+"camLook": [
+11.4446,
+20.3026,
+-19.8479
+]
+},
+{
+"t": 7.1,
+"frame": "meadow",
+"pos": [
+11.4103,
+16.4057,
+-19.6044
+],
+"yawDeg": 352.0,
+"rollDeg": 1.353,
+"cam": [
+31.9558,
+22.9721,
+-22.3791
+],
+"camLook": [
+11.3862,
+20.4925,
+-19.4326
+]
+},
+{
+"t": 7.2,
+"frame": "meadow",
+"pos": [
+11.3586,
+16.5712,
+-19.2363
+],
+"yawDeg": 352.0,
+"rollDeg": 1.242,
+"cam": [
+31.5206,
+22.9619,
+-22.3133
+],
+"camLook": [
+11.3247,
+20.6931,
+-18.995
+]
+},
+{
+"t": 7.3,
+"frame": "meadow",
+"pos": [
+11.3055,
+16.741,
+-18.8586
+],
+"yawDeg": 352.0,
+"rollDeg": 1.114,
+"cam": [
+31.018,
+22.9256,
+-22.2901
+],
+"camLook": [
+11.2601,
+20.9041,
+-18.5356
+]
+},
+{
+"t": 7.4,
+"frame": "meadow",
+"pos": [
+11.2511,
+16.9151,
+-18.4713
+],
+"yawDeg": 352.0,
+"rollDeg": 0.971,
+"cam": [
+30.4531,
+22.8658,
+-22.3054
+],
+"camLook": [
+11.1927,
+21.125,
+-18.0557
+]
+},
+{
+"t": 7.5,
+"frame": "meadow",
+"pos": [
+11.1953,
+17.0935,
+-18.0746
+],
+"yawDeg": 352.0,
+"rollDeg": 0.814,
+"cam": [
+29.8331,
+22.7855,
+-22.3536
+],
+"camLook": [
+11.1225,
+21.3551,
+-17.5565
+]
+},
+{
+"t": 7.6,
+"frame": "meadow",
+"pos": [
+11.1383,
+17.2761,
+-17.6685
+],
+"yawDeg": 352.0,
+"rollDeg": 0.645,
+"cam": [
+29.1668,
+22.6889,
+-22.4278
+],
+"camLook": [
+11.0499,
+21.5935,
+-17.0398
+]
+},
+{
+"t": 7.7,
+"frame": "meadow",
+"pos": [
+11.0799,
+17.4628,
+-17.2533
+],
+"yawDeg": 352.0,
+"rollDeg": 0.467,
+"cam": [
+28.4645,
+22.5804,
+-22.5204
+],
+"camLook": [
+10.9751,
+21.8393,
+-16.5076
+]
+},
+{
+"t": 7.8,
+"frame": "meadow",
+"pos": [
+11.0203,
+17.6536,
+-16.8289
+],
+"yawDeg": 352.0,
+"rollDeg": 0.283,
+"cam": [
+27.7371,
+22.4652,
+-22.6225
+],
+"camLook": [
+10.8984,
+22.0913,
+-15.962
+]
+},
+{
+"t": 7.9,
+"frame": "meadow",
+"pos": [
+10.9594,
+17.8484,
+-16.3955
+],
+"yawDeg": 352.0,
+"rollDeg": 0.095,
+"cam": [
+26.9964,
+22.3484,
+-22.7252
+],
+"camLook": [
+10.8202,
+22.3484,
+-15.4052
+]
+},
+{
+"t": 8.0,
+"frame": "meadow",
+"pos": [
+10.8972,
+18.0473,
+-15.9532
+],
+"yawDeg": 352.0,
+"rollDeg": -0.095,
+"cam": [
+26.2544,
+22.2357,
+-22.819
+],
+"camLook": [
+10.7407,
+22.6096,
+-14.8396
+]
+},
+{
+"t": 8.1,
+"frame": "meadow",
+"pos": [
+10.8338,
+18.2501,
+-15.5022
+],
+"yawDeg": 352.0,
+"rollDeg": -0.283,
+"cam": [
+25.5233,
+22.1324,
+-22.8945
+],
+"camLook": [
+10.6603,
+22.8736,
+-14.2673
+]
+},
+{
+"t": 8.2,
+"frame": "meadow",
+"pos": [
+10.7692,
+18.4567,
+-15.0426
+],
+"yawDeg": 352.0,
+"rollDeg": -0.467,
+"cam": [
+24.8147,
+22.0439,
+-22.9426
+],
+"camLook": [
+10.5792,
+23.1393,
+-13.6907
+]
+},
+{
+"t": 8.3,
+"frame": "meadow",
+"pos": [
+10.7034,
+18.6672,
+-14.5744
+],
+"yawDeg": 352.0,
+"rollDeg": -0.645,
+"cam": [
+24.1397,
+21.9752,
+-22.9548
+],
+"camLook": [
+10.4979,
+23.4056,
+-13.112
+]
+},
+{
+"t": 8.4,
+"frame": "meadow",
+"pos": [
+10.6364,
+18.8815,
+-14.0978
+],
+"yawDeg": 352.0,
+"rollDeg": -0.814,
+"cam": [
+23.5085,
+21.9309,
+-22.9231
+],
+"camLook": [
+10.4165,
+23.6716,
+-12.5329
+]
+},
+{
+"t": 8.5,
+"frame": "meadow",
+"pos": [
+10.5683,
+19.0995,
+-13.6129
+],
+"yawDeg": 352.0,
+"rollDeg": -0.971,
+"cam": [
+22.9298,
+21.9149,
+-22.8407
+],
+"camLook": [
+10.3353,
+23.9364,
+-11.9553
+]
+},
+{
+"t": 8.6,
+"frame": "meadow",
+"pos": [
+10.499,
+19.3212,
+-13.1198
+],
+"yawDeg": 352.0,
+"rollDeg": -1.114,
+"cam": [
+22.4109,
+21.9306,
+-22.7021
+],
+"camLook": [
+10.2546,
+24.1993,
+-11.3806
+]
+},
+{
+"t": 8.7,
+"frame": "meadow",
+"pos": [
+10.4286,
+19.5465,
+-12.6186
+],
+"yawDeg": 352.0,
+"rollDeg": -1.242,
+"cam": [
+21.9571,
+21.9802,
+-22.5033
+],
+"camLook": [
+10.1744,
+24.4598,
+-10.8098
+]
+},
+{
+"t": 8.8,
+"frame": "meadow",
+"pos": [
+10.357,
+19.7755,
+-12.1095
+],
+"yawDeg": 352.0,
+"rollDeg": -1.353,
+"cam": [
+21.5713,
+22.0651,
+-22.2419
+],
+"camLook": [
+10.0948,
+24.7175,
+-10.2437
+]
+},
+{
+"t": 8.9,
+"frame": "meadow",
+"pos": [
+10.2844,
+20.0079,
+-11.5925
+],
+"yawDeg": 352.0,
+"rollDeg": -1.444,
+"cam": [
+21.254,
+22.1854,
+-21.9179
+],
+"camLook": [
+10.0159,
+24.9724,
+-9.6823
+]
+},
+{
+"t": 9.0,
+"frame": "meadow",
+"pos": [
+10.2106,
+20.2438,
+-11.0678
+],
+"yawDeg": 352.0,
+"rollDeg": -1.516,
+"cam": [
+21.0027,
+22.3399,
+-21.5332
+],
+"camLook": [
+9.9376,
+25.2246,
+-9.1253
+]
+},
+{
+"t": 9.1,
+"frame": "meadow",
+"pos": [
+10.1358,
+20.4831,
+-10.5355
+],
+"yawDeg": 352.0,
+"rollDeg": -1.566,
+"cam": [
+20.8117,
+22.5259,
+-21.0925
+],
+"camLook": [
+9.8598,
+25.4746,
+-8.5719
+]
+},
+{
+"t": 9.2,
+"frame": "meadow",
+"pos": [
+10.0599,
+20.7258,
+-9.9957
+],
+"yawDeg": 352.0,
+"rollDeg": -1.594,
+"cam": [
+20.6716,
+22.7392,
+-20.6034
+],
+"camLook": [
+9.7823,
+25.7231,
+-8.0205
+]
+},
+{
+"t": 9.3,
+"frame": "meadow",
+"pos": [
+9.983,
+20.9718,
+-9.4485
+],
+"yawDeg": 352.0,
+"rollDeg": -1.599,
+"cam": [
+20.5694,
+22.9736,
+-20.0761
+],
+"camLook": [
+9.7048,
+25.9715,
+-7.4687
+]
+},
+{
+"t": 9.4,
+"frame": "meadow",
+"pos": [
+9.9051,
+21.2211,
+-8.894
+],
+"yawDeg": 352.0,
+"rollDeg": -1.582,
+"cam": [
+20.4876,
+23.2211,
+-19.5247
+],
+"camLook": [
+9.6268,
+26.2211,
+-6.9135
+]
+},
+{
+"t": 9.5,
+"frame": "meadow",
+"pos": [
+9.8262,
+21.4736,
+-8.3324
+],
+"yawDeg": 352.0,
+"rollDeg": -1.543,
+"cam": [
+20.4072,
+23.4731,
+-18.9609
+],
+"camLook": [
+9.5478,
+26.4736,
+-6.3519
+]
+},
+{
+"t": 9.6,
+"frame": "meadow",
+"pos": [
+9.7463,
+21.7293,
+-7.7638
+],
+"yawDeg": 352.0,
+"rollDeg": -1.483,
+"cam": [
+20.3179,
+23.725,
+-18.3787
+],
+"camLook": [
+9.4679,
+26.7293,
+-5.7832
+]
+},
+{
+"t": 9.7,
+"frame": "meadow",
+"pos": [
+9.6654,
+21.9881,
+-7.1882
+],
+"yawDeg": 352.0,
+"rollDeg": -1.401,
+"cam": [
+20.2141,
+23.9748,
+-17.7698
+],
+"camLook": [
+9.387,
+26.9881,
+-5.2076
+]
+},
+{
+"t": 9.8,
+"frame": "meadow",
+"pos": [
+9.5835,
+22.2499,
+-6.6058
+],
+"yawDeg": 352.0,
+"rollDeg": -1.3,
+"cam": [
+20.0925,
+24.221,
+-17.1298
+],
+"camLook": [
+9.3052,
+27.2499,
+-4.6252
+]
+},
+{
+"t": 9.9,
+"frame": "meadow",
+"pos": [
+9.5007,
+22.5148,
+-6.0167
+],
+"yawDeg": 352.0,
+"rollDeg": -1.181,
+"cam": [
+19.9519,
+24.463,
+-16.4567
+],
+"camLook": [
+9.2224,
+27.5148,
+-4.0361
+]
+},
+{
+"t": 10.0,
+"frame": "meadow",
+"pos": [
+9.417,
+22.7826,
+-5.421
+],
+"yawDeg": 352.0,
+"rollDeg": -1.045,
+"cam": [
+19.7926,
+24.7011,
+-15.7514
+],
+"camLook": [
+9.1387,
+27.7826,
+-3.4405
+]
+},
+{
+"t": 10.1,
+"frame": "meadow",
+"pos": [
+9.3324,
+23.0534,
+-4.8188
+],
+"yawDeg": 352.0,
+"rollDeg": -0.894,
+"cam": [
+19.6165,
+24.9358,
+-15.0165
+],
+"camLook": [
+9.054,
+28.0534,
+-2.8383
+]
+},
+{
+"t": 10.2,
+"frame": "meadow",
+"pos": [
+9.2469,
+23.3269,
+-4.2104
+],
+"yawDeg": 352.0,
+"rollDeg": -0.731,
+"cam": [
+19.4266,
+25.1682,
+-14.2565
+],
+"camLook": [
+8.9685,
+28.3269,
+-2.2298
+]
+},
+{
+"t": 10.3,
+"frame": "meadow",
+"pos": [
+9.1605,
+23.6033,
+-3.5956
+],
+"yawDeg": 352.0,
+"rollDeg": -0.557,
+"cam": [
+19.2268,
+25.3999,
+-13.4771
+],
+"camLook": [
+8.8821,
+28.6033,
+-1.6151
+]
+},
+{
+"t": 10.4,
+"frame": "meadow",
+"pos": [
+9.0732,
+23.8825,
+-2.9748
+],
+"yawDeg": 352.0,
+"rollDeg": -0.376,
+"cam": [
+19.0214,
+25.6325,
+-12.6847
+],
+"camLook": [
+8.7949,
+28.8825,
+-0.9942
+]
+},
+{
+"t": 10.5,
+"frame": "meadow",
+"pos": [
+8.9851,
+24.1643,
+-2.3479
+],
+"yawDeg": 352.0,
+"rollDeg": -0.189,
+"cam": [
+18.8151,
+25.8677,
+-11.8864
+],
+"camLook": [
+8.7068,
+29.1643,
+-0.3673
+]
+},
+{
+"t": 10.6,
+"frame": "meadow",
+"pos": [
+8.8962,
+24.4488,
+-1.7151
+],
+"yawDeg": 352.0,
+"rollDeg": -0.0,
+"cam": [
+18.6128,
+26.1075,
+-11.0889
+],
+"camLook": [
+8.6178,
+29.4488,
+0.2654
+]
+},
+{
+"t": 10.7,
+"frame": "meadow",
+"pos": [
+8.8064,
+24.7359,
+-1.0766
+],
+"yawDeg": 352.0,
+"rollDeg": 0.189,
+"cam": [
+18.4186,
+26.3535,
+-10.2989
+],
+"camLook": [
+8.5281,
+29.7359,
+0.904
+]
+},
+{
+"t": 10.8,
+"frame": "meadow",
+"pos": [
+8.7159,
+25.0255,
+-0.4324
+],
+"yawDeg": 352.0,
+"rollDeg": 0.376,
+"cam": [
+18.2367,
+26.6071,
+-9.522
+],
+"camLook": [
+8.4375,
+30.0255,
+1.5482
+]
+},
+{
+"t": 10.9,
+"frame": "meadow",
+"pos": [
+8.6246,
+25.3177,
+0.2174
+],
+"yawDeg": 352.0,
+"rollDeg": 0.557,
+"cam": [
+18.0698,
+26.8694,
+-8.7625
+],
+"camLook": [
+8.3462,
+30.3177,
+2.1979
+]
+},
+{
+"t": 11.0,
+"frame": "meadow",
+"pos": [
+8.5325,
+25.6122,
+0.8726
+],
+"yawDeg": 352.0,
+"rollDeg": 0.731,
+"cam": [
+17.9198,
+27.1412,
+-8.0234
+],
+"camLook": [
+8.2541,
+30.6122,
+2.8531
+]
+},
+{
+"t": 11.1,
+"frame": "meadow",
+"pos": [
+8.4397,
+25.9092,
+1.5331
+],
+"yawDeg": 352.0,
+"rollDeg": 0.894,
+"cam": [
+17.7873,
+27.4225,
+-7.3052
+],
+"camLook": [
+8.1613,
+30.9092,
+3.5136
+]
+},
+{
+"t": 11.2,
+"frame": "meadow",
+"pos": [
+8.3461,
+26.2085,
+2.1988
+],
+"yawDeg": 352.0,
+"rollDeg": 1.045,
+"cam": [
+17.6708,
+27.7128,
+-6.6063
+],
+"camLook": [
+8.0678,
+31.2085,
+4.1793
+]
+},
+{
+"t": 11.3,
+"frame": "meadow",
+"pos": [
+8.2518,
+26.5101,
+2.8696
+],
+"yawDeg": 352.0,
+"rollDeg": 1.181,
+"cam": [
+17.5672,
+28.0107,
+-5.9218
+],
+"camLook": [
+7.9735,
+31.5101,
+4.8502
+]
+},
+{
+"t": 11.4,
+"frame": "world",
+"pos": [
+-94.6258,
+-22.4777,
+54.6983
+],
+"yawDeg": 67.747,
+"rollDeg": 1.3,
+"cam": [
+-100.8514,
+-20.9777,
+43.5072
+],
+"camLook": [
+-92.7748,
+-17.4777,
+55.4557
+]
+},
+{
+"t": 11.5,
+"frame": "world",
+"pos": [
+-93.9896,
+-22.1717,
+54.9586
+],
+"yawDeg": 67.747,
+"rollDeg": 1.401,
+"cam": [
+-100.2177,
+-20.6661,
+43.7617
+],
+"camLook": [
+-92.1386,
+-17.1717,
+55.716
+]
+},
+{
+"t": 11.6,
+"frame": "world",
+"pos": [
+-93.3491,
+-21.8635,
+55.2207
+],
+"yawDeg": 67.747,
+"rollDeg": 1.483,
+"cam": [
+-99.5923,
+-20.3234,
+43.9877
+],
+"camLook": [
+-91.498,
+-16.8635,
+55.9781
+]
+},
+{
+"t": 11.7,
+"frame": "world",
+"pos": [
+-92.7042,
+-21.5533,
+55.4846
+],
+"yawDeg": 67.747,
+"rollDeg": 1.543,
+"cam": [
+-98.9831,
+-19.9313,
+44.1663
+],
+"camLook": [
+-90.8531,
+-16.5533,
+56.242
+]
+},
+{
+"t": 11.8,
+"frame": "world",
+"pos": [
+-92.055,
+-21.241,
+55.7502
+],
+"yawDeg": 67.747,
+"rollDeg": 1.582,
+"cam": [
+-98.3939,
+-19.4822,
+44.2891
+],
+"camLook": [
+-90.204,
+-16.241,
+56.5076
+]
+},
+{
+"t": 11.9,
+"frame": "world",
+"pos": [
+-91.4018,
+-20.9267,
+56.0175
+],
+"yawDeg": 67.747,
+"rollDeg": 1.599,
+"cam": [
+-97.8243,
+-18.9767,
+44.3568
+],
+"camLook": [
+-89.5507,
+-15.9267,
+56.7749
+]
+},
+{
+"t": 12.0,
+"frame": "world",
+"pos": [
+-90.7445,
+-20.6106,
+56.2864
+],
+"yawDeg": 67.747,
+"rollDeg": 1.594,
+"cam": [
+-97.2711,
+-18.4225,
+44.3774
+],
+"camLook": [
+-88.8935,
+-15.6106,
+57.0438
+]
+},
+{
+"t": 12.1,
+"frame": "world",
+"pos": [
+-90.0833,
+-20.2925,
+56.557
+],
+"yawDeg": 67.747,
+"rollDeg": 1.566,
+"cam": [
+-96.729,
+-17.8324,
+44.3641
+],
+"camLook": [
+-88.2323,
+-15.2925,
+57.3144
+]
+},
+{
+"t": 12.2,
+"frame": "world",
+"pos": [
+-89.4184,
+-19.9726,
+56.829
+],
+"yawDeg": 67.747,
+"rollDeg": 1.516,
+"cam": [
+-96.1909,
+-17.2226,
+44.3337
+],
+"camLook": [
+-87.5674,
+-14.9726,
+57.5864
+]
+},
+{
+"t": 12.3,
+"frame": "world",
+"pos": [
+-88.7498,
+-19.651,
+57.1026
+],
+"yawDeg": 67.747,
+"rollDeg": 1.444,
+"cam": [
+-95.649,
+-16.611,
+44.3048
+],
+"camLook": [
+-86.8987,
+-14.651,
+57.86
+]
+},
+{
+"t": 12.4,
+"frame": "world",
+"pos": [
+-88.0775,
+-19.3276,
+57.3777
+],
+"yawDeg": 67.747,
+"rollDeg": 1.353,
+"cam": [
+-95.0958,
+-16.0156,
+44.296
+],
+"camLook": [
+-86.2265,
+-14.3276,
+58.1351
+]
+},
+{
+"t": 12.5,
+"frame": "world",
+"pos": [
+-87.4018,
+-19.0025,
+57.6542
+],
+"yawDeg": 67.747,
+"rollDeg": 1.242,
+"cam": [
+-94.5243,
+-15.4526,
+44.3241
+],
+"camLook": [
+-85.5508,
+-14.0025,
+58.4116
+]
+},
+{
+"t": 12.6,
+"frame": "world",
+"pos": [
+-86.7228,
+-18.6759,
+57.932
+],
+"yawDeg": 67.747,
+"rollDeg": 1.114,
+"cam": [
+-93.9289,
+-14.9347,
+44.4025
+],
+"camLook": [
+-84.8717,
+-13.6759,
+58.6894
+]
+},
+{
+"t": 12.7,
+"frame": "world",
+"pos": [
+-86.0405,
+-18.3476,
+58.2112
+],
+"yawDeg": 67.747,
+"rollDeg": 0.971,
+"cam": [
+-93.3064,
+-14.4696,
+44.5388
+],
+"camLook": [
+-84.1894,
+-13.3476,
+58.9686
+]
+},
+{
+"t": 12.8,
+"frame": "world",
+"pos": [
+-85.355,
+-18.0179,
+58.4917
+],
+"yawDeg": 67.747,
+"rollDeg": 0.814,
+"cam": [
+-92.6567,
+-14.058,
+44.734
+],
+"camLook": [
+-83.504,
+-13.0179,
+59.2491
+]
+},
+{
+"t": 12.9,
+"frame": "world",
+"pos": [
+-84.6665,
+-17.6867,
+58.7734
+],
+"yawDeg": 67.747,
+"rollDeg": 0.645,
+"cam": [
+-91.9833,
+-13.6922,
+44.9796
+],
+"camLook": [
+-82.8154,
+-12.6867,
+59.5308
+]
+},
+{
+"t": 13.0,
+"frame": "world",
+"pos": [
+-83.975,
+-17.3541,
+59.0563
+],
+"yawDeg": 67.747,
+"rollDeg": 0.467,
+"cam": [
+-91.2943,
+-13.3541,
+45.2567
+],
+"camLook": [
+-82.124,
+-12.3541,
+59.8137
+]
+},
+{
+"t": 13.1,
+"frame": "world",
+"pos": [
+-83.2808,
+-17.0201,
+59.3404
+],
+"yawDeg": 67.747,
+"rollDeg": 0.283,
+"cam": [
+-90.5963,
+-13.0195,
+45.5381
+],
+"camLook": [
+-81.43,
+-12.0211,
+60.0977
+]
+},
+{
+"t": 13.2,
+"frame": "world",
+"pos": [
+-82.5838,
+-16.6848,
+59.6256
+],
+"yawDeg": 67.747,
+"rollDeg": 0.095,
+"cam": [
+-89.8745,
+-12.6801,
+45.8052
+],
+"camLook": [
+-80.7349,
+-11.6929,
+60.3821
+]
+},
+{
+"t": 13.3,
+"frame": "world",
+"pos": [
+-81.8842,
+-16.3482,
+59.9118
+],
+"yawDeg": 67.747,
+"rollDeg": -0.095,
+"cam": [
+-89.1108,
+-12.3332,
+46.0446
+],
+"camLook": [
+-80.0401,
+-11.3745,
+60.6664
+]
+},
+{
+"t": 13.4,
+"frame": "world",
+"pos": [
+-81.182,
+-16.0105,
+60.1991
+],
+"yawDeg": 67.747,
+"rollDeg": -0.283,
+"cam": [
+-88.2903,
+-11.9762,
+46.2454
+],
+"camLook": [
+-79.3468,
+-11.0704,
+60.95
+]
+},
+{
+"t": 13.5,
+"frame": "world",
+"pos": [
+-80.4775,
+-15.6715,
+60.4874
+],
+"yawDeg": 67.747,
+"rollDeg": -0.467,
+"cam": [
+-87.401,
+-11.6073,
+46.3988
+],
+"camLook": [
+-78.6562,
+-10.7839,
+61.2326
+]
+},
+{
+"t": 13.6,
+"frame": "world",
+"pos": [
+-79.7707,
+-15.3315,
+60.7766
+],
+"yawDeg": 67.747,
+"rollDeg": -0.645,
+"cam": [
+-86.4339,
+-11.2251,
+46.4979
+],
+"camLook": [
+-77.9689,
+-10.5178,
+61.5138
+]
+},
+{
+"t": 13.7,
+"frame": "world",
+"pos": [
+-79.0617,
+-14.9904,
+61.0667
+],
+"yawDeg": 67.747,
+"rollDeg": -0.814,
+"cam": [
+-85.3822,
+-10.8284,
+46.5378
+],
+"camLook": [
+-77.2856,
+-10.274,
+61.7934
+]
+},
+{
+"t": 13.8,
+"frame": "world",
+"pos": [
+-78.3506,
+-14.6484,
+61.3577
+],
+"yawDeg": 67.747,
+"rollDeg": -0.971,
+"cam": [
+-84.2419,
+-10.4167,
+46.5153
+],
+"camLook": [
+-76.6068,
+-10.0538,
+62.0712
+]
+},
+{
+"t": 13.9,
+"frame": "world",
+"pos": [
+-77.6376,
+-14.3054,
+61.6494
+],
+"yawDeg": 67.747,
+"rollDeg": -1.114,
+"cam": [
+-83.011,
+-9.9897,
+46.4289
+],
+"camLook": [
+-75.9326,
+-9.8578,
+62.347
+]
+},
+{
+"t": 14.0,
+"frame": "world",
+"pos": [
+-76.9226,
+-13.9614,
+61.9419
+],
+"yawDeg": 67.747,
+"rollDeg": -1.242,
+"cam": [
+-81.6898,
+-9.5474,
+46.2786
+],
+"camLook": [
+-75.2632,
+-9.6861,
+62.6209
+]
+},
+{
+"t": 14.1,
+"frame": "world",
+"pos": [
+-76.206,
+-13.6167,
+62.2352
+],
+"yawDeg": 67.747,
+"rollDeg": -1.353,
+"cam": [
+-80.2803,
+-9.0902,
+46.0659
+],
+"camLook": [
+-74.5986,
+-9.538,
+62.8929
+]
+},
+{
+"t": 14.2,
+"frame": "world",
+"pos": [
+-75.4876,
+-13.2711,
+62.5291
+],
+"yawDeg": 67.747,
+"rollDeg": -1.444,
+"cam": [
+-78.7863,
+-8.6188,
+45.7934
+],
+"camLook": [
+-73.9385,
+-9.4127,
+63.163
+]
+},
+{
+"t": 14.3,
+"frame": "world",
+"pos": [
+-74.7678,
+-12.9248,
+62.8237
+],
+"yawDeg": 67.747,
+"rollDeg": -1.516,
+"cam": [
+-77.2132,
+-8.1341,
+45.4649
+],
+"camLook": [
+-73.2827,
+-9.3086,
+63.4313
+]
+},
+{
+"t": 14.4,
+"frame": "world",
+"pos": [
+-74.0465,
+-12.5778,
+63.1188
+],
+"yawDeg": 67.747,
+"rollDeg": -1.566,
+"cam": [
+-75.5678,
+-7.6372,
+45.0851
+],
+"camLook": [
+-72.6307,
+-9.224,
+63.6981
+]
+},
+{
+"t": 14.5,
+"frame": "world",
+"pos": [
+-73.3238,
+-12.2302,
+63.4145
+],
+"yawDeg": 67.747,
+"rollDeg": -1.594,
+"cam": [
+-73.858,
+-7.1294,
+44.66
+],
+"camLook": [
+-71.9822,
+-9.1567,
+63.9634
+]
+},
+{
+"t": 14.6,
+"frame": "world",
+"pos": [
+-72.6,
+-11.882,
+63.7107
+],
+"yawDeg": 67.747,
+"rollDeg": -1.599,
+"cam": [
+-72.0929,
+-6.6122,
+44.1958
+],
+"camLook": [
+-71.3365,
+-9.1041,
+64.2276
+]
+},
+{
+"t": 14.7,
+"frame": "world",
+"pos": [
+-71.875,
+-11.5332,
+64.0073
+],
+"yawDeg": 67.747,
+"rollDeg": -1.582,
+"cam": [
+-70.2824,
+-6.0874,
+43.6997
+],
+"camLook": [
+-70.6931,
+-9.0635,
+64.4909
+]
+},
+{
+"t": 14.8,
+"frame": "world",
+"pos": [
+-71.149,
+-11.184,
+64.3043
+],
+"yawDeg": 67.747,
+"rollDeg": -1.543,
+"cam": [
+-68.4371,
+-5.5565,
+43.1793
+],
+"camLook": [
+-70.0511,
+-9.0321,
+64.7536
+]
+},
+{
+"t": 14.9,
+"frame": "world",
+"pos": [
+-70.4221,
+-10.8343,
+64.6018
+],
+"yawDeg": 67.747,
+"rollDeg": -1.483,
+"cam": [
+-66.5679,
+-5.0215,
+42.6426
+],
+"camLook": [
+-69.41,
+-9.0067,
+65.0159
+]
+},
+{
+"t": 15.0,
+"frame": "world",
+"pos": [
+-69.6945,
+-10.4843,
+64.8995
+],
+"yawDeg": 67.747,
+"rollDeg": -1.401,
+"cam": [
+-64.6865,
+-4.4843,
+42.0977
+],
+"camLook": [
+-68.7689,
+-8.9843,
+65.2782
+]
+},
+{
+"t": 15.1,
+"frame": "world",
+"pos": [
+-68.9661,
+-10.1339,
+65.1975
+],
+"yawDeg": 67.747,
+"rollDeg": -1.3,
+"cam": [
+-62.8044,
+-3.9467,
+41.5532
+],
+"camLook": [
+-68.1272,
+-8.9615,
+65.5408
+]
+},
+{
+"t": 15.2,
+"frame": "world",
+"pos": [
+-68.2372,
+-9.7832,
+65.4958
+],
+"yawDeg": 67.747,
+"rollDeg": -1.181,
+"cam": [
+-60.9332,
+-3.4107,
+41.0173
+],
+"camLook": [
+-67.484,
+-8.9351,
+65.804
+]
+},
+{
+"t": 15.3,
+"frame": "world",
+"pos": [
+-67.5078,
+-9.4323,
+65.7942
+],
+"yawDeg": 67.747,
+"rollDeg": -1.045,
+"cam": [
+-59.0844,
+-2.8782,
+40.4983
+],
+"camLook": [
+-66.8387,
+-8.9021,
+66.068
+]
+},
+{
+"t": 15.4,
+"frame": "world",
+"pos": [
+-66.778,
+-9.0813,
+66.0928
+],
+"yawDeg": 67.747,
+"rollDeg": -0.894,
+"cam": [
+-57.2691,
+-2.351,
+40.0042
+],
+"camLook": [
+-66.1904,
+-8.8592,
+66.3333
+]
+},
+{
+"t": 15.5,
+"frame": "world",
+"pos": [
+-66.048,
+-8.7301,
+66.3916
+],
+"yawDeg": 67.747,
+"rollDeg": -0.731,
+"cam": [
+-55.4979,
+-1.8309,
+39.5425
+],
+"camLook": [
+-65.5385,
+-8.8036,
+66.6
+]
+},
+{
+"t": 15.6,
+"frame": "world",
+"pos": [
+-65.3178,
+-8.3788,
+66.6903
+],
+"yawDeg": 67.747,
+"rollDeg": -0.557,
+"cam": [
+-53.7806,
+-1.3195,
+39.1204
+],
+"camLook": [
+-64.8825,
+-8.7326,
+66.8684
+]
+},
+{
+"t": 15.7,
+"frame": "world",
+"pos": [
+-64.5875,
+-8.0276,
+66.9891
+],
+"yawDeg": 67.747,
+"rollDeg": -0.376,
+"cam": [
+-52.1263,
+-0.8183,
+38.7444
+],
+"camLook": [
+-64.2216,
+-8.6437,
+67.1388
+]
+},
+{
+"t": 15.8,
+"frame": "world",
+"pos": [
+-63.8574,
+-7.6763,
+67.2879
+],
+"yawDeg": 67.747,
+"rollDeg": -0.189,
+"cam": [
+-50.5429,
+-0.3286,
+38.4201
+],
+"camLook": [
+-63.5555,
+-8.5347,
+67.4114
+]
+},
+{
+"t": 15.9,
+"frame": "world",
+"pos": [
+-63.1274,
+-7.3251,
+67.5866
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-49.0372,
+0.1484,
+38.1523
+],
+"camLook": [
+-62.8838,
+-8.4038,
+67.6863
+]
+},
+{
+"t": 16.0,
+"frame": "world",
+"pos": [
+-62.3977,
+-6.9741,
+67.8851
+],
+"yawDeg": 67.747,
+"rollDeg": 0.189,
+"cam": [
+-47.6146,
+0.6118,
+37.9449
+],
+"camLook": [
+-62.2061,
+-8.2495,
+67.9635
+]
+},
+{
+"t": 16.1,
+"frame": "world",
+"pos": [
+-61.6684,
+-6.6233,
+68.1836
+],
+"yawDeg": 67.747,
+"rollDeg": 0.376,
+"cam": [
+-46.279,
+1.061,
+37.8006
+],
+"camLook": [
+-61.5223,
+-8.0708,
+68.2433
+]
+},
+{
+"t": 16.2,
+"frame": "world",
+"pos": [
+-60.9395,
+-6.2727,
+68.4818
+],
+"yawDeg": 67.747,
+"rollDeg": 0.557,
+"cam": [
+-45.0324,
+1.4957,
+37.7206
+],
+"camLook": [
+-60.8323,
+-7.8672,
+68.5256
+]
+},
+{
+"t": 16.3,
+"frame": "world",
+"pos": [
+-60.2113,
+-5.9223,
+68.7797
+],
+"yawDeg": 67.747,
+"rollDeg": 0.731,
+"cam": [
+-43.8749,
+1.9156,
+37.7051
+],
+"camLook": [
+-60.1363,
+-7.6388,
+68.8104
+]
+},
+{
+"t": 16.4,
+"frame": "world",
+"pos": [
+-59.4838,
+-5.5723,
+69.0774
+],
+"yawDeg": 67.747,
+"rollDeg": 0.894,
+"cam": [
+-42.8047,
+2.3212,
+37.7526
+],
+"camLook": [
+-59.4345,
+-7.3861,
+69.0976
+]
+},
+{
+"t": 16.5,
+"frame": "world",
+"pos": [
+-58.7576,
+-5.223,
+69.3746
+],
+"yawDeg": 67.747,
+"rollDeg": 1.045,
+"cam": [
+-41.8182,
+2.7128,
+37.8596
+],
+"camLook": [
+-58.7279,
+-7.1106,
+69.3867
+]
+},
+{
+"t": 16.6,
+"frame": "world",
+"pos": [
+-58.0333,
+-4.8746,
+69.6709
+],
+"yawDeg": 67.747,
+"rollDeg": 1.181,
+"cam": [
+-40.9092,
+3.0912,
+38.0211
+],
+"camLook": [
+-58.0175,
+-6.8147,
+69.6774
+]
+},
+{
+"t": 16.7,
+"frame": "world",
+"pos": [
+-57.3111,
+-4.5271,
+69.9664
+],
+"yawDeg": 67.747,
+"rollDeg": 1.3,
+"cam": [
+-40.0686,
+3.4578,
+38.2301
+],
+"camLook": [
+-57.3041,
+-6.5008,
+69.9693
+]
+},
+{
+"t": 16.8,
+"frame": "world",
+"pos": [
+-56.5907,
+-4.1806,
+70.2612
+],
+"yawDeg": 67.747,
+"rollDeg": 1.401,
+"cam": [
+-39.2841,
+3.8147,
+38.4781
+],
+"camLook": [
+-56.5886,
+-6.1725,
+70.2621
+]
+},
+{
+"t": 16.9,
+"frame": "world",
+"pos": [
+-55.8725,
+-3.8351,
+70.5551
+],
+"yawDeg": 67.747,
+"rollDeg": 1.483,
+"cam": [
+-38.541,
+4.1643,
+38.7538
+],
+"camLook": [
+-55.8722,
+-5.834,
+70.5552
+]
+},
+{
+"t": 17.0,
+"frame": "world",
+"pos": [
+-55.1562,
+-3.4905,
+70.8481
+],
+"yawDeg": 67.747,
+"rollDeg": 1.543,
+"cam": [
+-37.8211,
+4.5095,
+39.0442
+],
+"camLook": [
+-55.1562,
+-5.4905,
+70.8481
+]
+},
+{
+"t": 17.1,
+"frame": "world",
+"pos": [
+-54.4421,
+-3.147,
+71.1404
+],
+"yawDeg": 67.747,
+"rollDeg": 1.582,
+"cam": [
+-37.1069,
+4.853,
+39.3364
+],
+"camLook": [
+-54.4421,
+-5.147,
+71.1404
+]
+},
+{
+"t": 17.2,
+"frame": "world",
+"pos": [
+-53.73,
+-2.8045,
+71.4317
+],
+"yawDeg": 67.747,
+"rollDeg": 1.599,
+"cam": [
+-36.3949,
+5.1955,
+39.6277
+],
+"camLook": [
+-53.73,
+-4.8045,
+71.4317
+]
+},
+{
+"t": 17.3,
+"frame": "world",
+"pos": [
+-53.0201,
+-2.463,
+71.7222
+],
+"yawDeg": 67.747,
+"rollDeg": 1.594,
+"cam": [
+-35.685,
+5.537,
+39.9182
+],
+"camLook": [
+-53.0201,
+-4.463,
+71.7222
+]
+},
+{
+"t": 17.4,
+"frame": "world",
+"pos": [
+-52.3124,
+-2.1225,
+72.0118
+],
+"yawDeg": 67.747,
+"rollDeg": 1.566,
+"cam": [
+-34.9772,
+5.8775,
+40.2078
+],
+"camLook": [
+-52.3124,
+-4.1225,
+72.0118
+]
+},
+{
+"t": 17.5,
+"frame": "world",
+"pos": [
+-51.6069,
+-1.7831,
+72.3004
+],
+"yawDeg": 67.747,
+"rollDeg": 1.516,
+"cam": [
+-34.2717,
+6.2169,
+40.4965
+],
+"camLook": [
+-51.6069,
+-3.7831,
+72.3004
+]
+},
+{
+"t": 17.6,
+"frame": "world",
+"pos": [
+-50.9036,
+-1.4448,
+72.5882
+],
+"yawDeg": 67.747,
+"rollDeg": 1.444,
+"cam": [
+-33.5684,
+6.5552,
+40.7842
+],
+"camLook": [
+-50.9036,
+-3.4448,
+72.5882
+]
+},
+{
+"t": 17.7,
+"frame": "world",
+"pos": [
+-50.2025,
+-1.1075,
+72.8751
+],
+"yawDeg": 67.747,
+"rollDeg": 1.353,
+"cam": [
+-32.8674,
+6.8925,
+41.0711
+],
+"camLook": [
+-50.2025,
+-3.1075,
+72.8751
+]
+},
+{
+"t": 17.8,
+"frame": "world",
+"pos": [
+-49.5038,
+-0.7714,
+73.161
+],
+"yawDeg": 67.747,
+"rollDeg": 1.242,
+"cam": [
+-32.1686,
+7.2286,
+41.357
+],
+"camLook": [
+-49.5038,
+-2.7714,
+73.161
+]
+},
+{
+"t": 17.9,
+"frame": "world",
+"pos": [
+-48.8074,
+-0.4364,
+73.4459
+],
+"yawDeg": 67.747,
+"rollDeg": 1.114,
+"cam": [
+-31.4722,
+7.5636,
+41.642
+],
+"camLook": [
+-48.8074,
+-2.4364,
+73.4459
+]
+},
+{
+"t": 18.0,
+"frame": "world",
+"pos": [
+-48.1133,
+-0.1025,
+73.7299
+],
+"yawDeg": 67.747,
+"rollDeg": 0.971,
+"cam": [
+-30.7781,
+7.8975,
+41.9259
+],
+"camLook": [
+-48.1133,
+-2.1025,
+73.7299
+]
+},
+{
+"t": 18.1,
+"frame": "world",
+"pos": [
+-47.4216,
+0.2303,
+74.0129
+],
+"yawDeg": 67.747,
+"rollDeg": 0.814,
+"cam": [
+-30.0864,
+8.2303,
+42.209
+],
+"camLook": [
+-47.4216,
+-1.7697,
+74.0129
+]
+},
+{
+"t": 18.2,
+"frame": "world",
+"pos": [
+-46.7323,
+0.5618,
+74.295
+],
+"yawDeg": 67.747,
+"rollDeg": 0.645,
+"cam": [
+-29.3972,
+8.5618,
+42.491
+],
+"camLook": [
+-46.7323,
+-1.4382,
+74.295
+]
+},
+{
+"t": 18.3,
+"frame": "world",
+"pos": [
+-46.0455,
+0.8922,
+74.576
+],
+"yawDeg": 67.747,
+"rollDeg": 0.467,
+"cam": [
+-28.7103,
+8.8922,
+42.772
+],
+"camLook": [
+-46.0455,
+-1.1078,
+74.576
+]
+},
+{
+"t": 18.4,
+"frame": "world",
+"pos": [
+-45.3612,
+1.2214,
+74.856
+],
+"yawDeg": 67.747,
+"rollDeg": 0.283,
+"cam": [
+-28.026,
+9.2214,
+43.052
+],
+"camLook": [
+-45.3612,
+-0.7786,
+74.856
+]
+},
+{
+"t": 18.5,
+"frame": "world",
+"pos": [
+-44.6793,
+1.5494,
+75.135
+],
+"yawDeg": 67.747,
+"rollDeg": 0.095,
+"cam": [
+-27.3442,
+9.5494,
+43.331
+],
+"camLook": [
+-44.6793,
+-0.4506,
+75.135
+]
+},
+{
+"t": 18.6,
+"frame": "world",
+"pos": [
+-44.0,
+1.8762,
+75.4129
+],
+"yawDeg": 67.747,
+"rollDeg": -0.095,
+"cam": [
+-26.6649,
+9.8762,
+43.609
+],
+"camLook": [
+-44.0,
+-0.1238,
+75.4129
+]
+},
+{
+"t": 18.7,
+"frame": "world",
+"pos": [
+-43.3233,
+2.2018,
+75.6898
+],
+"yawDeg": 67.747,
+"rollDeg": -0.283,
+"cam": [
+-25.9881,
+10.2018,
+43.8859
+],
+"camLook": [
+-43.3233,
+0.2018,
+75.6898
+]
+},
+{
+"t": 18.8,
+"frame": "world",
+"pos": [
+-42.6491,
+2.5261,
+75.9657
+],
+"yawDeg": 67.747,
+"rollDeg": -0.467,
+"cam": [
+-25.314,
+10.5261,
+44.1617
+],
+"camLook": [
+-42.6491,
+0.5261,
+75.9657
+]
+},
+{
+"t": 18.9,
+"frame": "world",
+"pos": [
+-41.9776,
+2.8491,
+76.2404
+],
+"yawDeg": 67.747,
+"rollDeg": -0.645,
+"cam": [
+-24.6425,
+10.8491,
+44.4365
+],
+"camLook": [
+-41.9776,
+0.8491,
+76.2404
+]
+},
+{
+"t": 19.0,
+"frame": "world",
+"pos": [
+-41.3088,
+3.1709,
+76.5141
+],
+"yawDeg": 67.747,
+"rollDeg": -0.814,
+"cam": [
+-23.9736,
+11.1709,
+44.7102
+],
+"camLook": [
+-41.3088,
+1.1709,
+76.5141
+]
+},
+{
+"t": 19.1,
+"frame": "world",
+"pos": [
+-40.6426,
+3.4913,
+76.7867
+],
+"yawDeg": 67.747,
+"rollDeg": -0.971,
+"cam": [
+-23.3074,
+11.4913,
+44.9827
+],
+"camLook": [
+-40.6426,
+1.4913,
+76.7867
+]
+},
+{
+"t": 19.2,
+"frame": "world",
+"pos": [
+-39.9792,
+3.8105,
+77.0582
+],
+"yawDeg": 67.747,
+"rollDeg": -1.114,
+"cam": [
+-22.644,
+11.8105,
+45.2542
+],
+"camLook": [
+-39.9792,
+1.8105,
+77.0582
+]
+},
+{
+"t": 19.3,
+"frame": "world",
+"pos": [
+-39.3185,
+4.1283,
+77.3285
+],
+"yawDeg": 67.747,
+"rollDeg": -1.242,
+"cam": [
+-21.9833,
+12.1283,
+45.5245
+],
+"camLook": [
+-39.3185,
+2.1283,
+77.3285
+]
+},
+{
+"t": 19.4,
+"frame": "world",
+"pos": [
+-38.6605,
+4.4448,
+77.5977
+],
+"yawDeg": 67.747,
+"rollDeg": -1.353,
+"cam": [
+-21.3254,
+12.4448,
+45.7937
+],
+"camLook": [
+-38.6605,
+2.4448,
+77.5977
+]
+},
+{
+"t": 19.5,
+"frame": "world",
+"pos": [
+-38.0054,
+4.76,
+77.8658
+],
+"yawDeg": 67.747,
+"rollDeg": -1.444,
+"cam": [
+-20.6703,
+12.76,
+46.0618
+],
+"camLook": [
+-38.0054,
+2.76,
+77.8658
+]
+},
+{
+"t": 19.6,
+"frame": "world",
+"pos": [
+-37.3532,
+5.0738,
+78.1326
+],
+"yawDeg": 67.747,
+"rollDeg": -1.516,
+"cam": [
+-20.018,
+13.0738,
+46.3287
+],
+"camLook": [
+-37.3532,
+3.0738,
+78.1326
+]
+},
+{
+"t": 19.7,
+"frame": "world",
+"pos": [
+-36.7038,
+5.3862,
+78.3984
+],
+"yawDeg": 67.747,
+"rollDeg": -1.566,
+"cam": [
+-19.377,
+13.3886,
+46.5929
+],
+"camLook": [
+-36.6925,
+3.3869,
+78.4037
+]
+},
+{
+"t": 19.8,
+"frame": "world",
+"pos": [
+-36.0573,
+5.6972,
+78.6629
+],
+"yawDeg": 67.747,
+"rollDeg": -1.594,
+"cam": [
+-18.7874,
+13.7164,
+46.8473
+],
+"camLook": [
+-35.97,
+3.7033,
+78.7043
+]
+},
+{
+"t": 19.9,
+"frame": "world",
+"pos": [
+-35.4137,
+6.0067,
+78.9262
+],
+"yawDeg": 67.747,
+"rollDeg": -1.599,
+"cam": [
+-18.2913,
+14.0695,
+47.0845
+],
+"camLook": [
+-35.1296,
+4.0267,
+79.061
+]
+},
+{
+"t": 20.0,
+"frame": "world",
+"pos": [
+-34.7731,
+6.3149,
+79.1883
+],
+"yawDeg": 67.747,
+"rollDeg": -1.582,
+"cam": [
+-17.9244,
+14.4585,
+47.2981
+],
+"camLook": [
+-34.1235,
+4.3606,
+79.4964
+]
+},
+{
+"t": 20.1,
+"frame": "world",
+"pos": [
+-34.1355,
+6.6216,
+79.4492
+],
+"yawDeg": 67.747,
+"rollDeg": -1.543,
+"cam": [
+-17.7163,
+14.8919,
+47.4829
+],
+"camLook": [
+-32.9125,
+4.7076,
+80.0293
+]
+},
+{
+"t": 20.2,
+"frame": "world",
+"pos": [
+-33.5009,
+6.9269,
+79.7089
+],
+"yawDeg": 67.747,
+"rollDeg": -1.483,
+"cam": [
+-17.6905,
+15.3769,
+47.6346
+],
+"camLook": [
+-31.4651,
+5.0701,
+80.6745
+]
+},
+{
+"t": 20.3,
+"frame": "world",
+"pos": [
+-32.8694,
+7.2307,
+79.9673
+],
+"yawDeg": 67.747,
+"rollDeg": -1.401,
+"cam": [
+-17.8652,
+15.9186,
+47.7501
+],
+"camLook": [
+-29.7571,
+5.4496,
+81.4435
+]
+},
+{
+"t": 20.4,
+"frame": "world",
+"pos": [
+-32.2409,
+7.533,
+80.2244
+],
+"yawDeg": 67.747,
+"rollDeg": -1.3,
+"cam": [
+-18.2533,
+16.5209,
+47.827
+],
+"camLook": [
+-27.7713,
+5.8474,
+82.3444
+]
+},
+{
+"t": 20.5,
+"frame": "world",
+"pos": [
+-31.6156,
+7.8339,
+80.4803
+],
+"yawDeg": 67.747,
+"rollDeg": -1.181,
+"cam": [
+-18.8629,
+17.1862,
+47.864
+],
+"camLook": [
+-25.4971,
+6.2642,
+83.3823
+]
+},
+{
+"t": 20.6,
+"frame": "world",
+"pos": [
+-30.9934,
+8.1332,
+80.7349
+],
+"yawDeg": 67.747,
+"rollDeg": -1.045,
+"cam": [
+-19.6974,
+17.9154,
+47.8603
+],
+"camLook": [
+-22.93,
+6.7002,
+84.5594
+]
+},
+{
+"t": 20.7,
+"frame": "world",
+"pos": [
+-30.3744,
+8.431,
+80.9882
+],
+"yawDeg": 67.747,
+"rollDeg": -0.894,
+"cam": [
+-20.7561,
+18.7083,
+47.8162
+],
+"camLook": [
+-20.0709,
+7.1556,
+85.8751
+]
+},
+{
+"t": 20.8,
+"frame": "world",
+"pos": [
+-29.7586,
+8.7272,
+81.2401
+],
+"yawDeg": 67.747,
+"rollDeg": -0.731,
+"cam": [
+-22.0342,
+19.5635,
+47.7324
+],
+"camLook": [
+-16.9263,
+7.6296,
+87.3265
+]
+},
+{
+"t": 20.9,
+"frame": "world",
+"pos": [
+-29.146,
+9.0219,
+81.4908
+],
+"yawDeg": 67.747,
+"rollDeg": -0.557,
+"cam": [
+-23.5237,
+20.4785,
+47.6105
+],
+"camLook": [
+-13.5072,
+8.1217,
+88.9083
+]
+},
+{
+"t": 21.0,
+"frame": "world",
+"pos": [
+-28.5367,
+9.315,
+81.7401
+],
+"yawDeg": 67.747,
+"rollDeg": -0.376,
+"cam": [
+-25.2128,
+21.4499,
+47.4523
+],
+"camLook": [
+-9.8289,
+8.6306,
+90.6132
+]
+},
+{
+"t": 21.1,
+"frame": "world",
+"pos": [
+-27.9307,
+9.6065,
+81.9881
+],
+"yawDeg": 67.747,
+"rollDeg": -0.189,
+"cam": [
+-27.0874,
+22.4735,
+47.2605
+],
+"camLook": [
+-5.9109,
+9.1551,
+92.4321
+]
+},
+{
+"t": 21.2,
+"frame": "world",
+"pos": [
+-27.328,
+9.8964,
+82.2347
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-29.1302,
+23.5441,
+47.0382
+],
+"camLook": [
+-1.776,
+9.6934,
+94.3541
+]
+},
+{
+"t": 21.3,
+"frame": "world",
+"pos": [
+-26.7287,
+10.1847,
+82.4799
+],
+"yawDeg": 67.747,
+"rollDeg": 0.189,
+"cam": [
+-31.3221,
+24.6562,
+46.7886
+],
+"camLook": [
+2.5501,
+10.2438,
+96.3669
+]
+},
+{
+"t": 21.4,
+"frame": "world",
+"pos": [
+-26.1327,
+10.4714,
+82.7237
+],
+"yawDeg": 67.747,
+"rollDeg": 0.376,
+"cam": [
+-33.6417,
+25.8033,
+46.5156
+],
+"camLook": [
+7.0388,
+10.8043,
+98.4571
+]
+},
+{
+"t": 21.5,
+"frame": "world",
+"pos": [
+-25.5402,
+10.7565,
+82.9662
+],
+"yawDeg": 67.747,
+"rollDeg": 0.557,
+"cam": [
+-36.0661,
+26.9786,
+46.2232
+],
+"camLook": [
+11.6596,
+11.3726,
+100.6101
+]
+},
+{
+"t": 21.6,
+"frame": "world",
+"pos": [
+-24.9511,
+11.0398,
+83.2072
+],
+"yawDeg": 67.747,
+"rollDeg": 0.731,
+"cam": [
+-38.5712,
+28.1751,
+45.9157
+],
+"camLook": [
+16.38,
+11.9465,
+102.8106
+]
+},
+{
+"t": 21.7,
+"frame": "world",
+"pos": [
+-24.3655,
+11.3215,
+83.4468
+],
+"yawDeg": 67.747,
+"rollDeg": 0.894,
+"cam": [
+-41.1318,
+29.3853,
+45.5976
+],
+"camLook": [
+21.1663,
+12.5237,
+105.0427
+]
+},
+{
+"t": 21.8,
+"frame": "world",
+"pos": [
+-23.7834,
+11.6016,
+83.685
+],
+"yawDeg": 67.747,
+"rollDeg": 1.045,
+"cam": [
+-43.7221,
+30.6016,
+45.2734
+],
+"camLook": [
+25.9841,
+13.1016,
+107.2899
+]
+},
+{
+"t": 21.9,
+"frame": "world",
+"pos": [
+-23.2049,
+11.8799,
+83.9217
+],
+"yawDeg": 67.747,
+"rollDeg": 1.181,
+"cam": [
+-46.316,
+31.8161,
+44.9478
+],
+"camLook": [
+30.7984,
+13.6778,
+109.5356
+]
+},
+{
+"t": 22.0,
+"frame": "world",
+"pos": [
+-22.6299,
+12.1565,
+84.157
+],
+"yawDeg": 67.747,
+"rollDeg": 1.3,
+"cam": [
+-48.8872,
+33.0212,
+44.6253
+],
+"camLook": [
+35.5741,
+14.2498,
+111.7633
+]
+},
+{
+"t": 22.1,
+"frame": "world",
+"pos": [
+-22.0586,
+12.4313,
+84.3908
+],
+"yawDeg": 67.747,
+"rollDeg": 1.401,
+"cam": [
+-51.41,
+34.2092,
+44.3106
+],
+"camLook": [
+40.2768,
+14.8152,
+113.9566
+]
+},
+{
+"t": 22.2,
+"frame": "world",
+"pos": [
+-21.4908,
+12.7044,
+84.6231
+],
+"yawDeg": 67.747,
+"rollDeg": 1.483,
+"cam": [
+-53.8592,
+35.3726,
+44.008
+],
+"camLook": [
+44.8727,
+15.3716,
+116.0995
+]
+},
+{
+"t": 22.3,
+"frame": "world",
+"pos": [
+-20.9267,
+12.9758,
+84.8539
+],
+"yawDeg": 67.747,
+"rollDeg": 1.543,
+"cam": [
+-56.2107,
+36.5044,
+43.722
+],
+"camLook": [
+49.3296,
+15.9167,
+118.1766
+]
+},
+{
+"t": 22.4,
+"frame": "world",
+"pos": [
+-20.3664,
+13.2454,
+85.0832
+],
+"yawDeg": 67.747,
+"rollDeg": 1.582,
+"cam": [
+-58.4415,
+37.5977,
+43.4565
+],
+"camLook": [
+53.6167,
+16.4484,
+120.1735
+]
+},
+{
+"t": 22.5,
+"frame": "world",
+"pos": [
+-19.8097,
+13.5132,
+85.3109
+],
+"yawDeg": 67.747,
+"rollDeg": 1.599,
+"cam": [
+-60.5303,
+38.6462,
+43.2153
+],
+"camLook": [
+57.7057,
+16.9646,
+122.0767
+]
+},
+{
+"t": 22.6,
+"frame": "world",
+"pos": [
+-19.2568,
+13.7791,
+85.5372
+],
+"yawDeg": 67.747,
+"rollDeg": 1.594,
+"cam": [
+-62.458,
+39.6442,
+43.0018
+],
+"camLook": [
+61.5706,
+17.4635,
+123.8738
+]
+},
+{
+"t": 22.7,
+"frame": "world",
+"pos": [
+-18.7077,
+14.0433,
+85.7619
+],
+"yawDeg": 67.747,
+"rollDeg": 1.566,
+"cam": [
+-64.2073,
+40.5867,
+42.819
+],
+"camLook": [
+65.1886,
+17.9435,
+125.5541
+]
+},
+{
+"t": 22.8,
+"frame": "world",
+"pos": [
+-18.1623,
+14.3056,
+85.985
+],
+"yawDeg": 67.747,
+"rollDeg": 1.516,
+"cam": [
+-65.764,
+41.4694,
+42.6695
+],
+"camLook": [
+68.5405,
+18.4032,
+127.1084
+]
+},
+{
+"t": 22.9,
+"frame": "world",
+"pos": [
+-17.6209,
+14.5661,
+86.2065
+],
+"yawDeg": 67.747,
+"rollDeg": 1.444,
+"cam": [
+-67.1165,
+42.2888,
+42.5553
+],
+"camLook": [
+71.6108,
+18.8415,
+128.5293
+]
+},
+{
+"t": 23.0,
+"frame": "world",
+"pos": [
+-17.0833,
+14.8247,
+86.4265
+],
+"yawDeg": 67.747,
+"rollDeg": 1.353,
+"cam": [
+-68.2566,
+43.0425,
+42.4779
+],
+"camLook": [
+74.3884,
+19.2577,
+129.8118
+]
+},
+{
+"t": 23.1,
+"frame": "world",
+"pos": [
+-16.5496,
+15.0815,
+86.6449
+],
+"yawDeg": 67.747,
+"rollDeg": 1.242,
+"cam": [
+-69.1796,
+43.7291,
+42.438
+],
+"camLook": [
+76.8671,
+19.6512,
+130.9526
+]
+},
+{
+"t": 23.2,
+"frame": "world",
+"pos": [
+-16.0198,
+15.3363,
+86.8616
+],
+"yawDeg": 67.747,
+"rollDeg": 1.114,
+"cam": [
+-69.8848,
+44.3484,
+42.4359
+],
+"camLook": [
+79.0457,
+20.022,
+131.9514
+]
+},
+{
+"t": 23.3,
+"frame": "world",
+"pos": [
+-15.494,
+15.5892,
+87.0768
+],
+"yawDeg": 67.747,
+"rollDeg": 0.971,
+"cam": [
+-70.3756,
+44.9013,
+42.4708
+],
+"camLook": [
+80.9288,
+20.3704,
+132.8104
+]
+},
+{
+"t": 23.4,
+"frame": "world",
+"pos": [
+-14.9723,
+15.8403,
+87.2903
+],
+"yawDeg": 67.747,
+"rollDeg": 0.814,
+"cam": [
+-70.66,
+45.3903,
+42.5414
+],
+"camLook": [
+82.5271,
+20.6971,
+133.5344
+]
+},
+{
+"t": 23.5,
+"frame": "world",
+"pos": [
+-14.4545,
+16.0893,
+87.5021
+],
+"yawDeg": 67.747,
+"rollDeg": 0.645,
+"cam": [
+-70.7511,
+45.819,
+42.6453
+],
+"camLook": [
+83.8577,
+21.0033,
+134.1318
+]
+},
+{
+"t": 23.6,
+"frame": "world",
+"pos": [
+-13.9408,
+16.3365,
+87.7123
+],
+"yawDeg": 67.747,
+"rollDeg": 0.467,
+"cam": [
+-70.6668,
+46.1929,
+42.7794
+],
+"camLook": [
+84.9448,
+21.2908,
+134.614
+]
+},
+{
+"t": 23.7,
+"frame": "world",
+"pos": [
+-13.4312,
+16.5816,
+87.9208
+],
+"yawDeg": 67.747,
+"rollDeg": 0.283,
+"cam": [
+-70.4309,
+46.5188,
+42.9394
+],
+"camLook": [
+85.8199,
+21.5616,
+134.9959
+]
+},
+{
+"t": 23.8,
+"frame": "world",
+"pos": [
+-12.9257,
+16.8248,
+88.1277
+],
+"yawDeg": 67.747,
+"rollDeg": 0.095,
+"cam": [
+-70.0729,
+46.8055,
+43.1201
+],
+"camLook": [
+86.5222,
+21.8186,
+135.2961
+]
+},
+{
+"t": 23.9,
+"frame": "world",
+"pos": [
+-12.4243,
+17.066,
+88.3328
+],
+"yawDeg": 67.747,
+"rollDeg": -0.095,
+"cam": [
+-69.6284,
+47.0635,
+43.3151
+],
+"camLook": [
+87.0995,
+22.0652,
+135.5372
+]
+},
+{
+"t": 24.0,
+"frame": "world",
+"pos": [
+-11.9271,
+17.3051,
+88.5363
+],
+"yawDeg": 67.747,
+"rollDeg": -0.283,
+"cam": [
+-69.1397,
+47.3051,
+43.5171
+],
+"camLook": [
+87.608,
+22.3051,
+135.746
+]
+},
+{
+"t": 24.1,
+"frame": "world",
+"pos": [
+-11.4342,
+17.5423,
+88.738
+],
+"yawDeg": 67.747,
+"rollDeg": -0.467,
+"cam": [
+-68.6408,
+47.5383,
+43.7221
+],
+"camLook": [
+88.0911,
+22.5429,
+135.9422
+]
+},
+{
+"t": 24.2,
+"frame": "world",
+"pos": [
+-10.9454,
+17.7774,
+88.9379
+],
+"yawDeg": 67.747,
+"rollDeg": -0.645,
+"cam": [
+-68.1131,
+47.7466,
+43.9445
+],
+"camLook": [
+88.5145,
+22.7825,
+136.1058
+]
+},
+{
+"t": 24.3,
+"frame": "world",
+"pos": [
+-10.461,
+18.0104,
+89.1362
+],
+"yawDeg": 67.747,
+"rollDeg": -0.814,
+"cam": [
+-67.5287,
+47.9112,
+44.2001
+],
+"camLook": [
+88.8314,
+23.027,
+136.2109
+]
+},
+{
+"t": 24.4,
+"frame": "world",
+"pos": [
+-9.9808,
+18.2414,
+89.3326
+],
+"yawDeg": 67.747,
+"rollDeg": -0.971,
+"cam": [
+-66.8656,
+48.0167,
+44.5015
+],
+"camLook": [
+89.0049,
+23.2789,
+136.2366
+]
+},
+{
+"t": 24.5,
+"frame": "world",
+"pos": [
+-9.505,
+18.4703,
+89.5273
+],
+"yawDeg": 67.747,
+"rollDeg": -1.114,
+"cam": [
+-66.1068,
+48.0516,
+44.8586
+],
+"camLook": [
+89.0064,
+23.5401,
+136.1674
+]
+},
+{
+"t": 24.6,
+"frame": "world",
+"pos": [
+-9.0335,
+18.6971,
+89.7202
+],
+"yawDeg": 67.747,
+"rollDeg": -1.242,
+"cam": [
+-65.2403,
+48.0075,
+45.2781
+],
+"camLook": [
+88.8157,
+23.8121,
+135.9918
+]
+},
+{
+"t": 24.7,
+"frame": "world",
+"pos": [
+-8.5665,
+18.9218,
+89.9113
+],
+"yawDeg": 67.747,
+"rollDeg": -1.353,
+"cam": [
+-64.2585,
+47.8792,
+45.7646
+],
+"camLook": [
+88.42,
+24.0956,
+135.7028
+]
+},
+{
+"t": 24.8,
+"frame": "world",
+"pos": [
+-8.1038,
+19.1444,
+90.1006
+],
+"yawDeg": 67.747,
+"rollDeg": -1.444,
+"cam": [
+-63.1581,
+47.6645,
+46.3199
+],
+"camLook": [
+87.8134,
+24.391,
+135.2971
+]
+},
+{
+"t": 24.9,
+"frame": "world",
+"pos": [
+-7.6456,
+19.3648,
+90.2881
+],
+"yawDeg": 67.747,
+"rollDeg": -1.516,
+"cam": [
+-61.9393,
+47.3633,
+46.9438
+],
+"camLook": [
+86.9966,
+24.6984,
+134.775
+]
+},
+{
+"t": 25.0,
+"frame": "world",
+"pos": [
+-7.1919,
+19.5831,
+90.4738
+],
+"yawDeg": 67.747,
+"rollDeg": -1.566,
+"cam": [
+-60.6059,
+46.9784,
+47.6342
+],
+"camLook": [
+85.9758,
+25.0172,
+134.1401
+]
+},
+{
+"t": 25.1,
+"frame": "world",
+"pos": [
+-6.7427,
+19.7991,
+90.6576
+],
+"yawDeg": 67.747,
+"rollDeg": -1.594,
+"cam": [
+-59.1648,
+46.5144,
+48.3872
+],
+"camLook": [
+84.7623,
+25.3466,
+133.3986
+]
+},
+{
+"t": 25.2,
+"frame": "world",
+"pos": [
+-6.298,
+20.013,
+90.8395
+],
+"yawDeg": 67.747,
+"rollDeg": -1.599,
+"cam": [
+-57.6255,
+45.9777,
+49.1972
+],
+"camLook": [
+83.3721,
+25.6856,
+132.5594
+]
+},
+{
+"t": 25.3,
+"frame": "world",
+"pos": [
+-5.858,
+20.2248,
+91.0196
+],
+"yawDeg": 67.747,
+"rollDeg": -1.582,
+"cam": [
+-56.0,
+45.3766,
+50.0575
+],
+"camLook": [
+81.825,
+26.0328,
+131.6336
+]
+},
+{
+"t": 25.4,
+"frame": "world",
+"pos": [
+-5.4225,
+20.4342,
+91.1978
+],
+"yawDeg": 67.747,
+"rollDeg": -1.543,
+"cam": [
+-54.3019,
+44.7203,
+50.9602
+],
+"camLook": [
+80.1441,
+26.3866,
+130.6341
+]
+},
+{
+"t": 25.5,
+"frame": "world",
+"pos": [
+-4.9916,
+20.6415,
+91.3741
+],
+"yawDeg": 67.747,
+"rollDeg": -1.483,
+"cam": [
+-52.5469,
+44.0196,
+51.8963
+],
+"camLook": [
+78.3552,
+26.7452,
+129.5751
+]
+},
+{
+"t": 25.6,
+"frame": "world",
+"pos": [
+-4.5655,
+20.8465,
+91.5484
+],
+"yawDeg": 67.747,
+"rollDeg": -1.401,
+"cam": [
+-50.7517,
+43.2859,
+52.8562
+],
+"camLook": [
+76.4865,
+27.1066,
+128.4724
+]
+},
+{
+"t": 25.7,
+"frame": "world",
+"pos": [
+-4.144,
+21.0493,
+91.7209
+],
+"yawDeg": 67.747,
+"rollDeg": -1.3,
+"cam": [
+-48.9338,
+42.5312,
+53.83
+],
+"camLook": [
+74.5672,
+27.469,
+127.3422
+]
+},
+{
+"t": 25.8,
+"frame": "world",
+"pos": [
+-3.726,
+21.2466,
+91.8919
+],
+"yawDeg": 67.747,
+"rollDeg": -1.181,
+"cam": [
+-47.1103,
+41.7648,
+54.8075
+],
+"camLook": [
+72.6292,
+27.827,
+126.2021
+]
+},
+{
+"t": 25.9,
+"frame": "world",
+"pos": [
+-3.3097,
+21.4343,
+92.0622
+],
+"yawDeg": 67.747,
+"rollDeg": -1.045,
+"cam": [
+-45.2977,
+40.9949,
+55.779
+],
+"camLook": [
+70.7047,
+28.1742,
+125.0699
+]
+},
+{
+"t": 26.0,
+"frame": "world",
+"pos": [
+-2.8956,
+21.6123,
+92.2317
+],
+"yawDeg": 67.747,
+"rollDeg": -0.894,
+"cam": [
+-43.5145,
+40.2342,
+56.7341
+],
+"camLook": [
+68.8239,
+28.5086,
+123.9622
+]
+},
+{
+"t": 26.1,
+"frame": "world",
+"pos": [
+-2.4836,
+21.7808,
+92.4003
+],
+"yawDeg": 67.747,
+"rollDeg": -0.731,
+"cam": [
+-41.7784,
+39.4947,
+57.6625
+],
+"camLook": [
+67.0162,
+28.8285,
+122.8955
+]
+},
+{
+"t": 26.2,
+"frame": "world",
+"pos": [
+-2.0741,
+21.9399,
+92.5678
+],
+"yawDeg": 67.747,
+"rollDeg": -0.557,
+"cam": [
+-40.1063,
+38.7881,
+58.5545
+],
+"camLook": [
+65.3093,
+29.1319,
+121.8853
+]
+},
+{
+"t": 26.3,
+"frame": "world",
+"pos": [
+-1.6673,
+22.0899,
+92.7343
+],
+"yawDeg": 67.747,
+"rollDeg": -0.376,
+"cam": [
+-38.5141,
+38.1252,
+59.4012
+],
+"camLook": [
+63.7289,
+29.4173,
+120.9459
+]
+},
+{
+"t": 26.4,
+"frame": "world",
+"pos": [
+-1.2634,
+22.2308,
+92.8995
+],
+"yawDeg": 67.747,
+"rollDeg": -0.189,
+"cam": [
+-37.0155,
+37.5156,
+60.1945
+],
+"camLook": [
+62.2979,
+29.6833,
+120.0901
+]
+},
+{
+"t": 26.5,
+"frame": "world",
+"pos": [
+-0.8626,
+22.3629,
+93.0635
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-35.6228,
+36.9675,
+60.9277
+],
+"camLook": [
+61.0361,
+29.9288,
+119.3288
+]
+},
+{
+"t": 26.6,
+"frame": "world",
+"pos": [
+-0.4651,
+22.4864,
+93.2262
+],
+"yawDeg": 67.747,
+"rollDeg": 0.189,
+"cam": [
+-34.3457,
+36.4878,
+61.5951
+],
+"camLook": [
+59.959,
+30.1528,
+118.6708
+]
+},
+{
+"t": 26.7,
+"frame": "world",
+"pos": [
+-0.0711,
+22.6014,
+93.3874
+],
+"yawDeg": 67.747,
+"rollDeg": 0.376,
+"cam": [
+-33.1911,
+36.0813,
+62.1928
+],
+"camLook": [
+59.078,
+30.3548,
+118.1225
+]
+},
+{
+"t": 26.8,
+"frame": "world",
+"pos": [
+0.3192,
+22.7083,
+93.5471
+],
+"yawDeg": 67.747,
+"rollDeg": 0.557,
+"cam": [
+-32.163,
+35.7508,
+62.7184
+],
+"camLook": [
+58.3991,
+30.5345,
+117.6872
+]
+},
+{
+"t": 26.9,
+"frame": "world",
+"pos": [
+0.7056,
+22.8071,
+93.7052
+],
+"yawDeg": 67.747,
+"rollDeg": 0.731,
+"cam": [
+-31.2619,
+35.4968,
+63.1719
+],
+"camLook": [
+57.9227,
+30.6922,
+117.3652
+]
+},
+{
+"t": 27.0,
+"frame": "world",
+"pos": [
+1.0879,
+22.8983,
+93.8616
+],
+"yawDeg": 67.747,
+"rollDeg": 0.894,
+"cam": [
+-30.4845,
+35.317,
+63.555
+],
+"camLook": [
+57.6429,
+30.8285,
+117.1531
+]
+},
+{
+"t": 27.1,
+"frame": "world",
+"pos": [
+1.4709,
+22.9829,
+94.0183
+],
+"yawDeg": 67.747,
+"rollDeg": 1.045,
+"cam": [
+-29.8186,
+35.2076,
+63.8741
+],
+"camLook": [
+57.5515,
+30.9455,
+117.0459
+]
+},
+{
+"t": 27.2,
+"frame": "world",
+"pos": [
+1.859,
+23.062,
+94.1771
+],
+"yawDeg": 67.747,
+"rollDeg": 1.181,
+"cam": [
+-29.2475,
+35.1613,
+64.1379
+],
+"camLook": [
+57.633,
+31.0455,
+117.034
+]
+},
+{
+"t": 27.3,
+"frame": "world",
+"pos": [
+2.2518,
+23.1353,
+94.3379
+],
+"yawDeg": 67.747,
+"rollDeg": 1.3,
+"cam": [
+-28.7547,
+35.166,
+64.3559
+],
+"camLook": [
+57.8583,
+31.1301,
+117.1015
+]
+},
+{
+"t": 27.4,
+"frame": "world",
+"pos": [
+2.6489,
+23.2024,
+94.5003
+],
+"yawDeg": 67.747,
+"rollDeg": 1.401,
+"cam": [
+-28.3187,
+35.2065,
+64.5408
+],
+"camLook": [
+58.1899,
+31.2018,
+117.2276
+]
+},
+{
+"t": 27.5,
+"frame": "world",
+"pos": [
+3.0496,
+23.2633,
+94.6643
+],
+"yawDeg": 67.747,
+"rollDeg": 1.483,
+"cam": [
+-27.9121,
+35.2633,
+64.7081
+],
+"camLook": [
+58.5808,
+31.2633,
+117.3861
+]
+},
+{
+"t": 27.6,
+"frame": "world",
+"pos": [
+3.4534,
+23.3176,
+94.8295
+],
+"yawDeg": 67.747,
+"rollDeg": 1.543,
+"cam": [
+-27.5069,
+35.3169,
+64.8741
+],
+"camLook": [
+58.98,
+31.3172,
+117.5499
+]
+},
+{
+"t": 27.7,
+"frame": "world",
+"pos": [
+3.86,
+23.3653,
+94.9959
+],
+"yawDeg": 67.747,
+"rollDeg": 1.582,
+"cam": [
+-27.0917,
+35.3595,
+65.0455
+],
+"camLook": [
+59.355,
+31.362,
+117.7064
+]
+},
+{
+"t": 27.8,
+"frame": "world",
+"pos": [
+4.2686,
+23.4062,
+95.1631
+],
+"yawDeg": 67.747,
+"rollDeg": 1.599,
+"cam": [
+-26.6605,
+35.3875,
+65.226
+],
+"camLook": [
+59.6819,
+31.3955,
+117.8482
+]
+},
+{
+"t": 27.9,
+"frame": "world",
+"pos": [
+4.6788,
+23.4402,
+95.3309
+],
+"yawDeg": 67.747,
+"rollDeg": 1.594,
+"cam": [
+-26.2082,
+35.3974,
+65.4185
+],
+"camLook": [
+59.9402,
+31.4158,
+117.9688
+]
+},
+{
+"t": 28.0,
+"frame": "world",
+"pos": [
+5.0901,
+23.4674,
+95.4992
+],
+"yawDeg": 67.747,
+"rollDeg": 1.566,
+"cam": [
+-25.7309,
+35.3867,
+65.6255
+],
+"camLook": [
+60.1129,
+31.4213,
+118.0628
+]
+},
+{
+"t": 28.1,
+"frame": "world",
+"pos": [
+5.5019,
+23.4877,
+95.6677
+],
+"yawDeg": 67.747,
+"rollDeg": 1.516,
+"cam": [
+-25.2254,
+35.3531,
+65.849
+],
+"camLook": [
+60.186,
+31.4108,
+118.1259
+]
+},
+{
+"t": 28.2,
+"frame": "world",
+"pos": [
+5.9137,
+23.501,
+95.8362
+],
+"yawDeg": 67.747,
+"rollDeg": 1.444,
+"cam": [
+-24.6893,
+35.2952,
+66.0903
+],
+"camLook": [
+60.1485,
+31.3834,
+118.1546
+]
+},
+{
+"t": 28.3,
+"frame": "world",
+"pos": [
+6.3249,
+23.5076,
+96.0045
+],
+"yawDeg": 67.747,
+"rollDeg": 1.353,
+"cam": [
+-24.1211,
+35.2117,
+66.3506
+],
+"camLook": [
+59.9926,
+31.3385,
+118.1464
+]
+},
+{
+"t": 28.4,
+"frame": "world",
+"pos": [
+6.7351,
+23.5084,
+96.1723
+],
+"yawDeg": 67.747,
+"rollDeg": 1.242,
+"cam": [
+-23.52,
+35.1029,
+66.6304
+],
+"camLook": [
+59.7127,
+31.2767,
+118.0995
+]
+},
+{
+"t": 28.5,
+"frame": "world",
+"pos": [
+7.1437,
+23.5084,
+96.3395
+],
+"yawDeg": 67.747,
+"rollDeg": 1.114,
+"cam": [
+-22.8858,
+34.9735,
+66.9298
+],
+"camLook": [
+59.306,
+31.2027,
+118.0131
+]
+},
+{
+"t": 28.6,
+"frame": "world",
+"pos": [
+7.5503,
+23.5084,
+96.5058
+],
+"yawDeg": 67.747,
+"rollDeg": 0.971,
+"cam": [
+-22.219,
+34.8242,
+67.2488
+],
+"camLook": [
+58.7721,
+31.1174,
+117.8868
+]
+},
+{
+"t": 28.7,
+"frame": "world",
+"pos": [
+7.9544,
+23.5084,
+96.6712
+],
+"yawDeg": 67.747,
+"rollDeg": 0.814,
+"cam": [
+-21.5205,
+34.6553,
+67.5867
+],
+"camLook": [
+58.1127,
+31.0209,
+117.7212
+]
+},
+{
+"t": 28.8,
+"frame": "world",
+"pos": [
+8.3558,
+23.5084,
+96.8354
+],
+"yawDeg": 67.747,
+"rollDeg": 0.645,
+"cam": [
+-20.7919,
+34.4675,
+67.9428
+],
+"camLook": [
+57.3312,
+30.9136,
+117.5174
+]
+},
+{
+"t": 28.9,
+"frame": "world",
+"pos": [
+8.7538,
+23.5084,
+96.9983
+],
+"yawDeg": 67.747,
+"rollDeg": 0.467,
+"cam": [
+-20.0353,
+34.2618,
+68.3159
+],
+"camLook": [
+56.4334,
+30.796,
+117.2771
+]
+},
+{
+"t": 29.0,
+"frame": "world",
+"pos": [
+9.1481,
+23.5084,
+97.1596
+],
+"yawDeg": 67.747,
+"rollDeg": 0.283,
+"cam": [
+-19.2532,
+34.0392,
+68.7046
+],
+"camLook": [
+55.4261,
+30.6689,
+117.0023
+]
+},
+{
+"t": 29.1,
+"frame": "world",
+"pos": [
+9.5382,
+23.5084,
+97.3192
+],
+"yawDeg": 67.747,
+"rollDeg": 0.095,
+"cam": [
+-18.4485,
+33.8014,
+69.1073
+],
+"camLook": [
+54.318,
+30.5329,
+116.6958
+]
+},
+{
+"t": 29.2,
+"frame": "world",
+"pos": [
+9.9237,
+23.5084,
+97.477
+],
+"yawDeg": 67.747,
+"rollDeg": -0.095,
+"cam": [
+-17.6245,
+33.5498,
+69.5221
+],
+"camLook": [
+53.119,
+30.3892,
+116.3605
+]
+},
+{
+"t": 29.3,
+"frame": "world",
+"pos": [
+10.3042,
+23.5084,
+97.6327
+],
+"yawDeg": 67.747,
+"rollDeg": -0.283,
+"cam": [
+-16.7848,
+33.2863,
+69.9471
+],
+"camLook": [
+51.8399,
+30.2386,
+115.9998
+]
+},
+{
+"t": 29.4,
+"frame": "world",
+"pos": [
+10.6792,
+23.5084,
+97.7861
+],
+"yawDeg": 67.747,
+"rollDeg": -0.467,
+"cam": [
+-15.9332,
+33.0129,
+70.3799
+],
+"camLook": [
+50.4927,
+30.0824,
+115.6174
+]
+},
+{
+"t": 29.5,
+"frame": "world",
+"pos": [
+11.0483,
+23.5084,
+97.9371
+],
+"yawDeg": 67.747,
+"rollDeg": -0.645,
+"cam": [
+-15.0738,
+32.7316,
+70.8184
+],
+"camLook": [
+49.0901,
+29.9216,
+115.2172
+]
+},
+{
+"t": 29.6,
+"frame": "world",
+"pos": [
+11.4111,
+23.5084,
+98.0856
+],
+"yawDeg": 67.747,
+"rollDeg": -0.814,
+"cam": [
+-14.2109,
+32.4446,
+71.2601
+],
+"camLook": [
+47.6454,
+29.7576,
+114.8032
+]
+},
+{
+"t": 29.7,
+"frame": "world",
+"pos": [
+11.7671,
+23.5084,
+98.2313
+],
+"yawDeg": 67.747,
+"rollDeg": -0.971,
+"cam": [
+-13.3487,
+32.1542,
+71.7025
+],
+"camLook": [
+46.1722,
+29.5917,
+114.3798
+]
+},
+{
+"t": 29.8,
+"frame": "world",
+"pos": [
+12.1159,
+23.5084,
+98.374
+],
+"yawDeg": 67.747,
+"rollDeg": -1.114,
+"cam": [
+-12.4917,
+31.8626,
+72.1431
+],
+"camLook": [
+44.6846,
+29.4251,
+113.9511
+]
+},
+{
+"t": 29.9,
+"frame": "world",
+"pos": [
+12.4571,
+23.5084,
+98.5136
+],
+"yawDeg": 67.747,
+"rollDeg": -1.242,
+"cam": [
+-11.6444,
+31.5722,
+72.5795
+],
+"camLook": [
+43.1966,
+29.2591,
+113.5216
+]
+},
+{
+"t": 30.0,
+"frame": "world",
+"pos": [
+12.7902,
+23.5084,
+98.6499
+],
+"yawDeg": 67.747,
+"rollDeg": -1.353,
+"cam": [
+-10.8111,
+31.2852,
+73.009
+],
+"camLook": [
+41.7221,
+29.0951,
+113.0955
+]
+},
+{
+"t": 30.1,
+"frame": "world",
+"pos": [
+13.1148,
+23.5084,
+98.7827
+],
+"yawDeg": 67.747,
+"rollDeg": -1.444,
+"cam": [
+-9.9963,
+31.0039,
+73.4293
+],
+"camLook": [
+40.275,
+28.9344,
+112.677
+]
+},
+{
+"t": 30.2,
+"frame": "world",
+"pos": [
+13.4304,
+23.5084,
+98.9118
+],
+"yawDeg": 67.747,
+"rollDeg": -1.516,
+"cam": [
+-9.2041,
+30.7304,
+73.8378
+],
+"camLook": [
+38.8685,
+28.7781,
+112.2703
+]
+},
+{
+"t": 30.3,
+"frame": "world",
+"pos": [
+13.7366,
+23.5033,
+99.0371
+],
+"yawDeg": 67.747,
+"rollDeg": -1.566,
+"cam": [
+-8.4387,
+30.4619,
+74.2324
+],
+"camLook": [
+37.5151,
+28.6225,
+111.8792
+]
+},
+{
+"t": 30.4,
+"frame": "world",
+"pos": [
+14.0322,
+23.4789,
+99.158
+],
+"yawDeg": 67.747,
+"rollDeg": -1.594,
+"cam": [
+-7.7047,
+30.1859,
+74.6104
+],
+"camLook": [
+36.2261,
+28.4543,
+111.5071
+]
+},
+{
+"t": 30.5,
+"frame": "world",
+"pos": [
+14.3153,
+23.4343,
+99.2739
+],
+"yawDeg": 67.747,
+"rollDeg": -1.599,
+"cam": [
+-7.0069,
+29.9034,
+74.9693
+],
+"camLook": [
+35.011,
+28.2738,
+111.1568
+]
+},
+{
+"t": 30.6,
+"frame": "world",
+"pos": [
+14.5843,
+23.3703,
+99.384
+],
+"yawDeg": 67.747,
+"rollDeg": -1.582,
+"cam": [
+-6.3501,
+29.6169,
+75.3068
+],
+"camLook": [
+33.8785,
+28.0826,
+110.8308
+]
+},
+{
+"t": 30.7,
+"frame": "world",
+"pos": [
+14.8376,
+23.2883,
+99.4876
+],
+"yawDeg": 67.747,
+"rollDeg": -1.543,
+"cam": [
+-5.7383,
+29.3291,
+75.6206
+],
+"camLook": [
+32.8359,
+27.8831,
+110.5312
+]
+},
+{
+"t": 30.8,
+"frame": "world",
+"pos": [
+15.0736,
+23.1902,
+99.5842
+],
+"yawDeg": 67.747,
+"rollDeg": -1.483,
+"cam": [
+-5.175,
+29.0433,
+75.9091
+],
+"camLook": [
+31.8891,
+27.6777,
+110.2598
+]
+},
+{
+"t": 30.9,
+"frame": "world",
+"pos": [
+15.2912,
+23.0788,
+99.6732
+],
+"yawDeg": 67.747,
+"rollDeg": -1.401,
+"cam": [
+-4.663,
+28.763,
+76.1707
+],
+"camLook": [
+31.0431,
+27.4698,
+110.0179
+]
+},
+{
+"t": 31.0,
+"frame": "world",
+"pos": [
+15.49,
+22.9572,
+99.7545
+],
+"yawDeg": 67.747,
+"rollDeg": -1.3,
+"cam": [
+-4.204,
+28.4921,
+76.4046
+],
+"camLook": [
+30.3013,
+27.2628,
+109.8066
+]
+},
+{
+"t": 31.1,
+"frame": "world",
+"pos": [
+15.6731,
+22.8257,
+99.8295
+],
+"yawDeg": 67.747,
+"rollDeg": -1.181,
+"cam": [
+-3.7953,
+28.2311,
+76.6118
+],
+"camLook": [
+29.6693,
+27.0574,
+109.6279
+]
+},
+{
+"t": 31.2,
+"frame": "world",
+"pos": [
+15.8442,
+22.684,
+99.8995
+],
+"yawDeg": 67.747,
+"rollDeg": -1.045,
+"cam": [
+-3.4332,
+27.9799,
+76.7937
+],
+"camLook": [
+29.1503,
+26.8531,
+109.4832
+]
+},
+{
+"t": 31.3,
+"frame": "world",
+"pos": [
+16.0031,
+22.5338,
+99.9645
+],
+"yawDeg": 67.747,
+"rollDeg": -0.894,
+"cam": [
+-3.1175,
+27.7396,
+76.9508
+],
+"camLook": [
+28.742,
+26.6514,
+109.3717
+]
+},
+{
+"t": 31.4,
+"frame": "world",
+"pos": [
+16.1498,
+22.3766,
+100.0245
+],
+"yawDeg": 67.747,
+"rollDeg": -0.731,
+"cam": [
+-2.8464,
+27.5111,
+77.0837
+],
+"camLook": [
+28.4395,
+26.4535,
+109.292
+]
+},
+{
+"t": 31.5,
+"frame": "world",
+"pos": [
+16.2849,
+22.2142,
+100.0798
+],
+"yawDeg": 67.747,
+"rollDeg": -0.557,
+"cam": [
+-2.6176,
+27.295,
+77.1939
+],
+"camLook": [
+28.2359,
+26.2604,
+109.2419
+]
+},
+{
+"t": 31.6,
+"frame": "world",
+"pos": [
+16.4088,
+22.0481,
+100.1305
+],
+"yawDeg": 67.747,
+"rollDeg": -0.376,
+"cam": [
+-2.4276,
+27.0909,
+77.2833
+],
+"camLook": [
+28.1212,
+26.0726,
+109.2183
+]
+},
+{
+"t": 31.7,
+"frame": "world",
+"pos": [
+16.5222,
+21.8796,
+100.1769
+],
+"yawDeg": 67.747,
+"rollDeg": -0.189,
+"cam": [
+-2.2722,
+26.8984,
+77.3544
+],
+"camLook": [
+28.0826,
+25.8903,
+109.2174
+]
+},
+{
+"t": 31.8,
+"frame": "world",
+"pos": [
+16.6257,
+21.71,
+100.2193
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-2.1461,
+26.7158,
+77.41
+],
+"camLook": [
+28.1044,
+25.7133,
+109.2344
+]
+},
+{
+"t": 31.9,
+"frame": "world",
+"pos": [
+16.7202,
+21.5403,
+100.2579
+],
+"yawDeg": 67.747,
+"rollDeg": 0.189,
+"cam": [
+-2.0429,
+26.5411,
+77.4537
+],
+"camLook": [
+28.1673,
+25.5408,
+109.2632
+]
+},
+{
+"t": 32.0,
+"frame": "world",
+"pos": [
+16.8062,
+21.3715,
+100.2931
+],
+"yawDeg": 67.747,
+"rollDeg": 0.376,
+"cam": [
+-1.9556,
+26.3715,
+77.4897
+],
+"camLook": [
+28.2487,
+25.3715,
+109.2969
+]
+},
+{
+"t": 32.1,
+"frame": "world",
+"pos": [
+16.8864,
+21.2053,
+100.3259
+],
+"yawDeg": 67.747,
+"rollDeg": 0.557,
+"cam": [
+-1.8754,
+26.2053,
+77.5225
+],
+"camLook": [
+28.3289,
+25.2053,
+109.3298
+]
+},
+{
+"t": 32.2,
+"frame": "world",
+"pos": [
+16.9642,
+21.0439,
+100.3578
+],
+"yawDeg": 67.747,
+"rollDeg": 0.731,
+"cam": [
+-1.7976,
+26.0439,
+77.5544
+],
+"camLook": [
+28.4067,
+25.0439,
+109.3616
+]
+},
+{
+"t": 32.3,
+"frame": "world",
+"pos": [
+17.0397,
+20.8873,
+100.3886
+],
+"yawDeg": 67.747,
+"rollDeg": 0.894,
+"cam": [
+-1.7221,
+25.8873,
+77.5852
+],
+"camLook": [
+28.4822,
+24.8873,
+109.3925
+]
+},
+{
+"t": 32.4,
+"frame": "world",
+"pos": [
+17.1128,
+20.7356,
+100.4186
+],
+"yawDeg": 67.747,
+"rollDeg": 1.045,
+"cam": [
+-1.649,
+25.7356,
+77.6152
+],
+"camLook": [
+28.5553,
+24.7356,
+109.4224
+]
+},
+{
+"t": 32.5,
+"frame": "world",
+"pos": [
+17.1835,
+20.5889,
+100.4475
+],
+"yawDeg": 67.747,
+"rollDeg": 1.181,
+"cam": [
+-1.5783,
+25.5889,
+77.6441
+],
+"camLook": [
+28.626,
+24.5889,
+109.4513
+]
+},
+{
+"t": 32.6,
+"frame": "world",
+"pos": [
+17.2518,
+20.4472,
+100.4754
+],
+"yawDeg": 67.747,
+"rollDeg": 1.3,
+"cam": [
+-1.5099,
+25.4472,
+77.672
+],
+"camLook": [
+28.6943,
+24.4472,
+109.4793
+]
+},
+{
+"t": 32.7,
+"frame": "world",
+"pos": [
+17.3177,
+20.3105,
+100.5024
+],
+"yawDeg": 67.747,
+"rollDeg": 1.401,
+"cam": [
+-1.4441,
+25.3105,
+77.699
+],
+"camLook": [
+28.7602,
+24.3105,
+109.5062
+]
+},
+{
+"t": 32.8,
+"frame": "world",
+"pos": [
+17.3811,
+20.1791,
+100.5283
+],
+"yawDeg": 67.747,
+"rollDeg": 1.483,
+"cam": [
+-1.3807,
+25.1791,
+77.7249
+],
+"camLook": [
+28.8236,
+24.1791,
+109.5322
+]
+},
+{
+"t": 32.9,
+"frame": "world",
+"pos": [
+17.4419,
+20.0528,
+100.5532
+],
+"yawDeg": 67.747,
+"rollDeg": 1.543,
+"cam": [
+-1.3198,
+25.0528,
+77.7498
+],
+"camLook": [
+28.8844,
+24.0528,
+109.5571
+]
+},
+{
+"t": 33.0,
+"frame": "world",
+"pos": [
+17.5003,
+19.9318,
+100.5771
+],
+"yawDeg": 67.747,
+"rollDeg": 1.582,
+"cam": [
+-1.2615,
+24.9318,
+77.7737
+],
+"camLook": [
+28.9428,
+23.9318,
+109.5809
+]
+},
+{
+"t": 33.1,
+"frame": "world",
+"pos": [
+17.556,
+19.8161,
+100.5999
+],
+"yawDeg": 67.747,
+"rollDeg": 1.599,
+"cam": [
+-1.2057,
+24.8161,
+77.7965
+],
+"camLook": [
+28.9986,
+23.8161,
+109.6038
+]
+},
+{
+"t": 33.2,
+"frame": "world",
+"pos": [
+17.6092,
+19.7058,
+100.6217
+],
+"yawDeg": 67.747,
+"rollDeg": 1.594,
+"cam": [
+-1.1526,
+24.7058,
+77.8183
+],
+"camLook": [
+29.0517,
+23.7058,
+109.6255
+]
+},
+{
+"t": 33.3,
+"frame": "world",
+"pos": [
+17.6598,
+19.6009,
+100.6424
+],
+"yawDeg": 67.747,
+"rollDeg": 1.566,
+"cam": [
+-1.102,
+24.6009,
+77.839
+],
+"camLook": [
+29.1023,
+23.6009,
+109.6462
+]
+},
+{
+"t": 33.4,
+"frame": "world",
+"pos": [
+17.7077,
+19.5015,
+100.662
+],
+"yawDeg": 67.747,
+"rollDeg": 1.516,
+"cam": [
+-1.0541,
+24.5015,
+77.8586
+],
+"camLook": [
+29.1502,
+23.5015,
+109.6658
+]
+},
+{
+"t": 33.5,
+"frame": "world",
+"pos": [
+17.7529,
+19.4077,
+100.6805
+],
+"yawDeg": 67.747,
+"rollDeg": 1.444,
+"cam": [
+-1.0089,
+24.4077,
+77.8771
+],
+"camLook": [
+29.1954,
+23.4077,
+109.6843
+]
+},
+{
+"t": 33.6,
+"frame": "world",
+"pos": [
+17.7954,
+19.3195,
+100.6979
+],
+"yawDeg": 67.747,
+"rollDeg": 1.336,
+"cam": [
+-0.9664,
+24.3195,
+77.8945
+],
+"camLook": [
+29.2379,
+23.3195,
+109.7017
+]
+},
+{
+"t": 33.7,
+"frame": "world",
+"pos": [
+17.8352,
+19.237,
+100.7141
+],
+"yawDeg": 67.747,
+"rollDeg": 1.182,
+"cam": [
+-0.9266,
+24.237,
+77.9107
+],
+"camLook": [
+29.2777,
+23.237,
+109.718
+]
+},
+{
+"t": 33.8,
+"frame": "world",
+"pos": [
+17.8722,
+19.1603,
+100.7293
+],
+"yawDeg": 67.747,
+"rollDeg": 0.999,
+"cam": [
+-0.8896,
+24.1603,
+77.9259
+],
+"camLook": [
+29.3147,
+23.1603,
+109.7331
+]
+},
+{
+"t": 33.9,
+"frame": "world",
+"pos": [
+17.9064,
+19.0893,
+100.7433
+],
+"yawDeg": 67.747,
+"rollDeg": 0.801,
+"cam": [
+-0.8554,
+24.0893,
+77.9399
+],
+"camLook": [
+29.3489,
+23.0893,
+109.7471
+]
+},
+{
+"t": 34.0,
+"frame": "world",
+"pos": [
+17.9378,
+19.0242,
+100.7561
+],
+"yawDeg": 67.747,
+"rollDeg": 0.603,
+"cam": [
+-0.824,
+24.0242,
+77.9527
+],
+"camLook": [
+29.3803,
+23.0242,
+109.76
+]
+},
+{
+"t": 34.1,
+"frame": "world",
+"pos": [
+17.9663,
+18.965,
+100.7678
+],
+"yawDeg": 67.747,
+"rollDeg": 0.418,
+"cam": [
+-0.7955,
+23.965,
+77.9644
+],
+"camLook": [
+29.4088,
+22.965,
+109.7716
+]
+},
+{
+"t": 34.2,
+"frame": "world",
+"pos": [
+17.992,
+18.9118,
+100.7783
+],
+"yawDeg": 67.747,
+"rollDeg": 0.257,
+"cam": [
+-0.7698,
+23.9118,
+77.9749
+],
+"camLook": [
+29.4345,
+22.9118,
+109.7821
+]
+},
+{
+"t": 34.3,
+"frame": "world",
+"pos": [
+18.0147,
+18.8646,
+100.7876
+],
+"yawDeg": 67.747,
+"rollDeg": 0.127,
+"cam": [
+-0.7471,
+23.8646,
+77.9842
+],
+"camLook": [
+29.4572,
+22.8646,
+109.7914
+]
+},
+{
+"t": 34.4,
+"frame": "world",
+"pos": [
+18.0345,
+18.8235,
+100.7957
+],
+"yawDeg": 67.747,
+"rollDeg": 0.033,
+"cam": [
+-0.7273,
+23.8235,
+77.9923
+],
+"camLook": [
+29.477,
+22.8235,
+109.7995
+]
+},
+{
+"t": 34.5,
+"frame": "world",
+"pos": [
+18.0514,
+18.7886,
+100.8026
+],
+"yawDeg": 67.747,
+"rollDeg": -0.025,
+"cam": [
+-0.7104,
+23.7886,
+77.9992
+],
+"camLook": [
+29.4939,
+22.7886,
+109.8064
+]
+},
+{
+"t": 34.6,
+"frame": "world",
+"pos": [
+18.0652,
+18.7599,
+100.8083
+],
+"yawDeg": 67.747,
+"rollDeg": -0.05,
+"cam": [
+-0.6966,
+23.7599,
+78.0048
+],
+"camLook": [
+29.5077,
+22.7599,
+109.8121
+]
+},
+{
+"t": 34.7,
+"frame": "world",
+"pos": [
+18.076,
+18.7374,
+100.8127
+],
+"yawDeg": 67.747,
+"rollDeg": -0.049,
+"cam": [
+-0.6858,
+23.7374,
+78.0093
+],
+"camLook": [
+29.5185,
+22.7374,
+109.8165
+]
+},
+{
+"t": 34.8,
+"frame": "world",
+"pos": [
+18.0838,
+18.7213,
+100.8159
+],
+"yawDeg": 67.747,
+"rollDeg": -0.031,
+"cam": [
+-0.678,
+23.7213,
+78.0124
+],
+"camLook": [
+29.5263,
+22.7213,
+109.8197
+]
+},
+{
+"t": 34.9,
+"frame": "world",
+"pos": [
+18.0884,
+18.7116,
+100.8178
+],
+"yawDeg": 67.747,
+"rollDeg": -0.01,
+"cam": [
+-0.6733,
+23.7116,
+78.0144
+],
+"camLook": [
+29.531,
+22.7116,
+109.8216
+]
+},
+{
+"t": 35.0,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.1,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.2,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.3,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.4,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.5,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.6,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.7,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.8,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 35.9,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+},
+{
+"t": 36.0,
+"frame": "world",
+"pos": [
+18.09,
+18.7084,
+100.8184
+],
+"yawDeg": 67.747,
+"rollDeg": -0.0,
+"cam": [
+-0.6718,
+23.7084,
+78.015
+],
+"camLook": [
+29.5325,
+22.7084,
+109.8222
+]
+}
+]
+}

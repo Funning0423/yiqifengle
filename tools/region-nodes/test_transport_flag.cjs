@@ -3,14 +3,14 @@ const assert=require('node:assert/strict'),crypto=require('node:crypto'),fs=requ
 const {load,ROOT}=require('./load.cjs');
 const T=load('region/JourneyTransport.ts');
 assert.equal(T.JOURNEY_TRANSPORT['island-meadow'],'sail');
-assert.equal(T.JOURNEY_TRANSPORT['meadow-skycity'],'bridge');
+assert.equal(T.JOURNEY_TRANSPORT['meadow-skycity'],'balloon');
 assert.equal(T.JOURNEY_TRANSPORT['island-lakeside'],'bridge');
 assert.equal(T.transportFor('island','meadow',null),'sail');
-assert.equal(T.transportFor('meadow','skycity',null),'bridge');
+assert.equal(T.transportFor('meadow','skycity',null),'balloon');
 assert.equal(T.transportFor('island','lakeside',null),'bridge');
 const regions=['island','meadow','skycity','lakeside'];
 for(const a of regions)for(const b of regions){
- if(a==='island'&&b==='meadow')continue;
+ if((a==='island'&&b==='meadow')||(a==='meadow'&&b==='skycity'))continue;
  assert.equal(T.transportFor(a,b,null),'bridge',a+b);
 }
 assert.equal(T.transportFor('home','island',null),'bridge');
