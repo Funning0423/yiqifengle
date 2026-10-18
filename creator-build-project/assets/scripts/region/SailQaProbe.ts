@@ -12,6 +12,8 @@ export type SailQaSnap={
  clear:number[];
  riderPose:string;
  gsx:number|null;gsy:number|null;
+ hsx:number|null;hsy:number|null;
+ fsx:number|null;fsy:number|null;
  shoreNear:number;
  terrainL:number;
  terrainR:number;
@@ -81,6 +83,14 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
   const out=new Vec3();cam.worldToScreen(new Vec3(gp.x,gp.y+0.35,gp.z),out);
   gsx=+out.x.toFixed(1);gsy=+out.y.toFixed(1);
  }
+ const project=(n:Node|null)=>{
+  if(!n||!cam)return [null,null] as const;
+  const out=new Vec3();cam.worldToScreen(n.worldPosition,out);
+  return [+out.x.toFixed(1),+out.y.toFixed(1)] as const;
+ };
+ const head=findNamed(girl,/head$/i);
+ const [hsx,hsy]=project(head);
+ const [fsx,fsy]=project(feet[0]||null);
    let clear=[0,0,0];
    try{const col=cam?.clearColor;if(col)clear=[col.r,col.g,col.b];}catch{/* camera has no clearColor */}
    const snap:SailQaSnap={
@@ -93,7 +103,7 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
   aim:[+partial.pose.target[0].toFixed(3),+partial.pose.target[1].toFixed(3),+partial.pose.target[2].toFixed(3)],
   fov:partial.pose.fovVerticalDeg||cam?.fov||0,near:cam?.near||0,far:cam?.far||0,
   clear,
-  seas,clip,rate,cockpit,riderPose,gsx,gsy,shoreNear:+((globalThis as any).__QF_SAIL_SHORE_NEAR||0),
+  seas,clip,rate,cockpit,riderPose,gsx,gsy,hsx,hsy,fsx,fsy,shoreNear:+((globalThis as any).__QF_SAIL_SHORE_NEAR||0),
   terrainL:terrain.l,terrainR:terrain.r,
  };
  g.frames.push(snap);

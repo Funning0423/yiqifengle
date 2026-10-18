@@ -97,7 +97,7 @@ async function plankStill(page,frames,name){
  const dumped=await page.evaluate(()=>window.__sailQa||{frames:[],cues:[]});
  fs.writeFileSync(path.join(FRAMES,'probe.json'),JSON.stringify({cues:dumped.cues,frames:dumped.frames}));
  fs.writeFileSync(path.join(FRAMES,'shots.json'),JSON.stringify(index));
- const cols=['frame','t','real','beat','phase','departed','gx','gy','gz','girlActive','girlRenderers','parent','boatx','boaty','boatz','yaw','roll','cx','cy','cz','ax','ay','az','fov','near','far','clip','rate','cockpit','clear','seas','riderPose','gsx','gsy','shoreNear','terrainL','terrainR','cameraCut','girlPx','screenPose'];
+ const cols=['frame','t','real','beat','phase','departed','gx','gy','gz','girlActive','girlRenderers','parent','boatx','boaty','boatz','yaw','roll','cx','cy','cz','ax','ay','az','fov','near','far','clip','rate','cockpit','clear','seas','riderPose','gsx','gsy','hsx','hsy','fsx','fsy','shoreNear','terrainL','terrainR','cameraCut','girlPx','screenPose'];
  const lines=[cols.join(',')];
  let prevCam=null,prevAim=null;
  (dumped.frames||[]).forEach((f,n)=>{
@@ -121,7 +121,7 @@ async function plankStill(page,frames,name){
    if(dp>1.5||ang>25)cut=1;
   }
   if(c[0]!==''){prevCam=c.map(Number);prevAim=a.map(Number);}
-  lines.push([n,f.t,f.real,f.beat,f.phase,f.departed?1:0,g[0],g[1],g[2],f.girlActive?1:0,f.girlRenderers,(f.parent||'').replace(/,/g,'/'),b[0],b[1],b[2],f.yaw,f.roll,c[0],c[1],c[2],a[0],a[1],a[2],f.fov,f.near,f.far,f.clip||'',f.rate,cockpit,clear,seas,f.riderPose||'',f.gsx??'',f.gsy??'',f.shoreNear??0,f.terrainL??0,f.terrainR??0,cut,'' ,''].join(','));
+  lines.push([n,f.t,f.real,f.beat,f.phase,f.departed?1:0,g[0],g[1],g[2],f.girlActive?1:0,f.girlRenderers,(f.parent||'').replace(/,/g,'/'),b[0],b[1],b[2],f.yaw,f.roll,c[0],c[1],c[2],a[0],a[1],a[2],f.fov,f.near,f.far,f.clip||'',f.rate,cockpit,clear,seas,f.riderPose||'',f.gsx??'',f.gsy??'',f.hsx??'',f.hsy??'',f.fsx??'',f.fsy??'',f.shoreNear??0,f.terrainL??0,f.terrainR??0,cut,'',''].join(','));
  });
  const csvName='metrics_'+tag+(night?'-night':'')+'.csv';
  fs.writeFileSync(path.join(OUT,csvName),lines.join('\n'));

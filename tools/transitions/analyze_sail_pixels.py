@@ -44,8 +44,19 @@ def poly(pts, w, h):
     cy = sum(p[1] for p in flipped) / len(flipped)
     return [(cx + (x - cx) * 0.72, cy + (y - cy) * 0.72) for x, y in flipped]
 
-def screen_pose(im, gx, iy):
-    """Dress blob aspect. qa2 island long shot is ~1.7-1.9 (standing); the sit close-up is ~0.9."""
+def bone_box(row, h):
+    def num(key):
+        try:
+            return float(row.get(key) or 'nan')
+        except ValueError:
+            return float('nan')
+    hx, hy, fx, fy = num('hsx'), num('hsy'), num('fsx'), num('fsy')
+    if not all(v == v for v in (hx, hy, fx, fy)):
+        return None
+    return (hx, h - hy, fx, h - fy)
+
+def screen_pose(im, gx, iy, bones=None):
+    """Dress blob vs the seated skeleton. A standing bind-pose mesh sits off the locked bones."""
     w0, h0 = im.size
     scale_img = 844.0 / h0
     if h0 > 900:
@@ -54,6 +65,8 @@ def screen_pose(im, gx, iy):
             gx *= scale_img
         if iy == iy:
             iy *= scale_img
+        if bones:
+            bones = tuple(v * scale_img if v == v else v for v in bones)
     w, h = im.size
     scale = 1.0
     preds = (
@@ -109,11 +122,22 @@ def screen_pose(im, gx, iy):
             near = [k for k in kept if abs(k[3] - gx) < 90 * scale and abs(k[4] - iy) < 140 * scale]
             if near:
                 kept = near
-        _count, hh, ww, _cx, _cy = max(kept, key=lambda k: k[0])
-        aspect = hh / ww
-        if aspect >= 1.45 and hh >= 40 * scale:
+        _count, hh, ww, cx, cy = max(kept, key=lambda k: k[0])
+        if bones and all(v == v for v in bones):
+            hx, hy, fx, fy = bones
+            # Distance from the dress to the seated head–foot segment.
+            vx, vy = fx - hx, fy - hy
+            seg = vx * vx + vy * vy
+            t = 0 if seg < 1 else max(0, min(1, ((cx - hx) * vx + (cy - hy) * vy) / seg))
+            dist = ((cx - (hx + vx * t)) ** 2 + (cy - (hy + vy * t)) ** 2) ** 0.5
+            return 'stand' if dist > 48 else 'sit'
+        aspect = hh / max(ww, 1)
+        # No skeleton projection (qa2 stills): standing day dress is narrower than the sit close-up.
+        stand_at = 2.15 if pred is preds[0] else 1.60
+        sit_at = 2.05 if pred is preds[0] else 1.50
+        if aspect >= stand_at and hh >= 40 * scale:
             return 'stand'
-        if aspect <= 1.30:
+        if aspect <= sit_at:
             return 'sit'
         return 'mid'
     return ''
@@ -184,9 +208,9 @@ for shot in shots:
                 if p[0] > 110 and p[1] > 80 and p[2] < 180 and p[0] > p[2] + 12 and p[1] > p[2]:
                     count += 1
         row['girlPx'] = str(count)
-        row['screenPose'] = screen_pose(im, gx, iy)
+        row['screenPose'] = screen_pose(im, gx, iy, bone_box(row, h))
     else:
-        row['screenPose'] = screen_pose(im, float('nan'), float('nan'))
+        row['screenPose'] = screen_pose(im, float('nan'), float('nan'), bone_box(row, h))
     if float(row.get('real') or 0) > 1:
         water_max = max(water_max, wr)
     # Clear-color holes: near-black or the camera clear, outside the top/bottom chrome.
