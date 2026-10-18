@@ -64,5 +64,5 @@ const stars=skyStars(k7);
 const report={daySail:+day.toFixed(1),nightSail:+night.toFixed(1),ratio:+ratio.toFixed(3),skyStars:stars.length,starPx:stars.length?{min:Math.min(...stars.map(s=>s.dim)),max:Math.max(...stars.map(s=>s.dim))}:null};
 console.log(JSON.stringify(report));
 assert(stars.length>=15,'sky bright points '+stars.length);
-assert(ratio<=0.65,'night sail vs day K3 sail '+ratio.toFixed(3));
+assert(ratio>=0.45&&ratio<=0.65,'night sail vs day K3 sail '+ratio.toFixed(3));
 console.log('PASS');

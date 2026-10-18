@@ -1,8 +1,11 @@
 import type {Vec} from '../world-r1/WorldFlowCore';
 /** Day sail unlit tint (cream). Night is this hue pulled toward gray-blue. */
 export const SAIL_DAY_SAIL_RGB:[number,number,number]=[255,246,228];
-/** ~48% of the day sail luminance: gray-blue cream, blue spiral stays in the texture. */
-export const SAIL_NIGHT_SAIL_RGB:[number,number,number]=[112,120,136];
+/**
+ * Gray-blue cream. The unlit tint is ~40% of the day tint; the sail texture's
+ * white texels lift the K7 cloth to about half the daytime K3 cloth.
+ */
+export const SAIL_NIGHT_SAIL_RGB:[number,number,number]=[92,100,116];
 export const SAIL_STAR_COUNT=28;
 export const SAIL_STAR_DIST=34;
 const norm=(a:Vec):Vec=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];};

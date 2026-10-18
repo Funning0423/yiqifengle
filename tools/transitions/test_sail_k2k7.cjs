@@ -20,7 +20,7 @@ const CP=load('world-r1/CameraPose.ts');
 const W=390,H=844,aspect=W/H,MARGIN=1-2*0.04;
 const luma=([r,g,b])=>0.2126*r+0.7152*g+0.0722*b;
 const dayL=luma(stars.SAIL_DAY_SAIL_RGB),nightL=luma(stars.SAIL_NIGHT_SAIL_RGB),ratio=nightL/dayL;
-assert(ratio>=0.45&&ratio<=0.60,'night sail luminance vs day '+ratio.toFixed(3));
+assert(ratio>=0.38&&ratio<=0.48,'night sail tint vs day '+ratio.toFixed(3));
 const route=leg.sailRoute(),tl=leg.sailBeats(route.length);
 const k2=shot.sailShotTime(2);
 assert.equal(k2.night,false);
