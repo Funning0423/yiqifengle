@@ -76,7 +76,8 @@
 - `tools/transitions/test_sail_continuity.cjs`：结构上要求场景根查找（`WorldFlowOwner` 的兄弟，不是它的后代），并断言修后白天 CSV。已注册进 `run-suite.cjs`，结果 PASS。
 - `QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript npx -y node@22 tools/journey-integration/run-suite.cjs`：121 项 PASS，`navigation-guard: BLOCKED_BROWSER`（套件因此整体退出码 1，`renderedAcceptance: BLOCKED_NOT_RUN`）。`frame-background`、`sail-art`、`sail-k2k7`、`asset-budget` 均 PASS。`asset-budget` 断言新增三角面 ≤ 45000。
 - 冻结：`FlowReferenceStandin` 花括号切片与 `d98ad470` 逐字节相同；`frozen-production-inputs.json` 与 `git diff --name-only d98ad470` 交集为空。`?sailqa=1` 加在 `WorldIntegrationBoot` 的查询分支（约第 541 行），不在 `FlowReferenceStandin` 类体内。
-- 本机构建锁在写报告时由 `r5-balloon-v25fix` 持有。微信包字节、`transport_sail` 分包、GUARD HEAD 在锁释放后的 `build-wechat-guarded.sh` 里补记。web-test（`73003ff0` 舱壁那次）21074010 字节。白天片 `sail_after.mp4` 1.4 MB，夜间 `sail_after_night.mp4` 1.0 MB，合计低于 30 MB。
+- 微信包：`build-wechat-guarded.sh wechat` 通过。GUARD HEAD `ef6f0f778f782e1c8c2c0c8c23b41a77b8b166ab`（short `ef6f0f7`），wechat-release **20,274,911** 字节（上限 24,641,536）。`transport_sail` **206,638** 字节（上限 1.0 MiB）。主包 ROOT 1,871,183。web-test（同一套航行代码，`73003ff0`，其后只有采集脚本和文档）21,074,010 字节。Creator 退出码 36，守卫因体积与干净工作区判通过。
+- 采集没有记录 DrawCall。三角面由已通过的 `asset-budget` 限制（新增 ≤ 45000，且该测试同时要求 ≤ 9000）。白天片 `sail_after.mp4` 1.4 MB，夜间 `sail_after_night.mp4` 1.0 MB，合计低于 30 MB。
 
 ## 预览
 
