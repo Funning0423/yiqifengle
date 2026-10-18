@@ -135,3 +135,18 @@ Config mapping is in `creator-build-project/assets/scripts/audio/SceneAudioTable
 | region_skycity/audio_steps/step_cloud_1..4.mp3 | 2,420 / 2,316 / 2,316 / 2,316 | 32 kbps mono 44.1 kHz, 0.55 s | ≈ -24.5 dBFS (as above) | Kenney "Impact Sounds" footstep_carpet_000..003.ogg | Kenney | CC0 1.0 | HP 120 Hz, LP 1.6 kHz, reverb RT 0.7 s wet -9 dB (soft, padded) |
 
 Non-shipped preview only: `motif_demo` (the motif in the island and meadow arrangements), made from the same own-synthesis scripts.
+
+### Scene audio V2 rework: plan B + pending-layer candidates (Voice bot, 2026-10-18)
+
+These are **pending candidates**. They are in the bundles but not referenced by `SCENE_AMBIENCE_DESIGN`; the only reference is `PENDING_CANDIDATES` in `SceneAudioTable.ts`, and no player reads it. They wait for Funning's decision (previews 12a/12b and 13a/13b). If rejected, delete the mp3 and .meta files and their manifest entries.
+Rebuild script: `tools/voice-bot/scene-audio-v2/s_pending.py`. Source sha256 sums are in `SOURCES-SHA256SUMS` (`wb/…`).
+
+| file (creator-build-project/assets/bundles/…) | bytes | format | loudness (I / TP) | source | author | licence | excerpt / processing |
+|---|---|---|---|---|---|---|---|
+| region_lakeside/audio/sfx_lake_waterbird_1.mp3 | 26,000 | 32 kbps mono 32 kHz, 6.4 s | -28.5 / -13.4 | "Tundra swans.ogg" https://commons.wikimedia.org/wiki/File:Tundra_swans.ogg | U.S. Fish and Wildlife Service | Public domain (US federal government work), commercial use OK | source 1.0–6.0 s. HP 260 Hz (4-pole), de-harsh -4 dB, LP 4.2 kHz, reverb RT 1.9 s wet -6 dB (distant over water), 0.35 s fade in, 1.2 s fade out + 1.4 s tail |
+| region_lakeside/audio/sfx_lake_waterbird_2.mp3 | 23,984 | same, 5.9 s | -28.4 / -13.1 | same | U.S. Fish and Wildlife Service | Public domain | source 10.0–14.5 s, same chain |
+| region_lakeside/audio/sfx_lake_waterbird_3.mp3 | 34,064 | same, 8.4 s | -28.4 / -9.0 | "Yellowstone sound library - American Coots - 001.mp3" https://commons.wikimedia.org/wiki/File:Yellowstone_sound_library_-_American_Coots_-_001.mp3 | NPS & MSU Acoustic Atlas / Jennifer Jerrett | Public domain (US National Park Service), commercial use OK | source 224.0–231.0 s (ends before a louder call at 231.6 s); same chain |
+| region_lakeside/audio/sfx_lake_waterbird_4.mp3 | 34,064 | same, 8.4 s | -28.4 / -12.5 | same | NPS & MSU Acoustic Atlas / Jennifer Jerrett | Public domain | source 348.0–355.0 s (the calmest window: peak ≤ 6 dB over p90); same chain |
+| region_skycity/audio/sfx_sky_gardener_water_1.mp3 / _2 | 24,704 / 22,256 | 32 kbps mono 32 kHz, 6.1 / 5.5 s | -31.5 / -16.0, -31.4 / -13.7 | own synthesis (`s_pending.py`) | Voice bot | CC0 1.0 (own work) | watering-can sprinkle: about 55 soft droplet pings per second plus low-passed spray, LP 3 kHz, reverb RT 1.1 s |
+| region_skycity/audio/sfx_sky_gardener_boop_1.mp3 | 16,208 | same, 3.9 s | -32.4 / -20.0 | own synthesis | Voice bot | CC0 1.0 (own work) | soft sine "hum-boop" (G5 E5 A5) with gentle vibrato over a faint motor purr, LP 2.6 kHz |
+| region_skycity/audio/amb_sky_starring_loop.mp3 | 48,836 | 24 kbps mono 24 kHz, loop 16.0 s + 0.15 s dup | -31.4 / -21.2 | own synthesis | Voice bot | CC0 1.0 (own work) | five D-minor-pentatonic sines with whole-cycle swells, 146.8 Hz hum, faint whirr; built circular (dup correlation 0.998) |

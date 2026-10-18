@@ -625,6 +625,26 @@
     "sha256": "a7f8c922d1f763669a9b177b65a08542995f047ce10d1c9fcb4d526aec69b05a"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "6dffe7aa310b4a1d7cf6e595dc136564ef9d00cdf12d12ad4b008213537f2007"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "076d946c6dc94ee5cdb5793a73c5340d7e76d71978b0a3367fea29846bbbd829"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_3.mp3.meta",
+    "bytes": 222,
+    "sha256": "76b7cfcfc10c1077598310376fe7b9d6050ef3c5c1a1af8bc120bfbc826316a2"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_4.mp3.meta",
+    "bytes": 222,
+    "sha256": "e276a6f231e860e6cb592f3ba9ab1e7557f9b72d30840c7470bafaa5eaf62522"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow.meta",
     "bytes": 408,
     "sha256": "9bde3e162cde0e78a6334976c6243b21c1c162bb0d072cb267ae83bb4d2fb326"
@@ -705,6 +725,11 @@
     "sha256": "daf78e349012458a707e2bcfeda974c16c1241f488c54feec556e780bfd67805"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_starring_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "4d42cd9573837d799f5ffda9c132be414acb1291eb7880edd5ce31c71ab03e2e"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_waterfall_loop.mp3.meta",
     "bytes": 222,
     "sha256": "ec363295c0517bcccd26f6d8bf4d69a088057e290024b346e56e3ab3b07b6596"
@@ -723,6 +748,21 @@
     "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_2.mp3.meta",
     "bytes": 222,
     "sha256": "a9efd5cdaa47b0fd2a2d4201e30e84a7fc056115cb3c389e4a971f4a9ae2d33a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_gardener_boop_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "38189d276d0e8772845c83f29440289e26f904b0c36197b4d3af7da4c0c49e01"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_gardener_water_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "6fcc03462c20918c8ecb174ee59cb11f932ea29cccd889a28c052be06d42265a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_gardener_water_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "742f2b43bcc8d551edc5f89fef073fd82e71925a0c583731dbc5c79f84023895"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio_steps.meta",
@@ -1281,8 +1321,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts",
-    "bytes": 16299,
-    "sha256": "168d19fd0e564da4b0d89459815b76694e4c040a169e001461f497d27e146caa"
+    "bytes": 18783,
+    "sha256": "9b107889b7b46c2930b549a8b5614181aaf96f18ebd3631d857bfdabbcf195dc"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts",

@@ -495,6 +495,26 @@
     "sha256": "21f9b87c62553850666e862dd1af04af33a466d543f1bf15c5bad470ba1621c6"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_1.mp3",
+    "bytes": 26000,
+    "sha256": "42621a7de2b8e489b87c0ac5e67f447c893fac5b9d17af2b4a05e63808b8a672"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_2.mp3",
+    "bytes": 23984,
+    "sha256": "2f9ef27964ea872061f81da2fc0a38be38f5df1a870599187b1e8de32a8c0843"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_3.mp3",
+    "bytes": 34064,
+    "sha256": "43b8aff9d3986e9f91c1e37264ece42d88fed319ab8c5a1bf10e9c4470bb2ce5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_4.mp3",
+    "bytes": 34064,
+    "sha256": "95f67e5b866a95b879f178a29c585c41ebcf5944e81ae222ef40a74842e5895b"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_birds_loop.mp3",
     "bytes": 121076,
     "sha256": "133067f8cfd55dbe6340bffb8570d803f7e5c58182f8cbe6a21494a6048cbab7"
@@ -555,6 +575,11 @@
     "sha256": "94b4e62ea5ebdc9c2779ac4af6b7f4af01f1d84ceb1581fee019dfba8de9918a"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_starring_loop.mp3",
+    "bytes": 48836,
+    "sha256": "6125b7ce3cf77df9de8e4d26e1cdd1a2b213305782f8a3cd5fbd6f8d829a9841"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_waterfall_loop.mp3",
     "bytes": 48836,
     "sha256": "be1bf40486d480a66bfee6545bcad7035c6c9f89be8df366723f9cb70b520466"
@@ -573,6 +598,21 @@
     "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_2.mp3",
     "bytes": 27296,
     "sha256": "9e36c3a9ee9da04efb7629c4c54905b1dba7f784e649f44e8453a5be0c5439b4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_gardener_boop_1.mp3",
+    "bytes": 16208,
+    "sha256": "3555b07d6e1812a4ff258d470aa7b12e10381cdbdd2233063d421b715dfbc5ec"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_gardener_water_1.mp3",
+    "bytes": 24704,
+    "sha256": "bdab7af95faf83bd3f0c5ef54379367e16ec2d39191c8ef017f3de682c9e88a0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_gardener_water_2.mp3",
+    "bytes": 22256,
+    "sha256": "d2a0fe2b05e39156160efea3d29762006226761a1b1c9d27519fad75c5833e6a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_1.mp3",

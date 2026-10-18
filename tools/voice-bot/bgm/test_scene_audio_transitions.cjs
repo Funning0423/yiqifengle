@@ -42,6 +42,12 @@ function disk(bundle, resPath) {
   const cand = T.BGM_CANDIDATES || {};
   const candFiles = Object.keys(cand).map(id => ({ id, ok: fs.existsSync(disk(cand[id].bundle, cand[id].path)), wired: Object.keys(BGM).some(k => BGM[k].path === cand[id].path) }));
   ok(!fs.existsSync(disk(null, 'audio_bgm/bgm_sail')) && candFiles.every(x => x.ok && !x.wired) && (!fs.existsSync(disk('region_lakeside', 'audio/bgm_lakeside')) || !!cand.lakeside), 'sail / lakeside BGM only as delivered candidates (files exist, listed in BGM_CANDIDATES, not wired into BGM yet)', candFiles);
+  const route = (T.TRAVEL_ROUTES || {}).lakeside;
+  ok(!!route && route.from === 'skycity' && route.via === 'balloon' && route.bgmHandover.shape === 'dip' && Object.keys(T.TRAVEL_ROUTES).every(k => ['island', 'meadow'].indexOf(T.TRAVEL_ROUTES[k].from) < 0 || k !== 'lakeside'), 'plan B: lakeside is reached from sky city by balloon (dip handover); no island / meadow route to the lake in the data', route);
+  const pc = T.PENDING_CANDIDATES || {};
+  const pcBad = []; Object.keys(pc).forEach(id => pc[id].clips.forEach(c => { if (!fs.existsSync(disk(c.bundle, c.path))) pcBad.push(c.path); }));
+  const pcWired = JSON.stringify(T.SCENE_AMBIENCE_DESIGN || {}).match(/waterbird|gardener|starring/g);
+  ok(pcBad.length === 0 && !pcWired, 'pending candidates (water birds / gardener / star ring) exist on disk and are not in SCENE_AMBIENCE_DESIGN', { pcBad, pcWired });
   const pend = T.PENDING_LAYER_ASSETS || {};
   const pendBad = Object.keys(pend).filter(id => !fs.existsSync(disk(pend[id].bundle, pend[id].path)));
   ok(pendBad.length === 0, 'pending layer assets (birds / insects / high wind / meadow wind) exist on disk', pendBad);

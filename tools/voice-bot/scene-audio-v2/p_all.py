@@ -37,9 +37,5 @@ res.append(finish('05_skycity_45s',m,dict(scene='skycity',bgm_seams_s=bs,air_sea
 L,_=meadow_layers(T);b1,_=loopify('bgm_meadow',T,20.0);b2,_=loopify('bgm_sky',T,0.0);a,_=loopify('sky',T)
 m=(b1*ep(T,18,22,False)+b2*ep(T,20,24,True))*BGM + L*ep(T,6,16,False) + a*ep(T,8,20,True)*np.interp(np.arange(int(T*SR))/SR,[0,30,36,45],[0.5,0.5,V['sky'],V['sky']])[:,None]
 res.append(finish('06_transition_meadow_balloon_sky_45s',m,dict(transition='meadow->balloon->skycity',notes='take-off 6s: meadow layers fade 6-16s; sky air in 8-20s at 0.5 (balloon), up to 0.75 on landing 30-36s; BGM 6 s dip handover (meadow out 18-22 s, sky in 20-24 s; G major vs D minor)')))
-# 07 transition island -> rainbow bridge -> lakeside
-b,_=loopify('bgm_island',T,40.0);w,_=loopify('shore',T);l,_=loopify('lake',T)
-m=b*BGM*np.interp(np.arange(int(T*SR))/SR,[0,20,26,45],[1,1,10**(-3/20),10**(-3/20)])[:,None]+w*V['shore']*ep(T,10,22,False)+l*V['lake']*ep(T,16,26,True)
-gulls(m,[(3.0,1,0,0.3),(9.0,2,1,-0.4)])
-res.append(finish('07_transition_island_bridge_lakeside_45s',m,dict(transition='island->rainbow bridge->lakeside',notes='gulls stop when the walk starts (~10s); shore fades 10-22s; lake in 16-26s; same island BGM eased -3 dB')))
+# 07 (sky city -> balloon descent -> lakeside, plan B) and 12a/12b, 13a/13b are rendered by p3.py
 json.dump(res,open(OUT+'/previews.json','w'),indent=1,ensure_ascii=False)

@@ -108,6 +108,29 @@ export const SCENE_AMBIENCE_DESIGN: { [place: string]: AmbDesign } = {
   },
 };
 
+/** 方案 B（2026-10-18）：湖畔在天空之城之后，主线第 12 关后解锁，从天空之城坐热气球下降过去，只有这一条路。
+ *  旅途中的声音用 balloon 档（高空风，没有海鸥 / 海浪），到达时换湖畔档。BGM 用 dip 交接：天空曲 D 小调 → 湖畔曲 F 大调，两首是关系调。
+ *  高空风撑过 BGM 的空档，湖声在 dip 开始时淡入。试听：07_transition_skycity_balloon_lakeside_45s。 */
+export type TravelRoute = {
+  from: ScenePlace; via: ScenePlace; to: ScenePlace; unlock: string;
+  bgmHandover: { shape: 'dip' | 'crossfade'; outS: number; inS: number; overlapS: number; toStartsAtBar1: boolean };
+  bed: { fadeOut: string; fadeOutAfterS: number; fadeOutS: number; viaVol: number; fadeIn: string; fadeInS: number; toVol: number };
+};
+export const TRAVEL_ROUTES: { [target: string]: TravelRoute } = {
+  lakeside: {
+    from: 'skycity', via: 'balloon', to: 'lakeside', unlock: 'main-line level 12 cleared',
+    bgmHandover: { shape: 'dip', outS: 4, inS: 4, overlapS: 2, toStartsAtBar1: true },
+    bed: { fadeOut: 'highWind', fadeOutAfterS: 6, fadeOutS: 10, viaVol: 0.5, fadeIn: 'lake', fadeInS: 12, toVol: 0.55 },
+  },
+};
+
+/** 待定层（候选素材已经放进分包，但还没进 SCENE_AMBIENCE_DESIGN，等 Funning 听完 12a/12b、13a/13b 决定）。播放器不要读这张表。 */
+export const PENDING_CANDIDATES: { [id: string]: { place: ScenePlace; tier: 'scatter' | 'landmark'; clips: LayerClip[]; anchor?: string } } = {
+  lakeWaterbirds: { place: 'lakeside', tier: 'scatter', clips: [R('audio/sfx_lake_waterbird_1', 'region_lakeside'), R('audio/sfx_lake_waterbird_2', 'region_lakeside'), R('audio/sfx_lake_waterbird_3', 'region_lakeside'), R('audio/sfx_lake_waterbird_4', 'region_lakeside')] },
+  skyGardener: { place: 'skycity', tier: 'landmark', anchor: 'robot gardener', clips: [R('audio/sfx_sky_gardener_water_1', 'region_skycity'), R('audio/sfx_sky_gardener_water_2', 'region_skycity'), R('audio/sfx_sky_gardener_boop_1', 'region_skycity')] },
+  skyStarring: { place: 'skycity', tier: 'landmark', anchor: 'starring_spin', clips: [R('audio/amb_sky_starring_loop', 'region_skycity')] },
+};
+
 /** 地面 → 脚步素材（4 个变体，文件名 _1.._4）。step_* 在 region_island 的是 r4 的合成脚步（r4.1 重录待 Mac 录音确认）；
  *  sand / cloud 是 Voice bot V2 的 CC0 候选（Kenney Impact Sounds 加工）。gain 和 FootstepCore.STEP_GAIN 用同一刻度（文件 100 ms RMS ≈ -24.5 dBFS）。 */
 export const FOOTSTEP_SETS: { [surface: string]: { dir: string; bundle: string; gain: number } } = {
@@ -162,7 +185,7 @@ export const SCENE_PROFILES: { [id: string]: SceneProfile } = {
   sail: { place: 'sail', track: 'meadow', layers: SEA, missing: ['sail-bgm', 'birds', 'insects'] },
   // 草原。海鸥必须停。没有草原风床 / 鸟鸣 / 虫鸣。
   meadow: { place: 'meadow', track: 'meadow', layers: [], missing: ['birds', 'insects', 'meadow-wind'] },
-  // 湖畔。没有湖畔 BGM，继续小岛曲。海浪让给湖水循环，海鸥停。
+  // 湖畔（方案 B：天空之城之后，坐热气球下降过去，见 TRAVEL_ROUTES）。湖畔 BGM 候选在 BGM_CANDIDATES，还没接线，暂时继续小岛曲。海浪让给湖水循环，海鸥停。
   lakeside: { place: 'lakeside', track: 'island', layers: ['lake'], missing: ['lakeside-bgm', 'birds', 'insects', 'highWind'] },
   // 草原 → 天空之城的热气球。曲子交叉到天空之城。没有高空风素材。
   balloon: { place: 'balloon', track: 'skycity', layers: [], missing: ['highWind', 'birds', 'insects'] },
@@ -218,6 +241,7 @@ function travelProfile(p: SceneAudioProbe): SceneProfile {
   const target = p.journeyTarget || '';
   const phase = p.journeyPhase || '';
   if (target === 'skycity') return SCENE_PROFILES.balloon;
+  // 方案 B 后，到达前应该是 balloon（从天空之城下降，见 TRAVEL_ROUTES.lakeside）。这是逻辑代码，留给 Cursor 改，测试要一起改。
   if (target === 'lakeside') return phase === 'arrival' ? SCENE_PROFILES.lakeside : SCENE_PROFILES.island;
   if (target === 'meadow') return phase === 'arrival' ? SCENE_PROFILES.meadow : SCENE_PROFILES.sail;
   return SCENE_PROFILES.island;

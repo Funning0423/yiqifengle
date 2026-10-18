@@ -250,14 +250,7 @@
         "gulls",
         "shore"
       ],
-      "notes": "No dedicated lakeside BGM exists. Island BGM 3 dB softer under the lake bed. A lakeside track is a decision for Funning."
-    },
-    "bridge": {
-      "bgm": "island",
-      "bgmGain": 1.0,
-      "bgmGainEnd": 0.708,
-      "layers": [],
-      "notes": "island -> lakeside rainbow-bridge walk: island shore fades out from walk start over 12 s, gulls stop at walk start, lake fades in over the arrival stretch (LakeAmbience already starts at journeyPhase 'arrival')."
+      "notes": "Plan B: lakeside comes after sky city (unlocks after main-line level 12), reached by hot-air balloon descent. Candidate bgm_lakeside (F major) exists but is not wired; until then the island BGM 3 dB softer under the lake bed."
     },
     "balloon": {
       "bgm": "meadow",
@@ -352,17 +345,26 @@
       ],
       "shape": "dip"
     },
-    "island->bridge": {
+    "skycity->balloon-descent": {
       "bgmXfadeS": 0,
       "carry": [
-        "shore (fade 12 s)"
+        "sky_air (0.75 -> 0.5 over 4 s)"
       ]
     },
-    "bridge->lakeside": {
-      "bgmXfadeS": 0,
+    "balloon-descent->lakeside": {
+      "bgmXfadeS": 6.0,
+      "shape": "dip",
+      "dip": {
+        "outS": 4.0,
+        "inS": 4.0,
+        "overlapS": 2.0,
+        "toStartsAtBar1": true
+      },
       "carry": [
-        "lake"
-      ]
+        "sky_air holds 0.5 through the dip, then fades out over 10 s",
+        "lake fades in over 12 s from the start of the dip to 0.55"
+      ],
+      "notes": "plan B; D minor -> F major (relative keys)"
     },
     "any->board": {
       "bgmXfadeS": 0,
