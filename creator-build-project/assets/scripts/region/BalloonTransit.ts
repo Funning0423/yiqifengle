@@ -429,7 +429,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     if(meadowOn&&(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'))n.active=true;
    });
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
-   const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
+   // The card's grass reads as a broken meadow tile under the cruise clouds. Keep the sea, drop the card.
+   const farOn=false;
    if(farRoot&&isValid(farRoot,true)){
     farRoot.active=farOn;
     eachNamed(farRoot,n=>{for(const r of n.getComponents(MeshRenderer))r.enabled=farOn;});
