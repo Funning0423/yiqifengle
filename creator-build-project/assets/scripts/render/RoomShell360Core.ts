@@ -27,7 +27,7 @@ export const ROOM360_WINDOW = Object.freeze({
 });
 /** Right-front window variant: 'shutter' = A (closed louvred shutter), 'open' = B (wall cut open, real view). */
 export type Room360WindowMode = 'shutter' | 'open';
-export const ROOM360_RIGHT_WINDOW: Room360WindowMode = 'shutter';
+export const ROOM360_RIGHT_WINDOW: Room360WindowMode = 'open';
 
 /** The shell's arched opening for that window, measured from env_interior_shell's jamb (window-local: t along
  *  windowFrame().u from its centre, absolute y). Convex, counter-clockwise in (t, y). */
