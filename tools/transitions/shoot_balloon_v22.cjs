@@ -39,9 +39,9 @@ async function main(){
  let child=null;
  try{
   for(const frame of FRAMES){
+   if(process.env.BALLOON_ONLY&&!frame.name.includes(process.env.BALLOON_ONLY))continue;
    freePort(); if(child){try{child.kill('SIGTERM');}catch{}}
    child=server(); await ready('http://127.0.0.1:'+PORT+'/index.html');
-   if(process.env.BALLOON_ONLY&&!frame.name.includes(process.env.BALLOON_ONLY))continue;
    const dest=path.join(OUT,frame.name+'.png');
    if(process.env.BALLOON_SKIP_EXISTING&&fs.existsSync(dest)){console.log('SKIP',frame.name);continue;}
    let ok=false,info=null,samples=0;

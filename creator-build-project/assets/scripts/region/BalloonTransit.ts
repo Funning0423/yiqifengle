@@ -91,15 +91,17 @@ function paintSeaFallback(root:Node|null,night:boolean):void{
 }
 /** City meshes that stay full-bright or press into the lens during the ride. */
 const CITY_RIDE_HIDE=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_island_vines','env_sky_island_vine_cards','env_sky_rope_root_02','env_sky_rope_root_03'];
-/** Dim skycity unlit/standard mats at night so deck grass cannot stay neon under the balloon. */
+/** Scale skycity mainColor at night (same approach as the balloon) — never replace with a flat colour. */
+const cityNightBase=new WeakMap<Material,Color>();
 function applyCityNight(model:Node|null,night:boolean):void{
  if(!model)return;
- const c=night?new Color(52,62,78,255):new Color(255,255,255,255);
+ const scale=night?0.22:1;
  eachNamed(model,n=>{
-  if(/palette|foliage|flower|Icosphere/i.test(n.name)){n.active=false;return;}
   for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;
-   try{m.setProperty('mainColor',c);}catch{}
-   try{m.setProperty('albedoScale',c);}catch{}
+   const live=m.getProperty('mainColor') as Color|null;if(!live)continue;
+   if(!cityNightBase.has(m))cityNightBase.set(m,new Color(live.r,live.g,live.b,live.a));
+   const src=cityNightBase.get(m)!;
+   try{m.setProperty('mainColor',new Color(Math.round(src.r*scale),Math.round(src.g*scale),Math.round(src.b*scale),src.a));}catch{}
    if(night){try{m.setProperty('emissive',new Color(0,0,0,255));}catch{}try{m.setProperty('emissiveScale',0);}catch{}}
   }
  });
