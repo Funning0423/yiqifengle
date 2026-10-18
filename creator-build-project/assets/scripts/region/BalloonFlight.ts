@@ -116,6 +116,16 @@ export const ALWAYS_HIDDEN=['env_sky_cloud_small','env_sky_cloudsea','env_sky_cu
 export const ISLET_NODES=['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3','env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3','env_sky_islets_far'];
 export const CITY_CLOUD=['clouds_city_sea','clouds_floor','clouds_floor_puff'];
 export const ALWAYS_CLOUD=['clouds_deck','clouds_deck_loose','clouds_far','clouds_horizon'];
+/** Sky-city lawn the player stands on. The cruise may hide these; arrival must turn them back on. */
+export const SKY_LAWN=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_static_foliage_cards','env_sky_island_vines'] as const;
+/** Transit dressing that must be inactive once the ride has handed the city to gameplay. */
+export const TRANSIT_OFF_AFTER=['transit_clouds_merged','transit_sea_fallback','far_meadow_card','transit_night_dome','clouds_city_sea','clouds_floor','clouds_floor_puff','clouds_deck','clouds_deck_loose','clouds_far','clouds_horizon'] as const;
+/** After the balloon clock ends: lawn on, transit backdrop off. null = leave the node as the scene authored it. */
+export function skyNodeAfterArrival(name:string):'on'|'off'|null{
+ if((SKY_LAWN as readonly string[]).includes(name))return 'on';
+ if((TRANSIT_OFF_AFTER as readonly string[]).includes(name))return 'off';
+ return null;
+}
 /** Island backdrop meshes hidden from meadow-unload until handoff (plan B also hides env_sea_surface). */
 export const BACKDROP_HIDE=['env_cloud_layer','env_sea_foam','env_sea_surf_foam_v22','env_sea_wave_line_01_v22','env_sea_wave_line_02_v22','env_lighthouse_ext','env_lighthouse_door','env_island_main','env_island_props_merged','env_prop_palm_lean_01','env_prop_palm_tall_01','env_prop_palm_young_01','env_rear_window_palm'];
 export const NIGHT_MOON_HIDE=['env_sky_moon_night_v22','env_sky_moon_halo_night_v22'];

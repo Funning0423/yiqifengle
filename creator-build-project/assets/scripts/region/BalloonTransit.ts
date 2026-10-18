@@ -13,7 +13,7 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, LIGHT_RAMP_T0, LIGHT_RAMP_YAW, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, balloonQuat, postSeamFrame, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 const M6_LOCAL:Vec=[0.2,6.5,-25.6];
 const GIRL_YAW=-76.6;
@@ -273,7 +273,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let mainYaw0=0;
   if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainIllum0=mainLight.illuminance;mainShadow0=!!(mainLight as any).shadowEnabled;}}
   // Shadows stay on during meadow board/liftoff so windmill/bell match normal meadow gameplay; drop after unload for DC.
-  let seaRestored=false,backdropRestored=false;
+  let seaRestored=false,backdropRestored=false,arrived=false;
   const cityNightDimmed=new WeakSet<MeshRenderer>();
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
   const handoffFade=(t:number):number=>{
@@ -333,16 +333,18 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   };
   const paint=(t:number)=>{
    const fade=handoffFade(t);
-   const handoff=t+1e-9>=HANDOFF_COVER_T;
-   const meadowOn=t<plan.meadowOffAt,cityOn=t>=plan.cityActiveAt;
-   const showIsland=cityOn&&t+1e-9<plan.strataOffAt&&!handoff;
+   const cover=t+1e-9>=HANDOFF_COVER_T;
+   const handoff=arrived||cover;
+   const meadowOn=!arrived&&t<plan.meadowOffAt,cityOn=arrived||t>=plan.cityActiveAt;
+   const showIsland=arrived||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
    if(isValid(meadow,true))meadow.active=meadowOn;
    // Shadows on for meadow gameplay match; off after unload for DC ≤53.
    if(mainLight){
     const wantShadow=meadowOn&&mainShadow0;
     try{(mainLight as any).shadowEnabled=wantShadow;}catch{}
     try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=wantShadow;}catch{}
-    if(night&&cityOn){try{mainLight.illuminance=Math.min(mainLight.illuminance,mainIllum0*0.22);}catch{}}
+    if(arrived){try{(mainLight as any).shadowEnabled=mainShadow0;}catch{} try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=mainShadow0;}catch{} if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}}
+    else if(night&&cityOn){try{mainLight.illuminance=Math.min(mainLight.illuminance,mainIllum0*0.22);}catch{}}
     else if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}
    }
    if(model){
@@ -355,9 +357,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     showNamed(model,CITY_RIDE_HIDE,false);
     // Floating island body (grass + rock). Hide vines/roots — they read as free-floating brown rods in the cloud sea.
     showNamed(model,ISLAND_BODY,showIsland);
-    showNamed(model,ISLAND_VINES,false);
-    eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
+    showNamed(model,ISLAND_VINES,arrived);
+    if(!arrived)eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
    }
+   if(!arrived){
    showNamed(clouds,CITY_CLOUD,cityOn);
    showNamed(clouds,ALWAYS_CLOUD,true);
    // Board (t≈0.9): keep far/horizon transit clouds so the sky matches meadow gameplay (not empty blue).
@@ -365,6 +368,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(t>=4.8&&t<7.5){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
    // City on screen: drop far/horizon cloud cards (DC budget) — city silhouette already fills the frame.
    if(cityOn){showNamed(clouds,['clouds_far','clouds_horizon','clouds_deck_loose'],false);}
+   }
    eachNamed(meadow,n=>{
     if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;
     // Re-assert meadow sky dressing every frame (other systems may park these inactive).
@@ -386,18 +390,24 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    applySea(t,handoff);
    if(handoff){seaRestored=true;backdropRestored=true;}
    applyLight(t);
-   (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
-   (globalThis as any).__QF_BALLOON_LENS=true;
-   for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day)skybox(n);}
-   if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
-   // Cloud sea: double-sided unlit × vertex shade (day white / night blue-grey). Never emissive.
-   if(cityOn)paintCloudSea(clouds,night);
-   else if(night)setEmissive(clouds,true);
+   if(!arrived){
+    (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
+    (globalThis as any).__QF_BALLOON_LENS=true;
+    for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day)skybox(n);}
+    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
+    // Cloud sea: double-sided unlit × vertex shade (day white / night blue-grey). Never emissive.
+    if(cityOn)paintCloudSea(clouds,night);
+    else if(night)setEmissive(clouds,true);
+   }
    applyVehicleNight(vehicle,night);
-   if(model&&cityOn){hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
-   if(flame){const burn=t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
-   (globalThis as any).__QF_BALLOON_FADE=fade;
-   (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn,meadowOn,cityOn,showIsland};
+   if(model&&cityOn&&!arrived){hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
+   if(flame){const burn=!arrived&&t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
+   if(arrived){
+    const dress=[model,clouds,farRoot,seaFallback,nightDome];
+    for(const root of dress){if(!root||!isValid(root,true))continue;eachNamed(root,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;else if(want==='off')n.active=false;});}
+    (globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_FADE=0;
+   }else{(globalThis as any).__QF_BALLOON_FADE=fade;}
+   (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade:arrived?0:fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn:arrived?false:farOn,meadowOn,cityOn,showIsland,arrived};
   };
   offNight=onDayNightChange(mode=>{night=String(mode).includes('night');});
   const driver=rig.addComponent(TransitDriver);
@@ -446,12 +456,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(setWind)setWind(()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
    if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:plan.vehicle(LAND_T).yaw});
-   (globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;
-   if(model){model.active=true;showNamed(model,ISLET_NODES,true);showNamed(model,CITY_RIDE_HIDE,true);showNamed(model,ISLAND_BODY,true);showNamed(model,ISLAND_VINES,true);}
-   if(isValid(meadow,true))meadow.active=false;
-   if(nightDome)nightDome.active=false;
-   if(farRoot&&isValid(farRoot,true))farRoot.active=false;
-   if(seaFallback&&isValid(seaFallback,true))seaFallback.active=false;
+   arrived=true;
+   if(model){model.active=true;showNamed(model,ISLET_NODES,true);}
    paint(plan.total);
   };
   progress(.98);

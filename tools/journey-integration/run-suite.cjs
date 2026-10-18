@@ -108,6 +108,7 @@ const tests=[
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
  ['balloon-transport-flag','tools/journey-integration/test-transport-flag.cjs'],
  ['balloon-transit-background-resume','tools/journey-integration/test-transit-background-resume.cjs'],
+ ['sky-arrival','tools/transitions/test_sky_arrival.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
