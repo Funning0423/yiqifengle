@@ -8,8 +8,6 @@ CCEffect %{
       depthStencilState:
         depthTest: true
         depthWrite: true
-      properties:
-        mainColor: { value: [1, 1, 1, 1] }
   - name: sky-dither
     passes:
     - vert: grade-vs:vert
@@ -18,8 +16,6 @@ CCEffect %{
       depthStencilState:
         depthTest: true
         depthWrite: false
-      properties:
-        mainColor: { value: [1, 1, 1, 1] }
 }%
 
 CCProgram grade-vs %{
