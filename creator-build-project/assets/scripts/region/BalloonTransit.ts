@@ -307,6 +307,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(t<7){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
    // City on screen: drop far/horizon cloud cards (7 DC budget) — city silhouette already fills the frame.
    if(cityOn){showNamed(clouds,['clouds_far','clouds_horizon','clouds_deck_loose'],false);}
+   // Night: floor/city-sea cloud groups lose albedo after emissive instance and flash magenta — hide them.
+   if(night){showNamed(clouds,['clouds_floor','clouds_floor_puff','clouds_city_sea','clouds_deck','clouds_deck_loose','clouds_far','clouds_horizon'],false);}
    eachNamed(meadow,n=>{if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;});
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
    const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
