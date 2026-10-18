@@ -236,9 +236,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   };
   const applySea=(t:number,handoff:boolean)=>{
    if(SEA_PLAN==='B'){
-    const showFb=t>=MEADOW_OFF_T&&!handoff;
+    // Night: hide the fallback disc — its glTF/unlit path flashes engine magenta under night lights;
+    // the night dome already fills below the city. Day keeps the disc so the horizon stays closed.
+    const showFb=t>=MEADOW_OFF_T&&!handoff&&!night;
     if(seaFallback&&isValid(seaFallback,true))seaFallback.active=showFb;
-    if(sea&&isValid(sea,true)){sea.active=!showFb;if(showFb)dampSeaSpecular(sea,true);}
+    if(sea&&isValid(sea,true)){sea.active=!showFb&&!(t>=MEADOW_OFF_T&&!handoff);if(showFb)dampSeaSpecular(sea,true);}
     return;
    }
    // Plan A (kept for fallback): teleport × S and scale ×6 at seam.
