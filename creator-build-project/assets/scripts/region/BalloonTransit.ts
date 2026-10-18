@@ -32,12 +32,17 @@ function holdAt():number|null{try{const q=typeof location!=='undefined'?String(l
 class TransitDriver extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** glTF scene prefab inside region_transit_balloon. Same loadDir fallback as the balloon-fix (bundle.load misses the sub-asset). */
 export function loadTransitPrefab(name:string):Promise<Prefab|null>{return loadBundlePrefab(name,'region_transit_balloon');}
+const skyboxed=new WeakSet<Node>();
 function skybox(node:Node|null):void{
- if(!node)return;
+ if(!node||skyboxed.has(node))return;
+ skyboxed.add(node);
  eachNamed(node,n=>{
   const r=n.getComponent(MeshRenderer);if(!r)return;
   (r as any).priority=-100;
+  const shared=r.getSharedMaterial(0);
   const m=r.getMaterialInstance(0);if(!m)return;
+  // getMaterialInstance drops glTF maps; rebind once or the night dome flashes engine magenta.
+  if(shared){for(const key of ['mainTexture','albedoMap','metallicRoughnessMap','normalMap','emissiveMap']){try{const tex=shared.getProperty(key);if(tex!=null)m.setProperty(key,tex);}catch{/* slot absent */}}}
   // Draw first, no depth write; keep depth test so later opaques (clouds/balloon) can cover the dome.
   try{m.overridePipelineStates({depthStencilState:{depthTest:true,depthWrite:false,depthFunc:gfx.ComparisonFunc.LEQUAL}},0);}catch{/* material without a pass */}
  });
@@ -53,8 +58,10 @@ function noShadow(root:Node|null):void{
   try{(r as any).receiveShadow=0;}catch{}
  }});
 }
+const emissiveDone=new WeakSet<Node>();
 function setEmissive(root:Node,night:boolean):void{
- if(!night)return;
+ if(!night||emissiveDone.has(root))return;
+ emissiveDone.add(root);
  const black=new Color(0,0,0,255);
  eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){
   const shared=r.getSharedMaterial(0);if(!shared)continue;
@@ -138,7 +145,7 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
    }
    return;
   }
-  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,night?nite:day,{vertexColor:true});
+  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea'||(night&&n.name==='clouds_horizon'))forceUnlit(n,night?nite:day,{vertexColor:true});
  });
  lookCache.set(clouds,night);
 }

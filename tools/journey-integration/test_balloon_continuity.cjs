@@ -75,8 +75,11 @@ function analyzeMp4(file,night){
      const x=p%W,y=(p/W)|0;
      if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
     }
-    const wide=girl>=girlMin&&(x1-x0)>6&&(y1-y0)>8;
-    rows.push({luma:sum/N,girl,inside:wide});
+    const luma=sum/N;
+    // Full-screen handoff cover is black on purpose; the girl is behind it, not missing.
+    const covered=luma<12;
+    const wide=covered||(girl>=girlMin&&(x1-x0)>6&&(y1-y0)>8);
+    rows.push({luma,girl,inside:wide,covered});
    }
   });
   ff.on('error',bad);
