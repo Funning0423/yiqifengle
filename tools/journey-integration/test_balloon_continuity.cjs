@@ -91,7 +91,12 @@ function analyzeMp4(file,night){
    const spikes=[];
    for(let i=2;i<dL.length-2;i++){
     const v=dL[i].d,nb=[dL[i-2].d,dL[i-1].d,dL[i+1].d,dL[i+2].d],base=Math.max(...nb,0.4);
-    if(v>12&&v>base*4)spikes.push({frame:dL[i].i,d:+v.toFixed(2),base:+base.toFixed(2)});
+    if(!(v>12&&v>base*4))continue;
+    const at=dL[i].i;
+    const before=rows[at-1].luma,after=rows[Math.min(rows.length-1,at+8)].luma;
+    // Handoff cover ramps to black. A one-frame flash would bounce back; a fade keeps falling.
+    if(before-after>20&&rows[at].luma<before)continue;
+    spikes.push({frame:at,d:+v.toFixed(2),base:+base.toFixed(2)});
    }
    const girlFail=rows.map((r,i)=>r.inside?null:i).filter(i=>i!=null);
    const miss=girlFail.length,edge=rows.filter(r=>!r.inside&&r.girl>=girlMin).length;

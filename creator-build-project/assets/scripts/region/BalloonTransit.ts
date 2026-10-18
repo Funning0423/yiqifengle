@@ -133,6 +133,7 @@ const CLOUD_GRADE=['clouds_floor','clouds_floor_puff','clouds_city_sea','clouds_
 function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):void{
  if(!clouds||lookCache.get(clouds)===night)return;
  const day=new Color(255,255,255,255),nite=new Color(68,80,94,255);
+ if(night){forceUnlit(clouds,nite);lookCache.set(clouds,night);return;}
  eachNamed(clouds,n=>{
   const graded=!night&&!!grade&&CLOUD_GRADE.includes(n.name);
   if(graded){
@@ -145,10 +146,7 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
    }
    return;
   }
-  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea'||(night&&(n.name==='clouds_horizon'||n.name==='clouds_deck'||n.name==='clouds_deck_loose'||n.name==='clouds_far'))){
-   // Night vertex colors come through with red/green swapped on some frames. A flat unlit tint stays put.
-   forceUnlit(n,night?nite:day,night?undefined:{vertexColor:true});
-  }
+  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,day,{vertexColor:true});
  });
  lookCache.set(clouds,night);
 }
@@ -301,7 +299,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const clouds=instantiate(cloudsPrefab);clouds.name='transit_clouds_merged';rig.addChild(clouds);
   showBothSides(clouds);noShadow(clouds);
   const nightPrefab=await loadTransitPrefab('transit_night_dome');
-  let nightDome:Node|null=null;
+  let nightDome:Node|null=null,nightDomeFlat=false;
   if(nightPrefab){nightPrefab.addRef();owned.push({destroy(){nightPrefab.decRef();}});nightDome=instantiate(nightPrefab);nightDome.name='transit_night_dome';rig.addChild(nightDome);nightDome.active=false;skybox(nightDome);}
   // Far card: preload, start inactive; enable at 11.2 with meadow unload.
   const farRoot=new Node('far_meadow_card');rig.addChild(farRoot);farRoot.active=false;
@@ -448,7 +446,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
    (globalThis as any).__QF_BALLOON_LENS=true;
    for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day){if(gradeEffect&&!skyHome.length){for(const r of n.getComponents(MeshRenderer))skyHome.push({r,shared:r.getSharedMaterial(0)});ditherSky(n,gradeEffect);}else skybox(n);}}
-   if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
+   if(nightDome){nightDome.active=night;if(night){if(!nightDomeFlat){nightDomeFlat=true;forceUnlit(nightDome,new Color(24,40,82,255));}}}
    // Cloud sea: double-sided unlit × vertex shade (day white / night blue-grey). Never emissive.
    if(cityOn)paintCloudSea(clouds,night,gradeEffect);
    else if(night)setEmissive(clouds,true);
