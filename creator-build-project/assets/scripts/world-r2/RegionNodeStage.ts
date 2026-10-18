@@ -322,13 +322,19 @@ export class RegionNodeStage extends Component{
    if(!best)break;
    this.bury(best.node,false);n++;
   }
-  this.shotNote='occluders:'+n+' buried:'+this.buried.length;
+  const p=pose.position;
+  this.shotNote='occluders:'+n+' buried:'+this.buried.length+' cam:'+p[0].toFixed(1)+','+p[1].toFixed(1)+','+p[2].toFixed(1);
  }
  private starPose(g:Vec,w:number,h:number):Pose{
   const base=finalePose(g,this.yaw(),w,h);
-  const ring=this.named('env_sky_starring');if(!ring)return base;
-  const p=ring.worldPosition;
-  return finaleLook(g,[p.x,p.y,p.z]);
+  const nodes:Node[]=[];findAll(director.getScene(),'env_sky_starring',nodes);
+  const rig=findDeep(director.getScene(),'RegionJourney-skycity');
+  const under=(n:Node,root:Node)=>{for(let p:Node|null=n;p;p=p.parent)if(p===root)return true;return false;};
+  const ring=(rig&&nodes.find(n=>under(n,rig)))||nodes.find(n=>n.activeInHierarchy)||nodes[0];
+  if(!ring)return base;
+  const b=ring.getComponent(MeshRenderer)?.model?.worldBounds?.center;
+  const p=b?[b.x,b.y,b.z] as Vec:[ring.worldPosition.x,ring.worldPosition.y,ring.worldPosition.z];
+  return finaleLook(g,p);
  }
  /** Local metres inside the region GLB. Skinned bounds are not the prop (the robot mesh is authored in model space). */
  private propLocal(id:string):Vec|null{
@@ -408,7 +414,7 @@ export class RegionNodeStage extends Component{
    const board:Pose={position:[follow.position[0],follow.position[1]+5,follow.position[2]+7],target:[g[0],g[1]+1,g[2]],fovVerticalDeg:48};
    pose=blendPose(board,follow,0.3,BLEND_S.boardToFollow);
   }
-  const guarded=lens==='map'||lens==='tap'||lens==='finale'||lens==='look'||lens==='markers';
+  const guarded=lens==='map'||lens==='tap'||lens==='markers';
   const applied=this.writePose(pose,guarded);
   this.holdPose=lens==='prop'||lens==='finale'||lens==='look'?applied:null;
   if(this.hideTree){this.treeVisible(false);this.stripFinaleOccluders(applied);}
