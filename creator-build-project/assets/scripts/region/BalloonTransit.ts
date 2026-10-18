@@ -71,7 +71,7 @@ function setEmissive(root:Node,night:boolean):void{
  * Force builtin-unlit so glTF materials with a missing/unbound albedo never flash engine magenta,
  * and so night never leaves a full-bright unlit green sea/card under the city.
  */
-function forceUnlit(root:Node|null,color:Color,opts?:{keepTexture?:boolean}):void{
+function forceUnlit(root:Node|null,color:Color,opts?:{keepTexture?:boolean;vertexColor?:boolean}):void{
  if(!root||!EffectAsset.get('builtin-unlit'))return;
  eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){
   try{r.shadowCastingMode=MeshRenderer.ShadowCastingMode.OFF;}catch{}
@@ -79,41 +79,46 @@ function forceUnlit(root:Node|null,color:Color,opts?:{keepTexture?:boolean}):voi
   if(opts?.keepTexture){
    try{const shared=r.getSharedMaterial(0);tex=shared?.getProperty('mainTexture')??shared?.getProperty('albedoMap')??null;}catch{tex=null;}
   }
+  const defines:Record<string,boolean>={};
+  if(tex)defines.USE_TEXTURE=true;
+  else if(opts?.vertexColor)defines.USE_VERTEX_COLOR=true;
   const m=new Material();
-  m.initialize({effectName:'builtin-unlit',technique:0,defines:tex?{USE_TEXTURE:true}:{}});
+  m.initialize({effectName:'builtin-unlit',technique:0,defines});
   try{m.setProperty('mainColor',color);}catch{}
   if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
   try{r.setMaterialInstance(0,m);}catch{}
+  // clouds_floor is authored with downward normals; a fresh unlit pass culls it and the cruise view falls through to the sea.
+  try{m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);}catch{/* unlit pass */}
  }});
 }
-/** Far card: keep albedo; day multiply cools the baked cyan sea-skirt toward true blue. */
+/** Day sea + the far-card skirt share this sRGB so the card's rectangular sea does not read as a separate plate. */
+const SEA_DAY=new Color(172,216,236,255);
+const lookCache=new WeakMap<Node,boolean>();
+/** Far card: island albedo stays; skirt pixels in the glb are the same light blue as the sea disc. Night: solid dark. */
 function tintFarCard(root:Node|null,night:boolean):void{
- if(!root)return;
- // Day: cool blue-leaning multiply (texture sea ~130,176,173 → bluer). Night: solid dark (no magenta).
- const day=new Color(150,185,255,255),nite=new Color(42,50,62,255);
- forceUnlit(root,night?nite:day,{keepTexture:!night});
+ if(!root||lookCache.get(root)===night)return;
+ const nite=new Color(42,50,62,255);
+ forceUnlit(root,night?nite:new Color(255,255,255,255),{keepTexture:!night});
+ lookCache.set(root,night);
 }
-/** Sea fallback: true blue (day) / dark (night). No vertex-color / empty-albedo path. */
+/** Sea fallback: light blue (day, matches the card skirt) / dark (night). No empty-albedo path. */
 function paintSeaFallback(root:Node|null,night:boolean):void{
- if(!root)return;
- // Day: blue sea around the far card (not teal). Night: dark so it never flashes magenta.
- forceUnlit(root,night?new Color(18,26,40,255):new Color(36,92,168,255));
+ if(!root||lookCache.get(root)===night)return;
+ forceUnlit(root,night?new Color(18,26,40,255):SEA_DAY);
+ lookCache.set(root,night);
 }
 /**
- * clouds_floor verts are authored ~0.2 grey (reads as flat mid-grey). Force solid unlit so the
- * cloud sea reads white→light-grey with puff volume (day) / visible cool grey (night). Never touch
- * glTF emissive instances (magenta path).
+ * Cloud deck uses baked vertex shade (0.66–1, cool white) × unlit mainColor.
+ * Day stays white→light grey. Night mainColor sits in the dark blue-grey range; vertex shade keeps the clumps.
+ * Never an emissive glTF instance (magenta path).
  */
 function paintCloudSea(clouds:Node|null,night:boolean):void{
- if(!clouds)return;
- const dayFloor=new Color(242,245,250,255),dayPuff=new Color(255,255,255,255),daySea=new Color(220,228,238,255);
- // Night art keeps a readable cloud deck under the island (not void blue); solid unlit, no emissive.
- const niteFloor=new Color(168,178,192,255),nitePuff=new Color(200,208,218,255),niteSea=new Color(148,158,172,255);
+ if(!clouds||lookCache.get(clouds)===night)return;
+ const day=new Color(255,255,255,255),nite=new Color(96,108,118,255);
  eachNamed(clouds,n=>{
-  if(n.name==='clouds_floor')forceUnlit(n,night?niteFloor:dayFloor);
-  else if(n.name==='clouds_floor_puff')forceUnlit(n,night?nitePuff:dayPuff);
-  else if(n.name==='clouds_city_sea')forceUnlit(n,night?niteSea:daySea);
+  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,night?nite:day,{vertexColor:true});
  });
+ lookCache.set(clouds,night);
 }
 /** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
@@ -385,7 +390,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    (globalThis as any).__QF_BALLOON_LENS=true;
    for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day)skybox(n);}
    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
-   // Cloud sea: solid unlit white/grey (day) or cool grey (night). Never emissive-instance (magenta).
+   // Cloud sea: double-sided unlit × vertex shade (day white / night blue-grey). Never emissive.
    if(cityOn)paintCloudSea(clouds,night);
    else if(night)setEmissive(clouds,true);
    applyVehicleNight(vehicle,night);

@@ -1,4 +1,4 @@
-import {Color, Material, MeshRenderer, Node, Prefab, assetManager, instantiate} from 'cc';
+import {Color, EffectAsset, Material, MeshRenderer, Node, Prefab, assetManager, instantiate} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 /** Basket stand point. `stand_point` / `basket_floor` is the controller root while she is idle in the balloon. */
 export function seatWorld(floor:Vec,yawRad:number):{controllerRoot:Vec;yawRad:number}{
@@ -7,12 +7,33 @@ export function seatWorld(floor:Vec,yawRad:number):{controllerRoot:Vec;yawRad:nu
 function find(node:Node,name:string):Node|null{if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 export function basketFloor(root:Node):Node{return find(root,'stand_point')??find(root,'basket_floor')??root;}
 export function flameNode(root:Node):Node|null{return find(root,'burner_flame');}
-const nightBase=new WeakMap<Material,Color>();
-/** Night multiplies vehicle materials by 0.6 once from the authored color. The burner flame stays full brightness. */
+const nightMat=new WeakMap<MeshRenderer,Material>();
+const nightApplied=new WeakSet<MeshRenderer>();
+/**
+ * Night balloon: glTF standard ignores mainColor, so the envelope stayed day-bright.
+ * Swap to unlit × albedo (no emissive) at a cool dim multiply. Flame stays authored. Day restores the shared glTF mat.
+ */
 export function applyVehicleNight(root:Node,night:boolean):void{
- const scale=night?0.6:1;
  const walk=(n:Node)=>{
-  if(n.name!=='burner_flame')for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;const live=m.getProperty('mainColor') as Color|null;if(!live)continue;if(!nightBase.has(m))nightBase.set(m,new Color(live.r,live.g,live.b,live.a));const src=nightBase.get(m)!;m.setProperty('mainColor',new Color(Math.round(src.r*scale),Math.round(src.g*scale),Math.round(src.b*scale),src.a));}
+  if(n.name!=='burner_flame')for(const r of n.getComponents(MeshRenderer)){
+   if(!night){
+    if(nightApplied.has(r)){const shared=r.getSharedMaterial(0);if(shared)try{r.setSharedMaterial(shared,0);}catch{/* */}nightApplied.delete(r);}
+    continue;
+   }
+   if(nightApplied.has(r))continue;
+   if(!EffectAsset.get('builtin-unlit'))continue;
+   let tex:unknown=null;
+   try{const shared=r.getSharedMaterial(0);tex=shared?.getProperty('mainTexture')??shared?.getProperty('albedoMap')??null;}catch{tex=null;}
+   let m=nightMat.get(r);
+   if(!m){
+    m=new Material();
+    m.initialize({effectName:'builtin-unlit',technique:0,defines:tex?{USE_TEXTURE:true}:{}});
+    try{m.setProperty('mainColor',new Color(118,110,116,255));}catch{}
+    if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
+    nightMat.set(r,m);
+   }
+   try{r.setMaterialInstance(0,m);nightApplied.add(r);}catch{/* */}
+  }
   for(const child of n.children)walk(child);
  };
  walk(root);
