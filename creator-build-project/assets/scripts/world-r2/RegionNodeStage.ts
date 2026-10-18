@@ -1,4 +1,4 @@
-import {_decorator,Camera,Color,Component,Material,MeshRenderer,Node,Vec3,director,geometry,utils,view} from 'cc';
+import {_decorator,Animation,Camera,Color,Component,Material,MeshRenderer,Node,Vec3,director,geometry,utils,view} from 'cc';
 import {MINIGAME} from 'cc/env';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
@@ -49,6 +49,8 @@ export class RegionNodeStage extends Component{
  private hideTree=false;
  private occluders:MeshRenderer[]=[];
  private buried:Node[]=[];
+ private savedLayers:{n:Node;layer:number}[]=[];
+ private animHold:{c:Animation;on:boolean}[]=[];
  private holdPose:Pose|null=null;
  private walkToken=0;
  private shotNote='';
@@ -230,11 +232,45 @@ export class RegionNodeStage extends Component{
    for(const c of n.children)visit(c);
   };
   visit(scene);
+  if(!on){this.quietSky(true);this.buryCrown();}
   if(on)this.restoreOccluders();
+ }
+ /** The brown crown is the mesh above the star ring, whether or not its node kept the glTF name. */
+ private buryCrown(){
+  const scene=director.getScene();if(!scene)return;
+  const ring=this.named('env_sky_starring');if(!ring)return;
+  const rp=ring.worldPosition;
+  for(const r of scene.getComponentsInChildren(MeshRenderer)){
+   if(!r.node.activeInHierarchy||!r.model?.worldBounds||r.node===this.markerNode)continue;
+   if(/starring|state_ring|palette|FLOW_REFERENCE|GGbot|girl/.test(r.node.name))continue;
+   const b=r.model.worldBounds,h=b.halfExtents,span=Math.max(h.x,h.y,h.z)*2;
+   if(!(span>20&&span<80))continue;
+   if(Math.hypot(b.center.x-rp.x,b.center.z-rp.z)>28)continue;
+   if(b.center.y<rp.y+6)continue;
+   this.bury(r.node,false);
+  }
+ }
+ private hiddenLayer():number{
+  const vis=this.camera?.visibility??0;
+  for(let i=1;i<30;i++){const bit=1<<i;if((vis&bit)===0)return bit;}
+  return 1<<30;
+ }
+ /** The sky loop writes the canopy transform every frame, so scale/active alone do not stick. Stop that clip and move the mesh off the camera's layers. */
+ private quietSky(hide:boolean){
+  if(!hide){for(const a of this.animHold)if(a.c.isValid)a.c.enabled=a.on;this.animHold.length=0;return;}
+  if(this.animHold.length)return;
+  const scene=director.getScene();if(!scene)return;
+  for(const c of scene.getComponentsInChildren(Animation)){
+   let sky=false;for(let p:Node|null=c.node;p;p=p.parent)if(/skycity|RegionJourney-skycity|Skycity/.test(p.name)){sky=true;break;}
+   if(!sky)continue;
+   this.animHold.push({c,on:c.enabled});c.enabled=false;
+  }
  }
  private bury(n:Node,on:boolean){
   if(!on){
    if(this.buried.indexOf(n)<0)this.buried.push(n);
+   if(!this.savedLayers.some(s=>s.n===n))this.savedLayers.push({n,layer:n.layer});
+   n.layer=this.hiddenLayer();
    n.active=false;n.setScale(0,0,0);
    const r=n.getComponent(MeshRenderer);if(r){r.enabled=false;if(this.occluders.indexOf(r)<0)this.occluders.push(r);}
    return;
@@ -243,6 +279,9 @@ export class RegionNodeStage extends Component{
   const r=n.getComponent(MeshRenderer);if(r)r.enabled=true;
  }
  private restoreOccluders(){
+  this.quietSky(false);
+  for(const s of this.savedLayers)if(s.n.isValid)s.n.layer=s.layer;
+  this.savedLayers.length=0;
   for(const n of this.buried)if(n.isValid){n.active=true;n.setScale(1,1,1);}
   this.buried.length=0;
   for(const r of this.occluders)if(r.isValid)r.enabled=true;
