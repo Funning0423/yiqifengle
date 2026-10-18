@@ -1,0 +1,1 @@
+2026-10-18 10:45:00 | code: K2 机位改为 back:-11 side:-1 up:5.2 fov:52 look:-6，S-c 末 10% 保持该机位（截图 u=0.94）；船角 max|ndc|=0.833（≥4% 边距），尾迹 6 角入画。K7 帆夜色 RGB(112,120,136) 约为白天 48.4%；28 颗星投影 4.9px、天空带间距 ≥17px；夜海/环境光抬到深蓝。Node 22 套件 104 PASS + navigation-guard BLOCKED_BROWSER；frame-bg PASS clearM=2.441 3458 帧。下一步等构建锁后 build-guard both + 截图核对。 | e201c6aaa2
