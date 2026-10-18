@@ -1386,8 +1386,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
-    "bytes": 15932,
-    "sha256": "428037a80644c6d658273ac49944ec4f8e8ff43fc29837f7c1e3a436ed06f89c"
+    "bytes": 30678,
+    "sha256": "c946d9acdd59cb54830a3c3f3f61a4e4482ed429176cdd902c0fe5262acdcfc3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts",
@@ -1976,8 +1976,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 53887,
-    "sha256": "660c956e643698847fdc2edae714a05682156197518f97e5afb31c7dca553db6"
+    "bytes": 67738,
+    "sha256": "6cf3571faa17fd5140cc80ae719a8a534bdbad67d2c23941f2cf9957a4e41997"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",

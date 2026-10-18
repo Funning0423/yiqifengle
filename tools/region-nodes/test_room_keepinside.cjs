@@ -7,13 +7,14 @@
 //  3. Colliders: a box holding her and the lens is ignored; indoors the room shell / merged furniture / lighthouse exterior
 //     are ignored by name; outdoor solves are bit-identical to FreeOrbit @a79ee49a (fixtures/.../outdoor_solve_baseline.json).
 //  4. Motion: yaw/pitch/pinch sweeps, real drag flicks, the first drag off the authored home lens and a return after a
-//     cinematic, at 30/60 fps: linear accel ≤3 m/s², angular accel ≤120°/s², no jumps, walls ≥0.25 m the whole time.
+//     cinematic, at 30/60/120 fps: linear accel ≤3 m/s², angular accel ≤110°/s², no jumps (speed ≤4 m/s), and the whole
+//     time ≥0.25 m from the walls and ≥1.0 m from her.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {load}=require('./load.cjs');
 const C=load('region/FreeOrbit.ts'),R=load('world-r1/CharacterReference.ts');
 const FX=path.join(__dirname,'fixtures/room-keepinside'),J=f=>JSON.parse(fs.readFileSync(path.join(FX,f),'utf8'));
 const W=J('inner_walls.json'),WORLD=J('world_boxes.json').boxes,BASE=J('outdoor_solve_baseline.json').cases;
-const BOX_MARGIN=0.30,LENS_MARGIN=0.25,NO_HUG_M=1.0,LIN_MAX=3,ANG_MAX=120;
+const BOX_MARGIN=0.30,LENS_MARGIN=0.25,NO_HUG_M=1.0,LIN_MAX=3,ANG_MAX=110;
 const poly=W.polygonXZ;
 function inside(x,z){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 function edgeGap(x,z){let m=1e9;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[j],b=poly[i],dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz,t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/L));m=Math.min(m,Math.hypot(x-a[0]-t*dx,z-a[1]-t*dz))}return m}
@@ -61,7 +62,7 @@ function measure(frames,dt,name){let lin=0,ang=0,vmax=0,minWall=9,minHer=9;
   const w1=cross(frames[i-1].f,frames[i].f),w2=cross(frames[i].f,frames[i+1].f);ang=Math.max(ang,Math.hypot(w2[0]-w1[0],w2[1]-w1[1],w2[2]-w1[2])/dt/dt*180/Math.PI)}
  const r={name,fps:Math.round(1/dt),peakLinAccMS2:+lin.toFixed(2),peakAngAccDegS2:+ang.toFixed(1),peakSpeedMS:+vmax.toFixed(2),minWallGapM:+minWall.toFixed(3),minToHerM:+minHer.toFixed(2)};
  assert.ok(lin<=LIN_MAX,name+' linear accel '+r.peakLinAccMS2);assert.ok(ang<=ANG_MAX,name+' angular accel '+r.peakAngAccDegS2);
- assert.ok(minWall>=LENS_MARGIN,name+' wall gap '+r.minWallGapM);assert.ok(vmax<=4,name+' speed '+r.peakSpeedMS+' (jump)');return r}
+ assert.ok(minWall>=LENS_MARGIN,name+' wall gap '+r.minWallGapM);assert.ok(minHer>=NO_HUG_M,name+' '+r.minToHerM+' m from her while moving');assert.ok(vmax<=4,name+' speed '+r.peakSpeedMS+' (jump)');return r}
 function frame(o){const p=o.solve(feet,WORLD,seat[1]);return {p:p.position,f:unit(p.position,p.target),w:o.roomWeight}}
 function sweep(fps,seconds,set){const o=new C.FreeOrbit('home'),dt=1/fps,fr=[];o.mode='free';set(o,0);frame(o);for(let t=0;t<=seconds;t+=dt){set(o,t);o.step(dt);fr.push(frame(o))}return fr}
 const motion=[];
