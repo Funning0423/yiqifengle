@@ -69,11 +69,21 @@ export function createSailDriver(opts:{
    if(!(src instanceof Float32Array)||!joints||!weights||!indices)continue;
    if(!Mat4.invert(inv,skin.node.worldMatrix))continue;
    const bones=skelData.joints.map(path=>root.getChildByPath(path));
+   for(const bone of bones){try{bone?.updateWorldTransform();}catch{/* */}}
+   let hipY:number|null=null,footY:number|null=null;
+   const walkH=(n:Node)=>{
+    if(/hips$/i.test(n.name))hipY=n.worldPosition.y;
+    if(/foot/i.test(n.name))footY=footY==null?n.worldPosition.y:Math.min(footY,n.worldPosition.y);
+    for(const c of n.children)walkH(c);
+   };
+   walkH(opts.rider);
+   if(hipY==null||footY==null||hipY-footY>=0.5)continue;
    const binds=skelData.bindposes;
    const count=src.length/3;
    const jStride=joints.length/count,wStride=(weights as ArrayLike<number>).length/count;
    if(jStride<1||wStride<1)continue;
    const pos=new Float32Array(src.length);
+   let minY=Infinity,maxY=-Infinity;
    for(let v=0;v<count;v++){
     acc.set(0,0,0);let wsum=0;
     const px=src[v*3],py=src[v*3+1],pz=src[v*3+2];
@@ -87,10 +97,14 @@ export function createSailDriver(opts:{
      Vec3.transformMat4(tmp,new Vec3(px,py,pz),skinM);
      acc.x+=tmp.x*w;acc.y+=tmp.y*w;acc.z+=tmp.z*w;wsum+=w;
     }
-    if(wsum>0){acc.x/=wsum;acc.y/=wsum;acc.z/=wsum;}
+    if(wsum<=0){pos[v*3]=px;pos[v*3+1]=py;pos[v*3+2]=pz;continue;}
+    acc.x/=wsum;acc.y/=wsum;acc.z/=wsum;
+    if(acc.y<minY)minY=acc.y;if(acc.y>maxY)maxY=acc.y;
     Vec3.transformMat4(local,acc,inv);
     pos[v*3]=local.x;pos[v*3+1]=local.y;pos[v*3+2]=local.z;
    }
+   // A standing bind-pose bake is about 1.6 m. Sitting is about a metre. Keep the skin if this bake is still standing.
+   if(!(maxY-minY>0.4&&maxY-minY<1.25))continue;
    const uvs=mesh.readAttribute(0,gfx.AttributeName.ATTR_TEX_COORD);
    const geo:any={positions:Array.from(pos),indices:Array.from(indices)};
    if(uvs)geo.uvs=Array.from(uvs as ArrayLike<number>);
