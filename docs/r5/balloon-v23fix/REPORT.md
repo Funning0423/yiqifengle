@@ -6,7 +6,7 @@
 | --- | --- |
 | BASE（v22 最终） | `f1ec442f` |
 | 代码 / build-guard HEAD | `571c65f4779da2d76482e63c4ae27b908214560f` |
-| 最终 HEAD（含截图） | `821b6e0182dfadd8e1da2d6a2df1e4174ac6d01c` |
+| 最终 HEAD（含截图） | `5dd2f2d4174b9462c8bcab21007e0c9fa431eb76` |
 | wechat-release | **19,936,166** B（相对 r4 19,335,755 = +600,411） |
 | web-test | **20,725,220** B |
 | region_transit_balloon | **519,891** B（≤ 1 MiB） |
