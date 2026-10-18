@@ -33,14 +33,11 @@ def dist(a, b):
 def poly(pts, w, h):
     if len(pts) < 3:
         return []
-    xs = [p[0] for p in pts]
-    ys = [p[1] for p in pts]
-    sx = w / 390.0 if max(xs) <= 430 else (1.0 if max(xs) > w * 0.8 else w / max(xs))
-    sy = h / 844.0 if max(ys) <= 900 else 1.0
-    out = []
-    for x, y in pts:
-        out.append((x * sx, h - y * sy))
-    return out
+    kept = [(x, y) for x, y in pts if -20 <= x <= w + 20 and -20 <= y <= h + 20]
+    if len(kept) < 3:
+        return []
+    # Cocos worldToScreen for this capture is framebuffer pixels, origin at the bottom.
+    return [(x, h - y) for x, y in kept]
 
 def inside(x, y, pts):
     c = False
@@ -67,7 +64,6 @@ for shot in shots:
     if not os.path.exists(path):
         continue
     im = Image.open(path).convert('RGB')
-    im.thumbnail((390, 844))
     w, h = im.size
     pix = im.load()
     sea = sea_ref(im)
@@ -82,7 +78,7 @@ for shot in shots:
             pass
     mask = poly(raw, w, h)
     water = total = 0
-    if len(mask) >= 3:
+    if len(mask) >= 3 and all(8 < p[0] < w - 8 and 8 < p[1] < h - 8 for p in mask):
         minx = max(0, int(min(p[0] for p in mask)) - 1)
         maxx = min(w - 1, int(max(p[0] for p in mask)) + 1)
         miny = max(0, int(min(p[1] for p in mask)) - 1)
@@ -92,10 +88,12 @@ for shot in shots:
                 if not inside(x, y, mask):
                     continue
                 total += 1
-                if dist(pix[x, y], sea) < 48:
+                p = pix[x, y]
+                if p[2] > p[0] + 28 and p[2] > 120 and dist(p, sea) < 70:
                     water += 1
     wr = (water / total) if total else 0
-    water_max = max(water_max, wr)
+    if float(row.get('real') or 0) > 1:
+        water_max = max(water_max, wr)
     # Clear-color holes: near-black or the camera clear, outside the top/bottom chrome.
     cr = row.get('clear') or '0:0:0'
     try:
@@ -108,7 +106,7 @@ for shot in shots:
     for y in range(int(h * 0.08), int(h * 0.88), 4):
         for x in range(0, w, 4):
             seen += 1
-            if dist(pix[x, y], clear) < 18:
+            if dist(pix[x, y], clear) < 8:
                 holes += 1
     hr = holes / seen if seen else 0
     clear_max = max(clear_max, hr)

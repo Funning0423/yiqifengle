@@ -170,12 +170,20 @@ function mountStarDiamonds(parent:Node):Node{
 }
 export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean,aim?:Vec)=>void;dispose:()=>void};
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
-/** Opaque cockpit floor inside the hull shell (x ±0.8, z ±2.1). y=0.14 stays above the waterline through ±4° roll. Priority 0 so depth, not draw order, hides the sea. */
+/** Opaque cockpit tub inside the hull shell (x ±0.8, z ±2.1). Floor at y=0.12 plus low side and stern walls so a side camera cannot see the sea through the sole gap. */
 function mountCockpitSole(boat:Node):void{
- const y=0.12,x0=-0.78,x1=0.78,z0=-2.0,z1=1.9;
- const positions=[x0,y,z0,x1,y,z0,x1,y,z1,x0,y,z1];
- const normals=[0,1,0,0,1,0,0,1,0,0,1,0];
- const indices=[0,2,1,0,3,2];
+ const positions:number[]=[];const normals:number[]=[];const indices:number[]=[];
+ const quad=(a:number[],b:number[],c:number[],d:number[])=>{
+  const base=positions.length/3;
+  for(const p of [a,b,c,d]){positions.push(p[0],p[1],p[2]);normals.push(0,1,0);}
+  indices.push(base,base+2,base+1,base,base+3,base+2);
+ };
+ const y=0.12,x0=-0.72,x1=0.72,z0=-1.96,z1=1.85;
+ quad([x0,y,z0],[x1,y,z0],[x1,y,z1],[x0,y,z1]);
+ const y0=0.02,y1=0.34;
+ quad([x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0]);
+ quad([x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1]);
+ quad([x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]);
  const mesh=utils.createMesh({positions,normals,indices},undefined,{calculateBounds:true});
  const material=new Material();
  material.initialize({effectName:'builtin-unlit',states:{rasterizerState:{cullMode:gfx.CullMode.NONE},depthStencilState:{depthTest:true,depthWrite:true}}});

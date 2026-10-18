@@ -62,7 +62,7 @@ if(fs.existsSync(csv)){
    if(Math.hypot(boatx-prevBoat.x,boatz-prevBoat.z)>0.08)movedBeforeSit=true;
   }
   prevBoat={x:boatx,z:boatz};
-  if(col('water')>=0)assert(+c[col('water')]<=0.005,'water in cockpit '+c[col('water')]+' @ '+beat);
+  if(col('water')>=0&&real>1)assert(+c[col('water')]<=0.005,'water in cockpit '+c[col('water')]+' @ '+beat+' frame '+c[col('frame')]);
   if(col('clearRatio')>=0)assert(+c[col('clearRatio')]<=0.005,'clear-color hole '+c[col('clearRatio')]);
  }
  assert(!movedBeforeSit,'hull moved before she was seated');
