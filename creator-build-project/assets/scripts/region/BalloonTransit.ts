@@ -94,11 +94,22 @@ function forceUnlit(root:Node|null,color:Color,opts?:{keepTexture?:boolean;verte
 /** Day sea + the far-card skirt share this sRGB so the card's rectangular sea does not read as a separate plate. */
 const SEA_DAY=new Color(172,216,236,255);
 const lookCache=new WeakMap<Node,boolean>();
-/** Far card: island albedo stays; skirt pixels in the glb are the same light blue as the sea disc. Night: solid dark. */
-function tintFarCard(root:Node|null,night:boolean):void{
+/** Far card: day skirt is pinned to the sea (no fog). Night: solid dark. */
+function tintFarCard(root:Node|null,night:boolean,grade:EffectAsset|null):void{
  if(!root||lookCache.get(root)===night)return;
- const nite=new Color(42,50,62,255);
- forceUnlit(root,night?nite:new Color(255,255,255,255),{keepTexture:!night});
+ if(!night&&grade){
+  eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){
+   let tex:unknown=null;
+   try{const shared=r.getSharedMaterial(0);tex=shared?.getProperty('mainTexture')??shared?.getProperty('albedoMap')??null;}catch{tex=null;}
+   const m=new Material();
+   m.initialize({effectAsset:grade,technique:3});
+   if(tex){try{m.setProperty('mainTexture',tex as any);}catch{/* */}}
+   try{r.setMaterialInstance(0,m);}catch{/* */}
+  }});
+  lookCache.set(root,night);
+  return;
+ }
+ forceUnlit(root,new Color(42,50,62,255));
  lookCache.set(root,night);
 }
 /** Sea fallback: light blue (day, matches the card skirt) / dark (night). No empty-albedo path. */
@@ -410,7 +421,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(farRoot&&isValid(farRoot,true)){
     farRoot.active=farOn;
     eachNamed(farRoot,n=>{for(const r of n.getComponents(MeshRenderer))r.enabled=farOn;});
-    if(farOn)tintFarCard(farRoot,night);
+    if(farOn)tintFarCard(farRoot,night,gradeEffect);
    }
    const frame=t+1e-9>=SEAM_T?postFrame:meadowFrame;
    setRigid(transitFrame,frame);

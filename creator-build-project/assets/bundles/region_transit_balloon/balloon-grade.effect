@@ -31,6 +31,16 @@ CCEffect %{
           blendDst: one_minus_src_alpha
           blendSrcAlpha: one
           blendDstAlpha: one_minus_src_alpha
+  - name: card-day
+    passes:
+    - vert: card-vs:vert
+      frag: card-fs:frag
+      properties:
+        mainTexture: { value: white }
+      rasterizerState: { cullMode: none }
+      depthStencilState:
+        depthTest: true
+        depthWrite: true
 }%
 
 CCProgram grade-vs %{
@@ -108,8 +118,35 @@ CCProgram horizon-fs %{
     float cloud = smoothstep(0.72, 0.96, l);
     vec3 c = mix(vec3(0.62, 0.80, 0.88), vec3(1.0), cloud);
     float h = clamp((v_y - 18.0) / 100.0, 0.0, 1.0);
-    float a = 1.0 - smoothstep(0.25, 0.95, h);
-    a = max(a, cloud * 0.35);
+    float a = 1.0 - smoothstep(0.15, 0.72, h);
+    a = max(a, cloud * 0.28);
     return vec4(c, a);
+  }
+}%
+
+CCProgram card-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+  vec4 vert () {
+    v_uv = a_texCoord;
+    return cc_matViewProj * cc_matWorld * vec4(a_position, 1.0);
+  }
+}%
+
+CCProgram card-fs %{
+  precision highp float;
+  in vec2 v_uv;
+  uniform sampler2D mainTexture;
+  // builtin-unlit fogs this card, so its skirt reads as a grey plate on the unfogged sea.
+  // Write the albedo in the same raw sRGB space as the sea, and pin skirt pixels to that sea.
+  vec4 frag () {
+    vec3 tex = texture(mainTexture, v_uv).rgb;
+    float skirt = smoothstep(0.05, 0.12, tex.b - tex.r);
+    vec3 sea = vec3(0.671, 0.847, 0.925);
+    return vec4(mix(tex, sea, skirt), 1.0);
   }
 }%
