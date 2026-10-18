@@ -9,8 +9,9 @@
 | `dd5789b8e43a627497107d2d595855f689f9839e` | `7b4ad5cb7f145f6defff4395a5cd4dcc21155ba6` | 白天球囊、巡航云海、降落岛体、天空抖动、树冠 alpha |
 | `c7878f189130b5f50534a649f92e7d6595933e89` | `9dc3e519e6892f4477dfaa75d9f7aa434bcaf9e2` | STATUS |
 | `37ab9b36318662255c6c5d8e07b7ed2d55f7cb9d` | `5512f291d4d5eb975717d63655beb3457855177f` | 去掉着色器里没有 uniform 的 `mainColor`（否则效果导入失败） |
+| `385dab1ca99bec460c755ff71f73fa0a64bf85b5` | `7efbe02fc73c2387e6ddf7ad6387018b015a3edb` | 截图、对比图、本报告初稿 |
 
-截图与本报告在其后的提交里。游戏代码以 `37ab9b36` 为准。
+游戏代码以 `37ab9b36` 为准。最终门禁跑在 `385dab1ca99bec460c755ff71f73fa0a64bf85b5`（含截图与报告，不含游戏改动）：`BUILD GUARD PASSED`，wechat-release 19,960,670 B，web-test 20,753,299 B，`dirty=0`。其后的提交只补本段和 STATUS 的交付行。
 
 ## 1. 03/04 巡航球囊偏暗
 
@@ -63,7 +64,7 @@
 
 Node 22 `run-suite`：98/99，唯一失败是 `navigation-guard: BLOCKED_BROWSER`（进程退出码 1，允许）。`test_frame_background`：5054 帧通过，`seamLeak=0`，`seamCamErr=0.000071`，`minClear=12.37`，`minClearCam=11.05`，`handoffFade=1`。报告目录已还原。
 
-包体来自 `37ab9b36` 的 wechat-release / web-test（游戏代码；其后只有文档和截图脚本）：
+包体（`385dab1` 的 wechat-release / web-test，与 `37ab9b36` 的游戏代码相同）：
 
 | 项 | 字节 |
 | --- | --- |
@@ -83,4 +84,4 @@ Node 22 `run-suite`：98/99，唯一失败是 `navigation-guard: BLOCKED_BROWSER
 
 ## 磁盘
 
-开工 Avail 7.1Gi。截图结束约 4.3Gi。低于 3.5Gi 则停止构建。
+开工 Avail 7.1Gi。截图结束与交付时 Avail 4.3Gi。构建过程中空闲始终高于 3.5Gi。
