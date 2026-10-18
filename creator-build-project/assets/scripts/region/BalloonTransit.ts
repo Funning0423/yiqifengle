@@ -90,15 +90,38 @@ function paintSeaFallback(root:Node|null,night:boolean):void{
  forceUnlit(root,night?new Color(24,32,48,255):new Color(68,110,138,255));
 }
 /** City meshes that stay full-bright or press into the lens during the ride. */
-const CITY_RIDE_HIDE=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_island_vines','env_sky_island_vine_cards','env_sky_rope_root_02','env_sky_rope_root_03'];
+const CITY_RIDE_HIDE=[
+ 'env_sky_static_palette','env_sky_static_rock_strata',
+ 'env_sky_island_vines','env_sky_island_vine_cards',
+ 'env_sky_rope_root_01','env_sky_rope_root_02','env_sky_rope_root_03','env_sky_rope_root_04',
+ 'env_sky_rope_root_05','env_sky_rope_root_06','env_sky_rope_root_07','env_sky_rope_root_08',
+];
 /**
- * Night: hide unlit deck/grass/palette cards that ignore day-night (GBT neon green / magenta slabs).
- * Do not getMaterialInstance+recolour — that drops glTF albedo maps and flashes magenta.
+ * Night: hide vine/palette extras, and scale city mainColor while rebinding maps from the shared
+ * material (plain getMaterialInstance drops glTF albedo → magenta; absolute recolour washed the city).
  */
+const cityNightBase=new WeakMap<Material,Color>();
 function hideCityNightGlow(model:Node|null,night:boolean):void{
- if(!model||!night)return;
+ if(!model)return;
  eachNamed(model,n=>{
-  if(/palette|grass|lawn|sod|terrain|ground_card|foliage_card|flower|Icosphere/i.test(n.name))n.active=false;
+  if(/palette|grass|lawn|sod|terrain|ground_card|foliage_card|flower|Icosphere|plant\d*_vine|rope_root/i.test(n.name))n.active=false;
+ });
+ if(!night)return;
+ const scale=0.18;
+ eachNamed(model,n=>{
+  for(const r of n.getComponents(MeshRenderer)){
+   const shared=r.getSharedMaterial(0);if(!shared)continue;
+   const m=r.getMaterialInstance(0);if(!m)continue;
+   for(const key of ['mainTexture','albedoMap','metallicRoughnessMap','normalMap','occlusionMap','emissiveMap']){
+    try{const tex=shared.getProperty(key);if(tex!=null)m.setProperty(key,tex);}catch{/* slot absent */}
+   }
+   const live=m.getProperty('mainColor') as Color|null;if(!live)continue;
+   if(!cityNightBase.has(m))cityNightBase.set(m,new Color(live.r,live.g,live.b,live.a));
+   const src=cityNightBase.get(m)!;
+   try{m.setProperty('mainColor',new Color(Math.round(src.r*scale),Math.round(src.g*scale),Math.round(src.b*scale),src.a));}catch{}
+   try{m.setProperty('emissive',new Color(0,0,0,255));}catch{}
+   try{m.setProperty('emissiveScale',0);}catch{}
+  }
  });
 }
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
