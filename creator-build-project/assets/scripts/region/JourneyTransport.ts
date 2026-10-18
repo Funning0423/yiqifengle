@@ -1,7 +1,8 @@
-import type {JourneyRegion} from '../world-r1/RegionJourneyCore';
-/** Rainbow-bridge switch. This branch turns on the sail leg only; meadow→skycity stays on the bridge
- * until the balloon branch. Unknown pairs fall back to the bridge. `?transport=bridge` is a QA override. */
+import type {JourneyRegion as CoreJourneyRegion} from '../world-r1/RegionJourneyCore';
+/** Rainbow-bridge switch. island→meadow is the sail leg. meadow→skycity stays on the bridge until the balloon merge.
+ * Unknown pairs fall back to the bridge. `?transport=bridge` is a QA override. A 6 s sail preload timeout falls back too. */
 export type TransportKind='bridge'|'sail'|'balloon';
+export type JourneyRegion=CoreJourneyRegion;
 export const JOURNEY_TRANSPORT:{'island-meadow':TransportKind;'meadow-skycity':TransportKind;'island-lakeside':TransportKind}={
  'island-meadow':'sail','meadow-skycity':'bridge','island-lakeside':'bridge',
 };
@@ -24,7 +25,7 @@ export function transportQaOverride(search?:string,host:any=(globalThis as any).
  if(!m||!transportQaEnabled(host))return null;
  return m[1] as TransportKind;
 }
-export function transportFor(from:JourneyRegion,to:JourneyRegion,override:TransportKind|null=transportQaOverride()):TransportKind{
+export function transportFor(from:JourneyRegion|string,to:JourneyRegion|string,override:TransportKind|null=transportQaOverride()):TransportKind{
  if(override)return override;
  if(from==='island'&&to==='meadow'&&sailPreloadFallback)return 'bridge';
  if(from==='island'&&to==='meadow')return JOURNEY_TRANSPORT['island-meadow'];
@@ -32,3 +33,5 @@ export function transportFor(from:JourneyRegion,to:JourneyRegion,override:Transp
  if(from==='island'&&to==='lakeside')return JOURNEY_TRANSPORT['island-lakeside'];
  return 'bridge';
 }
+/** Sail/balloon legs skip RainbowBridgeStrip. Bridge keeps the existing mesh. */
+export function usesRainbowBridge(kind:TransportKind):boolean{return kind==='bridge';}

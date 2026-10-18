@@ -21,7 +21,7 @@ import {regionBoardEnd,regionBoardSource,regionGirlStand,setRegionBoardSource,ty
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
-import {transportFor} from './JourneyTransport';
+import {transportFor, usesRainbowBridge} from './JourneyTransport';
 import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
 import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_PORT_STEP_LOCAL} from './SailLanding';
 import {createSailDriver,playSailBeats} from './SailRide';
@@ -170,7 +170,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT),
      ...meadowGroundMaterials(rig.children.filter(n=>n.name.startsWith('RainbowBridgeStrip')),MEADOW_PROP_NIGHT,true));mounted.set(to,model);progress(.98);
     if(boardSrc&&route.board)setRegionBoardSource(to as BoardLandingRegion,boardSrc);
-    const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
+    const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible&&!usesRainbowBridge(transportFor(from,to))){const hide=(n:Node)=>{if(n.name.startsWith('RainbowBridge'))n.active=false;for(const c of n.children)hide(c);};hide(rig);}if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
      ...(sailDriver&&sailPlan?{onFrame:(dt:number)=>sailDriver!.onFrame(dt,false),ride:(actor,world,token)=>playSailBeats(sailDriver!,actor,world,token,sailPlan!)}:{})};
     return lease;
    }catch(error){release();throw error;}

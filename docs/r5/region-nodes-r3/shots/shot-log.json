@@ -1,0 +1,329 @@
+{
+ "errors": [
+  "Failed to load resource: net::ERR_CONNECTION_RESET",
+  "Failed to load resource: net::ERR_CONNECTION_RESET"
+ ],
+ "unique": 23,
+ "files": 23,
+ "perf": {
+  "boardPresentMs": 1.5,
+  "board": {
+   "frames": 40,
+   "drawCalls": 31,
+   "drawMin": 31,
+   "drawMax": 31,
+   "intervalMs": 18.700000047683716,
+   "fps": 53.48
+  },
+  "boardShotMs": 1212,
+  "boardSampleMs": 777,
+  "note": "Headless web-test. boardPresentMs is the wait for the next AFTER_DRAW after the board frame, not a 16.7 ms budget. FPS is 1000/median frame interval and is limited by software GL.",
+  "island": {
+   "frames": 30,
+   "drawCalls": 32,
+   "drawMin": 31,
+   "drawMax": 34,
+   "intervalMs": 41.40000003576279,
+   "fps": 24.15
+  },
+  "markerDc": {
+   "withMarkers": 34,
+   "withoutMarkers": 34,
+   "delta": 0
+  },
+  "meadow": {
+   "frames": 30,
+   "drawCalls": 49,
+   "drawMin": 38,
+   "drawMax": 50,
+   "intervalMs": 42.60000002384186,
+   "fps": 23.47
+  },
+  "skycity": {
+   "frames": 30,
+   "drawCalls": 38,
+   "drawMin": 35,
+   "drawMax": 41,
+   "intervalMs": 44.700000047683716,
+   "fps": 22.37
+  }
+ },
+ "log": [
+  {
+   "file": "island-blend.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": ""
+   },
+   "bytes": 111571,
+   "md5": "5fe5b7498a5140a466e6407f1aed3a6e",
+   "dup": null,
+   "shotMs": 42290
+  },
+  {
+   "file": "island-walk.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": ""
+   },
+   "bytes": 116145,
+   "md5": "0b181005c860d3d0a5189d0546dfb815",
+   "dup": null,
+   "shotMs": 746
+  },
+  {
+   "file": "island-board.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": ""
+   },
+   "bytes": 258088,
+   "md5": "e0e37e097cca7be00a97a15c22229d2c",
+   "dup": null,
+   "shotMs": 1212
+  },
+  {
+   "file": "island-markers.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": ""
+   },
+   "bytes": 205095,
+   "md5": "5a5421a89cbfb8a7187b5d0c51ee0e19",
+   "dup": null,
+   "shotMs": 849
+  },
+  {
+   "file": "island-map.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": ""
+   },
+   "bytes": 186165,
+   "md5": "517584cb5f30abdb59b133eb7870ad3b",
+   "dup": null,
+   "shotMs": 864
+  },
+  {
+   "file": "island-tap.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": ""
+   },
+   "bytes": 174170,
+   "md5": "4057fd5e2c215943d78210da538c0ba1",
+   "dup": null,
+   "shotMs": 1032
+  },
+  {
+   "file": "island-prop.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:palm live:1"
+   },
+   "bytes": 144339,
+   "md5": "4baba69783c4d1b7ecde9e9690943d89",
+   "dup": null,
+   "shotMs": 463
+  },
+  {
+   "file": "meadow-blend.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:palm live:1"
+   },
+   "bytes": 108334,
+   "md5": "016ec7cc8400d2ecf060e00d5b7f34c6",
+   "dup": null,
+   "shotMs": 31836
+  },
+  {
+   "file": "meadow-walk.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:palm live:1"
+   },
+   "bytes": 184397,
+   "md5": "5efed8600068df56fcfcd354f339bcd8",
+   "dup": null,
+   "shotMs": 779
+  },
+  {
+   "file": "meadow-board.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:palm live:1"
+   },
+   "bytes": 336730,
+   "md5": "17ea5da7df777b1143e06997526e693c",
+   "dup": null,
+   "shotMs": 1505
+  },
+  {
+   "file": "meadow-markers.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:palm live:1"
+   },
+   "bytes": 167810,
+   "md5": "fb1ec27d079f80a5e79ea9c7eff803d9",
+   "dup": null,
+   "shotMs": 912
+  },
+  {
+   "file": "meadow-map.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:palm live:1"
+   },
+   "bytes": 135890,
+   "md5": "ab05511b1b3980c2422ddfca19a09b38",
+   "dup": null,
+   "shotMs": 833
+  },
+  {
+   "file": "meadow-tap.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:palm live:1"
+   },
+   "bytes": 135613,
+   "md5": "5c1a4fca48aa77720c42c66cccfb3155",
+   "dup": null,
+   "shotMs": 1004
+  },
+  {
+   "file": "meadow-prop.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 93400,
+   "md5": "c95af02f7b8200908f5b70adbcfa6be9",
+   "dup": null,
+   "shotMs": 705
+  },
+  {
+   "file": "meadow-night.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 130819,
+   "md5": "c61103a4c4bf0534e9a45337761ed496",
+   "dup": null,
+   "shotMs": 772
+  },
+  {
+   "file": "sky-blend.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 63320,
+   "md5": "f93b7dadae74a401766ef9cd280f0eeb",
+   "dup": null,
+   "shotMs": 43767
+  },
+  {
+   "file": "sky-walk.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 151686,
+   "md5": "0d213b618da20415b644823f86f35ed5",
+   "dup": null,
+   "shotMs": 776
+  },
+  {
+   "file": "sky-board.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 256296,
+   "md5": "cbd236991b627ad03cba1c9f8165e504",
+   "dup": null,
+   "shotMs": 1380
+  },
+  {
+   "file": "sky-markers.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 135839,
+   "md5": "f9bca08c9adbd87099e782850596af71",
+   "dup": null,
+   "shotMs": 861
+  },
+  {
+   "file": "sky-map.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 84653,
+   "md5": "e22788d333a24f7c6c3fdb16d98b4992",
+   "dup": null,
+   "shotMs": 778
+  },
+  {
+   "file": "sky-tap.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:bell live:1"
+   },
+   "bytes": 84254,
+   "md5": "fbe5ad72fcd0659ba2853c87f5d98b16",
+   "dup": null,
+   "shotMs": 1042
+  },
+  {
+   "file": "sky-prop.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "prop:robot live:1"
+   },
+   "bytes": 145640,
+   "md5": "a625a2b4764bd78d40b9a2a40646037c",
+   "dup": null,
+   "shotMs": 836
+  },
+  {
+   "file": "sky-finale.png",
+   "result": {
+    "ok": true,
+    "pause": false,
+    "note": "occluders:0 buried:4 cam:97.2,44.9,150.8"
+   },
+   "bytes": 123334,
+   "md5": "60950d4375e72b25058aaedc75c8ae64",
+   "dup": null,
+   "shotMs": 1424
+  }
+ ]
+}

@@ -3,7 +3,7 @@ import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAss
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view } from 'cc';
-import { DEBUG } from 'cc/env';
+import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
@@ -25,6 +25,11 @@ import {boardSafeInsets} from '../ui/BoardLayout';
 /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
+import { runRewardWalk } from '../region/RegionNodePlay';
+import { qaUnlocked } from '../region/ExploreGate';
+import { RegionNodeStage } from './RegionNodeStage';
+import { ExploreInput } from './ExploreInput';
+import '../region/ExploreGate';
 import { withRegionBoardGuest } from '../region/LakesideBoardGuest';
 // r4-prep B (extended): she stays where she landed in the meadow / sky-city live boards (their lease files untouched; wrapped per entry).
 const meadowBoardWithGuest=(context:any)=>withRegionBoardGuest('meadow','MeadowLiveScene',1<<20,createMeadowBoardBackground)(context),skycityBoardWithGuest=(context:any)=>withRegionBoardGuest('skycity','SkycityLiveBackground',1<<20,createSkycityBoardBackground)(context);
@@ -37,7 +42,7 @@ export class WorldNativeComposition extends Component {
   @property(JsonAsset) smokeFixture:JsonAsset|null=null;
   private owner:Node|null=null;private uiParent:Node|null=null;private world:WorldFlowComponent|null=null;
   private selection:Selection|null=null;private mainline=createPersistentMainlinePort();private persistence=createPersistentR5Port(this.mainline.journey);private r4=this.createR4Port();private previousCameraVisibility:number|null=null;private activeSession:any=null;private hostReply:any=null;
-  private testProfile:any=null;private normalPorts:any=null;
+  private testProfile:any=null;private normalPorts:any=null;private boundCharacter:CharacterAdapter|null=null;
   private initialization:Promise<void>|null=null;private pendingJourneySelection:Selection|null=null;
   /** Boot awaits actual world validation; Creator start shares the same promise. */
   initializeWorld():Promise<void>{if(!this.initialization)this.initialization=this.initializeOnce();return this.initialization;}
@@ -59,6 +64,12 @@ export class WorldNativeComposition extends Component {
     });
     try {const result=await world.initialize(levels,undefined,'motion');if(!result.ok)throw Error(result.reason);}
     catch(error){this.releaseOwned();throw error;}
+    if(typeof RegionNodeStage==='function'&&typeof ExploreInput==='function'){
+     const stage=this.node.getComponent(RegionNodeStage)||this.node.addComponent(RegionNodeStage);
+     stage.attach(this.worldCamera);
+     const input=this.node.getComponent(ExploreInput)||this.node.addComponent(ExploreInput);
+     input.sink=(g,x,y)=>stage.onGesture(g,x,y);
+    }
   }
   selectProvider(selection:Selection):Result {
     if(!this.world)return {ok:false,reason:'world-not-ready'};
@@ -88,7 +99,7 @@ export class WorldNativeComposition extends Component {
     // when the hook put the world camera ON that pose and that board background will render. Otherwise today's path, unchanged.
     else if(region==='meadow'||region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&(region==='meadow'?requiresMeadowScene(selection):requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
-    let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(result.ok)this.pendingJourneySelection=null;
+    let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
     if(result.ok&&selection.stageId==='mainline-04'){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload('meadow');}
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
@@ -185,6 +196,7 @@ export class WorldNativeComposition extends Component {
     const s=this.activeSession?.snapshot();if(s?.provider!=='mainline-v33'||!s.result?.completionRecorded||!s.nextStageId||s.state!=='result.saved')return {ok:false,reason:'next-requires-registered-win'};
     const route=(RegionCampaign as any).transition(s.journey,s.active.stageId,s.nextStageId);if(!route.ok)return route;
     if(route.requiresTravel){const prepared=await this.world!.commands().prepareRegion(route.toRegion);if(!prepared.ok)return prepared;}
+    await this.presentNodeWalk(s);
     const exited=this.world!.commands().exitLevel();return exited.ok?this.enterMainlineStage(s.nextStageId):exited;
   }
   mainlineReward(command:'openChest'|'claimRegion',index:number){if(this.activeSession?.snapshot().provider!=='mainline-v33')return {ok:false,reason:'not-mainline'};const snapshot=this.activeSession.snapshot();if(command==='openChest'){const chest=snapshot.journey.chests?.find((x:any)=>x.level===index);if(snapshot.readOnly||snapshot.state!=='result.saved'||!snapshot.result?.completionRecorded||index!==snapshot.active.level||!chest?.earned)return this.hostReply={ok:false,reason:'chest-not-earned-or-unsaved'};}else{const region=snapshot.journey.regionRewards?.find((x:any)=>x.region===index);if(snapshot.readOnly||snapshot.state!=='result.saved'||!snapshot.result?.completionRecorded||index!==Math.floor(snapshot.active.level/4)||!region?.unlocked)return this.hostReply={ok:false,reason:'region-tool-not-earned-or-unsaved'};}return this.hostReply=this.activeSession.command(command,index);}
@@ -219,7 +231,69 @@ export class WorldNativeComposition extends Component {
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'return-to-island-before-exiting-test'};
     Object.assign(this,this.normalPorts);this.normalPorts=null;this.testProfile=null;this.activeSession=null;this.hostReply=null;return {ok:true};
   }
-  attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');return this.world.bindCharacter(adapter);}
+  attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');this.boundCharacter=adapter;return this.world.bindCharacter(adapter);}
+  /** Reward / next-level: follow the girl to the next node, then the existing board or bridge opens. No character bound (tests, headless) keeps today's order. */
+  private markExplore(on:boolean){const set=(globalThis as any).__qfSetExplore;if(typeof set==='function')set(on);}
+  private stage():RegionNodeStage|null{return this.node?.getComponent(RegionNodeStage)||null;}
+  private async presentNodeWalk(snapshot:any){
+    if(!this.boundCharacter||!snapshot?.active?.stageId||!snapshot?.nextStageId)return;
+    const stage=this.stage();
+    if(stage&&this.worldCamera){
+     stage.bindCharacter(this.boundCharacter);
+     try{await stage.playReward(this.boundCharacter,snapshot.active.stageId,snapshot.nextStageId);}
+     catch(error){console.error('region-node-walk',error);}
+     return;
+    }
+    this.markExplore(true);
+    try{await runRewardWalk(this.boundCharacter,snapshot.active.stageId,snapshot.nextStageId);}
+    catch(error){console.error('region-node-walk',error);}
+  }
+  /** Sky-city clear: leave the stair top, look up at the star ring, then free explore. */
+  async claimRegionAndWalk(index:number){
+    const snap=this.activeSession?.snapshot();
+    const stage=this.stage();
+    if(snap?.active?.stageId==='mainline-12'&&this.boundCharacter&&stage){
+     stage.bindCharacter(this.boundCharacter);
+     try{await stage.playFinale(this.boundCharacter);}catch(error){console.error('region-node-finale',error);}
+    }
+    return this.mainlineReward('claimRegion',index);
+  }
+  /** URL `qa=1` only, and only in the web-test build. `MINIGAME` is true for wechat-release, so this body is not in the player package. */
+  async qaShot(spec:{region?:'island'|'meadow'|'skycity';lens?:string;prop?:string;night?:boolean}){
+    if(MINIGAME)return {ok:false,reason:'player-build'};
+    const search=(()=>{try{const s=(globalThis as any).location?.search;return typeof s==='string'?s:'';}catch{return '';}})();
+    if(!qaUnlocked(search))return {ok:false,reason:'qa-only'};
+    if(!this.world)return {ok:false,reason:'world-not-ready'};
+    const region=spec?.region==='meadow'||spec?.region==='skycity'?spec.region:'island';
+    const checkpoint=region==='meadow'?8:region==='skycity'?12:4;
+    try{
+     const diag=(this.boundCharacter as any)?.diagnostics?.();
+     const root=diag?.root||[0,0,0];
+     this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[root[0],root[1],root[2]],yawRad:0});
+    }catch{/* idle */}
+    let here=this.world.commands().snapshot();
+    const placed=here.state==='level'&&here.journey?.region===region;
+    if(!placed){
+     if(here.state==='level'){const exited=this.world.commands().exitLevel();if(!exited.ok)return exited;here=this.world.commands().snapshot();}
+     const profile=createRegionFlowCheckpoint(checkpoint,{allowQa:true});
+     if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+     this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;
+     if(here.state==='home'){const left=await this.world.commands().leaveHome();if(!left.ok)return left;}
+     const entered=await this.enterMainlineStage(profile.stageId,profile.seed);if(!entered.ok)return entered;
+    }
+    if(spec?.night){try{const day=this.world.commands().dayNight?.();if(!String(day?.mode||day||'').includes('night'))this.world.commands().toggleDayNight();}catch{/* day stays */}}
+    const stage=this.stage();if(stage){stage.bindCharacter(this.boundCharacter);await stage.frame({region,lens:spec?.lens,prop:spec?.prop});}
+    let pause=false;
+    if(spec?.lens==='board'){
+     const reveal=()=>{const scene=director.getScene();if(!scene)return;for(const c of scene.getComponentsInChildren(Component)){const fn=(c as any).revealPlayfield;if(typeof fn==='function')fn.call(c);}};
+     reveal();await new Promise<void>(resolve=>this.scheduleOnce(()=>resolve(),0));reveal();
+     const scene=director.getScene();
+     pause=!!scene?.getChildByName('PausePanel')||!!(scene as any)?.getComponentsInChildren?.(Component)?.some((c:any)=>c.node?.name==='PausePanel'&&c.node.activeInHierarchy);
+    }
+    (globalThis as any).__qaFrame=spec?.lens||'world';
+    const note=(stage as any)?.shotNote||'';
+    return {ok:true,pause,note};
+  }
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}
   private releaseOwned(){if(this.worldCamera&&this.previousCameraVisibility!==null)this.worldCamera.visibility=this.previousCameraVisibility;this.owner?.destroy();this.uiParent?.destroy();this.owner=null;this.uiParent=null;this.world=null;this.previousCameraVisibility=null;}
   onDestroy(){this.releaseOwned();}

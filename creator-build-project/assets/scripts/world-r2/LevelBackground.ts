@@ -10,6 +10,8 @@ export interface LevelBackgroundLease {
   /** Presentation clock only. Pausing must not hide the last rendered scenery. */
   setPaused?(paused:boolean):void;
   diagnostics?():Readonly<Record<string,unknown>>;
+  /** Optional node-board camera. Leases that omit it keep the single regional pose. */
+  setAnchor?(pose:Readonly<{position:readonly [number,number,number];target:readonly [number,number,number];fovVerticalDeg:number}>):void;
   dispose():void;
 }
 /** Mount under parent, initially hidden. Check token before async writes; release partial resources on failure.

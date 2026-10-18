@@ -92,6 +92,19 @@ const tests=[
  ['asset-budget','tools/transitions/asset-budget.cjs'],
  ['transport-flag','tools/transitions/test_transport_flag.cjs'],
  ['transit-background-resume','tools/transitions/test_transit_background.cjs'],
+ ['region-nodes-data','tools/region-nodes/test_region_nodes_data.cjs'],
+ ['region-nodes-progress','tools/region-nodes/test_region_nodes_progress.cjs'],
+ ['region-nodes-walk','tools/region-nodes/test_region_nodes_walk.cjs'],
+ ['explore-camera','tools/region-nodes/test_explore_camera.cjs'],
+ ['explore-input','tools/region-nodes/test_explore_input.cjs'],
+ ['node-board-pose','tools/region-nodes/test_node_board_pose.cjs'],
+ ['region-transport-flag','tools/region-nodes/test_transport_flag.cjs'],
+ ['region-transit-background-resume','tools/region-nodes/test_transit_background_resume.cjs'],
+ ['region-nodes-scene-wiring','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['node-markers','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

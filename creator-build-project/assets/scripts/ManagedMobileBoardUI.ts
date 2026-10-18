@@ -859,6 +859,17 @@ export class ManagedMobileBoardUI extends Component {
     if (this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
   }
   // ---------------- dialogs ----------------
+  /** QA board frames: the checkpoint is paused, so the recovery sheet would cover the playfield. */
+  revealPlayfield() {
+    this.returnPause = false;
+    this.introQueue.length = 0;
+    this.popups?.clear();
+    if (this.snapshot?.state === 'run.paused') {
+      try { this.managed?.intercept?.('resume') ?? this.host?.command?.('resume'); } catch { /* panel is already gone */ }
+    }
+    this.introQueue.length = 0;
+    this.popups?.clear();
+  }
   private openPausePanel() {
     const s = this.snapshot; if (!s?.active || this.modalOpen() || (s.state !== 'run.ready' && s.state !== 'run.paused')) return;
     this.cancelToolInput(); this.dragStart = null;
