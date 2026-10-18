@@ -39,7 +39,12 @@ function disk(bundle, resPath) {
   ok(bgmFiles.every(x => x.ok), 'shipped BGM files exist (island / meadow / skycity)', bgmFiles.filter(x => !x.ok));
   const layerFiles = Object.keys(LAYER_ASSETS).map(id => ({ id, file: disk(LAYER_ASSETS[id].bundle, LAYER_ASSETS[id].path), ok: fs.existsSync(disk(LAYER_ASSETS[id].bundle, LAYER_ASSETS[id].path)) }));
   ok(layerFiles.every(x => x.ok), 'shipped ambience layers exist (waves / wind / gulls / lake)', layerFiles.filter(x => !x.ok));
-  ok(!fs.existsSync(disk('region_lakeside', 'audio/bgm_lakeside')) && !fs.existsSync(disk(null, 'audio_bgm/bgm_sail')), 'no invented lakeside or sail BGM file');
+  const cand = T.BGM_CANDIDATES || {};
+  const candFiles = Object.keys(cand).map(id => ({ id, ok: fs.existsSync(disk(cand[id].bundle, cand[id].path)), wired: Object.keys(BGM).some(k => BGM[k].path === cand[id].path) }));
+  ok(!fs.existsSync(disk(null, 'audio_bgm/bgm_sail')) && candFiles.every(x => x.ok && !x.wired) && (!fs.existsSync(disk('region_lakeside', 'audio/bgm_lakeside')) || !!cand.lakeside), 'sail / lakeside BGM only as delivered candidates (files exist, listed in BGM_CANDIDATES, not wired into BGM yet)', candFiles);
+  const pend = T.PENDING_LAYER_ASSETS || {};
+  const pendBad = Object.keys(pend).filter(id => !fs.existsSync(disk(pend[id].bundle, pend[id].path)));
+  ok(pendBad.length === 0, 'pending layer assets (birds / insects / high wind / meadow wind) exist on disk', pendBad);
   const names = [];
   (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) { if (!/^(library|temp|build|node_modules)$/.test(e.name)) walk(f); } else if (/\.(mp3|wav|ogg|meta)$/.test(e.name)) names.push(f); } })(path.join(ROOT, 'creator-build-project/assets'));
   const tagged = names.filter(f => /NOT_FOR_SHIP/i.test(f) || /NOT_FOR_SHIP/i.test(fs.readFileSync(f, 'utf8').slice(0, 4000)));

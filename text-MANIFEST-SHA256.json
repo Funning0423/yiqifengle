@@ -15,6 +15,11 @@
     "sha256": "629f1531f5266b642da1ce5ff777db8a33ae45030ac5928828f16b7bddb80932"
   },
   {
+    "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/amb_island_dock_lap_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "b20f0e39e37f54514348e8745d34ad8210e546306e33dd6a9041011e7d2930ba"
+  },
+  {
     "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/amb_island_shore_loop.mp3.meta",
     "bytes": 222,
     "sha256": "245940e19e2d601546683da64d740d9f78bbb6c6eedd65f366d886d9dead28be"
@@ -505,6 +510,26 @@
     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "b71562de095cdedba430779077c9e288a3bc6a2653b415276fa345689e440536"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "ad723fd0be908b9882ad475d9e551ccb38077c331698234969b14271223d2e8c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_3.mp3.meta",
+    "bytes": 222,
+    "sha256": "b009065bff4009bcb9f579c82789e49ef7691e08b848f329d2cd654315f09a53"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_4.mp3.meta",
+    "bytes": 222,
+    "sha256": "6a55dc1b46f83fcd4e9ed9c7093cf1809d5b692ecf1ddbf3bae7b0a34c12fcba"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/board.meta",
     "bytes": 169,
     "sha256": "8596908941dfcf05aa9574f2e7eb1cb9e65e259c58c6343e3cc9cf245917417b"
@@ -595,6 +620,11 @@
     "sha256": "9ee570b4d4b409ac561ed40bc49e62efbfbcdc991dbf164980fb2215209ba955"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/bgm_lakeside.mp3.meta",
+    "bytes": 222,
+    "sha256": "a7f8c922d1f763669a9b177b65a08542995f047ce10d1c9fcb4d526aec69b05a"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow.meta",
     "bytes": 408,
     "sha256": "9bde3e162cde0e78a6334976c6243b21c1c162bb0d072cb267ae83bb4d2fb326"
@@ -615,6 +645,11 @@
     "sha256": "1fdcd36622087b9be95ad89a64a49c18953ea23a755bfb33fb57b27457e13eb3"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_river_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "743f456b1da92ca3afe3b95e9d3c2b89caea813846cf06237d03f03459fec393"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3.meta",
     "bytes": 222,
     "sha256": "b0d94518e28f748390997806438e09e595271fe5d6160cc5c1d7cc875a850d39"
@@ -633,6 +668,16 @@
     "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_bird_3.mp3.meta",
     "bytes": 222,
     "sha256": "7d6c7635cf9505fd64a2a6c1a0497f2910410d539aa369397f988c2de6c96920"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_windbell_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "aa0593f8bcebcd3df8ce6e64d49d470db89c93740b088afbaeb69f8947198a89"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_windbell_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "dc3b5d2caa19fb31fff979a5b4e6f5cbe8cd3a89b98bc765f1a90bae04c6522e"
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_windmill_creak_1.mp3.meta",
@@ -660,9 +705,49 @@
     "sha256": "daf78e349012458a707e2bcfeda974c16c1241f488c54feec556e780bfd67805"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_waterfall_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "ec363295c0517bcccd26f6d8bf4d69a088057e290024b346e56e3ab3b07b6596"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3.meta",
     "bytes": 222,
     "sha256": "3572bc950c3e344c165848a27021dae4ccdc2f5633d6817aa2c3ff9767094250"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "6bd6dff7b7c8828ceb32a7258e33380840c8a25cea2484fab7b9447d0ba2c49e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "a9efd5cdaa47b0fd2a2d4201e30e84a7fc056115cb3c389e4a971f4a9ae2d33a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps.meta",
+    "bytes": 169,
+    "sha256": "7be5eb53effe4a5c8c2e38b5e699f142f70f5150af318dd7189d4f237858ae99"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_1.mp3.meta",
+    "bytes": 222,
+    "sha256": "6b9fd35b84dc23763b92e7d88ec11d36fba884e545eb966868e3324e3bbd9d8e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_2.mp3.meta",
+    "bytes": 222,
+    "sha256": "439372c77d541dc4fd0373f3299b923f2188d69ecc4b7715b40587ea8ce882e3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_3.mp3.meta",
+    "bytes": 222,
+    "sha256": "5cd277ccd68466413b755eacc1b233125e7654b2000c7fd728cf9198f98c7c36"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_4.mp3.meta",
+    "bytes": 222,
+    "sha256": "39e5c42254cd4bf65b7948c94c1ba7e8bf032d644be33643566fee670da58a7b"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/board.meta",
@@ -713,6 +798,11 @@
     "path": "creator-build-project/assets/bundles/transport_sail/audio_amb/amb_sea_open_loop.mp3.meta",
     "bytes": 222,
     "sha256": "7c123d6a547306fd0e76a1e0c18ce78fd04fe18f05980bdc876eca9a65936c47"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/audio_amb/bgm_sail.mp3.meta",
+    "bytes": 222,
+    "sha256": "45164c24f54dbf934c8342ac2075ae8f268b3a97c77a8bb64578766d6e0de35b"
   },
   {
     "path": "creator-build-project/assets/resources.meta",
@@ -1188,6 +1278,11 @@
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
     "bytes": 171,
     "sha256": "a30610463fcfa2f9727ee76b640a20b595c08898f7c9496c0d7414257e5c717c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts",
+    "bytes": 16299,
+    "sha256": "168d19fd0e564da4b0d89459815b76694e4c040a169e001461f497d27e146caa"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts",

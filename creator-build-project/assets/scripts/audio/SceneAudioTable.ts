@@ -30,6 +30,106 @@ export const LAYER_ASSETS: { [id: string]: { path: string; bundle: string | null
   lake: { path: 'audio/amb_lake_loop', bundle: 'region_lakeside' },
 };
 
+/** Voice bot V2：已经交付、但还没接线的 BGM 候选（原创，48 kbps 立体声，响度和上面三首对齐，首尾相接的循环）。
+ *  接线要改 SceneTrackId + SceneMusic.SCENE_TRACKS（播放器代码，留给 Cursor），再把 sail / lakeside 档的 track 指过来。
+ *  sail：C 大调 6/8，在小岛 F 大调和草原 G 大调之间（C 是 F 的属调、G 的下属调），35.56 s。lakeside：F 大调 72 BPM 钢琴 + 竖琴，66.67 s，和湖声风铃的 C 五声不冲突。 */
+export const BGM_CANDIDATES: { [id: string]: BgmRef & { loopS: number; key: string } } = {
+  sail: { path: 'audio_amb/bgm_sail', bundle: 'transport_sail', loopS: 35.5556, key: 'C major 6/8, dotted-quarter 54' },
+  lakeside: { path: 'audio/bgm_lakeside', bundle: 'region_lakeside', loopS: 66.6667, key: 'F major 4/4, 72 BPM' },
+};
+
+/** Voice bot V2：素材已在分包里、播放器还没写的层（鸟鸣 / 虫鸣 / 高空风 / 草原风）。档案的 layers 先不打开，免得开了也不响。
+ *  每个循环文件在 loopS 之后带 0.15 s 自己开头的副本（和 amb_lake_loop 同一种格式）。 */
+export const PENDING_LAYER_ASSETS: { [id: string]: { path: string; bundle: string | null; loopS: number | null } } = {
+  birds: { path: 'audio/amb_meadow_birds_loop', bundle: 'region_meadow', loopS: 30.0 },
+  insects: { path: 'audio/amb_meadow_insects_loop', bundle: 'region_meadow', loopS: 19.25 },
+  highWind: { path: 'audio/amb_sky_air_loop', bundle: 'region_skycity', loopS: 32.0 },
+  meadowWind: { path: 'audio_amb/amb_wind_soft_loop', bundle: null, loopS: null },
+  shoreReal: { path: 'audio/amb_island_shore_loop', bundle: 'audio_bgm_island', loopS: 24.0 },
+  seaOpen: { path: 'audio_amb/amb_sea_open_loop', bundle: 'transport_sail', loopS: 24.0 },
+};
+
+/** 三层环境音设计（ACNH 方法：底床 / 点缀 / 地标）。vol = 默认音乐滑条下的 AudioSource.volume（再乘 ambienceBedGain）。
+ *  interval = 单发随机间隔 [min,max] 秒（开头到开头）。地标按距离：nearM 以内满音量，farM 以外静音，中间按 1/d 衰减；anchor 是场景 GLB 里的节点名。
+ *  详细说明：docs/audio/scene-sound-design.md。 */
+export type LayerClip = { path: string; bundle: string | null };
+export type AmbBed = { id: string; clip: LayerClip; loopS: number | null; vol: number };
+export type AmbScatter = { id: string; clips: LayerClip[]; vol: number; interval: [number, number]; pan: [number, number] };
+export type AmbLandmark = { id: string; anchor: string; clips: LayerClip[]; loopS: number | null; vol: number; nearM: number; farM: number; interval?: [number, number] };
+export type AmbDesign = { bed: AmbBed[]; scatter: AmbScatter[]; landmarks: AmbLandmark[] };
+const R = (path: string, bundle: string | null): LayerClip => ({ path, bundle });
+const GULLS = [R('audio_sfx/sfx_amb_gull_1', null), R('audio_sfx/sfx_amb_gull_2', null), R('audio_sfx/sfx_amb_gull_3', null)];
+const BIRD_CALLS = [R('audio/sfx_meadow_bird_1', 'region_meadow'), R('audio/sfx_meadow_bird_2', 'region_meadow'), R('audio/sfx_meadow_bird_3', 'region_meadow')];
+export const SCENE_AMBIENCE_DESIGN: { [place: string]: AmbDesign } = {
+  home: { bed: [], scatter: [], landmarks: [] },
+  island: {
+    bed: [{ id: 'shore', clip: R('audio/amb_island_shore_loop', 'audio_bgm_island'), loopS: 24.0, vol: 0.7 }],
+    scatter: [{ id: 'gulls', clips: GULLS, vol: 0.6, interval: [8, 20], pan: [-0.5, 0.5] }],
+    landmarks: [
+      { id: 'dock-lap', anchor: 'dock (IslandProps)', clips: [R('audio/amb_island_dock_lap_loop', 'audio_bgm_island')], loopS: 12.0, vol: 0.5, nearM: 2, farM: 12 },
+      { id: 'lighthouse', anchor: 'GULL_FX.lighthouse', clips: [], loopS: null, vol: 0, nearM: 0, farM: 0 },
+    ],
+  },
+  sail: {
+    bed: [{ id: 'sea-open', clip: R('audio_amb/amb_sea_open_loop', 'transport_sail'), loopS: 24.0, vol: 0.8 }],
+    scatter: [{ id: 'gulls-far', clips: [GULLS[1], GULLS[2]], vol: 0.38, interval: [5, 8], pan: [-0.5, 0.5] }],
+    landmarks: [],
+  },
+  meadow: {
+    bed: [
+      { id: 'birds-bed', clip: R('audio/amb_meadow_birds_loop', 'region_meadow'), loopS: 30.0, vol: 0.8 },
+      { id: 'insects', clip: R('audio/amb_meadow_insects_loop', 'region_meadow'), loopS: 19.25, vol: 0.5 },
+      { id: 'breeze', clip: R('audio_amb/amb_wind_soft_loop', null), loopS: null, vol: 0.25 },
+    ],
+    scatter: [{ id: 'bird-calls', clips: BIRD_CALLS, vol: 0.5, interval: [6, 16], pan: [-0.6, 0.6] }],
+    landmarks: [
+      { id: 'windmill', anchor: 'windmill_sail_hub', clips: [R('audio/sfx_windmill_creak_1', 'region_meadow'), R('audio/sfx_windmill_creak_2', 'region_meadow')], loopS: null, vol: 0.45, nearM: 4, farM: 30, interval: [9, 18] },
+      { id: 'river', anchor: 'meadow_river', clips: [R('audio/amb_meadow_river_loop', 'region_meadow')], loopS: 16.0, vol: 0.55, nearM: 3, farM: 25 },
+      { id: 'wind-bell', anchor: 'wind_bell', clips: [R('audio/sfx_meadow_windbell_1', 'region_meadow'), R('audio/sfx_meadow_windbell_2', 'region_meadow')], loopS: null, vol: 0.45, nearM: 3, farM: 20, interval: [12, 26] },
+    ],
+  },
+  lakeside: {
+    bed: [{ id: 'lake', clip: R('audio/amb_lake_loop', 'region_lakeside'), loopS: 19.0, vol: 0.55 }],
+    scatter: [],
+    landmarks: [{ id: 'wind-chime', anchor: 'chime (LakesideSceneData)', clips: [], loopS: null, vol: 0, nearM: 0, farM: 0 }],
+  },
+  balloon: {
+    bed: [{ id: 'high-wind', clip: R('audio/amb_sky_air_loop', 'region_skycity'), loopS: 32.0, vol: 0.5 }],
+    scatter: [], landmarks: [],
+  },
+  skycity: {
+    bed: [{ id: 'high-wind', clip: R('audio/amb_sky_air_loop', 'region_skycity'), loopS: 32.0, vol: 0.75 }],
+    scatter: [],
+    landmarks: [
+      { id: 'waterfall', anchor: 'env_sky_waterfall_mist', clips: [R('audio/amb_sky_waterfall_loop', 'region_skycity')], loopS: 16.0, vol: 0.55, nearM: 4, farM: 35 },
+      { id: 'wind-chime', anchor: 'env_sky_windchime', clips: [R('audio/sfx_sky_chime_1', 'region_skycity'), R('audio/sfx_sky_chime_2', 'region_skycity')], loopS: null, vol: 0.4, nearM: 3, farM: 20, interval: [10, 22] },
+      { id: 'pennant', anchor: 'env_sky_pennant', clips: [R('audio_sfx/sfx_apron_flap', null)], loopS: null, vol: 0.18, nearM: 2, farM: 10, interval: [14, 30] },
+    ],
+  },
+};
+
+/** 地面 → 脚步素材（4 个变体，文件名 _1.._4）。step_* 在 region_island 的是 r4 的合成脚步（r4.1 重录待 Mac 录音确认）；
+ *  sand / cloud 是 Voice bot V2 的 CC0 候选（Kenney Impact Sounds 加工）。gain 和 FootstepCore.STEP_GAIN 用同一刻度（文件 100 ms RMS ≈ -24.5 dBFS）。 */
+export const FOOTSTEP_SETS: { [surface: string]: { dir: string; bundle: string; gain: number } } = {
+  wood: { dir: 'audio_steps/step_wood_', bundle: 'region_island', gain: 0.36 },
+  rug: { dir: 'audio_steps/step_rug_', bundle: 'region_island', gain: 0.34 },
+  stone: { dir: 'audio_steps/step_stone_', bundle: 'region_island', gain: 0.5 },
+  path: { dir: 'audio_steps/step_path_', bundle: 'region_island', gain: 0.36 },
+  grass: { dir: 'audio_steps/step_grass_', bundle: 'region_island', gain: 0.36 },
+  sand: { dir: 'audio_steps/step_sand_', bundle: 'region_island', gain: 0.34 },
+  cloud: { dir: 'audio_steps/step_cloud_', bundle: 'region_skycity', gain: 0.34 },
+};
+/** 每个地方会出现的地面（第一个是缺省）。dirt 用 path，木桥 / 栈道 / 船甲板用 wood，石阶 / 遗迹用 stone。 */
+export const SCENE_GROUND_TYPES: { [place: string]: string[] } = {
+  home: ['wood', 'rug'],
+  island: ['grass', 'path', 'stone', 'wood', 'sand'],
+  sail: ['wood'],
+  meadow: ['grass', 'path', 'wood'],
+  lakeside: ['grass', 'wood', 'stone', 'path'],
+  balloon: ['wood'],
+  skycity: ['cloud', 'stone', 'grass'],
+};
+
 export type SceneAudioProbe = {
   state?: string | null;
   stable?: string | null;

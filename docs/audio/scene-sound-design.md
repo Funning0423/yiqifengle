@@ -1,17 +1,19 @@
-# 场景声音设计 V2（Voice bot，2026-10-18）
+# 场景声音设计 V2（Voice bot，2026-10-18；第二次交付：ACNH 补充 + 映射到真实配置表）
 
-现在的问题：小岛→草原、草原→天空之城 BGM 不换，草原上还在放海鸥。切换代码由云端任务 `feat/scene-audio-r1`
-（数据驱动配置表）负责。**这份文档只管声音设计、素材和配置数据，不改切换代码。**
+现在的问题：小岛→草原、草原→天空之城 BGM 不换，草原上还在放海鸥。切换代码在云端 `feat/scene-audio-r1`（17c75b2，
+`SceneAudioTable.ts` + `SceneMusic.ts`），已经合进本分支。**这份文档只管声音设计、素材和配置数据，不写播放器代码。**
 
-- 配置数据：`docs/audio/scene-audio-table.json`（**暂定格式**）。写的时候 GitHub 上还没有 `feat/scene-audio-r1`，
-  字段名要按云端的真实表改；路径、循环参数、音量、淡入淡出、间隔这些数值以本文档为准。
-- 素材出处和许可：`docs/audio-credits.md` 的「Scene ambience V2」一节。
-- 生成脚本和实测数据：`tools/voice-bot/scene-audio-v2/`（`measurements.json`、`SOURCES-SHA256SUMS`）。
+- **配置（真实格式）**：`creator-build-project/assets/scripts/audio/SceneAudioTable.ts`。本分支只加了数据：
+  `BGM_CANDIDATES`、`PENDING_LAYER_ASSETS`、`SCENE_AMBIENCE_DESIGN`（三层环境音）、`FOOTSTEP_SETS`、`SCENE_GROUND_TYPES`。见 §8。
+- `docs/audio/scene-audio-table.json` 是第一次交付时的暂定表，**已被 SceneAudioTable.ts 取代**。只留作过渡数值（dip、渐入渐出秒数）的设计记录。
+- 素材出处和许可：`docs/audio-credits.md` 的「Scene ambience V2」和「second delivery」两节。
+- 生成脚本和实测：`tools/voice-bot/scene-audio-v2/`（`measurements.json`、`music/`、`s_landmarks.py`、`s_steps.py`）。
 - 试听：共享电脑上的 `/workspace/yiqifengle/previews/Voice-bot/v2-scene-audio/`（只有 mp3，带 README）。
+- 参考：`/workspace/b05/research/acnh/REPORT.md` §7（一个主题多地区编配；环境音分三层；按地面换脚步）。
 
 ## 0. 总原则（Funning 的偏好）
 - 平静、治愈。动物声要成群、远近有别、不慌不忙，绝不急促。
-- 自然声音优先用真实录音，不用程序合成。这一版里只有天空之城的「高空风 + 微光」是自己合成的（真实高空风录音找不到可用的，见 §7）。
+- 自然声音优先用真实录音，不用程序合成。自然声里只有天空之城的「高空风 + 微光」是自己合成的（真实高空风录音找不到可用的，见 §10）。风铃（乐器）和两首新 BGM 是自己作曲、自己合成的。
 - 每个声音都有自然的衰减尾巴和一点混响，不硬切。2–6 kHz 不刺耳：环境层都在 3.5 kHz 一带削 2.5–4 dB，7 kHz 以上用搁架滤波降 4 dB，再低通。鸟叫本身就在 2–6 kHz，所以只放远处的鸟、音量压低。
 - 包体：循环层用 32 kbps 32 kHz 立体声（joint）；虫鸣用 24 kbps 24 kHz 单声道；单发音效用 32 kbps 32 kHz 单声道。
   每个新文件都放进对应场景的分包，主包不增加任何字节。
@@ -29,93 +31,161 @@
 | 草原虫鸣 | -30.4（单声道） | 0.5 | -33.4 |
 | 草原微风（复用 amb_wind_soft_loop） | -23.4（单声道） | 0.25 | -32.4 |
 | 单发：远处鸟 / 风车吱呀 | -27.2 / -28.4…-29.4（单声道） | 0.5 / 0.45 | 瞬时约 -30 / -32 |
+| 新 BGM（海上 / 湖畔，候选） | -17.4 / -17.4 | musicVolume 0.4 | ≈ -25.4（和三首差 0.3–0.4 dB，听不出） |
+| 地标循环：河 / 瀑布 / 码头拍水 | -27.2 / -27.2 / -27.3（单声道） | 近处 0.55 / 0.55 / 0.5 | 走到跟前约 -29 |
+| 地标单发：风铃 / 天空风铃 | -29.4 / -30.5（单声道） | 0.45 / 0.4 | 瞬时约 -33 |
+| 脚步 | 100 ms RMS 峰 ≈ -24.5 dBFS（和 r4 step_grass 一样） | FootstepCore.STEP_GAIN | 不变 |
 | 海鸥 v6（已上线，不变） | -18.3（单声道） | 近 0.6 / 远 0.38 | 瞬时约 -20 / -24 |
 
-- 关于「BGM 约 -20 LUFS」：三首 BGM 已经上线，文件响度约 -17 LUFS，播放时约 -25 LUFS，Funning 已认可。这一版不动 BGM，环境层按它来配。
+- 关于「BGM 约 -20 LUFS」：三首 BGM 已经上线，文件响度约 -17 LUFS，播放时约 -25 LUFS，Funning 已认可。这一版不重渲三首 BGM，环境层按它来配。两首新 BGM 也对齐到同样的文件响度。
 - 主环境床和 BGM 基本齐平（相差 0 到 -1 dB）。这和现在上线的海浪平衡一致（海浪 -20.9 单声道 × 0.55，约 -23），新海岸还稍轻一点。
   次要层比 BGM 低 3–8 dB，单发音效只是偶尔从远处冒出来。
 - 关卡棋盘上，环境床整体 ×0.5（-6 dB），单发间隔 ×2，让棋盘音效更清楚。
 
-## 2. 各场景设计
+## 2. 共同主题「风起」和各地区变奏（ACNH 方法）
 
-### 2.1 家里（室内）
-- BGM：小岛曲（同下），不换曲。
-- 环境：海岸床跟着 `getRoomLightWeight` 走（和现在的海浪一样）：室内无声，开门渐入。室内没有海鸥、没有风。
+ACNH 的做法：每个地方的曲子共用一个主题，只换编配、速度和调。走到哪都听得出「是同一个游戏」，换场景也不突兀。
 
-### 2.2 小岛（含家门口室外）
-- BGM：`bgm_main`（小岛 v1，已上线）。F 大调，92 BPM，4/4，83.5 秒循环。情绪温暖、轻风、惊叹。乐器有柔和铺底、拨弦琶音、卡林巴主旋律、低音，很轻的沙锤和底鼓，每 8 小节一阵风声。
-- 环境层：
+**主题（原创，4 小节，4/4）。** 简谱以各曲主音为 1，`'` 表示高八度：
 
-| 层 | 内容 | 文件 | 循环 / 间隔 | 距离 / 声像 |
+`5 1' 2' 3'—·2' | 1' 6 5— | 6 1' 2' 3' 5' | 3'—·2' 2'——`，收尾小节换成 `3' 2' 1'——`。
+
+（`music/motif.py`：M1 = 5 1' 2' 3'（附点）2'，M2 = 1' 6 5，M3 = 6 1' 2' 3' 5'，M4 = 3'（附点）2' 2'。）
+特点：上行四度起句（像风吹起来），第二句落回 5（像落地）。只用五声和自然音，任何地区的伴奏都配得上。
+
+| 地区 | 调 / 速度 | 编配 | 主题怎么出现 | 现状 |
 |---|---|---|---|---|
-| 海岸床 | 真实录音：缓浪拍岸，两三道浪一组，有远有近 | `audio_bgm_island/audio/amb_island_shore_loop`（新，候选，替换合成海浪 `amb_waves_loop`） | 24.0 s 循环 | 原录音立体声，海边混响 RT 1.8 s，湿声 -16 dB |
-| 海鸥 | gull v6（已认可） | `resources/audio_sfx/sfx_amb_gull_1..3` | 随机 8–20 s，夜里频率 ×0.4、-3 dB | 近处 6–12 m、远处 30–60 m，按镜头声像（现有 GULL_EVENTS） |
-| 海风 | 出门时 WindAudio 的风（已上线，不变） | `amb_wind_soft/strong_loop` | 跟 getWindStrength | 不变 |
+| 小岛 | F 大调 92 BPM 4/4 | 尤克里里 + 口琴 | 口琴原样唱，尤克里里切分扫弦 | 试听 demo 里有（`motif_demo` 前半）。已上线的 `bgm_main` 不改 |
+| 海上 / 帆船 | **C 大调** 6/8，附点四分 = 54 | 尼龙吉他摇船琶音 + 长笛 + 弦乐涨落 | 长笛唱主题（4/4 的一拍 = 6/8 半小节），后半由弦乐低三度再唱 | **新 BGM 候选 `bgm_sail`** |
+| 草原 | G 大调 76 BPM | 钢弦吉他 + 长笛 / 竖笛 + 弦乐 | 长笛原样唱 | 试听 demo 里有（`motif_demo` 后半）。已上线的 `bgm_meadow` 不改 |
+| 湖畔 | **F 大调** 72 BPM | 钢琴 + 竖琴 + 弦乐 | 钢琴唱；第 10–17 小节模进到低三度，再低八度回响 | **新 BGM 候选 `bgm_lakeside`** |
+| 天空之城 | D 小调 70 BPM 3/4 | 钢片琴 + 弦乐铺底 | 以后做：主题改成 3/4 的小调（6 是主音） | 已上线的 `bgm_skycity` 不改 |
+| 热气球 | 跟草原 → 天空之城 | 加一层弦乐 | — | 用 dip 交接（§3） |
 
-- 新海岸床如果 Funning 不认可，配置里的 `fallback` 指回现在的 `amb_waves_loop`，代码不用改。
+- **为什么海上用 C 大调**：小岛 F、草原 G。C 是 F 的属调、G 的下属调，和两边都只差一个升降号。2 s 等功率交叉（`SCENE_AUDIO_CROSSFADE_S`）时不会两个调同时打架。
+- **为什么湖畔用 F 大调**：和小岛同调（彩虹桥步行过去，接得顺），而且上线的 `amb_lake_loop` 里的风铃是 C 五声（C D E G A），全在 F 大调里。
+- 新 BGM 的规格：48 kbps 立体声 44.1 kHz，文件 -17.4 LUFS / TP ≤ -5 dB；纯循环（文件结尾直接接开头，不带重复尾巴），和三首上线 BGM 一样，所以 GameAudio 的双声源 150 ms 接力可以直接用。
+  海上 35.56 s（航程 ≤30.5 s，基本放一遍），213,881 B；湖畔 66.67 s，400,552 B。
+- demo 是 43 s，比要求的 ~30 s 长：每种编配要 6 小节才能把主题完整唱一遍，再加 2.5 s 交叉。只做试听，不进包。
 
-### 2.3 海上 / 帆船（小岛→草原，≤30.5 s）
-- BGM：前半段继续放小岛曲，压低 -3 dB，让海面声音出来。航程过半时「dip」交接到草原曲：小岛曲 4 s 淡出，草原曲 4 s 淡入，两者只重叠 2 s。F 大调和 G 大调同时响会打架，所以只叠 2 s，空档由海面床接住。
-- 环境层：
+## 3. 各场景：BGM + 三层环境音
 
-| 层 | 内容 | 文件 | 循环 / 间隔 | 说明 |
-|---|---|---|---|---|
-| 海面床 | 真实录音：同一组浪声低通到 2.4 kHz，低频 +2 dB，像坐在船上听船身下的水 | `transport_sail/audio_amb/amb_sea_open_loop`（新） | 24.0 s，出发后 6 s 淡入，靠岸后 4 s 淡出 | 混响 RT 2.2 s，湿声 -18 dB |
-| 远处海鸥 | gull v6 的 2、3 号 | 同上 | 只在出发后的前 10 s 里放，每 5–8 s 一声 | vol 0.38，之后在海上一声不放 |
-| 小岛海岸 | 海岸床 | — | 出发后 0–8 s 淡出 | — |
-| 草原床 | 鸟群、虫鸣 | — | 最后 6 s（靠岸时）淡入 | — |
+三层：**底床**（一直在的循环，定空间）、**点缀**（随机的鸟 / 虫 / 海鸥单发，不打扰）、**地标**（固定位置的声音，走近才听见，按距离衰减）。
+数值都在 `SCENE_AMBIENCE_DESIGN`（vol、间隔、nearM / farM、锚点节点名）。
+地标音量：距离小于 nearM 时满音量，大于 farM 时静音，中间按 1/d 衰减；声像跟着镜头方向走。
+同时发声上限 6 个 WebAudio 声音：底床最多 3 个，地标循环只开最近的 1 个，单发最多同时 2 个（多了就跳过这一次）。
+关卡棋盘上：环境床 ×0.5（-6 dB），单发间隔 ×2；BGM 建议再低通到约 2.5 kHz、降 3 dB（ACNH 的做法，属于播放器代码，留给 Cursor）。
 
-- 离岸、浪花、帆、靠岸这些船上音效是 r5「帆船音轨」任务的内容，不在这里。为避免 `.meta` 冲突，这里用 `audio_amb/` 目录，不用 `audio/`。
+### 3.1 家里（室内）
+- BGM：小岛曲。底床：海岸床跟着 `getRoomLightWeight` 走，室内无声，开门渐入。点缀、地标：无。
+- 脚步：wood（地板）、rug（地毯），沿用 r4。
 
-### 2.4 草原
-- BGM：`bgm_meadow`（已上线，原创旋律，《起风了》那种感觉）。G 大调，76 BPM，4/4，72.6 秒循环。乐器有钢弦木吉他分解和弦、慢弦乐铺底、原声贝斯、长笛主旋律。情绪开阔、轻快但不赶。
-- 环境层（**不放海鸥、不放海浪**）：
+### 3.2 小岛
+- BGM：`bgm_main`（F 大调 92 BPM，83.5 s）。
 
-| 层 | 内容 | 文件 | 循环 / 间隔 | 距离 / 声像 |
-|---|---|---|---|---|
-| 鸟群床 | 真实录音：公园树林边一群远处的鸟在叽喳，高通 900 Hz，把城市低频去掉 | `region_meadow/audio/amb_meadow_birds_loop`（新） | 30.0 s | 原立体声，远处，RT 1.3 s |
-| 虫鸣 | 真实录音：后院蟋蟀，带通 1.5–5 kHz，推远 | `region_meadow/audio/amb_meadow_insects_loop`（新） | 19.25 s；夜里 +3 dB | 单声道，湿声 -8 dB，很远 |
-| 微风 | 复用上线的柔风循环 | `resources/audio_amb/amb_wind_soft_loop` | 跟现有循环方式一样 | vol 0.25 |
-| 远处鸟鸣 | 真实录音：三段短鸣，每段带 1.2 s 混响尾巴 | `region_meadow/audio/sfx_meadow_bird_1..3`（新） | 随机 6–16 s，洗牌不连续重复；音量 ×0.7–1.0；夜里频率 ×0.25、-4 dB | 声像 ±0.6，湿声 -7 dB（远） |
-| 风车吱呀 | 真实录音：树干吱呀声放慢到 0.72 / 0.60 倍，像大木头风车 | `region_meadow/audio/sfx_windmill_creak_1..2`（新） | 9–18 s；最好跟 `windmill_sails_loop` 每转一圈对上，随机跳过几次，免得像机器 | 朝 windmill_sail_hub 的方向，不知道就 +0.35 |
+| 层 | 声音 | 文件 | 参数 |
+|---|---|---|---|
+| 底床 | 真实缓浪拍岸 | `audio_bgm_island/audio/amb_island_shore_loop`（候选，替换合成的 `amb_waves_loop`；不认可就退回旧文件） | 24.0 s，vol 0.7 |
+| 底床 | 海风（WindAudio，已上线） | `amb_wind_soft/strong_loop` | 跟 getWindStrength |
+| 点缀 | 海鸥 v6 | `resources/audio_sfx/sfx_amb_gull_1..3` | 8–20 s，近 0.6 / 远 0.38，夜里频率 ×0.4 |
+| 地标 | 码头下的拍水（新，真实录音低通 1.6 kHz） | `audio_bgm_island/audio/amb_island_dock_lap_loop` | 12.0 s，vol 0.5，2–12 m |
+| 地标 | 灯塔：海鸥聚集点（已有 GULL_FX / GullFlockCore） | — | 不加新声音 |
 
-### 2.5 湖畔
-- BGM：没有湖畔专属曲。暂时用小岛曲压低 -3 dB。要不要做一首湖畔曲，**需要 Funning 决定**。
-- 环境：上线的 `amb_lake_loop`（湖水、微风、稀疏五声风铃，19.0 s）和 LakeAmbience 的数值都不变。湖畔不放海鸥，海岸床让路（现有逻辑已经这样做）。
+- 脚步：grass、path（土路）、stone、wood（码头），新增 **sand**（沙滩）。
 
-### 2.6 彩虹桥（小岛→湖畔，步行）
-- BGM 不换，到湖畔时慢慢降 3 dB。一开始走就停海鸥；海岸床在 12 s 内淡出；到达那段湖声淡入（LakeAmbience 现在就是在 `journeyPhase 'arrival'` 开始）。
+### 3.3 海上 / 帆船（小岛 → 草原，≤30.5 s）
+- BGM：**新候选 `bgm_sail`**（C 大调 6/8）。接线以后：小岛曲 → 出发时 2 s 交叉到海上曲 → 靠岸时 2 s 交叉到草原曲。
+  接线之前（现在 SceneAudioTable 的 sail 档是 track: meadow）沿用旧方案：航程过半时 dip 交接（§4）。
 
-### 2.7 热气球（草原→天空之城）
-- BGM：草原曲。航程 45% 处「dip」交接到天空之城曲（4 s 出、4 s 入，重叠 2 s；G 大调和 D 小调错开）。
-- 环境：起飞后草原各层在 10 s 内淡出；天空风以 0.5 的音量在 12 s 内淡入，落地后 6 s 升到 0.75。天空之城分包还没加载时，就只放 BGM。
+| 层 | 声音 | 文件 | 参数 |
+|---|---|---|---|
+| 底床 | 船下的海水（低通 2.4 kHz） | `transport_sail/audio_amb/amb_sea_open_loop` | 24.0 s，vol 0.8，出发后 6 s 淡入 |
+| 点缀 | 远处海鸥（只在出发后的前 10 s） | gull 2、3 号 | 5–8 s，vol 0.38 |
+| 地标 | 无。船上音效属于 r5「帆船音轨」 | — | — |
 
-### 2.8 天空之城
-- BGM：`bgm_skycity`（已上线，原创钢琴独奏，《天空之城》那种感觉）。D 小调，70 BPM，3/4，72.0 秒循环。第 7 小节起进很轻的弦乐和大提琴。情绪空灵、怀旧、安静。
-- 环境层（不放海鸥、海浪、鸟、虫）：
+- 脚步：wood（甲板）。
 
-| 层 | 内容 | 文件 | 循环 | 说明 |
-|---|---|---|---|---|
-| 高空风 + 微光 | 自己合成：三段带通的循环噪声（180–900 Hz、700–2400 Hz、2.5–7 kHz），按 32 s 的整数周期慢慢起伏；上面叠 8 颗很轻的 D 小调五声正弦「微光」（D5 / A5 / D6 / F6 / G6 / A6），1 s 渐起、约 2 s 衰减，放在大混响里（RT 3.5 s） | `region_skycity/audio/amb_sky_air_loop`（新） | 32.0 s，生成时本身就是首尾相接的 | 微光只用 D 小调五声里的音，和 BGM 不打架 |
+### 3.4 草原（不放海鸥、不放海浪）
+- BGM：`bgm_meadow`（G 大调 76 BPM，72.6 s）。
 
-### 2.9 关卡棋盘
-- 保持所在地区的 BGM，不重新起播。地区按 stageId 判断：`r05-meadow-*` 是草原，`r05-sky-*` 是天空之城，`r04/r05-lake-*` 是湖畔，其他都算小岛。
-- 环境床 ×0.5，单发间隔 ×2。
+| 层 | 声音 | 文件 | 参数 |
+|---|---|---|---|
+| 底床 | 远处成群的鸟 | `region_meadow/audio/amb_meadow_birds_loop` | 30.0 s，vol 0.8 |
+| 底床 | 远处蟋蟀 | `region_meadow/audio/amb_meadow_insects_loop` | 19.25 s，vol 0.5，夜里 +3 dB |
+| 底床 | 微风 | `resources/audio_amb/amb_wind_soft_loop` | vol 0.25 |
+| 点缀 | 远处单只鸟鸣 ×3 | `region_meadow/audio/sfx_meadow_bird_1..3` | 6–16 s，洗牌不连续重复，声像 ±0.6，夜里频率 ×0.25 |
+| 地标 | 风车吱呀 | `region_meadow/audio/sfx_windmill_creak_1..2` | 锚点 `windmill_sail_hub`，9–18 s，4–30 m，最好对上风车转一圈 |
+| 地标 | 小河流水（新，真实录音） | `region_meadow/audio/amb_meadow_river_loop` | 锚点 `meadow_river`，16.0 s，vol 0.55，3–25 m |
+| 地标 | 风铃（新，合成铜铃，G 五声） | `region_meadow/audio/sfx_meadow_windbell_1..2` | 锚点 `wind_bell`（bell_tap_stand_point），12–26 s，3–20 m；玩家敲铃时不重复播 |
 
-## 3. 过渡规则（摘要，完整数值在 json 的 `transitions`）
+- 脚步：grass、path（`meadow_path` 土路）、wood（栅栏边、木桥）。
+
+### 3.5 湖畔
+- BGM：**新候选 `bgm_lakeside`**（F 大调，主题变奏）。现在 lakeside 档还借用 `bgm_main`。
+
+| 层 | 声音 | 文件 | 参数 |
+|---|---|---|---|
+| 底床 | 湖水 + 微风 + 稀疏风铃（上线的 LakeAmbience，不变） | `region_lakeside/audio/amb_lake_loop` | 19.0 s，vol 0.55 |
+| 点缀 | 以后可加：远处水鸟（素材没做，等 Funning 要不要） | — | — |
+| 地标 | 亭子风铃已经混在湖声里（C 五声 C6–C7） | — | 不另加，避免两套风铃 |
+
+- 地标候选（这次没做）：小桥下的水声、芦苇沙沙、停泊小船轻碰。真要做可以复用 `amb_island_dock_lap_loop`。
+- 脚步：grass、wood（小桥 / 亭子）、stone（台阶）、path。
+
+### 3.6 彩虹桥（小岛 → 湖畔，步行）
+- BGM 不换，到湖畔时降 3 dB；一开始走就停海鸥，海岸床 12 s 淡出，到达那段湖声淡入。
+
+### 3.7 热气球（草原 → 天空之城）
+- BGM：草原曲 → 航程 45% 处 dip 交接到天空之城曲。底床：高空风 vol 0.5，起飞 12 s 内淡入。点缀、地标：无。脚步：wood（吊篮）。
+
+### 3.8 天空之城（不放海鸥、海浪、鸟、虫）
+- BGM：`bgm_skycity`（D 小调 70 BPM 3/4，72.0 s）。
+
+| 层 | 声音 | 文件 | 参数 |
+|---|---|---|---|
+| 底床 | 高空风 + D 小调五声微光（合成） | `region_skycity/audio/amb_sky_air_loop` | 32.0 s，vol 0.75 |
+| 点缀 | 无（高处没有鸟虫，安静就是特色） | — | — |
+| 地标 | 云中瀑布（新，真实流水推远） | `region_skycity/audio/amb_sky_waterfall_loop` | 锚点 `env_sky_waterfall_mist`，16.0 s，vol 0.55，4–35 m |
+| 地标 | 风铃（新，合成玻璃铃，D 小调五声） | `region_skycity/audio/sfx_sky_chime_1..2` | 锚点 `env_sky_windchime`，10–22 s，3–20 m |
+| 地标 | 小旗扑动（复用已有） | `resources/audio_sfx/sfx_apron_flap` | 锚点 `env_sky_pennant`，14–30 s，vol 0.18，2–10 m |
+
+- 以后可加：机器人园丁浇水、星环转动（starring_spin）、大树树叶。
+- 脚步：新增 **cloud**（云桥 anchor_cloudbridge_*），stone（遗迹 / 星庭），grass（花坛）。
+
+### 3.9 关卡棋盘
+- 保持所在地区的 BGM。地区按 stageId 判断：`r05-meadow-*` 草原，`r05-sky-*` 天空之城，`r04/r05-lake-*` 湖畔，其他算小岛。
+
+## 4. 过渡规则（摘要；真实表用 2 s 等功率交叉，`SCENE_AUDIO_CROSSFADE_S`）
 | 过渡 | BGM | 带过去的层 |
 |---|---|---|
 | 家 → 小岛 | 不换 | 海岸床随开门出现 |
 | 小岛 → 海上 | 不换，-3 dB | 海岸床 0–8 s 淡出；远处海鸥只放前 10 s |
-| 海上 → 草原 | 航程过半时 dip 交接 6 s；跳过航程就到岸后再交接 | 海面床靠岸后 4 s 淡出；草原床靠岸前 6 s 淡入 |
+| 小岛 → 海上 → 草原 | 接上 bgm_sail 以后：出发 2 s 交叉到海上曲，靠岸 2 s 交叉到草原曲（F→C→G）。没接之前：航程过半时 dip 交接 6 s；跳过航程就到岸后再交接 | 海面床靠岸后 4 s 淡出；草原床靠岸前 6 s 淡入 |
 | 草原 → 热气球 | 不换 | 草原各层 10 s 淡出 |
 | 热气球 → 天空之城 | 航程 45% 处 dip 交接 6 s | 天空风 0.5 → 0.75 |
-| 小岛 → 彩虹桥 → 湖畔 | 不换，到达时 -3 dB | 海岸床 12 s 淡出，湖声在到达那段淡入 |
+| 小岛 → 彩虹桥 → 湖畔 | 接上 bgm_lakeside 以后：到达时 2 s 交叉（同为 F 大调）。没接之前：不换，到达时 -3 dB | 海岸床 12 s 淡出，湖声在到达那段淡入 |
 | 任意 → 棋盘 | 不换 | 环境床 1.5 s 降到 ×0.5 |
 | 任意 → 回家 / 小岛 | 3 s 交叉 | 地区各层 3 s 淡出，海鸥 4 s 后恢复 |
 | 没有专门写的 | GameAudio 默认 1.5 s | 淡出 3 s、淡入 3 s |
 
-## 4. 循环和接缝
+## 5. 脚步：按地面换声音
+
+| 地面 | 文件（各 4 个变体） | 来源 | 用在 |
+|---|---|---|---|
+| wood | `region_island/audio_steps/step_wood_1..4` | r4 合成 | 家、码头、甲板、木桥、亭子、吊篮 |
+| rug | `step_rug_1..4` | r4 合成 | 家里地毯 |
+| stone | `step_stone_1..4` | r4 合成 | 小岛石路、湖畔台阶、天空遗迹 |
+| path | `step_path_1..4` | r4 合成 | 小岛 / 草原 / 湖畔土路 |
+| grass | `step_grass_1..4` | r4 合成 | 小岛、草原、湖畔、天空花坛 |
+| **sand（新）** | `region_island/audio_steps/step_sand_1..4` | Kenney Impact Sounds（CC0）雪地脚步：高通 140 Hz、低通 3 kHz、轻混响，听起来像松软的沙 | 小岛沙滩 |
+| **cloud（新）** | `region_skycity/audio_steps/step_cloud_1..4` | Kenney 地毯脚步：低通 1.6 kHz，混响 0.7 s，软软闷闷的 | 天空之城云桥 |
+
+- 新脚步每个 2.3–2.6 KB（32 kbps 单声道），100 ms RMS 峰值约 -24.5 dBFS，和 r4 的 step_grass 一样（-24.4 / -24.0）。所以 `FOOTSTEP_SETS` 里给 0.34（介于 rug 和 grass 之间）。
+- 现状：`FootstepCore` 的 `StepSurface` 只有五种，`FOOTSTEP_GROUND` 网格只覆盖家和小岛。
+  草原 / 湖畔 / 天空之城要按 `SCENE_GROUND_TYPES` 给地面打标签（第一个是缺省地面），sand / cloud 也要加进 StepSurface。这些是播放器 / 网格的工作，留给 Cursor。
+- **r4.1 脚步重录的确认还在等 Mac 录音。** 新的 sand / cloud 只是候选，等 r4.1 定了再统一试听、统一响度。
+
+## 6. 循环和接缝
 - 新循环文件用的格式和 `amb_lake_loop` 一样：循环周期 `loopS` 后面多带 0.15 s 自己开头的音频（`dupS`）。双声源接力时在 `loopS - 0.15` 起第二个声源，因为两段音频相同，用线性交叉 0.15 s。也可以退回平台循环。
 - 真实录音的循环点做法：在原录音里挑首尾电平接近的窗口（`pickwin.py`），尾部 3 s 用等功率交叉叠回开头（虫鸣本来就周期重复，用线性交叉 1 s）。合成的天空风本身就是循环构造的（循环噪声 + 整数周期包络），混响和滤波平铺三份后取中间那份。
 - 自测（`seamcheck.py`，结果在 `measurements.json`）：
@@ -124,22 +194,51 @@
   - 连放三遍检查 7 kHz 以上的瞬时能量，接缝处都不高于文件里正常的鸟叫、浪花峰值。
 - 解码器延迟：ffmpeg 读 LAME 头，延迟是 0。不读头的解码器在开头会多约 25–50 ms 的静音，所以要像 LakeAmbience 那样从 `encoderDelayS` 处开始，或者走双声源接力。
 
-## 5. 包体
+- 两首新 BGM 是纯循环（不带重复尾巴，和上线 BGM 一样）。乐谱本身首尾回绕（最后的余音和混响折回开头），混响用 FFT 循环卷积。
+  mp3 解码长度和循环长度一致（35.5556 / 66.6667 s）。接缝跳变是全文件 99.9 百分位步长的 0.05 / 0.03 倍。连放三遍看 6 kHz 以上的能量，接缝处比文件里正常的拨弦起音低 12 / 11 dB。
+- 新地标循环：mp3 解码后重复段和开头的相关系数是 河 0.94、瀑布 0.94、码头 0.99。接缝处高频峰值不高于全文件 99.9 百分位。
+
+## 7. 包体
 | 分包 | 新增 | 字节 |
 |---|---|---|
-| audio_bgm_island | amb_island_shore_loop | 97,028 |
-| transport_sail | amb_sea_open_loop | 97,028 |
-| region_meadow | birds_loop 121,076 + insects_loop 58,628 + 3 段鸟鸣 38,544 + 2 段风车 30,976 | 249,224 |
-| region_skycity | amb_sky_air_loop | 129,140 |
-| **合计** | 10 个文件，主包 0 | **572,420** |
+| audio_bgm_island | shore_loop 97,028 + dock_lap_loop 36,884 | 133,912 |
+| transport_sail | sea_open_loop 97,028 + **bgm_sail 213,881** | 310,909 |
+| region_meadow | 鸟群 121,076 + 虫鸣 58,628 + 鸟鸣 38,544 + 风车 30,976 + 河 48,836 + 风铃 51,856 | 349,916 |
+| region_lakeside | **bgm_lakeside 400,552** | 400,552 |
+| region_skycity | 高空风 129,140 + 瀑布 48,836 + 风铃 53,296 + 云脚步 9,368 | 240,640 |
+| region_island | 沙地脚步 10,516 | 10,516 |
+| **合计** | 主包 0 | **1,446,445**（其中两首 BGM 614,433） |
 
-- 想再省：海岸和海面改成单声道 32 kbps 能各省约一半，但会失去左右的浪声宽度。这个要等真机试听后再决定。
+- 想再省：海岸和海面改成单声道 32 kbps 能各省约一半，但会失去左右的浪声宽度。两首 BGM 如果要更小，可以降到 40 kbps（和上线三首一样），各省约 17%。都等真机试听再决定。
 
-## 6. 没做 / 需要别人
-- 切换代码：云端 `feat/scene-audio-r1`。等它的配置表出来后，把 `scene-audio-table.json` 映射过去（只改数据）。
-- 真机：响度平衡、接缝、峰值实例数（新增层后：海岸 1、海鸥 L/R 2、风 2、草原最多 3 个循环 + 2 个单发），需要进 Mac 测试队列。
-- 湖畔专属 BGM：需要 Funning 决定。
+## 8. 映射到 SceneAudioTable.ts（只加数据，不改播放器）
 
-## 7. 素材来源备注
+| 暂定 json 里的内容 | SceneAudioTable.ts 里的位置 | 说明 |
+|---|---|---|
+| bgm（三首） | `BGM`（云端已有） | 不变 |
+| 海上 / 湖畔新曲 | **`BGM_CANDIDATES`**（sail、lakeside：path、bundle、loopS、调） | 没加进 `SceneTrackId`：`SceneMusic.SCENE_TRACKS` 是按 SceneTrackId 写死的，改类型就要改播放器 |
+| 层素材（鸟、虫、高空风、草原风、真实海岸、海面） | **`PENDING_LAYER_ASSETS`** | 素材在、播放器没写，所以档案的 `layers` 先不打开（打开了也不响）；`missing` 里的名字保留，意思变成「还听不到」 |
+| 各场景层 | **`SCENE_AMBIENCE_DESIGN`**（bed / scatter / landmarks） | 三层，带 vol、间隔、声像、锚点、nearM / farM |
+| 脚步 | **`FOOTSTEP_SETS`**、**`SCENE_GROUND_TYPES`** | gain 刻度和 `FootstepCore.STEP_GAIN` 一样 |
+| transitions | `SCENE_AUDIO_CROSSFADE_S = 2`（云端已有） | 我的 dip 方案在 §4，接线时参考 |
+
+**Cursor 要接的线**（播放器代码，本分支没写）：
+1. 在 `SceneTrackId` 里加 `'sail' | 'lakeside'`，在 `SceneMusic.SCENE_TRACKS` 里加两行（取 `BGM_CANDIDATES`），把 sail / lakeside 档的 track 改过去，并删掉 missing 里的 `sail-bgm` / `lakeside-bgm`。
+2. 鸟、虫、高空风、草原风的循环播放器（读 `PENDING_LAYER_ASSETS` / `SCENE_AMBIENCE_DESIGN.bed`），打开后再从 `missing` 删名字。
+3. 点缀和地标的调度器（随机间隔 + 按距离衰减），以及上面说的同时发声上限 6。
+4. 脚步：StepSurface 加 sand / cloud，给其他场景的地面打标签。
+
+测试：`tools/voice-bot/bgm/test_scene_audio_transitions.cjs` 原来断言「湖畔 / 海上 BGM 文件不存在」。现在改成三条：文件存在；在 `BGM_CANDIDATES` 里；还没接进 `BGM`。
+另外加了一条：`PENDING_LAYER_ASSETS` 的文件都在。29 项全过，`test_scene_bgm.cjs` 122 项全过。
+
+## 9. 没做 / 需要别人
+- 播放器接线：见 §8（Cursor）。
+- 真机：响度平衡、接缝、同时发声数。需要进 Mac 测试队列。
+- r4.1 脚步重录：等 Mac 录音确认。
+- 湖畔点缀（水鸟）、湖畔其他地标、天空之城的园丁和星环：没做，等 Funning 要不要。
+- 三首上线 BGM 的主题化重编配：这次按要求没重渲，只做了 demo。
+
+## 10. 素材来源备注
 - Freesound 的 CDN 现在拒绝共享电脑访问（403），这一版的真实录音都来自 OpenGameArt 上标为 CC0 的条目，每条都核对过页面上的许可。
 - 能找到的真实「大风」录音都有严重的话筒风噪，不能用。所以天空风是合成的。以后如果拿到干净的 CC0 高空风录音，可以替换。
+- 新的真实录音（河、瀑布、码头）都来自上一版已核对过的 OpenGameArt CC0 条目；脚步来自 Kenney Impact Sounds（CC0，包里带 License.txt）。风铃和两首 BGM 是自己合成、自己作曲的，没有用任何采样。

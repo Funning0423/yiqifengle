@@ -1,4 +1,5 @@
 {
+  "_superseded": "Superseded by creator-build-project/assets/scripts/audio/SceneAudioTable.ts (feat/scene-audio-r1 format): BGM_CANDIDATES, PENDING_LAYER_ASSETS, SCENE_AMBIENCE_DESIGN, FOOTSTEP_SETS, SCENE_GROUND_TYPES. Kept only as the design record for transition timings. See docs/audio/scene-sound-design.md §8.",
   "version": 1,
   "status": "PROVISIONAL (Voice bot, 2026-10-18). feat/scene-audio-r1 did not exist on GitHub when this was written; the cloud task should map these rows onto its real config format. Values (paths, loop facts, volumes, fades, intervals) are the design source of truth; key names are not.",
   "conventions": {

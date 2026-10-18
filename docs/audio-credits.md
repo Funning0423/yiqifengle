@@ -115,3 +115,23 @@ appended. One-shots have a 40–80 ms rounded onset, a 1.0–1.2 s reverb tail a
 
 Reused unchanged: gull v6 (`resources/audio_sfx/sfx_amb_gull_1..3`), `resources/audio_amb/amb_wind_soft_loop`,
 `region_lakeside/audio/amb_lake_loop`, and the three BGMs.
+
+### Scene audio V2, second delivery (ACNH supplement + real-table mapping, Voice bot, 2026-10-18)
+
+Config mapping is in `creator-build-project/assets/scripts/audio/SceneAudioTable.ts`: `BGM_CANDIDATES`, `PENDING_LAYER_ASSETS`,
+`SCENE_AMBIENCE_DESIGN`, `FOOTSTEP_SETS` and `SCENE_GROUND_TYPES`. Rebuild scripts are `tools/voice-bot/scene-audio-v2/s_landmarks.py`,
+`s_steps.py` and `music/*.py`. Loudness was measured with ffmpeg ebur128 on the shipped mp3.
+
+| file (creator-build-project/assets/bundles/…) | bytes | format | loudness (I / TP) | source | author | licence | excerpt / processing |
+|---|---|---|---|---|---|---|---|
+| transport_sail/audio_amb/bgm_sail.mp3 | 213,881 | 48 kbps stereo 44.1 kHz, plain circular loop 35.556 s | -17.4 LUFS / -5.1 dBTP | original composition + synthesis (`music/sail.py`, `music/synth.py`, `music/motif.py`) | Voice bot | CC0 1.0 (own work, no samples) | C major, 6/8, dotted quarter = 54. Nylon-guitar rocking arpeggio, bass, string swells. The flute plays the shared motif 「风起」 (bars 2–9), then the strings repeat it a third lower. Circular reverb RT 2.6 s |
+| region_lakeside/audio/bgm_lakeside.mp3 | 400,552 | 48 kbps stereo 44.1 kHz, plain circular loop 66.667 s | -17.4 LUFS / -5.5 dBTP | original composition + synthesis (`music/lakeside.py`) | Voice bot | CC0 1.0 (own work, no samples) | F major, 72 BPM. Harp arpeggios, soft bass, strings in bars 10–17. The piano plays the motif, then sequences it a third lower. Circular reverb RT 2.4 s |
+| region_meadow/audio/amb_meadow_river_loop.mp3 | 48,836 | 24 kbps mono 24 kHz, loop 16.0 s + 0.15 s dup | -27.2 / -13.0 | "Park Ambiences" (park_ambience_river.wav) https://opengameart.org/content/park-ambiences | thimras | CC0 1.0 | source from 62.5 s. HP / de-harsh / LP, light reverb |
+| region_skycity/audio/amb_sky_waterfall_loop.mp3 | 48,836 | 24 kbps mono 24 kHz, loop 16.0 s + 0.15 s dup | -27.2 / -13.7 | same park_ambience_river.wav | thimras | CC0 1.0 | source from 274 s. HP 350 Hz, LP 4.5 kHz, reverb RT 2.5 s (distant mist) |
+| audio_bgm_island/audio/amb_island_dock_lap_loop.mp3 | 36,884 | 24 kbps mono 24 kHz, loop 12.0 s + 0.15 s dup | -27.3 / -9.8 | "Sea and river wave sounds" (VistulaShort.mp3) https://opengameart.org/content/sea-and-river-wave-sounds | randommind | CC0 1.0 | source from 80.5 s. LP 1.6 kHz (water lapping under the pier) |
+| region_meadow/audio/sfx_meadow_windbell_1.mp3 / _2 | 26,576 / 25,280 | mono, 6.6 s natural tail | -29.4 / -17.2, -17.8 | own synthesis (`s_landmarks.py`) | Voice bot | CC0 1.0 (own work) | bronze-bell partials, G pentatonic, soft strike, reverb tail |
+| region_skycity/audio/sfx_sky_chime_1.mp3 / _2 | 26,000 / 27,296 | mono, 6.4 s natural tail | -30.5 / -20.0, -30.4 / -19.6 | own synthesis (`s_landmarks.py`) | Voice bot | CC0 1.0 (own work) | glass partials, D minor pentatonic (matches the sky-air glints) |
+| region_island/audio_steps/step_sand_1..4.mp3 | 2,629 each | 32 kbps mono 44.1 kHz, 0.60 s | 100 ms RMS max ≈ -24.5 dBFS (same as step_grass) | Kenney "Impact Sounds" footstep_snow_000/001/002/004.ogg https://kenney.nl/assets/impact-sounds | Kenney | CC0 1.0 | HP 140 Hz, LP 3 kHz, de-harsh -3 dB, reverb RT 0.35 s |
+| region_skycity/audio_steps/step_cloud_1..4.mp3 | 2,420 / 2,316 / 2,316 / 2,316 | 32 kbps mono 44.1 kHz, 0.55 s | ≈ -24.5 dBFS (as above) | Kenney "Impact Sounds" footstep_carpet_000..003.ogg | Kenney | CC0 1.0 | HP 120 Hz, LP 1.6 kHz, reverb RT 0.7 s wet -9 dB (soft, padded) |
+
+Non-shipped preview only: `motif_demo` (the motif in the island and meadow arrangements), made from the same own-synthesis scripts.

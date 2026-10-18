@@ -1,5 +1,10 @@
 [
   {
+    "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/amb_island_dock_lap_loop.mp3",
+    "bytes": 36884,
+    "sha256": "7c0281aa9962bed6be31b673754711d8c664b1d6d2dc42c07043c8a113845ff9"
+  },
+  {
     "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/amb_island_shore_loop.mp3",
     "bytes": 97028,
     "sha256": "34d5e0021b8f86f6a9fecf622c6be42e8168592e2f2d7a30c11b12cc152cb842"
@@ -420,6 +425,26 @@
     "sha256": "308a3218749e655609def03591fe9f3251ce3198f9f8f58400fcc720a74ad949"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_1.mp3",
+    "bytes": 2629,
+    "sha256": "40fc86af460dd59f4dfe12d09336b3a0c6ffff028e9ba949302915e10a1502cd"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_2.mp3",
+    "bytes": 2629,
+    "sha256": "fb4c8662ebf13b5b922cf3b29873ad887a16841d678cc5f7de6878c04324c27a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_3.mp3",
+    "bytes": 2629,
+    "sha256": "9a8ca55ecb804b8881c03e28c0618982e216662b3b80d5a4bc9369ede0c35ab2"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_sand_4.mp3",
+    "bytes": 2629,
+    "sha256": "c604d8c83c4950037ed325ddbc84f9b32de170d99abf8a17c90cc5dae535aa28"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/board/bg_island_board.jpg",
     "bytes": 23276,
     "sha256": "4c18d04cd815cf966fd2e7c23f780d7bb21ecd20bea912a83a39f0dbf1fa098a"
@@ -465,6 +490,11 @@
     "sha256": "7daf8bf697407405e302e7679d18659ce19ec9df66249937028ce2eb8f554918"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/bgm_lakeside.mp3",
+    "bytes": 400552,
+    "sha256": "21f9b87c62553850666e862dd1af04af33a466d543f1bf15c5bad470ba1621c6"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_birds_loop.mp3",
     "bytes": 121076,
     "sha256": "133067f8cfd55dbe6340bffb8570d803f7e5c58182f8cbe6a21494a6048cbab7"
@@ -473,6 +503,11 @@
     "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_insects_loop.mp3",
     "bytes": 58628,
     "sha256": "cd3e6895be9edf8e267707ed7abd1d02ead470d3931fed65339ccc2d17b5a849"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_river_loop.mp3",
+    "bytes": 48836,
+    "sha256": "63a69d810da99c1452964b54af761753baa9a4debce36241aae67e3ddd7a75ff"
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3",
@@ -495,6 +530,16 @@
     "sha256": "8f468ed5fa82381c68e5f008f622893093b278389ee0c622889f8c9824290083"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_windbell_1.mp3",
+    "bytes": 26576,
+    "sha256": "fc379eef1a1949dd9be63ae5f8a34083191d17483a4d3a7ffe1aa65eb1ede6b0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_meadow_windbell_2.mp3",
+    "bytes": 25280,
+    "sha256": "ff476edd3c568aef48b2a9e5cecaaf74a239cdde3573cb65afd2d7f9faf30a3c"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/sfx_windmill_creak_1.mp3",
     "bytes": 14480,
     "sha256": "589e1fd0255cfb8ba0be6754e2cf793ebf84f4a99d5ccd04cb4ccec5a024f4bf"
@@ -510,9 +555,44 @@
     "sha256": "94b4e62ea5ebdc9c2779ac4af6b7f4af01f1d84ceb1581fee019dfba8de9918a"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_waterfall_loop.mp3",
+    "bytes": 48836,
+    "sha256": "be1bf40486d480a66bfee6545bcad7035c6c9f89be8df366723f9cb70b520466"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3",
     "bytes": 432526,
     "sha256": "88016beea998d5993d6ad68a0013da269a1e3e32c7ee082b3df2e38baab2c3b5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_1.mp3",
+    "bytes": 26000,
+    "sha256": "ee77cace458ec70b294223afdd7b6b259865955c67a8c5fab5484c4a7260fbee"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_2.mp3",
+    "bytes": 27296,
+    "sha256": "9e36c3a9ee9da04efb7629c4c54905b1dba7f784e649f44e8453a5be0c5439b4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_1.mp3",
+    "bytes": 2420,
+    "sha256": "9b27fba8920be562f97670e6b7df1afd812a3ac269a5defc731cff941cc4ee27"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_2.mp3",
+    "bytes": 2316,
+    "sha256": "1fc07b99ab46d43f3e840f127d8bb3bdec032dd93c4d06d9537e4685dcbbdff6"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_3.mp3",
+    "bytes": 2316,
+    "sha256": "1fc07b99ab46d43f3e840f127d8bb3bdec032dd93c4d06d9537e4685dcbbdff6"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio_steps/step_cloud_4.mp3",
+    "bytes": 2316,
+    "sha256": "40141de06248616117c0ed6756ae3d40718e8f49a594a96202f37cc63cd723aa"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg",
@@ -538,6 +618,11 @@
     "path": "creator-build-project/assets/bundles/transport_sail/audio_amb/amb_sea_open_loop.mp3",
     "bytes": 97028,
     "sha256": "116cf1bf6bff1b827d17c71e69e61f0017ad663664a98a8f6fe6dd5c3821f2bc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/audio_amb/bgm_sail.mp3",
+    "bytes": 213881,
+    "sha256": "b1124a6657e81e3b986fc1ec940aeedf2857c2d4f72a1943d5c45840af8f2d6a"
   },
   {
     "path": "creator-build-project/assets/resources/audio_amb/amb_waves_loop.mp3",

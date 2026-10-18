@@ -1,5 +1,27 @@
 [
  {
+  "name": "amb_island_dock_lap_loop",
+  "src": "src/VistulaShort_0.mp3",
+  "ss": 80.5,
+  "loopS": 12.0,
+  "xfadeS": 2.0,
+  "dupS": 0.15,
+  "bytes": 36884,
+  "lufs": -27.3,
+  "truePeak": -9.8,
+  "lra": 4.6,
+  "kbps": 24,
+  "sr": 24000,
+  "ch": 1,
+  "seam": {
+   "seam_jump": 0.004263856846764259,
+   "step_p99_9": 0.01983902042657477,
+   "ratio": 0.2149227509659607,
+   "rms_end_db": -24.4,
+   "rms_start_db": -21.7
+  }
+ },
+ {
   "name": "amb_island_shore_loop",
   "src": "src/VistulaShort_0.mp3",
   "ss": 200.5,
@@ -66,6 +88,28 @@
   }
  },
  {
+  "name": "amb_meadow_river_loop",
+  "src": "src/park_ambience_river.wav",
+  "ss": 62.5,
+  "loopS": 16.0,
+  "xfadeS": 2.0,
+  "dupS": 0.15,
+  "bytes": 48836,
+  "lufs": -27.2,
+  "truePeak": -13.0,
+  "lra": 0.2,
+  "kbps": 24,
+  "sr": 24000,
+  "ch": 1,
+  "seam": {
+   "seam_jump": 0.0046854547549073505,
+   "step_p99_9": 0.026549176402482645,
+   "ratio": 0.17648211318121063,
+   "rms_end_db": -27.0,
+   "rms_start_db": -28.1
+  }
+ },
+ {
   "name": "amb_sea_open_loop",
   "src": "src/VistulaShort_0.mp3",
   "ss": 37.5,
@@ -107,6 +151,72 @@
    "rms_end_db": -25.8,
    "rms_start_db": -25.6
   }
+ },
+ {
+  "name": "amb_sky_waterfall_loop",
+  "src": "src/park_ambience_river.wav",
+  "ss": 274.0,
+  "loopS": 16.0,
+  "xfadeS": 2.0,
+  "dupS": 0.15,
+  "bytes": 48836,
+  "lufs": -27.2,
+  "truePeak": -13.7,
+  "lra": 1.0,
+  "kbps": 24,
+  "sr": 24000,
+  "ch": 1,
+  "seam": {
+   "seam_jump": 0.011157240368620754,
+   "step_p99_9": 0.02665538081444372,
+   "ratio": 0.4185736623262355,
+   "rms_end_db": -28.1,
+   "rms_start_db": -28.4
+  }
+ },
+ {
+  "name": "bgm_lakeside",
+  "src": "own composition + synthesis (music/*.py)",
+  "loopS": 66.6667,
+  "decodedS": 66.6667,
+  "bytes": 400552,
+  "lufs": -17.4,
+  "truePeak": -5.5,
+  "lra": 8.5,
+  "kbps": 48,
+  "sr": 44100,
+  "ch": 2,
+  "seam": {
+   "seam_jump": 0.0014460086822509766,
+   "step_p99_9": 0.051115514755249336,
+   "ratio": 0.02828903688335035,
+   "rms_end_db": -34.0,
+   "rms_start_db": -28.5
+  },
+  "seam_hf_vs_local_db": 28.7,
+  "file_hf_p99_9_db": 39.7
+ },
+ {
+  "name": "bgm_sail",
+  "src": "own composition + synthesis (music/*.py)",
+  "loopS": 35.5556,
+  "decodedS": 35.5556,
+  "bytes": 213881,
+  "lufs": -17.4,
+  "truePeak": -5.1,
+  "lra": 10.1,
+  "kbps": 48,
+  "sr": 44100,
+  "ch": 2,
+  "seam": {
+   "seam_jump": 0.001920938491821289,
+   "step_p99_9": 0.04022785067558293,
+   "ratio": 0.04775145724947936,
+   "rms_end_db": -28.6,
+   "rms_start_db": -28.5
+  },
+  "seam_hf_vs_local_db": 26.7,
+  "file_hf_p99_9_db": 39.1
  },
  {
   "name": "sfx_meadow_bird_1",
@@ -151,6 +261,46 @@
   "ch": 1
  },
  {
+  "name": "sfx_meadow_windbell_1",
+  "src": "own synthesis (s_landmarks.py)",
+  "bytes": 26576,
+  "lufs": -29.4,
+  "truePeak": -17.2,
+  "durS": 6.55,
+  "ch": 1,
+  "kbps": 32
+ },
+ {
+  "name": "sfx_meadow_windbell_2",
+  "src": "own synthesis (s_landmarks.py)",
+  "bytes": 25280,
+  "lufs": -29.4,
+  "truePeak": -17.8,
+  "durS": 6.2,
+  "ch": 1,
+  "kbps": 32
+ },
+ {
+  "name": "sfx_sky_chime_1",
+  "src": "own synthesis (s_landmarks.py)",
+  "bytes": 26000,
+  "lufs": -30.5,
+  "truePeak": -20.0,
+  "durS": 6.4,
+  "ch": 1,
+  "kbps": 32
+ },
+ {
+  "name": "sfx_sky_chime_2",
+  "src": "own synthesis (s_landmarks.py)",
+  "bytes": 27296,
+  "lufs": -30.4,
+  "truePeak": -19.6,
+  "durS": 6.7,
+  "ch": 1,
+  "kbps": 32
+ },
+ {
   "name": "sfx_windmill_creak_1",
   "src": "src/tree_creak.flac",
   "ss": 3.55,
@@ -177,5 +327,69 @@
   "kbps": 32,
   "sr": 32000,
   "ch": 1
+ },
+ {
+  "name": "step_cloud_1",
+  "src": "Kenney Impact Sounds footstep_carpet_000.ogg",
+  "bytes": 2420,
+  "rms100ms_max": -24.5,
+  "peak": -5.8,
+  "durS": 0.52
+ },
+ {
+  "name": "step_cloud_2",
+  "src": "Kenney Impact Sounds footstep_carpet_001.ogg",
+  "bytes": 2316,
+  "rms100ms_max": -24.5,
+  "peak": -10.9,
+  "durS": 0.49
+ },
+ {
+  "name": "step_cloud_3",
+  "src": "Kenney Impact Sounds footstep_carpet_002.ogg",
+  "bytes": 2316,
+  "rms100ms_max": -24.5,
+  "peak": -10.9,
+  "durS": 0.49
+ },
+ {
+  "name": "step_cloud_4",
+  "src": "Kenney Impact Sounds footstep_carpet_003.ogg",
+  "bytes": 2316,
+  "rms100ms_max": -24.4,
+  "peak": -6.5,
+  "durS": 0.49
+ },
+ {
+  "name": "step_sand_1",
+  "src": "Kenney Impact Sounds footstep_snow_000.ogg",
+  "bytes": 2629,
+  "rms100ms_max": -24.3,
+  "peak": -7.9,
+  "durS": 0.55
+ },
+ {
+  "name": "step_sand_2",
+  "src": "Kenney Impact Sounds footstep_snow_001.ogg",
+  "bytes": 2629,
+  "rms100ms_max": -24.5,
+  "peak": -11.8,
+  "durS": 0.55
+ },
+ {
+  "name": "step_sand_3",
+  "src": "Kenney Impact Sounds footstep_snow_002.ogg",
+  "bytes": 2629,
+  "rms100ms_max": -24.5,
+  "peak": -12.5,
+  "durS": 0.55
+ },
+ {
+  "name": "step_sand_4",
+  "src": "Kenney Impact Sounds footstep_snow_004.ogg",
+  "bytes": 2629,
+  "rms100ms_max": -24.4,
+  "peak": -9.4,
+  "durS": 0.55
  }
 ]
