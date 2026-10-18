@@ -70,8 +70,8 @@ APRON_R = [12.0, 40.0, 56.0, 68.0, 80.0, 92.0, 102.0]
 # (centre x, centre z, half-axis x, half-axis z, water y just under the river's last vertices); chan = short water strip
 # from the river end to the pond (x0, x1, centre z, half width); corridor = river centre z at the terrain edge.
 RIVER_ENDS = [
-    dict(name='east', az0=57.0, az1=78.0, pond=(86.5, 33.0, 6.5, 5.5, -5.36), chan=(79.0, 82.0, 32.4, 4.2), zc=(30.0, 32.4)),
-    dict(name='west', az0=284.0, az1=305.0, pond=(-84.5, 43.4, 6.5, 5.5, -5.05), chan=(-79.0, -82.0, 43.6, 4.2), zc=(46.0, 43.6)),
+    dict(name='east', az0=52.0, az1=84.0, seed=3, pond=(86.5, 33.0, 6.5, 5.5, -5.36), chan=(79.0, 82.0, 32.4, 4.2), zc=(30.0, 32.4)),
+    dict(name='west', az0=279.0, az1=313.0, seed=8, pond=(-84.5, 43.4, 6.5, 5.5, -5.05), chan=(-79.0, -82.0, 43.6, 4.2), zc=(46.0, 43.6)),
 ]
 SUB_AZ = 2          # sub-grid: 1.125 deg columns
 SUB_DR_NEAR, SUB_DR_FAR = 3.0, 6.0  # radial step near the pond (r >= 66) / further in
@@ -86,29 +86,45 @@ def corridor_w(x, z):
         if 50.0 <= ax <= 82.0:
             t = (ax - 50.0) / 30.0
             zc = e['zc'][0] + (e['zc'][1] - e['zc'][0]) * min(1.0, t)
-            w = max(w, smooth((12.0 - abs(z - zc)) / 5.0) * smooth((ax - 50.0) / 4.0) * smooth((82.0 - ax) / 3.0))
+            w = max(w, smooth((22.0 - abs(z - zc)) / 15.0) * smooth((ax - 50.0) / 4.0) * smooth((82.0 - ax) / 3.0))  # wide eased sides: the cut toward the pond is a gentle valley, not a wall
     return w
 
 def in_corridor(x, z):
     return corridor_w(x, z) > 0.0
 
+def pond_rho(e, a):
+    """Irregular pond outline: radius factor over the angle a (in the pond's normalised x/z), a few deterministic
+    harmonics per pond so neither pond reads as a plain ellipse; kept >= 1 toward the channel so the river still runs in."""
+    if '_h' not in e:
+        rng = np.random.RandomState(e['seed']); e['_h'] = [(k, amp, rng.uniform(0, TAU)) for k, amp in ((2, 0.16), (3, 0.12), (5, 0.07))]
+    v = 1.0 + sum(amp * math.cos(k * a + ph) for k, amp, ph in e['_h'])
+    toward = math.pi if e['pond'][0] > 0 else 0.0  # the channel side (toward the meadow)
+    dd = abs((a - toward + math.pi) % TAU - math.pi)
+    return v + (max(v, 1.0) - v) * smooth((1.0 - dd) / 0.6)  # eased: a hard switch notched the outline next to the channel
+
 def _pond_dist(e, x, z):
     cx, cz, rx, rz, wy = e['pond']; x0, x1, zc, hw = e['chan']
-    ex = math.hypot((x - cx) / rx, (z - cz) / rz)
+    nx, nz = (x - cx) / rx, (z - cz) / rz
+    ex = math.hypot(nx, nz) / pond_rho(e, math.atan2(nz, nx))
     dp = (ex - 1.0) * min(rx, rz)
     lo, hi = min(x0, x1), max(x0, x1)
-    dc = max(abs(z - zc) - hw, lo - x, x - hi)
-    return min(dp, dc), wy
+    qx, qz = max(lo - x, x - hi), abs(z - zc) - hw  # rounded-box distance (a plain max() leaves diagonal creases in the bank)
+    dc = math.hypot(max(qx, 0.0), max(qz, 0.0)) + min(max(qx, qz), 0.0)
+    return smin(dp, dc, 3.0), wy
+
+def smin(a, b, k):  # smooth union: rounds the concave corner where the channel meets the pond (no dark notch at the join)
+    h = max(k - abs(a - b), 0.0) / k
+    return min(a, b) - h * h * k * 0.25
 
 def valley(x, z):
     """Pond basin + channel: bed under the water, shore just above it, banks rising back up to the apron."""
     y = 1e9
     for e in RIVER_ENDS:
         d, wy = _pond_dist(e, x, z)
-        if d > 14.0: continue
+        if d > 16.0: continue
         if d < -1.0: v = wy - 0.7
         elif d < 0.0: v = wy - 0.7 + 0.8 * (d + 1.0)
-        else: v = wy + 0.1 + 6.5 * smooth(d / 9.0)
+        else: v = wy + 0.1 + 6.5 * smooth(d / 12.0)  # wide, gentle bank (a 9 m bank aliased into streaks on the polar sub-grid)
         y = min(y, v)
     return y
 
@@ -137,12 +153,24 @@ def terrain_sampler(b):
     G = np.full((n, n), np.inf)
     ix = np.clip(np.round((V[:, 0] - lo) / cell).astype(int), 0, n - 1); iz = np.clip(np.round((V[:, 2] - lo) / cell).astype(int), 0, n - 1)
     np.minimum.at(G, (ix, iz), V[:, 1].astype(np.float64))
-    def f(x, z):
-        if abs(x) > hi + 6 or abs(z) > hi + 6: return None
-        i0, i1 = int((x - 6 - lo) // cell), int((x + 6 - lo) // cell) + 1
-        k0, k1 = int((z - 6 - lo) // cell), int((z + 6 - lo) // cell) + 1
+    def raw(x, z, r):
+        i0, i1 = int((x - r - lo) // cell), int((x + r - lo) // cell) + 1
+        k0, k1 = int((z - r - lo) // cell), int((z + r - lo) // cell) + 1
         w = G[max(0, i0):max(0, min(n, i1 + 1)), max(0, k0):max(0, min(n, k1 + 1))]
         return float(w.min()) if w.size and np.isfinite(w).any() else None
+    # the window min is piecewise constant (2 m steps); along the river corridors that stepped the clamped apron into
+    # streaky terraces, so it is sampled on the grid nodes and interpolated bilinearly. win: window half size (m) --
+    # 6 m under the meadow, 2.5 m along the river corridors (a 6 m window there reaches the river bed from the banks and
+    # pulled the whole corridor down into a deep trough with a steep, streaky side wall)
+    m = int(round((hi - lo + 24) / cell)) + 1; L0 = lo - 12.0
+    FS = {r: [[raw(L0 + a * cell, L0 + b * cell, r) for b in range(m)] for a in range(m)] for r in (6.0, 2.5)}
+    def f(x, z, win=6.0):
+        if abs(x) > hi + 6 or abs(z) > hi + 6: return None
+        F = FS[win]
+        u, v = (x - L0) / cell, (z - L0) / cell; a, b = int(u), int(v); fu, fv = u - a, v - b
+        c = [F[a][b], F[a + 1][b], F[a][b + 1], F[a + 1][b + 1]]
+        if any(t is None for t in c): return raw(x, z, win)
+        return (c[0] * (1 - fu) + c[1] * fu) * (1 - fv) + (c[2] * (1 - fu) + c[3] * fu) * fv
     return f
 
 def prof(t):  # rounded hill flank, 0 at foot -> 1 at crest, zero slope at the crest
@@ -183,8 +211,13 @@ def build(terrain=None):
                 if max(abs(x), abs(z)) < 58.0: y = min(y, t - 0.4)
                 else:
                     w = corridor_w(x, z)
-                    if w > 0.0: y = y + (min(y, t - 0.4) - y) * w
-        return (x, min(y, valley(x, z)), z)
+                    if w > 0.0:
+                        tc = terrain(x, z, 2.5)
+                        y = y + (min(y, (t if tc is None else tc) - 0.4) - y) * w
+        # the basin fades out over the last 8 m before the near-hill foot ring (fixed at YF): cut right up to it, the
+        # bank folded into a dark notch against the hill front
+        fade = smooth((g[4](d) - r) / 8.0)
+        return (x, y + (min(y, valley(x, z)) - y) * fade, z)
     def apron_uv(p):
         w = water_near(p[0], p[2], p[1])
         return uv(g[1], g[2] - 0.2 * w)  # a little darker (wet) right at the pond shore, same palette row
@@ -253,10 +286,9 @@ def build(terrain=None):
     for e in RIVER_ENDS:
         cx, cz, rx, rz, wy = e['pond']; x0, x1, zc, hw = e['chan']
         lo, hi = min(x0, x1), max(x0, x1)
-        def inside(x, z):
-            return (math.hypot((x - cx) / (rx * 1.06), (z - cz) / (rz * 1.06)) <= 1.0 or
-                    (lo <= x <= hi and abs(z - zc) <= hw))
-        n = 28; c0 = len(P); P.append((cx, wy, cz)); T.append(uv(9, 0.42))
+        def inside(x, z):  # the water reaches 0.35 m past the shore line (the shore dips 0.8 m over the last 1 m)
+            return _pond_dist(e, x, z)[0] <= 0.35
+        n = 40; c0 = len(P); P.append((cx, wy, cz)); T.append(uv(9, 0.42))
         for q in range(n):
             a = q * TAU / n; ca, sa = math.cos(a), math.sin(a); r = 0.0
             while inside(cx + (r + 0.05) * ca, cz + (r + 0.05) * sa): r += 0.05

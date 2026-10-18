@@ -6,7 +6,7 @@ export const MEADOW_SCENE_SOURCE = {
   "version": "v0.8.0",
   "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
   "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
-  "derivedGLBSHA256": "e85f608b0f786a97b4f2e4ab90d77f0d8857638754668ae141bcb6107b8e3c9c",
+  "derivedGLBSHA256": "a72f07e6c2507c7ad20e1d73ce8db7d402c24fd1e8b30b562b39d047327ce8ff",
   "windmillSeconds": 8,
   "windPeriodSeconds": 4,
   "nodeCount": 67,
