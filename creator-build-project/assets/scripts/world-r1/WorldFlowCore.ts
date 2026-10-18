@@ -643,10 +643,31 @@ export class WorldFlow {
    *  from 0, wind/waves hard-stopped by the 'standing' quiet). Now hide() FREEZES it: token, jobs, camera track, character
    *  action and state are kept untouched; hidden+needsResume stop both clocks (advance() here, the job loop in
    *  WorldFlowComponent.update), so position, clip time, camera progress, door angle, light ramps and wind hold exactly.
-   *  show() lifts the freeze by itself (no 继续): the same walk continues from the same frame. Everything else (seated,
-   *  island, levels, journeys, sky visit) keeps the paused + resume() behaviour. */
+   *  show() lifts the freeze by itself (no 继续): the same walk continues from the same frame.
+   *  r5 F4: the same freeze covers a journey (region-loading / region-travel, sail and balloon included — their ride
+   *  token stays alive) and an arrived meadow / lakeside / journey-skycity, plus an island free-walk that is mid-step.
+   *  Seated home, idle island, the sky-city visit and board levels stay paused until an explicit resume(). */
   private frozen=false;
-  private freezable():boolean {return !!this.current&&!!this.world&&(EXIT_STATES.indexOf(this.state)>=0||RETURN_STATES.indexOf(this.state)>=0);}
+  /** Journey load/travel. Sail and balloon are a ride inside region-travel, so they freeze with it. */
+  private travelFreeze():boolean {return this.state==='region-loading'||this.state==='region-travel';}
+  /** Arrived region the player can walk around. The sky-city visit (no journey region) is not this. */
+  private regionDwell():boolean {
+    if(this.state==='meadow'||this.state==='lakeside')return true;
+    return this.state==='skycity'&&this.journey?.snapshot().region==='skycity';
+  }
+  /** Idle island keeps 「继续」. A live free-walk (0 < progress < 1) freezes so she does not snap back to the node. */
+  private islandWalk():boolean {
+    if(this.state!=='island')return false;
+    const p=this.character?.walkProgress?.();
+    return typeof p==='number'&&Number.isFinite(p)&&p>0&&p<1;
+  }
+  private freezable():boolean {
+    if(!this.world)return false;
+    if(this.current&&(EXIT_STATES.indexOf(this.state)>=0||RETURN_STATES.indexOf(this.state)>=0||this.travelFreeze()))return true;
+    return this.regionDwell()||this.islandWalk();
+  }
+  /** show() must not cancelAndReset a dwell or an island free-walk that has no flow token. */
+  private holdPose():boolean {return this.regionDwell()||this.state==='island';}
   hide():void {
     if(this.state==='disposed'||this.hidden)return;
     if(this.freezable()){this.frozen=true;this.hidden=true;this.needsResume=true;this.emit(this.snapshot());return;}
@@ -658,7 +679,7 @@ export class WorldFlow {
    *  r4.1: a frozen exit / walk home resumes by itself, from the frame it was hidden on. */
   show():void {
     if(this.state==='disposed'||!this.hidden)return;this.hidden=false;
-    if(this.frozen){this.frozen=false;if(this.state!=='error'&&this.world){this.needsResume=false;if(!this.current)this.restore();this.emit(this.snapshot());return;}} // finished while hidden (last step resolved): land it visibly
+    if(this.frozen){this.frozen=false;if(this.state!=='error'&&this.world){this.needsResume=false;if(!this.current&&!this.holdPose())this.restore();this.emit(this.snapshot());return;}} // finished while hidden (last step resolved): land it visibly. A dwell / island walk has no token and must keep her feet.
     this.level?.showPaused();
     if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
       this.needsResume=false;this.restore();this.change('level');return;

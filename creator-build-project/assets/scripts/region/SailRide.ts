@@ -113,14 +113,15 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
   const dur=Math.min(Math.max(0.5,plan.arrivalS),12);
   const walking=actor.perform({kind:'walk',path:plan.arrival,duration:dur},token);
   const tick=async()=>{
-   const t0=Date.now();
-   while(true){
+   let elapsed=0;
+   while(elapsed+1e-4<dur){
     token.check();
-    const u=Math.min(1,(Date.now()-t0)/(dur*1000));
-    driver.setArrivalU(u);
-    if(u>=1)break;
     if(world.wait)await world.wait(0.05,token);else await new Promise(r=>setTimeout(r,50));
+    if(typeof document!=='undefined'&&document.hidden)continue;
+    elapsed+=0.05;
+    driver.setArrivalU(Math.min(1,elapsed/dur));
    }
+   driver.setArrivalU(1);
   };
   await Promise.all([walking,tick()]);
   driver.setArrivalU(1);
