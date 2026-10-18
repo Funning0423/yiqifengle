@@ -5,9 +5,9 @@
 | 项 | 值 |
 | --- | --- |
 | BASE_SHA | `0e04ce2ee02ffc0cda1bef8855b79cee8ce1ace2` |
-| 最终 HEAD | `144d4facb677b47c3be3f544ebdb60463a298bd2` |
-| 最终 tree | `47b60b050aa55dec3752956d2e3c777fdae3cbf2` |
-| build-guard HEAD | 同上（wechat-release / web-test 均在此 SHA） |
+| 最终 HEAD | `234eea6f5396ff2cf9726a4751804db74d67820f` |
+| 最终 tree | `5ae081defcfd8b59ee332c5eccb18053045ed1c9` |
+| build-guard HEAD | `144d4facb677b47c3be3f544ebdb60463a298bd2`（包体以此为准；其后仅 docs/对比图）
 
 主要提交：
 
@@ -107,7 +107,7 @@ Node 22，`QF_TYPESCRIPT_MODULE=/tmp/ts5/node_modules/typescript`：
 
 ## 截图
 
-路径：`docs/r5/balloon-v22/shots/`（副本在任务包 `shots/`）。对比图无翻转（sips→BMP 自底向上解码）。
+路径：`docs/r5/balloon-v22/shots/`（副本在任务包 `shots/`）。对比图无翻转（sips→BMP 自底向上解码）。游戏半幅短边 ≥ 844；单张 vs_render / contact < 1.5 MB（palette 压缩）；已去掉会压碎 contact 的 sips -Z。
 
 | 文件 | 说明 |
 | --- | --- |
