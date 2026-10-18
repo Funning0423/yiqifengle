@@ -66,9 +66,14 @@ for(const [w,h] of [[320,568],[390,844],[402,874],[568,320],[844,390]]){
   assert.deepEqual(calls,['resumeJourney'],'resumed by itself on return ('+(paintHidden?'hidden frame painted':'no hidden frame')+')');calls.length=0;
   boot.paintNavigation(1/60);boot.paintNavigation(1/60);assert.deepEqual(calls,[],'exactly once');assert.equal(mark.active,true,'cutscene back on screen');
  }
- // Not a cutscene (island) or an error: the existing paused 「继续」 path is untouched.
- snap={state:'island',needsResume:false,hidden:false};boot.paintNavigation();snap={state:'paused',needsResume:true,hidden:false};boot.paintNavigation();
- assert.deepEqual(calls,[]);assert.equal(boot.controls.get('resume').active,true,'island background return keeps 「继续」');
+ // Seated home, idle island and a sky visit keep their state, so 「继续」 stays off. A paused board still shows it.
+ // Drop the cutscene auto-resume flag left by the lakeside return above; these snaps are not that cutscene.
+ boot.cutsceneRunning=false;boot.cutsceneAutoResume=false;boot.busy=false;calls.length=0;
+ snap={state:'home',needsResume:true,hidden:false};boot.paintNavigation();assert.equal(boot.controls.get('resume').active,false,'seated home has no 继续');
+ snap={state:'island',needsResume:true,hidden:false};boot.paintNavigation();assert.equal(boot.controls.get('resume').active,false,'idle island has no 继续');
+ snap={state:'skycity',needsResume:true,hidden:false,journey:{region:'island',phase:'visit'}};boot.paintNavigation();assert.equal(boot.controls.get('resume').active,false,'sky visit has no 继续');
+ snap={state:'paused',needsResume:true,hidden:false};boot.paintNavigation();
+ assert.deepEqual(calls,[]);assert.equal(boot.controls.get('resume').active,true,'a paused board still shows 「继续」');
  snap={state:'region-travel',needsResume:false,hidden:false,journey:{phase:'bridge'}};boot.paintNavigation();snap={state:'error',needsResume:true,hidden:false,error:'x'};boot.paintNavigation();boot.paintNavigation();assert.deepEqual(calls,[],'an error is never auto-resumed');
  // Release build: no mark at all.
  const rel=new M.DevPreviewMark(boot.canvas,false);rel.sync(w,h,true);assert.equal(rel.root.active,false,'release build: hidden');rel.dispose();
@@ -77,4 +82,4 @@ for(const [w,h] of [[320,568],[390,844],[402,874],[568,320],[844,390]]){
  boot.onDestroy();cases++;
 }
 function await0(){} // invoke() is async but calls fn synchronously before its first await
-console.log(JSON.stringify({status:'PASS',cases,taps,mark:{text:M.DEV_PREVIEW_TEXT,...M.DEV_PREVIEW_MARK},rects:report,checks:['no 暂停旅程 button / caption strip in loading/approach/bridge/arrival across five viewports','dev line is the only text, bottom-right, inset from safe area, clear of capsule, tiny + semi-transparent','dev line non-interactive (UITransform+Label only, zero touch listeners); taps never pause/cancel','background return auto-resumes the cutscene once (hidden frame painted or not), waits while busy, no 继续 flash','island / error paths unchanged','release builds hide the line (DEBUG / envVersion / web rules)','skycity-loading keeps 取消前往'],scope:'actual type-stripped Boot + DevPreviewMark with Cocos memory doubles; no native render/touch'},null,2));
+console.log(JSON.stringify({status:'PASS',cases,taps,mark:{text:M.DEV_PREVIEW_TEXT,...M.DEV_PREVIEW_MARK},rects:report,checks:['no 暂停旅程 button / caption strip in loading/approach/bridge/arrival across five viewports','dev line is the only text, bottom-right, inset from safe area, clear of capsule, tiny + semi-transparent','dev line non-interactive (UITransform+Label only, zero touch listeners); taps never pause/cancel','background return auto-resumes the cutscene once (hidden frame painted or not), waits while busy, no 继续 flash','seated home, idle island and sky visit hide 继续; a paused board still shows it; an error is never auto-resumed','release builds hide the line (DEBUG / envVersion / web rules)','skycity-loading keeps 取消前往'],scope:'actual type-stripped Boot + DevPreviewMark with Cocos memory doubles; no native render/touch'},null,2));

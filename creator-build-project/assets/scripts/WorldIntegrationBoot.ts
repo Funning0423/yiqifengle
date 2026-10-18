@@ -643,12 +643,11 @@ export class WorldIntegrationBoot extends Component {
  this.status.string='';
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
- const bgContinue=s?.state==='region-loading'||s?.state==='region-travel'||s?.state==='meadow'||s?.state==='lakeside'||s?.state==='skycity'||s?.state==='island'||s?.state==='standing'||s?.state==='turning-out'||s?.state==='walking-out'||s?.state==='opening-door'||s?.state==='crossing-out'||s?.state==='walking-home'||s?.state==='crossing-in'||s?.state==='closing-door'||s?.state==='walking-to-seat'||s?.state==='sitting';
+ const bgContinue=s?.state==='region-loading'||s?.state==='region-travel'||s?.state==='meadow'||s?.state==='lakeside'||s?.state==='skycity'||s?.state==='skycity-loading'||s?.state==='home'||s?.state==='island'||s?.state==='standing'||s?.state==='turning-out'||s?.state==='walking-out'||s?.state==='opening-door'||s?.state==='crossing-out'||s?.state==='walking-home'||s?.state==='crossing-in'||s?.state==='closing-door'||s?.state==='walking-to-seat'||s?.state==='sitting';
  // Funning (Mac, 09a1b8e): the journey cutscene has no 「暂停旅程」 button and no caption strip under it (the old notice plate:
  // 正在准备… / 沿着彩虹… / 快到了… and the paused/failed lines). Nothing covers the picture; tapping it does nothing (no tap-to-pause).
- // Background during a journey, sail, balloon or region free-walk freezes the flow (state stays). show() clears
- // needsResume by itself, so the 「继续」 button stays off even on a hidden frame. Seated home, idle island, the sky
- // visit and a board level still pause behind 「继续」.
+ // Background freezes a journey, sail, balloon, region free-walk, seated home, idle island and the sky visit.
+ // show() clears needsResume, so 「继续」 stays off. Only a paused board (state 'paused' / 'level') still shows it.
  // (WeChat may stop the frame loop while hidden, so the hidden frame itself is never painted: needsResume is the mark.)
  if(!s.needsResume)this.cutsceneRunning=!s.hidden&&['region-loading','region-travel'].includes(s.state);
  else if(this.cutsceneRunning){this.cutsceneRunning=false;this.cutsceneAutoResume=s.state!=='error';}

@@ -645,32 +645,26 @@ export class WorldFlow {
    *  WorldFlowComponent.update), so position, clip time, camera progress, door angle, light ramps and wind hold exactly.
    *  show() lifts the freeze by itself (no 继续): the same walk continues from the same frame.
    *  r5 F4: the same freeze covers a journey (region-loading / region-travel, sail and balloon included — their ride
-   *  token stays alive) and an arrived meadow / lakeside / journey-skycity, plus an island free-walk that is mid-step.
-   *  Seated home, idle island, the sky-city visit and board levels stay paused until an explicit resume(). */
+   *  token stays alive), an arrived meadow / lakeside / skycity, an island idle or free-walk, seated home, and a
+   *  sky-city visit (including skycity-loading, so the enter token is not cancelled). show() clears needsResume and
+   *  does not restore(): resume() would cancelAndReset the seated / idle clip and hide the visit. A live board
+   *  (level / level-loading) still pauses until an explicit resume(). */
   private frozen=false;
+  /** skycity-loading can finish while hidden; enter()'s restore then hides the lease. Thaw shows it once, without cancelAndReset. */
+  private revealVisit=false;
   /** Journey load/travel. Sail and balloon are a ride inside region-travel, so they freeze with it. */
   private travelFreeze():boolean {return this.state==='region-loading'||this.state==='region-travel';}
-  /** Arrived region the player can walk around. The sky-city visit (no journey region) is not this. */
-  private regionDwell():boolean {
-    if(this.state==='meadow'||this.state==='lakeside')return true;
-    return this.state==='skycity'&&this.journey?.snapshot().region==='skycity';
-  }
-  /** Idle island keeps 「继续」. A live free-walk (0 < progress < 1) freezes so she does not snap back to the node. */
-  private islandWalk():boolean {
-    if(this.state!=='island')return false;
-    const p=this.character?.walkProgress?.();
-    return typeof p==='number'&&Number.isFinite(p)&&p>0&&p<1;
-  }
+  /** Places with no operate token. resume() would cancelAndReset, so show() keeps the pose and the visit. */
+  private holdPose():boolean {return this.state==='home'||this.state==='island'||this.state==='meadow'||this.state==='lakeside'||this.state==='skycity';}
   private freezable():boolean {
     if(!this.world)return false;
-    if(this.current&&(EXIT_STATES.indexOf(this.state)>=0||RETURN_STATES.indexOf(this.state)>=0||this.travelFreeze()))return true;
-    return this.regionDwell()||this.islandWalk();
+    if(this.holdPose())return true;
+    if(this.state==='skycity-loading')return !!this.current;
+    return !!this.current&&(EXIT_STATES.indexOf(this.state)>=0||RETURN_STATES.indexOf(this.state)>=0||this.travelFreeze());
   }
-  /** show() must not cancelAndReset a dwell or an island free-walk that has no flow token. */
-  private holdPose():boolean {return this.regionDwell()||this.state==='island';}
   hide():void {
     if(this.state==='disposed'||this.hidden)return;
-    if(this.freezable()){this.frozen=true;this.hidden=true;this.needsResume=true;this.emit(this.snapshot());return;}
+    if(this.freezable()){this.frozen=true;this.hidden=true;this.needsResume=true;if(this.state==='skycity-loading')this.revealVisit=true;this.emit(this.snapshot());return;}
     if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
     this.level?.hide();this.visit?.hide();this.restore();this.change('paused');
   }
@@ -679,7 +673,7 @@ export class WorldFlow {
    *  r4.1: a frozen exit / walk home resumes by itself, from the frame it was hidden on. */
   show():void {
     if(this.state==='disposed'||!this.hidden)return;this.hidden=false;
-    if(this.frozen){this.frozen=false;if(this.state!=='error'&&this.world){this.needsResume=false;if(!this.current&&!this.holdPose())this.restore();this.emit(this.snapshot());return;}} // finished while hidden (last step resolved): land it visibly. A dwell / island walk has no token and must keep her feet.
+    if(this.frozen){this.frozen=false;if(this.state!=='error'&&this.world){this.needsResume=false;if(!this.current&&!this.holdPose())this.restore();else if(this.revealVisit&&this.visit&&this.state==='skycity')this.visit.show();this.revealVisit=false;this.emit(this.snapshot());return;}} // finished while hidden (last step resolved): land it visibly. A dwell / home / island / visit has no token and must keep her feet.
     this.level?.showPaused();
     if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
       this.needsResume=false;this.restore();this.change('level');return;

@@ -2,7 +2,8 @@
 // r5 F4: back from background (wx.onShow / visibilitychange -> hide/show) continues a journey, the sail,
 // the balloon and a region free-walk without the 「继续」 overlay. Progress stays put while hidden and then
 // moves by at most one capped frame (0.1 s), never by the hidden gap (3 s / 10 s / 60 s / 10 min).
-// Seated home, idle island and an in-progress board stay behind an explicit resume. No flow fault.
+// Seated home, idle island and a sky-city visit freeze the same way (no cancelAndReset, no 「继续」).
+// An in-progress board stays paused behind an explicit resume. No flow fault.
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const {createHarness}=require('../board-ui/harness.cjs');
 const H=createHarness();
@@ -24,20 +25,47 @@ function make(){
  const world={setLayers(){},setDoor(){},setCamera(){},cancelTransient(){},assertStaticWorld(){},dispose(){},setRoomLightWeight(){return true;},
   animateCamera:(p,s,tk)=>job(s,tk),animateDoor:(a,b,s,tk)=>job(s,tk),wait:(s,tk)=>job(s,tk)};
  const ch={calibrated:true,coordinates:{units:'m',up:'+Y',forward:'+Z',rootMotion:'controller-only',standingRoot:seat.standingControllerRoot,seatedRoot:seat.seatedControllerRoot,seatYawRad:0,clearanceRadiusM:.1},
-  actionSeconds:()=>1,walkProgress(){return walk?walk.f:null},
-  advance(s){if(!walk)return;walk.e+=s;walk.f=Math.min(1,walk.e/walk.d);const a=walk.path[0],b=walk.path[walk.path.length-1],L=dist(a,b)||1,u=walk.f;root=[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];if(walk.f>=1){const w=walk;walk=null;w.res();}},
+  actionSeconds:()=>1,walkProgress(){return walk?walk.f:null},ticks:0,
+  advance(s){this.ticks+=s;if(!walk)return;walk.e+=s;walk.f=Math.min(1,walk.e/walk.d);const a=walk.path[0],b=walk.path[walk.path.length-1],L=dist(a,b)||1,u=walk.f;root=[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];if(walk.f>=1){const w=walk;walk=null;w.res();}},
   perform(action,token){return new Promise((res,rej)=>{if(action.kind!=='walk'){res();return;}walk={path:action.path,d:action.duration,e:0,f:0,res};token.onCancel(()=>{if(walk)walk=null;rej(Error('cancelled'));});});},
   cancelAndReset(p){log.resets++;walk=null;root=p.kind==='standing'?[...p.controllerRoot]:[...seat.seatedControllerRoot];},setVisible(){},dispose(){}};
+ const visit={shown:0,hidden:0,show(){this.shown++;},hide(){this.hidden++;},dispose(){}};
  const journey=new RegionJourneyController({readCamera:()=>config.cameraIsland,prepare:async(from,to,start)=>{
   const path=[start.slice(),[start[0],start[1]+1,start[2]+4],[start[0]+2,start[1]+1,start[2]+8]];
   const clock={t:0,kind:clocks.length?'balloon':'sail'};clocks.push(clock);
   return {route:{from,to,path,bridgeStart:1,bridgeEnd:6,speed:1.2},show(){},dispose(){},
    async ride(_a,_w,token){while(clock.t+1e-9<1){token.check();await world.wait(DT,token);clock.t=Math.min(1,clock.t+DT);}}};
  }});
- const flow=new WorldFlow({config,mode:'fixed',character:ch,journey,levels:{enter:async()=>({requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){},isSettledResult:()=>false})},loadWorld:async()=>world});
+ const flow=new WorldFlow({config,mode:'fixed',character:ch,journey,skycity:{enter:async()=>visit},levels:{enter:async()=>({requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){},isSettledResult:()=>false})},loadWorld:async()=>world});
  const flush=()=>new Promise(r=>setImmediate(r));
  const frame=async(dt=DT)=>{const s=flow.snapshot();if(!(s.hidden||s.needsResume)){const step=Math.min(Math.max(0,dt),CAP);if(step>0){flow.advance(step);for(const j of Array.from(jobs)){if(!jobs.has(j))continue;j.e+=step;if(j.e>=j.seconds){jobs.delete(j);j.res();}}}}await flush();};
- return {flow,ch,log,clocks,frame,flush,pos:()=>root.slice()};
+ return {flow,ch,log,clocks,visit,frame,flush,pos:()=>root.slice()};
+}
+async function still(r,state){
+ const out=[];
+ for(const hiddenS of GAPS){
+  const feet=r.pos(),resets=r.log.resets,ticks=r.ch.ticks,shown=r.visit.shown,hidden=r.visit.hidden;
+  r.flow.hide();
+  assert.equal(r.flow.snapshot().state,state,'frozen state '+state+' at '+hiddenS+'s');
+  assert.equal(r.flow.snapshot().hidden,true);
+  r.flow.advance(hiddenS);
+  for(let i=0;i<4;i++)await r.frame();
+  assert.equal(r.ch.ticks,ticks,'hidden '+hiddenS+'s did not tick the clip');
+  assert.deepEqual(r.pos(),feet,'hidden '+hiddenS+'s did not move her');
+  assert.equal(r.visit.shown,shown);assert.equal(r.visit.hidden,hidden,'visit stayed mounted');
+  r.flow.show();
+  const s=r.flow.snapshot();
+  assert.equal(s.hidden,false);assert.equal(s.needsResume,false,'no 继续 after '+hiddenS+'s at '+state);
+  assert.equal(s.state,state);noFault(r.flow,state+' '+hiddenS);
+  assert.equal(r.log.resets,resets,'no snap (cancelAndReset)');
+  assert.equal(r.flow.resume().ok,false,'already playing');
+  assert.equal(r.visit.shown,shown);assert.equal(r.visit.hidden,hidden);
+  await r.frame();
+  assert(r.ch.ticks>ticks,'clip clock resumes after '+hiddenS+'s');
+  assert.deepEqual(r.pos(),feet);
+  out.push({state,hiddenS,step:+(r.ch.ticks-ticks).toFixed(4)});
+ }
+ return out;
 }
 function noFault(flow,where){const s=flow.snapshot();assert.notEqual(s.state,'error',where);assert.equal(s.error,null,where+' error');}
 async function until(r,pred,max=240){for(let i=0;i<max;i++){if(pred())return;await r.frame();}throw Error('timeout '+r.flow.snapshot().state);}
@@ -94,16 +122,20 @@ async function gaps(r,read,state){
   cases.push(...await gaps(r,()=>r.ch.walkProgress(),'skycity'));
   await until(r,()=>r.ch.walkProgress()==null,400);await walking2;
  }
- // island free-walk freezes; idle island and seated home and a live board keep 「继续」.
+ // island free-walk, then idle island, seated home and a sky-city visit: freeze, no cancelAndReset, no 「继续」.
  {const r=make();assert((await r.flow.load()).ok);r.flow.state='island';r.flow.stable='island';r.ch.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:0});
   const token=new Cancellation();const walking=r.ch.perform({kind:'walk',path:[end,[end[0]+4,end[1],end[2]]],duration:2},token);
   await r.frame();assert(r.ch.walkProgress()>0&&r.ch.walkProgress()<1);
   const resets=r.log.resets;r.flow.hide();assert.equal(r.flow.snapshot().state,'island');r.flow.advance(600);r.flow.show();
   assert.equal(r.flow.snapshot().needsResume,false);assert.equal(r.log.resets,resets);noFault(r.flow,'island walk');
   await until(r,()=>r.ch.walkProgress()==null,400);await walking;
-  r.flow.hide();r.flow.show();assert.equal(r.flow.snapshot().state,'paused');assert.equal(r.flow.snapshot().needsResume,true);assert(r.flow.resume().ok);assert.equal(r.flow.snapshot().state,'island');
+  cases.push(...await still(r,'island'));
  }
- {const r=make();assert((await r.flow.load()).ok);r.flow.hide();r.flow.show();assert.equal(r.flow.snapshot().state,'paused');assert.equal(r.flow.snapshot().needsResume,true);assert(r.flow.resume().ok);assert.equal(r.flow.snapshot().state,'home');}
+ {const r=make();assert((await r.flow.load()).ok);assert.equal(r.flow.snapshot().state,'home');cases.push(...await still(r,'home'));}
+ {const r=make();assert((await r.flow.load()).ok);r.flow.state='island';r.flow.stable='island';r.ch.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:0});
+  assert((await r.flow.enterSkycity()).ok);assert.equal(r.flow.snapshot().state,'skycity');assert.equal(r.visit.shown,1);
+  cases.push(...await still(r,'skycity'));
+ }
  {const r=make();assert((await r.flow.load()).ok);r.flow.state='island';r.flow.stable='island';assert((await r.flow.enterLevel('board')).ok);
   r.flow.hide();r.flow.show();assert.equal(r.flow.snapshot().state,'paused');assert.equal(r.flow.snapshot().needsResume,true,'board keeps the confirm');assert(r.flow.resume().ok);assert.equal(r.flow.snapshot().state,'level');}
  // sail clock + balloon step clock: hidden wall time does not jump t.
@@ -119,22 +151,24 @@ async function gaps(r,read,state){
  // 「继续」 overlay: frozen states keep the button off; a paused home/board still shows it.
  const boot=overlay();
  const shown=[];
- for(const state of ['region-loading','region-travel','meadow','lakeside','skycity','island']){
-  boot.snap={state,needsResume:true,hidden:true,journey:{region:state==='skycity'?'skycity':'meadow',phase:'bridge'}};
+ for(const state of ['region-loading','region-travel','meadow','lakeside','skycity','skycity-loading','home','island']){
+  boot.snap={state,needsResume:true,hidden:true,journey:{region:state==='skycity'?'skycity':'island',phase:'bridge'}};
   boot.paintNavigation();
   assert.equal(boot.controls.get('resume').active,false,state+' hides 继续');
   assert.deepEqual(boot.calls,[],'no resumeJourney while '+state);boot.calls.length=0;
   shown.push(state);
  }
  boot.snap={state:'paused',needsResume:true,hidden:false};boot.paintNavigation();
- assert.equal(boot.controls.get('resume').active,true,'paused home/island/board still shows 继续');
+ assert.equal(boot.controls.get('resume').active,true,'paused board still shows 继续');
+ boot.snap={state:'level',needsResume:true,hidden:false};boot.paintNavigation();
+ assert.equal(boot.controls.get('resume').active,true,'live board still shows 继续');
  boot.snap={state:'region-travel',needsResume:false,hidden:false,journey:{phase:'bridge',target:'meadow'}};boot.paintNavigation();
  assert.equal(boot.controls.get('resume').active,false);assert.deepEqual(boot.calls,[]);
  const comp=fs.readFileSync(path.join(S,'world-r1/WorldFlowComponent.ts'),'utf8');
  assert(comp.includes("document.addEventListener('visibilitychange'"),'web visibilitychange reaches EVENT_HIDE/SHOW');
  assert(comp.includes('bindWxLifecycle'),'wx.onShow still bound');
  const audio=bgmOffsets();
- console.log(JSON.stringify({status:'PASS',cases,clocks,overlay:shown,pausedOverlay:true,audio,checks:['sail and balloon rides and meadow/skycity/island free-walk: 3s/10s/60s/10min hide does not move progress or feet','show clears needsResume (no 继续) and the next frame advances by <=0.1s','no state error / snapshot.error','seated home, idle island and a live board still require 继续','sail clock and stepTransitClock do not jump','resume button off for frozen states, on for paused']},null,2));
+ console.log(JSON.stringify({status:'PASS',cases,clocks,overlay:shown,pausedOverlay:true,audio,checks:['sail and balloon rides and meadow/skycity/island free-walk: 3s/10s/60s/10min hide does not move progress or feet','seated home, idle island and sky visit: same gaps, clip clock stops then resumes, no cancelAndReset','show clears needsResume (no 继续) and the next frame advances by <=0.1s','no state error / snapshot.error','a live board still requires 继续','sail clock and stepTransitClock do not jump','resume button off for frozen states, on for paused and level']},null,2));
 })().catch(e=>{console.error(e);process.exit(1);});
 
 function overlay(){
