@@ -12,10 +12,10 @@ const TASK_SHOTS=path.resolve(ROOT,'../shots');
 const PAIRS=[
  {game:'01_board.png',render:'r5_balloon_01_board_v2_3.png',out:'01_board_vs_render.png',label:'game t=0.9 / render v2.3'},
  {game:'02_liftoff.png',render:'r5_balloon_02_liftoff_v2_3.png',out:'02_liftoff_vs_render.png',label:'game t=5.2 / render v2.3'},
- {game:'03_clouds.png',render:'r5_balloon_03_clouds_v2_3.png',out:'03_clouds_vs_render.png',label:'game t=11.4 / render v2.3'},
+ {game:'03_clouds.png',render:'r5_balloon_03_through_clouds_v2_3.png',out:'03_clouds_vs_render.png',label:'game t=11.4 / render v2.3'},
  {game:'04_cruise.png',render:'r5_balloon_04_cruise_v2_3.png',out:'04_cruise_vs_render.png',label:'game t=18.5 / render v2.3'},
- {game:'05_city.png',render:'r5_balloon_05_city_v2_3.png',out:'05_city_vs_render.png',label:'game t=24.0 / render v2.3'},
- {game:'06_land.png',render:'r5_balloon_06_land_v2_3.png',out:'06_land_vs_render.png',label:'game t=33.6 / render v2.3'},
+ {game:'05_city.png',render:'r5_balloon_05_city_sighted_v2_3.png',out:'05_city_vs_render.png',label:'game t=24.0 / render v2.3'},
+ {game:'06_land.png',render:'r5_balloon_06_landing_v2_3.png',out:'06_land_vs_render.png',label:'game t=33.6 / render v2.3'},
  {game:'07_night.png',render:'r5_balloon_07_night_v2_3.png',out:'07_night_vs_render.png',label:'game t=24.0 night / render v2.3'},
 ];
 function sips(args){execFileSync('sips',args,{stdio:'pipe'});}
