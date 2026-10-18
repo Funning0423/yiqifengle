@@ -141,28 +141,15 @@ export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
  }
  return kill.size;
 }
-/** Seaward caps and the channel-side lip are rectangular pads. Slope them under the water. */
-function taperMouthShore(renderer:MeshRenderer,side:'left'|'right'|'reeds'){
+/** The river-mouth banks are rectangular pads in the channel. Put every above-water vertex under the sea; the meadow shore stays. */
+function taperMouthShore(renderer:MeshRenderer,_side:'left'|'right'|'reeds'){
  const mesh=renderer.mesh;if(!mesh)return;
  const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
  if(!(src instanceof Float32Array)||src.length<3)return;
  const pos=new Float32Array(src);let changed=false;
- const sink=(x:number)=>{
-  if(side==='right')return x>-6.4?Math.min(1,(x+6.4)/2.4):0;
-  if(side==='left')return x<5.6?Math.min(1,(5.6-x)/2.4):0;
-  if(x<0)return x>-6.2?Math.min(1,(x+6.2)/1.6):0;
-  return x<5.4?Math.min(1,(5.4-x)/1.6):0;
- };
  for(let i=0;i<pos.length;i+=3){
-  const z=pos[i+2];
-  let s=0;
-  if(z<6.4){const u=Math.min(1,(6.4-z)/3.4);s=u*u*(3-2*u);}
-  s=Math.max(s,sink(pos[i]));
-  if(s<=0)continue;
-  pos[i+1]=pos[i+1]*(1-s)+(-0.55)*s;
-  const out=side==='left'?1:side==='right'?-1:(pos[i]<0?-1:1);
-  pos[i]+=out*s*0.8;
-  changed=true;
+  if(pos[i+1]<=0.02)continue;
+  pos[i+1]=-0.62;changed=true;
  }
  if(changed)writeMeshPositions(mesh,renderer,pos);
 }
