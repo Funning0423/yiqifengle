@@ -95,6 +95,7 @@ export class RegionNodeStage extends Component{
  }
  /** Finale and free-explore lenses: AABB retreat, then a 0.6 m ray so the near plane cannot enter a mesh. */
  private guardLens(pose:Pose):Pose{
+  const origDir=this.viewDir(pose);
   const boxes=this.sceneBoxes();
   let next=retreatClear(pose,boxes,LENS_CLEAR_M);
   const scene=director.getScene();if(!scene)return next;
@@ -117,15 +118,29 @@ export class RegionNodeStage extends Component{
   }
   // A lens still aimed into a mesh (sky stairs, island lip) climbs instead of sliding under it.
   for(let up=0;up<8;up++){
-   if(this.clearAhead(next,2))break;
+   if(this.clearAhead(next,2)&&this.clearUp(next,1.2))break;
    const p=next.position,t=next.target;
    next=retreatClear({position:[p[0],p[1]+1.6,p[2]],target:t,fovVerticalDeg:next.fovVerticalDeg},boxes,LENS_CLEAR_M);
   }
+  // A map lens that slid under a stair flight ends up looking up through the treads. Put it back above the subject.
+  const lifted=this.viewDir(next);
+  if(origDir[1]<-0.25&&lifted[1]>0.05){
+   const rise=Math.max(4,pose.position[1]-pose.target[1]);
+   const p=next.position,t=next.target;
+   next=retreatClear({position:[p[0],t[1]+rise,p[2]],target:t,fovVerticalDeg:next.fovVerticalDeg},boxes,LENS_CLEAR_M);
+  }
   return next;
  }
+ /** True when nothing hangs within `distance` metres straight above the lens. */
+ private clearUp(pose:Pose,distance:number):boolean{
+  return this.rayClear(pose,[0,1,0],distance);
+ }
  private clearAhead(pose:Pose,distance:number):boolean{
+  return this.rayClear(pose,this.viewDir(pose),distance);
+ }
+ private rayClear(pose:Pose,dir:Vec,distance:number):boolean{
   const scene=director.getScene();if(!scene)return true;
-  const dir=this.viewDir(pose),ray=new geometry.Ray();
+  const ray=new geometry.Ray();
   ray.o.set(pose.position[0],pose.position[1],pose.position[2]);ray.d.set(dir[0],dir[1],dir[2]);
   for(const r of scene.getComponentsInChildren(MeshRenderer)){
    if(!r.enabled||!r.node.activeInHierarchy||!r.model||r.node===this.markerNode)continue;

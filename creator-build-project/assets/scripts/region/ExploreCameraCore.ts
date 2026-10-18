@@ -131,17 +131,17 @@ export function projectNdc(pose:Pose,p:Vec,w:number,h:number):{x:number;y:number
  return {x:sx/(denom*half*aspect),y:sy/(denom*half),z};
 }
 /**
- * S6 finale. The ring is a ~40 m horizontal loop, so a portrait lens only shows a sliver unless
- * it stands well above the loop, on her side of it. The great tree is hidden for this pose;
- * the offset is in the girl/ring ground frame so the city yaw does not aim it into the island.
+ * S6 finale. Stand beside the loop, not above the crown: from here the star ring crosses the
+ * frame and the great tree stays outside it. Offsets are in the girl/ring ground frame so the
+ * city yaw does not aim the lens into the island.
  */
 export function finaleLook(girl:Vec,ring:Vec):Pose{
  const dx=girl[0]-ring[0],dz=girl[2]-ring[2],L=Math.hypot(dx,dz)||1,sx=dx/L,sz=dz/L,rx=sz,rz=-sx;
- const back=40,side=0,up=26;
+ const back=26,side=-10,up=6;
  const position:Vec=[ring[0]+sx*back+rx*side,ring[1]+up,ring[2]+sz*back+rz*side];
  const head:Vec=[girl[0],girl[1]+BODY_M*0.9,girl[2]];
- const target:Vec=[(head[0]+ring[0])/2,head[1]*0.4+ring[1]*0.6,(head[2]+ring[2])/2];
- return {position,target,fovVerticalDeg:66};
+ const target:Vec=[(head[0]+ring[0])/2,head[1]*0.35+ring[1]*0.65,(head[2]+ring[2])/2];
+ return {position,target,fovVerticalDeg:58};
 }
 /** Object tap: stand on her side of the prop, far enough that a `span`-tall prop fits, looking at its middle. */
 export function propLook(prop:Vec,girl:Vec,span=3):Pose{
