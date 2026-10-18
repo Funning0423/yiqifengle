@@ -31,10 +31,18 @@ export function createSailDriver(opts:{
    (j.node as {isSkipTransformUpdate?:boolean}).isSkipTransformUpdate=false;
   }
  };
- /** Baked skinning draws the bind pose (standing) after the clip is stopped. Force the GPU pose to follow the locked joints. */
+ /** Baked skinning ignores the locked joints and draws the bind pose after stop(). Keep sit_hold sampled and force realtime skinning. */
  const drawSeated=()=>{
   const skel=opts.rider?.getComponent(SkeletalAnimation)||opts.rider?.getComponentInChildren(SkeletalAnimation)||null;
-  if(skel&&skel.useBakedAnimation)skel.useBakedAnimation=false;
+  if(skel){
+   if(skel.useBakedAnimation)skel.useBakedAnimation=false;
+   const name=skel.defaultClip?.name||'sit_hold';
+   const st=skel.getState(name);
+   if(st){
+    if(!st.isPlaying){try{skel.play(name);}catch{/* graph may reject */}}
+    st.time=0;try{st.sample();}catch{/* curves not ready */}st.pause();
+   }
+  }
   if(opts.rider){
    for(const skin of opts.rider.getComponentsInChildren(SkinnedMeshRenderer)){
     try{skin.setUseBakedAnimation(false);}catch{/* model not attached yet */}
@@ -89,12 +97,12 @@ export function createSailDriver(opts:{
    attachRider(opts.rider,opts.seat);opts.rider.setPosition(0,0,0);attached=true;
    captureSeated(opts.rider);
    const skel=opts.rider.getComponent(SkeletalAnimation)||opts.rider.getComponentInChildren(SkeletalAnimation);
-   try{skel?.stop();}catch{/* clip graph may already be idle */}
+   if(skel&&skel.useBakedAnimation)skel.useBakedAnimation=false;
    drawSeated();
    try{director.on(Director.EVENT_BEFORE_DRAW,drawSeated);}catch{/* draw hook is best-effort */}
    departAt=real;
   },
-  releaseRider(){dropSeatedPose();if(attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}},
+  releaseRider(){dropSeatedPose();const skel=opts.rider?.getComponent(SkeletalAnimation)||opts.rider?.getComponentInChildren(SkeletalAnimation);try{skel?.resume();}catch{/* already playing */}if(attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}},
   beginArrival(path:Vec[],dur:number){
    phase='arrival';arrivalPath=path;arrivalU=0;arrivalElapsed=0;arrivalDur=Math.max(0.5,dur);followYaw={yaw:null};
    arrivalFrom=sailCamera(opts.timeline,opts.route,Math.min(t,opts.timeline.build05S),viewSize());

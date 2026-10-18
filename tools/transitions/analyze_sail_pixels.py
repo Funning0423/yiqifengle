@@ -46,30 +46,50 @@ def poly(pts, w, h):
 
 def screen_pose(im, gx, iy):
     """Dress blob aspect. qa2 island long shot is ~1.7-1.9 (standing); the sit close-up is ~0.9."""
+    w0, h0 = im.size
+    scale_img = 844.0 / h0
+    if h0 > 900:
+        im = im.resize((max(1, int(w0 * scale_img)), 844), Image.Resampling.BOX)
+        if gx == gx:
+            gx *= scale_img
+        if iy == iy:
+            iy *= scale_img
     w, h = im.size
-    scale = h / 844.0
+    scale = 1.0
     preds = (
         lambda r, g, b: r > 185 and g > 190 and b < 85 and abs(r - g) < 50,
         lambda r, g, b: r > 130 and g > 145 and b < 110 and g > b + 35 and g + 10 > r,
     )
     px = im.load()
     anchor = gx == gx and iy == iy and 0 <= gx < w and 0 <= iy < h
+    dx, dy = 22 * scale, 36 * scale
     for pred in preds:
-        pts = [(x, y) for y in range(h) for x in range(w) if pred(*px[x, y])]
+        pts = [(x, y) for y in range(0, h, 1) for x in range(0, w, 1) if pred(*px[x, y])]
+        if len(pts) > 8000:
+            pts = pts[::3]
+        cells = {}
         clusters = []
-        dx, dy = 22 * scale, 36 * scale
         for p in pts:
+            key = (int(p[0] / dx), int(p[1] / dy))
             hit = None
-            for c in clusters:
-                if abs(p[0] - c[0]) < dx and abs(p[1] - c[1]) < dy:
-                    hit = c
+            for ox in (-1, 0, 1):
+                for oy in (-1, 0, 1):
+                    for idx in cells.get((key[0] + ox, key[1] + oy), ()):
+                        c = clusters[idx]
+                        if abs(p[0] - c[0]) < dx and abs(p[1] - c[1]) < dy:
+                            hit = c
+                            break
+                    if hit:
+                        break
+                if hit:
                     break
             if hit is None:
                 clusters.append([float(p[0]), float(p[1]), [p]])
+                cells.setdefault(key, []).append(len(clusters) - 1)
             else:
                 hit[2].append(p)
-                hit[0] = sum(q[0] for q in hit[2]) / len(hit[2])
-                hit[1] = sum(q[1] for q in hit[2]) / len(hit[2])
+                hit[0] = (hit[0] * (len(hit[2]) - 1) + p[0]) / len(hit[2])
+                hit[1] = (hit[1] * (len(hit[2]) - 1) + p[1]) / len(hit[2])
         kept = []
         for c in clusters:
             xs = [p[0] for p in c[2]]
