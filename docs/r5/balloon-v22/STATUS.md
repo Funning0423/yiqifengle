@@ -8,3 +8,4 @@
 | 2026-10-18 09:26 | 修复对比图：去掉 sips -Z 压碎 contact；游戏半幅短边≥844；palette 压到 <1.5MB；REPORT 已写 | 交付 | contact 1688×12789 | pending |
 | 2026-10-18 09:26 | 交付完成：HEAD=12c66c8594；锁已释放；磁盘 ~5.7GiB | — | suite 基线保持；对比图合格 | 12c66c8594 |
 | 2026-10-18 09:43 | 修夜景品红海面 tint + 降落关 strata；frame-bg PASS；等 build lock(r5-sail-dock-path) | 锁释放后 build-guard+重拍 04/06/07 | seamLeak=0 | 647a8fe3 |
+| 2026-10-18 12:10 | 交付：v2.3 接缝+方案B+fade；夜景消品红；DC≤53；截图/对比齐全；wechat 19934166 | — | frame-bg PASS；mag@07=0 | 80cf40a8a7 |
