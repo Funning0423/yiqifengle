@@ -1,18 +1,19 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
-import {Animation, Camera, Color, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, gfx, isValid, utils, view} from 'cc';
+import {Animation, Camera, Color, Component, Director, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, director, gfx, isValid, utils, view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkyNightTexture} from '../render/SkyNightTexture';
 import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials, meadowGroundMaterials, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
-import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
+import {RegionJourneyController, journeyDistanceAt, routeLength, sampleRoute} from '../world-r1/RegionJourneyCore';
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom,meadowExitExtraM,MEADOW_EXIT_BUDGET_M} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
-import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+import {LAKESIDE_BALLOON_LANDING,lakesideBalloonLens,lakesideBalloonPath,lakesideBalloonTiming} from './LakesideBalloon';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
@@ -22,6 +23,10 @@ import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor, usesRainbowBridge} from './JourneyTransport';
+import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
+import {loadTransitPrefab} from './BalloonTransit';
+import {mountVehicle} from './TransportVehicle';
+import {stepTransitClock} from './TransportLeg';
 import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
 import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_PORT_STEP_LOCAL} from './SailLanding';
 import {createSailDriver,playSailBeats} from './SailRide';
@@ -65,14 +70,12 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
   async prepare(from,to,start,token,progress){
    if(to==='lakeside')return prepareLakesideJourney(options.parent,options.camera,from,start,token,progress);
    if(to==='skycity'&&transportFor(from,to)==='balloon'){
-    let dropped=false;
-    const work=mountBalloonLease({parent:options.parent,meadow:mounted.get('meadow')??null,start,token,progress}).then(lease=>{if(dropped){lease.dispose();throw Error('balloon-dropped');}if(lease.model)mounted.set('skycity',lease.model);return lease;});
-    const timeout=new Promise<never>((_,reject)=>{const id=setTimeout(()=>reject(Error('balloon-timeout')),6000);token.onCancel(()=>clearTimeout(id));});
-    try{return await Promise.race([work,timeout]);}
-    catch(error){dropped=true;if(token.cancelled)throw error;}
+    const waited=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled,load:()=>mountBalloonLease({parent:options.parent,meadow:mounted.get('meadow')??null,start,token,progress})});
+    const lease=waited.value;if(lease.model)mounted.set('skycity',lease.model);return lease;
    }
    const def=REGIONS[to];if(!def||to==='island')throw Error('journey-region-unavailable');
-   const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
+   const sailWait=to==='meadow'&&from==='island'&&transportFor(from,to)==='sail';
+   const prefab=sailWait?(await awaitVehicle({kind:'sail',cancelled:()=>token.cancelled,load:()=>waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token,VEHICLE_ASSET_WAIT_MS)})).value:await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
    let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null,sailArt:SailArt|null=null;
@@ -194,9 +197,9 @@ export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):S
  return sky;
 }
 function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
-/** 风铃湖畔: island → lakeside journey (运镜bot's LakesideCameraLayout.lakesideJourney). The real r5h3 scene (same instances as
- *  the board background, default world layer so the world camera sees it) is mounted rigidly at the layout's root/yaw; the
- *  route carries the Landing A focus/landing overrides. Same rainbow bridge strips as the other legs. */
+/** 风铃湖畔: skycity → lakeside on the existing balloon. LakesideCameraLayout.lakesideJourney(start) still places the
+ *  scene; the basket descends onto the south-bank walk stop. No rainbow strips on this leg. */
+class LakesideBalloonTicker extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** 运镜bot: the lakeside route ends on THIS screen's board camera (the board UI's frame: viewport + boardSafeInsets); the
  *  base landing is kept if anything about the screen cannot be read. */
 function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
@@ -204,10 +207,10 @@ function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
 /** r4-prep A: blend weight at which the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame; ~1 m + the 1 s landing hook before the swap). */
 export const LAKESIDE_BOARD_PRELOAD_W=.9;
 async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
- if(from!=='island')throw Error('journey-region-order');
+ if(from!=='skycity')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
- let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
- const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+ let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{},beforeDraw=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+ const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
  try{
   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);lakeModel=model;
@@ -225,15 +228,44 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});journeyWater=water;}
   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
   const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
-  const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
-  const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
-  rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
+  const shore=L.arrival[L.arrival.length-1],flight=lakesideBalloonPath(start,shore),path=flight.path;
+  let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:flight.bridgeStart,bridgeEnd:flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
+  const total=routeLength(path);route={...route,timing:lakesideBalloonTiming(total)};token.check();progress(.98);
+  const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
+  token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
-  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  const clock={t:0,hiddenFor:0,fade:0};
+  const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
+   const ticker=rig.addComponent(LakesideBalloonTicker);
+   const timing=route.timing!;
+   await new Promise<void>((ok,bad)=>{
+    const off=rideToken.onCancel(()=>{director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
+    const apply=()=>{
+     const d=journeyDistanceAt(total,timing,Math.min(clock.t,timing.durationS));
+     const pos=sampleRoute(path,d);
+     if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
+     world.setCamera(lakesideBalloonLens(pos,shore));
+    };
+    beforeDraw=()=>{if(!dead)apply();};
+    director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
+    ticker.step=(dt)=>{
+     const hidden=typeof document!=='undefined'&&!!document.hidden;
+     const next=stepTransitClock(clock,dt,hidden);
+     const resumed=clock.fade<=0&&next.fade>0;
+     clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;
+     if(resumed&&typeof world.fadeCover==='function'){try{void world.fadeCover(next.fade,0.35);}catch{/* cover optional */}}
+     apply();
+     if(clock.t+1e-4>=timing.durationS){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
+    };
+   });
+   rideToken.check();
+   actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:LAKESIDE_BALLOON_LANDING.yawDeg*Math.PI/180});
+  };
+  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release,ride};
   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
   const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
   return lease;
- }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
+ }catch(error){try{console.error('[QF_LAKE] skycity→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
 }

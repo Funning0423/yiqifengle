@@ -459,7 +459,7 @@ export class WorldFlow {
     if(!this.journey)return {ok:false,reason:'journey-unavailable'};
     if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
     const fail=this.blocked(this.stable,true);if(fail)return fail;
-    if(!['island','meadow'].includes(this.stable))return {ok:false,reason:'journey-wrong-origin'};
+    if(!(this.stable==='island'||this.stable==='meadow'||this.stable==='skycity'))return {ok:false,reason:'journey-wrong-origin'};
     return this.operate('region-loading',async token=>{
       const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
       await this.journey!.prepare(target,pose.controllerRoot,token);token.check();

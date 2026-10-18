@@ -38,7 +38,7 @@ const LKS=require('./lakeside/lakeside-scene.cjs'),LK=H.load(S+'region/LakesideC
 const EXEMPT_M=1,STEP=+(process.env.QF_OCCLUSION_STEP||.05),HEIGHTS=[.15,.5,.9,1.25,1.6],CLEAR=1.1;
 const results=[];const check=(id,fn)=>{try{results.push({id,status:'PASS',...fn()});}catch(e){results.push({id,status:'FAIL',error:String(e.stack||e)});}};
 const j=LK.lakesideJourney(start),path=[...j.approach,...j.bridge.slice(1),...j.arrival],T=routeLength(path);
-const route={from:'island',to:'lakeside',path,bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing,timing:j.timing};
+const route={from:'skycity',to:'lakeside',path,bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing,timing:j.timing};
 const TM=j.timing,sAt=t=>Core.journeyDistanceAt(T,TM,t),DUR=TM.durationS;
 const lakeLocal=LKS.instances(),lake=lakeLocal.map(o=>{const t=new Float64Array(o.tris.length);for(let k=0;k<t.length;k+=3){const w=j.toWorld([o.tris[k],o.tris[k+1],o.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lakeside',name:o.name,group:o.group,tris:t};});
 // rainbow bridge strip exactly as RegionJourneyAdapter.rainbowBridge (full width, one ribbon)
@@ -53,7 +53,7 @@ function ndc(c,p,aspect){const f=sub(c.target,c.position),fl=Math.hypot(...f),fw
 check('K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged',()=>{
  // Region order + 'lakeside' JourneyRegion/Place/State are Voice Bot's wiring (README); the continuity and landing checks run on
  // the same route with the order label of the Build05 island leg.
- const asIsland={...route,to:'meadow'};Core.validateJourneyRoute(asIsland,start);Core.validateJourneyRoute(route,start); // island→lakeside wired (Voice Bot)
+ const asIsland={...route,from:'island',to:'meadow'};Core.validateJourneyRoute(asIsland,start);Core.validateJourneyRoute(route,start); // skycity→lakeside wired
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,focus:undefined},start),/journey-invalid-landing/);
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{arrivalSideM:NaN}},start),/journey-invalid-landing/);
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{fovDeg:30}},start),/journey-invalid-landing/);
