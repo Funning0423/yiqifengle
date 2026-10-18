@@ -77,6 +77,7 @@ export function createSailDriver(opts:{
   get arrivalU(){return arrivalU;},
   get departed(){return departAt!=null;},
   bindRider(node:Node){opts.rider=node;opts.riderHome=node.parent;},
+  arm(){const b=opts.timeline.beats[0];if(!b?.cue||fired.has(b.id))return;fired.add(b.id);emitTransit(b.cue as any,{t:0,region:'meadow',id:b.id});pushSailCue(b.cue,0);},
   markBoard(){if(fired.has('S-b'))return;fired.add('S-b');emitTransit('sail-board',{t,region:'meadow',id:'S-b'});pushSailCue('sail-board',t);},
   /** Sit has finished. Attach her to the seat, then let the hull leave. `budget` is real seconds for S-c..S-e. */
   depart(budget:number){
@@ -125,6 +126,7 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  const rider=(actor as {node?:Node}).node;
  if(!rider){console.error('[QF_SAIL] FlowReferenceStandin has no node; sail ride aborted');throw Error('sail-rider-missing');}
  driver.bindRider(rider);
+ driver.arm();
  const wait=async()=>{token.check();if(world.wait)await world.wait(0.05,token);else driver.onFrame(1/60,!!world.isWorldVisible&&!world.isWorldVisible());};
  const until=async(time:number)=>{while(driver.t+1e-3<time)await wait();};
  const walk=(path:Vec[],stop:boolean)=>{const L=pathLen(path);const duration=Math.max(0.35,L/1.2);return actor.perform({kind:'walk',path,duration,stopAtEnd:stop} as any,token);};

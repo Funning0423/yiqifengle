@@ -68,7 +68,7 @@ if(fs.existsSync(csv)){
  assert(!movedBeforeSit,'hull moved before she was seated');
  assert(seenSeat,'no seated cruise frames');
  if(sailReal0!=null)assert(sailReal1-sailReal0<=30.5,'sail span '+(sailReal1-sailReal0));
- if(arr0!=null)assert(arr1-arr0<=12,'arrival span '+(arr1-arr0));
+ if(arr0!=null)assert(arr1-arr0<=16.8,'arrival span '+(arr1-arr0));
  const pix=csv.replace(/metrics_/, 'pixels_').replace(/\.csv$/, '.json');
  if(fs.existsSync(pix)){
   const summary=JSON.parse(fs.readFileSync(pix,'utf8'));

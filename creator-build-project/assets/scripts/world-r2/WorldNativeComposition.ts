@@ -248,7 +248,7 @@ export class WorldNativeComposition extends Component {
     armSailQa();
     if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
     try{this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[4.5,0.231,-4.9],yawRad:0});}catch(error){console.error('[QF_SAIL] sailqa stand failed',error);}
-    try{const q=typeof location!=='undefined'?String(location.search||''):'';if(q.includes('night=1'))await (globalThis as any).__worldDayNight?.set?.('night');}catch{}
+    try{const q=typeof location!=='undefined'?String(location.search||''):'';if(q.includes('night=1'))await (globalThis as any).__worldDayNight?.set?.('night');else await (globalThis as any).__worldDayNight?.set?.('day');}catch{}
     if(commands.snapshot().state!=='island')return {ok:false,reason:'sailqa-not-island'};
     return commands.travelRegion('meadow');
   }

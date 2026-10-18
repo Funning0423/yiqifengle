@@ -172,11 +172,11 @@ export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sa
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
 /** Opaque cockpit floor inside the hull shell (x ±0.8, z ±2.1). y=0.14 stays above the waterline through ±4° roll. Priority 0 so depth, not draw order, hides the sea. */
 function mountCockpitSole(boat:Node):void{
- const y=0.14,x0=-0.76,x1=0.76,z0=-2.02,z1=1.96;
+ const y=0.12,x0=-0.78,x1=0.78,z0=-2.0,z1=1.9;
  const positions=[x0,y,z0,x1,y,z0,x1,y,z1,x0,y,z1];
  const normals=[0,1,0,0,1,0,0,1,0,0,1,0];
  const indices=[0,2,1,0,3,2];
- const mesh=utils.createMesh({positions,normals,indices});
+ const mesh=utils.createMesh({positions,normals,indices},undefined,{calculateBounds:true});
  const material=new Material();
  material.initialize({effectName:'builtin-unlit',states:{rasterizerState:{cullMode:gfx.CullMode.NONE},depthStencilState:{depthTest:true,depthWrite:true}}});
  material.setProperty('mainColor',new Color(96,68,44,255));
