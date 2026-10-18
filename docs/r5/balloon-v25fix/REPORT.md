@@ -10,8 +10,9 @@
 | `c7878f189130b5f50534a649f92e7d6595933e89` | `9dc3e519e6892f4477dfaa75d9f7aa434bcaf9e2` | STATUS |
 | `37ab9b36318662255c6c5d8e07b7ed2d55f7cb9d` | `5512f291d4d5eb975717d63655beb3457855177f` | 去掉着色器里没有 uniform 的 `mainColor`（否则效果导入失败） |
 | `385dab1ca99bec460c755ff71f73fa0a64bf85b5` | `7efbe02fc73c2387e6ddf7ad6387018b015a3edb` | 截图、对比图、本报告初稿 |
+| `c8cff41093094a11ba20037b6de176a2c7f3ce72` | `2721450c60a80096246045525e75bd0d2313c581` | 最终门禁结果与交付行 |
 
-游戏代码以 `37ab9b36` 为准。最终门禁跑在 `385dab1ca99bec460c755ff71f73fa0a64bf85b5`（含截图与报告，不含游戏改动）：`BUILD GUARD PASSED`，wechat-release 19,960,670 B，web-test 20,753,299 B，`dirty=0`。其后的提交只补本段和 STATUS 的交付行。
+游戏代码以 `37ab9b36` 为准。最终门禁跑在 `385dab1ca99bec460c755ff71f73fa0a64bf85b5`（含截图与报告初稿，不含游戏改动）：`BUILD GUARD PASSED`，wechat-release 19,960,670 B，web-test 20,753,299 B，`dirty=0`。`c8cff410` 只补交付说明，包体不变。把 `c8cff410` 写入本表的提交不改游戏。
 
 ## 1. 03/04 巡航球囊偏暗
 
