@@ -93,6 +93,7 @@ run('r5 per-part mask: 16x16 RGBA, byte = round(255 sqrt(w)) per palette swatch;
    assert.equal(b[i],Math.round(255*Math.sqrt(w)));assert.equal(b[i+1],b[i]);assert.equal(b[i+2],b[i]);assert.equal(b[i+3],255);assert(Math.abs((b[i]/255)**2-w)<0.01,'SRGBToLinear(byte) ~ w');}}
  for(const k of ['e2622f','d9862f','c9532a','5a3524','6a4630','8a5a3a','5e3b28'])assert.equal(D.lakesideFillPartWeight('day',k),0,k+' day off');
  for(const k of ['398f12','3f9a4a','8ccb4e','2c7a3e','fff1d6'])assert.equal(D.lakesideFillPartWeight('day','#'+k.toUpperCase()),1,k+' day on');
+ for(const k of ['5b6835','77853e','2f6446','2f7a4a','4e9a5c'])for(const md of ['day','night'])assert(D.lakesideFillPartWeight(md,k)>=0.6,k+' '+md+' far hill base / conifer >= 0.6 (r5.1 near-black band)');
  assert.equal(D.lakesideFillPartWeight('day','123456'),1,'unlisted = 1');
  const t=F.lakesideFillMaskTexture('day');assert.deepEqual(t.info,{width:16,height:16,format:35});assert.deepEqual(t.f,[1,1]);assert.equal(t.mip,0);assert.deepEqual(t.w,[2,2]);assert.deepEqual(Array.from(t.data),Array.from(D.lakesideFillMaskBytes('day')));assert.equal(F.lakesideFillMaskTexture('day'),t,'cached');});
 run('night land fill is cool and small (no brown)',()=>{const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');

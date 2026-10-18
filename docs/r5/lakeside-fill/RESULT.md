@@ -16,7 +16,7 @@ Branch `voice/r5-lakeside-fill`, based on `gbt/r5-integrated-b07-wip` @ bc81575.
      - door frames / dark wood #5a3524
      - trunks #6a4630
      - cliffs / sand / path #8a5a3a #5e3b28 #e9cf94 #b98a55 #d9a867
-   - Grass, tree crowns and walls stay at 1. Conifers and far hills are partial.
+   - Grass, tree crowns and walls stay at 1. Conifers and the far-hill base are mostly filled (0.7–0.9, r5.1 below).
    - Fallback: if the mask texture cannot be created, the copy keeps the old r4 flat fill. This is logged as
      `[QF_LAKE] land-fill-mask-failed`.
 2. **New fill groups.**
@@ -132,3 +132,49 @@ fill: they keep the plain copy, and the test asserts this.
     standalone run gives PASS (2 m 48 s).
   - region-transport-flag: this test compares RegionJourneyAdapter.ts with HEAD, and the file was not committed yet. It
     gives PASS after the commit.
+
+## r5.1 rework — near-black band under the far tree line (2026-10-18)
+
+**Problem (acceptance).** On `compare_390x844.png` (day), v1 turned the distant tree line and the ground below it into a
+dark, near-black band at ~18–22% of the comparison sheet. That is ~25–30% of the frame.
+
+**Diagnosis.** I mapped every pixel in frame rows 24–31% (390×844 pose) back to its GLB and palette swatch through the
+emulator G-buffer. The band is almost all far-hill base plus conifers, and v1 had starved those swatches of fill.
+
+| swatch | object | px in band | v1 day w | median px before → v1 |
+|---|---|---|---|---|
+| #5b6835 | LK_far_hills | 18,362 | 0.1 | 56/89/96 → 20/26/19 |
+| #77853e | LK_far_hills | 16,270 | 0 | 79/102/98 → 45/38/10 |
+| #2f6446 | LK_tree_conifer | 9,517 | 0.2 | darker by ~59 (sum RGB) |
+| #2f7a4a | LK_tree_conifer | 5,664 | 0.4 | 30/81/12 → 19/39/12 (all conifers) |
+| #4e9a5c | LK_tree_conifer | 2,604 | 0.7 | darker by ~17 |
+
+None of the 10 HANDOFF points or the tree/wall/cloud samplers sit on these swatches. So the v1 fit had nothing holding
+them up, and it chased the very dark engine-cam r5h3 reference there.
+
+**Fix.** These are mask weights only. Nothing else changed: `params` are byte-identical to v1.
+
+- Day: #5b6835 0.1→0.7, #77853e 0→0.7, #2f6446 0.2→0.7, #2f7a4a 0.4→0.8, #4e9a5c 0.7→0.9.
+- Night: #5b6835 0.2→0.6, #2f6446 0.4→0.6, #2f7a4a 0.6→0.7.
+- Roofs, door frames (#5a3524), trunks (#6a4630) and cliffs/path stay at 0 by day.
+- New lock in test_lakeside_land_fill: all five swatches stay ≥ 0.6 in both modes.
+
+**Re-verified (emulator; params and mask dumped from the code):**
+
+- **Day, HANDOFF §4.**
+  - 390×844: 10/10 within ±12. Largest gaps are mid_water_R G +9 and bridge_stone_left G −10. Stripe std 1.9.
+  - 360×640: 10/10 within ±12. Largest gaps are bridge_stone_deck R +9 and bridge_stone_left R −9. Stripe std 2.3.
+  - Samplers are unchanged from v1: tree crown 41/106/14, house wall 175/133/90, cloud 202/173/157.
+- **Night.** Every ratio vs Mac r3 is unchanged: tree 0.78, wall 0.79, cloud 0.80, grass 0.85, plant 0.82, prop 0.81,
+  reeds 0.82, lily/lotus 0.80. Red is the lowest channel throughout.
+- **Lake/bridge/steps/foam.** max|Δ| = 0 in day and night, at both poses.
+- **Draw calls.** 55 (≤ 60), unchanged. This is a mask change only, with no new material or group.
+- **Band, 390×844 day.** Median band colour is now 56/89/96 and 79/102/98 (r4 look) on the hill base, with conifers dark
+  green. Previously it was near-black.
+
+**Previews** (`previews/Voice-bot/r5-lakeside-fill/`):
+
+- `band_15-25_{390x844,360x640}.png`: frame rows 15–25%, before / v1 / fix, day and night.
+- `band_15-35_*.png`: the same crop extended down over the v1 band.
+- `compare_r51_*.png`: full frames.
+- `after_v1_*` and `after_fix_*`: single frames.

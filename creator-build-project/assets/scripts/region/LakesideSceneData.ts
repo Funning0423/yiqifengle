@@ -256,8 +256,9 @@ export const LAKESIDE_PALETTE_CELLS: readonly string[] = Object.freeze([
 export const LAKESIDE_FILL_PART_WEIGHT = Object.freeze({
   day: Object.freeze<Record<string, number>>({
     '398f12': 1, '8a5a3a': 0, '5e3b28': 0, 'e9cf94': 0, 'b98a55': 0, 'd9a867': 0, // near land: grass on, cliffs / sand / path off
-    '93a77c': 0.8, '5b6835': 0.1, '77853e': 0, 'a69982': 1, 'b7c9e2': 1, '8fb3d6': 1, '5ca214': 0, // far hills / far shore
-    '3f9a4a': 1, '8ccb4e': 1, '2c7a3e': 1, '4e9a5c': 0.7, '2f6446': 0.2, '2f7a4a': 0.4, '6a4630': 0, // foliage: conifers partial, trunks off
+    // r5.1: far-hill base swatches and conifers at 0.1/0/0.2/0.4 left the tree line + hill base a near-black band (18-22% of the comparison sheet).
+    '93a77c': 0.8, '5b6835': 0.7, '77853e': 0.7, 'a69982': 1, 'b7c9e2': 1, '8fb3d6': 1, '5ca214': 0, // far hills / far shore
+    '3f9a4a': 1, '8ccb4e': 1, '2c7a3e': 1, '4e9a5c': 0.9, '2f6446': 0.7, '2f7a4a': 0.8, '6a4630': 0, // foliage: conifers mostly filled, trunks off
     'fff1d6': 1, 'e2622f': 0, 'd9862f': 0, 'c9532a': 0, '5a3524': 0, 'c27a45': 0.1, 'e6d9c2': 0, 'd9b98c': 0.6, // buildings
     '2e8c8c': 1, 'ffd27a': 1, '4e8f3a': 0.5, 'ff8fb1': 0.3,
     'f2d58a': 1, '3e9a57': 0.9, '7cc55a': 0, '5e9a5a': 0, 'ff9ec0': 0.3, 'ffffff': 0.5, 'ffd84a': 0.4, // plants
@@ -266,8 +267,8 @@ export const LAKESIDE_FILL_PART_WEIGHT = Object.freeze({
   }),
   night: Object.freeze<Record<string, number>>({
     '398f12': 1, '8a5a3a': 0.4, '5e3b28': 0.9, 'e9cf94': 0.3, 'b98a55': 1, 'd9a867': 0,
-    '93a77c': 0.7, '5b6835': 0.2, '77853e': 0.6, 'a69982': 0.5, 'b7c9e2': 1, '8fb3d6': 0.9, '5ca214': 0.6,
-    '3f9a4a': 1, '8ccb4e': 1, '2c7a3e': 1, '4e9a5c': 1, '2f6446': 0.4, '2f7a4a': 0.6, '6a4630': 0.1,
+    '93a77c': 0.7, '5b6835': 0.6, '77853e': 0.6, 'a69982': 0.5, 'b7c9e2': 1, '8fb3d6': 0.9, '5ca214': 0.6,
+    '3f9a4a': 1, '8ccb4e': 1, '2c7a3e': 1, '4e9a5c': 1, '2f6446': 0.6, '2f7a4a': 0.7, '6a4630': 0.1,
     'fff1d6': 1, 'e2622f': 0.1, 'd9862f': 0.4, 'c9532a': 0.2, '5a3524': 0.3, 'c27a45': 0.5, 'e6d9c2': 1, 'd9b98c': 0.2,
     '2e8c8c': 0, 'ffd27a': 0, '4e8f3a': 1, 'ff8fb1': 0.4,
     'f2d58a': 0.7, '3e9a57': 0.1, '7cc55a': 0.3, '5e9a5a': 0, 'ff9ec0': 0.2, 'ffffff': 0.5, 'ffd84a': 0.7,
