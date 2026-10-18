@@ -10,7 +10,7 @@ const Core=H.load(S+'world-r1/RegionJourneyCore.ts'),LK=H.load(S+'region/Lakesid
 const API=require(R+'/index.js'),src=f=>fs.readFileSync(S+f,'utf8'),vm=require('node:vm'),ts=require('../qf-env.cjs').typescript();
 const Campaign=require(S+'mainline-r1/runtime/region-campaign.js');
 const compFile=src('world-r2/WorldNativeComposition.ts'),body=compFile.slice(compFile.indexOf('export class WorldNativeComposition')).replace(/@property\([^)]*\) /g,'');
-const hooked=[];const ctx={exports:{},Component:class{},RegionCampaign:Campaign,DEBUG:false,console:{...console,error:()=>{}},LAKESIDE_LOAD_FAILED:'lakeside-load-failed',lakesideLandingToBoard:c=>{hooked.push(c.stageId);return Promise.resolve(hookResult);}};let hookResult={ok:true,result:'ok'};
+const hooked=[];const ctx={exports:{},Component:class{},RegionCampaign:Campaign,DEBUG:false,console:{...console,error:()=>{}},LAKESIDE_LOAD_FAILED:'lakeside-load-failed',lakesideSideOrder:()=>null,lakesideLandingToBoard:c=>{hooked.push(c.stageId);return Promise.resolve(hookResult);}};let hookResult={ok:true,result:'ok'};
 vm.runInNewContext(ts.transpileModule(body,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,ctx);const Comp=ctx.exports.WorldNativeComposition;
 const sel=id=>Comp.prototype.selectionRegion.call({}, {provider:'r5',stageId:id});
 const Route={journeySelectionRegion:sel};

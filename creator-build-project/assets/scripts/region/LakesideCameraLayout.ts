@@ -63,6 +63,11 @@ export function lakesideJourney(start:Vec){
  const bridge=bridgePath(edge,toWorld(L.landingLocal),L.bridgeArchM),arrival=L.walkLocal.map(toWorld);
  return {yawDeg,root,toWorld,approach,bridge,arrival,focus:toWorld(L.focusLocal),landing:L.landing,timing:L.timing,startBlendM:0,speed:REGION_JOURNEY_LAYOUT.speedMps};
 }
+/** Plan A spur: put the south-bank landing on `bank` (the flat walk's stop). Same yaw as the island leg; no bridge arch. */
+export function lakesideSpurRoot(bank:Vec):{yawDeg:number;root:Vec}{
+ const L=LAKESIDE_CAMERA_LAYOUT,yawDeg=L.yawDeg,r=rotY(yawDeg,L.landingLocal);
+ return {yawDeg,root:[bank[0]-r[0],bank[1]-r[1],bank[2]-r[2]]};
+}
 type V3=[number,number,number];
 /** What the board UI reports to the background lease (LevelBackgroundFrame): viewport, tray top and, when available, the 2D
  * grid rect (centre x/y and side, logical px, origin top-left, y down; BoardLayout.grid). */

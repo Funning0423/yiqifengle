@@ -2,7 +2,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),ts=require('./qf-env.cjs').typescript();
 const Campaign=require('../creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js');
 const file=fs.readFileSync('creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts','utf8'),body=file.slice(file.indexOf('export class WorldNativeComposition')).replace(/@property\([^)]*\) /g,'');
-const context={exports:{},Component:class{},RegionCampaign:Campaign,DEBUG:false,console};vm.runInNewContext(ts.transpileModule(body,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,context);const Class=context.exports.WorldNativeComposition;
+const context={exports:{},Component:class{},RegionCampaign:Campaign,DEBUG:false,console,lakesideSideOrder:()=>null};vm.runInNewContext(ts.transpileModule(body,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,context);const Class=context.exports.WorldNativeComposition;
 function harness(cleared=4){
  const h=Object.create(Class.prototype),journey={readOnly:false,records:Array.from({length:12},(_,i)=>({bestStars:i<cleared?1:0,clears:i<cleared?1:0}))},events=[];
  const snapshot={state:'level',journey:{region:cleared===8?'meadow':'island',target:null}};
