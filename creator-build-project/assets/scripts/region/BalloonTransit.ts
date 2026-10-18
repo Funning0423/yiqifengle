@@ -114,7 +114,7 @@ function paintSeaFallback(root:Node|null,night:boolean):void{
  */
 function paintCloudSea(clouds:Node|null,night:boolean):void{
  if(!clouds||lookCache.get(clouds)===night)return;
- const day=new Color(255,255,255,255),nite=new Color(96,108,118,255);
+ const day=new Color(255,255,255,255),nite=new Color(68,80,94,255);
  eachNamed(clouds,n=>{
   if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,night?nite:day,{vertexColor:true});
  });
