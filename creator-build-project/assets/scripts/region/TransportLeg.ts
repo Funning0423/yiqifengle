@@ -1,6 +1,7 @@
 import type {Pose, Vec} from '../world-r1/WorldFlowCore';
 import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
 import {meadowLocalToWorld, SAIL_LANDING_BERTH_LOCAL, sailArrivalWalkM} from './SailLanding';
+import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, STRATA_OFF_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';
 /** Island south dock and the meadow bank, in each region's own coordinates (maps/nodes.json).
  * M0 is 3 m upstream of the published river node so the shore walk stays inside the 30.5 s budget. */
 export const SAIL_I6:Vec=[-1.9,-0.6,10.1];
@@ -246,12 +247,7 @@ export function parentingErrorM(movedM:number,local:Vec=[0,0.02,0]):number{
  return dist(child,expected);
 }
 
-import type {Vec} from '../world-r1/WorldFlowCore';
-import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
-import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, STRATA_OFF_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';
-/** Balloon meadow → sky city (§10). Pure: no engine imports. Sail beats live on the sail branch;
- * this file still exports the shared return shape so a later merge can add sailBeats beside balloonBeats. */
-export type Pose={position:Vec;target:Vec;fovVerticalDeg:number};
+/** Balloon meadow → sky city (§10). Pose is the shared WorldFlowCore camera pose already imported above. */
 export type Beat={id:string;t0:number;t1:number};
 export type VehicleSample={pos:Vec;yaw:number;roll:number};
 export type Screen={w:number;h:number};
