@@ -1,4 +1,4 @@
-import {Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
+import {Camera, Canvas, Color, Component, Director, DirectionalLight, EffectAsset, Graphics, JsonAsset, Layers, Material, MeshRenderer, Node, Prefab, Quat, UITransform, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {routeLength} from '../world-r1/RegionJourneyCore';
@@ -251,7 +251,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
   const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
-  const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  let dropCover=()=>{};
+  const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);dropCover();(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
@@ -377,6 +378,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     mainLight.node.setRotationFromEuler(mainLight.node.eulerAngles.x,mainYaw0,mainLight.node.eulerAngles.z);
    }
   };
+  const cover=mountHandoffCover();dropCover=cover.destroy;
   const paint=(t:number)=>{
    const fade=handoffFade(t);
    const handoff=t+1e-9>=HANDOFF_COVER_T;
@@ -442,7 +444,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    applyVehicleNight(vehicle,night);
    if(model&&cityOn){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
-   (globalThis as any).__QF_BALLOON_FADE=fade;
+   (globalThis as any).__QF_BALLOON_FADE=fade;cover.paint(fade);
    (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn,meadowOn,cityOn,showIsland};
   };
   offNight=onDayNightChange(mode=>{night=String(mode).includes('night');});
@@ -507,7 +509,21 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  }catch(error){release();throw error;}
 }
 function worldOf(model:Node,local:Vec):Vec{const v=new Vec3(local[0],local[1],local[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];}
-function findCamera():Node|null{const scene=director.getScene();if(!scene)return null;const cams=scene.getComponentsInChildren(Camera);const world=cams.find(c=>c.node.name!=='WorldNavigationCamera'&&c.visibility!==0);return (world??cams[0])?.node??null;}
+function findCamera():Node|null{const scene=director.getScene();if(!scene)return null;const cams=scene.getComponentsInChildren(Camera);const world=cams.find(c=>c.node.name!=='WorldNavigationCamera'&&c.node.name!=='BalloonFadeCamera'&&c.visibility!==0);return (world??cams[0])?.node??null;}
+/** Preview turns WorldNavigationCanvas off, so the shared fade never reaches the framebuffer. This cover is the one the ride actually shows. */
+function mountHandoffCover():{paint:(alpha:number)=>void;destroy:()=>void}{
+ const scene=director.getScene();
+ if(!scene)return {paint:()=>{},destroy:()=>{}};
+ const canvas=new Node('BalloonFadeCanvas');canvas.layer=Layers.Enum.UI_2D;scene.addChild(canvas);canvas.addComponent(UITransform);
+ const cn=new Node('BalloonFadeCamera');scene.addChild(cn);cn.setPosition(0,0,1000);
+ const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=0.1;cam.far=2000;cam.priority=80;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;
+ const c=canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;c.cameraComponent=cam;
+ const node=new Node('BalloonFadeCover');node.layer=Layers.Enum.UI_2D;canvas.addChild(node);node.addComponent(UITransform).setContentSize(4000,4000);
+ const g=node.addComponent(Graphics);let alpha=-1;
+ const paint=(a:number)=>{const byte=Math.max(0,Math.min(255,Math.round(a*255)));const on=byte>0;cam.enabled=on;canvas.active=on;if(!on||byte===alpha)return;alpha=byte;g.clear();g.fillColor=new Color(0,0,0,byte);g.rect(-2000,-2000,4000,4000);g.fill();};
+ paint(0);
+ return {paint,destroy:()=>{if(isValid(canvas,true))canvas.destroy();if(isValid(cn,true))cn.destroy();}};
+}
 function loadGradeEffect():Promise<EffectAsset|null>{
  return new Promise(ok=>{
   assetManager.loadBundle('region_transit_balloon',(err,bundle)=>{
