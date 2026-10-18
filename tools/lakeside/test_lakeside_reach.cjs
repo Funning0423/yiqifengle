@@ -59,7 +59,10 @@ t('shipped tables unchanged: bridge leg, node order, no rainbow on the spur bran
  const transport=src('region/JourneyTransport.ts'),nodes=src('region/RegionNodeProgress.ts'),adapter=src('region/RegionJourneyAdapter.ts'),flow=src('world-r1/WorldFlowCore.ts'),boot=src('WorldIntegrationBoot.ts');
  assert.match(transport,/\'island-lakeside\':\'bridge\'/);
  assert.match(nodes,/export const REGION_ORDER:readonly RegionId\[\]=\['island','meadow','skycity'\]/);
- assert.match(flow,/if\(!journeyTravelOriginOk\(this\.stable\)\)return \{ok:false,reason:'journey-wrong-origin'\}/);
+ assert.match(flow,/if\(!\(this\.stable==='island'\|\|this\.stable==='meadow'\|\|\(this\.stable==='lakeside'&&lakesideReachQueryOn\(\)\)\)\)return \{ok:false,reason:'journey-wrong-origin'\}/);
+ assert.match(flow,/function lakesideReachQueryOn\(\):boolean/);
+ assert.doesNotMatch(flow,/from ['"][^'"]*LakesideReach['"]/);
+ assert.doesNotMatch(src('world-r1/RegionJourneyCore.ts'),/from ['"][^'"]*LakesideReach['"]/);
  const spurAt=adapter.indexOf('if(spur){');
  const spur=adapter.slice(spurAt,adapter.indexOf('}else{',spurAt));
  assert.doesNotMatch(spur,/rainbowBridge/);

@@ -1,5 +1,4 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
-import {lakesideReachEnabled} from '../region/LakesideReach';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
@@ -29,7 +28,18 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
 /** Shipped legs: island→meadow, island→lakeside, meadow→skycity. Meadow↔lakeside exists only while `?lakeside=1` is on. */
 function journeyRegionOrderOk(from:string,to:string):boolean{
  if((from==='island'&&(to==='meadow'||to==='lakeside'))||(from==='meadow'&&to==='skycity'))return true;
- return lakesideReachEnabled()&&((from==='meadow'&&to==='lakeside')||(from==='lakeside'&&to==='meadow'));
+ return lakesideReachQueryOn()&&((from==='meadow'&&to==='lakeside')||(from==='lakeside'&&to==='meadow'));
+}
+/** Same gate as region/LakesideReach.lakesideReachEnabled. Inlined so world-r1 stays free of a relative import
+ *  (camera-frame and region-journey tests transpile this folder alone). */
+function lakesideReachQueryOn():boolean{
+ try{
+  const host=globalThis as any;const wx=host?.wx;
+  if(wx){let env='';try{env=String(wx.getAccountInfoSync?.()?.miniProgram?.envVersion||'');}catch{return false;}if(env!=='develop'&&env!=='trial')return false;}
+  const flag=host?.__QF_LAKESIDE;if(flag==='1'||flag===1||flag===true)return true;
+  let q='';if(typeof host?.location?.search==='string')q=host.location.search;else if(typeof location!=='undefined'&&typeof (location as {search?:unknown}).search==='string')q=String((location as {search:string}).search||'');
+  return /(?:^|[?&])lakeside=1(?:&|$)/.test(q);
+ }catch{return false;}
 }
 /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
  * smoothed walking heading), so a bridge that turns keeps the lens behind her. Numbers are checked by

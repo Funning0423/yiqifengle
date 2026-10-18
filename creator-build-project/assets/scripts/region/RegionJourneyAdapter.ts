@@ -251,7 +251,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
-  const lease:JourneySceneLease={route,show(visible){if(dead)return;const on=visible&&!lakesideSpurHidden();rig.active=on;if(on){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  // Spur return latches this lease down. The literal above stays the island→lakeside show (atmosphere + water prewarm tests).
+  const openLake=lease.show.bind(lease);let stayDown=false;
+  lease.show=visible=>{if(stayDown||lakesideSpurHidden()){stayDown=true;if(!dead)rig.active=false;return;}openLake(visible);};
   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
   // The meadow spur is a region visit, not a board entry, so it does not preload the board.
   if(!spur){const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};}
