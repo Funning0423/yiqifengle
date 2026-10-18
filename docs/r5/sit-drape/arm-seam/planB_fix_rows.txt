@@ -1,0 +1,15 @@
+ROW stand_up {"f": 0, "lift_mm": 0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 17.8, "R": 0.77}}
+ROW stand_up {"f": 1, "lift_mm": 13.7, "need_mm": 8.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 29.58, "R": 6.55}}
+ROW stand_up {"f": 2, "lift_mm": 20.5, "need_mm": 14.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 37.26, "R": 7.01}}
+ROW stand_up {"f": 3, "lift_mm": 30.7, "need_mm": 22.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 46.27, "R": 9.28}}
+ROW stand_up {"f": 4, "lift_mm": 44.4, "need_mm": 34.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 54.04, "R": 10.56}}
+ROW stand_up {"f": 5, "lift_mm": 52.0, "need_mm": 50.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 59.96, "R": 2.26}}
+ROW stand_up {"f": 6, "lift_mm": 46.0, "need_mm": 44.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 60.3, "R": 3.05}}
+ROW stand_up {"f": 7, "lift_mm": 39.3, "need_mm": 36.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 61.11, "R": 4.49}}
+ROW stand_up {"f": 8, "lift_mm": 32.4, "need_mm": 26.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 58.82, "R": 5.72}}
+ROW stand_up {"f": 9, "lift_mm": 23.9, "need_mm": 10.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 57.84, "R": 11.38}}
+ROW stand_up {"f": 10, "lift_mm": 14.0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 52.59, "R": 17.98}}
+ROW stand_up {"f": 11, "lift_mm": 6.0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 42.65, "R": 37.29}}
+ROW stand_up {"f": 12, "lift_mm": 1.8, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 34.18, "R": 49.37}}
+ROW stand_up {"f": 13, "lift_mm": 0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 36.25, "R": 59.23}}
+ROW stand_up {"f": 14, "lift_mm": 0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 52.31, "R": 82.11}}

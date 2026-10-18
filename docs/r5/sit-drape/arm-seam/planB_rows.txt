@@ -1,0 +1,15 @@
+BREATH max deg spine/chest/neck/head 0.079 other bones 0.105
+HOLD 0 {'apron': 0, 'dress': 0, 'body': 0} {'L': 17.8, 'R': 0.77}
+HOLD 30 {'apron': 0, 'dress': 0, 'body': 0} {'L': 17.8, 'R': 0.77}
+HOLD 60 {'apron': 0, 'dress': 0, 'body': 0} {'L': 17.8, 'R': 0.77}
+ROW stand_up {"f": 0, "lift_mm": 0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 17.8, "R": 0.77}}
+ROW stand_up {"f": 1, "lift_mm": 10.2, "need_mm": 8.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 26.39, "R": 3.87}}
+ROW stand_up {"f": 2, "lift_mm": 12.0, "need_mm": 10.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 30.18, "R": 2.38}}
+ROW stand_up {"f": 3, "lift_mm": 14.0, "need_mm": 12.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 36.56, "R": 2.96}}
+ROW stand_up {"f": 4, "lift_mm": 23.9, "need_mm": 14.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 49.92, "R": 11.61}}
+ROW stand_up {"f": 5, "lift_mm": 28.0, "need_mm": 26.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 45.67, "R": 2.13}}
+ROW stand_up {"f": 6, "lift_mm": 23.9, "need_mm": 6.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 63.66, "R": 18.49}}
+ROW stand_up {"f": 7, "lift_mm": 14.0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 76.97, "R": 24.36}}
+ROW stand_up {"f": 8, "lift_mm": 4.1, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 64.51, "R": 16.2}}
+ROW stand_up {"f": 9, "lift_mm": 1.2, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 55.86, "R": 15.11}}
+ROW stand_up {"f": 10, "lift_mm": 0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 50.39, "R": 15.34}}

@@ -1,0 +1,89 @@
+{
+ "wristL": {
+  "new": [
+   0.1805,
+   4.4597,
+   0.6219
+  ],
+  "old": [
+   0.1828,
+   4.44,
+   0.5818
+  ],
+  "delta_mm": 44.8,
+  "dz_mm": 40.1
+ },
+ "handtipL": {
+  "new": [
+   0.0132,
+   4.5478,
+   0.6423
+  ],
+  "old": [
+   0.0229,
+   4.5416,
+   0.5979
+  ],
+  "delta_mm": 45.9,
+  "dz_mm": 44.4
+ },
+ "thighL_pitch_deg": {
+  "new": 0.03,
+  "old": -0.09,
+  "diff": 0.12
+ },
+ "shinL_pitch_deg": {
+  "new": 81.25,
+  "old": 82.37,
+  "diff": -1.12
+ },
+ "footL_pitch_deg": {
+  "new": 26.57,
+  "old": 26.57,
+  "diff": -0.0
+ },
+ "wristR": {
+  "new": [
+   0.0839,
+   4.2744,
+   0.5928
+  ],
+  "old": [
+   0.0534,
+   4.2799,
+   0.5909
+  ],
+  "delta_mm": 31.0,
+  "dz_mm": 1.8
+ },
+ "handtipR": {
+  "new": [
+   -0.0847,
+   4.3599,
+   0.6138
+  ],
+  "old": [
+   -0.1014,
+   4.3851,
+   0.6245
+  ],
+  "delta_mm": 32.1,
+  "dz_mm": -10.7
+ },
+ "thighR_pitch_deg": {
+  "new": 0.43,
+  "old": 0.5,
+  "diff": -0.07
+ },
+ "shinR_pitch_deg": {
+  "new": 87.98,
+  "old": 86.27,
+  "diff": 1.71
+ },
+ "footR_pitch_deg": {
+  "new": 26.57,
+  "old": 26.57,
+  "diff": 0.0
+ },
+ "morph_diff sit_down_end/sit_hold/stand_up_f0": {}
+}
