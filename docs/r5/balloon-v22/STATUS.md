@@ -7,3 +7,4 @@
 | 2026-10-18 09:22 | 完成：v2.3 接入、接缝、方案B海面、fade交接、DC52、7帧截图+对比、build-guard @144d4fa 包体 19932755 | 交付/审阅 | suite 98/99；frame-bg PASS；wechat 19.93MB；transit 520KB | 144d4facb6 |
 | 2026-10-18 09:26 | 修复对比图：去掉 sips -Z 压碎 contact；游戏半幅短边≥844；palette 压到 <1.5MB；REPORT 已写 | 交付 | contact 1688×12789 | pending |
 | 2026-10-18 09:26 | 交付完成：HEAD=12c66c8594；锁已释放；磁盘 ~5.7GiB | — | suite 基线保持；对比图合格 | 12c66c8594 |
+| 2026-10-18 09:43 | 修夜景品红海面 tint + 降落关 strata；frame-bg PASS；等 build lock(r5-sail-dock-path) | 锁释放后 build-guard+重拍 04/06/07 | seamLeak=0 | 647a8fe3 |
