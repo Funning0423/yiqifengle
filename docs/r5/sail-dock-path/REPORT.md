@@ -25,7 +25,7 @@
 | `1fedcffd55cc484563037ccd59c09bd8dee12241` | `603fafae991bed7a255912298c1e7cfb02201344` | Creator 导入 meta（transit_landing + SailLanding） |
 | `ce116dc0395e968746ca9ce64f1d581223759d53` | `a3569fdd47b61e41e89aac017111540e0783bc68` | 路径 palette 材质、K2 构图、K7 夜星 |
 | `2c07fd3bc4429de17184513422fec973c1c30b24` | `01785efdfb1f586f6185cb815fbe073f6db38151` | 小路暖沙 tint（截图用代码 HEAD） |
-| （shots + 终稿 REPORT 提交） | — | 见紧随其后的 commit |
+| `dbd922eae9887f7ea008be094191f1b3f5db3192` | `41f8e3d2a2dbd6805ae1ed0007806157d28d1198` | 截图 + 终稿 REPORT/STATUS |
 
 ## §1 怎么做的
 
