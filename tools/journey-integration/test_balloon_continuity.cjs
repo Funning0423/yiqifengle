@@ -77,7 +77,7 @@ function analyzeMp4(file,night){
     }
     const luma=sum/N;
     // Full-screen handoff cover is black on purpose; the girl is behind it, not missing.
-    const covered=luma<12;
+    const covered=luma<24;
     const wide=covered||(girl>=girlMin&&(x1-x0)>6&&(y1-y0)>8);
     rows.push({luma,girl,inside:wide,covered});
    }

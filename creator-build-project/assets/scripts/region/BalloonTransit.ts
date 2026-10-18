@@ -145,7 +145,10 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
    }
    return;
   }
-  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea'||(night&&n.name==='clouds_horizon'))forceUnlit(n,night?nite:day,{vertexColor:true});
+  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea'||(night&&(n.name==='clouds_horizon'||n.name==='clouds_deck'||n.name==='clouds_deck_loose'||n.name==='clouds_far'))){
+   // Night vertex colors come through with red/green swapped on some frames. A flat unlit tint stays put.
+   forceUnlit(n,night?nite:day,night?undefined:{vertexColor:true});
+  }
  });
  lookCache.set(clouds,night);
 }
