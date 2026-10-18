@@ -1,5 +1,20 @@
 # r5 草原女孩太小：四个方案（仅准备，不合并）（cine/r5-meadow-girlsize-options）
 
+## 决定（2026-10-18，Funning 经 Grok Bot）
+- **采用 A（落点机位拉近）**，已接线并设为默认，B/C/D 的开关和代码都已删除。
+  - 代码：`RegionBoardLanding.meadowBoardCamera(w,h)` 以 meadowScenePose 的朝向和 FOV，把镜头推近到她的 M1 落点，让她站在工具栏左侧的空位里，与所有 UI 保持 ≥ 13 pt。
+  - 棋盘背景（MeadowBoardBackground.frame）、旅程终点（regionBoardEnd 带上视口尺寸）、落点挑选三处共用这一机位。
+  - 只在帆船抵达时生效：RegionJourneyAdapter 调用 `setMeadowBoardFraming(sail?'A':'authored')`。走桥的回退路线仍用 r4 站位线和原 meadowScenePose；还没经过旅程时默认也是原机位。
+  - 棋盘 06–08 和以前一样沿用同一个棋盘机位。M2–M4 仍在画面内，比原来大一些。
+  - 测试：`tools/meadow/test_meadow_board_framing.cjs`，已加入 run-suite。
+  - 检查帧：`CHECK_M1_390x844_A_default.jpg`，390 上她 11.9%，离 UI 14.3 pt。
+  - 各屏占比：414 为 12.3%，360 为 9.9%，375×667 为 14.6%，320×568 为 13.0%，768 为 22.2%；间距都 ≥ 14 pt。
+- **草甸自由视角最大距离 9 m**：本分支没有 ORBIT_LIMITS，也没有草甸专用的跟随距离上限，所以**代码里没改**。
+  - 这个上限写在 `cine/free-camera-spec-r1` 的 SPEC §11（草甸 4.3–9 m），由 Mac 端 Cursor 在 build08 里映射。
+  - 本分支唯一相近的是所有区域共用的 mapPose 缩放：zoomMax 1.6 × 7.4 m ≈ 11.8 m（平板 1.8 约 13.3 m）。它不是自由环绕镜头，按要求没动。
+- **D（地平线弯曲）暂缓**：D 专用的代码和工具已删除（horizon_tilt.cjs、walk_shots.cjs、bl_meadow.py 里的弯曲部分），下面的对比图和数据作为历史保留。eval_options.cjs 依赖已删除的方案模块，也一并删了；它的输出 metrics.json 仍保留。
+
+
 基线 `gbt/r5-integrated-b07-wip` @ bc81575f。现状：草原 M1–M4 都用 boardPose 'default'（meadowScenePose PORTRAIT，pos [9,19,42]，fov 49.4°），这是一个固定的全景机位，所以她越往里走就越小。
 
 代码：`creator-build-project/assets/scripts/region/MeadowGirlSizeOptions.ts`，开关 `MEADOW_GIRLSIZE_OPTION='off'`，**未接线**，运行时零影响。

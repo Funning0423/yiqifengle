@@ -1,6 +1,7 @@
 import { _decorator, Animation, Camera, Color, Component, EffectAsset, Material, MeshRenderer, Node, Prefab, SphereLight, Vec4, assetManager, director, game, Game, isValid, instantiate } from 'cc';
 import { REGIONS, loadRegionPrefab, mountRegion } from './RegionLoader';
 import { MEADOW_SCENE_SOURCE, meadowScenePose } from './MeadowSceneData';
+import { meadowBoardCamera } from './RegionBoardLanding';
 import { applyCameraPose, fromLookAt } from '../world-r1/CameraPose';
 import { uiNightWeight } from '../ui/NightTint';
 import type { LevelBackgroundFactory } from '../world-r2/LevelBackground';
@@ -134,7 +135,7 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');motion.light=light;
   return {
    frame:(_portrait,layout)=>{if(disposed)return;token.check();if(!camera||!isValid(camera,true)||!isValid(camera.node,true))throw Error('Meadow camera owner destroyed');if(!layout||!(layout.width>0&&layout.height>0))throw Error('Meadow requires current board layout');
-    const pose=meadowScenePose(layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');
+    const pose=meadowBoardCamera(layout.width,layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');
     if(anchor&&!applyCameraPose(camera!,fromLookAt(anchor),'meadow.node-anchor'))throw Error('Meadow node anchor rejected');},
    setAnchor:pose=>{if(disposed)return;anchor=pose;},
    setVisible:value=>{if(disposed)return;visible=value;rig!.active=value;camera!.enabled=value;motion!.visible=value;},

@@ -1,4 +1,4 @@
-# Blender 4.5 offline stills of the meadow board: current pose vs girl-size options A/B/C.
+# Blender 4.5 offline stills of the meadow board: meadow board camera check frames (r5: option A is the default board camera).
 # blender -b -P bl_meadow.py -- SHOTS_JSON OUTDIR [name_filter]      (SHOTS_JSON from eval_options.cjs)
 # Env: TREE (repo root), SAMPLES (default 12). Proxy look only (real env_meadow.glb + character GLB, sun + sky colour).
 import bpy,sys,json,math,os,mathutils
@@ -26,22 +26,7 @@ if arm and act:
   except Exception as e: print('slot',e)
   bpy.context.scene.frame_set(int(act.frame_range[0]))
 print('CHAR action',act and act.name)
-# option D: bend world meshes (not her, not sky) in world space. Original world verts kept so each shot re-bends from flat.
-NOBEND=('meadow_sky_dome','meadow_clouds_near','meadow_far_hills')
-src={}
-for o in mea:
-  if o.type!='MESH' or o.name.startswith(NOBEND): continue
-  o.data=o.data.copy(); mw=o.matrix_world.copy(); src[o.name]=(o,mw,[mw@v.co for v in o.data.vertices])
-def bend(b):
-  for o,mw,ws in src.values():
-    inv=mw.inverted()
-    for v,wp in zip(o.data.vertices,ws):
-      x,y,z=wp.x,wp.y,wp.z   # Blender: Cocos x=x, Cocos z=-y
-      if b:
-        cx,cz=b['cx'],-b['cz']; d=((y-cz)**2 if b['mode']=='cyl' else (x-cx)**2+(y-cz)**2)/(2*b['R']); z-=d
-      v.co=inv@mathutils.Vector((x,y,z))
-    o.data.update()
-cur=['flat']
+
 sc=bpy.context.scene
 try: sc.render.engine='BLENDER_EEVEE_NEXT'
 except Exception: sc.render.engine='BLENDER_EEVEE'
@@ -53,8 +38,6 @@ cam=bpy.data.objects.new('cam',bpy.data.cameras.new('cam')); sc.collection.objec
 cam.data.sensor_fit='VERTICAL'; cam.data.clip_start=0.1; cam.data.clip_end=2000
 for s in data['shots']:
   if filt and filt not in s['name']: continue
-  key=json.dumps(s.get('bend'))
-  if key!=cur[0]: bend(s.get('bend')); cur[0]=key
   hc.location=B(s['foot']); hc.rotation_euler=(0,0,math.radians(s.get('faceDeg',180)))
   c=s['cam']; p=mathutils.Vector(B(c['position'])); t=mathutils.Vector(B(c['target']))
   cam.location=p; cam.rotation_euler=(t-p).to_track_quat('-Z','Y').to_euler(); cam.data.angle=math.radians(c['fovVerticalDeg'])

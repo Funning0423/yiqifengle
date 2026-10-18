@@ -17,7 +17,7 @@ import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
-import {regionBoardEnd,regionBoardSource,regionGirlStand,setRegionBoardSource,type BoardLandingRegion,type GirlStand,type RegionBoardSource} from './RegionBoardLanding';
+import {regionBoardEnd,regionBoardSource,regionGirlStand,setMeadowBoardFraming,setRegionBoardSource,type BoardLandingRegion,type GirlStand,type RegionBoardSource} from './RegionBoardLanding';
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
@@ -79,6 +79,8 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
    const release=()=>{if(dead)return;dead=true;sailArt?.dispose();if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
    try{
     const sail=to==='meadow'&&from==='island'&&transportFor(from,to)==='sail';
+    // 运镜bot r5 (meadow-girlsize A): the sail arrival ends at M1 → closer board camera; the bridge fallback keeps meadowScenePose.
+    if(to==='meadow')setMeadowBoardFraming(sail?'A':'authored');
     const warmed=sail?takeSailWarm():null;
     model=mountRegion(def,prefab,rig);
     // 运镜bot: the prefab's own root transform = the board copy's transform in its (identity) board rig, before the journey places it.
@@ -144,7 +146,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     // 运镜bot (region hooks): the route ENDS on THIS screen's board camera (RegionBoardLanding: the board background's own pose
     // for the board UI's viewport, mapped onto this journey copy); if the screen or the map cannot be read, the old end is kept.
     let board:JourneyBoardEnd|undefined;
-    try{boardSrc=journeyBoardSource(to as BoardLandingRegion,model,boardLocal!);const v=lakesideViewport(view.getFrameSize());board=regionBoardEnd(boardSrc,v.width/v.height);}catch(error){boardSrc=null;board=undefined;try{console.error('[QF_REGION] board landing unavailable: '+String(error));}catch{}}
+    try{boardSrc=journeyBoardSource(to as BoardLandingRegion,model,boardLocal!);const v=lakesideViewport(view.getFrameSize());board=regionBoardEnd(boardSrc,v.width/v.height,v);}catch(error){boardSrc=null;board=undefined;try{console.error('[QF_REGION] board landing unavailable: '+String(error));}catch{}}
     let route:JourneyRoute;
     let sailDriver:ReturnType<typeof createSailDriver>|null=null;
     let sailPlan:Parameters<typeof playSailBeats>[4]|null=null;
