@@ -106,7 +106,7 @@ fill: they keep the plain copy, and the test asserts this.
 - `tools/lakeside/test_lakeside_journey_atmosphere.cjs` **PASS**: the fill follows the same weight as the atmosphere.
 - TypeScript strict check of LakesideBoardBackground.ts and RegionJourneyAdapter.ts against the Cocos 3.8 cc.d.ts: no new
   errors (pre-existing errors in other files are unchanged).
-- Full suite: see the commit message / final report.
+- Full suite: see "Suite" below.
 
 ## Untested
 - These are emulator numbers, not a Cocos or Mac capture. The emulator reproduces the r4 propfill stand-in renders to
@@ -121,3 +121,14 @@ fill: they keep the plain copy, and the test asserts this.
   day and night in each.
 - Single frames `before_*` and `after_*`.
 - `emulator/`: the scripts plus the code-dumped params and mask.
+
+## Suite (tools/journey-integration/run-suite.cjs, Node 20.19.2, box under heavy load)
+- **Baseline bc81575:** 117 passed.
+  - FAIL: retry-protection, region-nodes-data, lens-clearance.
+  - BLOCKED: legacy-board-ui-pure and reward-background-return (both need Node ≥ 22.6), navigation-guard (no browser).
+- **This branch** (run before the commit): 115 passed. It has the same 3 failures and 3 blocked checks as the baseline,
+  plus 2 more failures, both re-checked afterwards:
+  - region-levels: only PASS lines were printed, and it was most likely killed by the suite timeout under load. A
+    standalone run gives PASS (2 m 48 s).
+  - region-transport-flag: this test compares RegionJourneyAdapter.ts with HEAD, and the file was not committed yet. It
+    gives PASS after the commit.
