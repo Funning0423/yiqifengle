@@ -81,4 +81,88 @@ if(fs.existsSync(csv)){
   assert(summary.clearMax<=0.005,'clear '+summary.clearMax);
  }
 }
-console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3)}));
+const vehicle=fs.readFileSync(path.join(S,'region/TransportVehicle.ts'),'utf8');
+assert(vehicle.includes('Quat.fromEuler(q,0,yaw*180/Math.PI,roll*180/Math.PI)'),'roll is about the hull axis, not pitch');
+const art=fs.readFileSync(path.join(S,'region/SailArt.ts'),'utf8');
+assert(!art.includes('x0=-0.72')&&!art.includes('z1=1.85'),'rectangular cockpit box is gone');
+assert(ride.includes('EVENT_BEFORE_DRAW')&&ride.includes('captureSeated'),'seated joints stay locked until she stands');
+const sole=load('region/SailSole.ts');
+const pos=sole.solePositions();
+let verts=0;
+for(let i=0;i<pos.length;i+=3){
+ verts++;
+ assert(sole.soleVertexInside(pos[i],pos[i+1],pos[i+2]),'sole vertex outside the hull '+pos[i]+','+pos[i+1]+','+pos[i+2]);
+}
+assert(verts>=20&&sole.SOLE_STATIONS[0][0]===-2.088&&sole.SOLE_STATIONS.at(-1)[0]<=1.26,'sole stations');
+function camStep(a,b){
+ const dp=Math.hypot(a.position[0]-b.position[0],a.position[1]-b.position[1],a.position[2]-b.position[2]);
+ const d1=[a.target[0]-a.position[0],a.target[1]-a.position[1],a.target[2]-a.position[2]];
+ const d0=[b.target[0]-b.position[0],b.target[1]-b.position[1],b.target[2]-b.position[2]];
+ const n1=Math.hypot(...d1),n0=Math.hypot(...d0);
+ const dot=Math.max(-1,Math.min(1,(d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])/(n0*n1||1)));
+ return {dp,ang:Math.acos(dot)*180/Math.PI};
+}
+let prev=null,worst=0;
+for(let t=0;t<=tl.build05S+1e-6;t+=1/30){
+ const cam=leg.sailCamera(tl,route.samples,t,{w:390,h:844});
+ if(prev){const s=camStep(cam,prev);worst=Math.max(worst,s.dp);assert(s.dp<=1.5&&s.ang<=25,'sail camera jump '+s.dp.toFixed(2)+'m '+s.ang.toFixed(1)+'deg @ '+t.toFixed(2));}
+ prev=cam;
+}
+const root=leg.sailMeadowRoot(),m0=leg.sailM0World(),m1=leg.sailM1World();
+const walk=landing.SAIL_LANDING_WALK_LOCAL.map(p=>landing.meadowLocalToWorld(p,root));
+const step=landing.meadowLocalToWorld(landing.SAIL_LANDING_STEP_LOCAL,root);
+const arrival=[step,...walk.slice(1),m0,m1];
+const from=leg.sailCamera(tl,route.samples,tl.build05S,{w:390,h:844});
+const yawState={yaw:null};
+let ap=null,aw=0;const dur=Math.max(0.5,arrival.reduce((L,p,i)=>i?L+Math.hypot(p[0]-arrival[i-1][0],p[1]-arrival[i-1][1],p[2]-arrival[i-1][2]):0,0)/1.2);
+for(let e=0;e<=dur+1e-6;e+=1/30){
+ const cam=leg.sailFollowCamera(arrival,Math.min(1,e/dur),from,from,yawState);
+ if(ap){const s=camStep(cam,ap);aw=Math.max(aw,s.dp);assert(s.dp<=1.5&&s.ang<=25,'arrival camera jump '+s.dp.toFixed(2)+'m @ '+e.toFixed(2));}
+ ap=cam;
+}
+function assertQa2(file){
+ assert(fs.existsSync(file),'missing '+file);
+ const text=fs.readFileSync(file,'utf8').trim().split('\n');
+ const head=text[0].split(','),col=n=>head.indexOf(n);
+ const rows=text.slice(1).map(l=>l.split(','));
+ let seated=false,stood=false,cuts=0,outliers=0;
+ const cams=[];
+ for(const c of rows){
+  const beat=c[col('beat')],departed=c[col('departed')]==='1',pose=c[col('riderPose')];
+  const sailing=departed&&(beat==='S-c'||beat==='S-d'||beat==='S-e');
+  if(sailing&&pose==='sit')seated=true;
+  if(sailing)assert(pose==='sit','rider stood during '+beat+' frame '+c[col('frame')]);
+  if(departed&&beat==='arrival'&&pose==='stand')stood=true;
+  if(col('water')>=0&&+c[col('real')]>1)assert(+c[col('water')]<=0.005,'qa2 water '+c[col('water')]);
+  if(col('shoreNear')>=0&&sailing)assert(+c[col('shoreNear')]===0,'shore inside 1m frame '+c[col('frame')]);
+  const girl=c[col('girlPx')];
+  if(sailing&&girl!==''&&girl!=null)assert(+girl>0,'girl hidden frame '+c[col('frame')]+' px '+girl);
+  cams.push({cut:col('cameraCut')>=0?+c[col('cameraCut')]:0,cx:+c[col('cx')],cy:+c[col('cy')],cz:+c[col('cz')],real:+c[col('real')],beat});
+ }
+ for(let i=1;i<cams.length;i++){
+  if(cams[i].beat==='S-a'&&cams[i].real<0.25)continue;
+  if(cams[i].cut)cuts++;
+  if(i+1<cams.length){
+   const a=cams[i-1],b=cams[i],d=cams[i+1];
+   const ab=Math.hypot(b.cx-a.cx,b.cy-a.cy,b.cz-a.cz),bd=Math.hypot(d.cx-b.cx,d.cy-b.cy,d.cz-b.cz),ad=Math.hypot(d.cx-a.cx,d.cy-a.cy,d.cz-a.cz);
+   if(ab>1.5&&bd>1.5&&ad<0.8)outliers++;
+  }
+ }
+ assert(seated,'no seated pose recorded');
+ assert.equal(cuts,0,'camera cuts '+cuts+' in '+path.basename(file));
+ assert.equal(outliers,0,'misaligned frames '+outliers);
+ const pix=file.replace(/metrics_/,'pixels_').replace(/\.csv$/,'.json');
+ if(fs.existsSync(pix)){
+  const summary=JSON.parse(fs.readFileSync(pix,'utf8'));
+  assert(summary.waterMax<=0.005,'qa2 waterMax '+summary.waterMax);
+  const plank=summary.plankPx||{};
+  for(const view of ['side-a','side-b','stern-a','stern-b','three-a','three-b']){
+   assert(view in plank,'missing plank view '+view);
+   assert(plank[view]<=20,'sole sticks out '+view+' '+plank[view]+'px');
+  }
+ }
+}
+const q2=path.join(__dirname,'../../docs/r5/sail-qa2/metrics_after.csv');
+const q2n=path.join(__dirname,'../../docs/r5/sail-qa2/metrics_after-night.csv');
+assertQa2(q2);assertQa2(q2n);
+console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3),soleVerts:verts,sailCamStep:+worst.toFixed(3),arrivalCamStep:+aw.toFixed(3)}));

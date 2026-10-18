@@ -31,7 +31,8 @@ export function detachRider(rider:Node,parent:Node):void{rider.setParent(parent,
 export function applySailScale(sail:Node|null,scale:number):void{if(sail)sail.setScale(1,Math.max(0.001,scale),1);}
 export function placeBoat(root:Node,pos:Vec,yaw:number,roll:number):void{
  root.setWorldPosition(pos[0],pos[1],pos[2]);
- const q=new Quat();Quat.fromEuler(q,roll*180/Math.PI,yaw*180/Math.PI,0);root.setWorldRotation(q);
+ // Cocos fromEuler is YZX. X pitches the bow; Z rolls about the hull's long axis.
+ const q=new Quat();Quat.fromEuler(q,0,yaw*180/Math.PI,roll*180/Math.PI);root.setWorldRotation(q);
 }
 export function basketFloor(root:Node):Node{return find(root,'stand_point')??find(root,'basket_floor')??root;}
 export function flameNode(root:Node):Node|null{return find(root,'burner_flame');}

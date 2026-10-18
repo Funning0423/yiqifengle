@@ -10,6 +10,9 @@ export type SailQaSnap={
  clip:string;rate:number;
  cockpit:number[][];
  clear:number[];
+ riderPose:string;
+ gsx:number|null;gsy:number|null;
+ shoreNear:number;
 };
 function find(node:Node|null,name:string):Node|null{
  if(!node)return null;if(node.name===name)return node;
@@ -48,13 +51,24 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
   const names=['sea_plane','landing_sea_tile','transit_river_mouth','meadow_river','env_sea_surface','env_sea_foam'];
   for(const name of names){const n=find(scene,name);if(!n)continue;const r=n.getComponent(MeshRenderer);seas.push({name,y:+n.worldPosition.y.toFixed(3),active:n.activeInHierarchy,enabled:!!r?.enabled});}
  }
+ const groups=[[[0,0.2,-0.4],[0.35,0.2,-0.2],[-0.35,0.2,-0.2],[0,0.2,0.3]],[[0,0.25,-1.8],[0.2,0.25,-1.65],[-0.2,0.25,-1.65],[0,0.25,-1.45]],[[0,0.25,1.05],[0.18,0.25,0.9],[-0.18,0.25,0.9],[0,0.25,1.15]]];
  const cockpit:number[][]=[];
+ let gsx:number|null=null,gsy:number|null=null;
  if(partial.boat&&cam){
   const out=new Vec3();
-  for(const p of [[0,0.2,-0.4],[0.35,0.2,-0.2],[-0.35,0.2,-0.2],[0,0.2,0.3]]){
-   const w=new Vec3(p[0],p[1],p[2]);Vec3.transformMat4(w,w,partial.boat.worldMatrix);
-   cam.worldToScreen(w,out);cockpit.push([+out.x.toFixed(1),+out.y.toFixed(1)]);
+  for(const group of groups){
+   if(cockpit.length)cockpit.push([Number.NaN,Number.NaN]);
+   for(const p of group){
+    const w=new Vec3(p[0],p[1],p[2]);Vec3.transformMat4(w,w,partial.boat.worldMatrix);
+    cam.worldToScreen(w,out);cockpit.push([+out.x.toFixed(1),+out.y.toFixed(1)]);
+   }
   }
+ }
+ const hip=findHip(girl);
+ const riderPose=!hip||!gp?'':(hip.worldPosition.y-gp.y>0.45?'stand':'sit');
+ if(girl&&cam&&gp){
+  const out=new Vec3();cam.worldToScreen(new Vec3(gp.x,gp.y+0.35,gp.z),out);
+  gsx=+out.x.toFixed(1);gsy=+out.y.toFixed(1);
  }
    let clear=[0,0,0];
    try{const col=cam?.clearColor;if(col)clear=[col.r,col.g,col.b];}catch{/* camera has no clearColor */}
@@ -64,11 +78,17 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
   girlActive:!!girl?.activeInHierarchy,girlRenderers:renderers,parent:pathOf(girl),
   boat:bp?[+bp.x.toFixed(3),+bp.y.toFixed(3),+bp.z.toFixed(3)]:null,
   yaw:+partial.yaw.toFixed(4),roll:+partial.roll.toFixed(4),
-  cam:cam?[+cam.node.worldPosition.x.toFixed(3),+cam.node.worldPosition.y.toFixed(3),+cam.node.worldPosition.z.toFixed(3)]:null,
+  cam:[+partial.pose.position[0].toFixed(3),+partial.pose.position[1].toFixed(3),+partial.pose.position[2].toFixed(3)],
   aim:[+partial.pose.target[0].toFixed(3),+partial.pose.target[1].toFixed(3),+partial.pose.target[2].toFixed(3)],
   fov:partial.pose.fovVerticalDeg||cam?.fov||0,near:cam?.near||0,far:cam?.far||0,
   clear,
-  seas,clip,rate,cockpit,
+  seas,clip,rate,cockpit,riderPose,gsx,gsy,shoreNear:+((globalThis as any).__QF_SAIL_SHORE_NEAR||0),
  };
  g.frames.push(snap);
+}
+function findHip(node:Node|null):Node|null{
+ if(!node)return null;
+ if(/hips$/i.test(node.name))return node;
+ for(const c of node.children){const h=findHip(c);if(h)return h;}
+ return null;
 }

@@ -72,31 +72,47 @@ for shot in shots:
     w, h = im.size
     pix = im.load()
     sea = sea_ref(im)
-    raw = []
-    for part in (row.get('cockpit') or '').split('|'):
-        if ':' not in part:
-            continue
-        a, b = part.split(':')[:2]
-        try:
-            raw.append((float(a), float(b)))
-        except ValueError:
-            pass
-    mask = poly(raw, w, h)
-    water = total = 0
-    if len(mask) >= 3 and all(8 < p[0] < w - 8 and 8 < p[1] < h - 8 for p in mask):
-        minx = max(0, int(min(p[0] for p in mask)) - 1)
-        maxx = min(w - 1, int(max(p[0] for p in mask)) + 1)
-        miny = max(0, int(min(p[1] for p in mask)) - 1)
-        maxy = min(h - 1, int(max(p[1] for p in mask)) + 1)
-        for y in range(miny, maxy + 1, 2):
-            for x in range(minx, maxx + 1, 2):
-                if not inside(x, y, mask):
-                    continue
-                total += 1
+    wr = 0
+    for group in (row.get('cockpit') or '').split(';'):
+        raw = []
+        for part in group.split('|'):
+            if ':' not in part:
+                continue
+            a, b = part.split(':')[:2]
+            try:
+                raw.append((float(a), float(b)))
+            except ValueError:
+                pass
+        mask = poly(raw, w, h)
+        water = total = 0
+        if len(mask) >= 3 and all(8 < p[0] < w - 8 and 8 < p[1] < h - 8 for p in mask):
+            minx = max(0, int(min(p[0] for p in mask)) - 1)
+            maxx = min(w - 1, int(max(p[0] for p in mask)) + 1)
+            miny = max(0, int(min(p[1] for p in mask)) - 1)
+            maxy = min(h - 1, int(max(p[1] for p in mask)) + 1)
+            for y in range(miny, maxy + 1, 2):
+                for x in range(minx, maxx + 1, 2):
+                    if not inside(x, y, mask):
+                        continue
+                    total += 1
+                    p = pix[x, y]
+                    if p[2] > p[0] + 28 and p[2] > 120 and dist(p, sea) < 70:
+                        water += 1
+        if total:
+            wr = max(wr, water / total)
+    try:
+        gx, gy = float(row.get('gsx') or 'nan'), float(row.get('gsy') or 'nan')
+    except ValueError:
+        gx = gy = float('nan')
+    if gx == gx and gy == gy:
+        iy = h - gy
+        count = 0
+        for y in range(max(0, int(iy - 70)), min(h, int(iy + 50))):
+            for x in range(max(0, int(gx - 40)), min(w, int(gx + 40))):
                 p = pix[x, y]
-                if p[2] > p[0] + 28 and p[2] > 120 and dist(p, sea) < 70:
-                    water += 1
-    wr = (water / total) if total else 0
+                if p[0] > 150 and p[1] > 110 and p[2] < 155 and p[0] + p[1] > p[2] * 2.2:
+                    count += 1
+        row['girlPx'] = str(count)
     if float(row.get('real') or 0) > 1:
         water_max = max(water_max, wr)
     # Clear-color holes: near-black or the camera clear, outside the top/bottom chrome.
@@ -157,7 +173,30 @@ with open(csv_path, 'w', newline='') as f:
     w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
     w.writeheader()
     w.writerows(rows)
-summary = {'waterMax': round(water_max, 4), 'clearMax': round(clear_max, 4), 'flickerCells': flicker[:12], 'flicker': len(flicker)}
+def seaish(p):
+    return p[2] > p[0] + 12 and p[2] > 60 and luma(p) < 210
+
+plank = {}
+for view in ('side-a', 'side-b', 'stern-a', 'stern-b', 'three-a', 'three-b'):
+    on_p = os.path.join(frames_dir, view + '-on.png')
+    off_p = os.path.join(frames_dir, view + '-off.png')
+    if not (os.path.exists(on_p) and os.path.exists(off_p)):
+        continue
+    on, off = Image.open(on_p).convert('RGB'), Image.open(off_p).convert('RGB')
+    if on.size != off.size:
+        plank[view] = -1
+        continue
+    pa, pb = on.load(), off.load()
+    w, h = on.size
+    extra = 0
+    for y in range(h):
+        for x in range(w):
+            p, q = pa[x, y], pb[x, y]
+            if dist(p, q) > 36 and seaish(q):
+                extra += 1
+    plank[view] = extra
+
+summary = {'waterMax': round(water_max, 4), 'clearMax': round(clear_max, 4), 'flickerCells': flicker[:12], 'flicker': len(flicker), 'plankPx': plank}
 open(os.path.join(frames_dir, 'pixels.json'), 'w').write(json.dumps(summary))
 side = csv_path.replace('metrics_', 'pixels_').replace('.csv', '.json')
 open(side, 'w').write(json.dumps(summary))
