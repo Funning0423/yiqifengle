@@ -28,6 +28,7 @@ import {createSailDriver,playSailBeats} from './SailRide';
 import {mountSailArt,type SailArt} from './SailArt';
 import {takeSailWarm} from './SailPreload';
 import {mountBalloonLease} from './BalloonRide';
+import {applySkycityBrokenBridge} from './SkycityBridgeState';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
 /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
@@ -101,7 +102,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      // N2: grass + topmost cloud follow the journey's night grade.
      motion.journeyNight=true;motion.clouds=meadowCloudMaterials(find(model,'meadow_clouds_near'));
      motion.grounds=meadowGroundMaterials([find(model,'meadow_terrain'),find(model,'meadow_river_bank')]);
-    }else{const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');await waitRegionAsset(ambient.prepare(),token);token.check();}
+    }else{const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');await waitRegionAsset(ambient.prepare(),token);token.check();applySkycityBrokenBridge(model);}
     progress(.86);
     let approach:Vec[];
     if(from==='island')approach=islandApproach(start);

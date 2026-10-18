@@ -5,6 +5,7 @@ import {SkycityRobotInteract} from './SkycityRobotInteract';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import {Cancelled,type RegionVisitAdapter,type RegionVisitLease} from '../world-r1/WorldFlowCore';
 import {skycityVisitPose} from './SkycityVisitPose';
+import {applySkycityBrokenBridge} from './SkycityBridgeState';
 /** Existing bundled scene, normal navigation. Does not access progress, rewards or storage. */
 export function createSkycityVisitAdapter(options:{parent:Node;camera:Camera;snapshot:()=>{state:string;hidden:boolean;needsResume:boolean}}):RegionVisitAdapter {
   return {async enter(token){
@@ -22,7 +23,7 @@ export function createSkycityVisitAdapter(options:{parent:Node;camera:Camera;sna
       if(!applyCameraPose(options.camera,fromLookAt(pose),'skycity.normal-visit'))throw Error('Skycity camera rejected');
     };
     try{
-      model=mountRegion(REGIONS.skycity,prefab,options.parent);model.name='SkycityNormalVisit';model.active=false;
+      model=mountRegion(REGIONS.skycity,prefab,options.parent);model.name='SkycityNormalVisit';model.active=false;applySkycityBrokenBridge(model);
       offCancel=token.onCancel(release);token.check();
       const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('Skycity ambient component missing');
       await token.wait(ambient.prepare());token.check();
@@ -36,7 +37,7 @@ export function createSkycityVisitAdapter(options:{parent:Node;camera:Camera;sna
       // Once the lease is accepted the flow owns its lifecycle; token cancellation
       // still cleans up a load cancelled before that handoff.
       const lease:RegionVisitLease={
-        show(){if(disposed||!model||!isValid(model,true)||!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('Skycity visit owner destroyed');visible=true;model.active=true;refresh();},
+        show(){if(disposed||!model||!isValid(model,true)||!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('Skycity visit owner destroyed');applySkycityBrokenBridge(model);visible=true;model.active=true;refresh();},
         hide(){visible=false;if(model&&isValid(model,true))model.active=false;},
         dispose:release,
       };

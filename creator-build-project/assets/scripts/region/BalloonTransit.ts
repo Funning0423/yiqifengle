@@ -10,6 +10,7 @@ import {basketFloor, loadBundlePrefab, mountVehicle, applyVehicleNight} from './
 import {emitTransitCue} from './TransitAudioHooks';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+import {applySkycityBridgeForBalloon} from './SkycityBridgeState';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, LIGHT_RAMP_T0, LIGHT_RAMP_YAW, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -349,6 +350,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     model.active=cityOn;
     if(cityOn)noShadow(model);
     showNamed(model,ALWAYS_HIDDEN,false);
+    applySkycityBridgeForBalloon(model,handoff);
     showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
     showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
     showNamed(model,['env_sky_islets_far'],false);
