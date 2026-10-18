@@ -44,3 +44,11 @@ python3 docs/r5/ui/unlock/src/render_unlock.py     # 红点 5 张
 QF_TYPESCRIPT_MODULE=<typescript 路径> node docs/r5/ui/result/src/dump_v22_nodes.cjs   # 输出 /tmp/r5ui/dump.json → 复制成 v22_nodes.json
 QF_TYPESCRIPT_MODULE=<typescript 路径> node docs/r5/ui/result/src/dump_layouts.cjs
 ```
+
+## 定稿（2026-10-18）· v3-A + 红点方案 A
+
+- 用户拍板：结算用 **v3-A**，红点用 **方案 A**。PM 三条：开箱后写奖励名；按钮离面板内沿 16，面板离安全区 ≥ 16，矮屏按 N/C/M/X 降档；面板宽 = round(680 × popupScale)。
+- 实现说明（给 Cursor）：[`final/IMPLEMENT.md`](final/IMPLEMENT.md)
+- 定稿图：`final/result_390x844.jpg`、`final/result_375x667.jpg`、`final/redline_*.jpg`、`final/reddot_A_*.jpg`、`final/result_night_390x844.jpg`、`final/result_7screens.jpg`
+- 新增切图只有 `final/assets/reddot.png`；其余都复用 `bundles/board_art`，见 `final/assets/kit_preview.png`。
+- 另记录了一个 bug：「存档出错提示行被删」（d6a0019f），见 IMPLEMENT §9。
