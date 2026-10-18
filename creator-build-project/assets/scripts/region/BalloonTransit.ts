@@ -91,19 +91,14 @@ function paintSeaFallback(root:Node|null,night:boolean):void{
 }
 /** City meshes that stay full-bright or press into the lens during the ride. */
 const CITY_RIDE_HIDE=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_island_vines','env_sky_island_vine_cards','env_sky_rope_root_02','env_sky_rope_root_03'];
-/** Scale skycity mainColor at night (same approach as the balloon) — never replace with a flat colour. */
-const cityNightBase=new WeakMap<Material,Color>();
-function applyCityNight(model:Node|null,night:boolean):void{
- if(!model)return;
- const scale=night?0.22:1;
+/**
+ * Night: hide unlit deck/grass/palette cards that ignore day-night (GBT neon green / magenta slabs).
+ * Do not getMaterialInstance+recolour — that drops glTF albedo maps and flashes magenta.
+ */
+function hideCityNightGlow(model:Node|null,night:boolean):void{
+ if(!model||!night)return;
  eachNamed(model,n=>{
-  for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;
-   const live=m.getProperty('mainColor') as Color|null;if(!live)continue;
-   if(!cityNightBase.has(m))cityNightBase.set(m,new Color(live.r,live.g,live.b,live.a));
-   const src=cityNightBase.get(m)!;
-   try{m.setProperty('mainColor',new Color(Math.round(src.r*scale),Math.round(src.g*scale),Math.round(src.b*scale),src.a));}catch{}
-   if(night){try{m.setProperty('emissive',new Color(0,0,0,255));}catch{}try{m.setProperty('emissiveScale',0);}catch{}}
-  }
+  if(/palette|grass|lawn|sod|terrain|ground_card|foliage_card|flower|Icosphere/i.test(n.name))n.active=false;
  });
 }
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
@@ -316,7 +311,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
    setEmissive(clouds,night);
    applyVehicleNight(vehicle,night);
-   if(model&&cityOn)applyCityNight(model,night);
+   if(model&&cityOn)hideCityNightGlow(model,night);
    if(flame){const burn=t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    (globalThis as any).__QF_BALLOON_FADE=fade;
    (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn,meadowOn,cityOn};
