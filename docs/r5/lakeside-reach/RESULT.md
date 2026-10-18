@@ -1,33 +1,25 @@
-# 湖畔可达：调查与方案 A 候选
+# 湖畔：天空之城之后
 
-2026-10-18 15:06 EDT。分支 `cursor/r5-lakeside-reach-66d3`，基线 `gbt/r5-integrated` @ `a83e1c2`。实现 `d4fcbf2e1a09f6ab56faf23ef0bf26647740331f`。这是候选，等选定方案后再合。没有合入 `int/v1` 或 `main`。
+产品选定方案 B。风铃湖畔是天空之城的下一站，热气球降落到湖南岸步行终点（湖边）。实现 `9dc5b74`。基线 `gbt/r5-integrated`。时间为美国东部时间（EDT）。
 
-## 为什么走不到
+## 改了什么
 
-合法转场只有海岛→草原（帆船）、草原→天空之城（热气球）、海岛→湖畔（表内仍是 bridge，岛上支线会铺彩虹条）。没有草原↔湖畔，也没有从天空之城出发的路。`travelRegion` 原点只允许海岛或草原；往回走得到 `return-route-not-yet-available`。
-
-地区节点只有 island / meadow / skycity。离开点是海岛 I6→草原、草原 M6→天空之城。湖畔关卡在旅途记录 11（主线 12）之后才开，手账章节只在海岛界面同步。开到的时候人已经在天空之城。
-
-`88ed387`（2026-10-17 03:04 EDT）接过海岛→湖畔。`6f47e47`（2026-10-17 13:05 EDT）的地区走路图没有湖畔节点，主线离开点也不通向湖畔。build06 已写湖畔打进包但走不到。`region_lakeside` 541,965 B 已在 wechat 包内（当时总包 20,266,535 / 24,641,536）。
-
-## 方案 A（本分支，默认关）
-
-草原平走到已进包的湖畔，再平走回草原。开关 `?lakeside=1` 或 `__QF_LAKESIDE=1`，只在网页、开发版、体验版。微信正式版忽略。没有屏幕横幅。
-
-路长 26 m（接近 4、跨越 16、到达 6），等高，1.2 m/s，`startBlendM` 4。湖景用现有挂载，南岸落在路的终点，不铺彩虹条，不预加载棋盘。返回时把这一段湖景租约收起。`ensureRegion` 在原顺序判断前插入支线；关掉时顺序字符串与基线相同。world-r1 的开关判断内联，单独转译该目录的测试不用加载 region 目录。
-
-包体：没有新美术，未重打 wechat 包，相对 build06 的构建包差值 0。transport 子包不变。支线不挂彩虹条，湖畔绘制沿用现有实例化与静态合并，这次没有单测 DC。
-
-转场：关掉时帆船、热气球、海岛→湖畔与基线相同。打开时只多草原↔湖畔平路；回到草原后热气球仍可出发。天空之城→湖畔仍拒绝。
-
-## 方案 B（只写，未做）
-
-天空之城之后再进湖畔，仍用已进包的 `region_lakeside`（541,965 B），不加新美术。现在 `travelRegion` 拒绝天空之城原点，`validateJourneyRoute` 拒绝天空之城→湖畔，人已在天空之城时 `exitSkycity` 也不放行。做成前进段要另定一种非彩虹交通，帆船和热气球可以不动。
+- 合法路线：海岛→草原、草原→天空之城、天空之城→湖畔。`travelRegion` 原点包含天空之城。
+- 地区节点在烘焙图旁加了 L0（到达）和 L1（湖边）。主线 12（S4）通过后 L0 为已通过，L1 可走，与 `LAKE_GATE_RECORD=11`（界面里程碑 12）同一时刻。`exploreHintSeen` 仍是 3 项；旧存档缺 `lastNode.lakeside` 时按当前进度补上。
+- `skycity-lakeside` 为 balloon。表内 `island-lakeside: bridge` 已删。湖畔准备不再调用 `rainbowBridge`。热气球预制体走 `awaitVehicle`（`TransportWait.ts`，接口同 `cloud/r5-no-bridge-fallback` 的 `63f3963`）。帆船和草原→天空之城超时也不再改走桥。
+- `?lakeside=1`、`LakesideReach.ts` 和草原支线预览已删除，生产路径进不到该开关。
+- 场景仍由 `lakesideJourney(start)` 摆放。飞行镜头默认值在 `LakesideBalloon.ts` 的 `LAKESIDE_BALLOON_LANDING`：`climbM` 14、`descentM` 12、`durationS` 22（路径更长时加长，巡航不超过 4.2 m/s）、`easeInS`/`easeOutS` 4、`camBackM` 8.5、`camUpM` 3.2、`camSideM` 1.4、`lookUpM` 1.1、`fovDeg` 48、`yawDeg` 180。落地后控制器改写为 `LAKESIDE_CAMERA_LAYOUT.landing`（`arrivalBackM` 6.8、`arrivalSideM` 1.1、`arrivalUpM` 3.0、`arrivalFovDeg` 约 57.4）。这两处留给运镜 bot。
 
 ## 测试
 
-2026-10-18 14:59 EDT，Node v22.23.3，`QF_TYPESCRIPT_MODULE=/usr/local/lib/nodejs/lib/node_modules/typescript npx -y node@22 tools/journey-integration/run-suite.cjs`，工作区 `d4fcbf2`。122 项里 121 PASS。唯一非 PASS：`navigation-guard: BLOCKED_BROWSER`。套件状态 BLOCKED，退出码 1。`lakeside-reach` PASS：默认关时草原进不了湖畔；打开后草原→湖畔→草原，地区回到草原，没有 `[QF_LAKE]`；天空之城仍进不去；海岛→湖畔仍是原来的一次 travel。跑完已丢掉 reports 与 output。截图/视频：无。
+2026-10-18 15:33–15:38 EDT，Node v22.23.3，`run-suite.cjs` 在 `9dc5b74`：123 项里 122 PASS，状态 BLOCKED，退出码 1。唯一非 PASS 是 `navigation-guard: BLOCKED_BROWSER`。`lakeside-reach` PASS：天空之城→湖畔、回访不再二次起飞、后台 hide/show/resume 与进出关卡后仍停在湖畔同一落点。`no-bridge-fallback` PASS。跑完已丢掉 reports 与 output。没有截图或视频。
 
-## 遗留
+## 包体
 
-平路没有贴地形。镜头用现有跟随。返回靠租约收起。水面缺失仍走共用的 `[QF_LAKE]` 回退。手账进湖畔棋盘仍是原来的海岛路径。产品还没选定湖畔放在哪一段。
+没有新美术，未重打 wechat 包。相对 build06 的已构建包差值 0。`region_lakeside` 仍是 541,965 B。脚本要等下次构建才进包。未新测 DC；这条腿不再生成 7 条彩虹桥面，湖畔仍用原有实例化与静态合并。
+
+## 还没做
+
+- 降落镜头是默认值，没有实机画面。
+- 没有湖畔走回天空之城的路线。
+- 未知路线（含海岛→湖畔）的 `transportFor` 仍回报 bridge，但准备阶段在非天空之城出发时直接拒绝，不会铺桥。
