@@ -254,7 +254,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const pier=findNode(props,'transit_pier');
  place(pier,SAIL_I6[0],-0.6,SAIL_I6[2]-0.7);
  // Mouth between boat and jetty (game ≈ x −3.55, origin z ≈ 37.5).
- place(mouth,-3.55,SAIL_SEA_Y-0.06,37.5);
+ // The mouth banks are a rectangular cap in the channel. Mesh rewrites left that cap on screen, so drop the whole prefab under the sea. The meadow shore is the bank that should read.
+ place(mouth,-3.55,SAIL_SEA_Y-1.7,37.5);
  place(findNode(props,'buoy_red'),end[0]+5.0,SAIL_SEA_Y,end[2]-8);
  place(findNode(props,'buoy_green'),end[0]-4.6,SAIL_SEA_Y,end[2]-7.5);
  const rocks:[[number,number,number],[number,number,number],[number,number,number]]=[
