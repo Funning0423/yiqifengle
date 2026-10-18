@@ -1,4 +1,4 @@
-import {Camera, Color, Component, Director, DirectionalLight, JsonAsset, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
+import {Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {routeLength} from '../world-r1/RegionJourneyCore';
@@ -59,33 +59,38 @@ function setEmissive(root:Node,night:boolean):void{
   if(night){try{m.setProperty('emissive',black);}catch{}try{m.setProperty('emissiveScale',0);}catch{}}
  }});
 }
-/** Night-tint far card so it does not stay as a bright green strip behind the city. */
-function tintFarCard(root:Node|null,night:boolean):void{
- if(!root)return;
- const day=new Color(255,255,255,255),nite=new Color(48,58,72,255);
- eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;
-  try{m.setProperty('mainColor',night?nite:day);}catch{}
-  try{m.setProperty('albedoScale',night?new Color(48,58,72,255):day);}catch{}
- }});
-}
 /**
- * Sea fallback is vertex-color only; Cocos often shows magenta when the albedo slot is empty.
- * Force a muted sea tint (and a darker night tint) so cruise/night never flash missing-texture pink or burn white.
+ * Force builtin-unlit so glTF materials with a missing/unbound albedo never flash engine magenta,
+ * and so night never leaves a full-bright unlit green sea/card under the city.
  */
-function paintSeaFallback(root:Node|null,night:boolean):void{
- if(!root)return;
- const day=new Color(72,118,148,255),nite=new Color(28,36,52,255),c=night?nite:day;
+function forceUnlit(root:Node|null,color:Color,opts?:{keepTexture?:boolean}):void{
+ if(!root||!EffectAsset.get('builtin-unlit'))return;
  eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){
   try{r.shadowCastingMode=MeshRenderer.ShadowCastingMode.OFF;}catch{}
-  const m=r.getMaterialInstance(0);if(!m)continue;
-  for(const key of ['mainColor','albedo','baseColor','emissive']){try{m.setProperty(key,key==='emissive'?new Color(0,0,0,255):c);}catch{}}
-  try{m.setProperty('albedoScale',c);}catch{}
-  try{m.setProperty('emissiveScale',0);}catch{}
-  try{m.setProperty('roughness',0.95);}catch{}
-  try{m.setProperty('metallic',0);}catch{}
-  try{m.setProperty('specularIntensity',0.02);}catch{}
+  let tex:unknown=null;
+  if(opts?.keepTexture){
+   try{const shared=r.getSharedMaterial(0);tex=shared?.getProperty('mainTexture')??shared?.getProperty('albedoMap')??null;}catch{tex=null;}
+  }
+  const m=new Material();
+  m.initialize({effectName:'builtin-unlit',technique:0,defines:tex?{USE_TEXTURE:true}:{}});
+  try{m.setProperty('mainColor',color);}catch{}
+  if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
+  try{r.setMaterialInstance(0,m);}catch{}
  }});
 }
+/** Night-tint far card; prefer albedo texture, else a muted meadow stand-in (never magenta). */
+function tintFarCard(root:Node|null,night:boolean):void{
+ if(!root)return;
+ const day=new Color(210,220,190,255),nite=new Color(42,50,62,255);
+ forceUnlit(root,night?nite:day,{keepTexture:!night});
+}
+/** Sea fallback: solid muted sea (day) / dark (night). No vertex-color / empty-albedo path. */
+function paintSeaFallback(root:Node|null,night:boolean):void{
+ if(!root)return;
+ forceUnlit(root,night?new Color(24,32,48,255):new Color(68,110,138,255));
+}
+/** City meshes that stay full-bright or press into the lens during the ride. */
+const CITY_RIDE_HIDE=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_island_vines','env_sky_island_vine_cards','env_sky_rope_root_02','env_sky_rope_root_03'];
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
  if(!root)return;const set=new Set(names);
  eachNamed(root,n=>{if(set.has(n.name))n.active=on;});
@@ -267,8 +272,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
     showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
     showNamed(model,['env_sky_islets_far'],false);
-    // Keep rock strata off for the whole ride — at land (t≈33.6) it was filling the lower third of the frame.
-    eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=false;});
+    // Palette patches ignore night tint (neon green under the island); vines/strata press into the land lens.
+    showNamed(model,CITY_RIDE_HIDE,false);
     eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
@@ -348,7 +353,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:plan.vehicle(LAND_T).yaw});
    (globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;
-   if(model){model.active=true;showNamed(model,ISLET_NODES,true);eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=true;});}
+   if(model){model.active=true;showNamed(model,ISLET_NODES,true);showNamed(model,CITY_RIDE_HIDE,true);}
    if(isValid(meadow,true))meadow.active=false;
    if(nightDome)nightDome.active=false;
    if(farRoot&&isValid(farRoot,true))farRoot.active=false;
