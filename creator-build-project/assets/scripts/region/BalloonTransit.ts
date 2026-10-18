@@ -1,4 +1,4 @@
-import {Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, Vec4, assetManager, director, gfx, instantiate, isValid} from 'cc';
+import {Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {routeLength} from '../world-r1/RegionJourneyCore';
@@ -97,36 +97,13 @@ const CITY_RIDE_HIDE=[
  'env_sky_rope_root_05','env_sky_rope_root_06','env_sky_rope_root_07','env_sky_rope_root_08',
 ];
 /**
- * Night: hide vine/palette/windcore extras. Ruins is builtin-standard (mainColor often null) — dim via
- * albedoScale / mainColor while rebinding maps so we never flash magenta.
+ * Night/day: hide vine/palette/windcore extras that read as neon slabs.
+ * Do not touch city material instances — albedoScale/mainColor edits flash magenta on ruins.
  */
-const cityNightBase=new WeakMap<Material,Color>();
-function hideCityNightGlow(model:Node|null,night:boolean):void{
+function hideCityNightGlow(model:Node|null,_night:boolean):void{
  if(!model)return;
  eachNamed(model,n=>{
   if(/palette|grass|lawn|sod|terrain|ground_card|foliage_card|flower|Icosphere|plant\d*_vine|rope_root|windcore/i.test(n.name))n.active=false;
- });
- if(!night)return;
- const scale=0.16;
- const albedo=new Vec4(scale,scale,scale,1);
- eachNamed(model,n=>{
-  for(const r of n.getComponents(MeshRenderer)){
-   const shared=r.getSharedMaterial(0);if(!shared)continue;
-   const m=r.getMaterialInstance(0);if(!m)continue;
-   for(const key of ['mainTexture','albedoMap','metallicRoughnessMap','normalMap','occlusionMap','emissiveMap']){
-    try{const tex=shared.getProperty(key);if(tex!=null)m.setProperty(key,tex);}catch{/* slot absent */}
-   }
-   try{m.setProperty('albedoScale',albedo);}catch{}
-   try{m.setProperty('albedoScaleAndCutoff',albedo);}catch{}
-   const live=m.getProperty('mainColor') as Color|null;
-   if(live){
-    if(!cityNightBase.has(m))cityNightBase.set(m,new Color(live.r,live.g,live.b,live.a));
-    const src=cityNightBase.get(m)!;
-    try{m.setProperty('mainColor',new Color(Math.round(src.r*scale),Math.round(src.g*scale),Math.round(src.b*scale),src.a));}catch{}
-   }
-   try{m.setProperty('emissive',new Color(0,0,0,255));}catch{}
-   try{m.setProperty('emissiveScale',0);}catch{}
-  }
  });
 }
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
