@@ -5,9 +5,9 @@
 | 项 | 值 |
 | --- | --- |
 | BASE_SHA | `0e04ce2ee02ffc0cda1bef8855b79cee8ce1ace2` |
-| 最终 HEAD | `80cf40a8a72f94718e58726916910117807239df` |
-| 最终 tree | `6592bc8c0254c31dafcfdd49b12f4edfb1b5ee6f` |
-| build-guard HEAD | `80cf40a8a72f94718e58726916910117807239df` |
+| 最终 HEAD | `2d9165a62648b7dc122a7826106087392574dfdf` |
+| 最终 tree | `02f8b57e5a06c85c77ea8c7dfb56e9e03111ecab` |
+| build-guard HEAD | `80cf40a8a72f94718e58726916910117807239df`（包体以此为准；其后为 docs/截图） |
 
 未 push；未碰 `main`；冻结文件未改。
 
