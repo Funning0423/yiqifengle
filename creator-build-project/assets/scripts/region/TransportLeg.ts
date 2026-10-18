@@ -173,7 +173,7 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  */
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 /** Quarter view, fov still 52 so the K7 star still (this pose) keeps its pixel size. Port side clears the sail. */
-const K3:SailOff={back:8.6,side:6.4,up:4.8,fov:52,look:0.4,orb:0};
+const K3:SailOff={back:8.2,side:7.8,up:5.0,fov:52,look:0.2,orb:0};
 const K4:SailOff={back:9.2,side:5.2,up:5.6,fov:50,look:2.4,orb:0};
 /** Port and high: the old starboard lens sat inside the meadow bank. */
 const K5:SailOff={back:10.2,side:5.6,up:7.4,fov:48,look:2.2,orb:0};

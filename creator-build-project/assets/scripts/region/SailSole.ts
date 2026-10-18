@@ -1,10 +1,10 @@
-/** Hull-shaped cockpit sole. Stations are the inner wall at y=0.05 (half_width − 0.01). */
-export const SOLE_Y = 0.05;
-/** [z, halfWidth]. Stern inner face through the foredeck bulkhead. No side walls. */
+/** Hull-shaped cockpit sole. y=0.12 stays above the waterline when the hull rolls. */
+export const SOLE_Y = 0.12;
+/** [z, halfWidth]. Inner wall at y=0.12, stern face through the foredeck bulkhead. No side walls. */
 export const SOLE_STATIONS: readonly (readonly [number, number])[] = [
- [-2.088, 0.313], [-1.932, 0.354], [-1.680, 0.415], [-1.344, 0.492],
- [-0.966, 0.562], [-0.588, 0.603], [-0.210, 0.619], [0.168, 0.611],
- [0.504, 0.583], [0.840, 0.509], [1.134, 0.401], [1.250, 0.296],
+ [-2.088, 0.356], [-1.932, 0.400], [-1.680, 0.460], [-1.344, 0.530],
+ [-0.966, 0.595], [-0.588, 0.638], [-0.210, 0.654], [0.168, 0.646],
+ [0.504, 0.616], [0.840, 0.557], [1.134, 0.460], [1.260, 0.400],
 ];
 export function soleHalfWidth(z: number): number {
  const s = SOLE_STATIONS;

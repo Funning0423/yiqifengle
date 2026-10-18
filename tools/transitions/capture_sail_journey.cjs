@@ -42,7 +42,7 @@ async function plankStill(page,frames,name){
    window.__QF_SAIL_SOLE=soleOn;
    window.__QF_SAIL_CAM_OVERRIDE={pos:[b[0]-fx*off[0]+rx*off[1],b[1]+off[2],b[2]-fz*off[0]+rz*off[1]],aim:[b[0],b[1]+0.7,b[2]]};
   },{soleOn:sole,kind});
-  await page.evaluate(()=>window.__stepFrame&&window.__stepFrame());
+  await page.evaluate(()=>window.__redraw&&window.__redraw());
   await page.screenshot({path:path.join(frames,name+'-'+(sole? 'on':'off')+'.png'),type:'png'});
  };
  await shot(1);await shot(0);
@@ -61,6 +61,7 @@ async function plankStill(page,frames,name){
   window.requestAnimationFrame=(cb)=>{q.push(cb);return q.length;};
   window.cancelAnimationFrame=()=>{};
   window.__stepFrame=()=>{spins=0;now+=1000/30;const cbs=q.splice(0,q.length);for(const cb of cbs){try{cb(now);}catch(e){console.error(e);}}return {now,queued:q.length};};
+  window.__redraw=()=>{const cbs=q.splice(0,q.length);for(const cb of cbs){try{cb(now);}catch(e){console.error(e);}}return {now,queued:q.length};};
  });
  page.on('console',msg=>{const t=msg.text();if(/QF_SAIL|WORLD_STARTUP|sailqa|Error|error/.test(t))console.log('PAGE',t.slice(0,240));});
  page.on('pageerror',err=>console.log('PAGEERROR',String(err).slice(0,400)));

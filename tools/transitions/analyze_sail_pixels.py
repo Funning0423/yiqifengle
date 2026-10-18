@@ -192,7 +192,7 @@ for view in ('side-a', 'side-b', 'stern-a', 'stern-b', 'three-a', 'three-b'):
     for y in range(h):
         for x in range(w):
             p, q = pa[x, y], pb[x, y]
-            if dist(p, q) > 36 and seaish(q):
+            if (not seaish(p)) and seaish(q) and dist(p, q) > 36:
                 extra += 1
     plank[view] = extra
 
