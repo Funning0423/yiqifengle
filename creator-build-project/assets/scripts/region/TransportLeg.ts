@@ -172,6 +172,8 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
  */
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
+/** Beam on her port side, so the swing off the bow does not look through the sail. */
+const Kbeam:SailOff={back:0.8,side:10.2,up:5.1,fov:52,look:0.2,orb:0};
 /** Quarter view, fov still 52 so the K7 star still (this pose) keeps its pixel size. Port side clears the sail. */
 const K3:SailOff={back:8.2,side:7.8,up:5.0,fov:52,look:0.2,orb:0};
 const K4:SailOff={back:9.2,side:5.2,up:5.6,fov:50,look:2.4,orb:0};
@@ -194,7 +196,8 @@ function sailOffset(b:SailBeat,t:number):SailOff{
  if(b.id==='S-a'||b.id==='S-b')return K1;
  if(b.id==='S-c')return u>=0.9?K2:orbitMix(K1,K2,u/0.9);
  if(b.id==='S-d'){
-  if(u<0.18)return orbitMix(K2,K3,u/0.18);
+  if(u<0.12)return orbitMix(K2,Kbeam,u/0.12);
+  if(u<0.24)return orbitMix(Kbeam,K3,(u-0.12)/0.12);
   if(u<0.42)return K3;
   if(u<0.56)return orbitMix(K3,K4,(u-0.42)/0.14);
   if(u<0.64)return K4;

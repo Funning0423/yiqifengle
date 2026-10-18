@@ -57,7 +57,7 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
   cam.node.lookAt(new Vec3(t[0],t[1],t[2]));
   if(partial.pose.fovVerticalDeg)cam.fov=partial.pose.fovVerticalDeg;
  }
- const groups=[[[0,0.22,-0.35],[0.22,0.22,-0.15],[-0.22,0.22,-0.15],[0,0.22,0.15]],[[0,0.25,-1.7],[0.16,0.25,-1.55],[-0.16,0.25,-1.55],[0,0.25,-1.4]],[[0,0.25,0.95],[0.14,0.25,0.8],[-0.14,0.25,0.8],[0,0.25,1.05]]];
+ const groups=[[[0,0.22,-0.3],[0.12,0.22,-0.1],[-0.12,0.22,-0.1],[0,0.22,0.1]],[[0,0.24,-1.55],[0.1,0.24,-1.4],[-0.1,0.24,-1.4],[0,0.24,-1.25]],[[0,0.24,0.85],[0.1,0.24,0.7],[-0.1,0.24,0.7],[0,0.24,0.98]]];
  const cockpit:number[][]=[];
  let gsx:number|null=null,gsy:number|null=null;
  if(partial.boat&&cam){
