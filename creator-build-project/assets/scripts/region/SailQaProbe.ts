@@ -51,6 +51,12 @@ export function pushSailFrame(partial:{t:number;real?:number;beat:string;phase:s
   const names=['sea_plane','landing_sea_tile','transit_river_mouth','meadow_river','env_sea_surface','env_sea_foam'];
   for(const name of names){const n=find(scene,name);if(!n)continue;const r=n.getComponent(MeshRenderer);seas.push({name,y:+n.worldPosition.y.toFixed(3),active:n.activeInHierarchy,enabled:!!r?.enabled});}
  }
+ if(cam){
+  const p=partial.pose.position,t=partial.pose.target;
+  cam.node.setWorldPosition(p[0],p[1],p[2]);
+  cam.node.lookAt(new Vec3(t[0],t[1],t[2]));
+  if(partial.pose.fovVerticalDeg)cam.fov=partial.pose.fovVerticalDeg;
+ }
  const groups=[[[0,0.22,-0.35],[0.22,0.22,-0.15],[-0.22,0.22,-0.15],[0,0.22,0.15]],[[0,0.25,-1.7],[0.16,0.25,-1.55],[-0.16,0.25,-1.55],[0,0.25,-1.4]],[[0,0.25,0.95],[0.14,0.25,0.8],[-0.14,0.25,0.8],[0,0.25,1.05]]];
  const cockpit:number[][]=[];
  let gsx:number|null=null,gsy:number|null=null;
