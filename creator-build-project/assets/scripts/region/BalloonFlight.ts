@@ -20,8 +20,8 @@ export const CITY_ON_T=11.6;
 export const SEAM_T=11.4;
 export const GRASS_OFF_T=5.8;
 export const ISLETS_ON_T=21.5;
-/** Hide island rock belly + hanging vines when the land lens gets close (06 only). */
-export const STRATA_OFF_T=31;
+/** Island grass + rock stay up through the landing lens. Handoff fade (35.9) is what turns the body off. */
+export const STRATA_OFF_T=36;
 export const LAND_T=35;
 export const FLIGHT_DURATION=36;
 export const CLOUD_WINDOW:[number,number]=[11,12];

@@ -108,17 +108,51 @@ function paintSeaFallback(root:Node|null,night:boolean):void{
  lookCache.set(root,night);
 }
 /**
- * Cloud deck uses baked vertex shade (0.66–1, cool white) × unlit mainColor.
- * Day stays white→light grey. Night mainColor sits in the dark blue-grey range; vertex shade keeps the clumps.
- * Never an emissive glTF instance (magenta path).
+ * Night: baked vertex shade × unlit RGB(68,80,94) (v24fix). No emissive.
+ * Day: balloon-grade stretches the same shade so the cruise floor reads as clumps, not a flat wash.
  */
-function paintCloudSea(clouds:Node|null,night:boolean):void{
+const CLOUD_GRADE=['clouds_floor','clouds_floor_puff','clouds_city_sea','clouds_horizon'];
+function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):void{
  if(!clouds||lookCache.get(clouds)===night)return;
  const day=new Color(255,255,255,255),nite=new Color(68,80,94,255);
  eachNamed(clouds,n=>{
+  const graded=!night&&!!grade&&CLOUD_GRADE.includes(n.name);
+  if(graded){
+   for(const r of n.getComponents(MeshRenderer)){
+    const m=new Material();
+    m.initialize({effectAsset:grade!,technique:0});
+    try{m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);}catch{/* */}
+    try{r.setMaterialInstance(0,m);}catch{/* */}
+   }
+   return;
+  }
   if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,night?nite:day,{vertexColor:true});
  });
  lookCache.set(clouds,night);
+}
+/** Coarse sky-dome rings band in 8-bit. Swap the day dome to a dithered pass; caller restores the shared mat. */
+function ditherSky(dome:Node,grade:EffectAsset):void{
+ eachNamed(dome,n=>{for(const r of n.getComponents(MeshRenderer)){
+  const m=new Material();
+  m.initialize({effectAsset:grade,technique:1});
+  try{r.setMaterialInstance(0,m);}catch{/* */}
+ }});
+ skybox(dome);
+}
+/** Alpha-mask canopy cards go opaque inside dimCityNight and paint their black texels. Keep the test, raise the cutoff. */
+function clipCanopy(model:Node):void{
+ eachNamed(model,n=>{
+  if(!/canopy_cards|foliage_cards/.test(n.name))return;
+  for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;try{m.setProperty('alphaThreshold',0.68);}catch{/* standard mat may omit it */}}
+ });
+}
+function dimOne(r:MeshRenderer,tex:unknown,cache:WeakSet<MeshRenderer>,alpha:boolean):void{
+ const m=new Material();
+ m.initialize({effectName:'builtin-unlit',technique:0,defines:{...(tex?{USE_TEXTURE:true}:{}),...(alpha?{USE_ALPHA_TEST:true}:{})}});
+ try{m.setProperty('mainColor',new Color(38,44,58,255));}catch{}
+ if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
+ if(alpha){try{m.setProperty('alphaThreshold',0.72);}catch{}}
+ try{r.setMaterialInstance(0,m);cache.add(r);}catch{}
 }
 /** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
@@ -153,11 +187,7 @@ function dimCityNight(model:Node|null,night:boolean,cache:WeakSet<MeshRenderer>)
    if(emissive)continue;
    let tex:unknown=null;
    try{tex=shared.getProperty('mainTexture')??shared.getProperty('albedoMap')??null;}catch{tex=null;}
-   const m=new Material();
-   m.initialize({effectName:'builtin-unlit',technique:0,defines:tex?{USE_TEXTURE:true}:{}});
-   try{m.setProperty('mainColor',new Color(38,44,58,255));}catch{}
-   if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
-   try{r.setMaterialInstance(0,m);cache.add(r);}catch{}
+   dimOne(r,tex,cache,/canopy_cards|foliage_cards|vine_cards/.test(n.name));
   }
  });
 }
@@ -208,7 +238,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  const owned:Array<{destroy():void}>=[],rig=new Node('RegionJourney-skycity');rig.active=false;opts.parent.addChild(rig);
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
+  const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
   const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
   rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();};
@@ -234,6 +266,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   // transitFrame is bookkeeping; clouds/card/sea are placed with setWorld* each frame so mesh bounds stay valid.
   const transitFrame=new Node('transitFrame');rig.addChild(transitFrame);
   setRigid(transitFrame,meadowFrame);
+  const gradeEffect=await loadGradeEffect();
   const balloonPrefab=await loadTransitPrefab('transport_balloon');
   if(!balloonPrefab)throw Error('balloon-art-missing');
   balloonPrefab.addRef();owned.push({destroy(){balloonPrefab.decRef();}});
@@ -275,6 +308,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   // Shadows stay on during meadow board/liftoff so windmill/bell match normal meadow gameplay; drop after unload for DC.
   let seaRestored=false,backdropRestored=false;
   const cityNightDimmed=new WeakSet<MeshRenderer>();
+  let canopyClipped=false;
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
   const handoffFade=(t:number):number=>{
    if(t<HANDOFF_FADE_T0)return 0;
@@ -363,8 +397,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    // Board (t≈0.9): keep far/horizon transit clouds so the sky matches meadow gameplay (not empty blue).
    // Liftoff (t≈5.2): hide near/mid clouds so none sit on the envelope (GBT defect 8).
    if(t>=4.8&&t<7.5){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
-   // City on screen: drop far/horizon cloud cards (DC budget) — city silhouette already fills the frame.
-   if(cityOn){showNamed(clouds,['clouds_far','clouds_horizon','clouds_deck_loose'],false);}
+   // City close-up drops far cards for DC. Horizon stays through cruise (before islets) so the sea/sky edge is not a hard line.
+   if(cityOn){showNamed(clouds,['clouds_far','clouds_deck_loose'],false);showNamed(clouds,['clouds_horizon'],t<ISLETS_ON_T);}
    eachNamed(meadow,n=>{
     if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;
     // Re-assert meadow sky dressing every frame (other systems may park these inactive).
@@ -388,13 +422,13 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    applyLight(t);
    (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
    (globalThis as any).__QF_BALLOON_LENS=true;
-   for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day)skybox(n);}
+   for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day){if(gradeEffect&&!skyHome.length){for(const r of n.getComponents(MeshRenderer))skyHome.push({r,shared:r.getSharedMaterial(0)});ditherSky(n,gradeEffect);}else skybox(n);}}
    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
    // Cloud sea: double-sided unlit × vertex shade (day white / night blue-grey). Never emissive.
-   if(cityOn)paintCloudSea(clouds,night);
+   if(cityOn)paintCloudSea(clouds,night,gradeEffect);
    else if(night)setEmissive(clouds,true);
    applyVehicleNight(vehicle,night);
-   if(model&&cityOn){hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
+   if(model&&cityOn){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    (globalThis as any).__QF_BALLOON_FADE=fade;
    (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn,meadowOn,cityOn,showIsland};
@@ -461,6 +495,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
 }
 function worldOf(model:Node,local:Vec):Vec{const v=new Vec3(local[0],local[1],local[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];}
 function findCamera():Node|null{const scene=director.getScene();if(!scene)return null;const cams=scene.getComponentsInChildren(Camera);const world=cams.find(c=>c.node.name!=='WorldNavigationCamera'&&c.visibility!==0);return (world??cams[0])?.node??null;}
+function loadGradeEffect():Promise<EffectAsset|null>{
+ return new Promise(ok=>{
+  assetManager.loadBundle('region_transit_balloon',(err,bundle)=>{
+   if(err||!bundle){ok(null);return;}
+   bundle.load('balloon-grade',EffectAsset,(e:any,asset:EffectAsset)=>{ok(!e&&asset?asset:null);});
+  });
+ });
+}
 function loadFlightJson():Promise<FlightDoc>{
  return new Promise((ok,fail)=>{
   assetManager.loadBundle('region_transit_balloon',(err,bundle)=>{
