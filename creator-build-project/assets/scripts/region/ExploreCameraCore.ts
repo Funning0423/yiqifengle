@@ -137,11 +137,11 @@ export function projectNdc(pose:Pose,p:Vec,w:number,h:number):{x:number;y:number
  */
 export function finaleLook(girl:Vec,ring:Vec):Pose{
  const dx=girl[0]-ring[0],dz=girl[2]-ring[2],L=Math.hypot(dx,dz)||1,sx=dx/L,sz=dz/L,rx=sz,rz=-sx;
- const back=48,side=8,up=46;
+ const back=40,side=0,up=26;
  const position:Vec=[ring[0]+sx*back+rx*side,ring[1]+up,ring[2]+sz*back+rz*side];
  const head:Vec=[girl[0],girl[1]+BODY_M*0.9,girl[2]];
  const target:Vec=[(head[0]+ring[0])/2,head[1]*0.4+ring[1]*0.6,(head[2]+ring[2])/2];
- return {position,target,fovVerticalDeg:55};
+ return {position,target,fovVerticalDeg:66};
 }
 /** Object tap: stand on her side of the prop, far enough that a `span`-tall prop fits, looking at its middle. */
 export function propLook(prop:Vec,girl:Vec,span=3):Pose{
