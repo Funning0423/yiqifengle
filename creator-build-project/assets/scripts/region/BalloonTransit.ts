@@ -419,7 +419,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    // Liftoff (t≈5.2): hide near/mid clouds so none sit on the envelope (GBT defect 8).
    if(t>=4.8&&t<7.5){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
    // City close-up drops far cards for DC. Horizon stays through cruise (before islets) so the sea/sky edge is not a hard line.
-   if(cityOn){showNamed(clouds,['clouds_far','clouds_deck_loose'],false);showNamed(clouds,['clouds_horizon'],t<ISLETS_ON_T);}
+   if(cityOn){showNamed(clouds,['clouds_far','clouds_deck_loose'],false);showNamed(clouds,['clouds_horizon'],t<ISLETS_ON_T&&!night);}
+   if(night)showNamed(clouds,['clouds_horizon'],false);
    eachNamed(meadow,n=>{
     if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;
     // Re-assert meadow sky dressing every frame (other systems may park these inactive).
