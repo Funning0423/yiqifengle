@@ -106,7 +106,8 @@ export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
   if(!cur||p.y<cur.y)rootAt.set(r,{y:p.y,x:p.x,z:p.z});
  }
  const kill=new Set<number>();
- for(const [r,info] of rootAt)if(inGrassClearLocal(info.x,info.z))kill.add(r);
+ // forEach, not for-of: the loose-ES5 mini-game build does not iterate a Map with for-of (kill would stay empty).
+ rootAt.forEach((info,r)=>{if(inGrassClearLocal(info.x,info.z))kill.add(r);});
  if(!kill.size)return 0;
  const normals=mesh.readAttribute(0,gfx.AttributeName.ATTR_NORMAL) as Float32Array|null;
  const uvs=mesh.readAttribute(0,gfx.AttributeName.ATTR_TEX_COORD) as Float32Array|null;
