@@ -1385,6 +1385,11 @@
     "sha256": "ceb12afb038635164f2d5cc9726e7b474c2e0dbd781405f5be01fb15efc3e547"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
+    "bytes": 15932,
+    "sha256": "428037a80644c6d658273ac49944ec4f8e8ff43fc29837f7c1e3a436ed06f89c"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts",
     "bytes": 7135,
     "sha256": "182c38074ff8356c602a4c77c6fbddd4fa61025963fba351d08a710c8d8f214c"
