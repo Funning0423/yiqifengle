@@ -13,7 +13,7 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, LIGHT_RAMP_T0, LIGHT_RAMP_YAW, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, balloonQuat, postSeamFrame, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, balloonQuat, postSeamFrame, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 const M6_LOCAL:Vec=[0.2,6.5,-25.6];
 const GIRL_YAW=-76.6;
@@ -92,26 +92,68 @@ function tintFarCard(root:Node|null,night:boolean):void{
  const day=new Color(210,220,190,255),nite=new Color(42,50,62,255);
  forceUnlit(root,night?nite:day,{keepTexture:!night});
 }
-/** Sea fallback: solid muted sea (day) / dark (night). No vertex-color / empty-albedo path. */
+/** Sea fallback: true blue (day) / dark (night). No vertex-color / empty-albedo path. */
 function paintSeaFallback(root:Node|null,night:boolean):void{
  if(!root)return;
- forceUnlit(root,night?new Color(24,32,48,255):new Color(68,110,138,255));
+ // Day: blue sea around the far card (not teal). Night: dark so it never flashes magenta.
+ forceUnlit(root,night?new Color(18,26,40,255):new Color(48,105,175,255));
 }
-/** City meshes that stay full-bright or press into the lens during the ride. */
+/**
+ * clouds_floor verts are authored ~0.2 grey (reads as flat mid-grey). Brighten to art's white→light-grey
+ * volume; night uses a safe dark blue-grey unlit (no emissive / unbound-albedo magenta path).
+ */
+function paintCloudSea(clouds:Node|null,night:boolean):void{
+ if(!clouds)return;
+ const floor=find(clouds,'clouds_floor'),puff=find(clouds,'clouds_floor_puff'),citySea=find(clouds,'clouds_city_sea');
+ if(night){
+  // Solid unlit — never getMaterialInstance on glTF cloud mats (drops albedo → magenta).
+  for(const n of [floor,puff,citySea])forceUnlit(n,new Color(52,62,78,255));
+  return;
+ }
+ // Day: ignore dark floor verts (solid light grey); puffs keep vertex shading for volume.
+ forceUnlit(floor,new Color(235,238,242,255));
+ forceUnlit(puff,new Color(255,255,255,255));
+ forceUnlit(citySea,new Color(210,220,235,255));
+}
+/** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
- 'env_sky_static_palette','env_sky_static_rock_strata',
- 'env_sky_island_vines','env_sky_island_vine_cards','env_sky_island_windcore',
+ 'env_sky_island_vine_cards','env_sky_island_windcore',
  'env_sky_rope_root_01','env_sky_rope_root_02','env_sky_rope_root_03','env_sky_rope_root_04',
  'env_sky_rope_root_05','env_sky_rope_root_06','env_sky_rope_root_07','env_sky_rope_root_08',
 ];
+const ISLAND_BODY=['env_sky_static_palette','env_sky_static_rock_strata'];
+const ISLAND_VINES=['env_sky_island_vines'];
 /**
- * Night/day: hide vine/palette/windcore extras that read as neon slabs.
+ * Hide neon foliage cards only. Keep env_sky_static_palette / rock_strata (island body).
  * Do not touch city material instances — albedoScale/mainColor edits flash magenta on ruins.
  */
 function hideCityNightGlow(model:Node|null,_night:boolean):void{
  if(!model)return;
  eachNamed(model,n=>{
-  if(/palette|grass|lawn|sod|terrain|ground_card|foliage_card|flower|Icosphere|plant\d*_vine|rope_root|windcore/i.test(n.name))n.active=false;
+  if(/ground_card|foliage_card|flower|Icosphere|plant\d*_vine|rope_root|windcore/i.test(n.name))n.active=false;
+ });
+}
+/** Night silhouette: unlit darken non-emissive city meshes; leave emissive window mats alone. */
+function dimCityNight(model:Node|null,night:boolean,cache:WeakSet<MeshRenderer>):void{
+ if(!model||!night||!EffectAsset.get('builtin-unlit'))return;
+ eachNamed(model,n=>{
+  if(/window|emissive|lamp|light|flame|pennant|flag/i.test(n.name))return;
+  for(const r of n.getComponents(MeshRenderer)){
+   if(cache.has(r))continue;
+   const shared=r.getSharedMaterial(0);if(!shared)continue;
+   let emissive=false;
+   try{const e=shared.getProperty('emissiveScale');if(typeof e==='number'&&e>0.05)emissive=true;}catch{/* */}
+   try{const e=shared.getProperty('emissive');if(e&&((e as Color).r>8||(e as any).x>0.02))emissive=true;}catch{/* */}
+   try{if(shared.getProperty('emissiveMap'))emissive=true;}catch{/* */}
+   if(emissive)continue;
+   let tex:unknown=null;
+   try{tex=shared.getProperty('mainTexture')??shared.getProperty('albedoMap')??null;}catch{tex=null;}
+   const m=new Material();
+   m.initialize({effectName:'builtin-unlit',technique:0,defines:tex?{USE_TEXTURE:true}:{}});
+   try{m.setProperty('mainColor',new Color(38,44,58,255));}catch{}
+   if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
+   try{r.setMaterialInstance(0,m);cache.add(r);}catch{}
+  }
  });
 }
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
@@ -159,10 +201,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token);token.check();
  prefab.addRef();
  const owned:Array<{destroy():void}>=[],rig=new Node('RegionJourney-skycity');rig.active=false;opts.parent.addChild(rig);
- let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
- let mainLight:DirectionalLight|null=null,mainShadow0=true;
- const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
-  try{if(mainLight)(mainLight as any).shadowEnabled=mainShadow0;}catch{}
+  let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
+  let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
+  const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
   rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();};
  try{
@@ -221,11 +263,13 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let night=nightNow();
   const domes:Node[]=[];
   if(scene)eachNamed(scene,n=>{if(n.name==='env_sky_dome'||n.name==='meadow_sky_dome')domes.push(n);});
-  eachNamed(meadow,n=>{if(n.name==='meadow_sky_dome'||n.name==='meadow_far_hills'||n.name==='meadow_clouds_near')n.active=false;});
+  // Keep meadow clouds / hills / gameplay look until unload. Only the meadow-local sky dome is suppressed (env_sky_dome is the live skybox).
+  eachNamed(meadow,n=>{if(n.name==='meadow_sky_dome')n.active=false;});
   let mainYaw0=0;
-  if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainShadow0=!!(mainLight as any).shadowEnabled;(mainLight as any).shadowEnabled=false;}}
-  try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=false;}catch{/* no scene shadows */}
+  if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainIllum0=mainLight.illuminance;mainShadow0=!!(mainLight as any).shadowEnabled;}}
+  // Shadows stay on during meadow board/liftoff so windmill/bell match normal meadow gameplay; drop after unload for DC.
   let seaRestored=false,backdropRestored=false;
+  const cityNightDimmed=new WeakSet<MeshRenderer>();
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
   const handoffFade=(t:number):number=>{
    if(t<HANDOFF_FADE_T0)return 0;
@@ -244,9 +288,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   };
   const applySea=(t:number,handoff:boolean)=>{
    if(SEA_PLAN==='B'){
-    // Night: hide the fallback disc — its glTF/unlit path flashes engine magenta under night lights;
-    // the night dome already fills below the city. Day keeps the disc so the horizon stays closed.
-    const showFb=t>=MEADOW_OFF_T&&!handoff&&!night;
+    // Night keeps a dark unlit disc under the city (cloud sea sits above it). Day: blue disc.
+    const showFb=t>=MEADOW_OFF_T&&!handoff;
     if(seaFallback&&isValid(seaFallback,true))seaFallback.active=showFb;
     if(sea&&isValid(sea,true)){sea.active=!showFb&&!(t>=MEADOW_OFF_T&&!handoff);if(showFb)dampSeaSpecular(sea,true);}
     return;
@@ -287,28 +330,35 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const fade=handoffFade(t);
    const handoff=t+1e-9>=HANDOFF_COVER_T;
    const meadowOn=t<plan.meadowOffAt,cityOn=t>=plan.cityActiveAt;
+   const showIsland=cityOn&&t+1e-9<plan.strataOffAt&&!handoff;
    if(isValid(meadow,true))meadow.active=meadowOn;
+   // Shadows on for meadow gameplay match; off after unload for DC ≤53.
+   if(mainLight){
+    const wantShadow=meadowOn&&mainShadow0;
+    try{(mainLight as any).shadowEnabled=wantShadow;}catch{}
+    try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=wantShadow;}catch{}
+    if(night&&cityOn){try{mainLight.illuminance=Math.min(mainLight.illuminance,mainIllum0*0.22);}catch{}}
+    else if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}
+   }
    if(model){
     model.active=cityOn;
     if(cityOn)noShadow(model);
-    // DC: hide always-list, card islets (keep rock islets from 21.5), strata until land approach.
     showNamed(model,ALWAYS_HIDDEN,false);
-    // Keep floating rocks / islet cards / strata off for DC; islets-on cue still gates rock islands at ≥21.5 for the silhouette.
     showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
     showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
     showNamed(model,['env_sky_islets_far'],false);
-    // Palette patches ignore night tint (neon green under the island); vines/strata press into the land lens.
     showNamed(model,CITY_RIDE_HIDE,false);
+    // Floating island body (grass + rock) + vines hanging from the belly — hide only on close land frames.
+    showNamed(model,ISLAND_BODY,showIsland);
+    showNamed(model,ISLAND_VINES,showIsland);
     eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
    showNamed(clouds,ALWAYS_CLOUD,true);
    // Liftoff (t≈5.2): hide near/mid clouds so none sit on the envelope (GBT defect 8).
    if(t<7){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
-   // City on screen: drop far/horizon cloud cards (7 DC budget) — city silhouette already fills the frame.
+   // City on screen: drop far/horizon cloud cards (DC budget) — city silhouette already fills the frame.
    if(cityOn){showNamed(clouds,['clouds_far','clouds_horizon','clouds_deck_loose'],false);}
-   // Night: floor/city-sea cloud groups lose albedo after emissive instance and flash magenta — hide them.
-   if(night){showNamed(clouds,['clouds_floor','clouds_floor_puff','clouds_city_sea','clouds_deck','clouds_deck_loose','clouds_far','clouds_horizon'],false);}
    eachNamed(meadow,n=>{if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;});
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
    const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
@@ -330,12 +380,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    (globalThis as any).__QF_BALLOON_LENS=true;
    for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day)skybox(n);}
    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
-   setEmissive(clouds,night);
+   // Day/night cloud sea: bright volume by day; safe dark unlit at night (no emissive-instance magenta path).
+   if(cityOn)paintCloudSea(clouds,night);
+   else if(night)setEmissive(clouds,true);
    applyVehicleNight(vehicle,night);
-   if(model&&cityOn)hideCityNightGlow(model,night);
+   if(model&&cityOn){hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    (globalThis as any).__QF_BALLOON_FADE=fade;
-   (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn,meadowOn,cityOn};
+   (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn,meadowOn,cityOn,showIsland};
   };
   offNight=onDayNightChange(mode=>{night=String(mode).includes('night');});
   const driver=rig.addComponent(TransitDriver);
@@ -385,7 +437,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:plan.vehicle(LAND_T).yaw});
    (globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;
-   if(model){model.active=true;showNamed(model,ISLET_NODES,true);showNamed(model,CITY_RIDE_HIDE,true);}
+   if(model){model.active=true;showNamed(model,ISLET_NODES,true);showNamed(model,CITY_RIDE_HIDE,true);showNamed(model,ISLAND_BODY,true);showNamed(model,ISLAND_VINES,true);}
    if(isValid(meadow,true))meadow.active=false;
    if(nightDome)nightDome.active=false;
    if(farRoot&&isValid(farRoot,true))farRoot.active=false;

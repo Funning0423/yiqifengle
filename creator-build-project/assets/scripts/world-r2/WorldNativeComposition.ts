@@ -217,6 +217,15 @@ export class WorldNativeComposition extends Component {
     try{const q=typeof location!=='undefined'?String(location.search||''):'';const forced=/(?:^|[?&])balloonNight=([01])/.exec(q);if(forced)await (globalThis as any).__worldDayNight?.set?.(forced[1]==='1'?'night':'day');else if(q.includes('night=1'))await commands.toggleDayNight();}catch{}
     return commands.travelRegion('skycity');
   }
+  /** Web / QA only (`?meadowGameplay=1`). Stand in the live meadow without starting the balloon transit. */
+  async previewMeadowGameplay():Promise<Result>{
+    if(!qaTransportEnabled())return {ok:false,reason:'qa-only'};
+    if(!this.world)return {ok:false,reason:'world-not-ready'};
+    const commands=this.world.commands();
+    if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
+    if(commands.snapshot().state==='island')return commands.travelRegion('meadow');
+    return {ok:commands.snapshot().state==='meadow',reason:commands.snapshot().state==='meadow'?undefined:'not-meadow'};
+  }
   async startRegionFlowTest(checkpoint:number):Promise<Result>{
     if(!DEBUG)return {ok:false,reason:'test-build-only'};
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};

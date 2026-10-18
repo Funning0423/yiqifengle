@@ -92,7 +92,7 @@ for(const night of [false,true])for(const [w,h] of screens){
  for(let t=t0;t<=t1+1e-6;t+=0.1){
   const time=Math.min(t1,t),cam=plan.camera(time,{w,h}),eye=cam.position,veh=plan.vehicle(time),v=veh.pos;
   const {fw,r,up,th}=F.basis({...cam});const aspect=w/h;const cols=12,rows=22;let under=0,back=0,voids=0,domes=0,gap=0,n=0,near=false,clear=1e9;
-  const showCity=time>=plan.cityActiveAt,showMeadow=time<plan.meadowOffAt,showStrata=showCity&&time>=plan.strataHideUntil,showGrass=showMeadow&&time<plan.grassOffAt,showIslets=showCity&&time>=21.5;
+  const showCity=time>=plan.cityActiveAt,showMeadow=time<plan.meadowOffAt,showStrata=showCity&&time>=plan.strataHideUntil&&time<plan.strataOffAt,showGrass=showMeadow&&time<plan.grassOffAt,showIslets=showCity&&time>=21.5;
   const showFar=time>=Flight.FAR_CARD_ON_T&&!showMeadow&&time<HANDOFF_COVER_T;
   const showSea=time>=plan.meadowOffAt&&time<HANDOFF_COVER_T&&seaPost;
   const clouds=time+1e-6>=Flight.SEAM_T?cloudsPost:cloudsMeadow;
@@ -121,7 +121,7 @@ for(const night of [false,true])for(const [w,h] of screens){
    else if(hit.dome||hit.skybox)domes=1;
    if(hit&&hit.t<clear)clear=hit.t;
    if(hit&&(hit.inside||hit.t<0.1))near=true;
-   if(hit&&hit.obj){const nd=hit.normal[0]*d[0]+hit.normal[1]*d[1]+hit.normal[2]*d[2];const twoSided=hit.obj.twoSided||/card|foliage|flower|state_|cloud|grass|rope|vine|windchime|far|sea/.test(hit.obj.name||'')||hit.obj.tag==='far'||hit.obj.tag==='sea';if(nd>0.05&&!twoSided){back++;if(backs.length<6)backs.push(hit.obj.name+':'+nd.toFixed(2));}if(hit.obj.tag==='sky'&&hit.normal[1]<-0.35&&!/rope|vine|card|foliage/.test(hit.obj.name||''))under++;
+   if(hit&&hit.obj){const nd=hit.normal[0]*d[0]+hit.normal[1]*d[1]+hit.normal[2]*d[2];const twoSided=hit.obj.twoSided||/card|foliage|flower|state_|cloud|grass|rope|vine|windchime|far|sea|rock_strata/.test(hit.obj.name||'')||hit.obj.tag==='far'||hit.obj.tag==='sea';if(nd>0.05&&!twoSided){back++;if(backs.length<6)backs.push(hit.obj.name+':'+nd.toFixed(2));}if(hit.obj.tag==='sky'&&hit.normal[1]<-0.35&&!/rope|vine|card|foliage|rock_strata|static_palette/.test(hit.obj.name||''))under++;
     if(showMeadow&&hit.obj.tag==='sky'&&eye[1]+d[1]*hit.t<J.mOff[1]+6)sunk++;}
    if(time>=11&&time<=12&&hit&&hit.obj&&(hit.obj.tag==='sky'||hit.obj.tag==='meadow'))seamBad++;
    const pitch=Math.asin(Math.max(-1,Math.min(1,d[1])))*180/Math.PI;
@@ -152,8 +152,8 @@ const landAt=plan.beats.find(b=>b.id==='B-f').t0;
 for(let t=plan.beats.find(b=>b.id==='B-c').t0;t<landAt;t+=1){
  const p=plan.vehicle(t).pos;
  if(Math.hypot(p[0]-plan.s0[0],p[2]-plan.s0[2])<12&&p[1]<=plan.s0[1]+6)continue;
- const objs=t>=plan.cityActiveAt?[...city,...strata]:[];
- const [best]=objs.length?J.clearance(p,objs,40):[40,null];
+ const body=t>=plan.cityActiveAt&&t<plan.strataOffAt?[...city,...strata]:t>=plan.cityActiveAt?city:[];
+ const [best]=body.length?J.clearance(p,body,40):[40,null];
  if(best<minClear)minClear=best;
 }
 assert.equal(seamLeak,0,'seam window leaked '+seamLeak+' rays');

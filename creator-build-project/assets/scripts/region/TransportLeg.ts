@@ -1,6 +1,6 @@
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
-import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';
+import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, STRATA_OFF_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';
 /** Balloon meadow → sky city (§10). Pure: no engine imports. Sail beats live on the sail branch;
  * this file still exports the shared return shape so a later merge can add sailBeats beside balloonBeats. */
 export type Pose={position:Vec;target:Vec;fovVerticalDeg:number};
@@ -34,8 +34,10 @@ export type BalloonPlan={
  camera:(t:number,screen?:Screen)=>Pose;
  vehicle:(t:number)=>VehicleSample;
  routeAt:(t:number)=>Vec;
- /** Rock strata stay hidden until she is on the lawn (B-h), so the belly never enters the frame. */
+ /** Rock strata / island body: hidden until city-on, then shown until close land approach. */
  strataHideUntil:number;
+ /** Hide rock belly + vines from this time so the land lens does not clip (06 only). */
+ strataOffAt:number;
  /** Sky city mesh stays inactive until the cloud seam (11.6 s). */
  cityActiveAt:number;
  /** Meadow mesh is inactive from this time (11.2 s), before the city turns on. */
@@ -134,7 +136,7 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
  // Accel on continuous segments only — never across the coordinate seam.
  const accelPeak=Math.max(accelOf(t=>sampleFlight(doc,t).pos,1.8,SEAM_T-0.05),accelOf(t=>sampleFlight(doc,t).pos,SEAM_T,LAND_T));
  const samples=[launch,map(doc.layout.liftoffTop,5.8,'meadow'),applyRigid(postSeamFrame(doc),doc.layout.climbEnd),s0];
- return {beats,total:FLIGHT_DURATION,build05S:FLIGHT_DURATION,yawDeg:game.yawDeg,origin:game.origin,s0,launch,court,cloudY:map([0,deckMid,0],0,'meadow')[1],cloudAt,samples,camera,vehicle,routeAt,strataHideUntil:FLIGHT_DURATION,cityActiveAt:CITY_ON_T,meadowOffAt:MEADOW_OFF_T,grassOffAt:GRASS_OFF_T,accelPeak,climbDeg,clearRadiusM:opts?.clearRadiusM??18};
+ return {beats,total:FLIGHT_DURATION,build05S:FLIGHT_DURATION,yawDeg:game.yawDeg,origin:game.origin,s0,launch,court,cloudY:map([0,deckMid,0],0,'meadow')[1],cloudAt,samples,camera,vehicle,routeAt,strataHideUntil:CITY_ON_T,strataOffAt:STRATA_OFF_T,cityActiveAt:CITY_ON_T,meadowOffAt:MEADOW_OFF_T,grassOffAt:GRASS_OFF_T,accelPeak,climbDeg,clearRadiusM:opts?.clearRadiusM??18};
 }
 export function strataClearsGround(originY:number,strataLocalMinY:number,meadowGroundMaxY:number,margin=BALLOON_GROUND_CLEAR_M):{ymin:number;need:number;ok:boolean}{
  const ymin=originY+strataLocalMinY,need=meadowGroundMaxY+margin;return {ymin,need,ok:ymin>need};
