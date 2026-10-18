@@ -207,13 +207,12 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   }
   // landing_path UVs are authored for transit_palette; sharing meadow_path's albedo
   // samples the wrong atlas and reads as a flat grey/black plate. Keep palette + nearest,
-  // then mirror meadow_path's night grade via take(landing) below. Tint toward path sand.
+  // force a warm sand tint (meadow_path mainColor is often white + vertex color), and
+  // night-grade via take(landing) below.
   const landingPath=findNode(landing,'landing_path');
-  const meadowPathMat=findNode(meadow,'meadow_path')?.getComponent(MeshRenderer)?.getSharedMaterial(0)??null;
-  const pathTint=meadowPathMat?.getProperty('mainColor');
   if(landingPath)for(const r of landingPath.getComponentsInChildren(MeshRenderer)){
    const m=copyMat(r,{cull:gfx.CullMode.NONE});
-   if(m)m.setProperty('mainColor',pathTint instanceof Color?pathTint:new Color(210,190,150,255));
+   if(m)m.setProperty('mainColor',new Color(222,198,156,255));
   }
   // Thin static water only under the jetty piles (not a foreground plate in meadow cam).
   if(tile){
