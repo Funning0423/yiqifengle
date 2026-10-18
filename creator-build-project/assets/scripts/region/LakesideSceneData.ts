@@ -110,11 +110,20 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
    *  foliage = the tree-like vegetation; wall = the house bodies; rock = LK_rock (not visible from either board pose, so it gets a
    *  neutral fill of the far-land luminance by day and the far-land night value); cloud = back to the reference's warm white. */
   foliageFillGlbs: ['LK_tree_conifer.glb', 'LK_tree_round.glb', 'LK_bush.glb'] as const,
-  wallFillGlbs: ['LK_house_A.glb', 'LK_house_B.glb', 'LK_house_C.glb'] as const,
+  /** r5 (VB): the pavilion joins the wall class (same building palette; per-part weights below keep its roof / dark posts unlifted). */
+  wallFillGlbs: ['LK_house_A.glb', 'LK_house_B.glb', 'LK_house_C.glb', 'LK_pavilion.glb'] as const,
   rockFillGlbs: ['LK_rock.glb'] as const,
   cloudFillGlbs: ['LK_cloud.glb'] as const,
+  /** r5 per-part fill (VB): plants (reeds, flowers, lotus, lily pads) and small props (posts, chimes, lanterns, boats, barrel, porch
+   *  steps, clothesline) get their own class. Still never filled: water, bridge (+ steps), shore foam, ripples/splashes, grass
+   *  tufts, ducks / dragonfly (guests), board pieces (LK_piece_*), the untextured rope/float/shadow meshes. */
+  plantFillGlbs: ['LK_reed_card.glb', 'LK_flower_clump.glb', 'LK_flowerpot.glb', 'LK_lotus.glb', 'LK_lilypad.glb'] as const,
+  propFillGlbs: ['LK_chime_post.glb', 'LK_chime_raft.glb', 'LK_windchime.glb', 'LK_buoy_lantern.glb', 'LK_lantern.glb', 'LK_lantern_boat.glb',
+    'LK_paper_boat.glb', 'LK_barrel.glb', 'LK_porch_steps.glb', 'LK_clothesline.glb'] as const,
   foliageFillLinear: [0.019, 0.065, 0] as const, wallFillLinear: [0.023, 0.02, 0.017] as const,
   rockFillLinear: [0.079, 0.079, 0.079] as const, cloudFillLinear: [0.33, 0.24, 0.218] as const,
+  /** r5 day (stand-in fit vs engine-cam r5h3, per palette swatch with LAKESIDE_FILL_PART_WEIGHT.day): plant = green-leaning, prop = warm neutral. */
+  plantFillLinear: [0.03, 0.09, 0.04] as const, propFillLinear: [0.06, 0.045, 0.035] as const,
   waterMaterialPath: 'water/lakeside-water',
   waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
@@ -170,6 +179,8 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   /** r4 prop fill, night: ~80% of the Mac r3 night luma of each class with r3's cool hue (blue >= red); rock = the far-land night value. */
   foliageFillLinear: [0.0006, 0.0058, 0.0029] as const, wallFillLinear: [0.0085, 0.013, 0.0232] as const,
   rockFillLinear: [0.0049, 0.0116, 0.0356] as const, cloudFillLinear: [0.0078, 0.0091, 0.0145] as const,
+  /** r5 night: ~80% of the Mac r3 night luma per class (stand-in: plant 0.82, prop 0.81), cool (red lowest). */
+  plantFillLinear: [0.016, 0.048, 0.052] as const, propFillLinear: [0.0015, 0.016, 0.026] as const,
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
@@ -181,6 +192,8 @@ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[];
   landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[];
   /** r4 prop fill (emissive, linear) per class - see LAKESIDE_DIR_LIGHT_PARAMS.foliage/wall/rock/cloudFillGlbs. */
   foliageFillLinear: readonly number[]; wallFillLinear: readonly number[]; rockFillLinear: readonly number[]; cloudFillLinear: readonly number[];
+  /** r5 per-part fill: plants and small props (see LAKESIDE_DIR_LIGHT_PARAMS.plantFillGlbs / propFillGlbs). */
+  plantFillLinear: readonly number[]; propFillLinear: readonly number[];
   /** r4 (VB): the colour of the visible SKY DOME / backdrop for this mode, sRGB hex = the board camera clear colour (day lakesideDayClearColor(),
    *  night LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor; day 28/143/184, night #1c2740 = 28/39/64). Read by
    *  lakesideSkyDomeColor(mode) (journey sky sphere target). NOT waterSkyZenith/Low/HorizonLinear: those are the
@@ -194,11 +207,12 @@ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighti
     ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
     waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
     landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear,
-    foliageFillLinear: P.foliageFillLinear, wallFillLinear: P.wallFillLinear, rockFillLinear: P.rockFillLinear, cloudFillLinear: P.cloudFillLinear, skyDomeColor: lakesideDayClearColor() };
+    foliageFillLinear: P.foliageFillLinear, wallFillLinear: P.wallFillLinear, rockFillLinear: P.rockFillLinear, cloudFillLinear: P.cloudFillLinear,
+    plantFillLinear: P.plantFillLinear, propFillLinear: P.propFillLinear, skyDomeColor: lakesideDayClearColor() };
 }
 /** night mode lighting = the night params + the derived sky dome colour (same value as the night clear colour, no second literal). */
 const LAKESIDE_NIGHT_MODE_LIGHTING: LakesideModeLighting = Object.freeze(Object.assign({}, LAKESIDE_NIGHT_LIGHT_PARAMS, { skyDomeColor: LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor }));
-export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud';
+export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud' | 'plant' | 'prop';
 /** r4 land fill: which landform class a GLB is (null = not land: never filled). */
 export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
@@ -208,14 +222,81 @@ export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null
   if ((P.wallFillGlbs as readonly string[]).includes(glb)) return 'wall';
   if ((P.rockFillGlbs as readonly string[]).includes(glb)) return 'rock';
   if ((P.cloudFillGlbs as readonly string[]).includes(glb)) return 'cloud';
+  if ((P.plantFillGlbs as readonly string[]).includes(glb)) return 'plant';
+  if ((P.propFillGlbs as readonly string[]).includes(glb)) return 'prop';
   return null;
 }
 /** The fill (emissiveScale, linear) of a class in a mode - the only class -> value map (board and journey writers read it). */
 export function lakesideFillLinear(mode: LakesideDayNight, cls: LakesideLandFillClass): readonly number[] {
   const M = lakesideModeLighting(mode);
   return cls === 'near' ? M.landFillNearLinear : cls === 'far' ? M.landFillFarLinear : cls === 'foliage' ? M.foliageFillLinear
-    : cls === 'wall' ? M.wallFillLinear : cls === 'rock' ? M.rockFillLinear : M.cloudFillLinear;
+    : cls === 'wall' ? M.wallFillLinear : cls === 'rock' ? M.rockFillLinear : cls === 'plant' ? M.plantFillLinear : cls === 'prop' ? M.propFillLinear
+    : M.cloudFillLinear;
 }
+/** r5 per-part fill (VB). Every lakeside GLB is ONE palette material (T_LK_palette_256: 16x16 cells of 16 px, nearest, UV into a cell), so
+ *  the "parts" of a model (roof, wall, door trim, trunk, crown, cliff...) are its palette swatches. The fill copy samples a 16x16 mask
+ *  texture with the same UV (builtin-standard USE_EMISSIVE_MAP: emissive = SRGBToLinear(map) x emissiveScale), so each swatch gets
+ *  weight x class fill; emissiveScale also carries the journey atmosphere weight. Rows 10..15 of the palette (rows 0..9 are black). */
+export const LAKESIDE_PALETTE_CELL_ROW0 = 10;
+export const LAKESIDE_PALETTE_CELLS: readonly string[] = Object.freeze([
+  '93a77c 5b6835 77853e a69982 398f12 5ca214 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000',
+  'a48a78 7e6a60 ff9ec0 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000 000000',
+  'f3eee4 e39a3b f2e7c9 5e9a5a bfe3e6 d9b98c 8ff6ff e8483a fff8ec a98bea 3e9a57 7cc55a 8c6a4f d8c08a 5fd3cc b7c9e2',
+  'd6cbb6 cc9670 2c7a3e ff9ec0 4e9a5c eaf8f4 8fb3d6 5a93a8 3f7f52 2f6446 b9805e 9c6a55 c9532a 2f7a4a 6a4630 9aa3ab',
+  'e6d9c2 b9b2a6 3f9a4a 8ccb4e ffffff ff8fb1 ffd84a fff6e8 4e8f3a 2e8c8c 8a5a3a 5e3b28 e9cf94 d9a867 b98a55 b8ac98',
+  '1e9aa8 c27a45 ff9a2e f2d58a 5a3524 ffb765 e2622f d9862f fff1d6 6dbe45 a8d64a d9a441 ffd27a 2d7e96 4fa0a0 1b3a55',
+]);
+/** Per-swatch fill weight (linear 0..1; a swatch not listed = 1, the r4 whole-object fill). Only the filled classes read it.
+ *  day: fit on the Cocos-3.8.8 stand-in against the engine-cam r5h3 reference, per (class, swatch) pixel median (both poses):
+ *    roofs (e2622f/d9862f/c9532a), dark wood trim (5a3524), warm wood (c27a45), stone trim (e6d9c2), trunks (6a4630), cliffs
+ *    (8a5a3a/5e3b28), sand/path (e9cf94/d9a867/b98a55), lanterns/bells (ff9a2e/d9a441) and the buoy red read darker and more saturated in
+ *    the reference -> 0 or small. Pinned at 1 so the r4 sampled points stay put: grass 398f12, house wall fff1d6, the tree_round crowns
+ *    in the tree_crown box (2c7a3e/3f9a4a/8ccb4e), cloud fff6e8, far haze/snow (8fb3d6/b7c9e2/a69982).
+ *  night: fit per swatch to ~80% of the Mac r3 night luma (the night bar), crowns/wall/cloud/grass pinned at 1. */
+export const LAKESIDE_FILL_PART_WEIGHT = Object.freeze({
+  day: Object.freeze<Record<string, number>>({
+    '398f12': 1, '8a5a3a': 0, '5e3b28': 0, 'e9cf94': 0, 'b98a55': 0, 'd9a867': 0, // near land: grass on, cliffs / sand / path off
+    '93a77c': 0.8, '5b6835': 0.1, '77853e': 0, 'a69982': 1, 'b7c9e2': 1, '8fb3d6': 1, '5ca214': 0, // far hills / far shore
+    '3f9a4a': 1, '8ccb4e': 1, '2c7a3e': 1, '4e9a5c': 0.7, '2f6446': 0.2, '2f7a4a': 0.4, '6a4630': 0, // foliage: conifers partial, trunks off
+    'fff1d6': 1, 'e2622f': 0, 'd9862f': 0, 'c9532a': 0, '5a3524': 0, 'c27a45': 0.1, 'e6d9c2': 0, 'd9b98c': 0.6, // buildings
+    '2e8c8c': 1, 'ffd27a': 1, '4e8f3a': 0.5, 'ff8fb1': 0.3,
+    'f2d58a': 1, '3e9a57': 0.9, '7cc55a': 0, '5e9a5a': 0, 'ff9ec0': 0.3, 'ffffff': 0.5, 'ffd84a': 0.4, // plants
+    'f3eee4': 1, 'e8483a': 0, 'ff9a2e': 0, 'd9a441': 0, 'eaf8f4': 1, // props
+    'fff6e8': 1, // cloud
+  }),
+  night: Object.freeze<Record<string, number>>({
+    '398f12': 1, '8a5a3a': 0.4, '5e3b28': 0.9, 'e9cf94': 0.3, 'b98a55': 1, 'd9a867': 0,
+    '93a77c': 0.7, '5b6835': 0.2, '77853e': 0.6, 'a69982': 0.5, 'b7c9e2': 1, '8fb3d6': 0.9, '5ca214': 0.6,
+    '3f9a4a': 1, '8ccb4e': 1, '2c7a3e': 1, '4e9a5c': 1, '2f6446': 0.4, '2f7a4a': 0.6, '6a4630': 0.1,
+    'fff1d6': 1, 'e2622f': 0.1, 'd9862f': 0.4, 'c9532a': 0.2, '5a3524': 0.3, 'c27a45': 0.5, 'e6d9c2': 1, 'd9b98c': 0.2,
+    '2e8c8c': 0, 'ffd27a': 0, '4e8f3a': 1, 'ff8fb1': 0.4,
+    'f2d58a': 0.7, '3e9a57': 0.1, '7cc55a': 0.3, '5e9a5a': 0, 'ff9ec0': 0.2, 'ffffff': 0.5, 'ffd84a': 0.7,
+    'f3eee4': 0.3, 'e8483a': 0.1, 'ff9a2e': 0.2, 'd9a441': 0.1, 'eaf8f4': 1,
+    'fff6e8': 1,
+  }),
+});
+/** The weight of one palette swatch in a mode (1 when unlisted). */
+export function lakesideFillPartWeight(mode: LakesideDayNight, hex: string): number {
+  const t = mode === 'night' ? LAKESIDE_FILL_PART_WEIGHT.night : LAKESIDE_FILL_PART_WEIGHT.day, k = String(hex).replace('#', '').toLowerCase();
+  const w = Object.prototype.hasOwnProperty.call(t, k) ? t[k] : 1;
+  return Math.max(0, Math.min(1, Number.isFinite(w) ? w : 1));
+}
+/** RGBA8 bytes of the 16x16 mask (row 0 = the palette's top row = glTF v 0, same as the palette image). Byte = round(255 x sqrt(w)):
+ *  the effect reads the map with SRGBToLinear (x*x in Cocos 3.8.8 gamma.chunk), so the shader sees w back (+-0.4%). Plain loops, no
+ *  spread / for-of (WeChat loose ES5). Rows 0..9 are black in the palette (unused) and get weight 1. */
+export function lakesideFillMaskBytes(mode: LakesideDayNight): Uint8Array {
+  const out = new Uint8Array(16 * 16 * 4);
+  for (let y = 0; y < 16; y++) {
+    const row = y >= LAKESIDE_PALETTE_CELL_ROW0 ? LAKESIDE_PALETTE_CELLS[y - LAKESIDE_PALETTE_CELL_ROW0].split(' ') : null;
+    for (let x = 0; x < 16; x++) {
+      const w = row ? lakesideFillPartWeight(mode, row[x]) : 1, b = Math.round(255 * Math.sqrt(w)), o = (y * 16 + x) * 4;
+      out[o] = b; out[o + 1] = b; out[o + 2] = b; out[o + 3] = 255;
+    }
+  }
+  return out;
+}
+/** Journey: the fill follows the atmosphere blend weight (0 on the island side, 1 at the board). */
+export function lakesideFillWeight(w: number): number { return Math.max(0, Math.min(1, Number.isFinite(w) ? w : 1)); }
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
 /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
  *  mountains (LK_far_hills y -2..40.8, far-shore trees from y~5.7) keep their upper halves deep green; 'linear60' = LINEAR from

@@ -1,4 +1,4 @@
-import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
+import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Texture2D,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
 import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppendPiece,lakesideStaticMergeFromEnv,type LakesideAttr} from './LakesideStaticMerge';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {DEBUG} from 'cc/env';
@@ -9,7 +9,7 @@ import {Cancellation} from '../world-r1/WorldFlowCore';
 import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,lakesideFillMaskBytes,lakesideFillWeight,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
@@ -38,7 +38,7 @@ export function enableLakesideInstancing(root:Node):Material[]{
  for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials,glb=lakesideTopGlb(root,r.node),cls=glb?lakesideLandFillClass(glb):null;
   let cache=plain;if(cls){const c=byCls.get(cls);if(c)cache=c;else{cache=new Map<Material,Material>();byCls.set(cls,cache);}}
   for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=cache.get(src);
-   if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});if(cls)initLakesideLandFill(m,cls,glb||'',mode);cache.set(src,m);out.push(m);}r.setSharedMaterial(m,k);}}
+   if(!m){m=new Material();const mask=cls?lakesideFillMaskTexture(mode):null;m.copy(src,{defines:mask?{USE_INSTANCING:true,USE_EMISSIVE_MAP:true}:{USE_INSTANCING:true}});if(cls)initLakesideLandFill(m,cls,glb||'',mode);cache.set(src,m);out.push(m);}r.setSharedMaterial(m,k);}}
  return out; // a plain array, no [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
 }
 /** r4 land fill: the landform class of each land material copy (only enableLakesideInstancing registers; nothing else is ever filled). */
@@ -50,13 +50,27 @@ function initLakesideLandFill(m:Material,cls:LakesideLandFillClass,glb:string,mo
  const pass:any=m.passes[0];
  if(!pass||!pass.getHandle('emissiveScale')||!pass.getHandle('emissive')){console.error('[QF_LAKE] '+JSON.stringify({event:'land-fill-unsupported',glb,effect:String((m as any).effectName||'')}));return;}
  // builtin-standard: emissive (tagged linear: true -> squared on upload, white stays 1) x emissiveScale (untagged) = the fill, linear.
- m.setProperty('emissive',new Color(255,255,255,255));lakesideLandFillOf.set(m,cls);writeLakesideLandFill(m,cls,mode);}
-function writeLakesideLandFill(m:Material,cls:LakesideLandFillClass,mode:LakesideDayNight){
- const c=lakesideFillLinear(mode,cls);m.setProperty('emissiveScale',new Vec3(c[0],c[1],c[2]));}
+ // r5 per-part: with USE_EMISSIVE_MAP the emissive colour is replaced by SRGBToLinear(mask) = the swatch weight (lakesideFillMaskBytes).
+ m.setProperty('emissive',new Color(255,255,255,255));lakesideLandFillOf.set(m,cls);if(pass.getHandle('emissiveMap'))lakesideFillMaskMode.set(m,'');writeLakesideLandFill(m,cls,mode);}
+/** r5 per-part fill: one 16x16 RGBA8 mask per day/night mode (palette-cell weights, lakesideFillMaskBytes), built in code on first
+ *  use (0 asset bytes, no meta), nearest + clamp like the palette. Kept for the session (2 x 1 KB); null if the texture cannot be made
+ *  (the copy then gets no USE_EMISSIVE_MAP and keeps the r4 flat whole-object fill). */
+const lakesideFillMasks:{day:Texture2D|null;night:Texture2D|null}={day:null,night:null};
+export function lakesideFillMaskTexture(mode:LakesideDayNight):Texture2D|null{
+ const have=lakesideFillMasks[mode];if(have&&isValid(have,true))return have;
+ try{const t=new Texture2D();t.reset({width:16,height:16,format:Texture2D.PixelFormat.RGBA8888});
+  t.setFilters(Texture2D.Filter.NEAREST,Texture2D.Filter.NEAREST);t.setMipFilter(Texture2D.Filter.NONE);t.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE,Texture2D.WrapMode.CLAMP_TO_EDGE);
+  t.uploadData(lakesideFillMaskBytes(mode));lakesideFillMasks[mode]=t;return t;}
+ catch(error){console.error('[QF_LAKE] '+JSON.stringify({event:'land-fill-mask-failed',mode,error:String((error as any)?.message||error)}));return null;}}
+/** Which mask a per-part fill copy currently samples ('' = none yet); copies without an emissiveMap handle are not in it. */
+const lakesideFillMaskMode=new WeakMap<Material,string>();
+function writeLakesideLandFill(m:Material,cls:LakesideLandFillClass,mode:LakesideDayNight,weight:number=1){
+ const c=lakesideFillLinear(mode,cls),k=lakesideFillWeight(weight);m.setProperty('emissiveScale',new Vec3(c[0]*k,c[1]*k,c[2]*k));
+ const had=lakesideFillMaskMode.get(m);if(had!==undefined&&had!==mode){const map=lakesideFillMaskTexture(mode);if(map){m.setProperty('emissiveMap',map);lakesideFillMaskMode.set(m,mode);}}}
 /** r4 land fill, day/night part: re-writes every land material under root from lakesideModeLighting(mode) (board applyDir and the
  *  journey's day/night listener - the one writer). Returns how many land materials were written. */
-export function applyLakesideLandFill(root:Node,mode:LakesideDayNight):number{const seen=new Set<Material>();let n=0;
- for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials){if(!m||seen.has(m))continue;seen.add(m);const cls=lakesideLandFillOf.get(m);if(cls){writeLakesideLandFill(m,cls,mode);n++;}}
+export function applyLakesideLandFill(root:Node,mode:LakesideDayNight,weight:number=1):number{const seen=new Set<Material>();let n=0;
+ for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials){if(!m||seen.has(m))continue;seen.add(m);const cls=lakesideLandFillOf.get(m);if(cls){writeLakesideLandFill(m,cls,mode,weight);n++;}}
  return n;}
 /** v3.3 static merge (see LakesideStaticMerge.ts): after instancing, every static renderer whose materials match by CONTENT and whose
  *  vertex layout matches is baked into one world-space mesh per <=65,535 vertices; originals are disabled (kept for names/diagnostics).
