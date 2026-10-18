@@ -114,7 +114,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  prefab.addRef();
  const owned:Array<{destroy():void}>=[],rig=new Node('RegionJourney-skycity');rig.active=false;opts.parent.addChild(rig);
  let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
- const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();};
+ let mainLight:DirectionalLight|null=null,mainShadow0=true;
+ const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  try{if(mainLight)(mainLight as any).shadowEnabled=mainShadow0;}catch{}
+  try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
+  rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();};
  try{
   const json=await loadFlightJson();token.check();if(json.format!==FLIGHT_FORMAT)throw Error('balloon-flight-format');
   publishFlight(json);
@@ -172,8 +176,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const domes:Node[]=[];
   if(scene)eachNamed(scene,n=>{if(n.name==='env_sky_dome'||n.name==='meadow_sky_dome')domes.push(n);});
   eachNamed(meadow,n=>{if(n.name==='meadow_sky_dome'||n.name==='meadow_far_hills'||n.name==='meadow_clouds_near')n.active=false;});
-  let mainLight:DirectionalLight|null=null;let mainYaw0=0;
-  if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight)mainYaw0=mainLight.node.eulerAngles.y;}
+  let mainYaw0=0;
+  if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainShadow0=!!(mainLight as any).shadowEnabled;(mainLight as any).shadowEnabled=false;}}
+  try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=false;}catch{/* no scene shadows */}
   let seaRestored=false,backdropRestored=false;
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
   const handoffFade=(t:number):number=>{
@@ -240,13 +245,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     if(cityOn)noShadow(model);
     // DC: hide always-list, card islets (keep rock islets from 21.5), strata until land approach.
     showNamed(model,ALWAYS_HIDDEN,false);
+    // Keep floating rocks / islet cards / strata off for DC; islets-on cue still gates rock islands at ≥21.5 for the silhouette.
     showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
-    showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3','env_sky_islets_far'],cityOn&&t>=ISLETS_ON_T);
-    eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=cityOn&&t>=31;});
-    // Hide far static foliage cards while cruising — they add DCs without reading at 48° FOV.
-    if(cityOn&&t<33){
-     eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage/.test(n.name))n.active=false;});
-    }
+    showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
+    showNamed(model,['env_sky_islets_far'],false);
+    eachNamed(model,n=>{if(n.name==='env_sky_static_rock_strata')n.active=cityOn&&t>=33;});
+    eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
    showNamed(clouds,ALWAYS_CLOUD,true);
