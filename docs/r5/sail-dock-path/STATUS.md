@@ -9,3 +9,5 @@
 2026-10-18 08:39:56 | waiting build-lock (balloon-v22 age~5550s agent=83709 alive) next=acquire+build-guard+shots
 
 2026-10-18 09:30:00 | ACQUIRED build-lock; starting build-guard both (disk ~5.8Gi)
+
+2026-10-18 09:54:05 | build-guard both PASS wechat=19640423 transport_sail=206639; suite 103/104 (nav-guard BLOCKED_BROWSER); frame-bg PASS clearM=2.441; shots K1–K7+top+meadow; landing_path 用 palette+暖沙（不能直接共享 meadow_path UV） | 提交 shots+REPORT 终稿并释锁 | suite+frame PASS | 2c07fd3bc4
