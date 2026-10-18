@@ -859,7 +859,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
-      "sha256": "a760d82b8f3658164aeea4eb7329d4129d0339cb4615cf3b4222408c18fb676c"
+      "sha256": "de91dcc3e2860ebdd5fbd02be97e7e141c581be56aab8e2c5044c45e5543d041"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
@@ -875,7 +875,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json",
-      "sha256": "9be146ba29994f413b4806a1f9a053656a6a0313a0a31b227fe74be678249aed"
+      "sha256": "7776925d306830092f405ebb17a1e35ada2fa47f55267e1c4d799fcd714fc04e"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json.meta",

@@ -1,6 +1,7 @@
 """S2-1 preview (not shipped): import env_meadow.glb, render 8 orbit azimuths (0..315 step 45, 运镜bot convention
 lens = pivot + d*[cos p sin a, sin p, cos p cos a], glTF coords) around M3 + lookM, plus the board portrait pose.
-blender -b --factory-startup -P blender_meadow_360.py -- GLB OUTDIR TAG [pitch] [dist]"""
+blender -b --factory-startup -P blender_meadow_360.py -- GLB OUTDIR TAG [pitch] [dist] [extra]
+QF_CLEAN=1 in the environment: 64 samples + denoise, board portrait at 540x1170."""
 import bpy, sys, math, os
 from mathutils import Vector
 argv = sys.argv[sys.argv.index('--') + 1:]
@@ -14,9 +15,11 @@ for o in list(bpy.data.objects):
     if o.type == 'CAMERA' or o.type == 'LIGHT':
         bpy.data.objects.remove(o, do_unlink=True)
 sc = bpy.context.scene
-sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = 12; sc.cycles.use_denoising = False
+sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; clean = os.environ.get('QF_CLEAN') == '1'  # review renders: more samples + OpenImageDenoise
+sc.cycles.samples = 64 if clean else 12; sc.cycles.use_denoising = clean
+if clean: sc.cycles.denoiser = 'OPENIMAGEDENOISE'
 sc.cycles.max_bounces = 2
-sc.render.resolution_x, sc.render.resolution_y = 300, 650
+sc.render.resolution_x, sc.render.resolution_y = (360, 780) if clean else (300, 650)
 sc.render.film_transparent = False
 w = bpy.data.worlds.new('W'); sc.world = w; w.use_nodes = True
 w.node_tree.nodes['Background'].inputs[0].default_value = (0.53, 0.75, 0.79, 1); w.node_tree.nodes['Background'].inputs[1].default_value = 0.9
@@ -45,5 +48,6 @@ for a in range(0, 360, 45):
     ar, pr = math.radians(a), math.radians(pitch)
     pos = (piv[0] + dist * math.cos(pr) * math.sin(ar), piv[1] + dist * math.sin(pr), piv[2] + dist * math.cos(pr) * math.cos(ar))
     shoot(pos, piv, 48, '%s_az%03d.png' % (tag, a))
+if clean: sc.render.resolution_x, sc.render.resolution_y = 540, 1170
 shoot((9, 19, 42), (0.3274661665889038, 5.509406509325702, -15.81687522999821), 49.426, '%s_board_portrait.png' % tag)
 print('DONE', tag)
