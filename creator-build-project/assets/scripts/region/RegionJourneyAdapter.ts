@@ -13,7 +13,9 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {LAKESIDE_BALLOON_LANDING,lakesideBalloonLens,lakesideBalloonPath,lakesideBalloonTiming} from './LakesideBalloon';
+import {lakesideBalloonFlight} from './LakesideBalloon';
+import {arrivalPose} from '../world-r1/RegionJourneyCore';
+import type {Pose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
@@ -237,25 +239,34 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});journeyWater=water;}
   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
   const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
-  const shore=L.arrival[L.arrival.length-1],flight=lakesideBalloonPath(start,shore),path=flight.path;
+  // 运镜bot r5 lakeside-landing-cam: ONE shot from the skycity camera to the standing landing pose E (= this screen's board
+  // camera, LAKESIDE_CAMERA_LAYOUT.landing via lakesideRouteLanding): the flight lens ends exactly on E, so the 1 s landing hook
+  // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.
+  const shore=L.arrival[L.arrival.length-1],E=arrivalPose(L.arrival,L.focus,L.landing),landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
+  const flight=lakesideBalloonFlight(start,shore,landPose),path=flight.path;
   let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:flight.bridgeStart,bridgeEnd:flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
-  const total=routeLength(path);route={...route,timing:lakesideBalloonTiming(total)};token.check();progress(.98);
+  const total=flight.total;route={...route,timing:flight.timing};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
   token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
   const clock={t:0,hiddenFor:0,fade:0};
+  let lastPose:Pose|null=null;
+  const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const ticker=rig.addComponent(LakesideBalloonTicker);
-   const timing=route.timing!;
+   const timing=route.timing!,from=readLens()/* the skycity camera at set-off: the flight blends out of it, orbiting round her */;
+   const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined,prev=girl?girl.parent:null;
+   if(girl&&isValid(girl,true)){girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,flight.girlYawRad*180/Math.PI,0);}
    await new Promise<void>((ok,bad)=>{
     const off=rideToken.onCancel(()=>{director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
     const apply=()=>{
-     const d=journeyDistanceAt(total,timing,Math.min(clock.t,timing.durationS));
-     const pos=sampleRoute(path,d);
+     const t=Math.min(clock.t,timing.durationS),d=journeyDistanceAt(total,timing,t);
+     const pos=flight.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
-     world.setCamera(lakesideBalloonLens(pos,shore));
+     lastPose=flight.camera(t,from);world.setCamera(lastPose);
+     lease.progress!(d)/* atmosphere + the board preload follow the flight */;
     };
     beforeDraw=()=>{if(!dead)apply();};
     director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
@@ -270,9 +281,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     };
    });
    rideToken.check();
-   actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:LAKESIDE_BALLOON_LANDING.yawDeg*Math.PI/180});
+   if(girl&&isValid(girl,true)){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
+   actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:flight.girlYawRad/* along the flight heading: she faces the lake */});
   };
-  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release,ride};
+  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();warmWater();}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},onFrame(){return lastPose||undefined;}/* keeps the controller from re-applying its set-off camera after the ride */,dispose:release,ride};
   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
   const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
   return lease;
