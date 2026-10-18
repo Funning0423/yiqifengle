@@ -59,7 +59,7 @@ export function createSailDriver(opts:{
   if(attached&&opts.rider&&seated()){opts.rider.setPosition(0,0,0);opts.rider.setRotationFromEuler(0,0,0);}
   if(beat.id==='S-f'&&attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}
   const pose=sailCamera(opts.timeline,opts.route,t,viewSize());
-  opts.art?.sync(v,pose.position,dt,sailNight());
+  opts.art?.sync(v,pose.position,dt,sailNight(),pose.target);
  };
  return {
   get t(){return t;},
@@ -83,7 +83,7 @@ export function createSailDriver(opts:{
     const board=opts.boardPose||arrivalFrom;
     const pose=followCam(arrivalPath,arrivalU,arrivalFrom,board);
     const boat=sailVehicle(opts.timeline,opts.route,opts.timeline.build05S);
-    opts.art?.sync(boat,pose.position,dt,sailNight());
+    opts.art?.sync(boat,pose.position,dt,sailNight(),pose.target);
     return pose;
    }
    return sailCamera(opts.timeline,opts.route,t,v);

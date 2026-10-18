@@ -1,4 +1,4 @@
-import {Camera, Color, DirectionalLight, Material, MeshRenderer, Node, SkeletalAnimation, Vec3, gfx, utils} from 'cc';
+import {Camera, Color, DirectionalLight, MeshRenderer, Node, SkeletalAnimation, Vec3} from 'cc';
 import {transportQaEnabled} from './JourneyTransport';
 import {beatAt, sailBeats, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
 import {mountSailArt, findNode, type SailArt} from './SailArt';
@@ -24,7 +24,7 @@ export function sailShotTime(k:number):{t:number;night:boolean}{
  const beat=(id:string)=>tl.beats.find(b=>b.id===id)!;
  const at=(id:string,u:number)=>beat(id).t0+(beat(id).t1-beat(id).t0)*u;
  if(k===1)return {t:at('S-b',0.55),night:false};
- if(k===2)return {t:at('S-c',0.98),night:false};
+ if(k===2)return {t:at('S-c',0.94),night:false};
  if(k===4)return {t:at('S-d',0.56),night:false};
  if(k===5)return {t:at('S-d',0.68),night:false};
  if(k===6)return {t:at('S-g',0.85),night:false};
@@ -57,7 +57,7 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  if(art){
   art.boat.setWorldPosition(v.pos[0],v.pos[1],v.pos[2]);
   art.boat.setRotationFromEuler(v.roll*180/Math.PI,v.yaw*180/Math.PI,0);
-  art.sync(v,pose.position,0,night);
+  art.sync(v,pose.position,0,night,pose.target);
  }
  const clip=k===1||k===6?'walk_loop':'sit_hold';
  let character=false;
@@ -90,7 +90,7 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  const camNode=new Node('SailShotCamera');scene.addChild(camNode);
  const cam=camNode.addComponent(Camera);
  cam.priority=1000;cam.near=0.1;cam.far=900;cam.fov=pose.fovVerticalDeg||48;cam.clearFlags=Camera.ClearFlag.SOLID_COLOR;
- cam.clearColor=night?new Color(12,18,48,255):new Color(120,196,235,255);
+ cam.clearColor=night?new Color(32,48,92,255):new Color(120,196,235,255);
  cam.visibility=0xffffffff;
  const viewMode=qparam('view');
  const above=k===6&&viewMode==='above';
@@ -111,30 +111,16 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  }
  const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
  const sun=sunNode.addComponent(DirectionalLight);
- sun.illuminance=night?9200:90000;
- if(night)sun.color=new Color(170,195,235,255);
+ sun.illuminance=night?20000:90000;
+ if(night)sun.color=new Color(176,198,232,255);
  sunNode.setWorldPosition(pose.position[0]-8,pose.position[1]+12,pose.position[2]-6);
  sunNode.lookAt(new Vec3(v.pos[0],v.pos[1]+1,v.pos[2]));
- if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,2800);
+ if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,4500);
  const globals=(scene as any).globals;
  if(globals?.ambient){
-  globals.ambient.skyIllum=night?2200:28000;
-  if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(36,54,108,255);
-  if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(22,34,68,255);
- }
- if(night){
-  // Tiny sky pinpoints far above the boat (a few screen pixels), not near-field diamonds.
-  const stars=new Node('SailShotStars');scene.addChild(stars);
-  stars.setWorldPosition(v.pos[0],v.pos[1]+28,v.pos[2]-8);
-  const mat=new Material();
-  mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
-  mat.setProperty('mainColor',new Color(195,210,240,255));
-  const s=0.014,mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
-  for(let i=0;i<36;i++){
-   const a=i/36*Math.PI*2,rr=22+((i*7)%15),y=8+((i*5)%12);
-   const n=new Node('star_'+i);stars.addChild(n);n.setPosition(Math.cos(a)*rr,y,Math.sin(a)*rr*0.5);
-   const r=n.addComponent(MeshRenderer);r.mesh=mesh;r.setSharedMaterial(mat,0);
-  }
+  globals.ambient.skyIllum=night?5200:28000;
+  if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(58,82,140,255);
+  if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(40,56,96,255);
  }
  (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,k,t,night,character,clip:character?clip:'',art:!!art};
 }

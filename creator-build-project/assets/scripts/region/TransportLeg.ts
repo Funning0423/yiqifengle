@@ -154,9 +154,12 @@ export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{
 export type SailScreen={w:number;h:number};
 type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};
 const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
-/** Starboard and ahead, looking back: hull + seated girl in frame with a readable wake. */
-/** Farther starboard + back so hull and seated girl clear the right crop; wake stays readable. */
-const K2:SailOff={back:-10.4,side:-5.8,up:3.15,fov:50,look:-6.0,orb:0};
+/**
+ * Ahead of the bow, a little to starboard, looking back at the wake.
+ * Portrait 390×844 is only ~25° wide, so a large side offset crops the hull
+ * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
+ */
+const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
 const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
 const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};
@@ -168,7 +171,7 @@ function guardOff(o:SailOff):SailOff{const r=Math.hypot(o.back,o.side);if(r>=7.2
 function sailOffset(b:SailBeat,t:number):SailOff{
  const u=(t-b.t0)/Math.max(1e-3,b.t1-b.t0);
  if(b.id==='S-a'||b.id==='S-b')return K1;
- if(b.id==='S-c')return mixOff(K1,K2,u);
+ if(b.id==='S-c')return u>=0.9?K2:mixOff(K1,K2,u/0.9);
  if(b.id==='S-d'){
   if(u<0.18)return mixOff(K2,K3,u/0.18);
   if(u<0.42)return K3;

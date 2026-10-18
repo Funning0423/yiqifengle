@@ -4,6 +4,7 @@ import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowB
 import {sailChannelWorldY} from './SailChannel';
 import {inGrassClearLocal} from './SailLanding';
 import {SAIL_BERTH_X, SAIL_I6, SAIL_SEA_Y, sailBerthWorld, sailRoute, type SailPose} from './TransportLeg';
+import {SAIL_DAY_SAIL_RGB, SAIL_NIGHT_SAIL_RGB, SAIL_STAR_COUNT, sailStarRadius, sailStarWorld} from './SailStars';
 const SEA_SCALE=3.2;
 const ISLAND_SEA=['env_sea_surface','env_sea_foam','env_sea_surf_foam_v22','env_sea_wave_line_01_v22','env_sea_wave_line_02_v22'];
 export function findNode(node:Node|null,name:string):Node|null{if(!node)return null;if(node.name===name)return node;for(const c of node.children){const h=findNode(c,name);if(h)return h;}return null;}
@@ -149,26 +150,25 @@ function unlit(renderer:MeshRenderer,color:Color,texture:Texture2D|null){
  renderer.setSharedMaterial(mat,0);
  return mat;
 }
-/** Tiny sky pinpoints for K7 — a few pixels on 390×844, far above the boat. */
+/** 3–6 px sky pinpoints. Transparent + depthTest off so the night dome cannot hide them. */
 function mountStarDiamonds(parent:Node):Node{
  const root=new Node('sail_star_diamonds');parent.addChild(root);root.active=false;
  const mat=new Material();
- mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
- mat.setProperty('mainColor',new Color(200,210,235,255));
- const s=0.012;
+ mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{
+  rasterizerState:{cullMode:gfx.CullMode.NONE},
+  depthStencilState:{depthTest:false,depthWrite:false},
+  blendState:{targets:[{blend:true,blendSrc:gfx.BlendFactor.SRC_ALPHA,blendDst:gfx.BlendFactor.ONE_MINUS_SRC_ALPHA,blendSrcAlpha:gfx.BlendFactor.ONE,blendDstAlpha:gfx.BlendFactor.ONE_MINUS_SRC_ALPHA}]},
+ }});
+ mat.setProperty('mainColor',new Color(236,242,255,255));
+ const s=sailStarRadius(52);
  const mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
- const spots:number[][]=[];
- for(let i=0;i<40;i++){
-  const a=i/40*Math.PI*2,r=28+((i*11)%19),y=22+((i*7)%14);
-  spots.push([Math.cos(a)*r,y,Math.sin(a)*r*0.55-6]);
- }
- spots.forEach((p,i)=>{
-  const n=new Node('star_'+i);root.addChild(n);n.setPosition(p[0],p[1],p[2]);
+ for(let i=0;i<SAIL_STAR_COUNT;i++){
+  const n=new Node('star_'+i);root.addChild(n);
   const r=n.addComponent(MeshRenderer);r.mesh=mesh;r.setSharedMaterial(mat,0);
- });
+ }
  return root;
 }
-export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean)=>void;dispose:()=>void};
+export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean,aim?:Vec)=>void;dispose:()=>void};
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
 export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt>{
  const names=['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth','transit_landing'];
@@ -262,7 +262,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    const r=n.getComponent(MeshRenderer);if(!r)return;
    if(n.name==='sail_main'||n.name==='sail_jib'||n.name==='sail_furled'||n.name==='pennant_flag'){
     const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
-    sailMats.push(unlit(r,new Color(255,246,228,255),tex));
+    sailMats.push(unlit(r,new Color(SAIL_DAY_SAIL_RGB[0],SAIL_DAY_SAIL_RGB[1],SAIL_DAY_SAIL_RGB[2],255),tex));
    }
    else if(n.name==='rm_reeds')copyMat(r,{cull:gfx.CullMode.NONE});
    else if(n.name==='wake_strips')wakeMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
@@ -337,15 +337,16 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    const k=g.cloud?cloudK:g.prop?propK:ground;
    if(g.m.passes[0]?.getHandle('mainColor'))g.m.setProperty('mainColor',new Vec4(g.base[0]*k[0],g.base[1]*k[1],g.base[2]*k[2],g.base[3]??1));
   }
-  // Night: keep cream hue but dim hard so the sail is not a glowing sheet.
-  const sailC=night?new Color(118,128,158,255):new Color(255,246,228,255);
+  // Night sail: gray-blue cream at ~48% of the day tint. Spiral stays in the texture.
+  const rgb=night?SAIL_NIGHT_SAIL_RGB:SAIL_DAY_SAIL_RGB;
+  const sailC=new Color(rgb[0],rgb[1],rgb[2],255);
   for(const m of sailMats)m.setProperty('mainColor',sailC);
  };
  let time=0,cruise=4.4;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
  return {
   boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
-  sync(v,cam,dt,night){
+  sync(v,cam,dt,night,aim?:Vec){
    time+=Math.max(0,dt);
    const open=v.sail;
    if(sailRoot)sailRoot.active=open>0.18;
@@ -361,15 +362,21 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(starDiamonds){
     starDiamonds.active=night;
     if(night){
-     starDiamonds.setWorldPosition(v.pos[0],v.pos[1]+18,v.pos[2]-6);
-     starDiamonds.lookAt(new Vec3(cam[0],cam[1]+4,cam[2]));
+     const eye:Vec=[cam[0],cam[1],cam[2]];
+     const look:Vec=aim?[aim[0],aim[1],aim[2]]:[v.pos[0],v.pos[1]+1.05,v.pos[2]];
+     const placed=sailStarWorld(eye,look,52,{w:390,h:844});
+     starDiamonds.children.forEach((n,i)=>{
+      const p=placed[i];if(!p)return;
+      n.setWorldPosition(p.pos[0],p.pos[1],p.pos[2]);
+      n.lookAt(new Vec3(eye[0],eye[1],eye[2]));
+     });
     }
    }
    grade(night);
    // Readable deep-blue night (match art K7), not near-black.
-   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.14,0.22,0.42,1):new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.20,0.28,0.48,1):new Vec4(1,1,1,1));
-   if(seaMat)seaMat.setProperty('mainColor',night?new Color(48,72,128,255):new Color(255,255,255,255));
+   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.20,0.30,0.52,1):new Vec4(1,1,1,1));
+   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.26,0.34,0.55,1):new Vec4(1,1,1,1));
+   if(seaMat)seaMat.setProperty('mainColor',night?new Color(150,185,220,255):new Color(255,255,255,255));
    const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.72:0;
    paint(wakeMat,alpha);paint(foamMat,alpha*0.9);
    if(plane)plane.setWorldPosition(cam[0],SAIL_SEA_Y,cam[2]);
