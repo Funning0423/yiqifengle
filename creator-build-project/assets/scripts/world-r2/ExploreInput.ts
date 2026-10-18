@@ -33,7 +33,7 @@ export function propFeedback(id:string):{id:string;seconds:number;motion:'sway'|
  const motion=id==='windmill'||id==='star-ring'?'spin':id==='crab'||id==='sheep'?'pulse':'sway';
  return {id,seconds:0.45,motion};
 }
-export type Gesture='ui'|'pinch'|'drag'|'tap'|'ignored'|'swallowed';
+export type Gesture='ui'|'pinch'|'drag'|'tap'|'ignored'|'swallowed'|'release';
 export type TapTarget=Readonly<{kind:'node'|'prop'|'ground'|'locked';id:string;walk:boolean;feedback?:'shake'}>;
 type Down={x:number;y:number;t:number};
 
@@ -71,16 +71,26 @@ export class ExploreInput extends Component{
  private down:Down|null=null;
  private moved=0;
  private pointers=1;
+ private lastX=0;
+ private lastY=0;
+ /** Distance between the two fingers on the previous move. 0 until a pinch has a baseline. */
+ private span=0;
  /** World handler. Stays null while the board owns input (`exploreEnabled` is false). */
  sink:((gesture:Gesture,x:number,y:number,pointers:number)=>void)|null=null;
  onEnable(){input.on(Input.EventType.TOUCH_START,this.onStart,this);input.on(Input.EventType.TOUCH_MOVE,this.onMove,this);input.on(Input.EventType.TOUCH_END,this.onEnd,this);}
  onDisable(){input.off(Input.EventType.TOUCH_START,this.onStart,this);input.off(Input.EventType.TOUCH_MOVE,this.onMove,this);input.off(Input.EventType.TOUCH_END,this.onEnd,this);this.down=null;}
- private onStart(e:EventTouch){if(!exploreEnabled())return;const p=e.getUILocation();this.down={x:p.x,y:p.y,t:Date.now()};this.moved=0;const n=(e.getTouches?.()||[]).length;this.pointers=n>1?n:1;}
- private onMove(e:EventTouch){if(!this.down||!exploreEnabled())return;const p=e.getUILocation();const dx=p.x-this.down.x,dy=p.y-this.down.y;this.moved=Math.max(this.moved,Math.hypot(dx,dy));
-  const n=(e.getTouches?.()||[]).length;if(n>1)this.pointers=n;if(this.pointers>=2){this.sink?.('pinch',p.x,p.y,this.pointers);return;}
-  if(this.moved>=TAP_MOVE_PT)this.sink?.('drag',dx,dy,1);}
+ private onStart(e:EventTouch){if(!exploreEnabled())return;const p=e.getUILocation();this.down={x:p.x,y:p.y,t:Date.now()};this.lastX=p.x;this.lastY=p.y;this.moved=0;this.span=0;const n=(e.getTouches?.()||[]).length;this.pointers=n>1?n:1;}
+ private onMove(e:EventTouch){if(!this.down||!exploreEnabled())return;const touches=e.getTouches?.()||[];const n=touches.length;if(n>1)this.pointers=n;
+  if(this.pointers>=2&&touches.length>=2){const a=touches[0].getUILocation(),b=touches[1].getUILocation();const d=Math.hypot(a.x-b.x,a.y-b.y);
+   let scale=1;if(this.span>16&&d>16)scale=d/this.span;this.span=d;this.moved=Math.max(this.moved,TAP_MOVE_PT);
+   if(Math.abs(scale-1)>0.002)this.sink?.('pinch',scale,0,this.pointers);return;}
+  const p=e.getUILocation();const dx=p.x-this.down.x,dy=p.y-this.down.y;this.moved=Math.max(this.moved,Math.hypot(dx,dy));
+  const sx=p.x-this.lastX,sy=p.y-this.lastY;this.lastX=p.x;this.lastY=p.y;
+  if(this.moved>=TAP_MOVE_PT)this.sink?.('drag',sx,sy,1);}
  private onEnd(){if(!this.down)return;const held=(Date.now()-this.down.t)/1000;const gesture=classifyPointers({uiHit:false,pointers:this.pointers,movedPt:this.moved,heldS:held,boardOpen:!exploreEnabled(),blending:false,explore:true});
-  if(gesture==='swallowed')noteSwallowedSkip();const x=this.down.x,y=this.down.y;this.down=null;this.sink?.(gesture,x,y,this.pointers);this.pointers=1;}
+  const x=this.down.x,y=this.down.y;this.down=null;this.span=0;
+  if(gesture==='drag'||gesture==='pinch'){this.sink?.('release',0,0,this.pointers);this.pointers=1;return;}
+  if(gesture==='swallowed')noteSwallowedSkip();this.sink?.(gesture,x,y,this.pointers);this.pointers=1;}
  /** The board calls this so a finger on a button never reaches the world. */
  acceptUi():void{this.down=null;}
 }

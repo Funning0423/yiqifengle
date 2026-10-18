@@ -97,6 +97,7 @@ const tests=[
  ['region-nodes-progress','tools/region-nodes/test_region_nodes_progress.cjs'],
  ['region-nodes-walk','tools/region-nodes/test_region_nodes_walk.cjs'],
  ['explore-camera','tools/region-nodes/test_explore_camera.cjs'],
+ ['free-orbit','tools/region-nodes/test_free_orbit.cjs'],
  ['explore-input','tools/region-nodes/test_explore_input.cjs'],
  ['node-board-pose','tools/region-nodes/test_node_board_pose.cjs'],
  ['region-transport-flag','tools/region-nodes/test_transport_flag.cjs'],
