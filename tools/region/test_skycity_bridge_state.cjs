@@ -68,12 +68,13 @@ function hideOtherBoardStates(root){
 }
 const comp=read('world-r2/WorldNativeComposition.ts');
 assert.match(comp,/n\.name\.startsWith\('state_'\)&&n\.name!=='state_bridge_after'\)n\.active=false/);
+assert.match(comp,/hideOtherBoardStates\(ctx\.parent\?\.getChildByName\?\.\('SkycityLiveBackground'\)/);
+const boardSrc=read('region/SkycityBoardBackground.ts');
+assert.equal(crypto.createHash('sha256').update(boardSrc).digest('hex'),'39a44dc07fbf575d029c249a2745df24f21d403736cc254a911e2d531a068bd8','board background stays the Build05 plaza file');
 assert.ok(F.ALWAYS_HIDDEN.includes('state_bridge_after'),'in-flight sky-arrival still hides the after mesh');
 assert.ok(!F.ALWAYS_HIDDEN.includes('state_bridge_before'));
 const visit=read('region/SkycityVisitAdapter.ts');
 assert.equal((visit.match(/applySkycityBrokenBridge\(model\)/g)||[]).length,2,'first mount and show (return / resume)');
-const board=read('region/SkycityBoardBackground.ts');
-assert.match(board,/const model=mountRegion\(REGIONS\.skycity,prefab,rig\);setLayer\(model\);applySkycityBrokenBridge\(model\);/);
 const journey=read('region/RegionJourneyAdapter.ts');
 assert.match(journey,/journey-skycity-ambient-missing'\)[\s\S]{0,120}applySkycityBrokenBridge\(model\)/);
 const transit=read('region/BalloonTransit.ts');
