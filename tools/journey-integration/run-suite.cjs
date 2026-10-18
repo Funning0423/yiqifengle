@@ -91,6 +91,7 @@ const tests=[
  ['frame-background','tools/transitions/test_frame_background.cjs'],
  ['asset-budget','tools/transitions/asset-budget.cjs'],
  ['transport-flag','tools/transitions/test_transport_flag.cjs'],
+ ['no-bridge-fallback','tools/transitions/test_no_bridge_fallback.cjs'],
  ['transit-background-resume','tools/transitions/test_transit_background.cjs'],
  ['region-nodes-data','tools/region-nodes/test_region_nodes_data.cjs'],
  ['region-nodes-progress','tools/region-nodes/test_region_nodes_progress.cjs'],

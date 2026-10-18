@@ -11,7 +11,7 @@ const soft=JSON.parse(comp.match(/const LAKESIDE_SOFT_REASONS=(\[[^\]]*\])/)[1].
 const body=comp.slice(comp.indexOf('export class WorldNativeComposition')).replace(/@property\([^)]*\) /g,'');
 const logs=[];const ctx={exports:{},Component:class{},RegionCampaign:{canEnterRegion:()=>({ok:true})},DEBUG:false,LAKESIDE_LOAD_FAILED:FAILED,LAKESIDE_SOFT_REASONS:soft,lakesideSideOrder:()=>null,console:{...console,error:(...a)=>logs.push(a.join(' '))},lakesideLandingToBoard:()=>Promise.resolve()};
 vm.runInNewContext(ts.transpileModule(body,{compilerOptions:{module:1,target:7}}).outputText,ctx);const Comp=ctx.exports.WorldNativeComposition;
-function host({travel,enter}){const h=Object.create(Comp.prototype),ev=[],snap={state:'island',journey:{region:'island',target:null}};
+function host({travel,enter}){const h=Object.create(Comp.prototype),ev=[],snap={state:'skycity',journey:{region:'skycity',target:null}};
  h.world={commands:()=>({snapshot:()=>snap,async travelRegion(t){ev.push(['travel',t]);return travel;},async enterLevel(id){ev.push(['enter',id]);return enter;},abandonLakesideJourney(){ev.push(['abandon']);return {ok:true};}})};
  h.mainline={journeySnapshot:()=>({readOnly:false,records:[]})};h.selection={provider:'mainline-free',stageId:'r04-lake-01',seed:4};return {h,ev};}
 (async()=>{
