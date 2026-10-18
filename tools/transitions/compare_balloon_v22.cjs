@@ -35,8 +35,11 @@ function main(){
   const g0=path.join(SHOTS,p.game),r0=path.join(ART,p.render);
   if(!fs.existsSync(g0)){console.warn('skip missing game',p.game);continue;}
   if(!fs.existsSync(r0)){console.warn('skip missing render',p.render);continue;}
-  // Match heights; keep game half short edge ≥ 844 after scale-up of the pair.
-  const targetH=Math.max(844,dim(g0).h,Math.min(1200,dim(r0).h));
+  // Match heights; scale game so its short edge ≥ 844, then match render to that H.
+  const gDim=dim(g0);
+  const short=Math.min(gDim.w,gDim.h);
+  const scale=short<844?844/short:1;
+  const targetH=Math.max(844,Math.round(gDim.h*scale));
   const g=ensureH(g0,targetH),r=ensureH(r0,targetH);
   const gw=dim(g).w,rw=dim(r).w,H=targetH,W=gw+rw;
   const out=path.join(SHOTS,p.out);
@@ -95,10 +98,16 @@ print(W,H)
   console.log('OK',p.out,info,p.label);
   if(g.endsWith('.tmp.png'))fs.unlinkSync(g);
   if(r.endsWith('.tmp.png'))fs.unlinkSync(r);
-  // Compress
-  try{sips(['-Z','1688',out]);}catch{}
-  const st=fs.statSync(out);
-  if(st.size>1.5*1024*1024){try{execFileSync('pngquant',['--force','--output',out,'--quality=70-90',out]);}catch{}}
+  // Compress by quality only — never sips -Z (that crushed the tall contact sheet).
+  let st=fs.statSync(out);
+  if(st.size>1.5*1024*1024){
+   try{execFileSync('pngquant',['--force','--output',out,'--quality=65-85',out]);}
+   catch{
+    try{sips(['-s','formatOptions','60',out]);}catch{}
+   }
+   st=fs.statSync(out);
+  }
+  if(st.size>1.5*1024*1024)console.warn('still >1.5MB',p.out,st.size);
   fs.copyFileSync(out,path.join(TASK_SHOTS,p.out));
   fs.copyFileSync(path.join(SHOTS,p.game),path.join(TASK_SHOTS,p.game));
   rows.push(out);
@@ -138,7 +147,13 @@ write_png(dest,W,H,out)
 print(dest,W,H)
 `;
   console.log(execFileSync('python3',['-c',py],{encoding:'utf8'}).trim());
-  fs.copyFileSync(path.join(SHOTS,'contact_vs_render_v2_3.png'),path.join(TASK_SHOTS,'contact_vs_render_v2_3.png'));
+  const contact=path.join(SHOTS,'contact_vs_render_v2_3.png');
+  let cst=fs.statSync(contact);
+  if(cst.size>1.5*1024*1024){
+   try{execFileSync('pngquant',['--force','--output',contact,'--quality=55-75',contact]);}
+   catch{console.warn('contact >1.5MB no pngquant',cst.size);}
+  }
+  fs.copyFileSync(contact,path.join(TASK_SHOTS,'contact_vs_render_v2_3.png'));
  }
 }
 main();
