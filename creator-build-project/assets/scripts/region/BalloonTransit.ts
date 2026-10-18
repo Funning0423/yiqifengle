@@ -256,8 +256,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    showNamed(clouds,ALWAYS_CLOUD,true);
    // Liftoff (t≈5.2): hide near/mid clouds so none sit on the envelope (GBT defect 8).
    if(t<7){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
+   // City on screen: drop far/horizon cloud cards (7 DC budget) — city silhouette already fills the frame.
+   if(cityOn){showNamed(clouds,['clouds_far','clouds_horizon','clouds_deck_loose'],false);}
    eachNamed(meadow,n=>{if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;});
-   const farOn=t>=FAR_CARD_ON_T&&t<plan.total&&!handoff&&!meadowOn;
+   // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
+   const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
    if(farRoot&&isValid(farRoot,true)){farRoot.active=farOn;if(farOn)tintFarCard(farRoot,night);}
    const frame=t+1e-9>=SEAM_T?postFrame:meadowFrame;
    setRigid(transitFrame,frame);
