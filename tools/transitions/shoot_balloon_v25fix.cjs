@@ -37,17 +37,21 @@ async function main(){
  let child=null;
  try{
   for(const frame of FRAMES){
-   if(process.env.BALLOON_ONLY&&!frame.name.includes(process.env.BALLOON_ONLY))continue;
+   const only=(process.env.BALLOON_ONLY||'').split(',').map(s=>s.trim()).filter(Boolean);
+   if(only.length&&!only.some(n=>frame.name.includes(n)))continue;
    if(child){try{child.kill('SIGTERM');}catch{}}
    child=server(); await ready('http://127.0.0.1:'+PORT+'/index.html');
    const dest=path.join(OUT,frame.name+'.png');
    if(process.env.BALLOON_SKIP_EXISTING&&fs.existsSync(dest)){console.log('SKIP',frame.name);continue;}
    let ok=false,info=null,samples=0;
-   for(let attempt=1;attempt<=2&&!ok;attempt++){
+   const tries=Math.max(1,Number(process.env.BALLOON_TRIES||2));
+   for(let attempt=1;attempt<=tries&&!ok;attempt++){
     const browser=await chromium.launch({headless:true,executablePath:env.chromiumExecutable(),args:['--disable-frame-rate-limit','--disable-dev-shm-usage']});
+    let prog=null;
     try{
      const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,deviceScaleFactor:2});
-     page.setDefaultTimeout(240000);
+     page.setDefaultTimeout(720000);
+     prog=setInterval(()=>{page.evaluate(()=>{let state=null,t=null;try{state=globalThis.__worldIntegration.snapshot().state;}catch{}try{const b=globalThis.__QF_BALLOON;t=b?b.t:null;}catch{}return {state,t};}).then(s=>console.log('PROG',frame.name,JSON.stringify(s))).catch(()=>{});},20000);
      if(frame.meadowOnly){
       await page.goto('http://127.0.0.1:'+PORT+'/?meadowGameplay=1',{waitUntil:'load',timeout:240000});
       await page.waitForFunction(()=>{try{return globalThis.__worldIntegration.snapshot().state==='meadow';}catch{return false;}},{timeout:240000}).catch(()=>null);
@@ -59,7 +63,19 @@ async function main(){
      }else{
      const q='?balloonPreview=1&balloonNight='+frame.night+'&balloonAt='+frame.t;
      await page.goto('http://127.0.0.1:'+PORT+'/'+q,{waitUntil:'load',timeout:240000});
-     const hit=await page.waitForFunction(t=>{const b=globalThis.__QF_BALLOON;return !!(b&&b.hold&&Math.abs(b.t-t)<0.25);},frame.t,{timeout:240000,polling:250}).catch(()=>null);
+     let hit=false,skycitySince=0;
+     const deadline=Date.now()+720000;
+     while(Date.now()<deadline){
+      const s=await page.evaluate(t=>{
+       let state=null;try{state=globalThis.__worldIntegration.snapshot().state;}catch{}
+       const b=globalThis.__QF_BALLOON||null;
+       return {state,t:b?b.t:null,hold:!!(b&&b.hold&&Math.abs(b.t-t)<0.25)};
+      },frame.t);
+      if(s.hold){hit=true;break;}
+      if(s.state==='skycity'&&s.t==null){if(!skycitySince)skycitySince=Date.now();else if(Date.now()-skycitySince>8000){console.log('FALLBACK',frame.name,'balloon-timeout');break;}}
+      else skycitySince=0;
+      await page.waitForTimeout(1000);
+     }
      await page.waitForTimeout(800);
      info=await page.evaluate(()=>{
       const b=globalThis.__QF_BALLOON||null;
@@ -71,7 +87,7 @@ async function main(){
      if(hit){await page.screenshot({path:dest,type:'png'});ok=true;}
      console.log(ok?'SHOT':'MISS',frame.name,'try'+attempt,JSON.stringify({fps:samples,dc:info&&info.dc,t:info&&info.b&&info.b.t,dcWorst:info&&info.b&&info.b.dcWorst,fade:info&&info.h&&info.h.fade}));
      }
-    }finally{await browser.close();}
+    }finally{if(prog)clearInterval(prog);await browser.close();}
    }
    log.push({name:frame.name,ok,fps:samples,info});
   }
