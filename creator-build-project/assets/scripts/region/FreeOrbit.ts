@@ -8,7 +8,16 @@ export type Vec3 = readonly [number, number, number];
 export type LookPose = Readonly<{ position: Vec3; target: Vec3; fovVerticalDeg: number }>;
 export type OrbitPlace = 'home' | 'island' | 'meadow' | 'skycity' | 'lakeside' | 'board';
 export type OrbitMode = 'idle' | 'free' | 'paused' | 'board' | 'returning';
-export type OrbitBox = Readonly<{ min: Vec3; max: Vec3 }>;
+/** `name` (node name) is optional; indoors it lets the room's own volumes be skipped (see orbitIgnoresBox). */
+export type OrbitBox = Readonly<{ min: Vec3; max: Vec3; name?: string }>;
+/**
+ * 运镜bot r5 room look (docs/r5/room-orbit/RESULT.md). Indoors the arm toward a wall gets short. Instead of hugging her
+ * face, the lens blends toward a fixed point near the room centre and turns in place there, so every yaw shows the room.
+ * The view direction is the orbit's own at every blend weight (she may leave the frame), so turning never jumps.
+ * w = smootherstep((blendFromM - r) / (blendFromM - blendFullM)). r is the smooth wall-limited arm: soft-min of the
+ * keepInside exits in XZ, divided by cos(pitch).
+ */
+export type RoomLook = Readonly<{ center: Vec3; blendFromM: number; blendFullM: number }>;
 export type OrbitLimits = Readonly<{
   pitchMinDeg: number;
   pitchMaxDeg: number;
@@ -20,6 +29,8 @@ export type OrbitLimits = Readonly<{
   fovDeg: number;
   /** Indoor only: the lens stays inside this volume and shortens the arm instead of crossing a wall. */
   keepInside?: Readonly<{ min: Vec3; max: Vec3 }>;
+  /** Indoor only: blend toward the room centre when the wall-limited arm is short. Needs keepInside. */
+  roomLook?: RoomLook;
 }>;
 
 /** Pitch is the camera's elevation above her chest. Distance is metres from that point. */
@@ -28,7 +39,8 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
     // 运镜bot r5 (docs/r5/room-keepinside/RESULT.md): measured from the room's inner walls (round shell, inradius 2.31 m about
     // x 0, z -2.6), the wall cabinets and the desk. Every point of this box is ≥0.30 m from the inner walls; the old
     // -1.85..1.05 x -4.72..-1.55 box reached through the round wall at yaw 270 and into the west cabinet at 315 (black frames).
-    keepInside: { min: [-1.1, 0.85, -4.45], max: [1.05, 2.2, -0.9] } },
+    keepInside: { min: [-1.1, 0.85, -4.45], max: [1.05, 2.2, -0.9] },
+    roomLook: { center: [0, 1.55, -2.5], blendFromM: 1.45, blendFullM: 0.95 } },
   island: { pitchMinDeg: -8, pitchMaxDeg: 58, distMin: 4.2, distMax: 52, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 42 },
   meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48 },
   skycity: { pitchMinDeg: -6, pitchMaxDeg: 55, distMin: 4, distMax: 22, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
@@ -49,8 +61,50 @@ export const ORBIT_FEEL = Object.freeze({
   /** Shells bigger than this are sky, sea or a merged island. Being inside one is not a hit. */
   shellM: 16,
 });
-
 const SMOOTH = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * x * (x * (x * 6 - 15) + 10); };
+/** Room look tuning. softK: soft-min sharpness (larger = closer to a hard min). edgeSoftM: width of the smooth clamp to
+ *  the keepInside height. The lens then follows that goal with a critically damped tracker (natural frequency omega)
+ *  whose acceleration is capped below HANDOFF §4 (3 m/s², 120°/s²), so nothing indoors can jump: not the blend, not a
+ *  keepInside corner, not the first drag after the authored lens, not the return after a cinematic. The goal keeps
+ *  insetM (0.2 m band) inside keepInside, and inside that band the tracker eases its speed toward a face (≤ brakeMS2),
+ *  so its lag around a corner stays off the walls without a hard stop. */
+export const ROOM_LOOK_FEEL = Object.freeze({ softK: 8, edgeSoftM: 0.08, omega: 10, linAccMS2: 2.8, brakeMS2: 1.6, brakeGain: 6, angAccDegS2: 110, insetM: 0.2 });
+/** Room volumes that wrap the whole interior. Indoors they say nothing about obstacles; keepInside does that job. */
+const ROOM_VOLUME = /interior_shell|interior_props_merged|lighthouse_ext/i;
+function contains(b: OrbitBox, p: Vec3): boolean {
+  return p[0] >= b.min[0] && p[0] <= b.max[0] && p[1] >= b.min[1] && p[1] <= b.max[1] && p[2] >= b.min[2] && p[2] <= b.max[2];
+}
+/** A box that holds both her (look point) and the lens is a room or a hull around them, not an obstacle. Indoors the
+ *  room shell, the merged furniture and the lighthouse exterior are skipped by name as well. */
+export function orbitIgnoresBox(b: OrbitBox, her: Vec3, lens: Vec3, indoor: boolean): boolean {
+  if (contains(b, her) && contains(b, lens)) return true;
+  return indoor && !!b.name && ROOM_VOLUME.test(b.name);
+}
+/** p-norm soft minimum of two positive lengths, always ≤ the hard min and C∞ while both stay positive. */
+export function softMin(a: number, b: number, k: number = ROOM_LOOK_FEEL.softK): number {
+  if (!(a > 0) || !(b > 0)) return 0;
+  return Math.pow(Math.pow(a, -k) + Math.pow(b, -k), -1 / k);
+}
+const softplus = (x: number) => (x > 30 ? x : Math.log(1 + Math.exp(x)));
+/** Smooth clamp into (lo, hi): C∞, equal to v (to ~1e-6 m) more than 1 m inside, never outside. */
+export function softClamp(v: number, lo: number, hi: number, s: number = ROOM_LOOK_FEEL.edgeSoftM): number {
+  const a = lo + s * softplus((v - lo) / s);
+  return hi - s * softplus((hi - a) / s);
+}
+/** Wall-limited arm from the look point along yaw/pitch inside the keepInside box (XZ soft exit / cos pitch). */
+export function roomArm(look: Vec3, yawDeg: number, pitchDeg: number, box: OrbitBox, k: number = ROOM_LOOK_FEEL.softK): number {
+  const yr = yawDeg * Math.PI / 180, hx = Math.sin(yr), hz = Math.cos(yr);
+  const gx = hx >= 0 ? box.max[0] - look[0] : look[0] - box.min[0], gz = hz >= 0 ? box.max[2] - look[2] : look[2] - box.min[2];
+  if (!(gx > 0) || !(gz > 0)) return 0;
+  const inv = Math.pow(Math.abs(hx) / gx, k) + Math.pow(Math.abs(hz) / gz, k);
+  const tH = inv > 0 ? Math.pow(inv, -1 / k) : 1e9;
+  return tH / Math.max(0.2, Math.cos(pitchDeg * Math.PI / 180));
+}
+/** Blend weight 0 (orbit her) .. 1 (look out from the room centre). Smootherstep, C2. */
+export function roomBlend(arm: number, look: RoomLook): number {
+  return SMOOTH((look.blendFromM - arm) / (look.blendFromM - look.blendFullM));
+}
+
 const wrap180 = (d: number) => { let x = d; while (x > 180) x -= 360; while (x < -180) x += 360; return x; };
 function spanOf(b: OrbitBox): number {
   return Math.max(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]);
@@ -100,6 +154,17 @@ export class FreeOrbit {
   private boardSnap: Memory | null = null;
   private fromPose: LookPose | null = null;
   private returnT = 0;
+  /** Room look tracker: goal (from the last solve) and the followed lens (position, velocity, view dir, angular velocity). */
+  private roomInit = false;
+  private roomGoalPos: [number, number, number] = [0, 0, 0];
+  private roomGoalDir: [number, number, number] = [0, 0, -1];
+  private roomPos: [number, number, number] = [0, 0, 0];
+  private roomVel: [number, number, number] = [0, 0, 0];
+  private roomDir: [number, number, number] = [0, 0, -1];
+  private roomSpin: [number, number, number] = [0, 0, 0];
+  /** Last geometric room blend weight and wall-limited arm (diagnostics / tests). */
+  roomWeight = 0;
+  roomArmM = 0;
   constructor(place: OrbitPlace = 'island') {
     this.placeName = place;
     this.limits = ORBIT_LIMITS[place];
@@ -127,6 +192,8 @@ export class FreeOrbit {
     if (Number.isFinite(pose.fovVerticalDeg)) this.fov = pose.fovVerticalDeg;
     this.clampPitch();
     this.seeded = true;
+    // Indoors the orbit goal is not the authored lens (keepInside / room look): the tracker starts from it and glides.
+    if (this.limits.roomLook) this.roomFrom(pose);
   }
   /** dx, dy are fractions of the screen. UI y grows upward: finger up looks up (pitch falls). */
   drag(dx: number, dy: number, dt = 1 / 60): boolean {
@@ -175,6 +242,7 @@ export class FreeOrbit {
     this.returnT = 0;
     this.held = false;
     this.mode = 'returning';
+    if (this.limits.roomLook) this.roomFrom(from);
   }
   /** A new place keeps its authored lens. The previous orbit is not carried across a journey. */
   forget(): void {
@@ -186,6 +254,7 @@ export class FreeOrbit {
     this.distVel = 0;
     this.fromPose = null;
     this.boardSnap = null;
+    this.roomInit = false;
     this.mode = 'idle';
   }
   /** Match-3: keep the saved orbit, and only allow the board row of ORBIT_LIMITS. */
@@ -222,6 +291,7 @@ export class FreeOrbit {
   unlock(): void { if (!this.engagedFlag && this.mode === 'paused') this.mode = 'idle'; }
   step(dt: number): void {
     const t = Number.isFinite(dt) && dt > 0 ? Math.min(0.1, dt) : 0;
+    if (this.roomInit && t > 0 && this.limits.roomLook) this.roomTrack(t);
     if (this.mode === 'returning') {
       this.returnT += t;
       if (this.returnT >= ORBIT_FEEL.returnS) { this.returnT = ORBIT_FEEL.returnS; this.mode = 'free'; this.fromPose = null; }
@@ -260,17 +330,106 @@ export class FreeOrbit {
    * and (indoors) stay inside keepInside. `xz` is minX, minZ, maxX, maxZ of the explorable ground.
    */
   solve(feet: Vec3, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): LookPose {
+    const look = this.lookPoint(feet);
+    if (this.limits.roomLook && this.limits.keepInside) return this.solveRoom(look, boxes, groundY, xz);
     const goal = this.rawPose(feet);
     let pose = this.mode === 'returning' && this.fromPose ? this.blend(this.fromPose, goal, SMOOTH(this.returnT / ORBIT_FEEL.returnS)) : goal;
-    pose = this.clearPose(pose, this.lookPoint(feet), boxes, groundY, xz);
+    pose = this.clearPose(pose, look, boxes, groundY, xz, look, null);
     return pose;
+  }
+  /** Room look goal before scenery collision: `aim` is where clearPose pushes the lens back toward. */
+  roomGoal(look: Vec3): { pose: LookPose; aim: Vec3; w: number; arm: number } {
+    const R = this.limits.roomLook!, kb = this.limits.keepInside!, n = ROOM_LOOK_FEEL.insetM;
+    // the goal stays insetM inside keepInside so the tracker has room to lag around a corner without touching a face
+    const box: OrbitBox = { min: [kb.min[0] + n, kb.min[1] + n, kb.min[2] + n], max: [kb.max[0] - n, kb.max[1] - n, kb.max[2] - n] };
+    const pr = this.pitch * Math.PI / 180, yr = this.yaw * Math.PI / 180, cp = Math.cos(pr);
+    const u: Vec3 = [Math.sin(yr) * cp, Math.sin(pr), Math.cos(yr) * cp];
+    const arm = roomArm(look, this.yaw, this.pitch, box), d = softMin(this.dist, arm);
+    const po: Vec3 = [look[0] + u[0] * d, softClamp(look[1] + u[1] * d, box.min[1], box.max[1]), look[2] + u[2] * d];
+    const w = roomBlend(arm, R), c = R.center;
+    const pos: Vec3 = [po[0] + (c[0] - po[0]) * w, po[1] + (c[1] - po[1]) * w, po[2] + (c[2] - po[2]) * w];
+    const toHer = Math.hypot(look[0] - po[0], look[1] - po[1], look[2] - po[2]) || 1;
+    const dir = [(look[0] - po[0]) / toHer * (1 - w) - u[0] * w, (look[1] - po[1]) / toHer * (1 - w) - u[1] * w, (look[2] - po[2]) / toHer * (1 - w) - u[2] * w];
+    const L = Math.hypot(dir[0], dir[1], dir[2]) || 1;
+    const reach = Math.max(1, toHer);  // = toHer whenever w = 0 (then the arm is ≥ ~1.15 m), so the target is exactly her
+    const target: Vec3 = [pos[0] + dir[0] / L * reach, pos[1] + dir[1] / L * reach, pos[2] + dir[2] / L * reach];
+    const aim: Vec3 = [look[0] + (c[0] - look[0]) * w, look[1] + (c[1] - look[1]) * w, look[2] + (c[2] - look[2]) * w];
+    return { pose: { position: pos, target, fovVerticalDeg: this.fov }, aim, w, arm };
+  }
+  private solveRoom(look: Vec3, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): LookPose {
+    const g = this.roomGoal(look);
+    this.roomWeight = g.w; this.roomArmM = g.arm;
+    const goal = this.clearPose(g.pose, g.aim, boxes, groundY, xz, look, g.pose.target);
+    const gp = goal.position, gd = unitToward(gp, goal.target);
+    this.roomGoalPos = [gp[0], gp[1], gp[2]]; this.roomGoalDir = [gd[0], gd[1], gd[2]];
+    if (!this.roomInit) { this.roomPos = [gp[0], gp[1], gp[2]]; this.roomDir = [gd[0], gd[1], gd[2]]; this.roomVel = [0, 0, 0]; this.roomSpin = [0, 0, 0]; this.roomInit = true; }
+    const p = this.roomPos, d = this.roomDir, reach = Math.max(1, Math.hypot(look[0] - p[0], look[1] - p[1], look[2] - p[2]));
+    return { position: [p[0], p[1], p[2]], target: [p[0] + d[0] * reach, p[1] + d[1] * reach, p[2] + d[2] * reach], fovVerticalDeg: this.fov };
+  }
+  /** Start the tracker at a lens someone else wrote (authored home lens, end of a cinematic), at rest. */
+  private roomFrom(pose: LookPose): void {
+    const d = unitToward(pose.position, pose.target);
+    this.roomPos = [pose.position[0], pose.position[1], pose.position[2]]; this.roomDir = [d[0], d[1], d[2]];
+    this.roomVel = [0, 0, 0]; this.roomSpin = [0, 0, 0]; this.roomInit = true;
+    this.roomGoalPos = [this.roomPos[0], this.roomPos[1], this.roomPos[2]]; this.roomGoalDir = [d[0], d[1], d[2]];
+  }
+  /** Critically damped follow of the room goal with capped linear and angular acceleration, then kept inside keepInside. */
+  private roomTrack(t: number): void {
+    const F = ROOM_LOOK_FEEL, w = F.omega, n = Math.max(1, Math.ceil(t / (1 / 120))), h = t / n;
+    const amax = F.linAccMS2, wmax = F.angAccDegS2 * Math.PI / 180, box = this.limits.keepInside;
+    for (let s = 0; s < n; s++) {
+      const p = this.roomPos, v = this.roomVel, g = this.roomGoalPos;
+      let a = [w * w * (g[0] - p[0]) - 2 * w * v[0], w * w * (g[1] - p[1]) - 2 * w * v[1], w * w * (g[2] - p[2]) - 2 * w * v[2]];
+      let m = Math.hypot(a[0], a[1], a[2]); if (m > amax) a = [a[0] * amax / m, a[1] * amax / m, a[2] * amax / m];
+      // Soft box edge: the goal already stays insetM inside keepInside; in that band the tracker eases off its speed toward
+      // a face smoothly (allowed speed sqrt(2·brake·gap), braking grows with the excess, no bang-bang, no hard stop).
+      // Braking takes priority; the rest of the accel budget is scaled to fit. A lens that starts outside (an authored
+      // camera) is simply pulled in by the tracker, never snapped.
+      if (box) {
+        const br = [0, 0, 0]; let used = 0;
+        for (let k = 0; k < 3; k++) {
+          const lo = k === 0 ? box.min[0] : k === 1 ? box.min[1] : box.min[2], hi = k === 0 ? box.max[0] : k === 1 ? box.max[1] : box.max[2];
+          const toward = Math.abs(v[k]), gap = v[k] > 0 ? hi - p[k] : p[k] - lo;
+          if (toward <= 0 || gap > F.insetM + toward * toward / (2 * F.brakeMS2)) continue;
+          const excess = toward - Math.sqrt(2 * F.brakeMS2 * Math.max(0, gap));
+          if (excess <= 0) continue;
+          br[k] = Math.min(F.brakeMS2, F.brakeGain * excess); used += br[k] * br[k];
+        }
+        if (used > 0) {
+          let rest = 0; for (let k = 0; k < 3; k++) if (br[k] === 0) rest += a[k] * a[k];
+          const room = Math.max(0, amax * amax - used);
+          const f = rest > room ? Math.sqrt(room / rest) : 1;
+          for (let k = 0; k < 3; k++) a[k] = br[k] > 0 ? -Math.sign(v[k]) * br[k] : a[k] * f;
+        }
+      }
+      for (let k = 0; k < 3; k++) { v[k] += a[k] * h; p[k] += v[k] * h; }
+      const d = this.roomDir, gd = this.roomGoalDir, o = this.roomSpin;
+      let ax = [d[1] * gd[2] - d[2] * gd[1], d[2] * gd[0] - d[0] * gd[2], d[0] * gd[1] - d[1] * gd[0]];
+      const sn = Math.hypot(ax[0], ax[1], ax[2]), cs = d[0] * gd[0] + d[1] * gd[1] + d[2] * gd[2], e = Math.atan2(sn, cs);
+      ax = sn > 1e-9 ? [ax[0] / sn, ax[1] / sn, ax[2] / sn] : cs < 0 ? [0, 1, 0] : [0, 0, 0];
+      let al = [w * w * e * ax[0] - 2 * w * o[0], w * w * e * ax[1] - 2 * w * o[1], w * w * e * ax[2] - 2 * w * o[2]];
+      m = Math.hypot(al[0], al[1], al[2]); if (m > wmax) al = [al[0] * wmax / m, al[1] * wmax / m, al[2] * wmax / m];
+      for (let k = 0; k < 3; k++) o[k] += al[k] * h;
+      // spin about the view axis does nothing to a look direction; drop it so it cannot build up
+      const along = o[0] * d[0] + o[1] * d[1] + o[2] * d[2]; o[0] -= along * d[0]; o[1] -= along * d[1]; o[2] -= along * d[2];
+      const ang = Math.hypot(o[0], o[1], o[2]) * h;
+      if (ang > 0) {
+        const k3 = [o[0] / (ang / h), o[1] / (ang / h), o[2] / (ang / h)], c = Math.cos(ang), si = Math.sin(ang);
+        const kd = k3[0] * d[0] + k3[1] * d[1] + k3[2] * d[2], kx = [k3[1] * d[2] - k3[2] * d[1], k3[2] * d[0] - k3[0] * d[2], k3[0] * d[1] - k3[1] * d[0]];
+        const nd = [d[0] * c + kx[0] * si + k3[0] * kd * (1 - c), d[1] * c + kx[1] * si + k3[1] * kd * (1 - c), d[2] * c + kx[2] * si + k3[2] * kd * (1 - c)];
+        const L = Math.hypot(nd[0], nd[1], nd[2]) || 1; this.roomDir = [nd[0] / L, nd[1] / L, nd[2] / L];
+      }
+    }
   }
   private blend(a: LookPose, b: LookPose, e: number): LookPose {
     const p: Vec3 = [a.position[0] + (b.position[0] - a.position[0]) * e, a.position[1] + (b.position[1] - a.position[1]) * e, a.position[2] + (b.position[2] - a.position[2]) * e];
     const t: Vec3 = [a.target[0] + (b.target[0] - a.target[0]) * e, a.target[1] + (b.target[1] - a.target[1]) * e, a.target[2] + (b.target[2] - a.target[2]) * e];
     return { position: p, target: t, fovVerticalDeg: a.fovVerticalDeg + (b.fovVerticalDeg - a.fovVerticalDeg) * e };
   }
-  private clearPose(pose: LookPose, look: Vec3, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): LookPose {
+  /** `look` is where the arm shortens toward; `her` is her look point (for orbitIgnoresBox); `aim` is the returned target
+   *  (null = `look`, as before). */
+  private clearPose(pose: LookPose, look: Vec3, boxes: readonly OrbitBox[], groundY: number, xz: readonly [number, number, number, number] | undefined, her: Vec3, aim: Vec3 | null): LookPose {
+    const indoor = !!this.limits.keepInside;
     let p: [number, number, number] = [pose.position[0], pose.position[1], pose.position[2]];
     const inside = this.limits.keepInside;
     for (let n = 0; n < 6; n++) {
@@ -293,6 +452,7 @@ export class FreeOrbit {
       if (Number.isFinite(groundY) && p[1] < groundY + ORBIT_FEEL.groundClearM) push = Math.max(push, groundY + ORBIT_FEEL.groundClearM - p[1] + 0.02);
       const near: Vec3 = [p[0] + (look[0] - p[0]) * 0.04, p[1] + (look[1] - p[1]) * 0.04, p[2] + (look[2] - p[2]) * 0.04];
       for (let i = 0; i < boxes.length; i++) {
+        if (orbitIgnoresBox(boxes[i], her, p, indoor)) continue;
         const g = Math.min(boxGap(p, boxes[i]), boxGap(near, boxes[i]));
         if (g < ORBIT_FEEL.clearM) push = Math.max(push, ORBIT_FEEL.clearM - g + 0.05);
       }
@@ -302,7 +462,8 @@ export class FreeOrbit {
       p = [p[0] - dir[0] * back, p[1] - dir[1] * back, p[2] - dir[2] * back];
     }
     if (Number.isFinite(groundY) && p[1] < groundY + ORBIT_FEEL.groundClearM) p[1] = groundY + ORBIT_FEEL.groundClearM;
-    return { position: p, target: [look[0], look[1], look[2]], fovVerticalDeg: pose.fovVerticalDeg };
+    const tg = aim || look;
+    return { position: p, target: [tg[0], tg[1], tg[2]], fovVerticalDeg: pose.fovVerticalDeg };
   }
   private clampDist(d: number): number {
     return Math.max(this.limits.distMin, Math.min(this.limits.distMax, d));
