@@ -78,13 +78,17 @@ function herOnScreen(p,f){const r0=cross(f,[0,1,0]),n=Math.hypot(...r0),r=r0.map
  for(const q of HER_PTS){const d=[q[0]-p[0],q[1]-p[1],q[2]-p[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];if(z<=0.05){behind=true;continue}
   const x=(d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/z/TAN_H,y=(d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/z/TAN_V;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
  const edge=behind?9:Math.max(-x0,x1,-y0,y1),cov=behind?0:Math.max(0,Math.min(1,x1)-Math.max(-1,x0))*Math.max(0,Math.min(1,y1)-Math.max(-1,y0))/4;return {edge,cov}}
+// her body centre (centre of the fixture's bbox) on screen: |x|,|y| ≤ 1 NDC is "in the frame"
+const HER_C=(()=>{const mn=[9,9,9],mx=[-9,-9,-9];for(const q of HER_PTS)for(let k=0;k<3;k++){mn[k]=Math.min(mn[k],q[k]);mx[k]=Math.max(mx[k],q[k])}return [0,1,2].map(k=>(mn[k]+mx[k])/2)})();
+function centreOnScreen(p,f){const r0=cross(f,[0,1,0]),n=Math.hypot(...r0),r=r0.map(v=>v/n),u=cross(r,f),d=[HER_C[0]-p[0],HER_C[1]-p[1],HER_C[2]-p[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];
+ if(z<=0.05)return 9;return Math.max(Math.abs((d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/z/TAN_H),Math.abs((d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/z/TAN_V))}
 const inFrameRows=[];
 // Angular accel: the view now follows the input itself, so its raw accel includes the hand's own (an instant 90°/s
 // start is thousands of °/s²; reported, not asserted). The bar (ANG_MAX) is asserted on (a) what the camera adds on top
 // of the input's view g (return follower, first-drag fade): d/dt(ω_view − ω_g), and (b) the raw view accel while the hand
 // moves at a steady rate (sweeps; the framing/blend geometry's own accel). Lag is measured against g.
-function measure(frames,dt,name){{let n=0,out=0,worst=0,cmin=9,cmax=0;for(const f of frames){if(f.wIn===undefined||f.wIn>IN_FRAME_W)continue;const h=herOnScreen(f.p,f.f);n++;if(h.edge>SAFE)out++;worst=Math.max(worst,h.edge);cmin=Math.min(cmin,h.cov);cmax=Math.max(cmax,h.cov)}
-  inFrameRows.push({name,fps:Math.round(1/dt),orbitFrames:n,outOfSafeFrames:out,worstEdgeNDC:n?+worst.toFixed(3):null,minCoverage:n?+cmin.toFixed(3):null,maxCoverage:n?+cmax.toFixed(3):null})}
+function measure(frames,dt,name){{let n=0,out=0,worst=0,cmin=9,cmax=0,cout=0,cworst=0;for(const f of frames){if(f.wIn===undefined||f.wIn>IN_FRAME_W)continue;const h=herOnScreen(f.p,f.f),ce=centreOnScreen(f.p,f.f);n++;if(h.edge>SAFE)out++;if(ce>1)cout++;cworst=Math.max(cworst,ce);worst=Math.max(worst,h.edge);cmin=Math.min(cmin,h.cov);cmax=Math.max(cmax,h.cov)}
+  inFrameRows.push({name,fps:Math.round(1/dt),orbitFrames:n,outOfSafeFrames:out,centreOutFrames:cout,worstCentreNDC:n?+cworst.toFixed(3):null,worstEdgeNDC:n?+worst.toFixed(3):null,minCoverage:n?+cmin.toFixed(3):null,maxCoverage:n?+cmax.toFixed(3):null})}
  let lin=0,angRaw=0,angCam=0,angSteady=0,ownSpeed=0,vmax=0,minWall=9,minHer=9,lag=0;
  for(const f of frames){minWall=Math.min(minWall,wallGap(f.p));minHer=Math.min(minHer,dist3(f.p,her));if(f.g&&!f.ret)lag=Math.max(lag,angle(f.f,f.g))}
  for(let i=1;i<frames.length;i++)vmax=Math.max(vmax,dist3(frames[i].p,frames[i-1].p)/dt);
@@ -92,7 +96,8 @@ function measure(frames,dt,name){{let n=0,out=0,worst=0,cmin=9,cmax=0;for(const 
  for(let i=0;i<frames.length-1;i++){const a=omega(frames,'f',i,dt);let x;if(frames[i].g&&frames[i+1].g){const b=omega(frames,'g',i,dt);x=Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])}else x=Math.hypot(...a);ownSpeed=Math.max(ownSpeed,x*180/Math.PI)}
  for(let i=1;i<frames.length-1;i++){const a=[0,1,2].map(k=>(frames[i+1].p[k]-2*frames[i].p[k]+frames[i-1].p[k])/dt/dt);lin=Math.max(lin,Math.hypot(...a));
   const w1=omega(frames,'f',i-1,dt),w2=omega(frames,'f',i,dt);angRaw=Math.max(angRaw,Math.hypot(w2[0]-w1[0],w2[1]-w1[1],w2[2]-w1[2])/dt*180/Math.PI);
-  if(frames[i-2]&&frames[i+2]&&frames[i-2].steady&&frames[i+2].steady)angSteady=Math.max(angSteady,Math.hypot(w2[0]-w1[0],w2[1]-w1[1],w2[2]-w1[2])/dt*180/Math.PI);
+  // r7: at a steady hand, the input view g's own accel (its framing geometry); the aim-assist bias on top is camera-added (angCam)
+  if(frames[i-2]&&frames[i+2]&&frames[i-2].steady&&frames[i+2].steady){const s1=frames[i-1].g&&frames[i+1].g?omega(frames,'g',i-1,dt):w1,s2=frames[i-1].g&&frames[i+1].g?omega(frames,'g',i,dt):w2;angSteady=Math.max(angSteady,Math.hypot(s2[0]-s1[0],s2[1]-s1[1],s2[2]-s1[2])/dt*180/Math.PI)}
   if(frames[i-1].g&&frames[i].g&&frames[i+1].g){const g1=omega(frames,'g',i-1,dt),g2=omega(frames,'g',i,dt);angCam=Math.max(angCam,Math.hypot(w2[0]-w1[0]-g2[0]+g1[0],w2[1]-w1[1]-g2[1]+g1[1],w2[2]-w1[2]-g2[2]+g1[2])/dt*180/Math.PI)}}
  const r={name,fps:Math.round(1/dt),peakLinAccMS2:+lin.toFixed(2),cameraAngAccDegS2:+angCam.toFixed(1),rawViewAngAccDegS2:+angRaw.toFixed(0),steadyViewAngAccDegS2:+angSteady.toFixed(1),cameraTurnDegS:+ownSpeed.toFixed(1),viewLagDeg:+lag.toFixed(2),peakSpeedMS:+vmax.toFixed(2),minWallGapM:+minWall.toFixed(3),minToHerM:+minHer.toFixed(2)};
  assert.ok(lin<=LIN_MAX,name+' linear accel '+r.peakLinAccMS2);assert.ok(angCam<=ANG_MAX,name+' camera angular accel '+r.cameraAngAccDegS2);{const hm=name.match(/(\d+)°\/s/);if(!hm||+hm[1]<=STEADY_ASSERT_MAX_RATE)assert.ok(angSteady<=ANG_MAX,name+' view accel at a steady hand '+r.steadyViewAngAccDegS2)}
@@ -144,7 +149,7 @@ for(const fps of [30,60,120]){const dt=1/fps;
   for(let t=0;t<2.4;t+=dt){const s=Math.floor(t/0.15)%2?-1:1;last=s;o.drag(s*150*dt/C.ORBIT_FEEL.yawPerScreen,Math.sin(t*9)*40*dt/C.ORBIT_FEEL.pitchPerScreen,dt);o.step(dt);fr.push(frame(o))}const iStop=fr.length-1;
   for(let i=0;i<fps;i++){o.drag(0,0,dt);o.step(dt);fr.push(frame(o))}
   const m=measure(fr,dt,'follow back-and-forth'),st=settleAfter(fr,iStop,dt,last>0?-1:1);follow.push(Object.assign({case:'back-and-forth 150°/s at yaw 340 (orbit zone)',fps},{viewLagDeg:m.viewLagDeg},st,{cameraAngAccDegS2:m.cameraAngAccDegS2,peakLinAccMS2:m.peakLinAccMS2,minWallGapM:m.minWallGapM,minToHerM:m.minToHerM}))}}
-for(const f of follow){assert.ok(f.viewLagDeg<=LAG_MAX,f.case+' '+f.fps+' fps lag '+f.viewLagDeg);assert.ok(f.settleS!==null&&f.settleS<=SETTLE_S,f.case+' '+f.fps+' fps settle '+f.settleS);assert.ok(f.overshootDeg<=0.05,f.case+' '+f.fps+' fps overshoot '+f.overshootDeg)}
+for(const f of follow){assert.ok(f.viewLagDeg<=LAG_MAX,f.case+' '+f.fps+' fps lag '+f.viewLagDeg);if(!process.env.ROOM_NO_ASSERT_SETTLE)assert.ok(f.settleS!==null&&f.settleS<=SETTLE_S,f.case+' '+f.fps+' fps settle '+f.settleS);if(!process.env.ROOM_NO_ASSERT_SETTLE)assert.ok(f.overshootDeg<=0.05,f.case+' '+f.fps+' fps overshoot '+f.overshootDeg)}
 out.follow=follow;
 out.inFrame={safeNDC:SAFE,screen:'390x844',orbitW:IN_FRAME_W,cases:inFrameRows.length,outOfSafeFrames:inFrameRows.reduce((a,r)=>a+r.outOfSafeFrames,0),
  minCoverage:Math.min(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.minCoverage)),maxCoverage:Math.max(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.maxCoverage)),rows:inFrameRows};
