@@ -80,7 +80,8 @@ if arm and act: arm[0].animation_data_create(); arm[0].animation_data.action = a
 sc = bpy.context.scene; sc.frame_set(24)
 sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = int(os.environ.get('SAMPLES', '24')); sc.cycles.use_denoising = True
 sc.cycles.max_bounces = 3; sc.cycles.transparent_max_bounces = 16
-sc.render.resolution_x, sc.render.resolution_y = 360, 780
+RES = [int(v) for v in os.environ.get('RES', '360x780').split('x')]   # r7: RES=390x844 for the acceptance sheets
+sc.render.resolution_x, sc.render.resolution_y = RES[0], RES[1]
 w = bpy.data.worlds.new('W'); sc.world = w; w.use_nodes = True
 w.node_tree.nodes['Background'].inputs[0].default_value = (0.6, 0.78, 0.85, 1); w.node_tree.nodes['Background'].inputs[1].default_value = 1.0
 sun = bpy.data.objects.new('sun', bpy.data.lights.new('sun', 'SUN')); sc.collection.objects.link(sun); sun.data.energy = 3.0; sun.rotation_euler = (math.radians(50), 0, math.radians(35))
@@ -94,7 +95,7 @@ def coverage(p, nx=20, ny=43):
     # frame coverage by object: a ray grid over the (portrait) frame from the lens. herFrac = share of rays that hit her
     # first; nearFrac = share whose first hit is closer than 0.9 m (what fills the frame when the lens nears something).
     f = Vector(p['target']) - Vector(p['position']); f.normalize(); up = Vector((0, 1, 0)); r = f.cross(up); r.normalize(); u = r.cross(f)
-    ty = math.tan(math.radians(p['fov']) / 2); tx = ty * 360 / 780; hits = {}; near = {}; herN = 0; n = 0; herBox = [1, -1, 1, -1]
+    ty = math.tan(math.radians(p['fov']) / 2); tx = ty * RES[0] / RES[1]; hits = {}; near = {}; herN = 0; n = 0; herBox = [1, -1, 1, -1]
     for j in range(ny):
         for i in range(nx):
             sx, sy = (i + 0.5) / nx * 2 - 1, (j + 0.5) / ny * 2 - 1; d = f + r * (sx * tx) + u * (sy * ty); d.normalize()
