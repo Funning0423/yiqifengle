@@ -1,0 +1,278 @@
+# r5 A1 — 手腕补丁 / 脚部 IK 锁脚 / 骨盆下沉（候选，不进包）
+
+- 分支 `anim/r5-wrist-footik`，基线 `gbt/r5-integrated-b07-wip` @ `bc81575f`
+- 作者：角色动画bot　日期：2026-10-18
+- **冻结核对**：`tools/journey-integration/frozen-production-inputs.json` 里包含
+  `region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb`、`anim_meta.json`、`CharacterMotion.ts`。
+  三项要改的文件全在冻结清单里 → **本分支只提交本文档和对比图，没有改任何生产文件**。
+  候选 GLB、脚本、全部 QA 数据在 box `/workspace/yiqifengle/previews/角色动画bot/r5-wrist-footik/`（不进仓库）。
+- 骨骼左右是反着标的：**bone `.L` = 她的右侧，bone `.R` = 她的左侧**。下文一律写「她的右手（hand.L）」这种写法。
+
+## 0. 先说一个和派单前提不一致的地方
+派单写的是 walk 4 段里手绕手指轴扭了约 155–165°。在 `bc81575f` 的 GLB 上实测（`twist_probe.py`，按骨骼 Y 轴分解扭转）：
+
+| 片段 | 她的右手 hand.L 扭转 | 她的左手 hand.R 扭转 |
+|---|---|---|
+| idle / 4 段转身 | +3.3° | +2.0° |
+| walk_loop | −25.0° | −27.3° |
+| walk_start | 3.3° → −24.7°（渐变） | 2.0° → −27.3° |
+| walk_stop L/R | −25° → 3.3°（渐变） | −27° → 2.0° |
+
+所以 r5 上残留的扭转差约 **28°**，不是 160°（`/workspace/research/wrist/` 的图和数字是旧身体、旧 walk_loop 上做的，当时那版 walk_loop 至少有 26 帧，现在是 43 帧的 mocap 版）。
+在 r5 上真正看得出的「歪来歪去」是下面三个问题，候选修复也是针对它们的：
+1. walk_loop ↔ 四段转身交接时，手相对前臂差 **43.6° / 42.3°**（她的右手 / 左手）。
+2. **单帧跳变**：walk_start 第 38→39 帧前臂跳 58°（手跟着跳 55°）；walk_stop_bodyL/R 第 31→32 帧跳 49–64°；stand_up 第 4→5 帧前后臂和手跳 49–66°；sit_down 第 1–3 帧跳 20–30°。
+3. **手扫进裙子**：她的右手（hand.L）在 walk_loop 里**每一帧**都有顶点在裙子/围裙里面（3273 个顶点·帧），walk_start 后半段、stop 前半段也是。对比图 T2 左半边第 37–42 帧，她的右手整只没进裙子里。
+
+## 1. 手腕补丁（候选）
+做法（`wristfix.py`，全部烘成 30 fps 逐帧关键帧，只拼回改动的片段，其余片段和网格、morph 逐字节不变）：
+- walk_start / walk_loop / walk_stop_bodyL / walk_stop_bodyR：两只手的手指轴扭转改成 idle/转身的自然值（hand.L 3.3°，hand.R 2.0°），只动扭转，不动摆动。
+- 单帧跳变：跳变 > 20° 且大于该片段中位数 3 倍的帧，把前后各 3 帧换成平滑过渡（smoothstep slerp）。walk_start f38、stop L/R f31、stand_up f4、sit_down f1–3、f19–20 都处理了。
+- 外展：在 walk 4 段里给肩部加外展，从 0° 往上扫，取「扫裙 = 0」的最小值。walk_start 从 0.25 s 开始渐入（第 0 帧和 idle 完全一样），stop 从 0.45 s 开始渐出（结束帧和 idle 完全一样），walk_loop 全程都加。
+  - **她的右手（upper_arm.L，局部 X 轴）：要 11° 才是 0**（6° 还有 740，8° 还有 145，10° 还有 1）。派单里说「8° 就是 0 次」，那是旧身体上的数，r5 上不成立。
+  - **她的左手（upper_arm.R，局部 −Z 轴）：2°** 就是 0（基线的 walk_loop f26–29 有 45，stop_bodyR f4–11 有 233）。
+- sit_down / stand_up 里单帧 163° 的手翻面：r5 上按胸腔空间逐帧看，**没有 163° 那么大的翻面**。真正有的是上面那几处 20–66° 的跳变，已经一起平滑。GLB 里 stand_up upper_arm 有 q / −q 的符号翻转（dot = −1，实际只转 1–9°），Cocos 的 slerp 会走最短路径，所以看不出来，就没动它。
+
+### 扫裙穿插（手 + 前臂顶点在裙子/围裙里面的个数 ×帧，逐帧 30 fps，morph 按 anim_meta 曲线驱动）
+| 片段 | 现状 她的右手 hand.L | 现状 她的左手 hand.R | 候选 hand.L | 候选 hand.R |
+|---|---|---|---|---|
+| walk_start | 1517 | 4 | **0** | **0** |
+| walk_loop | 3273 | 45 | **0** | **0** |
+| walk_stop_bodyL | 619 | 0 | **0** | **0** |
+| walk_stop_bodyR | 278 | 233 | **0** | **0** |
+| sit_down | 0 | 0 | 0 | 0 |
+| stand_up | 1（f13） | 0 | 1（f13，没动） | 0 |
+
+### 手腕连贯性
+| 项目 | 现状 | 候选 |
+|---|---|---|
+| walk_loop ↔ 转身交接，手相对前臂（她的右手 / 左手） | 43.6° / 42.3° | 30.7° / 29.4°（剩下的是手腕摆动差，不是扭转） |
+| idle→walk_start、walk_start→walk_loop、walk_loop→stop、stop→idle 交接 | ≤ 0.2° | ≤ 0.2°（没变坏） |
+| walk_start 单帧最大跳变（她的右手 / 左手） | 55.3° / 29.1° | 12.4° / 7.3° |
+| walk_stop_bodyL 单帧最大跳变 | 52.7° / 53.9° | 9.0° / 11.6° |
+| walk_stop_bodyR 单帧最大跳变 | 61.0° / 39.8° | 12.2° / 6.1° |
+| sit_down 单帧最大跳变 | 29.2° / 18.8° | 19.2° / 19.2° |
+| sit_down→sit_hold、sit_hold→stand_up 交接 | 82° / 66–74° | 没动（坐姿另案） |
+
+### 其他 QA（候选 vs 现状）
+| 片段 | 腿出裙 | 脚滑 她的右脚 / 左脚 mm | 两脚重叠 | 上臂正面外展角最大值 hand.L 侧 |
+|---|---|---|---|---|
+| walk_start | 7 → 7 | 15.8/7.8 → 15.4/7.8 | 0 | 17.5° → **28.0°** |
+| walk_loop | 9 → 9 | 11.1/2.6 → 10.6/2.6 | 0 | 17.5° → **28.0°** |
+| walk_stop_bodyL | 0 → 0 | 9.7/7.9 → 8.8/7.7 | 0 | 14.4° → 25.1° |
+| walk_stop_bodyR | 0 → 0 | 16.1/15.9 → 16.1/14.8 | 0 | 19.6° → 22.7° |
+
+**要拍板的风险：** 她的右臂要外展 11° 才能完全不扫裙，正面看上臂和身体的夹角最大从 17.5° 变成 28°（转身片段本来最大也有 22–24°）。对比图 T2 右半边第 34–36 帧能看出右手离裙子稍远一点。我自己看的感觉是不算张开，但处在边界上。备选方案：外展 8° + 裙子/围裙侧面收窄约 1 cm（角色建模bot 那边），那样扫裙会剩下约 145，需要靠网格来消掉。
+
+对比图（左 = 现状 bc81575f，右 = 候选；每个交接都是前一段最后 5 帧 + 后一段开头 5 帧；`herR` 是镜头在她右侧，看她的右手 hand.L；`herL` 是镜头在她左侧，看她的左手 hand.R）：
+- T1 idle→walk_start：`img/T1_herR.jpg` `img/T1_herL.jpg`
+- T2 walk_start 34–43（含 f38 跳变，进 walk_loop 段）：`img/T2_*.jpg`
+- T3 walk_loop→walk_turn_90_bodyL：`img/T3_*.jpg`
+- T4 walk_turn_180→walk_loop：`img/T4_*.jpg`
+- T5 walk_loop→walk_stop_bodyL：`img/T5_*.jpg`
+- T6 walk_stop_bodyR 27–36（f31 跳变）：`img/T6_*.jpg`
+- T7 walk_stop_bodyL→idle：`img/T7_*.jpg`
+- T8 sit_down→sit_hold：`img/T8_*.jpg`
+- T9 sit_hold→stand_up（含 f4 跳变）：`img/T9_*.jpg`
+- T10 stand_up→idle：`img/T10_*.jpg`
+
+## 2. 脚部 IK 锁脚移植：只出方案（冻结 + 禁改文件）
+- 参考包 `0001-foot-ik…patch`（5d7fbce）改的是 `CharacterMotion.ts`、`WorldIntegrationBoot.ts`、`anim_meta.json`、`test_locomotion.cjs`。其中 CharacterMotion.ts 和 anim_meta.json 既在冻结清单里，也是禁改文件，所以**没有移植进分支**。
+- 在临时 worktree 里对 bc81575f 做了三方合并试验（`cherry-pick -n`，试完就删了）：CharacterMotion.ts 有 1 处大冲突，WorldIntegrationBoot.ts 有 4 处，anim_meta.json 有 2 处。原因是 **r5 已经有 `SoleContactSolver` 了**：混合之后在世界空间锁鞋底刚体接触点，有 turn landing / settle 计划，用的是 `anim_meta.sole_contact`。它是旧 `FootLock`（踝关节两骨 IK + `foot_ik`）的后继版本，两者都挂在 `render()` 里 `rig.apply()` 之后，同一个位置。
+- **建议：不要移植旧 FootLock**，会和 SoleContactSolver 抢同一副腿。旧包里还有用的只有一样：`seatedOutfit` 坐姿换装时间点。它要等混元坐姿网格到了，再单独开一个提交。弹簧骨脚本（`art-src/proto/walk-sit/`）按要求不带。
+- 如果一定要比较两种做法，得等冻结解除，由能改 CharacterMotion.ts 的人在 SoleContactSolver 上做 A/B，用 `tools/walk-driver/test_locomotion.cjs` 的 `slideOf` 量。
+- 运行时滑步没测：`node tools/walk-driver/test_walk_driver.cjs` 在**未改动的 bc81575f** 上就失败，报 `returnHome {"ok":false,"reason":"TypeError: Cannot read properties of undefined (reading 'points')"}`，所以拿不到运行时滑步的数（typescript 用的是 `/tmp/qfts/node_modules/typescript`）。
+
+## 3. 起步、转身中段滑步：骨盆下沉原型（评估结论：这一版不建议用）
+r5 上**动画片段本身**的滑步（脚底接地点、根运动按 anim_meta 走，2 次采样/帧）：walk_start 15.8 mm，walk_turn_90_bodyL **36.9 mm**（她的右脚），walk_turn_180_bodyR 17.6/19.0 mm。派单里的 50–70 mm 是旧 int/v1 运行时（根节点锁路径）的数。
+
+原型 `pelvis.py`：站立期按鞋底支点（逐帧最低的那个鞋底顶点，锁在它第一次落地的世界位置）做解析两骨 IK，膝盖保持在原来的弯曲平面里，脚的朝向保留原样。P0 = 只加 IK，P1 = IK + 骨盆下沉（腿够不着时才下沉，上限 40 mm，平滑过）。前后试了两轮（踝关节锁 → 鞋底支点锁），按「最多重试 2 次」的规则停在这里。
+
+| 片段 | 版本 | 她的右脚 / 左脚滑步 mm | 膝最小角 | 膝加速度尖峰比 | 下沉最大 mm | 腿出裙 |
+|---|---|---|---|---|---|---|
+| walk_start | 现状 | 15.8 / 7.8 | 10.5° | 13.8 | – | 7 |
+| | P0 | 16.4 / 8.0 | **4.7°（接近绷直）** | 12.9 | 0 | 13 |
+| | P1 | 17.0 / 8.2 | 10.5° | 15.9 | 6.4 | 8 |
+| walk_turn_90_bodyL | 现状 | 36.9 / 10.9 | 10.5° | 16.5 | – | 0 |
+| | P0 | 43.2 / 13.9 | 9.2° | 16.9 | 0 | 0 |
+| | P1 | 43.2 / 16.4 | 11.7° | **7.3** | 4.3 | 0 |
+| walk_turn_180_bodyR | 现状 | 17.6 / 19.0 | 10.5° | 40.9 | – | 0 |
+| | P0 | 15.9 / 10.8 | 9.5° | 39.2 | 0 | 0 |
+| | P1 | 16.0 / **10.8** | 11.6° | **16.5** | 3.6 | 0 |
+
+结论：
+- 骨盆下沉本身是有用的：只加 IK 时膝盖会被拉直（4.7°），加了下沉就保住了（≥ 10.5°），转身的膝盖尖峰也减了一半多。
+- **但滑步没有降下来**（只有 turn_180 她的左脚从 19 降到 10.8 mm）。原因：转身的根运动是线性 yaw，脚站着的时候整只脚跟着根一起转，鞋底各点绕根中心划弧。这一版只锁了支点的位置，脚的朝向保留在片段局部，所以世界里还在转。下一步要做的是**站立期把脚的 yaw 也反向锁住**（脚的朝向跟世界走，不跟根走），起步要把 heel→toe 滚动的支点连续切换做顺。这一块和 r5 运行时 SoleContactSolver 的 turn landing 是重叠的，建议先等驱动那边确认：转身滑步是在动画片段里修，还是交给运行时修，然后再继续。
+- 这几处的候选 GLB 没进包，只在 previews 里。
+
+## 测了什么 / 没测什么
+- 测过：box 上 Blender 4.5.3 逐帧（30 fps，morph 按 anim_meta 曲线驱动）扫裙穿插、手腕扭转和单帧跳变、交接角度、`loco_qa`（脚滑、膝盖、两脚重叠、交接）、`walk_clipcheck`（腿出裙、裙子穿围裙）、`walk_qa_arms`（手臂外展）；对比图 20 张自己逐张看过（T2、T3、T6、T9 重点看过）。
+- 没测：Cocos 构建、真机、Mac 开发者工具；运行时驱动套件（基线就失败，见上）；候选 GLB 没走项目的动画压缩，大小 3.56 MB，基线 3.58 MB。
+- `walk_clipcheck` 的 `arm_in_dress` 在这版身体上没法用：DRESS 网格包含袖子，上臂永远「在裙子里」。所以扫裙改用自己写的指标：手 + 前臂顶点，对比髋部以下的裙子/围裙面，3 cm 内法线判内外。
+
+---
+# v2（2026-10-18 验收反馈后）：手臂只跟 mocap，改让裙子避让
+
+**验收结论（用户经 Grok Bot 决定）：** 两个外展方案（11°、8° + 收裙）都**否决**。手和手臂一律不往外转，看着像手断了。上面 §1 里的扭转改值和外展全部作废。脚部 IK 不移植；骨盆下沉不用，转身滑步交给运行时 SoleContactSolver（Mac Cursor 那边做），这里不碰。
+
+## v2 候选（只在 previews，不进包）
+1. `cand_snap.glb`：只保留单帧跳变平滑（walk_start f38、stop L/R f31、stand_up f4、sit_down f1–3/f19–20，前后各 3 帧 slerp）。手腕扭转和肩部角度**全部是原 mocap**。片段间的交接混合照旧由驱动做 0.2 s crossfade。
+2. `cand_v2.glb` = cand_snap + **裙骨避让烘焙**（方案 a，`skirtpush.py`）：每帧检查手 + 前臂有没有扎进髋部以下的裙子/围裙，有的话找离手最近的顶层裙骨（skirt.left / right / front / back），绕骨头根部转，让骨尾水平离开手。每次加 1.5°，直到 0 穿插，再乘 1.15 留余量。然后在时间上做 ±2 帧保峰值 + 5 帧平均（walk_loop 按循环处理），保证不抖、能渐入渐出。裙子和围裙共用同一组裙骨，所以两层一起动，不会互穿。
+
+## 数字（逐帧 30 fps，morph 按 anim_meta 驱动）
+| 片段 | 扫裙 现状 她的右手 hand.L / 左手 hand.R | v2 | 裙骨最大避让角 | 帧间最大变化 / 加速度（°/帧, °/帧²） |
+|---|---|---|---|---|
+| walk_start | 1517 / 4 | **0 / 0** | skirt.left 17.2°、front 13.8°、right 1.7° | 3.45 / 3.8 |
+| walk_loop | 3273 / 45 | **0 / 0** | skirt.left 19.0°、front 5.2°、right 3.5° | 3.45 / 2.4 |
+| walk_stop_bodyL | 619 / 0 | **0 / 0** | skirt.left 8.6°、front 1.7° | 1.38 / 0.7 |
+| walk_stop_bodyR | 278 / 233 | **0 / 0** | skirt.right 8.6°、left 6.9°、front 3.5° | 1.87 / 1.0 |
+
+（skirt.left 一边的避让对应她的右手 hand.L，以骨骼名为准。）
+
+- **手臂和身体的夹角：和 mocap 完全一样。** 上臂正面外展最大值：walk_start 17.5/16.6°，walk_loop 17.5/13.8°，stop L 14.4/19.9°，stop R 19.6/12.6°，现状和 v2 一字不差。elbow_x 也一样。
+- **裙子和围裙互穿（dress_out_apron）：** 现状 0，v2 也是 0。**腿露出裙子：** 7→6、9→7、0、0，没有变坏。
+- **交接：** walk_loop→stop_bodyL 进入时裙骨差 3.2°（skirt.left.low），其余都在 1.4° 以内，idle 两端的交接没变（≤0.18°）。
+- **脚滑、膝盖：** 和现状一样（这一版没动腿）。
+
+## 看图（左 = 现状 bc81575f，右 = v2）
+`img_v2/T2_*`（walk_start 34–43）、`img_v2/L1_*`（walk_loop 每 4 帧）、`img_v2/T5_*`（walk_loop→stop L）、`img_v2/T6_*`（stop R 2–11）、`img_v2/T3_*`（walk_loop→转身 90L）。我自己重点看了 T2_herR 和 L1_herR：
+- 现状：她的右手在 walk_start 第 37–42 帧整只没进裙子里。v2：手一直在裙子外面，手臂摆动和现状一模一样，看着自然。
+- **v2 的副作用：** 她右侧的裙摆在手经过时会被**往里压一点**（walk_loop f4–f12 能看到右侧裙子的轮廓变直、略凹），不撑帐篷，没有抖动，但左右两边的裙摆会有点不对称。原因是 skirt.left 要转到 19°，裙子侧面本来鼓得太宽。
+
+## 方案（建议的组合）
+- **(a) 动画侧（已做原型）：** 裙骨避让烘焙，或者以后做成运行时胶囊体推裙骨。运行时版本要改 CharacterMotion.ts（冻结/禁改），所以先给离线烘焙版。
+- **(b) 网格侧（要角色建模bot 做）：** 把裙子和围裙在髋部以下、手臂摆动经过的两侧（大约腰下 5–25 cm，侧缝前后各 ±8 cm）收窄约 1–1.5 cm，或者把这一圈的权重从 skirt.*.low 往 skirt.* 移一点，让裙骨转起来更顺。收窄以后，(a) 需要的避让角估计能从 19° 降到 8° 以内，侧面压凹基本就看不出来了。
+- 两样都做好以后，我在新网格上重跑 skirtpush，出最终对比。
+
+## 测了什么 / 没测什么（v2）
+- **测过：** Blender 4.5.3 逐帧扫裙、loco_qa、walk_clipcheck、walk_qa_arms、裙骨抖动指标；10 张 v2 对比图里看了 2 张（T2_herR、L1_herR）。
+- **没测：** Cocos 构建、真机；运行时胶囊体版本（因为冻结没做）；sit_down/stand_up 这一版没有加避让（扫裙本来就是 0 / 1）。
+
+---
+# v3（收窄裙 + mocap 手臂 + 跳变平滑 + 裙骨避让）—— **还没达标：最大避让角 19°，目标 ≤ 8°**
+
+输入：角色建模bot 的 `previews/角色建模bot/r5-skirt-tuck/chr_b_r5g2_skirt-tuck_TEST.glb`（只动了 DRESS/APRON 顶点）+ v2 的手臂动画（原 mocap + 单帧跳变平滑）。避让脚本是 `skirtpush3.py`，额外记录每帧的接触区域。候选文件：`previews/角色动画bot/r5-wrist-footik/v3/cand_v3.glb`。
+
+| 片段 | 避让前扫裙 她的右手 hand.L / 左手 hand.R（v2 网格 → 收窄网格） | v3 避让后 | 最大避让角（v2 → v3） | 帧间 Δ / Δ²（°） |
+|---|---|---|---|---|
+| walk_start | 1395/4 → 1207/3 | **0/0** | skirt.left 17.2 → **15.5**，front 13.8 → **13.8** | 3.11 / 3.8 |
+| walk_loop | 3273/45 → 2657/44 | **0/0** | skirt.left 19.0 → **19.0**，front 5.2，right 3.5 | 3.45 / 2.4 |
+| walk_stop_bodyL | 619/0 → 609/0 | **0/0** | skirt.left 8.6 → **8.6** | 1.38 / 0.7 |
+| walk_stop_bodyR | 278/233 → 227/215 | **0/0** | left 6.9 → 5.2，right 8.6 → 6.9 | 1.44 / 0.7 |
+
+- 手臂角度和 mocap 一样（上臂外展最大值 walk_start 17.5/16.6°，walk_loop 17.5/13.8°，stop L 14.4/19.9°，stop R 19.6/12.6°，和现状一字不差）。
+- 裙子和围裙互穿 0。腿露出裙子：walk_start 7→6，walk_loop 9→7，两个停步都是 0→0。脚滑、膝盖不变。交接时裙骨差 ≤ 3.2°（进 walk_stop_bodyL，skirt.left.low）。
+- 收窄让扫裙穿插少了约 20%，但**需要的避让角基本没变**，因为接触点在收窄区域外面（见下）。
+
+## 接触区域（给角色建模bot；距离以 hips 关节为原点，向下为正，「侧向」是离身体中线的水平距离，「向前」为正）
+| 片段 | 手 | 帧（避让 > 8° 的帧） | 主要避让骨 | 腰下（hips 关节下） | 侧向 | 前后 |
+|---|---|---|---|---|---|---|
+| walk_loop | **她的右手 hand.L** | 每帧都碰；f1–f36 有 30 帧要 > 8° | skirt.left（+ skirt.front 5°） | **21.7–25.5 cm** | 她右侧 15.7–23.8 cm | **−1 ~ +19 cm（侧缝往前一直到前片）** |
+| walk_start | 她的右手 hand.L | f39–f58（20 帧都 > 8°） | skirt.left 15.5°，skirt.front 13.8° | 21.6–27.3 cm | 她右侧 16.1–23.8 cm | +2.9 ~ +19.5 cm |
+| walk_stop_bodyL | 她的右手 hand.L | f0–15，> 8° 的是 f6–f11 | skirt.left 8.6° | 23.9–24.9 cm | 她右侧 23.5–25.9 cm | −1 ~ +7 cm |
+| walk_loop | 她的左手 hand.R | f26–29（< 8°） | skirt.right 3.5° | 25–27.7 cm | 她左侧 19–21 cm | 0 ~ +12 cm |
+| walk_stop_bodyR | 她的左手 hand.R | f4–11（< 8°） | skirt.right 6.9° | 23.6–26 cm | 她左侧 20–25 cm | −3 ~ +10 cm |
+
+**结论：** 要收的地方在**她的右侧**（骨骼 .L 那边，裙骨 skirt.left）。高度大约是 hips 关节下 **21–28 cm**，正好在现在收窄带（腰下 5–25 cm）的下沿，还往下超出约 3 cm。前后方向从侧缝往**前 0–20 cm**，现在只收了 ±8 cm，前面那段没覆盖到。侧向上，手离中线 16–24 cm，那一圈裙子还要再往里收（估计 15–20 mm）才能把避让降到 8° 以内。她左侧需要的量小（避让 ≤ 7°），收窄可以少一些。
+
+## 看图（左 = 现状 bc81575f，右 = v3；12 张我都看过）
+- **正前方：`img_v3/FB_front.jpg`**；**正后方：`img_v3/FB_back.jpg`**（walk_loop 每 4 帧）
+- 侧面：`img_v3/T2_herR|herL.jpg`（walk_start 34–43）、`L1_*`（walk_loop）、`T5_*`（进 stop L）、`T6_*`（stop R）、`T3_*`（进转身 90L）
+
+我看到的：
+- **正后方（最明显）：** v3 的 f0、f28、f32 这几帧，她右侧（画面右边）的裙摆轮廓被明显往里收，左右不对称。f28 那一侧还出现一条竖着的折痕，看起来像一块平板。这就是 skirt.left 转了 19° 的结果。**我认为用户会觉得不行。**
+- **正前方：** v3 整体比现状窄一点（收窄的效果）。她右侧（画面左边）在 f28–f36 看得出被收进去，左右轻微不对称，没有撑帐篷，也没看到抖动。
+- **她的右侧近景（L1_herR、T2_herR、T5_herR）：** 手一直在裙子外面，手臂摆动和现状完全一样，自然。裙子侧面在手经过时变直、略凹，walk_start f39–43 最明显。
+- **她的左侧近景（*_herL）：** 和现状几乎看不出差别，没有凹陷。
+- **转身交接（T3）：** 转身片段没加避让，交接处没有跳变。
+- 所有图都没看到裙子和围裙互穿、撑帐篷或腿戳出来。
+
+## 测了什么 / 没测什么（v3）
+- **测过：** Blender 4.5.3 逐帧（30 fps，morph 按 anim_meta 驱动）扫裙和接触区域、loco_qa、walk_clipcheck、walk_qa_arms、裙骨 Δ/Δ² 指标，12 张对比图都看过。
+- **没测：** Cocos 构建、真机；转身和坐姿片段没加避让（转身本来就是 0 扫裙）；候选 GLB 没压缩。
+
+---
+# v4（tuck v2 + mocap 手臂 + 跳变平滑 + 裙骨避让）—— **还没达标：最大避让角 15.5°（目标 ≤ 8°）**
+
+输入：`previews/角色建模bot/r5-skirt-tuck/chr_b_r5g2_skirt-tuck_TEST_v2.glb` + v2 的手臂动画。候选文件：`previews/角色动画bot/r5-wrist-footik/v4/cand_v4.glb`。
+
+**帧号说明：** 我用的是 `bc81575f` GLB 里的 walk_start，时长 1.933 s，**58 帧 @ 30 fps（f0–f58）**，和 anim_meta 一致。Blender 导入时默认按 24 fps 排帧，所以同一段看到的是 f0–f46。两者换算：30 fps 的帧号 ×0.8 = 24 fps 的帧号。比如我写的 f40–58，在 24 fps 时间轴上就是 f32–46。本文所有帧号都是 30 fps。
+
+| 片段 | 避让前扫裙 她的右手 hand.L / 左手 hand.R（原网格 → tuck v1 → tuck v2） | v4 避让后 | 最大避让角（v3 → v4） | 帧间 Δ / Δ²（°） |
+|---|---|---|---|---|
+| walk_start | 1395/4 → 1207/3 → 863/0 | **0/0** | skirt.left 15.5 → **12.1**，front 13.8 → **6.9** | 2.42 / 2.42 |
+| walk_loop | 3273/45 → 2657/44 → 1863/0 | **0/0** | skirt.left 19.0 → **15.5**，front 1.7 | 2.42 / 1.72 |
+| walk_stop_bodyL | 619/0 → 609/0 → 309/0 | **0/0** | skirt.left 8.6 → **5.2** | 1.04 / 0.35 |
+| walk_stop_bodyR | 278/233 → 227/215 → 74/65 | **0/0** | left/right 3.5 | 0.86 / 0.69 |
+
+- 手臂角度和 mocap 一字不差。裙子和围裙互穿 0。腿露出裙子：walk_start 7→6，walk_loop 9→7，两个停步 0→0。腿到裙子最小间隙：walk_loop 0.3 mm（现状也是 0.3），walk_start 0.8→0.9，stop L 5.2，stop R 7.8→8.6，**收紧以后没有变差**。交接时裙骨差 ≤ 3.2°。
+- **她的左手已经不用避让了**（tuck v2 让左侧完全不碰）。剩下的都在**她的右手 hand.L / 裙骨 skirt.left**。
+
+## 剩余的接触区域（hips 关节为原点，向下 / 向前为正）
+| 片段 | 手 | 碰到的帧 | 要 > 8° 的帧 | 腰下 | 侧向（离中线） | 前后 |
+|---|---|---|---|---|---|---|
+| walk_loop | 她的右手 hand.L | f1–f42（几乎每帧） | f2–f35 里 23 帧 | 22.9–26.1 cm | 她右侧 16.1–23.2 cm | +1.2 ~ +17.7 cm |
+| walk_start | 她的右手 hand.L | f40–f58 | f40–f58 里 14 帧 | 23.0–26.9 cm | 她右侧 16.7–23.3 cm | +2.8 ~ +17.5 cm |
+| walk_stop_bodyL | 她的右手 hand.L | f1、f4–13 | 无（5.2°） | 22.6–25.8 cm | 15.5–25.4 cm | −1.3 ~ +19.2 cm |
+
+接触点已经**落在 tuck v2 的全强度区里**（腰下 17–30 cm、侧缝往前 0–20 cm），所以问题不在范围，而在**深度**。在 tuck v2 上，没避让时手和前臂扎进裙子的深度在 walk_start f42/f53、walk_loop f7 达到我量程的上限 **≥ 30 mm**（量程 3 cm）。而 tuck v2 在这一带最多只收了 17.5 mm，靠近腿的地方还被 6 mm 走路间隙限制住。也就是说，单靠网格往里收、又要保住腿的间隙，**她右侧很难再收出 10 mm 以上**。原因在 mocap 本身：她的右手往前摆时离身体比左手近约 3–4 cm，左右不对称。
+
+## 看图（左 = 现状 bc81575f，右 = v4；12 张我都看过）
+- **正前方：`img_v4/FB_front.jpg`**；**正后方：`img_v4/FB_back.jpg`**
+- 侧面：`img_v4/T2_*`、`L1_*`、`T5_*`、`T6_*`、`T3_*`（herR / herL）
+
+我看到的：
+- **正后方：** f0、f28、f32 她右侧（画面右边）的裙摆还是比左侧往里收，左右不对称，比 v3 轻一些。**f28 的竖向折痕还在**，比 v3 淡，但还看得出来，像一块平板。
+- **正前方：** 裙子整体比现状窄、干净，左右基本对称；f28–f36 她右侧（画面左边）轻微内收；没有撑帐篷、没有抖动。
+- **她右侧近景：** 手一直在裙子外面，摆动自然；手经过时裙子侧面变直，walk_start f39–43 最明显，比 v3 弱。
+- **她左侧近景：** 和现状看不出差别（左侧已经不用避让了）。
+- **转身交接：** 没有跳变。所有图里都没看到裙子和围裙互穿、撑帐篷或腿戳出来。
+
+## 下一步可以选的方向（要用户定）
+1. **接受 v4：** 正面看已经不错，背面还有轻微不对称和 f28 的淡折痕。
+2. **只给她的右侧再收约 10 mm：** 这样左右不对称，要角色建模bot 判断腿的间隙够不够；我估计做到了避让能降到 8° 左右。
+3. **允许避让分到两根骨上：** skirt.left 加 skirt.left.low 一起转（各约 8°），折痕会分散开、变淡，不用再改网格。这一项我这边就能做，需要你点头。
+4. **在 walk_loop 的 f2–f35 这一段，给她右手的 mocap 加一点很小的"往前偏"**（不是往外转）：要用户确认算不算违反"手臂只跟 mocap"。
+
+## 测了什么 / 没测什么（v4）
+- **测过：** Blender 4.5.3 逐帧（30 fps）扫裙、接触区域、扎入深度、loco_qa、walk_clipcheck（含腿到裙子间隙）、walk_qa_arms、裙骨 Δ/Δ²，12 张对比图都看过。
+- **没测：** Cocos 构建、真机；转身和坐姿片段没加避让；候选 GLB 没压缩。
+
+---
+# v5（方案 3：避让分到 skirt.X + skirt.X.low 两根骨）—— **没成功，最终推荐还是 v4**
+
+输入：tuck v2 网格 + v2 手臂动画（`v4/tuck_snap.glb`），脚本 `skirtpush5.py`（两根骨各分 50%）。候选文件：`previews/角色动画bot/r5-wrist-footik/v5/cand_v5.glb`。另外试了一版 62/38 的分配（`v5b/`，没出图）。前后共 2 次尝试，按规则停在这里。
+
+## 每根骨的最大角（30 fps；Δ / Δ² 单位 °/帧、°/帧²）
+| 片段 | v4 skirt.left（只有它一根） | v5 skirt.left | v5 skirt.left.low | v5b（62/38）left / left.low | v5 skirt.front / front.low |
+|---|---|---|---|---|---|
+| walk_loop | 15.5（Δ 2.42，Δ² 1.72） | **14.7**（2.41 / 1.55） | **14.7**（2.41 / 1.55） | 14.9 / 9.2 | 1.7 / 1.7 |
+| walk_start | 12.1 | 12.1（2.42 / 2.59） | 12.1（2.42 / 2.59） | 11.8 / 7.2 | 6.9 / 6.9（Δ² 1.9） |
+| walk_stop_bodyL | 5.2 | 5.2 | 5.2 | 5.3 / 3.3 | 0.9 / 0.9 |
+| walk_stop_bodyR | 3.5（right 3.5） | 3.4（right 3.5 / right.low 3.5） | 同左 | – | 0.9 / 0.9 |
+
+**为什么分不下去：** skirt.left 和 skirt.left.low 的关节正好在 hips 下 **23.5 cm**，而手碰到的位置就在 22.9–26.1 cm。转 .low 几乎移动不了接触点，所以要分出 8° 给它，上面那根骨还是得转 15° 左右，总角度反而翻倍（walk_loop 合计 29.3°，v4 只要 15.5°）。
+
+## 其他 QA（v5 vs v4）
+- 扫裙穿插：0 / 0（两版一样）。手臂角度：和 mocap 一样。
+- **裙子和围裙互穿：walk_start v4 是 0，v5 是 58** ✗（skirt.front.low 一转，裙子就穿到围裙前片外面了）。
+- **交接：** 进 walk_stop_bodyL 时裙骨差 v4 3.2°，**v5 7.1°（skirt.left.low）** ✗，看起来会跳一下。
+- 腿露出裙子、腿到裙子间隙：和 v4 一样（6/7/0/0；0.9/0.3/5.2/8.6 mm）。
+
+## 看图（左 = **v4**，右 = v5；12 张我都看过）
+- **正后方：`img_v5/FB_back.jpg`**；**正前方：`img_v5/FB_front.jpg`**；侧面：`img_v5/T2_* L1_* T5_* T6_* T3_*`
+- **正后方：** v5 的 f0、f4、f32、f36 她右侧（画面右边）的**下摆往外翘**（.low 一转就把下摆甩出去了），左右比 v4 还不对称。f28 的折痕没有变淡，位置往下挪了一点。**比 v4 差。**
+- **正前方：** v5 她右侧（画面左边）的下摆在 f0、f32 往外撇，轮廓呈锯齿状；v4 比较平顺。
+- **她右侧近景（T2/L1/T5 herR）：** v5 下摆的波纹更大，walk_start f40–43 下摆往外甩。手臂和 v4 一模一样。
+- **她左侧近景（herL）、转身交接（T3）：** 和 v4 看不出差别。
+
+## 最终推荐：**v4**（`previews/角色动画bot/r5-wrist-footik/v4/cand_v4.glb`）
+- v4：手臂是原 mocap，扫裙 0，裙子和围裙互穿 0，腿露出裙子和间隙都没变坏，交接 ≤ 3.2°，不抖。剩下的问题只有背面轻微不对称和 f28 的淡折痕，避让角最大 15.5°（只有 walk_loop 和 walk_start 超过 8°）。
+- v5：裙子和围裙互穿、交接跳 7°、下摆外翘，三项都不合格，不推荐。
+- 如果还想把 f28 的折痕再压淡，又不改手、不改网格，剩下能做的是在 walk_loop 里给 skirt.back 一点点跟随（让背片跟着侧片走），这一版没做。
+
+## v6 — skirt.back follows side panels 30% (REJECTED, final = v4)
+- skirt.back rotated about forward axis by 0.3×(left−right avoidance), sign chosen to follow the tucked panel; max 4.7° (walk_loop), 3.6° (start).
+- Metrics vs v4: penetrations 0/0, dress/apron crossing 0/0, handoffs equal (stop_bodyL 3.57°) — BUT legs-out-of-skirt worse (walk_start 6→8, walk_loop 7→9) and walk_loop leg↔dress clearance 0.3→0.0 mm.
+- Images img_v6/FB_back.png, FB_front.png (left v4, right v6): f28 back crease and her-right indent look the same; no visible improvement; front unchanged.
+- Decision per rule: keep v4. Final handoff → INTEGRATE.md.
