@@ -30,7 +30,7 @@ r10 曲率、取景、运动、free-orbit、keepinside、meadow-pitchfloor 均 P
 2. 天空城南边：玩家跟随镜头，节点 S6 本地 [0.2, 0.032, -27.8]，yaw 1.2，距角色 7.8 m，前方 80 m 无遮挡。画面是亮的草地、草丛、花、远处水面和天。`02_skycity_south.png`，亮度均值 137.6。亮的植被在这张里。
 3. 从这只南边镜头再往前，以及更低的机位，看到的是南侧岩层的暗面（亮度均值 35–50）。任务夹里的 `03_*` 是这些暗面。
 
-环境音来自运行中的 bed，日志 `shots/audio-switch.log`。小岛 gulls、waves、wind。草原 birds、insects，gulls 为 false。天空城 highWind，无海鸥、无鸟。
+环境音来自运行中的 bed，日志在任务夹 `shots/audio-switch.log`，仓库副本 `docs/r5/build09/shots/audio-switch.txt`。小岛 gulls、waves、wind。草原 birds、insects，gulls 为 false。天空城 highWind，无海鸥、无鸟。
 
 ## 桌面与遗留
 
