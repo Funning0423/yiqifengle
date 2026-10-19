@@ -152,10 +152,10 @@ export class WorldNativeComposition extends Component {
     const commands=this.world!.commands();
     let current=commands.snapshot().journey?.region||'island';
     if(current===target&&!commands.snapshot().journey?.target)return {ok:true};
-    // 风铃湖畔 is a side branch off the island (island→lakeside, LakesideCameraLayout.lakesideJourney). It is not a mainline
-    // campaign region (its r04-lake-* stages are gated by CampaignHost.inspectSelection in selectProvider/enterSelectedLevel).
+    // 风铃湖畔 follows 天空之城 (skycity→lakeside). It is not a mainline campaign region (its r04-lake-* stages are gated
+    // by CampaignHost.inspectSelection in selectProvider/enterSelectedLevel, after mainline record 11).
     if(target!=='lakeside'){const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;}
-    const order:JourneyRegion[]=target==='lakeside'?['island','lakeside']:['island','meadow','skycity'];
+    const order:JourneyRegion[]=['island','meadow','skycity','lakeside'];
     if(!order.includes(current)||order.indexOf(target)<order.indexOf(current))return {ok:false,reason:'return-route-not-yet-available'};
     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;}
     return {ok:true};

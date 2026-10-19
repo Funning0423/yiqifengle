@@ -7,13 +7,15 @@ function load(rel,req){const file=path.join(S,rel);const js=ts.transpileModule(f
 const jt=load('region/JourneyTransport.ts',()=>({}));
 assert.equal(jt.JOURNEY_TRANSPORT['island-meadow'],'sail');
 assert.equal(jt.JOURNEY_TRANSPORT['meadow-skycity'],'balloon');
-assert.equal(jt.JOURNEY_TRANSPORT['island-lakeside'],'bridge');
+assert.equal(jt.JOURNEY_TRANSPORT['island-lakeside'],undefined);
+assert.equal(jt.JOURNEY_TRANSPORT['skycity-lakeside'],'balloon');
 assert.equal(jt.transportFor('island','meadow',null),'sail');
 assert.equal(jt.transportFor('meadow','skycity',null),'balloon');
+assert.equal(jt.transportFor('skycity','lakeside',null),'balloon');
 assert.equal(jt.transportFor('skycity','island',null),'bridge');
-assert.equal(jt.transportQaOverride('?transport=bridge',null),'bridge');
+assert.equal(jt.transportQaOverride('?transport=bridge',null),null);
 assert.equal(jt.transportQaOverride('?transport=bridge',{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})}),null);
-assert.equal(jt.transportFor('island','meadow','bridge'),'bridge');
+assert.equal(jt.transportFor('island','meadow','bridge'),'sail');
 const adapter=fs.readFileSync(path.join(S,'region/RegionJourneyAdapter.ts'),'utf8');
 assert(/function rainbowBridge\(/.test(adapter),'rainbow helper remains');
 assert(/prepareTransportLeg|sailPrepare|transportFor\(/.test(adapter),'sail branch');

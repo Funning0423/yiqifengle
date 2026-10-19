@@ -12,7 +12,7 @@ export type JourneySnapshot = Readonly<{phase:JourneyPhase;region:JourneyRegion;
 const dist=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 export const routeLength=(p:readonly Vec[])=>p.slice(1).reduce((n,b,i)=>n+dist(p[i],b),0);
 export function sampleRoute(path:readonly Vec[],distance:number):Vec {
- let left=Math.max(0,distance);for(let i=1;i<path.length;i++){const d=dist(path[i-1],path[i]);if(d>0&&left<=d){const a=path[i-1],b=path[i],t=left/d;return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}left-=d;}return path[path.length-1];
+ let left=Math.max(0,distance);for(let i=1;i<path.length;i++){const d=dist(path[i-1],path[i]);if(d>0&&left<=d){const a=path[i-1],b=path[i],t=left/d;if(i===path.length-1&&left>d-1e-9)return [b[0],b[1],b[2]]/* exact end vertex: a dense route's float sum lands a hair short */;return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}left-=d;}return path[path.length-1];
 }
 export function remainingRoute(path:readonly Vec[],distance:number):Vec[] {
  const result:Vec[]=[sampleRoute(path,distance)];let walked=0;for(let i=1;i<path.length;i++){walked+=dist(path[i-1],path[i]);if(walked>distance+1e-6)result.push(path[i]);}return result;
@@ -20,10 +20,14 @@ export function remainingRoute(path:readonly Vec[],distance:number):Vec[] {
 export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  if(!route.path||route.path.length<2||route.path.some(p=>p.length!==3||p.some(n=>!Number.isFinite(n))))throw Error('journey-invalid-path');
  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
- if(!((route.from==='island'&&(route.to==='meadow'||route.to==='lakeside'))||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
+ if(!journeyRegionOrderOk(route.from,route.to))throw Error('journey-region-order');
  if(route.timing!==undefined&&!journeyTimingOk(routeLength(route.path),route.timing))throw Error('journey-invalid-timing');
  if(route.board!==undefined&&!journeyBoardEndOk(route.board,routeLength(route.path)))throw Error('journey-invalid-board-end');
  if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
+}
+/** Shipped legs: island→meadow, meadow→skycity, skycity→lakeside. */
+function journeyRegionOrderOk(from:string,to:string):boolean{
+ return (from==='island'&&to==='meadow')||(from==='meadow'&&to==='skycity')||(from==='skycity'&&to==='lakeside');
 }
 /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
  * smoothed walking heading), so a bridge that turns keeps the lens behind her. Numbers are checked by

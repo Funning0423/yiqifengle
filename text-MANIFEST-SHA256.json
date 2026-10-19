@@ -2360,6 +2360,11 @@
     "sha256": "7f6e43fbb524e1af175cb0fc9210843d125c21c4933d4d4f9bdc781ef8df2ae3"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
+    "bytes": 19675,
+    "sha256": "7da93a154b85e991f9521e3e4b3de2c962cc29cbcd613c02b538bd982cad93bc"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
     "bytes": 44380,
     "sha256": "7099f426427488eb381af4410fdcc9e0bb59d286e82ac3601b1ab8c4a0c95bdb"
@@ -2551,8 +2556,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 27996,
-    "sha256": "68b6d5dbf50e3f8a4cec0ca19e745a5e5d08ba42cf5e0748751364ae8a4914ed"
+    "bytes": 33267,
+    "sha256": "836ec2a2871b07050fda4ffc2c20a8f08bbbb4c28ac0a229879ac4baf1b608a3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3376,8 +3381,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 32845,
-    "sha256": "edf0237eb42b6faddc2b4dec6dcdda102b1d905225b66a325f5707c618a1aaee"
+    "bytes": 33148,
+    "sha256": "ccfd2cb4d585c6eac9b0d6abe3cde61a7a7ea3c0b6c6c65fdfc258984a98cabe"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
@@ -3426,8 +3431,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 62824,
-    "sha256": "34689c5fc3accdd324b7ee87ca3b33c58e663b7ae49d0ba62c9a0e8afc1fb4dd"
+    "bytes": 62856,
+    "sha256": "58fdac0805e5be672250502ee30475ac644237e398a34546b489eedbb8f69766"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -3741,8 +3746,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 31808,
-    "sha256": "5fc4aa541b7b2982acb40babd4e9f1740a1f3de37b98d66e7d829836dc4e9cbd"
+    "bytes": 31755,
+    "sha256": "eec560d4225e4a8a18e6dc6f2faa17d9532c0402d15fea26acad71564527c3ab"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",

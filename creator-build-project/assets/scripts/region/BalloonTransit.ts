@@ -1,5 +1,6 @@
 import {Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
+import {VEHICLE_ASSET_WAIT_MS} from './TransportWait';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {routeLength} from '../world-r1/RegionJourneyCore';
 import type {JourneySceneLease} from '../world-r1/RegionJourneyCore';
@@ -233,7 +234,7 @@ function publishFlight(doc:FlightDoc):void{(globalThis as any).__QF_BALLOON_FLIG
 export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start:Vec;token:Cancellation;progress:(n:number)=>void}):Promise<JourneySceneLease&{model:Node|null}>{
  if(!opts.meadow||!isValid(opts.meadow,true))throw Error('journey-meadow-lease-missing');
  const token=opts.token,progress=opts.progress,meadow=opts.meadow;
- const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token);token.check();
+ const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token,VEHICLE_ASSET_WAIT_MS);token.check();
  prefab.addRef();
  const owned:Array<{destroy():void}>=[],rig=new Node('RegionJourney-skycity');rig.active=false;opts.parent.addChild(rig);
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
@@ -251,7 +252,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   model=mountRegion(REGIONS.skycity,prefab,rig);
   for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
   const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');
-  await waitRegionAsset(ambient.prepare(),token);token.check();
+  await waitRegionAsset(ambient.prepare(),token,VEHICLE_ASSET_WAIT_MS);token.check();
   model.setRotationFromEuler(0,0,0);model.setPosition(0,0,0);
   const city=placeLiveSkycity(model,meadow,opts.start);
   const mp=meadow.worldPosition,meadowFrame:Rigid={yawDeg:meadow.eulerAngles.y,origin:[mp.x,mp.y,mp.z]};

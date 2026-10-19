@@ -6,7 +6,7 @@ const J=require('./journey-scene.cjs');
 const hash=crypto.createHash('sha256').update(JSON.stringify(J.leg2)).digest('hex');
 assert.equal(hash,'3bf86ab6face9d7e3bcdb91f0d1f77372c0eb35b55496a687a7d6872a482d58e');
 assert.equal(Q.transportFor('meadow','skycity',{}), 'balloon');
-assert.equal(Q.transportFor('meadow','skycity',{__QF_TRANSPORT:'bridge'}),'bridge');
+assert.equal(Q.transportFor('meadow','skycity',{__QF_TRANSPORT:'bridge'}),'balloon');
 assert.equal(Q.transportFor('island','meadow',{__QF_TRANSPORT:'sail'}),'sail');
 assert.equal(Q.transportFor('meadow','skycity',{wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})},__QF_TRANSPORT:'bridge'}),'balloon');
 const ride=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/region/BalloonRide.ts'),'utf8');

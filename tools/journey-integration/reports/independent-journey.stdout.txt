@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-17T05:03:38.321Z",
-  "sourceRoot": "/tmp/a3wt",
+  "timeUTC": "2026-10-19T00:05:17.295Z",
+  "sourceRoot": "/workspace/yiqifengle/work/运镜bot-lakeland",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
     {
