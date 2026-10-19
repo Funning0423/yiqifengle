@@ -8,7 +8,7 @@ const {createHarness}=require('../board-ui/harness.cjs');
 const ROOT=path.resolve(__dirname,'../..'),S=ROOT+'/creator-build-project/assets/scripts/',B=ROOT+'/creator-build-project/assets/bundles/region_lakeside/';
 const H=createHarness(),D=H.load(S+'region/LakesideSceneData.ts'),CP=H.load(S+'world-r1/CameraPose.ts'),LK=H.load(S+'region/LakesideCameraLayout.ts'),BL=H.load(S+'ui/BoardLayout.ts');
 const all=JSON.parse(fs.readFileSync(B+'scene_r5h_slim_transforms.json','utf8')).instances,live=D.lakesideSceneInstances(all);
-assert.equal(live.length,794,'runtime lakeside instances (431 r5h3 + 29 far-ring clusters + 275 near scatter + 59 seal stones)');
+assert.equal(live.length,802,'runtime lakeside instances (431 r5h3 + 29 far-ring clusters + 275 near scatter + 67 seal bushes)');
 const pav=live.filter(i=>i.glb==='LK_pavilion.glb');
 assert.equal(pav.length,1,'exactly one pavilion (r5h3 COCOS_HANDOFF: LK_pavilion unique)');
 assert.equal(pav[0].name,'LK_pavilion_i');assert.deepEqual([...pav[0].pos],[13.6,0.55,-4.6],'the real r5h3 placement (right shore)');
@@ -27,4 +27,4 @@ const layouts=[[360,780,{top:0,bottom:0,left:0,right:0,capsule:null}],[390,844,{
 for(const [W,Hh,safe] of layouts){const g=BL.boardLayout(W,Hh,safe,2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
  assert(!inFrame(LK.lakesideAlignedBoardPose(frame),W/Hh),W+'x'+Hh+' aligned board camera: pavilion off-frame');}
 const minX=pose=>Math.min(...corners.map(c=>CP.projectPoint(pose,C.referenceAspect,c).x));
-console.log('lakeside pavilion OK (r5h3 cam min NDC x '+minX(r5h3).toFixed(3)+'): 1 real placement (LK_pavilion_i, right shore), 0 templates, 794 instances, off-frame in r5h3 + '+layouts.length+' board layouts');
+console.log('lakeside pavilion OK (r5h3 cam min NDC x '+minX(r5h3).toFixed(3)+'): 1 real placement (LK_pavilion_i, right shore), 0 templates, 802 instances, off-frame in r5h3 + '+layouts.length+' board layouts');
