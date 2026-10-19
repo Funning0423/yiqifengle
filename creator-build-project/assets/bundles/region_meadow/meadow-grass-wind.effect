@@ -5,6 +5,7 @@ CCEffect %{
       frag: meadow-grass-fs:frag
       properties:
         windParams: { value: [0, 1, 0, 0] }
+        windDir: { value: [0.944, -0.330, 1, 0] }
       rasterizerState: { cullMode: none }
       depthStencilState: { depthTest: true, depthWrite: true }
 }%
@@ -15,15 +16,22 @@ CCProgram meadow-grass-vs %{
   in vec3 a_position;
   in vec4 a_color;
   in vec2 a_texCoord1;
-  uniform MeadowWind { vec4 windParams; };
+  uniform MeadowWind { vec4 windParams; vec4 windDir; };
   out vec3 v_color;
   vec4 vert () {
     // Source COLOR_0 wind weight/phase was moved into UV1 by prepare_meadow.py.
     // Alpha carries source amplitude/1.5. RGB is the source root/tip blend.
     float r = a_texCoord1.x;
     float omega = 6.28318530718 / 4.0;
-    float d = a_color.a * 1.5 * r * r * (0.36 * sin(a_texCoord1.y - omega * windParams.x) - 0.26 * sin(omega * windParams.x));
-    vec3 p = a_position + vec3(0.944 * d, -0.3 * d * r, -0.330 * d);
+    // windDir = GlobalWind.ts: world blows-to xz, strength in z. Into mesh space with the transpose of cc_matWorld
+    // (ES2 has no transpose()); length kept, so the default [0.944, -0.330] at identity is the old constant exactly.
+    vec3 w3 = vec3(windDir.x, 0.0, windDir.y);
+    vec2 l = vec2(dot(cc_matWorld[0].xyz, w3), dot(cc_matWorld[2].xyz, w3));
+    l = l / max(length(l), 1e-4) * length(windDir.xy);
+    // Baked gust phase travels along (0.944, -0.330) at 0.2415 rad/m; re-aim it at the new direction (0 at default).
+    float ph = a_texCoord1.y + 0.2415 * dot(a_position.xz, l - vec2(0.944, -0.330));
+    float d = windDir.z * a_color.a * 1.5 * r * r * (0.36 * sin(ph - omega * windParams.x) - 0.26 * sin(omega * windParams.x));
+    vec3 p = a_position + vec3(l.x * d, -0.3 * d * r, l.y * d);
     // z = night weight. w = 1 on the region journey: use the world's lit-night grade
     // (DayNight lightScale 0.35 x moon colour [180,198,232] linearised) instead of the board's softer sea tint.
     vec3 nightK = mix(vec3(0.50, 0.62, 0.70), vec3(0.16, 0.20, 0.28), windParams.w);

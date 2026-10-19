@@ -3,6 +3,8 @@ import { approachNight, pickNight } from './IslandAtmosphereFxCore';
 import { SHORE, farShoreGeometry, farWashAlpha, foamMultiply, seaSheetLift, seaUvShift, shorePhase, shoreWashGeometry, stepShoreClock, waveLinePose } from './ShoreBreakCore';
 import type { SeaPhase, ShoreGeometry, V3 } from './ShoreBreakCore';
 import * as PropsLayout from '../world-r2/IslandPropsLayout';
+import { ShoreFoam } from './ShoreFoam';
+import { islandSwash, islandFoamTint, islandBandParams } from './ShoreFoamCore';
 /** Same env_sea_surface, lifted on AmbienceAudio.wavePlayhead (amb_waves_loop, 8.064 s, hits 2.369 / 6.300).
  * Daytime blue is the imported COLOR_0. Rebuilding the mesh (even with RGB expanded to RGBA) left a_color at 0
  * on device, and builtin-standard multiplied the sea to black while the positions still moved. The authored
@@ -12,7 +14,9 @@ import * as PropsLayout from '../world-r2/IslandPropsLayout';
  * still offshore, then runs back and the node hides. Night is foamMultiply on that lip. The sea material's
  * mainColor is never written here (IslandProps still tints this same sea). No second sea, no second night mesh.
  * Beach lip follows the exterior layer; the far lip follows the backdrop (rear window). Authored wave-line
- * rings stay sunk under the sea so the 12 s idle clip cannot leave a white ring between beats. */
+ * rings stay sunk under the sea so the 12 s idle clip cannot leave a white ring between beats.
+ * r5 S3: once shore-foam.effect is loaded, ShoreFoam (one ribbon: rolling wave lines, a swash lip, wet sand) replaces the beach
+ * lip on this same clock and night multiply; the far lip and the sea heave stay. If the effect fails the old lip stays. */
 type Fx = { node: Node; material: Material; applied: string };
 type Line = { node: Node; x: number; y: number; z: number; sx: number; sy: number; sz: number; rot: Quat };
 type SeaScroll = { instance: Material; offset: Vec4; baseZ: number; baseW: number };
@@ -31,11 +35,12 @@ export class ShoreBreak {
   private washMin = new Vec3(); private washMax = new Vec3(); private washCount = 0;
   private seaScroll: SeaScroll | null = null; private seaNode: SeaNode | null = null;
   private exterior = false; private backdrop = false; private night = false; private synced = false; private time = 0; private ownNight = 0; private nightShown = 0;
-  private disposed = false;
+  private disposed = false; private foam: ShoreFoam | null = null;
   private last = { strength: 0, travel: 0, foamU: 0, foamA: 0, wash: 0, far: 0, sea: 0, lineY: [] as number[] };
   constructor(scene: Scene, model: Node | null) {
     if (!EffectAsset.get('builtin-unlit')) { console.warn('[SHORE] builtin-unlit unavailable; shore wash skipped'); return; }
     const root = new Node('ShoreBreak'); scene.addChild(root); this.root = root;
+    this.foam = new ShoreFoam(scene);
     const lip = shoreWashGeometry(1, 0);
     this.washCount = lip.positions.length / 3;
     this.washPos = new Float32Array(lip.positions.length); this.washCol = new Float32Array(lip.colors.length);
@@ -114,7 +119,7 @@ export class ShoreBreak {
   }
   /** lateUpdate, after the idle clip and RoomLightingRig. Playhead (or the paused fallback) is the only clock. */
   advance(dt: number): void {
-    if ((globalThis as any).__QF_SAIL_HOLD_ISLAND_FX) { if (this.root && this.root.active) { (this as any)._qfHoldHid = true; this.root.active = false; } return; }
+    if ((globalThis as any).__QF_SAIL_HOLD_ISLAND_FX) { if (this.foam) this.foam.hide(); if (this.root && this.root.active) { (this as any)._qfHoldHid = true; this.root.active = false; } return; }
     if ((this as any)._qfHoldHid && this.root) { this.root.active = true; (this as any)._qfHoldHid = false; }
     const root = this.root; if (this.disposed || !root || !isValid(root, true)) return;
     const step = Number.isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
@@ -129,7 +134,9 @@ export class ShoreBreak {
       this.heaveSea(this.time, phase);
       this.scrollSea(this.time);
     } else this.restoreSeaNode();
-    const showWash = this.exterior && phase.foamA > 1 / 255;
+    const foamOn = !!this.foam && this.foam.ready() && this.exterior;
+    if (this.foam) this.foam.update(foamOn, islandSwash(this.time), islandFoamTint(this.nightShown), seaSheetLift(this.time, phase), islandBandParams(this.nightShown));
+    const showWash = this.exterior && phase.foamA > 1 / 255 && !foamOn;
     if (showWash) this.moveWash(phase.foamU, this.time);
     this.last.wash = showWash ? phase.foamA * SHORE.shorePeak : 0;
     this.place(this.wash, rgb, this.last.wash);
@@ -200,6 +207,7 @@ export class ShoreBreak {
     const all: (Fx | null)[] = [this.wash, this.far];
     for (let i = 0; i < all.length; i++) { const f = all[i]; if (f && isValid(f.node, true)) f.node.active = false; }
     if (this.root && isValid(this.root, true)) this.root.active = false;
+    if (this.foam) this.foam.hide();
   }
   /** Actual sheet height after this frame's heave, in scene-root world coordinates. */
   surfaceWorldY(): number | undefined {
@@ -207,13 +215,14 @@ export class ShoreBreak {
     return n && isValid(n.node, true) ? n.node.worldPosition.y : undefined;
   }
   diagnostics() {
-    return { time: this.time, exterior: this.exterior, backdrop: this.backdrop, nightShown: this.nightShown, strength: this.last.strength, travel: this.last.travel, foamU: this.last.foamU, foamA: this.last.foamA, washAlpha: this.last.wash, farAlpha: this.last.far, seaSample: this.last.sea, lineY: this.last.lineY.slice(), ownNight: this.ownNight, seaBound: !!this.seaNode, seaScroll: !!this.seaScroll };
+    return { foam: this.foam ? this.foam.status() : 'none', time: this.time, exterior: this.exterior, backdrop: this.backdrop, nightShown: this.nightShown, strength: this.last.strength, travel: this.last.travel, foamU: this.last.foamU, foamA: this.last.foamA, washAlpha: this.last.wash, farAlpha: this.last.far, seaSample: this.last.sea, lineY: this.last.lineY.slice(), ownNight: this.ownNight, seaBound: !!this.seaNode, seaScroll: !!this.seaScroll };
   }
   dispose(): void {
     if (this.disposed) return; this.disposed = true;
     this.restoreSeaNode();
     this.restore(this.line01); this.restore(this.line02); this.line01 = this.line02 = null;
     if (this.root && isValid(this.root, true)) this.root.destroy();
+    if (this.foam) { this.foam.dispose(); this.foam = null; }
     for (let i = 0; i < this.materials.length; i++) this.materials[i].destroy();
     for (let i = 0; i < this.meshes.length; i++) this.meshes[i].destroy();
     this.root = null; this.wash = null; this.far = null; this.materials = []; this.meshes = []; this.seaScroll = null; this.seaNode = null;

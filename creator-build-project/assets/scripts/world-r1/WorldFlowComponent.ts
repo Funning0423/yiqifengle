@@ -26,6 +26,7 @@ import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
 import { DIALOG_CAMERA_YIELD, dialogCameraOpen, dialogYieldPitchDeg, createYieldMotion, stepYieldMotion, yieldPose } from './DialogCameraYield';
 import { FreeOrbit, orbitColliderName, type OrbitBox } from '../region/FreeOrbit';
+import { RoomShell360 } from '../render/RoomShell360';
 import { exploreEnabled } from '../region/ExploreGate';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode, emitDayNightChange } from './DayNightContract';
 import { skyFollowColor, vertexColorAverageLinear } from './SkyFollowCore';
@@ -221,7 +222,7 @@ export class WorldFlowComponent extends Component {
   private dayNightMode:DayNightMode='day';
   /** null follows the clock. true/false is the player's switch and blocks the clock. */
   private nightOverride:boolean|null=null;
-  private exteriorVisible=false;private interiorVisible=false;private backdropVisible=false;private doorSpill:DoorSpillHint|null=null;private atmosphere:IslandAtmosphereFx|null=null;private shore:ShoreBreak|null=null;
+  private exteriorVisible=false;private interiorVisible=false;private backdropVisible=false;private doorSpill:DoorSpillHint|null=null;private atmosphere:IslandAtmosphereFx|null=null;private shore:ShoreBreak|null=null;private room360:RoomShell360|null=null;
   private roomLighting:RoomLightingRig|null=null;private worldAmbient:RegionAmbientAnimation|null=null;
   private nightRenderers:MeshRenderer[]=[];
   private skyDomes:MeshRenderer[]=[];
@@ -422,6 +423,7 @@ export class WorldFlowComponent extends Component {
       this.roomLighting=new RoomLightingRig(director.getScene()!,model,director.getScene()?.getChildByName('FLOW_REFERENCE_PLACEHOLDER_NOT_B')??null);
       this.doorSpill=new DoorSpillHint(director.getScene()!); // T2+ room home camera option 1: door light-spill hint
       this.atmosphere=new IslandAtmosphereFx(director.getScene()!); // scene FX: chimney smoke + lighthouse beam + gulls
+      this.room360=new RoomShell360(model); // 场景特效bot r5 S2-2: two-sided shell, real shutter for the blind window, solid rear plant
       this.shore=new ShoreBreak(director.getScene()!,model); // same sea heaves on amb_waves_loop; beach lip only while the crest is on the sand; night is a colour multiply
       const camera=this.worldCamera!;
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
@@ -432,7 +434,7 @@ export class WorldFlowComponent extends Component {
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
       token.check();
-      const writeLayers=(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);};
+      const writeLayers=(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);this.room360?.syncLayers();};
       this.nodeWalkLayers=writeLayers;
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
@@ -472,9 +474,9 @@ export class WorldFlowComponent extends Component {
           const tick=(v:number)=>{this.noteCinematic();const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
           if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds,options?.followTauSeconds??0.25);return this.run(seconds,t,p=>tick(follow(p,progress())));},
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
-        dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
+        dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.room360?.dispose();this.room360=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
       };
-    } catch(e) {this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;model.destroy();this.ownedModel=null;throw e;}
+    } catch(e) {this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.room360?.dispose();this.room360=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;model.destroy();this.ownedModel=null;throw e;}
   }
   private run(seconds:number,token:Cancellation,tick:(p:number)=>void):Promise<void> {
     token.check();if(!Number.isFinite(seconds)||seconds<=0){tick(1);return Promise.resolve();}
@@ -642,7 +644,7 @@ export class WorldFlowComponent extends Component {
     this.unbindWxLifecycle();
     this.flowEventsOff?.();this.flowEventsOff=null;this.doorShutOff?.();this.doorShutOff=null;this.settledListeners.clear();this.craneListeners.clear();this.doorShutListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
-    this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
+    this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.room360?.dispose();this.room360=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.
     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome;if(this.lightHomeColor)this.mainLight.color=this.lightHomeColor;}
     this.mainLight=null;this.lightHomeColor=null;

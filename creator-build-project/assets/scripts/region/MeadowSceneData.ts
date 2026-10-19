@@ -6,7 +6,7 @@ export const MEADOW_SCENE_SOURCE = {
   "version": "v0.8.0",
   "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
   "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
-  "derivedGLBSHA256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db",
+  "derivedGLBSHA256": "4e81279fc99cf16d37dca16edf013fd38911d9d2fc6b5733bebfbeabcb70ba04", // r5 S3 fix_r1 1c: sky image 4096x1024 -> 1024x512 only (was a72f07e6)
   "windmillSeconds": 8,
   "windPeriodSeconds": 4,
   "nodeCount": 67,

@@ -2,7 +2,7 @@
   "format": "r5-balloon-flightpath/2.2",
   "instancing": false,
   "totalTris": 40994,
-  "bytes": 1054380,
+  "bytes": 1067460,
   "rows": [
     {
       "name": "transport_balloon.glb",
@@ -38,7 +38,7 @@
     },
     {
       "name": "transit_night_dome.glb",
-      "bytes": 270088,
+      "bytes": 283168,
       "tris": 2208,
       "materials": 1,
       "meshes": 1,

@@ -2,6 +2,7 @@ import { Node, Scene, MeshRenderer, Material, Mesh, Color, Vec3, EffectAsset, ut
 import { ISLAND_FX, approachNight, lightFromNight, pickNight, beamGeometry, beamState, bandGeometry, discGeometry, glintGeometry, moonState, smokePuffs } from './IslandAtmosphereFxCore';
 import * as PropsLayout from '../world-r2/IslandPropsLayout';
 import { GullFlock } from './GullFlock';
+import { smokeLeanScale, windYawDelta } from './GlobalWind';
 import type { FxGeometry, V3 } from './IslandAtmosphereFxCore';
 /** cc wrapper for IslandAtmosphereFxCore (chimney smoke + lighthouse beam/glow/sea glint).
  * Nodes live under one scene-root node 'IslandAtmosphereFx' (outside the imported model: renderer classification,
@@ -80,7 +81,7 @@ export class IslandAtmosphereFx {
     this.place(this.moon, null, m.moonRotation, null, ISLAND_FX.moon.color, m.moonAlpha);
     this.place(this.halo, null, m.moonRotation, null, ISLAND_FX.moon.haloColor, m.haloAlpha);
     for (let k = 0; k < this.bands.length; k++) this.place(this.bands[k], m.bandPos, m.bandRotation, [m.bandScale, 1, m.bandScale], ISLAND_FX.band.color, m.bandLayerAlpha[k]);
-    const puffs = smokePuffs(this.time, Number.isFinite(wind) ? wind : 0, this.nightShown, this.smokeShown, cam); this.last.puffs = [];
+    const puffs = smokePuffs(this.time, Number.isFinite(wind) ? wind : 0, this.nightShown, this.smokeShown, cam, { delta: windYawDelta(), scale: smokeLeanScale() }); this.last.puffs = [];
     for (let i = 0; i < puffs.length && i < this.puffs.length; i++) { const q = puffs[i]; this.last.puffs.push(q.alpha); this.place(this.puffs[i], q.position, q.rotation, q.scale, q.color, q.alpha); }
   }
   private place(fx: Fx | null, pos: V3 | null, rot: number[], scale: V3 | null, rgb: V3, alpha: number): void {

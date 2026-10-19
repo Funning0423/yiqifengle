@@ -859,7 +859,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
-      "sha256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db"
+      "sha256": "4e81279fc99cf16d37dca16edf013fd38911d9d2fc6b5733bebfbeabcb70ba04"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
@@ -867,7 +867,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
-      "sha256": "d39822f382e265aebd12757aad5077deb041508ed78bac536ef86dcc86e9ce39"
+      "sha256": "67a5e56f5fe8a8239b4ab6812f802e1f006e8caeee283d6e751cc59f7f907ba5"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect.meta",
@@ -875,7 +875,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json",
-      "sha256": "2e2c69ec4846333749383fd470e7dec6715dbbff047639c52b01aec3b21bab0f"
+      "sha256": "fd880a37de8b9794a150b3730d7cb1f341adccac38fbab9f7400f829b906fc15"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json.meta",
@@ -911,7 +911,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-      "sha256": "d3bf7e1d92c74d667796096fc03f68314fa5ed5328736c9611334c4526193564"
+      "sha256": "89baab39f7f62fe2e8425604a2f6e26e8527d414000410f93d3a738052a1a6da"
     },
     {
       "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",

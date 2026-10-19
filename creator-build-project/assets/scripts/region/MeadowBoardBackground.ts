@@ -9,6 +9,7 @@ import { Cancellation } from '../world-r1/WorldFlowCore';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { onDayNightChange } from '../world-r1/DayNightContract';
 import { hexToRgb, regionNightNow, writeRegionBoardClear } from './RegionBoardNight';
+import { grassWindUniform } from '../render/GlobalWind';
 const {ccclass} = _decorator;
 export const MEADOW_LAYER = 1 << 20;
 function find(n:Node,name:string):Node|null { if(n.name===name)return n;for(const child of n.children){const hit=find(child,name);if(hit)return hit;}return null; }
@@ -94,6 +95,8 @@ export class MeadowSceneMotion extends Component {
   const night=uiNightWeight();
   if(this.sail&&isValid(this.sail,true))this.sail.setRotationFromEuler(0,0,(this.seconds%MEADOW_SCENE_SOURCE.windmillSeconds)*360/MEADOW_SCENE_SOURCE.windmillSeconds);
   this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,this.journeyNight?1:0));
+  // R5 S3: shared world wind (GlobalWind.ts); the shader turns it into grass-local space via cc_matWorld.
+  if(this.material){const w=grassWindUniform();this.material.setProperty('windDir',new Vec4(w[0],w[1],w[2],0));}
   if(this.journeyNight)for(const g of this.grounds){const k=meadowGroundFactor(night,g.f);g.m.setProperty('mainColor',new Vec4(g.base[0]*k[0],g.base[1]*k[1],g.base[2]*k[2],g.base[3]));}
   if(this.journeyNight)for(const m of this.clouds){const c=meadowCloudColor(night);m.setProperty('mainColor',new Vec4(c[0],c[1],c[2],1));}
   if(this.boardCamera&&isValid(this.boardCamera,true))writeRegionBoardClear(this.boardCamera,this.dayClear,night,(r,g,b)=>new Color(r,g,b,255));

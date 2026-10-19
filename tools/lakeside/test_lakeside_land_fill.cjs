@@ -49,8 +49,8 @@ class Texture2D{reset(o){this.info=o;}setFilters(a,b){this.f=[a,b];}setMipFilter
 Texture2D.PixelFormat={RGBA8888:35};Texture2D.Filter={NONE:0,NEAREST:1};Texture2D.WrapMode={CLAMP_TO_EDGE:2};
 class Material{constructor(){this.props={};this.defines={};this.passes=[{getHandle:k=>['emissive','emissiveScale'].includes(k)||(k==='emissiveMap'&&this.defines.USE_EMISSIVE_MAP)?1:0}];}copy(s,o){this.src=s;this.defines=o?.defines||{};}setProperty(k,v){this.props[k]=v instanceof Vec3?[v.x,v.y,v.z]:v instanceof Color?[v.r,v.g,v.b,v.a]:v;}}
 const glbOf=new WeakMap();let mode='day';
-const F=new Function('Material','MeshRenderer','Color','Vec3','Texture2D','isValid','lakesideGlbOf','lakesideLandFillClass','lakesideFillLinear','lakesideFillMaskBytes','lakesideFillWeight','lakesideModeLighting','lakesideDayNightMode','exports',tsjs(src)+'\nreturn {enableLakesideInstancing,applyLakesideLandFill,lakesideLandFillMaterialClass,lakesideFillMaskTexture};')(
- Material,{},Color,Vec3,Texture2D,o=>!!o,glbOf,D.lakesideLandFillClass,D.lakesideFillLinear,D.lakesideFillMaskBytes,D.lakesideFillWeight,D.lakesideModeLighting,()=>mode,{});
+const F=new Function('Material','MeshRenderer','Color','Vec3','Texture2D','isValid','lakesideGlbOf','lakesideLandFillClass','lakesideFillLinear','lakesideFillMaskBytes','lakesideFillWeight','lakesideModeLighting','lakesideDayNightMode','exports','isLakesideShoreMaterial',tsjs(src)+'\nreturn {enableLakesideInstancing,applyLakesideLandFill,lakesideLandFillMaterialClass,lakesideFillMaskTexture};')(
+ Material,{},Color,Vec3,Texture2D,o=>!!o,glbOf,D.lakesideLandFillClass,D.lakesideFillLinear,D.lakesideFillMaskBytes,D.lakesideFillWeight,D.lakesideModeLighting,()=>mode,{},()=>false);
 const MD=F.lakesideFillMaskTexture('day');
 const palette={name:'M_LK_palette'};
 const mk=glb=>{const top={name:glb,parent:null},r={node:{parent:top},sharedMaterials:[palette],setSharedMaterial(x,k){this.sharedMaterials[k]=x;}};top.parent=root;glbOf.set(top,glb);return r;};

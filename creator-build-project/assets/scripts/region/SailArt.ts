@@ -3,6 +3,7 @@ import type {Vec} from '../world-r1/WorldFlowCore';
 import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {sailChannelWorldY} from './SailChannel';
 import {inGrassClearLocal} from './SailLanding';
+import {apparentWindLocal, easeAngle, pennantYawTarget, sailSide} from '../render/GlobalWind';
 import {SAIL_BERTH_X, SAIL_I6, SAIL_SEA_Y, sailBerthWorld, sailRoute, type SailPose} from './TransportLeg';
 import {SAIL_DAY_SAIL_RGB, SAIL_NIGHT_SAIL_RGB, SAIL_STAR_COUNT, sailStarRadius, sailStarWorld} from './SailStars';
 import {soleIndices, soleNormals, solePositions} from './SailSole';
@@ -267,6 +268,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const sole=mountCockpitSole(boat);
  const seat=findNode(boat,'seated_root_anchor'),stand=findNode(boat,'stand_anchor'),board=findNode(boat,'board_step_anchor');
  const sailRoot=findNode(boat,'sail_root'),jib=findNode(boat,'jib_root'),furled=findNode(boat,'sail_furled'),boom=findNode(boat,'boom_pivot');
+ // R5 S3 global wind: pennant swings about its staff to the apparent wind; sails set on the leeward side (+1 = authored).
+ const pennant=findNode(boat,'pennant');let pennantYaw:number|null=null,side=1;
  const lamp=findNode(boat,'lantern_glow'),stars=findNode(clouds,'night_stars');
  const wake=findNode(props,'wake_strips'),foam=findNode(props,'hull_foam_ring'),wakeAnchor=findNode(boat,'wake_root');
  if(wake&&wakeAnchor){wake.setParent(wakeAnchor);wake.setPosition(0,0.03,0);wake.setRotationFromEuler(0,0,0);}
@@ -470,9 +473,12 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
    if(sailRoot)sailRoot.active=open>0.18;
    if(jib)jib.active=open>0.18;
    if(furled)furled.active=open<=0.18;
-   if(boom)boom.setRotationFromEuler(0,25*(1-open),0);
-   if(sailRoot&&open>0.18)sailRoot.setScale(1,Math.max(0.15,open),1);
-   if(jib&&open>0.18)jib.setScale(1,Math.max(0.15,open),1);
+   const app=apparentWindLocal(v.yaw,v.speed);side=sailSide(app,side);
+   if(boom){boom.setRotationFromEuler(0,25*(1-open)*side,0);boom.setScale(side,1,1);}
+   if(sailRoot&&open>0.18)sailRoot.setScale(side,Math.max(0.15,open),1);
+   if(jib&&open>0.18)jib.setScale(side,Math.max(0.15,open),1);
+   const py=pennantYawTarget(app);
+   if(pennant&&py!==null){pennantYaw=pennantYaw===null?py:easeAngle(pennantYaw,py,dt,3);pennant.setRotationFromEuler(0,pennantYaw*180/Math.PI,0);}
    if(lamp)lamp.active=night;
    if(lampLight)lampLight.enabled=night;
    // Hide the authored night_stars mesh — it reads as huge near-field diamonds.

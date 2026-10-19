@@ -11,6 +11,7 @@ import {onDayNightChange} from '../world-r1/DayNightContract';
 import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
 import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,lakesideFillMaskBytes,lakesideFillWeight,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
+import {LAKESIDE_SHORE_GLB,mountLakesideShore,isLakesideShoreMaterial,applyLakesideShoreMode} from './LakesideShoreFoam';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
 /** water-ref candidate (VB) diagnostic, scene design asked: is tone mapping on? ONE console.log at the first board light apply,
@@ -37,7 +38,7 @@ export function enableLakesideInstancing(root:Node):Material[]{
  const plain=new Map<Material,Material>(),byCls=new Map<string,Map<Material,Material>>(),out:Material[]=[],mode=lakesideDayNightMode();
  for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials,glb=lakesideTopGlb(root,r.node),cls=glb?lakesideLandFillClass(glb):null;
   let cache=plain;if(cls){const c=byCls.get(cls);if(c)cache=c;else{cache=new Map<Material,Material>();byCls.set(cls,cache);}}
-  for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=cache.get(src);
+  for(let k=0;k<mats.length;k++){const src=mats[k];if(!src||isLakesideShoreMaterial(src))continue;/* r5 S3: the shore ribbon keeps its own shore-foam material */let m=cache.get(src);
    if(!m){m=new Material();const mask=cls?lakesideFillMaskTexture(mode):null;m.copy(src,{defines:mask?{USE_INSTANCING:true,USE_EMISSIVE_MAP:true}:{USE_INSTANCING:true}});if(cls)initLakesideLandFill(m,cls,glb||'',mode);cache.set(src,m);out.push(m);}r.setSharedMaterial(m,k);}}
  return out; // a plain array, no [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
 }
@@ -175,7 +176,8 @@ export function lakesideWaterMaterial(asset:Material):Material{
 export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode),v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
  water.setProperty('waterTint',v(M.waterTintLinear));water.setProperty('skyZenith',v(M.waterSkyZenithLinear));water.setProperty('skyLow',v(M.waterSkyLowLinear));water.setProperty('skyHorizon',v(M.waterSkyHorizonLinear));
  water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,M.waterSkyReflectFloor));
- water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
+ water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));
+ applyLakesideShoreMode(mode);/* r5 S3: the shore wash takes the same mode's light scales */}
 /** The lakeside-water.mtl asset (dir light mode only; null otherwise). r4 journey fix 1: a failed bundle/material load REJECTS with
  *  the reason (and path) instead of resolving null, so the caller can log it ([QF_LAKE] journey-water-fallback) and keep its old look. */
 /** r4.2 item 4 (Mac r4 fault injection: the water pack blocked → B-class +2 deduplicated / +6 raw instead of exactly +1). Every
@@ -213,10 +215,11 @@ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:
  if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');
  const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
  const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
- let n=0;for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;lakesideGlbOf.set(node,i.glb);node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;
+ let n=0;const shore:Node[]=[];for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;lakesideGlbOf.set(node,i.glb);if(i.glb===LAKESIDE_SHORE_GLB)shore.push(node);node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;
   /* r4-prep A: the board preload instantiates a batch per frame (the journey copy keeps one pass under the set-off black) */if(yieldFrame&&n%LAKESIDE_PRELOAD_BATCH===0){await yieldFrame();token.check();if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');}}
  for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
  for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
+ await mountLakesideShore(shore,take);token.check();if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');/* r5 S3 shore wash (never throws; no effect -> ribbon off) */
  return n;
 }
 /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world

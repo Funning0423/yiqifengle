@@ -1,5 +1,6 @@
 import {assetManager,AssetManager,Prefab,Node,instantiate,isValid} from 'cc';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+import {SkycityPennantWind} from './SkycityPennantWind';
 import {SkycityRobotInteract} from './SkycityRobotInteract';
 /**
  * One entry point for region art: every region model lives in its own Asset Bundle
@@ -40,6 +41,7 @@ export async function loadRegionPrefab(def:RegionDef,progress?:(fraction:number)
 export function mountRegion(def:RegionDef,prefab:Prefab,parent:Node):Node{
   const model=instantiate(prefab);
   if(def.ambientClips?.length||def.ambientClipUuids?.length||def.gestureClips?.length){const a=model.addComponent(RegionAmbientAnimation);a.clipNames=def.ambientClips||[];a.clipUuids=def.ambientClipUuids||[];a.gestureNames=def.gestureClips||[];if(def.gestureClips?.length)model.addComponent(SkycityRobotInteract);}
+  if(def.bundle==='region_skycity')model.addComponent(SkycityPennantWind); // R5 S3: pennants follow GlobalWind
   if(isValid(parent,true))parent.addChild(model);
   return model;
 }

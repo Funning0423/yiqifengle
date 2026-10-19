@@ -101,6 +101,9 @@ def prepare(source,destination):
  g['buffers'][0]['byteLength']=len(blob)
  js=json.dumps(g,separators=(',',':')).encode();js+=b' '*((-len(js))%4);blob+=b'\0'*((-len(blob))%4)
  result=struct.pack('<III',0x46546c67,2,12+8+len(js)+8+len(blob))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(blob),0x004e4942)+blob
+ # 场景特效bot r5 S2-1: replace the painted far-hill disc with the 360-degree hill ring (tools/scene-fx/meadow_far_ring.py).
+ import sys as _sys;_sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scene-fx'));from meadow_far_ring import rebuild as _farRing
+ result,_=_farRing(result)
  destination.mkdir(parents=True,exist_ok=True);(destination/'env_meadow.glb').write_bytes(result)
  cameras={}
  for n in g['nodes']:
