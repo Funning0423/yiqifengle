@@ -90,8 +90,8 @@ const SMOOTH = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x 
  *  Last, a wall-normal safety: from safeFromM inside the rounded keepInside edge to safeToM
  *  outside it, the outward normal velocity is cancelled smoothly (tangential motion untouched), so the lens cannot cross
  *  keepInside + safeToM, which is still ≥0.25 m from the inner walls. */
-export const ROOM_LOOK_FEEL = Object.freeze({ softK: 8, edgeSoftM: 0.08, insetM: 0.2, goalSpeedMS: 0, seedFadeS: 0.8, omega: 24, linAccMS2: 2.7, angAccDegS2: 100, safeFromM: 0.03, safeToM: 0.06,
-  jerkMS3: 30, ffMaxMS: 0, ffTauS: 0.08, brakeMS2: 2.7, vMaxMS: 2.2, barrierAccMS2: 2.0, barrierK: 12, barrierWallM: -0.15, barrierLookS: 0.25, barrierHerM: 1.06 });
+export const ROOM_LOOK_FEEL = Object.freeze({ softK: 8, edgeSoftM: 0.08, insetM: 0.2, goalSpeedMS: 0, seedFadeS: 0.8, omega: 24, linAccMS2: 2.0, angAccDegS2: 100, safeFromM: 0.03, safeToM: 0.06,
+  jerkMS3: 30, ffMaxMS: 0, ffTauS: 0.08, brakeMS2: 2.0, vMaxMS: 1.8, barrierAccMS2: 2.0, barrierK: 12, barrierWallM: -0.15, barrierLookS: 0.25, barrierHerM: 1.06 });
 /** r7 position follower (docs/r5/room-orbit/RESULT.md): goalSpeedMS 0 = the goal is the input's own static goal (no
  *  parameter rate limit). The lens tracks it with velocity feed-forward (goal velocity, capped ffMaxMS), natural frequency
  *  omega, |accel| ≤ linAccMS2 and |jerk| ≤ jerkMS3. Two smooth barriers shape the commanded accel: the outward speed toward
@@ -110,16 +110,20 @@ export function orbitIgnoresBox(b: OrbitBox, her: Vec3, lens: Vec3, indoor: bool
 }
 /** p-norm soft minimum of two positive lengths, always ≤ the hard min and C∞ while both stay positive. */
 /**
- * r7 aim assist (orbit-her zone only): while the input moves and the lens position lags its goal, the view turns toward her
- * by the yaw/pitch difference between "her centre seen from the lens" and "seen from the goal", soft-capped at maxDeg
- * (tanh) and faded out as the input's w rises (0 at w ≥ fadeW). The bias itself follows that target with a braking-curve
- * follower (accel ≤ accDegS2, jerk ≤ jerkDegS3, no overshoot), so it eases in and out with no step in angular velocity;
- * when the hand stops the target is 0 and the bias returns to 0 on the same curve.
- * r7 result: OFF (maxDeg 0). The bias leads the input (her centre seen from a lagging lens is ahead of the turn), so its
- * return after the stop reads as overshoot (6°: 5.8° overshoot, settle 0.72 s; 2°: 2.1°, 0.37 s at ≤55°/s²), and it
- * barely changes the frames with her centre outside (most are blend-transition lag of 15-30°). See docs/r5/room-orbit/RESULT.md.
+ * r8 view (docs/r5/room-orbit/RESULT.md). In the orbit-her zone the view looks at her body centre from the lens itself
+ * (L: look-at, framed with frameCentre); in the room-centre zone it is the input's own view G. The view V (yaw, pitch) is
+ * carried from frame to frame: each solve it turns by s·ΔG + (1−s)·ΔL, i.e. it passes on the share s of the input's own turn
+ * and the share 1−s of her direction's turn, and a correction rate c (braking curve, |c'| ≤ corrAccDegS2, jerk-limited)
+ * pulls it onto V* = L + s·(G − L). The weight s follows its target with |s'|·|ω_G − ω_L| ≤ blendAccDegS2 (the view's
+ * accel from re-weighting the two turn rates) and |s''|·|ω_G − ω_L| ≤ blendJerkDegS3, so the transition never steps the
+ * angular velocity: what the camera adds to the input's accel is s'·(ω_G − ω_L) + (1−s)·α_L + c'. Target: the input's
+ * w, except when the input will reach the orbit zone within predictBaseS + |input rate|/predictAccDegS2 (then the smallest
+ * w on the way, so the view slows onto her before), or will leave it (then at most what keeps her centre within exitDeg).
+ * (The r7 aim-assist bias is gone.) seedAccDegS2: the first-drag leftover fades within this accel.
  */
-export const ROOM_BIAS = Object.freeze({ maxDeg: 0, fadeW: 0.3, accDegS2: 55, brakeDegS2: 45, omega: 24, jerkDegS3: 3000, vMaxDegS: 40 });
+export const ROOM_VIEW = { blendAccDegS2: 30, blendJerkDegS3: 900, sAccMax: 6, sVMax: 3, sOmega: 12, corrAccDegS2: 65, corrBrakeDegS2: 50,
+  corrVMaxDegS: 90, corrOmega: 20, corrJerkDegS3: 1500, exitDeg: 9, seedAccDegS2: 45, predictBaseS: 0.8, predictAccDegS2: 90, predictMaxS: 1.2,
+  predictSteps: 8, rateTauS: 0.15 };
 export function softMin(a: number, b: number, k: number = ROOM_LOOK_FEEL.softK): number {
   if (!(a > 0) || !(b > 0)) return 0;
   return Math.pow(Math.pow(a, -k) + Math.pow(b, -k), -1 / k);
@@ -290,15 +294,40 @@ export class FreeOrbit {
   private roomOffT = 0;
   private roomOffDur = 0.8;
   private roomOffYP: [number, number] = [0, 0];
-  /** r7 aim-assist bias: target, value, rate, accel (yaw, pitch; radians) and the last solve's input. */
-  private roomBiasT: [number, number] = [0, 0];
-  private roomBias: [number, number] = [0, 0];
-  private roomBiasV: [number, number] = [0, 0];
-  private roomBiasA: [number, number] = [0, 0];
-  private roomLastIn: [number, number, number] | null = null;
-  private roomFrameC: Vec3 | null = null;
-  /** Current aim-assist bias (yaw, pitch) in degrees — for tests / traces. */
-  get roomBiasDeg(): [number, number] { return [this.roomBias[0] * 180 / Math.PI, this.roomBias[1] * 180 / Math.PI]; }
+  /** r8 view: weight s (0 her, 1 the input) with rate / accel and its target; the carried view V and the pull-in
+   *  target V* (yaw, pitch; rad); correction rate / accel (tangent plane, rad/s); L and G at the last solve; |ω_G − ω_L|
+   *  (filtered); the input's rate (deg/s, filtered); time since the last solve; her body centre around the pivot. */
+  private roomS = 0;
+  private roomSV = 0;
+  private roomSA = 0;
+  private roomSInit = false;
+  private roomWIn = 0;
+  private roomGap = 0;
+  private roomV: [number, number] = [0, 0];
+  private roomVS: [number, number] = [0, 0];
+  private roomCV: [number, number] = [0, 0];
+  private roomCA: [number, number] = [0, 0];
+  private roomLYP: [number, number] | null = null;
+  private roomGYP: [number, number] | null = null;
+  private roomDOm = 0;
+  private roomInRate: [number, number] = [0, 0];
+  private roomInPrev: [number, number] | null = null;
+  private roomDtAcc = 0;
+  private roomGapDt = 0;
+  private roomHerC: Vec3 | null = null;
+  /** The view blend weight s (0 = looking at her, 1 = the input's own view) — for tests / traces. */
+  get roomViewBlend(): number { return this.roomS; }
+  /** Her body centre (world) the orbit-zone view looks at: centre of roomLook.framePts' box around the pivot. */
+  roomHerCentre(pivot: Vec3): Vec3 {
+    const R = this.limits.roomLook;
+    if (!this.roomHerC) {
+      const mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9], pts: readonly Vec3[] = (R && R.framePts) || [[0, 0, 0]];
+      for (let i = 0; i < pts.length; i++) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], pts[i][k]); mx[k] = Math.max(mx[k], pts[i][k]); }
+      this.roomHerC = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+    }
+    const c = this.roomHerC;
+    return [pivot[0] + c[0], pivot[1] + c[1], pivot[2] + c[2]];
+  }
   constructor(place: OrbitPlace = 'island') {
     this.placeName = place;
     this.limits = ORBIT_LIMITS[place];
@@ -410,6 +439,8 @@ export class FreeOrbit {
     this.roomTurning = false;
     this.roomSeedDir = null;
     this.roomOffAngle = 0;
+    this.roomSInit = false;
+    this.roomLYP = null;
     this.mode = 'idle';
   }
   /** Match-3: keep the saved orbit, and only allow the board row of ORBIT_LIMITS. */
@@ -446,7 +477,7 @@ export class FreeOrbit {
   unlock(): void { if (!this.engagedFlag && this.mode === 'paused') this.mode = 'idle'; }
   step(dt: number): void {
     const t = Number.isFinite(dt) && dt > 0 ? Math.min(0.1, dt) : 0;
-    if (this.roomInit && t > 0 && this.limits.roomLook) { this.roomTrack(t); if (this.roomOffAngle > 0 && this.engagedFlag) this.roomOffT += t; }
+    if (this.roomInit && t > 0 && this.limits.roomLook) { this.roomDtAcc += t; this.roomTrack(t); if (this.roomOffAngle > 0 && this.engagedFlag) this.roomOffT += t; }
     if (this.mode === 'returning') {
       this.returnT += t;
       // indoors the return ends when the view follower has reached the input's view (6 s backstop)
@@ -537,22 +568,22 @@ export class FreeOrbit {
     }
     return { pos: cl.position, dir: dv, w, arm };
   }
+  /** The room blend weight w of the static goal at yaw/pitch (it does not depend on the arm). */
+  roomWeightAt(look: Vec3, yaw: number, pitch: number): number {
+    const R = this.limits.roomLook!, box = this.limits.keepInside!, n = ROOM_LOOK_FEEL.insetM, yw = R.yawWarp;
+    const yd = yw ? wrap180(yaw - yw.yawDeg) : 0, ye = yw && Math.abs(yd) < yw.halfDeg ? yaw + yw.ampDeg * 0.5 * (1 + Math.cos(Math.PI * yd / yw.halfDeg)) : yaw;
+    const lc = R.lensCentreOffset || [0, 0, 0], lo: Vec3 = [look[0] + lc[0], look[1] + lc[1], look[2] + lc[2]];
+    const gz = R.armGrowZM || 0, abox = gz > 0 ? { min: [box.min[0], box.min[1], box.min[2] - gz] as Vec3, max: box.max, cornerM: box.cornerM } : box;
+    return roomBlend(roomArm(lo, ye, pitch, abox, n), R);
+  }
   private solveRoom(look: Vec3, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): LookPose {
     this.roomCtx = { look: [look[0], look[1], look[2]], boxes, groundY, xz };
+    let seedD: Vec3 | null = null;
     if (this.roomSeedDir) {
       // first solve after seed: redo the view match with the real boxes, keeping any drag made since the seed
       const sd = this.roomSeedDir, curY = this.yaw, curP = this.pitch, sy = this.roomSeedYP[0], sp = this.roomSeedYP[1];
-      this.roomSeedDir = null;
+      seedD = sd; this.roomSeedDir = null;
       this.yaw = sy; this.pitch = sp; this.roomMatchView(sd, look, boxes, groundY);
-      const g0 = this.roomGoalAt(look, this.yaw, this.pitch, this.dist, boxes, groundY, xz).dir;
-      const ax: Vec3 = [g0[1] * sd[2] - g0[2] * sd[1], g0[2] * sd[0] - g0[0] * sd[2], g0[0] * sd[1] - g0[1] * sd[0]], sn = Math.hypot(ax[0], ax[1], ax[2]);
-      this.roomOffAngle = sn > 1e-9 ? Math.atan2(sn, g0[0] * sd[0] + g0[1] * sd[1] + g0[2] * sd[2]) : 0;
-      this.roomOffAxis = sn > 1e-9 ? [ax[0] / sn, ax[1] / sn, ax[2] / sn] : [0, 1, 0]; this.roomOffT = 0;
-      { let dy = Math.atan2(sd[0], sd[2]) - Math.atan2(g0[0], g0[2]); while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
-        this.roomOffYP = [dy, Math.asin(Math.max(-1, Math.min(1, sd[1]))) - Math.asin(Math.max(-1, Math.min(1, g0[1])))];
-        this.roomOffAngle = Math.hypot(this.roomOffYP[0] * Math.cos(Math.asin(Math.max(-1, Math.min(1, g0[1])))), this.roomOffYP[1]); }
-      // a bigger leftover (authored view outside the room view's pitch range) fades slower: smootherstep peak accel ≤ angAccDegS2
-      this.roomOffDur = Math.max(ROOM_LOOK_FEEL.seedFadeS, Math.sqrt(5.78 * this.roomOffAngle / ((ROOM_LOOK_FEEL.angAccDegS2 - ROOM_BIAS.accDegS2) * Math.PI / 180)));
       this.yaw = curY + (this.yaw - sy); this.pitch = curP + (this.pitch - sp); this.clampPitch();
     }
     if (!this.roomParams) { this.roomYaw = this.yaw; this.roomPitch = this.pitch; this.roomDist = this.dist; this.roomParams = true; }
@@ -561,7 +592,53 @@ export class FreeOrbit {
     const g = ROOM_LOOK_FEEL.goalSpeedMS > 0 ? this.roomGoalAt(look, this.roomYaw, this.roomPitch, this.roomDist, boxes, groundY, xz) : gv;
     this.roomWeight = g.w; this.roomArmM = g.arm;
     this.roomGoalPos = [g.pos[0], g.pos[1], g.pos[2]];
-    let vd: Vec3 = gv.dir;
+    if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomAcc = [0, 0, 0]; this.roomGoalPrevOk = false; this.roomGoalVel = [0, 0, 0]; this.roomInit = true; }
+    // r8: look at her from the lens (orbit zone) blended with the input's view (room zone) by s, in yaw/pitch
+    if (!this.roomSInit) { this.roomS = gv.w; this.roomSV = 0; this.roomSA = 0; this.roomSInit = true; }
+    let wMin = gv.w, wMax = gv.w;
+    const R8 = this.limits.roomLook!, hl0 = unitToward(this.roomPos, this.roomHerCentre(look)), hl = R8.framePts ? frameCentre(this.roomPos, hl0, look, R8.framePts) : hl0, gd = gv.dir;
+    {   // input rate (from the solves) and the predicted blend weight: the view starts turning toward her before the input
+      // reaches the orbit zone (target = the smallest w over the next predictS), and leaves her only once the input has left
+      const dt = this.roomDtAcc, ip = this.roomInPrev; this.roomDtAcc = 0;
+      if (ip && dt > 0) { const k = 1 - Math.exp(-dt / ROOM_VIEW.rateTauS), ry = (this.yaw - ip[0]) / dt, rp = (this.pitch - ip[1]) / dt; this.roomInRate = [this.roomInRate[0] + (ry - this.roomInRate[0]) * k, this.roomInRate[1] + (rp - this.roomInRate[1]) * k]; }
+      this.roomInPrev = [this.yaw, this.pitch];
+      this.roomGapDt = dt;
+      wMin = gv.w; wMax = gv.w;
+      for (let i = 1; i <= ROOM_VIEW.predictSteps && (Math.abs(this.roomInRate[0]) + Math.abs(this.roomInRate[1]) > 1e-6); i++) {
+        const tp = Math.min(ROOM_VIEW.predictMaxS, ROOM_VIEW.predictBaseS + Math.hypot(this.roomInRate[0], this.roomInRate[1]) / ROOM_VIEW.predictAccDegS2) * i / ROOM_VIEW.predictSteps, pp = Math.max(this.limits.pitchMinDeg, Math.min(this.limits.pitchMaxDeg, this.pitch + this.roomInRate[1] * tp));
+        const wp = this.roomWeightAt(look, this.yaw + this.roomInRate[0] * tp, pp); wMin = Math.min(wMin, wp); wMax = Math.max(wMax, wp);
+      }
+    }
+    const ly = Math.atan2(hl[0], hl[2]), lp = Math.asin(Math.max(-1, Math.min(1, hl[1]))), gyw = Math.atan2(gd[0], gd[2]), gpt = Math.asin(Math.max(-1, Math.min(1, gd[1])));
+    let dyw = gyw - ly; while (dyw > Math.PI) dyw -= 2 * Math.PI; while (dyw < -Math.PI) dyw += 2 * Math.PI;
+    this.roomGap = Math.hypot(dyw * Math.cos((lp + gpt) / 2), gpt - lp);
+    // target: entering the orbit zone soon -> the smallest predicted w (turn to her early); leaving it soon while still in
+    // it -> the largest predicted w, but no more than keeps her centre within exitDeg of the screen centre
+    this.roomWIn = wMin < gv.w - 1e-6 ? wMin : wMax > gv.w + 1e-6 && gv.w <= 0.1 ? Math.max(gv.w, Math.min(wMax, ROOM_VIEW.exitDeg * Math.PI / 180 / Math.max(1e-3, this.roomGap))) : gv.w;
+    {   // carry the view: share s of the input's turn + share 1−s of her direction's turn since the last solve
+      const pl = this.roomLYP, pg = this.roomGYP, sw = this.roomS, V = this.roomV;
+      if (!pl || !pg) { V[0] = ly + sw * dyw; V[1] = lp + (gpt - lp) * sw; this.roomCV = [0, 0]; this.roomCA = [0, 0]; }
+      else {
+        let dl = ly - pl[0]; while (dl > Math.PI) dl -= 2 * Math.PI; while (dl < -Math.PI) dl += 2 * Math.PI;
+        let dg = gyw - pg[0]; while (dg > Math.PI) dg -= 2 * Math.PI; while (dg < -Math.PI) dg += 2 * Math.PI;
+        V[0] += sw * dg + (1 - sw) * dl; V[1] += sw * (gpt - pg[1]) + (1 - sw) * (lp - pl[1]);
+        while (V[0] > Math.PI) V[0] -= 2 * Math.PI; while (V[0] < -Math.PI) V[0] += 2 * Math.PI;
+        const dt = this.roomGapDt;
+        if (dt > 0) { const k = 1 - Math.exp(-dt / ROOM_VIEW.rateTauS), dd = Math.hypot((dg - dl) * Math.cos(V[1]), (gpt - pg[1]) - (lp - pl[1])) / dt; this.roomDOm += (dd - this.roomDOm) * k; }
+      }
+      this.roomLYP = [ly, lp]; this.roomGYP = [gyw, gpt];
+      this.roomVS = [ly + sw * dyw, lp + (gpt - lp) * sw];
+    }
+    const by = this.roomV[0], bp = Math.max(-1.5, Math.min(1.5, this.roomV[1])), bc = Math.cos(bp);
+    let vd: Vec3 = [Math.sin(by) * bc, Math.sin(bp), Math.cos(by) * bc];
+    if (seedD) {
+      // r8: what the authored lens's view differs from this first view by is a yaw/pitch offset faded out after the first
+      // drag (smootherstep, peak accel ≤ seedAccDegS2): no turn on the first drag
+      const sd = seedD; let dy = Math.atan2(sd[0], sd[2]) - by; while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
+      this.roomOffYP = [dy, Math.asin(Math.max(-1, Math.min(1, sd[1]))) - bp];
+      this.roomOffAngle = Math.hypot(this.roomOffYP[0] * Math.cos(bp), this.roomOffYP[1]); this.roomOffT = 0;
+      this.roomOffDur = Math.max(ROOM_LOOK_FEEL.seedFadeS, Math.sqrt(5.78 * this.roomOffAngle / (ROOM_VIEW.seedAccDegS2 * Math.PI / 180)));
+    }
     if (this.roomOffAngle > 0) {
       // r7: the leftover is a yaw/pitch offset (not a fixed-axis turn), so a drag turns the view exactly as the input does
       const e = 1 - SMOOTH(this.roomOffT / this.roomOffDur), gy = Math.atan2(vd[0], vd[2]) + this.roomOffYP[0] * e;
@@ -570,27 +647,6 @@ export class FreeOrbit {
       if (this.roomOffT >= this.roomOffDur) this.roomOffAngle = 0;
     }
     this.roomGoalDir = [vd[0], vd[1], vd[2]]; this.roomGoalFresh = true;
-    if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomAcc = [0, 0, 0]; this.roomGoalPrevOk = false; this.roomGoalVel = [0, 0, 0]; this.roomInit = true; }
-    {
-      // aim-assist target (see ROOM_BIAS)
-      const R = this.limits.roomLook!, li = this.roomLastIn, moving = !!li && (Math.abs(li[0] - this.yaw) + Math.abs(li[1] - this.pitch) + Math.abs(li[2] - this.dist)) > 1e-9;
-      this.roomLastIn = [this.yaw, this.pitch, this.dist];
-      let bt: [number, number] = [0, 0];
-      if (R.framePts && !this.roomTurning && moving && ROOM_BIAS.maxDeg > 0) {
-        if (!this.roomFrameC) {
-          const mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9];
-          for (let i = 0; i < R.framePts.length; i++) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], R.framePts[i][k]); mx[k] = Math.max(mx[k], R.framePts[i][k]); }
-          this.roomFrameC = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
-        }
-        const fc = this.roomFrameC, hc: Vec3 = [look[0] + fc[0], look[1] + fc[1], look[2] + fc[2]];
-        const a = unitToward(this.roomPos, hc), b = unitToward(g.pos, hc);
-        let dy = Math.atan2(a[0], a[2]) - Math.atan2(b[0], b[2]); while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
-        const bp = Math.asin(Math.max(-1, Math.min(1, b[1]))), dp = Math.asin(Math.max(-1, Math.min(1, a[1]))) - bp, m = Math.hypot(dy * Math.cos(bp), dp);
-        const cap = ROOM_BIAS.maxDeg * Math.PI / 180, k = m > 1e-9 ? cap * Math.tanh(m / cap) / m : 0, ow = 1 - SMOOTH(gv.w / ROOM_BIAS.fadeW);
-        bt = [dy * k * ow, dp * k * ow];
-      }
-      this.roomBiasT = bt;
-    }
     if (this.roomTurning) {
       const gy = Math.atan2(vd[0], vd[2]), gp = Math.asin(Math.max(-1, Math.min(1, vd[1])));
       let dy = gy - this.roomRetFrom[0]; while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
@@ -599,9 +655,6 @@ export class FreeOrbit {
       const e = SMOOTH(this.roomRetT / this.roomRetDur), y = this.roomRetFrom[0] + dy * e, pp = this.roomRetFrom[1] + dp * e, c = Math.cos(pp);
       this.roomDir = [Math.sin(y) * c, Math.sin(pp), Math.cos(y) * c];
       if (this.roomRetT >= this.roomRetDur) { this.roomTurning = false; this.roomDir = [vd[0], vd[1], vd[2]]; }
-    } else if (this.roomBias[0] !== 0 || this.roomBias[1] !== 0) {
-      const gy = Math.atan2(vd[0], vd[2]) + this.roomBias[0], gp = Math.max(-1.5, Math.min(1.5, Math.asin(Math.max(-1, Math.min(1, vd[1]))) + this.roomBias[1])), c = Math.cos(gp);
-      this.roomDir = [Math.sin(gy) * c, Math.sin(gp), Math.cos(gy) * c];
     } else this.roomDir = [vd[0], vd[1], vd[2]];
     const p = this.roomPos, d = this.roomDir, reach = Math.max(1, Math.hypot(look[0] - p[0], look[1] - p[1], look[2] - p[2]));
     return { position: [p[0], p[1], p[2]], target: [p[0] + d[0] * reach, p[1] + d[1] * reach, p[2] + d[2] * reach], fovVerticalDeg: this.fov };
@@ -613,7 +666,7 @@ export class FreeOrbit {
     this.roomPos = [pose.position[0], pose.position[1], pose.position[2]]; this.roomDir = [d[0], d[1], d[2]];
     this.roomVel = [0, 0, 0]; this.roomAcc = [0, 0, 0]; this.roomGoalPrevOk = false; this.roomGoalVel = [0, 0, 0]; this.roomInit = true; this.roomTurning = turning; this.roomOffAngle = 0; this.roomGoalFresh = false;
     this.roomRetFrom = [Math.atan2(d[0], d[2]), Math.asin(Math.max(-1, Math.min(1, d[1])))]; this.roomRetT = 0; this.roomRetDur = 0;
-    this.roomBias = [0, 0]; this.roomBiasV = [0, 0]; this.roomBiasA = [0, 0]; this.roomBiasT = [0, 0]; this.roomLastIn = null;
+    this.roomSInit = false; this.roomSV = 0; this.roomSA = 0; this.roomLYP = null; this.roomGYP = null; this.roomDOm = 0; this.roomCV = [0, 0]; this.roomCA = [0, 0]; this.roomInPrev = null; this.roomInRate = [0, 0]; this.roomDtAcc = 0;
     this.roomGoalPos = [this.roomPos[0], this.roomPos[1], this.roomPos[2]]; this.roomGoalDir = [d[0], d[1], d[2]];
     this.roomParams = false;
   }
@@ -690,17 +743,26 @@ export class FreeOrbit {
         if (vn > 0) { const k = SMOOTH((e.s - F.safeFromM) / (F.safeToM - F.safeFromM)); v[0] -= e.nx * vn * k; v[2] -= e.nz * vn * k; }
       }
       for (let k = 0; k < 3; k++) p[k] += v[k] * h;
-      {   // aim-assist bias follower
-        const BB = ROOM_BIAS, D2R = Math.PI / 180, bt = this.roomBiasT, b = this.roomBias, bv = this.roomBiasV, ba = this.roomBiasA;
-        const ex = bt[0] - b[0], ey = bt[1] - b[1], el = Math.hypot(ex, ey), br = BB.brakeDegS2 * D2R, c0 = 4 * br / BB.omega;
-        if (el > 1e-12 || Math.hypot(bv[0], bv[1]) > 1e-12 || Math.hypot(ba[0], ba[1]) > 1e-12) {
-          const vr = el > 1e-12 ? Math.min(BB.vMaxDegS * D2R, Math.sqrt(2 * br * el + c0 * c0) - c0) / el : 0;
-          let ax = BB.omega * (ex * vr - bv[0]), ay = BB.omega * (ey * vr - bv[1]);
-          const am = Math.hypot(ax, ay), amx = BB.accDegS2 * D2R; if (am > amx) { ax *= amx / am; ay *= amx / am; }
-          const dx = ax - ba[0], dy = ay - ba[1], dm = Math.hypot(dx, dy), jm = BB.jerkDegS3 * D2R * h, jf = dm > jm ? jm / dm : 1;
-          ba[0] += dx * jf; ba[1] += dy * jf; bv[0] += ba[0] * h; bv[1] += ba[1] * h; b[0] += bv[0] * h; b[1] += bv[1] * h;
-          if (el < 1e-7 && Math.hypot(bv[0], bv[1]) < 1e-7 && Math.hypot(ba[0], ba[1]) < 1e-6 && bt[0] === 0 && bt[1] === 0) { b[0] = b[1] = bv[0] = bv[1] = ba[0] = ba[1] = 0; }
-        }
+      {   // r8: the weight s -> its target (rate and accel scaled by |ω_G − ω_L|), and the correction rate pulling V onto V*
+        const VV = ROOM_VIEW, D2R = Math.PI / 180, dw = Math.max(1e-3, this.roomDOm), e = this.roomWIn - this.roomS, el = Math.abs(e);
+        const am = Math.min(VV.sAccMax, VV.blendJerkDegS3 * D2R / dw), vm = Math.min(VV.sVMax, VV.blendAccDegS2 * D2R / dw), br = 0.8 * am, c0 = 4 * br / VV.sOmega;
+        const vt = el > 1e-12 ? (e > 0 ? 1 : -1) * Math.min(vm, Math.sqrt(2 * br * el + c0 * c0) - c0) : 0;
+        let sa = VV.sOmega * (vt - this.roomSV); sa = sa > am ? am : sa < -am ? -am : sa;
+        this.roomSA = sa; this.roomSV += sa * h;
+        if (Math.abs(this.roomSV) > vm) this.roomSV = this.roomSV > 0 ? vm : -vm;
+        this.roomS += this.roomSV * h;
+        if (Math.abs(e) < 1e-4 && Math.abs(this.roomSV) < 2e-3) { this.roomS = this.roomWIn; this.roomSV = 0; this.roomSA = 0; }
+        const V = this.roomV, VS = this.roomVS, cp = Math.cos(V[1]);
+        let ey = VS[0] - V[0]; while (ey > Math.PI) ey -= 2 * Math.PI; while (ey < -Math.PI) ey += 2 * Math.PI;
+        const ex = ey * cp, ez = VS[1] - V[1], cl = Math.hypot(ex, ez), cbr = VV.corrBrakeDegS2 * D2R, cc0 = 4 * cbr / VV.corrOmega;
+        const cs = cl > 1e-9 ? Math.min(VV.corrVMaxDegS * D2R, Math.sqrt(2 * cbr * cl + cc0 * cc0) - cc0) / cl : 0, cv = this.roomCV, ca = this.roomCA;
+        let ax = VV.corrOmega * (ex * cs - cv[0]), az = VV.corrOmega * (ez * cs - cv[1]);
+        const amc = VV.corrAccDegS2 * D2R, an = Math.hypot(ax, az); if (an > amc) { ax *= amc / an; az *= amc / an; }
+        const jx = ax - ca[0], jz = az - ca[1], jn = Math.hypot(jx, jz), jm = VV.corrJerkDegS3 * D2R * h, jf = jn > jm ? jm / jn : 1;
+        ca[0] += jx * jf; ca[1] += jz * jf; cv[0] += ca[0] * h; cv[1] += ca[1] * h;
+        V[0] += cv[0] / Math.max(0.05, cp) * h; V[1] += cv[1] * h;
+        // s moves V* along G − L; V follows through c (the view never jumps when s or the target changes)
+        this.roomVS = [VS[0], VS[1]];
       }
       // view: a cinematic return turns it on a timed yaw/pitch curve (solveRoom); otherwise it is the input's own
       if (this.roomTurning && this.roomGoalFresh) this.roomRetT += h;

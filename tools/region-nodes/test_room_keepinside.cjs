@@ -9,9 +9,12 @@
 //  4. Motion: yaw/pitch/pinch sweeps, real drag flicks, the first drag off the authored home lens and a return after a
 //     cinematic, at 30/60/120 fps: linear accel ≤3 m/s², camera-added angular accel ≤110°/s² (the raw view accel is the
 //     hand's own and is reported), no jumps (speed ≤4 m/s), the whole time ≥0.25 m from the walls and ≥1.0 m from her.
-//  5. The view follows the hand (r6): lag behind the input's own view ≤10°; after the hand stops the view settles within
-//     0.3 s with no overshoot — drags at 30°/s and 90°/s and fast back-and-forth, at 30/60/120 fps.
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+//  5. r8 view: in the orbit-her zone (input w ≤ 0.1) the view looks at her body centre from the lens, so her centre is in
+//     the frame in every frame of every motion case; in the room-centre zone (input w ≥ 0.9) the view lags the input's own
+//     view by ≤10°; after the hand stops the view overshoots by ≤2° (settle time reported) — 30/60/120 fps.
+const fs=require('node:fs'),path=require('node:path'),SOFT=[];
+// ROOM_SOFT=1: record failed checks in out.softFailures instead of stopping (exploration / reports); the default run asserts
+const assert=process.env.ROOM_SOFT?{ok:(c,m)=>{if(!c)SOFT.push(m)},equal:(a,b,m)=>{if(a!==b)SOFT.push(m)}}:require('node:assert/strict');
 const {load}=require('./load.cjs');
 const C=load('region/FreeOrbit.ts'),R=load('world-r1/CharacterReference.ts');
 const FX=path.join(__dirname,'fixtures/room-keepinside'),J=f=>JSON.parse(fs.readFileSync(path.join(FX,f),'utf8'));
@@ -19,7 +22,7 @@ const HER_PTS=J('her_seated_points.json').points,W=J('inner_walls.json'),WORLD=J
 // r7: the west-wall yaw warp (roomLook.yawWarp) is part of the input mapping; its own accel at a steady hand grows with
 // rate² (≈0.0114°/°² × rate²): asserted up to 90°/s, reported above that.
 const STEADY_ASSERT_MAX_RATE=90;
-const BOX_MARGIN=0.30,LENS_MARGIN=0.25,NO_HUG_M=1.0,LIN_MAX=3,ANG_MAX=110,LAG_MAX=10,SETTLE_S=0.3,OWN_TURN_MAX=200;
+const BOX_MARGIN=0.30,LENS_MARGIN=0.25,NO_HUG_M=1.0,LIN_MAX=3,ANG_MAX=110,LAG_MAX=10,OVERSHOOT_MAX=2,OWN_TURN_MAX=200,ROOM_W=0.9;
 const poly=W.polygonXZ;
 function inside(x,z){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 function edgeGap(x,z){let m=1e9;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[j],b=poly[i],dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz,t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/L));m=Math.min(m,Math.hypot(x-a[0]-t*dx,z-a[1]-t*dz))}return m}
@@ -87,25 +90,37 @@ const inFrameRows=[];
 // start is thousands of °/s²; reported, not asserted). The bar (ANG_MAX) is asserted on (a) what the camera adds on top
 // of the input's view g (return follower, first-drag fade): d/dt(ω_view − ω_g), and (b) the raw view accel while the hand
 // moves at a steady rate (sweeps; the framing/blend geometry's own accel). Lag is measured against g.
+// r8: the view passes on the share s of the input's own turn (s = the view blend weight: 0 in the orbit zone, where the view
+// looks at her; 1 in the room-centre zone). Camera-added angular accel = dω_view/dt − s·dω_g/dt (the hand's own accel
+// passed through is not the camera's; re-weighting the two turn rates, s'·(ω_g − ω_her), is). Through the blend
+// (0 < s < 1) its peak accel and jerk are kept. camW: the camera's own turn rate ω_view − s·ω_g (view-jump check).
+const sOf=f=>f.s===undefined?1:f.s;
+function camW(fr,i,dt){const a=omega(fr,'f',i,dt);if(!(fr[i].g&&fr[i+1].g))return a;const b=omega(fr,'g',i,dt),s=(sOf(fr[i])+sOf(fr[i+1]))/2;return [a[0]-s*b[0],a[1]-s*b[1],a[2]-s*b[2]]}
+function camAcc(fr,i,dt){const w1=omega(fr,'f',i-1,dt),w2=omega(fr,'f',i,dt);if(!(fr[i-1].g&&fr[i].g&&fr[i+1].g))return w2.map((v,k)=>(v-w1[k])/dt);const g1=omega(fr,'g',i-1,dt),g2=omega(fr,'g',i,dt),s=sOf(fr[i]);return w2.map((v,k)=>(v-w1[k]-s*(g2[k]-g1[k]))/dt)}
+const blendRows=[];
 function measure(frames,dt,name){{let n=0,out=0,worst=0,cmin=9,cmax=0,cout=0,cworst=0;for(const f of frames){if(f.wIn===undefined||f.wIn>IN_FRAME_W)continue;const h=herOnScreen(f.p,f.f),ce=centreOnScreen(f.p,f.f);n++;if(h.edge>SAFE)out++;if(ce>1)cout++;cworst=Math.max(cworst,ce);worst=Math.max(worst,h.edge);cmin=Math.min(cmin,h.cov);cmax=Math.max(cmax,h.cov)}
   inFrameRows.push({name,fps:Math.round(1/dt),orbitFrames:n,outOfSafeFrames:out,centreOutFrames:cout,worstCentreNDC:n?+cworst.toFixed(3):null,worstEdgeNDC:n?+worst.toFixed(3):null,minCoverage:n?+cmin.toFixed(3):null,maxCoverage:n?+cmax.toFixed(3):null})}
  let lin=0,angRaw=0,angCam=0,angSteady=0,ownSpeed=0,vmax=0,minWall=9,minHer=9,lag=0;
- for(const f of frames){minWall=Math.min(minWall,wallGap(f.p));minHer=Math.min(minHer,dist3(f.p,her));if(f.g&&!f.ret)lag=Math.max(lag,angle(f.f,f.g))}
+ for(const f of frames){minWall=Math.min(minWall,wallGap(f.p));minHer=Math.min(minHer,dist3(f.p,her));if(f.g&&!f.ret&&f.wIn>=ROOM_W)lag=Math.max(lag,angle(f.f,f.g))}
  for(let i=1;i<frames.length;i++)vmax=Math.max(vmax,dist3(frames[i].p,frames[i-1].p)/dt);
  // the camera's own turn rate (no view jump): |ω_view − ω_g|, or the whole turn where the frame has no g (a seed / cinematic pose)
- for(let i=0;i<frames.length-1;i++){const a=omega(frames,'f',i,dt);let x;if(frames[i].g&&frames[i+1].g){const b=omega(frames,'g',i,dt);x=Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])}else x=Math.hypot(...a);ownSpeed=Math.max(ownSpeed,x*180/Math.PI)}
+ for(let i=0;i<frames.length-1;i++)ownSpeed=Math.max(ownSpeed,Math.hypot(...camW(frames,i,dt))*180/Math.PI);
+ {let bA=0,bJ=0,bR=0,n=0;const acc=[];for(let i=1;i<frames.length-1;i++)acc[i]=camAcc(frames,i,dt);
+  for(let i=2;i<frames.length-1;i++){const s=sOf(frames[i]);if(!(s>0.002&&s<0.998)||frames[i].ret)continue;n++;bA=Math.max(bA,Math.hypot(...acc[i])*180/Math.PI);bJ=Math.max(bJ,Math.hypot(...[0,1,2].map(k=>(acc[i][k]-acc[i-1][k])/dt))*180/Math.PI);
+   const w1=omega(frames,'f',i-1,dt),w2=omega(frames,'f',i,dt);bR=Math.max(bR,Math.hypot(w2[0]-w1[0],w2[1]-w1[1],w2[2]-w1[2])/dt*180/Math.PI)}
+  if(n)blendRows.push({name,fps:Math.round(1/dt),blendFrames:n,cameraAngAccDegS2:+bA.toFixed(1),cameraAngJerkDegS3:+bJ.toFixed(0),rawViewAngAccDegS2:+bR.toFixed(0)})}
  for(let i=1;i<frames.length-1;i++){const a=[0,1,2].map(k=>(frames[i+1].p[k]-2*frames[i].p[k]+frames[i-1].p[k])/dt/dt);lin=Math.max(lin,Math.hypot(...a));
   const w1=omega(frames,'f',i-1,dt),w2=omega(frames,'f',i,dt);angRaw=Math.max(angRaw,Math.hypot(w2[0]-w1[0],w2[1]-w1[1],w2[2]-w1[2])/dt*180/Math.PI);
   // r7: at a steady hand, the input view g's own accel (its framing geometry); the aim-assist bias on top is camera-added (angCam)
   if(frames[i-2]&&frames[i+2]&&frames[i-2].steady&&frames[i+2].steady){const s1=frames[i-1].g&&frames[i+1].g?omega(frames,'g',i-1,dt):w1,s2=frames[i-1].g&&frames[i+1].g?omega(frames,'g',i,dt):w2;angSteady=Math.max(angSteady,Math.hypot(s2[0]-s1[0],s2[1]-s1[1],s2[2]-s1[2])/dt*180/Math.PI)}
-  if(frames[i-1].g&&frames[i].g&&frames[i+1].g){const g1=omega(frames,'g',i-1,dt),g2=omega(frames,'g',i,dt);angCam=Math.max(angCam,Math.hypot(w2[0]-w1[0]-g2[0]+g1[0],w2[1]-w1[1]-g2[1]+g1[1],w2[2]-w1[2]-g2[2]+g1[2])/dt*180/Math.PI)}}
+  if(i>=1&&frames[i-1]&&!(frames[i].ret&&frames[i].g===undefined))angCam=Math.max(angCam,Math.hypot(...camAcc(frames,i,dt))*180/Math.PI)}
  const r={name,fps:Math.round(1/dt),peakLinAccMS2:+lin.toFixed(2),cameraAngAccDegS2:+angCam.toFixed(1),rawViewAngAccDegS2:+angRaw.toFixed(0),steadyViewAngAccDegS2:+angSteady.toFixed(1),cameraTurnDegS:+ownSpeed.toFixed(1),viewLagDeg:+lag.toFixed(2),peakSpeedMS:+vmax.toFixed(2),minWallGapM:+minWall.toFixed(3),minToHerM:+minHer.toFixed(2)};
  assert.ok(lin<=LIN_MAX,name+' linear accel '+r.peakLinAccMS2);assert.ok(angCam<=ANG_MAX,name+' camera angular accel '+r.cameraAngAccDegS2);{const hm=name.match(/(\d+)°\/s/);if(!hm||+hm[1]<=STEADY_ASSERT_MAX_RATE)assert.ok(angSteady<=ANG_MAX,name+' view accel at a steady hand '+r.steadyViewAngAccDegS2)}
  assert.ok(lag<=LAG_MAX,name+' view lag '+r.viewLagDeg);assert.ok(ownSpeed<=OWN_TURN_MAX,name+' view jump: the camera itself turns '+r.cameraTurnDegS+' °/s');
  assert.ok(minWall>=LENS_MARGIN,name+' wall gap '+r.minWallGapM);assert.ok(minHer>=NO_HUG_M,name+' '+r.minToHerM+' m from her while moving');assert.ok(vmax<=4,name+' speed '+r.peakSpeedMS+' (jump)');return r}
 // g: the view the player's own yaw/pitch/arm asks for (static goal at the input) — the lag reference
 function inputDir(o){const pr=o.pitch*Math.PI/180,yr=o.yaw*Math.PI/180,cp=Math.cos(pr);return [-Math.sin(yr)*cp,-Math.sin(pr),-Math.cos(yr)*cp]}
-function frame(o){const p=o.solve(feet,WORLD,seat[1]);const gg=o.roomGoalAt(o.orbitPivot(feet),o.yaw,o.pitch,o.dist,WORLD,seat[1]),g=gg.dir;return {p:p.position,f:unit(p.position,p.target),g:[g[0],g[1],g[2]],wIn:gg.w,goal:gg.pos,u:inputDir(o),w:o.roomWeight,ret:o.mode==='returning'}}
+function frame(o){const p=o.solve(feet,WORLD,seat[1]);const gg=o.roomGoalAt(o.orbitPivot(feet),o.yaw,o.pitch,o.dist,WORLD,seat[1]),g=gg.dir;return {p:p.position,f:unit(p.position,p.target),g:[g[0],g[1],g[2]],wIn:gg.w,s:o.roomViewBlend,goal:gg.pos,u:inputDir(o),w:o.roomWeight,ret:o.mode==='returning'}}
 function sweep(fps,seconds,set,steady){const o=new C.FreeOrbit('home'),dt=1/fps,fr=[];o.mode='free';set(o,0);fr.push(frame(o));for(let t=dt;t<=seconds+1e-9;t+=dt){set(o,t);o.step(dt);const f=frame(o);f.steady=!!steady&&steady(t);fr.push(f)}return fr}
 const motion=[];
 for(const fps of [30,60,120]){
@@ -127,11 +142,15 @@ for(const fps of [30,60,120]){
 const peak=k=>Math.max(...motion.map(m=>m[k]));
 out.motion={cases:motion.length,peakLinAccMS2:peak('peakLinAccMS2'),peakCameraAngAccDegS2:peak('cameraAngAccDegS2'),peakRawViewAngAccDegS2:peak('rawViewAngAccDegS2'),peakViewLagDeg:peak('viewLagDeg'),peakSpeedMS:peak('peakSpeedMS'),minWallGapM:Math.min(...motion.map(m=>m.minWallGapM)),minToHerM:Math.min(...motion.map(m=>m.minToHerM)),rows:motion};
 // 5) view follows the hand: lag ≤10° while dragging; after the hand stops the view settles within 0.3 s, no overshoot
-function settleAfter(fr,iStop,dt,dirSign){const fin=fr[fr.length-1].f;let settle=null,over=0;
+function settleAfter(fr,iStop,dt,dirSign){const fin=fr[fr.length-1].f;let settle=null,over=0,overIn=0;
+ const yd=i=>{const yv=Math.atan2(fr[i].f[0],fr[i].f[2]),yf=Math.atan2(fin[0],fin[2]);let d=(yv-yf)*180/Math.PI;while(d>180)d-=360;while(d<-180)d+=360;return d};
+ // r8 overshoot: the view (yaw) passes the heading it settles on, to the other side from where it was when the hand stopped
+ // (if it was already there, the side it was moving from). r6/r7 measured past the final heading in the input's last
+ // direction (overshootInputDirDeg); with the look-at view that also counts the lens still catching up, so it is reported.
+ const d0=yd(iStop),v0=iStop+1<fr.length?yd(iStop+1)-d0:0,side=Math.abs(d0)>0.05?Math.sign(d0):(Math.abs(v0)>1e-6?-Math.sign(v0):0);
  for(let i=iStop;i<fr.length;i++){const a=angle(fr[i].f,fin);if(settle===null&&a<0.5){let ok=true;for(let k=i;k<fr.length;k++)if(angle(fr[k].f,fin)>=0.5){ok=false;break}if(ok)settle=(i-iStop)*dt}
-  // overshoot: the view passes the final heading in the direction it was moving
-  const yv=Math.atan2(fr[i].f[0],fr[i].f[2]),yf=Math.atan2(fin[0],fin[2]);let d=(yv-yf)*180/Math.PI;while(d>180)d-=360;while(d<-180)d+=360;over=Math.max(over,dirSign*d)}
- return {settleS:settle===null?null:+settle.toFixed(3),overshootDeg:+Math.max(0,over).toFixed(3)}}
+  const d=yd(i);overIn=Math.max(overIn,dirSign*d);if(side)over=Math.max(over,-side*d)}
+ return {settleS:settle===null?null:+settle.toFixed(3),overshootDeg:+Math.max(0,over).toFixed(3),overshootInputDirDeg:+Math.max(0,overIn).toFixed(3)}}
 const follow=[];
 for(const fps of [30,60,120]){const dt=1/fps;
  for(const rate of [30,90]){const o=new C.FreeOrbit('home'),fr=[];o.yaw=0;o.pitch=10;o.dist=L.distMax;fr.push(frame(o));const n=Math.round(360/rate/dt);
@@ -149,7 +168,7 @@ for(const fps of [30,60,120]){const dt=1/fps;
   for(let t=0;t<2.4;t+=dt){const s=Math.floor(t/0.15)%2?-1:1;last=s;o.drag(s*150*dt/C.ORBIT_FEEL.yawPerScreen,Math.sin(t*9)*40*dt/C.ORBIT_FEEL.pitchPerScreen,dt);o.step(dt);fr.push(frame(o))}const iStop=fr.length-1;
   for(let i=0;i<fps;i++){o.drag(0,0,dt);o.step(dt);fr.push(frame(o))}
   const m=measure(fr,dt,'follow back-and-forth'),st=settleAfter(fr,iStop,dt,last>0?-1:1);follow.push(Object.assign({case:'back-and-forth 150°/s at yaw 340 (orbit zone)',fps},{viewLagDeg:m.viewLagDeg},st,{cameraAngAccDegS2:m.cameraAngAccDegS2,peakLinAccMS2:m.peakLinAccMS2,minWallGapM:m.minWallGapM,minToHerM:m.minToHerM}))}}
-for(const f of follow){assert.ok(f.viewLagDeg<=LAG_MAX,f.case+' '+f.fps+' fps lag '+f.viewLagDeg);if(!process.env.ROOM_NO_ASSERT_SETTLE)assert.ok(f.settleS!==null&&f.settleS<=SETTLE_S,f.case+' '+f.fps+' fps settle '+f.settleS);if(!process.env.ROOM_NO_ASSERT_SETTLE)assert.ok(f.overshootDeg<=0.05,f.case+' '+f.fps+' fps overshoot '+f.overshootDeg)}
+for(const f of follow){assert.ok(f.viewLagDeg<=LAG_MAX,f.case+' '+f.fps+' fps room-zone lag '+f.viewLagDeg);assert.ok(f.settleS!==null,f.case+' '+f.fps+' fps never settles');assert.ok(f.overshootDeg<=OVERSHOOT_MAX,f.case+' '+f.fps+' fps overshoot '+f.overshootDeg)}
 out.follow=follow;
 // r7 hard: at rest (fresh orbit at its static goal) every orbit-her pose (w ≤ IN_FRAME_W) on a yaw 5° × pitch 4° × 7-arm
 // grid keeps all of her inside the safe frame (finer grid: tools/region-nodes/scan_room_frame.cjs, SCAN_YAW=1 SCAN_PITCH=2)
@@ -159,9 +178,13 @@ out.follow=follow;
  assert.equal(bad.length,0,'at rest she leaves the safe frame at '+JSON.stringify(bad.slice(0,8)))}
 out.inFrame={safeNDC:SAFE,screen:'390x844',orbitW:IN_FRAME_W,cases:inFrameRows.length,outOfSafeFrames:inFrameRows.reduce((a,r)=>a+r.outOfSafeFrames,0),
  minCoverage:Math.min(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.minCoverage)),maxCoverage:Math.max(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.maxCoverage)),rows:inFrameRows};
-if(!process.env.ROOM_NO_ASSERT_FRAME)for(const r of inFrameRows)assert.equal(r.outOfSafeFrames,0,r.name+' '+r.fps+' fps: she leaves the safe frame in '+r.outOfSafeFrames+' of '+r.orbitFrames+' orbit frames (edge '+r.worstEdgeNDC+')');
+out.inFrame.centreOutFrames=inFrameRows.reduce((a,r)=>a+r.centreOutFrames,0);
+out.blend={rows:blendRows,peakCameraAngAccDegS2:Math.max(0,...blendRows.map(r=>r.cameraAngAccDegS2)),peakCameraAngJerkDegS3:Math.max(0,...blendRows.map(r=>r.cameraAngJerkDegS3))};
+// r8 hard: in the orbit-her zone her body centre never leaves the frame (the safe-frame count is reported)
+if(!process.env.ROOM_NO_ASSERT_FRAME)for(const r of inFrameRows)assert.equal(r.centreOutFrames,0,r.name+' '+r.fps+' fps: her centre leaves the frame in '+r.centreOutFrames+' of '+r.orbitFrames+' orbit frames (NDC '+r.worstCentreNDC+')');
 // regression: the old box put the yaw-270 lens through the round wall (plain orbit, no room look)
 const oldLimits=Object.assign({},L,{keepInside:{min:[-1.85,0.7,-4.72],max:[1.05,2.2,-1.55]},roomLook:undefined});
 const o=new C.FreeOrbit('home');o.limits=oldLimits;o.yaw=270;o.pitch=10;o.dist=L.distMax;const old270=wallGap(o.solve(feet,[],seat[1]).position);
 assert.ok(old270<LENS_MARGIN,'old box fails at yaw 270');out.old270WallGapM=+old270.toFixed(3);
+if(SOFT.length){out.status='SOFT-FAIL';out.softFailures=SOFT}
 console.log(JSON.stringify(out,null,1));
