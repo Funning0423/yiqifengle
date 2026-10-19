@@ -1,6 +1,6 @@
 # r5-build08
 
-分支 `gbt/r5-integrated-b08`，未 push。基线 `0881f4f796df3face8f502787a7cc7e9b1dc2f59`。HEAD `ef40821824fc2ae39a2ec809774f9f99c67f702d`。
+分支 `gbt/r5-integrated-b08`，未 push。基线 `0881f4f796df3face8f502787a7cc7e9b1dc2f59`。游戏代码与被 guard 构建的提交是 `ef40821824fc2ae39a2ec809774f9f99c67f702d`。
 
 ## 合入
 
