@@ -174,8 +174,17 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 /** Beam on her port side, so the swing off the bow does not look through the sail. */
 const Kbeam:SailOff={back:0.8,side:10.2,up:5.1,fov:52,look:0.2,orb:0};
-/** Quarter view, fov still 52 so the K7 star still (this pose) keeps its pixel size. Port side clears the sail. */
-const K3:SailOff={back:8.2,side:7.8,up:5.0,fov:52,look:0.2,orb:0};
+/**
+ * Far-sea K3 (day) / K7 (night still). r5-sail-farsea: astern, a little to starboard, lower, aimed 3 m ahead
+ * so the meadow windmill (≈80 m ahead, port of the heading) sits whole in the upper third above her.
+ * fov stays 52 so the K7 star still keeps its pixel size.
+ * Old (sail-k2k7): {back:8.2,side:7.8,up:5.0,fov:52,look:0.2}, port quarter, windmill ~6 ndc off the left edge.
+ * Rollback: restore that line and SAIL_K3_IN back to 0.24.
+ */
+const K3:SailOff={back:10.5,side:-2,up:4.4,fov:52,look:3,orb:0};
+/** S-d u where the Kbeam→K3 arc ends and the K3 hold starts (was 0.24). The arc is ~96° now (was ~42°), so it gets 1.62 s; the K3 hold is 1.08 s (S-d u 0.30–0.42). */
+export const SAIL_K3_IN=0.30;
+export const SAIL_K3_OUT=0.42;
 /** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
 const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
 /** Channel centre: boat x≈−4.4, side≈0.9 → camera x≈−3.5, between the inner banks. */
@@ -198,9 +207,9 @@ function sailOffset(b:SailBeat,t:number):SailOff{
  if(b.id==='S-c')return u>=0.9?K2:orbitMix(K1,K2,u/0.9);
  if(b.id==='S-d'){
   if(u<0.12)return orbitMix(K2,Kbeam,u/0.12);
-  if(u<0.24)return orbitMix(Kbeam,K3,(u-0.12)/0.12);
-  if(u<0.42)return K3;
-  if(u<0.56)return orbitMix(K3,K4,(u-0.42)/0.14);
+  if(u<SAIL_K3_IN)return orbitMix(Kbeam,K3,(u-0.12)/(SAIL_K3_IN-0.12));
+  if(u<SAIL_K3_OUT)return K3;
+  if(u<0.56)return orbitMix(K3,K4,(u-SAIL_K3_OUT)/(0.56-SAIL_K3_OUT));
   if(u<0.64)return K4;
   if(u<0.82)return orbitMix(K4,K5,(u-0.64)/0.18);
   return K5;
