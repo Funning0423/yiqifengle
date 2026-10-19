@@ -129,18 +129,18 @@ try {
   const src = cp.execFileSync('git', ['show', '619ef95a:creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts'], { cwd: root, encoding: 'utf8' });
   const m = { exports: {} }; new Function('module', 'exports', 'require', ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5 } }).outputText)(m, m.exports, require); oldFx = m.exports;
 } catch (e) { oldFx = null; }
-const CAM = [-12, 15.5, 48], CH = FX.ISLAND_FX.chimney;
+const CAM = [-12, 15.5, 48], CH = FX.ISLAND_FX.chimney, SW = function (g) { return { delta: G.windYawDelta(g), scale: G.smokeLeanScale(g) }; };
 let maxOld = -1;
 if (oldFx) for (let t = 0; t < 12; t += .7) for (const w of [0, .5, 1]) { const a = FX.smokePuffs(t, w, .3, 1, CAM), b = oldFx.smokePuffs(t, w, .3, 1, CAM); for (let i = 0; i < a.length; i++) for (let k = 0; k < 3; k++) maxOld = Math.max(maxOld, Math.abs(a[i].position[k] - b[i].position[k]), Math.abs(a[i].alpha - b[i].alpha)); }
 check('smoke-default-identical', oldFx && maxOld === 0, oldFx ? { maxDiffVs619ef95a: maxOld } : 'git show failed');
 const off = function (p) { return [p.position[0] - CH[0], 0, p.position[2] - CH[2]]; };
 let rotErr = 0; const gw = G.setGlobalWindAzimuth(G.globalWindAzimuthDeg(W0) + 90); G.resetGlobalWind();
-for (let t = 0; t < 12; t += .9) { const a = FX.smokePuffs(t, .6, 0, 1, CAM), b = FX.smokePuffs(t, .6, 0, 1, CAM, gw); for (let i = 0; i < a.length; i++) { const r = G.turnXZ(off(a[i])[0], off(a[i])[2], 90 * D), o = off(b[i]); rotErr = Math.max(rotErr, Math.abs(r[0] - o[0]), Math.abs(r[1] - o[2]), Math.abs(a[i].position[1] - b[i].position[1])); } }
+for (let t = 0; t < 12; t += .9) { const a = FX.smokePuffs(t, .6, 0, 1, CAM), b = FX.smokePuffs(t, .6, 0, 1, CAM, SW(gw)); for (let i = 0; i < a.length; i++) { const r = G.turnXZ(off(a[i])[0], off(a[i])[2], 90 * D), o = off(b[i]); rotErr = Math.max(rotErr, Math.abs(r[0] - o[0]), Math.abs(r[1] - o[2]), Math.abs(a[i].position[1] - b[i].position[1])); } }
 check('smoke-follows-direction', rotErr < 1e-9, { maxErr: rotErr });
 const g0 = { dirX: W0.dirX, dirZ: W0.dirZ, strength: 0, pennantMps: W0.pennantMps }, g2 = { dirX: W0.dirX, dirZ: W0.dirZ, strength: 2, pennantMps: W0.pennantMps };
 const ld = FX.ISLAND_FX.smoke.leanDir, along = function (p) { const o = off(p); return o[0] * ld[0] + o[2] * ld[2]; };
 const oldest = function (ps) { return ps.reduce(function (a, b) { return a.age > b.age ? a : b; }); };
-const a0 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM, g0))), a1 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM))), a2 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM, g2)));
+const a0 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM, SW(g0)))), a1 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM))), a2 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM, SW(g2))));
 check('smoke-strength', Math.abs(a0) < 1e-9 && a1 > .5 && Math.abs(a2 - 2 * a1) < 1e-9, { s0: r4(a0), s1: r4(a1), s2: r4(a2) });
 // pennants: authored flag (+x from the pole) azimuth vs the default wind, and the yaw delta in the parent frame
 const sky = fs.readFileSync(path.join(A, 'bundles/region_skycity/env_skycity.glb')), sj = JSON.parse(sky.slice(20, 20 + sky.readUInt32LE(12)).toString('utf8'));
@@ -156,7 +156,10 @@ check('pennant-yaw-delta', penErr < 1e-6, { maxErrDeg: penErr });
 const pw = fs.readFileSync(path.join(scripts, 'region/SkycityPennantWind.ts'), 'utf8'), rl = fs.readFileSync(path.join(scripts, 'region/RegionLoader.ts'), 'utf8');
 check('hook-pennant', /lateUpdate\(\)/.test(pw) && /quatMul\(yawQuat\(delta\)/.test(pw) && /if\(delta===0&&!s\.written\)continue;/.test(pw) && /def\.bundle==='region_skycity'\)model\.addComponent\(SkycityPennantWind\)/.test(rl));
 const fc = fs.readFileSync(path.join(scripts, 'render/IslandAtmosphereFxCore.ts'), 'utf8');
-check('hook-smoke', /turnXZ\(S\.leanDir\[0\], S\.leanDir\[2\], windYawDelta\(gw\)\)/.test(fc) && /\* smokeLeanScale\(gw\)/.test(fc));
+const ifx = fs.readFileSync(path.join(scripts, 'render/IslandAtmosphereFx.ts'), 'utf8');
+check('hook-smoke', /smokePuffs\([^;]*\{ delta: windYawDelta\(\), scale: smokeLeanScale\(\) \}\)/.test(ifx) && !/^import/m.test(fc), 'IslandAtmosphereFx passes GlobalWind; core stays import-free');
+let dflt = 0; for (let t = 0; t < 9; t += .8) { const a = FX.smokePuffs(t, .4, 0, 1, CAM), b = FX.smokePuffs(t, .4, 0, 1, CAM, SW(W0)); for (let i = 0; i < a.length; i++) for (let k = 0; k < 3; k++) dflt = Math.max(dflt, Math.abs(a[i].position[k] - b[i].position[k])); }
+check('smoke-default-gw-identical', dflt === 0, { maxDiff: dflt });
 G.resetGlobalWind();
 
 // ---- hooks + loose ES5
@@ -165,7 +168,7 @@ check('hook-grass', /from '\.\.\/render\/GlobalWind'/.test(mb) && /setProperty\(
 check('hook-sail', /apparentWindLocal\(v\.yaw,v\.speed\)/.test(sa) && /boom\.setRotationFromEuler\(0,25\*\(1-open\)\*side,0\)/.test(sa) && /sailRoot\.setScale\(side,/.test(sa) && /jib\.setScale\(side,/.test(sa) && /findNode\(boat,'pennant'\)/.test(sa));
 const strip = function (t) { return t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, ''); }, BAN = /Array\.from|Object\.entries|padStart|\.\.\.[A-Za-z_(]/;
 const added = sa.split('\n').filter(function (l) { return /pennant|apparentWind|sailSide|side\)/.test(l); }).concat(mb.split('\n').filter(function (l) { return /windDir|GlobalWind/.test(l); }));
-const es5 = []; if (BAN.test(strip(fs.readFileSync(path.join(scripts, 'render/GlobalWind.ts'), 'utf8')))) es5.push('GlobalWind.ts'); if (BAN.test(strip(pw))) es5.push('SkycityPennantWind.ts'); fc.split('\n').filter(function (l) { return /GlobalWind|turnXZ|smokeLeanScale|gw\b/.test(l); }).forEach(function (l) { if (BAN.test(strip(l))) es5.push(l.trim().slice(0, 60)); }); added.forEach(function (l) { if (BAN.test(strip(l))) es5.push(l.trim().slice(0, 60)); });
+const es5 = []; if (BAN.test(strip(fs.readFileSync(path.join(scripts, 'render/GlobalWind.ts'), 'utf8')))) es5.push('GlobalWind.ts'); if (BAN.test(strip(pw))) es5.push('SkycityPennantWind.ts'); fc.split('\n').concat(ifx.split('\n')).filter(function (l) { return /GlobalWind|SmokeWind|smokeLeanScale|windYawDelta|gw\b/.test(l); }).forEach(function (l) { if (BAN.test(strip(l))) es5.push(l.trim().slice(0, 60)); }); added.forEach(function (l) { if (BAN.test(strip(l))) es5.push(l.trim().slice(0, 60)); });
 check('loose-es5', !es5.length, es5.length ? es5 : 'GlobalWind.ts + ' + added.length + ' hook lines');
 
 const failed = checks.filter(function (c) { return !c.ok; });
