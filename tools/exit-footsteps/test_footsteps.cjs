@@ -152,7 +152,10 @@ await test('Boot wiring: FootstepAudio fed every world state next to GameAudio, 
   const g=fs.readFileSync(AUD+'/GameAudio.ts','utf8');assert(!/from '\.\/Footstep/.test(g),'GameAudio does not import the footstep modules');
 });
 await test('assets: 20 mono 44.1 kHz mp3 one-shots (<= 2 KB each, <= 32 KB total) + metas; exit track has no baked steps',()=>{
-  const dir='creator-build-project/assets/bundles/region_island/audio_steps';const files=fs.readdirSync(dir).filter(f=>f.endsWith('.mp3')).sort();assert.equal(files.length,20);
+  const dir='creator-build-project/assets/bundles/region_island/audio_steps';const all=fs.readdirSync(dir).filter(f=>f.endsWith('.mp3')).sort();
+  // Scene-audio v2 sand clips share this folder. They stay; the exit pack is still the original 20.
+  const sand=all.filter(f=>f.startsWith('step_sand_'));const files=all.filter(f=>!f.startsWith('step_sand_'));
+  assert.deepEqual(sand,['step_sand_1.mp3','step_sand_2.mp3','step_sand_3.mp3','step_sand_4.mp3']);assert.equal(files.length,20);
   let total=0;const uuids=new Set();
   for(const f of files){const bytes=fs.readFileSync(path.join(dir,f));total+=bytes.length;assert(bytes.length<=2048,f+' '+bytes.length);
     let i=bytes[0]===0x49&&bytes[1]===0x44&&bytes[2]===0x33?10+((bytes[6]&127)<<21|(bytes[7]&127)<<14|(bytes[8]&127)<<7|(bytes[9]&127)):0;while(i<bytes.length-1&&!(bytes[i]===0xff&&(bytes[i+1]&0xe0)===0xe0))i++;

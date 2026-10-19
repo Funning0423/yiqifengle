@@ -28,5 +28,5 @@ function walk(d,out=[]){for(const e of fs.readdirSync(d,{withFileTypes:true})){c
   const comp=fs.readFileSync(S+'world-r2/WorldNativeComposition.ts','utf8'),ja=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8');
   assert.doesNotMatch(comp,/lakeside journey not reached/);
   assert.match(comp,/if\(region==='lakeside'&&!LAKESIDE_SOFT_REASONS\.includes\(String\(arrived\.reason\)\)\)return this\.lakesideFallback\('journey',arrived\.reason\);return arrived;/);
-  assert.match(ja,/if\(!token\.cancelled&&\(error as any\)\?\.name!=='Cancelled'\)\{try\{console\.error\('\[QF_LAKE\] island→lakeside journey prepare failed: /);});
+  assert.match(ja,/if\(!token\.cancelled&&\(error as any\)\?\.name!=='Cancelled'\)\{try\{console\.error\('\[QF_LAKE\] skycity→lakeside journey prepare failed: /);});
 })().catch(e=>{console.error(e);process.exit(1);});
