@@ -15,7 +15,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {load}=require('./load.cjs');
 const C=load('region/FreeOrbit.ts'),R=load('world-r1/CharacterReference.ts');
 const FX=path.join(__dirname,'fixtures/room-keepinside'),J=f=>JSON.parse(fs.readFileSync(path.join(FX,f),'utf8'));
-const W=J('inner_walls.json'),WORLD=J('world_boxes.json').boxes,BASE=J('outdoor_solve_baseline.json').cases;
+const HER_PTS=J('her_seated_points.json').points,W=J('inner_walls.json'),WORLD=J('world_boxes.json').boxes,BASE=J('outdoor_solve_baseline.json').cases;
 const BOX_MARGIN=0.30,LENS_MARGIN=0.25,NO_HUG_M=1.0,LIN_MAX=3,ANG_MAX=110,LAG_MAX=10,SETTLE_S=0.3,OWN_TURN_MAX=200;
 const poly=W.polygonXZ;
 function inside(x,z){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
@@ -67,11 +67,22 @@ function omega(fr,k,i,dt){const A=camFrame(fr[i][k]),B=camFrame(fr[i+1][k]),M=[[
  for(let q=0;q<3;q++)for(let r=0;r<3;r++)for(let c=0;c<3;c++)M[r][c]+=B[q][r]*A[q][c];
  const tr=M[0][0]+M[1][1]+M[2][2],ang=Math.acos(Math.max(-1,Math.min(1,(tr-1)/2))),ax=[M[2][1]-M[1][2],M[0][2]-M[2][0],M[1][0]-M[0][1]],sn=Math.hypot(...ax);
  return sn<1e-12?[0,0,0]:ax.map(v=>v/sn*ang/dt)}
+// 6) She is in frame (r7): on a 390×844 portrait screen (vertical fov 60°), wherever the input's blend is orbiting her
+// (w ≤ IN_FRAME_W), every point of her seated A1 body (fixtures/.../her_seated_points.json: posed-mesh extremes + samples)
+// projects inside the safe frame |x|,|y| ≤ SAFE (NDC). Coverage = her projected bbox area / frame area.
+const ASPECT=390/844,TAN_V=Math.tan(30*Math.PI/180),TAN_H=TAN_V*ASPECT,SAFE=0.9,IN_FRAME_W=0.1;
+function herOnScreen(p,f){const r0=cross(f,[0,1,0]),n=Math.hypot(...r0),r=r0.map(v=>v/n),u=cross(r,f);let x0=9,x1=-9,y0=9,y1=-9,behind=false;
+ for(const q of HER_PTS){const d=[q[0]-p[0],q[1]-p[1],q[2]-p[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];if(z<=0.05){behind=true;continue}
+  const x=(d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/z/TAN_H,y=(d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/z/TAN_V;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
+ const edge=behind?9:Math.max(-x0,x1,-y0,y1),cov=behind?0:Math.max(0,Math.min(1,x1)-Math.max(-1,x0))*Math.max(0,Math.min(1,y1)-Math.max(-1,y0))/4;return {edge,cov}}
+const inFrameRows=[];
 // Angular accel: the view now follows the input itself, so its raw accel includes the hand's own (an instant 90°/s
 // start is thousands of °/s²; reported, not asserted). The bar (ANG_MAX) is asserted on (a) what the camera adds on top
 // of the input's view g (return follower, first-drag fade): d/dt(ω_view − ω_g), and (b) the raw view accel while the hand
 // moves at a steady rate (sweeps; the framing/blend geometry's own accel). Lag is measured against g.
-function measure(frames,dt,name){let lin=0,angRaw=0,angCam=0,angSteady=0,ownSpeed=0,vmax=0,minWall=9,minHer=9,lag=0;
+function measure(frames,dt,name){{let n=0,out=0,worst=0,cmin=9,cmax=0;for(const f of frames){if(f.wIn===undefined||f.wIn>IN_FRAME_W)continue;const h=herOnScreen(f.p,f.f);n++;if(h.edge>SAFE)out++;worst=Math.max(worst,h.edge);cmin=Math.min(cmin,h.cov);cmax=Math.max(cmax,h.cov)}
+  inFrameRows.push({name,fps:Math.round(1/dt),orbitFrames:n,outOfSafeFrames:out,worstEdgeNDC:n?+worst.toFixed(3):null,minCoverage:n?+cmin.toFixed(3):null,maxCoverage:n?+cmax.toFixed(3):null})}
+ let lin=0,angRaw=0,angCam=0,angSteady=0,ownSpeed=0,vmax=0,minWall=9,minHer=9,lag=0;
  for(const f of frames){minWall=Math.min(minWall,wallGap(f.p));minHer=Math.min(minHer,dist3(f.p,her));if(f.g&&!f.ret)lag=Math.max(lag,angle(f.f,f.g))}
  for(let i=1;i<frames.length;i++)vmax=Math.max(vmax,dist3(frames[i].p,frames[i-1].p)/dt);
  // the camera's own turn rate (no view jump): |ω_view − ω_g|, or the whole turn where the frame has no g (a seed / cinematic pose)
@@ -86,7 +97,7 @@ function measure(frames,dt,name){let lin=0,angRaw=0,angCam=0,angSteady=0,ownSpee
  assert.ok(minWall>=LENS_MARGIN,name+' wall gap '+r.minWallGapM);assert.ok(minHer>=NO_HUG_M,name+' '+r.minToHerM+' m from her while moving');assert.ok(vmax<=4,name+' speed '+r.peakSpeedMS+' (jump)');return r}
 // g: the view the player's own yaw/pitch/arm asks for (static goal at the input) — the lag reference
 function inputDir(o){const pr=o.pitch*Math.PI/180,yr=o.yaw*Math.PI/180,cp=Math.cos(pr);return [-Math.sin(yr)*cp,-Math.sin(pr),-Math.cos(yr)*cp]}
-function frame(o){const p=o.solve(feet,WORLD,seat[1]);const g=o.roomGoalAt(o.orbitPivot(feet),o.yaw,o.pitch,o.dist,WORLD,seat[1]).dir;return {p:p.position,f:unit(p.position,p.target),g:[g[0],g[1],g[2]],u:inputDir(o),w:o.roomWeight,ret:o.mode==='returning'}}
+function frame(o){const p=o.solve(feet,WORLD,seat[1]);const gg=o.roomGoalAt(o.orbitPivot(feet),o.yaw,o.pitch,o.dist,WORLD,seat[1]),g=gg.dir;return {p:p.position,f:unit(p.position,p.target),g:[g[0],g[1],g[2]],wIn:gg.w,goal:gg.pos,u:inputDir(o),w:o.roomWeight,ret:o.mode==='returning'}}
 function sweep(fps,seconds,set,steady){const o=new C.FreeOrbit('home'),dt=1/fps,fr=[];o.mode='free';set(o,0);fr.push(frame(o));for(let t=dt;t<=seconds+1e-9;t+=dt){set(o,t);o.step(dt);const f=frame(o);f.steady=!!steady&&steady(t);fr.push(f)}return fr}
 const motion=[];
 for(const fps of [30,60,120]){
@@ -132,6 +143,9 @@ for(const fps of [30,60,120]){const dt=1/fps;
   const m=measure(fr,dt,'follow back-and-forth'),st=settleAfter(fr,iStop,dt,last>0?-1:1);follow.push(Object.assign({case:'back-and-forth 150°/s at yaw 340 (orbit zone)',fps},{viewLagDeg:m.viewLagDeg},st,{cameraAngAccDegS2:m.cameraAngAccDegS2,peakLinAccMS2:m.peakLinAccMS2,minWallGapM:m.minWallGapM,minToHerM:m.minToHerM}))}}
 for(const f of follow){assert.ok(f.viewLagDeg<=LAG_MAX,f.case+' '+f.fps+' fps lag '+f.viewLagDeg);assert.ok(f.settleS!==null&&f.settleS<=SETTLE_S,f.case+' '+f.fps+' fps settle '+f.settleS);assert.ok(f.overshootDeg<=0.05,f.case+' '+f.fps+' fps overshoot '+f.overshootDeg)}
 out.follow=follow;
+out.inFrame={safeNDC:SAFE,screen:'390x844',orbitW:IN_FRAME_W,cases:inFrameRows.length,outOfSafeFrames:inFrameRows.reduce((a,r)=>a+r.outOfSafeFrames,0),
+ minCoverage:Math.min(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.minCoverage)),maxCoverage:Math.max(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.maxCoverage)),rows:inFrameRows};
+if(!process.env.ROOM_NO_ASSERT_FRAME)for(const r of inFrameRows)assert.equal(r.outOfSafeFrames,0,r.name+' '+r.fps+' fps: she leaves the safe frame in '+r.outOfSafeFrames+' of '+r.orbitFrames+' orbit frames (edge '+r.worstEdgeNDC+')');
 // regression: the old box put the yaw-270 lens through the round wall (plain orbit, no room look)
 const oldLimits=Object.assign({},L,{keepInside:{min:[-1.85,0.7,-4.72],max:[1.05,2.2,-1.55]},roomLook:undefined});
 const o=new C.FreeOrbit('home');o.limits=oldLimits;o.yaw=270;o.pitch=10;o.dist=L.distMax;const old270=wallGap(o.solve(feet,[],seat[1]).position);
