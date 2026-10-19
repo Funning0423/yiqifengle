@@ -1,0 +1,939 @@
+{
+ "lk4_meadow_day_ml": {
+  "frames": 1924,
+  "walking": {
+   "n": 1852,
+   "p50": 16.7,
+   "p95": 17.9,
+   "p99": 18.4,
+   "max": 67.6,
+   "over17_5": 190,
+   "over33": 5,
+   "over50": 3
+  },
+  "walkingNoHarness": {
+   "n": 1747,
+   "p50": 16.7,
+   "p95": 17.9,
+   "p99": 18.4,
+   "max": 65,
+   "over17_5": 176,
+   "over33": 1,
+   "over50": 1
+  },
+  "walkingGameOnly": {
+   "n": 1638,
+   "p50": 16.7,
+   "p95": 17.9,
+   "p99": 18.4,
+   "max": 19.2,
+   "over17_5": 162,
+   "over33": 0,
+   "over50": 0
+  },
+  "walkingCapture": {
+   "n": 122,
+   "p50": 16.7,
+   "p95": 17.7,
+   "p99": 32.7,
+   "max": 67.6,
+   "over17_5": 14,
+   "over33": 1,
+   "over50": 1
+  },
+  "levelLoading": {
+   "n": 45,
+   "p50": 16.8,
+   "p95": 22.9,
+   "p99": 31.6,
+   "max": 31.6,
+   "over17_5": 7,
+   "over33": 0,
+   "over50": 0,
+   "frames": 45,
+   "ms": 782.9
+  },
+  "swap": [
+   {
+    "ms": 39.3,
+    "dBufMB": 9.55,
+    "dTexMB": 1.02
+   },
+   {
+    "ms": 18.8,
+    "dBufMB": 0,
+    "dTexMB": 0
+   }
+  ],
+  "slowByCause": {
+   "other": {
+    "count": 180,
+    "worst": [
+     {
+      "cap": 0,
+      "d": 0,
+      "ms": 42.8,
+      "phase": "loading",
+      "state": "region-loading",
+      "dHeapMB": 11.51,
+      "dTexMB": 22.37,
+      "dBufMB": 4.09
+     },
+     {
+      "cap": 1,
+      "d": 34.56,
+      "ms": 32.7,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 4.58,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 31.7,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": -30.98,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 0,
+      "ms": 21.3,
+      "phase": "loading",
+      "state": "region-loading",
+      "dHeapMB": 0.16,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 7.52,
+      "ms": 19.2,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": -25.05,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 19.1,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": 0.65,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "first-show": {
+    "count": 2,
+    "worst": [
+     {
+      "cap": 0,
+      "d": 0.02,
+      "ms": 65,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": 5.03,
+      "dTexMB": 0,
+      "dBufMB": 0.01
+     },
+     {
+      "cap": 0,
+      "d": 0.12,
+      "ms": 31.4,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": -28.93,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "harness-shot": {
+    "count": 14,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 36.26,
+      "ms": 67.6,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": -21.16,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 30.26,
+      "ms": 50.5,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 4.71,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 24.2,
+      "ms": 34.5,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 4.01,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 16.18,
+      "ms": 34.3,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 3.97,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 10.1,
+      "ms": 18,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 2.26,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 10.02,
+      "ms": 17.9,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 2.28,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "gc-major": {
+    "count": 1,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 34.5,
+      "ms": 19.3,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": -165.01,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "level-loading": {
+    "count": 7,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 31.6,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 3.66,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 31.4,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": -21.71,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 22.9,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 8.8,
+      "dTexMB": 0,
+      "dBufMB": 0.01
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 18.1,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 0.41,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 17.8,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 2.68,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 17.7,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 2.54,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "swap": {
+    "count": 2,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 39.3,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": 6.36,
+      "dTexMB": 1.02,
+      "dBufMB": 9.55
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 18.8,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": 0.76,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   }
+  }
+ },
+ "lk4_meadow_night_ml": {
+  "frames": 1919,
+  "walking": {
+   "n": 1845,
+   "p50": 16.7,
+   "p95": 17.9,
+   "p99": 20.3,
+   "max": 67.2,
+   "over17_5": 186,
+   "over33": 9,
+   "over50": 1
+  },
+  "walkingNoHarness": {
+   "n": 1735,
+   "p50": 16.7,
+   "p95": 17.9,
+   "p99": 19.9,
+   "max": 67.2,
+   "over17_5": 174,
+   "over33": 8,
+   "over50": 1
+  },
+  "walkingGameOnly": {
+   "n": 1626,
+   "p50": 16.7,
+   "p95": 17.8,
+   "p99": 18.6,
+   "max": 34.2,
+   "over17_5": 161,
+   "over33": 7,
+   "over50": 0
+  },
+  "walkingCapture": {
+   "n": 123,
+   "p50": 16.7,
+   "p95": 18,
+   "p99": 31.7,
+   "max": 49.8,
+   "over17_5": 13,
+   "over33": 1,
+   "over50": 0
+  },
+  "levelLoading": {
+   "n": 45,
+   "p50": 16.7,
+   "p95": 27.6,
+   "p99": 32.2,
+   "max": 32.2,
+   "over17_5": 7,
+   "over33": 0,
+   "over50": 0,
+   "frames": 45,
+   "ms": 783.9
+  },
+  "swap": [
+   {
+    "ms": 36.1,
+    "dBufMB": 9.54,
+    "dTexMB": 1.02
+   },
+   {
+    "ms": 20.7,
+    "dBufMB": 0,
+    "dTexMB": 0
+   }
+  ],
+  "slowByCause": {
+   "other": {
+    "count": 180,
+    "worst": [
+     {
+      "cap": 0,
+      "d": 0,
+      "ms": 35.7,
+      "phase": "loading",
+      "state": "region-loading",
+      "dHeapMB": 10.68,
+      "dTexMB": 22.37,
+      "dBufMB": 3.75
+     },
+     {
+      "cap": 0,
+      "d": 6.58,
+      "ms": 34.2,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 3.94,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 15.02,
+      "ms": 33.7,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 3.52,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 15.06,
+      "ms": 33.7,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 2.98,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 2.06,
+      "ms": 33.5,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": 2.89,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 11.36,
+      "ms": 33.5,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 3.27,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "first-show": {
+    "count": 2,
+    "worst": [
+     {
+      "cap": 0,
+      "d": 0.02,
+      "ms": 67.2,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": 10.58,
+      "dTexMB": 0,
+      "dBufMB": 0.01
+     },
+     {
+      "cap": 0,
+      "d": 0.12,
+      "ms": 26.7,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": 2.66,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "harness-shot": {
+    "count": 12,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 36.22,
+      "ms": 49.8,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 4.45,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 10.22,
+      "ms": 32.7,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 3.3,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 30.18,
+      "ms": 19.7,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": -25.5,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 10.08,
+      "ms": 18.2,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 2.29,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 16.1,
+      "ms": 17.9,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 2.26,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 30.3,
+      "ms": 17.8,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 2.62,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "level-loading": {
+    "count": 7,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 32.2,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 3.43,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 30.5,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 3.52,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 27.6,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": -22.66,
+      "dTexMB": 0,
+      "dBufMB": 0.01
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 18.4,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 3.65,
+      "dTexMB": 11.99,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 18,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 0.39,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 17.8,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 2.67,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "swap": {
+    "count": 2,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 36.1,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": 6.31,
+      "dTexMB": 1.02,
+      "dBufMB": 9.54
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 20.7,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": 0.73,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   }
+  }
+ },
+ "lk4_sky_day_ml": {
+  "frames": 3545,
+  "walking": {
+   "n": 3461,
+   "p50": 16.7,
+   "p95": 33.9,
+   "p99": 34.6,
+   "max": 69.2,
+   "over17_5": 642,
+   "over33": 413,
+   "over50": 5
+  },
+  "walkingNoHarness": {
+   "n": 3367,
+   "p50": 16.7,
+   "p95": 33.9,
+   "p99": 34.5,
+   "max": 69.2,
+   "over17_5": 623,
+   "over33": 398,
+   "over50": 3
+  },
+  "walkingGameOnly": {
+   "n": 3162,
+   "p50": 16.7,
+   "p95": 33.9,
+   "p99": 34.5,
+   "max": 65.9,
+   "over17_5": 578,
+   "over33": 373,
+   "over50": 2
+  },
+  "walkingCapture": {
+   "n": 213,
+   "p50": 16.7,
+   "p95": 34,
+   "p99": 35,
+   "max": 51.5,
+   "over17_5": 51,
+   "over33": 30,
+   "over50": 1
+  },
+  "levelLoading": {
+   "n": 46,
+   "p50": 16.7,
+   "p95": 24.3,
+   "p99": 33.2,
+   "max": 33.2,
+   "over17_5": 5,
+   "over33": 1,
+   "over50": 0,
+   "frames": 46,
+   "ms": 782.9
+  },
+  "swap": [
+   {
+    "ms": 37.2,
+    "dBufMB": 9.57,
+    "dTexMB": 1.05
+   },
+   {
+    "ms": 19.2,
+    "dBufMB": 0,
+    "dTexMB": 0
+   }
+  ],
+  "slowByCause": {
+   "other": {
+    "count": 632,
+    "worst": [
+     {
+      "cap": 0,
+      "d": 0,
+      "ms": 65.9,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": 6.8,
+      "dTexMB": 0,
+      "dBufMB": 0.85
+     },
+     {
+      "cap": 0,
+      "d": 35.56,
+      "ms": 57.8,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 3.34,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 3.76,
+      "ms": 36.5,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": -22.63,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 35.8,
+      "ms": 35.8,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 4.18,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.93,
+      "ms": 35.7,
+      "phase": "loading",
+      "state": "region-loading",
+      "dHeapMB": -13.64,
+      "dTexMB": 3.15,
+      "dBufMB": 2.7
+     },
+     {
+      "cap": 0,
+      "d": 2.38,
+      "ms": 35.1,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": 3.99,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "first-show": {
+    "count": 1,
+    "worst": [
+     {
+      "cap": 0,
+      "d": 0.02,
+      "ms": 69.2,
+      "phase": "approach",
+      "state": "region-travel",
+      "dHeapMB": -25.84,
+      "dTexMB": 0,
+      "dBufMB": 0.01
+     }
+    ]
+   },
+   "harness-shot": {
+    "count": 19,
+    "worst": [
+     {
+      "cap": 0,
+      "d": 30.22,
+      "ms": 51.8,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 5.37,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.28,
+      "ms": 51.5,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": -21.51,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 36.02,
+      "ms": 35,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 4.14,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 10.22,
+      "ms": 34.6,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 3.98,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 30.28,
+      "ms": 34.6,
+      "phase": "arrival",
+      "state": "region-travel",
+      "dHeapMB": 3.98,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 0,
+      "d": 10.08,
+      "ms": 34.2,
+      "phase": "bridge",
+      "state": "region-travel",
+      "dHeapMB": 3.64,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "level-loading": {
+    "count": 5,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 41.33,
+      "ms": 33.2,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 3.39,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 41.33,
+      "ms": 24.8,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 3.76,
+      "dTexMB": 11.99,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 41.33,
+      "ms": 24.3,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 8.33,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 41.33,
+      "ms": 17.7,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 2.71,
+      "dTexMB": 0,
+      "dBufMB": 0
+     },
+     {
+      "cap": 1,
+      "d": 41.33,
+      "ms": 17.6,
+      "phase": "arrived",
+      "state": "level-loading",
+      "dHeapMB": 2.84,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   },
+   "swap": {
+    "count": 2,
+    "worst": [
+     {
+      "cap": 1,
+      "d": 41.33,
+      "ms": 37.2,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": 8.64,
+      "dTexMB": 1.05,
+      "dBufMB": 9.57
+     },
+     {
+      "cap": 1,
+      "d": 41.33,
+      "ms": 19.2,
+      "phase": "arrived",
+      "state": "level",
+      "dHeapMB": 0.76,
+      "dTexMB": 0,
+      "dBufMB": 0
+     }
+    ]
+   }
+  }
+ }
+}

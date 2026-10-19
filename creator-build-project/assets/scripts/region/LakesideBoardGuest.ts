@@ -1,5 +1,6 @@
 import {Component,MeshRenderer,Node,Quat,SkeletalAnimation,Vec3,director,instantiate,isValid} from 'cc';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+import {stageRegionBoard,type BoardStaging} from './RegionBoardStaging';
 /** r4-prep B (lead): she stays in frame after landing. While 风铃湖畔's board shows, the world layers (and she) are off and only the
  *  board camera (LAKESIDE_LAYER) draws, so she vanished from the board background. The board lease now carries a frozen copy of
  *  her: taken when the lease is made (enterLevel, after the landing hook: she has stopped), placed in the board scenery at the
@@ -86,14 +87,16 @@ export function syncRegionAmbient(journeyModel:Node|null,boardModel:Node|null):n
  *  (syncRegionAmbient), so the robot on 星庭 and the sky props carry straight over the swap. */
 export function withRegionBoardGuest(region:string,rigName:string,layer:number,factory:LevelBackgroundFactory):LevelBackgroundFactory{
  return async ctx=>{const lease=await factory(ctx);if(!lease)return lease;let guest:LakesideGuest|null=null,model:Node|null=null,journey:Node|null=null;
-  try{const scene=director.getScene(),jr=scene?findDeep(scene as any,'RegionJourney-'+region):null,rig=ctx.parent.getChildByName(rigName);
+  let rigNode:Node|null=null;try{const scene=director.getScene(),jr=scene?findDeep(scene as any,'RegionJourney-'+region):null,rig=rigNode=ctx.parent.getChildByName(rigName);
    const names=new Set((jr?jr.children:[]).map(c=>c.name));model=rig?rig.children.find(c=>names.has(c.name))||null:null;
    journey=model&&jr?jr.children.find(c=>c.name===model!.name)||null:null;
    if(model)guest=mountRegionBoardGuest(region,model,layer);}catch{guest=null;}
   if(!guest&&!(model&&journey))return lease;const g=guest,dispose=lease.dispose,m=model,j=journey;let synced=false,ambient=0;
+  // r5 G1: spread model creation + first-draw shader compiles over the level-loading frames (RegionBoardStaging); the reveal finishes it.
+  let staging:BoardStaging|null=null;try{staging=stageRegionBoard(rigNode);}catch{staging=null;}
   return {frame:(p,l)=>lease.frame(p,l),
-   setVisible:v=>{lease.setVisible(v);if(v&&!synced){synced=true;try{ambient=syncRegionAmbient(j,m);}catch{ambient=0;}
+   setVisible:v=>{if(v&&staging)staging.finish('reveal');lease.setVisible(v);if(v&&!synced){synced=true;try{ambient=syncRegionAmbient(j,m);}catch{ambient=0;}
     try{if((globalThis as any).__worldFlowLog)console.info('[QF_REGION] '+JSON.stringify({event:'board-ambient-sync',region,clips:ambient}));}catch{}}},
    setPaused:v=>lease.setPaused?.(v),
-   diagnostics:()=>({...(lease.diagnostics?lease.diagnostics():{}),guest:g?g.renderers:0,ambientSynced:ambient}),dispose:()=>{g?.dispose();dispose.call(lease);}};};
+   diagnostics:()=>({...(lease.diagnostics?lease.diagnostics():{}),guest:g?g.renderers:0,ambientSynced:ambient,staging:staging?staging.stats():null}),dispose:()=>{staging?.dispose();g?.dispose();dispose.call(lease);}};};
 }
