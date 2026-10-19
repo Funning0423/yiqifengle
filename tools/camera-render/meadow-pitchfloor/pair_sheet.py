@@ -8,9 +8,10 @@ F = ImageFont.truetype('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
 os.makedirs(od, exist_ok=True); tiles = []
 for p, title in zip(P['poses'], ['改前 6eafc35f：最低 pitch −12°（固定）', '改后：最低 pitch = pitchMin(4 m)']):
     im = Image.open(os.path.join(rd, p['name'] + '.png')).convert('RGB'); w, h = im.size
-    c = Image.new('RGB', (w, h + 132), 'white'); c.paste(im, (0, 0)); d = ImageDraw.Draw(c); r = pr.get(p['name'], {})
+    c = Image.new('RGB', (w, h + 196), 'white'); c.paste(im, (0, 0)); d = ImageDraw.Draw(c); r = pr.get(p['name'], {})
     d.text((6, h + 4), title, fill='black', font=F)
-    d.text((6, h + 28), 'pitch %.2f°  臂长 %.2f m  视线仰角 %.2f°%s' % (p['pitch'], p['dist'], p['viewPitchDeg'], '（贴地抬高）' if p['groundClamped'] else ''), fill='#333', font=S)
+    import math; arm = math.dist(p['position'], p['target'])
+    d.text((6, h + 28), '输入 pitch %.2f°，臂长 %.2f m；实际镜头离注视点 %.2f m，视线仰角 %.2f°%s' % (p['pitch'], p['dist'], arm, p['viewPitchDeg'], '（离地不足，被抬高、拉近）' if p['groundClamped'] else ''), fill='#333', font=S)
     d.text((6, h + 48), '镜头离她脚 %.2f m，离镜头下方地面 %.2f m' % (p['lensAboveFeetM'], r.get('lensAboveTerrainM') or 0), fill='#333', font=S)
     y = h + 68
     for line in label.split('\n'): d.text((6, y), line, fill='#555', font=S); y += 20
