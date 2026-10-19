@@ -1,0 +1,139 @@
+// Shore wash (场景特效bot r5 S3, after the ACNH shoreline breakdown in research/acnh/REPORT.md): one dedicated shoreline ribbon,
+// NO depth texture. a_texCoord = (u along the shore in metres, v across: 0 offshore .. waterline .. 1 inland). Rolling wave lines
+// on the water side (frac of v - time), a white lip that runs up the sand and slides back (swash), and a darker wet-sand band that
+// follows the lip and dries more slowly. a_color.a fades the ribbon ends; a_color.r = how much of swash.lift the vertex takes (the
+// island's water edge rides the heaving sea, the sand edge stays). Alpha blend (premultiplied), no depth write, scene fog.
+//  USE_CC_TIME: swash from cc_time and cycle.x (lakeside, no script tick); else swash.xyzw come from the script (island: the
+//  ShoreBreak clock on amb_waves_loop). USE_LIT: lit like lakeside-water (main light NL + hemispheric ambient, so dusk / night
+//  follow the scene lights); else unlit x tint (the island lip's night multiply). tint.a = global opacity.
+CCEffect %{
+  techniques:
+  - name: transparent
+    passes:
+    - vert: shore-foam-vs:vert
+      frag: shore-foam-fs:frag
+      properties:
+        foamColor:   { value: [0.93, 0.95, 0.96, 0.78], editor: { type: color, tooltip: 'linear rgb, a = peak foam alpha' } }
+        wetColor:    { value: [0.42, 0.33, 0.21, 0.30], editor: { type: color, tooltip: 'linear rgb of wet sand, a = peak wet alpha' } }
+        bandParams:  { value: [0.5, 0.30, 0.07, 0.05], editor: { tooltip: 'x waterline v, y swash reach (v), z lip width (v), w wet edge softness (v)' } }
+        lineParams:  { value: [5.0, 0.22, 0.55, 0.30], editor: { tooltip: 'x wave lines per unit v, y line speed (v-lines/s; island: whole lines per loop so the loop wrap does not jump), z breakup freq (1/m), w line alpha' } }
+        swash:       { value: [0.0, 0.0, 0.35, 0.0], editor: { tooltip: 'script mode: x front 0..1, y foam 0..1, z wet level 0..1, w time (s)' } }
+        cycle:       { value: [7.0, 0.32, 0.14, 0.0], editor: { tooltip: 'x period (s, USE_CC_TIME), y run-up fraction, z wet lag fraction, w lift (m, script mode)' } }
+        tint:        { value: [1.0, 1.0, 1.0, 1.0], editor: { type: color, tooltip: 'rgb multiply (unlit night), a opacity' } }
+        lightParams: { value: [2.2, 2.6, 18.0, 46.0], editor: { tooltip: 'x main light scale, y ambient scale (USE_LIT), z/w line fade start/end distance (m)' } }
+      rasterizerState: { cullMode: none }
+      depthStencilState: { depthTest: true, depthWrite: false }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+CCProgram shore-foam-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/local-batch>
+  #include <legacy/fog-vs>
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+  out vec2 v_uv;
+  out float v_fade;
+  out vec3 v_worldPos;
+  uniform ShoreFoam {
+    vec4 foamColor;
+    vec4 wetColor;
+    vec4 bandParams;
+    vec4 lineParams;
+    vec4 swash;
+    vec4 cycle;
+    vec4 tint;
+    vec4 lightParams;
+  };
+  vec4 vert () {
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+    vec4 pos = matWorld * vec4(a_position, 1.0);
+    pos.y += cycle.w * a_color.r;
+    v_uv = a_texCoord;
+    v_fade = a_color.a;
+    v_worldPos = pos.xyz;
+    CC_TRANSFER_FOG(pos);
+    return cc_matProj * (cc_matView * pos);
+  }
+}%
+
+CCProgram shore-foam-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output-standard>
+  #include <legacy/fog-fs>
+  in vec2 v_uv;
+  in float v_fade;
+  in vec3 v_worldPos;
+  uniform ShoreFoam {
+    vec4 foamColor;
+    vec4 wetColor;
+    vec4 bandParams;
+    vec4 lineParams;
+    vec4 swash;
+    vec4 cycle;
+    vec4 tint;
+    vec4 lightParams;
+  };
+  // swash front for a phase in 0..1: quick run-up (0 .. cycle.y), slow back-wash; periodic, so it never jumps at the wrap
+  float frontAt (float ph) {
+    return smoothstep(0.0, cycle.y, ph) * (1.0 - smoothstep(cycle.y, 1.0, ph));
+  }
+  vec4 frag () {
+    float u = v_uv.x, v = v_uv.y;
+    #if USE_CC_TIME
+      float t = cc_time.x;
+      float ph = fract(t / cycle.x);
+      float front = frontAt(ph);
+      float foamA = smoothstep(0.0, 0.12, ph) * (1.0 - smoothstep(cycle.y + 0.15, 0.95, ph));
+      float wet = 0.35 + 0.65 * frontAt(fract(ph - cycle.z));
+    #else
+      float t = swash.w;
+      float front = swash.x, foamA = swash.y, wet = swash.z;
+    #endif
+    float s0 = bandParams.x, reach = bandParams.y;
+    float dist = length(cc_cameraPos.xyz - v_worldPos);
+    float far = smoothstep(lightParams.z, lightParams.w, dist);
+    // breakup along the shore (two slow sines, no texture): the lip and lines are never a ruler-straight stripe
+    float b = 0.62 + 0.38 * sin(u * lineParams.z + 1.7 * sin(u * 0.31 * lineParams.z + t * 6.2831853 / cycle.x));
+    float fv = s0 + reach * front;
+    float w = bandParams.z * (1.0 + 1.5 * far);                       // the lip widens with distance instead of aliasing
+    float lip = smoothstep(fv - w, fv - 0.3 * w, v) * (1.0 - smoothstep(fv - 0.015, fv + 0.012, v));
+    float trail = smoothstep(s0 - 0.22, fv, v) * (1.0 - smoothstep(fv - 0.015, fv + 0.012, v)) * 0.22;
+    float foam = (lip * b + trail) * foamA;
+    // rolling wave lines in the shallows, moving shoreward, gone at the waterline and offshore; faded with distance
+    float ln = fract(v * lineParams.x - t * lineParams.y);
+    float line = smoothstep(0.80, 0.95, ln) * (1.0 - smoothstep(0.95, 1.0, ln));
+    line *= smoothstep(0.04, 0.24, v) * (1.0 - smoothstep(s0 - 0.10, s0 + 0.01, v)) * lineParams.w * (0.55 + 0.45 * b) * (1.0 - far);
+    // wet sand: from the waterline up to the wet level, soft top edge (dries behind the lip, more slowly)
+    float wv = s0 + reach * wet;
+    float wetA = wetColor.a * smoothstep(s0 - 0.04, s0 + 0.03, v) * (1.0 - smoothstep(wv - bandParams.w, wv + 0.02, v));
+    float fa = clamp(foam + line, 0.0, foamColor.a);
+    float a = fa + wetA * (1.0 - fa);
+    vec3 albedo = (foamColor.rgb * fa + wetColor.rgb * wetA * (1.0 - fa)) / max(a, 1e-4);
+    a *= v_fade * tint.a * smoothstep(0.0, 0.06, v) * (1.0 - smoothstep(0.94, 1.0, v));
+    #if USE_LIT
+      vec3 L = normalize(-cc_mainLitDir.xyz);
+      float NL = max(L.y, 0.0);
+      vec3 lit = cc_mainLitColor.rgb * cc_mainLitColor.w;
+      vec3 amb = cc_ambientSky.rgb * cc_ambientSky.w;
+      vec3 col = min(albedo * (lit * NL / 3.14159265 * lightParams.x + amb * lightParams.y), albedo) * tint.rgb;   // never brighter than its albedo: no white blocks
+    #else
+      vec3 col = albedo * tint.rgb;
+    #endif
+    vec4 o = vec4(col, a);
+    CC_APPLY_FOG(o, v_worldPos);
+    o = CCFragOutput(o);
+    o.rgb *= o.a;
+    return o;
+  }
+}%

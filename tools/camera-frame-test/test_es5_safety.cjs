@@ -12,7 +12,7 @@ const fs=require('fs'),path=require('path');const {root}=require('./load_ts.cjs'
 const ts=(()=>{try{return require('../qf-env.cjs').typescript();}catch(e){return require(path.join(root,'..','..','character-core','lighthouse-island-astra-ultra','tools','vendor-node','node_modules','typescript'));}})();
 const S=path.join(root,'creator-build-project/assets/scripts');
 const FILES=['world-r1/WorldFlowCore.ts','world-r1/WorldFlowComponent.ts','world-r1/FirstsliceRoutes.ts','world-r1/RegionCameraData.ts',
-  'world-r1/CameraPose.ts','world-r1/RoomLook.ts','world-r1/IslandRail.ts','WorldIntegrationBoot.ts','CharacterMotion.ts','render/DoorSpillHintCore.ts','render/DoorSpillHint.ts','render/IslandAtmosphereFxCore.ts','render/IslandAtmosphereFx.ts','render/ShoreBreakCore.ts','render/ShoreBreak.ts','render/GullFlockCore.ts','render/GullFlock.ts','ui/StartupLoadingLayout.ts','ui/StartupLoadingLayer.ts'].filter(f=>fs.existsSync(path.join(S,f)));
+  'world-r1/CameraPose.ts','world-r1/RoomLook.ts','world-r1/IslandRail.ts','WorldIntegrationBoot.ts','CharacterMotion.ts','render/DoorSpillHintCore.ts','render/DoorSpillHint.ts','render/IslandAtmosphereFxCore.ts','render/IslandAtmosphereFx.ts','render/ShoreBreakCore.ts','render/ShoreBreak.ts','render/ShoreFoamCore.ts','render/ShoreFoam.ts','region/LakesideShoreFoam.ts','render/GullFlockCore.ts','render/GullFlock.ts','ui/StartupLoadingLayout.ts','ui/StartupLoadingLayer.ts'].filter(f=>fs.existsSync(path.join(S,f)));
 // TS2550 (ES2019 lib APIs like .flat / Object.fromEntries) is a library-availability question, not loose-ES5 iteration.
 const ITER=new Set([2802,2461,2569,2548,2549,2495]);
 // Cocos 3.8.8 engine types (vendored by GGbot) so cc-typed values are checked too; without it cc types are any.

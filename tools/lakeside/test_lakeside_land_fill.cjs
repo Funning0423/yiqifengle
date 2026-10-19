@@ -40,8 +40,8 @@ const src=[grab(/export function enableLakesideInstancing\(root:Node\):Material\
 class Vec3{constructor(x,y,z){Object.assign(this,{x,y,z});}}class Color{constructor(r,g,b,a){Object.assign(this,{r,g,b,a});}}
 class Material{constructor(){this.props={};this.passes=[{getHandle:k=>['emissive','emissiveScale'].includes(k)?1:0}];}copy(s,o){this.src=s;this.defines=o?.defines;}setProperty(k,v){this.props[k]=v instanceof Vec3?[v.x,v.y,v.z]:v instanceof Color?[v.r,v.g,v.b,v.a]:v;}}
 const glbOf=new WeakMap();let mode='day';
-const F=new Function('Material','MeshRenderer','Color','Vec3','lakesideGlbOf','lakesideLandFillClass','lakesideFillLinear','lakesideModeLighting','lakesideDayNightMode','exports',tsjs(src)+'\nreturn {enableLakesideInstancing,applyLakesideLandFill,lakesideLandFillMaterialClass};')(
- Material,{},Color,Vec3,glbOf,D.lakesideLandFillClass,D.lakesideFillLinear,D.lakesideModeLighting,()=>mode,{});
+const F=new Function('Material','MeshRenderer','Color','Vec3','lakesideGlbOf','lakesideLandFillClass','lakesideFillLinear','lakesideModeLighting','lakesideDayNightMode','exports','isLakesideShoreMaterial',tsjs(src)+'\nreturn {enableLakesideInstancing,applyLakesideLandFill,lakesideLandFillMaterialClass};')(
+ Material,{},Color,Vec3,glbOf,D.lakesideLandFillClass,D.lakesideFillLinear,D.lakesideModeLighting,()=>mode,{},()=>false);
 const palette={name:'M_LK_palette'};
 const mk=glb=>{const top={name:glb,parent:null},r={node:{parent:top},sharedMaterials:[palette],setSharedMaterial(x,k){this.sharedMaterials[k]=x;}};top.parent=root;glbOf.set(top,glb);return r;};
 const root={parent:null,getComponentsInChildren:()=>rs};

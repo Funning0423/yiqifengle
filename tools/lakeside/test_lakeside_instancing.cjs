@@ -8,12 +8,12 @@ assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
 // Behaviour on stand-ins: 3 renderers over 2 source materials -> 2 copies, renderers sharing a source share the copy.
 const body=s.match(/export function enableLakesideInstancing\(root:Node\):Material\[\]\{\n([\s\S]*?)\n\}\n/)[1].replace(/<string,Map<Material,Material>>|:Material\[\]|<Material,Material>/g,'');
 class Material{copy(src,o){this.src=src;this.defines=o.defines;}}
-const A={},B={},rs=[A,A,B].map(m=>({sharedMaterials:[m],set:[],setSharedMaterial(x,k){this.set[k]=x;}}));
-const run=(glbOf,landOf)=>{const inits=[];const out=new Function('root','Material','MeshRenderer','lakesideTopGlb','lakesideLandFillClass','lakesideDayNightMode','initLakesideLandFill',body)(
- {getComponentsInChildren:()=>rs},Material,{},(root,n)=>glbOf(n),g=>landOf[g]||null,()=>'day',(m,cls,glb,mode)=>inits.push([m,cls,glb,mode]));return {out,inits};};
+const A={},B={},SHORE={shore:1},rs=[A,A,B,SHORE].map(m=>({sharedMaterials:[m],set:[],setSharedMaterial(x,k){this.set[k]=x;}}));
+const run=(glbOf,landOf)=>{const inits=[];const out=new Function('root','Material','MeshRenderer','lakesideTopGlb','lakesideLandFillClass','lakesideDayNightMode','initLakesideLandFill','isLakesideShoreMaterial',body)(
+ {getComponentsInChildren:()=>rs},Material,{},(root,n)=>glbOf(n),g=>landOf[g]||null,()=>'day',(m,cls,glb,mode)=>inits.push([m,cls,glb,mode]),m=>m===SHORE);return {out,inits};};
 for(const r of rs)r.node={};
 {const {out,inits}=run(()=>'LK_bridge.glb',{});
- assert.equal(out.length,2);assert(rs[0].set[0]===rs[1].set[0]&&rs[0].set[0]!==rs[2].set[0]&&rs[0].set[0].defines.USE_INSTANCING===true);assert.equal(inits.length,0,'no land: nothing filled');}
+ assert.equal(out.length,2);assert(rs[0].set[0]===rs[1].set[0]&&rs[0].set[0]!==rs[2].set[0]&&rs[0].set[0].defines.USE_INSTANCING===true);assert.equal(rs[3].set.length,0,'r5 S3: the shore-foam material is left alone');assert.equal(inits.length,0,'no land: nothing filled');}
 // r4 land fill: same source material on a land GLB and a non-land GLB -> two copies; only the land one is initialised
 {rs.forEach(r=>{r.set=[];});const glbs=new Map([[rs[0],'LK_terrain.glb'],[rs[1],'LK_bridge.glb'],[rs[2],'LK_far_hills.glb']]);rs.forEach(r=>{r.node={r};});
  const {out,inits}=run(n=>glbs.get(n.r),{'LK_terrain.glb':'near','LK_far_hills.glb':'far'});
