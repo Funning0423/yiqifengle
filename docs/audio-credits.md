@@ -150,3 +150,30 @@ Rebuild script: `tools/voice-bot/scene-audio-v2/s_pending.py`. Source sha256 sum
 | region_skycity/audio/sfx_sky_gardener_water_1.mp3 / _2 | 24,704 / 22,256 | 32 kbps mono 32 kHz, 6.1 / 5.5 s | -31.5 / -16.0, -31.4 / -13.7 | own synthesis (`s_pending.py`) | Voice bot | CC0 1.0 (own work) | watering-can sprinkle: about 55 soft droplet pings per second plus low-passed spray, LP 3 kHz, reverb RT 1.1 s |
 | region_skycity/audio/sfx_sky_gardener_boop_1.mp3 | 16,208 | same, 3.9 s | -32.4 / -20.0 | own synthesis | Voice bot | CC0 1.0 (own work) | soft sine "hum-boop" (G5 E5 A5) with gentle vibrato over a faint motor purr, LP 2.6 kHz |
 | region_skycity/audio/amb_sky_starring_loop.mp3 | 48,836 | 24 kbps mono 24 kHz, loop 16.0 s + 0.15 s dup | -31.4 / -21.2 | own synthesis | Voice bot | CC0 1.0 (own work) | five D-minor-pentatonic sines with whole-cycle swells, 146.8 Hz hum, faint whirr; built circular (dup correlation 0.998) |
+
+## Sail segment (r5 sail audio, Voice Bot, 2026-10-18)
+
+Files: `creator-build-project/assets/bundles/transport_sail/audio_sail/{sfx_sail_board,sfx_sail_unfurl,amb_sail_cruise,sfx_sail_dock}.mp3`
+(mono 44.1 kHz, CBR 48 kbps; 172,372 B total). Edited from **CC0 1.0 field recordings on Freesound**. The originals were downloaded
+in full quality from Creazilla's public-domain mirror (cdn.creazilla.com), because freesound.org / its CDN return 403 to the box.
+Attribution is not required; it is recorded here for provenance.
+
+| source | author | licence | Freesound | used in (excerpt) |
+|---|---|---|---|---|
+| "Sailing boat, bow wave (distant perspective)" (calm water, ~8 m boat, Neumann KM183 AB) | Pfannkuchn | CC0 1.0 | https://freesound.org/people/Pfannkuchn/sounds/360630/ | board 4.0–7.4 s, unfurl 10.0–14.6 s, cruise 23.0–40.5 s |
+| "sailboat underway.wav" (wind-filled sails, lines, boat parts) | canoeCG | CC0 1.0 | https://freesound.org/people/canoeCG/sounds/460061/ | cruise 124.0–141.5 s (−7 dB under the water) |
+| "Sailboat sail flapping with insect summer ambience" | maryhelena.clark | CC0 1.0 | https://freesound.org/people/maryhelena.clark/sounds/554439/ | unfurl 69.6–74.2 s |
+| "Dock,Wood,Creak,Water,Laping.wav" (yacht club pier) | Filipe Chagas | CC0 1.0 | https://freesound.org/people/Filipe%20Chagas/sounds/91912/ | board 136.5–139.1 s, dock 88.0–90.8 s |
+| "Lovis ship sailboat below deck … water sloshing around hull, wood creaks" | kyles | CC0 1.0 | https://freesound.org/people/kyles/sounds/450241/ | dock 40.0–44.4 s |
+
+Processing (Voice Bot, `tools/audio/sail/build_sail_audio.py`): mono fold-down, resample to 44.1 kHz, 2nd-order HP 80–150 Hz,
+4th-order LP 1.8–3.2 kHz (no hiss / insects / sharp highs), a gentle feed-forward smoother on the creak and cloth layers
+(1 ms attack, 150 ms release, 3–4:1 only above the clip's RMS + 6–9 dB) so no transient pokes out, a light synthetic room on
+board / dock (RT 0.5–0.55 s, 10 % wet, LP 2.5 kHz), raised-cosine onsets (30–250 ms) and natural decays ending in a 0.9–1.2 s
+raised-cosine fade-out (never a hard cut). The 16 s cruise bed is a seamless loop (its 1.5 s tail is equal-power cross-faded
+into its head). Levels (ffmpeg `ebur128`): board −26.5 LUFS, unfurl −25.4, dock −25.5, cruise −26.9 (true peak −3.3 to
+−11.7 dBFS). In game: volumes 0.7 / 0.7 / 0.45 / 0.7 (`SAIL_AUDIO.vol`), so the sail SFX sit about 4–8 dB under the sail BGM
+(`audio_amb/bgm_sail`, music slider 0.4) and the open-sea bed (`audio_amb/amb_sea_open_loop`, 0.8) from voice/v2-scene-audio.
+The bed fades in over 1.0 s and out over 2.0 s.
+Source sha256 (first 16 hex): bow 78b580af72a88f51, underway 9d2d7ccb30cbdfdc, flapping d5e7adbdc8b4374e, dock
+6cab581c9821a6ce, Lovis fe53fec8252baad3.
