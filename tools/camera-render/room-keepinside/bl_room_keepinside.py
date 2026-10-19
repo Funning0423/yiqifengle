@@ -2,6 +2,7 @@
 World: creator-project/assets/firstslice/combined_visual_m.glb (the runtime world, extract with git show).
   blender -b --factory-startup -P bl_room_keepinside.py -- measure WORLD.glb OUT.json
   blender -b --factory-startup -P bl_room_keepinside.py -- render WORLD.glb POSES.json OUTDIR CHAR.glb
+  blender -b --factory-startup -P bl_room_keepinside.py -- probe  WORLD.glb POSES.json OUTDIR CHAR.glb   (no images)
 measure: inner-wall polygon in Cocos XZ, from rays out of the room centre every 2°, taking the nearest hit over heights
          0.85..2.2 m on the walls (env_interior_shell + door + lighthouse ext + window glass), plus floor and ceiling.
 render:  POSES.json = [{name, position, target, fov}] from orbit_poses.cjs (the real FreeOrbit.solve). Single-sided
@@ -19,6 +20,14 @@ for o in list(bpy.data.objects):
     if o.type in ('CAMERA', 'LIGHT'): bpy.data.objects.remove(o, do_unlink=True)
 for o in bpy.data.objects:
     if o.name.startswith('Icosphere'): o.hide_render = True
+# render/probe: the game at home writes HOME layers (WorldFlowCore: exterior off; env_lighthouse_ext stays on with the
+# interior; v22 day effects follow exterior). Exterior-layer names from FirstsliceFacts.ts renderers.
+HOME_HIDDEN = ('env_island_main', 'env_island_props_merged', 'env_prop_palm_tall_01', 'env_prop_palm_lean_01', 'env_prop_palm_young_01',
+               'env_anim_seagull_01', 'env_anim_crab_01', 'env_anim_cat_tuxedo_01', 'env_anim_turtle_01')
+if mode != 'measure':
+    for o in list(bpy.data.objects):
+        if o.type == 'MESH' and (any(o.name.startswith(n) for n in HOME_HIDDEN) or ('_v22' in o.name and '_night_v22' not in o.name)):
+            bpy.data.objects.remove(o, do_unlink=True)
 dg = bpy.context.evaluated_depsgraph_get()
 BACKDROP = ('sky', 'cloud', 'sea_', 'foam', 'wave', 'Icosphere')
 WALLS = ('env_interior_shell', 'env_lighthouse_door', 'env_lighthouse_ext', 'env_interior_glass')
@@ -80,16 +89,29 @@ lamp.data.energy = 220; lamp.data.shadow_soft_size = 1.5; lamp.location = B((-0.
 cd = bpy.data.cameras.new('cam'); cd.sensor_fit = 'VERTICAL'; cd.clip_start = 0.1; cd.clip_end = 1000
 cam = bpy.data.objects.new('cam', cd); sc.collection.objects.link(cam); sc.camera = cam
 her = [o for o in new if o.type == 'MESH' and not o.hide_render]
+dg = bpy.context.evaluated_depsgraph_get(); her_trees = [('her:' + o.name, tree(o)) for o in her]
+def coverage(p, nx=20, ny=43):
+    # frame coverage by object: a ray grid over the (portrait) frame from the lens. herFrac = share of rays that hit her
+    # first; nearFrac = share whose first hit is closer than 0.9 m (what fills the frame when the lens nears something).
+    f = Vector(p['target']) - Vector(p['position']); f.normalize(); up = Vector((0, 1, 0)); r = f.cross(up); r.normalize(); u = r.cross(f)
+    ty = math.tan(math.radians(p['fov']) / 2); tx = ty * 360 / 780; hits = {}; near = {}; herN = 0; n = 0; herBox = [1, -1, 1, -1]
+    for j in range(ny):
+        for i in range(nx):
+            sx, sy = (i + 0.5) / nx * 2 - 1, (j + 0.5) / ny * 2 - 1; d = f + r * (sx * tx) + u * (sy * ty); d.normalize()
+            a = ray(scene_trees, p['position'], tuple(d)); b = ray(her_trees, p['position'], tuple(d)); n += 1
+            if b[0] < a[0]:
+                herN += 1; herBox = [min(herBox[0], sx), max(herBox[1], sx), min(herBox[2], sy), max(herBox[3], sy)]; continue
+            if a[1] is None: continue
+            hits[a[1]] = hits.get(a[1], 0) + 1
+            if a[0] < 0.9: near[a[1]] = near.get(a[1], 0) + 1
+    top = sorted(hits.items(), key=lambda kv: -kv[1])[:4]
+    return dict(herFrac=round(herN / n, 3), herBoxNDC=[round(v, 2) for v in herBox] if herN else None,
+                nearFrac={k: round(v / n, 3) for k, v in near.items()}, top={k: round(v / n, 3) for k, v in top})
 rows = []
 for p in poses:
     cd.angle_y = math.radians(p['fov']); cam.location = B(p['position']); cam.rotation_euler = (B(p['target']) - B(p['position'])).to_track_quat('-Z', 'Y').to_euler()
     na = nearest(scene_trees, p['position']); nw = nearest(wall_trees, p['position'])
-    # is she on screen and unblocked: rays from the lens to her head / chest / knees
-    from bpy_extras.object_utils import world_to_camera_view
-    vis = []
-    for name, off in (('head', 1.25), ('chest', 1.0), ('lap', 0.6)):
-        q = (SEAT[0], off, SEAT[2]); v = world_to_camera_view(sc, cam, B(q)); d = Vector(q) - Vector(p['position']); L = d.length
-        hit = ray(scene_trees, p['position'], tuple(d / L)); vis.append(dict(part=name, onScreen=0 <= v.x <= 1 and 0 <= v.y <= 1 and v.z > 0, blockedBy=hit[1] if hit[0] < L - 0.35 else None))
-    rows.append(dict(name=p['name'], position=p['position'], clearanceAllM=round(na[0], 3), nearest=na[1], clearanceWallsM=round(nw[0], 3), nearestWall=nw[1], her=vis))
-    sc.render.filepath = os.path.join(out, p['name'] + '.png'); bpy.ops.render.render(write_still=True); print('SHOT', json.dumps(rows[-1]))
-json.dump(dict(char=char, world=world, rows=rows), open(os.path.join(out, 'clearance.json'), 'w'), indent=1)
+    rows.append(dict(name=p['name'], position=p['position'], clearanceAllM=round(na[0], 3), nearest=na[1], clearanceWallsM=round(nw[0], 3), nearestWall=nw[1], frame=coverage(p)))
+    if mode == 'render': sc.render.filepath = os.path.join(out, p['name'] + '.png'); bpy.ops.render.render(write_still=True)
+    print('SHOT', json.dumps(rows[-1]))
+json.dump(dict(char=char, world=world, rows=rows), open(os.path.join(out, 'clearance.json' if mode == 'render' else 'probe.json'), 'w'), indent=1)
