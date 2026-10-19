@@ -861,8 +861,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-    "bytes": 1179088,
-    "sha256": "c2e608d0098dd03ff94fa5fe320c03c9e49e024773b4b05d058b689e3929e38e"
+    "bytes": 1567644,
+    "sha256": "18b8b673b5dad82b78c97f233d0b56ab6922fa949a6f7fc08f8ddb903cee454f"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/far_meadow_card.glb",
