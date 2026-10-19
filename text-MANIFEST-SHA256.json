@@ -1906,8 +1906,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 103326,
-    "sha256": "0779f666851c2080a58d20b1f17dc86faff3395f3630020c7962d207bd713ace"
+    "bytes": 103426,
+    "sha256": "071e616c105c1b794dc94832b53e9a8a958d82f94676e85aa9e74cd683ee890e"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -2343,6 +2343,11 @@
     "path": "creator-build-project/assets/scripts/region/ExploreGate.ts.meta",
     "bytes": 171,
     "sha256": "419972756475567c172c91d3a4a94944dc7a2565b43f4db8747a970553cc38a2"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
+    "bytes": 36439,
+    "sha256": "b77c709677944cc7ea2458a7dc2af45effe83b0ee9d204a37ddc68d4a4d7ee95"
   },
   {
     "path": "creator-build-project/assets/scripts/region/JourneyTransport.ts",
@@ -3411,8 +3416,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 64778,
-    "sha256": "547d4bd511fa2fe937c6ff5462ff89a2fc6a307d15ece1073baa8cb555fe6eb8"
+    "bytes": 69683,
+    "sha256": "56f505ae81da5837e675a17fccb005fd74b4fdb9b24be2128751af82805d680f"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",

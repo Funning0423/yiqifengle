@@ -1,0 +1,113 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {load}=require('./load.cjs');
+const C=load('region/FreeOrbit.ts');
+const places=['home','island','meadow','skycity','lakeside','board'];
+for(const id of places){
+ const L=C.ORBIT_LIMITS[id];
+ assert.ok(L.pitchMaxDeg>L.pitchMinDeg,id+' pitch');
+ assert.ok(L.distMax>L.distMin&&L.distMin>0.5,id+' dist');
+ assert.ok(L.yawHalfDeg>0,id+' yaw');
+}
+assert.equal(C.ORBIT_LIMITS.board.yawHalfDeg,4);
+assert.ok(C.ORBIT_LIMITS.home.keepInside,'home stays inside the room volume');
+assert.equal(C.ORBIT_LIMITS.island.yawHalfDeg,Infinity);
+
+const feet=[0,0,0];
+const meadow=new C.FreeOrbit('meadow');
+meadow.drag(0.5,0);
+const spun=meadow.yaw;
+meadow.release();
+meadow.step(0.1);
+assert.ok(meadow.yaw>spun+1,'inertia coasts after the finger lifts');
+const mid=meadow.yaw;
+for(let i=0;i<4;i++)meadow.step(0.1);
+assert.ok(Math.abs(meadow.yaw-mid)>0.5,'the coast is visible');
+for(let i=0;i<20;i++)meadow.step(0.1);
+const settled=meadow.yaw;
+meadow.step(0.1);
+assert.ok(Math.abs(meadow.yaw-settled)<0.15,'damping kills the spin');
+meadow.drag(8,0);
+assert.ok(meadow.yaw>360,'yaw is not clamped to a circle');
+meadow.release();
+
+const pitch=new C.FreeOrbit('meadow');
+pitch.drag(0,-5);
+assert.equal(pitch.pitch,C.ORBIT_LIMITS.meadow.pitchMaxDeg);
+pitch.drag(0,5);
+assert.equal(pitch.pitch,C.ORBIT_LIMITS.meadow.pitchMinDeg);
+assert.equal(pitch.drag(1,0),true);
+pitch.pause();
+const frozen=pitch.yaw;
+assert.equal(pitch.drag(1,0),false);
+assert.equal(pitch.yaw,frozen);
+assert.equal(pitch.shouldWrite(),false);
+
+const zoom=new C.FreeOrbit('meadow');
+assert.equal(zoom.pinch(8),false,'a screen point is not a pinch');
+zoom.pinch(0.5);
+assert.equal(zoom.dist,C.ORBIT_LIMITS.meadow.distMax);
+zoom.pinch(3);
+assert.ok(zoom.dist<C.ORBIT_LIMITS.meadow.distMax-1);
+zoom.pinch(0.25);
+assert.ok(zoom.dist>=C.ORBIT_LIMITS.meadow.distMin-1e-6);
+zoom.pause();
+assert.equal(zoom.pinch(2),false);
+
+const board=new C.FreeOrbit('island');
+board.drag(0.2,0);
+const lock=board.yaw;
+board.armBoard();
+board.drag(2,0);
+assert.ok(Math.abs(board.yaw-lock)<=C.ORBIT_LIMITS.board.yawHalfDeg+1e-6,'board yaw is a few degrees');
+assert.ok(board.pitch<=C.ORBIT_LIMITS.board.pitchMaxDeg+1e-6);
+assert.ok(board.dist<=C.ORBIT_LIMITS.board.distMax+1e-6&&board.dist>=C.ORBIT_LIMITS.board.distMin-1e-6);
+board.disarm('island');
+assert.ok(Math.abs(board.yaw-lock)<1e-6,'leaving the board restores her view');
+
+const girl=[0,0,0];
+const wall=new C.FreeOrbit('island');
+wall.seed({position:[0,2,6],target:[0,1.15,0],fovVerticalDeg:42},girl);
+const raw=wall.rawPose(girl);
+const box={min:[raw.position[0]-0.25,raw.position[1]-0.25,raw.position[2]-0.25],max:[raw.position[0]+0.25,raw.position[1]+0.25,raw.position[2]+0.25]};
+const solved=wall.solve(girl,[box],0);
+assert.ok(C.boxGap(solved.position,box)>=C.ORBIT_FEEL.clearM-1e-6,'lens backs out of a wall');
+const near=[solved.position[0]+(solved.target[0]-solved.position[0])*0.04,solved.position[1]+(solved.target[1]-solved.position[1])*0.04,solved.position[2]+(solved.target[2]-solved.position[2])*0.04];
+assert.ok(C.boxGap(near,box)>=C.ORBIT_FEEL.clearM-1e-3,'near point stays clear');
+const shell={min:[-80,-80,-80],max:[80,80,80]};
+const open=wall.solve(girl,[shell],-5);
+assert.ok(Math.abs(open.position[0]-raw.position[0])<0.05,'a sky shell is not a wall');
+const buried=wall.solve(girl,[],10);
+assert.ok(buried.position[1]>=10+C.ORBIT_FEEL.groundClearM-1e-6,'terrain keeps the lens above the ground');
+
+const home=new C.FreeOrbit('home');
+const seat=[0.4327,0,-4.2076];
+home.drag(3,-0.2);
+home.release();
+const room=home.solve(seat,[],0);
+const keep=C.ORBIT_LIMITS.home.keepInside;
+assert.ok(room.position[0]>=keep.min[0]-0.05&&room.position[0]<=keep.max[0]+0.05);
+assert.ok(room.position[1]>=keep.min[1]-0.05&&room.position[1]<=keep.max[1]+0.05);
+assert.ok(room.position[2]>=keep.min[2]-0.05&&room.position[2]<=keep.max[2]+0.05,'home orbit stays in the room');
+
+const back=new C.FreeOrbit('skycity');
+back.drag(0.4,0.1);
+back.pause();
+assert.equal(back.mode,'paused');
+const goal=back.rawPose([1,2,3]);
+back.beginReturn({position:[goal.position[0]+4,goal.position[1]+2,goal.position[2]-3],target:[1,3,3],fovVerticalDeg:40});
+assert.equal(back.mode,'returning');
+assert.equal(back.drag(1,0),false,'a cinematic return ignores the finger');
+for(let i=0;i<8;i++)back.step(0.1);
+assert.equal(back.mode,'free');
+assert.equal(back.shouldWrite(),true);
+const done=back.solve([1,2,3],[],2);
+assert.ok(Math.hypot(done.position[0]-goal.position[0],done.position[1]-goal.position[1],done.position[2]-goal.position[2])<0.05);
+
+const fresh=new C.FreeOrbit('lakeside');
+fresh.pause();
+fresh.unlock();
+assert.equal(fresh.drag(0.1,0),true,'an unused pause does not eat the next drag');
+assert.equal(C.orbitColliderName('env_sky_dome'),true);
+assert.equal(C.orbitColliderName('env_lighthouse_ext'),false);
+console.log('free-orbit PASS');

@@ -4,6 +4,7 @@ import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
 import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
+import {FreeOrbit,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
 import {setExploreEnabled} from '../region/ExploreGate';
 import {REGION_NODES,type RegionId} from '../region/RegionNodes';
 import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
@@ -57,6 +58,9 @@ export class RegionNodeStage extends Component{
  private shotNote='';
  private dragHome:Vec|null=null;
  private completed:readonly string[]=[];
+ private readonly orbit=new FreeOrbit('island');
+ private orbitBoxes:OrbitBox[]=[];
+ private orbitBoxAt=0;
 
  attach(camera:Camera){this.camera=camera;}
  bindCharacter(character:CharacterAdapter|null){this.character=character;}
@@ -185,6 +189,7 @@ export class RegionNodeStage extends Component{
  }
  private showWorld(region:RegionId){
   if(this.cover&&this.region===region)return;
+  if(this.region!==region)this.orbit.forget();
   if(this.cover)this.restoreBoard();
   const scene=director.getScene();if(!scene)return;
   const host=findDeep(scene,'ManagedNativeBoardHost');
@@ -209,8 +214,10 @@ export class RegionNodeStage extends Component{
   if(c.nav?.isValid)c.nav.active=true;
   try{this.character?.setVisible(false);}catch{/* level hides her */}
   this.lens='Board';this.exploring=false;setExploreEnabled(false);this.shotPhases=null;
+  this.orbit.armBoard();
  }
  private async blend(seconds:number,from:Pose,to:()=>Pose){
+  this.orbit.pause();
   const step=(t:number)=>this.writePose(t<=0?from:t>=seconds?to():blendPose(from,to(),t,seconds));
   await new Promise<void>(resolve=>{
    let settled=false;const done=()=>{if(settled)return;settled=true;step(seconds);resolve();};
@@ -230,6 +237,7 @@ export class RegionNodeStage extends Component{
   this.lens='BoardToFollow';setExploreEnabled(false);
   await this.blend(BLEND_S.boardToFollow,board,()=>followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
   this.lens='FollowWalk';setExploreEnabled(true);
+  this.handOrbitBack(spec.region);
   try{await runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));}
   finally{setExploreEnabled(false);}
   const arrived=this.readPose();
@@ -247,6 +255,7 @@ export class RegionNodeStage extends Component{
   this.lens='BoardToFollow';
   await this.blend(BLEND_S.boardToFollow,board,()=>followPose(this.girl(),this.yaw(),w,h,8));
   this.lens='FollowWalk';setExploreEnabled(true);
+  this.handOrbitBack('skycity');
   try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);}
   this.lens='FollowWalk';
   this.hideTree=true;this.treeVisible(false);
@@ -390,9 +399,53 @@ export class RegionNodeStage extends Component{
   const aim=id==='robot'?3:id==='palm'?2.2:this.propSpan(id)*0.35;
   return {position:[p[0]+dx/L*back,p[1]+lift,p[2]+dz/L*back],target:[p[0],p[1]+aim,p[2]],fovVerticalDeg:40};
  }
+ /** Board and blends pause the orbit. Back on a walk, ease to the view she had, or stay on the follow lens. */
+ private handOrbitBack(region:RegionId){
+  const place:OrbitPlace=region;
+  const was=this.orbit.engaged();
+  if(this.orbit.place==='board'||this.orbit.mode==='board')this.orbit.disarm(place);
+  else this.orbit.setPlace(place);
+  if(!was){this.orbit.unlock();return;}
+  this.orbit.beginReturn(this.readPose());
+  this.writeOrbit(0);
+ }
+ private regionBounds():readonly [number,number,number,number]{return REGION_NODES[this.region].exploreBox;}
+ /** AABB cache at 2.5 Hz, capped, so a drag does not walk every mesh on a 60 fps phone. */
+ private refreshOrbitBoxes(g:Vec){
+  const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return;
+  this.orbitBoxAt=now;this.orbitBoxes.length=0;
+  const scene=director.getScene();if(!scene)return;
+  const ranked:{d:number;box:OrbitBox}[]=[];
+  for(const r of scene.getComponentsInChildren(MeshRenderer)){
+   if(!r.node.activeInHierarchy||r.node===this.markerNode||orbitColliderName(r.node.name)||!r.model?.worldBounds)continue;
+   const b=r.model.worldBounds,c=b.center,h=b.halfExtents,span=Math.max(h.x,h.y,h.z)*2;
+   if(span<0.3||span>14)continue;
+   const d=Math.hypot(c.x-g[0],c.z-g[2]);if(d>28)continue;
+   ranked.push({d,box:{min:[c.x-h.x,c.y-h.y,c.z-h.z],max:[c.x+h.x,c.y+h.y,c.z+h.z]}});
+  }
+  ranked.sort((a,b)=>a.d-b.d);
+  const n=Math.min(32,ranked.length);
+  for(let i=0;i<n;i++)this.orbitBoxes.push(ranked[i].box);
+ }
+ private writeOrbit(dt:number){
+  this.orbit.step(dt);
+  const g=this.girl();
+  this.refreshOrbitBoxes(g);
+  this.writePose(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds()),false);
+ }
+ private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
+  const {w,h}=this.viewport(),g=this.girl();
+  this.orbit.setPlace(this.region);
+  if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);
+  if(gesture==='release'){this.orbit.release();return;}
+  if(gesture==='pinch')this.orbit.pinch(x);
+  else this.orbit.drag(x/Math.max(1,w),y/Math.max(1,h));
+  this.writeOrbit(0);
+ }
  openExplore(region:RegionId){
   this.region=region;this.exploring=true;this.lens='MapExplore';this.focus=this.girl();this.zoom=1.6;
-  const {w,h}=this.viewport();this.writePose(mapPose(this.focus,this.zoom,w,h),true);
+  this.handOrbitBack(region);
+  if(!this.orbit.shouldWrite()){const {w,h}=this.viewport();const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.writePose(this.orbit.rawPose(g),false);}
   setExploreEnabled(true);
   emitTransitCue('explore-unlocked',{t:0,region});
   this.rebuildMarkers();
@@ -452,14 +505,12 @@ export class RegionNodeStage extends Component{
  }
 
  onGesture(gesture:Gesture,x:number,y:number){
-  if(!this.exploring||this.lens!=='MapExplore'){
+  const live=this.exploring&&!this.anim&&(this.lens==='MapExplore'||this.lens==='FollowWalk');
+  if(!live){
    if(gesture==='tap'&&this.lens==='FollowWalk')this.skipWalk();
    return;
   }
-  const {w,h}=this.viewport();
-  if(gesture==='drag'){if(!this.dragHome)this.dragHome=[this.focus[0],this.focus[1],this.focus[2]];this.focus=[this.dragHome[0]-x*0.02,this.focus[1],this.dragHome[2]+y*0.02];this.writePose(mapPose(this.focus,this.zoom,w,h),true);return;}
-  this.dragHome=null;
-  if(gesture==='pinch'){this.zoom=Math.max(0.7,Math.min(1.6,this.zoom+(y>x?0.04:-0.04)));this.writePose(mapPose(this.focus,this.zoom,w,h),true);return;}
+  if(gesture==='drag'||gesture==='pinch'||gesture==='release'){this.dragHome=null;this.aimOrbit(gesture,x,y);return;}
   if(gesture!=='tap'||!this.camera)return;
   const hits=this.projectNodes().filter(h=>Math.hypot(h.x-x,h.y-y)<=48);
   const id=pickMarker(hits.map(h=>({id:h.id,distancePt:Math.hypot(h.x-x,h.y-y),toGirl:h.toGirl})));
@@ -481,7 +532,8 @@ export class RegionNodeStage extends Component{
   await performBounded(this.character,{kind:'walk',path,duration:Math.max(0.4,Math.hypot(dest[0]-from[0],dest[2]-from[2])/1.2)},dest,0);
   if(token!==this.walkToken)return;
   this.lens='MapExplore';
-  const {w,h}=this.viewport();this.focus=this.girl();this.writePose(mapPose(this.focus,this.zoom,w,h),true);
+  this.focus=this.girl();
+  if(!this.orbit.shouldWrite()){const {w,h}=this.viewport();const g=this.focus;if(!this.orbit.seeded)this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.writePose(this.orbit.rawPose(g),false);}
  }
  private markerFrame(g:Vec):Pose{
   const nodes=REGION_NODES[this.region].nodes;
@@ -556,7 +608,7 @@ export class RegionNodeStage extends Component{
  }
  update(dt:number){
   if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
-  if(this.holdPose)this.writePose(this.holdPose,false);
+  if(this.holdPose){this.orbit.pause();this.writePose(this.holdPose,false);}
   if(this.hideTree){this.treeVisible(false);if(this.holdPose)this.stripFinaleOccluders(this.holdPose);}
   this.markerClock+=dt;
   if(this.holdPulse>0)this.holdPulse=Math.max(0,this.holdPulse-dt);
@@ -569,6 +621,10 @@ export class RegionNodeStage extends Component{
    if(p.motion==='spin')p.node.setRotationFromEuler(0,p.ey+wave*50,0);
    else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*28,p.ey+wave*36,0);
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
+  }
+  if(!this.anim&&!this.holdPose&&(this.lens==='MapExplore'||this.lens==='FollowWalk')){
+   if(this.orbit.shouldWrite())this.writeOrbit(dt);
+   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region,99)),false);}
   }
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
  }

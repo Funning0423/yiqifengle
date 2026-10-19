@@ -21,10 +21,12 @@ import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Sn
 import { CHARACTER_REFERENCE } from './CharacterReference';
 import { FIRSTSLICE } from './FirstsliceFacts';
 import { createFirstsliceRoutes } from './FirstsliceRoutes';
-import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate, CAMERA_FIXED } from './CameraPose';
+import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate, projectPoint, yawPitch, CAMERA_FIXED } from './CameraPose';
 import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
 import { DIALOG_CAMERA_YIELD, dialogCameraOpen, dialogYieldPitchDeg, createYieldMotion, stepYieldMotion, yieldPose } from './DialogCameraYield';
+import { FreeOrbit, orbitColliderName, type OrbitBox } from '../region/FreeOrbit';
+import { exploreEnabled } from '../region/ExploreGate';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode, emitDayNightChange } from './DayNightContract';
 import { skyFollowColor, vertexColorAverageLinear } from './SkyFollowCore';
 /** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
@@ -169,6 +171,13 @@ export class WorldFlowComponent extends Component {
   private flow:WorldFlow|null=null;
   private roomLook=new RoomLook(homePoseEntry());
   private islandRail:IslandRail|null=null;
+  private readonly homeOrbit=new FreeOrbit('home');
+  private readonly islandOrbit=new FreeOrbit('island');
+  private orbitBoxes:OrbitBox[]=[];
+  private orbitBoxAt=0;
+  private frameSerial=0;
+  private cinematicSerial=-1;
+  private orbitHeldTick=false;
   private readonly settledListeners=new Set<(place:'island'|'home')=>void>();
   private readonly craneListeners=new Set<(info:{segment:'toIsland';progress:number;seconds:number})=>void>();
   private readonly doorShutListeners=new Set<()=>void>();
@@ -276,7 +285,7 @@ export class WorldFlowComponent extends Component {
   /** UI receives this command facade, never scene/model/camera references. */
   commands() {
     const flow=()=>{if(!this.flow)throw Error('World not initialized');return this.flow;};
-    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),pullIsland:(dy:number,scale:number)=>this.pullIsland(dy,scale),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),hitCabin:(x:number,y:number)=>this.hitCabin(x,y),
+    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),pullIsland:(dy:number,scale:number)=>this.pullIsland(dy,scale),orbitIsland:(dx:number,dy:number,scale:number)=>this.orbitIsland(dx,dy,scale),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),hitCabin:(x:number,y:number)=>this.hitCabin(x,y),
       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
       prepareRegion:(target:JourneyRegion)=>flow().prepareRegion(target),travelRegion:(target:JourneyRegion)=>flow().travelRegion(target),journeySnapshot:()=>flow().snapshot().journey,abandonLakesideJourney:()=>flow().abandonLakesideJourney(),
@@ -297,8 +306,17 @@ export class WorldFlowComponent extends Component {
     for(const r of this.lighthouseTargets){if(!isValid(r,true)||!isValid(r.node,true)||!r.node.activeInHierarchy||!r.model)continue;const t=geometry.intersect.rayModel(ray,r.model,this.cabinRayOptions);if(t>0&&t<best)best=t;}
     return Number.isFinite(best)&&ray.o.x+ray.d.x*best>=CABIN_MIN_X;
   }
-  private roomView(aspect:number){const s=this.flow?.snapshot();return {enabled:!!s&&s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&!this.roomLookToken&&this.jobs.size===0,settling:!!this.roomLookToken,door:this.roomLook.door(FIRSTSLICE.anchors.door_handle.position,aspect),angles:this.roomLook.angles()};}
-  private lookRoom(dx:number,dy:number):boolean {if(!this.roomView(1).enabled||!this.worldCamera||!this.roomLook.drag(dx,dy))return false;return applyCameraPose(this.worldCamera,this.roomLook.pose(),'room.look');}
+  private homePivot():V3{const r=CHARACTER_REFERENCE.seatedRoot;return [r[0],r[1],r[2]];}
+  private islandPivot():V3{const r=REGION_CAMERA.islandCharacter.root;return [r[0],r[1],r[2]];}
+  private readLivePose():Pose{const cam=this.worldCamera!,n=cam.node,p=n.worldPosition,f=n.forward;return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:cam.fov};}
+  /** Door hint from a lens. Same screen test as RoomLook, measured from this lens so a spun room still finds the handle. */
+  private doorGlance(cam:CameraPose,aspect:number,point:V3){if(!Number.isFinite(aspect)||aspect<=0)return {visible:false,x:.5,y:.5,direction:1};const p=projectPoint(cam,aspect,point),x=(p.x+1)/2,y=(p.y+1)/2;const a=yawPitch(cam.rotation),rel=[point[0]-cam.position[0],point[2]-cam.position[2]];let delta=Math.atan2(rel[0],rel[1])-a.yaw;while(delta>Math.PI)delta-=2*Math.PI;while(delta<-Math.PI)delta+=2*Math.PI;return {visible:p.depth>.05&&x>.10&&x<1-.10&&y>.12&&y<.86,x,y,direction:delta<0?1:-1};}
+  private fillBoxes():OrbitBox[]{const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return this.orbitBoxes;this.orbitBoxAt=now;this.orbitBoxes.length=0;const root=this.ownedModel;if(!root)return this.orbitBoxes;const list=root.getComponentsInChildren(MeshRenderer);for(let i=0;i<list.length&&this.orbitBoxes.length<32;i++){const r=list[i];if(!r.enabled||!r.node.activeInHierarchy||orbitColliderName(r.node.name)||!r.model?.worldBounds)continue;const b=r.model.worldBounds,c=b.center,h=b.halfExtents,span=Math.max(h.x,h.y,h.z)*2;if(span<0.25||span>16)continue;this.orbitBoxes.push({min:[c.x-h.x,c.y-h.y,c.z-h.z],max:[c.x+h.x,c.y+h.y,c.z+h.z],name:r.node.name});}return this.orbitBoxes;}
+  private writeOrbit(orbit:FreeOrbit,feet:V3,reason:string):boolean{if(!this.worldCamera)return false;const pose=orbit.solve(feet,this.fillBoxes(),feet[1]);return applyCameraPose(this.worldCamera,fromLookAt(pose),reason);}
+  private noteCinematic(){this.homeOrbit.pause();this.islandOrbit.pause();this.cinematicSerial=this.frameSerial;}
+  private roomView(aspect:number){const s=this.flow?.snapshot();const enabled=!!s&&s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&!this.roomLookToken&&this.jobs.size===0;const handle=FIRSTSLICE.anchors.door_handle.position as V3;if(enabled&&this.homeOrbit.engaged()&&this.worldCamera){const pose=fromLookAt(this.homeOrbit.solve(this.homePivot(),this.fillBoxes(),this.homePivot()[1]));return {enabled,settling:!!this.roomLookToken,door:this.doorGlance(pose,aspect,handle),angles:{yaw:this.homeOrbit.yaw,pitch:this.homeOrbit.pitch}};}return {enabled,settling:!!this.roomLookToken,door:this.roomLook.door(handle,aspect),angles:this.roomLook.angles()};}
+  private lookRoom(dx:number,dy:number):boolean {if(!this.roomView(1).enabled||!this.worldCamera)return false;this.orbitHeldTick=true;if(!this.homeOrbit.seeded)this.homeOrbit.seed(this.readLivePose(),this.homePivot());if(!this.homeOrbit.drag(dx,dy))return false;return this.writeOrbit(this.homeOrbit,this.homePivot(),'room.orbit');}
+  private orbitIsland(dx:number,dy:number,scale:number):boolean {if(!this.islandView()||!this.worldCamera)return false;this.orbitHeldTick=true;if(!this.islandOrbit.seeded)this.islandOrbit.seed(this.readLivePose(),this.islandPivot());let moved=false;if(Number.isFinite(scale)&&Math.abs(scale-1)>1e-4)moved=this.islandOrbit.pinch(scale)||moved;if(Number.isFinite(dx)&&Number.isFinite(dy)&&(dx!==0||dy!==0))moved=this.islandOrbit.drag(dx,dy)||moved;if(!moved&&!this.islandOrbit.engaged())return false;return this.writeOrbit(this.islandOrbit,this.islandPivot(),'island.orbit');}
   /** Settled island only: the exit arc is finished (state is island) and no camera job is writing. */
   private islandView(){const s=this.flow?.snapshot();return !!s&&s.state==='island'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&this.jobs.size===0;}
   private pullIsland(dy:number,scale:number):boolean {const rail=this.islandRail;if(!rail||!this.islandView()||!this.worldCamera)return false;const before=rail.fraction();if(!rail.nudge(dy,scale))return false;if(applyCameraPose(this.worldCamera,rail.pose(),'island.pull'))return true;rail.restore(before);return false;}
@@ -318,20 +336,23 @@ export class WorldFlowComponent extends Component {
     const clamp=(fov:number)=>Math.min(CAMERA_FIXED.maxFov,Math.max(CAMERA_FIXED.minFov,fov));
     return [{position:[p.x,p.y,p.z],target,fovVerticalDeg:clamp(camera.fov)},{position:[p.x+fx*step,p.y+fy*step,p.z+fz*step],target,fovVerticalDeg:clamp(camera.fov-6)}];
   }
-  private cancelRoomLook(){const changed=this.roomLook.moved()||!!this.roomLookToken;this.roomLookToken?.cancel();this.roomLookToken=null;this.roomLook.reset();if(changed&&this.worldCamera&&!this.disposed)try{applyCameraPose(this.worldCamera,fromLookAt(homePoseEntry()),'room.cancel-reset');}catch(error){console.warn('Room view reset failed',String(error));}}
+  private cancelRoomLook(){const changed=this.roomLook.moved()||this.homeOrbit.engaged()||!!this.roomLookToken;this.roomLookToken?.cancel();this.roomLookToken=null;this.roomLook.reset();this.homeOrbit.forget();if(changed&&this.worldCamera&&!this.disposed)try{applyCameraPose(this.worldCamera,fromLookAt(homePoseEntry()),'room.cancel-reset');}catch(error){console.warn('Room view reset failed',String(error));}}
   /** Rejoin the existing authored opening from the same origin before character motion starts.
    * Only user-look adds this bounded horizon-locked settle; untouched default view follows the old track exactly. */
   private async leaveRoom(){
     if(this.roomLookToken)return {ok:false,reason:'room-view-busy'};
     if(!this.flow)return {ok:false,reason:'world-not-ready'};
-    if(!this.roomView(1).enabled||!this.roomLook.moved())return this.flow.leaveHome();
+    const spun=this.homeOrbit.engaged();
+    if(!this.roomView(1).enabled||(!this.roomLook.moved()&&!spun))return this.flow.leaveHome();
+    const orbitFrom=():Pose=>this.homeOrbit.solve(this.homePivot(),this.fillBoxes(),this.homePivot()[1]);
     if(this.flow.continuousLeave){
       // T2+: no rejoin-then-cut. The stand-up camera move starts on the exact dragged view and pans back to the girl.
-      const look=this.roomLook.pose(),f=rotate(look.rotation,[0,0,-1]),p=look.position;
-      const from:Pose={position:[p[0],p[1],p[2]],target:[p[0]+f[0]*2.5,p[1]+f[1]*2.5,p[2]+f[2]*2.5],fovVerticalDeg:look.fovVerticalDeg??homePoseEntry().fovVerticalDeg};
+      let from:Pose;
+      if(spun)from=orbitFrom();
+      else {const look=this.roomLook.pose(),f=rotate(look.rotation,[0,0,-1]),p=look.position;from={position:[p[0],p[1],p[2]],target:[p[0]+f[0]*2.5,p[1]+f[1]*2.5,p[2]+f[2]*2.5],fovVerticalDeg:look.fovVerticalDeg??homePoseEntry().fovVerticalDeg};}
       const pending=this.flow.leaveHome({from});if(this.flow.snapshot().state==='standing')this.roomLook.reset();return pending;
     }
-    const token=new Cancellation(),from=this.roomLook.pose(),to=fromLookAt(homePoseEntry()),a=this.roomLook.angles();this.roomLookToken=token;
+    const from=spun?fromLookAt(orbitFrom()):this.roomLook.pose(),to=fromLookAt(homePoseEntry()),a=spun?{yaw:this.homeOrbit.yaw,pitch:this.homeOrbit.pitch}:this.roomLook.angles();const token=new Cancellation();this.roomLookToken=token;
     try {await this.run(Math.max(.25,Math.min(1.05,Math.hypot(a.yaw,a.pitch)/120)),token,p=>{token.check();if(!this.worldCamera||!applyCameraPose(this.worldCamera,blendPoseHorizon(from,to,p,'easeInOutCubic'),'room.rejoin'))throw Error('Room camera rejoin rejected');});token.check();this.roomLook.reset();this.roomLookToken=null;return await this.flow.leaveHome();}
     catch(error){this.cancelRoomLook();if(error instanceof Cancelled)return {ok:false,reason:'cancelled'};throw error;}
     finally {if(this.roomLookToken===token)this.roomLookToken=null;}
@@ -406,7 +427,7 @@ export class WorldFlowComponent extends Component {
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).
       const toCameraPose=(pose:Pose):CameraPose=>fromLookAt(pose,(globalThis as any).__QF_BALLOON_LENS&&pose.fovVerticalDeg?pose.fovVerticalDeg:camera.fov);
-      const setCamera=(pose:Pose)=>{this.roomLook.reset();this.islandRail?.reset();if((globalThis as any).__QF_BALLOON_LENS){camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=0.3;if(!(camera.far>=2500))camera.far=2500;}if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
+      const setCamera=(pose:Pose)=>{this.noteCinematic();this.roomLook.reset();this.islandRail?.reset();if((globalThis as any).__QF_BALLOON_LENS){camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=0.3;if(!(camera.far>=2500))camera.far=2500;}if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
       let alive=true;
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
@@ -438,16 +459,17 @@ export class WorldFlowComponent extends Component {
           // Push in from the live island camera (including a finger pull). Not the exit arc.
           // WorldFlow calls this for every flow mode; a missing clock tick is still this run(), not a skipped shot.
           console.info('[enter-level] shot', this.flow?.snapshot().mode);
+          this.noteCinematic();
           if(this.enterLevelHold){this.enterLevelHold=false;console.info('[enter-level] hold (lakeside landing on the board pose)');return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});}
           let path:Pose[]|null=null;try{path=this.enterLevelLook();}catch(error){console.warn('enter-level shot skipped',String(error));}
           if(!path)return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});
           const track=createCameraTrack(camera,path,'world.enterLevel',{easeIn:0.14,easeOut:0.4});
-          return this.run(ENTER_LEVEL_SHOT_S,token,p=>{track.tick(p);});
+          return this.run(ENTER_LEVEL_SHOT_S,token,p=>{this.noteCinematic();track.tick(p);});
         },
         animateCamera:(path,seconds,t,options,progress,onSample)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
           // onSample (wind channel): eased key progress of each written sample.
-          const tick=(v:number)=>{const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
+          const tick=(v:number)=>{this.noteCinematic();const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
           if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds,options?.followTauSeconds??0.25);return this.run(seconds,t,p=>tick(follow(p,progress())));},
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
@@ -483,6 +505,7 @@ export class WorldFlowComponent extends Component {
   }
   update(dt:number):void {
     if(!this.flow||this.disposed||this.safetyFailure)return;
+    this.frameSerial++;const finger=this.orbitHeldTick;this.orbitHeldTick=false;
     this.clock.updates++;this.clock.lastTickUtc=new Date().toISOString();
     if(Number.isFinite(dt)&&dt>0){this.clock.rawSeconds+=dt;this.clock.maxDt=Math.max(this.clock.maxDt,dt);}
     try {identity(this.node);if(this.ownedModel){identity(this.ownedModel);identity(resolvePath(this.ownedModel,'scene_root'));}}
@@ -501,8 +524,21 @@ export class WorldFlowComponent extends Component {
       try {j.tick(Math.min(1,j.elapsed/j.seconds));if(j.elapsed>=j.seconds){this.jobs.delete(j);j.off();j.resolve();}}
       catch(e){this.jobs.delete(j);j.off();j.reject(e instanceof Error?e:Error(String(e)));}
     }
+    this.settleOrbit(frameDt,finger);
     this.applyDialogYield(frameDt);
     if(Date.now()-this.lastDiagnosticAt>=5000)this.reportRuntime('tick');
+  }
+  /** After a cinematic frame, ease back to the orbit the player left. Region walks own the lens while explore is on. */
+  private settleOrbit(dt:number,finger:boolean){
+    if(!finger){this.homeOrbit.release();this.islandOrbit.release();}
+    if(exploreEnabled()||this.cinematicSerial===this.frameSerial||this.jobs.size>0)return;
+    const state=this.flow?.snapshot().state;
+    const place=state==='home'?'home':state==='island'?'island':null;if(!place)return;
+    const orbit=place==='home'?this.homeOrbit:this.islandOrbit;
+    if(orbit.mode==='paused'&&orbit.engaged())orbit.beginReturn(this.readLivePose());
+    if(!orbit.shouldWrite())return;
+    orbit.step(dt);
+    this.writeOrbit(orbit,place==='home'?this.homePivot():this.islandPivot(),place+'.orbit');
   }
   /** 运镜bot r5 dialog yield (DialogCameraYield.ts): a post-pass after every camera writer this frame. Pitches the lens down
    *  while setDialogCameraOpen(true) on short screens and eases back on close. It never moves the lens position. */

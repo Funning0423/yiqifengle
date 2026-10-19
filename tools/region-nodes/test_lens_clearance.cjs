@@ -12,7 +12,8 @@ assert.equal(C.LENS_CLEAR_M,0.6);
 const bake=fs.readFileSync(path.join(ROOT,'tools/region-nodes/bake-region-nodes.cjs'),'utf8');
 assert.ok(bake.includes('up>.72'),'floor rule matches topmap.cjs');
 assert.ok(bake.includes('STEP=.36'),'step rule matches topmap.cjs');
-const topmap=fs.readFileSync(path.join(ROOT,'../../r5-region-nodes-r3/maps/topmap.cjs'),'utf8');
+const topmapFile=path.join(ROOT,'../../r5-region-nodes-r3/maps/topmap.cjs');
+const topmap=fs.readFileSync(fs.existsSync(topmapFile)?topmapFile:path.join(ROOT,'docs/r5/maps/topmap.cjs'),'utf8');
 assert.ok(topmap.includes('up>.72')&&topmap.includes('STEP=.36'));
 
 const girl=[0.2,0.03,-27.8],ring=[-0.238,20,-24.327],head=[girl[0],girl[1]+1.55,girl[2]];
