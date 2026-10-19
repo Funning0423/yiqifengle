@@ -1,9 +1,9 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-18T22:33:05.559Z",
+ "timeUTC": "2026-10-19T01:43:25.912Z",
  "fixture": {
   "json": "occlusion/fixture-occluders.json",
-  "jsonSha256": "8e32ebf66f3294bfc6885a8345dde1f52cf504ddbfbbd7a49c336a9f2af76970",
+  "jsonSha256": "91e8cd217289e4c4b63709ffdfa698b30f569de5c83fde81c80cd11aaa68767a",
   "binGz": "occlusion/fixture-occluders.bin.gz",
   "binGzSha256": "1589171d5608551db1b5663523443988a9da2f39a99e7dc926cf41da3753e65d",
   "bytes": 3752676,
@@ -27,12 +27,12 @@
    {
     "id": "skycity",
     "glb": "region_skycity/env_skycity.glb",
-    "sha256": "e9395d66baba3b854fe0d1119072285e5fe22542d25a9a9df9d1162a64e0719e"
+    "sha256": "89baab39f7f62fe2e8425604a2f6e26e8527d414000410f93d3a738052a1a6da"
    },
    {
     "id": "skycity_frame",
     "glb": "region_skycity/env_skycity.glb",
-    "sha256": "e9395d66baba3b854fe0d1119072285e5fe22542d25a9a9df9d1162a64e0719e"
+    "sha256": "89baab39f7f62fe2e8425604a2f6e26e8527d414000410f93d3a738052a1a6da"
    }
   ]
  },
