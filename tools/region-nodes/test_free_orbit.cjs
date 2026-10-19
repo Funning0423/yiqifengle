@@ -35,7 +35,7 @@ const pitch=new C.FreeOrbit('meadow');
 pitch.drag(0,-5);
 assert.equal(pitch.pitch,C.ORBIT_LIMITS.meadow.pitchMaxDeg);
 pitch.drag(0,5);
-assert.equal(pitch.pitch,C.ORBIT_LIMITS.meadow.pitchMinDeg);
+assert.equal(pitch.pitch,C.orbitPitchFloor(C.ORBIT_LIMITS.meadow,pitch.dist),'meadow: drag stops on the distance-based pitch floor');
 assert.equal(pitch.drag(1,0),true);
 pitch.pause();
 const frozen=pitch.yaw;

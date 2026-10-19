@@ -2346,8 +2346,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
-    "bytes": 36439,
-    "sha256": "b77c709677944cc7ea2458a7dc2af45effe83b0ee9d204a37ddc68d4a4d7ee95"
+    "bytes": 39899,
+    "sha256": "308743e06cf006da156ab9489f0e5c2b73e84b4eaeb7bba952e1ee0b1a2dd3c3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/JourneyTransport.ts",

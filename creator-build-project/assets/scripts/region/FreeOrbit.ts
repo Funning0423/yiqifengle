@@ -36,6 +36,9 @@ export type OrbitLimits = Readonly<{
   keepInside?: Readonly<{ min: Vec3; max: Vec3; cornerM?: number }>;
   /** Indoor only: blend toward the room centre when the wall-limited arm is short. Needs keepInside. */
   roomLook?: RoomLook;
+  /** Distance-based pitch floor (meadow): pitchMin(d) = nearDeg + (farDeg - nearDeg) * smoothstep(fromM, toM, d), d = arm.
+   *  pitchMinDeg stays the absolute floor (= farDeg). See orbitPitchFloor and PITCH_FLOOR_FEEL. */
+  pitchFloor?: Readonly<{ nearDeg: number; farDeg: number; fromM: number; toM: number }>;
 }>;
 
 /** Pitch is the camera's elevation above her chest. Distance is metres from that point. */
@@ -51,7 +54,9 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
     // (yaw ~315) frames her body instead of her hat.
     roomLook: { center: [0, 1.55, -2.5], blendFromM: 1.45, blendFullM: 0.95, pivotOffset: [-0.2, 0, 0], viewTiltDeg: 8 } },
   island: { pitchMinDeg: -8, pitchMaxDeg: 58, distMin: 4.2, distMax: 52, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 42 },
-  meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48 },
+  // r5 meadow pitch floor (场景特效bot): close in, the lens may not dip as far below her chest: -8 at 3.2 m to -12 at 14 m.
+  meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
+    pitchFloor: { nearDeg: -8, farDeg: -12, fromM: 3.2, toM: 14 } },
   skycity: { pitchMinDeg: -6, pitchMaxDeg: 55, distMin: 4, distMax: 22, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
   lakeside: { pitchMinDeg: -10, pitchMaxDeg: 42, distMin: 3.6, distMax: 16, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48 },
   board: { pitchMinDeg: -2, pitchMaxDeg: 2, distMin: 6.6, distMax: 7.8, yawHalfDeg: 4, lookM: 1.1, fovDeg: 48 },
@@ -70,6 +75,18 @@ export const ORBIT_FEEL = Object.freeze({
   /** Shells bigger than this are sky, sea or a merged island. Being inside one is not a hit. */
   shellM: 16,
 });
+/** Pitch floor at arm length `dist`: limits.pitchMinDeg unless the place has a distance-based pitchFloor. */
+export function orbitPitchFloor(limits: OrbitLimits, dist: number): number {
+  const f = limits.pitchFloor;
+  if (!f) return limits.pitchMinDeg;
+  const t = Math.max(0, Math.min(1, (dist - f.fromM) / (f.toM - f.fromM)));
+  return Math.max(limits.pitchMinDeg, f.nearDeg + (f.farDeg - f.nearDeg) * t * t * (3 - 2 * t));
+}
+/** When a pinch raises the pitch floor above the current pitch, the pitch eases up to it (never snaps): rate follows a
+ *  braking curve sqrt(2 * brake * gap), capped at vMax, and changes by at most accDegS2 (pitch accel = the view's angular
+ *  accel here, the view looks along the arm). brake <= acc / 2 keeps the last step onto the floor inside acc too.
+ *  Well inside the 120 deg/s^2 HANDOFF cap. */
+export const PITCH_FLOOR_FEEL = Object.freeze({ accDegS2: 60, brakeDegS2: 25, vMaxDegS: 20 });
 const SMOOTH = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x * x * x * (x * (x * 6 - 15) + 10); };
 /** Room look tuning. softK: soft-min sharpness (larger = closer to a hard min). edgeSoftM: width of the smooth clamp to
  *  the keepInside height. insetM: the goal stays this far inside the rounded keepInside. goalSpeedMS: the goal moves
@@ -176,6 +193,8 @@ export class FreeOrbit {
   private yawVel = 0;
   private pitchVel = 0;
   private distVel = 0;
+  /** Pitch-floor ease rate (deg/s), see PITCH_FLOOR_FEEL. */
+  private floorVel = 0;
   private yawLock = 0;
   private limits: OrbitLimits = ORBIT_LIMITS.island;
   private placeName: OrbitPlace = 'island';
@@ -223,12 +242,15 @@ export class FreeOrbit {
   }
   get place(): OrbitPlace { return this.placeName; }
   limitsOf(): OrbitLimits { return this.limits; }
+  /** The pitch floor at the current arm (limits.pitchMinDeg where the place has no pitchFloor). */
+  get pitchFloorDeg(): number { return orbitPitchFloor(this.limits, this.dist); }
   engaged(): boolean { return this.engagedFlag; }
   setPlace(place: OrbitPlace): void {
     const changed = this.placeName !== place;
     this.placeName = place;
     this.limits = ORBIT_LIMITS[place];
     if (changed && !this.seeded) this.fov = this.limits.fovDeg;
+    if (changed) this.floorVel = 0;
     this.clampAll();
   }
   /** Match an authored lens without taking ownership. The first drag is what engages the orbit. */
@@ -269,11 +291,13 @@ export class FreeOrbit {
     const frame = Math.max(1 / 120, Math.min(0.05, dt));
     const y = dx * ORBIT_FEEL.yawPerScreen;
     const p = -dy * ORBIT_FEEL.pitchPerScreen;
+    const pitch0 = this.pitch;
     this.yaw += y;
     this.pitch += p;
     this.yawVel = Math.max(-ORBIT_FEEL.maxYawVel, Math.min(ORBIT_FEEL.maxYawVel, y / frame));
     this.pitchVel = Math.max(-ORBIT_FEEL.maxPitchVel, Math.min(ORBIT_FEEL.maxPitchVel, p / frame));
     this.clampAll();
+    if (this.limits.pitchFloor) this.floorAfterInput(pitch0);
     this.held = true;
     this.engagedFlag = true;
     this.seeded = true;
@@ -370,8 +394,10 @@ export class FreeOrbit {
       if (this.returnT >= ORBIT_FEEL.returnS && !turning) { this.returnT = ORBIT_FEEL.returnS; this.mode = 'free'; this.fromPose = null; this.roomTurning = false; }
       return;
     }
+    if (this.limits.pitchFloor && this.mode === 'free' && t > 0) this.easeToFloor(t);
     if (this.mode === 'paused' || this.held || t === 0) return;
     const k = Math.exp(-t / ORBIT_FEEL.velTauS);
+    const pitch0 = this.pitch;
     this.yaw += this.yawVel * t;
     this.pitch += this.pitchVel * t;
     this.dist += this.distVel * t;
@@ -382,6 +408,7 @@ export class FreeOrbit {
     if (Math.abs(this.pitchVel) < 0.05) this.pitchVel = 0;
     if (Math.abs(this.distVel) < 0.01) this.distVel = 0;
     this.clampAll();
+    if (this.limits.pitchFloor) this.floorAfterInput(pitch0);
     if (this.pitch <= this.limits.pitchMinDeg + 1e-4 && this.pitchVel < 0) this.pitchVel = 0;
     if (this.pitch >= this.limits.pitchMaxDeg - 1e-4 && this.pitchVel > 0) this.pitchVel = 0;
   }
@@ -561,6 +588,28 @@ export class FreeOrbit {
     if (Number.isFinite(groundY) && p[1] < groundY + ORBIT_FEEL.groundClearM) p[1] = groundY + ORBIT_FEEL.groundClearM;
     const tg = aim || look;
     return { position: p, target: [tg[0], tg[1], tg[2]], fovVerticalDeg: pose.fovVerticalDeg };
+  }
+  /** Pitch floor after a drag or coast moved the pitch from `before`. A move that crosses the floor stops on it. Below the
+   *  floor (a pinch raised it) the input may still lift the pitch but not push it lower; easeToFloor lifts it. */
+  private floorAfterInput(before: number): void {
+    const f = orbitPitchFloor(this.limits, this.dist);
+    if (this.pitch >= f) return;
+    if (before >= f - 1e-6) this.pitch = f;
+    else if (this.pitch < before) this.pitch = before;
+    else return;
+    if (this.pitchVel < 0) this.pitchVel = 0;
+  }
+  /** Ease the pitch up to a floor that a pinch raised above it: the ease rate follows a braking curve on the gap,
+   *  min(vMax, sqrt(2 * brake * gap)), and changes by at most PITCH_FLOOR_FEEL.accDegS2 per second. brake <= acc / 2, so
+   *  the last step onto the floor also stays inside the accel cap. The pitch never passes the floor (no overshoot) and the
+   *  ease only ever lifts it. */
+  private easeToFloor(t: number): void {
+    const F = PITCH_FLOOR_FEEL, gap = orbitPitchFloor(this.limits, this.dist) - this.pitch;
+    if (gap <= 0) { this.floorVel = 0; return; }
+    const want = Math.min(F.vMaxDegS, Math.sqrt(2 * F.brakeDegS2 * gap));
+    this.floorVel = Math.max(0, this.floorVel + Math.max(-F.accDegS2 * t, Math.min(F.accDegS2 * t, want - this.floorVel)));
+    const d = this.floorVel * t;
+    if (d >= gap) { this.pitch += gap; this.floorVel = gap / t; } else this.pitch += d;
   }
   private clampDist(d: number): number {
     return Math.max(this.limits.distMin, Math.min(this.limits.distMax, d));
