@@ -108,7 +108,7 @@ CCProgram shore-foam-fs %{
     float fv = s0 + reach * front;
     float w = bandParams.z * (1.0 + 1.5 * far);                       // the lip widens with distance instead of aliasing
     float lip = smoothstep(fv - w, fv - 0.3 * w, v) * (1.0 - smoothstep(fv - 0.015, fv + 0.012, v));
-    float trail = smoothstep(s0 - 0.22, fv, v) * (1.0 - smoothstep(fv - 0.015, fv + 0.012, v)) * 0.22;
+    float trail = smoothstep(s0 - 0.05, fv, v) * (1.0 - smoothstep(fv - 0.015, fv + 0.012, v)) * 0.12;   // thin sheet between waterline and lip, not over the sea
     float foam = (lip * b + trail) * foamA;
     // rolling wave lines in the shallows, moving shoreward, gone at the waterline and offshore; faded with distance
     float ln = fract(v * lineParams.x - t * lineParams.y);

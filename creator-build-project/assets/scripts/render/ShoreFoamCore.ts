@@ -38,15 +38,26 @@ export const ISLAND_FOAM: ShoreFoamParams = {
 };
 export const LAKE_FOAM: ShoreFoamParams = {
   foamColor: [0.93, 0.95, 0.96, 0.62],                 // a lake: softer lip than the sea
-  wetColor: [0.25, 0.22, 0.14, 0.24],
-  bandParams: [0.5, 0.3, 0.07, 0.06],
+  wetColor: [0.07, 0.075, 0.03, 0.3],                  // lakeside shore is grass: wet = darker olive, not grey sand
+  bandParams: [0.5, 0.14, 0.06, 0.05],                 // a lake laps ~0.56 m up the bank (v 0.5 = 2.0 m inland), not 1.2 m
   lineParams: [4, 0.2, 0.42, 0.22],
   cycle: [7, 0.32, 0.16, 0],                            // 7 s swash, run-up in the first 32 %, wet trails 16 % behind
   tint: [1, 1, 1, 1],
   lightParams: [2.51, 2.87, 18, 46],                    // day: LAKESIDE_DIR_LIGHT_PARAMS water scales (night: lakesideShoreLight)
 };
 /** Island ribbon reach offshore (m, along water - sand) and the lift applied on the water edge. */
-export const ISLAND_RIBBON = { offshore: 3.0, lift: SHORE.foamLift };
+export const ISLAND_RIBBON = { offshore: 3.0, inland: 2.3, lift: SHORE.foamLift };   // inland: metres up the beach from the real waterline
+/**
+ * Where the island ground really meets the sea on each SHORE.lip line, baked from combined_visual_m.glb (sha 77bff8b3, pinned in
+ * FirstsliceFacts) by tools/scene-fx/blender_island_waterline.py: [deg, k, h] - k = fraction water -> sand point at the first ground above
+ * the sea, h = ground height ISLAND_RIBBON.inland m further up (NaN = none). The lip table's water points sit up to 5.7 m offshore of the
+ * sand on the front beach, so a ribbon hung on them would float on open sea.
+ */
+export const ISLAND_WATERLINE: number[][] = [[-180, 0.165, 0.14], [-172, 0.385, 0.346], [-164, 0.115, 1.595], [-132, 0.115, 2.179], [-124, 0.53, 0.267], [-116, 0.27, 0.555], [-108, 0.315, 0.481], [-100, 0.285, 0.124], [-92, 0.265, 0.106], [-84, 0.155, 0.095], [-76, 0.0, 0.058], [-68, 0.0, 0.045], [-60, 0.1, 0.048], [-52, 0.155, 0.07], [-44, 0.075, 0.001], [-36, 0.2, 0.09], [-28, 0.56, 0.091], [-20, 0.235, 0.767], [-12, 0.04, -0.033], [-4, 0.69, 0.001], [4, 0.695, 0.014], [12, 0.53, -0.313], [20, 0.705, 0.011], [28, 0.65, -0.011], [36, 0.65, 0.031], [44, 0.665, 0.603], [52, 0.705, 0.08], [60, 0.305, NaN], [68, 0.66, 0.038], [76, 0.665, 0.23], [84, 0.22, 0.239], [92, 0.45, 0.22], [100, 0.43, 0.183], [148, 0.69, 0.145], [156, 0.74, 0.118], [164, 0.395, 0.116], [172, 0.34, 0.126]];
+function waterlineOf(deg: number): number[] {
+  for (let i = 0; i < ISLAND_WATERLINE.length; i++) if (ISLAND_WATERLINE[i][0] === deg) return ISLAND_WATERLINE[i];
+  return [deg, 0, NaN];
+}
 
 function houseFade(x: number, z: number): number {
   const h = SHORE.house, m = 0.6;
@@ -69,8 +80,8 @@ function quad(I: number[], P: number[], a: number, b: number, c: number, d: numb
   tri(a, c, b); tri(b, c, d);
 }
 /**
- * Island ribbon from the same baked lip table ShoreBreak uses (keptShoreLips, same cliff gaps). Mesh-local = scene root; the water
- * edge sits at seaBaseY + foamLift (the effect adds swash lift * COLOR.r), the sand edge at sandY + sandLift, exactly like the lip.
+ * Island ribbon on the same lip lines ShoreBreak uses (keptShoreLips, same cliff gaps), centred on the real waterline (ISLAND_WATERLINE):
+ * 3 m offshore at seaBaseY + foamLift (the effect adds swash lift * COLOR.r), 2.3 m up the beach at the baked ground height + sandLift.
  */
 export function islandShoreRibbon(): ShoreRibbon {
   const P: number[] = [], UV: number[] = [], C: number[] = [], I: number[] = [];
@@ -79,15 +90,19 @@ export function islandShoreRibbon(): ShoreRibbon {
   for (let g = 0; g < groups.length; g++) {
     const segs = groups[g], n = segs.length; if (n < 2) continue;
     const base = P.length / 3; let u = 0;
+    let px = 0, pz = 0;
     for (let i = 0; i < n; i++) {
-      const s = segs[i];
-      if (i > 0) { const q = segs[i - 1]; u += Math.sqrt((s[1] - q[1]) * (s[1] - q[1]) + (s[2] - q[2]) * (s[2] - q[2])); }
-      let dx = s[1] - s[3], dz = s[2] - s[4]; const l = Math.sqrt(dx * dx + dz * dz) || 1; dx /= l; dz /= l;
-      const y1 = s[5] + SHORE.sandLift, along = endFade(i, n);
+      const s = segs[i], wl = waterlineOf(s[0]);
+      let dx = s[3] - s[1], dz = s[4] - s[2]; const l = Math.sqrt(dx * dx + dz * dz) || 1; dx /= l; dz /= l;   // shoreward
+      const wx = s[1] + dx * l * wl[1], wz = s[2] + dz * l * wl[1];                                        // real waterline
+      if (i > 0) u += Math.sqrt((wx - px) * (wx - px) + (wz - pz) * (wz - pz)); px = wx; pz = wz;
+      const inl = Math.min(ISLAND_RIBBON.inland, l * (1 - wl[1]));
+      const hIn = wl[2] === wl[2] ? Math.min(wl[2], s[5]) : s[5];
+      const y1 = Math.max(y0, hIn + SHORE.sandLift), along = endFade(i, n);
       for (let r = 0; r < R; r++) {
         const v = FOAM_ROWS[r]; let x: number, y: number, z: number, lift: number;
-        if (v <= 0.5) { const k = (0.5 - v) / 0.5 * ISLAND_RIBBON.offshore; x = s[1] + dx * k; z = s[2] + dz * k; y = y0; lift = 1; }
-        else { const k = (v - 0.5) / 0.5; x = s[1] + (s[3] - s[1]) * k; z = s[2] + (s[4] - s[2]) * k; y = y0 + (y1 - y0) * k; lift = 1 - k; }
+        if (v <= 0.5) { const k = (0.5 - v) / 0.5 * ISLAND_RIBBON.offshore; x = wx - dx * k; z = wz - dz * k; y = y0; lift = 1; }
+        else { const k = (v - 0.5) / 0.5; x = wx + dx * inl * k; z = wz + dz * inl * k; y = y0 + (y1 - y0) * k; lift = 1 - k; }
         P.push(x, y, z); UV.push(total + u, v); C.push(lift, 1, 1, clamp01(along * houseFade(x, z)));
       }
     }
@@ -148,7 +163,7 @@ export function sampleShoreFoam(P: ShoreFoamParams, s: Swash, u: number, v: numb
   const b = 0.62 + 0.38 * Math.sin(u * lp[2] + 1.7 * Math.sin(u * 0.31 * lp[2] + t * TAU / P.cycle[0]));
   const fv = s0 + reach * s.front, w = P.bandParams[2] * (1 + 1.5 * far);
   const lip = smoothstep(fv - w, fv - 0.3 * w, v) * (1 - smoothstep(fv - 0.015, fv + 0.012, v));
-  const trail = smoothstep(s0 - 0.22, fv, v) * (1 - smoothstep(fv - 0.015, fv + 0.012, v)) * 0.22;
+  const trail = smoothstep(s0 - 0.05, fv, v) * (1 - smoothstep(fv - 0.015, fv + 0.012, v)) * 0.12;
   const foam = (lip * b + trail) * s.foamA;
   const ln = fract(v * lp[0] - t * lp[1]);
   let line = smoothstep(0.8, 0.95, ln) * (1 - smoothstep(0.95, 1, ln));

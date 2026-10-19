@@ -45,11 +45,15 @@ const kept = B.keptShoreLips(), y0 = S.seaBaseY + S.foamLift; let match = 0, hou
 for (let v = 0; v < nv; v++) { const x = g.positions[v * 3], z = g.positions[v * 3 + 2], vv = g.uvs[v * 2 + 1], h = S.house;
   if (x > h.minX && x < h.maxX && z > h.minZ && z < h.maxZ && g.colors[v * 4 + 3] > 0.01) house++;
   if (vv === 0.5 && Math.abs(g.colors[v * 4] - 1) > 1e-9) liftOk = false; if (vv === 1 && g.colors[v * 4] !== 0) liftOk = false; if (vv === 0 && g.colors[v * 4] !== 1) liftOk = false;
-  if (vv === 0.5) for (const s of kept) if (Math.hypot(s[1] - x, s[2] - z) < 1e-6 && Math.abs(g.positions[v * 3 + 1] - y0) < 1e-9) { match++; break; }
-  if (vv === 1) for (const s of kept) if (Math.hypot(s[3] - x, s[4] - z) < 1e-6 && Math.abs(g.positions[v * 3 + 1] - (s[5] + S.sandLift)) < 1e-9) { match++; break; } }
+  if (vv === 0.5) for (const s of kept) { const w = F.ISLAND_WATERLINE.filter(function (r) { return r[0] === s[0]; })[0] || [s[0], 0];
+    const wx = s[1] + (s[3] - s[1]) * w[1], wz = s[2] + (s[4] - s[2]) * w[1]; if (Math.hypot(wx - x, wz - z) < 1e-6 && Math.abs(g.positions[v * 3 + 1] - y0) < 1e-9) { match++; break; } }
+  if (vv === 1) { let best = 1e9; for (const s of kept) { const dl = Math.abs((s[4] - s[2]) * (x - s[1]) - (s[3] - s[1]) * (z - s[2])) / Math.hypot(s[3] - s[1], s[4] - s[2]); if (dl < best) best = dl; }
+    if (best < 1e-6 && g.positions[v * 3 + 1] >= y0 - 1e-9) match++; } }
+const inlandMax = (function () { let m = 0; for (let v = 0; v < nv; v += R) { const a = v + 1, c = v + 2; m = Math.max(m, Math.hypot(g.positions[c * 3] - g.positions[a * 3], g.positions[c * 3 + 2] - g.positions[a * 3 + 2])); } return m; })();
 const inRibbons = B.ribbons(kept).reduce(function (n, r) { return n + (r.length >= 2 ? r.length : 0); }, 0);
-check('island-ribbon-on-the-lip', match === inRibbons * 2 && house === 0 && liftOk, { waterAndSandMatched: match, expected: inRibbons * 2, inHouse: house });
-check('island-ribbon-offshore', (function () { let ok = true; for (let v = 0; v < nv; v++) if (g.uvs[v * 2 + 1] === 0) { const x = g.positions[v * 3], z = g.positions[v * 3 + 2]; if (Math.hypot(x, z) < B.shoreRadius(x, z) + 0.5) ok = false; } return ok; })(), 'v = 0 lies outside the shoreline');
+check('island-waterline-baked', F.ISLAND_WATERLINE.length === S.lip.length && F.ISLAND_WATERLINE.every(function (r, i) { return r[0] === S.lip[i][0] && r[1] >= 0 && r[1] < 1; }), { rows: F.ISLAND_WATERLINE.length });
+check('island-ribbon-on-the-lip', match === inRibbons * 2 && house === 0 && liftOk && inlandMax <= F.ISLAND_RIBBON.inland + 1e-6, { waterlineAndInlandOnLipLines: match, expected: inRibbons * 2, inHouse: house, inlandMaxM: +inlandMax.toFixed(3) });
+check('island-ribbon-offshore', (function () { let ok = true; for (let v = 0; v < nv; v += R) { const o = Math.hypot(g.positions[v * 3], g.positions[v * 3 + 2]), w = Math.hypot(g.positions[(v + 1) * 3], g.positions[(v + 1) * 3 + 2]); if (o < w + 1.5) ok = false; } return ok; })(), 'v = 0 lies >= 1.5 m further out than the real waterline (v = 0.5)');
 
 // ---- swash timing (island): the old lip's beat, continuous, lines wrap with the loop
 const fps = 60, L = S.loopS; let maxStep = { front: 0, foamA: 0, wet: 0 }, prev = null, hitFront = [];
