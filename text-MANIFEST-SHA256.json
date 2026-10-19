@@ -3300,6 +3300,16 @@
     "sha256": "58e8b8f29ae77cec2cbac875ec87654716983ee3972ba1a5bdd28bacc808197e"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r1/DialogCameraYield.ts",
+    "bytes": 4828,
+    "sha256": "9e0dfb8bb8b76630b0c6878926c9e8ca61b2fbf5da81e371cc66e9f33a09837c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/DialogCameraYield.ts.meta",
+    "bytes": 171,
+    "sha256": "b1e465d1e751db7cad28986aa83b1c688f246652c61549590d90da115b157bee"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceFacts.ts",
     "bytes": 43446,
     "sha256": "290bbd4294d176ba97cab41b2f04ae4c9f3ea832dcad5bc24d5cd1fb062141c7"
@@ -3401,8 +3411,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 62833,
-    "sha256": "be80b2ddc14c5a366d49fe7f73881da26edab28a7227dbfba33aea021a00e8b8"
+    "bytes": 64778,
+    "sha256": "547d4bd511fa2fe937c6ff5462ff89a2fc6a307d15ece1073baa8cb555fe6eb8"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
