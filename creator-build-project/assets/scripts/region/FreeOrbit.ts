@@ -22,7 +22,14 @@ export type OrbitBox = Readonly<{ min: Vec3; max: Vec3; name?: string }>;
  * lags the input and the blend never turns it; only a cinematic return turns it with
  * the capped angular follower (drag is ignored while returning), and the first drag inherits the authored view.
  */
-export type RoomLook = Readonly<{ center: Vec3; blendFromM: number; blendFullM: number; pivotOffset?: Vec3; viewTiltDeg?: number }>;
+/* r7 framing: in the orbit-her zone the view aims from the static goal lens at her body centre (pivot + frameOffset),
+ * fading to the room view as w goes aimFadeFromW → aimFadeW: still a pure function of the input (no lag), and it frames her even where the
+ * lens height is clamped (low pitch) or the blend has moved the lens off the orbit axis. framePts (relative to the pivot:
+ * her seated body's extremes) re-centre that aim on her projected extent (smooth max/min, so it never kinks).
+ * lensMaxY: soft ceiling for the lens (keeps it out from under the hanging props' clearance, where clearPose would pull
+ * the arm short). pivotShift: around yawDeg ± halfDeg (smooth cosine window) the orbit pivot moves by `offset`, so a
+ * wall-limited arm (yaw ~300-315, the west wall) runs longer and frames her whole body; the framing still aims at her. */
+export type RoomLook = Readonly<{ center: Vec3; blendFromM: number; blendFullM: number; pivotOffset?: Vec3; viewTiltDeg?: number; frameOffset?: Vec3; aimFadeW?: number; aimFadeFromW?: number; framePts?: readonly Vec3[]; lensMaxY?: number; pivotShift?: Readonly<{ yawDeg: number; halfDeg: number; offset: Vec3 }>; lensCentreOffset?: Vec3; armGrowZM?: number; viewDownMinDeg?: number; viewDownMaxDeg?: number; viewDownSoftDeg?: number; centreFadeW?: number; yawWarp?: Readonly<{ yawDeg: number; halfDeg: number; ampDeg: number }> }>;
 export type OrbitLimits = Readonly<{
   pitchMinDeg: number;
   pitchMaxDeg: number;
@@ -40,7 +47,7 @@ export type OrbitLimits = Readonly<{
 
 /** Pitch is the camera's elevation above her chest. Distance is metres from that point. */
 export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.freeze({
-  home: { pitchMinDeg: -14, pitchMaxDeg: 26, distMin: 1.25, distMax: 3.35, yawHalfDeg: Infinity, lookM: 1.05, fovDeg: 60,
+  home: { pitchMinDeg: -14, pitchMaxDeg: 26, distMin: 1.9, distMax: 3.35, yawHalfDeg: Infinity, lookM: 1.05, fovDeg: 60,
     // 运镜bot r5 (docs/r5/room-keepinside/RESULT.md): measured from the room's inner walls (round shell, inradius 2.31 m about
     // x 0, z -2.6), the wall cabinets and the desk. Every point of this box is ≥0.30 m from the inner walls; the old
     // -1.85..1.05 x -4.72..-1.55 box reached through the round wall at yaw 270 and into the west cabinet at 315 (black frames).
@@ -49,7 +56,9 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
     // toward its plan centre in x (x 0.23; z cannot move: the pivot must stay inside the 0.2 m inset keepInside, z ≥ -4.25;
     // the look height stays, so the arm still keeps ≥1.0 m off her look point) and the view tilts 8° down, so a short arm
     // (yaw ~315) frames her body instead of her hat.
-    roomLook: { center: [0, 1.55, -2.5], blendFromM: 1.45, blendFullM: 0.95, pivotOffset: [-0.2, 0, 0], viewTiltDeg: 8 } },
+    roomLook: { center: [0, 1.55, -2.5], blendFromM: 2.1, blendFullM: 1.6, pivotOffset: [-0.2, 0, 0], viewTiltDeg: 8, lensMaxY: 1.55, lensCentreOffset: [-0.017, 0, -0.12], armGrowZM: 0.15,
+      viewDownMinDeg: 9, viewDownMaxDeg: 31, viewDownSoftDeg: 3, centreFadeW: 0.5, yawWarp: { yawDeg: 300, halfDeg: 75, ampDeg: 13 },
+      framePts: [[-0.42,-1.05,-0.23],[-0.33,-0.83,0.02],[-0.32,-0.57,-0.29],[-0.36,-0.53,-0.17],[-0.36,-0.6,-0.07],[0.08,0.01,0.15],[0.1,0.05,-0.15],[0.03,0.05,-0.03],[-0.29,-1.05,-0.35],[-0.33,-1.05,-0.13],[-0.21,-0.74,-0.41],[0.16,0.14,0.01],[-0.15,-1.05,-0.24],[0.26,-0.74,0.09],[-0.14,-0.83,-0.42],[0.25,0.1,0.14],[0.04,-0.97,-0.13],[0.27,-0.03,0.16],[0.29,0.01,-0.19],[0.29,0.12,-0.07],[0.38,-0.03,-0.06],[0.37,0.07,0.08]] } },
   island: { pitchMinDeg: -8, pitchMaxDeg: 58, distMin: 4.2, distMax: 52, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 42 },
   meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48 },
   skycity: { pitchMinDeg: -6, pitchMaxDeg: 55, distMin: 4, distMax: 22, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
@@ -129,9 +138,52 @@ export function roomArm(look: Vec3, yawDeg: number, pitchDeg: number, box: Reado
   for (let i = 0; i < 80; i++) { const e = roomEdge(look[0] + hx * t, look[2] + hz * t, box, inset); if (e.s > -1e-6) break; t += -e.s; }
   return t / Math.max(0.2, Math.cos(pitchDeg * Math.PI / 180));
 }
+/** Re-aim h (from q) so the smooth extent of `pts` (relative to `pivot`) is centred, in tan space; two passes. */
+export function frameCentre(q: Vec3, h0: Vec3, pivot: Vec3, pts: readonly Vec3[]): Vec3 {
+  let h: Vec3 = [h0[0], h0[1], h0[2]];
+  const K = 40;
+  for (let it = 0; it < 2; it++) {
+    const rn = Math.hypot(h[2], h[0]) || 1, r: Vec3 = [-h[2] / rn, 0, h[0] / rn], u: Vec3 = [r[1] * h[2] - r[2] * h[1], r[2] * h[0] - r[0] * h[2], r[0] * h[1] - r[1] * h[0]];
+    let mx = -1e9, Mx = -1e9, my = -1e9, My = -1e9;
+    const xs: number[] = [], ys: number[] = [];
+    for (let i = 0; i < pts.length; i++) {
+      const d0 = pivot[0] + pts[i][0] - q[0], d1 = pivot[1] + pts[i][1] - q[1], d2 = pivot[2] + pts[i][2] - q[2];
+      const z = Math.max(0.05, d0 * h[0] + d1 * h[1] + d2 * h[2]), x = (d0 * r[0] + d1 * r[1] + d2 * r[2]) / z, y = (d0 * u[0] + d1 * u[1] + d2 * u[2]) / z;
+      xs.push(x); ys.push(y); Mx = Math.max(Mx, x); mx = Math.max(mx, -x); My = Math.max(My, y); my = Math.max(my, -y);
+    }
+    let sMx = 0, smx = 0, sMy = 0, smy = 0;
+    for (let i = 0; i < xs.length; i++) { sMx += Math.exp(K * (xs[i] - Mx)); smx += Math.exp(K * (-xs[i] - mx)); sMy += Math.exp(K * (ys[i] - My)); smy += Math.exp(K * (-ys[i] - my)); }
+    const cx = ((Mx + Math.log(sMx) / K) - (mx + Math.log(smx) / K)) / 2, cy = ((My + Math.log(sMy) / K) - (my + Math.log(smy) / K)) / 2;
+    const m: Vec3 = [h[0] + r[0] * cx + u[0] * cy, h[1] + r[1] * cx + u[1] * cy, h[2] + r[2] * cx + u[2] * cy], n = Math.hypot(m[0], m[1], m[2]) || 1;
+    h = [m[0] / n, m[1] / n, m[2] / n];
+  }
+  return h;
+}
+/** Lateral lens shift (along the view's horizontal right) that centres the smooth x-extent of `pts` (relative to
+ *  `pivot`) seen from q along the fixed view f. Position only: the view is not touched. Two passes. */
+export function frameShift(q: Vec3, f: Vec3, pivot: Vec3, pts: readonly Vec3[]): number {
+  const rn = Math.hypot(f[2], f[0]) || 1, r: Vec3 = [-f[2] / rn, 0, f[0] / rn], K = 40;
+  let sh = 0;
+  for (let it = 0; it < 2; it++) {
+    let Mx = -1e9, mx = -1e9, zc = 0;
+    const xs: number[] = [];
+    for (let i = 0; i < pts.length; i++) {
+      const d0 = pivot[0] + pts[i][0] - q[0] - r[0] * sh, d1 = pivot[1] + pts[i][1] - q[1], d2 = pivot[2] + pts[i][2] - q[2] - r[2] * sh;
+      const z = Math.max(0.3, d0 * f[0] + d1 * f[1] + d2 * f[2]), x = (d0 * r[0] + d2 * r[2]) / z;
+      xs.push(x); zc += z; Mx = Math.max(Mx, x); mx = Math.max(mx, -x);
+    }
+    let a = 0, b = 0;
+    for (let i = 0; i < xs.length; i++) { a += Math.exp(K * (xs[i] - Mx)); b += Math.exp(K * (-xs[i] - mx)); }
+    const cx = ((Mx + Math.log(a) / K) - (mx + Math.log(b) / K)) / 2;
+    sh += cx * zc / xs.length;
+  }
+  return sh;
+}
 /** The room view direction: the orbit direction (toward the pivot), tilted down by viewTiltDeg. Input only. */
 export function roomViewDir(yawDeg: number, pitchDeg: number, look: RoomLook): Vec3 {
-  const yr = yawDeg * Math.PI / 180, pv = (pitchDeg + (look.viewTiltDeg || 0)) * Math.PI / 180, c = Math.cos(pv);
+  let vd = pitchDeg + (look.viewTiltDeg || 0);
+  if (look.viewDownMinDeg !== undefined && look.viewDownMaxDeg !== undefined) vd = softClamp(vd, look.viewDownMinDeg, look.viewDownMaxDeg, look.viewDownSoftDeg || 3);
+  const yr = yawDeg * Math.PI / 180, pv = vd * Math.PI / 180, c = Math.cos(pv);
   return [-Math.sin(yr) * c, -Math.sin(pv), -Math.cos(yr) * c];
 }
 /** Blend weight 0 (orbit her) .. 1 (look out from the room centre). Smootherstep, C2. */
@@ -225,6 +277,8 @@ export class FreeOrbit {
   private roomOffAxis: Vec3 = [0, 1, 0];
   private roomOffAngle = 0;
   private roomOffT = 0;
+  private roomOffDur = 0.8;
+  private roomOffYP: [number, number] = [0, 0];
   constructor(place: OrbitPlace = 'island') {
     this.placeName = place;
     this.limits = ORBIT_LIMITS[place];
@@ -430,16 +484,37 @@ export class FreeOrbit {
    *  and the room-centre lens, both looking along the orbit direction. Then scenery collision toward `aim`. */
   roomGoalAt(look: Vec3, yaw: number, pitch: number, dist: number, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): { pos: Vec3; dir: Vec3; w: number; arm: number } {
     const R = this.limits.roomLook!, box = this.limits.keepInside!, n = ROOM_LOOK_FEEL.insetM;
-    const pr = pitch * Math.PI / 180, yr = yaw * Math.PI / 180, cp = Math.cos(pr);
+    // yawWarp: a smooth monotonic remap of the input yaw (bump of ampDeg over yawDeg ± halfDeg, slope stays > 0) so the
+    // west-wall sector, where no lens on her axis is far enough to frame her, is passed quickly and yaw ~315 frames her
+    const yw = R.yawWarp, yd = yw ? wrap180(yaw - yw.yawDeg) : 0, ye = yw && Math.abs(yd) < yw.halfDeg ? yaw + yw.ampDeg * 0.5 * (1 + Math.cos(Math.PI * yd / yw.halfDeg)) : yaw;
+    const pr = pitch * Math.PI / 180, yr = ye * Math.PI / 180, cp = Math.cos(pr);
     const u: Vec3 = [Math.sin(yr) * cp, Math.sin(pr), Math.cos(yr) * cp];
-    const arm = roomArm(look, yaw, pitch, box, n), d = softMin(dist, arm);
-    const po: Vec3 = [look[0] + u[0] * d, softClamp(look[1] + u[1] * d, box.min[1] + n, box.max[1] - n), look[2] + u[2] * d];
+    const ps = R.pivotShift, sk = ps ? Math.max(0, Math.cos(Math.min(Math.PI, Math.abs(wrap180(yaw - ps.yawDeg)) * Math.PI / ps.halfDeg)) * 0.5 + 0.5) : 0;
+    const ks = ps && Math.abs(wrap180(yaw - ps.yawDeg)) < ps.halfDeg ? sk : 0;
+    const lc = R.lensCentreOffset || [0, 0, 0];
+    const lo: Vec3 = [look[0] + lc[0] + (ps ? ps.offset[0] * ks : 0), look[1] + lc[1] + (ps ? ps.offset[1] * ks : 0), look[2] + lc[2] + (ps ? ps.offset[2] * ks : 0)];
+    const gz = R.armGrowZM || 0, abox = gz > 0 ? { min: [box.min[0], box.min[1], box.min[2] - gz] as Vec3, max: box.max, cornerM: box.cornerM } : box;
+    const arm = roomArm(lo, ye, pitch, abox, n), d = softMin(dist, arm);
+    const po: Vec3 = [lo[0] + u[0] * d, softClamp(lo[1] + u[1] * d, box.min[1] + n, Math.min(box.max[1] - n, R.lensMaxY || 1e9)), lo[2] + u[2] * d];
     const w = roomBlend(arm, R), c = R.center;
     const pos: Vec3 = [po[0] + (c[0] - po[0]) * w, po[1] + (c[1] - po[1]) * w, po[2] + (c[2] - po[2]) * w];
-    const dv = roomViewDir(yaw, pitch, R), reach = Math.max(1, d);
+    let dv = roomViewDir(ye, pitch, R);
+    if (R.framePts) {   // slide the lens sideways so her body is centred for this (input) view; fades out with w
+      const kc = 1 - SMOOTH(w / (R.centreFadeW || 0.5)), sh = kc > 0 ? frameShift(pos, dv, look, R.framePts) * kc : 0, rn = Math.hypot(dv[2], dv[0]) || 1;
+      pos[0] += -dv[2] / rn * sh; pos[2] += dv[0] / rn * sh;
+    }
+    const reach = Math.max(1, d);
     const target: Vec3 = [pos[0] + dv[0] * reach, pos[1] + dv[1] * reach, pos[2] + dv[2] * reach];
     const aim: Vec3 = [look[0] + (c[0] - look[0]) * w, look[1] + (c[1] - look[1]) * w, look[2] + (c[2] - look[2]) * w];
     const cl = this.clearPose({ position: pos, target, fovVerticalDeg: this.fov }, aim, boxes, groundY, xz, look, target);
+    const fo = R.frameOffset, sw = fo ? SMOOTH((w - (R.aimFadeFromW || 0)) / ((R.aimFadeW || 0.35) - (R.aimFadeFromW || 0))) : 1;
+    if (sw < 1) {
+      const q = cl.position;
+      let h = unitToward(q, [look[0] + fo![0], look[1] + fo![1], look[2] + fo![2]]);
+      if (R.framePts) h = frameCentre(q, h, look, R.framePts);
+      const m: Vec3 = [h[0] + (dv[0] - h[0]) * sw, h[1] + (dv[1] - h[1]) * sw, h[2] + (dv[2] - h[2]) * sw], mn = Math.hypot(m[0], m[1], m[2]) || 1;
+      dv = [m[0] / mn, m[1] / mn, m[2] / mn];
+    }
     return { pos: cl.position, dir: dv, w, arm };
   }
   private solveRoom(look: Vec3, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): LookPose {
@@ -453,6 +528,11 @@ export class FreeOrbit {
       const ax: Vec3 = [g0[1] * sd[2] - g0[2] * sd[1], g0[2] * sd[0] - g0[0] * sd[2], g0[0] * sd[1] - g0[1] * sd[0]], sn = Math.hypot(ax[0], ax[1], ax[2]);
       this.roomOffAngle = sn > 1e-9 ? Math.atan2(sn, g0[0] * sd[0] + g0[1] * sd[1] + g0[2] * sd[2]) : 0;
       this.roomOffAxis = sn > 1e-9 ? [ax[0] / sn, ax[1] / sn, ax[2] / sn] : [0, 1, 0]; this.roomOffT = 0;
+      { let dy = Math.atan2(sd[0], sd[2]) - Math.atan2(g0[0], g0[2]); while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
+        this.roomOffYP = [dy, Math.asin(Math.max(-1, Math.min(1, sd[1]))) - Math.asin(Math.max(-1, Math.min(1, g0[1])))];
+        this.roomOffAngle = Math.hypot(this.roomOffYP[0] * Math.cos(Math.asin(Math.max(-1, Math.min(1, g0[1])))), this.roomOffYP[1]); }
+      // a bigger leftover (authored view outside the room view's pitch range) fades slower: smootherstep peak accel ≤ angAccDegS2
+      this.roomOffDur = Math.max(ROOM_LOOK_FEEL.seedFadeS, Math.sqrt(5.78 * this.roomOffAngle / (ROOM_LOOK_FEEL.angAccDegS2 * Math.PI / 180)));
       this.yaw = curY + (this.yaw - sy); this.pitch = curP + (this.pitch - sp); this.clampPitch();
     }
     if (!this.roomParams) { this.roomYaw = this.yaw; this.roomPitch = this.pitch; this.roomDist = this.dist; this.roomParams = true; }
@@ -463,10 +543,11 @@ export class FreeOrbit {
     this.roomGoalPos = [g.pos[0], g.pos[1], g.pos[2]];
     let vd: Vec3 = gv.dir;
     if (this.roomOffAngle > 0) {
-      const a = this.roomOffAngle * (1 - SMOOTH(this.roomOffT / ROOM_LOOK_FEEL.seedFadeS)), k = this.roomOffAxis, c = Math.cos(a), si = Math.sin(a);
-      const kd = k[0] * vd[0] + k[1] * vd[1] + k[2] * vd[2], kx = [k[1] * vd[2] - k[2] * vd[1], k[2] * vd[0] - k[0] * vd[2], k[0] * vd[1] - k[1] * vd[0]];
-      vd = [vd[0] * c + kx[0] * si + k[0] * kd * (1 - c), vd[1] * c + kx[1] * si + k[1] * kd * (1 - c), vd[2] * c + kx[2] * si + k[2] * kd * (1 - c)];
-      if (this.roomOffT >= ROOM_LOOK_FEEL.seedFadeS) this.roomOffAngle = 0;
+      // r7: the leftover is a yaw/pitch offset (not a fixed-axis turn), so a drag turns the view exactly as the input does
+      const e = 1 - SMOOTH(this.roomOffT / this.roomOffDur), gy = Math.atan2(vd[0], vd[2]) + this.roomOffYP[0] * e;
+      const gp = Math.asin(Math.max(-1, Math.min(1, vd[1]))) + this.roomOffYP[1] * e, c = Math.cos(gp);
+      vd = [Math.sin(gy) * c, Math.sin(gp), Math.cos(gy) * c];
+      if (this.roomOffT >= this.roomOffDur) this.roomOffAngle = 0;
     }
     this.roomGoalDir = [vd[0], vd[1], vd[2]]; this.roomGoalFresh = true;
     if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomAcc = [0, 0, 0]; this.roomGoalPrevOk = false; this.roomGoalVel = [0, 0, 0]; this.roomInit = true; }
