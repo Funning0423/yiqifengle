@@ -101,6 +101,7 @@ const tests=[
  ['region-nodes-walk','tools/region-nodes/test_region_nodes_walk.cjs'],
  ['explore-camera','tools/region-nodes/test_explore_camera.cjs'],
  ['explore-input','tools/region-nodes/test_explore_input.cjs'],
+ ['meadow-board-framing','tools/meadow/test_meadow_board_framing.cjs'],
  ['node-board-pose','tools/region-nodes/test_node_board_pose.cjs'],
  ['region-transport-flag','tools/region-nodes/test_transport_flag.cjs'],
  ['region-transit-background-resume','tools/region-nodes/test_transit_background_resume.cjs'],

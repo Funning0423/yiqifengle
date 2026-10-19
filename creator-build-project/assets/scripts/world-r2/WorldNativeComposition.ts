@@ -138,7 +138,7 @@ export class WorldNativeComposition extends Component {
       setCamera:pose=>camera.node.isValid&&applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),region+'.landing-board'),
       nextFrame:()=>new Promise<number>(resolve=>this.scheduleOnce(()=>resolve(director.getDeltaTime()),0)),
       viewport:()=>lakesideViewport(view.getFrameSize()),
-      boardPose:v=>{const src=regionBoardSource(region);return src?regionBoardPose(src,v.width/v.height):null;},
+      boardPose:v=>{const src=regionBoardSource(region);return src?regionBoardPose(src,v.width/v.height,v):null;},
       log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_REGION] '+JSON.stringify(entry));}catch{}},
     };
   }

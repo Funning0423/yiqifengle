@@ -2466,8 +2466,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
-    "bytes": 15471,
-    "sha256": "b7bc670d27de4b4730f9e4481f18a9d6ac8745b79c8da5e186ebe9584d767c23"
+    "bytes": 15531,
+    "sha256": "817f78229dd63adc0a9dff946aaa11072ecf491cfb93da36e9b4458b35a56926"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts.meta",
@@ -2526,8 +2526,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts",
-    "bytes": 16502,
-    "sha256": "71f057f8ca348e151606ac74c45affd30dccd42b39df2ed88845a562198bd20f"
+    "bytes": 21663,
+    "sha256": "bc350f09987d5c43c4006dc897491c5f691045f034f254af55c4560b3e183859"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts.meta",
@@ -2546,8 +2546,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 27770,
-    "sha256": "c9d1b85971ea6cc8dc2a289e43acc886c105c959ff4730039502c8389eecee6f"
+    "bytes": 27996,
+    "sha256": "68b6d5dbf50e3f8a4cec0ca19e745a5e5d08ba42cf5e0748751364ae8a4914ed"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3726,8 +3726,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 31806,
-    "sha256": "f20f4f2d059ff31d1055ee0a8d73dd1eff0e5df53fd475bdd4ff950b6ad4cfd5"
+    "bytes": 31808,
+    "sha256": "5fc4aa541b7b2982acb40babd4e9f1740a1f3de37b98d66e7d829836dc4e9cbd"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",

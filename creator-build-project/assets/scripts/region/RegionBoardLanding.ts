@@ -4,7 +4,8 @@ import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {meadowScenePose} from './MeadowSceneData';
 import {skycityVisitPose} from './SkycityVisitPose';
 import {MEADOW_STAND_LOCAL} from './RegionJourneyLayout';
-import {boardLayout,toolSlots,type SafeArea} from '../ui/BoardLayout';
+import {boardLayout,boardSafeInsets,toolSlots,type SafeArea} from '../ui/BoardLayout';
+import {REGION_NODES} from './RegionNodes';
 import {REGION_CAMERA} from '../world-r1/RegionCameraData';
 /** 运镜bot: LANDING → BOARD for 04→05 (meadow) and 08→09 (skycity), same approach as 风铃湖畔 (LakesideLandingHook). Pure
  *  (no engine imports): RegionJourneyAdapter gives the map between the journey copy of the region model and the board copy,
@@ -38,16 +39,62 @@ export type RegionModelMap=Readonly<{toJourney(p:Vec):Vec;toBoard(p:Vec):Vec}>;
 export type RegionBoardSource=Readonly<{region:BoardLandingRegion;map:RegionModelMap;
  /** skycity only: anchor_spawn_girl / anchor_starcourt_center of the JOURNEY copy (world). */
  anchors?:Readonly<{spawn:Vec;court:Vec}>}>;
+/** Board UI size in logical pt (the board layout's width/height = window inner size). */
+export type BoardSize=Readonly<{width:number;height:number}>;
+/** 运镜bot r5 (meadow-girlsize, decision: option A "落点机位拉近"). The meadow board camera keeps meadowScenePose's view
+ *  direction and FOV, and slides along that ray to her M1 stand (the sail arrival end) until her box fills the UI-free room
+ *  left of the tool row (≥ gapPt from every girlStandUi rect, fill of the zone), centred in it. Lens sits behind / on her right.
+ *  390×844: her height 6.1% → 11.9%, UI gap 10.5 → 14.3 pt; 360×780 9.9%; 768×1024 22.2% (docs/r5/meadow-girlsize/RESULT.md).
+ *  One camera for every meadow board (05–08), as before; M2–M4 stay in frame (larger than with meadowScenePose).
+ *  Scope: the SAIL arrival only. RegionJourneyAdapter calls setMeadowBoardFraming('A') when island→meadow goes by sail and
+ *  'authored' when it falls back to the bridge + r4 stand line (that stop is picked in meadowScenePose, so it keeps that camera).
+ *  Sticky for the session (boards 06–08 reuse the same lease camera, as today); default 'authored' (no journey yet: today's camera).
+ *  No zone fits (very short screens): meadowScenePose(aspect), i.e. the old camera. refHeightPt: size for aspect-only callers. */
+/** narrow: boards under belowWidthPt wide (360×780, 375×667, 320×568) have a thinner room left of the tools, where her box is
+ *  width-bound; there the room runs to edgePt from the screen edge (not UI) and she fills `fill` of it. ≥ 390 pt wide: unchanged. */
+export const MEADOW_BOARD_FRAMING={node:'M1',gapPt:13,fill:0.92,zone:'left',refHeightPt:844,narrow:{belowWidthPt:390,edgePt:6,fill:0.985}} as const;
+type GirlZone=Readonly<{id:string;l:number;t:number;r:number;b:number}>;
+/** UI-free room (pt) beside / below the board UI, already inset by gapPt: strip (tray→tools), left / right of the tool row. */
+export function meadowGirlZones(width:number,height:number,safe:SafeArea,edgePt?:number):GirlZone[]{
+ const ui=girlStandUi(width,height,safe),g=MEADOW_BOARD_FRAMING.gapPt,e=edgePt===undefined?g:edgePt,tray=ui[0];let tl=width,tr=0,tt=height;
+ for(let i=2;i<5;i++){tl=Math.min(tl,ui[i].l);tr=Math.max(tr,ui[i].r);tt=Math.min(tt,ui[i].t);}
+ const bottom=height-Math.max(0,safe.bottom)-g,top=tray.b+g;
+ return [{id:'strip',l:e,t:top,r:width-e,b:tt-g},{id:'left',l:e,t:top,r:tl-g,b:bottom},{id:'right',l:tr+g,t:top,r:width-e,b:bottom}];
+}
+/** Option A for her foot (model / board-rig coordinates) on this screen; null if her box cannot be placed in the zone. */
+export function meadowFramedPose(base:AuthoredPose,foot:Vec,width:number,height:number,safe:SafeArea):AuthoredPose|null{
+ const f=unit(sub(base.target,base.position)),r0=[-f[2],0,f[0]],rl=Math.hypot(r0[0],r0[2])||1,r=[r0[0]/rl,0,r0[2]/rl],u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+ const fov=base.fovVerticalDeg,tv=Math.tan(fov*Math.PI/360),asp=width/height,mid=[foot[0],foot[1]+0.86,foot[2]];
+ const place=(z:number,cx:number,cy:number):AuthoredPose=>{const nx=cx/width*2-1,ny=1-cy/height*2,d=[f[0]+r[0]*nx*tv*asp+u[0]*ny*tv,f[1]+r[1]*nx*tv*asp+u[1]*ny*tv,f[2]+r[2]*nx*tv*asp+u[2]*ny*tv];
+  const p:Vec=[mid[0]-d[0]*z,mid[1]-d[1]*z,mid[2]-d[2]*z];return {position:p,target:[p[0]+f[0]*10,p[1]+f[1]*10,p[2]+f[2]*10],fovVerticalDeg:fov};};
+ const NR=MEADOW_BOARD_FRAMING.narrow,narrow=width<NR.belowWidthPt,fill=narrow?NR.fill:MEADOW_BOARD_FRAMING.fill;
+ const zones=meadowGirlZones(width,height,safe,narrow?NR.edgePt:undefined);let q:GirlZone|null=null;
+ for(let k=0;k<zones.length;k++)if(zones[k].id===MEADOW_BOARD_FRAMING.zone)q=zones[k];
+ if(!q)return null;const zw=(q.r-q.l)*fill,zh=(q.b-q.t)*fill;if(zw<=4||zh<=4)return null;
+ const cx=(q.l+q.r)/2,cy=(q.t+q.b)/2;let z=REGION_CAMERA.islandCharacter.heightM/(2*tv*zh/height);
+ for(let i=0;i<10;i++){const b=girlBoxPt(place(z,cx,cy),foot,width,height);if(!b)return null;z*=Math.max((b.b-b.t)/zh,(b.r-b.l)/zw);}
+ const pose=place(z,cx,cy);return girlBoxPt(pose,foot,width,height)?pose:null;
+}
+export type MeadowBoardFraming='A'|'authored';
+let meadowFraming:MeadowBoardFraming='authored';
+export function setMeadowBoardFraming(kind:MeadowBoardFraming):void{meadowFraming=kind==='A'?'A':'authored';}
+export function meadowBoardFraming():MeadowBoardFraming{return meadowFraming;}
+/** The meadow board camera (board-rig coordinates) for a board of width × height pt: option A on her M1 stand (sail arrival). */
+export function meadowBoardCamera(width:number,height:number):AuthoredPose{
+ const base=meadowScenePose(width/height);if(meadowFraming!=='A'||!(width>0&&height>0))return base;
+ const nodes=REGION_NODES.meadow.nodes;let foot:Vec|null=null;for(let i=0;i<nodes.length;i++)if(nodes[i].key===MEADOW_BOARD_FRAMING.node)foot=nodes[i].at;
+ if(!foot)return base;return meadowFramedPose(base,foot,width,height,boardSafeInsets(width,height))||base;
+}
 /** The board background camera exactly as the lease writes it (board rig coordinates). */
-export function regionBoardCamera(src:RegionBoardSource,aspect:number):AuthoredPose{
- if(src.region==='meadow')return meadowScenePose(aspect);
+export function regionBoardCamera(src:RegionBoardSource,aspect:number,size?:BoardSize):AuthoredPose{
+ if(src.region==='meadow')return size?meadowBoardCamera(size.width,size.height):meadowBoardCamera(aspect*MEADOW_BOARD_FRAMING.refHeightPt,MEADOW_BOARD_FRAMING.refHeightPt);
  const a=src.anchors;if(!a)throw Error('region-board-anchors-missing');
  return skycityVisitPose(src.map.toBoard(a.spawn) as any,src.map.toBoard(a.court) as any,aspect);
 }
 /** That camera on the journey copy (journey world): the pose the route ends on for a viewport. */
-export function regionBoardPose(src:RegionBoardSource,aspect:number):Pose{
- const b=regionBoardCamera(src,aspect);return {position:src.map.toJourney(b.position as any),target:src.map.toJourney(b.target as any),fovVerticalDeg:b.fovVerticalDeg};}
-export function regionBoardEnd(src:RegionBoardSource,aspect:number):JourneyBoardEnd{const p=regionBoardPose(src,aspect);
+export function regionBoardPose(src:RegionBoardSource,aspect:number,size?:BoardSize):Pose{
+ const b=regionBoardCamera(src,aspect,size);return {position:src.map.toJourney(b.position as any),target:src.map.toJourney(b.target as any),fovVerticalDeg:b.fovVerticalDeg};}
+export function regionBoardEnd(src:RegionBoardSource,aspect:number,size?:BoardSize):JourneyBoardEnd{const p=regionBoardPose(src,aspect,size);
  return {position:p.position,target:p.target,fovVerticalDeg:p.fovVerticalDeg as number,blendM:REGION_BOARD_LANDING.blendM[src.region]};}
 /** Journey leases register their map here (RegionJourneyAdapter) and drop it on release; the hook reads it. */
 const sources=new Map<BoardLandingRegion,RegionBoardSource>();
@@ -140,4 +187,4 @@ export function girlStandStop(region:BoardLandingRegion,line:ReadonlyArray<Vec>,
  return {region,distanceM:w.d,local:b,yawDeg:Math.atan2(b[0]-a[0],b[2]-a[2])*180/Math.PI,path,clear:!!best,gapPt:best?w.gap:0,inFrameLimits:w.inFL,boxPt:w.box};}
 /** The stop for this screen from a journey copy's map (model coordinates in, model coordinates out; the adapter maps the path). */
 export function regionGirlStand(src:RegionBoardSource,start:Vec,width:number,height:number,safe:SafeArea,accept?:(local:Vec)=>boolean):GirlStand|null{
- const line=girlStandLine(src.region,start);if(!line)return null;return girlStandStop(src.region,line,regionBoardCamera(src,width/height),width,height,safe,accept);}
+ const line=girlStandLine(src.region,start);if(!line)return null;return girlStandStop(src.region,line,regionBoardCamera(src,width/height,{width,height}),width,height,safe,accept);}
