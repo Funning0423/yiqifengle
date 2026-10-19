@@ -1,0 +1,1025 @@
+{
+  "schema": "yiqifengle.freeCamera.config",
+  "version": 2,
+  "status": "SPEC r1（运镜bot 2026-10-18）。feat/free-camera-r1 在 fetch 时（2026-10-18 15:00 EDT）还不存在，本表结构由运镜bot先定；云端如已有自己的字段名，按 SPEC.md §7 的对照表改名即可，数值不变。",
+  "baseline": {
+    "repo": "Funning0423/yiqifengle",
+    "branch": "gbt/r5-integrated-b07-wip",
+    "sha": "bc81575fead2d4d05b11b962c936d3b76708ad4b"
+  },
+  "audit": {
+    "tool": "tools/camera-frame-test/free_cam_audit.cjs",
+    "json": "/workspace/yiqifengle/previews/运镜bot/free-camera-spec/free_cam_audit.json"
+  },
+  "conventions": {
+    "units": "米 / 度 / 秒，Cocos 世界坐标（Y 向上，相机默认朝 -Z）",
+    "azimuthDeg": "镜头方位角 a：镜头位置 = pivot + d·[cos(p)·sin(a), sin(p), cos(p)·cos(a)]。a=0 表示镜头在 pivot 的 +Z 一侧、朝 -Z 看。",
+    "pitchDeg": "p > 0 表示镜头在上方往下看。",
+    "yawReference": "world = 世界方位角；heading = 相对她的行进方向（180 = 正后方，-160 = 正后方偏到她右手边 20°）；boat = 相对船头（0 = 船头正前方，180 = 船尾正后方，+90 = 左舷 port）；home = RoomLook 相对 cameraHome 朝向的偏移。",
+    "pivot": "旋转中心 = 她的脚底 + [0, pivot.heightM, 0]（船上：船体原点 + boatPivot，船体坐标）。",
+    "aim": "镜头看向 pivot + [0, aim.upM, 0] + 行进方向·aim.leadM。aim 在 pitch ≥ aim.fadeToPivotByPitch[1] 时线性收到 pivot，避免俯视时把她压出下沿。默认值（-160 / 17.4 / 7.36 / aim 1.2+1.2）与 ExploreCameraCore.FOLLOW 现有跟随机位完全一致。",
+    "zones.azimuthDeg": "[from, to] 顺时针，可以跨 0（例如 [355, 35]）。"
+  },
+  "global": {
+    "clearanceM": 1.1,
+    "lensNearM": 1.1,
+    "uiGapPt": 13,
+    "screens": [
+      {
+        "w": 390,
+        "h": 844
+      },
+      {
+        "w": 360,
+        "h": 780
+      },
+      {
+        "w": 768,
+        "h": 1024
+      }
+    ],
+    "bodyScreenFraction": {
+      "min": 0.12,
+      "max": 0.45
+    },
+    "hudBandsPt": {
+      "top": "胶囊底(手机 88 / 平板 64) + 4%H",
+      "bottom": "底部按钮行 64(平板 72) + 13"
+    },
+    "limits": {
+      "maxDegPerFrame": 1.5,
+      "maxDegPerFrameIndoor": 0.75,
+      "maxAngAccelDegS2": 120,
+      "maxLinAccelMS2": 3,
+      "maxLinAccelMS2Exterior_optional": 15,
+      "hardCutDegPerFrame": 15,
+      "hardCutMPerFrame": 0.5,
+      "appliesTo": "所有自动运动：惯性尾巴、自动回正、并轨、碰撞推近后的退回。手指直接拖动不限加速度，只做 fingerSmoothingS 平滑。"
+    },
+    "input": {
+      "dragDegPerScreenX": 180,
+      "dragDegPerScreenY": 70,
+      "maxDragScreenPerFrame": 0.35,
+      "fingerSmoothingS": 0.06,
+      "inertia": {
+        "enabled": true,
+        "maxReleaseDegS": 60,
+        "tauS": 0.5,
+        "stopBelowDegS": 1.0
+      },
+      "pinch": {
+        "mode": "distance",
+        "logScale": true,
+        "gain": 1.0
+      },
+      "doubleTap": "立即开始自动回正（时长按 merge 公式）"
+    },
+    "autoRecenter": {
+      "walking": {
+        "enabled": true,
+        "idleDelayS": 3.0,
+        "target": "region.default",
+        "durationS": "merge 公式",
+        "easing": "smootherstep",
+        "keepDistance": true
+      },
+      "standing": {
+        "enabled": false
+      },
+      "beforeCutscene": "由 cutscenes.*.merge 接管"
+    },
+    "collision": {
+      "method": "sphereCastPushIn",
+      "probeRadiusM": 1.1,
+      "pushInMaxS": 0.15,
+      "release": "按 limits 缓出（3 m/s²）",
+      "fovCompensation": {
+        "fromDistM": 4.3,
+        "toDistM": 3.0,
+        "fovAtFromDeg": 48,
+        "fovAtToDeg": 60
+      },
+      "blocked": "推到 3.0 m 仍不满足（离几何 ≥ 1.1 m、头和胸不被挡）时，拒绝让方位角/俯仰再往这个方向走（贴墙滑动），不允许穿过去。",
+      "losTargetsM": [
+        1.1,
+        1.6
+      ],
+      "ignore": "天空、云、fx_*、玻璃、光柱、飞行海鸥（另有 gullKeepOut）、草和花实例、门叶（另有 doorLeafClearanceM 0.15）"
+    },
+    "gullKeepOut": {
+      "frame": "world",
+      "orbits": [
+        {
+          "id": "env_anim_seagull_fly_01",
+          "centerXZ": [
+            0,
+            -2.65
+          ],
+          "radiusM": 6,
+          "yRange": [
+            6.6,
+            8.1
+          ]
+        },
+        {
+          "id": "env_anim_seagull_fly_02",
+          "centerXZ": [
+            0,
+            -2.65
+          ],
+          "radiusM": 8,
+          "yRange": [
+            6.6,
+            8.1
+          ]
+        }
+      ],
+      "lensClearM": 2.0,
+      "rayClearM": 2.5,
+      "note": "沿用 test_camera_frames collision:lens-near-movers。轨道中心/半径以 GLB idle_loop 为准，云端实现时从 GullFlock 读，不要写死。"
+    },
+    "merge": {
+      "easing": "smootherstep",
+      "space": "orbit（围绕设计轨道当帧的 pivot，方位角走最短弧，距离和高度线性）",
+      "minS": 0.5,
+      "formula": "T = max(minS, 1.875·Δ/(maxDegPerFrame·60), sqrt(5.7735·Δ/maxAngAccelDegS2), sqrt(5.7735·L/maxLinAccelMS2))；Δ = 玩家视线与设计视线的夹角（度，最短弧），L = 并轨路径长度（米，弧长 + |Δd| + |Δh|）",
+      "joinRule": "nearestKey：在设计轨道 [当前进度, 第一个绑定节拍] 区间里找离玩家当前位姿最近的点并轨（用 T 最小者），并轨只改渲染位姿，不改设计进度。",
+      "tableS": {
+        "room_fixedLens": {
+          "15": 0.85,
+          "30": 1.2,
+          "60": 1.7,
+          "90": 2.08,
+          "120": 2.5,
+          "150": 3.13,
+          "180": 3.75
+        },
+        "orbit_r7.36_a3": {
+          "15": 1.93,
+          "30": 2.72,
+          "60": 3.85,
+          "90": 4.72,
+          "120": 5.45,
+          "150": 6.09,
+          "180": 6.67
+        },
+        "orbit_r7.36_a15": {
+          "15": 0.86,
+          "30": 1.22,
+          "60": 1.72,
+          "90": 2.11,
+          "120": 2.5,
+          "150": 3.13,
+          "180": 3.75
+        },
+        "returnFollow_r2.3": {
+          "15": 1.08,
+          "30": 1.52,
+          "60": 2.5,
+          "90": 3.75,
+          "120": 5.0,
+          "150": 6.25,
+          "180": 7.5
+        },
+        "sail_r12_a3": {
+          "15": 2.46,
+          "30": 3.48,
+          "60": 4.92,
+          "90": 6.02,
+          "120": 6.95,
+          "150": 7.78,
+          "180": 8.52
+        },
+        "sail_r12_a15": {
+          "15": 1.1,
+          "30": 1.56,
+          "60": 2.2,
+          "90": 2.69,
+          "120": 3.11,
+          "150": 3.48,
+          "180": 3.81
+        }
+      }
+    }
+  },
+  "excludedStates": [
+    "Board",
+    "BoardToFollow",
+    "FollowToBoard"
+  ],
+  "regions": {
+    "room": {
+      "mode": "pan",
+      "lens": "cameraHome（REGION_CAMERA.home 'sitting-room'，位置不动；离家具 0.079 m 是批准过的例外，所以屋里不能做环绕）",
+      "position": [
+        -1.32022071,
+        1.38613379,
+        -2.11374307
+      ],
+      "yaw": {
+        "reference": "home",
+        "defaultDeg": 0,
+        "worldDefaultDeg": 149.8,
+        "minDeg": -140,
+        "maxDeg": 14,
+        "wrap": false
+      },
+      "pitch": {
+        "defaultDeg": 0,
+        "worldDefaultDeg": -3.5,
+        "minDeg": -12,
+        "maxDeg": 12
+      },
+      "distance": null,
+      "fov": {
+        "defaultDeg": 75,
+        "minDeg": 75,
+        "maxDeg": 75
+      },
+      "input": {
+        "dragDegPerScreenX": 64,
+        "dragDegPerScreenY": 64,
+        "maxDragScreenPerFrame": 0.35,
+        "inertia": {
+          "enabled": true,
+          "maxReleaseDegS": 40,
+          "tauS": 0.25
+        },
+        "zoom": "none"
+      },
+      "autoRecenter": {
+        "enabled": false,
+        "onCutscene": "exitArc.merge（替代 rejoinSeconds）"
+      },
+      "zones": [
+        {
+          "id": "room-shell-back",
+          "kind": "hard",
+          "frame": "home",
+          "yawDeg": [
+            -180,
+            -140
+          ],
+          "alsoYawDeg": [
+            155,
+            180
+          ],
+          "pitchDeg": [
+            -30,
+            30
+          ],
+          "reason": "env_interior_shell 是单面材质，这两段视野里 1–7% 的射线打到墙壳背面 = 游戏里会透墙。现有限位 -140/+14 已经挡住。"
+        },
+        {
+          "id": "room-bare-wall",
+          "kind": "hard",
+          "frame": "home",
+          "yawDeg": [
+            14,
+            145
+          ],
+          "pitchDeg": [
+            -12,
+            12
+          ],
+          "reason": "r5 GLB 上这段离墙 ≥ 0.96 m、没有背面，几何上可以放开，但画面只有空墙（见 room_mosaic.png 第 7–9 格），没有内容，保持 +14 不放开。"
+        },
+        {
+          "id": "room-frame-reveal",
+          "kind": "art",
+          "frame": "home",
+          "yawDeg": [
+            -115,
+            -75
+          ],
+          "pitchDeg": [
+            -12,
+            12
+          ],
+          "reason": "门框/窗框内侧有一小条墙壳背面朝镜头（≤ 4% 射线），单面材质在游戏里可能露缝；在 Cocos 截图里确认，有缝就请美术把这几片翻面或改双面。"
+        }
+      ]
+    },
+    "island": {
+      "mode": "orbit",
+      "follow": "girl",
+      "pivot": {
+        "heightM": 1.2
+      },
+      "aim": {
+        "upM": 1.2,
+        "leadM": 1.2,
+        "leadOnlyWhenWalking": true,
+        "fadeToPivotByPitch": [
+          17.4,
+          40
+        ]
+      },
+      "yaw": {
+        "reference": "heading",
+        "defaultDeg": -160,
+        "wrap": true,
+        "minDeg": null,
+        "maxDeg": null
+      },
+      "pitch": {
+        "defaultDeg": 17.4,
+        "minDeg": 5,
+        "softMinDeg": 10,
+        "maxDeg": 58,
+        "softMaxDeg": 55
+      },
+      "distance": {
+        "defaultM": 7.36,
+        "minM": 4.3,
+        "maxM": 11,
+        "collisionMinM": 3.0
+      },
+      "fov": {
+        "defaultDeg": 48,
+        "byDistance": [
+          [
+            3.0,
+            60
+          ],
+          [
+            4.3,
+            48
+          ],
+          [
+            11,
+            48
+          ]
+        ]
+      },
+      "overview": {
+        "pose": "cameraIsland（v24-readable）",
+        "pivot": [
+          1,
+          0.5,
+          1
+        ],
+        "distanceM": 51.0,
+        "pitchDeg": 17.1,
+        "worldAzimuthDeg": 344.5,
+        "yawRangeDeg": [
+          -35,
+          35
+        ],
+        "verticalDrag": "IslandRail（现有，不改）",
+        "pinchIn": "并轨到她的 orbit 默认机位",
+        "audited": false
+      },
+      "zones": [
+        {
+          "id": "island-low",
+          "kind": "hard",
+          "pitchDeg": [
+            -90,
+            5
+          ],
+          "reason": "pitch < 5° 时 24–60% 的格子推不进（地形、道具、棕榈挡住或离几何 < 1.1 m）。"
+        },
+        {
+          "id": "island-top",
+          "kind": "hard",
+          "pitchDeg": [
+            60,
+            90
+          ],
+          "reason": "pitch ≥ 65° 时她在三种屏幕上都 < 12% 或出 HUD 带（95% 失败）。"
+        },
+        {
+          "id": "island-tower-behind",
+          "kind": "pushIn",
+          "frame": "world",
+          "azimuthDeg": [
+            185,
+            275
+          ],
+          "nodes": [
+            "I4",
+            "I3-I4",
+            "I4-I5",
+            "I4-I6"
+          ],
+          "reason": "镜头转到灯塔背后时塔身（env_lighthouse_ext）挡住，推近到 3.0 m 仍不行的就贴墙滑动；I5 在 75–155° 会被推进塔里（打到 env_interior_shell），同样处理。"
+        },
+        {
+          "id": "island-palm-lean",
+          "kind": "pushIn",
+          "frame": "world",
+          "azimuthDeg": [
+            55,
+            85
+          ],
+          "alsoAzimuthDeg": [
+            295,
+            315
+          ],
+          "nodes": [
+            "I1-I2",
+            "I2",
+            "I2-I3",
+            "I3"
+          ],
+          "reason": "env_prop_palm_lean_01 挡头胸，碰撞推近即可；它是摇摆物，额外沿用 lens-near-movers 1.0 m。"
+        },
+        {
+          "id": "island-gulls",
+          "kind": "hard",
+          "use": "global.gullKeepOut",
+          "reason": "pitch 50–60°、d ≥ 7 m 时镜头高度会进 6.6–8.1 m 的海鸥轨道带。"
+        }
+      ]
+    },
+    "meadow": {
+      "mode": "orbit",
+      "follow": "girl",
+      "pivot": {
+        "heightM": 1.2
+      },
+      "aim": {
+        "upM": 1.2,
+        "leadM": 1.2,
+        "leadOnlyWhenWalking": true,
+        "fadeToPivotByPitch": [
+          17.4,
+          40
+        ]
+      },
+      "yaw": {
+        "reference": "heading",
+        "defaultDeg": -160,
+        "wrap": true
+      },
+      "pitch": {
+        "defaultDeg": 17.4,
+        "minDeg": 5,
+        "softMinDeg": 10,
+        "maxDeg": 48,
+        "softMaxDeg": 45
+      },
+      "distance": {
+        "defaultM": 7.36,
+        "minM": 4.3,
+        "maxM": 9,
+        "collisionMinM": 3.0
+      },
+      "fov": {
+        "defaultDeg": 48,
+        "byDistance": [
+          [
+            3.0,
+            60
+          ],
+          [
+            4.3,
+            48
+          ],
+          [
+            9,
+            48
+          ]
+        ]
+      },
+      "zones": [
+        {
+          "id": "meadow-hill-gap",
+          "kind": "soft",
+          "frame": "world",
+          "azimuthDeg": [
+            15,
+            65
+          ],
+          "pitchDeg": [
+            12,
+            28
+          ],
+          "nodes": [
+            "M1-M2",
+            "M2",
+            "M2-M3",
+            "M3",
+            "M3-M4",
+            "M4",
+            "M4-M5",
+            "M4-M6"
+          ],
+          "softness": {
+            "pushPitchToDeg": 30,
+            "resistance": 0.6
+          },
+          "artFix": "把 meadow_far_hills 往世界方位 195–245°（从这些点往 -X/-Z 看）补一段",
+          "reason": "镜头在 +X+Z 一侧往 -X-Z 看、pitch 15–25° 时，地平线下面有 10–20% 的射线什么都没打到 = 远山环的缺口，能看到地图边。"
+        },
+        {
+          "id": "meadow-low",
+          "kind": "hard",
+          "pitchDeg": [
+            -90,
+            5
+          ],
+          "reason": "pitch ≤ 0 时 33–86% 推不进，-5° 起开始看到地形底面（under 11%）。"
+        },
+        {
+          "id": "meadow-top",
+          "kind": "hard",
+          "pitchDeg": [
+            60,
+            90
+          ],
+          "reason": "pitch ≥ 65° 时她太小 / 出 HUD 带。"
+        },
+        {
+          "id": "meadow-windmill-bells",
+          "kind": "pushIn",
+          "nodes": [
+            "M5",
+            "M6",
+            "M5-M6",
+            "M4-M6"
+          ],
+          "reason": "windmill_static_merged / windmill_sails / wind_bell_* 挡住或离镜头 < 1.1 m；风车叶会转，按摇摆物再留 1.0 m。"
+        }
+      ]
+    },
+    "skycity": {
+      "mode": "orbit",
+      "follow": "girl",
+      "pivot": {
+        "heightM": 1.2
+      },
+      "aim": {
+        "upM": 1.2,
+        "leadM": 1.2,
+        "leadOnlyWhenWalking": true,
+        "fadeToPivotByPitch": [
+          17.4,
+          40
+        ],
+        "lookUpRule": "ExploreCameraCore.followLookUp（剩 4.2 m 时抬 8°）作为 pitch 偏移叠加，不算玩家输入"
+      },
+      "yaw": {
+        "reference": "heading",
+        "defaultDeg": -160,
+        "wrap": true
+      },
+      "pitch": {
+        "defaultDeg": 17.4,
+        "minDeg": 12,
+        "softMinDeg": 20,
+        "maxDeg": 55,
+        "softMaxDeg": 52
+      },
+      "distance": {
+        "defaultM": 7.36,
+        "minM": 4.3,
+        "maxM": 11,
+        "collisionMinM": 3.0
+      },
+      "fov": {
+        "defaultDeg": 48,
+        "byDistance": [
+          [
+            3.0,
+            60
+          ],
+          [
+            4.3,
+            48
+          ],
+          [
+            11,
+            48
+          ]
+        ]
+      },
+      "zones": [
+        {
+          "id": "skycity-underside",
+          "kind": "hard",
+          "pitchDeg": [
+            -90,
+            12
+          ],
+          "softPitchDeg": [
+            12,
+            20
+          ],
+          "nodes": [
+            "S5",
+            "S6",
+            "S0-S1",
+            "S5-S6"
+          ],
+          "reason": "边缘几个点 pitch ≤ 15° 时 14–21% 的射线从下往上打到地面/岩层底面 = 看到天空之城底部。"
+        },
+        {
+          "id": "skycity-edge-sky",
+          "kind": "screenshotCheck",
+          "pitchDeg": [
+            12,
+            30
+          ],
+          "reason": "往岛外看时地平线下面 22–55% 是空的（云海在 y −130…−165，400 m 内够不着）。浮空岛下面是天空本来合理，但必须在 Cocos 截图里确认清屏色/天空渐变没有接缝；有接缝就请场景特效bot/美术在 y −10…−60 补一圈云卡。"
+        },
+        {
+          "id": "skycity-ruins",
+          "kind": "pushIn",
+          "nodes": [
+            "S2",
+            "S3",
+            "S4",
+            "S2-S3",
+            "S3-S4",
+            "S4-S5",
+            "S4-S6"
+          ],
+          "reason": "env_sky_ruins / static_palette / foliage_cards / state_ring_before 挡住，16–29% 的格子需要推近或贴墙滑动。"
+        }
+      ]
+    },
+    "lakeside": {
+      "mode": "orbit",
+      "follow": "girl",
+      "note": "天空之城之后的下一站，热气球降落到湖边；自由视角暂不开放，热气球降落湖边的镜头另行细调。下面是旧版（风铃湖畔步行）的审计值，仅供参考。",
+      "pivot": {
+        "heightM": 1.2
+      },
+      "aim": {
+        "upM": 1.2,
+        "leadM": 1.2,
+        "leadOnlyWhenWalking": true,
+        "fadeToPivotByPitch": [
+          17.4,
+          40
+        ]
+      },
+      "yaw": {
+        "reference": "world",
+        "defaultDeg": 0,
+        "wrap": false,
+        "minDeg": -55,
+        "maxDeg": 55
+      },
+      "pitch": {
+        "defaultDeg": 17.4,
+        "minDeg": 5,
+        "maxDeg": 42
+      },
+      "distance": {
+        "defaultM": 7.36,
+        "minM": 4.3,
+        "maxM": 9,
+        "collisionMinM": 3.0
+      },
+      "fov": {
+        "defaultDeg": 48
+      },
+      "zones": [
+        {
+          "id": "lakeside-south-edge",
+          "kind": "hard",
+          "frame": "world",
+          "azimuthDeg": [
+            65,
+            305
+          ],
+          "artFix": "南岸（z > 42）补远景卡或雾，补完可以放开到 360°",
+          "reason": "LK_terrain 只到 z ≈ 42；镜头在她南边往北看时地平线下 47–77% 是空的 = 地图边缘。"
+        }
+      ],
+      "enabled": false
+    },
+    "sail": {
+      "mode": "orbit",
+      "follow": "boat",
+      "note": "整段是过场（cutscenes.sail），这里的范围给 lookOffset 和 K 镜头校验用。",
+      "pivot": {
+        "boatLocal": [
+          0,
+          1.05,
+          0
+        ]
+      },
+      "yaw": {
+        "reference": "boat",
+        "wrap": true
+      },
+      "pitch": {
+        "minDeg": 5,
+        "softMaxDeg": 30,
+        "maxDeg": 40
+      },
+      "distance": {
+        "minM": 8.5,
+        "maxM": 16,
+        "hullRadiusM": 7.2
+      },
+      "fov": {
+        "defaultDeg": 52
+      },
+      "designShots": {
+        "K1": {
+          "boatAzimuthDeg": 214.4,
+          "pitchDeg": 21.1,
+          "distM": 9.03,
+          "fov": 48
+        },
+        "K2": {
+          "boatAzimuthDeg": 356.6,
+          "pitchDeg": 13.7,
+          "distM": 17.53,
+          "fov": 52,
+          "note": "看尾流的镜头，她被前帆挡住是设计如此"
+        },
+        "Kbeam": {
+          "boatAzimuthDeg": 95.6,
+          "pitchDeg": 21.6,
+          "distM": 11.02,
+          "fov": 52
+        },
+        "K3": {
+          "boatAzimuthDeg": 137.1,
+          "pitchDeg": 19.0,
+          "distM": 12.12,
+          "fov": 52
+        },
+        "K4": {
+          "boatAzimuthDeg": 174.8,
+          "pitchDeg": 23.9,
+          "distM": 12.74,
+          "fov": 50
+        },
+        "K5": {
+          "boatAzimuthDeg": 175.8,
+          "pitchDeg": 27.8,
+          "distM": 14.05,
+          "fov": 48
+        },
+        "K6": {
+          "boatAzimuthDeg": 175.7,
+          "pitchDeg": 27.1,
+          "distM": 12.62,
+          "fov": 48
+        }
+      },
+      "zones": [
+        {
+          "id": "sail-bow-sails",
+          "kind": "hard",
+          "frame": "boat",
+          "azimuthDeg": [
+            355,
+            35
+          ],
+          "exemptShots": [
+            "K2"
+          ],
+          "reason": "从船头左前方看，前帆 / 索具 / 主帆挡住她的头和胸（6 个航段全部失败）。"
+        },
+        {
+          "id": "sail-high",
+          "kind": "soft",
+          "pitchDeg": [
+            30,
+            40
+          ],
+          "hardAboveDeg": 40,
+          "reason": "pitch 35–50° 时 36–39% 被主帆从上面挡住。"
+        },
+        {
+          "id": "sail-sea",
+          "kind": "hard",
+          "pitchDeg": [
+            -90,
+            5
+          ],
+          "reason": "镜头离海面 < 1.1 m。"
+        },
+        {
+          "id": "sail-hull",
+          "kind": "hard",
+          "radiusM": 7.2,
+          "reason": "沿用 TransportLeg.guardOff：镜头不进 7.2 m 船体圈。"
+        },
+        {
+          "id": "sail-pier",
+          "kind": "pushIn",
+          "frame": "boat",
+          "azimuthDeg": [
+            115,
+            125
+          ],
+          "beats": [
+            "S-b"
+          ],
+          "reason": "刚离码头时栈桥/岛上道具挡住。"
+        }
+      ]
+    }
+  },
+  "cutscenes": {
+    "exitArc": {
+      "name": "出门（门洞 → 出门弧线 B5 → 小岛 cameraIsland），含原来的正面环绕语言",
+      "arm": "leaveHome()（她起身那一刻）",
+      "from": "room pan 当前朝向",
+      "joinAt": "standTurn 起点（镜头位置不动，L = 0）",
+      "merge": {
+        "class": "room_fixedLens",
+        "replaces": "WorldFlowCore.rejoinSeconds（0.5–2.0 s，75°/s，在 154° 时角加速度 222°/s² 超过新的 120°/s²）",
+        "mustFinishBefore": "standTurn 结束（D0）"
+      },
+      "inputLock": "full",
+      "lookOffset": "none",
+      "exitTo": "island.overview（cameraIsland 落定后），玩家第一次拖动或她开始走时按 merge 公式进 island orbit 默认机位",
+      "bound": [
+        "wind:strength 按设计轨道进度和【设计位姿】的正面角（crane.pace.frontalDeg 20°）计算，不读渲染位姿",
+        "lighting.toIsland w 按她的行走进度",
+        "doorDrift：r5 基线 islandDeg = 86.4（不漂），与镜头无关"
+      ]
+    },
+    "returnFollow": {
+      "name": "回屋（夜间下降 craneDown → 跟随 returnFollow → 坐下落到 cameraHome）",
+      "arm": "回家指令",
+      "joinRule": "nearestKey，在 [craneDown 起点, returnFollow 跟随开始] 里找；玩家已经在她身边（d ≤ 11 m）时通常直接并到跟随 rig，跳过下降段",
+      "merge": {
+        "class": "orbit_r7.36_a3（在室外）；她离门平面 < 2.5 m 以后改用 maxDegPerFrameIndoor 0.75°/frame",
+        "mustFinishBefore": "她离门平面 2.5 m（returnFollow.roomLight.before）"
+      },
+      "inputLock": "full",
+      "lookOffset": "none",
+      "exitTo": "room（cameraHome，RoomLook.reset()），落定 = 她坐稳那一帧（actionSettleSeconds('sit')）",
+      "bound": [
+        "房间光 w：她离门平面 2.5 m 起线性升（与镜头无关）",
+        "noExteriorKey 保持 true",
+        "门叶关闭时机按跟随镜头进门 1.05 m 判断 → 改成按【设计位姿】判断",
+        "并轨路径要过 gullKeepOut"
+      ]
+    },
+    "nightDescent": {
+      "name": "夜间下降（craneDown 3 个人摆 key，避开海鸥整条轨道）",
+      "rule": "只有玩家视角离她 > 11 m（overview）时才走完整下降；并轨路径和下降轨道都要满足 gullKeepOut（离轨道 ≥ 2.0 m，射线 2.5 m）",
+      "inputLock": "full"
+    },
+    "sail": {
+      "name": "帆船远海 K1–K7（总长 ≤ 30.5 s 不变）",
+      "arm": "I6 出发",
+      "joinAt": "K1（boat 方位 214°，pitch 21°，9.0 m）",
+      "merge": {
+        "class": "orbit_r7.36_a3 → K1；必须在 S-b 结束前完成",
+        "mustFinishBefore": "S-c 开始"
+      },
+      "inputLock": "full（方案 A）",
+      "lookOffset": {
+        "optionB": {
+          "yawDeg": 20,
+          "pitchDeg": 8,
+          "springBackS": 0.6,
+          "forbid": "sail-bow-sails 区",
+          "disabledDuring": [
+            "K2 hold"
+          ]
+        }
+      },
+      "exitTo": "草甸棋盘（排除状态），下棋后进 meadow orbit 默认机位"
+    },
+    "meadowShore": {
+      "name": "草原：靠岸后的岸边步行（sailFollowCamera）到草甸棋盘",
+      "inputLock": "full",
+      "exitTo": "Board（排除）"
+    },
+    "meadowDeparture": {
+      "name": "草原 M6 → 热气球",
+      "arm": "M6 出发",
+      "merge": {
+        "class": "orbit_r7.36_a3"
+      },
+      "inputLock": "full",
+      "lookOffset": "同 sail 方案 B",
+      "exitTo": "skycity S0 orbit 默认机位"
+    },
+    "skycityFinale": {
+      "name": "天空之城 S6 终章（finaleLook / FINALE_LOOK_DEG 34）",
+      "arm": "到达 S6",
+      "merge": {
+        "class": "orbit_r7.36_a3"
+      },
+      "inputLock": "full",
+      "exitTo": "按终章流程"
+    },
+    "lakesideLanding": {
+      "name": "热气球降落湖边",
+      "status": "热气球降落湖边的镜头另行细调",
+      "inputLock": "full",
+      "exitTo": "Board（排除）"
+    }
+  },
+  "ORBIT_LIMITS": {
+    "_note": "对齐 feat/free-camera-r1 的 ORBIT_LIMITS。代码没找到，字段名是按 SCENE_360_AUDIT.md 里的 pitchMax/distMax/keepInside 推出来的；current 是 CA6 的现值，下面是建议值。",
+    "home": {
+      "current": {
+        "pitchMin": -14,
+        "pitchMax": 26,
+        "distMin": 1.25,
+        "distMax": 3.35,
+        "keepInside": true
+      },
+      "lensFixed": true,
+      "yawMin": -140,
+      "yawMax": 14,
+      "pitchMin": -12,
+      "pitchMax": 12,
+      "distMin": 0,
+      "distMax": 0,
+      "keepInside": true
+    },
+    "island": {
+      "current": {
+        "pitchMin": -8,
+        "pitchMax": 58,
+        "distMin": 4.2,
+        "distMax": 52
+      },
+      "pitchMin": 5,
+      "softPitchMin": 10,
+      "pitchMax": 58,
+      "distMin": 4.3,
+      "distMax": 11,
+      "collisionMinDist": 3.0,
+      "overview": {
+        "dist": 51,
+        "pitch": 17.1,
+        "yawCenter": 344.5,
+        "yawHalfRange": 35
+      }
+    },
+    "meadow": {
+      "current": {
+        "pitchMin": -12,
+        "pitchMax": 48,
+        "distMin": 3.2,
+        "distMax": 14
+      },
+      "pitchMin": 5,
+      "softPitchMin": 10,
+      "pitchMax": 48,
+      "distMin": 4.3,
+      "distMax": 9,
+      "collisionMinDist": 3.0
+    },
+    "skycity": {
+      "current": {
+        "pitchMin": -6,
+        "pitchMax": 55,
+        "distMin": 4,
+        "distMax": 22
+      },
+      "pitchMin": 12,
+      "softPitchMin": 20,
+      "pitchMax": 55,
+      "distMin": 4.3,
+      "distMax": 11,
+      "collisionMinDist": 3.0
+    },
+    "lakeside": {
+      "current": {
+        "pitchMin": -10,
+        "pitchMax": 42,
+        "distMin": 3.6,
+        "distMax": 16
+      },
+      "enabled": false,
+      "pitchMin": 5,
+      "pitchMax": 42,
+      "distMin": 4.3,
+      "distMax": 9,
+      "note": "天空之城之后的下一站，热气球降落；热气球降落湖边的镜头另行细调"
+    },
+    "board": {
+      "current": {
+        "yawHalfRange": 4,
+        "pitchHalfRange": 2,
+        "distMin": 6.6,
+        "distMax": 7.8
+      },
+      "enabled": false,
+      "yawHalfRange": 0,
+      "pitchHalfRange": 0
+    },
+    "resume": {
+      "current": {
+        "seconds": 0.55
+      },
+      "minSeconds": 0.55,
+      "easing": "smootherstep",
+      "maxDegPerFrame": 1.5,
+      "maxDegPerFrameIndoor": 0.75,
+      "maxAngAccelDegS2": 120,
+      "maxLinAccelMS2": 3,
+      "allow055When": "Δ ≤ 6.3° 且 Δ·d ≤ 9.0°·m（L ≤ 0.157 m）",
+      "formula": "T = max(0.55, 1.875·Δ/90, sqrt(5.7735·Δ/120), sqrt(5.7735·L/3))"
+    }
+  }
+}
