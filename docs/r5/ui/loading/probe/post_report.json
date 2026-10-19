@@ -1,0 +1,44 @@
+{
+ "final": {
+  "params": {
+   "bg_sigma": 7.0,
+   "girl_sigma": 2.2,
+   "cream_mix": 0.16,
+   "lift": 14,
+   "veil_peak": 0.42,
+   "mist_peak": 0.88,
+   "sat": 0.86
+  },
+  "jpeg_q": 85,
+  "jpeg_bytes": 36680,
+  "webp_q": 85,
+  "webp_bytes": 14648,
+  "bottom25_luma": {
+   "min": 225,
+   "max": 238,
+   "std": 1.93
+  },
+  "fs50k_jpeg_q": 80,
+  "fs50k_bytes": 31155
+ },
+ "alt_softer_brighter": {
+  "params": {
+   "bg_sigma": 10.0,
+   "girl_sigma": 3.2,
+   "cream_mix": 0.22,
+   "lift": 22,
+   "veil_peak": 0.5,
+   "mist_peak": 0.9,
+   "sat": 0.8
+  },
+  "jpeg_q": 85,
+  "jpeg_bytes": 30856,
+  "webp_q": 85,
+  "webp_bytes": 11928,
+  "bottom25_luma": {
+   "min": 228,
+   "max": 239,
+   "std": 1.64
+  }
+ }
+}

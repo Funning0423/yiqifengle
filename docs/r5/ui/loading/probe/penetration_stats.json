@@ -1,0 +1,113 @@
+{
+ "info": {
+  "char_glb": "/workspace/yiqifengle/previews/角色建模bot/r5-sit-drape/chr_b_r5g2_sitdrape_cand6_sithold_sleevetex.glb",
+  "clip": "sit_hold",
+  "frame": 0.0,
+  "frame_range": [
+   0.0,
+   48.0
+  ],
+  "morph": [
+   [
+    "LOD0_G2_APRON",
+    "sit_drape",
+    1.0
+   ],
+   [
+    "LOD0_G2_APRON",
+    "hand_rest_support",
+    1.0
+   ],
+   [
+    "LOD0_G2_BODY",
+    "corrective_stand_up_0",
+    1.0
+   ],
+   [
+    "LOD0_G2_BODY",
+    "corrective_shoulder_surface_relax",
+    1.0
+   ],
+   [
+    "LOD0_G2_BOW",
+    "sit_drape",
+    1.0
+   ],
+   [
+    "LOD0_G2_DRESS",
+    "sit_drape",
+    1.0
+   ],
+   [
+    "LOD0_G2_DRESS",
+    "hand_rest_support",
+    1.0
+   ]
+  ],
+  "seated_root": [
+   0.4327299768730942,
+   0.0,
+   -4.207611558444886
+  ],
+  "droot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "yaw": -2.0,
+  "stool_pos": [
+   0.32125496646724905,
+   0.000126,
+   -4.259117228155124
+  ],
+  "stool_scale": 1.2,
+  "char_meshes": [
+   "LOD0_G2_APRON",
+   "LOD0_G2_BODY",
+   "LOD0_G2_BOW",
+   "LOD0_G2_DRESS"
+  ],
+  "stool_meshes": [
+   "StationaryReferenceRoundStool"
+  ]
+ },
+ "stats": {
+  "LOD0_G2_APRON": {
+   "tri_intersections": 0,
+   "verts_below_seat_top_inside_disc": 0,
+   "max_depth_below_seat_top_m": 0,
+   "verts_inside_stool_radius": 0,
+   "max_radial_depth_m": 0
+  },
+  "LOD0_G2_BODY": {
+   "tri_intersections": 0,
+   "verts_below_seat_top_inside_disc": 0,
+   "max_depth_below_seat_top_m": 0,
+   "verts_inside_stool_radius": 0,
+   "max_radial_depth_m": 0
+  },
+  "LOD0_G2_BOW": {
+   "tri_intersections": 0,
+   "verts_below_seat_top_inside_disc": 0,
+   "max_depth_below_seat_top_m": 0,
+   "verts_inside_stool_radius": 5,
+   "max_radial_depth_m": 0.0103
+  },
+  "LOD0_G2_DRESS": {
+   "tri_intersections": 0,
+   "verts_below_seat_top_inside_disc": 0,
+   "max_depth_below_seat_top_m": 0,
+   "verts_inside_stool_radius": 0,
+   "max_radial_depth_m": 0
+  },
+  "stool": {
+   "top_z_m": 0.4396,
+   "center_bl": [
+    0.4158,
+    4.2158
+   ],
+   "seat_radius_m": 0.1804,
+   "open_mesh_boundary_edges": 918
+  }
+ }
+}

@@ -1,0 +1,35 @@
+[
+ {
+  "file": "work/raw.png",
+  "yellow_px": 31719,
+  "p5": 184.9,
+  "p50": 201.9,
+  "p95": 208.4,
+  "clip_any254": 0.0,
+  "girl_p95": 211.3,
+  "girl_clip": 0.0,
+  "frame_p95": 205.7
+ },
+ {
+  "file": "out/loading_base_u3.jpg",
+  "yellow_px": 25210,
+  "p5": 194.6,
+  "p50": 207.2,
+  "p95": 213.0,
+  "clip_any254": 0.0,
+  "girl_p95": 216.2,
+  "girl_clip": 0.0,
+  "frame_p95": 238.3
+ },
+ {
+  "file": "out/first_screen_composite.jpg",
+  "yellow_px": 25021,
+  "p5": 194.2,
+  "p50": 207.2,
+  "p95": 213.0,
+  "clip_any254": 0.0,
+  "girl_p95": 216.2,
+  "girl_clip": 0.0,
+  "frame_p95": 238.3
+ }
+]

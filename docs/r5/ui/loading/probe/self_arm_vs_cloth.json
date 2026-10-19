@@ -1,0 +1,17 @@
+{
+ "LOD0_G2_APRON": {
+  "tri_intersections": 0,
+  "by_bone": {},
+  "min_dist_m": 0.0035
+ },
+ "LOD0_G2_BOW": {
+  "tri_intersections": 0,
+  "by_bone": {},
+  "min_dist_m": 9
+ },
+ "LOD0_G2_DRESS": {
+  "tri_intersections": 0,
+  "by_bone": {},
+  "min_dist_m": 0.0026
+ }
+}
