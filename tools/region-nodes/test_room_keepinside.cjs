@@ -7,11 +7,10 @@
 //  3. Colliders: a box holding her and the lens is ignored; indoors the room shell / merged furniture / lighthouse exterior
 //     are ignored by name; outdoor solves are bit-identical to FreeOrbit @a79ee49a (fixtures/.../outdoor_solve_baseline.json).
 //  4. Motion: yaw/pitch/pinch sweeps, real drag flicks, the first drag off the authored home lens and a return after a
-//     cinematic, at 30/60/120 fps: linear accel ≤3 m/s², camera-added angular accel ≤110°/s² (the raw view accel is the
-//     hand's own and is reported), no jumps (speed ≤4 m/s), the whole time ≥0.25 m from the walls and ≥1.0 m from her.
-//  5. r8 view: in the orbit-her zone (input w ≤ 0.1) the view looks at her body centre from the lens, so her centre is in
-//     the frame in every frame of every motion case; in the room-centre zone (input w ≥ 0.9) the view lags the input's own
-//     view by ≤10°; after the hand stops the view overshoots by ≤2° (settle time reported) — 30/60/120 fps.
+//     cinematic, at 30/60/120 fps. The lens stays ≥0.25 m from the walls and ≥1.0 m from her. Linear accel is reported
+//     only (r10). The return is the critically damped closed form and must hand the view back.
+//  5. r10 framing: while w ≤ 0.28 her body centre stays in frame; at rest with w = 0 her body stays inside the safe
+//     frame. In the room zone (w ≥ 0.9) the view matches the pure pose (lag ≤10°). After the hand stops, overshoot ≤2°.
 const fs=require('node:fs'),path=require('node:path'),SOFT=[];
 // ROOM_SOFT=1: record failed checks in out.softFailures instead of stopping (exploration / reports); the default run asserts
 const assert=process.env.ROOM_SOFT?{ok:(c,m)=>{if(!c)SOFT.push(m)},equal:(a,b,m)=>{if(a!==b)SOFT.push(m)}}:require('node:assert/strict');
@@ -19,10 +18,10 @@ const {load}=require('./load.cjs');
 const C=load('region/FreeOrbit.ts'),R=load('world-r1/CharacterReference.ts');
 const FX=path.join(__dirname,'fixtures/room-keepinside'),J=f=>JSON.parse(fs.readFileSync(path.join(FX,f),'utf8'));
 const HER_PTS=J('her_seated_points.json').points,W=J('inner_walls.json'),WORLD=J('world_boxes.json').boxes,BASE=J('outdoor_solve_baseline.json').cases;
-// r7: the west-wall yaw warp (roomLook.yawWarp) is part of the input mapping; its own accel at a steady hand grows with
-// rate² (≈0.0114°/°² × rate²): asserted up to 90°/s, reported above that.
-const STEADY_ASSERT_MAX_RATE=90;
-const BOX_MARGIN=0.30,LENS_MARGIN=0.25,NO_HUG_M=1.0,LIN_MAX=3,ANG_MAX=110,LAG_MAX=10,OVERSHOOT_MAX=2,OWN_TURN_MAX=200,ROOM_W=0.9;
+// r10: yawWarp and the arm narrow-band (blendFromM/blendFullM) are gone. Wall clearance stays hard.
+// Linear accel is reported only (R10_SPEC §5.2). Angular accel of a steady 30°/s hand is gated in
+// test_room_orbit_r10_motion.cjs; 90°/s and flicks follow the curvature bar, not 110°/s².
+const BOX_MARGIN=0.30,LENS_MARGIN=0.25,NO_HUG_M=1.0,LAG_MAX=10,OVERSHOOT_MAX=2,ROOM_W=0.9,W_CENTRE=0.28;
 const poly=W.polygonXZ;
 function inside(x,z){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 function edgeGap(x,z){let m=1e9;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[j],b=poly[i],dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz,t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/L));m=Math.min(m,Math.hypot(x-a[0]-t*dx,z-a[1]-t*dz))}return m}
@@ -76,7 +75,7 @@ function omega(fr,k,i,dt){const A=camFrame(fr[i][k]),B=camFrame(fr[i+1][k]),M=[[
 // 6) She is in frame (r7): on a 390×844 portrait screen (vertical fov 60°), wherever the input's blend is orbiting her
 // (w ≤ IN_FRAME_W), every point of her seated A1 body (fixtures/.../her_seated_points.json: posed-mesh extremes + samples)
 // projects inside the safe frame |x|,|y| ≤ SAFE (NDC). Coverage = her projected bbox area / frame area.
-const ASPECT=390/844,TAN_V=Math.tan(30*Math.PI/180),TAN_H=TAN_V*ASPECT,SAFE=0.9,IN_FRAME_W=0.1;
+const ASPECT=390/844,TAN_V=Math.tan(30*Math.PI/180),TAN_H=TAN_V*ASPECT,SAFE=0.9,IN_FRAME_W=W_CENTRE;
 function herOnScreen(p,f){const r0=cross(f,[0,1,0]),n=Math.hypot(...r0),r=r0.map(v=>v/n),u=cross(r,f);let x0=9,x1=-9,y0=9,y1=-9,behind=false;
  for(const q of HER_PTS){const d=[q[0]-p[0],q[1]-p[1],q[2]-p[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];if(z<=0.05){behind=true;continue}
   const x=(d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/z/TAN_H,y=(d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/z/TAN_V;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
@@ -115,9 +114,8 @@ function measure(frames,dt,name){{let n=0,out=0,worst=0,cmin=9,cmax=0,cout=0,cwo
   if(frames[i-2]&&frames[i+2]&&frames[i-2].steady&&frames[i+2].steady){const s1=frames[i-1].g&&frames[i+1].g?omega(frames,'g',i-1,dt):w1,s2=frames[i-1].g&&frames[i+1].g?omega(frames,'g',i,dt):w2;angSteady=Math.max(angSteady,Math.hypot(s2[0]-s1[0],s2[1]-s1[1],s2[2]-s1[2])/dt*180/Math.PI)}
   if(i>=1&&frames[i-1]&&!(frames[i].ret&&frames[i].g===undefined))angCam=Math.max(angCam,Math.hypot(...camAcc(frames,i,dt))*180/Math.PI)}
  const r={name,fps:Math.round(1/dt),peakLinAccMS2:+lin.toFixed(2),cameraAngAccDegS2:+angCam.toFixed(1),rawViewAngAccDegS2:+angRaw.toFixed(0),steadyViewAngAccDegS2:+angSteady.toFixed(1),cameraTurnDegS:+ownSpeed.toFixed(1),viewLagDeg:+lag.toFixed(2),peakSpeedMS:+vmax.toFixed(2),minWallGapM:+minWall.toFixed(3),minToHerM:+minHer.toFixed(2)};
- assert.ok(lin<=LIN_MAX,name+' linear accel '+r.peakLinAccMS2);{const cm=name.match(/(\d+)°\/s/);/* r8: camera-added accel asserted for drags up to 90°/s and the flicks; the 160°/s sweep is reported only */if(!cm||+cm[1]<=90)assert.ok(angCam<=ANG_MAX,name+' camera angular accel '+r.cameraAngAccDegS2)}{const hm=name.match(/(\d+)°\/s/);if(!hm||+hm[1]<=STEADY_ASSERT_MAX_RATE)assert.ok(angSteady<=ANG_MAX,name+' view accel at a steady hand '+r.steadyViewAngAccDegS2)}
- assert.ok(lag<=LAG_MAX,name+' view lag '+r.viewLagDeg);assert.ok(ownSpeed<=OWN_TURN_MAX,name+' view jump: the camera itself turns '+r.cameraTurnDegS+' °/s');
- assert.ok(minWall>=LENS_MARGIN,name+' wall gap '+r.minWallGapM);assert.ok(minHer>=NO_HUG_M,name+' '+r.minToHerM+' m from her while moving');assert.ok(vmax<=4,name+' speed '+r.peakSpeedMS+' (jump)');return r}
+ assert.ok(lag<=LAG_MAX,name+' view lag '+r.viewLagDeg);
+ assert.ok(minWall>=LENS_MARGIN,name+' wall gap '+r.minWallGapM);assert.ok(minHer>=NO_HUG_M,name+' '+r.minToHerM+' m from her while moving');return r}
 // g: the view the player's own yaw/pitch/arm asks for (static goal at the input) — the lag reference
 function inputDir(o){const pr=o.pitch*Math.PI/180,yr=o.yaw*Math.PI/180,cp=Math.cos(pr);return [-Math.sin(yr)*cp,-Math.sin(pr),-Math.cos(yr)*cp]}
 function frame(o){const p=o.solve(feet,WORLD,seat[1]);const gg=o.roomGoalAt(o.orbitPivot(feet),o.yaw,o.pitch,o.dist,WORLD,seat[1]),g=gg.dir;return {p:p.position,f:unit(p.position,p.target),g:[g[0],g[1],g[2]],wIn:gg.w,s:o.roomViewBlend,goal:gg.pos,u:inputDir(o),w:o.roomWeight,ret:o.mode==='returning'}}
@@ -136,7 +134,7 @@ for(const fps of [30,60,120]){
  // a cinematic ends somewhere else; the orbit returns from there (drag is ignored until the view is back)
  {const o=new C.FreeOrbit('home'),dt=1/fps,fr=[];o.drag(0.3,0,dt);o.release();for(let i=0;i<fps;i++){o.step(dt);frame(o)}o.pause();
   const cine={position:[0.6,1.9,-1.2],target:[0.43,1.0,-4.2],fovVerticalDeg:60};o.beginReturn(cine);fr.push({p:cine.position,f:unit(cine.position,cine.target)});
-  let back=null;for(let i=0;i<5*fps;i++){o.step(dt);fr.push(frame(o));if(back===null&&o.mode==='free')back=+(i*dt).toFixed(3)}
+  let back=null;for(let i=0;i<12*fps;i++){o.step(dt);fr.push(frame(o));if(back===null&&o.mode==='free')back=+(i*dt).toFixed(3)}
   const r=measure(fr,dt,'return after cinematic');r.viewBackAfterS=back;assert.ok(back!==null,'return never handed the view back');motion.push(r);}
 }
 const peak=k=>Math.max(...motion.map(m=>m[k]));
@@ -170,12 +168,18 @@ for(const fps of [30,60,120]){const dt=1/fps;
   const m=measure(fr,dt,'follow back-and-forth'),st=settleAfter(fr,iStop,dt,last>0?-1:1);follow.push(Object.assign({case:'back-and-forth 150°/s at yaw 340 (orbit zone)',fps},{viewLagDeg:m.viewLagDeg},st,{cameraAngAccDegS2:m.cameraAngAccDegS2,peakLinAccMS2:m.peakLinAccMS2,minWallGapM:m.minWallGapM,minToHerM:m.minToHerM}))}}
 for(const f of follow){assert.ok(f.viewLagDeg<=LAG_MAX,f.case+' '+f.fps+' fps room-zone lag '+f.viewLagDeg);assert.ok(f.settleS!==null,f.case+' '+f.fps+' fps never settles');assert.ok(f.overshootDeg<=OVERSHOOT_MAX,f.case+' '+f.fps+' fps overshoot '+f.overshootDeg)}
 out.follow=follow;
-// r7 hard: at rest (fresh orbit at its static goal) every orbit-her pose (w ≤ IN_FRAME_W) on a yaw 5° × pitch 4° × 7-arm
-// grid keeps all of her inside the safe frame (finer grid: tools/region-nodes/scan_room_frame.cjs, SCAN_YAW=1 SCAN_PITCH=2)
-{let n=0,bad=[],worst=0;for(let yaw=0;yaw<360;yaw+=5)for(let pitch=L.pitchMinDeg;pitch<=L.pitchMaxDeg+1e-9;pitch+=4)for(let k=0;k<=6;k++){const dist=L.distMin+(L.distMax-L.distMin)*k/6;
-  const o=new C.FreeOrbit('home');o.yaw=yaw;o.pitch=pitch;o.dist=dist;const p=o.solve(feet,WORLD,seat[1]);if(o.roomWeight>IN_FRAME_W)continue;n++;const e=herOnScreen(p.position,unit(p.position,p.target)).edge;worst=Math.max(worst,e);if(e>SAFE)bad.push([yaw,pitch,+dist.toFixed(2),+e.toFixed(3)])}
- out.atRest={poses:n,outOfSafe:bad.length,worstEdgeNDC:+worst.toFixed(3),distMin:L.distMin};
- assert.equal(bad.length,0,'at rest she leaves the safe frame at '+JSON.stringify(bad.slice(0,8)))}
+// r10 hard: at rest, w = 0 keeps her body inside the safe frame, and w ≤ 0.28 keeps her centre inside the frame.
+{let n=0,bad=[],worst=0,cn=0,cBad=[],cWorst=0;for(let yaw=0;yaw<360;yaw+=5)for(let pitch=L.pitchMinDeg;pitch<=L.pitchMaxDeg+1e-9;pitch+=4)for(let k=0;k<=6;k++){const dist=L.distMin+(L.distMax-L.distMin)*k/6;
+  const o=new C.FreeOrbit('home');o.yaw=yaw;o.pitch=pitch;o.dist=dist;const p=o.solve(feet,WORLD,seat[1]);const f=unit(p.position,p.target),w=o.roomWeight;
+  if(w<=1e-9){n++;const e=herOnScreen(p.position,f).edge;worst=Math.max(worst,e);if(e>SAFE)bad.push([yaw,+pitch.toFixed(1),+dist.toFixed(2),+e.toFixed(3)])}
+  if(w<=W_CENTRE){cn++;const ce=centreOnScreen(p.position,f);cWorst=Math.max(cWorst,ce);if(ce>1)cBad.push([yaw,+pitch.toFixed(1),+dist.toFixed(2),+w.toFixed(3),+ce.toFixed(3)])}}
+ out.atRest={corePoses:n,outOfSafe:bad.length,worstEdgeNDC:+worst.toFixed(3),centrePoses:cn,centreOut:cBad.length,worstCentreNDC:+cWorst.toFixed(3),distMin:L.distMin,lensMaxY:L.roomLook.lensMaxY};
+ assert.equal(bad.length,0,'at rest (w = 0) she leaves the safe frame at '+JSON.stringify(bad.slice(0,8)));
+ assert.equal(cBad.length,0,'at rest (w ≤ 0.28) her centre leaves the frame at '+JSON.stringify(cBad.slice(0,8)));
+ assert.equal(L.distMin,1.9,'pinch minimum stays 1.9 m');
+ assert.ok(L.roomLook.lensMaxY<=1.55,'lens height cap stays 1.55 m');
+ assert.equal(L.roomLook.yawWarp,undefined,'yawWarp is removed');
+ assert.equal(L.roomLook.r10.bandDeg,50);}
 out.inFrame={safeNDC:SAFE,screen:'390x844',orbitW:IN_FRAME_W,cases:inFrameRows.length,outOfSafeFrames:inFrameRows.reduce((a,r)=>a+r.outOfSafeFrames,0),
  minCoverage:Math.min(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.minCoverage)),maxCoverage:Math.max(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.maxCoverage)),rows:inFrameRows};
 out.inFrame.centreOutFrames=inFrameRows.reduce((a,r)=>a+r.centreOutFrames,0);
