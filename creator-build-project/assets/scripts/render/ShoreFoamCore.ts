@@ -24,12 +24,12 @@ export type Swash = { front: number; foamA: number; wet: number; t: number };
 const TAU = 6.283185307179586;
 /** Across-shore rows (v). The shader draws the lip / lines / wet band from v per pixel, so rows only have to follow the ground:
  *  the island beach is the lip table's straight water -> sand line (3 rows are exact); the lake bank follows the terrain. */
-export const FOAM_ROWS = [0, 0.5, 1];
+export const FOAM_ROWS = [0, 0.5, 0.625, 0.75, 0.875, 1];   // island: v 0.5..1 rows sit on the baked beach heights h1..h4
 export const LAKE_FOAM_ROWS = [0, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 
 export const ISLAND_FOAM: ShoreFoamParams = {
   foamColor: [0.96, 0.98, 0.99, 0.82],                 // SHORE.foamRgb, peak alpha = SHORE.shorePeak
-  wetColor: [0.36, 0.29, 0.2, 0.26],
+  wetColor: [0.05, 0.04, 0.025, 0.26],                  // near-black: the wet band only darkens the sand (dst x (1 - a)), unlit foam can't lift it at night
   bandParams: [0.5, 0.42, 0.075, 0.06],                // waterline, swash reach (v), lip width, wet edge softness
   lineParams: [5, 2 / SHORE.loopS, 0.55, 0.32],        // 5 lines / unit v (1.2 m apart over 3 m), 2 whole lines per loop: no jump at the wrap
   cycle: [SHORE.loopS, 0.32, 0.14, 0],
@@ -37,26 +37,31 @@ export const ISLAND_FOAM: ShoreFoamParams = {
   lightParams: [0, 0, 16, 40],
 };
 export const LAKE_FOAM: ShoreFoamParams = {
-  foamColor: [0.93, 0.95, 0.96, 0.62],                 // a lake: softer lip than the sea
+  foamColor: [0.93, 0.95, 0.96, 0.5],                  // a lake: softer, thinner lip than the sea (0.62 read as a pale kerb close up)
   wetColor: [0.07, 0.075, 0.03, 0.3],                  // lakeside shore is grass: wet = darker olive, not grey sand
-  bandParams: [0.5, 0.14, 0.06, 0.05],                 // a lake laps ~0.56 m up the bank (v 0.5 = 2.0 m inland), not 1.2 m
+  bandParams: [0.5, 0.1, 0.04, 0.05],                  // a lake laps ~0.4 m up the bank (v 0.5 = 2.0 m inland); lip ~0.16 m
   lineParams: [4, 0.2, 0.42, 0.22],
   cycle: [7, 0.32, 0.16, 0],                            // 7 s swash, run-up in the first 32 %, wet trails 16 % behind
   tint: [1, 1, 1, 1],
   lightParams: [2.51, 2.87, 18, 46],                    // day: LAKESIDE_DIR_LIGHT_PARAMS water scales (night: lakesideShoreLight)
 };
 /** Island ribbon reach offshore (m, along water - sand) and the lift applied on the water edge. */
-export const ISLAND_RIBBON = { offshore: 3.0, inland: 2.3, lift: SHORE.foamLift };   // inland: metres up the beach from the real waterline
+export const ISLAND_RIBBON = { offshore: 3.0, inland: 2.3, lift: SHORE.foamLift, sandOffset: 0.04 };   // inland: max metres up an open beach from the real waterline
 /**
  * Where the island ground really meets the sea on each SHORE.lip line, baked from combined_visual_m.glb (sha 77bff8b3, pinned in
- * FirstsliceFacts) by tools/scene-fx/blender_island_waterline.py: [deg, k, h] - k = fraction water -> sand point at the first ground above
- * the sea, h = ground height ISLAND_RIBBON.inland m further up (NaN = none). The lip table's water points sit up to 5.7 m offshore of the
- * sand on the front beach, so a ribbon hung on them would float on open sea.
+ * FirstsliceFacts) by tools/scene-fx/blender_island_waterline.py: [deg, k, clear, h1, h2, h3, h4] - k = fraction water -> sand point
+ * at the first ground above the sea; clear = metres of open beach up from there before a rock (0 = the waterline is the rock ring);
+ * h1..h4 = ground height at 1/4 .. 4/4 of min(clear, inland) (NaN = rock). The beach is concave, so the inland rows follow h, not a line. The lip table's water points sit up to 5.7 m offshore on the front beach (a ribbon hung on them
+ * floats on open sea), and most of the island is a rock ring with a near-vertical bank: there the swash must not climb.
  */
-export const ISLAND_WATERLINE: number[][] = [[-180, 0.165, 0.14], [-172, 0.385, 0.346], [-164, 0.115, 1.595], [-132, 0.115, 2.179], [-124, 0.53, 0.267], [-116, 0.27, 0.555], [-108, 0.315, 0.481], [-100, 0.285, 0.124], [-92, 0.265, 0.106], [-84, 0.155, 0.095], [-76, 0.0, 0.058], [-68, 0.0, 0.045], [-60, 0.1, 0.048], [-52, 0.155, 0.07], [-44, 0.075, 0.001], [-36, 0.2, 0.09], [-28, 0.56, 0.091], [-20, 0.235, 0.767], [-12, 0.04, -0.033], [-4, 0.69, 0.001], [4, 0.695, 0.014], [12, 0.53, -0.313], [20, 0.705, 0.011], [28, 0.65, -0.011], [36, 0.65, 0.031], [44, 0.665, 0.603], [52, 0.705, 0.08], [60, 0.305, NaN], [68, 0.66, 0.038], [76, 0.665, 0.23], [84, 0.22, 0.239], [92, 0.45, 0.22], [100, 0.43, 0.183], [148, 0.69, 0.145], [156, 0.74, 0.118], [164, 0.395, 0.116], [172, 0.34, 0.126]];
+export const ISLAND_WATERLINE: number[][] = [[-180, 0.165, 0.0, NaN, NaN, NaN, NaN], [-172, 0.385, 0.0, NaN, NaN, NaN, NaN], [-164, 0.115, 0.0, NaN, NaN, NaN, NaN], [-132, 0.115, 0.0, NaN, NaN, NaN, NaN], [-124, 0.53, 0.0, NaN, NaN, NaN, NaN], [-116, 0.27, 0.0, NaN, NaN, NaN, NaN], [-108, 0.315, 0.0, NaN, NaN, NaN, NaN], [-100, 0.285, 0.0, NaN, NaN, NaN, NaN], [-92, 0.265, 0.0, NaN, NaN, NaN, NaN], [-84, 0.155, 0.0, NaN, NaN, NaN, NaN], [-76, 0.0, 0.0, NaN, NaN, NaN, NaN], [-68, 0.0, 0.0, NaN, NaN, NaN, NaN], [-60, 0.1, 0.0, NaN, NaN, NaN, NaN], [-52, 0.155, 0.0, NaN, NaN, NaN, NaN], [-44, 0.075, 0.0, NaN, NaN, NaN, NaN], [-36, 0.2, 0.0, NaN, NaN, NaN, NaN], [-28, 0.56, 0.0, NaN, NaN, NaN, NaN], [-20, 0.235, 0.0, NaN, NaN, NaN, NaN], [-12, 0.04, 0.0, NaN, NaN, NaN, NaN], [-4, 0.69, 2.3, -0.554, -0.193, 0.03, 0.001], [4, 0.695, 2.3, -0.603, -0.319, -0.07, 0.014], [12, 0.53, 0.0, NaN, NaN, NaN, NaN], [20, 0.705, 2.3, -0.541, -0.268, -0.073, 0.011], [28, 0.65, 0.9, -0.797, -0.7, -0.599, -0.509], [36, 0.65, 2.3, -0.659, -0.385, -0.155, 0.031], [44, 0.665, 2.1, -0.617, -0.33, -0.083, 0.144], [52, 0.705, 0.8, -0.732, -0.58, -0.411, -0.24], [60, 0.305, 0.0, NaN, NaN, NaN, NaN], [68, 0.66, 0.0, NaN, NaN, NaN, NaN], [76, 0.665, 0.0, NaN, NaN, NaN, NaN], [84, 0.22, 0.0, NaN, NaN, NaN, NaN], [92, 0.45, 0.0, NaN, NaN, NaN, NaN], [100, 0.43, 0.0, NaN, NaN, NaN, NaN], [148, 0.69, 0.0, NaN, NaN, NaN, NaN], [156, 0.74, 0.0, NaN, NaN, NaN, NaN], [164, 0.395, 0.0, NaN, NaN, NaN, NaN], [172, 0.34, 0.0, NaN, NaN, NaN, NaN]];
+/** Rocky lines (clear < ISLAND_ROCK.minClear): the inland edge stops ISLAND_ROCK.inland m past the waterline, flat, and fades out;
+ *  the waterline row keeps ISLAND_ROCK.edgeA of the alpha (a soft wash at the rock foot, no wet band / lip on the stone). */
+export const ISLAND_ROCK = { minClear: 0.3, inland: 0.15, edgeA: 0.5 };
+function isBeach(segs: number[][], j: number): boolean { return j >= 0 && j < segs.length && waterlineOf(segs[j][0])[2] >= ISLAND_ROCK.minClear; }
 function waterlineOf(deg: number): number[] {
   for (let i = 0; i < ISLAND_WATERLINE.length; i++) if (ISLAND_WATERLINE[i][0] === deg) return ISLAND_WATERLINE[i];
-  return [deg, 0, NaN];
+  return [deg, 0, 0, NaN, NaN, NaN, NaN];
 }
 
 function houseFade(x: number, z: number): number {
@@ -96,14 +101,17 @@ export function islandShoreRibbon(): ShoreRibbon {
       let dx = s[3] - s[1], dz = s[4] - s[2]; const l = Math.sqrt(dx * dx + dz * dz) || 1; dx /= l; dz /= l;   // shoreward
       const wx = s[1] + dx * l * wl[1], wz = s[2] + dz * l * wl[1];                                        // real waterline
       if (i > 0) u += Math.sqrt((wx - px) * (wx - px) + (wz - pz) * (wz - pz)); px = wx; pz = wz;
-      const inl = Math.min(ISLAND_RIBBON.inland, l * (1 - wl[1]));
-      const hIn = wl[2] === wl[2] ? Math.min(wl[2], s[5]) : s[5];
-      const y1 = Math.max(y0, hIn + SHORE.sandLift), along = endFade(i, n);
+      const rock = !isBeach(segs, i);
+      // a rock line next to a beach line borrows that beach's inland shape (alpha 0 inland): the shared quad is not sheared, so the
+      // lip / wet edge runs along the shore into the rock and fades, instead of cutting diagonally across the sand
+      const src = !rock ? i : isBeach(segs, i - 1) ? i - 1 : isBeach(segs, i + 1) ? i + 1 : -1, G = src >= 0 ? waterlineOf(segs[src][0]) : null;
+      const inl = G ? Math.min(ISLAND_RIBBON.inland, G[2], rock ? ISLAND_RIBBON.inland : l * (1 - wl[1])) : ISLAND_ROCK.inland, along = endFade(i, n);
       for (let r = 0; r < R; r++) {
         const v = FOAM_ROWS[r]; let x: number, y: number, z: number, lift: number;
         if (v <= 0.5) { const k = (0.5 - v) / 0.5 * ISLAND_RIBBON.offshore; x = wx - dx * k; z = wz - dz * k; y = y0; lift = 1; }
-        else { const k = (v - 0.5) / 0.5; x = wx + dx * inl * k; z = wz + dz * inl * k; y = y0 + (y1 - y0) * k; lift = 1 - k; }
-        P.push(x, y, z); UV.push(total + u, v); C.push(lift, 1, 1, clamp01(along * houseFade(x, z)));
+        else { const k = (v - 0.5) / 0.5, hq = G ? G[2 + Math.round(k * 4)] : NaN; x = wx + dx * inl * k; z = wz + dz * inl * k; y = hq !== hq ? y0 : Math.max(y0, hq + ISLAND_RIBBON.sandOffset); lift = 1 - k; }
+        const rk = !rock ? 1 : v > 0.5 ? 0 : v === 0.5 ? ISLAND_ROCK.edgeA : 1;
+        P.push(x, y, z); UV.push(total + u, v); C.push(lift, 1, 1, clamp01(along * houseFade(x, z) * rk));
       }
     }
     for (let i = 0; i < n - 1; i++) for (let r = 0; r < R - 1; r++) { const a = base + i * R + r; quad(I, P, a, a + 1, a + R, a + R + 1); }

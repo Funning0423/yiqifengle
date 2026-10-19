@@ -49,10 +49,21 @@ for (let v = 0; v < nv; v++) { const x = g.positions[v * 3], z = g.positions[v *
     const wx = s[1] + (s[3] - s[1]) * w[1], wz = s[2] + (s[4] - s[2]) * w[1]; if (Math.hypot(wx - x, wz - z) < 1e-6 && Math.abs(g.positions[v * 3 + 1] - y0) < 1e-9) { match++; break; } }
   if (vv === 1) { let best = 1e9; for (const s of kept) { const dl = Math.abs((s[4] - s[2]) * (x - s[1]) - (s[3] - s[1]) * (z - s[2])) / Math.hypot(s[3] - s[1], s[4] - s[2]); if (dl < best) best = dl; }
     if (best < 1e-6 && g.positions[v * 3 + 1] >= y0 - 1e-9) match++; } }
-const inlandMax = (function () { let m = 0; for (let v = 0; v < nv; v += R) { const a = v + 1, c = v + 2; m = Math.max(m, Math.hypot(g.positions[c * 3] - g.positions[a * 3], g.positions[c * 3 + 2] - g.positions[a * 3 + 2])); } return m; })();
+const inlandMax = (function () { let m = 0; for (let v = 0; v < nv; v += R) { const a = v + 1, c = v + R - 1; m = Math.max(m, Math.hypot(g.positions[c * 3] - g.positions[a * 3], g.positions[c * 3 + 2] - g.positions[a * 3 + 2])); } return m; })();
 const inRibbons = B.ribbons(kept).reduce(function (n, r) { return n + (r.length >= 2 ? r.length : 0); }, 0);
-check('island-waterline-baked', F.ISLAND_WATERLINE.length === S.lip.length && F.ISLAND_WATERLINE.every(function (r, i) { return r[0] === S.lip[i][0] && r[1] >= 0 && r[1] < 1; }), { rows: F.ISLAND_WATERLINE.length });
+check('island-waterline-baked', F.ISLAND_WATERLINE.length === S.lip.length && F.ISLAND_WATERLINE.every(function (r, i) { return r.length === 7 && r[0] === S.lip[i][0] && r[1] >= 0 && r[1] < 1 && (r[2] < F.ISLAND_ROCK.minClear || r.slice(3).every(function (h) { return h === h; })); }), { rows: F.ISLAND_WATERLINE.length });
+// beach rows follow the baked beach heights (never under the sand they were sampled on)
+check('island-ribbon-on-the-sand', (function () { let bad = 0, n = 0; for (let v = 0; v < nv; v += R) { const sg = null; for (let r = 2; r < R; r++) { const y = g.positions[(v + r) * 3 + 1]; if (y < y0 - 1e-9) bad++; n++; } } return bad === 0; })(), {});
 check('island-ribbon-on-the-lip', match === inRibbons * 2 && house === 0 && liftOk && inlandMax <= F.ISLAND_RIBBON.inland + 1e-6, { waterlineAndInlandOnLipLines: match, expected: inRibbons * 2, inHouse: house, inlandMaxM: +inlandMax.toFixed(3) });
+check('island-no-swash-on-rock', (function () {
+  // every kept lip line baked as rock: the inland row is invisible and at most ISLAND_ROCK.inland past the waterline, flat at the sea
+  let rows = 0, bad = 0; const groups = B.ribbons(kept); let v0 = 0;
+  for (const segs of groups) { if (segs.length < 2) continue; for (const sg of segs) { const w = F.ISLAND_WATERLINE.filter(function (r) { return r[0] === sg[0]; })[0];
+    if (!(w[2] >= F.ISLAND_ROCK.minClear)) { rows++; const a = v0 + 1, c = v0 + R - 1; const d = Math.hypot(g.positions[c * 3] - g.positions[a * 3], g.positions[c * 3 + 2] - g.positions[a * 3 + 2]);
+      const nb = [-1, 1].some(function (o2) { const q = segs[segs.indexOf(sg) + o2]; return q && F.ISLAND_WATERLINE.filter(function (r) { return r[0] === q[0]; })[0][2] >= F.ISLAND_ROCK.minClear; });
+      if (g.colors[c * 4 + 3] !== 0 || (!nb && (d > F.ISLAND_ROCK.inland + 1e-6 || Math.abs(g.positions[c * 3 + 1] - y0) > 1e-9)) || g.colors[a * 4 + 3] > F.ISLAND_ROCK.edgeA + 1e-9) bad++; }
+    v0 += R; } }
+  return rows >= 20 && bad === 0; })(), { rockRows: F.ISLAND_WATERLINE.filter(function (r) { return !(r[2] >= F.ISLAND_ROCK.minClear); }).length, beachRows: F.ISLAND_WATERLINE.filter(function (r) { return r[2] >= F.ISLAND_ROCK.minClear; }).map(function (r) { return r[0]; }) });
 check('island-ribbon-offshore', (function () { let ok = true; for (let v = 0; v < nv; v += R) { const o = Math.hypot(g.positions[v * 3], g.positions[v * 3 + 2]), w = Math.hypot(g.positions[(v + 1) * 3], g.positions[(v + 1) * 3 + 2]); if (o < w + 1.5) ok = false; } return ok; })(), 'v = 0 lies >= 1.5 m further out than the real waterline (v = 0.5)');
 
 // ---- swash timing (island): the old lip's beat, continuous, lines wrap with the loop

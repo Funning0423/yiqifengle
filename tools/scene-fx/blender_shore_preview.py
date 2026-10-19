@@ -26,6 +26,19 @@ if KIND == 'island':
         if any(o.name.startswith(h) for h in HIDE): o.hide_render = True
         elif '_night_v22' in o.name: o.hide_render = not NIGHT
         elif (o.name.startswith('env_sky_dome') or o.name.startswith('env_cloud_layer')) and NIGHT: o.hide_render = True
+        elif o.name in ('env_sea_foam', 'env_sea_surf_foam_v22') and NIGHT and o.type == 'MESH':
+            # game: bindUnlitBackdrop multiplies the authored foam by SHORE.night at night (same multiply as foamMultiply)
+            for m in o.data.materials:
+                if not m or not m.use_nodes: continue
+                nt = m.node_tree
+                for nd in list(nt.nodes):
+                    for nm in ('Base Color', 'Emission Color', 'Color'):
+                        if nd.type not in ('BSDF_PRINCIPLED', 'EMISSION') or nm not in nd.inputs: continue
+                        inp = nd.inputs[nm]; mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'; mx.inputs['Factor'].default_value = 1
+                        mx.inputs[7].default_value = (0.35, 0.48, 0.64, 1)
+                        if inp.is_linked: src = inp.links[0].from_socket; nt.links.new(src, mx.inputs[6])
+                        else: mx.inputs[6].default_value = tuple(inp.default_value)
+                        nt.links.new(mx.outputs[2], inp)
         elif o.name.startswith('env_sea_surface') and NIGHT and o.type == 'MESH':
             for m in o.data.materials:
                 b = m and m.use_nodes and next((n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'), None)
