@@ -146,8 +146,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/chest/result_chest.glb.meta",
-    "bytes": 187,
-    "sha256": "4b658706f144e630ee3169cd3420a32a296052c20b9b15f9034f8a98dd649807"
+    "bytes": 3305,
+    "sha256": "c8ec861ea3706379d6669fc2728cd004ab824e6fe74bc23b7c08ce8764e32fc4"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/licenses.meta",
@@ -210,6 +210,11 @@
     "sha256": "6c7438b3093e7aadb6cf4049f6b500c84bb12c2e29ca3972e3c795dcf32beb18"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/popup/chest_open.png.meta",
+    "bytes": 994,
+    "sha256": "e374eecba0d407cba611b7917f58c423737d125f6788490e8e5db6f35f731865"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/popup/fx_rays.png.meta",
     "bytes": 991,
     "sha256": "ae9e780b70ac99fa11258f7076e0e5d68eacd41439ddd4440bccec40032909d1"
@@ -258,6 +263,11 @@
     "path": "creator-build-project/assets/bundles/board_art/popup/panel_frame_9s.png.meta",
     "bytes": 998,
     "sha256": "f22e7776c0af9a10bd693b5aca47006f3169e044f2233f5e43649ae4861b20fd"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png.meta",
+    "bytes": 1000,
+    "sha256": "f6be128f3280fb449363100dff6591f8f9359651ff46149dcceea4a29f4e2058"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_meadow.png.meta",
@@ -370,6 +380,11 @@
     "sha256": "ea0d14ec35d64dfe52588c49e3aeabd59ebdbbc4944d752162ef2a74b4747847"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/r2/chapter_lake.png.meta",
+    "bytes": 996,
+    "sha256": "34d8faf16a91570dda68ffeb24cc87fdad78028537e067ff3aa9bc44e069cdbc"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/r2/chapter_meadow.png.meta",
     "bytes": 998,
     "sha256": "246cab0589e85870ba042539a86090c2317864954d9ebe8bb69971eea5a83c96"
@@ -408,6 +423,11 @@
     "path": "creator-build-project/assets/bundles/board_art/r2/icon_lock.png.meta",
     "bytes": 993,
     "sha256": "96757bc27ed520f9c81605c8e332bb84d3d2f261542c2bf78a87867aff11b0e8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_lake.png.meta",
+    "bytes": 995,
+    "sha256": "f5817b95d53984ca320491a9b8e11954494812fb7d016bf3f3473f6baa7d0674"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_meadow.png.meta",
@@ -500,6 +520,121 @@
     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/audio_cine.meta",
+    "bytes": 169,
+    "sha256": "2258e0738fdca8e960caf53518a4b3fb78682a9783d352fad419f6c0f829d6ef"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3.meta",
+    "bytes": 222,
+    "sha256": "56fde185e101cd7647e49a7ed241901a29a6d2bc184419ca725d0698fd5a8522"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps.meta",
+    "bytes": 168,
+    "sha256": "8d0b113c6ff7d41e0682b844f902754b8dd0e50d95c19e5918ad7570343d269b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_grass_1.mp3.meta",
+    "bytes": 221,
+    "sha256": "b5572c4b02fdce01a92df7a05eed8c991fe9b50b62adf41266932eb7e453b812"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_grass_2.mp3.meta",
+    "bytes": 221,
+    "sha256": "e95a3b09d9f4c2d5c616aea33b6c0838196e5aef26675a2f95243509330ab612"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_grass_3.mp3.meta",
+    "bytes": 221,
+    "sha256": "ffa5cf91f358b63678cb4065a4e5d725a4b12be1a0a39dc80acec4be9c16b19f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_grass_4.mp3.meta",
+    "bytes": 221,
+    "sha256": "84517b2520f5cb43908112e870483230a3f495a2bda0560315cdc345bfcdfa16"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_path_1.mp3.meta",
+    "bytes": 221,
+    "sha256": "9f85aa784d1f3670c2bbf6aa5c0f080018b92283ca7e13d3078baeef8f713d78"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_path_2.mp3.meta",
+    "bytes": 221,
+    "sha256": "e6a7830d87e50c060e8c58dccc2b04f008da4f74deeeefe245a2aab367fa32f0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_path_3.mp3.meta",
+    "bytes": 221,
+    "sha256": "9cdbeaed53579f96c545ec9a3b2b69176a2af37faabd308bbba80d27697c3924"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_path_4.mp3.meta",
+    "bytes": 221,
+    "sha256": "89e14456875fc67a6aec65969153c1031902d39f1dc370d47057fcc263e668a5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_rug_1.mp3.meta",
+    "bytes": 221,
+    "sha256": "57b71bf8bac40e2fe1708213046e74dc17bb5e67f4ccb63e3396c656d28c79fe"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_rug_2.mp3.meta",
+    "bytes": 221,
+    "sha256": "1ccd3f338aec51b10ba5331b6f0e5f1e16d3f62d47d9c0e9cda51451c4f041b6"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_rug_3.mp3.meta",
+    "bytes": 221,
+    "sha256": "a470f02fc1da4f924e0df9ad9f63d3b315adc8b26fc26ad020733687d4fde542"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_rug_4.mp3.meta",
+    "bytes": 221,
+    "sha256": "74a76edb740bd00e9ec47dc0d2b3719909b8ba99aa342f89fc198a5e9a974f28"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_stone_1.mp3.meta",
+    "bytes": 221,
+    "sha256": "f40705b55743040b598bfad43325e056425911359b1ea24eb2c437303be24af0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_stone_2.mp3.meta",
+    "bytes": 221,
+    "sha256": "0509ef15116e92e8ec52c6a6e11c53edd036465a2f84461eba9fc8c8d9467f97"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_stone_3.mp3.meta",
+    "bytes": 221,
+    "sha256": "22dc574a01ce2d77d00533cf916d6df7e83908299178e582f8c4a63388f2de17"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_stone_4.mp3.meta",
+    "bytes": 221,
+    "sha256": "185066890198d46e5fcdd60e5656c82a7c40674175876a20055c9e4e369863f4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_wood_1.mp3.meta",
+    "bytes": 221,
+    "sha256": "00de084f75ec9f2937f3bc2c12c031ebd4d39cb2ae9bcc8ba41662e0ba7270df"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_wood_2.mp3.meta",
+    "bytes": 221,
+    "sha256": "62f02e3dfba83d616ee5f8caf7be01dc4e22227457385359da305b83dc94f5fe"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_wood_3.mp3.meta",
+    "bytes": 221,
+    "sha256": "fc3366e457bb8b93ff1eb13a76087b620e7ab294fd1a2243428817abdb495eea"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_steps/step_wood_4.mp3.meta",
+    "bytes": 221,
+    "sha256": "72ba7b1143d407eb6b0a2f7f1ad7c9b12148ee5f59fbc9a62e8816dfc06eef48"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/board.meta",
     "bytes": 169,
     "sha256": "8596908941dfcf05aa9574f2e7eb1cb9e65e259c58c6343e3cc9cf245917417b"
@@ -507,7 +642,7 @@
   {
     "path": "creator-build-project/assets/bundles/region_island/board/bg_island_board.jpg.meta",
     "bytes": 1000,
-    "sha256": "f2523cb846e8e81405754d1440b28eff8827236b8144ffda2fa89582e9aaa34a"
+    "sha256": "cc3fb2b4b53062145a8b16d29cf36c435723749c62898ac455ddf6ca40fd5d10"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character.meta",
@@ -516,8 +651,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-    "bytes": 45570,
-    "sha256": "7f219158a562a33381fc6072bd816996066f9f87296021e61a8a103a1c68682d"
+    "bytes": 371995,
+    "sha256": "cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
@@ -526,8 +661,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-    "bytes": 24068,
-    "sha256": "38b88ba48a6d3d6ef986caa8c417dfe8c29312701b751db5000e3c1eebbb8b84"
+    "bytes": 25308,
+    "sha256": "6740cdd7b3a2ee7b0664468dbc0e9da48b10d18478253c2f4b3a9e575083b8be"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
+    "bytes": 169,
+    "sha256": "15342d8badbfdea496a58416f8c01088f2f1345613f77778dfe443e4df6a5fea"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/character_support/reading_chair.glb.meta",
+    "bytes": 1967,
+    "sha256": "bbb445f6776fa8b0e2b8070adc1b0e5b077c0ee1bad98c39c606cc686d158391"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/combined_anchors_m.json",
@@ -550,44 +695,369 @@
     "sha256": "7c9dbe1d2038c1b7c80e518f0078ddbebbcf97a8f4c9b73f01c9d3733313e804"
   },
   {
-    "path": "creator-build-project/assets/bundles/region_island/combined_visual_m.glb.meta",
-    "bytes": 45784,
-    "sha256": "cea6abbe29d7894652f353c47bc87476844e7ba7140e0fcb359e828905d5eeaf"
-  },
-  {
     "path": "creator-build-project/assets/bundles/region_island/ui-props.meta",
     "bytes": 169,
     "sha256": "2ffaa2d2895d086f0eeb4c2eb7099ca63b0054db21ff63a8444c71253a2885e7"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_short.glb.meta",
-    "bytes": 187,
-    "sha256": "c33d76be3e9716217052a8ab28e10fb859b084e8a9e0874fe7015366b2b0e54c"
+    "bytes": 1995,
+    "sha256": "6fc1c0561f5892b33bcc0ab736c4f8124e117ed4cfdc140c8588453740f035e2"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_tall.glb.meta",
-    "bytes": 187,
-    "sha256": "41056c28b2bfdd67251d818f737b05e44ec23cab60d78d818e01225fe204cd76"
+    "bytes": 1993,
+    "sha256": "f8a404509abbb2e464996cbeb39e0600e5b26792f1108aa961a6e79289c99811"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_compass.glb.meta",
-    "bytes": 187,
-    "sha256": "61691881d074baaf78541808cb276ee722e5173798d2751b8432cf811fee5c35"
+    "bytes": 1983,
+    "sha256": "71a33713299692c58c9a4e21f52469644acccaa02130418fa741552a7ca806ea"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_notebook.glb.meta",
-    "bytes": 187,
-    "sha256": "2b12a3e56a581b2556c57a1cb6c364bd290499d69898f339684fce7d9a245f40"
+    "bytes": 1985,
+    "sha256": "f08ac44b73e75983df5bab10399c673767ecd22f8912f72ffbdc82aad681221a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_satchel.glb.meta",
-    "bytes": 187,
-    "sha256": "5d84ddd6dcc2da19cfebf60e17655d97e178d21d073f01e81c981bd8fadf82ce"
+    "bytes": 1983,
+    "sha256": "46c1e3d33d02c2804013386626315d34745ddf3df7749437dbf84af23248c5d8"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_signpost.glb.meta",
-    "bytes": 187,
-    "sha256": "9ee570b4d4b409ac561ed40bc49e62efbfbcdc991dbf164980fb2215209ba955"
+    "bytes": 2858,
+    "sha256": "fb26fe7f9dc960f9ad536fe08f4fa51ef379ad4c890140e0e0e284753a57f8df"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside.meta",
+    "bytes": 410,
+    "sha256": "f95108ddeb6c2b6b3aa7c3bdb11c7519fdbd1c7b2cbc1a0a9265f5ce4900a4a0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio.meta",
+    "bytes": 169,
+    "sha256": "f93dd3d9145820bce2fb92bd8c2aed9b5604725fc599f3f438a05ace1004e36f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/audio/amb_lake_loop.mp3.meta",
+    "bytes": 222,
+    "sha256": "fab949cbe57b6c2fd633f15482c9918286546bf2976cc75670c8d6c7884f3116"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models.meta",
+    "bytes": 169,
+    "sha256": "0577b35acdc23095471bc1f39555459cbd958bc0deb0db420d14563003114db0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_barrel.glb.meta",
+    "bytes": 2941,
+    "sha256": "6ff41e114c74c7deb7a39055b96e924e06278f73010265d9ff2db832466c551e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta",
+    "bytes": 2943,
+    "sha256": "8f8d5dc0509b79907e2677a786eb7295cea05fb929dbdd4246dbf0058184aaa0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_bridge_steps.glb.meta",
+    "bytes": 2954,
+    "sha256": "eaa950e545a837ee479e738193fa220200d7787b53ae711537c5ebb6d11527ce"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_buoy_lantern.glb.meta",
+    "bytes": 2954,
+    "sha256": "76f9dc98ea7741c8febf32ef71a44e7a0c7f5b4ba8b0632bb6dc7dfef11003b9"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_bush.glb.meta",
+    "bytes": 2938,
+    "sha256": "c6693cc276c65708c9bed33181b45e302b13b53e404f766f09aa83b6f93a8ae4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_chime_post.glb.meta",
+    "bytes": 2949,
+    "sha256": "3384300be9f26b8dbb2a6ab85f6b7dea6f7a8a3a059f95e54a67a74f229c2401"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_chime_raft.glb.meta",
+    "bytes": 2950,
+    "sha256": "56ebb3dfb9b3f75b0e1a9de136f3030e1665922528da72e5f9ac15c0f3494460"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_clothesline.glb.meta",
+    "bytes": 2951,
+    "sha256": "3ddd95058b1b2a708b218636e7ea659604eb28a1b2de64948314b0e62f1ce604"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_cloud.glb.meta",
+    "bytes": 2940,
+    "sha256": "53ea956f779fe45194c88ef965a3f1e6ca434dfb96c8bdf4f2ee2e93aaf4e187"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_contact_shadow.glb.meta",
+    "bytes": 2115,
+    "sha256": "629770d1b36293cdc9d566bd4e51a419e4eef402773d216a986f9129eda46834"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_dragonfly.glb.meta",
+    "bytes": 2947,
+    "sha256": "dee4db63d07cf4c3c8315ef14c601051a56566a3ffc3db6c071776e2ecbc6e35"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_duck.glb.meta",
+    "bytes": 2938,
+    "sha256": "eef0b80ceaf89f866456434894d81ddd48dcadead3d86224db8e2ed1b629b4aa"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_duckling.glb.meta",
+    "bytes": 2945,
+    "sha256": "c1f28cfb2c172d404c0a69d4d50fefc92c49d0e584cef62402504da9261e233e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb.meta",
+    "bytes": 2952,
+    "sha256": "d847d1cbd6c85d2a31a0b005fcc48709f5daf9d246c11f30444c849d498e2076"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb.meta",
+    "bytes": 2948,
+    "sha256": "19b8ea125b719125ec40bf2c329b642a46738c517b1dbffb1c16d6aa10dc8c28"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_float_rope_soft.glb.meta",
+    "bytes": 2117,
+    "sha256": "7b671bafb950f5b96ec0fa10f7930df23ce81a839e07ba0b77d778884e6b4652"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_flower_clump.glb.meta",
+    "bytes": 2954,
+    "sha256": "b692f8a9663a0214d5b424b268d9a27c171f049df7259ea0cd3820ff6c9d0f7f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_flowerpot.glb.meta",
+    "bytes": 2947,
+    "sha256": "d7386434a185a1a2dcd1a28d319ffff2e1349ebe57dbe90a316672b45e692818"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_grass_tuft.glb.meta",
+    "bytes": 2948,
+    "sha256": "2d90e6f8dfcdfbfa497b838dde5ad417497ab0588a4828959e3b512d0f1ed20c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_house_A.glb.meta",
+    "bytes": 2944,
+    "sha256": "11ba4ef107190f8a6b896872394b3f9974e9a69c29a7ebb82e823e54a862f7f3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_house_B.glb.meta",
+    "bytes": 2944,
+    "sha256": "fbcc620e661069398d8ba5f99e457f070de2edfa8c86a2228b838b6c1ca0689b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_house_C.glb.meta",
+    "bytes": 2944,
+    "sha256": "1f2881edfb20351c7781a977f3d5cfd9956109dab5a0a12def3fcdcccaf6536d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_lake.glb.meta",
+    "bytes": 2938,
+    "sha256": "7fdbcf1b8fac25297226f5bed7233ef346a2818edf76c26f85fb776f723851f3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_lantern.glb.meta",
+    "bytes": 2943,
+    "sha256": "ccaa07907f36d76cf9b0635f407f90b245f3fb849408f9cdeaef2e86b8a6f412"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_lantern_boat.glb.meta",
+    "bytes": 2953,
+    "sha256": "85cf168e2a6e23522c6ba7b0783333ddeedae012cedda452cd99c649aa95b5bc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_lilypad.glb.meta",
+    "bytes": 2943,
+    "sha256": "b71d80137fb0747c5d74fdb1e964f5bc827fc24850184eb97a11883f1f5a1f5a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_lotus.glb.meta",
+    "bytes": 2939,
+    "sha256": "c4a5163ce604e3492ec43cc9aeb45dcefc0daa09eb13862838b23a41117d4faa"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_paper_boat.glb.meta",
+    "bytes": 2949,
+    "sha256": "d8c8d1e6321d222646c009cfd8e28e95bcb82dbc74a7e116010301d360c7bc08"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_pavilion.glb.meta",
+    "bytes": 2946,
+    "sha256": "8644475f44c09be2edbc7f7bc298094aecae190448bed735ef5a3c4f899ec90a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bell_pad.glb.meta",
+    "bytes": 2957,
+    "sha256": "2727d20f119e1eb158ed27b053545656dbeb09b633f6414dc0b0ae5f04a1786a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_piece_bobber.glb.meta",
+    "bytes": 2954,
+    "sha256": "d4ddc233402219f761f05d8e7dc44e6798506f20972248286c5c9c834f0c9431"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lake_light.glb.meta",
+    "bytes": 2961,
+    "sha256": "d364d415ca022cb311c93324183e04ae4cc0b873f48ecc9e136e6c05bae524fd"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_piece_lotus_lamp.glb.meta",
+    "bytes": 2962,
+    "sha256": "c0ec267b3d969d580b85a59e64fc93c3c1c849e5cee94f84ebecf7928a845e63"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_piece_paper_boat.glb.meta",
+    "bytes": 2961,
+    "sha256": "472a63e3f622ea80d736a81eadaeb8e84d55aef4e30517d45a393c526c239db0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_piece_shell.glb.meta",
+    "bytes": 2952,
+    "sha256": "829f149db72f97de694c065e7dd7681965df98a9aeb1f1b2c89580fa8c6e243b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_porch_steps.glb.meta",
+    "bytes": 2951,
+    "sha256": "5f416864d896163c7f8e6fa7a7cd0e2557ea7af38cb9fb64eb26dd3e31069c89"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_reed_card.glb.meta",
+    "bytes": 2946,
+    "sha256": "8eab1552d37fb0e89146c12cbd5dbbc5a64bc718ae126469af94cdc90f2d2d53"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_ripple_ring.glb.meta",
+    "bytes": 2951,
+    "sha256": "5977f89d8017aa8371f3ed30018ca570fb20516f15e82d900951a627bce19eca"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_rock.glb.meta",
+    "bytes": 2937,
+    "sha256": "69cc7e29aa7787fcafa66bc710782d7539db382d6afb2b7119dd1a4e55ddd46c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_rope_float.glb.meta",
+    "bytes": 2107,
+    "sha256": "d385d132289cf227828589da3200df332cc46502c36d18fc4652d7bb0afda374"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_shore_foam.glb.meta",
+    "bytes": 2951,
+    "sha256": "3211f2217e62a4bda17c9405598fdef4fe325a0c9e7aad015817e4cb2b3f54df"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_splash_crown.glb.meta",
+    "bytes": 2953,
+    "sha256": "794b654162247fafadac462e982e1fe72d88ffd3c1622c47fd27b3217609d019"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_splash_drop.glb.meta",
+    "bytes": 2951,
+    "sha256": "51355faa8c72da5f59b6ffbf619c2d9b5ef15bede59a6bc1854250c6bdaaec79"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb.meta",
+    "bytes": 2945,
+    "sha256": "15887d3ca752ca51da0d998cad41257095fd461a1d9a819a4337eca1b5efff65"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_tree_conifer.glb.meta",
+    "bytes": 2953,
+    "sha256": "57ce17f754ca2f012ef67ff293a18580a47861562e9dc4997d42ab6fe49ae00f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_tree_round.glb.meta",
+    "bytes": 2950,
+    "sha256": "be1d17192cafc2d4df578ac8e3bd1c056b72899fcd693ea468ca7cb4f23d017f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_wb_line.glb.meta",
+    "bytes": 2942,
+    "sha256": "695609833bb6394a7b1c01357643ebe8bba39651a5a768077399f03a40eb9d64"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_windchime.glb.meta",
+    "bytes": 2948,
+    "sha256": "04e4062eb62b7314eaabce88b028b51f26b95736e4af4a4f2cc1cf8e78cb5296"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/T_LK_palette_256.png.meta",
+    "bytes": 1003,
+    "sha256": "1435fc0a251bbfb7878ca33e8a250dfe3739fc77728e5a91ec3259a2e68bfcf2"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/palette.json",
+    "bytes": 1356,
+    "sha256": "66ce87900c4c3649dd0a59d5b9b5e4ca2f6c38b7769cdb78b5fc3c3da03edf32"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/palette.json.meta",
+    "bytes": 179,
+    "sha256": "1ebf8cba6a41e18150b61a0028f6e468c9e37ded162f653c2b700ebd2d4202aa"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/post.meta",
+    "bytes": 169,
+    "sha256": "fc86f7f82cd0014edfb3807a6ebd1f8a3d6e6a5a7508179beefdafd7d9d347b4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png.meta",
+    "bytes": 1002,
+    "sha256": "5ca91dd54798fcc00a5dc3af8b0fc66b285e0a6cecfa0d8785217aa0c960ddcd"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/scene_r5h3_lighting.json",
+    "bytes": 1767,
+    "sha256": "afa2065ede3e82a6f20d5df1d8d0642ebef7258aab1580b18b7a3d1ee09510ad"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/scene_r5h3_lighting.json.meta",
+    "bytes": 178,
+    "sha256": "6b6810f010103c9f8326059042780bc0841bdc31a286f29c6b7df0c4c4e5eefa"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/scene_r5h_slim_transforms.json",
+    "bytes": 190895,
+    "sha256": "4993746a98600b259529bc3c8ace2e2a730b998cae31e98e5564df4365162a63"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/scene_r5h_slim_transforms.json.meta",
+    "bytes": 179,
+    "sha256": "4c90cd888ea26c55c16081358d79ad1124ebb3ffd9cb50dea2a9bd30be386081"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/water.meta",
+    "bytes": 169,
+    "sha256": "ff0effe37b221756cb93c57b9a44a7b912463077bb4c20b7a46276def3964bd0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect",
+    "bytes": 6264,
+    "sha256": "37cba269c1dd6b6ea0474c2e9ed1fd011ea67ca4b5f4d76b2428da0ff8cf4a52"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect.meta",
+    "bytes": 181,
+    "sha256": "11ae7116a4b1d3542ebc174f03d9c527fb8e4d538acf208e7cd3052353323f6e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl",
+    "bytes": 558,
+    "sha256": "b3af4f35428a9b885ede45dd61f80c83b3f57298b99330041bb86dbcfeff507d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.mtl.meta",
+    "bytes": 184,
+    "sha256": "d779b0d3c58e8f6795b668a13bc346ae09b32e85557a94fae8d5fdedbe6f263a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow.meta",
@@ -603,6 +1073,31 @@
     "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3.meta",
     "bytes": 222,
     "sha256": "b0d94518e28f748390997806438e09e595271fe5d6160cc5c1d7cc875a850d39"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
+    "bytes": 21225,
+    "sha256": "e1038b6c865f67d9e528ba21f36b1d17b76ce6221737b3f403ee0f076e9e3fda"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
+    "bytes": 2334,
+    "sha256": "67a5e56f5fe8a8239b4ab6812f802e1f006e8caeee283d6e751cc59f7f907ba5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect.meta",
+    "bytes": 181,
+    "sha256": "ebe3cc5bb219fc0b21af8b1f62af2ab57c1a727a8f9338936b259e0921adf300"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json",
+    "bytes": 32930,
+    "sha256": "fd880a37de8b9794a150b3730d7cb1f341adccac38fbab9f7400f829b906fc15"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/meadow-source.json.meta",
+    "bytes": 179,
+    "sha256": "af3a064588893b86b7193a265342314b0616191fae07043aa0cda9e32b3f2ba3"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity.meta",
@@ -627,27 +1122,72 @@
   {
     "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg.meta",
     "bytes": 1001,
-    "sha256": "b3eaf722ce9c7ec2f67f2d60a8583913b7fe0086d57d5a4a707746a8ff43b599"
+    "sha256": "5bbf511de76170146510e02fa4b70d6821504151f1db6857a09d4c5d1f80295a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-    "bytes": 31927,
-    "sha256": "0587f317ab810c0bcfb7f69fdf8fbe2c8b311bca50844ec507c29a49eca157de"
+    "bytes": 32049,
+    "sha256": "ad7e3b2bca85cd1b574e3378098b13268a19d1f40bbba122da83a5b216496a72"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon.meta",
+    "bytes": 417,
+    "sha256": "129326ef9c92b8140cfbeea1ea9b4ecfa9d5e689e0e13fe77e6e0058897ea0a0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json",
+    "bytes": 81852,
+    "sha256": "b049f2cb55915f9a3f850fd709d7344c809705a19703194fb8cb82f98a9e5713"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json.meta",
+    "bytes": 179,
+    "sha256": "6c8d4384985123cf8a04f16387b61de1705c941d5527551172b0a36a80fe5d25"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon/far_meadow_card.glb.meta",
+    "bytes": 3773,
+    "sha256": "9825444b3ee3d3712979f3a83fea025211634170845f4bf96b8951fb59b95c3d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_clouds_merged.glb.meta",
+    "bytes": 4894,
+    "sha256": "c4e47ee93ee8e71a282857e7ece0ce242f00fe257c9a9a82b4757eb9afc6267b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_night_dome.glb.meta",
+    "bytes": 3422,
+    "sha256": "081fe58e9043b5f2c6e97f816301550ba525430e655b3c8f3cb9fb74e1ec4234"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_sea_fallback.glb.meta",
+    "bytes": 2482,
+    "sha256": "b8bbea78c347f0cc2edd1644357631eefa7b06978214d10340254572773be02a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta",
+    "bytes": 7326,
+    "sha256": "8162abccae3c8976e5de678ea150c689e14e873bbf04eddf01d70c079d3851b3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/shared_effects.meta",
+    "bytes": 409,
+    "sha256": "e9df1b27e671b961abb8ae442384b29f8e1c4fa65b0dad9a8a56fb46dbeafb18"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl",
+    "bytes": 467,
+    "sha256": "d82a5066d704018d186b3451e44c916f43cb566e11ad988f1646a33d375e8f91"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/shared_effects/mat_shared_builtin_standard.mtl.meta",
+    "bytes": 184,
+    "sha256": "432d2e166461eb277c904c5873a7fe69e8d4b12b7aaddc1d62ab7812804aa49e"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview.meta",
-    "bytes": 375,
-    "sha256": "7420a21738fc64178ab1ff561495be66de1d9d4498cf1cf7c72bfd7262d1dde0"
-  },
-  {
-    "path": "creator-build-project/assets/bundles/static_seat_preview/actor.meta",
-    "bytes": 169,
-    "sha256": "6667ac95517aa006c4b45c88a3aa416eefc5dcb42f9805063c6d12fc88e0801d"
-  },
-  {
-    "path": "creator-build-project/assets/bundles/static_seat_preview/actor/user_static_seated_2k.glb.meta",
-    "bytes": 166,
-    "sha256": "7c289556267bdc2e72214c56b9c736031fbc392aa2f1edbe37a19c224806281f"
+    "bytes": 414,
+    "sha256": "c3c240990215bcbebeb6964620e573ab97535f7fd5e859d4792a04a4cee3499a"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview/room.meta",
@@ -656,8 +1196,73 @@
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta",
-    "bytes": 166,
-    "sha256": "8071902f9968006b72838e8b8dec6888f17b36bd0da36dafdd69627aa19d12e1"
+    "bytes": 45911,
+    "sha256": "d54b095d9c6eb338d21e1d2d9e56bcf7706dd2a6ef312452b8da5c5f015878e6"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail.meta",
+    "bytes": 409,
+    "sha256": "3be386414311bf09e89af974a2fcd4c7d8ac6c2891759e82343de5fd4b1d9d13"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/sailboat.glb.meta",
+    "bytes": 8675,
+    "sha256": "e16e9a6f625816f98573836f4aff81232b468a9811d139389c5d489cf5de5f73"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/textures.meta",
+    "bytes": 169,
+    "sha256": "d16f0dca0e1f3532d35f86ec83a56e011bf79d187ecae5c09e1e53e663a7ac89"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/textures/foam_strip_512x128.png.meta",
+    "bytes": 988,
+    "sha256": "7c9d4995a8fc821431f0edfab768268cd9fba8783d9b488f076f500b6dd7b576"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/textures/sail_cloth_256.png.meta",
+    "bytes": 985,
+    "sha256": "0d3ec51bd704af1cbb30164be84bd2ac03b4836650ccec715603f5dc1157bc3c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/textures/sea_waves_512.png.meta",
+    "bytes": 984,
+    "sha256": "09c125072143efa39977232d3ad3db65cf57159f70e54f392bb01ae299471853"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/textures/transit_palette_256.png.meta",
+    "bytes": 992,
+    "sha256": "f951b618776044cbd4db51af0e54d682b520b519e994506fedef7708df4de366"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/transit_clouds.glb.meta",
+    "bytes": 6764,
+    "sha256": "8c77eb06d5821da10786a064eee191663821ba8f303f2ac838e55490be9948a1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/transit_far_cards.glb.meta",
+    "bytes": 4774,
+    "sha256": "12b82881924031ddf69e7dfab94c92b73cbd927bb0db2a75f58feaf64cee42c5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/transit_landing.glb.meta",
+    "bytes": 3821,
+    "sha256": "6cab99231872e90e5f4bd6829d5855fefa8e10015507ccea4844278d1acfb5f3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/transit_river_mouth.glb.meta",
+    "bytes": 3856,
+    "sha256": "45c6eeea34d7a12f299f104deb57eb3ce0e789ad9ac95abb3cf84da15e1df3a7"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/transit_sea.glb.meta",
+    "bytes": 3370,
+    "sha256": "4dd880178f238e7008f02492bf9a6fd9e72490afa6d0ce0aae6b363bd82fc3e3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/transit_sea_props.glb.meta",
+    "bytes": 8738,
+    "sha256": "c9c366e5c15e54b6d867b15478b7e1e52f831bd9f5990585d854176be021f94f"
   },
   {
     "path": "creator-build-project/assets/resources.meta",
@@ -857,12 +1462,12 @@
   {
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.fnt.meta",
     "bytes": 4739,
-    "sha256": "0f83f6dba315c4ce9f6072967964ffbbe7cbdcab34b8aa7fa200dd3c359d24fc"
+    "sha256": "227caee0836ab1b68b7e77b17896e6f7648bd218892a4f5d0cc028209296451b"
   },
   {
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png.meta",
-    "bytes": 2398,
-    "sha256": "268276a7f025dc0104d9b15b38c2c168fab659158712e467e7848f086d5c1b05"
+    "bytes": 3085,
+    "sha256": "c45ff519c4241630a52de5a9c9ba448826320867a40adbe58cee4f24aa6e8859"
   },
   {
     "path": "creator-build-project/assets/resources/ui/tools-original.png.meta",
@@ -878,6 +1483,36 @@
     "path": "creator-build-project/assets/resources/ui/warm-button-lit.effect.meta",
     "bytes": 181,
     "sha256": "e8e2c56bf2b1ce16ebbcf57df705b93582b9a7da0e101ca9ad31aae7b81a4580"
+  },
+  {
+    "path": "creator-build-project/assets/resources/world.meta",
+    "bytes": 169,
+    "sha256": "a8f8b05a47fc1463edec96e3beb9200e3229fd64b808d99a165e94304cb45639"
+  },
+  {
+    "path": "creator-build-project/assets/resources/world/glass-sign-leaf.png.meta",
+    "bytes": 3080,
+    "sha256": "6ff7101f50f47bca2828893178caff7dd3b71ec26ffe75d89c6d961c2e148426"
+  },
+  {
+    "path": "creator-build-project/assets/resources/world/glass-sign.effect",
+    "bytes": 6857,
+    "sha256": "8463c5bb8a42b9ebc8e558f333025ee4fc9a201f8c13d9f7c437e4d2b52fe766"
+  },
+  {
+    "path": "creator-build-project/assets/resources/world/glass-sign.effect.meta",
+    "bytes": 181,
+    "sha256": "494f8ce2fb904b740fa2622f0c6d9b621939031faa07d565f06e5921f2ce48a5"
+  },
+  {
+    "path": "creator-build-project/assets/resources/world/shore-foam.effect",
+    "bytes": 6858,
+    "sha256": "c980cd2a872eccd5ca9b39db9f61b9058362b820f7c7e865ae22de881edbcd47"
+  },
+  {
+    "path": "creator-build-project/assets/resources/world/shore-foam.effect.meta",
+    "bytes": 181,
+    "sha256": "d60f5755fb3563930e7cf00682a8c5b47d31bafd7c6873391c3f737b70cbef5d"
   },
   {
     "path": "creator-build-project/assets/scenes.meta",
@@ -906,8 +1541,8 @@
   },
   {
     "path": "creator-build-project/assets/scenes/WorldR5Integration.scene",
-    "bytes": 5508,
-    "sha256": "76002d6089390a458ba270a1e4e078cc9500c19f398ccac23ba65532de5f75dc"
+    "bytes": 5521,
+    "sha256": "2dfaca38196b144b54071cddeb6bffe59bfea17f7ea987feef35320eb8df3733"
   },
   {
     "path": "creator-build-project/assets/scenes/WorldR5Integration.scene.meta",
@@ -951,8 +1586,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 61007,
-    "sha256": "129a28e17be8b2fb715ec9b9f47d6fe3720d8f3f73446484b2cef7abce150cf6"
+    "bytes": 139742,
+    "sha256": "3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
@@ -981,8 +1616,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 88815,
-    "sha256": "f7ebe15617fe88ec52236a7cd6d8c46b3674d9523ae5d5a8f5c893a3a1fa81ba"
+    "bytes": 91570,
+    "sha256": "4c136c7544d6341fc46734b1c5bd4453470c7d33cc6b64eb29fd5fdb7bc59876"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -1011,8 +1646,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ResultChest3D.ts",
-    "bytes": 7244,
-    "sha256": "3b0f8f437ee0b4575a78c485e8a3dc711763052a6eab5f3ac0b568164f5814b9"
+    "bytes": 12163,
+    "sha256": "cb199528825224851640fb0eec14bd3bbd8afeb5964a7c0b0ff5bf286f7cab53"
   },
   {
     "path": "creator-build-project/assets/scripts/ResultChest3D.ts.meta",
@@ -1021,8 +1656,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts",
-    "bytes": 5660,
-    "sha256": "119e5c2eb2724318a27e8640184dec6b0467145a0286dac5e302d9ea4d7d1e49"
+    "bytes": 6971,
+    "sha256": "e4f25b9708bcd3790717d877ec723003b53b75100fd1985532883dd2185ace7c"
   },
   {
     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts.meta",
@@ -1040,6 +1675,16 @@
     "sha256": "eb1a3e9e8b26f2ced65ede26e57eae7458ea79044c2aeb4d9e3c90ffd039ee3b"
   },
   {
+    "path": "creator-build-project/assets/scripts/SharedBundles.ts",
+    "bytes": 2840,
+    "sha256": "b68fa8d61eb8ebf306aa6df06c539d1253f33b852481200733cf7cf9b861c26c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/SharedBundles.ts.meta",
+    "bytes": 171,
+    "sha256": "11599b7011219a592e5395b726a5d5cdaa3a5920ae45fadce67ad8ab55fcd835"
+  },
+  {
     "path": "creator-build-project/assets/scripts/SpecularCandidate.ts",
     "bytes": 1464,
     "sha256": "d0dd4be6cd6289aea112ccd05418e746966370f2966421fca4f47e9c71e23fe7"
@@ -1051,8 +1696,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts",
-    "bytes": 5303,
-    "sha256": "00c79b5e298073b36bb09d673492d7c4c70c0ba938bb69aca0d4af4dad3d7f58"
+    "bytes": 5329,
+    "sha256": "03ca040168a9a20a1d875f83ce3838b39be7fdedb14193a106adcf3073194653"
   },
   {
     "path": "creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts.meta",
@@ -1071,8 +1716,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 74328,
-    "sha256": "49aa82ade7227afd3ab993c8c126bf73b10078664872169e086a41094c44f5d2"
+    "bytes": 103426,
+    "sha256": "071e616c105c1b794dc94832b53e9a8a958d82f94676e85aa9e74cd683ee890e"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1086,8 +1731,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceAudio.ts",
-    "bytes": 31926,
-    "sha256": "e65f33870464d7e06dce757edef1743a47386e01348fdc92e16ec03518361c64"
+    "bytes": 35520,
+    "sha256": "32897b5ceda496af9217389f64bfc163a75233610c3c423401e4ae903ae1514e"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceAudio.ts.meta",
@@ -1125,9 +1770,39 @@
     "sha256": "0b203a5a8b4d3700ae318a794d841db2481c8d551920fc8f0975e12675b73ac5"
   },
   {
+    "path": "creator-build-project/assets/scripts/audio/FootstepAudio.ts",
+    "bytes": 4623,
+    "sha256": "64d04640cb2fc13ed3a1c925d8b1db5d1daf4759c7af44824e56bdc66f1c6dbd"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/FootstepAudio.ts.meta",
+    "bytes": 171,
+    "sha256": "f82d7d6102d32e9885ecd17f7b9a66aeb2413af851cdcd457f21e81c1875e078"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/FootstepCore.ts",
+    "bytes": 11394,
+    "sha256": "48b1b264c2a3750654b0fadbd5850ad9ca40b5c3bd0c2f0168c2c6c5afd65359"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/FootstepCore.ts.meta",
+    "bytes": 171,
+    "sha256": "a1193584fd99803b77ebce8eec425c531eb4695d3c0edb3a23a1f93c9063e6a1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/FootstepData.ts",
+    "bytes": 4245,
+    "sha256": "2a89ebc1fcf9d3749ee4fd8705b6a2171a06d8a5e1ed59aae32c8c64cba28a02"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/FootstepData.ts.meta",
+    "bytes": 171,
+    "sha256": "cf74e3a8d0848aad0361ceb423bf79bea4e581e581f31900c19aa56bbdd97f85"
+  },
+  {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 59455,
-    "sha256": "de044503731e2ac00f1850da6def8d9de95eb2eb267958650fc38df421b42f3e"
+    "bytes": 74554,
+    "sha256": "61342fcef2a3cc13d27bd624547b46ad073eae7957054775546ea36a8ed6bdbe"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
@@ -1135,9 +1810,29 @@
     "sha256": "a30610463fcfa2f9727ee76b640a20b595c08898f7c9496c0d7414257e5c717c"
   },
   {
+    "path": "creator-build-project/assets/scripts/audio/LakeAmbience.ts",
+    "bytes": 5650,
+    "sha256": "cc738c972e38eeebb6e408e8792d1a94615b2c2c6ee4b246317cc995d289ae89"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/LakeAmbience.ts.meta",
+    "bytes": 171,
+    "sha256": "252936300d0606685a5bd91508fa316cc61fb94b963883c291117b0540663b67"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts",
+    "bytes": 5704,
+    "sha256": "57d84b020bf557e6c1aaf9dcf032ddfe6355f1c22750d95cefc043b696759c1e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts.meta",
+    "bytes": 171,
+    "sha256": "5a878e35e3c7ab496f0c1af9634b1ac0e62b12a75576d36c285510bcd0aa09ea"
+  },
+  {
     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts",
-    "bytes": 8659,
-    "sha256": "88038bdc4c993f82af5538254139d6cf1eaa76174ae80651cf0db1940efe8ed6"
+    "bytes": 8873,
+    "sha256": "88289e3de0168625abdac7083e99024b88885774dec0523da6b4581bfe71493d"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts.meta",
@@ -1146,8 +1841,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts",
-    "bytes": 13401,
-    "sha256": "d9f3539691b0713548db0d712ace1af8d436d3e90d6632469b84d6a662513290"
+    "bytes": 16119,
+    "sha256": "ae596991973b3f9dace7e1b0559a7be09299d84d937b66df8fe098cb531533be"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts.meta",
@@ -1201,8 +1896,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/index.js",
-    "bytes": 172,
-    "sha256": "8e98c679f0ad440dee30afcd02f45acf60bf17a29a03b08c99e5b44ace2d8030"
+    "bytes": 214,
+    "sha256": "6f8f9e0d681ed0a09ea58591f3c7ed8c2639a0d1b8749d6274e9d1d0098ef3b3"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/index.js.meta",
@@ -1221,8 +1916,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.d.ts",
-    "bytes": 1626,
-    "sha256": "0f57d1848edc2012e1e5c17335bb6adc975fceb107c914d7f87a8999ffb6e0ce"
+    "bytes": 1677,
+    "sha256": "cad5492e5f19265cc0e3dec4b9865401c5cf8db02e584a96ec648b4fef83440f"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.d.ts.meta",
@@ -1231,8 +1926,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js",
-    "bytes": 16835,
-    "sha256": "7b326cdb181e786ecc54280c32bd5d19e63564418e554a14c4dd7faa52f3233f"
+    "bytes": 17273,
+    "sha256": "57ea81f302b4f5b44d014da999d57b0ac91920b2ae8c44bb5e113d3b7819e305"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js.meta",
@@ -1241,13 +1936,33 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js",
-    "bytes": 11070,
-    "sha256": "071b550b279ad9702cda2db223138ddffa1e444ba2ddf5456239a11d707f7b55"
+    "bytes": 11375,
+    "sha256": "9532d28a732d9bc575053ecb1c3a68488ba5f6444715d84200abee02bec600e3"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js.meta",
     "bytes": 171,
     "sha256": "f4eb56c36722e7d191506971bff10e1de6785f783f095f9175bc69e029ef5714"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.d.ts",
+    "bytes": 1829,
+    "sha256": "d0fcc1fe6263e632e9dae9a2c1b4b66cfd2f17d12ac84174d152205852c9a4b0"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.d.ts.meta",
+    "bytes": 171,
+    "sha256": "cd10252764435e3e1bd998a915913e5bc1fc8ce5f3bb2e51913e82485deae822"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js",
+    "bytes": 8427,
+    "sha256": "b2306213707d79181d7c7bb1b5a8614e589730218b342eb9ce4f51a7f6cc704a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js.meta",
+    "bytes": 171,
+    "sha256": "98c64bbf5d4aed77b11c0e16a062fa63b368c2c77626e0c232687df29e1874e1"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/vendor.meta",
@@ -1276,8 +1991,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/verified-seeds.js",
-    "bytes": 440,
-    "sha256": "512e94ae2602e1c9ae814a15d450b0c253c5b4d8dfecd221638be34287854cc8"
+    "bytes": 427,
+    "sha256": "4df5ece9598437d1d2f5212ad7382a4dfe7831baf5bacfbea56cf5a4bf8798e3"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/verified-seeds.js.meta",
@@ -1385,9 +2100,239 @@
     "sha256": "ceb12afb038635164f2d5cc9726e7b474c2e0dbd781405f5be01fb15efc3e547"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
+    "bytes": 8457,
+    "sha256": "c8868c49586e31e0bdcba4ad003de014548070b2df6e2ea424b1048cb6d5783c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
+    "bytes": 171,
+    "sha256": "8ad899411075032e4e177ea78ed15e1ec1edf550ac261d7cdb4fefc45c17a69e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/BalloonRide.ts",
+    "bytes": 157,
+    "sha256": "cfdb9945965361fda6eeca326fe71320986c8f4450a1a6373b993ff3adfb3d74"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/BalloonRide.ts.meta",
+    "bytes": 171,
+    "sha256": "0884c5b822e712be2c83ff0165aeb64ef8c9212ae537825cf7d5d0351db779ef"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
+    "bytes": 31459,
+    "sha256": "18bbd8ce72b2646f50c08b2f93401adea265ac869ec8a3f3d6fa0b32dd4eeba2"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
+    "bytes": 171,
+    "sha256": "68c0600891ad9d1eb0b1f604936366b6c91b63d3fd35f177ceacd328bc2d218e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts",
+    "bytes": 11843,
+    "sha256": "7c2ffca3f1c6e8d151b036f71851230bbf4e0b0691254e9de8cd06c74dcfd5b0"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts.meta",
+    "bytes": 171,
+    "sha256": "c3649be3326f0585934fa0f6a109f09259639f49d7c327ea83229d438c051758"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/ExploreGate.ts",
+    "bytes": 867,
+    "sha256": "d88686119599d4dc456fb66200b45ede27eeb441e3cc0844c18a1c9e23fe6542"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/ExploreGate.ts.meta",
+    "bytes": 171,
+    "sha256": "419972756475567c172c91d3a4a94944dc7a2565b43f4db8747a970553cc38a2"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
+    "bytes": 15554,
+    "sha256": "c40dec773e5d976c4f608b3c86b0c52a1d633d3a7ebc0f7f945b4a505aeab025"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts.meta",
+    "bytes": 171,
+    "sha256": "fa84999c0604685ae03fed701b4b5a14cae50a3f330f2f76d74e7ad6a143141f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/JourneyTransport.ts",
+    "bytes": 3683,
+    "sha256": "8c14139fced8deb6cc76f277b2134f415c93121d595b1d73a5778443edb815c4"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/JourneyTransport.ts.meta",
+    "bytes": 171,
+    "sha256": "7f6e43fbb524e1af175cb0fc9210843d125c21c4933d4d4f9bdc781ef8df2ae3"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
+    "bytes": 41564,
+    "sha256": "b86e1b48ed97b528876c0635ddb0396fb9f6771d2ef4d5fe5c8f908c90212629"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
+    "bytes": 171,
+    "sha256": "6bfa45aa60ceb5c4317a40b472d885d7a85d4c57e0c3c8e1b11423d9cdff131c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideBoardGuest.ts",
+    "bytes": 10968,
+    "sha256": "9954f68087f8955d5b294400c91072333fd05132a7815c8f27aa0466a81d76c3"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideBoardGuest.ts.meta",
+    "bytes": 171,
+    "sha256": "b4a2048c0f00b5929baf49e385b45c831c056839af4b98e4654304dcd285753f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts",
+    "bytes": 16168,
+    "sha256": "bf9c2fb2ffc16722576de10e7abd78710370214fee8ac51894385723655b009c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta",
+    "bytes": 170,
+    "sha256": "18c5785ed162669af62ca9853253ed32549a1142dc95fad318ad82c6adccc614"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts",
+    "bytes": 8694,
+    "sha256": "b478865ff53ed38f784959c7ea00bde4c866f5581777d97d02bfaa31596f43f7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts.meta",
+    "bytes": 171,
+    "sha256": "546803f478218d65934124badb31c4ad0e67639b61984ff01942480e827b819a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts",
+    "bytes": 2051,
+    "sha256": "2f9fa234a6cab24b55a36b104eea15286948b6a44f8d59b36f2021d59167dce0"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyBatching.ts.meta",
+    "bytes": 171,
+    "sha256": "1e641e37f9f2a4ebef5a6671f6fe998ab48ac717031328c1910b970878e097cb"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts",
+    "bytes": 6881,
+    "sha256": "6024ed8163db99066fe1f19fef0ed9475e55efb6b94cb76aea3913872538a19a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyLighting.ts.meta",
+    "bytes": 171,
+    "sha256": "f5072114cbdfc3a8a864fc3073e55690134045b5c112597e1e18c092e349e70c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyWater.ts",
+    "bytes": 4782,
+    "sha256": "c7255409b41cc9373f914a9a86066ee8fd365e4c5523c937f6c2bda3b61f4db3"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideJourneyWater.ts.meta",
+    "bytes": 171,
+    "sha256": "1ffc0141a0f662f71a784a32e82d65b5f1f53b15b5803eff473f5473cd70364e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLandingHook.ts",
+    "bytes": 7104,
+    "sha256": "ad925cd849c51557be3343a3cc5a40ca720cf7906f15476845a3b11392adb0a2"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta",
+    "bytes": 171,
+    "sha256": "e3e7c040b488f73064b079a2df2b08c877347123b68d0357bbc3293efa89e2c7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideSceneData.ts",
+    "bytes": 27087,
+    "sha256": "7b05b45c2d67c7e37ad16d802cd569e45a7f8e68936a1adeff9a1313d5932e30"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideSceneData.ts.meta",
+    "bytes": 171,
+    "sha256": "53ab7967f0a4160a80903d7bd6edcccc044ffa2ec6691a955f6941bc1b039179"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideShoreFoam.ts",
+    "bytes": 3679,
+    "sha256": "07c5ffd4fad785fec47c271bf2cbf791899ebf46273bd3285adf74692ae5ba24"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideShoreFoam.ts.meta",
+    "bytes": 171,
+    "sha256": "0f854f002af09e8688895454b43ff727560a42e3780e536ee674aac062b037f1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideStaticMerge.ts",
+    "bytes": 7118,
+    "sha256": "51f388326057ac85b5df247f9edb4ae352ace9dd3fb6c94e197ef30c26ada635"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideStaticMerge.ts.meta",
+    "bytes": 171,
+    "sha256": "65d26a130942f21ff2c432e90940a816c49ddf450121c0641519cf065cdb0de7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideSunDirection.ts",
+    "bytes": 1016,
+    "sha256": "e084c3e37ee33b28bf50e5f59694ce390d0c28324a0262e649057d1be14ee8ed"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideSunDirection.ts.meta",
+    "bytes": 171,
+    "sha256": "d61e17f2882f931248963dfcec9249bfa8e0d87ec8808ea883aad51478f17804"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
+    "bytes": 12700,
+    "sha256": "3bc1e7e8549e771dcec0d5bdeca6868ac5fefda5edcde110a1a73ec9e581ec27"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts.meta",
+    "bytes": 171,
+    "sha256": "b74cdccdd5be98ad18e8e46fe58a51358d551a0c2607eb4206de015790246624"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
+    "bytes": 1411,
+    "sha256": "f4b601815b7723bf2ccfdd180aa2bf83719a0b5d1387fcfadcf1cf6fec7c78e1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts.meta",
+    "bytes": 171,
+    "sha256": "0daba6bbf77ee132e0e36450ea1fe672f2140abdb31d1284b5227e04a5e26f8d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/NodeBoardPose.ts",
+    "bytes": 2161,
+    "sha256": "3891f9027e05fa045f7356e741ae755e1f261117fc95e0d173897263230e1524"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/NodeBoardPose.ts.meta",
+    "bytes": 171,
+    "sha256": "7b867a8f7bce9101282a4fbaa53521e33eded67ed7e33bbabefeb6d694da18e4"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/NodeWalker.ts",
+    "bytes": 6489,
+    "sha256": "d4b4c6faee06273cfee6b55e5257be19d630b60ba73bf9de71b566dfa3f07fc1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/NodeWalker.ts.meta",
+    "bytes": 171,
+    "sha256": "2eea67c636a678df2ac80a427725fd2359edc2cf9ebe5dcb44c8c46ee17a0c38"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts",
-    "bytes": 7135,
-    "sha256": "182c38074ff8356c602a4c77c6fbddd4fa61025963fba351d08a710c8d8f214c"
+    "bytes": 7895,
+    "sha256": "b7b3be8d17f64cc5cfd9821d981ec130eeeb1d1723644468424cc7ec0452f3a8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts.meta",
@@ -1395,14 +2340,84 @@
     "sha256": "3aa1a7ebef9902aab29f0f2e290432cf52419b210d308fde6cdd36e3633734ba"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/RegionAssetDeadline.ts",
+    "bytes": 581,
+    "sha256": "e310bdcf553d7204513d5a0286b4928b4f20cb96d33d1c3dcfcd94658b02367e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionAssetDeadline.ts.meta",
+    "bytes": 170,
+    "sha256": "b5280ae3d677c8bd3afadddcfe8f17734ff7571de0a1d75d3f423db3c6e324e0"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts",
+    "bytes": 16502,
+    "sha256": "71f057f8ca348e151606ac74c45affd30dccd42b39df2ed88845a562198bd20f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts.meta",
+    "bytes": 170,
+    "sha256": "e98e9757c7808bfcbc6c5b7df82a44a61831f332eec7e15e3ad5f7c215fc9178"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
+    "bytes": 26744,
+    "sha256": "d479306ebd8999010ddd08fdc10ec968369b9b6722a45cf93491239d861e10b7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
+    "bytes": 170,
+    "sha256": "dbad54f27ce5c016b0c6c3c3fea53c7add54d48f2af2a8edf6aaca5bcd6a31b6"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionJourneyLayout.ts",
+    "bytes": 10490,
+    "sha256": "0380454a4da69674c91314bccc4c7163f0afbf960324bb292b8ad067628acf2b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionJourneyLayout.ts.meta",
+    "bytes": 170,
+    "sha256": "fe12dee6650e802f19c8624ba25981e4b44538408fb6d75126c58b886eb3bc5d"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 3126,
-    "sha256": "ad1e97c5de821931099e4a3bc22c55d9211c45998d9156b6b70124880d5c6b03"
+    "bytes": 3546,
+    "sha256": "a68be9f6acd0323da342dbec5db9b9c20fe87c877f9141e0816a04e579ed3256"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
     "bytes": 171,
     "sha256": "b246ec2a8e09c71d7e44e9811712bd66e03231b684674844ca029c46de7413c7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
+    "bytes": 3887,
+    "sha256": "1fcfbf82fda0c5297ecb052bf283b49707f44f0be48b032a115cbbf3af2c49d1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
+    "bytes": 171,
+    "sha256": "d1d8f394da833db109458f1df2be0ce09646ba7866d4825373295d71d11847b1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionNodeProgress.ts",
+    "bytes": 7572,
+    "sha256": "3c4820e7533426a30ad14ec1e94ff187531ffc668770d34575d713c53eb4eea4"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionNodeProgress.ts.meta",
+    "bytes": 171,
+    "sha256": "eeb1bf76a9ded5c1e891e64b457aca32e126c7cce9d169dd7cbb425e7dbd3e7d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
+    "bytes": 6554,
+    "sha256": "40892f82b221fbb75f8a11eb1584db035e4f62e277ac8ecb3b5e1e833cda7f6d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
+    "bytes": 171,
+    "sha256": "a4c57ba08b719ea11739d6038abf5c3af3c11e5449b0910d255fb5aea0651c1e"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionValidation.ts",
@@ -1423,6 +2438,116 @@
     "path": "creator-build-project/assets/scripts/region/RobotClips.ts.meta",
     "bytes": 171,
     "sha256": "b054449e93a3d7cf7110ac0ffeed4d46d396282a85d36321c5b9a5a5e282c6ab"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailArt.ts",
+    "bytes": 28155,
+    "sha256": "7ff63ef5be1c30c36d12ca2d222f79a8d66e19d61dda29beb46f8c3fb9de9152"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailArt.ts.meta",
+    "bytes": 171,
+    "sha256": "aa258a5e6091d0b78824e10559ea6fbd7d55355ed18be9dd6a281ca646e5a000"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailChannel.ts",
+    "bytes": 3814,
+    "sha256": "fcea170888f96ae3a30408abd3ab84054e04cca3de90d6693bbaf2bb3ab5b833"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailChannel.ts.meta",
+    "bytes": 171,
+    "sha256": "5a8c601c89d5ca0edeff7c2006ebdeefceb89db240d0d70d9104bd9a354d73b8"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailLanding.ts",
+    "bytes": 3814,
+    "sha256": "557049c44e1f86e3a062cc857ae2d19bce4aaa4e4c635fd3ad0d3353a0f91112"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailLanding.ts.meta",
+    "bytes": 171,
+    "sha256": "c2f48955c4a377a2264b053b33fbe45a3c2c0a5f160255648c5f6d743b0cad68"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailPreload.ts",
+    "bytes": 1462,
+    "sha256": "3e794293c55c4b2dbc8b451311e45f77b7a7f20c70b9f57ae99276c3bfba30cf"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailPreload.ts.meta",
+    "bytes": 171,
+    "sha256": "776e033cef27c5cc537874d5cd44b22c2fe81cbf2850976bc558fe6b1ecf0edd"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailQaProbe.ts",
+    "bytes": 7266,
+    "sha256": "3b2f12c474699ac68529d88c2271d5e2228b8b424e9666e3ecab2f3bd4966707"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailQaProbe.ts.meta",
+    "bytes": 171,
+    "sha256": "8879237acd698599b21d0741331bf2f93959829ef8ff78f3f02623f992d30159"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailRide.ts",
+    "bytes": 17593,
+    "sha256": "01ff6fc005d8a4ff571cee49e56339f8605adedf09d1ecc3a0269c7995243bf9"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailRide.ts.meta",
+    "bytes": 171,
+    "sha256": "0ade40003a78f69c9c9362e0d22effb28f21f05deb74dadc9191a7aea7646c5a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailShot.ts",
+    "bytes": 6606,
+    "sha256": "29408bd71b96dfed1b22b7859db5058bf88791c176bd468591a5c0a42b279dd5"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailShot.ts.meta",
+    "bytes": 171,
+    "sha256": "6686da80f70af3470d6587c2f0928cf8746779b865b9f80e8e97d3fb0b3df622"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailSole.ts",
+    "bytes": 1784,
+    "sha256": "e6af7b6ebe5edd15880740e90f8dde56561e4ba1e70377fecac32ee11b06b5d3"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailSole.ts.meta",
+    "bytes": 171,
+    "sha256": "1f7737899b23b91fdc41b6dbfc404b676437d3a7ee9557268a37e2ffec9cc226"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailStars.ts",
+    "bytes": 2238,
+    "sha256": "9f62057f2a676cae1525f20b03a60cf1908b3ab1a287a026dfda3cd62a4dc6ff"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailStars.ts.meta",
+    "bytes": 171,
+    "sha256": "e65bd3162abf218d93adcd58ee41faa14649110094dabc5c0e2f07744bcbe693"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
+    "bytes": 4101,
+    "sha256": "39a44dc07fbf575d029c249a2745df24f21d403736cc254a911e2d531a068bd8"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
+    "bytes": 170,
+    "sha256": "0bf503d759a27889f3d1654b2c45e863265fdc3954b5b19795d44e0d5f54baaf"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityPennantWind.ts",
+    "bytes": 2259,
+    "sha256": "6df6f1b039b01198ba76d74ee75e1b9a2f7a5d0fb6e6c62bc201b3f046a5c629"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityPennantWind.ts.meta",
+    "bytes": 171,
+    "sha256": "c3f1010e92cf124f2d6e61094bb8b3e0eba3a8fa17c573f74ec6cee22dcacf55"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityRobotInteract.ts",
@@ -1455,6 +2580,56 @@
     "sha256": "12da100b99afc19340249f5a06566ff0797aa4369183daeae325edf7dbcbc4d9"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/TransitAudioHooks.ts",
+    "bytes": 2560,
+    "sha256": "ac692d2b0a6cee47870be1a9260e381ceec3e3985e291c3a95869929ffc2635b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransitAudioHooks.ts.meta",
+    "bytes": 171,
+    "sha256": "1f050ef898aa0de0a6290fcfbbbb288d51a534ef6c68aa7250ea7032d728d31e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransitBackdrop.ts",
+    "bytes": 7729,
+    "sha256": "bf14405eee6049624d6f3ebc67b44c6a7b781ab50bdfecbc05af3956615b790c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransitBackdrop.ts.meta",
+    "bytes": 171,
+    "sha256": "df74f825f191c1eb1d1367703ce391e8751705f0c6e9b34340c2c4079ba383da"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransitResume.ts",
+    "bytes": 2187,
+    "sha256": "07cf22b1802df5f4f26db2d7c86a8c67571193eebc29d8e1934c07617434b065"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransitResume.ts.meta",
+    "bytes": 171,
+    "sha256": "6e8198e236de3f613a0da55d7704cd7cad63f741741d205f5e44f77222850145"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
+    "bytes": 28589,
+    "sha256": "03dcd5e8f583bbdfa3f6a6dc1463b49b889c1a7622ba6d2d3e82036a1475722f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
+    "bytes": 171,
+    "sha256": "fd0ca226f7a98724caf35d1a8cb727e101573ffb40280696b8e225bc2ee97bce"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransportVehicle.ts",
+    "bytes": 5098,
+    "sha256": "61f6e7a6349772a8dbf8ede9e1129f7989afc154d1ba37bfd8a6deedb2be3c1a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/TransportVehicle.ts.meta",
+    "bytes": 171,
+    "sha256": "55a53d3f312a6091fd52819edf87942003748b22c1f724d2f19d6ff241c1dca4"
+  },
+  {
     "path": "creator-build-project/assets/scripts/regional-r05.meta",
     "bytes": 169,
     "sha256": "1d289c0e20d1167b2a633322881a7a7c0b7bd3c298ebbb5261722f3b4d1d766f"
@@ -1466,8 +2641,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.d.ts",
-    "bytes": 3321,
-    "sha256": "5c0e08fa0c0721e026e0474b8c09c110c4103d8a552eea78c99463ab3be7571b"
+    "bytes": 3328,
+    "sha256": "9f721713015d5e4abd97efec88d8637b4b154dfdb030f7268161210d57efc383"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.d.ts.meta",
@@ -1476,8 +2651,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js",
-    "bytes": 16611,
-    "sha256": "bbb3485c7bde4b21bfbab1b19af87b2de6d9673e37a7a232e26f7902211c65b7"
+    "bytes": 16618,
+    "sha256": "5206e77677c469c84b63e297c95d78acd6890ebae41962b7e2198ed40252e449"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js.meta",
@@ -1526,8 +2701,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.d.ts",
-    "bytes": 3676,
-    "sha256": "b40335f7198b5e4a4097dbd7c116195d5157490f9413d0ef5e2b4ec369273c15"
+    "bytes": 3685,
+    "sha256": "da76c7d057c97fcaa7b747c915d1616e5047c36ac68a6ab6fe092bf783f6a22f"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.d.ts.meta",
@@ -1536,8 +2711,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js",
-    "bytes": 595,
-    "sha256": "b1f044d9efbbbc1e62e4a8f135dda74bc626c526be93cd5725d928e28d1967b0"
+    "bytes": 759,
+    "sha256": "504e3c5b16c6bddf10bbf63f3c8769cedd9207c5f3a2f63ba517714d07da6358"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta",
@@ -1545,9 +2720,19 @@
     "sha256": "80bc3340240c7023ad6397c813ed6ac75ebc79cafa0cbb884268bf8116d7f740"
   },
   {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js",
+    "bytes": 4062,
+    "sha256": "84ca38e796787de8930bffb965c39d03d50d5d91644ade8e70a11177adc08896"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js.meta",
+    "bytes": 170,
+    "sha256": "fd29955f8f603a75448734df070c6edf7ecda03a024910c942cdcd96db958797"
+  },
+  {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js",
-    "bytes": 7825,
-    "sha256": "77a6228d96557a93112cfb6aa9a2611c4efe28093849a63bb3cccbf212e4cc09"
+    "bytes": 8144,
+    "sha256": "790e66c8001641a5b067db1ee1f349780f1ec3e5e906166efa8bb335b95df699"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta",
@@ -1556,8 +2741,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
-    "bytes": 11424,
-    "sha256": "3e952b79a4a6de56d1d3d9eed125ee9338854a5ba9abbb633c396cf848ccd983"
+    "bytes": 12103,
+    "sha256": "137aa01904acdc3d2ccc54f958620c96f1623c48f6f2a27f35aff43fad3f4d0a"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta",
@@ -1566,8 +2751,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
-    "bytes": 3621,
-    "sha256": "67f791a24739d9dac82f3ef7247f93c2e098d9b2e0a4bf3c6237d046b36322e5"
+    "bytes": 4143,
+    "sha256": "2653f7233a890100a1e7c7bb8ca5cfc5f5d3a44bc93a9de3b32796c55af9f3ea"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js.meta",
@@ -1625,9 +2810,19 @@
     "sha256": "450ad983833347474dc4debd757db5750c0929baa77dc072a992f560c47ad3f4"
   },
   {
+    "path": "creator-build-project/assets/scripts/render/GlobalWind.ts",
+    "bytes": 8169,
+    "sha256": "69b0ad491861a20f8c8da17b4ed1d1faafec7ebbe63b6f664d3249db26e6f790"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/GlobalWind.ts.meta",
+    "bytes": 171,
+    "sha256": "9ab82f218856e80f4f4aa8ecdcbd7f2b5db50183ce3cd09b3151dbf9b946e526"
+  },
+  {
     "path": "creator-build-project/assets/scripts/render/GullFlock.ts",
-    "bytes": 8880,
-    "sha256": "75030b5239a74d3d3bd50253fd347bd48ad6a94f3cd75a905d8c3c41302de424"
+    "bytes": 9231,
+    "sha256": "1b6646f36ab2716b20965f1271ad2a9c3d6d3a2ef8ccfe487e3c383bd771c353"
   },
   {
     "path": "creator-build-project/assets/scripts/render/GullFlock.ts.meta",
@@ -1646,8 +2841,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts",
-    "bytes": 9800,
-    "sha256": "2389a05b38efac97dec85c78a956b6b6606a99f206a78ffd4e525e5aae714061"
+    "bytes": 10398,
+    "sha256": "ccf977dd6fb3344ca21e49006fdd9ccf295d6e9342bf81b4c861d0f6446cc207"
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts.meta",
@@ -1656,8 +2851,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts",
-    "bytes": 24040,
-    "sha256": "0052b13d9a1201f2d28714c8ab1eb888ab790ff7f81209c97c9522fffed5cd8c"
+    "bytes": 24983,
+    "sha256": "097e89e5d0ce4ff133ad4ea890a04c4d725aa2d4d5def897bc893ca423ffd455"
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts.meta",
@@ -1675,9 +2870,19 @@
     "sha256": "2e1e41565bce5f704fb3a6471a7bd32fd33546aee5fb77d7615e234428998e79"
   },
   {
+    "path": "creator-build-project/assets/scripts/render/RoomShell360.ts",
+    "bytes": 7781,
+    "sha256": "67dc39831643b0df6e447b003fad52a4cd00bc45548a8c143de0937ef4e37d1f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/RoomShell360Core.ts",
+    "bytes": 16206,
+    "sha256": "8d6c4868b52707cec9bbdb431ed709c698e1375ed692894c8de0c40149c0774b"
+  },
+  {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts",
-    "bytes": 14238,
-    "sha256": "45fa6769946567f72cb41c567c7ced936d9f286422de00fea51a6236e4e2a740"
+    "bytes": 15626,
+    "sha256": "089ae9a3ecd4f1838c38db5cf67f05f2e2327bea2efb7a039c68a60df80b8e1c"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts.meta",
@@ -1686,13 +2891,33 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts",
-    "bytes": 20201,
-    "sha256": "7d3dfeb3d1aa47261b54f19e2f2b24a8188f02b6007b5e44449727952e5b58f5"
+    "bytes": 20208,
+    "sha256": "ca219bc6b15a885fa14c944adf39a0fe9c58d72cd12fac6d0112242aafa50412"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts.meta",
     "bytes": 171,
     "sha256": "300e9c9e755088c327d3a356a3ee567036dc070b6e21f079ded13aa6d2a4eafa"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/ShoreFoam.ts",
+    "bytes": 4604,
+    "sha256": "462e489d2f4d86308fb8c2e54dc09a805da9b96b6f3ef1cc1456266fda5b7fac"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/ShoreFoam.ts.meta",
+    "bytes": 171,
+    "sha256": "416571fc9f6b4a15367ad0eb87fbf742afcdf2a55ecda508b2694d0e34b6e736"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/ShoreFoamCore.ts",
+    "bytes": 16262,
+    "sha256": "d2005f5b567d4cd19715801d2aedc2de543aaf9b34a65b6a6fa4f4b6fe96392d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/ShoreFoamCore.ts.meta",
+    "bytes": 171,
+    "sha256": "ac8ebad67adcb24d53a8b9e7716725cc85b0a73d317552f31e7618376050391c"
   },
   {
     "path": "creator-build-project/assets/scripts/render/SkyNightTexture.ts",
@@ -1726,8 +2951,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts",
-    "bytes": 11723,
-    "sha256": "f02776daa5525fc500136b697d47c850c8275ae5fcb4be3f2eb56316399b172c"
+    "bytes": 11844,
+    "sha256": "38a50d115ee642a5cc88af9ac90864a6261d13731ea569088c55116b083779f2"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts.meta",
@@ -1736,8 +2961,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
-    "bytes": 6498,
-    "sha256": "014b2058f81215022ad346357ecbae36bcfff42610a0b50c07e467a5507d1a18"
+    "bytes": 10855,
+    "sha256": "5895db94f5acf9aaa6c478a8129fd10f58749b668c54ba4c12e60500dfc78a5d"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts.meta",
@@ -1746,8 +2971,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
-    "bytes": 29599,
-    "sha256": "3cbfb15cc07770ddd3c153b12022656ba9847eb06855d1998c01751597e412ac"
+    "bytes": 64359,
+    "sha256": "8be8404671d278b30a2314503dbadc771bc7ad231312108aafd1c67564311f7f"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -1776,8 +3001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts",
-    "bytes": 18106,
-    "sha256": "41e0af4efb53aa427ab13626cbc0d2a3112041440e8cb28f168129d612089ec4"
+    "bytes": 18413,
+    "sha256": "ea8f893887682488a7d0ff6e64ef3ca1355c8a4e84f4b68b4312adce0ce5c06a"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts.meta",
@@ -1785,14 +3010,34 @@
     "sha256": "f4970d12d81bca43418935f1ba0baf7a0c50118dd077ea7570933bd1e4afe3cd"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts",
+    "bytes": 3847,
+    "sha256": "966393f3c8335e82e4e4ad802bd470c2c9eeea37f908ad534efa94fd81d92800"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta",
+    "bytes": 171,
+    "sha256": "aaa19c40136ce2d401ba6c971ff86ee60fa32cb74340e592695b5c6280ef88b8"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts",
-    "bytes": 8199,
-    "sha256": "1b31747876bcf55e903ad709a12a5c6812fde81f2e37a745e0b62fd09b85400a"
+    "bytes": 9066,
+    "sha256": "db9dc7f829057140f441f5b678020505052ece14ce97ccc521b92dd68a398896"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts.meta",
     "bytes": 171,
     "sha256": "e223957e3b5e494aaf6493524a39c4d507d7cd9b15f8f76b50fe14b52dc3b33a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/IslandToast.ts",
+    "bytes": 3081,
+    "sha256": "c4b8c1fb451635990c46e3844b7e34d70d185c66c7b462051554726ddf2a971a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/IslandToast.ts.meta",
+    "bytes": 171,
+    "sha256": "2d329fb3ee4a66873ce0240d303a0f9db3214f0770f47cff7fca50da881d18ad"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/JourneyNavigationSkin.ts",
@@ -1815,9 +3060,19 @@
     "sha256": "adfaf6afdb2521fc392ec5dcef488ff732d7cda484c477e5d841ad6465b0b28d"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/NodeMarkers.ts",
+    "bytes": 5474,
+    "sha256": "2c8d9ccfef75984ee72110b4c0714b968f85383d1aea50ba7047ae8964cb2ff3"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/NodeMarkers.ts.meta",
+    "bytes": 171,
+    "sha256": "979d24a370d5fdd83f359adc1f659eb4dcea1f7b9ae01f3facbefde16cd56ede"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
-    "bytes": 29524,
-    "sha256": "773ac3695876be1cc88a3ebe64feaad14bac30c40c2c44b08119d630bd10bd7d"
+    "bytes": 29727,
+    "sha256": "28ba1286b999ab4f56ff3b284682f72a2fd6064710c0402dea81304dc944585e"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",
@@ -1881,8 +3136,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/CameraPose.ts",
-    "bytes": 21083,
-    "sha256": "ab562f57013c7b20aa6bfa126cc2db8a07bb81720501ef119f3cdebaddaccf85"
+    "bytes": 21191,
+    "sha256": "24f189cb71207fdb8a895fc0a0db026b09c6b818c23b6b27c6ab9773a4cbe3f3"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/CameraPose.ts.meta",
@@ -1901,8 +3156,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/DayNightContract.ts",
-    "bytes": 1675,
-    "sha256": "9d36bc100ce17a2a66d2ea56b04c8bf73886daf5eef12da1d350fd95412d5ac8"
+    "bytes": 2372,
+    "sha256": "b88c9161e0a1fd144c9ab98f24b65a50072340a1a20705ef12a7761c5708ef07"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/DayNightContract.ts.meta",
@@ -1921,13 +3176,23 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
-    "bytes": 41770,
-    "sha256": "cf8ba48924289cfd92907c1dcd3d2991b1a008a118183772a8b6f0022574b2d1"
+    "bytes": 54274,
+    "sha256": "5a4c547cf0f1736bb36cab4b141f55cb3ae1b5c781be014ca79fbc2a88cde255"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts.meta",
     "bytes": 171,
     "sha256": "ad2e52c531d7fe7ae9d2932df3c2a898feebe6e31b80dba1af22372fc729a724"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/GlassSign.ts",
+    "bytes": 14880,
+    "sha256": "0b2d032927360d6e3bbdb70b23289699e47a3673e1e31c377badaab95ba8a995"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/GlassSign.ts.meta",
+    "bytes": 171,
+    "sha256": "8851843714b069d182067ac383356d0c675c6c8f4c9b2c452ef141dccf429ae5"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/IslandRail.ts",
@@ -1951,13 +3216,23 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts",
-    "bytes": 24506,
-    "sha256": "2d47afb032988f9beb9247f700a50d19137a70b4e4c711cc2763bf3f075009b1"
+    "bytes": 25790,
+    "sha256": "cf00b61a8594b3547ea98e37b8858cae2a27d25c7de885328ec1fc141b56bcb2"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts.meta",
     "bytes": 171,
     "sha256": "ec34111a3b8b10f4c0cdc471ed3931eeb6121429ae43d58914ab9ab8d65cf1c5"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
+    "bytes": 32845,
+    "sha256": "edf0237eb42b6faddc2b4dec6dcdda102b1d905225b66a325f5707c618a1aaee"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
+    "bytes": 170,
+    "sha256": "593d5fba49ffdcb5d577bd1f375da1ba272df90bd22833d01368d3070599e976"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RoomLook.ts",
@@ -1970,9 +3245,29 @@
     "sha256": "53d7bcd9d90d996d9b27cfdfcec3ba526fa0413dd5993025845a8f651e6968d7"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r1/ScreenCover.ts",
+    "bytes": 700,
+    "sha256": "a7c87a2d6733cdf0db587075d340cfb4ac36d598566b4eee6c71eec8eeb181f7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/ScreenCover.ts.meta",
+    "bytes": 171,
+    "sha256": "299e91d0152195d38b0f729d3e5d5581ae4cce89e302a927ab542c95442c2647"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/SkyFollowCore.ts",
+    "bytes": 4180,
+    "sha256": "b40696f3221a1e6544fc7446963dd717baf0e2240934f15581a0159e0a49274e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/SkyFollowCore.ts.meta",
+    "bytes": 171,
+    "sha256": "2efab46b8b348d80c88ec51de8c0180b180d6ca92d8e599676696e0bc37a263a"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 53887,
-    "sha256": "660c956e643698847fdc2edae714a05682156197518f97e5afb31c7dca553db6"
+    "bytes": 68109,
+    "sha256": "b8a464fd84206a772519e42e3a0998743a72338b71d0ef9960c0819dcf85d05b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -1981,8 +3276,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 54286,
-    "sha256": "aac4cc7ac2e9298c6256e64feabf14b08b454ce62c9d831c6dacf2fe64f1c11e"
+    "bytes": 62824,
+    "sha256": "34689c5fc3accdd324b7ee87ca3b33c58e663b7ae49d0ba62c9a0e8afc1fb4dd"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -2015,9 +3310,49 @@
     "sha256": "6afd89112735e7a686893a50705fb827ee8feca580dd03cedf08b01939988ef2"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts",
+    "bytes": 6014,
+    "sha256": "f0ff72f662462608a21291915a576e9f3708dba2d2961437648b6b4582425c68"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts.meta",
+    "bytes": 171,
+    "sha256": "8bfd66ffa5621098333d51a69cb2a901a5a0e01337e1c397ef619b47cd5d415b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts",
+    "bytes": 2043,
+    "sha256": "37c1293193ecdb0584961d54ab7ca315c295288b8b18e4f521df2381017d8ed4"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts.meta",
+    "bytes": 171,
+    "sha256": "edcf1066646f63160c770d033fb6b85f15b2e9babdb9c3d700b07c747d648ce1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/ForegroundClock.ts",
+    "bytes": 1324,
+    "sha256": "60f9833c1977f7d7bd6c8dded998e922ceae3cc71de01708810bcacd81b6c32b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/ForegroundClock.ts.meta",
+    "bytes": 171,
+    "sha256": "b4ffed2059c6b819487c3aa3cfd728d7e38accf4e90ada905eff5e07e2c8b6c5"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/HomeTransition.ts",
+    "bytes": 2564,
+    "sha256": "0eddfad6fb83fecc85c32a719b2dc962c1ad68df80a8c906002a465faa66a182"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/HomeTransition.ts.meta",
+    "bytes": 171,
+    "sha256": "9587d8a5c92ddc3baed860fe08b210b549a211335b9db9dd14af62fba528b2ba"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts",
-    "bytes": 5034,
-    "sha256": "f25e803d21fb0ad268fa180233e2e0595bb95e4ed5dc41ef31dd1423da1f0cec"
+    "bytes": 5053,
+    "sha256": "ad326f8b38d2355583429884ea8fcd3ce912f10c87a76aa20d854a00e85a41bb"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts.meta",
@@ -2026,8 +3361,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
-    "bytes": 8998,
-    "sha256": "8be97a0e3794cbcf90223db42ef2e4c05e5263e6efc1d6d98c8774c99068ab2e"
+    "bytes": 9282,
+    "sha256": "3b42e3e609f5808506e1afef35ec0d4ed568761003b6f8e58290996b9a157c1c"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta",
@@ -2036,8 +3371,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
-    "bytes": 9871,
-    "sha256": "df38095600e3ed4a9a9e6688dc25c7ac6a21d78a4fee6255270b1711f51a8ca1"
+    "bytes": 10114,
+    "sha256": "065e587877ff954aafb794de54540944042f991b95346faa0981e99a3609041e"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
@@ -2056,8 +3391,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts",
-    "bytes": 26348,
-    "sha256": "a169f3a6dbacdf854d98bb360ed314b2ad63ac2dcb967f63124c22ec97d1b43b"
+    "bytes": 25766,
+    "sha256": "c4a1775178eb31c29c6be88d53fa2fd4e262caefe5f2466ef195454c34b8a8b2"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts.meta",
@@ -2066,8 +3401,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
-    "bytes": 23914,
-    "sha256": "25f414a05437bd20b30112f849878cd51741a144712f2e3362024b0ce79f0e63"
+    "bytes": 24294,
+    "sha256": "0fcc7b0eef868437d0780fbd4a10c6553b950a80e3031131dc942dc9fdba9bc6"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",
@@ -2096,13 +3431,23 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelBackground.ts",
-    "bytes": 3875,
-    "sha256": "0414a8ce08482ef3782b81244206e953397a457fb34834d70a79f7d67d68aa20"
+    "bytes": 4276,
+    "sha256": "73bd178283b5515efdd0d771bdc6ac0fdc9377526a0af532e1e05ea49648d578"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelBackground.ts.meta",
     "bytes": 171,
     "sha256": "f4752381c14ca24db2c5ee4fcc076ea0ff27e8ea5dcce3a1f7fcacbc02cc9868"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts",
+    "bytes": 910,
+    "sha256": "a13ace3c4948b7a5e535f6c55458b52c694120ffb41024d72c225b4c9ec2ac2f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts.meta",
+    "bytes": 171,
+    "sha256": "c15198d900266b1e99b69deb3f99b7d67304c0da55e4129602e22f6e59e795dc"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/MainlineHost.ts",
@@ -2146,8 +3491,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 6220,
-    "sha256": "a8fc98928a772ed6c368e3ebb4e8ed5ffab963b90143507f091234362ea352cc"
+    "bytes": 6660,
+    "sha256": "683827359214fc29effbf1938e82f84e154ef0cdb6fc060d96dbdf2e01390604"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
@@ -2185,14 +3530,54 @@
     "sha256": "a950bf1ca94f30e274beb2905385691ea922f76f2bc1abef3dfb66a4a3874159"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts",
+    "bytes": 2740,
+    "sha256": "2d857d4c46dde6cb1155b7f6137419f9e7c8aac40510f6c9ca1066785dc48fe8"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts.meta",
+    "bytes": 171,
+    "sha256": "b3c14affbab0a531649641d81b35ba5b130501427d400d64e411ff98b5b23b00"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowWitnesses.ts",
+    "bytes": 3837,
+    "sha256": "b5bb177c26e7406811b0a1f95f27e72e9493805f1bda2be6fef9a10d40261e0e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/RegionFlowWitnesses.ts.meta",
+    "bytes": 171,
+    "sha256": "415d088ffd7e25869905e431d0e577244edbf63a162ec88439fdd3c6633d0f40"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
+    "bytes": 33354,
+    "sha256": "2e50763101f77de474759733752dd8de4e0f51d8626722233651fe1dc53bb51d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
+    "bytes": 171,
+    "sha256": "c4d215ebbcda4a07a672afc62e5f551804a27f04e6b4bd173757339d5cad1881"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts",
-    "bytes": 3647,
-    "sha256": "3f09fddbc65b9f76e8be638e87cf2f820af451712557031e5bd1ab2b25f85480"
+    "bytes": 3692,
+    "sha256": "2ad2604d96b7440553f6f271198abb30b1ba5c89f465bde01cc65128cbdbdad5"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts.meta",
     "bytes": 171,
     "sha256": "5e169f368ad9f5cdcdd75bef1385a210399e1542d6073423c45da51ff2e7443f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/SeaNightTint.ts",
+    "bytes": 6403,
+    "sha256": "b7071a548e8d31fac47a01503bdee1e102428ff308d013615f4a1a40b6fc9cdd"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/SeaNightTint.ts.meta",
+    "bytes": 171,
+    "sha256": "3b72c18c101fe2d71ef95df0ae5bb7f155b587c6e681a3a5714f9c030606dabf"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/StartupReadyGate.ts",
@@ -2206,8 +3591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 12469,
-    "sha256": "8d309347756bafb20c3a408e3a02b3d98e675d3e40026a10b67e80e8dabf3e70"
+    "bytes": 32152,
+    "sha256": "ca5fbbf701c33408e9704a644c3e879e046c97c9718873fd6022e96d59b0483b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -2216,8 +3601,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts",
-    "bytes": 935,
-    "sha256": "1b5c90702c0650de8192c70c980e4d6b159f08435fb908c4182295d171547011"
+    "bytes": 1592,
+    "sha256": "085fbff833aec1de5b14f24e782749960db69c6c658c3815f98ff8bee67c4169"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts.meta",
@@ -2241,8 +3626,8 @@
   },
   {
     "path": "creator-build-project/settings/v2/packages/builder.json",
-    "bytes": 1492,
-    "sha256": "7be71478fe3659f20ac7307015c376a7af95a8a08751d2f3dfcf97ef5432ba35"
+    "bytes": 1517,
+    "sha256": "88583a9c05a09a4a5e0dc0cba3efe49e0731fa4c24cf557500a42ee635cc2ba1"
   },
   {
     "path": "creator-build-project/settings/v2/packages/device.json",
@@ -2251,13 +3636,13 @@
   },
   {
     "path": "creator-build-project/settings/v2/packages/engine.json",
-    "bytes": 4971,
-    "sha256": "cf1b83aa9b9b85283dec57a68c8abe863d0f309f41ec3260806b0ce03137be53"
+    "bytes": 4991,
+    "sha256": "fdda6721797a1cbc17aacfb4dbd21f00f7c84bce3a9528c22863cbf65ecd27fd"
   },
   {
     "path": "creator-build-project/settings/v2/packages/information.json",
-    "bytes": 587,
-    "sha256": "c82d0545c48e596aeee66e414786a8626f2bcbb40ab69b6c019ab3ab670aaf83"
+    "bytes": 586,
+    "sha256": "a38b4b0741e8f9187d2b886816fa76c4e6f2ba666025de2ed5d4b85c86e7a5fa"
   },
   {
     "path": "creator-build-project/settings/v2/packages/program.json",
@@ -2441,8 +3826,8 @@
   },
   {
     "path": "tools/test_character_action_clock.cjs",
-    "bytes": 6074,
-    "sha256": "23c6b8b01d21d5b31c6c5fc0416abe3c0db332762e7c08681f074c064819b00f"
+    "bytes": 11656,
+    "sha256": "f9e4b2f44dd52c0698b2eb61fc1da08ebe4a36b15fc8e57e49ea365c25348761"
   },
   {
     "path": "tools/test_character_interim_display.cjs",
@@ -2556,8 +3941,8 @@
   },
   {
     "path": "tools/test_startup_ready_gate.cjs",
-    "bytes": 14705,
-    "sha256": "aad3ed07d09bdd7d8f302c384012198fc351108728a07cdb10923e91e28d3c14"
+    "bytes": 18153,
+    "sha256": "5ae24664b7f435d01a4b3850727b3786a14f5bc18a6c94376a1c2110e2aafb58"
   },
   {
     "path": "tools/test_ui_contrast.cjs",
