@@ -9,30 +9,33 @@ import { requiresLakesideScene, requiresMeadowScene, requiresSkycityScene } from
 /** 区域过渡时 BGM 等功率交叉的时长（1.5–2.5 s 这一档的中间值）。进房第一次起播仍用 GameAudio.ROOM_FADE_IN_S。 */
 export const SCENE_AUDIO_CROSSFADE_S = 2;
 
-export type SceneTrackId = 'island' | 'meadow' | 'skycity';
+export type SceneTrackId = 'island' | 'meadow' | 'skycity' | 'sail' | 'lakeside';
 export type AmbientLayerId = 'wind' | 'waves' | 'gulls' | 'birds' | 'insects' | 'highWind' | 'lake';
 export type ScenePlace = 'home' | 'island' | 'sail' | 'meadow' | 'lakeside' | 'balloon' | 'skycity' | 'hold';
 
 export type BgmRef = { path: string; bundle: string | null };
-/** 正式 BGM。湖畔 / 帆船没有自己的曲子，不在这里占一个假路径。 */
+/** 正式 BGM。帆船和湖畔用已交付的候选文件，和草原 / 天空之城不是同一首。 */
 export const BGM: Record<SceneTrackId, BgmRef> = {
   island: { path: 'audio/bgm_main', bundle: 'audio_bgm_island' },
   meadow: { path: 'audio/bgm_meadow', bundle: 'region_meadow' },
   skycity: { path: 'audio/bgm_skycity', bundle: 'region_skycity' },
+  sail: { path: 'audio_amb/bgm_sail', bundle: 'transport_sail' },
+  lakeside: { path: 'audio/bgm_lakeside', bundle: 'region_lakeside' },
 };
 
-/** 已有环境音层对应的资源（bundle 空 = resources）。鸟鸣 / 虫鸣 / 高空风没有条目。 */
+/** 已有环境音层对应的资源（bundle 空 = resources）。草原风不在这里单开：WindAudio 的 wind 层一开就会按离岛曲线响。 */
 export const LAYER_ASSETS: { [id: string]: { path: string; bundle: string | null } } = {
   waves: { path: 'audio_amb/amb_waves_loop', bundle: null },
   wind: { path: 'audio_amb/amb_wind_soft_loop', bundle: null },
   windStrong: { path: 'audio_amb/amb_wind_strong_loop', bundle: null },
   gulls: { path: 'audio_sfx/sfx_amb_gull_1', bundle: null },
   lake: { path: 'audio/amb_lake_loop', bundle: 'region_lakeside' },
+  birds: { path: 'audio/amb_meadow_birds_loop', bundle: 'region_meadow' },
+  insects: { path: 'audio/amb_meadow_insects_loop', bundle: 'region_meadow' },
+  highWind: { path: 'audio/amb_sky_air_loop', bundle: 'region_skycity' },
 };
 
-/** Voice bot V2：已经交付、但还没接线的 BGM 候选（原创，48 kbps 立体声，响度和上面三首对齐，首尾相接的循环）。
- *  接线要改 SceneTrackId + SceneMusic.SCENE_TRACKS（播放器代码，留给 Cursor），再把 sail / lakeside 档的 track 指过来。
- *  sail：C 大调 6/8，在小岛 F 大调和草原 G 大调之间（C 是 F 的属调、G 的下属调），35.56 s。lakeside：F 大调 72 BPM 钢琴 + 竖琴，66.67 s，和湖声风铃的 C 五声不冲突。 */
+/** 帆船 / 湖畔 BGM 的循环和调性（已接进 BGM）。sail：C 大调 6/8，35.56 s。lakeside：F 大调 72 BPM，66.67 s。 */
 export const BGM_CANDIDATES: { [id: string]: BgmRef & { loopS: number; key: string } } = {
   sail: { path: 'audio_amb/bgm_sail', bundle: 'transport_sail', loopS: 35.5556, key: 'C major 6/8, dotted-quarter 54' },
   lakeside: { path: 'audio/bgm_lakeside', bundle: 'region_lakeside', loopS: 66.6667, key: 'F major 4/4, 72 BPM' },
@@ -181,15 +184,15 @@ export const SCENE_PROFILES: { [id: string]: SceneProfile } = {
   home: { place: 'home', track: 'island', layers: [], missing: ['birds', 'insects'] },
   // 小岛 / 出海前的岸上：小岛曲 + 风、海浪、海鸥。
   island: { place: 'island', track: 'island', layers: SEA, missing: ['birds', 'insects'] },
-  // 小岛 → 草原的帆船。没有海上专用 BGM，过渡一开始就交叉到草原曲；人还在海上，海鸥和海浪先留着。
-  sail: { place: 'sail', track: 'meadow', layers: SEA, missing: ['sail-bgm', 'birds', 'insects'] },
-  // 草原。海鸥必须停。没有草原风床 / 鸟鸣 / 虫鸣。
-  meadow: { place: 'meadow', track: 'meadow', layers: [], missing: ['birds', 'insects', 'meadow-wind'] },
-  // 湖畔（方案 B：天空之城之后，坐热气球下降过去，见 TRAVEL_ROUTES）。湖畔 BGM 候选在 BGM_CANDIDATES，还没接线，暂时继续小岛曲。海浪让给湖水循环，海鸥停。
-  lakeside: { place: 'lakeside', track: 'island', layers: ['lake'], missing: ['lakeside-bgm', 'birds', 'insects', 'highWind'] },
-  // 草原 → 天空之城的热气球。曲子交叉到天空之城。没有高空风素材。
-  balloon: { place: 'balloon', track: 'skycity', layers: [], missing: ['highWind', 'birds', 'insects'] },
-  skycity: { place: 'skycity', track: 'skycity', layers: [], missing: ['highWind', 'birds', 'insects'] },
+  // 小岛 → 草原的帆船。海上用帆船曲；海鸥和海浪只留在这一段。靠岸再换草原曲。
+  sail: { place: 'sail', track: 'sail', layers: SEA, missing: [] },
+  // 草原。海鸥必须停。鸟鸣和虫鸣开，不把离岛的 wind 层打开（那条曲线不是草原微风）。
+  meadow: { place: 'meadow', track: 'meadow', layers: ['birds', 'insects'], missing: [] },
+  // 湖畔（方案 B：天空之城之后坐热气球下降，见 TRAVEL_ROUTES）。自己的曲子，只有湖声。
+  lakeside: { place: 'lakeside', track: 'lakeside', layers: ['lake'], missing: [] },
+  // 热气球（草原 → 天空之城，以及天空之城 → 湖畔）。曲子用天空之城，环境是高空风。
+  balloon: { place: 'balloon', track: 'skycity', layers: ['highWind'], missing: [] },
+  skycity: { place: 'skycity', track: 'skycity', layers: ['highWind'], missing: [] },
   hold: { place: 'hold', track: null, layers: [], missing: [] },
 };
 
@@ -225,26 +228,35 @@ export function publishSceneBed(p: SceneProfile): SceneBed {
 function boardProfile(p: SceneAudioProbe): SceneProfile {
   const sel = { provider: p.boardProvider || '', stageId: p.boardStageId || '' };
   if (requiresMeadowScene(sel) || p.boardRegion === 'meadow') return SCENE_PROFILES.meadow;
-  if (requiresSkycityScene(sel) || p.boardRegion === 'sky') return SCENE_PROFILES.skycity;
-  if (requiresLakesideScene(sel) || p.boardRegion === 'lake') return SCENE_PROFILES.lakeside;
+  if (requiresSkycityScene(sel) || p.boardRegion === 'sky' || p.boardRegion === 'skycity') return SCENE_PROFILES.skycity;
+  if (requiresLakesideScene(sel) || p.boardRegion === 'lake' || p.boardRegion === 'lakeside') return SCENE_PROFILES.lakeside;
   return SCENE_PROFILES.island;
 }
 
 function previewJourney(region: string | null | undefined): SceneProfile | null {
   if (region === 'meadow') return SCENE_PROFILES.meadow;
-  if (region === 'skycity') return SCENE_PROFILES.skycity;
-  if (region === 'lakeside') return SCENE_PROFILES.lakeside;
+  if (region === 'skycity' || region === 'sky') return SCENE_PROFILES.skycity;
+  if (region === 'lakeside' || region === 'lake') return SCENE_PROFILES.lakeside;
+  return null;
+}
+
+function regionProfile(region: string | null | undefined): SceneProfile | null {
+  if (region === 'meadow') return SCENE_PROFILES.meadow;
+  if (region === 'skycity' || region === 'sky') return SCENE_PROFILES.skycity;
+  if (region === 'lakeside' || region === 'lake') return SCENE_PROFILES.lakeside;
+  if (region === 'island' || region === 'tide') return SCENE_PROFILES.island;
   return null;
 }
 
 function travelProfile(p: SceneAudioProbe): SceneProfile {
   const target = p.journeyTarget || '';
   const phase = p.journeyPhase || '';
-  if (target === 'skycity') return SCENE_PROFILES.balloon;
-  // 方案 B 后，到达前应该是 balloon（从天空之城下降，见 TRAVEL_ROUTES.lakeside）。这是逻辑代码，留给 Cursor 改，测试要一起改。
-  if (target === 'lakeside') return phase === 'arrival' ? SCENE_PROFILES.lakeside : SCENE_PROFILES.island;
-  if (target === 'meadow') return phase === 'arrival' ? SCENE_PROFILES.meadow : SCENE_PROFILES.sail;
-  return SCENE_PROFILES.island;
+  const there = phase === 'arrival' || phase === 'arrived';
+  // 帆船 / 热气球的 ride() 全程 phase 停在 ready，到达那一拍才把 target 清掉、phase 改成 arrived。
+  if (target === 'skycity' || target === 'sky') return there ? SCENE_PROFILES.skycity : SCENE_PROFILES.balloon;
+  if (target === 'lakeside' || target === 'lake') return there ? SCENE_PROFILES.lakeside : SCENE_PROFILES.balloon;
+  if (target === 'meadow') return there ? SCENE_PROFILES.meadow : SCENE_PROFILES.sail;
+  return regionProfile(p.journeyRegion) || SCENE_PROFILES.island;
 }
 
 function placeOfStable(stable: string): SceneProfile | null {
@@ -283,4 +295,87 @@ export function resolveSceneAudio(p: SceneAudioProbe): SceneProfile {
   if (stable === 'meadow') return SCENE_PROFILES.meadow;
   if (stable === 'lakeside') return SCENE_PROFILES.lakeside;
   return SCENE_PROFILES.island;
+}
+
+function placeRank(place: string): number {
+  if (place === 'island') return 1;
+  if (place === 'sail') return 2;
+  if (place === 'meadow') return 3;
+  if (place === 'balloon') return 4;
+  if (place === 'skycity') return 5;
+  if (place === 'lakeside') return 6;
+  return 0;
+}
+
+/** Cue name wins over a stale region string. Sail beats are all stamped meadow; balloon beats are stamped meadow-skycity. */
+export function transitPlace(cue: string, region: string): string | null {
+  if (cue === 'sail-dock') return 'meadow';
+  if (cue === 'sail-board' || cue === 'sail-unfurl' || cue === 'sail-cruise-loop-start' || cue === 'sail-cruise-loop-stop') return 'sail';
+  if (cue === 'node-walk-start' && (region === 'meadow' || region === 'sail')) return 'sail';
+  if (region === 'meadow-skycity') {
+    if (cue === 'sky-city-enable' || cue === 'sky-islets-enable' || cue === 'balloon-cloud-exit' || cue === 'balloon-land') return 'skycity';
+    if (cue === 'meadow-unload' || cue === 'far-meadow-card-on') return 'meadow';
+    return 'balloon';
+  }
+  if (cue === 'balloon-land' || cue === 'sky-city-enable' || cue === 'sky-islets-enable' || cue === 'balloon-cloud-exit') return 'skycity';
+  if (cue === 'balloon-liftoff' || cue === 'balloon-burner' || cue === 'balloon-cloud-enter') return 'balloon';
+  if (region === 'skycity' || region === 'sky') return 'skycity';
+  if (region === 'lakeside' || region === 'lake') return 'lakeside';
+  if (region === 'balloon') return 'balloon';
+  if (region === 'sail' || region === 'sea') return 'sail';
+  if (region === 'meadow') return 'meadow';
+  if (region === 'island' || region === 'tide') return 'island';
+  return null;
+}
+
+function probeForPlace(place: string, probe: SceneAudioProbe): SceneAudioProbe {
+  const next: SceneAudioProbe = {
+    state: probe.state, stable: probe.stable, boardPresent: probe.boardPresent, boardProvider: probe.boardProvider,
+    boardRegion: probe.boardRegion, boardStageId: probe.boardStageId,
+    journeyTarget: probe.journeyTarget, journeyPhase: probe.journeyPhase, journeyRegion: probe.journeyRegion,
+  };
+  if (place === 'sail') { next.state = 'region-travel'; next.journeyTarget = 'meadow'; next.journeyPhase = 'bridge'; next.journeyRegion = 'island'; return next; }
+  if (place === 'balloon') {
+    next.state = 'region-travel';
+    const keepLake = probe.journeyTarget === 'lakeside' || probe.journeyTarget === 'lake' || probe.journeyRegion === 'lakeside' || probe.journeyRegion === 'lake';
+    next.journeyTarget = keepLake ? 'lakeside' : 'skycity';
+    next.journeyPhase = 'bridge';
+    return next;
+  }
+  if (place === 'meadow') { next.state = 'meadow'; next.stable = 'meadow'; next.journeyTarget = null; next.journeyPhase = 'arrived'; next.journeyRegion = 'meadow'; return next; }
+  if (place === 'skycity') { next.state = 'skycity'; next.stable = 'skycity'; next.journeyTarget = null; next.journeyPhase = 'arrived'; next.journeyRegion = 'skycity'; return next; }
+  if (place === 'lakeside') { next.state = 'lakeside'; next.stable = 'lakeside'; next.journeyTarget = null; next.journeyPhase = 'arrived'; next.journeyRegion = 'lakeside'; return next; }
+  if (place === 'island') { next.state = 'island'; next.stable = 'island'; next.journeyTarget = null; next.journeyPhase = 'arrived'; next.journeyRegion = 'island'; return next; }
+  return probe;
+}
+
+/**
+ * Latest transit cue (globalThis.__sceneTransitCue). Only moves the bed forward:
+ * island may enter the sail, the meadow may enter the balloon, the sky city may descend.
+ * A late sail cue cannot pull the sky city back to the seagulls.
+ */
+export function applyTransitCue(probe: SceneAudioProbe, cue: { cue?: string; region?: string } | null | undefined): SceneAudioProbe {
+  if (!cue || !cue.cue) return probe;
+  const state = probe.state || '';
+  if (state === 'home' || state === 'level' || state === 'level-loading' || state === 'paused' || state === 'skycity-loading' || state === 'region-loading' || state === 'error' || state === 'disposed') return probe;
+  const next = transitPlace(cue.cue, cue.region || '');
+  if (!next) return probe;
+  if (placeRank(next) <= placeRank(resolveSceneAudio(probe).place)) return probe;
+  if (state === 'region-travel') {
+    const target = probe.journeyTarget || '';
+    if (target === 'meadow' && next !== 'sail' && next !== 'meadow') return probe;
+    if ((target === 'skycity' || target === 'sky') && next !== 'balloon' && next !== 'skycity') return probe;
+    if ((target === 'lakeside' || target === 'lake') && next !== 'balloon' && next !== 'lakeside') return probe;
+    if (!target) {
+      const region = probe.journeyRegion || '';
+      if (region === 'meadow' && next !== 'meadow' && next !== 'sail') return probe;
+      if ((region === 'skycity' || region === 'sky') && next !== 'skycity' && next !== 'balloon') return probe;
+      if ((region === 'lakeside' || region === 'lake') && next !== 'lakeside' && next !== 'balloon') return probe;
+    }
+    return probeForPlace(next, probe);
+  }
+  if (state === 'island' && (next === 'sail' || next === 'meadow')) return probeForPlace(next, probe);
+  if (state === 'meadow' && (next === 'balloon' || next === 'skycity')) return probeForPlace(next, probe);
+  if (state === 'skycity' && (next === 'balloon' || next === 'lakeside')) return probeForPlace(next, probe);
+  return probe;
 }

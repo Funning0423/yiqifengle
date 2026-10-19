@@ -151,14 +151,14 @@ await test('Boot wiring: FootstepAudio fed every world state next to GameAudio, 
   const cp=require('node:child_process').spawnSync(process.execPath,['tools/legacy-test-repair/controller-integrity.cjs'],{encoding:'utf8'});assert.equal(cp.status,0,cp.stdout+cp.stderr);
   const g=fs.readFileSync(AUD+'/GameAudio.ts','utf8');assert(!/from '\.\/Footstep/.test(g),'GameAudio does not import the footstep modules');
 });
-await test('assets: 20 mono 44.1 kHz mp3 one-shots (<= 2 KB each, <= 32 KB total) + metas; exit track has no baked steps',()=>{
-  const dir='creator-build-project/assets/bundles/region_island/audio_steps';const files=fs.readdirSync(dir).filter(f=>f.endsWith('.mp3')).sort();assert.equal(files.length,20);
+await test('assets: 24 mono 44.1 kHz mp3 one-shots (original surfaces <= 2 KB, sand <= 3 KB, <= 40 KB total) + metas; exit track has no baked steps',()=>{
+  const dir='creator-build-project/assets/bundles/region_island/audio_steps';const files=fs.readdirSync(dir).filter(f=>f.endsWith('.mp3')).sort();assert.equal(files.length,24);
   let total=0;const uuids=new Set();
-  for(const f of files){const bytes=fs.readFileSync(path.join(dir,f));total+=bytes.length;assert(bytes.length<=2048,f+' '+bytes.length);
+  for(const f of files){const bytes=fs.readFileSync(path.join(dir,f));total+=bytes.length;assert(bytes.length<=(/sand/.test(f)?3072:2048),f+' '+bytes.length);
     let i=bytes[0]===0x49&&bytes[1]===0x44&&bytes[2]===0x33?10+((bytes[6]&127)<<21|(bytes[7]&127)<<14|(bytes[8]&127)<<7|(bytes[9]&127)):0;while(i<bytes.length-1&&!(bytes[i]===0xff&&(bytes[i+1]&0xe0)===0xe0))i++;
     assert.equal((bytes[i+1]>>3)&3,3,'MPEG-1');assert.equal((bytes[i+2]>>2)&3,0,'44.1 kHz');assert.equal((bytes[i+3]>>6)&3,3,'mono');
     const m=JSON.parse(fs.readFileSync(path.join(dir,f+'.meta'),'utf8'));assert.equal(m.importer,'audio-clip');assert.deepEqual(m.files,['.json','.mp3']);uuids.add(m.uuid);}
-  assert.equal(uuids.size,20);assert(total<=32768,'total '+total);assert.equal(JSON.parse(fs.readFileSync(dir+'.meta','utf8')).importer,'directory');
+  assert.equal(uuids.size,24);assert(total<=40960,'total '+total);assert.equal(JSON.parse(fs.readFileSync(dir+'.meta','utf8')).importer,'directory');
   for(const f of ['FootstepCore.ts','FootstepData.ts','FootstepAudio.ts'])assert.equal(JSON.parse(fs.readFileSync(AUD+'/'+f+'.meta','utf8')).importer,'typescript');
   const ex=fs.readFileSync('creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3');
   // tools/exit-footsteps/synth_exit.py (default = no steps; --with-steps reproduces the A1 file byte for byte)
