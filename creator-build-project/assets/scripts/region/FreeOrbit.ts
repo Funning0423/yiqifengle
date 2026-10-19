@@ -22,7 +22,16 @@ export type OrbitBox = Readonly<{ min: Vec3; max: Vec3; name?: string }>;
  * lags the input and the blend never turns it; only a cinematic return turns it with
  * the capped angular follower (drag is ignored while returning), and the first drag inherits the authored view.
  */
-export type RoomLook = Readonly<{ center: Vec3; blendFromM: number; blendFullM: number; pivotOffset?: Vec3; viewTiltDeg?: number }>;
+/* r7 framing: in the orbit-her zone the view aims from the static goal lens at her body centre (pivot + frameOffset),
+ * fading to the room view as w goes aimFadeFromW → aimFadeW: still a pure function of the input (no lag), and it frames her even where the
+ * lens height is clamped (low pitch) or the blend has moved the lens off the orbit axis. framePts (relative to the pivot:
+ * her seated body's extremes) re-centre that aim on her projected extent (smooth max/min, so it never kinks).
+ * lensMaxY: soft ceiling for the lens (keeps it out from under the hanging props' clearance, where clearPose would pull
+ * the arm short). pivotShift: around yawDeg ± halfDeg (smooth cosine window) the orbit pivot moves by `offset`, so a
+ * wall-limited arm (yaw ~300-315, the west wall) runs longer and frames her whole body; the framing still aims at her. */
+/** r10 (docs/r5/room-orbit/R10_SPEC.md): one yaw weight, analytic wall envelope, pure pose. blendFromM / aim fades stay on the type and are unused on this path. */
+export type RoomR10 = Readonly<{ edgeA: number; edgeB: number; bandDeg: number; satDeg: number; envK: number; gazeM: number }>;
+export type RoomLook = Readonly<{ center: Vec3; blendFromM: number; blendFullM: number; pivotOffset?: Vec3; viewTiltDeg?: number; frameOffset?: Vec3; aimFadeW?: number; aimFadeFromW?: number; framePts?: readonly Vec3[]; lensMaxY?: number; pivotShift?: Readonly<{ yawDeg: number; halfDeg: number; offset: Vec3 }>; lensCentreOffset?: Vec3; armGrowZM?: number; viewDownMinDeg?: number; viewDownMaxDeg?: number; viewDownSoftDeg?: number; centreFadeW?: number; r10?: RoomR10 }>;
 export type OrbitLimits = Readonly<{
   pitchMinDeg: number;
   pitchMaxDeg: number;
@@ -43,7 +52,7 @@ export type OrbitLimits = Readonly<{
 
 /** Pitch is the camera's elevation above her chest. Distance is metres from that point. */
 export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.freeze({
-  home: { pitchMinDeg: -14, pitchMaxDeg: 26, distMin: 1.25, distMax: 3.35, yawHalfDeg: Infinity, lookM: 1.05, fovDeg: 60,
+  home: { pitchMinDeg: -14, pitchMaxDeg: 26, distMin: 1.9, distMax: 3.35, yawHalfDeg: Infinity, lookM: 1.05, fovDeg: 60,
     // 运镜bot r5 (docs/r5/room-keepinside/RESULT.md): measured from the room's inner walls (round shell, inradius 2.31 m about
     // x 0, z -2.6), the wall cabinets and the desk. Every point of this box is ≥0.30 m from the inner walls; the old
     // -1.85..1.05 x -4.72..-1.55 box reached through the round wall at yaw 270 and into the west cabinet at 315 (black frames).
@@ -52,7 +61,10 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
     // toward its plan centre in x (x 0.23; z cannot move: the pivot must stay inside the 0.2 m inset keepInside, z ≥ -4.25;
     // the look height stays, so the arm still keeps ≥1.0 m off her look point) and the view tilts 8° down, so a short arm
     // (yaw ~315) frames her body instead of her hat.
-    roomLook: { center: [0, 1.55, -2.5], blendFromM: 1.45, blendFullM: 0.95, pivotOffset: [-0.2, 0, 0], viewTiltDeg: 8 } },
+    roomLook: { center: [0, 1.55, -2.5], blendFromM: 2.1, blendFullM: 1.6, pivotOffset: [-0.2, 0, 0], viewTiltDeg: 8, lensMaxY: 1.55, lensCentreOffset: [-0.017, 0, -0.12], armGrowZM: 0.15,
+      viewDownMinDeg: 9, viewDownMaxDeg: 31, viewDownSoftDeg: 3, centreFadeW: 0.5,
+      r10: { edgeA: 330, edgeB: 14, bandDeg: 50, satDeg: 30, envK: 3, gazeM: 1.9 },
+      framePts: [[-0.42,-1.05,-0.23],[-0.33,-0.83,0.02],[-0.32,-0.57,-0.29],[-0.36,-0.53,-0.17],[-0.36,-0.6,-0.07],[0.08,0.01,0.15],[0.1,0.05,-0.15],[0.03,0.05,-0.03],[-0.29,-1.05,-0.35],[-0.33,-1.05,-0.13],[-0.21,-0.74,-0.41],[0.16,0.14,0.01],[-0.15,-1.05,-0.24],[0.26,-0.74,0.09],[-0.14,-0.83,-0.42],[0.25,0.1,0.14],[0.04,-0.97,-0.13],[0.27,-0.03,0.16],[0.29,0.01,-0.19],[0.29,0.12,-0.07],[0.38,-0.03,-0.06],[0.37,0.07,0.08]] } },
   island: { pitchMinDeg: -8, pitchMaxDeg: 58, distMin: 4.2, distMax: 52, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 42 },
   // r5 meadow pitch floor (场景特效bot): close in, the lens may not dip as far below her chest: -8 at 3.2 m to -12 at 14 m.
   meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
@@ -98,7 +110,13 @@ const SMOOTH = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x 
  *  Last, a wall-normal safety: from safeFromM inside the rounded keepInside edge to safeToM
  *  outside it, the outward normal velocity is cancelled smoothly (tangential motion untouched), so the lens cannot cross
  *  keepInside + safeToM, which is still ≥0.25 m from the inner walls. */
-export const ROOM_LOOK_FEEL = Object.freeze({ softK: 8, edgeSoftM: 0.08, insetM: 0.2, goalSpeedMS: 0.8, seedFadeS: 0.8, omega: 12, linAccMS2: 2.6, angAccDegS2: 100, safeFromM: -0.08, safeToM: 0.04 });
+export const ROOM_LOOK_FEEL = Object.freeze({ softK: 8, edgeSoftM: 0.08, insetM: 0.2, goalSpeedMS: 0, seedFadeS: 0.8, omega: 24, linAccMS2: 2.0, angAccDegS2: 100, safeFromM: 0.03, safeToM: 0.06,
+  jerkMS3: 30, ffMaxMS: 0, ffTauS: 0.08, brakeMS2: 2.0, vMaxMS: 1.8, barrierAccMS2: 2.0, barrierK: 12, barrierWallM: -0.15, barrierLookS: 0.25, barrierHerM: 1.06 });
+/** r7 position follower (docs/r5/room-orbit/RESULT.md): goalSpeedMS 0 = the goal is the input's own static goal (no
+ *  parameter rate limit). The lens tracks it with velocity feed-forward (goal velocity, capped ffMaxMS), natural frequency
+ *  omega, |accel| ≤ linAccMS2 and |jerk| ≤ jerkMS3. Two smooth barriers shape the commanded accel: the outward speed toward
+ *  keepInside + barrierWallM, and the speed toward her (look point) inside barrierHerM, may not exceed √(2·barrierAccMS2·d)
+ *  (d = room left), enforced with gain barrierK. The wall-normal velocity cancel (safeFromM..safeToM) stays as a last resort. */
 /** Room volumes that wrap the whole interior. Indoors they say nothing about obstacles; keepInside does that job. */
 const ROOM_VOLUME = /interior_shell|interior_props_merged|lighthouse_ext/i;
 function contains(b: OrbitBox, p: Vec3): boolean {
@@ -111,6 +129,21 @@ export function orbitIgnoresBox(b: OrbitBox, her: Vec3, lens: Vec3, indoor: bool
   return indoor && !!b.name && ROOM_VOLUME.test(b.name);
 }
 /** p-norm soft minimum of two positive lengths, always ≤ the hard min and C∞ while both stay positive. */
+/**
+ * r8 view (docs/r5/room-orbit/RESULT.md). In the orbit-her zone the view looks at her body centre from the lens itself
+ * (L: look-at, framed with frameCentre); in the room-centre zone it is the input's own view G. The view V (yaw, pitch) is
+ * carried from frame to frame: each solve it turns by s·ΔG + (1−s)·ΔL, i.e. it passes on the share s of the input's own turn
+ * and the share 1−s of her direction's turn, and a correction rate c (braking curve, |c'| ≤ corrAccDegS2, jerk-limited)
+ * pulls it onto V* = L + s·(G − L). The weight s follows its target with |s'|·|ω_G − ω_L| ≤ blendAccDegS2 (the view's
+ * accel from re-weighting the two turn rates) and |s''|·|ω_G − ω_L| ≤ blendJerkDegS3, so the transition never steps the
+ * angular velocity: what the camera adds to the input's accel is s'·(ω_G − ω_L) + (1−s)·α_L + c'. Target: the input's
+ * w, except when the input will reach the orbit zone within predictBaseS + |input rate|/predictAccDegS2 (then the smallest
+ * w on the way, so the view slows onto her before), or will leave it (then at most what keeps her centre within exitDeg).
+ * (The r7 aim-assist bias is gone.) seedAccDegS2: the first-drag leftover fades within this accel.
+ */
+export const ROOM_VIEW = { blendAccDegS2: 30, blendJerkDegS3: 900, sAccMax: 6, sVMax: 3, sOmega: 12, corrAccDegS2: 65, corrBrakeDegS2: 50,
+  corrVMaxDegS: 90, corrOmega: 20, corrJerkDegS3: 1500, exitDeg: 9, seedAccDegS2: 45, predictBaseS: 0.8, predictAccDegS2: 90, predictMaxS: 1.2,
+  predictSteps: 8, rateTauS: 0.15 };
 export function softMin(a: number, b: number, k: number = ROOM_LOOK_FEEL.softK): number {
   if (!(a > 0) || !(b > 0)) return 0;
   return Math.pow(Math.pow(a, -k) + Math.pow(b, -k), -1 / k);
@@ -140,14 +173,154 @@ export function roomArm(look: Vec3, yawDeg: number, pitchDeg: number, box: Reado
   for (let i = 0; i < 80; i++) { const e = roomEdge(look[0] + hx * t, look[2] + hz * t, box, inset); if (e.s > -1e-6) break; t += -e.s; }
   return t / Math.max(0.2, Math.cos(pitchDeg * Math.PI / 180));
 }
+/** Re-aim h (from q) so the smooth extent of `pts` (relative to `pivot`) is centred, in tan space; two passes. */
+export function frameCentre(q: Vec3, h0: Vec3, pivot: Vec3, pts: readonly Vec3[]): Vec3 {
+  let h: Vec3 = [h0[0], h0[1], h0[2]];
+  const K = 40;
+  for (let it = 0; it < 2; it++) {
+    const rn = Math.hypot(h[2], h[0]) || 1, r: Vec3 = [-h[2] / rn, 0, h[0] / rn], u: Vec3 = [r[1] * h[2] - r[2] * h[1], r[2] * h[0] - r[0] * h[2], r[0] * h[1] - r[1] * h[0]];
+    let mx = -1e9, Mx = -1e9, my = -1e9, My = -1e9;
+    const xs: number[] = [], ys: number[] = [];
+    for (let i = 0; i < pts.length; i++) {
+      const d0 = pivot[0] + pts[i][0] - q[0], d1 = pivot[1] + pts[i][1] - q[1], d2 = pivot[2] + pts[i][2] - q[2];
+      const z = Math.max(0.05, d0 * h[0] + d1 * h[1] + d2 * h[2]), x = (d0 * r[0] + d1 * r[1] + d2 * r[2]) / z, y = (d0 * u[0] + d1 * u[1] + d2 * u[2]) / z;
+      xs.push(x); ys.push(y); Mx = Math.max(Mx, x); mx = Math.max(mx, -x); My = Math.max(My, y); my = Math.max(my, -y);
+    }
+    let sMx = 0, smx = 0, sMy = 0, smy = 0;
+    for (let i = 0; i < xs.length; i++) { sMx += Math.exp(K * (xs[i] - Mx)); smx += Math.exp(K * (-xs[i] - mx)); sMy += Math.exp(K * (ys[i] - My)); smy += Math.exp(K * (-ys[i] - my)); }
+    const cx = ((Mx + Math.log(sMx) / K) - (mx + Math.log(smx) / K)) / 2, cy = ((My + Math.log(sMy) / K) - (my + Math.log(smy) / K)) / 2;
+    const m: Vec3 = [h[0] + r[0] * cx + u[0] * cy, h[1] + r[1] * cx + u[1] * cy, h[2] + r[2] * cx + u[2] * cy], n = Math.hypot(m[0], m[1], m[2]) || 1;
+    h = [m[0] / n, m[1] / n, m[2] / n];
+  }
+  return h;
+}
+/** Lateral lens shift (along the view's horizontal right) that centres the smooth x-extent of `pts` (relative to
+ *  `pivot`) seen from q along the fixed view f. Position only: the view is not touched. Two passes. */
+export function frameShift(q: Vec3, f: Vec3, pivot: Vec3, pts: readonly Vec3[]): number {
+  const rn = Math.hypot(f[2], f[0]) || 1, r: Vec3 = [-f[2] / rn, 0, f[0] / rn], K = 40;
+  let sh = 0;
+  for (let it = 0; it < 2; it++) {
+    let Mx = -1e9, mx = -1e9, zc = 0;
+    const xs: number[] = [];
+    for (let i = 0; i < pts.length; i++) {
+      const d0 = pivot[0] + pts[i][0] - q[0] - r[0] * sh, d1 = pivot[1] + pts[i][1] - q[1], d2 = pivot[2] + pts[i][2] - q[2] - r[2] * sh;
+      const z = Math.max(0.3, d0 * f[0] + d1 * f[1] + d2 * f[2]), x = (d0 * r[0] + d2 * r[2]) / z;
+      xs.push(x); zc += z; Mx = Math.max(Mx, x); mx = Math.max(mx, -x);
+    }
+    let a = 0, b = 0;
+    for (let i = 0; i < xs.length; i++) { a += Math.exp(K * (xs[i] - Mx)); b += Math.exp(K * (-xs[i] - mx)); }
+    const cx = ((Mx + Math.log(a) / K) - (mx + Math.log(b) / K)) / 2;
+    sh += cx * zc / xs.length;
+  }
+  return sh;
+}
 /** The room view direction: the orbit direction (toward the pivot), tilted down by viewTiltDeg. Input only. */
 export function roomViewDir(yawDeg: number, pitchDeg: number, look: RoomLook): Vec3 {
-  const yr = yawDeg * Math.PI / 180, pv = (pitchDeg + (look.viewTiltDeg || 0)) * Math.PI / 180, c = Math.cos(pv);
+  let vd = pitchDeg + (look.viewTiltDeg || 0);
+  if (look.viewDownMinDeg !== undefined && look.viewDownMaxDeg !== undefined) vd = softClamp(vd, look.viewDownMinDeg, look.viewDownMaxDeg, look.viewDownSoftDeg || 3);
+  const yr = yawDeg * Math.PI / 180, pv = vd * Math.PI / 180, c = Math.cos(pv);
   return [-Math.sin(yr) * c, -Math.sin(pv), -Math.cos(yr) * c];
 }
-/** Blend weight 0 (orbit her) .. 1 (look out from the room centre). Smootherstep, C2. */
+/** Blend weight 0 (orbit her) .. 1 (look out from the room centre). Smootherstep, C2. Kept for callers; r10 does not use the arm band. */
 export function roomBlend(arm: number, look: RoomLook): number {
   return SMOOTH((look.blendFromM - arm) / (look.blendFromM - look.blendFullM));
+}
+/** Exact critically damped step (R10_SPEC §4.3). e(t)=(e0+(v0+ω e0)t)e^{−ωt}, v(t)=(v0−ω(v0+ω e0)t)e^{−ωt}. */
+export function critDamp(e0: number, v0: number, omega: number, dt: number): [number, number] {
+  if (!(dt > 0) || !(omega > 0)) return [e0, v0];
+  const decay = Math.exp(-omega * dt), b = v0 + omega * e0;
+  return [(e0 + b * dt) * decay, (v0 - omega * b * dt) * decay];
+}
+const R10_FEET: Vec3 = [0.4327299768730942, 0, -4.207611558444886];
+function r10of(look: RoomLook): RoomR10 {
+  return look.r10 || { edgeA: 330, edgeB: 14, bandDeg: 50, satDeg: 30, envK: 3, gazeM: 1.9 };
+}
+/** Angular distance outside the orbit core [edgeA, edgeB], and which side (±1, or 0 inside). */
+function roomBand(theta: number, edgeA: number, edgeB: number): { e: number; side: number } {
+  const a = wrap180(theta - edgeA), b = wrap180(theta - edgeB), span = wrap180(edgeB - edgeA), c = wrap180(theta - edgeA);
+  if (c >= 0 && c <= span + 1e-9) return { e: 0, side: 0 };
+  const ea = -a, eb = b;
+  if (ea > 0 && (eb <= 0 || ea < eb)) return { e: ea, side: -1 };
+  return { e: eb, side: 1 };
+}
+function roomOrbitYaw(theta: number, edgeA: number, edgeB: number, satW: number): number {
+  const o = roomBand(theta, edgeA, edgeB);
+  if (o.side === 0) return theta;
+  const t = o.e / satW, g = t < 1 ? t - t * t / 2 : 0.5, edge = o.side < 0 ? edgeA : edgeB;
+  return edge + o.side * satW * g;
+}
+/** §2.1 weight. Smootherstep of the yaw distance outside the core; pitch and distance do not enter. */
+export function roomYawWeight(theta: number, look: RoomLook): number {
+  const P = r10of(look);
+  return SMOOTH(roomBand(theta, P.edgeA, P.edgeB).e / P.bandDeg);
+}
+function lensOrigin(look: Vec3, R: RoomLook): Vec3 {
+  const lc = R.lensCentreOffset || [0, 0, 0];
+  return [look[0] + lc[0], look[1] + lc[1], look[2] + lc[2]];
+}
+/** Horizontal wall radius E(ψ): p-norm of the east, west and north inset walls (R10_SPEC §2.3). */
+function wallRadius(lo: Vec3, yawDeg: number, box: Readonly<{ min: Vec3; max: Vec3 }>, inset: number, k: number): number {
+  const yr = yawDeg * Math.PI / 180, s = Math.sin(yr), c = Math.cos(yr);
+  const gE = box.max[0] - inset - lo[0], gW = lo[0] - (box.min[0] + inset), gN = box.max[2] - inset - lo[2];
+  const pe = s > 0 && gE > 0 ? Math.pow(s / gE, k) : 0;
+  const pw = -s > 0 && gW > 0 ? Math.pow(-s / gW, k) : 0;
+  const pn = c > 0 && gN > 0 ? Math.pow(c / gN, k) : 0;
+  const sum = pe + pw + pn;
+  if (!(sum > 0)) return 1e6;
+  return Math.pow(sum, -1 / k);
+}
+function planRho(lo: Vec3, yawDeg: number, pitchDeg: number, dist: number, box: Readonly<{ min: Vec3; max: Vec3 }>, inset: number, k: number): number {
+  return softMin(dist * Math.cos(pitchDeg * Math.PI / 180), wallRadius(lo, yawDeg, box, inset, k));
+}
+/**
+ * r10 plan envelope ρh = softMin(dist·cos pitch, E(ψ)) about the seated home pivot (R10_SPEC §2.3).
+ * `roomArm` stays for other callers; the room orbit does not use it.
+ */
+export function roomEnvelope(yawDeg: number, pitchDeg: number, dist: number): number {
+  const L = ORBIT_LIMITS.home, R = L.roomLook!, P = r10of(R), o = R.pivotOffset || [0, 0, 0];
+  const look: Vec3 = [R10_FEET[0] + o[0], R10_FEET[1] + L.lookM + o[1], R10_FEET[2] + o[2]];
+  const psi = roomOrbitYaw(yawDeg, P.edgeA, P.edgeB, P.satDeg);
+  return planRho(lensOrigin(look, R), psi, pitchDeg, dist, L.keepInside!, ROOM_LOOK_FEEL.insetM, P.envK);
+}
+function bodyCentre(look: Vec3, pts: readonly Vec3[] | undefined): Vec3 {
+  if (!pts || !pts.length) return [look[0], look[1], look[2]];
+  let x0 = 1e9, y0 = 1e9, z0 = 1e9, x1 = -1e9, y1 = -1e9, z1 = -1e9;
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i];
+    if (p[0] < x0) x0 = p[0]; if (p[0] > x1) x1 = p[0];
+    if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1];
+    if (p[2] < z0) z0 = p[2]; if (p[2] > z1) z1 = p[2];
+  }
+  return [look[0] + (x0 + x1) / 2, look[1] + (y0 + y1) / 2, look[2] + (z0 + z1) / 2];
+}
+export type RoomPose = { pos: Vec3; dir: Vec3; w: number; arm: number };
+/** Seated-home r10 pose. Same numbers as roomGoalAt at the seated pivot. */
+export function roomPoseAt(yaw: number, pitch: number, dist: number): RoomPose {
+  const L = ORBIT_LIMITS.home, R = L.roomLook!, o = R.pivotOffset || [0, 0, 0];
+  const look: Vec3 = [R10_FEET[0] + o[0], R10_FEET[1] + L.lookM + o[1], R10_FEET[2] + o[2]];
+  return roomPoseLook(L, look, yaw, pitch, dist);
+}
+function roomPoseLook(limits: OrbitLimits, look: Vec3, yaw: number, pitch: number, dist: number): RoomPose {
+  const R = limits.roomLook!, box = limits.keepInside!, n = ROOM_LOOK_FEEL.insetM, P = r10of(R);
+  const w = roomYawWeight(yaw, R), psi = roomOrbitYaw(yaw, P.edgeA, P.edgeB, P.satDeg);
+  const lo = lensOrigin(look, R);
+  const pr = pitch * Math.PI / 180, yr = psi * Math.PI / 180, cp = Math.cos(pr);
+  const rho = planRho(lo, psi, pitch, dist, box, n, P.envK), d = cp > 0.2 ? rho / cp : rho / 0.2;
+  const u0 = Math.sin(yr) * cp, u1 = Math.sin(pr), u2 = Math.cos(yr) * cp;
+  const yTop = Math.min(box.max[1] - n, R.lensMaxY || 1e9);
+  const orbit: Vec3 = [lo[0] + u0 * d, softClamp(lo[1] + u1 * d, box.min[1] + n, yTop), lo[2] + u2 * d];
+  const c = R.center;
+  const pos: Vec3 = [orbit[0] + (c[0] - orbit[0]) * w, orbit[1] + (c[1] - orbit[1]) * w, orbit[2] + (c[2] - orbit[2]) * w];
+  const her = bodyCentre(look, R.framePts);
+  const hx = her[0] - orbit[0], hy = her[1] - orbit[1], hz = her[2] - orbit[2], hr = Math.hypot(hx, hy, hz) || 1;
+  let aimH: Vec3 = [hx / hr, hy / hr, hz / hr];
+  if (R.framePts) aimH = frameCentre(orbit, aimH, look, R.framePts);
+  const herAim: Vec3 = [orbit[0] + aimH[0] * hr, orbit[1] + aimH[1] * hr, orbit[2] + aimH[2] * hr];
+  const gv = roomViewDir(yaw, pitch, R);
+  const gaze: Vec3 = [c[0] + gv[0] * P.gazeM, c[1] + gv[1] * P.gazeM, c[2] + gv[2] * P.gazeM];
+  const aim: Vec3 = [herAim[0] + (gaze[0] - herAim[0]) * w, herAim[1] + (gaze[1] - herAim[1]) * w, herAim[2] + (gaze[2] - herAim[2]) * w];
+  const dx = aim[0] - pos[0], dy = aim[1] - pos[1], dz = aim[2] - pos[2], ln = Math.hypot(dx, dy, dz) || 1;
+  return { pos: pos, dir: [dx / ln, dy / ln, dz / ln], w: w, arm: rho };
 }
 
 const wrap180 = (d: number) => { let x = d; while (x > 180) x -= 360; while (x < -180) x += 360; return x; };
@@ -207,6 +380,10 @@ export class FreeOrbit {
   private roomGoalDir: [number, number, number] = [0, 0, -1];
   private roomPos: [number, number, number] = [0, 0, 0];
   private roomVel: [number, number, number] = [0, 0, 0];
+  private roomAcc: [number, number, number] = [0, 0, 0];
+  private roomGoalPrev: [number, number, number] = [0, 0, 0];
+  private roomGoalPrevOk = false;
+  private roomGoalVel: [number, number, number] = [0, 0, 0];
   private roomDir: [number, number, number] = [0, 0, -1];
   /** Last geometric room blend weight and wall-limited arm (diagnostics / tests). */
   roomWeight = 0;
@@ -234,6 +411,51 @@ export class FreeOrbit {
   private roomOffAxis: Vec3 = [0, 1, 0];
   private roomOffAngle = 0;
   private roomOffT = 0;
+  private roomOffDur = 0.8;
+  private roomOffYP: [number, number] = [0, 0];
+  /** Residual seed-view offset (rad) and its rate, critically damped (R10_SPEC §4.3). */
+  private roomOffYPV: [number, number] = [0, 0];
+  private roomOffOm = 0;
+  /** Return follower state: view yaw/pitch (rad), rates, and the constant natural frequencies chosen at the start. */
+  private roomViewYP: [number, number] = [0, 0];
+  private roomViewYPV: [number, number] = [0, 0];
+  private roomOmAng = 0;
+  private roomOmPos = 2.6;
+  private roomDampReady = false;
+  /** r8 view: weight s (0 her, 1 the input) with rate / accel and its target; the carried view V and the pull-in
+   *  target V* (yaw, pitch; rad); correction rate / accel (tangent plane, rad/s); L and G at the last solve; |ω_G − ω_L|
+   *  (filtered); the input's rate (deg/s, filtered); time since the last solve; her body centre around the pivot. */
+  private roomS = 0;
+  private roomSV = 0;
+  private roomSA = 0;
+  private roomSInit = false;
+  private roomWIn = 0;
+  private roomGap = 0;
+  private roomV: [number, number] = [0, 0];
+  private roomVS: [number, number] = [0, 0];
+  private roomCV: [number, number] = [0, 0];
+  private roomCA: [number, number] = [0, 0];
+  private roomLYP: [number, number] | null = null;
+  private roomGYP: [number, number] | null = null;
+  private roomDOm = 0;
+  private roomInRate: [number, number] = [0, 0];
+  private roomInPrev: [number, number] | null = null;
+  private roomDtAcc = 0;
+  private roomGapDt = 0;
+  private roomHerC: Vec3 | null = null;
+  /** The view blend weight s (0 = looking at her, 1 = the input's own view) — for tests / traces. */
+  get roomViewBlend(): number { return this.roomS; }
+  /** Her body centre (world) the orbit-zone view looks at: centre of roomLook.framePts' box around the pivot. */
+  roomHerCentre(pivot: Vec3): Vec3 {
+    const R = this.limits.roomLook;
+    if (!this.roomHerC) {
+      const mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9], pts: readonly Vec3[] = (R && R.framePts) || [[0, 0, 0]];
+      for (let i = 0; i < pts.length; i++) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], pts[i][k]); mx[k] = Math.max(mx[k], pts[i][k]); }
+      this.roomHerC = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+    }
+    const c = this.roomHerC;
+    return [pivot[0] + c[0], pivot[1] + c[1], pivot[2] + c[2]];
+  }
   constructor(place: OrbitPlace = 'island') {
     this.placeName = place;
     this.limits = ORBIT_LIMITS[place];
@@ -350,6 +572,8 @@ export class FreeOrbit {
     this.roomTurning = false;
     this.roomSeedDir = null;
     this.roomOffAngle = 0;
+    this.roomSInit = false;
+    this.roomLYP = null;
     this.mode = 'idle';
   }
   /** Match-3: keep the saved orbit, and only allow the board row of ORBIT_LIMITS. */
@@ -386,21 +610,23 @@ export class FreeOrbit {
   unlock(): void { if (!this.engagedFlag && this.mode === 'paused') this.mode = 'idle'; }
   step(dt: number): void {
     const t = Number.isFinite(dt) && dt > 0 ? Math.min(0.1, dt) : 0;
-    if (this.roomInit && t > 0 && this.limits.roomLook) { this.roomTrack(t); if (this.roomOffAngle > 0 && this.engagedFlag) this.roomOffT += t; }
+    if (this.roomInit && t > 0 && this.limits.roomLook) { this.roomDtAcc += t; this.roomTrack(t); if (this.roomOffAngle > 0 && this.engagedFlag) this.roomOffT += t; }
     if (this.mode === 'returning') {
       this.returnT += t;
-      // indoors the return ends when the view follower has reached the input's view (6 s backstop)
-      const turning = !!this.limits.roomLook && this.roomTurning && this.returnT < 6;
+      // indoors the return ends when the critically damped follower has reached the pure pose (12 s backstop)
+      const turning = !!this.limits.roomLook && this.roomTurning && this.returnT < 12;
       if (this.returnT >= ORBIT_FEEL.returnS && !turning) { this.returnT = ORBIT_FEEL.returnS; this.mode = 'free'; this.fromPose = null; this.roomTurning = false; }
       return;
     }
     if (this.limits.pitchFloor && this.mode === 'free' && t > 0) this.easeToFloor(t);
     if (this.mode === 'paused' || this.held || t === 0) return;
-    const k = Math.exp(-t / ORBIT_FEEL.velTauS);
+    const tau = ORBIT_FEEL.velTauS, k = Math.exp(-t / tau);
+    // Room coast is the r10 exact integral. Other places keep the pre-r10 step (vel * dt) so meadow pitch floor and outdoor orbits stay put.
+    const coast = this.limits.roomLook ? tau * (1 - k) : t;
     const pitch0 = this.pitch;
-    this.yaw += this.yawVel * t;
-    this.pitch += this.pitchVel * t;
-    this.dist += this.distVel * t;
+    this.yaw += this.yawVel * coast;
+    this.pitch += this.pitchVel * coast;
+    this.dist += this.distVel * coast;
     this.yawVel *= k;
     this.pitchVel *= k;
     this.distVel *= k;
@@ -442,107 +668,129 @@ export class FreeOrbit {
     pose = this.clearPose(pose, look, boxes, groundY, xz, look, null);
     return pose;
   }
-  /** Room look goal before scenery collision: `aim` is where clearPose pushes the lens back toward. */
-  /** Static room goal for given orbit parameters: blend of the orbit lens (arm shortened to the inset rounded keepInside)
-   *  and the room-centre lens, both looking along the orbit direction. Then scenery collision toward `aim`. */
-  roomGoalAt(look: Vec3, yaw: number, pitch: number, dist: number, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): { pos: Vec3; dir: Vec3; w: number; arm: number } {
-    const R = this.limits.roomLook!, box = this.limits.keepInside!, n = ROOM_LOOK_FEEL.insetM;
-    const pr = pitch * Math.PI / 180, yr = yaw * Math.PI / 180, cp = Math.cos(pr);
-    const u: Vec3 = [Math.sin(yr) * cp, Math.sin(pr), Math.cos(yr) * cp];
-    const arm = roomArm(look, yaw, pitch, box, n), d = softMin(dist, arm);
-    const po: Vec3 = [look[0] + u[0] * d, softClamp(look[1] + u[1] * d, box.min[1] + n, box.max[1] - n), look[2] + u[2] * d];
-    const w = roomBlend(arm, R), c = R.center;
-    const pos: Vec3 = [po[0] + (c[0] - po[0]) * w, po[1] + (c[1] - po[1]) * w, po[2] + (c[2] - po[2]) * w];
-    const dv = roomViewDir(yaw, pitch, R), reach = Math.max(1, d);
-    const target: Vec3 = [pos[0] + dv[0] * reach, pos[1] + dv[1] * reach, pos[2] + dv[2] * reach];
-    const aim: Vec3 = [look[0] + (c[0] - look[0]) * w, look[1] + (c[1] - look[1]) * w, look[2] + (c[2] - look[2]) * w];
-    const cl = this.clearPose({ position: pos, target, fovVerticalDeg: this.fov }, aim, boxes, groundY, xz, look, target);
-    return { pos: cl.position, dir: dv, w, arm };
+  /** r10 static pose (R10_SPEC §2): a pure function of yaw, pitch and distance. Boxes are not part of it. */
+  roomGoalAt(look: Vec3, yaw: number, pitch: number, dist: number, _boxes?: readonly OrbitBox[], _groundY?: number, _xz?: readonly [number, number, number, number]): RoomPose {
+    return roomPoseLook(this.limits, look, yaw, pitch, dist);
+  }
+  /** r10 blend weight. It depends only on yaw (R10_SPEC §2.1). */
+  roomWeightAt(_look: Vec3, yaw: number, _pitch: number): number {
+    return roomYawWeight(yaw, this.limits.roomLook!);
   }
   private solveRoom(look: Vec3, boxes: readonly OrbitBox[], groundY: number, xz?: readonly [number, number, number, number]): LookPose {
-    this.roomCtx = { look: [look[0], look[1], look[2]], boxes, groundY, xz };
+    this.roomCtx = { look: [look[0], look[1], look[2]], boxes: boxes, groundY: groundY, xz: xz };
     if (this.roomSeedDir) {
-      // first solve after seed: redo the view match with the real boxes, keeping any drag made since the seed
       const sd = this.roomSeedDir, curY = this.yaw, curP = this.pitch, sy = this.roomSeedYP[0], sp = this.roomSeedYP[1];
       this.roomSeedDir = null;
-      this.yaw = sy; this.pitch = sp; this.roomMatchView(sd, look, boxes, groundY);
-      const g0 = this.roomGoalAt(look, this.yaw, this.pitch, this.dist, boxes, groundY, xz).dir;
-      const ax: Vec3 = [g0[1] * sd[2] - g0[2] * sd[1], g0[2] * sd[0] - g0[0] * sd[2], g0[0] * sd[1] - g0[1] * sd[0]], sn = Math.hypot(ax[0], ax[1], ax[2]);
-      this.roomOffAngle = sn > 1e-9 ? Math.atan2(sn, g0[0] * sd[0] + g0[1] * sd[1] + g0[2] * sd[2]) : 0;
-      this.roomOffAxis = sn > 1e-9 ? [ax[0] / sn, ax[1] / sn, ax[2] / sn] : [0, 1, 0]; this.roomOffT = 0;
-      this.yaw = curY + (this.yaw - sy); this.pitch = curP + (this.pitch - sp); this.clampPitch();
+      this.yaw = sy; this.pitch = sp;
+      this.roomMatchView(sd, look, boxes, groundY);
+      const matchedY = this.yaw, matchedP = this.pitch;
+      const g0 = this.roomGoalAt(look, matchedY, matchedP, this.dist, boxes, groundY, xz);
+      const gy = Math.atan2(g0.dir[0], g0.dir[2]), gp = Math.asin(Math.max(-1, Math.min(1, g0.dir[1])));
+      let dy = Math.atan2(sd[0], sd[2]) - gy;
+      while (dy > Math.PI) dy -= 2 * Math.PI;
+      while (dy < -Math.PI) dy += 2 * Math.PI;
+      const dp = Math.asin(Math.max(-1, Math.min(1, sd[1]))) - gp;
+      this.yaw = curY + (matchedY - sy);
+      this.pitch = curP + (matchedP - sp);
+      this.clampPitch();
+      this.roomOffYP = [dy, dp];
+      this.roomOffYPV = [0, 0];
+      this.roomOffAngle = Math.hypot(dy * Math.cos(gp), dp);
+      const amax = ROOM_LOOK_FEEL.angAccDegS2 * Math.PI / 180;
+      this.roomOffOm = this.roomOffAngle > 1e-6 ? Math.sqrt(amax / this.roomOffAngle) : 0;
+      if (this.roomOffAngle < 1e-5) this.roomOffAngle = 0;
     }
-    if (!this.roomParams) { this.roomYaw = this.yaw; this.roomPitch = this.pitch; this.roomDist = this.dist; this.roomParams = true; }
-    const g = this.roomGoalAt(look, this.roomYaw, this.roomPitch, this.roomDist, boxes, groundY, xz);
-    this.roomWeight = g.w; this.roomArmM = g.arm;
+    const g = this.roomGoalAt(look, this.yaw, this.pitch, this.dist, boxes, groundY, xz);
+    this.roomWeight = g.w; this.roomArmM = g.arm; this.roomS = g.w;
     this.roomGoalPos = [g.pos[0], g.pos[1], g.pos[2]];
-    // the view: the static goal's at the player's own yaw/pitch/arm (no lag)
-    const gv = this.roomGoalAt(look, this.yaw, this.pitch, this.dist, boxes, groundY, xz);
-    let vd: Vec3 = gv.dir;
-    if (this.roomOffAngle > 0) {
-      const a = this.roomOffAngle * (1 - SMOOTH(this.roomOffT / ROOM_LOOK_FEEL.seedFadeS)), k = this.roomOffAxis, c = Math.cos(a), si = Math.sin(a);
-      const kd = k[0] * vd[0] + k[1] * vd[1] + k[2] * vd[2], kx = [k[1] * vd[2] - k[2] * vd[1], k[2] * vd[0] - k[0] * vd[2], k[0] * vd[1] - k[1] * vd[0]];
-      vd = [vd[0] * c + kx[0] * si + k[0] * kd * (1 - c), vd[1] * c + kx[1] * si + k[1] * kd * (1 - c), vd[2] * c + kx[2] * si + k[2] * kd * (1 - c)];
-      if (this.roomOffT >= ROOM_LOOK_FEEL.seedFadeS) this.roomOffAngle = 0;
+    this.roomGoalDir = [g.dir[0], g.dir[1], g.dir[2]];
+    this.roomGoalFresh = true;
+    let dir: Vec3 = g.dir;
+    if (this.roomOffAngle > 0 && !this.roomTurning) {
+      const gy = Math.atan2(dir[0], dir[2]), gp = Math.asin(Math.max(-1, Math.min(1, dir[1])));
+      const y = gy + this.roomOffYP[0], p = gp + this.roomOffYP[1], c = Math.cos(p);
+      dir = [Math.sin(y) * c, Math.sin(p), Math.cos(y) * c];
     }
-    this.roomGoalDir = [vd[0], vd[1], vd[2]]; this.roomGoalFresh = true;
-    if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomInit = true; }
-    if (this.roomTurning) {
-      const gy = Math.atan2(vd[0], vd[2]), gp = Math.asin(Math.max(-1, Math.min(1, vd[1])));
-      let dy = gy - this.roomRetFrom[0]; while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
-      const dp = gp - this.roomRetFrom[1], amax = ROOM_LOOK_FEEL.angAccDegS2 * Math.PI / 180;
-      if (!(this.roomRetDur > 0)) this.roomRetDur = Math.max(ORBIT_FEEL.returnS, Math.sqrt((5.78 * (Math.abs(dy) + Math.abs(dp)) + 3.52 * Math.abs(dy * dp)) / amax));
-      const e = SMOOTH(this.roomRetT / this.roomRetDur), y = this.roomRetFrom[0] + dy * e, pp = this.roomRetFrom[1] + dp * e, c = Math.cos(pp);
-      this.roomDir = [Math.sin(y) * c, Math.sin(pp), Math.cos(y) * c];
-      if (this.roomRetT >= this.roomRetDur) { this.roomTurning = false; this.roomDir = [vd[0], vd[1], vd[2]]; }
-    } else this.roomDir = [vd[0], vd[1], vd[2]];
+    if (!this.roomTurning) {
+      this.roomPos = [g.pos[0], g.pos[1], g.pos[2]];
+      this.roomDir = [dir[0], dir[1], dir[2]];
+      this.roomVel = [0, 0, 0];
+    }
+    this.roomInit = true;
     const p = this.roomPos, d = this.roomDir, reach = Math.max(1, Math.hypot(look[0] - p[0], look[1] - p[1], look[2] - p[2]));
-    return { position: [p[0], p[1], p[2]], target: [p[0] + d[0] * reach, p[1] + d[1] * reach, p[2] + d[2] * reach], fovVerticalDeg: this.fov };
+    const target: Vec3 = [p[0] + d[0] * reach, p[1] + d[1] * reach, p[2] + d[2] * reach];
+    return this.clearPose({ position: [p[0], p[1], p[2]], target: target, fovVerticalDeg: this.fov }, look, boxes, groundY, xz, look, target);
   }
-  /** Start the tracker at a lens someone else wrote (authored home lens, end of a cinematic), at rest. The goal parameters
-   *  start at the player's orbit; the goal is rebuilt on the next solve. */
+  /** Start a return or a seed at `pose`, at rest. The goal is the pure pose, filled in on the next solve, so the first frame does not jump. */
   private roomFrom(pose: LookPose, turning: boolean): void {
     const d = unitToward(pose.position, pose.target);
-    this.roomPos = [pose.position[0], pose.position[1], pose.position[2]]; this.roomDir = [d[0], d[1], d[2]];
-    this.roomVel = [0, 0, 0]; this.roomInit = true; this.roomTurning = turning; this.roomOffAngle = 0; this.roomGoalFresh = false;
-    this.roomRetFrom = [Math.atan2(d[0], d[2]), Math.asin(Math.max(-1, Math.min(1, d[1])))]; this.roomRetT = 0; this.roomRetDur = 0;
-    this.roomGoalPos = [this.roomPos[0], this.roomPos[1], this.roomPos[2]]; this.roomGoalDir = [d[0], d[1], d[2]];
-    this.roomParams = false;
+    this.roomPos = [pose.position[0], pose.position[1], pose.position[2]];
+    this.roomDir = [d[0], d[1], d[2]];
+    this.roomVel = [0, 0, 0];
+    this.roomViewYP = [Math.atan2(d[0], d[2]), Math.asin(Math.max(-1, Math.min(1, d[1])))];
+    this.roomViewYPV = [0, 0];
+    this.roomInit = true;
+    this.roomTurning = turning;
+    this.roomDampReady = false;
+    this.roomOffAngle = 0;
+    this.roomGoalFresh = false;
+    this.roomOmPos = 2.6;
+    this.roomOmAng = 0;
+    this.roomGoalPos = [this.roomPos[0], this.roomPos[1], this.roomPos[2]];
+    this.roomGoalDir = [d[0], d[1], d[2]];
   }
-  /** Per frame: (1) move the position goal's parameters toward the player's yaw/pitch/arm with the goal point capped at
-   *  goalSpeedMS; (2) critically damped position follow with capped accel; (3) wall-normal safety on the outward velocity;
-   *  (4) only while a cinematic return is turning the view: capped angular follow toward the input's view. */
+  /** Return and seed-fade only (R10_SPEC §4.3). Every other frame the pose is roomGoalAt, applied in solveRoom. */
   private roomTrack(t: number): void {
-    const F = ROOM_LOOK_FEEL, w = F.omega, n = Math.max(1, Math.ceil(t / (1 / 120))), h = t / n;
-    const amax = F.linAccMS2, box = this.limits.keepInside, ctx = this.roomCtx;
-    for (let s = 0; s < n; s++) {
-      if (ctx && this.roomParams) {
-        const dy = this.yaw - this.roomYaw, dp = this.pitch - this.roomPitch, dd = this.dist - this.roomDist;
-        if (Math.abs(dy) + Math.abs(dp) + Math.abs(dd) > 1e-9) {
-          let f = 1;
-          for (let it = 0; it < 3; it++) {
-            const g = this.roomGoalAt(ctx.look, this.roomYaw + dy * f, this.roomPitch + dp * f, this.roomDist + dd * f, ctx.boxes, ctx.groundY, ctx.xz);
-            const mv = Math.hypot(g.pos[0] - this.roomGoalPos[0], g.pos[1] - this.roomGoalPos[1], g.pos[2] - this.roomGoalPos[2]), cap = F.goalSpeedMS * h;
-            if (mv <= cap * 1.0001) break;
-            f *= cap / mv * 0.98;
-          }
-          this.roomYaw += dy * f; this.roomPitch += dp * f; this.roomDist += dd * f;
-          const g = this.roomGoalAt(ctx.look, this.roomYaw, this.roomPitch, this.roomDist, ctx.boxes, ctx.groundY, ctx.xz);
-          this.roomGoalPos = [g.pos[0], g.pos[1], g.pos[2]];
-          this.roomWeight = g.w; this.roomArmM = g.arm;
-        }
-      }
-      const p = this.roomPos, v = this.roomVel, g = this.roomGoalPos;
-      let a = [w * w * (g[0] - p[0]) - 2 * w * v[0], w * w * (g[1] - p[1]) - 2 * w * v[1], w * w * (g[2] - p[2]) - 2 * w * v[2]];
-      let m = Math.hypot(a[0], a[1], a[2]); if (m > amax) a = [a[0] * amax / m, a[1] * amax / m, a[2] * amax / m];
-      for (let k = 0; k < 3; k++) v[k] += a[k] * h;
-      if (box) {
-        const e = roomEdge(p[0], p[2], box), vn = v[0] * e.nx + v[2] * e.nz;
-        if (vn > 0) { const k = SMOOTH((e.s - F.safeFromM) / (F.safeToM - F.safeFromM)); v[0] -= e.nx * vn * k; v[2] -= e.nz * vn * k; }
-      }
-      for (let k = 0; k < 3; k++) p[k] += v[k] * h;
-      // view: a cinematic return turns it on a timed yaw/pitch curve (solveRoom); otherwise it is the input's own
-      if (this.roomTurning && this.roomGoalFresh) this.roomRetT += h;
+    if (!(t > 0)) return;
+    if (this.roomTurning && this.roomGoalFresh) this.dampReturn(t);
+    else if (this.roomOffAngle > 0 && this.roomOffOm > 0) this.dampSeed(t);
+  }
+  private dampSeed(t: number): void {
+    const ey = critDamp(this.roomOffYP[0], this.roomOffYPV[0], this.roomOffOm, t);
+    const ep = critDamp(this.roomOffYP[1], this.roomOffYPV[1], this.roomOffOm, t);
+    this.roomOffYP = [ey[0], ep[0]];
+    this.roomOffYPV = [ey[1], ep[1]];
+    this.roomOffAngle = Math.hypot(ey[0], ep[0]);
+    if (this.roomOffAngle < 1e-5 && Math.hypot(ey[1], ep[1]) < 1e-4) this.roomOffAngle = 0;
+  }
+  private dampReturn(t: number): void {
+    const gp = this.roomGoalPos, gd = this.roomGoalDir;
+    const gy = Math.atan2(gd[0], gd[2]), gpit = Math.asin(Math.max(-1, Math.min(1, gd[1])));
+    if (!this.roomDampReady) {
+      let ey0 = this.roomViewYP[0] - gy;
+      while (ey0 > Math.PI) ey0 -= 2 * Math.PI;
+      while (ey0 < -Math.PI) ey0 += 2 * Math.PI;
+      const ep0 = this.roomViewYP[1] - gpit;
+      const ang = Math.hypot(ey0 * Math.cos(this.roomViewYP[1]), ep0);
+      const amax = ROOM_LOOK_FEEL.angAccDegS2 * Math.PI / 180;
+      this.roomOmAng = ang > 1e-6 ? Math.sqrt(amax / ang) : 8;
+      this.roomDampReady = true;
+    }
+    for (let k = 0; k < 3; k++) {
+      const ev = critDamp(this.roomPos[k] - gp[k], this.roomVel[k], this.roomOmPos, t);
+      this.roomPos[k] = gp[k] + ev[0];
+      this.roomVel[k] = ev[1];
+    }
+    let ey = this.roomViewYP[0] - gy;
+    while (ey > Math.PI) ey -= 2 * Math.PI;
+    while (ey < -Math.PI) ey += 2 * Math.PI;
+    const ep = this.roomViewYP[1] - gpit;
+    const evy = critDamp(ey, this.roomViewYPV[0], this.roomOmAng, t);
+    const evp = critDamp(ep, this.roomViewYPV[1], this.roomOmAng, t);
+    this.roomViewYP = [gy + evy[0], gpit + evp[0]];
+    this.roomViewYPV = [evy[1], evp[1]];
+    const c = Math.cos(this.roomViewYP[1]);
+    this.roomDir = [Math.sin(this.roomViewYP[0]) * c, Math.sin(this.roomViewYP[1]), Math.cos(this.roomViewYP[0]) * c];
+    const posErr = Math.hypot(this.roomPos[0] - gp[0], this.roomPos[1] - gp[1], this.roomPos[2] - gp[2]);
+    const angErr = Math.hypot(evy[0] * Math.cos(this.roomViewYP[1]), evp[0]);
+    const spd = Math.hypot(this.roomVel[0], this.roomVel[1], this.roomVel[2]);
+    const asp = Math.hypot(this.roomViewYPV[0], this.roomViewYPV[1]);
+    if (posErr < 1e-4 && angErr < 1e-4 && spd < 1e-3 && asp < 1e-3) {
+      this.roomTurning = false;
+      this.roomPos = [gp[0], gp[1], gp[2]];
+      this.roomDir = [gd[0], gd[1], gd[2]];
+      this.roomVel = [0, 0, 0];
+      this.roomViewYPV = [0, 0];
     }
   }
   private blend(a: LookPose, b: LookPose, e: number): LookPose {

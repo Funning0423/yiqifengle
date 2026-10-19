@@ -6,7 +6,7 @@ try: F = ImageFont.truetype('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.
 except Exception: F = ImageFont.load_default()
 W, H = 1500, 1000; im = Image.new('RGB', (W, H), 'white'); dr = ImageDraw.Draw(im)
 title = ('yaw 0→360° 以 %d°/s 拖动（手指按住），停手后静止 1 s' % d['rate']) if d.get('mode', 'sweep') == 'sweep' else ('来回快拖 %d°/s（每 0.15 s 换向，自 yaw 340），停手后静止 1 s' % d['rate'])
-dr.text((20, 8), '室内自由镜头 r6：' + title + '，%d fps（pitch 10°，臂 3.35 m，含世界碰撞盒）' % d['fps'], fill='black', font=F)
+import os; dr.text((20, 8), '室内自由镜头 ' + os.environ.get('TAG', 'r6') + '：' + title + '，%d fps（pitch 10°，臂 3.35 m，含世界碰撞盒）' % d['fps'], fill='black', font=F)
 T = fr[-1]['t']
 rows = [('混合权重 w（0 绕她，1 房间中心看出）', 'w', 0, 1, None), ('视角滞后 °（上限 10，蓝）/ 镜头位置滞后 m（橙）', 'viewLag', 0, 12, 10), ('镜头速度 m/s', 'speed', 0, 3, None), ('线加速度 m/s²（上限 3）', 'lin', 0, 3.5, 3), ('离内壁 m（下限 0.25，蓝）/ 离她 m（下限 1.0，橙）', 'wall', 0, 3, 0.25)]
 x0, x1 = 90, 960; top = 50; rh = 180

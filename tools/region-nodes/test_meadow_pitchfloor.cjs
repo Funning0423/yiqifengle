@@ -4,7 +4,7 @@
 // 1. Curve values (±0.01°). 2. Every other place: no pitchFloor, floor == pitchMinDeg at every distance.
 // 3. Behaviour vs FreeOrbit @6eafc35f (git show; skipped with a note if git is unavailable): seeded random input scripts
 //    (drag, pinch, release, step, solve with boxes, pause/return) per place; outputs must be bit-identical everywhere but
-//    the meadow. 4. Outdoor regression baseline (fixtures/room-keepinside/outdoor_solve_baseline.json): direct solves, and
+//    the meadow. Home is the room and follows r10 (6e18f6ca), not the r6 pose. 4. Outdoor regression baseline (fixtures/room-keepinside/outdoor_solve_baseline.json): direct solves, and
 //    the same cases after 2 s of steps in free mode (where the floor and its ease act). 5. Pinch-in ease: no snap, no
 //    overshoot past the floor, pitch accel <= PITCH_FLOOR_FEEL.accDegS2 (<= 120 °/s², HANDOFF §4) at 30/60/120 fps.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process');
@@ -20,8 +20,10 @@ const places=Object.keys(C.ORBIT_LIMITS);
 for(const id of places){if(id==='meadow')continue;const L=C.ORBIT_LIMITS[id];assert.equal(L.pitchFloor,undefined,id+' has no pitch floor');
  for(let d=0;d<=60;d+=0.5)assert.equal(C.orbitPitchFloor(L,d),L.pitchMinDeg,id+' floor is pitchMinDeg')}
 // 3) behaviour vs the base commit
-let B=null;try{const src=cp.execFileSync('git',['show','6eafc35f:creator-build-project/assets/scripts/region/FreeOrbit.ts'],{cwd:ROOT,encoding:'utf8',stdio:['ignore','pipe','ignore']});
- const f=path.join(fs.mkdtempSync(path.join(os.tmpdir(),'fo-base-')),'FreeOrbit.ts');fs.writeFileSync(f,src);B=load(f)}catch(e){out.baseCompare='skipped: '+e.message.split('\n')[0]}
+function showOrbit(rev){const src=cp.execFileSync('git',['show',rev+':creator-build-project/assets/scripts/region/FreeOrbit.ts'],{cwd:ROOT,encoding:'utf8',stdio:['ignore','pipe','ignore']});
+ const f=path.join(fs.mkdtempSync(path.join(os.tmpdir(),'fo-base-')),'FreeOrbit.ts');fs.writeFileSync(f,src);return load(f)}
+let B=null,R10=null;try{B=showOrbit('6eafc35f')}catch(e){out.baseCompare='skipped: '+e.message.split('\n')[0]}
+try{R10=showOrbit('6e18f6ca')}catch(e){out.roomCompare='skipped: '+e.message.split('\n')[0]}
 function rng(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}}
 function script(K,place,seed){const r=rng(seed),o=new K.FreeOrbit(place),feet=[r()*4-2,r(),r()*4-2],trace=[];const fps=[30,60,120][seed%3],dt=1/fps;
  const boxes=[];for(let i=0;i<3;i++){const c=[r()*16-8,r()*3,r()*16-8];boxes.push({min:[c[0]-1,c[1]-1,c[2]-1],max:[c[0]+1,c[1]+1,c[2]+1]})}
@@ -34,10 +36,11 @@ function script(K,place,seed){const r=rng(seed),o=new K.FreeOrbit(place),feet=[r
 if(B){out.baseCompare={};for(const id of places){if(id==='home')continue;let changed=0;const N=60;
   for(let s=1;s<=N;s++){const a=JSON.stringify(script(C,id,s*7919+id.length)),b=JSON.stringify(script(B,id,s*7919+id.length));if(a!==b)changed++}
   out.baseCompare[id]={scripts:N,changed};if(id!=='meadow')assert.equal(changed,0,id+' behaviour changed in '+changed+' of '+N+' scripts')}
- // home (room look) with the real world boxes
+ // home (room look) follows r10, not the r6 pose at 6eafc35f
  const W=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/room-keepinside/world_boxes.json'),'utf8')).boxes,seat=[0.4327,0,-4.2076];let hc=0;
- for(let s=1;s<=20;s++){const run=K=>{const r=rng(s),o=new K.FreeOrbit('home'),t=[];for(let i=0;i<180;i++){if(r()<0.5)o.drag((r()-0.5)*0.06,(r()-0.5)*0.06,1/60);else if(r()<0.6)o.pinch(0.9+r()*0.2);else o.release();o.step(1/60);const p=o.solve(seat,W,0);t.push([o.yaw,o.pitch,o.dist,p.position,p.target])}return JSON.stringify(t)};if(run(C)!==run(B))hc++}
- out.baseCompare.home={scripts:20,changed:hc};assert.equal(hc,0,'home behaviour changed')}
+ if(R10){for(let s=1;s<=20;s++){const run=K=>{const r=rng(s),o=new K.FreeOrbit('home'),t=[];for(let i=0;i<180;i++){if(r()<0.5)o.drag((r()-0.5)*0.06,(r()-0.5)*0.06,1/60);else if(r()<0.6)o.pinch(0.9+r()*0.2);else o.release();o.step(1/60);const p=o.solve(seat,W,0);t.push([o.yaw,o.pitch,o.dist,p.position,p.target])}return JSON.stringify(t)};if(run(C)!==run(R10))hc++}
+  out.baseCompare.home={against:'6e18f6ca',scripts:20,changed:hc};assert.equal(hc,0,'home behaviour drifted from r10')}
+ else out.baseCompare.home=out.roomCompare||'skipped'}
 // 4) outdoor regression baseline
 const BASE=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/room-keepinside/outdoor_solve_baseline.json'),'utf8')).cases;
 const WORLD=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/room-keepinside/world_boxes.json'),'utf8')).boxes.filter(b=>!/^env_int|interior|lighthouse/.test(b.name)).map(b=>({min:b.min,max:b.max}));
