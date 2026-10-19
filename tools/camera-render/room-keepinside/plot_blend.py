@@ -18,7 +18,7 @@ for i, (name, k, lo, hi, lim) in enumerate(rows):
     if lim is not None: dr.line((x0, Y(lim), x1, Y(lim)), fill='#e33', width=2)
     pts = [(X(f['t']), Y(f[k])) for f in fr if k in f]; dr.line(pts, fill='#1565c0', width=2)
     if k == 'viewLag':
-        dr.line([(X(f['t']), Y(min(12, f['posLag'] * 4))) for f in fr], fill='#f90', width=2); dr.text((x1 - 200, y0 + 4), '橙线刻度：1 m = 3 格', fill='#f90', font=F)
+        dr.line([(X(f['t']), Y(min(12, f['posLag'] * 4))) for f in fr], fill='#f90', width=2); dr.text((x0 + 300, y0 - 22), '橙线 = 位置滞后 m × 4（满格 3 m）', fill='#f90', font=F)
     if 'tStop' in d: dr.line((X(d['tStop']), y0, X(d['tStop']), y1), fill='#999', width=1)
     if k == 'wall':
         dr.line((x0, Y(1.0), x1, Y(1.0)), fill='#f90', width=1); dr.line([(X(f['t']), Y(f['her'])) for f in fr], fill='#f90', width=2)
@@ -27,7 +27,7 @@ for i, (name, k, lo, hi, lim) in enumerate(rows):
 # top view
 P = d['polygon']; cx0, cy0, sc = 1230, 520, 110
 M = lambda x, z: (cx0 + x * sc, cy0 + (z + 2.6) * sc)
-dr.text((1000, 50), '俯视：内壁（灰）、keepInside 圆角框（绿）、镜头轨迹（蓝→红 = 时间）', fill='black', font=F)
+dr.text((1000, 50), '俯视：内壁灰 / keepInside 绿 / 镜头轨迹 蓝→红', fill='black', font=F)
 dr.polygon([M(x, z) for x, z in P], outline='#777')
 k = d['keep']; r = k.get('cornerM', 0)
 dr.rounded_rectangle((M(k['min'][0], k['min'][2]), M(k['max'][0], k['max'][2])), radius=r * sc, outline='#2a2', width=2)
