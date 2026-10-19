@@ -1371,8 +1371,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json",
-    "bytes": 81852,
-    "sha256": "b049f2cb55915f9a3f850fd709d7344c809705a19703194fb8cb82f98a9e5713"
+    "bytes": 81809,
+    "sha256": "7a6ccf2650cdee9a9bea7cf6c22aa5e91a263b695c6e8b59920dff9a15d60bcf"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json.meta",
@@ -2426,8 +2426,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 8479,
-    "sha256": "91594039b719bf78054c1128418aed7806765bbb8b3f71907c1bd6cbd2b21651"
+    "bytes": 8734,
+    "sha256": "672ae8b78e6d6b02cf07123689ae80f45eda01884a9e873b27f41cc8b504a185"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2446,8 +2446,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 34116,
-    "sha256": "53326f210390a0be59434c20f0183e489ec3720a05ce41427e8c4657adea95e8"
+    "bytes": 34237,
+    "sha256": "ea551299d3a77b3dea66d99582ef33dd65b34a5f78f256ae55847f2043dbe0a8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",

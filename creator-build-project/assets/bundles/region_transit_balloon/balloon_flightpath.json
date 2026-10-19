@@ -555,8 +555,6 @@
 "skyCity": "env_skycity hidden for t < 11.6 (inside the full-screen cloud), shown after; no geometry cut",
 "skyCityAlwaysHidden": [
 "env_sky_cloud_small",
-"env_sky_cloudsea",
-"env_sky_cumulus_far",
 "Icosphere",
 "state_bridge_after",
 "state_court_after",

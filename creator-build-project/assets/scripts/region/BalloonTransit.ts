@@ -12,7 +12,7 @@ import {emitTransitCue} from './TransitAudioHooks';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
- ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FORMAT, GRASS_OFF_T,
+ ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, LIGHT_RAMP_T0, LIGHT_RAMP_YAW, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
  SEAM_T, STRATA_OFF_T, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
@@ -263,6 +263,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const mp=meadow.worldPosition,meadowFrame:Rigid={yawDeg:meadow.eulerAngles.y,origin:[mp.x,mp.y,mp.z]};
   model.active=false;
   showNamed(model,ALWAYS_HIDDEN,false);
+  showNamed(model,FLIGHT_FAR_CLOUDS,false);
   showNamed(model,ISLET_NODES,false);
   const m6=worldOf(meadow,M6_LOCAL);
   const plan=balloonBeats(m6,S0_LOCAL,anchor(model,'anchor_starcourt_center'),{cityFrame:city,meadowFrame,walkInM:0,walkOutM:0});
@@ -391,6 +392,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     model.active=cityOn;
     if(cityOn)noShadow(model);
     showNamed(model,ALWAYS_HIDDEN,false);
+    if(!arrived)showNamed(model,FLIGHT_FAR_CLOUDS,false);
     showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
     showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
     showNamed(model,['env_sky_islets_far'],false);
