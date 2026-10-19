@@ -1,0 +1,268 @@
+# r10_check.cjs --variants @ cine/r5-room-orbit-r10-spec (base d1a491c1); regenerate: QF_TYPESCRIPT_MODULE=<ts> node tools/region-nodes/r10/r10_check.cjs --variants
+
+== r10 (spec)  {"edgeA":330,"edgeB":14,"W":50,"satW":30,"gazeM":1.9,"profile":"smootherstep","envK":3}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                             0.0913  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 82 °/s² at 30°/s, 740 °/s² at 90°/s (scales with ω², by design); max at θ=10
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0145 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 13.03 m/s² at 30°/s, 117.31 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.6439  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.651 .. 1.383
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  PASS  w* centre: smallest w with her centre out of frame             0.3174  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.009
+  PASS  no jump: max view rotation per input degree (band and core)     1.3833  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                       1.105  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)             54.9  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       78.2  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 412.5 °/s², flick 1289.1 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 78.2, 90°/s 412.5
+  INFO  coast only (after release): after 30°/s 78.2 °/s², after 90°/s 227.7 °/s², after flick 1062.6 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 16.31 °/m² → 36.7 °/s² at 1.5 m/s pinch (cap 110)
+
+  step independence, max final-yaw spread over 30/60/120 fps: exact coast 0.000° (bar 0.05°), FreeOrbit.step coast @d1a491c1 2.087°
+
+== variant {"profile":"smoothstep","W":70}  {"edgeA":330,"edgeB":14,"W":70,"satW":30,"gazeM":1.9,"profile":"smoothstep","envK":3}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                             0.0913  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 82 °/s² at 30°/s, 740 °/s² at 90°/s (scales with ω², by design); max at θ=10
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0145 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 13.03 m/s² at 30°/s, 117.31 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.5678  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.570 .. 1.429
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  PASS  w* centre: smallest w with her centre out of frame             0.2817  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.011
+  PASS  no jump: max view rotation per input degree (band and core)     1.4289  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                      1.0533  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)             47.3  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       77.3  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 412.5 °/s², flick 1289.1 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 77.3, 90°/s 412.5
+  INFO  coast only (after release): after 30°/s 77.3 °/s², after 90°/s 230 °/s², after flick 658.9 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 16.18 °/m² → 36.4 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"profile":"bangbang"}  {"edgeA":330,"edgeB":14,"W":50,"satW":30,"gazeM":1.9,"profile":"bangbang","envK":3}
+  FAIL  view curvature |dΩ/dθ| max (1/deg)                             0.6534  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 588 °/s² at 30°/s, 5293 °/s² at 90°/s (scales with ω², by design); max at θ=14
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0965 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 86.81 m/s² at 30°/s, 781.28 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.7375  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.742 .. 1.354
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  PASS  w* centre: smallest w with her centre out of frame             0.3682  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.024
+  PASS  no jump: max view rotation per input degree (band and core)     1.3539  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                      1.2028  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  FAIL  time: camera-added accel while dragging 30°/s (°/s²)            221.7  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       69.1  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 762.9 °/s², flick 1566.6 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 221.7, 90°/s 762.9
+  INFO  coast only (after release): after 30°/s 69.1 °/s², after 90°/s 291.6 °/s², after flick 588.7 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 13.79 °/m² → 31.0 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"W":40}  {"edgeA":330,"edgeB":14,"W":40,"satW":30,"gazeM":1.9,"profile":"smootherstep","envK":3}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                             0.0913  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 82 °/s² at 30°/s, 740 °/s² at 90°/s (scales with ω², by design); max at θ=10
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0145 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 13.03 m/s² at 30°/s, 117.31 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.6943  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.703 .. 1.326
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  PASS  w* centre: smallest w with her centre out of frame             0.3503  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.010
+  PASS  no jump: max view rotation per input degree (band and core)     1.3264  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                       1.162  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)             59.6  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       68.8  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 463.8 °/s², flick 1351.8 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 68.8, 90°/s 463.8
+  INFO  coast only (after release): after 30°/s 68.8 °/s², after 90°/s 228.1 °/s², after flick 1365.1 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 16.06 °/m² → 36.1 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"W":70}  {"edgeA":330,"edgeB":14,"W":70,"satW":30,"gazeM":1.9,"profile":"smootherstep","envK":3}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                             0.0913  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 82 °/s² at 30°/s, 740 °/s² at 90°/s (scales with ω², by design); max at θ=10
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0145 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 13.03 m/s² at 30°/s, 117.31 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.5321  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.535 .. 1.472
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  FAIL  w* centre: smallest w with her centre out of frame             0.2752  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.006
+  PASS  no jump: max view rotation per input degree (band and core)     1.4724  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                      1.0285  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)             51.2  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       82.2  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 458.8 °/s², flick 1289.1 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 82.2, 90°/s 458.8
+  INFO  coast only (after release): after 30°/s 82.2 °/s², after 90°/s 227.5 °/s², after flick 701.5 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 16.48 °/m² → 37.1 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"gazeM":3}  {"edgeA":330,"edgeB":14,"W":50,"satW":30,"gazeM":3,"profile":"smootherstep","envK":3}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                             0.0913  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 82 °/s² at 30°/s, 740 °/s² at 90°/s (scales with ω², by design); max at θ=10
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0145 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 13.03 m/s² at 30°/s, 117.31 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.6811  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.689 .. 1.277
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  PASS  w* centre: smallest w with her centre out of frame             0.3088  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.009
+  PASS  no jump: max view rotation per input degree (band and core)     1.2774  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                       1.105  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)               56  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       70.3  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 412.5 °/s², flick 1289.1 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 70.3, 90°/s 412.5
+  INFO  coast only (after release): after 30°/s 70.3 °/s², after 90°/s 227.9 °/s², after flick 1196.6 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 16.15 °/m² → 36.3 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"satW":50}  {"edgeA":330,"edgeB":14,"W":50,"satW":50,"gazeM":1.9,"profile":"smootherstep","envK":3}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                             0.0913  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 82 °/s² at 30°/s, 740 °/s² at 90°/s (scales with ω², by design); max at θ=10
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0145 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 13.03 m/s² at 30°/s, 117.31 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.7577  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.781 .. 1.260
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  PASS  w* centre: smallest w with her centre out of frame             0.3174  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.009
+  PASS  no jump: max view rotation per input degree (band and core)     1.2597  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                      1.0359  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)             51.7  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       67.4  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 412.5 °/s², flick 1289.1 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 67.4, 90°/s 412.5
+  INFO  coast only (after release): after 30°/s 67.4 °/s², after 90°/s 191.3 °/s², after flick 1066.8 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 16.34 °/m² → 36.8 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"envK":4}  {"edgeA":330,"edgeB":14,"W":50,"satW":30,"gazeM":1.9,"profile":"smootherstep","envK":4}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                              0.111  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 100 °/s² at 30°/s, 899 °/s² at 90°/s (scales with ω², by design); max at θ=11.25
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0177 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 15.90 m/s² at 30°/s, 143.06 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.6442  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.652 .. 1.384
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.870
+  PASS  w* centre: smallest w with her centre out of frame             0.3261  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.011
+  PASS  no jump: max view rotation per input degree (band and core)      1.384  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                      1.1176  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0237  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)             56.8  <= 110   (drags 30°/s CCW/CW)
+  PASS  time: camera-added accel in the coast after a 30°/s release (°/s²)       80.3  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 509 °/s², flick 1557.1 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 80.3, 90°/s 509
+  INFO  coast only (after release): after 30°/s 80.3 °/s², after 90°/s 236.5 °/s², after flick 1087.5 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.22 °/m, curvature 16.08 °/m² → 36.2 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"envK":0}  {"edgeA":330,"edgeB":14,"W":50,"satW":30,"gazeM":1.9,"profile":"smootherstep","envK":0}
+  FAIL  view curvature |dΩ/dθ| max (1/deg)                             0.8545  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 769 °/s² at 30°/s, 6922 °/s² at 90°/s (scales with ω², by design); max at θ=13
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.1542 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 138.75 m/s² at 30°/s, 1248.71 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.6445  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.653 .. 1.384
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.869
+  PASS  w* centre: smallest w with her centre out of frame             0.3261  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.014
+  PASS  no jump: max view rotation per input degree (band and core)     1.3843  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                      1.1229  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   0.9852  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  FAIL  time: camera-added accel while dragging 30°/s (°/s²)              522  <= 110   (drags 30°/s CCW/CW)
+  FAIL  time: camera-added accel in the coast after a 30°/s release (°/s²)      275.7  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 2703.4 °/s², flick 5993.8 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 522, 90°/s 2703.4
+  INFO  coast only (after release): after 30°/s 275.7 °/s², after 90°/s 1719.2 °/s², after flick 1124.6 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.28 °/m, curvature 16.11 °/m² → 36.2 °/s² at 1.5 m/s pinch (cap 110)
+
+== variant {"aimQ":1.25}  {"edgeA":330,"edgeB":14,"W":50,"satW":30,"gazeM":1.9,"profile":"smootherstep","envK":3,"aimQ":1.25}
+  PASS  view curvature |dΩ/dθ| max (1/deg)                                0.1  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 90 °/s² at 30°/s, 810 °/s² at 90°/s (scales with ω², by design); max at θ=36.5
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.0145 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 13.03 m/s² at 30°/s, 117.31 m/s² at 90°/s
+  PASS  view turns with the hand: min signed yaw rate per input degree     0.3459  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.373 .. 1.685
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.874
+  PASS  w* centre: smallest w with her centre out of frame             0.3886  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.016
+  FAIL  no jump: max view rotation per input degree (band and core)     1.6851  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                       1.105  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   1.0436  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  PASS  time: view turns backward (frames)                                  0  <= 0   (all runs)
+  PASS  time: overshoot after release (deg)                                 0  <= 0.5   (all runs)
+  PASS  time: camera-added accel while dragging 30°/s (°/s²)             87.1  <= 110   (drags 30°/s CCW/CW)
+  FAIL  time: camera-added accel in the coast after a 30°/s release (°/s²)      130.8  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 783.4 °/s², flick 1633.4 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 130.8, 90°/s 783.4
+  INFO  coast only (after release): after 30°/s 130.8 °/s², after 90°/s 229.6 °/s², after flick 1522.9 °/s² (110 cap: §5)
+  INFO  pinch: max view rotation 11.18 °/m, curvature 16.33 °/m² → 36.7 °/s² at 1.5 m/s pinch (cap 110)
+
+== r9-style (approx.: old narrow-band position + 60° smoothstep direction slerp)  {"edgeA":330,"edgeB":14,"W":60,"profile":"smoothstep"}
+  FAIL  view curvature |dΩ/dθ| max (1/deg)                            24.2155  <= 0.12222222222222222   (θ sweep, 3 pitch × 3 dist)
+        = 21794 °/s² at 30°/s, 196145 °/s² at 90°/s (scales with ω², by design); max at θ=19.5
+  INFO  lens path curvature |d²p/dθ²| max (m/deg²) 0.7323 (3 m/s² at 30°/s would need ≤ 0.0033; not gated, §5 trade-off)
+        = 659.06 m/s² at 30°/s, 5931.58 m/s² at 90°/s
+  FAIL  view turns with the hand: min signed yaw rate per input degree   -15.7542  >= 0   (θ sweep (no backward turn))
+        band view rate per input degree J: 0.016 .. 16.089
+  PASS  orbit core (w = 0) out of safe frame (poses)                        0  <= 0   (θ sweep w = 0)
+        core worst edge NDC 0.869
+  PASS  w* centre: smallest w with her centre out of frame              0.352  >= 0.28   (band, all pitch/dist)
+  INFO  w* safe (smallest w with any body point outside the 0.9 safe frame) 0.040
+  FAIL  no jump: max view rotation per input degree (band and core)    16.0892  <= 1.5   (θ sweep)
+  PASS  lens to her body, min (m)                                       1.323  >= 1   (all θ)
+  PASS  lens to inner walls, min (m)                                   0.9744  >= 0.25   (all θ)
+  PASS  lens height max (m)                                              1.55  <= 1.55   (all θ (lensMaxY))
+  PASS  time: her centre out of frame where w ≤ w*centre (frames)           0  <= 0   (drags 30/90, flicks, 30/60/120 fps)
+  FAIL  time: view turns backward (frames)                                218  <= 0   (all runs)
+  FAIL  time: overshoot after release (deg)                             0.568  <= 0.5   (all runs)
+  FAIL  time: camera-added accel while dragging 30°/s (°/s²)          21134.1  <= 110   (drags 30°/s CCW/CW)
+  FAIL  time: camera-added accel in the coast after a 30°/s release (°/s²)      280.7  <= 110   (releases beyond, mid-band, core edge)
+        90°/s drag 115844.5 °/s², flick 211940.9 °/s² (curvature bar, ω²-scaled); incl. coast: 30°/s 21134.1, 90°/s 115844.5
+  INFO  coast only (after release): after 30°/s 280.7 °/s², after 90°/s 19208.1 °/s², after flick 25065.1 °/s² (110 cap: §5)
+
+r10 spec check PASS
