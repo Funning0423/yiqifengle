@@ -25,13 +25,13 @@ const LJ=LC.lakesideJourney(S6),toLocal=p=>rotY(-LJ.yawDeg,sub(p,LJ.root)),bank=
 const SCENE_REF=process.env.SCENE_REF||'';
 function sceneFile(rel){if(!SCENE_REF)return Jn.ROOT+'/'+rel;const cp=require('child_process'),dir='/tmp/lkscene-'+SCENE_REF.replace(/[^\w.-]/g,'_'),out=dir+'/'+rel;
  if(!fs.existsSync(out)){fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,cp.execFileSync('git',['-C',Jn.ROOT,'show',SCENE_REF+':'+rel],{maxBuffer:1<<28}));}return out;}
-function lakeInstances(){if(!SCENE_REF)return LKS.instances();const cp=require('child_process'),base='creator-build-project/assets/bundles/region_lakeside/models/';
- const changed=new Set(cp.execFileSync('git',['-C',Jn.ROOT,'diff','--name-only','HEAD',SCENE_REF,'--',base],{encoding:'utf8'}).split('\n').filter(Boolean).map(f=>f.slice(base.length)));
- const cache={};const glbT=name=>{if(!cache[name]){const nodes=loadGlb(sceneFile(base+name)).filter(n=>n.tris&&n.tris.length);let n=0;for(const x of nodes)n+=x.tris.length;const t=new Float64Array(n);let o=0;for(const x of nodes){t.set(x.tris,o);o+=x.tris.length;}cache[name]=t;}return cache[name];};
+function lakeInstances(){if(!SCENE_REF)return LKS.instances();// whole lakeside scene from the ref: its transforms json + its GLBs (same filter as lakeside-scene.cjs)
+ const base='creator-build-project/assets/bundles/region_lakeside/',T=JSON.parse(fs.readFileSync(sceneFile(base+'scene_r5h_slim_transforms.json'),'utf8'));
+ const cache={};const glbT=name=>{if(!cache[name]){const nodes=loadGlb(sceneFile(base+'models/'+name)).filter(n=>n.tris&&n.tris.length);let n=0;for(const x of nodes)n+=x.tris.length;const t=new Float64Array(n);let o=0;for(const x of nodes){t.set(x.tris,o);o+=x.tris.length;}cache[name]=t;}return cache[name];};
  const qm=([x,y,z,w],[sx,sy,sz],[tx,ty,tz])=>[(1-2*(y*y+z*z))*sx,(2*(x*y+z*w))*sx,(2*(x*z-y*w))*sx,0,(2*(x*y-z*w))*sy,(1-2*(x*x+z*z))*sy,(2*(y*z+x*w))*sy,0,(2*(x*z+y*w))*sz,(2*(y*z-x*w))*sz,(1-2*(x*x+y*y))*sz,0,tx,ty,tz,1];
- const byName=new Map(LKS.transforms.instances.filter(i=>i&&i.name).map(i=>[i.name,i]));
- return LKS.instances().map(inst=>{if(!changed.has(inst.glb))return inst;const i=byName.get(inst.name),m=qm(i.rot_quat_xyzw,i.scale,i.pos),src=glbT(inst.glb),t=new Float64Array(src.length);
-  for(let k=0;k<src.length;k+=3){const x=src[k],y=src[k+1],z=src[k+2];t[k]=m[0]*x+m[4]*y+m[8]*z+m[12];t[k+1]=m[1]*x+m[5]*y+m[9]*z+m[13];t[k+2]=m[2]*x+m[6]*y+m[10]*z+m[14];}return {...inst,tris:t};});}
+ const SKIP=['LK_board_frame.glb','LK_contact_shadow.glb','LK_ripple_ring.glb'];
+ return T.instances.filter(i=>i&&typeof i.glb==='string'&&!SKIP.includes(i.glb)&&!/^LK_piece_/.test(i.glb)&&i.name!==i.glb.replace(/\.glb$/i,'')).map(i=>{const m=qm(i.rot_quat_xyzw,i.scale,i.pos),src=glbT(i.glb),t=new Float64Array(src.length);
+  for(let k=0;k<src.length;k+=3){const x=src[k],y=src[k+1],z=src[k+2];t[k]=m[0]*x+m[4]*y+m[8]*z+m[12];t[k+1]=m[1]*x+m[5]*y+m[9]*z+m[13];t[k+2]=m[2]*x+m[6]*y+m[10]*z+m[14];}return {name:i.name,glb:i.glb,group:i.group,tris:t};});}
 async function geometry(){
  const lake=lakeInstances().map(i=>{const t=new Float64Array(i.tris.length);for(let k=0;k<t.length;k+=3){const w=LJ.toWorld([i.tris[k],i.tris[k+1],i.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lake',name:i.name,tris:t};});
  const g=await decode(sceneFile('creator-build-project/assets/bundles/region_skycity/env_skycity.glb'));if(!g)throw Error('draco3d not found: set DRACO3D');

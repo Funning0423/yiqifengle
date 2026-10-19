@@ -3,9 +3,53 @@
 分支 `cine/r5-lakeside-landing-cam`，基于 PR #60（`e9dffc01`）。
 - v1：`db51a596` / `1f5bf1d1`，评审未通过。
 - v2：`e72a0468` / `79c09eff`。
-- v2.1：见下面的 v2.1 一节（其余各节是 v2 的记录）。
+- v2.1：`8ea7a3db`，见 v2.1 一节。
+- v2.2：见 v2.2 一节（在 v2.1 之前；其余编号各节是 v2 的记录）。
 
-预览在 `/workspace/yiqifengle/previews/运镜bot/r5-lakeside-landing/v2/`。审计工具 `tools/## v2.1（在 v2 `79c09eff` 之上）
+预览在 `/workspace/yiqifengle/previews/运镜bot/r5-lakeside-landing/v2/`。审计工具 `tools/lakeside-landing-cam/audit.cjs`，数据写在同目录的 `audit.json`。
+
+## v2.2（在 v2.1 `8ea7a3db` 之上）
+预览：`/workspace/yiqifengle/previews/运镜bot/r5-lakeside-landing/v2.2/`（t 0 / 1 / 2.6 / 3.5 / 5 / 6.9 / 10.8，390×844；场景 = `825018e4` 的 env_skycity.glb + 整个 region_lakeside；女主 GLB blob f94800dc；`contact_sheet.png` 是七帧拼图；`diag_dress_isolation.png` 是裙子单独测试）。
+审计数据：`tools/lakeside-landing-cam/audit-v22-825018e4.json`（`SCENE_REF=825018e4`）。
+
+### 改了什么
+- 走路段起始镜头 W0：`walkLens [4.92,−.37,−.2,−.18,−.84,48,.46]` → `[4.92,−.37,−.3,−.18,.15,48,.46]`。机位低 0.1 m，看点从腰下抬到胸口上方。2.6 s 时：女孩包围盒占画面高度 0.32–0.64 → 0.45–0.77，近处地面占比 0.43 → 0.30，气球蒙皮占比 0.46。W1、起始混合、飞行关键帧都没动。
+
+### 审计（10 Hz，new 镜头，场景 825018e4）
+| 屏幕 | t=0 void | 走路段有射线的帧 | 飞行段 void 帧 | through | 遮挡帧（10.6–11 s） | 最小间隙 m | UI 余量 pt | 线 / 角加速度 | 跳变（起 / 终 / 下篮后） | 落地机位 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 390×844 | 0 | 0 | 0 | 0 | 0（0） | 1.339 | 21.0 | 2.809 / 84 | 0 / 0 / 0 | 间隙 2.992 m，余量 73.9，void 0 |
+| 360×780 | 0 | 0 | 0 | 0 | 0（0） | 1.339 | 16.8 | 2.809 / 84 | 0 / 0 / 0 | 2.992 / 62.9 / 0 |
+| 768×1024 | 0 | 0 | 0 | 0 | 0（0） | 1.339 | 32.7 | 2.809 / 84 | 0 / 0 / 0 | 2.992 / 226.6 / 0 |
+
+- 起始朝向 0 / 90 / 180 / −90°：线加速度 ≤2.809 m/s²，角加速度 84°/s²，起始跳变都是 0。
+- 淡黑切镜在 9.3 s（14.7 m / 71°，全黑帧内）。8.7–9.1 s 篮子在淡出时挡住她，这几帧在淡出 / 全黑里，不计入遮挡。
+- 旧方块规则下 southBank 仍报 54 / 54 / 67 帧，这是那条已经弃用的规则，看到的是真实湖岸几何。场景特效bot 提到的 (13, 39.5) 那 4 个 LK_terrain 点不在路线上，void 规则没有报。
+
+### 顶边漂浮草丛是什么
+- 修好射线基底（right = fw × Y，up = right × fw）后，射线图和 v21_t2.60.png 对得上（气球在左上，山在右）。顶边草丛的射线打中的是 **`env_skycity.glb` 的节点 / 网格 `env_sky_static_foliage_cards`**（父节点 `skycity_float_root`，材质 `M_sky_foliage_cards`，MASK、双面）。在 v2.1 的 2.6 s 帧里，顶部 460 条射线打中它，距离 10.2 m，位置在湖本地约 (−2, 4.8, 58.7)。
+- 从那个点往下打，4.2 m 内没有任何几何（下一个是 env_sky_static_palette），往上要 34 m 才打到 greattree_canopy，所以这些卡片确实**悬在半空**。
+- 归属：这是**天空之城的原始内容**。基线 `d32920c4`（Mac 原工程）里就有这个网格，`41d04c4a` / `825018e4` 里也一样。不是湖边内容，也不是 fx 新加的。
+- v2.2 的 2.6 s 帧里只剩 12 条打中它（右上角）。但 3.5–6.9 s 走到树根拱门下时还看得到（见 v22_t3.50 / t5.00 左上）。要彻底去掉，得由天空之城 / 场景特效bot 把这些卡片挪回树枝上，或者删掉。
+
+### 裙子“透明”诊断
+- GLB 里 8 个材质全部是 `alphaMode` OPAQUE（默认值），没有 alphaCutoff，没有 KHR 扩展，baseColorFactor 的 alpha 都是 1。贴图全是 JPEG（RGB，没有 alpha 通道）。各材质的 doubleSided：M_G2_APRON 是，M_G2_FACE 否，M_G2_HEAD 否，M_G2_BODY 否，M_G2_HAIR 是，M_G2_DRESS 是，ReferenceBrownBootLeather 否，ReferenceBrownBootSole 否。
+- Blender 4.5 导入后：所有材质 Principled Alpha = 1.0（没有接贴图），surface_render_method DITHERED（blend_method HASHED）。alpha 是 1 时等于不透明。backface culling 跟 doubleSided 一致。预览脚本不改任何材质。
+- 单独测试：只渲染她，背后放条纹板，分三种：全部、去掉 DRESS、去掉 BODY。三种都看不到背后的条纹。`M_G2_DRESS` 只是裙摆，袖子和上身在 `LOD0_G2_BODY` / `M_G2_BODY` 里。
+- 结论：**既不是 Blender 的问题，也不是 GLB 的透明设置**。“透明感”来自 `T_G2_BODY_1024` 袖子 UV 岛上画的肤色 / 浅色块：贴图里袖子那几条是黄色和肤色交错的，看起来像透出手臂。应该由角色那边修贴图或 UV。另外，GLB 里还有一个没有材质的 `Icosphere`（2 m，在原点）。在这几张渲染里看不到它，但最好让角色那边确认它是不是遗留物。
+
+### 预览观察
+- t0 / t1 是天空之城的跟拍镜头（按选项 1 不改），下半屏仍是草地。
+- 2.6 s：气球、她、湖和远山占满画面，下方草地大约只剩三分之一。
+- 3.5–6.9 s：在树根拱门下，构图正常，但能看到上面说的悬空草卡。
+- 10.8 s：她在篮子里，没有被挡住，背后是湖和房子。
+
+### 测试
+- loose ES5：`LakesideBalloon.ts` 0 条诊断。`test-journey-types.cjs`（strict）0 条诊断。
+- manifest：只改了自己那条（LakesideBalloon.ts，19675 bytes，sha256 与文件一致）。
+- 没有做：这一版没有跑整套 run-suite，因为 TS 只改了两个数。只渲染了 390×844 的帧。360 / 768 只做了审计。
+
+## v2.1（在 v2 `79c09eff` 之上）
 预览：`/workspace/yiqifengle/previews/运镜bot/r5-lakeside-landing/v2.1/`（只渲染改过的帧，女主 GLB blob f94800dc / bc81575f，天空之城用 b9ccb89c 的 env_skycity.glb e9395d66）。
 审计数据：`tools/lakeside-landing-cam/audit.json`（本工作树场景）、`audit-v21-seal.json`（`SCENE_REF=b9ccb89c`，地板补洞）、`audit-v21-ring.json`（`SCENE_REF=b9e29a6c`，补洞 + 湖边地面环）。
 
@@ -43,7 +87,7 @@
 - manifest：只更新了自己那条（`LakesideBalloon.ts` 的 bytes / sha256）。
 - 套件：见文末 v2.1 套件结果。
 
-lakeside-landing-cam/audit.cjs`，数据写在同目录的 `audit.json`。
+
 
 ## 0. 先更正 v1 的一处说法
 v1 说 [−7, 0.58, 53] “从地面起就能放下热气球”，这是错的。那个点下面**没有地面**：天空之城浮岛西缘在 z 55 处约 x −3.5、z 54 处约 x −2.5，这个点在岛外的空中。

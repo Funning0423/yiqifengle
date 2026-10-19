@@ -42,7 +42,7 @@ export const LAKESIDE_BALLOON_LANDING={
  /** Flight time skipped at the cut (s). */
  flightSkipS:9,
  /** Walk lens, her-relative on the walk heading: [back, side (right +), up, aimAhead, aimUp (from chest), fov, aimSide (right +)]. */
- walkLens:[4.92,-.37,-.2,-.18,-.84,48,.46] as readonly [number,number,number,number,number,number,number],
+ walkLens:[4.92,-.37,-.3,-.18,.15,48,.46] as readonly [number,number,number,number,number,number,number],
  /** Walk lens at the end of the walk (blended from walkLens on her walk progress, smootherstep). */
  walkLensEnd:[3.28,-6.51,.49,-.36,1.26,48,0] as readonly [number,number,number,number,number,number,number],
  /** Ride time: at least durationS (longer when the route needs it: cruise ≤ 4.2 m/s, |a| ≤ 3 m/s²). */

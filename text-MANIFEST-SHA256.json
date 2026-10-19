@@ -1386,8 +1386,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
-    "bytes": 19676,
-    "sha256": "bced24a97cc7892bfe027c8e82cd5b5616c8c1a10a43e92af9d6097dedf1a4b8"
+    "bytes": 19675,
+    "sha256": "7da93a154b85e991f9521e3e4b3de2c962cc29cbcd613c02b538bd982cad93bc"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts",
