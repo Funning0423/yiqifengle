@@ -1,54 +1,41 @@
 # r5-build08
 
-分支 `gbt/r5-integrated-b08`，未 push。基线 `0881f4f796df3face8f502787a7cc7e9b1dc2f59`。游戏代码与被 guard 构建的提交是 `ef40821824fc2ae39a2ec809774f9f99c67f702d`。
+分支 `gbt/r5-integrated-b08`，未 push。基线 `0881f4f7`。构建 HEAD `9ed0b65b529bb12856a39e98b7a6df8d56e587ce`。
 
-## 合入
+## 十二个 meta
 
-r10、r10b、v26fix-r2、skycity-cam-c3：任务夹没有同时具备 REPORT.md 和 STATUS「交付完成」，已跳过。`test_balloon_continuity.cjs`、`test_finale_camera_path.cjs` 因此不在本树。
+补丁 `already-installed`。干净导入没有 `importer:"*"`，也没有「初始场景不存在」。12 个变化已按 Creator 写出的内容提交（`251190e6`）：
 
-QUEUE 的 build08 条目已逐条 `--no-ff` 合入。fx 只用 r4 `805e5d6a` → r4b `e4517051` → r4c `44ba329b`。U1 `c604a5d5`，U2 `a3b04b06`，U3 覆盖三份 `first_screen_composite.jpg`（58016 B，sha256 前缀 `de0a96d5254655b1`）。未合 home-sign、windowB `37803050`、PR #59/#60/#61。`55ed0f16` 只随 U2 历史进入，按方案 A 接线。
+- `QFLDialogBody.ttf.meta`、`QFLDialogName.ttf.meta`：`files` 补上字体文件名。
+- 角色 `glb.meta`：clip 的 uuid 不变，`gltfIndex` 按 A1 重排。
+- `LK_far_hills.glb.meta` 三角 822→3106；`LK_terrain.glb.meta` 1380→3284；`env_meadow.glb.meta` 远山 576→11602。
+- `env_skycity.glb.meta`：cloudsea 3037→3097，植被卡片 8790→8720（与 r4c 的 8720 面一致），新增 `env_sky_floor_seal`。
+- `LakesideBalloon.ts.meta`、`LakesideRegionNodes.ts.meta`：只调整了 uuid 字段顺序。
+- 新文件 `dialog.meta`（directory）、`SailWakeCore.ts.meta`。
 
-角色 GLB 换成 A1，冻结清单只改这一项 sha256（`a96226da…ec37`）。`env_skycity.glb` 为 r4c 的 `02c4e3e6…`。草甸自由镜头距离保持 pitchfloor 的 14 m。fix1 到达顺序仍在：`arrived=true` 在最后一次 `paint(plan.total)` 之前，随后 `fadeCover(0,0)`。
+`shore-foam.effect.meta` 曾因编译失败变成 `imported:false`。声明 `a_matWorld` 之后恢复，没有留下失败导入。角色、草甸、天空城三份冻结 meta 的 sha256 改成了新文件。glb 本体没改。
 
-## 测试
+## 测试与包
 
-套件在 `509d85b1`：138 项，135 PASS，navigation-guard `BLOCKED_BROWSER`。当时失败：`exit-footsteps`（新 GLB 的 FootstepData；沙地脚步与 20 条出门包同目录）、`lakeside-quiet-logs`（日志已是 skycity→lakeside，取消仍不打印）。`ef408218` 之后这两项单独重跑 PASS。同一次套件里 `test_frame_background`、`test_sail_continuity`、sky-arrival（`{"lawn":4,"transitOff":7}`）、`test_lens_clearance` 为 PASS。套件报告已清出工作区，未提交。
+套件 138 项，137 PASS，navigation-guard `BLOCKED_BROWSER`。sky-arrival、`test_lens_clearance`、`test_frame_background`、`test_sail_continuity` 为 PASS。`test_balloon_continuity`、`test_finale_camera_path` 不在这棵树上。
 
-## 构建
+build-guard both，第一次通过。wechat-release **22,604,401 B**（上限 24,641,536，余 2,037,135；比上次被拒的 22,585,459 多 18,942）。web-test 23,423,150 B。相对 fix1 的 20,267,421，微信包 +2,336,980 B。DC 未测。
 
-补丁 `already-installed`。构建前 Avail 4.4 GiB，持锁跑 `build-wechat-guarded.sh both`。wechat-release 三次都编出包（22585458 / 22585459 / 22585459 B，退出码 36），guard 因 12 个 git 变化拒绝并删掉产物、还原 .meta。还原后工作区干净，所以这 12 项是构建中改写的 meta。日志里 `shore-foam.effect` 报 `a_matWorld` 未声明。web-test 未开始。
+`shore-foam.effect`：`CCGetWorldMatrix` 在属性声明之前展开，`USE_INSTANCING` 排列找不到 `a_matWorld`。属性挪到 include 之前后，构建日志里 EFX2406 为 0。房间内 `fx_shore_foam` 没有 MeshRenderer，岸线外景没拍到泡沫带。
 
-构建结束后 `df -h ~` Avail **2.3 GiB**，低于 3.5 GiB，已停，未再构建。锁已释放。桌面 `QIFENGLE-test-build05` 未改。
+`a_color`：清掉 library 后仍有 53 条，不是旧缓存。`env_skycity.glb` 里 41 个 COLOR_0 仍是 FLOAT VEC3，2 个是 r4c 的 UNSIGNED_BYTE normalized，7 个是 UNSIGNED_SHORT。没有改 glb。
 
-可删候选（未删；`du -sk`）：
+## Cocos 检查（390×844 无头）
 
-| 路径 | 大小 |
-| --- | --- |
-| `~/cursor-tasks/r5-skirt-v2-h1-compat` | 2169 MiB（其中 `.git/objects/pack/pack-19c684b2….pack` 逻辑 1.4 GiB） |
-| `~/Library/Caches/ms-playwright` | 1101 MiB |
-| `~/cursor-tasks/r5-skirt-v2-h1-preview` | 354 MiB |
-| `~/cursor-tasks/r5-bgm-fix` | 288 MiB |
-| `~/cursor-tasks/r5-skycity-clean` | 287 MiB |
-| `~/cursor-tasks/r5-room-r9` | 287 MiB |
-| `~/cursor-tasks/incoming` | 130 MiB |
-| `~/cursor-tasks/r5-skirt-v2-h1-compat/repo/creator-build-project/library` | 61 MiB |
-| `~/cursor-tasks/r5-skirt-v2-h1-compat/repo/creator-build-project/build` | 47 MiB |
-| `~/cursor-tasks/r5-build07/stage` | 43 MiB |
-| `~/cursor-tasks/r5-build06/build05-backup` | 41 MiB |
+截图：`docs/r5/build08/shots/`，任务夹 `shots/` 同名。pageerror 0。
 
-本仓库 `creator-build-project/library`、`temp`、`build` 已空。
+1. 岛上房间从外面：镜头在门外，画面是门、石拱和水，没有从外面看见单面内壳的室内面。
+2. 天空城南边远云：`env_sky_cloudsea` 和 `env_sky_cumulus_far` 在棋盘上是关的。南向画面上沿是平的暗灰 (51,51,51)，像雾墙，不像云。r10 未合入。
+3. 植被顶点色：卡片节点是开的，但近镜几乎是暗色平面，不能说顶点色正常。
+4. 加载页：是 cand6。包内 jpg sha256 `de0a96d5254655b1…`，58016 B，画面是戴草帽的女孩和「咦，起风了」。`StartupLoadingLayout.ts` 里的 `compositeSha256` 仍是旧值 `189508bc…`，只影响诊断字符串。
 
-## Cocos 检查
+## 桌面与遗留
 
-包已被 guard 删除，没有 web-test，下面四项都没有运行画面截图。
+已备份到 `~/cursor-tasks/r5-build08/build-backup/`，并原地更新 `~/Desktop/QIFENGLE-test-build05`（没有第二个文件夹）。`web/start.command` 可执行。微信 AppID `wx3bdd911c5c06f591`。`hashes.txt` 1725 行。帆船/热气球整段录像和冒烟 01–10 本轮没有重拍。
 
-1. 岛上房间外壳从外面是否可见：未截图。房间轨道与外壳脚本已合入，缺浏览器画面。
-2. 天空城南缘远云在雾里是否像墙：未截图。r10 / skycity-cam-c3 未合入。
-3. 植被顶点色：未截图。导入日志有 `a_color` 量化格式警告。
-4. cand6 加载页：文件已换上，58016 B；游戏里是否显示未截图。
-
-## 遗留
-
-- 结果面板仍是 v2.2 高度，红点资源在包里，日记/章节红点未摆上。对话气泡只接通 `setDialogCameraOpen`，没有九宫格、尾巴和七个界面。
-- 桌面包、回归录像、DC、微信包体上限都未核。被拒的 wechat 包约 22.6 MB，低于 24,641,536 B，但没有留下。
-- 磁盘回到 3.5 GiB 以上后，需要先让那 12 个 meta 与 Creator 写出的内容一致，再持锁重编。
+可删候选仍是上一份报告里的那些路径，本轮没有删。本仓库 `library`、`temp`、`build` 已清。
