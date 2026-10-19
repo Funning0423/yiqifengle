@@ -13,6 +13,8 @@ const args=process.argv.slice(2),jsonOut=args.includes('--json')?args[args.index
 const ts=require('../qf-env.cjs').typescript();
 function loadCore(target){const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'island-fx-'));
   const js=ts.transpileModule(fs.readFileSync(path.join(scripts,'render/IslandAtmosphereFxCore.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target}}).outputText;
+  // fix_r1: the core imports ./GlobalWind (smoke follows the global wind); transpile it next to core.js with the same target.
+  fs.writeFileSync(path.join(tmp,'GlobalWind.js'),ts.transpileModule(fs.readFileSync(path.join(scripts,'render/GlobalWind.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target}}).outputText);
   fs.writeFileSync(path.join(tmp,'core.js'),js);return require(path.join(tmp,'core.js'));}
 const qrot=(q,v)=>{const [x,y,z,w]=q,ix=w*v[0]+y*v[2]-z*v[1],iy=w*v[1]+z*v[0]-x*v[2],iz=w*v[2]+x*v[1]-y*v[0],iw=-x*v[0]-y*v[1]-z*v[2];return [ix*w+iw*-x+iy*-z-iz*-y,iy*w+iw*-y+iz*-x-ix*-z,iz*w+iw*-z+ix*-y-iy*-x];};
 const hashLike=i=>{const x=Math.sin(i*12.9898)*43758.5453;return x-Math.floor(x);};

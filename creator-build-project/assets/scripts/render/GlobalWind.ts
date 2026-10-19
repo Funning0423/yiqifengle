@@ -11,8 +11,11 @@
  *  - strength 1 = today's grass amplitude (shader multiplies by it). 0 = still.
  *  - pennantMps 0.524: true-wind speed the pennant feels. With the cruise speed 3.35 m/s it gives the authored pennant angle
  *    (172 deg, almost straight aft), so the cruising boat looks the same; moored, the pennant swings downwind.
- * Not driven here: WorldFlow getWindStrength() (0..1 exit-walk gust for her skirt/apron and smoke lean) stays its own
- * channel; skycity pennants are a baked clip; island smoke keeps its authored leanDir.
+ * Also driven (fix_r1): island chimney smoke (IslandAtmosphereFxCore.smokePuffs: authored leanDir turned by windYawDelta(),
+ * lean x smokeLeanScale()) and the two skycity pennants (SkycityPennantWind: extra yaw windYawDelta() on top of the baked
+ * sky_ambient_loop rotation; both pennants were authored pointing roughly along the default dir: +0.7 and +10.9 deg).
+ * Not driven here: WorldFlow getWindStrength() (0..1 exit-walk gust for her skirt/apron, and the smoke's gust term) stays its
+ * own channel; her skirt and ribbons are not wired yet.
  */
 export type GlobalWindState = { dirX: number; dirZ: number; strength: number; pennantMps: number };
 export const GLOBAL_WIND_DEFAULT: GlobalWindState = { dirX: 0.944, dirZ: -0.330, strength: 1, pennantMps: 0.524 };
@@ -77,4 +80,30 @@ export function easeAngle(cur: number, target: number, dt: number, rate: number)
 export function sailSide(app: number[], prev: number): number {
   const l = Math.sqrt(app[0] * app[0] + app[1] * app[1]); if (!(l > 1e-4)) return prev < 0 ? -1 : 1;
   const sx = app[0] / l; if (prev < 0) return sx > 0.15 ? 1 : -1; return sx < -0.15 ? -1 : 1;
+}
+
+/** Signed angle (radians, -PI..PI) from the default direction to the current one, about +y in the azimuth sense
+ * (atan2(x, z)). 0 at defaults, so every consumer that only adds this delta keeps today's look. */
+export function windYawDelta(w?: GlobalWindState): number {
+  const s = w || state, d = GLOBAL_WIND_DEFAULT;
+  let a = Math.atan2(s.dirX, s.dirZ) - Math.atan2(d.dirX, d.dirZ);
+  while (a > Math.PI) a -= 2 * Math.PI;
+  while (a < -Math.PI) a += 2 * Math.PI;
+  return Math.abs(a) < 1e-9 ? 0 : a;
+}
+/** Turn a world xz vector by `delta` (radians) in the same azimuth sense: azimuth(out) = azimuth(in) + delta. */
+export function turnXZ(x: number, z: number, delta: number): number[] {
+  if (delta === 0) return [x, z];
+  const c = Math.cos(delta), s = Math.sin(delta); return [x * c + z * s, z * c - x * s];
+}
+/** Smoke lean multiplier from strength: 1 at the default, 0 = straight up, capped at 2. */
+export function smokeLeanScale(w?: GlobalWindState): number { const s = w || state; return Math.max(0, Math.min(2, s.strength)); }
+/** Quaternion [x,y,z,w] of a pure yaw `delta` (radians) about +y; Cocos/glTF yaw a maps azimuth b to b + a. */
+export function yawQuat(delta: number): number[] { return [0, Math.sin(delta / 2), 0, Math.cos(delta / 2)]; }
+/** a * b for [x,y,z,w] quaternions (apply b first, then a). */
+export function quatMul(a: number[], b: number[]): number[] {
+  return [a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
+    a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
+    a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
+    a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]];
 }

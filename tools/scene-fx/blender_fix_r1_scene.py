@@ -4,7 +4,9 @@
 #   imports:[{glb, keep?:regex, hide?:regex, pos?, yawDeg?, scale?, tex?:{imageName: png}}],
 #   lakeside?:{repo, transforms?}  (lake-local instances, like blender_lakeside_360.py incl. the land fills),
 #   heroine?:{glb, pos, yawDeg}, puffs?:[{p:[x,y,z], r, rgb:[..], a}], sun?:{dir:[x,y,z] (glTF, light travels along), energy, rgb},
-#   world?:{rgb, strength}, hideRe?: regex over all object names, nodeYaw?:{name: deg} (extra yaw about the node's own up axis)}
+#   world?:{rgb, strength}, hideRe?: regex over all object names, frame?: animation frame (default 1),
+#   nodeYaw?:{name: deg} (freeze the clip pose at `frame`, then add a yaw about the parent's up axis, like SkycityPennantWind)}
+#   heroine.snap?: drop her onto the ground under pos; border?: [x0,y0,x1,y1] normalised from the top-left (crop of the same camera)
 import bpy, json, sys, math, os, re
 from mathutils import Matrix, Vector, Quaternion
 J = json.load(open(sys.argv[sys.argv.index('--') + 1]))
@@ -31,9 +33,10 @@ for it in J.get('imports', []):
         if im is None: raise SystemExit('no image ' + name + ' in ' + str([i.name for i in bpy.data.images]))
         im.filepath = png; im.source = 'FILE'; im.reload()
     if 'pos' in it or 'yawDeg' in it or 'scale' in it: place(objs, it.get('pos', [0, 0, 0]), it.get('yawDeg', 0), it.get('scale', 1))
-for name, deg in (J.get('nodeYaw') or {}).items():
-    o = bpy.data.objects[name]; o.rotation_mode = 'QUATERNION'
-    o.rotation_quaternion = o.rotation_quaternion @ Quaternion((0, 0, 1), math.radians(deg))
+sc.frame_set(J.get('frame', 1))
+for name, deg in (J.get('nodeYaw') or {}).items():  # like SkycityPennantWind: clip pose at `frame`, then yaw in the PARENT frame
+    o = bpy.data.objects[name]; q0 = o.matrix_basis.to_quaternion(); o.animation_data_clear(); o.rotation_mode = 'QUATERNION'
+    o.rotation_quaternion = Quaternion((0, 0, 1), math.radians(deg)) @ q0
 LK = J.get('lakeside')
 if LK:
     B = LK['repo'] + '/creator-build-project/assets/bundles/region_lakeside/'
@@ -78,7 +81,18 @@ if HZ:
     objs = imp(HZ['glb'])
     for o in objs:
         if o.type == 'MESH' and o.name.startswith('Icosphere'): o.hide_render = True
-    place(objs, HZ['pos'], HZ.get('yawDeg', 0), 1)
+    pos = list(HZ['pos'])
+    if HZ.get('snap'):  # drop onto the visible ground under pos (ray from 30 m above)
+        dg = bpy.context.evaluated_depsgraph_get(); hero = set(objs)
+        for o in objs: o.hide_set(True)
+        for o in bpy.data.objects:
+            if o.hide_render and o.name in bpy.context.view_layer.objects: o.hide_set(True)
+        dg = bpy.context.evaluated_depsgraph_get()
+        hit, loc, *_ = sc.ray_cast(dg, g2b([pos[0], pos[1] + 30, pos[2]]), Vector((0, 0, -1)))
+        for o in objs: o.hide_set(False)
+        if hit: pos[1] = loc.z
+        print('FIXR1 heroine snap', hit, pos)
+    place(objs, pos, HZ.get('yawDeg', 0), 1)
 for i, p in enumerate(J.get('puffs', [])):
     bpy.ops.mesh.primitive_uv_sphere_add(radius=p['r'], location=g2b(p['p']), segments=20, ring_count=10); o = bpy.context.object
     m = bpy.data.materials.new('puff%d' % i); m.use_nodes = True; bs = m.node_tree.nodes['Principled BSDF']
@@ -95,4 +109,7 @@ cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); sc.collection.ob
 K = J['camera']; cam.data.sensor_fit = 'VERTICAL'; cam.data.angle = math.radians(K['fovV']); cam.data.clip_start = K.get('near', .1); cam.data.clip_end = K.get('far', 3000)
 eye, tgt = g2b(K['position']), g2b(K['target']); cam.location = eye; cam.rotation_euler = (tgt - eye).to_track_quat('-Z', 'Y').to_euler()
 sc.render.resolution_x, sc.render.resolution_y = J['res']; sc.render.resolution_percentage = 100; sc.render.filepath = J['out']
+if J.get('border'):  # [x0, y0, x1, y1] normalised, y from the TOP (image coords): same camera, cropped high-res inset
+    b = J['border']; r = sc.render; r.use_border = True; r.use_crop_to_border = True
+    r.border_min_x, r.border_max_x, r.border_min_y, r.border_max_y = b[0], b[2], 1 - b[3], 1 - b[1]
 bpy.ops.render.render(write_still=True); print('FIXR1', J['out'])

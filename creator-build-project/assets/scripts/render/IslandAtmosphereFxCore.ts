@@ -15,6 +15,7 @@
  *    backdrop, out of the fixed frame, also seen through the indoor window) is left as it is.
  * None of these nodes has a collider and none is in WorldFlowComponent.lighthouseTargets: they never take taps.
  */
+import { type GlobalWindState, smokeLeanScale, turnXZ, windYawDelta } from './GlobalWind';
 export type V3 = [number, number, number];
 export type Q4 = [number, number, number, number];
 
@@ -255,13 +256,15 @@ export function moonState(t: number, cam: V3, shown: number, seaSurfaceY?: numbe
 
 export type Puff = { position: V3; rotation: Q4; scale: V3; color: V3; alpha: number; age: number; cameraFade: number };
 /** wind: getWindStrength() 0..1. nightShown: 0 day .. 1 night (eased). shown: exterior on/off fade. */
-export function smokePuffs(t: number, wind: number, nightShown: number, shown: number, cam: V3): Puff[] {
-  const S = ISLAND_FX.smoke, out: Puff[] = [], w = clamp01(wind), lean = S.leanCalm + S.leanWind * w;
+export function smokePuffs(t: number, wind: number, nightShown: number, shown: number, cam: V3, gw?: GlobalWindState): Puff[] {
+  const S = ISLAND_FX.smoke, out: Puff[] = [], w = clamp01(wind), lean = (S.leanCalm + S.leanWind * w) * smokeLeanScale(gw);
+  // R5 S3 fix_r1: GlobalWind turns the authored lean (identical at defaults: delta 0, scale 1).
+  const turned = turnXZ(S.leanDir[0], S.leanDir[2], windYawDelta(gw)), d: V3 = [turned[0], 0, turned[1]];
   for (let i = 0; i < S.count; i++) {
     const phase = (t / S.lifeS + i / S.count) % 1, age = phase < 0 ? phase + 1 : phase, cycle = Math.floor(t / S.lifeS + i / S.count);
     const seed = i * 31 + cycle * 7, rise = S.riseM * Math.pow(age, .82) * (.9 + .2 * hash01(seed)) * (1 - .25 * w);
     const sway = .12 * Math.sin(t * .8 + i * 1.7) * age, drift = lean * rise * (.7 + .6 * age);
-    const m = ISLAND_FX.chimney, d = S.leanDir;
+    const m = ISLAND_FX.chimney;
     const position: V3 = [m[0] + d[0] * drift - d[2] * sway, m[1] + .06 + rise, m[2] + d[2] * drift + d[0] * sway];
     const r = (S.r0 + (S.r1 - S.r0) * Math.pow(age, .75)) * (.85 + .3 * hash01(seed + 3)), squash = .82 + .12 * hash01(seed + 5);
     const surface = len(sub(cam, position)) - r, cameraFade = smoothstep(S.nearInnerM, S.nearOuterM, surface);

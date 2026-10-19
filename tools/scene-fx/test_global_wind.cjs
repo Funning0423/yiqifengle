@@ -111,13 +111,61 @@ check('api-set-normalise', r4(n.dirX) === 0.6 && r4(n.dirZ) === 0.8 && n.strengt
 const def0 = G.resetGlobalWind(); def0.dirX = 9; const again = G.getGlobalWind();
 check('api-reset-copy', again.dirX === 0.944 && again.dirZ === -0.330 && again.strength === 1 && r4(G.globalWindAzimuthDeg()) === r4(Math.atan2(0.944, -0.330) / D), { azDeg: r4(G.globalWindAzimuthDeg()) });
 
+// ---- fix_r1: island smoke + skycity pennants
+const rotV = function (q, v) { // rotate v by quaternion q [x,y,z,w]
+  const x = q[0], y = q[1], z = q[2], w = q[3], ix = w * v[0] + y * v[2] - z * v[1], iy = w * v[1] + z * v[0] - x * v[2], iz = w * v[2] + x * v[1] - y * v[0], iw = -x * v[0] - y * v[1] - z * v[2];
+  return [ix * w + iw * -x + iy * -z - iz * -y, iy * w + iw * -y + iz * -x - ix * -z, iz * w + iw * -z + ix * -y - iy * -x];
+};
+const azOf = function (v) { return Math.atan2(v[0], v[2]) / D; };
+G.resetGlobalWind();
+check('delta-default-zero', G.windYawDelta() === 0 && G.smokeLeanScale() === 1, { delta: G.windYawDelta() });
+G.setGlobalWindAzimuth(G.globalWindAzimuthDeg(W0) + 200);
+check('delta-wrap', r4(G.windYawDelta() / D) === -160, r4(G.windYawDelta() / D));
+const tv = G.turnXZ(0, 1, 30 * D); check('turn-azimuth', r4(azOf([tv[0], 0, tv[1]])) === 30, tv.map(r4));
+G.resetGlobalWind();
+const FX = createHarness().load('render/IslandAtmosphereFxCore.ts');
+let oldFx = null;
+try {
+  const src = cp.execFileSync('git', ['show', '619ef95a:creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts'], { cwd: root, encoding: 'utf8' });
+  const m = { exports: {} }; new Function('module', 'exports', 'require', ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5 } }).outputText)(m, m.exports, require); oldFx = m.exports;
+} catch (e) { oldFx = null; }
+const CAM = [-12, 15.5, 48], CH = FX.ISLAND_FX.chimney;
+let maxOld = -1;
+if (oldFx) for (let t = 0; t < 12; t += .7) for (const w of [0, .5, 1]) { const a = FX.smokePuffs(t, w, .3, 1, CAM), b = oldFx.smokePuffs(t, w, .3, 1, CAM); for (let i = 0; i < a.length; i++) for (let k = 0; k < 3; k++) maxOld = Math.max(maxOld, Math.abs(a[i].position[k] - b[i].position[k]), Math.abs(a[i].alpha - b[i].alpha)); }
+check('smoke-default-identical', oldFx && maxOld === 0, oldFx ? { maxDiffVs619ef95a: maxOld } : 'git show failed');
+const off = function (p) { return [p.position[0] - CH[0], 0, p.position[2] - CH[2]]; };
+let rotErr = 0; const gw = G.setGlobalWindAzimuth(G.globalWindAzimuthDeg(W0) + 90); G.resetGlobalWind();
+for (let t = 0; t < 12; t += .9) { const a = FX.smokePuffs(t, .6, 0, 1, CAM), b = FX.smokePuffs(t, .6, 0, 1, CAM, gw); for (let i = 0; i < a.length; i++) { const r = G.turnXZ(off(a[i])[0], off(a[i])[2], 90 * D), o = off(b[i]); rotErr = Math.max(rotErr, Math.abs(r[0] - o[0]), Math.abs(r[1] - o[2]), Math.abs(a[i].position[1] - b[i].position[1])); } }
+check('smoke-follows-direction', rotErr < 1e-9, { maxErr: rotErr });
+const g0 = { dirX: W0.dirX, dirZ: W0.dirZ, strength: 0, pennantMps: W0.pennantMps }, g2 = { dirX: W0.dirX, dirZ: W0.dirZ, strength: 2, pennantMps: W0.pennantMps };
+const ld = FX.ISLAND_FX.smoke.leanDir, along = function (p) { const o = off(p); return o[0] * ld[0] + o[2] * ld[2]; };
+const oldest = function (ps) { return ps.reduce(function (a, b) { return a.age > b.age ? a : b; }); };
+const a0 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM, g0))), a1 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM))), a2 = along(oldest(FX.smokePuffs(5.1, .5, 0, 1, CAM, g2)));
+check('smoke-strength', Math.abs(a0) < 1e-9 && a1 > .5 && Math.abs(a2 - 2 * a1) < 1e-9, { s0: r4(a0), s1: r4(a1), s2: r4(a2) });
+// pennants: authored flag (+x from the pole) azimuth vs the default wind, and the yaw delta in the parent frame
+const sky = fs.readFileSync(path.join(A, 'bundles/region_skycity/env_skycity.glb')), sj = JSON.parse(sky.slice(20, 20 + sky.readUInt32LE(12)).toString('utf8'));
+const pen = sj.nodes.filter(function (n) { return /^env_sky_pennant_0[12]$/.test(n.name); });
+const pa = pen.map(function (n) { return r4(wrap(azOf(rotV(n.rotation, [1, 0, 0])) - G.globalWindAzimuthDeg(W0))); });
+check('pennant-authored-downwind', pen.length === 2 && pa.every(function (d) { return Math.abs(d) < 12; }), { offsetDeg: pa });
+let penErr = 0;
+for (const dd of [-150, -40, 0, 25, 90, 179]) pen.forEach(function (n) {
+  const q = G.quatMul(G.yawQuat(dd * D), n.rotation), before = rotV(n.rotation, [1, 0, 0]), after = rotV(q, [1, 0, 0]);
+  penErr = Math.max(penErr, Math.abs(wrap(azOf(after) - azOf(before) - dd)), Math.abs(after[1] - before[1]));
+});
+check('pennant-yaw-delta', penErr < 1e-6, { maxErrDeg: penErr });
+const pw = fs.readFileSync(path.join(scripts, 'region/SkycityPennantWind.ts'), 'utf8'), rl = fs.readFileSync(path.join(scripts, 'region/RegionLoader.ts'), 'utf8');
+check('hook-pennant', /lateUpdate\(\)/.test(pw) && /quatMul\(yawQuat\(delta\)/.test(pw) && /if\(delta===0&&!s\.written\)continue;/.test(pw) && /def\.bundle==='region_skycity'\)model\.addComponent\(SkycityPennantWind\)/.test(rl));
+const fc = fs.readFileSync(path.join(scripts, 'render/IslandAtmosphereFxCore.ts'), 'utf8');
+check('hook-smoke', /turnXZ\(S\.leanDir\[0\], S\.leanDir\[2\], windYawDelta\(gw\)\)/.test(fc) && /\* smokeLeanScale\(gw\)/.test(fc));
+G.resetGlobalWind();
+
 // ---- hooks + loose ES5
 const mb = fs.readFileSync(path.join(scripts, 'region/MeadowBoardBackground.ts'), 'utf8'), sa = fs.readFileSync(path.join(scripts, 'region/SailArt.ts'), 'utf8');
 check('hook-grass', /from '\.\.\/render\/GlobalWind'/.test(mb) && /setProperty\('windDir',new Vec4\(w\[0\],w\[1\],w\[2\],0\)\)/.test(mb));
 check('hook-sail', /apparentWindLocal\(v\.yaw,v\.speed\)/.test(sa) && /boom\.setRotationFromEuler\(0,25\*\(1-open\)\*side,0\)/.test(sa) && /sailRoot\.setScale\(side,/.test(sa) && /jib\.setScale\(side,/.test(sa) && /findNode\(boat,'pennant'\)/.test(sa));
 const strip = function (t) { return t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, ''); }, BAN = /Array\.from|Object\.entries|padStart|\.\.\.[A-Za-z_(]/;
 const added = sa.split('\n').filter(function (l) { return /pennant|apparentWind|sailSide|side\)/.test(l); }).concat(mb.split('\n').filter(function (l) { return /windDir|GlobalWind/.test(l); }));
-const es5 = []; if (BAN.test(strip(fs.readFileSync(path.join(scripts, 'render/GlobalWind.ts'), 'utf8')))) es5.push('GlobalWind.ts'); added.forEach(function (l) { if (BAN.test(strip(l))) es5.push(l.trim().slice(0, 60)); });
+const es5 = []; if (BAN.test(strip(fs.readFileSync(path.join(scripts, 'render/GlobalWind.ts'), 'utf8')))) es5.push('GlobalWind.ts'); if (BAN.test(strip(pw))) es5.push('SkycityPennantWind.ts'); fc.split('\n').filter(function (l) { return /GlobalWind|turnXZ|smokeLeanScale|gw\b/.test(l); }).forEach(function (l) { if (BAN.test(strip(l))) es5.push(l.trim().slice(0, 60)); }); added.forEach(function (l) { if (BAN.test(strip(l))) es5.push(l.trim().slice(0, 60)); });
 check('loose-es5', !es5.length, es5.length ? es5 : 'GlobalWind.ts + ' + added.length + ' hook lines');
 
 const failed = checks.filter(function (c) { return !c.ok; });
