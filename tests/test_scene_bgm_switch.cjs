@@ -28,7 +28,7 @@ function loadPure(key) {
 const T = loadPure('audio/SceneAudioTable.ts');
 const { resolveSceneAudio, BGM, SCENE_AUDIO_CROSSFADE_S } = T;
 
-function musicWorld() {
+function musicWorld(opts) {
   let now = 0;
   class Emitter { constructor() { this._h = {}; } on(t, f, tg) { (this._h[t] = this._h[t] || []).push([f, tg]); } off(t, f, tg) { this._h[t] = (this._h[t] || []).filter(x => !(x[0] === f && (tg === undefined || x[1] === tg))); } emit(t, ...a) { for (const [f, tg] of (this._h[t] || []).slice()) f.apply(tg, a); } }
   const sources = [];
@@ -50,21 +50,37 @@ function musicWorld() {
     game: new Emitter(), Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, sys: { localStorage: { getItem: () => null, setItem() {} } },
     input: new Emitter(), Input: { EventType: { TOUCH_END: 'touch', MOUSE_UP: 'mouse', KEY_DOWN: 'key' } } };
   const files = { 'world-r2/LevelRegion.ts': CODE['world-r2/LevelRegion.ts'], 'audio/SceneAudioTable.ts': CODE['audio/SceneAudioTable.ts'], 'audio/GameAudio.ts': tr('audio/GameAudio.ts'), 'audio/SceneMusic.ts': tr('audio/SceneMusic.ts') };
+  if (opts && opts.layers) {
+    files['audio/AmbienceAudio.ts'] = tr('audio/AmbienceAudio.ts');
+    files['audio/BedLayerCore.ts'] = tr('audio/BedLayerCore.ts');
+    files['audio/BedLayerAudio.ts'] = tr('audio/BedLayerAudio.ts');
+  }
   const mods = {};
-  const req = from => id => { if (id === 'cc') return cc; const key = { './GameAudio': 'audio/GameAudio.ts', './SceneAudioTable': 'audio/SceneAudioTable.ts', '../world-r2/LevelRegion': 'world-r2/LevelRegion.ts' }[id]; if (!key) throw Error('unexpected ' + id + ' from ' + from); return load(key); };
+  const req = from => id => {
+    if (id === 'cc') return cc;
+    const key = { './GameAudio': 'audio/GameAudio.ts', './SceneAudioTable': 'audio/SceneAudioTable.ts', './AmbienceAudio': 'audio/AmbienceAudio.ts', './BedLayerCore': 'audio/BedLayerCore.ts', './SceneMusic': 'audio/SceneMusic.ts', '../world-r2/LevelRegion': 'world-r2/LevelRegion.ts' }[id];
+    if (!key) throw Error('unexpected ' + id + ' from ' + from);
+    return load(key);
+  };
   function load(key) { if (mods[key]) return mods[key].exports; const m = new Module(key); m.filename = path.join(S, key); m.paths = []; mods[key] = m; m.require = req(key); m._compile(files[key], m.filename); return m.exports; }
   const GA = load('audio/GameAudio.ts'), SM = load('audio/SceneMusic.ts');
+  const BL = opts && opts.layers ? load('audio/BedLayerAudio.ts') : null;
   GA.GameAudio.now = () => now;
   const a = GA.GameAudio.ensure();
   const G = global;
   G.__worldLoading = { snapshot: () => ({ phase: 'ready' }) };
   scene.byName.WorldIntegrationBoot = [{ valid: true }];
   onceCbs[0]();
+  if (BL) BL.BedLayerAudio.ensure();
   const snap = { state: 'home', stable: 'home', journey: { target: null, phase: 'idle', region: 'island' } };
   scene.byName.WorldFlowComponent = [{ valid: true, commands: () => ({ snapshot: () => snap }) }];
   const step = (sec, dt = 1 / 60) => { for (let t = 0; t < sec - 1e-9; t += dt) { now += dt * 1000; for (const s of sources) s.advance(dt); for (const c of a.node.comps) if (typeof c.update === 'function') c.update(dt); } };
   const finish = (bundleName, clipName) => { const bl = bundleLoads.find(x => x.n === bundleName && !x.done); if (!bl) return null; bl.done = true; const b = bundles[bundleName] || mkBundle(bundleName); bundles[bundleName] = b; bl.cb(null, b); const l = b.loads.find(x => !x.done); if (!l) return null; l.done = true; const c = clip(clipName, 80); l.cb(null, c); return c; };
-  return { a, snap, step, finish, input: cc.input, live: () => sources.filter(s => !s.destroyed && s.playing && s.clip), cleanup: () => { delete G.__worldLoading; delete G.__sceneAudioBed; delete G.__sceneTransitCue; } };
+  const durOf = (p) => { const name = String(p).split('/').pop(); if (name === 'amb_meadow_birds_loop') return 30.204; if (name === 'amb_meadow_insects_loop') return 19.464; if (name === 'amb_sky_air_loop') return 32.22; return 3.2; };
+  const pump = () => { for (let guard = 0; guard < 24; guard++) { const bl = bundleLoads.find(x => !x.done); if (!bl) break; bl.done = true; const b = bundles[bl.n] || mkBundle(bl.n); bundles[bl.n] = b; bl.cb(null, b); for (let g2 = 0; g2 < 24; g2++) { const l = b.loads.find(x => !x.done); if (!l) break; l.done = true; l.cb(null, clip(String(l.p).split('/').pop(), durOf(l.p))); } } };
+  const sm = a.node.comps.find(c => c instanceof SM.SceneMusic);
+  const bedPlayer = BL ? a.node.comps.find(c => c instanceof BL.BedLayerAudio) : null;
+  return { a, sm, snap, step, finish, pump, bedPlayer, core: BL ? load('audio/BedLayerCore.ts') : null, input: cc.input, live: () => sources.filter(s => !s.destroyed && s.playing && s.clip), cleanup: () => { delete G.__worldLoading; delete G.__sceneAudioBed; delete G.__sceneTransitCue; } };
 }
 
 function bed() { return global.__sceneAudioBed || {}; }
@@ -167,6 +183,118 @@ function trackOf(id) {
   w.step(0.3);
   ok(bed().place === 'meadow' && bed().gulls === false && w.a.musicDiagnostics().path === BGM.meadow.path, 'target-null arrival window stays on the meadow, no seagulls');
 
+  w.cleanup();
+}
+
+const near = (a, b, e) => Math.abs(a - b) <= e;
+{
+  const w = musicWorld({ layers: true });
+  const C = w.core;
+  ok(!!w.bedPlayer && C && C.MAX_SCATTER === 6 && w.bedPlayer.diagnostics().fadeS === 2, 'bed player is mounted; scatter cap is 6; layer crossfade is 2 s');
+  const meadow = { place: 'meadow', birds: true, insects: true, highWind: false };
+  ok(C.bedLayerTarget('birds', meadow, 0) === 0.8 && C.bedLayerTarget('insects', meadow, 0) === 0.5, 'meadow design: birds 0.8, insects 0.5');
+  ok(near(C.bedLayerVol('insects', 'meadow', 1), 0.5 * Math.pow(10, 3 / 20), 1e-6), 'insects at night are +3 dB');
+  ok(C.bedLayerTarget('highWind', { place: 'balloon', highWind: true }, 0) === 0.5 && C.bedLayerTarget('highWind', { place: 'skycity', highWind: true }, 0) === 0.75, 'high wind is 0.5 in the balloon and 0.75 in the sky city');
+  ok(C.bedLayerTarget('birds', { place: 'island', birds: false, gulls: true }, 0) === 0 && C.bedLayerTarget('insects', { place: 'sail', insects: false }, 0) === 0 && C.bedLayerTarget('highWind', { place: 'lakeside', highWind: false, lake: true }, 0) === 0 && C.bedLayerTarget('birds', { place: 'meadow', birds: false }, 0) === 0, 'island, sail, and lakeside do not open the three beds; a closed flag stays silent');
+  let curveOk = true;
+  for (let i = 0; i <= 8; i++) {
+    const u = i / 8;
+    if (!near(C.layerLevelAt(0, 0.8, u), 0.8 * Math.sin(u * Math.PI / 2), 1e-9)) curveOk = false;
+    if (!near(C.layerLevelAt(0.8, 0, u), 0.8 * Math.cos(u * Math.PI / 2), 1e-9)) curveOk = false;
+    if (!near(C.layerLevelAt(0, 0.5, u), 0.5 * Math.sin(u * Math.PI / 2), 1e-9)) curveOk = false;
+  }
+  const ride = C.layerLevelAt(0.5, 0.75, 0.5);
+  ok(curveOk && near(ride, 0.625, 1e-9) && ride <= 0.75, 'on/off is equal-power; the same loop changing level does not overshoot', ride);
+  const fileS = { birds: 30.204, insects: 19.464, highWind: 32.22 };
+  let seamFits = true;
+  const seamGap = {};
+  ['birds', 'insects', 'highWind'].forEach(id => {
+    const spec = C.BED_LOOPS[id];
+    const tail = fileS[id] - spec.loopS;
+    const need = C.encoderDelayS(spec.sr) + C.SEAM_XFADE_S;
+    seamGap[id] = { tail: +tail.toFixed(4), need: +need.toFixed(4) };
+    if (!(tail > need)) seamFits = false;
+  });
+  ok(seamFits, 'loop crossfade ends before the file ends (no wrap click)', seamGap);
+
+  function fake() { return { volume: 0, playing: false, currentTime: 0, wraps: 0, play() { this.playing = true; }, pause() { this.playing = false; }, stop() { this.playing = false; this.currentTime = 0; } }; }
+  function tick(s, dt, dur) { if (!s.playing) return; s.currentTime += dt; if (s.currentTime >= dur) { s.wraps++; s.currentTime -= dur; } }
+  const a = fake(), b = fake();
+  const loop = new C.LoopBed(C.BED_LOOPS.birds, a, b);
+  loop.ready = true;
+  const dt = 1 / 120;
+  let overlap = 0, sumBad = 0, startedAt = -1;
+  for (let i = 0; i < 120 * 32 && !(overlap > 8 && !a.playing && b.playing); i++) {
+    loop.step(dt, 0.8, true, 1);
+    if (b.playing && startedAt < 0) startedAt = a.currentTime;
+    tick(a, dt, fileS.birds); tick(b, dt, fileS.birds);
+    if (a.playing && b.playing && b.currentTime > C.encoderDelayS(32000)) {
+      overlap++;
+      if (Math.abs(a.volume + b.volume - loop.heard) > 1e-4) sumBad++;
+    }
+  }
+  ok(startedAt >= 30 && startedAt < 30.02 && overlap > 8 && sumBad === 0 && !a.playing && b.playing && a.wraps === 0 && b.wraps === 0, 'birds loop hands over on an equal-gain overlap and neither source wraps', { startedAt, overlap, sumBad, aw: a.wraps, bw: b.wraps, at: a.currentTime, bt: b.currentTime });
+  const x = fake(), y = fake();
+  y.play = function () {};
+  const broken = new C.LoopBed(C.BED_LOOPS.insects, x, y);
+  broken.ready = true;
+  for (let i = 0; i < 120 * 22; i++) { broken.step(dt, 0.5, true, 1); tick(x, dt, fileS.insects); }
+  ok(broken.diagnostics().xFailed === true && x.playing, 'if the seam partner never starts, the current loop keeps playing');
+
+  const clock = new C.ScatterClock(0.05, 0.05, () => 0);
+  let voices = [], maxN = 0, t = 0;
+  for (let i = 0; i < 80; i++) {
+    t += 0.05;
+    voices = voices.filter(e => e > t);
+    if (clock.step(0.05, true, voices.length, 1)) voices.push(t + 2);
+    if (voices.length > maxN) maxN = voices.length;
+  }
+  ok(maxN === 6 && voices.length <= 6 && clock.skipped > 0, 'at most 6 scatter voices; further ones are skipped', { maxN, skipped: clock.skipped });
+
+  w.input.emit('touch');
+  w.step(0.2);
+  ok(w.a.canPlayAmbience(), 'gesture unlocks ambience for the layer player');
+  function row(id) { return w.bedPlayer.diagnostics().layers.filter(r => r.id === id)[0]; }
+  function place(state, stable, journey) {
+    w.sm.poll = 0;
+    w.snap.state = state; w.snap.stable = stable;
+    w.snap.journey = journey || { target: null, phase: 'arrived', region: state };
+    cue(null);
+  }
+  function arm() { w.step(1 / 60); w.pump(); }
+  function sample(ids, frames) {
+    const out = {};
+    for (let i = 0; i < ids.length; i++) out[ids[i]] = [];
+    for (let k = 0; k < frames; k++) { w.step(1 / 60); for (let i = 0; i < ids.length; i++) out[ids[i]].push(row(ids[i]).level); }
+    return out;
+  }
+  place('island', 'island');
+  w.step(0.3); w.pump();
+  ok(bed().place === 'island' && bed().gulls === true && bed().waves === true && !row('birds').playing && !row('insects').playing && !row('highWind').playing && row('birds').level === 0, 'island: seagulls and waves stay on; birds, insects, and high wind are silent');
+  place('region-travel', 'island', { target: 'meadow', phase: 'ready', region: 'island' });
+  w.step(0.3);
+  ok(bed().place === 'sail' && bed().gulls === true && bed().waves === true && row('birds').level === 0 && row('highWind').level === 0 && !row('birds').playing, 'sail: seagulls and waves, still no meadow birds or high wind');
+
+  place('meadow', 'meadow', { target: null, phase: 'arrived', region: 'meadow' });
+  arm();
+  const inn = sample(['birds', 'insects'], 120), birdsIn = inn.birds, insectsIn = inn.insects;
+  ok(near(birdsIn[0], C.layerLevelAt(0, 0.8, 1 / 120), 0.02) && near(birdsIn[59], C.layerLevelAt(0, 0.8, 0.5), 0.02) && near(birdsIn[119], 0.8, 0.02), 'meadow birds fade in on the 2 s equal-power curve to 0.8', { a: birdsIn[0], mid: birdsIn[59], end: birdsIn[119] });
+  ok(near(insectsIn[119], 0.5, 0.02) && near(insectsIn[59], C.layerLevelAt(0, 0.5, 0.5), 0.02) && row('birds').playing && row('insects').playing && !row('highWind').playing && bed().gulls === false && near(row('birds').out, 0.8, 0.02) && near(row('insects').out, 0.5, 0.02), 'meadow is playing birds and insects at design volume, no seagulls or high wind', { insects: insectsIn[119], outB: row('birds').out, outI: row('insects').out });
+
+  place('region-travel', 'meadow', { target: 'skycity', phase: 'ready', region: 'meadow' });
+  arm();
+  const up = sample(['birds', 'insects', 'highWind'], 120), birdsOut = up.birds, windIn = up.highWind;
+  ok(bed().place === 'balloon' && near(birdsOut[59], C.layerLevelAt(0.8, 0, 0.5), 0.03) && near(birdsOut[119], 0, 0.02) && !row('birds').playing && !row('insects').playing, 'balloon: meadow beds fade out over 2 s', { mid: birdsOut[59], end: birdsOut[119] });
+  ok(near(windIn[59], C.layerLevelAt(0, 0.5, 0.5), 0.03) && near(windIn[119], 0.5, 0.02) && row('highWind').playing && near(row('highWind').out, 0.5, 0.02) && bed().gulls === false, 'balloon: high wind fades in to 0.5 and is the layer playing', { mid: windIn[59], end: windIn[119], out: row('highWind').out });
+
+  place('skycity', 'skycity', { target: null, phase: 'arrived', region: 'skycity' });
+  const windRide = sample(['highWind'], 120).highWind;
+  ok(bed().place === 'skycity' && near(windRide[0], C.layerLevelAt(0.5, 0.75, 1 / 120), 0.03) && near(windRide[59], 0.625, 0.03) && near(windRide[119], 0.75, 0.02) && row('highWind').playing && !row('birds').playing && bed().gulls === false && bed().lake === false, 'sky city: high wind rises 0.5 → 0.75, no birds or seagulls', { a: windRide[0], mid: windRide[59], end: windRide[119] });
+
+  place('lakeside', 'lakeside', { target: null, phase: 'arrived', region: 'lakeside' });
+  const windOut = sample(['highWind'], 120).highWind;
+  ok(bed().place === 'lakeside' && bed().lake === true && bed().gulls === false && bed().waves === false && bed().birds === false && bed().highWind === false && near(windOut[59], C.layerLevelAt(0.75, 0, 0.5), 0.03) && near(windOut[119], 0, 0.02) && !row('highWind').playing && !row('birds').playing && !row('insects').playing, 'lakeside: only the lake bed; high wind fades out and the three loops are silent', { mid: windOut[59], end: windOut[119] });
+  ok(w.bedPlayer.diagnostics().scatter.cap === 6 && w.bedPlayer.diagnostics().scatter.playing <= 6, 'scatter voices never exceed 6', w.bedPlayer.diagnostics().scatter);
   w.cleanup();
 }
 
