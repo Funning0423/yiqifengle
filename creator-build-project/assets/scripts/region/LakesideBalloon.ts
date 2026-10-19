@@ -41,18 +41,22 @@ export const LAKESIDE_BALLOON_LANDING={
  liftHoldS:0,
  /** Flight time skipped at the cut (s). */
  flightSkipS:9,
- /** Walk lens, her-relative on the walk heading: [back, side (right +), up, aimAhead, aimUp (from chest), fov]. */
- walkLens:[12.75,-1.76,.3,1.03,.29,48] as readonly [number,number,number,number,number,number],
+ /** Walk lens, her-relative on the walk heading: [back, side (right +), up, aimAhead, aimUp (from chest), fov, aimSide (right +)]. */
+ walkLens:[4.92,-.37,-.2,-.18,-.84,48,.46] as readonly [number,number,number,number,number,number,number],
+ /** Walk lens at the end of the walk (blended from walkLens on her walk progress, smootherstep). */
+ walkLensEnd:[3.28,-6.51,.49,-.36,1.26,48,0] as readonly [number,number,number,number,number,number,number],
  /** Ride time: at least durationS (longer when the route needs it: cruise ≤ 4.2 m/s, |a| ≤ 3 m/s²). */
  durationS:30,
  easeInS:5,
  easeOutS:7,
  /** Lens keys on ride time τ (0…1): [τ, along, side, up] of the LENS in the flight frame (absolute: the skycity tree and
   *  the bank are fixed in this frame), then her-relative aim [ahead, side, up] from her chest (basket + 1.2 m), FOV. */
- keys:[[0,-4.66,3.47,6,0,0,0,48],[.15,-.55,15.47,7.63,0,0,3.32,48],[.35,6.93,7.01,12.25,0,0,1.79,48],[.55,3.25,.02,13.58,0,0,-2.28,48],[.72,7.18,-4.99,18.57,1,0,.99,48],[.88,17.21,-2.39,17.4,1.5,0,-.22,50],[1,24.6,3.7,3,6,0,-1.5,54]] as ReadonlyArray<readonly [number,number,number,number,number,number,number,number]>,
+ keys:[[0,-4.66,3.47,6,0,0,0,48],[.15,-5.74,13.48,7.63,0,0,3.32,48],[.35,4.55,5.17,12.25,0,0,1.79,48],[.55,3.25,.02,13.58,0,0,-2.28,48],[.72,7.18,-4.99,18.57,1,0,.99,48],[.88,17.21,-2.39,17.4,1.5,0,-.22,50],[1,24.6,3.7,3,6,0,-1.5,54]] as ReadonlyArray<readonly [number,number,number,number,number,number,number,number]>,
  /** Start: blend from the camera she had in the skycity, at least this long (longer for big view / position gaps,
   *  SPEC §6.1: T = max(blendInS, √(5.7735·Δ°/120), √(5.7735·L/3))), never more than blendInMaxFrac of the ride. */
  blendInS:7.5,
+ /** v2 ride: start blend (skycity camera → walk lens) length (s). */
+ walkBlendInS:3.93,
  blendInMaxFrac:1,
  /** End: smootherstep from the keyed lens onto the landing pose over the last blendOutS (position lerp, view slerp, FOV). */
  blendOutS:8,
@@ -169,11 +173,12 @@ export type LakesideBalloonRide=Readonly<{flight:LakesideBalloonFlight;walk:Vec[
 /** v2 ride: walk S6 → the moored basket (production walk), board under a fade, fly launch → bank, end on `landing`.
  *  walk = world points from her start (S6) to the boarding spot; launch = world basket position (moored at the edge). */
 /** Round each inner corner of a walk polyline with a quadratic arc of up to `r` m (dense points), so she turns smoothly. */
+const WALK_BLEND_MARGIN=1.6;
 export function roundWalk(pts:readonly Vec[],r:number):Vec[]{
  if(pts.length<3)return pts.map(p=>[p[0],p[1],p[2]] as Vec);const out:Vec[]=[[pts[0][0],pts[0][1],pts[0][2]]];
  for(let i=1;i<pts.length-1;i++){const a=pts[i-1],b=pts[i],c=pts[i+1],l0=seg(a,b),l1=seg(b,c),k=Math.min(r,l0/2,l1/2);
   const p:Vec=[b[0]+(a[0]-b[0])*k/l0,b[1]+(a[1]-b[1])*k/l0,b[2]+(a[2]-b[2])*k/l0],q:Vec=[b[0]+(c[0]-b[0])*k/l1,b[1]+(c[1]-b[1])*k/l1,b[2]+(c[2]-b[2])*k/l1];
-  for(let j=0;j<=8;j++){const u=j/8,w0=(1-u)*(1-u),w1=2*u*(1-u),w2=u*u;out.push([w0*p[0]+w1*b[0]+w2*q[0],w0*p[1]+w1*b[1]+w2*q[1],w0*p[2]+w1*b[2]+w2*q[2]]);}}
+  for(let j=0;j<=32;j++){const u=j/32,w0=(1-u)*(1-u),w1=2*u*(1-u),w2=u*u;out.push([w0*p[0]+w1*b[0]+w2*q[0],w0*p[1]+w1*b[1]+w2*q[1],w0*p[2]+w1*b[2]+w2*q[2]]);}}
  const e=pts[pts.length-1];out.push([e[0],e[1],e[2]]);return out;
 }
 export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:Pose,knobs:BalloonKnobs=LAKESIDE_BALLOON_LANDING):LakesideBalloonRide{
@@ -190,17 +195,19 @@ export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:P
  const girlYaw=(t:number):number=>{if(t>=cutT)return flight.girlYawRad;const d=walkAt(t),a=sampleRoute(walk,Math.max(0,d-.3)),b=sampleRoute(walk,Math.min(wl,d+.3));return Math.atan2(b[0]-a[0],b[2]-a[2]);};
  const vehicle=(t:number):Vec=>t<cutT?flight.vehicle(0):flight.vehicle(t-liftT);
  const cover=(t:number):number=>t<fadeOutAt?0:t<fadeOutAt+knobs.boardFadeOutS?(t-fadeOutAt)/knobs.boardFadeOutS:t<fadeInAt?1:t<fadeInAt+knobs.boardFadeInS?1-(t-fadeInAt)/knobs.boardFadeInS:0;
- const WL=knobs.walkLens;
- const walkLens=(t:number):Pose=>{const p=girl(Math.min(t,walkS)),c:Vec=[p[0],p[1]+CHEST,p[2]];
-  return {position:[p[0]-wd[0]*WL[0]+wr[0]*WL[1],p[1]+CHEST+WL[2],p[2]-wd[1]*WL[0]+wr[1]*WL[1]],target:[c[0]+wd[0]*WL[3],c[1]+WL[4],c[2]+wd[1]*WL[3]],fovVerticalDeg:WL[5]};};
- let turn=0,fromKey:Pose|null=null;
+ const walkLens=(t:number):Pose=>{const p=girl(Math.min(t,walkS)),c:Vec=[p[0],p[1]+CHEST,p[2]],e=smooth5(walkAt(t)/wl),W0=knobs.walkLens,W1=knobs.walkLensEnd,WL=[0,1,2,3,4,5,6].map(i=>(W0[i]||0)+((W1[i]||0)-(W0[i]||0))*e);
+  return {position:[p[0]-wd[0]*WL[0]+wr[0]*WL[1],p[1]+CHEST+WL[2],p[2]-wd[1]*WL[0]+wr[1]*WL[1]],target:[c[0]+wd[0]*WL[3]+wr[0]*WL[6],c[1]+WL[4],c[2]+wd[1]*WL[3]+wr[1]*WL[6]],fovVerticalDeg:WL[5]};};
+ // start blend: walkBlendInS for the default skycity follow camera, longer when the live camera starts further away (SPEC §6.1
+ // rule on the orbit arc, ×WALK_BLEND_MARGIN for her own walk-off acceleration riding on the blend)
+ let turn=0,fromKey:Pose|null=null,walkBlendS:number=knobs.walkBlendInS;
  const camera=(t:number,from:Pose|null):Pose=>{
   if(t>=T)return landing;
   if(t>=cutT)return flight.camera(Math.max(0,t-liftT),null)/* cut under full black */;
   let pose=walkLens(t);
-  if(from&&t<knobs.blendInS){const p=girl(t),c:Vec=[p[0],p[1]+CHEST,p[2]];
+  if(from&&from!==fromKey){const p0=girl(0);walkBlendS=Math.min(walkS,Math.max(knobs.walkBlendInS,WALK_BLEND_MARGIN*balloonBlendInS(from,walkLens(0),walkS,{...knobs,blendInS:0,blendInMaxFrac:1} as unknown as BalloonKnobs,[p0[0],p0[1]+CHEST,p0[2]])));}
+  if(from&&t<walkBlendS){const p=girl(t),c:Vec=[p[0],p[1]+CHEST,p[2]];
    if(from!==fromKey){fromKey=from;const q=walkLens(0).position,p0=girl(0),da=Math.atan2(q[0]-p0[0],q[2]-p0[2])-Math.atan2(from.position[0]-p0[0],from.position[2]-p0[2]);turn=Math.sin(da)>=0?1:-1;}
-   const e=smooth5(t/knobs.blendInS),a:Vec=[from.position[0]-c[0],from.position[1]-c[1],from.position[2]-c[2]],b:Vec=[pose.position[0]-c[0],pose.position[1]-c[1],pose.position[2]-c[2]],o=orbitOffset(a,b,e,turn);
+   const e=smooth5(t/walkBlendS),a:Vec=[from.position[0]-c[0],from.position[1]-c[1],from.position[2]-c[2]],b:Vec=[pose.position[0]-c[0],pose.position[1]-c[1],pose.position[2]-c[2]],o=orbitOffset(a,b,e,turn);
    const v=blendPose(from,pose,e),q:Vec=[c[0]+o[0],c[1]+o[1],c[2]+o[2]],d=unit(v.position,v.target);
    pose={position:q,target:[q[0]+d[0]*10,q[1]+d[1]*10,q[2]+d[2]*10],fovVerticalDeg:v.fovVerticalDeg};}
   return pose;};

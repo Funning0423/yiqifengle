@@ -20,14 +20,26 @@ const BLOCK_Z1=90,BLOCK_X0=-36,BLOCK_X1=33;
 const S6=add(rotY(SKY_YAW,[0.2,0.032,-27.8]),sOff),S4=add(rotY(SKY_YAW,[0.2,3.308,-5.8]),sOff);
 const LJ=LC.lakesideJourney(S6),toLocal=p=>rotY(-LJ.yawDeg,sub(p,LJ.root)),bank=LJ.arrival[LJ.arrival.length-1];
 // ---- geometry ----
+// SCENE_REF=<git ref>: audit against the scene GLBs of another branch/commit (env_skycity.glb + every region_lakeside model that
+// differs), extracted with `git show` into /tmp; scripts/knobs stay this worktree's. Unset = this worktree's own GLBs.
+const SCENE_REF=process.env.SCENE_REF||'';
+function sceneFile(rel){if(!SCENE_REF)return Jn.ROOT+'/'+rel;const cp=require('child_process'),dir='/tmp/lkscene-'+SCENE_REF.replace(/[^\w.-]/g,'_'),out=dir+'/'+rel;
+ if(!fs.existsSync(out)){fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,cp.execFileSync('git',['-C',Jn.ROOT,'show',SCENE_REF+':'+rel],{maxBuffer:1<<28}));}return out;}
+function lakeInstances(){if(!SCENE_REF)return LKS.instances();const cp=require('child_process'),base='creator-build-project/assets/bundles/region_lakeside/models/';
+ const changed=new Set(cp.execFileSync('git',['-C',Jn.ROOT,'diff','--name-only','HEAD',SCENE_REF,'--',base],{encoding:'utf8'}).split('\n').filter(Boolean).map(f=>f.slice(base.length)));
+ const cache={};const glbT=name=>{if(!cache[name]){const nodes=loadGlb(sceneFile(base+name)).filter(n=>n.tris&&n.tris.length);let n=0;for(const x of nodes)n+=x.tris.length;const t=new Float64Array(n);let o=0;for(const x of nodes){t.set(x.tris,o);o+=x.tris.length;}cache[name]=t;}return cache[name];};
+ const qm=([x,y,z,w],[sx,sy,sz],[tx,ty,tz])=>[(1-2*(y*y+z*z))*sx,(2*(x*y+z*w))*sx,(2*(x*z-y*w))*sx,0,(2*(x*y-z*w))*sy,(1-2*(x*x+z*z))*sy,(2*(y*z+x*w))*sy,0,(2*(x*z+y*w))*sz,(2*(y*z-x*w))*sz,(1-2*(x*x+y*y))*sz,0,tx,ty,tz,1];
+ const byName=new Map(LKS.transforms.instances.filter(i=>i&&i.name).map(i=>[i.name,i]));
+ return LKS.instances().map(inst=>{if(!changed.has(inst.glb))return inst;const i=byName.get(inst.name),m=qm(i.rot_quat_xyzw,i.scale,i.pos),src=glbT(inst.glb),t=new Float64Array(src.length);
+  for(let k=0;k<src.length;k+=3){const x=src[k],y=src[k+1],z=src[k+2];t[k]=m[0]*x+m[4]*y+m[8]*z+m[12];t[k+1]=m[1]*x+m[5]*y+m[9]*z+m[13];t[k+2]=m[2]*x+m[6]*y+m[10]*z+m[14];}return {...inst,tris:t};});}
 async function geometry(){
- const lake=LKS.instances().map(i=>{const t=new Float64Array(i.tris.length);for(let k=0;k<t.length;k+=3){const w=LJ.toWorld([i.tris[k],i.tris[k+1],i.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lake',name:i.name,tris:t};});
- const g=await decode(Jn.ROOT+'/creator-build-project/assets/bundles/region_skycity/env_skycity.glb');if(!g)throw Error('draco3d not found: set DRACO3D');
+ const lake=lakeInstances().map(i=>{const t=new Float64Array(i.tris.length);for(let k=0;k<t.length;k+=3){const w=LJ.toWorld([i.tris[k],i.tris[k+1],i.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lake',name:i.name,tris:t};});
+ const g=await decode(sceneFile('creator-build-project/assets/bundles/region_skycity/env_skycity.glb'));if(!g)throw Error('draco3d not found: set DRACO3D');
  const sky=[];for(const name in g.meshes){if(/cloudsea|cumulus_far|cloud_small|Icosphere|_after/.test(name))continue;const tr=g.meshes[name],t=new Float64Array(tr.length*9);let o=0;
   for(const tri of tr)for(const v of tri){const w=add(rotY(SKY_YAW,v),sOff);t[o++]=w[0];t[o++]=w[1];t[o++]=w[2];}sky.push({tag:'sky',name,tris:t});}
  const bal=loadGlb(Jn.ROOT+'/creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb').filter(n=>n.tris&&n.tris.length&&!/flame/.test(n.name)).map(n=>({tag:'balloon',name:n.name,tris:Float64Array.from(n.tris)}));
  const stat=FL.buildBvh([...lake,...sky]),foot=new Map();// skycity floor footprint in the block (1 m cells): floor within y −1…2
- for(let x=BLOCK_X0;x<=BLOCK_X1;x++)for(let z=BANK_Z;z<=BLOCK_Z1;z++){const h=FL.cast(stat,LJ.toWorld([x+.5,6,z+.5]),[0,-1,0],10);if(h&&h.obj.tag==='sky'&&6-h.t>-1&&6-h.t<2)foot.set(x+','+z,1);}
+ for(let x=BLOCK_X0;x<=BLOCK_X1;x++)for(let z=BANK_Z;z<=BLOCK_Z1;z++){const h=FL.cast(stat,LJ.toWorld([x+.5,6,z+.5]),[0,-1,0],10);if(h&&h.obj.tag==='sky'&&6-h.t>-1&&6-h.t<2)foot.set(x+','+z,6-h.t);}
  return {stat,bal,foot,lakeN:lake.length,skyN:sky.length};
 }
 const balAt=(G,p)=>FL.buildBvh(G.bal.map(o=>{const t=new Float64Array(o.tris.length);for(let k=0;k<t.length;k+=3){t[k]=o.tris[k]+p[0];t[k+1]=o.tris[k+1]+p[1];t[k+2]=o.tris[k+2]+p[2];}return {tag:'balloon',name:o.name,tris:t};}));
@@ -64,6 +76,33 @@ function southBank(G,bb,pose,aspect,cols=27,rows=58){const {fw,r,up,th}=basis(po
   const o=toLocal(pose.position),dl=rotY(-LJ.yawDeg,u);if(dl[1]<-1e-6){const t=(LAKE_Y-o[1])/dl[1];if(t>0){const z=o[2]+dl[2]*t;maxZ=Math.max(maxZ,z);const x=o[0]+dl[0]*t;if(z>BANK_Z&&z<=BLOCK_Z1&&x>=BLOCK_X0&&x<=BLOCK_X1){const cx=Math.floor(x),cz=Math.floor(z);let f=0;for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)if(G.foot.has((cx+i)+','+(cz+j)))f++;
    if(f>=3)gap++;/* a hole inside the skycity floor: 场景特效bot */else{bad++;edge++;}}else sideVoid++;}}}
  return {bad,lakeHit,edge,gap,skyBlock,maxZ:+maxZ.toFixed(2),sideVoid,n:cols*rows};}
+function southBankDump(G,bb,pose,aspect,cols=27,rows=58){const {fw,r,up,th}=basis(pose);let bad=0,skyBlock=0,maxZ=-1e9,sideVoid=0,gap=0,edge=0,lakeHit=0;
+ for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const x=((i+.5)/cols*2-1)*th*aspect,y=((j+.5)/rows*2-1)*th,d=[fw[0]+r[0]*x+up[0]*y,fw[1]+r[1]*x+up[1]*y,fw[2]+r[2]*x+up[2]*y],l=Math.hypot(...d),u=d.map(v=>v/l);
+  const a=FL.cast(G.stat,pose.position,u,800),b=bb?FL.cast(bb,pose.position,u,800):null,h=[a,b].filter(Boolean).sort((p,q)=>p.t-q.t)[0];
+  if(h&&h.obj.tag==='balloon')continue;
+  if(h){const p=add(pose.position,u.map(v=>v*h.t)),q=toLocal(p);if(h.obj.tag==='lake'){if(q[1]<3)maxZ=Math.max(maxZ,q[2]);if(q[2]>BANK_Z&&q[1]<3){bad++;lakeHit++;}}else if(q[2]>BANK_Z&&q[1]<3)skyBlock++;continue;}
+  // no hit: where does it cross the lake ground plane?
+  const o=toLocal(pose.position),dl=rotY(-LJ.yawDeg,u);if(dl[1]<-1e-6){const t=(LAKE_Y-o[1])/dl[1];if(t>0){const z=o[2]+dl[2]*t;maxZ=Math.max(maxZ,z);const x=o[0]+dl[0]*t;if(z>BANK_Z&&z<=BLOCK_Z1&&x>=BLOCK_X0&&x<=BLOCK_X1){const cx=Math.floor(x),cz=Math.floor(z);let f=0;for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)if(G.foot.has((cx+i)+','+(cz+j)))f++;
+   if(f>=3)gap++;/* a hole inside the skycity floor: 场景特效bot */else{bad++;edge++;(globalThis.__EDGE=globalThis.__EDGE||[]).push([+x.toFixed(2),+z.toFixed(2),i,j,f]);}}else sideVoid++;}}}
+ return {bad,lakeHit,edge,gap,skyBlock,maxZ:+maxZ.toFixed(2),sideVoid,n:cols*rows};}
+// VOID RULE (v2.1, replaces the south-bank block rule): a ray of the frame grid counts ONLY when it shows a hole or an unfinished
+// area, never when it shows real geometry (ground, apron, hills, trees, water, the balloon), wherever that geometry is:
+//  · void:    it misses every mesh (lakeside + skycity + balloon, 800 m) while pointing more than 0.6° below the horizon
+//             → the empty clear colour under the horizon (an unfinished edge / the empty south bank, or a gap seen from above);
+//  · through: it crosses the skycity deck level (lake-local y 0.58) inside the floor INTERIOR (that 1 m cell and all 8
+//             neighbours are skycity floor: top-down casts landing on skycity geometry within y −1…2) and its first hit lies
+//             > 0.75 m below the deck → it fell through a hole in the floor. Rays that pass the rim are never "through":
+//             whatever they hit beyond it is real ground (or, if nothing, they are void).
+// Sky rays (no hit, at/above the horizon) and every first hit on a real surface do not count. No x/z box: works unchanged
+// before and after the lakeside ground ring lands.
+const VOID_DY=-Math.sin(.6*Math.PI/180),THROUGH_M=.75;
+function voidRays(G,bb,pose,aspect,cols=27,rows=58){const {fw,r,up,th}=basis(pose),o=toLocal(pose.position);let vd=0,thr=0;
+ for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const x=((i+.5)/cols*2-1)*th*aspect,y=((j+.5)/rows*2-1)*th,d=[fw[0]+r[0]*x+up[0]*y,fw[1]+r[1]*x+up[1]*y,fw[2]+r[2]*x+up[2]*y],l=Math.hypot(...d),u=d.map(v=>v/l);
+  const a=FL.cast(G.stat,pose.position,u,800),b=bb?FL.cast(bb,pose.position,u,800):null,h=[a,b].filter(Boolean).sort((p,q)=>p.t-q.t)[0];
+  if(!h){if(u[1]<VOID_DY)vd++;continue;}
+  if(h.obj.tag==='balloon')continue;const q=toLocal(add(pose.position,u.map(v=>v*h.t)));
+  if(o[1]>LAKE_Y&&q[1]<LAKE_Y-THROUGH_M){const k=(LAKE_Y-o[1])/(q[1]-o[1]),cx=Math.floor(o[0]+(q[0]-o[0])*k),cz=Math.floor(o[2]+(q[2]-o[2])*k);let f=0;for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++)if(G.foot.has((cx+a)+','+(cz+c)))f++;if(f===9)thr++;}}
+ return {bad:vd+thr,void:vd,through:thr,n:cols*rows};}
 // ---- shots ----
 const smooth5=x=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
 function startCamera(variant){// skycity follow (free-camera SPEC default: pitch 17°, 7.36 m, FOV 48) behind her, she faces S4→S6 (+variant°)
@@ -91,27 +130,28 @@ function kinematics(shot,from){if(shot.cut!=null&&!shot.__part){const a=kinemati
  for(let i=0;i+1<W.length;i++){const al=Math.hypot(...[0,1,2].map(c=>(W[i+1][c]-W[i][c])/dt));if(al>alMax){alMax=al;alAt=T0+i*dt;}wMax=Math.max(wMax,Math.hypot(...W[i]));}
  return {linAccMax:+aMax.toFixed(3),linAt:+aAt.toFixed(2),angAccMax:+alMax.toFixed(2),angAt:+alAt.toFixed(2),angVelMax:+wMax.toFixed(2),fovRateMax:+fovRate.toFixed(2)};}
 function jump(a,b){return {posM:+Math.hypot(...sub(a.position,b.position)).toFixed(4),viewDeg:+ang(dirOf(a),dirOf(b)).toFixed(3),fovDeg:+Math.abs((a.fovVerticalDeg||48)-(b.fovVerticalDeg||48)).toFixed(3)};}
-module.exports={oldShot,newShot,geometry,balAt,nearest,uiCheck,southBank,balloonOnScreen,los,kinematics,startCamera,landingFor,S6,bank,toLocal,LJ,B,KN,SCREENS};
+module.exports={voidRays,SCENE_REF,southBankDump,oldShot,newShot,geometry,balAt,nearest,uiCheck,southBank,balloonOnScreen,los,kinematics,startCamera,landingFor,S6,bank,toLocal,LJ,B,KN,SCREENS};
 if(require.main===module)(async()=>{
- const G=await geometry(),out={knobs:KN,S6,bankWorld:bank,bankLocal:toLocal(bank),screens:{}};const from=startCamera(0);console.log('startCam local',JSON.stringify(toLocal(from.position)),JSON.stringify(toLocal(from.target)));
+ const G=await geometry(),out={sceneRef:SCENE_REF||'worktree',knobs:KN,S6,bankWorld:bank,bankLocal:toLocal(bank),screens:{}};const from=startCamera(0);console.log('startCam local',JSON.stringify(toLocal(from.position)),JSON.stringify(toLocal(from.target)));
  for(const scr of (process.argv.includes('--fast')?SCREENS.slice(0,1):SCREENS)){const key=scr.join('x'),land=landingFor(scr),aspect=scr[0]/scr[1],res={};
   for(const shot of [oldShot(),newShot(land)]){const T=shot.timing.durationS,rows=[],fast=process.argv.includes('--fast');
-   const w={clear:1e9,gap:1e9,env:1,bad:0,lakeHit:0,edge:0,gapF:0,skyBlock:0,los:0,height:1e9,balloon:1e9,balloonWho:'',girl:1e9,crop:0,frames:0};
+   const w={vFrames:0,vRays:0,v0:null,walkMax:0,walkFrames:0,walkLast:-1,clear:1e9,gap:1e9,env:1,bad:0,lakeHit:0,edge:0,gapF:0,skyBlock:0,los:0,height:1e9,balloon:1e9,balloonWho:'',girl:1e9,crop:0,frames:0};
    for(let t=0;t<=T+1e-9;t+=fast?1/2:1/10){const cov=shot.cover?shot.cover(t):0,pose=shot.camera(t,from),v=shot.vehicle(t),girl=shot.girl(t),bb=balAt(G,v);
     const bc=balloonClear(G,v),gc=girlClear(G,girl);w.balloon=Math.min(w.balloon,bc.d);if(bc.d<=w.balloon)w.balloonWho=bc.who;w.girl=Math.min(w.girl,gc);
     if(cov>=.999){rows.push({t:+t.toFixed(2),black:true,balloonClear:+bc.d.toFixed(2)});continue;}
-    w.frames++;const cl=Math.min(nearest(G.stat,pose.position).d,nearest(bb,pose.position).d),ui=uiCheck(pose,girl,scr),sb=southBank(G,bb,pose,aspect,18,39),bo=balloonOnScreen(pose,aspect,v);
+    w.frames++;const cl=Math.min(nearest(G.stat,pose.position).d,nearest(bb,pose.position).d),ui=uiCheck(pose,girl,scr),sb=southBank(G,bb,pose,aspect,18,39),vr=voidRays(G,bb,pose,aspect),bo=balloonOnScreen(pose,aspect,v);
     const head=los(G,shot.name==='new'?bb:null,pose.position,[girl[0],girl[1]+1.55,girl[2]]),chest=los(G,shot.name==='new'?bb:null,pose.position,[girl[0],girl[1]+1.2,girl[2]]);
-    rows.push({t:+t.toFixed(2),cover:+cov.toFixed(2),clear:+cl.toFixed(2),gap:ui.gap,h:ui.heightFrac,env:+bo.envelope.toFixed(2),basket:bo.basket,bad:sb.bad,lakeHit:sb.lakeHit,edge:sb.edge,floorGap:sb.gap,sky:sb.skyBlock,maxZ:sb.maxZ,head,chest,balloonClear:+bc.d.toFixed(2),girlClear:+gc.toFixed(2),g:toLocal(girl).map(x=>+x.toFixed(2))});
+    rows.push({t:+t.toFixed(2),cover:+cov.toFixed(2),voidRays:vr.void,throughRays:vr.through,clear:+cl.toFixed(2),gap:ui.gap,h:ui.heightFrac,env:+bo.envelope.toFixed(2),basket:bo.basket,bad:sb.bad,lakeHit:sb.lakeHit,edge:sb.edge,floorGap:sb.gap,sky:sb.skyBlock,maxZ:sb.maxZ,head,chest,balloonClear:+bc.d.toFixed(2),girlClear:+gc.toFixed(2),g:toLocal(girl).map(x=>+x.toFixed(2))});
+    if(t===0)w.v0=vr.bad;if(vr.bad){w.vFrames++;w.vRays+=vr.bad;}if(shot.cut!=null&&t<shot.cut){w.walkMax=Math.max(w.walkMax,vr.bad);if(vr.bad){w.walkFrames++;w.walkLast=t;}}
     w.clear=Math.min(w.clear,cl);w.gap=Math.min(w.gap,ui.gap);w.env=Math.min(w.env,bo.envelope);w.bad+=sb.bad>0?1:0;w.lakeHit+=sb.lakeHit>0?1:0;w.edge+=sb.edge>0?1:0;w.gapF+=sb.gap>0?1:0;w.skyBlock+=sb.skyBlock>0?1:0;w.los+=(head||chest)?1:0;w.height=Math.min(w.height,ui.heightFrac);}
    const endPose=shot.camera(T,from);
-   res[shot.name]={durationS:T,lengthM:+shot.total.toFixed(2),frames:w.frames,minClearM:+w.clear.toFixed(3),minUiGapPt:w.gap,minEnvelopeOnScreen:w.env,southBankBadFrames:w.bad,lakeGroundBeyond42Frames:w.lakeHit,offEdgeFrames:w.edge,skycityFloorGapFrames:w.gapF,skycityDeckInBlockFrames:w.skyBlock,
+   res[shot.name]={voidRule:{raysAtT0:w.v0,framesWithAny:w.vFrames,raySum:w.vRays,walkFramesWithAny:w.walkFrames,walkMaxRays:w.walkMax,walkLastT:+w.walkLast.toFixed(2)},durationS:T,lengthM:+shot.total.toFixed(2),frames:w.frames,minClearM:+w.clear.toFixed(3),minUiGapPt:w.gap,minEnvelopeOnScreen:w.env,southBankBadFrames:w.bad,lakeGroundBeyond42Frames:w.lakeHit,offEdgeFrames:w.edge,skycityFloorGapFrames:w.gapF,skycityDeckInBlockFrames:w.skyBlock,
     occludedFrames:w.los,minGirlHeightFrac:w.height,minBalloonClearM:+w.balloon.toFixed(3),balloonNearest:w.balloonWho,minGirlBodyClearM:+w.girl.toFixed(3),kin:kinematics(shot,from),startJump:jump(from,shot.camera(0,from)),
     cutUnderBlack:shot.cut!=null?{t:+shot.cut.toFixed(2),...jump(shot.camera(shot.cut-1e-3,from),shot.camera(shot.cut+1e-3,from))}:null,
     endVsLanding:jump(endPose,land),afterRide:shot.name==='old'?jump(endPose,from):jump(endPose,endPose),rows};
   }
   // standing landing pose itself (with the balloon parked on the bank)
-  const bb=balAt(G,bank),ui=uiCheck(land,bank,scr),sb=southBank(G,bb,land,aspect);
+  const bb=balAt(G,bank),ui=uiCheck(land,bank,scr),sb={...southBank(G,bb,land,aspect),voidRule:voidRays(G,bb,land,aspect)};
   res.landing={pose:land,clearM:+Math.min(nearest(G.stat,land.position).d,nearest(bb,land.position).d).toFixed(3),ui,southBank:sb,head:los(G,bb,land.position,[bank[0],bank[1]+1.55,bank[2]]),chest:los(G,bb,land.position,[bank[0],bank[1]+1.2,bank[2]])};
   out.screens[key]=res;}
  // 360° check round the new boarding spot (her, standing) and round the moored basket (her, aboard): lens ring
@@ -123,7 +163,7 @@ if(require.main===module)(async()=>{
  // start-camera robustness (390×844): other skycity follow headings
  out.startVariants={};const land0=landingFor(SCREENS[0]);for(const v of [0,90,-90,180]){const fr=startCamera(v),sh=newShot(land0);out.startVariants[v]={blendInS:KN.blendInS,kin:kinematics(sh,fr),startJump:jump(fr,sh.camera(0,fr))};}
  const o=arg('--out')||path.join(__dirname,'audit.json');fs.writeFileSync(o,JSON.stringify(out,null,1));
- for(const k in out.screens){const s=out.screens[k];for(const n of ['old','new']){const r=s[n];console.log(k,n,JSON.stringify({T:r.durationS,L:r.lengthM,frames:r.frames,clear:r.minClearM,gap:r.minUiGapPt,env:r.minEnvelopeOnScreen,bad:r.southBankBadFrames,lake:r.lakeGroundBeyond42Frames,edge:r.offEdgeFrames,floorGap:r.skycityFloorGapFrames,balloon:r.minBalloonClearM,balloonWho:r.balloonNearest,girlBody:r.minGirlBodyClearM,cut:r.cutUnderBlack,maxZ:r.maxVisibleLakeZ,occ:r.occludedFrames,h:r.minGirlHeightFrac,kin:r.kin,start:r.startJump,end:r.endVsLanding,after:r.afterRide}));}
+ for(const k in out.screens){const s=out.screens[k];for(const n of ['old','new']){const r=s[n];console.log(k,n,JSON.stringify({voidRule:r.voidRule,T:r.durationS,L:r.lengthM,frames:r.frames,clear:r.minClearM,gap:r.minUiGapPt,env:r.minEnvelopeOnScreen,bad:r.southBankBadFrames,lake:r.lakeGroundBeyond42Frames,edge:r.offEdgeFrames,floorGap:r.skycityFloorGapFrames,balloon:r.minBalloonClearM,balloonWho:r.balloonNearest,girlBody:r.minGirlBodyClearM,cut:r.cutUnderBlack,maxZ:r.maxVisibleLakeZ,occ:r.occludedFrames,h:r.minGirlHeightFrac,kin:r.kin,start:r.startJump,end:r.endVsLanding,after:r.afterRide}));}
   console.log(k,'landing',JSON.stringify({clear:s.landing.clearM,ui:s.landing.ui,sb:s.landing.southBank,head:s.landing.head,chest:s.landing.chest}));}
  console.log('startVariants',JSON.stringify(out.startVariants));
 })().catch(e=>{console.error(e);process.exit(1);});
