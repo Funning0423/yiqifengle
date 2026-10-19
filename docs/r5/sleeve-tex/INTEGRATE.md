@@ -38,3 +38,12 @@
   - `cmp_sleeve_closeup.png`（同方向 1.25 m 袖子特写）
   - `uv_layout_face_tex_before_after.png`（贴图前后对比和改动矩形），`uv_layout_body_tex_users.png`（T_G2_BODY_1024 的实际使用者）
 - 没测：Cocos Creator 3.8.8 导入和真机 / 微信小游戏上的显示（只在 Blender 里验证过）；包体预算。
+
+## 5. 补充（2026-10-18 第二轮）
+- **袖子布纹：不做，保持纯黄**（最终贴图仍是 `T_G2_FACE_1024_new.jpg`，sha256 `1809de84…3fb5`，27,305 B，GLB 仍是 `dbaf655e`）。原因：
+  - 上身和裙子贴图里没有麻布纹可取：胸前 UV 用的黄色矩形明度是平的，裙子贴图是平涂黄，围裙 UV 是单点。近景看到的"麻布纹"来自网格法线 / 几何的明暗起伏，不在贴图里。
+  - 袖子 UV 全压在 v = 0.495 一条线上，u 跟袖长、绕臂角度都不相关（相关系数 −0.24 / ≈0）。贴图只有一行像素被采样，铺 2D 纹理也只能变成随三角形走向的一维起伏，出不来布纹。
+  - 实测：程序生成低对比麻布纹（明度 σ ≈ 4，均值保持 (251,233,39)，没有肤色像素，只用 jpegtran 替换那几块）。同机位近景里只有 0.3% 的像素差异超过 3 级（最大 7），肉眼看不出纹理，贴图却从 27,305 B 涨到 36,067 B。对比图：`previews/角色建模bot/r5-sleeve-tex/cmp_linen_test_closeup.png`、`cmp_linen_test_back_zoom.png`。
+  - 要让袖子跟上身质感一致，得改袖子网格的法线或 UV。这超出本次只改贴图的范围，需要另行批准。
+- 可复用脚本：`previews/角色建模bot/r5-sleeve-tex/apply_sleevetex.py IN.glb [OUT.glb]`。它把任意角色 glb 里的 `T_G2_FACE_1024` 换成最终版贴图（校验贴图 sha），其余逐字节保留，然后自检：JSON 除 offset 外相同、只有这张贴图所在的 bufferView 和 buffer 长度变了、accessor 数据相同、28 骨骼、动画和 morph 都在、节点数不变。自检失败就删除输出并以退出码 1 退出。用旧生产版跑一遍，能精确复现 `dbaf655e`。
+- **坐姿布料的最终 GLB 会包含这张贴图并取代本次交付**；届时在坐姿那份 INTEGRATE 里写明「ce4584a2 被覆盖」。试跑证明这条路能走通：`cand5_wip2`（`4979de15…`）→ `previews/角色建模bot/r5-sleeve-tex/chr_b_r5g2_sitdrape_cand5_wip2_sleevetex.glb`（`ca005a49…88b6`，自检通过）。这个试跑文件只用来验证，不交付；坐姿线的原文件没动。
