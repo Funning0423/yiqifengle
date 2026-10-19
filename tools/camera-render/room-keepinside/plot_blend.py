@@ -5,17 +5,21 @@ d = json.load(open(sys.argv[1])); fr = d['frames']
 try: F = ImageFont.truetype('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc', 18)
 except Exception: F = ImageFont.load_default()
 W, H = 1500, 1000; im = Image.new('RGB', (W, H), 'white'); dr = ImageDraw.Draw(im)
-dr.text((20, 8), '房间看出模式：yaw 0→360° 以 %d°/s 扫过，%d fps（pitch 10°，臂 3.35 m，含世界碰撞盒）' % (d['rate'], d['fps']), fill='black', font=F)
+title = ('yaw 0→360° 以 %d°/s 拖动（手指按住），停手后静止 1 s' % d['rate']) if d.get('mode', 'sweep') == 'sweep' else ('来回快拖 %d°/s（每 0.15 s 换向，自 yaw 340），停手后静止 1 s' % d['rate'])
+dr.text((20, 8), '室内自由镜头 r6：' + title + '，%d fps（pitch 10°，臂 3.35 m，含世界碰撞盒）' % d['fps'], fill='black', font=F)
 T = fr[-1]['t']
-rows = [('混合权重 w', 'w', 0, 1, None), ('镜头速度 m/s', 'speed', 0, 3, None), ('线加速度 m/s²（上限 3）', 'lin', 0, 3.5, 3), ('角加速度 °/s²（上限 110）', 'ang', 0, 130, 110), ('离内壁 m（下限 0.25）/ 离她 m（下限 1.0）', 'wall', 0, 3, 0.25)]
+rows = [('混合权重 w（0 绕她，1 房间中心看出）', 'w', 0, 1, None), ('视角滞后 °（上限 10，蓝）/ 镜头位置滞后 m（橙）', 'viewLag', 0, 12, 10), ('镜头速度 m/s', 'speed', 0, 3, None), ('线加速度 m/s²（上限 3）', 'lin', 0, 3.5, 3), ('离内壁 m（下限 0.25，蓝）/ 离她 m（下限 1.0，橙）', 'wall', 0, 3, 0.25)]
 x0, x1 = 90, 960; top = 50; rh = 180
 for i, (name, k, lo, hi, lim) in enumerate(rows):
     y0 = top + i * rh; y1 = y0 + rh - 40
     dr.rectangle((x0, y0, x1, y1), outline='#888'); dr.text((x0, y0 - 2 - 18), name, fill='black', font=F)
     for v in (lo, hi): dr.text((20, (y1 if v == lo else y0) - 9), '%g' % v, fill='#444', font=F)
     X = lambda t: x0 + (x1 - x0) * t / T; Y = lambda v: y1 - (y1 - y0) * (min(max(v, lo), hi) - lo) / (hi - lo)
-    if lim is not None: dr.line((x0, Y(lim), x1, Y(lim)), fill='#e33', width=1)
+    if lim is not None: dr.line((x0, Y(lim), x1, Y(lim)), fill='#e33', width=2)
     pts = [(X(f['t']), Y(f[k])) for f in fr if k in f]; dr.line(pts, fill='#1565c0', width=2)
+    if k == 'viewLag':
+        dr.line([(X(f['t']), Y(min(12, f['posLag'] * 4))) for f in fr], fill='#f90', width=2); dr.text((x1 - 200, y0 + 4), '橙线刻度：1 m = 3 格', fill='#f90', font=F)
+    if 'tStop' in d: dr.line((X(d['tStop']), y0, X(d['tStop']), y1), fill='#999', width=1)
     if k == 'wall':
         dr.line((x0, Y(1.0), x1, Y(1.0)), fill='#f90', width=1); dr.line([(X(f['t']), Y(f['her'])) for f in fr], fill='#f90', width=2)
     if i == len(rows) - 1:
