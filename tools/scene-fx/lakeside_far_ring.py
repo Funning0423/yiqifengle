@@ -36,9 +36,18 @@ ISLAND = (-36.3, 33.0, -20.4, 42.3)          # LK_terrain island (its own grass 
 HOME = (-14.5, 10.1, 50.1, 75.4)
 BRIDGE = (1.2, 36.0, 60.0)
 def rect_dist(x, z, R): return math.hypot(max(R[0] - x, 0.0, x - R[1]), max(R[2] - z, 0.0, z - R[3]))
+# The skycity -> lakeside journey (lakesideJourney(S6)) puts the skycity deck (top y 0.21 .. 3.5, S6 at y 0.58) over the same
+# south / south-east ring: lakeside_skycity_mask.json (lakeside_skycity_mask.cjs) lists its 2 m deck cells, the S0..S6 walk
+# and the S6 -> moored-balloon line.  Within SKY_FLAT m of any of them the ring is held at SKY_Y (below every deck top);
+# SKY_FLAT exceeds the ring's largest triangle so no triangle edge between a held and a free vertex crosses the deck.
+SKY = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lakeside_skycity_mask.json')))
+SKY_PTS = np.array([[c[0], c[1]] for c in SKY['deck']] + SKY['route'], np.float64)
+SKY_Y, SKY_FLAT, SKY_RISE = -0.3, 12.0, 0.6
+def sky_dist(x, z): return float(np.sqrt(((SKY_PTS[:, 0] - x) ** 2 + (SKY_PTS[:, 1] - z) ** 2).min())) - 1.0
+def sky_cap(x, z): return SKY_Y + SKY_RISE * max(0.0, sky_dist(x, z) - SKY_FLAT)
 def hcap(x, z):
     di = rect_dist(x, z, HOME); db = math.hypot(x - BRIDGE[0], max(BRIDGE[1] - z, 0.0, z - BRIDGE[2]))
-    return min(-1.2 + 0.6 * max(0.0, di - 4.0), 0.0 + 0.35 * max(0.0, db - 3.0))
+    return min(-1.2 + 0.6 * max(0.0, di - 4.0), 0.0 + 0.35 * max(0.0, db - 3.0), sky_cap(x, z))
 APRON_R = [34.0, 38.0, 42.0, 45.0, 48.0, 51.0, 54.0, 58.0, 62.0, 67.0, 72.0]
 def cell(c, r): return ((c + 0.5) / 16.0, (r + 0.5) / 16.0)
 UV_GRASS, UV_SAND, UV_MID, UV_FAR = cell(4, 10), cell(12, 14), cell(7, 13), cell(6, 13)
@@ -154,7 +163,7 @@ def layer_rows(name):
         for d in D:
             r = rf(d) + (rc(d) - rf(d)) * t if t <= 1 else rc(d) + (rb(d) - rc(d)) * (t - 1)
             x, y, z = pt(r, layer_y(name, r, d), d)
-            row.append((x, min(y, hcap(x, z)) if name == 'near' else y, z))
+            row.append((x, min(y, hcap(x, z)) if name == 'near' else min(y, sky_cap(x, z)), z))
         rows.append(row)
     return rows
 def under_north(q): return all(inrect(p[0], p[2], HILLS_N, -3.0) for p in q) and all(p[1] < 8.0 for p in q)
@@ -256,9 +265,9 @@ def instances():
             else: rr = max(rr, shore_r(d) + 4.5 + abs(dr))             # trees / bushes on dry grass, never in the water
             x, _, z = pt(rr, 0, d)
             while g != 'LK_rock.glb' and inrect(x, z, ISLAND, 1.5): rr += 1.0; x, _, z = pt(rr, 0, d)  # not under the island
-            while rect_dist(x, z, HOME) <= 8.0:  # swing away from the home island (south), keeping the radius
+            while rect_dist(x, z, HOME) <= 8.0 or sky_dist(x, z) <= SKY_FLAT + 4.0:  # swing away from the home island (south), keeping the radius
                 d = (d + (2.0 if wrapdeg(d) >= 0 else -2.0)) % 360.0; x, _, z = pt(rr, 0, d)
-            assert rect_dist(x, z, HOME) > 8.0 and math.hypot(x - BRIDGE[0], max(BRIDGE[1] - z, 0.0, z - BRIDGE[2])) > 6.0, ('too near the home island / bridge', g, x, z)
+            assert rect_dist(x, z, HOME) > 8.0 and sky_dist(x, z) > SKY_FLAT + 4.0 and math.hypot(x - BRIDGE[0], max(BRIDGE[1] - z, 0.0, z - BRIDGE[2])) > 6.0, ('too near the home island / bridge', g, x, z)
             if g != 'LK_rock.glb': assert ground(x, z) > 0.1, (g, x, z)
             y = ground(x, z) - (0.05 if g == 'LK_rock.glb' else 0.12)
             yaw = rs.uniform(0, TAU); sy = sc * rs.uniform(0.92, 1.12)
