@@ -15,7 +15,6 @@ import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourn
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {LAKESIDE_BALLOON_LANDING,lakesideBalloonRide} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
-import type {Pose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';

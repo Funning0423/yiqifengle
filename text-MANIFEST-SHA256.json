@@ -1401,8 +1401,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 31374,
-    "sha256": "8cf3d21beadb9c6e56b0fb0bb24bd7f76ea2934c6aa4e014d8f55edf959cf6e2"
+    "bytes": 31865,
+    "sha256": "3ffc67aa1c9421aca68cf6ca7260a37ed38b3e17ce68410b4fa254939859a69b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
@@ -1996,8 +1996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 54286,
-    "sha256": "aac4cc7ac2e9298c6256e64feabf14b08b454ce62c9d831c6dacf2fe64f1c11e"
+    "bytes": 62856,
+    "sha256": "58fdac0805e5be672250502ee30475ac644237e398a34546b489eedbb8f69766"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -2221,8 +2221,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 12469,
-    "sha256": "8d309347756bafb20c3a408e3a02b3d98e675d3e40026a10b67e80e8dabf3e70"
+    "bytes": 32099,
+    "sha256": "b11aa8206b5c1b29d76414502623496cdceed80c9f41b173b9f8228c8e0f7540"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
