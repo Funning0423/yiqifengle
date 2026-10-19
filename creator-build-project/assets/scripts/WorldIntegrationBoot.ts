@@ -79,6 +79,8 @@ class FlowReferenceStandin implements CharacterAdapter {
  readonly calibrated=true;
  readonly coordinates={units:'m' as const,up:'+Y' as const,forward:'+Z' as const,rootMotion:'controller-only' as const,standingRoot:REF.standingRoot,seatedRoot:REF.seatedRoot,seatYawRad:REF.seatYawRad,clearanceRadiusM:.15};
  private settleQueued:any=null;
+ // h1 stage preview only: skirt v2 NORMAL + h1 boots bind shin. Legacy sole_contact is unvalidated for h1; disable on this adapter only.
+ private static readonly H1_STAGE_PREVIEW=true;
  private support:SoleContactSolver|null=null;private job:any=null;private anim:SkeletalAnimation|null=null;private rig:AnimRig|null=null;private clock:MotionClock|null=null;private disposed=false;
  private motionConfig:MotionConfig=defaultMotionConfig();private pendingIdle=false;private pendingFor=0;private yaw=new YawFollower();private yawRad=0;
  private windSource:(()=>number|null)|null=null;private wind=0;private idleFor=0;private nextGust=-1;
@@ -92,14 +94,14 @@ class FlowReferenceStandin implements CharacterAdapter {
   return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
    motion:{blend:!!this.rig?.blend,crossfadeS:CROSSFADE_S,phase:ph?ph.phase:null,cycle:ph?ph.cycle:null,fade:plan?.out??null,layers:plan?plan.layers.map(l=>({clip:l.clip,weight:l.weight,mode:l.mode})):[],walkProgress:this.walkProgress(),pendingIdle:this.pendingIdle,
     walkPlan:this.lastPlan,lastFoot:this.lastFoot,footDeduped:this.footDeduped,stopRoot:this.stopRoot?this.stopRoot.clip:null,yawDeg:this.yawRad*180/Math.PI,yawRateDegS:this.yaw.rate*180/Math.PI,wind:this.wind,flutterWeight:c?c.flutterWeight():0,apron:c?.apron?{time:c.apron.abs,lift:c.apron.lift,settle:c.apron.settle}:null,gust:c?.gust?{t:c.gust.t,d:c.gust.d}:null,
-    apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0,repairedStates:this.rig?this.rig.repaired.slice():[],clipEval:this.rig&&ph?this.rig.evalStatus(ph.clip):null,morph:this.morphDiagnostics()}};}
+    apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0,repairedStates:this.rig?this.rig.repaired.slice():[],clipEval:this.rig&&ph?this.rig.evalStatus(ph.clip):null,morph:this.morphDiagnostics(),h1StagePreview:FlowReferenceStandin.H1_STAGE_PREVIEW,soleContactEnabled:!!this.support}};}
  /** Morph binding + last written weights (docs/walk-driver.md §8): top level = the apron (morphMesh), meshes = every driven mesh
   *  (apron, yellow dress). status: unbound|ok|not-found|morph-disabled|no-morph|too-few-targets|error. */
  morphDiagnostics(){const ms=this.morphs;let d:any,all:any[];
   if(ms.length)all=ms.map(m=>m.diagnostics());else all=this.motionConfig.morphMeshes.map(b=>({status:'unbound',reason:'no visual bound',mesh:b.mesh,targets:b.targets,setWeightCalls:0}));
   d={};for(const k in all[0])if(Object.prototype.hasOwnProperty.call(all[0],k))d[k]=all[0][k];d.meshes=all;return d;}
  /** anim_meta.json (character/anim_meta in region_island) parsed before bindVisual; null/invalid = built-in defaults. */
- setAnimMeta(json:any){this.motionConfig=parseAnimMeta(json);this.support=new SoleContactSolver(json?.sole_contact);}
+ setAnimMeta(json:any){this.motionConfig=parseAnimMeta(json);this.support=FlowReferenceStandin.H1_STAGE_PREVIEW?null:new SoleContactSolver(json?.sole_contact);(globalThis as any).__h1StagePreview={mode:'h1-stage-preview',character:'FlowReferenceStandin',glb:'chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb',boots:'h1-shin-bound',soleContactDisabled:!!FlowReferenceStandin.H1_STAGE_PREVIEW,notAccepted:['grounding','full-actions','skirt-final-visual']};}
  /** Per-frame wind strength 0..1 (运镜bot WorldFlowComponent.getWindStrength); absent/null = 0. */
  setWindSource(fn:(()=>number|null)|null){this.windSource=fn;}
  /** Rest look-ahead (docs/walk-driver.md §9.2): metres still walked after this path before she rests; 0 = this walk ends at
