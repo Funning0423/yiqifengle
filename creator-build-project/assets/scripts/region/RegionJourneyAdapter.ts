@@ -214,10 +214,12 @@ function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
  try{const v=lakesideViewport(view.getFrameSize());return lakesideScreenLanding(L,lakesideScreenFrame(v.width,v.height,boardSafeInsets(v.width,v.height)));}catch{return L.landing;}}
 /** r4-prep A: blend weight at which the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame; ~1 m + the 1 s landing hook before the swap). */
 export const LAKESIDE_BOARD_PRELOAD_W=.9;
+/** r5 per-part fill: re-write the journey fill only on a weight step of >= 1/64, or when it reaches 0 / 1 exactly. */
+export function lakesideFillStep(prev:number,next:number):boolean{return Math.abs(next-prev)>=1/64||(next!==prev&&(next===0||next===1));}
 async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
  if(from!=='island')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
- let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+ let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{},fillW=0;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
  const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
  try{
@@ -227,7 +229,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
   // r4 land fill (VB): enableLakesideInstancing gave the landform GLBs their filled copies (same source as the board:
   // lakesideModeLighting(mode).landFill*); the journey re-writes them on the day/night toggle like the board's applyDir.
-  offLand=onDayNightChange(()=>{if(!dead)applyLakesideLandFill(model,lakesideDayNightMode());});
+  // r5 per-part fill (VB): the journey copy's fill follows the atmosphere blend weight (0 on the island side -> 1 at the board, the
+  // same weight as the lights/fog), not full strength from the first frame; re-written on a weight step >= 1/64 or at the ends.
+  applyLakesideLandFill(model,lakesideDayNightMode(),fillW);
+  offLand=onDayNightChange(()=>{if(!dead)applyLakesideLandFill(model,lakesideDayNightMode(),fillW);});
   // r4-prep D (lead): the journey's lake reads the SAME water source as the board (its own lakeside-water.mtl copy written by
   // lakesideWaterMaterial / applyLakesideWaterMode from LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting). Not loaded = old look,
   // r4 journey fix 1: and one always-on [QF_LAKE] journey-water-fallback ERROR line with the reason + asset path (no throw, the walk goes on).
@@ -246,10 +251,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // is staged over two rendered frames: frame 1 = the fog switch (island variants) + the tiny water draw (water variant), frame 2 = the
   // lakeside scene itself (models + its own variants), still under ~95 % black (the 0.35 s fade-in has just begun). Later shows
   // (resume after a pause) switch the scene on at once. A hide before the deferred frame cancels it.
+  // r5 lakeside fill: the land fill follows the same atmosphere weight as the lights (lakesideFillStep), including on the staged first show.
   let showSerial=0,shown=false;
   const showScene=(s:number)=>{if(dead||s!==showSerial)return;rig.active=true;shown=true;};
   const lease:JourneySceneLease={route,show(visible){if(dead)return;const s=++showSerial;if(!visible){rig.active=false;return;}atmosphere.prime();warmWater();
-    if(shown){showScene(s);return;}let fired=false;const go=()=>{if(fired)return;fired=true;showScene(s);};try{director.once('director_after_draw' as any,go);}catch{}setTimeout(go,50)/* paused game: never stall */;},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+    if(shown){showScene(s);return;}let fired=false;const go=()=>{if(fired)return;fired=true;showScene(s);};try{director.once('director_after_draw' as any,go);}catch{}setTimeout(go,50)/* paused game: never stall */;},progress(d){if(dead)return;const w=lakesideAtmosphereWeight(route,total,d);atmosphere.apply(w);if(lakesideFillStep(fillW,w)){fillW=w;applyLakesideLandFill(model,lakesideDayNightMode(),w);}},dispose:release};
   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
   const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
   return lease;
