@@ -1,6 +1,7 @@
 import { sys } from 'cc';
 /** UI-only flags in localStorage (never in the journey save; INTEGRATION §7). */
 export const SEEN_TOOLS_KEY = 'qfl.ui.seenTools';
+export const SEEN_UNLOCKS_KEY = 'qfl.ui.seenUnlocks';
 export const CABIN_HINT_KEY = 'qfl.ui.cabinHintSeen';
 export const REDUCED_MOTION_KEY = 'forest-v33-reduced-motion';
 function get(key: string): string | null { try { return sys.localStorage.getItem(key); } catch (e) { return null; } }
@@ -11,6 +12,14 @@ export function seenTools(): string[] {
 export function hasSeenTool(kind: string): boolean { return seenTools().indexOf(kind) >= 0; }
 export function markToolSeen(kind: string) {
   const list = seenTools(); if (list.indexOf(kind) >= 0) return; list.push(kind); set(SEEN_TOOLS_KEY, JSON.stringify(list));
+}
+/** Red-dot A: ids the player has already opened (book, chapter ids). Not part of the journey save. */
+export function seenUnlocks(): string[] {
+  try { const v = JSON.parse(get(SEEN_UNLOCKS_KEY) || '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string') : []; } catch (e) { return []; }
+}
+export function hasSeenUnlock(id: string): boolean { return seenUnlocks().indexOf(id) >= 0; }
+export function markUnlockSeen(id: string) {
+  const list = seenUnlocks(); if (list.indexOf(id) >= 0) return; list.push(id); set(SEEN_UNLOCKS_KEY, JSON.stringify(list));
 }
 export function cabinHintSeen(): boolean { return get(CABIN_HINT_KEY) === '1'; }
 export function markCabinHintSeen() { set(CABIN_HINT_KEY, '1'); }

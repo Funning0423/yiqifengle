@@ -48,7 +48,7 @@ export interface ResultReward { id: string; label: string; icon: string; iconKin
 export interface ResultModel {
   kind: ResultKind; score: number; stars: number | null; movesUsed: number | null; movesLeft: number | null;
   goalsLeft: Array<{ art: string; count: number }>; chestHint: boolean; rewards: ResultReward[];
-  unlockHint?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
+  unlockHint?: string; hostError?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
 /** Steps, saved and the unlock hint are one secondary line under the score. */
@@ -64,7 +64,8 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
   const wideReward = m.kind === 'win' && m.rewards.some(r => r.label.length >= 6);
   // Include the real 88-design-px claim hit area, not just its 64px painted face.
   const rewardsH = m.kind === 'win' && m.rewards.length ? 256 : 0, nextH = m.kind === 'win' && !m.next ? -120 : 0;
-  const ph = m.kind === 'win' ? 808 + rewardsH + nextH : m.kind === 'lose' ? (m.chestHint ? 920 : 808) - (m.replay ? 0 : 120) : m.kind === 'unsaved' ? (m.chestHint ? 880 : 768) : 680;
+  const hostH = m.hostError ? 52 : 0;
+  const ph = (m.kind === 'win' ? 808 + rewardsH + nextH : m.kind === 'lose' ? (m.chestHint ? 920 : 808) - (m.replay ? 0 : 120) : m.kind === 'unsaved' ? (m.chestHint ? 880 : 768) : 680) + hostH;
   const p = stack.open({ name: 'ResultPanel', height: ph, title: TITLES[m.kind][0], titleArt: TITLES[m.kind][1] });
   const groups: Record<string, ResultSection> = {}, actions: ResultAction[] = [], rewards: ResultSection[] = [];
   const section = <T>(name: string, x: number, y: number, build: () => T): T => {
@@ -373,6 +374,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
     if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
+    if (m.hostError) { const n = wrap(m.hostError, Math.max(40, inner - 26), 16).slice(0, 2); for (const _ of n) heights.push(22); if (n.length) heights.push(8); }
     if (m.kind === 'win') { /* SPEC v2.2: no step line */ }
     else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
@@ -484,7 +486,17 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
       }
     }
-    if (m.kind === 'win') { /* SPEC v2.2: no step line */ }
+    if (m.hostError) {
+      const hostLines = wrap(m.hostError, Math.max(40, inner - 26), 16).slice(0, 2);
+      for (let i = 0; i < hostLines.length; i++) {
+        const row = getRow('HostError-' + i, 22);
+        let l = row.node.getComponentInChildren(Label);
+        if (!l) l = p.text('', 0, 0, 16, 'brown', { name: i ? 'ResultHostError-' + i : 'ResultHostError', bold: false, width: inner - 26, parent: row.node });
+        l.string = hostLines[i]; l.fontSize = 16; l.lineHeight = 22; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+        l.node.getComponent(UITransform)!.setContentSize(inner - 26, 22); l.node.setPosition(0, 0, 0); rows.push(row);
+      }
+    }
+    if (m.kind === 'win') { /* SPEC v2.2: no step line. Unlock copy stays on the model and is not painted. */ }
     else if (m.kind === 'lose') {
       const goals = groups.ResultGoals;
       if (goals) {

@@ -31,7 +31,7 @@ POPUP = ['panel_frame_9s', 'title_plank_3s', 'btn_primary_3s', 'btn_secondary_3s
          'tile_bag', 'tile_settings', 'icon_music', 'icon_sfx', 'icon_sun', 'icon_moon', 'icon_motion', 'icon_home',
          'icon_about', 'icon_play', 'toggle_on', 'toggle_off', 'toggle_knob', 'star_full', 'star_empty',
          'reward_seal_tide', 'reward_seal_meadow', 'reward_seal_sky', 'chest_closed', 'fx_rays', 'stamp_claimed',
-         'title_0', 'title_1', 'title_2', 'title_3', 'title_4', 'title_5']
+         'title_0', 'title_1', 'title_2', 'title_3', 'title_4', 'title_5', 'reddot']
 R2_FILES = {'sign_plank_3s': 'sign_plank_3s', 'region_tide': 'region_tide', 'region_meadow': 'region_meadow',
             'region_sky': 'region_sky', 'hero_starlight': 'hero_starlight', 'hero_windbell': 'hero_windbell',
             'hero_tidebottle': 'hero_tidebottle', 'icon_charm': 'icon_charm', 'icon_lock': 'icon_lock',
