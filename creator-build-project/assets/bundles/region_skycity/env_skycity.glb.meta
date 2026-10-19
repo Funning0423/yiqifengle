@@ -95,7 +95,7 @@
       "name": "env_sky_cloudsea.mesh",
       "userData": {
         "gltfIndex": 1,
-        "triangleCount": 3037
+        "triangleCount": 3097
       },
       "ver": "1.1.1",
       "imported": true,
@@ -617,7 +617,7 @@
       "name": "env_sky_static_foliage_cards.mesh",
       "userData": {
         "gltfIndex": 30,
-        "triangleCount": 8790
+        "triangleCount": 8720
       },
       "ver": "1.1.1",
       "imported": true,
@@ -834,6 +834,24 @@
       "userData": {
         "gltfIndex": 43,
         "triangleCount": 1188
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5dab2": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@5dab2",
+      "displayName": "",
+      "id": "5dab2",
+      "name": "env_sky_floor_seal.mesh",
+      "userData": {
+        "gltfIndex": 45,
+        "triangleCount": 1176
       },
       "ver": "1.1.1",
       "imported": true,
@@ -1299,7 +1317,8 @@
         "0694320f-9061-478a-8d1f-cdfb7537ab22@62c1e",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@b6eeb",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@3d21f",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@79961"
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@79961",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@5dab2"
       ],
       "skeletons": [
         "0694320f-9061-478a-8d1f-cdfb7537ab22@525f1"

@@ -27,7 +27,7 @@
       "id": "37781",
       "name": "stand_up.animation",
       "userData": {
-        "gltfIndex": 4,
+        "gltfIndex": 3,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -161,29 +161,6 @@
       ],
       "subMetas": {}
     },
-    "1adec": {
-      "importer": "gltf-animation",
-      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@1adec",
-      "displayName": "",
-      "id": "1adec",
-      "name": "walk_loop.animation",
-      "userData": {
-        "gltfIndex": 2,
-        "wrapMode": 2,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 1.4333332777023315
-        },
-        "events": []
-      },
-      "ver": "1.0.18",
-      "imported": true,
-      "files": [
-        ".bin"
-      ],
-      "subMetas": {}
-    },
     "4c296": {
       "importer": "gltf-animation",
       "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@4c296",
@@ -191,7 +168,7 @@
       "id": "4c296",
       "name": "sit_hold.animation",
       "userData": {
-        "gltfIndex": 3,
+        "gltfIndex": 2,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -214,7 +191,7 @@
       "id": "724e8",
       "name": "sit_down.animation",
       "userData": {
-        "gltfIndex": 5,
+        "gltfIndex": 4,
         "wrapMode": 2,
         "sample": 30,
         "span": {
@@ -237,81 +214,12 @@
       "id": "b043a",
       "name": "door_reach.animation",
       "userData": {
-        "gltfIndex": 6,
+        "gltfIndex": 5,
         "wrapMode": 2,
         "sample": 30,
         "span": {
           "from": 0,
           "to": 2
-        },
-        "events": []
-      },
-      "ver": "1.0.18",
-      "imported": true,
-      "files": [
-        ".bin"
-      ],
-      "subMetas": {}
-    },
-    "e784c": {
-      "importer": "gltf-animation",
-      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@e784c",
-      "displayName": "",
-      "id": "e784c",
-      "name": "walk_start.animation",
-      "userData": {
-        "gltfIndex": 7,
-        "wrapMode": 1,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 1.9333332777023315
-        },
-        "events": []
-      },
-      "ver": "1.0.18",
-      "imported": true,
-      "files": [
-        ".bin"
-      ],
-      "subMetas": {}
-    },
-    "f0225": {
-      "importer": "gltf-animation",
-      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@f0225",
-      "displayName": "",
-      "id": "f0225",
-      "name": "walk_stop_bodyL.animation",
-      "userData": {
-        "gltfIndex": 8,
-        "wrapMode": 1,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 1.4666666984558105
-        },
-        "events": []
-      },
-      "ver": "1.0.18",
-      "imported": true,
-      "files": [
-        ".bin"
-      ],
-      "subMetas": {}
-    },
-    "d2c9e": {
-      "importer": "gltf-animation",
-      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@d2c9e",
-      "displayName": "",
-      "id": "d2c9e",
-      "name": "walk_stop_bodyR.animation",
-      "userData": {
-        "gltfIndex": 9,
-        "wrapMode": 1,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 1.4666666984558105
         },
         "events": []
       },
@@ -329,7 +237,7 @@
       "id": "f3596",
       "name": "walk_turn_90_bodyL.animation",
       "userData": {
-        "gltfIndex": 10,
+        "gltfIndex": 6,
         "wrapMode": 1,
         "sample": 30,
         "span": {
@@ -352,7 +260,7 @@
       "id": "3e86b",
       "name": "walk_turn_90_bodyR.animation",
       "userData": {
-        "gltfIndex": 11,
+        "gltfIndex": 7,
         "wrapMode": 1,
         "sample": 30,
         "span": {
@@ -375,7 +283,7 @@
       "id": "9c8f5",
       "name": "walk_turn_180.animation",
       "userData": {
-        "gltfIndex": 12,
+        "gltfIndex": 8,
         "wrapMode": 1,
         "sample": 30,
         "span": {
@@ -397,6 +305,98 @@
       "displayName": "",
       "id": "b2ace",
       "name": "walk_turn_180_bodyR.animation",
+      "userData": {
+        "gltfIndex": 9,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.4666666984558105
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "e784c": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@e784c",
+      "displayName": "",
+      "id": "e784c",
+      "name": "walk_start.animation",
+      "userData": {
+        "gltfIndex": 10,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.9333332777023315
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "1adec": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@1adec",
+      "displayName": "",
+      "id": "1adec",
+      "name": "walk_loop.animation",
+      "userData": {
+        "gltfIndex": 11,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.4333332777023315
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "f0225": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@f0225",
+      "displayName": "",
+      "id": "f0225",
+      "name": "walk_stop_bodyL.animation",
+      "userData": {
+        "gltfIndex": 12,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.4666666984558105
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "d2c9e": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@d2c9e",
+      "displayName": "",
+      "id": "d2c9e",
+      "name": "walk_stop_bodyR.animation",
       "userData": {
         "gltfIndex": 13,
         "wrapMode": 1,
@@ -845,20 +845,6 @@
         ]
       },
       {
-        "name": "walk_loop",
-        "duration": 1.4333332777023315,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "walk_loop",
-            "from": 0,
-            "to": 1.4333332777023315,
-            "wrapMode": 2,
-            "previousId": "1adec"
-          }
-        ]
-      },
-      {
         "name": "sit_hold",
         "duration": 2,
         "fps": 30,
@@ -915,48 +901,6 @@
         ]
       },
       {
-        "name": "walk_start",
-        "duration": 1.9333332777023315,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "walk_start",
-            "from": 0,
-            "to": 1.9333332777023315,
-            "wrapMode": 1,
-            "previousId": "e784c"
-          }
-        ]
-      },
-      {
-        "name": "walk_stop_bodyL",
-        "duration": 1.4666666984558105,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "walk_stop_bodyL",
-            "from": 0,
-            "to": 1.4666666984558105,
-            "wrapMode": 1,
-            "previousId": "f0225"
-          }
-        ]
-      },
-      {
-        "name": "walk_stop_bodyR",
-        "duration": 1.4666666984558105,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "walk_stop_bodyR",
-            "from": 0,
-            "to": 1.4666666984558105,
-            "wrapMode": 1,
-            "previousId": "d2c9e"
-          }
-        ]
-      },
-      {
         "name": "walk_turn_90_bodyL",
         "duration": 1.5,
         "fps": 30,
@@ -1009,6 +953,62 @@
             "to": 1.4666666984558105,
             "wrapMode": 1,
             "previousId": "b2ace"
+          }
+        ]
+      },
+      {
+        "name": "walk_start",
+        "duration": 1.9333332777023315,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_start",
+            "from": 0,
+            "to": 1.9333332777023315,
+            "wrapMode": 1,
+            "previousId": "e784c"
+          }
+        ]
+      },
+      {
+        "name": "walk_loop",
+        "duration": 1.4333332777023315,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_loop",
+            "from": 0,
+            "to": 1.4333332777023315,
+            "wrapMode": 2,
+            "previousId": "1adec"
+          }
+        ]
+      },
+      {
+        "name": "walk_stop_bodyL",
+        "duration": 1.4666666984558105,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_stop_bodyL",
+            "from": 0,
+            "to": 1.4666666984558105,
+            "wrapMode": 1,
+            "previousId": "f0225"
+          }
+        ]
+      },
+      {
+        "name": "walk_stop_bodyR",
+        "duration": 1.4666666984558105,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_stop_bodyR",
+            "from": 0,
+            "to": 1.4666666984558105,
+            "wrapMode": 1,
+            "previousId": "d2c9e"
           }
         ]
       }

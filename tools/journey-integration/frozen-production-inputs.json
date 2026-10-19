@@ -759,7 +759,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-      "sha256": "6740cdd7b3a2ee7b0664468dbc0e9da48b10d18478253c2f4b3a9e575083b8be"
+      "sha256": "16922a6cb32d95dac9203a3b04f9c4922c869198c209b8507321cf11327af55d"
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
@@ -863,7 +863,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
-      "sha256": "e1038b6c865f67d9e528ba21f36b1d17b76ce6221737b3f403ee0f076e9e3fda"
+      "sha256": "9170b371a5003d031bb7baa03686e96fe6b83460494d0c097b10586231ac2bdb"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
@@ -915,7 +915,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-      "sha256": "ad7e3b2bca85cd1b574e3378098b13268a19d1f40bbba122da83a5b216496a72"
+      "sha256": "6982fb98baa5c73fbac1ff35c74d754722696fb0e638e81d854f3b9b6d105ebe"
     },
     {
       "path": "creator-build-project/assets/bundles/static_seat_preview.meta",

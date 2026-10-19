@@ -35,6 +35,14 @@ CCEffect %{
 CCProgram shore-foam-vs %{
   precision highp float;
   #include <builtin/uniforms/cc-global>
+  // CCGetWorldMatrix (inside local-batch) is expanded before this program's own attributes. GLSL ES 1.00
+  // requires a_matWorld* to be declared first, or the USE_INSTANCING permutation fails to compile and the
+  // effect imports as empty (foam never mounts).
+  #if USE_INSTANCING
+    in vec4 a_matWorld0;
+    in vec4 a_matWorld1;
+    in vec4 a_matWorld2;
+  #endif
   #include <legacy/local-batch>
   #include <legacy/fog-vs>
   in vec3 a_position;
