@@ -1,0 +1,2176 @@
+{
+ "390x844-win-ready": {
+  "nodes": [
+   {
+    "name": "PopupShade",
+    "depth": 3,
+    "x": 195,
+    "y": 422,
+    "w": 390,
+    "h": 844,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "PanelFrame",
+    "depth": 4,
+    "x": 195,
+    "y": 448.5,
+    "w": 350,
+    "h": 670,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/panel_frame_9s",
+    "type": 1,
+    "inset": [
+     212,
+     212
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.10849056603773585,
+     0.10849056603773585
+    ]
+   },
+   {
+    "name": "Plank",
+    "depth": 5,
+    "x": 195,
+    "y": 136.5,
+    "w": 126,
+    "h": 44.1,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_plank_3s",
+    "type": 1,
+    "inset": [
+     252,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.13999999999999999,
+     0.13999999999999999
+    ]
+   },
+   {
+    "name": "Title",
+    "depth": 5,
+    "x": 195,
+    "y": 137.4,
+    "w": 60.1,
+    "h": 20.6,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_4",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.42,
+     0.42
+    ]
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 123,
+    "y": 710.5,
+    "w": 124,
+    "h": 54,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 123,
+    "y": 710.5,
+    "w": 128,
+    "h": 56,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_primary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 123,
+    "y": 710.5,
+    "w": 112,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "下一关",
+    "fs": 16,
+    "color": "fbf8ecff",
+    "bold": true
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 267,
+    "y": 710.5,
+    "w": 124,
+    "h": 54,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 267,
+    "y": 710.5,
+    "w": 128,
+    "h": 56,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_secondary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 267,
+    "y": 710.5,
+    "w": 112,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "回小岛",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "Star-0",
+    "depth": 6,
+    "x": 161,
+    "y": 294,
+    "w": 28.6,
+    "h": 26.4,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Star-1",
+    "depth": 6,
+    "x": 195,
+    "y": 288.8,
+    "w": 36.8,
+    "h": 34,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Star-2",
+    "depth": 6,
+    "x": 229,
+    "y": 294,
+    "w": 28.6,
+    "h": 26.4,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Score",
+    "depth": 5,
+    "x": 195,
+    "y": 339,
+    "w": 302,
+    "h": 46,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "630 分",
+    "fs": 34,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "ResultChestHalo",
+    "depth": 5,
+    "x": 195,
+    "y": 482,
+    "w": 148,
+    "h": 148,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 0.851,
+    "gfx": 32
+   },
+   {
+    "name": "ResultChestArt",
+    "depth": 5,
+    "x": 195,
+    "y": 478,
+    "w": 183.6,
+    "h": 149.9,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/chest_closed",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     1.2239999999999998,
+     1.2227522935779813
+    ]
+   }
+  ],
+  "diag": {
+   "floatLift": 0,
+   "chestOpen": false,
+   "chest": {
+    "state": "loading",
+    "error": "",
+    "t": 0,
+    "angle": 0,
+    "pixels": 1024,
+    "layer": 524288,
+    "camera": {
+     "pitchDeg": 36,
+     "azimuthDeg": 38,
+     "fovDeg": 36,
+     "target": [
+      0,
+      0.68,
+      0
+     ],
+     "distance": 5.6
+    },
+    "outline": 1.5
+   },
+   "action": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   },
+   "float": [],
+   "floatRise": true,
+   "guide": {
+    "pulsing": true,
+    "period": 1.6,
+    "chest": {
+     "w": 180,
+     "h": 147,
+     "halo": 220,
+     "hit": 220
+    }
+   }
+  }
+ },
+ "390x844-lose-ready": {
+  "nodes": [
+   {
+    "name": "PopupShade",
+    "depth": 3,
+    "x": 195,
+    "y": 422,
+    "w": 390,
+    "h": 844,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "PanelFrame",
+    "depth": 4,
+    "x": 195,
+    "y": 448.5,
+    "w": 350,
+    "h": 333,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/panel_frame_9s",
+    "type": 1,
+    "inset": [
+     212,
+     212
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.10849056603773585,
+     0.10849056603773585
+    ]
+   },
+   {
+    "name": "Plank",
+    "depth": 5,
+    "x": 195,
+    "y": 305,
+    "w": 141.1,
+    "h": 44.1,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_plank_3s",
+    "type": 1,
+    "inset": [
+     252,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.13999999999999999,
+     0.13999999999999999
+    ]
+   },
+   {
+    "name": "Title",
+    "depth": 5,
+    "x": 195,
+    "y": 305.9,
+    "w": 78.1,
+    "h": 21,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_5",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.42,
+     0.42
+    ]
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 123,
+    "y": 542,
+    "w": 124,
+    "h": 54,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 123,
+    "y": 542,
+    "w": 128,
+    "h": 56,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_primary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 123,
+    "y": 542,
+    "w": 112,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "再试一次",
+    "fs": 16,
+    "color": "fbf8ecff",
+    "bold": true
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 267,
+    "y": 542,
+    "w": 124,
+    "h": 54,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 267,
+    "y": 542,
+    "w": 128,
+    "h": 56,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_secondary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 267,
+    "y": 542,
+    "w": 112,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "回小岛",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "Star-0",
+    "depth": 6,
+    "x": 161,
+    "y": 396,
+    "w": 29.5,
+    "h": 26.4,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_empty",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ebebebbf",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Star-1",
+    "depth": 6,
+    "x": 195,
+    "y": 390.8,
+    "w": 38,
+    "h": 34,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_empty",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ebebebbf",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Star-2",
+    "depth": 6,
+    "x": 229,
+    "y": 396,
+    "w": 29.5,
+    "h": 26.4,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_empty",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ebebebbf",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "ResultMessage",
+    "depth": 5,
+    "x": 195,
+    "y": 429,
+    "w": 302,
+    "h": 22,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "步数用完了，换个顺序试试？",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": false
+   },
+   {
+    "name": "piece_strawberry",
+    "depth": 5,
+    "x": 68,
+    "y": 466,
+    "w": 32,
+    "h": 32,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "board/piece_strawberry",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.3333333333333333,
+     0.3333333333333333
+    ]
+   },
+   {
+    "name": "ResultGoalCount-0",
+    "depth": 5,
+    "x": 225,
+    "y": 466,
+    "w": 238,
+    "h": 24,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "×3",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   }
+  ],
+  "diag": {
+   "floatLift": 0,
+   "chestOpen": false,
+   "chest": null,
+   "action": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   },
+   "float": [],
+   "floatRise": true,
+   "guide": {
+    "pulsing": false,
+    "period": 1.6
+   }
+  }
+ },
+ "390x844-win-claimed": {
+  "nodes": [
+   {
+    "name": "PopupShade",
+    "depth": 3,
+    "x": 195,
+    "y": 422,
+    "w": 390,
+    "h": 844,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "PanelFrame",
+    "depth": 4,
+    "x": 195,
+    "y": 448.5,
+    "w": 350,
+    "h": 670,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/panel_frame_9s",
+    "type": 1,
+    "inset": [
+     212,
+     212
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.10849056603773585,
+     0.10849056603773585
+    ]
+   },
+   {
+    "name": "Plank",
+    "depth": 5,
+    "x": 195,
+    "y": 136.5,
+    "w": 126,
+    "h": 44.1,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_plank_3s",
+    "type": 1,
+    "inset": [
+     252,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.13999999999999999,
+     0.13999999999999999
+    ]
+   },
+   {
+    "name": "Title",
+    "depth": 5,
+    "x": 195,
+    "y": 137.4,
+    "w": 60.1,
+    "h": 20.6,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_4",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.42,
+     0.42
+    ]
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 123,
+    "y": 710.5,
+    "w": 124,
+    "h": 54,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 123,
+    "y": 710.5,
+    "w": 128,
+    "h": 56,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_primary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 123,
+    "y": 710.5,
+    "w": 112,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "下一关",
+    "fs": 16,
+    "color": "fbf8ecff",
+    "bold": true
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 267,
+    "y": 710.5,
+    "w": 124,
+    "h": 54,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 267,
+    "y": 710.5,
+    "w": 128,
+    "h": 56,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_secondary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 267,
+    "y": 710.5,
+    "w": 112,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "回小岛",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "Star-0",
+    "depth": 6,
+    "x": 161,
+    "y": 227.5,
+    "w": 28.6,
+    "h": 26.4,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Star-1",
+    "depth": 6,
+    "x": 195,
+    "y": 222.3,
+    "w": 36.8,
+    "h": 34,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Star-2",
+    "depth": 6,
+    "x": 229,
+    "y": 227.5,
+    "w": 28.6,
+    "h": 26.4,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "name": "Score",
+    "depth": 5,
+    "x": 195,
+    "y": 272.5,
+    "w": 302,
+    "h": 46,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "630 分",
+    "fs": 34,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "ResultChestHalo",
+    "depth": 5,
+    "x": 195,
+    "y": 518.5,
+    "w": 156,
+    "h": 156,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 32
+   },
+   {
+    "name": "ResultChestRays",
+    "depth": 5,
+    "x": 195,
+    "y": 496.5,
+    "w": 300,
+    "h": 300,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/fx_rays",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     1,
+     1
+    ]
+   },
+   {
+    "name": "ResultChestArt",
+    "depth": 5,
+    "x": 203,
+    "y": 539.9,
+    "w": 176,
+    "h": 170.3,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/chest_open",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     1.1733333333333333,
+     1.3886238532110091
+    ]
+   },
+   {
+    "name": "ResultFloatPlate",
+    "depth": 6,
+    "x": 195,
+    "y": 338.4,
+    "w": 68,
+    "h": 68,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 22
+   },
+   {
+    "name": "tool_tidenet",
+    "depth": 6,
+    "x": 195,
+    "y": 338.4,
+    "w": 54,
+    "h": 51.2,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "r2/tool_tidenet",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.45,
+     0.45
+    ]
+   }
+  ],
+  "diag": {
+   "floatLift": 0,
+   "chestOpen": true,
+   "chest": {
+    "state": "loading",
+    "error": "",
+    "t": 0.5,
+    "angle": -118,
+    "pixels": 1024,
+    "layer": 524288,
+    "camera": {
+     "pitchDeg": 36,
+     "azimuthDeg": 38,
+     "fovDeg": 36,
+     "target": [
+      0,
+      0.68,
+      0
+     ],
+     "distance": 5.6
+    },
+    "outline": 1.5
+   },
+   "action": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   },
+   "float": [
+    {
+     "name": "潮汐网",
+     "x": 0,
+     "y": 125.5,
+     "icon": 68
+    }
+   ],
+   "floatRise": false,
+   "guide": {
+    "pulsing": false,
+    "period": 1.6,
+    "chest": {
+     "w": 180,
+     "h": 147,
+     "halo": 220,
+     "hit": 220
+    }
+   }
+  }
+ },
+ "375x667-win-ready": {
+  "nodes": [
+   {
+    "name": "PopupShade",
+    "depth": 3,
+    "x": 187.5,
+    "y": 333.5,
+    "w": 375,
+    "h": 667,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "PanelFrame",
+    "depth": 4,
+    "x": 187.5,
+    "y": 345.5,
+    "w": 335,
+    "h": 473,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/panel_frame_9s",
+    "type": 1,
+    "inset": [
+     212,
+     212
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.10849056603773585,
+     0.10849056603773585
+    ]
+   },
+   {
+    "name": "Plank",
+    "depth": 5,
+    "x": 187.5,
+    "y": 132,
+    "w": 126,
+    "h": 44.1,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_plank_3s",
+    "type": 1,
+    "inset": [
+     252,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.13999999999999999,
+     0.13999999999999999
+    ]
+   },
+   {
+    "name": "Title",
+    "depth": 5,
+    "x": 187.5,
+    "y": 132.9,
+    "w": 60.1,
+    "h": 20.6,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_4",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.42,
+     0.42
+    ]
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 119.3,
+    "y": 511,
+    "w": 116.5,
+    "h": 50,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 119.3,
+    "y": 511,
+    "w": 120.5,
+    "h": 52,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_primary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 119.3,
+    "y": 511,
+    "w": 104.5,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "下一关",
+    "fs": 16,
+    "color": "fbf8ecff",
+    "bold": true
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 255.8,
+    "y": 511,
+    "w": 116.5,
+    "h": 50,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 255.8,
+    "y": 511,
+    "w": 120.5,
+    "h": 52,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_secondary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 255.8,
+    "y": 511,
+    "w": 104.5,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "回小岛",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "Star-0",
+    "depth": 6,
+    "x": 145.3,
+    "y": 220,
+    "w": 35.4,
+    "h": 32.7,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Star-1",
+    "depth": 6,
+    "x": 187.5,
+    "y": 213.6,
+    "w": 45.6,
+    "h": 42.2,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Star-2",
+    "depth": 6,
+    "x": 229.7,
+    "y": 220,
+    "w": 35.4,
+    "h": 32.7,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Score",
+    "depth": 5,
+    "x": 187.5,
+    "y": 262,
+    "w": 287,
+    "h": 46,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "630 分",
+    "fs": 34,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "ResultChestHalo",
+    "depth": 5,
+    "x": 187.5,
+    "y": 370,
+    "w": 100,
+    "h": 100,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 0.851,
+    "gfx": 32
+   },
+   {
+    "name": "ResultChestArt",
+    "depth": 5,
+    "x": 187.5,
+    "y": 366,
+    "w": 122.4,
+    "h": 100,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/chest_closed",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.8159999999999998,
+     0.8151681957186543
+    ]
+   }
+  ],
+  "diag": {
+   "floatLift": 14,
+   "chestOpen": false,
+   "chest": {
+    "state": "loading",
+    "error": "",
+    "t": 0,
+    "angle": 0,
+    "pixels": 1024,
+    "layer": 524288,
+    "camera": {
+     "pitchDeg": 36,
+     "azimuthDeg": 38,
+     "fovDeg": 36,
+     "target": [
+      0,
+      0.68,
+      0
+     ],
+     "distance": 5.6
+    },
+    "outline": 1.5
+   },
+   "action": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   },
+   "float": [],
+   "floatRise": true,
+   "guide": {
+    "pulsing": true,
+    "period": 1.6,
+    "chest": {
+     "w": 120,
+     "h": 98,
+     "halo": 160,
+     "hit": 160
+    }
+   }
+  }
+ },
+ "375x667-lose-ready": {
+  "nodes": [
+   {
+    "name": "PopupShade",
+    "depth": 3,
+    "x": 187.5,
+    "y": 333.5,
+    "w": 375,
+    "h": 667,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "PanelFrame",
+    "depth": 4,
+    "x": 187.5,
+    "y": 345.5,
+    "w": 335,
+    "h": 275,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/panel_frame_9s",
+    "type": 1,
+    "inset": [
+     212,
+     212
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.10849056603773585,
+     0.10849056603773585
+    ]
+   },
+   {
+    "name": "Plank",
+    "depth": 5,
+    "x": 187.5,
+    "y": 231,
+    "w": 141.1,
+    "h": 44.1,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_plank_3s",
+    "type": 1,
+    "inset": [
+     252,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.13999999999999999,
+     0.13999999999999999
+    ]
+   },
+   {
+    "name": "Title",
+    "depth": 5,
+    "x": 187.5,
+    "y": 231.9,
+    "w": 78.1,
+    "h": 21,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_5",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.42,
+     0.42
+    ]
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 119.3,
+    "y": 412,
+    "w": 116.5,
+    "h": 50,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 119.3,
+    "y": 412,
+    "w": 120.5,
+    "h": 52,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_primary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 119.3,
+    "y": 412,
+    "w": 104.5,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "再试一次",
+    "fs": 16,
+    "color": "fbf8ecff",
+    "bold": true
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 255.8,
+    "y": 412,
+    "w": 116.5,
+    "h": 50,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 255.8,
+    "y": 412,
+    "w": 120.5,
+    "h": 52,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_secondary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 255.8,
+    "y": 412,
+    "w": 104.5,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "回小岛",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "Star-0",
+    "depth": 6,
+    "x": 145.3,
+    "y": 292,
+    "w": 36.6,
+    "h": 32.7,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_empty",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ebebebbf",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Star-1",
+    "depth": 6,
+    "x": 187.5,
+    "y": 285.6,
+    "w": 47.1,
+    "h": 42.2,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_empty",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ebebebbf",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Star-2",
+    "depth": 6,
+    "x": 229.7,
+    "y": 292,
+    "w": 36.6,
+    "h": 32.7,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_empty",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ebebebbf",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "ResultMessage",
+    "depth": 5,
+    "x": 187.5,
+    "y": 322,
+    "w": 287,
+    "h": 22,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "步数用完了，换个顺序试试？",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": false
+   },
+   {
+    "name": "piece_strawberry",
+    "depth": 5,
+    "x": 68,
+    "y": 354,
+    "w": 32,
+    "h": 32,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "board/piece_strawberry",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.3333333333333333,
+     0.3333333333333333
+    ]
+   },
+   {
+    "name": "ResultGoalCount-0",
+    "depth": 5,
+    "x": 217.5,
+    "y": 354,
+    "w": 223,
+    "h": 24,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "×3",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   }
+  ],
+  "diag": {
+   "floatLift": 14,
+   "chestOpen": false,
+   "chest": null,
+   "action": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   },
+   "float": [],
+   "floatRise": true,
+   "guide": {
+    "pulsing": false,
+    "period": 1.6
+   }
+  }
+ },
+ "375x667-win-claimed": {
+  "nodes": [
+   {
+    "name": "PopupShade",
+    "depth": 3,
+    "x": 187.5,
+    "y": 333.5,
+    "w": 375,
+    "h": 667,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "PanelFrame",
+    "depth": 4,
+    "x": 187.5,
+    "y": 345.5,
+    "w": 335,
+    "h": 473,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/panel_frame_9s",
+    "type": 1,
+    "inset": [
+     212,
+     212
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.10849056603773585,
+     0.10849056603773585
+    ]
+   },
+   {
+    "name": "Plank",
+    "depth": 5,
+    "x": 187.5,
+    "y": 132,
+    "w": 126,
+    "h": 44.1,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_plank_3s",
+    "type": 1,
+    "inset": [
+     252,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.13999999999999999,
+     0.13999999999999999
+    ]
+   },
+   {
+    "name": "Title",
+    "depth": 5,
+    "x": 187.5,
+    "y": 132.9,
+    "w": 60.1,
+    "h": 20.6,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/title_4",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.42,
+     0.42
+    ]
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 119.3,
+    "y": 511,
+    "w": 116.5,
+    "h": 50,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 119.3,
+    "y": 511,
+    "w": 120.5,
+    "h": 52,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_primary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 119.3,
+    "y": 511,
+    "w": 104.5,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "下一关",
+    "fs": 16,
+    "color": "fbf8ecff",
+    "bold": true
+   },
+   {
+    "name": "ActionShadow",
+    "depth": 5,
+    "x": 255.8,
+    "y": 511,
+    "w": 116.5,
+    "h": 50,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 2
+   },
+   {
+    "name": "Plate",
+    "depth": 6,
+    "x": 255.8,
+    "y": 511,
+    "w": 120.5,
+    "h": 52,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/btn_secondary_3s",
+    "type": 1,
+    "inset": [
+     207,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.19999999999999998,
+     0.19999999999999998
+    ]
+   },
+   {
+    "name": "Label",
+    "depth": 6,
+    "x": 255.8,
+    "y": 511,
+    "w": 104.5,
+    "h": 40,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "回小岛",
+    "fs": 16,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "Star-0",
+    "depth": 6,
+    "x": 145.3,
+    "y": 193,
+    "w": 35.4,
+    "h": 32.7,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Star-1",
+    "depth": 6,
+    "x": 187.5,
+    "y": 186.6,
+    "w": 45.6,
+    "h": 42.2,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Star-2",
+    "depth": 6,
+    "x": 229.7,
+    "y": 193,
+    "w": 35.4,
+    "h": 32.7,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/star_full",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.248,
+     0.248
+    ]
+   },
+   {
+    "name": "Score",
+    "depth": 5,
+    "x": 187.5,
+    "y": 235,
+    "w": 287,
+    "h": 46,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "text": "630 分",
+    "fs": 34,
+    "color": "633f21ff",
+    "bold": true
+   },
+   {
+    "name": "ResultChestHalo",
+    "depth": 5,
+    "x": 187.5,
+    "y": 367,
+    "w": 100,
+    "h": 100,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 32
+   },
+   {
+    "name": "ResultChestRays",
+    "depth": 5,
+    "x": 187.5,
+    "y": 366,
+    "w": 214,
+    "h": 214,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/fx_rays",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     1,
+     1
+    ]
+   },
+   {
+    "name": "ResultChestArt",
+    "depth": 5,
+    "x": 195.5,
+    "y": 392.2,
+    "w": 117.3,
+    "h": 113.5,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "popup/chest_open",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.7822222222222222,
+     0.9257492354740061
+    ]
+   },
+   {
+    "name": "ResultFloatPlate",
+    "depth": 6,
+    "x": 187.5,
+    "y": 275.9,
+    "w": 56,
+    "h": 56,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "gfx": 22
+   },
+   {
+    "name": "tool_tidenet",
+    "depth": 6,
+    "x": 187.5,
+    "y": 275.9,
+    "w": 44.5,
+    "h": 42.2,
+    "ax": 0.5,
+    "ay": 0.5,
+    "op": 1,
+    "sprite": "r2/tool_tidenet",
+    "type": 0,
+    "inset": [
+     0,
+     0
+    ],
+    "color": "ffffffff",
+    "gray": false,
+    "sxy": [
+     0.3705882352941176,
+     0.3705882352941176
+    ]
+   }
+  ],
+  "diag": {
+   "floatLift": 14,
+   "chestOpen": true,
+   "chest": {
+    "state": "loading",
+    "error": "",
+    "t": 0.5,
+    "angle": -118,
+    "pixels": 1024,
+    "layer": 524288,
+    "camera": {
+     "pitchDeg": 36,
+     "azimuthDeg": 38,
+     "fovDeg": 36,
+     "target": [
+      0,
+      0.68,
+      0
+     ],
+     "distance": 5.6
+    },
+    "outline": 1.5
+   },
+   "action": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   },
+   "float": [
+    {
+     "name": "潮汐网",
+     "x": 0,
+     "y": 76,
+     "icon": 56
+    }
+   ],
+   "floatRise": false,
+   "guide": {
+    "pulsing": false,
+    "period": 1.6,
+    "chest": {
+     "w": 120,
+     "h": 98,
+     "halo": 160,
+     "hit": 160
+    }
+   }
+  }
+ }
+}
