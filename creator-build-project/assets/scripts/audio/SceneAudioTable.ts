@@ -1,9 +1,11 @@
 // SceneAudioTable.ts — 场景 → BGM / 环境音层。
 // BGM 路径和交叉时长只改这里（SceneMusic.setMusic）。每层开或关也只改这里：SceneMusic 发布 globalThis.__sceneAudioBed，
-// AmbienceAudio 读 waves/gulls，WindAudio 读 wind。没发布过床时，海浪 / 海鸥 / 风保持旧行为。
+// AmbienceAudio 读 waves/gulls，WindAudio 读 wind，BedLayerAudio 读 birds/insects/highWind。
+// 没发布过床时，海浪 / 海鸥 / 风保持旧行为；鸟鸣 / 虫鸣 / 高空风保持关闭。
 // 海浪、海鸥、风的文件名仍在各自播放器里，和下面 LAYER_ASSETS 相同。湖声的开关和循环参数在 LakeAmbienceCore，
 // 和本表 lakeside 档一致（换那条循环还要改它的时长，不能只改路径）。
-// missing 里的层没有素材，也没有播放器，不会出声。标了 NOT_FOR_SHIP 的文件不能写进这张表（仓库里目前没有这种标记）。
+// 鸟鸣 / 虫鸣 / 高空风的循环长度在 PENDING_LAYER_ASSETS（接缝是 0.15 s 的开头副本）。BedLayerAudio 用 2 s 等功率交叉开关，
+// 循环拼接用等增益重叠，避免咔哒。missing 里的层没有素材，不会出声。标了 NOT_FOR_SHIP 的文件不能写进这张表。
 import { requiresLakesideScene, requiresMeadowScene, requiresSkycityScene } from '../world-r2/LevelRegion';
 
 /** 区域过渡时 BGM 等功率交叉的时长（1.5–2.5 s 这一档的中间值）。进房第一次起播仍用 GameAudio.ROOM_FADE_IN_S。 */
@@ -41,8 +43,8 @@ export const BGM_CANDIDATES: { [id: string]: BgmRef & { loopS: number; key: stri
   lakeside: { path: 'audio/bgm_lakeside', bundle: 'region_lakeside', loopS: 66.6667, key: 'F major 4/4, 72 BPM' },
 };
 
-/** Voice bot V2：素材已在分包里、播放器还没写的层（鸟鸣 / 虫鸣 / 高空风 / 草原风）。档案的 layers 先不打开，免得开了也不响。
- *  每个循环文件在 loopS 之后带 0.15 s 自己开头的副本（和 amb_lake_loop 同一种格式）。 */
+/** 循环长度。鸟鸣 / 虫鸣 / 高空风由 BedLayerAudio 播放；每个文件在 loopS 之后带 0.15 s 自己开头的副本（和 amb_lake_loop 同一种格式）。
+ *  meadowWind 不接到 wind 层：WindAudio 的 wind 是离岛曲线，不是草原微风。 */
 export const PENDING_LAYER_ASSETS: { [id: string]: { path: string; bundle: string | null; loopS: number | null } } = {
   birds: { path: 'audio/amb_meadow_birds_loop', bundle: 'region_meadow', loopS: 30.0 },
   insects: { path: 'audio/amb_meadow_insects_loop', bundle: 'region_meadow', loopS: 19.25 },
