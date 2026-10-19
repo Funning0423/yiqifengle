@@ -151,6 +151,12 @@ for(const fps of [30,60,120]){const dt=1/fps;
   const m=measure(fr,dt,'follow back-and-forth'),st=settleAfter(fr,iStop,dt,last>0?-1:1);follow.push(Object.assign({case:'back-and-forth 150°/s at yaw 340 (orbit zone)',fps},{viewLagDeg:m.viewLagDeg},st,{cameraAngAccDegS2:m.cameraAngAccDegS2,peakLinAccMS2:m.peakLinAccMS2,minWallGapM:m.minWallGapM,minToHerM:m.minToHerM}))}}
 for(const f of follow){assert.ok(f.viewLagDeg<=LAG_MAX,f.case+' '+f.fps+' fps lag '+f.viewLagDeg);if(!process.env.ROOM_NO_ASSERT_SETTLE)assert.ok(f.settleS!==null&&f.settleS<=SETTLE_S,f.case+' '+f.fps+' fps settle '+f.settleS);if(!process.env.ROOM_NO_ASSERT_SETTLE)assert.ok(f.overshootDeg<=0.05,f.case+' '+f.fps+' fps overshoot '+f.overshootDeg)}
 out.follow=follow;
+// r7 hard: at rest (fresh orbit at its static goal) every orbit-her pose (w ≤ IN_FRAME_W) on a yaw 5° × pitch 4° × 7-arm
+// grid keeps all of her inside the safe frame (finer grid: tools/region-nodes/scan_room_frame.cjs, SCAN_YAW=1 SCAN_PITCH=2)
+{let n=0,bad=[],worst=0;for(let yaw=0;yaw<360;yaw+=5)for(let pitch=L.pitchMinDeg;pitch<=L.pitchMaxDeg+1e-9;pitch+=4)for(let k=0;k<=6;k++){const dist=L.distMin+(L.distMax-L.distMin)*k/6;
+  const o=new C.FreeOrbit('home');o.yaw=yaw;o.pitch=pitch;o.dist=dist;const p=o.solve(feet,WORLD,seat[1]);if(o.roomWeight>IN_FRAME_W)continue;n++;const e=herOnScreen(p.position,unit(p.position,p.target)).edge;worst=Math.max(worst,e);if(e>SAFE)bad.push([yaw,pitch,+dist.toFixed(2),+e.toFixed(3)])}
+ out.atRest={poses:n,outOfSafe:bad.length,worstEdgeNDC:+worst.toFixed(3),distMin:L.distMin};
+ assert.equal(bad.length,0,'at rest she leaves the safe frame at '+JSON.stringify(bad.slice(0,8)))}
 out.inFrame={safeNDC:SAFE,screen:'390x844',orbitW:IN_FRAME_W,cases:inFrameRows.length,outOfSafeFrames:inFrameRows.reduce((a,r)=>a+r.outOfSafeFrames,0),
  minCoverage:Math.min(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.minCoverage)),maxCoverage:Math.max(...inFrameRows.filter(r=>r.orbitFrames).map(r=>r.maxCoverage)),rows:inFrameRows};
 if(!process.env.ROOM_NO_ASSERT_FRAME)for(const r of inFrameRows)assert.equal(r.outOfSafeFrames,0,r.name+' '+r.fps+' fps: she leaves the safe frame in '+r.outOfSafeFrames+' of '+r.orbitFrames+' orbit frames (edge '+r.worstEdgeNDC+')');
