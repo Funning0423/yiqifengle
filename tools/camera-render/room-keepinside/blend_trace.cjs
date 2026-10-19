@@ -14,8 +14,8 @@ function camFrame(f){const r=cross(f,[0,1,0]),n=Math.hypot(...r)||1,rr=r.map(v=>
 function omega(a,b){const A=camFrame(a),B=camFrame(b),M=[[0,0,0],[0,0,0],[0,0,0]];for(let q=0;q<3;q++)for(let r=0;r<3;r++)for(let c=0;c<3;c++)M[r][c]+=B[q][r]*A[q][c];
  const tr=M[0][0]+M[1][1]+M[2][2],ang=Math.acos(Math.max(-1,Math.min(1,(tr-1)/2))),ax=[M[2][1]-M[1][2],M[0][2]-M[2][0],M[1][0]-M[0][1]],sn=Math.hypot(...ax);return sn<1e-12?[0,0,0]:ax.map(v=>v/sn*ang/dt)}
 const o=new C.FreeOrbit('home'),fr=[];o.yaw=mode==='sweep'?0:340;o.pitch=10;o.dist=L.distMax;
-function rec(t,moving){const p=o.solve(feet,boxes,seat[1]),n=Math.hypot(p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]),g=o.roomGoalAt(o.orbitPivot(feet),o.yaw,o.pitch,o.dist,boxes,seat[1]);
- const f=[0,1,2].map(k=>(p.target[k]-p.position[k])/n);fr.push({t:+t.toFixed(4),moving,yawInput:o.yaw,w:o.roomWeight,p:p.position,f,viewLag:angle(f,g.dir),posLag:Math.hypot(p.position[0]-g.pos[0],p.position[1]-g.pos[1],p.position[2]-g.pos[2]),wall:edgeGap(p.position[0],p.position[2]),her:Math.hypot(p.position[0]-her[0],p.position[1]-her[1],p.position[2]-her[2])})}
+function rec(t,moving){const p=o.solve(feet,boxes,seat[1]),n=Math.hypot(p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]),g=o.roomGoalAt(o.orbitPivot(feet),o.yaw,o.pitch,o.dist,boxes,seat[1]);const G=o.roomGoalPos;
+ const f=[0,1,2].map(k=>(p.target[k]-p.position[k])/n);fr.push({t:+t.toFixed(4),moving,yawInput:o.yaw,w:o.roomWeight,p:p.position,f,viewLag:angle(f,g.dir),goal:g.pos,inner:[G[0],G[1],G[2]],posLag:Math.hypot(p.position[0]-g.pos[0],p.position[1]-g.pos[1],p.position[2]-g.pos[2]),wall:edgeGap(p.position[0],p.position[2]),her:Math.hypot(p.position[0]-her[0],p.position[1]-her[1],p.position[2]-her[2])})}
 rec(0,false);let t=0;
 if(mode==='sweep'){const n=Math.round(360/rate/dt);for(let i=0;i<n;i++){o.drag(rate*dt/C.ORBIT_FEEL.yawPerScreen,0,dt);o.step(dt);t+=dt;rec(t,true)}}
 else for(let i=0;i<Math.round(2.4/dt);i++){const s=Math.floor(i*dt/0.15)%2?-1:1;o.drag(s*rate*dt/C.ORBIT_FEEL.yawPerScreen,0,dt);o.step(dt);t+=dt;rec(t,true)}

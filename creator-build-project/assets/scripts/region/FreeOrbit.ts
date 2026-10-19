@@ -81,7 +81,13 @@ const SMOOTH = (u: number) => { const x = Math.max(0, Math.min(1, u)); return x 
  *  Last, a wall-normal safety: from safeFromM inside the rounded keepInside edge to safeToM
  *  outside it, the outward normal velocity is cancelled smoothly (tangential motion untouched), so the lens cannot cross
  *  keepInside + safeToM, which is still ≥0.25 m from the inner walls. */
-export const ROOM_LOOK_FEEL = Object.freeze({ softK: 8, edgeSoftM: 0.08, insetM: 0.2, goalSpeedMS: 0.8, seedFadeS: 0.8, omega: 12, linAccMS2: 2.6, angAccDegS2: 100, safeFromM: -0.08, safeToM: 0.04 });
+export const ROOM_LOOK_FEEL = Object.freeze({ softK: 8, edgeSoftM: 0.08, insetM: 0.2, goalSpeedMS: 0, seedFadeS: 0.8, omega: 24, linAccMS2: 2.7, angAccDegS2: 100, safeFromM: 0.03, safeToM: 0.06,
+  jerkMS3: 30, ffMaxMS: 0, ffTauS: 0.08, brakeMS2: 2.7, vMaxMS: 2.2, barrierAccMS2: 2.0, barrierK: 12, barrierWallM: -0.15, barrierLookS: 0.25, barrierHerM: 1.06 });
+/** r7 position follower (docs/r5/room-orbit/RESULT.md): goalSpeedMS 0 = the goal is the input's own static goal (no
+ *  parameter rate limit). The lens tracks it with velocity feed-forward (goal velocity, capped ffMaxMS), natural frequency
+ *  omega, |accel| ≤ linAccMS2 and |jerk| ≤ jerkMS3. Two smooth barriers shape the commanded accel: the outward speed toward
+ *  keepInside + barrierWallM, and the speed toward her (look point) inside barrierHerM, may not exceed √(2·barrierAccMS2·d)
+ *  (d = room left), enforced with gain barrierK. The wall-normal velocity cancel (safeFromM..safeToM) stays as a last resort. */
 /** Room volumes that wrap the whole interior. Indoors they say nothing about obstacles; keepInside does that job. */
 const ROOM_VOLUME = /interior_shell|interior_props_merged|lighthouse_ext/i;
 function contains(b: OrbitBox, p: Vec3): boolean {
@@ -188,6 +194,10 @@ export class FreeOrbit {
   private roomGoalDir: [number, number, number] = [0, 0, -1];
   private roomPos: [number, number, number] = [0, 0, 0];
   private roomVel: [number, number, number] = [0, 0, 0];
+  private roomAcc: [number, number, number] = [0, 0, 0];
+  private roomGoalPrev: [number, number, number] = [0, 0, 0];
+  private roomGoalPrevOk = false;
+  private roomGoalVel: [number, number, number] = [0, 0, 0];
   private roomDir: [number, number, number] = [0, 0, -1];
   /** Last geometric room blend weight and wall-limited arm (diagnostics / tests). */
   roomWeight = 0;
@@ -446,11 +456,11 @@ export class FreeOrbit {
       this.yaw = curY + (this.yaw - sy); this.pitch = curP + (this.pitch - sp); this.clampPitch();
     }
     if (!this.roomParams) { this.roomYaw = this.yaw; this.roomPitch = this.pitch; this.roomDist = this.dist; this.roomParams = true; }
-    const g = this.roomGoalAt(look, this.roomYaw, this.roomPitch, this.roomDist, boxes, groundY, xz);
+    // the view: the static goal's at the player's own yaw/pitch/arm (no lag); with goalSpeedMS 0 that is the position goal too
+    const gv = this.roomGoalAt(look, this.yaw, this.pitch, this.dist, boxes, groundY, xz);
+    const g = ROOM_LOOK_FEEL.goalSpeedMS > 0 ? this.roomGoalAt(look, this.roomYaw, this.roomPitch, this.roomDist, boxes, groundY, xz) : gv;
     this.roomWeight = g.w; this.roomArmM = g.arm;
     this.roomGoalPos = [g.pos[0], g.pos[1], g.pos[2]];
-    // the view: the static goal's at the player's own yaw/pitch/arm (no lag)
-    const gv = this.roomGoalAt(look, this.yaw, this.pitch, this.dist, boxes, groundY, xz);
     let vd: Vec3 = gv.dir;
     if (this.roomOffAngle > 0) {
       const a = this.roomOffAngle * (1 - SMOOTH(this.roomOffT / ROOM_LOOK_FEEL.seedFadeS)), k = this.roomOffAxis, c = Math.cos(a), si = Math.sin(a);
@@ -459,7 +469,7 @@ export class FreeOrbit {
       if (this.roomOffT >= ROOM_LOOK_FEEL.seedFadeS) this.roomOffAngle = 0;
     }
     this.roomGoalDir = [vd[0], vd[1], vd[2]]; this.roomGoalFresh = true;
-    if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomInit = true; }
+    if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomAcc = [0, 0, 0]; this.roomGoalPrevOk = false; this.roomGoalVel = [0, 0, 0]; this.roomInit = true; }
     if (this.roomTurning) {
       const gy = Math.atan2(vd[0], vd[2]), gp = Math.asin(Math.max(-1, Math.min(1, vd[1])));
       let dy = gy - this.roomRetFrom[0]; while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
@@ -477,7 +487,7 @@ export class FreeOrbit {
   private roomFrom(pose: LookPose, turning: boolean): void {
     const d = unitToward(pose.position, pose.target);
     this.roomPos = [pose.position[0], pose.position[1], pose.position[2]]; this.roomDir = [d[0], d[1], d[2]];
-    this.roomVel = [0, 0, 0]; this.roomInit = true; this.roomTurning = turning; this.roomOffAngle = 0; this.roomGoalFresh = false;
+    this.roomVel = [0, 0, 0]; this.roomAcc = [0, 0, 0]; this.roomGoalPrevOk = false; this.roomGoalVel = [0, 0, 0]; this.roomInit = true; this.roomTurning = turning; this.roomOffAngle = 0; this.roomGoalFresh = false;
     this.roomRetFrom = [Math.atan2(d[0], d[2]), Math.asin(Math.max(-1, Math.min(1, d[1])))]; this.roomRetT = 0; this.roomRetDur = 0;
     this.roomGoalPos = [this.roomPos[0], this.roomPos[1], this.roomPos[2]]; this.roomGoalDir = [d[0], d[1], d[2]];
     this.roomParams = false;
@@ -488,8 +498,19 @@ export class FreeOrbit {
   private roomTrack(t: number): void {
     const F = ROOM_LOOK_FEEL, w = F.omega, n = Math.max(1, Math.ceil(t / (1 / 120))), h = t / n;
     const amax = F.linAccMS2, box = this.limits.keepInside, ctx = this.roomCtx;
+    // goal velocity (feed-forward): how far the goal moved since the last step, capped
+    const gp = this.roomGoalPos, lp = this.roomGoalPrev;
+    let gvel = this.roomGoalPrevOk ? [(gp[0] - lp[0]) / t, (gp[1] - lp[1]) / t, (gp[2] - lp[2]) / t] : [0, 0, 0];
+    const gs = Math.hypot(gvel[0], gvel[1], gvel[2]); if (gs > F.ffMaxMS) gvel = [gvel[0] * F.ffMaxMS / gs, gvel[1] * F.ffMaxMS / gs, gvel[2] * F.ffMaxMS / gs];
+    // low-pass the feed-forward (a blend crossing moves the goal in bursts)
+    const fk = 1 - Math.exp(-t / F.ffTauS), fv = this.roomGoalVel;
+    for (let k = 0; k < 3; k++) fv[k] += (gvel[k] - fv[k]) * fk;
+    gvel = [fv[0], fv[1], fv[2]];
+    this.roomGoalPrev = [gp[0], gp[1], gp[2]]; this.roomGoalPrevOk = true;
+    const po = (this.limits.roomLook && this.limits.roomLook.pivotOffset) || [0, 0, 0];
+    const her: Vec3 | null = ctx ? [ctx.look[0] - po[0], ctx.look[1] - po[1], ctx.look[2] - po[2]] : null;   // her look point
     for (let s = 0; s < n; s++) {
-      if (ctx && this.roomParams) {
+      if (ctx && this.roomParams && F.goalSpeedMS > 0) {
         const dy = this.yaw - this.roomYaw, dp = this.pitch - this.roomPitch, dd = this.dist - this.roomDist;
         if (Math.abs(dy) + Math.abs(dp) + Math.abs(dd) > 1e-9) {
           let f = 1;
@@ -505,10 +526,40 @@ export class FreeOrbit {
           this.roomWeight = g.w; this.roomArmM = g.arm;
         }
       }
-      const p = this.roomPos, v = this.roomVel, g = this.roomGoalPos;
-      let a = [w * w * (g[0] - p[0]) - 2 * w * v[0], w * w * (g[1] - p[1]) - 2 * w * v[1], w * w * (g[2] - p[2]) - 2 * w * v[2]];
+      const p = this.roomPos, v = this.roomVel, g = this.roomGoalPos, gvv = F.goalSpeedMS > 0 ? [0, 0, 0] : gvel;
+      // approach on a braking curve: wanted velocity = goal velocity + toward the goal at √(2·brake·e) (linear near 0, slope
+      // omega), capped vMaxMS; accel = omega·(wanted − v). A static goal is reached without overshoot.
+      const ex = g[0] - p[0], ey = g[1] - p[1], ez = g[2] - p[2], el = Math.hypot(ex, ey, ez), c0 = 3 * F.brakeMS2 / w;   // curve slope omega/4: with the omega velocity loop, critically damped
+      const vr = el > 1e-9 ? Math.min(F.vMaxMS, Math.sqrt(2 * F.brakeMS2 * el + c0 * c0) - c0) / el : 0;
+      let a = [w * (gvv[0] + ex * vr - v[0]), w * (gvv[1] + ey * vr - v[1]), w * (gvv[2] + ez * vr - v[2])];
+      // barriers: limit the commanded accel along n so the speed toward a limit stays ≤ √(2·B·d)
+      const bars: Array<[number, number, number, number]> = [];
+      if (box) {
+        const e = roomEdge(p[0], p[2], box); bars.push([e.nx, 0, e.nz, F.barrierWallM - e.s]);
+        // look-ahead: the wall where the lens will be in barrierLookS (a corner turns the normal into the path)
+        const q = roomEdge(p[0] + v[0] * F.barrierLookS, p[2] + v[2] * F.barrierLookS, box);
+        if (q.nx * e.nx + q.nz * e.nz < 0.999) bars.push([q.nx, 0, q.nz, F.barrierWallM - q.s + Math.max(0, v[0] * q.nx + v[2] * q.nz) * F.barrierLookS]);
+      }
+      if (her) { const dx = her[0] - p[0], dy = her[1] - p[1], dz = her[2] - p[2], L = Math.hypot(dx, dy, dz) || 1; bars.push([dx / L, dy / L, dz / L, L - F.barrierHerM]); }
       let m = Math.hypot(a[0], a[1], a[2]); if (m > amax) a = [a[0] * amax / m, a[1] * amax / m, a[2] * amax / m];
-      for (let k = 0; k < 3; k++) v[k] += a[k] * h;
+      let hard: number[] | null = null;
+      for (let b = 0; b < bars.length; b++) {
+        const nb = bars[b], vn = v[0] * nb[0] + v[1] * nb[1] + v[2] * nb[2], allow = Math.sqrt(2 * F.barrierAccMS2 * Math.max(0, nb[3] - Math.max(0, vn) * amax / F.jerkMS3));
+        const an = a[0] * nb[0] + a[1] * nb[1] + a[2] * nb[2], cap = Math.max(-amax, F.barrierK * (allow - vn));
+        if (an > cap) { const d = an - cap; a = [a[0] - nb[0] * d, a[1] - nb[1] * d, a[2] - nb[2] * d]; hard = nb; }
+      }
+      m = Math.hypot(a[0], a[1], a[2]);
+      if (m > amax) {
+        if (hard) {   // keep the barrier's braking; give up tangential accel first
+          const an = a[0] * hard[0] + a[1] * hard[1] + a[2] * hard[2], t3 = [a[0] - hard[0] * an, a[1] - hard[1] * an, a[2] - hard[2] * an];
+          const tm = Math.hypot(t3[0], t3[1], t3[2]), room = Math.sqrt(Math.max(0, amax * amax - an * an)), kt = tm > room ? room / tm : 1, an2 = Math.max(-amax, Math.min(amax, an));
+          a = [hard[0] * an2 + t3[0] * kt, hard[1] * an2 + t3[1] * kt, hard[2] * an2 + t3[2] * kt];
+        } else a = [a[0] * amax / m, a[1] * amax / m, a[2] * amax / m];
+      }
+      // jerk limit on the actual acceleration
+      const ac = this.roomAcc, da = [a[0] - ac[0], a[1] - ac[1], a[2] - ac[2]], dm = Math.hypot(da[0], da[1], da[2]), jm = F.jerkMS3 * h;
+      const jf = dm > jm ? jm / dm : 1;
+      for (let k = 0; k < 3; k++) { ac[k] += da[k] * jf; v[k] += ac[k] * h; }
       if (box) {
         const e = roomEdge(p[0], p[2], box), vn = v[0] * e.nx + v[2] * e.nz;
         if (vn > 0) { const k = SMOOTH((e.s - F.safeFromM) / (F.safeToM - F.safeFromM)); v[0] -= e.nx * vn * k; v[2] -= e.nz * vn * k; }
