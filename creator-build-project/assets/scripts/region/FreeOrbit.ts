@@ -45,10 +45,11 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
     // x 0, z -2.6), the wall cabinets and the desk. Every point of this box is ≥0.30 m from the inner walls; the old
     // -1.85..1.05 x -4.72..-1.55 box reached through the round wall at yaw 270 and into the west cabinet at 315 (black frames).
     keepInside: { min: [-1.1, 0.85, -4.45], max: [1.05, 2.2, -0.9], cornerM: 0.5 },
-    // r6 framing: seated A1 (sit_hold, frame 24) body box x -0.19..0.62, y 0..1.19, z -4.63..-4.02. The pivot moves to its
-    // plan centre (x 0.23, z -4.33; the look height stays, so the arm still keeps ≥1.0 m off her look point) and the view
-    // tilts 8° down, so a short arm (yaw ~315) frames her body instead of her hat.
-    roomLook: { center: [0, 1.55, -2.5], blendFromM: 1.45, blendFullM: 0.95, pivotOffset: [-0.2, 0, -0.12], viewTiltDeg: 8 } },
+    // r6 framing: seated A1 (sit_hold, frame 24) body box x -0.19..0.62, y 0..1.19, z -4.63..-4.02. The pivot moves 0.2 m
+    // toward its plan centre in x (x 0.23; z cannot move: the pivot must stay inside the 0.2 m inset keepInside, z ≥ -4.25;
+    // the look height stays, so the arm still keeps ≥1.0 m off her look point) and the view tilts 8° down, so a short arm
+    // (yaw ~315) frames her body instead of her hat.
+    roomLook: { center: [0, 1.55, -2.5], blendFromM: 1.45, blendFullM: 0.95, pivotOffset: [-0.2, 0, 0], viewTiltDeg: 8 } },
   island: { pitchMinDeg: -8, pitchMaxDeg: 58, distMin: 4.2, distMax: 52, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 42 },
   meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48 },
   skycity: { pitchMinDeg: -6, pitchMaxDeg: 55, distMin: 4, distMax: 22, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
@@ -181,14 +182,13 @@ export class FreeOrbit {
   private boardSnap: Memory | null = null;
   private fromPose: LookPose | null = null;
   private returnT = 0;
-  /** Room look tracker: goal (from the last solve) and the followed lens (position, velocity, view dir, angular velocity). */
+  /** Room look tracker: position goal (from the last solve), the followed lens (position, velocity), its view dir. */
   private roomInit = false;
   private roomGoalPos: [number, number, number] = [0, 0, 0];
   private roomGoalDir: [number, number, number] = [0, 0, -1];
   private roomPos: [number, number, number] = [0, 0, 0];
   private roomVel: [number, number, number] = [0, 0, 0];
   private roomDir: [number, number, number] = [0, 0, -1];
-  private roomSpin: [number, number, number] = [0, 0, 0];
   /** Last geometric room blend weight and wall-limited arm (diagnostics / tests). */
   roomWeight = 0;
   roomArmM = 0;
@@ -200,6 +200,13 @@ export class FreeOrbit {
   private roomCtx: { look: Vec3; boxes: readonly OrbitBox[]; groundY: number; xz?: readonly [number, number, number, number] } | null = null;
   /** True while a cinematic return turns the view with the capped follower; otherwise the view is the input's own. */
   private roomTurning = false;
+  /** roomGoalDir is the input's view from a solve (not a placeholder from roomFrom): only then does the return run. */
+  private roomGoalFresh = false;
+  /** Cinematic return of the view: from yaw/pitch (rad) of the cinematic's last view to the input's view, smootherstep
+   *  over roomRetDur, chosen so |yaw''| + |pitch''| + |yaw'·pitch'| (a roll-free camera's angular accel) ≤ angAccDegS2. */
+  private roomRetFrom: [number, number] = [0, 0];
+  private roomRetT = 0;
+  private roomRetDur = 0;
   /** First drag off an authored lens: that lens's view direction, matched again (with the real boxes) at the first solve. */
   private roomSeedDir: Vec3 | null = null;
   private roomSeedYP: [number, number] = [0, 0];
@@ -451,9 +458,17 @@ export class FreeOrbit {
       vd = [vd[0] * c + kx[0] * si + k[0] * kd * (1 - c), vd[1] * c + kx[1] * si + k[1] * kd * (1 - c), vd[2] * c + kx[2] * si + k[2] * kd * (1 - c)];
       if (this.roomOffT >= ROOM_LOOK_FEEL.seedFadeS) this.roomOffAngle = 0;
     }
-    this.roomGoalDir = [vd[0], vd[1], vd[2]];
-    if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomSpin = [0, 0, 0]; this.roomInit = true; }
-    if (!this.roomTurning) { this.roomDir = [vd[0], vd[1], vd[2]]; this.roomSpin = [0, 0, 0]; }
+    this.roomGoalDir = [vd[0], vd[1], vd[2]]; this.roomGoalFresh = true;
+    if (!this.roomInit) { this.roomPos = [g.pos[0], g.pos[1], g.pos[2]]; this.roomVel = [0, 0, 0]; this.roomInit = true; }
+    if (this.roomTurning) {
+      const gy = Math.atan2(vd[0], vd[2]), gp = Math.asin(Math.max(-1, Math.min(1, vd[1])));
+      let dy = gy - this.roomRetFrom[0]; while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI;
+      const dp = gp - this.roomRetFrom[1], amax = ROOM_LOOK_FEEL.angAccDegS2 * Math.PI / 180;
+      if (!(this.roomRetDur > 0)) this.roomRetDur = Math.max(ORBIT_FEEL.returnS, Math.sqrt((5.78 * (Math.abs(dy) + Math.abs(dp)) + 3.52 * Math.abs(dy * dp)) / amax));
+      const e = SMOOTH(this.roomRetT / this.roomRetDur), y = this.roomRetFrom[0] + dy * e, pp = this.roomRetFrom[1] + dp * e, c = Math.cos(pp);
+      this.roomDir = [Math.sin(y) * c, Math.sin(pp), Math.cos(y) * c];
+      if (this.roomRetT >= this.roomRetDur) { this.roomTurning = false; this.roomDir = [vd[0], vd[1], vd[2]]; }
+    } else this.roomDir = [vd[0], vd[1], vd[2]];
     const p = this.roomPos, d = this.roomDir, reach = Math.max(1, Math.hypot(look[0] - p[0], look[1] - p[1], look[2] - p[2]));
     return { position: [p[0], p[1], p[2]], target: [p[0] + d[0] * reach, p[1] + d[1] * reach, p[2] + d[2] * reach], fovVerticalDeg: this.fov };
   }
@@ -462,7 +477,8 @@ export class FreeOrbit {
   private roomFrom(pose: LookPose, turning: boolean): void {
     const d = unitToward(pose.position, pose.target);
     this.roomPos = [pose.position[0], pose.position[1], pose.position[2]]; this.roomDir = [d[0], d[1], d[2]];
-    this.roomVel = [0, 0, 0]; this.roomSpin = [0, 0, 0]; this.roomInit = true; this.roomTurning = turning; this.roomOffAngle = 0;
+    this.roomVel = [0, 0, 0]; this.roomInit = true; this.roomTurning = turning; this.roomOffAngle = 0; this.roomGoalFresh = false;
+    this.roomRetFrom = [Math.atan2(d[0], d[2]), Math.asin(Math.max(-1, Math.min(1, d[1])))]; this.roomRetT = 0; this.roomRetDur = 0;
     this.roomGoalPos = [this.roomPos[0], this.roomPos[1], this.roomPos[2]]; this.roomGoalDir = [d[0], d[1], d[2]];
     this.roomParams = false;
   }
@@ -471,7 +487,7 @@ export class FreeOrbit {
    *  (4) only while a cinematic return is turning the view: capped angular follow toward the input's view. */
   private roomTrack(t: number): void {
     const F = ROOM_LOOK_FEEL, w = F.omega, n = Math.max(1, Math.ceil(t / (1 / 120))), h = t / n;
-    const amax = F.linAccMS2, wmax = F.angAccDegS2 * Math.PI / 180, box = this.limits.keepInside, ctx = this.roomCtx;
+    const amax = F.linAccMS2, box = this.limits.keepInside, ctx = this.roomCtx;
     for (let s = 0; s < n; s++) {
       if (ctx && this.roomParams) {
         const dy = this.yaw - this.roomYaw, dp = this.pitch - this.roomPitch, dd = this.dist - this.roomDist;
@@ -498,26 +514,8 @@ export class FreeOrbit {
         if (vn > 0) { const k = SMOOTH((e.s - F.safeFromM) / (F.safeToM - F.safeFromM)); v[0] -= e.nx * vn * k; v[2] -= e.nz * vn * k; }
       }
       for (let k = 0; k < 3; k++) p[k] += v[k] * h;
-      // view: the follower only turns it during a cinematic return; otherwise solveRoom writes the input's view
-      if (!this.roomTurning) continue;
-      const d = this.roomDir, gd = this.roomGoalDir, o = this.roomSpin;
-      let ax = [d[1] * gd[2] - d[2] * gd[1], d[2] * gd[0] - d[0] * gd[2], d[0] * gd[1] - d[1] * gd[0]];
-      const sn = Math.hypot(ax[0], ax[1], ax[2]), cs = d[0] * gd[0] + d[1] * gd[1] + d[2] * gd[2], e = Math.atan2(sn, cs);
-      ax = sn > 1e-9 ? [ax[0] / sn, ax[1] / sn, ax[2] / sn] : cs < 0 ? [0, 1, 0] : [0, 0, 0];
-      let al = [w * w * e * ax[0] - 2 * w * o[0], w * w * e * ax[1] - 2 * w * o[1], w * w * e * ax[2] - 2 * w * o[2]];
-      m = Math.hypot(al[0], al[1], al[2]); if (m > wmax) al = [al[0] * wmax / m, al[1] * wmax / m, al[2] * wmax / m];
-      for (let k = 0; k < 3; k++) o[k] += al[k] * h;
-      // spin about the view axis does nothing to a look direction; drop it so it cannot build up
-      const along = o[0] * d[0] + o[1] * d[1] + o[2] * d[2]; o[0] -= along * d[0]; o[1] -= along * d[1]; o[2] -= along * d[2];
-      const ang = Math.hypot(o[0], o[1], o[2]) * h;
-      if (ang > 0) {
-        const k3 = [o[0] / (ang / h), o[1] / (ang / h), o[2] / (ang / h)], c = Math.cos(ang), si = Math.sin(ang);
-        const kd = k3[0] * d[0] + k3[1] * d[1] + k3[2] * d[2], kx = [k3[1] * d[2] - k3[2] * d[1], k3[2] * d[0] - k3[0] * d[2], k3[0] * d[1] - k3[1] * d[0]];
-        const nd = [d[0] * c + kx[0] * si + k3[0] * kd * (1 - c), d[1] * c + kx[1] * si + k3[1] * kd * (1 - c), d[2] * c + kx[2] * si + k3[2] * kd * (1 - c)];
-        const L = Math.hypot(nd[0], nd[1], nd[2]) || 1; this.roomDir = [nd[0] / L, nd[1] / L, nd[2] / L];
-      }
-      // arrived: hand the view back to the input (sub-0.1° / sub-1°/s, so the hand-off is invisible)
-      if (e < 0.1 * Math.PI / 180 && Math.hypot(o[0], o[1], o[2]) < Math.PI / 180) { this.roomTurning = false; this.roomDir = [gd[0], gd[1], gd[2]]; this.roomSpin = [0, 0, 0]; }
+      // view: a cinematic return turns it on a timed yaw/pitch curve (solveRoom); otherwise it is the input's own
+      if (this.roomTurning && this.roomGoalFresh) this.roomRetT += h;
     }
   }
   private blend(a: LookPose, b: LookPose, e: number): LookPose {
