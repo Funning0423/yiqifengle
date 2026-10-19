@@ -20,12 +20,14 @@ assert.equal(P.w,256);assert.equal(P.h,256);assert.equal(P.ct,2,'RGB like the ex
 const NEW=[[147,167,124],[91,104,53],[119,133,62],[166,153,130],[57,143,18],[92,162,20]];NEW.forEach((c,i)=>assert.deepEqual(P.at(i,10),c,'olive cell '+i));
 for(let c=6;c<16;c++)assert.deepEqual(P.at(c,10),[0,0,0],'rest of row 10 still free');
 assert.deepEqual(P.at(9,15),[0x6d,0xbe,0x45],'shared grass cell unchanged');assert.deepEqual(P.at(10,15),[0xa8,0xd6,0x4a]);assert.deepEqual(P.at(14,15),[0x4f,0xa0,0xa0]);
-const want={'LK_far_hills.glb':{cells:['0,10','1,10','2,10','3,10','6,13','15,12','4,10','4,13','7,13'],verts:4492},'LK_terrain.glb':{cells:['4,10','10,14','11,14','12,14','13,14','14,14'],verts:2890},'LK_far_shore.glb':{cells:['4,10','5,10','12,14'],verts:984}};
+const want={'LK_far_hills.glb':{cells:['0,10','1,10','2,10','3,10','6,13','15,12','7,13'],verts:3802},'LK_terrain.glb':{cells:['4,10','10,14','11,14','12,14','13,14','14,14'],verts:4134},'LK_far_shore.glb':{cells:['4,10','5,10','12,14'],verts:984}};
 for(const [f,w] of Object.entries(want)){const g=cells(f);assert.deepEqual(Array.from(g.cells.keys()).sort(),w.cells.slice().sort(),f+' cells');assert.equal(g.verts,w.verts,f+' vertex count');
  assert.equal(g.j.images.length,1);assert.equal(g.j.images[0].uri,'T_LK_palette_256.png','same shared image');assert.equal(g.j.materials.length,1);assert.equal(g.j.materials[0].name,'M_LK_palette');}
-// 场景特效bot r5 S2: LK_far_hills carries the 360° far ring (tools/scene-fx/lakeside_far_ring.py) appended after the original 2466
-// olive-hill vertices: ring apron on the terrain grass cell 4,10, three hill layers on the blue cells 4,13 / 7,13 / 6,13.
+// 场景特效bot r5 S2 (r3): the 360° far ring (tools/scene-fx/lakeside_far_ring.py) is appended after the original vertices:
+// LK_terrain gets the grass apron + near knolls (its own grass cell 4,10, sand rim on 12,14), LK_far_hills the mid / far
+// layers (blue cells 7,13 / 6,13).
 assert.equal(cells('LK_far_hills.glb').j.meshes[0].extras.qfFarRing.baseVerts,2466,'original hill vertices kept first');
+assert.equal(cells('LK_terrain.glb').j.meshes[0].extras.qfFarRing.baseVerts,2890,'original island vertices kept first');
 const others=fs.readdirSync(M).filter(f=>f.endsWith('.glb')&&!want[f]);let n=0;
 for(const f of others){const g=cells(f);for(const k of g.cells.keys())assert(!k.endsWith(',10'),f+' must not sample the olive row ('+k+')');n++;}
 for(const f of ['LK_grass_tuft.glb','LK_bush.glb','LK_tree_round.glb','LK_tree_conifer.glb'])assert(others.includes(f),f);

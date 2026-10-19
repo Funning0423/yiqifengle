@@ -17,7 +17,8 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 sc = bpy.context.scene
 def imp(path):
     before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=path); return [o for o in bpy.data.objects if o not in before]
-T = json.load(open(B + 'scene_r5h_slim_transforms.json'))
+OV = os.environ.get('QF_LK_MODELS')  # optional dir of replacement GLBs (+ transforms.json) for before/after previews
+T = json.load(open(OV + '/transforms.json' if OV and os.path.exists(OV + '/transforms.json') else B + 'scene_r5h_slim_transforms.json'))
 SKIP = ('LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb')
 lib = {}
 hold = bpy.data.collections.new('lib'); sc.collection.children.link(hold)
@@ -25,7 +26,7 @@ for ins in T['instances']:
     g = ins.get('glb')
     if not isinstance(g, str) or g in SKIP or g.startswith('LK_piece_') or ins.get('name') == g.replace('.glb', ''): continue
     if g not in lib:
-        objs = imp(HILLS if g == 'LK_far_hills.glb' else B + 'models/' + g)
+        objs = imp(OV + '/' + g if OV and os.path.exists(OV + '/' + g) else HILLS if g == 'LK_far_hills.glb' else B + 'models/' + g)
         for o in objs:
             for c in list(o.users_collection): c.objects.unlink(o)
             hold.objects.link(o)
@@ -35,8 +36,29 @@ for ins in T['instances']:
     for data, mw in lib[g]:
         o = bpy.data.objects.new(ins['name'], data); sc.collection.objects.link(o); o.matrix_world = C @ M @ Ci @ mw
 hold.hide_render = True
+# game lighting direction (LAKESIDE_DIR_LIGHT_PARAMS.sunForward, board yaw 0) and the per-class land fills of
+# lakesideModeLighting('day') as emission (Cocos adds emissive x emissiveScale the same way), so the preview shows the
+# in-game near / far split (the far class gets the cool haze)
 sun = bpy.data.objects.new('sun', bpy.data.lights.new('sun', 'SUN')); sc.collection.objects.link(sun)
-sun.data.energy = 3.2; sun.rotation_euler = (math.radians(50), 0, math.radians(35)); sun.data.color = (1, .96, .9)
+sun.data.energy = 3.4; sun.data.color = (1, .86, .72); sun.rotation_mode = 'QUATERNION'
+sun.rotation_quaternion = g2b((-0.4182, -0.3983, 0.8164)).normalized().to_track_quat('-Z', 'Y')
+FILL = {'near': (0.104, 0.196, 0.025), 'far': (0.043, 0.087, 0.107), 'foliage': (0.019, 0.065, 0.0), 'wall': (0.023, 0.02, 0.017), 'rock': (0.079, 0.079, 0.079)}
+CLS = {'LK_terrain': 'near', 'LK_far_hills': 'far', 'LK_far_shore': 'far', 'LK_tree_conifer': 'foliage', 'LK_tree_round': 'foliage',
+       'LK_bush': 'foliage', 'LK_house_A': 'wall', 'LK_house_B': 'wall', 'LK_house_C': 'wall', 'LK_rock': 'rock'}
+if os.environ.get('QF_NOFILL') != '1':
+    fm = {}
+    for g, objs in lib.items():
+        c = CLS.get(g.replace('.glb', ''))
+        if not c: continue
+        for data, mw in objs:
+            for si, mat in enumerate(data.materials):
+                if mat is None: continue
+                key = (mat.name, c)
+                if key not in fm:
+                    m2 = mat.copy(); bs = m2.node_tree.nodes.get('Principled BSDF')
+                    if bs: bs.inputs['Emission Color'].default_value = FILL[c] + (1,); bs.inputs['Emission Strength'].default_value = 1.0
+                    fm[key] = m2
+                data.materials[si] = fm[key]
 w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True; bg = w.node_tree.nodes['Background']
 bg.inputs[0].default_value = (.55, .72, .92, 1); bg.inputs[1].default_value = .9
 sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = 64; sc.cycles.use_denoising = True

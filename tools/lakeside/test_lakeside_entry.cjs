@@ -63,13 +63,13 @@ t('lights follow scene_r5h3_lighting.json (direction, colour, ratios); the MTN_R
 t('scene instances: every kept GLB is in the subpackage (with .meta), 3D pieces / shadows / ripples / frame dropped',()=>{
  const D=H.load('region/LakesideSceneData'),tr=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h_slim_transforms.json'),'utf8'));
  const keep=D.lakesideSceneInstances(tr.instances),models=path.join(A,'bundles/region_lakeside/models');
- assert.equal(keep.length,431);assert(!keep.some(i=>/^LK_piece_|LK_contact_shadow|LK_ripple_ring|LK_board_frame/.test(i.glb)));
+ assert.equal(keep.length,460);assert.equal(keep.filter(i=>/^LK_ring_/.test(i.name)).length,29,'场景特效bot r5 S2 far-ring tree / bush / rock clusters (lakeside_far_ring.py)');assert(!keep.some(i=>/^LK_piece_|LK_contact_shadow|LK_ripple_ring|LK_board_frame/.test(i.glb)));
  assert(keep.some(i=>i.glb==='LK_lilypad.glb')&&keep.some(i=>i.glb==='LK_chime_raft.glb'));
  for(const g of new Set(keep.map(i=>i.glb))){assert(fs.existsSync(path.join(models,g)),g);assert(fs.existsSync(path.join(models,g+'.meta')),g+'.meta');}
  for(const i of keep){assert.equal(i.pos.length,3);assert.equal(i.rot_quat_xyzw.length,4);assert(Math.abs(Math.hypot(...i.rot_quat_xyzw)-1)<1e-3,i.name);}
  // r5h3 ASSETS-collection templates (name == GLB basename, at the origin) are not placed: no house/pavilion on the bridge.
- // Since the art/tools/export_region.py re-export the JSON itself carries no templates (581 instances); the runtime filter stays as a guard.
- const tpl=tr.instances.filter(i=>i.name===i.glb.replace(/\.glb$/,''));assert.equal(tpl.length,0);assert.equal(tr.instances.length,581);
+ // Since the art/tools/export_region.py re-export the JSON itself carries no templates (581 instances, + 29 far-ring clusters = 610); the runtime filter stays as a guard.
+ const tpl=tr.instances.filter(i=>i.name===i.glb.replace(/\.glb$/,''));assert.equal(tpl.length,0);assert.equal(tr.instances.length,610);
  assert(!keep.some(i=>D.isLakesideAssetTemplate(i)));assert(!keep.some(i=>/LK_(house_[ABC]|pavilion)\.glb/.test(i.glb)&&Math.hypot(...i.pos)<5),'nothing house-like within 5 m of the bridge origin');
  assert.equal(keep.filter(i=>i.glb==='LK_pavilion.glb').length,1);assert.equal(keep.filter(i=>i.glb==='LK_lake.glb').length,1);assert.equal(keep.filter(i=>i.glb==='LK_bridge.glb').length,1);
  assert.deepEqual(D.lakesideCellCenter(0),[-3.3,0,8.7]);assert.deepEqual(D.lakesideCellCenter(48),[3.3,0,15.3]);assert.throws(()=>D.lakesideCellCenter(49));
