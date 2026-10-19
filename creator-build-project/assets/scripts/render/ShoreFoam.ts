@@ -15,7 +15,7 @@ export function shoreFoamMaterial(fx: EffectAsset, p: ShoreFoamParams, defines: 
 }
 export class ShoreFoam {
   private node: Node | null = null; private mesh: Mesh | null = null; private material: Material | null = null;
-  private disposed = false; private state = 'loading'; private applied = ''; private swashV = new Vec4(); private tintV = new Vec4(1, 1, 1, 1); private cycleV = new Vec4();
+  private disposed = false; private state = 'loading'; private applied = ''; private swashV = new Vec4(); private tintV = new Vec4(1, 1, 1, 1); private cycleV = new Vec4(); private bandV = new Vec4();
   constructor(parent: Node) {
     const node = new Node('fx_shore_foam'); parent.addChild(node); node.active = false; this.node = node;
     resources.load(SHORE_FOAM_EFFECT, EffectAsset, (err: Error | null, fx: EffectAsset | null) => {
@@ -35,15 +35,19 @@ export class ShoreFoam {
   }
   ready(): boolean { return this.state === 'ready' && !!this.material && !!this.node && isValid(this.node, true); }
   status(): string { return this.state; }
-  /** visible: exterior view. swash from islandSwash(clock); tint rgb = night multiply; lift = this frame's sea sheet lift (m). */
-  update(visible: boolean, s: Swash, tint: number[], lift: number): void {
+  /** visible: exterior view. swash from islandSwash(clock); tint = islandFoamTint(night) (rgb multiply, alpha scale); lift = this
+   *  frame's sea sheet lift (m); band = islandBandParams(night) (shorter, thinner lip at night). */
+  update(visible: boolean, s: Swash, tint: number[], lift: number, band: number[]): void {
     const node = this.node; if (!node || !isValid(node, true)) return;
     const on = visible && this.ready(); if (node.active !== on) node.active = on; if (!on) return;
     const m = this.material!;
     this.swashV.set(s.front, s.foamA, s.wet, s.t); m.setProperty('swash', this.swashV);
     const c = ISLAND_FOAM.cycle; this.cycleV.set(c[0], c[1], c[2], lift); m.setProperty('cycle', this.cycleV);
-    const key = tint[0].toFixed(3) + ',' + tint[1].toFixed(3) + ',' + tint[2].toFixed(3);
-    if (key !== this.applied) { this.tintV.set(tint[0], tint[1], tint[2], 1); m.setProperty('tint', this.tintV); this.applied = key; }
+    const key = tint[0].toFixed(3) + ',' + tint[1].toFixed(3) + ',' + tint[2].toFixed(3) + ',' + tint[3].toFixed(3) + ',' + band[1].toFixed(3) + ',' + band[2].toFixed(3);
+    if (key !== this.applied) {
+      this.tintV.set(tint[0], tint[1], tint[2], tint[3]); m.setProperty('tint', this.tintV);
+      this.bandV.set(band[0], band[1], band[2], band[3]); m.setProperty('bandParams', this.bandV); this.applied = key;
+    }
   }
   hide(): void { const n = this.node; if (n && isValid(n, true) && n.active) n.active = false; }
   dispose(): void {

@@ -92,7 +92,7 @@ function sweep(Pp, swashAt, seconds, light) {
   let maxRev = 0; for (let k = 0; k < rev.length; k++) if (rev[k] > maxRev) maxRev = rev[k];
   return { maxA: +maxA.toFixed(3), maxRgb: +maxRgb.toFixed(3), maxDaPerFrame: +maxDa.toFixed(3), reversalsPerSecond: +(maxRev / seconds).toFixed(2) };
 }
-const isleDay = sweep(Object.assign({}, P, { tint: F.islandFoamTint(0) }), F.islandSwash, L), isleNight = sweep(Object.assign({}, P, { tint: F.islandFoamTint(1) }), F.islandSwash, L);
+const isleDay = sweep(Object.assign({}, P, { tint: F.islandFoamTint(0) }), F.islandSwash, L), isleNight = sweep(Object.assign({}, P, { tint: F.islandFoamTint(1), bandParams: F.islandBandParams(1) }), F.islandSwash, L);
 const lakeDay = sweep(F.LAKE_FOAM, function (t) { return F.lakeSwash(t + 1000); }, F.LAKE_FOAM.cycle[0], [3, 3, 3]), lakeNight = sweep(F.LAKE_FOAM, function (t) { return F.lakeSwash(t + 1000); }, F.LAKE_FOAM.cycle[0], [0.25, 0.3, 0.45]);
 const cap = function (Q) { return Q.foamColor[3] + Q.wetColor[3] * (1 - Q.foamColor[3]) + 1e-3; };
 check('no-white-blocks', isleDay.maxA <= cap(P) && lakeDay.maxA <= cap(F.LAKE_FOAM) && isleDay.maxRgb <= 1 && lakeDay.maxRgb <= 1, { isleDay, lakeDay, capIsle: +cap(P).toFixed(3), capLake: +cap(F.LAKE_FOAM).toFixed(3) });
@@ -101,7 +101,13 @@ check('no-flicker', isleDay.reversalsPerSecond <= 3 && lakeDay.reversalsPerSecon
 let lakeStep = 0, lp = null; for (let i = 0; i <= 3 * 7 * fps; i++) { const s = F.lakeSwash(5000 + i / fps); if (lp) lakeStep = Math.max(lakeStep, Math.abs(s.front - lp.front), Math.abs(s.foamA - lp.foamA), Math.abs(s.wet - lp.wet)); lp = s; }
 check('lake-swash-continuous', lakeStep < 0.05, { lakeStep });
 // night tint is the old lip's multiply
-const nt = F.islandFoamTint(1); check('island-night-multiply', nt[0] === S.night[0] && nt[1] === S.night[1] && nt[2] === S.night[2]);
+const nt = F.islandFoamTint(1), d0 = F.islandFoamTint(0), b0 = F.islandBandParams(0), b1 = F.islandBandParams(1);
+check('island-night-multiply', Math.abs(nt[0] - S.night[0] * F.ISLAND_NIGHT.rgb) < 1e-12 && Math.abs(nt[2] - S.night[2] * F.ISLAND_NIGHT.rgb) < 1e-12 && Math.abs(nt[3] - F.ISLAND_NIGHT.alpha) < 1e-12, { nt });
+check('island-day-unchanged', d0.join() === '1,1,1,1' && b0.join() === P.bandParams.join(), { d0, b0 });
+// night: the lip is thin and faint like the lakeside (peak alpha and lit lip area x alpha no more than the lake's at day)
+(function () { const area = function (Q, tint) { let sA = 0, mA = 0; const s = F.islandSwash(S.swells[0].hit + F.ISLAND_SWASH.up); for (let j = 0; j <= 400; j++) { const c = F.sampleShoreFoam(Object.assign({}, Q, { tint: tint, wetColor: [0, 0, 0, 0] }), Object.assign({}, s), 3, j / 400, 10, 1); sA += c[3] / 400; mA = Math.max(mA, c[3]); } return { sum: +sA.toFixed(4), max: +mA.toFixed(3) }; };
+  const day = area(P, d0), night = area(Object.assign({}, P, { bandParams: b1 }), nt), lake = area(Object.assign({}, F.LAKE_FOAM, { lineParams: [0, 0, 0, 0] }), [1, 1, 1, 1]);
+  check('island-night-thin-faint', night.max <= lake.max + 1e-6 && night.sum <= day.sum * 0.45, { day, night, lakeDay: lake }); })();
 
 // ---- lakeside ribbon GLB
 const glbPath = path.join(A, 'bundles/region_lakeside/models/LK_shore_foam.glb'), buf = fs.readFileSync(glbPath), jl = buf.readUInt32LE(12), J = JSON.parse(buf.slice(20, 20 + jl).toString('utf8')), bin = buf.slice(28 + jl);
@@ -120,7 +126,7 @@ check('lake-rows-in-sync', tool.includes('const ROWS=[' + F.LAKE_FOAM_ROWS.join(
 // ---- wiring
 const sb = fs.readFileSync(path.join(scripts, 'render/ShoreBreak.ts'), 'utf8'), sf = fs.readFileSync(path.join(scripts, 'render/ShoreFoam.ts'), 'utf8');
 const bg = fs.readFileSync(path.join(scripts, 'region/LakesideBoardBackground.ts'), 'utf8'), ls = fs.readFileSync(path.join(scripts, 'region/LakesideShoreFoam.ts'), 'utf8');
-check('island-wired', sb.includes('this.foam = new ShoreFoam(scene)') && sb.includes('this.foam.update(foamOn, islandSwash(this.time), islandFoamTint(this.nightShown), seaSheetLift(this.time, phase))') && sb.includes('&& !foamOn') && sb.includes('this.foam.dispose()')
+check('island-wired', sb.includes('this.foam = new ShoreFoam(scene)') && sb.includes('this.foam.update(foamOn, islandSwash(this.time), islandFoamTint(this.nightShown), seaSheetLift(this.time, phase), islandBandParams(this.nightShown))') && sb.includes('&& !foamOn') && sb.includes('this.foam.dispose()')
   && sf.includes("SHORE_FOAM_EFFECT = 'world/shore-foam'") && sf.includes('USE_CC_TIME: false, USE_LIT: false'));
 check('lake-wired', bg.includes('if(i.glb===LAKESIDE_SHORE_GLB)shore.push(node)') && bg.includes('await mountLakesideShore(shore,take)') && bg.includes('isLakesideShoreMaterial(src))continue') && bg.includes('applyLakesideShoreMode(mode)')
   && ls.includes("LAKESIDE_SHORE_GLB = 'LK_shore_foam.glb'") && ls.includes('USE_CC_TIME: true, USE_LIT: true') && ls.includes('off(nodes)'));

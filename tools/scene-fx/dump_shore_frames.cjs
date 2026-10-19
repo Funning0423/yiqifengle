@@ -25,7 +25,7 @@ const W=Math.min(4096,Math.ceil((umax-umin)/0.08)),HH=64;
 const du=new Float32Array(W).fill(60);{const best=new Float32Array(W).fill(1e9);for(let i=0;i<geo.uvs.length/2;i++){const x=Math.round((geo.uvs[2*i]-umin)/(umax-umin)*(W-1)),dv=Math.abs(geo.uvs[2*i+1]-0.5);
   if(dv<best[x]){best[x]=dv;const p=geo.positions;du[x]=Math.hypot(p[3*i]-cam[0],p[3*i+1]-cam[1],p[3*i+2]-cam[2]);}}
   let last=60;for(let x=0;x<W;x++){if(best[x]<1e8)last=du[x];else du[x]=last;}}
-const tint=kind==='island'?F.islandFoamTint(night):[1,1,1,1];const Pt=Object.assign({},P,{tint});
+const tint=kind==='island'?F.islandFoamTint(night):[1,1,1,1];const Pt=Object.assign({},P,{tint},kind==='island'&&F.islandBandParams?{bandParams:F.islandBandParams(night)}:{});
 const frames=[],n=Math.round(+secs*+fps);
 for(let f=0;f<n;f++){const t=+t0+f/ +fps;const s=kind==='island'?F.islandSwash(t):F.lakeSwash(t);const buf=Buffer.alloc(W*HH*4);
   for(let y=0;y<HH;y++){const v=(y+0.5)/HH;for(let x=0;x<W;x++){const u=umin+(x+0.5)/W*(umax-umin);const c=F.sampleShoreFoam(Pt,s,u,v,du[x],1);const o=((HH-1-y)*W+x)*4;

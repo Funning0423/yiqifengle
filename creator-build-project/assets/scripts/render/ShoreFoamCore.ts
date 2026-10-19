@@ -155,8 +155,18 @@ export function lakeSwash(time: number, p?: ShoreFoamParams): Swash {
   const P = p || LAKE_FOAM, c = P.cycle, ph = fract(time / c[0]);
   return { front: frontAt(ph, c), foamA: smoothstep(0, 0.12, ph) * (1 - smoothstep(c[1] + 0.15, 0.95, ph)), wet: 0.35 + 0.65 * frontAt(fract(ph - c[2]), c), t: time };
 }
-/** Island night: the old lip's multiply. */
-export function islandFoamTint(night: number): number[] { const m = foamMultiply(night); return [m[0], m[1], m[2], 1]; }
+/** Island night (r5 S3 review): the unlit lip read as a bright white slab on the dark beach at the swash peak. With the night weight it
+ *  gets the old lip's multiply x ISLAND_NIGHT.rgb, alpha x ISLAND_NIGHT.alpha, and a shorter, thinner lip (islandBandParams), close to
+ *  the lakeside's thin pale line. Night weight 0 = exactly the day values (tint [1,1,1,1], ISLAND_FOAM.bandParams). */
+export const ISLAND_NIGHT = { rgb: 0.7, alpha: 0.32, reach: 0.06, lip: 0.03 };   // reach 0.06 v: the night lip stops ~0.3 m up the sand, so the thin trail sheet behind it nearly vanishes
+export function islandFoamTint(night: number): number[] {
+  const m = foamMultiply(night), k = clamp01(night), d = 1 - (1 - ISLAND_NIGHT.rgb) * k;
+  return [m[0] * d, m[1] * d, m[2] * d, 1 - (1 - ISLAND_NIGHT.alpha) * k];
+}
+export function islandBandParams(night: number): number[] {
+  const b = ISLAND_FOAM.bandParams, k = clamp01(night);
+  return [b[0], b[1] + (ISLAND_NIGHT.reach - b[1]) * k, b[2] + (ISLAND_NIGHT.lip - b[2]) * k, b[3]];
+}
 /** Lakeside per-mode light scales (the water's own scales, so foam and lake take the same light). */
 export function lakesideShoreLight(main: number, ambient: number, p?: ShoreFoamParams): number[] {
   const P = p || LAKE_FOAM; return [main, ambient, P.lightParams[2], P.lightParams[3]];

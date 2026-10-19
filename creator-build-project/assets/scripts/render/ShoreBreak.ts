@@ -4,7 +4,7 @@ import { SHORE, farShoreGeometry, farWashAlpha, foamMultiply, seaSheetLift, seaU
 import type { SeaPhase, ShoreGeometry, V3 } from './ShoreBreakCore';
 import * as PropsLayout from '../world-r2/IslandPropsLayout';
 import { ShoreFoam } from './ShoreFoam';
-import { islandSwash, islandFoamTint } from './ShoreFoamCore';
+import { islandSwash, islandFoamTint, islandBandParams } from './ShoreFoamCore';
 /** Same env_sea_surface, lifted on AmbienceAudio.wavePlayhead (amb_waves_loop, 8.064 s, hits 2.369 / 6.300).
  * Daytime blue is the imported COLOR_0. Rebuilding the mesh (even with RGB expanded to RGBA) left a_color at 0
  * on device, and builtin-standard multiplied the sea to black while the positions still moved. The authored
@@ -135,7 +135,7 @@ export class ShoreBreak {
       this.scrollSea(this.time);
     } else this.restoreSeaNode();
     const foamOn = !!this.foam && this.foam.ready() && this.exterior;
-    if (this.foam) this.foam.update(foamOn, islandSwash(this.time), islandFoamTint(this.nightShown), seaSheetLift(this.time, phase));
+    if (this.foam) this.foam.update(foamOn, islandSwash(this.time), islandFoamTint(this.nightShown), seaSheetLift(this.time, phase), islandBandParams(this.nightShown));
     const showWash = this.exterior && phase.foamA > 1 / 255 && !foamOn;
     if (showWash) this.moveWash(phase.foamU, this.time);
     this.last.wash = showWash ? phase.foamA * SHORE.shorePeak : 0;
