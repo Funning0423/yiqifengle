@@ -1,0 +1,66 @@
+{
+ "A_mock": {
+  "han_chars": 126,
+  "total_chars": 254,
+  "body_glyf": {
+   "bytes": 40472,
+   "gzip": 28868,
+   "glyphs": 255
+  },
+  "body_cff": {
+   "bytes": 31764,
+   "gzip": 27476,
+   "glyphs": 255
+  },
+  "name_glyf": {
+   "bytes": 53848,
+   "gzip": 33788,
+   "glyphs": 255
+  }
+ },
+ "B_800": {
+  "han_chars": 800,
+  "total_chars": 931,
+  "body_glyf": {
+   "bytes": 227264,
+   "gzip": 158387,
+   "glyphs": 932
+  },
+  "body_cff": {
+   "bytes": 176280,
+   "gzip": 155145,
+   "glyphs": 932
+  },
+  "name_glyf": {
+   "bytes": 319904,
+   "gzip": 187770,
+   "glyphs": 932
+  }
+ },
+ "C_gb1_3755": {
+  "han_chars": 3755,
+  "total_chars": 3886,
+  "body_glyf": {
+   "bytes": 1016868,
+   "gzip": 688732,
+   "glyphs": 3887
+  },
+  "body_cff": {
+   "bytes": 785184,
+   "gzip": 678173,
+   "glyphs": 3887
+  },
+  "name_glyf": {
+   "bytes": 1442892,
+   "gzip": 818518,
+   "glyphs": 3887
+  }
+ },
+ "names_only": {
+  "chars": 16,
+  "name_glyf": {
+   "bytes": 6196,
+   "gzip": 4001
+  }
+ }
+}

@@ -52,3 +52,31 @@ QF_TYPESCRIPT_MODULE=<typescript 路径> node docs/r5/ui/result/src/dump_layouts
 - 定稿图：`final/result_390x844.jpg`、`final/result_375x667.jpg`、`final/redline_*.jpg`、`final/reddot_A_*.jpg`、`final/result_night_390x844.jpg`、`final/result_7screens.jpg`
 - 新增切图只有 `final/assets/reddot.png`；其余都复用 `bundles/board_art`，见 `final/assets/kit_preview.png`。
 - 另记录了一个 bug：「存档出错提示行被删」（d6a0019f），见 IMPLEMENT §9。
+
+## U2 · 对话框重做（对比稿，2026-10-18）
+
+- 只出对比图，不写代码，不出定稿：[`dialog/README.md`](dialog/README.md)
+- 对比图：`dialog/compare_390x844.jpg`、`dialog/compare_375x667.jpg`（2026-10-18 已用 Blender 新渲底图重出覆盖，见下一节；原来的 evidence 旧模型截图停用）
+  - 三栏：现有（IslandToast 吐司，仓库里没有角色对话框）· 方案 A 海风气泡 · 方案 B 折角纸牌。
+- 推荐 **A**：框外的水平名字胶囊加指向说话人的尾巴，和现有的吐司、弹窗同一家族；离女孩 20 / 17.8 pt。
+- 字体：名字用资源圆体 Bold，正文用思源黑体 Bold，都是 SIL OFL 1.1。只打包用到的字：名字约 4 KB，正文约 0.3–0.4 MB。
+- 要用户来定：A 还是 B；正文用思源子集还是系统字体；简繁。矮屏的对话镜头由运镜来定。
+
+## U2 · 对话框定稿 · 海风气泡（2026-10-18）→ `dialog/final/`
+
+- Funning 选了方案 A。定稿说明写给 Cursor：[`dialog/final/IMPLEMENT.md`](dialog/final/IMPLEMENT.md)（节点树、7 屏坐标、离女孩 ≥13 / 离安全区 ≥16 的公式、尾巴投影规则、字号行高分页、名字配色、动效、夜间、接入文件、验收清单）。不改游戏代码。
+- 角色名「阿芳 / 阿宁 / 老铆 / 灯塔下的旅人」继续是**占位名**。
+- **底图全部 Blender 重渲**：角色 `/workspace/yiqifengle/previews/角色动画bot/r5-wrist-footik/final/chr_b_r5g2_r5wrist_v4_final.glb`，场景源 SHA `bc81575f`（`creator-project/assets/firstslice/combined_visual_m.glb` + `combined_anchors_m.json`），机位 = 游戏回家跟拍 `TRANSITION_CAMERA.returnFollow.out`（position (-2.3019, 1.95, 4.6599) → target (-1.3312, 0.86, 2.6507)，fov 60° 竖直，女孩在 toThreshold 进度 0.60，背影）。每张底图的机位在 `dialog/final/raw/bg/*.json`。旧 evidence 截图（r4 旧模型）不再使用；`dialog/compare_*.jpg` 已用新底图重出。
+- 切图（`dialog/final/assets/`，Blender 阶段一光照 + 色板，pngquant）：气泡九宫格（insets 144 px = 48 pt）、尾巴上 / 左 / 右、名字胶囊外圈 + 白底（代码着色）、翻页箭头；共 7 张，合计约 46 KB。
+- 字体：名字 QFL Dialog Name（资源圆体 Bold 子集）、正文 QFL Dialog Body（思源黑体 SC Bold 子集，转 glyf 的 .ttf），只收 GB2312 简体，改名避开保留名 “Source”，附 OFL 原文。脚本草案 `dialog/final/tools/build_dialog_fonts.py`。实测：名字 6.1 KB；正文 39.5 KB（示意台词 126 字）/ 221.9 KB（800 字）/ 993 KB（GB2312 一级 3755 字上限）。
+- 定稿图：`dialog/final/dialog_390x844.jpg`、`dialog/final/dialog_375x667.jpg`（单行 / 三行 / 长名字 / 旁白 / 多页 / 换说话人 / 夜间），`dialog/final/dialog_7screens.jpg`，`dialog/final/redline_dialog.jpg`；对比 `dialog/compare_final_390x844.jpg`（旧 IslandToast / 对比稿 A / 定稿 A）。
+- 规则变化（相对对比稿）：每页行数按「气泡底到女孩底 +13」之间放得下几行算，上限 3。390×844 放 3 行；375×667 放 2 行（三行台词自动分页，离女孩 14.2 pt）。新底图下对比稿 A 在 375 上只离女孩 6.2 pt，定稿已解决。
+- IslandToast **保留**（系统提示），对话框是新组件；对话时吐司暂存，关闭后补出。
+- 要别人定 / 做：390×520、320×568 在默认跟拍镜头下 1 行都放不下，需要运镜在对话时让位（试过 targetHeight −0.10 m 可行）；对话时女孩是背影，是否转身 / 换镜头待定；真机字体渲染和加载没测。
+
+## U2 定稿 · 小修：尾巴 + 白天光照（2026-10-18）
+
+- **尾巴**：定稿 A 的尾巴几乎看不见。原因是切图本身：底宽 22 × 高 12，又套了气泡同款 3 pt 倒角和 2.6 pt 圆尖，尖被磨成约 7 pt 高的小鼓包；尾巴也没有投影，奶油色贴在米黄小路上分不出来。钳制规则没有把它藏掉（tx = 194.9，在允许范围内）。修正：常规档 **30 × 15 pt**（390×844 等），紧凑档节点缩 0.867 → **26 × 13 pt**（375×667 仍放 2 行，离女孩 14.2 pt）；倒角 2 pt、圆尖 1.6 pt，伸出部分加投影（1.5 / 3 / 0.30），同色同材质，5 pt 平板盖进气泡。规则见 `dialog/final/IMPLEMENT.md` §10.1，验收清单加了一条。
+- **白天光照**：黄裙子太亮、太平。原因是 `render_scene_bg.py` 白天用 sun 3.2 / 天空 0.9 + Standard（没有色调映射），裙子 88% 像素削顶。先试 AgX（光照不变）：不削顶，但整体发灰（饱和度 104 → 75），裙子成了米黄；按退路改为 **Standard + sun 1.9 / 天空 0.6**（削顶 0%，饱和度 107，裙子亮面 / 暗面 / 褶皱能分开）。夜间设置不动。白天底图全部重渲（`dialog/final/raw/bg/` 的 11 张白天图），重出 `dialog/final/` 全部定稿图、`dialog/compare_final_390x844.jpg`、`dialog/compare_390x844.jpg`、`dialog/compare_375x667.jpg`。
+- 对照：仓库里没有新模型的游戏截图；Cocos 预览图（`repo/output/playwright/cocos-*.png`）只有岛景，没有女孩。唯一带女孩的游戏截图是 r4 旧模型（`evidence-cloud/.../11-return-7s.jpg`，只拿来对照明暗，不进图）：它的黄色部分亮度 p5/p50/p95 = 137/181/204、不削顶；新底图 163/203/214、不削顶；改前 201/233/234、88% 削顶。
+

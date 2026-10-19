@@ -1,0 +1,1142 @@
+{
+ "390x844": {
+  "single": {
+   "gap_girl": 73.3,
+   "gap_safe": 16,
+   "max_lines": 3,
+   "pages": [
+    1
+   ],
+   "top": 724,
+   "h": 70,
+   "tag": {
+    "text": "阿芳",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "up",
+    "x": 194.9,
+    "y": 724,
+    "w": 30,
+    "h": 15,
+    "k": 1.0
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ]
+  },
+  "three": {
+   "gap_girl": 22.0,
+   "gap_safe": 16,
+   "max_lines": 3,
+   "pages": [
+    3
+   ],
+   "top": 672,
+   "h": 122,
+   "tag": {
+    "text": "阿芳",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "up",
+    "x": 194.9,
+    "y": 672,
+    "w": 30,
+    "h": 15,
+    "k": 1.0
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ]
+  },
+  "longname": {
+   "gap_girl": 73.0,
+   "gap_safe": 16,
+   "max_lines": 3,
+   "pages": [
+    1
+   ],
+   "top": 724,
+   "h": 70,
+   "tag": {
+    "text": "灯塔下的旅人",
+    "fs": 14,
+    "Wt": 116
+   },
+   "tail": {
+    "dir": "right",
+    "x": 376.0,
+    "y": 759.0,
+    "w": 30,
+    "h": 15,
+    "k": 1.0
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ]
+  },
+  "narration": {
+   "gap_girl": 89.0,
+   "gap_safe": 16,
+   "max_lines": 3,
+   "pages": [
+    1
+   ],
+   "top": 724,
+   "h": 70,
+   "tag": null,
+   "tail": null,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ]
+  },
+  "pages": {
+   "gap_girl": 22.1,
+   "gap_safe": 16,
+   "max_lines": 3,
+   "pages": [
+    3,
+    1
+   ],
+   "top": 672,
+   "h": 122,
+   "tag": {
+    "text": "阿宁",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "left",
+    "x": 14.0,
+    "y": 717.0,
+    "w": 30,
+    "h": 15,
+    "k": 1.0
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ]
+  },
+  "change": {
+   "gap_girl": 73.3,
+   "gap_safe": 16,
+   "max_lines": 3,
+   "pages": [
+    1
+   ],
+   "top": 724,
+   "h": 70,
+   "tag": {
+    "text": "老铆",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "right",
+    "x": 376.0,
+    "y": 759.0,
+    "w": 30,
+    "h": 15,
+    "k": 1.0
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ]
+  },
+  "night": {
+   "gap_girl": 47.5,
+   "gap_safe": 16,
+   "max_lines": 3,
+   "pages": [
+    2
+   ],
+   "top": 698,
+   "h": 96,
+   "tag": {
+    "text": "阿芳",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "up",
+    "x": 194.9,
+    "y": 698,
+    "w": 30,
+    "h": 15,
+    "k": 1.0
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ]
+  },
+  "bytes": 1253295
+ },
+ "375x667": {
+  "single": {
+   "gap_girl": 38.2,
+   "gap_safe": 16,
+   "max_lines": 2,
+   "pages": [
+    1
+   ],
+   "top": 553,
+   "h": 64,
+   "tag": {
+    "text": "阿芳",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "up",
+    "x": 187.4,
+    "y": 553,
+    "w": 26,
+    "h": 13,
+    "k": 0.8666666666666667
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ]
+  },
+  "three": {
+   "gap_girl": 14.2,
+   "gap_safe": 16,
+   "max_lines": 2,
+   "pages": [
+    2,
+    1
+   ],
+   "top": 529,
+   "h": 88,
+   "tag": {
+    "text": "阿芳",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "up",
+    "x": 187.4,
+    "y": 529,
+    "w": 26,
+    "h": 13,
+    "k": 0.8666666666666667
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ]
+  },
+  "longname": {
+   "gap_girl": 35.2,
+   "gap_safe": 16,
+   "max_lines": 1,
+   "pages": [
+    1
+   ],
+   "top": 553,
+   "h": 64,
+   "tag": {
+    "text": "灯塔下的旅人",
+    "fs": 14,
+    "Wt": 116
+   },
+   "tail": {
+    "dir": "right",
+    "x": 361.0,
+    "y": 585.0,
+    "w": 26,
+    "h": 13,
+    "k": 0.8666666666666667
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ]
+  },
+  "narration": {
+   "gap_girl": 51.2,
+   "gap_safe": 16,
+   "max_lines": 2,
+   "pages": [
+    1
+   ],
+   "top": 553,
+   "h": 64,
+   "tag": null,
+   "tail": null,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ]
+  },
+  "pages": {
+   "gap_girl": 21.4,
+   "gap_safe": 16,
+   "max_lines": 2,
+   "pages": [
+    2,
+    2
+   ],
+   "top": 529,
+   "h": 88,
+   "tag": {
+    "text": "阿宁",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "left",
+    "x": 14.0,
+    "y": 572.0,
+    "w": 26,
+    "h": 13,
+    "k": 0.8666666666666667
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ]
+  },
+  "change": {
+   "gap_girl": 39.6,
+   "gap_safe": 16,
+   "max_lines": 2,
+   "pages": [
+    1
+   ],
+   "top": 553,
+   "h": 64,
+   "tag": {
+    "text": "老铆",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "right",
+    "x": 361.0,
+    "y": 585.0,
+    "w": 26,
+    "h": 13,
+    "k": 0.8666666666666667
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ]
+  },
+  "night": {
+   "gap_girl": 14.2,
+   "gap_safe": 16,
+   "max_lines": 2,
+   "pages": [
+    2
+   ],
+   "top": 529,
+   "h": 88,
+   "tag": {
+    "text": "阿芳",
+    "fs": 16,
+    "Wt": 64
+   },
+   "tail": {
+    "dir": "up",
+    "x": 187.4,
+    "y": 529,
+    "w": 26,
+    "h": 13,
+    "k": 0.8666666666666667
+   },
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ]
+  },
+  "bytes": 1132359
+ },
+ "7screens": [
+  {
+   "screen": "390x844",
+   "camera_variant": false,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    104.8,
+    145.0,
+    271.3,
+    635.0
+   ],
+   "max_lines": 3,
+   "pages": [
+    3
+   ],
+   "gap_girl": 22.0,
+   "gap_safe": 16,
+   "camera_needed": false,
+   "top": 672,
+   "h": 122
+  },
+  {
+   "screen": "414x896",
+   "camera_variant": false,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    111.2,
+    153.9,
+    288.0,
+    674.1
+   ],
+   "max_lines": 3,
+   "pages": [
+    3
+   ],
+   "gap_girl": 34.9,
+   "gap_safe": 16,
+   "camera_needed": false,
+   "top": 724,
+   "h": 122
+  },
+  {
+   "screen": "360x780",
+   "camera_variant": false,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    96.6,
+    134.0,
+    250.5,
+    586.8
+   ],
+   "max_lines": 2,
+   "pages": [
+    2,
+    1
+   ],
+   "gap_girl": 31.2,
+   "gap_safe": 16,
+   "camera_needed": false,
+   "top": 634,
+   "h": 96
+  },
+  {
+   "screen": "375x667",
+   "camera_variant": false,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    116.2,
+    114.6,
+    247.8,
+    501.8
+   ],
+   "max_lines": 2,
+   "pages": [
+    2,
+    1
+   ],
+   "gap_girl": 14.2,
+   "gap_safe": 16,
+   "camera_needed": false,
+   "top": 529,
+   "h": 88
+  },
+  {
+   "screen": "390x520",
+   "camera_variant": false,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    139.4,
+    89.3,
+    242.0,
+    391.2
+   ],
+   "max_lines": 1,
+   "pages": [
+    1,
+    1,
+    1
+   ],
+   "gap_girl": 1.8,
+   "gap_safe": 16,
+   "camera_needed": true,
+   "top": 406,
+   "h": 64
+  },
+  {
+   "screen": "320x568",
+   "camera_variant": false,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    99.3,
+    97.6,
+    211.4,
+    427.3
+   ],
+   "max_lines": 1,
+   "pages": [
+    1,
+    1,
+    1
+   ],
+   "gap_girl": 10.8,
+   "gap_safe": 16,
+   "camera_needed": true,
+   "top": 454,
+   "h": 64
+  },
+  {
+   "screen": "768x1024",
+   "camera_variant": false,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.86,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out"
+   },
+   "girl_bbox": [
+    274.5,
+    175.9,
+    476.6,
+    770.4
+   ],
+   "max_lines": 3,
+   "pages": [
+    2
+   ],
+   "gap_girl": 92.6,
+   "gap_safe": 16,
+   "camera_needed": false,
+   "top": 878,
+   "h": 96
+  },
+  {
+   "screen": "390x520",
+   "camera_variant": true,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.76,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out + targetHeight -0.10 m (对话镜头建议)"
+   },
+   "girl_bbox": [
+    139.3,
+    70.8,
+    242.0,
+    374.0
+   ],
+   "max_lines": 1,
+   "pages": [
+    1,
+    1,
+    1
+   ],
+   "gap_girl": 19.0,
+   "gap_safe": 16,
+   "camera_needed": false,
+   "top": 406,
+   "h": 64
+  },
+  {
+   "screen": "320x568",
+   "camera_variant": true,
+   "camera": {
+    "position": [
+     -2.3019,
+     1.95,
+     4.6599
+    ],
+    "target": [
+     -1.3312,
+     0.76,
+     2.6507
+    ],
+    "fovVerticalDeg": 60.0,
+    "rig": "TRANSITION_CAMERA.returnFollow.out + targetHeight -0.10 m (对话镜头建议)"
+   },
+   "girl_bbox": [
+    99.1,
+    77.3,
+    211.3,
+    408.6
+   ],
+   "max_lines": 1,
+   "pages": [
+    1,
+    1,
+    1
+   ],
+   "gap_girl": 29.4,
+   "gap_safe": 16,
+   "camera_needed": false,
+   "top": 454,
+   "h": 64
+  }
+ ],
+ "contrast": [
+  {
+   "mode": "day",
+   "role": "正文",
+   "fg": [
+    90,
+    70,
+    54
+   ],
+   "bg": [
+    255,
+    247,
+    228
+   ],
+   "ratio": 8.32
+  },
+  {
+   "mode": "day",
+   "role": "旁白",
+   "fg": [
+    118,
+    86,
+    55
+   ],
+   "bg": [
+    255,
+    247,
+    228
+   ],
+   "ratio": 6.23
+  },
+  {
+   "mode": "day",
+   "role": "名字·阿芳",
+   "fg": [
+    255,
+    251,
+    240
+   ],
+   "bg": [
+    160,
+    98,
+    14
+   ],
+   "ratio": 4.78
+  },
+  {
+   "mode": "day",
+   "role": "名字·阿宁",
+   "fg": [
+    255,
+    251,
+    240
+   ],
+   "bg": [
+    42,
+    123,
+    128
+   ],
+   "ratio": 4.79
+  },
+  {
+   "mode": "day",
+   "role": "名字·老铆",
+   "fg": [
+    255,
+    251,
+    240
+   ],
+   "bg": [
+    90,
+    122,
+    60
+   ],
+   "ratio": 4.74
+  },
+  {
+   "mode": "day",
+   "role": "名字·备用色",
+   "fg": [
+    255,
+    251,
+    240
+   ],
+   "bg": [
+    138,
+    90,
+    158
+   ],
+   "ratio": 5.03
+  },
+  {
+   "mode": "day",
+   "role": "名字·备用色",
+   "fg": [
+    255,
+    251,
+    240
+   ],
+   "bg": [
+    176,
+    78,
+    78
+   ],
+   "ratio": 5.02
+  },
+  {
+   "mode": "day",
+   "role": "名字·备用色",
+   "fg": [
+    255,
+    251,
+    240
+   ],
+   "bg": [
+    62,
+    110,
+    158
+   ],
+   "ratio": 5.17
+  },
+  {
+   "mode": "night",
+   "role": "正文",
+   "fg": [
+    30,
+    19,
+    8
+   ],
+   "bg": [
+    158,
+    146,
+    128
+   ],
+   "ratio": 5.97
+  },
+  {
+   "mode": "night",
+   "role": "旁白",
+   "fg": [
+    34,
+    23,
+    11
+   ],
+   "bg": [
+    158,
+    146,
+    128
+   ],
+   "ratio": 5.75
+  },
+  {
+   "mode": "night",
+   "role": "名字·阿芳",
+   "fg": [
+    232,
+    226,
+    212
+   ],
+   "bg": [
+    99,
+    58,
+    8
+   ],
+   "ratio": 7.6
+  },
+  {
+   "mode": "night",
+   "role": "名字·阿宁",
+   "fg": [
+    232,
+    226,
+    212
+   ],
+   "bg": [
+    26,
+    73,
+    72
+   ],
+   "ratio": 7.78
+  },
+  {
+   "mode": "night",
+   "role": "名字·老铆",
+   "fg": [
+    232,
+    226,
+    212
+   ],
+   "bg": [
+    56,
+    72,
+    34
+   ],
+   "ratio": 7.68
+  },
+  {
+   "mode": "night",
+   "role": "名字·备用色",
+   "fg": [
+    232,
+    226,
+    212
+   ],
+   "bg": [
+    86,
+    53,
+    89
+   ],
+   "ratio": 7.94
+  },
+  {
+   "mode": "night",
+   "role": "名字·备用色",
+   "fg": [
+    232,
+    226,
+    212
+   ],
+   "bg": [
+    109,
+    46,
+    44
+   ],
+   "ratio": 7.83
+  },
+  {
+   "mode": "night",
+   "role": "名字·备用色",
+   "fg": [
+    232,
+    226,
+    212
+   ],
+   "bg": [
+    39,
+    65,
+    89
+   ],
+   "ratio": 8.18
+  }
+ ]
+}
