@@ -5,7 +5,7 @@
 - 实测工具：`tools/scene-fx/blender_lod_audit.py`。它导入每个 GLB，记录每个网格的三角面数、glTF 包围盒和贴图尺寸。原始 JSON 在 `previews/场景特效bot/r5/s3/lod_scale/lod_audit.json`。
 - 比例对照图：`previews/场景特效bot/r5/s3/lod_scale/scale_lineup.png`。由 `blender_lod_scale_lineup.py` 出图（Cycles 64 + OIDN，正交前视，同一比例尺），再用 `annotate_lod_lineup.py` 标注。
 - 测量范围：
-  - `creator-build-project/assets/bundles` 下的全部 71 个 GLB。
+  - `creator-build-project/assets/bundles` 下的全部 72 个 GLB。
   - 海岛 `combined_visual_m.glb`（sha 77bff8b3，取自 场景特效bot worktree，本 worktree 没有这个文件）。
   - 湖畔的 885 个实例按 `scene_r5h_slim_transforms.json` 的缩放换算成场景内的实际高度。
 
@@ -39,7 +39,7 @@
 | **L2 中** | 建筑、船、桥、凉亭、近景树和棕榈、NPC 机器人 | 8–40 m | 建筑 400–1,500；地标 ≤ 3,000；NPC ≤ 5,000 | 共享 256 palette，最大 512 | 主形加门窗凹凸；小于 0.1 m 的件不建模；背面封闭 |
 | **L3 远** | 草、花、石、远树、远山、云、天空 | > 40 m 或大量散布 | 散布单件 ≤ 200（草 ≤ 20）；整片远景 ≤ 3,500；天空和云 ≤ 2,500 | 128 或顶点色；共享 256 palette；天空最大 1024 | 只要剪影和色块 |
 
-单区域可见面数预算（实测校准）：**≤ 90k 三角形**。实测海岛 81.5k，草原 89.5k，天空城 89.8k，湖畔约 57k（实例展开 54.7k，加岸边泡沫 2.8k）。总包上限 24.6 MB（当前 20.3 MB）。
+单区域可见面数预算（实测校准）：**≤ 90k 三角形**。实测海岛 81.5k，草原 89.5k，天空城 89.8k，湖畔 54.7k（885 个实例展开，含岸边泡沫 2.8k）。总包上限 24.6 MB（当前 20.3 MB）。
 
 ## 3. 实测校准（摘录）
 
