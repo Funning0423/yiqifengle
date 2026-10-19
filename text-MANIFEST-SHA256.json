@@ -160,14 +160,19 @@
     "sha256": "c8ec861ea3706379d6669fc2728cd004ab824e6fe74bc23b7c08ce8764e32fc4"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/dialog.meta",
+    "bytes": 169,
+    "sha256": "9edf65c22b17ea0f0dbae33c9c040ca0fcf1879391001ad017da3b5ccf35c4bf"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/dialog/QFLDialogBody.ttf.meta",
-    "bytes": 183,
-    "sha256": "545cb1dc5d11491cedae1c2a215b16100ea2c3f80b9baee5009a59133e4b7ac3"
+    "bytes": 208,
+    "sha256": "dc1ff74d79ba106d7f40e01eefa40d6f5e9f90292c791e4e4678466ed190eb04"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/dialog/QFLDialogName.ttf.meta",
-    "bytes": 183,
-    "sha256": "0af8696b9cce8cba87e6133b5b8c93bae4a45b512257d70450cf9e28a1688d19"
+    "bytes": 208,
+    "sha256": "245fcdd49d852c2da99708818d56f75eef0f0163f34371dc22c655101d8ee8ea"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/dialog/dialog_bubble_9s.png.meta",
@@ -742,7 +747,7 @@
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
     "bytes": 25308,
-    "sha256": "6740cdd7b3a2ee7b0664468dbc0e9da48b10d18478253c2f4b3a9e575083b8be"
+    "sha256": "16922a6cb32d95dac9203a3b04f9c4922c869198c209b8507321cf11327af55d"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
@@ -921,8 +926,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_far_hills.glb.meta",
-    "bytes": 2952,
-    "sha256": "d847d1cbd6c85d2a31a0b005fcc48709f5daf9d246c11f30444c849d498e2076"
+    "bytes": 2953,
+    "sha256": "da2db0c0b733328cc1bf3ad46d36f3da9ca05d2a3769b93893f98142cf9e3b0a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb.meta",
@@ -1072,7 +1077,7 @@
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_terrain.glb.meta",
     "bytes": 2945,
-    "sha256": "15887d3ca752ca51da0d998cad41257095fd461a1d9a819a4337eca1b5efff65"
+    "sha256": "34edadc065d86d53a00c708bd6b6dab5d0334b6498a90adf1d89ea21ec9bbb53"
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_tree_conifer.glb.meta",
@@ -1231,8 +1236,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
-    "bytes": 21225,
-    "sha256": "e1038b6c865f67d9e528ba21f36b1d17b76ce6221737b3f403ee0f076e9e3fda"
+    "bytes": 21227,
+    "sha256": "9170b371a5003d031bb7baa03686e96fe6b83460494d0c097b10586231ac2bdb"
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
@@ -1346,8 +1351,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-    "bytes": 32049,
-    "sha256": "ad7e3b2bca85cd1b574e3378098b13268a19d1f40bbba122da83a5b216496a72"
+    "bytes": 32512,
+    "sha256": "6982fb98baa5c73fbac1ff35c74d754722696fb0e638e81d854f3b9b6d105ebe"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon.meta",
@@ -1776,8 +1781,8 @@
   },
   {
     "path": "creator-build-project/assets/resources/world/shore-foam.effect",
-    "bytes": 6858,
-    "sha256": "c980cd2a872eccd5ca9b39db9f61b9058362b820f7c7e865ae22de881edbcd47"
+    "bytes": 7226,
+    "sha256": "a17bbe94fa808f6e302a887b1943fa5d08e2e3f11b5dfabbab90b2ef7a18fa59"
   },
   {
     "path": "creator-build-project/assets/resources/world/shore-foam.effect.meta",
@@ -2011,8 +2016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceNight.ts",
-    "bytes": 578,
-    "sha256": "ee510bd04582b66cfa96f99854ac5c5a97adf0c5df7c68905dcacfa6c54609b5"
+    "bytes": 674,
+    "sha256": "86a74be11418d0314d326417731f72f2d5fcf48b8c1aad0d9d6213036f7b5934"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceNight.ts.meta",
@@ -2038,6 +2043,26 @@
     "path": "creator-build-project/assets/scripts/audio/AudioUnlock.ts.meta",
     "bytes": 171,
     "sha256": "0b203a5a8b4d3700ae318a794d841db2481c8d551920fc8f0975e12675b73ac5"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/BedLayerAudio.ts",
+    "bytes": 10152,
+    "sha256": "b9e7606c5d7c36e0b7efdef0a4639df18ba817ca767116ac7cab71297570c869"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/BedLayerAudio.ts.meta",
+    "bytes": 171,
+    "sha256": "6112b926e1ba35038f27889beca053f0bdc47180160aea891fec236974f13beb"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/BedLayerCore.ts",
+    "bytes": 12147,
+    "sha256": "0330feb2ac7b120f2f6320fd1bf671769d4de01217681489b7923f832132c7fa"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/BedLayerCore.ts.meta",
+    "bytes": 171,
+    "sha256": "ed9432365ff3fb40383adf8c1c9cdaa94d8eac67d98e5dad02c2ffe8cffe4d29"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/FootstepAudio.ts",
@@ -2121,8 +2146,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts",
-    "bytes": 18783,
-    "sha256": "9b107889b7b46c2930b549a8b5614181aaf96f18ebd3631d857bfdabbcf195dc"
+    "bytes": 24809,
+    "sha256": "dbfdcfb72614d3381aa2cebee9172fd359c5d4292f1f55a03990ca8cf7bc7b1e"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts.meta",
@@ -2131,8 +2156,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts",
-    "bytes": 7381,
-    "sha256": "f9d8fc1455b3edf475489276795e810e8423f0cd355b4e68bff594ca851b0756"
+    "bytes": 7539,
+    "sha256": "02d0f907e0cb3a269ffbbfba4a7e9cf2c0e5022cd494ec9529845944afd51e05"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneMusic.ts.meta",
@@ -2421,8 +2446,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 33842,
-    "sha256": "38fbcf4193a4eea0aae8cc7b98375bf79ad8d71ad5fbbffc8139c121ab338e83"
+    "bytes": 34116,
+    "sha256": "53326f210390a0be59434c20f0183e489ec3720a05ce41427e8c4657adea95e8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2477,7 +2502,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts.meta",
     "bytes": 171,
-    "sha256": "4bb037eff1600799f0c8469d4d747942d7bbb3fefbe8689bc22257f54c846e11"
+    "sha256": "6d59061512241dc206191a0b4486363af19537d0d3ff4c2c6af376ef3c659c75"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
@@ -2567,7 +2592,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/LakesideRegionNodes.ts.meta",
     "bytes": 171,
-    "sha256": "98640a1d1dd75ee6e43f12052cf488b681d955ffb024c519f811a75bf4c4e6f5"
+    "sha256": "1ea6087364f3990302feeff81370f99d0b9be5f980c71ffa66a2610b9ca17bd8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideSceneData.ts",
@@ -2752,7 +2777,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6554,
-    "sha256": "2065b64913be5f9d55b1cfe5d6d5b16fa7b3ec189e145a473ae6e5968d1a1b21"
+    "sha256": "40892f82b221fbb75f8a11eb1584db035e4f62e277ac8ecb3b5e1e833cda7f6d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -2831,8 +2856,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts",
-    "bytes": 17593,
-    "sha256": "01ff6fc005d8a4ff571cee49e56339f8605adedf09d1ecc3a0269c7995243bf9"
+    "bytes": 17848,
+    "sha256": "e548667f62c3fe848e729ad9147c41037aeb0e7401da35b9b5f4ad8d349c48d1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts.meta",
@@ -2873,6 +2898,11 @@
     "path": "creator-build-project/assets/scripts/region/SailWakeCore.ts",
     "bytes": 7866,
     "sha256": "450d5256b057699e137fdd5ea82d120ea0fa5da36b1b69f34e84e66bffc8b505"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailWakeCore.ts.meta",
+    "bytes": 171,
+    "sha256": "2b7e980848bfea828cd52f6b25484d6314dd9831a822386e5e3c9f622b2428b0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
@@ -2936,8 +2966,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitAudioHooks.ts",
-    "bytes": 2759,
-    "sha256": "339fcdb7b84c84480137f545aed45c73ea7b9ff118f820fe65ba31b8801d2eb7"
+    "bytes": 2956,
+    "sha256": "416d0aa4b59024f4a0e75e7d01557311be92efcdd631d5f1ccab87b6f3635da6"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitAudioHooks.ts.meta",
