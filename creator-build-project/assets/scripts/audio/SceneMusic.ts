@@ -5,14 +5,14 @@
 // 换场景：正在播时按 SCENE_AUDIO_CROSSFADE_S（2 s）等功率交叉。加载页不请求音乐。
 import { _decorator, Component, director, Director, isValid } from 'cc';
 import { GameAudio } from './GameAudio';
-import { BGM, SCENE_AUDIO_CROSSFADE_S, resolveSceneAudio, publishSceneBed } from './SceneAudioTable';
+import { BGM, SCENE_AUDIO_CROSSFADE_S, resolveSceneAudio, publishSceneBed, applyTransitCue } from './SceneAudioTable';
 import type { SceneAudioProbe, SceneTrackId } from './SceneAudioTable';
 const { ccclass } = _decorator;
 
 export type { SceneTrackId };
 export type SceneTrack = { path: string; bundle: string | null };
 export const SCENE_TRACKS: Record<SceneTrackId, SceneTrack> = {
-  island: BGM.island, meadow: BGM.meadow, skycity: BGM.skycity,
+  island: BGM.island, meadow: BGM.meadow, skycity: BGM.skycity, sail: BGM.sail, lakeside: BGM.lakeside,
 };
 const POLL_S = 0.25;
 const REFIND_S = 1;
@@ -85,7 +85,8 @@ export class SceneMusic extends Component {
   private step(_dt: number) {
     const audio = GameAudio.instance; if (!audio) return;
     if (this.firstLoadAt === null && !this.roomInteractive()) return;   // loading page / room not ready: never touch music
-    const decision = resolveSceneAudio(this.probe());
+    const cue = (globalThis as any).__sceneTransitCue;
+    const decision = resolveSceneAudio(applyTransitCue(this.probe(), cue && cue.cue ? cue : null));
     if (decision.place !== 'hold') publishSceneBed(decision);
     const want = decision.track;
     if (want === null) return;

@@ -22,6 +22,7 @@ function track(cue:TransitCue):void{
 }
 function deliver(cue:TransitCue,info:TransitInfo):void{
  track(cue);
+ try{(globalThis as any).__sceneTransitCue={cue:cue,region:info&&info.region?info.region:'',t:info&&typeof info.t==='number'?info.t:0,id:info&&info.id?info.id:''};}catch(e){/* observation only */}
  for(const fn of Array.from(listeners)){try{fn(cue,info);}catch{}}
 }
 export function setTransitHidden(next:boolean):void{

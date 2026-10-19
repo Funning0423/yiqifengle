@@ -6,6 +6,11 @@ import {attachRider, detachRider, placeBoat} from './TransportVehicle';
 import type {SailArt} from './SailArt';
 import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
+function sailCueRegion(cue:string):string{
+ if(cue==='sail-dock'||cue==='node-arrive')return 'meadow';
+ if(cue==='node-walk-start')return 'island';
+ return 'sail';
+}
 const pathLen=(path:readonly Vec[])=>{let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);return L;};
 type LockedJoint={node:Node;p:Vec3;r:Quat;s:Vec3};
 /** Drives the sail from foreground frame steps. The journey controller calls `onFrame` while region-travel is active. */
@@ -200,10 +205,10 @@ export function createSailDriver(opts:{
  const emitCrossed=(prevT:number,nextT:number)=>{
   for(const b of opts.timeline.beats){
    if(!b.cue||fired.has(b.id)||b.cue==='sail-board')continue;
-   if(b.t0>prevT+1e-4&&b.t0<=nextT+1e-4){fired.add(b.id);emitTransit(b.cue as any,{t:nextT,region:'meadow',id:b.id});pushSailCue(b.cue,nextT);}
+   if(b.t0>prevT+1e-4&&b.t0<=nextT+1e-4){fired.add(b.id);emitTransit(b.cue as any,{t:nextT,region:sailCueRegion(String(b.cue)),id:b.id});pushSailCue(b.cue,nextT);}
   }
   const sd=opts.timeline.beats.find(b=>b.id==='S-d')!;
-  if(!fired.has('sail-cruise-loop-stop')&&prevT<sd.t1-1e-4&&nextT>=sd.t1-1e-4){fired.add('sail-cruise-loop-stop');emitTransit('sail-cruise-loop-stop',{t:nextT,region:'meadow'});pushSailCue('sail-cruise-loop-stop',nextT);}
+  if(!fired.has('sail-cruise-loop-stop')&&prevT<sd.t1-1e-4&&nextT>=sd.t1-1e-4){fired.add('sail-cruise-loop-stop');emitTransit('sail-cruise-loop-stop',{t:nextT,region:sailCueRegion('sail-cruise-loop-stop')});pushSailCue('sail-cruise-loop-stop',nextT);}
  };
  const step=(dt:number,hidden:boolean)=>{
   if(hidden){setTransitHidden(true);return;}
@@ -228,8 +233,8 @@ export function createSailDriver(opts:{
   get arrivalElapsed(){return arrivalElapsed;},
   get departed(){return departAt!=null;},
   bindRider(node:Node){opts.rider=node;opts.riderHome=node.parent;},
-  arm(){const b=opts.timeline.beats[0];if(!b?.cue||fired.has(b.id))return;fired.add(b.id);emitTransit(b.cue as any,{t:0,region:'meadow',id:b.id});pushSailCue(b.cue,0);},
-  markBoard(){if(fired.has('S-b'))return;fired.add('S-b');emitTransit('sail-board',{t,region:'meadow',id:'S-b'});pushSailCue('sail-board',t);},
+  arm(){const b=opts.timeline.beats[0];if(!b?.cue||fired.has(b.id))return;fired.add(b.id);emitTransit(b.cue as any,{t:0,region:sailCueRegion(String(b.cue)),id:b.id});pushSailCue(b.cue,0);},
+  markBoard(){if(fired.has('S-b'))return;fired.add('S-b');emitTransit('sail-board',{t,region:sailCueRegion('sail-board'),id:'S-b'});pushSailCue('sail-board',t);},
   /** Sit has finished. Attach her to the seat, then let the hull leave. `budget` is real seconds for S-c..S-e. */
   depart(budget:number){
    if(departAt!=null)return;

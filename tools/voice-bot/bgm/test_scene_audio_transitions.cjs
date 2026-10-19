@@ -41,7 +41,7 @@ function disk(bundle, resPath) {
   ok(layerFiles.every(x => x.ok), 'shipped ambience layers exist (waves / wind / gulls / lake)', layerFiles.filter(x => !x.ok));
   const cand = T.BGM_CANDIDATES || {};
   const candFiles = Object.keys(cand).map(id => ({ id, ok: fs.existsSync(disk(cand[id].bundle, cand[id].path)), wired: Object.keys(BGM).some(k => BGM[k].path === cand[id].path) }));
-  ok(!fs.existsSync(disk(null, 'audio_bgm/bgm_sail')) && candFiles.every(x => x.ok && !x.wired) && (!fs.existsSync(disk('region_lakeside', 'audio/bgm_lakeside')) || !!cand.lakeside), 'sail / lakeside BGM only as delivered candidates (files exist, listed in BGM_CANDIDATES, not wired into BGM yet)', candFiles);
+  ok(!fs.existsSync(disk(null, 'audio_bgm/bgm_sail')) && candFiles.every(x => x.ok && x.wired), 'sail / lakeside BGM candidates exist and are wired into BGM', candFiles);
   const route = (T.TRAVEL_ROUTES || {}).lakeside;
   ok(!!route && route.from === 'skycity' && route.via === 'balloon' && route.bgmHandover.shape === 'dip' && Object.keys(T.TRAVEL_ROUTES).every(k => ['island', 'meadow'].indexOf(T.TRAVEL_ROUTES[k].from) < 0 || k !== 'lakeside'), 'plan B: lakeside is reached from sky city by balloon (dip handover); no island / meadow route to the lake in the data', route);
   const pc = T.PENDING_CANDIDATES || {};
@@ -55,7 +55,7 @@ function disk(bundle, resPath) {
   (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) { if (!/^(library|temp|build|node_modules)$/.test(e.name)) walk(f); } else if (/\.(mp3|wav|ogg|meta)$/.test(e.name)) names.push(f); } })(path.join(ROOT, 'creator-build-project/assets'));
   const tagged = names.filter(f => /NOT_FOR_SHIP/i.test(f) || /NOT_FOR_SHIP/i.test(fs.readFileSync(f, 'utf8').slice(0, 4000)));
   ok(tagged.length === 0, 'no audio asset is tagged NOT_FOR_SHIP', tagged);
-  const known = { wind: 1, waves: 1, gulls: 1, lake: 1 };
+  const known = { wind: 1, waves: 1, gulls: 1, lake: 1, birds: 1, insects: 1, highWind: 1 };
   let badLayer = [];
   Object.keys(SCENE_PROFILES).forEach(id => {
     const p = SCENE_PROFILES[id];
@@ -73,23 +73,23 @@ function bedOf(p) {
 const TRIPS = [
   [{ state: 'home', stable: 'home' }, 'home', 'island', { gulls: false, waves: false, wind: false, lake: false }],
   [{ state: 'island', stable: 'island' }, 'island', 'island', { gulls: true, waves: true, wind: true, lake: false }],
-  [{ state: 'region-travel', stable: 'island', journeyTarget: 'meadow', journeyPhase: 'bridge', journeyRegion: 'island' }, 'sail', 'meadow', { gulls: true, waves: true, lake: false }],
-  [{ state: 'region-travel', stable: 'island', journeyTarget: 'meadow', journeyPhase: 'arrival', journeyRegion: 'meadow' }, 'meadow', 'meadow', { gulls: false, waves: false, lake: false }],
-  [{ state: 'meadow', stable: 'meadow', journeyRegion: 'meadow', journeyPhase: 'arrived' }, 'meadow', 'meadow', { gulls: false, waves: false }],
-  [{ state: 'paused', stable: 'meadow', journeyRegion: 'meadow', journeyPhase: 'arrived' }, 'meadow', 'meadow', { gulls: false, waves: false }],
-  [{ state: 'region-travel', stable: 'meadow', journeyTarget: 'skycity', journeyPhase: 'bridge', journeyRegion: 'meadow' }, 'balloon', 'skycity', { gulls: false, waves: false, lake: false, highWind: false }],
-  [{ state: 'skycity', stable: 'skycity', journeyRegion: 'skycity', journeyPhase: 'arrived' }, 'skycity', 'skycity', { gulls: false, waves: false, highWind: false }],
-  [{ state: 'paused', stable: 'skycity', journeyRegion: 'skycity', journeyPhase: 'arrived' }, 'skycity', 'skycity', { gulls: false }],
+  [{ state: 'region-travel', stable: 'island', journeyTarget: 'meadow', journeyPhase: 'bridge', journeyRegion: 'island' }, 'sail', 'sail', { gulls: true, waves: true, lake: false, birds: false, insects: false }],
+  [{ state: 'region-travel', stable: 'island', journeyTarget: 'meadow', journeyPhase: 'arrival', journeyRegion: 'meadow' }, 'meadow', 'meadow', { gulls: false, waves: false, lake: false, birds: true, insects: true }],
+  [{ state: 'meadow', stable: 'meadow', journeyRegion: 'meadow', journeyPhase: 'arrived' }, 'meadow', 'meadow', { gulls: false, waves: false, birds: true, insects: true }],
+  [{ state: 'paused', stable: 'meadow', journeyRegion: 'meadow', journeyPhase: 'arrived' }, 'meadow', 'meadow', { gulls: false, waves: false, birds: true, insects: true }],
+  [{ state: 'region-travel', stable: 'meadow', journeyTarget: 'skycity', journeyPhase: 'bridge', journeyRegion: 'meadow' }, 'balloon', 'skycity', { gulls: false, waves: false, lake: false, highWind: true, birds: false }],
+  [{ state: 'skycity', stable: 'skycity', journeyRegion: 'skycity', journeyPhase: 'arrived' }, 'skycity', 'skycity', { gulls: false, waves: false, highWind: true, birds: false, insects: false }],
+  [{ state: 'paused', stable: 'skycity', journeyRegion: 'skycity', journeyPhase: 'arrived' }, 'skycity', 'skycity', { gulls: false, highWind: true, birds: false }],
   [{ state: 'home', stable: 'home' }, 'home', 'island', { gulls: false, waves: false }],
-  [{ state: 'region-travel', stable: 'island', journeyTarget: 'lakeside', journeyPhase: 'bridge', journeyRegion: 'island' }, 'island', 'island', { gulls: true, waves: true, lake: false }],
-  [{ state: 'region-travel', stable: 'island', journeyTarget: 'lakeside', journeyPhase: 'arrival' }, 'lakeside', 'island', { gulls: false, waves: false, lake: true }],
-  [{ state: 'lakeside', stable: 'lakeside' }, 'lakeside', 'island', { gulls: false, waves: false, lake: true }],
-  [{ state: 'paused', stable: 'lakeside' }, 'lakeside', 'island', { gulls: false, lake: true }],
+  [{ state: 'region-travel', stable: 'skycity', journeyTarget: 'lakeside', journeyPhase: 'bridge', journeyRegion: 'skycity' }, 'balloon', 'skycity', { gulls: false, waves: false, lake: false, highWind: true, birds: false }],
+  [{ state: 'region-travel', stable: 'skycity', journeyTarget: 'lakeside', journeyPhase: 'arrival', journeyRegion: 'skycity' }, 'lakeside', 'lakeside', { gulls: false, waves: false, lake: true, highWind: false, birds: false }],
+  [{ state: 'lakeside', stable: 'lakeside' }, 'lakeside', 'lakeside', { gulls: false, waves: false, lake: true, birds: false, highWind: false }],
+  [{ state: 'paused', stable: 'lakeside' }, 'lakeside', 'lakeside', { gulls: false, lake: true, birds: false, highWind: false }],
   [{ state: 'paused', stable: 'island', journeyTarget: 'meadow', journeyPhase: 'paused', journeyRegion: 'island' }, 'island', 'island', { gulls: true }],
   [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'meadow' }, 'meadow', 'meadow', { gulls: false }],
   [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'mainline-v33', boardStageId: 'mainline-09' }, 'skycity', 'skycity', { gulls: false }],
   [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'tide' }, 'island', 'island', { gulls: true, waves: true }],
-  [{ state: 'level', stable: 'level', boardPresent: true, boardStageId: 'r04-lake-02' }, 'lakeside', 'island', { gulls: false, lake: true }],
+  [{ state: 'level', stable: 'level', boardPresent: true, boardStageId: 'r04-lake-02' }, 'lakeside', 'lakeside', { gulls: false, lake: true, birds: false }],
   [{ state: 'skycity-loading', stable: 'island' }, 'hold', null, null],
   [{ state: 'level-loading', stable: 'island' }, 'hold', null, null],
   [{ state: 'level', stable: 'level' }, 'hold', null, null],
@@ -104,11 +104,10 @@ const TRIPS = [
     if (layers) {
       const b = bedOf(got);
       Object.keys(layers).forEach(k => { if (b[k] !== layers[k]) bad.push({ i, layer: k, want: layers[k], got: b[k], place: got.place }); });
-      if (b.birds || b.insects || b.highWind) bad.push({ i, ghost: b });
     }
   }
   ok(bad.length === 0, 'after each scene transition, BGM id and ambience layers match the table (pause keeps the place; hold keeps the track)', bad);
-  ok(SCENE_PROFILES.meadow.missing.indexOf('birds') >= 0 && SCENE_PROFILES.meadow.missing.indexOf('insects') >= 0 && SCENE_PROFILES.skycity.missing.indexOf('highWind') >= 0 && SCENE_PROFILES.lakeside.missing.indexOf('lakeside-bgm') >= 0 && SCENE_PROFILES.sail.missing.indexOf('sail-bgm') >= 0, 'missing beds are named, not filled with a fake file');
+  ok(SCENE_PROFILES.meadow.layers.indexOf('birds') >= 0 && SCENE_PROFILES.meadow.layers.indexOf('gulls') < 0 && SCENE_PROFILES.skycity.layers.indexOf('highWind') >= 0 && SCENE_PROFILES.lakeside.track === 'lakeside' && SCENE_PROFILES.sail.track === 'sail', 'meadow birds, sky wind, sail BGM and lakeside BGM are wired; meadow has no gulls');
 }
 
 // ---------- SceneMusic drives setMusic + the bed, including crossfade, pause, restart ----------
@@ -159,17 +158,17 @@ function musicWorld() {
   w.snap.state = 'island'; w.snap.stable = 'island'; w.step(0.3);
   ok(w.a.musicDiagnostics().path === BGM.island.path && global.__sceneAudioBed.gulls === true && global.__sceneAudioBed.waves === true && global.__sceneAudioBed.place === 'island', 'island: same BGM, sea layers on');
   w.snap.state = 'region-travel'; w.snap.stable = 'island'; w.snap.journey = { target: 'meadow', phase: 'bridge', region: 'island' }; w.step(0.3);
-  ok(w.a.musicDiagnostics().path === BGM.meadow.path && w.a.musicDiagnostics().bundle === 'region_meadow' && global.__sceneAudioBed.place === 'sail' && global.__sceneAudioBed.gulls === true && w.a.musicDiagnostics().sceneCrossfade.xfadeS === 2 && w.a.musicDiagnostics().sceneCrossfade.fadingOut, 'sail starts: crossfade to meadow BGM over 2 s, gulls still on', w.a.musicDiagnostics().sceneCrossfade);
+  ok(w.a.musicDiagnostics().path === BGM.sail.path && w.a.musicDiagnostics().bundle === 'transport_sail' && global.__sceneAudioBed.place === 'sail' && global.__sceneAudioBed.gulls === true && w.a.musicDiagnostics().sceneCrossfade.xfadeS === 2 && w.a.musicDiagnostics().sceneCrossfade.xfadeS <= 2 && w.a.musicDiagnostics().sceneCrossfade.fadingOut, 'sail starts: crossfade to sail BGM over 2 s, gulls still on', w.a.musicDiagnostics().sceneCrossfade);
   const old = w.live()[0];
-  w.finish('region_meadow', 'bgm_meadow'); w.step(1 / 60);
-  ok(w.a.musicDiagnostics().sceneCrossfade.started && w.a.loopSource.playing, 'meadow clip confirmed, 2 s crossfade running');
+  w.finish('transport_sail', 'bgm_sail'); w.step(1 / 60);
+  ok(w.a.musicDiagnostics().sceneCrossfade.started && w.a.loopSource.playing, 'sail clip confirmed, 2 s crossfade running');
   w.step(1);
   const v = w.a.musicDiagnostics().volume;
   ok(old && near(old.volume * old.volume + w.a.loopSource.volume * w.a.loopSource.volume, v * v, 0.05 * v * v), 'halfway through the 2 s crossfade: equal power', { old: old && old.volume, nw: w.a.loopSource.volume, v });
   w.step(1.05);
-  ok(old.destroyed && near(w.a.loopSource.volume, v, 1e-6) && w.a.musicDiagnostics().path === BGM.meadow.path, 'after 2 s only the meadow BGM is left');
+  ok(old.destroyed && near(w.a.loopSource.volume, v, 1e-6) && w.a.musicDiagnostics().path === BGM.sail.path, 'after 2 s only the sail BGM is left');
   w.snap.journey.phase = 'arrival'; w.snap.journey.region = 'meadow'; w.step(0.3);
-  ok(global.__sceneAudioBed.place === 'meadow' && global.__sceneAudioBed.gulls === false && global.__sceneAudioBed.waves === false && w.a.musicDiagnostics().path === BGM.meadow.path, 'sail arrival: gulls and waves off, meadow BGM stays');
+  ok(global.__sceneAudioBed.place === 'meadow' && global.__sceneAudioBed.gulls === false && global.__sceneAudioBed.waves === false && global.__sceneAudioBed.birds === true && w.a.musicDiagnostics().path === BGM.meadow.path, 'sail arrival: gulls and waves off, meadow BGM and birds on');
   w.snap.state = 'meadow'; w.snap.stable = 'meadow'; w.snap.journey = { target: null, phase: 'arrived', region: 'meadow' }; w.step(0.3);
   ok(global.__sceneAudioBed.gulls === false && w.a.musicDiagnostics().path === BGM.meadow.path, 'standing in the meadow: still meadow BGM, no seagulls');
   w.snap.state = 'paused'; w.step(0.3);
@@ -177,13 +176,13 @@ function musicWorld() {
   w.snap.state = 'meadow'; w.step(0.05);
   w.game = null;
   w.snap.state = 'region-travel'; w.snap.stable = 'meadow'; w.snap.journey = { target: 'skycity', phase: 'bridge', region: 'meadow' }; w.step(0.3);
-  ok(w.a.musicDiagnostics().path === BGM.skycity.path && w.a.musicDiagnostics().bundle === 'region_skycity' && global.__sceneAudioBed.place === 'balloon' && global.__sceneAudioBed.gulls === false && global.__sceneAudioBed.highWind === false, 'balloon: crossfade to skycity BGM, no gulls, no high-wind layer');
+  ok(w.a.musicDiagnostics().path === BGM.skycity.path && w.a.musicDiagnostics().bundle === 'region_skycity' && global.__sceneAudioBed.place === 'balloon' && global.__sceneAudioBed.gulls === false && global.__sceneAudioBed.highWind === true && global.__sceneAudioBed.birds === false, 'balloon: crossfade to skycity BGM, high wind, no gulls or meadow birds');
   w.snap.state = 'skycity'; w.snap.stable = 'skycity'; w.snap.journey = { target: null, phase: 'arrived', region: 'skycity' }; w.step(0.3);
   ok(w.a.musicDiagnostics().path === BGM.skycity.path && global.__sceneAudioBed.place === 'skycity' && global.__sceneAudioBed.gulls === false, 'sky city arrived: skycity BGM, sea layers off');
   w.snap.state = 'paused'; w.step(0.3);
   ok(w.a.musicDiagnostics().path === BGM.skycity.path && global.__sceneAudioBed.gulls === false, 'background on the sky city keeps skycity BGM');
   w.snap.state = 'lakeside'; w.snap.stable = 'lakeside'; w.snap.journey = { region: 'lakeside', phase: 'arrived', target: null }; w.step(0.3);
-  ok(w.a.musicDiagnostics().path === BGM.island.path && global.__sceneAudioBed.place === 'lakeside' && global.__sceneAudioBed.lake === true && global.__sceneAudioBed.gulls === false && global.__sceneAudioBed.waves === false, 'lakeside: island BGM (no lakeside track), lake layer on, gulls off');
+  ok(w.a.musicDiagnostics().path === BGM.lakeside.path && w.a.musicDiagnostics().bundle === 'region_lakeside' && global.__sceneAudioBed.place === 'lakeside' && global.__sceneAudioBed.lake === true && global.__sceneAudioBed.gulls === false && global.__sceneAudioBed.waves === false && global.__sceneAudioBed.birds === false && global.__sceneAudioBed.highWind === false, 'lakeside: lakeside BGM, lake layer on, no gulls or sky wind');
   w.cleanup();
 }
 {
