@@ -1,0 +1,7 @@
+PASS merge applied on journey mount (after instancing, water skipped)
+PASS freed on leave, exactly once
+PASS ?lakemerge=off: instancing only, no merge
+PASS a throw inside batching frees what it created
+PASS off-switch parses ?lakemerge=off (default on)
+PASS wiring: mount → batch; leave / dispose / abandon / fallback → release
+{"test":"lakeside-journey-merge","status":"PASS","checks":6}

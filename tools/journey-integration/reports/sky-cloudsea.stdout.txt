@@ -1,0 +1,1 @@
+{"status":"PASS","triangles":98840,"triangleLimit":100000,"primitiveUpperBound":49,"scope":"Exact GLB and WebGL color format checks; real component with Cocos doubles for sibling placement, flight hiding, shared palette, layers, far plane, sea ownership and cleanup. Actual build/DC validation remains separate."}

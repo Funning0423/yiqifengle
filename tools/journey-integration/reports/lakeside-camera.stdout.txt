@@ -1,0 +1,53 @@
+{
+ "status": "PASS",
+ "checks": [
+  {
+   "id": "K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged",
+   "status": "PASS"
+  },
+  {
+   "id": "K2 face/head/chest visible + lens ≥ 1.1 m every 0.05 m (island + lakeside + bridge strip)",
+   "status": "PASS"
+  },
+  {
+   "id": "K3 lens on her right for the whole leg",
+   "status": "PASS"
+  },
+  {
+   "id": "K4 final landing frame 390x844 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "status": "PASS"
+  },
+  {
+   "id": "K4 final landing frame 414x896 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "status": "PASS"
+  },
+  {
+   "id": "K4 final landing frame 360x780 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "status": "PASS"
+  },
+  {
+   "id": "K4 final landing frame 375x667 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "status": "PASS"
+  },
+  {
+   "id": "K4 final landing frame 390x520 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "status": "PASS"
+  },
+  {
+   "id": "K5 view turn ≤ 20°/s on the 17 s profile (base + every screen landing); no crane-up over the arrival (lens height above her never rises)",
+   "status": "PASS"
+  },
+  {
+   "id": "K7 timing 17 s (16–18): her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the set-off fade, at rest when she stops",
+   "status": "PASS"
+  },
+  {
+   "id": "K6 board framing: 3D lake grid under the 2D board (centre + scale exact; tray inset asserted on landscape, reported on portrait), scene above the tray, lens clear",
+   "status": "PASS"
+  },
+  {
+   "id": "K8 landing→board blend 1 s @60 Hz: exact ends, landing lens at rest, zero velocity at both ends, monotonic (no overshoot) distance/view/FOV, single-peak speed and turn rate (no spikes), lens ≥ 1.1 m, her face/head/chest never hidden, lens on her right while behind her",
+   "status": "PASS"
+  }
+ ]
+}

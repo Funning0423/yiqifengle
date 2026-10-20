@@ -1,0 +1,3 @@
+{"status":"PASS","frames":3458,"worst":{"score":0.16440877479926028,"frame":228,"screen":"390x844","night":false,"why":"tightest-clearance","rec":{"frame":228,"t":22.8,"screen":"390x844","night":false,"clearM":6.082,"nearHit":false,"back":0,"void":0,"domes":0,"horizonGap":0,"dc":14,"tris":246,"who":"meadow_terrain"}},"baseline":{"04-05":125000,"08-09":160000}}
+frame-background PASS follow 56 map 126
+{"frames":5054,"worst":null,"minClear":12.37,"minClearCam":11.05,"build05S":36,"accel":1.51,"climb":24,"bridgeStrata":-9.63,"seamLeak":0,"seamCamErr":0.000071,"farHits":74632,"handoffFade":1,"handoffT":35.9,"sunkBalloon":0,"meadowOff":11.2,"cityOn":11.6,"seam":11.4}

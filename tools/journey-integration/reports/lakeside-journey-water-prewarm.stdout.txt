@@ -1,0 +1,7 @@
+PASS source = the lake renderer (water node, with a mesh), not other scenery
+PASS prewarm: one tiny node in front of the camera draws the water copy on the real lake mesh, kept for 2 drawn frames, then removed
+PASS cancel (journey disposed before the frames): removed once, done=false, later draws do nothing
+PASS no water copy / no mesh / no camera: nothing created, no throw
+PASS paused game (no draw event): removed after maxMs anyway
+PASS ordering: prewarm runs on the first show(true) right after prime(), under the set-off black, before the fade-in and any walked frame; freed on release
+lakeside journey water prewarm OK

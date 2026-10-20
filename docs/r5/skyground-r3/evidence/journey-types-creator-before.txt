@@ -1,0 +1,45 @@
+{
+  "status": "FAIL",
+  "timeUTC": "2026-10-20T07:30:55.953Z",
+  "typescript": "5.8.2",
+  "scope": "Strict type-check of engine-independent world/journey modules only; official Cocos declarations and engine build not available",
+  "diagnostics": [
+    {
+      "file": "/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar.unpacked/node_modules/typescript/lib/lib.dom.d.ts",
+      "line": 23153,
+      "code": 2430,
+      "message": "Interface 'TextDecoder' incorrectly extends interface 'import(\"node:util\").TextDecoder'.\n  Types of property 'decode' are incompatible.\n    Type '(input?: AllowSharedBufferSource | undefined, options?: TextDecodeOptions | undefined) => string' is not assignable to type '(input?: NodeJS.AllowSharedBufferSource | undefined, options?: import(\"node:util\").TextDecodeOptions | undefined) => string'.\n      Types of parameters 'input' and 'input' are incompatible.\n        Type 'NodeJS.AllowSharedBufferSource | undefined' is not assignable to type 'AllowSharedBufferSource | undefined'.\n          Type 'SharedArrayBuffer' is not assignable to type 'AllowSharedBufferSource | undefined'.\n            Property 'resize' is missing in type 'SharedArrayBuffer' but required in type 'ArrayBuffer'."
+    },
+    {
+      "file": "/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar.unpacked/node_modules/typescript/lib/lib.dom.d.ts",
+      "line": 23214,
+      "code": 2430,
+      "message": "Interface 'TextEncoder' incorrectly extends interface 'import(\"node:util\").TextEncoder'.\n  The types returned by 'encode(...)' are incompatible between these types.\n    Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'NonSharedUint8Array'.\n      Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.\n        Property 'resize' is missing in type 'SharedArrayBuffer' but required in type 'ArrayBuffer'."
+    }
+  ]
+}
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Pure journey/world modules must strictly type-check
+
+2 !== 0
+
+    at Object.<anonymous> (/Users/shineanl/cursor-tasks/r5-skyground/repo/tools/journey-integration/test-journey-types.cjs:6:411)
+    at Module._compile (node:internal/modules/cjs/loader:1812:14)
+    at Object..js (node:internal/modules/cjs/loader:1943:10)
+    at Module.load (node:internal/modules/cjs/loader:1533:32)
+    at Module._load (node:internal/modules/cjs/loader:1335:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

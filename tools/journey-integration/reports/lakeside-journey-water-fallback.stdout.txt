@@ -1,0 +1,8 @@
+PASS material load fails → [QF_LAKE] ERROR (console.error) with reason + asset path, old look (null), no throw
+PASS loader returns no asset → same error line (reason "no asset"), no throw
+PASS bundle fails → same error line with the bundle reason
+PASS normal run: material loads → held, no [QF_LAKE] line
+PASS cancelled journey: rethrows, no fallback log
+PASS logger never throws (console.error throwing, odd errors)
+PASS wiring: the adapter catch logs + keeps the old look; the loader rejects instead of resolving null
+lakeside journey water fallback OK

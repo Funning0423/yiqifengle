@@ -1350,6 +1350,11 @@
     "sha256": "5bbf511de76170146510e02fa4b70d6821504151f1db6857a09d4c5d1f80295a"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/env_sky_cloudsea_soft.glb.meta",
+    "bytes": 1988,
+    "sha256": "605e7da96164d6b5b216eabe98352af0810ead4b7805ee8bb83eee2965cac9eb"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
     "bytes": 32512,
     "sha256": "6982fb98baa5c73fbac1ff35c74d754722696fb0e638e81d854f3b9b6d105ebe"
@@ -2426,8 +2431,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 8734,
-    "sha256": "672ae8b78e6d6b02cf07123689ae80f45eda01884a9e873b27f41cc8b504a185"
+    "bytes": 8832,
+    "sha256": "079607f4d21378325838dc619cbc94ef0e7cfcddbfe85f569db9595b44c59254"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2446,8 +2451,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 34237,
-    "sha256": "ea551299d3a77b3dea66d99582ef33dd65b34a5f78f256ae55847f2043dbe0a8"
+    "bytes": 34418,
+    "sha256": "abde72f88a9406833563d33ee1923d57c5bfe16ad5eb59dc370d55161362c9c0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2746,8 +2751,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 3546,
-    "sha256": "a68be9f6acd0323da342dbec5db9b9c20fe87c877f9141e0816a04e579ed3256"
+    "bytes": 4396,
+    "sha256": "5ec2adc82523ae3ec40b554f47427b030cba438b23f2d566560c1ab290e82966"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -2777,7 +2782,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6554,
-    "sha256": "cf8ba89951adf3ee9e97c09539cb58fd7196e0fd6cbf34880c6cd8c7fe991a18"
+    "sha256": "2c6b4714a5a0c838b04022149f84ddb31bff7b9119299c6ed2e51918edd86f92"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -2907,7 +2912,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
     "bytes": 4101,
-    "sha256": "39a44dc07fbf575d029c249a2745df24f21d403736cc254a911e2d531a068bd8"
+    "sha256": "80d843072f8e561ea3b042313008fdf21045c28760e12226746bcf7a1b08d51a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -2923,6 +2928,16 @@
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts.meta",
     "bytes": 171,
     "sha256": "c78aaf74445a0911d5a63c6a3d7006c00f4b856c7861cffb9844678e3a685578"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
+    "bytes": 3125,
+    "sha256": "1e1d2e903fa1859856eedb3b7cdd49fd8effb9424d02613286f335401e93b123"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
+    "bytes": 171,
+    "sha256": "14ba1dab4719bbf077a518e6eed96edee2f53f6a0ed859c73b5765fb0bdf7142"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityPennantWind.ts",

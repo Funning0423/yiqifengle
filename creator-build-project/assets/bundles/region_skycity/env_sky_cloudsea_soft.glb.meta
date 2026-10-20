@@ -1,0 +1,93 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "092e7721-97fd-4de7-9550-85e5e7b72f98",
+  "files": [],
+  "subMetas": {
+    "30751": {
+      "importer": "gltf-scene",
+      "uuid": "092e7721-97fd-4de7-9550-85e5e7b72f98@30751",
+      "displayName": "",
+      "id": "30751",
+      "name": "env_sky_cloudsea_soft.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c8867": {
+      "importer": "gltf-mesh",
+      "uuid": "092e7721-97fd-4de7-9550-85e5e7b72f98@c8867",
+      "displayName": "",
+      "id": "c8867",
+      "name": "env_sky_cloudsea_soft.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 13110
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4a919": {
+      "importer": "gltf-material",
+      "uuid": "092e7721-97fd-4de7-9550-85e5e7b72f98@4a919",
+      "displayName": "",
+      "id": "4a919",
+      "name": "M_sky_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "092e7721-97fd-4de7-9550-85e5e7b72f98@c8867"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "092e7721-97fd-4de7-9550-85e5e7b72f98@4a919"
+      ],
+      "scenes": [
+        "092e7721-97fd-4de7-9550-85e5e7b72f98@30751"
+      ]
+    }
+  }
+}

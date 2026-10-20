@@ -1,0 +1,2 @@
+{"status":"PASS","tris":6678,"bytes":439962,"per":{"sailboat.glb":1510,"transit_sea.glb":544,"transit_sea_props.glb":1046,"transit_far_cards.glb":764,"transit_clouds.glb":2280,"transit_river_mouth.glb":534},"targetBytes":367001.6,"withinTarget":false,"source":"gbt-blender-self","license":"CC0-self"}
+NOTE source glb+png is over the 0.35 MiB target; Cocos mesh quantize is what the subpackage measures

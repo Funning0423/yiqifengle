@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-19T00:05:41.006Z",
+  "timeUTC": "2026-10-20T07:33:44.474Z",
   "scope": "Actual WorldFlow and RegionJourneyController with explicit actor/scene/board doubles; no runtime pixels",
   "checks": [
     {

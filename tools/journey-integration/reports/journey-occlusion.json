@@ -1,13 +1,13 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-19T00:05:23.750Z",
+ "timeUTC": "2026-10-20T07:39:49.004Z",
  "fixture": {
   "json": "occlusion/fixture-occluders.json",
-  "jsonSha256": "78bfa24c852a9a27d749b07a26feb91a6b70daba67f3b98baa2213c9701d320b",
+  "jsonSha256": "d7082727375715b48d5c81359233fc28b307ab42dc2dad77863092d33b603d60",
   "binGz": "occlusion/fixture-occluders.bin.gz",
-  "binGzSha256": "1589171d5608551db1b5663523443988a9da2f39a99e7dc926cf41da3753e65d",
-  "bytes": 3752676,
-  "binSha256": "16cf404aff00a1bedfa3cfc10cb2ca239a4737eeeefed6035d959db312ea03ec",
+  "binGzSha256": "d587ee3dedc0c731072fb4afa4de7aa8c524f8f0f4e5db6ccea4e9a4057ae6c5",
+  "bytes": 3751848,
+  "binSha256": "509d112b397ce3b1f6bcb4fef7550209c155a1695994bf6bc256aa1399d5d540",
   "sources": [
    {
     "id": "island",
@@ -27,12 +27,12 @@
    {
     "id": "skycity",
     "glb": "region_skycity/env_skycity.glb",
-    "sha256": "d3bf7e1d92c74d667796096fc03f68314fa5ed5328736c9611334c4526193564"
+    "sha256": "c8558e31ab312a9c0dd94c82e859e34de4cb929407cd0faa893dd64d29657aaa"
    },
    {
     "id": "skycity_frame",
     "glb": "region_skycity/env_skycity.glb",
-    "sha256": "d3bf7e1d92c74d667796096fc03f68314fa5ed5328736c9611334c4526193564"
+    "sha256": "c8558e31ab312a9c0dd94c82e859e34de4cb929407cd0faa893dd64d29657aaa"
    }
   ]
  },
@@ -572,7 +572,7 @@
    "status": "PASS",
    "total": 44.291,
    "samples": 886,
-   "minLensM": 1.9,
+   "minLensM": 1.89,
    "exemptedAuthoredIslandPoseSamples": [],
    "partialGrazes": [
     {
@@ -682,7 +682,7 @@
    "status": "PASS",
    "worstFootClearanceM": {
     "d": 41.8,
-    "clear": 0.027,
+    "clear": 0.026,
     "who": "env_sky_static_palette"
    },
    "deckSamples": 208,

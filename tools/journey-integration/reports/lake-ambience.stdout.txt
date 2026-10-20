@@ -1,0 +1,7 @@
+PASS wanted: lakeside state, arrival stretch of island→lakeside, lakeside board; not island/home/meadow/skycity/other boards
+PASS entry: lake fades in and plays, sea waves suppressed; exit: lake fades out/pauses, waves released
+PASS mute/background: silent at once, resumes on foreground; slider 0 silent, default 0.4 → full (A1c)
+PASS cross-loop: partner at the circular period, linear crossfade past the encoder delay, then hand over; partner failure → platform loop
+PASS wiring: AmbienceAudio stands down on lakeActive (waves + gulls via the no-world path); LakeAmbience registers mounter/quieter; [QF_LAKE] on load failure
+PASS asset: region_lakeside/audio/amb_lake_loop.mp3 ≤ 60 KB, mono 24 kHz MPEG-2 L3, with meta
+OK 6

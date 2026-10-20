@@ -1,0 +1,8 @@
+PASS without the pre-activation (old path) the swap frame switches hundreds of nodes on and relays out
+  swap activations: old 186 -> new 1; prewarm frames 5
+PASS UI is constructed and active (hidden) before the swap; the swap creates nothing, activates only the UI camera, no relayout
+PASS a reveal before the pre-activation finished completes it synchronously (and lays out); before it started = old path
+PASS nothing runs before presentForPlay while the host is pre-activated (no hint clock, no intro popups)
+PASS a resize after the pre-activation still lays out on reveal
+PASS sky city: the Build05 lease file stays pinned; the r4.2 wrapper keeps its scene active under the hidden host, swap = camera only
+PASS wiring: adapter pre-activates after initializeManaged and keeps the background invisible until reveal; region scenes stay active (camera = visibility)

@@ -1,0 +1,34 @@
+PASS shipped BGM files exist (island / meadow / skycity) []
+PASS shipped ambience layers exist (waves / wind / gulls / lake) []
+PASS sail / lakeside BGM candidates exist and are wired into BGM [{"id":"sail","ok":true,"wired":true},{"id":"lakeside","ok":true,"wired":true}]
+PASS plan B: lakeside is reached from sky city by balloon (dip handover); no island / meadow route to the lake in the data {"from":"skycity","via":"balloon","to":"lakeside","unlock":"main-line level 12 cleared","bgmHandover":{"shape":"dip","outS":4,"inS":4,"overlapS":2,"toStartsAtBar1":true},"bed":{"fadeOut":"highWind","fadeOutAfterS":6,"fadeOutS":10,"viaVol":0.5,"fadeIn":"lake","fadeInS":12,"toVol":0.55}}
+PASS pending candidates (water birds / gardener / star ring) exist on disk and are not in SCENE_AMBIENCE_DESIGN {"pcBad":[],"pcWired":null}
+PASS pending layer assets (birds / insects / high wind / meadow wind) exist on disk []
+PASS no audio asset is tagged NOT_FOR_SHIP []
+PASS profiles only enable shipped layers; crossfade is 1.5–2.5 s {"badLayer":[],"xfade":2}
+PASS after each scene transition, BGM id and ambience layers match the table (pause keeps the place; hold keeps the track) []
+PASS meadow birds, sky wind, sail BGM and lakeside BGM are wired; meadow has no gulls
+PASS restart / room ready at home: island BGM, no seagulls {"place":"home","track":"island","waves":false,"gulls":false,"wind":false,"lake":false,"birds":false,"insects":false,"highWind":false,"missing":["birds","insects"]}
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":283.3333333333333}
+PASS home BGM finished its room fade-in
+PASS island: same BGM, sea layers on
+PASS sail starts: crossfade to sail BGM over 2 s, gulls still on {"fadingOut":true,"started":false,"fadeIn":true,"xfadeS":2}
+[GameAudio] music started {"path":"audio_amb/bgm_sail","bundle":"transport_sail","first":true,"fadeIn":false,"loadMs":83.33333333333258}
+PASS sail clip confirmed, 2 s crossfade running
+PASS halfway through the 2 s crossfade: equal power {"old":0.28284271247462106,"nw":0.282842712474617,"v":0.4}
+PASS after 2 s only the sail BGM is left
+PASS sail arrival: gulls and waves off, meadow BGM and birds on
+PASS standing in the meadow: still meadow BGM, no seagulls
+PASS background pause keeps the meadow bed (does not snap back to island)
+PASS balloon: crossfade to skycity BGM, high wind, no gulls or meadow birds
+PASS sky city arrived: skycity BGM, sea layers off
+PASS background on the sky city keeps skycity BGM
+PASS lakeside: lakeside BGM, lake layer on, no gulls or sky wind
+PASS fresh session restored on the meadow: meadow BGM, no seagulls (not the island bed)
+PASS on the coast the wave bed is playing 0.5458982061490226
+PASS a seagull call is playing on the coast {"clock":1.2,"camYaw":null,"camRate":0,"night":0,"lastGullAt":1.2000000000000006,"pending":[],"playing":[{"id":1,"pan":0,"l":0.5,"r":0.5}],"lr":6}
+PASS wind bed plays while the wind layer is allowed {"s":0.99177025295098,"soft":0.746708101180392,"strong":0.9995885843559993,"softPlaying":true,"strongPlaying":true,"gust":-1,"hooks":0}
+PASS meadow bed: waves and the live seagull stop on the next frame
+PASS meadow bed: wind loops stop (no meadow wind asset)
+PASS back on the island the wave bed returns
+ALL PASS scene-audio transitions (31 checks)

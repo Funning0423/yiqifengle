@@ -1,0 +1,5 @@
+PASS figure = robot gardener: real env_skycity.glb has chr_robot_gardener (skinned) under anchor_robot_root, ≤5 m from anchor_starcourt_center; robot_idle + sky_ambient_loop are the skycity ambient clips
+PASS kept on both copies: journey and board mount the whole region model; no code hides / deactivates the robot or its rig
+PASS swap: on the board copy's first frame robot_idle and sky_ambient_loop take the journey copy's times (sampled); gestures not started; once only
+PASS no journey copy (level opened from the map): lease returned unchanged; journey gone before the swap: no sync, no throw
+PASS pure helper: missing animation on either side → 0

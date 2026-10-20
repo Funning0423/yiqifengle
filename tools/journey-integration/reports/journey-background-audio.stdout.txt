@@ -1,0 +1,145 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "hideAtS": 2,
+      "hiddenS": 5,
+      "positionAtHide": [
+        2.016667,
+        0
+      ],
+      "positionOnResume": [
+        2.016667,
+        0
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 9.5,
+      "hiddenS": 1,
+      "positionAtHide": [
+        9.5,
+        0
+      ],
+      "positionOnResume": [
+        9.5,
+        0
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 19.05,
+      "hiddenS": 3,
+      "positionAtHide": [
+        19.05,
+        0.05
+      ],
+      "positionOnResume": [
+        19.05,
+        0.05
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 19.125999999999998,
+      "hiddenS": 0.5,
+      "positionAtHide": [
+        19.133333,
+        0.133333
+      ],
+      "positionOnResume": [
+        19.133333,
+        0.133333
+      ],
+      "offsetMs": 0
+    },
+    {
+      "hideAtS": 30,
+      "hiddenS": 10,
+      "positionAtHide": [
+        0,
+        11.016667
+      ],
+      "positionOnResume": [
+        0,
+        11.016667
+      ],
+      "offsetMs": 0
+    }
+  ],
+  "sailCases": [
+    {
+      "hideAtS": 8.8,
+      "hiddenS": 4,
+      "sounding": [
+        "board"
+      ],
+      "offsetMs": 0.0003333333338240152
+    },
+    {
+      "hideAtS": 10.3,
+      "hiddenS": 2,
+      "sounding": [
+        "board",
+        "unfurl"
+      ],
+      "offsetMs": 0.0003333333339350375
+    },
+    {
+      "hideAtS": 14.9,
+      "hiddenS": 8,
+      "sounding": [
+        "cruise"
+      ],
+      "offsetMs": 0.00033333332627449863
+    },
+    {
+      "hideAtS": 21,
+      "hiddenS": 1,
+      "sounding": [
+        "cruise",
+        "dock"
+      ],
+      "offsetMs": 0.00033333338222973907
+    },
+    {
+      "hideAtS": 22.6,
+      "hiddenS": 6,
+      "sounding": [
+        "dock"
+      ],
+      "offsetMs": 2.220446049250313e-12
+    },
+    {
+      "muteAtS": 13.6,
+      "muteS": 3,
+      "positions": {
+        "board": null,
+        "unfurl": null,
+        "cruise": 5.033,
+        "dock": null
+      }
+    },
+    {
+      "muteAtS": 10.1,
+      "muteS": 10,
+      "positions": {
+        "board": null,
+        "unfurl": null,
+        "cruise": 8.533,
+        "dock": null
+      }
+    }
+  ],
+  "sailBytes": 172372,
+  "checks": [
+    "lake loop paused (not stopped) while hidden, position kept",
+    "resumes from that position after the auto-resume (offset ≤ 50 ms; measured 0)",
+    "no double sources outside the crossfade, incl. hide mid-crossfade",
+    "full level after fade-in",
+    "muted/gated: silent, no drift",
+    "3 sfxMuted gates unchanged",
+    "tripwire: no journey cue track / timing.json on this line"
+  ],
+  "scope": "LakeAmbienceCore + fake AudioSource (Cocos 3.8 AudioSource.play resumes a paused clip); no device audio"
+}

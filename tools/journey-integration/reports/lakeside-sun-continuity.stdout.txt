@@ -1,0 +1,3 @@
+PASS direct build: no shared-sun write while the board host is hidden; board sun exactly on reveal; restore on hide
+PASS preload/adopt path: same
+PASS wiring: applyDir only through drawing() (setVisible, frame, adopt, day/night)

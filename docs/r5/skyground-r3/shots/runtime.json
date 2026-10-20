@@ -1,0 +1,278 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-20T15:17:27.631Z",
+  "viewport": [
+    390,
+    844
+  ],
+  "hour": 14,
+  "frames": [
+    {
+      "spec": {
+        "name": "02_skycity_south",
+        "cam": [
+          36,
+          50,
+          55
+        ],
+        "look": [
+          36,
+          32,
+          -23
+        ]
+      },
+      "pose": {
+        "position": [
+          -6.8658358950947616,
+          68.63186347110214,
+          148.84137860065795
+        ],
+        "target": [
+          61.46317137137491,
+          50.631863471102136,
+          186.4598151175938
+        ],
+        "fov": 48
+      },
+      "runtime": {
+        "sky": [
+          {
+            "sameParent": true,
+            "sameTransform": true,
+            "paletteShared": true,
+            "noShadow": true,
+            "layers": true,
+            "states": {
+              "env_sky_cloudsea": false,
+              "env_sky_cumulus_far": false,
+              "env_sky_cloud_small": true,
+              "env_sky_islets_far": true
+            },
+            "strides": [
+              36,
+              36,
+              36,
+              36,
+              60,
+              60,
+              60,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              52
+            ],
+            "softVertices": [
+              7078
+            ]
+          }
+        ],
+        "sea": false,
+        "cameras": [
+          {
+            "name": "Main Camera",
+            "far": 2500
+          },
+          {
+            "name": "WorldNavigationCamera",
+            "far": 2000
+          }
+        ],
+        "day": {
+          "mode": "day",
+          "override": false,
+          "exteriorVisible": true,
+          "nightRenderersEnabled": false,
+          "nightSkyBackdropsEnabled": false,
+          "nightRendererCount": 2,
+          "skyNightBlend": 0,
+          "lightScale": 1
+        },
+        "drawCalls": 18
+      }
+    },
+    {
+      "spec": {
+        "name": "03_skycity_foliage",
+        "local": [
+          12,
+          0.2,
+          2
+        ],
+        "yawDeg": 220,
+        "pitchDeg": 42,
+        "dist": 6.2
+      },
+      "pose": {
+        "position": [
+          48.176109499909174,
+          24.230473230527053,
+          149.8487658213883
+        ],
+        "target": [
+          51.13775207323029,
+          20.08186347110213,
+          153.3783139981237
+        ],
+        "fov": 48
+      },
+      "runtime": {
+        "sky": [
+          {
+            "sameParent": true,
+            "sameTransform": true,
+            "paletteShared": true,
+            "noShadow": true,
+            "layers": true,
+            "states": {
+              "env_sky_cloudsea": false,
+              "env_sky_cumulus_far": false,
+              "env_sky_cloud_small": true,
+              "env_sky_islets_far": true
+            },
+            "strides": [
+              36,
+              36,
+              36,
+              36,
+              60,
+              60,
+              60,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              36,
+              52
+            ],
+            "softVertices": [
+              7078
+            ]
+          }
+        ],
+        "sea": false,
+        "cameras": [
+          {
+            "name": "Main Camera",
+            "far": 2500
+          },
+          {
+            "name": "WorldNavigationCamera",
+            "far": 2000
+          }
+        ],
+        "day": {
+          "mode": "day",
+          "override": false,
+          "exteriorVisible": true,
+          "nightRenderersEnabled": false,
+          "nightSkyBackdropsEnabled": false,
+          "nightRendererCount": 2,
+          "skyNightBlend": 0,
+          "lightScale": 1
+        },
+        "drawCalls": 16
+      }
+    }
+  ],
+  "boardDrawCalls": [
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58,
+    58
+  ],
+  "errors": []
+}

@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-19T00:05:27.745Z",
+ "timeUTC": "2026-10-20T07:33:34.255Z",
  "scope": "journeyCamera geometry + real RegionJourneyController with a recording world. Not a render or device acceptance.",
  "checks": [
   {

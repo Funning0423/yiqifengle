@@ -1,0 +1,7 @@
+PASS one source: board = lakesideSunForward(0) = authored sunForward; journey lake yaw is 180°
+PASS journey sun at w=1 equals the board sun in the lake frame (yaw 180)
+PASS journey sun at w=1 equals the board sun in the lake frame (yaw 90)
+PASS journey sun at w=1 equals the board sun in the lake frame (yaw 0)
+PASS blend from the island light stays smooth: slerp(captured island rotation → lakeside target, w) every frame, w monotone
+PASS wiring: board and journey read lakesideSunForward; adapter passes the lake yaw; nobody reads sunForward raw for the light
+lakeside journey sun OK

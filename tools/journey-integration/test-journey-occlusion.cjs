@@ -52,7 +52,15 @@ check('O5 08-09 final frame: city centre centred (|x|≤0.1, -0.1≤y≤0.45); c
 // O4 09 arrival composition
 check('O4 09 board background pose unchanged and plaza in frame',()=>{
  const base=JSON.parse(fs.readFileSync(__dirname+'/occlusion/build05-arrival-baseline.json','utf8'));
- for(const [f,h] of Object.entries(base.sourceSha256))assert.equal(sha(S+f),h,f+' changed: the 09 plaza composition must stay Build05');
+ for(const [f,h] of Object.entries(base.sourceSha256)){
+  // r3 changes only the far plane: keep the original full composition hash after normalizing that one literal.
+  let actual=sha(S+f);
+  if(f==='region/SkycityBoardBackground.ts'){
+   const source=fs.readFileSync(S+f,'utf8');assert(source.includes('camera.far=1200'),'soft cloud sea far plane');
+   actual=crypto.createHash('sha256').update(source.replace('camera.far=1200','camera.far=1000')).digest('hex');
+  }
+  assert.equal(actual,h,f+' changed: the 09 plaza composition must stay Build05');
+ }
  const pose=Visit.skycityVisitPose(sp('anchor_spawn_girl'),sp('anchor_starcourt_center'),390/844);assert.deepEqual(pose,base.pose390x844);
  const f=sub(pose.target,pose.position),fl=Math.hypot(...f),fw=f.map(x=>x/fl),r=[fw[2],0,-fw[0]].map(x=>x/Math.hypot(fw[2],fw[0])),up=[r[1]*fw[2]-r[2]*fw[1],r[2]*fw[0]-r[0]*fw[2],r[0]*fw[1]-r[1]*fw[0]],th=Math.tan(pose.fovVerticalDeg*Math.PI/360),aspect=390/844;
  const ndc=p=>{const v=sub(p,pose.position),z=v[0]*fw[0]+v[1]*fw[1]+v[2]*fw[2];return [(v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(z*th*aspect),(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(z*th),z];};
