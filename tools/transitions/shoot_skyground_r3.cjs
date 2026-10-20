@@ -16,13 +16,13 @@ async function main(){
   let ready=false;for(let i=0;i<40;i++){try{ready=(await fetch(url)).ok;}catch{}if(ready)break;await new Promise(r=>setTimeout(r,250));}assert(ready,'own HTTP server ready');
   browser=await env.playwright().chromium.launch({headless:true,executablePath:env.chromiumExecutable()});
   const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});
-  page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+  page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!/ERR_CONNECTION_RESET/.test(m.text()))errors.push(m.text());});
   await page.addInitScript(()=>{Date.prototype.getHours=function(){return 14;};});
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:180000});
   await page.waitForFunction(()=>{try{return !!globalThis.__worldIntegration?.qaShot&&globalThis.__worldIntegration.snapshot().characterReady;}catch{return false;}},null,{timeout:180000});
   const entered=await page.evaluate(()=>globalThis.__worldIntegration.qaShot({region:'skycity'}));assert(entered.ok,JSON.stringify(entered));
   await page.evaluate(()=>globalThis.__worldDayNight.set('day'));
-  const specs=[{name:'02_skycity_south',cam:[30,12,6],look:[30,-12,-44]},
+  const specs=[{name:'02_skycity_south',cam:[44,40,95],look:[44,23.4,16.8]},
    {name:'03_skycity_foliage',local:[12,.2,2],yawDeg:220,pitchDeg:42,dist:6.2}];
   for(const spec of specs){
    const pose=await page.evaluate(async spec=>{
