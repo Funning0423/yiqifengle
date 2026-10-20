@@ -3,6 +3,8 @@
 # soft.glb given: env_sky_cloudsea + env_sky_cumulus_far hidden, soft GLB added (M_env_palette -> palette.png, closest).
 # soft.glb '-': the baseline clouds as they are. cam: r2 = pos [30,12,6] look [30,-12,-44]; S6 = pivot [0.2,0.032,-27.8]
 # yaw 90 pitch 8 dist 10 (FreeOrbit: look = pivot + 1.25 up, cam = look + 10*orbitDir). fov 48 vertical, 390x844.
+# iter3: distance fog (compositor mist, linear) unless env QF_FOG=0. The project has no skycity fog (every scene's cc.FogInfo is
+# _enabled:false, defaults 0.5..300); ESTIMATE used: start 120 m, end 900 m, max 0.6, colour = the background colour.
 import bpy, sys, math
 from mathutils import Vector
 a = sys.argv[sys.argv.index('--') + 1:]; SKY, SOFT, PAL, OUT, CAM, MODE = a
@@ -36,4 +38,11 @@ w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True; bg = w.node_tree
 bg.inputs[0].default_value = (0.035, 0.05, 0.12, 1) if night else (0.50, 0.68, 0.92, 1); bg.inputs[1].default_value = 0.6 if night else 1.0
 sc.render.engine = 'CYCLES'; sc.cycles.samples = 48; sc.cycles.use_denoising = True; sc.cycles.device = 'CPU'
 sc.render.resolution_x, sc.render.resolution_y = 390, 844; sc.view_settings.view_transform = 'Standard'
+import os
+if os.environ.get('QF_FOG', '1') != '0':
+    sc.view_layers[0].use_pass_mist = True; w.mist_settings.start = 120; w.mist_settings.depth = 780; w.mist_settings.falloff = 'LINEAR'
+    sc.use_nodes = True; nt = sc.node_tree; nt.nodes.clear(); rl = nt.nodes.new('CompositorNodeRLayers'); cp = nt.nodes.new('CompositorNodeComposite')
+    mul = nt.nodes.new('CompositorNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = 0.6; mul.use_clamp = True
+    mx = nt.nodes.new('CompositorNodeMixRGB'); mx.inputs[2].default_value = tuple(bg.inputs[0].default_value[:3]) + (1,)
+    nt.links.new(rl.outputs['Mist'], mul.inputs[0]); nt.links.new(mul.outputs[0], mx.inputs[0]); nt.links.new(rl.outputs['Image'], mx.inputs[1]); nt.links.new(mx.outputs[0], cp.inputs['Image'])
 sc.render.filepath = OUT; bpy.ops.render.render(write_still=True)

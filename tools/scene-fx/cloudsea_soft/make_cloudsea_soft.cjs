@@ -14,20 +14,20 @@ var seed = 20261020; function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0
 function ss(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
 function mix(a, b, t) { return a + (b - a) * t; }
 // smooth billows: few rotated sines (no hash noise -> no spikes)
-var W = []; for (var i = 0; i < 5; i++) W.push({ a: rnd() * Math.PI, k: (0.012 + 0.03 * rnd()) * (i < 2 ? 0.6 : 1), p: rnd() * 6.28, w: i < 2 ? 1 : 0.55 });
+var W = []; for (var i = 0; i < 5; i++) W.push({ a: (i / 5 + 0.15 * rnd()) * Math.PI, k: 2 * Math.PI / (45 + 45 * rnd()), p: rnd() * 6.28, w: 0.7 + 0.3 * rnd() });   // iter3: wavelengths 45-90 m
 function bill(x, z) { var s = 0, n = 0; W.forEach(function (q) { s += q.w * Math.sin((x * Math.cos(q.a) + z * Math.sin(q.a)) * q.k + q.p); n += q.w; }); return s / n * 1.6; }
 function base(r) { return -36 + 36 * Math.pow(ss(70, 470, r), 1.25) + 6 * ss(470, 820, r); }
-function amp(r) { return 3.6 + 6.5 * ss(60, 520, r); }
+function amp(r) { return 3.4 + 1.6 * ss(40, 250, r) - 2.6 * ss(330, 760, r); }   // short billows fade out far (no aliasing)
 function seaH(x, z) { var r = Math.hypot(x - O[0], z - O[1]); return base(r) + amp(r) * Math.max(-1, Math.min(1, bill(x, z))); }
 function haze(r) { return ss(140, 720, r); }
 var P = [], N = [], U = [], I = [];
 // ---- sea: polar lattice, odd rings offset half a step
-var RINGS = [0, 26, 52, 80, 110, 145, 185, 230, 280, 335, 395, 460, 530, 610, 700, 820], SEG = 60, ring0 = [];
+var RINGS = [], SEG = 144, ring0 = []; for (var rr = 0; rr <= 300; rr += 12) RINGS.push(rr); RINGS.push(330, 365, 405, 450, 500, 560, 630, 720, 820);
 RINGS.forEach(function (r, ri) {
   var row = [], n = ri === 0 ? 1 : SEG;
   for (var s = 0; s < n; s++) {
     var t = (s + (ri % 2 ? 0.5 : 0)) / SEG * Math.PI * 2, x = O[0] + r * Math.cos(t), z = O[1] + r * Math.sin(t), y = seaH(x, z);
-    var c = (y - base(r)) / amp(r), u = mix(0.60 + 0.26 * c, 0.90, 0.6 * haze(r));
+    var c = (y - base(r)) / amp(r), u = mix(0.54 + 0.40 * c, 0.88, 0.5 * haze(r));   // iter3: more contrast
     row.push(P.length / 3); P.push(x, y, z); U.push(Math.max(0.30, Math.min(0.99, u)), V_ROW);
   }
   ring0.push(row);
@@ -53,18 +53,22 @@ function ico() {
   return { v: v, f: f2 };
 }
 var ICO = ico(), NCL = 18, clusters = [];
-for (var c = 0; c < NCL; c++) {
-  var th = (c + 0.25 + 0.5 * rnd()) / NCL * Math.PI * 2, R = 380 + 170 * rnd(), cx = O[0] + R * Math.cos(th), cz = O[1] + R * Math.sin(th);
-  var nb = 3 + Math.floor(rnd() * 3), big = 0.75 + 0.5 * rnd(); clusters.push([+cx.toFixed(1), +cz.toFixed(1), nb]);
+// iter3: a bank in the r2 view (cam local [30,12,6] looking -z, 25.6 deg down): low, wide, tops ~3-5 deg under the frame top
+var R2BANK = [[2, -225, 4, 1.15], [52, -250, 4, 1.25], [28, -300, 5, 1.3]];
+for (var c = 0; c < NCL + R2BANK.length; c++) {
+  var fx = c >= NCL ? R2BANK[c - NCL] : null, th, R, cx, cz, nb, big;
+  if (fx) { cx = fx[0]; cz = fx[1]; nb = fx[2]; big = fx[3]; th = Math.atan2(cz - O[1], cx - O[0]); }
+  else { th = (c + 0.25 + 0.5 * rnd()) / NCL * Math.PI * 2; R = 380 + 170 * rnd(); cx = O[0] + R * Math.cos(th); cz = O[1] + R * Math.sin(th); nb = 3 + Math.floor(rnd() * 3); big = 0.75 + 0.5 * rnd(); }
+  clusters.push([+cx.toFixed(1), +cz.toFixed(1), nb]);
   var tx = -Math.sin(th), tz = Math.cos(th);   // tangent: clusters spread along the horizon
   for (var bI = 0; bI < nb; bI++) {
     var off = (bI - (nb - 1) / 2) * 30 * big + (rnd() - 0.5) * 12, bx = cx + tx * off + (rnd() - 0.5) * 20, bz = cz + tz * off + (rnd() - 0.5) * 20;
-    var mid = Math.abs(bI - (nb - 1) / 2) < 0.6 ? 1 : 0.7, sx = (24 + 16 * rnd()) * big, sy = (13 + 12 * rnd()) * big * mid, sz = (24 + 16 * rnd()) * big;
-    var floorY = seaH(bx, bz) - 2, cyy = floorY + sy * 0.55, rot = rnd() * 6.28, cr = Math.cos(rot), sr = Math.sin(rot), r0 = Math.hypot(bx - O[0], bz - O[1]);
+    var mid = Math.abs(bI - (nb - 1) / 2) < 0.6 ? 1 : 0.7, sx = (34 + 20 * rnd()) * big, sy = (8 + 6 * rnd()) * big * mid, sz = (34 + 20 * rnd()) * big;   // iter3: lower, wider
+    var floorY = seaH(bx, bz) - 2, cyy = floorY + sy * 0.45, rot = rnd() * 6.28, cr = Math.cos(rot), sr = Math.sin(rot), r0 = Math.hypot(bx - O[0], bz - O[1]);
     var start = P.length / 3;
     ICO.v.forEach(function (q) {
       var lx = q[0] * sx, lz = q[2] * sz, x = bx + lx * cr - lz * sr, z = bz + lx * sr + lz * cr, y = Math.max(floorY, cyy + q[1] * sy);
-      var hgt = (y - floorY) / (sy * 1.55), u = mix(0.50 + 0.46 * hgt, 0.90, 0.45 * haze(r0));
+      var hgt = (y - floorY) / (sy * 1.55), u = mix(0.46 + 0.50 * hgt, 0.88, 0.4 * haze(r0));
       P.push(x, y, z); U.push(Math.max(0.30, Math.min(0.99, u)), V_ROW);
     });
     ICO.f.forEach(function (q) { I.push(start + q[0], start + q[1], start + q[2]); });   // icosahedron table is CCW outward
@@ -119,5 +123,5 @@ D3.createEncoderModule({}).then(function (E) {
   jh.writeUInt32LE(js.length, 0); jh.writeUInt32LE(0x4E4F534A, 4); bh.writeUInt32LE(bn.length, 0); bh.writeUInt32LE(0x004E4942, 4);
   fs.writeFileSync(OUT, Buffer.concat([hd, jh, js, bh, bn]));
   if (EXTRA) { var tr = []; for (var k = 0; k < I.length; k += 3) tr.push([0, 1, 2].map(function (e) { return [+P[I[k + e] * 3].toFixed(3), +P[I[k + e] * 3 + 1].toFixed(3), +P[I[k + e] * 3 + 2].toFixed(3)]; })); fs.writeFileSync(EXTRA, JSON.stringify({ skycity: { env_sky_cloudsea_soft: tr } })); }
-  console.log(JSON.stringify({ out: OUT, bytes: fs.statSync(OUT).size, verts: NV, tris: nf, seaTris: seaTris, cumulusTris: nf - seaTris, clusters: NCL, bboxMin: lo.map(function (v) { return +v.toFixed(2); }), bboxMax: hi.map(function (v) { return +v.toFixed(2); }), overIsland: over, overIslandYmax: +ymaxOver.toFixed(2), overIslandAboveLimit: overHigh }));
+  console.log(JSON.stringify({ out: OUT, bytes: fs.statSync(OUT).size, verts: NV, tris: nf, seaTris: seaTris, cumulusTris: nf - seaTris, clusters: clusters.length, bboxMin: lo.map(function (v) { return +v.toFixed(2); }), bboxMax: hi.map(function (v) { return +v.toFixed(2); }), overIsland: over, overIslandYmax: +ymaxOver.toFixed(2), overIslandAboveLimit: overHigh }));
 });

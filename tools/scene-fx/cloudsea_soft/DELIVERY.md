@@ -1,6 +1,6 @@
 # env_sky_cloudsea_soft.glb — 天空城柔和云海 + 天边远积云（场景特效bot r5 skyground）
 
-- 文件：`env_sky_cloudsea_soft.glb`，21,136 B，sha256 `40b0c199a4317135a1cb8a49fd5f23fb1ea5c1644aa9ef6c1cf835a6d346bd8b`
+- 文件：`env_sky_cloudsea_soft.glb`，44,144 B，sha256 `5714055ccd51ed77d2d1a28b7b3f8b7d7b8b00b76a2bf5f723dc5089cac8daeb`（iter3）
 - 生成：`DRACO3D=<draco3d> node make_cloudsea_soft.cjs island_hull.json env_sky_cloudsea_soft.glb [extra.json]`（固定种子，结果可复现）
 - 基线（只读，不入库）：`/workspace/handoff/skyground-872/env_skycity.glb`，1,569,136 B，sha1 `f25ae49908cd…`，sha256 `c8558e31ab31…`
   （注：交接里给的 "sha 开头 f25ae499" 是 **SHA-1**，sha256 是 c8558e31。）
@@ -8,7 +8,9 @@
 ## 内容
 - 1 个节点 `env_sky_cloudsea_soft`，1 个 mesh，1 个 primitive，材质名 `M_env_palette`（GLB 内不带贴图，运行时按名字重绑到共享的 M_env_palette，与 island ui-props 的做法一样）。
 - 属性：POSITION / NORMAL / TEXCOORD_0（Draco，14/8/10 bit）。UV 全部落在 env_palette_256 第 12 行（v=200/256，从长春花蓝到淡薰衣草白），没有跨行插值；亮青色的第 9 行完全没用到。emissive 贴图那一行是黑的，所以夜间完全跟着灯光走，不会自己发亮。
-- 3,648 个顶点，6,698 个三角形：云海 1,740 个（极坐标网格，半径 0–820 m，y 在 −39.6 到 +8；离岛越远越抬向天际线，起伏也越大），远积云 4,958 个（18 团，每团 3–5 个压扁的低多边形球，半径 380–550 m，顶部最高 y=41.5，底部压平埋进云海）。
+- 8,134 个顶点，15,126 个三角形：
+  - 云海 9,648 个：极坐标网格，144 段；半径 300 m 以内每 12 m 一圈，再往外到 820 m。起伏是 5 组波长 45–90 m 的波叠加，振幅约 3.4–5 m，远处逐渐减弱，避免锯齿。离岛越远越抬向天际线。
+  - 远积云 5,478 个，共 21 团：18 团在 380–550 m 的环上；另有 3 团放在 r2 镜头视野里，位置 (2,−225)、(52,−250)、(28,−300)。iter3 把远积云压低、放大了，顶部最高 y=18.0，底部压平埋进云海。
 - 雾化/透视做在 UV 里：离岛越远，u 越往淡的一端靠，起伏的明暗差也越小。
 
 ## 接线（Mac 那边的 Cursor 来做）
@@ -21,19 +23,19 @@
    - env_skycity 里的 `env_sky_cumulus_far`
    - 天空棋盘里能看到的海面节点（亮青色的那块）。872 的仓库我这边没有，所以节点名请 Mac 那边按场景实际情况确认（room/island 那套里叫 `env_sea_surface`）。
    - `env_sky_cloud_small`、`env_sky_islets_far` 保留不动。
-5. 相机 far clip 要不小于 1,200 m（远积云最远约 830 m）。
+5. 相机 far clip 要不小于 1,200 m（云海最远约 830 m）。
 
 ## 检查
-- 岛的水平投影（skycity_float_root 下所有几何体的 XZ 凸包）范围内：有 282 个云海三角形，最高 y=−34.8；**y>−8 的三角形是 0 个**。生成脚本里写了断言，违反就直接报错。
+- 岛的水平投影（skycity_float_root 下所有几何体的 XZ 凸包）范围内：有 1,448 个云海三角形，最高 y=−32.5；**y>−8 的三角形是 0 个**。生成脚本里写了断言，违反就直接报错。
 - glTF-Validator 2.0：0 错误，0 警告。glb_draco_attr_scan：accessor 和 Draco 数据一致（数量、类型都对）。
 - Draw call：env_skycity 场景里一共 50 个 primitive（state_* 的前后两种状态全算上，是上限），藏掉 2 个、加 1 个，变成 **49**（藏海面的话再少 1 个）。棋盘上限 64，满足。
 - 露底审计（exposure_audit.cjs，skycity，35,280 个镜头位置；远积云按审计的规则算作 IGNORE，不当遮挡，这是更严的口径）：见 qa_exposure_result.json。
 
 | skycity 35,280 个镜头位置 | 基线（旧云海，872） | 新（藏旧云海和远积云，加 soft） |
 |---|---|---|
-| 真露底：看到背面或空天（任一项 >2%） | 6,487 | **697** |
+| 真露底：看到背面或空天（任一项 >2%） | 6,487 | **677** |
 |   其中看到背面（地面的底面，和云无关，两边完全一样） | 589 | 589 |
-|   其中空天（void） | 5,927 | **108** |
+|   其中空天（void） | 5,927 | **88** |
 | 只是打到正面（不算露底） | 2,088 | 2,610（原来的空天没了，只剩正面命中） |
 | 和基线比：新出现的 / 更严重的真露底 | — | **0 / 0** |
 
@@ -41,5 +43,6 @@
 
 ## 预览
 `/workspace/yiqifengle/previews/场景特效bot/r5/skyground/cloudsea/`
-- `cmp_{r2,S6}_{day,night}.png`：左边是基线，右边是新的（Blender Cycles，没有雾，palette 用最近邻采样）。
+- **iter3（终版）**：`iter3/cmp_{r2,S6}_{day,night}.png`，左边是基线，右边是 iter3。加了距离雾，是估计值：项目里没有天空城的雾参数，所有场景的 cc.FogInfo 都没启用。用的是线性 120–900 m、最大 0.6、颜色同背景。
+- 早期版本：`cmp_*.png`（iter2，没有雾）。
 - `iter1_*`、`iter2_*`：白天的两轮迭代。iter2 的几何就是终版，只是顶点顺序不同。

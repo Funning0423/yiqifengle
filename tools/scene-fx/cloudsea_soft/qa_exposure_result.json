@@ -8,9 +8,9 @@
  },
  "soft": {
   "poses": 35280,
-  "real": 697,
+  "real": 677,
   "realBack": 589,
-  "realVoid": 108,
+  "realVoid": 88,
   "frontOnly": 2610
  },
  "vsBase": {
