@@ -22,7 +22,7 @@ async function main(){
   await page.waitForFunction(()=>{try{return !!globalThis.__worldIntegration?.qaShot&&globalThis.__worldIntegration.snapshot().characterReady;}catch{return false;}},null,{timeout:180000});
   const entered=await page.evaluate(()=>globalThis.__worldIntegration.qaShot({region:'skycity'}));assert(entered.ok,JSON.stringify(entered));
   await page.evaluate(()=>globalThis.__worldDayNight.set('day'));
-  const specs=[{name:'02_skycity_south',cam:[44,40,95],look:[44,23.4,16.8]},
+  const specs=[{name:'02_skycity_south',cam:[36,50,55],look:[36,32,-23]},
    {name:'03_skycity_foliage',local:[12,.2,2],yawDeg:220,pitchDeg:42,dist:6.2}];
   for(const spec of specs){
    const pose=await page.evaluate(async spec=>{
