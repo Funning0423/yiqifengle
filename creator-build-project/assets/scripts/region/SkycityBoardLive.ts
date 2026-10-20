@@ -3,8 +3,8 @@
 import {Camera,Color,Node,isValid} from 'cc';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 import {createSkycityBoardBackground as createBuild05SkycityBoard} from './SkycityBoardBackground';
-import {onDayNightChange} from '../world-r1/DayNightContract';
-import {hexToRgb,regionNightNow,writeRegionBoardClear} from './RegionBoardNight';
+import {onDayNightChange,type DayNightMode} from '../world-r1/DayNightContract';
+import {hexToRgb,writeRegionBoardClear} from './RegionBoardNight';
 export const SKYCITY_BOARD_RIG='SkycityLiveBackground';
 /** item 9: the Build05 board sky (camera clear colour) by day; at night the journey's night sky (the ground already matched). */
 export const SKYCITY_BOARD_DAY_CLEAR=hexToRgb('#9ccadf');
@@ -20,7 +20,19 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const keepActive=()=>{if(rig&&isValid(rig,true)&&!rig.active)rig.active=true;};keepActive();
  // item 9 (Mac r4: daytime sky behind the night journey): the board sky follows the world day/night mode and its toggles.
  const camNode=rig?rig.getChildByName('SkycityBackgroundCamera'):null,camera:Camera|null=camNode?camNode.getComponent(Camera):null;let dead=false;
- const syncNight=()=>{if(!dead&&camera&&isValid(camera,true))writeRegionBoardClear(camera,SKYCITY_BOARD_DAY_CLEAR,regionNightNow()?1:0,(r,g,b)=>new Color(r,g,b,255));};
+ // Read the live blend, not just a binary night flag. Day always restores the authored sky, including after a hidden prewarm.
+ let skyMode:DayNightMode='day',skyNightBlend=0;
+ const syncNight=(mode?:DayNightMode)=>{
+  if(dead)return;
+  let view:any;try{view=(globalThis as any).__worldDayNight?.snapshot?.();}catch{/* no world: authored day sky */}
+  skyMode=mode??(view?.mode==='night'?'night':'day');
+  skyNightBlend=skyMode==='night'?(Number.isFinite(view?.skyNightBlend)?Math.max(0,Math.min(1,view.skyNightBlend)):1):0;
+  if(camera&&isValid(camera,true))writeRegionBoardClear(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend,(r,g,b)=>new Color(r,g,b,255));
+ };
  syncNight();const offNight=onDayNightChange(syncNight);
- return Object.assign({},lease,{setVisible:(v:boolean)=>{lease.setVisible(v);keepActive();},dispose:()=>{if(!dead){dead=true;offNight();}lease.dispose();}});
+ return Object.assign({},lease,{
+  frame:(...args:Parameters<typeof lease.frame>)=>{syncNight();lease.frame(...args);},
+  setVisible:(v:boolean)=>{syncNight();lease.setVisible(v);keepActive();},
+  diagnostics:()=>({...lease.diagnostics?.(),skyMode,skyNightBlend,skyClearColor:camera?[camera.clearColor.r,camera.clearColor.g,camera.clearColor.b]:null}),
+  dispose:()=>{if(!dead){dead=true;offNight();}lease.dispose();}});
 };

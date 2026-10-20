@@ -38,13 +38,13 @@ run('wiring: meadow board grades like the journey, mounts a night dome only at n
  assert.match(f,/if\(night&&!nightSky\)nightSky=mountMeadowBoardNightSky\(model\);/,'night picture loads only once night is on');
  assert.match(f,/offNight=onDayNightChange\(syncNight\);/);assert.match(f,/disposed=true;offCancel\(\);offNight\(\);/);
  assert.doesNotMatch(md.slice(md.indexOf('export function mountMeadowBoardNightSky'),md.indexOf('export const createMeadowBoardBackground')),/__qfNightOnly/,'board dome stays its day sky');
- assert.match(sk,/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,regionNightNow\(\)\?1:0/);assert.match(sk,/offNight=onDayNightChange\(syncNight\);/);assert.match(sk,/dead=true;offNight\(\);\}lease\.dispose\(\);/);
+ assert.match(sk,/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend/);assert.match(sk,/offNight=onDayNightChange\(syncNight\);/);assert.match(sk,/dead=true;offNight\(\);\}lease\.dispose\(\);/);
  assert.doesNotMatch(fs.readFileSync(S+'region/SkycityBoardBackground.ts','utf8'),/RegionBoardNight|onDayNightChange/,'Build05 sky-city lease untouched (sha-pinned by test-journey-occlusion)');});
 (async()=>{
  // behaviour of the sky-city wrapper on a fake Build05 lease (same rig/camera names and clear colour)
  let cam=null,disposed=0;const fake={createSkycityBoardBackground:async({parent})=>{const rig=new H2.cc.Node('SkycityLiveBackground');parent.addChild(rig);
   const cn=new H2.cc.Node('SkycityBackgroundCamera');rig.addChild(cn);cam=cn.addComponent(H2.cc.Camera);cam.clearColor=new H2.cc.Color(0x9c,0xca,0xdf,255);
-  return {frame(){},setVisible(v){rig.active=v;cam.enabled=v;},setPaused(){},dispose(){disposed++;}};}};
+  return {frame(){},setVisible(v){rig.active=v;cam.enabled=v;},setPaused(){},diagnostics:()=>({}),dispose(){disposed++;}};}};
  const H2=createHarness({overrides:{'region/SkycityBoardBackground':fake}});
  const L=H2.load('region/SkycityBoardLive'),D=H2.load('world-r1/DayNightContract'),host=new H2.cc.Node('host');H2.cc._scene.addChild(host);
  const rgb=()=>[cam.clearColor.r,cam.clearColor.g,cam.clearColor.b];
