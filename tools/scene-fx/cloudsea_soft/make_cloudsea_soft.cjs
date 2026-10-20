@@ -21,24 +21,27 @@ function amp(r) { return 3.4 + 1.6 * ss(40, 250, r) - 2.6 * ss(330, 760, r); }  
 function seaH(x, z) { var r = Math.hypot(x - O[0], z - O[1]); return base(r) + amp(r) * Math.max(-1, Math.min(1, bill(x, z))); }
 function haze(r) { return ss(140, 720, r); }
 var P = [], N = [], U = [], I = [];
-// ---- sea: polar lattice, odd rings offset half a step
-var RINGS = [], SEG = 144, ring0 = []; for (var rr = 0; rr <= 300; rr += 12) RINGS.push(rr); RINGS.push(330, 365, 405, 450, 500, 560, 630, 720, 820);
+// ---- sea: polar rings, 144 segments out to 300 m, 48 beyond (final: far sea thinned for the 90k region budget);
+// odd rings offset half a step; neighbouring rings zipped by angle (handles 144 -> 48)
+var RINGS = []; for (var rr = 0; rr <= 300; rr += 12) RINGS.push(rr); RINGS.push(360, 430, 520, 640, 820);
+function segOf(r) { return r <= 300 ? 144 : 48; }
+var ring0 = [];
 RINGS.forEach(function (r, ri) {
-  var row = [], n = ri === 0 ? 1 : SEG;
+  var row = { id: [], th: [] }, n = ri === 0 ? 1 : segOf(r);
   for (var s = 0; s < n; s++) {
-    var t = (s + (ri % 2 ? 0.5 : 0)) / SEG * Math.PI * 2, x = O[0] + r * Math.cos(t), z = O[1] + r * Math.sin(t), y = seaH(x, z);
+    var t = (s + (ri % 2 ? 0.5 : 0)) / n * Math.PI * 2, x = O[0] + r * Math.cos(t), z = O[1] + r * Math.sin(t), y = seaH(x, z);
     var c = (y - base(r)) / amp(r), u = mix(0.54 + 0.40 * c, 0.88, 0.5 * haze(r));   // iter3: more contrast
-    row.push(P.length / 3); P.push(x, y, z); U.push(Math.max(0.30, Math.min(0.99, u)), V_ROW);
+    row.id.push(P.length / 3); row.th.push(t); P.push(x, y, z); U.push(Math.max(0.30, Math.min(0.99, u)), V_ROW);
   }
   ring0.push(row);
 });
 for (var ri = 1; ri < RINGS.length; ri++) {
-  var a = ring0[ri - 1], b = ring0[ri];
-  for (var s = 0; s < SEG; s++) {
-    var s1 = (s + 1) % SEG;
-    if (ri === 1) { I.push(a[0], b[s1], b[s]); continue; }
-    if (ri % 2) { I.push(a[s], a[s1], b[s]); I.push(a[s1], b[s1], b[s]); }       // ring ri offset +0.5
-    else { I.push(a[s], b[s1], b[s]); I.push(a[s], a[s1], b[s1]); }               // ring ri-1 offset +0.5
+  var A = ring0[ri - 1], B = ring0[ri], na = A.id.length, nb = B.id.length;
+  if (na === 1) { for (var s = 0; s < nb; s++) I.push(A.id[0], B.id[s], B.id[(s + 1) % nb]); continue; }
+  var i = 0, j = 0, ta = function (k) { return A.th[k % na] + Math.floor(k / na) * 2 * Math.PI; }, tb = function (k) { return B.th[k % nb] + Math.floor(k / nb) * 2 * Math.PI; };
+  while (i < na || j < nb) {
+    if (j >= nb || (i < na && ta(i + 1) < tb(j + 1))) { I.push(A.id[i % na], B.id[j % nb], A.id[(i + 1) % na]); i++; }
+    else { I.push(A.id[i % na], B.id[j % nb], B.id[(j + 1) % nb]); j++; }
   }
 }
 var seaTris = I.length / 3;
@@ -54,7 +57,8 @@ function ico() {
 }
 var ICO = ico(), NCL = 18, clusters = [];
 // iter3: a bank in the r2 view (cam local [30,12,6] looking -z, 25.6 deg down): low, wide, tops ~3-5 deg under the frame top
-var R2BANK = [[2, -225, 4, 1.15], [52, -250, 4, 1.25], [28, -300, 5, 1.3]];
+// final: x0.8 and pushed 50 m further along the r2 view (-z)
+var R2BANK = [[2, -275, 4, 1.15 * 0.8], [52, -300, 4, 1.25 * 0.8], [28, -350, 5, 1.3 * 0.8]];
 for (var c = 0; c < NCL + R2BANK.length; c++) {
   var fx = c >= NCL ? R2BANK[c - NCL] : null, th, R, cx, cz, nb, big;
   if (fx) { cx = fx[0]; cz = fx[1]; nb = fx[2]; big = fx[3]; th = Math.atan2(cz - O[1], cx - O[0]); }

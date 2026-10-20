@@ -8,10 +8,10 @@
  },
  "soft": {
   "poses": 35280,
-  "real": 677,
+  "real": 676,
   "realBack": 589,
-  "realVoid": 88,
-  "frontOnly": 2610
+  "realVoid": 87,
+  "frontOnly": 2611
  },
  "vsBase": {
   "realNew": 0,
