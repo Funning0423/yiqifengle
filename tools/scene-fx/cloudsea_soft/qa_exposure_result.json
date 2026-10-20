@@ -1,0 +1,20 @@
+{
+ "base": {
+  "poses": 35280,
+  "real": 6487,
+  "realBack": 589,
+  "realVoid": 5927,
+  "frontOnly": 2088
+ },
+ "soft": {
+  "poses": 35280,
+  "real": 697,
+  "realBack": 589,
+  "realVoid": 108,
+  "frontOnly": 2610
+ },
+ "vsBase": {
+  "realNew": 0,
+  "realWorse": 0
+ }
+}
