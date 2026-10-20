@@ -39,12 +39,12 @@
       ],
       "subMetas": {}
     },
-    "18b7e": {
+    "4a919": {
       "importer": "gltf-material",
-      "uuid": "092e7721-97fd-4de7-9550-85e5e7b72f98@18b7e",
+      "uuid": "092e7721-97fd-4de7-9550-85e5e7b72f98@4a919",
       "displayName": "",
-      "id": "18b7e",
-      "name": "M_env_palette.material",
+      "id": "4a919",
+      "name": "M_sky_palette.material",
       "userData": {
         "gltfIndex": 0
       },
@@ -83,7 +83,7 @@
       "skeletons": [],
       "textures": [],
       "materials": [
-        "092e7721-97fd-4de7-9550-85e5e7b72f98@18b7e"
+        "092e7721-97fd-4de7-9550-85e5e7b72f98@4a919"
       ],
       "scenes": [
         "092e7721-97fd-4de7-9550-85e5e7b72f98@30751"
