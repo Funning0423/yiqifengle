@@ -1,0 +1,2 @@
+== GUARD HEAD=90c82866a1d73863219ef1aed6adcc464bee685c tree=b5b804be107a70af5207e6041e623a70bc599015 utc=2026-10-20T08:58:02Z config=/private/tmp/r3-web-build-guard/web-test.json try=1
+/private/tmp/r3-web-build-guard/build-wechat-guarded.sh: line 43: 54406 Abort trap: 6           "$CREATOR" --project "$P" --build "configPath=$cfg"
