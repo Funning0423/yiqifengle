@@ -5,7 +5,7 @@
 # yaw 90 pitch 8 dist 10 (FreeOrbit: look = pivot + 1.25 up, cam = look + 10*orbitDir). fov 48 vertical, 390x844.
 # iter3: distance fog (compositor mist, linear) unless env QF_FOG=0. The project has no skycity fog (every scene's cc.FogInfo is
 # _enabled:false, defaults 0.5..300); ESTIMATE used: start 120 m, end 900 m, max 0.6, colour = the background colour.
-import bpy, sys, math
+import bpy, sys, math, os
 from mathutils import Vector
 a = sys.argv[sys.argv.index('--') + 1:]; SKY, SOFT, PAL, OUT, CAM, MODE = a
 HIDE = ('env_sky_cloudsea', 'env_sky_cumulus_far')
@@ -21,7 +21,12 @@ if SOFT != '-':
     for o in imp(SOFT):
         for m in (o.data.materials if o.type == 'MESH' else []):
             nt = m.node_tree; b = nt.nodes.get('Principled BSDF'); t = nt.nodes.new('ShaderNodeTexImage'); t.image = img; t.interpolation = 'Closest'
-            nt.links.new(t.outputs['Color'], b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.9
+            if o.data.color_attributes:   # r3fix: M_sky_palette = palette x COLOR_0 (USE_VERTEX_COLOR), as in Cocos
+                va = nt.nodes.new('ShaderNodeVertexColor'); va.layer_name = o.data.color_attributes[0].name
+                mu = nt.nodes.new('ShaderNodeMix'); mu.data_type = 'RGBA'; mu.blend_type = 'MULTIPLY'; mu.inputs['Factor'].default_value = 1
+                nt.links.new(t.outputs['Color'], mu.inputs['A']); nt.links.new(va.outputs['Color'], mu.inputs['B']); nt.links.new(mu.outputs['Result'], b.inputs['Base Color'])
+            else: nt.links.new(t.outputs['Color'], b.inputs['Base Color'])
+            b.inputs['Roughness'].default_value = 0.9
             b.inputs['Emission Strength'].default_value = 0.0
 if CAM == 'r2': pos, look = [30, 12, 6], [30, -12, -44]
 else:
@@ -35,7 +40,10 @@ sun = bpy.data.objects.new('sun', bpy.data.lights.new('sun', 'SUN')); sc.collect
 if night: sun.data.energy = 0.35; sun.data.color = (0.62, 0.72, 1.0); sun.rotation_euler = (math.radians(40), 0, math.radians(-30))
 else: sun.data.energy = 3.2; sun.data.color = (1, .96, .9); sun.rotation_euler = (math.radians(40), 0, math.radians(35))
 w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True; bg = w.node_tree.nodes['Background']
-bg.inputs[0].default_value = (0.035, 0.05, 0.12, 1) if night else (0.50, 0.68, 0.92, 1); bg.inputs[1].default_value = 0.6 if night else 1.0
+bg.inputs[0].default_value = (0.035, 0.05, 0.12, 1) if night else (0.50, 0.68, 0.92, 1)
+if os.environ.get('QF_BG') and not night:   # e.g. 9ccadf = SkycityBoardBackground camera clearColor (sRGB)
+    h = os.environ['QF_BG']; bg.inputs[0].default_value = tuple((int(h[i:i+2], 16) / 255) ** 2.2 for i in (0, 2, 4)) + (1,)
+bg.inputs[1].default_value = 0.6 if night else 1.0
 sc.render.engine = 'CYCLES'; sc.cycles.samples = 48; sc.cycles.use_denoising = True; sc.cycles.device = 'CPU'
 sc.render.resolution_x, sc.render.resolution_y = 390, 844; sc.view_settings.view_transform = 'Standard'
 import os

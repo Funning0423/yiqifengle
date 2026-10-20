@@ -2,7 +2,7 @@
 /* 场景特效bot r5 skyground: env_sky_cloudsea_soft.glb — soft low-poly cloud sea + horizon cumulus for the skycity board.
  *   DRACO3D=<draco3d dir> node make_cloudsea_soft.cjs <island_hull.json> <out.glb> [extra.json]
  * Space: env_skycity.glb node space (same as the env_sky_cloudsea node: scene root, identity). Mount as a sibling of the
- * env_skycity instance with that instance's transform. One mesh, one primitive, material "M_env_palette" (no texture in the
+ * env_skycity instance with that instance's transform. One mesh, one primitive, material "M_sky_palette" (r3fix; see the encode block; was M_env_palette, no texture in the
  * GLB; rebound at runtime to the shared palette material). POSITION/NORMAL/TEXCOORD_0 only; all UVs on palette row 12
  * (periwinkle -> lavender white), haze = u pushed toward the pale end with distance. Deterministic (seeded).
  * island_hull.json: XZ convex hull of the island (everything under skycity_float_root); asserted: 0 triangles over it with y>-8.
@@ -109,7 +109,14 @@ var G = require(path.resolve(__dirname, '../../camera-frame-test/glb_geometry.cj
 D3.createEncoderModule({}).then(function (E) {
   var mb = new E.MeshBuilder(), em = new E.Mesh(), enc = new E.Encoder(), nf = I.length / 3;
   mb.AddFacesToMesh(em, nf, new Uint32Array(I));
-  var ids = { POSITION: mb.AddFloatAttributeToMesh(em, E.POSITION, NV, 3, new Float32Array(P)), NORMAL: mb.AddFloatAttributeToMesh(em, E.NORMAL, NV, 3, N), TEXCOORD_0: mb.AddFloatAttributeToMesh(em, E.TEX_COORD, NV, 2, new Float32Array(U)) };
+  // r3fix: material M_sky_palette (env_skycity.glb's own: tex_sky_palette_256, 8x8 cells, nearest) x COLOR_0 (USE_VERTEX_COLOR).
+  // Same convention as env_sky_cloudsea / env_sky_cumulus_far: every UV on the near-white cell (0.063, 0.548), the shade in
+  // COLOR_0 (UNSIGNED_BYTE normalized VEC4). The old per-vertex tone t (0.30..0.99, kept in U[2i]) maps valley -> crest:
+  var LO = [176, 196, 220], HI = [250, 249, 241], UVS = new Float32Array(NV * 2), COL = new Uint8Array(NV * 4);
+  for (var q = 0; q < NV; q++) { var t = Math.max(0, Math.min(1, (U[q * 2] - 0.30) / 0.69)); UVS[q * 2] = 0.0625; UVS[q * 2 + 1] = 0.5475;
+    for (var e = 0; e < 3; e++) COL[q * 4 + e] = Math.round(LO[e] + (HI[e] - LO[e]) * t); COL[q * 4 + 3] = 255; }
+  var ids = { POSITION: mb.AddFloatAttributeToMesh(em, E.POSITION, NV, 3, new Float32Array(P)), NORMAL: mb.AddFloatAttributeToMesh(em, E.NORMAL, NV, 3, N), TEXCOORD_0: mb.AddFloatAttributeToMesh(em, E.TEX_COORD, NV, 2, UVS), COLOR_0: mb.AddUInt8Attribute(em, E.COLOR, NV, 4, COL) };
+  if (mb.SetNormalizedFlagForAttribute) mb.SetNormalizedFlagForAttribute(em, ids.COLOR_0, true);
   enc.SetAttributeQuantization(E.POSITION, 14); enc.SetAttributeQuantization(E.NORMAL, 8); enc.SetAttributeQuantization(E.TEX_COORD, 10);
   enc.SetEncodingMethod(E.MESH_EDGEBREAKER_ENCODING); enc.SetSpeedOptions(3, 3);
   var da = new E.DracoInt8Array(), len = enc.EncodeMeshToDracoBuffer(em, da); if (!len) throw Error('encode failed');
@@ -117,9 +124,9 @@ D3.createEncoderModule({}).then(function (E) {
   var lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9]; for (var p = 0; p < NV; p++) for (var e = 0; e < 3; e++) { lo[e] = Math.min(lo[e], P[p * 3 + e]); hi[e] = Math.max(hi[e], P[p * 3 + e]); }
   var j = { asset: { version: '2.0', generator: '场景特效bot make_cloudsea_soft.cjs' }, extensionsUsed: ['KHR_draco_mesh_compression'], extensionsRequired: ['KHR_draco_mesh_compression'],
     scene: 0, scenes: [{ nodes: [0] }], nodes: [{ name: 'env_sky_cloudsea_soft', mesh: 0, extras: { qfSpace: 'env_skycity.glb node space (sibling of env_sky_cloudsea)', seaTris: seaTris, clusters: clusters } }],
-    materials: [{ name: 'M_env_palette', doubleSided: true, pbrMetallicRoughness: { metallicFactor: 0, roughnessFactor: 0.9 } }],
-    meshes: [{ name: 'env_sky_cloudsea_soft', primitives: [{ attributes: { POSITION: 0, NORMAL: 1, TEXCOORD_0: 2 }, indices: 3, material: 0, mode: 4, extensions: { KHR_draco_mesh_compression: { bufferView: 0, attributes: ids } } }] }],
-    accessors: [{ componentType: 5126, count: NV, type: 'VEC3', min: lo, max: hi }, { componentType: 5126, count: NV, type: 'VEC3' }, { componentType: 5126, count: NV, type: 'VEC2' }, { componentType: NV > 65535 ? 5125 : 5123, count: nf * 3, type: 'SCALAR' }],
+    materials: [{ name: 'M_sky_palette', doubleSided: true, pbrMetallicRoughness: { metallicFactor: 0, roughnessFactor: 0.95 } }],
+    meshes: [{ name: 'env_sky_cloudsea_soft', primitives: [{ attributes: { POSITION: 0, NORMAL: 1, TEXCOORD_0: 2, COLOR_0: 4 }, indices: 3, material: 0, mode: 4, extensions: { KHR_draco_mesh_compression: { bufferView: 0, attributes: ids } } }] }],
+    accessors: [{ componentType: 5126, count: NV, type: 'VEC3', min: lo, max: hi }, { componentType: 5126, count: NV, type: 'VEC3' }, { componentType: 5126, count: NV, type: 'VEC2' }, { componentType: NV > 65535 ? 5125 : 5123, count: nf * 3, type: 'SCALAR' }, { componentType: 5121, normalized: true, count: NV, type: 'VEC4' }],
     bufferViews: [{ buffer: 0, byteOffset: 0, byteLength: len }], buffers: [{ byteLength: (len + 3) & ~3 }] };
   var js = Buffer.from(JSON.stringify(j)); js = Buffer.concat([js, Buffer.alloc((4 - js.length % 4) % 4, 0x20)]);
   var bn = Buffer.concat([buf, Buffer.alloc((4 - len % 4) % 4, 0)]), hd = Buffer.alloc(12), jh = Buffer.alloc(8), bh = Buffer.alloc(8);
