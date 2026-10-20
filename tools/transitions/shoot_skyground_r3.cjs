@@ -63,10 +63,13 @@ async function inspect(page){return page.evaluate(async()=>{
    states:Object.fromEntries(['env_sky_cloudsea','env_sky_cumulus_far','env_sky_cloud_small','env_sky_islets_far'].map(name=>[name,find(c.node,name)?.activeInHierarchy])),
    strides:[...base,...renderers].flatMap(r=>r.mesh?.struct.vertexBundles.map(b=>b.view.stride)||[]),softVertices:renderers.map(r=>r.mesh?.struct.vertexBundles[0].view.count)};
  });
- return {sky,sea:find(scene,'env_sea_surface')?.activeInHierarchy,cameras:scene.getComponentsInChildren(Camera).filter(c=>c.enabled&&c.node.activeInHierarchy).map(c=>({name:c.node.name,far:c.far})),day:globalThis.__worldDayNight.snapshot(),drawCalls:director.root.device.numDrawCalls};
+ const room=find(scene,'room_no_original_chair');
+ const roomSkyDomeActive=room?find(room,'env_sky_dome')?.activeInHierarchy:false;
+ return {roomSkyDomeActive,sky,sea:find(scene,'env_sea_surface')?.activeInHierarchy,cameras:scene.getComponentsInChildren(Camera).filter(c=>c.enabled&&c.node.activeInHierarchy).map(c=>({name:c.node.name,far:c.far})),day:globalThis.__worldDayNight.snapshot(),drawCalls:director.root.device.numDrawCalls};
 });}
 function checkRuntime(r){
  assert(r.sky.length>0,'active sky city');assert.equal(r.sea,false);assert.equal(r.day.mode,'day');assert.equal(r.day.lightScale,1);
+ assert.equal(r.roomSkyDomeActive,false,'day skycity must hide the old room env_sky_dome');
  for(const s of r.sky){assert(!s.missingSoft);assert(s.sameParent&&s.sameTransform&&s.paletteShared&&s.noShadow&&s.layers,JSON.stringify(s));assert(s.strides.every(n=>n%4===0),'WebGL stride');assert.deepEqual(s.softVertices,[7078]);
   assert.deepEqual(s.states,{env_sky_cloudsea:false,env_sky_cumulus_far:false,env_sky_cloud_small:true,env_sky_islets_far:true});}
  const world=r.cameras.filter(c=>!/UI|Navigation/.test(c.name));assert(world.length>0);assert(world.every(c=>c.far>=1200),JSON.stringify(world));

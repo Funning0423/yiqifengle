@@ -1352,7 +1352,7 @@
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_sky_cloudsea_soft.glb.meta",
     "bytes": 1988,
-    "sha256": "605e7da96164d6b5b216eabe98352af0810ead4b7805ee8bb83eee2965cac9eb"
+    "sha256": "9a1f8a2212b8b99461216e081451c7ff5096b50e704c0e062d6e1c3bc6f24690"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
@@ -2931,8 +2931,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
-    "bytes": 3125,
-    "sha256": "1e1d2e903fa1859856eedb3b7cdd49fd8effb9424d02613286f335401e93b123"
+    "bytes": 5049,
+    "sha256": "07bc758cb7779586e4ec6cfca72d4d537b16188eb4ce886a2bb5ab1de4a5d777"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",

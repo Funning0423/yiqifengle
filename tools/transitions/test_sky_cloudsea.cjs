@@ -3,7 +3,9 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const root=path.resolve(__dirname,'../..'),dir=path.join(root,'creator-build-project/assets/bundles/region_skycity');
 function read(name){const b=fs.readFileSync(path.join(dir,name));return {b,j:JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString())};}
 const base=read('env_skycity.glb'),soft=read('env_sky_cloudsea_soft.glb');
-assert.equal(crypto.createHash('sha256').update(soft.b).digest('hex'),'bed3ed546423a27fa3592695506822a08b44311f30904242834d3bb039238674','exact handoff');
+assert.equal(crypto.createHash('sha256').update(soft.b).digest('hex'),'4981c742bbca3416bf803596a2fe7bcce0e59111878f07e2d277dc24ef57bbc5','accepted r3fix handoff');
+assert.equal(soft.b.length,38736,'accepted r3fix bytes');
+assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,'env_sky_cloudsea_soft.glb.meta'))).digest('hex'),'9a1f8a2212b8b99461216e081451c7ff5096b50e704c0e062d6e1c3bc6f24690','r3fix meta handoff');
 assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'c8558e31ab312a9c0dd94c82e859e34de4cb929407cd0faa893dd64d29657aaa','accepted 872 ground unchanged');
 let triangles=0,primitives=0;
 for(const {j} of [base,soft])for(const n of j.nodes){
@@ -18,10 +20,24 @@ const triangleLimit=100000; // User-approved r3 limit; supersedes the handoff's 
 assert.equal(triangles,98840);assert(triangles<=triangleLimit);assert(primitives<=64);
 const H=require('../board-ui/harness.cjs').createHarness(),cc=H.cc;
 const scene=new cc.Node('Scene');cc.director.getScene=()=>scene;
+const draw=new cc.Emitter();cc.Director.EVENT_BEFORE_DRAW='before-draw';
+cc.director.on=draw.on.bind(draw);cc.director.off=draw.off.bind(draw);
 cc.instantiate=()=>{const n=new cc.Node('env_sky_cloudsea_soft');n.addComponent(cc.MeshRenderer);return n;};
 const {SkycityCloudsea}=H.load('region/SkycityCloudsea.ts');
 const sea=new cc.Node('env_sea_surface');scene.addChild(sea);
-const camNode=new cc.Node('WorldCamera');scene.addChild(camNode);const camera=camNode.addComponent(cc.Camera);camera.visibility=1<<20;camera.far=1000;
+const camNode=new cc.Node('WorldCamera');scene.addChild(camNode);const camera=camNode.addComponent(cc.Camera);camera.visibility=1<<20;camera.far=1000;camera.clearFlags=14;camera.clearColor=new cc.Color(51,51,51,255);
+const room=new cc.Node('room_no_original_chair');scene.addChild(room);
+const socket=new cc.Node('scene_root Socket');room.addChild(socket);
+const oldNodes=['env_sky_dome','env_cloud_layer','balloon_basket','balloon_envelope'].map(name=>{const n=new cc.Node(name);socket.addChild(n);return n;});
+oldNodes[3].active=false; // Preserve an authored inactive node on release.
+const unrelated=new cc.Node('env_sky_dome');scene.addChild(unrelated);
+let mode='day';globalThis.__worldDayNight={snapshot:()=>({mode})};
+function dayState(hidden){
+ assert.equal(oldNodes[0].active,!hidden);assert.equal(oldNodes[1].active,!hidden);assert.equal(oldNodes[2].active,!hidden);assert.equal(oldNodes[3].active,false);
+ assert.equal(unrelated.active,true,'scope is the old room');
+ assert.equal(camera.clearFlags,hidden?cc.Camera.ClearFlag.SOLID_COLOR:14);
+ assert.deepEqual([camera.clearColor.r,camera.clearColor.g,camera.clearColor.b],hidden?[156,202,223]:[51,51,51]);
+}
 let refs=0;const prefab={addRef(){refs++;},decRef(){refs--;}};
 function mount(){
  const rig=new cc.Node('SkyRig');scene.addChild(rig);const model=new cc.Node('env_skycity');rig.addChild(model);model.layer=1<<20;
@@ -42,13 +58,25 @@ function mount(){
  assert.equal(sea.active,false);assert.equal(camera.far,1200);
  return {c,model,sibling};
 }
-const a=mount(),b=mount();assert.equal(refs,2);
+const a=mount(),b=mount();assert.equal(refs,2);dayState(true);
+const vehicle=new cc.Node('transport_balloon');a.model.parent.addChild(vehicle);
+a.c.setFlightHidden(false);assert.equal(vehicle.active,false,'arrival hides journey balloon');
+a.c.setFlightHidden(true);dayState(true);assert.equal(vehicle.active,false,'other city still owns day backdrop');
+b.c.onDisable();dayState(false);assert.equal(vehicle.active,true,'last day owner restores balloon');
+// A single owner switches day/night live and releases without touching the night backdrop.
+a.c.setFlightHidden(false);dayState(true);
+mode='night';a.c.setFlightHidden(false);dayState(false);assert.equal(vehicle.active,true);
+mode='day';a.c.setFlightHidden(false);dayState(true);
+// Event-driven refresh covers normal visit visibility and qaShot without a transit ride.
+a.c.onEnable();a.model.parent.active=false;draw.emit(cc.Director.EVENT_BEFORE_DRAW);dayState(false);
+a.model.parent.active=true;a.c.onEnable();draw.emit(cc.Director.EVENT_BEFORE_DRAW);dayState(true);a.c.onDisable();dayState(false);
+a.c.setFlightHidden(false);b.c.setFlightHidden(false);
 a.c.setFlightHidden(true);assert.equal(a.sibling.active,false);assert.equal(sea.active,false,'second city still owns sea visibility');
 b.c.onDisable();assert.equal(sea.active,true,'last owner restores sea');
 a.c.setFlightHidden(false);assert.equal(a.sibling.active,true);assert.equal(sea.active,false);
 a.model.setPosition(1,2,3);a.c.setFlightHidden(false);assert.deepEqual(a.sibling.position,a.model.position,'follow later rigid placement');
 a.c.onDisable();assert.equal(a.sibling.active,false);assert.equal(sea.active,true);
-a.c.onDestroy();b.c.onDestroy();assert.equal(refs,0);assert.equal(a.sibling.isValid,false);assert.equal(b.sibling.isValid,false);
+a.c.onDestroy();b.c.onDestroy();assert.equal(refs,0);assert.equal(a.sibling.isValid,false);assert.equal(b.sibling.isValid,false);dayState(false);delete globalThis.__worldDayNight;
 function basePaletteName(){return base.j.materials.find(m=>m.name==='M_sky_palette').name;}
 async function loaderChecks(){
  const overrides={};for(const name of ['RegionAmbientAnimation','SkycityPennantWind','SkycityRobotInteract'])overrides['region/'+name]={[name]:class {}};
