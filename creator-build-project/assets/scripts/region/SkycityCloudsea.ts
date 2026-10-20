@@ -14,7 +14,8 @@ export class SkycityCloudsea extends Component{
     this.prefab=prefab;prefab.addRef();this.soft=instantiate(prefab);this.soft.name='SkycityCloudseaSoft';
     this.node.parent!.addChild(this.soft);
     let palette:Material|null=null;
-    for(const r of this.node.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m?.name==='M_env_palette')palette=m;
+    // The base env_skycity GLB uses M_sky_palette; M_env_palette belongs to the soft GLB.
+    for(const r of this.node.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m?.name==='M_sky_palette')palette=m;
     if(!palette)throw Error('skycity-shared-palette-missing');
     for(const r of this.soft.getComponentsInChildren(MeshRenderer)){r.setSharedMaterial(palette,0);r.shadowCastingMode=0;r.receiveShadow=0;}
     this.sync();

@@ -1350,6 +1350,11 @@
     "sha256": "5bbf511de76170146510e02fa4b70d6821504151f1db6857a09d4c5d1f80295a"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/env_sky_cloudsea_soft.glb.meta",
+    "bytes": 1988,
+    "sha256": "605e7da96164d6b5b216eabe98352af0810ead4b7805ee8bb83eee2965cac9eb"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
     "bytes": 32512,
     "sha256": "6982fb98baa5c73fbac1ff35c74d754722696fb0e638e81d854f3b9b6d105ebe"
@@ -2926,8 +2931,13 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
-    "bytes": 3034,
-    "sha256": "425cda4f8ed163436a9683821e78ede4dbee8c8bfbef044dc54a1c5335e7b8ae"
+    "bytes": 3125,
+    "sha256": "1e1d2e903fa1859856eedb3b7cdd49fd8effb9424d02613286f335401e93b123"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
+    "bytes": 171,
+    "sha256": "14ba1dab4719bbf077a518e6eed96edee2f53f6a0ed859c73b5765fb0bdf7142"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityPennantWind.ts",

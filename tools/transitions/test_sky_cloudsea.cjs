@@ -27,7 +27,10 @@ function mount(){
  const rig=new cc.Node('SkyRig');scene.addChild(rig);const model=new cc.Node('env_skycity');rig.addChild(model);model.layer=1<<20;
  model.setPosition(30,12,6);model.setScale(1,2,1);model.setRotation(new cc.Quat().set({x:0,y:.5,z:0,w:.866}));
  for(const name of ['skycity_float_root','env_sky_cloudsea','env_sky_cumulus_far','env_sky_cloud_small','env_sky_islets_far'])model.addChild(new cc.Node(name));
- const palette={name:'M_env_palette'},r=model.addComponent(cc.MeshRenderer);r.sharedMaterials=[palette];
+ // Use the actual base GLB names, not the soft GLB's M_env_palette.
+ const materials=base.j.materials.map(m=>({name:m.name})),palette=materials.find(m=>m.name==='M_sky_palette');
+ assert(palette,'base GLB has the non-emissive sky palette');
+ const r=model.getChildByName('skycity_float_root').addComponent(cc.MeshRenderer);r.sharedMaterials=materials;
  const c=model.addComponent(SkycityCloudsea);c.mount(prefab);
  const sibling=rig.getChildByName('SkycityCloudseaSoft');
  assert(sibling&&sibling.parent===model.parent,'sibling placement');
@@ -46,6 +49,7 @@ a.c.setFlightHidden(false);assert.equal(a.sibling.active,true);assert.equal(sea.
 a.model.setPosition(1,2,3);a.c.setFlightHidden(false);assert.deepEqual(a.sibling.position,a.model.position,'follow later rigid placement');
 a.c.onDisable();assert.equal(a.sibling.active,false);assert.equal(sea.active,true);
 a.c.onDestroy();b.c.onDestroy();assert.equal(refs,0);assert.equal(a.sibling.isValid,false);assert.equal(b.sibling.isValid,false);
+function basePaletteName(){return base.j.materials.find(m=>m.name==='M_sky_palette').name;}
 async function loaderChecks(){
  const overrides={};for(const name of ['RegionAmbientAnimation','SkycityPennantWind','SkycityRobotInteract'])overrides['region/'+name]={[name]:class {}};
  const L=require('../board-ui/harness.cjs').createHarness({overrides}),loader=L.load('region/RegionLoader.ts');
@@ -60,5 +64,16 @@ async function loaderChecks(){
  const parent=new L.cc.Node('Owner');
  assert.throws(()=>loader.mountRegion(loader.REGIONS.skycity,base,parent),/skycity-shared-palette-missing/);
  assert.equal(parent.children.length,0,'failed mount cleans both nodes');assert.equal(refs,0,'failed mount releases extra prefab');
+ const palette={name:basePaletteName()};
+ L.cc.instantiate=p=>{
+  const n=new L.cc.Node(p.name),child=new L.cc.Node('mesh');n.addChild(child);
+  child.addComponent(L.cc.MeshRenderer).sharedMaterials=p===base?[{name:'M_sky_palette_emissive'},palette]:[{name:'M_env_palette'}];
+  return n;
+ };
+ const model=loader.mountRegion(loader.REGIONS.skycity,base,parent);
+ const sibling=parent.getChildByName('SkycityCloudseaSoft');
+ assert.equal(sibling.getComponentsInChildren(L.cc.MeshRenderer)[0].sharedMaterials[0],palette,'loader mount reuses base palette object');
+ model.getComponent(L.load('region/SkycityCloudsea.ts').SkycityCloudsea).onDestroy();
+ assert.equal(refs,0,'successful loader mount releases extra prefab');
 }
 loaderChecks().then(()=>console.log(JSON.stringify({status:'PASS',triangles,triangleLimit,primitiveUpperBound:primitives,scope:'Exact GLB and WebGL color format checks; real loader/component with Cocos doubles for asset readiness/cache, failed mount cleanup, sibling placement, flight hiding, shared palette, layers, far plane, sea ownership and cleanup. Actual build/DC validation remains separate.'}))).catch(e=>{console.error(e);process.exitCode=1;});
