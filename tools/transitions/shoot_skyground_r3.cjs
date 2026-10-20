@@ -58,7 +58,7 @@ async function inspect(page){return page.evaluate(async()=>{
   const soft=c.node.parent.children.find(n=>n.name==='SkycityCloudseaSoft'&&n.activeInHierarchy);if(!soft)return {missingSoft:true};
   const renderers=soft.getComponentsInChildren(MeshRenderer),base=c.node.getComponentsInChildren(MeshRenderer);
   return {sameParent:soft.parent===c.node.parent,sameTransform:['position','rotation','scale'].every(k=>(k==='rotation'?['x','y','z','w']:['x','y','z']).every(key=>soft[k][key]===c.node[k][key])),
-   paletteShared:renderers.every(r=>base.some(b=>b.sharedMaterials.some(m=>m===r.sharedMaterials[0]&&m?.name==='M_env_palette'))),
+   paletteShared:renderers.every(r=>base.some(b=>b.sharedMaterials.some(m=>m===r.sharedMaterials[0]&&m?.name==='M_sky_palette'))),
    noShadow:renderers.every(r=>r.shadowCastingMode===0&&!r.receiveShadow),layers:soft.layer===c.node.layer&&renderers.every(r=>r.node.layer===c.node.layer),
    states:Object.fromEntries(['env_sky_cloudsea','env_sky_cumulus_far','env_sky_cloud_small','env_sky_islets_far'].map(name=>[name,find(c.node,name)?.activeInHierarchy])),
    strides:[...base,...renderers].flatMap(r=>r.mesh?.struct.vertexBundles.map(b=>b.view.stride)||[]),softVertices:renderers.map(r=>r.mesh?.struct.vertexBundles[0].view.count)};
