@@ -1,0 +1,17 @@
+PASS pure: w=0 is exactly the island base (day 1, night tint); w=1 maps the dome average onto the lakeside end clear (linear)
+  env_sky_dome -> day gain 0.47/1.93/1.72, night gain 0.47/0.14/0.18
+  env_cloud_layer -> day gain 0.02/0.47/0.78, night gain 0.02/0.03/0.08
+PASS real island dome / cloud vertex colours: the day/night gains stay inside the clamp (no saturation); colour stream averaging
+PASS prime / w=0: the dome is never touched (island look, no pop at the start)
+PASS blend: target = the board DAY clear colour (28/143/184), w = blend weight; repeated identical frames are not re-sent
+PASS dome target = the board clear colour per mode (day 28/143/184 = lakesideDayClearColor), one accessor, never waterSky*
+  env_sky_dome day: 43.5/105.3/143.9 (hue 203.1) → 28.0/143.0/184.0 (hue 195.8); w .6/.8/.95 = 34.2/127.9/168.0 | 31.1/135.5/176.0 | 28.8/141.1/182.0
+  env_cloud_layer day: 189.8/200.9/206.0 (hue 198.9) → 28.0/143.0/184.0 (hue 195.8); w .6/.8/.95 = 92.7/166.1/192.8 | 60.4/154.6/188.4 | 36.1/145.9/185.1
+PASS blend 0..1 (21 steps, day): every channel monotonic start → board clear, hue between start and end (no detour), never waterSky*
+  env_sky_dome night: 14.1/51.8/100.2 (hue 213.8) → 28.0/39.0/64.0 (hue 221.7); w .6/.8/.95 = 22.5/44.1/78.5 | 25.2/41.6/71.2 | 27.3/39.6/65.8
+  env_cloud_layer night: 94.4/112.4/140.7 (hue 216.7) → 28.0/39.0/64.0 (hue 221.7); w .6/.8/.95 = 54.6/68.4/94.7 | 41.3/53.7/79.3 | 31.3/42.7/67.8
+PASS blend 0..1 (21 steps, night): every channel monotonic start → board clear, hue between start and end (no detour), never waterSky*
+PASS toggle in lakeside: the dome follows the NIGHT lakeside sky, then back to day
+PASS leave: exactly one restore (null) and nothing after; a second restore does nothing
+PASS journey at night: target is the night lakeside sky from the first blended frame
+PASS wiring: WorldFlowComponent moves only the existing dome/cloud instances (no node, no renderer, no pass) and exposes skyFollow

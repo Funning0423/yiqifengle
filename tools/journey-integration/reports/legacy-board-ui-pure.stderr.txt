@@ -1,25 +1,2 @@
-node:assert:90
-  throw new AssertionError(obj);
-  ^
-
-AssertionError [ERR_ASSERTION]: both SFX gates check sfxMuted
-
-3 !== 2
-
-    at /tmp/wt-lake/tools/board-ui/test_board_ui_pure.cjs:36:10
-    at ok (/tmp/wt-lake/tools/board-ui/test_board_ui_pure.cjs:8:47)
-    at Object.<anonymous> (/tmp/wt-lake/tools/board-ui/test_board_ui_pure.cjs:34:1)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
-    at node:internal/main/run_main_module:28:49 {
-  generatedMessage: false,
-  code: 'ERR_ASSERTION',
-  actual: 3,
-  expected: 2,
-  operator: 'strictEqual'
-}
-
-Node.js v20.19.2
+(node:99991) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

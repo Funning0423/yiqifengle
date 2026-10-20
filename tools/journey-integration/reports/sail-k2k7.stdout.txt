@@ -1,0 +1,1 @@
+{"status":"PASS","k2":{"t":11.48,"u":0.94,"speed":3.15,"maxNdc":0.833,"wakeIn":6},"sailLumaRatio":0.403,"stars":{"n":28,"minSep":17.4,"px":[4.9,4.97]}}

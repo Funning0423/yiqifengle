@@ -1,0 +1,4 @@
+day: blend 7.15→14.97 s of 17 s (d 15.5→38.2 m of 39.2 m); peak dw/dt 0.249/s; max per-frame step: colour 1/255, sun illum 0.02%
+night: blend 7.15→14.97 s of 17 s (d 15.5→38.2 m of 39.2 m); peak dw/dt 0.249/s; max per-frame step: colour 1/255, sun illum 0.02%
+lakeside root y (fog slab offset) -0.580 m
+lakeside journey atmosphere OK

@@ -1,0 +1,10 @@
+PASS selectionRegion mapping: r04-lake-01..06 (and r05 renumbering) → lakeside; meadow/sky/tide unchanged
+PASS RegionJourneyCore accepts skycity→lakeside only (validateJourneyRoute on the real lakesideJourney route)
+PASS reachable from region select: 风铃湖畔 button → enterRegion(lake) → r5 selection → ensureRegion(lakeside) → travelRegion
+PASS adapter mounts the lakeside model via lakesideJourney(start) (shared scene loader, real instances)
+PASS landing→board hook call site
+PASS pitch and route speed untouched (pending Grok Bot / 运镜bot)
+PASS ensureRegion (real class method): skycity→lakeside one travel, island walks the chain, lakeside→lakeside none
+PASS enterSelectedLevel r04-lake-01 from skycity: travel lakeside → landing hook → enterLevel (in that order)
+PASS landing hook: lakeside assets not ready after its 3 s wait → existing lakeside fallback (island, one stable reason), no enterLevel
+OK 9

@@ -1,0 +1,4 @@
+PASS water pack blocked: exactly ONE B-class error (journey-water-fallback), no bundle.load of the water anywhere, journey+board fall back
+PASS water pack fine: the material loads as before on every path; no error
+PASS not packed / no downloader API: unknown → the normal load (no behaviour change)
+PASS a failed probe is retried after the TTL (a recovered network loads the water again)

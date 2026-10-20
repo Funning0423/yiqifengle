@@ -2426,8 +2426,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 8734,
-    "sha256": "672ae8b78e6d6b02cf07123689ae80f45eda01884a9e873b27f41cc8b504a185"
+    "bytes": 8832,
+    "sha256": "079607f4d21378325838dc619cbc94ef0e7cfcddbfe85f569db9595b44c59254"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2446,8 +2446,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 34237,
-    "sha256": "ea551299d3a77b3dea66d99582ef33dd65b34a5f78f256ae55847f2043dbe0a8"
+    "bytes": 34418,
+    "sha256": "abde72f88a9406833563d33ee1923d57c5bfe16ad5eb59dc370d55161362c9c0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2746,8 +2746,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 3546,
-    "sha256": "a68be9f6acd0323da342dbec5db9b9c20fe87c877f9141e0816a04e579ed3256"
+    "bytes": 4396,
+    "sha256": "5ec2adc82523ae3ec40b554f47427b030cba438b23f2d566560c1ab290e82966"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -2907,7 +2907,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
     "bytes": 4101,
-    "sha256": "39a44dc07fbf575d029c249a2745df24f21d403736cc254a911e2d531a068bd8"
+    "sha256": "80d843072f8e561ea3b042313008fdf21045c28760e12226746bcf7a1b08d51a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -2923,6 +2923,11 @@
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts.meta",
     "bytes": 171,
     "sha256": "c78aaf74445a0911d5a63c6a3d7006c00f4b856c7861cffb9844678e3a685578"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
+    "bytes": 3034,
+    "sha256": "425cda4f8ed163436a9683821e78ede4dbee8c8bfbef044dc54a1c5335e7b8ae"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityPennantWind.ts",

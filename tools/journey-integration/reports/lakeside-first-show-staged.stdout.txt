@@ -1,0 +1,3 @@
+PASS first show: prime + water draw now, the scene on the next drawn frame
+PASS hide before the frame cancels the deferred activation
+PASS paused game: the 50 ms fallback still shows it; later shows are immediate

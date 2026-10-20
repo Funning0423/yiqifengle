@@ -1,0 +1,7 @@
+390x844 M1 11.90% (was 6.1%) UI gap 15.5 pt, edge 14.3 pt
+414x896 M1 12.30% (was 6.1%) UI gap 15.7 pt, edge 14.5 pt
+360x780 M1 12.55% (was 6.1%) UI gap 13.9 pt, edge 5.8 pt
+375x667 M1 15.65% (was 6.1%) UI gap 13.4 pt, edge 17.2 pt
+320x568 M1 16.55% (was 6.1%) UI gap 14.1 pt, edge 5.6 pt
+768x1024 M1 22.18% (was 6.1%) UI gap 21.5 pt, edge 55.5 pt
+meadow-board-framing PASS

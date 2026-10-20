@@ -113,7 +113,7 @@ export function flightDocument():FlightDoc{
  return g.__QF_BALLOON_FLIGHT;
 }
 export const ALWAYS_HIDDEN=['env_sky_cloud_small','Icosphere','state_bridge_after','state_court_after','state_court_after_flowers','state_gate_after','state_gate_after_flowers','state_ring_after_stars'];
-/** Far sky clouds. The ride hides them: the cloud-sea wall occludes the flight lens. The sky board and the arrived city leave them on. */
+/** Far sky clouds. The ride hides them: the cloud-sea wall occludes the flight lens. The soft sibling replaces them after arrival. */
 export const FLIGHT_FAR_CLOUDS=['env_sky_cloudsea','env_sky_cumulus_far'] as const;
 export const ISLET_NODES=['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3','env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3','env_sky_islets_far'];
 export const CITY_CLOUD=['clouds_city_sea','clouds_floor','clouds_floor_puff'];
@@ -125,7 +125,8 @@ export const TRANSIT_OFF_AFTER=['transit_clouds_merged','transit_sea_fallback','
 /** After the balloon clock ends: lawn on, transit backdrop off. null = leave the node as the scene authored it. */
 export function skyNodeAfterArrival(name:string):'on'|'off'|null{
  if((SKY_LAWN as readonly string[]).includes(name))return 'on';
- if((FLIGHT_FAR_CLOUDS as readonly string[]).includes(name))return 'on';
+ if((FLIGHT_FAR_CLOUDS as readonly string[]).includes(name)||name==='env_sea_surface')return 'off';
+ if(name==='env_sky_cloud_small'||name==='env_sky_islets_far')return 'on';
  if((TRANSIT_OFF_AFTER as readonly string[]).includes(name))return 'off';
  return null;
 }

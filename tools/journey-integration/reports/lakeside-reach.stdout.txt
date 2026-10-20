@@ -1,0 +1,7 @@
+PASS transport: skycity→lakeside is balloon; island→lakeside is not a bridge row
+PASS route order is skycity→lakeside; island and meadow cannot open the lake
+PASS lakeside nodes unlock when mainline-12 (S4) is passed, same moment as the lake chapter
+PASS production path has no ?lakeside=1 switch and no lakeside rainbow
+[enter-level] cover fixed false
+PASS WorldFlow skycity→lakeside, revisit skips a second ride, background restore keeps the lake
+lakeside reach OK 5

@@ -1,0 +1,1 @@
+{"status":"PASS","build05S":24.6,"arrivalS":10.016,"routeM":37.16,"shoreM":5.963,"v":3.348,"aAcc":1.674,"aDec":1.522,"yaw":9.28,"radius":25.7,"chord":51.99999999999999}

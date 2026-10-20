@@ -2,6 +2,7 @@ PASS mainline 12 actual replay wins, duplicate commit/visual/finish, chest and r
 PASS mainline active-save failure blocks exit/new input then explicit retry commits exactly once
 PASS mainline winning-journal failure blocks exit, cold restore records once
 PASS mainline after-write throw readback accepted and stale parallel writer protected
+PASS R5 uses actually earned mainline gate; all 12 wins, duplicate commits/visual/finish and memento claims
 PASS R5 4 persistence fault boundaries and cold recovery
 PASS R5 saved loss can retry directly and via island re-entry; command scope and durable identity preserved
 PASS R5 retry save failure retains loss and recovers one reserved new attempt without free rewards

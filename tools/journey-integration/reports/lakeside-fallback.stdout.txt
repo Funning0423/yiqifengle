@@ -1,0 +1,9 @@
+PASS journey prepare/walk failure
+PASS ensureRegion refusal (wrong origin)
+PASS board background failure
+PASS player pause stays soft
+PASS background pause stays soft
+PASS ordinary board refusal passes through
+PASS WorldFlow.abandonLakesideJourney
+PASS HUD/ambience
+lakeside fallback OK

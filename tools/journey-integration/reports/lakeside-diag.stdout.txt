@@ -1,0 +1,1 @@
+lakeside diag OK (gated by DEBUG && ?lakediag=1)

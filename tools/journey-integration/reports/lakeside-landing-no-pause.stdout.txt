@@ -1,0 +1,4 @@
+PASS restored lakeside landing resumes without the pause panel; steps, action and saved bytes kept
+PASS unseen tool intro still shows on the lakeside landing, with no pause panel before it
+PASS boards without the flag keep 「暂停一下」 (existing behaviour)
+PASS wiring: adapter flag = requiresLakesideScene(selection)

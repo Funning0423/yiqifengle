@@ -1,0 +1,3 @@
+PASS no info/log/debug-level [QF_LAKE] line anywhere in the game scripts (only warn/error for real failures)
+PASS journey water prewarm (success, skip) prints nothing even with __worldFlowLog on; result kept for diagnostics
+PASS cancellation logs nothing: soft journey stops in the composition, cancelled journey prepare

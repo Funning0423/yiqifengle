@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "scope": "git-tracked creator-build-project/** must be listed; listed tools/ entries must match; fix with: node tools/test_manifests.cjs --write",
+  "stats": {
+    "assets": {
+      "entries": 283,
+      "ok": 283
+    },
+    "text": {
+      "entries": 891,
+      "ok": 891
+    }
+  },
+  "problems": []
+}

@@ -1,0 +1,56 @@
+PASS scene crossfade constant is at most 2 s 2
+PASS island→meadow while sailing (phase ready): sail BGM, gulls only at sea {"place":"sail","track":"sail","layers":["wind","waves","gulls"]}
+PASS sail end, target cleared, state still region-travel: meadow bed, not island, no gulls {"place":"meadow","track":"meadow","layers":["birds","insects"]}
+PASS meadow→sky city in the air (phase ready): sky BGM + high wind, no gulls or meadow birds {"place":"balloon","track":"skycity","layers":["highWind"]}
+PASS sky city→lakeside descent: balloon bed, not the island track or seagulls {"place":"balloon","track":"skycity","layers":["highWind"]}
+PASS lakeside: own BGM + lake, no gulls, birds, or high wind {"place":"lakeside","track":"lakeside","layers":["lake"]}
+PASS island, meadow, sky city, lakeside (and the sail) are different BGM files {"paths":["audio/bgm_main","audio/bgm_meadow","audio/bgm_skycity","audio/bgm_lakeside"],"sail":"audio_amb/bgm_sail"}
+PASS room: island BGM, no seagulls
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":283.3333333333333}
+PASS island: sea bed, seagulls, no meadow birds
+PASS island→sail {"before":"audio/bgm_main","path":"audio_amb/bgm_sail","bundle":"transport_sail","xf":{"fadingOut":true,"started":false,"fadeIn":true,"xfadeS":2},"bed":{"place":"sail","track":"sail","waves":true,"gulls":true,"wind":true,"lake":false,"birds":false,"insects":false,"highWind":false,"missing":[]},"want":{"place":"sail","gulls":true,"waves":true,"birds":false,"insects":false,"lake":false,"highWind":false}}
+[GameAudio] music started {"path":"audio_amb/bgm_sail","bundle":"transport_sail","first":true,"fadeIn":false,"loadMs":83.33333333333258}
+PASS island→sail: new clip loads
+PASS island→sail: after ≤2 s only the new BGM is playing ["bgm_sail"]
+PASS sail-dock→meadow (cue, phase still ready) {"before":"audio_amb/bgm_sail","path":"audio/bgm_meadow","bundle":"region_meadow","xf":{"fadingOut":true,"started":false,"fadeIn":true,"xfadeS":2},"bed":{"place":"meadow","track":"meadow","waves":false,"gulls":false,"wind":false,"lake":false,"birds":true,"insects":true,"highWind":false,"missing":[]},"want":{"place":"meadow","gulls":false,"waves":false,"birds":true,"insects":true,"lake":false,"highWind":false}}
+[GameAudio] music started {"path":"audio/bgm_meadow","bundle":"region_meadow","first":true,"fadeIn":false,"loadMs":50.00000000000091}
+PASS sail-dock→meadow (cue, phase still ready): new clip loads
+PASS sail-dock→meadow (cue, phase still ready): after ≤2 s only the new BGM is playing ["bgm_meadow"]
+PASS standing in the meadow: meadow BGM, birds and insects, no seagulls
+PASS meadow→sky city on sky-city-enable (region meadow-skycity) {"before":"audio/bgm_meadow","path":"audio/bgm_skycity","bundle":"region_skycity","xf":{"fadingOut":true,"started":false,"fadeIn":true,"xfadeS":2},"bed":{"place":"skycity","track":"skycity","waves":false,"gulls":false,"wind":false,"lake":false,"birds":false,"insects":false,"highWind":true,"missing":[]},"want":{"place":"skycity","gulls":false,"waves":false,"birds":false,"insects":false,"lake":false,"highWind":true}}
+[GameAudio] music started {"path":"audio/bgm_skycity","bundle":"region_skycity","first":true,"fadeIn":false,"loadMs":50.00000000000091}
+PASS meadow→sky city on sky-city-enable (region meadow-skycity): new clip loads
+PASS meadow→sky city on sky-city-enable (region meadow-skycity): after ≤2 s only the new BGM is playing ["bgm_skycity"]
+PASS balloon ride: sky BGM already playing, high wind, no gulls or birds
+PASS sky city: sky BGM + high wind, no seagulls or meadow birds
+PASS late sail-dock while in the sky city does not restore seagulls
+PASS descent toward the lake: balloon bed, not island BGM, no seagulls
+PASS arrival at the lake {"before":"audio/bgm_skycity","path":"audio/bgm_lakeside","bundle":"region_lakeside","xf":{"fadingOut":true,"started":false,"fadeIn":true,"xfadeS":2},"bed":{"place":"lakeside","track":"lakeside","waves":false,"gulls":false,"wind":false,"lake":true,"birds":false,"insects":false,"highWind":false,"missing":[]},"want":{"place":"lakeside","gulls":false,"waves":false,"birds":false,"insects":false,"lake":true,"highWind":false}}
+[GameAudio] music started {"path":"audio/bgm_lakeside","bundle":"region_lakeside","first":true,"fadeIn":false,"loadMs":149.99999999999454}
+PASS arrival at the lake: new clip loads
+PASS arrival at the lake: after ≤2 s only the new BGM is playing ["bgm_lakeside"]
+PASS target-null arrival window stays on the meadow, no seagulls
+PASS bed player is mounted; scatter cap is 6; layer crossfade is 2 s
+PASS meadow design: birds 0.8, insects 0.5
+PASS insects at night are +3 dB
+PASS high wind is 0.5 in the balloon and 0.75 in the sky city
+PASS island, sail, and lakeside do not open the three beds; a closed flag stays silent
+PASS on/off is equal-power; the same loop changing level does not overshoot 0.625
+PASS loop crossfade ends before the file ends (no wrap click) {"birds":{"tail":0.204,"need":0.1845},"insects":{"tail":0.214,"need":0.196},"highWind":{"tail":0.22,"need":0.1845}}
+PASS birds loop hands over on an equal-gain overlap and neither source wraps {"startedAt":30.00833333333227,"overlap":19,"sumBad":0,"aw":0,"bw":0,"at":0,"bt":0.19999999999999998}
+PASS if the seam partner never starts, the current loop keeps playing
+PASS at most 6 scatter voices; further ones are skipped {"maxN":6,"skipped":68}
+PASS gesture unlocks ambience for the layer player
+[GameAudio] music started {"path":"audio/bgm_main","bundle":"audio_bgm_island","first":true,"fadeIn":true,"loadMs":483.33333333333354}
+PASS island: seagulls and waves stay on; birds, insects, and high wind are silent
+PASS sail: seagulls and waves, still no meadow birds or high wind
+[GameAudio] music started {"path":"audio/bgm_meadow","bundle":"region_meadow","first":true,"fadeIn":false,"loadMs":0}
+PASS meadow birds fade in on the 2 s equal-power curve to 0.8 {"a":0.0105,"mid":0.5657,"end":0.8}
+PASS meadow is playing birds and insects at design volume, no seagulls or high wind {"insects":0.5,"outB":0.8,"outI":0.5}
+[GameAudio] music started {"path":"audio/bgm_skycity","bundle":"region_skycity","first":true,"fadeIn":false,"loadMs":0}
+PASS balloon: meadow beds fade out over 2 s {"mid":0.5582,"end":0}
+PASS balloon: high wind fades in to 0.5 and is the layer playing {"mid":0.3536,"end":0.5,"out":0.5}
+PASS sky city: high wind rises 0.5 → 0.75, no birds or seagulls {"a":0.5001,"mid":0.625,"end":0.75}
+PASS lakeside: only the lake bed; high wind fades out and the three loops are silent {"mid":0.5303,"end":0}
+PASS scatter voices never exceed 6 {"cap":6,"skipped":0,"playing":0}
+ALL PASS scene bgm switch (47 checks)

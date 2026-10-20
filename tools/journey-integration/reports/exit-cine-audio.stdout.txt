@@ -6,6 +6,6 @@ PASS load failure is silent; __worldFlowLog gets timestamped events
 PASS 「主页」 transition fade applies to the exit track (it is an owned sfx voice)
 PASS Boot feeds world states to GameAudio.onWorldState
 PASS A1b: standing + crossing-out mount the wind/sea beds; the exit track starting opens the ambience gate; [QF_AUDIO] logs
-asset sha256 daebc8a740cab7f8597f3586ac5de63519e880eb0c5e866df4189df87c621bc1 140660
+asset sha256 ca6c9fa509a0a5b019838fdaca2a2049d11310b7c9d506ef1b4f05deccea4269 140660
 PASS asset: re-encoded mono mp3 in region_island subpackage, fixed Cocos meta, budget size
 {"status":"PASS_MOCK","cases":9,"creatorBuild":"NOT_RUN","deviceListening":"NOT_RUN"}

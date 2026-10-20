@@ -2,6 +2,7 @@ import {Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonA
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {VEHICLE_ASSET_WAIT_MS} from './TransportWait';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
+import {SkycityCloudsea} from './SkycityCloudsea';
 import {routeLength} from '../world-r1/RegionJourneyCore';
 import type {JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, CharacterAdapter, Vec, WorldLease} from '../world-r1/WorldFlowCore';
@@ -255,6 +256,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   publishFlight(json);
   const postFrame=postSeamFrame(json);
   model=mountRegion(REGIONS.skycity,prefab,rig);
+  model.getComponent(SkycityCloudsea)!.setFlightHidden(true);
   for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
   const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');
   await waitRegionAsset(ambient.prepare(),token,VEHICLE_ASSET_WAIT_MS);token.check();
@@ -390,6 +392,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }
    if(model){
     model.active=cityOn;
+    model.getComponent(SkycityCloudsea)!.setFlightHidden(!arrived);
     if(cityOn)noShadow(model);
     showNamed(model,ALWAYS_HIDDEN,false);
     if(!arrived)showNamed(model,FLIGHT_FAR_CLOUDS,false);

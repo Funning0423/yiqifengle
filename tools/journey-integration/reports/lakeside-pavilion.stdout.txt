@@ -1,0 +1,1 @@
+lakeside pavilion OK (r5h3 cam min NDC x 1.029): 1 real placement (LK_pavilion_i, right shore), 0 templates, 802 instances, off-frame in r5h3 + 5 board layouts
