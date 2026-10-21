@@ -21,6 +21,7 @@ var SPEC = {
   PLATE: { x: -0.08, y: 1.13, w: 0.12, h: 0.10 },   // centre on the inner face; clipped to the leaf top
   FLOOR_FROM: 0.10, FLOOR_TO: 0.0,
   POST_W: 0.06,
+  LOCK_JAMB_ZMAX: 0.795,
   CHARM_DZ: 0.09           // charm (front ornament) pushed out so its back sits on the leaf outer face
 };
 var UV = { rail: [0.094, 0.531], frame: [0.031, 0.531], brass: [0.469, 0.531], foot: [0.219, 0.531] };
@@ -72,7 +73,10 @@ function main(src, out) {
     var front = cz > 0.5 && cy < S.CUT_TOP && tr.every(function (v) { return v.p[2] > 0.5; }) && Math.min(tr[0].p[0], tr[1].p[0], tr[2].p[0]) < S.HALF_W && Math.max(tr[0].p[0], tr[1].p[0], tr[2].p[0]) > -S.HALF_W;
     var isFloor = tr.every(function (v) { return near(v.p[1], S.FLOOR_TO); }) && tr[0].n[1] > 0.9;
     if (!front || isFloor) { kept.push(tr); return; }
-    [1, -1].forEach(function (sg) { var pl = clip(tr, sg); for (var k = 1; k + 1 < pl.length; k++) kept.push([pl[0], pl[k], pl[k + 1]]); });
+    [1, -1].forEach(function (sg) {
+    var pl = clip(tr, sg);
+    // lock side: the cut end of the rim is pulled in to Z ≤ LOCK_JAMB_ZMAX, matching its jamb cap (stays sealed)
+    if (sg < 0) pl = pl.map(function (v) { if (Math.abs(v.p[0] + S.HALF_W) < 1e-4 && v.p[2] > S.LOCK_JAMB_ZMAX) { v = { p: v.p.slice(), n: v.n.slice(), t: v.t.slice() }; v.p[2] = S.LOCK_JAMB_ZMAX; } return v; }); for (var k = 1; k + 1 < pl.length; k++) kept.push([pl[0], pl[k], pl[k + 1]]); });
   });
   tris = kept;
   // ---- frame posts + jamb caps (both sides)
@@ -81,10 +85,15 @@ function main(src, out) {
   function poly(list, pts, n, uv) { for (var k = 1; k + 1 < pts.length; k++) list.push([V(pts[0], n, uv), V(pts[k], n, uv), V(pts[k + 1], n, uv)]); }
   var ZI = S.LEAF_Z_IN, PW = S.POST_W;
   [1, -1].forEach(function (sg) {
+    // lock side (X −0.40, sg −1): rim jamb point held to Z ≤ 0.795, inside the leaf's inner plane (0.80), so the leaf's free
+    // inner corner clears it at every angle; hinge side keeps its 0.81 (the leaf never sweeps it).
+    // lock side (X −0.40, sg −1): rim jamb point held to Z ≤ 0.795, inside the leaf's inner plane (0.80), so the leaf's free
+    // inner corner clears it at every angle; hinge side keeps its 0.81 (the leaf never sweeps it).
+    var jz = sg < 0 ? S.LOCK_JAMB_ZMAX : 0.81;
     var x0 = sg * S.HALF_W, x1 = sg * (S.HALF_W + PW), nIn = [-sg, 0, 0];
     var footIn = 0.62; // inner wall foot after lowering (z at y = 0)
     poly(tris, [[x0, 0, footIn], [x0, 0, ZI], [x0, 1.0, ZI], [x0, 1.0, 0.68]], nIn, UV.frame);                         // jamb A
-    poly(tris, [[x0, 1.0, 0.68], [x0, 1.0, ZI], [x0, 1.07, 0.81], [x0, 1.12, 0.78], [x0, 1.12, 0.67]], nIn, UV.frame);  // jamb B (rim)
+    poly(tris, [[x0, 1.0, 0.68], [x0, 1.0, ZI], [x0, 1.07, jz], [x0, 1.12, 0.78], [x0, 1.12, 0.67]], nIn, UV.frame);  // jamb B (rim)
     poly(tris, [[x1, 0, wallZ(0)], [x1, 1.0, wallZ(1.0)], [x1, 1.0, ZI], [x1, 0, ZI]], [sg, 0, 0], UV.rail);           // post side
     quad(tris, [x0, 0, ZI], [x1, 0, ZI], [x1, 1.0, ZI], [x0, 1.0, ZI], [0, 0, 1], UV.rail);                              // post front
     quad(tris, [x0, 0, wallZ(0)], [x0, 0, ZI], [x1, 0, ZI], [x1, 0, wallZ(0)], down, UV.foot);                         // post foot
