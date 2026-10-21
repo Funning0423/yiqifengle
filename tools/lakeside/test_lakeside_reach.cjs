@@ -104,6 +104,7 @@ function flowHarness(){
   const h=flowHarness();
   assert.equal((await h.flow.load()).ok,true);
   h.flow.stable='skycity';h.flow.state='skycity';
+  assert.equal((await h.flow.prepareRegion('lakeside')).ok,true,'skycity can preload its lakeside departure');
   const gone=await h.flow.travelRegion('lakeside');
   assert.equal(gone.ok,true,JSON.stringify(gone));
   assert.equal(h.flow.snapshot().state,'lakeside');

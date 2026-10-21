@@ -152,9 +152,8 @@ export class WorldNativeComposition extends Component {
     const commands=this.world!.commands();
     let current=commands.snapshot().journey?.region||'island';
     if(current===target&&!commands.snapshot().journey?.target)return {ok:true};
-    // 风铃湖畔 follows 天空之城 (skycity→lakeside). It is not a mainline campaign region (its r04-lake-* stages are gated
-    // by CampaignHost.inspectSelection in selectProvider/enterSelectedLevel, after mainline record 11).
-    if(target!=='lakeside'){const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;}
+    // Physical admission uses verified mainline records too; the challenge provider keeps its own stage gate.
+    const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;
     const order:JourneyRegion[]=['island','meadow','skycity','lakeside'];
     if(!order.includes(current)||order.indexOf(target)<order.indexOf(current))return {ok:false,reason:'return-route-not-yet-available'};
     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;}
@@ -192,7 +191,7 @@ export class WorldNativeComposition extends Component {
   mainlineStatus(){return this.mainline.createController().snapshot();}
   mainlineStorage(){return this.mainline.inspect();}
   challengeGates(){return {r4:new (R4 as any)({platform:this.r4.platform,journey:this.mainline.journey}).snapshot().stages,r5:(RegionalAPI as any).catalog.filter((x:any)=>x.ordinal===1).map((x:any)=>({id:x.id,region:x.region,...(CampaignHost as any).inspectSelection(this.persistence,{stageId:x.id,seed:x.seedBank[0]})}))};}
-  async enterMainline(){const s=this.mainlineStatus();const id=s.active?.status==='playing'?s.active.stageId:s.nextStageId||s.stages.find((x:any)=>x.unlocked&&!x.record?.bestStars)?.id||'mainline-12';return this.enterMainlineStage(id);}
+  async enterMainline(){const s=this.mainlineStatus();if(s.active?.status!=='playing'&&(RegionCampaign as any).canEnterRegion(s.journey,'lakeside').ok)return this.enterRegion('lake');const id=s.active?.status==='playing'?s.active.stageId:s.nextStageId||s.stages.find((x:any)=>x.unlocked&&!x.record?.bestStars)?.id||'mainline-12';return this.enterMainlineStage(id);}
   async enterMainlineStage(stageId:string,seed=1){const selected=this.selectProvider({provider:'mainline',stageId,seed});return selected.ok?this.enterSelectedLevel():selected;}
   async advanceMainline(){
     const s=this.activeSession?.snapshot();if(s?.provider!=='mainline-v33'||!s.result?.completionRecorded||!s.nextStageId||s.state!=='result.saved')return {ok:false,reason:'next-requires-registered-win'};

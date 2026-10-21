@@ -448,7 +448,7 @@ export class WorldFlow {
     if(!this.journey)return {ok:false,reason:'journey-unavailable'};
     if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
     const expected=this.stable,fail=this.blocked(expected,true);if(fail)return fail;
-    if(!['island','meadow','lakeside','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
+    if(!['island','meadow','skycity','lakeside','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
     if(expected==='level'&&!this.level?.isSettledResult?.())return {ok:false,reason:'journey-requires-settled-result'};
     return this.operate('region-loading',async token=>{
       const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
