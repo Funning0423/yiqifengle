@@ -166,6 +166,7 @@ const CITY_RIDE_HIDE=[
  'env_sky_island_vine_cards','env_sky_island_windcore',
  'env_sky_rope_root_01','env_sky_rope_root_02','env_sky_rope_root_03','env_sky_rope_root_04',
  'env_sky_rope_root_05','env_sky_rope_root_06','env_sky_rope_root_07','env_sky_rope_root_08',
+ 'env_sky_rope_roots_skin'/* b15: the 8 rope meshes are one skinned mesh (joints = the nodes above) */,
 ];
 const ISLAND_BODY=['env_sky_static_palette','env_sky_static_rock_strata'];
 const ISLAND_VINES=['env_sky_island_vines'];

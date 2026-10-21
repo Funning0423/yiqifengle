@@ -6,7 +6,7 @@ const base=read('env_skycity.glb'),soft=read('env_sky_cloudsea_soft.glb');
 assert.equal(crypto.createHash('sha256').update(soft.b).digest('hex'),'4981c742bbca3416bf803596a2fe7bcce0e59111878f07e2d277dc24ef57bbc5','accepted r3fix handoff');
 assert.equal(soft.b.length,38736,'accepted r3fix bytes');
 assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,'env_sky_cloudsea_soft.glb.meta'))).digest('hex'),'9a1f8a2212b8b99461216e081451c7ff5096b50e704c0e062d6e1c3bc6f24690','r3fix meta handoff');
-assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'c8558e31ab312a9c0dd94c82e859e34de4cb929407cd0faa893dd64d29657aaa','accepted 872 ground unchanged');
+assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'7e52d0feab33a8a9d53f7fb491340d3b40cd7673c995e38da803301bb6c58cf0','accepted 872 ground unchanged');
 let triangles=0,primitives=0;
 for(const {j} of [base,soft])for(const n of j.nodes){
  if(n.mesh===undefined||['env_sky_cloudsea','env_sky_cumulus_far'].includes(n.name))continue;
