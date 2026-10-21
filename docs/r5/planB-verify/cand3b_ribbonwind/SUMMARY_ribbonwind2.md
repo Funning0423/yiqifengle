@@ -30,3 +30,38 @@ Cocos 实机；风下的拉伸；头发（无风通道）；xfade6 级别的出�
 | door_reach / idle | 0.32 / 0.01 | 最高 0.68 / 0.39 | ✔ |
 | 淡化 13 段 | — | 最高 2.28（turn_180_bodyR→loop） | ✔ |
 结论：FAIL，只有 walk_turn_180 f35–36 在风 1.0 的两个相位超限（2.89% > 2.8%），按要求停止，GLB 未改。可选修法（待定）：ribbon 风 ×0.4→约 ×0.3，或 walk_turn_180 末段弹簧幅度压低。
+
+## ribbonwind3（2026-10-21 美东时间，Grok Bot 批准；b31fff35 文件不变）
+- 风层 ribbon ×0.3（相对原始，6.0°→1.8°），裙子仍 ×0。ribbon_bake5.py：walk_turn_180/_bodyR 的弹簧摆幅以 f35 为中心、f26–44 平滑钟形压到 0.5（向末端值靠拢），两端仍等于 walk_loop f0（2.499°）。
+- 与 b31fff35 相比只改了 3 个通道：walk_turn_180、walk_turn_180_bodyR、wind_flutter_loop 的 ribbon rotation；其余逐字节相同，无显式 interpolation。坐姿三段与 b31fff35 逐字节相同（接缝不变）。
+- 穿模：14 段 + 坐姿淡化 + 13 个走路淡化，蝴蝶结×凳子/裙/围裙/身体/手 = 0，手×布 = 0；风 1.0（8 相位）/0.5 下布×身体、裙×围裙每帧不比无风差（0 失败）；无风走路布料与 cand3b 相同。
+- 拉伸（限值 2.8%，目标 ≤2.6%）：
+| 片段/淡化 | 无风 | 风1.0（8 相位 0–3.5 s） | 风0.5（0.5/2.5 s） | ≤2.6 |
+|---|---|---|---|---|
+| walk_start | 1.72 | 1.95 | 1.73 | ✔ |
+| walk_loop | 1.86 | 2.07 | 1.77 | ✔ |
+| walk_stop_bodyL | 1.99 | 2.23 | 2.05 | ✔ |
+| walk_stop_bodyR | 1.87 | 2.11 | 1.92 | ✔ |
+| walk_turn_90_bodyL | 1.62 | 1.87 | 1.74 | ✔ |
+| walk_turn_90_bodyR | 1.66 | 1.87 | 1.74 | ✔ |
+| walk_turn_180 | 2.20 | 2.46 | 2.21 | ✔ |
+| walk_turn_180_bodyR | 2.11 | 2.33 | 2.17 | ✔ |
+| idle_breathing_loop | 0.01 | 0.29 | 0.14 | ✔ |
+| door_reach | 0.32 | 0.59 | 0.31 | ✔ |
+| walk_start->walk_loop | 1.53 | 1.77 | 1.65 | ✔ |
+| walk_loop->walk_stop_bodyL | 1.84 | 2.06 | 1.77 | ✔ |
+| walk_loop->walk_stop_bodyR | 1.63 | 1.89 | 1.76 | ✔ |
+| walk_loop->walk_turn_90_bodyL | 1.62 | 1.88 | 1.75 | ✔ |
+| walk_loop->walk_turn_90_bodyR | 1.62 | 1.88 | 1.75 | ✔ |
+| walk_loop->walk_turn_180 | 2.06 | 2.28 | 2.17 | ✔ |
+| walk_loop->walk_turn_180_bodyR | 2.03 | 2.25 | 2.14 | ✔ |
+| walk_turn_90_bodyL->walk_loop | 1.58 | 1.83 | 1.54 | ✔ |
+| walk_turn_90_bodyR->walk_loop | 1.55 | 1.80 | 1.51 | ✔ |
+| walk_turn_180->walk_loop | 1.65 | 1.86 | 1.57 | ✔ |
+| walk_turn_180_bodyR->walk_loop | 1.87 | 2.06 | 1.79 | ✔ |
+| walk_stop_bodyL->idle_breathing_loop | 0.24 | 0.45 | 0.33 | ✔ |
+| idle_breathing_loop->walk_start | 0.62 | 0.84 | 0.73 | ✔ |
+| idle_breathing_loop->door_reach | 0.06 | 0.28 | 0.17 | ✔ |
+| door_reach->idle_breathing_loop | 0.15 | 0.39 | 0.13 | ✔ |
+| sit_down / sit_hold / stand_up（无风，qa3b） | 2.41 / 2.59 / 2.41 | — | — | ✔ |
+- 未测：Cocos 实机；头发（片段里没有风通道）。
