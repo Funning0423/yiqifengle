@@ -29,7 +29,7 @@ const P=(z,y=1.5)=>({position:[2,y,z-3],target:[0,1,z]});
 const config={seat,toDoor:[[0,0,.3],[0,0,2]],outCrossing:[[0,0,2],[0,0,3]],toIsland:[[0,0,3],[1,0,6],[2,0,8]],toThreshold:[[2,0,8],[1,0,6],[0,0,3]],inCrossing:[[0,0,3],[0,0,2]],toSeat:[[0,0,2],[0,0,.3]],
  cameraHome:P(0),cameraToDoor:[P(0),P(2)],cameraInside:P(2),cameraOutside:P(3),cameraIsland:P(8,4),openDeg:90,speed:1.1,wind:{outbound:[[0,0],[.5,1],[1,.4]]},
  cameraTracks:{outbound:{},inbound:{}},crane:{startProgress:.3,settleSeconds:1.2,startSeconds:2}};
-function rig(){
+function rig(mode='motion'){
  const jobs=new Set(),log={reset:0,camera:[],door:0,loads:0,visible:true};let t=0;
  const job=(seconds,token,tick)=>{if(!(seconds>0)){tick(1);return Promise.resolve();}return new Promise((res,rej)=>{const j={e:0,seconds,tick,res};jobs.add(j);token.onCancel(()=>{jobs.delete(j);rej(new Error('cancelled'));});tick(0);});};
  const world={setLayers(){},setDoor(d){log.door=d;},setCamera(p){log.camera.push(JSON.stringify(p));log.cam=p;log.camP=1;},cancelTransient(){for(const j of jobs)jobs.delete(j);},assertStaticWorld(){},dispose(){},
@@ -46,7 +46,7 @@ function rig(){
    this.clip=action.kind;this.abs=0;this.act={kind:action.kind,path:action.path,d,e:0,from:[...this.pos],res};token.onCancel(()=>{this.act=null;rej(new Error('cancelled'));});});},
   cancelAndReset(pose){log.reset++;this.act=null;this.walkP=null;this.pos=pose.kind==='seated'?[...pose.seat.seatedControllerRoot]:[...pose.controllerRoot];},setVisible(v){log.visible=v;},dispose(){}};
  const states=[];let leaves=0;
- const flow=new WorldFlow({config,mode:'motion',character:ch,levels:{enter:async()=>({})},loadWorld:async()=>{log.loads++;return world;},onChange:s=>{if(states[states.length-1]!==s.state)states.push(s.state);}});
+ const flow=new WorldFlow({config,mode,character:ch,levels:{enter:async()=>({})},loadWorld:async()=>{log.loads++;return world;},onChange:s=>{if(states[states.length-1]!==s.state)states.push(s.state);}});
  const orig=flow.leaveHome.bind(flow);flow.leaveHome=(...a)=>{leaves++;return orig(...a);};
  const flush=()=>new Promise(r=>setImmediate(r));
  // == WorldFlowComponent.update: no job / character tick while needsResume (the flow's own advance() also refuses).
@@ -89,8 +89,26 @@ async function trip(at,hiddenS,ticksWhileHidden,route){
   if(route==='return'){assert.deepEqual(r.ch.pos,[...seat.seatedControllerRoot],'seated at home');}
   results.push({route,at,hiddenS,framesWhileHidden:ticks,frozenAt:{pos:frozenAt.pos,clip:frozenAt.clip,clipTime:frozenAt.abs,camera:frozenAt.cam},activeS:+r.active().toFixed(3)});
  }
- // Seated / island backgrounds keep paused + 继续 (unchanged).
- {const r=rig();assert((await r.flow.load()).ok);r.flow.hide();r.flow.show();assert.equal(r.flow.snapshot().needsResume,true);assert.equal(r.flow.snapshot().state,'paused');assert(r.flow.resume().ok);assert.equal(r.flow.snapshot().state,'home');}
+ // Seated home: freeze in place, then continue without a resume tap or replaying the seated pose.
+ for(const mode of ['fixed','motion'])for(const hiddenS of [3,10,600])for(const ticks of [false,true]){
+  const r=rig(mode);assert((await r.flow.load()).ok);await r.frame();
+  for(let trip=0;trip<2;trip++){
+   const before=r.probe(),resets=r.log.reset,cameras=r.log.camera.length,loads=r.log.loads;
+   r.flow.hide();r.flow.hide();assert.equal(r.flow.snapshot().hidden,true);assert.equal(r.flow.snapshot().needsResume,true);
+   assert.equal(r.flow.snapshot().state,'home','seated background never enters paused');
+   if(ticks)for(let i=0;i<hiddenS/DT;i++)await r.frame();else await r.flush();
+   assert.deepEqual(r.probe(),before,'seated animation clock is frozen in background');
+   r.flow.show();r.flow.show();const s=r.flow.snapshot();
+   assert.equal(s.hidden,false);assert.equal(s.needsResume,false,'seated foreground needs no 继续');assert.equal(s.state,'home');
+   assert.deepEqual(r.probe(),before,'show preserves the seated pose and animation time');
+   assert.equal(r.log.reset,resets,'no replay/reset of seated animation');assert.equal(r.log.camera.length,cameras,'no camera rewrite');assert.equal(r.log.loads,loads,'no world reload');
+   await r.frame();assert(r.ch.abs>before.abs,'seated animation continues on the next frame');
+  }
+  const p=r.flow.leaveHome();await untilState(r,s=>s==='island');assert((await p).ok,'exit works immediately without resume');assert.equal(r.leaves(),1);
+ }
+ // An error during the seated freeze must keep its recovery gate.
+ {const r=rig();assert((await r.flow.load()).ok);r.flow.hide();r.flow.fault('injected');r.flow.show();assert.equal(r.flow.snapshot().state,'error');assert.equal(r.flow.snapshot().needsResume,true);assert.equal(r.flow.resume().ok,false);}
+ // Island backgrounds keep paused + 继续 (unchanged).
  {const r=rig();assert((await r.flow.load()).ok);const p=r.flow.leaveHome();await untilState(r,s=>s==='island');await p;r.flow.hide();assert.equal(r.flow.snapshot().state,'paused');r.flow.show();assert.equal(r.flow.snapshot().needsResume,true);assert(r.flow.resume().ok);assert.equal(r.flow.snapshot().state,'island');}
  // cancelTransition while frozen: back to the stable place, still paused behind 继续 (freeze dropped, no auto-resume).
  {const r=rig();assert((await r.flow.load()).ok);const p=r.flow.leaveHome();await untilState(r,s=>s==='walking-out');r.flow.hide();assert(r.flow.cancelTransition().ok);await p;r.flow.show();const s=r.flow.snapshot();assert.equal(s.needsResume,true);assert.equal(s.stable,'home');}
