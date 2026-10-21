@@ -50,6 +50,8 @@ export function gemLocal(phase:NodePhase,seconds:number,foot=false):{positions:n
   for(let i=0;i<6;i++)tri(n,n+1+i,n+1+(i+1)%6);
   return {positions,normals,colors,indices};
  }
+ // Passed nodes have no flag; route footprints above remain visible.
+ if(phase==='passed')return {positions,normals,colors,indices};
  const h=MARKER_GEM_H*look.scale;
  const y0=MARKER_LIFT_M+(phase==='playable'?0.05*Math.sin((seconds%1.6)/1.6*Math.PI*2):0);
  const pole=shade(fill,0.48),front=shade(fill,1),back=shade(fill,0.58),base=shade(fill,0.35);

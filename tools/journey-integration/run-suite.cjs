@@ -111,6 +111,7 @@ const tests=[
  ['region-transit-background-resume','tools/region-nodes/test_transit_background_resume.cjs'],
  ['region-nodes-scene-wiring','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['node-markers','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['node-markers-no-passed-flag','tools/region-nodes/test_node_markers_no_passed_flag.cjs'],
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],

@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-21T07:02:19.447Z",
+  "timeUTC": "2026-10-21T07:15:57.430Z",
   "sourceRoot": "/Users/shineanl/cursor-tasks/r5-build06/repo",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
