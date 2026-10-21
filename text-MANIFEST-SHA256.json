@@ -2131,8 +2131,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudio.ts",
-    "bytes": 8004,
-    "sha256": "2b0abcc7ac5f3d1aa105bdf9490be48e47de3958ff4a03977e58a150771c7bf8"
+    "bytes": 5475,
+    "sha256": "87215b591d8e17772dca1fde081fdbf499854376bb308e8fb66d2851e8c6b205"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudio.ts.meta",
@@ -2141,8 +2141,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudioCore.ts",
-    "bytes": 7704,
-    "sha256": "f5736dd340c44010bda4614f8a7ac58610da3da0bf20fd22043c7d8741e40a1b"
+    "bytes": 3407,
+    "sha256": "5f790a58919fa86f6f64edc1bf030a41d4938027f70e500e4cfa75053f1a2ecf"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudioCore.ts.meta",
@@ -2171,8 +2171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts",
-    "bytes": 26216,
-    "sha256": "f7ebfc4e71aa3c0ed1b20bb41396a8d66202886442516b396c6e602242070f7b"
+    "bytes": 25469,
+    "sha256": "625593f385df4505e31c64e5ab203813686f42c15f43871418f0b1ae341ee5d3"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts.meta",
@@ -2501,8 +2501,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
-    "bytes": 54520,
-    "sha256": "1c74bbb402cf936071c4c3d19cbd7522eb4d2d0527f18d191d58e1d4448e4286"
+    "bytes": 55746,
+    "sha256": "73dc0b5dc3a90dafddf4e09047e68c9e885d0ec76cb8a9f380c402aa2f5a6169"
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts.meta",
@@ -4121,8 +4121,8 @@
   },
   {
     "path": "tests/test_landmark_audio.cjs",
-    "bytes": 10003,
-    "sha256": "32dafddad0e120c63045a5aec457ef00f9b499df7765220c07fbec0a67a15674"
+    "bytes": 5892,
+    "sha256": "4c384eb50156b3da90439e9f9a74d9f192c51e2c64c8b47430f0a71c1855c1d7"
   },
   {
     "path": "tools/asset_preflight.py",
@@ -4171,23 +4171,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 13977,
-    "sha256": "320342c15cf64f1f896e39afd77b13e4e597d0ae2e4e681ebfd2c45375d882a9"
-  },
-  {
-    "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 13977,
-    "sha256": "320342c15cf64f1f896e39afd77b13e4e597d0ae2e4e681ebfd2c45375d882a9"
-  },
-  {
-    "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",
-    "bytes": 4466,
-    "sha256": "3587082c4cdc25529ae1baa2d51b2e658939bd7b35001953beb3a3bf390ab14e"
-  },
-  {
-    "path": "tools/lakeside/test_lakeside_board_guest.cjs",
-    "bytes": 14922,
-    "sha256": "34efdcba7101c5b560730a2c1eedf93cbe05b0ec68b821e273d067545a996299"
+    "bytes": 14053,
+    "sha256": "04907c4a8d2d557ab5ec1842da273837dd40faa17cfe9a3649abaf839129fd4d"
   },
   {
     "path": "tools/mainline-fixtures/loss-first-stage.json",
@@ -4243,11 +4228,6 @@
     "path": "tools/read_wechat_audio_state.js",
     "bytes": 743,
     "sha256": "8647a98dde22bb40838334c592729c8a43a2fe10d124e2919b35c686c0ceda2e"
-  },
-  {
-    "path": "tools/region-nodes/test_transport_flag.cjs",
-    "bytes": 2365,
-    "sha256": "ee6ef360c0f171fa1c05119793ee60645aba13e38e679a13f0511b7ad2e742b0"
   },
   {
     "path": "tools/run_browser_smoke.cjs",
@@ -4513,5 +4493,30 @@
     "path": "tools/world-r5-build-options.json",
     "bytes": 360,
     "sha256": "47d37a192dabb3cc3ececd2281ab98c0783483757edaab303912e9cbb42ba0dd"
+  },
+  {
+    "path": "tools/journey-integration/run-suite.cjs",
+    "bytes": 14053,
+    "sha256": "04907c4a8d2d557ab5ec1842da273837dd40faa17cfe9a3649abaf839129fd4d"
+  },
+  {
+    "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",
+    "bytes": 4466,
+    "sha256": "3587082c4cdc25529ae1baa2d51b2e658939bd7b35001953beb3a3bf390ab14e"
+  },
+  {
+    "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",
+    "bytes": 6653,
+    "sha256": "5aa6ff1b1250a779254819fe461a70847cfda7f505f2579c555a80b569c0fc32"
+  },
+  {
+    "path": "tools/lakeside/test_lakeside_board_guest.cjs",
+    "bytes": 14922,
+    "sha256": "34efdcba7101c5b560730a2c1eedf93cbe05b0ec68b821e273d067545a996299"
+  },
+  {
+    "path": "tools/region-nodes/test_transport_flag.cjs",
+    "bytes": 2365,
+    "sha256": "ee6ef360c0f171fa1c05119793ee60645aba13e38e679a13f0511b7ad2e742b0"
   }
 ]

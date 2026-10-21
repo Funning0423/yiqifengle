@@ -48,8 +48,19 @@ export type OrbitLimits = Readonly<{
   /** Distance-based pitch floor (meadow): pitchMin(d) = nearDeg + (farDeg - nearDeg) * smoothstep(fromM, toM, d), d = arm.
    *  pitchMinDeg stays the absolute floor (= farDeg). See orbitPitchFloor and PITCH_FLOOR_FEEL. */
   pitchFloor?: Readonly<{ nearDeg: number; farDeg: number; fromM: number; toM: number }>;
+  /** b15 reveal (lakeside): FOV widens by up to fovAddDeg as the orbit yaw leaves the seeded (board) yaw, smootherstep over
+   *  fullDeg. A pure function of yaw: zero deviation = the seeded lens exactly; turning back restores it with no state. */
+  revealWiden?: Readonly<{ fovAddDeg: number; fullDeg: number }>;
 }>;
 
+/** revealWiden FOV add (deg) at a yaw deviation (deg, any wrap). 0 when the place has none. */
+export function revealWidenDeg(limits: OrbitLimits, devDeg: number): number {
+  const r = limits.revealWiden;
+  if (!r || !(r.fullDeg > 0)) return 0;
+  let d = devDeg % 360; if (d > 180) d -= 360; if (d < -180) d += 360;
+  const u = Math.min(1, Math.abs(d) / r.fullDeg);
+  return r.fovAddDeg * u * u * u * (u * (u * 6 - 15) + 10);
+}
 /** Pitch is the camera's elevation above her chest. Distance is metres from that point. */
 export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.freeze({
   home: { pitchMinDeg: -14, pitchMaxDeg: 26, distMin: 1.9, distMax: 3.35, yawHalfDeg: Infinity, lookM: 1.05, fovDeg: 60,
@@ -70,7 +81,10 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
   meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
     pitchFloor: { nearDeg: -8, farDeg: -12, fromM: 3.2, toM: 14 } },
   skycity: { pitchMinDeg: -6, pitchMaxDeg: 55, distMin: 4, distMax: 22, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
-  lakeside: { pitchMinDeg: -10, pitchMaxDeg: 42, distMin: 3.6, distMax: 16, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48 },
+  // b15: pitchMax 42 -> 54 and distMax 16 -> 16.5 so the landscape board lens (pitch 53.3, 16.16 m from her look point)
+  // seeds without a clamp (the old limits moved the lens on the first drag). revealWiden: moored balloon reveal (+8 deg max).
+  lakeside: { pitchMinDeg: -10, pitchMaxDeg: 54, distMin: 3.6, distMax: 16.5, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
+    revealWiden: { fovAddDeg: 8, fullDeg: 70 } },
   board: { pitchMinDeg: -2, pitchMaxDeg: 2, distMin: 6.6, distMax: 7.8, yawHalfDeg: 4, lookM: 1.1, fovDeg: 48 },
 });
 
@@ -456,6 +470,8 @@ export class FreeOrbit {
     const c = this.roomHerC;
     return [pivot[0] + c[0], pivot[1] + c[1], pivot[2] + c[2]];
   }
+  /** Yaw captured by seed(): revealWiden measures the deviation from it. */
+  private seedYaw = 0;
   constructor(place: OrbitPlace = 'island') {
     this.placeName = place;
     this.limits = ORBIT_LIMITS[place];
@@ -483,6 +499,7 @@ export class FreeOrbit {
     this.dist = this.clampDist(dist);
     this.pitch = Math.asin(Math.max(-1, Math.min(1, dy / Math.max(dist, 1e-4)))) * 180 / Math.PI;
     this.yaw = Math.atan2(dx, dz) * 180 / Math.PI;
+    this.seedYaw = this.yaw;
     if (Number.isFinite(pose.fovVerticalDeg)) this.fov = pose.fovVerticalDeg;
     this.clampPitch();
     this.seeded = true;
@@ -654,7 +671,7 @@ export class FreeOrbit {
     const pr = this.pitch * Math.PI / 180, yr = this.yaw * Math.PI / 180;
     const cp = Math.cos(pr), sp = Math.sin(pr);
     const pos: Vec3 = [look[0] + Math.sin(yr) * cp * this.dist, look[1] + sp * this.dist, look[2] + Math.cos(yr) * cp * this.dist];
-    return { position: pos, target: look, fovVerticalDeg: this.fov };
+    return { position: pos, target: look, fovVerticalDeg: this.fov + revealWidenDeg(this.limits, this.yaw - this.seedYaw) };
   }
   /**
    * Shorten the arm until the lens and a 0.2 m near point clear every solid box, stay above the ground,

@@ -83,6 +83,7 @@ const tests=[
  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
  ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],['region-board-ambient','tools/lakeside/test_region_board_ambient.cjs'],
  ['lakeside-balloon-mooring','tools/lakeside/test_lakeside_balloon_mooring.cjs'],
+ ['lakeside-reveal-orbit','tools/lakeside/test_lakeside_reveal_orbit.cjs'],
  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-reach','tools/lakeside/test_lakeside_reach.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['region-landing-hook','tools/journey-integration/test-region-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],['lakeside-diag','tools/lakeside/test_lakeside_diag.cjs'],
  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
