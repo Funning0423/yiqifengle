@@ -1,4 +1,4 @@
-import {Color, EffectAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, instantiate} from 'cc';
+import {Color, EffectAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, gfx, instantiate} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {seatFromBench} from './TransportLeg';
 function find(node:Node,name:string):Node|null{if(node.name===name)return node;for(const c of node.children){const h=find(c,name);if(h)return h;}return null;}
@@ -36,31 +36,51 @@ export function placeBoat(root:Node,pos:Vec,yaw:number,roll:number):void{
 export function basketFloor(root:Node):Node{return find(root,'stand_point')??find(root,'basket_floor')??root;}
 export function flameNode(root:Node):Node|null{return find(root,'burner_flame');}
 const nightMat=new WeakMap<MeshRenderer,Material>();
+const dayMat=new WeakMap<MeshRenderer,Material>();
 const nightApplied=new WeakSet<MeshRenderer>();
+const dayApplied=new WeakSet<MeshRenderer>();
+/** Day envelope was standard-lit. After the seam the camera sits on the shadow side, so red/yellow fall to ~120. */
+const DAY_LIFT=new Vec3(1.12,1.12,1.12);
+function albedoOf(r:MeshRenderer):unknown{
+ try{const shared=r.getSharedMaterial(0);return shared?.getProperty('mainTexture')??shared?.getProperty('albedoMap')??null;}catch{return null;}
+}
 /**
- * Night balloon: glTF standard ignores mainColor, so the envelope stayed day-bright.
- * Swap to unlit × albedo (no emissive) at a cool dim multiply. Flame stays authored. Day restores the shared glTF mat.
+ * Day: unlit × albedo × linear 1.12 (builtin-unlit colorScale) so cruise matches the lit liftoff / v2.3 renders.
+ * Night: unlit × albedo × RGB(118,110,116). Flame stays authored. glTF standard ignores mainColor.
  */
 export function applyVehicleNight(root:Node,night:boolean):void{
  const walk=(n:Node)=>{
   if(n.name!=='burner_flame')for(const r of n.getComponents(MeshRenderer)){
-   if(!night){
-    if(nightApplied.has(r)){const shared=r.getSharedMaterial(0);if(shared)try{r.setSharedMaterial(shared,0);}catch{/* */}nightApplied.delete(r);}
+   if(night){
+    dayApplied.delete(r);
+    if(nightApplied.has(r))continue;
+    if(!EffectAsset.get('builtin-unlit'))continue;
+    const tex=albedoOf(r);
+    let m=nightMat.get(r);
+    if(!m){
+     m=new Material();
+     m.initialize({effectName:'builtin-unlit',technique:0,defines:tex?{USE_TEXTURE:true}:{}});
+     try{m.setProperty('mainColor',new Color(118,110,116,255));}catch{}
+     if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
+     nightMat.set(r,m);
+    }
+    try{r.setMaterialInstance(0,m);m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);nightApplied.add(r);}catch{/* */}
     continue;
    }
-   if(nightApplied.has(r))continue;
+   nightApplied.delete(r);
+   if(dayApplied.has(r))continue;
    if(!EffectAsset.get('builtin-unlit'))continue;
-   let tex:unknown=null;
-   try{const shared=r.getSharedMaterial(0);tex=shared?.getProperty('mainTexture')??shared?.getProperty('albedoMap')??null;}catch{tex=null;}
-   let m=nightMat.get(r);
+   const tex=albedoOf(r);
+   let m=dayMat.get(r);
    if(!m){
     m=new Material();
     m.initialize({effectName:'builtin-unlit',technique:0,defines:tex?{USE_TEXTURE:true}:{}});
-    try{m.setProperty('mainColor',new Color(118,110,116,255));}catch{}
+    try{m.setProperty('mainColor',new Color(255,255,255,255));}catch{}
+    try{m.setProperty('colorScale',DAY_LIFT);}catch{}
     if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
-    nightMat.set(r,m);
+    dayMat.set(r,m);
    }
-   try{r.setMaterialInstance(0,m);nightApplied.add(r);}catch{/* */}
+   try{r.setMaterialInstance(0,m);m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);dayApplied.add(r);}catch{/* */}
   }
   for(const child of n.children)walk(child);
  };
