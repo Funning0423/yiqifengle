@@ -21,6 +21,24 @@
       ],
       "subMetas": {}
     },
+    "56643": {
+      "importer": "gltf-mesh",
+      "uuid": "5c12e899-95e9-4fd1-90d1-3c7bf293a963@56643",
+      "displayName": "",
+      "id": "56643",
+      "name": "basket_door_leaf.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 62
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
     "79340": {
       "importer": "gltf-mesh",
       "uuid": "5c12e899-95e9-4fd1-90d1-3c7bf293a963@79340",
@@ -29,7 +47,7 @@
       "name": "balloon_basket.mesh",
       "userData": {
         "gltfIndex": 0,
-        "triangleCount": 449
+        "triangleCount": 471
       },
       "ver": "1.1.1",
       "imported": true,
@@ -280,7 +298,8 @@
       "meshes": [
         "5c12e899-95e9-4fd1-90d1-3c7bf293a963@79340",
         "5c12e899-95e9-4fd1-90d1-3c7bf293a963@bb93b",
-        "5c12e899-95e9-4fd1-90d1-3c7bf293a963@0b64f"
+        "5c12e899-95e9-4fd1-90d1-3c7bf293a963@0b64f",
+        "5c12e899-95e9-4fd1-90d1-3c7bf293a963@56643"
       ],
       "skeletons": [],
       "textures": [

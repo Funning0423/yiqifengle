@@ -40,7 +40,25 @@
       "id": "79961",
       "name": "state_ring_before_stars.mesh",
       "userData": {
-        "gltfIndex": 44,
+        "gltfIndex": 33,
+        "triangleCount": 84
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "92071": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@92071",
+      "displayName": "",
+      "id": "92071",
+      "name": "env_sky_ambient_props_skin.mesh",
+      "userData": {
+        "gltfIndex": 36,
         "triangleCount": 84
       },
       "ver": "1.1.1",
@@ -58,7 +76,7 @@
       "id": "92839",
       "name": "state_gate_after.mesh",
       "userData": {
-        "gltfIndex": 40,
+        "gltfIndex": 29,
         "triangleCount": 92
       },
       "ver": "1.1.1",
@@ -159,24 +177,6 @@
       ],
       "subMetas": {}
     },
-    "4f04f": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@4f04f",
-      "displayName": "",
-      "id": "4f04f",
-      "name": "env_sky_birds.mesh",
-      "userData": {
-        "gltfIndex": 5,
-        "triangleCount": 28
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
     "458fa": {
       "importer": "gltf-mesh",
       "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@458fa",
@@ -184,7 +184,7 @@
       "id": "458fa",
       "name": "env_sky_floatingrocks.001.mesh",
       "userData": {
-        "gltfIndex": 6,
+        "gltfIndex": 5,
         "triangleCount": 270
       },
       "ver": "1.1.1",
@@ -202,7 +202,7 @@
       "id": "c06f6",
       "name": "env_sky_floatingrocks.002.mesh",
       "userData": {
-        "gltfIndex": 7,
+        "gltfIndex": 6,
         "triangleCount": 270
       },
       "ver": "1.1.1",
@@ -220,7 +220,7 @@
       "id": "de555",
       "name": "env_sky_floatingrocks.003.mesh",
       "userData": {
-        "gltfIndex": 8,
+        "gltfIndex": 7,
         "triangleCount": 270
       },
       "ver": "1.1.1",
@@ -238,7 +238,7 @@
       "id": "4bd23",
       "name": "env_sky_floatingrocks_cards.001.mesh",
       "userData": {
-        "gltfIndex": 9,
+        "gltfIndex": 8,
         "triangleCount": 100
       },
       "ver": "1.1.1",
@@ -256,7 +256,7 @@
       "id": "e21d1",
       "name": "env_sky_floatingrocks_cards.002.mesh",
       "userData": {
-        "gltfIndex": 10,
+        "gltfIndex": 9,
         "triangleCount": 128
       },
       "ver": "1.1.1",
@@ -274,7 +274,7 @@
       "id": "98dd8",
       "name": "env_sky_floatingrocks_cards.003.mesh",
       "userData": {
-        "gltfIndex": 11,
+        "gltfIndex": 10,
         "triangleCount": 124
       },
       "ver": "1.1.1",
@@ -292,7 +292,7 @@
       "id": "4c83a",
       "name": "env_sky_greattree_canopy.mesh",
       "userData": {
-        "gltfIndex": 12,
+        "gltfIndex": 11,
         "triangleCount": 10480
       },
       "ver": "1.1.1",
@@ -310,7 +310,7 @@
       "id": "b65dd",
       "name": "env_sky_greattree_canopy_cards.mesh",
       "userData": {
-        "gltfIndex": 13,
+        "gltfIndex": 12,
         "triangleCount": 440
       },
       "ver": "1.1.1",
@@ -328,7 +328,7 @@
       "id": "f71a8",
       "name": "env_sky_island_vine_cards.mesh",
       "userData": {
-        "gltfIndex": 14,
+        "gltfIndex": 13,
         "triangleCount": 184
       },
       "ver": "1.1.1",
@@ -346,7 +346,7 @@
       "id": "a7218",
       "name": "env_sky_island_vines.mesh",
       "userData": {
-        "gltfIndex": 15,
+        "gltfIndex": 14,
         "triangleCount": 6992
       },
       "ver": "1.1.1",
@@ -364,188 +364,8 @@
       "id": "fa084",
       "name": "env_sky_island_windcore.mesh",
       "userData": {
-        "gltfIndex": 16,
+        "gltfIndex": 15,
         "triangleCount": 50
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "7f5e0": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@7f5e0",
-      "displayName": "",
-      "id": "7f5e0",
-      "name": "env_sky_pennant_01.mesh",
-      "userData": {
-        "gltfIndex": 17,
-        "triangleCount": 28
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "dbfd3": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@dbfd3",
-      "displayName": "",
-      "id": "dbfd3",
-      "name": "env_sky_pennant_02.mesh",
-      "userData": {
-        "gltfIndex": 18,
-        "triangleCount": 28
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "2107d": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2107d",
-      "displayName": "",
-      "id": "2107d",
-      "name": "env_sky_rope_root_01.mesh",
-      "userData": {
-        "gltfIndex": 19,
-        "triangleCount": 198
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "99cb6": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@99cb6",
-      "displayName": "",
-      "id": "99cb6",
-      "name": "env_sky_rope_root_02.mesh",
-      "userData": {
-        "gltfIndex": 20,
-        "triangleCount": 198
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "e9db6": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e9db6",
-      "displayName": "",
-      "id": "e9db6",
-      "name": "env_sky_rope_root_03.mesh",
-      "userData": {
-        "gltfIndex": 21,
-        "triangleCount": 198
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "7f47c": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@7f47c",
-      "displayName": "",
-      "id": "7f47c",
-      "name": "env_sky_rope_root_04.mesh",
-      "userData": {
-        "gltfIndex": 22,
-        "triangleCount": 198
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "1d43b": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@1d43b",
-      "displayName": "",
-      "id": "1d43b",
-      "name": "env_sky_rope_root_05.mesh",
-      "userData": {
-        "gltfIndex": 23,
-        "triangleCount": 198
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "c6b9f": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@c6b9f",
-      "displayName": "",
-      "id": "c6b9f",
-      "name": "env_sky_rope_root_06.mesh",
-      "userData": {
-        "gltfIndex": 24,
-        "triangleCount": 198
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "93e4b": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@93e4b",
-      "displayName": "",
-      "id": "93e4b",
-      "name": "env_sky_rope_root_07.mesh",
-      "userData": {
-        "gltfIndex": 25,
-        "triangleCount": 198
-      },
-      "ver": "1.1.1",
-      "imported": true,
-      "files": [
-        ".bin",
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "d85b2": {
-      "importer": "gltf-mesh",
-      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d85b2",
-      "displayName": "",
-      "id": "d85b2",
-      "name": "env_sky_rope_root_08.mesh",
-      "userData": {
-        "gltfIndex": 26,
-        "triangleCount": 198
       },
       "ver": "1.1.1",
       "imported": true,
@@ -562,7 +382,7 @@
       "id": "6a532",
       "name": "env_sky_ruins.mesh",
       "userData": {
-        "gltfIndex": 27,
+        "gltfIndex": 16,
         "triangleCount": 6637
       },
       "ver": "1.1.1",
@@ -580,7 +400,7 @@
       "id": "1af31",
       "name": "env_sky_starring.mesh",
       "userData": {
-        "gltfIndex": 28,
+        "gltfIndex": 17,
         "triangleCount": 1188
       },
       "ver": "1.1.1",
@@ -598,7 +418,7 @@
       "id": "0a7f2",
       "name": "state_ring_after_stars.mesh",
       "userData": {
-        "gltfIndex": 29,
+        "gltfIndex": 18,
         "triangleCount": 84
       },
       "ver": "1.1.1",
@@ -616,7 +436,7 @@
       "id": "786ee",
       "name": "env_sky_static_foliage_cards.mesh",
       "userData": {
-        "gltfIndex": 30,
+        "gltfIndex": 19,
         "triangleCount": 8720
       },
       "ver": "1.1.1",
@@ -634,7 +454,7 @@
       "id": "9de8f",
       "name": "env_sky_static_palette.mesh",
       "userData": {
-        "gltfIndex": 31,
+        "gltfIndex": 20,
         "triangleCount": 24696
       },
       "ver": "1.1.1",
@@ -652,7 +472,7 @@
       "id": "bf591",
       "name": "env_sky_static_rock_strata.mesh",
       "userData": {
-        "gltfIndex": 32,
+        "gltfIndex": 21,
         "triangleCount": 1873
       },
       "ver": "1.1.1",
@@ -670,7 +490,7 @@
       "id": "80c82",
       "name": "env_sky_waterfall_mist.mesh",
       "userData": {
-        "gltfIndex": 33,
+        "gltfIndex": 22,
         "triangleCount": 320
       },
       "ver": "1.1.1",
@@ -688,7 +508,7 @@
       "id": "61c88",
       "name": "env_sky_windchime_01.mesh",
       "userData": {
-        "gltfIndex": 34,
+        "gltfIndex": 23,
         "triangleCount": 60
       },
       "ver": "1.1.1",
@@ -706,7 +526,7 @@
       "id": "cdd5c",
       "name": "state_bridge_after.mesh",
       "userData": {
-        "gltfIndex": 35,
+        "gltfIndex": 24,
         "triangleCount": 404
       },
       "ver": "1.1.1",
@@ -724,7 +544,7 @@
       "id": "4b43f",
       "name": "state_bridge_before.mesh",
       "userData": {
-        "gltfIndex": 36,
+        "gltfIndex": 25,
         "triangleCount": 44
       },
       "ver": "1.1.1",
@@ -742,7 +562,7 @@
       "id": "ad813",
       "name": "state_court_after.mesh",
       "userData": {
-        "gltfIndex": 37,
+        "gltfIndex": 26,
         "triangleCount": 38
       },
       "ver": "1.1.1",
@@ -760,7 +580,7 @@
       "id": "1e8b2",
       "name": "state_court_after_flowers.mesh",
       "userData": {
-        "gltfIndex": 38,
+        "gltfIndex": 27,
         "triangleCount": 144
       },
       "ver": "1.1.1",
@@ -778,7 +598,7 @@
       "id": "62d24",
       "name": "state_court_before.mesh",
       "userData": {
-        "gltfIndex": 39,
+        "gltfIndex": 28,
         "triangleCount": 38
       },
       "ver": "1.1.1",
@@ -796,7 +616,7 @@
       "id": "62c1e",
       "name": "state_gate_after_flowers.mesh",
       "userData": {
-        "gltfIndex": 41,
+        "gltfIndex": 30,
         "triangleCount": 24
       },
       "ver": "1.1.1",
@@ -814,7 +634,7 @@
       "id": "b6eeb",
       "name": "state_gate_before.mesh",
       "userData": {
-        "gltfIndex": 42,
+        "gltfIndex": 31,
         "triangleCount": 12
       },
       "ver": "1.1.1",
@@ -832,7 +652,7 @@
       "id": "3d21f",
       "name": "state_ring_before.mesh",
       "userData": {
-        "gltfIndex": 43,
+        "gltfIndex": 32,
         "triangleCount": 1188
       },
       "ver": "1.1.1",
@@ -850,8 +670,26 @@
       "id": "5dab2",
       "name": "env_sky_floor_seal.mesh",
       "userData": {
-        "gltfIndex": 45,
+        "gltfIndex": 34,
         "triangleCount": 1176
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "28f75": {
+      "importer": "gltf-mesh",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@28f75",
+      "displayName": "",
+      "id": "28f75",
+      "name": "env_sky_rope_roots_skin.mesh",
+      "userData": {
+        "gltfIndex": 35,
+        "triangleCount": 1584
       },
       "ver": "1.1.1",
       "imported": true,
@@ -939,6 +777,40 @@
       "userData": {
         "gltfIndex": 0,
         "jointsLength": 18
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6c9de": {
+      "importer": "gltf-skeleton",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@6c9de",
+      "displayName": "",
+      "id": "6c9de",
+      "name": "env_sky_rope_roots_skin.skeleton",
+      "userData": {
+        "gltfIndex": 1,
+        "jointsLength": 8
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d303b": {
+      "importer": "gltf-skeleton",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d303b",
+      "displayName": "",
+      "id": "d303b",
+      "name": "env_sky_ambient_props_skin.skeleton",
+      "userData": {
+        "gltfIndex": 2,
+        "jointsLength": 3
       },
       "ver": "1.0.1",
       "imported": true,
@@ -1278,7 +1150,6 @@
         "0694320f-9061-478a-8d1f-cdfb7537ab22@4b425",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@e3905",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@79db1",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@4f04f",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@458fa",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@c06f6",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@de555",
@@ -1290,16 +1161,6 @@
         "0694320f-9061-478a-8d1f-cdfb7537ab22@f71a8",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@a7218",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@fa084",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@7f5e0",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@dbfd3",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@2107d",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@99cb6",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@e9db6",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@7f47c",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@1d43b",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@c6b9f",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@93e4b",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@d85b2",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@6a532",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@1af31",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@0a7f2",
@@ -1318,10 +1179,14 @@
         "0694320f-9061-478a-8d1f-cdfb7537ab22@b6eeb",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@3d21f",
         "0694320f-9061-478a-8d1f-cdfb7537ab22@79961",
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@5dab2"
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@5dab2",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@28f75",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@92071"
       ],
       "skeletons": [
-        "0694320f-9061-478a-8d1f-cdfb7537ab22@525f1"
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@525f1",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@6c9de",
+        "0694320f-9061-478a-8d1f-cdfb7537ab22@d303b"
       ],
       "textures": [
         "0694320f-9061-478a-8d1f-cdfb7537ab22@3effa",

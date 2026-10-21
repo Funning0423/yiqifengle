@@ -105,7 +105,7 @@
       "name": "LOD0_G2_DRESS.mesh",
       "userData": {
         "gltfIndex": 3,
-        "triangleCount": 10560
+        "triangleCount": 10558
       },
       "ver": "1.1.1",
       "imported": true,
@@ -322,19 +322,19 @@
       ],
       "subMetas": {}
     },
-    "e784c": {
+    "1adec": {
       "importer": "gltf-animation",
-      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@e784c",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@1adec",
       "displayName": "",
-      "id": "e784c",
-      "name": "walk_start.animation",
+      "id": "1adec",
+      "name": "walk_loop.animation",
       "userData": {
         "gltfIndex": 10,
-        "wrapMode": 1,
+        "wrapMode": 2,
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.9333332777023315
+          "to": 1.4333332777023315
         },
         "events": []
       },
@@ -345,19 +345,19 @@
       ],
       "subMetas": {}
     },
-    "1adec": {
+    "e784c": {
       "importer": "gltf-animation",
-      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@1adec",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@e784c",
       "displayName": "",
-      "id": "1adec",
-      "name": "walk_loop.animation",
+      "id": "e784c",
+      "name": "walk_start.animation",
       "userData": {
         "gltfIndex": 11,
-        "wrapMode": 2,
+        "wrapMode": 1,
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.4333332777023315
+          "to": 1.9333332777023315
         },
         "events": []
       },
@@ -422,7 +422,7 @@
       "name": "R5G2_RIG_22P4.skeleton",
       "userData": {
         "gltfIndex": 0,
-        "jointsLength": 28
+        "jointsLength": 29
       },
       "ver": "1.0.1",
       "imported": true,
@@ -957,20 +957,6 @@
         ]
       },
       {
-        "name": "walk_start",
-        "duration": 1.9333332777023315,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "walk_start",
-            "from": 0,
-            "to": 1.9333332777023315,
-            "wrapMode": 1,
-            "previousId": "e784c"
-          }
-        ]
-      },
-      {
         "name": "walk_loop",
         "duration": 1.4333332777023315,
         "fps": 30,
@@ -981,6 +967,20 @@
             "to": 1.4333332777023315,
             "wrapMode": 2,
             "previousId": "1adec"
+          }
+        ]
+      },
+      {
+        "name": "walk_start",
+        "duration": 1.9333332777023315,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_start",
+            "from": 0,
+            "to": 1.9333332777023315,
+            "wrapMode": 1,
+            "previousId": "e784c"
           }
         ]
       },

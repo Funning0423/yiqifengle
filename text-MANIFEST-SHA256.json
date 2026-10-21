@@ -747,7 +747,7 @@
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
     "bytes": 25317,
-    "sha256": "338d04a500d6897c0d6be3ad4dd2fb250a3e932c69688586ea7d1195c0ffb162"
+    "sha256": "096a7637a5bbc81c6cbdb31b1e56b9d00c67a0b0293210ae29c0769bc0efaf6f"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
@@ -1356,8 +1356,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-    "bytes": 32512,
-    "sha256": "6982fb98baa5c73fbac1ff35c74d754722696fb0e638e81d854f3b9b6d105ebe"
+    "bytes": 29272,
+    "sha256": "0c1f2a9a00b97197fcc4fd7cc85da5b09f9bae0283f6b357f10fc02478e0bc40"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon.meta",
@@ -1406,8 +1406,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta",
-    "bytes": 7326,
-    "sha256": "8162abccae3c8976e5de678ea150c689e14e873bbf04eddf01d70c079d3851b3"
+    "bytes": 7784,
+    "sha256": "c9076429012f374cd4a3c911619d5677864ea243531ba1303d777c3da57c04d0"
   },
   {
     "path": "creator-build-project/assets/bundles/shared_effects.meta",
