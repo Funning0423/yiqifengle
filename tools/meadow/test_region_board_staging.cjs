@@ -102,5 +102,6 @@ await run('hidden host mid-staging (app paused / board hidden): steps wait, no t
  w.host.active=true;lease.setVisible(true);assert.equal(lease.diagnostics().staging.reason,'reveal');assert.equal(w.cam.rect.width,1);lease.dispose();});
 await run('loose-ES5: RegionBoardStaging has no for-of / spread over Map or Set (no Map/Set at all), transpiles at ES5 without downlevelIteration',()=>{
  const src=fs.readFileSync(S+'region/RegionBoardStaging.ts','utf8');assert.doesNotMatch(src,/\bnew (Map|Set)\b/);assert.doesNotMatch(src,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
- const r=ts.transpileModule(src,{compilerOptions:{module:1,target:1},reportDiagnostics:true});assert.equal((r.diagnostics||[]).length,0);});
+ // TS 6 deprecates ES5; keep testing that target while retaining compatibility with older compilers.
+ const r=ts.transpileModule(src,{compilerOptions:{module:1,target:1,...(ts.version.startsWith('6.')?{ignoreDeprecations:'6.0'}:{})},reportDiagnostics:true});assert.equal((r.diagnostics||[]).length,0);});
 })().catch(e=>{console.error(e);process.exit(1);});
