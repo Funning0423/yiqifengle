@@ -129,12 +129,20 @@ export const TRAVEL_ROUTES: { [target: string]: TravelRoute } = {
   },
 };
 
-/** 待定层（候选素材已经放进分包，但还没进 SCENE_AMBIENCE_DESIGN，等 Funning 听完 12a/12b、13a/13b 决定）。播放器不要读这张表。 */
+/** 原候选素材目录；以下三个已获用户确认，由 CONFIRMED_LANDMARKS 接入。 */
 export const PENDING_CANDIDATES: { [id: string]: { place: ScenePlace; tier: 'scatter' | 'landmark'; clips: LayerClip[]; anchor?: string } } = {
   lakeWaterbirds: { place: 'lakeside', tier: 'scatter', clips: [R('audio/sfx_lake_waterbird_1', 'region_lakeside'), R('audio/sfx_lake_waterbird_2', 'region_lakeside'), R('audio/sfx_lake_waterbird_3', 'region_lakeside'), R('audio/sfx_lake_waterbird_4', 'region_lakeside')] },
   skyGardener: { place: 'skycity', tier: 'landmark', anchor: 'robot gardener', clips: [R('audio/sfx_sky_gardener_water_1', 'region_skycity'), R('audio/sfx_sky_gardener_water_2', 'region_skycity'), R('audio/sfx_sky_gardener_boop_1', 'region_skycity')] },
   skyStarring: { place: 'skycity', tier: 'landmark', anchor: 'starring_spin', clips: [R('audio/amb_sky_starring_loop', 'region_skycity')] },
 };
+
+/** Approved landmarks only; the remaining design landmarks are not enabled here. */
+export type LandmarkSpec = AmbLandmark & { place: ScenePlace };
+export const CONFIRMED_LANDMARKS: LandmarkSpec[] = [
+  { id: 'lakeWaterbirds', place: 'lakeside', anchor: 'LK_duck_i', clips: PENDING_CANDIDATES.lakeWaterbirds.clips, loopS: null, vol: 0.18, nearM: 3, farM: 25, interval: [14, 30] },
+  { id: 'skyGardener', place: 'skycity', anchor: 'chr_robot_gardener_mesh', clips: PENDING_CANDIDATES.skyGardener.clips, loopS: null, vol: 0.18, nearM: 2, farM: 15, interval: [18, 40] },
+  { id: 'skyStarring', place: 'skycity', anchor: 'env_sky_starring', clips: PENDING_CANDIDATES.skyStarring.clips, loopS: 16, vol: 0.16, nearM: 3, farM: 25 },
+];
 
 /** 地面 → 脚步素材（4 个变体，文件名 _1.._4）。step_* 在 region_island 的是 r4 的合成脚步（r4.1 重录待 Mac 录音确认）；
  *  sand / cloud 是 Voice bot V2 的 CC0 候选（Kenney Impact Sounds 加工）。gain 和 FootstepCore.STEP_GAIN 用同一刻度（文件 100 ms RMS ≈ -24.5 dBFS）。 */
