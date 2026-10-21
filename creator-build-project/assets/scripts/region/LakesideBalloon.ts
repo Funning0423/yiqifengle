@@ -298,6 +298,23 @@ export function lakesideRouteTiming(length:number,durationS:number,easeInS:numbe
  return {durationS,easeInS:a,easeOutS:b};
 }
 
-/** b15 door shot: the moored-basket lens is held until she has walked `outM` along the moored walk (clear of the basket:
- *  basket half-width 1.0 m + her radius + margin), capped at walk start + outM at walk speed + capPadS (game seconds). */
-export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0} as const;
+/** b15 door shot (Grok review: the door opening and her step-out must be on screen). The ride lens no longer blends onto
+ *  the landing pose before touchdown: from T - blendOutS it stays on the follow lens (which tracks the basket) down to
+ *  touchdown and holds there (doorLens) until she has walked `outM` along the moored walk (clear of the basket: half-width
+ *  1.0 m + her radius + margin; capped at walk start + outM at walk speed + capPadS game seconds). Only then does it blend
+ *  onto the landing (= board) pose, over lakesideDoorBlendS (SPEC §6.1 rule, ≥ minBlendS), while she walks on off the board
+ *  frame; the controller and the board fade-in follow that, still overlapping the rest of her walk. */
+export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0,minBlendS:3.0} as const;
+/** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera before the old blend-out window, follow after. */
+export function lakesideDoorRideCamera(R:LakesideBalloonRide,t:number,from:Pose|null,knobs:BalloonKnobs=LAKESIDE_BALLOON_LANDING):Pose{
+ const o=R.T-knobs.blendOutS;if(t<o||t<R.cutT)return R.camera(t,from);
+ return R.flight.follow(Math.min(R.T,t)-R.liftT);
+}
+/** Blend length door lens → landing pose: max(minBlendS, √(5.7735·L/3), √(5.7735·Δ°/120)) (smootherstep peaks ≤ 3 m/s², ≤ 120°/s²). */
+export function lakesideDoorBlendS(a:Pose,b:Pose):number{
+ const L=Math.hypot(a.position[0]-b.position[0],a.position[1]-b.position[1],a.position[2]-b.position[2]);
+ const u=unit(a.position,a.target),v=unit(b.position,b.target),deg=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]+u[2]*v[2])))*180/Math.PI;
+ return Math.max(LAKESIDE_DOOR_HOLD.minBlendS,Math.sqrt(5.7735*L/3),Math.sqrt(5.7735*deg/120));
+}
+/** Door lens → landing pose at blend progress u∈[0,1] (smootherstep, as the old blend-out). */
+export function lakesideDoorBlendPose(a:Pose,b:Pose,u:number):Pose{const x=Math.max(0,Math.min(1,u));return blendPose(a,b,x*x*x*(x*(x*6-15)+10));}

@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {LAKESIDE_DOOR_HOLD,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -278,7 +278,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
-     lastPose=R.camera(t,from);world.setCamera(lastPose);
+     lastPose=lakesideDoorRideCamera(R,t,from);world.setCamera(lastPose);
      lease.progress!(t<R.cutT?R.walkAt(t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
     };
     beforeDraw=()=>{if(!dead)apply();};
@@ -335,7 +335,12 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
    (lease as any).tail=tail;tail.catch(()=>{}).then(()=>{if((lease as any).tail===tail)(lease as any).tail=null;});
    tail.catch(()=>{}).then(()=>outOk());const offOut=rideToken.onCancel(()=>outOk());
-   try{await out;}finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
+   try{await out;rideToken.check();
+    // she is out: blend the held door lens onto the landing (= board) pose in game time, then hand over
+    const a=lastPose||landPose,blendS=lakesideDoorBlendS(a,landPose);let u=0;
+    await new Promise<void>((ok,bad)=>{const offB=rideToken.onCancel(()=>{bad(Error('cancelled'));});const prevStep=ticker.step;
+     ticker.step=(dt)=>{prevStep(dt);u+=dt/blendS;lastPose=lakesideDoorBlendPose(a,landPose,u);if(u>=1){lastPose=landPose;ticker.step=prevStep;offB();ok();}};});
+   }finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
    rideToken.check();qaMark0('out');
   };
   // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
