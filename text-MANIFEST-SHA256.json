@@ -2286,8 +2286,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js",
-    "bytes": 8427,
-    "sha256": "b2306213707d79181d7c7bb1b5a8614e589730218b342eb9ce4f51a7f6cc704a"
+    "bytes": 8583,
+    "sha256": "540f60d4c0bd767dc742776f319a255fd30fbe46a43ff464d3f5c714cc7b3966"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js.meta",
@@ -2461,8 +2461,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts",
-    "bytes": 11843,
-    "sha256": "7c2ffca3f1c6e8d151b036f71851230bbf4e0b0691254e9de8cd06c74dcfd5b0"
+    "bytes": 13180,
+    "sha256": "8f1a610cde2c2cee9a50e49579e16a722380f5da08eed657f7be57b516cc3824"
   },
   {
     "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts.meta",
@@ -3011,8 +3011,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 29207,
-    "sha256": "fd264656384e84be13f093d5b6b3afd8b9c9c0a5613212a810da1d2bde59fbae"
+    "bytes": 29294,
+    "sha256": "49a98790caacbe6853d774e21baa09f68adec97cf2a3ed937ce37e1665f86d7a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
@@ -3491,8 +3491,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/NodeMarkers.ts",
-    "bytes": 5474,
-    "sha256": "2c8d9ccfef75984ee72110b4c0714b968f85383d1aea50ba7047ae8964cb2ff3"
+    "bytes": 5608,
+    "sha256": "57ed68ae9438f236bfb985f3cffc32a86fe2d1e677347e3d8d94d3e08541a4b4"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/NodeMarkers.ts.meta",
@@ -3716,8 +3716,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 62856,
-    "sha256": "58fdac0805e5be672250502ee30475ac644237e398a34546b489eedbb8f69766"
+    "bytes": 63326,
+    "sha256": "d7c6f98d1073107ecad5c207cee44b311b02d4d089751f716b23993749fdeb8d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -3991,8 +3991,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 33354,
-    "sha256": "2e50763101f77de474759733752dd8de4e0f51d8626722233651fe1dc53bb51d"
+    "bytes": 35163,
+    "sha256": "771b9838ca23dbde7ffd56a26fb91e5587b27f8984f4c82ca3db45082a8c7786"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4031,8 +4031,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 31755,
-    "sha256": "eec560d4225e4a8a18e6dc6f2faa17d9532c0402d15fea26acad71564527c3ab"
+    "bytes": 31732,
+    "sha256": "8d50010cf4da19102f9357c756354d4308b919e9907b400c57339b0b60643822"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4381,8 +4381,8 @@
   },
   {
     "path": "tools/test_startup_ready_gate.cjs",
-    "bytes": 18153,
-    "sha256": "5ae24664b7f435d01a4b3850727b3786a14f5bc18a6c94376a1c2110e2aafb58"
+    "bytes": 18169,
+    "sha256": "44c1d3802cf94426b3ad758e13f25dfa917aab9bfd378120fde779f8df0a300c"
   },
   {
     "path": "tools/test_ui_contrast.cjs",

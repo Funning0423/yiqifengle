@@ -167,8 +167,12 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
  */
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
-/** Beam on her port side, so the swing off the bow does not look through the sail. */
-const Kbeam:SailOff={back:0.8,side:10.2,up:5.1,fov:52,look:0.2,orb:0};
+/**
+ * Beam on her starboard side (b11). The jib, main and boom all sit to port of the centreline (+X), so from
+ * starboard they are behind her; K2 (starboard bow) → Kbeam → K3 (starboard quarter) never crosses the bow line.
+ * Was side:10.2 (port): the swing off the bow looked through the jib and rig (chest hidden S-d u 0.02–0.06, 0.23).
+ */
+const Kbeam:SailOff={back:0.8,side:-10.2,up:5.1,fov:52,look:0.2,orb:0};
 /**
  * Far-sea K3 (day) / K7 (night still). r5-sail-farsea: astern, a little to starboard, lower, aimed 3 m ahead
  * so the meadow windmill (≈80 m ahead, port of the heading) sits whole in the upper third above her.
