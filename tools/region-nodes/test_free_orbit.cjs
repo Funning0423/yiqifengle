@@ -110,4 +110,67 @@ fresh.unlock();
 assert.equal(fresh.drag(0.1,0),true,'an unused pause does not eat the next drag');
 assert.equal(C.orbitColliderName('env_sky_dome'),true);
 assert.equal(C.orbitColliderName('env_lighthouse_ext'),false);
+
+// Execute the production stage's final orbit write with a Cocos ray-model double. Sky stairs are
+// merged into meshes wider than the AABB cap; the girl's ground height alone cannot protect the lens.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
+const stagePath=path.join(__dirname,'../../creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts');
+const source=ts.createSourceFile(stagePath,fs.readFileSync(stagePath,'utf8'),ts.ScriptTarget.Latest,true);
+const stageClass=source.statements.find(n=>ts.isClassDeclaration(n)&&n.name.text==='RegionNodeStage');
+const methods=['writeOrbit','guardOrbitGround','viewDir'].map(name=>stageClass.members.find(n=>n.name?.getText(source)===name).getText(source));
+class Ray{constructor(){this.o={set(x,y,z){Object.assign(this,{x,y,z});}};this.d={set(x,y,z){Object.assign(this,{x,y,z});}};}}
+let rayCalls=0;
+const geometry={Ray,ERaycastMode:{CLOSEST:1},intersect:{rayModel(ray,model,options){
+ rayCalls++;
+ assert.equal(ray.d.y,-1,'terrain is sampled downwards, even when the lens is already underground');
+ assert.ok(ray.o.y>model.worldBounds.center.y+model.worldBounds.halfExtents.y);
+ assert.equal(options.doubleSided,true);
+ const height=model.height(ray.o.x,ray.o.z);
+ return height===null?0:ray.o.y-height;
+}}};
+const compiled=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
+const sandbox={module:{exports:{}},geometry,MeshRenderer:class{},LENS_CLEAR_M:0.6};
+vm.runInNewContext(compiled,sandbox,{filename:stagePath});
+const Stage=sandbox.module.exports;
+const render=(name,height,enabled=true,active=true)=>({enabled,node:{name,activeInHierarchy:active},model:{worldBounds:{center:{x:0,y:5,z:0},halfExtents:{x:50,y:15,z:50}},height}});
+const meshNames=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_ruins','env_sky_floor_seal','state_bridge_after','state_court_after'];
+const glb=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/bundles/region_skycity/env_skycity.glb'));
+const gltf=JSON.parse(glb.subarray(20,20+glb.readUInt32LE(12)).toString());
+for(const name of meshNames)assert.ok(gltf.nodes.some(n=>n.name===name&&n.mesh!==undefined),'real sky terrain mesh: '+name);
+const stage=new Stage();stage.region='skycity';
+let renderers=[];
+stage.model=()=>({getComponentsInChildren:()=>renderers});
+stage.orbitBoxes=[];stage.refreshOrbitBoxes=()=>{};stage.regionBounds=()=>[-50,-50,50,50];stage.girl=()=>[0,0,0];
+let written;
+stage.writePose=p=>{written=p;};
+const skyOrbit=new C.FreeOrbit('skycity');skyOrbit.pitch=-6;skyOrbit.dist=22;
+stage.orbit=skyOrbit;
+for(const name of meshNames){
+ renderers=[render(name,()=>12)];
+ stage.writeOrbit(0);
+ assert.ok(written.position[1]>=12+0.8-1e-9,name+': lens above merged terrain, not the girl ground plane');
+ assert.equal(written.target[1],1.25,'keep looking at the subject');
+}
+// The near point crosses onto a higher tread while the lens itself is still on the lower one.
+const stepPose={position:[0,0.5,0],target:[0,0,10],fovVerticalDeg:48};
+stage.orbit={step(){},solve(){return stepPose;}};
+renderers=[render('env_sky_static_palette',(_x,z)=>z>0.1?5:1)];
+stage.writeOrbit(0);
+assert.ok(written.position[1]>=5.8-1e-9,'near clip clears the next stair tread');
+// Return from a cinematic begins below a high terrace; no finite climb-loop may leave it buried.
+skyOrbit.beginReturn({position:[0,-20,0],target:[0,1.25,0],fovVerticalDeg:48});stage.orbit=skyOrbit;
+renderers=[render('env_sky_ruins',()=>19)];
+for(let i=0;i<8;i++){stage.writeOrbit(0.1);assert.ok(written.position[1]>=19.8-1e-9,'return frames stay above terrain');}
+// Clouds, foliage, hidden state variants, and missed mesh triangles never become ground.
+stage.orbit={step(){},solve(){return stepPose;}};
+renderers=[render('env_sky_cloudsea',()=>19),render('env_sky_greattree_canopy',()=>19),render('state_court_after_flowers',()=>19),render('env_sky_ruins',()=>19,false),render('state_bridge_before',()=>19,true,false),render('env_sky_static_palette',()=>null)];
+stage.writeOrbit(0);assert.equal(written,stepPose);
+renderers=[render('env_sky_static_palette',()=>1)];
+const clearPose={position:[0,30,0],target:[0,1,10],fovVerticalDeg:48};
+assert.equal(stage.guardOrbitGround(clearPose),clearPose,'already clear pose is unchanged');
+assert.equal(stage.guardOrbitGround({...stepPose,position:[100,0.5,100]}).position[1],0.5,'outside mesh footprint is unchanged');
+const calls=rayCalls;stage.region='meadow';stage.writeOrbit(0);
+assert.equal(written,stepPose);assert.equal(rayCalls,calls,'other regions do not raycast');
+stage.region='skycity';stage.model=()=>null;stage.writeOrbit(0);assert.equal(written,stepPose);
 console.log('free-orbit PASS');

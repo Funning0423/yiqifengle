@@ -431,7 +431,30 @@ export class RegionNodeStage extends Component{
   this.orbit.step(dt);
   const g=this.girl();
   this.refreshOrbitBoxes(g);
-  this.writePose(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds()),false);
+  this.writePose(this.guardOrbitGround(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds())),false);
+ }
+ /** Sky stairs live in large merged meshes excluded from orbit AABBs. Sample from ABOVE the mesh,
+  * so even a lens already below a tread (or returning from a cinematic) is lifted onto its top. */
+ private guardOrbitGround(pose:Pose):Pose{
+  if(this.region!=='skycity')return pose;
+  const model=this.model(this.region);if(!model)return pose;
+  const p=pose.position,dir=this.viewDir(pose),nearM=0.2;
+  let y=p[1];
+  const ray=new geometry.Ray();ray.d.set(0,-1,0);
+  for(const r of model.getComponentsInChildren(MeshRenderer)){
+   if(!r.enabled||!r.node.activeInHierarchy||!r.model?.worldBounds)continue;
+   if(!/^(env_sky_(static_palette|static_rock_strata|ruins|floor_seal)|state_(bridge|court)_(before|after))$/.test(r.node.name))continue;
+   const b=r.model.worldBounds,c=b.center,h=b.halfExtents;
+   for(const offset of [0,nearM]){
+    const x=p[0]+dir[0]*offset,z=p[2]+dir[2]*offset;
+    if(x<c.x-h.x||x>c.x+h.x||z<c.z-h.z||z>c.z+h.z)continue;
+    const top=c.y+h.y+1,distance=h.y*2+2;
+    ray.o.set(x,top,z);
+    const t=geometry.intersect.rayModel(ray,r.model,{mode:geometry.ERaycastMode.CLOSEST,distance,doubleSided:true});
+    if(t>0&&t<=distance)y=Math.max(y,top-t+LENS_CLEAR_M+nearM);
+   }
+  }
+  return y===p[1]?pose:{position:[p[0],y,p[2]],target:pose.target,fovVerticalDeg:pose.fovVerticalDeg};
  }
  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
   const {w,h}=this.viewport(),g=this.girl();
