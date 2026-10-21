@@ -2,7 +2,8 @@
 import { CONFIRMED_LANDMARKS, type LandmarkSpec } from './SceneAudioTable';
 export const LANDMARK_FADE_S = 2;
 export const MAX_LANDMARK_SOURCES = 2;
-export const LANDMARK_GAIN_BUDGET = 0.24;
+// b15: 0.24 sat below every single landmark's own vol (0.4-0.5), so one voice alone was cut; 0.6 only trims two loud voices together.
+export const LANDMARK_GAIN_BUDGET = 0.6;
 export function landmarkGain(distance: number, near: number, far: number): number {
   if (!isFinite(distance) || distance < 0 || far <= near) return 0;
   const t = Math.max(0, Math.min(1, (distance - near) / (far - near)));

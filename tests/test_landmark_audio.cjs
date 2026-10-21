@@ -70,4 +70,11 @@ check('all approved clips exist, anchors match shipped scenes, startup hooks pre
   for (const hook of ['EVENT_AFTER_SCENE_LAUNCH', 'ambienceMounters', 'ambienceQuieters', 'canPlayAmbience', 'decRef()', 'ticket === this.ticket']) assert(source.includes(hook));
   assert(fs.readFileSync(path.join(base, 'audio/AmbienceNight.ts'), 'utf8').includes('LandmarkAudio.setNightSource'));
 });
+check('b15 mix: budget never cuts a single landmark; radii reach the walkable spots (ducks ~20 m, ring 20.4 m overhead)', () => {
+  for (const s of CONFIRMED_LANDMARKS) assert(s.vol <= LANDMARK_GAIN_BUDGET, s.id + ' vol above budget');
+  const by = id => CONFIRMED_LANDMARKS.find(s => s.id === id);
+  assert(landmarkGain(20.2, by('lakeWaterbirds').nearM, by('lakeWaterbirds').farM) > 0.9);
+  assert(landmarkGain(20.4, by('skyStarring').nearM, by('skyStarring').farM) === 1);
+  assert(landmarkGain(3.9, by('skyGardener').nearM, by('skyGardener').farM) > 0.9);
+});
 console.log('landmark-audio: ' + checks + ' checks PASS');
