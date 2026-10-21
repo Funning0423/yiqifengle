@@ -3011,8 +3011,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 29294,
-    "sha256": "49a98790caacbe6853d774e21baa09f68adec97cf2a3ed937ce37e1665f86d7a"
+    "bytes": 29415,
+    "sha256": "b15b266e6036020c9b7a4cbb04e2e8f9faba5d187553ce9205bd09baddd972bf"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",

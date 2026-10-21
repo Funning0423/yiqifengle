@@ -178,9 +178,10 @@ const Kbeam:SailOff={back:0.8,side:-10.2,up:5.1,fov:52,look:0.2,orb:0};
  * so the meadow windmill (≈80 m ahead, port of the heading) sits whole in the upper third above her.
  * fov stays 52 so the K7 star still keeps its pixel size.
  * Old (sail-k2k7): {back:8.2,side:7.8,up:5.0,fov:52,look:0.2}, port quarter, windmill ~6 ndc off the left edge.
+ * b12 rework (K7 windmill whole, centred-upper; was back 10.5 side -2: blades cut at left edge): back 11.5 side -4.5.
  * Rollback: restore that line and SAIL_K3_IN back to 0.24.
  */
-const K3:SailOff={back:10.5,side:-2,up:4.4,fov:52,look:3,orb:0};
+const K3:SailOff={back:11.5,side:-4.5,up:4.4,fov:52,look:3,orb:0};
 /** S-d u where the bow→beam arc ends on the 3.6 m/s cruise clock. */
 export const SAIL_BEAM_IN=0.14;
 /** S-d u where the ~96° Kbeam→K3 arc ends. Keep the swing below 110°/s. */
