@@ -308,11 +308,34 @@ export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0,minBlendS:3.0,aimPull:.8} 
 /** Door lens: on the shore side, ahead of her and to the side of the door path, looking back at the door and her first
  *  steps (the follow lens sits behind the basket, so the door wall, which faces the shore, would be hidden). Pure numbers. */
 export const LAKESIDE_DOOR_LENS={aheadM:3.2,sideM:3.6,upM:1.5,lookUpM:1.0,fovDeg:50,turnInS:8} as const;
-export function lakesideDoorLens(walk:readonly Vec[],outM:number=LAKESIDE_DOOR_HOLD.outM,k=LAKESIDE_DOOR_LENS):Pose{
+export function lakesideDoorLensAt(walk:readonly Vec[],ahead:number,side:number,up:number,lookUp:number,fov:number,outM:number=LAKESIDE_DOOR_HOLD.outM):Pose{
  const p0=walk[0],q=sampleRoute(walk as Vec[],outM),m:Vec=[(p0[0]+q[0])/2,(p0[1]+q[1])/2,(p0[2]+q[2])/2];
- const d=unit(p0,q),hl=Math.hypot(d[0],d[2])||1,f:Vec=[d[0]/hl,0,d[2]/hl],side:Vec=[f[2],0,-f[0]];
- const pos:Vec=[q[0]+f[0]*k.aheadM+side[0]*k.sideM,m[1]+k.upM,q[2]+f[2]*k.aheadM+side[2]*k.sideM];
- return {position:pos,target:[m[0]-f[0]*.3,m[1]+k.lookUpM,m[2]-f[2]*.3],fovVerticalDeg:k.fovDeg};
+ const d=unit(p0,q),hl=Math.hypot(d[0],d[2])||1,f:Vec=[d[0]/hl,0,d[2]/hl],sd:Vec=[f[2],0,-f[0]];
+ const pos:Vec=[q[0]+f[0]*ahead+sd[0]*side,m[1]+up,q[2]+f[2]*ahead+sd[2]*side];
+ return {position:pos,target:[m[0]-f[0]*.3,m[1]+lookUp,m[2]-f[2]*.3],fovVerticalDeg:fov};
+}
+/** Framing points of the door shot: the basket box (±1.0 m, 0…1.25 m, around the mooring) and her door path (feet, head). */
+export function lakesideDoorFramePoints(walk:readonly Vec[],basket:Vec,outM:number=LAKESIDE_DOOR_HOLD.outM):Vec[]{
+ const pts:Vec[]=[];for(const x of [-1,1])for(const z of [-1,1])for(const y of [0,1.25])pts.push([basket[0]+x,basket[1]+y,basket[2]+z]);
+ const q=sampleRoute(walk as Vec[],outM);for(const p of [walk[0],q])for(const y of [0,1.65])pts.push([p[0],p[1]+y,p[2]]);
+ return pts;
+}
+/** b16 door lens retune (real-build review: ~30% empty grass at the bottom, basket cut on the right): a small deterministic
+ *  search of the shore-side lens (ahead/side/up/look height) for the frame that holds the whole basket + her door path
+ *  inside 0.9, with the lowest framed point near the bottom (≈ -0.8, little empty ground) and the block centred. Falls back
+ *  to the b15 numbers when no candidate fits. `aspect` is the screen width/height. */
+export function lakesideDoorLens(walk:readonly Vec[],basket?:Vec,aspect=390/844,outM:number=LAKESIDE_DOOR_HOLD.outM,k=LAKESIDE_DOOR_LENS):Pose{
+ if(!basket)return lakesideDoorLensAt(walk,k.aheadM,k.sideM,k.upM,k.lookUpM,k.fovDeg,outM);
+ const pts=lakesideDoorFramePoints(walk,basket,outM);let best:Pose|null=null,bc=1e9;
+ for(let ahead=2;ahead<=7.01;ahead+=.5)for(let side=1;side<=6.01;side+=.5)for(let up=.6;up<=2.41;up+=.3)for(let lu=.3;lu<=1.51;lu+=.3){
+  const P=lakesideDoorLensAt(walk,ahead,side,up,lu,k.fovDeg,outM),f=unit(P.position,P.target),rl=Math.hypot(f[0],f[2])||1,r:Vec=[-f[2]/rl,0,f[0]/rl];
+  const u:Vec=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan(k.fovDeg*Math.PI/360);
+  let xmn=9,xmx=-9,ymn=9,ymx=-9,ok=true;
+  for(const q of pts){const v=[q[0]-P.position[0],q[1]-P.position[1],q[2]-P.position[2]],z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];if(z<1.5){ok=false;break;}
+   const x=(v[0]*r[0]+v[2]*r[2])/(z*th*aspect),y=(v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th);xmn=Math.min(xmn,x);xmx=Math.max(xmx,x);ymn=Math.min(ymn,y);ymx=Math.max(ymx,y);}
+  if(!ok||xmn<-.9||xmx>.9||ymn<-.9||ymx>.9)continue;
+  const c=Math.abs(ymn+.8)*4+Math.abs((xmn+xmx)/2)*2+Math.max(0,.55-(ymx-ymn))*3;if(c<bc){bc=c;best=P;}}
+ return best||lakesideDoorLensAt(walk,k.aheadM,k.sideM,k.upM,k.lookUpM,k.fovDeg,outM);
 }
 /** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera until the old blend-out window (from there the
  *  plain follow lens, which equals R.camera at its start), and over the last turnInS of the descent an

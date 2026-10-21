@@ -264,7 +264,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const clock={t:0,hiddenFor:0,fade:0};
   let lastPose:Pose|null=null;
   const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
-  const doorLens=lakesideDoorLens(moored.walk)/* b15 door shot: where the ride lens arrives at touchdown */;
+  const doorVs=view.getVisibleSize(),doorLens=lakesideDoorLens(moored.walk,moored.mooring,doorVs.width/Math.max(1,doorVs.height))/* b15 door shot: where the ride lens arrives at touchdown */;
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const ticker=rig.addComponent(LakesideBalloonTicker);
    const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
