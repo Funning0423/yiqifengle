@@ -521,7 +521,7 @@ export class WorldIntegrationBoot extends Component {
  await composition.initializeWorld();attempt.check();
  const bound=composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!bound.ok)throw Error(bound.reason);
  // Walk driver wind input: 运镜bot WorldFlowComponent.getWindStrength() (0..1); missing = 0.
- (this as any)._referenceAdapter.setWindSource(()=>{const w=(composition as any).world;return w&&typeof w.getWindStrength==='function'?w.getWindStrength():null;});
+ {const ad=(this as any)._referenceAdapter;ad.setWindSource(()=>{/* b15 plan B: wind_flutter_loop only while she walks (seated / standing / indoor 0) */if(typeof ad.walkProgress==='function'&&ad.walkProgress()===null)return 0;const w=(composition as any).world;return w&&typeof w.getWindStrength==='function'?w.getWindStrength():null;});}
  // locomotion-v1: which walks end at rest (stop clip inside the walk). Same route data WorldFlowComponent builds (pure function).
  try{(this as any)._referenceAdapter.setWalkRestAhead(restAheadFromRoutes(createFirstsliceRoutes(FIRSTSLICE,REF)));}catch(e){console.warn('walk stop predicate unavailable',String(e));}
  // r4 exit footsteps (Voice Bot): steps on the stand-in's real foot plants. Read-only view of its motion clock + controller root;

@@ -143,7 +143,7 @@
       "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@5d706",
       "displayName": "",
       "id": "5d706",
-      "name": "wind_sway_loop.animation",
+      "name": "wind_flutter_loop.animation",
       "userData": {
         "gltfIndex": 1,
         "wrapMode": 2,
@@ -831,12 +831,12 @@
         ]
       },
       {
-        "name": "wind_sway_loop",
+        "name": "wind_flutter_loop",
         "duration": 4,
         "fps": 30,
         "splits": [
           {
-            "name": "wind_sway_loop",
+            "name": "wind_flutter_loop",
             "from": 0,
             "to": 4,
             "wrapMode": 2,
