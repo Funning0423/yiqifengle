@@ -80,3 +80,42 @@ Only the old 112.86° value is wrong now. Consequences:
 - cloth simulation;
 - the 8 mm ground step;
 - the parent rotation of the rig (assumed unrotated, as in v2).
+
+---
+# v3b recheck (2026-10-21 14:27 EDT): fixed door b69faa60 (transport_balloon.glb 5b2ae95e) + b15b ground heights
+**Result: PASS.** All door checks pass. The run still has 0 clipping, and the 8 mm rise doesn't matter.
+
+## Door b69faa60 (`door_b_check.py`)
+- sha256 5b2ae95ecc969fca238083b3e08108ed3d998b601e6cf9e4c5ef8c3185749acb: verified, read from the commit with git show.
+- Diff vs 24008c3c:
+  - Same object names, types, parents, node transforms (`basket_door` at (0.40, 0, 0.84), identity), face counts and vertex counts.
+  - `basket_door_leaf`, envelope and flame: 0 vertices changed.
+  - `balloon_basket`: only **9 vertices** changed, all at X −0.40 (latch side), Y 1.01–1.08, Z 0.7968/0.8004/0.805/0.81 → **0.795**. The hinge side is unchanged.
+  - Opening seal: no new gaps (same topology).
+- Sweep, every 0.1° from 0 to 100° plus all 27 door angles used in the animation (1026 angles):
+  - 0 basket vertices inside the leaf;
+  - 0 triangle overlaps except at exactly 0° (closed): 16 coplanar edge contacts with zero depth, where the leaf's end faces sit flush against the jambs.
+  - Clearance grows from 0.07 mm at 0.1° to 0.49 at 0.7°, 0.70 at 1°, 6.95 at 10° and 39.0 at 100°.
+  - The frames used: f25 at 0.15° → 0.10 mm, f26 at 2.745° → 1.92 mm.
+
+## Ground (LakesideBalloon b15b)
+- The mooring, P0/exit and approach are at Y 0.572, and L1 (the shore) at 0.58.
+- Modelled as a linear +8 mm over the last 2.0 m of path (s 7.53 → 9.53 m; f352 → end). The basket and floor are at the mooring height.
+
+## QA (`qa_v3b.json`; `qa_v3b_flat.json` is the same run with no rise)
+- Clipping:
+  - body / dress / apron × basket: 0;
+  - × leaf: 0;
+  - vertices inside the leaf: 0, on every frame and crossfade.
+- Hand–door gap 1.0 mm at f25–26. Same as v3.
+- Per-segment slide is **identical to v3** on every segment, including the corner (42.9 / 13.2 / 4.2) and walk_stop_bodyL (14.8 / 8.8 / 4.7).
+- Last 2 m (f364–472), horizontal slide: 35.9 / 11.0 / 4.2 (max / p95 / median), the same with and without the rise.
+- Sole vs the **local** ground under each foot (`slope_check.py`, slope-aware):
+  - minimum −2.06 mm (f363 walk_loop touch-down) and −2.00 mm (f447 walk_stop);
+  - flat-ground clip own minimum −1.6/−1.7 mm;
+  - so the rise adds at most about 0.4 mm of sink.
+  - Vertical drift of a planted foot from the rising root: 0.8 m/s × 0.4 % = 0.11 mm/frame.
+- **The 8 mm doesn't matter.** It's below the clips' own ±2 mm sole noise and invisible at 0.23°. No foot IK is needed for it; the ground snap or the linear lift is enough.
+- Files: `getout_v3b_side.mp4`, `getout_v3b_game.mp4`, `sheet_v3b_*.png`, `v3b.py` (env `BGLB`, `RISE`).
+
+Untested: the same as v3 (Cocos, the real lens, the ribbon, cloth simulation). The terrain is modelled as a linear slope, not sampled from the real terrain mesh (0.569–0.581 along the walk per 场景特效bot).
