@@ -2521,8 +2521,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
-    "bytes": 26869,
-    "sha256": "0767977d092b21f73d87ae7146f96fdbce9741a3ac741a06ec40d57eb2280a8f"
+    "bytes": 27664,
+    "sha256": "b711de23d7af9daac4d9d8528f69a61a99d4394789490c1edb21b8c4d8d9af4a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts.meta",
@@ -2608,6 +2608,16 @@
     "path": "creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta",
     "bytes": 171,
     "sha256": "e3e7c040b488f73064b079a2df2b08c877347123b68d0357bbc3293efa89e2c7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts",
+    "bytes": 3299,
+    "sha256": "521587ba3a76ddd6673ebc70715dbc14f7a61ecec20ff40ee9b561085b7fa01c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts.meta",
+    "bytes": 171,
+    "sha256": "e5d3cbc1ad7312d0f17261fe36f93253fe44c24f91a50ec5f5fb43dad43bd75f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideRegionNodes.ts",
@@ -2751,8 +2761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 36397,
-    "sha256": "5e24702cf485a621119c55c1342b0848419223147e10d2ec1a70e4a71b3a4ec4"
+    "bytes": 36607,
+    "sha256": "ac823b0ff3ee609ddc91b62d2a38767e757448adfd3dbdfc688da5b0dac004d0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4051,8 +4061,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 31732,
-    "sha256": "8d50010cf4da19102f9357c756354d4308b919e9907b400c57339b0b60643822"
+    "bytes": 35096,
+    "sha256": "fbd87c392c06c8526e97a477e8cffc9ed3fd8d538b8019b73256cbd1beea5d48"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4171,8 +4181,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14053,
-    "sha256": "04907c4a8d2d557ab5ec1842da273837dd40faa17cfe9a3649abaf839129fd4d"
+    "bytes": 14117,
+    "sha256": "9a5a0e55c7462956aa32041bea56fdb66d3a405f3e031e0567fa97d0960b8185"
   },
   {
     "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",
@@ -4183,6 +4193,11 @@
     "path": "tools/lakeside/test_lakeside_board_guest.cjs",
     "bytes": 14922,
     "sha256": "34efdcba7101c5b560730a2c1eedf93cbe05b0ec68b821e273d067545a996299"
+  },
+  {
+    "path": "tools/lakeside/test_lakeside_qashot.cjs",
+    "bytes": 3252,
+    "sha256": "6c2fb658068e57589dbae4d44932e543138364a736d627d04205f91fc3261af7"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",

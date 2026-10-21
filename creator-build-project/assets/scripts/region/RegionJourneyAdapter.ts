@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
+import {lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -251,7 +251,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
   const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),R=lakesideBalloonRide([start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
   let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
-  const total=routeLength(path);route={...route,timing:{durationS:R.T+moored.timing.durationS,easeInS:K.walkEaseS,easeOutS:moored.timing.easeOutS}};token.check();progress(.98);
+  const total=routeLength(path);route={...route,timing:lakesideRouteTiming(total,R.T+moored.timing.durationS,K.walkEaseS,moored.timing.easeOutS)};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
   token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);vehicle.name='LakesideMooredBalloon';
   // b15 getout v2: the basket carries the exit yaw for the whole ride (door wall +Z toward her shore walk, 96.19° at the b15
@@ -314,12 +314,13 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
       const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
        lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
-    await waitUntil(moored.T0);rideToken.check();
+    const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){q.mark=m;q.markT=t;}}catch{/* qa only */}};
+    await waitUntil(moored.T0);rideToken.check();qaMark('door');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
     await waitUntil(moored.walkStartAt);await reach;rideToken.check();
-    reached=true;walking=true;
+    reached=true;walking=true;qaMark('walk');
     await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;
-    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};
+    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};qaMark('shore');
     const before=moored.walk[moored.walk.length-2];
     const end=moored.walk[moored.walk.length-1];
     actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});

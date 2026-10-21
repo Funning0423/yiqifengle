@@ -2,7 +2,7 @@ import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
-import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view } from 'cc';
+import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3 } from 'cc';
 import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
@@ -22,6 +22,8 @@ import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
 import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
 import {lakesideLandingToBoard,lakesideViewport,type LakesideLandingDeps} from '../region/LakesideLandingHook';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
+import {lakesideQaPhase,LAKESIDE_QA_FREEZE,lakesideRevealPose} from '../region/LakesideQaShot';
+import type {Vec} from '../world-r1/WorldFlowCore';
 import {regionBoardPose,regionBoardSource,regionLandingToBoard,type BoardLandingRegion,type RegionLandingDeps} from '../region/RegionBoardLanding';
 import {boardSafeInsets} from '../ui/BoardLayout';
 /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
@@ -291,8 +293,9 @@ export class WorldNativeComposition extends Component {
     return this.mainlineReward('claimRegion',index);
   }
   /** URL `qa=1` only, and only in the web-test build. `MINIGAME` is true for wechat-release, so this body is not in the player package. */
-  async qaShot(spec:{region?:'island'|'meadow'|'skycity';lens?:string;prop?:string;night?:boolean}){
+  async qaShot(spec:{region?:'island'|'meadow'|'skycity'|'lakeside';lens?:string;prop?:string;night?:boolean;phase?:string;timeScale?:number}){
     if(MINIGAME)return {ok:false,reason:'player-build'};
+    if(spec?.region==='lakeside')return this.qaShotLakeside(spec);
     const search=(()=>{try{const s=(globalThis as any).location?.search;return typeof s==='string'?s:'';}catch{return '';}})();
     if(!qaUnlocked(search))return {ok:false,reason:'qa-only'};
     if(!this.world)return {ok:false,reason:'world-not-ready'};
@@ -325,6 +328,38 @@ export class WorldNativeComposition extends Component {
     (globalThis as any).__qaFrame=spec?.lens||'world';
     const note=(stage as any)?.shotNote||'';
     return {ok:true,pause,note};
+  }
+  /** QA only (b15): skycity checkpoint → the real skycity → lakeside balloon journey at timeScale (default 3), frozen
+   *  (timeScale 0) at phase 'door' (she pushes the basket door open and steps out), 'walk' (walking back to the shore while
+   *  the board fades in) or 'reveal' (on shore, then the lakeside free look at the revealWiden angle that frames the whole
+   *  balloon + her: LakesideQaShot.lakesideRevealPose, held on the world camera every frame). Next qaShot clears the hold. */
+  private qaRevealHook:(()=>void)|null=null;
+  private async qaShotLakeside(spec:{phase?:string;timeScale?:number}){
+    const phase=lakesideQaPhase(spec?.phase),freeze=LAKESIDE_QA_FREEZE[phase],scale=Math.max(1,Math.min(8,Number(spec?.timeScale)||3));
+    const sched=director.getScheduler();sched.setTimeScale(1);
+    if(this.qaRevealHook){director.off(Director.EVENT_BEFORE_DRAW,this.qaRevealHook);this.qaRevealHook=null;}
+    const sky=await this.qaShot({region:'skycity'});if(!(sky as any)?.ok)return sky;
+    const w=this.world!.commands();if(w.snapshot().state==='level'){const e=w.exitLevel();if(!e.ok)return e;}
+    const qa:{mark:string|null;markT:number}={mark:null,markT:0};(globalThis as any).__qaLakeside=qa;
+    sched.setTimeScale(scale);
+    let travel:any=null;void w.travelRegion('lakeside').then(r=>{travel=r;},e=>{travel={ok:false,reason:String(e)};});
+    const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
+    for(let i=0;i<1200&&qa.mark!==freeze.mark;i++){if(travel&&travel.ok===false){sched.setTimeScale(1);return travel;}await sleep(100);}
+    if(qa.mark!==freeze.mark){sched.setTimeScale(1);return {ok:false,reason:'qa-lakeside-timeout',mark:qa.mark};}
+    await sleep(freeze.afterS*1000/scale);
+    if(phase!=='reveal'){sched.setTimeScale(0);return {ok:true,phase,mark:qa.mark};}
+    sched.setTimeScale(1);await sleep(1200);
+    const cam=this.worldCamera;if(!cam||!cam.node?.isValid)return {ok:false,reason:'no-world-camera'};
+    const p=cam.node.worldPosition,fw=new Vec3();Vec3.transformQuat(fw,new Vec3(0,0,-1),cam.node.worldRotation);
+    const board={position:[p.x,p.y,p.z] as Vec,target:[p.x+fw.x*10,p.y+fw.y*10,p.z+fw.z*10] as Vec,fovVerticalDeg:cam.fov};
+    const d=(this.boundCharacter as any)?.diagnostics?.(),feet=(d?.root||[0,0,0]) as Vec;
+    const scene=director.getScene();let b:any=null;const walk=(n:any)=>{if(!n||b)return;if(n.name==='LakesideMooredBalloon'&&n.activeInHierarchy){b=n;return;}for(const c of n.children||[])walk(c);};walk(scene);
+    if(!b)return {ok:false,reason:'no-moored-balloon'};
+    const bp=b.worldPosition,vs=view.getVisibleSize(),r=lakesideRevealPose(board,feet,[bp.x,bp.y,bp.z],vs.width/Math.max(1,vs.height));
+    if(!r)return {ok:false,reason:'no-reveal-angle'};
+    const pose=r.pose;this.qaRevealHook=()=>{if(cam.node.isValid)applyCameraPose(cam,fromLookAt(pose,pose.fovVerticalDeg??cam.fov),'qa.lakeside-reveal');};
+    director.on(Director.EVENT_BEFORE_DRAW,this.qaRevealHook);
+    return {ok:true,phase,yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:r.maxNdc,fov:pose.fovVerticalDeg,board,pose};
   }
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}
   private releaseOwned(){if(this.worldCamera&&this.previousCameraVisibility!==null)this.worldCamera.visibility=this.previousCameraVisibility;this.owner?.destroy();this.uiParent?.destroy();this.owner=null;this.uiParent=null;this.world=null;this.previousCameraVisibility=null;}

@@ -287,3 +287,13 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.
   /** her seat yaw under stand_point, compensated for the basket yaw so her ride facing is unchanged */
   seatYawDeg:(girlYawDeg:number)=>girlYawDeg-doorYawDeg};
 }
+
+/** b15 qashot fix: the whole lakeside route (S6 walk + flight + moored walk) is summarised for the journey controller as ONE
+ *  timing, and journeyTimingOk rejects it when the 0.8 s walk ease gives the summary > 3 m/s² (b15 7b0c1c90: 3.65 → every
+ *  skycity → lakeside journey failed with journey-invalid-timing). Same total duration; each ramp lengthened (0.1 s steps) until
+ *  the summary passes. The ride and the walks keep their own clocks. */
+export function lakesideRouteTiming(length:number,durationS:number,easeInS:number,easeOutS:number):JourneyTiming{
+ let a=easeInS,b=easeOutS;
+ for(let i=0;i<60&&!journeyTimingOk(Math.max(length,.01),{durationS,easeInS:a,easeOutS:b});i++){a=Math.round((a+.1)*10)/10;b=Math.round((b+.1)*10)/10;}
+ return {durationS,easeInS:a,easeOutS:b};
+}
