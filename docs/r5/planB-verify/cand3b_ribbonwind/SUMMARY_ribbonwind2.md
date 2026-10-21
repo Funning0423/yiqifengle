@@ -75,3 +75,7 @@ Cocos 实机；风下的拉伸；头发（无风通道）；xfade6 级别的出�
 - 全量 QA：10 个走路片段 + 13 个淡化，风 1.0 8 个相位 + 风 0.5（0.5/2.5 s）：布×身体、裙×围裙不比无风差，手×布、蝴蝶结×一切 = 0 → 0 失败。拉伸：风 1.0 最高 2.459%、风 0.5 最高 2.211%（walk_turn_180）≤2.6 ✔。
 - 与 ribbonwind3 只差 wind_flutter_loop 里 skirt.back、skirt.back.low 两个 rotation 通道；坐姿与其他通道逐字节相同。文件大了 30,048 B，是追加写入后留下的未用 buffer 数据，没有清理。
 - 未测：Cocos 实机；头发（无通道）；风下的坐姿（代码里坐姿风为 0）。
+
+## ribbonwind4b：清掉未用数据（2026-10-21 美东时间）
+- rw2/pack.py：只保留被引用的 accessor/bufferView（含 sparse 的 indices/values、draco bufferView），重排 buffer。3,189,280 B → 3,141,660 B（−47,620 B）。比 ribbonwind3（3,159,232 B）还小 17,572 B，因为 ribbonwind3 自己也带着烘焙飘带时留下的旧数据；两个新通道和被替换的旧通道一样大，所以 buffer 净增 0。
+- 校验：664 个动画通道解码值与 ribbonwind4 完全相同；与 ribbonwind3 只差 wind_flutter_loop 的 skirt.back、skirt.back.low rotation；mesh/morph/skin/IBM/nodes/materials/extras 原始字节相同；无显式 interpolation；glTF Validator 0 错误（3790 个警告与 ribbonwind4 相同：NODE_SKINNED_MESH_NON_ROOT、ACCESSOR_JOINTS_USED_ZERO_WEIGHT）。穿模 QA 未重跑（数据相同）。meta 不变，用 ribbonwind4 的。
