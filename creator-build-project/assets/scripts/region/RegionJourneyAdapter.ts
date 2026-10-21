@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {LAKESIDE_DOOR_HOLD,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -263,6 +263,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const clock={t:0,hiddenFor:0,fade:0};
   let lastPose:Pose|null=null;
   const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
+  const doorLens=lakesideDoorLens(moored.walk)/* b15 door shot: where the ride lens arrives at touchdown */;
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const ticker=rig.addComponent(LakesideBalloonTicker);
    const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
@@ -278,7 +279,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
-     lastPose=lakesideDoorRideCamera(R,t,from);world.setCamera(lastPose);
+     lastPose=lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);
      lease.progress!(t<R.cutT?R.walkAt(t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
     };
     beforeDraw=()=>{if(!dead)apply();};

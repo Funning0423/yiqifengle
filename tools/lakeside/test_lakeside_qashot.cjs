@@ -25,7 +25,7 @@ for(const [w,h] of [[390,844],[320,568],[390,520]]){const board=LC.lakesideAlign
 // 4) wiring: qa-only entry, tail marks
 const comp=fs.readFileSync('creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts','utf8'),ad=fs.readFileSync('creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts','utf8');
 assert(/if\(MINIGAME\)return \{ok:false,reason:'player-build'\};\s*if\(spec\?\.region==='lakeside'\)return this\.qaShotLakeside/.test(comp),'lakeside entry after the player-build guard');
-for(const k of ["lakesideDoorRideCamera(R,t,from)","lakesideDoorBlendPose(","qaMark('door')","qaMark('walk')","qaMark('shore')","qaMark0('out')","lakesideRouteTiming(","await out;","LAKESIDE_DOOR_HOLD.outM"])assert(ad.includes(k),k);
+for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(moored.walk)","lakesideDoorBlendPose(","qaMark('door')","qaMark('walk')","qaMark('shore')","qaMark0('out')","lakesideRouteTiming(","await out;","LAKESIDE_DOOR_HOLD.outM"])assert(ad.includes(k),k);
 
 // 5) world-frame regression: the inputs logged from the 7b0c1c90 web build after the journey (Main Camera, her root, LakesideMooredBalloon)
 {const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},r=Q.lakesideRevealPose(cam,[18.2397,19.6465,137.6432],[10.1345,19.6454,138.2321],390/844);
@@ -34,15 +34,22 @@ for(const k of ["lakesideDoorRideCamera(R,t,from)","lakesideDoorBlendPose(","qaM
 //    board still has ≥ 5 s of her offscreen walk to fade in over
 {const DH=B.LAKESIDE_DOOR_HOLD,v=m.length/m.walkS,outAt=m.walkStartAt+DH.outM/v;assert(DH.outM>=1.4,'clear of the basket');
  assert(outAt>m.walkStartAt&&outAt>m.T0+.333+.5,'held through the door opening');
- const doorLens=B.lakesideDoorRideCamera(R,R.T,null),blendS=B.lakesideDoorBlendS(doorLens,land);
+ const doorLens=B.lakesideDoorLens(m.walk),blendS=B.lakesideDoorBlendS(doorLens,land);
  assert(m.walkStartAt+m.walkS-outAt-blendS>=5,'board fade overlaps the offscreen walk');
  // the held lens frames the basket at touchdown (basket centre + door within the frame), unlike the old landing pose
  const FLb=require('../journey-integration/journey-framing-lib.cjs'),bk=R.vehicle(R.T),bc=[bk[0],bk[1]+.6,bk[2]],nd=FLb.ndc(doorLens,bc);
  assert(nd&&Math.abs(nd[0])<.9&&Math.abs(nd[1])<.9,'basket on screen in the door lens: '+JSON.stringify(nd));
+ // her door path (P0 → outM, feet + head) stays in frame, and the lens is on the door (shore) side of the basket
+ const q=C.sampleRoute(m.walk,DH.outM);for(const p of [m.walk[0],q])for(const y of [0,1.65]){const n2=FLb.ndc(doorLens,[p[0],p[1]+y,p[2]]);assert(n2&&Math.abs(n2[0])<.9&&Math.abs(n2[1])<.95,'her door path in frame '+JSON.stringify(n2));}
+ const dir=[q[0]-m.walk[0][0],q[2]-m.walk[0][2]],toCam=[doorLens.position[0]-bk[0],doorLens.position[2]-bk[2]];assert(dir[0]*toCam[0]+dir[1]*toCam[1]>0,'lens on the door side');
+ // the turn-in orbit starts on the ride lens (no cut) and keeps clear of the basket/envelope
+ const o0=R.T-B.LAKESIDE_DOOR_LENS.turnInS,ob=R.T-B.LAKESIDE_BALLOON_LANDING.blendOutS,c0=B.lakesideDoorRideCamera(R,doorLens,ob+1e-4,null),c1=R.camera(ob,null);assert(Math.hypot(...c0.position.map((x,i)=>x-c1.position[i]))<.01,'door ending starts on the ride lens');
+ let minD=1e9,maxStep=0,prevP=null;for(let t=ob;t<=R.T;t+=1/60){const c=B.lakesideDoorRideCamera(R,doorLens,t,null),v=R.vehicle(t);minD=Math.min(minD,Math.hypot(c.position[0]-v[0],c.position[2]-v[2]));if(prevP)maxStep=Math.max(maxStep,Math.hypot(...c.position.map((x,i)=>x-prevP[i])));prevP=c.position;}
+ assert(minD>3.4,'clear of the basket/envelope (r 2.9 m): '+minD);assert(maxStep*60<6,'turn-in speed '+maxStep*60);
  // continuous: the door lens equals the ride lens just before T (no cut at the hold)
- const pre=B.lakesideDoorRideCamera(R,R.T-1/60,null);assert(Math.hypot(...pre.position.map((x,i)=>x-doorLens.position[i]))<.2,'no jump into the hold');
+ const pre=B.lakesideDoorRideCamera(R,doorLens,R.T-1/60,null);assert(Math.hypot(...pre.position.map((x,i)=>x-doorLens.position[i]))<.2,'no jump into the hold');
  const blendPeak=5.7735*Math.hypot(...doorLens.position.map((x,i)=>x-land.position[i]))/(blendS*blendS);assert(blendPeak<=3+1e-9,'blend accel');
- out.doorHold={outM:DH.outM,outAtS:+outAt.toFixed(2),blendS:+blendS.toFixed(2),handoverS:+(outAt+blendS).toFixed(2),walkLeftAfterS:+(m.walkStartAt+m.walkS-outAt-blendS).toFixed(2),basketNdc:nd.map(x=>+(+x).toFixed(2)),blendAccel:+blendPeak.toFixed(2)};}
+ out.doorHold={turnInS:B.LAKESIDE_DOOR_LENS.turnInS,doorLens,outM:DH.outM,outAtS:+outAt.toFixed(2),blendS:+blendS.toFixed(2),handoverS:+(outAt+blendS).toFixed(2),walkLeftAfterS:+(m.walkStartAt+m.walkS-outAt-blendS).toFixed(2),basketNdc:nd.map(x=>+(+x).toFixed(2)),blendAccel:+blendPeak.toFixed(2)};}
 // 7) occlusion + composition on the web-build inputs: a canopy sphere in front of the envelope (where the 7b0c1c90 render showed one)
 {const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},feet=[18.4345,19.6533,139.3320],bal=[10.1345,19.6454,138.2321];
  const plain=Q.lakesideRevealPose(cam,feet,bal,390/844);assert(plain&&plain.occludedFrac===0);

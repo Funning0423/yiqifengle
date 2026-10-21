@@ -305,10 +305,27 @@ export function lakesideRouteTiming(length:number,durationS:number,easeInS:numbe
  *  onto the landing (= board) pose, over lakesideDoorBlendS (SPEC §6.1 rule, ≥ minBlendS), while she walks on off the board
  *  frame; the controller and the board fade-in follow that, still overlapping the rest of her walk. */
 export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0,minBlendS:3.0} as const;
-/** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera before the old blend-out window, follow after. */
-export function lakesideDoorRideCamera(R:LakesideBalloonRide,t:number,from:Pose|null,knobs:BalloonKnobs=LAKESIDE_BALLOON_LANDING):Pose{
- const o=R.T-knobs.blendOutS;if(t<o||t<R.cutT)return R.camera(t,from);
- return R.flight.follow(Math.min(R.T,t)-R.liftT);
+/** Door lens: on the shore side, ahead of her and to the side of the door path, looking back at the door and her first
+ *  steps (the follow lens sits behind the basket, so the door wall, which faces the shore, would be hidden). Pure numbers. */
+export const LAKESIDE_DOOR_LENS={aheadM:3.2,sideM:3.6,upM:1.5,lookUpM:1.0,fovDeg:50,turnInS:8} as const;
+export function lakesideDoorLens(walk:readonly Vec[],outM:number=LAKESIDE_DOOR_HOLD.outM,k=LAKESIDE_DOOR_LENS):Pose{
+ const p0=walk[0],q=sampleRoute(walk as Vec[],outM),m:Vec=[(p0[0]+q[0])/2,(p0[1]+q[1])/2,(p0[2]+q[2])/2];
+ const d=unit(p0,q),hl=Math.hypot(d[0],d[2])||1,f:Vec=[d[0]/hl,0,d[2]/hl],side:Vec=[f[2],0,-f[0]];
+ const pos:Vec=[q[0]+f[0]*k.aheadM+side[0]*k.sideM,m[1]+k.upM,q[2]+f[2]*k.aheadM+side[2]*k.sideM];
+ return {position:pos,target:[m[0]-f[0]*.3,m[1]+k.lookUpM,m[2]-f[2]*.3],fovVerticalDeg:k.fovDeg};
+}
+/** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera until the old blend-out window (from there the
+ *  plain follow lens, which equals R.camera at its start), and over the last turnInS of the descent an
+ *  orbit round the basket (RegionJourneyCore.orbitOffset, short way round, view slerped) from the follow lens onto the
+ *  door lens, arriving exactly at touchdown; held on the door lens after T. */
+export function lakesideDoorRideCamera(R:LakesideBalloonRide,door:Pose,t:number,from:Pose|null,k=LAKESIDE_DOOR_LENS):Pose{
+ if(t<R.T-LAKESIDE_BALLOON_LANDING.blendOutS||t<R.cutT)return R.camera(t,from)/* the old blend-out onto the landing pose is not used */;
+ const o=R.T-k.turnInS;if(t>=R.T)return door;if(t<o)return R.flight.follow(t-R.liftT);
+ const fl=R.flight.follow(t-R.liftT),v=R.vehicle(t),c:Vec=[v[0],v[1]+1.0,v[2]],e=Math.max(0,Math.min(1,(t-o)/k.turnInS)),x=e*e*e*(e*(e*6-15)+10);
+ const vt=R.vehicle(R.T),cT:Vec=[vt[0],vt[1]+1.0,vt[2]];
+ const a:Vec=[fl.position[0]-c[0],fl.position[1]-c[1],fl.position[2]-c[2]],b:Vec=[door.position[0]-cT[0],door.position[1]-cT[1],door.position[2]-cT[2]],off=orbitOffset(a,b,x,0);
+ const bl=blendPose(fl,door,x),p:Vec=[c[0]+off[0],c[1]+off[1],c[2]+off[2]],dd=unit(bl.position,bl.target);
+ return {position:p,target:[p[0]+dd[0]*10,p[1]+dd[1]*10,p[2]+dd[2]*10],fovVerticalDeg:bl.fovVerticalDeg};
 }
 /** Blend length door lens → landing pose: max(minBlendS, √(5.7735·L/3), √(5.7735·Δ°/120)) (smootherstep peaks ≤ 3 m/s², ≤ 120°/s²). */
 export function lakesideDoorBlendS(a:Pose,b:Pose):number{

@@ -48,7 +48,8 @@ function qaSceneOccluder(scene:Node|null,skip:Node[],near:Vec):(a:Vec,b:Vec)=>bo
  const ray=new geometry.Ray();
  return (a,b)=>{const d=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],L=Math.hypot(d[0],d[1],d[2]);if(L<1e-3)return false;
   geometry.Ray.set(ray,a[0],a[1],a[2],d[0]/L,d[1]/L,d[2]/L);
-  for(let i=0;i<models.length;i++){const t0=geometry.intersect.rayAABB(ray,models[i].worldBounds);if(!t0||t0>L)continue;
+  for(let i=0;i<models.length;i++){const wb=models[i].worldBounds,c=wb.center,h=wb.halfExtents,inside=Math.abs(a[0]-c.x)<=h.x&&Math.abs(a[1]-c.y)<=h.y&&Math.abs(a[2]-c.z)<=h.z;
+   if(!inside){const t0=geometry.intersect.rayAABB(ray,wb);if(!t0||t0>L)continue;}/* rayAABB is 0 for a ray starting inside the box (the merged lakeside scenery) */
    const t=geometry.intersect.rayModel(ray,models[i],{mode:geometry.ERaycastMode.ANY,distance:L*.98,doubleSided:true} as any);if(t&&t<L*.98)return true;}
   return false;};
 }
