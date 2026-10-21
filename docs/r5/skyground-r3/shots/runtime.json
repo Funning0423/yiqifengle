@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "utc": "2026-10-20T15:17:27.631Z",
+  "utc": "2026-10-21T06:30:08.205Z",
   "viewport": [
     390,
     844
@@ -11,30 +11,31 @@
       "spec": {
         "name": "02_skycity_south",
         "cam": [
-          36,
-          50,
-          55
+          -8,
+          2.5,
+          40
         ],
         "look": [
-          36,
-          32,
-          -23
+          50,
+          -0.6,
+          55.5
         ]
       },
       "pose": {
         "position": [
-          -6.8658358950947616,
-          68.63186347110214,
-          148.84137860065795
+          27.49501430672862,
+          21.131863471102132,
+          117.53112511385501
         ],
         "target": [
-          61.46317137137491,
-          50.631863471102136,
-          186.4598151175938
+          -14.055869419073431,
+          18.03186347110213,
+          160.86441556824906
         ],
         "fov": 48
       },
       "runtime": {
+        "roomSkyDomeActive": false,
         "sky": [
           {
             "sameParent": true,
@@ -127,7 +128,7 @@
           "skyNightBlend": 0,
           "lightScale": 1
         },
-        "drawCalls": 18
+        "drawCalls": 10
       }
     },
     {
@@ -156,6 +157,7 @@
         "fov": 48
       },
       "runtime": {
+        "roomSkyDomeActive": false,
         "sky": [
           {
             "sameParent": true,
@@ -248,7 +250,7 @@
           "skyNightBlend": 0,
           "lightScale": 1
         },
-        "drawCalls": 16
+        "drawCalls": 14
       }
     }
   ],
