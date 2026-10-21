@@ -18,16 +18,27 @@ run('helper: day weight 0 = the authored day colour, weight 1 = the journey nigh
  assert.equal(N.writeRegionBoardClear(cam,[0x87,0xbf,0xc9],1,mk),true);assert.deepEqual([cam.clearColor.r,cam.clearColor.g,cam.clearColor.b],[0,12,68]);
  globalThis.__worldDayNight={snapshot:()=>({mode:'night'})};assert.equal(N.regionNightNow(),true);globalThis.__worldDayNight={snapshot:()=>({mode:'day'})};assert.equal(N.regionNightNow(),false);delete globalThis.__worldDayNight;assert.equal(N.regionNightNow(),false);});
 run('meadow motion: board camera clear colour follows the UI night weight; ground/cloud grade identical to the journey copy; day untouched',()=>{
+ const T=H.load('ui/NightTint'),realNow=Date.now;let now=10000;
+ Date.now=()=>now;T.resetUiNightWeight();
+ try{
  const M=H.load('region/MeadowBoardBackground');const m=new M.MeadowSceneMotion();m.node=new H.cc.Node('rig');
  const cam={clearColor:new H.cc.Color(0x87,0xbf,0xc9,255)};m.boardCamera=cam;m.dayClear=[0x87,0xbf,0xc9];m.journeyNight=true;
  const props=[];const mat={setProperty:(k,v)=>props.push([k,v])};m.grounds=[{m:mat,base:[1,1,1,1]}];m.clouds=[mat];
  globalThis.__worldDayNight={snapshot:()=>({mode:'day'})};m.update(1/60);
  assert.deepEqual([cam.clearColor.r,cam.clearColor.g,cam.clearColor.b],[0x87,0xbf,0xc9],'day sky unchanged');
  const g0=props.find(p=>p[0]==='mainColor');assert.deepEqual([g0[1].x,g0[1].y,g0[1].z],[1,1,1],'day ground factor 1');
- globalThis.__worldDayNight={snapshot:()=>({mode:'night'})};{const t0=Date.now();let last=0;while(Date.now()-t0<3000&&cam.clearColor.b!==68){if(Date.now()-last>=16){last=Date.now();m.update(1/60);}}}
+ globalThis.__worldDayNight={snapshot:()=>({mode:'night'})};
+ // The rounded sky reaches its night RGB at 499 ms, before the ground fade completes.
+ // Drive the shared clock explicitly: update(dt) does not advance uiNightWeight's clock.
+ for(const elapsed of [100,200,300,400,499]){now=10000+elapsed;props.length=0;m.update(1/60);}
  assert.deepEqual([cam.clearColor.r,cam.clearColor.g,cam.clearColor.b],[0,12,68],'night board sky = journey night sky');
+ const partial=props.find(p=>p[0]==='mainColor')[1],expectedPartial=M.meadowGroundFactor(.998);
+ [partial.x,partial.y,partial.z].forEach((v,i)=>assert(Math.abs(v-expectedPartial[i])<1e-6,'ground follows the in-progress night weight'));
+ assert.notDeepEqual([partial.x,partial.y,partial.z],M.meadowGroundFactor(1),'rounded night sky does not imply a completed ground fade');
+ now=10600; // Beyond the 0.5 s fade, with enough update steps for the per-call dt cap.
  const k=M.meadowGroundFactor(1);props.length=0;m.update(1/60);const g1=props.find(p=>p[0]==='mainColor');assert.deepEqual([g1[1].x,g1[1].y,g1[1].z],k.map(v=>v*1),'night ground grade = journey');
- delete globalThis.__worldDayNight;});
+ assert.deepEqual([cam.clearColor.r,cam.clearColor.g,cam.clearColor.b],[0,12,68],'completed night sky');
+ }finally{Date.now=realNow;T.resetUiNightWeight();delete globalThis.__worldDayNight;}});
 run('wiring: meadow board grades like the journey, mounts a night dome only at night, follows toggles and frees its listener; sky city too',()=>{
  const md=fs.readFileSync(S+'region/MeadowBoardBackground.ts','utf8'),sk=fs.readFileSync(S+'region/SkycityBoardLive.ts','utf8'),ja=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8');
  const f=md.slice(md.indexOf('export const createMeadowBoardBackground'));
