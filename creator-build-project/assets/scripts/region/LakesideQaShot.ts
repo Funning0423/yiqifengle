@@ -63,17 +63,20 @@ export function lakesideEdgeCut(p:Pose,aspect:number,ray:LakesideEdgeRay,k=LAKES
 /** Free look on the lakeside orbit (revealWiden, seedAimBlend) from `board`: among drags that frame the balloon + her inside
  *  `fit` and (when `occluded` is given, e.g. a scene raycast) keep at most `maxOccluded` of the sight samples blocked, the one
  *  with the lowest drag + composition cost. Returns the orbit pose after that drag (as a player's drag would give), or null. */
-export function lakesideRevealPose(board:Pose,feet:Vec,balloon:Vec,aspect:number,fit=.98,occluded?:LakesideOccluder,maxOccluded=.03,edgeRay?:LakesideEdgeRay):{pose:Pose;yawDeg:number;pitchDeg:number;maxNdc:number;occludedFrac:number;edgeCuts:number;composition:{centre:number;emptyBelow:number;cost:number}}|null{
+export function lakesideRevealPose(board:Pose,feet:Vec,balloon:Vec,aspect:number,fit=.98,occluded?:LakesideOccluder,maxOccluded=.03,edgeRay?:LakesideEdgeRay):{pose:Pose;yawDeg:number;pitchDeg:number;distM:number;maxNdc:number;occludedFrac:number;edgeCuts:number;composition:{centre:number;emptyBelow:number;cost:number}}|null{
  const her:Vec[]=[[feet[0],feet[1],feet[2]],[feet[0],feet[1]+1.65,feet[2]]],pts=balloonProxy(balloon).concat(her),sight=lakesideRevealSamples(feet,balloon);
  let best:any=null;
- for(const sgn of [1,-1])for(let dy=0;dy<=230;dy+=2)for(let dp=-48;dp<=48;dp+=2){
-  const o=new FreeOrbit('lakeside');o.seed(board,feet);
+ // b16: distance is searched too (seeded distance … distMax, pinch out); the nearest passing distance is preferred
+ const o0=new FreeOrbit('lakeside');o0.seed(board,feet);const d0=(o0 as any).dist as number,dMax=o0.limitsOf().distMax,dists:number[]=[];
+ for(let d=d0;d<=dMax+1e-6;d+=.75)dists.push(Math.min(d,dMax));
+ for(const D of dists)for(const sgn of [1,-1])for(let dy=0;dy<=230;dy+=2)for(let dp=-48;dp<=48;dp+=2){
+  const o=new FreeOrbit('lakeside');o.seed(board,feet);if(D>d0+1e-3)o.pinch(d0/D);
   // drag in small steps so seedAimBlend sees the accumulated input exactly as a finger would
   const n=Math.max(1,Math.ceil(Math.max(dy,Math.abs(dp))/2));for(let k=0;k<n;k++)o.drag(sgn*dy/n/ORBIT_FEEL.yawPerScreen,dp/n/ORBIT_FEEL.pitchPerScreen);
   const p=o.rawPose(feet);if(p.position[1]<feet[1]+.5)continue;const m=maxNdc(p,aspect,pts);if(m>fit)continue;
-  const comp=lakesideRevealComposition(p,feet,balloon),c=dy*.15+Math.abs(dp)*.05+comp.cost;if(best&&c>=best.c)continue;
+  const comp=lakesideRevealComposition(p,feet,balloon),c=dy*.15+Math.abs(dp)*.05+comp.cost+(D-d0)*6;if(best&&c>=best.c)continue;
   let occ=0;if(occluded){for(let i=0;i<sight.length;i++)if(occluded(p.position,sight[i]))occ++;occ/=sight.length;if(occ>maxOccluded)continue;}
   const cuts=edgeRay?lakesideEdgeCut(p,aspect,edgeRay):0;if(cuts>0)continue;
-  best={pose:p,yawDeg:sgn*dy,pitchDeg:-dp,maxNdc:m,occludedFrac:occ,edgeCuts:cuts,composition:comp,c};}
- return best?{pose:best.pose,yawDeg:best.yawDeg,pitchDeg:best.pitchDeg,maxNdc:best.maxNdc,occludedFrac:best.occludedFrac,edgeCuts:best.edgeCuts,composition:best.composition}:null;
+  best={pose:p,yawDeg:sgn*dy,pitchDeg:-dp,distM:D,maxNdc:m,occludedFrac:occ,edgeCuts:cuts,composition:comp,c};}
+ return best?{pose:best.pose,yawDeg:best.yawDeg,pitchDeg:best.pitchDeg,distM:best.distM,maxNdc:best.maxNdc,occludedFrac:best.occludedFrac,edgeCuts:best.edgeCuts,composition:best.composition}:null;
 }

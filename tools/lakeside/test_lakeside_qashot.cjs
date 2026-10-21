@@ -103,4 +103,11 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
   if(prev){const a2=dir(P),b2=dir(prev);lastV=Math.hypot(...P.position.map((x,i)=>x-prev.position[i]))*60;lastW=Math.acos(Math.min(1,a2[0]*b2[0]+a2[1]*b2[1]+a2[2]*b2[2]))*180/Math.PI*60;maxV=Math.max(maxV,lastV);maxW=Math.max(maxW,lastW);}prev=P;if(u>=1)break;}
  assert(maxV<=3&&maxW<=110,'blend continuous: '+maxV+' m/s '+maxW+' deg/s');assert(lastV<=maxV+1e-9&&lastW<=maxW+1e-9,'no jump on the hand-over frame');
  out.blendReplay={maxMps:+maxV.toFixed(2),maxDegS:+maxW.toFixed(2),lastMps:+lastV.toFixed(2),lastDegS:+lastW.toFixed(2)};}
+// 12) b16 distance search: near tall scenery cut at the edges for every lens closer than 9 m forces a pull-back; the nearest
+//     passing distance wins
+{const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},feet=[18.4345,19.6533,139.3320],bal=[10.1345,19.6454,138.2321];
+ const ray=(o)=>Math.hypot(o[0]-feet[0],o[2]-feet[2])<9?{t:3,ground:false}:null;const r=Q.lakesideRevealPose(cam,feet,bal,390/844,.98,undefined,.03,ray);
+ assert(r&&r.distM>=9-1e-6&&r.distM<9.9,'nearest passing distance: '+(r&&r.distM));assert(r.pose.fovVerticalDeg<=cam.fovVerticalDeg+8+1e-6);
+ const n=Q.lakesideRevealPose(cam,feet,bal,390/844);assert(n.distM<7.2,'no reason to pull back: seeded distance kept');
+ out.distance={forced:{distM:+r.distM.toFixed(2),yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,centre:+r.composition.centre.toFixed(3),emptyBelow:+r.composition.emptyBelow.toFixed(3)},free:+n.distM.toFixed(2)};}
 console.log(JSON.stringify(out));console.log('PASS lakeside qaShot: route timing, phases, reveal pose, wiring');
