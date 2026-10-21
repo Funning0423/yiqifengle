@@ -122,6 +122,29 @@ export function finalePose(girl:Vec,yawRad:number,w:number,h:number):Pose{return
 /** Camera origin and the near point stay at least this far from scene meshes. Near clip is 0.1 m. */
 export const LENS_CLEAR_M=0.6;
 export type Aabb=Readonly<{min:Vec;max:Vec}>;
+/** Prop shots (robot): the lens keeps at least this far from the prop and from her. */
+export const PROP_CLEAR_M=1.1;
+export type PropFacing=Readonly<{dist:number;lift:number;aim:number;sideDeg:number;fov:number}>;
+export const ROBOT_FACING:PropFacing={dist:18,lift:4.2,aim:3.9,sideDeg:30,fov:40};
+/**
+ * Front three-quarter prop lens. The side (±sideDeg off the prop's facing) is the one nearer her, so the shot
+ * stays on her side; it never goes behind the prop wherever she stands. Pure; yaw is not locked afterwards.
+ */
+export function propFacingPose(p:Vec,fwd:Vec,girl:Vec,o:PropFacing):Pose{
+ const fl=Math.hypot(fwd[0],fwd[2])||1,fx=fwd[0]/fl,fz=fwd[2]/fl,a=o.sideDeg*Math.PI/180;
+ const best={d:Infinity,pos:[p[0]+fx*o.dist,p[1]+o.lift,p[2]+fz*o.dist] as Vec};
+ for(const s of [1,-1]){
+  const c=Math.cos(s*a),n=Math.sin(s*a),dx=fx*c-fz*n,dz=fx*n+fz*c;
+  const pos:Vec=[p[0]+dx*o.dist,p[1]+o.lift,p[2]+dz*o.dist];
+  const d=Math.hypot(pos[0]-girl[0],pos[2]-girl[2]);
+  if(d<best.d){best.d=d;best.pos=pos;}
+ }
+ let pos=best.pos;
+ // her clearance: slide the lens up if she stands within PROP_CLEAR_M of it
+ const gd=Math.hypot(pos[0]-girl[0],pos[1]-(girl[1]+1),pos[2]-girl[2]);
+ if(gd<PROP_CLEAR_M)pos=[pos[0],pos[1]+(PROP_CLEAR_M-gd)+0.05,pos[2]];
+ return {position:pos,target:[p[0],p[1]+o.aim,p[2]],fovVerticalDeg:o.fov};
+}
 export function projectNdc(pose:Pose,p:Vec,w:number,h:number):{x:number;y:number;z:number}{
  const {forward,right,up}=viewOf(pose);
  const fov=(pose.fovVerticalDeg??48)*Math.PI/180,half=Math.tan(fov/2),aspect=Math.max(1e-4,w/h);

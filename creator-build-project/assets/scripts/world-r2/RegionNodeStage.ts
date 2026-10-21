@@ -3,7 +3,7 @@ import {MINIGAME} from 'cc/env';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
-import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
+import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,propFacingPose,ROBOT_FACING,PROP_CLEAR_M,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
 import {FreeOrbit,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
 import {setExploreEnabled} from '../region/ExploreGate';
 import {REGION_NODES,type RegionId} from '../region/RegionNodes';
@@ -91,18 +91,18 @@ export class RegionNodeStage extends Component{
   const cam=this.camera!;const n=cam.node,p=n.worldPosition,f=n.forward;
   return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:cam.fov};
  }
- private writePose(pose:Pose,clear=false):Pose{
+ private writePose(pose:Pose,clear=false,clearM=LENS_CLEAR_M):Pose{
   const cam=this.camera;if(!cam?.node?.isValid)return pose;
-  const next=clear?this.guardLens(pose):pose;
+  const next=clear?this.guardLens(pose,clearM):pose;
   const ok=applyCameraPose(cam,fromLookAt(next,next.fovVerticalDeg??cam.fov),'region.node-lens');
   if(!ok)this.shotNote=(this.shotNote?this.shotNote+' ':'')+'rejected';
   return next;
  }
  /** Finale and free-explore lenses: AABB retreat, then a 0.6 m ray so the near plane cannot enter a mesh. */
- private guardLens(pose:Pose):Pose{
+ private guardLens(pose:Pose,clear=LENS_CLEAR_M):Pose{
   const origDir=this.viewDir(pose);
   const boxes=this.sceneBoxes();
-  let next=retreatClear(pose,boxes,LENS_CLEAR_M);
+  let next=retreatClear(pose,boxes,clear);
   const scene=director.getScene();if(!scene)return next;
   const dir=this.viewDir(next);
   const ray=new geometry.Ray();
@@ -113,8 +113,8 @@ export class RegionNodeStage extends Component{
    let push=0;
    for(const r of rends){
     if(!r.enabled||!r.node.activeInHierarchy||!r.model||r.node===this.markerNode)continue;
-    const t=geometry.intersect.rayModel(ray,r.model,{mode:geometry.ERaycastMode.CLOSEST,distance:LENS_CLEAR_M,doubleSided:true});
-    if(t>0&&t<LENS_CLEAR_M)push=Math.max(push,LENS_CLEAR_M-t+0.05);
+    const t=geometry.intersect.rayModel(ray,r.model,{mode:geometry.ERaycastMode.CLOSEST,distance:clear,doubleSided:true});
+    if(t>0&&t<clear)push=Math.max(push,clear-t+0.05);
    }
    if(push<=0)break;
    const p=next.position;
@@ -125,14 +125,14 @@ export class RegionNodeStage extends Component{
   for(let up=0;up<8;up++){
    if(this.clearAhead(next,2)&&this.clearUp(next,1.2))break;
    const p=next.position,t=next.target;
-   next=retreatClear({position:[p[0],p[1]+1.6,p[2]],target:t,fovVerticalDeg:next.fovVerticalDeg},boxes,LENS_CLEAR_M);
+   next=retreatClear({position:[p[0],p[1]+1.6,p[2]],target:t,fovVerticalDeg:next.fovVerticalDeg},boxes,clear);
   }
   // A map lens that slid under a stair flight ends up looking up through the treads. Put it back above the subject.
   const lifted=this.viewDir(next);
   if(origDir[1]<-0.25&&lifted[1]>0.05){
    const rise=Math.max(4,pose.position[1]-pose.target[1]);
    const p=next.position,t=next.target;
-   next=retreatClear({position:[p[0],t[1]+rise,p[2]],target:t,fovVerticalDeg:next.fovVerticalDeg},boxes,LENS_CLEAR_M);
+   next=retreatClear({position:[p[0],t[1]+rise,p[2]],target:t,fovVerticalDeg:next.fovVerticalDeg},boxes,clear);
   }
   return next;
  }
@@ -393,6 +393,13 @@ export class RegionNodeStage extends Component{
    if(model)Vec3.transformQuat(rot,off,model.worldRotation);else rot.set(off);
    return {position:[p[0]+rot.x,p[1]+rot.y,p[2]+rot.z],target:[p[0],p[1]+1.2,p[2]],fovVerticalDeg:42};
   }
+  if(id==='robot'){
+   // front three-quarter from the robot's own facing (+Z of anchor_robot_root), not along the line to her
+   const f=new Vec3(0,0,1);
+   const q=node?node.worldRotation:this.model(this.region)?.worldRotation;
+   if(q)Vec3.transformQuat(f,f,q);
+   return propFacingPose(p,[f.x,f.y,f.z],g,ROBOT_FACING);
+  }
   const dx=g[0]-p[0],dz=g[2]-p[2],L=Math.hypot(dx,dz)||1;
   const back=id==='robot'?12:id==='palm'?9:Math.max(4.2,this.propSpan(id)*1.7);
   const lift=id==='robot'?4.2:id==='palm'?3.2:this.propSpan(id)*0.55;
@@ -509,7 +516,7 @@ export class RegionNodeStage extends Component{
    pose=blendPose(board,follow,0.3,BLEND_S.boardToFollow);
   }
   const guarded=lens==='map'||lens==='tap'||lens==='markers';
-  const applied=this.writePose(pose,guarded);
+  const applied=lens==='prop'&&(spec.prop||SCENE_PROPS[region][0])==='robot'?this.writePose(pose,true,PROP_CLEAR_M):this.writePose(pose,guarded);
   this.holdPose=lens==='prop'||lens==='finale'||lens==='look'?applied:null;
   if(this.hideTree){this.treeVisible(false);this.stripFinaleOccluders(applied);}
   this.lens=spec.lens==='map'||spec.lens==='tap'?'MapExplore':'FollowWalk';
