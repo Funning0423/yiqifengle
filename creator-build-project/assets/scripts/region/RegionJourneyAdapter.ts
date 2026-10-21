@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {LAKESIDE_DOOR_HOLD,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -338,9 +338,13 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    tail.catch(()=>{}).then(()=>outOk());const offOut=rideToken.onCancel(()=>outOk());
    try{await out;rideToken.check();
     // she is out: blend the held door lens onto the landing (= board) pose in game time, then hand over
-    const a=lastPose||landPose,blendS=lakesideDoorBlendS(a,landPose);let u=0;
+    // b16: the blend follows her real walk progress up to the board entry distance (whole body inside 0.85 of the board
+    // frame), so she stays clearly in frame through the blend and the board fade-in; never shorter than the SPEC blend
+    const a=lastPose||landPose,blendS=lakesideDoorBlendS(a,landPose),vs=view.getVisibleSize(),entryM=lakesideBoardEntryM(moored.walk,landPose,vs.width/Math.max(1,vs.height),LAKESIDE_DOOR_HOLD.outM);
+    let el=0,u=0;const capS=blendS+(entryM-LAKESIDE_DOOR_HOLD.outM)/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
     await new Promise<void>((ok,bad)=>{const offB=rideToken.onCancel(()=>{bad(Error('cancelled'));});const prevStep=ticker.step;
-     ticker.step=(dt)=>{prevStep(dt);u+=dt/blendS;lastPose=lakesideDoorBlendPose(a,landPose,u);if(u>=1){lastPose=landPose;ticker.step=prevStep;offB();ok();}};});
+     ticker.step=(dt)=>{prevStep(dt);el+=dt;const w=(actor as any).walkProgress?.(),walked=typeof w==='number'?w*moored.length:entryM;
+      u=el>=capS?1:Math.max(u,lakesideDoorBlendU(walked,LAKESIDE_DOOR_HOLD.outM,entryM,el,blendS));const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=prevStep;offB();ok();}};});
    }finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
    rideToken.check();qaMark0('out');
   };

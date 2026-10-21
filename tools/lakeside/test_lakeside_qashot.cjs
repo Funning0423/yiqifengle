@@ -35,7 +35,7 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
 {const DH=B.LAKESIDE_DOOR_HOLD,v=m.length/m.walkS,outAt=m.walkStartAt+DH.outM/v;assert(DH.outM>=1.4,'clear of the basket');
  assert(outAt>m.walkStartAt&&outAt>m.T0+.333+.5,'held through the door opening');
  const doorLens=B.lakesideDoorLens(m.walk),blendS=B.lakesideDoorBlendS(doorLens,land);
- assert(m.walkStartAt+m.walkS-outAt-blendS>=5,'board fade overlaps the offscreen walk');
+ assert(m.walkStartAt+m.walkS-outAt-blendS>=5,'board fade overlaps the walk');
  // the held lens frames the basket at touchdown (basket centre + door within the frame), unlike the old landing pose
  const FLb=require('../journey-integration/journey-framing-lib.cjs'),bk=R.vehicle(R.T),bc=[bk[0],bk[1]+.6,bk[2]],nd=FLb.ndc(doorLens,bc);
  assert(nd&&Math.abs(nd[0])<.9&&Math.abs(nd[1])<.9,'basket on screen in the door lens: '+JSON.stringify(nd));
@@ -71,4 +71,16 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
  assert.equal(Q.lakesideEdgeCut(P,asp,()=>({t:1,ground:true})),0);
  out.edge={plain:{yawDeg:plain.yawDeg,pitchDeg:plain.pitchDeg,centre:+plain.composition.centre.toFixed(3),emptyBelow:+plain.composition.emptyBelow.toFixed(3)},pick:{yawDeg:e.yawDeg,pitchDeg:e.pitchDeg,centre:+e.composition.centre.toFixed(3),emptyBelow:+e.composition.emptyBelow.toFixed(3)}};
  assert(Math.abs(plain.composition.centre)<=.1&&plain.composition.emptyBelow<=.2,'subject roughly centred, little foreground (revealLift)');}
+// 9) b16 board entry: through the door → board blend (driven by her walk) she stays inside the frame, and at the hand-over
+//    her whole body is inside 0.85 of the board frame (no right-edge cut during the fade-in)
+{const FLc=require('../journey-integration/journey-framing-lib.cjs'),asp=FLc.ASPECT,DH=B.LAKESIDE_DOOR_HOLD,door=B.lakesideDoorLens(m.walk),v=m.length/m.walkS;
+ const entry=B.lakesideBoardEntryM(m.walk,land,asp,DH.outM),blendS=B.lakesideDoorBlendS(door,land);assert(entry>DH.outM&&entry<m.length-1,'entry inside the walk');
+ let worst=0,el=0,u=0,pd=null,pw=null,wMax=0,aMax=0;for(let sM=DH.outM;u<1;sM+=v/60,el+=1/60){u=Math.max(u,B.lakesideDoorBlendU(sM,DH.outM,entry,el,blendS));const p=C.sampleRoute(m.walk,Math.min(sM,m.length)),P=B.lakesideDoorBlendPose(door,land,u,p);
+  const dv=P.target.map((x,i)=>x-P.position[i]),dl=Math.hypot(...dv),dn=dv.map(x=>x/dl);if(pd){const w=Math.acos(Math.min(1,dn[0]*pd[0]+dn[1]*pd[1]+dn[2]*pd[2]))*180/Math.PI*60;wMax=Math.max(wMax,w);if(pw!==null)aMax=Math.max(aMax,Math.abs(w-pw)*60);pw=w;}pd=dn;
+  for(const y of [0,.9,1.65]){const n=FLc.ndc(P,[p[0],p[1]+y,p[2]]);assert(n&&n[2]>0,'in front');worst=Math.max(worst,Math.abs(n[0]),Math.abs(n[1]));}}
+ assert(wMax<=110&&aMax<=360,'blend motion bars '+wMax+' '+aMax);
+ assert(worst<=.95,'her body stays in frame through the blend: '+worst);
+ const handS=(entry-DH.outM)/v,left=m.walkStartAt+m.walkS-(m.walkStartAt+DH.outM/v)-Math.max(handS,blendS);assert(left>=3,'board fade still overlaps her walk: '+left);
+ assert.equal(B.lakesideDoorBlendU(DH.outM+.01,DH.outM,entry,100,blendS)<1,true);assert.equal(B.lakesideDoorBlendU(entry,DH.outM,entry,0.5,blendS)<1,true,'never faster than the SPEC blend');
+ out.boardEntry={entryM:+entry.toFixed(2),blendByWalkS:+handS.toFixed(2),specBlendS:+blendS.toFixed(2),worstNdc:+worst.toFixed(3),viewDegS:+wMax.toFixed(1),viewDegS2:+aMax.toFixed(1),walkLeftAfterS:+left.toFixed(2)};}
 console.log(JSON.stringify(out));console.log('PASS lakeside qaShot: route timing, phases, reveal pose, wiring');
