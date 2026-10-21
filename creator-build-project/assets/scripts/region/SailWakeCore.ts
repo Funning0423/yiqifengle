@@ -21,6 +21,11 @@ export const SAIL_WAKE={
  lift:0.05,                  // above SAIL_SEA_Y; hull_foam_ring sits at 0.02
  jumpM:4,                    // teleport guard: reset the history
  nightFadeS:0.5,
+ // b11 fix (K2): right after the pier the boat has sailed ~3 m, so the history-only trail is ~2.6 m long while the
+ // sail-art K2 render shows the V running back toward the pier. While the real trail is shorter than armM, the unused
+ // tail slots continue it backwards along the oldest heading (a 'launch ghost'), weighted by the live emission and faded
+ // out as the real history grows; gone once ghostOffM has been sailed. No new verts / indices (uses the spare slots).
+ ghostM:14, ghostK:0.85, ghostOffM:16,
  day:[238,246,252] as [number,number,number],
  night:[160,186,218] as [number,number,number],
  nightAlpha:0.78,
@@ -86,6 +91,7 @@ export function buildWakeGeometry(tr:WakeTrail,y:number,out:WakeBuffers):number{
  const tanA=Math.tan(SAIL_WAKE.armDeg*Math.PI/180);
  let peak=0,mnx=1e9,mnz=1e9,mxx=-1e9,mxz=-1e9;
  const night=tr.night,nA=1+(SAIL_WAKE.nightAlpha-1)*night;
+ const gs=wakeGhost(tr),gN=gs.n,gK=gs.k;
  const cr=(SAIL_WAKE.day[0]+(SAIL_WAKE.night[0]-SAIL_WAKE.day[0])*night)/255;
  const cg=(SAIL_WAKE.day[1]+(SAIL_WAKE.night[1]-SAIL_WAKE.day[1])*night)/255;
  const cb=(SAIL_WAKE.day[2]+(SAIL_WAKE.night[2]-SAIL_WAKE.day[2])*night)/255;
@@ -98,10 +104,15 @@ export function buildWakeGeometry(tr:WakeTrail,y:number,out:WakeBuffers):number{
     const p=pts[j];x=p.x;z=p.z;s=p.s;dist=pts[0].s-p.s;
     // Ribbon side = boat heading when this point was laid (robust when the stern sits on the last laid point).
     nx=p.fz;nz=-p.fx;
-    const k=p.k*ageFade(p.age);
+    let k=p.k*ageFade(p.age);
+    if(gN>0&&i>=n-1){         // launch ghost: continue behind the oldest point along its heading
+     const g=i-(n-1);dist+=g*SAIL_WAKE.spacingM;x-=p.fx*g*SAIL_WAKE.spacingM;z-=p.fz*g*SAIL_WAKE.spacingM;s-=g*SAIL_WAKE.spacingM;
+     k=gK;
+    }
     if(r===0)a=SAIL_WAKE.washPeak*k*along(dist,SAIL_WAKE.washM,SAIL_WAKE.washHold);
     else a=SAIL_WAKE.armPeak*k*along(dist,SAIL_WAKE.armM,SAIL_WAKE.armHold);
-    if(i>=n-1)a=0;            // the oldest point and the unused tail always close at zero
+    if(gN>0?i>=n-1+gN||i>=N-1:i>=n-1)a=0;   // the oldest point (or the ghost end) and the unused tail always close at zero
+    if(gN>0&&i>n-1+gN){const q=pts[n-1],g2=gN;x=q.x-q.fx*g2*SAIL_WAKE.spacingM;z=q.z-q.fz*g2*SAIL_WAKE.spacingM;dist=pts[0].s-q.s+g2*SAIL_WAKE.spacingM;s=q.s-g2*SAIL_WAKE.spacingM;}
    }
    let off=0,half=0;
    if(r===0){half=SAIL_WAKE.washHalf0+dist*SAIL_WAKE.washGrow;}
@@ -126,6 +137,22 @@ export function buildWakeGeometry(tr:WakeTrail,y:number,out:WakeBuffers):number{
  if(mnx>mxx){mnx=mxx=mnz=mxz=0;}
  out.min[0]=mnx;out.min[1]=y-0.01;out.min[2]=mnz;out.max[0]=mxx;out.max[1]=y+0.01;out.max[2]=mxz;
  return peak;
+}
+/** Launch ghost slots and weight: n spare slots continue the trail (0 = off), k = live emission × fade-out with distance sailed. */
+export function wakeGhost(tr:WakeTrail):{n:number;k:number}{
+ const pts=tr.pts,n=pts.length;if(n<2)return {n:0,k:0};
+ const w=1-smooth(SAIL_WAKE.ghostOffM*0.35,SAIL_WAKE.ghostOffM,tr.total);
+ const k=pts[0].k*SAIL_WAKE.ghostK*w;if(k<=0.001)return {n:0,k:0};
+ const realM=tr.total,want=Math.min(SAIL_WAKE.ghostM,Math.max(0,SAIL_WAKE.armM-realM));
+ const g=Math.min(SAIL_WAKE.maxPoints-n,Math.round(want/SAIL_WAKE.spacingM));
+ return g>0?{n:g,k:k}:{n:0,k:0};
+}
+/** QA: visible length including the launch ghost (arm alpha >= 0.05). */
+export function wakeVisibleWithGhostM(tr:WakeTrail):number{
+ const real=wakeVisibleM(tr),gs=wakeGhost(tr);if(!gs.n)return real;
+ const pts=tr.pts,base=pts[0].s-pts[pts.length-1].s;let best=real;
+ for(let g=1;g<gs.n;g++){const d=base+g*SAIL_WAKE.spacingM;if(SAIL_WAKE.armPeak*gs.k*along(d,SAIL_WAKE.armM,SAIL_WAKE.armHold)>=0.05)best=Math.max(best,d);}
+ return best;
 }
 /** hull_foam_ring tint: stays white by day (unchanged look), eases to the wake's night foam with the same weight. */
 export function hullFoamTint(night:number):[number,number,number]{
