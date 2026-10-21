@@ -3,6 +3,7 @@ PASS pose: joints copied as they are; animation off, playOnLoad off, scripts off
 PASS free once: dispose destroys the copy exactly once; missing her / journey scene → null, nothing added
 PASS wiring: board lease mounts her after the layer pass, frees her in dispose (once), reports her renderer count
 PASS morph: every renderer with morphs gets the original weights per sub-mesh and target (apron 3 sub-meshes, dress); state flags + materials copied
+PASS option A: parked balloon survives the board layer swap at its lake-local pose and is freed once
 PASS other regions (meadow / sky city): same mapping from the journey copy of the region model (same name under RegionJourney-<region>), scale honoured
 PASS wiring: composition wraps the meadow / sky-city factories; their lease files are unchanged; island board is a 2D painting
 PASS wrapper: meadow lease gets her copy, freed once

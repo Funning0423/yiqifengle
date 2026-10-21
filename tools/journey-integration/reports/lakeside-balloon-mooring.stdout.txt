@@ -1,0 +1,2 @@
+{"point":[9.5,0.61,23],"clearance":0.5081174002653567,"closest":"lake:LK_shore_foam_i","walkSeconds":8.359592935256378,"peakWalkMps":1.2000000000000455,"errors":[]}
+PASS mooring, mesh frusta, right free look, geometry, unchanged shore, walk speed and stationary end lens

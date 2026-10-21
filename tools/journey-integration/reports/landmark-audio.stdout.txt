@@ -1,0 +1,8 @@
+PASS smooth distance curve: inner, midpoint, outer and invalid
+PASS entry and exit each complete within 2 seconds; exit releases
+PASS decode delay stays silent, then fades; re-entry reverses without jump
+PASS scene switch and mute stop immediately; no phantom region sounds
+PASS global cap includes pending and fading voices, aggregate gain <= budget
+PASS single shots do not overlap, obey cooldown; night waterbirds quarter rate
+PASS all approved clips exist, anchors match shipped scenes, startup hooks present
+landmark-audio: 7 checks PASS
