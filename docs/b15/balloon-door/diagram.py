@@ -1,0 +1,25 @@
+import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt, numpy as np, math
+fig,(a,b)=plt.subplots(1,2,figsize=(13,6.5))
+# TOP view, Cocos basket-local: X right (her left = +X when facing +Z), Z = door outward (shore). plot x horizontal, z vertical
+sq=np.array([[-.8,-.8],[.8,-.8],[.8,.8],[-.8,.8],[-.8,-.8]]); a.plot(sq[:,0],sq[:,1],'k-',lw=2,label='rim inner (±0.80)')
+a.plot([-.7,.7,.7,-.7,-.7],[-.7,-.7,.7,.7,-.7],'k:',lw=1,label='floor-level wall (±0.70)')
+a.fill_between([-.40,.40],.80,.84,color='peru',alpha=.9,label='leaf closed (0.80×0.04)')
+hx,hz=.40,.84; a.plot(hx,hz,'ro',ms=8,label='hinge axis basket_door (0.40, y, 0.84)')
+for deg,al in ((100,.9),(45,.3)):
+    t=math.radians(deg); e=np.array([hx-.8*math.cos(t),hz+.8*math.sin(t)]); a.plot([hx,e[0]],[hz,e[1]],color='saddlebrown',lw=4,alpha=al)
+th=np.radians(np.linspace(0,100,40)); a.plot(hx-.8*np.cos(th),hz+.8*np.sin(th),'--',color='saddlebrown',lw=1,label='free edge sweep 0→100° (+Y rot)')
+a.plot(.03,.395,'b^',ms=12,label='her root (0.03, 0, 0.395) facing +Z')
+a.plot(-.08,.80,'gx',ms=12,mew=3,label='push point: her RIGHT hand (.L) @ y 1.13')
+a.annotate('',xy=(.03,1.9),xytext=(.03,.5),arrowprops=dict(arrowstyle='->',color='b')); a.text(.06,1.6,'walk_start → shore\n(straight, no turn)',color='b')
+a.fill_between([-.395+.03,.324+.03],.9,1.9,color='b',alpha=.08,label='walk dress envelope (0.72 m)')
+a.set_aspect('equal'); a.set_xlim(-1.3,1.3); a.set_ylim(-1,2.1); a.grid(alpha=.3); a.set_xlabel('local X (m)  [+X = her LEFT when she faces the door]'); a.set_ylabel('local Z (m)  [+Z = outward / shore]')
+a.set_title('TOP (basket-local, Cocos axes, origin = basket GLB root)'); a.legend(fontsize=7,loc='lower left')
+# SIDE view: z (outward) horizontal, y up
+b.plot([.70,.84,.80],[0.05,.69,1.03],'k-',lw=2,label='wall profile (cut in the opening)')
+b.add_patch(plt.Rectangle((.80,.01),.04,1.14,color='peru',label='leaf 0.01–1.15 (1.14 h), 0.04 thk'))
+b.axhline(0,color='g',lw=2,label='ground = inner floor (lower floor 0.10→0)'); b.axhline(1.03,color='k',ls='--',lw=1,label='rim top 1.03'); b.axhline(1.12,color='gray',ls=':',lw=1,label='rim padding 1.12')
+b.add_patch(plt.Rectangle((.79,1.07),.01,.10,color='g',alpha=.8,label='hand contact band 1.07–1.17 (f10–f11)'))
+b.plot([.395,.395],[0,1.74],'b-',lw=6,alpha=.3,label='her (root z 0.395, 1.74 tall)')
+b.plot(.395+.405,1.13,'gx',ms=12,mew=3)
+b.set_xlim(-.2,1.8); b.set_ylim(-.1,1.9); b.set_aspect('equal'); b.grid(alpha=.3); b.set_xlabel('local Z (m) outward'); b.set_ylabel('local Y (m) up'); b.set_title('SIDE (section through the door, x = 0)'); b.legend(fontsize=7,loc='upper right')
+plt.tight_layout(); plt.savefig('door_diagram.png',dpi=110)

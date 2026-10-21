@@ -136,12 +136,18 @@ export const PENDING_CANDIDATES: { [id: string]: { place: ScenePlace; tier: 'sca
   skyStarring: { place: 'skycity', tier: 'landmark', anchor: 'starring_spin', clips: [R('audio/amb_sky_starring_loop', 'region_skycity')] },
 };
 
-/** Approved landmarks only; the remaining design landmarks are not enabled here. */
-export type LandmarkSpec = AmbLandmark & { place: ScenePlace };
+/** Approved landmarks only; the remaining design landmarks are not enabled here.
+ *  b15 mix pass (Voice bot): radii follow the real geometry. Ducks swim ~20 m off the L1 path (L0 31 m); the star ring hangs 20 m
+ *  above the court (closest walkable point S6 = 20.4 m); the gardener stands 3.9 m from S1. vol puts each landmark at the
+ *  nearest walkable point ~8-9 dB under the BGM and 6-9 dB under its bed (file LUFS: birds -28.4, gardener -31.5, ring -31.4).
+ *  One-shots start at their distance level (LandmarkAudioCore); the star ring file is 16.0 s + 0.3 s own-start copy, played on two
+ *  alternating sources (LandmarkLoopPair) so mp3 encoder padding is never heard. */
+/** sr: sample rate of a loop file (its encoder delay is 1105 samples at that rate); loops play on two alternating sources. */
+export type LandmarkSpec = AmbLandmark & { place: ScenePlace; sr?: number };
 export const CONFIRMED_LANDMARKS: LandmarkSpec[] = [
-  { id: 'lakeWaterbirds', place: 'lakeside', anchor: 'LK_duck_i', clips: PENDING_CANDIDATES.lakeWaterbirds.clips, loopS: null, vol: 0.18, nearM: 3, farM: 25, interval: [14, 30] },
-  { id: 'skyGardener', place: 'skycity', anchor: 'chr_robot_gardener_mesh', clips: PENDING_CANDIDATES.skyGardener.clips, loopS: null, vol: 0.18, nearM: 2, farM: 15, interval: [18, 40] },
-  { id: 'skyStarring', place: 'skycity', anchor: 'env_sky_starring', clips: PENDING_CANDIDATES.skyStarring.clips, loopS: 16, vol: 0.16, nearM: 3, farM: 25 },
+  { id: 'lakeWaterbirds', place: 'lakeside', anchor: 'LK_duck_i', clips: PENDING_CANDIDATES.lakeWaterbirds.clips, loopS: null, vol: 0.4, nearM: 18, farM: 45, interval: [14, 30] },
+  { id: 'skyGardener', place: 'skycity', anchor: 'chr_robot_gardener_mesh', clips: PENDING_CANDIDATES.skyGardener.clips, loopS: null, vol: 0.45, nearM: 3, farM: 18, interval: [18, 40] },
+  { id: 'skyStarring', place: 'skycity', anchor: 'env_sky_starring', clips: PENDING_CANDIDATES.skyStarring.clips, loopS: 16, sr: 24000, vol: 0.5, nearM: 21, farM: 42 },
 ];
 
 /** 地面 → 脚步素材（4 个变体，文件名 _1.._4）。step_* 在 region_island 的是 r4 的合成脚步（r4.1 重录待 Mac 录音确认）；

@@ -26,7 +26,11 @@ export const LAKESIDE_BALLOON_LANDING={
   *  So the balloon is MOORED off the edge at deck level ([-8, .58, 53.5]: 0.7–0.8 m from all geometry, the nearest free
   *  spot to [-7, .58, 53]); she walks from S6 round the roots to the edge (walkLocal, production walk at walkMps) and
   *  boards under a short fade (no stepping-through-the-wall; there is no boarding clip). */
- mooringLocal:[9.5,.61,23] as readonly [number,number,number],
+ /** b15 (场景特效bot): moored on the flat lawn behind the bank. [9.5,.61,23] sat on the bank lip: 3/72 footprint samples over
+  *  the cut bank/water, the shore-foam ribbon (top of bank, z 22.75–24.25) ran under the whole basket and the floor floated
+  *  5 cm above the grass. Here the footprint (r 0.72) is all lawn (terrain 0.569–0.579, 0.6 m clear of the foam ribbon) and
+  *  the basket sits 0–0.7 cm into the grass (test_lakeside_balloon_mooring clearance ≥ 0.49 still holds). */
+ mooringLocal:[9.5,.572,25.6] as readonly [number,number,number],
  launchLocal:[-8,.58,53.5] as readonly [number,number,number],
  walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
  /** NodeWalker.WALK_SPEED_MPS: the speed the production walk clip is calibrated for (no foot sliding). */
@@ -223,5 +227,8 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec){
  const approach:Vec=[bank[0]+south[0]-origin[0],bank[1],bank[2]+south[2]-origin[2]],h=heading(mooring,approach);
  const exit:Vec=[mooring[0]+h[0]*1.6,bank[1],mooring[2]+h[1]*1.6],walk=roundWalk([exit,approach,bank],.6);
  const length=routeLength(walk),timing:JourneyTiming={durationS:length/LAKESIDE_BALLOON_LANDING.walkMps+LAKESIDE_BALLOON_LANDING.walkEaseS,easeInS:LAKESIDE_BALLOON_LANDING.walkEaseS,easeOutS:LAKESIDE_BALLOON_LANDING.walkEaseS};
- return {mooring,walk,timing,walkAt:(t:number)=>journeyDistanceAt(length,timing,t)};
+ // b15 basket door (DOOR_SPEC): the door wall is the basket's local +Z; yaw the moored basket so it faces her exit heading h
+ // (Cocos rotY(θ) takes +Z to (sin θ, 0, cos θ)). b14 never rotated the basket (yaw 0 under the rig).
+ const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI;
+ return {mooring,walk,timing,doorYawDeg,walkAt:(t:number)=>journeyDistanceAt(length,timing,t)};
 }

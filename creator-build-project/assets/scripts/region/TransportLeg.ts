@@ -184,9 +184,9 @@ const Kbeam:SailOff={back:0.8,side:-10.2,up:5.1,fov:52,look:0.2,orb:0};
 const K3:SailOff={back:11.5,side:-4.5,up:4.4,fov:52,look:3,orb:0};
 /** S-d u where the bow→beam arc ends on the 3.6 m/s cruise clock. */
 export const SAIL_BEAM_IN=0.14;
-/** S-d u where the ~96° Kbeam→K3 arc ends. Keep the swing below 110°/s. */
-export const SAIL_K3_IN=0.34;
-export const SAIL_K3_OUT=0.42;
+/** S-d u where the ~96° Kbeam→K3 arc ends. Keep the swing below 110°/s. b15: 0.32/0.44 (was 0.34/0.42 = 0.66 s hold on the 3.6 m/s clock) holds K3 0.99 s so the windmill reads; swing 85.6°/s, 289°/s², K7 still u 0.40 inside the hold. */
+export const SAIL_K3_IN=0.32;
+export const SAIL_K3_OUT=0.44;
 /** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
 const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
 /** Channel centre: boat x≈−4.4, side≈0.9 → camera x≈−3.5, between the inner banks. */

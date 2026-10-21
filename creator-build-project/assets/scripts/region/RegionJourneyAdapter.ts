@@ -296,6 +296,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    });
    rideToken.check();
    if(girl&&isValid(girl,true)&&aboard){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
+   // b15: moored, off the board lens: turn the basket so its door (local +Z) faces her walk back to the shore.
+   if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
    // Basket and exit are outside the settled board lens: no visible wall crossing or extra cut/fade.
    const first=moored.walk[0],next=moored.walk[1];
    actor.cancelAndReset({kind:'standing',controllerRoot:first,yawRad:Math.atan2(next[0]-first[0],next[2]-first[2])});

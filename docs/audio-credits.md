@@ -177,3 +177,18 @@ into its head). Levels (ffmpeg `ebur128`): board −26.5 LUFS, unfurl −25.4, d
 The bed fades in over 1.0 s and out over 2.0 s.
 Source sha256 (first 16 hex): bow 78b580af72a88f51, underway 9d2d7ccb30cbdfdc, flapping d5e7adbdc8b4374e, dock
 6cab581c9821a6ce, Lovis fe53fec8252baad3.
+
+### b15 landmark mix pass (Voice bot, 2026-10-21)
+
+These are edits to files already credited above; no new sources.
+- `sfx_lake_waterbird_1..4`, `sfx_sky_gardener_water_1..2`, `sfx_sky_gardener_boop_1`: re-encoded from the same masters with 1.5 s of leading silence added, so LandmarkAudioCore's 2 s fade-in no longer swallows the first call. New sizes: 32,048 / 30,032 / 39,968 / 39,968 / 30,608 / 28,304 / 22,112 B. Loudness is unchanged apart from the added silence.
+- `amb_sky_starring_loop`: re-rendered as a plain circular loop for AudioSource.loop. It is 16.008 s (667 MPEG-2 L3 frames at 24 kHz) and no longer carries the 0.15 s duplicate tail, which played as a 150 ms repeat on every native loop. 48,404 B, -31.4 LUFS / -21.6 dBTP. Own synthesis, CC0.
+
+### b15 follow-up: one-shots at target level, two-source star ring loop
+- The 7 landmark one-shots (sfx_lake_waterbird_1..4, sfx_sky_gardener_water_1/2, sfx_sky_gardener_boop_1) are back to the
+  b14 encodes with no silence padding (byte-identical to e567125a). LandmarkAudioCore now starts a one-shot directly at its distance
+  level; leaving still fades out over 2 s, and the voice cap and gain budget are the same as before.
+- amb_sky_starring_loop re-rendered from the same synthesis (own work, s_pending.py): 16.0 s circular body + 0.3 s copy of its own
+  start, 24 kbps mono 24 kHz, 49,340 B, -31.4 LUFS, true peak -21.2 dBTP. It plays on two alternating AudioSources
+  (LandmarkLoopPair): the partner starts at 16.0 s and they cross over 0.15 s after the 1105-sample encoder delay, so mp3 padding
+  is never heard. No third-party material; licence unchanged.

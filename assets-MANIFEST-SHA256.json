@@ -1011,8 +1011,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_starring_loop.mp3",
-    "bytes": 48836,
-    "sha256": "6125b7ce3cf77df9de8e4d26e1cdd1a2b213305782f8a3cd5fbd6f8d829a9841"
+    "bytes": 49340,
+    "sha256": "4a560ef9fde2206e49f9dcce61f7c75c5e5e3c4e9e9fbd35385fdca7fa42d4a9"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_waterfall_loop.mp3",
@@ -1081,8 +1081,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-    "bytes": 1569136,
-    "sha256": "c8558e31ab312a9c0dd94c82e859e34de4cb929407cd0faa893dd64d29657aaa"
+    "bytes": 1145800,
+    "sha256": "7e52d0feab33a8a9d53f7fb491340d3b40cd7673c995e38da803301bb6c58cf0"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/far_meadow_card.glb",
@@ -1106,8 +1106,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb",
-    "bytes": 111600,
-    "sha256": "ba5a7578049768a39328868cd748b6e45f81a7eb085c6cc678f2d035651c037e"
+    "bytes": 134620,
+    "sha256": "24008c3c3a3f084363a3cf0135701729671c727b0dc122e9536036e793b4d569"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
