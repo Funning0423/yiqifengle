@@ -2131,8 +2131,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudio.ts",
-    "bytes": 5475,
-    "sha256": "87215b591d8e17772dca1fde081fdbf499854376bb308e8fb66d2851e8c6b205"
+    "bytes": 8004,
+    "sha256": "2b0abcc7ac5f3d1aa105bdf9490be48e47de3958ff4a03977e58a150771c7bf8"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudio.ts.meta",
@@ -2141,8 +2141,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudioCore.ts",
-    "bytes": 3541,
-    "sha256": "e35f2a489a2f9379cf403774ea8d503676b875a05540a33ee3a0d448bb91371f"
+    "bytes": 7704,
+    "sha256": "f5736dd340c44010bda4614f8a7ac58610da3da0bf20fd22043c7d8741e40a1b"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LandmarkAudioCore.ts.meta",
@@ -2171,8 +2171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts",
-    "bytes": 25964,
-    "sha256": "54b49209fc932c92a940caf9a9034ddee95d092fda4c7b3fe761845984748c19"
+    "bytes": 26216,
+    "sha256": "f7ebfc4e71aa3c0ed1b20bb41396a8d66202886442516b396c6e602242070f7b"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts.meta",
@@ -4121,8 +4121,8 @@
   },
   {
     "path": "tests/test_landmark_audio.cjs",
-    "bytes": 5892,
-    "sha256": "4c384eb50156b3da90439e9f9a74d9f192c51e2c64c8b47430f0a71c1855c1d7"
+    "bytes": 10003,
+    "sha256": "32dafddad0e120c63045a5aec457ef00f9b499df7765220c07fbec0a67a15674"
   },
   {
     "path": "tools/asset_preflight.py",
@@ -4171,13 +4171,13 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 13895,
-    "sha256": "3ad9be188c2354c2a57cca24f6838f44daa1be91c2a64a805d69224362a98a25"
+    "bytes": 13977,
+    "sha256": "320342c15cf64f1f896e39afd77b13e4e597d0ae2e4e681ebfd2c45375d882a9"
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 13924,
-    "sha256": "7582ff907d93f12f5b54244b3ecd5c93d043fc9181d8c6bf473d0fc98589feb6"
+    "bytes": 13977,
+    "sha256": "320342c15cf64f1f896e39afd77b13e4e597d0ae2e4e681ebfd2c45375d882a9"
   },
   {
     "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",

@@ -35,7 +35,7 @@ def gardener_boop(name,notes,seed):
     mot=rng.standard_normal(n);mot=lp(hp(mot,180,2),600,2)*0.05*np.clip(np.arange(n)/SR/0.4,0,1)*np.clip((dur-1.2-np.arange(n)/SR)/0.6,0,1)
     x=x*0.5+mot;x=lp(x,2600,4);x=reverb(x[:,None].repeat(2,1),wet_db=-11,rt=1.0,lpf=2200);x=fade(x,0.02,0.8)
     fin(name,x,-32.0,'robot gardener: soft sine "hum-boop" (gentle vibrato, LP 2.6 kHz) over a faint low motor purr')
-def starring_loop(name,L=16.0,dup=True):
+def starring_loop(name,L=16.0,dup=True,dupS=0.15):
     n=int(L*SR);t=np.arange(n)/SR;s=np.zeros(n)
     for i,f0 in enumerate([587.33,880.0,698.46,1174.66,1318.5]):   # D minor pentatonic-ish (D5 A5 F5 D6 E6)
         f=round(f0*L)/L;am=0.55+0.45*np.sin(2*np.pi*t*(1+(i%2))*2/L+i*1.3)   # swells at 8 s / 4 s (whole cycles in 16 s)
@@ -45,8 +45,8 @@ def starring_loop(name,L=16.0,dup=True):
     nz=nz/np.abs(nz).max()*0.04*(0.5+0.5*np.sin(2*np.pi*t*4/L))   # faint "whirr" of the ring, circular
     x=(s+hum+nz)[:,None].repeat(2,1)
     X=np.vstack([x,x,x]);X=lp(X,3800,4);X=deharsh(X,-3);X=reverb(X,wet_db=-7,rt=3.0,lpf=3000);x=X[n:2*n]
-    if dup: x=np.vstack([x,x[:int(0.15*SR)]])
-    fin(name,x,-31.0,'star ring: five D-minor-pentatonic sines with whole-cycle 8 s / 4 s swells, 146.8 Hz hum, faint 1.5-4 kHz whirr; built circular (3x tile, keep the middle), '+('16.0 s + 0.15 s dup' if dup else f'plain circular {L} s (= 667 MPEG-2 L3 frames at 24 kHz) for AudioSource.loop'),loopS=L,kb=24,sr=24000)
+    if dup: x=np.vstack([x,x[:int(dupS*SR)]])
+    fin(name,x,-31.0,'star ring: five D-minor-pentatonic sines with whole-cycle 8 s / 4 s swells, 146.8 Hz hum, faint 1.5-4 kHz whirr; built circular (3x tile, keep the middle), '+(f'{L} s + {dupS} s own-start copy for two-source playback' if dup else f'plain circular {L} s (= 667 MPEG-2 L3 frames at 24 kHz) for AudioSource.loop'),loopS=L,kb=24,sr=24000)
 def fin(name,x,target,desc,loopS=None,kb=32,sr=32000):
     m=norm_to(x.mean(1,keepdims=True),target);save(f'wav/{name}.wav',m);size=encode(f'wav/{name}.wav',f'out/{name}.mp3',kb,sr,1)
     I,tp,_=lufs(f'out/{name}.mp3');info=dict(name=name,src='own synthesis (s_pending.py)',desc=desc,bytes=size,lufs=I,truePeak=tp,durS=round(len(m)/SR,2),loopS=loopS,ch=1,kbps=kb,sr=sr)

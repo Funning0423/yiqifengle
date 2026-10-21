@@ -18,7 +18,13 @@ for i,e in enumerate(ev):
     if f not in cache:cache[f]=load(f)
     x=cache[f];a=int(e['t']*SR);b=min(n,int(end*SR))
     if e['loop']:
-        reps=int(np.ceil((b-a)/len(x)))+1;seg=np.vstack([x]*reps)[:b-a]   # native loop: whole file repeats (incl. any dup tail)
+        # two-source playback as LandmarkLoopPair: each pass starts at k*L, partner fades in over 0.15 s after the
+        # 1105-sample encoder delay while the current pass (which carries the 0.3 s own-start copy) fades out.
+        L=int(16.0*SR);d0=int(1105/24000*SR);sm=int(0.15*SR);n=b-a;seg=np.zeros((n+len(x),x.shape[1]))
+        g=np.ones(len(x));g[L+d0:L+d0+sm]=np.linspace(1,0,sm);g[L+d0+sm:]=0
+        gi=np.ones(len(x));gi[:d0]=0;gi[d0:d0+sm]=np.linspace(0,1,sm)
+        for k in range(n//L+1): seg[k*L:k*L+len(x)]+=x*(g*(gi if k else 1))[:,None]
+        seg=seg[:n]
     else: seg=x[:b-a];b=a+len(seg)
     vol=np.interp(ts[a:b],ft,[fr['vol'][e['id']] for fr in J['frames']])[:,None]
     land[a:b]+=seg*vol

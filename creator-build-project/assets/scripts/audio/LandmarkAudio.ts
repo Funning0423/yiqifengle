@@ -2,7 +2,7 @@
 import { _decorator, Component, AudioSource, AudioClip, assetManager, director, Director, isValid, Node } from 'cc';
 import { GameAudio } from './GameAudio';
 import { ambienceBedGain } from './AmbienceAudio';
-import { LandmarkAudioCore, type LandmarkPort } from './LandmarkAudioCore';
+import { LandmarkAudioCore, LandmarkLoopPair, type LandmarkPort } from './LandmarkAudioCore';
 import { type LandmarkSpec } from './SceneAudioTable';
 const { ccclass } = _decorator;
 class Voice implements LandmarkPort {
@@ -40,6 +40,52 @@ class Voice implements LandmarkPort {
     if (this.clip) { this.clip.decRef(); this.clip = null; }
   }
 }
+/** Loop landmark: two AudioSources on the same clip, alternated by LandmarkLoopPair (no AudioSource.loop). */
+class LoopVoice implements LandmarkPort {
+  ready = false;
+  private a: AudioSource | null = null;
+  private b: AudioSource | null = null;
+  private pair: LandmarkLoopPair | null = null;
+  private clip: AudioClip | null = null;
+  private ticket = 0;
+  private started = false;
+  private vol = 0;
+  constructor(private owner: Node, private spec: LandmarkSpec) {}
+  get playing() { return !!this.pair && this.started && this.pair.playing; }
+  get volume() { return this.vol; }
+  set volume(v: number) { this.vol = v; if (!this.started) { if (this.a) this.a.volume = 0; if (this.b) this.b.volume = 0; } }
+  prepare(index: number) {
+    const ticket = ++this.ticket, ref = this.spec.clips[index];
+    const current = () => ticket === this.ticket && isValid(this.owner, true);
+    const fail = (e: unknown) => { if (current()) console.warn('[LandmarkAudio] ' + this.spec.id + ' load failed', String(e)); };
+    const pull = (bundle: any) => {
+      if (!current()) return;
+      bundle.load(ref.path, AudioClip, (err: Error | null, clip: AudioClip) => {
+        if (!current()) return;
+        if (err || !clip) { fail(err); return; }
+        this.clip = clip; clip.addRef();
+        const mk = () => { const src = this.owner.addComponent(AudioSource); src.playOnAwake = false; src.loop = false; src.volume = 0; src.clip = clip; return src; };
+        this.a = mk(); this.b = mk();
+        this.pair = new LandmarkLoopPair(this.a, this.b, this.spec.loopS || 16, this.spec.sr || 24000);
+        this.ready = true;
+      });
+    };
+    if (!ref || !ref.bundle) return;
+    const have = assetManager.getBundle(ref.bundle);
+    if (have) pull(have);
+    else assetManager.loadBundle(ref.bundle, (err, bundle) => { if (!current()) return; if (err || !bundle) fail(err); else pull(bundle); });
+  }
+  play(_loop: boolean) { if (this.pair) { this.started = true; this.pair.start(); } }
+  tick(dt: number) { if (this.pair && this.started) this.pair.tick(dt, this.vol); }
+  release() {
+    this.ticket++; this.ready = false; this.started = false; this.vol = 0;
+    if (this.pair) { this.pair.stop(); this.pair = null; }
+    const both = [this.a, this.b];
+    for (let i = 0; i < both.length; i++) { const s = both[i]; if (s) { s.clip = null; s.destroy(); } }
+    this.a = null; this.b = null;
+    if (this.clip) { this.clip.decRef(); this.clip = null; }
+  }
+}
 function named(node: Node | null, name: string): Node | null {
   if (!node || !node.activeInHierarchy) return null;
   if (node.name === name) return node;
@@ -60,7 +106,7 @@ export class LandmarkAudio extends Component {
     try { const audio = GameAudio.ensure(); if (!audio.node.getComponent(LandmarkAudio)) audio.node.addComponent(LandmarkAudio); }
     catch (e) { console.warn('[LandmarkAudio] mount failed', e); }
   }
-  onLoad() { LandmarkAudio.instance = this; this.core = new LandmarkAudioCore(spec => new Voice(this.node, spec)); }
+  onLoad() { LandmarkAudio.instance = this; this.core = new LandmarkAudioCore(spec => spec.loopS !== null ? new LoopVoice(this.node, spec) : new Voice(this.node, spec)); }
   quiet() { if (this.core) this.core.quiet(); }
   onDestroy() { this.quiet(); if (LandmarkAudio.instance === this) LandmarkAudio.instance = null; this.boot = null; this.anchors = {}; }
   update(dt: number) {
