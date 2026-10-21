@@ -16,7 +16,7 @@ const sel=id=>Comp.prototype.selectionRegion.call({}, {provider:'r5',stageId:id}
 const Route={journeySelectionRegion:sel};
 function host(region){const h=Object.create(Comp.prototype),events=[],snap={state:region,journey:{region,target:null}};
  h.world={commands:()=>({snapshot:()=>snap,abandonLakesideJourney(){events.push(['island']);snap.state='island';snap.journey.region='island';return {ok:true};},async travelRegion(t){events.push(['travel',t]);snap.state=t;snap.journey.region=t;return {ok:true};},async enterLevel(id){events.push(['enter',id]);snap.state='level';return {ok:true};}})};
- h.mainline={journeySnapshot:()=>({readOnly:false,records:[]})};return {h,events};}
+ h.mainline={journeySnapshot:()=>({readOnly:false,records:Array.from({length:12},()=>({bestStars:1,clears:1}))})};return {h,events};}
 let n=0,fail=0;const t=(m,f)=>{try{f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
 t('selectionRegion mapping: r04-lake-01..06 (and r05 renumbering) → lakeside; meadow/sky/tide unchanged',()=>{
  for(const s of API.catalog.filter(s=>s.region==='lake'))assert.equal(Route.journeySelectionRegion(s.id),'lakeside',s.id);
@@ -35,10 +35,10 @@ t('reachable from region select: 风铃湖畔 button → enterRegion(lake) → r
  assert.match(boot,/this\.button\('lake','风铃湖畔',\(\)=>this\.composition\.enterRegion\('lake'\)\)/);
  const first=API.catalog.find(s=>s.region==='lake'&&s.ordinal===1);assert(first,'lake ordinal 1 in catalog');assert.equal(Route.journeySelectionRegion(first.id),'lakeside');
  assert.match(comp,/const order:JourneyRegion\[\]=\['island','meadow','skycity','lakeside'\]/);
- assert.match(comp,/if\(target!=='lakeside'\)\{const permission=\(RegionCampaign as any\)\.canEnterRegion/);
+ assert.match(comp,/const permission=\(RegionCampaign as any\)\.canEnterRegion\(this.mainline.journeySnapshot\(\),target\)/);
  assert.match(comp,/\['home','island','meadow','skycity','lakeside'\]\.includes/);
  assert.match(flow,/export type Place = [^;]*'lakeside'/);assert.match(flow,/'meadow' \| 'lakeside' \|/);
- assert.match(flow,/\['island','meadow','lakeside','level'\]/);assert.match(flow,/\['island','meadow','skycity','lakeside'\]\.includes\(this\.state\)/);
+ assert.match(flow,/\['island','meadow','skycity','lakeside','level'\]/);assert.match(flow,/\['island','meadow','skycity','lakeside'\]\.includes\(this\.state\)/);
  assert.match(src('world-r1/RegionJourneyCore.ts'),/export type JourneyRegion = 'island'\|'meadow'\|'skycity'\|'lakeside';/);
  assert(/\{ id: 'lake', pose: null \}/.test(src('world-r1/RegionCameraData.ts')),'RegionCameraData stop');});
 t('adapter mounts the lakeside model via lakesideJourney(start) (shared scene loader, real instances)',()=>{
@@ -56,6 +56,38 @@ t('landing→board hook call site',()=>{
 t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{/* build05-next: 运镜bot b0c21d2 dropped the portrait board.pitchDeg (pitch 58 void; portrait is solved from the landing pose). The wiring still must not override the layout: landscape stays 75, and the adapter only reads lakesideJourney. */assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,undefined);assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.landscape.pitchDeg,75);assert.doesNotMatch(src('region/RegionJourneyAdapter.ts'),/pitchDeg\s*[:=]/);});
 (async()=>{
  const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
+ await T('continue journey after saved mainline completion enters lake; unfinished or active mainline stays on mainline',async()=>{
+  for(const complete of [false,true])for(const active of [false,true]){
+   const x=host('skycity'),events=[];
+   x.h.mainlineStatus=()=>({journey:{readOnly:false,completed:12,records:Array.from({length:12},(_,i)=>({bestStars:complete||i<11?1:0,clears:complete||i<11?1:0}))},active:active?{status:'playing',stageId:'mainline-12'}:null,nextStageId:complete?null:'mainline-12',stages:[]});
+   x.h.enterRegion=async id=>{events.push(['region',id]);return {ok:true};};
+   x.h.enterMainlineStage=async id=>{events.push(['mainline',id]);return {ok:true};};
+   assert.equal((await x.h.enterMainline()).ok,true);
+   assert.deepEqual(events,[[complete&&!active?'region':'mainline',complete&&!active?'lake':'mainline-12']]);
+  }
+ });
+ await T('lakeside region admission requires all twelve verified records before any movement',async()=>{
+  const x=host('skycity');
+  for(const journey of [null,{readOnly:true,records:[]},{readOnly:false,records:[]},{readOnly:false,records:Array.from({length:12},(_,i)=>({bestStars:i===0?0:1,clears:i===0?0:1}))}]){
+   x.h.mainline.journeySnapshot=()=>journey;
+   assert.equal((await x.h.ensureRegion('lakeside')).ok,false);
+   assert.equal(x.events.length,0);
+  }
+ });
+ await T('saved finale → real continue/selection/provider gate → balloon route → lake board, without save writes',async()=>{
+  const h=createHarness({debug:true}),C=h.load('world-r2/WorldNativeComposition').WorldNativeComposition;
+  const checkpoint=h.load('world-r2/RegionFlowTest').createRegionFlowCheckpoint(12),controller=checkpoint.mainline.createController();
+  assert(controller.resume().ok);const preview=controller.previewAction(checkpoint.lastAction);assert(preview.ok);
+  assert(controller.commitAction(preview.token).ok);while(controller.snapshot().visual)assert(controller.finishVisualStep(controller.snapshot().visual.token).ok);
+  const c=new C(),events=[],snap={state:'skycity',journey:{region:'skycity',target:null}};
+  c.mainline=checkpoint.mainline;c.persistence=checkpoint.r5;
+  c.world={commands:()=>({snapshot:()=>snap,async travelRegion(to){events.push(['travel',to]);snap.state=to;snap.journey.region=to;return {ok:true};},async enterLevel(id){events.push(['enter',id]);snap.state='level';return {ok:true};}})};
+  const before=JSON.stringify([c.mainline.inspect(),c.persistence.inspect()]);
+  assert.equal((await c.enterMainline()).ok,true);
+  assert.deepEqual(events,[['travel','lakeside'],['enter','r04-lake-01']]);
+  assert.equal(c.selection.provider,'r5');
+  assert.equal(JSON.stringify([c.mainline.inspect(),c.persistence.inspect()]),before);
+ });
  await T('ensureRegion (real class method): skycity→lakeside one travel, island walks the chain, lakeside→lakeside none',async()=>{
   let x=host('skycity');assert.equal((await x.h.ensureRegion('lakeside')).ok,true);assert.deepEqual(JSON.parse(JSON.stringify(x.events)),[['travel','lakeside']]);
   x=host('lakeside');assert.equal((await x.h.ensureRegion('lakeside')).ok,true);assert.equal(x.events.length,0);

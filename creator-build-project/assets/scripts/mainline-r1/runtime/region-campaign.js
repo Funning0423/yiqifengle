@@ -76,7 +76,8 @@ function prefixCleared(journey, count) {
   return true;
 }
 function canEnterRegion(journey, regionId) {
-  var region = regionOf(regionId);
+  // Lakeside follows the twelve-stage campaign; it adds no mainline stages or rewards.
+  var region = regionId === 'lakeside' || regionId === 'lake' ? {entryAfter: 12} : regionOf(regionId);
   if (!region) return {ok: false, reason: 'unknown-region'};
   var reason = invalidJourney(journey);
   if (reason) return {ok: false, reason: reason};
