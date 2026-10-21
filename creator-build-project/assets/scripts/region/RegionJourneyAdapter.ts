@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring} from './LakesideBalloon';
+import {LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -254,6 +254,9 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const total=routeLength(path);route={...route,timing:{durationS:R.T+moored.timing.durationS,easeInS:K.walkEaseS,easeOutS:moored.timing.easeOutS}};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
   token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);vehicle.name='LakesideMooredBalloon';
+  // b15 getout v2: the basket carries the exit yaw for the whole ride (door wall +Z toward her shore walk, 96.19° at the b15
+  // mooring); her seat yaw under stand_point is compensated in board(), so her ride facing is unchanged.
+  if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
@@ -270,7 +273,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
     const off=rideToken.onCancel(()=>{director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
-    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,flight.girlYawRad*180/Math.PI,0);};
+    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,moored.seatYawDeg(flight.girlYawRad*180/Math.PI),0);};
     const apply=()=>{
      const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
@@ -296,16 +299,32 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    });
    rideToken.check();
    if(girl&&isValid(girl,true)&&aboard){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
-   // b15: moored, off the board lens: turn the basket so its door (local +Z) faces her walk back to the shore.
+   // b15 getout v2 (角色动画bot INTEGRATE.md, re-solved for the b15 mooring / door yaw 96.19°): at touchdown (off the board
+   // frame) she faces the flight heading; cancelAndReset turns her to the door at P0 (no authored in-basket turn), then idle
+   // 0.5 s → door_reach (basket_door opens 0.333 s in, to +100°) → planner walk (walk_start → walk_loop at the clip-picked
+   // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
-   // Basket and exit are outside the settled board lens: no visible wall crossing or extra cut/fade.
-   const first=moored.walk[0],next=moored.walk[1];
-   actor.cancelAndReset({kind:'standing',controllerRoot:first,yawRad:Math.atan2(next[0]-first[0],next[2]-first[2])});
-   const landedM=routeLength([...R.path,moored.walk[0]]);
-   await actor.perform({kind:'walk',path:moored.walk,duration:moored.timing.durationS,distanceAt:t=>{const d=moored.walkAt(t);lease.progress!(landedM+d);return d;}},rideToken);
-   rideToken.check();
-   const before=moored.walk[moored.walk.length-2];
-   actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:Math.atan2(shore[0]-before[0],shore[2]-before[2])});
+   const door=find(vehicle,'basket_door');door?.setRotationFromEuler(0,0,0);
+   actor.cancelAndReset({kind:'standing',controllerRoot:moored.start,yawRad:moored.startYawRad});
+   const landedM=routeLength([...R.path,moored.walk[0]]);lease.progress!(landedM);
+   const tail=(async()=>{
+    let t=0,reached=false,walking=false,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
+    ticker.step=(dt)=>{t+=dt;if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);
+     if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number')lease.progress!(landedM+w*moored.length);
+      // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
+      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
+       lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
+    await waitUntil(moored.T0);rideToken.check();
+    const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
+    await waitUntil(moored.walkStartAt);await reach;rideToken.check();
+    reached=true;walking=true;
+    await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;
+    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};
+    const before=moored.walk[moored.walk.length-2];
+    actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:Math.atan2(shore[0]-before[0],shore[2]-before[2])});
+   })();
+   // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
+   (lease as any).tail=tail;tail.catch(()=>{}).then(()=>{if((lease as any).tail===tail)(lease as any).tail=null;});
   };
   // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
   let showSerial=0,shown=false;

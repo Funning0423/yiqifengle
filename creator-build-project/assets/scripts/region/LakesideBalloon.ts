@@ -35,6 +35,26 @@ export const LAKESIDE_BALLOON_LANDING={
  walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
  /** NodeWalker.WALK_SPEED_MPS: the speed the production walk clip is calibrated for (no foot sliding). */
  walkMps:1.2,
+ /** b15 get-out (角色动画bot getout_v2 INTEGRATE.md): her walk from the basket door back to the shore. Requested cruise
+  *  speed; the speed actually used is picked from walk_loop's calibrated native speed (exitWalkSpeed) so that the planner
+  *  keeps walk_start and walk_stop (0.75…1.3 × native; 0.8 on the 0.7 m/s clip, rate 1.14). */
+ exitWalkMps:.8,
+ /** Exit path corner radius (m): at least 1.0 (the corner's foot slide drops below it), capped by half the shorter leg. */
+ exitCornerM:1,
+ /** Start root P0 in basket-local metres (door wall = +Z): 0.405 m behind the closed leaf's inner face. */
+ exitStartLocal:[.03,0,.395] as readonly [number,number,number],
+ /** Get-out clock: idle hold, door trigger after door_reach starts (flat leaf contact), leaf swing, walk_start entry. */
+ exitIdleS:.5,
+ doorContactS:.333,
+ doorFollowDeg:2.75,
+ doorFollowS:2/30,
+ doorOpenDeg:100,
+ doorOpenS:.8,
+ walkStartAfterReachS:1.8,
+ /** walk_start / stop numbers the exit timing is planned with (hipsway65 anim_meta): start covers startM in startS at
+  *  rate 1, the stop clip covers stopM in stopS. */
+ exitStart:{S:1.733,M:.896,rateMax:1.2},
+ exitStop:{S:1.47,M:.5},
  /** Walk start/stop ease (s), passed to the walk as distanceAt. */
  walkEaseS:.8,
  /** Walk corners rounded with this radius (m). */
@@ -219,16 +239,46 @@ export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:P
  return {flight,walk,walkS,walkTiming,walkAt,fadeOutAt,cutT,liftT,T,path:[...walk.map(v=>[v[0],v[1],v[2]] as Vec),...flight.path],vehicle,girl,girlYaw,cover,camera};
 }
 
-/** Option A: land off the board frame. Disembark on the bank side of the basket, also offscreen,
- * then use the production walk to the unchanged shore root. The camera stays on the board pose. */
-export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec){
- const mooring=toWorld([...LAKESIDE_BALLOON_LANDING.mooringLocal] as Vec),origin=toWorld([0,0,0]),south=toWorld([0,0,2]);
+/** b15 turn foot-lock (getout v2 INTEGRATE §Corner): while the exit walk's yaw changes, the root is pivoted about the
+ *  planted sole instead of the root (in-place root rotation skates the stance foot sideways in the corner). The sole sits
+ *  FOOT_LOCK_HALF_W to her side (L = +X local, R = −X; +Z forward). The offset relaxes back onto the path over
+ *  FOOT_LOCK_RELAX_S while the yaw is steady and never exceeds FOOT_LOCK_MAX_M. Applied by the lakeside adapter after the
+ *  character driver's update (the frozen character controller is untouched). */
+export const FOOT_LOCK_HALF_W=.09,FOOT_LOCK_RELAX_S=.35,FOOT_LOCK_MAX_M=.15;
+export function footLockStep(off:readonly [number,number],planted:'L'|'R'|null,yawOld:number,yawNew:number,dt:number):[number,number]{
+ let x=off[0],z=off[1];const d=yawNew-yawOld;
+ if(planted&&Math.abs(d)>1e-6){const lx=planted==='L'?FOOT_LOCK_HALF_W:-FOOT_LOCK_HALF_W;
+  x+=lx*(Math.cos(yawOld)-Math.cos(yawNew));z+=-lx*Math.sin(yawOld)+lx*Math.sin(yawNew);}
+ else if(dt>0){const k=Math.exp(-dt/FOOT_LOCK_RELAX_S);x*=k;z*=k;}
+ const l=Math.hypot(x,z);if(l>FOOT_LOCK_MAX_M){x*=FOOT_LOCK_MAX_M/l;z*=FOOT_LOCK_MAX_M/l;}
+ return [x,z];}
+/** b15: walk speed for the exit walk, from the clip's calibrated speed (walk_loop nativeSpeed): the requested exitWalkMps
+ *  clamped into the band where CharacterMotion.planWalk keeps walk_start and walk_stop (CRUISE_RATIO 0.75…1.3). */
+export function exitWalkSpeed(nativeMps:number,want:number=LAKESIDE_BALLOON_LANDING.exitWalkMps):number{
+ const n=nativeMps>0&&isFinite(nativeMps)?nativeMps:.7;return Math.max(.75*n,Math.min(1.3*n,want));}
+/** Fixed duration of the exit walk for planWalk: walk_start (rate k so its average matches the cruise), cruise at v, stop. */
+export function exitWalkDuration(length:number,v:number,nativeMps=.7,knobs:BalloonKnobs=LAKESIDE_BALLOON_LANDING):number{
+ const st=knobs.exitStart,sp=knobs.exitStop,k=Math.max(1,Math.min(st.rateMax,v/nativeMps)),cruise=Math.max(.3,length-st.M-sp.M);
+ return st.S/k+cruise/v+sp.S;}
+/** Option A: land off the board frame. Disembark through the b15 basket door (DOOR_SPEC, door wall = basket local +Z), also
+ *  offscreen, then walk to the unchanged shore root with the production planner (walk_start → walk_loop → walk_stop_bodyL).
+ *  The camera stays on the board pose; the board fades in while she walks (she is off the board frame for ~7 s). */
+export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.7){
+ const K=LAKESIDE_BALLOON_LANDING,mooring=toWorld([...K.mooringLocal] as Vec),origin=toWorld([0,0,0]),south=toWorld([0,0,2]);
  // Finish on the original arrival heading too: RegionJourneyController derives the final lens/yaw from this tangent.
  const approach:Vec=[bank[0]+south[0]-origin[0],bank[1],bank[2]+south[2]-origin[2]],h=heading(mooring,approach);
- const exit:Vec=[mooring[0]+h[0]*1.6,bank[1],mooring[2]+h[1]*1.6],walk=roundWalk([exit,approach,bank],.6);
- const length=routeLength(walk),timing:JourneyTiming={durationS:length/LAKESIDE_BALLOON_LANDING.walkMps+LAKESIDE_BALLOON_LANDING.walkEaseS,easeInS:LAKESIDE_BALLOON_LANDING.walkEaseS,easeOutS:LAKESIDE_BALLOON_LANDING.walkEaseS};
- // b15 basket door (DOOR_SPEC): the door wall is the basket's local +Z; yaw the moored basket so it faces her exit heading h
- // (Cocos rotY(θ) takes +Z to (sin θ, 0, cos θ)). b14 never rotated the basket (yaw 0 under the rig).
- const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI;
- return {mooring,walk,timing,doorYawDeg,walkAt:(t:number)=>journeyDistanceAt(length,timing,t)};
+ // Door wall (local +Z) faces her exit heading h (Cocos rotY(θ) takes +Z to (sin θ, 0, cos θ)): 96.19° at the b15 mooring.
+ const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI,yr=doorYawDeg*Math.PI/180,c=Math.cos(yr),sn=Math.sin(yr),e=K.exitStartLocal;
+ // P0 = mooring + rotY(doorYaw)·exitStartLocal (rotY: x' = x cos + z sin, z' = −x sin + z cos); feet at the basket origin
+ const start:Vec=[mooring[0]+e[0]*c+e[2]*sn,mooring[1]+e[1],mooring[2]-e[0]*sn+e[2]*c];
+ const l0=seg(start,approach),l1=seg(approach,bank),cornerM=Math.min(Math.max(1,K.exitCornerM),l0/2,l1/2);
+ const walk=roundWalk([start,approach,bank],cornerM),length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
+ const T0=K.exitIdleS,doorAt=T0+K.doorContactS,walkAt=T0+K.walkStartAfterReachS;
+ // leaf yaw (deg, about local Y, + = outward) on the get-out clock: hand-follow for 2 frames, then ease-out cubic to +100°
+ const doorDeg=(t:number):number=>{const a=t-doorAt;if(a<=0)return 0;if(a<K.doorFollowS)return K.doorFollowDeg*a/K.doorFollowS;const u=Math.min(1,(a-K.doorFollowS)/K.doorOpenS),q=1-Math.pow(1-u,3);return K.doorFollowDeg+(K.doorOpenDeg-K.doorFollowDeg)*q;};
+ const timing:JourneyTiming={durationS:walkAt+walkS,easeInS:K.walkEaseS,easeOutS:K.walkEaseS};
+ // facing at touchdown: she rode facing the flight heading; she is reset (offscreen) to face the door before the get-out
+ return {mooring,start,walk,length,cornerM,mps,walkS,timing,doorYawDeg,startYawRad:yr,T0,doorAt,walkStartAt:walkAt,doorDeg,
+  /** her seat yaw under stand_point, compensated for the basket yaw so her ride facing is unchanged */
+  seatYawDeg:(girlYawDeg:number)=>girlYawDeg-doorYawDeg};
 }
