@@ -227,5 +227,8 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec){
  const approach:Vec=[bank[0]+south[0]-origin[0],bank[1],bank[2]+south[2]-origin[2]],h=heading(mooring,approach);
  const exit:Vec=[mooring[0]+h[0]*1.6,bank[1],mooring[2]+h[1]*1.6],walk=roundWalk([exit,approach,bank],.6);
  const length=routeLength(walk),timing:JourneyTiming={durationS:length/LAKESIDE_BALLOON_LANDING.walkMps+LAKESIDE_BALLOON_LANDING.walkEaseS,easeInS:LAKESIDE_BALLOON_LANDING.walkEaseS,easeOutS:LAKESIDE_BALLOON_LANDING.walkEaseS};
- return {mooring,walk,timing,walkAt:(t:number)=>journeyDistanceAt(length,timing,t)};
+ // b15 basket door (DOOR_SPEC): the door wall is the basket's local +Z; yaw the moored basket so it faces her exit heading h
+ // (Cocos rotY(θ) takes +Z to (sin θ, 0, cos θ)). b14 never rotated the basket (yaw 0 under the rig).
+ const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI;
+ return {mooring,walk,timing,doorYawDeg,walkAt:(t:number)=>journeyDistanceAt(length,timing,t)};
 }
