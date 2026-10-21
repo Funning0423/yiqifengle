@@ -1,0 +1,18 @@
+door_reach {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+idle_breathing_loop {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+sit_down {'same_channels': False, 'nch': 84, 'nch_b': 40, 'ndiff': 39, 'maxdiff': inf}
+sit_hold {'same_channels': False, 'nch': 84, 'nch_b': 40, 'ndiff': 39, 'maxdiff': inf}
+stand_up {'same_channels': False, 'nch': 84, 'nch_b': 40, 'ndiff': 39, 'maxdiff': inf}
+walk_loop {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+walk_start {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+walk_stop_bodyL {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+walk_stop_bodyR {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+walk_turn_180 {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+walk_turn_180_bodyR {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+walk_turn_90_bodyL {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+walk_turn_90_bodyR {'same_channels': True, 'nch': 30, 'nch_b': 30, 'ndiff': 0, 'maxdiff': 0}
+wind_sway_loop {'same_channels': True, 'nch': 84, 'nch_b': 84, 'ndiff': 0, 'maxdiff': 0}
+A skin 0 joints 28 ibm 21b4cfb173 names 9f03160a1f
+A rest 44739cc4df
+B skin 0 joints 28 ibm 21b4cfb173 names 9f03160a1f
+B rest 44739cc4df

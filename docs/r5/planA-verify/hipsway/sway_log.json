@@ -1,0 +1,74 @@
+{
+ "walk_loop": {
+  "K": 0.647,
+  "hipsX_range_mm_before": 100.5,
+  "hipsX_range_mm_after": 65.0,
+  "gait_dev_range_before": 100.5,
+  "gait_dev_range_after": 65.0,
+  "seam_x": [
+   -31.79,
+   -20.58,
+   -31.79,
+   -20.58
+  ],
+  "foot_world_err_mm": 0.0003,
+  "knee_flex_change_deg": [
+   -0.13,
+   1.11
+  ]
+ },
+ "walk_start": {
+  "K": 0.647,
+  "hipsX_range_mm_before": 121.1,
+  "hipsX_range_mm_after": 93.0,
+  "gait_dev_range_before": 72.1,
+  "gait_dev_range_after": 46.6,
+  "seam_x": [
+   4.74,
+   4.74,
+   48.48,
+   31.36
+  ],
+  "foot_world_err_mm": 0.0004,
+  "knee_flex_change_deg": [
+   -0.05,
+   1.1
+  ]
+ },
+ "walk_stop_bodyL": {
+  "K": 0.647,
+  "hipsX_range_mm_before": 74.3,
+  "hipsX_range_mm_after": 50.4,
+  "gait_dev_range_before": 54.2,
+  "gait_dev_range_after": 35.1,
+  "seam_x": [
+   -31.79,
+   -20.58,
+   4.74,
+   4.74
+  ],
+  "foot_world_err_mm": 0.0004,
+  "knee_flex_change_deg": [
+   -0.15,
+   2.28
+  ]
+ },
+ "walk_stop_bodyR": {
+  "K": 0.647,
+  "hipsX_range_mm_before": 64.8,
+  "hipsX_range_mm_after": 51.4,
+  "gait_dev_range_before": 57.7,
+  "gait_dev_range_after": 37.3,
+  "seam_x": [
+   28.69,
+   18.55,
+   4.74,
+   4.74
+  ],
+  "foot_world_err_mm": 0.0005,
+  "knee_flex_change_deg": [
+   -0.19,
+   1.72
+  ]
+ }
+}

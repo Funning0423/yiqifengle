@@ -1,0 +1,842 @@
+{
+ "fixed": {
+  "sit_down": {
+   "DRESSxStool": [
+    0,
+    0
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    88,
+    643
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    398,
+    7164
+   ],
+   "APRONxBODY": [
+    202,
+    1829
+   ],
+   "DRESSxAPRON": [
+    36,
+    108
+   ],
+   "ankleL_maxstep_mm": 1.88,
+   "toeL_maxstep_mm": 2.47,
+   "kneeL_maxstep_mm": 36.32,
+   "wristL_maxstep_mm": 122.62,
+   "ankleR_maxstep_mm": 1.87,
+   "toeR_maxstep_mm": 2.52,
+   "kneeR_maxstep_mm": 29.49,
+   "wristR_maxstep_mm": 95.71,
+   "accL_peak": 101.056,
+   "spdL_peak": 3.679,
+   "accR_peak": 59.126,
+   "spdR_peak": 2.871,
+   "clearL_mm": [
+    0.69,
+    255.43
+   ],
+   "clearR_mm": [
+    0.66,
+    256.48
+   ]
+  },
+  "sd_landing_wrist_steps": {
+   "L": [
+    15.85,
+    12.65,
+    11.01,
+    7.39,
+    9.08,
+    2.62,
+    3.61,
+    4.11
+   ],
+   "R": [
+    15.39,
+    11.56,
+    8.55,
+    7.28,
+    10.0,
+    2.44,
+    4.21,
+    4.77
+   ]
+  },
+  "sit_hold": {
+   "DRESSxStool": [
+    0,
+    0
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    0,
+    0
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    0,
+    0
+   ],
+   "APRONxBODY": [
+    0,
+    0
+   ],
+   "DRESSxAPRON": [
+    0,
+    0
+   ],
+   "ankleL_maxstep_mm": 0.0,
+   "toeL_maxstep_mm": 0.0,
+   "kneeL_maxstep_mm": 0.0,
+   "wristL_maxstep_mm": 0.0,
+   "ankleR_maxstep_mm": 0.0,
+   "toeR_maxstep_mm": 0.0,
+   "kneeR_maxstep_mm": 0.0,
+   "wristR_maxstep_mm": 0.0,
+   "accL_peak": 0.0,
+   "spdL_peak": 0.0,
+   "accR_peak": 0.0,
+   "spdR_peak": 0.0,
+   "clearL_mm": [
+    0.69,
+    0.69
+   ],
+   "clearR_mm": [
+    0.66,
+    0.66
+   ]
+  },
+  "stand_up": {
+   "DRESSxStool": [
+    0,
+    0
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    44,
+    294
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    378,
+    3998
+   ],
+   "APRONxBODY": [
+    38,
+    501
+   ],
+   "DRESSxAPRON": [
+    138,
+    381
+   ],
+   "ankleL_maxstep_mm": 1.14,
+   "toeL_maxstep_mm": 1.26,
+   "kneeL_maxstep_mm": 68.08,
+   "wristL_maxstep_mm": 59.79,
+   "ankleR_maxstep_mm": 1.2,
+   "toeR_maxstep_mm": 1.29,
+   "kneeR_maxstep_mm": 14.37,
+   "wristR_maxstep_mm": 51.0,
+   "accL_peak": 35.905,
+   "spdL_peak": 1.794,
+   "accR_peak": 24.401,
+   "spdR_peak": 1.53,
+   "clearL_mm": [
+    0.69,
+    195.74
+   ],
+   "clearR_mm": [
+    0.66,
+    224.55
+   ]
+  }
+ },
+ "gameAsIs": {
+  "sit_down": {
+   "DRESSxStool": [
+    0,
+    0
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    83,
+    623
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    484,
+    8304
+   ],
+   "APRONxBODY": [
+    198,
+    1829
+   ],
+   "DRESSxAPRON": [
+    59,
+    807
+   ],
+   "ankleL_maxstep_mm": 1.88,
+   "toeL_maxstep_mm": 2.47,
+   "kneeL_maxstep_mm": 36.32,
+   "wristL_maxstep_mm": 122.62,
+   "ankleR_maxstep_mm": 1.87,
+   "toeR_maxstep_mm": 2.52,
+   "kneeR_maxstep_mm": 29.49,
+   "wristR_maxstep_mm": 95.71,
+   "accL_peak": 101.056,
+   "spdL_peak": 3.679,
+   "accR_peak": 59.126,
+   "spdR_peak": 2.871,
+   "clearL_mm": [
+    0.69,
+    255.43
+   ],
+   "clearR_mm": [
+    0.66,
+    256.48
+   ]
+  },
+  "sd_landing_wrist_steps": {
+   "L": [
+    15.85,
+    12.65,
+    11.01,
+    7.39,
+    9.08,
+    2.62,
+    3.61,
+    4.11
+   ],
+   "R": [
+    15.39,
+    11.56,
+    8.55,
+    7.28,
+    10.0,
+    2.44,
+    4.21,
+    4.77
+   ]
+  },
+  "sit_hold": {
+   "DRESSxStool": [
+    0,
+    0
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    44,
+    2684
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    0,
+    0
+   ],
+   "APRONxBODY": [
+    0,
+    0
+   ],
+   "DRESSxAPRON": [
+    0,
+    0
+   ],
+   "ankleL_maxstep_mm": 0.0,
+   "toeL_maxstep_mm": 0.0,
+   "kneeL_maxstep_mm": 0.0,
+   "wristL_maxstep_mm": 0.0,
+   "ankleR_maxstep_mm": 0.0,
+   "toeR_maxstep_mm": 0.0,
+   "kneeR_maxstep_mm": 0.0,
+   "wristR_maxstep_mm": 0.0,
+   "accL_peak": 0.0,
+   "spdL_peak": 0.0,
+   "accR_peak": 0.0,
+   "spdR_peak": 0.0,
+   "clearL_mm": [
+    0.69,
+    0.69
+   ],
+   "clearR_mm": [
+    0.66,
+    0.66
+   ]
+  },
+  "stand_up": {
+   "DRESSxStool": [
+    0,
+    0
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    44,
+    332
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    400,
+    4189
+   ],
+   "APRONxBODY": [
+    29,
+    485
+   ],
+   "DRESSxAPRON": [
+    84,
+    493
+   ],
+   "ankleL_maxstep_mm": 1.14,
+   "toeL_maxstep_mm": 1.26,
+   "kneeL_maxstep_mm": 68.08,
+   "wristL_maxstep_mm": 59.79,
+   "ankleR_maxstep_mm": 1.2,
+   "toeR_maxstep_mm": 1.29,
+   "kneeR_maxstep_mm": 14.37,
+   "wristR_maxstep_mm": 51.0,
+   "accL_peak": 35.905,
+   "spdL_peak": 1.794,
+   "accR_peak": 24.401,
+   "spdR_peak": 1.53,
+   "clearL_mm": [
+    0.69,
+    195.74
+   ],
+   "clearR_mm": [
+    0.66,
+    224.55
+   ]
+  }
+ },
+ "v4_baseline": {
+  "sit_down": {
+   "DRESSxStool": [
+    553,
+    6847
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    83,
+    623
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    393,
+    5744
+   ],
+   "APRONxBODY": [
+    204,
+    2745
+   ],
+   "DRESSxAPRON": [
+    49,
+    314
+   ],
+   "ankleL_maxstep_mm": 1.88,
+   "toeL_maxstep_mm": 2.47,
+   "kneeL_maxstep_mm": 36.32,
+   "wristL_maxstep_mm": 122.62,
+   "ankleR_maxstep_mm": 1.87,
+   "toeR_maxstep_mm": 2.52,
+   "kneeR_maxstep_mm": 29.49,
+   "wristR_maxstep_mm": 95.71,
+   "accL_peak": 101.056,
+   "spdL_peak": 3.679,
+   "accR_peak": 59.126,
+   "spdR_peak": 2.871,
+   "clearL_mm": [
+    17.8,
+    255.43
+   ],
+   "clearR_mm": [
+    0.77,
+    256.48
+   ]
+  },
+  "sd_landing_wrist_steps": {
+   "L": [
+    15.85,
+    12.65,
+    11.01,
+    7.39,
+    9.08,
+    2.62,
+    3.61,
+    4.11
+   ],
+   "R": [
+    15.39,
+    11.56,
+    8.55,
+    7.28,
+    10.0,
+    2.44,
+    4.21,
+    4.77
+   ]
+  },
+  "sit_hold": {
+   "DRESSxStool": [
+    472,
+    28792
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    44,
+    2684
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    83,
+    5063
+   ],
+   "APRONxBODY": [
+    23,
+    1403
+   ],
+   "DRESSxAPRON": [
+    24,
+    1464
+   ],
+   "ankleL_maxstep_mm": 0.0,
+   "toeL_maxstep_mm": 0.0,
+   "kneeL_maxstep_mm": 0.0,
+   "wristL_maxstep_mm": 0.0,
+   "ankleR_maxstep_mm": 0.0,
+   "toeR_maxstep_mm": 0.0,
+   "kneeR_maxstep_mm": 0.0,
+   "wristR_maxstep_mm": 0.0,
+   "accL_peak": 0.0,
+   "spdL_peak": 0.0,
+   "accR_peak": 0.0,
+   "spdR_peak": 0.0,
+   "clearL_mm": [
+    17.8,
+    17.8
+   ],
+   "clearR_mm": [
+    0.77,
+    0.77
+   ]
+  },
+  "stand_up": {
+   "DRESSxStool": [
+    472,
+    7204
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    44,
+    332
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    242,
+    2696
+   ],
+   "APRONxBODY": [
+    38,
+    545
+   ],
+   "DRESSxAPRON": [
+    158,
+    542
+   ],
+   "ankleL_maxstep_mm": 1.14,
+   "toeL_maxstep_mm": 1.26,
+   "kneeL_maxstep_mm": 68.08,
+   "wristL_maxstep_mm": 59.79,
+   "ankleR_maxstep_mm": 1.2,
+   "toeR_maxstep_mm": 1.29,
+   "kneeR_maxstep_mm": 14.37,
+   "wristR_maxstep_mm": 51.0,
+   "accL_peak": 35.905,
+   "spdL_peak": 1.794,
+   "accR_peak": 24.401,
+   "spdR_peak": 1.53,
+   "clearL_mm": [
+    15.91,
+    195.74
+   ],
+   "clearR_mm": [
+    0.77,
+    224.55
+   ]
+  }
+ },
+ "orig_prodclips": {
+  "sit_down": {
+   "DRESSxStool": [
+    531,
+    7099
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    78,
+    641
+   ],
+   "BODYxStool": [
+    28,
+    106
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    393,
+    5908
+   ],
+   "APRONxBODY": [
+    204,
+    2891
+   ],
+   "DRESSxAPRON": [
+    49,
+    314
+   ],
+   "ankleL_maxstep_mm": 1.88,
+   "toeL_maxstep_mm": 2.47,
+   "kneeL_maxstep_mm": 36.32,
+   "wristL_maxstep_mm": 122.62,
+   "ankleR_maxstep_mm": 1.87,
+   "toeR_maxstep_mm": 2.52,
+   "kneeR_maxstep_mm": 29.49,
+   "wristR_maxstep_mm": 95.71,
+   "accL_peak": 101.055,
+   "spdL_peak": 3.679,
+   "accR_peak": 59.127,
+   "spdR_peak": 2.871,
+   "clearL_mm": [
+    17.8,
+    255.43
+   ],
+   "clearR_mm": [
+    0.74,
+    256.48
+   ]
+  },
+  "sd_landing_wrist_steps": {
+   "L": [
+    15.87,
+    13.31,
+    11.51,
+    7.32,
+    8.65,
+    2.84,
+    3.17,
+    3.92
+   ],
+   "R": [
+    15.4,
+    11.62,
+    8.64,
+    7.08,
+    9.57,
+    2.5,
+    3.75,
+    4.57
+   ]
+  },
+  "sit_hold": {
+   "DRESSxStool": [
+    499,
+    30439
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    40,
+    2440
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    174,
+    10614
+   ],
+   "APRONxBODY": [
+    43,
+    2623
+   ],
+   "DRESSxAPRON": [
+    28,
+    1708
+   ],
+   "ankleL_maxstep_mm": 0.0,
+   "toeL_maxstep_mm": 0.0,
+   "kneeL_maxstep_mm": 0.0,
+   "wristL_maxstep_mm": 0.0,
+   "ankleR_maxstep_mm": 0.0,
+   "toeR_maxstep_mm": 0.0,
+   "kneeR_maxstep_mm": 0.0,
+   "wristR_maxstep_mm": 0.0,
+   "accL_peak": 0.0,
+   "spdL_peak": 0.0,
+   "accR_peak": 0.0,
+   "spdR_peak": 0.0,
+   "clearL_mm": [
+    0.22,
+    0.22
+   ],
+   "clearR_mm": [
+    0.29,
+    0.29
+   ]
+  },
+  "stand_up": {
+   "DRESSxStool": [
+    591,
+    8136
+   ],
+   "APRONxStool": [
+    0,
+    0
+   ],
+   "BOWxStool": [
+    44,
+    355
+   ],
+   "BODYxStool": [
+    0,
+    0
+   ],
+   "HANDxAPRON": [
+    0,
+    0
+   ],
+   "HANDxDRESS": [
+    0,
+    0
+   ],
+   "HANDxBODY": [
+    0,
+    0
+   ],
+   "DRESSxBODY": [
+    264,
+    3046
+   ],
+   "APRONxBODY": [
+    87,
+    781
+   ],
+   "DRESSxAPRON": [
+    135,
+    676
+   ],
+   "ankleL_maxstep_mm": 1.14,
+   "toeL_maxstep_mm": 1.26,
+   "kneeL_maxstep_mm": 68.08,
+   "wristL_maxstep_mm": 59.79,
+   "ankleR_maxstep_mm": 1.2,
+   "toeR_maxstep_mm": 1.29,
+   "kneeR_maxstep_mm": 14.37,
+   "wristR_maxstep_mm": 51.0,
+   "accL_peak": 35.904,
+   "spdL_peak": 1.794,
+   "accR_peak": 33.064,
+   "spdR_peak": 1.53,
+   "clearL_mm": [
+    15.91,
+    195.74
+   ],
+   "clearR_mm": [
+    9.58,
+    224.56
+   ]
+  }
+ }
+}

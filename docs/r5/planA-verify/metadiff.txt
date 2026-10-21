@@ -1,0 +1,15 @@
+preview==docs copy: True
+ONLY_PLANA /clips/sit_down/morph/curves/bow_sit_drape [[0.0, 0], [0.03333, 0], [0.06667, 0], [0.1, 0], [0.13333, 0], [0.16667, 0], [0.2, 0], [0.23333, 0], [0.26667, 0], [0.3, 0], [0.33333, 0], [0.36667, 0], [0.4, 0
+DIFF /clips/sit_down/morph/curves/cloth_envelope_sit_down_8 [[0.0, 0.0], [1.2, 0.0]] | prod: [[0.0, 0.0], [0.15000000596046448, 0.0], [0.3, 0.0], [0.30000001192092896, 0.0], [0.34, 0.0], [0.450
+ONLY_PLANA /clips/sit_down/morph/curves/sit_drape_blend_comp [[0.0, 0.0], [0.03333, 0.0], [0.06667, 0.0], [0.1, 0.0], [0.13333, 0.0], [0.16667, 0.0], [0.2, 0.0], [0.23333, 0.05], [0.26667, 0.1], [0.3, 0.15], [0.33333, 0.2
+ONLY_PLANA /clips/sit_hold/morph/curves/bow_sit_drape [[0, 1.0], [2.0, 1.0]]
+ONLY_PLANA /clips/sit_hold/morph/curves/sit_drape_blend_comp [[0, 0], [2, 0]]
+ONLY_PLANA /clips/stand_up/morph/curves/bow_sit_drape [[0.0, 1], [0.03333, 0.7407], [0.06667, 0.2593], [0.1, 0], [0.13333, 0], [0.16667, 0], [0.2, 0], [0.23333, 0], [0.26667, 0], [0.3, 0], [0.33333, 0], [0.36667, 0
+DIFF /clips/stand_up/morph/curves/cloth_waist_rise_seam [[0.0, 0.0], [0.033325, 0.15625], [0.06665, 0.5], [0.099975, 0.84375], [0.1333, 1], [0.8667, 0.0], [1.2667, 0.0]] | prod: [[0, 1], [0.1333, 1], [0.8667, 0], [1.2667, 0]]
+DIFF /clips/stand_up/morph/curves/hand_rest_support [[0.0, 1], [0.03334, 0.896], [0.06668, 0.648], [0.10002, 0.352], [0.13336, 0.104], [0.1667, 0], [1.266667, 0.0]] | prod: [[0, 0], [1.2666670083999634, 0]]
+ONLY_PLANA /clips/stand_up/morph/curves/sit_drape_blend_comp [[0.0, 0.0], [0.03333, 0.0741], [0.06667, 0.2593], [0.1, 0.5], [0.13333, 0.7407], [0.16667, 0.8838], [0.2, 0.9091], [0.23333, 0.8636], [0.26667, 0.8182], [0.3, 
+--- patch check
+sit_down cloth_envelope_sit_down_8 match
+stand_up hand_rest_support match
+stand_up cloth_waist_rise_seam match
+BOW {}

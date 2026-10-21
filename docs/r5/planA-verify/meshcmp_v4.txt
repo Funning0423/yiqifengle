@@ -1,0 +1,9 @@
+LOD0_G2_APRON {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 30 29
+LOD0_G2_BODY {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 16 16
+LOD0_G2_BODY {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 16 16
+LOD0_G2_BODY {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 16 16
+LOD0_G2_BODY {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 16 16
+LOD0_G2_BODY {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 16 16
+LOD0_G2_BODY {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 16 16
+LOD0_G2_BOW {'POSITION': 'same', 'JOINTS_0': 'same', 'WEIGHTS_0': 'same'} targets 2 0
+LOD0_G2_DRESS {'POSITION': 'diff (5707, 3) vs (5721, 3)', 'JOINTS_0': 'diff (5707, 4) vs (5721, 4)', 'WEIGHTS_0': 'diff (5707, 4) vs (5721, 4)'} targets 33 32

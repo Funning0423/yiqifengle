@@ -1,0 +1,4 @@
+LOD0_G2_APRON index mismatches [] | curve-driven but unlisted [('sit_drape_blend_comp', 29)]
+LOD0_G2_BODY index mismatches [] | curve-driven but unlisted []
+LOD0_G2_BOW NOT LISTED in morph.meshes; curve-driven keys here: ['bow_sit_drape']
+LOD0_G2_DRESS index mismatches [] | curve-driven but unlisted [('sit_drape_blend_comp', 32)]
