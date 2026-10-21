@@ -747,7 +747,7 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-      "sha256": "cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6"
+      "sha256": "3e9ed22c43862559f2e34dc02875e5d2eecc2727c4d0945152c153030f2bb68e"
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
@@ -755,11 +755,11 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
-      "sha256": "a96226da6956d78aeddd8b181fb2e4975c8520d0a5b44f2458a9ecb7e4caec37"
+      "sha256": "b505d5455812ec3985b6a5c90e7d9f0e35e512891d763293570967eb0025c456"
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-      "sha256": "16922a6cb32d95dac9203a3b04f9c4922c869198c209b8507321cf11327af55d"
+      "sha256": "338d04a500d6897c0d6be3ad4dd2fb250a3e932c69688586ea7d1195c0ffb162"
     },
     {
       "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
