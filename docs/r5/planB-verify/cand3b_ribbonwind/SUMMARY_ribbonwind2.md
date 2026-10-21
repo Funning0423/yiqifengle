@@ -65,3 +65,13 @@ Cocos 实机；风下的拉伸；头发（无风通道）；xfade6 级别的出�
 | door_reach->idle_breathing_loop | 0.15 | 0.39 | 0.13 | ✔ |
 | sit_down / sit_hold / stand_up（无风，qa3b） | 2.41 / 2.59 / 2.41 | — | — | ✔ |
 - 未测：Cocos 实机；头发（片段里没有风通道）。
+
+## ribbonwind4：裙子风加回（2026-10-21 美东时间，底子 ribbonwind3 b505d545，未覆盖）
+- 先读了角色建模bot 的 cand3c（09a7e714）：×0.2 时下摆骨在转身和 door_reach 被推进腿里。
+- 代码（只读）：CharacterMotion 的 flutter 层权重 = windToFlutter(windDrive)，与当前片段无关，没有每段风权重 → 转身/door_reach 淡出做不了，跳过。
+- 第 1 轮（只向外，rw2/owind.py：风的旋转投影到「远离腿的倾斜轴」= 下方向 × 骨头相对 hips 的水平外向，整流到 0..峰值，f0=0，循环相移）：全部 ×0.5、×0.25、上段 ×0.5（下摆 0）都 FAIL（door_reach、turn_180 淡化裙×身体/裙×围裙变差）。
+- 第 2 轮（每根骨单独、向外 ×0.5）：只有 skirt.back 与 skirt.back.low 单独 0 失败；front/front.low/left/left.low/right/right.low 失败。
+- 交付组合：skirt.back 向外峰值 0.96°（原 1.92°），skirt.back.low 向外峰值 6.08°（原 12.16°），其余裙骨 0，ribbon ×0.3（1.8°）。
+- 全量 QA：10 个走路片段 + 13 个淡化，风 1.0 8 个相位 + 风 0.5（0.5/2.5 s）：布×身体、裙×围裙不比无风差，手×布、蝴蝶结×一切 = 0 → 0 失败。拉伸：风 1.0 最高 2.459%、风 0.5 最高 2.211%（walk_turn_180）≤2.6 ✔。
+- 与 ribbonwind3 只差 wind_flutter_loop 里 skirt.back、skirt.back.low 两个 rotation 通道；坐姿与其他通道逐字节相同。文件大了 30,048 B，是追加写入后留下的未用 buffer 数据，没有清理。
+- 未测：Cocos 实机；头发（无通道）；风下的坐姿（代码里坐姿风为 0）。
