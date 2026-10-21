@@ -4,7 +4,10 @@ PASS reachable from region select: 风铃湖畔 button → enterRegion(lake) →
 PASS adapter mounts the lakeside model via lakesideJourney(start) (shared scene loader, real instances)
 PASS landing→board hook call site
 PASS pitch and route speed untouched (pending Grok Bot / 运镜bot)
+PASS continue journey after saved mainline completion enters lake; unfinished or active mainline stays on mainline
+PASS lakeside region admission requires all twelve verified records before any movement
+PASS saved finale → real continue/selection/provider gate → balloon route → lake board, without save writes
 PASS ensureRegion (real class method): skycity→lakeside one travel, island walks the chain, lakeside→lakeside none
 PASS enterSelectedLevel r04-lake-01 from skycity: travel lakeside → landing hook → enterLevel (in that order)
 PASS landing hook: lakeside assets not ready after its 3 s wait → existing lakeside fallback (island, one stable reason), no enterLevel
-OK 9
+OK 12

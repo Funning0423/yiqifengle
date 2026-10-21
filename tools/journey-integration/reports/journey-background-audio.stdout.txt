@@ -94,21 +94,21 @@
       "offsetMs": 0.00033333332627449863
     },
     {
-      "hideAtS": 21,
+      "hideAtS": 20.22,
       "hiddenS": 1,
       "sounding": [
         "cruise",
         "dock"
       ],
-      "offsetMs": 0.00033333338222973907
+      "offsetMs": 0.0003333333332689037
     },
     {
-      "hideAtS": 22.6,
+      "hideAtS": 21.82,
       "hiddenS": 6,
       "sounding": [
         "dock"
       ],
-      "offsetMs": 2.220446049250313e-12
+      "offsetMs": 0.00033333333115947994
     },
     {
       "muteAtS": 13.6,
@@ -127,7 +127,7 @@
         "board": null,
         "unfurl": null,
         "cruise": 8.533,
-        "dock": null
+        "dock": 0.3
       }
     }
   ],

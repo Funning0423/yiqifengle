@@ -1,1 +1,1 @@
-{"status":"PASS","checked":1650,"worstGap":0.248,"where":{"t":23,"x":-3.6,"z":50.9,"minY":-1.31,"ground":-1.558}}
+{"status":"PASS","checked":1584,"worstGap":0.248,"where":{"t":22.5,"x":-3.6,"z":50.9,"minY":-1.31,"ground":-1.558}}

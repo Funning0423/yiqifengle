@@ -1,1 +1,1 @@
-{"status":"PASS","build05S":24.6,"soleVerts":24,"sailCamStep":0.972,"arrivalCamStep":0.176,"boardCamStep":0.283,"dressDay":{"base":0,"worst":0.082,"yellow":196,"jump":0.1,"sail":198},"dressNight":{"base":0,"worst":0.087,"yellow":194,"jump":0.1,"sail":197}}
+{"status":"PASS","build05S":23.821,"soleVerts":24,"sailCamStep":0.903,"arrivalCamStep":0.176,"boardCamStep":0.283,"dressDay":{"base":0,"worst":0.082,"yellow":196,"jump":0.1,"sail":198},"dressNight":{"base":0,"worst":0.087,"yellow":194,"jump":0.1,"sail":197}}

@@ -1,1 +1,1 @@
-{"status":"PASS","build05S":24.6,"arrivalS":10.016,"routeM":37.16,"berth":[-4.4,-0.91,48.8],"grassClearPolys":2}
+{"status":"PASS","build05S":23.821,"arrivalS":10.016,"routeM":37.16,"berth":[-4.4,-0.91,48.8],"grassClearPolys":2}
