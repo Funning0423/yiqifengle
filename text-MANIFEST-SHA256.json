@@ -2021,8 +2021,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceNight.ts",
-    "bytes": 674,
-    "sha256": "86a74be11418d0314d326417731f72f2d5fcf48b8c1aad0d9d6213036f7b5934"
+    "bytes": 770,
+    "sha256": "5c24cab8e1cd2ba375b28be1c005ff0d62a9fb90617ad45aa9006580e06c7cdc"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceNight.ts.meta",
@@ -2130,6 +2130,26 @@
     "sha256": "5a878e35e3c7ab496f0c1af9634b1ac0e62b12a75576d36c285510bcd0aa09ea"
   },
   {
+    "path": "creator-build-project/assets/scripts/audio/LandmarkAudio.ts",
+    "bytes": 5475,
+    "sha256": "87215b591d8e17772dca1fde081fdbf499854376bb308e8fb66d2851e8c6b205"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/LandmarkAudio.ts.meta",
+    "bytes": 171,
+    "sha256": "2c49d89883b8ff2af873756317b9f75fd271736673f93dde187db1c85fb41a9d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/LandmarkAudioCore.ts",
+    "bytes": 3407,
+    "sha256": "5f790a58919fa86f6f64edc1bf030a41d4938027f70e500e4cfa75053f1a2ecf"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/LandmarkAudioCore.ts.meta",
+    "bytes": 171,
+    "sha256": "bb2e5f3dc0e42a260ce172cb691df4fb5bc441bc1dae5e6ae6350efe000cbfca"
+  },
+  {
     "path": "creator-build-project/assets/scripts/audio/SailAudio.ts",
     "bytes": 4408,
     "sha256": "97650001f75d8833162b80be6b87c536c17f7244555ce994f88e508ba73aea24"
@@ -2151,8 +2171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts",
-    "bytes": 24809,
-    "sha256": "dbfdcfb72614d3381aa2cebee9172fd359c5d4292f1f55a03990ca8cf7bc7b1e"
+    "bytes": 25469,
+    "sha256": "625593f385df4505e31c64e5ab203813686f42c15f43871418f0b1ae341ee5d3"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts.meta",
@@ -4100,6 +4120,11 @@
     "sha256": "f2c358b7c504ef2cce25927869fad06e4cbb7cd884747b944d9d244c74561fb6"
   },
   {
+    "path": "tests/test_landmark_audio.cjs",
+    "bytes": 5892,
+    "sha256": "4c384eb50156b3da90439e9f9a74d9f192c51e2c64c8b47430f0a71c1855c1d7"
+  },
+  {
     "path": "tools/asset_preflight.py",
     "bytes": 4610,
     "sha256": "830fc49ef7a38bcadaab5d2bb7da837fa83386ff3e37f3940a1e1cbac48c9cad"
@@ -4143,6 +4168,11 @@
     "path": "tools/inspect_persistence_start.cjs",
     "bytes": 757,
     "sha256": "117fa23757e9fea6674d99068b812ceda2e22c7f2c0c64a3446055ab8fcea351"
+  },
+  {
+    "path": "tools/journey-integration/run-suite.cjs",
+    "bytes": 13895,
+    "sha256": "3ad9be188c2354c2a57cca24f6838f44daa1be91c2a64a805d69224362a98a25"
   },
   {
     "path": "tools/mainline-fixtures/loss-first-stage.json",
