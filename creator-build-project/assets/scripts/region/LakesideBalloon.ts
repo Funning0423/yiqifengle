@@ -29,7 +29,9 @@ export const LAKESIDE_BALLOON_LANDING={
  /** b15 (场景特效bot): moored on the flat lawn behind the bank. [9.5,.61,23] sat on the bank lip: 3/72 footprint samples over
   *  the cut bank/water, the shore-foam ribbon (top of bank, z 22.75–24.25) ran under the whole basket and the floor floated
   *  5 cm above the grass. Here the footprint (r 0.72) is all lawn (terrain 0.569–0.579, 0.6 m clear of the foam ribbon) and
-  *  the basket sits 0–0.7 cm into the grass (test_lakeside_balloon_mooring clearance ≥ 0.49 still holds). */
+  *  the basket sits 0–0.7 cm into the grass (test_lakeside_balloon_mooring clearance ≥ 0.49 still holds).
+ *  b15b: y 0.572 is the lawn height used for both (terrain 0.569–0.579 under the footprint, 0.569–0.581 along her walk; keeps the reviewed 0–0.7 cm press-in); she steps out
+ *  and walks at the same y (lakesideBalloonMooring) up to the shared bank node L1. */
  mooringLocal:[9.5,.572,25.6] as readonly [number,number,number],
  launchLocal:[-8,.58,53.5] as readonly [number,number,number],
  walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
@@ -270,6 +272,7 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.
  // Door wall (local +Z) faces her exit heading h (Cocos rotY(θ) takes +Z to (sin θ, 0, cos θ)): 96.19° at the b15 mooring.
  const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI,yr=doorYawDeg*Math.PI/180,c=Math.cos(yr),sn=Math.sin(yr),e=K.exitStartLocal;
  // P0 = mooring + rotY(doorYaw)·exitStartLocal (rotY: x' = x cos + z sin, z' = −x sin + z cos); feet at the basket origin
+ // b15b (场景特效bot b69faa60) agrees: door exit and approach on the mooring lawn height, ending on the shared arrival node L1 (0.58).
  // v3: one ground height for the exit route = the mooring's 0.572 (the bank anchors are 0.58); lake-local P0 (9.1105, ·, 25.6724)
  const gy=mooring[1]+e[1],start:Vec=[mooring[0]+e[0]*c+e[2]*sn,gy,mooring[2]-e[0]*sn+e[2]*c],appr:Vec=[approach[0],gy,approach[2]],shoreG:Vec=[bank[0],bank[1],bank[2]]/* the shore root itself stays the arrival anchor (final lens unchanged): the last 2 m leg rises 8 mm */;
  const l0=seg(start,appr),l1=seg(appr,shoreG),cornerM=Math.min(Math.max(1,K.exitCornerM),l0/2,l1/2);
