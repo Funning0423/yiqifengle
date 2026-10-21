@@ -58,4 +58,17 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
  const r=Q.lakesideRevealPose(cam,feet,bal,390/844,.98,seg);assert(r&&r.occludedFrac<=.03,'occluded angle rejected');
  assert(Math.abs(r.composition.centre)<=.35&&r.composition.emptyBelow<=.45,'balanced, little empty foreground');
  out.occlusion={blockedPlain:+blocked.toFixed(3),pick:{yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,occ:+r.occludedFrac.toFixed(3),centre:+r.composition.centre.toFixed(3),emptyBelow:+r.composition.emptyBelow.toFixed(3)}};}
+// 8) b16 edge rule: a near tree canopy (sphere) straddling the right frame edge of the plain pick is rejected
+{const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},feet=[18.4345,19.6533,139.3320],bal=[10.1345,19.6454,138.2321],asp=390/844;
+ const plain=Q.lakesideRevealPose(cam,feet,bal,asp),P=plain.pose,fw=P.target.map((x,i)=>x-P.position[i]),fl=Math.hypot(...fw),f=fw.map(x=>x/fl),r=[-f[2],0,f[0]],rl=Math.hypot(r[0],r[2]);r[0]/=rl;r[2]/=rl;
+ const th=Math.tan(P.fovVerticalDeg*Math.PI/360),D=9,C=[0,1,2].map(i=>P.position[i]+f[i]*D+r[i]*D*th*asp+[0,1,0][i]*D*th*.5),RAD=.8;
+ const ray=(o,d,max)=>{const oc=o.map((x,i)=>x-C[i]),b=oc[0]*d[0]+oc[1]*d[1]+oc[2]*d[2],c=oc[0]**2+oc[1]**2+oc[2]**2-RAD*RAD,disc=b*b-c;if(disc<0)return null;const t=-b-Math.sqrt(disc);return t>0&&t<max?{t,ground:false}:null;};
+ assert(Q.lakesideEdgeCut(P,asp,ray)>0,'the synthetic canopy straddles the plain pick edge');
+ const occ=(a,b2)=>{const d=b2.map((x,i)=>x-a[i]),L=Math.hypot(...d);const h=ray(a,d.map(x=>x/L),L);return !!h;};
+ const e=Q.lakesideRevealPose(cam,feet,bal,asp,.98,occ,.03,ray);assert(e&&e.edgeCuts===0&&e.occludedFrac<=.03,'edge-clean pick');
+ assert(Q.lakesideEdgeCut(e.pose,asp,ray)===0);
+ // ground hits never count
+ assert.equal(Q.lakesideEdgeCut(P,asp,()=>({t:1,ground:true})),0);
+ out.edge={plain:{yawDeg:plain.yawDeg,pitchDeg:plain.pitchDeg,centre:+plain.composition.centre.toFixed(3),emptyBelow:+plain.composition.emptyBelow.toFixed(3)},pick:{yawDeg:e.yawDeg,pitchDeg:e.pitchDeg,centre:+e.composition.centre.toFixed(3),emptyBelow:+e.composition.emptyBelow.toFixed(3)}};
+ assert(Math.abs(plain.composition.centre)<=.1&&plain.composition.emptyBelow<=.2,'subject roughly centred, little foreground (revealLift)');}
 console.log(JSON.stringify(out));console.log('PASS lakeside qaShot: route timing, phases, reveal pose, wiring');
