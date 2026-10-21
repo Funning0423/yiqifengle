@@ -1,2 +1,2 @@
-(node:5387) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(node:11435) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)

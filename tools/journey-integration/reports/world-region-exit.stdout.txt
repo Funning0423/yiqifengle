@@ -2,7 +2,7 @@
 [enter-level] cover fixed false
 {
   "status": "PASS",
-  "timeUTC": "2026-10-21T07:55:40.508Z",
+  "timeUTC": "2026-10-21T08:12:04.610Z",
   "scope": "Actual WorldFlow and RegionJourneyController with explicit actor/scene/board doubles; no runtime pixels",
   "checks": [
     {
