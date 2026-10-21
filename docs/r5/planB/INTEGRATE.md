@@ -61,3 +61,42 @@
 
 ## 8. 复现
 previews/角色建模bot/planB/：`build_cand0.py`→`design.py`（RIGID=1 RKNOT=1 RTRANS=1 BETA=48 HOLDAMP=0.5）→`dressfix.py`→`build_cand.py BASE design_b48 OUT dfix2.npz`；QA 用 `ribqa.py`、`../r5-sit-drape/qa3_patched.py`、`../planA-final/qa_walk.py`。
+
+---
+# planB_cand2（2026-10-21，在 cand1 上稀疏化；cand1 保留）
+| 项 | 值 |
+|---|---|
+| GLB | previews/角色建模bot/planB/planB_cand2.glb |
+| sha256 | ea4524620d8886bcaad2668877ee519a9a8c78ed9762e8e75b12e2d47b4b2b07 |
+| 大小 | 3,121,832 B |
+| anim_meta | planB_cand2_anim_meta.json（9d0ac694…） |
+| 与底子比 | 与压缩后的底子（3,125,200）相比 **−3,368 B**；与底子原文件（3,194,476）相比 −72,644 B |
+| 与 cand1 比 | −31,920 B |
+
+## 改动（脚本 previews/角色建模bot/planB/sparsify.py）
+1. ribbon 通道稀疏化：按线性/slerp 插值误差去点。旋转误差 ≤0.25°，平移误差 ≤0.1 mm；sit_down/stand_up 这两段收紧到 ×0.2（0.05°/0.02 mm）。按 0.25° 跑时，sit_down 有 1 帧 BOW×凳 = 8，所以收紧。
+   各段 key 数：sit_down 旋转 37→14、平移 37→7；stand_up 旋转 39→14、平移 39→5；sit_hold 旋转 61→4、平移→1；wind_sway 旋转 97→6；走路四段旋转 23–30→10–11、平移→1；其余 6 段→1。
+   sit_hold 原有 ±0.5° 的微摆在阈值以内，被去掉了，基本是静止。
+2. 常量通道压成 1 个 key，时间和取值 accessor 在各段之间共享。没有删除通道：如果某段缺通道，Cocos 可能保留上一段的姿态（例如 sit_hold 的 17.5°）。
+3. ribbon 动画数据合并进 1 个 bufferView。
+4. **JSON 规范化：** 删掉全部 544 个 sampler 上显式写的 `"interpolation":"LINEAR"`（glTF 默认就是 LINEAR，语义不变）。这一步约省 13.6 KB；不做的话，比底子 **+10.2 KB**。
+5. **删除了 cand1 的裙子过渡 key `planB_tr_sit_down_24`**（DRESS 和 APRON 各一个，约 7.3 KB）。原因：裙×身体交给角色动画bot。删除后 sit_down 的裙×身体回到底子水平：6992 → 7164，围裙×身体 1675 → 1829。
+6. bend/bow_sit_drape 曲线：只去掉平台中间的重复点，所有 30 fps 采样值不变。
+7. 去掉 ribbon 节点的 extras；根 extras.planB 简写为 'joint28 slot29 TBD'（槽位待定）。
+
+## QA（30 fps 逐帧，max/sum）
+| 项 | 底子 | cand1 | cand2 |
+|---|---|---|---|
+| sit_down BOW×凳 | 88/643 | 0/0 | 0/0 |
+| stand_up BOW×凳 | 44/294 | 0/0 | 0/0 |
+| 飘带拉伸（坐下/坐着/起身） | 230/124/205% | 2.79/2.81/2.74% | 2.79/2.81/2.74% |
+| BOW×裙、BOW×身体 | 5 / 0 | 0 / 0 | 0 / 0 |
+| sit_hold 全部 | 0 | 0 | 0 |
+| sit_down 裙×身体 | 398/7164 | 398/6992 | 398/7164（交角色动画bot） |
+| stand_up 裙×身体 | 378/3998 | 378/3998 | 378/3998 |
+| sit_down 围裙×身体 | 202/1829 | 202/1675 | 202/1829 |
+| 裙×围裙 | 36/108、138/381 | 同左 | 同左（回滚规则未放宽） |
+| 走路四段 手×布、裙×围裙 | 0 | 0 | 0 |
+| validator | 0 错误 | 0 错误 | 0 错误，警告 3790，与底子相同 |
+
+未测：Cocos 实机（是否兼容省略 interpolation、光照、蒙皮上限）；走路和其余段的飘带拉伸与 BOW 穿插；交叉淡化。
