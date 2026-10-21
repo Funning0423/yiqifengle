@@ -26,7 +26,11 @@ export const LAKESIDE_BALLOON_LANDING={
   *  So the balloon is MOORED off the edge at deck level ([-8, .58, 53.5]: 0.7–0.8 m from all geometry, the nearest free
   *  spot to [-7, .58, 53]); she walks from S6 round the roots to the edge (walkLocal, production walk at walkMps) and
   *  boards under a short fade (no stepping-through-the-wall; there is no boarding clip). */
- mooringLocal:[9.5,.61,23] as readonly [number,number,number],
+ /** b15 (场景特效bot): moored on the flat lawn behind the bank. [9.5,.61,23] sat on the bank lip: 3/72 footprint samples over
+  *  the cut bank/water, the shore-foam ribbon (top of bank, z 22.75–24.25) ran under the whole basket and the floor floated
+  *  5 cm above the grass. Here the footprint (r 0.72) is all lawn (terrain 0.569–0.579, 0.6 m clear of the foam ribbon) and
+  *  the basket sits 0–0.7 cm into the grass (test_lakeside_balloon_mooring clearance ≥ 0.49 still holds). */
+ mooringLocal:[9.5,.572,25.6] as readonly [number,number,number],
  launchLocal:[-8,.58,53.5] as readonly [number,number,number],
  walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
  /** NodeWalker.WALK_SPEED_MPS: the speed the production walk clip is calibrated for (no foot sliding). */
