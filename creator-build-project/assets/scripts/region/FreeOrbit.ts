@@ -51,6 +51,10 @@ export type OrbitLimits = Readonly<{
   /** b15 reveal (lakeside): FOV widens by up to fovAddDeg as the orbit yaw leaves the seeded (board) yaw, smootherstep over
    *  fullDeg. A pure function of yaw: zero deviation = the seeded lens exactly; turning back restores it with no state. */
   revealWiden?: Readonly<{ fovAddDeg: number; fullDeg: number }>;
+  /** b15 seed aim blend: the first drags carry the seeded lens's own aim point (on its view ray, at the arm's reach, held
+   *  relative to her look point) over to her look point, smootherstep on accumulated |yaw|+|pitch| input over
+   *  max(minDeg, perJumpDeg × the seed aim gap in deg). A pure function of input: no jump at drag start, no overshoot. */
+  seedAimBlend?: Readonly<{ minDeg: number; perJumpDeg: number }>;
 }>;
 
 /** revealWiden FOV add (deg) at a yaw deviation (deg, any wrap). 0 when the place has none. */
@@ -84,7 +88,7 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
   // b15: pitchMax 42 -> 54 and distMax 16 -> 16.5 so the landscape board lens (pitch 53.3, 16.16 m from her look point)
   // seeds without a clamp (the old limits moved the lens on the first drag). revealWiden: moored balloon reveal (+8 deg max).
   lakeside: { pitchMinDeg: -10, pitchMaxDeg: 54, distMin: 3.6, distMax: 16.5, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
-    revealWiden: { fovAddDeg: 8, fullDeg: 70 } },
+    revealWiden: { fovAddDeg: 8, fullDeg: 70 }, seedAimBlend: { minDeg: 18, perJumpDeg: 1.6 } },
   board: { pitchMinDeg: -2, pitchMaxDeg: 2, distMin: 6.6, distMax: 7.8, yawHalfDeg: 4, lookM: 1.1, fovDeg: 48 },
 });
 
@@ -472,6 +476,10 @@ export class FreeOrbit {
   }
   /** Yaw captured by seed(): revealWiden measures the deviation from it. */
   private seedYaw = 0;
+  /** seedAimBlend state: aim offset from her look point at seed, accumulated input since seed, blend span (deg). */
+  private seedAimOff: Vec3 | null = null;
+  private seedInput = 0;
+  private seedSpan = 18;
   constructor(place: OrbitPlace = 'island') {
     this.placeName = place;
     this.limits = ORBIT_LIMITS[place];
@@ -500,6 +508,14 @@ export class FreeOrbit {
     this.pitch = Math.asin(Math.max(-1, Math.min(1, dy / Math.max(dist, 1e-4)))) * 180 / Math.PI;
     this.yaw = Math.atan2(dx, dz) * 180 / Math.PI;
     this.seedYaw = this.yaw;
+    this.seedAimOff = null; this.seedInput = 0;
+    const sb = this.limits.seedAimBlend;
+    if (sb && !this.limits.roomLook) {
+      const pos = this.rawPosAt(look), d = unitToward(pose.position, pose.target), reach = Math.hypot(look[0] - pos[0], look[1] - pos[1], look[2] - pos[2]);
+      const aim: Vec3 = [pos[0] + d[0] * reach, pos[1] + d[1] * reach, pos[2] + d[2] * reach], off: Vec3 = [aim[0] - look[0], aim[1] - look[1], aim[2] - look[2]];
+      const her = unitToward(pos, look), gap = Math.acos(Math.max(-1, Math.min(1, her[0] * d[0] + her[1] * d[1] + her[2] * d[2]))) * 180 / Math.PI;
+      if (gap > 1e-3) { this.seedAimOff = off; this.seedSpan = Math.max(sb.minDeg, sb.perJumpDeg * gap); }
+    }
     if (Number.isFinite(pose.fovVerticalDeg)) this.fov = pose.fovVerticalDeg;
     this.clampPitch();
     this.seeded = true;
@@ -533,6 +549,7 @@ export class FreeOrbit {
     const pitch0 = this.pitch;
     this.yaw += y;
     this.pitch += p;
+    this.seedInput += Math.abs(y) + Math.abs(p);
     this.yawVel = Math.max(-ORBIT_FEEL.maxYawVel, Math.min(ORBIT_FEEL.maxYawVel, y / frame));
     this.pitchVel = Math.max(-ORBIT_FEEL.maxPitchVel, Math.min(ORBIT_FEEL.maxPitchVel, p / frame));
     this.clampAll();
@@ -584,6 +601,8 @@ export class FreeOrbit {
     this.distVel = 0;
     this.fromPose = null;
     this.boardSnap = null;
+    this.seedAimOff = null;
+    this.seedInput = 0;
     this.roomInit = false;
     this.roomParams = false;
     this.roomTurning = false;
@@ -666,12 +685,23 @@ export class FreeOrbit {
     return o ? [l[0] + o[0], l[1] + o[1], l[2] + o[2]] : l;
   }
   /** Orbit placement after clamps, before scenery collision. */
-  rawPose(feet: Vec3): LookPose {
-    const look = this.lookPoint(feet);
+  private rawPosAt(look: Vec3): Vec3 {
     const pr = this.pitch * Math.PI / 180, yr = this.yaw * Math.PI / 180;
     const cp = Math.cos(pr), sp = Math.sin(pr);
-    const pos: Vec3 = [look[0] + Math.sin(yr) * cp * this.dist, look[1] + sp * this.dist, look[2] + Math.cos(yr) * cp * this.dist];
-    return { position: pos, target: look, fovVerticalDeg: this.fov + revealWidenDeg(this.limits, this.yaw - this.seedYaw) };
+    return [look[0] + Math.sin(yr) * cp * this.dist, look[1] + sp * this.dist, look[2] + Math.cos(yr) * cp * this.dist];
+  }
+  /** seedAimBlend weight left on the seed aim (1 at seed, 0 once the span of input is spent). */
+  get seedAimLeft(): number {
+    if (!this.seedAimOff) return 0;
+    const u = Math.min(1, this.seedInput / this.seedSpan);
+    return 1 - u * u * u * (u * (u * 6 - 15) + 10);
+  }
+  rawPose(feet: Vec3): LookPose {
+    const look = this.lookPoint(feet);
+    const pos = this.rawPosAt(look), k = this.seedAimLeft, o = this.seedAimOff;
+    const target: Vec3 = o && k > 0 ? [look[0] + o[0] * k, look[1] + o[1] * k, look[2] + o[2] * k] : look;
+    if (o && k <= 0) this.seedAimOff = null;
+    return { position: pos, target: target, fovVerticalDeg: this.fov + revealWidenDeg(this.limits, this.yaw - this.seedYaw) };
   }
   /**
    * Shorten the arm until the lens and a 0.2 m near point clear every solid box, stay above the ground,

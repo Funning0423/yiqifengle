@@ -2501,8 +2501,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
-    "bytes": 55746,
-    "sha256": "73dc0b5dc3a90dafddf4e09047e68c9e885d0ec76cb8a9f380c402aa2f5a6169"
+    "bytes": 57782,
+    "sha256": "8349584e02a66bd4d44597505b0fe983e2d45fd2af60e00ad2c88174129824dd"
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts.meta",
@@ -4506,8 +4506,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",
-    "bytes": 6653,
-    "sha256": "5aa6ff1b1250a779254819fe461a70847cfda7f505f2579c555a80b569c0fc32"
+    "bytes": 7992,
+    "sha256": "7a8d1770b15710f61bbe0e04894698d7b08969cc30548ce209939fc09c8516ed"
   },
   {
     "path": "tools/lakeside/test_lakeside_board_guest.cjs",
