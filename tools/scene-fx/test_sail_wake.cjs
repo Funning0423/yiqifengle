@@ -11,6 +11,9 @@ const sd=tl.beats.find(b=>b.id==='S-d'),se=tl.beats.find(b=>b.id==='S-e'),sf=tl.
 let cruiseMin=1e9,cruiseMax=0;
 sim.simulate({until:sd.t1,onFrame:(t,v,tr)=>{if(t>=sd.t0+3&&t<=sd.t1){const m=core.wakeVisibleM(tr);cruiseMin=Math.min(cruiseMin,m);cruiseMax=Math.max(cruiseMax,m);}}});
 out.cruiseVisibleM=[+cruiseMin.toFixed(2),+cruiseMax.toFixed(2)];
+// b11: K2 (last 10 % of S-c, ~3 m sailed) shows a V back toward the pier like the sail-art render (launch ghost).
+{const sc=tl.beats.find(b=>b.id==='S-c');let k2=1e9;sim.simulate({until:sc.t1,onFrame:(t,v,tr)=>{if(t>=sc.t0+0.9*(sc.t1-sc.t0))k2=Math.min(k2,core.wakeVisibleWithGhostM(tr));}});
+ out.k2VisibleM=+k2.toFixed(2);assert(k2>=12,'K2 wake length '+k2);}
 assert(cruiseMin>=12,'cruise wake visible length (3 s into S-d it is still limited by the distance sailed) '+cruiseMin);
 assert(cruiseMax>=18,'settled cruise wake length '+cruiseMax);
 // 2. Speed fade: emission follows v.speed; after the stop it dissolves within ageS.
@@ -46,7 +49,7 @@ let peakAll=0,overlap=0,tailOpen=0;
 sim.simulate({until:sf.t1,onFrame:(t,v,tr)=>{
  const g=sim.geometry(tr),N=W.maxPoints,n=tr.pts.length,C=g.b.colors,P=g.b.positions;
  peakAll=Math.max(peakAll,g.peak);
- for(let r=0;r<3;r++){const last=(r*N+n-1)*2;if(n>1&&(C[last*4+3]>0||C[(last+1)*4+3]>0))tailOpen++;}
+ const gEnd=Math.min(N-1,n-1+core.wakeGhost(tr).n);for(let r=0;r<3;r++){const last=(r*N+gEnd)*2; /* b11: the launch ghost extends the closed end */if(n>1&&(C[last*4+3]>0||C[(last+1)*4+3]>0))tailOpen++;}
  for(let i=0;i<n;i++){
   const d=tr.pts[0].s-tr.pts[i].s;if(d<W.inM)continue;
   const washOuter=W.washHalf0+d*W.washGrow,armInner=Math.min(W.armMaxOff,W.armOff0+d*Math.tan(W.armDeg*Math.PI/180))-(W.armHalf0+d*W.armGrow);
