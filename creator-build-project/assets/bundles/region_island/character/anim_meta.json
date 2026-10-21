@@ -15845,7 +15845,7 @@
    "hair*",
    "ribbon*"
   ],
-  "ribbonwind_note": "wind_flutter_loop (renamed from wind_sway_loop) per-channel amplitude vs original: ribbon x0.3 (6.0->1.8 deg), all skirt bones x0. Walking-only per Grok Bot (sit/indoor 0 in code). apron*/hair* in mask match no channels in this clip. rw3: walk_turn_180/_bodyR spring swing damped to 0.5 around f35 (smooth bell f26-44), ends = walk_loop f0."
+  "ribbonwind_note": "wind_flutter_loop per-channel vs original: ribbon x0.3 (6.0->1.8 deg); skirt.back and skirt.back.low outward-only (rectified 0..peak, tilt away from legs, f0=0, loop phase-shifted): peak 0.96 deg (orig 1.92) and 6.08 deg (orig 12.16); other skirt bones 0. Walking-only per Grok Bot. No per-clip wind weight in CharacterMotion. apron*/hair* match no channels."
  },
  "driver_contract": "GGbot work/GGbot-walk afb5d7b docs/walk-driver.md; deploy path bundles/region_island/character/anim_meta.json",
  "compression": {
