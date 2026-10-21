@@ -51,6 +51,10 @@ export type OrbitLimits = Readonly<{
   /** b15 reveal (lakeside): FOV widens by up to fovAddDeg as the orbit yaw leaves the seeded (board) yaw, smootherstep over
    *  fullDeg. A pure function of yaw: zero deviation = the seeded lens exactly; turning back restores it with no state. */
   revealWiden?: Readonly<{ fovAddDeg: number; fullDeg: number }>;
+  /** b16 reveal compose (lakeside): the aim point rises by up to aimUpM with the same smootherstep weight as revealWiden
+   *  (0 at the seeded board yaw, full at revealWiden.fullDeg), so the balloon + her block sits centred instead of her
+   *  at the frame centre with an empty foreground. Lens position (pivot, arm, clearance) is unchanged. */
+  revealLift?: Readonly<{ aimUpM: number }>;
   /** b15 seed aim blend: the first drags carry the seeded lens's own aim point (on its view ray, at the arm's reach, held
    *  relative to her look point) over to her look point, smootherstep on accumulated |yaw|+|pitch| input over
    *  max(minDeg, perJumpDeg × the seed aim gap in deg). A pure function of input: no jump at drag start, no overshoot. */
@@ -58,6 +62,12 @@ export type OrbitLimits = Readonly<{
 }>;
 
 /** revealWiden FOV add (deg) at a yaw deviation (deg, any wrap). 0 when the place has none. */
+/** revealLift aim rise (m) at a yaw deviation (deg). 0 without revealLift/revealWiden. */
+export function revealLiftM(limits: OrbitLimits, devDeg: number): number {
+  const l = limits.revealLift, r = limits.revealWiden;
+  if (!l || !r || !(r.fovAddDeg > 0)) return 0;
+  return l.aimUpM * revealWidenDeg(limits, devDeg) / r.fovAddDeg;
+}
 export function revealWidenDeg(limits: OrbitLimits, devDeg: number): number {
   const r = limits.revealWiden;
   if (!r || !(r.fullDeg > 0)) return 0;
@@ -88,7 +98,7 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
   // b15: pitchMax 42 -> 54 and distMax 16 -> 16.5 so the landscape board lens (pitch 53.3, 16.16 m from her look point)
   // seeds without a clamp (the old limits moved the lens on the first drag). revealWiden: moored balloon reveal (+8 deg max).
   lakeside: { pitchMinDeg: -10, pitchMaxDeg: 54, distMin: 3.6, distMax: 16.5, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
-    revealWiden: { fovAddDeg: 8, fullDeg: 70 }, seedAimBlend: { minDeg: 18, perJumpDeg: 1.6 } },
+    revealWiden: { fovAddDeg: 8, fullDeg: 70 }, revealLift: { aimUpM: 2.0 }, seedAimBlend: { minDeg: 18, perJumpDeg: 1.6 } },
   board: { pitchMinDeg: -2, pitchMaxDeg: 2, distMin: 6.6, distMax: 7.8, yawHalfDeg: 4, lookM: 1.1, fovDeg: 48 },
 });
 
@@ -699,7 +709,8 @@ export class FreeOrbit {
   rawPose(feet: Vec3): LookPose {
     const look = this.lookPoint(feet);
     const pos = this.rawPosAt(look), k = this.seedAimLeft, o = this.seedAimOff;
-    const target: Vec3 = o && k > 0 ? [look[0] + o[0] * k, look[1] + o[1] * k, look[2] + o[2] * k] : look;
+    const lift = revealLiftM(this.limits, this.yaw - this.seedYaw);
+    const target: Vec3 = o && k > 0 ? [look[0] + o[0] * k, look[1] + o[1] * k + lift, look[2] + o[2] * k] : [look[0], look[1] + lift, look[2]];
     if (o && k <= 0) this.seedAimOff = null;
     return { position: pos, target: target, fovVerticalDeg: this.fov + revealWidenDeg(this.limits, this.yaw - this.seedYaw) };
   }
