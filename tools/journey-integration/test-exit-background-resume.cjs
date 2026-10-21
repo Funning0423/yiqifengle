@@ -2,7 +2,7 @@
 // V1 (a4a1041 Mac re-check): backgrounding during the home exit cancelled it (exit-cine cancel:left-exit) and left her
 // seated behind 「继续」. r4.1: hide() now freezes the exit in place and show() continues it by itself (no 继续); the
 // frame-exact freeze (position / clip time / audio) is locked by test-world-background-freeze. This keeps the V1 contract:
-// back from background mid-exit = no 继续, the exit still reaches the island; seated / island backgrounds unchanged.
+// back from background mid-exit = no 继续, the exit still reaches the island; seated backgrounds also resume seamlessly; island backgrounds unchanged.
 const assert=require('node:assert/strict'),{createHarness}=require('../board-ui/harness.cjs');
 const H=createHarness(),{WorldFlow,EXIT_STATES}=H.load('world-r1/WorldFlowCore');
 const pose={position:[3,3,-6],target:[0,1,0]},zero=[0,0,0],seat={position:zero,back:[0,0,-1],yawRad:0,seatedFoot:zero,standingFoot:zero,seatedControllerRoot:zero,standingControllerRoot:zero};
@@ -34,9 +34,9 @@ const until=async(f,n=2000)=>{for(let i=0;i<n;i++){if(f())return;await flush();}
   assert.equal(x.flow.snapshot().state,'island','exit reaches the island after a background trip at '+at);
   console.log('PASS background during',at,'-> exit continued, reached island');
  }
- // Backgrounding while seated (no exit running) keeps the old paused + resume behaviour.
- {const x=make();assert((await x.flow.load()).ok);x.flow.hide();x.flow.show();const s=x.flow.snapshot();assert.equal(s.needsResume,true);assert.equal(s.state,'paused');
-  assert(x.flow.resume().ok);assert.equal(x.flow.snapshot().state,'home');console.log('PASS seated background unchanged');}
+ // Backgrounding while seated (no exit running) resumes without a tap.
+ {const x=make();assert((await x.flow.load()).ok);x.flow.hide();x.flow.show();const s=x.flow.snapshot();assert.equal(s.needsResume,false);assert.equal(s.state,'home');
+  assert((await x.flow.leaveHome()).ok);assert.equal(x.flow.snapshot().state,'island');console.log('PASS seated foreground resumes and permits exit without a tap');}
  // Backgrounding on the island after the exit does not replay it.
  {const x=make();assert((await x.flow.load()).ok);assert((await x.flow.leaveHome()).ok);x.flow.hide();x.flow.show();assert.equal(x.flow.snapshot().needsResume,true);assert(x.flow.resume().ok);assert.equal(x.flow.snapshot().state,'island');console.log('PASS island background unchanged');}
 })().catch(e=>{console.error(e);process.exit(1);});
