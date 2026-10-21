@@ -83,4 +83,24 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
  const handS=(entry-DH.outM)/v,left=m.walkStartAt+m.walkS-(m.walkStartAt+DH.outM/v)-Math.max(handS,blendS);assert(left>=3,'board fade still overlaps her walk: '+left);
  assert.equal(B.lakesideDoorBlendU(DH.outM+.01,DH.outM,entry,100,blendS)<1,true);assert.equal(B.lakesideDoorBlendU(entry,DH.outM,entry,0.5,blendS)<1,true,'never faster than the SPEC blend');
  out.boardEntry={entryM:+entry.toFixed(2),blendByWalkS:+handS.toFixed(2),specBlendS:+blendS.toFixed(2),worstNdc:+worst.toFixed(3),viewDegS:+wMax.toFixed(1),viewDegS2:+aMax.toFixed(1),walkLeftAfterS:+left.toFixed(2)};}
+// 10) b16 real-build fixes: marks only move forward; the door blend never re-installs the cleared tail step; skycity retry
+{let k=null;for(const m2 of ['door','walk','shore','out','walk'])k=Q.lakesideQaAdvance(k,m2);assert.equal(k,'shore','late out/walk never overwrite shore');
+ assert.equal(Q.lakesideQaAdvance('door','out'),'out');
+ assert(/try\{await out;rideToken\.check\(\);qaMark0\('out'\)/.test(ad),'out marked when she is out');
+ assert(ad.includes("ticker.step=tailDone?()=>{}:prevStep")&&ad.includes("if(!tailDone)prevStep(dt)")&&ad.includes("ticker.step=()=>{};tailDone=true;"),'cleared tail step stays cleared');
+ assert(!/rideToken\.check\(\);qaMark0\('out'\);\n  \};/.test(ad),'no post-blend out mark');
+ assert(comp.includes("reason!=='return-route-not-yet-available'"),'skycity entry retried');
+ // simulate the tail/blend ticker interplay: shore during the blend
+ const ticker={step:null};let tailDone=false,tailSteps=0;ticker.step=()=>{tailSteps++;};const prev=ticker.step;let u=0;
+ ticker.step=dt=>{if(!tailDone)prev(dt);u+=dt/3;if(u>=1){ticker.step=tailDone?()=>{}:prev;}};
+ for(let i=0;i<60;i++)ticker.step(1/60);ticker.step=()=>{};tailDone=true;/* tail ends: but the blend wrapper was replaced -> model the real order */
+ const t2={step:null};let td=false,n2=0;const tailStep=()=>{n2++;};t2.step=tailStep;const p2=t2.step;let u2=0;const wrap=dt=>{if(!td)p2(dt);u2+=dt/3;if(u2>=1){t2.step=td?()=>{}:p2;}};t2.step=wrap;
+ for(let i=0;i<90;i++)t2.step(1/60);td=true/* shore: the tail clears ... */;const before=n2;for(let i=0;i<200;i++)t2.step(1/60);assert.equal(n2,before,'tail step not revived after shore');}
+// 11) committed door → board blend replayed numerically: no distance/aim jump, last frame lands on the board pose
+{const DH=B.LAKESIDE_DOOR_HOLD,door=B.lakesideDoorLens(m.walk),FLd=require('../journey-integration/journey-framing-lib.cjs'),entry=B.lakesideBoardEntryM(m.walk,land,FLd.ASPECT,DH.outM),minS=B.lakesideDoorBlendS(door,land),v=m.length/m.walkS;
+ const dir=P=>{const d=P.target.map((x,i)=>x-P.position[i]),l=Math.hypot(...d);return d.map(x=>x/l);};let el=0,u=0,prev=null,maxV=0,maxW=0,lastV=0,lastW=0;
+ for(let sM=DH.outM;;sM+=v/60,el+=1/60){u=Math.max(u,B.lakesideDoorBlendU(sM,DH.outM,entry,el,minS));const p=C.sampleRoute(m.walk,sM),P=u>=1?land:B.lakesideDoorBlendPose(door,land,u,p);
+  if(prev){const a2=dir(P),b2=dir(prev);lastV=Math.hypot(...P.position.map((x,i)=>x-prev.position[i]))*60;lastW=Math.acos(Math.min(1,a2[0]*b2[0]+a2[1]*b2[1]+a2[2]*b2[2]))*180/Math.PI*60;maxV=Math.max(maxV,lastV);maxW=Math.max(maxW,lastW);}prev=P;if(u>=1)break;}
+ assert(maxV<=3&&maxW<=110,'blend continuous: '+maxV+' m/s '+maxW+' deg/s');assert(lastV<=maxV+1e-9&&lastW<=maxW+1e-9,'no jump on the hand-over frame');
+ out.blendReplay={maxMps:+maxV.toFixed(2),maxDegS:+maxW.toFixed(2),lastMps:+lastV.toFixed(2),lastDegS:+lastW.toFixed(2)};}
 console.log(JSON.stringify(out));console.log('PASS lakeside qaShot: route timing, phases, reveal pose, wiring');

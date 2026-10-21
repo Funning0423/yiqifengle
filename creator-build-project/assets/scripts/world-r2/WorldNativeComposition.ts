@@ -364,7 +364,9 @@ export class WorldNativeComposition extends Component {
     const phase=lakesideQaPhase(spec?.phase),freeze=LAKESIDE_QA_FREEZE[phase],scale=Math.max(1,Math.min(8,Number(spec?.timeScale)||3));
     const sched=director.getScheduler();sched.setTimeScale(1);
     if(this.qaRevealHook){director.off(Director.EVENT_BEFORE_DRAW,this.qaRevealHook);this.qaRevealHook=null;}
-    const sky=await this.qaShot({region:'skycity'});if(!(sky as any)?.ok)return sky;
+    // b16: a same-page call can land before the return route exists (return-route-not-yet-available): wait and retry
+    let sky:any=null;for(let i=0;i<20;i++){sky=await this.qaShot({region:'skycity'});if(sky?.ok||sky?.reason!=='return-route-not-yet-available')break;await new Promise<void>(r=>setTimeout(r,500));}
+    if(!sky?.ok)return sky;
     const w=this.world!.commands();if(w.snapshot().state==='level'){const e=w.exitLevel();if(!e.ok)return e;}
     const qa:{mark:string|null;markT:number}={mark:null,markT:0};(globalThis as any).__qaLakeside=qa;
     sched.setTimeScale(scale);

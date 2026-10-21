@@ -13,6 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+import {lakesideQaAdvance} from './LakesideQaShot';
 import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
@@ -314,7 +315,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
    const hold=()=>{if(!dead&&lastPose)world.setCamera(lastPose);};director.on(Director.EVENT_BEFORE_DRAW,hold);
    const holdCapS=moored.walkStartAt+LAKESIDE_DOOR_HOLD.outM/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
-   const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=m;}catch{/* qa only */}};
+   const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=lakesideQaAdvance(q.mark,m);}catch{/* qa only */}};
+   let tailDone=false/* b16: the tail cleared its ticker step (she is on the shore); the door blend must not restore it */;
    const tail=(async()=>{
     let t=0,reached=false,walking=false,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
     ticker.step=(dt)=>{t+=dt;if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
@@ -322,13 +324,13 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
       const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
        lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
-    const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){q.mark=m;q.markT=t;}}catch{/* qa only */}};
+    const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
     await waitUntil(moored.T0);rideToken.check();qaMark('door');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
     await waitUntil(moored.walkStartAt);await reach;rideToken.check();
     reached=true;walking=true;qaMark('walk');
     await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;
-    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};outOk();qaMark('shore');
+    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};tailDone=true;outOk();qaMark('shore');
     const before=moored.walk[moored.walk.length-2];
     const end=moored.walk[moored.walk.length-1];
     actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});
@@ -336,17 +338,17 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
    (lease as any).tail=tail;tail.catch(()=>{}).then(()=>{if((lease as any).tail===tail)(lease as any).tail=null;});
    tail.catch(()=>{}).then(()=>outOk());const offOut=rideToken.onCancel(()=>outOk());
-   try{await out;rideToken.check();
+   try{await out;rideToken.check();qaMark0('out')/* when she is out, not after the blend */;
     // she is out: blend the held door lens onto the landing (= board) pose in game time, then hand over
     // b16: the blend follows her real walk progress up to the board entry distance (whole body inside 0.85 of the board
     // frame), so she stays clearly in frame through the blend and the board fade-in; never shorter than the SPEC blend
     const a=lastPose||landPose,blendS=lakesideDoorBlendS(a,landPose),vs=view.getVisibleSize(),entryM=lakesideBoardEntryM(moored.walk,landPose,vs.width/Math.max(1,vs.height),LAKESIDE_DOOR_HOLD.outM);
     let el=0,u=0;const capS=blendS+(entryM-LAKESIDE_DOOR_HOLD.outM)/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
     await new Promise<void>((ok,bad)=>{const offB=rideToken.onCancel(()=>{bad(Error('cancelled'));});const prevStep=ticker.step;
-     ticker.step=(dt)=>{prevStep(dt);el+=dt;const w=(actor as any).walkProgress?.(),walked=typeof w==='number'?w*moored.length:entryM;
-      u=el>=capS?1:Math.max(u,lakesideDoorBlendU(walked,LAKESIDE_DOOR_HOLD.outM,entryM,el,blendS));const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=prevStep;offB();ok();}};});
+     ticker.step=(dt)=>{if(!tailDone)prevStep(dt);el+=dt;const w=(actor as any).walkProgress?.(),walked=typeof w==='number'?w*moored.length:entryM;
+      u=el>=capS?1:Math.max(u,lakesideDoorBlendU(walked,LAKESIDE_DOOR_HOLD.outM,entryM,el,blendS));const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=tailDone?()=>{}:prevStep;offB();ok();}};});
    }finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
-   rideToken.check();qaMark0('out');
+   rideToken.check();
   };
   // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
   let showSerial=0,shown=false;

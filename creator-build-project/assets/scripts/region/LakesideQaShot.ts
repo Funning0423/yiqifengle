@@ -2,6 +2,10 @@ import type {Pose, Vec} from '../world-r1/WorldFlowCore';
 import {FreeOrbit, ORBIT_FEEL} from './FreeOrbit';
 /** QA only (qaShot region 'lakeside'): phases of the b15 balloon → shore tail and the free-look reveal pose. Pure, no engine. */
 export type LakesideQaPhase='door'|'walk'|'reveal';
+/** QA tail marks in journey order. b16 fix (real-build qaShot reveal timeout): a mark only ever moves forward, so a late
+ *  'out' (written after the door → board blend) can no longer overwrite 'shore'. */
+export const LAKESIDE_QA_MARKS=['door','walk','out','shore'] as const;
+export function lakesideQaAdvance(cur:unknown,next:string):string{const a=LAKESIDE_QA_MARKS.indexOf(cur as any),b=LAKESIDE_QA_MARKS.indexOf(next as any);return b>a?next:String(cur);}
 export function lakesideQaPhase(v:unknown):LakesideQaPhase{return v==='walk'||v==='reveal'?v:'door';}
 /** Which tail mark (published by RegionJourneyAdapter on globalThis.__qaLakeside.mark) each phase freezes after, and how long (s, game time). */
 export const LAKESIDE_QA_FREEZE:Readonly<Record<LakesideQaPhase,{mark:'door'|'walk'|'out'|'shore';afterS:number}>>={door:{mark:'door',afterS:.9},walk:{mark:'out',afterS:1.2},reveal:{mark:'shore',afterS:.3}};
