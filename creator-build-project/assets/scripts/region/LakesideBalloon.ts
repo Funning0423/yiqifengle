@@ -297,3 +297,7 @@ export function lakesideRouteTiming(length:number,durationS:number,easeInS:numbe
  for(let i=0;i<60&&!journeyTimingOk(Math.max(length,.01),{durationS,easeInS:a,easeOutS:b});i++){a=Math.round((a+.1)*10)/10;b=Math.round((b+.1)*10)/10;}
  return {durationS,easeInS:a,easeOutS:b};
 }
+
+/** b15 door shot: the moored-basket lens is held until she has walked `outM` along the moored walk (clear of the basket:
+ *  basket half-width 1.0 m + her radius + margin), capped at walk start + outM at walk speed + capPadS (game seconds). */
+export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0} as const;

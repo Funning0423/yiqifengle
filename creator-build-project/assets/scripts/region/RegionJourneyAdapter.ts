@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -307,10 +307,17 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const door=find(vehicle,'basket_door');door?.setRotationFromEuler(0,0,0);
    actor.cancelAndReset({kind:'standing',controllerRoot:moored.start,yawRad:moored.startYawRad});
    const landedM=routeLength([...R.path,moored.walk[0]]);lease.progress!(landedM);
+   // b15 door shot: the ride lens holds on the basket (lastPose, the route's last frame) until she is clear of the basket
+   // (LAKESIDE_DOOR_HOLD.outM along the moored walk, or a game-time cap); only then does the controller arrive and the board
+   // fade in, still overlapping the rest of her (offscreen) walk to the shore.
+   let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
+   const hold=()=>{if(!dead&&lastPose)world.setCamera(lastPose);};director.on(Director.EVENT_BEFORE_DRAW,hold);
+   const holdCapS=moored.walkStartAt+LAKESIDE_DOOR_HOLD.outM/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
+   const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=m;}catch{/* qa only */}};
    const tail=(async()=>{
     let t=0,reached=false,walking=false,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
-    ticker.step=(dt)=>{t+=dt;if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);
-     if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number')lease.progress!(landedM+w*moored.length);
+    ticker.step=(dt)=>{t+=dt;if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
+     if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){lease.progress!(landedM+w*moored.length);if(w*moored.length>=LAKESIDE_DOOR_HOLD.outM)outOk();}
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
       const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
        lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
@@ -320,13 +327,16 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     await waitUntil(moored.walkStartAt);await reach;rideToken.check();
     reached=true;walking=true;qaMark('walk');
     await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;
-    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};qaMark('shore');
+    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};outOk();qaMark('shore');
     const before=moored.walk[moored.walk.length-2];
     const end=moored.walk[moored.walk.length-1];
     actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});
    })();
    // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
    (lease as any).tail=tail;tail.catch(()=>{}).then(()=>{if((lease as any).tail===tail)(lease as any).tail=null;});
+   tail.catch(()=>{}).then(()=>outOk());const offOut=rideToken.onCancel(()=>outOk());
+   try{await out;}finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
+   rideToken.check();qaMark0('out');
   };
   // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
   let showSerial=0,shown=false;

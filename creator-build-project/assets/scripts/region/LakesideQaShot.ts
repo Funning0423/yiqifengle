@@ -4,7 +4,7 @@ import {FreeOrbit, ORBIT_FEEL} from './FreeOrbit';
 export type LakesideQaPhase='door'|'walk'|'reveal';
 export function lakesideQaPhase(v:unknown):LakesideQaPhase{return v==='walk'||v==='reveal'?v:'door';}
 /** Which tail mark (published by RegionJourneyAdapter on globalThis.__qaLakeside.mark) each phase freezes after, and how long (s, game time). */
-export const LAKESIDE_QA_FREEZE:Readonly<Record<LakesideQaPhase,{mark:'door'|'walk'|'shore';afterS:number}>>={door:{mark:'door',afterS:.9},walk:{mark:'walk',afterS:2.2},reveal:{mark:'shore',afterS:.3}};
+export const LAKESIDE_QA_FREEZE:Readonly<Record<LakesideQaPhase,{mark:'door'|'walk'|'out'|'shore';afterS:number}>>={door:{mark:'door',afterS:.9},walk:{mark:'out',afterS:1.2},reveal:{mark:'shore',afterS:.3}};
 /** Moored balloon proxy (transport_balloon.glb bbox x/z ±2.9, y 0…10.4): envelope ellipsoid + basket corners, local to the basket origin. */
 export function balloonProxy(at:Vec):Vec[]{
  const out:Vec[]=[];
@@ -20,17 +20,38 @@ function maxNdc(p:Pose,asp:number,pts:readonly Vec[]):number{
   m=Math.max(m,Math.abs((v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(z*th*asp)),Math.abs((v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th)));}
  return m;
 }
-/** Free look on the lakeside orbit (revealWiden, seedAimBlend) from `board`: the smallest drag that frames the balloon + her
- *  inside `fit` of the frame. Returns the orbit pose after that drag (same as a player's drag would give), or null. */
-export function lakesideRevealPose(board:Pose,feet:Vec,balloon:Vec,aspect:number,fit=.98):{pose:Pose;yawDeg:number;pitchDeg:number;maxNdc:number}|null{
- const her:Vec[]=[[feet[0],feet[1],feet[2]],[feet[0],feet[1]+1.65,feet[2]]],pts=balloonProxy(balloon).concat(her);
- let best:{pose:Pose;yawDeg:number;pitchDeg:number;maxNdc:number;c:number}|null=null;
- for(const sgn of [1,-1])for(let dy=0;dy<=230;dy+=2){for(let dp=-48;dp<=48;dp+=2){
+function ndcY(p:Pose,q:Vec):number{
+ const f=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],fl=Math.hypot(f[0],f[1],f[2])||1;f[0]/=fl;f[1]/=fl;f[2]/=fl;
+ let r=[-f[2],0,f[0]];const rl=Math.hypot(r[0],r[2])||1;r=[r[0]/rl,0,r[2]/rl];const u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+ const v=[q[0]-p.position[0],q[1]-p.position[1],q[2]-p.position[2]],z=Math.max(.2,v[0]*f[0]+v[1]*f[1]+v[2]*f[2]);
+ return (v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*Math.tan((p.fovVerticalDeg||48)*Math.PI/360));
+}
+/** Composition (b15 review of c_reveal): subject block (balloon top … her feet) vertically centred, and little empty
+ *  foreground below her feet. 0 = ideal. Weights chosen so that ~0.1 NDC of imbalance costs about as much as 6 degrees of drag. */
+export function lakesideRevealComposition(p:Pose,feet:Vec,balloon:Vec):{centre:number;emptyBelow:number;cost:number}{
+ const top=ndcY(p,[balloon[0],balloon[1]+10.4,balloon[2]]),bot=Math.min(ndcY(p,[feet[0],feet[1],feet[2]]),ndcY(p,[balloon[0],balloon[1],balloon[2]]));
+ const centre=(top+bot)/2,emptyBelow=(bot+1)/2;
+ return {centre,emptyBelow,cost:60*Math.abs(centre)+80*Math.max(0,emptyBelow-.2)};
+}
+/** Samples whose line of sight is tested: the balloon proxy and her body (lifted 0.1 m off the ground). */
+export function lakesideRevealSamples(feet:Vec,balloon:Vec):Vec[]{
+ const her:Vec[]=[];for(const y of [.1,.5,.9,1.3,1.65])for(const dx of [-.25,0,.25])her.push([feet[0]+dx,feet[1]+y,feet[2]]);
+ return balloonProxy(balloon).concat(her);
+}
+export type LakesideOccluder=(from:Vec,to:Vec)=>boolean;
+/** Free look on the lakeside orbit (revealWiden, seedAimBlend) from `board`: among drags that frame the balloon + her inside
+ *  `fit` and (when `occluded` is given, e.g. a scene raycast) keep at most `maxOccluded` of the sight samples blocked, the one
+ *  with the lowest drag + composition cost. Returns the orbit pose after that drag (as a player's drag would give), or null. */
+export function lakesideRevealPose(board:Pose,feet:Vec,balloon:Vec,aspect:number,fit=.98,occluded?:LakesideOccluder,maxOccluded=.03):{pose:Pose;yawDeg:number;pitchDeg:number;maxNdc:number;occludedFrac:number;composition:{centre:number;emptyBelow:number;cost:number}}|null{
+ const her:Vec[]=[[feet[0],feet[1],feet[2]],[feet[0],feet[1]+1.65,feet[2]]],pts=balloonProxy(balloon).concat(her),sight=lakesideRevealSamples(feet,balloon);
+ let best:any=null;
+ for(const sgn of [1,-1])for(let dy=0;dy<=230;dy+=2)for(let dp=-48;dp<=48;dp+=2){
   const o=new FreeOrbit('lakeside');o.seed(board,feet);
   // drag in small steps so seedAimBlend sees the accumulated input exactly as a finger would
-  const n=Math.max(1,Math.ceil(dy/2));for(let k=0;k<n;k++)o.drag(sgn*dy/n/ORBIT_FEEL.yawPerScreen,dp/n/ORBIT_FEEL.pitchPerScreen);
-  const p=o.rawPose(feet);if(p.position[1]<feet[1]+.5)continue;const m=maxNdc(p,aspect,pts);
-  if(m<=fit){const c=dy+Math.abs(dp)*.3;if(!best||c<best.c)best={pose:p,yawDeg:sgn*dy,pitchDeg:-dp,maxNdc:m,c};break;}}
-  if(best&&Math.abs(best.yawDeg)<dy)break;}
- return best?{pose:best.pose,yawDeg:best.yawDeg,pitchDeg:best.pitchDeg,maxNdc:best.maxNdc}:null;
+  const n=Math.max(1,Math.ceil(Math.max(dy,Math.abs(dp))/2));for(let k=0;k<n;k++)o.drag(sgn*dy/n/ORBIT_FEEL.yawPerScreen,dp/n/ORBIT_FEEL.pitchPerScreen);
+  const p=o.rawPose(feet);if(p.position[1]<feet[1]+.5)continue;const m=maxNdc(p,aspect,pts);if(m>fit)continue;
+  const comp=lakesideRevealComposition(p,feet,balloon),c=dy*.15+Math.abs(dp)*.05+comp.cost;if(best&&c>=best.c)continue;
+  let occ=0;if(occluded){for(let i=0;i<sight.length;i++)if(occluded(p.position,sight[i]))occ++;occ/=sight.length;if(occ>maxOccluded)continue;}
+  best={pose:p,yawDeg:sgn*dy,pitchDeg:-dp,maxNdc:m,occludedFrac:occ,composition:comp,c};}
+ return best?{pose:best.pose,yawDeg:best.yawDeg,pitchDeg:best.pitchDeg,maxNdc:best.maxNdc,occludedFrac:best.occludedFrac,composition:best.composition}:null;
 }

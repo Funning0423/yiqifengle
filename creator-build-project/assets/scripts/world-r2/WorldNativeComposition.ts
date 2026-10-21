@@ -2,7 +2,7 @@ import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
-import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3 } from 'cc';
+import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry } from 'cc';
 import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
@@ -39,6 +39,19 @@ import { withRegionBoardGuest } from '../region/LakesideBoardGuest';
 const meadowBoardWithGuest=(context:any)=>withRegionBoardGuest('meadow','MeadowLiveScene',1<<20,createMeadowBoardBackground)(context),skycityBoardWithGuest=(context:any)=>withRegionBoardGuest('skycity','SkycityLiveBackground',1<<20,createSkycityBoardBackground)(context);
 const {ccclass,property}=_decorator;
 /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
+/** QA only (b15 reveal): line-of-sight test against the rendered scene (MeshRenderer models within 45 m of her, minus the
+ *  moored balloon and her own rig), for lakesideRevealPose's occlusion term. Engine ray/AABB + ray/model, no physics. */
+function qaSceneOccluder(scene:Node|null,skip:Node[],near:Vec):(a:Vec,b:Vec)=>boolean{
+ const models:any[]=[];const under=(n:Node|null)=>{for(let p=n;p;p=p.parent)if(skip.indexOf(p)>=0)return true;return false;};
+ if(scene)for(const m of scene.getComponentsInChildren(MeshRenderer)){const md=(m as any).model;if(!m.enabledInHierarchy||!md||!md.worldBounds||under(m.node))continue;
+  const c=md.worldBounds.center,h=md.worldBounds.halfExtents;if(Math.abs(c.x-near[0])>h.x+45||Math.abs(c.z-near[2])>h.z+45)continue;models.push(md);}
+ const ray=new geometry.Ray();
+ return (a,b)=>{const d=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],L=Math.hypot(d[0],d[1],d[2]);if(L<1e-3)return false;
+  geometry.Ray.set(ray,a[0],a[1],a[2],d[0]/L,d[1]/L,d[2]/L);
+  for(let i=0;i<models.length;i++){const t0=geometry.intersect.rayAABB(ray,models[i].worldBounds);if(!t0||t0>L)continue;
+   const t=geometry.intersect.rayModel(ray,models[i],{mode:geometry.ERaycastMode.ANY,distance:L*.98,doubleSided:true} as any);if(t&&t<L*.98)return true;}
+  return false;};
+}
 @ccclass('WorldNativeComposition')
 export class WorldNativeComposition extends Component {
   @property(Prefab) firstsliceModel:Prefab|null=null;
@@ -355,11 +368,11 @@ export class WorldNativeComposition extends Component {
     const d=(this.boundCharacter as any)?.diagnostics?.(),feet=(d?.root||[0,0,0]) as Vec;
     const scene=director.getScene();let b:any=null;const walk=(n:any)=>{if(!n||b)return;if(n.name==='LakesideMooredBalloon'&&n.activeInHierarchy){b=n;return;}for(const c of n.children||[])walk(c);};walk(scene);
     if(!b)return {ok:false,reason:'no-moored-balloon'};
-    const bp=b.worldPosition,vs=view.getVisibleSize(),r=lakesideRevealPose(board,feet,[bp.x,bp.y,bp.z],vs.width/Math.max(1,vs.height));
+    const bp=b.worldPosition,vs=view.getVisibleSize(),occ=qaSceneOccluder(scene,[b,(this.boundCharacter as any)?.node].filter(Boolean),feet),r=lakesideRevealPose(board,feet,[bp.x,bp.y,bp.z],vs.width/Math.max(1,vs.height),.98,occ);
     if(!r)return {ok:false,reason:'no-reveal-angle'};
     const pose=r.pose;this.qaRevealHook=()=>{if(cam.node.isValid)applyCameraPose(cam,fromLookAt(pose,pose.fovVerticalDeg??cam.fov),'qa.lakeside-reveal');};
     director.on(Director.EVENT_BEFORE_DRAW,this.qaRevealHook);
-    return {ok:true,phase,yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:r.maxNdc,fov:pose.fovVerticalDeg,board,pose};
+    return {ok:true,phase,yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:r.maxNdc,occludedFrac:r.occludedFrac,composition:r.composition,fov:pose.fovVerticalDeg,board,pose};
   }
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}
   private releaseOwned(){if(this.worldCamera&&this.previousCameraVisibility!==null)this.worldCamera.visibility=this.previousCameraVisibility;this.owner?.destroy();this.uiParent?.destroy();this.owner=null;this.uiParent=null;this.world=null;this.previousCameraVisibility=null;}

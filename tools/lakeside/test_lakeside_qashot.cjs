@@ -25,9 +25,22 @@ for(const [w,h] of [[390,844],[320,568],[390,520]]){const board=LC.lakesideAlign
 // 4) wiring: qa-only entry, tail marks
 const comp=fs.readFileSync('creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts','utf8'),ad=fs.readFileSync('creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts','utf8');
 assert(/if\(MINIGAME\)return \{ok:false,reason:'player-build'\};\s*if\(spec\?\.region==='lakeside'\)return this\.qaShotLakeside/.test(comp),'lakeside entry after the player-build guard');
-for(const k of ["qaMark('door')","qaMark('walk')","qaMark('shore')","lakesideRouteTiming("])assert(ad.includes(k),k);
+for(const k of ["qaMark('door')","qaMark('walk')","qaMark('shore')","qaMark0('out')","lakesideRouteTiming(","await out;","LAKESIDE_DOOR_HOLD.outM"])assert(ad.includes(k),k);
 
 // 5) world-frame regression: the inputs logged from the 7b0c1c90 web build after the journey (Main Camera, her root, LakesideMooredBalloon)
 {const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},r=Q.lakesideRevealPose(cam,[18.2397,19.6465,137.6432],[10.1345,19.6454,138.2321],390/844);
  assert(r&&r.maxNdc<=.98,'web-build lakeside reveal fits');assert(r.pose.fovVerticalDeg<=cam.fovVerticalDeg+8+1e-6);console.log('web',JSON.stringify({yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:+r.maxNdc.toFixed(3),fov:+r.pose.fovVerticalDeg.toFixed(2)}));}
+// 6) door hold: the basket lens is held until she is LAKESIDE_DOOR_HOLD.outM out (≥ door opening + step-out), and the
+//    board still has ≥ 5 s of her offscreen walk to fade in over
+{const DH=B.LAKESIDE_DOOR_HOLD,v=m.length/m.walkS,outAt=m.walkStartAt+DH.outM/v;assert(DH.outM>=1.4,'clear of the basket');
+ assert(outAt>m.walkStartAt&&outAt>m.T0+.333+.5,'held through the door opening');assert(m.walkStartAt+m.walkS-outAt>=5,'board fade overlaps the offscreen walk');
+ out.doorHold={outM:DH.outM,outAtS:+outAt.toFixed(2),capS:+(outAt+DH.capPadS).toFixed(2),walkLeftS:+(m.walkStartAt+m.walkS-outAt).toFixed(2)};}
+// 7) occlusion + composition on the web-build inputs: a canopy sphere in front of the envelope (where the 7b0c1c90 render showed one)
+{const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},feet=[18.4345,19.6533,139.3320],bal=[10.1345,19.6454,138.2321];
+ const plain=Q.lakesideRevealPose(cam,feet,bal,390/844);assert(plain&&plain.occludedFrac===0);
+ const E=[bal[0],bal[1]+8.5,bal[2]],P0=plain.pose.position,C=P0.map((x,i)=>x+(E[i]-x)*.3),R=.45,seg=(a,b)=>{const d=b.map((x,i)=>x-a[i]),L2=d[0]*d[0]+d[1]*d[1]+d[2]*d[2],t=Math.max(0,Math.min(1,((C[0]-a[0])*d[0]+(C[1]-a[1])*d[1]+(C[2]-a[2])*d[2])/L2));return Math.hypot(a[0]+d[0]*t-C[0],a[1]+d[1]*t-C[1],a[2]+d[2]*t-C[2])<R;};
+ const S=Q.lakesideRevealSamples(feet,bal),blocked=S.filter(p=>seg(plain.pose.position,p)).length/S.length;assert(blocked>.03,'the synthetic canopy blocks the occlusion-free pick');
+ const r=Q.lakesideRevealPose(cam,feet,bal,390/844,.98,seg);assert(r&&r.occludedFrac<=.03,'occluded angle rejected');
+ assert(Math.abs(r.composition.centre)<=.35&&r.composition.emptyBelow<=.45,'balanced, little empty foreground');
+ out.occlusion={blockedPlain:+blocked.toFixed(3),pick:{yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,occ:+r.occludedFrac.toFixed(3),centre:+r.composition.centre.toFixed(3),emptyBelow:+r.composition.emptyBelow.toFixed(3)}};}
 console.log(JSON.stringify(out));console.log('PASS lakeside qaShot: route timing, phases, reveal pose, wiring');
