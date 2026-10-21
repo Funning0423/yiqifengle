@@ -2612,7 +2612,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts",
     "bytes": 3299,
-    "sha256": "521587ba3a76ddd6673ebc70715dbc14f7a61ecec20ff40ee9b561085b7fa01c"
+    "sha256": "7e40d9bbbcdb267abd4bcc80a9d63bd80a21415928535f9edb7097c0485037a0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts.meta",
@@ -4196,8 +4196,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_qashot.cjs",
-    "bytes": 3252,
-    "sha256": "6c2fb658068e57589dbae4d44932e543138364a736d627d04205f91fc3261af7"
+    "bytes": 3848,
+    "sha256": "6d1c2f39d375e62896240a40b19985dc3385c47a3e0dc2636211fe7787ba9977"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",

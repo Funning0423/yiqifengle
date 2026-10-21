@@ -25,7 +25,7 @@ function maxNdc(p:Pose,asp:number,pts:readonly Vec[]):number{
 export function lakesideRevealPose(board:Pose,feet:Vec,balloon:Vec,aspect:number,fit=.98):{pose:Pose;yawDeg:number;pitchDeg:number;maxNdc:number}|null{
  const her:Vec[]=[[feet[0],feet[1],feet[2]],[feet[0],feet[1]+1.65,feet[2]]],pts=balloonProxy(balloon).concat(her);
  let best:{pose:Pose;yawDeg:number;pitchDeg:number;maxNdc:number;c:number}|null=null;
- for(const sgn of [1,-1])for(let dy=0;dy<=150;dy+=2){for(let dp=-24;dp<=16;dp+=2){
+ for(const sgn of [1,-1])for(let dy=0;dy<=230;dy+=2){for(let dp=-48;dp<=48;dp+=2){
   const o=new FreeOrbit('lakeside');o.seed(board,feet);
   // drag in small steps so seedAimBlend sees the accumulated input exactly as a finger would
   const n=Math.max(1,Math.ceil(dy/2));for(let k=0;k<n;k++)o.drag(sgn*dy/n/ORBIT_FEEL.yawPerScreen,dp/n/ORBIT_FEEL.pitchPerScreen);

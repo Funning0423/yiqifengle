@@ -26,4 +26,8 @@ for(const [w,h] of [[390,844],[320,568],[390,520]]){const board=LC.lakesideAlign
 const comp=fs.readFileSync('creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts','utf8'),ad=fs.readFileSync('creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts','utf8');
 assert(/if\(MINIGAME\)return \{ok:false,reason:'player-build'\};\s*if\(spec\?\.region==='lakeside'\)return this\.qaShotLakeside/.test(comp),'lakeside entry after the player-build guard');
 for(const k of ["qaMark('door')","qaMark('walk')","qaMark('shore')","lakesideRouteTiming("])assert(ad.includes(k),k);
+
+// 5) world-frame regression: the inputs logged from the 7b0c1c90 web build after the journey (Main Camera, her root, LakesideMooredBalloon)
+{const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},r=Q.lakesideRevealPose(cam,[18.2397,19.6465,137.6432],[10.1345,19.6454,138.2321],390/844);
+ assert(r&&r.maxNdc<=.98,'web-build lakeside reveal fits');assert(r.pose.fovVerticalDeg<=cam.fovVerticalDeg+8+1e-6);console.log('web',JSON.stringify({yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:+r.maxNdc.toFixed(3),fov:+r.pose.fovVerticalDeg.toFixed(2)}));}
 console.log(JSON.stringify(out));console.log('PASS lakeside qaShot: route timing, phases, reveal pose, wiring');
