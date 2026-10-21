@@ -115,6 +115,10 @@ function main(src, out) {
   charm.forEach(function (tr) { L.push(tr.map(function (v) { return { p: [v.p[0] - HX, v.p[1], v.p[2] + S.CHARM_DZ - HZ], n: v.n.slice(), t: v.t.slice() }; })); });
   // ---- pack
   function pack(list) { var p = [], n = [], u = [], idx = [], lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
+    // winding follows the authored normal (CCW front face), so the geometric face and its normal agree everywhere
+    list = list.map(function (tr) { var a = tr[0].p, b = tr[1].p, c = tr[2].p, e1 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], e2 = [c[0] - a[0], c[1] - a[1], c[2] - a[2]],
+      g = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]], nn = tr[0].n;
+      return g[0] * nn[0] + g[1] * nn[1] + g[2] * nn[2] < 0 ? [tr[0], tr[2], tr[1]] : tr; });
     list.forEach(function (tr) { tr.forEach(function (v) { idx.push(p.length / 3); p.push(v.p[0], v.p[1], v.p[2]); n.push(v.n[0], v.n[1], v.n[2]); u.push(v.t[0], v.t[1]); for (var e = 0; e < 3; e++) { lo[e] = Math.min(lo[e], v.p[e]); hi[e] = Math.max(hi[e], v.p[e]); } }); });
     return { P: new Float32Array(p), N: new Float32Array(n), T: new Float32Array(u), I: new Uint16Array(idx), lo: lo, hi: hi, tris: list.length }; }
   var extra = [], off = bin.length;
