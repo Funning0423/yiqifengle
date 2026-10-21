@@ -23,7 +23,8 @@ function visibleTriangles(pose,aspect){
  }return count;
 }
 assert.deepEqual(M.mooring,L.toWorld([...point]));
-assert.deepEqual(M.walk.at(-1),bank,'unchanged shore position');
+assert(Math.abs(M.walk.at(-1)[0]-bank[0])<1e-9&&Math.abs(M.walk.at(-1)[2]-bank[2])<1e-9&&M.walk.at(-1)[1]===bank[1],'unchanged shore root');
+assert(Math.abs(M.start[1]-.572)<1e-9&&M.walk.slice(0,-1).every(p=>p[1]<=bank[1]+1e-9&&p[1]>=.572-1e-9),'v3: exit route on the 0.572 ground, rising 8 mm into the unchanged shore root');
 const prior=M.walk.at(-2),oldPrior=L.arrival.at(-2);
 assert(dot(sub(bank,prior),sub(bank,oldPrior))>0,'same final approach heading');
 assert(Math.abs(bank[0]-prior[0])<1e-8,'same arrival tangent avoids an end-camera jump');
@@ -34,7 +35,9 @@ assert(Math.abs(M.doorYawDeg-96.19)<.01,'basket door yaw 96.19 deg at the b15 mo
 assert.deepEqual(M.walk[0],M.start,'exit walk starts at P0');
 const off=sub(M.start,M.mooring),yr=M.doorYawDeg*Math.PI/180;
 assert(Math.abs(off[0]*Math.sin(yr)+off[2]*Math.cos(yr)-.395)<1e-9&&Math.abs(off[0]*Math.cos(yr)-off[2]*Math.sin(yr)-.03)<1e-9,'P0 = mooring + rotY(doorYaw)(0.03,0,0.395)');
-assert(Math.abs(M.startYawRad-yr)<1e-12,'she is reset to face the door');
+assert(Math.abs(M.startYawRad*180/Math.PI-95.97)<.02,'faces the first walk point (95.97 deg), got '+M.startYawRad*180/Math.PI);
+const lp=L.toLocal?L.toLocal(M.start):null;if(lp)assert(Math.abs(lp[0]-9.1105)<1e-3&&Math.abs(lp[2]-25.6724)<1e-3,'P0 lake-local (9.1105, 25.6724)');
+assert(Math.abs(M.length-9.531)<.01,'L = 9.531 m, got '+M.length);
 assert(Math.abs(M.seatYawDeg(30)-(30-M.doorYawDeg))<1e-12,'seat yaw compensated for the basket yaw');
 assert.equal(M.mps,.8,'exit walk 0.8 m/s');
 assert.equal(B.exitWalkSpeed(.7),.8);assert(Math.abs(B.exitWalkSpeed(.5)-.65)<1e-12&&Math.abs(B.exitWalkSpeed(1.2)-.9)<1e-12,'speed picked inside the planner band of the calibrated clip speed');
@@ -43,7 +46,7 @@ assert(M.cornerM>=1-1e-12,'corner radius >= 1.0 m, got '+M.cornerM);
 const cruise=(M.length-K.exitStart.M-K.exitStop.M)/(M.walkS-K.exitStart.S/Math.min(K.exitStart.rateMax,ratio)-K.exitStop.S);
 assert(Math.abs(cruise-.8)<1e-9,'planned cruise 0.8 m/s');
 assert.equal(M.T0,.5);assert(Math.abs(M.doorAt-.833)<1e-12);assert(Math.abs(M.walkStartAt-2.3)<1e-12);
-assert.equal(M.doorDeg(M.doorAt),0);assert(Math.abs(M.doorDeg(M.doorAt+2/30)-2.75)<1e-9);assert.equal(M.doorDeg(M.doorAt+2/30+.8),100);assert.equal(M.doorDeg(99),100);
+assert.equal(M.doorDeg(M.doorAt),0);assert(Math.abs(M.doorDeg(M.T0+.367)-2.75)<1e-6);assert.equal(M.doorDeg(M.T0+.367+.8),100);assert.equal(M.doorDeg(99),100);
 for(let t=0;t<3;t+=.01)assert(M.doorDeg(t+.01)>=M.doorDeg(t)-1e-12,'door opens monotonically');
 const CM=B;
 let o=[0,0];for(let i=0;i<60;i++){const y0=i*Math.PI/120,y1=(i+1)*Math.PI/120,before=[o[0]+CM.FOOT_LOCK_HALF_W*Math.cos(y0),o[1]-CM.FOOT_LOCK_HALF_W*Math.sin(y0)];o=CM.footLockStep(o,'L',y0,y1,1/60);const after=[o[0]+CM.FOOT_LOCK_HALF_W*Math.cos(y1),o[1]-CM.FOOT_LOCK_HALF_W*Math.sin(y1)];

@@ -299,7 +299,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    });
    rideToken.check();
    if(girl&&isValid(girl,true)&&aboard){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
-   // b15 getout v2 (角色动画bot INTEGRATE.md, re-solved for the b15 mooring / door yaw 96.19°): at touchdown (off the board
+   // b15 getout v3 (角色动画bot getout_v3/INTEGRATE.md: b15 mooring, door yaw 96.19°, P0 inside the basket): at touchdown (off the board
    // frame) she faces the flight heading; cancelAndReset turns her to the door at P0 (no authored in-basket turn), then idle
    // 0.5 s → door_reach (basket_door opens 0.333 s in, to +100°) → planner walk (walk_start → walk_loop at the clip-picked
    // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
@@ -321,7 +321,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;
     rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};
     const before=moored.walk[moored.walk.length-2];
-    actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:Math.atan2(shore[0]-before[0],shore[2]-before[2])});
+    const end=moored.walk[moored.walk.length-1];
+    actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});
    })();
    // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
    (lease as any).tail=tail;tail.catch(()=>{}).then(()=>{if((lease as any).tail===tail)(lease as any).tail=null;});

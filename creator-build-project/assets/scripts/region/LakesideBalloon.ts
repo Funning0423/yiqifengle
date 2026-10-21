@@ -35,7 +35,7 @@ export const LAKESIDE_BALLOON_LANDING={
  walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
  /** NodeWalker.WALK_SPEED_MPS: the speed the production walk clip is calibrated for (no foot sliding). */
  walkMps:1.2,
- /** b15 get-out (角色动画bot getout_v2 INTEGRATE.md): her walk from the basket door back to the shore. Requested cruise
+ /** b15 get-out (角色动画bot getout_v3 INTEGRATE.md, supersedes v2): her walk from the basket door back to the shore. Requested cruise
   *  speed; the speed actually used is picked from walk_loop's calibrated native speed (exitWalkSpeed) so that the planner
   *  keeps walk_start and walk_stop (0.75…1.3 × native; 0.8 on the 0.7 m/s clip, rate 1.14). */
  exitWalkMps:.8,
@@ -47,7 +47,7 @@ export const LAKESIDE_BALLOON_LANDING={
  exitIdleS:.5,
  doorContactS:.333,
  doorFollowDeg:2.75,
- doorFollowS:2/30,
+ doorFollowS:.034/* v3: ease-out starts at T0 + 0.367 */,
  doorOpenDeg:100,
  doorOpenS:.8,
  walkStartAfterReachS:1.8,
@@ -270,15 +270,17 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.
  // Door wall (local +Z) faces her exit heading h (Cocos rotY(θ) takes +Z to (sin θ, 0, cos θ)): 96.19° at the b15 mooring.
  const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI,yr=doorYawDeg*Math.PI/180,c=Math.cos(yr),sn=Math.sin(yr),e=K.exitStartLocal;
  // P0 = mooring + rotY(doorYaw)·exitStartLocal (rotY: x' = x cos + z sin, z' = −x sin + z cos); feet at the basket origin
- const start:Vec=[mooring[0]+e[0]*c+e[2]*sn,mooring[1]+e[1],mooring[2]-e[0]*sn+e[2]*c];
- const l0=seg(start,approach),l1=seg(approach,bank),cornerM=Math.min(Math.max(1,K.exitCornerM),l0/2,l1/2);
- const walk=roundWalk([start,approach,bank],cornerM),length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
+ // v3: one ground height for the exit route = the mooring's 0.572 (the bank anchors are 0.58); lake-local P0 (9.1105, ·, 25.6724)
+ const gy=mooring[1]+e[1],start:Vec=[mooring[0]+e[0]*c+e[2]*sn,gy,mooring[2]-e[0]*sn+e[2]*c],appr:Vec=[approach[0],gy,approach[2]],shoreG:Vec=[bank[0],bank[1],bank[2]]/* the shore root itself stays the arrival anchor (final lens unchanged): the last 2 m leg rises 8 mm */;
+ const l0=seg(start,appr),l1=seg(appr,shoreG),cornerM=Math.min(Math.max(1,K.exitCornerM),l0/2,l1/2);
+ const walk=roundWalk([start,appr,shoreG],cornerM),length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
  const T0=K.exitIdleS,doorAt=T0+K.doorContactS,walkAt=T0+K.walkStartAfterReachS;
  // leaf yaw (deg, about local Y, + = outward) on the get-out clock: hand-follow for 2 frames, then ease-out cubic to +100°
  const doorDeg=(t:number):number=>{const a=t-doorAt;if(a<=0)return 0;if(a<K.doorFollowS)return K.doorFollowDeg*a/K.doorFollowS;const u=Math.min(1,(a-K.doorFollowS)/K.doorOpenS),q=1-Math.pow(1-u,3);return K.doorFollowDeg+(K.doorOpenDeg-K.doorFollowDeg)*q;};
  const timing:JourneyTiming={durationS:walkAt+walkS,easeInS:K.walkEaseS,easeOutS:K.walkEaseS};
  // facing at touchdown: she rode facing the flight heading; she is reset (offscreen) to face the door before the get-out
- return {mooring,start,walk,length,cornerM,mps,walkS,timing,doorYawDeg,startYawRad:yr,T0,doorAt,walkStartAt:walkAt,doorDeg,
+ // v3 facing: toward the first rounded-walk point (95.97°, 0.22° off the door normal)
+ return {mooring,start,walk,length,cornerM,mps,walkS,timing,doorYawDeg,startYawRad:Math.atan2(walk[1][0]-start[0],walk[1][2]-start[2]),groundY:gy,T0,doorAt,walkStartAt:walkAt,doorDeg,
   /** her seat yaw under stand_point, compensated for the basket yaw so her ride facing is unchanged */
   seatYawDeg:(girlYawDeg:number)=>girlYawDeg-doorYawDeg};
 }
