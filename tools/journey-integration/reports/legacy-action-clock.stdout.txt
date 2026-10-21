@@ -37,6 +37,6 @@
       "pausedNoRootOrClipWrites": true
     }
   ],
-  "typescript": "5.9.3",
+  "typescript": "6.0.3",
   "scope": "Actual production FlowReferenceStandin + AnimRig + CharacterMotion + WorldFlow. Cocos node/clip boundaries are structural doubles; no Creator, GUI, asset import, browser, physical-device or visual acceptance."
 }
