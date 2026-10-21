@@ -1,0 +1,6 @@
+LOD0_G2_APRON n 31 bad [] unlisted-with-curve [] keys-without-curve []
+LOD0_G2_BODY n 16 bad [] unlisted-with-curve [] keys-without-curve []
+LOD0_G2_BOW n 3 bad [] unlisted-with-curve [] keys-without-curve []
+LOD0_G2_DRESS n 34 bad [] unlisted-with-curve [] keys-without-curve []
+curves with no registered target: []
+PASS

@@ -1,0 +1,260 @@
+{
+ "sit_down_17": {
+  "n": 393,
+  "body": [
+   [
+    "hips",
+    333
+   ],
+   [
+    "spine",
+    60
+   ]
+  ],
+  "dress": [
+   [
+    "hips",
+    288
+   ],
+   [
+    "skirt.front",
+    105
+   ]
+  ],
+  "side": [
+   [
+    "hips:back",
+    333
+   ],
+   [
+    "spine:back",
+    60
+   ]
+  ]
+ },
+ "sit_down_26": {
+  "n": 206,
+  "body": [
+   [
+    "hips",
+    170
+   ],
+   [
+    "thigh.R",
+    36
+   ]
+  ],
+  "dress": [
+   [
+    "skirt.front",
+    89
+   ],
+   [
+    "hips",
+    87
+   ],
+   [
+    "skirt.front.mid",
+    15
+   ],
+   [
+    "skirt.right",
+    15
+   ]
+  ],
+  "side": [
+   [
+    "hips:back",
+    164
+   ],
+   [
+    "thigh.R:back",
+    36
+   ],
+   [
+    "hips:front",
+    6
+   ]
+  ]
+ },
+ "sit_down_30": {
+  "n": 144,
+  "body": [
+   [
+    "hips",
+    97
+   ],
+   [
+    "thigh.R",
+    47
+   ]
+  ],
+  "dress": [
+   [
+    "hips",
+    68
+   ],
+   [
+    "skirt.front",
+    37
+   ],
+   [
+    "skirt.front.mid",
+    22
+   ],
+   [
+    "skirt.right",
+    17
+   ]
+  ],
+  "side": [
+   [
+    "hips:back",
+    95
+   ],
+   [
+    "thigh.R:back",
+    47
+   ],
+   [
+    "hips:front",
+    2
+   ]
+  ]
+ },
+ "sit_down_34": {
+  "n": 90,
+  "body": [
+   [
+    "hips",
+    51
+   ],
+   [
+    "thigh.R",
+    39
+   ]
+  ],
+  "dress": [
+   [
+    "hips",
+    49
+   ],
+   [
+    "skirt.right",
+    17
+   ],
+   [
+    "skirt.front.mid",
+    14
+   ],
+   [
+    "skirt.front",
+    10
+   ]
+  ],
+  "side": [
+   [
+    "hips:back",
+    49
+   ],
+   [
+    "thigh.R:back",
+    39
+   ],
+   [
+    "hips:front",
+    2
+   ]
+  ]
+ },
+ "stand_up_4": {
+  "n": 125,
+  "body": [
+   [
+    "hips",
+    79
+   ],
+   [
+    "thigh.R",
+    46
+   ]
+  ],
+  "dress": [
+   [
+    "hips",
+    69
+   ],
+   [
+    "skirt.right",
+    21
+   ],
+   [
+    "skirt.front.mid",
+    20
+   ],
+   [
+    "skirt.front",
+    15
+   ]
+  ],
+  "side": [
+   [
+    "hips:back",
+    77
+   ],
+   [
+    "thigh.R:back",
+    46
+   ],
+   [
+    "hips:front",
+    2
+   ]
+  ]
+ },
+ "stand_up_9": {
+  "n": 242,
+  "body": [
+   [
+    "hips",
+    194
+   ],
+   [
+    "thigh.R",
+    48
+   ]
+  ],
+  "dress": [
+   [
+    "hips",
+    166
+   ],
+   [
+    "skirt.front",
+    30
+   ],
+   [
+    "skirt.right",
+    25
+   ],
+   [
+    "skirt.front.mid",
+    21
+   ]
+  ],
+  "side": [
+   [
+    "hips:back",
+    174
+   ],
+   [
+    "thigh.R:back",
+    48
+   ],
+   [
+    "hips:front",
+    20
+   ]
+  ]
+ }
+}

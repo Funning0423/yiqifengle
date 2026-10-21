@@ -1,0 +1,13 @@
+ONLY_B /clips/sit_down/morph/curves/planB_tr_sit_down_24 [[0.0, 0.0], [0.7, 0.0], [0.8, 1.0], [0.9, 0.0], [1.2, 0.0]]
+ONLY_B /clips/sit_down/morph/curves/ribbon_bend [[0.0, 0.0], [0.03333, 0.0], [0.06667, 0.0], [0.1, 0.0], [0.13333, 0.0], [0.16667, 0.0], [0.2, 0.0], [0.23333, 0.0], [0.26667, 0.0], [0.3, 0.0], [0.33
+ONLY_B /clips/sit_down/morph/curves/ribbon_bend_half [[0.0, 0.0], [0.03333, 0.0], [0.06667, 0.0], [0.1, 0.0], [0.13333, 0.0], [0.16667, 0.0], [0.2, 0.0], [0.23333, 0.0], [0.26667, 0.0], [0.3, 0.0], [0.33
+ONLY_B /clips/sit_hold/morph/curves/ribbon_bend [[0.0, 0.0], [0.03333, 0.0], [0.06667, 0.0], [0.1, 0.0], [0.13333, 0.0], [0.16667, 0.0], [0.2, 0.0], [0.23333, 0.0], [0.26667, 0.0], [0.3, 0.0], [0.33
+ONLY_B /clips/sit_hold/morph/curves/ribbon_bend_half [[0.0, 0.0], [0.03333, 0.0], [0.06667, 0.0], [0.1, 0.0], [0.13333, 0.0], [0.16667, 0.0], [0.2, 0.0], [0.23333, 0.0], [0.26667, 0.0], [0.3, 0.0], [0.33
+ONLY_B /clips/stand_up/morph/curves/ribbon_bend [[0.0, 0.0], [0.03333, 0.0], [0.06667, 1.0], [0.1, 1.0], [0.13333, 1.0], [0.16667, 1.0], [0.2, 0.0], [0.23333, 0.0], [0.26667, 0.0], [0.3, 0.0], [0.33
+ONLY_B /clips/stand_up/morph/curves/ribbon_bend_half [[0.0, 0.0], [0.03333, 1.0], [0.06667, 0.0], [0.1, 0.0], [0.13333, 0.0], [0.16667, 0.0], [0.2, 1.0], [0.23333, 0.0], [0.26667, 0.0], [0.3, 0.0], [0.33
+ONLY_B /morph/meshes/LOD0_G2_APRON/targets/planB_tr_sit_down_24 30
+ONLY_A /morph/meshes/LOD0_G2_BOW/targets/bow_stool_fix
+ONLY_B /morph/meshes/LOD0_G2_BOW/targets/ribbon_bend 2
+ONLY_B /morph/meshes/LOD0_G2_BOW/targets/ribbon_bend_half 1
+ONLY_B /morph/meshes/LOD0_G2_DRESS/targets/planB_tr_sit_down_24 33
+ONLY_B /planB {"ribbon": {"bone": "ribbon", "joint_index": 28, "slot": "29\uff08\u69fd\u4f4d\u5f85\u5b9a\uff09"}}
