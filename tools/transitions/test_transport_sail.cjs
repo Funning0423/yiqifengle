@@ -20,6 +20,22 @@ assert(shore<=6.4,'shore walk '+shore);
 assert(tl.build05S<=30.5,'build05 '+tl.build05S);
 assert(tl.arrivalS<=12+1e-6,'arrival '+tl.arrivalS);
 assert(tl.speed.cruiseS>=6,'cruise');
+assert(Math.abs(tl.speed.v-3.6)<1e-9,'design cruise speed '+tl.speed.v);
+// A shorter real-time budget after boarding must not speed up the hull.
+const sc=tl.beats.find(b=>b.id==='S-c'),sd=tl.beats.find(b=>b.id==='S-d'),se=tl.beats.find(b=>b.id==='S-e');
+const departAt=sc.t0+3,dt=0.01;
+const presented=real=>leg.sailPresentationT(real,departAt,sc.t0,se.t1,tl.build05S,4);
+const cruiseReal=departAt+(sd.t0+sd.t1)/2-sc.t0;
+const before=leg.sailVehicle(tl,route.samples,presented(cruiseReal));
+const after=leg.sailVehicle(tl,route.samples,presented(cruiseReal+dt));
+assert(Math.abs((after.distance-before.distance)/dt-3.6)<1e-8,'real-time cruise speed');
+for(let t=0;t<tl.speed.motionS;t+=dt){
+ assert(leg.sailSpeedAt(tl.speed,t)<=3.6+1e-9,'speed cap throughout motion');
+}
+assert(Math.abs(leg.sailDistanceAt(tl.speed,tl.speed.motionS)-route.length)<1e-9,'full route covered');
+assert(Math.abs(presented(departAt+tl.speed.motionS)-se.t1)<1e-9,'arrival after full motion duration');
+// The original 52 m route also extends its cruise rather than exceeding 3.6 m/s.
+assert(Math.abs(leg.sailSpeed(52).v-3.6)<1e-9,'long-route cruise cap');
 assert(leg.sailMaxAccel(tl.speed)<=2.7+1e-6,'accel '+tl.speed.aAcc+' '+tl.speed.aDec);
 assert(tl.speed.aDec<=2.5+1e-6,'decel');
 assert(route.minRadius>=25,'radius '+route.minRadius);

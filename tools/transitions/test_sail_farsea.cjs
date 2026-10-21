@@ -6,7 +6,7 @@
  * - She stays visible (head/chest not behind the sail or hull) and inside the frame through the whole swing in and out.
  * - Lens ≥ 1.1 m from real meadow geometry and from the drawn hull through S-d.
  * - Per-frame angular speed / angular acceleration / lens acceleration limits for the swing in and out (60 fps).
- * - K1, K2, K4, K5, K6 stills and the sail clock are unchanged.
+ * - K1, K2, K4, K5, K6 stills follow the 3.6 m/s sail clock.
  */
 const assert=require('node:assert/strict');
 const L=require('./sail_farsea_lib.cjs');
@@ -15,11 +15,11 @@ const route=leg.sailRoute(),tl=leg.sailBeats(route.length);
 const sd=tl.beats.find(b=>b.id==='S-d'),at=u=>sd.t0+(sd.t1-sd.t0)*u;
 const LIM={millShare:0.010,millStillShare:0.020,millH:0.12,edge:0.03,girlNdc:0.8,clearM:1.1,wDeg:110,aDeg:360,linA:60,wholeW:173,wholeA:706};
 assert(tl.build05S<=30.5,'sail clock '+tl.build05S);
-assert(Math.abs(tl.build05S-24.6)<1e-6,'sail clock changed '+tl.build05S);
+assert(Math.abs(tl.build05S-23.821462039439513)<1e-6,'sail clock changed '+tl.build05S);
 const K3_IN=leg.SAIL_K3_IN,K3_OUT=leg.SAIL_K3_OUT;
 assert(K3_IN>0.12&&K3_OUT>K3_IN&&K3_OUT<0.56,'K3 hold window');
-// unchanged stills (bc81575f values)
-const GOLD={K1:{t:8.7,p:[-4.7244,3.39,5.8483],q:[-0.1161,0.14,12.8998],f:48},K2:{t:11.48,p:[-2.279,4.29,25.9115],q:[0.3042,0.14,9.0792],f:52},K4:{t:16.64,p:[-1.5008,5.29,22.9663],q:[-4.3875,0.14,34.2504],f:50},K5:{t:17.72,p:[-2.9114,5.397,26.2544],q:[-4.4522,0.14,37.8601],f:49.84717776761672},K6:{t:24.48,p:[-3.55,5.89,40.4],q:[-4.4,0.14,51.6],f:48}};
+// Stills updated for the 3.6 m/s profile; camera geometry limits below stay unchanged.
+const GOLD={K1:{t:8.7,p:[-4.7244,3.39,5.8483],q:[-0.1161,0.14,12.8998],f:48},K2:{t:11.48,p:[-2.3627,4.29,26.1218],q:[0.3159,0.14,9.3044],f:52},K4:{t:16.64,p:[-2.2216,5.29,24.3479],q:[-4.4499,0.14,35.7802],f:50},K5:{t:17.72,p:[-3.3243,6.1963,27.4375],q:[-4.4172,0.14,39.5452],f:48.70521623747569},K6:{t:tl.build05S-0.12,p:[-3.55,5.89,40.4],q:[-4.4,0.14,51.6],f:48}};
 for(const [k,g] of Object.entries(GOLD)){const c=leg.sailCamera(tl,route.samples,g.t);for(let i=0;i<3;i++){assert(Math.abs(c.position[i]-g.p[i])<2e-3,k+' position moved');assert(Math.abs(c.target[i]-g.q[i])<2e-3,k+' target moved');}assert(Math.abs(c.fovVerticalDeg-g.f)<1e-6,k+' fov');}
 // windmill share through the hold, every screen
 const share=[];let still=null;
@@ -66,7 +66,7 @@ assert(clear.m>=LIM.clearM,'lens clearance '+JSON.stringify(clear));
 assert(girlWorst<=LIM.girlNdc,'girl near frame edge '+girlWorst);
 // motion
 const win=[],all=[];
-for(let t=at(0.12);t<=at(0.56)+1e-6;t+=1/60)win.push(leg.sailCamera(tl,route.samples,t));
+for(let t=at(leg.SAIL_BEAM_IN);t<=at(0.56)+1e-6;t+=1/60)win.push(leg.sailCamera(tl,route.samples,t));
 for(let t=0;t<=tl.build05S+1e-6;t+=1/60)all.push(leg.sailCamera(tl,route.samples,t));
 const mw=L.motion(win,1/60),ma=L.motion(all,1/60);
 assert(mw.wMax<=LIM.wDeg,'swing angular speed '+mw.wMax.toFixed(1));

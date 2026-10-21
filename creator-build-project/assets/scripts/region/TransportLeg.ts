@@ -71,9 +71,9 @@ export function sailRoute(i6:Vec=SAIL_I6,_m0:Vec=sailM0World(i6)):{samples:Vec[]
  return {samples,length,minRadius};
 }
 export type SailSpeed={v:number;accelS:number;cruiseS:number;decelS:number;aAcc:number;aDec:number;motionS:number;length:number};
-/** Cruise speed that covers `length` with a 2 s ease-in and a 2.2 s ease-out. */
-export function sailSpeed(length:number,cruiseS=9):SailSpeed{
- const accelS=2,decelS=2.2,cap=4.4;
+/** Cover `length` at up to 3.6 m/s with a 2 s ease-in and a 2.2 s ease-out. */
+export function sailSpeed(length:number,cruiseS:number=SAIL_LIMITS.cruiseMinS):SailSpeed{
+ const accelS=2,decelS=2.2,cap=3.6;
  let cruise=cruiseS;
  let v=length/(cruise+accelS*0.5+decelS*0.5);
  if(v>cap){cruise=Math.max(6,length/cap-accelS*0.5-decelS*0.5);v=length/(cruise+accelS*0.5+decelS*0.5);}
@@ -119,16 +119,11 @@ export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline
  return {beats,totalS:speed.motionS+sb+sf,build05S:t,speed,routeM,shoreM,shoreS:shoreM/SAIL_LIMITS.walkMps,arrivalM,arrivalS};
 }
 export function beatAt(tl:SailTimeline,t:number):SailBeat{return tl.beats.find(b=>t>=b.t0&&t<b.t1)||tl.beats[tl.beats.length-1];}
-/** Real seconds → sail timeline. The hull stays before S-c until `departAt` (she has finished sitting). Motion is compressed into `motionBudget` so the walk itself is never sped up. */
-export function sailPresentationT(real:number,departAt:number|null,motionStart:number,motionEnd:number,buildEnd:number,motionBudget:number):number{
+/** Real seconds → sail timeline. Wait for sitting, then preserve the designed hull speed even if boarding used up the budget. */
+export function sailPresentationT(real:number,departAt:number|null,motionStart:number,_motionEnd:number,buildEnd:number,_motionBudget:number):number{
  if(departAt==null)return Math.min(Math.max(0,real),Math.max(0,motionStart-1e-4));
- const motionS=Math.max(1e-3,motionEnd-motionStart);
- const budget=Math.max(0.4,motionBudget);
- const rate=motionS/Math.min(motionS,budget);
  const since=Math.max(0,real-departAt);
- const motionReal=Math.min(motionS,budget);
- if(since<=motionReal+1e-6)return Math.min(motionEnd,motionStart+since*rate);
- return Math.min(buildEnd,motionEnd+(since-motionReal));
+ return Math.min(buildEnd,motionStart+since);
 }
 function samplePoly(samples:readonly Vec[],distance:number):Vec{
  let left=Math.max(0,distance);
@@ -182,8 +177,10 @@ const Kbeam:SailOff={back:0.8,side:10.2,up:5.1,fov:52,look:0.2,orb:0};
  * Rollback: restore that line and SAIL_K3_IN back to 0.24.
  */
 const K3:SailOff={back:10.5,side:-2,up:4.4,fov:52,look:3,orb:0};
-/** S-d u where the Kbeam→K3 arc ends and the K3 hold starts (was 0.24). The arc is ~96° now (was ~42°), so it gets 1.62 s; the K3 hold is 1.08 s (S-d u 0.30–0.42). */
-export const SAIL_K3_IN=0.30;
+/** S-d u where the bow→beam arc ends on the 3.6 m/s cruise clock. */
+export const SAIL_BEAM_IN=0.14;
+/** S-d u where the ~96° Kbeam→K3 arc ends. Keep the swing below 110°/s. */
+export const SAIL_K3_IN=0.34;
 export const SAIL_K3_OUT=0.42;
 /** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
 const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
@@ -206,8 +203,10 @@ function sailOffset(b:SailBeat,t:number):SailOff{
  if(b.id==='S-a'||b.id==='S-b')return K1;
  if(b.id==='S-c')return u>=0.9?K2:orbitMix(K1,K2,u/0.9);
  if(b.id==='S-d'){
-  if(u<0.12)return orbitMix(K2,Kbeam,u/0.12);
-  if(u<SAIL_K3_IN)return orbitMix(Kbeam,K3,(u-0.12)/(SAIL_K3_IN-0.12));
+  // Preserve the bow-to-beam swing duration on the shorter 3.6 m/s cruise.
+  const beamIn=SAIL_BEAM_IN;
+  if(u<beamIn)return orbitMix(K2,Kbeam,u/beamIn);
+  if(u<SAIL_K3_IN)return orbitMix(Kbeam,K3,(u-beamIn)/(SAIL_K3_IN-beamIn));
   if(u<SAIL_K3_OUT)return K3;
   if(u<0.56)return orbitMix(K3,K4,(u-SAIL_K3_OUT)/(0.56-SAIL_K3_OUT));
   if(u<0.64)return K4;
