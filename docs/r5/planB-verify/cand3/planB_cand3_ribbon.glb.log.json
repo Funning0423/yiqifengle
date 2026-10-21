@@ -1,0 +1,226 @@
+{
+ "walk_loop": {
+  "frames": 44,
+  "keys": 44,
+  "offset_deg": [
+   -1.0,
+   2.71
+  ],
+  "total_pitch": [
+   6.56,
+   12.24
+  ],
+  "seam_offset": [
+   2.499,
+   2.499
+  ]
+ },
+ "idle_breathing_loop": {
+  "frames": 55,
+  "keys": 7,
+  "offset_deg": [
+   -0.09,
+   0.07
+  ],
+  "total_pitch": [
+   -0.09,
+   0.07
+  ],
+  "seam_offset": [
+   0.031,
+   0.031
+  ]
+ },
+ "wind_sway_loop": {
+  "frames": 121,
+  "keys": 25,
+  "offset_deg": [
+   -6.0,
+   6.0
+  ],
+  "total_pitch": [
+   -6.54,
+   5.69
+  ],
+  "seam_offset": [
+   0.0,
+   -0.0
+  ]
+ },
+ "sit_hold": {
+  "frames": 61,
+  "keys": 9,
+  "offset_deg": [
+   -1.5,
+   1.5
+  ],
+  "total_pitch": [
+   13.5,
+   16.5
+  ],
+  "seam_offset": [
+   0.0,
+   -0.0
+  ]
+ },
+ "stand_up": {
+  "frames": 39,
+  "keys": 39,
+  "offset_deg": [
+   -1.0,
+   7.08
+  ],
+  "total_pitch": [
+   -0.83,
+   15.0
+  ],
+  "seam_offset": [
+   0.0,
+   0.0
+  ]
+ },
+ "sit_down": {
+  "frames": 37,
+  "keys": 37,
+  "offset_deg": [
+   -1.0,
+   2.5
+  ],
+  "total_pitch": [
+   -1.0,
+   15.0
+  ],
+  "seam_offset": [
+   0.0,
+   0.0
+  ]
+ },
+ "door_reach": {
+  "frames": 61,
+  "keys": 31,
+  "offset_deg": [
+   -1.0,
+   2.08
+  ],
+  "total_pitch": [
+   -1.0,
+   2.08
+  ],
+  "seam_offset": [
+   0.0,
+   0.0
+  ]
+ },
+ "walk_turn_90_bodyL": {
+  "frames": 45,
+  "keys": 45,
+  "offset_deg": [
+   -0.76,
+   2.63
+  ],
+  "total_pitch": [
+   -0.76,
+   2.63
+  ],
+  "seam_offset": [
+   2.499,
+   0.0
+  ]
+ },
+ "walk_turn_90_bodyR": {
+  "frames": 45,
+  "keys": 45,
+  "offset_deg": [
+   -1.0,
+   2.92
+  ],
+  "total_pitch": [
+   -1.0,
+   2.92
+  ],
+  "seam_offset": [
+   2.499,
+   0.0
+  ]
+ },
+ "walk_turn_180": {
+  "frames": 45,
+  "keys": 45,
+  "offset_deg": [
+   -1.0,
+   10.12
+  ],
+  "total_pitch": [
+   -1.0,
+   10.12
+  ],
+  "seam_offset": [
+   2.499,
+   0.0
+  ]
+ },
+ "walk_turn_180_bodyR": {
+  "frames": 45,
+  "keys": 45,
+  "offset_deg": [
+   -1.0,
+   9.34
+  ],
+  "total_pitch": [
+   -1.0,
+   9.34
+  ],
+  "seam_offset": [
+   2.499,
+   0.0
+  ]
+ },
+ "walk_start": {
+  "frames": 59,
+  "keys": 59,
+  "offset_deg": [
+   -1.0,
+   3.46
+  ],
+  "total_pitch": [
+   -0.0,
+   11.27
+  ],
+  "seam_offset": [
+   0.0,
+   2.499
+  ]
+ },
+ "walk_stop_bodyL": {
+  "frames": 45,
+  "keys": 45,
+  "offset_deg": [
+   -1.0,
+   6.59
+  ],
+  "total_pitch": [
+   -1.53,
+   13.1
+  ],
+  "seam_offset": [
+   2.499,
+   0.0
+  ]
+ },
+ "walk_stop_bodyR": {
+  "frames": 45,
+  "keys": 45,
+  "offset_deg": [
+   -1.0,
+   4.62
+  ],
+  "total_pitch": [
+   -1.55,
+   12.27
+  ],
+  "seam_offset": [
+   2.499,
+   0.0
+  ]
+ }
+}

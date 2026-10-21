@@ -1,0 +1,18 @@
+door_reach {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 1, 'maxdiff': np.float64(0.008000001311302185)}
+idle_breathing_loop {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 1, 'maxdiff': np.float64(0.008000001311302185)}
+sit_down {'same_channels': True, 'nch': 86, 'nch_b': 86, 'ndiff': 2, 'maxdiff': np.float64(0.06666666269302368)}
+sit_hold {'same_channels': True, 'nch': 86, 'nch_b': 86, 'ndiff': 2, 'maxdiff': inf}
+stand_up {'same_channels': True, 'nch': 86, 'nch_b': 86, 'ndiff': 2, 'maxdiff': np.float64(0.021597176790237427)}
+walk_loop {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 2, 'maxdiff': inf}
+walk_start {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 2, 'maxdiff': inf}
+walk_stop_bodyL {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 2, 'maxdiff': inf}
+walk_stop_bodyR {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 2, 'maxdiff': inf}
+walk_turn_180 {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 1, 'maxdiff': np.float64(0.008000001311302185)}
+walk_turn_180_bodyR {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 1, 'maxdiff': np.float64(0.008000001311302185)}
+walk_turn_90_bodyL {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 1, 'maxdiff': np.float64(0.008000001311302185)}
+walk_turn_90_bodyR {'same_channels': True, 'nch': 32, 'nch_b': 32, 'ndiff': 1, 'maxdiff': np.float64(0.008000001311302185)}
+wind_sway_loop {'same_channels': True, 'nch': 86, 'nch_b': 86, 'ndiff': 2, 'maxdiff': inf}
+A skin 0 joints 29 ibm 9b9ce5a2b9 names cc8ef4a016
+A rest 73f2913143
+B skin 0 joints 29 ibm 4a7dcbc188 names cc8ef4a016
+B rest 1a7aa0395f
