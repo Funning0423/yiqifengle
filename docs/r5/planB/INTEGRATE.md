@@ -140,3 +140,42 @@ previews/角色建模bot/planB/：`build_cand0.py`→`design.py`（RIGID=1 RKNOT
 | validator | 0 错误 | 0 错误，警告 3790，与底子相同 | ✔ |
 
 未测：Cocos 实机；交叉淡化（xfade）；蝴蝶结后移 8 mm 在游戏光照下的外观。
+
+---
+# planB_cand3b（2026-10-21；在 cand3 上改，cand3 保留不动）
+| 项 | 值 |
+|---|---|
+| GLB | previews/角色建模bot/planB/planB_cand3b.glb |
+| sha256 | 02bd4c2b1f6824fac412656d4abfcdf731a129e1ee753a39e3f3580d1d6c59ac |
+| 大小 | 3,129,296 B（比 cand3 多 356 B） |
+| anim_meta | planB_cand3b_anim_meta.json；QA 补丁 qa_curves_cand3b.json |
+| 复现 | `MODE=hold LIFT=0 BENDHOLD=1 HEND=0.2 OUTG=planB_cand3b.glb python3 cand3b/build3b.py` |
+
+问题：sit_hold 淡入 stand_up 的前 5 帧，BOW×凳有 44–46 个三角形。原因是 stand_up 的 f0–6 和 sit_hold 用的蝴蝶结形态不一样（stand_up 的 drape 在 3 帧内降到 0，同时开 bend；sit_hold 是 drape=1、bend=0），淡化时两边按权重混合，得到的中间形态两边都不是，拉伸 9.25%，还会扎进凳子。抬高蝴蝶结试过（3、5、8、12 mm，以及上抬加后移），都不管用，没有采用。
+
+## 改动（只改了飘带骨 index 28 的 stand_up 通道和 BOW 形态键的 anim_meta 曲线；没有加新的 target，网格和其它骨骼不动）
+- **GLB 通道 `stand_up` / 节点 ribbon（joint 28）`translation`**：0–0.2 s 保持坐姿值 (0, 0.0457, −0.0859)；0.4 s 到自由值 (0, 0.0458, −0.0825)，之后保持。原来是 0.1 s 就到自由值。
+- **GLB 通道 `stand_up` / ribbon `rotation`**：后仰 15° 保持到 f7（0.2333 s），然后用 smoothstep 缓降，f18（0.6 s）降到 0°。关键帧在 0、f7、f9、f11、f13、f15、f17、末帧。原来是 f7→f11 就降完。
+- **anim_meta 曲线，BOW**：
+  - sit_down：`ribbon_bend_half` 在 f34→f35→f36 走 0→1→0；`ribbon_bend` 在 f35→f36 走 0→1。
+  - sit_hold：`ribbon_bend` 常量 1（新增）。
+  - stand_up：`bow_sit_drape` 在 1@0–0.2 s，0.4 s 降到 0；`ribbon_bend` 在 1@0–f12，f13 降到 0；`ribbon_bend_half` 在 f12→f13→f14 走 0→1→0。
+  - bend↔0 一律经过 half 逐帧过渡，因为直接线性混合会拉伸到 9%。
+- sit_down、sit_hold 的骨骼通道都没改，走路、风相关的片段也都没碰。
+
+## QA
+| 项 | cand3 | cand3b | 目标 |
+|---|---|---|---|
+| BOW×凳，sit_hold→stand_up 淡化 f0–13 | 最大 46，合计 192（f1–5） | 0 | 0 ✔ |
+| BOW×凳，stand_up 单独 f0–38 | 0 | 0 | 0 ✔ |
+| BOW×凳，sit_down / sit_hold 单独，sit_down→sit_hold 淡化 | 0 | 0 | ✔ |
+| 拉伸（整数帧，所有边 >1 mm） | 淡化 9.25%，单独 2.41% | 淡化 2.41%，单独 2.41%，sit_down/sit_hold 2.41% | ≤2.8 ✔ |
+| 飘带×裙、飘带×围裙（上面各项） | 0 | 0 | ✔ |
+| qa3 坐姿三段其余各对 | — | 与 cand3 逐项相同 | 没变差 ✔ |
+| validator | 0 错误，警告 3790 | 0 错误，警告 3790 | ✔ |
+
+- 淡化的测法按角色动画bot 的 xfade5：crossfade 0.2 s（anim_meta handoff 的 crossfade_s），逐骨 lerp/slerp，morph 权重同比例混合，root 按 stand_up 的线性插值走。脚本：cand3b/xbow.py。
+- 注意 1：按 1/4 帧采样时，sit_down f35.5 和 stand_up f12.5（bend↔half 中间）有一帧的瞬时拉伸 3.84%。cand3 的 stand_up f1.5 本来就有同样的 3.84%，整数帧都达标。
+- 注意 2：sit_hold 现在默认带 ribbon_bend=1，坐着时飘带稍微弯一点。
+
+未测：Cocos 实机；stand_up→idle 淡化（结尾状态和 cand3 相同，没有重测）；走路各段（没改，没重跑）。
