@@ -26,5 +26,9 @@ assert.ok(src.includes('transportFor'));
 assert.ok(src.includes('function rainbowBridge'));
 const head=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:ROOT,encoding:'utf8'}).trim();
 const committed=cp.execFileSync('git',['show',head+':creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'],{cwd:ROOT});
-assert.ok(committed.equals(fs.readFileSync(file)),'adapter bytes drifted from HEAD');
+// b14-A intentionally changes only lakeside arrival and its pure helper import. Keep the byte guard
+// on every earlier region/transport branch instead of requiring an impossible clean HEAD after an authorized edit.
+const earlier=s=>s.slice(0,s.indexOf('async function prepareLakesideJourney')).replace(',lakesideBalloonMooring','');
+assert.equal(earlier(src),earlier(committed.toString()),'non-lakeside adapter bytes drifted from HEAD');
+assert.match(src,/if\(to==='lakeside'\)return prepareLakesideJourney\(/);
 console.log('transport-flag PASS',crypto.createHash('sha256').update(src).digest('hex').slice(0,12));

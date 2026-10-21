@@ -26,6 +26,7 @@ export const LAKESIDE_BALLOON_LANDING={
   *  So the balloon is MOORED off the edge at deck level ([-8, .58, 53.5]: 0.7–0.8 m from all geometry, the nearest free
   *  spot to [-7, .58, 53]); she walks from S6 round the roots to the edge (walkLocal, production walk at walkMps) and
   *  boards under a short fade (no stepping-through-the-wall; there is no boarding clip). */
+ mooringLocal:[9.5,.61,23] as readonly [number,number,number],
  launchLocal:[-8,.58,53.5] as readonly [number,number,number],
  walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
  /** NodeWalker.WALK_SPEED_MPS: the speed the production walk clip is calibrated for (no foot sliding). */
@@ -212,4 +213,15 @@ export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:P
    pose={position:q,target:[q[0]+d[0]*10,q[1]+d[1]*10,q[2]+d[2]*10],fovVerticalDeg:v.fovVerticalDeg};}
   return pose;};
  return {flight,walk,walkS,walkTiming,walkAt,fadeOutAt,cutT,liftT,T,path:[...walk.map(v=>[v[0],v[1],v[2]] as Vec),...flight.path],vehicle,girl,girlYaw,cover,camera};
+}
+
+/** Option A: land off the board frame. Disembark on the bank side of the basket, also offscreen,
+ * then use the production walk to the unchanged shore root. The camera stays on the board pose. */
+export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec){
+ const mooring=toWorld([...LAKESIDE_BALLOON_LANDING.mooringLocal] as Vec),origin=toWorld([0,0,0]),south=toWorld([0,0,2]);
+ // Finish on the original arrival heading too: RegionJourneyController derives the final lens/yaw from this tangent.
+ const approach:Vec=[bank[0]+south[0]-origin[0],bank[1],bank[2]+south[2]-origin[2]],h=heading(mooring,approach);
+ const exit:Vec=[mooring[0]+h[0]*1.6,bank[1],mooring[2]+h[1]*1.6],walk=roundWalk([exit,approach,bank],.6);
+ const length=routeLength(walk),timing:JourneyTiming={durationS:length/LAKESIDE_BALLOON_LANDING.walkMps+LAKESIDE_BALLOON_LANDING.walkEaseS,easeInS:LAKESIDE_BALLOON_LANDING.walkEaseS,easeOutS:LAKESIDE_BALLOON_LANDING.walkEaseS};
+ return {mooring,walk,timing,walkAt:(t:number)=>journeyDistanceAt(length,timing,t)};
 }

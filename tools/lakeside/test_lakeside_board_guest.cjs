@@ -70,6 +70,18 @@ run('morph: every renderer with morphs gets the original weights per sub-mesh an
  ar.setWeight(.99,0,1);assert.equal(dst[1].getWeight(0,1),.62,'copy is a snapshot, not shared');
  // pure helper: mismatched hierarchy is counted, not copied
  const r=G.copyGuestRendererState([{node:{name:'a'}}],[{node:{name:'b'}}]);assert.equal(r.mismatched,1);});
+run('option A: parked balloon survives the board layer swap at its lake-local pose and is freed once',()=>{
+ const w=world(),jr=scene.getChildByName('RegionJourney-lakeside'),js=jr.getChildByName('LakesideJourneyScene');
+ const balloon=new Node('LakesideMooredBalloon');jr.addChild(balloon);balloon.position=new Vec3(-.5,-.03,21.2);balloon.rotation=Quat.yaw(0);
+ const mesh=new Node('basket');mesh.addComponent(MeshRenderer);balloon.addChild(mesh);balloon.active=false;
+ const expected=G.lakesideGuestLocal(js.worldPosition,js.worldRotation,balloon.worldPosition,balloon.worldRotation);
+ const g=G.mountLakesideGuest(w.scenery,1<<20),copy=w.scenery.getChildByName('LakesideBoardBalloon');assert(copy);
+ assert.deepEqual(copy.position,expected.pos);assert.deepEqual(copy.rotation,expected.rot);assert(copy.active);
+ assert.equal(copy.layer,1<<20);assert.equal(copy.children[0].layer,1<<20);assert.equal(balloon.layer,1);
+ assert(copy.getComponentsInChildren(MeshRenderer)[0].enabled);destroyed=0;g.dispose();g.dispose();assert.equal(destroyed,2);
+ assert.equal(w.scenery.children.length,0);assert(balloon.valid,'journey vehicle remains available on return to free look');
+});
+
 run('other regions (meadow / sky city): same mapping from the journey copy of the region model (same name under RegionJourney-<region>), scale honoured',()=>{
  for(const [region,layer] of [['meadow',1<<20],['skycity',1<<20]]){const w=world();const jr=new Node('RegionJourney-'+region);scene.addChild(jr);const jm=new Node('region_'+region);jr.addChild(jm);jr.addChild(new Node('RainbowBridgeStrip0'));
   jm.position=new Vec3(-20,4,90);jm.rotation=Quat.yaw(90);jm.scale=new Vec3(2,2,2);

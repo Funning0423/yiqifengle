@@ -41,7 +41,16 @@ export function lakesideGuestLocal(scenePos:Readonly<Vec3>,sceneRot:Readonly<Qua
 /** Mounts her copy under `scenery` (the board lease's scene root); null when she or the journey scene is not there (no copy,
  *  board unchanged). Never throws. */
 export function mountLakesideGuest(scenery:Node,layer:number):LakesideGuest|null{
- const scene=director.getScene();return mountBoardGuest(scenery,layer,findDeep(scene as any,LAKESIDE_GUEST_JOURNEY_SCENE));}
+ const scene=director.getScene(),journey=findDeep(scene as any,LAKESIDE_GUEST_JOURNEY_SCENE),guest=mountBoardGuest(scenery,layer,journey);
+ // The journey is hidden during board play. Keep the moored vehicle on the board's layer too,
+ // so free look can find it; its transform is taken at adoption, after arrival, never at preload.
+ const src=findDeep(journey?.parent,'LakesideMooredBalloon');let balloon:Node|null=null;
+ if(src&&journey&&guest){try{const local=lakesideGuestLocal(journey.worldPosition,journey.worldRotation,src.worldPosition,src.worldRotation),k=journey.worldScale.x||1;
+  balloon=instantiate(src) as Node;balloon.name='LakesideBoardBalloon';setLayer(balloon,layer);
+  balloon.setPosition(new Vec3(local.pos.x/k,local.pos.y/k,local.pos.z/k));balloon.setRotation(local.rot);
+  balloon.setScale(src.worldScale.x/k,src.worldScale.y/k,src.worldScale.z/k);balloon.active=true;scenery.addChild(balloon);
+ }catch(error){if(balloon&&isValid(balloon,true))balloon.destroy();balloon=null;}}
+ if(!guest)return null;const dispose=guest.dispose;return {...guest,dispose(){if(balloon&&isValid(balloon,true))balloon.destroy();dispose();}};}
 /** r4-prep B (extended): the same for the meadow / sky-city live boards. Their board scene is the region model (mountRegion) and
  *  the journey copy is the same prefab instance under 'RegionJourney-<region>' (same node name), so her landed spot maps the
  *  same way. The board cameras are unchanged: she shows wherever that spot falls in their existing view. */

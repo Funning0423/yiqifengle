@@ -13,7 +13,7 @@ import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,is
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
-import {LAKESIDE_BALLOON_LANDING,lakesideBalloonRide} from './LakesideBalloon';
+import {LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -249,11 +249,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.
   const shore=L.arrival[L.arrival.length-1],E=arrivalPose(L.arrival,L.focus,L.landing),landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
   // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
-  const K=LAKESIDE_BALLOON_LANDING,R=lakesideBalloonRide([start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),shore,landPose),flight=R.flight,path=R.path,walkM=routeLength(R.walk);
+  const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),R=lakesideBalloonRide([start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
   let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
-  const total=routeLength(path);route={...route,timing:{durationS:R.T,easeInS:K.walkEaseS,easeOutS:flight.timing.easeOutS}};token.check();progress(.98);
+  const total=routeLength(path);route={...route,timing:{durationS:R.T+moored.timing.durationS,easeInS:K.walkEaseS,easeOutS:moored.timing.easeOutS}};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
-  token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);
+  token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);vehicle.name='LakesideMooredBalloon';
   // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
@@ -296,7 +296,14 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    });
    rideToken.check();
    if(girl&&isValid(girl,true)&&aboard){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
-   actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:flight.girlYawRad/* along the flight heading: she faces the lake */});
+   // Basket and exit are outside the settled board lens: no visible wall crossing or extra cut/fade.
+   const first=moored.walk[0],next=moored.walk[1];
+   actor.cancelAndReset({kind:'standing',controllerRoot:first,yawRad:Math.atan2(next[0]-first[0],next[2]-first[2])});
+   const landedM=routeLength([...R.path,moored.walk[0]]);
+   await actor.perform({kind:'walk',path:moored.walk,duration:moored.timing.durationS,distanceAt:t=>{const d=moored.walkAt(t);lease.progress!(landedM+d);return d;}},rideToken);
+   rideToken.check();
+   const before=moored.walk[moored.walk.length-2];
+   actor.cancelAndReset({kind:'standing',controllerRoot:shore,yawRad:Math.atan2(shore[0]-before[0],shore[2]-before[2])});
   };
   // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
   let showSerial=0,shown=false;
