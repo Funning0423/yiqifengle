@@ -1,10 +1,13 @@
-import {Color, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
+import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Quat, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {sailChannelWorldY} from './SailChannel';
 import {inGrassClearLocal} from './SailLanding';
+import {apparentWindLocal, easeAngle, pennantYawTarget, sailSide} from '../render/GlobalWind';
 import {SAIL_BERTH_X, SAIL_I6, SAIL_SEA_Y, sailBerthWorld, sailRoute, type SailPose} from './TransportLeg';
 import {SAIL_DAY_SAIL_RGB, SAIL_NIGHT_SAIL_RGB, SAIL_STAR_COUNT, sailStarRadius, sailStarWorld} from './SailStars';
+import {soleIndices, soleNormals, solePositions} from './SailSole';
+import {buildWakeGeometry, createWakeBuffers, hullFoamTint, createWakeTrail, stepWakeTrail, wakeIndexCount, wakeVertexCount, wakeVisibleM, SAIL_WAKE, type WakeBuffers, type WakeTrail} from './SailWakeCore';
 const SEA_SCALE=3.2;
 const ISLAND_SEA=['env_sea_surface','env_sea_foam','env_sea_surf_foam_v22','env_sea_wave_line_01_v22','env_sea_wave_line_02_v22'];
 export function findNode(node:Node|null,name:string):Node|null{if(!node)return null;if(node.name===name)return node;for(const c of node.children){const h=findNode(c,name);if(h)return h;}return null;}
@@ -104,7 +107,8 @@ export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
   if(!cur||p.y<cur.y)rootAt.set(r,{y:p.y,x:p.x,z:p.z});
  }
  const kill=new Set<number>();
- for(const [r,info] of rootAt)if(inGrassClearLocal(info.x,info.z))kill.add(r);
+ // forEach, not for-of: the loose-ES5 mini-game build does not iterate a Map with for-of (kill would stay empty).
+ rootAt.forEach((info,r)=>{if(inGrassClearLocal(info.x,info.z))kill.add(r);});
  if(!kill.size)return 0;
  const normals=mesh.readAttribute(0,gfx.AttributeName.ATTR_NORMAL) as Float32Array|null;
  const uvs=mesh.readAttribute(0,gfx.AttributeName.ATTR_TEX_COORD) as Float32Array|null;
@@ -140,6 +144,19 @@ export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
  }
  return kill.size;
 }
+/** The river-mouth banks are rectangular pads in the channel. Put every above-water vertex under the sea; the meadow shore stays. */
+function taperMouthShore(renderer:MeshRenderer,_side:'left'|'right'|'reeds'){
+ const mesh=renderer.mesh;if(!mesh)return;
+ const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
+ if(!(src instanceof Float32Array)||src.length<3)return;
+ const pos=new Float32Array(src);let changed=false;
+ for(let i=0;i<pos.length;i+=3){
+  // The waterline cap sits at local y ≈ 0.02. Leaving it made the rectangular pad.
+  if(pos[i+1]<=-0.08)continue;
+  pos[i+1]=-0.62;changed=true;
+ }
+ if(changed)writeMeshPositions(mesh,renderer,pos);
+}
 function unlit(renderer:MeshRenderer,color:Color,texture:Texture2D|null){
  const mat=new Material();
  const defines:Record<string,boolean>={};
@@ -168,8 +185,65 @@ function mountStarDiamonds(parent:Node):Node{
  }
  return root;
 }
+type WakeFx={node:Node;mesh:Mesh;mat:Material;trail:WakeTrail;buf:WakeBuffers;dynamic:boolean;peak:number};
+/**
+ * r5 S1 stern wake: one world-space ribbon mesh (centre wash + two Kelvin arms, SailWakeCore) replacing the
+ * 9 m boat-locked wake_strips card. Same foam_strip texture, unlit alpha blend, vertex alpha = speed × fade.
+ * One renderer in, one out: the draw-call count is unchanged. Hidden whenever nothing is left to draw.
+ */
+function mountWakeTrail(parent:Node,foamTex:Texture2D|null):WakeFx|null{
+ try{
+  const buf=createWakeBuffers();
+  const geo={positions:buf.positions,uvs:buf.uvs,colors:buf.colors,indices16:buf.indices,minPos:new Vec3(-1,SAIL_SEA_Y,-1),maxPos:new Vec3(1,SAIL_SEA_Y+0.1,1)};
+  const mu=(utils as any).MeshUtils,create=mu&&mu.createDynamicMesh;
+  let mesh:Mesh;let dynamic=false;
+  if(typeof create==='function'){
+   mesh=create(0,geo,undefined,{maxSubMeshes:1,maxSubMeshVertices:wakeVertexCount(),maxSubMeshIndices:wakeIndexCount()}) as Mesh;dynamic=true;
+  }else mesh=utils.createMesh({positions:Array.prototype.slice.call(buf.positions),uvs:Array.prototype.slice.call(buf.uvs),colors:Array.prototype.slice.call(buf.colors),indices:Array.prototype.slice.call(buf.indices),minPos:geo.minPos,maxPos:geo.maxPos});
+  const mat=new Material();
+  const defines:Record<string,boolean>={USE_VERTEX_COLOR:true};
+  if(foamTex)defines.USE_TEXTURE=true;
+  // builtin-unlit technique 3 = alpha-blend (same as ShoreBreak's lip, proven on device with vertex colour).
+  mat.initialize({effectName:'builtin-unlit',technique:3,defines,states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
+  if(foamTex){foamTex.setWrapMode(Texture2D.WrapMode.REPEAT,Texture2D.WrapMode.CLAMP_TO_EDGE);mat.setProperty('mainTexture',foamTex);}
+  mat.setProperty('mainColor',new Color(255,255,255,255));
+  const node=new Node('wake_trail');parent.addChild(node);node.active=false;
+  const r=node.addComponent(MeshRenderer);r.mesh=mesh;r.setMaterial(mat,0);
+  r.shadowCastingMode=MeshRenderer.ShadowCastingMode.OFF;r.receiveShadow=MeshRenderer.ShadowReceivingMode.OFF;
+  return {node,mesh,mat,trail:createWakeTrail(),buf,dynamic,peak:0};
+ }catch(e){console.warn('[SAIL] wake trail unavailable',String(e));return null;}
+}
+const WAKE_FWD=new Vec3(),WAKE_Z=new Vec3(0,0,1),WAKE_ID=new Quat();
+function syncWakeTrail(fx:WakeFx|null,anchor:Node|null,boat:Node,speed:number,dt:number,night:boolean){
+ if(!fx||!fx.node.isValid)return;
+ const src=anchor&&anchor.isValid?anchor:boat;
+ const p=src.worldPosition;
+ Vec3.transformQuat(WAKE_FWD,WAKE_Z,boat.worldRotation);
+ stepWakeTrail(fx.trail,p.x,p.z,WAKE_FWD.x,WAKE_FWD.z,speed,dt,night);
+ const y=SAIL_SEA_Y+SAIL_WAKE.lift;
+ fx.peak=buildWakeGeometry(fx.trail,y,fx.buf);
+ const show=fx.peak>1/255;
+ if(fx.node.active!==show)fx.node.active=show;
+ (globalThis as any).__QF_SAIL_WAKE={points:fx.trail.pts.length,visibleM:wakeVisibleM(fx.trail),peak:fx.peak,night:fx.trail.night,shown:show,dynamic:fx.dynamic};
+ if(!show)return;
+ fx.node.setWorldPosition(0,0,0);fx.node.setWorldRotation(WAKE_ID);fx.node.setWorldScale(1,1,1);
+ const b=fx.buf,mn=new Vec3(b.min[0],b.min[1],b.min[2]),mx=new Vec3(b.max[0],b.max[1],b.max[2]);
+ const m=fx.mesh as any;
+ if(fx.dynamic&&m&&m.struct&&m.struct.dynamic&&typeof m.updateSubMesh==='function')m.updateSubMesh(0,{positions:b.positions,uvs:b.uvs,colors:b.colors,indices16:b.indices,minPos:mn,maxPos:mx});
+ else utils.createMesh({positions:Array.prototype.slice.call(b.positions),uvs:Array.prototype.slice.call(b.uvs),colors:Array.prototype.slice.call(b.colors),indices:Array.prototype.slice.call(b.indices),minPos:mn,maxPos:mx},fx.mesh);
+}
 export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean,aim?:Vec)=>void;dispose:()=>void};
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
+/** Sole under the authored floor, following the inner hull. No walls, nothing past the foredeck bulkhead. */
+function mountCockpitSole(boat:Node):Node{
+ const mesh=utils.createMesh({positions:solePositions(),normals:soleNormals(),indices:soleIndices()},undefined,{calculateBounds:true});
+ const material=new Material();
+ material.initialize({effectName:'builtin-unlit',states:{rasterizerState:{cullMode:gfx.CullMode.NONE},depthStencilState:{depthTest:true,depthWrite:true}}});
+ material.setProperty('mainColor',new Color(96,68,44,255));
+ const node=new Node('cockpit_sole');boat.addChild(node);node.setPosition(0,0,0);
+ const renderer=node.addComponent(MeshRenderer);renderer.mesh=mesh;renderer.setMaterial(material,0);
+ return node;
+}
 export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt>{
  const names=['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth','transit_landing'];
  const prefabs=await Promise.all(names.map(n=>loadPrefab(n).catch(()=>null)));
@@ -191,8 +265,11 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   landing.setPosition(0,0,0);landing.setRotationFromEuler(0,0,0);landing.setScale(1,1,1);
   landing.active=true;
  }
+ const sole=mountCockpitSole(boat);
  const seat=findNode(boat,'seated_root_anchor'),stand=findNode(boat,'stand_anchor'),board=findNode(boat,'board_step_anchor');
  const sailRoot=findNode(boat,'sail_root'),jib=findNode(boat,'jib_root'),furled=findNode(boat,'sail_furled'),boom=findNode(boat,'boom_pivot');
+ // R5 S3 global wind: pennant swings about its staff to the apparent wind; sails set on the leeward side (+1 = authored).
+ const pennant=findNode(boat,'pennant');let pennantYaw:number|null=null,side=1;
  const lamp=findNode(boat,'lantern_glow'),stars=findNode(clouds,'night_stars');
  const wake=findNode(props,'wake_strips'),foam=findNode(props,'hull_foam_ring'),wakeAnchor=findNode(boat,'wake_root');
  if(wake&&wakeAnchor){wake.setParent(wakeAnchor);wake.setPosition(0,0.03,0);wake.setRotationFromEuler(0,0,0);}
@@ -200,6 +277,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const tile=findNode(sea,'sea_tile_39m');
  const plane=findNode(sea,'sea_plane');if(plane)plane.setScale(SEA_SCALE,1,SEA_SCALE);
  const route=sailRoute().samples,end=route[route.length-1],start=route[0],berth=sailBerthWorld();
+ const seaHome=route[Math.floor(route.length/2)];
+ if(plane)plane.setWorldPosition(seaHome[0],SAIL_SEA_Y,seaHome[2]);
  if(meadow){
   for(const r of meadow.getComponentsInChildren(MeshRenderer)){
    if(CHANNEL_MESH.test(r.node.name))digChannel(r,route);
@@ -216,9 +295,9 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   }
   // Thin static water only under the jetty piles (not a foreground plate in meadow cam).
   if(tile){
-   const keep=instantiate(tile);keep.name='landing_sea_tile';keep.active=true;
+   const keep=instantiate(tile);keep.name='landing_sea_tile';keep.active=false;
    meadow.addChild(keep);
-   keep.setWorldPosition(berth[0]+0.6,SAIL_SEA_Y,berth[2]+3.8);
+   keep.setWorldPosition(berth[0]+0.6,SAIL_SEA_Y-0.08,berth[2]+3.8);
    keep.setWorldScale(0.55,1,0.9);
    keep.setRotationFromEuler(0,0,0);
   }
@@ -227,7 +306,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const pier=findNode(props,'transit_pier');
  place(pier,SAIL_I6[0],-0.6,SAIL_I6[2]-0.7);
  // Mouth between boat and jetty (game ≈ x −3.55, origin z ≈ 37.5).
- place(mouth,-3.55,SAIL_SEA_Y,37.5);
+ // The mouth banks are a rectangular cap in the channel. Mesh rewrites left that cap on screen, so drop the whole prefab under the sea. The meadow shore is the bank that should read.
+ place(mouth,-3.55,SAIL_SEA_Y-1.7,37.5);
  place(findNode(props,'buoy_red'),end[0]+5.0,SAIL_SEA_Y,end[2]-8);
  place(findNode(props,'buoy_green'),end[0]-4.6,SAIL_SEA_Y,end[2]-7.5);
  const rocks:[[number,number,number],[number,number,number],[number,number,number]]=[
@@ -238,8 +318,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  place(findNode(props,'sea_rock_c'),...rocks[2]);
  const ring=findNode(props,'foam_ring');
  rocks.forEach((p,i)=>{const n=i===0?ring:ring?instantiate(ring):null;if(n&&i)props.addChild(n);place(n,p[0],SAIL_SEA_Y+0.02,p[2]);});
- place(findNode(props,'foam_strip_a'),start[0]-SAIL_BERTH_X,SAIL_SEA_Y,start[2]-1.2);
- place(findNode(props,'foam_strip_b'),berth[0]-1.2,SAIL_SEA_Y,berth[2]+4);
+ place(findNode(props,'foam_strip_a'),start[0]-SAIL_BERTH_X,SAIL_SEA_Y+0.02,start[2]-1.2);
+ place(findNode(props,'foam_strip_b'),berth[0]-1.2,SAIL_SEA_Y+0.02,berth[2]+4);
  const lighthouseCard=findNode(far,'far_island_lighthouse');
  if(lighthouseCard)lighthouseCard.active=false;
  place(findNode(far,'far_islet_a'),start[0]+70,SAIL_SEA_Y,start[2]-120);
@@ -264,12 +344,13 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
     sailMats.push(unlit(r,new Color(SAIL_DAY_SAIL_RGB[0],SAIL_DAY_SAIL_RGB[1],SAIL_DAY_SAIL_RGB[2],255),tex));
    }
-   else if(n.name==='rm_reeds')copyMat(r,{cull:gfx.CullMode.NONE});
+   else if(n.name==='rm_reeds'){copyMat(r,{cull:gfx.CullMode.NONE});taperMouthShore(r,'reeds');}
    else if(n.name==='wake_strips')wakeMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='hull_foam_ring')foamMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='foam_strip_a'||n.name==='foam_strip_b'||n.name==='foam_ring'||n.name.startsWith('foam_ring'))copyMat(r,{cull:gfx.CullMode.NONE,alphaTest:0.4});
    else if(n.name==='sea_plane'||n.name==='landing_sea_tile'||n.name==='sea_tile_39m'){
     const m=copyMat(r,{cull:gfx.CullMode.NONE});
+    if(m){try{m.setProperty('roughness',1);m.setProperty('metallic',0);}catch{/* unlit sea has no PBR slots */}}
     if(n.name==='sea_plane')seaMat=m;
     const tex=m?.getProperty('mainTexture') as Texture2D|null;
     if(tex)tex.setWrapMode(Texture2D.WrapMode.REPEAT,Texture2D.WrapMode.REPEAT);
@@ -279,11 +360,17 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     if(n.name==='night_stars')unlit(r,new Color(210,220,255,255),null);
     else if(/^cloud_/.test(n.name))copyMat(r,{cull:gfx.CullMode.NONE});
     else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
+    else if(n.name==='rm_bank_left')taperMouthShore(r,'left');
+    else if(n.name==='rm_bank_right')taperMouthShore(r,'right');
     else if(n.name==='landing_jetty'||n.name==='landing_path')nearestPalette(tex);
    }
   });
  };
  style(root);style(landing);
+// r5 S1: the 9 m boat-locked strips read as too short. Swap them for the world-space trail (same draw-call count).
+const foamTex=(wake?.getComponent(MeshRenderer)?.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null)??null;
+const wakeFx=mountWakeTrail(root,foamTex);
+if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  // landing_path already tinted above; re-assert palette nearest after style walk.
  if(landing){
   const lp=findNode(landing,'landing_path');
@@ -342,19 +429,56 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   const sailC=new Color(rgb[0],rgb[1],rgb[2],255);
   for(const m of sailMats)m.setProperty('mainColor',sailC);
  };
- let time=0,cruise=4.4;
+ let time=0,cruise=4.4,savedNear:number|null=null,savedFar:number|null=null,worldCam:Camera|null=null;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
+ const shoreHidden:MeshRenderer[]=[];
+ const SHORE=/reed|flower|bush|shrub|cattail|rm_reeds/i;
+ const hideCloseShore=(cam:Vec)=>{
+  for(const r of shoreHidden)if(r.isValid)r.enabled=true;
+  shoreHidden.length=0;
+  let left=0;
+  for(const root of [meadow,landing]){
+   if(!root)continue;
+   walk(root,n=>{
+    if(!SHORE.test(n.name)||CHANNEL_MESH.test(n.name))return;
+    const r=n.getComponent(MeshRenderer);if(!r||!r.node.activeInHierarchy)return;
+    const b=r.model?.worldBounds;if(!b)return;
+    const c=b.center,he=b.halfExtents;
+    if(!c||!he||he.x>5||he.y>5||he.z>5)return;
+    const dx=Math.max(0,Math.abs(cam[0]-c.x)-he.x),dy=Math.max(0,Math.abs(cam[1]-c.y)-he.y),dz=Math.max(0,Math.abs(cam[2]-c.z)-he.z);
+    if(Math.hypot(dx,dy,dz)>=1.3)return;
+    if(r.enabled){r.enabled=false;shoreHidden.push(r);}else left++;
+   });
+  }
+  (globalThis as any).__QF_SAIL_SHORE_NEAR=left;
+ };
+ const applyOverride=()=>{
+  const ov=(globalThis as any).__QF_SAIL_CAM_OVERRIDE as {pos:number[];aim:number[]}|null|undefined;
+  if(!ov||!worldCam?.node?.isValid)return;
+  worldCam.node.setWorldPosition(ov.pos[0],ov.pos[1],ov.pos[2]);
+  worldCam.node.lookAt(new Vec3(ov.aim[0],ov.aim[1],ov.aim[2]));
+ };
+ try{director.on(Director.EVENT_BEFORE_DRAW,applyOverride);}catch{/* QA stills only */}
  return {
   boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
   sync(v,cam,dt,night,aim?:Vec){
+   (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=true;
    time+=Math.max(0,dt);
+   const sceneNow=director.getScene();
+   if(sceneNow)walk(sceneNow,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))r.enabled=false;});
+   if(!worldCam&&sceneNow)worldCam=sceneNow.getComponentsInChildren(Camera).find(c=>c.node.name==='WorldCamera')||sceneNow.getComponentsInChildren(Camera).find(c=>c.node.name!=='WorldNavigationCamera')||null;
+   // Scaled sea sheet reaches ~1180 m from its centre. near 0.3 keeps a 6 cm gap resolvable inside that far plane.
+   if(worldCam&&savedNear==null){savedNear=worldCam.near;savedFar=worldCam.far;worldCam.near=0.3;worldCam.far=1400;}
    const open=v.sail;
    if(sailRoot)sailRoot.active=open>0.18;
    if(jib)jib.active=open>0.18;
    if(furled)furled.active=open<=0.18;
-   if(boom)boom.setRotationFromEuler(0,25*(1-open),0);
-   if(sailRoot&&open>0.18)sailRoot.setScale(1,Math.max(0.15,open),1);
-   if(jib&&open>0.18)jib.setScale(1,Math.max(0.15,open),1);
+   const app=apparentWindLocal(v.yaw,v.speed);side=sailSide(app,side);
+   if(boom){boom.setRotationFromEuler(0,25*(1-open)*side,0);boom.setScale(side,1,1);}
+   if(sailRoot&&open>0.18)sailRoot.setScale(side,Math.max(0.15,open),1);
+   if(jib&&open>0.18)jib.setScale(side,Math.max(0.15,open),1);
+   const py=pennantYawTarget(app);
+   if(pennant&&py!==null){pennantYaw=pennantYaw===null?py:easeAngle(pennantYaw,py,dt,3);pennant.setRotationFromEuler(0,pennantYaw*180/Math.PI,0);}
    if(lamp)lamp.active=night;
    if(lampLight)lampLight.enabled=night;
    // Hide the authored night_stars mesh — it reads as huge near-field diamonds.
@@ -378,22 +502,32 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.26,0.34,0.55,1):new Vec4(1,1,1,1));
    if(seaMat)seaMat.setProperty('mainColor',night?new Color(150,185,220,255):new Color(255,255,255,255));
    const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.72:0;
-   paint(wakeMat,alpha);paint(foamMat,alpha*0.9);
-   if(plane)plane.setWorldPosition(cam[0],SAIL_SEA_Y,cam[2]);
-   seaOff.z=cam[0]/13+time*0.018;seaOff.w=cam[2]/13+time*0.011;
+   paint(wakeMat,alpha);
+   syncWakeTrail(wakeFx,wakeAnchor,boat,v.speed,dt,night);
+   // Hull ring: same alpha as before; at night it follows the trail's blue-grey instead of staying paper white.
+   if(foamMat){const c=hullFoamTint(wakeFx?wakeFx.trail.night:(night?1:0));foamMat.setProperty('mainColor',new Color(c[0],c[1],c[2],Math.round(255*Math.max(0,Math.min(1,alpha*0.9)))));}
+   seaOff.z=time*0.018;seaOff.w=time*0.011;
    if(seaMat)seaMat.setProperty('tilingOffset',seaOff);
    if(dome&&dome.active)dome.setWorldPosition(cam[0],domeHome?domeHome[1]:dome.worldPosition.y,cam[2]);
    if(cloudLayer&&cloudLayer.active)cloudLayer.setWorldPosition(cam[0],layerHome?layerHome[1]:cloudLayer.worldPosition.y,cam[2]);
+   if(sole.isValid)sole.active=(globalThis as any).__QF_SAIL_SOLE!==0;
+   hideCloseShore(cam);
   },
   dispose(){
+   (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=false;
+   try{director.off(Director.EVENT_BEFORE_DRAW,applyOverride);}catch{/* already torn down */}
+   for(const r of shoreHidden)if(r.isValid)r.enabled=true;
    for(const r of hidden)if(r.isValid)r.enabled=true;
    if(dome?.isValid&&domeHome)dome.setWorldPosition(domeHome[0],domeHome[1],domeHome[2]);
    if(cloudLayer?.isValid&&layerHome)cloudLayer.setWorldPosition(layerHome[0],layerHome[1],layerHome[2]);
-   grade(false);
-   if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));
+   const stillNight=(()=>{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}})();
+   grade(stillNight);
+   if(!stillNight){if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));}
+   if(worldCam&&savedNear!=null&&savedFar!=null){worldCam.near=savedNear;worldCam.far=savedFar;}
    // Leave landing + landing_sea_tile on the meadow model.
+   (globalThis as any).__QF_SAIL_WAKE=null;
    if(root.isValid)root.destroy();
+   if(wakeFx){try{wakeFx.mat.destroy();wakeFx.mesh.destroy();}catch{/* already released with root */}}
   },
  };
 }
