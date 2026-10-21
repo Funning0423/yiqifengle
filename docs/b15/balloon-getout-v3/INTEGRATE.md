@@ -1,4 +1,4 @@
-# getout v3: code-side values (b15, fx/r5-b15-skycity-dc mooring, real door 24008c3c)
+# getout v3: code-side values (b15, fx/r5-b15-skycity-dc mooring, real door 5b2ae95e @ b69faa60; was 24008c3c)
 All values at 30 fps, CROSSFADE_S 0.2. Clips are hipsway65. This supersedes getout_v2/INTEGRATE.md. The yaw is now 96.19°, not 112.86°.
 
 ## Placement
@@ -10,7 +10,7 @@ All values at 30 fps, CROSSFADE_S 0.2. Clips are hipsway65. This supersedes geto
   - lake-local (9.1105, ·, 25.6724).
   - This **replaces** `exit = mooring + 1.6·h`. Today's `cancelAndReset` puts her 1.6 m outside, so the door would never be used.
 - **Facing:** `cancelAndReset({kind:'standing', controllerRoot: P0, yawRad: atan2(next−P0)})`, where `next` is the first rounded-walk point. That is world yaw **95.97°**, 0.22° off the door normal, which is fine.
-- **Height:** the mooring is at Y 0.572 and the walk at the bank's 0.58. Use one Y for the whole route (0.58, or ground-snapped); she starts 8 mm inside the grass-sunk floor. The floor mesh is at basket Y 0, and `stand_point` is still 0.10, so keep the −0.1 rider offset.
+- **Height (b15b, verified on v3b):** P0, the exit and the approach are at Y 0.572 (the mooring), and only L1 is at 0.58. Interpolate root Y linearly with path distance over the last 2 m (or let the ground snap do it). The measured effect is ≤ 0.4 mm of extra sole sink and no extra slide. Basket door GLB: 5b2ae95e (b69faa60). The floor mesh is at basket Y 0 and `stand_point` is still at 0.10, so keep the −0.1 rider offset.
 
 ## Clock (T0 = end of the idle hold, 0.5 s in the preview)
 | t | what |
