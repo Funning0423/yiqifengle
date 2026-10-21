@@ -42,14 +42,15 @@ const {ccclass,property}=_decorator;
 /** QA only (b15 reveal): line-of-sight test against the rendered scene (MeshRenderer models within 45 m of her, minus the
  *  moored balloon and her own rig), for lakesideRevealPose's occlusion term. Engine ray/AABB + ray/model, no physics. */
 /** QA only (b16 edge rule): first surface along a unit ray within maxM (same model set as qaSceneOccluder); ground = terrain
- *  or lake models (name LK_terrain / LK_lake / LK_shore_foam) or a hit below her feet + 0.4 m. */
+ *  or lake models (name LK_terrain / LK_lake / LK_shore_foam) or a hit below her feet + 1.2 m (grass, reeds, rocks, low
+ *  bushes are not 'near objects cut by the edge'; trees, houses and the pavilion are). */
 function qaSceneEdgeRay(scene:Node|null,skip:Node[],near:Vec):(o:Vec,d:Vec,maxM:number)=>{t:number;ground:boolean}|null{
  const models:{md:any;ground:boolean}[]=[];const under=(n:Node|null)=>{for(let p=n;p;p=p.parent)if(skip.indexOf(p)>=0)return true;return false;};
  if(scene)for(const m of scene.getComponentsInChildren(MeshRenderer)){const md=(m as any).model;if(!m.enabledInHierarchy||!md||!md.worldBounds||under(m.node))continue;
   const c=md.worldBounds.center,h=md.worldBounds.halfExtents;if(Math.abs(c.x-near[0])>h.x+45||Math.abs(c.z-near[2])>h.z+45)continue;models.push({md,ground:/^LK_(terrain|lake|shore_foam)/.test(m.node.name)});}
  const ray=new geometry.Ray();
  return (o,d,maxM)=>{geometry.Ray.set(ray,o[0],o[1],o[2],d[0],d[1],d[2]);let best=maxM,g=false,hit=false;
-  for(const x of models){const t=geometry.intersect.rayModel(ray,x.md,{mode:geometry.ERaycastMode.CLOSEST,distance:best,doubleSided:true} as any);if(t&&t<best){best=t;hit=true;g=x.ground||o[1]+d[1]*t<near[1]+.4;}}
+  for(const x of models){const t=geometry.intersect.rayModel(ray,x.md,{mode:geometry.ERaycastMode.CLOSEST,distance:best,doubleSided:true} as any);if(t&&t<best){best=t;hit=true;g=x.ground||o[1]+d[1]*t<near[1]+1.2;}}
   return hit?{t:best,ground:g}:null;};
 }
 function qaSceneOccluder(scene:Node|null,skip:Node[],near:Vec):(a:Vec,b:Vec)=>boolean{

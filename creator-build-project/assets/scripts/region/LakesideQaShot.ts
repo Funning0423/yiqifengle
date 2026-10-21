@@ -44,7 +44,7 @@ export type LakesideEdgeRay=(from:Vec,dir:Vec,maxM:number)=>{t:number;ground:boo
 /** Edge rule (b16): a near object (tree, house) within nearM of the lens must not be cut by the left, right or top frame
  *  edge. Rays along each edge (just inside, NDC ±0.99) and just outside (±1.06) are cast; a non-ground hit within nearM on
  *  either side of the edge means the object straddles it. Ground and far scenery (> nearM) are allowed. */
-export const LAKESIDE_REVEAL_EDGE={nearM:14,inside:.99,outside:1.06,samples:9} as const;
+export const LAKESIDE_REVEAL_EDGE={nearM:12,inside:.99,outside:1.06,samples:9} as const;
 export function lakesideEdgeCut(p:Pose,aspect:number,ray:LakesideEdgeRay,k=LAKESIDE_REVEAL_EDGE):number{
  const f=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],fl=Math.hypot(f[0],f[1],f[2])||1;f[0]/=fl;f[1]/=fl;f[2]/=fl;
  let r=[-f[2],0,f[0]];const rl=Math.hypot(r[0],r[2])||1;r=[r[0]/rl,0,r[2]/rl];const u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];

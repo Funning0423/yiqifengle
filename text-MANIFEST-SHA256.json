@@ -2612,7 +2612,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts",
     "bytes": 7201,
-    "sha256": "3d43e5783b3a51b9bf240c8628f3daea2a911e5621e7fd5623cf05ab8dd962a0"
+    "sha256": "f72ac0ba44d70f155a14745c81dfdf8fcbe110f7ee806bb08f9c3f2c5473892f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts.meta",
@@ -4061,8 +4061,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 38151,
-    "sha256": "90b108327c9d6511138e9cea81515dcb4cb31c75af6385f7d09802d8100288b5"
+    "bytes": 38265,
+    "sha256": "29f57cf17c002f3282f5be66abdb4298aacac9dd73cfd90170fde54fc0f09757"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
