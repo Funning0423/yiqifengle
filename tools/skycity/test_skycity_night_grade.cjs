@@ -45,16 +45,17 @@ ok(Math.abs(cloud-key)<.02,'clouds as lit as the rest of the city at night');
 ok(key/meadow>=.5&&key/meadow<=2,'within 2x of the meadow journey-night grade '+meadow.toFixed(3));
 ok(n.lamp>=.3&&n.lamp<=.6&&lamp>1,'warm accents kept, dimmed (x'+n.lamp+', effective '+lamp.toFixed(2)+')');
 const h=G.skycityNightScale(.5);ok(h.key<1&&h.key>n.key,'blend 0.5 between day and night');
-ok(G.SKYCITY_NIGHT.groundAlbedo.every((k,i)=>k<=MB.MEADOW_NIGHT_LINEAR[i]*.55),'r4: ground grade <= 0.55x the meadow constant: board foreground must read as night');
+ok(G.SKYCITY_NIGHT.groundAlbedo.every((k,i)=>k<=MB.MEADOW_NIGHT_LINEAR[i]*.75),'r5: ground grade <= 0.75x the meadow constant: board foreground must read as night');
 ok(Math.abs(G.SKYCITY_NIGHT.propAlbedo-Math.pow(MB.MEADOW_PROP_NIGHT[0],2.2))<1e-3,'props/characters = meadow prop grade x0.6 sRGB');
-const amb=G.lum(n.ground),sea=G.lum(n.sea);ok(amb>=.09&&amb<=.11,'ground albedo night/day '+amb.toFixed(3)+' in 0.09..0.11 (ambient is not dimmed outdoors)');
+const amb=G.lum(n.ground),sea=G.lum(n.sea);ok(amb>=.13&&amb<=.15,'ground albedo night/day '+amb.toFixed(3)+' in 0.13..0.15 (ambient is not dimmed outdoors)');
 const lit=n.ground.map((k,i)=>k*(N.lightScale*N.lightColor[i]/255*3.18+[.2,.5,.8][i]*.508)/(3.18+[.2,.5,.8][i]*.508)),litL=G.lum(lit);
-ok(litL>=.03&&litL<=.045,'engine-equivalent lit ground (main 125000 lux x0.35 moon + ambient 20000 sky, EV15) night/day '+litL.toFixed(3)+' in 0.03..0.045');
-ok(n.ground[2]>n.ground[0],'moon-blue tint on the ground');ok(sea>amb*3&&sea<=.45,'cloud sea '+sea.toFixed(3)+' above the ground, <= 0.45');ok(n.prop>amb,'characters/props stay brighter than the ground');
+ok(litL>=.045&&litL<=.065,'engine-equivalent lit ground (main 125000 lux x0.35 moon + ambient 20000 sky, EV15) night/day '+litL.toFixed(3)+' in 0.045..0.065');
+ok(n.ground[2]>n.ground[0],'moon-blue tint on the ground');ok(sea>amb*2.5&&sea<=.45,'cloud sea '+sea.toFixed(3)+' above the ground, <= 0.45');ok(n.prop>amb,'characters/props stay brighter than the ground');
 ok(G.skycityNightScale(0).ground.every(x=>x===1)&&G.skycityNightScale(0).sea.every(x=>x===1),'day albedo unchanged');
 const und=G.lum(n.underside);ok(G.skycityNightKind('M_sky_rock_strata','env_sky_static_rock_strata')==='underside','island underside (rock strata) has its own grade');
-ok(und>amb*4&&und<=.65&&n.underside[2]>n.underside[0],'underside '+und.toFixed(3)+' lighter than the ground (arrival lower half), <=0.65, moon blue');
+ok(und>amb*3.5&&und<=.65&&n.underside[2]>n.underside[0],'underside '+und.toFixed(3)+' lighter than the ground (arrival lower half), <=0.65, moon blue');
 ok(G.skycityNightScale(0).underside.every(x=>x===1),'day underside unchanged');
+{const m=JSON.parse(fs.readFileSync(ROOT+'/docs/b16/skycity-night/skycity_night_before_after_sheet_r5.json','utf8')),r=m['arrival/frame/night_after'].linear/m['arrival/frame/night_before'].linear;ok(r>=.25,'r5: arrival frame after/before (linear, measured r5 sheet) '+r.toFixed(3)+' >= 0.25');ok(m['board/grass/night_after'].linear<m['board/grass/day'].linear*.25,'r5: measured board grass still night');}
 ok(G.skycityNightScale(NaN).key===1&&G.skycityNightScale(7).key===n.key,'invalid/clamped weight');
 // 3. every self-lit material of the real GLB is graded
 {const b=fs.readFileSync(ROOT+'/creator-build-project/assets/bundles/region_skycity/env_skycity.glb'),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString());

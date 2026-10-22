@@ -23,10 +23,10 @@ export const SKYCITY_NIGHT=Object.freeze({
   *  MEADOW_NIGHT_LINEAR (0.16/0.20/0.28) left the board foreground reading as day: unlike the meadow (its grass has its own
   *  night shader grade on top) the sky-city lawn faces the main light (x0.35 at night) AND the outdoor ambient, which the
   *  island night never dims (scene ambient skyIllum 20000 vs main light 125000 at EV15). This is the meadow grade x ~0.4,
-  *  bluer (r4: 0.08/0.10/0.15 after Grok Bot found 0.06/0.08/0.12 a black-green lawn): grass -> dark blue-green, white court stone -> moon blue-grey, at the level of the arrival shot. */
- groundAlbedo:[.08,.10,.15] as Rgb3,
+  *  bluer (r5: 0.12/0.14/0.20 after r4 0.08/0.10/0.15 still read black-green; r4 after Grok Bot found 0.06/0.08/0.12 a black-green lawn): grass -> dark blue-green, white court stone -> moon blue-grey, at the level of the arrival shot. */
+ groundAlbedo:[.12,.14,.20] as Rgb3,
  /** r4: island underside (M_sky_rock_strata, the striped rock below the lawn): fills the lower half of the balloon arrival,
-  *  which went too dark at the ground grade (Grok Bot: arrival frame >= r2's 0.042 linear). Moon blue-grey, lighter. */
+  *  which went too dark at the ground grade (r5 target: arrival frame after >= 0.25x night-before, linear). Moon blue-grey, lighter. */
  undersideAlbedo:[.55,.60,.75] as Rgb3,
  /** = MEADOW_PROP_NIGHT 0.6 sRGB, as a linear factor (characters / props stay readable). */
  propAlbedo:+Math.pow(.6,2.2).toFixed(4),
