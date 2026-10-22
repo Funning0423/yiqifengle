@@ -8,7 +8,7 @@
  *     (full black) or at the balloon's coordinate re-root (checked in C3).
  *  C2 hand-offs (sail → shore follow → meadow board camera; ride → door lens → lakeside board camera): ≤ 0.1°, ≤ 1 cm, FOV ≤ 0.1°.
  *  C3 balloon seam (BalloonFlight SEAM_T, the world re-roots): camera relative to the balloon continuous (≤ 1 cm, ≤ 0.1°).
- *  C4 start: the first ride frame vs the frame before it (sail: the controller's journeyCamera(d=0) write; lakeside: the
+ *  C4 start: sail + balloon meadow→skycity: real controller, live lens held → black → ride camera(0) → fade in (rideStart);
  *     skycity follow lens; balloon meadow→skycity: the controller's journeyCamera(d=0) write). A visible jump fails unless the
  *     frame is under a full cover. Lakeside walk→basket cut: must be under full black.
  *  C5 day/night: no camera function reads the day/night mode (source check), so C1–C4 hold for both modes.
@@ -35,6 +35,25 @@ function kin(cam,t0,t1){const P=[],D=[],Fv=[],T=[];for(let t=t0;t<=t1+1e-9;t+=1/
  for(let i=1;i+1<P.length;i++){const a=Math.hypot(...[0,1,2].map(c=>(P[i+1][c]-2*P[i][c]+P[i-1][c])/(dt*dt)));if(a>o.acc){o.acc=a;o.accAt=T[i];}
   const al=Math.abs(sa[i]-sa[i-1])/dt/dt;if(al>o.alpha){o.alpha=al;o.alphaAt=T[i];}}
  for(const k of ['omega','alpha','acc','fovRate','omegaAt','alphaAt','accAt'])o[k]=+o[k].toFixed(3);o.samples=P.length;return o;}
+/* C4 rig (item 3): the REAL RegionJourneyController with a ride lease that has startPose (= the leg's ride camera at t=0) and an
+ * onFrame that keeps returning ride poses, a recording world with fadeCover. Pass = no camera write from prepare until the
+ * cover is at alpha 1; the one write under black is the ride's first pose (≤ 1 cm / 0.1°); then the cover fades in; plus the
+ * production wiring (sail lease + balloon lease expose startPose). */
+const RC=J.H.load(J.S+'world-r1/RegionJourneyCore.ts'),{Cancellation}=J.H.load(J.S+'world-r1/WorldFlowCore.ts');
+async function rideStart(leg){const sail=leg.id.startsWith('sail'),log=[];let alpha=0;const covers=[];
+ const route={from:sail?'island':'meadow',to:sail?'meadow':'skycity',path:[[0,0,0],[0,0,4],[0,0,8]],bridgeStart:2,bridgeEnd:3,speed:1.2,startBlendM:0};
+ const live={position:[0,9,-9],target:[0,0,0],fovVerticalDeg:45};let rideDone;const rideP=new Promise(r=>{rideDone=r;});
+ const lease={route,show:v=>log.push({k:'show',alpha}),dispose:()=>{},startPose:()=>leg.cam(0),onFrame:()=>leg.cam(.5),ride:async(a,w)=>{log.push({k:'ride',alpha});w.setCamera(leg.cam(0));await rideP;}};
+ const c=new RC.RegionJourneyController({prepare:async()=>lease,readCamera:()=>structuredClone(live)});if(!sail)c.region='meadow';
+ const world={setCamera:p=>log.push({k:'camera',p:structuredClone(p),alpha}),fadeCover:(a,s)=>{log.push({k:'cover',a,from:alpha});return new Promise(r=>covers.push(()=>{alpha=a;r();}));}};
+ const actor={walkProgress:()=>0,perform:async()=>{},cancelAndReset:()=>{},setVisible:()=>{}};const tick=()=>new Promise(r=>setImmediate(r));
+ const tok=new Cancellation();await c.prepare(route.to,[0,0,0],tok);for(let i=0;i<5;i++)c.observe(actor,world,1/60);
+ const beforeWalk=log.filter(e=>e.k==='camera').length;const w=c.walk(actor,world,tok);await tick();covers.shift()?.();await tick();await tick();covers.shift()?.();rideDone();await w.catch(e=>log.push({k:'err',e:String(e)}));
+ const cams=log.filter(e=>e.k==='camera'),first=cams[0],ride0=leg.cam(0),j=first?jumpOf(first.p,ride0):null,err=log.find(e=>e.k==='err');
+ const src=f=>fs.readFileSync(J.S+f,'utf8').replace(/\s/g,'');const wired=sail?/startPose:\(\)=>\{constv=view\.getFrameSize\(\);returnsailDriver!\.pose\(/.test(src('region/RegionJourneyAdapter.ts')):/startPose:\(\)=>plan\.camera\(0\)/.test(src('region/BalloonTransit.ts'));
+ const ok=!err&&beforeWalk===0&&first&&first.alpha===1&&swapOk(j)&&log.some(e=>e.k==='cover'&&e.a===0)&&wired&&log.findIndex(e=>e.k==='cover'&&e.a===1)<log.indexOf(first);
+ return {name:'live lens → black → ride camera(0) → fade in (real RegionJourneyController)',ok,camWritesBeforeWalk:beforeWalk,firstWriteAlpha:first?first.alpha:null,firstWriteVsRide0:j,sequence:log.map(e=>e.k+(e.a!==undefined?':'+e.a:'')+(e.k==='camera'?'@'+e.alpha:'')).slice(0,12),productionWired:wired,error:err&&err.e,
+  liveToRide0Hidden:jumpOf(live,ride0)};}
 (async()=>{const G=await R.geometry(),Core=J.Core,rows=[],checks=[];
  const check=(id,fn)=>{try{checks.push({id,status:'PASS',...fn()});}catch(e){checks.push({id,status:'FAIL',error:String(e.message||e).slice(0,1500)});}};
  for(const mk of R.legs)for(const scr of screens){const leg=mk(G,scr),key=`${leg.id} ${scr.join('x')}`,ph=t=>(leg.phases.find(p=>t>=p.t0&&t<p.t1)||leg.phases.at(-1)).id;
@@ -43,10 +62,9 @@ function kin(cam,t0,t1){const P=[],D=[],Fv=[],T=[];for(let t=t0;t<=t1+1e-9;t+=1/
   const C1={jumps:segs.flatMap(vis),omega:Math.max(...segs.map(s=>s.omega)),alpha:Math.max(...segs.map(s=>s.alpha)),acc:Math.max(...segs.map(s=>s.acc))};
   const hand=leg.handoffs.map(h=>({name:h.name,...jumpOf(h.a,h.b)})).map(h=>({...h,ok:swapOk(h)}));
   let start=null;
-  if(leg.id.startsWith('sail'))start={name:leg.start.name,islandToController:jumpOf(leg.start.from,leg.start.controller),controllerToRide:jumpOf(leg.start.controller,leg.start.ride),islandToRide:jumpOf(leg.start.from,leg.start.ride),underBlack:false};
-  else if(leg.id.includes('→skycity')){const pts=leg.plan?J.H.load(J.S+'region/TransportLeg.ts').balloonRoutePoints(leg.start.routeStart,leg.plan):null,jc=Core.journeyCamera(pts,0,leg.start.ride,leg.plan.court,undefined,0);start={name:leg.start.name,controllerToRide:jumpOf(jc,leg.start.ride),underBlack:leg.black(0),note:'the live meadow camera before the controller write is runtime state (not modelled)'};}
+  if(!leg.id.includes('lakeside'))start=await rideStart(leg);
   else start={name:leg.start.name,followToRide:jumpOf(leg.start.from,leg.start.ride),underBlack:leg.black(0),cutAtS:+leg.cut.t.toFixed(3),cutUnderBlack:leg.cut.underBlack};
-  const startJ=start.controllerToRide||start.followToRide;const startOk=start.underBlack||swapOk(startJ)&&(!start.islandToController||swapOk(start.islandToController))&&(start.cutUnderBlack!==false);
+  const startOk=start.ok!==undefined?start.ok:(start.underBlack||swapOk(start.followToRide))&&start.cutUnderBlack!==false;
   const seam=leg.seam?jumpOf(leg.seam.rel(leg.seam.t-1e-4),leg.seam.rel(leg.seam.t)):null;
   rows.push({leg:leg.id,screen:scr.join('x'),C1:C1.jumps.length||C1.omega>LIM.omegaDegS||C1.alpha>LIM.alphaDegS2||C1.acc>LIM.accMS2?'FAIL':'PASS',C1detail:{visibleJumps:C1.jumps.length,firstJumps:C1.jumps.slice(0,6),maxOmegaDegS:C1.omega,maxAlphaDegS2:C1.alpha,maxAccMS2:C1.acc},segments:segs.map(s=>({t0:s.t0,t1:s.t1,omega:s.omega,omegaAt:s.omegaAt,omegaPhase:s.omegaPhase,alpha:s.alpha,alphaAt:s.alphaAt,alphaPhase:s.alphaPhase,acc:s.acc,accAt:s.accAt,accPhase:s.accPhase,fovRate:s.fovRate,jumps:s.jumps.length})),
    C2:hand.every(h=>h.ok)?'PASS':'FAIL',handoffs:hand,C3:seam?(swapOk(seam)?'PASS':'FAIL'):'n/a',seamRelative:seam,C4:startOk?'PASS':'FAIL',start});
