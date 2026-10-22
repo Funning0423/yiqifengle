@@ -11,7 +11,7 @@ export const LAKE_AMB = Object.freeze({
 });
 export interface LakeSource { volume: number; readonly playing: boolean; readonly currentTime: number; play(): void; pause(): void; stop(): void; }
 export type LakeProbe = Readonly<{ state?: string | null; boardPresent?: boolean; boardRegion?: string | null; boardStageId?: string | null; journeyTarget?: string | null; journeyPhase?: string | null; journeyRegion?: string | null }>;
-const LAKE_STAGE = /^r0[45]-lake-\d+$/;
+const LAKE_STAGE = /^(?:r0[45]-lake-\d+|mainline-1[3-6])$/;
 /** Lake ambience wanted: standing at the lakeside, the last (arrival) stretch of the island→lakeside walk, or a lakeside board
  *  (r04-lake-* / region 'lake') — incl. its loading cover. Everything else (island, home, meadow, skycity, other boards): no. */
 export function lakeAmbienceWanted(p: LakeProbe): boolean {

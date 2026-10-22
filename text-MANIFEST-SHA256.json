@@ -2121,8 +2121,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts",
-    "bytes": 5704,
-    "sha256": "57d84b020bf557e6c1aaf9dcf032ddfe6355f1c22750d95cefc043b696759c1e"
+    "bytes": 5724,
+    "sha256": "a23d33db11ae8303d7601d557aceab59ddbebfc3df522b7272e8616fb0296653"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/LakeAmbienceCore.ts.meta",
@@ -2631,8 +2631,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideSceneData.ts",
-    "bytes": 34539,
-    "sha256": "6e9888a06d56b4a387f8fe4d135ba2666c118c32a87e150d48ad7426862dfa4b"
+    "bytes": 34583,
+    "sha256": "269d40c83bcf51530785e2809a29b49e453d8177dea8de1a977373da7234d0e5"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideSceneData.ts.meta",
@@ -3921,8 +3921,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts",
-    "bytes": 910,
-    "sha256": "a13ace3c4948b7a5e535f6c55458b52c694120ffb41024d72c225b4c9ec2ac2f"
+    "bytes": 982,
+    "sha256": "9402e1785a5f40bab1b5831f3b31772aac3fdf25636a9bfa80fd0a76ceecaa5d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts.meta",
@@ -4071,8 +4071,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 39613,
-    "sha256": "a962d00d5783859fa2cca7b09ae852d2f6feb610b4b3f4010a7021b07015389f"
+    "bytes": 39645,
+    "sha256": "b7ead445967d323d54b8f0b23f5cfaa0185100bbe11f23b73f5d51963d76852d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4138,6 +4138,11 @@
     "path": "creator-build-project/tsconfig.json",
     "bytes": 200,
     "sha256": "f2c358b7c504ef2cce25927869fad06e4cbb7cd884747b944d9d244c74561fb6"
+  },
+  {
+    "path": "docs/r5/cine/snow_pass_transition_draft.md",
+    "bytes": 5167,
+    "sha256": "86f8602aeb0cb010d25e37230cada2b7be91c224849f069eb969287980c71ee3"
   },
   {
     "path": "tests/test_landmark_audio.cjs",

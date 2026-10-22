@@ -7,7 +7,7 @@ export const LAKESIDE_BUNDLE = 'region_lakeside';
 export const LAKESIDE_TRANSFORMS = 'scene_r5h_slim_transforms';
 export const LAKESIDE_MODELS_DIR = 'models';
 /** Lakeside challenge ids from LEVELS_DRAFT_lakeside.json ('r04-lake-0N'); a future r05 renumbering also matches. */
-export function isLakesideStage(id: unknown): boolean { return /^r0[45]-lake-\d+$/.test(String(id || '')); }
+export function isLakesideStage(id: unknown): boolean { const s = String(id || ''); return /^r0[45]-lake-\d+$/.test(s) || /^mainline-1[3-6]$/.test(s); }
 export const LAKESIDE_GRID = Object.freeze({ cols: 7, rows: 7, cell: 1.1, x0: -3.3, z0: 8.7, y: 0 });
 export function lakesideCellCenter(index: number): [number, number, number] {
   if (!Number.isInteger(index) || index < 0 || index >= 49) throw Error('lakeside cell out of range: ' + index);
