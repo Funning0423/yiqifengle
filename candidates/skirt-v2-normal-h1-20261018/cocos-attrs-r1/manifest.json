@@ -1,0 +1,17 @@
+{
+  "kind": "additive-cocos-target-attributes-compatibility-repair",
+  "parent_commit": "195e1c0e9b9334e040b41745d1cec37a3aabcf8f",
+  "source_model_sha256": "af5c0efa865211679610a785c39bdf19a1c8ea5720be8fa769ddae06da90c20d",
+  "files": {
+    "README.md": "f63c04f8e7145f4021db44d2cd176ef88ca2a42c8af8b2289a795d91116c1243",
+    "anim_meta.json": "6d775f7779127f2254aa18f243f7cd2a0fcba177564c8ca1c921eed42684182c",
+    "character-skirt-v2-normal-h1-cocos-attrs-r1.glb": "8a79b26ec12d4e248abe14310dd75febca433a15097b1f22ea94144cd3f5a592",
+    "cpu-verification.json": "d2614d91e9e9e48b118368112ffd0ee54f5c1572b20aa078ea6b24bec6833209",
+    "repair-manifest.json": "e028b8188799c66d644f2be89c4de7771ca0a764c5af8101e9a340e8c8502b0f",
+    "repair_cocos_target_attributes.py": "320b0e091f880df153e780dce12fdc2dba47839fdbdf2d189a862e29a0c3187a",
+    "verify_repair_structure.py": "f722154730ca4ebc0d862452ff2cf707f645d5376c0b76f6d136b1ed150364ef"
+  },
+  "actual_creator_reimport_verified": false,
+  "actual_gpu_verified": false,
+  "knee_release_refinement_included": false
+}
