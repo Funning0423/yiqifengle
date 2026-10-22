@@ -1,6 +1,6 @@
 {
- "status": "FAIL",
- "timeUTC": "2026-10-22T21:43:35.782Z",
+ "status": "PASS",
+ "timeUTC": "2026-10-22T22:21:57.070Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -433,19 +433,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 66.5,
-    "atS": 30.27
+    "maxRightEdgePctOfWidth": 67.6,
+    "atS": 30.3
    },
    "ui": {
-    "minGapPt": 20.9,
-    "atS": 4.67,
+    "minGapPt": 43.2,
+    "atS": 7.83,
     "phase": "walk-to-basket",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.372,
-   "minHeightFrac": 0.0591
+   "maxWidthFrac": 0.357,
+   "minHeightFrac": 0.0711
   },
   {
    "leg": "balloon skycity→lakeside",
@@ -462,19 +462,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 66.5,
-    "atS": 30.27
+    "maxRightEdgePctOfWidth": 67.6,
+    "atS": 30.3
    },
    "ui": {
-    "minGapPt": 24.3,
-    "atS": 4.67,
+    "minGapPt": 47.9,
+    "atS": 7.83,
     "phase": "walk-to-basket",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.372,
-   "minHeightFrac": 0.0591
+   "maxWidthFrac": 0.357,
+   "minHeightFrac": 0.0711
   },
   {
    "leg": "balloon skycity→lakeside",
@@ -491,19 +491,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 66.5,
-    "atS": 30.27
+    "maxRightEdgePctOfWidth": 67.6,
+    "atS": 30.3
    },
    "ui": {
-    "minGapPt": 16.8,
-    "atS": 4.67,
+    "minGapPt": 37.3,
+    "atS": 7.83,
     "phase": "walk-to-basket",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.373,
-   "minHeightFrac": 0.0591
+   "maxWidthFrac": 0.357,
+   "minHeightFrac": 0.0711
   },
   {
    "leg": "balloon skycity→lakeside",
@@ -520,19 +520,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 65.4,
-    "atS": 30.27
+    "maxRightEdgePctOfWidth": 67,
+    "atS": 30.3
    },
    "ui": {
-    "minGapPt": 0.6,
-    "atS": 27,
-    "phase": "flight",
+    "minGapPt": 27,
+    "atS": 7.83,
+    "phase": "walk-to-basket",
     "overlapFrames": 0,
     "spans": [],
-    "framesUnder13pt": 62
+    "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.351,
-   "minHeightFrac": 0.0591
+   "minHeightFrac": 0.0711
   },
   {
    "leg": "balloon skycity→lakeside",
@@ -541,7 +541,7 @@
    "herNotModelledFrames": 236,
    "F1": "PASS",
    "F2": "PASS",
-   "F3": "FAIL",
+   "F3": "PASS",
    "outOfFrame": {
     "frames": 0,
     "spans": []
@@ -549,30 +549,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 65.4,
-    "atS": 30.27
+    "maxRightEdgePctOfWidth": 64.4,
+    "atS": 30.3
    },
    "ui": {
-    "minGapPt": -4.6,
-    "atS": 27,
-    "phase": "flight",
-    "overlapFrames": 17,
-    "spans": [
-     {
-      "t0": 26.77,
-      "t1": 27.27,
-      "phase": "flight"
-     },
-     {
-      "t0": 34.87,
-      "t1": 34.87,
-      "phase": "door-hold"
-     }
-    ],
-    "framesUnder13pt": 95
+    "minGapPt": 17.9,
+    "atS": 7.83,
+    "phase": "walk-to-basket",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.351,
-   "minHeightFrac": 0.0591
+   "maxWidthFrac": 0.293,
+   "minHeightFrac": 0.0711
   },
   {
    "leg": "balloon skycity→lakeside",
@@ -581,7 +570,7 @@
    "herNotModelledFrames": 236,
    "F1": "PASS",
    "F2": "PASS",
-   "F3": "FAIL",
+   "F3": "PASS",
    "outOfFrame": {
     "frames": 0,
     "spans": []
@@ -589,35 +578,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 61.5,
-    "atS": 30.27
+    "maxRightEdgePctOfWidth": 62.4,
+    "atS": 30.3
    },
    "ui": {
-    "minGapPt": -7.1,
-    "atS": 27,
-    "phase": "flight",
-    "overlapFrames": 31,
-    "spans": [
-     {
-      "t0": 4.57,
-      "t1": 4.77,
-      "phase": "walk-to-basket"
-     },
-     {
-      "t0": 26.67,
-      "t1": 27.33,
-      "phase": "flight"
-     },
-     {
-      "t0": 34.8,
-      "t1": 34.87,
-      "phase": "door-hold"
-     }
-    ],
-    "framesUnder13pt": 121
+    "minGapPt": 13.6,
+    "atS": 7.83,
+    "phase": "walk-to-basket",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.263,
-   "minHeightFrac": 0.0591
+   "maxWidthFrac": 0.251,
+   "minHeightFrac": 0.0711
   },
   {
    "leg": "balloon skycity→lakeside",
@@ -634,19 +607,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 61.5,
-    "atS": 30.27
+    "maxRightEdgePctOfWidth": 62.8,
+    "atS": 30.3
    },
    "ui": {
-    "minGapPt": 19.1,
-    "atS": 27,
-    "phase": "flight",
+    "minGapPt": 59.7,
+    "atS": 7.83,
+    "phase": "walk-to-basket",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.263,
-   "minHeightFrac": 0.0591
+   "minHeightFrac": 0.0711
   }
  ]
 }

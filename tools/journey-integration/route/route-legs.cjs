@@ -27,6 +27,12 @@ const STAND={chest:1.2,face:1.5,head:1.6,top:1.7253,halfW:.3},SEAT={head:[0,1.06
 const bvhOf=(objs)=>F.buildBvh(objs.filter(o=>o.tris&&o.tris.length));
 function hit(bvh,a,b){if(!bvh||!bvh.root)return null;const d=sub(b,a),L=Math.hypot(...d);if(L<1e-6)return null;const u=d.map(x=>x/L),h=F.cast(bvh,a,u,L-.05);return h?h.obj.tag+':'+h.obj.name:null;}
 const smoother=u=>{const t=Math.min(1,Math.max(0,u));return t*t*t*(t*(t*6-15)+10);};
+// b16 item 6: seated body points sampled from the shipped rig (chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb, clip
+// sit_hold, frames 0 and 1 identical; skinned verts + joints, root space, +z = facing; tools: /tmp/skel/pose.cjs in the b16 outbox):
+// joints head 0.887 / neck 0.845 / chest 0.741 (z -0.02); skinned extent x -0.279..0.211, y 0..1.200, z -0.206..0.657 (knees/feet fwd).
+// face = eyes (head joint +0.11 up, +0.10 fwd), head = skull centre, chest = sternum (chest joint +0.06 up, +0.08 fwd).
+const SIT_HOLD={face:[0,1.0,.10],head:[-.005,1.04,-.02],chest:[-.005,.80,.06],top:1.2,
+ box:[[-.279,0,-.206],[.211,0,-.206],[-.279,0,.657],[.211,0,.657],[-.279,.55,.657],[.211,.55,.657],[-.279,1.2,-.206],[.211,1.2,-.206],[-.279,1.2,.20],[.211,1.2,.20]]};
 const standPts=(r)=>({root:r,face:add(r,[0,STAND.face,0]),head:add(r,[0,STAND.head,0]),chest:add(r,[0,STAND.chest,0]),box:boxPts(r,STAND.top),pose:'stand'});
 function boxPts(r,top){const o=[];for(const dx of[-STAND.halfW,STAND.halfW])for(const dz of[-STAND.halfW,STAND.halfW])for(const y of[0,top])o.push([r[0]+dx,r[1]+y,r[2]+dz]);return o;}
 // ---------- full skycity (Draco) ----------
@@ -99,7 +105,7 @@ function lakeLeg(geo,[w,h]){
  const shore=L.arrival[L.arrival.length-1],fr=LC.lakesideScreenFrame(w,h,BL.boardSafeInsets(w,h)),lan=LC.lakesideScreenLanding(L,fr,LC.LAKESIDE_CAMERA_LAYOUT.stopLocal);
  const E=Core.arrivalPose([shore,L.toWorld([...LC.LAKESIDE_CAMERA_LAYOUT.stopLocal])],L.focus,lan),land={position:E.position,target:E.target,fovVerticalDeg:lan.arrivalFovDeg};
  const M=LB.lakesideBalloonMooring(shore,L.toWorld),R=LB.lakesideBalloonRide([S6,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),M.mooring,land);
- const door=LB.lakesideDoorLens(M.walk,M.mooring,w/h);
+ const door=LB.lakesideDoorLens(M.walk,M.mooring,w/h,undefined,undefined,{...BL.boardSafeInsets(w,h),h});
  // skycity follow camera at set-off (free-camera SPEC default, as the lakeside-landing-cam audit): pitch 17°, 7.36 m, FOV 48
  const f=sub(S6,S4),hl=Math.hypot(f[0],f[2]),yy=Math.atan2(f[0]/hl,f[2]/hl),c0=[S6[0],S6[1]+1,S6[2]],pp=17*Math.PI/180,D=7.36;
  const from={position:[c0[0]-Math.sin(yy)*Math.cos(pp)*D,c0[1]+Math.sin(pp)*D,c0[2]-Math.cos(yy)*Math.cos(pp)*D],target:c0,fovVerticalDeg:48};
@@ -112,8 +118,8 @@ function lakeLeg(geo,[w,h]){
  const cam=t=>{if(t<=R.T)return LB.lakesideDoorRideCamera(R,door,t,from);const e=t-R.T;if(e<outT)return door;if(e<outT+durS){const p=herAt(t);return LB.lakesideDoorBlendPose(door,land,(e-outT)/durS,[p[0],p[1]+1.2,p[2]]);}return land;};
  // aboard (cutT…T) she rides SEATED at stand_point local (.032,-.1,-.099) (b15 stand-up v1b), basket at the door yaw for the whole ride
  const seatLocal=add(STAND_POINT,[.032,-.1,-.099]);
- const her=t=>{if(!(t>=R.cutT&&t<=R.T)){const s=standPts(herAt(t));return s;}const v=R.vehicle(t),W=p=>balToWorld(v,M.doorYawDeg,0,add(seatLocal,p)),q=[0,0,.55];
-  return {root:W([0,0,0]),face:W(add(SEAT.face,q)),head:W(add(SEAT.head,q)),chest:W(add(SEAT.chest,q)),box:[W([0,0,0]),W([0,1.18,0]),W([-.3,0,-.3]),W([.3,0,.3]),W([-.3,1.18,.3]),W([.3,1.18,-.3])],pose:'seated(basket)',aboard:true};};
+ const her=t=>{if(!(t>=R.cutT&&t<=R.T)){const s=standPts(herAt(t));return s;}const v=R.vehicle(t),W=p=>balToWorld(v,M.doorYawDeg,0,add(seatLocal,p)),K=SIT_HOLD;
+  return {root:W([0,0,0]),face:W(K.face),head:W(K.head),chest:W(K.chest),box:K.box.map(W),pose:'seated(basket, sit_hold skeleton)',aboard:true};};
  const los=(t,a,b)=>{const x=hit(geo.lake,a,b);if(x)return x;const v=t<=R.T?R.vehicle(t):M.mooring;return balHit(v,M.doorYawDeg,0,a,b);};
  return {id:'balloon skycity→lakeside',T:TT,cam,her,
   /* after the door hold the controller arrives and the board fades in over her exit walk (b15: 'still overlapping the rest of her
