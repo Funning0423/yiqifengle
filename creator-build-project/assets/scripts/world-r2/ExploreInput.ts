@@ -8,10 +8,17 @@ export const TAP_HOLD_S=0.25;
 export const NODE_HIT_PT=48;
 export const PROP_HIT_PT=44;
 export const GROUND_REACH_M=3;
-export const SCENE_PROPS:Readonly<Record<'island'|'meadow'|'skycity',readonly string[]>>={
+export const SCENE_PROPS:Readonly<Record<'island'|'meadow'|'skycity'|'lakeside',readonly string[]>>={
  island:['lighthouse-lamp','crab','palm','tide-pool'],
  meadow:['bell','windmill','fence','river'],
  skycity:['robot','star-ring','windchime','great-tree'],
+ lakeside:[],
+};
+/** Where each region's free-explore walkable area comes from (b16 P1-3: the lakeside had none, so drag and ground taps died there).
+ *  island/meadow/skycity: RegionNodes.ts baked grid (tools/region-nodes/bake-region-nodes.cjs, fixtures/<id>-walkable.json.gz).
+ *  lakeside: LakesideWalkableData.ts (tools/lakeside-walkable/bake-lakeside-walkable.cjs from the r5h3 export). */
+export const EXPLORE_WALKABLE:Readonly<Record<'island'|'meadow'|'skycity'|'lakeside','region-nodes'|'lakeside-walkable'>>={
+ island:'region-nodes',meadow:'region-nodes',skycity:'region-nodes',lakeside:'lakeside-walkable',
 };
 /** Runtime node names. The meadow model has no sheep mesh; the fence is the fourth tappable. */
 export const PROP_NODES:Readonly<Record<string,string>>={
