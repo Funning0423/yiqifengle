@@ -3,9 +3,9 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const root=path.resolve(__dirname,'../..'),dir=path.join(root,'creator-build-project/assets/bundles/region_skycity');
 function read(name){const b=fs.readFileSync(path.join(dir,name));return {b,j:JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString())};}
 const base=read('env_skycity.glb'),soft=read('env_sky_cloudsea_soft.glb');
-assert.equal(crypto.createHash('sha256').update(soft.b).digest('hex'),'4981c742bbca3416bf803596a2fe7bcce0e59111878f07e2d277dc24ef57bbc5','accepted r3fix handoff');
-assert.equal(soft.b.length,38736,'accepted r3fix bytes');
-assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,'env_sky_cloudsea_soft.glb.meta'))).digest('hex'),'9a1f8a2212b8b99461216e081451c7ff5096b50e704c0e062d6e1c3bc6f24690','r3fix meta handoff');
+assert.equal(crypto.createHash('sha256').update(soft.b).digest('hex'),'5e21d6c05aef8dd3cbcd821a25c438e2fd7c1b485067f0ca8e6df10e0d6e9a94','accepted r3fix handoff');
+assert.equal(soft.b.length,29632,'accepted r3fix bytes');
+assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,'env_sky_cloudsea_soft.glb.meta'))).digest('hex'),'3b27fa7581159a2a0860758ddb29dec3a34ca4612b4ce0b02a2c739e1b380c9a','r3fix meta handoff');
 assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'7e52d0feab33a8a9d53f7fb491340d3b40cd7673c995e38da803301bb6c58cf0','accepted 872 ground unchanged');
 let triangles=0,primitives=0;
 for(const {j} of [base,soft])for(const n of j.nodes){
@@ -16,8 +16,8 @@ for(const {j} of [base,soft])for(const n of j.nodes){
   const c=p.attributes.COLOR_0;if(c!==undefined){const a=j.accessors[c];assert(a.componentType!==5121||a.type==='VEC4','WebGL-aligned color '+n.name);}
  }
 }
-const triangleLimit=100000; // User-approved r3 limit; supersedes the handoff's obsolete 90k gate.
-assert.equal(triangles,98840);assert(triangles<=triangleLimit);assert(primitives<=64);
+const triangleLimit=90000; // b15 (Grok Bot 2026-10-22): back to the 90k budget; cloud sea 13,110 -> 4,259 (never-visible faces dropped, far field collapsed).
+assert.equal(triangles,89989);assert(triangles<=triangleLimit);assert(primitives<=64);
 const H=require('../board-ui/harness.cjs').createHarness(),cc=H.cc;
 const scene=new cc.Node('Scene');cc.director.getScene=()=>scene;
 const draw=new cc.Emitter();cc.Director.EVENT_BEFORE_DRAW='before-draw';

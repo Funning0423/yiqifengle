@@ -1076,8 +1076,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_sky_cloudsea_soft.glb",
-    "bytes": 38736,
-    "sha256": "4981c742bbca3416bf803596a2fe7bcce0e59111878f07e2d277dc24ef57bbc5"
+    "bytes": 29632,
+    "sha256": "5e21d6c05aef8dd3cbcd821a25c438e2fd7c1b485067f0ca8e6df10e0d6e9a94"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
