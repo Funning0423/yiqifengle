@@ -9,6 +9,7 @@ import {RegionJourneyController, journeyDistanceAt, routeLength, sampleRoute} fr
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom,meadowExitExtraM,MEADOW_EXIT_BUDGET_M} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
+import { TailToken, beginTail } from './WalkTail';
 import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
@@ -224,8 +225,8 @@ export function lakesideFillStep(prev:number,next:number):boolean{return Math.ab
 async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
  if(from!=='skycity')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
- let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{},beforeDraw=()=>{};let fillW=0;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
- const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+ let tailStop=()=>{}/* b15 handover: only the journey owner ends the exit walk */,waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{},beforeDraw=()=>{};let fillW=0;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+ const release=()=>{if(dead)return;dead=true;tailStop();offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
  try{
   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);lakeModel=model;
@@ -323,7 +324,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const holdCapS=moored.walkStartAt+LAKESIDE_DOOR_HOLD.outM/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
    const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=lakesideQaAdvance(q.mark,m);}catch{/* qa only */}};
    let tailDone=false/* b16: the tail cleared its ticker step (she is on the shore); the door blend must not restore it */;
+   // b15 handover: the exit walk has its own token: once the ride resolved, a later flow cancel (pause, a level, a dialog)
+   // must not stop her midway; before that the ride token still aborts it. Journey release (leaving the region) ends it.
+   const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});tailStop=()=>tailToken.cancel();
    const tail=(async()=>{
+   const rideToken=tailToken as any as Cancellation;
     let t=0,reached=false,walking=false,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
     ticker.step=(dt)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
      if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){lease.progress!(landedM+w*moored.length);if(w*moored.length>=LAKESIDE_DOOR_HOLD.outM)outOk();}
@@ -342,7 +347,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});
    })();
    // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
-   (lease as any).tail=tail;tail.catch(()=>{}).then(()=>{if((lease as any).tail===tail)(lease as any).tail=null;});
+   (lease as any).tail=tail;beginTail(actor,tail,moored.walk[moored.walk.length-1]);tail.catch(()=>{}).then(()=>{offTail();if((lease as any).tail===tail)(lease as any).tail=null;});
    tail.catch(()=>{}).then(()=>outOk());const offOut=rideToken.onCancel(()=>outOk());
    try{await out;rideToken.check();qaMark0('out')/* when she is out, not after the blend */;
     // she is out: blend the held door lens onto the landing (= board) pose in game time, then hand over
@@ -354,7 +359,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      ticker.step=(dt)=>{if(!tailDone)prevStep(dt);el+=dt;const w=(actor as any).walkProgress?.(),walked=typeof w==='number'?w*moored.length:entryM;
       u=el>=capS?1:Math.max(u,lakesideDoorBlendU(walked,LAKESIDE_DOOR_HOLD.outM,entryM,el,blendS));const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=tailDone?()=>{}:prevStep;offB();ok();}};});
    }finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
-   rideToken.check();
+   rideToken.check();rideOver=true;
   };
   // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
   let showSerial=0,shown=false;

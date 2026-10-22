@@ -2761,8 +2761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 40551,
-    "sha256": "cadf68dbbfc18b8c4f8c9bc8ed7e9b21ddcc963268be1a1689083dae68589336"
+    "bytes": 41229,
+    "sha256": "d20e9099f1c74891605efeae9f5c4b5a702482d3d85baa5167f52b41fd76b675"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -2791,8 +2791,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 3887,
-    "sha256": "1fcfbf82fda0c5297ecb052bf283b49707f44f0be48b032a115cbbf3af2c49d1"
+    "bytes": 3991,
+    "sha256": "d893826dfd8bc7cd2c203eee76d6569b01d5e9b95797e231fff7a038e3054249"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -3068,6 +3068,16 @@
     "path": "creator-build-project/assets/scripts/region/TransportWait.ts.meta",
     "bytes": 171,
     "sha256": "de09aaa4fe69ac7fb4d21a67b38b4bd67ae3fc7714dd0f33cc388f5d172364e1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/WalkTail.ts",
+    "bytes": 2332,
+    "sha256": "8611f2121d4f9e6c551bc4483c4edd355e034730027a0eb677995a35ac874fa9"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/WalkTail.ts.meta",
+    "bytes": 170,
+    "sha256": "94934286d04365ec469592d2f23d77a9c53d12bf7a09b7ab1a6e393963c19d49"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05.meta",
@@ -3696,8 +3706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 33531,
-    "sha256": "908dcd802fa87dcf99de1ef8dea09dcdf69e74e790bb453f0936d6309b097d51"
+    "bytes": 33624,
+    "sha256": "1945a4a7dd26a6dcaaa4c5477b90fde2d29763194be9c8a2c81245356b90f16d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
@@ -3746,8 +3756,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 63326,
-    "sha256": "d7c6f98d1073107ecad5c207cee44b311b02d4d089751f716b23993749fdeb8d"
+    "bytes": 63427,
+    "sha256": "7bce5e49234175f3a64f362d8b27b31feca46cde43980f1017738ff08f5d7560"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -4021,8 +4031,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 35163,
-    "sha256": "771b9838ca23dbde7ffd56a26fb91e5587b27f8984f4c82ca3db45082a8c7786"
+    "bytes": 35303,
+    "sha256": "0ebaf6b8516821bd0edc993ee1d508e6ac3a0c1c396e1ce2fb361dab05827a40"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4061,8 +4071,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 39006,
-    "sha256": "a3949fe27e8c426a98c6251d7fc060fba5235f48db3b306aa304d151eca7f4d0"
+    "bytes": 39221,
+    "sha256": "fb102db7ded1a5143430e4f718401cec79634ef127266a98ae5f335a191eb666"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4181,8 +4191,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14117,
-    "sha256": "9a5a0e55c7462956aa32041bea56fdb66d3a405f3e031e0567fa97d0960b8185"
+    "bytes": 14178,
+    "sha256": "bc3d5b676fee9bdf97a06738878fcb2f9edd51b71ca845673a15b6a3c02f5266"
   },
   {
     "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",
@@ -4196,13 +4206,18 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_qashot.cjs",
-    "bytes": 18090,
-    "sha256": "983b4efd4cc346e40fbc7a6dfb89b72c553d5b3fb46eb8270ed97381ab09f778"
+    "bytes": 18108,
+    "sha256": "070fce57343276e139c8f05dfbc5b8a9337a01b31d087957554066b4d6a61003"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",
     "bytes": 7992,
     "sha256": "7a8d1770b15710f61bbe0e04894698d7b08969cc30548ce209939fc09c8516ed"
+  },
+  {
+    "path": "tools/lakeside/test_walk_tail.cjs",
+    "bytes": 7665,
+    "sha256": "54838a0bd97a2f18564be93cca0e0d00111a39717dd55f94c54cd502076c5635"
   },
   {
     "path": "tools/mainline-fixtures/loss-first-stage.json",

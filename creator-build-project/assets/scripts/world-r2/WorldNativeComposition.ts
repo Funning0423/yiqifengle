@@ -30,6 +30,7 @@ import {boardSafeInsets} from '../ui/BoardLayout';
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
 import { runRewardWalk } from '../region/RegionNodePlay';
+import { afterTail } from '../region/WalkTail';
 import { qaUnlocked } from '../region/ExploreGate';
 import { RegionNodeStage } from './RegionNodeStage';
 import { ExploreInput } from './ExploreInput';
@@ -297,6 +298,7 @@ export class WorldNativeComposition extends Component {
   private stage():RegionNodeStage|null{return this.node?.getComponent(RegionNodeStage)||null;}
   private async presentNodeWalk(snapshot:any){
     if(!this.boundCharacter||!snapshot?.active?.stageId||!snapshot?.nextStageId)return;
+    await afterTail(this.boundCharacter)/* b15: a level cleared during her exit walk: let it finish, never re-walk/snap */;
     const stage=this.stage();
     if(stage&&this.worldCamera){
      stage.bindCharacter(this.boundCharacter);
@@ -313,6 +315,7 @@ export class WorldNativeComposition extends Component {
     const snap=this.activeSession?.snapshot();
     const stage=this.stage();
     if(snap?.active?.stageId==='mainline-12'&&this.boundCharacter&&stage){
+     await afterTail(this.boundCharacter);
      stage.bindCharacter(this.boundCharacter);
      try{await stage.playFinale(this.boundCharacter);}catch(error){console.error('region-node-finale',error);}
     }
