@@ -67,7 +67,19 @@ def blend(A,Bp,w):
 def wm(o):
     dg=bpy.context.evaluated_depsgraph_get();oe=o.evaluated_get(dg);me=oe.to_mesh();Mw=oe.matrix_world.copy()
     vs=[Mw@v.co for v in me.vertices];me.calc_loop_triangles();t=[(tuple(x.vertices),x.polygon_index) for x in me.loop_triangles];oe.to_mesh_clear();return vs,t
+DUMP=os.environ.get('DUMP');DD=[]
+HV=sorted({i for p,c in zip(B.data.polygons,PC) if c=='HANDR' for i in p.vertices})
+def setw(w):
+    for kb in B.data.shape_keys.key_blocks[1:]:
+        if kb.name=='lantern_hold_R': kb.value=w
+    bpy.context.view_layer.update()
+def dump(r):
+    globals()['LT']=r['t'];place_lantern(arm);bpy.context.view_layer.update()
+    Jw,sp=socket_world(arm);ax=(LROOT.matrix_world.to_3x3()@Vector((0,1,0))).normalized()
+    setw(0);v0,_=wm(B);setw(1);v1,_=wm(B)
+    DD.append(dict(clip=r['clip'],f=r['f'],e0=list(sp-ax*0.018),e1=list(sp+ax*0.018),w0=[list(v0[i]) for i in HV],w1=[list(v1[i]) for i in HV]))
 def measure(r):
+    if DUMP: return dump(r)
     bv,bt=wm(B);T={k:BVHTree.FromPolygons(bv,[x for x,pi in bt if PC[pi]==k]) for k in ('FACE','CHIN','HAIR','HAT','ARM','HANDR','TORSO','LEG')}
     BF=BVHTree.FromPolygons(bv,[x for x,_ in bt])
     X={}
@@ -118,3 +130,7 @@ if os.environ.get('XF')=='1':
             r=dict(run=TAG,clip=f'xf:{a}>{b}',f=f,t=u);measure(r);rows.append(r)
     print('QA',TAG,'xfades',flush=True)
 json.dump(rows,open(out,'w'))
+if DUMP:
+    kb=B.data.shape_keys.key_blocks;bs=kb[0].data;hk=kb['lantern_hold_R'].data
+    np.savez_compressed(DUMP,HV=np.array(HV),dmag=np.array([(hk[i].co-bs[i].co).length for i in HV]),rest=np.array([list(bs[i].co) for i in HV]),
+      e0=np.array([d['e0'] for d in DD]),e1=np.array([d['e1'] for d in DD]),w0=np.array([d['w0'] for d in DD]),w1=np.array([d['w1'] for d in DD]),clip=np.array([d['clip'] for d in DD]))
