@@ -1896,8 +1896,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 96002,
-    "sha256": "3953926904b57a4bff4e96e3bcb300ab4297ffca3cfd83d856a01ee5fbc5b626"
+    "bytes": 96525,
+    "sha256": "e5b70cccd0de40a0ab2336d739ddf17cfc01b236027ea8ca4fada41b2fe7388f"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -3421,8 +3421,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
-    "bytes": 10855,
-    "sha256": "5895db94f5acf9aaa6c478a8129fd10f58749b668c54ba4c12e60500dfc78a5d"
+    "bytes": 11348,
+    "sha256": "222223c4f5d81ed71a004f87da481f3d31bf7c042dfb2788989b69cecc44b5c2"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts.meta",
