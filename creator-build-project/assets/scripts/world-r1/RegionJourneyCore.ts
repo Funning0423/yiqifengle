@@ -3,7 +3,7 @@ export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
 /** progress (optional, build05-next): walked distance along route.path, every observed frame and once at the stop. */
-export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; progress?(distance:number):void; /** Sail/balloon only. Bridge leases omit both, so observe/walk stay on the old path. */ onFrame?(dt:number):Pose|void; ride?(actor:CharacterAdapter, world:WorldLease, token:Cancellation):Promise<void>; }
+export interface JourneySceneLease { route:JourneyRoute; /** b16 ride set-off (运镜bot): the ride's first camera pose. A ride lease that has it never cuts from the live camera in view: the controller holds the live lens (no onFrame writes) until walk(), fades to black, writes this pose under the cover and fades in as the ride starts. */ startPose?():Pose; show(visible:boolean):void; dispose():void; progress?(distance:number):void; /** Sail/balloon only. Bridge leases omit both, so observe/walk stay on the old path. */ onFrame?(dt:number):Pose|void; ride?(actor:CharacterAdapter, world:WorldLease, token:Cancellation):Promise<void>; }
 export interface JourneySceneAdapter {
  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
  readCamera():Pose;
@@ -210,6 +210,7 @@ export class RegionJourneyController {
  private lease:JourneySceneLease|null=null;private scenes:JourneySceneLease[]=[];private loadProgress=0;private distance=0;private error:string|null=null;
  private root:Vec|null=null;private yaw=0;private camera:Pose|null=null;private startCamera:Pose|null=null;
  fadeState:'clear'|'out'|'black'|'in'='clear';
+ private rideHold=false;
  private activePath:readonly Vec[]|null=null;private startDistance=0;private serial=0;private busy=false;
  constructor(private adapter:JourneySceneAdapter){}
  snapshot():JourneySnapshot {return Object.freeze({phase:this.phase,region:this.region,target:this.target,loadProgress:this.loadProgress,distance:this.distance,total:this.lease?routeLength(this.lease.route.path):0,error:this.error,canRetry:this.phase==='failed',canResume:this.phase==='paused'});}
@@ -225,12 +226,12 @@ export class RegionJourneyController {
    const pending=this.adapter.prepare(this.region,to,start,token,p=>{if(serial===this.serial&&!token.cancelled&&Number.isFinite(p))this.loadProgress=Math.max(this.loadProgress,Math.min(.99,Math.max(0,p)));}).then(lease=>{if(token.cancelled||serial!==this.serial){lease.dispose();token.check();throw Error('journey-stale-load');}return lease;});
    const lease=await token.wait(pending);token.check();
    let camera:Pose;try{if(lease.route.from!==this.region||lease.route.to!==to)throw Error('journey-loaded-region-mismatch');validateJourneyRoute(lease.route,start);camera=this.adapter.readCamera();if([...camera.position,...camera.target].some(n=>!Number.isFinite(n)))throw Error('journey-invalid-camera');}catch(error){lease.dispose();throw error;}
-   this.lease=lease;this.scenes.push(lease);this.distance=0;this.root=start;this.camera=camera;this.startCamera=this.camera;this.loadProgress=1;this.phase='ready';
+   this.lease=lease;this.scenes.push(lease);this.rideHold=!!(lease.ride&&lease.startPose);this.distance=0;this.root=start;this.camera=camera;this.startCamera=this.camera;this.loadProgress=1;this.phase='ready';
   }catch(error){if(serial===this.serial){this.error=String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}
  }
  observe(actor:CharacterAdapter,world:WorldLease,dt:number=0):void{
-  if(this.lease?.onFrame){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target){this.camera=pose;world.setCamera(pose);}}catch{}}
+  if(this.lease?.onFrame){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target&&!this.rideHold){this.camera=pose;world.setCamera(pose);}}catch{}}
   if(!this.activePath||!this.lease||!this.startCamera)return;
   const f=actor.walkProgress?.();if(typeof f!=='number'||!Number.isFinite(f))return;
   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
@@ -251,7 +252,15 @@ export class RegionJourneyController {
    const fade=!this.lease.ride&&this.distance===0&&this.lease.route.startBlendM===0&&this.lease.route.from==='island'&&typeof world.fadeCover==='function';
    if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
     this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);}
+   // b16 ride set-off (运镜bot route item 3): sail / meadow→skycity balloon leases carry startPose. Fade the live lens to black,
+   // cut to the ride's first pose only under the cover, then fade in while the ride runs (no visible cut, no swoop).
+   const rideFade=!fade&&!!this.lease.ride&&!!this.lease.startPose&&this.distance===0&&typeof world.fadeCover==='function';
+   if(this.rideHold){
+    if(rideFade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';}
+    const p=this.lease.startPose!();if(p&&p.position&&p.target){this.camera=p;world.setCamera(p);}this.rideHold=false;
+   }
    this.show(true);token.check();
+   if(rideFade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
    if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
    if(this.lease.ride){
     await token.wait(this.lease.ride(actor,world,token));token.check();

@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T20:16:21.717Z",
+ "timeUTC": "2026-10-22T20:22:41.495Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -87,25 +87,33 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "island lens → sail K1 (set-off; ride lease: no set-off fade)",
-    "islandToController": {
-     "posM": 51.104,
-     "viewDeg": 136.7627,
-     "fovDeg": 6
-    },
-    "controllerToRide": {
-     "posM": 6.9984,
-     "viewDeg": 18.4531,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "islandToRide": {
-     "posM": 44.4561,
-     "viewDeg": 118.9191,
-     "fovDeg": 6
-    },
-    "underBlack": false
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 16.561,
+     "viewDeg": 36.2192,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -182,25 +190,33 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "island lens → sail K1 (set-off; ride lease: no set-off fade)",
-    "islandToController": {
-     "posM": 51.104,
-     "viewDeg": 136.7627,
-     "fovDeg": 6
-    },
-    "controllerToRide": {
-     "posM": 6.9984,
-     "viewDeg": 18.4531,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "islandToRide": {
-     "posM": 44.4561,
-     "viewDeg": 118.9191,
-     "fovDeg": 6
-    },
-    "underBlack": false
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 16.561,
+     "viewDeg": 36.2192,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -277,25 +293,33 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "island lens → sail K1 (set-off; ride lease: no set-off fade)",
-    "islandToController": {
-     "posM": 51.104,
-     "viewDeg": 136.7627,
-     "fovDeg": 6
-    },
-    "controllerToRide": {
-     "posM": 6.9984,
-     "viewDeg": 18.4531,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "islandToRide": {
-     "posM": 44.4561,
-     "viewDeg": 118.9191,
-     "fovDeg": 6
-    },
-    "underBlack": false
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 16.561,
+     "viewDeg": 36.2192,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -372,25 +396,33 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "island lens → sail K1 (set-off; ride lease: no set-off fade)",
-    "islandToController": {
-     "posM": 51.104,
-     "viewDeg": 136.7627,
-     "fovDeg": 6
-    },
-    "controllerToRide": {
-     "posM": 6.9984,
-     "viewDeg": 18.4531,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "islandToRide": {
-     "posM": 44.4561,
-     "viewDeg": 118.9191,
-     "fovDeg": 6
-    },
-    "underBlack": false
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 16.561,
+     "viewDeg": 36.2192,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -467,25 +499,33 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "island lens → sail K1 (set-off; ride lease: no set-off fade)",
-    "islandToController": {
-     "posM": 51.104,
-     "viewDeg": 136.7627,
-     "fovDeg": 6
-    },
-    "controllerToRide": {
-     "posM": 6.9984,
-     "viewDeg": 18.4531,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "islandToRide": {
-     "posM": 44.4561,
-     "viewDeg": 118.9191,
-     "fovDeg": 6
-    },
-    "underBlack": false
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 16.561,
+     "viewDeg": 36.2192,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -562,25 +602,33 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "island lens → sail K1 (set-off; ride lease: no set-off fade)",
-    "islandToController": {
-     "posM": 51.104,
-     "viewDeg": 136.7627,
-     "fovDeg": 6
-    },
-    "controllerToRide": {
-     "posM": 6.9984,
-     "viewDeg": 18.4531,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "islandToRide": {
-     "posM": 44.4561,
-     "viewDeg": 118.9191,
-     "fovDeg": 6
-    },
-    "underBlack": false
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 16.561,
+     "viewDeg": 36.2192,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -657,25 +705,33 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "island lens → sail K1 (set-off; ride lease: no set-off fade)",
-    "islandToController": {
-     "posM": 51.104,
-     "viewDeg": 136.7627,
-     "fovDeg": 6
-    },
-    "controllerToRide": {
-     "posM": 6.9984,
-     "viewDeg": 18.4531,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "islandToRide": {
-     "posM": 44.4561,
-     "viewDeg": 118.9191,
-     "fovDeg": 6
-    },
-    "underBlack": false
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 16.561,
+     "viewDeg": 36.2192,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -729,16 +785,33 @@
     "viewDeg": 0.0001,
     "fovDeg": 0
    },
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "controller journeyCamera(d=0) → balloon ride camera(0)",
-    "controllerToRide": {
-     "posM": 46.5056,
-     "viewDeg": 50.7857,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "underBlack": false,
-    "note": "the live meadow camera before the controller write is runtime state (not modelled)"
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 77.8614,
+     "viewDeg": 70.9031,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -792,16 +865,33 @@
     "viewDeg": 0.0001,
     "fovDeg": 0
    },
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "controller journeyCamera(d=0) → balloon ride camera(0)",
-    "controllerToRide": {
-     "posM": 46.5056,
-     "viewDeg": 50.7857,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "underBlack": false,
-    "note": "the live meadow camera before the controller write is runtime state (not modelled)"
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 77.8614,
+     "viewDeg": 70.9031,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -855,16 +945,33 @@
     "viewDeg": 0.0001,
     "fovDeg": 0
    },
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "controller journeyCamera(d=0) → balloon ride camera(0)",
-    "controllerToRide": {
-     "posM": 46.5056,
-     "viewDeg": 50.7857,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "underBlack": false,
-    "note": "the live meadow camera before the controller write is runtime state (not modelled)"
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 77.8614,
+     "viewDeg": 70.9031,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -918,16 +1025,33 @@
     "viewDeg": 0.0001,
     "fovDeg": 0
    },
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "controller journeyCamera(d=0) → balloon ride camera(0)",
-    "controllerToRide": {
-     "posM": 46.5056,
-     "viewDeg": 50.7857,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "underBlack": false,
-    "note": "the live meadow camera before the controller write is runtime state (not modelled)"
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 77.8614,
+     "viewDeg": 70.9031,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -981,16 +1105,33 @@
     "viewDeg": 0.0001,
     "fovDeg": 0
    },
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "controller journeyCamera(d=0) → balloon ride camera(0)",
-    "controllerToRide": {
-     "posM": 46.5056,
-     "viewDeg": 50.7857,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "underBlack": false,
-    "note": "the live meadow camera before the controller write is runtime state (not modelled)"
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 77.8614,
+     "viewDeg": 70.9031,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -1044,16 +1185,33 @@
     "viewDeg": 0.0001,
     "fovDeg": 0
    },
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "controller journeyCamera(d=0) → balloon ride camera(0)",
-    "controllerToRide": {
-     "posM": 46.5056,
-     "viewDeg": 50.7857,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "underBlack": false,
-    "note": "the live meadow camera before the controller write is runtime state (not modelled)"
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 77.8614,
+     "viewDeg": 70.9031,
+     "fovDeg": 3
+    }
    }
   },
   {
@@ -1107,16 +1265,33 @@
     "viewDeg": 0.0001,
     "fovDeg": 0
    },
-   "C4": "FAIL",
+   "C4": "PASS",
    "start": {
-    "name": "controller journeyCamera(d=0) → balloon ride camera(0)",
-    "controllerToRide": {
-     "posM": 46.5056,
-     "viewDeg": 50.7857,
+    "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
+    "ok": true,
+    "camWritesBeforeWalk": 0,
+    "firstWriteAlpha": 1,
+    "firstWriteVsRide0": {
+     "posM": 0,
+     "viewDeg": 0,
      "fovDeg": 0
     },
-    "underBlack": false,
-    "note": "the live meadow camera before the controller write is runtime state (not modelled)"
+    "sequence": [
+     "cover:1",
+     "camera@1",
+     "show",
+     "cover:0",
+     "ride",
+     "camera@1",
+     "camera@0",
+     "camera@0"
+    ],
+    "productionWired": true,
+    "liveToRide0Hidden": {
+     "posM": 77.8614,
+     "viewDeg": 70.9031,
+     "fovDeg": 3
+    }
    }
   },
   {
