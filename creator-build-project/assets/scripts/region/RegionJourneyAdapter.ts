@@ -295,7 +295,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const tail=(async()=>{
    const rideToken=tailToken as any as Cancellation;
     let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
-    ticker.step=(dt)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
+    // b16 P0 (运镜bot): keep a handle on the tail's own step, so the tail end clears ONLY it (see the end of the tail)
+    const tailStep=(dt:number)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
      if(stepping){const u=t-moored.walkStartAt,r=stepdownRootAt(u),a=actor as any,P0=moored.start,sy=Math.sin(moored.startYawRad),cy=Math.cos(moored.startYawRad);
       // sd3: root Y = board (P0 0.602) + y_m while walk_start_stepdown plays; forward along the exit heading
       // b18 fix ①: off the board the root follows the measured lawn (v4 terrain profile), blended in by the drop fraction
@@ -308,6 +309,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){// b18 fix ②: stance foot only from a real contact (lastFootEmit; lastFoot alone is never null), recovery only in swing
        const fe=a.lastFootEmit,pl=fe&&(a.lastFoot==='L'||a.lastFoot==='R')?a.lastFoot:null,sw=footLockSwing(a.motionT,fe?fe.t:null);
        lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt,sw);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
+    ticker.step=tailStep;
     const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
     await waitUntil(moored.T0);rideToken.check();qaMark('door');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
@@ -328,7 +330,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     await reach;rideToken.check();
     reached=true;walking=true;qaMark('walk');
     await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;}
-    rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};tailDone=true;outOk();qaMark('shore');
+    rideToken.check();lease.progress!(landedM+moored.length);
+    // b16 P0 fix: when the door→board blend is still running it OWNS ticker.step (it wraps this step and stops calling it once
+    // tailDone); blanking it here froze the blend clock (el), so the ride never resolved and the journey stayed region-travel/ready.
+    if(ticker.step===tailStep)ticker.step=()=>{};tailDone=true;outOk();qaMark('shore');
     const before=moored.walk[moored.walk.length-2];
     const end=moored.walk[moored.walk.length-1];
     actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});
