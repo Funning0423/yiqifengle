@@ -130,7 +130,7 @@ Config mapping is in `creator-build-project/assets/scripts/audio/SceneAudioTable
 | region_skycity/audio/amb_sky_waterfall_loop.mp3 | 48,836 | 24 kbps mono 24 kHz, loop 16.0 s + 0.15 s dup | -27.2 / -13.7 | same park_ambience_river.wav | thimras | CC0 1.0 | source from 274 s. HP 350 Hz, LP 4.5 kHz, reverb RT 2.5 s (distant mist) |
 | audio_bgm_island/audio/amb_island_dock_lap_loop.mp3 | 36,884 | 24 kbps mono 24 kHz, loop 12.0 s + 0.15 s dup | -27.3 / -9.8 | "Sea and river wave sounds" (VistulaShort.mp3) https://opengameart.org/content/sea-and-river-wave-sounds | randommind | CC0 1.0 | source from 80.5 s. LP 1.6 kHz (water lapping under the pier) |
 | region_meadow/audio/sfx_meadow_windbell_1.mp3 / _2 | 26,576 / 25,280 | mono, 6.6 s natural tail | -29.4 / -17.2, -17.8 | own synthesis (`s_landmarks.py`) | Voice bot | CC0 1.0 (own work) | bronze-bell partials, G pentatonic, soft strike, reverb tail |
-| region_skycity/audio/sfx_sky_chime_1.mp3 / _2 | 26,000 / 27,296 | mono, 6.4 s natural tail | -30.5 / -20.0, -30.4 / -19.6 | own synthesis (`s_landmarks.py`) | Voice bot | CC0 1.0 (own work) | glass partials, D minor pentatonic (matches the sky-air glints) |
+| region_skycity/audio/sfx_sky_chime_1.mp3 / _2 | 14,768 / 14,768 | mono, 3.6 s tail (chime-v2: trimmed + 1.8 s fade, high shelf -4 dB @3.5 kHz) | -30.2 / -21.0, -30.2 / -20.6 | own synthesis (`s_landmarks.py`) | Voice bot | CC0 1.0 (own work) | glass partials, D minor pentatonic (matches the sky-air glints) |
 | region_island/audio_steps/step_sand_1..4.mp3 | 2,629 each | 32 kbps mono 44.1 kHz, 0.60 s | 100 ms RMS max ≈ -24.5 dBFS (same as step_grass) | Kenney "Impact Sounds" footstep_snow_000/001/002/004.ogg https://kenney.nl/assets/impact-sounds | Kenney | CC0 1.0 | HP 140 Hz, LP 3 kHz, de-harsh -3 dB, reverb RT 0.35 s |
 | region_skycity/audio_steps/step_cloud_1..4.mp3 | 2,420 / 2,316 / 2,316 / 2,316 | 32 kbps mono 44.1 kHz, 0.55 s | ≈ -24.5 dBFS (as above) | Kenney "Impact Sounds" footstep_carpet_000..003.ogg | Kenney | CC0 1.0 | HP 120 Hz, LP 1.6 kHz, reverb RT 0.7 s wet -9 dB (soft, padded) |
 
@@ -218,6 +218,7 @@ Snow-pass concept previews only (`previews/Voice-bot/b15-lakeside-l13-16/02..04`
 
 ## 采样乐器小样：风铃湖畔「风起」（Voice bot，2026-10-22，仅预览，不进游戏）
 `previews/Voice-bot/sampled-instruments/01_lakeside_fengqi_harp_flute_clarinet_strings_windchime_30s.mp3`，脚本 `tools/audio/sampled/lakeside_windchime_demo.py`。方案见 `docs/audio/instrument-sourcing-plan.md`。
+`02_lakeside_fengqi_v2_chime_sparse_30s.mp3`（风铃稀疏版，同素材）与 `03_ingame_lakeside_board_L13_mix_after_chime_v2_30s.mp3`（游戏内湖畔资源混音）均为试听，不进包。
 
 | Source | Author | License | URL | Use |
 |---|---|---|---|---|

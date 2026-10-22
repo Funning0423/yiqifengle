@@ -107,7 +107,7 @@ export const SCENE_AMBIENCE_DESIGN: { [place: string]: AmbDesign } = {
     scatter: [],
     landmarks: [
       { id: 'waterfall', anchor: 'env_sky_waterfall_mist', clips: [R('audio/amb_sky_waterfall_loop', 'region_skycity')], loopS: 16.0, vol: 0.55, nearM: 4, farM: 35 },
-      { id: 'wind-chime', anchor: 'env_sky_windchime', clips: [R('audio/sfx_sky_chime_1', 'region_skycity'), R('audio/sfx_sky_chime_2', 'region_skycity')], loopS: null, vol: 0.4, nearM: 3, farM: 20, interval: [10, 22] },
+      { id: 'wind-chime', anchor: 'env_sky_windchime', clips: [R('audio/sfx_sky_chime_1', 'region_skycity'), R('audio/sfx_sky_chime_2', 'region_skycity')], loopS: null, vol: 0.3, nearM: 3, farM: 20, interval: [10, 22] },
       { id: 'pennant', anchor: 'env_sky_pennant', clips: [R('audio_sfx/sfx_apron_flap', null)], loopS: null, vol: 0.18, nearM: 2, farM: 10, interval: [14, 30] },
     ],
   },
@@ -178,6 +178,8 @@ export const SCENE_GROUND_TYPES: { [place: string]: string[] } = {
  *  waterbirds：CONFIRMED_LANDMARKS.lakeWaterbirds 的四个单发，棋盘里没有距离，按固定音量 + 稀疏间隔当点缀层，左右轻摆。
  *  关卡之间只微调（越往后越安静一点），不换素材，保证连续几关听起来是同一个湖。试听：previews/Voice-bot/b15-lakeside-l13-16/。 */
 export type BoardMix = { stageId: string; place: ScenePlace; track: SceneTrackId; bedVol: number; birdsVol: number; birdsInterval: [number, number]; birdsPan: [number, number] };
+/** chime-v2 复查（Voice bot，10-22）：风铃只作点缀。sfx_sky_chime_1/2 尾音 6.4 → 3.6 s、高频架 -4 dB @3.5 kHz，设计音量 0.4 → 0.3；
+ *  星环 0.5 不变（文件 -31.4 LUFS，2–6 kHz 0.0%，最近点约比 BGM 低 20 LU）。湖畔 13–16 关棋盘里没有风铃层。 */
 export const LAKESIDE_BOARD_LEVELS: BoardMix[] = [
   { stageId: 'mainline-13', place: 'lakeside', track: 'lakeside', bedVol: 0.46, birdsVol: 0.3, birdsInterval: [18, 34], birdsPan: [-0.5, 0.5] },
   { stageId: 'mainline-14', place: 'lakeside', track: 'lakeside', bedVol: 0.44, birdsVol: 0.3, birdsInterval: [20, 38], birdsPan: [-0.5, 0.5] },

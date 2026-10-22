@@ -2171,8 +2171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts",
-    "bytes": 27986,
-    "sha256": "28e026e4c4d975b4701318db7d3336e5b576afc8943b5bfc8ee3bf2b099a08f5"
+    "bytes": 28293,
+    "sha256": "4d4b83be2661a7fa787ebd6fc4880da3a03302597006803547dbc98807e047b1"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SceneAudioTable.ts.meta",
