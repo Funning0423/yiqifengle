@@ -306,6 +306,12 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
    const door=find(vehicle,'basket_door');door?.setRotationFromEuler(0,0,0);
+   // b15 acceptance (5a177b4c door strip): the engine kept her SkeletalAnimation 'sit_hold' state PLAYING (auto-played on
+   // re-activation after board()/setParent), so Cocos overwrote the joints every frame and door_reach / walk_start / walk_loop
+   // (driven by the actor's own rig clock, whose states must never play) never reached the screen: seated pose sliding out.
+   // The rig is the only clock: stop any engine-played state at touchdown and on every get-out tick.
+   let engineStops=0;const stopEngineStates=()=>{const anim=(actor as any).anim;if(!anim||!anim.clips)return;for(const c of anim.clips){if(!c)continue;const st=anim.getState(c.name);if(st&&st.isPlaying){try{st.stop();engineStops++;if(engineStops===1)console.warn('[QF_LAKESIDE] stopped engine-played character state '+c.name+' at get-out');}catch{/* state gone */}}}};
+   stopEngineStates();
    actor.cancelAndReset({kind:'standing',controllerRoot:moored.start,yawRad:moored.startYawRad});
    const landedM=routeLength([...R.path,moored.walk[0]]);lease.progress!(landedM);
    // b15 door shot: the ride lens holds on the basket (lastPose, the route's last frame) until she is clear of the basket
@@ -317,7 +323,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=m;}catch{/* qa only */}};
    const tail=(async()=>{
     let t=0,reached=false,walking=false,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
-    ticker.step=(dt)=>{t+=dt;if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
+    ticker.step=(dt)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
      if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){lease.progress!(landedM+w*moored.length);if(w*moored.length>=LAKESIDE_DOOR_HOLD.outM)outOk();}
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
       const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
