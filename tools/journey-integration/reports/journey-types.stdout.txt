@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-21T13:41:43.773Z",
-  "typescript": "6.0.3",
+  "timeUTC": "2026-10-22T01:10:15.979Z",
+  "typescript": "5.9.3",
   "scope": "Strict type-check of engine-independent world/journey modules only; official Cocos declarations and engine build not available",
   "diagnostics": []
 }

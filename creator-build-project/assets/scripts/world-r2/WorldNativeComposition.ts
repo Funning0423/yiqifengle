@@ -366,6 +366,8 @@ export class WorldNativeComposition extends Component {
     if(this.qaRevealHook){director.off(Director.EVENT_BEFORE_DRAW,this.qaRevealHook);this.qaRevealHook=null;}
     // b16: a same-page call can land before the return route exists (return-route-not-yet-available): wait and retry
     let sky:any=null;for(let i=0;i<20;i++){sky=await this.qaShot({region:'skycity'});if(sky?.reason==='exit-current-level-first'){try{const ww=this.world!.commands();if(ww.snapshot().state==='level')ww.exitLevel();}catch{/* retry */}}
+     // b15 handover: a consecutive call from the lakeside itself (no route back to skycity): stand her on the island first
+     else if(sky?.reason==='return-route-not-yet-available'&&this.world?.commands().snapshot().state==='lakeside'){try{(this.world.commands() as any).abandonLakesideJourney?.();}catch{/* retry */}}
      else if(sky?.ok||sky?.reason!=='return-route-not-yet-available')break;await new Promise<void>(r=>setTimeout(r,500));}
     if(!sky?.ok)return sky;
     const w=this.world!.commands();if(w.snapshot().state==='level'){const e=w.exitLevel();if(!e.ok)return e;}

@@ -4061,8 +4061,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 38684,
-    "sha256": "ac1a63e999538cad40c910385785617d5d20f9eda67d33df0ceb66af6cd70284"
+    "bytes": 39006,
+    "sha256": "a3949fe27e8c426a98c6251d7fc060fba5235f48db3b306aa304d151eca7f4d0"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4196,8 +4196,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_qashot.cjs",
-    "bytes": 17917,
-    "sha256": "930a2419742751ce5d12282e4519bfc0975e37f7ab496b0a449c473b845d231d"
+    "bytes": 18090,
+    "sha256": "983b4efd4cc346e40fbc7a6dfb89b72c553d5b3fb46eb8270ed97381ab09f778"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",

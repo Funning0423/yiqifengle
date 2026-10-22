@@ -1,14 +1,14 @@
 PASS FootstepData.ts is up to date with the shipped character GLB and world ground map
-{"fps":60,"plants":25,"steps":25,"matched":25,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.58034183555924,"errMaxMs":-11.246292539919267,"errMeanMs":-17.60372941010184,"untrimmedWithin40":25,"errMaxAbsUntrimmedMs":13.810396802484362}
+{"fps":60,"plants":25,"steps":25,"matched":25,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.58266179304136,"errMaxMs":-11.245951632620432,"errMeanMs":-17.616975832003178,"untrimmedWithin40":25,"errMaxAbsUntrimmedMs":13.810737709783197}
 PASS exit 60 fps: every plant one step <= 40 ms (also with 25 ms untrimmed mp3 priming), no extra, right surface
 PASS the room walk has steps from her first plant (the reported bug): turn + walk + stop, before the door opens
-{"fps":30,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.56295329137015,"errMaxMs":36.20396539015047,"errMeanMs":-7.666363378507065,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":61.2606547325541}
+{"fps":30,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.560279803356067,"errMaxMs":36.20396539015047,"errMeanMs":-7.671305541352724,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":61.2606547325541}
 PASS exit + return 30 fps: one step per plant within 40 ms, none extra, surfaces right
-{"fps":45,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.937961074435023,"errMaxMs":25.262818587336255,"errMeanMs":-12.2268492933894,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":50.319507929739885}
+{"fps":45,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.964720622724258,"errMaxMs":25.262818587336255,"errMeanMs":-12.236074736525246,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":50.319507929739885}
 PASS exit + return 45 fps: one step per plant within 40 ms, none extra, surfaces right
-{"fps":60,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.09946430365062,"errMaxMs":18.092427974806924,"errMeanMs":-16.91253574780994,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":43.14911731721055}
+{"fps":60,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.11256989303945,"errMaxMs":18.092427974806924,"errMeanMs":-16.923744183934097,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":43.14911731721055}
 PASS exit + return 60 fps (+-30% frame jitter): one step per plant within 40 ms, none extra, surfaces right
-{"fps":120,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.681258092174474,"errMaxMs":11.723281625783954,"errMeanMs":-20.110311411629752,"untrimmedWithin40":52,"errMaxAbsUntrimmedMs":36.779970968187584}
+{"fps":120,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.71750958721941,"errMaxMs":11.723281625783954,"errMeanMs":-20.122887392549256,"untrimmedWithin40":52,"errMaxAbsUntrimmedMs":36.779970968187584}
 PASS exit + return 120 fps: one step per plant within 40 ms, none extra, surfaces right
 PASS tracker: loop wrap, no burst after reset / clip jump, same-foot dedupe
 PASS variant picker: never the same file twice in a row, volume = stepBaseVolume +-jitter (1.5 dB in, 0.75 dB out)

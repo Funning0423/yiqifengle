@@ -1,8 +1,11 @@
 PASS smooth distance curve: inner, midpoint, outer and invalid
-PASS entry and exit each complete within 2 seconds; exit releases
-PASS decode delay stays silent, then fades; re-entry reverses without jump
+PASS one-shot starts at its distance level (no fade-in on the call); leaving still fades over 2 s and releases
+PASS loop: decode delay stays silent, then fades in over 2 s; re-entry reverses without jump
 PASS scene switch and mute stop immediately; no phantom region sounds
 PASS global cap includes pending and fading voices, aggregate gain <= budget
 PASS single shots do not overlap, obey cooldown; night waterbirds quarter rate
 PASS all approved clips exist, anchors match shipped scenes, startup hooks present
-landmark-audio: 7 checks PASS
+PASS b15 mix: budget never cuts a single landmark; radii reach the walkable spots (ducks ~20 m, ring 20.4 m overhead)
+PASS star ring loop: two alternating sources, seam crossfade after encoder delay, never silent, file has the overlap tail
+PASS core ticks every port after setting volume (loop seam runs at the faded volume)
+landmark-audio: 10 checks PASS
