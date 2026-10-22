@@ -746,8 +746,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-    "bytes": 25317,
-    "sha256": "096a7637a5bbc81c6cbdb31b1e56b9d00c67a0b0293210ae29c0769bc0efaf6f"
+    "bytes": 26211,
+    "sha256": "fa087ebc5b9d0fd3ae07361fa7904f1fbdc188cb9ae2094e798f25f32632841d"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character_support.meta",
@@ -1407,7 +1407,7 @@
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta",
     "bytes": 7784,
-    "sha256": "c9076429012f374cd4a3c911619d5677864ea243531ba1303d777c3da57c04d0"
+    "sha256": "3399b5ca81d9f6356b4a885d9bdadc6567f474406d91646d30f7b22c20228aac"
   },
   {
     "path": "creator-build-project/assets/bundles/shared_effects.meta",

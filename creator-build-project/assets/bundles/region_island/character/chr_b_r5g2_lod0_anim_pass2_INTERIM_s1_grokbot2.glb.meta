@@ -10,6 +10,7 @@
     "__original-animation-11.bin",
     "__original-animation-12.bin",
     "__original-animation-13.bin",
+    "__original-animation-14.bin",
     "__original-animation-2.bin",
     "__original-animation-3.bin",
     "__original-animation-4.bin",
@@ -404,6 +405,29 @@
         "span": {
           "from": 0,
           "to": 1.4666666984558105
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "f361e": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@f361e",
+      "displayName": "",
+      "id": "f361e",
+      "name": "walk_start_stepdown.animation",
+      "userData": {
+        "gltfIndex": 14,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.7333333492279053
         },
         "events": []
       },
@@ -1009,6 +1033,20 @@
             "to": 1.4666666984558105,
             "wrapMode": 1,
             "previousId": "d2c9e"
+          }
+        ]
+      },
+      {
+        "name": "walk_start_stepdown",
+        "duration": 1.7333333492279053,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_start_stepdown",
+            "from": 0,
+            "to": 1.7333333492279053,
+            "wrapMode": 2,
+            "previousId": "f361e"
           }
         ]
       }
