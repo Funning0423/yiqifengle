@@ -229,9 +229,9 @@ export function sailK3Window(tl:SailTimeline):{in:number;out:number}{
 /** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
 const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
 /** Channel centre: boat x≈−4.4, side≈0.9 → camera x≈−3.5, between the inner banks. */
-const K5:SailOff={back:10.2,side:0.92,up:7.6,fov:48,look:2.2,orb:0};
+const K5:SailOff={back:9.0,side:0.92,up:8.2,fov:48,look:2.2,orb:0};
 /** Same channel, a little closer. The old side 4.2 still sat in the left bank. */
-const K6:SailOff={back:8.4,side:0.85,up:6.8,fov:48,look:2.8,orb:0};
+const K6:SailOff={back:8.4,side:0.85,up:10.0,fov:48,look:2.8,orb:0};
 /** Blend on a constant-radius arc. A straight lerp from ahead of the bow to astern crosses the hull and guardOff then teleports. */
 function orbitMix(a:SailOff,b:SailOff,u:number,ease:(x:number)=>number=smoother):SailOff{
  const s=ease(Math.min(1,Math.max(0,u)));
@@ -271,7 +271,7 @@ function sailOffset(tl:SailTimeline,b:SailBeat,t:number):SailOff{
   return u<=0?K0:u>=1?K1:orbitMix(K0,K1,u);
  }
  if(b.id==='S-b')return K1;
- if(b.id==='S-c'||b.id==='S-d'||b.id==='S-e'){
+ if(b.id==='S-c'||b.id==='S-d'||b.id==='S-e'||b.id==='S-f'||b.id==='S-g'){
   const ez=(o:SailOff,p:SailOff,u:number)=>orbitMix(o,p,sailEase(u),(x)=>x);
   if(tau<SAIL_ARC_A0)return K1;
   if(tau<SAIL_ARC_A0+SAIL_ARC_A_S){
@@ -282,10 +282,12 @@ function sailOffset(tl:SailTimeline,b:SailBeat,t:number):SailOff{
   if(tau<K3_IN_T)return orbitPath(K2,Kbeam,K3,(tau-B_IN)/SAIL_ARC_B_S);
   if(tau<K3_OUT_T)return K3;
   // The tail runs on τ into S-e (the slower arcs cost ~2.2 s; S-e's K5 hold absorbs it, build05S unchanged).
-  const se=tl.beats.find(x=>x.id==='S-e')!,end=se.t1-sc.t0,k4in=K3_OUT_T+SAIL_K34_S;
+  // b16 (sail.C1ride): the K4→K5→K6 move ends with S-f (she is still seated; the lens is held through S-f/S-g), not S-e: squeezed
+  // into ~1.6 s before the berth it reached 10.6 m/s² at 21.8 s.
+  const sg=tl.beats.find(x=>x.id==='S-g')!,end=sg.t1-sc.t0,k4in=K3_OUT_T+SAIL_K34_S;
   if(tau<k4in)return orbitMix(K3,K4,sailEase((tau-K3_OUT_T)/SAIL_K34_S),(x)=>x);
   // One eased move K4→K6 shaped by K5 (quadratic Bézier; small bearings, so field-wise is fine).
-  const s=sailEase((tau-k4in)/Math.max(0.3,end-k4in)),w0=(1-s)*(1-s),w1=2*s*(1-s),w2=s*s;
+  const s=sailEase((tau-k4in)/Math.max(0.3,end-k4in),.5)/* b16: full sine ramps (C1ride) */,w0=(1-s)*(1-s),w1=2*s*(1-s),w2=s*s;
   const bz=(k:keyof SailOff)=>w0*K4[k]+w1*K5[k]+w2*K6[k];
   return {back:bz('back'),side:bz('side'),up:bz('up'),fov:bz('fov'),look:bz('look'),orb:bz('orb')};
  }
@@ -413,6 +415,27 @@ export function parentingErrorM(movedM:number,local:Vec=[0,0.02,0]):number{
  return dist(child,expected);
 }
 
+export const BALLOON_CAM_SMOOTH_S=0.5;
+/** Narrowest supported portrait aspect (360×780 / 390×844); the correction is screen-independent. */
+const BALLOON_MIN_ASPECT=0.46,BALLOON_KEEP_NDC=0.40,BALLOON_HER_Y=0.95;
+function softExcess(x:number,lim:number,k:number):number{const e=Math.abs(x)-lim;const s=e>6*k?e:k*Math.log1p(Math.exp(e/k));return Math.sign(x)*s;}
+/**
+ * b16 item 5: turn the aim towards her basket just enough that her centre stays within ±BALLOON_KEEP_NDC (box right edge ≤ 80 %),
+ * softly (C1). Position untouched, so the route and reveal stay as authored.
+ */
+export function balloonKeepInFrame(pose:Pose,basket:Vec):Pose{
+ const p=pose.position,her:Vec=[basket[0],basket[1]+BALLOON_HER_Y,basket[2]];
+ let f:Vec=[pose.target[0]-p[0],pose.target[1]-p[1],pose.target[2]-p[2]];const dist=Math.hypot(f[0],f[1],f[2])||1;f=[f[0]/dist,f[1]/dist,f[2]/dist];
+ const th=Math.tan((pose.fovVerticalDeg||48)*Math.PI/360),thx=th*BALLOON_MIN_ASPECT;
+ const yawOf=(v:Vec)=>Math.atan2(v[0],v[2]),pitchOf=(v:Vec)=>Math.atan2(v[1],Math.hypot(v[0],v[2]));
+ const h:Vec=[her[0]-p[0],her[1]-p[1],her[2]-p[2]];
+ let dy=yawOf(h)-yawOf(f);while(dy>Math.PI)dy-=2*Math.PI;while(dy<-Math.PI)dy+=2*Math.PI;
+ const dp=pitchOf(h)-pitchOf(f);
+ const limY=Math.atan(BALLOON_KEEP_NDC*thx),limP=Math.atan(0.7*th);
+ const cy=softExcess(dy,limY,0.02),cp=softExcess(dp,limP,0.02);
+ const yaw=yawOf(f)+cy,pitch=pitchOf(f)+cp,cpch=Math.cos(pitch);
+ return {position:p,target:[p[0]+Math.sin(yaw)*cpch*dist,p[1]+Math.sin(pitch)*dist,p[2]+Math.cos(yaw)*cpch*dist],fovVerticalDeg:pose.fovVerticalDeg};
+}
 /** Balloon meadow → sky city (§10). Pose is the shared WorldFlowCore camera pose already imported above. */
 export type Beat={id:string;t0:number;t1:number};
 export type VehicleSample={pos:Vec;yaw:number;roll:number};
@@ -538,7 +561,23 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
   const yawDeg=world?s.yawDeg:meadow.yawDeg+s.yawDeg;
   return {pos:map(s.pos,time,s.frame),yaw:yawDeg*Math.PI/180,roll:s.rollDeg};
  };
- const camera=(time:number,_screen?:Screen):Pose=>{const s=local(time);return {position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48};};
+ const rawCam=(time:number):Pose=>{const s=local(time);return {position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48};};
+ // b16 item 5: the 10 Hz keys are linearly interpolated, so every key is a velocity step (B-d |a| 142 m/s²). Smooth on the camera
+ // side: a triangular window (±BALLOON_CAM_SMOOTH_S, = two box passes ≈ quadratic B-spline) inside each continuous segment
+ // (never across the coordinate seam), then keep her basket inside the frame (balloonKeepInFrame). The flight file is unchanged.
+ // Seam re-root as a rigid map (pre ↔ post world), from the vehicle on both sides, so the window may cross the seam.
+ const vPre=vehicle(SEAM_T-1e-4),vPost=vehicle(SEAM_T),dYawDeg=(vPost.yaw-vPre.yaw)*180/Math.PI;
+ const toSide=(x:Vec,fromPre:boolean,toPre:boolean):Vec=>{if(fromPre===toPre)return x;
+  if(fromPre){const r=rotY(dYawDeg,[x[0]-vPre.pos[0],x[1]-vPre.pos[1],x[2]-vPre.pos[2]]);return [r[0]+vPost.pos[0],r[1]+vPost.pos[1],r[2]+vPost.pos[2]];}
+  const r=rotY(-dYawDeg,[x[0]-vPost.pos[0],x[1]-vPost.pos[1],x[2]-vPost.pos[2]]);return [r[0]+vPre.pos[0],r[1]+vPre.pos[1],r[2]+vPre.pos[2]];};
+ const camera=(time:number,_screen?:Screen):Pose=>{
+  const pre=time<SEAM_T,edge=Math.min(time,FLIGHT_DURATION-time);
+  const P:Vec=[0,0,0],Q:Vec=[0,0,0];let W=0;const N=8,h=BALLOON_CAM_SMOOTH_S*smoother(Math.max(0,edge)/(2*BALLOON_CAM_SMOOTH_S));
+  for(let k=-N;k<=N;k++){const w=N+1-Math.abs(k),tt=Math.max(0,Math.min(FLIGHT_DURATION,time+k*h/N)),c=rawCam(tt),sp=tt<SEAM_T;
+   const cp=toSide(c.position,sp,pre),ct=toSide(c.target,sp,pre);for(let j=0;j<3;j++){P[j]+=cp[j]*w;Q[j]+=ct[j]*w;}W+=w;}
+  const pose:Pose={position:[P[0]/W,P[1]/W,P[2]/W],target:[Q[0]/W,Q[1]/W,Q[2]/W],fovVerticalDeg:48};
+  return balloonKeepInFrame(pose,vehicle(time).pos);
+ };
  const routeAt=(time:number)=>worldAt(Math.max(0,Math.min(FLIGHT_DURATION,time)));
  const deck=doc.layout.cloudDeckY,deckMid=(deck[0]+deck[1])/2;
  const cloudAt=map(local(4.3).pos,4.3,local(4.3).frame);

@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T21:35:18.048Z",
+ "timeUTC": "2026-10-22T22:49:16.401Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
@@ -38,12 +38,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -56,19 +56,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -117,12 +107,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -135,19 +125,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -196,12 +176,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -214,19 +194,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -275,12 +245,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -293,19 +263,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -354,12 +314,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -372,19 +332,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -433,12 +383,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -451,19 +401,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -512,12 +452,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -530,19 +470,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -580,44 +510,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -643,13 +573,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -662,6 +587,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -681,44 +611,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -744,13 +674,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -763,6 +688,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -782,44 +712,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -845,13 +775,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -864,6 +789,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -883,44 +813,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -946,13 +876,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -965,6 +890,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -984,44 +914,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -1047,13 +977,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -1066,6 +991,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -1085,44 +1015,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -1148,13 +1078,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -1167,6 +1092,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -1186,44 +1116,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -1249,13 +1179,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -1268,6 +1193,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -1283,428 +1213,428 @@
    "leg": "balloon skycity→lakeside",
    "screen": "390x844",
    "O1": "FAIL",
-   "O2": "FAIL",
+   "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
    "blackFrames": 9,
-   "occludedFrames": 480,
+   "occludedFrames": 12,
    "occludedSpans": [
     {
-     "t0": 9.47,
-     "t1": 23,
+     "t0": 21.53,
+     "t1": 21.7,
      "phase": "flight",
      "first": {
-      "t": 9.47,
-      "pose": "seated(basket)",
-      "chest": "balloon:balloon_basket (9/9)"
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
      }
     },
     {
-     "t0": 27.87,
-     "t1": 30.27,
+     "t0": 21.97,
+     "t1": 22.13,
      "phase": "flight",
      "first": {
-      "t": 27.87,
-      "pose": "seated(basket)",
-      "chest": "balloon:basket_door_leaf (5/9)"
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
      }
     }
    ],
-   "centreRayGrazeFrames": 501,
+   "centreRayGrazeFrames": 73,
    "grazeSample": [
     {
-     "t": 9.47,
-     "k": "chest",
+     "t": 21.53,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.5,
-     "k": "chest",
+     "t": 21.57,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.53,
-     "k": "chest",
+     "t": 21.6,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.57,
-     "k": "chest",
+     "t": 21.63,
+     "k": "face",
      "by": "balloon:balloon_basket"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 1.074,
-   "clearAtS": 5.2,
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
    "clearPhase": "walk-to-basket",
-   "clearNearest": "skycity:env_sky_static_foliage_cards"
+   "clearNearest": "skycity:env_sky_static_palette"
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "414x896",
    "O1": "FAIL",
-   "O2": "FAIL",
+   "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
    "blackFrames": 9,
-   "occludedFrames": 480,
+   "occludedFrames": 12,
    "occludedSpans": [
     {
-     "t0": 9.47,
-     "t1": 23,
+     "t0": 21.53,
+     "t1": 21.7,
      "phase": "flight",
      "first": {
-      "t": 9.47,
-      "pose": "seated(basket)",
-      "chest": "balloon:balloon_basket (9/9)"
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
      }
     },
     {
-     "t0": 27.87,
-     "t1": 30.27,
+     "t0": 21.97,
+     "t1": 22.13,
      "phase": "flight",
      "first": {
-      "t": 27.87,
-      "pose": "seated(basket)",
-      "chest": "balloon:basket_door_leaf (5/9)"
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
      }
     }
    ],
-   "centreRayGrazeFrames": 501,
+   "centreRayGrazeFrames": 73,
    "grazeSample": [
     {
-     "t": 9.47,
-     "k": "chest",
+     "t": 21.53,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.5,
-     "k": "chest",
+     "t": 21.57,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.53,
-     "k": "chest",
+     "t": 21.6,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.57,
-     "k": "chest",
+     "t": 21.63,
+     "k": "face",
      "by": "balloon:balloon_basket"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 1.074,
-   "clearAtS": 5.2,
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
    "clearPhase": "walk-to-basket",
-   "clearNearest": "skycity:env_sky_static_foliage_cards"
+   "clearNearest": "skycity:env_sky_static_palette"
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "360x780",
    "O1": "FAIL",
-   "O2": "FAIL",
+   "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
    "blackFrames": 9,
-   "occludedFrames": 480,
+   "occludedFrames": 12,
    "occludedSpans": [
     {
-     "t0": 9.47,
-     "t1": 23,
+     "t0": 21.53,
+     "t1": 21.7,
      "phase": "flight",
      "first": {
-      "t": 9.47,
-      "pose": "seated(basket)",
-      "chest": "balloon:balloon_basket (9/9)"
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
      }
     },
     {
-     "t0": 27.87,
-     "t1": 30.27,
+     "t0": 21.97,
+     "t1": 22.13,
      "phase": "flight",
      "first": {
-      "t": 27.87,
-      "pose": "seated(basket)",
-      "chest": "balloon:basket_door_leaf (5/9)"
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
      }
     }
    ],
-   "centreRayGrazeFrames": 501,
+   "centreRayGrazeFrames": 73,
    "grazeSample": [
     {
-     "t": 9.47,
-     "k": "chest",
+     "t": 21.53,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.5,
-     "k": "chest",
+     "t": 21.57,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.53,
-     "k": "chest",
+     "t": 21.6,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.57,
-     "k": "chest",
+     "t": 21.63,
+     "k": "face",
      "by": "balloon:balloon_basket"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 1.074,
-   "clearAtS": 5.2,
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
    "clearPhase": "walk-to-basket",
-   "clearNearest": "skycity:env_sky_static_foliage_cards"
+   "clearNearest": "skycity:env_sky_static_palette"
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "375x667",
    "O1": "FAIL",
-   "O2": "FAIL",
+   "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
    "blackFrames": 9,
-   "occludedFrames": 483,
+   "occludedFrames": 12,
    "occludedSpans": [
     {
-     "t0": 9.47,
-     "t1": 23,
+     "t0": 21.53,
+     "t1": 21.7,
      "phase": "flight",
      "first": {
-      "t": 9.47,
-      "pose": "seated(basket)",
-      "chest": "balloon:balloon_basket (9/9)"
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
      }
     },
     {
-     "t0": 27.77,
-     "t1": 30.27,
+     "t0": 21.97,
+     "t1": 22.13,
      "phase": "flight",
      "first": {
-      "t": 27.77,
-      "pose": "seated(basket)",
-      "chest": "balloon:basket_door_leaf (5/9)"
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
      }
     }
    ],
-   "centreRayGrazeFrames": 504,
+   "centreRayGrazeFrames": 74,
    "grazeSample": [
     {
-     "t": 9.47,
-     "k": "chest",
+     "t": 21.53,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.5,
-     "k": "chest",
+     "t": 21.57,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.53,
-     "k": "chest",
+     "t": 21.6,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.57,
-     "k": "chest",
+     "t": 21.63,
+     "k": "face",
      "by": "balloon:balloon_basket"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 1.074,
-   "clearAtS": 5.2,
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
    "clearPhase": "walk-to-basket",
-   "clearNearest": "skycity:env_sky_static_foliage_cards"
+   "clearNearest": "skycity:env_sky_static_palette"
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "320x568",
    "O1": "FAIL",
-   "O2": "FAIL",
+   "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
    "blackFrames": 9,
-   "occludedFrames": 483,
+   "occludedFrames": 12,
    "occludedSpans": [
     {
-     "t0": 9.47,
-     "t1": 23,
+     "t0": 21.53,
+     "t1": 21.7,
      "phase": "flight",
      "first": {
-      "t": 9.47,
-      "pose": "seated(basket)",
-      "chest": "balloon:balloon_basket (9/9)"
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
      }
     },
     {
-     "t0": 27.77,
-     "t1": 30.27,
+     "t0": 21.97,
+     "t1": 22.13,
      "phase": "flight",
      "first": {
-      "t": 27.77,
-      "pose": "seated(basket)",
-      "chest": "balloon:basket_door_leaf (5/9)"
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
      }
     }
    ],
-   "centreRayGrazeFrames": 504,
+   "centreRayGrazeFrames": 73,
    "grazeSample": [
     {
-     "t": 9.47,
-     "k": "chest",
+     "t": 21.53,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.5,
-     "k": "chest",
+     "t": 21.57,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.53,
-     "k": "chest",
+     "t": 21.6,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.57,
-     "k": "chest",
+     "t": 21.63,
+     "k": "face",
      "by": "balloon:balloon_basket"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 1.074,
-   "clearAtS": 5.2,
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
    "clearPhase": "walk-to-basket",
-   "clearNearest": "skycity:env_sky_static_foliage_cards"
+   "clearNearest": "skycity:env_sky_static_palette"
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x520",
    "O1": "FAIL",
-   "O2": "FAIL",
+   "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
    "blackFrames": 9,
-   "occludedFrames": 483,
+   "occludedFrames": 12,
    "occludedSpans": [
     {
-     "t0": 9.47,
-     "t1": 23,
+     "t0": 21.53,
+     "t1": 21.7,
      "phase": "flight",
      "first": {
-      "t": 9.47,
-      "pose": "seated(basket)",
-      "chest": "balloon:balloon_basket (9/9)"
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
      }
     },
     {
-     "t0": 27.77,
-     "t1": 30.27,
+     "t0": 21.97,
+     "t1": 22.13,
      "phase": "flight",
      "first": {
-      "t": 27.77,
-      "pose": "seated(basket)",
-      "chest": "balloon:basket_door_leaf (5/9)"
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
      }
     }
    ],
-   "centreRayGrazeFrames": 504,
+   "centreRayGrazeFrames": 74,
    "grazeSample": [
     {
-     "t": 9.47,
-     "k": "chest",
+     "t": 21.53,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.5,
-     "k": "chest",
+     "t": 21.57,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.53,
-     "k": "chest",
+     "t": 21.6,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.57,
-     "k": "chest",
+     "t": 21.63,
+     "k": "face",
      "by": "balloon:balloon_basket"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 1.074,
-   "clearAtS": 5.2,
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
    "clearPhase": "walk-to-basket",
-   "clearNearest": "skycity:env_sky_static_foliage_cards"
+   "clearNearest": "skycity:env_sky_static_palette"
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "768x1024",
    "O1": "FAIL",
-   "O2": "FAIL",
+   "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
    "blackFrames": 9,
-   "occludedFrames": 483,
+   "occludedFrames": 12,
    "occludedSpans": [
     {
-     "t0": 9.47,
-     "t1": 23,
+     "t0": 21.53,
+     "t1": 21.7,
      "phase": "flight",
      "first": {
-      "t": 9.47,
-      "pose": "seated(basket)",
-      "chest": "balloon:balloon_basket (9/9)"
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
      }
     },
     {
-     "t0": 27.77,
-     "t1": 30.27,
+     "t0": 21.97,
+     "t1": 22.13,
      "phase": "flight",
      "first": {
-      "t": 27.77,
-      "pose": "seated(basket)",
-      "chest": "balloon:basket_door_leaf (5/9)"
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
      }
     }
    ],
-   "centreRayGrazeFrames": 504,
+   "centreRayGrazeFrames": 74,
    "grazeSample": [
     {
-     "t": 9.47,
-     "k": "chest",
+     "t": 21.53,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.5,
-     "k": "chest",
+     "t": 21.57,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.53,
-     "k": "chest",
+     "t": 21.6,
+     "k": "face",
      "by": "balloon:balloon_basket"
     },
     {
-     "t": 9.57,
-     "k": "chest",
+     "t": 21.63,
+     "k": "face",
      "by": "balloon:balloon_basket"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 1.074,
-   "clearAtS": 5.2,
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
    "clearPhase": "walk-to-basket",
-   "clearNearest": "skycity:env_sky_static_foliage_cards"
+   "clearNearest": "skycity:env_sky_static_palette"
   }
  ]
 }

@@ -31,7 +31,7 @@ const screens=process.env.QF_ROUTE_SCREENS?JSON.parse(process.env.QF_ROUTE_SCREE
   // Documented sail exceptions (Grok Bot 2026-10-22, see route-hard.json "exceptions"):
   //  O1palm — env_prop_palm_lean_01 may cross her face/head/chest for ≤ 2 frames (≤ 40 ms) within 10.5–11.5 s: a quick foreground
   //           pass while the set-off arc swings on her right, the palm 2.9 m from her at the jetty. Longer or elsewhere → O1 fails.
-  //  O1sgMain — sail_main over her face as she stands in S-g (23.3 s): open item, report-only key, not part of O1.
+  //  O1sgMain — sail_main over her face as she stands in S-g (23.3 s): own key, hard since the raised K6 dock lens (TransportLeg K5/K6).
   const isSail=leg.id.startsWith('sail'),byOf=f=>Object.entries(f).filter(([k])=>['face','head','chest'].includes(k)).map(([,v])=>String(v));
   const allSpans=spans(fails.map(f=>f.t)).map(([a,b])=>({t0:a,t1:b,phase:phaseOf(a),first:fails.find(f=>f.t===a),frames:fails.filter(f=>f.t>=a&&f.t<=b).length}));
   const palmEx=sp=>isSail&&sp.t0>=10.5&&sp.t1<=11.5&&sp.frames<=2&&sp.t1-sp.t0<=0.04+1e-6&&fails.filter(f=>f.t>=sp.t0&&f.t<=sp.t1).every(f=>byOf(f).every(x=>/env_prop_palm_lean_01/.test(x)));

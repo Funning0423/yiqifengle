@@ -74,7 +74,7 @@ export const LAKESIDE_BALLOON_LANDING={
  /** Flight time skipped at the cut (s). */
  flightSkipS:9,
  /** Walk lens, her-relative on the walk heading: [back, side (right +), up, aimAhead, aimUp (from chest), fov, aimSide (right +)]. */
- walkLens:[4.92,-.37,-.3,-.18,.15,48,.46] as readonly [number,number,number,number,number,number,number],
+ walkLens:[4.92,-.37,-.05,-.18,.15,48,.46] as readonly [number,number,number,number,number,number,number],
  /** Walk lens at the end of the walk (blended from walkLens on her walk progress, smootherstep). */
  walkLensEnd:[3.28,-6.51,.49,-.36,1.26,48,0] as readonly [number,number,number,number,number,number,number],
  /** Ride time: at least durationS (longer when the route needs it: cruise ≤ 4.2 m/s, |a| ≤ 3 m/s²). */
@@ -88,7 +88,7 @@ export const LAKESIDE_BALLOON_LANDING={
   *  SPEC §6.1: T = max(blendInS, √(5.7735·Δ°/120), √(5.7735·L/3))), never more than blendInMaxFrac of the ride. */
  blendInS:7.5,
  /** v2 ride: start blend (skycity camera → walk lens) length (s). */
- walkBlendInS:3.93,
+ walkBlendInS:8.5/* b16 item 6: was 3.93; with the plateau ease and the walk-time lens swing, walk ω 29.0 → 17.1°/s */,
  blendInMaxFrac:1,
  /** End: smootherstep from the keyed lens onto the landing pose over the last blendOutS (position lerp, view slerp, FOV). */
  blendOutS:8,
@@ -113,6 +113,12 @@ export const LAKESIDE_BALLOON_LANDING={
 export type BalloonKnobs=typeof LAKESIDE_BALLOON_LANDING;
 const CHEST=1.2;
 const smooth5=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
+/** b16 item 6: ease with a flat-top speed (smootherstep speed ramps over the first/last PLATEAU_R): zero speed and acceleration at
+ *  both ends like smooth5, but a peak speed of only 1/(1−R) × the mean (smooth5: 1.875×), for long turns that must fit a fixed time. */
+const PLATEAU_R=.15;
+function plateauEase(x:number,r:number=PLATEAU_R):number{const u=Math.max(0,Math.min(1,x)),
+ ramp=(y:number)=>{const q=Math.max(0,Math.min(1,y));return r*q*q*q*q*(2.5+q*(-3+q))/* ∫ smootherstep(q) r dq */;},half=r/2;
+ const a=u<r?ramp(u/r):u>1-r?(1-r)-ramp((1-u)/r):half+(u-r);return a/(1-r);}
 const seg=(a:Vec,b:Vec)=>Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);
 const heading=(start:Vec,bank:Vec):[number,number]=>{const dx=bank[0]-start[0],dz=bank[2]-start[2],h=Math.hypot(dx,dz)||1;return [dx/h,dz/h];};
 /** Basket path: straight in plan from `start` to `bank`, altitude from pathKeys (monotone cubic). Dense polyline. */
@@ -227,7 +233,10 @@ export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:P
  const girlYaw=(t:number):number=>{if(t>=cutT)return flight.girlYawRad;const d=walkAt(t),a=sampleRoute(walk,Math.max(0,d-.3)),b=sampleRoute(walk,Math.min(wl,d+.3));return Math.atan2(b[0]-a[0],b[2]-a[2]);};
  const vehicle=(t:number):Vec=>t<cutT?flight.vehicle(0):flight.vehicle(t-liftT);
  const cover=(t:number):number=>t<fadeOutAt?0:t<fadeOutAt+knobs.boardFadeOutS?(t-fadeOutAt)/knobs.boardFadeOutS:t<fadeInAt?1:t<fadeInAt+knobs.boardFadeInS?1-(t-fadeInAt)/knobs.boardFadeInS:0;
- const walkLens=(t:number):Pose=>{const p=girl(Math.min(t,walkS)),c:Vec=[p[0],p[1]+CHEST,p[2]],e=smooth5(walkAt(t)/wl),W0=knobs.walkLens,W1=knobs.walkLensEnd,WL=[0,1,2,3,4,5,6].map(i=>(W0[i]||0)+((W1[i]||0)-(W0[i]||0))*e);
+ // b16 item 6: the walk lens rides on her walk averaged over ±0.5 s (triangular), so her walk-stop ease (walkEaseS) reaches the
+ // lens softened (3.1 → <3 m/s² at 8.2 s); her own framing moves by < 0.1 m
+ const girlSoft=(t:number):Vec=>{let W=0;const a:Vec=[0,0,0];for(let i=-12;i<=12;i++){const w=1-Math.abs(i)/13,q=girl(Math.max(0,Math.min(walkS,t+i*.5/12)));W+=w;a[0]+=q[0]*w;a[1]+=q[1]*w;a[2]+=q[2]*w;}return [a[0]/W,a[1]/W,a[2]/W];};
+ const walkLens=(t:number):Pose=>{const p=girlSoft(t)/* not clamped: the average settles after walkS (no velocity kink) */,c:Vec=[p[0],p[1]+CHEST,p[2]],e=plateauEase(Math.min(t,walkS)/walkS)/* b16 item 6: was smooth5(walk distance) (ω 29.8°/s at 4.1 s swinging to walkLensEnd); on walk TIME, so her walk-start ease does not bunch the swing */,W0=knobs.walkLens,W1=knobs.walkLensEnd,WL=[0,1,2,3,4,5,6].map(i=>(W0[i]||0)+((W1[i]||0)-(W0[i]||0))*e);
   return {position:[p[0]-wd[0]*WL[0]+wr[0]*WL[1],p[1]+CHEST+WL[2],p[2]-wd[1]*WL[0]+wr[1]*WL[1]],target:[c[0]+wd[0]*WL[3]+wr[0]*WL[6],c[1]+WL[4],c[2]+wd[1]*WL[3]+wr[1]*WL[6]],fovVerticalDeg:WL[5]};};
  // start blend: walkBlendInS for the default skycity follow camera, longer when the live camera starts further away (SPEC §6.1
  // rule on the orbit arc, ×WALK_BLEND_MARGIN for her own walk-off acceleration riding on the blend)
@@ -236,10 +245,14 @@ export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:P
   if(t>=T)return landing;
   if(t>=cutT)return flight.camera(Math.max(0,t-liftT),null)/* cut under full black */;
   let pose=walkLens(t);
-  if(from&&from!==fromKey){const p0=girl(0);walkBlendS=Math.min(walkS,Math.max(knobs.walkBlendInS,WALK_BLEND_MARGIN*balloonBlendInS(from,walkLens(0),walkS,{...knobs,blendInS:0,blendInMaxFrac:1} as unknown as BalloonKnobs,[p0[0],p0[1]+CHEST,p0[2]])));}
+  if(from&&from!==fromKey){const p0=girl(0);walkBlendS=Math.min(walkS,Math.max(knobs.walkBlendInS,WALK_BLEND_MARGIN*balloonBlendInS(from,walkLens(0),walkS,{...knobs,blendInS:0,blendInMaxFrac:1} as unknown as BalloonKnobs,[p0[0],p0[1]+CHEST,p0[2]])));
+   // b16 item 6: + the ω rule on the orbit (plateau-ease(R .3) peak Δ/(0.7·T) ≤ 18°/s, Δ = the larger of the view turn and the azimuth swept round her)
+   const w0=walkLens(0),u0=unit(from.position as Vec,from.target as Vec),u1=unit(w0.position as Vec,w0.target as Vec),dv=Math.acos(Math.max(-1,Math.min(1,u0[0]*u1[0]+u0[1]*u1[1]+u0[2]*u1[2])))*180/Math.PI;
+   let da=(Math.atan2(w0.position[0]-p0[0],w0.position[2]-p0[2])-Math.atan2(from.position[0]-p0[0],from.position[2]-p0[2]))*180/Math.PI;da=Math.abs(((da+540)%360)-180);
+   walkBlendS=Math.min(walkS,Math.max(walkBlendS,Math.max(dv,da)/(1-.3)/18));}
   if(from&&t<walkBlendS){const p=girl(t),c:Vec=[p[0],p[1]+CHEST,p[2]];
    if(from!==fromKey){fromKey=from;const q=walkLens(0).position,p0=girl(0),da=Math.atan2(q[0]-p0[0],q[2]-p0[2])-Math.atan2(from.position[0]-p0[0],from.position[2]-p0[2]);turn=Math.sin(da)>=0?1:-1;}
-   const e=smooth5(t/walkBlendS),a:Vec=[from.position[0]-c[0],from.position[1]-c[1],from.position[2]-c[2]],b:Vec=[pose.position[0]-c[0],pose.position[1]-c[1],pose.position[2]-c[2]],o=orbitOffset(a,b,e,turn);
+   const e=plateauEase(t/walkBlendS,.3),a:Vec=[from.position[0]-c[0],from.position[1]-c[1],from.position[2]-c[2]],b:Vec=[pose.position[0]-c[0],pose.position[1]-c[1],pose.position[2]-c[2]],o=orbitOffset(a,b,e,turn);
    const v=blendPose(from,pose,e),q:Vec=[c[0]+o[0],c[1]+o[1],c[2]+o[2]],d=unit(v.position,v.target);
    pose={position:q,target:[q[0]+d[0]*10,q[1]+d[1]*10,q[2]+d[2]*10],fovVerticalDeg:v.fovVerticalDeg};}
   return pose;};
@@ -381,7 +394,7 @@ export function lakesideRouteTiming(length:number,durationS:number,easeInS:numbe
  *  1.0 m + her radius + margin; capped at walk start + outM at walk speed + capPadS game seconds). Only then does it blend
  *  onto the landing (= board) pose, over lakesideDoorBlendS (SPEC §6.1 rule, ≥ minBlendS), while she walks on off the board
  *  frame; the controller and the board fade-in follow that, still overlapping the rest of her walk. */
-export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0,minBlendS:3.0,aimPull:.8} as const;
+export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0,minBlendS:3.0,aimPull:.3} as const;
 /** Door lens: on the shore side, ahead of her and to the side of the door path, looking back at the door and her first
  *  steps (the follow lens sits behind the basket, so the door wall, which faces the shore, would be hidden). Pure numbers. */
 export const LAKESIDE_DOOR_LENS={aheadM:3.2,sideM:3.6,upM:1.5,lookUpM:1.0,fovDeg:50,turnInS:8} as const;
@@ -401,17 +414,25 @@ export function lakesideDoorFramePoints(walk:readonly Vec[],basket:Vec,outM:numb
  *  search of the shore-side lens (ahead/side/up/look height) for the frame that holds the whole basket + her door path
  *  inside 0.9, with the lowest framed point near the bottom (≈ -0.8, little empty ground) and the block centred. Falls back
  *  to the b15 numbers when no candidate fits. `aspect` is the screen width/height. */
-export function lakesideDoorLens(walk:readonly Vec[],basket?:Vec,aspect=390/844,outM:number=LAKESIDE_DOOR_HOLD.outM,k=LAKESIDE_DOOR_LENS):Pose{
+export function lakesideDoorLens(walk:readonly Vec[],basket?:Vec,aspect=390/844,outM:number=LAKESIDE_DOOR_HOLD.outM,k=LAKESIDE_DOOR_LENS,safe?:{top:number;bottom:number;h:number}):Pose{
  if(!basket)return lakesideDoorLensAt(walk,k.aheadM,k.sideM,k.upM,k.lookUpM,k.fovDeg,outM);
- const pts=lakesideDoorFramePoints(walk,basket,outM);let best:Pose|null=null,bc=1e9;
- for(let ahead=2;ahead<=7.01;ahead+=.5)for(let side=1;side<=6.01;side+=.5)for(let up=.6;up<=2.41;up+=.3)for(let lu=.3;lu<=1.51;lu+=.3){
-  const P=lakesideDoorLensAt(walk,ahead,side,up,lu,k.fovDeg,outM),f=unit(P.position,P.target),rl=Math.hypot(f[0],f[2])||1,r:Vec=[-f[2]/rl,0,f[0]/rl];
+ const pts=lakesideDoorFramePoints(walk,basket,outM);
+ // b16 item 6 (route F3 on 320x568 / 390x520): with the screen's safe insets (BoardLayout.boardSafeInsets, pt), her whole body box
+ // (±0.3 m, 0…1.73 m) on the door path up to outM must stay 13 pt inside them; the "low edge near the bottom" aim follows the inset
+ let yLo=-.9,yHi=.9,aimLo=-.8;
+ if(safe&&safe.h>0){yLo=Math.max(yLo,-1+2*(safe.bottom+13)/safe.h);yHi=Math.min(yHi,1-2*(safe.top+13)/safe.h);aimLo=Math.max(aimLo,yLo+.05);
+  const q=sampleRoute(walk as Vec[],outM);for(const p of [walk[0],q])for(const dx of [-.3,.3])for(const dz of [-.3,.3])for(const y of [0,1.73])pts.push([p[0]+dx,p[1]+y,p[2]+dz]);}let best:Pose|null=null,bc=1e9;
+ for(let ahead=2;ahead<=7.01;ahead+=.5)for(let side=1;side<=6.01;side+=.5)for(let up=.6;up<=6.01;up+=.3)for(let lu=.3;lu<=1.51;lu+=.3){
+  const P=lakesideDoorLensAt(walk,ahead,side,up,lu,k.fovDeg,outM);
+  // b16 item 6: the door lens also looks down on her seated chest at ≥ the rim floor (+ the soft band), so lakesideRimLift is 0 at touchdown
+  if(lakesideRimLift(P,[basket[0],basket[1]+LAKESIDE_SEATED_CHEST_M,basket[2]])!==P)continue;
+  const f=unit(P.position,P.target),rl=Math.hypot(f[0],f[2])||1,r:Vec=[-f[2]/rl,0,f[0]/rl];
   const u:Vec=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan(k.fovDeg*Math.PI/360);
   let xmn=9,xmx=-9,ymn=9,ymx=-9,ok=true;
   for(const q of pts){const v=[q[0]-P.position[0],q[1]-P.position[1],q[2]-P.position[2]],z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];if(z<1.5){ok=false;break;}
    const x=(v[0]*r[0]+v[2]*r[2])/(z*th*aspect),y=(v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th);xmn=Math.min(xmn,x);xmx=Math.max(xmx,x);ymn=Math.min(ymn,y);ymx=Math.max(ymx,y);}
-  if(!ok||xmn<-.9||xmx>.9||ymn<-.9||ymx>.9)continue;
-  const c=Math.abs(ymn+.8)*4+Math.abs((xmn+xmx)/2)*2+Math.max(0,.55-(ymx-ymn))*3;if(c<bc){bc=c;best=P;}}
+  if(!ok||xmn<-.9||xmx>.9||ymn<yLo||ymx>yHi)continue;
+  const c=Math.abs(ymn-aimLo)*4+Math.abs((xmn+xmx)/2)*2+Math.max(0,.55-(ymx-ymn))*3;if(c<bc){bc=c;best=P;}}
  return best||lakesideDoorLensAt(walk,k.aheadM,k.sideM,k.upM,k.lookUpM,k.fovDeg,outM);
 }
 /** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera until the old blend-out window (from there the
@@ -419,9 +440,39 @@ export function lakesideDoorLens(walk:readonly Vec[],basket?:Vec,aspect=390/844,
  *  orbit round the basket (RegionJourneyCore.orbitOffset, short way round, view slerped) from the follow lens onto the
  *  door lens, arriving exactly at touchdown; held on the door lens after T. */
 export function lakesideDoorRideCamera(R:LakesideBalloonRide,door:Pose,t:number,from:Pose|null,k=LAKESIDE_DOOR_LENS):Pose{
+ if(t<R.cutT)return R.camera(t,from);
+ // her chest reference for the lift: basket path averaged over ±0.6 s (triangular; the window closes over the last 1.2 s so it is
+ // exact at touchdown): the path polyline's vertical kinks (e.g. 18.5 s) would otherwise reach the lens as acceleration spikes
+ const hw=.8*Math.max(0,Math.min(1,(R.T-t)/1.6,(t-R.cutT)/1.6));let v:Vec=R.vehicle(t);
+ if(hw>1e-3){let W=0;const a:Vec=[0,0,0];for(let i=-24;i<=24;i++){const w=1-Math.abs(i)/25,q=R.vehicle(t+i*hw/24);W+=w;a[0]+=q[0]*w;a[1]+=q[1]*w;a[2]+=q[2]*w;}v=[a[0]/W,a[1]/W,a[2]/W];}
+ const c:Vec=[v[0],v[1]+LAKESIDE_SEATED_CHEST_M,v[2]];let p=lakesideDoorRideCameraRaw(R,door,t,from,k,v);
+ // aim point on the raw view ray at her chest distance: the same ray whichever raw branch made it, so moving the lens below never kinks the view
+ {const P=p.position,dd=unit(P as Vec,p.target as Vec),r=Math.hypot(P[0]-c[0],P[1]-c[1],P[2]-c[2]);p={position:P,target:[P[0]+dd[0]*r,P[1]+dd[1]*r,P[2]+dd[2]*r],fovVerticalDeg:p.fovVerticalDeg};}
+ // strut pass: from ~11 s before touchdown the lifted lens lines a basket rigging strut up with her face (route O1, 5/9 rays);
+ // orbit LAKESIDE_STRUT_DODGE.deg about her chest (smootherstep in/out over rampS: ≤ 7.5°/s, ≤ 12°/s² added)
+ const D=LAKESIDE_STRUT_DODGE,s=R.T-t,ss=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(u*(u*6-15)+10);},
+  wgt=ss((D.fromS-s)/D.rampS)*ss((s-D.toS)/D.rampS);
+ if(wgt>0){const a=D.deg*wgt*Math.PI/180,P=p.position,dx=P[0]-c[0],dz=P[2]-c[2],ca=Math.cos(a),sa=Math.sin(a);
+  p={position:[c[0]+dx*ca+dz*sa,P[1],c[2]-dx*sa+dz*ca],target:p.target,fovVerticalDeg:p.fovVerticalDeg};}
+ return lakesideRimLift(p,c);
+}
+export const LAKESIDE_STRUT_DODGE={deg:10,fromS:16.5,toS:7.0,rampS:3.0} as const;
+/** b16 item 6: seated in the basket her chest (sit_hold skeleton: 0.80 m over her root, root 0.10 m under the floor board)
+ *  is ~0.5 m below the basket rim; from lower than ~28° the wall hides it (route O1, disc test). The ride lens is lifted
+ *  (position only, aim point kept) so it looks down on her chest at ≥ LAKESIDE_RIM_ELEV_DEG; soft floor, C¹. The door lens
+ *  honours the same floor, so the lift is zero there and the touchdown hand-off stays exact. */
+export const LAKESIDE_SEATED_CHEST_M=.7,LAKESIDE_RIM_ELEV_DEG=30,LAKESIDE_RIM_SOFT_M=.5,LAKESIDE_RIM_SOFT_K=.15;
+export function lakesideRimLift(p:Pose,chest:Vec,deg=LAKESIDE_RIM_ELEV_DEG):Pose{
+ const P=p.position,hz=Math.hypot(P[0]-chest[0],P[2]-chest[2]),x=hz*Math.tan(deg*Math.PI/180)-(P[1]-chest[1]),w=Math.max(LAKESIDE_RIM_SOFT_M,LAKESIDE_RIM_SOFT_K*hz);
+ const L=x<=-w?0:x>=w?x:(x+w)*(x+w)/(4*w);if(L<=0)return p;
+ // rotate up about her chest (distance kept) by the elevation the soft lift asks for
+ const d=Math.hypot(hz,P[1]-chest[1]),e=Math.min(Math.PI/2*.9,Math.atan2(P[1]-chest[1]+L,hz)),k=hz>1e-6?d*Math.cos(e)/hz:1;
+ return {position:[chest[0]+(P[0]-chest[0])*k,chest[1]+d*Math.sin(e),chest[2]+(P[2]-chest[2])*k],target:[p.target[0],p.target[1],p.target[2]],fovVerticalDeg:p.fovVerticalDeg};
+}
+function lakesideDoorRideCameraRaw(R:LakesideBalloonRide,door:Pose,t:number,from:Pose|null,k=LAKESIDE_DOOR_LENS,vs?:Vec):Pose{
  if(t<R.T-LAKESIDE_BALLOON_LANDING.blendOutS||t<R.cutT)return R.camera(t,from)/* the old blend-out onto the landing pose is not used */;
  const o=R.T-k.turnInS;if(t>=R.T)return door;if(t<o)return R.flight.follow(t-R.liftT);
- const fl=R.flight.follow(t-R.liftT),v=R.vehicle(t),c:Vec=[v[0],v[1]+1.0,v[2]],e=Math.max(0,Math.min(1,(t-o)/k.turnInS)),x=e*e*e*(e*(e*6-15)+10);
+ const fl=R.flight.follow(t-R.liftT),v=vs||R.vehicle(t)/* b16: the smoothed basket (see lakesideDoorRideCamera) */,c:Vec=[v[0],v[1]+1.0,v[2]],e=Math.max(0,Math.min(1,(t-o)/k.turnInS)),x=e*e*e*(e*(e*6-15)+10);
  const vt=R.vehicle(R.T),cT:Vec=[vt[0],vt[1]+1.0,vt[2]];
  const a:Vec=[fl.position[0]-c[0],fl.position[1]-c[1],fl.position[2]-c[2]],b:Vec=[door.position[0]-cT[0],door.position[1]-cT[1],door.position[2]-cT[2]],off=orbitOffset(a,b,x,0);
  const bl=blendPose(fl,door,x),p:Vec=[c[0]+off[0],c[1]+off[1],c[2]+off[2]],dd=unit(bl.position,bl.target);
