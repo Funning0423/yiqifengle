@@ -1,10 +1,10 @@
 /** r4.2 (GGbot): the sky-city board background = the Build05 lease (SkycityBoardBackground.ts, kept byte-for-byte: the 09 plaza
  *  composition is pinned by tools/journey-integration/test-journey-occlusion.cjs) plus what r4.2 needs around it. */
-import {Camera,Color,Node,isValid} from 'cc';
+import {Camera,Color,Node,SphereLight,isValid} from 'cc';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 import {createSkycityBoardBackground as createBuild05SkycityBoard} from './SkycityBoardBackground';
 import {onDayNightChange,type DayNightMode} from '../world-r1/DayNightContract';
-import {hexToRgb,writeRegionBoardClear} from './RegionBoardNight';
+import {hexToRgb,regionBoardKeyLight,writeRegionBoardClear} from './RegionBoardNight';
 export const SKYCITY_BOARD_RIG='SkycityLiveBackground';
 /** item 9: the Build05 board sky (camera clear colour) by day; at night the journey's night sky (the ground already matched). */
 export const SKYCITY_BOARD_DAY_CLEAR=hexToRgb('#9ccadf');
@@ -22,17 +22,21 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const camNode=rig?rig.getChildByName('SkycityBackgroundCamera'):null,camera:Camera|null=camNode?camNode.getComponent(Camera):null;let dead=false;
  // Read the live blend, not just a binary night flag. Day always restores the authored sky, including after a hidden prewarm.
  let skyMode:DayNightMode='day',skyNightBlend=0;
+ // b16-fix P2: the Build05 lease's warm key light follows the night too (was day-bright under the night sky). Day values captured once.
+ const keyNode=rig?rig.getChildByName('SkycityBackgroundKey'):null,key:SphereLight|null=keyNode?keyNode.getComponent(SphereLight):null;
+ const keyDay=key?{color:[key.color.r,key.color.g,key.color.b] as number[],luminance:key.luminance}:null;let keyWritten=-1;
  const syncNight=(mode?:DayNightMode)=>{
   if(dead)return;
   let view:any;try{view=(globalThis as any).__worldDayNight?.snapshot?.();}catch{/* no world: authored day sky */}
   skyMode=mode??(view?.mode==='night'?'night':'day');
   skyNightBlend=skyMode==='night'?(Number.isFinite(view?.skyNightBlend)?Math.max(0,Math.min(1,view.skyNightBlend)):1):0;
   if(camera&&isValid(camera,true))writeRegionBoardClear(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend,(r,g,b)=>new Color(r,g,b,255));
+  if(key&&keyDay&&isValid(key,true)&&keyWritten!==skyNightBlend){const k=regionBoardKeyLight(keyDay.color,keyDay.luminance,skyNightBlend);key.color=new Color(k.color[0],k.color[1],k.color[2],255);key.luminance=k.luminance;keyWritten=skyNightBlend;}
  };
  syncNight();const offNight=onDayNightChange(syncNight);
  return Object.assign({},lease,{
   frame:(...args:Parameters<typeof lease.frame>)=>{syncNight();lease.frame(...args);},
   setVisible:(v:boolean)=>{syncNight();lease.setVisible(v);keepActive();},
-  diagnostics:()=>({...lease.diagnostics?.(),skyMode,skyNightBlend,skyClearColor:camera?[camera.clearColor.r,camera.clearColor.g,camera.clearColor.b]:null}),
+  diagnostics:()=>({...lease.diagnostics?.(),skyMode,skyNightBlend,skyClearColor:camera?[camera.clearColor.r,camera.clearColor.g,camera.clearColor.b]:null,keyLight:key?{color:[key.color.r,key.color.g,key.color.b],luminance:key.luminance}:null}),
   dispose:()=>{if(!dead){dead=true;offNight();}lease.dispose();}});
 };

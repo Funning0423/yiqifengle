@@ -617,7 +617,8 @@ export class WorldIntegrationBoot extends Component {
   * - level/skycity (+ their loading) and paused: unchanged (the island behind the board keeps its sign; no flicker on
   *   a level round trip). */
  private signShown=1;private signOut=-1;private signPrev='';
- private setSign(e:number,risePx:number){this.signShown=e;this.islandProps?.setSignEntrance(e,risePx);}
+ private signRetry=0;
+ private setSign(e:number,risePx:number){const ok=this.islandProps?.setSignEntrance(e,risePx);if(ok!==false)this.signShown=e;} // b16-fix P1: props not ready -> signShown unchanged, so the entrance replays once they are
  private gateSignEntrance(state:string,dt=0){const p=this.islandProps,prev=this.signPrev;this.signPrev=state;if(!p?.ready)return;
   if(SIGN_AWAY_STATES.indexOf(state)>=0){this.signEntrance=-1;
    if(this.signShown<=0){this.signOut=-1;this.setSign(0,0);return;}
@@ -635,6 +636,10 @@ export class WorldIntegrationBoot extends Component {
    p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',journey:s.state==='region-travel',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
    if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
+  // b16-fix P1 (build05 全流程测试 P1-1)：入场已结束但木牌并不可见时，不能留一个看不见的点击区。先重放一次入场；仍不可见就退回可见的平面「继续旅程」按钮。
+  if(sign&&p&&this.islandEntrance<0&&this.signEntrance<0&&typeof (p as any).signVisible==='function'&&!(p as any).signVisible()){if(this.signRetry<1){this.signRetry++;this.signShown=0;this.signEntrance=0;}else sign=null;}
+  else if(sign&&this.islandEntrance<0&&this.signEntrance<0)this.signRetry=0;
+  this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
   if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height)t.setContentSize(sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
   else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;}

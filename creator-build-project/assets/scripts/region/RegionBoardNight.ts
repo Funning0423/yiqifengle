@@ -13,3 +13,12 @@ export function regionNightNow():boolean{try{const m=(globalThis as any).__world
 /** Writes the eased clear colour onto a camera-like {clearColor} only when it changes (no per-frame allocation when steady). */
 export function writeRegionBoardClear(camera:{clearColor:{r:number;g:number;b:number;a:number}}|null,day:readonly number[],nightWeight:number,make:(r:number,g:number,b:number)=>any):boolean{
  if(!camera)return false;const c=regionBoardClear(day,nightWeight),o=camera.clearColor;if(o&&o.r===c[0]&&o.g===c[1]&&o.b===c[2])return false;camera.clearColor=make(c[0],c[1],c[2]);return true;}
+/** b16-fix P2（build05 全流程测试 P2-2：夜间天空城棋盘背景仍是白天光照）：天空城棋盘背景自带一盏暖色补光 SphereLight
+ *  (#fff3da, luminance x12)，夜间也不变，所以只有天空（clear 色）变夜、草坪和白塔仍是白天亮度。夜间按世界主光同一口径处理：
+ *  亮度 x DayNightContract.lightScale(night)=0.35，颜色 x lightColor(night)=180/198/232（偏蓝月光），按 nightWeight 线性过渡。纯函数，无 cc 依赖。 */
+export const REGION_BOARD_KEY_NIGHT_SCALE=0.35;
+export const REGION_BOARD_KEY_NIGHT_COLOR:readonly [number,number,number]=[180,198,232];
+export function regionBoardKeyLight(dayColor:readonly number[],dayLuminance:number,nightWeight:number):{color:[number,number,number];luminance:number}{
+ const t=Number.isFinite(nightWeight)?Math.max(0,Math.min(1,nightWeight)):0,K=REGION_BOARD_KEY_NIGHT_COLOR;
+ const color=[0,1,2].map(i=>Math.round(dayColor[i]*(1+(K[i]/255-1)*t))) as [number,number,number];
+ return {color,luminance:dayLuminance*(1+(REGION_BOARD_KEY_NIGHT_SCALE-1)*t)};}

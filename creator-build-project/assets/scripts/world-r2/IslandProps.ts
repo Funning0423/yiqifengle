@@ -225,9 +225,10 @@ export class IslandProps {
    * deactivated), lamp SphereLight (disabled) and both additive glows (inactive at alpha 0). The night sea tint is NOT
    * part of the sign (it follows the night weight while the exterior is visible and is restored on dispose).
    */
-  setSignEntrance(e: number, risePx = 0) {
-    const sign = this.sign; if (!this.ready || !sign || !isValid(sign, true)) return;
-    e = Math.max(0, Math.min(1, e)); if (e === this.entrance && risePx === 0) return;
+  setSignEntrance(e: number, risePx = 0): boolean {
+    const sign = this.sign; if (!this.ready || !sign || !isValid(sign, true)) return false;
+    // b16-fix P1：只有节点显隐也已一致时才跳过。之前 entrance 已是 1 而木牌节点处于隐藏时会直接 return，木牌永远不出现，只剩透明点击区。
+    e = Math.max(0, Math.min(1, e)); if (e === this.entrance && risePx === 0 && sign.active === e > 0) return true;
     this.entrance = e; this.stats.entrance = +e.toFixed(3);
     const S = ISLAND_PROPS.signpost; let rise = 0;
     if (risePx > 0 && e < 1) { const pose = this.pose(), r = pose && this.view.height > 0 ? signpostRectUi(pose, this.view.width, this.view.height) : null; if (r && r.height > 0) rise = risePx * (S.boxMax[1] - S.boxMin[1]) * S.scale / r.height; }
@@ -237,10 +238,13 @@ export class IslandProps {
     if (e <= 0) { if (this.lampLight && isValid(this.lampLight, true) && this.lampLight.enabled) { this.lampLight.luminance = 0; this.lampLight.enabled = false; }
       for (const g of [this.glow, this.lampGlow]) if (g && isValid(g.node, true) && g.node.active) g.node.active = false; }
     if (this.signText && isValid(this.signText, true)) this.signText.opacity = Math.round(255 * e);
-    if (e >= 1 || e <= 0) { this.endFade(); return; }
+    if (e >= 1 || e <= 0) { this.endFade(); return true; }
     if (!this.fade.length) this.beginFade();
     for (const f of this.fade) { const c = (f.m.getProperty('mainColor') as Color | null)?.clone?.() ?? new Color(255, 255, 255, 255); c.a = Math.round(255 * e); f.m.setProperty('mainColor', c); }
+    return true;
   }
+  /** b16-fix P1：木牌是否真的在画面上（节点在层级里激活、入场完成）。宿主据此决定点击区跟木牌还是退回可见的平面按钮。 */
+  signVisible(): boolean { const n = this.sign; return !!(this.ready && n && isValid(n, true) && n.activeInHierarchy && this.entrance >= 1); }
   private beginFade() {
     for (const r of this.sign!.getComponentsInChildren(MeshRenderer)) {
       if (r.node.name === 'SignLampGlow') continue; // additive glow fades by its own alpha
