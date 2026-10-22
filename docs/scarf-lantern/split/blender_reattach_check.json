@@ -1,0 +1,64 @@
+{
+ "door_reach": {
+  "frames": 49,
+  "max_abs_err_m": 0
+ },
+ "idle_breathing_loop": {
+  "frames": 44,
+  "max_abs_err_m": 0
+ },
+ "sit_down": {
+  "frames": 30,
+  "max_abs_err_m": 0
+ },
+ "sit_hold": {
+  "frames": 49,
+  "max_abs_err_m": 0
+ },
+ "stand_up": {
+  "frames": 31,
+  "max_abs_err_m": 0
+ },
+ "walk_loop": {
+  "frames": 35,
+  "max_abs_err_m": 0
+ },
+ "walk_start": {
+  "frames": 47,
+  "max_abs_err_m": 0
+ },
+ "walk_start_stepdown": {
+  "frames": 43,
+  "max_abs_err_m": 0
+ },
+ "walk_stop_bodyL": {
+  "frames": 36,
+  "max_abs_err_m": 0
+ },
+ "walk_stop_bodyR": {
+  "frames": 36,
+  "max_abs_err_m": 0
+ },
+ "walk_turn_180": {
+  "frames": 37,
+  "max_abs_err_m": 0
+ },
+ "walk_turn_180_bodyR": {
+  "frames": 36,
+  "max_abs_err_m": 0
+ },
+ "walk_turn_90_bodyL": {
+  "frames": 37,
+  "max_abs_err_m": 0
+ },
+ "walk_turn_90_bodyR": {
+  "frames": 36,
+  "max_abs_err_m": 0
+ },
+ "wind_flutter_loop": {
+  "frames": 97,
+  "max_abs_err_m": 0
+ },
+ "_worst_m": 0,
+ "_scene_fps": 30
+}

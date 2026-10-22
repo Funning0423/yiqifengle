@@ -1,0 +1,69 @@
+{
+ "main_vs_3b49_channels": {
+  "n_3b49": 711,
+  "n_main": 711,
+  "identical": 711,
+  "missing_or_diff": []
+ },
+ "main_vs_31eb_channels": {
+  "n_base": 696,
+  "identical": 696,
+  "diff": [],
+  "extra_in_main": [
+   "scarf.tail"
+  ],
+  "extra_count": 15
+ },
+ "anim_names_durations_equal_3b49": true,
+ "main_meshes_vs_31eb": {
+  "names_main": [
+   "LOD0_G2_APRON",
+   "LOD0_G2_BODY",
+   "LOD0_G2_BOW",
+   "LOD0_G2_DRESS"
+  ],
+  "names_base": [
+   "LOD0_G2_APRON",
+   "LOD0_G2_BODY",
+   "LOD0_G2_BOW",
+   "LOD0_G2_DRESS"
+  ],
+  "all_identical": true
+ },
+ "main_meshes_vs_3b49_nonscarf": true,
+ "skin_main_eq_3b49": true,
+ "skin_main_joints": 30,
+ "skin_scarfpkg_eq_main": true,
+ "tree_main_eq_3b49": true,
+ "tree_scarfpkg_eq_main": true,
+ "scarf_mesh_eq_3b49": true,
+ "scarfpkg_meshes": [
+  "LOD0_G2_SCARF"
+ ],
+ "scarfpkg_has_anim": false,
+ "base_joints": 29,
+ "size_base_31eb": [
+  3165656,
+  1885400,
+  "31ebfa5396cbdd010c6003bb1992aace5c3b14dd402f82925c70a11078d9b2f5"
+ ],
+ "size_scarf_3b49": [
+  3194716,
+  1899476,
+  "c394131e1e22534436174d8a2b56933054770b05f7e166191a1b3119acda44c4"
+ ],
+ "size_main": [
+  3176532,
+  1890444,
+  "3132274bd4edaf53a7d0dde6d25f511ce01635ba995aa646021ea3e231d510e1"
+ ],
+ "size_scarf_subpkg": [
+  26012,
+  13032,
+  "1269a2c4d2f76873e9fdbdf6075df945ac5a3c3ebc0a6db8ccde3b2a72c2716f"
+ ],
+ "delta_main_vs_base": {
+  "bytes": 10876,
+  "gzip": 5044
+ }
+}
