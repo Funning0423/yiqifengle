@@ -58,6 +58,7 @@ WALK='walk_loop,walk_start,walk_stop_bodyL,walk_stop_bodyR,walk_turn_90_bodyL,wa
 ALL=','.join(meta.keys())
 RUNS=json.loads(os.environ.get('RUNS','[["W0",0,0,0,0,"ALL"]]'))
 LCL=set((WALK+',idle_breathing_loop').split(','))
+FORCE=json.loads(os.environ.get('MORPH_FORCE','{}'))
 rows=[]
 for tag,Wv,wdir,sback,slat,cl in RUNS:
   clips={'ALL':ALL,'WALK':WALK,'WALKIDLE':WALK+',idle_breathing_loop'}.get(cl,cl).split(',')
@@ -71,7 +72,7 @@ for tag,Wv,wdir,sback,slat,cl in RUNS:
         for o in M.values():
             sk=o.data.shape_keys
             if sk:
-                for kb in sk.key_blocks[1:]: kb.value=interp(cur[kb.name],t) if kb.name in cur else 0.0
+                for kb in sk.key_blocks[1:]: kb.value=FORCE.get(kb.name,interp(cur[kb.name],t) if kb.name in cur else 0.0)
         fr=f0+(f1-f0)*f/N;SB and setattr(SB,'rotation_quaternion',(1,0,0,0));sc.frame_set(int(fr),subframe=fr-int(fr));bpy.context.view_layer.update()
         # 风：系数 0.5；顶风 wdir=+1 向后，顺风 -1 向前；左右摆
         back=sback+wdir*Wv*0.5*35*(0.5+0.5*math.sin(2*math.pi*t/1.0));lat=slat+Wv*0.5*20*math.sin(2*math.pi*t/0.7+1)
@@ -89,13 +90,20 @@ for tag,Wv,wdir,sback,slat,cl in RUNS:
             sv,st=wm(M['SCARF']);ST=BVHTree.FromPolygons(sv,[x for x in st if min(x)>=133]);r['S_tail_APRON']=len(ST.overlap(X['APRON']));r['S_tail_DRESS']=len(ST.overlap(X['DRESS']));r['S_tail_TORSO']=len(ST.overlap(T['TORSO']))
             r['S_APRON']=len(S.overlap(X['APRON']));r['S_RIBBON']=len(S.overlap(X['BOW']));r['S_DRESS']=len(S.overlap(X['DRESS']))
         if LBODY and c in LCL:
-            place_lantern(arm);bpy.context.view_layer.update();L,lv=lantern_bvh()
+            globals()['LT']=t;place_lantern(arm);bpy.context.view_layer.update();L,lv=lantern_bvh()
             r['L_LEG']=len(L.overlap(T['LEG']));r['L_DRESS']=len(L.overlap(X['DRESS']));r['L_APRON']=len(L.overlap(X['APRON']));r['L_TORSO']=len(L.overlap(T['TORSO']))
+            BF=BVHTree.FromPolygons(bv,bt);r['C_DRESSxBODY']=len(X['DRESS'].overlap(BF));r['C_APRONxBODY']=len(X['APRON'].overlap(BF));r['C_DRESSxAPRON']=len(X['DRESS'].overlap(X['APRON']))
             r['L_BOW']=len(L.overlap(X['BOW']))
             if 'SCARF' in M: r['L_SCARF']=len(L.overlap(S))
+            for nm_,TT in (('D',X['DRESS']),('A',X['APRON'])):
+                dep=0.0
+                for v in lv:
+                    hit=TT.find_nearest(v)
+                    if hit[0] is not None and (v-hit[0]).dot(hit[1])<0: dep=max(dep,hit[3])
+                r['L_dep'+nm_+'_mm']=round(dep*1000,1)
             r['L_minY']=round(min(v.z for v in lv),3)
         rows.append(r)
     x=[r for r in rows if r['run']==tag and r['clip']==c]
-    ks=[k for k in x[0] if k[:2] in('S_','L_','B_') and k!='L_minY']
+    ks=[k for k in x[0] if k[:2] in('S_','L_','B_','C_') and k!='L_minY' and not k.startswith('L_dep')]
     print('QA',tag,c,len(x),{k:(max(r[k] for r in x),sum(r[k]>0 for r in x)) for k in ks},flush=True)
 json.dump(rows,open(out,'w'))

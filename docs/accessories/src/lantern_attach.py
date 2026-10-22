@@ -4,6 +4,7 @@ from mathutils import Matrix,Vector
 SOCK=json.loads(os.environ.get('SOCK','[0.010,0.080,0.006]'))
 A=Matrix(((1,0,0,0),(0,0,-1,0),(0,1,0,0),(0,0,0,1)))
 HAND_BIND=None
+LT=0.0
 def _bind(glbpath):
     import struct
     raw=open(glbpath,'rb').read();JL=struct.unpack('<I',raw[12:16])[0];j=json.loads(raw[20:20+JL]);o=20+JL;b=raw[o+8:]
@@ -25,5 +26,13 @@ def place_lantern(arm):
     Jw,p=socket_world(arm)
     if os.environ.get('LMODE','hang')=='rigid':
         R=(Jw.to_3x3()@BB.to_3x3().inverted()).to_4x4()
-    else: R=Matrix.Identity(4)
+    else:
+        R=Matrix.Identity(4)
+        sw=float(os.environ.get('LSWING','0'))
+        if sw:
+            import math
+            H=arm.matrix_world@arm.pose.bones['hips'].matrix;fw=H.to_3x3()@Vector((0,0,1));fw.z=0
+            yaw=math.atan2(fw.x,-fw.y) if fw.length>1e-6 else 0.0
+            ang=math.radians(sw)*math.sin(2*math.pi*LT/float(os.environ.get('LPERIOD','1.0')))
+            Rz=Matrix.Rotation(yaw,4,'Z');R=Rz@Matrix.Rotation(ang,4,'X')@Rz.inverted()
     LROOT.matrix_world=Matrix.Translation(p)@R

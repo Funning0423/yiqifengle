@@ -15,7 +15,7 @@ except Exception: pass
 for t in arm.animation_data.nla_tracks: t.mute=True
 for o in bpy.data.objects:
     if o.type=='MESH' and o.data.shape_keys:
-        for kb in o.data.shape_keys.key_blocks[1:]: kb.value=0
+        for kb in o.data.shape_keys.key_blocks[1:]: kb.value=json.loads(os.environ.get('MORPH_FORCE','{}')).get(kb.name,0)
 sc.frame_set(int(act.frame_range[0]+fr))
 if os.environ.get('LANTERN'):
     exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'lantern_attach.py')).read())

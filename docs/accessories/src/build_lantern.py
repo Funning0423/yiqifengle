@@ -35,7 +35,7 @@ for i in range(9):
     s=i/8;a=math.pi*s;path.append([0.0,top*0.5+(-top*0.5+0.004)*math.sin(a)*0+0,0])
 path=[]
 for i in range(7):  # 半椭圆环：顶在握把内（y=+0.003），两脚落到灯顶钮 y=top
-    a=math.pi*i/6;path.append([0,top+(0.003-top)*math.sin(a),0.016*math.cos(a)])
+    a=math.pi*i/6;path.append([0,top+(0.003-top)*math.sin(a),float(os.environ.get('BAILW','0.016'))*math.cos(a)])
 tube(path,0.0022,4,'bail')
 y0=top  # 灯顶
 # 顶钮
@@ -59,6 +59,11 @@ prism([0,0,0],0.040,y0-H,gy1-0.012,n=6,tag='frame',rot=math.pi/6,r1=0.046)
 gbase=len(F);prism([0,0,0],0.042,gy1,gy0,n=6,tag='glass',rot=math.pi/6,caps=False,sub=5)
 V=np.array(V,np.float32);F=np.array(F,np.uint16)
 coreY=(gy0+gy1)/2
+SC=float(os.environ.get('SCALE','1.0'))  # v2：灯身（顶钮以下）等比缩放，握把不缩（直径保持 1.2cm），吊环长度由 BAIL 定
+lamp=np.array([p in('frame','glass') for p in part])
+V[lamp,0]*=SC;V[lamp,2]*=SC;V[lamp,1]=y0+(V[lamp,1]-y0)*SC
+# 吊环两脚按缩放后的顶钮半径不变（顶钮半径 0.8cm*SC，脚在 z=±1.6cm 处与屋顶上沿相接）
+coreY=y0+(coreY-y0)*SC;H=H*SC
 def tris(tag):
     idx=np.array([i for i,t in enumerate(F) if part[t[0]]==tag]);return F[idx]
 # 法线（平滑），玻璃单独
@@ -81,7 +86,7 @@ def prim(Fs,mat):
     return {'attributes':{'POSITION':add(P,'VEC3',5126,34962,True),'NORMAL':add(N.astype(np.float32),'VEC3',5126,34962)},'indices':add(Fi.reshape(-1),'SCALAR',5123,34963),'material':mat}
 FR=np.concatenate([tris('frame'),tris('grip'),tris('bail')]);GL=tris('glass')
 # 灯芯：两张十字交叉的发光面片（4 三角）
-cw,ch=0.018,0.032
+cw,ch=0.018*SC,0.032*SC
 CV=np.array([[-cw,-ch,0],[cw,-ch,0],[cw,ch,0],[-cw,ch,0],[0,-ch,-cw],[0,-ch,cw],[0,ch,cw],[0,ch,-cw]],np.float32)
 CF=np.array([[0,1,2],[0,2,3],[4,5,6],[4,6,7]],np.uint16)
 core={'attributes':{'POSITION':add(CV,'VEC3',5126,34962,True),'NORMAL':add(np.tile([0,0,1],(8,1)).astype(np.float32),'VEC3',5126,34962)},'indices':add(CF.reshape(-1),'SCALAR',5123,34963),'material':2}
@@ -91,7 +96,7 @@ mats=[{'name':'M_LANTERN_COPPER','pbrMetallicRoughness':{'baseColorFactor':[0.50
 meshes=[{'name':'lantern.body','primitives':[prim(FR,0),prim(GL,1)]},{'name':'lantern.core','primitives':[core]}]
 nodes=[{'name':'prop_lantern','children':[1,2],'extras':{'origin':'握把中心 = socket.lantern 挂点 = 钟摆轴心','bail_m':BAIL,'height_m':H,'grip_diameter_m':2*GR}},
        {'name':'lantern.body','mesh':0},{'name':'lantern.core','mesh':1,'translation':[0,float(coreY),0],'extras':{'note':'发光面片，光晕由场景特效bot挂在此节点'}}]
-j={'asset':{'version':'2.0','generator':'角色建模bot build_lantern.py'},'scene':0,'scenes':[{'nodes':[0]}],'nodes':nodes,'meshes':meshes,'materials':mats,'accessors':accs,'bufferViews':bvs,'buffers':[{'byteLength':0}]}
+j={'asset':{'version':'2.0','generator':'角色建模bot build_lantern.py','extras':{'scale':SC,'bail_m':BAIL}},'scene':0,'scenes':[{'nodes':[0]}],'nodes':nodes,'meshes':meshes,'materials':mats,'accessors':accs,'bufferViews':bvs,'buffers':[{'byteLength':0}]}
 while len(bin_)%4: bin_.append(0)
 j['buffers'][0]['byteLength']=len(bin_)
 js=json.dumps(j,separators=(',',':'),ensure_ascii=False).encode()
