@@ -1,0 +1,172 @@
+{
+ "follow_back_r_idle_f0": {
+  "bad_px": 16,
+  "grip_px": 10,
+  "bbox": [
+   737,
+   1194,
+   752,
+   1206
+  ]
+ },
+ "follow_back_r_idle_f45": {
+  "bad_px": 16,
+  "grip_px": 10,
+  "bbox": [
+   737,
+   1194,
+   752,
+   1206
+  ]
+ },
+ "follow_back_r_walk_f0": {
+  "bad_px": 15,
+  "grip_px": 14,
+  "bbox": [
+   743,
+   1221,
+   759,
+   1236
+  ]
+ },
+ "follow_back_r_walk_f16": {
+  "bad_px": 0,
+  "grip_px": 0,
+  "bbox": null
+ },
+ "follow_back_r_walk_f8": {
+  "bad_px": 0,
+  "grip_px": 0,
+  "bbox": null
+ },
+ "follow_front_r_idle_f0": {
+  "bad_px": 70,
+  "grip_px": 119,
+  "bbox": [
+   761,
+   1343,
+   793,
+   1353
+  ]
+ },
+ "follow_front_r_idle_f45": {
+  "bad_px": 70,
+  "grip_px": 119,
+  "bbox": [
+   761,
+   1343,
+   793,
+   1353
+  ]
+ },
+ "follow_front_r_walk_f0": {
+  "bad_px": 71,
+  "grip_px": 115,
+  "bbox": [
+   726,
+   1366,
+   758,
+   1377
+  ]
+ },
+ "follow_front_r_walk_f16": {
+  "bad_px": 70,
+  "grip_px": 118,
+  "bbox": [
+   689,
+   1352,
+   723,
+   1364
+  ]
+ },
+ "follow_front_r_walk_f8": {
+  "bad_px": 72,
+  "grip_px": 121,
+  "bbox": [
+   714,
+   1341,
+   749,
+   1352
+  ]
+ },
+ "ladder_lowangle_az120": {
+  "bad_px": 4,
+  "grip_px": 196,
+  "bbox": [
+   1038,
+   1603,
+   1058,
+   1628
+  ]
+ },
+ "ladder_lowangle_az20": {
+  "bad_px": 424,
+  "grip_px": 546,
+  "bbox": [
+   693,
+   1282,
+   771,
+   1317
+  ]
+ },
+ "stand_close_pick_f31": {
+  "bad_px": 1021,
+  "grip_px": 1439,
+  "bbox": [
+   533,
+   1246,
+   663,
+   1294
+  ]
+ },
+ "stand_close_pick_f40": {
+  "bad_px": 947,
+  "grip_px": 1427,
+  "bbox": [
+   549,
+   1245,
+   674,
+   1297
+  ]
+ },
+ "stand_close_pick_f50": {
+  "bad_px": 933,
+  "grip_px": 1360,
+  "bbox": [
+   557,
+   1248,
+   678,
+   1286
+  ]
+ },
+ "stand_close_put_f10": {
+  "bad_px": 912,
+  "grip_px": 1371,
+  "bbox": [
+   558,
+   1247,
+   678,
+   1293
+  ]
+ },
+ "stand_close_put_f25": {
+  "bad_px": 1038,
+  "grip_px": 1429,
+  "bbox": [
+   532,
+   1246,
+   661,
+   1295
+  ]
+ },
+ "stand_close_put_f34": {
+  "bad_px": 1012,
+  "grip_px": 1454,
+  "bbox": [
+   534,
+   1246,
+   663,
+   1297
+  ]
+ }
+}
