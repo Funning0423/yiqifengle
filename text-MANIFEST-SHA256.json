@@ -2501,8 +2501,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
-    "bytes": 57782,
-    "sha256": "8349584e02a66bd4d44597505b0fe983e2d45fd2af60e00ad2c88174129824dd"
+    "bytes": 58646,
+    "sha256": "083d1ae11bce48ff1e498ce50139dc225941ea65dcff53c7c0eb323d5a626a30"
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts.meta",
@@ -2521,8 +2521,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
-    "bytes": 31516,
-    "sha256": "e8183e71573fab29266e4c98af7f2b4484a4ba97f324c57b563633fcc9b17d28"
+    "bytes": 36160,
+    "sha256": "558b60338b57b3d10677c12e79d1ec048b62ba7ab0db05c338b563342e19792e"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts.meta",
@@ -2611,8 +2611,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts",
-    "bytes": 5425,
-    "sha256": "589ac54ba1472c98593ffeb7b03d772756c852a0d0962c12b9b2f62e8902d401"
+    "bytes": 8079,
+    "sha256": "d6ed1c8a7cc52853e56105bbd1adba7aec9ca1af5ed5b733a0589beba3a73ea5"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts.meta",
@@ -2761,8 +2761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 39307,
-    "sha256": "e629363e1bbd610b3089a8f622298a327915988807a866977881eb5f7d40ee51"
+    "bytes": 40551,
+    "sha256": "cadf68dbbfc18b8c4f8c9bc8ed7e9b21ddcc963268be1a1689083dae68589336"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4061,8 +4061,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 36762,
-    "sha256": "9177475356a23c6ac7f41451a67feee02d6377292c57b135a09cad42a2d285d3"
+    "bytes": 38524,
+    "sha256": "27867610f7f6ca69794d19e8b7a1a71f8e652b775e39a3d67538a8e444bd6d02"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4196,8 +4196,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_qashot.cjs",
-    "bytes": 8302,
-    "sha256": "d1af1b1e3fcefc2fc762dacf7aecfd0f9a2dc99953d5b9d1d01f1595638531e7"
+    "bytes": 16593,
+    "sha256": "9db44b55b2994b379a34108e25b8703eed40afd9dcb22e629ffef94007f2056c"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",

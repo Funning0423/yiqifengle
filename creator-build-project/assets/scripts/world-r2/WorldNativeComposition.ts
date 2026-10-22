@@ -41,6 +41,18 @@ const {ccclass,property}=_decorator;
 /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
 /** QA only (b15 reveal): line-of-sight test against the rendered scene (MeshRenderer models within 45 m of her, minus the
  *  moored balloon and her own rig), for lakesideRevealPose's occlusion term. Engine ray/AABB + ray/model, no physics. */
+/** QA only (b16 edge rule): first surface along a unit ray within maxM (same model set as qaSceneOccluder); ground = terrain
+ *  or lake models (name LK_terrain / LK_lake / LK_shore_foam) or a hit below her feet + 1.2 m (grass, reeds, rocks, low
+ *  bushes are not 'near objects cut by the edge'; trees, houses and the pavilion are). */
+function qaSceneEdgeRay(scene:Node|null,skip:Node[],near:Vec):(o:Vec,d:Vec,maxM:number)=>{t:number;ground:boolean}|null{
+ const models:{md:any;ground:boolean}[]=[];const under=(n:Node|null)=>{for(let p=n;p;p=p.parent)if(skip.indexOf(p)>=0)return true;return false;};
+ if(scene)for(const m of scene.getComponentsInChildren(MeshRenderer)){const md=(m as any).model;if(!m.enabledInHierarchy||!md||!md.worldBounds||under(m.node))continue;
+  const c=md.worldBounds.center,h=md.worldBounds.halfExtents;if(Math.abs(c.x-near[0])>h.x+45||Math.abs(c.z-near[2])>h.z+45)continue;models.push({md,ground:/^LK_(terrain|lake|shore_foam)/.test(m.node.name)});}
+ const ray=new geometry.Ray();
+ return (o,d,maxM)=>{geometry.Ray.set(ray,o[0],o[1],o[2],d[0],d[1],d[2]);let best=maxM,g=false,hit=false;
+  for(const x of models){const t=geometry.intersect.rayModel(ray,x.md,{mode:geometry.ERaycastMode.CLOSEST,distance:best,doubleSided:true} as any);if(t&&t<best){best=t;hit=true;g=x.ground||o[1]+d[1]*t<near[1]+1.2;}}
+  return hit?{t:best,ground:g}:null;};
+}
 function qaSceneOccluder(scene:Node|null,skip:Node[],near:Vec):(a:Vec,b:Vec)=>boolean{
  const models:any[]=[];const under=(n:Node|null)=>{for(let p=n;p;p=p.parent)if(skip.indexOf(p)>=0)return true;return false;};
  if(scene)for(const m of scene.getComponentsInChildren(MeshRenderer)){const md=(m as any).model;if(!m.enabledInHierarchy||!md||!md.worldBounds||under(m.node))continue;
@@ -352,7 +364,9 @@ export class WorldNativeComposition extends Component {
     const phase=lakesideQaPhase(spec?.phase),freeze=LAKESIDE_QA_FREEZE[phase],scale=Math.max(1,Math.min(8,Number(spec?.timeScale)||3));
     const sched=director.getScheduler();sched.setTimeScale(1);
     if(this.qaRevealHook){director.off(Director.EVENT_BEFORE_DRAW,this.qaRevealHook);this.qaRevealHook=null;}
-    const sky=await this.qaShot({region:'skycity'});if(!(sky as any)?.ok)return sky;
+    // b16: a same-page call can land before the return route exists (return-route-not-yet-available): wait and retry
+    let sky:any=null;for(let i=0;i<20;i++){sky=await this.qaShot({region:'skycity'});if(sky?.ok||sky?.reason!=='return-route-not-yet-available')break;await new Promise<void>(r=>setTimeout(r,500));}
+    if(!sky?.ok)return sky;
     const w=this.world!.commands();if(w.snapshot().state==='level'){const e=w.exitLevel();if(!e.ok)return e;}
     const qa:{mark:string|null;markT:number}={mark:null,markT:0};(globalThis as any).__qaLakeside=qa;
     sched.setTimeScale(scale);
@@ -369,11 +383,11 @@ export class WorldNativeComposition extends Component {
     const d=(this.boundCharacter as any)?.diagnostics?.(),feet=(d?.root||[0,0,0]) as Vec;
     const scene=director.getScene();let b:any=null;const walk=(n:any)=>{if(!n||b)return;if(n.name==='LakesideMooredBalloon'&&n.activeInHierarchy){b=n;return;}for(const c of n.children||[])walk(c);};walk(scene);
     if(!b)return {ok:false,reason:'no-moored-balloon'};
-    const bp=b.worldPosition,vs=view.getVisibleSize(),occ=qaSceneOccluder(scene,[b,(this.boundCharacter as any)?.node].filter(Boolean),feet),r=lakesideRevealPose(board,feet,[bp.x,bp.y,bp.z],vs.width/Math.max(1,vs.height),.98,occ);
+    const bp=b.worldPosition,vs=view.getVisibleSize(),occ=qaSceneOccluder(scene,[b,(this.boundCharacter as any)?.node].filter(Boolean),feet),skipN=[b,(this.boundCharacter as any)?.node].filter(Boolean),edge=qaSceneEdgeRay(scene,skipN,feet),r=lakesideRevealPose(board,feet,[bp.x,bp.y,bp.z],vs.width/Math.max(1,vs.height),.98,occ,.03,edge);
     if(!r)return {ok:false,reason:'no-reveal-angle'};
     const pose=r.pose;this.qaRevealHook=()=>{if(cam.node.isValid)applyCameraPose(cam,fromLookAt(pose,pose.fovVerticalDeg??cam.fov),'qa.lakeside-reveal');};
     director.on(Director.EVENT_BEFORE_DRAW,this.qaRevealHook);
-    return {ok:true,phase,yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:r.maxNdc,occludedFrac:r.occludedFrac,composition:r.composition,fov:pose.fovVerticalDeg,board,pose};
+    return {ok:true,phase,yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:r.maxNdc,occludedFrac:r.occludedFrac,edgeCuts:r.edgeCuts,composition:r.composition,fov:pose.fovVerticalDeg,board,pose};
   }
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}
   private releaseOwned(){if(this.worldCamera&&this.previousCameraVisibility!==null)this.worldCamera.visibility=this.previousCameraVisibility;this.owner?.destroy();this.uiParent?.destroy();this.owner=null;this.uiParent=null;this.world=null;this.previousCameraVisibility=null;}

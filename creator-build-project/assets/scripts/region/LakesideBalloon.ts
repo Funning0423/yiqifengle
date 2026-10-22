@@ -304,15 +304,38 @@ export function lakesideRouteTiming(length:number,durationS:number,easeInS:numbe
  *  1.0 m + her radius + margin; capped at walk start + outM at walk speed + capPadS game seconds). Only then does it blend
  *  onto the landing (= board) pose, over lakesideDoorBlendS (SPEC §6.1 rule, ≥ minBlendS), while she walks on off the board
  *  frame; the controller and the board fade-in follow that, still overlapping the rest of her walk. */
-export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0,minBlendS:3.0} as const;
+export const LAKESIDE_DOOR_HOLD={outM:1.6,capPadS:2.0,minBlendS:3.0,aimPull:.8} as const;
 /** Door lens: on the shore side, ahead of her and to the side of the door path, looking back at the door and her first
  *  steps (the follow lens sits behind the basket, so the door wall, which faces the shore, would be hidden). Pure numbers. */
 export const LAKESIDE_DOOR_LENS={aheadM:3.2,sideM:3.6,upM:1.5,lookUpM:1.0,fovDeg:50,turnInS:8} as const;
-export function lakesideDoorLens(walk:readonly Vec[],outM:number=LAKESIDE_DOOR_HOLD.outM,k=LAKESIDE_DOOR_LENS):Pose{
+export function lakesideDoorLensAt(walk:readonly Vec[],ahead:number,side:number,up:number,lookUp:number,fov:number,outM:number=LAKESIDE_DOOR_HOLD.outM):Pose{
  const p0=walk[0],q=sampleRoute(walk as Vec[],outM),m:Vec=[(p0[0]+q[0])/2,(p0[1]+q[1])/2,(p0[2]+q[2])/2];
- const d=unit(p0,q),hl=Math.hypot(d[0],d[2])||1,f:Vec=[d[0]/hl,0,d[2]/hl],side:Vec=[f[2],0,-f[0]];
- const pos:Vec=[q[0]+f[0]*k.aheadM+side[0]*k.sideM,m[1]+k.upM,q[2]+f[2]*k.aheadM+side[2]*k.sideM];
- return {position:pos,target:[m[0]-f[0]*.3,m[1]+k.lookUpM,m[2]-f[2]*.3],fovVerticalDeg:k.fovDeg};
+ const d=unit(p0,q),hl=Math.hypot(d[0],d[2])||1,f:Vec=[d[0]/hl,0,d[2]/hl],sd:Vec=[f[2],0,-f[0]];
+ const pos:Vec=[q[0]+f[0]*ahead+sd[0]*side,m[1]+up,q[2]+f[2]*ahead+sd[2]*side];
+ return {position:pos,target:[m[0]-f[0]*.3,m[1]+lookUp,m[2]-f[2]*.3],fovVerticalDeg:fov};
+}
+/** Framing points of the door shot: the basket box (±1.0 m, 0…1.25 m, around the mooring) and her door path (feet, head). */
+export function lakesideDoorFramePoints(walk:readonly Vec[],basket:Vec,outM:number=LAKESIDE_DOOR_HOLD.outM):Vec[]{
+ const pts:Vec[]=[];for(const x of [-1,1])for(const z of [-1,1])for(const y of [0,1.25])pts.push([basket[0]+x,basket[1]+y,basket[2]+z]);
+ const q=sampleRoute(walk as Vec[],outM);for(const p of [walk[0],q])for(const y of [0,1.65])pts.push([p[0],p[1]+y,p[2]]);
+ return pts;
+}
+/** b16 door lens retune (real-build review: ~30% empty grass at the bottom, basket cut on the right): a small deterministic
+ *  search of the shore-side lens (ahead/side/up/look height) for the frame that holds the whole basket + her door path
+ *  inside 0.9, with the lowest framed point near the bottom (≈ -0.8, little empty ground) and the block centred. Falls back
+ *  to the b15 numbers when no candidate fits. `aspect` is the screen width/height. */
+export function lakesideDoorLens(walk:readonly Vec[],basket?:Vec,aspect=390/844,outM:number=LAKESIDE_DOOR_HOLD.outM,k=LAKESIDE_DOOR_LENS):Pose{
+ if(!basket)return lakesideDoorLensAt(walk,k.aheadM,k.sideM,k.upM,k.lookUpM,k.fovDeg,outM);
+ const pts=lakesideDoorFramePoints(walk,basket,outM);let best:Pose|null=null,bc=1e9;
+ for(let ahead=2;ahead<=7.01;ahead+=.5)for(let side=1;side<=6.01;side+=.5)for(let up=.6;up<=2.41;up+=.3)for(let lu=.3;lu<=1.51;lu+=.3){
+  const P=lakesideDoorLensAt(walk,ahead,side,up,lu,k.fovDeg,outM),f=unit(P.position,P.target),rl=Math.hypot(f[0],f[2])||1,r:Vec=[-f[2]/rl,0,f[0]/rl];
+  const u:Vec=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan(k.fovDeg*Math.PI/360);
+  let xmn=9,xmx=-9,ymn=9,ymx=-9,ok=true;
+  for(const q of pts){const v=[q[0]-P.position[0],q[1]-P.position[1],q[2]-P.position[2]],z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];if(z<1.5){ok=false;break;}
+   const x=(v[0]*r[0]+v[2]*r[2])/(z*th*aspect),y=(v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th);xmn=Math.min(xmn,x);xmx=Math.max(xmx,x);ymn=Math.min(ymn,y);ymx=Math.max(ymx,y);}
+  if(!ok||xmn<-.9||xmx>.9||ymn<-.9||ymx>.9)continue;
+  const c=Math.abs(ymn+.8)*4+Math.abs((xmn+xmx)/2)*2+Math.max(0,.55-(ymx-ymn))*3;if(c<bc){bc=c;best=P;}}
+ return best||lakesideDoorLensAt(walk,k.aheadM,k.sideM,k.upM,k.lookUpM,k.fovDeg,outM);
 }
 /** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera until the old blend-out window (from there the
  *  plain follow lens, which equals R.camera at its start), and over the last turnInS of the descent an
@@ -333,5 +356,27 @@ export function lakesideDoorBlendS(a:Pose,b:Pose):number{
  const u=unit(a.position,a.target),v=unit(b.position,b.target),deg=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]+u[2]*v[2])))*180/Math.PI;
  return Math.max(LAKESIDE_DOOR_HOLD.minBlendS,Math.sqrt(5.7735*L/3),Math.sqrt(5.7735*deg/120));
 }
+/** b16 board entry: walk distance (m along the moored walk) from which her whole body (feet, waist, head ± ~0.3 m) is
+ *  inside `margin` of the landing (= board) frame. The door → board blend ends there (driven by her real walk progress), so
+ *  she stays clearly in frame through the blend and the board fade-in instead of being cut by the right edge. */
+export function lakesideBoardEntryM(walk:readonly Vec[],land:Pose,aspect:number,fromM:number,margin=.85):number{
+ const L=routeLength(walk as Vec[]),f=unit(land.position,land.target),rl=Math.hypot(f[0],f[2])||1,r:Vec=[-f[2]/rl,0,f[0]/rl];
+ const u:Vec=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan((land.fovVerticalDeg||48)*Math.PI/360);
+ const inF=(q:Vec)=>{const v=[q[0]-land.position[0],q[1]-land.position[1],q[2]-land.position[2]],z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];if(z<.3)return false;
+  return Math.abs((v[0]*r[0]+v[2]*r[2])/(z*th*aspect))<=margin&&Math.abs((v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th))<=margin;};
+ for(let s=fromM;s<=L;s+=.05){const p=sampleRoute(walk as Vec[],s);let ok=true;
+  for(const y of [0,.9,1.65])for(const dx of [-.3,.3]){if(!inF([p[0]+r[0]*dx,p[1]+y,p[2]+r[2]*dx]))ok=false;}if(ok)return s;}
+ return L;
+}
+/** Blend progress (0…1, before smootherstep) for the door → board blend: her walk progress between outM and entryM, never
+ *  faster than elapsed/minS (so a short entry distance still honours the SPEC §6.1 blend length). */
+export function lakesideDoorBlendU(walkedM:number,outM:number,entryM:number,elapsedS:number,minS:number):number{
+ const w=entryM>outM+1e-3?(walkedM-outM)/(entryM-outM):1;return Math.max(0,Math.min(1,w,elapsedS/Math.max(.1,minS)));
+}
 /** Door lens → landing pose at blend progress u∈[0,1] (smootherstep, as the old blend-out). */
-export function lakesideDoorBlendPose(a:Pose,b:Pose,u:number):Pose{const x=Math.max(0,Math.min(1,u));return blendPose(a,b,x*x*x*(x*(x*6-15)+10));}
+export function lakesideDoorBlendPose(a:Pose,b:Pose,u:number,her?:Vec,pull=LAKESIDE_DOOR_HOLD.aimPull):Pose{const x=Math.max(0,Math.min(1,u)),p=blendPose(a,b,x*x*x*(x*(x*6-15)+10));
+ if(!her||x<=0||x>=1)return p;
+ // b16: mid-blend aim pull toward her chest (0 at both ends, so the door lens and the board pose stay exact)
+ const k=pull*Math.sin(Math.PI*x),d=unit(p.position,p.target),dist=Math.hypot(p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]),h=unit(p.position,[her[0],her[1]+1.0,her[2]]);
+ const m=[d[0]+(h[0]-d[0])*k,d[1]+(h[1]-d[1])*k,d[2]+(h[2]-d[2])*k],ml=Math.hypot(m[0],m[1],m[2])||1;
+ return {position:p.position,target:[p.position[0]+m[0]/ml*dist,p.position[1]+m[1]/ml*dist,p.position[2]+m[2]/ml*dist],fovVerticalDeg:p.fovVerticalDeg};}
