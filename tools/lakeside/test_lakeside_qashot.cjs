@@ -5,8 +5,8 @@ const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness();
 const B=H.load('region/LakesideBalloon.ts'),LC=H.load('region/LakesideCameraLayout.ts'),BL=H.load('ui/BoardLayout.ts'),C=H.load('world-r1/RegionJourneyCore.ts'),Q=H.load('region/LakesideQaShot.ts');
 const out={};
 // 1) the summarised skycity → lakeside route timing passes journeyTimingOk (b15 7b0c1c90 failed: accel 3.65 > 3)
-const L=LC.lakesideJourney([2,.58,63.2]);L.landing=LC.lakesideRouteLanding?LC.lakesideRouteLanding(L):L.landing;
-const shore=L.arrival.at(-1),E=C.arrivalPose(L.arrival,L.focus,L.landing),land={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
+const L=LC.lakesideJourney([2,.58,63.2]);L.landing=LC.lakesideScreenLanding(L,LC.lakesideScreenFrame(390,844,BL.boardSafeInsets(390,844)),LC.LAKESIDE_CAMERA_LAYOUT.stopLocal)/* b18 v4 stop */;
+const shore=L.arrival.at(-1),stopW=L.toWorld([...LC.LAKESIDE_CAMERA_LAYOUT.stopLocal]),E=C.arrivalPose([shore,stopW],L.focus,L.landing),land={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
 const K=B.LAKESIDE_BALLOON_LANDING,m=B.lakesideBalloonMooring(shore,L.toWorld),R=B.lakesideBalloonRide([[2,.58,63.2],...K.walkLocal.slice(1).map(p=>L.toWorld([...p]))],L.toWorld([...K.launchLocal]),m.mooring,land);
 const len=C.routeLength([...R.path,...m.walk]),T=R.T+m.timing.durationS;
 const old={durationS:T,easeInS:K.walkEaseS,easeOutS:m.timing.easeOutS},fixed=B.lakesideRouteTiming(len,T,K.walkEaseS,m.timing.easeOutS);
@@ -18,7 +18,7 @@ assert.equal(Q.lakesideQaPhase('walk'),'walk');assert.equal(Q.lakesideQaPhase('x
 // 3) reveal pose from each portrait board lens (lake-local frame, her on the shore root, balloon at the mooring)
 const o=L.toWorld([0,0,0]),zz=L.toWorld([0,0,1]),ly=Math.atan2(zz[0]-o[0],zz[2]-o[2]);
 const toL=p=>{const d=[p[0]-o[0],p[1]-o[1],p[2]-o[2]],a=-ly;return [d[0]*Math.cos(a)+d[2]*Math.sin(a),d[1],-d[0]*Math.sin(a)+d[2]*Math.cos(a)];};
-const her=toL(shore),moor=[...K.mooringLocal];
+const her=toL(stopW),moor=[...K.mooringLocal];
 for(const [w,h] of [[390,844],[320,568],[390,520]]){const board=LC.lakesideAlignedLookAt(LC.lakesideScreenFrame(w,h,BL.boardSafeInsets(w,h)));
  const r=Q.lakesideRevealPose(board,her,moor,w/h);assert(r,`${w}x${h} reveal`);assert(r.maxNdc<=.98);
  assert(r.pose.fovVerticalDeg<=board.fovVerticalDeg+8+1e-9);out[w+'x'+h]={yawDeg:r.yawDeg,pitchDeg:r.pitchDeg,maxNdc:+r.maxNdc.toFixed(3),fov:+r.pose.fovVerticalDeg.toFixed(2)};}
@@ -35,7 +35,10 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
 {const DH=B.LAKESIDE_DOOR_HOLD,v=m.length/m.walkS,outAt=m.walkStartAt+DH.outM/v;assert(DH.outM>=1.4,'clear of the basket');
  assert(outAt>m.walkStartAt&&outAt>m.T0+.333+.5,'held through the door opening');
  const doorLens=B.lakesideDoorLens(m.walk,m.mooring,390/844),blendS=B.lakesideDoorBlendS(doorLens,land);
- assert(m.walkStartAt+m.walkS-outAt-blendS>=5,'board fade overlaps the walk');
+ // b18 path v4: the walk is 6.36 m and ends IN the board frame, so the ≥ 5 s offscreen overlap of b15 no longer applies; the door →
+ // board blend (one game-time length, lakesideDoorBlendDurS) must end by the time she stops
+ const entryM=B.lakesideBoardEntryM(m.walk,land,390/844,DH.outM),durS=B.lakesideDoorBlendDurS(blendS,DH.outM,entryM,v);
+ assert(durS>=blendS&&m.walkStartAt+m.walkS-outAt-durS>=-1e-6,'door → board blend ends by her stop: '+(m.walkStartAt+m.walkS-outAt-durS));
  // the held lens frames the basket at touchdown (basket centre + door within the frame), unlike the old landing pose
  const FLb=require('../journey-integration/journey-framing-lib.cjs'),bk=R.vehicle(R.T),bc=[bk[0],bk[1]+.6,bk[2]],nd=FLb.ndc(doorLens,bc);
  assert(nd&&Math.abs(nd[0])<.9&&Math.abs(nd[1])<.9,'basket on screen in the door lens: '+JSON.stringify(nd));
@@ -49,7 +52,7 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
  // continuous: the door lens equals the ride lens just before T (no cut at the hold)
  const pre=B.lakesideDoorRideCamera(R,doorLens,R.T-1/60,null);assert(Math.hypot(...pre.position.map((x,i)=>x-doorLens.position[i]))<.2,'no jump into the hold');
  const blendPeak=5.7735*Math.hypot(...doorLens.position.map((x,i)=>x-land.position[i]))/(blendS*blendS);assert(blendPeak<=3+1e-9,'blend accel');
- out.doorHold={turnInS:B.LAKESIDE_DOOR_LENS.turnInS,doorLens,outM:DH.outM,outAtS:+outAt.toFixed(2),blendS:+blendS.toFixed(2),handoverS:+(outAt+blendS).toFixed(2),walkLeftAfterS:+(m.walkStartAt+m.walkS-outAt-blendS).toFixed(2),basketNdc:nd.map(x=>+(+x).toFixed(2)),blendAccel:+blendPeak.toFixed(2)};}
+ out.doorHold={turnInS:B.LAKESIDE_DOOR_LENS.turnInS,doorLens,outM:DH.outM,outAtS:+outAt.toFixed(2),blendS:+blendS.toFixed(2),handoverS:+(outAt+blendS).toFixed(2),walkLeftAfterS:+(m.walkStartAt+m.walkS-outAt-blendS).toFixed(2),blendDurS:+durS.toFixed(2),walkLeftAfterBlendS:+(m.walkStartAt+m.walkS-outAt-durS).toFixed(3),basketNdc:nd.map(x=>+(+x).toFixed(2)),blendAccel:+blendPeak.toFixed(2)};}
 // 7) occlusion + composition on the web-build inputs: a canopy sphere in front of the envelope (where the 7b0c1c90 render showed one)
 {const cam={position:[16.6897,22.6533,132.6683],target:[18.1747,20.5556,142.3323],fovVerticalDeg:57.3526},feet=[18.4345,19.6533,139.3320],bal=[10.1345,19.6454,138.2321];
  const plain=Q.lakesideRevealPose(cam,feet,bal,390/844);assert(plain&&plain.occludedFrac===0);
@@ -74,15 +77,15 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
 // 9) b16 board entry: through the door → board blend (driven by her walk) she stays inside the frame, and at the hand-over
 //    her whole body is inside 0.85 of the board frame (no right-edge cut during the fade-in)
 {const FLc=require('../journey-integration/journey-framing-lib.cjs'),asp=FLc.ASPECT,DH=B.LAKESIDE_DOOR_HOLD,door=B.lakesideDoorLens(m.walk,m.mooring,390/844),v=m.length/m.walkS;
- const entry=B.lakesideBoardEntryM(m.walk,land,asp,DH.outM),blendS=B.lakesideDoorBlendS(door,land);assert(entry>DH.outM&&entry<m.length-1,'entry inside the walk');
- let worst=0,el=0,u=0,pd=null,pw=null,wMax=0,aMax=0;for(let sM=DH.outM;u<1;sM+=v/60,el+=1/60){u=Math.max(u,B.lakesideDoorBlendU(sM,DH.outM,entry,el,blendS));const p=C.sampleRoute(m.walk,Math.min(sM,m.length)),P=B.lakesideDoorBlendPose(door,land,u,p);
+ const entry=B.lakesideBoardEntryM(m.walk,land,asp,DH.outM),blendS=B.lakesideDoorBlendS(door,land);assert(entry>DH.outM&&entry<=m.length+1e-9,'entry inside the walk');const durS=B.lakesideDoorBlendDurS(blendS,DH.outM,entry,v)/* b18: v4 stop sits at the board frame's lower right (≈ 0.9 NDC), so entry may be the stop itself */;
+ let worst=0,el=0,u=0,pd=null,pw=null,wMax=0,aMax=0;for(let sM=DH.outM;u<1;sM+=v/60,el+=1/60){u=Math.min(1,el/durS)/* b18: pure game time */;const p=C.sampleRoute(m.walk,Math.min(sM,m.length)),P=B.lakesideDoorBlendPose(door,land,u,p);
   const dv=P.target.map((x,i)=>x-P.position[i]),dl=Math.hypot(...dv),dn=dv.map(x=>x/dl);if(pd){const w=Math.acos(Math.min(1,dn[0]*pd[0]+dn[1]*pd[1]+dn[2]*pd[2]))*180/Math.PI*60;wMax=Math.max(wMax,w);if(pw!==null)aMax=Math.max(aMax,Math.abs(w-pw)*60);pw=w;}pd=dn;
   for(const y of [0,.9,1.65]){const n=FLc.ndc(P,[p[0],p[1]+y,p[2]]);assert(n&&n[2]>0,'in front');worst=Math.max(worst,Math.abs(n[0]),Math.abs(n[1]));}}
  assert(wMax<=110&&aMax<=360,'blend motion bars '+wMax+' '+aMax);
  assert(worst<=.95,'her body stays in frame through the blend: '+worst);
- const handS=(entry-DH.outM)/v,left=m.walkStartAt+m.walkS-(m.walkStartAt+DH.outM/v)-Math.max(handS,blendS);assert(left>=3,'board fade still overlaps her walk: '+left);
+ const left=m.walkStartAt+m.walkS-(m.walkStartAt+DH.outM/v)-durS;assert(left>=-1e-6,'blend ends by her stop: '+left);out.blendB18={durS:+durS.toFixed(3),entryM:+entry.toFixed(3),wMaxDegS:+wMax.toFixed(2),aMaxDegS2:+aMax.toFixed(1),worstNdc:+worst.toFixed(3),leftS:+left.toFixed(3)};
  assert.equal(B.lakesideDoorBlendU(DH.outM+.01,DH.outM,entry,100,blendS)<1,true);assert.equal(B.lakesideDoorBlendU(entry,DH.outM,entry,0.5,blendS)<1,true,'never faster than the SPEC blend');
- out.boardEntry={entryM:+entry.toFixed(2),blendByWalkS:+handS.toFixed(2),specBlendS:+blendS.toFixed(2),worstNdc:+worst.toFixed(3),viewDegS:+wMax.toFixed(1),viewDegS2:+aMax.toFixed(1),walkLeftAfterS:+left.toFixed(2)};}
+ out.boardEntry={entryM:+entry.toFixed(2),blendDurS:+durS.toFixed(2),specBlendS:+blendS.toFixed(2),worstNdc:+worst.toFixed(3),viewDegS:+wMax.toFixed(1),viewDegS2:+aMax.toFixed(1),walkLeftAfterS:+left.toFixed(2)};}
 // 10) b16 real-build fixes: marks only move forward; the door blend never re-installs the cleared tail step; skycity retry
 {let k=null;for(const m2 of ['door','walk','shore','out','walk'])k=Q.lakesideQaAdvance(k,m2);assert.equal(k,'shore','late out/walk never overwrite shore');
  assert.equal(Q.lakesideQaAdvance('door','out'),'out');

@@ -13,9 +13,9 @@ import { TailToken, beginTail, endTail } from './WalkTail';
 import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
-import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+import {LAKESIDE_CAMERA_LAYOUT,lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideQaAdvance} from './LakesideQaShot';
-import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendDurS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,LAKESIDE_PATH_V4,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -217,7 +217,7 @@ class LakesideBalloonTicker extends Component{step:(dt:number)=>void=()=>{};late
 /** 运镜bot: the lakeside route ends on THIS screen's board camera (the board UI's frame: viewport + boardSafeInsets); the
  *  base landing is kept if anything about the screen cannot be read. */
 function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
- try{const v=lakesideViewport(view.getFrameSize());return lakesideScreenLanding(L,lakesideScreenFrame(v.width,v.height,boardSafeInsets(v.width,v.height)));}catch{return L.landing;}}
+ try{const v=lakesideViewport(view.getFrameSize());return lakesideScreenLanding(L,lakesideScreenFrame(v.width,v.height,boardSafeInsets(v.width,v.height)),LAKESIDE_CAMERA_LAYOUT.stopLocal/* b18 v4 stop */);}catch{return L.landing;}}
 /** r4-prep A: blend weight at which the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame; ~1 m + the 1 s landing hook before the swap). */
 export const LAKESIDE_BOARD_PRELOAD_W=.9;
 /** r5 per-part fill: re-write the journey fill only on a weight step of >= 1/64, or when it reaches 0 / 1 exactly. */
@@ -249,7 +249,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // 运镜bot r5 lakeside-landing-cam: ONE shot from the skycity camera to the standing landing pose E (= this screen's board
   // camera, LAKESIDE_CAMERA_LAYOUT.landing via lakesideRouteLanding): the flight lens ends exactly on E, so the 1 s landing hook
   // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.
-  const shore=L.arrival[L.arrival.length-1],E=arrivalPose(L.arrival,L.focus,L.landing),landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
+  const shore=L.arrival[L.arrival.length-1],v4Stop=L.toWorld([...LAKESIDE_CAMERA_LAYOUT.stopLocal] as Vec),E=arrivalPose([shore,v4Stop],L.focus,L.landing)/* b18: solved from the v4 stop, = this screen's board lens */,landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
   // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
   const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),R=lakesideBalloonRide([start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
   let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
@@ -352,12 +352,16 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     ticker.step=(dt)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
      if(stepping){const u=t-moored.walkStartAt,r=stepdownRootAt(u),a=actor as any,P0=moored.start,sy=Math.sin(moored.startYawRad),cy=Math.cos(moored.startYawRad);
       // sd3: root Y = board (P0 0.602) + y_m while walk_start_stepdown plays; forward along the exit heading
-      if(a.node&&isValid(a.node,true))a.node.setWorldPosition(P0[0]+sy*r[0],P0[1]+r[1],P0[2]+cy*r[0]);
+      // b18 fix ①: off the board the root follows the measured lawn (v4 terrain profile), blended in by the drop fraction
+      // r[1]/−0.03 (0 on the board, 1 once the step has landed), instead of the hard 0.572 (right foot 4.9 mm into the 0.5754 lawn)
+      const drop=Math.max(0,Math.min(1,r[1]/-.03)),yB=P0[1]+r[1],yG=moored.groundYAt(r[0]);
+      if(a.node&&isValid(a.node,true))a.node.setWorldPosition(P0[0]+sy*r[0],yB+(yG-(P0[1]-.03))*drop,P0[2]+cy*r[0]);
       lease.progress!(landedM+r[0]);if(r[0]>=LAKESIDE_DOOR_HOLD.outM)outOk();}
      if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){const s=walkBase+w*walkLen;lease.progress!(landedM+s);if(s>=LAKESIDE_DOOR_HOLD.outM)outOk();}
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
-      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
-       lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
+      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){// b18 fix ②: stance foot only from a real contact (lastFootEmit; lastFoot alone is never null), recovery only in swing
+       const fe=a.lastFootEmit,pl=fe&&(a.lastFoot==='L'||a.lastFoot==='R')?a.lastFoot:null,sw=footLockSwing(a.motionT,fe?fe.t:null);
+       lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt,sw);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
     const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
     await waitUntil(moored.T0);rideToken.check();qaMark('door');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
@@ -391,10 +395,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     // b16: the blend follows her real walk progress up to the board entry distance (whole body inside 0.85 of the board
     // frame), so she stays clearly in frame through the blend and the board fade-in; never shorter than the SPEC blend
     const a=lastPose||landPose,blendS=lakesideDoorBlendS(a,landPose),vs=view.getVisibleSize(),entryM=lakesideBoardEntryM(moored.walk,landPose,vs.width/Math.max(1,vs.height),LAKESIDE_DOOR_HOLD.outM);
-    let el=0,u=0;const capS=blendS+(entryM-LAKESIDE_DOOR_HOLD.outM)/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
+    let el=0,u=0;const durS=lakesideDoorBlendDurS(blendS,LAKESIDE_DOOR_HOLD.outM,entryM,moored.length/Math.max(.1,moored.walkS)),capS=blendS+(entryM-LAKESIDE_DOOR_HOLD.outM)/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
     await new Promise<void>((ok,bad)=>{const offB=rideToken.onCancel(()=>{bad(Error('cancelled'));});const prevStep=ticker.step;
      ticker.step=(dt)=>{if(!tailDone)prevStep(dt);el+=dt;const w=(actor as any).walkProgress?.(),walked=typeof w==='number'?w*moored.length:entryM;
-      u=el>=capS?1:Math.max(u,lakesideDoorBlendU(walked,LAKESIDE_DOOR_HOLD.outM,entryM,el,blendS));const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=tailDone?()=>{}:prevStep;offB();ok();}};});
+      void walked;u=Math.min(1,el/durS)/* b18: pure game time → C2 smooth */;const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=tailDone?()=>{}:prevStep;offB();ok();}};});
    }finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
    rideToken.check();rideOver=true;
   };
