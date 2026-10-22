@@ -2215,6 +2215,21 @@
     "sha256": "5bfa2746be87385a294e775f9cd2e16f28d651a1b85af6acf874d9d761de4bdc"
   },
   {
+    "path": "creator-build-project/assets/scripts/input.meta",
+    "bytes": 169,
+    "sha256": "bc949f67955bc781b14ab7cb8c2989999ce101f7e157d8fc1936c1d5d27c40ab"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/input/WebMouseTouchBridge.ts",
+    "bytes": 4884,
+    "sha256": "cf9a518b16b391987d94f94b310125aee090c50801c1cad1d1c769da62431a4c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/input/WebMouseTouchBridge.ts.meta",
+    "bytes": 171,
+    "sha256": "a086c62129b38bc06ca61c8207c8d4d8fbd91a45830635deeac7129b2803e3a6"
+  },
+  {
     "path": "creator-build-project/assets/scripts/mainline-r1.meta",
     "bytes": 169,
     "sha256": "8c950072dbb56adb8e7bb7d9beff5b4abb3f2f62606a2d6a7f28e1e3aeef63bf"
@@ -4236,8 +4251,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14180,
-    "sha256": "d9ebbd62ccf3416ccb9986d1c3a09f91e16138ebd0dc5d067bdc6bb150acbc81"
+    "bytes": 14267,
+    "sha256": "f0d39c1870d4e9b8a4a2bbf1db09e855c308456c4d6bdd24f6cb07482081106e"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
