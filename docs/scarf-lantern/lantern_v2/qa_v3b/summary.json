@@ -1,0 +1,335 @@
+{
+ "qa_a": {
+  "frames": 474,
+  "clips": [
+   "idle_breathing_loop",
+   "walk_loop",
+   "walk_start"
+  ],
+  "runs": [
+   "W0",
+   "Wmax_ph0",
+   "Wmax_ph30"
+  ],
+  "lantern_body_cloth_hits": {},
+  "held_frames": 474,
+  "grip_vertex_min_mm": 0.5,
+  "grip_vertex_max_mm": 0.5,
+  "grip_pen_verts_max": 0,
+  "grip_mesh_gap_min_mm": 0.52,
+  "grip_mesh_gap_max_mm": 0.52,
+  "grip_surface_min_mm": -5.95,
+  "grip_surface_pen_tris_max": 19,
+  "HAND_x_grip_max": 82,
+  "HAND_x_body(bail)_max": 60,
+  "HAND_x_core_max": 0,
+  "ramp_frames(hold<1)": 0,
+  "ramp_grip_vertex_min_mm": null,
+  "min_lantern_cloth_gap_mm": 39.2,
+  "pend_deg_max": 5.18,
+  "grip_rel_deg_max": 0,
+  "LEG_DRESS_depth_max_mm": 17.6,
+  "LEG_DRESS_tris_max": 40,
+  "LEG_DRESS_worst": [
+   "walk_start",
+   38,
+   "W0"
+  ],
+  "LEG_APRON_depth_max_mm": 0.0,
+  "LEG_APRON_tris_max": 0,
+  "LEG_APRON_worst": [
+   "idle_breathing_loop",
+   0,
+   "W0"
+  ],
+  "DRESS_APRON_depth_max_mm": 0.0,
+  "DRESS_APRON_tris_max": 0,
+  "DRESS_APRON_worst": [
+   "idle_breathing_loop",
+   0,
+   "W0"
+  ]
+ },
+ "qa_b": {
+  "frames": 408,
+  "clips": [
+   "walk_stop_bodyL",
+   "walk_stop_bodyR",
+   "walk_turn_90_bodyL"
+  ],
+  "runs": [
+   "W0",
+   "Wmax_ph0",
+   "Wmax_ph30"
+  ],
+  "lantern_body_cloth_hits": {},
+  "held_frames": 408,
+  "grip_vertex_min_mm": 0.5,
+  "grip_vertex_max_mm": 0.5,
+  "grip_pen_verts_max": 0,
+  "grip_mesh_gap_min_mm": 0.52,
+  "grip_mesh_gap_max_mm": 0.52,
+  "grip_surface_min_mm": -5.95,
+  "grip_surface_pen_tris_max": 19,
+  "HAND_x_grip_max": 82,
+  "HAND_x_body(bail)_max": 72,
+  "HAND_x_core_max": 0,
+  "ramp_frames(hold<1)": 0,
+  "ramp_grip_vertex_min_mm": null,
+  "min_lantern_cloth_gap_mm": 75.8,
+  "pend_deg_max": 7.44,
+  "grip_rel_deg_max": 0,
+  "LEG_DRESS_depth_max_mm": 28.5,
+  "LEG_DRESS_tris_max": 41,
+  "LEG_DRESS_worst": [
+   "walk_stop_bodyL",
+   24,
+   "W0"
+  ],
+  "LEG_APRON_depth_max_mm": 0.0,
+  "LEG_APRON_tris_max": 0,
+  "LEG_APRON_worst": [
+   "walk_stop_bodyL",
+   0,
+   "W0"
+  ],
+  "DRESS_APRON_depth_max_mm": 0.0,
+  "DRESS_APRON_tris_max": 0,
+  "DRESS_APRON_worst": [
+   "walk_stop_bodyL",
+   0,
+   "W0"
+  ]
+ },
+ "qa_c": {
+  "frames": 408,
+  "clips": [
+   "walk_turn_180",
+   "walk_turn_180_bodyR",
+   "walk_turn_90_bodyR"
+  ],
+  "runs": [
+   "W0",
+   "Wmax_ph0",
+   "Wmax_ph30"
+  ],
+  "lantern_body_cloth_hits": {},
+  "held_frames": 408,
+  "grip_vertex_min_mm": 0.5,
+  "grip_vertex_max_mm": 0.5,
+  "grip_pen_verts_max": 0,
+  "grip_mesh_gap_min_mm": 0.52,
+  "grip_mesh_gap_max_mm": 0.52,
+  "grip_surface_min_mm": -5.95,
+  "grip_surface_pen_tris_max": 19,
+  "HAND_x_grip_max": 82,
+  "HAND_x_body(bail)_max": 72,
+  "HAND_x_core_max": 0,
+  "ramp_frames(hold<1)": 0,
+  "ramp_grip_vertex_min_mm": null,
+  "min_lantern_cloth_gap_mm": 68.8,
+  "pend_deg_max": 7.99,
+  "grip_rel_deg_max": 0,
+  "LEG_DRESS_depth_max_mm": 20.1,
+  "LEG_DRESS_tris_max": 116,
+  "LEG_DRESS_worst": [
+   "walk_turn_180",
+   8,
+   "W0"
+  ],
+  "LEG_APRON_depth_max_mm": 14.3,
+  "LEG_APRON_tris_max": 59,
+  "LEG_APRON_worst": [
+   "walk_turn_180",
+   7,
+   "W0"
+  ],
+  "DRESS_APRON_depth_max_mm": 12.4,
+  "DRESS_APRON_tris_max": 43,
+  "DRESS_APRON_worst": [
+   "walk_turn_180_bodyR",
+   9,
+   "W0"
+  ]
+ },
+ "qa_xf": {
+  "frames": 328,
+  "clips": [
+   "idle_breathing_loop>walk_start",
+   "walk_loop",
+   "walk_loop>walk_stop_bodyL",
+   "walk_loop>walk_stop_bodyR",
+   "walk_loop>walk_turn_180",
+   "walk_loop>walk_turn_180_bodyR",
+   "walk_loop>walk_turn_90_bodyL",
+   "walk_loop>walk_turn_90_bodyR",
+   "walk_start>walk_loop",
+   "walk_stop_bodyL>idle_breathing_loop",
+   "walk_stop_bodyR>idle_breathing_loop",
+   "walk_turn_180>walk_loop",
+   "walk_turn_180_bodyR>walk_loop",
+   "walk_turn_90_bodyL>walk_loop",
+   "walk_turn_90_bodyR>walk_loop"
+  ],
+  "runs": [
+   "W0",
+   "Wmax_ph0",
+   "Wmax_ph30",
+   "XF",
+   "XF_Wmax"
+  ],
+  "lantern_body_cloth_hits": {},
+  "held_frames": 328,
+  "grip_vertex_min_mm": 0.5,
+  "grip_vertex_max_mm": 0.5,
+  "grip_pen_verts_max": 0,
+  "grip_mesh_gap_min_mm": 0.52,
+  "grip_mesh_gap_max_mm": 0.52,
+  "grip_surface_min_mm": -5.95,
+  "grip_surface_pen_tris_max": 19,
+  "HAND_x_grip_max": 82,
+  "HAND_x_body(bail)_max": 72,
+  "HAND_x_core_max": 0,
+  "ramp_frames(hold<1)": 0,
+  "ramp_grip_vertex_min_mm": null,
+  "min_lantern_cloth_gap_mm": 54.6,
+  "pend_deg_max": 7.99,
+  "grip_rel_deg_max": 0,
+  "LEG_DRESS_depth_max_mm": 12.7,
+  "LEG_DRESS_tris_max": 49,
+  "LEG_DRESS_worst": [
+   "walk_loop>walk_turn_180_bodyR",
+   6,
+   "XF"
+  ],
+  "LEG_APRON_depth_max_mm": 12.4,
+  "LEG_APRON_tris_max": 20,
+  "LEG_APRON_worst": [
+   "walk_loop>walk_turn_180_bodyR",
+   6,
+   "XF"
+  ],
+  "DRESS_APRON_depth_max_mm": 17.6,
+  "DRESS_APRON_tris_max": 43,
+  "DRESS_APRON_worst": [
+   "walk_loop>walk_turn_180_bodyR",
+   4,
+   "XF"
+  ]
+ },
+ "stand_qa": {
+  "frames": 197,
+  "clips": [
+   "idle_breathing_loop>lantern_pick_up_stand",
+   "idle_breathing_loop_lantern>lantern_put_down_stand",
+   "lantern_pick_up_stand",
+   "lantern_pick_up_stand>idle_breathing_loop_lantern",
+   "lantern_put_down_stand",
+   "lantern_put_down_stand>idle_breathing_loop",
+   "lantern_put_down_stand>walk_start",
+   "walk_stop_bodyL>lantern_pick_up_stand",
+   "walk_stop_bodyL_lantern>lantern_put_down_stand",
+   "walk_stop_bodyR>lantern_pick_up_stand",
+   "walk_stop_bodyR_lantern>lantern_put_down_stand"
+  ],
+  "runs": [
+   "W0",
+   "XF"
+  ],
+  "lantern_body_cloth_hits": {},
+  "held_frames": 94,
+  "grip_vertex_min_mm": 0.5,
+  "grip_vertex_max_mm": 0.5,
+  "grip_pen_verts_max": 0,
+  "grip_mesh_gap_min_mm": 0.52,
+  "grip_mesh_gap_max_mm": 0.52,
+  "grip_surface_min_mm": -5.95,
+  "grip_surface_pen_tris_max": 19,
+  "HAND_x_grip_max": 82,
+  "HAND_x_body(bail)_max": 66,
+  "HAND_x_core_max": 0,
+  "ramp_frames(hold<1)": 0,
+  "ramp_grip_vertex_min_mm": null,
+  "min_lantern_cloth_gap_mm": 90.1,
+  "pend_deg_max": 6.857378558851262,
+  "grip_rel_deg_max": 0,
+  "LEG_DRESS_depth_max_mm": 79.8,
+  "LEG_DRESS_tris_max": 402,
+  "LEG_DRESS_worst": [
+   "lantern_pick_up_stand",
+   13,
+   "W0"
+  ],
+  "LEG_APRON_depth_max_mm": 80.0,
+  "LEG_APRON_tris_max": 284,
+  "LEG_APRON_worst": [
+   "lantern_put_down_stand",
+   55,
+   "W0"
+  ],
+  "DRESS_APRON_depth_max_mm": 69.5,
+  "DRESS_APRON_tris_max": 896,
+  "DRESS_APRON_worst": [
+   "lantern_put_down_stand",
+   24,
+   "W0"
+  ]
+ },
+ "stress": {
+  "frames": 1290,
+  "clips": [
+   "idle_breathing_loop",
+   "walk_loop",
+   "walk_start",
+   "walk_stop_bodyL",
+   "walk_stop_bodyR",
+   "walk_turn_180",
+   "walk_turn_180_bodyR",
+   "walk_turn_90_bodyL",
+   "walk_turn_90_bodyR"
+  ],
+  "runs": [
+   "W0",
+   "Wmax_ph0",
+   "Wmax_ph30"
+  ],
+  "lantern_body_cloth_hits": {},
+  "held_frames": 1290,
+  "grip_vertex_min_mm": 0.5,
+  "grip_vertex_max_mm": 0.5,
+  "grip_pen_verts_max": 0,
+  "grip_mesh_gap_min_mm": 0.52,
+  "grip_mesh_gap_max_mm": 0.52,
+  "grip_surface_min_mm": -5.95,
+  "grip_surface_pen_tris_max": 19,
+  "HAND_x_grip_max": 82,
+  "HAND_x_body(bail)_max": 20,
+  "HAND_x_core_max": 0,
+  "ramp_frames(hold<1)": 0,
+  "ramp_grip_vertex_min_mm": null,
+  "min_lantern_cloth_gap_mm": 25.8,
+  "pend_deg_max": 8.0,
+  "grip_rel_deg_max": 0,
+  "LEG_DRESS_depth_max_mm": 28.5,
+  "LEG_DRESS_tris_max": 116,
+  "LEG_DRESS_worst": [
+   "walk_stop_bodyL",
+   24,
+   "W0"
+  ],
+  "LEG_APRON_depth_max_mm": 14.3,
+  "LEG_APRON_tris_max": 59,
+  "LEG_APRON_worst": [
+   "walk_turn_180",
+   7,
+   "W0"
+  ],
+  "DRESS_APRON_depth_max_mm": 12.4,
+  "DRESS_APRON_tris_max": 43,
+  "DRESS_APRON_worst": [
+   "walk_turn_180_bodyR",
+   9,
+   "W0"
+  ]
+ }
+}

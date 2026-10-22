@@ -14,8 +14,8 @@ def _split_grip():
     keep(g,True);keep(body,False)
     H=bpy.data.objects.new('lantern.hinge',None);bpy.context.scene.collection.objects.link(H);H.parent=LROOT;H.matrix_parent_inverse=Matrix.Identity(4);H.matrix_basis=Matrix.Identity(4)
     g.parent=LROOT;g.matrix_parent_inverse=Matrix.Identity(4);g.matrix_basis=Matrix.Identity(4)
-    for o in LOBJ:
-        if o.type=='MESH':o.parent=H;o.matrix_parent_inverse=Matrix.Identity(4);o.matrix_basis=Matrix.Identity(4)
+    for o in LOBJ:   # 保留各网格相对 prop 根的局部变换（lantern.core 有 (0,-0.09836,0) 偏移；v3b QA 前这里被清零，core 误落在握把处）
+        if o.type=='MESH':mb=o.matrix_basis.copy() if o.parent==LROOT else Matrix.Identity(4);o.parent=H;o.matrix_parent_inverse=Matrix.Identity(4);o.matrix_basis=mb
     LOBJ.append(g);LOBJ.append(H);return g,H
 GRIP,HINGE=_split_grip();LM=[o for o in LOBJ if o.type=='MESH']
 AXIS_LOCAL=Vector((0,1,0))   # Blender 局部 Y = 握把圆柱轴（glTF 局部 -Z，即 socket 局部前后向）
