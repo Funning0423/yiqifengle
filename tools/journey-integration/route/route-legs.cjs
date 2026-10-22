@@ -71,7 +71,7 @@ function sailLeg(geo,[w,h]){
  const jc0=Core.journeyCamera(built.path,0,J.start1,undefined,undefined,0,undefined,{...be});
  return {id:'sail island→meadow',T:TT,cam,her,black:()=>false,los,
   segs:[[0,B05],[B05,TT]],
-  arrival,arrS,B05,arcWin:T.sailArcWindow?T.sailArcWindow(tl):null,
+  arrival,arrS,B05,arcWin:T.sailArcWindow?T.sailArcWindow(tl):{t0:bt('S-c').t0,t1:bt('S-d').t1},
   handoffs:[{name:'sail S-g end → shore follow (beginArrival)',a:T.sailCamera(tl,sr.samples,B05,{w,h}),b:FOL[0]},{name:'shore follow end → meadow board camera',a:FOL[Math.round(arrS*60)],b:board}],
   start:{name:'island lens → sail K1 (set-off; ride lease: no set-off fade)',from:J.start1,controller:jc0,ride:cam(0)},
   phases:tl.beats.map(b=>({id:b.id,t0:b.t0,t1:b.t1})).concat([{id:'shore-walk',t0:B05,t1:B05+arrS},{id:'board-hold',t0:B05+arrS,t1:TT}]),board};
