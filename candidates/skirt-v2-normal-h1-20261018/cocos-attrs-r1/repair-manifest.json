@@ -1,0 +1,113 @@
+{
+  "source_path": "../character-skirt-v2-normal-h1.glb",
+  "source_sha256": "af5c0efa865211679610a785c39bdf19a1c8ea5720be8fa769ddae06da90c20d",
+  "source_metadata_sha256": "aeaa23399c6dba01871f8303da704e5ca053e5b56c11398125ce6aa1587249bb",
+  "output_path": "character-skirt-v2-normal-h1-cocos-attrs-r1.glb",
+  "output_sha256": "8a79b26ec12d4e248abe14310dd75febca433a15097b1f22ea94144cd3f5a592",
+  "metadata_path": "anim_meta.json",
+  "metadata_sha256": "6d775f7779127f2254aa18f243f7cd2a0fcba177564c8ca1c921eed42684182c",
+  "added_zero_normal_references": [
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 29,
+      "target_name": "apron_source_support_00_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 30,
+      "target_name": "apron_source_support_01_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 31,
+      "target_name": "apron_source_support_02_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 32,
+      "target_name": "apron_source_support_03_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 33,
+      "target_name": "apron_source_support_04_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 34,
+      "target_name": "apron_source_support_05_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 35,
+      "target_name": "apron_source_support_06_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 0,
+      "mesh": "LOD0_G2_APRON",
+      "primitive": 0,
+      "target_index": 36,
+      "target_name": "apron_source_support_07_oct18",
+      "normal_accessor": 1017,
+      "count": 690,
+      "zero_float32_bytes": 8280
+    },
+    {
+      "mesh_index": 3,
+      "mesh": "LOD0_G2_DRESS",
+      "primitive": 0,
+      "target_index": 32,
+      "target_name": "front_yellow_drape_oct18",
+      "normal_accessor": 1018,
+      "count": 5721,
+      "zero_float32_bytes": 68652
+    }
+  ],
+  "new_accessors": 2,
+  "new_bin_bytes": 76932,
+  "original_binary_prefix_unchanged": true,
+  "target_counts": {
+    "APRON": 53,
+    "DRESS": 49,
+    "BODY_each": 16
+  },
+  "native_weights_channels": 0,
+  "source_not_overwritten": true,
+  "contact": "Unchanged old sole_contact. Preserve the Mac existing h1-preview gate that disables old foot solver; do not revert gate or claim contact fixed.",
+  "scope": "Cocos target-attribute shape compatibility repair only. Actual importer/build/GPU rerun pending. No v9 sculpt, new geometry, new normal fit, or solver change."
+}
