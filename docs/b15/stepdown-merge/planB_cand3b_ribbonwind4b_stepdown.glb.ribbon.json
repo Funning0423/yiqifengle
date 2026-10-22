@@ -1,0 +1,15 @@
+{
+ "frames": 53,
+ "keys": 53,
+ "key_err_deg": 0.0,
+ "spring_offset_deg": [
+  -1.0,
+  3.597
+ ],
+ "total_pitch_deg": [
+  -1.0,
+  11.92
+ ],
+ "seam_in_deg": 0.0,
+ "seam_out_deg": 0.0
+}

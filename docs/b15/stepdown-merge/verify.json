@@ -1,0 +1,43 @@
+{
+ "other_clips": {
+  "n": 14,
+  "channels": 664,
+  "diff": [],
+  "order_same": true,
+  "new": [
+   "walk_start_stepdown"
+  ]
+ },
+ "nodes_same": true,
+ "skins_same": true,
+ "joints": 29,
+ "ibm_same": true,
+ "base_bin_prefix_identical": true,
+ "base_bufferViews_identical": true,
+ "base_accessors_identical": true,
+ "extensions_same": true,
+ "meshes": {
+  "n": 4,
+  "diff": []
+ },
+ "materials_images_same": true,
+ "interp_explicit": [],
+ "readback_30fps": {
+  "frames": 53,
+  "max_rot_err_deg": 0.0998,
+  "worst_bone": "hand.L",
+  "max_joint_pos_err_mm": 0.545,
+  "worst_pos_bone": "hand.R",
+  "feet_pos_err_mm": {
+   "foot.L": 0.001,
+   "foot.R": 0.002,
+   "shin.L": 0.001,
+   "shin.R": 0.001
+  },
+  "toe_proxy_err_mm": {
+   "foot.L": 0.001,
+   "foot.R": 0.002
+  },
+  "skirt_pos_err_mm": 0.509
+ }
+}
