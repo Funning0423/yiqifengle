@@ -252,11 +252,21 @@ export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:P
  *  FOOT_LOCK_RELAX_S while the yaw is steady and never exceeds FOOT_LOCK_MAX_M. Applied by the lakeside adapter after the
  *  character driver's update (the frozen character controller is untouched). */
 export const FOOT_LOCK_HALF_W=.09,FOOT_LOCK_RELAX_S=.35,FOOT_LOCK_MAX_M=.15;
-export function footLockStep(off:readonly [number,number],planted:'L'|'R'|null,yawOld:number,yawNew:number,dt:number):[number,number]{
+/** b18 foot-lock recovery (运镜bot path v4, 角色动画bot sim_lock_frames replay): the offset is only walked back onto the path
+ *  while the other foot SWINGS (more than FOOT_LOCK_SWING_S after the last foot contact, i.e. past double support), linearly
+ *  at FOOT_LOCK_RECOVER_MPS; during stance it is held (the old exponential relax ran whenever the yaw was steady, so the
+ *  stance foot slid). FOOT_LOCK_RELAX_S is kept for older callers only. */
+export const FOOT_LOCK_SWING_S=.12,FOOT_LOCK_RECOVER_MPS=.018;
+/** Swing phase from the character driver's clocks: motionT (s) and the last foot-contact emit time; no contact yet = unknown (false). */
+export function footLockSwing(motionT:number,lastEmitT:number|null|undefined):boolean{return typeof lastEmitT==='number'&&isFinite(lastEmitT)&&typeof motionT==='number'&&motionT-lastEmitT>FOOT_LOCK_SWING_S;}
+/** One foot-lock step. `planted` = the stance foot (null = unknown: no pivot); `swing` = the other foot is in swing (recovery allowed).
+ *  While the yaw changes with a known stance foot the root pivots about that sole; in swing the offset moves back toward 0 at
+ *  FOOT_LOCK_RECOVER_MPS·dt (never past 0); otherwise it is held. |offset| ≤ FOOT_LOCK_MAX_M. */
+export function footLockStep(off:readonly [number,number],planted:'L'|'R'|null,yawOld:number,yawNew:number,dt:number,swing:boolean=false):[number,number]{
  let x=off[0],z=off[1];const d=yawNew-yawOld;
  if(planted&&Math.abs(d)>1e-6){const lx=planted==='L'?FOOT_LOCK_HALF_W:-FOOT_LOCK_HALF_W;
   x+=lx*(Math.cos(yawOld)-Math.cos(yawNew));z+=-lx*Math.sin(yawOld)+lx*Math.sin(yawNew);}
- else if(dt>0){const k=Math.exp(-dt/FOOT_LOCK_RELAX_S);x*=k;z*=k;}
+ if(swing&&dt>0){const l=Math.hypot(x,z),r=FOOT_LOCK_RECOVER_MPS*dt;if(l<=r){x=0;z=0;}else{x*=(l-r)/l;z*=(l-r)/l;}}
  const l=Math.hypot(x,z);if(l>FOOT_LOCK_MAX_M){x*=FOOT_LOCK_MAX_M/l;z*=FOOT_LOCK_MAX_M/l;}
  return [x,z];}
 /** b15: walk speed for the exit walk, from the clip's calibrated speed (walk_loop nativeSpeed): the requested exitWalkMps
@@ -287,6 +297,30 @@ export function standupRootK(t:number,dur:number):number{const S=LAKESIDE_STANDU
 export function walkFrom(walk:readonly Vec[],s:number):Vec[]{let acc=0;for(let i=1;i<walk.length;i++){const a=walk[i-1],b=walk[i],l=seg(a,b);
   if(acc+l>=s){const u=l>0?(s-acc)/l:0;return [[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u] as Vec,...walk.slice(i).map(p=>[p[0],p[1],p[2]] as Vec)];}acc+=l;}
  const e=walk[walk.length-1];return [[e[0],e[1],e[2]]];}
+/** b18 path v4 (运镜bot, approved by 角色动画bot in Blender at 30 fps; docs/r5/cine/b18_endpoint_v2.md v4). Lake-local x,z,
+ *  heading = atan2(dx,dz) in degrees. From the step-down point: S0 straight, A1 arc R 2 right, S1 straight, A2 arc R 2 left,
+ *  S2 stop straight, ending at endLocal facing endYawDeg (−58°), 0.8 m/s, stop on walk_stop_bodyL (stretch 1.000).
+ *  ground: in-engine LK_terrain height (lake-local y) against s from the true P0 (tools/lakeside-pathv4/terrain.cjs). */
+export const LAKESIDE_PATH_V4={p0Local:[9.1105,25.6722] as readonly [number,number],stepLocal:[8.7525,25.7099] as readonly [number,number],startHeadingDeg:-84,
+ segs:[{len:.8},{R:2,toDeg:-130.75},{len:.5},{R:2,toDeg:-58},{len:.5249}] as ReadonlyArray<{len?:number;R?:number;toDeg?:number}>,
+ endLocal:[3.2531,.5714,25.0904] as readonly [number,number,number],endYawDeg:-58,arcStepDeg:5,straightStepM:.25,
+ ground:[[0,0.5752],[0.25,0.5754],[0.5,0.5755],[0.75,0.5757],[1,0.5759],[1.25,0.5761],[1.5,0.5761],[1.75,0.5758],[2,0.5753],[2.25,0.5745],[2.5,0.5734],[2.75,0.5721],[3,0.5707],[3.25,0.5692],[3.5,0.5679],[3.75,0.5667],[4,0.5658],[4.25,0.5656],[4.5,0.5655],[4.75,0.5657],[5,0.5661],[5.25,0.5667],[5.5,0.5675],[5.75,0.5686],[6,0.5697],[6.25,0.5709],[6.3562,0.5714]] as ReadonlyArray<readonly [number,number]>} as const;
+/** Ground y (lake-local) at path distance s from the true P0 (linear in the v4 profile, clamped). */
+export function pathV4GroundAt(s:number):number{const G=LAKESIDE_PATH_V4.ground,n=G.length;if(s<=G[0][0])return G[0][1];if(s>=G[n-1][0])return G[n-1][1];
+ let i=1;while(i<n-1&&G[i][0]<s)i++;const a=G[i-1],b=G[i],u=(s-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*u;}
+/** Path v4 from the step-down point to the stop, lake-local [x, ground y, z] with s from the true P0 (arcs every arcStepDeg). */
+export function lakesidePathV4Local():{pts:Vec[];s:number[];length:number}{
+ const P=LAKESIDE_PATH_V4,D=Math.PI/180;let x=P.stepLocal[0],z=P.stepLocal[1],h=P.startHeadingDeg,s=Math.hypot(P.stepLocal[0]-P.p0Local[0],P.stepLocal[1]-P.p0Local[1]);
+ const pts:Vec[]=[[x,pathV4GroundAt(s),z]],ss=[s];const put=(px:number,pz:number,ps:number)=>{pts.push([px,pathV4GroundAt(ps),pz]);ss.push(ps);};
+ for(const g of P.segs){
+  if(g.len!==undefined){const n=Math.max(1,Math.ceil(g.len/P.straightStepM));for(let i=1;i<=n;i++){const l=g.len*i/n;put(x+Math.sin(h*D)*l,z+Math.cos(h*D)*l,s+l);}x+=Math.sin(h*D)*g.len;z+=Math.cos(h*D)*g.len;s+=g.len;}
+  else{const R=g.R!,h1=g.toDeg!,sg=Math.sign(h1-h),a0=h-sg*90,cx=x-R*Math.sin(a0*D),cz=z-R*Math.cos(a0*D),n=Math.max(1,Math.ceil(Math.abs(h1-h)/P.arcStepDeg));
+   for(let i=1;i<=n;i++){const hh=h+(h1-h)*i/n,a=hh-sg*90;put(cx+R*Math.sin(a*D),cz+R*Math.cos(a*D),s+R*Math.abs(hh-h)*D);}
+   s+=R*Math.abs(h1-h)*D;const a=h1-sg*90;x=cx+R*Math.sin(a*D);z=cz+R*Math.cos(a*D);h=h1;}}
+ // snap the last sample onto the documented stop (≤ 0.1 mm rounding of the spec numbers), so the route end, the board-lens solve
+ // (LakesideCameraLayout.stopLocal) and the controller's final lens use the identical point
+ const E=P.endLocal,l=pts[pts.length-1];l[0]=E[0];l[2]=E[2];l[1]=pathV4GroundAt(s);
+ return {pts,s:ss,length:s};}
 /** Option A: land off the board frame. Disembark through the b15 basket door (DOOR_SPEC, door wall = basket local +Z), also
  *  offscreen, then walk to the unchanged shore root with the production planner (walk_start → walk_loop → walk_stop_bodyL).
  *  The camera stays on the board pose; the board fades in while she walks (she is off the board frame for ~7 s). */
@@ -304,14 +338,19 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.
  // sd3 step-down point: P0 + stepM along the exit heading (P0 → approach), on the lawn; the walk is straight from P0 to it
  // (not rounded) so walk[1] IS the step point and the start yaw (toward walk[1]) is unchanged.
  const hd=Math.hypot(appr[0]-start[0],appr[2]-start[2])||1,stepPt:Vec=[start[0]+(appr[0]-start[0])/hd*LAKESIDE_STEPDOWN.stepM,gy,start[2]+(appr[2]-start[2])/hd*LAKESIDE_STEPDOWN.stepM];
- const walk=[[start[0],start[1],start[2]] as Vec,...roundWalk([stepPt,appr,shoreG],Math.min(cornerM,seg(stepPt,appr)/2))],length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
+ // b18 path v4: [P0, step-down, v4 S0/A1/S1/A2/S2 sampled ~5° on the arcs] mapped lake-local → world, y on the measured
+ // terrain (lake-local profile + the lake root's y). stepMismatchM = |toWorld(v4 step-down) − stepPt| (must stay < 1 cm).
+ const V=lakesidePathV4Local(),v4w=V.pts.map(p=>toWorld([p[0],p[1],p[2]])),stepMismatchM=Math.hypot(v4w[0][0]-stepPt[0],v4w[0][2]-stepPt[2]);
+ const walk=[[start[0],start[1],start[2]] as Vec,...v4w],length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
+ const groundYAt=(sFromP0:number)=>pathV4GroundAt(sFromP0)+(origin[1]);
+ void shoreG;
  const T0=K.exitIdleS,doorAt=T0+K.doorContactS,walkAt=T0+K.walkStartAfterReachS;
  // leaf yaw (deg, about local Y, + = outward) on the get-out clock: hand-follow for 2 frames, then ease-out cubic to +100°
  const doorDeg=(t:number):number=>{const a=t-doorAt;if(a<=0)return 0;if(a<K.doorFollowS)return K.doorFollowDeg*a/K.doorFollowS;const u=Math.min(1,(a-K.doorFollowS)/K.doorOpenS),q=1-Math.pow(1-u,3);return K.doorFollowDeg+(K.doorOpenDeg-K.doorFollowDeg)*q;};
  const timing:JourneyTiming={durationS:walkAt+walkS,easeInS:K.walkEaseS,easeOutS:K.walkEaseS};
  // facing at touchdown: she rode facing the flight heading; she is reset (offscreen) to face the door before the get-out
  // v3 facing: toward the first rounded-walk point (95.97°, 0.22° off the door normal)
- return {mooring,start,walk,length,cornerM,mps,walkS,timing,doorYawDeg,startYawRad:Math.atan2(walk[1][0]-start[0],walk[1][2]-start[2]),groundY:gy,T0,doorAt,walkStartAt:walkAt,doorDeg,
+ return {mooring,start,walk,length,cornerM,mps,walkS,timing,doorYawDeg,stepMismatchM,groundYAt,pathV4:true,startYawRad:Math.atan2(walk[1][0]-start[0],walk[1][2]-start[2]),groundY:gy,T0,doorAt,walkStartAt:walkAt,doorDeg,
   /** her seat yaw under stand_point, compensated for the basket yaw so her ride facing is unchanged */
   seatYawDeg:(girlYawDeg:number)=>girlYawDeg-doorYawDeg};
 }
@@ -401,10 +440,18 @@ export function lakesideBoardEntryM(walk:readonly Vec[],land:Pose,aspect:number,
 export function lakesideDoorBlendU(walkedM:number,outM:number,entryM:number,elapsedS:number,minS:number):number{
  const w=entryM>outM+1e-3?(walkedM-outM)/(entryM-outM):1;return Math.max(0,Math.min(1,w,elapsedS/Math.max(.1,minS)));
 }
+/** b18 smooth landing → board: ONE game-time length for the door → board blend, fixed when it starts: the SPEC length
+ *  (lakesideDoorBlendS) or the time her walk needs from outM to the board entry distance at the walk's mean speed, whichever
+ *  is longer. u = elapsed / this (then smootherstep), so the lens never follows her walk_start / stop speed changes (the old
+ *  min(walk, time) progress switched source mid-blend: a velocity kink, felt as a sudden acceleration). */
+export function lakesideDoorBlendDurS(blendS:number,outM:number,entryM:number,walkMps:number):number{
+ return Math.max(blendS,Math.max(0,entryM-outM)/Math.max(.1,walkMps));}
 /** Door lens → landing pose at blend progress u∈[0,1] (smootherstep, as the old blend-out). */
 export function lakesideDoorBlendPose(a:Pose,b:Pose,u:number,her?:Vec,pull=LAKESIDE_DOOR_HOLD.aimPull):Pose{const x=Math.max(0,Math.min(1,u)),p=blendPose(a,b,x*x*x*(x*(x*6-15)+10));
  if(!her||x<=0||x>=1)return p;
  // b16: mid-blend aim pull toward her chest (0 at both ends, so the door lens and the board pose stay exact)
- const k=pull*Math.sin(Math.PI*x),d=unit(p.position,p.target),dist=Math.hypot(p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]),h=unit(p.position,[her[0],her[1]+1.0,her[2]]);
+ // b18: the pull rides on the same smootherstep (4e(1−e)), so the aim starts and ends with zero angular velocity AND acceleration
+ // (sin(πx) on the raw progress kicked the view at the blend start)
+ const e=x*x*x*(x*(x*6-15)+10),k=pull*4*e*(1-e),d=unit(p.position,p.target),dist=Math.hypot(p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]),h=unit(p.position,[her[0],her[1]+1.0,her[2]]);
  const m=[d[0]+(h[0]-d[0])*k,d[1]+(h[1]-d[1])*k,d[2]+(h[2]-d[2])*k],ml=Math.hypot(m[0],m[1],m[2])||1;
  return {position:p.position,target:[p.position[0]+m[0]/ml*dist,p.position[1]+m[1]/ml*dist,p.position[2]+m[2]/ml*dist],fovVerticalDeg:p.fovVerticalDeg};}

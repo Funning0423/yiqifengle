@@ -2,13 +2,13 @@
  "note": "Build05 (3bda6a93 reconstructed as 3ff5b73) 09-arrival reference. pose390x844 = skycityVisitPose(anchor_spawn_girl, anchor_starcourt_center, 390/844) in the board background rig. arrivalFromEndModel = old adapter arrival (2.4 m from anchor_cloudbridge_end toward anchor_cloudbridge_start), model space.",
  "sourceSha256": {
   "region/SkycityBoardBackground.ts": "39a44dc07fbf575d029c249a2745df24f21d403736cc254a911e2d531a068bd8",
-  "region/SkycityVisitPose.ts": "c02d463c7df3d18b88d1ef4f5beb4d81342f33069af539f4ad80c89de56a5e03"
+  "region/SkycityVisitPose.ts": "be7137821d634fb90c56b5082b9153bb68a24fbe7b3a70647a630f0779f7df4c"
  },
  "pose390x844": {
   "position": [
-   5.273205398256558,
-   11.88217414435124,
-   57.18419360998453
+   17.91054074953108,
+   9.461008446688533,
+   51.46143832459995
   ],
   "target": [
    -0.7000874989532814,
@@ -21,5 +21,6 @@
   1.3651499581447175,
   0.3203467387715373,
   -1.9477534645678127
- ]
+ ],
+ "b18Note": "b18 (运镜bot, approved skycity board-view recompose): SkycityVisitPose.ts re-hashed and pose390x844 updated (lens azimuth (0.3,·,1.3) -> (1.2,·,1.3); target, distance rule and FOV unchanged). Other composition files unchanged."
 }

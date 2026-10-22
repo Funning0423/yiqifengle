@@ -3,6 +3,7 @@
 // every region alike; style unchanged. Locks, per screen (boardSafeInsets + explicit capsule variants):
 //   banner bottom ≤ tray top − 6, banner top ≥ capsule / safe-area bottom + 6, width ≤ 330 and ≥ 12 pt in from the edges,
 //   no overlap with the info plate (portrait phones), the tool row or the girl (meadow landing spot, lakeside frozen copy);
+//   b18: on portrait the lakeside girl (B′ board lens) is also fully on screen and clear of the tray;
 //   tray unchanged on the tall phones (390×844 / 414×896 / 360×780 / 768×1024); landscape: above the tray when there is room,
 //   else in the left column, never over the tray. Runtime: the Toast node lands on BoardLayout.toast and the pill stays ≤ maxWidth.
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
@@ -69,14 +70,18 @@ function portraitChecks(w, h, safe, goals, label) {
     const meadow = { l: 99, r: 123, t: 703, b: 762 }; assert.equal(overlap(banner(BL.boardLayout(390, 844, BL.boardSafeInsets(390, 844), 2)), meadow), 0, 'meadow 390x844');
     for (const r of require('../journey-integration/girl-frame.cjs')) if (r.visible) { const [w, h] = r.screen.split('x').map(Number); assert.equal(overlap(banner(BL.boardLayout(w, h, BL.boardSafeInsets(w, h), 2)), { l: r.boxPt.l, r: r.boxPt.r, t: r.boxPt.t, b: r.boxPt.b }), 0, r.region + ' ' + r.screen); }
     const LK = H.load(S + 'region/LakesideCameraLayout.ts'), Core = H.load(S + 'world-r1/RegionJourneyCore.ts'), C = H.load(S + 'world-r1/RegionCameraData.ts').REGION_CAMERA.islandCharacter;
-    const j = LK.lakesideJourney([2, 0, -1]), P = [...j.approach, ...j.bridge.slice(1), ...j.arrival], LEN = Core.routeLength(P), START = { position: [0, 5, -10], target: [0, 0, 0], fovVerticalDeg: 45 };
+    const j = LK.lakesideJourney([2, 0, -1]), STOP = LK.LAKESIDE_CAMERA_LAYOUT.stopLocal, P = [...j.approach, ...j.bridge.slice(1), ...j.arrival, j.toWorld([...STOP])] /* b18 v4 stop */, LEN = Core.routeLength(P), START = { position: [0, 5, -10], target: [0, 0, 0], fovVerticalDeg: 45 };
     const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cr = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], nz = a => { const l = Math.hypot(...a); return a.map(x => x / l); };
     for (const [w, h] of PORTRAIT.concat([[390, 520]])) {
-      const safe = BL.boardSafeInsets(w, h), fr = LK.lakesideScreenFrame(w, h, safe), cam = Core.journeyCamera(P, LEN, START, j.focus, undefined, 0, LK.lakesideScreenLanding(j, fr));
+      const safe = BL.boardSafeInsets(w, h), fr = LK.lakesideScreenFrame(w, h, safe), cam = Core.journeyCamera(P, LEN, START, j.focus, undefined, 0, LK.lakesideScreenLanding(j, fr, STOP));
       const F = nz(sub(cam.target, cam.position)), R = nz(cr(F, [0, 1, 0])), U = cr(R, F), t = Math.tan(cam.fovVerticalDeg * Math.PI / 360), root = P.at(-1), xs = [], ys = [];
       for (const dx of [-C.halfWidthM, C.halfWidthM]) for (const dz of [-C.halfWidthM, C.halfWidthM]) for (const y of [0, C.heightM]) { const q = sub([root[0] + dx, root[1] + y, root[2] + dz], cam.position), z = dot(q, F); assert(z > 0); xs.push((dot(q, R) / (z * t * w / h) + 1) / 2 * w); ys.push((1 - dot(q, U) / (z * t)) / 2 * h); }
       const girl = { l: Math.min(...xs), r: Math.max(...xs), t: Math.min(...ys), b: Math.max(...ys) };
       assert.equal(overlap(banner(BL.boardLayout(w, h, safe, 2)), girl), 0, `lakeside ${w}x${h}: girl ${JSON.stringify(girl)}`);
+      // b18 (B′ board lens): she stands on the bank in the band under the tray, fully on screen, never behind the tray
+      { const gl = BL.boardLayout(w, h, safe, 2); if (w < h) { assert.equal(overlap(rect(gl.tray), girl), 0, `lakeside ${w}x${h}: girl under the tray ${JSON.stringify(girl)}`); assert(girl.l >= 0 && girl.r <= w && girl.t >= 0 && girl.b <= h, `lakeside ${w}x${h}: girl off screen ${JSON.stringify(girl)}`); } }
+      // b18b (Grok Bot on e925b4e5): on 390×844 and 320×568 she overlaps no tool button (3 tools shown)
+      if ((w === 390 && h === 844) || (w === 320 && h === 568)) { const gl = BL.boardLayout(w, h, safe, 2); for (const x of BL.toolSlots(gl, 3)) assert.equal(overlap(girl, { l: x - gl.tools.size / 2, r: x + gl.tools.size / 2, t: gl.tools.y - gl.tools.size / 2, b: gl.tools.y + gl.tools.size / 2 }), 0, `lakeside ${w}x${h}: girl over tool ${x} ${JSON.stringify(girl)}`); }
       const row = table.find(x => x.screen === `${w}x${h}`); if (row) row.lakesideGirl = { x: [r1(girl.l), r1(girl.r)], y: [r1(girl.t), r1(girl.b)] };
     }
   });

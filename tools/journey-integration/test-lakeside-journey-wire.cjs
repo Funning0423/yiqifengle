@@ -44,7 +44,7 @@ t('reachable from region select: 风铃湖畔 button → enterRegion(lake) → r
 t('adapter mounts the lakeside model via lakesideJourney(start) (shared scene loader, real instances)',()=>{
  const a=src('region/RegionJourneyAdapter.ts'),b=src('region/LakesideBoardBackground.ts');
  assert.match(a,/if\(to==='lakeside'\)return prepareLakesideJourney\(/);assert.match(a,/const L=lakesideJourney\(start\);model\.setRotationFromEuler\(0,L\.yawDeg,0\);model\.setWorldPosition\(L\.root\[0\],L\.root\[1\],L\.root\[2\]\);/);
- assert.match(a,/focus:L\.focus,landing:L\.landing/);assert.match(a,/waterY=L\.root\[1\];L\.landing=lakesideRouteLanding\(L\);/);assert.match(a,/lakesideScreenLanding\(L,lakesideScreenFrame\(v\.width,v\.height,boardSafeInsets\(v\.width,v\.height\)\)\)/);assert.match(a,/await mountLakesideScenery\(model,token,take\)/);
+ assert.match(a,/focus:L\.focus,landing:L\.landing/);assert.match(a,/waterY=L\.root\[1\];L\.landing=lakesideRouteLanding\(L\);/);assert.match(a,/lakesideScreenLanding\(L,lakesideScreenFrame\(v\.width,v\.height,boardSafeInsets\(v\.width,v\.height\)\),LAKESIDE_CAMERA_LAYOUT\.stopLocal/);assert.match(a,/await mountLakesideScenery\(model,token,take\)/);
  assert.match(b,/instances=await mountLakesideScenery\(scenery,token,take\)/);assert.match(b,/lakesideSceneInstances\(/);});
 t('landing→board hook call site',()=>{
  const comp=src('world-r2/WorldNativeComposition.ts');assert.equal((comp.match(/lakesideLandingToBoard\(/g)||[]).length,1);

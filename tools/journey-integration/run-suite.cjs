@@ -38,6 +38,7 @@ const tests=[
  ['reward-background-return','tools/board-ui/test_reward_background_return.cjs'],
  ['restored-entry-resume','tools/board-ui/test_restored_entry_resume.cjs'],
  ['lakeside-landing-no-pause','tools/board-ui/test_lakeside_landing_no_pause.cjs'],
+ ['lakeside-pathv4','tools/lakeside-pathv4/metrics.cjs'],
  ['result-retry','tools/board-ui/test_result_retry.cjs'],
  ['board-art-retry','tools/board-ui/test_board_art_retry.cjs'],
  ['deferred-entry-art','tools/board-ui/test_deferred_entry_art.cjs'],
