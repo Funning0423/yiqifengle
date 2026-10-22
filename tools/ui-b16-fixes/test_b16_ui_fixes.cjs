@@ -9,7 +9,7 @@ ok('P1 setSignEntrance skips only when the node visibility already matches; repo
 ok('P1 host: no invisible hit area once the entrance is over; one replay, then the visible flat 继续旅程 button while the 3D sign keeps retrying (1 s)',()=>{const s=src('WorldIntegrationBoot.ts');
  assert(/if\(ok!==false\)this\.signShown=e;/.test(s));assert(/if\(this\.signRetry<1\)\{this\.signRetry\+\+;this\.signShown=0;this\.signEntrance=0;\}/.test(s));
  assert(/now-this\.signRetryAt>=1000\)\{this\.signRetryAt=now;this\.signRetry\+\+;this\.setSign\(1,0\);\}if\(!\(p as any\)\.signVisible\(\)\)sign=null;/.test(s),'fallback keeps retrying the 3D sign every 1 s');
- assert(/else\{this\.setSign\(0,0\);this\.signShown=0;this\.signEntrance=0;this\.signFadeS=\.2;/.test(s)&&/this\.signFadeS>0\?Math\.max\(0,Math\.min\(dt,\.1\)\)\/this\.signFadeS:step/.test(s),'retry success: sign reset to 0 on the same frame, then flat button -> 3D sign with a 0.2 s fade-in');
+ assert(/else\{this\.setSign\(0,0\);this\.signEntrance=0;this\.signFadeS=\.2;/.test(s)&&/this\.signFadeS>0\?Math\.max\(0,Math\.min\(dt,\.1\)\)\/this\.signFadeS:step/.test(s),'retry success: sign reset to 0 on the same frame, then flat button -> 3D sign with a 0.2 s fade-in');
  assert(/if\(s\.state!=='island'\)this\.signRetry=0;/.test(s),'retry budget resets off the island');});
 ok('P1 hit area min 88 logical px (>= 44pt); per-viewport inset checks live in t9-island-props test',()=>{const M=load();const L=M.IslandPropsLayout;assert(L.SIGN_HIT_MIN>=44);});
 ok('P2 sky-city key light: day unchanged, night = world lightScale 0.35 and moon colour 180/198/232, monotonic blend',()=>{const M=load(['region/RegionBoardNight']).RegionBoardNight;
