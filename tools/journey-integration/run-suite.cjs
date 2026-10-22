@@ -133,6 +133,7 @@ const tests=[
  ['lakeside-water-probe','tools/lakeside/test_lakeside_water_probe.cjs'],/* r4.2 item 4 */
  ['navigation-guard-timeout','tools/journey-integration/test-navigation-guard-timeout.cjs'],/* r4.2 item 20 */
  ['lakeside-first-show-staged','tools/lakeside/test_lakeside_first_show_staged.cjs'],/* r4.2 warning 6 */
+ ['ui-b16-fixes','tools/ui-b16-fixes/test_b16_ui_fixes.cjs'],/* UI设计部 b16: P1 signpost, P2 sky-city night key light, L13 rule guide, r6 lakeside measure_visible gate */
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
