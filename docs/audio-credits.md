@@ -205,3 +205,13 @@ Snow-pass concept previews only (`previews/Voice-bot/b15-lakeside-l13-16/02..04`
 | Windchime.ogg | stephan | Public domain | https://commons.wikimedia.org/wiki/File:Windchime.ogg | chime A: 12–36 s, +39 cents, HP 300 / LP 6.5 kHz, 3.5 kHz −5 dB, echo tail |
 | Windglockenspiel.Koshi.ogg | Membeth | CC0 1.0 | https://commons.wikimedia.org/wiki/File:Windglockenspiel.Koshi.ogg | chime B: 2–26 s, +22 cents, same chain |
 | snow hiss | Voice bot (own synthesis, ffmpeg pink noise) | CC0 1.0 (own work) | — | HP 6.5 kHz / LP 10 kHz, −30 dB |
+
+## 「风起」路线动机小样（Voice bot，2026-10-22，仅预览，不进游戏）
+`previews/Voice-bot/feng-qi-roadmap/01..02`，脚本 `tools/audio/feng_qi_roadmap_demos.py`。
+
+| Source | Author | License | URL | Use |
+|---|---|---|---|---|
+| Windchime.ogg | stephan | Public domain | https://commons.wikimedia.org/wiki/File:Windchime.ogg | single strike 0.72–6.0 s (≈1592 Hz), resampled to G5/C6/D6/E6/G6, HP 250 Hz, LP 5 kHz |
+| Howling_wind.ogg | Tvabutzku1234 | CC0 1.0 | https://commons.wikimedia.org/wiki/File:Howling_wind.ogg | 30–59 s / 40–70 s: LP 250 Hz rumble + BP 250–1400 Hz gust, slow LFO |
+| piano / harp / accordion / flute / string pad | Voice bot (own synthesis: additive, Karplus-Strong) | CC0 1.0 (own work) | — | no CC0 multi-sample instruments were available on the box; placeholders for the final recorded/sampled versions |
+| reverb IR | Voice bot (own synthesis) | CC0 1.0 | — | noise-decay IR, RT 3.0–3.5 s |
