@@ -3696,8 +3696,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 33265,
-    "sha256": "79983800c90c4fffd07509c80db07d0577e237c3f65aa4a8ed34377e22347c63"
+    "bytes": 33531,
+    "sha256": "908dcd802fa87dcf99de1ef8dea09dcdf69e74e790bb453f0936d6309b097d51"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
@@ -4061,8 +4061,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 38524,
-    "sha256": "27867610f7f6ca69794d19e8b7a1a71f8e652b775e39a3d67538a8e444bd6d02"
+    "bytes": 38684,
+    "sha256": "ac1a63e999538cad40c910385785617d5d20f9eda67d33df0ceb66af6cd70284"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4196,8 +4196,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_qashot.cjs",
-    "bytes": 16593,
-    "sha256": "9db44b55b2994b379a34108e25b8703eed40afd9dcb22e629ffef94007f2056c"
+    "bytes": 17228,
+    "sha256": "6ca78101d48b8f05c57c9e172ed8428cbd1a28db156df378e1901754d16edd69"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",

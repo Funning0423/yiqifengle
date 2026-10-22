@@ -272,7 +272,9 @@ export class RegionJourneyController {
  }
  /** Called BEFORE cancelling the action token, while its distance signal is still available. */
  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
- restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
+ // b15 handover (no teleport): while a ride tail still walks her to the stand point (the lakeside exit walk under the board
+ // fade-in), restore must not cancel that walk and snap her there; the tail ends on the same point (route end).
+ restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root&&!(this.lease as any)?.tail)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
  private leaseProgress(){const l=this.lease;if(!l?.progress)return;try{l.progress(this.distance);}catch{}}
  /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.
