@@ -2551,8 +2551,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts",
-    "bytes": 17718,
-    "sha256": "fc294f37fdea6d4ee1e45bf660cda313f6607522d0157859e0dcda5e9aa8c762"
+    "bytes": 18341,
+    "sha256": "39ae6217ddd0c731b8132ddaad213e740a1bd8fd6a529d249d2fcb11ac312ff4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta",
@@ -4141,8 +4141,8 @@
   },
   {
     "path": "docs/r5/cine/b18_landing_endpoint.md",
-    "bytes": 3054,
-    "sha256": "78ff34a80eba93f51c61571498ac3131c1b416f6db49ce7f4fa928d7ff1d73a0"
+    "bytes": 4227,
+    "sha256": "ae681d5e42b7b08547f4d2c72a2e563aa1ccc577aca34a8313067acd9b6d3ffe"
   },
   {
     "path": "docs/r5/cine/snow_pass_transition_draft.md",
@@ -4226,8 +4226,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",
-    "bytes": 7992,
-    "sha256": "7a8d1770b15710f61bbe0e04894698d7b08969cc30548ce209939fc09c8516ed"
+    "bytes": 8371,
+    "sha256": "6fc66d5e7e03fe0be839bb94cb50887d819d40256567d5e69a63d943444f6650"
   },
   {
     "path": "tools/lakeside/test_walk_tail.cjs",

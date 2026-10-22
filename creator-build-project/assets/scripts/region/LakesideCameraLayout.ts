@@ -61,7 +61,12 @@ export const LAKESIDE_CAMERA_LAYOUT={
    *  band between the tray and the screen bottom on every portrait screen. Vertical FOV 50 on 390×844 and shorter screens, the
    *  390×844 horizontal coverage on taller ones (cap maxFovDeg). The journey ends ON this pose (lakesideScreenLanding solves the
    *  arrival offsets to it), so landing → board stays one continuous camera. Yaw fixed: the board is the only locked view. */
-  portrait:{position:[2.7,8,30.6] as Vec,target:[1.7,-.5,14.6] as Vec,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
+  /* b18b (Grok Bot on e925b4e5: she must clear every tool button and the tray on 390×844 and 320×568; route/end unchanged):
+   *  B″ = 13.5 m up, 2 m x / 35 m z, looking at [-6, -0.5, 10] (B′ turned ~16° left and raised; lens stays on her right): she stands, small, in the
+   *  bottom-RIGHT corner under / right of the tool row, the moored balloon stays out of every portrait board view, her orbit
+   *  pitch (≈ 49°) stays inside the free-orbit 54° limit, and the bridge + far shore stay above the board. Verified with the
+   *  heroine rendered at L1 in the QA copy (previews/运镜bot/r5-b18-board-compose). */
+  portrait:{position:[2,13.5,35] as Vec,target:[-6,-.5,10] as Vec,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
 } as const;
 const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
 /** Placement + route pieces for RegionJourneyAdapter: model.setRotationFromEuler(0,yawDeg,0); model.setWorldPosition(...root);

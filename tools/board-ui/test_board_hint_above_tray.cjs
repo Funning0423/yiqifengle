@@ -80,6 +80,8 @@ function portraitChecks(w, h, safe, goals, label) {
       assert.equal(overlap(banner(BL.boardLayout(w, h, safe, 2)), girl), 0, `lakeside ${w}x${h}: girl ${JSON.stringify(girl)}`);
       // b18 (B′ board lens): she stands on the bank in the band under the tray, fully on screen, never behind the tray
       { const gl = BL.boardLayout(w, h, safe, 2); if (w < h) { assert.equal(overlap(rect(gl.tray), girl), 0, `lakeside ${w}x${h}: girl under the tray ${JSON.stringify(girl)}`); assert(girl.l >= 0 && girl.r <= w && girl.t >= 0 && girl.b <= h, `lakeside ${w}x${h}: girl off screen ${JSON.stringify(girl)}`); } }
+      // b18b (Grok Bot on e925b4e5): on 390×844 and 320×568 she overlaps no tool button (3 tools shown)
+      if ((w === 390 && h === 844) || (w === 320 && h === 568)) { const gl = BL.boardLayout(w, h, safe, 2); for (const x of BL.toolSlots(gl, 3)) assert.equal(overlap(girl, { l: x - gl.tools.size / 2, r: x + gl.tools.size / 2, t: gl.tools.y - gl.tools.size / 2, b: gl.tools.y + gl.tools.size / 2 }), 0, `lakeside ${w}x${h}: girl over tool ${x} ${JSON.stringify(girl)}`); }
       const row = table.find(x => x.screen === `${w}x${h}`); if (row) row.lakesideGirl = { x: [r1(girl.l), r1(girl.r)], y: [r1(girl.t), r1(girl.b)] };
     }
   });

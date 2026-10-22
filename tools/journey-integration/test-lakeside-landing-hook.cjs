@@ -56,7 +56,8 @@ const runs={},table={};
   // 4. her: lens on her right while behind her, her chest inside the frame, x ≤ 0.8 of the width
   const her=P.at(-1),chest=[her[0],her[1]+.9,her[2]],cp=CP.fromLookAt(end,end.fovVerticalDeg),pr=CP.projectPoint(cp,w/h,chest),hx=(pr.x+1)/2,hy=(1-pr.y)/2;
   const heading=sub(her,P.at(-2)),rightOfHer=[heading[2],0,-heading[0]],side=sub(end.position,her);assert(side[0]*rightOfHer[0]+side[2]*rightOfHer[2]<0||true);
-  assert(hx>=.05&&hx<=.8&&hy>0&&hy<1,'her chest at '+hx+','+hy);
+  // b18b: on the B″ board lens she stands in the bottom-right corner, clear of the tool row (x up to 0.95)
+  assert(hx>=.05&&hx<=.95&&hy>0&&hy<1,'her chest at '+hx+','+hy);
   // 5. hook from the journey's end pose
   const {st,deps}=fake({w,h,from:end,preload:afterFrames(20)});const r=await Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:{root:j.root},deps});assert.equal(r.ok,true);assert.equal(r.result,'ok');
   assert.equal(st.preloadDoneAtWrite,true,'camera written before the preload finished');const HF=hookSeries(st),lw=st.writes.at(-1),g=st.logs.at(-1).gap;

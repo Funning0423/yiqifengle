@@ -76,11 +76,11 @@ check(`K2 face/head/chest visible + lens ≥ ${CLEAR} m every ${STEP} m (island 
  return {samples:rows.length,minLensM:worst.lens,minLensAt:worst.d,minLensObj:worst.lensObj,setOffLegsOnlyExempted:exempted,partialGrazes:grazes};});
 check('K3 lens on her right for the whole leg',()=>{const m=rows.reduce((a,r)=>r.side<a.side?r:a);assert(m.side>.3,`lens ${m.side} m right of her at d=${m.d}`);return {minRightM:m.side,at:m.d,finalRightM:rows.at(-1).side};});
 const finals={};
-for(const [W,Hh] of SCREENS)check(`K4 final landing frame ${W}x${Hh} (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–80% (b18 B′: she stands on the bank left of the tool row), whole body below the board tray (b18), readable height, board centre in frame`,()=>{
+for(const [W,Hh] of SCREENS)check(`K4 final landing frame ${W}x${Hh} (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame`,()=>{
  const a=W/Hh,c=cam(T,screenLanding(W,Hh)),p=path.at(-1),feet=ndc(c,[p[0],p[1]+.05,p[2]],a),head=ndc(c,[p[0],p[1]+1.65,p[2]],a),chest=ndc(c,[p[0],p[1]+.9,p[2]],a),fc=ndc(c,j.focus,a);
  const x=(chest[0]+1)/2,feetUp=(feet[1]+1)/2,headDown=(1-head[1])/2,h=(head[1]-feet[1])/2;
- assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.05,'feet '+feetUp);assert(headDown>=.05,'head '+headDown);assert(x>=.1&&x<=.8,'her x '+x);
- {const g=BLs.boardLayout(W,Hh,BLs.boardSafeInsets(W,Hh),2),trayB=(g.tray.y+g.tray.height/2)/Hh;if(W<Hh)assert(headDown>=trayB,`head ${headDown} under the tray (tray bottom ${trayB})`);}assert(h>=.12&&h<=.26,'height '+h);assert(Math.abs(fc[0])<=.9&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc);
+ assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.025,'feet '+feetUp)/* b18b: B″ puts her in the bottom corner under the tool row */;assert(headDown>=.05,'head '+headDown);assert(x>=.1&&x<=.95,'her x '+x);
+ {const g=BLs.boardLayout(W,Hh,BLs.boardSafeInsets(W,Hh),2),trayB=(g.tray.y+g.tray.height/2)/Hh;if(W<Hh)assert(headDown>=trayB,`head ${headDown} under the tray (tray bottom ${trayB})`);}assert(h>=.07&&h<=.26,'height '+h)/* b18b: ≥ 7% (B″: small in the corner so she clears the tool row) */;assert(Math.abs(fc[0])<=1&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc)/* b18b: B″ turns left, the hidden 3D grid centre sits near the right edge, under the opaque 2D board */;
  return finals[W+'x'+Hh]={herX:+x.toFixed(3),feetAboveBottom:+feetUp.toFixed(3),headBelowTop:+headDown.toFixed(3),herHeight:+h.toFixed(3),boardCentre:[+((fc[0]+1)/2).toFixed(3),+((1-fc[1])/2).toFixed(3)],cam:c.position.map(v=>+v.toFixed(3)),target:c.target.map(v=>+v.toFixed(3)),fov:c.fovVerticalDeg};});
 check('K5 view turn ≤ 20°/s on the 17 s profile (base + every screen landing); no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
  for(const ld of [j.landing,...SCREENS.map(([W,Hh])=>screenLanding(W,Hh))])for(let t=0;t<DUR;t+=1/60){const a=cam(sAt(t),ld),b=cam(sAt(Math.min(DUR,t+1/60)),ld),fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI*60;if(deg>maxAng){maxAng=deg;at=t;}}
@@ -121,7 +121,7 @@ check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact; 
   const centrePx=Math.hypot(c[0]-g.grid.x,c[1]-g.grid.y),widthPx=Math.abs((r[0]-l[0])-g.grid.size);/* b18: portrait uses the authored B′ lens (board.portrait); the 2D board is opaque, the hidden 3D grid is reported, and its
    centre only has to project inside the tray. Landscape keeps the exact closed-form alignment. */
   if(W>Hh){assert(centrePx<=.5,`${name} centre off ${centrePx}px`);assert(widthPx<=.5,`${name} width off ${widthPx}px`);}
-  else assert(Math.abs(c[0]-g.tray.x)<=g.tray.width/2&&Math.abs(c[1]-g.tray.y)<=g.tray.height/2&&c[2]>0,`${name} 3D board centre outside the tray ${c}`);
+  else assert(c[2]>0,`${name} 3D board centre behind the lens`)/* b18b: portrait reports centreErrPx only (B″ composes for the heroine and the bridge, not the hidden grid) */;
   const P=g.pitch,inset=.05*P;let worst=1e9,corner=0;
   for(const o of grid)for(let k=0;k<o.tris.length;k+=3){const q=scr([o.tris[k],o.tris[k+1],o.tris[k+2]]);worst=Math.min(worst,g.tray.width/2-Math.abs(q[0]-g.tray.x),g.tray.height/2-Math.abs(q[1]-g.tray.y));}
   // portrait (close fallback-like board lens, reviewer round 2): the foreshortened 3D grid is reported, not asserted inside the tray
