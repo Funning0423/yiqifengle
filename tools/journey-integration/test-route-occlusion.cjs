@@ -36,5 +36,5 @@ const screens=process.env.QF_ROUTE_SCREENS?JSON.parse(process.env.QF_ROUTE_SCREE
  const status=results.every(r=>r.O1==='PASS'&&r.O2==='PASS')?'PASS':'FAIL';
  const report={status,timeUTC:new Date().toISOString(),fps:FPS,clearanceM:CLEAR,geometry:G.info,scope:'Geometry on real GLB triangles (full Draco skycity) + real TS cameras. Not a render or device acceptance. Her dock/shore walk positions are path-linear.',results};
  fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/route-occlusion.json',JSON.stringify(report,null,1)+'\n');
- console.log(JSON.stringify({status,rows:results.map(r=>({leg:r.leg,screen:r.screen,O1:r.O1,occ:r.occludedFrames,O2:r.O2,clear:r.minLensClearM,at:r.clearAtS}))}));if(status!=='PASS')process.exitCode=1;
+ console.log(JSON.stringify({status,rows:results.map(r=>({leg:r.leg,screen:r.screen,O1:r.O1,occ:r.occludedFrames,O2:r.O2,clear:r.minLensClearM,at:r.clearAtS}))}));require('./route/route-gate.cjs').gate('test-route-occlusion.cjs',results.flatMap(r=>['O1','O2'].filter(k=>r[k]==='FAIL').map(check=>({leg:r.leg,check}))));
 })().catch(e=>{console.error(e);process.exit(2);});
