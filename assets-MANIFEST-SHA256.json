@@ -1086,8 +1086,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_snowpass/models/SP_snowpass.glb",
-    "bytes": 1782824,
-    "sha256": "0162d6244edf81152ab261615ff57d7feabfb5ced60713c22bdecf10a781da70"
+    "bytes": 134060,
+    "sha256": "2596db05834dbd2766a2be38befa5c105c90651149016b9c7c306998513e41c7"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/far_meadow_card.glb",

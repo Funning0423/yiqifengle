@@ -5,5 +5,31 @@
   "uuid": "55d98240-cf8f-429b-8819-535f727fb02f",
   "files": [],
   "subMetas": {},
-  "userData": {}
+  "userData": {
+    "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "encode": false,
+      "quantize": false
+    },
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    }
+  }
 }

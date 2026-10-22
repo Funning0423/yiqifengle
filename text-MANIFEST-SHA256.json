@@ -1371,8 +1371,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_snowpass/models/SP_snowpass.glb.meta",
-    "bytes": 164,
-    "sha256": "efe2732378f614b90da5b24661c0e63cfdf1fcfdbaf9a4b9108c335512bdee9d"
+    "bytes": 644,
+    "sha256": "5fa358c1afe127d0145c9e09f566f8a73ee35932543688439ba343dc4225fe08"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon.meta",
