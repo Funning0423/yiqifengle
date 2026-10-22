@@ -700,6 +700,11 @@
     "sha256": "85a7c32003787f27654e45e3c498bdaaaf921f0ca83c0fbf905be3fa0fc77631"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb",
+    "bytes": 4520,
+    "sha256": "eaeb8aff8c86141314b7d9021ecd607ce35b1612fab4cb07e2e6be2a38e3246f"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb",
     "bytes": 85072,
     "sha256": "82c79a5d0e6a74874f0f355c0397d482afd361c3ab0ca318a0a9c60599ac8c2e"

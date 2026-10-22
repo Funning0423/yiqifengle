@@ -1,21 +1,31 @@
-/** b16 P1-3: the lakeside joins free explore (walkable area = LakesideWalkable, baked from the r5h3 export). Pure, no cc. */
+/** b16 free explore after a board exit, for meadow / skycity / lakeside (the island has its own orbit in WorldFlowComponent).
+ *  Pure, no cc. Walkable areas: RegionWalkable.ts. */
 import {REGION_NODES,type RegionId,type Vec} from './RegionNodes';
 import {LAKESIDE_REGION_GRAPH} from './LakesideRegionNodes';
 export type StageRegion=RegionId|'lakeside';
+export type ExploreRegion='meadow'|'skycity'|'lakeside';
+export const EXIT_EXPLORE_REGIONS:readonly ExploreRegion[]=['meadow','skycity','lakeside'];
 export type StageGraph=Readonly<{nodes:readonly {key:string;at:Vec}[];edges:readonly {path:readonly Vec[]}[];exploreBox:readonly [number,number,number,number]}>;
 export function stageGraph(region:StageRegion):StageGraph{return region==='lakeside'?LAKESIDE_REGION_GRAPH as unknown as StageGraph:REGION_NODES[region];}
-/** World state that opens lakeside free explore: in the lakeside, arrived (not travelling), no board, not hidden/paused.
- *  Board exit (暂停 → 「回到小岛」 = exitLevel → levelOrigin 'lakeside') lands exactly here. */
-export function lakesideExploreWanted(s:any):boolean{
- if(!s||s.state!=='lakeside'||s.hidden||s.needsResume)return false;
- const j=s.journey;if(j&&(j.region!=='lakeside'||(j.phase&&j.phase!=='arrived')))return false;
+/** World state where `region` free explore may be open: she stands in that journey region, arrived (not travelling), no board,
+ *  not hidden / waiting for resume. Board exit (暂停 →「离开棋盘」 = exitLevel → levelOrigin) lands exactly here. */
+export function exploreWanted(region:ExploreRegion,s:any):boolean{
+ if(!s||s.state!==region||s.hidden||s.needsResume)return false;
+ const j=s.journey;if(!j||j.region!==region||(j.phase&&j.phase!=='arrived'))return false;
  return true;
 }
-/** Open only on the way OUT of a lakeside board (a 'level' seen while she stood in the lakeside, then the lakeside again), never
- *  during the arrival / landing shot: the landing hook owns the lens then and the board opens by itself. Returns the next armed flag. */
-export function lakesideExploreArm(prevState:string|null,s:any,armed:boolean):boolean{
+/** Armed only on the way OUT of a board of that region ('level' seen while her journey region is `region`), never by the arrival /
+ *  landing / transit shots (those own the lens; the board opens by itself). Returns the next armed flag. */
+export function exploreArm(region:ExploreRegion,prevState:string|null,s:any,armed:boolean):boolean{
  if(!s)return armed;
- if(s.state==='level')return armed||prevState==='lakeside'||s.stable==='lakeside'||s.journey?.region==='lakeside';
- if(s.state==='lakeside')return armed;
+ if(s.state==='level')return armed||prevState===region||s.journey?.region===region;
+ if(s.state===region)return armed;
  return false;
 }
+/** First region whose explore should open now (armed + wanted), or null. */
+export function exploreTarget(s:any,armed:Readonly<Partial<Record<ExploreRegion,boolean>>>):ExploreRegion|null{
+ for(const r of EXIT_EXPLORE_REGIONS)if(armed[r]&&exploreWanted(r,s))return r;
+ return null;
+}
+export function lakesideExploreWanted(s:any):boolean{return exploreWanted('lakeside',s);}
+export function lakesideExploreArm(prevState:string|null,s:any,armed:boolean):boolean{return exploreArm('lakeside',prevState,s,armed);}

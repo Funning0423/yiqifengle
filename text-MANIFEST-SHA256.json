@@ -865,6 +865,11 @@
     "sha256": "6ff41e114c74c7deb7a39055b96e924e06278f73010265d9ff2db832466c551e"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_boardwalk.glb.meta",
+    "bytes": 2947,
+    "sha256": "eacd19f34e49cfe0a3273adbb16e41184e881a888810dc8dfb12a75e828b0ef8"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_bridge.glb.meta",
     "bytes": 2943,
     "sha256": "8f8d5dc0509b79907e2677a786eb7295cea05fb929dbdd4246dbf0058184aaa0"
@@ -1136,8 +1141,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/scene_r5h_slim_transforms.json",
-    "bytes": 190895,
-    "sha256": "4993746a98600b259529bc3c8ace2e2a730b998cae31e98e5564df4365162a63"
+    "bytes": 192977,
+    "sha256": "ccf5ccf615b7c705ab4069f2d6cd90d7971ec54a0e67c303f6df9a520906e6f0"
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/scene_r5h_slim_transforms.json.meta",
@@ -2591,8 +2596,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts",
-    "bytes": 1627,
-    "sha256": "466137efa4e03f2f8bf6f0b7b254c7646d33bb4cb800ed3f7caf7d1ed3aa8015"
+    "bytes": 2324,
+    "sha256": "06999444fbf7f3c1043a2a7d2cf79d657ffd4b485543e825b9521bd1c5b029a3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts.meta",
@@ -2721,23 +2726,13 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideWalkable.ts",
-    "bytes": 6444,
-    "sha256": "ef8b5156fd81e316c89095f8fbcc93e4d821ba5a70950e222d375cefe701c07b"
+    "bytes": 1145,
+    "sha256": "12311b3b1c52797254915c6b9f45203d70f87563cb6449a11317bb02a678a249"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideWalkable.ts.meta",
     "bytes": 171,
     "sha256": "e78424ce0c8a83b4deb42833ae54c17a7b0b22c0a2b38db3cb16091ff620e9b6"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/region/LakesideWalkableData.ts",
-    "bytes": 36619,
-    "sha256": "2a3412006aab1985beb5253b495b64bf22e8dfddafeb79cefcd8562b595d33ac"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/region/LakesideWalkableData.ts.meta",
-    "bytes": 171,
-    "sha256": "d786210d93dc6050e305e551e9c9546c412c7c61eccf80462f327a24059765ad"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
@@ -2898,6 +2893,26 @@
     "path": "creator-build-project/assets/scripts/region/RegionValidation.ts.meta",
     "bytes": 171,
     "sha256": "ff06e3f4e0099db148b4437c1db401904a2390b078daf0936d7cc3ad369b0c88"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionWalkable.ts",
+    "bytes": 7792,
+    "sha256": "54b626dfaab490a2b558141b14f3a41f88a66b638500a54ef2c78f8d3a353fe7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionWalkable.ts.meta",
+    "bytes": 171,
+    "sha256": "44217c429c0dbcea2f7fcb0f2b99ffc789153eb16790dcc65161eef989140c88"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
+    "bytes": 106588,
+    "sha256": "9b988dc7a64fd789d432401d1bac8e73a416ecd59637afad9d8f764db3482306"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
+    "bytes": 171,
+    "sha256": "d8cb6a3fbec8c465fcaaba0fa3f98f58a2e073cda68d3f597fb2192bd68c70cc"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RobotClips.ts",
@@ -3512,7 +3527,7 @@
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
     "bytes": 65330,
-    "sha256": "239513fe49573f5895f747dd6ef1b1da200c07b9b11d5ce6a25d59e147ccb421"
+    "sha256": "a7436783e412ee2e41aaa576491c2e9c1f0cf37ee9ff8196e852d568eb126301"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -3871,8 +3886,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts",
-    "bytes": 6642,
-    "sha256": "b549ecfd09846a35c1a77dd3941858126adc21812377a4fef809d7ee6a21dff4"
+    "bytes": 6629,
+    "sha256": "676d7c5c7981a75daa0e2f7c4cbf99ba264fa2abff720e7b37618c1124ce41a7"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts.meta",
@@ -4111,8 +4126,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 38752,
-    "sha256": "5d83733e7bcd2659ac3447d5ba7413269b72d39588de29cb4d2e5694a1535d85"
+    "bytes": 39482,
+    "sha256": "e6eee0c3481f82b09eb6f521cd5c41e3757c170778b1a7b66c4f322dece1d505"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",

@@ -4,20 +4,20 @@
  * Bake the 风铃湖畔 explore walkable area from the real r5h3 export (bundles/region_lakeside: scene_r5h_slim_transforms.json +
  * models/*.glb). Same grid rules as tools/region-nodes/bake-region-nodes.cjs (floor |ny|/len > 0.72, STEP 0.36 per 0.4 m,
  * headroom 1.7 m, low clearance 0.3 m), plus the water rule: a floor sample at or below the lake surface (LK_lake, y=0) + 0.05 m
- * is water, never walkable. Two seeds: her landing stop and the LK_bridge deck; the two shores are separate pieces (water between), the runtime path
- * search never crosses water, so a tap on the far side is answered 'unreachable'. Floors: LK_terrain (grass / shore), LK_bridge + LK_bridge_steps (boardwalk bridge), LK_porch_steps,
+ * is water, never walkable. Two seeds: her landing stop and the LK_bridge deck; since b16 the LK_boardwalk_b16_* walk (west, x=-13) joins the near shore
+ * to the far shore and the bridge, so both seeds flood one connected area. Floors: LK_terrain (grass / shore), LK_bridge + LK_bridge_steps,
+ * LK_boardwalk (b16 boardwalk), LK_porch_steps,
  * LK_pavilion deck. Flood-filled from her landing stop (LAKESIDE_CAMERA_LAYOUT.stopLocal), so islands of grass she cannot reach drop out.
- * Output: creator-build-project/assets/scripts/region/LakesideWalkableData.ts (bit mask + cm heights, base64) and
- *         tools/lakeside-walkable/lakeside-walkable.json (stats).   Usage: node bake-lakeside-walkable.cjs [--check]
+ * Module used by tools/region-walkable/bake-region-walkable.cjs (writes RegionWalkableData.ts). Run directly: stats only
+ * (tools/lakeside-walkable/lakeside-walkable.json). b16: + LK_boardwalk (the new west boardwalk) is floor.
  */
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {load}=require('../journey-integration/occlusion/lib-glb.cjs');
 const ROOT=path.resolve(__dirname,'../..');
 const BUNDLE=path.join(ROOT,'creator-build-project/assets/bundles/region_lakeside');
-const OUT_TS=path.join(ROOT,'creator-build-project/assets/scripts/region/LakesideWalkableData.ts');
 const OUT_JSON=path.join(__dirname,'lakeside-walkable.json');
 const STEP=.36,HEAD=1.7,LOW=.3,C=.4,BOX=[-40,-30,40,52],WATER_Y=0,WATER_EPS=.05,START=[3.2531,.5714,25.0904],BRIDGE=[0,3.5,0];
-const FLOOR=/^LK_(terrain|bridge|bridge_steps|porch_steps|pavilion)\.glb$/;
+const FLOOR=/^LK_(terrain|bridge|bridge_steps|porch_steps|pavilion|boardwalk)\.glb$/;
 const SOLID=/^LK_(house_[ABC]|tree_conifer|tree_round|rock|barrel|bush|lantern|chime_post|clothesline|pavilion|flowerpot|windchime|bridge)\.glb$/;
 function quatMat(q,s,t){const [x,y,z,w]=q,[sx,sy,sz]=s;return [(1-2*(y*y+z*z))*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,2*(x*y-z*w)*sy,(1-2*(x*x+z*z))*sy,2*(y*z+x*w)*sy,0,2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*(x*x+y*y))*sz,0,t[0],t[1],t[2],1];}
 const xf=(m,p)=>[m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12],m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14]];
@@ -60,15 +60,9 @@ function bake(){
  let waterCells=0;for(let ci=0;ci<W*H;ci++)if(top[ci]!==null&&water[ci])waterCells++;
  return {W,H,c:C,x0,z0,bits:bits.toString('base64'),heights:hb.toString('base64'),cells:n,raisedCells:bridge,waterCells,sha256:hash.digest('hex'),top,water,reach};
 }
-function ts(b){
- return ['/** Baked by tools/lakeside-walkable/bake-lakeside-walkable.cjs from bundles/region_lakeside (r5h3). Pure data, no cc. Do not edit by hand. */',
- `export const LAKESIDE_WALKABLE_DATA={sourceSha256:'${b.sha256}',x0:${b.x0},z0:${b.z0},c:${b.c},W:${b.W},H:${b.H},cells:${b.cells},waterY:0,`,
- ` bits:'${b.bits}',`,` heights:'${b.heights}'} as const;`,''].join('\n');}
 if(require.main===module){
- const b=bake(),text=ts(b);
- if(process.argv.includes('--check')){if(fs.readFileSync(OUT_TS,'utf8')!==text){console.error('LAKESIDE WALKABLE DRIFT');process.exit(1);}console.log('check-ok',b.cells);process.exit(0);}
- fs.writeFileSync(OUT_TS,text);
+ const b=bake();
  fs.writeFileSync(OUT_JSON,JSON.stringify({sourceSha256:b.sha256,box:BOX,c:C,W:b.W,H:b.H,walkableCells:b.cells,walkableM2:+(b.cells*C*C).toFixed(1),farShoreCells:b.raisedCells,nearShoreCells:b.cells-b.raisedCells,waterCellsInBox:b.waterCells,start:START},null,1));
- console.log('cells',b.cells,'m2',(b.cells*C*C).toFixed(1),'far(bridge side)',b.raisedCells,'water',b.waterCells,'bytes',text.length);
+ console.log('cells',b.cells,'m2',(b.cells*C*C).toFixed(1),'bridge-seed component',b.raisedCells,'water',b.waterCells,'(data: tools/region-walkable/bake-region-walkable.cjs)');
 }
 module.exports={bake,BOX,C,START};

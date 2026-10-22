@@ -15,8 +15,8 @@ import {PROP_NODES,SCENE_PROPS,propFeedback,resolveTap,pickMarker,type Gesture} 
 import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarkers';
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
-import {lakesideExploreArm,lakesideExploreWanted,stageGraph,type StageRegion} from '../region/LakesideExplore';
-import {lakesidePath,lakesideRayHit,lakesideSnap,pathLengthM,type LVec} from '../region/LakesideWalkable';
+import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
+import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
 
 type Cover={host:Node|null;nav:Node|null;cams:{cam:Camera;on:boolean}[];rig:Node|null;rigOn:boolean};
@@ -40,11 +40,11 @@ export class RegionNodeStage extends Component{
  private cover:Cover|null=null;
  private exploring=false;
  private region:StageRegion='island';
- private lakeWalking=false;
- private lakeCheck=0;
- private lakeOpened=false;
- private lakeArmed=false;
- private lakePrev:string|null=null;
+ private groundWalking=false;
+ private exploreCheck=0;
+ private syncOpened:ExploreRegion|null=null;
+ private exploreArmed:Partial<Record<ExploreRegion,boolean>>={};
+ private explorePrev:string|null=null;
  private focus:Vec=[0,0,0];
  private zoom=1.2;
  private markerNode:Node|null=null;
@@ -465,11 +465,11 @@ export class RegionNodeStage extends Component{
   else this.orbit.drag(x/Math.max(1,w),y/Math.max(1,h));
   this.writeOrbit(0);
  }
- openExplore(region:StageRegion){
+ openExplore(region:StageRegion,fromLens=false){
   this.region=region;this.exploring=true;this.lens='MapExplore';this.focus=this.girl();this.zoom=1.6;
   this.handOrbitBack(region);
-  // lakeside: seed from the lens she already has (the board / exit lens), so opening explore never jumps the camera
-  if(region==='lakeside'){const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);}
+  // board exit (and the lakeside): seed from the lens she already has, so opening explore never jumps the camera
+  if(fromLens||region==='lakeside'){const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);}
   else if(!this.orbit.shouldWrite()){const {w,h}=this.viewport();const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.writePose(this.orbit.rawPose(g),false);}
   setExploreEnabled(true);
   emitTransitCue('explore-unlocked',{t:0,region});
@@ -537,54 +537,64 @@ export class RegionNodeStage extends Component{
   }
   if(gesture==='drag'||gesture==='pinch'||gesture==='release'){this.dragHome=null;this.aimOrbit(gesture,x,y);return;}
   if(gesture!=='tap'||!this.camera)return;
-  if(this.region==='lakeside'){this.lakesideTap(x,y);return;}
+  if(this.region==='lakeside'){this.groundTap(x,y);return;}
   const hits=this.projectNodes().filter(h=>Math.hypot(h.x-x,h.y-y)<=48);
   const id=pickMarker(hits.map(h=>({id:h.id,distancePt:Math.hypot(h.x-x,h.y-y),toGirl:h.toGirl})));
   const prop=this.projectProps().find(p=>Math.hypot(p.x-x,p.y-y)<=44);
   const tap=resolveTap({nodeId:id,nodePhase:id?this.phase(id):null,propId:prop?.id||null,groundM:prop||id?null:2,explore:true});
-  if(!tap)return;
+  if(!tap||tap.kind==='ground'){if(this.region==='meadow'||this.region==='skycity')this.groundTap(x,y);return;}
   if(tap.kind==='prop')this.pulse(tap.id,this.region);
   else if(tap.kind==='locked')emitTransitCue('node-locked-tap',{t:0,region:this.region,node:tap.id});
   else if(tap.walk&&this.character){const node=stageGraph(this.region).nodes.find(n=>n.key===tap.id);if(node)void this.walkTo(node.at);}
  }
- /** Lakeside ground tap: ray onto the baked walkable area. Water / far shore / no hit = no walk (cue only). */
- lakesideTap(x:number,y:number){
-  const cam=this.camera,model=this.model('lakeside');if(!cam||!model||!this.character||this.lakeWalking)return;
+ /** Ground tap (meadow / skycity / lakeside): screen ray onto the baked walkable area (RegionWalkable). Water, walls, the other shore
+  *  or no hit = no walk (cue only). __qfGroundTap keeps the last answer for QA. */
+ groundTap(x:number,y:number){
+  const region=this.region;if(region==='island')return;
+  const cam=this.camera,model=this.model(region);if(!cam||!model||!this.character||this.groundWalking)return;
   const ray=new geometry.Ray();cam.screenPointToRay(x,y,ray);
   const inv=new Mat4();Mat4.invert(inv,model.worldMatrix);
   const o=new Vec3(),e=new Vec3();Vec3.transformMat4(o,ray.o,inv);Vec3.add(e,ray.o,ray.d);Vec3.transformMat4(e,e,inv);
-  const hit=lakesideRayHit([o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z]);
-  (globalThis as any).__qfLakesideTap={kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now()};
-  if(hit.kind!=='walk'){emitTransitCue('scene-tap',{t:0,region:'lakeside',id:hit.kind==='water'?'water':'none'});return;}
-  void this.lakesideWalkTo(hit.at);
+  const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z]);
+  (globalThis as any).__qfGroundTap={region,kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now()};
+  if(hit.kind!=='walk'){emitTransitCue('scene-tap',{t:0,region,id:hit.kind==='water'?'water':'none'});return;}
+  void this.groundWalkTo(region,hit.at);
  }
- private async lakesideWalkTo(at:LVec){
-  const model=this.model('lakeside');if(!model||!this.character)return;
+ private async groundWalkTo(region:Exclude<StageRegion,'island'>,at:WVec){
+  const model=this.model(region);if(!model||!this.character)return;
   const inv=new Mat4();Mat4.invert(inv,model.worldMatrix);
   const gw=this.girl(),g=new Vec3();Vec3.transformMat4(g,new Vec3(gw[0],gw[1],gw[2]),inv);
-  const from=lakesideSnap([g.x,g.y,g.z],1.6);if(!from)return;
-  const local=lakesidePath(from,at);
-  (globalThis as any).__qfLakesideTap={...((globalThis as any).__qfLakesideTap||{}),path:local?local.length:0,lengthM:local?+pathLengthM(local).toFixed(2):0};
+  const from=nearestWalkable(region,[g.x,g.y,g.z],1.6);if(!from)return;
+  const local=walkPath(region,from.at,at);
+  (globalThis as any).__qfGroundTap={...((globalThis as any).__qfGroundTap||{}),path:local?local.length:0,lengthM:local?+walkPathLengthM(local).toFixed(2):0};
   if(!local||local.length<2)return;
-  const path=this.toWorld('lakeside',local as unknown as Vec[]),dest=path[path.length-1],L=pathLengthM(local),duration=Math.max(.4,L/1.2);
+  const path=this.toWorld(region,local as unknown as Vec[]),dest=path[path.length-1],L=walkPathLengthM(local),duration=Math.max(.4,L/1.2);
   // lens stays MapExplore: the seeded orbit follows her feet (update), no cut to the follow lens
-  const token=this.walkToken;this.lakeWalking=true;
+  const token=this.walkToken;this.groundWalking=true;
   const end=path[path.length-2],yaw=Math.atan2(dest[0]-end[0],dest[2]-end[2]);
   try{await performBounded(this.character,{kind:'walk',path,duration},dest,yaw,duration*1000+4000);}
-  finally{this.lakeWalking=false;}
+  finally{this.groundWalking=false;}
   if(token!==this.walkToken)return;
   this.lens='MapExplore';this.focus=this.girl();
  }
- /** Poll (4 Hz): leaving a lakeside board (暂停 →「回到小岛」/ result → exitLevel lands in 'lakeside') opens free explore there;
-  *  leaving the lakeside closes it. The arrival / landing shot is never touched (not armed until a board was open). */
- private syncLakeside(dt:number){
-  this.lakeCheck+=dt;if(this.lakeCheck<.25)return;this.lakeCheck=0;
+ /** Poll (4 Hz): leaving a meadow / skycity / lakeside board (暂停 →「离开棋盘」/ result → exitLevel lands in that region) opens
+  *  free explore there, seeded from the current lens; leaving the region closes it. Arrival / landing / transit shots are never
+  *  touched (a region is armed only after one of its boards was open). Explore opened elsewhere (sky finale) is never closed here. */
+ private syncExplore(dt:number){
+  this.exploreCheck+=dt;if(this.exploreCheck<.25)return;this.exploreCheck=0;
   let s:any=null;try{s=this.flow()?.commands().snapshot();}catch{s=null;}
-  this.lakeArmed=lakesideExploreArm(this.lakePrev,s,this.lakeArmed);this.lakePrev=s?.state??null;
-  const ready=lakesideExploreWanted(s)&&this.lakeArmed&&!this.cover&&!this.anim&&!!this.character&&!!this.camera&&!!this.model('lakeside')?.activeInHierarchy;
-  if(ready&&!this.lakeOpened){this.lakeOpened=true;this.openExplore('lakeside');(globalThis as any).__qfLakesideExplore={open:true,at:Date.now()};return;}
-  if(this.lakeOpened&&!lakesideExploreWanted(s)){this.lakeOpened=false;this.lakeArmed=false;(globalThis as any).__qfLakesideExplore={open:false,at:Date.now()};
-   if(this.region==='lakeside'&&!this.cover){this.walkToken++;this.exploring=false;this.lens='Board';setExploreEnabled(false);this.orbit.forget();}}
+  for(const r of EXIT_EXPLORE_REGIONS)this.exploreArmed[r]=exploreArm(r,this.explorePrev,s,!!this.exploreArmed[r]);
+  this.explorePrev=s?.state??null;
+  if(this.syncOpened&&!exploreWanted(this.syncOpened,s)){
+   const r=this.syncOpened;this.syncOpened=null;this.exploreArmed[r]=false;(globalThis as any).__qfExploreSync={region:r,open:false,at:Date.now()};
+   if(this.region===r&&!this.cover&&this.exploring){this.walkToken++;this.exploring=false;this.lens='Board';setExploreEnabled(false);this.orbit.forget();}
+   return;
+  }
+  if(this.syncOpened||this.cover||this.anim||!this.character||!this.camera)return;
+  for(const r of EXIT_EXPLORE_REGIONS){
+   if(!this.exploreArmed[r]||!exploreWanted(r,s)||!this.model(r)?.activeInHierarchy)continue;
+   this.syncOpened=r;if(this.region!==r)this.orbit.forget();this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
+  }
  }
  private skipWalk(){/* a tap during FollowWalk is swallowed until the segment timeout cuts it */}
  private async walkTo(at:Vec){
@@ -673,7 +683,7 @@ export class RegionNodeStage extends Component{
   const renderer=this.markerNode.getComponent(MeshRenderer)!;renderer.mesh=mesh;
  }
  update(dt:number){
-  this.syncLakeside(dt);
+  this.syncExplore(dt);
   if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
   if(this.holdPose){this.orbit.pause();this.writePose(this.holdPose,false);}
   if(this.hideTree){this.treeVisible(false);if(this.holdPose)this.stripFinaleOccluders(this.holdPose);}
@@ -690,7 +700,7 @@ export class RegionNodeStage extends Component{
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
   }
   if(!this.anim&&!this.holdPose&&(this.lens==='MapExplore'||this.lens==='FollowWalk')){
-   if(this.orbit.shouldWrite()||(this.region==='lakeside'&&this.lakeWalking&&this.orbit.seeded))this.writeOrbit(dt);
+   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
    else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),false);}
   }
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
