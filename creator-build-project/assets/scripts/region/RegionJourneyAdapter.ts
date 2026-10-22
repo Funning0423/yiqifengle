@@ -1,12 +1,12 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
-import {Animation, Camera, Color, Component, Director, Mat4, Material, Mesh, MeshRenderer, Node, Vec3, director, gfx, isValid, utils, view} from 'cc';
+import {Animation,Camera,Component,Director,Mat4,Material,Mesh,MeshRenderer,Node,Vec3,director,isValid,view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkyNightTexture} from '../render/SkyNightTexture';
 import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials, meadowGroundMaterials, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, journeyDistanceAt, routeLength, sampleRoute} from '../world-r1/RegionJourneyCore';
-import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom,meadowExitExtraM,MEADOW_EXIT_BUDGET_M} from './RegionJourneyLayout';
+import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import { TailToken, beginTail, endTail } from './WalkTail';
@@ -21,7 +21,7 @@ import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
-import {regionBoardEnd,regionBoardSource,regionGirlStand,setMeadowBoardFraming,setRegionBoardSource,type BoardLandingRegion,type GirlStand,type RegionBoardSource} from './RegionBoardLanding';
+import {regionBoardEnd,regionBoardSource,setMeadowBoardFraming,setRegionBoardSource,type BoardLandingRegion,type RegionBoardSource} from './RegionBoardLanding';
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
@@ -68,7 +68,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
    const prefab=sailWait?(await awaitVehicle({kind:'sail',cancelled:()=>token.cancelled,load:()=>waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token,VEHICLE_ASSET_WAIT_MS)})).value:await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
-   let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null,sailArt:SailArt|null=null;
+   let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,sailArt:SailArt|null=null;
    const release=()=>{if(dead)return;dead=true;sailArt?.dispose();if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
    try{
     const sail=true;
