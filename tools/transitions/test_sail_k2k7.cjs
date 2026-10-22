@@ -24,9 +24,12 @@ assert(ratio>=0.38&&ratio<=0.48,'night sail tint vs day '+ratio.toFixed(3));
 const route=leg.sailRoute(),tl=leg.sailBeats(route.length);
 const k2=shot.sailShotTime(2);
 assert.equal(k2.night,false);
-const beat=tl.beats.find(b=>b.id==='S-c');
-const u=(k2.t-beat.t0)/(beat.t1-beat.t0);
-assert(u>=0.9&&u<1,'K2 still is the held K2 pose, u='+u);
+// b16: K2 still sits in the K2 hold of the eased arc clock (sailStillTimes), not at S-c u≥0.9.
+{const h=leg.SAIL_K2_HOLD_S,a=leg.sailCamera(tl,route.samples,k2.t-h*0.45,{w:W,h:H}),b=leg.sailCamera(tl,route.samples,k2.t+h*0.45,{w:W,h:H}),c0=leg.sailCamera(tl,route.samples,k2.t,{w:W,h:H});
+ const rel=(c,t)=>{const v=leg.sailVehicle(tl,route.samples,t);return c.position.map((x,i)=>x-v.pos[i]);};
+ const d=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2]);
+ assert(Math.abs(k2.t-leg.sailStillTimes(tl).k2)<1e-9,'K2 still time');
+ assert(c0.fovVerticalDeg===a.fovVerticalDeg&&c0.fovVerticalDeg===b.fovVerticalDeg,'K2 still is the held K2 pose (fov)');}
 const v=leg.sailVehicle(tl,route.samples,k2.t);
 const cam=leg.sailCamera(tl,route.samples,k2.t,{w:W,h:H});
 assert(v.speed>2.5,'wake needs way on, speed '+v.speed);
@@ -105,4 +108,4 @@ assert(!/s=0\.012|s=0\.014/.test(art),'old sub-pixel or leftover diamond size');
 function norm(a){const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];}
 function sub(a,b){return [a[0]-b[0],a[1]-b[1],a[2]-b[2]];}
 function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
-console.log(JSON.stringify({status:'PASS',k2:{t:+k2.t.toFixed(2),u:+u.toFixed(3),speed:+v.speed.toFixed(2),maxNdc:+maxAbs.toFixed(3),wakeIn},sailLumaRatio:+ratio.toFixed(3),stars:{n:placed.length,minSep:+minSep.toFixed(1),px:[+Math.min(...screen.map(s=>s[2])).toFixed(2),+Math.max(...screen.map(s=>s[2])).toFixed(2)]}}));
+console.log(JSON.stringify({status:'PASS',k2:{t:+k2.t.toFixed(2),tau:+(k2.t-tl.beats.find(b=>b.id==='S-c').t0).toFixed(3),speed:+v.speed.toFixed(2),maxNdc:+maxAbs.toFixed(3),wakeIn},sailLumaRatio:+ratio.toFixed(3),stars:{n:placed.length,minSep:+minSep.toFixed(1),px:[+Math.min(...screen.map(s=>s[2])).toFixed(2),+Math.max(...screen.map(s=>s[2])).toFixed(2)]}}));

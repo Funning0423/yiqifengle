@@ -2986,8 +2986,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailShot.ts",
-    "bytes": 6606,
-    "sha256": "29408bd71b96dfed1b22b7859db5058bf88791c176bd468591a5c0a42b279dd5"
+    "bytes": 6608,
+    "sha256": "71d6a07e5838783f3c91a304ee41b690ffc837fb997a7397c6a4857c036820ac"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailShot.ts.meta",
@@ -3126,8 +3126,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 30662,
-    "sha256": "8a6611dc386617afa28e0ed46571b415a0f1cc353398b1d7e032cbacb7a52356"
+    "bytes": 37077,
+    "sha256": "7561315afb4a558e71008a7fa0ee5106728bf7ee9dd3d91fe2a86e006d3446b8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
