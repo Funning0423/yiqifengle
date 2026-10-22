@@ -1,6 +1,8 @@
 import { DEBUG } from 'cc/env';
 /** Full world-snapshot console line: debug builds or explicit opt-in only. */
-export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{return !!debug||optIn===true;}
+export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{return optIn===false?false:(!!debug||optIn===true);}
+import './QfDebugSwitches';
+import { preloadRideAudio } from '../audio/AudioPreload';
 import { createRegionJourney } from '../region/RegionJourneyAdapter';
 import type { JourneyRegion } from './RegionJourneyCore';
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
@@ -251,6 +253,8 @@ export class WorldFlowComponent extends Component {
   /** Separate diagnostic key only: never writes journey, attempt or reward data. */
   private reportRuntime(event:string):void {
     if(!this.flow)return;
+    // b16 meadow long frames: a periodic tick is console-only, so when the console gate is off skip building the snapshot at all
+    if(event==='tick'&&!worldFlowConsoleEnabled(DEBUG,(globalThis as any).__worldFlowLog)){this.lastDiagnosticAt=Date.now();return;}
     const data={version:2,integrationSource:'fb338ef+Oi-auto-room-action-clock',event,utc:new Date().toISOString(),world:this.flow.snapshot(),clock:{...this.clock},jobs:Array.from(this.jobs).map(j=>({elapsed:j.elapsed,seconds:j.seconds})),camera:cameraWriteLog.last,motion:(globalThis as any).__worldLoading?.motion?.()??null,dayNight:this.dayNightSnapshot()};
     this.lastDiagnosticAt=Date.now();
     // Periodic telemetry must not keep resetting the IDE's storage persistence debounce.
@@ -281,6 +285,7 @@ export class WorldFlowComponent extends Component {
   preloadHiddenRegion(target:JourneyRegion):Promise<{ok:boolean;reason?:string}>{
    if(target!=='meadow')return Promise.resolve({ok:false,reason:'unsupported'});
    const scene=director.getScene();if(!scene)return Promise.resolve({ok:false,reason:'no-scene'});
+   void preloadRideAudio()/* b16: sail + meadow bed audio warmed on the board, never on a ride cue */;
    return preloadMeadowForSail(scene).then(()=>({ok:true}));
   }
   /** UI receives this command facade, never scene/model/camera references. */

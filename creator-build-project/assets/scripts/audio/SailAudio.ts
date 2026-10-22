@@ -6,6 +6,9 @@ import { _decorator, Component, AudioSource, AudioClip, assetManager, director, 
 import { GameAudio } from './GameAudio';
 import { SAIL_AUDIO, SAIL_VOICES, SailAudioCore, type SailVoiceId } from './SailAudioCore';
 import { onTransitCue, transitHidden } from '../region/TransitAudioHooks';
+import { preloadAudio, preloadedClip, registerAudioPreloader } from './AudioPreload';
+const SAIL_PATHS = SAIL_VOICES.map(id => SAIL_AUDIO.clips[id]);
+registerAudioPreloader(() => preloadAudio(SAIL_AUDIO.bundle, SAIL_PATHS));
 const { ccclass } = _decorator;
 function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 @ccclass('SailAudio')
@@ -36,8 +39,18 @@ export class SailAudio extends Component {
     for (let i = 0; i < this.clips.length; i++) { try { this.clips[i].decRef(); } catch { } } this.clips.length = 0;
   }
   diagnostics() { return { ready: this.ready, failed: this.failed, loading: this.loading, ...(this.core ? this.core.diagnostics() : {}) }; }
+  private adoptPreloaded(): boolean {
+    const got: AudioClip[] = [];
+    for (let i = 0; i < SAIL_VOICES.length; i++) { const c = preloadedClip(SAIL_AUDIO.bundle, SAIL_AUDIO.clips[SAIL_VOICES[i]]); if (!c) return false; got.push(c); }
+    for (let i = 0; i < SAIL_VOICES.length; i++) { const c = got[i]; c.addRef(); this.clips.push(c); const s = this.src[SAIL_VOICES[i]]; if (s) s.clip = c; }
+    this.ready = true; qfAudioLog('sail-audio-preloaded', { clips: SAIL_VOICES.length }); return true;
+  }
   private load() {
-    if (this.loading || this.ready || this.failed) return; this.loading = true; qfAudioLog('sail-audio-load', { bundle: SAIL_AUDIO.bundle });
+    if (this.loading || this.ready || this.failed) return;
+    // b16: adopt the board-phase preload (no loadBundle / load on a ride cue). Lazy load only if the preload is missing.
+    if (this.adoptPreloaded()) return;
+    console.warn('[QF_SAIL] sail audio not preloaded; lazy load on the ride cue'); qfAudioLog('sail-audio-lazy-fallback', { bundle: SAIL_AUDIO.bundle });
+    this.loading = true; qfAudioLog('sail-audio-load', { bundle: SAIL_AUDIO.bundle });
     const fail = (stage: string, err: unknown) => { this.loading = false; this.failed = true; console.error('[QF_SAIL] sail audio ' + stage + ' failed (the ride stays silent): ' + String(err)); qfAudioLog('sail-audio-load-failed', { stage, err: String(err) }); };
     assetManager.loadBundle(SAIL_AUDIO.bundle, (e, bundle) => {
       if (!this.alive) return; if (e || !bundle) return fail('bundle', e);

@@ -2066,8 +2066,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/BedLayerAudio.ts",
-    "bytes": 10152,
-    "sha256": "b9e7606c5d7c36e0b7efdef0a4639df18ba817ca767116ac7cab71297570c869"
+    "bytes": 12509,
+    "sha256": "59967407ec43fd3d098d9335019321550b6ab3882303aad737dad070300318bf"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/BedLayerAudio.ts.meta",
@@ -2166,8 +2166,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SailAudio.ts",
-    "bytes": 4408,
-    "sha256": "97650001f75d8833162b80be6b87c536c17f7244555ce994f88e508ba73aea24"
+    "bytes": 5454,
+    "sha256": "5a8ec6eb94c2d57805b1c2daf18514c7450e1a1077c953c8e6f47f7c4f37dbad"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/SailAudio.ts.meta",
@@ -3781,8 +3781,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 70064,
-    "sha256": "415a16164852d85ecef62d6bd772c9f50324b64265fb73ec1fac482e07126c77"
+    "bytes": 70538,
+    "sha256": "e9149027c75a483d3a0531ace79288741b9e0411192584b2124ffe29da1a6b7d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -4236,8 +4236,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14180,
-    "sha256": "d9ebbd62ccf3416ccb9986d1c3a09f91e16138ebd0dc5d067bdc6bb150acbc81"
+    "bytes": 14261,
+    "sha256": "0bc1f672eb612ff343d993e9445fa1651b189b7d20974d0380b82d98a59e2798"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

@@ -47,6 +47,7 @@ const tests=[
  ['retry-protection','tools/test_retry_protection.cjs'],
  ['cloud-web-contract','tools/cloud-web/test.cjs'],
  ['exit-cine-audio','tools/test_exit_cine_audio.cjs'],
+ ['b16-meadow-preload','tools/journey-integration/test-b16-meadow-preload.cjs'],
  ['exit-footsteps','tools/exit-footsteps/test_footsteps.cjs'],
  ['cconb-bin-only','tools/test_cconb_bin_only.cjs'],
  ['fade-cover-alpha','tools/test_fade_cover_alpha.cjs'],

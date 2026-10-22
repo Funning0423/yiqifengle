@@ -6,6 +6,7 @@ import { _decorator, Component, AudioSource, AudioClip, assetManager, director, 
 import { GameAudio } from './GameAudio';
 import { ambienceBedGain } from './AmbienceAudio';
 import { BedLayers, BED_LOOPS, BED_LAYER_IDS, MAX_SCATTER, birdScatter, takeFromBag, bedLayerVol, bedLayerTarget, type BedFlags, type BedLayerId, type ScatterClip } from './BedLayerCore';
+import { preloadAudio, preloadedClip, registerAudioPreloader, audioPreloadDisabled, preloadRideAudio } from './AudioPreload';
 const { ccclass } = _decorator;
 
 function qfAudioLog(event: string, data: Record<string, unknown>) {
@@ -23,6 +24,16 @@ function readBed(): BedFlags {
   if (!g || typeof g !== 'object') return { place: '', birds: false, insects: false, highWind: false };
   return g as BedFlags;
 }
+
+/** b16: every bed loop + meadow bird scatter, grouped by bundle, warmed on the board (AudioPreload). */
+export function bedPreloadPlan(): { [bundle: string]: string[] } {
+  const plan: { [bundle: string]: string[] } = {};
+  const add = (b: string | undefined | null, p: string) => { if (!b) return; (plan[b] = plan[b] || []).indexOf(p) < 0 && plan[b].push(p); };
+  for (let i = 0; i < BED_LAYER_IDS.length; i++) { const sp = BED_LOOPS[BED_LAYER_IDS[i]]; if (sp) add(sp.bundle, sp.path); }
+  const sc = birdScatter(); if (sc) for (let i = 0; i < sc.clips.length; i++) add(sc.clips[i].bundle, sc.clips[i].path);
+  return plan;
+}
+registerAudioPreloader(() => { const plan = bedPreloadPlan(); return Promise.all(Object.keys(plan).map(b => preloadAudio(b, plan[b]))).then(() => {}); });
 
 @ccclass('BedLayerAudio')
 export class BedLayerAudio extends Component {
@@ -69,6 +80,8 @@ export class BedLayerAudio extends Component {
     for (let i = 0; i < this.scatterSources.length; i++) { try { this.scatterSources[i].stop(); this.scatterSources[i].clip = null; } catch (e) { /* ignore */ } }
     for (let i = 0; i < this.scatterClips.length; i++) { try { this.scatterClips[i].decRef(); } catch (e) { /* ignore */ } }
   }
+  /** b16: warm once at startup idle as well (a path that skips the mainline-04 board still finds its beds ready); never from update(). */
+  start() { this.scheduleOnce(() => { void preloadRideAudio(); }, 5); }
   quiet() { this.layers?.quiet(); this.stopScatter(); }
   diagnostics() {
     const base = this.layers ? this.layers.diagnostics() : { fadeS: 2, layers: [] as any[], scatter: { cap: MAX_SCATTER, skipped: 0 } };
@@ -90,6 +103,21 @@ export class BedLayerAudio extends Component {
     const audio: any = GameAudio.instance;
     return !!audio && audio.canPlayAmbience();
   }
+  private adopt(id: BedLayerId) {
+    const spec = BED_LOOPS[id];
+    const row = id === 'birds' ? this.layers && this.layers.birds : id === 'insects' ? this.layers && this.layers.insects : this.layers && this.layers.highWind;
+    if (!spec || !row || row.ready || !spec.bundle) return;
+    const clip = preloadedClip(spec.bundle, spec.path);
+    if (!clip) { if (!this.missLogged[id]) { this.missLogged[id] = true; qfAudioLog('bed-preload-missing', { id }); if (audioPreloadDisabled()) this.load(id)/* A/B baseline only: old lazy path */; } return; }
+    clip.addRef(); this.clips[id] = clip; const p = this.pairs[id]; if (p) { p[0].clip = clip; p[1].clip = clip; }
+    row.ready = true; qfAudioLog('bed-preloaded', { id, loopS: spec.loopS });
+    if (id === 'birds') this.adoptScatter();
+  }
+  private adoptScatter() {
+    const spec = birdScatter(); if (!spec || this.scatterClips.length) return;
+    for (let i = 0; i < spec.clips.length; i++) { const c = preloadedClip(spec.clips[i].bundle, spec.clips[i].path); if (c) { c.addRef(); this.scatterClips.push(c); this.scatterByPath[spec.clips[i].path] = c; } }
+  }
+  private missLogged: { [id: string]: boolean } = {};
   private load(id: BedLayerId) {
     const spec = BED_LOOPS[id];
     const row = id === 'birds' ? this.layers && this.layers.birds : id === 'insects' ? this.layers && this.layers.insects : this.layers && this.layers.highWind;
@@ -195,7 +223,7 @@ export class BedLayerAudio extends Component {
     const night = this.night();
     for (let i = 0; i < BED_LAYER_IDS.length; i++) {
       const id = BED_LAYER_IDS[i];
-      if (bedLayerTarget(id, bed, night) > 0) this.load(id);
+      if (bedLayerTarget(id, bed, night) > 0) this.adopt(id)/* b16: never loads from update(); only takes preloaded clips */;
     }
     const gain = this.bedGain();
     const start = layers.step(dt, bed, this.canSound(), gain, night, this.scatterPlaying());
