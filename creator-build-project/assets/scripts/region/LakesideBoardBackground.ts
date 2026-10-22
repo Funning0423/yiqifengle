@@ -11,6 +11,9 @@ import {onDayNightChange} from '../world-r1/DayNightContract';
 import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
 import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,lakesideFillMaskBytes,lakesideFillWeight,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
+import {getGlobalWind} from '../render/GlobalWind';
+import {LAKESIDE_LIFE} from '../render/LakesideLifeCore';
+import {mountLakesideLife,isLakesideLifeNode} from './LakesideLife';
 import {LAKESIDE_SHORE_GLB,mountLakesideShore,isLakesideShoreMaterial,applyLakesideShoreMode} from './LakesideShoreFoam';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
@@ -105,7 +108,7 @@ export function mergeLakesideStatic(scenery:Node,skip:(n:Node)=>boolean):MergeOu
  type Piece={r:MeshRenderer;mesh:Mesh;k:number;group:string;vertices:number;indices:number;layout:Record<LakesideAttr,boolean>;mat:Material};
  const pieces:Piece[]=[],keys=new Map<Material,string>(),built:Mesh[]=[];
  try{
-  for(const child of scenery.children){if(skip(child))continue;
+  for(const child of scenery.children){if(skip(child)||isLakesideLifeNode(child))continue;/* R5 life: swinging chimes + fireflies stay live */
    for(const r of child.getComponentsInChildren(MeshRenderer)){const mesh=r.mesh;if(!r.enabled||!mesh||!mesh.struct)continue;
     const own:Piece[]=[];let ok=true;
     for(let k=0;k<mesh.struct.primitives.length;k++){const mat=r.sharedMaterials[k],prim:any=mesh.struct.primitives[k];
@@ -170,7 +173,9 @@ export function lakesideWaterMaterial(asset:Material):Material{
  water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
  water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
  water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));
- water.setProperty('lightParams',new Vec4(P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));return water;}
+ water.setProperty('lightParams',new Vec4(P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));
+ /* R5 lakeside life: wind ripples follow GlobalWind (world frame: the shader works in world xz) */const gw=getGlobalWind(),rp=LAKESIDE_LIFE.ripple;
+ water.setProperty('windParams',new Vec4(gw.dirX,gw.dirZ,gw.strength,0));water.setProperty('rippleParams',new Vec4(rp[0],rp[1],rp[2],0));return water;}
 /** The day/night part of the same source (board applyDir and the journey's day/night listener). r4 (VB): also the per-mode
  *  reflected sky (zenith/low/horizon), tint and reflection-mix floor, so night reflects its own dark blue-teal sky. */
 export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode),v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
@@ -219,7 +224,8 @@ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:
   /* r4-prep A: the board preload instantiates a batch per frame (the journey copy keeps one pass under the set-off black) */if(yieldFrame&&n%LAKESIDE_PRELOAD_BATCH===0){await yieldFrame();token.check();if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');}}
  for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
  for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
- await mountLakesideShore(shore,take);token.check();if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');/* r5 S3 shore wash (never throws; no effect -> ribbon off) */
+ await mountLakesideShore(shore,take);token.check();if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');
+ mountLakesideLife(scenery);/* R5 lakeside life: wind chimes + night fireflies (never throws) *//* r5 S3 shore wash (never throws; no effect -> ribbon off) */
  return n;
 }
 /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world

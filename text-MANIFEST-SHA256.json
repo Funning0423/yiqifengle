@@ -1151,8 +1151,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect",
-    "bytes": 6264,
-    "sha256": "37cba269c1dd6b6ea0474c2e9ed1fd011ea67ca4b5f4d76b2428da0ff8cf4a52"
+    "bytes": 7087,
+    "sha256": "f2cf13d71777248b7e82b186f42de6b9b7080df2b536bb98f861e4a5dbb000d7"
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect.meta",
@@ -2531,8 +2531,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
-    "bytes": 46865,
-    "sha256": "27b50e12eb7945044112a140a21e7f442ff1317b1b1472f3b9161a7dfa73e50b"
+    "bytes": 47507,
+    "sha256": "ecbbaba36af1f1ec6cd1c227d871172149b400ed3570ac3d7e265939c5de28d9"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
@@ -2608,6 +2608,16 @@
     "path": "creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta",
     "bytes": 171,
     "sha256": "e3e7c040b488f73064b079a2df2b08c877347123b68d0357bbc3293efa89e2c7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLife.ts",
+    "bytes": 3985,
+    "sha256": "69c9a5e828608c33c19d7f7a1ecbc830c1ea313f092a35d7e2edd52014f52275"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLife.ts.meta",
+    "bytes": 171,
+    "sha256": "cf03a70db3dc909af12b4a90ebff840756238b4985e9806f27b00cd65dfbe3e0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideQaShot.ts",
@@ -3308,6 +3318,16 @@
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts.meta",
     "bytes": 171,
     "sha256": "2f0b38f6269a5fe6eda950c39bbc1f4b081c7cda1de95dc621c8699671ee540e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/LakesideLifeCore.ts",
+    "bytes": 4577,
+    "sha256": "f95b6b06f06946252c82ec18a71c7b557117ceb436281eb88f78102176d0a097"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/LakesideLifeCore.ts.meta",
+    "bytes": 171,
+    "sha256": "3c7ca29f366b2ef230cd5b76110d4e524944ab02d8c5f0ac4c9f8464b77ddaec"
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
@@ -4191,8 +4211,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14249,
-    "sha256": "a557a1cedb94b13093f75f11a3421fd6e261ff27a600ae8b9ddd0a68d697c6b9"
+    "bytes": 14309,
+    "sha256": "81e67b68b23874fb34c7a4fb87cd3548a52b477c2f15d074f082ddafa52550ba"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
