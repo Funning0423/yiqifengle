@@ -1,0 +1,67 @@
+{
+  "kind": "experimental-code-only-unaccepted",
+  "base_commit": "9a47dc69fe3acab3c54e64399b7031a1f69a5217",
+  "snapshot_utc": "2026-10-22T18:17Z",
+  "files": [
+    {
+      "file": "polynomial_interval_foundation.py",
+      "source_sha256": "cac42ea1ff18e6c8556ea65fa0c473ab0acc3918610e260d088ec83c93e7cc80",
+      "sha256": "cac42ea1ff18e6c8556ea65fa0c473ab0acc3918610e260d088ec83c93e7cc80",
+      "portability_changes": false
+    },
+    {
+      "file": "test_polynomial_interval_foundation.py",
+      "source_sha256": "9e69409375043f47fe065bae498faef8d488ddab68a2f0323f2960265a1bb766",
+      "sha256": "9e69409375043f47fe065bae498faef8d488ddab68a2f0323f2960265a1bb766",
+      "portability_changes": false
+    },
+    {
+      "file": "audit_curve_kinematics_v4.py",
+      "source_sha256": "17bbd79d4431bf6b2f26630d8d894c6ff7669ecd85e6960c371472f907b7eecc",
+      "sha256": "17bbd79d4431bf6b2f26630d8d894c6ff7669ecd85e6960c371472f907b7eecc",
+      "portability_changes": false
+    },
+    {
+      "file": "finite_scan.py",
+      "source_sha256": "24f99452f088e5ff615f5c7601e075e792af2dde1dcb97a179a7c3d4fb89ac6e",
+      "sha256": "f1a62e1c5508445289e477da318d2506c2120dc4993139f3b73e404c8bd2a117",
+      "portability_changes": true
+    },
+    {
+      "file": "exact_foundation.py",
+      "source_sha256": "7ce76e6da7a7eb5200d48c8771006596cc226cabd49149170c6e858199e1381c",
+      "sha256": "7ce76e6da7a7eb5200d48c8771006596cc226cabd49149170c6e858199e1381c",
+      "portability_changes": false
+    },
+    {
+      "file": "test_foundation.py",
+      "source_sha256": "8a49010ae4bd2b61414e49574ea5687166a5d23337bacc1898dd4ae51b62449a",
+      "sha256": "8a49010ae4bd2b61414e49574ea5687166a5d23337bacc1898dd4ae51b62449a",
+      "portability_changes": false
+    },
+    {
+      "file": "material_checker.py",
+      "source_sha256": "5a09801da3d8b5b848507b11f0ba0af26f864737dceaf5d14c43c8e777a00d05",
+      "sha256": "5a09801da3d8b5b848507b11f0ba0af26f864737dceaf5d14c43c8e777a00d05",
+      "portability_changes": false
+    },
+    {
+      "file": "test_material_checker.py",
+      "source_sha256": "c32aa23da64f6cc32910dcbeb46a579eac989439fc72176abac88f63bf6fbf43",
+      "sha256": "c32aa23da64f6cc32910dcbeb46a579eac989439fc72176abac88f63bf6fbf43",
+      "portability_changes": false
+    },
+    {
+      "file": "pose_evaluator.py",
+      "source_sha256": "95f12b635877374494b3281d7389492f2b4ef2130d543faacc00fb01cb5fe544",
+      "sha256": "b91c4b0c12ec6fa384af07d98774a26f2d0538e43349b1c8c8777a05bc5f601c",
+      "portability_changes": true
+    },
+    {
+      "file": "glb_io.py",
+      "source_sha256": "c97100aa9bd41c282e0a40810d62a8e7e8e049b910c8638dfb869e7a395fc440",
+      "sha256": "c97100aa9bd41c282e0a40810d62a8e7e8e049b910c8638dfb869e7a395fc440",
+      "portability_changes": false
+    }
+  ]
+}
