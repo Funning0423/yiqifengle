@@ -22,6 +22,7 @@ var SPEC = {
   FLOOR_FROM: 0.10, FLOOR_TO: 0.0,
   POST_W: 0.06,
   LOCK_JAMB_ZMAX: 0.795,
+  FLOOR_T: 0.03,           // b15 floor fix: woven floor board, top at FLOOR_TO (her feet), bottom at -FLOOR_T, sealed sides
   CHARM_DZ: 0.09           // charm (front ornament) pushed out so its back sits on the leaf outer face
 };
 var UV = { rail: [0.094, 0.531], frame: [0.031, 0.531], brass: [0.469, 0.531], foot: [0.219, 0.531] };
@@ -100,6 +101,32 @@ function main(src, out) {
   });
   // threshold: the floor runs out flush to the closed leaf (no sill, no sky/ground strip under the leaf from inside)
   quad(tris, [-S.HALF_W, S.FLOOR_TO, 0.62], [-S.HALF_W, S.FLOOR_TO, ZI], [S.HALF_W, S.FLOOR_TO, ZI], [S.HALF_W, S.FLOOR_TO, 0.62], [0, 1, 0], [0.281, 0.531]);
+  // ---- b15 floor fix: one solid woven floor board replaces every y = 0 sheet (floor, threshold, wall-foot ring, post feet).
+  // b14/b15 had a single zero-thickness floor at the basket bottom, so the moored basket (pressed 0-0.7 cm into the lawn)
+  // put the grass above her floor: looking down from inside she saw only grass. Now the board top stays at 0 (feet,
+  // DOOR_SPEC floor) and the board is FLOOR_T thick; the mooring lifts the basket by FLOOR_T (LakesideBalloon).
+  tris = tris.filter(function (tr) { return !tr.every(function (v) { return Math.abs(v.p[1] - S.FLOOR_TO) < 1e-4; }); });
+  (function () {
+    var y0 = S.FLOOR_TO, y1 = S.FLOOR_TO - S.FLOOR_T, ax = S.HALF_W + S.POST_W, az0 = wallZ(0), az1 = ZI;
+    var woven = function (x, z) { return [0.02 + 0.96 * (x + 0.68) / 1.36, 0.49 - 0.48 * (z + 0.68) / 1.48]; }; // inside the wicker tile (v 0.01-0.49; v < 0 wraps onto a dark palette row)
+    var up = [0, 1, 0], dn = [0, -1, 0];
+    function cap(pts, top) { var y = top ? y0 : y1, n = top ? up : dn;
+      for (var k = 1; k + 1 < pts.length; k++) tris.push([pts[0], pts[k], pts[k + 1]].map(function (q) { return V([q[0], y, q[1]], n, top ? woven(q[0], q[1]) : UV.foot); })); }
+    var apron = [[-ax, az0], [ax, az0], [ax, az1], [-ax, az1]];
+    cap(OUT, true); cap(apron, true); cap(OUT, false); cap(apron, false);
+    // under the closed leaf (Z 0.80-0.84, X ±0.40): the board runs out to the leaf's outer face, so no slit of lawn shows below
+    // the leaf's 1 cm bottom gap (leaf Y >= 0.01 keeps clear of the board top at every angle)
+    var lip = [[-S.HALF_W, ZI], [S.HALF_W, ZI], [S.HALF_W, ZI + S.LEAF_T], [-S.HALF_W, ZI + S.LEAF_T]], zo2 = ZI + S.LEAF_T;
+    cap(lip, true); cap(lip, false);
+    quad(tris, [-S.HALF_W, y0, zo2], [S.HALF_W, y0, zo2], [S.HALF_W, y1, zo2], [-S.HALF_W, y1, zo2], [0, 0, 1], UV.rail);
+    [-1, 1].forEach(function (sg) { var x = sg * S.HALF_W; quad(tris, [x, y0, ZI], [x, y0, zo2], [x, y1, zo2], [x, y1, ZI], [sg, 0, 0], UV.rail); });
+    // outline (octagon with the door apron): sealed sides, rim colour
+    var ol = [[0.53, 0.68], [0.68, 0.53], [0.68, -0.53], [0.53, -0.68], [-0.53, -0.68], [-0.68, -0.53], [-0.68, 0.53], [-0.53, 0.68], [-ax, az0], [-ax, az1], [ax, az1], [ax, az0]];
+    for (var e = 0; e < ol.length; e++) { var a = ol[e], b = ol[(e + 1) % ol.length], dx = b[0] - a[0], dz = b[1] - a[1], l = Math.hypot(dx, dz), n = [dz / l, 0, -dx / l];
+      if (n[0] * (a[0] + b[0]) + n[2] * (a[1] + b[1]) < 0 && !(Math.abs(a[1] - az0) < 1e-6 && Math.abs(b[1] - az0) < 1e-6)) n = [-n[0], 0, -n[2]];
+      if (Math.abs(a[1] - az0) < 1e-6 && Math.abs(b[1] - az0) < 1e-6) n = [0, 0, 1];
+      quad(tris, [a[0], y0, a[1]], [b[0], y0, b[1]], [b[0], y1, b[1]], [a[0], y1, a[1]], n, UV.rail); }
+  })();
   // ---- leaf (door-local: hinge origin, leaf X −2·HALF_W … 0, Z −LEAF_T … 0)
   var HX = S.HINGE_X, HZ = ZI + S.LEAF_T, W = 2 * S.HALF_W, L = [];
   var wick = function (X, y) { return [0.02 + 0.96 * (X + 0.53) / 1.06, 0.5 * (1 - Math.min(1, y))]; };

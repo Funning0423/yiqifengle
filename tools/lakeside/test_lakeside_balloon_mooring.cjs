@@ -24,13 +24,14 @@ function visibleTriangles(pose,aspect){
 }
 assert.deepEqual(M.mooring,L.toWorld([...point]));
 assert(Math.abs(M.walk.at(-1)[0]-bank[0])<1e-9&&Math.abs(M.walk.at(-1)[2]-bank[2])<1e-9&&M.walk.at(-1)[1]===bank[1],'unchanged shore root');
-assert(Math.abs(M.start[1]-.572)<1e-9&&M.walk.slice(0,-1).every(p=>p[1]<=bank[1]+1e-9&&p[1]>=.572-1e-9),'v3: exit route on the 0.572 ground, rising 8 mm into the unchanged shore root');
+// b15 floor fix: P0 stands on the 3 cm floor board (mooring y 0.602 = lawn 0.572 + board); the route after it is on the 0.572 lawn
+assert(Math.abs(M.start[1]-.602)<1e-9&&Math.abs(M.groundY-.572)<1e-9&&M.walk.slice(1,-1).every(p=>p[1]<=M.start[1]+1e-9&&p[1]>=.572-1e-9),'v3: exit route on the 0.572 ground, rising 8 mm into the unchanged shore root');
 const prior=M.walk.at(-2),oldPrior=L.arrival.at(-2);
 assert(dot(sub(bank,prior),sub(bank,oldPrior))>0,'same final approach heading');
 assert(Math.abs(bank[0]-prior[0])<1e-8,'same arrival tangent avoids an end-camera jump');
 // b15 getout v2: door yaw / P0 / planner walk / door clock / foot lock
 const K=B.LAKESIDE_BALLOON_LANDING;
-assert.deepEqual([...K.mooringLocal],[9.5,.572,25.6],'b15 mooring');
+assert.deepEqual([...K.mooringLocal],[9.5,.602,25.6],'b15 mooring (floor-fix: lawn 0.572 + 3 cm board)');
 assert(Math.abs(M.doorYawDeg-96.19)<.01,'basket door yaw 96.19 deg at the b15 mooring, got '+M.doorYawDeg);
 assert.deepEqual(M.walk[0],M.start,'exit walk starts at P0');
 const off=sub(M.start,M.mooring),yr=M.doorYawDeg*Math.PI/180;

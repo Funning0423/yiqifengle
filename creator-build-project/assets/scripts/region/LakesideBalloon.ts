@@ -32,7 +32,12 @@ export const LAKESIDE_BALLOON_LANDING={
   *  the basket sits 0–0.7 cm into the grass (test_lakeside_balloon_mooring clearance ≥ 0.49 still holds).
  *  b15b: y 0.572 is the lawn height used for both (terrain 0.569–0.579 under the footprint, 0.569–0.581 along her walk; keeps the reviewed 0–0.7 cm press-in); she steps out
  *  and walks at the same y (lakesideBalloonMooring) up to the shared bank node L1. */
- mooringLocal:[9.5,.572,25.6] as readonly [number,number,number],
+ /** b15 floor fix (场景特效bot): transport_balloon.glb now has a 3 cm woven floor board under the basket origin (board top 0 =
+  *  her feet). The b15 floor was a zero-thickness sheet at the basket bottom, pressed 0-0.7 cm into the lawn, so the grass
+  *  (0.569-0.579) came up through it. Mooring = lawn 0.572 + basketFloorM: the board bottom keeps the reviewed press-in and
+  *  her floor sits 2.3-3.3 cm above the grass. */
+ basketFloorM:.03,
+ mooringLocal:[9.5,.602,25.6] as readonly [number,number,number],
  launchLocal:[-8,.58,53.5] as readonly [number,number,number],
  walkLocal:[[2,.58,63.2],[-1,.58,61],[-2.5,.58,57.5],[-3,.58,55.6]] as ReadonlyArray<readonly [number,number,number]>,
  /** NodeWalker.WALK_SPEED_MPS: the speed the production walk clip is calibrated for (no foot sliding). */
@@ -273,8 +278,8 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.
  const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI,yr=doorYawDeg*Math.PI/180,c=Math.cos(yr),sn=Math.sin(yr),e=K.exitStartLocal;
  // P0 = mooring + rotY(doorYaw)·exitStartLocal (rotY: x' = x cos + z sin, z' = −x sin + z cos); feet at the basket origin
  // b15b (场景特效bot b69faa60) agrees: door exit and approach on the mooring lawn height, ending on the shared arrival node L1 (0.58).
- // v3: one ground height for the exit route = the mooring's 0.572 (the bank anchors are 0.58); lake-local P0 (9.1105, ·, 25.6724)
- const gy=mooring[1]+e[1],start:Vec=[mooring[0]+e[0]*c+e[2]*sn,gy,mooring[2]-e[0]*sn+e[2]*c],appr:Vec=[approach[0],gy,approach[2]],shoreG:Vec=[bank[0],bank[1],bank[2]]/* the shore root itself stays the arrival anchor (final lens unchanged): the last 2 m leg rises 8 mm */;
+ // v3: one ground height for the exit route = the 0.572 lawn (floor fix: mooring 0.602 = lawn + 3 cm board; bank anchors 0.58); lake-local P0 (9.1105, ·, 25.6724)
+ const gy=mooring[1]-K.basketFloorM/* lawn under the board */,start:Vec=[mooring[0]+e[0]*c+e[2]*sn,mooring[1]+e[1]/* on the floor board */,mooring[2]-e[0]*sn+e[2]*c],appr:Vec=[approach[0],gy,approach[2]],shoreG:Vec=[bank[0],bank[1],bank[2]]/* the shore root itself stays the arrival anchor (final lens unchanged): the last 2 m leg rises 8 mm */;
  const l0=seg(start,appr),l1=seg(appr,shoreG),cornerM=Math.min(Math.max(1,K.exitCornerM),l0/2,l1/2);
  const walk=roundWalk([start,appr,shoreG],cornerM),length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
  const T0=K.exitIdleS,doorAt=T0+K.doorContactS,walkAt=T0+K.walkStartAfterReachS;
