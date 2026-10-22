@@ -671,8 +671,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/audio/bgm_lakeside.mp3",
-    "bytes": 400552,
-    "sha256": "21f9b87c62553850666e862dd1af04af33a466d543f1bf15c5bad470ba1621c6"
+    "bytes": 346008,
+    "sha256": "da0724be8ac8d9dfc66eb5f4f6c671918ec7370d1d83c371d9f8281637c4a5a4"
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/audio/sfx_lake_waterbird_1.mp3",
