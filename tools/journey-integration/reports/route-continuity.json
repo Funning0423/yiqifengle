@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T22:50:00.141Z",
+ "timeUTC": "2026-10-22T23:03:43.753Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -18,6 +18,8 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x844",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
@@ -158,6 +160,8 @@
   {
    "leg": "sail island→meadow",
    "screen": "414x896",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
@@ -298,6 +302,8 @@
   {
    "leg": "sail island→meadow",
    "screen": "360x780",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
@@ -438,6 +444,8 @@
   {
    "leg": "sail island→meadow",
    "screen": "375x667",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
@@ -578,6 +586,8 @@
   {
    "leg": "sail island→meadow",
    "screen": "320x568",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
@@ -718,6 +728,8 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x520",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
@@ -858,6 +870,8 @@
   {
    "leg": "sail island→meadow",
    "screen": "768x1024",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
@@ -998,6 +1012,31 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "390x844",
+   "C1reveal": "PASS",
+   "C1revealDetail": [
+    {
+     "t0": 5.8,
+     "t1": 11.4,
+     "omega": 18.492,
+     "omegaAt": 7.433,
+     "alpha": 28.236,
+     "alphaAt": 6.8,
+     "acc": 9.975,
+     "accAt": 6.7,
+     "jumps": []
+    },
+    {
+     "t0": 11.4,
+     "t1": 27,
+     "omega": 26.541,
+     "omegaAt": 21.083,
+     "alpha": 51.308,
+     "alphaAt": 20.2,
+     "acc": 19.842,
+     "accAt": 26.7,
+     "jumps": []
+    }
+   ],
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1010,7 +1049,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 42.692,
     "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 26.81
+    "maxAccMS2": 21.868
    },
    "segments": [
     {
@@ -1031,14 +1070,14 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 42.339,
-     "omegaAt": 21.267,
+     "omega": 26.542,
+     "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 104.551,
-     "alphaAt": 19.35,
+     "alpha": 51.589,
+     "alphaAt": 20.2,
      "alphaPhase": "B-d",
-     "acc": 26.81,
-     "accAt": 20.6,
+     "acc": 19.932,
+     "accAt": 26.7,
      "accPhase": "B-d",
      "fovRate": 0,
      "jumps": 0
@@ -1084,6 +1123,31 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "414x896",
+   "C1reveal": "PASS",
+   "C1revealDetail": [
+    {
+     "t0": 5.8,
+     "t1": 11.4,
+     "omega": 18.492,
+     "omegaAt": 7.433,
+     "alpha": 28.236,
+     "alphaAt": 6.8,
+     "acc": 9.975,
+     "accAt": 6.7,
+     "jumps": []
+    },
+    {
+     "t0": 11.4,
+     "t1": 27,
+     "omega": 26.541,
+     "omegaAt": 21.083,
+     "alpha": 51.308,
+     "alphaAt": 20.2,
+     "acc": 19.842,
+     "accAt": 26.7,
+     "jumps": []
+    }
+   ],
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1096,7 +1160,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 42.692,
     "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 26.81
+    "maxAccMS2": 21.868
    },
    "segments": [
     {
@@ -1117,14 +1181,14 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 42.339,
-     "omegaAt": 21.267,
+     "omega": 26.542,
+     "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 104.551,
-     "alphaAt": 19.35,
+     "alpha": 51.589,
+     "alphaAt": 20.2,
      "alphaPhase": "B-d",
-     "acc": 26.81,
-     "accAt": 20.6,
+     "acc": 19.932,
+     "accAt": 26.7,
      "accPhase": "B-d",
      "fovRate": 0,
      "jumps": 0
@@ -1170,6 +1234,31 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "360x780",
+   "C1reveal": "PASS",
+   "C1revealDetail": [
+    {
+     "t0": 5.8,
+     "t1": 11.4,
+     "omega": 18.492,
+     "omegaAt": 7.433,
+     "alpha": 28.236,
+     "alphaAt": 6.8,
+     "acc": 9.975,
+     "accAt": 6.7,
+     "jumps": []
+    },
+    {
+     "t0": 11.4,
+     "t1": 27,
+     "omega": 26.541,
+     "omegaAt": 21.083,
+     "alpha": 51.308,
+     "alphaAt": 20.2,
+     "acc": 19.842,
+     "accAt": 26.7,
+     "jumps": []
+    }
+   ],
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1182,7 +1271,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 42.692,
     "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 26.81
+    "maxAccMS2": 21.868
    },
    "segments": [
     {
@@ -1203,14 +1292,14 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 42.339,
-     "omegaAt": 21.267,
+     "omega": 26.542,
+     "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 104.551,
-     "alphaAt": 19.35,
+     "alpha": 51.589,
+     "alphaAt": 20.2,
      "alphaPhase": "B-d",
-     "acc": 26.81,
-     "accAt": 20.6,
+     "acc": 19.932,
+     "accAt": 26.7,
      "accPhase": "B-d",
      "fovRate": 0,
      "jumps": 0
@@ -1256,6 +1345,31 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "375x667",
+   "C1reveal": "PASS",
+   "C1revealDetail": [
+    {
+     "t0": 5.8,
+     "t1": 11.4,
+     "omega": 18.492,
+     "omegaAt": 7.433,
+     "alpha": 28.236,
+     "alphaAt": 6.8,
+     "acc": 9.975,
+     "accAt": 6.7,
+     "jumps": []
+    },
+    {
+     "t0": 11.4,
+     "t1": 27,
+     "omega": 26.541,
+     "omegaAt": 21.083,
+     "alpha": 51.308,
+     "alphaAt": 20.2,
+     "acc": 19.842,
+     "accAt": 26.7,
+     "jumps": []
+    }
+   ],
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1268,7 +1382,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 42.692,
     "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 26.81
+    "maxAccMS2": 21.868
    },
    "segments": [
     {
@@ -1289,14 +1403,14 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 42.339,
-     "omegaAt": 21.267,
+     "omega": 26.542,
+     "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 104.551,
-     "alphaAt": 19.35,
+     "alpha": 51.589,
+     "alphaAt": 20.2,
      "alphaPhase": "B-d",
-     "acc": 26.81,
-     "accAt": 20.6,
+     "acc": 19.932,
+     "accAt": 26.7,
      "accPhase": "B-d",
      "fovRate": 0,
      "jumps": 0
@@ -1342,6 +1456,31 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "320x568",
+   "C1reveal": "PASS",
+   "C1revealDetail": [
+    {
+     "t0": 5.8,
+     "t1": 11.4,
+     "omega": 18.492,
+     "omegaAt": 7.433,
+     "alpha": 28.236,
+     "alphaAt": 6.8,
+     "acc": 9.975,
+     "accAt": 6.7,
+     "jumps": []
+    },
+    {
+     "t0": 11.4,
+     "t1": 27,
+     "omega": 26.541,
+     "omegaAt": 21.083,
+     "alpha": 51.308,
+     "alphaAt": 20.2,
+     "acc": 19.842,
+     "accAt": 26.7,
+     "jumps": []
+    }
+   ],
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1354,7 +1493,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 42.692,
     "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 26.81
+    "maxAccMS2": 21.868
    },
    "segments": [
     {
@@ -1375,14 +1514,14 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 42.339,
-     "omegaAt": 21.267,
+     "omega": 26.542,
+     "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 104.551,
-     "alphaAt": 19.35,
+     "alpha": 51.589,
+     "alphaAt": 20.2,
      "alphaPhase": "B-d",
-     "acc": 26.81,
-     "accAt": 20.6,
+     "acc": 19.932,
+     "accAt": 26.7,
      "accPhase": "B-d",
      "fovRate": 0,
      "jumps": 0
@@ -1428,6 +1567,31 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "390x520",
+   "C1reveal": "PASS",
+   "C1revealDetail": [
+    {
+     "t0": 5.8,
+     "t1": 11.4,
+     "omega": 18.492,
+     "omegaAt": 7.433,
+     "alpha": 28.236,
+     "alphaAt": 6.8,
+     "acc": 9.975,
+     "accAt": 6.7,
+     "jumps": []
+    },
+    {
+     "t0": 11.4,
+     "t1": 27,
+     "omega": 26.541,
+     "omegaAt": 21.083,
+     "alpha": 51.308,
+     "alphaAt": 20.2,
+     "acc": 19.842,
+     "accAt": 26.7,
+     "jumps": []
+    }
+   ],
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1440,7 +1604,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 42.692,
     "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 26.81
+    "maxAccMS2": 21.868
    },
    "segments": [
     {
@@ -1461,14 +1625,14 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 42.339,
-     "omegaAt": 21.267,
+     "omega": 26.542,
+     "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 104.551,
-     "alphaAt": 19.35,
+     "alpha": 51.589,
+     "alphaAt": 20.2,
      "alphaPhase": "B-d",
-     "acc": 26.81,
-     "accAt": 20.6,
+     "acc": 19.932,
+     "accAt": 26.7,
      "accPhase": "B-d",
      "fovRate": 0,
      "jumps": 0
@@ -1514,6 +1678,31 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "768x1024",
+   "C1reveal": "PASS",
+   "C1revealDetail": [
+    {
+     "t0": 5.8,
+     "t1": 11.4,
+     "omega": 18.492,
+     "omegaAt": 7.433,
+     "alpha": 28.236,
+     "alphaAt": 6.8,
+     "acc": 9.975,
+     "accAt": 6.7,
+     "jumps": []
+    },
+    {
+     "t0": 11.4,
+     "t1": 27,
+     "omega": 26.541,
+     "omegaAt": 21.083,
+     "alpha": 51.308,
+     "alphaAt": 20.2,
+     "acc": 19.842,
+     "accAt": 26.7,
+     "jumps": []
+    }
+   ],
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1526,7 +1715,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 42.692,
     "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 26.81
+    "maxAccMS2": 21.868
    },
    "segments": [
     {
@@ -1547,14 +1736,14 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 42.339,
-     "omegaAt": 21.267,
+     "omega": 26.542,
+     "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 104.551,
-     "alphaAt": 19.35,
+     "alpha": 51.589,
+     "alphaAt": 20.2,
      "alphaPhase": "B-d",
-     "acc": 26.81,
-     "accAt": 20.6,
+     "acc": 19.932,
+     "accAt": 26.7,
      "accPhase": "B-d",
      "fovRate": 0,
      "jumps": 0
@@ -1600,6 +1789,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x844",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1681,6 +1872,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "414x896",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1762,6 +1955,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "360x780",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1843,6 +2038,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "375x667",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -1924,6 +2121,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "320x568",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -2005,6 +2204,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x520",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -2086,6 +2287,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "768x1024",
+   "C1reveal": null,
+   "C1revealDetail": null,
    "C1setoff": null,
    "C1setoffDetail": null,
    "C1ride": null,
@@ -2185,7 +2388,7 @@
    "tail": [
     "{\"status\":\"PASS\",\"frames\":3346,\"worst\":{\"score\":0.15794189566061914,\"frame\":211,\"screen\":\"390x844\",\"night\":false,\"why\":\"tightest-clearance\",\"rec\":{\"frame\":211,\"t\":21.1,\"screen\":\"390x844\",\"night\":false,\"clearM\":6.331,\"nearHit\":false,\"back\":0,\"void\":0,\"domes\":0,\"horizonGap\":0,\"dc\":14,\"tris\":246,\"who\":\"meadow_terrain\"}},\"baseline\":{\"04-05\":125000,\"08-09\":160000}}",
     "frame-background PASS follow 56 map 126",
-    "{\"frames\":5054,\"worst\":null,\"minClear\":12.37,\"minClearCam\":11.08,\"build05S\":36,\"accel\":1.51,\"climb\":24,\"bridgeStrata\":-9.63,\"seamLeak\":0,\"seamCamErr\":0.000779,\"farHits\":75854,\"handoffFade\":1,\"handoffT\":35.9,\"sunkBalloon\":0,\"meadowOff\":11.2,\"cityOn\":11.6,\"seam\":11.4}"
+    "{\"frames\":5054,\"worst\":null,\"minClear\":12.37,\"minClearCam\":11.08,\"build05S\":36,\"accel\":2.45,\"climb\":24,\"bridgeStrata\":-9.63,\"seamLeak\":0,\"seamCamErr\":0.000789,\"farHits\":72592,\"handoffFade\":1,\"handoffT\":35.9,\"sunkBalloon\":0,\"meadowOff\":11.2,\"cityOn\":11.6,\"seam\":11.4}"
    ]
   },
   {

@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-22T22:49:20.807Z",
+ "timeUTC": "2026-10-22T23:03:03.289Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -231,7 +231,7 @@
     "frames": 0,
     "spans": [],
     "maxRightEdgePctOfWidth": 76.5,
-    "atS": 11.4
+    "atS": 11.33
    },
    "ui": {
     "minGapPt": 48.2,
@@ -242,7 +242,7 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.169,
-   "minHeightFrac": 0.029
+   "minHeightFrac": 0.0322
   },
   {
    "leg": "balloon meadow→skycity",
@@ -260,10 +260,10 @@
     "frames": 0,
     "spans": [],
     "maxRightEdgePctOfWidth": 76.5,
-    "atS": 11.4
+    "atS": 11.33
    },
    "ui": {
-    "minGapPt": 53.2,
+    "minGapPt": 53.3,
     "atS": 11.4,
     "phase": "B-d",
     "overlapFrames": 0,
@@ -271,7 +271,7 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.169,
-   "minHeightFrac": 0.029
+   "minHeightFrac": 0.0322
   },
   {
    "leg": "balloon meadow→skycity",
@@ -289,10 +289,10 @@
     "frames": 0,
     "spans": [],
     "maxRightEdgePctOfWidth": 76.5,
-    "atS": 11.4
+    "atS": 11.33
    },
    "ui": {
-    "minGapPt": 41.9,
+    "minGapPt": 42,
     "atS": 11.4,
     "phase": "B-d",
     "overlapFrames": 0,
@@ -300,7 +300,7 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.169,
-   "minHeightFrac": 0.029
+   "minHeightFrac": 0.0322
   },
   {
    "leg": "balloon meadow→skycity",
@@ -318,10 +318,10 @@
     "frames": 0,
     "spans": [],
     "maxRightEdgePctOfWidth": 71.8,
-    "atS": 11.4
+    "atS": 11.33
    },
    "ui": {
-    "minGapPt": 30.9,
+    "minGapPt": 31,
     "atS": 11.4,
     "phase": "B-d",
     "overlapFrames": 0,
@@ -329,7 +329,7 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.139,
-   "minHeightFrac": 0.029
+   "minHeightFrac": 0.0322
   },
   {
    "leg": "balloon meadow→skycity",
@@ -347,7 +347,7 @@
     "frames": 0,
     "spans": [],
     "maxRightEdgePctOfWidth": 71.7,
-    "atS": 11.4
+    "atS": 11.33
    },
    "ui": {
     "minGapPt": 21.3,
@@ -358,7 +358,7 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.138,
-   "minHeightFrac": 0.029
+   "minHeightFrac": 0.0322
   },
   {
    "leg": "balloon meadow→skycity",
@@ -376,7 +376,7 @@
     "frames": 0,
     "spans": [],
     "maxRightEdgePctOfWidth": 66.3,
-    "atS": 11.4
+    "atS": 11.33
    },
    "ui": {
     "minGapPt": 16.6,
@@ -387,7 +387,7 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.104,
-   "minHeightFrac": 0.029
+   "minHeightFrac": 0.0322
   },
   {
    "leg": "balloon meadow→skycity",
@@ -405,7 +405,7 @@
     "frames": 0,
     "spans": [],
     "maxRightEdgePctOfWidth": 66.3,
-    "atS": 11.4
+    "atS": 11.33
    },
    "ui": {
     "minGapPt": 65.7,
@@ -416,7 +416,7 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.104,
-   "minHeightFrac": 0.029
+   "minHeightFrac": 0.0322
   },
   {
    "leg": "balloon skycity→lakeside",

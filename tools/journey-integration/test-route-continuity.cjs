@@ -71,6 +71,12 @@ async function rideStart(leg){const sail=leg.id.startsWith('sail'),log=[];let al
    const parts=[[0,w.t0],[w.t1,leg.segs[0][1]]].filter(([a,b])=>b-a>2/FPS).map(([a,b])=>({a,b,...kin(leg.cam,a,b)}));
    rideD=parts.map(p=>({t0:+p.a.toFixed(3),t1:+p.b.toFixed(3),omega:p.omega,omegaAt:p.omegaAt,alpha:p.alpha,alphaAt:p.alphaAt,acc:p.acc,accAt:p.accAt,jumps:p.jumps.filter(j=>!leg.black(j.t))}));
    C1ride=rideD.some(p=>p.jumps.length||p.omega>LIM.omegaDegS||p.alpha>LIM.alphaDegS2||p.acc>LIM.accMS2)?'FAIL':'PASS';}
+  // balloonSky reveal B-d (5.8–27 s, both sides of the seam; Grok Bot 2026-10-22): own threshold ω ≤ 30°/s, α ≤ 120°/s² (no
+  // angular-acceleration spikes), no visible jump. The rest of the leg keeps the global C1 (report-only).
+  let C1reveal=null,revealD=null;
+  if(leg.revealWin){const w=leg.revealWin,parts=[[w.t0,leg.seam.t-1e-4],[leg.seam.t+1e-4,w.t1]].map(([a,b])=>({a,b,...kin(leg.cam,a,b)}));
+   revealD=parts.map(p=>({t0:+p.a.toFixed(3),t1:+p.b.toFixed(3),omega:p.omega,omegaAt:p.omegaAt,alpha:p.alpha,alphaAt:p.alphaAt,acc:p.acc,accAt:p.accAt,jumps:p.jumps.filter(j=>!leg.black(j.t))}));
+   C1reveal=revealD.some(p=>p.jumps.length||p.omega>30||p.alpha>LIM.alphaDegS2)?'FAIL':'PASS';}
   const C1={jumps:segs.flatMap(vis),omega:Math.max(...segs.map(s=>s.omega)),alpha:Math.max(...segs.map(s=>s.alpha)),acc:Math.max(...segs.map(s=>s.acc))};
   const hand=leg.handoffs.map(h=>({name:h.name,...jumpOf(h.a,h.b)})).map(h=>({...h,ok:swapOk(h)}));
   let start=null;
@@ -78,7 +84,7 @@ async function rideStart(leg){const sail=leg.id.startsWith('sail'),log=[];let al
   else start={name:leg.start.name,followToRide:jumpOf(leg.start.from,leg.start.ride),underBlack:leg.black(0),cutAtS:+leg.cut.t.toFixed(3),cutUnderBlack:leg.cut.underBlack};
   const startOk=start.ok!==undefined?start.ok:(start.underBlack||swapOk(start.followToRide))&&start.cutUnderBlack!==false;
   const seam=leg.seam?jumpOf(leg.seam.rel(leg.seam.t-1e-4),leg.seam.rel(leg.seam.t)):null;
-  rows.push({leg:leg.id,screen:scr.join('x'),C1setoff,C1setoffDetail:arcD,C1ride,C1rideDetail:rideD,C1shore,C1shoreDetail:sh&&{t0:sh.t0,t1:sh.t1,jumps:vis(sh),omega:sh.omega,omegaAt:sh.omegaAt,alpha:sh.alpha,alphaAt:sh.alphaAt,acc:sh.acc,accAt:sh.accAt},C1:C1.jumps.length||C1.omega>LIM.omegaDegS||C1.alpha>LIM.alphaDegS2||C1.acc>LIM.accMS2?'FAIL':'PASS',C1detail:{visibleJumps:C1.jumps.length,firstJumps:C1.jumps.slice(0,6),maxOmegaDegS:C1.omega,maxAlphaDegS2:C1.alpha,maxAccMS2:C1.acc},segments:segs.map(s=>({t0:s.t0,t1:s.t1,omega:s.omega,omegaAt:s.omegaAt,omegaPhase:s.omegaPhase,alpha:s.alpha,alphaAt:s.alphaAt,alphaPhase:s.alphaPhase,acc:s.acc,accAt:s.accAt,accPhase:s.accPhase,fovRate:s.fovRate,jumps:s.jumps.length})),
+  rows.push({leg:leg.id,screen:scr.join('x'),C1reveal,C1revealDetail:revealD,C1setoff,C1setoffDetail:arcD,C1ride,C1rideDetail:rideD,C1shore,C1shoreDetail:sh&&{t0:sh.t0,t1:sh.t1,jumps:vis(sh),omega:sh.omega,omegaAt:sh.omegaAt,alpha:sh.alpha,alphaAt:sh.alphaAt,acc:sh.acc,accAt:sh.accAt},C1:C1.jumps.length||C1.omega>LIM.omegaDegS||C1.alpha>LIM.alphaDegS2||C1.acc>LIM.accMS2?'FAIL':'PASS',C1detail:{visibleJumps:C1.jumps.length,firstJumps:C1.jumps.slice(0,6),maxOmegaDegS:C1.omega,maxAlphaDegS2:C1.alpha,maxAccMS2:C1.acc},segments:segs.map(s=>({t0:s.t0,t1:s.t1,omega:s.omega,omegaAt:s.omegaAt,omegaPhase:s.omegaPhase,alpha:s.alpha,alphaAt:s.alphaAt,alphaPhase:s.alphaPhase,acc:s.acc,accAt:s.accAt,accPhase:s.accPhase,fovRate:s.fovRate,jumps:s.jumps.length})),
    C2:hand.every(h=>h.ok)?'PASS':'FAIL',handoffs:hand,C3:seam?(swapOk(seam)?'PASS':'FAIL'):'n/a',seamRelative:seam,C4:startOk?'PASS':'FAIL',start});
   const r=rows.at(-1);console.error(key,'C1',r.C1,JSON.stringify(r.C1detail).slice(0,260),'C2',r.C2,'C3',r.C3,'C4',r.C4);}
  // C5 day/night: camera functions do not read the mode
@@ -100,6 +106,6 @@ async function rideStart(leg){const sail=leg.id.startsWith('sail'),log=[];let al
  const status=rows.every(r=>r.C1==='PASS'&&r.C2==='PASS'&&r.C3!=='FAIL'&&r.C4==='PASS')&&checks.every(c=>c.status==='PASS')?'PASS':'FAIL';
  const report={status,timeUTC:new Date().toISOString(),limits:LIM,fps:FPS,scope:'Real TS camera functions sampled on each leg\'s game clock; full geometry for BG2. Not a render or device acceptance.',rows,checks};
  fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/route-continuity.json',JSON.stringify(report,null,1)+'\n');
- console.log(JSON.stringify({status,rows:rows.map(r=>[r.leg,r.screen,r.C1,r.C2,r.C3,r.C4]),checks:checks.map(c=>[c.id.slice(0,40),c.status,c.error&&c.error.slice(0,300)])}));require('./route/route-gate.cjs').gate('test-route-continuity.cjs',[...rows.flatMap(r=>['C1','C1setoff','C1ride','C1shore','C2','C3','C4'].filter(k=>r[k]==='FAIL').map(check=>({leg:r.leg,check}))),...checks.filter(c=>c.status==='FAIL').map(c=>({leg:/lakeside/.test(c.id)?'lakeside':'*',check:c.id.split(' ')[0]}))]);
+ console.log(JSON.stringify({status,rows:rows.map(r=>[r.leg,r.screen,r.C1,r.C2,r.C3,r.C4]),checks:checks.map(c=>[c.id.slice(0,40),c.status,c.error&&c.error.slice(0,300)])}));require('./route/route-gate.cjs').gate('test-route-continuity.cjs',[...rows.flatMap(r=>['C1','C1reveal','C1setoff','C1ride','C1shore','C2','C3','C4'].filter(k=>r[k]==='FAIL').map(check=>({leg:r.leg,check}))),...checks.filter(c=>c.status==='FAIL').map(c=>({leg:/lakeside/.test(c.id)?'lakeside':'*',check:c.id.split(' ')[0]}))]);
 })().catch(e=>{console.error(e);process.exit(2);});
 function assert(c,m){if(!c)throw Error(m);}

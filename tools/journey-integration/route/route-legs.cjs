@@ -95,7 +95,7 @@ function balloonLeg(geo,[w,h]){
  const soft=(t,a,b)=>hit(t<Fl.SEAM_T?geo.cloudsPre:geo.cloudsPost,a,b);
  const route=T.balloonRoutePoints(J.mA('player_spawn'),plan);
  return {id:'balloon meadow→skycity',T:TT,cam:t=>plan.camera(t),her,black:t=>fade(t)>=.999,los,soft,
-  segs:[[0,Fl.SEAM_T-1e-6],[Fl.SEAM_T,TT]],seam:{t:Fl.SEAM_T,rel:t=>{const c=plan.camera(t),v=plan.vehicle(t),y=v.yaw*180/Math.PI;return {position:rotY(-y,sub(c.position,v.pos)),target:rotY(-y,sub(c.target,v.pos)),fovVerticalDeg:c.fovVerticalDeg};}},
+  segs:[[0,Fl.SEAM_T-1e-6],[Fl.SEAM_T,TT]],revealWin:{t0:5.8,t1:27}/* B-d city reveal (flight beats) */,seam:{t:Fl.SEAM_T,rel:t=>{const c=plan.camera(t),v=plan.vehicle(t),y=v.yaw*180/Math.PI;return {position:rotY(-y,sub(c.position,v.pos)),target:rotY(-y,sub(c.target,v.pos)),fovVerticalDeg:c.fovVerticalDeg};}},
   handoffs:[],start:{name:'controller journeyCamera(d=0) → balloon ride camera(0)',from:null,controller:null,ride:plan.camera(0),routeStart:route[0]},
   phases:plan.beats.map(b=>({id:b.id,t0:b.t0,t1:b.t1})),plan};
 }
