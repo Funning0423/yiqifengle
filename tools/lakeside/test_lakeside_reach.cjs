@@ -15,12 +15,12 @@ let n=0,fail=0;
 const t=(m,f)=>{try{f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
 const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
 
-t('transport: skycity→lakeside is balloon; island→lakeside is not a bridge row',()=>{
+t('transport: skycity→lakeside is balloon; island→lakeside has no journey',()=>{
  assert.equal(Transport.JOURNEY_TRANSPORT['skycity-lakeside'],'balloon');
  assert.equal(Transport.JOURNEY_TRANSPORT['island-lakeside'],undefined);
  assert.equal(Transport.transportFor('skycity','lakeside','bridge'),'balloon');
  assert.equal(Transport.transportFor('skycity','lakeside',{__QF_TRANSPORT:'bridge'}),'balloon');
- assert.equal(Transport.transportFor('island','lakeside',null),'bridge');
+ assert.throws(()=>Transport.transportFor('island','lakeside',null),/journey-transport-unsupported/);
 });
 t('route order is skycity→lakeside; island and meadow cannot open the lake',()=>{
  const start=[2,6,-10],bank=[2,0.58,14];
@@ -57,14 +57,13 @@ t('lakeside nodes unlock when mainline-12 (S4) is passed, same moment as the lak
  assert.match(src('ui/IslandPanels.ts'),/LAKE_GATE_RECORD = 11/);
  assert.match(src('ui/IslandPanels.ts'),/CHAPTERS\[region\]\?\.id === 'lake' \? LAKE_GATE_RECORD \+ 1/);
 });
-t('production path has no ?lakeside=1 switch and no lakeside rainbow',()=>{
+t('production path has no ?lakeside=1 switch and no lakeside bridge strip',()=>{
  assert.equal(fs.existsSync(S+'region/LakesideReach.ts'),false);
  assert.doesNotMatch(src('WorldIntegrationBoot.ts'),/lakesideReachEnabled|previewLakesideReach|\?lakeside=1/);
  assert.doesNotMatch(src('world-r2/WorldNativeComposition.ts'),/lakesideReachEnabled|previewLakesideReach|lakesideSideOrder/);
  assert.doesNotMatch(src('world-r1/WorldFlowCore.ts'),/lakesideReachQueryOn|LakesideReach/);
  assert.doesNotMatch(src('world-r1/RegionJourneyCore.ts'),/lakesideReachQueryOn|LakesideReach/);
  assert.match(src('world-r1/WorldFlowCore.ts'),/this\.stable==='island'\|\|this\.stable==='meadow'\|\|this\.stable==='skycity'/);
- assert.doesNotMatch(prep,/rainbowBridge\(rig,L\.bridge/);
  assert.match(prep,/awaitVehicle\(\{kind:'balloon'/);
  assert.match(prep,/loadTransitPrefab\('transport_balloon'\)/);
  assert.match(prep,/stepTransitClock/);

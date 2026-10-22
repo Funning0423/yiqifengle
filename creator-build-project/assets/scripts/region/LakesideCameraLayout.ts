@@ -6,7 +6,7 @@ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus} from './RegionJour
 /** Lakeside (r5h3) camera data: journey into the region, Landing A arrival and the board framing. Pure numbers and maths, no
  * engine imports, so tools/journey-integration/test-lakeside-camera.cjs checks exactly these values against the committed
  * region_lakeside GLBs placed by scene_r5h_slim_transforms.json. Coordinates marked Local are lakeside-root (Y-up, metres).
- * Route: island exit (same approach as 04→05) → 24 m rainbow bridge (same shape) → lands on the empty south bank (flat
+ * Route: island exit (same approach as 04→05) → 24 m placement span (former bridge geometry, nothing is drawn on it; the live leg is the balloon) → lands on the empty south bank (flat
  * 0.56–0.59 m from z 23 to 39) → walks 11.5 m straight toward the lake and stops 2.5 m from the shore, facing the board.
  * Landing A machinery (RegionJourneyCore.arrivalPose/journeyCamera) with per-route overrides: lens on HER RIGHT, no late
  * lift (no crane-up), close fallback-like end pose. The lens is driven by her walked distance, and her walk has the S-curve

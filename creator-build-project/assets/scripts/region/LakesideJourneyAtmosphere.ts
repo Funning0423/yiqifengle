@@ -7,7 +7,7 @@ import {resolveDayNight} from '../world-r1/DayNightContract';
  *  Targets are exactly LakesideBoardBackground.applyDir/applyFog's values, computed from the SAME base (the island values
  *  captured before the blend), so the board's own apply at entry is a no-op visually. */
 export const LAKESIDE_JOURNEY_ATMOSPHERE=Object.freeze({
- /** Blend starts this fraction along the rainbow bridge (she is crossing into the lake world)... */
+ /** Blend starts this fraction along the travel segment (she is crossing into the lake world)... */
  startBridgeFraction:.5,
  /** ...and is complete this many metres before her stop, so the landing frame (and the 1 s landing→board blend) is fully lit. */
  endBeforeStopM:1,

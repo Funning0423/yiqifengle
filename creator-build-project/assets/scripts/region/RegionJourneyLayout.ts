@@ -3,7 +3,7 @@ import type {Vec} from '../world-r1/WorldFlowCore';
  * Metre scale, rigid placement only. Build05 occlusion fix (Oi FAIL 2026-10-16):
  *  - 04→05: the old straight +Z approach put the bridge's first metres under beach_palm_tall's canopy and through
  *    env_prop_palm_lean_01's trunk. The approach now ends 0.8 m to +X, which threads the 2.1 m bridge between both trunks.
- *  - 08→09: the rainbow bridge used to land on anchor_cloudbridge_end, which is the INNER edge of the city's round terminus
+ *  - 08→09: the old walking leg used to land on anchor_cloudbridge_end, which is the INNER edge of the city's round terminus
  *    platform, so its last ~17 m climbed under that platform and its 4.4 m centre post (character up to 6 m below the
  *    env_sky_static_palette top; Oi measured 2.27 m at 32.22 m). The bridge now lands on the platform's OUTER rim,
  *    walks around the post on the deck to the same anchor, and the city sits beside the meadow exit (+X) instead of
@@ -21,7 +21,7 @@ export const REGION_JOURNEY_LAYOUT={
  /** World offset of the sky platform LANDING point from the meadow exit (walk_path_08). d28ee16: [24,12,0] to the far
   * outer rim, then a 17.6 m walk round the post (+13.7 s, rejected). Build05 original: [0,12,24] to the inner anchor. */
  skycityOffset:[18,12,0] as Vec,
- /** World heading (deg, 0=+Z, 90=+X) of the rainbow bridge as it arrives at the landing; the city is turned so the
+ /** World heading (deg, 0=+Z, 90=+X) of the placement span as it reaches the landing; the city is turned so the
   * bridge meets the platform rim radially there. Same +X heading as d28ee16, so the bridge centreline does not move sideways. */
  skyHeadingDeg:90,
  /** Deck frame on the terminus platform: along = end→start (metres from anchor_cloudbridge_end), lateral = 90° left of
@@ -35,7 +35,7 @@ export const REGION_JOURNEY_LAYOUT={
  /** The city's cloud-bridge deck starts 0.26 m ABOVE the platform just past anchor_cloudbridge_end. Step onto it 0.35 m in,
   * then keep the original 2.4 m arrival root. */
  skyStepOnto:[.35,0,.31] as readonly [number,number,number],
- /** v3 local lens keys for 08→09, metres from the rainbow bridge START (see RegionJourneyCore.LensKey). Under the sky
+ /** v3 local lens keys for 08→09, metres from the travel segment START (see RegionJourneyCore.LensKey). Under the sky
   * city the lens rises and pulls back so the city's grey underside stays ≤ 10% of the frame (lead review: 73–84 s). v3.2: sideM −2.4 = her RIGHT (was +2.4, her left);
   * at the 66° meadow-exit → bridge corner the lens swings wider right so it is right of behind for both headings.
   * Landing A final: on her right the lens sits higher/further (6.5–7 m up, 9 m back, 0.5–1.2 m right, a short 8 m swing right at
@@ -64,7 +64,7 @@ export function skyDeckRoute(end:Vec,gate:Vec):{rim:Vec;deck:Vec[];arrival:Vec}{
 }
 /** Route lens keys from bridge-relative metres to route metres. */
 export function lensKeys(keys:ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,bridgeStart:number){return keys.map(k=>({...k,at:k.at+bridgeStart}));}
-/** 04→05 landing (r4.1, 3 tools, hint banner above the tray per GGbot 260ea02): her stand line after the rainbow bridge,
+/** 04→05 landing (r4.1, 3 tools, hint banner above the tray per GGbot 260ea02): her stand line after the arrival,
  *  meadow model coordinates (= board copy local), y = meadow_terrain top (≤ 0.8 m apart, feet within 3 cm). The old arrival
  *  walk_path_01 → 02 sat under the left tool icon. From player_spawn she walks 6.5 m up the left of the trodden path into the
  *  lower-left of the board view, between the tray and the tool row (left of the icons). She STOPS where THIS screen's board UI

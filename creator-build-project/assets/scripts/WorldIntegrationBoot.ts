@@ -647,7 +647,7 @@ export class WorldIntegrationBoot extends Component {
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
  // Funning (Mac, 09a1b8e): the journey cutscene has no 「暂停旅程」 button and no caption strip under it (the old notice plate:
- // 正在准备… / 沿着彩虹… / 快到了… and the paused/failed lines). Nothing covers the picture; tapping it does nothing (no tap-to-pause).
+ // 正在准备… / 快到了… and the paused/failed lines). Nothing covers the picture; tapping it does nothing (no tap-to-pause).
  // Background is the only pause: WorldFlow.hide() suspends the journey; on return it resumes by itself (same path as 「继续」).
  // (WeChat may stop the frame loop while hidden, so the hidden frame itself is never painted: needsResume is the mark.)
  if(!s.needsResume)this.cutsceneRunning=!s.hidden&&['region-loading','region-travel'].includes(s.state);

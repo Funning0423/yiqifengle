@@ -60,7 +60,7 @@ export function meadowCloudColor(w:number):number[]{const t=Math.max(0,Math.min(
 export const MEADOW_NIGHT_LINEAR:readonly number[]=[.16,.20,.28];
 const linToSrgb=(c:number)=>c<=.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-.055;
 export function meadowGroundFactor(w:number,f?:readonly number[]):number[]{const t=Math.max(0,Math.min(1,w));return f?f.map(k=>1+(k-1)*t):MEADOW_NIGHT_LINEAR.map(k=>1+(linToSrgb(k)-1)*t);}
-/** N3: path, rainbow bridge and windmill read too bright at night; same mechanism, brightness x0.6 (sRGB) at full night. */
+/** N3: path and windmill read too bright at night; same mechanism, brightness x0.6 (sRGB) at full night. */
 export const MEADOW_PROP_NIGHT:readonly number[]=[.6,.6,.6];
 export function meadowGroundMaterials(nodes:Array<Node|null>,f?:readonly number[],shared=false):Array<{m:Material,base:number[],f?:readonly number[]}>{
  const out:Array<{m:Material,base:number[],f?:readonly number[]}>=[];

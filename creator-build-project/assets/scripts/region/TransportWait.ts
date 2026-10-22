@@ -1,4 +1,4 @@
-/** Slow sail and balloon loads hold the current cover and retry. They never switch to the rainbow bridge. */
+/** Slow sail and balloon loads hold the current cover and retry. */
 export type VehicleKind='sail'|'balloon';
 export type TransportClock={now():number;sleep(ms:number):Promise<void>};
 export type TransportWaitSnapshot={

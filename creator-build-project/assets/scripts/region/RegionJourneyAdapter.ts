@@ -25,7 +25,7 @@ import {regionBoardEnd,regionBoardSource,regionGirlStand,setMeadowBoardFraming,s
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
-import {transportFor, usesRainbowBridge} from './JourneyTransport';
+import {transportFor} from './JourneyTransport';
 import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
 import {loadTransitPrefab} from './BalloonTransit';
 import {mountVehicle} from './TransportVehicle';
@@ -40,21 +40,6 @@ function find(node:Node,name:string):Node|null {if(node.name===name)return node;
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
 /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
 export {REGION_JOURNEY_LAYOUT};
-/** First-pass bridge surface, not replacement region art. Seven narrow mesh strips share the exact controller
- * centreline; no animated/scaled actor, imported model edits, alpha loading cover or scene replacement. */
-function rainbowBridge(parent:Node,path:readonly Vec[],owned:Array<Mesh|Material>):void{
- const colors=['#e88c92','#efaf83','#f3d990','#a5d6ac','#8ccbd5','#9aaee0','#c3a4df'],width=REGION_JOURNEY_LAYOUT.bridgeWidthM;
- for(let band=0;band<colors.length;band++){
-  const positions:number[]=[],normals:number[]=[],indices:number[]=[];
-  path.forEach((p,i)=>{const a=path[Math.max(0,i-1)],b=path[Math.min(path.length-1,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],L=Math.hypot(dx,dz)||1;
-   for(const side of [band/7-.5,(band+1)/7-.5]){positions.push(p[0]+dz/L*side*width,p[1]-.015,p[2]-dx/L*side*width);normals.push(0,1,0);}
-   if(i){const j=i*2;indices.push(j-2,j,j-1,j-1,j,j+1);}});
-  // Creator 3.8.8 accepts asset pipeline states at initialization; runtime overrides require MaterialInstance.
-  const mesh=utils.createMesh({positions,normals,indices},undefined,{calculateBounds:true}),material=new Material();
-  material.initialize({effectName:'builtin-standard',defines:{USE_VERTEX_COLOR:false},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});material.setProperty('mainColor',new Color(colors[band]));material.setProperty('roughness',.9);
-  const node=new Node('RainbowBridgeStrip'+band);parent.addChild(node);const renderer=node.addComponent(MeshRenderer);renderer.mesh=mesh;renderer.setSharedMaterial(material,0);owned.push(mesh,material);
- }
-}
 /** 运镜bot: map between the board copy (board rig coordinates; boardLocal = the prefab root's own transform) and this placed
  *  journey copy (world): toJourney = J·B⁻¹, toBoard = B·J⁻¹ (rigid, both copies share the prefab scale). Skycity also takes
  *  the two framing anchors from the journey copy (world). */
@@ -76,17 +61,19 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     const waited=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled,load:()=>mountBalloonLease({parent:options.parent,meadow:mounted.get('meadow')??null,start,token,progress})});
     const lease=waited.value;if(lease.model)mounted.set('skycity',lease.model);return lease;
    }
-   const def=REGIONS[to];if(!def||to==='island')throw Error('journey-region-unavailable');
-   const sailWait=to==='meadow'&&from==='island'&&transportFor(from,to)==='sail';
+   // Rainbow bridge removed (b16): the only on-foot-free legs are sail (island→meadow) and balloon (→skycity, →lakeside).
+   if(!(from==='island'&&to==='meadow'&&transportFor(from,to)==='sail'))throw Error('journey-transport-unsupported:'+from+'-'+to);
+   const def=REGIONS[to];if(!def)throw Error('journey-region-unavailable');
+   const sailWait=true;
    const prefab=sailWait?(await awaitVehicle({kind:'sail',cancelled:()=>token.cancelled,load:()=>waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token,VEHICLE_ASSET_WAIT_MS)})).value:await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
    let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,stand:GirlStand|null=null,sailArt:SailArt|null=null;
    const release=()=>{if(dead)return;dead=true;sailArt?.dispose();if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
    try{
-    const sail=to==='meadow'&&from==='island'&&transportFor(from,to)==='sail';
-    // 运镜bot r5 (meadow-girlsize A): the sail arrival ends at M1 → closer board camera; the bridge fallback keeps meadowScenePose.
-    if(to==='meadow')setMeadowBoardFraming(sail?'A':'authored');
+    const sail=true;
+    // 运镜bot r5 (meadow-girlsize A): the sail arrival ends at M1 → closer board camera.
+    setMeadowBoardFraming('A');
     const warmed=sail?takeSailWarm():null;
     model=mountRegion(def,prefab,rig);
     // 运镜bot: the prefab's own root transform = the board copy's transform in its (identity) board rig, before the journey places it.
@@ -111,44 +98,8 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      motion.grounds=meadowGroundMaterials([find(model,'meadow_terrain'),find(model,'meadow_river_bank')]);
     }else{const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');await waitRegionAsset(ambient.prepare(),token);token.check();}
     progress(.86);
-    let approach:Vec[];
-    if(from==='island')approach=islandApproach(start);
-    else{const meadow=mounted.get('meadow');if(!meadow)throw Error('journey-meadow-lease-missing');const exit:Vec[]=[];for(let i=2;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)exit.push(anchor(meadow,'walk_path_'+String(i).padStart(2,'0')));
-     // 运镜bot (r4): she may stand off walk_path_02 now (04→05 stops where the meadow board UI leaves her room); leave from there
-     // through the exit anchors still ahead of her (standing on walk_path_02 = the old 03..08 exactly).
-     approach=[start,...meadowExitFrom(start,exit)];}
-    const edge=approach[approach.length-1];let bridge:Vec[],arrival:Vec[],focus:Vec|undefined;
-    if(to==='meadow'){
-     model.setRotationFromEuler(0,180,0);
-     if(sail){
-      const root=sailMeadowRoot();model.setWorldPosition(root[0],root[1],root[2]);
-      bridge=[edge,plus(edge,[0,0,.02])];arrival=[];
-     }else{
-     const incoming=anchor(model,'player_spawn'),landing=plus(edge,REGION_JOURNEY_LAYOUT.meadowOffset);
-     model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-incoming[0],landing[1]-incoming[1],landing[2]-incoming[2]]));
-     bridge=bridgePath(edge,anchor(model,'player_spawn'),REGION_JOURNEY_LAYOUT.meadowBridgeArchM);arrival=[];
-     // 运镜bot (r4): from the bridge end she walks her stand line and stops where THIS screen's meadow board UI (tray, goal plate,
-     // 3-tool row + ring/badge, widest hint toast, safe area, capsule) leaves her most room, among stops inside the O5 08→09 budget, in the board camera (RegionBoardLanding.regionGirlStand); her frozen
-     // board copy is mounted exactly there. If the screen or the map cannot be read: the old walk_path_01 → 02.
-     try{boardSrc=journeyBoardSource('meadow',model,boardLocal!);const v=lakesideViewport(view.getFrameSize()),spawn=anchor(model,'player_spawn');
-      const exit:Vec[]=[];for(let i=2;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)exit.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
-      const src=boardSrc,o5=(p:Vec)=>meadowExitExtraM(src.map.toJourney(p) as Vec,exit)<=MEADOW_EXIT_BUDGET_M;// r4.1: only stops whose 08→09 walk keeps O5
-      stand=regionGirlStand(boardSrc,boardSrc.map.toBoard(spawn),v.width,v.height,boardSafeInsets(v.width,v.height),o5);
-      if(stand){arrival=stand.path.slice(1).map(p=>boardSrc!.map.toJourney(p));if(!stand.clear)console.warn('[QF_REGION] meadow stand: no clear stop for '+v.width+'x'+v.height+', least covered '+JSON.stringify(stand.boxPt));}}
-     catch(error){stand=null;arrival=[];try{console.error('[QF_REGION] meadow stand unavailable: '+String(error));}catch{}}
-     if(!arrival.length)for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
-     }
-    }else{
-     // Turn the city so the rainbow bridge meets the terminus platform's SIDE rim radially, put that landing on the bridge,
-     // then step onto the city's cloud bridge and arrive at the same real entrance (2.4 m in from anchor_cloudbridge_end).
-     // The follow lens turns to the plaza (anchor_starcourt_center) over the last metres.
-     model.setRotationFromEuler(0,0,0);
-     model.setRotationFromEuler(0,skycityYawDeg(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),0);
-     const placed=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),landing=plus(edge,REGION_JOURNEY_LAYOUT.skycityOffset);
-     model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-placed.rim[0],landing[1]-placed.rim[1],landing[2]-placed.rim[2]]));
-     const deck=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start'));
-     bridge=bridgePath(edge,deck.rim,REGION_JOURNEY_LAYOUT.skyBridgeArchM);arrival=[...deck.deck,deck.arrival];focus=anchor(model,'anchor_starcourt_center');
-    }
+    model.setRotationFromEuler(0,180,0);
+    {const root=sailMeadowRoot();model.setWorldPosition(root[0],root[1],root[2]);}
     // 运镜bot (region hooks): the route ENDS on THIS screen's board camera (RegionBoardLanding: the board background's own pose
     // for the board UI's viewport, mapped onto this journey copy); if the screen or the map cannot be read, the old end is kept.
     let board:JourneyBoardEnd|undefined;
@@ -185,17 +136,12 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      const sit=seatFromBench([p0[0]-fx*0.55,p0[1]+0.06,p0[2]-fz*0.55],v0.yaw);
      const arrival=[step,...walk.slice(1),m0,m1];
      sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,disembark:[standAt.position as Vec,port,step],arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
-    }else{
-     const path=[...approach,...bridge.slice(1),...arrival];if(board&&!(board.blendM<routeLength(path)))board=undefined;
-     route={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{}),...(board?{board}:{})};
-     rainbowBridge(rig,bridge,owned);
     }
     token.check();
-    // N3: at night the path, windmill and the (journey-owned, shared) rainbow bridge strips dim to x0.6 with the same night weight.
-    if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT),
-     ...meadowGroundMaterials(rig.children.filter(n=>n.name.startsWith('RainbowBridgeStrip')),MEADOW_PROP_NIGHT,true));mounted.set(to,model);progress(.98);
+    // N3: at night the path and windmill dim to x0.6 with the same night weight.
+    if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT));mounted.set(to,model);progress(.98);
     if(boardSrc&&route.board)setRegionBoardSource(to as BoardLandingRegion,boardSrc);
-    const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible&&!usesRainbowBridge(transportFor(from,to))){const hide=(n:Node)=>{if(n.name.startsWith('RainbowBridge'))n.active=false;for(const c of n.children)hide(c);};hide(rig);}if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
+    const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
      ...(sailDriver&&sailPlan?{onFrame:(dt:number)=>sailDriver!.onFrame(dt,false),ride:(actor,world,token)=>playSailBeats(sailDriver!,actor,world,token,sailPlan!)}:{})};
     return lease;
    }catch(error){release();throw error;}
@@ -212,7 +158,7 @@ export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):S
 }
 function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 /** 风铃湖畔: skycity → lakeside on the existing balloon. LakesideCameraLayout.lakesideJourney(start) still places the
- *  scene; the basket descends onto the south-bank walk stop. No rainbow strips on this leg. */
+ *  scene; the basket descends onto the south-bank walk stop. */
 class LakesideBalloonTicker extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** 运镜bot: the lakeside route ends on THIS screen's board camera (the board UI's frame: viewport + boardSafeInsets); the
  *  base landing is kept if anything about the screen cannot be read. */

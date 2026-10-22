@@ -9,21 +9,18 @@ assert.equal(T.JOURNEY_TRANSPORT['skycity-lakeside'],'balloon');
 assert.equal(T.transportFor('island','meadow',null),'sail');
 assert.equal(T.transportFor('meadow','skycity',null),'balloon');
 assert.equal(T.transportFor('skycity','lakeside',null),'balloon');
-assert.equal(T.transportFor('island','lakeside',null),'bridge');
+assert.throws(()=>T.transportFor('island','lakeside',null),/journey-transport-unsupported/);
 const regions=['island','meadow','skycity','lakeside'];
 for(const a of regions)for(const b of regions){
  if((a==='island'&&b==='meadow')||(a==='meadow'&&b==='skycity')||(a==='skycity'&&b==='lakeside'))continue;
- assert.equal(T.transportFor(a,b,null),'bridge',a+b);
+ assert.throws(()=>T.transportFor(a,b,null),/journey-transport-unsupported/,a+b);
 }
-assert.equal(T.transportFor('home','island',null),'bridge');
-assert.equal(T.usesRainbowBridge('bridge'),true);
-assert.equal(T.usesRainbowBridge('sail'),false);
-assert.equal(T.usesRainbowBridge('balloon'),false);
+assert.throws(()=>T.transportFor('home','island',null),/journey-transport-unsupported/);
+assert.equal(T.usesRainbowBridge,undefined);
 const file=path.join(ROOT,'creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts');
 const src=fs.readFileSync(file,'utf8');
-assert.ok(src.includes('function rainbowBridge'));
+assert.ok(!/rainbowBridge|RainbowBridge/.test(src));
 assert.ok(src.includes('transportFor'));
-assert.ok(src.includes('function rainbowBridge'));
 const head=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:ROOT,encoding:'utf8'}).trim();
 const committed=cp.execFileSync('git',['show',head+':creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'],{cwd:ROOT});
 // b14-A intentionally changes only lakeside arrival and its pure helper import. Keep the byte guard

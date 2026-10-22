@@ -16,7 +16,7 @@ const STEP=.1,isMass=o=>o.tag==='skycity',bvh=F.buildBvh([...island,...meadow,..
 const run=leg=>{const T=routeLength(leg.path),rows=[];let prev=null;for(let d=0;d<=T+1e-9;d+=STEP){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),dv=F.dir(c),b=F.body(c,sampleRoute(leg.path,dd));
  rows.push({d:+dd.toFixed(2),c,angDegS:prev?F.angle(prev,dv)/(STEP/L.speedMps):0,inFrame:b.inFrame,height:b.height});prev=dv;}return {T,rows};};
 const R=legs.map(run),cov={};
-// 运镜bot r4: 08→09 coverage is sampled every 0.5 m on a grid anchored at the rainbow bridge START (was: at the route start), so
+// 运镜bot r4: 08→09 coverage is sampled every 0.5 m on a grid anchored at the former walking-leg span START (was: at the route start), so
 // the check no longer shifts with where she stood on the meadow (her 04→05 stop now depends on the screen; the lens from the
 // bridge on is byte-for-byte the same). Known, pre-existing, reported in the r4 outbox: a 0.02 m sweep finds one 13×28 coverage ray over 10% (0.1016)
 // at bridge +6.87 m, identical on the Build05 route (between its old samples too).

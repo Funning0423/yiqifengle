@@ -83,7 +83,7 @@ run('option A: parked balloon survives the board layer swap at its lake-local po
 });
 
 run('other regions (meadow / sky city): same mapping from the journey copy of the region model (same name under RegionJourney-<region>), scale honoured',()=>{
- for(const [region,layer] of [['meadow',1<<20],['skycity',1<<20]]){const w=world();const jr=new Node('RegionJourney-'+region);scene.addChild(jr);const jm=new Node('region_'+region);jr.addChild(jm);jr.addChild(new Node('RainbowBridgeStrip0'));
+ for(const [region,layer] of [['meadow',1<<20],['skycity',1<<20]]){const w=world();const jr=new Node('RegionJourney-'+region);scene.addChild(jr);const jm=new Node('region_'+region);jr.addChild(jm);
   jm.position=new Vec3(-20,4,90);jm.rotation=Quat.yaw(90);jm.scale=new Vec3(2,2,2);
   const lp=new Vec3(3,0,-4),wp=new Vec3();Vec3.transformQuat(wp,new Vec3(6,0,-8),jm.rotation);w.ref.position=new Vec3(wp.x-20,wp.y+4,wp.z+90);w.ref.rotation=Quat.multiply(new Quat(),jm.rotation,Quat.yaw(-45));
   const bm=new Node('region_'+region);w.scenery.addChild(bm);const g=G.mountRegionBoardGuest(region,bm,layer);assert(g,region);const c=bm.getChildByName(G.LAKESIDE_GUEST_NODE);

@@ -377,7 +377,7 @@ function unitToward(from: Vec3, to: Vec3): [number, number, number] {
 }
 /** Names that are backdrops or effects. They must not shove the lens. */
 export function orbitColliderName(name: string): boolean {
-  return /sky|cloud|sea_|foam|wave|gull|smoke|beam|blind_card|sprite|particle|rainbow/i.test(name);
+  return /sky|cloud|sea_|foam|wave|gull|smoke|beam|blind_card|sprite|particle/i.test(name);
 }
 
 type Memory = { yaw: number; pitch: number; dist: number; fov: number; seeded: boolean; engaged: boolean };

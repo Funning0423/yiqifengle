@@ -3,7 +3,7 @@
 /* Lakeside (r5h3) camera contract: island → lakeside journey, Landing A arrival, board framing. Builds the leg exactly as
  * LakesideCameraLayout.lakesideJourney() places it (real TS through the board-ui harness) against the real geometry: the
  * Build05 island fixture + palms (journey-scene.cjs, as 04→05) and every instance of region_lakeside
- * scene_r5h_slim_transforms.json (lakeside/lakeside-scene.cjs), plus the rainbow bridge strip itself. Samples every 0.05 m.
+ * scene_r5h_slim_transforms.json (lakeside/lakeside-scene.cjs). Samples every 0.05 m.
  *  K1 route: continuity passes validateJourneyRoute (island→lakeside order accepted since Voice Bot's wiring); landing overrides need a focus and known keys; 04→05/08→09 unchanged.
  *  K2 her face (1.5 m), head (1.6) and chest (0.9) never hidden, at most one low graze; lens clearance ≥ 1.1 m everywhere.
  *     Reported, not hidden: the 04→05 set-off exemption (d < 1 m, only her legs behind the island prop strip).
@@ -42,9 +42,7 @@ const j=LK.lakesideJourney(start),STOP=LK.LAKESIDE_CAMERA_LAYOUT.stopLocal,path=
 const route={from:'skycity',to:'lakeside',path,bridgeStart:routeLength(j.approach),bridgeEnd:routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing,timing:j.timing};
 const TM=j.timing,sAt=t=>Core.journeyDistanceAt(T,TM,t),DUR=TM.durationS;
 const lakeLocal=LKS.instances(),lake=lakeLocal.map(o=>{const t=new Float64Array(o.tris.length);for(let k=0;k<t.length;k+=3){const w=j.toWorld([o.tris[k],o.tris[k+1],o.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lakeside',name:o.name,group:o.group,tris:t};});
-// rainbow bridge strip exactly as RegionJourneyAdapter.rainbowBridge (full width, one ribbon)
-const strip=(()=>{const w=Lay.REGION_JOURNEY_LAYOUT.bridgeWidthM,P=j.bridge,t=[];for(let i=1;i<P.length;i++){const q=[P[i-1],P[i]].map((p,k)=>{const a=P[Math.max(0,i-1+k-1)],b=P[Math.min(P.length-1,i+k)],dx=b[0]-a[0],dz=b[2]-a[2],L=Math.hypot(dx,dz)||1;return [-.5,.5].map(s=>[p[0]+dz/L*s*w,p[1]-.015,p[2]-dx/L*s*w]);});t.push(...q[0][0],...q[1][0],...q[0][1],...q[0][1],...q[1][0],...q[1][1]);}return {tag:'bridge',name:'RainbowBridgeStrip',tris:Float64Array.from(t)};})();
-const objs=[...island,...lake,strip];
+const objs=[...island,...lake];
 const cam=(d,landing=j.landing)=>journeyCamera(path,d,start1,j.focus,undefined,0,landing);
 // Per-screen route landing (what RegionJourneyAdapter hands the route at runtime): the journey ends on that screen's board camera.
 const BLs=H.load(S+'ui/BoardLayout.ts'),SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520]],screenLanding=(W,Hh)=>LK.lakesideScreenLanding(j,LK.lakesideScreenFrame(W,Hh,BLs.boardSafeInsets(W,Hh))),screenLandingV4=(W,Hh)=>LK.lakesideScreenLanding(j,LK.lakesideScreenFrame(W,Hh,BLs.boardSafeInsets(W,Hh)),STOP);
@@ -73,7 +71,7 @@ for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(path,d)
  if(lens<worst.lens)worst=rec;const hidden=hit.filter(h=>h.length).length;
  const legsOnly=!face.length&&!hit[2].length&&!hit[3].length&&!hit[4].length;
  if((hit[2].length||hit[4].length||face.length||hidden>1)&&!(d<EXEMPT_M&&legsOnly))fails.push({...rec,hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length)),face});else if(hidden)(d<EXEMPT_M&&hidden>1?exempted:grazes).push({d:rec.d,hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length))});}
-check(`K2 face/head/chest visible + lens ≥ ${CLEAR} m every ${STEP} m (island + lakeside + bridge strip)`,()=>{assert.deepEqual(fails,[],JSON.stringify(fails.slice(0,5)));assert(worst.lens>=CLEAR,`lens ${worst.lens} m from ${worst.lensObj} at d=${worst.d}`);
+check(`K2 face/head/chest visible + lens ≥ ${CLEAR} m every ${STEP} m (island + lakeside)`,()=>{assert.deepEqual(fails,[],JSON.stringify(fails.slice(0,5)));assert(worst.lens>=CLEAR,`lens ${worst.lens} m from ${worst.lensObj} at d=${worst.d}`);
  return {samples:rows.length,minLensM:worst.lens,minLensAt:worst.d,minLensObj:worst.lensObj,setOffLegsOnlyExempted:exempted,partialGrazes:grazes};});
 check('K3 lens on her right for the whole leg',()=>{const m=rows.reduce((a,r)=>r.side<a.side?r:a);assert(m.side>.3,`lens ${m.side} m right of her at d=${m.d}`);return {minRightM:m.side,at:m.d,finalRightM:rows.at(-1).side};});
 const finals={};

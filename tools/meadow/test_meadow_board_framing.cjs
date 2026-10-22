@@ -31,6 +31,6 @@ const lease=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts
 if(!/meadowBoardCamera\(layout\.width,layout\.height\)/.test(lease))fails.push('lease does not use meadowBoardCamera');
 if(!/regionBoardPose\(src,v\.width\/v\.height,v\)/.test(comp))fails.push('landing hook does not pass the viewport size');
 if(!/regionBoardEnd\(boardSrc,v\.width\/v\.height,v\)/.test(ad))fails.push('journey end does not pass the viewport size');
-if(!/if\(to==='meadow'\)setMeadowBoardFraming\(sail\?'A':'authored'\);/.test(ad))fails.push('adapter does not pick framing A for the sail arrival');
+if(!/setMeadowBoardFraming\('A'\);/.test(ad))fails.push('adapter does not pick framing A for the sail arrival');
 if(fails.length){console.error('meadow-board-framing FAIL\n '+fails.join('\n '));process.exit(1);}
 console.log('meadow-board-framing PASS');

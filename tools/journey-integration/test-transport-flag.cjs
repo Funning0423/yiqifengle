@@ -11,7 +11,6 @@ assert.equal(Q.transportFor('island','meadow',{__QF_TRANSPORT:'sail'}),'sail');
 assert.equal(Q.transportFor('meadow','skycity',{wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})},__QF_TRANSPORT:'bridge'}),'balloon');
 const ride=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/region/BalloonRide.ts'),'utf8');
 const adapter=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'),'utf8');
-assert.ok(!ride.includes('RainbowBridgeStrip'),'balloon lease does not build a rainbow bridge');
 assert.ok(adapter.includes("transportFor(from,to)==='balloon'"),'adapter branches before the bridge body');
-assert.ok(adapter.includes('RainbowBridgeStrip'),'bridge mode still owns the strip helper');
+assert.ok(!/RainbowBridge|rainbowBridge/.test(adapter+ride),'rainbow bridge removed (b16)');
 console.log(JSON.stringify({leg2:hash,balloon:Q.JOURNEY_TRANSPORT['meadow-skycity'],sailKey:Q.JOURNEY_TRANSPORT['island-meadow']}));

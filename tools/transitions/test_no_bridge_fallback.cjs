@@ -31,7 +31,7 @@ try{
  assert.equal(jt.sailPreloadFellBack(),false);
  assert.equal(jt.transportFor('island','meadow',null),'sail');
  assert.equal(jt.transportFor('meadow','skycity',null),'balloon');
- assert.ok(warns.some(line=>line.includes('bridge-ignored')),'bridge request warns');
+ assert.ok(warns.some(line=>line.includes('transport-override-ignored')),'ignored transport override warns');
 }finally{console.warn=origWarn;}
 
 function pair(kind){return kind==='sail'?['island','meadow']:['meadow','skycity'];}

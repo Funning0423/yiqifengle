@@ -5,7 +5,7 @@ import {transportFor,type TransportKind} from './JourneyTransport';
 import {walkPair} from './RegionNodeProgress';
 import {planWalk,type WalkPlan} from './NodeWalker';
 
-export type WalkResult=Readonly<{transport:TransportKind;departure:boolean;segments:number;region:string;to:string;timedOut:boolean}>;
+export type WalkResult=Readonly<{transport:TransportKind|'walk';departure:boolean;segments:number;region:string;to:string;timedOut:boolean}>;
 /** One segment must finish or be cut. A stuck `perform` must not freeze advanceMainline. */
 export const WALK_SEGMENT_TIMEOUT_MS=12000;
 export type PathPlace=(path:readonly Vec[])=>Vec[];
@@ -52,12 +52,12 @@ export async function runRewardWalk(character:Pick<CharacterAdapter,'perform'|'c
  const spec=walkPair(fromStage,toStage);
  const plan=planWalk(spec.region,spec.from,spec.to);
  const timedOut=await runPlan(character,plan,spec.region,spec.to,place,timeoutMs);
- const transport:TransportKind=spec.departure&&spec.nextRegion?transportFor(spec.region,spec.nextRegion):'bridge';
+ const transport:TransportKind|'walk'=spec.departure&&spec.nextRegion?transportFor(spec.region,spec.nextRegion):'walk';
  return {transport,departure:spec.departure,segments:plan.segments.length,region:spec.region,to:spec.to,timedOut};
 }
 /** After mainline-12 she leaves the stair top and walks north to the star-ring terrace. */
 export async function runSkyFinale(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<WalkResult>{
  const plan=planWalk('skycity','S4','S6');
  const timedOut=await runPlan(character,plan,'skycity','S6',place,timeoutMs);
- return {transport:'bridge',departure:false,segments:plan.segments.length,region:'skycity',to:'S6',timedOut};
+ return {transport:'walk',departure:false,segments:plan.segments.length,region:'skycity',to:'S6',timedOut};
 }
