@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T21:35:18.048Z",
+ "timeUTC": "2026-10-22T21:43:31.895Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
@@ -580,44 +580,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -643,13 +643,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -662,6 +657,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -681,44 +681,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -744,13 +744,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -763,6 +758,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -782,44 +782,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -845,13 +845,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -864,6 +859,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -883,44 +883,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -946,13 +946,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -965,6 +960,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -984,44 +984,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -1047,13 +1047,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -1066,6 +1061,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -1085,44 +1085,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -1148,13 +1148,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -1167,6 +1162,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }
@@ -1186,44 +1186,44 @@
    "frames": 1078,
    "herNotModelledFrames": 0,
    "blackFrames": 3,
-   "occludedFrames": 8,
+   "occludedFrames": 9,
    "occludedSpans": [
     {
-     "t0": 8.33,
-     "t1": 8.33,
+     "t0": 8.37,
+     "t1": 8.37,
      "phase": "B-d",
      "first": {
-      "t": 8.33,
+      "t": 8.37,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 8.43,
-     "t1": 8.47,
+     "t0": 8.47,
+     "t1": 8.5,
      "phase": "B-d",
      "first": {
-      "t": 8.43,
+      "t": 8.47,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.8,
-     "t1": 13.83,
+     "t0": 13.73,
+     "t1": 13.8,
      "phase": "B-d",
      "first": {
-      "t": 13.8,
+      "t": 13.73,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
     },
     {
-     "t0": 13.93,
-     "t1": 13.93,
+     "t0": 13.9,
+     "t1": 13.9,
      "phase": "B-d",
      "first": {
-      "t": 13.93,
+      "t": 13.9,
       "pose": "stand(basket)",
       "face": "balloon:balloon_basket (5/9)"
      }
@@ -1249,13 +1249,8 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 25,
+   "centreRayGrazeFrames": 26,
    "grazeSample": [
-    {
-     "t": 8.33,
-     "k": "face",
-     "by": "balloon:balloon_basket"
-    },
     {
      "t": 8.37,
      "k": "face",
@@ -1268,6 +1263,11 @@
     },
     {
      "t": 8.43,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 8.47,
      "k": "face",
      "by": "balloon:balloon_basket"
     }

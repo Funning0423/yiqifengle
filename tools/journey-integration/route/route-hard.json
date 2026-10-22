@@ -1,16 +1,19 @@
 {
- "hard": [
-  "sail.C4",
-  "balloonSky.C4",
-  "sail.C1shore",
-  "sail.C1setoff",
-  "sail.O2",
-  "sail.F1",
-  "sail.F2",
-  "sail.F3",
-  "sail.O1"
- ],
- "exceptions": {
-  "sail.O1": "palm env_prop_palm_lean_01 may cross her face/head/chest for <=2 frames (<=40 ms) within 10.5-11.5 s: a quick foreground pass while the set-off arc swings on her right side near the palm, 2.9 m from her at the jetty (Grok Bot 2026-10-22). The S-g sail_main face occlusion (23.3 s) is split out as sail.O1sgMain, report-only until fixed."
- }
+  "hard": [
+    "sail.C4",
+    "balloonSky.C4",
+    "sail.C1shore",
+    "sail.C1setoff",
+    "sail.O2",
+    "sail.F1",
+    "sail.F2",
+    "sail.F3",
+    "sail.O1",
+    "balloonSky.F1",
+    "balloonSky.F2",
+    "balloonSky.F3"
+  ],
+  "exceptions": {
+    "sail.O1": "palm env_prop_palm_lean_01 may cross her face/head/chest for <=2 frames (<=40 ms) within 10.5-11.5 s: a quick foreground pass while the set-off arc swings on her right side near the palm, 2.9 m from her at the jetty (Grok Bot 2026-10-22). The S-g sail_main face occlusion (23.3 s) is split out as sail.O1sgMain, report-only until fixed."
+  }
 }
