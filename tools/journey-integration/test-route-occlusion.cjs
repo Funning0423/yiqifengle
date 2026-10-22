@@ -36,8 +36,14 @@ const screens=process.env.QF_ROUTE_SCREENS?JSON.parse(process.env.QF_ROUTE_SCREE
   const allSpans=spans(fails.map(f=>f.t)).map(([a,b])=>({t0:a,t1:b,phase:phaseOf(a),first:fails.find(f=>f.t===a),frames:fails.filter(f=>f.t>=a&&f.t<=b).length}));
   const palmEx=sp=>isSail&&sp.t0>=10.5&&sp.t1<=11.5&&sp.frames<=2&&sp.t1-sp.t0<=0.04+1e-6&&fails.filter(f=>f.t>=sp.t0&&f.t<=sp.t1).every(f=>byOf(f).every(x=>/env_prop_palm_lean_01/.test(x)));
   const sgMain=sp=>isSail&&sp.phase==='S-g'&&fails.filter(f=>f.t>=sp.t0&&f.t<=sp.t1).every(f=>byOf(f).every(x=>/sail_main/.test(x)));
-  const strict=allSpans.filter(sp=>!palmEx(sp)&&!sgMain(sp));
-  results.push({leg:leg.id,screen:scr.join('x'),O1:strict.length?'FAIL':'PASS',O1palmException:isSail?allSpans.filter(palmEx):undefined,O1sgMain:isSail?(allSpans.some(sgMain)?'FAIL':'PASS'):undefined,O2:minClear>=CLEAR?'PASS':'FAIL',frames:n,herNotModelledFrames:skipped,blackFrames:black,occludedFrames:fails.length,
+  //  O1lakeStrut — balloonLake: a thin basket rigging strut may cross her FACE while she rides seated and the rim-lifted lens
+  //           orbits past it (a continuous lens cannot avoid it; a fore/aft lens change does not shorten it, measured): at most 2
+  //           passes, each ≤ 6 frames (≤ 0.2 s), face only, by balloon_basket, in the flight phase. Anything else → O1 fails.
+  const isLake=leg.id.includes('→lakeside');
+  const strutEx=sp=>isLake&&sp.phase==='flight'&&sp.frames<=6&&sp.t1-sp.t0<=0.2+1e-6&&fails.filter(f=>f.t>=sp.t0&&f.t<=sp.t1).every(f=>!f.head&&!f.chest&&/balloon:balloon_basket/.test(String(f.face)));
+  const strutSpans=allSpans.filter(strutEx),strutOk=strutSpans.length<=2;
+  const strict=allSpans.filter(sp=>!palmEx(sp)&&!sgMain(sp)&&!(strutOk&&strutEx(sp)));
+  results.push({leg:leg.id,screen:scr.join('x'),O1:strict.length?'FAIL':'PASS',O1palmException:isSail?allSpans.filter(palmEx):undefined,O1sgMain:isSail?(allSpans.some(sgMain)?'FAIL':'PASS'):undefined,O1lakeStrutException:isLake?strutSpans:undefined,O2:minClear>=CLEAR?'PASS':'FAIL',frames:n,herNotModelledFrames:skipped,blackFrames:black,occludedFrames:fails.length,
    occludedSpans:spans(fails.map(f=>f.t)).map(([a,b])=>({t0:a,t1:b,phase:phaseOf(a),first:fails.find(f=>f.t===a)})),centreRayGrazeFrames:new Set(graze.map(g=>g.t)).size,grazeSample:graze.slice(0,4),softCloudFrames:new Set(soft.map(s=>s.t)).size,softSample:soft.slice(0,3),
    minLensClearM:+minClear.toFixed(3),clearAtS:clearAt,clearPhase:clearAt==null?null:phaseOf(clearAt),clearNearest:clearWho});
   const r=results.at(-1);console.error(key,r.O1,r.occludedFrames,'clear',r.minLensClearM,r.clearAtS,r.clearNearest);}

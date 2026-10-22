@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T22:49:16.401Z",
+ "timeUTC": "2026-10-22T22:57:17.368Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
@@ -1212,7 +1212,31 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x844",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1lakeStrutException": [
+    {
+     "t0": 21.53,
+     "t1": 21.7,
+     "phase": "flight",
+     "first": {
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
+     },
+     "frames": 6
+    },
+    {
+     "t0": 21.97,
+     "t1": 22.13,
+     "phase": "flight",
+     "first": {
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     },
+     "frames": 6
+    }
+   ],
    "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
@@ -1273,7 +1297,31 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "414x896",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1lakeStrutException": [
+    {
+     "t0": 21.53,
+     "t1": 21.7,
+     "phase": "flight",
+     "first": {
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
+     },
+     "frames": 6
+    },
+    {
+     "t0": 21.97,
+     "t1": 22.13,
+     "phase": "flight",
+     "first": {
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     },
+     "frames": 6
+    }
+   ],
    "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
@@ -1334,7 +1382,31 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "360x780",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1lakeStrutException": [
+    {
+     "t0": 21.53,
+     "t1": 21.7,
+     "phase": "flight",
+     "first": {
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
+     },
+     "frames": 6
+    },
+    {
+     "t0": 21.97,
+     "t1": 22.13,
+     "phase": "flight",
+     "first": {
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     },
+     "frames": 6
+    }
+   ],
    "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
@@ -1395,7 +1467,31 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "375x667",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1lakeStrutException": [
+    {
+     "t0": 21.53,
+     "t1": 21.7,
+     "phase": "flight",
+     "first": {
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
+     },
+     "frames": 6
+    },
+    {
+     "t0": 21.97,
+     "t1": 22.13,
+     "phase": "flight",
+     "first": {
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     },
+     "frames": 6
+    }
+   ],
    "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
@@ -1456,7 +1552,31 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "320x568",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1lakeStrutException": [
+    {
+     "t0": 21.53,
+     "t1": 21.7,
+     "phase": "flight",
+     "first": {
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
+     },
+     "frames": 6
+    },
+    {
+     "t0": 21.97,
+     "t1": 22.13,
+     "phase": "flight",
+     "first": {
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     },
+     "frames": 6
+    }
+   ],
    "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
@@ -1517,7 +1637,31 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x520",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1lakeStrutException": [
+    {
+     "t0": 21.53,
+     "t1": 21.7,
+     "phase": "flight",
+     "first": {
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
+     },
+     "frames": 6
+    },
+    {
+     "t0": 21.97,
+     "t1": 22.13,
+     "phase": "flight",
+     "first": {
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     },
+     "frames": 6
+    }
+   ],
    "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
@@ -1578,7 +1722,31 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "768x1024",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1lakeStrutException": [
+    {
+     "t0": 21.53,
+     "t1": 21.7,
+     "phase": "flight",
+     "first": {
+      "t": 21.53,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (6/9)"
+     },
+     "frames": 6
+    },
+    {
+     "t0": 21.97,
+     "t1": 22.13,
+     "phase": "flight",
+     "first": {
+      "t": 21.97,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     },
+     "frames": 6
+    }
+   ],
    "O2": "PASS",
    "frames": 1038,
    "herNotModelledFrames": 236,
