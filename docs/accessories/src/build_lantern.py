@@ -28,15 +28,21 @@ def tube(path,r,n=4,tag='bail'):
         for k in range(n):
             a=base+i*n+k;b=base+i*n+(k+1)%n;F.extend([(a,a+n,b+n),(a,b+n,b)])
 # 握把：沿 Z 的 6 棱柱，长 3.6cm
-prism([0,0,0],GR,-0.018,0.018,n=6,axis='z',tag='grip')
+GH=float(os.environ.get('GRIPL','0.036'))/2   # v3：握把半长（默认 v2 的 18 mm）
+prism([0,0,0],GR,-GH,GH,n=6,axis='z',tag='grip',sub=max(1,int(round(GH/0.009))))
 # 吊环：U 形，从握把两端下到灯顶钮（总下垂 BAIL）
 top=-BAIL;path=[]
 for i in range(9):
     s=i/8;a=math.pi*s;path.append([0.0,top*0.5+(-top*0.5+0.004)*math.sin(a)*0+0,0])
-path=[]
-for i in range(7):  # 半椭圆环：顶在握把内（y=+0.003），两脚落到灯顶钮 y=top
-    a=math.pi*i/6;path.append([0,top+(0.003-top)*math.sin(a),float(os.environ.get('BAILW','0.016'))*math.cos(a)])
-tube(path,0.0022,4,'bail')
+if os.environ.get('LEGS'):   # v3：两根直脚，从握把两端（掌外侧）竖直下到 LEGS 深度，再斜收到顶钮
+    yd=-float(os.environ['LEGS'])
+    for sgn in (1,-1):
+        tube([[0,0.0,sgn*GH],[0,yd,sgn*GH],[0,top+0.0005,sgn*0.005]],0.0022,4,'bail')
+else:
+    path=[]
+    for i in range(7):  # 半椭圆环：顶在握把内（y=+0.003），两脚落到灯顶钮 y=top
+        a=math.pi*i/6;path.append([0,top+(0.003-top)*math.sin(a),float(os.environ.get('BAILW','0.016'))*math.cos(a)])
+    tube(path,0.0022,4,'bail')
 y0=top  # 灯顶
 # 顶钮
 prism([0,y0,0],0.008,-0.008,0.0,n=6,tag='frame')
