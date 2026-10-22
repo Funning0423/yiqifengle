@@ -1,0 +1,1 @@
+{"keys": {"rot": 1291, "tr": 106, "t": 0}, "size": 3216764, "added": 40232, "anim_bytes": 26012, "clips": {"lantern_pick_up_stand": {"channels": 32, "steps": {"const": 10, "n2": 10, "n7": 8, "n1": 2, "n6": 2}, "max_err": 0.1987}, "lantern_put_down_stand": {"channels": 32, "steps": {"const": 10, "n2": 9, "n7": 7, "n1": 3, "n6": 3}, "max_err": 0.1988}}}

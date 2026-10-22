@@ -1,0 +1,127 @@
+{
+ "note": "灯塔子包 lighthouse_lantern_stand.glb 的 clip 元数据（合入 anim_meta.clips）；全身 base 层；loop=false",
+ "platform": {
+  "h": 0.4,
+  "top_size_xz": [
+   0.22,
+   0.22
+  ],
+  "lamp_bottom_center_root": [
+   -0.2,
+   0.4,
+   0.36
+  ],
+  "yaw_root_deg": 0.0
+ },
+ "socket_lantern_rot_proposal": {
+  "hand_local_xyzw": [
+   -0.78587,
+   0.05101,
+   0.18423,
+   0.58811
+  ],
+  "delta_vs_old_xyzw_in_prop_frame": [
+   0.36361,
+   0.0,
+   -0.05073,
+   0.93017
+  ],
+  "angle_deg": 43.08
+ },
+ "clips": {
+  "lantern_pick_up_stand": {
+   "duration_s": 2.0667,
+   "loop": false,
+   "attach_frame": 31,
+   "attach_t": 1.0333,
+   "morph": {
+    "curves": {
+     "lantern_hold_R": [
+      [
+       0,
+       0
+      ],
+      [
+       0.8667,
+       0
+      ],
+      [
+       1.0333,
+       1
+      ],
+      [
+       2.0667,
+       1
+      ]
+     ]
+    }
+   },
+   "lantern_settle": [
+    [
+     0,
+     1
+    ],
+    [
+     1.0333,
+     1
+    ],
+    [
+     1.3333,
+     0
+    ],
+    [
+     2.0667,
+     0
+    ]
+   ],
+   "lantern_layer_weight": "0 → 1 at end (clip end = idle_breathing_loop_lantern f0)"
+  },
+  "lantern_put_down_stand": {
+   "duration_s": 2.3333,
+   "loop": false,
+   "attach_frame": 34,
+   "attach_t": 1.1333,
+   "morph": {
+    "curves": {
+     "lantern_hold_R": [
+      [
+       0,
+       1
+      ],
+      [
+       1.1333,
+       1
+      ],
+      [
+       1.3333,
+       0
+      ],
+      [
+       2.3333,
+       0
+      ]
+     ]
+    }
+   },
+   "lantern_settle": [
+    [
+     0,
+     0
+    ],
+    [
+     0.8667,
+     0
+    ],
+    [
+     1.1,
+     1
+    ],
+    [
+     2.3333,
+     1
+    ]
+   ],
+   "lantern_layer_weight": "1 → 0 at start (clip start = idle_breathing_loop_lantern f0, end = idle_breathing_loop f0)"
+  }
+ }
+}

@@ -1,0 +1,85 @@
+{
+ "qa_a": {
+  "frames": 474,
+  "clips": [
+   "idle_breathing_loop",
+   "walk_loop",
+   "walk_start"
+  ],
+  "hit_frames": {},
+  "min_cloth_gap_mm": 39.0,
+  "grip_rel_deg_max": 0.0,
+  "body_tilt_deg_max": 5.52,
+  "pend_deg_max": 5.11
+ },
+ "qa_b": {
+  "frames": 408,
+  "clips": [
+   "walk_stop_bodyL",
+   "walk_stop_bodyR",
+   "walk_turn_90_bodyL"
+  ],
+  "hit_frames": {},
+  "min_cloth_gap_mm": 75.8,
+  "grip_rel_deg_max": 0.0,
+  "body_tilt_deg_max": 8.03,
+  "pend_deg_max": 7.44
+ },
+ "qa_c": {
+  "frames": 408,
+  "clips": [
+   "walk_turn_180",
+   "walk_turn_180_bodyR",
+   "walk_turn_90_bodyR"
+  ],
+  "hit_frames": {},
+  "min_cloth_gap_mm": 68.8,
+  "grip_rel_deg_max": 0.0,
+  "body_tilt_deg_max": 11.13,
+  "pend_deg_max": 7.99
+ },
+ "qa_xf": {
+  "frames": 328,
+  "clips": [
+   "idle_breathing_loop>walk_start",
+   "walk_loop",
+   "walk_loop>walk_stop_bodyL",
+   "walk_loop>walk_stop_bodyR",
+   "walk_loop>walk_turn_180",
+   "walk_loop>walk_turn_180_bodyR",
+   "walk_loop>walk_turn_90_bodyL",
+   "walk_loop>walk_turn_90_bodyR",
+   "walk_start>walk_loop",
+   "walk_stop_bodyL>idle_breathing_loop",
+   "walk_stop_bodyR>idle_breathing_loop",
+   "walk_turn_180>walk_loop",
+   "walk_turn_180_bodyR>walk_loop",
+   "walk_turn_90_bodyL>walk_loop",
+   "walk_turn_90_bodyR>walk_loop"
+  ],
+  "hit_frames": {},
+  "min_cloth_gap_mm": 54.6,
+  "grip_rel_deg_max": 0.0,
+  "body_tilt_deg_max": 8.65,
+  "pend_deg_max": 7.99
+ },
+ "stress": {
+  "frames": 1290,
+  "clips": [
+   "idle_breathing_loop",
+   "walk_loop",
+   "walk_start",
+   "walk_stop_bodyL",
+   "walk_stop_bodyR",
+   "walk_turn_180",
+   "walk_turn_180_bodyR",
+   "walk_turn_90_bodyL",
+   "walk_turn_90_bodyR"
+  ],
+  "hit_frames": {},
+  "min_cloth_gap_mm": 25.8,
+  "grip_rel_deg_max": 0.0,
+  "body_tilt_deg_max": 0,
+  "pend_deg_max": 8.0
+ }
+}
