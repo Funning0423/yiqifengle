@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T20:19:46.198Z",
+ "timeUTC": "2026-10-22T21:35:18.048Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
@@ -22,46 +22,39 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x844",
-   "O1": "FAIL",
-   "O2": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
+   "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 6,
+   "occludedFrames": 5,
    "occludedSpans": [
     {
-     "t0": 10.4,
-     "t1": 10.4,
+     "t0": 10.97,
+     "t1": 11,
      "phase": "S-c",
      "first": {
-      "t": 10.4,
+      "t": 10.97,
       "pose": "seated",
       "face": "island:env_prop_palm_lean_01 (9/9)",
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.9,
-     "t1": 13.9,
-     "phase": "S-d",
-     "first": {
-      "t": 13.9,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (9/9)",
-      "head": "island:env_prop_palm_lean_01 (9/9)",
-      "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.97,
-     "t1": 13.97,
-     "phase": "S-d",
-     "first": {
-      "t": 13.97,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (5/9)",
-      "head": "island:env_prop_palm_lean_01 (7/9)"
      }
     },
     {
@@ -75,79 +68,72 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 14,
+   "centreRayGrazeFrames": 13,
    "grazeSample": [
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "face",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "head",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "chest",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 13.9,
-     "k": "face",
+     "t": 11,
+     "k": "head",
      "by": "island:env_prop_palm_lean_01"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 0.035,
-   "clearAtS": 13.8,
-   "clearPhase": "S-d",
-   "clearNearest": "island:env_prop_palm_lean_01"
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
   },
   {
    "leg": "sail island→meadow",
    "screen": "414x896",
-   "O1": "FAIL",
-   "O2": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
+   "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 6,
+   "occludedFrames": 5,
    "occludedSpans": [
     {
-     "t0": 10.4,
-     "t1": 10.4,
+     "t0": 10.97,
+     "t1": 11,
      "phase": "S-c",
      "first": {
-      "t": 10.4,
+      "t": 10.97,
       "pose": "seated",
       "face": "island:env_prop_palm_lean_01 (9/9)",
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.9,
-     "t1": 13.9,
-     "phase": "S-d",
-     "first": {
-      "t": 13.9,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (9/9)",
-      "head": "island:env_prop_palm_lean_01 (9/9)",
-      "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.97,
-     "t1": 13.97,
-     "phase": "S-d",
-     "first": {
-      "t": 13.97,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (5/9)",
-      "head": "island:env_prop_palm_lean_01 (7/9)"
      }
     },
     {
@@ -161,79 +147,72 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 14,
+   "centreRayGrazeFrames": 13,
    "grazeSample": [
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "face",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "head",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "chest",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 13.9,
-     "k": "face",
+     "t": 11,
+     "k": "head",
      "by": "island:env_prop_palm_lean_01"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 0.035,
-   "clearAtS": 13.8,
-   "clearPhase": "S-d",
-   "clearNearest": "island:env_prop_palm_lean_01"
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
   },
   {
    "leg": "sail island→meadow",
    "screen": "360x780",
-   "O1": "FAIL",
-   "O2": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
+   "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 6,
+   "occludedFrames": 5,
    "occludedSpans": [
     {
-     "t0": 10.4,
-     "t1": 10.4,
+     "t0": 10.97,
+     "t1": 11,
      "phase": "S-c",
      "first": {
-      "t": 10.4,
+      "t": 10.97,
       "pose": "seated",
       "face": "island:env_prop_palm_lean_01 (9/9)",
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.9,
-     "t1": 13.9,
-     "phase": "S-d",
-     "first": {
-      "t": 13.9,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (9/9)",
-      "head": "island:env_prop_palm_lean_01 (9/9)",
-      "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.97,
-     "t1": 13.97,
-     "phase": "S-d",
-     "first": {
-      "t": 13.97,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (5/9)",
-      "head": "island:env_prop_palm_lean_01 (7/9)"
      }
     },
     {
@@ -247,79 +226,72 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 14,
+   "centreRayGrazeFrames": 13,
    "grazeSample": [
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "face",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "head",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "chest",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 13.9,
-     "k": "face",
+     "t": 11,
+     "k": "head",
      "by": "island:env_prop_palm_lean_01"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 0.035,
-   "clearAtS": 13.8,
-   "clearPhase": "S-d",
-   "clearNearest": "island:env_prop_palm_lean_01"
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
   },
   {
    "leg": "sail island→meadow",
    "screen": "375x667",
-   "O1": "FAIL",
-   "O2": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
+   "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 6,
+   "occludedFrames": 5,
    "occludedSpans": [
     {
-     "t0": 10.4,
-     "t1": 10.4,
+     "t0": 10.97,
+     "t1": 11,
      "phase": "S-c",
      "first": {
-      "t": 10.4,
+      "t": 10.97,
       "pose": "seated",
       "face": "island:env_prop_palm_lean_01 (9/9)",
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.9,
-     "t1": 13.9,
-     "phase": "S-d",
-     "first": {
-      "t": 13.9,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (9/9)",
-      "head": "island:env_prop_palm_lean_01 (9/9)",
-      "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.97,
-     "t1": 13.97,
-     "phase": "S-d",
-     "first": {
-      "t": 13.97,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (5/9)",
-      "head": "island:env_prop_palm_lean_01 (7/9)"
      }
     },
     {
@@ -333,79 +305,72 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 14,
+   "centreRayGrazeFrames": 13,
    "grazeSample": [
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "face",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "head",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "chest",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 13.9,
-     "k": "face",
+     "t": 11,
+     "k": "head",
      "by": "island:env_prop_palm_lean_01"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 0.035,
-   "clearAtS": 13.8,
-   "clearPhase": "S-d",
-   "clearNearest": "island:env_prop_palm_lean_01"
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
   },
   {
    "leg": "sail island→meadow",
    "screen": "320x568",
-   "O1": "FAIL",
-   "O2": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
+   "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 6,
+   "occludedFrames": 5,
    "occludedSpans": [
     {
-     "t0": 10.4,
-     "t1": 10.4,
+     "t0": 10.97,
+     "t1": 11,
      "phase": "S-c",
      "first": {
-      "t": 10.4,
+      "t": 10.97,
       "pose": "seated",
       "face": "island:env_prop_palm_lean_01 (9/9)",
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.9,
-     "t1": 13.9,
-     "phase": "S-d",
-     "first": {
-      "t": 13.9,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (9/9)",
-      "head": "island:env_prop_palm_lean_01 (9/9)",
-      "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.97,
-     "t1": 13.97,
-     "phase": "S-d",
-     "first": {
-      "t": 13.97,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (5/9)",
-      "head": "island:env_prop_palm_lean_01 (7/9)"
      }
     },
     {
@@ -419,79 +384,72 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 14,
+   "centreRayGrazeFrames": 13,
    "grazeSample": [
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "face",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "head",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "chest",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 13.9,
-     "k": "face",
+     "t": 11,
+     "k": "head",
      "by": "island:env_prop_palm_lean_01"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 0.035,
-   "clearAtS": 13.8,
-   "clearPhase": "S-d",
-   "clearNearest": "island:env_prop_palm_lean_01"
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
   },
   {
    "leg": "sail island→meadow",
    "screen": "390x520",
-   "O1": "FAIL",
-   "O2": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
+   "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 6,
+   "occludedFrames": 5,
    "occludedSpans": [
     {
-     "t0": 10.4,
-     "t1": 10.4,
+     "t0": 10.97,
+     "t1": 11,
      "phase": "S-c",
      "first": {
-      "t": 10.4,
+      "t": 10.97,
       "pose": "seated",
       "face": "island:env_prop_palm_lean_01 (9/9)",
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.9,
-     "t1": 13.9,
-     "phase": "S-d",
-     "first": {
-      "t": 13.9,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (9/9)",
-      "head": "island:env_prop_palm_lean_01 (9/9)",
-      "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.97,
-     "t1": 13.97,
-     "phase": "S-d",
-     "first": {
-      "t": 13.97,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (5/9)",
-      "head": "island:env_prop_palm_lean_01 (7/9)"
      }
     },
     {
@@ -505,79 +463,72 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 14,
+   "centreRayGrazeFrames": 13,
    "grazeSample": [
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "face",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "head",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "chest",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 13.9,
-     "k": "face",
+     "t": 11,
+     "k": "head",
      "by": "island:env_prop_palm_lean_01"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 0.035,
-   "clearAtS": 13.8,
-   "clearPhase": "S-d",
-   "clearNearest": "island:env_prop_palm_lean_01"
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
   },
   {
    "leg": "sail island→meadow",
    "screen": "768x1024",
-   "O1": "FAIL",
-   "O2": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
+   "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 6,
+   "occludedFrames": 5,
    "occludedSpans": [
     {
-     "t0": 10.4,
-     "t1": 10.4,
+     "t0": 10.97,
+     "t1": 11,
      "phase": "S-c",
      "first": {
-      "t": 10.4,
+      "t": 10.97,
       "pose": "seated",
       "face": "island:env_prop_palm_lean_01 (9/9)",
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.9,
-     "t1": 13.9,
-     "phase": "S-d",
-     "first": {
-      "t": 13.9,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (9/9)",
-      "head": "island:env_prop_palm_lean_01 (9/9)",
-      "chest": "island:env_prop_palm_lean_01 (9/9)"
-     }
-    },
-    {
-     "t0": 13.97,
-     "t1": 13.97,
-     "phase": "S-d",
-     "first": {
-      "t": 13.97,
-      "pose": "seated",
-      "face": "island:env_prop_palm_lean_01 (5/9)",
-      "head": "island:env_prop_palm_lean_01 (7/9)"
      }
     },
     {
@@ -591,35 +542,35 @@
      }
     }
    ],
-   "centreRayGrazeFrames": 14,
+   "centreRayGrazeFrames": 13,
    "grazeSample": [
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "face",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "head",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 10.4,
+     "t": 10.97,
      "k": "chest",
      "by": "island:env_prop_palm_lean_01"
     },
     {
-     "t": 13.9,
-     "k": "face",
+     "t": 11,
+     "k": "head",
      "by": "island:env_prop_palm_lean_01"
     }
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 0.035,
-   "clearAtS": 13.8,
-   "clearPhase": "S-d",
-   "clearNearest": "island:env_prop_palm_lean_01"
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
   },
   {
    "leg": "balloon meadow→skycity",
