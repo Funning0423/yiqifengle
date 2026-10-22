@@ -12,13 +12,14 @@ import sys,numpy as np
 from PIL import Image
 from scipy.ndimage import uniform_filter,gaussian_filter
 BOARD=(52,445,697,1092)                     # x0,y0,x1,y1 托盘（v2.4：改为实际托盘位置；有关卡 json 时由 compose_region.tray_box() 导出）
-import os,re,json,subprocess
+import os,re,json
 _HERE=os.path.dirname(os.path.abspath(__file__))
 def board_box(p):
+    # v2.5：托盘框从 preview-levels/<关卡>.json 的 "tray" 读取（compose_region.tray_box() 量得，R6_RAW 素材见 README）；读不到时退回默认框并打印 WARN
     m=re.search(r'(L\d+)',os.path.basename(p)); lv=m and os.path.join(_HERE,'..','preview-levels',m.group(1)+'.json')
-    if not lv or not os.path.exists(lv): return BOARD
-    try: return tuple(json.loads(subprocess.run([sys.executable,os.path.join(_HERE,'compose_region.py'),lv,'/dev/null'],env={**os.environ,'TRAY_BOX_ONLY':'1'},capture_output=True,text=True,check=True).stdout))
-    except Exception: return BOARD
+    try: return tuple(json.load(open(lv))['tray'])
+    except Exception:
+        print('  WARN 托盘框：%s 没有 tray 坐标，退回默认框 %s'%(lv or os.path.basename(p),BOARD)); return BOARD
 REG={'grass':(40,1160,710,1340),'trees':(0,330,750,430),'roof_left':[(0,440,52,860),(52,440,140,505)],'water_left':(0,680,44,780)}
 def sal(g):
     F=np.fft.fft2(g);L=np.log(np.abs(F)+1e-9);P=np.angle(F);R=L-uniform_filter(L,3)
