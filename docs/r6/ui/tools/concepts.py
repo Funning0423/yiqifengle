@@ -28,7 +28,8 @@ def card(key):
     for r in range(7):
         for q in range(7):
             X,Y=x0+22+q*c+c//2,y0+22+r*c+c//2
-            if [r,q] in p['obs_cells']: d.ellipse([X-24,Y-24,X+24,Y+24],fill=hx(p['obs']),outline=hx(p['obs_edge']),width=3); d.ellipse([X-6,Y-6,X+6,Y+6],fill=hx(p['obs_accent']))
+            if [r,q] in p['obs_cells']:   # v2：障碍画成贴格的扁平覆盖层（不是圆形棋子），压低明度 + 浅色边圈
+                d.rounded_rectangle([X-c//2+5,Y-c//2+5,X+c//2-5,Y+c//2-5],9,fill=hx(p['obs']),outline=hx(p['obs_edge']),width=3); d.ellipse([X-5,Y-5,X+5,Y+5],fill=hx(p['obs_accent']))
             else: col=hx(pc[rng.integers(6)]); d.ellipse([X-18,Y-18,X+18,Y+18],fill=col); d.ellipse([X-10,Y-14,X-2,Y-6],fill=tuple(min(255,v+70) for v in col))
     # HUD
     d.rounded_rectangle([130,80,430,190],22,fill=hx(p['hud_edge'])); d.rounded_rectangle([138,86,422,180],18,fill=hx(p['hud']))
