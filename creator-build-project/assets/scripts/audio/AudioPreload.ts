@@ -5,29 +5,30 @@
 import { AudioClip, assetManager } from 'cc';
 
 const cache: { [key: string]: AudioClip } = {};
-const pending: { [key: string]: Promise<AudioClip | null> } = {};
+const pending: { [key: string]: Promise<void> } = {};
 const key = (bundle: string, path: string) => bundle + '|' + path;
 
 export function audioPreloadDisabled(): boolean { return (globalThis as any).__qfAudioPreloadOff === true; }
 /** Synchronous: the preloaded clip, or null. Never loads. */
 export function preloadedClip(bundle: string, path: string): AudioClip | null { return cache[key(bundle, path)] || null; }
 
-function loadBundle(name: string): Promise<any> {
-  const have = assetManager.getBundle(name); if (have) return Promise.resolve(have);
-  return new Promise((ok, bad) => assetManager.loadBundle(name, (e: any, b: any) => (e || !b ? bad(e || Error('no bundle ' + name)) : ok(b))));
-}
-/** Preload clips of one bundle into the cache (addRef'd once, held for the session). Never rejects. */
+/** Preload clips of one bundle into the cache (addRef'd once, held for the session). Callback-chained (no microtask hop
+ *  between the bundle and its clips). Never rejects. */
 export function preloadAudio(bundle: string, paths: readonly string[]): Promise<void> {
   if (audioPreloadDisabled()) return Promise.resolve();
-  const todo = paths.filter(p => !cache[key(bundle, p)]);
-  if (!todo.length) return Promise.resolve();
-  return loadBundle(bundle).then(b => Promise.all(todo.map(p => {
-    const k = key(bundle, p);
-    if (!pending[k]) pending[k] = new Promise<AudioClip | null>(ok => b.load(p, AudioClip, (err: any, clip: AudioClip) => {
-      if (err || !clip) { delete pending[k]; ok(null); return; } clip.addRef(); cache[k] = clip; ok(clip);
-    }));
-    return pending[k];
-  }))).then(() => {}, err => { try { console.warn('[QF_AUDIO_PRELOAD] ' + bundle + ' failed: ' + String(err)); } catch { /* log only */ } });
+  const todo = paths.filter(p => !cache[key(bundle, p)] && !pending[key(bundle, p)]);
+  if (!todo.length) return Promise.all(paths.map(p => pending[key(bundle, p)])).then(() => {});
+  let release: () => void = () => {};
+  const all = new Promise<void>(ok => { release = ok; });
+  let left = todo.length;
+  const done = () => { if (--left <= 0) release(); };
+  const pull = (b: any) => { for (let i = 0; i < todo.length; i++) { const p = todo[i], k = key(bundle, p);
+    b.load(p, AudioClip, (err: any, clip: AudioClip) => { if (!err && clip) { clip.addRef(); cache[k] = clip; } else { try { console.warn('[QF_AUDIO_PRELOAD] ' + k + ' failed: ' + String(err)); } catch { /* log */ } } delete pending[k]; done(); }); } };
+  for (let i = 0; i < todo.length; i++) pending[key(bundle, todo[i])] = all as any;
+  const have = assetManager.getBundle(bundle);
+  if (have) pull(have);
+  else assetManager.loadBundle(bundle, (e: any, b: any) => { if (e || !b) { try { console.warn('[QF_AUDIO_PRELOAD] bundle ' + bundle + ' failed: ' + String(e)); } catch { /* log */ } for (let i = 0; i < todo.length; i++) delete pending[key(bundle, todo[i])]; release(); return; } pull(b); });
+  return all;
 }
 type Preloader = () => Promise<void>;
 const preloaders: Preloader[] = [];

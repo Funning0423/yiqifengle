@@ -54,11 +54,12 @@ function musicWorld(opts) {
     files['audio/AmbienceAudio.ts'] = tr('audio/AmbienceAudio.ts');
     files['audio/BedLayerCore.ts'] = tr('audio/BedLayerCore.ts');
     files['audio/BedLayerAudio.ts'] = tr('audio/BedLayerAudio.ts');
+    files['audio/AudioPreload.ts'] = tr('audio/AudioPreload.ts');
   }
   const mods = {};
   const req = from => id => {
     if (id === 'cc') return cc;
-    const key = { './GameAudio': 'audio/GameAudio.ts', './SceneAudioTable': 'audio/SceneAudioTable.ts', './AmbienceAudio': 'audio/AmbienceAudio.ts', './BedLayerCore': 'audio/BedLayerCore.ts', './SceneMusic': 'audio/SceneMusic.ts', '../world-r2/LevelRegion': 'world-r2/LevelRegion.ts' }[id];
+    const key = { './GameAudio': 'audio/GameAudio.ts', './SceneAudioTable': 'audio/SceneAudioTable.ts', './AmbienceAudio': 'audio/AmbienceAudio.ts', './BedLayerCore': 'audio/BedLayerCore.ts', './AudioPreload': 'audio/AudioPreload.ts', './SceneMusic': 'audio/SceneMusic.ts', '../world-r2/LevelRegion': 'world-r2/LevelRegion.ts' }[id];
     if (!key) throw Error('unexpected ' + id + ' from ' + from);
     return load(key);
   };
@@ -72,6 +73,7 @@ function musicWorld(opts) {
   scene.byName.WorldIntegrationBoot = [{ valid: true }];
   onceCbs[0]();
   if (BL) BL.BedLayerAudio.ensure();
+  if (BL) load('audio/AudioPreload.ts').preloadRideAudio()/* b16: beds are warmed on the board, never loaded from update() */;
   const snap = { state: 'home', stable: 'home', journey: { target: null, phase: 'idle', region: 'island' } };
   scene.byName.WorldFlowComponent = [{ valid: true, commands: () => ({ snapshot: () => snap }) }];
   const step = (sec, dt = 1 / 60) => { for (let t = 0; t < sec - 1e-9; t += dt) { now += dt * 1000; for (const s of sources) s.advance(dt); for (const c of a.node.comps) if (typeof c.update === 'function') c.update(dt); } };

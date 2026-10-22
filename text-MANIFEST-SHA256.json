@@ -2055,6 +2055,16 @@
     "sha256": "ba54f9b38e583a78d2dc43f62d18a00d85d9b1f96980884211b9753dab30bea7"
   },
   {
+    "path": "creator-build-project/assets/scripts/audio/AudioPreload.ts",
+    "bytes": 3272,
+    "sha256": "6cd597de505b7a1b414c315b95d66f2050158ba289287ff3be0ec0b3e44dbb67"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/audio/AudioPreload.ts.meta",
+    "bytes": 171,
+    "sha256": "b801d1aa374beb4d184ea9ffdfccde5f27734e4843ebb4d48eef65173f9d3abc"
+  },
+  {
     "path": "creator-build-project/assets/scripts/audio/AudioUnlock.ts",
     "bytes": 7424,
     "sha256": "6f8cd1a19ed11a7cee08ab27037413f360016b6f350457f462453e7011f0011a"
@@ -3718,6 +3728,16 @@
     "path": "creator-build-project/assets/scripts/world-r1/IslandRail.ts.meta",
     "bytes": 171,
     "sha256": "c3a35edb686feb59fbed5450428f512227132bd217719ab2fba5c967b07292a8"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/QfDebugSwitches.ts",
+    "bytes": 1571,
+    "sha256": "37a96eb94d79d62bd2ee6c33aa16bcb881fa8132beb394fa8e1ebe8b07189f68"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/QfDebugSwitches.ts.meta",
+    "bytes": 171,
+    "sha256": "7cf36c531bfbfddb4415eb7dca941d2541b380d4018d938f6a677e2d9173c223"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/R4LevelBridge.ts",
