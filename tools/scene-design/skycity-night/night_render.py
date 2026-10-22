@@ -68,9 +68,10 @@ def state(s):
     g=(1,1,1)
     if after:
       if name.startswith('chr__'):g=(0.325,)*3
-      elif name.startswith('sea__'):g=(.22,.26,.36)
+      elif name.startswith('sea__'):g=(.35,.40,.55)
       elif name.startswith('M_sky_palette_emissive'):g=(1,1,1)
-      elif name.startswith(('M_sky_palette','M_sky_foliage','M_sky_rock','M_sky_cloud')):g=(.06,.08,.12)
+      elif name.startswith('M_sky_rock_strata'):g=(.55,.60,.75)
+      elif name.startswith(('M_sky_palette','M_sky_foliage','M_sky_cloud')):g=(.08,.10,.15)
     mixn.inputs['B'].default_value=(*g,1)
 rim=b(A['anchor_cloudbridge_end']);court=b(A['anchor_starcourt_center']);d=(court-rim);d.z=0;d.normalize()
 shots={'board':(b(P['board']['position']),b(P['board']['target']),P['board']['fovVerticalDeg']),
@@ -81,4 +82,4 @@ for st in ('day','night_before','night_after'):
     keyE=key.energy
     if n=='arrival':key.energy=0  # the journey city has no board key light
     cam.location=pos;cam.rotation_euler=(tgt-pos).to_track_quat('-Z','Y').to_euler();cd.angle=math.radians(fov)
-    sc.render.filepath='/workspace/b16night/r3_%s_%s.png'%(n,st);bpy.ops.render.render(write_still=True);print('SHOT',n,st);key.energy=keyE
+    sc.render.filepath='/workspace/b16night/r4_%s_%s.png'%(n,st);bpy.ops.render.render(write_still=True);print('SHOT',n,st);key.energy=keyE

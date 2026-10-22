@@ -26,7 +26,7 @@ export function gradeSkycityNight(root:Node|null,w:number,force=false,inCloudsea
    const home=h.get(i)!,b=home.scale,a=home.albedo;
    if(kind==='cloud'||kind==='lamp'){const f=kind==='cloud'?s.cloud:[s.lamp,s.lamp,s.lamp];try{m.setProperty('emissiveScale',new Vec3(b.x*f[0],b.y*f[1],b.z*f[2]));}catch{/* */}}
    // albedo: lit ground follows the meadow night grade (ambient is not dimmed outdoors); lamps keep their albedo.
-   const g=kind==='ground'||kind==='cloud'?s.ground:kind==='prop'?[s.prop,s.prop,s.prop]:kind==='sea'?s.sea:null;
+   const g=kind==='ground'||kind==='cloud'?s.ground:kind==='prop'?[s.prop,s.prop,s.prop]:kind==='sea'?s.sea:kind==='underside'?s.underside:null;
    if(g){try{m.setProperty('albedoScale',new Vec3(a.x*g[0],a.y*g[1],a.z*g[2]));}catch{/* */}}
   }}});
  return true;}

@@ -2996,8 +2996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightApply.ts",
-    "bytes": 3972,
-    "sha256": "0fc4a0560ba33e68264dcc8744c628ec73363518218eaabf56243f304ab1bfbb"
+    "bytes": 4003,
+    "sha256": "50c4ebbf56d755509502a68e7cb0b07504a559db474ed739ad8429ddf66964b0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightApply.ts.meta",
@@ -3006,8 +3006,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightGrade.ts",
-    "bytes": 4515,
-    "sha256": "d6e5f6603060e2e5695efb2a06175cd1b8d2cf27a738b1d1552caffcfee7cedb"
+    "bytes": 5056,
+    "sha256": "1629c5b57c8148d89315010e4594caece9a785d34cb38905431042d602e8ea4f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightGrade.ts.meta",
