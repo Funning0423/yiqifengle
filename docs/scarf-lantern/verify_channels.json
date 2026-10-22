@@ -1,0 +1,161 @@
+{
+"clips": {
+"idle_breathing_loop": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"wind_flutter_loop": {
+"orig_channels_identical": 86,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"sit_hold": {
+"orig_channels_identical": 86,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"stand_up": {
+"orig_channels_identical": 86,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"sit_down": {
+"orig_channels_identical": 86,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"door_reach": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_turn_90_bodyL": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_turn_90_bodyR": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_turn_180": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_turn_180_bodyR": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_loop": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_start": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_stop_bodyL": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_stop_bodyR": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+},
+"walk_start_stepdown": {
+"orig_channels_identical": 32,
+"extra": [
+[
+"scarf.tail",
+"rotation"
+]
+]
+}
+},
+"bad": [],
+"nodes_same": true,
+"joints": [
+29,
+30
+],
+"meshes": [
+[
+"LOD0_G2_APRON",
+"LOD0_G2_BODY",
+"LOD0_G2_BOW",
+"LOD0_G2_DRESS"
+],
+[
+"LOD0_G2_APRON",
+"LOD0_G2_BODY",
+"LOD0_G2_BOW",
+"LOD0_G2_DRESS",
+"LOD0_G2_SCARF"
+]
+],
+"interp_explicit_new": 0
+}

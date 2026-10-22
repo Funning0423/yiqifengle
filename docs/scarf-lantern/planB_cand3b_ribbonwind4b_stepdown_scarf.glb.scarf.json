@@ -1,0 +1,397 @@
+{
+ "walk_loop": {
+  "frames": 44,
+  "keys": 11,
+  "err": 0.423,
+  "back_deg": [
+   -3.18,
+   2.48
+  ],
+  "lat_deg": [
+   2.88,
+   8.27
+  ],
+  "ends": [
+   [
+    1.68,
+    5.06
+   ],
+   [
+    1.68,
+    5.06
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 2.48,
+   "fwd_max": 20.68,
+   "lat_absmax": 18.21
+  }
+ },
+ "idle_breathing_loop": {
+  "frames": 55,
+  "keys": 3,
+  "err": 0.461,
+  "back_deg": [
+   -0.3,
+   0.13
+  ],
+  "lat_deg": [
+   -5.07,
+   -4.31
+  ],
+  "ends": [
+   [
+    0.02,
+    -4.88
+   ],
+   [
+    0.02,
+    -4.88
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 0.13,
+   "fwd_max": 17.8,
+   "lat_absmax": 15.02
+  }
+ },
+ "wind_flutter_loop": {
+  "frames": 121,
+  "keys": 42,
+  "err": 0.464,
+  "back_deg": [
+   -17.5,
+   -0.0
+  ],
+  "lat_deg": [
+   -9.95,
+   9.95
+  ],
+  "ends": [
+   [
+    -0.0,
+    0.0
+   ],
+   [
+    -0.0,
+    -0.0
+   ]
+  ]
+ },
+ "sit_hold": {
+  "frames": 61,
+  "keys": 2,
+  "err": 0.0,
+  "back_deg": [
+   -0.0,
+   0.0
+  ],
+  "lat_deg": [
+   -0.0,
+   -0.0
+  ],
+  "ends": [
+   [
+    0.0,
+    -0.0
+   ],
+   [
+    0.0,
+    -0.0
+   ]
+  ]
+ },
+ "stand_up": {
+  "frames": 39,
+  "keys": 15,
+  "err": 0.414,
+  "back_deg": [
+   -9.11,
+   2.82
+  ],
+  "lat_deg": [
+   -7.62,
+   0.23
+  ],
+  "ends": [
+   [
+    0.0,
+    -0.0
+   ],
+   [
+    0.0,
+    -4.81
+   ]
+  ]
+ },
+ "sit_down": {
+  "frames": 37,
+  "keys": 30,
+  "err": 0.331,
+  "back_deg": [
+   -34.26,
+   9.74
+  ],
+  "lat_deg": [
+   -14.32,
+   19.67
+  ],
+  "ends": [
+   [
+    0.0,
+    -4.81
+   ],
+   [
+    0.0,
+    -0.0
+   ]
+  ]
+ },
+ "door_reach": {
+  "frames": 61,
+  "keys": 17,
+  "err": 0.497,
+  "back_deg": [
+   -18.19,
+   1.89
+  ],
+  "lat_deg": [
+   -5.25,
+   3.68
+  ],
+  "ends": [
+   [
+    0.0,
+    -4.81
+   ],
+   [
+    0.0,
+    -4.81
+   ]
+  ]
+ },
+ "walk_turn_90_bodyL": {
+  "frames": 46,
+  "keys": 16,
+  "err": 0.413,
+  "back_deg": [
+   -3.81,
+   2.2
+  ],
+  "lat_deg": [
+   -1.73,
+   8.22
+  ],
+  "ends": [
+   [
+    1.68,
+    5.06
+   ],
+   [
+    1.68,
+    5.06
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 2.2,
+   "fwd_max": 21.31,
+   "lat_absmax": 18.17
+  }
+ },
+ "walk_turn_90_bodyR": {
+  "frames": 45,
+  "keys": 19,
+  "err": 0.48,
+  "back_deg": [
+   -4.08,
+   3.18
+  ],
+  "lat_deg": [
+   -2.76,
+   9.94
+  ],
+  "ends": [
+   [
+    1.68,
+    5.06
+   ],
+   [
+    1.68,
+    5.06
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 3.18,
+   "fwd_max": 21.58,
+   "lat_absmax": 19.89
+  }
+ },
+ "walk_turn_180": {
+  "frames": 46,
+  "keys": 30,
+  "err": 0.491,
+  "back_deg": [
+   -11.6,
+   9.97
+  ],
+  "lat_deg": [
+   -10.0,
+   9.98
+  ],
+  "ends": [
+   [
+    1.68,
+    5.06
+   ],
+   [
+    1.68,
+    5.06
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 9.97,
+   "fwd_max": 29.1,
+   "lat_absmax": 19.95
+  }
+ },
+ "walk_turn_180_bodyR": {
+  "frames": 45,
+  "keys": 26,
+  "err": 0.467,
+  "back_deg": [
+   -13.24,
+   0.0
+  ],
+  "lat_deg": [
+   -9.7,
+   10.0
+  ],
+  "ends": [
+   [
+    0.0,
+    5.06
+   ],
+   [
+    0.0,
+    5.06
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 0.0,
+   "fwd_max": 30.74,
+   "lat_absmax": 19.95
+  }
+ },
+ "walk_start": {
+  "frames": 59,
+  "keys": 27,
+  "err": 0.461,
+  "back_deg": [
+   -3.61,
+   7.58
+  ],
+  "lat_deg": [
+   -8.07,
+   9.46
+  ],
+  "ends": [
+   [
+    0.0,
+    -4.81
+   ],
+   [
+    1.68,
+    5.06
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 7.58,
+   "fwd_max": 21.11,
+   "lat_absmax": 19.41
+  }
+ },
+ "walk_stop_bodyL": {
+  "frames": 45,
+  "keys": 24,
+  "err": 0.436,
+  "back_deg": [
+   -8.86,
+   8.45
+  ],
+  "lat_deg": [
+   -9.61,
+   5.55
+  ],
+  "ends": [
+   [
+    1.68,
+    5.06
+   ],
+   [
+    0.0,
+    -4.81
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 8.45,
+   "fwd_max": 26.36,
+   "lat_absmax": 19.56
+  }
+ },
+ "walk_stop_bodyR": {
+  "frames": 45,
+  "keys": 24,
+  "err": 0.453,
+  "back_deg": [
+   -6.34,
+   6.65
+  ],
+  "lat_deg": [
+   -4.81,
+   5.35
+  ],
+  "ends": [
+   [
+    1.68,
+    5.06
+   ],
+   [
+    0.0,
+    -4.81
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 6.65,
+   "fwd_max": 23.84,
+   "lat_absmax": 15.3
+  }
+ },
+ "walk_start_stepdown": {
+  "frames": 53,
+  "keys": 25,
+  "err": 0.432,
+  "back_deg": [
+   -4.09,
+   9.07
+  ],
+  "lat_deg": [
+   -7.24,
+   8.77
+  ],
+  "ends": [
+   [
+    0.0,
+    -1.29
+   ],
+   [
+    1.68,
+    5.06
+   ]
+  ],
+  "with_wind_max": {
+   "back_max": 9.07,
+   "fwd_max": 21.59,
+   "lat_absmax": 18.72
+  }
+ }
+}

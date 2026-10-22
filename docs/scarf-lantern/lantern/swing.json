@@ -1,0 +1,10 @@
+{
+ "swing_1.00": {
+  "wrist_fore_aft_m": 0.203,
+  "wrist_lateral_m": 0.045
+ },
+ "swing_0.65": {
+  "wrist_fore_aft_m": 0.152,
+  "wrist_lateral_m": 0.044
+ }
+}

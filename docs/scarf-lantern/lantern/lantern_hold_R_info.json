@@ -1,0 +1,43 @@
+{
+ "tcut": 0.025661800357778018,
+ "p0": {
+  "moved": 150,
+  "max_mm": 88.8
+ },
+ "handle_min_clear_mm": -3.43,
+ "handle_min_clear_rest_mm": -3.79,
+ "handle_min_clear_curled_mm": 1.01,
+ "frame": {
+  "d": [
+   0.411,
+   0.91,
+   -0.05
+  ],
+  "n": [
+   0.719,
+   -0.357,
+   -0.596
+  ],
+  "w": [
+   0.561,
+   -0.209,
+   0.801
+  ],
+  "K": [
+   0.0028,
+   0.0836,
+   0.012
+  ]
+ },
+ "p1": {
+  "moved": 96,
+  "max_mm": 88.8
+ },
+ "p2": {
+  "moved": 96,
+  "max_mm": 88.8
+ },
+ "blender_verts_matched": 7454,
+ "blender_verts": 7454,
+ "finger_x_palm_pairs": 3
+}
