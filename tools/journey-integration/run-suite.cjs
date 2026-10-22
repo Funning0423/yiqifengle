@@ -122,6 +122,7 @@ const tests=[
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
+  ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],
  ['balloon-transport-flag','tools/journey-integration/test-transport-flag.cjs'],
  ['balloon-transit-background-resume','tools/journey-integration/test-transit-background-resume.cjs'],
  ['sky-arrival','tools/transitions/test_sky_arrival.cjs'],

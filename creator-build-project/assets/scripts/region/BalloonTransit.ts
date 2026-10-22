@@ -14,8 +14,8 @@ import {onDayNightChange} from '../world-r1/DayNightContract';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
- ISLET_NODES, ISLETS_ON_T, LAND_T, LIGHT_RAMP_T0, LIGHT_RAMP_YAW, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
+ ISLET_NODES, ISLETS_ON_T, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
+ SEAM_T, STRATA_OFF_T, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
  if(name==='sky-city-enable'||name==='sky-islets-enable'||name==='balloon-cloud-exit'||name==='balloon-land')return 'skycity';
@@ -313,8 +313,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   if(scene)eachNamed(scene,n=>{if(n.name==='env_sky_dome'||n.name==='meadow_sky_dome')domes.push(n);});
   // Keep meadow clouds / hills / gameplay look until unload. Only the meadow-local sky dome is suppressed (env_sky_dome is the live skybox).
   eachNamed(meadow,n=>{if(n.name==='meadow_sky_dome')n.active=false;});
-  let mainYaw0=0;
-  if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainIllum0=mainLight.illuminance;mainShadow0=!!(mainLight as any).shadowEnabled;}}
+  let mainYaw0=0,mainPitch0=0,mainRoll0=0;
+  if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainPitch0=mainLight.node.eulerAngles.x;mainRoll0=mainLight.node.eulerAngles.z;mainIllum0=mainLight.illuminance;mainShadow0=!!(mainLight as any).shadowEnabled;}}
   // Shadows stay on during meadow board/liftoff so windmill/bell match normal meadow gameplay; drop after unload for DC.
   let seaRestored=false,backdropRestored=false,arrived=false;
   const cityNightDimmed=new WeakSet<MeshRenderer>();
@@ -367,13 +367,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   };
   const applyLight=(t:number)=>{
    if(!mainLight||!isValid(mainLight.node,true))return;
-   // Only while clouds cover (≥0.99 from 10.7) and meadow/city are off — never light those scenes with the ramp.
-   if(t>=LIGHT_RAMP_T0&&t+1e-9<SEAM_T){
-    const u=Math.max(0,Math.min(1,(t-LIGHT_RAMP_T0)/(SEAM_T-LIGHT_RAMP_T0)));
-    mainLight.node.setRotationFromEuler(mainLight.node.eulerAngles.x,mainYaw0+LIGHT_RAMP_YAW*u,mainLight.node.eulerAngles.z);
-   }else{
-    mainLight.node.setRotationFromEuler(mainLight.node.eulerAngles.x,mainYaw0,mainLight.node.eulerAngles.z);
-   }
+   // Content-relative continuous sun: no pre-seam spin, no snap (see balloonLightYawOffset). Pitch/roll cached
+   // once so eulerAngles read-back can never flip x/z when yaw passes ±90°.
+   mainLight.node.setRotationFromEuler(mainPitch0,mainYaw0+balloonLightYawOffset(t),mainRoll0);
   };
   const paint=(t:number)=>{
    const fade=handoffFade(t);
