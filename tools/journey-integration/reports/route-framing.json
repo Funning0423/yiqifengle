@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T20:19:37.067Z",
+ "timeUTC": "2026-10-22T21:08:36.396Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -21,57 +21,57 @@
    "F2": "FAIL",
    "F3": "FAIL",
    "outOfFrame": {
-    "frames": 105,
+    "frames": 106,
     "spans": [
      {
       "t0": 0,
-      "t1": 3.23,
+      "t1": 3.17,
       "phase": "S-a"
      },
      {
-      "t0": 10.47,
-      "t1": 10.67,
-      "phase": "S-c"
+      "t0": 11.67,
+      "t1": 11.97,
+      "phase": "S-d"
      }
     ]
    },
    "rightOf80pct": {
-    "frames": 28,
+    "frames": 70,
     "spans": [
      {
-      "t0": 10.3,
-      "t1": 10.9,
+      "t0": 11.07,
+      "t1": 12.67,
       "phase": "S-c"
      },
      {
-      "t0": 12,
-      "t1": 12.27,
+      "t0": 14.77,
+      "t1": 15.43,
       "phase": "S-d"
      }
     ],
-    "maxRightEdgePctOfWidth": 103.4,
-    "atS": 10.57
+    "maxRightEdgePctOfWidth": 100.7,
+    "atS": 11.77
    },
    "ui": {
-    "minGapPt": -1877.4,
+    "minGapPt": -1842.1,
     "atS": 0,
     "phase": "S-a",
-    "overlapFrames": 105,
+    "overlapFrames": 106,
     "spans": [
      {
       "t0": 0,
-      "t1": 3.23,
+      "t1": 3.17,
       "phase": "S-a"
      },
      {
-      "t0": 10.47,
-      "t1": 10.67,
-      "phase": "S-c"
+      "t0": 11.67,
+      "t1": 11.97,
+      "phase": "S-d"
      }
     ],
-    "framesUnder13pt": 4
+    "framesUnder13pt": 14
    },
-   "maxWidthFrac": 3.006,
+   "maxWidthFrac": 2.988,
    "minHeightFrac": 0.0612
   },
   {
@@ -83,57 +83,57 @@
    "F2": "FAIL",
    "F3": "FAIL",
    "outOfFrame": {
-    "frames": 105,
+    "frames": 106,
     "spans": [
      {
       "t0": 0,
-      "t1": 3.23,
+      "t1": 3.17,
       "phase": "S-a"
      },
      {
-      "t0": 10.47,
-      "t1": 10.67,
-      "phase": "S-c"
+      "t0": 11.67,
+      "t1": 11.97,
+      "phase": "S-d"
      }
     ]
    },
    "rightOf80pct": {
-    "frames": 28,
+    "frames": 70,
     "spans": [
      {
-      "t0": 10.3,
-      "t1": 10.9,
+      "t0": 11.07,
+      "t1": 12.67,
       "phase": "S-c"
      },
      {
-      "t0": 12,
-      "t1": 12.27,
+      "t0": 14.77,
+      "t1": 15.43,
       "phase": "S-d"
      }
     ],
-    "maxRightEdgePctOfWidth": 103.4,
-    "atS": 10.57
+    "maxRightEdgePctOfWidth": 100.7,
+    "atS": 11.77
    },
    "ui": {
-    "minGapPt": -1993.1,
+    "minGapPt": -1955.6,
     "atS": 0,
     "phase": "S-a",
-    "overlapFrames": 105,
+    "overlapFrames": 106,
     "spans": [
      {
       "t0": 0,
-      "t1": 3.23,
+      "t1": 3.17,
       "phase": "S-a"
      },
      {
-      "t0": 10.47,
-      "t1": 10.67,
-      "phase": "S-c"
+      "t0": 11.67,
+      "t1": 11.97,
+      "phase": "S-d"
      }
     ],
-    "framesUnder13pt": 4
+    "framesUnder13pt": 14
    },
-   "maxWidthFrac": 3.007,
+   "maxWidthFrac": 2.988,
    "minHeightFrac": 0.0612
   },
   {
@@ -145,57 +145,57 @@
    "F2": "FAIL",
    "F3": "FAIL",
    "outOfFrame": {
-    "frames": 105,
+    "frames": 106,
     "spans": [
      {
       "t0": 0,
-      "t1": 3.23,
+      "t1": 3.17,
       "phase": "S-a"
      },
      {
-      "t0": 10.47,
-      "t1": 10.67,
-      "phase": "S-c"
+      "t0": 11.67,
+      "t1": 11.97,
+      "phase": "S-d"
      }
     ]
    },
    "rightOf80pct": {
-    "frames": 28,
+    "frames": 70,
     "spans": [
      {
-      "t0": 10.3,
-      "t1": 10.9,
+      "t0": 11.07,
+      "t1": 12.67,
       "phase": "S-c"
      },
      {
-      "t0": 12,
-      "t1": 12.27,
+      "t0": 14.77,
+      "t1": 15.43,
       "phase": "S-d"
      }
     ],
-    "maxRightEdgePctOfWidth": 103.4,
-    "atS": 10.57
+    "maxRightEdgePctOfWidth": 100.7,
+    "atS": 11.77
    },
    "ui": {
-    "minGapPt": -1735.3,
+    "minGapPt": -1702.6,
     "atS": 0,
     "phase": "S-a",
-    "overlapFrames": 105,
+    "overlapFrames": 106,
     "spans": [
      {
       "t0": 0,
-      "t1": 3.23,
+      "t1": 3.17,
       "phase": "S-a"
      },
      {
-      "t0": 10.47,
-      "t1": 10.67,
-      "phase": "S-c"
+      "t0": 11.67,
+      "t1": 11.97,
+      "phase": "S-d"
      }
     ],
-    "framesUnder13pt": 4
+    "framesUnder13pt": 16
    },
-   "maxWidthFrac": 3.01,
+   "maxWidthFrac": 2.991,
    "minHeightFrac": 0.0612
   },
   {
@@ -207,34 +207,34 @@
    "F2": "FAIL",
    "F3": "FAIL",
    "outOfFrame": {
-    "frames": 91,
+    "frames": 89,
     "spans": [
      {
       "t0": 0,
-      "t1": 3,
+      "t1": 2.93,
       "phase": "S-a"
      }
     ]
    },
    "rightOf80pct": {
-    "frames": 18,
+    "frames": 52,
     "spans": [
      {
-      "t0": 10.37,
-      "t1": 10.83,
+      "t0": 11.2,
+      "t1": 12.5,
       "phase": "S-c"
      },
      {
-      "t0": 12.1,
-      "t1": 12.17,
+      "t0": 14.93,
+      "t1": 15.3,
       "phase": "S-d"
      }
     ],
-    "maxRightEdgePctOfWidth": 93.9,
-    "atS": 10.57
+    "maxRightEdgePctOfWidth": 91.6,
+    "atS": 11.77
    },
    "ui": {
-    "minGapPt": -1450.3,
+    "minGapPt": -1422.4,
     "atS": 0,
     "phase": "S-a",
     "overlapFrames": 91,
@@ -247,7 +247,7 @@
     ],
     "framesUnder13pt": 3
    },
-   "maxWidthFrac": 2.471,
+   "maxWidthFrac": 2.456,
    "minHeightFrac": 0.0612
   },
   {
@@ -259,34 +259,34 @@
    "F2": "FAIL",
    "F3": "FAIL",
    "outOfFrame": {
-    "frames": 90,
+    "frames": 89,
     "spans": [
      {
       "t0": 0,
-      "t1": 2.97,
+      "t1": 2.93,
       "phase": "S-a"
      }
     ]
    },
    "rightOf80pct": {
-    "frames": 18,
+    "frames": 52,
     "spans": [
      {
-      "t0": 10.37,
-      "t1": 10.83,
+      "t0": 11.2,
+      "t1": 12.5,
       "phase": "S-c"
      },
      {
-      "t0": 12.1,
-      "t1": 12.17,
+      "t0": 14.93,
+      "t1": 15.3,
       "phase": "S-d"
      }
     ],
-    "maxRightEdgePctOfWidth": 93.8,
-    "atS": 10.57
+    "maxRightEdgePctOfWidth": 91.6,
+    "atS": 11.77
    },
    "ui": {
-    "minGapPt": -1234.7,
+    "minGapPt": -1210.9,
     "atS": 0,
     "phase": "S-a",
     "overlapFrames": 92,
@@ -299,7 +299,7 @@
     ],
     "framesUnder13pt": 4
    },
-   "maxWidthFrac": 2.466,
+   "maxWidthFrac": 2.451,
    "minHeightFrac": 0.0612
   },
   {
@@ -321,19 +321,19 @@
     ]
    },
    "rightOf80pct": {
-    "frames": 7,
+    "frames": 16,
     "spans": [
      {
-      "t0": 10.47,
-      "t1": 10.67,
+      "t0": 11.57,
+      "t1": 12.07,
       "phase": "S-c"
      }
     ],
-    "maxRightEdgePctOfWidth": 82.9,
-    "atS": 10.57
+    "maxRightEdgePctOfWidth": 81.2,
+    "atS": 11.77
    },
    "ui": {
-    "minGapPt": -1081.9,
+    "minGapPt": -1060.1,
     "atS": 0,
     "phase": "S-a",
     "overlapFrames": 93,
@@ -346,7 +346,7 @@
     ],
     "framesUnder13pt": 5
    },
-   "maxWidthFrac": 1.852,
+   "maxWidthFrac": 1.841,
    "minHeightFrac": 0.0612
   },
   {
@@ -368,19 +368,19 @@
     ]
    },
    "rightOf80pct": {
-    "frames": 7,
+    "frames": 16,
     "spans": [
      {
-      "t0": 10.47,
-      "t1": 10.67,
+      "t0": 11.57,
+      "t1": 12.07,
       "phase": "S-c"
      }
     ],
-    "maxRightEdgePctOfWidth": 82.9,
-    "atS": 10.57
+    "maxRightEdgePctOfWidth": 81.2,
+    "atS": 11.77
    },
    "ui": {
-    "minGapPt": -2130.4,
+    "minGapPt": -2087.6,
     "atS": 0,
     "phase": "S-a",
     "overlapFrames": 88,
@@ -393,7 +393,7 @@
     ],
     "framesUnder13pt": 2
    },
-   "maxWidthFrac": 1.852,
+   "maxWidthFrac": 1.841,
    "minHeightFrac": 0.0612
   },
   {
