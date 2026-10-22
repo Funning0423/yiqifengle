@@ -1,7 +1,6 @@
 'use strict';
-/* Shared Build05 journey scene for the occlusion and framing contracts: real TS (layout, journeyCamera) + real GLB
- * triangles, both legs rebuilt exactly as RegionJourneyAdapter.prepare does. Extracted unchanged from test-journey-occlusion.cjs (v3). */
-const EXEMPT=1.25;
+/* Shared journey scene fixture: real TS layout + real GLB triangles with island, meadow and skycity placed where the live game
+ * places them. b16: the walking legs (04→05 / 08→09 rainbow-bridge routes) and their checks were removed. */
 const fs=require('node:fs'),path=require('node:path'),zlib=require('node:zlib'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const {createHarness}=require('../board-ui/harness.cjs'),{load:loadGlb}=require('./occlusion/lib-glb.cjs');
 const ROOT=path.resolve(__dirname,'../..'),B=ROOT+'/creator-build-project/assets/bundles/',S=ROOT+'/creator-build-project/assets/scripts/';
@@ -23,24 +22,16 @@ const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],sub=(a,b)=>[a[0]-b[0],a[1]-b[1]
 const props=H.load(S+'world-r2/IslandPropsLayout.ts').ISLAND_PROPS.palms;
 const island=[...place(local.island,'island'),...props.flatMap(p=>place(local[p.prefab==='beach_palm_tall'?'palm_tall':'palm_short'],p.prefab,p.yawDeg,p.scale,p.position))];
 const anchorsIsland=JSON.parse(fs.readFileSync(B+'region_island/combined_anchors_m.json','utf8')).anchors,start=anchorsIsland.find(a=>a.name==='exit_path_17').position_world_m;
-// ---------- routes, exactly as RegionJourneyAdapter.prepare ----------
+// ---------- region placement (as the live game places the regions; the old walking routes are gone since b16) ----------
 const mp=n=>nodePos(meadowNodes,n);
-const appr1=Lay.islandApproach(start),edge1=appr1.at(-1),mOff=sub(add(edge1,L.meadowOffset),rotY(180,mp('player_spawn')));
+// Meadow copy: island approach end + meadowOffset, yaw 180 (TransportLeg / LakesideCameraLayout keep this frame).
+const edge1=Lay.islandApproach(start).at(-1),mOff=sub(add(edge1,L.meadowOffset),rotY(180,mp('player_spawn')));
 const meadow=place(local.meadow,'meadow',180,1,mOff),mA=n=>add(rotY(180,mp(n)),mOff);
-// 运镜bot r4: 04→05 ends on her stand line where the meadow board UI (3 tools) leaves her most room for the screen
-// (RegionBoardLanding.regionGirlStand, exactly as RegionJourneyAdapter); the shared fixture uses 390x844, standFor(w,h) any screen.
-const RBL=H.load(S+'region/RegionBoardLanding.ts'),BLy=H.load(S+'ui/BoardLayout.ts');
-const meadowSrc={region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}};
-const exitFor=()=>{const e=[];for(let i=2;i<=L.meadowExitPathIndex;i++)e.push(mA('walk_path_'+String(i).padStart(2,'0')));return e;};
-const standFor=(w,h)=>{const ex=exitFor();return RBL.regionGirlStand(meadowSrc,meadowSrc.map.toBoard(mA('player_spawn')),w,h,BLy.boardSafeInsets(w,h),p=>Lay.meadowExitExtraM(meadowSrc.map.toJourney(p),ex)<=Lay.MEADOW_EXIT_BUDGET_M);};
-const bridge1=Lay.bridgePath(edge1,mA('player_spawn'),L.meadowBridgeArchM),leg1For=(w,h)=>[...appr1,...bridge1.slice(1),...standFor(w,h).path.slice(1).map(meadowSrc.map.toJourney)],leg1=leg1For(390,844);
-const exit02to08=[];for(let i=2;i<=L.meadowExitPathIndex;i++)exit02to08.push(mA('walk_path_'+String(i).padStart(2,'0')));
-const appr2=[leg1.at(-1),...Lay.meadowExitFrom(leg1.at(-1),exit02to08)];const edge2=appr2.at(-1);
+// Skycity copy: rim landing = meadow walk_path_<meadowExitPathIndex> + skycityOffset (BalloonTransit's live placement).
+const edge2=mA('walk_path_'+String(L.meadowExitPathIndex).padStart(2,'0'));
 const sp=n=>nodePos(skyNodes,n),yaw=Lay.skycityYawDeg(sp('anchor_cloudbridge_end'),sp('anchor_cloudbridge_start'));
 const deck0=Lay.skyDeckRoute(rotY(yaw,sp('anchor_cloudbridge_end')),rotY(yaw,sp('anchor_cloudbridge_start'))),sOff=sub(add(edge2,L.skycityOffset),deck0.rim);
 const sky=place(local.skycity,'skycity',yaw,1,sOff),sA=n=>add(rotY(yaw,sp(n)),sOff);
-const deck=Lay.skyDeckRoute(sA('anchor_cloudbridge_end'),sA('anchor_cloudbridge_start')),bridge2=Lay.bridgePath(edge2,deck.rim,L.skyBridgeArchM);
-const leg2=[...appr2,...bridge2.slice(1),...deck.deck,deck.arrival],focus2=sA('anchor_starcourt_center');
 // ---------- ray tests ----------
 function bbox(t){const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];for(let k=0;k<t.length;k++){const c=k%3;if(t[k]<a[c])a[c]=t[k];if(t[k]>b[c])b[c]=t[k];}return [a,b];}
 function segBox(o,e,[a,b]){let t0=0,t1=1;for(let c=0;c<3;c++){const d=e[c]-o[c];if(Math.abs(d)<1e-12){if(o[c]<a[c]||o[c]>b[c])return false;continue;}let p=(a[c]-o[c])/d,q=(b[c]-o[c])/d;if(p>q)[p,q]=[q,p];t0=Math.max(t0,p);t1=Math.min(t1,q);if(t0>t1)return false;}return true;}
@@ -49,6 +40,6 @@ function blockers(objs,o,e){const d=sub(e,o),l=Math.hypot(...d),u=d.map(x=>x/l),
 function ptTri(p,a,b,c){const ab=sub(b,a),ac=sub(c,a),ap=sub(p,a),dot=(x,y)=>x[0]*y[0]+x[1]*y[1]+x[2]*y[2];const d1=dot(ab,ap),d2=dot(ac,ap);if(d1<=0&&d2<=0)return a;const bp=sub(p,b),d3=dot(ab,bp),d4=dot(ac,bp);if(d3>=0&&d4<=d3)return b;const vc=d1*d4-d3*d2;if(vc<=0&&d1>=0&&d3<=0){const v=d1/(d1-d3);return add(a,ab.map(x=>x*v));}const cp=sub(p,c),d5=dot(ab,cp),d6=dot(ac,cp);if(d6>=0&&d5<=d6)return c;const vb=d5*d2-d1*d6;if(vb<=0&&d2>=0&&d6<=0){const w=d2/(d2-d6);return add(a,ac.map(x=>x*w));}const va=d3*d6-d5*d4;if(va<=0&&d4-d3>=0&&d5-d6>=0){const w=(d4-d3)/(d4-d3+d5-d6);return add(b,sub(c,b).map(x=>x*w));}const den=1/(va+vb+vc),v=vb*den,w=vc*den;return add(a,add(ab.map(x=>x*v),ac.map(x=>x*w)));}
 function clearance(p,objs,cap=3){let best=cap,who=null;for(const o of objs){o.bb??=bbox(o.tris);let dd=0;for(let c=0;c<3;c++){const v=Math.max(o.bb[0][c]-p[c],0,p[c]-o.bb[1][c]);dd+=v*v;}if(Math.sqrt(dd)>=best)continue;const t=o.tris;for(let k=0;k<t.length;k+=9){if(Math.abs(t[k]-p[0])>best+25||Math.abs(t[k+2]-p[2])>best+25||Math.abs(t[k+1]-p[1])>best+25)continue;const q=ptTri(p,[t[k],t[k+1],t[k+2]],[t[k+3],t[k+4],t[k+5]],[t[k+6],t[k+7],t[k+8]]),d=Math.hypot(...sub(q,p));if(d<best){best=d;who=o.tag+':'+o.name;}}}return [best,who];}
 const readPose=p=>{const f=sub(p.target,p.position),l=Math.hypot(...f);return {position:p.position,target:add(p.position,f.map(x=>x/l*8)),fovVerticalDeg:p.fovVerticalDeg};};
-const start1=readPose(Cam.islandPoseEntry()),legs=[{id:'04-05',path:leg1,objs:[...island,...meadow],start:start1,startBlendM:0,exempt:1,bridge:bridge1},{id:'08-09',path:leg2,objs:[...island,...meadow,...sky],start:readPose(journeyCamera(leg1,routeLength(leg1),start1,undefined,undefined,0)),startBlendM:0,exempt:0,bridge:bridge2,focus:focus2,lens:Lay.lensKeys(L.skyLens,routeLength(appr2))}];
+const start1=readPose(Cam.islandPoseEntry());
 const skyFrame=place(local.skycity_frame||[],'skycity',yaw,1,sOff);
-module.exports={meadowSrc,standFor,leg1For,exit02to08,fs,path,zlib,crypto,assert,createHarness,loadGlb,ROOT,B,S,H,Lay,Core,Cam,Visit,L,sampleRoute,routeLength,journeyCamera,JOURNEY_CAMERA,sha,meta,bin,f32,local,meadowNodes,skyNodes,rotY,place,nodePos,add,sub,props,island,anchorsIsland,start,mp,appr1,edge1,mOff,meadow,mA,bridge1,leg1,appr2,edge2,sp,yaw,deck0,sOff,sky,sA,deck,bridge2,leg2,focus2,bbox,segBox,rayHit,blockers,ptTri,clearance,readPose,start1,legs,EXEMPT,skyFrame};
+module.exports={fs,path,zlib,crypto,assert,createHarness,loadGlb,ROOT,B,S,H,Lay,Core,Cam,Visit,L,sampleRoute,routeLength,journeyCamera,JOURNEY_CAMERA,sha,meta,bin,f32,local,meadowNodes,skyNodes,rotY,place,nodePos,add,sub,props,island,anchorsIsland,start,mp,edge1,mOff,meadow,mA,edge2,sp,yaw,deck0,sOff,sky,sA,bbox,segBox,rayHit,blockers,ptTri,clearance,readPose,start1,skyFrame};

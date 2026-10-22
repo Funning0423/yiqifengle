@@ -60,7 +60,6 @@ check('K1 lakeside route continuity valid; landing needs focus + known keys; rou
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,timing:{durationS:9,easeInS:2,easeOutS:2}},start),/journey-invalid-timing/,'peak > 4.5 m/s rejected');
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,timing:{durationS:17,easeInS:.5,easeOutS:4}},start),/journey-invalid-timing/,'|a| > 3 m/s² rejected');
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,timing:{durationS:5,easeInS:3,easeOutS:4}},start),/journey-invalid-timing/,'ramps longer than the leg rejected');
- for(const leg of J.legs)for(let d=0;d<=routeLength(leg.path);d+=.5)assert.deepEqual(journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM,undefined),journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM));
  const foot=[];for(let d=route.bridgeEnd;d<=T+1e-9;d+=.25){const p=sampleRoute(path,d),hit=rayHit([p[0],p[1]+3,p[2]],[0,-1,0],10,lake.find(o=>o.name==='LK_terrain_i').tris);assert(hit!==null,'no bank under her at d='+d.toFixed(2));foot.push(+(p[1]+3-hit-p[1]).toFixed(3));}
  assert(foot.every(h=>Math.abs(h)<=.03),'feet off the bank: '+foot);
  return {totalM:+T.toFixed(3),durationS:DUR,timing:TM,peaks:Core.journeyTimingPeaks(T,TM),bridgeStart:+route.bridgeStart.toFixed(3),bridgeEnd:+route.bridgeEnd.toFixed(3),walkOnBankM:+(T-route.bridgeEnd).toFixed(3),footVsBankM:[Math.min(...foot),Math.max(...foot)],root:j.root.map(v=>+v.toFixed(3)),yawDeg:j.yawDeg};});

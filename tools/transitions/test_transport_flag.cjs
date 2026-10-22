@@ -22,6 +22,6 @@ assert(/prepareTransportLeg|sailPrepare|transportFor\(/.test(adapter),'sail bran
 const layout=fs.readFileSync(path.join(S,'region/RegionJourneyLayout.ts'),'utf8');
 assert(/meadowOffset:\[0,0,24\]/.test(layout.replace(/\s/g,'')),'meadow placement offset unchanged');
 const scene=require('../journey-integration/journey-scene.cjs');
-const bridgeLen=scene.routeLength(scene.leg1);
-const stamp=crypto.createHash('sha256').update(JSON.stringify(scene.leg1)).digest('hex');
-console.log(JSON.stringify({status:'PASS',bridge04m:+bridgeLen.toFixed(3),bridgePathSha:stamp}));
+// b16: the old 04→05 walking leg is gone; stamp the region placement it used to sit between instead.
+const stamp=crypto.createHash('sha256').update(JSON.stringify({mOff:scene.mOff,sOff:scene.sOff,yaw:scene.yaw})).digest('hex');
+console.log(JSON.stringify({status:'PASS',placementSha:stamp}));
