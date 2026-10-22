@@ -68,10 +68,12 @@ export const LAKESIDE_CAMERA_LAYOUT={
    *  bottom-RIGHT corner under / right of the tool row, the moored balloon stays out of every portrait board view, her orbit
    *  pitch (≈ 49°) stays inside the free-orbit 54° limit, and the bridge + far shore stay above the board. Verified with the
    *  heroine rendered at L1 in the QA copy (previews/运镜bot/r5-b18-board-compose). */
-  /** b18 path v4 (Grok Bot 2026-10-22: main lens fixed at 6 m): screens with h/w ≥ splitHW use `main` (6 m: [2,6,33] →
+  /** b18 r2 (Grok Bot on 89e31f78): same 6 m position, aim + FOV retuned so her conservative 0.3 m box clears the screen edge,
+   *  tray and tool row on every screen of test_board_hint_above_tray (main: target [0.5,0.7,2], fov 56; short: target [−1.9,−0.5,0]).
+   *  b18 path v4 (Grok Bot 2026-10-22: main lens fixed at 6 m): screens with h/w ≥ splitHW use `main` (6 m: [2,6,33] →
    *  [1,−0.5,2]); shorter screens use `short` ([2.5,6.5,34] → [−3,−0.5,0]); orbit pitch to her pivot ≈ 28° on both. position /
    *  target = main (older readers). Her stop is the v4 end (stopLocal); see docs/r5/cine/b18_endpoint_v2.md. */
-  portrait:{position:[2,6,33] as Vec,target:[1,-.5,2] as Vec,main:{position:[2,6,33] as Vec,target:[1,-.5,2] as Vec},short:{position:[2.5,6.5,34] as Vec,target:[-3,-.5,0] as Vec},splitHW:2.0,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
+  portrait:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,main:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,fovVerticalDeg:56},short:{position:[2.5,6.5,34] as Vec,target:[-1.9,-.5,0] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
 } as const;
 const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
 /** Placement + route pieces for RegionJourneyAdapter: model.setRotationFromEuler(0,yawDeg,0); model.setWorldPosition(...root);
@@ -142,12 +144,12 @@ export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
  return {position:[q(pos[0]),q(pos[1]),q(pos[2])],target:[q(pos[0]+f[0]*D),q(pos[1]+f[1]*D),q(pos[2]+f[2]*D)],fovVerticalDeg:fov};
 }
 /** b18 portrait lens for a screen (w/h aspect): main when h/w ≥ splitHW, else short. */
-export function lakesidePortraitLens(aspect:number):{position:Vec;target:Vec}{const P=LAKESIDE_CAMERA_LAYOUT.board.portrait,L=1/Math.max(.01,aspect)>=P.splitHW-1e-9?P.main:P.short;
- return {position:[L.position[0],L.position[1],L.position[2]],target:[L.target[0],L.target[1],L.target[2]]};}
+export function lakesidePortraitLens(aspect:number):{position:Vec;target:Vec;fovVerticalDeg:number}{const P=LAKESIDE_CAMERA_LAYOUT.board.portrait,L=1/Math.max(.01,aspect)>=P.splitHW-1e-9?P.main:P.short;
+ return {position:[L.position[0],L.position[1],L.position[2]],target:[L.target[0],L.target[1],L.target[2]],fovVerticalDeg:L.fovVerticalDeg};}
 /** b18 portrait board FOV for a screen aspect (w/h): vertical 50° on 390×844 and shorter screens, the 390×844 horizontal
  * coverage on taller ones, capped at maxFovDeg. */
-export function lakesidePortraitFov(aspect:number):number{const P=LAKESIDE_CAMERA_LAYOUT.board.portrait,t=Math.tan(P.fovVerticalDeg*Math.PI/360)*P.refAspect/Math.max(.01,aspect);
- return Math.min(P.maxFovDeg,Math.max(P.fovVerticalDeg,2*Math.atan(t)*180/Math.PI));}
+export function lakesidePortraitFov(aspect:number,base:number=lakesidePortraitLens(aspect).fovVerticalDeg):number{const P=LAKESIDE_CAMERA_LAYOUT.board.portrait,t=Math.tan(base*Math.PI/360)*P.refAspect/Math.max(.01,aspect);
+ return Math.min(P.maxFovDeg,Math.max(base,2*Math.atan(t)*180/Math.PI));}
 /** The same pose as the CameraPose applyCameraPose() takes (the lease's frame() writes this). */
 export function lakesideAlignedBoardPose(frame:LakesideBoardFrame):CameraPose{const p=lakesideAlignedLookAt(frame);return fromLookAt(p,p.fovVerticalDeg);}
 const smooth5=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
