@@ -2556,8 +2556,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
-    "bytes": 47963,
-    "sha256": "f1b029e7ca94f65b2f6bbe701f6f322c1f7e67f2d8570a9c612710f6f4156ea3"
+    "bytes": 54101,
+    "sha256": "033389184e4686176bd12223b1226553badb617097730b66c8fb101cf20e1529"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts.meta",
@@ -2826,8 +2826,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 40970,
-    "sha256": "7477746599fef6ecceffde2712b6020f925d04b4487d2ddb8fb2ebd0a2bef47d"
+    "bytes": 41095,
+    "sha256": "f2fd7cffcc3998b4e6fe7904b284554ea6c874b76313ad5cfdee5a9d00ca6410"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3126,8 +3126,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 37077,
-    "sha256": "7561315afb4a558e71008a7fa0ee5106728bf7ee9dd3d91fe2a86e006d3446b8"
+    "bytes": 40560,
+    "sha256": "1f6546949914cc230f99ef5e98690c2553dc60277afb26757964981b4298b83b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
@@ -4316,8 +4316,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_qashot.cjs",
-    "bytes": 19032,
-    "sha256": "cfa8a1be584a340f0e48a4e390f62c90b66fb71ede14b57d41ade82715988de9"
+    "bytes": 19167,
+    "sha256": "8b2313cf7b27e9aaa27285373f5de2397bdf3b57a0b1cbb44fc09711213324fd"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",
