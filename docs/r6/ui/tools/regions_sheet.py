@@ -13,7 +13,7 @@ rows=[('1x 原图',lambda im:im.resize((w,h),Image.LANCZOS)),('灰度（只看�
 S=Image.new('RGB',(40+len(ims)*(w+20),120+len(rows)*(h+50)+260),(250,246,236)); d=ImageDraw.Draw(S)
 d.text((20,20),title,font=F(30),fill=(63,94,99))
 # regions in 750x1624 design px: tray rim strip, tile area, background (top band above plate)
-BOX={'托盘框':(32,520,52,1020),'格子+棋子':(90,500,660,1040),'背景':(0,330,750,360)}
+BOX={'托盘框':(56,520,72,1020),'格子+棋子':(90,500,660,1040),'背景':(0,330,750,360)}
 stats={}
 for i,((name,_),im) in enumerate(zip(items,ims)):
     a=np.asarray(im.resize((750,1624))).astype(float); st={}
