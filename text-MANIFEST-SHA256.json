@@ -1386,8 +1386,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon-grade.effect",
-    "bytes": 1629,
-    "sha256": "20e98cfad8f9a90dd3fa6213f28e41738d23b4b3cfe1652e893a2da788e034e6"
+    "bytes": 1689,
+    "sha256": "d13aed0583313d7543f3518eb2f81d3a474246bc7da01e115270f4c1fcbfa517"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon-grade.effect.meta",
@@ -2506,8 +2506,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 34473,
-    "sha256": "8329f8951e91808ef5ef6a5e47152adab2bba3b9b762a326fb77e597115812b1"
+    "bytes": 35172,
+    "sha256": "42381ff295b728376fac2585498f70cb88fe75ee4ce6d0869286b426e60d0ab1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -4296,8 +4296,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 15521,
-    "sha256": "9ce0329dfd89d36eb20037704e9bff483222cff8d655b175d6efc1ab7b225730"
+    "bytes": 15615,
+    "sha256": "ed98267b5a1f12b30c67bf73d039d861463255296ce6e5481dbb59eabe4d21e4"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

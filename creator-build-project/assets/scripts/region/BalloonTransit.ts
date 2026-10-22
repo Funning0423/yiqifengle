@@ -39,14 +39,21 @@ function holdAt():number|null{try{const q=typeof location!=='undefined'?String(l
 class TransitDriver extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** glTF scene prefab inside region_transit_balloon. Same loadDir fallback as the balloon-fix (bundle.load misses the sub-asset). */
 export function loadTransitPrefab(name:string):Promise<Prefab|null>{return loadBundlePrefab(name,'region_transit_balloon');}
+/** Valid depth compare for sky passes. Literal fallback (LEQUAL=3) so an undefined enum can never reach glDepthFunc as 0. */
+export const SKY_DEPTH_FUNC:number=Number((gfx as any)?.ComparisonFunc?.LEQUAL??3);
+const skyboxed=new WeakSet<object>();
 function skybox(node:Node|null):void{
  if(!node)return;
  eachNamed(node,n=>{
   const r=n.getComponent(MeshRenderer);if(!r)return;
   (r as any).priority=-100;
-  const m=r.getMaterialInstance(0);if(!m)return;
+  const shared=r.getSharedMaterial(0);
+  const m=r.getMaterialInstance(0);if(!m||skyboxed.has(m))return; // once per instance — never rebuild pass state per frame
+  skyboxed.add(m);
+  // getMaterialInstance on a glTF material drops the albedo binding → magenta (see setEmissive). Rebind it.
+  if(shared)for(const key of ['mainTexture','albedoMap']){try{const tex=shared.getProperty(key);if(tex!=null)m.setProperty(key,tex);}catch{/* slot absent */}}
   // Draw first, no depth write; keep depth test so later opaques (clouds/balloon) can cover the dome.
-  try{m.overridePipelineStates({depthStencilState:{depthTest:true,depthWrite:false,depthFunc:gfx.ComparisonFunc.LEQUAL}},0);}catch{/* material without a pass */}
+  try{m.overridePipelineStates({depthStencilState:{depthTest:true,depthWrite:false,depthFunc:SKY_DEPTH_FUNC}},0);}catch{/* material without a pass */}
  });
 }
 function showBothSides(root:Node):void{
@@ -436,7 +443,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
     (globalThis as any).__QF_BALLOON_LENS=true;
     for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day){if(gradeEffect&&!skyHome.length){for(const r of n.getComponents(MeshRenderer))skyHome.push({r,shared:r.getSharedMaterial(0)});ditherSky(n,gradeEffect);}else skybox(n);}}
-    if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
+    if(nightDome){nightDome.active=night;} // skybox() ran once at mount; re-running it per frame rebuilt the pass every frame
     // Cloud sea: graded day clumps, night blue-grey. Never emissive.
     if(cityOn)paintCloudSea(clouds,night,gradeEffect);
     else if(night)setEmissive(clouds,true);
