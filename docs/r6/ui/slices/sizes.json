@@ -1,0 +1,66 @@
+[
+ {
+  "file": "obstacle_lily_full.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 8569,
+  "note": "160²，与格子同比例、同中心；显示时 ×1.06"
+ },
+ {
+  "file": "obstacle_lily_hit.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 6713,
+  "note": "160²，与格子同比例、同中心；显示时 ×1.06"
+ },
+ {
+  "file": "obstacle_lily_clear.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 6543,
+  "note": "160²，与格子同比例、同中心；显示时 ×1.06"
+ },
+ {
+  "file": "tile_a_lake.png",
+  "group": "格子底座",
+  "w": 160,
+  "h": 160,
+  "bytes": 5783,
+  "note": "160²"
+ },
+ {
+  "file": "tile_b_lake.png",
+  "group": "格子底座",
+  "w": 160,
+  "h": 160,
+  "bytes": 4814,
+  "note": "160²"
+ },
+ {
+  "file": "tray_frame_lake.png",
+  "group": "托盘",
+  "w": 681,
+  "h": 723,
+  "bytes": 105338,
+  "note": "同 tray_frame：750 设计宽 1:1"
+ },
+ {
+  "file": "bg_lakeside_board.jpg",
+  "group": "背景(后备)",
+  "w": 750,
+  "h": 1624,
+  "bytes": 19873,
+  "note": "白天；运行时湖畔棋盘背景是实时 3D，这张只做离线预览/后备"
+ },
+ {
+  "file": "bg_lakeside_board_night.jpg",
+  "group": "背景(后备)",
+  "w": 750,
+  "h": 1624,
+  "bytes": 13850,
+  "note": "夜间，同上"
+ }
+]
