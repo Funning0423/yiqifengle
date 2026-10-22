@@ -14,7 +14,7 @@ try: arm.animation_data.action_slot=a.slots[0]
 except Exception: pass
 bpy.context.scene.frame_set(int(a.frame_range[0]))
 attach_lantern(arm,os.environ.get('LANTERN','prop_lantern_v2.glb'));place_lantern(arm);bpy.context.view_layer.update()
-Jw,sp=socket_world(arm);ax=(LROOT.matrix_world.to_3x3()@Vector((0,1,0))).normalized();e0=np.array(sp-ax*0.018);e1=np.array(sp+ax*0.018);av=e1-e0
+Jw,sp=socket_world(arm);ax=(LROOT.matrix_world.to_3x3()@Vector((0,1,0))).normalized();GH=float(os.environ.get('GH','0.018'));e0=np.array(sp-ax*GH);e1=np.array(sp+ax*GH);av=e1-e0
 gi={g.index:g.name for g in B.vertex_groups};V=B.data.vertices;PB=arm.pose.bones
 S={n:np.array((arm.matrix_world@PB[n].matrix@arm.data.bones[n].matrix_local.inverted()@arm.matrix_world.inverted()@B.matrix_world).to_3x3()) for n in set(gi.values()) if n in PB}
 D=[gi[max(v.groups,key=lambda g:g.weight).group] if v.groups else '' for v in V]

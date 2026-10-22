@@ -16,12 +16,20 @@ gi={g.index:g.name for g in B.vertex_groups}
 Dm=[gi[max(v.groups,key=lambda g:g.weight).group] if v.groups else '' for v in B.data.vertices]
 def isleg(p): ds=[Dm[v] for v in p.vertices];d=max(set(ds),key=ds.count);return d.startswith(('thigh','shin','foot'))
 LEGP=[p.index for p in B.data.polygons if isleg(p)]
+MET=json.load(open(os.environ['META']))['clips'] if os.environ.get('META') else {}
 def setf(clip,f):
     a=[x for x in bpy.data.actions if x.name==clip or x.name.startswith(clip+'_')];a=sorted(a,key=lambda a:len(a.name))[0]
     arm.animation_data.action=a
     try: arm.animation_data.action_slot=a.slots[0]
     except Exception: pass
     sc.frame_set(int(a.frame_range[0])+f)
+    if os.environ.get('META'):   # 叠加 meta 里已有的布料/身体形变曲线
+        cur=MET.get(clip,{}).get('morph',{}).get('curves',{});t=f/30.0
+        for o in (B,DR,AP,O.get('LOD0_G2_BOW')):
+            if o is None or not o.data.shape_keys: continue
+            for kb in o.data.shape_keys.key_blocks[1:]:
+                if kb.name=='drape_tmp': continue
+                c=cur.get(kb.name);kb.value=float(np.interp(t,[x for x,_ in c],[y for _,y in c])) if c else 0.0
 def ev(o):
     dg=bpy.context.evaluated_depsgraph_get();oe=o.evaluated_get(dg);me=oe.to_mesh();M=oe.matrix_world
     P=np.array([list(M@v.co) for v in me.vertices]);me.calc_loop_triangles();T=[tuple(t.vertices) for t in me.loop_triangles];poly=[t.polygon_index for t in me.loop_triangles];oe.to_mesh_clear();return P,T,poly
@@ -43,7 +51,7 @@ def nbs(o):
     return nb
 def count(PA,TA,PB_,TB): return len(BVHTree.FromPolygons(PA.tolist(),TA).overlap(BVHTree.FromPolygons(PB_.tolist(),TB)))
 CLR=float(os.environ.get('CLR','0.003'));GAPL=float(os.environ.get('GAPL','0.008'));STR=float(os.environ.get('STR','0.025'));REACH=0.03
-ED,EA=edges(DR),edges(AP);ND,NA=nbs(DR),nbs(AP)
+ED,EA=edges(DR),edges(AP);EDO={DR.name:ED,AP.name:EA};ND,NA=nbs(DR),nbs(AP)
 def groups(P):
     from mathutils.kdtree import KDTree
     kd=KDTree(len(P))
@@ -175,9 +183,19 @@ def correct(clip,f,Dd0,Da0):
     Pd,Td,_=ev(DR);Pa,Ta,_=ev(AP)
     g0=gaps(Pa,BVHTree.FromPolygons(Pd.tolist(),Td));clrA=np.clip(g0,0.0,GAPL)   # 原本不足 8 mm 的地方不要求变大，只要求不再变小
     clrA=np.where(g0>=GAPL,GAPL,np.maximum(g0,0.0)) if os.environ.get('KEEPGAP','1')=='1' else np.full(len(Pa),GAPL)
-    Pd2,sd,rd=solve(Pd,ED,ND,push_leg(LB,CLR,vnorm(Pd,Td)),anchors(DR,Pd))
+    LOCAL=float(os.environ.get('LOCAL','0'))
+    def local_anchor(o,P,fn):
+        A=anchors(o,P)
+        if LOCAL>0:
+            rows,cols,vals,rhs=fn(P,EDO[o.name]);pts=np.array([P[c] for c in cols]) if cols else np.zeros((0,3))
+            if len(pts):
+                from scipy.spatial import cKDTree
+                d,_=cKDTree(pts).query(P);A=A|(d>LOCAL)
+        return A
+    fdl=push_leg(LB,CLR,vnorm(Pd,Td))
+    Pd2,sd,rd=solve(Pd,ED,ND,fdl,local_anchor(DR,Pd,fdl))
     DB=BVHTree.FromPolygons(Pd2.tolist(),Td);fl=push_leg(LB,CLR,vnorm(Pa,Ta));fd=push_out(DB,GAPL,clrA)
-    Pa2,sa,ra=solve(Pa,EA,NA,both(fd,fl),anchors(AP,Pa))
+    Pa2,sa,ra=solve(Pa,EA,NA,both(fd,fl),local_anchor(AP,Pa,both(fd,fl)))
     Jd,Ja=jac(DR),jac(AP)
     dd=np.einsum('kij,kj->ki',np.linalg.inv(Jd),Pd2-Pd);da=np.einsum('kij,kj->ki',np.linalg.inv(Ja),Pa2-Pa)
     st=dict(clip=clip,f=f,strain_d=round(sd*100,2),strain_a=round(sa*100,2),unresolved_d=rd,unresolved_a=ra,max_d_mm=round(float(np.linalg.norm(Pd2-Pd,axis=1).max()*1000),1),max_a_mm=round(float(np.linalg.norm(Pa2-Pa,axis=1).max()*1000),1))
