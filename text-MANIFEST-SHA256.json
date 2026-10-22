@@ -2761,8 +2761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 41229,
-    "sha256": "4faec9dfa9dda9a3a4d0d4ffa41758f10d189d5a181e3813e34df6b0caca280e"
+    "bytes": 42126,
+    "sha256": "d1a0eb98e01881cf99fa0a628a7f4216053480dbdfa119c0aa58a2fedd9acfee"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3071,8 +3071,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/WalkTail.ts",
-    "bytes": 2694,
-    "sha256": "546d9ec4c59d0107e2960a772b84a02db370b4517c2369f93eb3996a9e5da965"
+    "bytes": 3052,
+    "sha256": "d1280d9d3662495d6b2c4c80061fc325f6fd3ac633d1919100bb61daf44f00c4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/WalkTail.ts.meta",
@@ -4191,8 +4191,13 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14178,
-    "sha256": "bc3d5b676fee9bdf97a06738878fcb2f9edd51b71ca845673a15b6a3c02f5266"
+    "bytes": 14249,
+    "sha256": "a557a1cedb94b13093f75f11a3421fd6e261ff27a600ae8b9ddd0a68d697c6b9"
+  },
+  {
+    "path": "tools/lakeside/test_home_fade_tail.cjs",
+    "bytes": 3738,
+    "sha256": "053675c3c15b92fcb0d349b45a4d87aa18f31b992288c3eab4406832135618a2"
   },
   {
     "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",

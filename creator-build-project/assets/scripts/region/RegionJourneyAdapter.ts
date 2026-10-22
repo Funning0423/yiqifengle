@@ -9,7 +9,7 @@ import {RegionJourneyController, journeyDistanceAt, routeLength, sampleRoute} fr
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom,meadowExitExtraM,MEADOW_EXIT_BUDGET_M} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
-import { TailToken, beginTail } from './WalkTail';
+import { TailToken, beginTail, endTail } from './WalkTail';
 import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
@@ -276,7 +276,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
     const off=rideToken.onCancel(()=>{director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
-    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,moored.seatYawDeg(flight.girlYawRad*180/Math.PI),0);};
+    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);girl.setPosition(0,-.1,0);{/* b17 (0.40 m pop in the door shot, 7b9ba1d6 flog f482→483): she rides on P0 (the get-out start root, basket-local exitStartLocal) instead of the basket centre, so the touchdown reset to P0 is in place (it was a 0.396 m slide toward the door lens, centre frame); boarding is under full black */const e=LAKESIDE_BALLOON_LANDING.exitStartLocal,y=moored.doorYawDeg*Math.PI/180,c=Math.cos(y),sn=Math.sin(y),v=vehicle.worldPosition,l=new Vec3();seat.inverseTransformPoint(l,new Vec3(v.x+e[0]*c+e[2]*sn,v.y,v.z-e[0]*sn+e[2]*c));girl.setPosition(l.x,-.1,l.z);}/* the basket only translates in flight, so the offset lands on P0 = mooring + rotY(doorYaw)·exitStartLocal */girl.setRotationFromEuler(0,moored.seatYawDeg(moored.startYawRad*180/Math.PI),0)/* b17: she rides already facing the door (the get-out start yaw), so the touchdown reset no longer snaps her 128° (−32°→96°) in the door lens */;};
     const apply=()=>{
      const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
@@ -326,7 +326,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    let tailDone=false/* b16: the tail cleared its ticker step (she is on the shore); the door blend must not restore it */;
    // b15 handover: the exit walk has its own token: once the ride resolved, a later flow cancel (pause, a level, a dialog)
    // must not stop her midway; before that the ride token still aborts it. Journey release (leaving the region) ends it.
-   const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});tailStop=()=>tailToken.cancel();
+   const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});tailStop=()=>{tailToken.cancel();endTail(actor);}/* b17: synchronous, before the 主页 restore */;
    const tail=(async()=>{
    const rideToken=tailToken as any as Cancellation;
     let t=0,reached=false,walking=false,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});

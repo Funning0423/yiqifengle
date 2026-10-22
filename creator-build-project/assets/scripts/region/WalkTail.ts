@@ -19,6 +19,9 @@ export function beginTail(actor:object|null|undefined,done:Promise<unknown>,end:
  if(!actor)return;const d=done.then(()=>undefined,()=>undefined);const info:TailInfo={done:d,end:[end[0],end[1],end[2]],startedAt:Date.now()};
  tails.set(actor,info);d.then(()=>{if(tails.get(actor)===info)tails.delete(actor);});
 }
+/** b17: the owner ended the tail (journey release / 主页): drop the mark NOW, so the same-frame restore() that places her at
+ * home is not skipped (the done-promise cleanup lands a microtask later, after she was left standing in the lakeside). */
+export function endTail(actor:object|null|undefined):void{if(actor&&tails.get(actor))tails.delete(actor);}
 export function tailOf(actor:object|null|undefined):TailInfo|null{return actor?tails.get(actor)||null:null;}
 /** resolves when no tail owns her (immediately when none); a cap keeps a stuck tail from blocking a caller forever */
 export function afterTail(actor:object|null|undefined,capMs=20000):Promise<void>{
