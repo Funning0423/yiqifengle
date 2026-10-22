@@ -321,6 +321,16 @@ export function lakesidePathV4Local():{pts:Vec[];s:number[];length:number}{
  // (LakesideCameraLayout.stopLocal) and the controller's final lens use the identical point
  const E=P.endLocal,l=pts[pts.length-1];l[0]=E[0];l[2]=E[2];l[1]=pathV4GroundAt(s);
  return {pts,s:ss,length:s};}
+/** b16 P1-3a (运镜bot): nearest walkable point for an interrupted landing walk. The exit route (P0 → step-down → path v4) is the
+ *  only ground she is placed on (basket floor, then the measured lawn; never the water), so after an interrupt she is projected
+ *  onto that polyline: xz nearest point on a segment, y interpolated from the route (the route's own ground height). */
+export function lakesideNearestWalkable(walk:readonly (readonly number[])[],p:readonly number[]):{point:Vec;s:number;offM:number;yawRad:number}{
+ let best:{point:Vec;s:number;offM:number;yawRad:number}={point:[walk[0][0],walk[0][1],walk[0][2]],s:0,offM:Infinity,yawRad:0};let acc=0;
+ for(let i=1;i<walk.length;i++){const a=walk[i-1],b=walk[i],dx=b[0]-a[0],dz=b[2]-a[2],l2=dx*dx+dz*dz,l=Math.sqrt(l2);
+  const u=l2>1e-12?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[2]-a[2])*dz)/l2)):0,q:Vec=[a[0]+dx*u,a[1]+(b[1]-a[1])*u,a[2]+dz*u],d=Math.hypot(p[0]-q[0],p[2]-q[2]);
+  if(d<best.offM)best={point:q,s:acc+l*u,offM:d,yawRad:l>1e-9?Math.atan2(dx,dz):best.yawRad};acc+=l;}
+ if(!isFinite(best.offM))best.offM=Math.hypot(p[0]-walk[0][0],p[2]-walk[0][2]);
+ return best;}
 /** Option A: land off the board frame. Disembark through the b15 basket door (DOOR_SPEC, door wall = basket local +Z), also
  *  offscreen, then walk to the unchanged shore root with the production planner (walk_start → walk_loop → walk_stop_bodyL).
  *  The camera stays on the board pose; the board fades in while she walks (she is off the board frame for ~7 s). */

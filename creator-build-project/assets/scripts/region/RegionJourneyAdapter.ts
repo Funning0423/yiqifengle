@@ -15,7 +15,7 @@ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {LAKESIDE_CAMERA_LAYOUT,lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideQaAdvance} from './LakesideQaShot';
-import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendDurS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,LAKESIDE_PATH_V4,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendDurS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,lakesideNearestWalkable,LAKESIDE_PATH_V4,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -291,7 +291,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    let tailDone=false/* b16: the tail cleared its ticker step (she is on the shore); the door blend must not restore it */;
    // b15 handover: the exit walk has its own token: once the ride resolved, a later flow cancel (pause, a level, a dialog)
    // must not stop her midway; before that the ride token still aborts it. Journey release (leaving the region) ends it.
-   const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});tailStop=()=>{tailToken.cancel();endTail(actor);}/* b17: synchronous, before the 主页 restore */;
+   const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});let released=false;tailStop=()=>{released=true;tailToken.cancel();endTail(actor);}/* b17: synchronous, before the 主页 restore */;
    const tail=(async()=>{
    const rideToken=tailToken as any as Cancellation;
     let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
@@ -339,6 +339,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});
    })();
    // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
+   // b16 P1-3a (运镜bot): the exit walk is scripted (no ground snap / water block). If it is interrupted mid-route (pause, background,
+   // a cancelled ride) she must not be left where the script stopped (foot-lock offset / step-down root, possibly off the lawn over
+   // the water): project her onto the nearest walkable point of the route. Not on a journey release (主页 places her at home).
+   tail.catch(()=>{if(released||dead)return;try{const n=girl;if(!n||!isValid(n,true))return;const w=n.worldPosition,q=lakesideNearestWalkable(moored.walk,[w.x,w.y,w.z]);
+    if(q.offM>.01||Math.abs(w.y-q.point[1])>.01)actor.cancelAndReset({kind:'standing',controllerRoot:q.point,yawRad:q.yawRad});}catch{/* she is gone */}});
    (lease as any).tail=tail;beginTail(actor,tail,moored.walk[moored.walk.length-1]);tail.catch(()=>{}).then(()=>{offTail();if((lease as any).tail===tail)(lease as any).tail=null;});
    tail.catch(()=>{}).then(()=>outOk());const offOut=rideToken.onCancel(()=>outOk());
    try{await out;rideToken.check();qaMark0('out')/* when she is out, not after the blend */;

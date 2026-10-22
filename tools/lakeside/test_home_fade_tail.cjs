@@ -38,6 +38,6 @@ const flowRestore=a=>{if(!a.__qfWalkTail)a.cancelAndReset(HOME);};
  const c=actor();T.endTail(c);T.endTail(null);const tk3=new T.TailToken();T.beginTail(c,(async()=>{await c.perform({},tk3);})(),[0,0,0]);flowRestore(c);assert.equal(c.resets.length,0,'running tail still protected');tk3.cancel();
  // 5) the adapter's owner stop is synchronous
  const src=fs.readFileSync(__dirname+'/../../creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts','utf8');
- assert.match(src,/tailStop=\(\)=>\{tailToken\.cancel\(\);endTail\(actor\);\}/);
+ assert.match(src,/tailStop=\(\)=>\{(?:released=true;)?tailToken\.cancel\(\);endTail\(actor\);\}/)/* b16 P1-3a: released marks a journey release (no walkable snap) */;
  console.log(JSON.stringify({ok:true,log}));
 })().catch(e=>{console.error(e);process.exit(1);});
