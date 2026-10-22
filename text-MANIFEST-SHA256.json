@@ -1386,8 +1386,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon-grade.effect",
-    "bytes": 1689,
-    "sha256": "d13aed0583313d7543f3518eb2f81d3a474246bc7da01e115270f4c1fcbfa517"
+    "bytes": 2424,
+    "sha256": "b00c0c8161b5dc7067a0ab4846c7dd5a44efcdfd48a99b9d3890d6d0c1970403"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon-grade.effect.meta",
@@ -1411,8 +1411,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_clouds_merged.glb.meta",
-    "bytes": 4895,
-    "sha256": "627b59a3a90b239f459f8b33bf589e0a1c53ff7b74a33511cc40aa62de904dbf"
+    "bytes": 4894,
+    "sha256": "c4e47ee93ee8e71a282857e7ece0ce242f00fe257c9a9a82b4757eb9afc6267b"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_night_dome.glb.meta",
@@ -1421,8 +1421,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_sea_fallback.glb.meta",
-    "bytes": 2483,
-    "sha256": "c8b1c258aa8403b1ff414ef5c449abea97ccaef2e26eb75cb345839a9205f3fd"
+    "bytes": 2482,
+    "sha256": "b8bbea78c347f0cc2edd1644357631eefa7b06978214d10340254572773be02a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta",
@@ -2506,8 +2506,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 35143,
-    "sha256": "dd4a7d2d3a7350d73d5fb71b52d17253bee9fed9b498d958666494461219e77f"
+    "bytes": 35915,
+    "sha256": "600824fff3c785ca469c83d348b19da7cb31caf4872cd8a6121712b156608420"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",

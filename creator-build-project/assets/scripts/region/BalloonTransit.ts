@@ -108,6 +108,7 @@ function forceUnlit(root:Node|null,color:Color,opts?:{keepTexture?:boolean;verte
 /** Day sea + the far-card skirt share this sRGB so the card's rectangular sea does not read as a separate plate. */
 const SEA_DAY=new Color(172,216,236,255);
 const lookCache=new WeakMap<Node,boolean>();
+const emissiveDone=new WeakSet<Node>();
 /** Far card: island albedo stays; skirt pixels in the glb are the same light blue as the sea disc. Night: solid dark. */
 function tintFarCard(root:Node|null,night:boolean):void{
  if(!root||lookCache.get(root)===night)return;
@@ -140,9 +141,22 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
    }
    return;
   }
-  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,night?nite:day,{vertexColor:true});
+  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea'){
+   if(night&&grade)nightCloud(n,grade,nite);
+   else forceUnlit(n,night?nite:day,{vertexColor:true});
+  }
  });
  lookCache.set(clouds,night);
+}
+/** Night cloud sea on balloon-grade technique 2: same a_color path the day grade proves on device, clamped + NaN-guarded. */
+function nightCloud(n:Node,grade:EffectAsset,tint:Color):void{
+ for(const r of n.getComponents(MeshRenderer)){
+  const m=new Material();
+  try{m.initialize({effectAsset:grade,technique:2});}catch{forceUnlit(n,tint,{vertexColor:true});return;}
+  try{m.setProperty('tint',tint);}catch{/* */}
+  try{m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);}catch{/* */}
+  try{r.setMaterialInstance(0,m);}catch{/* */}
+ }
 }
 /** Coarse sky-dome rings band in 8-bit. Swap the day dome to a dithered pass; caller restores the shared mat. */
 function ditherSky(dome:Node,grade:EffectAsset):void{
@@ -446,7 +460,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     if(nightDome){nightDome.active=night;} // skybox() ran once at mount; re-running it per frame rebuilt the pass every frame
     // Cloud sea: graded day clumps, night blue-grey. Never emissive.
     if(cityOn)paintCloudSea(clouds,night,gradeEffect);
-    else if(night)setEmissive(clouds,true);
+    else if(night&&!emissiveDone.has(clouds)){emissiveDone.add(clouds);setEmissive(clouds,true);} // once — per-frame instance rebinds churned the pass
    }
    applyVehicleNight(vehicle,night);
    if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}

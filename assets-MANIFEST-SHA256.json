@@ -1101,8 +1101,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_clouds_merged.glb",
-    "bytes": 511044,
-    "sha256": "cdbd0d897c9bcb012ff5b1219ecddc20bc0f74074b582816c60ff4a5de247186"
+    "bytes": 419488,
+    "sha256": "ed44619f775b9beee02ef3a341d49ebe41ced3a5a379246ec1f0d3503c721829"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_night_dome.glb",
@@ -1111,8 +1111,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_sea_fallback.glb",
-    "bytes": 10104,
-    "sha256": "17739406b7de3dcda16b9df37963dfc72b59095dbb0f44d4f2815568de94aa4e"
+    "bytes": 8592,
+    "sha256": "d300ffa43d0173da39c29010896f9ef0bf18f641c02a03a705835cd025cbd33b"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb",

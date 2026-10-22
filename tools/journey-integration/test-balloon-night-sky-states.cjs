@@ -7,7 +7,7 @@ const VALID=['never','less','equal','less_equal','greater','not_equal','greater_
 // 1) balloon-grade.effect: every pass that sets depthStencilState names a valid depthFunc; uuid matches the meta.
 const eff=fs.readFileSync(path.join(root,'bundles/region_transit_balloon/balloon-grade.effect'),'utf8');
 const blocks=eff.split(/depthStencilState:/).slice(1);
-assert.equal(blocks.length,2,'two grade passes');
+assert.equal(blocks.length,3,'three grade passes (cloud-day, sky-dither, cloud-night)');
 for(const b of blocks){const m=/depthFunc:\s*(\w+)/.exec(b.split(/\n\s*- (?:name|vert)/)[0]);assert.ok(m&&VALID.includes(m[1]),'grade pass depthFunc: '+(m&&m[1]));}
 const meta=JSON.parse(fs.readFileSync(path.join(root,'bundles/region_transit_balloon/balloon-grade.effect.meta'),'utf8'));
 assert.equal(meta.importer,'effect');assert.equal(meta.uuid,'c25f1a80-7e14-4b2a-9d63-0e8b7a41c6d2');
