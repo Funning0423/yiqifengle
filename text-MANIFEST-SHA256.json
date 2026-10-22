@@ -2761,8 +2761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 42126,
-    "sha256": "d1a0eb98e01881cf99fa0a628a7f4216053480dbdfa119c0aa58a2fedd9acfee"
+    "bytes": 41305,
+    "sha256": "409aec1e5a9615805e43e36022ad088bd63f76097cdac438a8e6389c02b9bae5"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
