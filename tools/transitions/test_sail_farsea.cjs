@@ -21,7 +21,7 @@ const KW=leg.sailK3Window(tl),K3_IN=KW.in,K3_OUT=KW.out,AW=leg.sailArcWindow(tl)
 assert(K3_IN>0&&K3_OUT>K3_IN&&K3_OUT<1,'K3 hold window');
 // Stills updated for the 3.6 m/s profile; camera geometry limits below stay unchanged.
 // b16 stills (eased arc clock, lens yaw from the smoothed route; sailStillTimes). Was K2 11.48 / K4 16.64 / K5 17.72.
-const GOLD={K1:{t:8.7,p:[-4.6486,3.39,5.793],q:[-0.1257,0.14,12.8995],f:48},K2:{t:13.675,p:[-5.4524,4.29,33.427],q:[-0.2905,0.14,17.1987],f:52},K4:{t:20.3,p:[-3.3501,5.2908,37.1748],q:[-4.4,0.14,48.7753],f:49.99883106154803},K5:{t:21.1357,p:[-3.465,6.14,38.6581],q:[-4.4,0.14,50.5581],f:48.5},K6:{t:tl.build05S-0.12,p:[-3.55,5.89,40.4],q:[-4.4,0.14,51.6],f:48}};
+const GOLD={K1:{t:8.7,p:[-4.6486,3.39,5.793],q:[-0.1257,0.14,12.8995],f:48},K2:{t:13.675,p:[-5.4524,4.29,33.427],q:[-0.2905,0.14,17.1987],f:52},K4:{t:20.4,p:[-3.3501,5.291,37.4482],q:[-4.4,0.14,49.0487],f:49.99860924139653},K5:{t:21.1857,p:[-3.465,6.14,38.7285],q:[-4.4,0.14,50.6285],f:48.50000000000001},K6:{t:tl.build05S-0.12,p:[-3.55,5.89,40.4],q:[-4.4,0.14,51.6],f:48}};
 for(const [k,g] of Object.entries(GOLD)){const c=leg.sailCamera(tl,route.samples,g.t);for(let i=0;i<3;i++){assert(Math.abs(c.position[i]-g.p[i])<2e-3,k+' position moved');assert(Math.abs(c.target[i]-g.q[i])<2e-3,k+' target moved');}assert(Math.abs(c.fovVerticalDeg-g.f)<1e-4,k+' fov');}
 // windmill share through the hold, every screen
 const share=[];let still=null;

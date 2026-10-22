@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T21:09:13.400Z",
+ "timeUTC": "2026-10-22T21:28:15.217Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -21,12 +21,12 @@
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
-    "t1": 20.25,
-    "omega": 58.304,
-    "omegaAt": 15.6,
-    "alpha": 89.861,
+    "t1": 20.35,
+    "omega": 58.412,
+    "omegaAt": 17.35,
+    "alpha": 137.081,
     "acc": 22.998,
-    "maxDaFrame": 4.207,
+    "maxDaFrame": 3.859,
     "maxDaAt": 16.25,
     "jumps": []
    },
@@ -35,23 +35,23 @@
     {
      "t0": 0,
      "t1": 9.6,
-     "omega": 0,
-     "omegaAt": 0,
-     "alpha": 0.003,
-     "alphaAt": 9.583,
-     "acc": 0,
-     "accAt": 9.583,
+     "omega": 7.53,
+     "omegaAt": 5.283,
+     "alpha": 5.212,
+     "alphaAt": 6.683,
+     "acc": 1.456,
+     "accAt": 3.617,
      "jumps": []
     },
     {
-     "t0": 20.25,
+     "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.211,
-     "omegaAt": 20.7,
-     "alpha": 18.292,
-     "alphaAt": 20.467,
-     "acc": 9.616,
-     "accAt": 21.8,
+     "omega": 5.522,
+     "omegaAt": 20.767,
+     "alpha": 20.552,
+     "alphaAt": 20.567,
+     "acc": 10.605,
+     "accAt": 21.817,
      "jumps": []
     }
    ],
@@ -71,24 +71,24 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 58.304,
-    "maxAlphaDegS2": 89.861,
+    "maxOmegaDegS": 58.412,
+    "maxAlphaDegS2": 137.081,
     "maxAccMS2": 22.998
    },
    "segments": [
     {
      "t0": 0,
      "t1": 23.821,
-     "omega": 58.304,
-     "omegaAt": 15.6,
+     "omega": 58.412,
+     "omegaAt": 17.35,
      "omegaPhase": "S-d",
-     "alpha": 89.861,
-     "alphaAt": 20.067,
-     "alphaPhase": "S-e",
+     "alpha": 137.081,
+     "alphaAt": 12.75,
+     "alphaPhase": "S-d",
      "acc": 22.998,
-     "accAt": 19.233,
+     "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.605,
+     "fovRate": 2.76,
      "jumps": 0
     },
     {
@@ -149,9 +149,9 @@
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 16.4898,
-     "viewDeg": 35.7986,
-     "fovDeg": 3
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     }
    }
   },
@@ -161,12 +161,12 @@
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
-    "t1": 20.25,
-    "omega": 58.304,
-    "omegaAt": 15.6,
-    "alpha": 89.861,
+    "t1": 20.35,
+    "omega": 58.412,
+    "omegaAt": 17.35,
+    "alpha": 137.081,
     "acc": 22.998,
-    "maxDaFrame": 4.207,
+    "maxDaFrame": 3.859,
     "maxDaAt": 16.25,
     "jumps": []
    },
@@ -175,23 +175,23 @@
     {
      "t0": 0,
      "t1": 9.6,
-     "omega": 0,
-     "omegaAt": 0,
-     "alpha": 0.003,
-     "alphaAt": 9.583,
-     "acc": 0,
-     "accAt": 9.583,
+     "omega": 7.53,
+     "omegaAt": 5.283,
+     "alpha": 5.212,
+     "alphaAt": 6.683,
+     "acc": 1.456,
+     "accAt": 3.617,
      "jumps": []
     },
     {
-     "t0": 20.25,
+     "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.211,
-     "omegaAt": 20.7,
-     "alpha": 18.292,
-     "alphaAt": 20.467,
-     "acc": 9.616,
-     "accAt": 21.8,
+     "omega": 5.522,
+     "omegaAt": 20.767,
+     "alpha": 20.552,
+     "alphaAt": 20.567,
+     "acc": 10.605,
+     "accAt": 21.817,
      "jumps": []
     }
    ],
@@ -211,24 +211,24 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 58.304,
-    "maxAlphaDegS2": 89.861,
+    "maxOmegaDegS": 58.412,
+    "maxAlphaDegS2": 137.081,
     "maxAccMS2": 22.998
    },
    "segments": [
     {
      "t0": 0,
      "t1": 23.821,
-     "omega": 58.304,
-     "omegaAt": 15.6,
+     "omega": 58.412,
+     "omegaAt": 17.35,
      "omegaPhase": "S-d",
-     "alpha": 89.861,
-     "alphaAt": 20.067,
-     "alphaPhase": "S-e",
+     "alpha": 137.081,
+     "alphaAt": 12.75,
+     "alphaPhase": "S-d",
      "acc": 22.998,
-     "accAt": 19.233,
+     "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.605,
+     "fovRate": 2.76,
      "jumps": 0
     },
     {
@@ -289,9 +289,9 @@
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 16.4898,
-     "viewDeg": 35.7986,
-     "fovDeg": 3
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     }
    }
   },
@@ -301,12 +301,12 @@
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
-    "t1": 20.25,
-    "omega": 58.304,
-    "omegaAt": 15.6,
-    "alpha": 89.861,
+    "t1": 20.35,
+    "omega": 58.412,
+    "omegaAt": 17.35,
+    "alpha": 137.081,
     "acc": 22.998,
-    "maxDaFrame": 4.207,
+    "maxDaFrame": 3.859,
     "maxDaAt": 16.25,
     "jumps": []
    },
@@ -315,23 +315,23 @@
     {
      "t0": 0,
      "t1": 9.6,
-     "omega": 0,
-     "omegaAt": 0,
-     "alpha": 0.003,
-     "alphaAt": 9.583,
-     "acc": 0,
-     "accAt": 9.583,
+     "omega": 7.53,
+     "omegaAt": 5.283,
+     "alpha": 5.212,
+     "alphaAt": 6.683,
+     "acc": 1.456,
+     "accAt": 3.617,
      "jumps": []
     },
     {
-     "t0": 20.25,
+     "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.211,
-     "omegaAt": 20.7,
-     "alpha": 18.292,
-     "alphaAt": 20.467,
-     "acc": 9.616,
-     "accAt": 21.8,
+     "omega": 5.522,
+     "omegaAt": 20.767,
+     "alpha": 20.552,
+     "alphaAt": 20.567,
+     "acc": 10.605,
+     "accAt": 21.817,
      "jumps": []
     }
    ],
@@ -351,24 +351,24 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 58.304,
-    "maxAlphaDegS2": 89.861,
+    "maxOmegaDegS": 58.412,
+    "maxAlphaDegS2": 137.081,
     "maxAccMS2": 22.998
    },
    "segments": [
     {
      "t0": 0,
      "t1": 23.821,
-     "omega": 58.304,
-     "omegaAt": 15.6,
+     "omega": 58.412,
+     "omegaAt": 17.35,
      "omegaPhase": "S-d",
-     "alpha": 89.861,
-     "alphaAt": 20.067,
-     "alphaPhase": "S-e",
+     "alpha": 137.081,
+     "alphaAt": 12.75,
+     "alphaPhase": "S-d",
      "acc": 22.998,
-     "accAt": 19.233,
+     "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.605,
+     "fovRate": 2.76,
      "jumps": 0
     },
     {
@@ -429,9 +429,9 @@
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 16.4898,
-     "viewDeg": 35.7986,
-     "fovDeg": 3
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     }
    }
   },
@@ -441,12 +441,12 @@
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
-    "t1": 20.25,
-    "omega": 58.304,
-    "omegaAt": 15.6,
-    "alpha": 89.861,
+    "t1": 20.35,
+    "omega": 58.412,
+    "omegaAt": 17.35,
+    "alpha": 137.081,
     "acc": 22.998,
-    "maxDaFrame": 4.207,
+    "maxDaFrame": 3.859,
     "maxDaAt": 16.25,
     "jumps": []
    },
@@ -455,23 +455,23 @@
     {
      "t0": 0,
      "t1": 9.6,
-     "omega": 0,
-     "omegaAt": 0,
-     "alpha": 0.003,
-     "alphaAt": 9.583,
-     "acc": 0,
-     "accAt": 9.583,
+     "omega": 7.53,
+     "omegaAt": 5.283,
+     "alpha": 5.212,
+     "alphaAt": 6.683,
+     "acc": 1.456,
+     "accAt": 3.617,
      "jumps": []
     },
     {
-     "t0": 20.25,
+     "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.211,
-     "omegaAt": 20.7,
-     "alpha": 18.292,
-     "alphaAt": 20.467,
-     "acc": 9.616,
-     "accAt": 21.8,
+     "omega": 5.522,
+     "omegaAt": 20.767,
+     "alpha": 20.552,
+     "alphaAt": 20.567,
+     "acc": 10.605,
+     "accAt": 21.817,
      "jumps": []
     }
    ],
@@ -491,24 +491,24 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 58.304,
-    "maxAlphaDegS2": 89.861,
+    "maxOmegaDegS": 58.412,
+    "maxAlphaDegS2": 137.081,
     "maxAccMS2": 22.998
    },
    "segments": [
     {
      "t0": 0,
      "t1": 23.821,
-     "omega": 58.304,
-     "omegaAt": 15.6,
+     "omega": 58.412,
+     "omegaAt": 17.35,
      "omegaPhase": "S-d",
-     "alpha": 89.861,
-     "alphaAt": 20.067,
-     "alphaPhase": "S-e",
+     "alpha": 137.081,
+     "alphaAt": 12.75,
+     "alphaPhase": "S-d",
      "acc": 22.998,
-     "accAt": 19.233,
+     "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.605,
+     "fovRate": 2.76,
      "jumps": 0
     },
     {
@@ -569,9 +569,9 @@
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 16.4898,
-     "viewDeg": 35.7986,
-     "fovDeg": 3
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     }
    }
   },
@@ -581,12 +581,12 @@
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
-    "t1": 20.25,
-    "omega": 58.304,
-    "omegaAt": 15.6,
-    "alpha": 89.861,
+    "t1": 20.35,
+    "omega": 58.412,
+    "omegaAt": 17.35,
+    "alpha": 137.081,
     "acc": 22.998,
-    "maxDaFrame": 4.207,
+    "maxDaFrame": 3.859,
     "maxDaAt": 16.25,
     "jumps": []
    },
@@ -595,23 +595,23 @@
     {
      "t0": 0,
      "t1": 9.6,
-     "omega": 0,
-     "omegaAt": 0,
-     "alpha": 0.003,
-     "alphaAt": 9.583,
-     "acc": 0,
-     "accAt": 9.583,
+     "omega": 7.53,
+     "omegaAt": 5.283,
+     "alpha": 5.212,
+     "alphaAt": 6.683,
+     "acc": 1.456,
+     "accAt": 3.617,
      "jumps": []
     },
     {
-     "t0": 20.25,
+     "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.211,
-     "omegaAt": 20.7,
-     "alpha": 18.292,
-     "alphaAt": 20.467,
-     "acc": 9.616,
-     "accAt": 21.8,
+     "omega": 5.522,
+     "omegaAt": 20.767,
+     "alpha": 20.552,
+     "alphaAt": 20.567,
+     "acc": 10.605,
+     "accAt": 21.817,
      "jumps": []
     }
    ],
@@ -631,24 +631,24 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 58.304,
-    "maxAlphaDegS2": 89.861,
+    "maxOmegaDegS": 58.412,
+    "maxAlphaDegS2": 137.081,
     "maxAccMS2": 22.998
    },
    "segments": [
     {
      "t0": 0,
      "t1": 23.821,
-     "omega": 58.304,
-     "omegaAt": 15.6,
+     "omega": 58.412,
+     "omegaAt": 17.35,
      "omegaPhase": "S-d",
-     "alpha": 89.861,
-     "alphaAt": 20.067,
-     "alphaPhase": "S-e",
+     "alpha": 137.081,
+     "alphaAt": 12.75,
+     "alphaPhase": "S-d",
      "acc": 22.998,
-     "accAt": 19.233,
+     "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.605,
+     "fovRate": 2.76,
      "jumps": 0
     },
     {
@@ -709,9 +709,9 @@
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 16.4898,
-     "viewDeg": 35.7986,
-     "fovDeg": 3
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     }
    }
   },
@@ -721,12 +721,12 @@
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
-    "t1": 20.25,
-    "omega": 58.304,
-    "omegaAt": 15.6,
-    "alpha": 89.861,
+    "t1": 20.35,
+    "omega": 58.412,
+    "omegaAt": 17.35,
+    "alpha": 137.081,
     "acc": 22.998,
-    "maxDaFrame": 4.207,
+    "maxDaFrame": 3.859,
     "maxDaAt": 16.25,
     "jumps": []
    },
@@ -735,23 +735,23 @@
     {
      "t0": 0,
      "t1": 9.6,
-     "omega": 0,
-     "omegaAt": 0,
-     "alpha": 0.003,
-     "alphaAt": 9.583,
-     "acc": 0,
-     "accAt": 9.583,
+     "omega": 7.53,
+     "omegaAt": 5.283,
+     "alpha": 5.212,
+     "alphaAt": 6.683,
+     "acc": 1.456,
+     "accAt": 3.617,
      "jumps": []
     },
     {
-     "t0": 20.25,
+     "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.211,
-     "omegaAt": 20.7,
-     "alpha": 18.292,
-     "alphaAt": 20.467,
-     "acc": 9.616,
-     "accAt": 21.8,
+     "omega": 5.522,
+     "omegaAt": 20.767,
+     "alpha": 20.552,
+     "alphaAt": 20.567,
+     "acc": 10.605,
+     "accAt": 21.817,
      "jumps": []
     }
    ],
@@ -771,24 +771,24 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 58.304,
-    "maxAlphaDegS2": 89.861,
+    "maxOmegaDegS": 58.412,
+    "maxAlphaDegS2": 137.081,
     "maxAccMS2": 22.998
    },
    "segments": [
     {
      "t0": 0,
      "t1": 23.821,
-     "omega": 58.304,
-     "omegaAt": 15.6,
+     "omega": 58.412,
+     "omegaAt": 17.35,
      "omegaPhase": "S-d",
-     "alpha": 89.861,
-     "alphaAt": 20.067,
-     "alphaPhase": "S-e",
+     "alpha": 137.081,
+     "alphaAt": 12.75,
+     "alphaPhase": "S-d",
      "acc": 22.998,
-     "accAt": 19.233,
+     "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.605,
+     "fovRate": 2.76,
      "jumps": 0
     },
     {
@@ -849,9 +849,9 @@
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 16.4898,
-     "viewDeg": 35.7986,
-     "fovDeg": 3
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     }
    }
   },
@@ -861,12 +861,12 @@
    "C1setoff": "PASS",
    "C1setoffDetail": {
     "t0": 9.6,
-    "t1": 20.25,
-    "omega": 58.304,
-    "omegaAt": 15.6,
-    "alpha": 89.861,
+    "t1": 20.35,
+    "omega": 58.412,
+    "omegaAt": 17.35,
+    "alpha": 137.081,
     "acc": 22.998,
-    "maxDaFrame": 4.207,
+    "maxDaFrame": 3.859,
     "maxDaAt": 16.25,
     "jumps": []
    },
@@ -875,23 +875,23 @@
     {
      "t0": 0,
      "t1": 9.6,
-     "omega": 0,
-     "omegaAt": 0,
-     "alpha": 0.003,
-     "alphaAt": 9.583,
-     "acc": 0,
-     "accAt": 9.583,
+     "omega": 7.53,
+     "omegaAt": 5.283,
+     "alpha": 5.212,
+     "alphaAt": 6.683,
+     "acc": 1.456,
+     "accAt": 3.617,
      "jumps": []
     },
     {
-     "t0": 20.25,
+     "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.211,
-     "omegaAt": 20.7,
-     "alpha": 18.292,
-     "alphaAt": 20.467,
-     "acc": 9.616,
-     "accAt": 21.8,
+     "omega": 5.522,
+     "omegaAt": 20.767,
+     "alpha": 20.552,
+     "alphaAt": 20.567,
+     "acc": 10.605,
+     "accAt": 21.817,
      "jumps": []
     }
    ],
@@ -911,24 +911,24 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 58.304,
-    "maxAlphaDegS2": 89.861,
+    "maxOmegaDegS": 58.412,
+    "maxAlphaDegS2": 137.081,
     "maxAccMS2": 22.998
    },
    "segments": [
     {
      "t0": 0,
      "t1": 23.821,
-     "omega": 58.304,
-     "omegaAt": 15.6,
+     "omega": 58.412,
+     "omegaAt": 17.35,
      "omegaPhase": "S-d",
-     "alpha": 89.861,
-     "alphaAt": 20.067,
-     "alphaPhase": "S-e",
+     "alpha": 137.081,
+     "alphaAt": 12.75,
+     "alphaPhase": "S-d",
      "acc": 22.998,
-     "accAt": 19.233,
+     "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.605,
+     "fovRate": 2.76,
      "jumps": 0
     },
     {
@@ -989,9 +989,9 @@
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 16.4898,
-     "viewDeg": 35.7986,
-     "fovDeg": 3
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     }
    }
   },

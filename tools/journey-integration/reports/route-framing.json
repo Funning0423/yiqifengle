@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T21:08:36.396Z",
+ "timeUTC": "2026-10-22T21:27:35.187Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -17,61 +17,28 @@
    "screen": "390x844",
    "frames": 1270,
    "herNotModelledFrames": 0,
-   "F1": "FAIL",
-   "F2": "FAIL",
-   "F3": "FAIL",
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
    "outOfFrame": {
-    "frames": 106,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.17,
-      "phase": "S-a"
-     },
-     {
-      "t0": 11.67,
-      "t1": 11.97,
-      "phase": "S-d"
-     }
-    ]
+    "frames": 0,
+    "spans": []
    },
    "rightOf80pct": {
-    "frames": 70,
-    "spans": [
-     {
-      "t0": 11.07,
-      "t1": 12.67,
-      "phase": "S-c"
-     },
-     {
-      "t0": 14.77,
-      "t1": 15.43,
-      "phase": "S-d"
-     }
-    ],
-    "maxRightEdgePctOfWidth": 100.7,
-    "atS": 11.77
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 77,
+    "atS": 14.87
    },
    "ui": {
-    "minGapPt": -1842.1,
-    "atS": 0,
-    "phase": "S-a",
-    "overlapFrames": 106,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.17,
-      "phase": "S-a"
-     },
-     {
-      "t0": 11.67,
-      "t1": 11.97,
-      "phase": "S-d"
-     }
-    ],
-    "framesUnder13pt": 14
+    "minGapPt": 24.1,
+    "atS": 24.77,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 2.988,
+   "maxWidthFrac": 0.304,
    "minHeightFrac": 0.0612
   },
   {
@@ -79,61 +46,28 @@
    "screen": "414x896",
    "frames": 1270,
    "herNotModelledFrames": 0,
-   "F1": "FAIL",
-   "F2": "FAIL",
-   "F3": "FAIL",
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
    "outOfFrame": {
-    "frames": 106,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.17,
-      "phase": "S-a"
-     },
-     {
-      "t0": 11.67,
-      "t1": 11.97,
-      "phase": "S-d"
-     }
-    ]
+    "frames": 0,
+    "spans": []
    },
    "rightOf80pct": {
-    "frames": 70,
-    "spans": [
-     {
-      "t0": 11.07,
-      "t1": 12.67,
-      "phase": "S-c"
-     },
-     {
-      "t0": 14.77,
-      "t1": 15.43,
-      "phase": "S-d"
-     }
-    ],
-    "maxRightEdgePctOfWidth": 100.7,
-    "atS": 11.77
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 77,
+    "atS": 14.87
    },
    "ui": {
-    "minGapPt": -1955.6,
-    "atS": 0,
-    "phase": "S-a",
-    "overlapFrames": 106,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.17,
-      "phase": "S-a"
-     },
-     {
-      "t0": 11.67,
-      "t1": 11.97,
-      "phase": "S-d"
-     }
-    ],
-    "framesUnder13pt": 14
+    "minGapPt": 25.6,
+    "atS": 24.77,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 2.988,
+   "maxWidthFrac": 0.304,
    "minHeightFrac": 0.0612
   },
   {
@@ -141,61 +75,28 @@
    "screen": "360x780",
    "frames": 1270,
    "herNotModelledFrames": 0,
-   "F1": "FAIL",
-   "F2": "FAIL",
-   "F3": "FAIL",
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
    "outOfFrame": {
-    "frames": 106,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.17,
-      "phase": "S-a"
-     },
-     {
-      "t0": 11.67,
-      "t1": 11.97,
-      "phase": "S-d"
-     }
-    ]
+    "frames": 0,
+    "spans": []
    },
    "rightOf80pct": {
-    "frames": 70,
-    "spans": [
-     {
-      "t0": 11.07,
-      "t1": 12.67,
-      "phase": "S-c"
-     },
-     {
-      "t0": 14.77,
-      "t1": 15.43,
-      "phase": "S-d"
-     }
-    ],
-    "maxRightEdgePctOfWidth": 100.7,
-    "atS": 11.77
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 77,
+    "atS": 14.87
    },
    "ui": {
-    "minGapPt": -1702.6,
-    "atS": 0,
-    "phase": "S-a",
-    "overlapFrames": 106,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.17,
-      "phase": "S-a"
-     },
-     {
-      "t0": 11.67,
-      "t1": 11.97,
-      "phase": "S-d"
-     }
-    ],
-    "framesUnder13pt": 16
+    "minGapPt": 22.1,
+    "atS": 24.77,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 2.991,
+   "maxWidthFrac": 0.305,
    "minHeightFrac": 0.0612
   },
   {
@@ -203,51 +104,28 @@
    "screen": "375x667",
    "frames": 1270,
    "herNotModelledFrames": 0,
-   "F1": "FAIL",
-   "F2": "FAIL",
-   "F3": "FAIL",
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
    "outOfFrame": {
-    "frames": 89,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 2.93,
-      "phase": "S-a"
-     }
-    ]
+    "frames": 0,
+    "spans": []
    },
    "rightOf80pct": {
-    "frames": 52,
-    "spans": [
-     {
-      "t0": 11.2,
-      "t1": 12.5,
-      "phase": "S-c"
-     },
-     {
-      "t0": 14.93,
-      "t1": 15.3,
-      "phase": "S-d"
-     }
-    ],
-    "maxRightEdgePctOfWidth": 91.6,
-    "atS": 11.77
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 72.2,
+    "atS": 14.87
    },
    "ui": {
-    "minGapPt": -1422.4,
-    "atS": 0,
-    "phase": "S-a",
-    "overlapFrames": 91,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3,
-      "phase": "S-a"
-     }
-    ],
-    "framesUnder13pt": 3
+    "minGapPt": 44.6,
+    "atS": 36.7,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 2.456,
+   "maxWidthFrac": 0.25,
    "minHeightFrac": 0.0612
   },
   {
@@ -255,51 +133,28 @@
    "screen": "320x568",
    "frames": 1270,
    "herNotModelledFrames": 0,
-   "F1": "FAIL",
-   "F2": "FAIL",
-   "F3": "FAIL",
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
    "outOfFrame": {
-    "frames": 89,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 2.93,
-      "phase": "S-a"
-     }
-    ]
+    "frames": 0,
+    "spans": []
    },
    "rightOf80pct": {
-    "frames": 52,
-    "spans": [
-     {
-      "t0": 11.2,
-      "t1": 12.5,
-      "phase": "S-c"
-     },
-     {
-      "t0": 14.93,
-      "t1": 15.3,
-      "phase": "S-d"
-     }
-    ],
-    "maxRightEdgePctOfWidth": 91.6,
-    "atS": 11.77
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 72.1,
+    "atS": 14.87
    },
    "ui": {
-    "minGapPt": -1210.9,
-    "atS": 0,
-    "phase": "S-a",
-    "overlapFrames": 92,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.03,
-      "phase": "S-a"
-     }
-    ],
-    "framesUnder13pt": 4
+    "minGapPt": 33,
+    "atS": 36.7,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 2.451,
+   "maxWidthFrac": 0.25,
    "minHeightFrac": 0.0612
   },
   {
@@ -307,46 +162,28 @@
    "screen": "390x520",
    "frames": 1270,
    "herNotModelledFrames": 0,
-   "F1": "FAIL",
-   "F2": "FAIL",
-   "F3": "FAIL",
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
    "outOfFrame": {
-    "frames": 83,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 2.73,
-      "phase": "S-a"
-     }
-    ]
+    "frames": 0,
+    "spans": []
    },
    "rightOf80pct": {
-    "frames": 16,
-    "spans": [
-     {
-      "t0": 11.57,
-      "t1": 12.07,
-      "phase": "S-c"
-     }
-    ],
-    "maxRightEdgePctOfWidth": 81.2,
-    "atS": 11.77
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 66.6,
+    "atS": 14.87
    },
    "ui": {
-    "minGapPt": -1060.1,
-    "atS": 0,
-    "phase": "S-a",
-    "overlapFrames": 93,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 3.07,
-      "phase": "S-a"
-     }
-    ],
-    "framesUnder13pt": 5
+    "minGapPt": 27.3,
+    "atS": 36.7,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 1.841,
+   "maxWidthFrac": 0.188,
    "minHeightFrac": 0.0612
   },
   {
@@ -354,46 +191,28 @@
    "screen": "768x1024",
    "frames": 1270,
    "herNotModelledFrames": 0,
-   "F1": "FAIL",
-   "F2": "FAIL",
-   "F3": "FAIL",
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
    "outOfFrame": {
-    "frames": 83,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 2.73,
-      "phase": "S-a"
-     }
-    ]
+    "frames": 0,
+    "spans": []
    },
    "rightOf80pct": {
-    "frames": 16,
-    "spans": [
-     {
-      "t0": 11.57,
-      "t1": 12.07,
-      "phase": "S-c"
-     }
-    ],
-    "maxRightEdgePctOfWidth": 81.2,
-    "atS": 11.77
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 66.6,
+    "atS": 14.87
    },
    "ui": {
-    "minGapPt": -2087.6,
-    "atS": 0,
-    "phase": "S-a",
-    "overlapFrames": 88,
-    "spans": [
-     {
-      "t0": 0,
-      "t1": 2.9,
-      "phase": "S-a"
-     }
-    ],
-    "framesUnder13pt": 2
+    "minGapPt": 86.7,
+    "atS": 36.7,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
    },
-   "maxWidthFrac": 1.841,
+   "maxWidthFrac": 0.188,
    "minHeightFrac": 0.0612
   },
   {

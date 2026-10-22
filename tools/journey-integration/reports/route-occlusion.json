@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T21:08:32.049Z",
+ "timeUTC": "2026-10-22T21:27:29.818Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
@@ -77,8 +77,8 @@
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 2.79,
-   "clearAtS": 0,
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
    "clearPhase": "S-a",
    "clearNearest": "island:env_island_props_merged"
   },
@@ -140,8 +140,8 @@
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 2.79,
-   "clearAtS": 0,
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
    "clearPhase": "S-a",
    "clearNearest": "island:env_island_props_merged"
   },
@@ -203,8 +203,8 @@
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 2.79,
-   "clearAtS": 0,
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
    "clearPhase": "S-a",
    "clearNearest": "island:env_island_props_merged"
   },
@@ -266,8 +266,8 @@
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 2.79,
-   "clearAtS": 0,
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
    "clearPhase": "S-a",
    "clearNearest": "island:env_island_props_merged"
   },
@@ -329,8 +329,8 @@
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 2.79,
-   "clearAtS": 0,
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
    "clearPhase": "S-a",
    "clearNearest": "island:env_island_props_merged"
   },
@@ -392,8 +392,8 @@
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 2.79,
-   "clearAtS": 0,
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
    "clearPhase": "S-a",
    "clearNearest": "island:env_island_props_merged"
   },
@@ -455,8 +455,8 @@
    ],
    "softCloudFrames": 0,
    "softSample": [],
-   "minLensClearM": 2.79,
-   "clearAtS": 0,
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
    "clearPhase": "S-a",
    "clearNearest": "island:env_island_props_merged"
   },

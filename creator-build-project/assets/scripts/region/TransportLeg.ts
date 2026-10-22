@@ -166,6 +166,9 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  * Portrait 390×844 is only ~25° wide, so a large side offset crops the hull
  * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
  */
+/** b16 item 4: S-a walk lens (her right, behind the jetty, aimed 6 m behind the bow at her path). */
+const K0:SailOff={back:12,side:-4,up:4,fov:50,look:2,orb:0};
+export const SAIL_K0_BLEND_S=5;
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 /**
  * Beam on her starboard side (b11). The jib, main and boom all sit to port of the centreline (+X), so from
@@ -199,7 +202,7 @@ const K3:SailOff={back:11.5,side:-2,up:4.4,fov:52,look:3,orb:0};
  * The tree is not moved or hidden; the route test O1/O2 lock it.
  * Arc window for the 60°/s exception: τ ∈ [0, K3→K4 end] (sailArcWindow).
  */
-export const SAIL_ARC_A0=0,SAIL_ARC_A_S=4.0,SAIL_K2_HOLD_S=0.15,SAIL_ARC_B_S=4.7,SAIL_K3_HOLD_S=0.6,SAIL_K34_S=1.2;
+export const SAIL_ARC_A0=0,SAIL_ARC_A_S=4.0,SAIL_K2_HOLD_S=0.15,SAIL_ARC_B_S=5.0,SAIL_K3_HOLD_S=0.4,SAIL_K34_S=1.2;
 const SAIL_EASE_RAMP=0.3;
 export const SAIL_ARC_A_LIFT=1.2;
 /** Eased cruise 0→1: sine-shaped speed ramps over the first/last SAIL_EASE_RAMP, constant speed between. C2. */
@@ -212,7 +215,7 @@ export function sailEase(u:number,r:number=SAIL_EASE_RAMP):number{
 }
 const B_IN=SAIL_ARC_A0+SAIL_ARC_A_S+SAIL_K2_HOLD_S,K3_IN_T=B_IN+SAIL_ARC_B_S,K3_OUT_T=K3_IN_T+SAIL_K3_HOLD_S;
 /** Legacy S-d u marks on the default route (S-c 2 s, S-d 8.22 s). Prefer sailK3Window / sailArcWindow / sailStillTimes. */
-export const SAIL_BEAM_IN=0.2615,SAIL_K3_IN=0.8332,SAIL_K3_OUT=0.9062;
+export const SAIL_BEAM_IN=0.2615,SAIL_K3_IN=0.8697,SAIL_K3_OUT=0.9183;
 export function sailArcWindow(tl:SailTimeline):{t0:number;t1:number}{const sc=tl.beats.find(x=>x.id==='S-c')!;return {t0:sc.t0,t1:sc.t0+K3_OUT_T+SAIL_K34_S};}
 /** Build05 times of the K stills on the b16 arc clock (K1 S-b, K2 hold, K3/K7 hold, K4 end of K3→K4, K5 on the K4→K6 move). */
 export function sailStillTimes(tl:SailTimeline):{k1:number;k2:number;k3:number;k4:number;k5:number}{
@@ -239,6 +242,13 @@ function orbitMix(a:SailOff,b:SailOff,u:number,ease:(x:number)=>number=smoother)
 }
 /** Keep the lens outside the 4.2 m hull. A straight blend from astern to ahead would cross the mast. */
 function guardOff(o:SailOff):SailOff{const r=Math.hypot(o.back,o.side);if(r>=7.2)return o;const k=7.2/Math.max(1e-3,r);return {...o,back:o.back*k,side:o.side*k};}
+/**
+ * b16 item 4: off the bow/stern axis the look point (metres along the hull) swings her sideways on screen; a 3 m look from a
+ * beam lens put her past the right edge (S-c 11.1–12.7 s, S-d 14.8–15.4 s). Damp it by sin²(bearing), only inside an arc
+ * (sin²(π·s) → the K-shot ends are untouched).
+ */
+const SAIL_SEAT_BACK=0.55;
+function lookDamp(o:SailOff,s:number):SailOff{const th=Math.atan2(o.side,o.back),w=1-smoother(s/0.3)*smoother((1-s)/0.3)*Math.min(1,3*Math.abs(Math.sin(th)));return {...o,look:o.look*w-SAIL_SEAT_BACK*(1-w)};}
 function orbitPath(a:SailOff,m:SailOff,b:SailOff,u:number):SailOff{
  // One arc a→b through m's bearing; the other fields follow the bearing with C1 joins at m.
  const s=sailEase(u),ang=(o:SailOff)=>Math.atan2(o.side,o.back);
@@ -250,17 +260,23 @@ function orbitPath(a:SailOff,m:SailOff,b:SailOff,u:number):SailOff{
   if(u1<1)return lerp(g(a),g(m),k==='up'?smoother(Math.min(1,u1*1.6)):smoother(u1));
   return lerp(g(m),g(b),smoother((th-tm)/(t1-tm)));};
  const r=f('r');
- return {back:Math.cos(th)*r,side:Math.sin(th)*r,up:f('up'),fov:f('fov'),look:f('look'),orb:f('orb')};
+ return lookDamp({back:Math.cos(th)*r,side:Math.sin(th)*r,up:f('up'),fov:f('fov'),look:f('look'),orb:f('orb')},s);
 }
 function sailOffset(tl:SailTimeline,b:SailBeat,t:number):SailOff{
  const sc=tl.beats.find(x=>x.id==='S-c')!,sd=tl.beats.find(x=>x.id==='S-d')!,tau=t-sc.t0;
- if(b.id==='S-a'||b.id==='S-b')return K1;
+ if(b.id==='S-a'){
+  // b16 item 4: she walks from the island stand (≈0.5 m behind the K1 lens) to the bench through S-a. K0 stands further back
+  // and higher, aimed at the jetty, so her whole walk is in frame; it eases to K1 over the last SAIL_K0_BLEND_S of S-a.
+  const u=(t-(b.t1-SAIL_K0_BLEND_S))/SAIL_K0_BLEND_S;
+  return u<=0?K0:u>=1?K1:orbitMix(K0,K1,u);
+ }
+ if(b.id==='S-b')return K1;
  if(b.id==='S-c'||b.id==='S-d'||b.id==='S-e'){
   const ez=(o:SailOff,p:SailOff,u:number)=>orbitMix(o,p,sailEase(u),(x)=>x);
   if(tau<SAIL_ARC_A0)return K1;
   if(tau<SAIL_ARC_A0+SAIL_ARC_A_S){
    // Lifted over the bow quarter (sin bump, zero slope at both ends): a low lens there sees her port limbs through the jib.
-   const u=(tau-SAIL_ARC_A0)/SAIL_ARC_A_S,o=ez(K1,K2,u),e=sailEase(u);return {...o,up:o.up+SAIL_ARC_A_LIFT*Math.sin(Math.PI*e)**2};
+   const u=(tau-SAIL_ARC_A0)/SAIL_ARC_A_S,e=sailEase(u),o=lookDamp(ez(K1,K2,u),e);return {...o,up:o.up+SAIL_ARC_A_LIFT*Math.sin(Math.PI*e)**2};
   }
   if(tau<B_IN)return K2;
   if(tau<K3_IN_T)return orbitPath(K2,Kbeam,K3,(tau-B_IN)/SAIL_ARC_B_S);
