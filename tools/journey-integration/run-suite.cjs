@@ -111,7 +111,7 @@ const tests=[
  ['free-orbit','tools/region-nodes/test_free_orbit.cjs'],
  ['room-keepinside','tools/region-nodes/test_room_keepinside.cjs'],
  ['explore-input','tools/region-nodes/test_explore_input.cjs'],
- ['lakeside-walkable','tools/lakeside-walkable/test_lakeside_walkable.cjs'],
+ ['lakeside-walkable','tools/lakeside-walkable/test_lakeside_walkable.cjs'],['lakeside-seam-skirt','tools/lakeside/test_lakeside_seam_skirt.cjs'],
  ['meadow-board-framing','tools/meadow/test_meadow_board_framing.cjs'],
  ['node-board-pose','tools/region-nodes/test_node_board_pose.cjs'],
  ['region-transport-flag','tools/region-nodes/test_transport_flag.cjs'],
