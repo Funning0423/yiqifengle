@@ -71,11 +71,12 @@ def measure(r):
     bv,bt=wm(B);T={k:BVHTree.FromPolygons(bv,[x for x,pi in bt if PC[pi]==k]) for k in ('FACE','CHIN','HAIR','HAT','ARM','HANDR','TORSO','LEG')}
     BF=BVHTree.FromPolygons(bv,[x for x,_ in bt])
     X={}
-    for n in ('APRON','DRESS','BOW','SCARF'):
+    for n in [x for x in ('APRON','DRESS','BOW','SCARF') if x in M]:
         v,t=wm(M[n]);X[n]=BVHTree.FromPolygons(v,[x for x,_ in t])
-    S=X['SCARF']
-    for k in ('FACE','CHIN','HAIR','HAT','ARM','HANDR','TORSO'): r['S_'+k]=len(S.overlap(T[k]))
-    r['S_APRON']=len(S.overlap(X['APRON']));r['S_RIBBON']=len(S.overlap(X['BOW']));r['S_DRESS']=len(S.overlap(X['DRESS']))
+    S=X.get('SCARF')
+    if S:
+        for k in ('FACE','CHIN','HAIR','HAT','ARM','HANDR','TORSO'): r['S_'+k]=len(S.overlap(T[k]))
+        r['S_APRON']=len(S.overlap(X['APRON']));r['S_RIBBON']=len(S.overlap(X['BOW']));r['S_DRESS']=len(S.overlap(X['DRESS']))
     r['C_DRESSxBODY']=len(X['DRESS'].overlap(BF));r['C_APRONxBODY']=len(X['APRON'].overlap(BF));r['C_DRESSxAPRON']=len(X['DRESS'].overlap(X['APRON']))
     r['B_HAIRxTORSO']=len(T['HAIR'].overlap(T['TORSO']))
     if LBODY:
@@ -87,8 +88,15 @@ def measure(r):
                 c=(V[base+x[0]]+V[base+x[1]]+V[base+x[2]])/3;(TG if (c-sp).length<0.022 else TL).append(tuple(i+base for i in x))
         L=BVHTree.FromPolygons(V,TL);G=BVHTree.FromPolygons(V,TG)
         r['L_LEG']=len(L.overlap(T['LEG']));r['L_DRESS']=len(L.overlap(X['DRESS']));r['L_APRON']=len(L.overlap(X['APRON']));r['L_TORSO']=len(L.overlap(T['TORSO']))
-        r['L_BOW']=len(L.overlap(X['BOW']));r['L_SCARF']=len(L.overlap(S));r['L_ARM']=len(L.overlap(T['ARM']))+len(L.overlap(T['HANDR']))
+        r['L_BOW']=len(L.overlap(X['BOW']));r['L_SCARF']=len(L.overlap(S)) if S else None;r['L_ARM']=len(L.overlap(T['ARM']))+len(L.overlap(T['HANDR']))
         r['G_HAND']=len(G.overlap(T['HANDR']))
+        ax=(LROOT.matrix_world.to_3x3()@Vector((0,1,0))).normalized();e0=sp-ax*0.018;e1=sp+ax*0.018
+        hvs=[bv[i] for i in {i for x,pi in bt if PC[pi]=='HANDR' for i in x}];dep=0.0;nin=0
+        for v in hvs:
+            u=max(0,min(1,(v-e0).dot(e1-e0)/(e1-e0).length_squared));d=(v-(e0+(e1-e0)*u)).length
+            if d<0.006 and 0<u<1: nin+=1;dep=max(dep,0.006-d)
+        r['G_inside_verts']=nin;r['G_inside_depth_mm']=round(dep*1000,2)
+        r['L_ARMonly']=len(L.overlap(T['ARM']))
         hv=[bv[i] for x,pi in bt if PC[pi]=='HANDR' for i in x]
         r['G_clear_mm']=round(min(G.find_nearest(v)[3] for v in hv[::3])*1000,2) if TG else None
 rows=[];TAG=os.environ.get('TAG','run')
@@ -101,6 +109,8 @@ for c in CL:
 XF=[('idle_breathing_loop','walk_start'),('walk_start','walk_loop'),('walk_loop','walk_stop_bodyL'),('walk_loop','walk_stop_bodyR'),('walk_stop_bodyL','idle_breathing_loop'),('walk_stop_bodyR','idle_breathing_loop'),
     ('walk_loop','walk_turn_90_bodyL'),('walk_loop','walk_turn_90_bodyR'),('walk_loop','walk_turn_180'),('walk_loop','walk_turn_180_bodyR'),
     ('walk_turn_90_bodyL','walk_loop'),('walk_turn_90_bodyR','walk_loop'),('walk_turn_180','walk_loop'),('walk_turn_180_bodyR','walk_loop')]
+SUF=os.environ.get('XFSUF','')
+XF=[(a+SUF,b+SUF) for a,b in XF]
 if os.environ.get('XF')=='1':
     for a,b in XF:
         for f in range(7):
