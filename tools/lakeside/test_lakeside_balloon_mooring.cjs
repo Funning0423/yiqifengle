@@ -82,5 +82,6 @@ assert.deepEqual(errors,[],'option A acceptance');
  const end=B.stepdownRootAt(S.durationS),at6=B.stepdownRootAt(.6);assert(Math.abs(end[0]-1.1566)<1e-6&&Math.abs(end[1]+.03)<1e-6&&Math.abs(at6[1]+.03)<5e-3,'stepdown root table');
  const r=B.walkFrom(M.walk,S.forwardEnd),lr=r.reduce((a,p,i)=>i?a+Math.hypot(p[0]-r[i-1][0],p[1]-r[i-1][1],p[2]-r[i-1][2]):0,0);
  assert(Math.abs(lr-(M.length-S.forwardEnd))<2e-3&&Math.abs(r[0][1]-.572)<1e-9,'rest walk from 1.1566 m on the lawn '+lr);}
-{const k0=B.standupRootK(0,1.266667),k1=B.standupRootK(1.266667,1.266667),kh=B.standupRootK(.633333,1.266667);assert(k0===0&&Math.abs(k1-1)<1e-9&&kh>0&&kh<1,'stand-up root fraction 0..1');}
+{const k0=B.standupRootK(0,1.266667),k1=B.standupRootK(1.266667,1.266667),kh=B.standupRootK(.633333,1.266667);assert(k0===0&&Math.abs(k1-1)<1e-9&&kh>0&&kh<1,'stand-up root fraction 0..1');
+ const U=B.LAKESIDE_STANDUP;assert(U.t.length===39&&Math.abs(U.forwardEnd-.494)<1e-9,'stand_up forward_m table');for(let i=0;i<U.t.length;i++)assert(Math.abs(B.standupRootK(U.t[i],U.durationS)*U.forwardEnd-U.forward[i])<1e-6,'stand-up root follows forward_m @'+U.t[i]);}
 console.log('PASS mooring, mesh frusta, right free look, geometry, unchanged shore, b15 door exit (yaw, P0, 0.8 m/s planner walk, r>=1, door clock, foot lock) and stationary end lens');

@@ -278,8 +278,11 @@ export const LAKESIDE_STEPDOWN={clip:'walk_start_stepdown',durationS:1.7333,loop
 /** Root (forward m, y m) of walk_start_stepdown at clip time t (linear between the 30 fps samples, clamped). */
 export function stepdownRootAt(t:number):[number,number]{const S=LAKESIDE_STEPDOWN,T=S.t,n=T.length;if(t<=T[0])return [S.forward[0],S.y[0]];if(t>=T[n-1])return [S.forward[n-1],S.y[n-1]];
  let i=1;while(i<n-1&&T[i]<t)i++;const u=(t-T[i-1])/((T[i]-T[i-1])||1);return [S.forward[i-1]+(S.forward[i]-S.forward[i-1])*u,S.y[i-1]+(S.y[i]-S.y[i-1])*u];}
-/** b15 stand-up: fraction of the seat → P0 root travel at clip time t (linear over the clip). */
-export function standupRootK(t:number,dur:number):number{return Math.max(0,Math.min(1,t/(dur||1)));}
+/** b15 stand-up: root_motion.forward_m of stand_up (anim_meta, 30 fps, 39 samples, ends 0.494 m = seat → P0). */
+export const LAKESIDE_STANDUP={clip:'stand_up',durationS:1.266667,forwardEnd:0.494,t:[0,0.033333,0.066667,0.1,0.133333,0.166667,0.2,0.233333,0.266667,0.3,0.333333,0.366667,0.4,0.433333,0.466667,0.5,0.533333,0.566667,0.6,0.633333,0.666667,0.7,0.733333,0.766667,0.8,0.833333,0.866667,0.9,0.933333,0.966667,1,1.033333,1.066667,1.1,1.133333,1.166667,1.2,1.233333,1.266667],forward:[0,0.013,0.026,0.039,0.052,0.065,0.078,0.091,0.104,0.117,0.13,0.143,0.156,0.169,0.182,0.195,0.208,0.221,0.234,0.247,0.26,0.273,0.286,0.299,0.312,0.325,0.338,0.351,0.364,0.377,0.39,0.403,0.416,0.429,0.442,0.455,0.468,0.481,0.494]};
+/** b15 stand-up: fraction of the seat → P0 root travel at clip time t, following forward_m (scaled by dur/durationS). */
+export function standupRootK(t:number,dur:number):number{const S=LAKESIDE_STANDUP,T=S.t,F=S.forward,n=T.length,x=t*S.durationS/(dur||S.durationS);
+ if(x<=T[0])return 0;if(x>=T[n-1])return 1;let i=1;while(i<n-1&&T[i]<x)i++;const u=(x-T[i-1])/((T[i]-T[i-1])||1);return (F[i-1]+(F[i]-F[i-1])*u)/S.forwardEnd;}
 /** The part of a walk polyline from route distance s on (first point = the point at s). */
 export function walkFrom(walk:readonly Vec[],s:number):Vec[]{let acc=0;for(let i=1;i<walk.length;i++){const a=walk[i-1],b=walk[i],l=seg(a,b);
   if(acc+l>=s){const u=l>0?(s-acc)/l:0;return [[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u] as Vec,...walk.slice(i).map(p=>[p[0],p[1],p[2]] as Vec)];}acc+=l;}

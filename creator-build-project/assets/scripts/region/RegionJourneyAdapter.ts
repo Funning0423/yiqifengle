@@ -324,7 +324,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
    const hold=()=>{if(!dead&&lastPose)world.setCamera(lastPose);};director.on(Director.EVENT_BEFORE_DRAW,hold);
    // b15 stand-up v1b: on the seat (where she rode) sit_hold → HARD CUT stand_up (REPORT: start_pose = sit_hold f0, no crossfade;
-   // 1.2667 s time clock, root carried seat → P0 along the facing) → crossfade 0.2 into idle at P0 facing the door (cancelAndReset
+   // 1.2667 s time clock, root carried seat → P0 along the facing by stand_up root_motion.forward_m (LAKESIDE_STANDUP)) → crossfade 0.2 into idle at P0 facing the door (cancelAndReset
    // in place) = getout t0. Without the stand_up clip / playNamed: the old placement (cancelAndReset straight to P0).
    {const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.playNamed==='function'&&n&&isValid(n,true));
     if(canStand){const w=n!.worldPosition,seatRoot:Vec=[w.x,w.y,w.z],P0=moored.start as Vec;
