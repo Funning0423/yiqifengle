@@ -27,6 +27,19 @@ export const FLIGHT_DURATION=36;
 export const CLOUD_WINDOW:[number,number]=[11,12];
 export const LIGHT_RAMP_T0=10.7;
 export const LIGHT_RAMP_YAW=104.253;
+/**
+ * Sun yaw offset (deg, added to the board light's yaw) during the balloon leg.
+ * The seam re-bases transit content by P−Mw = −104.253° in yaw, so to keep the sun fixed relative to what the
+ * player sees the light must sit at −104.253° right after the seam. Previously the offset was ramped +104° in
+ * 0.7 s *before* the seam (10.7–11.4 s, ~150°/s visible spin) and snapped back. Now: 0 before the seam, −104.253
+ * at the seam (content-relative continuous), then smoothstep back to 0 by LAND_T so the arrival/board cut matches.
+ */
+export function balloonLightYawOffset(t:number):number{
+ if(t+1e-9<SEAM_T)return 0;
+ if(t>=LAND_T)return 0;
+ const u=Math.max(0,Math.min(1,(t-SEAM_T)/(LAND_T-SEAM_T)));
+ return -LIGHT_RAMP_YAW*(1-u*u*(3-2*u));
+}
 export type Rigid={yawDeg:number;origin:Vec};
 export type FlightFrame='meadow'|'world';
 export type FlightKey={t:number;frame?:FlightFrame;pos:Vec;yawDeg:number;rollDeg:number;cam:Vec;camLook:Vec};
