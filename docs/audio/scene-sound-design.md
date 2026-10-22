@@ -151,7 +151,7 @@ ACNH 的做法：每个地方的曲子共用一个主题，只换编配、速度
 | 底床 | 高空风 + D 小调五声微光（合成） | `region_skycity/audio/amb_sky_air_loop` | 32.0 s，vol 0.75 |
 | 点缀 | 无（高处没有鸟虫，安静就是特色） | — | — |
 | 地标 | 云中瀑布（新，真实流水推远） | `region_skycity/audio/amb_sky_waterfall_loop` | 锚点 `env_sky_waterfall_mist`，16.0 s，vol 0.55，4–35 m |
-| 地标 | 风铃（新，合成玻璃铃，D 小调五声） | `region_skycity/audio/sfx_sky_chime_1..2` | 锚点 `env_sky_windchime`，10–22 s，3–20 m |
+| 地标 | 风铃（新，合成玻璃铃，D 小调五声） | `region_skycity/audio/sfx_sky_chime_1..2` | 锚点 `env_sky_windchime`，10–22 s，3–20 m，音量 0.3（chime-v2） |
 | 地标 | 小旗扑动（复用已有） | `resources/audio_sfx/sfx_apron_flap` | 锚点 `env_sky_pennant`，14–30 s，vol 0.18，2–10 m |
 
 | 地标（**待定，候选，没接进配置**） | 星环转动：很轻的 D 小调五声嗡鸣，4 s / 8 s 周期起伏（合成） | `region_skycity/audio/amb_sky_starring_loop` | 锚点 `starring_spin`，16.0 s 循环，vol 0.45，3–25 m |

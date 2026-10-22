@@ -1026,13 +1026,13 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_1.mp3",
-    "bytes": 26000,
-    "sha256": "ee77cace458ec70b294223afdd7b6b259865955c67a8c5fab5484c4a7260fbee"
+    "bytes": 14768,
+    "sha256": "18902b912ffc5c102d219682a9793f1275f0c81f3bb057316d65c3414efd3b06"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_chime_2.mp3",
-    "bytes": 27296,
-    "sha256": "9e36c3a9ee9da04efb7629c4c54905b1dba7f784e649f44e8453a5be0c5439b4"
+    "bytes": 14768,
+    "sha256": "97e69b852a772b10a384dfe5d0c0b0bc6eeb89bd69780485eaa213a88c8a9864"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/sfx_sky_gardener_boop_1.mp3",
