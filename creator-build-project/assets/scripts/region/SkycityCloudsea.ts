@@ -1,4 +1,5 @@
 import {_decorator,Camera,Color,Component,Director,Material,MeshRenderer,Node,Prefab,director,instantiate,isValid} from 'cc';
+import {REGION_BOARD_NIGHT_CLEAR,regionNightNow} from './RegionBoardNight';
 const {ccclass}=_decorator;
 export const SKY_CLOUDSEA_HIDDEN=['env_sky_cloudsea','env_sky_cumulus_far'];
 const seaOwners=new Set<SkycityCloudsea>();
@@ -35,8 +36,14 @@ export class SkycityCloudsea extends Component{
   private syncDay(scene:Node){
     // The soft sea is shown only after landing (also used by normal visits and qaShot).
     // Leave the existing flight/night backdrop untouched.
-    if((globalThis as any).__worldDayNight?.snapshot?.()?.mode==='night'){this.restoreDay();return;}
+    // b16 P1-2 (运镜bot): at night the sky city has no backdrop of its own once the flight sky is gone, so every camera on its
+    // layer kept the engine default clear (#333): the post-L12 skycity shot showed a flat grey upper half. Night now keeps the
+    // room props as they are (no day hides) but clears to the region night sky (REGION_BOARD_NIGHT_CLEAR, the same sky the
+    // skycity board eases to); day is unchanged. Both are restored on hide (restoreDay).
+    const night=regionNightNow();
+    if(night&&savedDayNodes.size){for(const [n,active] of savedDayNodes)if(isValid(n,true))n.active=active;savedDayNodes.clear();}
     dayOwners.add(this);
+    if(night){const N=REGION_BOARD_NIGHT_CLEAR;this.clearCameras(scene,N[0],N[1],N[2]);return;}
     const hide=(n:Node)=>{if(!savedDayNodes.has(n))savedDayNodes.set(n,n.active);n.active=false;};
     const walk=(n:Node,inRoom=false)=>{
       inRoom=inRoom||n.name==='room_no_original_chair';
@@ -47,9 +54,13 @@ export class SkycityCloudsea extends Component{
     // The arriving balloon belongs to the journey rig, outside the old room.
     const vehicle=this.node.parent?.getChildByName('transport_balloon');if(vehicle)hide(vehicle);
     for(const n of savedDayNodes.keys())if(isValid(n,true))n.active=false;
+    this.clearCameras(scene,156,202,223);
+  }
+  private clearCameras(scene:Node,r:number,g:number,b:number){
     for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0){
       if(!savedDayCameras.has(camera))savedDayCameras.set(camera,{flags:camera.clearFlags,color:new Color(camera.clearColor.r,camera.clearColor.g,camera.clearColor.b,camera.clearColor.a)});
-      camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(156,202,223,255);
+      const c=camera.clearColor;if(camera.clearFlags===Camera.ClearFlag.SOLID_COLOR&&c.r===r&&c.g===g&&c.b===b)continue;
+      camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(r,g,b,255);
     }
   }
   private restoreSea(){

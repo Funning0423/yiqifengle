@@ -38,6 +38,9 @@ function dayState(hidden){
  assert.equal(camera.clearFlags,hidden?cc.Camera.ClearFlag.SOLID_COLOR:14);
  assert.deepEqual([camera.clearColor.r,camera.clearColor.g,camera.clearColor.b],hidden?[156,202,223]:[51,51,51]);
 }
+function nightState(){for(const i of [0,1,2])assert.equal(oldNodes[i].active,true,'night keeps the room props');
+ assert.equal(camera.clearFlags,cc.Camera.ClearFlag.SOLID_COLOR,'night: solid clear, never the bare engine default');
+ assert.deepEqual([camera.clearColor.r,camera.clearColor.g,camera.clearColor.b],[0,12,68],'night: REGION_BOARD_NIGHT_CLEAR');}
 let refs=0;const prefab={addRef(){refs++;},decRef(){refs--;}};
 function mount(){
  const rig=new cc.Node('SkyRig');scene.addChild(rig);const model=new cc.Node('env_skycity');rig.addChild(model);model.layer=1<<20;
@@ -65,7 +68,10 @@ a.c.setFlightHidden(true);dayState(true);assert.equal(vehicle.active,false,'othe
 b.c.onDisable();dayState(false);assert.equal(vehicle.active,true,'last day owner restores balloon');
 // A single owner switches day/night live and releases without touching the night backdrop.
 a.c.setFlightHidden(false);dayState(true);
-mode='night';a.c.setFlightHidden(false);dayState(false);assert.equal(vehicle.active,true);
+// b16 P1-2 (运镜bot): after the ride the transit night dome is off (skyNodeAfterArrival) and the sky city has no night backdrop
+// of its own, so night must clear to the region night sky (REGION_BOARD_NIGHT_CLEAR), not the engine #333; room props untouched.
+mode='night';a.c.setFlightHidden(false);nightState();assert.equal(vehicle.active,true);
+a.c.setFlightHidden(false);nightState();
 mode='day';a.c.setFlightHidden(false);dayState(true);
 // Event-driven refresh covers normal visit visibility and qaShot without a transit ride.
 a.c.onEnable();a.model.parent.active=false;draw.emit(cc.Director.EVENT_BEFORE_DRAW);dayState(false);
