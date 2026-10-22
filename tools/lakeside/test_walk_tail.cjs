@@ -68,6 +68,6 @@ async function run(name,events){
  assert(/async playReward\([^)]*\)\{\n  await \(character as any\)\.__qfWalkTail\?\.done/.test(src('world-r2/RegionNodeStage.ts')));
  assert(/async playFinale\([^)]*\)\{\n  await \(character as any\)\.__qfWalkTail\?\.done/.test(src('world-r2/RegionNodeStage.ts')));
  assert((src('world-r2/WorldNativeComposition.ts').match(/await \(this\.boundCharacter as any\)\.__qfWalkTail\?\.done/g)||[]).length===2);
- const ad=src('region/RegionJourneyAdapter.ts');assert(/const rideToken=tailToken as any as Cancellation;/.test(ad)&&/beginTail\(actor,tail,/.test(ad)&&/dead=true;tailStop\(\);/.test(ad)&&/rideOver=true;/.test(ad));
+ const ad=src('region/RegionJourneyAdapter.ts');assert(/const rideToken=tailToken as any as Cancellation;/.test(ad)&&/beginTail\(actor,tail,/.test(ad)&&/beforeDraw\);tailStop\(\);rig\.active=false;/.test(ad)&&/rideOver=true;/.test(ad));
  console.log(JSON.stringify(out));console.log('PASS walk tail: tap/match/level enter/exit/re-enter/complete/pause keep her walk continuous; shore once');
 })().catch(e=>{console.error(e);process.exit(1);});

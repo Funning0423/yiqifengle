@@ -2762,7 +2762,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
     "bytes": 41229,
-    "sha256": "d20e9099f1c74891605efeae9f5c4b5a702482d3d85baa5167f52b41fd76b675"
+    "sha256": "4faec9dfa9dda9a3a4d0d4ffa41758f10d189d5a181e3813e34df6b0caca280e"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4216,8 +4216,8 @@
   },
   {
     "path": "tools/lakeside/test_walk_tail.cjs",
-    "bytes": 7755,
-    "sha256": "49b1b3ab3f08b388a86c457537ac201f72767d72a291b6d23c0d303632d6a2f6"
+    "bytes": 7776,
+    "sha256": "d0a63d0d89f6330b6b4440cb36b41908b4d3b4bdd1cadfbf9074585d36e98c60"
   },
   {
     "path": "tools/mainline-fixtures/loss-first-stage.json",
