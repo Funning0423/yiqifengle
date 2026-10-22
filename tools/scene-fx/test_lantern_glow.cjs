@@ -6,10 +6,11 @@ const ts = require('../qf-env.cjs').typescript(), tmp = fs.mkdtempSync(path.join
 fs.writeFileSync(path.join(tmp, 'c.js'), ts.transpileModule(fs.readFileSync(path.join(S, 'render/LanternGlowCore.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5 } }).outputText);
 const C = require(path.join(tmp, 'c.js'));
 let fail = 0; function check(n, ok, info) { if (!ok) fail++; console.log((ok ? 'PASS ' : 'FAIL ') + n + (info === undefined ? '' : ' ' + JSON.stringify(info))); }
-const L = C.LANTERN_GLOW, g16 = C.lanternGlowFor(0.16), g115 = C.lanternGlowFor(0.115);
-check('ref-offset', g16.offset[1] === -0.148 && g16.offset[0] === 0, g16.offset);
-check('ref-radius', Math.abs(g16.radius - 0.2) < 1e-9, g16.radius);
-check('scales-with-height', Math.abs(g115.radius / g16.radius - 0.115 / 0.16) < 1e-9 && Math.abs(g115.offset[1] - (-0.148 * 0.115 / 0.16)) < 1e-9, g115);
+const L = C.LANTERN_GLOW, g115 = C.lanternGlowFor(0.115), g10 = C.lanternGlowFor(0.10), g16 = C.lanternGlowFor(0.16), gd = C.lanternGlowFor(0);
+check('v2-default-height', L.refHeightM === 0.115 && gd.offset[1] === -0.0984 && gd.offset[0] === 0, gd);
+check('ref-radius', Math.abs(g115.radius - 0.14375) < 1e-9, g115.radius);
+check('radius-cap-clear-of-face', g16.radius <= L.maxRadiusM && L.maxRadiusM * (1 + L.breathe) <= 1.40 - 0.98 - 0.25, g16.radius);
+check('scales-with-height', Math.abs(g10.radius / g115.radius - 0.10 / 0.115) < 1e-9 && Math.abs(g10.offset[1] - (-0.0984 * 0.10 / 0.115)) < 1e-9, g10);
 check('explicit-core-offset', C.lanternGlowFor(0.12, [0, -0.11, 0]).offset[1] === -0.11);
 check('colour', L.color.join() === '1,0.62,0.25');
 check('night-only', C.lanternGlowIntensity(true) === 1 && C.lanternGlowIntensity(false) === 0);

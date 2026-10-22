@@ -11,8 +11,8 @@ CCEffect %{
       frag: lantern-glow-fs:frag
       properties:
         tint:       { value: [1.0, 0.62, 0.25, 1.0], editor: { type: color, tooltip: 'linear rgb (core emissive colour), a intensity (day/night)' } }
-        glowParams: { value: [0.20, 0.55, 0.06, 0.04], editor: { tooltip: 'x radius (m), y halo strength, z breathe amount, w flicker amount' } }
-        faceGuard:  { value: [0.45, 1.2, 0.0, 0.0], editor: { tooltip: 'x min intensity when close, y distance (m) below which the glow dims' } }
+        glowParams: { value: [0.144, 0.55, 0.06, 0.04], editor: { tooltip: 'x radius (m), y halo strength, z breathe amount, w flicker amount' } }
+        faceGuard:  { value: [0.35, 1.4, 0.0, 0.0], editor: { tooltip: 'x min intensity when close, y distance (m) below which the glow dims' } }
       rasterizerState: { cullMode: none }
       depthStencilState: { depthTest: true, depthWrite: false }
       blendState:

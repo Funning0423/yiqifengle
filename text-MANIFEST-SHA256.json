@@ -1786,8 +1786,8 @@
   },
   {
     "path": "creator-build-project/assets/resources/world/lantern-glow.effect",
-    "bytes": 2821,
-    "sha256": "be232b6b087d739f82d12d01b1e64b2e4e47da5340d993cff31ebe47e9cd36f9"
+    "bytes": 2822,
+    "sha256": "24151cda3c12f1469a2d3fc299f2d5ae9d6c1cd410a28ff110c7ff6c503aa035"
   },
   {
     "path": "creator-build-project/assets/resources/world/lantern-glow.effect.meta",
@@ -3331,8 +3331,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/LanternGlowCore.ts",
-    "bytes": 2655,
-    "sha256": "98b0041e8122eb01911c8d90979955418cc32b7d7bf693a6656399adf04311e1"
+    "bytes": 3105,
+    "sha256": "4706980d75dce3393345fe96f3619e9e7a94b230797eeb8e76fcae017c91f33e"
   },
   {
     "path": "creator-build-project/assets/scripts/render/LanternGlowCore.ts.meta",
