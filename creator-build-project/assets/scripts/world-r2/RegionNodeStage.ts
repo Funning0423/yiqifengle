@@ -11,7 +11,6 @@ import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
 import {planWalk} from '../region/NodeWalker';
 import {performBounded,runRewardWalk,runSkyFinale,type PathPlace} from '../region/RegionNodePlay';
 import {emitTransitCue} from '../region/TransitAudioHooks';
-import {transportFor, usesRainbowBridge} from '../region/JourneyTransport';
 import {PROP_NODES,SCENE_PROPS,propFeedback,resolveTap,pickMarker,type Gesture} from './ExploreInput';
 import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarkers';
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
@@ -79,7 +78,7 @@ export class RegionNodeStage extends Component{
  private model(region:RegionId):Node|null{
   if(region==='island')return null;
   const rig=findDeep(director.getScene(),'RegionJourney-'+region);if(!rig)return null;
-  return rig.children.find(c=>!c.name.startsWith('RainbowBridge'))||null;
+  return rig.children[0]||null;
  }
  private toWorld(region:RegionId,path:readonly Vec[]):Vec[]{
   const model=this.model(region);if(!model)return path.map(p=>[p[0],p[1],p[2]] as Vec);
@@ -171,22 +170,6 @@ export class RegionNodeStage extends Component{
  }
  private flow(){return director.getScene()?.getComponentInChildren(WorldFlowComponent)||null;}
 
- /** Island and meadow keep RainbowBridgeStrip only while that leg is still the bridge. Lakeside strips stay on their own rig. */
- private hideIdleBridges(region:RegionId){
-  const scene=director.getScene();if(!scene)return;
-  const meadow=usesRainbowBridge(transportFor('island','meadow'));
-  const sky=usesRainbowBridge(transportFor('meadow','skycity'));
-  const lake=usesRainbowBridge(transportFor('island','lakeside'));
-  const visit=(n:Node,underLake:boolean)=>{
-   const inLake=underLake||n.name==='RegionJourney-lakeside';
-   if(n.name.startsWith('RainbowBridge')){
-    const keep=inLake?lake:region==='skycity'?sky:region==='meadow'?(meadow||sky):meadow;
-    if(!keep)n.active=false;
-   }
-   for(const c of n.children)visit(c,inLake);
-  };
-  visit(scene,false);
- }
  private showWorld(region:RegionId){
   if(this.cover&&this.region===region)return;
   if(this.region!==region)this.orbit.forget();
@@ -200,7 +183,6 @@ export class RegionNodeStage extends Component{
   if(host)host.active=false;
   for(const c of cams)c.enabled=false;
   if(rig)rig.active=true;
-  this.hideIdleBridges(region);
   this.flow()?.presentNodeWalkWorld(true);
   try{this.character?.setVisible(true);}catch{/* no adapter */}
   this.region=region;

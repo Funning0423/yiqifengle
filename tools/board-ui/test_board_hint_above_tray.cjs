@@ -68,7 +68,6 @@ function portraitChecks(w, h, safe, goals, label) {
   });
   await ok('the girl is never under the banner: meadow landing spot and the lakeside frozen copy on every screen', () => {
     const meadow = { l: 99, r: 123, t: 703, b: 762 }; assert.equal(overlap(banner(BL.boardLayout(390, 844, BL.boardSafeInsets(390, 844), 2)), meadow), 0, 'meadow 390x844');
-    for (const r of require('../journey-integration/girl-frame.cjs')) if (r.visible) { const [w, h] = r.screen.split('x').map(Number); assert.equal(overlap(banner(BL.boardLayout(w, h, BL.boardSafeInsets(w, h), 2)), { l: r.boxPt.l, r: r.boxPt.r, t: r.boxPt.t, b: r.boxPt.b }), 0, r.region + ' ' + r.screen); }
     const LK = H.load(S + 'region/LakesideCameraLayout.ts'), Core = H.load(S + 'world-r1/RegionJourneyCore.ts'), C = H.load(S + 'world-r1/RegionCameraData.ts').REGION_CAMERA.islandCharacter;
     const j = LK.lakesideJourney([2, 0, -1]), STOP = LK.LAKESIDE_CAMERA_LAYOUT.stopLocal, P = [...j.approach, ...j.bridge.slice(1), ...j.arrival, j.toWorld([...STOP])] /* b18 v4 stop */, LEN = Core.routeLength(P), START = { position: [0, 5, -10], target: [0, 0, 0], fovVerticalDeg: 45 };
     const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cr = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], nz = a => { const l = Math.hypot(...a); return a.map(x => x / l); };

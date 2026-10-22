@@ -5,7 +5,7 @@
  * the existing static-merge chunks: no new draw call.  Kept off (lake-local):
  *  - the skycity walk / balloon-boarding lines (lakeside_skycity_mask.json route) within 12 m; under the rest of the deck
  *    footprint (skycity -> lakeside journey layout) an item is only kept, if need be smaller, when its top stays 5 cm under the deck,
- *  - the home island + rainbow bridge of the island journey, the S6/landing walk to the bank (x 1.2, z 24.5..60),
+ *  - the home island + the former island-bridge span, the S6/landing walk to the bank (x 1.2, z 24.5..60),
  *  - the lake board (grid x +-3.85, z 8.15..15.85) and the board camera's view (so the board background is unchanged),
  *  - the free-camera orbit ring (5.5-9.8 m around the landing pivots L0-L2), so no tuft fills the lens,
  *  - water / the sand rim (inside the lake plane, ground y < 0.25), slopes, and anything already standing there (first hit from above must be the ground).

@@ -2,7 +2,7 @@ import {Node} from 'cc';
 import {REGIONS,loadRegionPrefab,mountRegion} from './RegionLoader';
 import {awaitVehicle} from './TransportWait';
 /** Meadow art warmed while mainline-04 is on screen. The rig stays inactive (0 DC) until the sail adopts it.
- * A slow or failed load retries on the sail. It does not switch the journey to the rainbow bridge. */
+ * A slow or failed load retries on the sail. */
 let warm:Node|null=null;
 let warming:Promise<void>|null=null;
 export function sailWarmNode():Node|null{return warm;}

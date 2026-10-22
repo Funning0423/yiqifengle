@@ -32,7 +32,7 @@ console.log('meadow night grade OK',want.map(v=>v.toFixed(3)).join(','));
  assert(/motion\.grounds=meadowGroundMaterials\(\[find\(model,'meadow_terrain'\),find\(model,'meadow_river_bank'\)\]\)/.test(ad),'journey wires terrain+bank');
  console.log('meadow ground night grade OK');
 }
-// N3: path, windmill and rainbow bridge dim to x0.6 at full night through the same grounds/night-weight path.
+// N3: path and windmill dim to x0.6 at full night through the same grounds/night-weight path.
 {
  const m=bg.match(/MEADOW_PROP_NIGHT:readonly number\[\]=\[([^\]]+)\]/);assert(m,'prop night constant');
  m[1].split(',').map(Number).forEach(v=>assert(Math.abs(v-.6)<1e-9,'x0.6'));
@@ -40,7 +40,7 @@ console.log('meadow night grade OK',want.map(v=>v.toFixed(3)).join(','));
  assert(/return f\?f\.map\(k=>1\+\(k-1\)\*t\)/.test(bg),'factor uses per-entry f');
  assert(/meadowGroundFactor\(night,g\.f\)/.test(bg),'motion passes per-entry factor');
  assert(/meadowGroundMaterials\(\[find\(model,'meadow_path'\),find\(model,'windmill_static_merged'\),find\(model,'windmill_sails'\)\],MEADOW_PROP_NIGHT\)/.test(ad),'path + windmill wired');
- assert(/meadowGroundMaterials\(rig\.children\.filter\(n=>n\.name\.startsWith\('RainbowBridgeStrip'\)\),MEADOW_PROP_NIGHT,true\)/.test(ad),'rainbow bridge wired');
+ assert(!/RainbowBridgeStrip/.test(ad),'rainbow bridge removed (b16)');
  assert(/if\(motion&&model\)motion\.grounds\.push/.test(ad),'meadow journey only');
  console.log('meadow prop night grade OK');
 }

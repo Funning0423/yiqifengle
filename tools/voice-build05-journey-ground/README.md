@@ -27,4 +27,4 @@ deck triangles (18.84 m² and 76.33 m²) plus neighbours. Fix = vertcolor.mjs (v
 is untouched), then smooth value-noise vertex colour (0.58–1.0 linear brightness, warm/cool tints) on 5,035 vertices
 in that zone. Faces touching the 09 board frustum (2.0× margin) are locked. COLOR_0 already exists → no new attribute.
   node vcolor.mjs <v2 env_skycity.glb> route-height-08-09.csv tmp.glb && node splice.mjs <v2 glb> tmp.glb out.glb env_sky_static_palette
-Lens poses for renders: dumpcam.cjs uses GGbot's tools/journey-integration/journey-scene.cjs (real journeyCamera v3).
+Lens poses for renders: dumpcam.cjs (removed in b16 with the old 08→09 walking leg) used journey-scene.cjs.

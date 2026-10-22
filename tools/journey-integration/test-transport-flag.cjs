@@ -3,15 +3,15 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {createHarness}=require('../board-ui/harness.cjs');
 const H=createHarness(),Q=H.load('region/JourneyTransport.ts');
 const J=require('./journey-scene.cjs');
-const hash=crypto.createHash('sha256').update(JSON.stringify(J.leg2)).digest('hex');
-assert.equal(hash,'3bf86ab6face9d7e3bcdb91f0d1f77372c0eb35b55496a687a7d6872a482d58e');
+// b16: the 08→09 walking leg is gone; the meadow/skycity placement the balloon flies between is pinned instead (unchanged from 69b9f74).
+const hash=crypto.createHash('sha256').update(JSON.stringify({mOff:J.mOff,sOff:J.sOff,yaw:J.yaw})).digest('hex');
+assert.equal(hash,'665b4edd4bd5a02481d343278b535fcbcc4b8abbd4185d8053ae643eca1e322a');
 assert.equal(Q.transportFor('meadow','skycity',{}), 'balloon');
 assert.equal(Q.transportFor('meadow','skycity',{__QF_TRANSPORT:'bridge'}),'balloon');
 assert.equal(Q.transportFor('island','meadow',{__QF_TRANSPORT:'sail'}),'sail');
 assert.equal(Q.transportFor('meadow','skycity',{wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})},__QF_TRANSPORT:'bridge'}),'balloon');
 const ride=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/region/BalloonRide.ts'),'utf8');
 const adapter=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'),'utf8');
-assert.ok(!ride.includes('RainbowBridgeStrip'),'balloon lease does not build a rainbow bridge');
 assert.ok(adapter.includes("transportFor(from,to)==='balloon'"),'adapter branches before the bridge body');
-assert.ok(adapter.includes('RainbowBridgeStrip'),'bridge mode still owns the strip helper');
-console.log(JSON.stringify({leg2:hash,balloon:Q.JOURNEY_TRANSPORT['meadow-skycity'],sailKey:Q.JOURNEY_TRANSPORT['island-meadow']}));
+assert.ok(!/RainbowBridge|rainbowBridge/.test(adapter+ride),'rainbow bridge removed (b16)');
+console.log(JSON.stringify({placement:hash,balloon:Q.JOURNEY_TRANSPORT['meadow-skycity'],sailKey:Q.JOURNEY_TRANSPORT['island-meadow']}));

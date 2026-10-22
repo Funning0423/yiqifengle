@@ -29,7 +29,7 @@ SHORE_FAR = (-66.0, 66.0, -56.0, -47.0)      # LK_far_shore strip
 HILLS_N = (-118.0, 118.0, -108.0, -54.0)     # original LK_far_hills footprint
 ISLAND = (-36.3, 33.0, -20.4, 42.3)          # LK_terrain island (its own grass / banks)
 # The home island (journey start) in lake-local coordinates (LakesideCameraLayout.lakesideJourney: root (-0.11, -0.58,
-# 68.48) world, yaw 180) and the rainbow bridge (x 1.2, z 36..60): the ring must stay under both, or it cuts through the
+# 68.48) world, yaw 180) and the former island-bridge span (x 1.2, z 36..60, nothing drawn there since b16): the ring must stay under both, or it cuts through the
 # island and the journey lens (test-lakeside-camera K2).  Height cap: -1.2 m (below the island's underside) within 4 m of
 # the island, 0.0 within 3 m of the bridge axis, rising 0.6 m (island) / 0.35 m (bridge) per
 # metre beyond, so the knolls come back up right behind the island.

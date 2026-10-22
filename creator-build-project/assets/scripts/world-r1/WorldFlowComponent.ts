@@ -277,7 +277,7 @@ export class WorldFlowComponent extends Component {
     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();
     return this.flow.load();
   }
-  /** mainline-04 board: warm the meadow rig inactive. 6 s timeout falls back to the rainbow bridge. */
+  /** mainline-04 board: warm the meadow rig inactive. A slow warm keeps waiting on the sail. */
   preloadHiddenRegion(target:JourneyRegion):Promise<{ok:boolean;reason?:string}>{
    if(target!=='meadow')return Promise.resolve({ok:false,reason:'unsupported'});
    const scene=director.getScene();if(!scene)return Promise.resolve({ok:false,reason:'no-scene'});

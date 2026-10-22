@@ -23,7 +23,7 @@ function nodeMat(n){
  return quatMat(n.rotation||[0,0,0,1],n.scale||[1,1,1],n.translation||[0,0,0]);
 }
 function xf(M,v){return [M[0]*v[0]+M[4]*v[1]+M[8]*v[2]+M[12],M[1]*v[0]+M[5]*v[1]+M[9]*v[2]+M[13],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]+M[14]];}
-const FAKE=/card|billboard|impostor|imposter|far_|backdrop|canvas|blind|window_view|quad|plane|sprite|rainbow|decal/i;
+const FAKE=/card|billboard|impostor|imposter|far_|backdrop|canvas|blind|window_view|quad|plane|sprite|decal/i;
 const FX=/foam|wave|cloud|splash|shadow|reed|ripple|glint|halo|smoke|beam|gull|leaf_card|grass_card|tuft|lilypad|lily|paper_boat|drop/i;
 const SKY=/sky|dome|stars|night_dome/i;
 const LAND=/lighthouse|greattree|great_tree|windmill|robot_gardener|pavilion|starcourt|hut|cabin|wind_bell|windbell|chime_post/i;
@@ -72,7 +72,7 @@ function analyze(file,region){
   for(const p of corners){if(!wmin){wmin=p.slice();wmax=p.slice();continue;}for(let k=0;k<3;k++){wmin[k]=Math.min(wmin[k],p[k]);wmax[k]=Math.max(wmax[k],p[k]);}}
   const label=name+' '+(mesh.name||'');
   let severity=null,why='';
-  if(FAKE.test(label)||/RainbowBridge/i.test(label)){severity='high';why='名字就是给固定镜头用的面片、远景卡或桥带';}
+  if(FAKE.test(label)){severity='high';why='名字就是给固定镜头用的面片或远景卡';}
   else if(SKY.test(label)){severity='medium';why='天空或穹顶，镜头在内部才成立';}
   else if(thin&&doubleSided===false){severity=FX.test(label)?'medium':'high';why='很扁且材质不是双面，转到背面会消失';}
   else if(FX.test(label)&&(thin||alpha==='BLEND'||doubleSided===false)){severity='medium';why='泡沫、云、影子或卡片效果，通常只朝一个镜头';}

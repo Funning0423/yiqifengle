@@ -220,7 +220,7 @@ function dampSeaSpecular(sea:Node|null,on:boolean):void{
   try{m.setProperty('specularIntensity',on?0.05:1);}catch{}
  }});
 }
-/** Live env_skycity placement: the rainbow-bridge offset and heading. The art balloonSkyOffset is not applied. */
+/** Live env_skycity placement: the skycity placement offset and heading (RegionJourneyLayout). The art balloonSkyOffset is not applied. */
 export function placeLiveSkycity(model:Node,meadow:Node,start:Vec):Rigid{
  model.setRotationFromEuler(0,0,0);
  model.setRotationFromEuler(0,skycityYawDeg(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),0);
