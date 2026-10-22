@@ -115,4 +115,9 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
  let ymn=9,ymx=-9,xmx=0;for(const p of pts){const n=FLe.ndc(D,p);assert(n&&n[2]>0);xmx=Math.max(xmx,Math.abs(n[0]));ymn=Math.min(ymn,n[1]);ymx=Math.max(ymx,n[1]);}
  assert(xmx<=.9+1e-9&&ymx<=.9+1e-9&&ymn>=-.9-1e-9,'basket + her inside 0.9');assert(ymn<=-.65,'little empty ground below: '+ymn);
  out.doorLens={pos:D.position.map(x=>+x.toFixed(2)),fov:D.fovVerticalDeg,xMax:+xmx.toFixed(2),yMin:+ymn.toFixed(2),yMax:+ymx.toFixed(2)};}
+// 14) b15 handover: restore() must not cancel/snap her while the ride tail still walks her to the stand point (no
+//     teleport under the board fade-in; 'shore' gets written), and qaShot exits a level before routing on
+{const core=fs.readFileSync('creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts','utf8');
+ assert(/restore\(actor:CharacterAdapter,world:WorldLease,visible:boolean\):void\{if\(this\.root&&!\(this\.lease as any\)\?\.tail\)actor\.cancelAndReset/.test(core),'restore respects the tail');
+ assert(/exit-current-level-first'\)\{[^}]*exitLevel\(\)/.test(comp),'qaShot lakeside exits the level first');}
 console.log(JSON.stringify(out));console.log('PASS lakeside qaShot: route timing, phases, reveal pose, wiring');
