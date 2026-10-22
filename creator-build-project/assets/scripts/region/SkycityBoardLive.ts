@@ -4,9 +4,12 @@ import {Camera,Color,Node,SphereLight,isValid} from 'cc';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 import {createSkycityBoardBackground as createBuild05SkycityBoard} from './SkycityBoardBackground';
 import {onDayNightChange,type DayNightMode} from '../world-r1/DayNightContract';
-import {hexToRgb,regionBoardKeyLight,writeRegionBoardClear} from './RegionBoardNight';
+import {hexToRgb,writeRegionBoardClear} from './RegionBoardNight';
+import {gradeSkycityCloudsea,gradeSkycityKeyLight,gradeSkycityNight} from './SkycityNightApply';
 export const SKYCITY_BOARD_RIG='SkycityLiveBackground';
-/** item 9: the Build05 board sky (camera clear colour) by day; at night the journey's night sky (the ground already matched). */
+/** item 9: the Build05 board sky (camera clear colour) by day; at night the journey's night sky. b16: the city itself follows the
+ *  island night too (key light x0.35 + moon colour, self-lit clouds / accents graded, SkycityNightGrade) - before b16 only the clear
+ *  colour changed and the city stayed at day brightness. */
 export const SKYCITY_BOARD_DAY_CLEAR=hexToRgb('#9ccadf');
 /** r5 region nodes: the live board shows the bridge-after state only. Other state_* meshes stay off. */
 function hideOtherBoardStates(root:Node|null){if(!root)return;const walk=(n:Node)=>{if(n.name.startsWith('state_')&&n.name!=='state_bridge_after')n.active=false;for(const c of n.children)walk(c);};walk(root);}
@@ -22,21 +25,20 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const camNode=rig?rig.getChildByName('SkycityBackgroundCamera'):null,camera:Camera|null=camNode?camNode.getComponent(Camera):null;let dead=false;
  // Read the live blend, not just a binary night flag. Day always restores the authored sky, including after a hidden prewarm.
  let skyMode:DayNightMode='day',skyNightBlend=0;
- // b16-fix P2: the Build05 lease's warm key light follows the night too (was day-bright under the night sky). Day values captured once.
- const keyNode=rig?rig.getChildByName('SkycityBackgroundKey'):null,key:SphereLight|null=keyNode?keyNode.getComponent(SphereLight):null;
- const keyDay=key?{color:[key.color.r,key.color.g,key.color.b] as number[],luminance:key.luminance}:null;let keyWritten=-1;
+ // night-r3 owns the SkycityBackgroundKey night grade (gradeSkycityKeyLight); UI b16-fix P2 writer dropped here to avoid double-dimming.
+ const keyNode=rig?rig.getChildByName('SkycityBackgroundKey'):null,keyLight:SphereLight|null=keyNode?keyNode.getComponent(SphereLight):null;
  const syncNight=(mode?:DayNightMode)=>{
   if(dead)return;
   let view:any;try{view=(globalThis as any).__worldDayNight?.snapshot?.();}catch{/* no world: authored day sky */}
   skyMode=mode??(view?.mode==='night'?'night':'day');
   skyNightBlend=skyMode==='night'?(Number.isFinite(view?.skyNightBlend)?Math.max(0,Math.min(1,view.skyNightBlend)):1):0;
   if(camera&&isValid(camera,true))writeRegionBoardClear(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend,(r,g,b)=>new Color(r,g,b,255));
-  if(key&&keyDay&&isValid(key,true)&&keyWritten!==skyNightBlend){const k=regionBoardKeyLight(keyDay.color,keyDay.luminance,skyNightBlend);key.color=new Color(k.color[0],k.color[1],k.color[2],255);key.luminance=k.luminance;keyWritten=skyNightBlend;}
+  gradeSkycityKeyLight(keyLight,skyNightBlend);gradeSkycityNight(rig,skyNightBlend);gradeSkycityCloudsea(rig,skyNightBlend);
  };
  syncNight();const offNight=onDayNightChange(syncNight);
  return Object.assign({},lease,{
   frame:(...args:Parameters<typeof lease.frame>)=>{syncNight();lease.frame(...args);},
   setVisible:(v:boolean)=>{syncNight();lease.setVisible(v);keepActive();},
-  diagnostics:()=>({...lease.diagnostics?.(),skyMode,skyNightBlend,skyClearColor:camera?[camera.clearColor.r,camera.clearColor.g,camera.clearColor.b]:null,keyLight:key?{color:[key.color.r,key.color.g,key.color.b],luminance:key.luminance}:null}),
+  diagnostics:()=>({...lease.diagnostics?.(),skyMode,skyNightBlend,keyLuminance:keyLight?keyLight.luminance:null,skyClearColor:camera?[camera.clearColor.r,camera.clearColor.g,camera.clearColor.b]:null,keyLight:keyLight?{color:[keyLight.color.r,keyLight.color.g,keyLight.color.b],luminance:keyLight.luminance}:null}),
   dispose:()=>{if(!dead){dead=true;offNight();}lease.dispose();}});
 };
