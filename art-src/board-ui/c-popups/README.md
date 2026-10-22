@@ -9,7 +9,7 @@
   - 行囊、设置、关于三个图标直接导入 T9 的 `ui_satchel / ui_compass / ui_notebook`（`work/grokbot/ui-props/glb-preview`），跟岛上那几个 3D 按钮是同一个模型。奖励里的星光、风语铃直接用 (b) v2 的道具雕件，**不另出图**。
 - 下面那层棋盘画面用的是 (b) **v3.1** 的 `board_final_tools.png`（青叶方案 A，快照在 `src/inputs/`，v2 快照挪到 `src/inputs/_v2/`），设置页下面是岛（`pm-audit/C0` 实机截图）。遮罩：模糊 7px + 压暗 35%（文档 §4）。
 - **没有用任何电影截图，也没用 `wind-rises-apron-ref.jpg`**。“现状”栏只放了 pm-audit 里本作自己的截图和预览图。
-- 按 PM 的决定：暂停面板里**不留手动提示**；「回到小岛」**不再弹二次确认**，「重来」保留确认；结算和奖励里**没有珍珠**；提示不影响星级。
+- 按 PM 的决定：暂停面板里**不留手动提示**；「离开棋盘」（b16 由「回到小岛」改名，行为不变）**不再弹二次确认**，「重来」保留确认；结算和奖励里**没有珍珠**；提示不影响星级。
 - **PM 已通过 (c)，十个问题的结论都已落到图里**（见文末「已定决策」）。暂停界面按 Funning 的意见定版，布局不再动。
 - **v3.1 已重跑**：`src/inputs/` 换成 (b) v3.1 的 `board_final_tools.png / board_final_notools.png / bg_island_board.jpg` 和 `b-board/src/raw/` 的全部原始渲染（`b_raw/`，奖励里的星光 / 风语铃 / 潮汐瓶图标随之换成 v3 重建版）。重出了 6 张弹窗全屏图、`night/` 全部（含夜间棋盘）、`compare/` 6 张、`kit_sheet / chest_sheet / chest_anim_keys / chest_open_closeup`。宝箱 GLB 不动（40 枚金币，29,536 B）。
 - 夜间棋盘顺手修了一处接缝：以前是「背景按 K_SEA、托盘按 K_UI」两张图按遮罩拼，托盘投影外沿会出现一圈硬边；现在直接对成图乘色、两种系数按遮罩混合，投影保留。
@@ -17,7 +17,7 @@
 ## 文件
 | 文件 | 说明 |
 |---|---|
-| `pause.png` | 暂停：标题木牌「暂停一下」、关卡名 + 剩余步数（小字，一行）、三个图标位：重来 / 行囊 / 设置，音乐和音效两个快捷开关，主按钮「继续」，次按钮「回到小岛」 |
+| `pause.png` | 暂停：标题木牌「暂停一下」、关卡名 + 剩余步数（小字，一行）、三个图标位：重来 / 行囊 / 设置，音乐和音效两个快捷开关，主按钮「继续」，次按钮「离开棋盘」（b16 由「回到小岛」改名，行为不变） |
 | `pause_restart_confirm.png` | 重来的二次确认（统一弹窗框，文案沿用现有的「当前这局会丢掉」），按钮「留下」/「重来」 |
 | `settings.png` | 设置（岛上和关卡里共用）：**音乐 = 音量滑条**、**音效 = 单独静音开关**、昼夜（晴昼 / 夜色）、减少动态，再加关于和版本「v0.1 · 构建 d637356」；关闭钮；「轻点灯塔，回屋小憩」这一行只在岛上显示。震动这一版不放，全局静音不上界面 |
 | `reward_claim.png` | 奖励领取（统一的「获得」弹窗）：俯 40° 看进打开的宝箱（内壁、箱底、金币堆、光从箱口冒出）+ 获得物（星光 ×1、潮汐印记、风语铃 ×1）+ 一句话 + 主按钮「收下」。间距实测见 `reward_layout.json` 和下面「领奖界面间距」 |
@@ -46,7 +46,7 @@ cd src && python3 compose.py .. && python3 slices.py .. && python3 sheets.py .. 
 - **主按钮 / 次按钮** `btn_primary_3s / btn_secondary_3s`（162×104，高 104px = 54pt）：浅木外圈，主按钮是青色面配白字，次按钮是奶油面配深棕字。三宫格，左右各 69px 不拉伸。按下：下沉 3px、变暗 6%（`WarmButton` 现有规则，命中区不动）；不可用：灰化、透明度 55%（kit_sheet 里有）。
 - **关闭钮** `btn_close.png`（96×98）：跟 (b) 的暂停钮同一个造型（木圆盘 + 奶油面 + 两根木条交叉成 X），命中区 ≥ 44pt。
 - **开关** `toggle_on / toggle_off`（115×56）+ `toggle_knob`（48×48）：浅木凹槽，开 = 青色，关 = 沙色；圆钮在 0.15 s 内左右滑动。
-- **图标**：暂停面板用带木底座的 `tile_restart`（回旋的风 + 箭头）、`tile_bag`（T9 行囊）、`tile_settings`（T9 罗盘）；小图标有音乐（木刻音符 + 一片叶）、音效（小手鼓）、晴昼 / 夜色、减少动态（停着的小纸风车）、回到小岛（小灯塔）、关于（T9 旅程册）、继续（三角）。震动图标已从切图里去掉（模型还留在 blend 里，以后要用可以直接出）。
+- **图标**：暂停面板用带木底座的 `tile_restart`（回旋的风 + 箭头）、`tile_bag`（T9 行囊）、`tile_settings`（T9 罗盘）；小图标有音乐（木刻音符 + 一片叶）、音效（小手鼓）、晴昼 / 夜色、减少动态（停着的小纸风车）、离开棋盘（小灯塔）、关于（T9 旅程册）、继续（三角）。震动图标已从切图里去掉（模型还留在 blend 里，以后要用可以直接出）。
 - **音乐音量滑条**：不新增美术，用 `toggle_off` 当轨道、`toggle_on` 当已填充段（都按三宫格拉，左右各 28px 不拉伸），`toggle_knob` 当拇指。预览里音量是 0.4（`GameAudio` 默认值）。
 - **字**：按钮和正文用系统字（预览里用 Noto Sans CJK 代替，0 字节）。**弹窗标题全部用烘好的霞鹜文楷图** `title_0..5.png`（暂停一下 / 重来这一关？/ 设置 / 获得 / 过关啦 / 差一点点，共 16,973 B），做法跟 a-loading 的 `gen.py` 一样：fontTools 取字形轮廓 → SVG → cairosvg 栅格化；因为底是浅色木牌，配色反过来：填充是深棕竖向渐变 #704826 → #4e3016，外面一圈 6px 奶油描边 #FFF6E2（85%）。以后加新标题就在 `slices.py` 的列表里加一行重出。
 - **对比度**（WCAG，纸面按渲染实测 (226,222,194)）：深棕字 6.83、次要字 4.90、青字 #266268 5.10、主按钮白字 5.26，都 ≥ 4.5。
@@ -130,7 +130,7 @@ cd src && python3 compose.py .. && python3 slices.py .. && python3 sheets.py .. 
 1. **分包**：设置在岛上也要打开，所以弹窗框、按钮、开关、小图标、`tile_*`（约 105 KB）建议放一个 `ui_common` 分包，岛加载的时候一起加载（或者放进 `region_island`）；星星、印记、宝箱、光、印章跟结算走，放 (b) 建议的 `board_art` 分包。都不进主包。
 2. **九宫格**：`panel_frame_9s` 用 Sprite SLICED，border 92/92/92/92；`title_plank_3s` border 左右 84；按钮 border 左右 69。弹窗宽 640px（333pt），高按内容来；四角的圆榫在九宫格的角区里，不会被拉伸。
 3. **弹窗动效**（文档 §4）：打开 200–250 ms（淡入 + 0.92 → 1 缩放，ease-out），关闭 150 ms；遮罩模糊 + 压暗 35%；`BlockInputEvents` 挡住下层，第二根手指也不能点到下层。
-4. **暂停**：左上暂停钮（(b) 的 `hud_pause`）→ 暂停面板。「继续」= 关面板；「回到小岛」= 直接 `requestExit`（不再确认）；「重来」→ `pause_restart_confirm`（复用现有 `retryPanel` 的逻辑）；「行囊」→ 行囊面板（套统一外框，下一轮出图）；「设置」→ 设置面板（跟岛上共用一个节点）。面板打开时 `game` 计时暂停（现有的暂停逻辑）。
+4. **暂停**：左上暂停钮（(b) 的 `hud_pause`）→ 暂停面板。「继续」= 关面板；「离开棋盘」（b16 由「回到小岛」改名，行为不变）= 直接 `requestExit`（不再确认）；「重来」→ `pause_restart_confirm`（复用现有 `retryPanel` 的逻辑）；「行囊」→ 行囊面板（套统一外框，下一轮出图）；「设置」→ 设置面板（跟岛上共用一个节点）。面板打开时 `game` 计时暂停（现有的暂停逻辑）。
 5. **设置**：音乐滑条 → `GameAudio.setMusicVolume(v)`（拖动时实时设，松手时存；0 时它自己会停 loop）；音效开关 → 新增 `GameAudio.setSfxMuted(b)` / `isSfxMuted()`，key 建议 `qfl.audio.sfxMuted`，音效播放入口（现在判断 `this.muted` 的两处，`GameAudio.ts:285` 和 `:631`）再加一个 `|| this.sfxMuted`；全局 `setMuted` 不上界面；减少动态 → 写 `forest-v33-reduced-motion`；昼夜 → `options.toggleDayNight`；所有开关点击走 `GameAudio.onButton()`，关闭走 `onUiBack()`。
 5b. **版本号（给 GGbot 的接入点）**：关于页显示 `v0.1 · 构建 ${BUILD_SHA}`。
    - 构建时生成一个文件 `creator-build-project/assets/scripts/BuildInfo.ts`：`export const BUILD_VERSION = 'v0.1'; export const BUILD_SHA = '<git rev-parse --short=7 HEAD>';`。在现有的构建脚本（打包微信小游戏之前那一步）里加一行生成它，例如 `echo "export const BUILD_VERSION='v0.1'; export const BUILD_SHA='$(git rev-parse --short=7 HEAD)';" > assets/scripts/BuildInfo.ts`；仓库里提交一份 `BUILD_SHA='dev'` 的占位版，并在生成后不要再提交（或加进 `.gitignore` + 构建前生成）。

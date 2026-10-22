@@ -60,7 +60,7 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     H.tap(u.pause); assert.equal(log.commands.length, 1, 'pause under a popup does nothing');
     H.tap(inPopup(b, 'PausePanel', 'Resume')); b.step(0.3); assert.deepEqual(log.commands.map(c => c[0]), ['pause', 'resume']); assert.equal(s.state, 'run.ready'); assert.deepEqual(names(b), []);
   });
-  await ok('pause → 重来 asks first (留下 keeps the pause page); 重来 restarts; 回到小岛 exits at once without a confirm', async () => {
+  await ok('pause → 重来 asks first (留下 keeps the pause page); 重来 restarts; 离开棋盘 (was 回到小岛) exits at once without a confirm', async () => {
     const b = await board(), { H, u, log } = b;
     H.tap(u.pause); H.tap(inPopup(b, 'PausePanel', 'Tile-重来')); assert.equal(top(b), 'RestartConfirm');
     H.tap(inPopup(b, 'RestartConfirm', 'Stay')); b.step(0.3); assert.equal(top(b), 'PausePanel'); assert.equal(log.restarts, 0);

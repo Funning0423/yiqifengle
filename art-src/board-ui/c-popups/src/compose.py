@@ -38,7 +38,7 @@ def pause():
         icon_row(ui,d,bx,cy,ic,lab,ih=50); tg=toggle(True,46); paste_c(ui,tg,bx+196,cy)
     # buttons
     b1=button('primary','继续',480,104,'icon_play',36); drop(ui,b1,375,top+580,blur=6,alpha=0.3,dy=7)
-    b2=button('secondary','回到小岛',480,96,'icon_home',32); drop(ui,b2,375,top+700,blur=6,alpha=0.25,dy=6)
+    b2=button('secondary','离开棋盘',480,96,'icon_home',32); drop(ui,b2,375,top+700,blur=6,alpha=0.25,dy=6)
     return finish_frame('pause',bg,ui)
 def restart_confirm():
     bg=base('board'); ui=Image.new('RGBA',(W,H),(0,0,0,0))

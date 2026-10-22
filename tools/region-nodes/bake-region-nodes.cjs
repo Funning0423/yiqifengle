@@ -266,4 +266,5 @@ async function main(){
  }
  console.log('wrote',OUT_TS,text.length,'bytes');
 }
-main().catch(e=>{console.error(e);process.exit(1);});
+if(require.main===module)main().catch(e=>{console.error(e);process.exit(1);});
+module.exports={REGIONS,buildGrid,decodeDraco,decodePlain};

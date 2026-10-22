@@ -32,7 +32,7 @@ export function openPause(stack: PopupStack, a: PauseActions): PopupPanel {
     p.toggle(bx + 196, cy, 46, r[2], r[3], i ? 'SfxToggle' : 'MusicToggle');
   }
   p.button('primary', '继续', 0, 580, 480, 104, () => p.close(a.resume), { icon: 'popup/icon_play', fontSize: 36, name: 'Resume' });
-  p.button('secondary', '回到小岛', 0, 700, 480, 96, () => a.home(), { icon: 'popup/icon_home', fontSize: 32, name: 'Home', sound: 'back' });
+  p.button('secondary', '离开棋盘', 0, 700, 480, 96, () => a.home(), { icon: 'popup/icon_home', fontSize: 32, name: 'Home', sound: 'back' });
   return p;
 }
 export function openRestartConfirm(stack: PopupStack, restart: () => void): PopupPanel {
