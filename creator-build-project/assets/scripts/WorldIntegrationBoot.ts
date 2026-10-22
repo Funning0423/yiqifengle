@@ -641,7 +641,7 @@ export class WorldIntegrationBoot extends Component {
   if(s.state!=='island')this.signRetry=0;
   if(sign&&p&&this.islandEntrance<0&&this.signEntrance<0&&typeof (p as any).signVisible==='function'&&!(p as any).signVisible()){
    if(this.signRetry<1){this.signRetry++;this.signShown=0;this.signEntrance=0;}
-   else{const now=Date.now();if(now-this.signRetryAt>=1000){this.signRetryAt=now;this.signRetry++;this.setSign(1,0);}if(!(p as any).signVisible())sign=null;else{this.setSign(0,0);this.signShown=0;this.signEntrance=0;this.signFadeS=.2;// v2.4：探测时木牌被设成完全显示，确认可见后当帧先归零再淡入，避免闪一帧
+   else{const now=Date.now();if(now-this.signRetryAt>=1000){this.signRetryAt=now;this.signRetry++;this.setSign(1,0);}if(!(p as any).signVisible())sign=null;else{this.setSign(0,0);this.signEntrance=0;this.signFadeS=.2;// v2.4：探测时木牌被设成完全显示，确认可见后当帧先归零再淡入，避免闪一帧
    sign={x:sign.x,y:sign.y,width:0,height:0};}}}
   else if(sign&&this.islandEntrance<0&&this.signEntrance<0)this.signRetry=0;
   this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
