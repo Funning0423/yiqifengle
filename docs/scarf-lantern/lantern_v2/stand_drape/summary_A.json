@@ -1,0 +1,38 @@
+{
+ "LEG_DRESS": [
+  42.2,
+  "lantern_pick_up_stand",
+  35,
+  "W0",
+  "tris_max",
+  409
+ ],
+ "LEG_APRON": [
+  34.3,
+  "lantern_put_down_stand",
+  27,
+  "W0",
+  "tris_max",
+  310
+ ],
+ "DRESS_APRON": [
+  4.6,
+  "lantern_pick_up_stand",
+  24,
+  "W0",
+  "tris_max",
+  19
+ ],
+ "other_max": {
+  "L_DRESS": 164,
+  "L_APRON": 186,
+  "HANDR_DRESS": 12,
+  "HANDR_APRON": 73,
+  "PLAT_DRESS": 54,
+  "PLAT_APRON": 17
+ },
+ "other_frames": 45,
+ "frames": 197,
+ "over15_frames": 48,
+ "grip_vertex_min_held": 0.5
+}
