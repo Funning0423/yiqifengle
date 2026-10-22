@@ -78,7 +78,7 @@
     "meshCompress": {
       "enable": true,
       "compress": true,
-      "quantize": true,
+      "quantize": false,
       "encode": true
     },
     "imageMetas": [],

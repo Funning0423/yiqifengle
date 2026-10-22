@@ -1411,8 +1411,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_clouds_merged.glb.meta",
-    "bytes": 4894,
-    "sha256": "c4e47ee93ee8e71a282857e7ece0ce242f00fe257c9a9a82b4757eb9afc6267b"
+    "bytes": 4895,
+    "sha256": "627b59a3a90b239f459f8b33bf589e0a1c53ff7b74a33511cc40aa62de904dbf"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_night_dome.glb.meta",
@@ -1421,8 +1421,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transit_sea_fallback.glb.meta",
-    "bytes": 2482,
-    "sha256": "b8bbea78c347f0cc2edd1644357631eefa7b06978214d10340254572773be02a"
+    "bytes": 2483,
+    "sha256": "c8b1c258aa8403b1ff414ef5c449abea97ccaef2e26eb75cb345839a9205f3fd"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta",
@@ -4296,8 +4296,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 15463,
-    "sha256": "a2d2e854486c2f1bd8d66e0fff6286ef4cbe8889651b4e909f251252f50843b2"
+    "bytes": 15559,
+    "sha256": "6e68ac5f5a95a5d32cd95d051c77b90d653e33795124bc2a2efd79f7b243451e"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
