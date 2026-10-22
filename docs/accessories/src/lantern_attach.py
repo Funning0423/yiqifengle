@@ -26,6 +26,11 @@ def place_lantern(arm):
     Jw,p=socket_world(arm)
     if os.environ.get('LMODE','hang')=='rigid':
         R=(Jw.to_3x3()@BB.to_3x3().inverted()).to_4x4()
+    elif os.environ.get('LMODE')=='hinge':   # v3b：握把刚性跟 socket.lantern（含固定局部旋转 SOCK_ROT，Blender prop 局部 wxyz），灯身绕握把轴（局部 Y）摆 HINGE 度（整体刚体近似）
+        from mathutils import Quaternion
+        QS=Quaternion(json.loads(os.environ.get('SOCK_ROT','[0.9301698,0.3636083,0.0507265,0.0]'))).to_matrix()
+        R=(Jw.to_3x3()@BB.to_3x3().inverted()@QS).to_4x4();h=float(os.environ.get('HINGE','0'))
+        if h: import math;R=R@Matrix.Rotation(math.radians(h),4,'Y')
     else:
         R=Matrix.Identity(4)
         sw=float(os.environ.get('LSWING','0'))
