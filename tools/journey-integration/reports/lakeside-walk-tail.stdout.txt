@@ -1,0 +1,2 @@
+{"tap+match":{"maxStep":0.01333,"cap":0.01333,"resets":1,"performs":1},"level enter+exit":{"maxStep":0.01333,"cap":0.01333,"resets":1,"performs":1},"re-enter":{"maxStep":0.01333,"cap":0.01333,"resets":1,"performs":1},"level complete":{"maxStep":0.01333,"cap":0.01333,"resets":1,"performs":1,"rewardStartFrame":525},"runRewardWalk":{"firstTouch":525}}
+PASS walk tail: tap/match/level enter/exit/re-enter/complete/pause keep her walk continuous; shore once

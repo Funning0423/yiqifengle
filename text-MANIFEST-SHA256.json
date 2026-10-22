@@ -2486,8 +2486,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 34889,
-    "sha256": "314aabce92cddb2052d9afa12d3939afa2971795475c085826c9065465d7d86a"
+    "bytes": 34957,
+    "sha256": "fbed1b152a14c9e7e7217618a67173fad60d3068297026896733efff966c2f28"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2976,8 +2976,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts",
-    "bytes": 3865,
-    "sha256": "80fbad3fecdeeedd533333994b8f70ab31d1a2b678e13add951a1c9a7bd27835"
+    "bytes": 3926,
+    "sha256": "84092f39c0235060b5b1b6009609f61bdcf112ae3ba8aaafe265012e8c75d91c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts.meta",
@@ -2996,8 +2996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightApply.ts",
-    "bytes": 2969,
-    "sha256": "13ae6b17856ef77d9ed695b7668d80a675135ef3af16a4a6f3e7a25e782ed699"
+    "bytes": 3972,
+    "sha256": "0fc4a0560ba33e68264dcc8744c628ec73363518218eaabf56243f304ab1bfbb"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightApply.ts.meta",
@@ -3006,8 +3006,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightGrade.ts",
-    "bytes": 2565,
-    "sha256": "4d1ae79278d61c85c2bed8c471bb9f3b102daf1163ec9f9c5fce49d068d20593"
+    "bytes": 4088,
+    "sha256": "64a42478a1096491a6e064c1a3ac5eb3679c7088cb318545a78014a868b3ca52"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightGrade.ts.meta",

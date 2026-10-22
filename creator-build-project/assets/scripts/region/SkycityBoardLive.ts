@@ -5,7 +5,7 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 import {createSkycityBoardBackground as createBuild05SkycityBoard} from './SkycityBoardBackground';
 import {onDayNightChange,type DayNightMode} from '../world-r1/DayNightContract';
 import {hexToRgb,writeRegionBoardClear} from './RegionBoardNight';
-import {gradeSkycityKeyLight,gradeSkycityNight} from './SkycityNightApply';
+import {gradeSkycityCloudsea,gradeSkycityKeyLight,gradeSkycityNight} from './SkycityNightApply';
 export const SKYCITY_BOARD_RIG='SkycityLiveBackground';
 /** item 9: the Build05 board sky (camera clear colour) by day; at night the journey's night sky. b16: the city itself follows the
  *  island night too (key light x0.35 + moon colour, self-lit clouds / accents graded, SkycityNightGrade) - before b16 only the clear
@@ -32,7 +32,7 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
   skyMode=mode??(view?.mode==='night'?'night':'day');
   skyNightBlend=skyMode==='night'?(Number.isFinite(view?.skyNightBlend)?Math.max(0,Math.min(1,view.skyNightBlend)):1):0;
   if(camera&&isValid(camera,true))writeRegionBoardClear(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend,(r,g,b)=>new Color(r,g,b,255));
-  gradeSkycityKeyLight(keyLight,skyNightBlend);gradeSkycityNight(rig,skyNightBlend);
+  gradeSkycityKeyLight(keyLight,skyNightBlend);gradeSkycityNight(rig,skyNightBlend);gradeSkycityCloudsea(rig,skyNightBlend);
  };
  syncNight();const offNight=onDayNightChange(syncNight);
  return Object.assign({},lease,{

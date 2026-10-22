@@ -1,0 +1,26 @@
+{
+ "arrival_night_before": {
+  "frame": 0.2573,
+  "lower45pct": 0.4073
+ },
+ "arrival_night_after": {
+  "frame": 0.0423,
+  "lower45pct": 0.0657
+ },
+ "arrival_day": {
+  "frame": 0.5131,
+  "lower45pct": 0.447
+ },
+ "board_night_before": {
+  "frame": 0.5848,
+  "lower45pct": 0.7891
+ },
+ "board_night_after": {
+  "frame": 0.0823,
+  "lower45pct": 0.0906
+ },
+ "board_day": {
+  "frame": 0.744,
+  "lower45pct": 0.8145
+ }
+}

@@ -6,6 +6,8 @@
 //    within 2x of the meadow's journey-night grade; warm accents stay the brightest thing (a few warm lamps).
 //  * Every self-lit material in env_skycity.glb is graded (no emissive material left at day strength).
 //  * Real SkycityBoardLive on the board-ui harness: night prewarm dims key light + cloud emissive, day restores them, toggles.
+//  * r2: lit ground / foliage / rock (ambient-lit, ambient is not dimmed outdoors) take the meadow night albedo grade, the robot
+//    the meadow prop grade, the soft cloud sea a moon-blue grade; lamps keep their albedo.
 //  * BalloonTransit grades the journey city while it is on (also after landing).
 const assert=require('node:assert/strict'),fs=require('fs'),path=require('path');
 const {createHarness}=require('../board-ui/harness.cjs');
@@ -18,9 +20,11 @@ H=createHarness({overrides:{
  'region/RegionLoader':{REGIONS:{skycity:{bundle:'region_skycity'}},loadRegionPrefab:async()=>prefab,mountRegion:(_d,_p,parent)=>{
   const model=new H.cc.Node('env_skycity');parent.addChild(model);model.addComponent(Ambient);
   for(const name of ['anchor_spawn_girl','anchor_starcourt_center'])model.addChild(new H.cc.Node(name));
-  for(const [node,mat,props] of [['env_sky_cloud_small','M_sky_cloud',{emissiveScale:new H.cc.Vec3(1,1,1),mainTexture:'tex'}],['env_sky_ruins','M_sky_palette_emissive',{emissiveScale:new H.cc.Vec3(3,3,3)}],['env_sky_static_palette','M_sky_palette',{}]]){
+  for(const [node,mat,props] of [['env_sky_cloud_small','M_sky_cloud',{emissiveScale:new H.cc.Vec3(1,1,1),mainTexture:'tex'}],['env_sky_ruins','M_sky_palette_emissive',{emissiveScale:new H.cc.Vec3(3,3,3)}],['env_sky_static_palette','M_sky_palette',{}],['chr_robot_gardener_mesh','M_sky_palette',{}]]){
    const n=new H.cc.Node(node);model.addChild(n);const r=n.addComponent(H.cc.MeshRenderer),sm=fakeMat(mat,props);r.setSharedMaterial(sm,0);
    const inst=fakeMat(mat+'#inst',{});r.getMaterialInstance=()=>{r.inst=inst;return inst;};mats.push({node,r,sm});}
+  const soft=new H.cc.Node('SkycityCloudseaSoft');parent.addChild(soft);const sn=new H.cc.Node('env_sky_cloudsea_soft');soft.addChild(sn);
+  {const r=sn.addComponent(H.cc.MeshRenderer),sm=fakeMat('M_sky_palette',{});r.setSharedMaterial(sm,0);const inst=fakeMat('sea#inst',{});r.getMaterialInstance=()=>{r.inst=inst;return inst;};mats.push({node:'soft_sea',r,sm});}
   return model;}},
  'region/RegionAmbientAnimation':{RegionAmbientAnimation:Ambient},
  'world-r1/CameraPose':{fromLookAt:p=>p,applyCameraPose:()=>true},
@@ -41,12 +45,18 @@ ok(Math.abs(cloud-key)<.02,'clouds as lit as the rest of the city at night');
 ok(key/meadow>=.5&&key/meadow<=2,'within 2x of the meadow journey-night grade '+meadow.toFixed(3));
 ok(n.lamp>=.3&&n.lamp<=.6&&lamp>1,'warm accents kept, dimmed (x'+n.lamp+', effective '+lamp.toFixed(2)+')');
 const h=G.skycityNightScale(.5);ok(h.key<1&&h.key>n.key,'blend 0.5 between day and night');
+ok(JSON.stringify(G.SKYCITY_NIGHT.groundAlbedo)===JSON.stringify(MB.MEADOW_NIGHT_LINEAR),'ground albedo grade = meadow night grade (MEADOW_NIGHT_LINEAR)');
+ok(Math.abs(G.SKYCITY_NIGHT.propAlbedo-Math.pow(MB.MEADOW_PROP_NIGHT[0],2.2))<1e-3,'props/characters = meadow prop grade x0.6 sRGB');
+const amb=G.lum(n.ground),sea=G.lum(n.sea);ok(amb>=.12&&amb<=.30,'ambient-lit ground night/day '+amb.toFixed(3)+' in 0.12..0.30 (ambient is not dimmed outdoors)');
+ok(n.ground[2]>n.ground[0],'moon-blue tint on the ground');ok(sea>amb&&sea<=.35,'cloud sea '+sea.toFixed(3)+' above the ground, <= 0.35');ok(n.prop>amb,'characters/props stay brighter than the ground');
+ok(G.skycityNightScale(0).ground.every(x=>x===1)&&G.skycityNightScale(0).sea.every(x=>x===1),'day albedo unchanged');
 ok(G.skycityNightScale(NaN).key===1&&G.skycityNightScale(7).key===n.key,'invalid/clamped weight');
 // 3. every self-lit material of the real GLB is graded
 {const b=fs.readFileSync(ROOT+'/creator-build-project/assets/bundles/region_skycity/env_skycity.glb'),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString());
  const lit=j.materials.filter(m=>(m.emissiveFactor||[0,0,0]).some(x=>x>0)||m.emissiveTexture);ok(lit.length>=2,'glb has self-lit materials');
  for(const m of lit)ok(G.skycityNightKind(m.name)!==null,'graded: '+m.name);
- for(const m of j.materials.filter(m=>!lit.includes(m)))ok(G.skycityNightKind(m.name)===null,'lit, follows lights: '+m.name);}
+ for(const m of j.materials.filter(m=>!lit.includes(m)))ok(G.skycityNightKind(m.name,'env_sky_static_palette')==='ground','lit, albedo graded: '+m.name);
+ ok(G.skycityNightKind('M_sky_palette','chr_robot_gardener_mesh')==='prop'&&G.skycityNightKind('M_sky_palette','x',true)==='sea'&&G.skycityNightKind('M_other')===null,'kinds');}
 // 4. real board lease
 const L=H.load('region/SkycityBoardLive');
 let snap={...N};globalThis.__worldDayNight={snapshot:()=>snap};
@@ -60,15 +70,20 @@ let snap={...N};globalThis.__worldDayNight={snapshot:()=>snap};
  const c=mats.find(m=>m.node==='env_sky_cloud_small'),r=mats.find(m=>m.node==='env_sky_ruins'),p=mats.find(m=>m.node==='env_sky_static_palette');
  ok(Math.abs(c.r.inst.props.emissiveScale.x-G.SKYCITY_NIGHT.cloudEmissive[0])<1e-9&&c.r.inst.props.mainTexture==='tex','cloud emissive graded, albedo map rebound');
  ok(Math.abs(r.r.inst.props.emissiveScale.x-3*G.SKYCITY_NIGHT.lampEmissive)<1e-9,'accents x'+G.SKYCITY_NIGHT.lampEmissive);
- ok(!p.r.inst,'lit palette untouched (follows the key light)');
+ const rb=mats.find(m=>m.node==='chr_robot_gardener_mesh'),sw=mats.find(m=>m.node==='soft_sea');
+ ok(Math.abs(p.r.inst.props.albedoScale.x-.16)<1e-9&&Math.abs(p.r.inst.props.albedoScale.z-.28)<1e-9,'board lawn / court albedo graded like the meadow');
+ok(Math.abs(rb.r.inst.props.albedoScale.x-G.SKYCITY_NIGHT.propAlbedo)<1e-9,'robot: prop grade');
+ ok(Math.abs(sw.r.inst.props.albedoScale.z-G.SKYCITY_NIGHT.cloudseaAlbedo[2])<1e-9,'soft cloud sea graded as sea (not ground)');
+ ok(!r.r.inst.props.albedoScale,'lamps keep their albedo');
  snap={...D.resolveDayNight('day',true)};lease.setVisible(true);
  ok(light.luminance===home&&light.color.r===0xff&&light.color.b===0xda,'day restores the key light');
  ok(c.r.inst.props.emissiveScale.x===1&&r.r.inst.props.emissiveScale.x===3,'day restores the emissive');
+ ok(p.r.inst.props.albedoScale.x===1&&sw.r.inst.props.albedoScale.x===1,'day restores the albedo');
  snap={...N,skyNightBlend:.5};lease.setVisible(true);ok(light.luminance<home&&light.luminance>home*N.lightScale,'blend 0.5');
  const dg=lease.diagnostics();ok(typeof dg.keyLuminance==='number','diagnostics expose key luminance');
  lease.dispose();
  // 5. journey wiring
  const bt=fs.readFileSync(S+'region/BalloonTransit.ts','utf8');
- ok(/if\(model&&cityOn\)gradeSkycityNight\(model,night\?1:0\);/.test(bt),'balloon journey grades the city while on (landing included)');
- console.log(JSON.stringify({status:'PASS',checks:checks.length,night:{keyLitCity:+key.toFixed(3),selfLitClouds:+cloud.toFixed(3),warmAccents:+lamp.toFixed(2),meadowRef:+meadow.toFixed(3)}}));
+ ok(/if\(model&&cityOn\)\{gradeSkycityNight\(model,night\?1:0\);gradeSkycityCloudsea\(model\.parent,night\?1:0\);\}/.test(bt),'balloon journey grades the city while on (landing included)');
+ console.log(JSON.stringify({status:'PASS',checks:checks.length,night:{ambientLitGround:+amb.toFixed(3),cloudsea:+sea.toFixed(3),keyLitCity:+key.toFixed(3),selfLitClouds:+cloud.toFixed(3),warmAccents:+lamp.toFixed(2),meadowRef:+meadow.toFixed(3)}}));
 }catch(e){console.error(e);process.exit(1);}})();
