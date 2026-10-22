@@ -19,7 +19,7 @@ for x in kb[1:]: x.value=float(os.environ.get('HOLD','1')) if x.name=='lantern_h
 attach_lantern(arm,os.environ.get('LANTERN','prop_lantern_v2.glb'));place_lantern(arm);bpy.context.view_layer.update()
 Jw,sp=socket_world(arm);R3=LROOT.matrix_world.to_3x3();ax=(R3@Vector((0,1,0))).normalized()
 dg=bpy.context.evaluated_depsgraph_get();oe=B.evaluated_get(dg);me=oe.to_mesh();Mw=oe.matrix_world
-P=np.array([list(Mw@v.co) for v in me.vertices]);me.calc_loop_triangles();T=np.array([tuple(t.vertices) for t in me.loop_triangles]);oe.to_mesh_clear()
+P=np.array([list(Mw@v.co) for v in me.vertices]);me.calc_loop_triangles();T=np.array([tuple(t.vertices) for t in me.loop_triangles]);TP=np.array([t.polygon_index for t in me.loop_triangles]);oe.to_mesh_clear()
 # 局部柱坐标：u 沿轴，(x,y) 横截面；x = 灯“下”方向
 dn=np.array(R3@Vector((0,0,-1)));A=np.array(ax);Bx=dn-A*(dn@A);Bx/=np.linalg.norm(Bx);By=np.cross(A,Bx);S=np.array(sp)
 def cyl(X): Q=X-S;u=Q@A;x=Q@Bx;y=Q@By;return u,np.hypot(x,y),np.degrees(np.arctan2(y,x))
@@ -31,7 +31,7 @@ near=np.where((np.min(r[T],1)<0.03)&(np.abs(u[T]).min(1)<0.03))[0]
 GL=float(os.environ.get('GRIPL','0.036'))/2;R=0.006;bad=[]
 for ti in near:
     X=W@P[T[ti]];uu,rr,_=cyl(X);m=(np.abs(uu)<GL)
-    if m.any() and rr[m].min()<R: bad.append(dict(t=int(ti),depth_mm=round((R-rr[m].min())*1000,2),v=[int(x) for x in T[ti]],r_mm=[round(r[x]*1000,1) for x in T[ti]],phi=[round(ph[x]) for x in T[ti]],u_mm=[round(u[x]*1000,1) for x in T[ti]]))
+    if m.any() and rr[m].min()<R: bad.append(dict(t=int(ti),poly=int(TP[ti]),depth_mm=round((R-rr[m].min())*1000,2),v=[int(x) for x in T[ti]],r_mm=[round(r[x]*1000,1) for x in T[ti]],phi=[round(ph[x]) for x in T[ti]],u_mm=[round(u[x]*1000,1) for x in T[ti]]))
 gi={g.index:g.name for g in B.vertex_groups};HD=np.array([bool(v.groups) and gi[max(v.groups,key=lambda g:g.weight).group]=='hand.L' for v in B.data.vertices])
 hand=HD&(r<0.030)
 from mathutils.bvhtree import BVHTree

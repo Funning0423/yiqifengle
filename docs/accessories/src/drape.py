@@ -103,8 +103,8 @@ def solve(P0,E,NB,constr_pts,anchor,iters=None):
     print('STRAIN pct(L0>1mm) p50/p99/p99.9/max',np.round(np.percentile(sr[big],[50,99,99.9,100])*100,2),'n>2.5%',int((sr[big]>STR+1e-4).sum()),'of',int(big.sum()),'max tiny',round(float(sr.max()*100),1),flush=True)
     strain=float(sr[big].max())
     rows,cols,vals,rhs=constr_pts(P,E);return P,strain,len(rhs)
-def push_out(bvh,clr):
-    """返回线性约束：穿入（s<clr）的顶点和边中点目标位置"""
+def push_out(bvh,clr,clr_v=None):
+    """返回线性约束：穿入（s<clr）的顶点和边中点目标位置；clr_v 可给每顶点间隙"""
     def f(P,E):
         rows=[];cols=[];vals=[];rhs=[];r=0
         mids=(P[E[:,0]]+P[E[:,1]])/2
@@ -112,14 +112,45 @@ def push_out(bvh,clr):
             h=bvh.find_nearest(Vector(p),REACH)
             if h[0] is None: continue
             loc,nn=np.array(h[0]),np.array(h[1])
-            if (p-loc)@nn<clr-1e-5: rows.append(r);cols.append(i);vals.append(1.0);rhs.append(loc+nn*clr);r+=1
+            c_=clr if clr_v is None else clr_v[i]
+            if (p-loc)@nn<c_-1e-5: rows.append(r);cols.append(i);vals.append(1.0);rhs.append(loc+nn*c_);r+=1
         for e,p in zip(E,mids):
             h=bvh.find_nearest(Vector(p),REACH)
             if h[0] is None: continue
             loc,nn=np.array(h[0]),np.array(h[1])
-            if (p-loc)@nn<clr-1e-5: rows+=[r,r];cols+=[int(e[0]),int(e[1])];vals+=[0.5,0.5];rhs.append(loc+nn*clr);r+=1
+            c_=clr if clr_v is None else 0.5*(clr_v[e[0]]+clr_v[e[1]])
+            if (p-loc)@nn<c_-1e-5: rows+=[r,r];cols+=[int(e[0]),int(e[1])];vals+=[0.5,0.5];rhs.append(loc+nn*c_);r+=1
         return rows,cols,vals,rhs
     return f
+def push_leg(bvh,clr,N):
+    """腿用：沿布的外法线 N 射线找出口（奇数次相交 = 在腿内），目标 = 出口 + 腿法线·clr；浅层再用最近点"""
+    def hit_exit(p,d):
+        o=Vector(p)+Vector(d)*1e-4;n=0;first=None
+        for _ in range(8):
+            h=bvh.ray_cast(o,Vector(d),0.25)
+            if h[0] is None: break
+            n+=1;first=first or h;o=h[0]+Vector(d)*1e-4
+        return (first if n%2==1 else None)
+    def tgt(p,d):
+        h=hit_exit(p,d)
+        if h is not None and (h[0]-Vector(p)).length<float(os.environ.get('PUSHMAX','0.07')): return np.array(h[0])+np.array(h[1])*clr
+        h=bvh.find_nearest(Vector(p),REACH)
+        if h[0] is not None and (p-np.array(h[0]))@np.array(h[1])<clr-1e-5: return np.array(h[0])+np.array(h[1])*clr
+        return None
+    def f(P,E):
+        rows=[];cols=[];vals=[];rhs=[];r=0
+        for i,p in enumerate(P):
+            t=tgt(p,N[i])
+            if t is not None: rows.append(r);cols.append(i);vals.append(1.0);rhs.append(t);r+=1
+        for e in E:
+            p=(P[e[0]]+P[e[1]])/2;d=N[e[0]]+N[e[1]];d/=np.linalg.norm(d)+1e-12;t=tgt(p,d)
+            if t is not None: rows+=[r,r];cols+=[int(e[0]),int(e[1])];vals+=[0.5,0.5];rhs.append(t);r+=1
+        return rows,cols,vals,rhs
+    return f
+def vnorm(P,T):
+    N=np.zeros_like(P);T=np.array(T);n=np.cross(P[T[:,1]]-P[T[:,0]],P[T[:,2]]-P[T[:,0]])
+    for k in range(3): np.add.at(N,T[:,k],n)
+    return N/(np.linalg.norm(N,axis=1,keepdims=True)+1e-12)
 def both(f1,f2):
     def f(P,E):
         a=f1(P,E);b=f2(P,E);o=len(a[3]);return a[0]+[x+o for x in b[0]],a[1]+b[1],a[2]+b[2],a[3]+b[3]
@@ -127,16 +158,30 @@ def both(f1,f2):
 def anchors(o,P):
     g={x.index:x.name for x in o.vertex_groups};hz=(arm.matrix_world@PB['hips'].head).z
     return np.array([P[v.index][2]>hz-float(os.environ.get('ANCH','0.03')) for v in o.data.vertices])
-def correct(clip,f):
+TMP={}
+def settmp(o,D):
+    if not o.data.shape_keys: o.shape_key_add(name='Basis')
+    kb=o.data.shape_keys.key_blocks.get('drape_tmp') or o.shape_key_add(name='drape_tmp')
+    bs=o.data.shape_keys.key_blocks[0];co=np.array([list(v.co) for v in bs.data])+D;kb.data.foreach_set('co',co.ravel());kb.value=1.0
+def gaps(PA,DB):
+    g=np.full(len(PA),1.0)
+    for i,p in enumerate(PA):
+        h=DB.find_nearest(Vector(p),REACH)
+        if h[0] is not None: g[i]=(Vector(p)-h[0]).dot(h[1])
+    return g
+def correct(clip,f,Dd0,Da0):
+    settmp(DR,Dd0);settmp(AP,Da0)
     setf(clip,f);bpy.context.view_layer.update();LB=legbvh()
     Pd,Td,_=ev(DR);Pa,Ta,_=ev(AP)
-    Pd2,sd,rd=solve(Pd,ED,ND,push_out(LB,CLR),anchors(DR,Pd))
-    DB=BVHTree.FromPolygons(Pd2.tolist(),Td);fl=push_out(LB,CLR);fd=push_out(DB,GAPL)
+    g0=gaps(Pa,BVHTree.FromPolygons(Pd.tolist(),Td));clrA=np.clip(g0,0.0,GAPL)   # 原本不足 8 mm 的地方不要求变大，只要求不再变小
+    clrA=np.where(g0>=GAPL,GAPL,np.maximum(g0,0.0)) if os.environ.get('KEEPGAP','1')=='1' else np.full(len(Pa),GAPL)
+    Pd2,sd,rd=solve(Pd,ED,ND,push_leg(LB,CLR,vnorm(Pd,Td)),anchors(DR,Pd))
+    DB=BVHTree.FromPolygons(Pd2.tolist(),Td);fl=push_leg(LB,CLR,vnorm(Pa,Ta));fd=push_out(DB,GAPL,clrA)
     Pa2,sa,ra=solve(Pa,EA,NA,both(fd,fl),anchors(AP,Pa))
     Jd,Ja=jac(DR),jac(AP)
     dd=np.einsum('kij,kj->ki',np.linalg.inv(Jd),Pd2-Pd);da=np.einsum('kij,kj->ki',np.linalg.inv(Ja),Pa2-Pa)
     st=dict(clip=clip,f=f,strain_d=round(sd*100,2),strain_a=round(sa*100,2),unresolved_d=rd,unresolved_a=ra,max_d_mm=round(float(np.linalg.norm(Pd2-Pd,axis=1).max()*1000),1),max_a_mm=round(float(np.linalg.norm(Pa2-Pa,axis=1).max()*1000),1))
-    return dd,da,st
+    return Dd0+dd,Da0+da,st
 def legset():
     P,T,poly=ev(B);ls=set(LEGP);return P,[t for t,pi in zip(T,poly) if pi in ls]
 def metrics():
@@ -146,7 +191,16 @@ def metrics():
     for p in Pa:
         h=DB.find_nearest(Vector(p),REACH)
         if h[0] is not None: g.append((Vector(p)-h[0]).dot(h[1]))
-    return dict(LEG_DRESS=count(PL,TL,Pd,Td),LEG_APRON=count(PL,TL,Pa,Ta),DRESS_APRON=count(Pd,Td,Pa,Ta),gap_min_mm=round(min(g)*1000,2) if g else None,gap_p5_mm=round(float(np.percentile(g,5))*1000,2) if g else None)
+    LB=BVHTree.FromPolygons(PL.tolist(),TL)
+    def depth(P,E):
+        X=np.vstack([P,(P[E[:,0]]+P[E[:,1]])/2]);dm=0.0
+        for p in X:
+            h=LB.find_nearest(Vector(p),0.08)
+            if h[0] is not None:
+                s_=(Vector(p)-h[0]).dot(h[1])
+                if s_<0: dm=max(dm,-s_)
+        return round(dm*1000,1)
+    return dict(LEG_DRESS_mm=depth(Pd,ED),LEG_APRON_mm=depth(Pa,EA),LEG_DRESS=count(PL,TL,Pd,Td),LEG_APRON=count(PL,TL,Pa,Ta),DRESS_APRON=count(Pd,Td,Pa,Ta),gap_min_mm=round(min(g)*1000,2) if g else None,gap_p5_mm=round(float(np.percentile(g,5))*1000,2) if g else None)
 if os.environ.get('EVAL'):
     Z=np.load(os.environ['EVAL']);names=list(Z['names']);W=json.load(open(os.environ['W']))
     for o,k in ((DR,'d'),(AP,'a')):
@@ -165,8 +219,20 @@ if os.environ.get('EVAL'):
     json.dump(rows,open(out,'w'));print('EVAL done',len(rows))
 else:
     S=json.loads(os.environ['SAMPLES']);dd=[];da=[];info=[]
+    Dd=np.zeros((len(DR.data.vertices),3));Da=np.zeros((len(AP.data.vertices),3))
     for clip,f in S:
-        setf(clip,f);bpy.context.view_layer.update();m0=metrics()
-        d,a,st=correct(clip,f);st['metrics_before']=m0;dd.append(d);da.append(a);info.append(st);print('SAMPLE',json.dumps(st),flush=True)
-    np.savez(out,d=np.array(dd),a=np.array(da),names=np.array([f'drape_{c[8:12]}_{f}' for c,f in S]),bas_d=np.array([list(v.co) for v in DR.data.vertices]),bas_a=np.array([list(v.co) for v in AP.data.vertices]))
+        settmp(DR,Dd);settmp(AP,Da);setf(clip,f);bpy.context.view_layer.update();m0=metrics()
+        Dd,Da,st=correct(clip,f,Dd,Da);settmp(DR,Dd);settmp(AP,Da);setf(clip,f);bpy.context.view_layer.update();st['metrics_before']=m0;st['metrics_after']=metrics();info.append(st);print('SAMPLE',json.dumps(st),flush=True)
+    def strain_vs_orig(clip,f):
+        out={}
+        for o,E_,D in ((DR,ED,Dd),(AP,EA,Da)):
+            settmp(o,D*0);setf(clip,f);bpy.context.view_layer.update();P0,_,_=ev(o);settmp(o,D);bpy.context.view_layer.update();P1,_,_=ev(o)
+            L0=np.linalg.norm(P0[E_[:,0]]-P0[E_[:,1]],axis=1);L1=np.linalg.norm(P1[E_[:,0]]-P1[E_[:,1]],axis=1);k=L0>1e-3;sr=L1[k]/L0[k]-1
+            out[o.name[8:]]=dict(max=round(float(sr.max()*100),2),p999=round(float(np.percentile(sr,99.9)*100),2),n_gt10=int((sr>0.10).sum()),move_max_mm=round(float(np.linalg.norm(P1-P0,axis=1).max()*1000),1))
+        return out
+    for clip,f in S: print('STRV',clip,f,json.dumps(strain_vs_orig(clip,f)),flush=True)
+    for clip,f in json.loads(os.environ.get('CHECK','[]')):
+        setf(clip,f);bpy.context.view_layer.update();print('CHECK',clip,f,json.dumps(metrics()),flush=True)
+    dd=[Dd];da=[Da]
+    np.savez(out,d=np.array(dd),a=np.array(da),names=np.array(['stand_drape']),bas_d=np.array([list(v.co) for v in DR.data.vertices]),bas_a=np.array([list(v.co) for v in AP.data.vertices]))
     json.dump(info,open(out+'.json','w'),indent=1)
