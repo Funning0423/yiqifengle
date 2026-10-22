@@ -37,10 +37,10 @@ export const LAYER_ASSETS: { [id: string]: { path: string; bundle: string | null
   highWind: { path: 'audio/amb_sky_air_loop', bundle: 'region_skycity' },
 };
 
-/** 帆船 / 湖畔 BGM 的循环和调性（已接进 BGM）。sail：C 大调 6/8，35.56 s。lakeside：F 大调 72 BPM，66.67 s。 */
+/** 帆船 / 湖畔 BGM 的循环和调性（已接进 BGM）。sail：C 大调 6/8，35.56 s。lakeside：湖畔「风起」v2（F 大调 4/4，3.6 s 一小节），57.6 s。 */
 export const BGM_CANDIDATES: { [id: string]: BgmRef & { loopS: number; key: string } } = {
   sail: { path: 'audio_amb/bgm_sail', bundle: 'transport_sail', loopS: 35.5556, key: 'C major 6/8, dotted-quarter 54' },
-  lakeside: { path: 'audio/bgm_lakeside', bundle: 'region_lakeside', loopS: 66.6667, key: 'F major 4/4, 72 BPM' },
+  lakeside: { path: 'audio/bgm_lakeside', bundle: 'region_lakeside', loopS: 57.6, key: 'F major 4/4, 3.6 s bars (lakeside fengqi v2)' },
 };
 
 /** 循环长度。鸟鸣 / 虫鸣 / 高空风由 BedLayerAudio 播放；每个文件在 loopS 之后带 0.15 s 自己开头的副本（和 amb_lake_loop 同一种格式）。
@@ -172,8 +172,8 @@ export const SCENE_GROUND_TYPES: { [place: string]: string[] } = {
   skycity: ['cloud', 'stone', 'grass'],
 };
 
-/** 主线第 13–16 关（湖畔，方案 B：第 12 关后解锁）的棋盘内声音。全部复用已有文件，不加包体。
- *  bgm：bgm_lakeside（F 大调，-17.4 LUFS，66.67 s 循环，loopS 见 BGM_CANDIDATES）。棋盘里不重启曲子：从地图进关保持当前播放位置。
+/** 主线第 13–16 关（湖畔，方案 B：第 12 关后解锁）的棋盘内声音。bgm 为湖畔「风起」v2（Funning 已批），其余复用已有文件。
+ *  bgm：bgm_lakeside = 「风起」v2（VSCO-2-CE CC0 竖琴/长笛/单簧管/弦乐 + 公有领域风铃，风铃 -9 dB 只在旋律空隙，F 大调，-17.4 LUFS，57.6 s 无缝循环，生成脚本 tools/audio/sampled/lakeside_bgm_v2_loop.py，loopS 见 BGM_CANDIDATES）。棋盘里不重启曲子：从地图进关保持当前播放位置。
  *  bed：amb_lake_loop，比地图上低（0.55 → 0.40–0.46），让棋盘点击音和曲子在前面。
  *  waterbirds：CONFIRMED_LANDMARKS.lakeWaterbirds 的四个单发，棋盘里没有距离，按固定音量 + 稀疏间隔当点缀层，左右轻摆。
  *  关卡之间只微调（越往后越安静一点），不换素材，保证连续几关听起来是同一个湖。试听：previews/Voice-bot/b15-lakeside-l13-16/。 */

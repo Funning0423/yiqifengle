@@ -125,7 +125,7 @@ Config mapping is in `creator-build-project/assets/scripts/audio/SceneAudioTable
 | file (creator-build-project/assets/bundles/…) | bytes | format | loudness (I / TP) | source | author | licence | excerpt / processing |
 |---|---|---|---|---|---|---|---|
 | transport_sail/audio_amb/bgm_sail.mp3 | 213,881 | 48 kbps stereo 44.1 kHz, plain circular loop 35.556 s | -17.4 LUFS / -5.1 dBTP | original composition + synthesis (`music/sail.py`, `music/synth.py`, `music/motif.py`) | Voice bot | CC0 1.0 (own work, no samples) | C major, 6/8, dotted quarter = 54. Nylon-guitar rocking arpeggio, bass, string swells. The flute plays the shared motif 「风起」 (bars 2–9), then the strings repeat it a third lower. Circular reverb RT 2.6 s |
-| region_lakeside/audio/bgm_lakeside.mp3 | 400,552 | 48 kbps stereo 44.1 kHz, plain circular loop 66.667 s | -17.4 LUFS / -5.5 dBTP | original composition + synthesis (`music/lakeside.py`) | Voice bot | CC0 1.0 (own work, no samples) | F major, 72 BPM. Harp arpeggios, soft bass, strings in bars 10–17. The piano plays the motif, then sequences it a third lower. Circular reverb RT 2.4 s |
+| region_lakeside/audio/bgm_lakeside.mp3 | 346,008 | 48 kbps stereo 44.1 kHz, plain circular loop 57.6 s | -17.4 LUFS / -4.3 dBTP | lakeside 「风起」 v2: VSCO-2-CE (CC0) harp/flute/clarinet/viola/cello + Wikimedia Windchime.ogg (PD), `tools/audio/sampled/lakeside_bgm_v2_loop.py` (replaces the earlier synth `music/lakeside.py` version) | Voice bot | CC0 1.0 (own work, no samples) | F major, 72 BPM. Harp arpeggios, soft bass, strings in bars 10–17. The piano plays the motif, then sequences it a third lower. Circular reverb RT 2.4 s |
 | region_meadow/audio/amb_meadow_river_loop.mp3 | 48,836 | 24 kbps mono 24 kHz, loop 16.0 s + 0.15 s dup | -27.2 / -13.0 | "Park Ambiences" (park_ambience_river.wav) https://opengameart.org/content/park-ambiences | thimras | CC0 1.0 | source from 62.5 s. HP / de-harsh / LP, light reverb |
 | region_skycity/audio/amb_sky_waterfall_loop.mp3 | 48,836 | 24 kbps mono 24 kHz, loop 16.0 s + 0.15 s dup | -27.2 / -13.7 | same park_ambience_river.wav | thimras | CC0 1.0 | source from 274 s. HP 350 Hz, LP 4.5 kHz, reverb RT 2.5 s (distant mist) |
 | audio_bgm_island/audio/amb_island_dock_lap_loop.mp3 | 36,884 | 24 kbps mono 24 kHz, loop 12.0 s + 0.15 s dup | -27.3 / -9.8 | "Sea and river wave sounds" (VistulaShort.mp3) https://opengameart.org/content/sea-and-river-wave-sounds | randommind | CC0 1.0 | source from 80.5 s. LP 1.6 kHz (water lapping under the pier) |
@@ -195,7 +195,7 @@ These are edits to files already credited above; no new sources.
 
 ## b15 lakeside levels 13–16 + snow-pass concept (Voice bot, 2026-10-22)
 
-Lakeside main-line levels 13–16 (`LAKESIDE_BOARD_LEVELS` in SceneAudioTable.ts) reuse `bgm_lakeside`, `amb_lake_loop` and `sfx_lake_waterbird_1..4` unchanged: no new game audio, 0 bytes added to the package.
+Lakeside main-line levels 13–16 (`LAKESIDE_BOARD_LEVELS` in SceneAudioTable.ts) reuse `amb_lake_loop` and `sfx_lake_waterbird_1..4` unchanged; `bgm_lakeside` is now 「风起」 v2 (approved), -54544 B vs the old file. No other new game audio, 0 bytes added to the package.
 
 Snow-pass concept previews only (`previews/Voice-bot/b15-lakeside-l13-16/02..04`, not in the game):
 
