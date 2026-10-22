@@ -709,6 +709,9 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
   if(!this.homeCover){const node=new Node('HomeFadeCover');node.layer=Layers.Enum.UI_2D;this.canvas.addChild(node);node.addComponent(UITransform).setContentSize(4000,4000);
    const g=node.addComponent(Graphics);this.homeCover={node,g,alpha:-1,from:0,to:0,at:0,s:0,done:null};this.paintCover(this.homeCover,0);}
   const c=this.homeCover;c.node.setSiblingIndex(this.canvas.children.length-1);c.done?.();c.from=Math.max(0,c.alpha)/255;c.to=to;c.at=this.fg.now();c.s=Math.max(0,seconds);c.node.active=true;
+  // b15 QA: qaShot frame() deactivates WorldNavigationCanvas (clean shots) and only the board lens reopens it; the cover
+  // lives under that canvas, so a later home fade ran invisibly (no brightness drop). The screen cover must always show.
+  if(this.canvas&&this.canvas.isValid&&!this.canvas.active)this.canvas.active=true;
   return new Promise<void>(r=>{c.done=r;this.tickCover();});
  }
  private tickCover(){this.fg.flush();const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(this.fg.now()-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);

@@ -372,6 +372,8 @@ export class WorldNativeComposition extends Component {
      else if(sky?.reason==='return-route-not-yet-available'&&this.world?.commands().snapshot().state==='lakeside'){try{(this.world.commands() as any).abandonLakesideJourney?.();}catch{/* retry */}}
      else if(sky?.ok||sky?.reason!=='return-route-not-yet-available')break;await new Promise<void>(r=>setTimeout(r,500));}
     if(!sky?.ok)return sky;
+    // b15 QA: the skycity frame() hid WorldNavigationCanvas; the lakeside journey that follows is the real flow (fades, cover, board UI), so reopen it.
+    try{const f=(n:any):any=>{if(!n)return null;if(n.name==='WorldNavigationCanvas')return n;for(const c of n.children||[]){const h=f(c);if(h)return h;}return null;};const ui=f(director.getScene());if(ui&&!ui.active)ui.active=true;}catch{/* qa only */}
     const w=this.world!.commands();if(w.snapshot().state==='level'){const e=w.exitLevel();if(!e.ok)return e;}
     const qa:{mark:string|null;markT:number}={mark:null,markT:0};(globalThis as any).__qaLakeside=qa;
     sched.setTimeScale(scale);
