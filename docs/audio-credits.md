@@ -192,3 +192,16 @@ These are edits to files already credited above; no new sources.
   start, 24 kbps mono 24 kHz, 49,340 B, -31.4 LUFS, true peak -21.2 dBTP. It plays on two alternating AudioSources
   (LandmarkLoopPair): the partner starts at 16.0 s and they cross over 0.15 s after the 1105-sample encoder delay, so mp3 padding
   is never heard. No third-party material; licence unchanged.
+
+## b15 lakeside levels 13–16 + snow-pass concept (Voice bot, 2026-10-22)
+
+Lakeside main-line levels 13–16 (`LAKESIDE_BOARD_LEVELS` in SceneAudioTable.ts) reuse `bgm_lakeside`, `amb_lake_loop` and `sfx_lake_waterbird_1..4` unchanged: no new game audio, 0 bytes added to the package.
+
+Snow-pass concept previews only (`previews/Voice-bot/b15-lakeside-l13-16/02..04`, not in the game):
+
+| Source | Author | License | URL | Use |
+|---|---|---|---|---|
+| Howling_wind.ogg | Tvabutzku1234 | CC0 1.0 | https://commons.wikimedia.org/wiki/File:Howling_wind.ogg | 30–58 s rumble (octave down, LP 180 Hz); 40–68 s gust (BP 250–1600 Hz, 700 Hz −5 dB); 72–100 s high wind (BP 700–2000 Hz, echo) |
+| Windchime.ogg | stephan | Public domain | https://commons.wikimedia.org/wiki/File:Windchime.ogg | chime A: 12–36 s, +39 cents, HP 300 / LP 6.5 kHz, 3.5 kHz −5 dB, echo tail |
+| Windglockenspiel.Koshi.ogg | Membeth | CC0 1.0 | https://commons.wikimedia.org/wiki/File:Windglockenspiel.Koshi.ogg | chime B: 2–26 s, +22 cents, same chain |
+| snow hiss | Voice bot (own synthesis, ffmpeg pink noise) | CC0 1.0 (own work) | — | HP 6.5 kHz / LP 10 kHz, −30 dB |
