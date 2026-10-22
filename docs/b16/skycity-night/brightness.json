@@ -1,0 +1,8 @@
+{
+ "arrival_night_before": 0.1522,
+ "arrival_night_after": 0.0459,
+ "arrival_day": 0.5124,
+ "board_night_before": 0.4868,
+ "board_night_after": 0.1517,
+ "board_day": 0.7435
+}

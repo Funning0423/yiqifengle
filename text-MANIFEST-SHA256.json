@@ -2486,8 +2486,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 34547,
-    "sha256": "f3fd6f558feb4e9e4ff333ccc412efb0e4f22b0ef941a6dddb072cf5eda14e86"
+    "bytes": 34889,
+    "sha256": "314aabce92cddb2052d9afa12d3939afa2971795475c085826c9065465d7d86a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2976,8 +2976,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts",
-    "bytes": 3309,
-    "sha256": "723dcd5fe32e41c4ecbf752d8cffb1d1c4ecaebc0d078ea9ca16ebe4dfbe981c"
+    "bytes": 3865,
+    "sha256": "80fbad3fecdeeedd533333994b8f70ab31d1a2b678e13add951a1c9a7bd27835"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts.meta",
@@ -2993,6 +2993,26 @@
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
     "bytes": 171,
     "sha256": "14ba1dab4719bbf077a518e6eed96edee2f53f6a0ed859c73b5765fb0bdf7142"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityNightApply.ts",
+    "bytes": 2969,
+    "sha256": "13ae6b17856ef77d9ed695b7668d80a675135ef3af16a4a6f3e7a25e782ed699"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityNightApply.ts.meta",
+    "bytes": 171,
+    "sha256": "03c1cb6467bffb710e1bf08aebd6121b1537a5dac6f8b33cceea6a1a2a593880"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityNightGrade.ts",
+    "bytes": 2565,
+    "sha256": "4d1ae79278d61c85c2bed8c471bb9f3b102daf1163ec9f9c5fce49d068d20593"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityNightGrade.ts.meta",
+    "bytes": 171,
+    "sha256": "d240f051c77ded972fa967d7f53bbea72f057bfbd4216bc3f5fe1144145f7655"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityPennantWind.ts",
@@ -4236,8 +4256,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14180,
-    "sha256": "d9ebbd62ccf3416ccb9986d1c3a09f91e16138ebd0dc5d067bdc6bb150acbc81"
+    "bytes": 14320,
+    "sha256": "656a862187c9d29371b8e62469a20a79c001951cbe94768ea2ee5aa85bcf3d39"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

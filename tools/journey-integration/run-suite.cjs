@@ -126,6 +126,7 @@ const tests=[
  ['balloon-transit-background-resume','tools/journey-integration/test-transit-background-resume.cjs'],
  ['sky-arrival','tools/transitions/test_sky_arrival.cjs'],
  ['sky-cloudsea','tools/transitions/test_sky_cloudsea.cjs'],
+ ['skycity-night-grade','tools/skycity/test_skycity_night_grade.cjs'],['skycity-board-clear','tools/skycity/test_skycity_board_clear.cjs'],
  ['lakeside-sun-continuity','tools/lakeside/test_lakeside_sun_continuity.cjs'],/* r4.2 item 7 */
  ['board-prewarm-swap','tools/board-ui/test_board_prewarm_swap.cjs'],/* r4.2 items 10/11 */
  ['region-board-night','tools/meadow/test_region_board_night.cjs'],/* r4.2 item 9 */
