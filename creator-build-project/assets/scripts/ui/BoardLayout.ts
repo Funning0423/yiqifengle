@@ -128,3 +128,15 @@ export function boardSafeInsets(w: number, h: number): SafeArea & { portrait: bo
   if (!capsule && portrait) capsule = { top: top + 4, bottom: top + 36, left: w - 93, right: w - 6 };
   return { top, bottom, left, right, portrait, capsule };
 }
+
+/** b16-fix（验收 9d4fcaa8：L13 规则弹窗在 320×568 上要不顶到 HUD）：弹窗默认居中；面板顶（含半块标题木牌 52.5 设计 px）若高过信息牌底 + 12 pt，
+ *  就整体往下挪，但底边不低于屏幕底安全区上方 12 pt。返回 PopupPanel 的 dy（750 设计 px，正值向下）。纯函数。 */
+export function ruleGuideDy(width: number, height: number, panelH: number, plateBottom: number, safeBottom: number, scale: number): number {
+  // v2.3：scale 由调用方传 PopupKit.popupScale(width, height)，这里不再抄缩放公式
+  const s = scale, top = height / 2 - panelH * s / 2 - 52.5 * s, want = plateBottom + 12;
+  const room = (height - safeBottom - 12) - (height / 2 + panelH * s / 2);
+  const down = Math.max(0, Math.min(want - top, room));
+  return down / s;
+}
+/** 规则弹窗正文行数上限（320×568 下 9 行没有余量）。 */
+export const RULE_GUIDE_MAX_LINES = 8;

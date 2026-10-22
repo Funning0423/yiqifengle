@@ -601,7 +601,7 @@ export class WorldIntegrationBoot extends Component {
   * instead the signpost enters as the next step of the same sequence, after the buttons: same 0.25 s, same cubic
   * ease-out, rising the same 24 px out of the water while fading in (IslandProps.setSignEntrance). */
  private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;const step=Math.max(0,Math.min(dt,.1))/.25;
-  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
+  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+(this.signFadeS>0?Math.max(0,Math.min(dt,.1))/this.signFadeS:step));const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1){this.signEntrance=-1;this.signFadeS=0;}return;}
   this.islandEntrance=Math.min(1,this.islandEntrance+step);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
   if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
   const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
@@ -617,7 +617,8 @@ export class WorldIntegrationBoot extends Component {
   * - level/skycity (+ their loading) and paused: unchanged (the island behind the board keeps its sign; no flicker on
   *   a level round trip). */
  private signShown=1;private signOut=-1;private signPrev='';
- private setSign(e:number,risePx:number){this.signShown=e;this.islandProps?.setSignEntrance(e,risePx);}
+ private signRetry=0;private signRetryAt=0;/** v2.3：重试成功时的淡入时长（0 = 用常规 0.25 s 入场） */private signFadeS=0;
+ private setSign(e:number,risePx:number){const ok=this.islandProps?.setSignEntrance(e,risePx);if(ok!==false)this.signShown=e;} // b16-fix P1: props not ready -> signShown unchanged, so the entrance replays once they are
  private gateSignEntrance(state:string,dt=0){const p=this.islandProps,prev=this.signPrev;this.signPrev=state;if(!p?.ready)return;
   if(SIGN_AWAY_STATES.indexOf(state)>=0){this.signEntrance=-1;
    if(this.signShown<=0){this.signOut=-1;this.setSign(0,0);return;}
@@ -635,6 +636,15 @@ export class WorldIntegrationBoot extends Component {
    p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',journey:s.state==='region-travel',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
    if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
+  // b16-fix P1 (build05 全流程测试 P1-1)：入场已结束但木牌并不可见时，不能留一个看不见的点击区。先重放一次入场；仍不可见就退回可见的平面「继续旅程」按钮。
+  // v2.2（验收 E）：退回平面按钮后不放弃 3D 木牌：平面按钮保持可见可点，每 1 s 在后台把木牌直接设为完全显示再查一次，一旦可见就切回木牌；离开小岛清零重来。
+  if(s.state!=='island')this.signRetry=0;
+  if(sign&&p&&this.islandEntrance<0&&this.signEntrance<0&&typeof (p as any).signVisible==='function'&&!(p as any).signVisible()){
+   if(this.signRetry<1){this.signRetry++;this.signShown=0;this.signEntrance=0;}
+   else{const now=Date.now();if(now-this.signRetryAt>=1000){this.signRetryAt=now;this.signRetry++;this.setSign(1,0);}if(!(p as any).signVisible())sign=null;else{this.setSign(0,0);this.signShown=0;this.signEntrance=0;this.signFadeS=.2;// v2.4：探测时木牌被设成完全显示，确认可见后当帧先归零再淡入，避免闪一帧
+   sign={x:sign.x,y:sign.y,width:0,height:0};}}}
+  else if(sign&&this.islandEntrance<0&&this.signEntrance<0)this.signRetry=0;
+  this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
   if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height)t.setContentSize(sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
   else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;}

@@ -1,0 +1,254 @@
+{
+ "meadow": {
+  "existing": true,
+  "name": "草原(现有·05–12)",
+  "tray": "#c9b185",
+  "tray_floor": "#a58d67",
+  "tile_a": "#e2d7bc",
+  "tile_b": "#e8ddc4",
+  "obs": "#438b45",
+  "accent": "#e9a64f",
+  "bg_top": "#bcd6e6",
+  "bg_bot": "#8fae6a"
+ },
+ "lake": {
+  "existing": true,
+  "name": "湖畔(r6 v2·13–16)",
+  "tray": "#b4c9b6",
+  "tray_floor": "#7d978f",
+  "tile_a": "#cee2df",
+  "tile_b": "#c8ddd8",
+  "obs": "#576f63",
+  "accent": "#e2863b",
+  "bg_top": "#c9d6dc",
+  "bg_bot": "#7f9d72"
+ },
+ "snow": {
+  "name": "雪山风铃山口(17–20)",
+  "level_title": "17  风铃山口",
+  "bg_top": "#9db7d6",
+  "bg_bot": "#eef2f7",
+  "tray": "#dde1e6",
+  "tray_hi": "#eef1f4",
+  "tray_shadow": "#9aa3ae",
+  "tray_floor": "#c3c9d1",
+  "tile_a": "#e6ebf7",
+  "tile_b": "#d8dff0",
+  "obs": "#a9b6c6",
+  "obs_edge": "#eef2f7",
+  "obs_accent": "#d9a441",
+  "obs_cells": [
+   [
+    1,
+    1
+   ],
+   [
+    1,
+    5
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    5,
+    5
+   ],
+   [
+    3,
+    3
+   ]
+  ],
+  "accent": "#d9a441",
+  "hud": "#f4f6fa",
+  "hud_edge": "#8d99ad",
+  "hud_text": "#2f3a52",
+  "panel": "#3e4a63",
+  "panel_edge": "#d9a441",
+  "panel_text": "#f4f6fa",
+  "panel_title": "山口通过！",
+  "btn": "#d9a441",
+  "btn_text": "#2f2412",
+  "mech_name": "积雪风铃（2 层盖）",
+  "mech_rules": [
+   "盖在格子上，棋子在雪下不可交换（规则同贝壳盖/睡莲）",
+   "相邻消除 1 次：雪层掉落露出风铃（1 层）",
+   "再 1 次：风铃响→清除，并把同列最上方 1 格积雪吹落",
+   "与湖畔区分：冷灰白 + 黄铜点，几乎无饱和度"
+  ]
+ },
+ "lighthouse": {
+  "name": "星夜灯塔海岸(21–24)",
+  "level_title": "21  灯塔守夜",
+  "bg_top": "#141d38",
+  "bg_bot": "#2c4466",
+  "tray": "#b5bbc1",
+  "tray_hi": "#d8dce0",
+  "tray_shadow": "#141d38",
+  "tray_floor": "#9aa1a9",
+  "tile_a": "#d6d2d4",
+  "tile_b": "#cac5c8",
+  "obs": "#3f6f86",
+  "obs_edge": "#a9dbe6",
+  "obs_accent": "#fff1b8",
+  "obs_cells": [
+   [
+    6,
+    0
+   ],
+   [
+    6,
+    1
+   ],
+   [
+    6,
+    2
+   ],
+   [
+    6,
+    3
+   ],
+   [
+    6,
+    4
+   ],
+   [
+    6,
+    5
+   ],
+   [
+    6,
+    6
+   ],
+   [
+    3,
+    3
+   ]
+  ],
+  "accent": "#f0b54a",
+  "hud": "#f3e5c3",
+  "hud_edge": "#f0b54a",
+  "hud_text": "#2a2416",
+  "panel": "#1d2742",
+  "panel_edge": "#f0b54a",
+  "panel_text": "#f6efd9",
+  "panel_title": "灯亮了",
+  "btn": "#f0b54a",
+  "btn_text": "#1d2742",
+  "mech_name": "潮汐格 + 星光块",
+  "mech_rules": [
+   "潮汐格：每 3 步涨/退一次；涨潮时格内棋子被水罩住，不可交换不可消除",
+   "退潮时恢复正常；HUD 显示「还有 N 步涨潮」",
+   "星光块：不能移动，相邻消除 3 次充满（3 段光环）",
+   "充满后自动放出十字光（等同 line_h+line_v），然后消失"
+  ]
+ },
+ "town": {
+  "name": "林间小镇(25–28)",
+  "level_title": "25  小镇邮差",
+  "bg_top": "#f2c9a0",
+  "bg_bot": "#5f7d4c",
+  "tray": "#d6b9a6",
+  "tray_hi": "#eedccf",
+  "tray_shadow": "#7a5a48",
+  "tray_floor": "#bf9f8b",
+  "tile_a": "#f5dbd2",
+  "tile_b": "#edcdc1",
+  "obs": "#9a7a5a",
+  "obs_edge": "#e8d3b8",
+  "obs_accent": "#e0532b",
+  "obs_cells": [
+   [
+    2,
+    1
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    2,
+    5
+   ],
+   [
+    4,
+    2
+   ],
+   [
+    4,
+    4
+   ]
+  ],
+  "accent": "#e0532b",
+  "hud": "#f3e5c3",
+  "hud_edge": "#a4553a",
+  "hud_text": "#4a2616",
+  "panel": "#f3e5c3",
+  "panel_edge": "#a4553a",
+  "panel_text": "#4a2616",
+  "panel_title": "包裹送达",
+  "btn": "#476f35",
+  "btn_text": "#ffffff",
+  "mech_name": "包裹箱 + 铁轨连接",
+  "mech_rules": [
+   "包裹箱：占格障碍 1–2 层，相邻消除拆一层，拆完计入目标",
+   "铁轨连接：两格之间画轨道；箱子下方有空位时沿轨道滑到终点",
+   "箱子抵达「邮筒」格即算送达（新目标类型）",
+   "需引擎新增：轨道邻接表 + 每步结算后的滑动阶段"
+  ]
+ },
+ "courtyard": {
+  "name": "终章·风之庭院(29–32)",
+  "level_title": "29  风之庭院",
+  "bg_top": "#f6e7c8",
+  "bg_bot": "#9cc2a8",
+  "tray": "#e4dcc6",
+  "tray_hi": "#f4efe1",
+  "tray_shadow": "#a89a78",
+  "tray_floor": "#d0c6ab",
+  "tile_a": "#f7efd9",
+  "tile_b": "#f1e5f5",
+  "obs": "#7d9a94",
+  "obs_edge": "#e9ddb8",
+  "obs_accent": "#f7f9fc",
+  "obs_cells": [
+   [
+    0,
+    3
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    3,
+    6
+   ],
+   [
+    6,
+    3
+   ],
+   [
+    3,
+    3
+   ]
+  ],
+  "accent": "#d8b25a",
+  "hud": "#fbf8ec",
+  "hud_edge": "#d8b25a",
+  "hud_text": "#3b3220",
+  "panel": "#fbf8ec",
+  "panel_edge": "#d8b25a",
+  "panel_text": "#3b3220",
+  "panel_title": "风回来了",
+  "btn": "#2c6e67",
+  "btn_text": "#ffffff",
+  "mech_name": "四季风印（组合）",
+  "mech_rules": [
+   "3 层叠盖：外层依次是 睡莲叶 → 积雪 → 包裹封条，每次相邻消除剥一层",
+   "每层外观与对应区域障碍一致，玩家只靠已学规则即可理解",
+   "中心风印格：四周风印全清后自动触发全盘风（随机 6 个特殊块）",
+   "不引入新规则，只组合旧规则，用作终章检验"
+  ]
+ }
+}

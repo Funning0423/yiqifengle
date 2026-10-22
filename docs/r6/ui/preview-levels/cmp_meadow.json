@@ -1,0 +1,1 @@
+{"region": "meadow", "bg": "/workspace/r6/work/bg_meadow_board.jpg", "bg_night": "/workspace/r6/work/bg_lakeside_board_night.jpg", "title": "草原 · 示例", "moves": 34, "seed": 7, "grid": [".......", ".......", "..MMM..", ".......", ".......", ".......", "......."], "goals": [["moss", 3], ["blueberry", 14]], "tools": false}
