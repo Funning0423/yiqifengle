@@ -736,8 +736,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-    "bytes": 275334,
-    "sha256": "a2d8e0bbd0f3b6791e2de6bf34f44e5a4f26790461fedcc16fcd085d20b6778c"
+    "bytes": 282887,
+    "sha256": "ff05ca3998b8c9ccd0bf76d6a06f8ccaf289de74dbaf86a6d6e593b1a6facf64"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
@@ -2091,8 +2091,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/FootstepData.ts",
-    "bytes": 4245,
-    "sha256": "5c99425935e56c4766006107e8e1cde51dcb37c09594a26e1242bb226f1c1104"
+    "bytes": 4450,
+    "sha256": "cd7f645f96cc20997f7d6815c80c21608a2d09a5ebb603c7e42f4bdad0e914e4"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/FootstepData.ts.meta",

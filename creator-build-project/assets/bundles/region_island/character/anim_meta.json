@@ -1,6 +1,6 @@
 {
  "schema": "anim_meta/v1",
- "glb": "chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "glb": "planB_cand3b_ribbonwind4b_stepdown.glb",
  "status": "mocap-v1: all 13 character clips replaced by retargeted CMU motion capture (walk_loop, walk_start, walk_stop_bodyL/R, walk_turn_90_bodyL/R, walk_turn_180(_bodyR), idle_breathing_loop, sit_hold, sit_down, stand_up, door_reach); wind_sway_loop unchanged",
  "clip_names_planned": [
   "walk_loop",
@@ -16,7 +16,8 @@
   "sit_down",
   "stand_up",
   "wind_flutter_loop",
-  "apron_lift"
+  "apron_lift",
+  "walk_start_stepdown"
  ],
  "side_convention": "bodyL/bodyR and event.body = the girl's actual body side. Bone suffix is mirrored: bone .L = her RIGHT, bone .R = her LEFT.",
  "clips": {
@@ -15812,6 +15813,524 @@
      ]
     }
    }
+  },
+  "wind_flutter_loop": {
+   "version": "ribbonwind4",
+   "loop": true,
+   "additive": true,
+   "duration_s": 4.0,
+   "frames": 121,
+   "fps": 30,
+   "keys": "86 channels, reduced per channel, LINEAR (unchanged from ribbonwind4b)",
+   "cocos_meta_split": {
+    "from_s": 0,
+    "to_s": 4.0,
+    "note": "split 0..clip length in the GLB .meta (loop)"
+   },
+   "in_place": true,
+   "events": [],
+   "root_motion": "none",
+   "layer": {
+    "mode": "additive wind layer played by CharacterMotion",
+    "mask_ref": "wind.mask",
+    "weight": "wind.windToFlutter(strength) only; no per-clip fade; 0 indoors / sitting; walking-only per Grok Bot"
+   },
+   "content": "see wind.ribbonwind_note: ribbon x0.3; skirt.back / skirt.back.low outward-only; other skirt bones 0; apron*/hair* no channels"
+  },
+  "walk_start_stepdown": {
+   "version": "b15-stepdown-sd3",
+   "loop": false,
+   "duration_s": 1.7333,
+   "frames": 53,
+   "fps": 30,
+   "keys": "884 keys (777 rot + 54 tr) + ribbon 53 keys, reduced per channel, LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0,
+    "to_s": 1.7333,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:L",
+     "time_s": 0.5333,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike",
+     "note": "step-down onto the lawn (-0.03 m)"
+    },
+    {
+     "name": "foot:R",
+     "time_s": 1.3333,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    }
+   ],
+   "root_motion": {
+    "forward_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.0333,
+      0.003
+     ],
+     [
+      0.0667,
+      0.0068
+     ],
+     [
+      0.1,
+      0.0116
+     ],
+     [
+      0.1333,
+      0.0173
+     ],
+     [
+      0.1667,
+      0.0239
+     ],
+     [
+      0.2,
+      0.03316
+     ],
+     [
+      0.2333,
+      0.04647
+     ],
+     [
+      0.2667,
+      0.06301
+     ],
+     [
+      0.3,
+      0.08184
+     ],
+     [
+      0.3333,
+      0.10236
+     ],
+     [
+      0.3667,
+      0.12374
+     ],
+     [
+      0.4,
+      0.14526
+     ],
+     [
+      0.4333,
+      0.16629
+     ],
+     [
+      0.4667,
+      0.18633
+     ],
+     [
+      0.5,
+      0.20464
+     ],
+     [
+      0.5333,
+      0.2205
+     ],
+     [
+      0.5667,
+      0.2354
+     ],
+     [
+      0.6,
+      0.2511
+     ],
+     [
+      0.6333,
+      0.2677
+     ],
+     [
+      0.6667,
+      0.285
+     ],
+     [
+      0.7,
+      0.303
+     ],
+     [
+      0.7333,
+      0.3216
+     ],
+     [
+      0.7667,
+      0.3408
+     ],
+     [
+      0.8,
+      0.3604
+     ],
+     [
+      0.8333,
+      0.3805
+     ],
+     [
+      0.8667,
+      0.4012
+     ],
+     [
+      0.9,
+      0.4227
+     ],
+     [
+      0.9333,
+      0.4454
+     ],
+     [
+      0.9667,
+      0.4693
+     ],
+     [
+      1.0,
+      0.4948
+     ],
+     [
+      1.0333,
+      0.5221
+     ],
+     [
+      1.0667,
+      0.5517
+     ],
+     [
+      1.1,
+      0.586
+     ],
+     [
+      1.1333,
+      0.626
+     ],
+     [
+      1.1667,
+      0.6686
+     ],
+     [
+      1.2,
+      0.7097
+     ],
+     [
+      1.2333,
+      0.7469
+     ],
+     [
+      1.2667,
+      0.7795
+     ],
+     [
+      1.3,
+      0.8085
+     ],
+     [
+      1.3333,
+      0.8357
+     ],
+     [
+      1.3667,
+      0.8625
+     ],
+     [
+      1.4,
+      0.8894
+     ],
+     [
+      1.4333,
+      0.9162
+     ],
+     [
+      1.4667,
+      0.943
+     ],
+     [
+      1.5,
+      0.9699
+     ],
+     [
+      1.5333,
+      0.9966
+     ],
+     [
+      1.5667,
+      1.0232
+     ],
+     [
+      1.6,
+      1.0499
+     ],
+     [
+      1.6333,
+      1.0766
+     ],
+     [
+      1.6667,
+      1.1032
+     ],
+     [
+      1.7,
+      1.1299
+     ],
+     [
+      1.7333,
+      1.1566
+     ]
+    ],
+    "y_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.0333,
+      0.0
+     ],
+     [
+      0.0667,
+      0.0
+     ],
+     [
+      0.1,
+      0.0
+     ],
+     [
+      0.1333,
+      0.0
+     ],
+     [
+      0.1667,
+      0.0
+     ],
+     [
+      0.2,
+      -1e-05
+     ],
+     [
+      0.2333,
+      -0.00031
+     ],
+     [
+      0.2667,
+      -0.0011
+     ],
+     [
+      0.3,
+      -0.00241
+     ],
+     [
+      0.3333,
+      -0.00423
+     ],
+     [
+      0.3667,
+      -0.00654
+     ],
+     [
+      0.4,
+      -0.0093
+     ],
+     [
+      0.4333,
+      -0.01245
+     ],
+     [
+      0.4667,
+      -0.01592
+     ],
+     [
+      0.5,
+      -0.01962
+     ],
+     [
+      0.5333,
+      -0.02485
+     ],
+     [
+      0.5667,
+      -0.02967
+     ],
+     [
+      0.6,
+      -0.03349
+     ],
+     [
+      0.6333,
+      -0.0356
+     ],
+     [
+      0.6667,
+      -0.036
+     ],
+     [
+      0.7,
+      -0.03567
+     ],
+     [
+      0.7333,
+      -0.03459
+     ],
+     [
+      0.7667,
+      -0.03285
+     ],
+     [
+      0.8,
+      -0.03066
+     ],
+     [
+      0.8333,
+      -0.03
+     ],
+     [
+      0.8667,
+      -0.03
+     ],
+     [
+      0.9,
+      -0.03
+     ],
+     [
+      0.9333,
+      -0.03
+     ],
+     [
+      0.9667,
+      -0.03
+     ],
+     [
+      1.0,
+      -0.03
+     ],
+     [
+      1.0333,
+      -0.03
+     ],
+     [
+      1.0667,
+      -0.03
+     ],
+     [
+      1.1,
+      -0.03
+     ],
+     [
+      1.1333,
+      -0.03
+     ],
+     [
+      1.1667,
+      -0.03
+     ],
+     [
+      1.2,
+      -0.03
+     ],
+     [
+      1.2333,
+      -0.03
+     ],
+     [
+      1.2667,
+      -0.03
+     ],
+     [
+      1.3,
+      -0.03
+     ],
+     [
+      1.3333,
+      -0.03
+     ],
+     [
+      1.3667,
+      -0.03
+     ],
+     [
+      1.4,
+      -0.03
+     ],
+     [
+      1.4333,
+      -0.03
+     ],
+     [
+      1.4667,
+      -0.03
+     ],
+     [
+      1.5,
+      -0.03
+     ],
+     [
+      1.5333,
+      -0.03
+     ],
+     [
+      1.5667,
+      -0.03
+     ],
+     [
+      1.6,
+      -0.03
+     ],
+     [
+      1.6333,
+      -0.03
+     ],
+     [
+      1.6667,
+      -0.03
+     ],
+     [
+      1.7,
+      -0.03
+     ],
+     [
+      1.7333,
+      -0.03
+     ]
+    ],
+    "note": "y relative to the basket floor (mooring 0.602); the driver applies forward and y"
+   },
+   "entry": {
+    "from_clip": "door_reach",
+    "door_reach_time_s": 1.8,
+    "mode": "hard cut (f0 == door_reach @1.8 s)"
+   },
+   "exit": {
+    "to_clip": "walk_loop",
+    "walk_loop_time_s": 0.453,
+    "mode": "hard cut (last frame == walk_loop pose)",
+    "forward_m_at_end": 1.1566
+   },
+   "replaces": "walk_start (rate 1.15) + its 0.2 s crossfade from door_reach and into walk_loop; the clip already contains both crossfades",
+   "step": {
+    "drop_m": 0.03,
+    "stride_extra_m": 0.08,
+    "lead_foot": "L (her right side, mirrored rig)",
+    "lead_plant_t": 0.5333,
+    "trail_off_t": 0.6667,
+    "trail_plant_t": 1.3333
+   },
+   "ribbon": {
+    "note": "ribbon channel added at merge: follow curve door_reach@1.8 s -> walk_loop@0.453 s (smoothstep) + ribbon_bake5 spring (zeta 0.5, 1.6 Hz, K 3), eased to 0 over 9 frames at both ends; seams 0.000 deg",
+    "pitch_deg": [
+     -1.0,
+     11.92
+    ]
+   },
+   "source": {
+    "branch": "anim/b15-getout-stepdown",
+    "commit": "3c5025af",
+    "doc": "docs/b15/getout-stepdown/INTEGRATE.md"
+   }
   }
  },
  "wind": {
@@ -15850,7 +16369,7 @@
  "driver_contract": "GGbot work/GGbot-walk afb5d7b docs/walk-driver.md; deploy path bundles/region_island/character/anim_meta.json",
  "compression": {
   "clips": "keys reduced per channel (greedy; slerp / lerp error <= 0.03 deg hips+legs, 0.20 deg spine/chest/neck, 0.20 deg head/arms/hands, 0.30 deg skirt, root/hips translation 0.1 mm), rest translations / scales omitted, float32, LINEAR; source mocap low-passed (gauss sigma 4 frames at 120 fps) before retargeting. walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: each hand is turned about the finger axis so the face a side camera sees points at the skirt and a little down (the back of the hand turns outward). The forearm is not rolled past the elbow, and upper_arm is untouched. Her left shoe (bone .R) is planted flat and forward on its existing contact path, and pulled in when that plant is wider than 50 mm. Swing yaw is clamped. Her right shoe keeps its heel-to-toe roll. Turns, idle, door, wind, bow, and the sit clips are unchanged. door_reach right arm (upper_arm.L, forearm.L, hand.L): palm aimed at the closed door with the same two-bone IK, key tolerance 0.20 deg on those three curves",
-  "anim_bytes_total": 148096,
+  "anim_bytes_total": 164256,
   "anim_bytes_per_clip": {
    "idle_breathing_loop": 3304,
    "wind_flutter_loop": 14700,
@@ -15865,9 +16384,11 @@
    "walk_turn_90_bodyL": 9656,
    "walk_turn_90_bodyR": 10396,
    "walk_turn_180": 11328,
-   "walk_turn_180_bodyR": 11240
+   "walk_turn_180_bodyR": 11240,
+   "walk_start_stepdown": 16160
   },
-  "budget_bytes": 150000
+  "budget_bytes": 150000,
+  "walk_start_stepdown": "compress_keeptr.py LEGTOL 0.01 deg (root/hips/thigh/shin/foot), 0.10 deg others, hips translation 0.05 mm (stricter than the other clips so the step-down feet/hem stay within 0.01 mm / 0.5 mm of the QA-ed dense clip); scale channels dropped (= rest within 1e-5)"
  },
  "events_note": "events: name foot:L|foot:R, bone foot.L|foot.R, body = her actual side (bone .L = her right); type heel_strike | settle (small settling step: softer sound)",
  "mocap": {
@@ -17971,6 +18492,7 @@
   "cand3b": "sit_hold 飘带 bend=1；stand_up 0–0.2 s 与 sit_hold 同态，之后 drape/bend 逐步放开，ribbon 旋转 f7→f18 smoothstep 缓降",
   "ribbon_anim": {
    "bake": "damped spring zeta 0.50 1.6 Hz limit 12 deg, input hips forward accel K=3.0 deg/(m/s^2), pitch only (local X, + = back), on 角色建模bot cand3 follow curves; sit_hold sway 1.5 deg 0.5 Hz; wind_flutter_loop ribbon 6 deg (additive)"
-  }
+  },
+  "stepdown_merge": "walk_start_stepdown appended as animation index 14; clips 0-13, nodes, skin, meshes byte-identical to ribbonwind4b (5edddd06)"
  }
 }
