@@ -1,0 +1,116 @@
+{
+ "pack": {
+  "file": "lighthouse_lantern_arm_v2.glb",
+  "bytes": 13172,
+  "sha256": "2554ea58f65651590d3aeb1219dc26ca709dcb616799355f4c5ee051b6a5f215"
+ },
+ "prop": {
+  "file": "previews/角色建模bot/accessories/prop_lantern_v2.glb",
+  "bytes": 10132,
+  "sha256": "5c932309eab7e2a40d1cf94507587e6a85d430dbac7ead8c588c633bcc9087e7"
+ },
+ "qa_glb": {
+  "file": "lantern_v2_qa_fullbody.glb",
+  "bytes": 3212444,
+  "sha256": "e9df044dc732af8360617fcc611eff1190d3c3559f6b7e3fbc2c7e33edb631be",
+  "note": "仅 QA/预览用，不进包"
+ },
+ "base": {
+  "file": "split/planB_cand3b_ribbonwind4b_stepdown_scarfbones.glb",
+  "sha256": "3132274bd4edaf53a7d0dde6d25f511ce01635ba995aa646021ea3e231d510e1"
+ },
+ "bake": {
+  "flex": 16,
+  "abd": 10.04,
+  "fore_down": 10,
+  "fore_in": 15,
+  "mod": 0.15
+ },
+ "compress": {
+  "walk_loop_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n2": 1,
+    "n3": 1,
+    "const": 1
+   },
+   "max_err": 0.19
+  },
+  "idle_breathing_loop_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "const": 3
+   },
+   "max_err": 0.0
+  },
+  "walk_start_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n2": 2,
+    "const": 1
+   },
+   "max_err": 0.1972
+  },
+  "walk_stop_bodyL_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n3": 2,
+    "const": 1
+   },
+   "max_err": 0.1709
+  },
+  "walk_stop_bodyR_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n2": 1,
+    "n3": 1,
+    "const": 1
+   },
+   "max_err": 0.1825
+  },
+  "walk_turn_90_bodyL_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n3": 1,
+    "n1": 1,
+    "const": 1
+   },
+   "max_err": 0.1798
+  },
+  "walk_turn_90_bodyR_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n3": 1,
+    "n2": 1,
+    "const": 1
+   },
+   "max_err": 0.1689
+  },
+  "walk_turn_180_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n4": 1,
+    "n2": 1,
+    "const": 1
+   },
+   "max_err": 0.1963
+  },
+  "walk_turn_180_bodyR_lanternarm": {
+   "channels": 3,
+   "steps": {
+    "n3": 1,
+    "n2": 1,
+    "const": 1
+   },
+   "max_err": 0.198
+  }
+ },
+ "pendulum": {
+  "L_m": 0.098,
+  "zeta": 0.8,
+  "acc_lowpass": 0.35,
+  "soft_limit_deg": 8,
+  "substeps": 10,
+  "period_s": 0.628
+ }
+}
