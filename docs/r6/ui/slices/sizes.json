@@ -52,15 +52,15 @@
   "group": "背景(后备)",
   "w": 750,
   "h": 1624,
-  "bytes": 19873,
-  "note": "白天；运行时湖畔棋盘背景是实时 3D，这张只做离线预览/后备"
+  "bytes": 36690,
+  "note": "白天；运行时湖畔棋盘背景是实时 3D，这张只做离线预览/后备；r6-fix 起由 tools/lake_bg.py 按引擎场景配色生成"
  },
  {
   "file": "bg_lakeside_board_night.jpg",
   "group": "背景(后备)",
   "w": 750,
   "h": 1624,
-  "bytes": 13850,
-  "note": "夜间，同上"
+  "bytes": 22970,
+  "note": "夜间，同上；r6-fix 起由 tools/lake_bg.py 按引擎场景配色生成"
  }
 ]

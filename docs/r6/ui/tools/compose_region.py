@@ -2,10 +2,11 @@
 # （exec 它 "frames" 之前的部分），只替换 区域背景 / 托盘 / 格子底座 / 障碍 / 盘面 / 信息牌文字。
 # python3 compose_region.py LEVEL.json OUT.png [night]
 import sys,os,json,random
-LV=json.load(open(sys.argv[1])); OUTP=sys.argv[2]; NIGHT=len(sys.argv)>3 and sys.argv[3]=='night'
-CSRC='/workspace/yiqifengle/work/棋盘UI美术bot/art-src/board-ui/b-board/src/compose.py'
+LVPATH=sys.argv[1]; LV=json.load(open(sys.argv[1])); OUTP=sys.argv[2]; NIGHT=len(sys.argv)>3 and sys.argv[3]=='night'
+_HERE=os.path.dirname(os.path.abspath(__file__))
+CSRC=os.environ.get('BBOARD_COMPOSE',os.path.normpath(os.path.join(_HERE,'../../../../art-src/board-ui/b-board/src/compose.py')))
 head=open(CSRC).read().split('# ---------------- frames ----------------')[0]
-sys.argv=['compose.py','/workspace/r6/board/rawall',LV['bg'],'/tmp']; sys.path.insert(0,os.path.dirname(CSRC))
+sys.argv=['compose.py',os.environ.get('R6_RAW','/workspace/r6/board/rawall'),LV['bg'],'/tmp']; sys.path.insert(0,os.path.dirname(CSRC))
 exec(compile(head,'compose_head','exec'))
 SPECIALS_ART=SPEC
 _L=L
@@ -13,7 +14,12 @@ def L(n):   # 道具切图在 slices/ 里是 3x 高清（1440），compose.py �
     im=_L(n)
     if n.startswith('tool_') and im.width!=192: im=im.resize((192,round(192*im.height/im.width)),Image.LANCZOS)
     return im
-from boardpost import background as bg_post
+from boardpost import background as _bg_post
+def _rel(p): return p if os.path.isabs(p) else os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(sys.argv[1] if False else LVPATH)),p))
+def bg_post(path,W=750,H=1624):
+    # r6-fix：湖畔背景已由 lake_bg.py 按引擎场景配色生成（含轻模糊），这里不再叠 boardpost 的白雾/降饱和
+    if LV['region']=='lake': return Image.open(_rel(path)).convert('RGB').resize((W,H),Image.LANCZOS)
+    return _bg_post(path,W,H)
 if LV['region']=='lake':
     tr=L('tray_lake'); TRAY=tr.resize((round(tr.width*f_tray),round(tr.height*f_tray/math.sin(math.radians(72)))),Image.LANCZOS)
     TILE={'a':scaled(L('tile_a_lake'),f_tile),'b':scaled(L('tile_b_lake'),f_tile)}
