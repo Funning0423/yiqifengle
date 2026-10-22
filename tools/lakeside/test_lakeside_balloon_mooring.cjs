@@ -74,4 +74,12 @@ for(const dy of [.5,1.5,3,5,6.7,8.5,10])for(let i=0;i<8;i++){const a=i/8*2*Math.
 if(clearance<.49)errors.push(`clearance ${clearance.toFixed(6)} m < 0.49 m (${closest})`);
 console.log(JSON.stringify({point,basketYawDeg:M.doorYawDeg,clearance,closest,walkSeconds:M.timing.durationS,peakWalkMps:peak,errors}));
 assert.deepEqual(errors,[],'option A acceptance');
+// sd3 step-down (角色动画bot 3c5025af, getout_v3/INTEGRATE.md last section): walk[1] = step point on the lawn, 0.36 m along the exit heading
+{const S=B.LAKESIDE_STEPDOWN,w1=M.walk[1],d=Math.hypot(w1[0]-M.start[0],w1[2]-M.start[2]);
+ assert(Math.abs(w1[1]-.572)<1e-9&&d<=.36+1e-9&&d>.35,'step point '+JSON.stringify(w1)+' d '+d);
+ assert(Math.abs(Math.atan2(w1[0]-M.start[0],w1[2]-M.start[2])-M.startYawRad)<1e-9,'start yaw toward the step point');
+ assert(S.t.length===53&&Math.abs(S.durationS-1.7333)<1e-9&&Math.abs(S.loopTime-.453)<1e-9&&Math.abs(S.forwardEnd-1.1566)<1e-9,'stepdown meta');
+ const end=B.stepdownRootAt(S.durationS),at6=B.stepdownRootAt(.6);assert(Math.abs(end[0]-1.1566)<1e-6&&Math.abs(end[1]+.03)<1e-6&&Math.abs(at6[1]+.03)<5e-3,'stepdown root table');
+ const r=B.walkFrom(M.walk,S.forwardEnd),lr=r.reduce((a,p,i)=>i?a+Math.hypot(p[0]-r[i-1][0],p[1]-r[i-1][1],p[2]-r[i-1][2]):0,0);
+ assert(Math.abs(lr-(M.length-S.forwardEnd))<2e-3&&Math.abs(r[0][1]-.572)<1e-9,'rest walk from 1.1566 m on the lawn '+lr);}
 console.log('PASS mooring, mesh frusta, right free look, geometry, unchanged shore, b15 door exit (yaw, P0, 0.8 m/s planner walk, r>=1, door clock, foot lock) and stationary end lens');

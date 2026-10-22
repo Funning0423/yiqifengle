@@ -267,6 +267,21 @@ export function exitWalkSpeed(nativeMps:number,want:number=LAKESIDE_BALLOON_LAND
 export function exitWalkDuration(length:number,v:number,nativeMps=.7,knobs:BalloonKnobs=LAKESIDE_BALLOON_LANDING):number{
  const st=knobs.exitStart,sp=knobs.exitStop,k=Math.max(1,Math.min(st.rateMax,v/nativeMps)),cruise=Math.max(.3,length-st.M-sp.M);
  return st.S/k+cruise/v+sp.S;}
+/** b15 step-down (角色动画bot anim/b15-getout-stepdown 3c5025af, getout_v3/INTEGRATE.md last section; 333f0b15 board).
+ *  walk_start_stepdown: hard cut from door_reach at T0+1.8 (its f0 = door_reach @1.8 s), 1.7333 s at rate 1, root forward/Y from
+ *  its root_motion table (Y = board 0.602 + y_m), then hard cut to walk_loop at 0.453 s and the distance clock from 1.1566 m.
+ *  stepM: the route's step-down point (P0 + 0.36 m along the exit heading, on the 0.572 lawn). */
+export const LAKESIDE_STEPDOWN={clip:'walk_start_stepdown',durationS:1.7333,loopTime:0.453,forwardEnd:1.1566,stepM:.36,stopWarp:.979,
+ t:[0.0,0.0333,0.0667,0.1,0.1333,0.1667,0.2,0.2333,0.2667,0.3,0.3333,0.3667,0.4,0.4333,0.4667,0.5,0.5333,0.5667,0.6,0.6333,0.6667,0.7,0.7333,0.7667,0.8,0.8333,0.8667,0.9,0.9333,0.9667,1.0,1.0333,1.0667,1.1,1.1333,1.1667,1.2,1.2333,1.2667,1.3,1.3333,1.3667,1.4,1.4333,1.4667,1.5,1.5333,1.5667,1.6,1.6333,1.6667,1.7,1.7333] as readonly number[],
+ forward:[0.0,0.003,0.0068,0.0116,0.0173,0.0239,0.03316,0.04647,0.06301,0.08184,0.10236,0.12374,0.14526,0.16629,0.18633,0.20464,0.2205,0.2354,0.2511,0.2677,0.285,0.303,0.3216,0.3408,0.3604,0.3805,0.4012,0.4227,0.4454,0.4693,0.4948,0.5221,0.5517,0.586,0.626,0.6686,0.7097,0.7469,0.7795,0.8085,0.8357,0.8625,0.8894,0.9162,0.943,0.9699,0.9966,1.0232,1.0499,1.0766,1.1032,1.1299,1.1566] as readonly number[],
+ y:[0.0,0.0,0.0,0.0,0.0,0.0,-1e-05,-0.00031,-0.0011,-0.00241,-0.00423,-0.00654,-0.0093,-0.01245,-0.01592,-0.01962,-0.02485,-0.02967,-0.03349,-0.0356,-0.036,-0.03567,-0.03459,-0.03285,-0.03066,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03,-0.03] as readonly number[]} as const;
+/** Root (forward m, y m) of walk_start_stepdown at clip time t (linear between the 30 fps samples, clamped). */
+export function stepdownRootAt(t:number):[number,number]{const S=LAKESIDE_STEPDOWN,T=S.t,n=T.length;if(t<=T[0])return [S.forward[0],S.y[0]];if(t>=T[n-1])return [S.forward[n-1],S.y[n-1]];
+ let i=1;while(i<n-1&&T[i]<t)i++;const u=(t-T[i-1])/((T[i]-T[i-1])||1);return [S.forward[i-1]+(S.forward[i]-S.forward[i-1])*u,S.y[i-1]+(S.y[i]-S.y[i-1])*u];}
+/** The part of a walk polyline from route distance s on (first point = the point at s). */
+export function walkFrom(walk:readonly Vec[],s:number):Vec[]{let acc=0;for(let i=1;i<walk.length;i++){const a=walk[i-1],b=walk[i],l=seg(a,b);
+  if(acc+l>=s){const u=l>0?(s-acc)/l:0;return [[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u] as Vec,...walk.slice(i).map(p=>[p[0],p[1],p[2]] as Vec)];}acc+=l;}
+ const e=walk[walk.length-1];return [[e[0],e[1],e[2]]];}
 /** Option A: land off the board frame. Disembark through the b15 basket door (DOOR_SPEC, door wall = basket local +Z), also
  *  offscreen, then walk to the unchanged shore root with the production planner (walk_start → walk_loop → walk_stop_bodyL).
  *  The camera stays on the board pose; the board fades in while she walks (she is off the board frame for ~7 s). */
@@ -281,7 +296,10 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.
  // v3: one ground height for the exit route = the 0.572 lawn (floor fix: mooring 0.602 = lawn + 3 cm board; bank anchors 0.58); lake-local P0 (9.1105, ·, 25.6724)
  const gy=mooring[1]-K.basketFloorM/* lawn under the board */,start:Vec=[mooring[0]+e[0]*c+e[2]*sn,mooring[1]+e[1]/* on the floor board */,mooring[2]-e[0]*sn+e[2]*c],appr:Vec=[approach[0],gy,approach[2]],shoreG:Vec=[bank[0],bank[1],bank[2]]/* the shore root itself stays the arrival anchor (final lens unchanged): the last 2 m leg rises 8 mm */;
  const l0=seg(start,appr),l1=seg(appr,shoreG),cornerM=Math.min(Math.max(1,K.exitCornerM),l0/2,l1/2);
- const walk=roundWalk([start,appr,shoreG],cornerM),length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
+ // sd3 step-down point: P0 + stepM along the exit heading (P0 → approach), on the lawn; the walk is straight from P0 to it
+ // (not rounded) so walk[1] IS the step point and the start yaw (toward walk[1]) is unchanged.
+ const hd=Math.hypot(appr[0]-start[0],appr[2]-start[2])||1,stepPt:Vec=[start[0]+(appr[0]-start[0])/hd*LAKESIDE_STEPDOWN.stepM,gy,start[2]+(appr[2]-start[2])/hd*LAKESIDE_STEPDOWN.stepM];
+ const walk=[[start[0],start[1],start[2]] as Vec,...roundWalk([stepPt,appr,shoreG],Math.min(cornerM,seg(stepPt,appr)/2))],length=routeLength(walk),mps=exitWalkSpeed(nativeMps),walkS=exitWalkDuration(length,mps,nativeMps);
  const T0=K.exitIdleS,doorAt=T0+K.doorContactS,walkAt=T0+K.walkStartAfterReachS;
  // leaf yaw (deg, about local Y, + = outward) on the get-out clock: hand-follow for 2 frames, then ease-out cubic to +100°
  const doorDeg=(t:number):number=>{const a=t-doorAt;if(a<=0)return 0;if(a<K.doorFollowS)return K.doorFollowDeg*a/K.doorFollowS;const u=Math.min(1,(a-K.doorFollowS)/K.doorOpenS),q=1-Math.pow(1-u,3);return K.doorFollowDeg+(K.doorOpenDeg-K.doorFollowDeg)*q;};

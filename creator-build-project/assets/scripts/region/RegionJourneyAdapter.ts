@@ -15,7 +15,7 @@ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideQaAdvance} from './LakesideQaShot';
-import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -276,7 +276,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
     const off=rideToken.onCancel(()=>{director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
-    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,moored.seatYawDeg(flight.girlYawRad*180/Math.PI),0);};
+    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);
+     // b15 stand-up v1b (角色动画bot 968be1d1 REPORT): she rides seated 0.494 m behind P0 facing the door (stand_point local
+     // 0.032,-0.1,-0.099; basket floor board top = basket y 0), so the stand_up root motion ends on P0 with no turn.
+     girl.setPosition(.032,-.1,-.099);girl.setRotationFromEuler(0,moored.seatYawDeg(moored.startYawRad*180/Math.PI),0);};
     const apply=()=>{
      const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
@@ -314,13 +317,24 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // The rig is the only clock: stop any engine-played state at touchdown and on every get-out tick.
    let engineStops=0;const stopEngineStates=()=>{const anim=(actor as any).anim;if(!anim||!anim.clips)return;for(const c of anim.clips){if(!c)continue;const st=anim.getState(c.name);if(st&&st.isPlaying){try{st.stop();engineStops++;if(engineStops===1)console.warn('[QF_LAKESIDE] stopped engine-played character state '+c.name+' at get-out');}catch{/* state gone */}}}};
    stopEngineStates();
-   actor.cancelAndReset({kind:'standing',controllerRoot:moored.start,yawRad:moored.startYawRad});
    const landedM=routeLength([...R.path,moored.walk[0]]);lease.progress!(landedM);
    // b15 door shot: the ride lens holds on the basket (lastPose, the route's last frame) until she is clear of the basket
    // (LAKESIDE_DOOR_HOLD.outM along the moored walk, or a game-time cap); only then does the controller arrive and the board
    // fade in, still overlapping the rest of her (offscreen) walk to the shore.
    let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
    const hold=()=>{if(!dead&&lastPose)world.setCamera(lastPose);};director.on(Director.EVENT_BEFORE_DRAW,hold);
+   // b15 stand-up v1b: on the seat (where she rode) sit_hold → stand_up (1.2667 s, root carried seat → P0 by the stand action)
+   // → crossfade 0.2 into idle at P0 facing the door (cancelAndReset in place) = getout t0. Without the stand_up clip / perform:
+   // the old placement (cancelAndReset straight to P0).
+   {const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.perform==='function'&&n&&isValid(n,true));
+    if(canStand){const w=n!.worldPosition,seatRoot:Vec=[w.x,w.y,w.z],P0=moored.start as Vec;
+     const seatDef={position:seatRoot,back:seatRoot,yawRad:moored.startYawRad,seatedFoot:seatRoot,standingFoot:P0,seatedControllerRoot:seatRoot,standingControllerRoot:P0};
+     const prevStep=ticker.step;ticker.step=()=>{stopEngineStates();};
+     try{actor.cancelAndReset({kind:'seated',seat:seatDef} as any);await actor.perform({kind:'stand',seat:seatDef} as any,rideToken);}
+     catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_LAKESIDE] stand-up skipped: '+String(e));}
+     finally{ticker.step=prevStep;}
+     rideToken.check();}
+    actor.cancelAndReset({kind:'standing',controllerRoot:moored.start,yawRad:moored.startYawRad});}
    const holdCapS=moored.walkStartAt+LAKESIDE_DOOR_HOLD.outM/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
    const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=lakesideQaAdvance(q.mark,m);}catch{/* qa only */}};
    let tailDone=false/* b16: the tail cleared its ticker step (she is on the shore); the door blend must not restore it */;
@@ -329,18 +343,36 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});tailStop=()=>{tailToken.cancel();endTail(actor);}/* b17: synchronous, before the 主页 restore */;
    const tail=(async()=>{
    const rideToken=tailToken as any as Cancellation;
-    let t=0,reached=false,walking=false,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
+    let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
     ticker.step=(dt)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
-     if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){lease.progress!(landedM+w*moored.length);if(w*moored.length>=LAKESIDE_DOOR_HOLD.outM)outOk();}
+     if(stepping){const u=t-moored.walkStartAt,r=stepdownRootAt(u),a=actor as any,P0=moored.start,sy=Math.sin(moored.startYawRad),cy=Math.cos(moored.startYawRad);
+      // sd3: root Y = board (P0 0.602) + y_m while walk_start_stepdown plays; forward along the exit heading
+      if(a.node&&isValid(a.node,true))a.node.setWorldPosition(P0[0]+sy*r[0],P0[1]+r[1],P0[2]+cy*r[0]);
+      lease.progress!(landedM+r[0]);if(r[0]>=LAKESIDE_DOOR_HOLD.outM)outOk();}
+     if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){const s=walkBase+w*walkLen;lease.progress!(landedM+s);if(s>=LAKESIDE_DOOR_HOLD.outM)outOk();}
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
       const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
        lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
     const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
     await waitUntil(moored.T0);rideToken.check();qaMark('door');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
-    await waitUntil(moored.walkStartAt);await reach;rideToken.check();
+    await waitUntil(moored.walkStartAt);
+    const SD=LAKESIDE_STEPDOWN,av=actor as any,hasSd=!!(av.rig?.has?.(SD.clip)&&typeof av.playNamed==='function');
+    if(hasSd){
+     // sd3: hard cut door_reach → walk_start_stepdown at T0+1.8 (the door job ends here), root from its table, then hard cut to
+     // walk_loop @0.453 s and the planner walk (phase kept: beginWalk continues a running walk_loop) from s = 1.1566 m at 0.8 m/s.
+     const j=av.job;if(j&&j.action?.kind==='door-reach'){av.job=null;try{j.off();}catch{/* token */}j.resolve();}
+     av.pendingIdle=false;av.playNamed(SD.clip,false,0);stepping=true;qaMark('walk');
+     await waitUntil(moored.walkStartAt+SD.durationS);stepping=false;rideToken.check();
+     av.playNamed('walk_loop',true,0,false,SD.loopTime);
+     const rest=walkFrom(moored.walk,SD.forwardEnd),restLen=routeLength(rest),stopS=(typeof av.rig?.duration==='function'?av.rig.duration('walk_stop_bodyL'):0)||1.4667;
+     walkBase=SD.forwardEnd;walkLen=restLen;reached=true;walking=true;
+     await actor.perform({kind:'walk',path:rest,duration:Math.max(.5,(restLen-.5)/LAKESIDE_BALLOON_LANDING.exitWalkMps+stopS),stopAtEnd:true} as any,rideToken);walking=false;
+     try{const lp=av.lastPlan;if(lp)console.info('[QF_LAKESIDE] stepdown walk plan '+JSON.stringify(lp)+' (INTEGRATE stop warp '+SD.stopWarp+')');}catch{/* log only */}
+    }else{
+    await reach;rideToken.check();
     reached=true;walking=true;qaMark('walk');
-    await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;
+    await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;}
     rideToken.check();lease.progress!(landedM+moored.length);ticker.step=()=>{};tailDone=true;outOk();qaMark('shore');
     const before=moored.walk[moored.walk.length-2];
     const end=moored.walk[moored.walk.length-1];
