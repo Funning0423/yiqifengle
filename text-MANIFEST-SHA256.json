@@ -1360,6 +1360,21 @@
     "sha256": "0c1f2a9a00b97197fcc4fd7cc85da5b09f9bae0283f6b357f10fc02478e0bc40"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_snowpass.meta",
+    "bytes": 409,
+    "sha256": "c81f5202d3dc45fbeb6f4d592ea62bceb17e54598c180de61c265f61ae2a9dfe"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_snowpass/models.meta",
+    "bytes": 168,
+    "sha256": "24b834c14651ec373457e7f836c905e03b524493b87b23bef055d0e4f262f4ec"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_snowpass/models/SP_snowpass.glb.meta",
+    "bytes": 164,
+    "sha256": "efe2732378f614b90da5b24661c0e63cfdf1fcfdbaf9a4b9108c335512bdee9d"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_transit_balloon.meta",
     "bytes": 417,
     "sha256": "129326ef9c92b8140cfbeea1ea9b4ecfa9d5e689e0e13fe77e6e0058897ea0a0"
@@ -4191,8 +4206,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14249,
-    "sha256": "a557a1cedb94b13093f75f11a3421fd6e261ff27a600ae8b9ddd0a68d697c6b9"
+    "bytes": 14309,
+    "sha256": "c529891a954462dc92eb6ee2f1bbf8647f083e70ba173569531a5bcaee797379"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
