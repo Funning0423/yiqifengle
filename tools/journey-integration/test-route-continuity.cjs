@@ -70,6 +70,6 @@ function kin(cam,t0,t1){const P=[],D=[],Fv=[],T=[];for(let t=t0;t<=t1+1e-9;t+=1/
  const status=rows.every(r=>r.C1==='PASS'&&r.C2==='PASS'&&r.C3!=='FAIL'&&r.C4==='PASS')&&checks.every(c=>c.status==='PASS')?'PASS':'FAIL';
  const report={status,timeUTC:new Date().toISOString(),limits:LIM,fps:FPS,scope:'Real TS camera functions sampled on each leg\'s game clock; full geometry for BG2. Not a render or device acceptance.',rows,checks};
  fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/route-continuity.json',JSON.stringify(report,null,1)+'\n');
- console.log(JSON.stringify({status,rows:rows.map(r=>[r.leg,r.screen,r.C1,r.C2,r.C3,r.C4]),checks:checks.map(c=>[c.id.slice(0,40),c.status,c.error&&c.error.slice(0,300)])}));if(status!=='PASS')process.exitCode=1;
+ console.log(JSON.stringify({status,rows:rows.map(r=>[r.leg,r.screen,r.C1,r.C2,r.C3,r.C4]),checks:checks.map(c=>[c.id.slice(0,40),c.status,c.error&&c.error.slice(0,300)])}));require('./route/route-gate.cjs').gate('test-route-continuity.cjs',[...rows.flatMap(r=>['C1','C2','C3','C4'].filter(k=>r[k]==='FAIL').map(check=>({leg:r.leg,check}))),...checks.filter(c=>c.status==='FAIL').map(c=>({leg:/lakeside/.test(c.id)?'lakeside':'*',check:c.id.split(' ')[0]}))]);
 })().catch(e=>{console.error(e);process.exit(2);});
 function assert(c,m){if(!c)throw Error(m);}
