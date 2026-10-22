@@ -4,7 +4,9 @@
 // Only the owner (journey release: leaving the region) cancels a tail. Pure: no cc imports (Node tests).
 export type TailVec=[number,number,number];
 export interface TailInfo{done:Promise<void>;end:TailVec;startedAt:number}
-const tails=new WeakMap<object,TailInfo>();
+// stored on the actor as __qfWalkTail so core modules (transpiled alone in tests) read it without importing this file
+const KEY='__qfWalkTail';
+const tails={get:(a:any):TailInfo|undefined=>a[KEY]||undefined,set:(a:any,v:TailInfo)=>{try{Object.defineProperty(a,KEY,{value:v,configurable:true,writable:true,enumerable:false});}catch{a[KEY]=v;}},delete:(a:any)=>{try{a[KEY]=undefined;}catch{/* frozen */}}};
 /** a cancellation that only the tail owner fires (duck-compatible with WorldFlowCore Cancellation) */
 export class TailToken{
  cancelled=false;private ls:Array<()=>void>=[];

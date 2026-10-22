@@ -3,7 +3,6 @@ import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
 import {emitTransitCue} from './TransitAudioHooks';
 import {transportFor,type TransportKind} from './JourneyTransport';
 import {walkPair} from './RegionNodeProgress';
-import {afterTail} from './WalkTail';
 import {planWalk,type WalkPlan} from './NodeWalker';
 
 export type WalkResult=Readonly<{transport:TransportKind;departure:boolean;segments:number;region:string;to:string;timedOut:boolean}>;
@@ -49,7 +48,7 @@ async function runPlan(character:Pick<CharacterAdapter,'perform'|'cancelAndReset
 /** Issue the clipped walk on the bound adapter. A stuck perform is cut to the segment end. */
 export async function runRewardWalk(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,fromStage:string,toStage:string,token?:Cancellation,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<WalkResult>{
  void token;
- await afterTail(character)/* b15: a walk tail finishes first */;
+ await (character as any).__qfWalkTail?.done/* b15: a walk tail finishes first */;
  const spec=walkPair(fromStage,toStage);
  const plan=planWalk(spec.region,spec.from,spec.to);
  const timedOut=await runPlan(character,plan,spec.region,spec.to,place,timeoutMs);

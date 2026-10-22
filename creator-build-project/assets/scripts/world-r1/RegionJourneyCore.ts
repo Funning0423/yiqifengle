@@ -1,5 +1,4 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
-import { tailOf } from '../region/WalkTail';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
@@ -258,14 +257,14 @@ export class RegionJourneyController {
     await token.wait(this.lease.ride(actor,world,token));token.check();
     this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
     const beforeRide=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-beforeRide[0],this.root[2]-beforeRide[2]);
-    if(this.camera)world.setCamera(this.camera);if(!(this.lease as any).tail&&!tailOf(actor))actor.cancelAndReset(this.position()!)/* b15: a ride tail (offscreen exit walk) still owns her */;
+    if(this.camera)world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!)/* b15: a ride tail (offscreen exit walk) still owns her */;
     this.region=this.lease.route.to;this.phase='arrived';this.target=null;
    }else if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
     const L=routeLength(path),tm=this.lease.route.timing,timing=tm?(this.distance>0?remainingTiming(routeLength(this.lease.route.path),L,tm):tm):null;
     await token.wait(actor.perform(timing?{kind:'walk',path,duration:timing.durationS,distanceAt:(time:number)=>journeyDistanceAt(L,timing,time)}:{kind:'walk',path,duration:L/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);if(!(this.lease as any).tail&&!tailOf(actor))actor.cancelAndReset(this.position()!);this.leaseProgress();
+   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);this.leaseProgress();
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
   }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
@@ -275,7 +274,7 @@ export class RegionJourneyController {
  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
  // b15 handover (no teleport): while a ride tail still walks her to the stand point (the lakeside exit walk under the board
  // fade-in), restore must not cancel that walk and snap her there; the tail ends on the same point (route end).
- restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root&&!(this.lease as any)?.tail&&!tailOf(actor))actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
+ restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root&&!(this.lease as any)?.tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
  private leaseProgress(){const l=this.lease;if(!l?.progress)return;try{l.progress(this.distance);}catch{}}
  /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.

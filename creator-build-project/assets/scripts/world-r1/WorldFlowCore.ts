@@ -1,6 +1,5 @@
 import type { RegionJourneyController, JourneyRegion, JourneySnapshot } from './RegionJourneyCore';
 import { CameraTrackFailure } from './CameraPose';
-import { tailOf } from '../region/WalkTail';
 import type { TrackOptions, WeightRamp } from './CameraPose';
 /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
 export type Vec = readonly [number, number, number];
@@ -289,7 +288,7 @@ export class WorldFlow {
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
     this.world.setRoomLightWeight?.(this.stable==='home'?1:0);
     this.world.setExteriorKey?.(0); // R3: no keyed sun outside a walk
-    if(this.characterReady()&&!tailOf(this.character))this.character!.cancelAndReset(this.pose())/* b15: a walk tail owns her */;this.character?.setVisible(this.characterReady()&&!this.hidden&&!this.needsResume&&this.stable!=='level'&&this.stable!=='skycity');this.world.assertStaticWorld();
+    if(this.characterReady()&&!(this.character as any).__qfWalkTail)this.character!.cancelAndReset(this.pose())/* b15: a walk tail owns her */;this.character?.setVisible(this.characterReady()&&!this.hidden&&!this.needsResume&&this.stable!=='level'&&this.stable!=='skycity');this.world.assertStaticWorld();
     if(this.visit){if(this.stable==='skycity'&&!this.hidden&&!this.needsResume)this.visit.show();else this.visit.hide();}
   }
   private invalidate():void {this.seatedFrozen=false;this.frozen=false;const old=this.current;this.current=null;old?.cancel();this.world?.cancelTransient();}

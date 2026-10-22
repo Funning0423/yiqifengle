@@ -63,11 +63,11 @@ async function run(name,events){
   assert.equal(T.tailOf(a),null);assert.deepEqual(s.marks,[],'released: no shore mark');restore(a,{tail:null},false);assert.equal(a.resets.length,1,'reset after release');}
  // wiring: every flow reset site is tail-aware
  const src=f=>fs.readFileSync('creator-build-project/assets/scripts/'+f,'utf8');
- assert(/characterReady\(\)&&!tailOf\(this\.character\)\)this\.character!\.cancelAndReset/.test(src('world-r1/WorldFlowCore.ts')));
- assert.equal((src('world-r1/RegionJourneyCore.ts').match(/!tailOf\(actor\)\)actor\.cancelAndReset/g)||[]).length,3);
- assert(/async playReward\([^)]*\)\{\n  await afterTail\(character\)/.test(src('world-r2/RegionNodeStage.ts')));
- assert(/async playFinale\([^)]*\)\{\n  await afterTail\(character\)/.test(src('world-r2/RegionNodeStage.ts')));
- assert((src('world-r2/WorldNativeComposition.ts').match(/await afterTail\(this\.boundCharacter\)/g)||[]).length===2);
+ assert(/characterReady\(\)&&!\(this\.character as any\)\.__qfWalkTail\)this\.character!\.cancelAndReset/.test(src('world-r1/WorldFlowCore.ts')));
+ assert.equal((src('world-r1/RegionJourneyCore.ts').match(/!\(actor as any\)\.__qfWalkTail\)actor\.cancelAndReset/g)||[]).length,3);
+ assert(/async playReward\([^)]*\)\{\n  await \(character as any\)\.__qfWalkTail\?\.done/.test(src('world-r2/RegionNodeStage.ts')));
+ assert(/async playFinale\([^)]*\)\{\n  await \(character as any\)\.__qfWalkTail\?\.done/.test(src('world-r2/RegionNodeStage.ts')));
+ assert((src('world-r2/WorldNativeComposition.ts').match(/await \(this\.boundCharacter as any\)\.__qfWalkTail\?\.done/g)||[]).length===2);
  const ad=src('region/RegionJourneyAdapter.ts');assert(/const rideToken=tailToken as any as Cancellation;/.test(ad)&&/beginTail\(actor,tail,/.test(ad)&&/dead=true;tailStop\(\);/.test(ad)&&/rideOver=true;/.test(ad));
  console.log(JSON.stringify(out));console.log('PASS walk tail: tap/match/level enter/exit/re-enter/complete/pause keep her walk continuous; shore once');
 })().catch(e=>{console.error(e);process.exit(1);});

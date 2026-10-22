@@ -118,7 +118,7 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
 // 14) b15 handover: restore() must not cancel/snap her while the ride tail still walks her to the stand point (no
 //     teleport under the board fade-in; 'shore' gets written), and qaShot exits a level before routing on
 {const core=fs.readFileSync('creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts','utf8');
- assert(/restore\(actor:CharacterAdapter,world:WorldLease,visible:boolean\):void\{if\(this\.root&&!\(this\.lease as any\)\?\.tail&&!tailOf\(actor\)\)actor\.cancelAndReset/.test(core),'restore respects the tail');
+ assert(/restore\(actor:CharacterAdapter,world:WorldLease,visible:boolean\):void\{if\(this\.root&&!\(this\.lease as any\)\?\.tail&&!\(actor as any\)\.__qfWalkTail\)actor\.cancelAndReset/.test(core),'restore respects the tail');
  assert(/exit-current-level-first'\)\{[^}]*exitLevel\(\)/.test(comp),'qaShot lakeside exits the level first');
  assert(/state==='lakeside'\)\{try\{\(this\.world\.commands\(\) as any\)\.abandonLakesideJourney/.test(comp),'qaShot lakeside from the lakeside: back to the island first');}
 // 15) b15 handover: an everywhere-occluded stand point must not stall the page (in-game rays are cc rayModel casts):

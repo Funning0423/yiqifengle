@@ -16,7 +16,6 @@ import {PROP_NODES,SCENE_PROPS,propFeedback,resolveTap,pickMarker,type Gesture} 
 import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarkers';
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
-import {afterTail} from '../region/WalkTail';
 const {ccclass}=_decorator;
 
 type Cover={host:Node|null;nav:Node|null;cams:{cam:Camera;on:boolean}[];rig:Node|null;rigOn:boolean};
@@ -228,7 +227,7 @@ export class RegionNodeStage extends Component{
  }
 
  async playReward(character:CharacterAdapter,fromStage:string,toStage:string){
-  await afterTail(character)/* b15: never cut her exit walk */;
+  await (character as any).__qfWalkTail?.done/* b15: never cut her exit walk */;
   this.character=character;
   const spec=walkPair(fromStage,toStage);
   this.showWorld(spec.region);
@@ -248,7 +247,7 @@ export class RegionNodeStage extends Component{
   this.restoreBoard();
  }
  async playFinale(character:CharacterAdapter){
-  await afterTail(character);
+  await (character as any).__qfWalkTail?.done;
   this.character=character;
   this.showWorld('skycity');
   const start=this.toWorld('skycity',planWalk('skycity','S4','S6').segments[0].path)[0];
