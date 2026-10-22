@@ -11,6 +11,7 @@ import {balloonBeats, balloonRoutePoints, stepTransitClock} from './TransportLeg
 import {basketFloor, loadBundlePrefab, mountVehicle, applyVehicleNight} from './TransportVehicle';
 import {emitTransitCue} from './TransitAudioHooks';
 import {onDayNightChange} from '../world-r1/DayNightContract';
+import {gradeSkycityCloudsea,gradeSkycityNight} from './SkycityNightApply';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
@@ -446,6 +447,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     else if(night)setEmissive(clouds,true);
    }
    applyVehicleNight(vehicle,night);
+   // b16: self-lit sky-city clouds / accents follow the island night (they ignored the dimmed light; after landing the
+   // cloud_small and accents came back at day brightness). Cached: only walks the city when the mode changes.
+   if(model&&cityOn){gradeSkycityNight(model,night?1:0);gradeSkycityCloudsea(model.parent,night?1:0);}
    if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=!arrived&&t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    if(arrived){
