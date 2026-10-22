@@ -278,6 +278,8 @@ export const LAKESIDE_STEPDOWN={clip:'walk_start_stepdown',durationS:1.7333,loop
 /** Root (forward m, y m) of walk_start_stepdown at clip time t (linear between the 30 fps samples, clamped). */
 export function stepdownRootAt(t:number):[number,number]{const S=LAKESIDE_STEPDOWN,T=S.t,n=T.length;if(t<=T[0])return [S.forward[0],S.y[0]];if(t>=T[n-1])return [S.forward[n-1],S.y[n-1]];
  let i=1;while(i<n-1&&T[i]<t)i++;const u=(t-T[i-1])/((T[i]-T[i-1])||1);return [S.forward[i-1]+(S.forward[i]-S.forward[i-1])*u,S.y[i-1]+(S.y[i]-S.y[i-1])*u];}
+/** b15 stand-up: fraction of the seat → P0 root travel at clip time t (linear over the clip). */
+export function standupRootK(t:number,dur:number):number{return Math.max(0,Math.min(1,t/(dur||1)));}
 /** The part of a walk polyline from route distance s on (first point = the point at s). */
 export function walkFrom(walk:readonly Vec[],s:number):Vec[]{let acc=0;for(let i=1;i<walk.length;i++){const a=walk[i-1],b=walk[i],l=seg(a,b);
   if(acc+l>=s){const u=l>0?(s-acc)/l:0;return [[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u] as Vec,...walk.slice(i).map(p=>[p[0],p[1],p[2]] as Vec)];}acc+=l;}

@@ -15,7 +15,7 @@ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideQaAdvance} from './LakesideQaShot';
-import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -323,14 +323,19 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // fade in, still overlapping the rest of her (offscreen) walk to the shore.
    let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
    const hold=()=>{if(!dead&&lastPose)world.setCamera(lastPose);};director.on(Director.EVENT_BEFORE_DRAW,hold);
-   // b15 stand-up v1b: on the seat (where she rode) sit_hold → stand_up (1.2667 s, root carried seat → P0 by the stand action)
-   // → crossfade 0.2 into idle at P0 facing the door (cancelAndReset in place) = getout t0. Without the stand_up clip / perform:
-   // the old placement (cancelAndReset straight to P0).
-   {const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.perform==='function'&&n&&isValid(n,true));
+   // b15 stand-up v1b: on the seat (where she rode) sit_hold → HARD CUT stand_up (REPORT: start_pose = sit_hold f0, no crossfade;
+   // 1.2667 s time clock, root carried seat → P0 along the facing) → crossfade 0.2 into idle at P0 facing the door (cancelAndReset
+   // in place) = getout t0. Without the stand_up clip / playNamed: the old placement (cancelAndReset straight to P0).
+   {const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.playNamed==='function'&&n&&isValid(n,true));
     if(canStand){const w=n!.worldPosition,seatRoot:Vec=[w.x,w.y,w.z],P0=moored.start as Vec;
      const seatDef={position:seatRoot,back:seatRoot,yawRad:moored.startYawRad,seatedFoot:seatRoot,standingFoot:P0,seatedControllerRoot:seatRoot,standingControllerRoot:P0};
-     const prevStep=ticker.step;ticker.step=()=>{stopEngineStates();};
-     try{actor.cancelAndReset({kind:'seated',seat:seatDef} as any);await actor.perform({kind:'stand',seat:seatDef} as any,rideToken);}
+     const dur=(typeof a.rig?.duration==='function'&&a.rig.duration('stand_up'))||1.266667;
+     const prevStep=ticker.step;
+     try{actor.cancelAndReset({kind:'seated',seat:seatDef} as any);a.pendingIdle=false;a.playNamed('stand_up',false,0);
+      await new Promise<void>((ok,bad)=>{let st=0;const off=rideToken.onCancel(()=>{bad(Object.assign(Error('cancelled'),{name:'Cancelled'}));});
+       ticker.step=(dt)=>{stopEngineStates();st=Math.min(dur,st+dt);const k=standupRootK(st,dur),m=a.node;
+        if(m&&isValid(m,true))m.setWorldPosition(seatRoot[0]+(P0[0]-seatRoot[0])*k,seatRoot[1]+(P0[1]-seatRoot[1])*k,seatRoot[2]+(P0[2]-seatRoot[2])*k);
+        if(st>=dur){off();ok();}};});}
      catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_LAKESIDE] stand-up skipped: '+String(e));}
      finally{ticker.step=prevStep;}
      rideToken.check();}
