@@ -23,6 +23,10 @@ def bg_post(path,W=750,H=1624):
 if LV['region']=='lake':
     tr=L('tray_lake'); TRAY=tr.resize((round(tr.width*f_tray),round(tr.height*f_tray/math.sin(math.radians(72)))),Image.LANCZOS)
     TILE={'a':scaled(L('tile_a_lake'),f_tile),'b':scaled(L('tile_b_lake'),f_tile)}
+def tray_box():   # 托盘实际不透明范围（750×1624 坐标 x0,y0,x1,y1），measure_visible.py 用它当棋盘框
+    bb=TRAY.getbbox() if TRAY.mode!='RGBA' else TRAY.split()[3].point(lambda v:255 if v>8 else 0).getbbox()
+    x0=round(375-TRAY.width/2); y0=round(TRAY_CY-TRAY.height/2); return (x0+bb[0]+2,y0+bb[1]+2,x0+bb[2]-2,y0+bb[3]-2)   # 内缩 2px 去掉抗锯齿边
+if os.environ.get('TRAY_BOX_ONLY'): print(json.dumps(tray_box())); sys.exit(0)
 for k in ('full','hit','clear'): OBS['lily_'+k]=scaled(L('obstacle_lily_'+k),f_tile*1.06)
 G=LV['grid']; rnd=random.Random(LV.get('seed',1)); Bd=[[0]*7 for _ in range(7)]
 for r in range(7):

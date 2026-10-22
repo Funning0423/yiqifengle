@@ -10,7 +10,7 @@ REF=sys.argv[1] if len(sys.argv)>1 else os.environ.get('LAKE_REF','/workspace/we
 OUT=sys.argv[2] if len(sys.argv)>2 else os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','slices')
 W,H=750,1624
 BLUR=20                      # px @750；v2 起不受引擎 10 点约束，大模糊把背景细节压掉（显著性主要来自树林、房顶的边缘）
-DAY_SAT,DAY_VAL,FOG,FOG_RGB=0.38,0.88,0.06,(250,246,236)   # 明度 ×0.90 而不是 ×1.08：×1.08 时草地 169/189/133，离验收目标 135/160/95 更远
+DAY_SAT,DAY_VAL,FOG,FOG_RGB=0.33,0.88,0.06,(250,246,236)   # 明度 ×0.90 而不是 ×1.08：×1.08 时草地 169/189/133，离验收目标 135/160/95 更远   # v2.4：DAY_SAT 0.38→0.33（托盘框改实际位置后，y1092–1150 的草地计入背景，背景饱和度 25.4 超线；只降饱和不提亮）
 ROOF_BOX=(0,440,140,860); ROOF_SMAX,ROOF_DARK=0.36,0.92      # 左侧红房顶所在区域（750 宽 px），约 y230–450pt
 NIGHT=(0.42,0.52,0.68); NIGHT_LIFT=(14,18,30); NIGHT_SAT=0.6   # 夜间整体比 cd5545d 提亮到旧版夜间的亮度水平（背景 L≈99），否则显著性只有 8.8
 def hsv_scale(im,sat=1.0,val=1.0):
@@ -38,7 +38,7 @@ import os as _os
 DAY_CONTRAST=0.92   # v2.3：0.85→0.92（暗部别抬灰）（围绕全图均值），压低背景显著性
 SOFT_K,SOFT_BLUR=0.35,32   # v2.3：远景大模糊混入 0.35、半径 32，只作用在 y<420（v2.2 0.7/48 全屏，远景过糊）
 SOFT_Y,SOFT_F=420,40
-TREE_BOX,TREE_SAT=(0,0,750,505),0.6
+TREE_BOX,TREE_SAT=(0,0,750,505),0.55   # v2.4：远景饱和度 0.6→0.55
 TREE_CONTRAST=0.75   # v2.3：远景（y<505）明暗对比压缩系数，补显著性；显著性按灰度算，降饱和补不了
 for _k in ('DAY_SAT','DAY_VAL','FOG','BLUR','LAKE_K','NIGHT_SAT','SOFT_K','DAY_CONTRAST','TREE_SAT','TREE_CONTRAST'):
     if _os.environ.get('LB_'+_k): globals()[_k]=float(_os.environ['LB_'+_k])
@@ -75,7 +75,7 @@ def night(b):
     a=mu+NIGHT_CONTRAST*(a-mu); t=(1-(1-NIGHT_TOP)*np.clip((NIGHT_TOP_Y-y)/60,0,1))[...,None]   # v2.3：夜间上半屏（y<500，440–500 羽化）亮度 ×0.85
     return Image.fromarray((a*t).clip(0,255).astype(np.uint8))
 NIGHT_TOP,NIGHT_TOP_Y=0.85,500
-NIGHT_TREE_SAT=float(_os.environ.get('LB_NIGHT_TREE_SAT','0.6'))
+NIGHT_TREE_SAT=float(_os.environ.get('LB_NIGHT_TREE_SAT','0.55'))   # v2.4：0.6→0.55
 if __name__=='__main__':
     b=base()
     for im,name in ((day(b),'bg_lakeside_board.jpg'),(night(b),'bg_lakeside_board_night.jpg')):
