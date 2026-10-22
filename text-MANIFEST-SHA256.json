@@ -1785,6 +1785,16 @@
     "sha256": "494f8ce2fb904b740fa2622f0c6d9b621939031faa07d565f06e5921f2ce48a5"
   },
   {
+    "path": "creator-build-project/assets/resources/world/lantern-glow.effect",
+    "bytes": 2821,
+    "sha256": "be232b6b087d739f82d12d01b1e64b2e4e47da5340d993cff31ebe47e9cd36f9"
+  },
+  {
+    "path": "creator-build-project/assets/resources/world/lantern-glow.effect.meta",
+    "bytes": 181,
+    "sha256": "616f2821a8f867595a89fbe9cfa7058f6eb3b9c675202a8e63cff629f071759f"
+  },
+  {
     "path": "creator-build-project/assets/resources/world/shore-foam.effect",
     "bytes": 7226,
     "sha256": "a17bbe94fa808f6e302a887b1943fa5d08e2e3f11b5dfabbab90b2ef7a18fa59"
@@ -3310,6 +3320,26 @@
     "sha256": "2f0b38f6269a5fe6eda950c39bbc1f4b081c7cda1de95dc621c8699671ee540e"
   },
   {
+    "path": "creator-build-project/assets/scripts/render/LanternGlow.ts",
+    "bytes": 3045,
+    "sha256": "052b247b824eff6ba6b9a7b78af553223b0d891902a02fe76f6b6b563310358e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/LanternGlow.ts.meta",
+    "bytes": 171,
+    "sha256": "4b046e1a186d2710557cb912b4bb9420b173cca7654af4cc76880c9ce44dcf1a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/LanternGlowCore.ts",
+    "bytes": 2655,
+    "sha256": "98b0041e8122eb01911c8d90979955418cc32b7d7bf693a6656399adf04311e1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/LanternGlowCore.ts.meta",
+    "bytes": 171,
+    "sha256": "ff053da344c49ddf7fa82b8a7c349a908c0b6e5cf8e353a2012d2166205c458e"
+  },
+  {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
     "bytes": 36493,
     "sha256": "8acd545528ddf42420ddbc1dbb4714ca061c8016950c86e2f98e62646dc596b6"
@@ -4191,8 +4221,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14249,
-    "sha256": "a557a1cedb94b13093f75f11a3421fd6e261ff27a600ae8b9ddd0a68d697c6b9"
+    "bytes": 14307,
+    "sha256": "d69d56576641ad52cdc74949675be271eff31d62b367be7bcc68fc1461965a99"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

@@ -1,0 +1,73 @@
+// Lantern glow (场景特效bot r5, 星夜灯塔): one camera-facing quad on the hand lantern's core (lantern.core). No texture, no
+// real-time light. The quad's 4 vertices all sit at the node origin; a_texCoord (-1..1 corners) is expanded in VIEW space
+// by glowParams.x (radius, m), so it always faces the camera and follows every swing of the core. Soft radial falloff
+// (core + halo), gentle breathing (glowParams.z) and a small flicker (glowParams.w), additive. tint.a = day/night intensity
+// (night 1, day 0 = invisible). faceGuard.x: the glow dims when the camera is closer than faceGuard.y m (close-ups of her face).
+CCEffect %{
+  techniques:
+  - name: add
+    passes:
+    - vert: lantern-glow-vs:vert
+      frag: lantern-glow-fs:frag
+      properties:
+        tint:       { value: [1.0, 0.62, 0.25, 1.0], editor: { type: color, tooltip: 'linear rgb (core emissive colour), a intensity (day/night)' } }
+        glowParams: { value: [0.20, 0.55, 0.06, 0.04], editor: { tooltip: 'x radius (m), y halo strength, z breathe amount, w flicker amount' } }
+        faceGuard:  { value: [0.45, 1.2, 0.0, 0.0], editor: { tooltip: 'x min intensity when close, y distance (m) below which the glow dims' } }
+      rasterizerState: { cullMode: none }
+      depthStencilState: { depthTest: true, depthWrite: false }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+}%
+
+CCProgram lantern-glow-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+  out float v_k;
+  uniform LanternGlow {
+    vec4 tint;
+    vec4 glowParams;
+    vec4 faceGuard;
+  };
+  vec4 vert () {
+    vec4 wp = cc_matWorld * vec4(a_position, 1.0);
+    vec4 vp = cc_matView * wp;
+    float t = cc_time.x;
+    float breathe = 1.0 + glowParams.z * sin(t * 1.7);
+    float flicker = 1.0 + glowParams.w * (sin(t * 13.1) * 0.6 + sin(t * 23.7 + 1.3) * 0.4);
+    float r = glowParams.x * breathe;
+    vp.xy += a_texCoord * r;
+    v_uv = a_texCoord;
+    float dist = length(cc_cameraPos.xyz - wp.xyz);
+    v_k = tint.a * flicker * mix(faceGuard.x, 1.0, smoothstep(faceGuard.y * 0.5, faceGuard.y, dist));
+    return cc_matProj * vp;
+  }
+}%
+
+CCProgram lantern-glow-fs %{
+  precision highp float;
+  #include <legacy/output-standard>
+  in vec2 v_uv;
+  in float v_k;
+  uniform LanternGlow {
+    vec4 tint;
+    vec4 glowParams;
+    vec4 faceGuard;
+  };
+  vec4 frag () {
+    float d = length(v_uv);
+    float core = exp(-d * d * 28.0);
+    float halo = pow(max(0.0, 1.0 - d), 2.2) * glowParams.y;
+    vec3 c = tint.rgb * (core + halo) * v_k;
+    c += vec3(1.0, 0.9, 0.75) * core * 0.35 * v_k;
+    return CCFragOutput(vec4(c, 1.0));
+  }
+}%

@@ -85,6 +85,7 @@ const tests=[
  ['lakeside-balloon-mooring','tools/lakeside/test_lakeside_balloon_mooring.cjs'],
  ['lakeside-reveal-orbit','tools/lakeside/test_lakeside_reveal_orbit.cjs'],
  ['lakeside-qashot','tools/lakeside/test_lakeside_qashot.cjs'],
+ ['lantern-glow','tools/scene-fx/test_lantern_glow.cjs'],
  ['lakeside-walk-tail','tools/lakeside/test_walk_tail.cjs'],
  ['lakeside-home-fade-tail','tools/lakeside/test_home_fade_tail.cjs'],
  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-reach','tools/lakeside/test_lakeside_reach.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['region-landing-hook','tools/journey-integration/test-region-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
