@@ -235,24 +235,36 @@ export function sailCamera(tl:SailTimeline,route:readonly Vec[],t:number,screen:
  const look=o.look;
  return {position:pos,target:[v.pos[0]+fx*look,v.pos[1]+1.05,v.pos[2]+fz*look],fovVerticalDeg:o.fov};
 }
-/** Shore walk lens. `state.yaw` eases toward the path heading so a corner does not snap the camera. */
-export function sailFollowCamera(path:readonly Vec[],u:number,from:Pose,to:Pose,state:{yaw:number|null}):Pose{
- const s=smoother(Math.min(1,Math.max(0,u)));
- let L=0;for(let i=1;i<path.length;i++)L+=dist(path[i-1],path[i]);
- let left=L*Math.min(1,Math.max(0,u)),at=path[0]||[0,0,0],seg=0;
- for(let i=1;i<path.length;i++){
-  const d=dist(path[i-1],path[i]);
-  const h=Math.atan2(path[i][0]-path[i-1][0],path[i][2]-path[i-1][2]);
-  if(d>0&&left<=d){const k=left/d;at=[lerp(path[i-1][0],path[i][0],k),lerp(path[i-1][1],path[i][1],k),lerp(path[i-1][2],path[i][2],k)];seg=h;break;}
-  left-=d;at=path[i];seg=h;
- }
- if(state.yaw==null)state.yaw=seg;
- else{
-  let d=seg-state.yaw;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
-  const max=2.5*Math.PI/180;
-  state.yaw+=Math.max(-max,Math.min(max,d));
- }
- const yaw=state.yaw,back=4.8,side=1.35,up=3.3;
+/** Point at arc length d on the polyline; past either end it continues along the end segment. */
+function polyAt(path:readonly Vec[],cum:readonly number[],d:number):Vec{
+ const n=path.length;if(n<2)return path[0]||[0,0,0];
+ let i=1;while(i<n-1&&cum[i]<d)i++;
+ const L=cum[i]-cum[i-1],k=L>0?(d-cum[i-1])/L:0;
+ return [lerp(path[i-1][0],path[i][0],k),lerp(path[i-1][1],path[i][1],k),lerp(path[i-1][2],path[i][2],k)];
+}
+/** Exact mean of the polyline over [d-W,d+W] (piecewise linear, so trapezoids between vertices are exact). */
+function polyMean(path:readonly Vec[],cum:readonly number[],d:number,W:number):Vec{
+ const a=d-W,b=d+W,cuts=[a];for(const c of cum)if(c>a&&c<b)cuts.push(c);cuts.push(b);
+ const o:Vec=[0,0,0];
+ for(let i=1;i<cuts.length;i++){const p=polyAt(path,cum,cuts[i-1]),q=polyAt(path,cum,cuts[i]),w=(cuts[i]-cuts[i-1])/2;for(let j=0;j<3;j++)o[j]+=(p[j]+q[j])*w;}
+ return [o[0]/(2*W),o[1]/(2*W),o[2]/(2*W)];
+}
+/**
+ * Shore walk lens. Stateless (b16 item 2): the anchor is the ±1.2 m running mean of the path and the yaw is
+ * the ±1.5 m chord of that mean, so corners turn the lens smoothly. The old per-call 2.5° yaw clamp depended on the
+ * call rate (pose() and onFrame() both stepped it) and the anchor followed the raw corners: jump 30.9 s, lurch 33.9 s.
+ * `state` is kept for the call sites and ignored.
+ */
+export function sailFollowCamera(path:readonly Vec[],u:number,from:Pose,to:Pose,_state?:{yaw:number|null}):Pose{
+ const uc=Math.min(1,Math.max(0,u)),s=smoother(uc);
+ const cum=[0];for(let i=1;i<path.length;i++)cum.push(cum[i-1]+dist(path[i-1],path[i]));
+ const L=cum[cum.length-1],W=1.2,dd=L*uc;
+ const at=path.length<2?(path[0]||[0,0,0] as Vec):polyMean(path,cum,dd,W);
+ // Yaw from the chord of the (C1) mean, so the yaw rate is continuous too: no lateral lurch at a vertex.
+ const pa=path.length<2?at:polyMean(path,cum,dd-1.5,W),pb=path.length<2?at:polyMean(path,cum,dd+1.5,W);
+ const hx=pb[0]-pa[0],hz=pb[2]-pa[2];
+ const yaw=Math.hypot(hx,hz)>1e-6?Math.atan2(hx,hz):0;
+ const back=4.8,side=1.35,up=3.3;
  const fx=Math.sin(yaw),fz=Math.cos(yaw),rx=fz,rz=-fx;
  const follow:Pose={
   position:[at[0]-fx*back+rx*side,at[1]+up,at[2]-fz*back+rz*side],
