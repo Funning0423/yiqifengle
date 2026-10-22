@@ -2536,8 +2536,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
-    "bytes": 46817,
-    "sha256": "f92b2c31933b179c9ae4017759b938880047e3ff63a20ce0373f23ed0f17c09a"
+    "bytes": 47963,
+    "sha256": "f1b029e7ca94f65b2f6bbe701f6f322c1f7e67f2d8570a9c612710f6f4156ea3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts.meta",
@@ -2816,8 +2816,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 39640,
-    "sha256": "813e5ddb9a4c0867fe8a92136fa43aa8ceefb30c434828be3e92e38f62aab162"
+    "bytes": 40877,
+    "sha256": "8b97f1f5c2e9492c5e19cfba180421e502dae9977969b5436732416559db969d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3016,8 +3016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
-    "bytes": 5049,
-    "sha256": "07bc758cb7779586e4ec6cfca72d4d537b16188eb4ce886a2bb5ab1de4a5d777"
+    "bytes": 5981,
+    "sha256": "382c940ecb8870280a46cbb77fced6e23afac58e2cc5954f16fcbda5c986f3d7"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
@@ -4266,13 +4266,13 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14257,
-    "sha256": "204bcd4fa337149bb123188da1822b25e7c63aa74d0d2a59d9dc9456879ca7c0"
+    "bytes": 14458,
+    "sha256": "f2a6d8e409090d3e8a253d93e198a78506a377fe336f47303912ee161aacffae"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
-    "bytes": 3738,
-    "sha256": "053675c3c15b92fcb0d349b45a4d87aa18f31b992288c3eab4406832135618a2"
+    "bytes": 3825,
+    "sha256": "e5484ebd43034e34bc6b8918208f88f72c027f7df0774172655e54ae7b3b4e73"
   },
   {
     "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",
