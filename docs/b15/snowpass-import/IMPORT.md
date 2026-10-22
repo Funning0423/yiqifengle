@@ -1,0 +1,14 @@
+# 雪山口灰盒：导入 Creator 3.8.8 前的整理（scene/b15-snowpass-import）
+- 基于 fx/r5-snowpass-grey @11a59249。
+- 文件结构：assets/bundles/region_snowpass/（bundle meta：isBundle、wx_subpackage、priority 1，与 skycity 一致）/models/SP_snowpass.glb(+.meta)。
+- GLB：几何改为 KHR_draco_mesh_compression 压缩（16 位位置、12 位法线、14 位 UV），和 env_skycity / 云海使用同一种压缩扩展。
+  - 大小：1,782,824 B → 134,060 B。
+  - 不变的部分：节点 19 个，名字和层级不变（根节点 SP_snowpass，下有 SP_chime_tube_0..4、SP_stone_lantern_17..20 等）；34,604 面；单材质 M_LK_palette；内嵌 T_LK_palette_256（nearest）。
+  - Blender 5.2.2 回读结果和原文件一致：18 个网格，34,604 面，包围盒 x −490..410 m、高 −3.6..233 m，Y-up，单位米，没有缩放，没有动画和蒙皮。
+- glb.meta：保留 uuid 55d98240…，userData 补上 tangents、meshCompress、lods（和 skycity 一样）。subMetas 只能由 Mac 上的 Creator 3.8.8 首次导入时生成，导入后要提交生成的 .meta。
+- 尚未接入 RegionLoader.REGIONS（这次没改代码）。接入时可以先写 `{bundle:'region_snowpass',prefabName:'SP_snowpass'}`，导入后再补 prefabUuid。
+- 验证：
+  - test_snowpass_grey PASS；test_manifests PASS；
+  - run-suite 148 项里 145 项通过，0 FAIL，3 项 BLOCKED（浏览器 1 项，Node ≥22.6 2 项）；
+  - 原文件 glTF-Validator 0 错误 0 警告。新文件的 Draco 内容 validator 不解码，改用 Blender 回读来验证。
+- 没有在 Creator 里实际导入过：这台机器是 Linux，没有 Creator。Mac 盘快满了，这次没有在 Mac 上写入任何东西。

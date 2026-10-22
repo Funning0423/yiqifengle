@@ -6,6 +6,15 @@
 - 进度：已完成。测试套件 147/148，和基线一样（navigation-guard 因浏览器 BLOCKED）。
 - 未测：真机效果：萤火虫亮度、风铃摆幅、水面风纹。
 - 其他：合入集成。
+
+# 场景特效bot 交接：fx/r5-snowpass-grey
+
+## 本分支
+- 分支：`fx/r5-snowpass-grey`，交接前头部 `dc0a73234eeeec43ed589518f2d710f4fecfc6e0`，基点 `55368056`
+- 内容：雪山风铃山口白模：creator-build-project/assets/bundles/region_snowpass/models/SP_snowpass.glb，共 34,604 面（预算 55k），共享 M_LK_palette / T_LK_palette_256（内嵌）。包含：风铃门（雕柱、瓦垄飞檐屋顶加厚雪、5 根可摆的铃管节点）；近、中、远山（风蚀沟加雪线面，山脚埋进地面，门后黑线已清掉）；地面（热气球雪台、半埋石阶、碎石）；17–20 关石灯笼节点；松树。新分包 region_snowpass，目录 meta 已建；glb.meta 只写了 uuid，子资源要等 Mac 上的 Creator 导入时生成。glTF-Validator 0 错误 0 警告。新增 test_snowpass_grey，测试套件 147/148，和基线一样。
+- 进度：白模完成；预览和坐标表已出。
+- 未测：Creator 导入（子资源 meta）、真机 draw call 数（目前 18 个 primitive）、运行时风铃摆动和夜间灯光都还没接。
+- 其他：预览：previews/场景特效bot/r5/snowpass_grey/snowpass_grey_day.png、snowpass_grey_night.png；坐标表：previews/场景特效bot/r5/snowpass_grey/COORDS.md 和 SP_snowpass_coords.json；构建脚本 build.py、预览脚本 prev.py 在同一目录。
 - 预览和大文件不进仓库，只写路径。
 
 ## 全局待办（场景特效bot，截至 2026-10-22 08:05 EDT）

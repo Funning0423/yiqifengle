@@ -1360,6 +1360,21 @@
     "sha256": "0c1f2a9a00b97197fcc4fd7cc85da5b09f9bae0283f6b357f10fc02478e0bc40"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_snowpass.meta",
+    "bytes": 409,
+    "sha256": "c81f5202d3dc45fbeb6f4d592ea62bceb17e54598c180de61c265f61ae2a9dfe"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_snowpass/models.meta",
+    "bytes": 168,
+    "sha256": "24b834c14651ec373457e7f836c905e03b524493b87b23bef055d0e4f262f4ec"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_snowpass/models/SP_snowpass.glb.meta",
+    "bytes": 644,
+    "sha256": "5fa358c1afe127d0145c9e09f566f8a73ee35932543688439ba343dc4225fe08"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_transit_balloon.meta",
     "bytes": 417,
     "sha256": "129326ef9c92b8140cfbeea1ea9b4ecfa9d5e689e0e13fe77e6e0058897ea0a0"
@@ -2521,8 +2536,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
-    "bytes": 41029,
-    "sha256": "378531cdb0e332b5761c7cd59a99cc8bd67e4a84a007888a8e19e965513505c9"
+    "bytes": 46817,
+    "sha256": "f92b2c31933b179c9ae4017759b938880047e3ff63a20ce0373f23ed0f17c09a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts.meta",
@@ -2551,8 +2566,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts",
-    "bytes": 18341,
-    "sha256": "39ae6217ddd0c731b8132ddaad213e740a1bd8fd6a529d249d2fcb11ac312ff4"
+    "bytes": 19883,
+    "sha256": "d7b7a8efb9f6da30c7949a21da7c42aadfc24a8a62814f20f0b86486003f5ef1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta",
@@ -2771,8 +2786,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 45163,
-    "sha256": "00ebf8d00e75ccd828a0bbc1df098ec2e25b557d21ec876aebfab7d1762f163d"
+    "bytes": 46068,
+    "sha256": "031f30a44ac3e8ea9c71311041531cc41d57ca8b332d4159e6a9cbe4eaf02b2f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4221,8 +4236,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14309,
-    "sha256": "81e67b68b23874fb34c7a4fb87cd3548a52b477c2f15d074f082ddafa52550ba"
+    "bytes": 14427,
+    "sha256": "cb29a775e39ddeb22afa747b96b2ae77058067b8b4ffaf9421bc0004aec68673"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
@@ -4231,8 +4246,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_balloon_mooring.cjs",
-    "bytes": 9198,
-    "sha256": "18d57d6d884d89f43a6623fea607fdf1988f930abb7341dd10c00a2fd99996b6"
+    "bytes": 11059,
+    "sha256": "00087623823279b7c6040afc3b2bec97369c357e1c390b2e67059fb9a3ba4238"
   },
   {
     "path": "tools/lakeside/test_lakeside_board_guest.cjs",
@@ -4241,8 +4256,8 @@
   },
   {
     "path": "tools/lakeside/test_lakeside_qashot.cjs",
-    "bytes": 18123,
-    "sha256": "8eaaaba8687598e620b6f9e129a5496e2a474e2f093751f89b5b361250995824"
+    "bytes": 19032,
+    "sha256": "cfa8a1be584a340f0e48a4e390f62c90b66fb71ede14b57d41ade82715988de9"
   },
   {
     "path": "tools/lakeside/test_lakeside_reveal_orbit.cjs",
