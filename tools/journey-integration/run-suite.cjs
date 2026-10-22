@@ -37,6 +37,7 @@ const tests=[
  ['lakeside-landing-no-pause','tools/board-ui/test_lakeside_landing_no_pause.cjs'],
  ['lakeside-pathv4','tools/lakeside-pathv4/metrics.cjs'],
  ['lakeside-landing-board-progress','tools/journey-integration/test-lakeside-landing-board-progress.cjs'],
+ ['route-occlusion','tools/journey-integration/test-route-occlusion.cjs'],['route-framing','tools/journey-integration/test-route-framing.cjs'],['route-continuity','tools/journey-integration/test-route-continuity.cjs'],
  ['result-retry','tools/board-ui/test_result_retry.cjs'],
  ['board-art-retry','tools/board-ui/test_board_art_retry.cjs'],
  ['deferred-entry-art','tools/board-ui/test_deferred_entry_art.cjs'],
