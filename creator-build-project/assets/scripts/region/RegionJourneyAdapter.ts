@@ -222,6 +222,10 @@ function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
 export const LAKESIDE_BOARD_PRELOAD_W=.9;
 /** r5 per-part fill: re-write the journey fill only on a weight step of >= 1/64, or when it reaches 0 / 1 exactly. */
 export function lakesideFillStep(prev:number,next:number):boolean{return Math.abs(next-prev)>=1/64||(next!==prev&&(next===0||next===1));}
+/** b17 (user: "only grass inside the basket" at the lakeside door shot): the basket mesh floor sits at its origin (y=0, no thickness) and
+ * the mooring puts that origin ON LK_terrain (19.645 vs terrain 19.646–19.650): the terrain z-fought over / covered the floor seen through
+ * the open door. A constant lift for the whole ride (no new jump) clears it; her ground route (P0 → shore) stays on the terrain. */
+const LAKESIDE_BASKET_LIFT_M=.03;
 async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
  if(from!=='skycity')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
@@ -279,7 +283,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);girl.setPosition(0,-.1,0);girl.setRotationFromEuler(0,moored.seatYawDeg(flight.girlYawRad*180/Math.PI),0);};
     const apply=()=>{
      const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
-     if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
+     if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1]+LAKESIDE_BASKET_LIFT_M,pos[2])/* b17 */;
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
      lastPose=lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);
      lease.progress!(t<R.cutT?R.walkAt(t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
