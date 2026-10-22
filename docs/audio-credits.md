@@ -215,3 +215,15 @@ Snow-pass concept previews only (`previews/Voice-bot/b15-lakeside-l13-16/02..04`
 | Howling_wind.ogg | Tvabutzku1234 | CC0 1.0 | https://commons.wikimedia.org/wiki/File:Howling_wind.ogg | 30–59 s / 40–70 s: LP 250 Hz rumble + BP 250–1400 Hz gust, slow LFO |
 | piano / harp / accordion / flute / string pad | Voice bot (own synthesis: additive, Karplus-Strong) | CC0 1.0 (own work) | — | no CC0 multi-sample instruments were available on the box; placeholders for the final recorded/sampled versions |
 | reverb IR | Voice bot (own synthesis) | CC0 1.0 | — | noise-decay IR, RT 3.0–3.5 s |
+
+## 采样乐器小样：风铃湖畔「风起」（Voice bot，2026-10-22，仅预览，不进游戏）
+`previews/Voice-bot/sampled-instruments/01_lakeside_fengqi_harp_flute_clarinet_strings_windchime_30s.mp3`，脚本 `tools/audio/sampled/lakeside_windchime_demo.py`。方案见 `docs/audio/instrument-sourcing-plan.md`。
+
+| Source | Author | License | URL | Use |
+|---|---|---|---|---|
+| VSCO-2-CE `Strings/Harp` (KSHarp_*_mf) | Versilian Studios (Sam Gossner, Simon Dalzell; cutting Elan Hickler) | CC0 1.0 | https://github.com/sgossner/VSCO-2-CE (commit 440300901dfe9275fd84e0b7763af1f8443ae62e) | rolled arpeggios, pitch by resampling from nearest sample |
+| VSCO-2-CE `Woodwinds/Flute/susvib` | same | CC0 1.0 | same | motif statement C5 F5 G5 A5 G5 |
+| VSCO-2-CE `Woodwinds/Clarinet/susLong` | same | CC0 1.0 | same | motif answer C4 F4 G4 A4 F4 |
+| VSCO-2-CE `Strings/Viola Section/susvib`, `Strings/Cello Section/susvib` | same | CC0 1.0 | same | sustained chords, cosine fades |
+| Windchime.ogg | stephan | Public domain | https://commons.wikimedia.org/wiki/File:Windchime.ogg | single strike 0.72–6.0 s, resampled to C6/F6/G6/A6, HP 250 Hz, LP 4.5 kHz |
+| room IR | Voice bot (processing, own) | CC0 1.0 | — | noise-decay convolution IR, RT 2.6 s, BP 200–4000 Hz |
