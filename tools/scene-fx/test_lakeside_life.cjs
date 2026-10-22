@@ -34,6 +34,9 @@ check('effect-ubo', /vec4 lightParams;\s*vec4 windParams;\s*vec4 rippleParams;\s
 const bb = fs.readFileSync(path.join(S, 'region/LakesideBoardBackground.ts'), 'utf8');
 check('hook-water', /setProperty\('windParams',new Vec4\(gw\.dirX,gw\.dirZ,gw\.strength,0\)\)/.test(bb));
 check('hook-mount', /mountLakesideLife\(scenery\);/.test(bb) && /skip\(child\)\|\|isLakesideLifeNode\(child\)/.test(bb));
+{ const src = fs.readFileSync(path.join(S, 'region/LakesideSceneData.ts'), 'utf8'), cells = (src.match(/LAKESIDE_PALETTE_CELLS[^\[]*\[([\s\S]*?)\]\)/) || [, ''])[1].match(/[0-9a-f]{6}/g) || [];
+  const LC = load('render/LakesideLifeCore.ts', 'lifecore_pal').LAKESIDE_LIFE.fireflyColor, hex = LC.map(c => Math.round(c * 255).toString(16).padStart(2, '0')).join('');
+  check('firefly-colour-from-shared-palette', cells.indexOf(hex) >= 0 && hex !== '000000', hex); }
 const strip = t => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, ''), BAN = /Array\.from|Object\.entries|padStart|\.\.\.[A-Za-z_(]|\?\?|\?\./;
 const es5 = ['render/LakesideLifeCore.ts', 'region/LakesideLife.ts'].filter(f => BAN.test(strip(fs.readFileSync(path.join(S, f), 'utf8')).replace(/catch\(e\)\{try\{console\.warn[^\n]*/g, '')));
 check('loose-es5', !es5.length, es5);

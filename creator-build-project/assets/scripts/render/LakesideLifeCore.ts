@@ -17,8 +17,8 @@ export const LAKESIDE_LIFE = {
   fireflyCount: 14,
   fireflyBox: { min: [-9, 0.75, 17.5] as LifeVec, max: [9, 2.1, 23.5] as LifeVec },
   fireflyDriftMps: 0.22, fireflyWanderM: 0.35, fireflySize: 0.045,
-  /** Night colour (linear): soft lime-amber that sits on the blue-teal night palette; additive. */
-  fireflyColor: [0.95, 0.88, 0.42] as LifeVec,
+  /** Shared lakeside palette swatch ffd84a (LAKESIDE_PALETTE_CELLS row 4, the lantern-yellow cell); own additive material kept. */
+  fireflyColor: [1.0, 0.847, 0.29] as LifeVec,
   /** Water ripple (shader): x amplitude (normal tilt), y wavenumber (rad/m), z speed (rad/s). */
   ripple: [0.035, 2.4, 1.6] as LifeVec,
 };
