@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T22:21:52.237Z",
+ "timeUTC": "2026-10-22T22:49:16.401Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
@@ -38,12 +38,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -56,19 +56,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -117,12 +107,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -135,19 +125,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -196,12 +176,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -214,19 +194,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -275,12 +245,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -293,19 +263,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -354,12 +314,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -372,19 +332,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -433,12 +383,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -451,19 +401,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,
@@ -512,12 +452,12 @@
      "frames": 2
     }
    ],
-   "O1sgMain": "FAIL",
+   "O1sgMain": "PASS",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
    "blackFrames": 0,
-   "occludedFrames": 5,
+   "occludedFrames": 2,
    "occludedSpans": [
     {
      "t0": 10.97,
@@ -530,19 +470,9 @@
       "head": "island:env_prop_palm_lean_01 (9/9)",
       "chest": "island:env_prop_palm_lean_01 (9/9)"
      }
-    },
-    {
-     "t0": 23.3,
-     "t1": 23.37,
-     "phase": "S-g",
-     "first": {
-      "t": 23.3,
-      "pose": "stand",
-      "face": "sailboat:sail_main (7/9)"
-     }
     }
    ],
-   "centreRayGrazeFrames": 13,
+   "centreRayGrazeFrames": 12,
    "grazeSample": [
     {
      "t": 10.97,

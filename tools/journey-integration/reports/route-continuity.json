@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T22:22:39.136Z",
+ "timeUTC": "2026-10-22T22:50:00.141Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -30,7 +30,7 @@
     "maxDaAt": 16.25,
     "jumps": []
    },
-   "C1ride": "FAIL",
+   "C1ride": "PASS",
    "C1rideDetail": [
     {
      "t0": 0,
@@ -46,12 +46,12 @@
     {
      "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.522,
-     "omegaAt": 20.767,
-     "alpha": 20.552,
-     "alphaAt": 20.567,
-     "acc": 10.605,
-     "accAt": 21.817,
+     "omega": 8.68,
+     "omegaAt": 21.917,
+     "alpha": 8.707,
+     "alphaAt": 21.133,
+     "acc": 2.439,
+     "accAt": 21.15,
      "jumps": []
     }
    ],
@@ -60,12 +60,12 @@
     "t0": 23.821,
     "t1": 42.32,
     "jumps": [],
-    "omega": 9.828,
-    "omegaAt": 33.621,
-    "alpha": 11.646,
-    "alphaAt": 32.938,
-    "acc": 2.368,
-    "accAt": 38.771
+    "omega": 11.799,
+    "omegaAt": 33.638,
+    "alpha": 11.857,
+    "alphaAt": 32.971,
+    "acc": 2.363,
+    "accAt": 38.788
    },
    "C1": "FAIL",
    "C1detail": {
@@ -88,20 +88,20 @@
      "acc": 22.998,
      "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.76,
+     "fovRate": 2.381,
      "jumps": 0
     },
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 9.828,
-     "omegaAt": 33.621,
+     "omega": 11.799,
+     "omegaAt": 33.638,
      "omegaPhase": "shore-walk",
-     "alpha": 11.646,
-     "alphaAt": 32.938,
+     "alpha": 11.857,
+     "alphaAt": 32.971,
      "alphaPhase": "shore-walk",
-     "acc": 2.368,
-     "accAt": 38.771,
+     "acc": 2.363,
+     "accAt": 38.788,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
      "jumps": 0
@@ -170,7 +170,7 @@
     "maxDaAt": 16.25,
     "jumps": []
    },
-   "C1ride": "FAIL",
+   "C1ride": "PASS",
    "C1rideDetail": [
     {
      "t0": 0,
@@ -186,12 +186,12 @@
     {
      "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.522,
-     "omegaAt": 20.767,
-     "alpha": 20.552,
-     "alphaAt": 20.567,
-     "acc": 10.605,
-     "accAt": 21.817,
+     "omega": 8.68,
+     "omegaAt": 21.917,
+     "alpha": 8.707,
+     "alphaAt": 21.133,
+     "acc": 2.439,
+     "accAt": 21.15,
      "jumps": []
     }
    ],
@@ -200,12 +200,12 @@
     "t0": 23.821,
     "t1": 42.32,
     "jumps": [],
-    "omega": 9.828,
-    "omegaAt": 33.621,
-    "alpha": 11.646,
-    "alphaAt": 32.938,
-    "acc": 2.368,
-    "accAt": 38.771
+    "omega": 11.799,
+    "omegaAt": 33.638,
+    "alpha": 11.857,
+    "alphaAt": 32.971,
+    "acc": 2.363,
+    "accAt": 38.788
    },
    "C1": "FAIL",
    "C1detail": {
@@ -228,20 +228,20 @@
      "acc": 22.998,
      "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.76,
+     "fovRate": 2.381,
      "jumps": 0
     },
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 9.828,
-     "omegaAt": 33.621,
+     "omega": 11.799,
+     "omegaAt": 33.638,
      "omegaPhase": "shore-walk",
-     "alpha": 11.646,
-     "alphaAt": 32.938,
+     "alpha": 11.857,
+     "alphaAt": 32.971,
      "alphaPhase": "shore-walk",
-     "acc": 2.368,
-     "accAt": 38.771,
+     "acc": 2.363,
+     "accAt": 38.788,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
      "jumps": 0
@@ -310,7 +310,7 @@
     "maxDaAt": 16.25,
     "jumps": []
    },
-   "C1ride": "FAIL",
+   "C1ride": "PASS",
    "C1rideDetail": [
     {
      "t0": 0,
@@ -326,12 +326,12 @@
     {
      "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.522,
-     "omegaAt": 20.767,
-     "alpha": 20.552,
-     "alphaAt": 20.567,
-     "acc": 10.605,
-     "accAt": 21.817,
+     "omega": 8.68,
+     "omegaAt": 21.917,
+     "alpha": 8.707,
+     "alphaAt": 21.133,
+     "acc": 2.439,
+     "accAt": 21.15,
      "jumps": []
     }
    ],
@@ -340,12 +340,12 @@
     "t0": 23.821,
     "t1": 42.32,
     "jumps": [],
-    "omega": 9.828,
-    "omegaAt": 33.621,
-    "alpha": 11.646,
-    "alphaAt": 32.938,
-    "acc": 2.368,
-    "accAt": 38.771
+    "omega": 11.799,
+    "omegaAt": 33.638,
+    "alpha": 11.857,
+    "alphaAt": 32.971,
+    "acc": 2.363,
+    "accAt": 38.788
    },
    "C1": "FAIL",
    "C1detail": {
@@ -368,20 +368,20 @@
      "acc": 22.998,
      "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.76,
+     "fovRate": 2.381,
      "jumps": 0
     },
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 9.828,
-     "omegaAt": 33.621,
+     "omega": 11.799,
+     "omegaAt": 33.638,
      "omegaPhase": "shore-walk",
-     "alpha": 11.646,
-     "alphaAt": 32.938,
+     "alpha": 11.857,
+     "alphaAt": 32.971,
      "alphaPhase": "shore-walk",
-     "acc": 2.368,
-     "accAt": 38.771,
+     "acc": 2.363,
+     "accAt": 38.788,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
      "jumps": 0
@@ -450,7 +450,7 @@
     "maxDaAt": 16.25,
     "jumps": []
    },
-   "C1ride": "FAIL",
+   "C1ride": "PASS",
    "C1rideDetail": [
     {
      "t0": 0,
@@ -466,12 +466,12 @@
     {
      "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.522,
-     "omegaAt": 20.767,
-     "alpha": 20.552,
-     "alphaAt": 20.567,
-     "acc": 10.605,
-     "accAt": 21.817,
+     "omega": 8.68,
+     "omegaAt": 21.917,
+     "alpha": 8.707,
+     "alphaAt": 21.133,
+     "acc": 2.439,
+     "accAt": 21.15,
      "jumps": []
     }
    ],
@@ -480,12 +480,12 @@
     "t0": 23.821,
     "t1": 42.32,
     "jumps": [],
-    "omega": 9.828,
-    "omegaAt": 33.621,
-    "alpha": 11.646,
-    "alphaAt": 32.938,
-    "acc": 2.368,
-    "accAt": 38.771
+    "omega": 11.799,
+    "omegaAt": 33.638,
+    "alpha": 11.857,
+    "alphaAt": 32.971,
+    "acc": 2.363,
+    "accAt": 38.788
    },
    "C1": "FAIL",
    "C1detail": {
@@ -508,20 +508,20 @@
      "acc": 22.998,
      "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.76,
+     "fovRate": 2.381,
      "jumps": 0
     },
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 9.828,
-     "omegaAt": 33.621,
+     "omega": 11.799,
+     "omegaAt": 33.638,
      "omegaPhase": "shore-walk",
-     "alpha": 11.646,
-     "alphaAt": 32.938,
+     "alpha": 11.857,
+     "alphaAt": 32.971,
      "alphaPhase": "shore-walk",
-     "acc": 2.368,
-     "accAt": 38.771,
+     "acc": 2.363,
+     "accAt": 38.788,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
      "jumps": 0
@@ -590,7 +590,7 @@
     "maxDaAt": 16.25,
     "jumps": []
    },
-   "C1ride": "FAIL",
+   "C1ride": "PASS",
    "C1rideDetail": [
     {
      "t0": 0,
@@ -606,12 +606,12 @@
     {
      "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.522,
-     "omegaAt": 20.767,
-     "alpha": 20.552,
-     "alphaAt": 20.567,
-     "acc": 10.605,
-     "accAt": 21.817,
+     "omega": 8.68,
+     "omegaAt": 21.917,
+     "alpha": 8.707,
+     "alphaAt": 21.133,
+     "acc": 2.439,
+     "accAt": 21.15,
      "jumps": []
     }
    ],
@@ -620,12 +620,12 @@
     "t0": 23.821,
     "t1": 42.32,
     "jumps": [],
-    "omega": 9.828,
-    "omegaAt": 33.621,
-    "alpha": 11.646,
-    "alphaAt": 32.938,
-    "acc": 2.368,
-    "accAt": 38.771
+    "omega": 11.799,
+    "omegaAt": 33.638,
+    "alpha": 11.857,
+    "alphaAt": 32.971,
+    "acc": 2.363,
+    "accAt": 38.788
    },
    "C1": "FAIL",
    "C1detail": {
@@ -648,20 +648,20 @@
      "acc": 22.998,
      "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.76,
+     "fovRate": 2.381,
      "jumps": 0
     },
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 9.828,
-     "omegaAt": 33.621,
+     "omega": 11.799,
+     "omegaAt": 33.638,
      "omegaPhase": "shore-walk",
-     "alpha": 11.646,
-     "alphaAt": 32.938,
+     "alpha": 11.857,
+     "alphaAt": 32.971,
      "alphaPhase": "shore-walk",
-     "acc": 2.368,
-     "accAt": 38.771,
+     "acc": 2.363,
+     "accAt": 38.788,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
      "jumps": 0
@@ -730,7 +730,7 @@
     "maxDaAt": 16.25,
     "jumps": []
    },
-   "C1ride": "FAIL",
+   "C1ride": "PASS",
    "C1rideDetail": [
     {
      "t0": 0,
@@ -746,12 +746,12 @@
     {
      "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.522,
-     "omegaAt": 20.767,
-     "alpha": 20.552,
-     "alphaAt": 20.567,
-     "acc": 10.605,
-     "accAt": 21.817,
+     "omega": 8.68,
+     "omegaAt": 21.917,
+     "alpha": 8.707,
+     "alphaAt": 21.133,
+     "acc": 2.439,
+     "accAt": 21.15,
      "jumps": []
     }
    ],
@@ -760,12 +760,12 @@
     "t0": 23.821,
     "t1": 42.32,
     "jumps": [],
-    "omega": 9.828,
-    "omegaAt": 33.621,
-    "alpha": 11.646,
-    "alphaAt": 32.938,
-    "acc": 2.368,
-    "accAt": 38.771
+    "omega": 11.799,
+    "omegaAt": 33.638,
+    "alpha": 11.857,
+    "alphaAt": 32.971,
+    "acc": 2.363,
+    "accAt": 38.788
    },
    "C1": "FAIL",
    "C1detail": {
@@ -788,20 +788,20 @@
      "acc": 22.998,
      "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.76,
+     "fovRate": 2.381,
      "jumps": 0
     },
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 9.828,
-     "omegaAt": 33.621,
+     "omega": 11.799,
+     "omegaAt": 33.638,
      "omegaPhase": "shore-walk",
-     "alpha": 11.646,
-     "alphaAt": 32.938,
+     "alpha": 11.857,
+     "alphaAt": 32.971,
      "alphaPhase": "shore-walk",
-     "acc": 2.368,
-     "accAt": 38.771,
+     "acc": 2.363,
+     "accAt": 38.788,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
      "jumps": 0
@@ -870,7 +870,7 @@
     "maxDaAt": 16.25,
     "jumps": []
    },
-   "C1ride": "FAIL",
+   "C1ride": "PASS",
    "C1rideDetail": [
     {
      "t0": 0,
@@ -886,12 +886,12 @@
     {
      "t0": 20.35,
      "t1": 23.821,
-     "omega": 5.522,
-     "omegaAt": 20.767,
-     "alpha": 20.552,
-     "alphaAt": 20.567,
-     "acc": 10.605,
-     "accAt": 21.817,
+     "omega": 8.68,
+     "omegaAt": 21.917,
+     "alpha": 8.707,
+     "alphaAt": 21.133,
+     "acc": 2.439,
+     "accAt": 21.15,
      "jumps": []
     }
    ],
@@ -900,12 +900,12 @@
     "t0": 23.821,
     "t1": 42.32,
     "jumps": [],
-    "omega": 9.828,
-    "omegaAt": 33.621,
-    "alpha": 11.646,
-    "alphaAt": 32.938,
-    "acc": 2.368,
-    "accAt": 38.771
+    "omega": 11.799,
+    "omegaAt": 33.638,
+    "alpha": 11.857,
+    "alphaAt": 32.971,
+    "acc": 2.363,
+    "accAt": 38.788
    },
    "C1": "FAIL",
    "C1detail": {
@@ -928,20 +928,20 @@
      "acc": 22.998,
      "accAt": 19.333,
      "accPhase": "S-d",
-     "fovRate": 2.76,
+     "fovRate": 2.381,
      "jumps": 0
     },
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 9.828,
-     "omegaAt": 33.621,
+     "omega": 11.799,
+     "omegaAt": 33.638,
      "omegaPhase": "shore-walk",
-     "alpha": 11.646,
-     "alphaAt": 32.938,
+     "alpha": 11.857,
+     "alphaAt": 32.971,
      "alphaPhase": "shore-walk",
-     "acc": 2.368,
-     "accAt": 38.771,
+     "acc": 2.363,
+     "accAt": 38.788,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
      "jumps": 0
@@ -2183,7 +2183,7 @@
    "id": "BG1 sail + balloon meadow→skycity background, day+night × 7 screens (tools/transitions/test_frame_background.cjs)",
    "status": "PASS",
    "tail": [
-    "{\"status\":\"PASS\",\"frames\":3346,\"worst\":{\"score\":0.16440877479926028,\"frame\":221,\"screen\":\"390x844\",\"night\":false,\"why\":\"tightest-clearance\",\"rec\":{\"frame\":221,\"t\":22.1,\"screen\":\"390x844\",\"night\":false,\"clearM\":6.082,\"nearHit\":false,\"back\":0,\"void\":0,\"domes\":0,\"horizonGap\":0,\"dc\":14,\"tris\":246,\"who\":\"meadow_terrain\"}},\"baseline\":{\"04-05\":125000,\"08-09\":160000}}",
+    "{\"status\":\"PASS\",\"frames\":3346,\"worst\":{\"score\":0.15794189566061914,\"frame\":211,\"screen\":\"390x844\",\"night\":false,\"why\":\"tightest-clearance\",\"rec\":{\"frame\":211,\"t\":21.1,\"screen\":\"390x844\",\"night\":false,\"clearM\":6.331,\"nearHit\":false,\"back\":0,\"void\":0,\"domes\":0,\"horizonGap\":0,\"dc\":14,\"tris\":246,\"who\":\"meadow_terrain\"}},\"baseline\":{\"04-05\":125000,\"08-09\":160000}}",
     "frame-background PASS follow 56 map 126",
     "{\"frames\":5054,\"worst\":null,\"minClear\":12.37,\"minClearCam\":11.08,\"build05S\":36,\"accel\":1.51,\"climb\":24,\"bridgeStrata\":-9.63,\"seamLeak\":0,\"seamCamErr\":0.000779,\"farHits\":75854,\"handoffFade\":1,\"handoffT\":35.9,\"sunkBalloon\":0,\"meadowOff\":11.2,\"cityOn\":11.6,\"seam\":11.4}"
    ]

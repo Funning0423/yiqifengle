@@ -229,9 +229,9 @@ export function sailK3Window(tl:SailTimeline):{in:number;out:number}{
 /** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
 const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
 /** Channel centre: boat x≈−4.4, side≈0.9 → camera x≈−3.5, between the inner banks. */
-const K5:SailOff={back:10.2,side:0.92,up:7.6,fov:48,look:2.2,orb:0};
+const K5:SailOff={back:9.0,side:0.92,up:8.2,fov:48,look:2.2,orb:0};
 /** Same channel, a little closer. The old side 4.2 still sat in the left bank. */
-const K6:SailOff={back:8.4,side:0.85,up:6.8,fov:48,look:2.8,orb:0};
+const K6:SailOff={back:8.4,side:0.85,up:10.0,fov:48,look:2.8,orb:0};
 /** Blend on a constant-radius arc. A straight lerp from ahead of the bow to astern crosses the hull and guardOff then teleports. */
 function orbitMix(a:SailOff,b:SailOff,u:number,ease:(x:number)=>number=smoother):SailOff{
  const s=ease(Math.min(1,Math.max(0,u)));
@@ -271,7 +271,7 @@ function sailOffset(tl:SailTimeline,b:SailBeat,t:number):SailOff{
   return u<=0?K0:u>=1?K1:orbitMix(K0,K1,u);
  }
  if(b.id==='S-b')return K1;
- if(b.id==='S-c'||b.id==='S-d'||b.id==='S-e'){
+ if(b.id==='S-c'||b.id==='S-d'||b.id==='S-e'||b.id==='S-f'||b.id==='S-g'){
   const ez=(o:SailOff,p:SailOff,u:number)=>orbitMix(o,p,sailEase(u),(x)=>x);
   if(tau<SAIL_ARC_A0)return K1;
   if(tau<SAIL_ARC_A0+SAIL_ARC_A_S){
@@ -282,10 +282,12 @@ function sailOffset(tl:SailTimeline,b:SailBeat,t:number):SailOff{
   if(tau<K3_IN_T)return orbitPath(K2,Kbeam,K3,(tau-B_IN)/SAIL_ARC_B_S);
   if(tau<K3_OUT_T)return K3;
   // The tail runs on τ into S-e (the slower arcs cost ~2.2 s; S-e's K5 hold absorbs it, build05S unchanged).
-  const se=tl.beats.find(x=>x.id==='S-e')!,end=se.t1-sc.t0,k4in=K3_OUT_T+SAIL_K34_S;
+  // b16 (sail.C1ride): the K4→K5→K6 move ends with S-f (she is still seated; the lens is held through S-f/S-g), not S-e: squeezed
+  // into ~1.6 s before the berth it reached 10.6 m/s² at 21.8 s.
+  const sg=tl.beats.find(x=>x.id==='S-g')!,end=sg.t1-sc.t0,k4in=K3_OUT_T+SAIL_K34_S;
   if(tau<k4in)return orbitMix(K3,K4,sailEase((tau-K3_OUT_T)/SAIL_K34_S),(x)=>x);
   // One eased move K4→K6 shaped by K5 (quadratic Bézier; small bearings, so field-wise is fine).
-  const s=sailEase((tau-k4in)/Math.max(0.3,end-k4in)),w0=(1-s)*(1-s),w1=2*s*(1-s),w2=s*s;
+  const s=sailEase((tau-k4in)/Math.max(0.3,end-k4in),.5)/* b16: full sine ramps (C1ride) */,w0=(1-s)*(1-s),w1=2*s*(1-s),w2=s*s;
   const bz=(k:keyof SailOff)=>w0*K4[k]+w1*K5[k]+w2*K6[k];
   return {back:bz('back'),side:bz('side'),up:bz('up'),fov:bz('fov'),look:bz('look'),orb:bz('orb')};
  }
