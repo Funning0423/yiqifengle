@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T21:27:29.818Z",
+ "timeUTC": "2026-10-22T21:35:18.048Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
@@ -22,7 +22,23 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x844",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
@@ -85,7 +101,23 @@
   {
    "leg": "sail island→meadow",
    "screen": "414x896",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
@@ -148,7 +180,23 @@
   {
    "leg": "sail island→meadow",
    "screen": "360x780",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
@@ -211,7 +259,23 @@
   {
    "leg": "sail island→meadow",
    "screen": "375x667",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
@@ -274,7 +338,23 @@
   {
    "leg": "sail island→meadow",
    "screen": "320x568",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
@@ -337,7 +417,23 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x520",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
@@ -400,7 +496,23 @@
   {
    "leg": "sail island→meadow",
    "screen": "768x1024",
-   "O1": "FAIL",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "FAIL",
    "O2": "PASS",
    "frames": 1270,
    "herNotModelledFrames": 0,
