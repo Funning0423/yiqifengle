@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T20:22:41.495Z",
+ "timeUTC": "2026-10-22T20:43:41.488Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -16,25 +16,25 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x844",
+   "C1shore": "PASS",
+   "C1shoreDetail": {
+    "t0": 23.821,
+    "t1": 42.32,
+    "jumps": [],
+    "omega": 9.828,
+    "omegaAt": 33.621,
+    "alpha": 11.646,
+    "alphaAt": 32.938,
+    "acc": 2.368,
+    "accAt": 38.771
+   },
    "C1": "FAIL",
    "C1detail": {
-    "visibleJumps": 1,
-    "firstJumps": [
-     {
-      "t": 30.905,
-      "stepM": 0.0509,
-      "stepDeg": 0.291,
-      "fov": [
-       48.52666791847784,
-       48.52926418443673
-      ],
-      "phase": "shore-walk",
-      "black": false
-     }
-    ],
+    "visibleJumps": 0,
+    "firstJumps": [],
     "maxOmegaDegS": 159.129,
-    "maxAlphaDegS2": 2642.962,
-    "maxAccMS2": 502.625
+    "maxAlphaDegS2": 625.634,
+    "maxAccMS2": 101.112
    },
    "segments": [
     {
@@ -55,17 +55,17 @@
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 49.851,
-     "omegaAt": 33.871,
+     "omega": 9.828,
+     "omegaAt": 33.621,
      "omegaPhase": "shore-walk",
-     "alpha": 2642.962,
-     "alphaAt": 32.905,
+     "alpha": 11.646,
+     "alphaAt": 32.938,
      "alphaPhase": "shore-walk",
-     "acc": 502.625,
-     "accAt": 33.871,
+     "acc": 2.368,
+     "accAt": 38.771,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
-     "jumps": 1
+     "jumps": 0
     }
    ],
    "C2": "PASS",
@@ -119,25 +119,25 @@
   {
    "leg": "sail island→meadow",
    "screen": "414x896",
+   "C1shore": "PASS",
+   "C1shoreDetail": {
+    "t0": 23.821,
+    "t1": 42.32,
+    "jumps": [],
+    "omega": 9.828,
+    "omegaAt": 33.621,
+    "alpha": 11.646,
+    "alphaAt": 32.938,
+    "acc": 2.368,
+    "accAt": 38.771
+   },
    "C1": "FAIL",
    "C1detail": {
-    "visibleJumps": 1,
-    "firstJumps": [
-     {
-      "t": 30.905,
-      "stepM": 0.0509,
-      "stepDeg": 0.291,
-      "fov": [
-       48.52666791847784,
-       48.52926418443673
-      ],
-      "phase": "shore-walk",
-      "black": false
-     }
-    ],
+    "visibleJumps": 0,
+    "firstJumps": [],
     "maxOmegaDegS": 159.129,
-    "maxAlphaDegS2": 2642.962,
-    "maxAccMS2": 502.625
+    "maxAlphaDegS2": 625.634,
+    "maxAccMS2": 101.112
    },
    "segments": [
     {
@@ -158,17 +158,17 @@
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 49.851,
-     "omegaAt": 33.871,
+     "omega": 9.828,
+     "omegaAt": 33.621,
      "omegaPhase": "shore-walk",
-     "alpha": 2642.962,
-     "alphaAt": 32.905,
+     "alpha": 11.646,
+     "alphaAt": 32.938,
      "alphaPhase": "shore-walk",
-     "acc": 502.625,
-     "accAt": 33.871,
+     "acc": 2.368,
+     "accAt": 38.771,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
-     "jumps": 1
+     "jumps": 0
     }
    ],
    "C2": "PASS",
@@ -222,25 +222,25 @@
   {
    "leg": "sail island→meadow",
    "screen": "360x780",
+   "C1shore": "PASS",
+   "C1shoreDetail": {
+    "t0": 23.821,
+    "t1": 42.32,
+    "jumps": [],
+    "omega": 9.828,
+    "omegaAt": 33.621,
+    "alpha": 11.646,
+    "alphaAt": 32.938,
+    "acc": 2.368,
+    "accAt": 38.771
+   },
    "C1": "FAIL",
    "C1detail": {
-    "visibleJumps": 1,
-    "firstJumps": [
-     {
-      "t": 30.905,
-      "stepM": 0.0509,
-      "stepDeg": 0.291,
-      "fov": [
-       48.52666791847784,
-       48.52926418443673
-      ],
-      "phase": "shore-walk",
-      "black": false
-     }
-    ],
+    "visibleJumps": 0,
+    "firstJumps": [],
     "maxOmegaDegS": 159.129,
-    "maxAlphaDegS2": 2642.962,
-    "maxAccMS2": 502.625
+    "maxAlphaDegS2": 625.634,
+    "maxAccMS2": 101.112
    },
    "segments": [
     {
@@ -261,17 +261,17 @@
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 49.851,
-     "omegaAt": 33.871,
+     "omega": 9.828,
+     "omegaAt": 33.621,
      "omegaPhase": "shore-walk",
-     "alpha": 2642.962,
-     "alphaAt": 32.905,
+     "alpha": 11.646,
+     "alphaAt": 32.938,
      "alphaPhase": "shore-walk",
-     "acc": 502.625,
-     "accAt": 33.871,
+     "acc": 2.368,
+     "accAt": 38.771,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
-     "jumps": 1
+     "jumps": 0
     }
    ],
    "C2": "PASS",
@@ -325,25 +325,25 @@
   {
    "leg": "sail island→meadow",
    "screen": "375x667",
+   "C1shore": "PASS",
+   "C1shoreDetail": {
+    "t0": 23.821,
+    "t1": 42.32,
+    "jumps": [],
+    "omega": 9.828,
+    "omegaAt": 33.621,
+    "alpha": 11.646,
+    "alphaAt": 32.938,
+    "acc": 2.368,
+    "accAt": 38.771
+   },
    "C1": "FAIL",
    "C1detail": {
-    "visibleJumps": 1,
-    "firstJumps": [
-     {
-      "t": 30.905,
-      "stepM": 0.0509,
-      "stepDeg": 0.291,
-      "fov": [
-       48.52666791847784,
-       48.52926418443673
-      ],
-      "phase": "shore-walk",
-      "black": false
-     }
-    ],
+    "visibleJumps": 0,
+    "firstJumps": [],
     "maxOmegaDegS": 159.129,
-    "maxAlphaDegS2": 2642.962,
-    "maxAccMS2": 502.625
+    "maxAlphaDegS2": 625.634,
+    "maxAccMS2": 101.112
    },
    "segments": [
     {
@@ -364,17 +364,17 @@
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 49.851,
-     "omegaAt": 33.871,
+     "omega": 9.828,
+     "omegaAt": 33.621,
      "omegaPhase": "shore-walk",
-     "alpha": 2642.962,
-     "alphaAt": 32.905,
+     "alpha": 11.646,
+     "alphaAt": 32.938,
      "alphaPhase": "shore-walk",
-     "acc": 502.625,
-     "accAt": 33.871,
+     "acc": 2.368,
+     "accAt": 38.771,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
-     "jumps": 1
+     "jumps": 0
     }
    ],
    "C2": "PASS",
@@ -428,25 +428,25 @@
   {
    "leg": "sail island→meadow",
    "screen": "320x568",
+   "C1shore": "PASS",
+   "C1shoreDetail": {
+    "t0": 23.821,
+    "t1": 42.32,
+    "jumps": [],
+    "omega": 9.828,
+    "omegaAt": 33.621,
+    "alpha": 11.646,
+    "alphaAt": 32.938,
+    "acc": 2.368,
+    "accAt": 38.771
+   },
    "C1": "FAIL",
    "C1detail": {
-    "visibleJumps": 1,
-    "firstJumps": [
-     {
-      "t": 30.905,
-      "stepM": 0.0509,
-      "stepDeg": 0.291,
-      "fov": [
-       48.52666791847784,
-       48.52926418443673
-      ],
-      "phase": "shore-walk",
-      "black": false
-     }
-    ],
+    "visibleJumps": 0,
+    "firstJumps": [],
     "maxOmegaDegS": 159.129,
-    "maxAlphaDegS2": 2642.962,
-    "maxAccMS2": 502.625
+    "maxAlphaDegS2": 625.634,
+    "maxAccMS2": 101.112
    },
    "segments": [
     {
@@ -467,17 +467,17 @@
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 49.851,
-     "omegaAt": 33.871,
+     "omega": 9.828,
+     "omegaAt": 33.621,
      "omegaPhase": "shore-walk",
-     "alpha": 2642.962,
-     "alphaAt": 32.905,
+     "alpha": 11.646,
+     "alphaAt": 32.938,
      "alphaPhase": "shore-walk",
-     "acc": 502.625,
-     "accAt": 33.871,
+     "acc": 2.368,
+     "accAt": 38.771,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
-     "jumps": 1
+     "jumps": 0
     }
    ],
    "C2": "PASS",
@@ -531,25 +531,25 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x520",
+   "C1shore": "PASS",
+   "C1shoreDetail": {
+    "t0": 23.821,
+    "t1": 42.32,
+    "jumps": [],
+    "omega": 9.828,
+    "omegaAt": 33.621,
+    "alpha": 11.646,
+    "alphaAt": 32.938,
+    "acc": 2.368,
+    "accAt": 38.771
+   },
    "C1": "FAIL",
    "C1detail": {
-    "visibleJumps": 1,
-    "firstJumps": [
-     {
-      "t": 30.905,
-      "stepM": 0.0509,
-      "stepDeg": 0.291,
-      "fov": [
-       48.52666791847784,
-       48.52926418443673
-      ],
-      "phase": "shore-walk",
-      "black": false
-     }
-    ],
+    "visibleJumps": 0,
+    "firstJumps": [],
     "maxOmegaDegS": 159.129,
-    "maxAlphaDegS2": 2642.962,
-    "maxAccMS2": 502.625
+    "maxAlphaDegS2": 625.634,
+    "maxAccMS2": 101.112
    },
    "segments": [
     {
@@ -570,17 +570,17 @@
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 49.851,
-     "omegaAt": 33.871,
+     "omega": 9.828,
+     "omegaAt": 33.621,
      "omegaPhase": "shore-walk",
-     "alpha": 2642.962,
-     "alphaAt": 32.905,
+     "alpha": 11.646,
+     "alphaAt": 32.938,
      "alphaPhase": "shore-walk",
-     "acc": 502.625,
-     "accAt": 33.871,
+     "acc": 2.368,
+     "accAt": 38.771,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
-     "jumps": 1
+     "jumps": 0
     }
    ],
    "C2": "PASS",
@@ -634,25 +634,25 @@
   {
    "leg": "sail island→meadow",
    "screen": "768x1024",
+   "C1shore": "PASS",
+   "C1shoreDetail": {
+    "t0": 23.821,
+    "t1": 42.32,
+    "jumps": [],
+    "omega": 9.828,
+    "omegaAt": 33.621,
+    "alpha": 11.646,
+    "alphaAt": 32.938,
+    "acc": 2.368,
+    "accAt": 38.771
+   },
    "C1": "FAIL",
    "C1detail": {
-    "visibleJumps": 1,
-    "firstJumps": [
-     {
-      "t": 30.905,
-      "stepM": 0.0509,
-      "stepDeg": 0.291,
-      "fov": [
-       48.52666791847784,
-       48.52926418443673
-      ],
-      "phase": "shore-walk",
-      "black": false
-     }
-    ],
+    "visibleJumps": 0,
+    "firstJumps": [],
     "maxOmegaDegS": 159.129,
-    "maxAlphaDegS2": 2642.962,
-    "maxAccMS2": 502.625
+    "maxAlphaDegS2": 625.634,
+    "maxAccMS2": 101.112
    },
    "segments": [
     {
@@ -673,17 +673,17 @@
     {
      "t0": 23.821,
      "t1": 42.32,
-     "omega": 49.851,
-     "omegaAt": 33.871,
+     "omega": 9.828,
+     "omegaAt": 33.621,
      "omegaPhase": "shore-walk",
-     "alpha": 2642.962,
-     "alphaAt": 32.905,
+     "alpha": 11.646,
+     "alphaAt": 32.938,
      "alphaPhase": "shore-walk",
-     "acc": 502.625,
-     "accAt": 33.871,
+     "acc": 2.368,
+     "accAt": 38.771,
      "accPhase": "shore-walk",
      "fovRate": 0.183,
-     "jumps": 1
+     "jumps": 0
     }
    ],
    "C2": "PASS",
@@ -737,6 +737,8 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "390x844",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -817,6 +819,8 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "414x896",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -897,6 +901,8 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "360x780",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -977,6 +983,8 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "375x667",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1057,6 +1065,8 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "320x568",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1137,6 +1147,8 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "390x520",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1217,6 +1229,8 @@
   {
    "leg": "balloon meadow→skycity",
    "screen": "768x1024",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1297,6 +1311,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x844",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1372,6 +1388,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "414x896",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1447,6 +1465,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "360x780",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1522,6 +1542,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "375x667",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1597,6 +1619,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "320x568",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1672,6 +1696,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x520",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,
@@ -1747,6 +1773,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "768x1024",
+   "C1shore": null,
+   "C1shoreDetail": null,
    "C1": "FAIL",
    "C1detail": {
     "visibleJumps": 0,

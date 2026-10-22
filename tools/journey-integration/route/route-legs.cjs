@@ -60,7 +60,8 @@ function sailLeg(geo,[w,h]){
  const B05=tl.build05S,bt=id=>tl.beats.find(b=>b.id===id),arrL=routeLength(arrival),arrS=Math.max(.5,arrL/1.2),HOLD=2,TT=B05+arrS+HOLD;
  // the shore follow lens is stateful (yaw rate-limited): precompute at 60 fps, like the driver's onFrame
  const from=T.sailCamera(tl,sr.samples,B05,{w,h}),st={yaw:null},FOL=[];for(let i=0;i*(1/60)<=arrS+HOLD+1e-9;i++){const e=i/60;FOL.push(T.sailFollowCamera(arrival,Math.min(1,e/arrS),from,board,st));}
- const cam=t=>t<=B05?T.sailCamera(tl,sr.samples,t,{w,h}):FOL[Math.min(FOL.length-1,Math.round((t-B05)*60))];
+ // b16 item 2: sailFollowCamera is stateless, so sample it at the exact time (FOL[round] duplicated/skipped frames → fake accel).
+ const cam=t=>t<=B05?T.sailCamera(tl,sr.samples,t,{w,h}):T.sailFollowCamera(arrival,Math.min(1,(t-B05)/arrS),from,board,{yaw:null});
  const her=t=>{
   if(t<bt('S-b').t0){const L=routeLength(boardWalk);return standPts(sampleRoute(boardWalk,Math.min(L,t*1.2)));}
   if(t<bt('S-f').t0){const v=T.sailVehicle(tl,sr.samples,t),W=p=>boatToWorld(v,p);return {root:W([0,0,-.55]),face:W(SEAT.face),head:W(SEAT.head),chest:W(SEAT.chest),box:[W(SEAT.feet),W(SEAT.top),W([-.3,.05,-.85]),W([.3,.05,-.85]),W([-.3,1.18,-.25]),W([.3,1.18,-.25])],pose:'seated',v};}
@@ -70,6 +71,7 @@ function sailLeg(geo,[w,h]){
  const jc0=Core.journeyCamera(built.path,0,J.start1,undefined,undefined,0,undefined,{...be});
  return {id:'sail island→meadow',T:TT,cam,her,black:()=>false,los,
   segs:[[0,B05],[B05,TT]],
+  arrival,arrS,B05,
   handoffs:[{name:'sail S-g end → shore follow (beginArrival)',a:T.sailCamera(tl,sr.samples,B05,{w,h}),b:FOL[0]},{name:'shore follow end → meadow board camera',a:FOL[Math.round(arrS*60)],b:board}],
   start:{name:'island lens → sail K1 (set-off; ride lease: no set-off fade)',from:J.start1,controller:jc0,ride:cam(0)},
   phases:tl.beats.map(b=>({id:b.id,t0:b.t0,t1:b.t1})).concat([{id:'shore-walk',t0:B05,t1:B05+arrS},{id:'board-hold',t0:B05+arrS,t1:TT}]),board};
