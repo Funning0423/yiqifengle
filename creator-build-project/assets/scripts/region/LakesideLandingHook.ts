@@ -44,8 +44,8 @@ export function lakesideViewport(frameSize?:Readonly<{width:number;height:number
 /** @deprecated name kept for older callers: lakesideScreenFrame. */
 export const lakesideHookFrame=(width:number,height:number,safe:SafeArea):LakesideBoardFrame=>lakesideScreenFrame(width,height,safe);
 /** Lakeside root from the landing pose: the journey ends at lakesideLandingLocal().position placed by (yawDeg, root). */
-export function lakesideRootFromLanding(from:Pose):{yawDeg:number;root:[number,number,number]}{
- const yawDeg=LAKESIDE_CAMERA_LAYOUT.yawDeg,t=yawDeg*Math.PI/180,c=Math.cos(t),s=Math.sin(t),p=lakesideLandingLocal().position;
+export function lakesideRootFromLanding(from:Pose,frame?:Readonly<{width:number;height:number}>):{yawDeg:number;root:[number,number,number]}{
+ const yawDeg=LAKESIDE_CAMERA_LAYOUT.yawDeg,t=yawDeg*Math.PI/180,c=Math.cos(t),s=Math.sin(t),p=lakesideLandingLocal(frame).position;
  const r=[c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];return {yawDeg,root:[from.position[0]-r[0],from.position[1]-r[1],from.position[2]-r[2]]};}
 export async function lakesideLandingToBoard(context:LakesideLandingContext):Promise<LakesideLandingResult>{
  const d=context.deps;if(!d)return {ok:true,result:'no-deps'};const log=(e:Record<string,unknown>)=>{try{d.log?.({event:'landing-board',stageId:context.stageId,...e});}catch{}};
@@ -58,9 +58,9 @@ export async function lakesideLandingToBoard(context:LakesideLandingContext):Pro
    const pl=preloaded as 'ok'|'failed'|'timeout'|'none';if(pl==='failed'||pl==='timeout'){log({result:'assets-not-ready',preloaded:pl});return {ok:false,reason:LAKESIDE_ASSETS_NOT_READY,preloaded:pl};}}
   stage='plan';const from=d.readCamera();if(!from)return done('no-camera');
   const v=d.viewport(),frame=lakesideScreenFrame(v.width,v.height,d.safe?d.safe(v.width,v.height):{top:0,bottom:0,left:0,right:0,capsule:null}),
-   b:LakesideLandingBlend=lakesideLandingBlend(from,frame,lakesideRootFromLanding(from));
+   b:LakesideLandingBlend=lakesideLandingBlend(from,frame,lakesideRootFromLanding(from,frame));
   // the root is recovered from the camera position, so check that position against the journey's own landing position too
-  const Lp=lakesideLandingLocal().position,jr=(context.journey as any)?.root;let posOff=0;
+  const Lp=lakesideLandingLocal(frame).position,jr=(context.journey as any)?.root;let posOff=0;
   if(Array.isArray(jr)&&jr.length===3){const t=LAKESIDE_CAMERA_LAYOUT.yawDeg*Math.PI/180,c=Math.cos(t),s=Math.sin(t),q=[c*Lp[0]+s*Lp[2]+jr[0],Lp[1]+jr[1],-s*Lp[0]+c*Lp[2]+jr[2]];posOff=Math.hypot(from.position[0]-q[0],from.position[1]-q[1],from.position[2]-q[2]);}
   if(!(posOff<=LANDING_MATCH.positionM&&b.gap.viewDeg<=LANDING_MATCH.viewDeg&&Math.abs(b.gap.fovDeg)<=LANDING_MATCH.fovDeg))return done('not-at-landing',{posOff,gap:b.gap});
   stage='blend';

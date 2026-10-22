@@ -2551,8 +2551,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts",
-    "bytes": 16168,
-    "sha256": "bf9c2fb2ffc16722576de10e7abd78710370214fee8ac51894385723655b009c"
+    "bytes": 17718,
+    "sha256": "fc294f37fdea6d4ee1e45bf660cda313f6607522d0157859e0dcda5e9aa8c762"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta",
@@ -2601,8 +2601,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLandingHook.ts",
-    "bytes": 7104,
-    "sha256": "ad925cd849c51557be3343a3cc5a40ca720cf7906f15476845a3b11392adb0a2"
+    "bytes": 7166,
+    "sha256": "3d73f92bb9ffc11219844abc9aae831799f2c44df5d607f56e168f656826d457"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta",
@@ -3001,8 +3001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityVisitPose.ts",
-    "bytes": 882,
-    "sha256": "c02d463c7df3d18b88d1ef4f5beb4d81342f33069af539f4ad80c89de56a5e03"
+    "bytes": 1582,
+    "sha256": "be7137821d634fb90c56b5082b9153bb68a24fbe7b3a70647a630f0779f7df4c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityVisitPose.ts.meta",
@@ -4140,9 +4140,14 @@
     "sha256": "f2c358b7c504ef2cce25927869fad06e4cbb7cd884747b944d9d244c74561fb6"
   },
   {
+    "path": "docs/r5/cine/b18_landing_endpoint.md",
+    "bytes": 3054,
+    "sha256": "78ff34a80eba93f51c61571498ac3131c1b416f6db49ce7f4fa928d7ff1d73a0"
+  },
+  {
     "path": "docs/r5/cine/snow_pass_transition_draft.md",
-    "bytes": 5167,
-    "sha256": "86f8602aeb0cb010d25e37230cada2b7be91c224849f069eb969287980c71ee3"
+    "bytes": 6321,
+    "sha256": "b8fa9c5c0e9d3d30f757163fc05eef579edb8212b5ff21ab1c04f281674a359c"
   },
   {
     "path": "tests/test_landmark_audio.cjs",
