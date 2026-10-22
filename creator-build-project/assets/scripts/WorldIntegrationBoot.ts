@@ -601,7 +601,7 @@ export class WorldIntegrationBoot extends Component {
   * instead the signpost enters as the next step of the same sequence, after the buttons: same 0.25 s, same cubic
   * ease-out, rising the same 24 px out of the water while fading in (IslandProps.setSignEntrance). */
  private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;const step=Math.max(0,Math.min(dt,.1))/.25;
-  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
+  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+(this.signFadeS>0?Math.max(0,Math.min(dt,.1))/this.signFadeS:step));const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1){this.signEntrance=-1;this.signFadeS=0;}return;}
   this.islandEntrance=Math.min(1,this.islandEntrance+step);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
   if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
   const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
@@ -617,7 +617,7 @@ export class WorldIntegrationBoot extends Component {
   * - level/skycity (+ their loading) and paused: unchanged (the island behind the board keeps its sign; no flicker on
   *   a level round trip). */
  private signShown=1;private signOut=-1;private signPrev='';
- private signRetry=0;private signRetryAt=0;
+ private signRetry=0;private signRetryAt=0;/** v2.3：重试成功时的淡入时长（0 = 用常规 0.25 s 入场） */private signFadeS=0;
  private setSign(e:number,risePx:number){const ok=this.islandProps?.setSignEntrance(e,risePx);if(ok!==false)this.signShown=e;} // b16-fix P1: props not ready -> signShown unchanged, so the entrance replays once they are
  private gateSignEntrance(state:string,dt=0){const p=this.islandProps,prev=this.signPrev;this.signPrev=state;if(!p?.ready)return;
   if(SIGN_AWAY_STATES.indexOf(state)>=0){this.signEntrance=-1;
@@ -641,7 +641,7 @@ export class WorldIntegrationBoot extends Component {
   if(s.state!=='island')this.signRetry=0;
   if(sign&&p&&this.islandEntrance<0&&this.signEntrance<0&&typeof (p as any).signVisible==='function'&&!(p as any).signVisible()){
    if(this.signRetry<1){this.signRetry++;this.signShown=0;this.signEntrance=0;}
-   else{const now=Date.now();if(now-this.signRetryAt>=1000){this.signRetryAt=now;this.signRetry++;this.setSign(1,0);}if(!(p as any).signVisible())sign=null;}}
+   else{const now=Date.now();if(now-this.signRetryAt>=1000){this.signRetryAt=now;this.signRetry++;this.setSign(1,0);}if(!(p as any).signVisible())sign=null;else{this.signShown=0;this.signEntrance=0;this.signFadeS=.2;sign={x:sign.x,y:sign.y,width:0,height:0};}}}
   else if(sign&&this.islandEntrance<0&&this.signEntrance<0)this.signRetry=0;
   this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished

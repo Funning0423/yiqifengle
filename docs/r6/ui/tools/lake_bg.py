@@ -35,9 +35,12 @@ def lake_tint(d,k):
     m=np.clip(np.minimum(y-y0,y1-y)/f,0,1)*k; a=a*(1-m[...,None])+np.array(LAKE_RGB)*m[...,None]
     return Image.fromarray(a.clip(0,255).astype(np.uint8))
 import os as _os
-DAY_CONTRAST=0.85   # v2.2：背景整体对比压到 0.85（围绕全图均值），压低背景显著性
-SOFT_K,SOFT_BLUR=0.7,48   # v2.2：大尺度模糊混入比例（压背景边缘对比、保留中尺度形体）
-for _k in ('DAY_SAT','DAY_VAL','FOG','BLUR','LAKE_K','NIGHT_SAT','SOFT_K','DAY_CONTRAST'):
+DAY_CONTRAST=0.92   # v2.3：0.85→0.92（暗部别抬灰）（围绕全图均值），压低背景显著性
+SOFT_K,SOFT_BLUR=0.35,32   # v2.3：远景大模糊混入 0.35、半径 32，只作用在 y<420（v2.2 0.7/48 全屏，远景过糊）
+SOFT_Y,SOFT_F=420,40
+TREE_BOX,TREE_SAT=(0,0,750,505),0.6
+TREE_CONTRAST=0.75   # v2.3：远景（y<505）明暗对比压缩系数，补显著性；显著性按灰度算，降饱和补不了
+for _k in ('DAY_SAT','DAY_VAL','FOG','BLUR','LAKE_K','NIGHT_SAT','SOFT_K','DAY_CONTRAST','TREE_SAT','TREE_CONTRAST'):
     if _os.environ.get('LB_'+_k): globals()[_k]=float(_os.environ['LB_'+_k])
 BLUR=int(BLUR)
 GRASS_Y,GRASS_F,GRASS_MUL=1080,80,(1.0,1.03,0.95)   # v2.2：前景草地回暖（B 压低），目标约 135/160/95
@@ -45,27 +48,34 @@ def grass_warm(d):
     a=np.asarray(d).astype(float); y=np.arange(H)[:,None]; m=np.clip((y-GRASS_Y)/GRASS_F,0,1)[...,None]
     a=a*(1+(np.array(GRASS_MUL)-1)*m); return Image.fromarray(a.clip(0,255).astype(np.uint8))
 def day(b):
-    d=hsv_scale(b,DAY_SAT,DAY_VAL); d=roof_fix(d); d=lake_tint(d,LAKE_K); d=grass_warm(d)
+    d=hsv_scale(b,DAY_SAT,DAY_VAL); d=roof_fix(d); d=lake_tint(d,LAKE_K); d=grass_warm(d); d=tree_desat(d,TREE_SAT)
     d=Image.blend(d,Image.new('RGB',(W,H),FOG_RGB),FOG)
     d=soft(d); a=np.asarray(d).astype(float); mu=a.reshape(-1,3).mean(0)
     return Image.fromarray((mu+DAY_CONTRAST*(a-mu)).clip(0,255).astype(np.uint8))   # v2.2：背景整体对比压到 DAY_CONTRAST
 def soft(d):
-    a=d.filter(ImageFilter.GaussianBlur(BLUR))
-    # 景深：托盘上方的远景树林（y<520）整块用大模糊，往下到 y720 过渡回 SOFT_K
-    b=np.asarray(d.filter(ImageFilter.GaussianBlur(SOFT_BLUR))).astype(float); a=np.asarray(a).astype(float)
-    y=np.arange(H)[:,None]; w=np.clip(SOFT_K+(1-SOFT_K)*(720-y)/200,SOFT_K,1)[...,None]
+    a=np.asarray(d.filter(ImageFilter.GaussianBlur(BLUR))).astype(float)
+    b=np.asarray(d.filter(ImageFilter.GaussianBlur(SOFT_BLUR))).astype(float)
+    y=np.arange(H)[:,None]; w=(np.clip((SOFT_Y-y)/SOFT_F,0,1)*SOFT_K)[...,None]   # 只在 y<420 混入大模糊，380–420 羽化
     return Image.fromarray((a*(1-w)+b*w).clip(0,255).astype(np.uint8))
+def tree_desat(d,k):
+    if k>=1 and TREE_CONTRAST>=1: return d
+    x0,y0,x1,y1=TREE_BOX; top=d.crop(TREE_BOX); t=hsv_scale(top,k,1.0)
+    if TREE_CONTRAST<1: ta=np.asarray(t).astype(float); mu=ta.reshape(-1,3).mean(0); t=Image.fromarray((mu+TREE_CONTRAST*(ta-mu)).clip(0,255).astype(np.uint8))   # 远景明暗对比压缩（不是模糊）
+    m=Image.linear_gradient('L').resize((x1-x0,y1-y0)).point(lambda v:255 if v<200 else int((255-v)*255/55)); out=d.copy(); out.paste(t,(x0,y0),m); return out
 NIGHT_LAKE_RGB,NIGHT_LAKE_K,NIGHT_CONTRAST=(40,66,100),0.45,0.70   # v2.2 夜间：湖面带混深蓝青（B 比 G 高 8 以上），对比压到 0.70
 for _k in ('NIGHT_LAKE_K','NIGHT_CONTRAST'):
     if _os.environ.get('LB_'+_k): globals()[_k]=float(_os.environ['LB_'+_k])
 def night(b):
     b=roof_fix(b); r,g,bl=b.split()
     n=Image.merge('RGB',[c.point(lambda v,k=k,l=l:min(255,int(v*k+l))) for c,k,l in zip((r,g,bl),NIGHT,NIGHT_LIFT)])
-    n=keep_value_desat(n,NIGHT_SAT)
+    n=keep_value_desat(n,NIGHT_SAT); n=tree_desat(n,NIGHT_TREE_SAT)
     a=np.asarray(n).astype(float); y=np.arange(H)[:,None]; y0,y1,f=LAKE_BAND
     m=(np.clip(np.minimum(y-y0,y1-y)/f,0,1)*NIGHT_LAKE_K)[...,None]; a=a*(1-m)+np.array(NIGHT_LAKE_RGB)*m
     n=soft(Image.fromarray(a.clip(0,255).astype(np.uint8))); a=np.asarray(n).astype(float); mu=a.reshape(-1,3).mean(0)
-    return Image.fromarray((mu+NIGHT_CONTRAST*(a-mu)).clip(0,255).astype(np.uint8))
+    a=mu+NIGHT_CONTRAST*(a-mu); t=(1-(1-NIGHT_TOP)*np.clip((NIGHT_TOP_Y-y)/60,0,1))[...,None]   # v2.3：夜间上半屏（y<500，440–500 羽化）亮度 ×0.85
+    return Image.fromarray((a*t).clip(0,255).astype(np.uint8))
+NIGHT_TOP,NIGHT_TOP_Y=0.85,500
+NIGHT_TREE_SAT=float(_os.environ.get('LB_NIGHT_TREE_SAT','0.6'))
 if __name__=='__main__':
     b=base()
     for im,name in ((day(b),'bg_lakeside_board.jpg'),(night(b),'bg_lakeside_board_night.jpg')):

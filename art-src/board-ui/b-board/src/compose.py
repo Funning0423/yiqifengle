@@ -10,6 +10,8 @@ BROWN=(99,63,33); CREAM=(248,242,226)
 # 空道具位「+」：禁用态灰青。r6-fix v2 压到 #56706a（夜间乘 #b8bfd6 后给 4.5 留余量），笔画 +1px@750。旧 #78968c 只有 2.87 / 2.58
 PLUS_DIM=(86,112,106)
 WARM_RIM=(176,138,92,255)   # 空道具底座描边：托盘木边同色系
+NIGHT_RIM=(0xc9,0xa2,0x6e)   # v2.3：夜间描边终色（画在夜间乘色之后，不受 #b8bfd6 影响）
+RIMS=[]
 def L(n): return Image.open(os.path.join(RAW,n+'.png')).convert('RGBA')
 def scaled(im,f): return im.resize((max(1,round(im.width*f)),max(1,round(im.height*f))),Image.LANCZOS)
 def paste_c(dst,im,cx,cy): dst.alpha_composite(im,(round(cx-im.width/2),round(cy-im.height/2)))
@@ -150,7 +152,7 @@ def tools(img,state):
         if dim:   # v2.2：空道具底座在灰背景上看不见 → 1pt（750 宽 2px）暖木色描边，抗锯齿
             a=t.getchannel('A').point(lambda v:255 if v>40 else 0); ring=a.filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.GaussianBlur(0.8))
             o=Image.new('RGBA',t.size,WARM_RIM); o.putalpha(ImageChops.subtract(ring,a.filter(ImageFilter.GaussianBlur(0.6))).point(lambda v:min(255,int(v*0.85))))
-            paste_c(img,o,x,y)
+            paste_c(img,o,x,y); RIMS.append((o.getchannel('A'),x,y))
         paste_c(img,t,x,y)
         badge(img,x+42,y-40,cnt,dim)
 # ---------------- frames ----------------

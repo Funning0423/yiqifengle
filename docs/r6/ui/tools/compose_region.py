@@ -90,7 +90,10 @@ if NIGHT:   # 夜间：背景用夜间渲染；整盘 UI 按 b-board 约定乘 #
     out=ImageChops.multiply(out,ui)
     # 背景部分换成夜间渲染（托盘外）：用 UI 层 alpha 近似 = 托盘框 + HUD + 道具区之外
     ov=Image.new('RGBA',(W,H),(0,0,0,0)); draw(ov); hud2(ov)
+    RIMS.clear()
     if LV.get('tools',True): tools(ov,'tools')
     a=ov.getchannel('A').filter(ImageFilter.MinFilter(3)).point(lambda v:0 if v<60 else min(255,int((v-60)*255/80)))
     out=Image.composite(out,bgn,a)
+    for ra,rx,ry in RIMS:   # v2.3：空道具底座描边夜间用 #c9a26e，叠在乘色之后
+        l=Image.new('RGB',ra.size,NIGHT_RIM); out.paste(l,(round(rx-ra.width/2),round(ry-ra.height/2)),ra)
 out.save(OUTP,optimize=True); print('ok',OUTP)
