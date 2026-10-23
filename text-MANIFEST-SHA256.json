@@ -2596,8 +2596,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts",
-    "bytes": 2741,
-    "sha256": "8467e1c36a6f084d38e6bc470abc7afe325f2a56202377af6c141c841264d7d9"
+    "bytes": 2893,
+    "sha256": "ad2b075acd9e50b94d9fb4ed949046a64556298d10cecba337822616620e6052"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts.meta",
@@ -4336,8 +4336,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 16057,
-    "sha256": "d95bdacf8917060cc6bfb21a73ce99f2b80ffab44a2ed123ec94bc73c59b123f"
+    "bytes": 16138,
+    "sha256": "709a520c025d95532f5962b209a38f817f0049410b4faca9f4cc339bd45e7b59"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
