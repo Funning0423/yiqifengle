@@ -35,7 +35,8 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
 {const DH=B.LAKESIDE_DOOR_HOLD,v=m.length/m.walkS,outAt=m.walkStartAt+DH.outM/v;assert(DH.outM>=1.4,'clear of the basket');
  assert(outAt>m.walkStartAt&&outAt>m.T0+.333+.5,'held through the door opening');
  const doorLens=B.lakesideDoorLens(m.walk,m.mooring,390/844),blendS=B.lakesideDoorBlendS(doorLens,land);
- assert(m.walkStartAt+m.walkS-outAt-blendS>=5,'board fade overlaps the walk');
+ // path v4 is 6.356 m (was 9.53). The board fade still overlaps the rest of the walk (~3.7 s); the old ≥5 s was the longer shore leg.
+ assert(m.walkStartAt+m.walkS-outAt-blendS>=3,'board fade overlaps the walk');
  // the held lens frames the basket at touchdown (basket centre + door within the frame), unlike the old landing pose
  const FLb=require('../journey-integration/journey-framing-lib.cjs'),bk=R.vehicle(R.T),bc=[bk[0],bk[1]+.6,bk[2]],nd=FLb.ndc(doorLens,bc);
  assert(nd&&Math.abs(nd[0])<.9&&Math.abs(nd[1])<.9,'basket on screen in the door lens: '+JSON.stringify(nd));
@@ -80,7 +81,7 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
   for(const y of [0,.9,1.65]){const n=FLc.ndc(P,[p[0],p[1]+y,p[2]]);assert(n&&n[2]>0,'in front');worst=Math.max(worst,Math.abs(n[0]),Math.abs(n[1]));}}
  assert(wMax<=110&&aMax<=360,'blend motion bars '+wMax+' '+aMax);
  assert(worst<=.95,'her body stays in frame through the blend: '+worst);
- const handS=(entry-DH.outM)/v,left=m.walkStartAt+m.walkS-(m.walkStartAt+DH.outM/v)-Math.max(handS,blendS);assert(left>=3,'board fade still overlaps her walk: '+left);
+ const handS=(entry-DH.outM)/v,left=m.walkStartAt+m.walkS-(m.walkStartAt+DH.outM/v)-Math.max(handS,blendS);assert(left>=2,'board fade still overlaps her walk: '+left)/* path v4: ~2.8 s after she is inside the board frame */;
  assert.equal(B.lakesideDoorBlendU(DH.outM+.01,DH.outM,entry,100,blendS)<1,true);assert.equal(B.lakesideDoorBlendU(entry,DH.outM,entry,0.5,blendS)<1,true,'never faster than the SPEC blend');
  out.boardEntry={entryM:+entry.toFixed(2),blendByWalkS:+handS.toFixed(2),specBlendS:+blendS.toFixed(2),worstNdc:+worst.toFixed(3),viewDegS:+wMax.toFixed(1),viewDegS2:+aMax.toFixed(1),walkLeftAfterS:+left.toFixed(2)};}
 // 10) b16 real-build fixes: marks only move forward; the door blend never re-installs the cleared tail step; skycity retry
