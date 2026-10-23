@@ -1,0 +1,165 @@
+{
+ "status": "PASS",
+ "rows": [
+  {
+   "region": "island",
+   "state": "S1",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "island",
+   "state": "S2",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "island",
+   "state": "S3",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "island",
+   "state": "S4",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "meadow",
+   "state": "S1",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "meadow",
+   "state": "S2",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "meadow",
+   "state": "S3",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "meadow",
+   "state": "S4",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "skycity",
+   "state": "S1",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "skycity",
+   "state": "S2",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "skycity",
+   "state": "S3",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "skycity",
+   "state": "S4",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "lakeside",
+   "state": "S1",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "lakeside",
+   "state": "S2",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "lakeside",
+   "state": "S3",
+   "turnDeg": 70.6,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  },
+  {
+   "region": "lakeside",
+   "state": "S4",
+   "turnDeg": 67.7,
+   "expectDeg": 39.4,
+   "driftAfter3sDeg": 0,
+   "D1": true,
+   "D2": true,
+   "orbitMode": "free"
+  }
+ ]
+}
