@@ -448,7 +448,7 @@ export class RegionNodeStage extends Component{
  /** Lakeside + island (b17r13): LensGuard keeps the walk lens off the proxies (look-ahead plan, speed/accel-capped spring, floor). */
  private occlude(pose:Pose,dt:number):Pose{
   const boxes=this.lakesideOccluders();if(!boxes){this.lensPull.reset();return pose;}
-  const r=this.lensPull.apply(pose,this.girl(),boxes,dt);return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
+  const r=this.lensPull.apply(pose,this.girl(),boxes,dt,undefined,undefined,this.orbit.engaged()&&(this.orbit.shouldWrite()||this.groundWalking));return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
  }
  /** Held / blended-to follow lens (reward close-up): the planned clear pose, no spring (the blend is the ease). */
  private occludeHeld(pose:Pose):Pose{
@@ -487,6 +487,12 @@ export class RegionNodeStage extends Component{
    }
   }
   return y===p[1]?pose:{position:[p[0],y,p[2]],target:pose.target,fovVerticalDeg:pose.fovVerticalDeg};
+ }
+ /** Per-frame explore lens writer (the only one while explore is open; WorldFlow.settleOrbit stands down on exploreEnabled()). */
+ private tickLens(dt:number){
+  if(this.anim||this.holdPose||(this.lens!=='MapExplore'&&this.lens!=='FollowWalk'))return;
+  if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
+  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
  }
  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
   const {w,h}=this.viewport(),g=this.girl();
@@ -734,10 +740,7 @@ export class RegionNodeStage extends Component{
    else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*28,p.ey+wave*36,0);
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
   }
-  if(!this.anim&&!this.holdPose&&(this.lens==='MapExplore'||this.lens==='FollowWalk')){
-   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
-   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
-  }
+  this.tickLens(dt);
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
  }
 }

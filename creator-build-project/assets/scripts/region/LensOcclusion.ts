@@ -140,14 +140,15 @@ export class LensGuard{
  private herPrev:OccVec|null=null;private herVel:V3=[0,0,0];
  last:{eval:GuardEval;params:GuardParams}|null=null;
  reset(){this.params={up:0,swing:0,share:1};this.off=null;this.vel=[0,0,0];this.planIn=0;this.herPrev=null;this.herVel=[0,0,0];this.last=null;}
- private plan(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt:((x:number,z:number)=>number|null)|undefined,o:typeof LENS_GUARD){
+ private plan(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt:((x:number,z:number)=>number|null)|undefined,o:typeof LENS_GUARD,holdYaw=false){
+  const swings=holdYaw?[0]:o.swings;if(holdYaw&&this.params.swing!==0)this.params={...this.params,swing:0};
   const samples=o.lookAheadS.map(s=>{const dx:V3=[this.herVel[0]*s,this.herVel[1]*s,this.herVel[2]*s];
    return {her:[her[0]+dx[0],her[1]+dx[1],her[2]+dx[2]] as OccVec,raw:{position:[raw.position[0]+dx[0],raw.position[1]+dx[1],raw.position[2]+dx[2]] as OccVec,target:raw.target,fovVerticalDeg:raw.fovVerticalDeg}};});
   const score=(p:GuardParams)=>{let c=0;for(let i=0;i<samples.length;i++){const w=i===0?1:0.6/i;c+=w*guardEval(samples[i].raw,samples[i].her,boxes,p,floorAt,o).cost;}return c;};
   const cur=score(this.params),base=score({up:0,swing:0,share:1});
   let best=this.params,bestC=cur-o.hysteresis;
   if(base<=bestC+o.hysteresis*0.5){best={up:0,swing:0,share:1};bestC=base;}
-  if(base>o.wUp*1e-3+0.5||cur>0.5)for(const up of o.ups)for(const swing of o.swings)for(const share of o.shares){
+  if(base>o.wUp*1e-3+0.5||cur>0.5)for(const up of o.ups)for(const swing of swings)for(const share of o.shares){
    const p={up,swing,share},lb=o.wUp*Math.abs(up)+o.wSwing*Math.abs(swing)+o.wShare*(1-share);if(lb*1.6>=bestC)continue;
    const c=score(p);if(c<bestC){bestC=c;best=p;}}
   this.params=best;
@@ -160,7 +161,9 @@ export class LensGuard{
   const nd=vnorm(vsub(look,pos));const params={...this.params};this.reset();
   return {position:pos,target:[pos[0]+nd[0]*10,pos[1]+nd[1]*10,pos[2]+nd[2]*10],fovVerticalDeg:raw.fovVerticalDeg,eval:ev,params};
  }
- apply(raw0:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD):OccPose&{eval:GuardEval;params:GuardParams}{
+ /** holdYaw (P0 drag-rotate): the player owns the yaw (orbit engaged) → no swing; crane / pull-in only.
+  * The spring offset lives in the raw lens's yaw frame around her, so a drag rotates it with the lens (never pulls the yaw back). */
+ apply(raw0:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD,holdYaw=false):OccPose&{eval:GuardEval;params:GuardParams}{
   const step=Math.max(0,Math.min(0.1,dt||0));
   // floor first, on the designed lens itself (continuous: her feet / the floor move smoothly), so the spring never fights it
   const f0=floorAt?floorAt(raw0.position[0],raw0.position[2]):null,minY0=Math.max(her[1]+o.feetHeadroomM,f0===null?-1e9:f0+o.floorHeadroomM);
@@ -168,14 +171,17 @@ export class LensGuard{
   if(this.herPrev&&step>0){const k=1-Math.exp(-step/0.25);for(let i=0;i<3;i++)this.herVel[i]+=((her[i]-this.herPrev[i])/step-this.herVel[i])*k;}
   this.herPrev=[her[0],her[1],her[2]];
   const R=vlen(vsub(raw.position,her))+o.nearM+o.clearM+2;const near=boxes.filter(b=>boxDist(her,b)<=R);
-  this.planIn-=step;if(this.off===null||this.planIn<=0){this.plan(raw,her,near,floorAt,o);this.planIn=o.planS;}
-  const ev=guardEval(raw,her,near,this.params,floorAt,o),want=vsub(ev.position,raw.position);
+  this.planIn-=step;if(this.off===null||this.planIn<=0||(holdYaw&&this.params.swing!==0)){this.plan(raw,her,near,floorAt,o,holdYaw);this.planIn=o.planS;}
+  const ev=guardEval(raw,her,near,this.params,floorAt,o);
+  const ry=Math.atan2(raw.position[0]-her[0],raw.position[2]-her[2]),c=Math.cos(ry),sn=Math.sin(ry);
+  const toL=(w:V3):V3=>[w[0]*c-w[2]*sn,w[1],w[0]*sn+w[2]*c],toW=(l:V3):V3=>[l[0]*c+l[2]*sn,l[1],-l[0]*sn+l[2]*c];
+  const want=toL(vsub(ev.position,raw.position));
   if(this.off===null){this.off=[0,0,0];this.vel=[0,0,0];}
   else if(step>0){const w=o.omega;let a:V3=[0,0,0];for(let i=0;i<3;i++)a[i]=w*w*(want[i]-this.off[i])-2*w*this.vel[i];
    const al=vlen(a);if(al>o.maxAccMS2)a=[a[0]*o.maxAccMS2/al,a[1]*o.maxAccMS2/al,a[2]*o.maxAccMS2/al];
    for(let i=0;i<3;i++)this.vel[i]+=a[i]*step;const vl=vlen(this.vel);if(vl>o.maxMS)this.vel=[this.vel[0]*o.maxMS/vl,this.vel[1]*o.maxMS/vl,this.vel[2]*o.maxMS/vl];
    for(let i=0;i<3;i++)this.off[i]+=this.vel[i]*step;}
-  let pos:V3=[raw.position[0]+this.off[0],raw.position[1]+this.off[1],raw.position[2]+this.off[2]];
+  const ow=toW(this.off);let pos:V3=[raw.position[0]+ow[0],raw.position[1]+ow[1],raw.position[2]+ow[2]];
   // hard floor backstop 0.25 m under the planned floor (the plan + the lifted raw keep it from binding in normal motion)
   const fl=floorAt?floorAt(pos[0],pos[2]):null,minY=Math.max(her[1]+o.feetHeadroomM-0.25,fl===null?-1e9:fl+o.floorHeadroomM-0.25);if(pos[1]<minY)pos=[pos[0],minY,pos[2]];
   // aim: the raw lens's look point at her distance

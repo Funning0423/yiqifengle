@@ -111,6 +111,7 @@ const tests=[
  ['region-nodes-walk','tools/region-nodes/test_region_nodes_walk.cjs'],
  ['explore-camera','tools/region-nodes/test_explore_camera.cjs'],
  ['free-orbit','tools/region-nodes/test_free_orbit.cjs'],
+ ['explore-drag-rotate','tools/region-nodes/test_explore_drag_rotate.cjs'],
  ['room-keepinside','tools/region-nodes/test_room_keepinside.cjs'],
  ['explore-input','tools/region-nodes/test_explore_input.cjs'],
  ['lakeside-walkable','tools/lakeside-walkable/test_lakeside_walkable.cjs'],['lakeside-seam-skirt','tools/lakeside/test_lakeside_seam_skirt.cjs'],
