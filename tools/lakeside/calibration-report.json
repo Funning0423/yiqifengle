@@ -253,16 +253,16 @@
  },
  {
   "id": "r04-lake-04",
-  "draftMoves": 22,
+  "draftMoves": 24,
   "seedsTried": 12,
-  "greedyWins": 10,
-  "greedyUsedMedian": 21,
+  "greedyWins": 12,
+  "greedyUsedMedian": 20,
   "greedyUsedP80": 24,
-  "winsWithinDraft": 6,
+  "winsWithinDraft": 10,
   "seedBank": [
    4,
-   8,
-   5
+   5,
+   11
   ],
   "witness": [
    {
@@ -286,80 +286,24 @@
      ],
      [
       "swap",
-      2,
-      9
-     ],
-     [
-      "swap",
-      40,
-      47
-     ],
-     [
-      "swap",
-      45,
-      46
-     ]
-    ]
-   },
-   {
-    "seed": 8,
-    "used": 10,
-    "actions": [
-     [
-      "swap",
-      21,
-      28
-     ],
-     [
-      "swap",
-      32,
-      39
-     ],
-     [
-      "swap",
-      42,
-      43
-     ],
-     [
-      "swap",
-      35,
-      42
-     ],
-     [
-      "swap",
-      0,
-      7
-     ],
-     [
-      "swap",
-      17,
-      24
-     ],
-     [
-      "swap",
-      5,
-      12
-     ],
-     [
-      "swap",
-      40,
-      47
-     ],
-     [
-      "swap",
-      33,
-      40
+      36,
+      37
      ],
      [
       "swap",
       2,
       9
+     ],
+     [
+      "swap",
+      26,
+      33
      ]
     ]
    },
    {
     "seed": 5,
-    "used": 11,
+    "used": 8,
     "actions": [
      [
       "swap",
@@ -388,33 +332,84 @@
      ],
      [
       "swap",
-      23,
-      30
+      36,
+      43
      ],
      [
       "swap",
-      26,
-      27
-     ],
-     [
-      "swap",
-      40,
-      47
-     ],
-     [
-      "swap",
-      46,
-      47
+      34,
+      41
      ],
      [
       "swap",
       32,
-      39
+      33
+     ]
+    ]
+   },
+   {
+    "seed": 11,
+    "used": 12,
+    "actions": [
+     [
+      "swap",
+      2,
+      9
      ],
      [
       "swap",
-      41,
-      48
+      6,
+      13
+     ],
+     [
+      "swap",
+      21,
+      28
+     ],
+     [
+      "swap",
+      10,
+      11
+     ],
+     [
+      "swap",
+      16,
+      17
+     ],
+     [
+      "swap",
+      0,
+      7
+     ],
+     [
+      "swap",
+      37,
+      38
+     ],
+     [
+      "swap",
+      36,
+      37
+     ],
+     [
+      "swap",
+      5,
+      12
+     ],
+     [
+      "swap",
+      31,
+      38
+     ],
+     [
+      "swap",
+      18,
+      25
+     ],
+     [
+      "swap",
+      33,
+      40
      ]
     ]
    }
