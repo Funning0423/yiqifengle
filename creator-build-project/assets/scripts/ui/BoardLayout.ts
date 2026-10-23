@@ -89,6 +89,12 @@ export function pickToolBar(tools: ReadonlyArray<{ kind: string; count: number }
   ranked.sort((a, b) => rank(a) - rank(b));
   return ranked.slice(0, 3);
 }
+/** QA frames only: URL `qaTools=3` forces the first 3 TOOL_PRIORITY tools into the bar (layout/camera checks).
+ * `guarded` must be true only for the player build (`MINIGAME`): then this always returns null. */
+export function qaForcedToolBar(search: string | null | undefined, guarded: boolean): string[] | null {
+  if (guarded || typeof search !== 'string') return null;
+  const m = /(?:^|[?&])qaTools=([123])(?:&|$)/.exec(search); return m ? TOOL_PRIORITY.slice(0, Number(m[1])) : null;
+}
 function rank(kind: string) { const i = TOOL_PRIORITY.indexOf(kind); return i < 0 ? TOOL_PRIORITY.length : i; }
 /** Idle auto-hint clock: first hint after 5 s without input, then every 8 s; any input restarts the 5 s wait. */
 export const HINT_FIRST_S = 5, HINT_REPEAT_S = 8, TOAST_S = 2;

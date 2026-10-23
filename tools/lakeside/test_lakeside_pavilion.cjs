@@ -24,7 +24,11 @@ const r5h3=CP.fromLookAt({position:[...p],target:[p[0]+f[0]*20,p[1]+f[1]*20,p[2]
 assert(!inFrame(r5h3,C.referenceAspect),'r5h3 board camera: pavilion off-frame (as in lakeside_r5h3_demo_lastframe.png)');
 const q0=CP.projectPoint(r5h3,C.referenceAspect,[0,0,0]);assert(q0.depth>0&&Math.abs(q0.x)<0.1&&Math.abs(q0.y)<0.2,'origin (where the ghost stood) = bridge centre, mid-frame');
 const layouts=[[360,780,{top:0,bottom:0,left:0,right:0,capsule:null}],[390,844,{top:47,bottom:34,left:0,right:0,capsule:{left:281,top:51,right:368,bottom:83}}],[375,667,{top:20,bottom:0,left:0,right:0,capsule:{left:278,top:26,right:365,bottom:58}}],[414,896,{top:44,bottom:34,left:0,right:0,capsule:{left:305,top:48,right:392,bottom:80}}],[768,1024,{top:20,bottom:0,left:0,right:0,capsule:null}]];
-for(const [W,Hh,safe] of layouts){const g=BL.boardLayout(W,Hh,safe,2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
+// b18b (Grok Bot decision): iPad portrait 768×1024 is exempt. The B″ board lens keeps the 390×844 framing; on the 0.75-aspect pad
+// the wider horizontal view brings the pavilion's corner in at the right edge. Narrowing the FOV there would push the heroine
+// off the bottom on 390×520 (same aspect), and the pad is not a WeChat phone target.
+const EXEMPT=new Set(['768x1024']);
+for(const [W,Hh,safe] of layouts){if(EXEMPT.has(W+'x'+Hh))continue;const g=BL.boardLayout(W,Hh,safe,2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
  assert(!inFrame(LK.lakesideAlignedBoardPose(frame),W/Hh),W+'x'+Hh+' aligned board camera: pavilion off-frame');}
 const minX=pose=>Math.min(...corners.map(c=>CP.projectPoint(pose,C.referenceAspect,c).x));
 console.log('lakeside pavilion OK (r5h3 cam min NDC x '+minX(r5h3).toFixed(3)+'): 1 real placement (LK_pavilion_i, right shore), 0 templates, 802 instances, off-frame in r5h3 + '+layouts.length+' board layouts');

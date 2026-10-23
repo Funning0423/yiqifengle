@@ -15,7 +15,7 @@ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideQaAdvance} from './LakesideQaShot';
-import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,LAKESIDE_STEPDOWN,stepdownRootAt,stepdownBlendedY,walkFrom,standupRootK} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -323,9 +323,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // fade in, still overlapping the rest of her (offscreen) walk to the shore.
    let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
    const hold=()=>{if(!dead&&lastPose)world.setCamera(lastPose);};director.on(Director.EVENT_BEFORE_DRAW,hold);
-   // b15 stand-up v1b: on the seat (where she rode) sit_hold → HARD CUT stand_up (REPORT: start_pose = sit_hold f0, no crossfade;
-   // 1.2667 s time clock, root carried seat → P0 along the facing by stand_up root_motion.forward_m (LAKESIDE_STANDUP)) → crossfade 0.2 into idle at P0 facing the door (cancelAndReset
-   // in place) = getout t0. Without the stand_up clip / playNamed: the old placement (cancelAndReset straight to P0).
+   // b15 stand-up v1b (kept; this is the gbt/r5-integrated-b15 wiring, animation reference anim/b17-landing-standup @ 97fc3243):
+   // on the seat (where she rode) sit_hold → HARD CUT stand_up (REPORT: start_pose = sit_hold f0, no crossfade;
+   // 1.2667 s time clock, root carried seat → P0 along the facing by stand_up root_motion.forward_m (LAKESIDE_STANDUP, rise 0.494 m))
+   // → crossfade 0.2 into idle at P0 facing the door (cancelAndReset in place, only AFTER stand_up) = getout t0.
+   // A cancelAndReset that skips stand_up and cuts straight to P0 is the ~0.40 m / ~128° pose pop. Do not put that cut back.
    {const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.playNamed==='function'&&n&&isValid(n,true));
     if(canStand){const w=n!.worldPosition,seatRoot:Vec=[w.x,w.y,w.z],P0=moored.start as Vec;
      const seatDef={position:seatRoot,back:seatRoot,yawRad:moored.startYawRad,seatedFoot:seatRoot,standingFoot:P0,seatedControllerRoot:seatRoot,standingControllerRoot:P0};
@@ -351,13 +353,15 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
     ticker.step=(dt)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
      if(stepping){const u=t-moored.walkStartAt,r=stepdownRootAt(u),a=actor as any,P0=moored.start,sy=Math.sin(moored.startYawRad),cy=Math.cos(moored.startYawRad);
-      // sd3: root Y = board (P0 0.602) + y_m while walk_start_stepdown plays; forward along the exit heading
-      if(a.node&&isValid(a.node,true))a.node.setWorldPosition(P0[0]+sy*r[0],P0[1]+r[1],P0[2]+cy*r[0]);
+      // b18: blend the clip drop onto the terrain profile (drop = clamp(y_m / −0.03)). Forward stays on the exit heading.
+      const y=stepdownBlendedY(P0[1],r[1],moored.groundAt(r[0]));
+      if(a.node&&isValid(a.node,true))a.node.setWorldPosition(P0[0]+sy*r[0],y,P0[2]+cy*r[0]);
       lease.progress!(landedM+r[0]);if(r[0]>=LAKESIDE_DOOR_HOLD.outM)outOk();}
      if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){const s=walkBase+w*walkLen;lease.progress!(landedM+s);if(s>=LAKESIDE_DOOR_HOLD.outM)outOk();}
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
-      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
-       lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
+      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const emit=a.lastFootEmit,emitT=emit&&typeof emit.t==='number'?emit.t:null;
+       const swing=typeof a.motionT==='number'&&footLockSwing(a.motionT,emitT),pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
+       lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt,swing);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
     const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
     await waitUntil(moored.T0);rideToken.check();qaMark('door');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();

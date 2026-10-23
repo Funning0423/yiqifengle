@@ -86,6 +86,15 @@ ok('tool bar choice: in-stock only, 星光 > 风语铃 > 潮汐瓶 > regional, m
   const s = { provider: 'mainline-v33', active: { level: 0, bombs: 1 }, journey: { inventory: { tools: { pearl: 4, windBell: 1, tideBottle: 1 } }, regionRewards: [{ region: 0, claimed: true }] } };
   assert.deepEqual(managedTools(s).map(x => x.kind), ['bomb', 'windBell', 'tideBottle', 'tideNet']);
 });
+ok('QA qaTools=3 forces 3 tools only outside the player build; ignored without the guard (MINIGAME) or the param', () => {
+  const { qaForcedToolBar } = H.load('ui/BoardLayout');
+  assert.deepEqual(qaForcedToolBar('?qa=1&qaTools=3', false), ['bomb', 'windBell', 'tideBottle']);
+  assert.equal(qaForcedToolBar('?qa=1&qaTools=3', true), null, 'MINIGAME guard: ignored in the player build');
+  assert.equal(qaForcedToolBar('?qa=1', false), null); assert.equal(qaForcedToolBar(null, false), null); assert.equal(qaForcedToolBar('?qaTools=9', false), null);
+  const ui = read('ManagedMobileBoardUI.ts');
+  assert.match(ui, /private qaTools\(\): string\[\] \| null \{ if \(MINIGAME\) return null;/, 'UI reads qaTools only behind MINIGAME');
+  assert.match(ui, /import \{ MINIGAME \} from 'cc\/env';/);
+});
 ok('idle hint clock: first hint after 5 s idle, then every 8 s; input or inactive restarts; frame spikes clamp to 0.25 s', () => {
   const { IdleHintClock, HINT_FIRST_S, HINT_REPEAT_S, TOAST_S } = H.load('ui/BoardLayout'); assert.deepEqual([HINT_FIRST_S, HINT_REPEAT_S, TOAST_S], [5, 8, 2]);
   const c = new IdleHintClock(), fire = []; for (let i = 1; i <= 176; i++) if (c.tick(0.125, true)) fire.push(i * 0.125); assert.deepEqual(fire, [5, 13, 21]);

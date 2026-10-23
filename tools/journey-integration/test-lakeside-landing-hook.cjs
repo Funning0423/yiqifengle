@@ -37,14 +37,14 @@ function hookSeries(st){const F=[];let t=0;const dts=st.writes.map((_,i)=>i?st.d
 const runs={},table={};
 (async()=>{
  await T('no deps: resolves {ok:true} at once (plain cut)',async()=>{const r=await Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});assert.equal(r.ok,true);});
- for(const [w,h] of SCREENS)await T(`${w}x${h}: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose`,async()=>{
+ for(const [w,h] of SCREENS)await T(`${w}x${h}: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched before the arrival window (b18: inside it the arrival offsets land on B′), zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose`,async()=>{
   const fr=frameOf(w,h),landing=LK.lakesideScreenLanding(j,fr),end=landingEnd(landing),base=landingEnd(j.landing),board=LK.lakesideLandingBlend(end,fr,j).boardWorld;
   // 1. end pose = board camera of this screen
   const endGap={positionM:Math.hypot(...sub(end.position,board.position)),viewDeg:ang(end,board),fovDeg:board.fovVerticalDeg-end.fovVerticalDeg};
   assert(endGap.positionM<1e-9&&endGap.viewDeg<1e-6&&Math.abs(endGap.fovDeg)<1e-6,JSON.stringify(endGap));
   // 2. correction window ≥ 3 s of walk in both walk models; lens POSITION identical to the base route everywhere (clearance unchanged)
-  for(let d=0;d<=LEN;d+=LEN/400){const a=cam(d,landing),b=cam(d,j.landing);assert(Math.hypot(...sub(a.position,b.position))<1e-12,'lens moved at '+d);}
   const C=Core.JOURNEY_CAMERA,AB=landing.arrivalBlendM??C.arrivalBlendM,AH=landing.arrivalHoldM??C.arrivalHoldM;
+  for(let d=0;d<=LEN-AB-AH-1e-6;d+=LEN/400){const a=cam(d,landing),b=cam(d,j.landing);assert(Math.hypot(...sub(a.position,b.position))<1e-12,'lens moved at '+d);}
   const startWin=mode=>{let t=j.timing.durationS;while(t>0&&LEN-walk[mode](t)<AB)t-=1/240;return j.timing.durationS-t;};
   const winS={constant:+startWin('constant').toFixed(3),timed:+startWin('timed').toFixed(3)};assert(winS.constant>=2.99&&winS.timed>=2.99,JSON.stringify(winS));
   // 3. per-frame tail: correction adds no spike: turn / FOV rates ≈ 0 at the stop; FOV monotonic over the window
@@ -56,7 +56,8 @@ const runs={},table={};
   // 4. her: lens on her right while behind her, her chest inside the frame, x ≤ 0.8 of the width
   const her=P.at(-1),chest=[her[0],her[1]+.9,her[2]],cp=CP.fromLookAt(end,end.fovVerticalDeg),pr=CP.projectPoint(cp,w/h,chest),hx=(pr.x+1)/2,hy=(1-pr.y)/2;
   const heading=sub(her,P.at(-2)),rightOfHer=[heading[2],0,-heading[0]],side=sub(end.position,her);assert(side[0]*rightOfHer[0]+side[2]*rightOfHer[2]<0||true);
-  assert(hx>=.05&&hx<=.8&&hy>0&&hy<1,'her chest at '+hx+','+hy);
+  // b18b: on the B″ board lens she stands in the bottom-right corner, clear of the tool row (x up to 0.95)
+  assert(hx>=.05&&hx<=.95&&hy>0&&hy<1,'her chest at '+hx+','+hy);
   // 5. hook from the journey's end pose
   const {st,deps}=fake({w,h,from:end,preload:afterFrames(20)});const r=await Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:{root:j.root},deps});assert.equal(r.ok,true);assert.equal(r.result,'ok');
   assert.equal(st.preloadDoneAtWrite,true,'camera written before the preload finished');const HF=hookSeries(st),lw=st.writes.at(-1),g=st.logs.at(-1).gap;
@@ -86,7 +87,8 @@ const runs={},table={};
   const d=dir(end),yaw=Math.atan2(d[0],d[2])+20*Math.PI/180,rot={...end,target:[end.position[0]+Math.sin(yaw)*8,end.position[1]+d[1]*8,end.position[2]+Math.cos(yaw)*8]};
   for(const [p,jr] of [[rot,null],[{...end,fovVerticalDeg:end.fovVerticalDeg+20},null],[end,[j.root[0]+1,j.root[1],j.root[2]]]]){const {st,deps}=fake({from:p});let wrote=0;
    const r=await Hook.lakesideLandingToBoard({stageId:'s',journey:jr?{root:jr}:null,deps:{...deps,setCamera:()=>{wrote++;return true;}}});assert.equal(r.ok,true);assert.equal(wrote,0);assert.equal(st.logs.at(-1).result,'not-at-landing');}});
- await T('root recovered from the landing pose = the journey root',async()=>{const r=Hook.lakesideRootFromLanding(landingEnd(j.landing));assert(Math.hypot(...sub(r.root,j.root))<1e-9);assert.equal(r.yawDeg,j.yawDeg);});
+ await T('root recovered from the landing pose = the journey root (b18: portrait = this screen\'s B′ landing; landscape = base)',async()=>{
+  for(const [w,h] of [[390,844],[320,568],[1280,800]]){const fr=frameOf(w,h),ld=w<=h?LK.lakesideScreenLanding(j,fr):j.landing,r=Hook.lakesideRootFromLanding(landingEnd(ld),fr);assert(Math.hypot(...sub(r.root,j.root))<1e-9,w+'x'+h);assert.equal(r.yawDeg,j.yawDeg);}});
  // SWAP = last world-camera frame before the board vs first LakesideBackgroundCamera frame after (the camera that renders the board).
  //  before: the real hook's final write on the real journey end, held through the enter-level cover (hold contract below), expressed in
  //          the journey scenery's frame (RegionJourneyAdapter: LakesideJourneyScene yaw L.yawDeg at L.root);

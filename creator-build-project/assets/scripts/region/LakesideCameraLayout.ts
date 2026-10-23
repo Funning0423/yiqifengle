@@ -1,7 +1,7 @@
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import {arrivalPose,journeyCamera,routeLength,type JourneyLanding,type JourneyTiming} from '../world-r1/RegionJourneyCore';
 import {boardLayout,type SafeArea} from '../ui/BoardLayout';
-import {fromLookAt,projectPoint,type AuthoredPose,type CameraPose} from '../world-r1/CameraPose';
+import {fromLookAt,type AuthoredPose,type CameraPose} from '../world-r1/CameraPose';
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus} from './RegionJourneyLayout';
 /** Lakeside (r5h3) camera data: journey into the region, Landing A arrival and the board framing. Pure numbers and maths, no
  * engine imports, so tools/journey-integration/test-lakeside-camera.cjs checks exactly these values against the committed
@@ -20,7 +20,8 @@ export const LAKESIDE_CAMERA_LAYOUT={
  bridgeArchM:2,
  /** Bridge landing and walk on the south bank (Local). */
  landingLocal:[1.2,.58,36] as Vec,
- walkLocal:[[1.2,.58,30],[1.2,.58,24.5]] as ReadonlyArray<Vec>,
+ /** Bridge end, then the path-v4 stop (lake-local). The balloon walk is the v4 polyline; this chord is the journey arrival. */
+ walkLocal:[[1.2,.58,30],[3.2531,.5714,25.0904]] as ReadonlyArray<Vec>,
  /** Board centre (7×7 cells x −3.3…3.3, z 8.7…15.3) at piece height. */
  focusLocal:[0,.3,12] as Vec,
  /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). Close end pose
@@ -51,7 +52,14 @@ export const LAKESIDE_CAMERA_LAYOUT={
   * the board centre on the 2D grid centre and the centre row exactly the 2D grid width. The view is shallow (≈ 9–11° down),
   * so the rows are strongly foreshortened: corner / cell errors are reported by the test, not hidden. Landscape (desktop
   * preview; the board fills the height of the right column) keeps the overhead closed-form lens. No geometry is moved or added. */
- board:{landscape:{pitchDeg:75,fovVerticalDeg:40},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
+ board:{landscape:{pitchDeg:75,fovVerticalDeg:40},
+  /** b18 portrait board lens, locked: main is the 7 m camera when h/w ≥ splitHw (exactly 2.0 counts as main). The 6 m
+   *  alternative is not shipped — at 360×780 it left about a 3 px gap. Short screens (h/w < 2) use the short lens. Vertical
+   *  FOV 50 on 390×844 and wider, the 390×844 horizontal coverage on taller ones (cap maxFovDeg). lakesideScreenLanding solves
+   *  the arrival offsets so the journey ends ON the lens for this screen. Yaw stays locked only on the board. */
+  portrait:{splitHw:2,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75,
+   main:{position:[1.5,7,34.5] as Vec,target:[1,-.5,0] as Vec},
+   short:{position:[2.5,6.5,34] as Vec,target:[-3,-.5,0] as Vec}},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
 } as const;
 const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
 /** Placement + route pieces for RegionJourneyAdapter: model.setRotationFromEuler(0,yawDeg,0); model.setWorldPosition(...root);
@@ -86,42 +94,49 @@ const yawPitch=(p:Readonly<{position:readonly number[];target:readonly number[]}
  * horizontal focus direction), arrivalPitchDeg (from the focus pitch) and arrivalFovDeg change): the journey's final pose IS
  * that camera. */
 export function lakesideScreenLanding(journey:Readonly<{landing:JourneyLanding}>,frame:LakesideBoardFrame):JourneyLanding{
- const L=LAKESIDE_CAMERA_LAYOUT,b=lakesideAlignedLookAt(frame),base=arrivalPose(L.walkLocal,L.focusLocal,journey.landing),f=L.focusLocal,p=base.position;
+ const L=LAKESIDE_CAMERA_LAYOUT,b=lakesideAlignedLookAt(frame),f=L.focusLocal;
  if(journey.landing.arrivalAim)throw Error('lakesideScreenLanding: arrivalAim must be 0');
+ // b18 portrait: the board lens (7 m main, or short) is not the base landing position, so the arrival offsets (back / side /
+ // up from her stop, focus-relative, see RegionJourneyCore.arrivalPose) are solved to land EXACTLY on it. Landscape keeps the base.
+ let lan:JourneyLanding=journey.landing;
+ if(frame.width<=frame.height){const e=L.walkLocal[L.walkLocal.length-1],fx=f[0]-e[0],fz=f[2]-e[2],fl=Math.hypot(fx,fz)||1,u=[fx/fl,fz/fl],n=[-u[1],u[0]],d=[b.position[0]-e[0],b.position[1]-e[1],b.position[2]-e[2]];
+  lan={...lan,arrivalBackM:-(d[0]*u[0]+d[2]*u[1]),arrivalSideM:d[0]*n[0]+d[2]*n[1],arrivalUpM:d[1]};}
+ const base=arrivalPose(L.walkLocal,L.focusLocal,{...lan,arrivalYawDeg:0,arrivalPitchDeg:0}),p=base.position;
+ journey={landing:lan};
  const a=yawPitch(b),yf=Math.atan2(f[0]-p[0],f[2]-p[2]),pf=Math.atan2(f[1]-p[1],Math.hypot(f[0]-p[0],f[2]-p[2])),k=180/Math.PI;
  let dy=a.yaw-yf;while(dy>Math.PI)dy-=2*Math.PI;while(dy<-Math.PI)dy+=2*Math.PI;
  return {...journey.landing,arrivalYawDeg:dy*k,arrivalPitchDeg:(a.pitch-pf)*k,arrivalFovDeg:b.fovVerticalDeg};
 }
+/** Portrait board lens for this frame: main (7 m) when h/w ≥ splitHw, otherwise short. No frame → main (the reference phone). */
+export function lakesidePortraitBoard(frame?:Readonly<{width:number;height:number}>):{position:Vec;target:Vec}{
+ const P=LAKESIDE_CAMERA_LAYOUT.board.portrait,tall=!frame||!(frame.width>0)||frame.height/frame.width>=P.splitHw,L=tall?P.main:P.short;
+ return {position:[L.position[0],L.position[1],L.position[2]],target:[L.target[0],L.target[1],L.target[2]]};}
 /** Lakeside close end pose (Local): Landing A arrival pose of the lakeside walk (her stop walkLocal[last], focus = board centre). */
-export function lakesideLandingLocal():AuthoredPose{const L=LAKESIDE_CAMERA_LAYOUT,e=arrivalPose(L.walkLocal,L.focusLocal,L.landing);
+export function lakesideLandingLocal(frame?:Readonly<{width:number;height:number}>):AuthoredPose{const L=LAKESIDE_CAMERA_LAYOUT;
+ // b18: portrait (default) = the 7 m / short board lens the journey now ends on; landscape keeps the base close end pose.
+ if(!frame||frame.width<=frame.height){const P=lakesidePortraitBoard(frame),a=frame?frame.width/frame.height:L.board.portrait.refAspect;return {position:[P.position[0],P.position[1],P.position[2]],target:[P.target[0],P.target[1],P.target[2]],fovVerticalDeg:lakesidePortraitFov(a)};}
+ const e=arrivalPose(L.walkLocal,L.focusLocal,L.landing);
  return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:L.landing.arrivalFovDeg||48};}
 /** Lakeside board-background camera for a board-UI frame (Local).
- * Portrait: position = lakesideLandingLocal().position; no roll; yaw/pitch solved (Newton) so the 3D board centre projects on
- * the 2D grid centre, FOV solved (bisection) so the 3D centre row projects exactly the 2D grid width.
+ * Portrait (b18): the 7 m main lens or the short lens (lakesidePortraitBoard), FOV from lakesidePortraitFov(aspect). The old
+ * grid-alignment solve is retired (the 2D board is opaque, aligning the hidden 3D grid only forced the low lawn view).
  * Landscape: closed form — with the view direction fixed (landscape.pitchDeg, facing −Z) the 3D centre row is at one depth D,
  * so its projected width 7.7/(D·tan(fov/2)·aspect) (NDC) equals the 2D grid width; the camera then shifts in its own image
  * plane so the 3D board centre lands on the 2D grid centre. */
 export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
  const B=LAKESIDE_CAMERA_LAYOUT.board,G=B.grid,rect=lakesideBoardRect(frame),w=frame.width,h=frame.height,aspect=w/h,c=G.centre;
  const q=(v:number)=>+v.toFixed(4);
- if(w<=h){
-  const pos=lakesideLandingLocal().position,xn=rect.x/w*2-1,yn=1-rect.y/h*2,wn=rect.size/w*2;
-  const dir=(yaw:number,pitch:number):V3=>[Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)];
-  const pose=(yaw:number,pitch:number,fov:number)=>{const d=dir(yaw,pitch);return fromLookAt({position:pos,target:[pos[0]+d[0]*20,pos[1]+d[1]*20,pos[2]+d[2]*20],fovVerticalDeg:fov},fov);};
-  const v:V3=[c[0]-pos[0],c[1]-pos[1],c[2]-pos[2]],aimAt=(fov:number)=>{let yaw=Math.atan2(v[0],v[2]),pitch=Math.atan2(v[1],Math.hypot(v[0],v[2]));
-   for(let i=0;i<30;i++){const pr=(y:number,p:number)=>projectPoint(pose(y,p,fov),aspect,c),p0=pr(yaw,pitch),ex=p0.x-xn,ey=p0.y-yn;if(Math.abs(ex)+Math.abs(ey)<1e-12)break;
-    const e=1e-6,py=pr(yaw+e,pitch),pp=pr(yaw,pitch+e),a11=(py.x-p0.x)/e,a21=(py.y-p0.y)/e,a12=(pp.x-p0.x)/e,a22=(pp.y-p0.y)/e,det=a11*a22-a12*a21;
-    yaw-=(a22*ex-a12*ey)/det;pitch-=(a11*ey-a21*ex)/det;}return {yaw,pitch};};
-  const width=(fov:number)=>{const a=aimAt(fov),p=pose(a.yaw,a.pitch,fov),l=projectPoint(p,aspect,[c[0]-G.halfX,c[1],c[2]]),r=projectPoint(p,aspect,[c[0]+G.halfX,c[1],c[2]]);return r.x-l.x;};
-  let lo=10,hi=120;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(width(m)>wn)lo=m;else hi=m;}
-  const fov=(lo+hi)/2,a=aimAt(fov),d=dir(a.yaw,a.pitch),D=Math.hypot(...v);
-  return {position:[pos[0],pos[1],pos[2]],target:[pos[0]+d[0]*D,pos[1]+d[1]*D,pos[2]+d[2]*D],fovVerticalDeg:fov};}
+ if(w<=h){const P=lakesidePortraitBoard(frame);return {position:[P.position[0],P.position[1],P.position[2]],target:[P.target[0],P.target[1],P.target[2]],fovVerticalDeg:q(lakesidePortraitFov(aspect))};}
  const fov=B.landscape.fovVerticalDeg,t=Math.tan(fov*Math.PI/360),p=B.landscape.pitchDeg*Math.PI/180;
  const f:V3=[0,-Math.sin(p),-Math.cos(p)],r:V3=[1,0,0],up:V3=[0,Math.cos(p),-Math.sin(p)];
  const D=2*G.halfX/(t*aspect*(rect.size/w*2)),X=(rect.x/w*2-1)*t*aspect*D,Y=(1-rect.y/h*2)*t*D;
  const pos:V3=[c[0]-r[0]*X-up[0]*Y-f[0]*D,c[1]-r[1]*X-up[1]*Y-f[1]*D,c[2]-r[2]*X-up[2]*Y-f[2]*D];
  return {position:[q(pos[0]),q(pos[1]),q(pos[2])],target:[q(pos[0]+f[0]*D),q(pos[1]+f[1]*D),q(pos[2]+f[2]*D)],fovVerticalDeg:fov};
 }
+/** b18 portrait board FOV for a screen aspect (w/h): vertical 50° on 390×844 and shorter screens, the 390×844 horizontal
+ * coverage on taller ones, capped at maxFovDeg. */
+export function lakesidePortraitFov(aspect:number):number{const P=LAKESIDE_CAMERA_LAYOUT.board.portrait,t=Math.tan(P.fovVerticalDeg*Math.PI/360)*P.refAspect/Math.max(.01,aspect);
+ return Math.min(P.maxFovDeg,Math.max(P.fovVerticalDeg,2*Math.atan(t)*180/Math.PI));}
 /** The same pose as the CameraPose applyCameraPose() takes (the lease's frame() writes this). */
 export function lakesideAlignedBoardPose(frame:LakesideBoardFrame):CameraPose{const p=lakesideAlignedLookAt(frame);return fromLookAt(p,p.fovVerticalDeg);}
 const smooth5=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
