@@ -10,7 +10,7 @@
  *  G1 (hard) her head or chest hidden (disc rule, ≥5/9 rays) — follow ≤ 0.2 % of frames, orbit ≤ 0.3 %.
  *  G2 (hard) near-lens fill (canopy / trunk / post / railing in front of the lens): ≥ 4 of a 3×3 view ray fan hit a real
  *     triangle within 2.5 m — follow and orbit ≤ 0.1 %.
- *  Orbit poses: world yaw 0/90/180/270 × (15°, 9 m) and (35°, 14 m: the high MapExplore lens of the Mac run), + (−8°, 6 m) low lens.
+ *  Orbit poses: world yaw 0/90/180/270 × (15°, 9 m) and (35°, 14 m: the high MapExplore lens of the Mac run), + (5°, 6 m) low lens (the P0 pitch floor; was −8°).
  *  G3 (hard) lens under the deck / floor: lens y < her feet + 0.9 m, or a real deck/bridge triangle straight above the lens within
  *     4 m while she is on the deck — 0 frames.
  *  G4 (hard) smoothness: the lens's EXTRA motion over the designed (raw) lens: speed ≤ 4.0 m/s, acceleration ≤ 12 m/s² (per frame).
@@ -69,7 +69,7 @@ for(let tries=0;tries<3000&&(nC<3||nR<NRAND);tries++){const a=cellAt(cells[(rnd(
  if(nR<NRAND){routes.push({id:'RAND'+nR++,p});}}
 const lensSets=[];for(const s of E.SCREENS)lensSets.push({id:'follow '+s.join('x'),fam:'follow',mk:(f,h)=>E.followPose(f,h,s[0],s[1],0)});
 // MapExplore orbit: the yaw is a WORLD yaw the player set (it does not turn with her heading; r13b Mac lens kept a fixed offset while she walked)
-for(const [yo,pi,d] of [[0,15,9],[90,15,9],[180,15,9],[270,15,9],[0,35,14],[90,35,14],[180,35,14],[270,35,14],[0,-8,6],[180,-8,6]])lensSets.push({id:`orbit yaw${yo} p${pi} d${d}`,fam:'orbit',mk:(f,h)=>{const o=new FO.FreeOrbit('lakeside');o.yaw=yo;o.pitch=pi;o.dist=d;o.seeded=true;return o.rawPose(f);}});
+for(const [yo,pi,d] of [[0,15,9],[90,15,9],[180,15,9],[270,15,9],[0,35,14],[90,35,14],[180,35,14],[270,35,14],[0,5,6],[180,5,6]]/* P0 pitch: the low lens is the new 5° floor (−8° is no longer reachable) */)lensSets.push({id:`orbit yaw${yo} p${pi} d${d}`,fam:'orbit',mk:(f,h)=>{const o=new FO.FreeOrbit('lakeside');o.yaw=yo;o.pitch=pi;o.dist=d;o.seeded=true;return o.rawPose(f);}});
 const nrm=v=>{const l=Math.hypot(...v)||1e-9;return v.map(x=>x/l);},crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 function fill(pose,GR,reach=2.5){const f=nrm(pose.target.map((x,k)=>x-pose.position[k])),r=nrm(crs(f,[0,1,0])),u=crs(r,f),tv=Math.tan(((pose.fovVerticalDeg||45)*Math.PI/180)/2)*0.6,th=tv*0.6;let n=0;
  for(const sx of [-1,0,1])for(const sy of [-1,0,1]){const d=nrm([0,1,2].map(i=>f[i]+r[i]*sx*th+u[i]*sy*tv));if(segHit(GR,pose.position,pose.position.map((x,i)=>x+d[i]*reach)))n++;}return n;}

@@ -5,8 +5,9 @@
  *   → occlude (LensGuard on lakeside / island) → writePose (the camera).
  * RegionNodeStage methods are the real source (transpiled out of the class, as test_free_orbit does); scene lookups are stubbed.
  * D1 a 120 pt right drag turns the written camera yaw by ≈ yawPerScreen × 120/390 (±20 %), in every region and state.
- * D2 it STAYS: after release and 3 s of per-frame ticks the camera yaw is within 4° of the yaw right after the coast settles
- *    (no controller pulls it back: LensGuard swing, the follow lens, a return-to-authored).
+ * D2 it STAYS: 3 s after release the lens azimuth round her is within 4° of the player's orbit yaw, and over those 3 s the gap
+ *    to it never grows by > 2° (no controller pulls it back: LensGuard swing, the follow lens, a return-to-authored; a LensGuard
+ *    crane re-plan may still finish catching up — that closes the gap, it never opens it).
  * States: S1 MapExplore idle after leaving the board (handOrbitBack/disarm), S2 she walks (ground tap → groundWalking),
  *         S3 FollowWalk (node walk) not yet engaged, S4 drag while the orbit is still easing back ('returning').
  * Lakeside / island her positions sit next to trees / the lighthouse so LensGuard is active. */
@@ -19,11 +20,12 @@ const FO=H.load(S('region/FreeOrbit.ts')),EI=H.load(S('world-r2/ExploreInput.ts'
 const {IslandHomeInteraction}=H.load(S('world-r2/IslandHomeInteraction.ts'));
 const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true);
 const cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
-const want=['onGesture','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','handOrbitBack','viewDir','guardOrbitGround'];
+const want=['onGesture','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','handOrbitBack','viewDir','guardOrbitGround','deckElev','preSolveEntry','openExplore'];
 const methods=want.map(n=>{const m=cls.members.find(x=>x.name&&x.name.getText(sf)===n);assert.ok(m,'RegionNodeStage.'+n);return m.getText(sf);});
 const out=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
 class Vec3{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}set(x,y,z){this.x=x;this.y=y;this.z=z;return this;}static transformMat4(o,v){o.x=v.x;o.y=v.y;o.z=v.z;return o;}}
-const sb={module:{exports:{}},Vec3,LensGuard:OC.LensGuard,proxiesToWorld:OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:LX.LAKESIDE_LENS_OCCLUDERS,ISLAND_LENS_OCCLUDERS:IX.ISLAND_LENS_OCCLUDERS,
+const sb={module:{exports:{}},Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
+ setExploreEnabled:v=>Gate.setExploreEnabled(v),emitTransitCue:()=>{},proxiesToWorld:OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:LX.LAKESIDE_LENS_OCCLUDERS,ISLAND_LENS_OCCLUDERS:IX.ISLAND_LENS_OCCLUDERS,
  followPose:E.followPose,followLookUp:E.followLookUp,geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}},intersect:{rayModel:()=>0}},MeshRenderer:class{},LENS_CLEAR_M:0.6,Date,Math};
 vm.runInNewContext(out,sb);const Stage=sb.module.exports;
 const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
@@ -36,7 +38,7 @@ const HER={island:[-2.1,0,5.3],meadow:[0,0,0],skycity:[0,0,0],lakeside:[tree[3]+
 function rig(region,state,stand){
  const st=new Stage();let written=null;const orbit=new FO.FreeOrbit(region);
  Object.assign(st,{region,orbit,exploring:true,anim:null,holdPose:null,lens:state==='S3'?'FollowWalk':'MapExplore',groundWalking:state==='S2',camera:{},dragHome:null,
-  lensPull:new OC.LensGuard(),islandBoxes:null,occBoxes:null,occAt:0,occModel:null,orbitBoxes:[]});
+  lensPull:new OC.LensGuard(),entry:null,deckZones:null,rebuildMarkers:()=>{},islandBoxes:null,occBoxes:null,occAt:0,occModel:null,orbitBoxes:[]});
  let her=(stand||HER[region]).slice();st.girl=()=>her;st.yaw=()=>0;st.viewport=()=>({w:VW[0],h:VW[1]});st.regionBounds=()=>undefined;st.refreshOrbitBoxes=()=>{};
  st.model=r=>r==='lakeside'?{worldMatrix:null}:null;st.readPose=()=>written||E.followPose(her,0,390,844,0);
  st.writePose=p=>{written=p;return p;};
@@ -61,10 +63,11 @@ for(const region of ['island','meadow','skycity','lakeside'])for(const state of 
  const y0=yawOf(R.cam());
  I.start(150,400);for(let k=1;k<=12;k++){I.move(150+k*10,400);R.st.tickLens(DT);if(state==='S2')R.walk(1.2*DT);}I.end(270,400);
  const y1=yawOf(R.cam());for(let k=0;k<30;k++){R.st.tickLens(DT);if(state==='S2')R.walk(1.2*DT);}const ySettled=yawOf(R.cam());
- for(let k=0;k<90;k++){R.st.tickLens(DT);if(state==='S2')R.walk(1.2*DT);}const y2=yawOf(R.cam());
+ const az=()=>{const c=R.cam().position,h=R.st.girl();return Math.atan2(h[0]-c[0],h[2]-c[2])*180/Math.PI;},gap=()=>Math.abs(wrap(az()-(R.orbit.yaw+180)));
+ let g0=gap(),pull=0;for(let k=0;k<90;k++){R.st.tickLens(DT);if(state==='S2')R.walk(1.2*DT);const g=gap();pull=Math.max(pull,g-g0);g0=Math.min(g0,g);}const y2=yawOf(R.cam()),endGap=gap();
  const turn=Math.abs(wrap(ySettled-y0)),expect=128*120/390/* ORBIT_FEEL.yawPerScreen=128 */,drift=Math.abs(wrap(y2-ySettled));
- const D1=turn>=expect*0.8,D2=drift<=4;if(!D1||!D2)fails++;
- rows.push({region,state,turnDeg:+turn.toFixed(1),expectDeg:+expect.toFixed(1),driftAfter3sDeg:+drift.toFixed(1),D1,D2,orbitMode:R.orbit.mode});
+ const D1=turn>=expect*0.8,D2=endGap<=4&&pull<=2;if(!D1||!D2)fails++;
+ rows.push({region,state,turnDeg:+turn.toFixed(1),expectDeg:+expect.toFixed(1),driftAfter3sDeg:+drift.toFixed(1),gapToPlayerYawDeg:+endGap.toFixed(1),pullBackDeg:+pull.toFixed(1),D1,D2,orbitMode:R.orbit.mode});
  Gate.setExploreEnabled(false);}
 console.table(rows);
 /* P1 pitch (Grok Bot: keep r14 direction — drag up lowers the lens — no invert). Extreme vertical drags per region × the 7 route

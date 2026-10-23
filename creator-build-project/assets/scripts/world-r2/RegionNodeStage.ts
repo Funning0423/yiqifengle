@@ -4,7 +4,7 @@ import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
 import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,propFacingPose,ROBOT_FACING,PROP_CLEAR_M,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
-import {FreeOrbit,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
+import {FreeOrbit,ORBIT_LIMITS,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
 import {setExploreEnabled} from '../region/ExploreGate';
 import {REGION_NODES,type RegionId} from '../region/RegionNodes';
 import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
@@ -16,8 +16,8 @@ import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarke
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
-import {LensGuard,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
-import {LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
+import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
+import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
 import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
@@ -71,7 +71,9 @@ export class RegionNodeStage extends Component{
  private orbitBoxes:OrbitBox[]=[];
  /** b17r7 (运镜bot): lakeside free-walk lens occlusion. The lakeside is static-merged (renderer AABBs > 14 m are skipped by
   *  refreshOrbitBoxes), so the lens uses the generated tree/post/house proxies (LakesideLensOccluders) via LensPullIn. */
- private lensPull=new LensGuard();private islandBoxes:OccBox[]|null=null;private occBoxes:OccBox[]|null=null;private occAt=0;private occModel:Node|null=null;
+ private lensPull=new LensGuard();private islandBoxes:OccBox[]|null=null;private occBoxes:OccBox[]|null=null;private occAt=0;private occModel:Node|null=null;private deckZones:OccBox[]|null=null;
+ /** P0 r16 explore entry glide: from the lens explore opened on to the pre-solved clear lens (no first-frame canopy). */
+ private entry:{from:Pose;t:number;T:number}|null=null;
  private orbitBoxAt=0;
 
  attach(camera:Camera){this.camera=camera;}
@@ -443,12 +445,39 @@ export class RegionNodeStage extends Component{
   if(this.region!=='lakeside')return null;const m=this.model('lakeside');if(!m)return null;const now=Date.now();
   if(this.occBoxes&&this.occModel===m&&now-this.occAt<2000)return this.occBoxes;
   const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
-  this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.occModel=m;this.occAt=now;return this.occBoxes;
+  const tw=(p:readonly number[]):[number,number,number]=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];};
+  this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,tw);this.deckZones=proxiesToWorld(LAKESIDE_DECK_ZONES,tw);this.occModel=m;this.occAt=now;return this.occBoxes;
+ }
+ /** P0 r16: on the boardwalk / arch bridge the lens keeps ≥ deckElevDeg (looks over the railings); 0 elsewhere. */
+ private deckElev():number{
+  if(this.region!=='lakeside'||!this.deckZones)return 0;const g=this.girl(),m=0.4;
+  for(const z of this.deckZones)if(g[0]>=z.min[0]-m&&g[0]<=z.max[0]+m&&g[2]>=z.min[2]-m&&g[2]<=z.max[2]+m&&g[1]>=z.min[1]-0.5&&g[1]<=z.max[1]+0.5)return LENS_GUARD.deckElevDeg;
+  return 0;
+ }
+ /** P0 r16 ①: explore opens on whatever lens the board exit left (on the lakeside often in a canopy, and nothing wrote the lens
+  *  until she walked). Pick the clear orbit (yaw / pitch / arm nearest the seed whose designed lens has the lowest LensGuard
+  *  cost), converge LensGuard on it, and glide there; MapExplore keeps writing through LensGuard while she stands. */
+ private preSolveEntry(){
+  const boxes=this.lakesideOccluders();if(!boxes||!this.orbit.seeded){this.entry=null;return;}
+  const o=this.orbit,her=this.girl(),y0=o.yaw,p0=o.pitch,d0=o.dist,R=d0+LENS_GUARD.nearM+LENS_GUARD.clearM+2;
+  const near=boxes.filter(b=>{const ax=Math.max(b.min[0]-her[0],0,her[0]-b.max[0]),az=Math.max(b.min[2]-her[2],0,her[2]-b.max[2]);return ax*ax+az*az<=R*R;});
+  const cur=this.readPose(),base={up:0,swing:0,share:1};let best:[number,number,number]=[y0,p0,d0],bc=1e9;
+  const L=ORBIT_LIMITS[o.place],dl=Math.min(L.distMax,Math.max(L.distMin,9));
+  for(let k=0;k<=12;k++)for(const sg of k?[1,-1]:[1])for(const pi of [p0,22,32,42])for(const di of [d0,dl]){
+   o.yaw=y0+sg*k*30;o.pitch=Math.max(L.pitchMinDeg,Math.min(L.pitchMaxDeg,pi));o.dist=di;
+   const rp=o.rawPose(her),q=rp.position,mv=Math.hypot(q[0]-cur.position[0],q[1]-cur.position[1],q[2]-cur.position[2]);
+   const c=guardEval(rp,her,near,base).cost+0.02*k*30+0.04*Math.abs(o.pitch-p0)+0.3*Math.abs(di-d0)+0.8*mv;
+   if(c<bc){bc=c;best=[o.yaw,o.pitch,o.dist];}}
+  o.yaw=best[0];o.pitch=best[1];o.dist=best[2];
+  this.lensPull.warm(o.rawPose(her),her,boxes,this.deckElev());
+  const from=this.readPose(),to=this.lensPull.apply(o.rawPose(her),her,boxes,0,undefined,undefined,false,this.deckElev());
+  const d=Math.hypot(to.position[0]-from.position[0],to.position[1]-from.position[1],to.position[2]-from.position[2]);
+  this.entry={from,t:0,T:Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS)};
  }
  /** Lakeside + island (b17r13): LensGuard keeps the walk lens off the proxies (look-ahead plan, speed/accel-capped spring, floor). */
  private occlude(pose:Pose,dt:number):Pose{
   const boxes=this.lakesideOccluders();if(!boxes){this.lensPull.reset();return pose;}
-  const r=this.lensPull.apply(pose,this.girl(),boxes,dt,undefined,undefined,this.orbit.engaged()&&(this.orbit.shouldWrite()||this.groundWalking));return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
+  const r=this.lensPull.apply(pose,this.girl(),boxes,dt,undefined,undefined,this.orbit.engaged()&&(this.orbit.shouldWrite()||this.groundWalking),this.deckElev());return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
  }
  /** Held / blended-to follow lens (reward close-up): the planned clear pose, no spring (the blend is the ease). */
  private occludeHeld(pose:Pose):Pose{
@@ -463,7 +492,11 @@ export class RegionNodeStage extends Component{
   this.orbit.step(dt);
   const g=this.girl();
   this.refreshOrbitBoxes(g);
-  this.writePose(this.occlude(this.guardOrbitGround(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds())),dt),false);
+  let pose=this.occlude(this.guardOrbitGround(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds())),dt);
+  const e=this.entry;
+  if(e){e.t+=Math.max(0,Math.min(0.1,dt||0));const u=Math.min(1,e.t/e.T),s=u*u*u*(u*(u*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s,a[2]+(b[2]-a[2])*s] as [number,number,number];
+   pose={...pose,position:L(e.from.position,pose.position),target:L(e.from.target,pose.target)};if(u>=1)this.entry=null;}
+  this.writePose(pose,false);
  }
  /** Sky stairs live in large merged meshes excluded from orbit AABBs. Sample from ABOVE the mesh,
   * so even a lens already below a tread (or returning from a cinematic) is lifted onto its top. */
@@ -492,6 +525,7 @@ export class RegionNodeStage extends Component{
  private tickLens(dt:number){
   if(this.anim||this.holdPose||(this.lens!=='MapExplore'&&this.lens!=='FollowWalk'))return;
   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
+  else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
  }
  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
@@ -508,6 +542,7 @@ export class RegionNodeStage extends Component{
   this.handOrbitBack(region);
   // board exit (and the lakeside): seed from the lens she already has, so opening explore never jumps the camera
   if(fromLens||region==='lakeside'){const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);}
+  this.entry=null;if(!this.orbit.shouldWrite())this.preSolveEntry();
   else if(!this.orbit.shouldWrite()){const {w,h}=this.viewport();const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.writePose(this.orbit.rawPose(g),false);}
   setExploreEnabled(true);
   emitTransitCue('explore-unlocked',{t:0,region});

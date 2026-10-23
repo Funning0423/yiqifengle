@@ -107,7 +107,13 @@ export function proxiesToWorld(rows:readonly (readonly number[])[],toWorld:(p:Oc
 export const LENS_GUARD=Object.freeze({clearM:1.1,headM:1.5,chestM:1.1,feetHeadroomM:1.2,floorHeadroomM:0.8,nearM:3,
  ups:[0,12,24,36,50,64],swings:[0,25,-25,50,-50,75,-75],shares:[1,0.78,0.58],lookAheadS:[0,0.6,1.2],planS:0.15,
  wHead:100,wChest:60,wInside:120,wClear:6,wClutter:40,wFloor:80,wUp:0.05,wSwing:0.06,wShare:10,hysteresis:2.5,
- maxMS:3.5,maxAccMS2:7,omega:4.5});
+ maxMS:3.5,maxAccMS2:7,omega:4.5,
+ /* P0 r16: on a deck zone (boardwalk, arch bridge) the designed lens is raised to ≥ deckElevDeg over her chest so it looks over
+  * the railings; the raise eases at ≤ liftMS (lens metres / s) both ways. clutterLin: near-lens clutter also costs linearly,
+  * so even one or two of the 9 view rays meeting a reed / post / trunk within nearM (3 m) moves the lens. */
+ deckElevDeg:28,liftMS:2.5,clutterLin:1.5,holdSwingDeg:30,
+ /* explore entry glide (RegionNodeStage.preSolveEntry): peak lens speed (smootherstep peak ≈ 1.9 × mean), under the 9 m/s frame-jump ceiling */
+ entryGlideMS:7});
 type V3=[number,number,number];
 const vsub=(a:OccVec,b:OccVec):V3=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];const vlen=(a:OccVec)=>Math.hypot(a[0],a[1],a[2]);
 const vnorm=(a:OccVec):V3=>{const l=vlen(a)||1e-9;return [a[0]/l,a[1]/l,a[2]/l];};
@@ -133,17 +139,19 @@ export function guardEval(raw:OccPose,her:OccVec,boxes:readonly OccBox[],p:Guard
  if(reach>0.05)for(const sx of [-1,0,1])for(const sy of [-1,0,1]){const dd=vnorm([f[0]+r[0]*sx*th+u[0]*sy*tv,f[1]+r[1]*sx*th+u[1]*sy*tv,f[2]+r[2]*sx*th+u[2]*sy*tv]);
   for(const b of live){const t=segEnter(pos,dd,reach,b,0);if(t!==null){hits++;break;}}}
  const clutter=hits/9;
- const cost=(head?o.wHead:0)+(ch?o.wChest:0)+(ins?o.wInside:0)+(near<o.clearM?o.wClear*(1-near/o.clearM):0)+o.wClutter*clutter*clutter*2+(belowFloor?o.wFloor:0)
+ const cost=(head?o.wHead:0)+(ch?o.wChest:0)+(ins?o.wInside:0)+(near<o.clearM?o.wClear*(1-near/o.clearM):0)+o.wClutter*(clutter*clutter*2+clutter*o.clutterLin)+(belowFloor?o.wFloor:0)
   +o.wUp*Math.abs(p.up)+o.wSwing*Math.abs(p.swing)+o.wShare*(1-p.share);
  return {cost,head,chest:ch,inside:ins,clutter,belowFloor,position:pos};
 }
 export class LensGuard{
- private params:GuardParams={up:0,swing:0,share:1};private off:V3|null=null;private vel:V3=[0,0,0];private planIn=0;private offYaw:number|null=null;
+ private params:GuardParams={up:0,swing:0,share:1};private off:V3|null=null;private vel:V3=[0,0,0];private planIn=0;private offYaw:number|null=null;private liftDeg=0;
  private herPrev:OccVec|null=null;private herVel:V3=[0,0,0];
  last:{eval:GuardEval;params:GuardParams}|null=null;
- reset(){this.params={up:0,swing:0,share:1};this.off=null;this.vel=[0,0,0];this.planIn=0;this.offYaw=null;this.herPrev=null;this.herVel=[0,0,0];this.last=null;}
+ reset(){this.params={up:0,swing:0,share:1};this.off=null;this.vel=[0,0,0];this.planIn=0;this.offYaw=null;this.liftDeg=0;this.herPrev=null;this.herVel=[0,0,0];this.last=null;}
  private plan(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt:((x:number,z:number)=>number|null)|undefined,o:typeof LENS_GUARD,holdYaw=false){
-  const swings=holdYaw?[0]:o.swings;if(holdYaw&&this.params.swing!==0)this.params={...this.params,swing:0};
+  // player holds the yaw: no swing, unless her head itself is blocked (a palm / trunk right behind her): then a small ±holdSwingDeg nudge
+  const headBlocked=holdYaw&&guardEval(raw,her,boxes,{up:0,swing:0,share:1},floorAt,o).head;
+  const swings=holdYaw?(headBlocked?[0,o.holdSwingDeg,-o.holdSwingDeg]:[0]):o.swings;if(holdYaw&&!headBlocked&&this.params.swing!==0)this.params={...this.params,swing:0};
   const samples=o.lookAheadS.map(s=>{const dx:V3=[this.herVel[0]*s,this.herVel[1]*s,this.herVel[2]*s];
    return {her:[her[0]+dx[0],her[1]+dx[1],her[2]+dx[2]] as OccVec,raw:{position:[raw.position[0]+dx[0],raw.position[1]+dx[1],raw.position[2]+dx[2]] as OccVec,target:raw.target,fovVerticalDeg:raw.fovVerticalDeg}};});
   const score=(p:GuardParams)=>{let c=0;for(let i=0;i<samples.length;i++){const w=i===0?1:0.6/i;c+=w*guardEval(samples[i].raw,samples[i].her,boxes,p,floorAt,o).cost;}return c;};
@@ -155,6 +163,13 @@ export class LensGuard{
    const c=score(p);if(c<bestC){bestC=c;best=p;}}
   this.params=best;
  }
+private raise(raw:OccPose,her:OccVec,minElevDeg:number,step:number,o:typeof LENS_GUARD):OccPose{
+  const c:V3=[her[0],her[1]+o.chestM,her[2]],v=vsub(raw.position,c),h=Math.hypot(v[0],v[2])||1e-6,arm=vlen(v)||1e-6,el=Math.atan2(v[1],h)*180/Math.PI;
+  const need=Math.max(0,Math.min(70,minElevDeg)-el),rate=step>0?(o.liftMS/arm)*180/Math.PI*step:1e9;
+  this.liftDeg+=Math.max(-rate,Math.min(rate,need-this.liftDeg));if(this.liftDeg<=1e-4){this.liftDeg=Math.max(0,this.liftDeg);return raw;}
+  const e=Math.min(80,el+this.liftDeg)*Math.PI/180,k=Math.cos(e)*arm/h,p:V3=[c[0]+v[0]*k,c[1]+Math.sin(e)*arm,c[2]+v[2]*k],dy=p[1]-raw.position[1];
+  return {position:p,target:[raw.target[0],raw.target[1]+dy*0.25,raw.target[2]],fovVerticalDeg:raw.fovVerticalDeg};
+ }
  /** One-shot planned pose (no spring) for a held / blended-to lens: the reward follow close-up blends to this. */
  solveStatic(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD):OccPose&{eval:GuardEval;params:GuardParams}{
   this.reset();this.herPrev=null;const R=vlen(vsub(raw.position,her))+o.nearM+o.clearM+2;const near=boxes.filter(b=>boxDist(her,b)<=R);
@@ -165,15 +180,21 @@ export class LensGuard{
  }
  /** holdYaw (P0 drag-rotate): the player owns the yaw (orbit engaged) → no swing; crane / pull-in only.
   * While held, the spring offset turns with the raw lens's yaw around her, so a drag rotates it with the lens (never pulls the yaw back). */
- apply(raw0:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD,holdYaw=false):OccPose&{eval:GuardEval;params:GuardParams}{
+ /** Converge the spring on a static scene (explore entry): the first written frame is already the planned pose. */
+ warm(raw:OccPose,her:OccVec,boxes:readonly OccBox[],minElevDeg=0,frames=60,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD):OccPose{
+  this.reset();let p:OccPose=raw;for(let i=0;i<frames;i++)p=this.apply(raw,her,boxes,i?1/30:0,floorAt,o,false,minElevDeg);this.herPrev=null;this.herVel=[0,0,0];return p;
+ }
+ apply(raw00:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD,holdYaw=false,minElevDeg=0):OccPose&{eval:GuardEval;params:GuardParams}{
   const step=Math.max(0,Math.min(0.1,dt||0));
+  // deck raise (eased): rotate the designed lens up about her chest to ≥ minElevDeg, keeping its arm and its look ray's height offset
+  const raw0=this.raise(raw00,her,minElevDeg,step,o);
   // floor first, on the designed lens itself (continuous: her feet / the floor move smoothly), so the spring never fights it
   const f0=floorAt?floorAt(raw0.position[0],raw0.position[2]):null,minY0=Math.max(her[1]+o.feetHeadroomM,f0===null?-1e9:f0+o.floorHeadroomM);
   const raw:OccPose=raw0.position[1]>=minY0?raw0:{position:[raw0.position[0],minY0,raw0.position[2]],target:[raw0.target[0],raw0.target[1]+(minY0-raw0.position[1]),raw0.target[2]],fovVerticalDeg:raw0.fovVerticalDeg};
   if(this.herPrev&&step>0){const k=1-Math.exp(-step/0.25);for(let i=0;i<3;i++)this.herVel[i]+=((her[i]-this.herPrev[i])/step-this.herVel[i])*k;}
   this.herPrev=[her[0],her[1],her[2]];
   const R=vlen(vsub(raw.position,her))+o.nearM+o.clearM+2;const near=boxes.filter(b=>boxDist(her,b)<=R);
-  this.planIn-=step;if(this.off===null||this.planIn<=0||(holdYaw&&this.params.swing!==0)){this.plan(raw,her,near,floorAt,o,holdYaw);this.planIn=o.planS;}
+  this.planIn-=step;if(this.off===null||this.planIn<=0){this.plan(raw,her,near,floorAt,o,holdYaw);this.planIn=o.planS;}
   const ev=guardEval(raw,her,near,this.params,floorAt,o);
   // while the player holds the yaw, the offset turns with the raw lens around her (a drag rotates it exactly, never fights it)
   const ry=Math.atan2(raw.position[0]-her[0],raw.position[2]-her[2]);
