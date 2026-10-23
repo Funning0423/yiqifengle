@@ -1,24 +1,28 @@
-# 运镜bot HANDOFF (2026-10-22, America/New_York)
+# 运镜bot HANDOFF (2026-10-23)
 
-Paused under the checkpoint rule. Everything is committed locally and nothing has been pushed by me (push result is in the bundles README).
+Path v4, the 7 m / short board cameras, terrain follow, swing-only foot-lock, and the standup wiring note are on `cursor/b18-path-v4-7m-df84` (PR 62). The 2026-10-22 checkpoint below is the spec this implementation followed.
 
 ## Branches and SHAs
 | branch | head | base for bundle | worktree |
 |---|---|---|---|
-| cine/r5-b18-board-compose | (this commit; previous head c2bc4eb9) | 55368056 (gbt/r5-integrated-b15) | /workspace/yiqifengle/work/cine-r5-b18-board |
-| cine/r5-b17-home-fade | (this commit; previous head 7c64fa30) | 7b9ba1d6 | /workspace/yiqifengle/work/cine-r5-b15-handover |
+| cine/r5-b18-board-compose | 35129170 (docs checkpoint this handoff was continued from) | 55368056 (gbt/r5-integrated-b15) | /workspace/yiqifengle/work/cine-r5-b18-board |
+| cursor/b18-path-v4-7m-df84 | 4aa94038 (path v4 + 7 m lens + terrain + foot-lock). PR https://github.com/Funning0423/yiqifengle/pull/62 into cine/r5-b18-board-compose | 35129170 | this checkout |
+| cine/r5-b17-home-fade | (previous head 7c64fa30) | 7b9ba1d6 | /workspace/yiqifengle/work/cine-r5-b15-handover |
+
+Suite on 4aa94038 with draco3d 1.5.7 at `/tmp/draco3d`: **146 / 147 pass**. The only non-pass is `navigation-guard` BLOCKED_BROWSER. Without that decoder, `region-nodes-data` and `lens-clearance` fail before they read the lakeside lens (missing `/tmp/draco3d` and the baked walk fixture). ES5: `/workspace/tsmod` is not on this machine. The three changed scripts were emitted with workspace TypeScript 5.4.5, target ES5, `downlevelIteration` off: 0 iterator diagnostics, no leftover `for-of`. The suite's `es5-iterator-spread` check passed.
 
 b18 history:
 - 08e56f7e: mainline-1[3-6] lakeside mapping, snow-pass draft
 - e925b4e5: B′ lens, landing solve, skycity board dir
 - 48548a01: B″ lens, test contracts
 - c2bc4eb9: QA-only `qaTools=N` (guarded by MINIGAME, pure test)
-- next commit: endpoint doc v4 + this file
+- 35129170: endpoint doc v4 + the checkpoint copy of this file
+- 4aa94038: path v4 walk, 7 m / short cameras, terrain follow, swing-only foot-lock
 
 ## b17 notes
 - Merged up to 9bab39c9.
 - 7c64fa30 (basket +0.03 m) is superseded by FX 333f0b15 (floor board in the model).
-- OPEN: 0.40 m landing pose pop at touchdown. This is animation/model work, not camera work, and needs to be assigned.
+- The 0.40 m / ~128° landing pose pop is the adapter cut that skips `stand_up`. This line already runs the integrated-b15 standup (see Progress). Animation reference `97fc3243`. Do not put the bare P0 cut back.
 - Snow-pass draft: docs/r5/cine/snow_pass_transition_draft.md (b18 branch).
 
 ## b18 plan (approved by 角色动画bot in Blender at 30 fps): path v4
