@@ -2016,8 +2016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 106047,
-    "sha256": "f02d21be30befc45fe9eafc94048426f03cbe1667f919b2e9c294159663143e9"
+    "bytes": 106488,
+    "sha256": "e299c56a7f83fe7666e2e4586938c47cc99585550a75f85606f4f143c7633b98"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -2486,8 +2486,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 10387,
-    "sha256": "2750919bab0107b3968df40a88bc7258b7b97bfd37109ae18b0a1c08c34e03cf"
+    "bytes": 11721,
+    "sha256": "862e7a771ee02ab4061c71eb8c2ec546dba09313bd827ff4a14884d820baecfe"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2506,8 +2506,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 41280,
-    "sha256": "f77c0851fc0f0264e4427d0634561442738e8f110b7db4149a153fe38f294241"
+    "bytes": 42364,
+    "sha256": "d29f09ac07cce426749d3d2c87b9d26b096bf59345513429f14e0c776e6dab2d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -3831,8 +3831,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 35635,
-    "sha256": "89b1060215e89f3e30e7170939d297cc154d6c186a0e01306ba3e4014ff24d8d"
+    "bytes": 36776,
+    "sha256": "6a98db815383b12532a094f4e539087735dfc65361e15a491dbe5961f593c603"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
@@ -4125,6 +4125,16 @@
     "sha256": "5cc799dd611764a21e859b29aaf72a40b7a19eb5cd98e408b8fd4b8a25b228cf"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/QaSkip.ts",
+    "bytes": 1627,
+    "sha256": "a5650a0fadb3a3d8e6b06d6e1d95f6695d28f034b7132db18f8c6f4e4739b70e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/QaSkip.ts.meta",
+    "bytes": 171,
+    "sha256": "4fbb2a7eeca47a12fc245db869effbe1a1632b31ea5bb2aa8172b388bbde15b8"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/R5PersistenceProbe.ts",
     "bytes": 3240,
     "sha256": "028aed61e4a51cbef59ada1ecc290831b7ef4bc770c9353c2ce180a6716512ae"
@@ -4136,8 +4146,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts",
-    "bytes": 2740,
-    "sha256": "2d857d4c46dde6cb1155b7f6137419f9e7c8aac40510f6c9ca1066785dc48fe8"
+    "bytes": 2914,
+    "sha256": "5cbb9e5a8b3d7d8d9b8e4f5f9d4740852d0fd6a4ea7c904e16317b73867a1eac"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts.meta",
@@ -4196,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 39645,
-    "sha256": "b7ead445967d323d54b8f0b23f5cfaa0185100bbe11f23b73f5d51963d76852d"
+    "bytes": 41754,
+    "sha256": "ff255785997d22a9d4b2fe684d44958e7a73dcdd690d20e0cab5f5765a179b63"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4326,8 +4336,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 15846,
-    "sha256": "81d2347d7e553d90bf5a1fb5c346019b0a226564de34023ad25e31df6ea6566b"
+    "bytes": 16057,
+    "sha256": "d95bdacf8917060cc6bfb21a73ce99f2b80ffab44a2ed123ec94bc73c59b123f"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
