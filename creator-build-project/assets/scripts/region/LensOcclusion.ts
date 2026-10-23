@@ -42,8 +42,10 @@ export function occlusionTarget(her:OccVec,lens:OccVec,boxes:readonly OccBox[],o
  return {arm:Math.max(Math.min(o.minArmM,full),Math.min(arm,hard)),full,hardArm:Math.max(Math.min(o.minArmM,full),hard),dir,pivot,blockedAtMin};
 }
 /** Lens direction from the pivot raised by `upDeg` toward +Y and swung `swingDeg` about +Y. */
+/** Crane ceiling (over her head pivot): well short of the pole, so a crane never flips the lens over her (P0 pitch). */
+export const CRANE_MAX_ELEV_DEG=68;
 export function craneDir(d:OccVec,upDeg:number,swingDeg=0):OccVec{
- if(!upDeg&&!swingDeg)return d;const h=Math.hypot(d[0],d[2])||1e-6,el=Math.min(Math.atan2(d[1],h)+upDeg*Math.PI/180,80*Math.PI/180),az=Math.atan2(d[0],d[2])+swingDeg*Math.PI/180;
+ if(!upDeg&&!swingDeg)return d;const h=Math.hypot(d[0],d[2])||1e-6,el=Math.min(Math.atan2(d[1],h)+upDeg*Math.PI/180,CRANE_MAX_ELEV_DEG*Math.PI/180),az=Math.atan2(d[0],d[2])+swingDeg*Math.PI/180;
  return [Math.sin(az)*Math.cos(el),Math.sin(el),Math.cos(az)*Math.cos(el)];
 }
 /** Lens follower. Target per frame: the lens pulled in along its pivot ray; when that leaves less than max(minArmM, keepShare ×

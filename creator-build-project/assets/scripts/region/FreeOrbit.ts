@@ -90,14 +90,16 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
       viewDownMinDeg: 9, viewDownMaxDeg: 31, viewDownSoftDeg: 3, centreFadeW: 0.5,
       r10: { edgeA: 330, edgeB: 14, bandDeg: 50, satDeg: 30, envK: 3, gazeM: 1.9 },
       framePts: [[-0.42,-1.05,-0.23],[-0.33,-0.83,0.02],[-0.32,-0.57,-0.29],[-0.36,-0.53,-0.17],[-0.36,-0.6,-0.07],[0.08,0.01,0.15],[0.1,0.05,-0.15],[0.03,0.05,-0.03],[-0.29,-1.05,-0.35],[-0.33,-1.05,-0.13],[-0.21,-0.74,-0.41],[0.16,0.14,0.01],[-0.15,-1.05,-0.24],[0.26,-0.74,0.09],[-0.14,-0.83,-0.42],[0.25,0.1,0.14],[0.04,-0.97,-0.13],[0.27,-0.03,0.16],[0.29,0.01,-0.19],[0.29,0.12,-0.07],[0.38,-0.03,-0.06],[0.37,0.07,0.08]] } },
-  island: { pitchMinDeg: -8, pitchMaxDeg: 58, distMin: 4.2, distMax: 52, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 42 },
+  island: { pitchMinDeg: 5, pitchMaxDeg: 58, distMin: 4.2, distMax: 52, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 42 },
   // r5 meadow pitch floor (场景特效bot): close in, the lens may not dip as far below her chest: -8 at 3.2 m to -12 at 14 m.
-  meadow: { pitchMinDeg: -12, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
-    pitchFloor: { nearDeg: -8, farDeg: -12, fromM: 3.2, toM: 14 } },
-  skycity: { pitchMinDeg: -6, pitchMaxDeg: 55, distMin: 4, distMax: 22, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
+  // P0 pitch (Grok Bot 2026-10-23): every explore region's elevation ⊂ [5°, 65°] — never at/under the ground or deck, never over
+  // her head; the r5 near-in floor keeps its shape (close in the lens sits higher): 9° at 3.2 m to 5° at 14 m.
+  meadow: { pitchMinDeg: 5, pitchMaxDeg: 48, distMin: 3.2, distMax: 14, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
+    pitchFloor: { nearDeg: 9, farDeg: 5, fromM: 3.2, toM: 14 } },
+  skycity: { pitchMinDeg: 5, pitchMaxDeg: 55, distMin: 4, distMax: 22, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
   // b15: pitchMax 42 -> 54 and distMax 16 -> 16.5 so the landscape board lens (pitch 53.3, 16.16 m from her look point)
   // seeds without a clamp (the old limits moved the lens on the first drag). revealWiden: moored balloon reveal (+8 deg max).
-  lakeside: { pitchMinDeg: -10, pitchMaxDeg: 54, distMin: 3.6, distMax: 16.5, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
+  lakeside: { pitchMinDeg: 5, pitchMaxDeg: 54, distMin: 3.6, distMax: 16.5, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
     revealWiden: { fovAddDeg: 8, fullDeg: 70 }, revealLift: { aimUpM: 2.0 }, seedAimBlend: { minDeg: 18, perJumpDeg: 1.6 } },
   board: { pitchMinDeg: -2, pitchMaxDeg: 2, distMin: 6.6, distMax: 7.8, yawHalfDeg: 4, lookM: 1.1, fovDeg: 48 },
 });
