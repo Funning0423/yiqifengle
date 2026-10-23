@@ -142,7 +142,7 @@ const tests=[
  ['lakeside-first-show-staged','tools/lakeside/test_lakeside_first_show_staged.cjs'],/* r4.2 warning 6 */
  ['h5-mouse-bridge','tools/h5-mouse/test_h5_mouse_bridge.cjs'],/* b16 P2-1 H5 mouse */
  ['ui-b16-fixes','tools/ui-b16-fixes/test_b16_ui_fixes.cjs'],/* UI设计部 b16: P1 signpost, P2 sky-city night key light, L13 rule guide, r6 lakeside measure_visible gate */
- ['lakeside-lens-occlusion','tools/journey-integration/test-lakeside-lens-occlusion.cjs'],
+ ['lakeside-lens-guard','tools/journey-integration/test-lakeside-lens-guard.cjs'],/* b17r13: supersedes lakeside-lens-occlusion (LensPullIn, b17r7) */
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
