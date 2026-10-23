@@ -125,7 +125,7 @@ const tests=[
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
-  ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],
+  ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],['island-exit-explore','tools/journey-integration/test-island-exit-explore.cjs'],
   ['balloon-night-sky-states','tools/journey-integration/test-balloon-night-sky-states.cjs'],
   ['mesh-quantize-float-color','tools/journey-integration/test-mesh-quantize-float-color.cjs'],
  ['balloon-transport-flag','tools/journey-integration/test-transport-flag.cjs'],
