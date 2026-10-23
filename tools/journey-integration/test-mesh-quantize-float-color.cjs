@@ -23,6 +23,11 @@ const se=/function setEmissive[\s\S]*?\n\}/.exec(ts);assert.ok(se,'setEmissive p
 assert.doesNotMatch(se[0],/setProperty\('emissiveScale'/,'setEmissive must not write emissiveScale');
 assert.doesNotMatch(ts,/else if\(night\)setEmissive\(clouds,true\);/,'no per-frame setEmissive on clouds');
 assert.match(ts,/diagParams\(/,'hideNode/diagDump diagnostics present');
+// b17 night lakeside blocker bisect: the skycity→lakeside leg honours ?hideNode / ?diagDump=1&lakeDiagAt=t too (dump rows carry aabb).
+const ra=fs.readFileSync(path.join(root,'scripts/region/RegionJourneyAdapter.ts'),'utf8');
+assert.match(ra,/const diag=diagParams\(\),diagAt=lakeDiagAt\(\)/,'lakeside leg reads the diagnostics');
+assert.match(ra,/diagDumpScene\(clock\.t,'lakeside'\)/,'lakeside leg dumps at lakeDiagAt');
+assert.match(ts,/aabb:wb\?/,'QF_DIAG rows carry world bounds');
 for(const n of ['transit_clouds_merged.glb','transit_sea_fallback.glb']){
  const d=fs.readFileSync(path.join(root,'bundles/region_transit_balloon',n));const j=JSON.parse(d.subarray(20,20+d.readUInt32LE(12)).toString('utf8'));
  for(const m of j.meshes)for(const p of m.primitives){const a=j.accessors[p.attributes.COLOR_0];assert.ok(a&&a.componentType===5121&&a.normalized===true&&a.type==='VEC4',n+' COLOR_0 u8 normalized VEC4');}

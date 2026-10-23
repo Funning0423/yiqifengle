@@ -27,7 +27,7 @@ import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor} from './JourneyTransport';
 import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
-import {loadTransitPrefab} from './BalloonTransit';
+import {diagDumpScene,diagParams,lakeDiagAt,loadTransitPrefab} from './BalloonTransit';
 import {mountVehicle} from './TransportVehicle';
 import {stepTransitClock} from './TransportLeg';
 import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,sailVehicle,seatFromBench} from './TransportLeg';
@@ -218,6 +218,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined;let prev:Node|null=null,aboard=false;
    const fade=typeof world.fadeCover==='function'?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
    let walkDone=false,blackDone=!fade,fadingOut=false,fadingIn=false;
+   const diag=diagParams(),diagAt=lakeDiagAt();let diagDone=false;
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
@@ -231,6 +232,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
      lastPose=lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);
+     // Web diagnostics (Mac bisect, night lakeside blocker): ?hideNode=a,b hides by exact name every frame of THIS leg too (the
+     // BalloonTransit hook only runs on the meadow→skycity leg); ?diagDump=1&lakeDiagAt=t logs every active renderer once at ride time t.
+     if(diag.hide.length){const sc=director.getScene();if(sc){const hideIn=(n:Node)=>{if(diag.hide.includes(n.name))n.active=false;for(const c of n.children)hideIn(c);};hideIn(sc);}}
+     if(diag.dump&&!diagDone&&diagAt!==null&&clock.t+1e-6>=diagAt){diagDone=true;diagDumpScene(clock.t,'lakeside');}
      lease.progress!(t<R.cutT?R.walkAt(t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
     };
     beforeDraw=()=>{if(!dead)apply();};

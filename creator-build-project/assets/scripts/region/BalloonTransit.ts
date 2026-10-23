@@ -42,14 +42,17 @@ function holdAt():number|null{try{const q=typeof location!=='undefined'?String(l
 export function diagParams(q?:string):{hide:string[];dump:boolean}{try{const s=q!==undefined?q:(typeof location!=='undefined'?String(location.search||''):'');const h=/(?:^|[?&])hideNode=([^&]*)/.exec(s);return {hide:h?decodeURIComponent(h[1]).split(',').map(x=>x.trim()).filter(Boolean):[],dump:/(?:^|[?&])diagDump=1(?:&|$)/.test(s)};}catch{return {hide:[],dump:false};}}
 function nodePath(n:Node):string{const a:string[]=[];let c:Node|null=n;while(c){a.unshift(c.name);c=c.parent;}return a.join('/');}
 function diagVal(v:any):any{if(v==null)return null;if(typeof v==='number')return Number.isFinite(v)?+v.toFixed(4):String(v);if(typeof v==='object'){if(typeof v.name==='string'&&v.name)return v.name;const o:any={};for(const k of ['x','y','z','w','r','g','b','a'])if(typeof v[k]==='number')o[k]=Number.isFinite(v[k])?+v[k].toFixed(4):String(v[k]);return Object.keys(o).length?o:String(v);}return String(v);}
-export function diagDumpScene(t:number):void{
+/** ?lakeDiagAt=t: the skycity→lakeside ride time (s) at which ?diagDump=1 dumps (the lakeside leg; balloonAt is the meadow→skycity leg). */
+export function lakeDiagAt(q?:string):number|null{try{const s=q!==undefined?q:(typeof location!=='undefined'?String(location.search||''):'');const m=/(?:^|[?&])lakeDiagAt=([0-9.]+)/.exec(s);if(!m)return null;const t=Number(m[1]);return Number.isFinite(t)?t:null;}catch{return null;}}
+export function diagDumpScene(t:number,leg:string='skycity'):void{
  const scene=director.getScene();if(!scene)return;const rows:any[]=[];
  for(const r of scene.getComponentsInChildren(MeshRenderer)){
   if(!r.enabled||!r.node.activeInHierarchy)continue;const mat:any=(r as any)._materialInstances?.[0]||r.getSharedMaterial(0); // read only, never creates an instance
   const get=(k:string)=>{try{return diagVal(mat?.getProperty?.(k));}catch{return null;}};
-  rows.push({path:nodePath(r.node),effect:mat?.effectName??null,technique:mat?.technique??null,mainTexture:get('mainTexture'),albedoMap:get('albedoMap'),mainColor:get('mainColor'),emissive:get('emissive'),emissiveScale:get('emissiveScale'),priority:(r as any).priority??null});
+  const wb:any=(r as any).model?.worldBounds;const wp=r.node.worldPosition;
+  rows.push({path:nodePath(r.node),pos:[+wp.x.toFixed(2),+wp.y.toFixed(2),+wp.z.toFixed(2)],aabb:wb?[+wb.center.x.toFixed(1),+wb.center.y.toFixed(1),+wb.center.z.toFixed(1),+wb.halfExtents.x.toFixed(1),+wb.halfExtents.y.toFixed(1),+wb.halfExtents.z.toFixed(1)]:null,effect:mat?.effectName??null,technique:mat?.technique??null,mainTexture:get('mainTexture'),albedoMap:get('albedoMap'),mainColor:get('mainColor'),emissive:get('emissive'),emissiveScale:get('emissiveScale'),priority:(r as any).priority??null});
  }
- console.info('[QF_DIAG] '+JSON.stringify({t,count:rows.length,rows}));
+ console.info('[QF_DIAG] '+JSON.stringify({leg,t,count:rows.length,rows}));
 }
 class TransitDriver extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** glTF scene prefab inside region_transit_balloon. Same loadDir fallback as the balloon-fix (bundle.load misses the sub-asset). */
