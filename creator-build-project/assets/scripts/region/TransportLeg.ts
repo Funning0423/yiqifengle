@@ -166,13 +166,17 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  * Portrait 390×844 is only ~25° wide, so a large side offset crops the hull
  * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
  */
+/** b16 item 4: S-a walk lens (her right, behind the jetty, aimed 6 m behind the bow at her path). */
+const K0:SailOff={back:12,side:-4,up:4,fov:50,look:2,orb:0};
+export const SAIL_K0_BLEND_S=5;
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 /**
  * Beam on her starboard side (b11). The jib, main and boom all sit to port of the centreline (+X), so from
  * starboard they are behind her; K2 (starboard bow) → Kbeam → K3 (starboard quarter) never crosses the bow line.
  * Was side:10.2 (port): the swing off the bow looked through the jib and rig (chest hidden S-d u 0.02–0.06, 0.23).
  */
-const Kbeam:SailOff={back:0.8,side:-10.2,up:5.1,fov:52,look:0.2,orb:0};
+/** b16: up 5.1 → 7.0. Kbeam is now passed on one arc, and a higher pass keeps the jib off her port limbs (mast-occlusion cap). */
+const Kbeam:SailOff={back:0.8,side:-10.2,up:7.0,fov:52,look:0.2,orb:0};
 /**
  * Far-sea K3 (day) / K7 (night still). r5-sail-farsea: astern, a little to starboard, lower, aimed 3 m ahead
  * so the meadow windmill (≈80 m ahead, port of the heading) sits whole in the upper third above her.
@@ -181,21 +185,56 @@ const Kbeam:SailOff={back:0.8,side:-10.2,up:5.1,fov:52,look:0.2,orb:0};
  * b12 rework (K7 windmill whole, centred-upper; was back 10.5 side -2: blades cut at left edge): back 11.5 side -4.5.
  * Rollback: restore that line and SAIL_K3_IN back to 0.24.
  */
-const K3:SailOff={back:11.5,side:-4.5,up:4.4,fov:52,look:3,orb:0};
-/** S-d u where the bow→beam arc ends on the 3.6 m/s cruise clock. */
-export const SAIL_BEAM_IN=0.14;
-/** S-d u where the ~96° Kbeam→K3 arc ends. Keep the swing below 110°/s. b15: 0.32/0.44 (was 0.34/0.42 = 0.66 s hold on the 3.6 m/s clock) holds K3 0.99 s so the windmill reads; swing 85.6°/s, 289°/s², K7 still u 0.40 inside the hold. */
-export const SAIL_K3_IN=0.32;
-export const SAIL_K3_OUT=0.44;
+/** b16: side -4.5 → -2. K3 now holds ~11 m further up the route (eased arcs), where -4.5 put the windmill on the right edge. */
+const K3:SailOff={back:11.5,side:-2,up:4.4,fov:52,look:3,orb:0};
+/**
+ * b16 S-c/S-d (Grok Bot decision 2026-10-22): the arcs round the boat stay, slower and eased. Camera clock τ = t − S-c.t0
+ * (independent of the beat split, so the S-c/S-d boat clock and build05S are unchanged):
+ *   A  K1→K2 bow arc  τ 0 … SAIL_ARC_A_S    eased cruise (sine ramps, no acceleration step)
+ *      K2 hold         … +SAIL_K2_HOLD_S    (K2 still in the middle)
+ *   B  K2→Kbeam→K3    … +SAIL_ARC_B_S      one continuous arc; Kbeam is passed, not stopped at
+ *      K3 hold         … +SAIL_K3_HOLD_S    (windmill / K7 still)
+ *   K3→K4, K4 hold, K4→K5, K5 as before but on τ.
+ * Peak view turn ≤ 60°/s (route test C1setoff). Was: A in 1.8 s and B in two smootherstep legs (159°/s, 626°/s²).
+ * Item 1 (palm, b16): env_prop_palm_lean_01 sits on her starboard side at the jetty. A starts at motion start so the
+ * starboard pass sweeps west of her before her bearing to the palm comes round (old 1.8 s arc crossed it at 10.4 s),
+ * and B reaches the astern K3 only once K3's lens is north of the palm (old K3 lens sat in its crown at 13.8 s).
+ * The tree is not moved or hidden; the route test O1/O2 lock it.
+ * Arc window for the 60°/s exception: τ ∈ [0, K3→K4 end] (sailArcWindow).
+ */
+export const SAIL_ARC_A0=0,SAIL_ARC_A_S=4.0,SAIL_K2_HOLD_S=0.15,SAIL_ARC_B_S=5.0,SAIL_K3_HOLD_S=0.4,SAIL_K34_S=1.2;
+const SAIL_EASE_RAMP=0.3;
+export const SAIL_ARC_A_LIFT=1.2;
+/** Eased cruise 0→1: sine-shaped speed ramps over the first/last SAIL_EASE_RAMP, constant speed between. C2. */
+export function sailEase(u:number,r:number=SAIL_EASE_RAMP):number{
+ const x=Math.min(1,Math.max(0,u)),tot=1-r;
+ const up=(v:number)=>v/2-r/(2*Math.PI)*Math.sin(Math.PI*v/r);
+ if(x<r)return up(x)/tot;
+ if(x>1-r)return 1-up(1-x)/tot;
+ return (r/2+(x-r))/tot;
+}
+const B_IN=SAIL_ARC_A0+SAIL_ARC_A_S+SAIL_K2_HOLD_S,K3_IN_T=B_IN+SAIL_ARC_B_S,K3_OUT_T=K3_IN_T+SAIL_K3_HOLD_S;
+/** Legacy S-d u marks on the default route (S-c 2 s, S-d 8.22 s). Prefer sailK3Window / sailArcWindow / sailStillTimes. */
+export const SAIL_BEAM_IN=0.2615,SAIL_K3_IN=0.8697,SAIL_K3_OUT=0.9183;
+export function sailArcWindow(tl:SailTimeline):{t0:number;t1:number}{const sc=tl.beats.find(x=>x.id==='S-c')!;return {t0:sc.t0,t1:sc.t0+K3_OUT_T+SAIL_K34_S};}
+/** Build05 times of the K stills on the b16 arc clock (K1 S-b, K2 hold, K3/K7 hold, K4 end of K3→K4, K5 on the K4→K6 move). */
+export function sailStillTimes(tl:SailTimeline):{k1:number;k2:number;k3:number;k4:number;k5:number}{
+ const sb=tl.beats.find(x=>x.id==='S-b')!,sc=tl.beats.find(x=>x.id==='S-c')!,se=tl.beats.find(x=>x.id==='S-e')!,k4=sc.t0+K3_OUT_T+SAIL_K34_S;
+ return {k1:sb.t0+(sb.t1-sb.t0)*0.55,k2:sc.t0+SAIL_ARC_A0+SAIL_ARC_A_S+SAIL_K2_HOLD_S/2,k3:sc.t0+(K3_IN_T+K3_OUT_T)/2,k4:k4+0.05,k5:k4+(se.t1-k4)*0.5};
+}
+export function sailK3Window(tl:SailTimeline):{in:number;out:number}{
+ const sc=tl.beats.find(x=>x.id==='S-c')!,sd=tl.beats.find(x=>x.id==='S-d')!,D=sd.t1-sd.t0,off=sc.t1-sc.t0;
+ return {in:(K3_IN_T-off)/D,out:(K3_OUT_T-off)/D};
+}
 /** Stay in the channel. side 5.2 put the lens inside rm_bank_left once the boat reaches the mouth. */
 const K4:SailOff={back:9.2,side:1.05,up:6.2,fov:50,look:2.4,orb:0};
 /** Channel centre: boat x≈−4.4, side≈0.9 → camera x≈−3.5, between the inner banks. */
-const K5:SailOff={back:10.2,side:0.92,up:7.6,fov:48,look:2.2,orb:0};
+const K5:SailOff={back:9.0,side:0.92,up:8.2,fov:48,look:2.2,orb:0};
 /** Same channel, a little closer. The old side 4.2 still sat in the left bank. */
-const K6:SailOff={back:8.4,side:0.85,up:6.8,fov:48,look:2.8,orb:0};
+const K6:SailOff={back:8.4,side:0.85,up:10.0,fov:48,look:2.8,orb:0};
 /** Blend on a constant-radius arc. A straight lerp from ahead of the bow to astern crosses the hull and guardOff then teleports. */
-function orbitMix(a:SailOff,b:SailOff,u:number):SailOff{
- const s=smoother(u);
+function orbitMix(a:SailOff,b:SailOff,u:number,ease:(x:number)=>number=smoother):SailOff{
+ const s=ease(Math.min(1,Math.max(0,u)));
  let ang=Math.atan2(a.side,a.back),bng=Math.atan2(b.side,b.back),d=bng-ang;
  while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
  const th=ang+d*s,r=lerp(Math.hypot(a.back,a.side),Math.hypot(b.back,b.side),s);
@@ -203,56 +242,110 @@ function orbitMix(a:SailOff,b:SailOff,u:number):SailOff{
 }
 /** Keep the lens outside the 4.2 m hull. A straight blend from astern to ahead would cross the mast. */
 function guardOff(o:SailOff):SailOff{const r=Math.hypot(o.back,o.side);if(r>=7.2)return o;const k=7.2/Math.max(1e-3,r);return {...o,back:o.back*k,side:o.side*k};}
-function sailOffset(b:SailBeat,t:number):SailOff{
- const u=(t-b.t0)/Math.max(1e-3,b.t1-b.t0);
- if(b.id==='S-a'||b.id==='S-b')return K1;
- if(b.id==='S-c')return u>=0.9?K2:orbitMix(K1,K2,u/0.9);
- if(b.id==='S-d'){
-  // Preserve the bow-to-beam swing duration on the shorter 3.6 m/s cruise.
-  const beamIn=SAIL_BEAM_IN;
-  if(u<beamIn)return orbitMix(K2,Kbeam,u/beamIn);
-  if(u<SAIL_K3_IN)return orbitMix(Kbeam,K3,(u-beamIn)/(SAIL_K3_IN-beamIn));
-  if(u<SAIL_K3_OUT)return K3;
-  if(u<0.56)return orbitMix(K3,K4,(u-SAIL_K3_OUT)/(0.56-SAIL_K3_OUT));
-  if(u<0.64)return K4;
-  if(u<0.82)return orbitMix(K4,K5,(u-0.64)/0.18);
-  return K5;
+/**
+ * b16 item 4: off the bow/stern axis the look point (metres along the hull) swings her sideways on screen; a 3 m look from a
+ * beam lens put her past the right edge (S-c 11.1–12.7 s, S-d 14.8–15.4 s). Damp it by sin²(bearing), only inside an arc
+ * (sin²(π·s) → the K-shot ends are untouched).
+ */
+const SAIL_SEAT_BACK=0.55;
+function lookDamp(o:SailOff,s:number):SailOff{const th=Math.atan2(o.side,o.back),w=1-smoother(s/0.3)*smoother((1-s)/0.3)*Math.min(1,3*Math.abs(Math.sin(th)));return {...o,look:o.look*w-SAIL_SEAT_BACK*(1-w)};}
+function orbitPath(a:SailOff,m:SailOff,b:SailOff,u:number):SailOff{
+ // One arc a→b through m's bearing; the other fields follow the bearing with C1 joins at m.
+ const s=sailEase(u),ang=(o:SailOff)=>Math.atan2(o.side,o.back);
+ const unwrap=(x:number,ref:number)=>{while(x-ref>Math.PI)x-=Math.PI*2;while(x-ref<-Math.PI)x+=Math.PI*2;return x;};
+ const t0=ang(a),tm=unwrap(ang(m),t0),t1=unwrap(ang(b),tm),th=lerp(t0,t1,s);
+ const f=(k:'up'|'fov'|'look'|'orb'|'r')=>{const g=(o:SailOff)=>k==='r'?Math.hypot(o.back,o.side):o[k];
+  const u1=(th-t0)/(tm-t0);
+  // 'up' leads on the first half (rises off the bow quickly: the jib hides her port limbs from a low bow lens).
+  if(u1<1)return lerp(g(a),g(m),k==='up'?smoother(Math.min(1,u1*1.6)):smoother(u1));
+  return lerp(g(m),g(b),smoother((th-tm)/(t1-tm)));};
+ const r=f('r');
+ return lookDamp({back:Math.cos(th)*r,side:Math.sin(th)*r,up:f('up'),fov:f('fov'),look:f('look'),orb:f('orb')},s);
+}
+function sailOffset(tl:SailTimeline,b:SailBeat,t:number):SailOff{
+ const sc=tl.beats.find(x=>x.id==='S-c')!,sd=tl.beats.find(x=>x.id==='S-d')!,tau=t-sc.t0;
+ if(b.id==='S-a'){
+  // b16 item 4: she walks from the island stand (≈0.5 m behind the K1 lens) to the bench through S-a. K0 stands further back
+  // and higher, aimed at the jetty, so her whole walk is in frame; it eases to K1 over the last SAIL_K0_BLEND_S of S-a.
+  const u=(t-(b.t1-SAIL_K0_BLEND_S))/SAIL_K0_BLEND_S;
+  return u<=0?K0:u>=1?K1:orbitMix(K0,K1,u);
  }
- if(b.id==='S-e')return u<0.62?K5:orbitMix(K5,K6,(u-0.62)/0.38);
+ if(b.id==='S-b')return K1;
+ if(b.id==='S-c'||b.id==='S-d'||b.id==='S-e'||b.id==='S-f'||b.id==='S-g'){
+  const ez=(o:SailOff,p:SailOff,u:number)=>orbitMix(o,p,sailEase(u),(x)=>x);
+  if(tau<SAIL_ARC_A0)return K1;
+  if(tau<SAIL_ARC_A0+SAIL_ARC_A_S){
+   // Lifted over the bow quarter (sin bump, zero slope at both ends): a low lens there sees her port limbs through the jib.
+   const u=(tau-SAIL_ARC_A0)/SAIL_ARC_A_S,e=sailEase(u),o=lookDamp(ez(K1,K2,u),e);return {...o,up:o.up+SAIL_ARC_A_LIFT*Math.sin(Math.PI*e)**2};
+  }
+  if(tau<B_IN)return K2;
+  if(tau<K3_IN_T)return orbitPath(K2,Kbeam,K3,(tau-B_IN)/SAIL_ARC_B_S);
+  if(tau<K3_OUT_T)return K3;
+  // The tail runs on τ into S-e (the slower arcs cost ~2.2 s; S-e's K5 hold absorbs it, build05S unchanged).
+  // b16 (sail.C1ride): the K4→K5→K6 move ends with S-f (she is still seated; the lens is held through S-f/S-g), not S-e: squeezed
+  // into ~1.6 s before the berth it reached 10.6 m/s² at 21.8 s.
+  const sg=tl.beats.find(x=>x.id==='S-g')!,end=sg.t1-sc.t0,k4in=K3_OUT_T+SAIL_K34_S;
+  if(tau<k4in)return orbitMix(K3,K4,sailEase((tau-K3_OUT_T)/SAIL_K34_S),(x)=>x);
+  // One eased move K4→K6 shaped by K5 (quadratic Bézier; small bearings, so field-wise is fine).
+  const s=sailEase((tau-k4in)/Math.max(0.3,end-k4in),.5)/* b16: full sine ramps (C1ride) */,w0=(1-s)*(1-s),w1=2*s*(1-s),w2=s*s;
+  const bz=(k:keyof SailOff)=>w0*K4[k]+w1*K5[k]+w2*K6[k];
+  return {back:bz('back'),side:bz('side'),up:bz('up'),fov:bz('fov'),look:bz('look'),orb:bz('orb')};
+ }
  return K6;
 }
 /** K1–K7 in the boat frame (README §5), held outside the hull. Positive side is port (+X, her left). */
+const routeCum=new WeakMap<readonly Vec[],number[]>();
+function sailLensYaw(route:readonly Vec[],d:number,fallback:number):number{
+ if(route.length<2)return fallback;
+ let cum=routeCum.get(route);if(!cum){cum=[0];for(let i=1;i<route.length;i++)cum.push(cum[i-1]+dist(route[i-1],route[i]));routeCum.set(route,cum);}
+ const a=polyMean(route,cum,d-2,1.5),b=polyMean(route,cum,d+2,1.5),x=b[0]-a[0],z=b[2]-a[2];
+ return Math.hypot(x,z)>1e-4?Math.atan2(x,z):fallback;
+}
 export function sailCamera(tl:SailTimeline,route:readonly Vec[],t:number,screen:SailScreen={w:390,h:844}):Pose{
  const v=sailVehicle(tl,route,t),b=beatAt(tl,t);
- let o=guardOff(sailOffset(b,t));
+ let o=guardOff(sailOffset(tl,b,t));
  if(b.id==='S-d'&&o.orb>8){
   if(screen.h<=520||(screen.w===375&&screen.h===667))o={...o,up:o.up+0.6};
   if(screen.w===768&&screen.h===1024)o={...o,back:o.back-(o.back>0?1.5:-1.5)};
  }
  const orb=o.orb*Math.PI/180;
- const pyaw=v.yaw+orb,fx=Math.sin(pyaw),fz=Math.cos(pyaw),rx=fz,rz=-fx;
+ // b16: lens frame yaw from the C1 running-mean chord of the route (as sailFollowCamera); the hull's ±0.4 m heading
+ // carries the sample polyline's kinks, which an 11 m lever turned into lens acceleration steps (≈50 m/s² per frame).
+ const pyaw=sailLensYaw(route,v.distance,v.yaw)+orb,fx=Math.sin(pyaw),fz=Math.cos(pyaw),rx=fz,rz=-fx;
  const pos:Vec=[v.pos[0]-fx*o.back+rx*o.side,v.pos[1]+o.up,v.pos[2]-fz*o.back+rz*o.side];
  const look=o.look;
  return {position:pos,target:[v.pos[0]+fx*look,v.pos[1]+1.05,v.pos[2]+fz*look],fovVerticalDeg:o.fov};
 }
-/** Shore walk lens. `state.yaw` eases toward the path heading so a corner does not snap the camera. */
-export function sailFollowCamera(path:readonly Vec[],u:number,from:Pose,to:Pose,state:{yaw:number|null}):Pose{
- const s=smoother(Math.min(1,Math.max(0,u)));
- let L=0;for(let i=1;i<path.length;i++)L+=dist(path[i-1],path[i]);
- let left=L*Math.min(1,Math.max(0,u)),at=path[0]||[0,0,0],seg=0;
- for(let i=1;i<path.length;i++){
-  const d=dist(path[i-1],path[i]);
-  const h=Math.atan2(path[i][0]-path[i-1][0],path[i][2]-path[i-1][2]);
-  if(d>0&&left<=d){const k=left/d;at=[lerp(path[i-1][0],path[i][0],k),lerp(path[i-1][1],path[i][1],k),lerp(path[i-1][2],path[i][2],k)];seg=h;break;}
-  left-=d;at=path[i];seg=h;
- }
- if(state.yaw==null)state.yaw=seg;
- else{
-  let d=seg-state.yaw;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
-  const max=2.5*Math.PI/180;
-  state.yaw+=Math.max(-max,Math.min(max,d));
- }
- const yaw=state.yaw,back=4.8,side=1.35,up=3.3;
+/** Point at arc length d on the polyline; past either end it continues along the end segment. */
+function polyAt(path:readonly Vec[],cum:readonly number[],d:number):Vec{
+ const n=path.length;if(n<2)return path[0]||[0,0,0];
+ let i=1;while(i<n-1&&cum[i]<d)i++;
+ const L=cum[i]-cum[i-1],k=L>0?(d-cum[i-1])/L:0;
+ return [lerp(path[i-1][0],path[i][0],k),lerp(path[i-1][1],path[i][1],k),lerp(path[i-1][2],path[i][2],k)];
+}
+/** Exact mean of the polyline over [d-W,d+W] (piecewise linear, so trapezoids between vertices are exact). */
+function polyMean(path:readonly Vec[],cum:readonly number[],d:number,W:number):Vec{
+ const a=d-W,b=d+W,cuts=[a];for(const c of cum)if(c>a&&c<b)cuts.push(c);cuts.push(b);
+ const o:Vec=[0,0,0];
+ for(let i=1;i<cuts.length;i++){const p=polyAt(path,cum,cuts[i-1]),q=polyAt(path,cum,cuts[i]),w=(cuts[i]-cuts[i-1])/2;for(let j=0;j<3;j++)o[j]+=(p[j]+q[j])*w;}
+ return [o[0]/(2*W),o[1]/(2*W),o[2]/(2*W)];
+}
+/**
+ * Shore walk lens. Stateless (b16 item 2): the anchor is the ±1.2 m running mean of the path and the yaw is
+ * the ±1.5 m chord of that mean, so corners turn the lens smoothly. The old per-call 2.5° yaw clamp depended on the
+ * call rate (pose() and onFrame() both stepped it) and the anchor followed the raw corners: jump 30.9 s, lurch 33.9 s.
+ * `state` is kept for the call sites and ignored.
+ */
+export function sailFollowCamera(path:readonly Vec[],u:number,from:Pose,to:Pose,_state?:{yaw:number|null}):Pose{
+ const uc=Math.min(1,Math.max(0,u)),s=smoother(uc);
+ const cum=[0];for(let i=1;i<path.length;i++)cum.push(cum[i-1]+dist(path[i-1],path[i]));
+ const L=cum[cum.length-1],W=1.2,dd=L*uc;
+ const at=path.length<2?(path[0]||[0,0,0] as Vec):polyMean(path,cum,dd,W);
+ // Yaw from the chord of the (C1) mean, so the yaw rate is continuous too: no lateral lurch at a vertex.
+ const pa=path.length<2?at:polyMean(path,cum,dd-1.5,W),pb=path.length<2?at:polyMean(path,cum,dd+1.5,W);
+ const hx=pb[0]-pa[0],hz=pb[2]-pa[2];
+ const yaw=Math.hypot(hx,hz)>1e-6?Math.atan2(hx,hz):0;
+ const back=4.8,side=1.35,up=3.3;
  const fx=Math.sin(yaw),fz=Math.cos(yaw),rx=fz,rz=-fx;
  const follow:Pose={
   position:[at[0]-fx*back+rx*side,at[1]+up,at[2]-fz*back+rz*side],
@@ -322,6 +415,27 @@ export function parentingErrorM(movedM:number,local:Vec=[0,0.02,0]):number{
  return dist(child,expected);
 }
 
+export const BALLOON_CAM_SMOOTH_S=0.5;
+/** Narrowest supported portrait aspect (360×780 / 390×844); the correction is screen-independent. */
+const BALLOON_MIN_ASPECT=0.46,BALLOON_KEEP_NDC=0.40,BALLOON_HER_Y=0.95;
+function softExcess(x:number,lim:number,k:number):number{const e=Math.abs(x)-lim;const s=e>6*k?e:k*Math.log1p(Math.exp(e/k));return Math.sign(x)*s;}
+/**
+ * b16 item 5: turn the aim towards her basket just enough that her centre stays within ±BALLOON_KEEP_NDC (box right edge ≤ 80 %),
+ * softly (C1). Position untouched, so the route and reveal stay as authored.
+ */
+export function balloonKeepInFrame(pose:Pose,basket:Vec):Pose{
+ const p=pose.position,her:Vec=[basket[0],basket[1]+BALLOON_HER_Y,basket[2]];
+ let f:Vec=[pose.target[0]-p[0],pose.target[1]-p[1],pose.target[2]-p[2]];const dist=Math.hypot(f[0],f[1],f[2])||1;f=[f[0]/dist,f[1]/dist,f[2]/dist];
+ const th=Math.tan((pose.fovVerticalDeg||48)*Math.PI/360),thx=th*BALLOON_MIN_ASPECT;
+ const yawOf=(v:Vec)=>Math.atan2(v[0],v[2]),pitchOf=(v:Vec)=>Math.atan2(v[1],Math.hypot(v[0],v[2]));
+ const h:Vec=[her[0]-p[0],her[1]-p[1],her[2]-p[2]];
+ let dy=yawOf(h)-yawOf(f);while(dy>Math.PI)dy-=2*Math.PI;while(dy<-Math.PI)dy+=2*Math.PI;
+ const dp=pitchOf(h)-pitchOf(f);
+ const limY=Math.atan(BALLOON_KEEP_NDC*thx),limP=Math.atan(0.7*th);
+ const cy=softExcess(dy,limY,0.02),cp=softExcess(dp,limP,0.02);
+ const yaw=yawOf(f)+cy,pitch=pitchOf(f)+cp,cpch=Math.cos(pitch);
+ return {position:p,target:[p[0]+Math.sin(yaw)*cpch*dist,p[1]+Math.sin(pitch)*dist,p[2]+Math.cos(yaw)*cpch*dist],fovVerticalDeg:pose.fovVerticalDeg};
+}
 /** Balloon meadow → sky city (§10). Pose is the shared WorldFlowCore camera pose already imported above. */
 export type Beat={id:string;t0:number;t1:number};
 export type VehicleSample={pos:Vec;yaw:number;roll:number};
@@ -447,7 +561,23 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
   const yawDeg=world?s.yawDeg:meadow.yawDeg+s.yawDeg;
   return {pos:map(s.pos,time,s.frame),yaw:yawDeg*Math.PI/180,roll:s.rollDeg};
  };
- const camera=(time:number,_screen?:Screen):Pose=>{const s=local(time);return {position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48};};
+ const rawCam=(time:number):Pose=>{const s=local(time);return {position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48};};
+ // b16 item 5: the 10 Hz keys are linearly interpolated, so every key is a velocity step (B-d |a| 142 m/s²). Smooth on the camera
+ // side: a triangular window (±BALLOON_CAM_SMOOTH_S, = two box passes ≈ quadratic B-spline) inside each continuous segment
+ // (never across the coordinate seam), then keep her basket inside the frame (balloonKeepInFrame). The flight file is unchanged.
+ // Seam re-root as a rigid map (pre ↔ post world), from the vehicle on both sides, so the window may cross the seam.
+ const vPre=vehicle(SEAM_T-1e-4),vPost=vehicle(SEAM_T),dYawDeg=(vPost.yaw-vPre.yaw)*180/Math.PI;
+ const toSide=(x:Vec,fromPre:boolean,toPre:boolean):Vec=>{if(fromPre===toPre)return x;
+  if(fromPre){const r=rotY(dYawDeg,[x[0]-vPre.pos[0],x[1]-vPre.pos[1],x[2]-vPre.pos[2]]);return [r[0]+vPost.pos[0],r[1]+vPost.pos[1],r[2]+vPost.pos[2]];}
+  const r=rotY(-dYawDeg,[x[0]-vPost.pos[0],x[1]-vPost.pos[1],x[2]-vPost.pos[2]]);return [r[0]+vPre.pos[0],r[1]+vPre.pos[1],r[2]+vPre.pos[2]];};
+ const camera=(time:number,_screen?:Screen):Pose=>{
+  const pre=time<SEAM_T,edge=Math.min(time,FLIGHT_DURATION-time);
+  const P:Vec=[0,0,0],Q:Vec=[0,0,0];let W=0;const N=8,h=BALLOON_CAM_SMOOTH_S*smoother(Math.max(0,edge)/(2*BALLOON_CAM_SMOOTH_S));
+  for(let k=-N;k<=N;k++){const w=N+1-Math.abs(k),tt=Math.max(0,Math.min(FLIGHT_DURATION,time+k*h/N)),c=rawCam(tt),sp=tt<SEAM_T;
+   const cp=toSide(c.position,sp,pre),ct=toSide(c.target,sp,pre);for(let j=0;j<3;j++){P[j]+=cp[j]*w;Q[j]+=ct[j]*w;}W+=w;}
+  const pose:Pose={position:[P[0]/W,P[1]/W,P[2]/W],target:[Q[0]/W,Q[1]/W,Q[2]/W],fovVerticalDeg:48};
+  return balloonKeepInFrame(pose,vehicle(time).pos);
+ };
  const routeAt=(time:number)=>worldAt(Math.max(0,Math.min(FLIGHT_DURATION,time)));
  const deck=doc.layout.cloudDeckY,deckMid=(deck[0]+deck[1])/2;
  const cloudAt=map(local(4.3).pos,4.3,local(4.3).frame);

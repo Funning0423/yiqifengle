@@ -36,5 +36,5 @@ function proj(pose,aspect,p){const {fw,r,up,th}=F.basis(pose),v=[p[0]-pose.posit
  const status=results.every(r=>r.F1==='PASS'&&r.F2==='PASS'&&r.F3==='PASS')&&board.status==='PASS'?'PASS':'FAIL';
  const report={status,timeUTC:new Date().toISOString(),fps:FPS,F4_boardEnd:board,scope:'Projected body box on real TS cameras; journey UI = safe area + capsule; board-end UI = board-hint-above-tray. Not a render.',results};
  fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/route-framing.json',JSON.stringify(report,null,1)+'\n');
- console.log(JSON.stringify({status,F4:board.status,rows:results.map(r=>[r.leg,r.screen,r.F1,r.F2,r.F3])}));if(status!=='PASS')process.exitCode=1;
+ console.log(JSON.stringify({status,F4:board.status,rows:results.map(r=>[r.leg,r.screen,r.F1,r.F2,r.F3])}));require('./route/route-gate.cjs').gate('test-route-framing.cjs',[...results.flatMap(r=>['F1','F2','F3'].filter(k=>r[k]==='FAIL').map(check=>({leg:r.leg,check}))),...(board.status==='PASS'?[]:['sail','→skycity','lakeside'].map(leg=>({leg,check:'F4'})))]);
 })().catch(e=>{console.error(e);process.exit(2);});

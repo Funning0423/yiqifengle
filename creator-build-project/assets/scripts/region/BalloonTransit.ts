@@ -535,7 +535,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    try{if(typeof world.fadeCover==='function')void world.fadeCover(0,0);}catch{}
   };
   progress(.98);
-  const lease:JourneySceneLease&{model:Node|null}={model,route,ride,show(visible){if(dead)return;rig.active=visible;model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
+  const lease:JourneySceneLease&{model:Node|null}={model,route,ride,startPose:()=>plan.camera(0),show(visible){if(dead)return;rig.active=visible;model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
   return lease;
  }catch(error){release();throw error;}
 }

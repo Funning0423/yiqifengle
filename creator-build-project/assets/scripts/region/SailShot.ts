@@ -1,6 +1,6 @@
 import {Camera, Color, DirectionalLight, MeshRenderer, Node, SkeletalAnimation, Vec3} from 'cc';
 import {transportQaEnabled} from './JourneyTransport';
-import {beatAt, sailBeats, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
+import {beatAt, sailBeats, sailStillTimes, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
 import {mountSailArt, findNode, type SailArt} from './SailArt';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {mountMeadowNightSky} from './RegionJourneyAdapter';
@@ -23,12 +23,13 @@ export function sailShotTime(k:number):{t:number;night:boolean}{
  const route=sailRoute(),tl=sailBeats(route.length);
  const beat=(id:string)=>tl.beats.find(b=>b.id===id)!;
  const at=(id:string,u:number)=>beat(id).t0+(beat(id).t1-beat(id).t0)*u;
- if(k===1)return {t:at('S-b',0.55),night:false};
- if(k===2)return {t:at('S-c',0.94),night:false};
- if(k===4)return {t:at('S-d',0.56),night:false};
- if(k===5)return {t:at('S-d',0.68),night:false};
+ const st=sailStillTimes(tl);
+ if(k===1)return {t:st.k1,night:false};
+ if(k===2)return {t:st.k2,night:false};
+ if(k===4)return {t:st.k4,night:false};
+ if(k===5)return {t:st.k5,night:false};
  if(k===6)return {t:at('S-g',0.85),night:false};
- return {t:at('S-d',0.4),night:k===7||/^(1|night)$/i.test(qparam('night'))};
+ return {t:st.k3,night:k===7||/^(1|night)$/i.test(qparam('night'))};
 }
 /**
  * One still of the real sail (GBT glbs, island, meadow, the bound stand-in). No proxy hull and no on-screen text.

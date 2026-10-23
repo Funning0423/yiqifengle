@@ -46,7 +46,7 @@ for(const k of ["lakesideDoorRideCamera(R,doorLens,t,from)","lakesideDoorLens(mo
  const q=C.sampleRoute(m.walk,DH.outM);for(const p of [m.walk[0],q])for(const y of [0,1.65]){const n2=FLb.ndc(doorLens,[p[0],p[1]+y,p[2]]);assert(n2&&Math.abs(n2[0])<.9&&Math.abs(n2[1])<.95,'her door path in frame '+JSON.stringify(n2));}
  const dir=[q[0]-m.walk[0][0],q[2]-m.walk[0][2]],toCam=[doorLens.position[0]-bk[0],doorLens.position[2]-bk[2]];assert(dir[0]*toCam[0]+dir[1]*toCam[1]>0,'lens on the door side');
  // the turn-in orbit starts on the ride lens (no cut) and keeps clear of the basket/envelope
- const o0=R.T-B.LAKESIDE_DOOR_LENS.turnInS,ob=R.T-B.LAKESIDE_BALLOON_LANDING.blendOutS,c0=B.lakesideDoorRideCamera(R,doorLens,ob+1e-4,null),c1=R.camera(ob,null);assert(Math.hypot(...c0.position.map((x,i)=>x-c1.position[i]))<.01,'door ending starts on the ride lens');
+ const o0=R.T-B.LAKESIDE_DOOR_LENS.turnInS,ob=R.T-B.LAKESIDE_BALLOON_LANDING.blendOutS,c0=B.lakesideDoorRideCamera(R,doorLens,ob+1e-4,null),c1=B.lakesideDoorRideCamera(R,doorLens,ob-1e-4,null)/* b16 item 6: the ride lens is lakesideDoorRideCamera all through the flight (rim lift on R.camera) */;assert(Math.hypot(...c0.position.map((x,i)=>x-c1.position[i]))<.01,'door ending starts on the ride lens');
  let minD=1e9,maxStep=0,prevP=null;for(let t=ob;t<=R.T;t+=1/60){const c=B.lakesideDoorRideCamera(R,doorLens,t,null),v=R.vehicle(t);minD=Math.min(minD,Math.hypot(c.position[0]-v[0],c.position[2]-v[2]));if(prevP)maxStep=Math.max(maxStep,Math.hypot(...c.position.map((x,i)=>x-prevP[i])));prevP=c.position;}
  assert(minD>3.4,'clear of the basket/envelope (r 2.9 m): '+minD);assert(maxStep*60<6,'turn-in speed '+maxStep*60);
  // continuous: the door lens equals the ride lens just before T (no cut at the hold)

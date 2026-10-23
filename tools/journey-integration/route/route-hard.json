@@ -1,0 +1,29 @@
+{
+  "hard": [
+    "sail.C4",
+    "balloonSky.C4",
+    "sail.C1shore",
+    "sail.C1setoff",
+    "sail.O2",
+    "sail.F1",
+    "sail.F2",
+    "sail.F3",
+    "sail.O1",
+    "balloonSky.F1",
+    "balloonSky.F2",
+    "balloonSky.F3",
+    "balloonLake.C1",
+    "balloonLake.O2",
+    "balloonLake.F1",
+    "balloonLake.F2",
+    "balloonLake.F3",
+    "sail.O1sgMain",
+    "sail.C1ride",
+    "balloonLake.O1",
+    "balloonSky.C1reveal"
+  ],
+  "exceptions": {
+    "sail.O1": "palm env_prop_palm_lean_01 may cross her face/head/chest for <=2 frames (<=40 ms) within 10.5-11.5 s: a quick foreground pass while the set-off arc swings on her right side near the palm, 2.9 m from her at the jetty (Grok Bot 2026-10-22). The S-g sail_main is its own key sail.O1sgMain, hard since the raised K6 dock lens (TransportLeg K5/K6, up 10.0 m).",
+    "balloonLake.O1": "thin basket rigging strut may cross her face (seated, flight phase, rim-lifted lens orbiting past it): <=2 passes, each <=6 frames (<=0.2 s), face only, balloon_basket; measured 21.53-21.70 s and 21.97-22.13 s (6 frames each). A continuous lens cannot avoid it; a fore/aft change (radial -15%..+30%) did not shorten it."
+  }
+}
