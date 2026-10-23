@@ -38,7 +38,8 @@ function dayState(hidden){
  assert.equal(camera.clearFlags,hidden?cc.Camera.ClearFlag.SOLID_COLOR:14);
  assert.deepEqual([camera.clearColor.r,camera.clearColor.g,camera.clearColor.b],hidden?[156,202,223]:[51,51,51]);
 }
-function nightState(){for(const i of [0,1,2])assert.equal(oldNodes[i].active,true,'night keeps the room props');
+function nightState(){for(const i of [0,2])assert.equal(oldNodes[i].active,true,'night keeps the room props');
+ assert.equal(oldNodes[1].active,false,'b17r7: night hides the room env_cloud_layer (lakeside/skycity night grey shell)');
  assert.equal(camera.clearFlags,cc.Camera.ClearFlag.SOLID_COLOR,'night: solid clear, never the bare engine default');
  assert.deepEqual([camera.clearColor.r,camera.clearColor.g,camera.clearColor.b],[0,12,68],'night: REGION_BOARD_NIGHT_CLEAR');}
 let refs=0;const prefab={addRef(){refs++;},decRef(){refs--;}};

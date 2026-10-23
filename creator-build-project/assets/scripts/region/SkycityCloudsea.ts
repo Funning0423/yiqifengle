@@ -42,7 +42,7 @@ export class SkycityCloudsea extends Component{
     // skycity board eases to); day is unchanged. Both are restored on hide (restoreDay).
     const night=regionNightNow();
     const hide=(n:Node)=>{if(!savedDayNodes.has(n))savedDayNodes.set(n,n.active);n.active=false;};
-    if(night&&savedDayNodes.size){for(const [n,active] of savedDayNodes)if(isValid(n,true)&&n.name!=='env_cloud_layer')n.active=active;for(const n of [...savedDayNodes.keys()])if(n.name!=='env_cloud_layer')savedDayNodes.delete(n);}
+    if(night&&savedDayNodes.size){for(const [n,active] of savedDayNodes)if(isValid(n,true)&&n.name!=='env_cloud_layer')n.active=active;for(const n of Array.from(savedDayNodes.keys()))if(n.name!=='env_cloud_layer')savedDayNodes.delete(n);}
     dayOwners.add(this);
     // b17r7 (运镜bot): night also hides the island room's env_cloud_layer (an unlit 270x36x370 m shell, night blue-grey). It wraps
     // the skycity / lakeside lenses: GGbot's Mac bisect (mac-diag-5095dfe, hideNode=env_cloud_layer) and the r7 test report's

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+/* Suite default: orbit arm 9 m only (fits the 180 s suite timeout); QF_LKO_FULL=1 = arms 5/9/14 (36 orbit sets, ~5 min). */
 /* b17r7 lakeside free-walk lens occlusion (运镜bot). Report: reports/lakeside-lens-occlusion.json. Geometry + real TS, not a render.
  * Walk: 48 seeded walkPath() routes on the lakeside walkable grid (RegionWalkable 'lakeside', lakeside-local metres), her feet
  * sampled at 30 fps at 1.4 m/s. Lenses: followPose (ExploreCameraCore, FollowWalk) on each of the 7 screens, and the lakeside
@@ -48,7 +49,7 @@ function surfaceY(f){const o=[f[0],f[1]+1.4,f[2]];let best=f[1];for(const GR of 
 function resample(p,step){const out=[];let acc=0;out.push(p[0]);for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],L=Math.hypot(b[0]-a[0],b[2]-a[2]);let t=step-acc;while(t<=L){const u=t/L;out.push([a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u]);t+=step;}acc=(acc+L)%step;}return out;}
 const SPEED=1.4,DT=1/30;
 const lensSets=[];for(const s of E.SCREENS)lensSets.push({id:'follow '+s.join('x'),screen:s,mk:(f,h)=>E.followPose(f,h,s[0],s[1],0)});
-for(const yo of [180,90,-90,0])for(const pi of [2,15,35])for(const d of [5,9,14])lensSets.push({id:`orbit yaw${yo>=0?'+':''}${yo} p${pi} d${d}`,mk:(f,h)=>{const o=new FO.FreeOrbit('lakeside');o.yaw=h*180/Math.PI+yo;o.pitch=pi;o.dist=d;o.seeded=true;return o.rawPose(f);}});
+for(const yo of [180,90,-90,0])for(const pi of [2,15,35])for(const d of (process.env.QF_LKO_FULL?[5,9,14]:[9]))lensSets.push({id:`orbit yaw${yo>=0?'+':''}${yo} p${pi} d${d}`,mk:(f,h)=>{const o=new FO.FreeOrbit('lakeside');o.yaw=h*180/Math.PI+yo;o.pitch=pi;o.dist=d;o.seeded=true;return o.rawPose(f);}});
 if(process.env.QF_LKO_FAMILY)lensSets.splice(0,lensSets.length,...lensSets.filter(l=>l.id.startsWith(process.env.QF_LKO_FAMILY)));
 const res={};for(const mode of ['before','after']){const fs_={};let worst=null,frames=0,bad=0,badHead=0,clear11=0,atMin=0,terrHits=0,maxStep=0,maxTurn=0;const badSpans=[],byOcc={};
  for(const L of lensSets){for(let r=0;r<routes.length;r++){const P=resample(routes[r],SPEED*DT);P.forEach((q,k)=>{const fl=W.walkFloorY('lakeside',q[0],q[2]),y0=fl===null?q[1]:fl,y=surfaceY([q[0],y0,q[2]]);if(y>y0+0.05&&L===lensSets[0])snapped++;P[k]=[q[0],y,q[2]];});const pull=new OC.LensPullIn();let prev=null,prevRaw=null;
