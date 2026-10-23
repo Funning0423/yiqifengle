@@ -771,8 +771,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_far_shore.glb",
-    "bytes": 39852,
-    "sha256": "cbb1b34ed269d7f06da30e46349e4dd3bdd058eb4bc6491758048cbadcedccb1"
+    "bytes": 42132,
+    "sha256": "d464cd915c1cc341ed22ca36ddfaea7e6d45ed35dc7838c900340df378e46ef9"
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_float_rope_soft.glb",
@@ -811,8 +811,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_lake.glb",
-    "bytes": 14868,
-    "sha256": "0e84f220d416f13189f9b441b6b133cc862f2874c50c7c26ff16f185dacad1b1"
+    "bytes": 15968,
+    "sha256": "c51c6a78567c5e7200d45b2f503328c2f8eb1e7d699426d52c98eac7fac7df05"
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/models/LK_lantern.glb",
