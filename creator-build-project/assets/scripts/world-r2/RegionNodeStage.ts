@@ -16,8 +16,9 @@ import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarke
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
-import {LensPullIn,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
+import {LensGuard,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
+import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
 import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
 
@@ -70,7 +71,7 @@ export class RegionNodeStage extends Component{
  private orbitBoxes:OrbitBox[]=[];
  /** b17r7 (运镜bot): lakeside free-walk lens occlusion. The lakeside is static-merged (renderer AABBs > 14 m are skipped by
   *  refreshOrbitBoxes), so the lens uses the generated tree/post/house proxies (LakesideLensOccluders) via LensPullIn. */
- private lensPull=new LensPullIn();private occBoxes:OccBox[]|null=null;private occAt=0;private occModel:Node|null=null;
+ private lensPull=new LensGuard();private islandBoxes:OccBox[]|null=null;private occBoxes:OccBox[]|null=null;private occAt=0;private occModel:Node|null=null;
  private orbitBoxAt=0;
 
  attach(camera:Camera){this.camera=camera;}
@@ -234,7 +235,9 @@ export class RegionNodeStage extends Component{
   const {w,h}=this.viewport();
   const board=this.readPose();
   this.lens='BoardToFollow';setExploreEnabled(false);
-  await this.blend(BLEND_S.boardToFollow,board,()=>followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
+  /* b17r13: the reward close-up is held for her walk, so it blends to the occlusion-planned pose (Mac r13b: a stone pillar filled its right half) */
+  const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
+  await this.blend(BLEND_S.boardToFollow,board,()=>held);
   this.lens='FollowWalk';setExploreEnabled(true);
   this.handOrbitBack(spec.region);
   try{await runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));}
@@ -436,15 +439,25 @@ export class RegionNodeStage extends Component{
   for(let i=0;i<n;i++)this.orbitBoxes.push(ranked[i].box);
  }
  private lakesideOccluders():OccBox[]|null{
+  if(this.region==='island'){if(!this.islandBoxes)this.islandBoxes=ISLAND_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]]}));return this.islandBoxes;}
   if(this.region!=='lakeside')return null;const m=this.model('lakeside');if(!m)return null;const now=Date.now();
   if(this.occBoxes&&this.occModel===m&&now-this.occAt<2000)return this.occBoxes;
   const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
   this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.occModel=m;this.occAt=now;return this.occBoxes;
  }
- /** Lakeside only: slide/crane the walk lens off the occluders (no snap; see LensOcclusion). Other regions pass through. */
+ /** Lakeside + island (b17r13): LensGuard keeps the walk lens off the proxies (look-ahead plan, speed/accel-capped spring, floor). */
  private occlude(pose:Pose,dt:number):Pose{
   const boxes=this.lakesideOccluders();if(!boxes){this.lensPull.reset();return pose;}
-  const r=this.lensPull.apply(pose,this.girl(),boxes,dt);return {...pose,position:[...r.position] as Vec,target:[...r.target] as Vec};
+  const r=this.lensPull.apply(pose,this.girl(),boxes,dt);return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
+ }
+ /** Held / blended-to follow lens (reward close-up): the planned clear pose, no spring (the blend is the ease). */
+ private occludeHeld(pose:Pose):Pose{
+  const proxies=this.lakesideOccluders();if(!proxies)return pose;
+  // + the live scene's own renderer AABBs (≤ 14 m across, ≥ 0.5 m tall): props placed at runtime (signpost, palms, the r13b
+  //   reward pillar) that no generated proxy knows about. Her own box contains her chest, so LensGuard skips it.
+  const live=this.sceneBoxes().filter(b=>Math.max(b.max[0]-b.min[0],b.max[2]-b.min[2])<=14&&b.max[1]-b.min[1]>=0.5).map(b=>({min:[b.min[0],b.min[1],b.min[2]],max:[b.max[0],b.max[1],b.max[2]]}) as OccBox);
+  const boxes=[...proxies,...live];
+  const r=new LensGuard().solveStatic(pose,this.girl(),boxes);return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
  }
  private writeOrbit(dt:number){
   this.orbit.step(dt);

@@ -91,3 +91,96 @@ export function proxiesToWorld(rows:readonly (readonly number[])[],toWorld:(p:Oc
   for(let m=0;m<8;m++){const w=toWorld([m&1?r[3]:r[0],m&2?r[4]:r[1],m&4?r[5]:r[2]]);for(let k=0;k<3;k++){if(w[k]<lo[k])lo[k]=w[k];if(w[k]>hi[k])hi[k]=w[k];}}
   return {min:[lo[0],lo[1],lo[2]] as OccVec,max:[hi[0],hi[1],hi[2]] as OccVec};});
 }
+
+/* ===================== b17r13 (运镜bot): LensGuard — replaces LensPullIn in the stage =====================
+ * Mac r13b (6f03b4d0) failures of LensPullIn: the lens sat in canopies (ring trees had no proxies), dropped under the bridge deck
+ * (negative crane, no floor), hugged her at the 1.6 m arm through the railings, and pulled in at 9 m/s (frame jumps).
+ * LensGuard plans a pose OFFSET (crane up, swing round her, arm share) every PLAN_S from a candidate grid scored at her current
+ * AND predicted positions (look-ahead along her walk velocity, so the move starts before an occluder arrives):
+ *   head / chest line blocked, lens inside or < clearM from a proxy, near-lens clutter (a 3×3 ray fan over the view, ≤ nearM),
+ *   lens below the floor (her feet + feetHeadroomM, walk floor + floorHeadroomM), plus the cost of leaving the designed lens.
+ * The lens offset from the designed (raw) lens then follows the plan through a critically damped spring with a speed cap
+ * (maxMS, extra to the raw lens's own motion) and an acceleration cap (maxAccMS2): no snap, no jump, ease in and out.
+ * Aim: at her look point (the raw lens's look ray at her distance), so a craned / swung lens still frames her face and chest. */
+export const LENS_GUARD=Object.freeze({clearM:1.1,headM:1.5,chestM:1.1,feetHeadroomM:1.2,floorHeadroomM:0.8,nearM:3,
+ ups:[0,12,24,36,50,64],swings:[0,25,-25,50,-50,75,-75],shares:[1,0.78,0.58],lookAheadS:[0,0.6,1.2],planS:0.15,
+ wHead:100,wChest:60,wInside:120,wClear:6,wClutter:40,wFloor:80,wUp:0.05,wSwing:0.06,wShare:10,hysteresis:2.5,
+ maxMS:3.5,maxAccMS2:7,omega:4.5});
+type V3=[number,number,number];
+const vsub=(a:OccVec,b:OccVec):V3=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];const vlen=(a:OccVec)=>Math.hypot(a[0],a[1],a[2]);
+const vnorm=(a:OccVec):V3=>{const l=vlen(a)||1e-9;return [a[0]/l,a[1]/l,a[2]/l];};
+const vcross=(a:OccVec,b:OccVec):V3=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+function boxDist(p:OccVec,b:OccBox){let d=0;for(let k=0;k<3;k++){const v=p[k]<b.min[k]?b.min[k]-p[k]:p[k]>b.max[k]?p[k]-b.max[k]:0;d+=v*v;}return Math.sqrt(d);}
+function segBlocked(a:OccVec,b:OccVec,boxes:readonly OccBox[]):boolean{const d=vsub(b,a),L=vlen(d);if(L<1e-6)return false;const u:OccVec=[d[0]/L,d[1]/L,d[2]/L];
+ for(const x of boxes){const t=segEnter(a,u,L,x,0);if(t!==null&&t>1e-3&&t<L-0.05)return true;}return false;}
+export type GuardEval={cost:number;head:boolean;chest:boolean;inside:boolean;clutter:number;belowFloor:boolean;position:OccVec};
+export type GuardParams={up:number;swing:number;share:number};
+/** One candidate lens for her at `her`: position, and its scored problems. `floorAt` (world x,z → floor y | null) is optional. */
+export function guardEval(raw:OccPose,her:OccVec,boxes:readonly OccBox[],p:GuardParams,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD):GuardEval{
+ const pivot:OccVec=[her[0],her[1]+o.headM,her[2]],chest:OccVec=[her[0],her[1]+o.chestM,her[2]];
+ const v=vsub(raw.position,pivot),full=vlen(v)||1e-6,d=craneDir([v[0]/full,v[1]/full,v[2]/full],p.up,p.swing),arm=full*p.share;
+ let pos:V3=[pivot[0]+d[0]*arm,pivot[1]+d[1]*arm,pivot[2]+d[2]*arm];
+ const fl=floorAt?floorAt(pos[0],pos[2]):null,minY=Math.max(her[1]+o.feetHeadroomM,fl===null?-1e9:fl+o.floorHeadroomM);
+ const belowFloor=pos[1]<minY-1e-6;if(belowFloor)pos=[pos[0],minY,pos[2]];
+ const live=boxes.filter(b=>!inside(pivot,b)&&!inside(chest,b));
+ const head=segBlocked(pos,pivot,live),ch=segBlocked(pos,chest,live);
+ let ins=false,near=1e9;for(const b of live){const q=boxDist(pos,b);if(q<=0.3)ins=true;if(q<near)near=q;}
+ // near-lens clutter: 3×3 ray fan over the view (±60 % of the half-FOV), each ray ≤ nearM (never past her)
+ const f=vnorm(vsub(chest,pos)),r=vnorm(vcross(f,[0,1,0])),u=vcross(r,f),tv=Math.tan(((raw.fovVerticalDeg??45)*Math.PI/180)/2)*0.6,th=tv*0.6;
+ let hits=0;const reach=Math.min(o.nearM,vlen(vsub(chest,pos))-0.4);
+ if(reach>0.05)for(const sx of [-1,0,1])for(const sy of [-1,0,1]){const dd=vnorm([f[0]+r[0]*sx*th+u[0]*sy*tv,f[1]+r[1]*sx*th+u[1]*sy*tv,f[2]+r[2]*sx*th+u[2]*sy*tv]);
+  for(const b of live){const t=segEnter(pos,dd,reach,b,0);if(t!==null){hits++;break;}}}
+ const clutter=hits/9;
+ const cost=(head?o.wHead:0)+(ch?o.wChest:0)+(ins?o.wInside:0)+(near<o.clearM?o.wClear*(1-near/o.clearM):0)+o.wClutter*clutter*clutter*2+(belowFloor?o.wFloor:0)
+  +o.wUp*Math.abs(p.up)+o.wSwing*Math.abs(p.swing)+o.wShare*(1-p.share);
+ return {cost,head,chest:ch,inside:ins,clutter,belowFloor,position:pos};
+}
+export class LensGuard{
+ private params:GuardParams={up:0,swing:0,share:1};private off:V3|null=null;private vel:V3=[0,0,0];private planIn=0;
+ private herPrev:OccVec|null=null;private herVel:V3=[0,0,0];
+ last:{eval:GuardEval;params:GuardParams}|null=null;
+ reset(){this.params={up:0,swing:0,share:1};this.off=null;this.vel=[0,0,0];this.planIn=0;this.herPrev=null;this.herVel=[0,0,0];this.last=null;}
+ private plan(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt:((x:number,z:number)=>number|null)|undefined,o:typeof LENS_GUARD){
+  const samples=o.lookAheadS.map(s=>{const dx:V3=[this.herVel[0]*s,this.herVel[1]*s,this.herVel[2]*s];
+   return {her:[her[0]+dx[0],her[1]+dx[1],her[2]+dx[2]] as OccVec,raw:{position:[raw.position[0]+dx[0],raw.position[1]+dx[1],raw.position[2]+dx[2]] as OccVec,target:raw.target,fovVerticalDeg:raw.fovVerticalDeg}};});
+  const score=(p:GuardParams)=>{let c=0;for(let i=0;i<samples.length;i++){const w=i===0?1:0.6/i;c+=w*guardEval(samples[i].raw,samples[i].her,boxes,p,floorAt,o).cost;}return c;};
+  const cur=score(this.params),base=score({up:0,swing:0,share:1});
+  let best=this.params,bestC=cur-o.hysteresis;
+  if(base<=bestC+o.hysteresis*0.5){best={up:0,swing:0,share:1};bestC=base;}
+  if(base>o.wUp*1e-3+0.5||cur>0.5)for(const up of o.ups)for(const swing of o.swings)for(const share of o.shares){
+   const p={up,swing,share},lb=o.wUp*Math.abs(up)+o.wSwing*Math.abs(swing)+o.wShare*(1-share);if(lb*1.6>=bestC)continue;
+   const c=score(p);if(c<bestC){bestC=c;best=p;}}
+  this.params=best;
+ }
+ /** One-shot planned pose (no spring) for a held / blended-to lens: the reward follow close-up blends to this. */
+ solveStatic(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD):OccPose&{eval:GuardEval;params:GuardParams}{
+  this.reset();this.herPrev=null;const R=vlen(vsub(raw.position,her))+o.nearM+o.clearM+2;const near=boxes.filter(b=>boxDist(her,b)<=R);
+  this.plan(raw,her,near,floorAt,o);const ev=guardEval(raw,her,near,this.params,floorAt,o),pos=ev.position;
+  const rd=vnorm(vsub(raw.target,raw.position)),dist=vlen(vsub([her[0],her[1]+o.chestM,her[2]],raw.position)),look:V3=[raw.position[0]+rd[0]*dist,raw.position[1]+rd[1]*dist,raw.position[2]+rd[2]*dist];
+  const nd=vnorm(vsub(look,pos));const params={...this.params};this.reset();
+  return {position:pos,target:[pos[0]+nd[0]*10,pos[1]+nd[1]*10,pos[2]+nd[2]*10],fovVerticalDeg:raw.fovVerticalDeg,eval:ev,params};
+ }
+ apply(raw0:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD):OccPose&{eval:GuardEval;params:GuardParams}{
+  const step=Math.max(0,Math.min(0.1,dt||0));
+  // floor first, on the designed lens itself (continuous: her feet / the floor move smoothly), so the spring never fights it
+  const f0=floorAt?floorAt(raw0.position[0],raw0.position[2]):null,minY0=Math.max(her[1]+o.feetHeadroomM,f0===null?-1e9:f0+o.floorHeadroomM);
+  const raw:OccPose=raw0.position[1]>=minY0?raw0:{position:[raw0.position[0],minY0,raw0.position[2]],target:[raw0.target[0],raw0.target[1]+(minY0-raw0.position[1]),raw0.target[2]],fovVerticalDeg:raw0.fovVerticalDeg};
+  if(this.herPrev&&step>0){const k=1-Math.exp(-step/0.25);for(let i=0;i<3;i++)this.herVel[i]+=((her[i]-this.herPrev[i])/step-this.herVel[i])*k;}
+  this.herPrev=[her[0],her[1],her[2]];
+  const R=vlen(vsub(raw.position,her))+o.nearM+o.clearM+2;const near=boxes.filter(b=>boxDist(her,b)<=R);
+  this.planIn-=step;if(this.off===null||this.planIn<=0){this.plan(raw,her,near,floorAt,o);this.planIn=o.planS;}
+  const ev=guardEval(raw,her,near,this.params,floorAt,o),want=vsub(ev.position,raw.position);
+  if(this.off===null){this.off=[0,0,0];this.vel=[0,0,0];}
+  else if(step>0){const w=o.omega;let a:V3=[0,0,0];for(let i=0;i<3;i++)a[i]=w*w*(want[i]-this.off[i])-2*w*this.vel[i];
+   const al=vlen(a);if(al>o.maxAccMS2)a=[a[0]*o.maxAccMS2/al,a[1]*o.maxAccMS2/al,a[2]*o.maxAccMS2/al];
+   for(let i=0;i<3;i++)this.vel[i]+=a[i]*step;const vl=vlen(this.vel);if(vl>o.maxMS)this.vel=[this.vel[0]*o.maxMS/vl,this.vel[1]*o.maxMS/vl,this.vel[2]*o.maxMS/vl];
+   for(let i=0;i<3;i++)this.off[i]+=this.vel[i]*step;}
+  let pos:V3=[raw.position[0]+this.off[0],raw.position[1]+this.off[1],raw.position[2]+this.off[2]];
+  // hard floor backstop 0.25 m under the planned floor (the plan + the lifted raw keep it from binding in normal motion)
+  const fl=floorAt?floorAt(pos[0],pos[2]):null,minY=Math.max(her[1]+o.feetHeadroomM-0.25,fl===null?-1e9:fl+o.floorHeadroomM-0.25);if(pos[1]<minY)pos=[pos[0],minY,pos[2]];
+  // aim: the raw lens's look point at her distance
+  const rd=vnorm(vsub(raw.target,raw.position)),dist=vlen(vsub([her[0],her[1]+o.chestM,her[2]],raw.position)),look:V3=[raw.position[0]+rd[0]*dist,raw.position[1]+rd[1]*dist,raw.position[2]+rd[2]*dist];
+  const nd=vnorm(vsub(look,pos));this.last={eval:ev,params:{...this.params}};
+  return {position:pos,target:[pos[0]+nd[0]*10,pos[1]+nd[1]*10,pos[2]+nd[2]*10],fovVerticalDeg:raw.fovVerticalDeg,eval:ev,params:{...this.params}};
+ }
+}
