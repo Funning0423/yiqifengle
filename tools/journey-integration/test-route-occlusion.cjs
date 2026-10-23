@@ -11,7 +11,7 @@
  *     Clouds (translucent cards) are counted separately as soft occlusion and reported, not failed.
  *  O3 (b17r7) balloon→skycity: her basket (box points) and face are never on the far side of a shown sea plane from the lens
  *     (island env_sea_surface y=ISLAND_SEA_Y while islandSeaShown(); transit_sea_fallback disc while plan B shows it, at its
- *     frame y+0.2). Planes are 3400 m discs, treated as infinite: lens and point on opposite sides = cut by the sea. Every
+ *     frame y+0.2; the sail leg's leftover SailArt sea_plane y=-0.91 while sailLeftoverShown(), Mac diagDump 3efe2a0c). Planes are 3400 m discs, treated as infinite: lens and point on opposite sides = cut by the sea. Every
  *     1/30 s, cover frames included (the sea is drawn under a partial fade). islandSeaExposure = the same test against the
  *     island sea as if it were shown all flight (what the b17-cand-76a0433 audit captured).
  *  O2 lens clearance ≥ 1.1 m from all solid geometry (team camera rule), every 1/10 s.
@@ -22,7 +22,7 @@ const RAD={face:.06,head:.09,chest:.12};
 function disc(leg,t,eye,p,r){const f=sub(p,eye),l=Math.hypot(...f),u=f.map(x=>x/l),a=Math.abs(u[1])<.9?[0,1,0]:[1,0,0],e1=norm(cross(u,a)),e2=cross(u,e1);let skipped=0,n=0,by=null;const centre=leg.los(t,eye,p);if(centre){n++;by=centre;}
  for(let k=0;k<8;k++){const th=k*Math.PI/4,q=add(p,add(e1.map(x=>x*r*Math.cos(th)),e2.map(x=>x*r*Math.sin(th)))),b=leg.los(t,eye,q);if(b){n++;by=by||b;}}return {hidden:n>=5,by:by&&(by+' ('+n+'/9)'),centre};}
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{const l=Math.hypot(...a);return a.map(x=>x/l);};
-const FPS=+(process.env.QF_ROUTE_FPS||30),CLEAR=1.1,rotY=R.J.rotY,sub=R.J.sub,add=R.J.add;
+const BEFORE=process.env.QF_O3_BEFORE==='1'/* models the 76a04336/3efe2a0c lifecycle: sail leftover SailArt on all flight */,FPS=+(process.env.QF_ROUTE_FPS||30),CLEAR=1.1,rotY=R.J.rotY,sub=R.J.sub,add=R.J.add;
 const screens=process.env.QF_ROUTE_SCREENS?JSON.parse(process.env.QF_ROUTE_SCREENS):R.SCREENS;
 (async()=>{const G=await R.geometry(),results=[];
  const B=require('./journey-scene.cjs').H.load(require('./journey-scene.cjs').S+'region/BalloonFlight.ts');
@@ -53,7 +53,7 @@ const screens=process.env.QF_ROUTE_SCREENS?JSON.parse(process.env.QF_ROUTE_SCREE
    minLensClearM:+minClear.toFixed(3),clearAtS:clearAt,clearPhase:clearAt==null?null:phaseOf(clearAt),clearNearest:clearWho});
   if(leg.id.includes('→skycity')){const r=results.at(-1),o3=[],expo=[],post=B.postSeamFrame(G.flight),pre=B.meadowFrameFromM6(R.J.add(rotY(180,[0.2,6.5,-25.6]),R.J.mOff));
    for(let i=0;i/FPS<=leg.T+1e-9;i++){const t=i/FPS,handoff=t+1e-9>=35.9,c=leg.cam(t).position,h=leg.her(t),pts=[...h.box,h.face];
-    const planes=[];if(B.islandSeaShown(t,handoff))planes.push(['env_sea_surface',B.ISLAND_SEA_Y]);else if(t>=B.MEADOW_OFF_T)planes.push(['transit_sea_fallback',(t+1e-9>=B.SEAM_T?post:pre).origin[1]+0.2]);
+    const planes=[];if(BEFORE||B.sailLeftoverShown(t,t>=leg.T-1e-9))planes.push(['RegionJourney-meadow/SailArt/transit_sea/sea_plane',B.SAIL_LEFTOVER_SEA_Y]);if(B.islandSeaShown(t,handoff))planes.push(['env_sea_surface',B.ISLAND_SEA_Y]);else if(t>=B.MEADOW_OFF_T)planes.push(['transit_sea_fallback',(t+1e-9>=B.SEAM_T?post:pre).origin[1]+0.2]);
     const cut=Y=>pts.filter(p=>(c[1]-Y)*(p[1]-Y)<=0).length;
     for(const [nm,Y] of planes){const n=cut(Y);if(n)o3.push({t:+t.toFixed(2),plane:nm,y:+Y.toFixed(3),lensY:+c[1].toFixed(2),cutPts:n});}
     if(t>=B.MEADOW_OFF_T&&!handoff){const n=cut(B.ISLAND_SEA_Y);if(n)expo.push({t:+t.toFixed(2),lensY:+c[1].toFixed(2),basketY:+Math.min(...h.box.map(p=>p[1])).toFixed(2),faceY:+h.face[1].toFixed(2),cutPts:n});}}

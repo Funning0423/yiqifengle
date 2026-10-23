@@ -149,6 +149,10 @@ export const BACKDROP_HIDE=['env_cloud_layer','env_sea_foam','env_sea_surf_foam_
 export const ISLAND_SEA_Y=-0.918;
 /** Island sea shown? Off from meadow-unload until handoff (plan B). Shared by BalloonTransit and test-route-occlusion O3. */
 export function islandSeaShown(t:number,handoff:boolean):boolean{return !(t>=MEADOW_OFF_T&&!handoff);}
+/** Sail leg leftover (RegionJourney-meadow/SailArt: transit_sea/sea_plane, y=SAIL_SEA_Y -0.91, 832 m half-extent). It lives
+ * until the meadow lease is released, so the balloon drives it with the meadow: shown only while the meadow is (b17r7 B1). */
+export const SAIL_LEFTOVER_SEA_Y=-0.91;
+export function sailLeftoverShown(t:number,arrived:boolean):boolean{return !arrived&&t<MEADOW_OFF_T;}
 export const NIGHT_MOON_HIDE=['env_sky_moon_night_v22','env_sky_moon_halo_night_v22'];
 /** Ry(yaw) * Rz(roll), degrees. Returns xyzw. */
 export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,number]{
