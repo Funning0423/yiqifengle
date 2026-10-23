@@ -1,7 +1,7 @@
 # 场景特效bot 交接：fx/r5-lighthouse-grey
 
 ## 本分支
-- 分支：`fx/r5-lighthouse-grey`，交接前头部以 `git rev-parse HEAD` 为准，基点 `59a9704dd2fc8152a8b568c3bdc5c26dd3813a48`（`github/gbt/r5-integrated-b15`）
+- 分支：`fx/r5-lighthouse-grey`，交接前头部以 `git rev-parse HEAD` 为准（本交接提交）；内容提交 `4e83d794cfabe4c1dfb6a0a7b84babfa3d8b0e53`；基点 `59a9704dd2fc8152a8b568c3bdc5c26dd3813a48`（`github/gbt/r5-integrated-b15`）
 - 内容：星夜灯塔海岸白模（关卡 21–24）：`creator-build-project/assets/bundles/region_lighthouse/models/LH_lighthouse.glb`，约 **23,850** 面（目标 ~30k，上限 **50k**），共享 `M_LK_palette` / `T_LK_palette_256`（内嵌）。分组：灯塔塔身、可转灯室 `LH_lantern_room`、风标 `LH_vane`、光柱空节点 `LH_beam`（无实体圆锥）、岩岛沙滩、海面大圆盘占位、栈桥、放大守灯人小屋（**窗方案 B**）、放灯高台（终参 + 三条 10 mm/45° 倒角）+ 梯子、关卡 21–24 石灯与空节点、礁石草道具。新分包 `region_lighthouse`；glb.meta 只写 uuid，子资源等 Mac Creator 导入。glTF-Validator **0 错误 0 警告**。新增 `test_lighthouse_grey`，套件 **147/148**（`navigation-guard` BLOCKED_BROWSER，与基线一致）。
 - 进度：灰盒完成；预览与坐标表已出。
 - 已测：Blender 构建（`CHAMFER_EDGES=3`）、glTF-Validator 0/0、`test_lighthouse_grey` PASS、journey-integration 套件 147/148。
