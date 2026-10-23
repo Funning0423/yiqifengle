@@ -29,6 +29,8 @@ import {transportFor} from './JourneyTransport';
 import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
 import {diagDumpScene,diagParams,lakeDiagAt,loadTransitPrefab} from './BalloonTransit';
 import {LakesideLegHide} from './LakesideLegHide';
+import {cloudseaDaySaved} from './SkycityCloudsea';
+LakesideLegHide.ownerSaved=cloudseaDaySaved/* b17r13: env_cloud_layer shared with the night hide (01892b6e), one true original */;
 import {mountVehicle} from './TransportVehicle';
 import {stepTransitClock} from './TransportLeg';
 import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,sailVehicle,seatFromBench} from './TransportLeg';

@@ -15,4 +15,6 @@ assert(/import \{LakesideLegHide\} from '\.\/LakesideLegHide'/.test(adapter),'ad
 assert(/if\(t>=R\.cutT\)legHide\.apply\(director\.getScene\(\)\)/.test(adapter),'hide must run each ride frame after the boarding cut');
 assert(/rig\.destroy\(\);legHide\.restore\(\);/.test(adapter),'release must restore the hidden nodes');
 const sky=fs.readFileSync(path.join(dir,'SkycityCloudsea.ts'),'utf8');assert(!/LakesideLegHide/.test(sky),'skycity night look unchanged');
+assert(/LakesideLegHide\.ownerSaved=cloudseaDaySaved/.test(adapter)&&/export function cloudseaDaySaved/.test(sky),'b17r13: leg hide must read the night hide\'s saved original');
+assert(/ownerSaved\?\.\(n\)===undefined\)n\.active=active/.test(hide),'b17r13: restore must leave nodes still held by SkycityCloudsea');
 console.log('PASS lakeside-leg-hide: '+pairs.map(p=>p.join('/')).join(', '));

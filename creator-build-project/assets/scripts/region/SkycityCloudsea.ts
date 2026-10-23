@@ -6,6 +6,8 @@ const seaOwners=new Set<SkycityCloudsea>();
 const savedSeas=new Map<Node,boolean>();
 const dayOwners=new Set<SkycityCloudsea>();
 const savedDayNodes=new Map<Node,boolean>();
+/** b17r13: the active state syncDay saved for a node it hides (undefined if it does not hold it); the lakeside leg hide reads it. */
+export function cloudseaDaySaved(n:Node):boolean|undefined{return savedDayNodes.get(n);}
 const savedDayCameras=new Map<Camera,{flags:number;color:Color}>();
 function find(n:Node,name:string):Node|null{if(n.name===name)return n;for(const c of n.children){const hit=find(c,name);if(hit)return hit;}return null;}
 /** Owns a sibling, never a child of skycity_float_root. Follows the placed prefab and its lease. */
