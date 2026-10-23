@@ -136,10 +136,10 @@ export function guardEval(raw:OccPose,her:OccVec,boxes:readonly OccBox[],p:Guard
  return {cost,head,chest:ch,inside:ins,clutter,belowFloor,position:pos};
 }
 export class LensGuard{
- private params:GuardParams={up:0,swing:0,share:1};private off:V3|null=null;private vel:V3=[0,0,0];private planIn=0;
+ private params:GuardParams={up:0,swing:0,share:1};private off:V3|null=null;private vel:V3=[0,0,0];private planIn=0;private offYaw:number|null=null;
  private herPrev:OccVec|null=null;private herVel:V3=[0,0,0];
  last:{eval:GuardEval;params:GuardParams}|null=null;
- reset(){this.params={up:0,swing:0,share:1};this.off=null;this.vel=[0,0,0];this.planIn=0;this.herPrev=null;this.herVel=[0,0,0];this.last=null;}
+ reset(){this.params={up:0,swing:0,share:1};this.off=null;this.vel=[0,0,0];this.planIn=0;this.offYaw=null;this.herPrev=null;this.herVel=[0,0,0];this.last=null;}
  private plan(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt:((x:number,z:number)=>number|null)|undefined,o:typeof LENS_GUARD,holdYaw=false){
   const swings=holdYaw?[0]:o.swings;if(holdYaw&&this.params.swing!==0)this.params={...this.params,swing:0};
   const samples=o.lookAheadS.map(s=>{const dx:V3=[this.herVel[0]*s,this.herVel[1]*s,this.herVel[2]*s];
@@ -162,7 +162,7 @@ export class LensGuard{
   return {position:pos,target:[pos[0]+nd[0]*10,pos[1]+nd[1]*10,pos[2]+nd[2]*10],fovVerticalDeg:raw.fovVerticalDeg,eval:ev,params};
  }
  /** holdYaw (P0 drag-rotate): the player owns the yaw (orbit engaged) → no swing; crane / pull-in only.
-  * The spring offset lives in the raw lens's yaw frame around her, so a drag rotates it with the lens (never pulls the yaw back). */
+  * While held, the spring offset turns with the raw lens's yaw around her, so a drag rotates it with the lens (never pulls the yaw back). */
  apply(raw0:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD,holdYaw=false):OccPose&{eval:GuardEval;params:GuardParams}{
   const step=Math.max(0,Math.min(0.1,dt||0));
   // floor first, on the designed lens itself (continuous: her feet / the floor move smoothly), so the spring never fights it
@@ -173,15 +173,17 @@ export class LensGuard{
   const R=vlen(vsub(raw.position,her))+o.nearM+o.clearM+2;const near=boxes.filter(b=>boxDist(her,b)<=R);
   this.planIn-=step;if(this.off===null||this.planIn<=0||(holdYaw&&this.params.swing!==0)){this.plan(raw,her,near,floorAt,o,holdYaw);this.planIn=o.planS;}
   const ev=guardEval(raw,her,near,this.params,floorAt,o);
-  const ry=Math.atan2(raw.position[0]-her[0],raw.position[2]-her[2]),c=Math.cos(ry),sn=Math.sin(ry);
-  const toL=(w:V3):V3=>[w[0]*c-w[2]*sn,w[1],w[0]*sn+w[2]*c],toW=(l:V3):V3=>[l[0]*c+l[2]*sn,l[1],-l[0]*sn+l[2]*c];
-  const want=toL(vsub(ev.position,raw.position));
+  // while the player holds the yaw, the offset turns with the raw lens around her (a drag rotates it exactly, never fights it)
+  const ry=Math.atan2(raw.position[0]-her[0],raw.position[2]-her[2]);
+  if(holdYaw&&this.off&&this.offYaw!==null){const d=ry-this.offYaw,c=Math.cos(d),sn=Math.sin(d),rot=(w:V3):V3=>[w[0]*c+w[2]*sn,w[1],-w[0]*sn+w[2]*c];this.off=rot(this.off);this.vel=rot(this.vel);}
+  this.offYaw=ry;
+  const want=vsub(ev.position,raw.position);
   if(this.off===null){this.off=[0,0,0];this.vel=[0,0,0];}
   else if(step>0){const w=o.omega;let a:V3=[0,0,0];for(let i=0;i<3;i++)a[i]=w*w*(want[i]-this.off[i])-2*w*this.vel[i];
    const al=vlen(a);if(al>o.maxAccMS2)a=[a[0]*o.maxAccMS2/al,a[1]*o.maxAccMS2/al,a[2]*o.maxAccMS2/al];
    for(let i=0;i<3;i++)this.vel[i]+=a[i]*step;const vl=vlen(this.vel);if(vl>o.maxMS)this.vel=[this.vel[0]*o.maxMS/vl,this.vel[1]*o.maxMS/vl,this.vel[2]*o.maxMS/vl];
    for(let i=0;i<3;i++)this.off[i]+=this.vel[i]*step;}
-  const ow=toW(this.off);let pos:V3=[raw.position[0]+ow[0],raw.position[1]+ow[1],raw.position[2]+ow[2]];
+  let pos:V3=[raw.position[0]+this.off[0],raw.position[1]+this.off[1],raw.position[2]+this.off[2]];
   // hard floor backstop 0.25 m under the planned floor (the plan + the lifted raw keep it from binding in normal motion)
   const fl=floorAt?floorAt(pos[0],pos[2]):null,minY=Math.max(her[1]+o.feetHeadroomM-0.25,fl===null?-1e9:fl+o.floorHeadroomM-0.25);if(pos[1]<minY)pos=[pos[0],minY,pos[2]];
   // aim: the raw lens's look point at her distance
