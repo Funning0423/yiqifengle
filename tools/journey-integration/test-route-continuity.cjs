@@ -9,6 +9,7 @@
  *  C2 hand-offs (sail → shore follow → meadow board camera; ride → door lens → lakeside board camera): ≤ 0.1°, ≤ 1 cm, FOV ≤ 0.1°.
  *  C3 balloon seam (BalloonFlight SEAM_T, the world re-roots): camera relative to the balloon continuous (≤ 1 cm, ≤ 0.1°).
  *  C4 start: sail + balloon meadow→skycity: real controller, live lens held → black → ride camera(0) → fade in (rideStart);
+ *     b17r7: switch frame at cover alpha 1 (show() at 1, held at 1 before the fade-in, no lease.onFrame before the switch).
  *     skycity follow lens; balloon meadow→skycity: the controller's journeyCamera(d=0) write). A visible jump fails unless the
  *     frame is under a full cover. Lakeside walk→basket cut: must be under full black.
  *  C5 day/night: no camera function reads the day/night mode (source check), so C1–C4 hold for both modes.
@@ -45,16 +46,25 @@ const RC=J.H.load(J.S+'world-r1/RegionJourneyCore.ts'),{Cancellation}=J.H.load(J
 async function rideStart(leg){const sail=leg.id.startsWith('sail'),log=[];let alpha=0;const covers=[];
  const route={from:sail?'island':'meadow',to:sail?'meadow':'skycity',path:[[0,0,0],[0,0,4],[0,0,8]],bridgeStart:2,bridgeEnd:3,speed:1.2,startBlendM:0};
  const live={position:[0,9,-9],target:[0,0,0],fovVerticalDeg:45};let rideDone;const rideP=new Promise(r=>{rideDone=r;});
- const lease={route,show:v=>log.push({k:'show',alpha}),dispose:()=>{},startPose:()=>leg.cam(0),onFrame:()=>leg.cam(.5),ride:async(a,w)=>{log.push({k:'ride',alpha});w.setCamera(leg.cam(0));await rideP;}};
+ const lease={route,show:v=>log.push({k:'show',alpha}),dispose:()=>{},startPose:()=>leg.cam(0),onFrame:()=>{log.push({k:'onFrame',alpha});return leg.cam(.5);},ride:async(a,w)=>{log.push({k:'ride',alpha});w.setCamera(leg.cam(0));await rideP;}};
  const c=new RC.RegionJourneyController({prepare:async()=>lease,readCamera:()=>structuredClone(live)});if(!sail)c.region='meadow';
  const world={setCamera:p=>log.push({k:'camera',p:structuredClone(p),alpha}),fadeCover:(a,s)=>{log.push({k:'cover',a,from:alpha});return new Promise(r=>covers.push(()=>{alpha=a;r();}));}};
  const actor={walkProgress:()=>0,perform:async()=>{},cancelAndReset:()=>{},setVisible:()=>{}};const tick=()=>new Promise(r=>setImmediate(r));
  const tok=new Cancellation();await c.prepare(route.to,[0,0,0],tok);for(let i=0;i<5;i++)c.observe(actor,world,1/60);
- const beforeWalk=log.filter(e=>e.k==='camera').length;const w=c.walk(actor,world,tok);await tick();covers.shift()?.();await tick();await tick();covers.shift()?.();rideDone();await w.catch(e=>log.push({k:'err',e:String(e)}));
+ const beforeWalk=log.filter(e=>e.k==='camera').length;const w=c.walk(actor,world,tok);await tick();covers.shift()?.();await tick();
+ // b17r7: one observed frame between each cover step (the world keeps calling observe while walk() awaits the cover).
+ for(let i=0;i<6;i++){c.observe(actor,world,1/60);await tick();covers.shift()?.();await tick();}rideDone();await w.catch(e=>log.push({k:'err',e:String(e)}));
  const cams=log.filter(e=>e.k==='camera'),first=cams[0],ride0=leg.cam(0),j=first?jumpOf(first.p,ride0):null,err=log.find(e=>e.k==='err');
  const src=f=>fs.readFileSync(J.S+f,'utf8').replace(/\s/g,'');const wired=sail?/startPose:\(\)=>\{constv=view\.getFrameSize\(\);returnsailDriver!\.pose\(/.test(src('region/RegionJourneyAdapter.ts')):/startPose:\(\)=>plan\.camera\(0\)/.test(src('region/BalloonTransit.ts'));
- const ok=!err&&beforeWalk===0&&first&&first.alpha===1&&swapOk(j)&&log.some(e=>e.k==='cover'&&e.a===0)&&wired&&log.findIndex(e=>e.k==='cover'&&e.a===1)<log.indexOf(first);
- return {name:'live lens → black → ride camera(0) → fade in (real RegionJourneyController)',ok,camWritesBeforeWalk:beforeWalk,firstWriteAlpha:first?first.alpha:null,firstWriteVsRide0:j,sequence:log.map(e=>e.k+(e.a!==undefined?':'+e.a:'')+(e.k==='camera'?'@'+e.alpha:'')).slice(0,12),productionWired:wired,error:err&&err.e,
+ // b17r7 switch frame: the scene is shown only at alpha 1, the next cover step after show() is a hold AT 1 (from 1), so the first
+ // drawn frame of the new scene is fully black; the fade-in (→0) starts from alpha 1 after that hold; no lease.onFrame (ride/scene
+ // dressing side effects) runs while the cover is below 1 before the switch.
+ const iShow=log.findIndex(e=>e.k==='show'),afterShow=log.slice(iShow+1).find(e=>e.k==='cover'),fadeIn=log.find(e=>e.k==='cover'&&e.a===0);
+ const iIn=log.indexOf(fadeIn),onFrameEarly=log.filter((e,i)=>e.k==='onFrame'&&(i<iShow||(i<iIn&&e.alpha<1))).length;
+ const switchFrame={showAlpha:iShow>=0?log[iShow].alpha:null,nextCover:afterShow?{a:afterShow.a,from:afterShow.from}:null,fadeInFrom:fadeIn?fadeIn.from:null,onFrameBeforeSwitch:onFrameEarly};
+ const switchOk=switchFrame.showAlpha===1&&!!afterShow&&afterShow.a===1&&afterShow.from===1&&switchFrame.fadeInFrom===1&&onFrameEarly===0;
+ const ok=!err&&beforeWalk===0&&first&&first.alpha===1&&swapOk(j)&&!!fadeIn&&wired&&log.findIndex(e=>e.k==='cover'&&e.a===1)<log.indexOf(first)&&switchOk;
+ return {name:'live lens → black → ride camera(0) → fade in (real RegionJourneyController)',ok,camWritesBeforeWalk:beforeWalk,firstWriteAlpha:first?first.alpha:null,firstWriteVsRide0:j,switchFrame,switchOk,sequence:log.map(e=>e.k+(e.a!==undefined?':'+e.a:'')+(e.k==='camera'?'@'+e.alpha:'')).slice(0,16),productionWired:wired,error:err&&err.e,
   liveToRide0Hidden:jumpOf(live,ride0)};}
 (async()=>{const G=await R.geometry(),Core=J.Core,rows=[],checks=[];
  const check=(id,fn)=>{try{checks.push({id,status:'PASS',...fn()});}catch(e){checks.push({id,status:'FAIL',error:String(e.message||e).slice(0,1500)});}};

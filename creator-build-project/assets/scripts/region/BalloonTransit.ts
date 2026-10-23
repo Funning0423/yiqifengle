@@ -16,7 +16,7 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, islandSeaShown, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
  if(name==='sky-city-enable'||name==='sky-islets-enable'||name==='balloon-cloud-exit'||name==='balloon-land')return 'skycity';
@@ -274,7 +274,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
   const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
-  const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  let restoreSailLeft=()=>{};
+  const release=()=>{if(dead)return;dead=true;try{restoreSailLeft();}catch{}director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
@@ -328,6 +329,20 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(seaPrefab){seaPrefab.addRef();owned.push({destroy(){seaPrefab.decRef();}});seaFallback=instantiate(seaPrefab);seaFallback.name='transit_sea_fallback';rig.addChild(seaFallback);seaFallback.active=false;showBothSides(seaFallback);paintSeaFallback(seaFallback,false);}
   }
   const sea=findSceneNamed('env_sea_surface');
+  // b17r7 (运镜bot): the island sea (env_sea_surface, flat at world y=-0.918) stayed visible during the flight and the post-seam
+  // lens climbs through that height at ~15.9 s while the basket is still ~7 m below it: the sea cut the basket and her out
+  // (audit b17-cand-76a0433, 15.8-17 s). Hide EVERY live env_sea_surface each frame (rescanned, not one cached node) whenever
+  // islandSeaShown() says so; paint runs on EVENT_BEFORE_DRAW so this is the last write before the frame.
+  const seas:Node[]=[];let seaScanAt=-1;
+  const scanSeas=(t:number)=>{if(seaScanAt>=0&&Math.abs(t-seaScanAt)<0.5&&seas.every(n=>isValid(n,true))&&sailLeft.every(n=>isValid(n,true)))return;seaScanAt=t;seas.length=0;sailLeft.length=0;const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(n.name==='env_sea_surface')seas.push(n);else if(n.name==='SailArt'){sailLeft.push(n);if(!sailHome.has(n))sailHome.set(n,n.active);}});};
+  // b17r7 B1 (Mac diagDump 3efe2a0c): the blocker is the SAIL leg's leftover SailArt (WorldFlowOwner/RegionJourney-meadow/SailArt:
+  // transit_sea/sea_plane, world y=-0.91, AABB half-extent 832 m around (-3.7,30.4)). SailArt is a sibling of the meadow model,
+  // disposed only with the meadow lease, so hiding the meadow at MEADOW_OFF_T left it on; the post-seam lens climbs through
+  // y≈-0.9 at 15.8 s with the basket below. It now follows the meadow: off with the meadow, home state if the meadow returns.
+  const sailLeft:Node[]=[];const sailHome=new Map<Node,boolean>();
+  restoreSailLeft=()=>{if(!(isValid(meadow,true)&&meadow.activeInHierarchy))return;for(const [n,a] of sailHome)if(isValid(n,true))n.active=a;};
+  const applySailLeft=(meadowOn:boolean)=>{for(const n of sailLeft)if(isValid(n,true)){const want=meadowOn?(sailHome.get(n)??true):false;if(n.active!==want)n.active=want;}
+   const g=(globalThis as any).__QF_BALLOON_SEA_PLAN;if(g){g.sailLeftover=sailLeft.length;g.sailLeftoverLive=sailLeft.filter(n=>isValid(n,true)&&n.activeInHierarchy).length;}};
   const seaHome=sea?{pos:sea.position.clone(),scale:sea.scale.clone(),euler:sea.eulerAngles.clone()}:null;
   const backdropNodes:Node[]=[];
   const scene=director.getScene();
@@ -367,7 +382,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // Night keeps a dark unlit disc under the city (cloud sea sits above it). Day: blue disc.
     const showFb=t>=MEADOW_OFF_T&&!handoff;
     if(seaFallback&&isValid(seaFallback,true))seaFallback.active=showFb;
-    if(sea&&isValid(sea,true)){sea.active=!showFb&&!(t>=MEADOW_OFF_T&&!handoff);if(showFb)dampSeaSpecular(sea,true);}
+    const on=islandSeaShown(t,handoff);scanSeas(t);
+    for(const n of seas)if(isValid(n,true)){n.active=on;if(showFb)dampSeaSpecular(n,true);}
+    const g=(globalThis as any).__QF_BALLOON_SEA_PLAN;if(g){g.islandSea=on;g.islandSeaNodes=seas.length;g.islandSeaLive=seas.filter(n=>isValid(n,true)&&n.activeInHierarchy).length;}
     return;
    }
    // Plan A (kept for fallback): teleport × S and scale ×6 at seam.
@@ -405,6 +422,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const meadowOn=!arrived&&t<plan.meadowOffAt,cityOn=arrived||t>=plan.cityActiveAt;
    const showIsland=arrived||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
    if(isValid(meadow,true))meadow.active=meadowOn;
+   scanSeas(t);applySailLeft(sailLeftoverShown(t,arrived)&&meadowOn);
    // Shadows on for meadow gameplay match; off after unload for DC ≤53.
    if(mainLight){
     const wantShadow=meadowOn&&mainShadow0;
