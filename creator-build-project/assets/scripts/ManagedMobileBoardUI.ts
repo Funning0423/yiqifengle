@@ -4,7 +4,8 @@ import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpa
 import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/LevelBackground';
 import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
-import { boardLayout, boardSafeInsets, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
+import { MINIGAME } from 'cc/env';
+import { boardLayout, boardSafeInsets, cellCenter, pickToolBar, qaForcedToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
 import { PopupStack, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
 import { openPause, openRestartConfirm, openResult, type ResultModel, type ResultReward } from './ui/BoardPanels';
@@ -230,7 +231,9 @@ export class ManagedMobileBoardUI extends Component {
   private toolArt!: ManagedToolArt; private armedTool: string | null = null; private toolTapAccepted = false;
     private toolDrag: { x?: number, y?: number, axis?: string, startSX?: number, startSY?: number, latestHit?: number, legacyLayoutAlias?: boolean, kind: string, slot: number, pointer: number, readonly originWindow: number, start: { x: number, y: number }, point: { x: number, y: number }, moved: boolean, version: string, yDown?: boolean, sx?: number, sy?: number, sw?: number, hover?: number, hx?: number, hy?: number, mx?: number, my?: number } | null = null; private toolGhost: Node | null = null; private pieceGhost: Node | null = null;
   private toolCatalog(): ManagedTool[] { return this.managed?.tools?.() || managedTools(this.snapshot); }
-  private barTools(): ManagedTool[] { const c = this.toolCatalog(), out: ManagedTool[] = []; for (const k of this.toolBar) { const t = c.find(x => x.kind === k); if (t) out.push(t); } return out; }
+  private barTools(): ManagedTool[] { const c = this.toolCatalog(), out: ManagedTool[] = [], qa = this.qaTools(); for (const k of this.toolBar) { const t = c.find(x => x.kind === k); if (t) out.push(t); else if (qa) out.push({ kind: k, name: TOOL_NAMES[k] || k, count: 0, targeted: false, available: false, reason: 'QA' }); } return out; }
+  /** QA frames only (`qaTools=N` URL); the wechat player build constant-folds this to null (`MINIGAME`). */
+  private qaTools(): string[] | null { if (MINIGAME) return null; try { return qaForcedToolBar(typeof location !== 'undefined' ? String(location.search || '') : null, false); } catch { return null; } }
   private toolVersion() { const a = this.snapshot?.active; return `${a?.attemptId || a?.stageId}:${a?.actions?.length ?? a?.turn ?? 0}:${a?.version ?? 0}`; }
   private canUseTools() { return this.inputVisible() && !this.modalOpen() && this.snapshot?.state === 'run.ready' && !this.snapshot?.readOnly; }
   /** run.ready can take a finger. A settled pause, result or readonly screen is the real screen too — not a half board. */
@@ -351,7 +354,7 @@ export class ManagedMobileBoardUI extends Component {
     const key = [this.snapshot.provider, a.stageId, a.attemptId, a.seed].join('|'), fresh = !(a.actions?.length) && !(a.turn);
     if (key === this.toolBarKey && !(fresh && this.toolBar.length === 0)) return;
     if (key === this.toolBarKey && !fresh) return;
-    this.toolBarKey = key; this.toolBar = pickToolBar(this.toolCatalog());
+    this.toolBarKey = key; this.toolBar = this.qaTools() || pickToolBar(this.toolCatalog());
     for (const k of this.toolBar) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k);
   }
   private useToolAt(kind: string, index: number) {

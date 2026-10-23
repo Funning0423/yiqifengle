@@ -173,7 +173,7 @@ export class WorldNativeComposition extends Component {
   private selectionRegion(selection:Selection):JourneyRegion {
     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
     // r05-meadow-* meadow, r05-sky-* skycity, 风铃湖畔 r04-lake-* (r05 renumbering too) lakeside, else island (tide).
-    const id=selection.stageId;return /^r05-meadow-/.test(id)?'meadow':/^r05-sky-/.test(id)?'skycity':/^r0[45]-lake-\d+$/.test(id)?'lakeside':'island';
+    const id=selection.stageId;return /^r05-meadow-/.test(id)?'meadow':/^r05-sky-/.test(id)?'skycity':(/^r0[45]-lake-\d+$/.test(id)||/^mainline-1[3-6]$/.test(id))?'lakeside':'island';
   }
   /** Cold progress opens the same physical route in order. Unlocks are read from verified records, never counters. */
   private async ensureRegion(target:JourneyRegion):Promise<Result>{

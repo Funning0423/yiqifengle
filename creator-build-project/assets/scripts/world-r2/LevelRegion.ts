@@ -9,7 +9,7 @@ export function requiresMeadowScene(selection: RegionSelection): boolean {
 
 /** 风铃湖畔 challenges (r04-lake-*) render the live region_lakeside scene. */
 export function requiresLakesideScene(selection:RegionSelection):boolean {
- const id=String(selection?.stageId||'');return /^r0[45]-lake-\d+$/.test(id);
+ const id=String(selection?.stageId||'');return /^r0[45]-lake-\d+$/.test(id)||/^mainline-1[3-6]$/.test(id)/* b18: mainline 13–16 = 风铃湖畔 */;
 }
 
 export function requiresSkycityScene(selection:RegionSelection):boolean {
