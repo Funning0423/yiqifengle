@@ -2016,8 +2016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 106488,
-    "sha256": "e299c56a7f83fe7666e2e4586938c47cc99585550a75f85606f4f143c7633b98"
+    "bytes": 106540,
+    "sha256": "cc65897f6cde1a9fa68f7ad2828da252206caa93f45c6a2f8fa82f912fc64d50"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -3936,8 +3936,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts",
-    "bytes": 6629,
-    "sha256": "676d7c5c7981a75daa0e2f7c4cbf99ba264fa2abff720e7b37618c1124ce41a7"
+    "bytes": 7567,
+    "sha256": "dd016ef35071535f69a61d833365f5d6ea21c016ab06d5cd2442de4e10e3213a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts.meta",
@@ -3986,8 +3986,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
-    "bytes": 9282,
-    "sha256": "3b42e3e609f5808506e1afef35ec0d4ed568761003b6f8e58290996b9a157c1c"
+    "bytes": 10399,
+    "sha256": "a8b3f933606e09b4e2797f8e6a8eae18a42beac92d647a90b3c804c473c8592a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta",
@@ -4226,8 +4226,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 41900,
-    "sha256": "7dbe4be393393d2dcdddb4421bcc478479da2736a262f63ac531501107519d6b"
+    "bytes": 42129,
+    "sha256": "fa6817930cbfaa6946e59065f1cc1f7c6cdc656401b92f4e741163eee5ac9486"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4356,8 +4356,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 16229,
-    "sha256": "6676d95e2c5d53dcffa9c1bed9efa9f70b17e2ed10c3a317a95c47130ccd94e9"
+    "bytes": 16312,
+    "sha256": "8dfe5bf8cf50c0e774cf3d4757977a0d339b1105bd69ade6a2f7599dbeb5f7de"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

@@ -103,6 +103,8 @@ export class WorldNativeComposition extends Component {
      input.sink=(g,x,y)=>stage.onGesture(g,x,y);
     }
   }
+  /** b17r14: island free-explore taps arrive via IslandLighthouseTouch (it claims the touch), not the global input. */
+  exploreFeed():ExploreInput|null{const c=this.node?.getComponent(ExploreInput);return c&&c.isValid?c:null;}
   selectProvider(selection:Selection):Result {
     if(!this.world)return {ok:false,reason:'world-not-ready'};
     if(!['home','island','meadow','skycity','lakeside'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'exit-current-level-first'};
