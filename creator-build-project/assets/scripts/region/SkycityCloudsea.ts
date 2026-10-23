@@ -41,10 +41,14 @@ export class SkycityCloudsea extends Component{
     // room props as they are (no day hides) but clears to the region night sky (REGION_BOARD_NIGHT_CLEAR, the same sky the
     // skycity board eases to); day is unchanged. Both are restored on hide (restoreDay).
     const night=regionNightNow();
-    if(night&&savedDayNodes.size){for(const [n,active] of savedDayNodes)if(isValid(n,true))n.active=active;savedDayNodes.clear();}
-    dayOwners.add(this);
-    if(night){const N=REGION_BOARD_NIGHT_CLEAR;this.clearCameras(scene,N[0],N[1],N[2]);return;}
     const hide=(n:Node)=>{if(!savedDayNodes.has(n))savedDayNodes.set(n,n.active);n.active=false;};
+    if(night&&savedDayNodes.size){for(const [n,active] of savedDayNodes)if(isValid(n,true)&&n.name!=='env_cloud_layer')n.active=active;for(const n of [...savedDayNodes.keys()])if(n.name!=='env_cloud_layer')savedDayNodes.delete(n);}
+    dayOwners.add(this);
+    // b17r7 (运镜bot): night also hides the island room's env_cloud_layer (an unlit 270x36x370 m shell, night blue-grey). It wraps
+    // the skycity / lakeside lenses: GGbot's Mac bisect (mac-diag-5095dfe, hideNode=env_cloud_layer) and the r7 test report's
+    // dark-grey lakeside screen. Restored with the other day hides (restoreDay).
+    if(night){const walkN=(n:Node,inRoom=false)=>{inRoom=inRoom||n.name==='room_no_original_chair';if(inRoom&&n.name==='env_cloud_layer')hide(n);for(const c of n.children)walkN(c,inRoom);};walkN(scene);
+     const N=REGION_BOARD_NIGHT_CLEAR;this.clearCameras(scene,N[0],N[1],N[2]);return;}
     const walk=(n:Node,inRoom=false)=>{
       inRoom=inRoom||n.name==='room_no_original_chair';
       if(inRoom&&['env_sky_dome','env_cloud_layer','balloon_basket','balloon_envelope'].includes(n.name))hide(n);
