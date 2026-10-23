@@ -141,7 +141,7 @@ for(const name of meshNames)assert.ok(gltf.nodes.some(n=>n.name===name&&n.mesh!=
 const stage=new Stage();stage.region='skycity';
 let renderers=[];
 stage.model=()=>({getComponentsInChildren:()=>renderers});
-stage.orbitBoxes=[];stage.refreshOrbitBoxes=()=>{};stage.regionBounds=()=>[-50,-50,50,50];stage.girl=()=>[0,0,0];
+stage.occlude=p=>p;/* b17r7: lakeside-only occlusion, covered by lakeside-lens-occlusion */stage.orbitBoxes=[];stage.refreshOrbitBoxes=()=>{};stage.regionBounds=()=>[-50,-50,50,50];stage.girl=()=>[0,0,0];
 let written;
 stage.writePose=p=>{written=p;};
 const skyOrbit=new C.FreeOrbit('skycity');skyOrbit.pitch=-6;skyOrbit.dist=22;
