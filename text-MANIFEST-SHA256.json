@@ -2486,8 +2486,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 9598,
-    "sha256": "4fd0145529470e9e7e1e6cf1f3b12298d16987e529ac54475dd4aa5a0f3b14de"
+    "bytes": 9993,
+    "sha256": "01dd9d69e2cfb70d99a2471d1b841c23656ac5f839099b12a851344409e8d0a9"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2506,8 +2506,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 38156,
-    "sha256": "2276fc9e44d073ba3e94e8be90a48f42f472924f825825294930aac084e466cf"
+    "bytes": 39987,
+    "sha256": "308fd620b9c1fad9bdcb8f4071cc990e12db51f741a419c7fff476d1c17f07b8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2826,8 +2826,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 41095,
-    "sha256": "f2fd7cffcc3998b4e6fe7904b284554ea6c874b76313ad5cfdee5a9d00ca6410"
+    "bytes": 41768,
+    "sha256": "782d33b7e48f948da96a96537f220c8cffa6a4326bd4cb3b1b60d036e8dcd3c5"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -2926,8 +2926,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts",
-    "bytes": 32913,
-    "sha256": "1d8de8dc129862007eb7b745bc2721a3aa7aaa0d1344564b5c9b26caef84536a"
+    "bytes": 33373,
+    "sha256": "7124f84f2c2a061243d1b4b662430943b095ef4c7ec26e6550b0ef747db516e3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts.meta",
@@ -3821,8 +3821,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 34817,
-    "sha256": "b932bf46c76e9cc414d9127deab3592483286b6b6d2aa9fc52d44ebadf9f3769"
+    "bytes": 35635,
+    "sha256": "89b1060215e89f3e30e7170939d297cc154d6c186a0e01306ba3e4014ff24d8d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
