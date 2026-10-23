@@ -380,7 +380,11 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  }
  const hidden:MeshRenderer[]=[];
  const scene=director.getScene();
- if(scene)walk(scene,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))if(r.enabled){r.enabled=false;hidden.push(r);}});
+ // b17r7 (运镜bot): the island sea is NOT hidden at mount any more (mount runs while the island lens is still visible, before
+ // the set-off cover is black: grey clear colour under the half-faded cover). The first sync() hides it, and the journey
+ // controller only drives sync (lease.onFrame / ride) once the cover is at alpha 1.
+ let seaTaken=false;
+ const takeIslandSea=()=>{if(seaTaken)return;seaTaken=true;const sc=director.getScene();if(sc)walk(sc,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))if(r.enabled){r.enabled=false;hidden.push(r);}});};
  const dome=scene?findNode(scene,'env_sky_dome'):null;
  const cloudLayer=scene?findNode(scene,'env_cloud_layer'):null;
  const domeHome=dome?[dome.worldPosition.x,dome.worldPosition.y,dome.worldPosition.z]:null;
@@ -463,6 +467,7 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
   boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
   sync(v,cam,dt,night,aim?:Vec){
    (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=true;
+   takeIslandSea();
    time+=Math.max(0,dt);
    const sceneNow=director.getScene();
    if(sceneNow)walk(sceneNow,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))r.enabled=false;});
