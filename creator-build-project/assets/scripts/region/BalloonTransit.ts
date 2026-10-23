@@ -16,7 +16,7 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, islandSeaShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
  if(name==='sky-city-enable'||name==='sky-islets-enable'||name==='balloon-cloud-exit'||name==='balloon-land')return 'skycity';
@@ -325,6 +325,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(seaPrefab){seaPrefab.addRef();owned.push({destroy(){seaPrefab.decRef();}});seaFallback=instantiate(seaPrefab);seaFallback.name='transit_sea_fallback';rig.addChild(seaFallback);seaFallback.active=false;showBothSides(seaFallback);paintSeaFallback(seaFallback,false);}
   }
   const sea=findSceneNamed('env_sea_surface');
+  // b17r7 (运镜bot): the island sea (env_sea_surface, flat at world y=-0.918) stayed visible during the flight and the post-seam
+  // lens climbs through that height at ~15.9 s while the basket is still ~7 m below it: the sea cut the basket and her out
+  // (audit b17-cand-76a0433, 15.8-17 s). Hide EVERY live env_sea_surface each frame (rescanned, not one cached node) whenever
+  // islandSeaShown() says so; paint runs on EVENT_BEFORE_DRAW so this is the last write before the frame.
+  const seas:Node[]=[];let seaScanAt=-1;
+  const scanSeas=(t:number)=>{if(seaScanAt>=0&&Math.abs(t-seaScanAt)<0.5&&seas.every(n=>isValid(n,true)))return;seaScanAt=t;seas.length=0;const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(n.name==='env_sea_surface')seas.push(n);});};
   const seaHome=sea?{pos:sea.position.clone(),scale:sea.scale.clone(),euler:sea.eulerAngles.clone()}:null;
   const backdropNodes:Node[]=[];
   const scene=director.getScene();
@@ -364,7 +370,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // Night keeps a dark unlit disc under the city (cloud sea sits above it). Day: blue disc.
     const showFb=t>=MEADOW_OFF_T&&!handoff;
     if(seaFallback&&isValid(seaFallback,true))seaFallback.active=showFb;
-    if(sea&&isValid(sea,true)){sea.active=!showFb&&!(t>=MEADOW_OFF_T&&!handoff);if(showFb)dampSeaSpecular(sea,true);}
+    const on=islandSeaShown(t,handoff);scanSeas(t);
+    for(const n of seas)if(isValid(n,true)){n.active=on;for(const r of n.getComponents(MeshRenderer))if(r.enabled!==on)r.enabled=on;if(showFb)dampSeaSpecular(n,true);}
+    const g=(globalThis as any).__QF_BALLOON_SEA_PLAN;if(g){g.islandSea=on;g.islandSeaNodes=seas.length;g.islandSeaLive=seas.filter(n=>isValid(n,true)&&n.activeInHierarchy).length;}
     return;
    }
    // Plan A (kept for fallback): teleport × S and scale ×6 at seam.

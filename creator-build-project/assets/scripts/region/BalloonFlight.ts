@@ -145,6 +145,10 @@ export function skyNodeAfterArrival(name:string):'on'|'off'|null{
 }
 /** Island backdrop meshes hidden from meadow-unload until handoff (plan B also hides env_sea_surface). */
 export const BACKDROP_HIDE=['env_cloud_layer','env_sea_foam','env_sea_surf_foam_v22','env_sea_wave_line_01_v22','env_sea_wave_line_02_v22','env_lighthouse_ext','env_lighthouse_door','env_island_main','env_island_props_merged','env_prop_palm_lean_01','env_prop_palm_tall_01','env_prop_palm_young_01','env_rear_window_palm'];
+/** Island sea (env_sea_surface) world height; IslandAtmosphereFxCore: flat at y=-0.918. The post-seam flight climbs through it. */
+export const ISLAND_SEA_Y=-0.918;
+/** Island sea shown? Off from meadow-unload until handoff (plan B). Shared by BalloonTransit and test-route-occlusion O3. */
+export function islandSeaShown(t:number,handoff:boolean):boolean{return !(t>=MEADOW_OFF_T&&!handoff);}
 export const NIGHT_MOON_HIDE=['env_sky_moon_night_v22','env_sky_moon_halo_night_v22'];
 /** Ry(yaw) * Rz(roll), degrees. Returns xyzw. */
 export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,number]{
