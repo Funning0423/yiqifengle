@@ -2486,8 +2486,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 9598,
-    "sha256": "4fd0145529470e9e7e1e6cf1f3b12298d16987e529ac54475dd4aa5a0f3b14de"
+    "bytes": 10387,
+    "sha256": "2750919bab0107b3968df40a88bc7258b7b97bfd37109ae18b0a1c08c34e03cf"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2506,8 +2506,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 38917,
-    "sha256": "bf8924ff82d9eb6af5d5cc3ed47624e5418783ec85da5839666d568739629392"
+    "bytes": 41280,
+    "sha256": "f77c0851fc0f0264e4427d0634561442738e8f110b7db4149a153fe38f294241"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2653,6 +2653,16 @@
     "path": "creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta",
     "bytes": 171,
     "sha256": "e3e7c040b488f73064b079a2df2b08c877347123b68d0357bbc3293efa89e2c7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLegHide.ts",
+    "bytes": 1501,
+    "sha256": "0a0e6d172bfc59aec61a9582dea0c03a2352ea5019a95fb3459e71836315ac6e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLegHide.ts.meta",
+    "bytes": 171,
+    "sha256": "66a6ede004985f13a75cd799e1642fe24e96e45223b5d3a41b6a99d71102f976"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLife.ts",
@@ -2926,8 +2936,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts",
-    "bytes": 32913,
-    "sha256": "1d8de8dc129862007eb7b745bc2721a3aa7aaa0d1344564b5c9b26caef84536a"
+    "bytes": 33373,
+    "sha256": "7124f84f2c2a061243d1b4b662430943b095ef4c7ec26e6550b0ef747db516e3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts.meta",
@@ -3821,8 +3831,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 34817,
-    "sha256": "b932bf46c76e9cc414d9127deab3592483286b6b6d2aa9fc52d44ebadf9f3769"
+    "bytes": 35635,
+    "sha256": "89b1060215e89f3e30e7170939d297cc154d6c186a0e01306ba3e4014ff24d8d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
