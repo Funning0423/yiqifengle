@@ -16,7 +16,7 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, islandSeaShown, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, balloonIllumFactor, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
  if(name==='sky-city-enable'||name==='sky-islets-enable'||name==='balloon-cloud-exit'||name==='balloon-land')return 'skycity';
@@ -163,6 +163,14 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
   if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,night?nite:day,{vertexColor:true});
  });
  lookCache.set(clouds,night);
+}
+/** b17r10: per-frame night cloud colour during the city blend. Only touches the unlit instances paintCloudSea made; skips when unchanged. */
+const cloudTint=new WeakMap<Node,string>();
+function tintCloudSea(clouds:Node|null,rgb:[number,number,number]):void{
+ if(!clouds)return;const key=rgb.join(',');if(cloudTint.get(clouds)===key)return;cloudTint.set(clouds,key);
+ const c=new Color(rgb[0],rgb[1],rgb[2],255);
+ eachNamed(clouds,n=>{if(n.name!=='clouds_floor'&&n.name!=='clouds_floor_puff'&&n.name!=='clouds_city_sea')return;
+  for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;try{m.setProperty('mainColor',c);}catch{/* */}}});
 }
 /** Coarse sky-dome rings band in 8-bit. Swap the day dome to a dithered pass; caller restores the shared mat. */
 function ditherSky(dome:Node,grade:EffectAsset):void{
@@ -429,8 +437,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     try{(mainLight as any).shadowEnabled=wantShadow;}catch{}
     try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=wantShadow;}catch{}
     if(arrived){try{(mainLight as any).shadowEnabled=mainShadow0;}catch{} try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=mainShadow0;}catch{} if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}}
-    else if(night&&cityOn){try{mainLight.illuminance=Math.min(mainLight.illuminance,mainIllum0*0.22);}catch{}}
-    else if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}
+    else if(mainIllum0>0){try{mainLight.illuminance=mainIllum0*balloonIllumFactor(t,night);}catch{}} // b17r10: night ramps x1 -> x0.22 over NIGHT_BLEND_S (was a one-frame cut at CITY_ON_T)
    }
    if(model){
     model.active=cityOn;
@@ -477,19 +484,20 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    applySea(t,handoff);
    if(handoff){seaRestored=true;backdropRestored=true;}
    applyLight(t);
+   (globalThis as any).__QF_BALLOON_LIGHT={t,yawOffset:balloonLightYawOffset(t),illum:mainLight?mainLight.illuminance:0,illumFactor:balloonIllumFactor(t,night),nightW:night?nightCityBlend(t):0};
    if(!arrived){
     (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
     (globalThis as any).__QF_BALLOON_LENS=true;
     for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day){if(gradeEffect&&!skyHome.length){for(const r of n.getComponents(MeshRenderer))skyHome.push({r,shared:r.getSharedMaterial(0)});ditherSky(n,gradeEffect);}else skybox(n);}}
     if(nightDome){nightDome.active=night;} // skybox() ran once at mount; re-running it per frame rebuilt the pass every frame
     // Cloud sea: graded day clumps, night blue-grey. Never emissive.
-    if(cityOn)paintCloudSea(clouds,night,gradeEffect);
+    if(cityOn){paintCloudSea(clouds,night,gradeEffect);if(night)tintCloudSea(clouds,nightCloudColor(t));}
     else if(night&&!emissiveDone.has(clouds)){emissiveDone.add(clouds);setEmissive(clouds,true);} // once — per-frame instance rebinds churned the pass
    }
    applyVehicleNight(vehicle,night);
    // b16: self-lit sky-city clouds / accents follow the island night (they ignored the dimmed light; after landing the
    // cloud_small and accents came back at day brightness). Cached: only walks the city when the mode changes.
-   if(model&&cityOn){gradeSkycityNight(model,night?1:0);gradeSkycityCloudsea(model.parent,night?1:0);}
+   if(model&&cityOn){const w=night?(arrived?1:Math.round(nightCityBlend(t)*20)/20):0; /* 5% steps: one city walk per step, not per frame */gradeSkycityNight(model,w);gradeSkycityCloudsea(model.parent,w);}
    if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=!arrived&&t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    if(arrived){

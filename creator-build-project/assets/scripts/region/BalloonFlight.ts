@@ -40,6 +40,28 @@ export function balloonLightYawOffset(t:number):number{
  const u=Math.max(0,Math.min(1,(t-SEAM_T)/(LAND_T-SEAM_T)));
  return -LIGHT_RAMP_YAW*(1-u*u*(3-2*u));
 }
+/**
+ * b17r10: night look handoff at the city switch. Before CITY_ON_T the night clouds are lit by the full board light; at
+ * CITY_ON_T the light dropped to x0.22 and the cloud sea swapped to unlit RGB(68,80,94) in one frame (whole-frame -16%,
+ * white -> cyan-blue). Everything that changes there now follows this weight: 0 before CITY_ON_T, smoothstep to 1 over
+ * NIGHT_BLEND_S (camera is still inside the cloud window), 1 afterwards.
+ */
+export const NIGHT_BLEND_S=1.2;
+export const NIGHT_CITY_ILLUM=0.22;
+export function nightCityBlend(t:number):number{
+ const u=Math.max(0,Math.min(1,(t-CITY_ON_T)/NIGHT_BLEND_S));
+ return u*u*(3-2*u);
+}
+/** Board-light illuminance factor during the ride (day: 1; night: 1 -> NIGHT_CITY_ILLUM across the blend). */
+export function balloonIllumFactor(t:number,night:boolean):number{
+ return night?1+(NIGHT_CITY_ILLUM-1)*nightCityBlend(t):1;
+}
+/** Night cloud-sea unlit colour (sRGB 0..255): lit-white look -> RGB(68,80,94) across the blend. */
+export const NIGHT_CLOUD_FROM:[number,number,number]=[255,255,255];
+export const NIGHT_CLOUD_TO:[number,number,number]=[68,80,94];
+export function nightCloudColor(t:number):[number,number,number]{
+ const w=nightCityBlend(t);return [0,1,2].map(i=>Math.round(NIGHT_CLOUD_FROM[i]+(NIGHT_CLOUD_TO[i]-NIGHT_CLOUD_FROM[i])*w)) as [number,number,number];
+}
 export type Rigid={yawDeg:number;origin:Vec};
 export type FlightFrame='meadow'|'world';
 export type FlightKey={t:number;frame?:FlightFrame;pos:Vec;yawDeg:number;rollDeg:number;cam:Vec;camLook:Vec};
