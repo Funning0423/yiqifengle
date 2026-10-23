@@ -15,7 +15,7 @@ ok('P1 hit area min 88 logical px (>= 44pt); per-viewport inset checks live in t
 ok('P2 sky-city key light: day unchanged, night = world lightScale 0.35 and moon colour 180/198/232, monotonic blend',()=>{const M=load(['region/RegionBoardNight']).RegionBoardNight;
  const d=M.regionBoardKeyLight([255,243,218],12,0),nt=M.regionBoardKeyLight([255,243,218],12,1),h=M.regionBoardKeyLight([255,243,218],12,.5);
  assert.deepEqual(d.color,[255,243,218]);assert.equal(d.luminance,12);assert.deepEqual(nt.color,[180,189,198]);assert(Math.abs(nt.luminance-4.2)<1e-9);assert(h.luminance<12&&h.luminance>4.2);
- assert(/regionBoardKeyLight\(keyDay\.color,keyDay\.luminance,skyNightBlend\)/.test(src('region/SkycityBoardLive.ts')));});
+ assert(/regionBoardKeyLight\(keyDay\.color,keyDay\.luminance,skyNightBlend\)|gradeSkycityKeyLight\(keyLight,skyNightBlend\)/.test(src('region/SkycityBoardLive.ts')));/* build17-cand-night: night-r3 owns the key light */});
 ok('P2 L13 rule guide: body left-aligned in a 480 box (100 each side inside the 680 frame), lines estimated per paragraph at 472',()=>{const s=src('ManagedMobileBoardUI.ts');
  assert(/const RULE_BODY_W = 480;/.test(s));assert(/p\.text\(body, -RULE_BODY_W \/ 2, [^;]*align: 'left'/.test(s));assert(!/width: 580, lines/.test(s));});
 ok('L13 rule guide clears the HUD plate (+12 pt, title plank included) and the bottom safe area on 320×568 / 375×667 / 390×844, 1–9 lines',()=>{const B=load(['ui/BoardLayout']).BoardLayout;
