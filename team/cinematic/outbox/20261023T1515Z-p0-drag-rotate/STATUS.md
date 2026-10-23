@@ -43,3 +43,35 @@ test_meadow_pitchfloor updated to the new curve (9→5) and allows the 4 explore
 Suite at 98425e8d: 165/169 — 3 baseline env blocks + lakeside-lens-guard killed by the 180 s per-test cap under full-suite load
 (standalone PASS in 155 s; focused rerun `run-suite.cjs lakeside-lens-guard explore-drag-rotate free-orbit` 3/3 PASS). Timing flake, not a regression.
 GGbot DevTools step 4d: drag up = lens lowers (kept); also flick hard up/down in each region: never under ground/deck, never over her head.
+
+## r16 lakeside occlusion round 3 (GGbot r15 web check e3b881d8: ①–④) — commit cf50fcd8 on ebd316a7. NOT merged, not pushed.
+Causes:
+- ① entry canopy: explore opened on the board-exit lens and NOTHING wrote the lens in MapExplore until she walked (orbit not engaged,
+  not FollowWalk), so LensGuard never ran for the first 2–3 s. Also the tree TRUNK proxies were broken: the generator boxed per vertex
+  below the 38 % cut, and a trunk is one prism whose only low vertices are its foot ring → the trunk box collapsed to the foot.
+  Fix: RegionNodeStage.preSolveEntry (pick the clear orbit yaw/pitch/arm nearest the seed by LensGuard cost, warm LensGuard to
+  convergence, glide there at ≤ 7 m/s peak), MapExplore keeps writing through LensGuard while she stands (lakeside/island);
+  generator boxes per TRIANGLE clipped at the cut.
+- ② boardwalk "post": reed cards (LK_reed_card 1.4 m, 47×), west reeds, chime cells, buoy lanterns had no proxies (the tall beige
+  slabs in lkd_m). Added. Near-lens clutter now also costs linearly (one or two of the 9 rays within 3 m already move the lens).
+  NOTE: my geometry boardwalk walk did not reproduce a block BEFORE either (0/7803 frames) — the exact Mac post is unconfirmed.
+- ③ arch bridge: no elevation rule on decks. New LAKESIDE_DECK_ZONES (14 plan boxes: boardwalk, bridge, steps); on them LensGuard
+  raises the designed lens to ≥ 28° over her chest, eased at ≤ 2.5 m/s.
+- ④ island palm after pitch-down: with the player holding the yaw no swing was allowed and crane/pull-in alone cannot clear a palm
+  right behind her. Now, only while her HEAD is blocked, a ±30° swing nudge is allowed (drag test still: yaw holds, gap ≤ 4°).
+Test lakeside-entry-deck (geometry: real GLB triangles incl. reeds, NOT a render; BEFORE = ebd316a7 code):
+- E1 entry, 19 blocked/cluttered exit lenses beside trees: hidden frames after glide BEFORE 1425 / AFTER 0; near-lens fill 375 / 0;
+  hidden at 0.8 s 19/19 → 2/19 (still gliding); glide ≤ 3.03 s, peak 6.91 m/s (≤ 9). During the glide her body is still hidden
+  in ~0.6 s on average (326 frames / 19 cases) — the glide starts from the blocked lens by definition.
+- E2 boardwalk (9 lenses × 2 ways, 7803 frames): hidden 0 / 0, fill 0 / 0 (not reproduced before, guard only).
+- E3 arch bridge side-on (2060 bridge frames): min elevation 15.4° → 28°, frames < 25°: 1050 → 0, hidden 21 → 0.
+- E4 island palm, pitch 5° held: hidden-by-palm frames after 1 s 120 → 0 (4 cases).
+lakeside-lens-guard: its low orbit lens moved from −8° to the new 5° floor (−8° is unreachable since 98425e8d); still PASS (G1–G5).
+run-suite: lakeside-lens-guard and explore-drag-rotate timeout 360 s (others 180 s); lakeside-entry-deck added.
+Size: source +2301 B LensOcclusion, +3364 B LakesideLensOccluders (1373→1446 boxes + 14 deck zones), +3246 B RegionNodeStage;
+  transpiled ES5 w/o comments ≈ +7.95 KB (pre-minify estimate; the build will be smaller). Of the 1,102,067 B left. NOT measured in a real build.
+Renders r16_{entry,post,bridge}_before-left_after-right_NOT_ENGINE.png: software ray-cast of the real triangles, flat colours, her = yellow capsule.
+Suite at cf50fcd8: 166/170 — 3 baseline env blocks + exit-footsteps FAIL under full-suite load (stdout all PASS, killed; alone PASS in 20 s;
+  audio-timing test, not camera). New tests explore-drag-rotate, lakeside-entry-deck, lakeside-lens-guard all PASS in the suite.
+GGbot DevTools additions: open lakeside explore and stand 3 s (no canopy after ≤ 3 s glide), walk the boardwalk (reeds/posts), cross the arch
+bridge (lens looks down over the railing), island: drag down beside a palm (lens nudges/lifts so she shows).
