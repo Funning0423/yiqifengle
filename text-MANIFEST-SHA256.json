@@ -1170,6 +1170,21 @@
     "sha256": "d779b0d3c58e8f6795b668a13bc346ae09b32e85557a94fae8d5fdedbe6f263a"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lighthouse.meta",
+    "bytes": 412,
+    "sha256": "b1a86ea03fc6462fb2261b97f0c52e4cedecd870f69d91637539423e6922d8c5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lighthouse/models.meta",
+    "bytes": 169,
+    "sha256": "e716ce4ac5c5973b298376fae1e911fd2400e3dfcc99a2d01ab2276da2a9493d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_lighthouse/models/LH_lighthouse.glb.meta",
+    "bytes": 165,
+    "sha256": "45f4dd5742e6bc60037f903ac36a3774d4c8d5940a7759a9c30c5eb817cf40be"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow.meta",
     "bytes": 408,
     "sha256": "9bde3e162cde0e78a6334976c6243b21c1c162bb0d072cb267ae83bb4d2fb326"
@@ -4191,8 +4206,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 14249,
-    "sha256": "a557a1cedb94b13093f75f11a3421fd6e261ff27a600ae8b9ddd0a68d697c6b9"
+    "bytes": 14313,
+    "sha256": "f4e4d371f6ed120c65358a9d1d0f6a1b743caf27db46638ce84e20f6bb2ccdcc"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

@@ -945,6 +945,11 @@
     "sha256": "bb3400d47190f7fb66137759ffa3d7143e4c6cfd6f88e83c01d54cdc3f906a18"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_lighthouse/models/LH_lighthouse.glb",
+    "bytes": 1030020,
+    "sha256": "c54adbae7f14a117e4a3725e19d92935321833c702e7e3093f172673d1fab597"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_birds_loop.mp3",
     "bytes": 121076,
     "sha256": "133067f8cfd55dbe6340bffb8570d803f7e5c58182f8cbe6a21494a6048cbab7"
