@@ -1,0 +1,1 @@
+PASS balloon-light-handoff {"day":{"maxVisibleDegPerFrame":0.1104,"maxWorldDegPerFrameOffSeam":0.1104,"seamRebaseFrames":1,"maxIllumStep":0,"maxCloudRgbStep":0},"night":{"maxVisibleDegPerFrame":0.1104,"maxWorldDegPerFrameOffSeam":0.1104,"seamRebaseFrames":1,"maxIllumStep":0.0162,"maxCloudRgbStep":4}}

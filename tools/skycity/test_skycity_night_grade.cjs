@@ -96,6 +96,6 @@ ok(Math.abs(rb.r.inst.props.albedoScale.x-G.SKYCITY_NIGHT.propAlbedo)<1e-9,'robo
  lease.dispose();
  // 5. journey wiring
  const bt=fs.readFileSync(S+'region/BalloonTransit.ts','utf8');
- ok(/if\(model&&cityOn\)\{gradeSkycityNight\(model,night\?1:0\);gradeSkycityCloudsea\(model\.parent,night\?1:0\);\}/.test(bt),'balloon journey grades the city while on (landing included)');
+ ok(/if\(model&&cityOn\)\{const w=night\?\(arrived\?1:[^;]*nightCityBlend\(t\)[^;]*\):0;[^}]*gradeSkycityNight\(model,w\);gradeSkycityCloudsea\(model\.parent,w\);\}/.test(bt),'balloon journey grades the city while on (landing included; b17r10: night weight blends in over NIGHT_BLEND_S)');
  console.log(JSON.stringify({status:'PASS',checks:checks.length,night:{groundAlbedo:+amb.toFixed(3),underside:+und.toFixed(3),engineLitGround:+litL.toFixed(3),cloudsea:+sea.toFixed(3),keyLitCity:+key.toFixed(3),selfLitClouds:+cloud.toFixed(3),warmAccents:+lamp.toFixed(2),meadowRef:+meadow.toFixed(3)}}));
 }catch(e){console.error(e);process.exit(1);}})();

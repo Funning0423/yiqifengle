@@ -1,2 +1,2 @@
-merge plan: 801 pieces -> 3 merged chunk(s) (65425 v, 1080 v, 20112 v), 1 unmerged, 0 blended; background ~5 draws (was 36); total ~48 (was 79)
+merge plan: 812 pieces -> 3 merged chunk(s) (65477 v, 1080 v, 20970 v), 1 unmerged, 0 blended; background ~5 draws (was 36); total ~48 (was 79)
 lakeside static merge OK

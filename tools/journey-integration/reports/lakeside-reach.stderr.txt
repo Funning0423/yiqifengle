@@ -1,2 +1,0 @@
-[QF_TRANSPORT] {"event":"bridge-ignored","via":"argument","requested":"bridge","kept":"skycity-lakeside"}
-[QF_TRANSPORT] {"event":"bridge-ignored","via":"__QF_TRANSPORT","requested":"bridge","kept":"sail-or-balloon"}

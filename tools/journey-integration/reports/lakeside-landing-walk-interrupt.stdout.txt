@@ -1,0 +1,2 @@
+{"day":{"vertices":35,"samples":1200,"routeM":5.995,"idempotentErr":3.552713678800501e-15},"night":{"vertices":35,"samples":1200,"routeM":5.995,"idempotentErr":3.552713678800501e-15}}
+lakeside-landing-walk-interrupt: PASS

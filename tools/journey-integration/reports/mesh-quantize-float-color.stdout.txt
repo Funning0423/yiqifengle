@@ -1,0 +1,1 @@
+{"ok":true,"knownScalarVectorWrites":["scripts/region/SailArt.ts:setProperty('emissiveScale',0.12)"]}

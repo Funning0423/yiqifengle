@@ -1,0 +1,17 @@
+PASS glb-v2
+PASS triangle-budget<=55k 34604
+PASS one-shared-palette-material ["M_LK_palette"]
+PASS palette-image
+PASS node SP_snowpass
+PASS node SP_ground
+PASS node SP_gate
+PASS node SP_mtn_near
+PASS node SP_mtn_mid
+PASS node SP_mtn_far
+PASS node SP_steps
+PASS node SP_rubble
+PASS node SP_pines
+PASS 5 chime tubes
+PASS level lanterns 17-20
+PASS no-animations-no-skins
+PASS snowpass grey (34604 tris, shared palette, chime + lantern nodes)

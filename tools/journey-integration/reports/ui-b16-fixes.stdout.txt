@@ -1,0 +1,9 @@
+PASS changed sources transpile without syntax errors
+PASS P1 setSignEntrance skips only when the node visibility already matches; reports whether it applied
+PASS P1 host: no invisible hit area once the entrance is over; one replay, then the visible flat 继续旅程 button while the 3D sign keeps retrying (1 s)
+PASS P1 hit area min 88 logical px (>= 44pt); per-viewport inset checks live in t9-island-props test
+PASS P2 sky-city key light: day unchanged, night = world lightScale 0.35 and moon colour 180/198/232, monotonic blend
+PASS P2 L13 rule guide: body left-aligned in a 480 box (100 each side inside the 680 frame), lines estimated per paragraph at 472
+PASS L13 rule guide clears the HUD plate (+12 pt, title plank included) and the bottom safe area on 320×568 / 375×667 / 390×844, 1–9 lines
+PASS r6 lakeside previews pass measure_visible.py gates (day L13/L16, night L13/L16; exit 0)
+8 checks passed
