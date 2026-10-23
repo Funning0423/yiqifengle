@@ -2596,8 +2596,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts",
-    "bytes": 2324,
-    "sha256": "06999444fbf7f3c1043a2a7d2cf79d657ffd4b485543e825b9521bd1c5b029a3"
+    "bytes": 2741,
+    "sha256": "8467e1c36a6f084d38e6bc470abc7afe325f2a56202377af6c141c841264d7d9"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts.meta",
@@ -4166,8 +4166,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 39482,
-    "sha256": "e6eee0c3481f82b09eb6f521cd5c41e3757c170778b1a7b66c4f322dece1d505"
+    "bytes": 39826,
+    "sha256": "741c4a03cb3f7288e5dd9e428d13d29e520c0b95aa948407ab01ac29a10e233c"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",

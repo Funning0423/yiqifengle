@@ -542,27 +542,30 @@ export class RegionNodeStage extends Component{
   const id=pickMarker(hits.map(h=>({id:h.id,distancePt:Math.hypot(h.x-x,h.y-y),toGirl:h.toGirl})));
   const prop=this.projectProps().find(p=>Math.hypot(p.x-x,p.y-y)<=44);
   const tap=resolveTap({nodeId:id,nodePhase:id?this.phase(id):null,propId:prop?.id||null,groundM:prop||id?null:2,explore:true});
-  if(!tap||tap.kind==='ground'){if(this.region==='meadow'||this.region==='skycity')this.groundTap(x,y);return;}
+  if(!tap||tap.kind==='ground'){if(this.region==='meadow'||this.region==='skycity'||this.region==='island')this.groundTap(x,y);return;}
   if(tap.kind==='prop')this.pulse(tap.id,this.region);
   else if(tap.kind==='locked')emitTransitCue('node-locked-tap',{t:0,region:this.region,node:tap.id});
   else if(tap.walk&&this.character){const node=stageGraph(this.region).nodes.find(n=>n.key===tap.id);if(node)void this.walkTo(node.at);}
  }
- /** Ground tap (meadow / skycity / lakeside): screen ray onto the baked walkable area (RegionWalkable). Water, walls, the other shore
-  *  or no hit = no walk (cue only). __qfGroundTap keeps the last answer for QA. */
+ /** RegionWalkable's model-local frame -> world. The island has no region model node: its walkable data is in world metres
+  *  (docs/b16/walkable/API.md: island local = world), so identity. */
+ private walkMatrix(region:StageRegion):Mat4|null{if(region==='island')return new Mat4();const model=this.model(region);return model?model.worldMatrix.clone():null;}
+ /** Ground tap (island / meadow / skycity / lakeside): screen ray onto the baked walkable area (RegionWalkable). Water, walls, the
+  *  other shore or no hit = no walk (cue only). __qfGroundTap keeps the last answer for QA. */
  groundTap(x:number,y:number){
-  const region=this.region;if(region==='island')return;
-  const cam=this.camera,model=this.model(region);if(!cam||!model||!this.character||this.groundWalking)return;
+  const region=this.region;
+  const cam=this.camera,m=this.walkMatrix(region);if(!cam||!m||!this.character||this.groundWalking)return;
   const ray=new geometry.Ray();cam.screenPointToRay(x,y,ray);
-  const inv=new Mat4();Mat4.invert(inv,model.worldMatrix);
+  const inv=new Mat4();Mat4.invert(inv,m);
   const o=new Vec3(),e=new Vec3();Vec3.transformMat4(o,ray.o,inv);Vec3.add(e,ray.o,ray.d);Vec3.transformMat4(e,e,inv);
   const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z]);
   (globalThis as any).__qfGroundTap={region,kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now()};
   if(hit.kind!=='walk'){emitTransitCue('scene-tap',{t:0,region,id:hit.kind==='water'?'water':'none'});return;}
   void this.groundWalkTo(region,hit.at);
  }
- private async groundWalkTo(region:Exclude<StageRegion,'island'>,at:WVec){
-  const model=this.model(region);if(!model||!this.character)return;
-  const inv=new Mat4();Mat4.invert(inv,model.worldMatrix);
+ private async groundWalkTo(region:StageRegion,at:WVec){
+  const m=this.walkMatrix(region);if(!m||!this.character)return;
+  const inv=new Mat4();Mat4.invert(inv,m);
   const gw=this.girl(),g=new Vec3();Vec3.transformMat4(g,new Vec3(gw[0],gw[1],gw[2]),inv);
   const from=nearestWalkable(region,[g.x,g.y,g.z],1.6);if(!from)return;
   const local=walkPath(region,from.at,at);
@@ -592,7 +595,7 @@ export class RegionNodeStage extends Component{
   }
   if(this.syncOpened||this.cover||this.anim||!this.character||!this.camera)return;
   for(const r of EXIT_EXPLORE_REGIONS){
-   if(!this.exploreArmed[r]||!exploreWanted(r,s)||!this.model(r)?.activeInHierarchy)continue;
+   if(!this.exploreArmed[r]||!exploreWanted(r,s)||(r==='island'?!s?.characterReady:!this.model(r)?.activeInHierarchy))continue;
    this.syncOpened=r;if(this.region!==r)this.orbit.forget();this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
   }
  }
