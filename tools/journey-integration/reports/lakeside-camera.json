@@ -1,7 +1,7 @@
 {
  "status": "PASS",
  "route": {
-  "totalM": 39.204,
+  "totalM": 39.026,
   "bridgeStart": 3.2984845004941277,
   "bridgeEnd": 27.704256678831825,
   "landing": {
@@ -22,116 +22,116 @@
  },
  "finals": {
   "390x844": {
-   "herX": 0.303,
-   "feetAboveBottom": 0.319,
-   "headBelowTop": 0.485,
-   "herHeight": 0.196,
+   "herX": 0.924,
+   "feetAboveBottom": 0.068,
+   "headBelowTop": 0.782,
+   "herHeight": 0.15,
    "boardCentre": [
-    0.5,
-    0.46
+    0.384,
+    0.581
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -1.614,
+    6.42,
+    33.981
    ],
    "target": [
-    -1.87,
-    1.322,
-    45.049
+    -1.5,
+    4.721,
+    41.798
    ],
-   "fov": 57.35256446956713
+   "fov": 50
   },
   "414x896": {
-   "herX": 0.303,
-   "feetAboveBottom": 0.33,
-   "headBelowTop": 0.474,
-   "herHeight": 0.196,
+   "herX": 0.924,
+   "feetAboveBottom": 0.068,
+   "headBelowTop": 0.782,
+   "herHeight": 0.15,
    "boardCentre": [
-    0.5,
-    0.449
+    0.384,
+    0.581
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -1.614,
+    6.42,
+    33.981
    ],
    "target": [
-    -1.873,
-    1.23,
-    45.029
+    -1.5,
+    4.721,
+    41.798
    ],
-   "fov": 57.375365960561226
+   "fov": 50.003
   },
   "360x780": {
-   "herX": 0.293,
-   "feetAboveBottom": 0.28,
-   "headBelowTop": 0.514,
-   "herHeight": 0.207,
+   "herX": 0.924,
+   "feetAboveBottom": 0.069,
+   "headBelowTop": 0.781,
+   "herHeight": 0.15,
    "boardCentre": [
-    0.5,
-    0.488
+    0.384,
+    0.581
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -1.614,
+    6.42,
+    33.981
    ],
    "target": [
-    -1.863,
-    1.565,
-    45.097
+    -1.5,
+    4.721,
+    41.798
    ],
-   "fov": 55.19068832932099
+   "fov": 50.052
   },
   "375x667": {
-   "herX": 0.334,
-   "feetAboveBottom": 0.262,
-   "headBelowTop": 0.537,
-   "herHeight": 0.202,
+   "herX": 0.935,
+   "feetAboveBottom": 0.053,
+   "headBelowTop": 0.783,
+   "herHeight": 0.165,
    "boardCentre": [
-    0.5,
-    0.512
+    0.587,
+    0.578
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -2.614,
+    5.92,
+    34.481
    ],
    "target": [
-    -1.858,
-    1.764,
-    45.13
+    -1.362,
+    4.327,
+    42.221
    ],
-   "fov": 56.682272630559595
+   "fov": 50
   },
   "390x520": {
-   "herX": 0.407,
-   "feetAboveBottom": 0.329,
-   "headBelowTop": 0.52,
-   "herHeight": 0.151,
+   "herX": 0.826,
+   "feetAboveBottom": 0.053,
+   "headBelowTop": 0.783,
+   "herHeight": 0.165,
    "boardCentre": [
-    0.5,
-    0.501
+    0.565,
+    0.578
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -2.614,
+    5.92,
+    34.481
    ],
    "target": [
-    -1.86,
-    1.674,
-    45.115
+    -1.362,
+    4.327,
+    42.221
    ],
-   "fov": 71.32460318207842
+   "fov": 50
   }
  },
  "results": [
   {
    "id": "K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged",
    "status": "PASS",
-   "totalM": 39.204,
+   "totalM": 39.026,
    "durationS": 17,
    "timing": {
     "durationS": 17,
@@ -139,15 +139,15 @@
     "easeOutS": 4
    },
    "peaks": {
-    "speed": 3.015712052217833,
-    "accel": 1.413615024477109,
-    "jerk": 1.088201353216478
+    "speed": 3.0019892583934364,
+    "accel": 1.4071824648719233,
+    "jerk": 1.0832495665236348
    },
    "bridgeStart": 3.298,
    "bridgeEnd": 27.704,
-   "walkOnBankM": 11.5,
+   "walkOnBankM": 11.322,
    "footVsBankM": [
-    -0.011,
+    -0.001,
     0.009
    ],
    "root": [
@@ -160,7 +160,7 @@
   {
    "id": "K2 face/head/chest visible + lens ≥ 1.1 m every 0.05 m (island + lakeside + bridge strip)",
    "status": "PASS",
-   "samples": 785,
+   "samples": 781,
    "minLensM": 1.367,
    "minLensAt": 14.35,
    "minLensObj": "island:env_prop_palm_lean_01",
@@ -469,139 +469,139 @@
   {
    "id": "K3 lens on her right for the whole leg",
    "status": "PASS",
-   "minRightM": 1.745,
-   "at": 38.05,
-   "finalRightM": 1.745
+   "minRightM": 2.368,
+   "at": 5,
+   "finalRightM": 4.942
   },
   {
-   "id": "K4 final landing frame 390x844 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 390x844 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS",
-   "herX": 0.303,
-   "feetAboveBottom": 0.319,
-   "headBelowTop": 0.485,
-   "herHeight": 0.196,
+   "herX": 0.924,
+   "feetAboveBottom": 0.068,
+   "headBelowTop": 0.782,
+   "herHeight": 0.15,
    "boardCentre": [
-    0.5,
-    0.46
+    0.384,
+    0.581
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -1.614,
+    6.42,
+    33.981
    ],
    "target": [
-    -1.87,
-    1.322,
-    45.049
+    -1.5,
+    4.721,
+    41.798
    ],
-   "fov": 57.35256446956713
+   "fov": 50
   },
   {
-   "id": "K4 final landing frame 414x896 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 414x896 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS",
-   "herX": 0.303,
-   "feetAboveBottom": 0.33,
-   "headBelowTop": 0.474,
-   "herHeight": 0.196,
+   "herX": 0.924,
+   "feetAboveBottom": 0.068,
+   "headBelowTop": 0.782,
+   "herHeight": 0.15,
    "boardCentre": [
-    0.5,
-    0.449
+    0.384,
+    0.581
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -1.614,
+    6.42,
+    33.981
    ],
    "target": [
-    -1.873,
-    1.23,
-    45.029
+    -1.5,
+    4.721,
+    41.798
    ],
-   "fov": 57.375365960561226
+   "fov": 50.003
   },
   {
-   "id": "K4 final landing frame 360x780 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 360x780 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS",
-   "herX": 0.293,
-   "feetAboveBottom": 0.28,
-   "headBelowTop": 0.514,
-   "herHeight": 0.207,
+   "herX": 0.924,
+   "feetAboveBottom": 0.069,
+   "headBelowTop": 0.781,
+   "herHeight": 0.15,
    "boardCentre": [
-    0.5,
-    0.488
+    0.384,
+    0.581
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -1.614,
+    6.42,
+    33.981
    ],
    "target": [
-    -1.863,
-    1.565,
-    45.097
+    -1.5,
+    4.721,
+    41.798
    ],
-   "fov": 55.19068832932099
+   "fov": 50.052
   },
   {
-   "id": "K4 final landing frame 375x667 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 375x667 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS",
-   "herX": 0.334,
-   "feetAboveBottom": 0.262,
-   "headBelowTop": 0.537,
-   "herHeight": 0.202,
+   "herX": 0.935,
+   "feetAboveBottom": 0.053,
+   "headBelowTop": 0.783,
+   "herHeight": 0.165,
    "boardCentre": [
-    0.5,
-    0.512
+    0.587,
+    0.578
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -2.614,
+    5.92,
+    34.481
    ],
    "target": [
-    -1.858,
-    1.764,
-    45.13
+    -1.362,
+    4.327,
+    42.221
    ],
-   "fov": 56.682272630559595
+   "fov": 50
   },
   {
-   "id": "K4 final landing frame 390x520 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 390x520 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS",
-   "herX": 0.407,
-   "feetAboveBottom": 0.329,
-   "headBelowTop": 0.52,
-   "herHeight": 0.151,
+   "herX": 0.826,
+   "feetAboveBottom": 0.053,
+   "headBelowTop": 0.783,
+   "herHeight": 0.165,
    "boardCentre": [
-    0.5,
-    0.501
+    0.565,
+    0.578
    ],
    "cam": [
-    -3.058,
-    3,
-    37.318
+    -2.614,
+    5.92,
+    34.481
    ],
    "target": [
-    -1.86,
-    1.674,
-    45.115
+    -1.362,
+    4.327,
+    42.221
    ],
-   "fov": 71.32460318207842
+   "fov": 50
   },
   {
    "id": "K5 view turn ≤ 20°/s on the 17 s profile (base + every screen landing); no crane-up over the arrival (lens height above her never rises)",
    "status": "PASS",
-   "maxTurnDegS": 4.27,
-   "atS": 4.15,
+   "maxTurnDegS": 9.21,
+   "atS": 11.97,
    "arrivalWorldMaxClimbPerStepM": 0,
-   "arrivalRelativeUpStepsSumM": 0.045,
+   "arrivalRelativeUpStepsSumM": 0.042,
    "arrivalLensAboveHerM": [
     3.398,
     3
    ],
    "arrivalLensWorldY": [
-    4.082,
-    3
+    4.129,
+    2.991
    ],
    "maxLensAboveHerM": 3.463
   },
@@ -612,91 +612,91 @@
     "durationS": 17,
     "her": {
      "peakSpeed": {
-      "v": 3.0157,
-      "t": 12.6167
+      "v": 3.002,
+      "t": 6.0667
      },
      "peakAccel": {
-      "v": 1.4136,
-      "t": 15
+      "v": 1.4071,
+      "t": 2
      },
      "peakJerk": {
-      "v": 1.0881,
+      "v": 1.0831,
       "t": 3.1667
      }
     },
     "peakSpeed": {
-     "v": 3.0163,
-     "t": 10.7
+     "v": 3.2614,
+     "t": 13.4667
     },
     "peakAccel": {
-     "v": 1.9489,
-     "t": 3.0833
+     "v": 2.5157,
+     "t": 13.2167
     },
     "peakJerk": {
-     "v": 4.8671,
-     "t": 3.4833
+     "v": 6.3109,
+     "t": 13.3667
     },
-    "last05sMaxSpeed": 0.0462,
+    "last05sMaxSpeed": 0.046,
     "speedAfterStop": 0
    },
    "previousC375304At1_2": {
-    "durationS": 32.6702,
+    "durationS": 32.5216,
     "her": {
      "peakSpeed": {
       "v": 1.2,
       "t": 13.3333
      },
      "peakAccel": {
-      "v": 56.676,
-      "t": 32.6667
+      "v": 50.9027,
+      "t": 32.5167
      },
      "peakJerk": {
-      "v": 3400.5574,
-      "t": 32.6667
+      "v": 3054.1624,
+      "t": 32.5167
      }
     },
     "peakSpeed": {
-     "v": 1.2002,
-     "t": 21.8667
+     "v": 1.3277,
+     "t": 29.0167
     },
     "peakAccel": {
-     "v": 56.6752,
-     "t": 32.6667
+     "v": 50.9025,
+     "t": 32.5167
     },
     "peakJerk": {
-     "v": 3400.4865,
-     "t": 32.6667
+     "v": 3054.1468,
+     "t": 32.5167
     },
-    "last05sMaxSpeed": 1.2,
+    "last05sMaxSpeed": 1.2003,
     "speedAfterStop": 0
    },
    "fallbackDefaultAt1_2": {
-    "durationS": 32.6702,
+    "durationS": 32.5216,
     "her": {
      "peakSpeed": {
       "v": 1.2,
       "t": 13.3333
      },
      "peakAccel": {
-      "v": 56.676,
-      "t": 32.6667
+      "v": 50.9027,
+      "t": 32.5167
      },
      "peakJerk": {
-      "v": 3400.5574,
-      "t": 32.6667
+      "v": 3054.1624,
+      "t": 32.5167
      }
     },
     "peakSpeed": {
      "v": 1.2,
-     "t": 27.2167
+     "t": 14.9167
     },
     "peakAccel": {
-     "v": 56.676,
-     "t": 32.6667
+     "v": 50.9027,
+     "t": 32.5167
     },
     "peakJerk": {
-     "v": 3400.5574,
-     "t": 32.6667
+     "v": 3054.1624,
+     "t": 32.5167
     },
     "last05sMaxSpeed": 1.2,
     "speedAfterStop": 0
@@ -709,16 +709,16 @@
     "360x780 (0.46)": {
      "pose": {
       "position": [
-       2.9447784998228568,
-       3.58,
-       31.16376380032755
+       1.5,
+       7,
+       34.5
       ],
       "target": [
-       0.020146572733840795,
-       -0.6558595959705436,
-       12.131108048119994
+       1,
+       -0.5,
+       0
       ],
-      "fovVerticalDeg": 55.21713922864639
+      "fovVerticalDeg": 50.052
      },
      "grid2d": {
       "x": 180,
@@ -727,29 +727,29 @@
       "pitch": 41.18
      },
      "trayTopFrac": 0.235,
-     "centreErrPx": 0,
-     "widthErrPx": 0,
-     "gridInsideTrayMinPx": -27,
-     "cornerErrCells": 3.142,
-     "cellCentreErrCells": 2.663,
-     "decorVisibleOutsideTray": 17,
+     "centreErrPx": 106.945,
+     "widthErrPx": 14.68,
+     "gridInsideTrayMinPx": -43.8,
+     "cornerErrCells": 5.256,
+     "cellCentreErrCells": 4.845,
+     "decorVisibleOutsideTray": 4,
      "topEdgeGroundZ": "sky",
-     "lensClearM": 2.99,
+     "lensClearM": 3,
      "fallbackRectErrPx": 0
     },
     "390x844 notch+capsule": {
      "pose": {
       "position": [
-       2.9447784998228568,
-       3.58,
-       31.16376380032755
+       1.5,
+       7,
+       34.5
       ],
       "target": [
-       0.016853639386563035,
-       -0.5560677406073884,
-       12.109678593619002
+       1,
+       -0.5,
+       0
       ],
-      "fovVerticalDeg": 57.35256446956713
+      "fovVerticalDeg": 50
      },
      "grid2d": {
       "x": 195,
@@ -758,29 +758,29 @@
       "pitch": 42.6
      },
      "trayTopFrac": 0.251,
-     "centreErrPx": 0,
-     "widthErrPx": 0,
-     "gridInsideTrayMinPx": -28,
-     "cornerErrCells": 3.142,
-     "cellCentreErrCells": 2.664,
-     "decorVisibleOutsideTray": 27,
+     "centreErrPx": 111.057,
+     "widthErrPx": 1.817,
+     "gridInsideTrayMinPx": -55.8,
+     "cornerErrCells": 5.182,
+     "cellCentreErrCells": 4.781,
+     "decorVisibleOutsideTray": 8,
      "topEdgeGroundZ": "sky",
-     "lensClearM": 2.99,
+     "lensClearM": 3,
      "fallbackRectErrPx": 0
     },
     "375x667 (0.56)": {
      "pose": {
       "position": [
-       2.9447784998228568,
-       3.58,
-       31.16376380032755
+       2.5,
+       6.5,
+       34
       ],
       "target": [
-       -0.011093313175153607,
-       0.4210781464284197,
-       11.927807937519088
+       -3,
+       -0.5,
+       0
       ],
-      "fovVerticalDeg": 50.01409440839784
+      "fovVerticalDeg": 50
      },
      "grid2d": {
       "x": 187.5,
@@ -789,29 +789,29 @@
       "pitch": 39.47
      },
      "trayTopFrac": 0.262,
-     "centreErrPx": 0,
-     "widthErrPx": 0,
-     "gridInsideTrayMinPx": -26.3,
-     "cornerErrCells": 3.145,
-     "cellCentreErrCells": 2.665,
-     "decorVisibleOutsideTray": 33,
+     "centreErrPx": 56.089,
+     "widthErrPx": 37.724,
+     "gridInsideTrayMinPx": 1.3,
+     "cornerErrCells": 4.356,
+     "cellCentreErrCells": 3.899,
+     "decorVisibleOutsideTray": 18,
      "topEdgeGroundZ": "sky",
-     "lensClearM": 2.99,
+     "lensClearM": 3,
      "fallbackRectErrPx": 21.918
     },
     "414x896": {
      "pose": {
       "position": [
-       2.9447784998228568,
-       3.58,
-       31.16376380032755
+       1.5,
+       7,
+       34.5
       ],
       "target": [
-       0.026891619581382642,
-       -0.8529287538464132,
-       12.175002855358027
+       1,
+       -0.5,
+       0
       ],
-      "fovVerticalDeg": 57.382805067971844
+      "fovVerticalDeg": 50.003
      },
      "grid2d": {
       "x": 207,
@@ -820,29 +820,29 @@
       "pitch": 45.22
      },
      "trayTopFrac": 0.237,
-     "centreErrPx": 0,
-     "widthErrPx": 0,
-     "gridInsideTrayMinPx": -29.6,
-     "cornerErrCells": 3.141,
-     "cellCentreErrCells": 2.663,
-     "decorVisibleOutsideTray": 27,
+     "centreErrPx": 129.53,
+     "widthErrPx": 1.929,
+     "gridInsideTrayMinPx": -59.2,
+     "cornerErrCells": 5.452,
+     "cellCentreErrCells": 5.051,
+     "decorVisibleOutsideTray": 8,
      "topEdgeGroundZ": "sky",
-     "lensClearM": 2.99,
+     "lensClearM": 3,
      "fallbackRectErrPx": 0
     },
     "330x770 (0.43)": {
      "pose": {
       "position": [
-       2.9447784998228568,
-       3.58,
-       31.16376380032755
+       1.5,
+       7,
+       34.5
       ],
       "target": [
-       0.038088973392326864,
-       -1.161113392600594,
-       12.247871984100492
+       1,
+       -0.5,
+       0
       ],
-      "fovVerticalDeg": 59.072859784793295
+      "fovVerticalDeg": 53.384
      },
      "grid2d": {
       "x": 165,
@@ -851,29 +851,29 @@
       "pitch": 37.57
      },
      "trayTopFrac": 0.232,
-     "centreErrPx": 0,
-     "widthErrPx": 0,
-     "gridInsideTrayMinPx": -24.5,
-     "cornerErrCells": 3.14,
-     "cellCentreErrCells": 2.662,
-     "decorVisibleOutsideTray": 17,
+     "centreErrPx": 114.616,
+     "widthErrPx": 12.192,
+     "gridInsideTrayMinPx": -40.9,
+     "cornerErrCells": 5.716,
+     "cellCentreErrCells": 5.307,
+     "decorVisibleOutsideTray": 4,
      "topEdgeGroundZ": "sky",
-     "lensClearM": 2.99,
+     "lensClearM": 3,
      "fallbackRectErrPx": 0
     },
     "390x520 (0.75)": {
      "pose": {
       "position": [
-       2.9447784998228568,
-       3.58,
-       31.16376380032755
+       2.5,
+       6.5,
+       34
       ],
       "target": [
-       -0.0171202081561308,
-       0.6760947955055507,
-       11.888586654196157
+       -3,
+       -0.5,
+       0
       ],
-      "fovVerticalDeg": 63.89875130293191
+      "fovVerticalDeg": 50
      },
      "grid2d": {
       "x": 195,
@@ -882,29 +882,29 @@
       "pitch": 23.02
      },
      "trayTopFrac": 0.333,
-     "centreErrPx": 0,
-     "widthErrPx": 0,
-     "gridInsideTrayMinPx": -15.4,
-     "cornerErrCells": 3.145,
-     "cellCentreErrCells": 2.665,
-     "decorVisibleOutsideTray": 38,
+     "centreErrPx": 41.783,
+     "widthErrPx": 24.818,
+     "gridInsideTrayMinPx": -31.2,
+     "cornerErrCells": 4.394,
+     "cellCentreErrCells": 4.027,
+     "decorVisibleOutsideTray": 35,
      "topEdgeGroundZ": "sky",
-     "lensClearM": 2.99,
+     "lensClearM": 3,
      "fallbackRectErrPx": 137.035
     },
     "768x1024 tablet (0.75)": {
      "pose": {
       "position": [
-       2.9447784998228568,
-       3.58,
-       31.16376380032755
+       2.5,
+       6.5,
+       34
       ],
       "target": [
-       0.042180313563707994,
-       -1.2685560667728204,
-       12.274497238487488
+       -3,
+       -0.5,
+       0
       ],
-      "fovVerticalDeg": 54.16573144512448
+      "fovVerticalDeg": 50
      },
      "grid2d": {
       "x": 384,
@@ -913,14 +913,14 @@
       "pitch": 55.38
      },
      "trayTopFrac": 0.197,
-     "centreErrPx": 0,
-     "widthErrPx": 0,
-     "gridInsideTrayMinPx": -36.1,
-     "cornerErrCells": 3.14,
-     "cellCentreErrCells": 2.662,
-     "decorVisibleOutsideTray": 38,
+     "centreErrPx": 167.602,
+     "widthErrPx": 21.417,
+     "gridInsideTrayMinPx": -19.7,
+     "cornerErrCells": 5.816,
+     "cellCentreErrCells": 5.384,
+     "decorVisibleOutsideTray": 26,
      "topEdgeGroundZ": "sky",
-     "lensClearM": 2.99,
+     "lensClearM": 3,
      "fallbackRectErrPx": 0
     },
     "844x390 landscape": {
@@ -965,194 +965,194 @@
    "landingToBoardGap": {
     "390x844 (boardSafeInsets)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
-      "viewDeg": 0.00000121,
-      "fovDeg": 0
-     },
-     "baseEndToBoard": {
+      "positionM": 7.85e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
+     "baseEndToBoard": {
+      "viewDeg": 15.8861,
+      "fovDeg": -7.3526
+     },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -2.5075,
-      "arrivalFovDeg": 57.3526
+      "arrivalYawDeg": -2.9838,
+      "arrivalPitchDeg": 4.2841,
+      "arrivalFovDeg": 50
      }
     },
     "414x896 (boardSafeInsets)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.85e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 0.6738,
-      "fovDeg": 0.0228
+      "viewDeg": 15.8861,
+      "fovDeg": -7.3496
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -3.1813,
-      "arrivalFovDeg": 57.3754
+      "arrivalYawDeg": -2.9838,
+      "arrivalPitchDeg": 4.2841,
+      "arrivalFovDeg": 50.003
      }
     },
     "360x780 (boardSafeInsets)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
-      "viewDeg": 8.54e-7,
+      "positionM": 7.85e-15,
+      "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 1.7769,
-      "fovDeg": -2.1619
+      "viewDeg": 15.8861,
+      "fovDeg": -7.3006
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -0.7306,
-      "arrivalFovDeg": 55.1907
+      "arrivalYawDeg": -2.9838,
+      "arrivalPitchDeg": 4.2841,
+      "arrivalFovDeg": 50.052
      }
     },
     "375x667 (boardSafeInsets)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.12e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 3.2227,
-      "fovDeg": -0.6703
+      "viewDeg": 7.712,
+      "fovDeg": -7.3526
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": 0.7153,
-      "arrivalFovDeg": 56.6823
+      "arrivalYawDeg": 2.7058,
+      "arrivalPitchDeg": 4.1548,
+      "arrivalFovDeg": 50
      }
     },
     "390x520 (boardSafeInsets)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.12e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 2.5696,
-      "fovDeg": 13.972
+      "viewDeg": 7.712,
+      "fovDeg": -7.3526
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": 0.0621,
-      "arrivalFovDeg": 71.3246
+      "arrivalYawDeg": 2.7058,
+      "arrivalPitchDeg": 4.1548,
+      "arrivalFovDeg": 50
      }
     },
     "360x780 (0.46)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.85e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 0.2968,
-      "fovDeg": -2.1354
+      "viewDeg": 15.8861,
+      "fovDeg": -7.3006
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -2.8042,
-      "arrivalFovDeg": 55.2171
+      "arrivalYawDeg": -2.9838,
+      "arrivalPitchDeg": 4.2841,
+      "arrivalFovDeg": 50.052
      }
     },
     "390x844 notch+capsule": {
      "endToBoard": {
-      "positionM": 8.88e-16,
-      "viewDeg": 0.00000121,
-      "fovDeg": 0
-     },
-     "baseEndToBoard": {
+      "positionM": 7.85e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
+     "baseEndToBoard": {
+      "viewDeg": 15.8861,
+      "fovDeg": -7.3526
+     },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -2.5075,
-      "arrivalFovDeg": 57.3526
+      "arrivalYawDeg": -2.9838,
+      "arrivalPitchDeg": 4.2841,
+      "arrivalFovDeg": 50
      }
     },
     "375x667 (0.56)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.12e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 2.8898,
-      "fovDeg": -7.3385
+      "viewDeg": 7.712,
+      "fovDeg": -7.3526
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": 0.3823,
-      "arrivalFovDeg": 50.0141
+      "arrivalYawDeg": 2.7058,
+      "arrivalPitchDeg": 4.1548,
+      "arrivalFovDeg": 50
      }
     },
     "414x896": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.85e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 0.8838,
-      "fovDeg": 0.0302
+      "viewDeg": 15.8861,
+      "fovDeg": -7.3496
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -3.3913,
-      "arrivalFovDeg": 57.3828
+      "arrivalYawDeg": -2.9838,
+      "arrivalPitchDeg": 4.2841,
+      "arrivalFovDeg": 50.003
      }
     },
     "330x770 (0.43)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.85e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 1.8047,
-      "fovDeg": 1.7203
+      "viewDeg": 15.8861,
+      "fovDeg": -3.9686
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -4.3121,
-      "arrivalFovDeg": 59.0729
+      "arrivalYawDeg": -2.9838,
+      "arrivalPitchDeg": 4.2841,
+      "arrivalFovDeg": 53.384
      }
     },
     "390x520 (0.75)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.12e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 3.6398,
-      "fovDeg": 6.5462
+      "viewDeg": 7.712,
+      "fovDeg": -7.3526
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": 1.1323,
-      "arrivalFovDeg": 63.8988
+      "arrivalYawDeg": 2.7058,
+      "arrivalPitchDeg": 4.1548,
+      "arrivalFovDeg": 50
      }
     },
     "768x1024 tablet (0.75)": {
      "endToBoard": {
-      "positionM": 8.88e-16,
+      "positionM": 7.12e-15,
       "viewDeg": 0,
       "fovDeg": 0
      },
      "baseEndToBoard": {
-      "viewDeg": 2.1266,
-      "fovDeg": -3.1868
+      "viewDeg": 7.712,
+      "fovDeg": -7.3526
      },
      "screenLanding": {
-      "arrivalYawDeg": 0,
-      "arrivalPitchDeg": -4.634,
-      "arrivalFovDeg": 54.1657
+      "arrivalYawDeg": 2.7058,
+      "arrivalPitchDeg": 4.1548,
+      "arrivalFovDeg": 50
      }
     }
    },
@@ -1162,44 +1162,44 @@
      "frames": 61,
      "from": {
       "position": [
-       -3.058,
-       3,
-       37.318
+       -6.074,
+       2.991,
+       37.057
       ],
       "fov": 57.353
      },
      "to": {
       "position": [
-       -3.058,
-       3,
-       37.318
+       -1.614,
+       6.42,
+       33.981
       ],
-      "fov": 55.217
+      "fov": 50.052
      },
-     "moveM": 0,
-     "turnDeg": 0.297,
-     "fovChangeDeg": -2.135,
-     "minLensM": 2.992,
+     "moveM": 6.412,
+     "turnDeg": 15.886,
+     "fovChangeDeg": -7.301,
+     "minLensM": 2.985,
      "minLensObj": "lakeside:LK_terrain_i",
-     "minRightWhileBehindM": 1.745,
+     "minRightWhileBehindM": 2.013,
      "passesHerAtS": null,
-     "peakSpeedMps": 0,
-     "peakTurnDegS": 0.556,
-     "peakTurnAtS": 0.517,
-     "peakTurnAccelDegS2": 1.711,
-     "peakFovRateDegS": 4.001,
+     "peakSpeedMps": 12.013,
+     "peakTurnDegS": 29.764,
+     "peakTurnAtS": 0.5,
+     "peakTurnAccelDegS2": 91.596,
+     "peakFovRateDegS": 13.678,
      "endRates": {
-      "firstFrameTurnDegS": 0.001,
-      "lastFrameTurnDegS": 0.001,
-      "firstFrameFovDegS": 0.006,
-      "lastFrameFovDegS": 0.006
+      "firstFrameTurnDegS": 0.043,
+      "lastFrameTurnDegS": 0.043,
+      "firstFrameFovDegS": 0.02,
+      "lastFrameFovDegS": 0.02
      },
      "perFrame": [
       {
        "t": 0,
        "dispM": 0,
        "angFromStartDeg": 0,
-       "angToEndDeg": 0.29676,
+       "angToEndDeg": 15.88608,
        "fov": 57.35256,
        "speedMps": 0,
        "angVelDegS": 0,
@@ -1207,603 +1207,603 @@
       },
       {
        "t": 0.0167,
-       "dispM": 0,
-       "angFromStartDeg": 0.00001,
-       "angToEndDeg": 0.29675,
-       "fov": 57.35246,
-       "speedMps": 0,
-       "angVelDegS": 0.0008,
-       "fovRateDegS": -0.00578
+       "dispM": 0.00029,
+       "angFromStartDeg": 0.00072,
+       "angToEndDeg": 15.88536,
+       "fov": 57.35223,
+       "speedMps": 0.01737,
+       "angVelDegS": 0.04303,
+       "fovRateDegS": -0.01978
       },
       {
        "t": 0.0333,
-       "dispM": 0,
-       "angFromStartDeg": 0.0001,
-       "angToEndDeg": 0.29666,
-       "fov": 57.35181,
-       "speedMps": 0,
-       "angVelDegS": 0.00547,
-       "fovRateDegS": -0.03933
+       "dispM": 0.00226,
+       "angFromStartDeg": 0.00559,
+       "angToEndDeg": 15.88049,
+       "fov": 57.34999,
+       "speedMps": 0.11809,
+       "angVelDegS": 0.29258,
+       "fovRateDegS": -0.13446
       },
       {
        "t": 0.05,
-       "dispM": 0,
-       "angFromStartDeg": 0.00034,
-       "angToEndDeg": 0.29642,
-       "fov": 57.35009,
-       "speedMps": 0,
-       "angVelDegS": 0.01435,
-       "fovRateDegS": -0.10327
+       "dispM": 0.00743,
+       "angFromStartDeg": 0.0184,
+       "angToEndDeg": 15.86768,
+       "fov": 57.34411,
+       "speedMps": 0.31009,
+       "angVelDegS": 0.76828,
+       "fovRateDegS": -0.35307
       },
       {
        "t": 0.0667,
-       "dispM": 0,
-       "angFromStartDeg": 0.00079,
-       "angToEndDeg": 0.29597,
-       "fov": 57.34685,
-       "speedMps": 0,
-       "angVelDegS": 0.027,
-       "fovRateDegS": -0.19429
+       "dispM": 0.01715,
+       "angFromStartDeg": 0.04249,
+       "angToEndDeg": 15.84359,
+       "fov": 57.33303,
+       "speedMps": 0.58339,
+       "angVelDegS": 1.44542,
+       "fovRateDegS": -0.66425
       },
       {
        "t": 0.0833,
-       "dispM": 0,
-       "angFromStartDeg": 0.00151,
-       "angToEndDeg": 0.29525,
-       "fov": 57.3417,
-       "speedMps": 0,
-       "angVelDegS": 0.04297,
-       "fovRateDegS": -0.30919
+       "dispM": 0.03262,
+       "angFromStartDeg": 0.08082,
+       "angToEndDeg": 15.80525,
+       "fov": 57.31542,
+       "speedMps": 0.92839,
+       "angVelDegS": 2.30018,
+       "fovRateDegS": -1.05706
       },
       {
        "t": 0.1,
-       "dispM": 0,
-       "angFromStartDeg": 0.00254,
-       "angToEndDeg": 0.29422,
-       "fov": 57.33428,
-       "speedMps": 0,
-       "angVelDegS": 0.06183,
-       "fovRateDegS": -0.44488
+       "dispM": 0.05489,
+       "angFromStartDeg": 0.13598,
+       "angToEndDeg": 15.75009,
+       "fov": 57.29007,
+       "speedMps": 1.33581,
+       "angVelDegS": 3.30961,
+       "fovRateDegS": -1.52095
       },
       {
        "t": 0.1167,
-       "dispM": 0,
-       "angFromStartDeg": 0.00393,
-       "angToEndDeg": 0.29283,
-       "fov": 57.32431,
-       "speedMps": 0,
-       "angVelDegS": 0.08316,
-       "fovRateDegS": -0.59839
+       "dispM": 0.08483,
+       "angFromStartDeg": 0.21018,
+       "angToEndDeg": 15.6759,
+       "fov": 57.25597,
+       "speedMps": 1.79675,
+       "angVelDegS": 4.45164,
+       "fovRateDegS": -2.04578
       },
       {
        "t": 0.1333,
-       "dispM": 0,
-       "angFromStartDeg": 0.0057,
-       "angToEndDeg": 0.29106,
-       "fov": 57.31153,
-       "speedMps": 0,
-       "angVelDegS": 0.10657,
-       "fovRateDegS": -0.76688
+       "dispM": 0.12321,
+       "angFromStartDeg": 0.30526,
+       "angToEndDeg": 15.58082,
+       "fov": 57.21227,
+       "speedMps": 2.30266,
+       "angVelDegS": 5.7051,
+       "fovRateDegS": -2.62182
       },
       {
        "t": 0.15,
-       "dispM": 0,
-       "angFromStartDeg": 0.0079,
-       "angToEndDeg": 0.28886,
-       "fov": 57.29573,
-       "speedMps": 0,
-       "angVelDegS": 0.13169,
-       "fovRateDegS": -0.94762
+       "dispM": 0.17063,
+       "angFromStartDeg": 0.42276,
+       "angToEndDeg": 15.46332,
+       "fov": 57.15828,
+       "speedMps": 2.84535,
+       "angVelDegS": 7.04968,
+       "fovRateDegS": -3.23973
       },
       {
        "t": 0.1667,
-       "dispM": 0,
-       "angFromStartDeg": 0.01053,
-       "angToEndDeg": 0.28623,
-       "fov": 57.27677,
-       "speedMps": 0,
-       "angVelDegS": 0.15815,
-       "fovRateDegS": -1.138
+       "dispM": 0.22758,
+       "angFromStartDeg": 0.56386,
+       "angToEndDeg": 15.32222,
+       "fov": 57.09344,
+       "speedMps": 3.41699,
+       "angVelDegS": 8.46596,
+       "fovRateDegS": -3.89059
       },
       {
        "t": 0.1833,
-       "dispM": 0,
-       "angFromStartDeg": 0.01363,
-       "angToEndDeg": 0.28313,
-       "fov": 57.25451,
-       "speedMps": 0,
-       "angVelDegS": 0.1856,
-       "fovRateDegS": -1.33553
+       "dispM": 0.29442,
+       "angFromStartDeg": 0.72945,
+       "angToEndDeg": 15.15663,
+       "fov": 57.01734,
+       "speedMps": 4.01008,
+       "angVelDegS": 9.93543,
+       "fovRateDegS": -4.5659
       },
       {
        "t": 0.2,
-       "dispM": 0,
-       "angFromStartDeg": 0.01719,
-       "angToEndDeg": 0.27957,
-       "fov": 57.22888,
-       "speedMps": 0,
-       "angVelDegS": 0.21371,
-       "fovRateDegS": -1.53783
+       "dispM": 0.37137,
+       "angFromStartDeg": 0.92012,
+       "angToEndDeg": 14.96596,
+       "fov": 56.92971,
+       "speedMps": 4.61752,
+       "angVelDegS": 11.44041,
+       "fovRateDegS": -5.25752
       },
       {
        "t": 0.2167,
-       "dispM": 0,
-       "angFromStartDeg": 0.02122,
-       "angToEndDeg": 0.27554,
-       "fov": 57.19983,
-       "speedMps": 0,
-       "angVelDegS": 0.24218,
-       "fovRateDegS": -1.74265
+       "dispM": 0.45858,
+       "angFromStartDeg": 1.13619,
+       "angToEndDeg": 14.74989,
+       "fov": 56.83042,
+       "speedMps": 5.23252,
+       "angVelDegS": 12.96415,
+       "fovRateDegS": -5.95777
       },
       {
        "t": 0.2333,
-       "dispM": 0,
-       "angFromStartDeg": 0.02574,
-       "angToEndDeg": 0.27102,
-       "fov": 57.16737,
-       "speedMps": 0,
-       "angVelDegS": 0.27069,
-       "fovRateDegS": -1.94786
+       "dispM": 0.55606,
+       "angFromStartDeg": 1.3777,
+       "angToEndDeg": 14.50838,
+       "fov": 56.71943,
+       "speedMps": 5.84868,
+       "angVelDegS": 14.49076,
+       "fovRateDegS": -6.65933
       },
       {
        "t": 0.25,
-       "dispM": 0,
-       "angFromStartDeg": 0.03072,
-       "angToEndDeg": 0.26604,
-       "fov": 57.13151,
-       "speedMps": 0,
-       "angVelDegS": 0.29899,
-       "fovRateDegS": -2.15144
+       "dispM": 0.66373,
+       "angFromStartDeg": 1.64446,
+       "angToEndDeg": 14.24162,
+       "fov": 56.59684,
+       "speedMps": 6.45994,
+       "angVelDegS": 16.00523,
+       "fovRateDegS": -7.35532
       },
       {
        "t": 0.2667,
-       "dispM": 0,
-       "angFromStartDeg": 0.03617,
-       "angToEndDeg": 0.26059,
-       "fov": 57.09232,
-       "speedMps": 0,
-       "angVelDegS": 0.32679,
-       "fovRateDegS": -2.35148
+       "dispM": 0.7814,
+       "angFromStartDeg": 1.93601,
+       "angToEndDeg": 13.95006,
+       "fov": 56.46285,
+       "speedMps": 7.06061,
+       "angVelDegS": 17.49345,
+       "fovRateDegS": -8.03924
       },
       {
        "t": 0.2833,
-       "dispM": 0,
-       "angFromStartDeg": 0.04206,
-       "angToEndDeg": 0.2547,
-       "fov": 57.04988,
-       "speedMps": 0,
-       "angVelDegS": 0.35385,
-       "fovRateDegS": -2.54622
+       "dispM": 0.90883,
+       "angFromStartDeg": 2.25172,
+       "angToEndDeg": 13.63436,
+       "fov": 56.31777,
+       "speedMps": 7.64533,
+       "angVelDegS": 18.94217,
+       "fovRateDegS": -8.70501
       },
       {
        "t": 0.3,
-       "dispM": 0,
-       "angFromStartDeg": 0.0484,
-       "angToEndDeg": 0.24836,
-       "fov": 57.00432,
-       "speedMps": 0,
-       "angVelDegS": 0.37994,
-       "fovRateDegS": -2.73399
+       "dispM": 1.04564,
+       "angFromStartDeg": 2.5907,
+       "angToEndDeg": 13.29538,
+       "fov": 56.16198,
+       "speedMps": 8.20913,
+       "angVelDegS": 20.33904,
+       "fovRateDegS": -9.34695
       },
       {
        "t": 0.3167,
-       "dispM": 0,
-       "angFromStartDeg": 0.05514,
-       "angToEndDeg": 0.24162,
-       "fov": 56.95576,
-       "speedMps": 0,
-       "angVelDegS": 0.40485,
-       "fovRateDegS": -2.91325
+       "dispM": 1.19143,
+       "angFromStartDeg": 2.95191,
+       "angToEndDeg": 12.93417,
+       "fov": 55.99599,
+       "speedMps": 8.74737,
+       "angVelDegS": 21.67259,
+       "fovRateDegS": -9.95979
       },
       {
        "t": 0.3333,
-       "dispM": 0,
-       "angFromStartDeg": 0.06228,
-       "angToEndDeg": 0.23448,
-       "fov": 56.90439,
-       "speedMps": 0,
-       "angVelDegS": 0.42839,
-       "fovRateDegS": -3.08257
+       "dispM": 1.3457,
+       "angFromStartDeg": 3.33412,
+       "angToEndDeg": 12.55196,
+       "fov": 55.82034,
+       "speedMps": 9.25578,
+       "angVelDegS": 22.93222,
+       "fovRateDegS": -10.53867
       },
       {
        "t": 0.35,
-       "dispM": 0,
-       "angFromStartDeg": 0.06979,
-       "angToEndDeg": 0.22697,
-       "fov": 56.85037,
-       "speedMps": 0,
-       "angVelDegS": 0.45035,
-       "fovRateDegS": -3.24065
+       "dispM": 1.50787,
+       "angFromStartDeg": 3.73592,
+       "angToEndDeg": 12.15016,
+       "fov": 55.63569,
+       "speedMps": 9.73043,
+       "angVelDegS": 24.10824,
+       "fovRateDegS": -11.07911
       },
       {
        "t": 0.3667,
-       "dispM": 0,
-       "angFromStartDeg": 0.07763,
-       "angToEndDeg": 0.21913,
-       "fov": 56.79394,
-       "speedMps": 0,
-       "angVelDegS": 0.4706,
-       "fovRateDegS": -3.3863
+       "dispM": 1.67733,
+       "angFromStartDeg": 4.15578,
+       "angToEndDeg": 11.7303,
+       "fov": 55.44274,
+       "speedMps": 10.16777,
+       "angVelDegS": 25.1918,
+       "fovRateDegS": -11.57707
       },
       {
        "t": 0.3833,
-       "dispM": 0,
-       "angFromStartDeg": 0.08578,
-       "angToEndDeg": 0.21098,
-       "fov": 56.73529,
-       "speedMps": 0,
-       "angVelDegS": 0.48896,
-       "fovRateDegS": -3.51846
+       "dispM": 1.85341,
+       "angFromStartDeg": 4.59203,
+       "angToEndDeg": 11.29405,
+       "fov": 55.24226,
+       "speedMps": 10.5646,
+       "angVelDegS": 26.17497,
+       "fovRateDegS": -12.02889
       },
       {
        "t": 0.4,
-       "dispM": 0,
-       "angFromStartDeg": 0.0942,
-       "angToEndDeg": 0.20256,
-       "fov": 56.67469,
-       "speedMps": 0,
-       "angVelDegS": 0.50532,
-       "fovRateDegS": -3.63618
+       "dispM": 2.03538,
+       "angFromStartDeg": 5.04288,
+       "angToEndDeg": 10.8432,
+       "fov": 55.03507,
+       "speedMps": 10.91805,
+       "angVelDegS": 27.05069,
+       "fovRateDegS": -12.43134
       },
       {
        "t": 0.4167,
-       "dispM": 0,
-       "angFromStartDeg": 0.10286,
-       "angToEndDeg": 0.1939,
-       "fov": 56.61238,
-       "speedMps": 0,
-       "angVelDegS": 0.51956,
-       "fovRateDegS": -3.73862
+       "dispM": 2.22247,
+       "angFromStartDeg": 5.50642,
+       "angToEndDeg": 10.37966,
+       "fov": 54.82204,
+       "speedMps": 11.22564,
+       "angVelDegS": 27.81278,
+       "fovRateDegS": -12.78156
       },
       {
        "t": 0.4333,
-       "dispM": 0,
-       "angFromStartDeg": 0.11172,
-       "angToEndDeg": 0.18504,
-       "fov": 56.54863,
-       "speedMps": 0,
-       "angVelDegS": 0.53157,
-       "fovRateDegS": -3.82507
+       "dispM": 2.41389,
+       "angFromStartDeg": 5.98069,
+       "angToEndDeg": 9.90539,
+       "fov": 54.60409,
+       "speedMps": 11.48523,
+       "angVelDegS": 28.45595,
+       "fovRateDegS": -13.07713
       },
       {
        "t": 0.45,
-       "dispM": 0,
-       "angFromStartDeg": 0.12074,
-       "angToEndDeg": 0.17602,
-       "fov": 56.48371,
-       "speedMps": 0,
-       "angVelDegS": 0.54128,
-       "fovRateDegS": -3.89495
+       "dispM": 2.60881,
+       "angFromStartDeg": 6.46362,
+       "angToEndDeg": 9.42246,
+       "fov": 54.38216,
+       "speedMps": 11.69504,
+       "angVelDegS": 28.97577,
+       "fovRateDegS": -13.31602
       },
       {
        "t": 0.4667,
-       "dispM": 0,
-       "angFromStartDeg": 0.12989,
-       "angToEndDeg": 0.16687,
-       "fov": 56.41792,
-       "speedMps": 0,
-       "angVelDegS": 0.54862,
-       "fovRateDegS": -3.94777
+       "dispM": 2.80637,
+       "angFromStartDeg": 6.9531,
+       "angToEndDeg": 8.93298,
+       "fov": 54.15721,
+       "speedMps": 11.85364,
+       "angVelDegS": 29.36873,
+       "fovRateDegS": -13.49661
       },
       {
        "t": 0.4833,
-       "dispM": 0,
-       "angFromStartDeg": 0.13911,
-       "angToEndDeg": 0.15765,
-       "fov": 56.35153,
-       "speedMps": 0,
-       "angVelDegS": 0.55354,
-       "fovRateDegS": -3.98318
+       "dispM": 3.0057,
+       "angFromStartDeg": 7.44697,
+       "angToEndDeg": 8.43911,
+       "fov": 53.93025,
+       "speedMps": 11.95997,
+       "angVelDegS": 29.63218,
+       "fovRateDegS": -13.61768
       },
       {
        "t": 0.5,
-       "dispM": 0,
-       "angFromStartDeg": 0.14838,
-       "angToEndDeg": 0.14838,
-       "fov": 56.28485,
-       "speedMps": 0,
-       "angVelDegS": 0.55601,
-       "fovRateDegS": -4.00095
+       "dispM": 3.20593,
+       "angFromStartDeg": 7.94304,
+       "angToEndDeg": 7.94304,
+       "fov": 53.70228,
+       "speedMps": 12.01332,
+       "angVelDegS": 29.76434,
+       "fovRateDegS": -13.67841
       },
       {
        "t": 0.5167,
-       "dispM": 0,
-       "angFromStartDeg": 0.15765,
-       "angToEndDeg": 0.13911,
-       "fov": 56.21817,
-       "speedMps": 0,
-       "angVelDegS": 0.55601,
-       "fovRateDegS": -4.00095
+       "dispM": 3.40615,
+       "angFromStartDeg": 8.43911,
+       "angToEndDeg": 7.44697,
+       "fov": 53.47431,
+       "speedMps": 12.01332,
+       "angVelDegS": 29.76434,
+       "fovRateDegS": -13.67841
       },
       {
        "t": 0.5333,
-       "dispM": 0,
-       "angFromStartDeg": 0.16687,
-       "angToEndDeg": 0.12989,
-       "fov": 56.15178,
-       "speedMps": 0,
-       "angVelDegS": 0.55354,
-       "fovRateDegS": -3.98318
+       "dispM": 3.60548,
+       "angFromStartDeg": 8.93298,
+       "angToEndDeg": 6.9531,
+       "fov": 53.24735,
+       "speedMps": 11.95997,
+       "angVelDegS": 29.63218,
+       "fovRateDegS": -13.61768
       },
       {
        "t": 0.55,
-       "dispM": 0,
-       "angFromStartDeg": 0.17602,
-       "angToEndDeg": 0.12074,
-       "fov": 56.08598,
-       "speedMps": 0,
-       "angVelDegS": 0.54862,
-       "fovRateDegS": -3.94777
+       "dispM": 3.80304,
+       "angFromStartDeg": 9.42246,
+       "angToEndDeg": 6.46362,
+       "fov": 53.0224,
+       "speedMps": 11.85364,
+       "angVelDegS": 29.36873,
+       "fovRateDegS": -13.49661
       },
       {
        "t": 0.5667,
-       "dispM": 0,
-       "angFromStartDeg": 0.18504,
-       "angToEndDeg": 0.11172,
-       "fov": 56.02107,
-       "speedMps": 0,
-       "angVelDegS": 0.54128,
-       "fovRateDegS": -3.89495
+       "dispM": 3.99796,
+       "angFromStartDeg": 9.90539,
+       "angToEndDeg": 5.98069,
+       "fov": 52.80047,
+       "speedMps": 11.69504,
+       "angVelDegS": 28.97577,
+       "fovRateDegS": -13.31602
       },
       {
        "t": 0.5833,
-       "dispM": 0,
-       "angFromStartDeg": 0.1939,
-       "angToEndDeg": 0.10286,
-       "fov": 55.95732,
-       "speedMps": 0,
-       "angVelDegS": 0.53157,
-       "fovRateDegS": -3.82507
+       "dispM": 4.18938,
+       "angFromStartDeg": 10.37966,
+       "angToEndDeg": 5.50642,
+       "fov": 52.58252,
+       "speedMps": 11.48523,
+       "angVelDegS": 28.45595,
+       "fovRateDegS": -13.07713
       },
       {
        "t": 0.6,
-       "dispM": 0,
-       "angFromStartDeg": 0.20256,
-       "angToEndDeg": 0.0942,
-       "fov": 55.89501,
-       "speedMps": 0,
-       "angVelDegS": 0.51956,
-       "fovRateDegS": -3.73862
+       "dispM": 4.37647,
+       "angFromStartDeg": 10.8432,
+       "angToEndDeg": 5.04288,
+       "fov": 52.36949,
+       "speedMps": 11.22564,
+       "angVelDegS": 27.81278,
+       "fovRateDegS": -12.78156
       },
       {
        "t": 0.6167,
-       "dispM": 0,
-       "angFromStartDeg": 0.21098,
-       "angToEndDeg": 0.08578,
-       "fov": 55.8344,
-       "speedMps": 0,
-       "angVelDegS": 0.50532,
-       "fovRateDegS": -3.63618
+       "dispM": 4.55844,
+       "angFromStartDeg": 11.29405,
+       "angToEndDeg": 4.59203,
+       "fov": 52.1623,
+       "speedMps": 10.91805,
+       "angVelDegS": 27.05069,
+       "fovRateDegS": -12.43134
       },
       {
        "t": 0.6333,
-       "dispM": 0,
-       "angFromStartDeg": 0.21913,
-       "angToEndDeg": 0.07763,
-       "fov": 55.77576,
-       "speedMps": 0,
-       "angVelDegS": 0.48896,
-       "fovRateDegS": -3.51846
+       "dispM": 4.73452,
+       "angFromStartDeg": 11.7303,
+       "angToEndDeg": 4.15578,
+       "fov": 51.96182,
+       "speedMps": 10.5646,
+       "angVelDegS": 26.17497,
+       "fovRateDegS": -12.02889
       },
       {
        "t": 0.65,
-       "dispM": 0,
-       "angFromStartDeg": 0.22697,
-       "angToEndDeg": 0.06979,
-       "fov": 55.71932,
-       "speedMps": 0,
-       "angVelDegS": 0.4706,
-       "fovRateDegS": -3.3863
+       "dispM": 4.90398,
+       "angFromStartDeg": 12.15016,
+       "angToEndDeg": 3.73592,
+       "fov": 51.76887,
+       "speedMps": 10.16777,
+       "angVelDegS": 25.1918,
+       "fovRateDegS": -11.57707
       },
       {
        "t": 0.6667,
-       "dispM": 0,
-       "angFromStartDeg": 0.23448,
-       "angToEndDeg": 0.06228,
-       "fov": 55.66531,
-       "speedMps": 0,
-       "angVelDegS": 0.45035,
-       "fovRateDegS": -3.24065
+       "dispM": 5.06615,
+       "angFromStartDeg": 12.55196,
+       "angToEndDeg": 3.33412,
+       "fov": 51.58422,
+       "speedMps": 9.73043,
+       "angVelDegS": 24.10824,
+       "fovRateDegS": -11.07911
       },
       {
        "t": 0.6833,
-       "dispM": 0,
-       "angFromStartDeg": 0.24162,
-       "angToEndDeg": 0.05514,
-       "fov": 55.61394,
-       "speedMps": 0,
-       "angVelDegS": 0.42839,
-       "fovRateDegS": -3.08257
+       "dispM": 5.22042,
+       "angFromStartDeg": 12.93417,
+       "angToEndDeg": 2.95191,
+       "fov": 51.40857,
+       "speedMps": 9.25578,
+       "angVelDegS": 22.93222,
+       "fovRateDegS": -10.53867
       },
       {
        "t": 0.7,
-       "dispM": 0,
-       "angFromStartDeg": 0.24836,
-       "angToEndDeg": 0.0484,
-       "fov": 55.56538,
-       "speedMps": 0,
-       "angVelDegS": 0.40485,
-       "fovRateDegS": -2.91325
+       "dispM": 5.36621,
+       "angFromStartDeg": 13.29538,
+       "angToEndDeg": 2.5907,
+       "fov": 51.24258,
+       "speedMps": 8.74737,
+       "angVelDegS": 21.67259,
+       "fovRateDegS": -9.95979
       },
       {
        "t": 0.7167,
-       "dispM": 0,
-       "angFromStartDeg": 0.2547,
-       "angToEndDeg": 0.04206,
-       "fov": 55.51982,
-       "speedMps": 0,
-       "angVelDegS": 0.37994,
-       "fovRateDegS": -2.73399
+       "dispM": 5.50303,
+       "angFromStartDeg": 13.63436,
+       "angToEndDeg": 2.25172,
+       "fov": 51.08679,
+       "speedMps": 8.20913,
+       "angVelDegS": 20.33904,
+       "fovRateDegS": -9.34695
       },
       {
        "t": 0.7333,
-       "dispM": 0,
-       "angFromStartDeg": 0.26059,
-       "angToEndDeg": 0.03617,
-       "fov": 55.47738,
-       "speedMps": 0,
-       "angVelDegS": 0.35385,
-       "fovRateDegS": -2.54622
+       "dispM": 5.63045,
+       "angFromStartDeg": 13.95006,
+       "angToEndDeg": 1.93601,
+       "fov": 50.94171,
+       "speedMps": 7.64533,
+       "angVelDegS": 18.94217,
+       "fovRateDegS": -8.70501
       },
       {
        "t": 0.75,
-       "dispM": 0,
-       "angFromStartDeg": 0.26604,
-       "angToEndDeg": 0.03072,
-       "fov": 55.43819,
-       "speedMps": 0,
-       "angVelDegS": 0.32679,
-       "fovRateDegS": -2.35148
+       "dispM": 5.74812,
+       "angFromStartDeg": 14.24162,
+       "angToEndDeg": 1.64446,
+       "fov": 50.80772,
+       "speedMps": 7.06061,
+       "angVelDegS": 17.49345,
+       "fovRateDegS": -8.03924
       },
       {
        "t": 0.7667,
-       "dispM": 0,
-       "angFromStartDeg": 0.27102,
-       "angToEndDeg": 0.02574,
-       "fov": 55.40233,
-       "speedMps": 0,
-       "angVelDegS": 0.29899,
-       "fovRateDegS": -2.15144
+       "dispM": 5.85579,
+       "angFromStartDeg": 14.50838,
+       "angToEndDeg": 1.3777,
+       "fov": 50.68513,
+       "speedMps": 6.45994,
+       "angVelDegS": 16.00523,
+       "fovRateDegS": -7.35532
       },
       {
        "t": 0.7833,
-       "dispM": 0,
-       "angFromStartDeg": 0.27554,
-       "angToEndDeg": 0.02122,
-       "fov": 55.36987,
-       "speedMps": 0,
-       "angVelDegS": 0.27069,
-       "fovRateDegS": -1.94786
+       "dispM": 5.95327,
+       "angFromStartDeg": 14.74989,
+       "angToEndDeg": 1.13619,
+       "fov": 50.57414,
+       "speedMps": 5.84868,
+       "angVelDegS": 14.49076,
+       "fovRateDegS": -6.65933
       },
       {
        "t": 0.8,
-       "dispM": 0,
-       "angFromStartDeg": 0.27957,
-       "angToEndDeg": 0.01719,
-       "fov": 55.34082,
-       "speedMps": 0,
-       "angVelDegS": 0.24218,
-       "fovRateDegS": -1.74265
+       "dispM": 6.04048,
+       "angFromStartDeg": 14.96596,
+       "angToEndDeg": 0.92012,
+       "fov": 50.47485,
+       "speedMps": 5.23252,
+       "angVelDegS": 12.96415,
+       "fovRateDegS": -5.95777
       },
       {
        "t": 0.8167,
-       "dispM": 0,
-       "angFromStartDeg": 0.28313,
-       "angToEndDeg": 0.01363,
-       "fov": 55.31519,
-       "speedMps": 0,
-       "angVelDegS": 0.21371,
-       "fovRateDegS": -1.53783
+       "dispM": 6.11743,
+       "angFromStartDeg": 15.15663,
+       "angToEndDeg": 0.72945,
+       "fov": 50.38722,
+       "speedMps": 4.61752,
+       "angVelDegS": 11.44041,
+       "fovRateDegS": -5.25752
       },
       {
        "t": 0.8333,
-       "dispM": 0,
-       "angFromStartDeg": 0.28623,
-       "angToEndDeg": 0.01053,
-       "fov": 55.29293,
-       "speedMps": 0,
-       "angVelDegS": 0.1856,
-       "fovRateDegS": -1.33553
+       "dispM": 6.18427,
+       "angFromStartDeg": 15.32222,
+       "angToEndDeg": 0.56386,
+       "fov": 50.31112,
+       "speedMps": 4.01008,
+       "angVelDegS": 9.93543,
+       "fovRateDegS": -4.5659
       },
       {
        "t": 0.85,
-       "dispM": 0,
-       "angFromStartDeg": 0.28886,
-       "angToEndDeg": 0.0079,
-       "fov": 55.27397,
-       "speedMps": 0,
-       "angVelDegS": 0.15815,
-       "fovRateDegS": -1.138
+       "dispM": 6.24122,
+       "angFromStartDeg": 15.46332,
+       "angToEndDeg": 0.42276,
+       "fov": 50.24628,
+       "speedMps": 3.41699,
+       "angVelDegS": 8.46596,
+       "fovRateDegS": -3.89059
       },
       {
        "t": 0.8667,
-       "dispM": 0,
-       "angFromStartDeg": 0.29106,
-       "angToEndDeg": 0.0057,
-       "fov": 55.25817,
-       "speedMps": 0,
-       "angVelDegS": 0.13169,
-       "fovRateDegS": -0.94762
+       "dispM": 6.28864,
+       "angFromStartDeg": 15.58082,
+       "angToEndDeg": 0.30526,
+       "fov": 50.19229,
+       "speedMps": 2.84535,
+       "angVelDegS": 7.04968,
+       "fovRateDegS": -3.23973
       },
       {
        "t": 0.8833,
-       "dispM": 0,
-       "angFromStartDeg": 0.29283,
-       "angToEndDeg": 0.00393,
-       "fov": 55.24539,
-       "speedMps": 0,
-       "angVelDegS": 0.10657,
-       "fovRateDegS": -0.76688
+       "dispM": 6.32702,
+       "angFromStartDeg": 15.6759,
+       "angToEndDeg": 0.21018,
+       "fov": 50.14859,
+       "speedMps": 2.30266,
+       "angVelDegS": 5.7051,
+       "fovRateDegS": -2.62182
       },
       {
        "t": 0.9,
-       "dispM": 0,
-       "angFromStartDeg": 0.29422,
-       "angToEndDeg": 0.00254,
-       "fov": 55.23542,
-       "speedMps": 0,
-       "angVelDegS": 0.08316,
-       "fovRateDegS": -0.59839
+       "dispM": 6.35697,
+       "angFromStartDeg": 15.75009,
+       "angToEndDeg": 0.13598,
+       "fov": 50.11449,
+       "speedMps": 1.79675,
+       "angVelDegS": 4.45164,
+       "fovRateDegS": -2.04578
       },
       {
        "t": 0.9167,
-       "dispM": 0,
-       "angFromStartDeg": 0.29525,
-       "angToEndDeg": 0.00151,
-       "fov": 55.228,
-       "speedMps": 0,
-       "angVelDegS": 0.06183,
-       "fovRateDegS": -0.44488
+       "dispM": 6.37923,
+       "angFromStartDeg": 15.80525,
+       "angToEndDeg": 0.08082,
+       "fov": 50.08914,
+       "speedMps": 1.33581,
+       "angVelDegS": 3.30961,
+       "fovRateDegS": -1.52095
       },
       {
        "t": 0.9333,
-       "dispM": 0,
-       "angFromStartDeg": 0.29597,
-       "angToEndDeg": 0.00079,
-       "fov": 55.22285,
-       "speedMps": 0,
-       "angVelDegS": 0.04297,
-       "fovRateDegS": -0.30919
+       "dispM": 6.3947,
+       "angFromStartDeg": 15.84359,
+       "angToEndDeg": 0.04249,
+       "fov": 50.07153,
+       "speedMps": 0.92839,
+       "angVelDegS": 2.30018,
+       "fovRateDegS": -1.05706
       },
       {
        "t": 0.95,
-       "dispM": 0,
-       "angFromStartDeg": 0.29642,
-       "angToEndDeg": 0.00034,
-       "fov": 55.21961,
-       "speedMps": 0,
-       "angVelDegS": 0.027,
-       "fovRateDegS": -0.19429
+       "dispM": 6.40443,
+       "angFromStartDeg": 15.86768,
+       "angToEndDeg": 0.0184,
+       "fov": 50.06045,
+       "speedMps": 0.58339,
+       "angVelDegS": 1.44542,
+       "fovRateDegS": -0.66425
       },
       {
        "t": 0.9667,
-       "dispM": 0,
-       "angFromStartDeg": 0.29666,
-       "angToEndDeg": 0.0001,
-       "fov": 55.21789,
-       "speedMps": 0,
-       "angVelDegS": 0.01435,
-       "fovRateDegS": -0.10327
+       "dispM": 6.40959,
+       "angFromStartDeg": 15.88049,
+       "angToEndDeg": 0.00559,
+       "fov": 50.05457,
+       "speedMps": 0.31009,
+       "angVelDegS": 0.76828,
+       "fovRateDegS": -0.35307
       },
       {
        "t": 0.9833,
-       "dispM": 0,
-       "angFromStartDeg": 0.29675,
-       "angToEndDeg": 0.00001,
-       "fov": 55.21724,
-       "speedMps": 0,
-       "angVelDegS": 0.00547,
-       "fovRateDegS": -0.03933
+       "dispM": 6.41156,
+       "angFromStartDeg": 15.88536,
+       "angToEndDeg": 0.00072,
+       "fov": 50.05233,
+       "speedMps": 0.11809,
+       "angVelDegS": 0.29258,
+       "fovRateDegS": -0.13446
       },
       {
        "t": 1,
-       "dispM": 0,
-       "angFromStartDeg": 0.29676,
+       "dispM": 6.41185,
+       "angFromStartDeg": 15.88608,
        "angToEndDeg": 0,
-       "fov": 55.21714,
-       "speedMps": 0,
-       "angVelDegS": 0.0008,
-       "fovRateDegS": -0.00578
+       "fov": 50.052,
+       "speedMps": 0.01737,
+       "angVelDegS": 0.04303,
+       "fovRateDegS": -0.01978
       }
      ]
     },
@@ -1812,44 +1812,44 @@
      "frames": 61,
      "from": {
       "position": [
-       -3.058,
-       3,
-       37.318
+       -6.074,
+       2.991,
+       37.057
       ],
       "fov": 57.353
      },
      "to": {
       "position": [
-       -3.058,
-       3,
-       37.318
+       -2.614,
+       5.92,
+       34.481
       ],
-      "fov": 63.899
+      "fov": 50
      },
-     "moveM": 0,
-     "turnDeg": 3.64,
-     "fovChangeDeg": 6.546,
-     "minLensM": 2.992,
+     "moveM": 5.214,
+     "turnDeg": 7.712,
+     "fovChangeDeg": -7.353,
+     "minLensM": 2.985,
      "minLensObj": "lakeside:LK_terrain_i",
-     "minRightWhileBehindM": 1.745,
+     "minRightWhileBehindM": 2.743,
      "passesHerAtS": null,
-     "peakSpeedMps": 0,
-     "peakTurnDegS": 6.82,
-     "peakTurnAtS": 0.5,
-     "peakTurnAccelDegS2": 20.986,
-     "peakFovRateDegS": 12.265,
+     "peakSpeedMps": 9.769,
+     "peakTurnDegS": 14.449,
+     "peakTurnAtS": 0.517,
+     "peakTurnAccelDegS2": 44.466,
+     "peakFovRateDegS": 13.776,
      "endRates": {
-      "firstFrameTurnDegS": 0.01,
-      "lastFrameTurnDegS": 0.01,
-      "firstFrameFovDegS": 0.018,
-      "lastFrameFovDegS": 0.018
+      "firstFrameTurnDegS": 0.021,
+      "lastFrameTurnDegS": 0.021,
+      "firstFrameFovDegS": 0.02,
+      "lastFrameFovDegS": 0.02
      },
      "perFrame": [
       {
        "t": 0,
        "dispM": 0,
        "angFromStartDeg": 0,
-       "angToEndDeg": 3.63979,
+       "angToEndDeg": 7.71203,
        "fov": 57.35256,
        "speedMps": 0,
        "angVelDegS": 0,
@@ -1857,603 +1857,603 @@
       },
       {
        "t": 0.0167,
-       "dispM": 0,
-       "angFromStartDeg": 0.00016,
-       "angToEndDeg": 3.63963,
-       "fov": 57.35286,
-       "speedMps": 0,
-       "angVelDegS": 0.00986,
-       "fovRateDegS": 0.01773
+       "dispM": 0.00024,
+       "angFromStartDeg": 0.00035,
+       "angToEndDeg": 7.71169,
+       "fov": 57.35223,
+       "speedMps": 0.01412,
+       "angVelDegS": 0.02089,
+       "fovRateDegS": -0.01992
       },
       {
        "t": 0.0333,
-       "dispM": 0,
-       "angFromStartDeg": 0.00128,
-       "angToEndDeg": 3.63851,
-       "fov": 57.35486,
-       "speedMps": 0,
-       "angVelDegS": 0.06703,
-       "fovRateDegS": 0.12056
+       "dispM": 0.00184,
+       "angFromStartDeg": 0.00272,
+       "angToEndDeg": 7.70932,
+       "fov": 57.34997,
+       "speedMps": 0.09603,
+       "angVelDegS": 0.14203,
+       "fovRateDegS": -0.13541
       },
       {
        "t": 0.05,
-       "dispM": 0,
-       "angFromStartDeg": 0.00422,
-       "angToEndDeg": 3.63557,
-       "fov": 57.36014,
-       "speedMps": 0,
-       "angVelDegS": 0.17603,
-       "fovRateDegS": 0.31658
+       "dispM": 0.00604,
+       "angFromStartDeg": 0.00893,
+       "angToEndDeg": 7.7031,
+       "fov": 57.34404,
+       "speedMps": 0.25216,
+       "angVelDegS": 0.37297,
+       "fovRateDegS": -0.35558
       },
       {
        "t": 0.0667,
-       "dispM": 0,
-       "angFromStartDeg": 0.00973,
-       "angToEndDeg": 3.63005,
-       "fov": 57.37007,
-       "speedMps": 0,
-       "angVelDegS": 0.33117,
-       "fovRateDegS": 0.59562
+       "dispM": 0.01395,
+       "angFromStartDeg": 0.02063,
+       "angToEndDeg": 7.69141,
+       "fov": 57.3329,
+       "speedMps": 0.47441,
+       "angVelDegS": 0.70169,
+       "fovRateDegS": -0.66898
       },
       {
        "t": 0.0833,
-       "dispM": 0,
-       "angFromStartDeg": 0.01852,
-       "angToEndDeg": 3.62127,
-       "fov": 57.38587,
-       "speedMps": 0,
-       "angVelDegS": 0.52701,
-       "fovRateDegS": 0.94784
+       "dispM": 0.02653,
+       "angFromStartDeg": 0.03924,
+       "angToEndDeg": 7.6728,
+       "fov": 57.31515,
+       "speedMps": 0.75495,
+       "angVelDegS": 1.11664,
+       "fovRateDegS": -1.06459
       },
       {
        "t": 0.1,
-       "dispM": 0,
-       "angFromStartDeg": 0.03116,
-       "angToEndDeg": 3.60863,
-       "fov": 57.4086,
-       "speedMps": 0,
-       "angVelDegS": 0.75829,
-       "fovRateDegS": 1.36379
+       "dispM": 0.04463,
+       "angFromStartDeg": 0.06602,
+       "angToEndDeg": 7.64602,
+       "fov": 57.28962,
+       "speedMps": 1.08626,
+       "angVelDegS": 1.60668,
+       "fovRateDegS": -1.53179
       },
       {
        "t": 0.1167,
-       "dispM": 0,
-       "angFromStartDeg": 0.04816,
-       "angToEndDeg": 3.59163,
-       "fov": 57.43917,
-       "speedMps": 0,
-       "angVelDegS": 1.01995,
-       "fovRateDegS": 1.83439
+       "dispM": 0.06898,
+       "angFromStartDeg": 0.10203,
+       "angToEndDeg": 7.61,
+       "fov": 57.25528,
+       "speedMps": 1.4611,
+       "angVelDegS": 2.16109,
+       "fovRateDegS": -2.06035
       },
       {
        "t": 0.1333,
-       "dispM": 0,
-       "angFromStartDeg": 0.06994,
-       "angToEndDeg": 3.56985,
-       "fov": 57.47835,
-       "speedMps": 0,
-       "angVelDegS": 1.30714,
-       "fovRateDegS": 2.3509
+       "dispM": 0.10019,
+       "angFromStartDeg": 0.14819,
+       "angToEndDeg": 7.56384,
+       "fov": 57.21127,
+       "speedMps": 1.8725,
+       "angVelDegS": 2.76959,
+       "fovRateDegS": -2.64049
       },
       {
        "t": 0.15,
-       "dispM": 0,
-       "angFromStartDeg": 0.09686,
-       "angToEndDeg": 3.54293,
-       "fov": 57.52677,
-       "speedMps": 0,
-       "angVelDegS": 1.61521,
-       "fovRateDegS": 2.90497
+       "dispM": 0.13876,
+       "angFromStartDeg": 0.20523,
+       "angToEndDeg": 7.5068,
+       "fov": 57.15689,
+       "speedMps": 2.31381,
+       "angVelDegS": 3.42233,
+       "fovRateDegS": -3.2628
       },
       {
        "t": 0.1667,
-       "dispM": 0,
-       "angFromStartDeg": 0.12919,
-       "angToEndDeg": 3.5106,
-       "fov": 57.58491,
-       "speedMps": 0,
-       "angVelDegS": 1.93971,
-       "fovRateDegS": 3.48858
+       "dispM": 0.18507,
+       "angFromStartDeg": 0.27373,
+       "angToEndDeg": 7.4383,
+       "fov": 57.09159,
+       "speedMps": 2.77866,
+       "angVelDegS": 4.10988,
+       "fovRateDegS": -3.91831
       },
       {
        "t": 0.1833,
-       "dispM": 0,
-       "angFromStartDeg": 0.16713,
-       "angToEndDeg": 3.47266,
-       "fov": 57.65314,
-       "speedMps": 0,
-       "angVelDegS": 2.27639,
-       "fovRateDegS": 4.0941
+       "dispM": 0.23942,
+       "angFromStartDeg": 0.35412,
+       "angToEndDeg": 7.35792,
+       "fov": 57.01495,
+       "speedMps": 3.26096,
+       "angVelDegS": 4.82324,
+       "fovRateDegS": -4.59842
       },
       {
        "t": 0.2,
-       "dispM": 0,
-       "angFromStartDeg": 0.21082,
-       "angToEndDeg": 3.42897,
-       "fov": 57.73172,
-       "speedMps": 0,
-       "angVelDegS": 2.62121,
-       "fovRateDegS": 4.71426
+       "dispM": 0.302,
+       "angFromStartDeg": 0.44668,
+       "angToEndDeg": 7.26535,
+       "fov": 56.9267,
+       "speedMps": 3.75492,
+       "angVelDegS": 5.55385,
+       "fovRateDegS": -5.29497
       },
       {
        "t": 0.2167,
-       "dispM": 0,
-       "angFromStartDeg": 0.26032,
-       "angToEndDeg": 3.37947,
-       "fov": 57.82075,
-       "speedMps": 0,
-       "angVelDegS": 2.97032,
-       "fovRateDegS": 5.34215
+       "dispM": 0.37292,
+       "angFromStartDeg": 0.55157,
+       "angToEndDeg": 7.16046,
+       "fov": 56.8267,
+       "speedMps": 4.25503,
+       "angVelDegS": 6.29356,
+       "fovRateDegS": -6.0002
       },
       {
        "t": 0.2333,
-       "dispM": 0,
-       "angFromStartDeg": 0.31566,
-       "angToEndDeg": 3.32413,
-       "fov": 57.92027,
-       "speedMps": 0,
-       "angVelDegS": 3.3201,
-       "fovRateDegS": 5.97122
+       "dispM": 0.45218,
+       "angFromStartDeg": 0.66882,
+       "angToEndDeg": 7.04322,
+       "fov": 56.71492,
+       "speedMps": 4.75609,
+       "angVelDegS": 7.03466,
+       "fovRateDegS": -6.70676
       },
       {
        "t": 0.25,
-       "dispM": 0,
-       "angFromStartDeg": 0.37678,
-       "angToEndDeg": 3.26301,
-       "fov": 58.03019,
-       "speedMps": 0,
-       "angVelDegS": 3.66709,
-       "fovRateDegS": 6.59529
+       "dispM": 0.53974,
+       "angFromStartDeg": 0.79832,
+       "angToEndDeg": 6.91372,
+       "fov": 56.59146,
+       "speedMps": 5.25316,
+       "angVelDegS": 7.76988,
+       "fovRateDegS": -7.40771
       },
       {
        "t": 0.2667,
-       "dispM": 0,
-       "angFromStartDeg": 0.44358,
-       "angToEndDeg": 3.19621,
-       "fov": 58.15034,
-       "speedMps": 0,
-       "angVelDegS": 4.00807,
-       "fovRateDegS": 7.20854
+       "dispM": 0.63543,
+       "angFromStartDeg": 0.93986,
+       "angToEndDeg": 6.77218,
+       "fov": 56.45651,
+       "speedMps": 5.74162,
+       "angVelDegS": 8.49235,
+       "fovRateDegS": -8.0965
       },
       {
        "t": 0.2833,
-       "dispM": 0,
-       "angFromStartDeg": 0.51591,
-       "angToEndDeg": 3.12388,
-       "fov": 58.28043,
-       "speedMps": 0,
-       "angVelDegS": 4.34,
-       "fovRateDegS": 7.80552
+       "dispM": 0.73905,
+       "angFromStartDeg": 1.09312,
+       "angToEndDeg": 6.61892,
+       "fov": 56.3104,
+       "speedMps": 6.21711,
+       "angVelDegS": 9.19564,
+       "fovRateDegS": -8.76701
       },
       {
        "t": 0.3,
-       "dispM": 0,
-       "angFromStartDeg": 0.59358,
-       "angToEndDeg": 3.04621,
-       "fov": 58.42011,
-       "speedMps": 0,
-       "angVelDegS": 4.66004,
-       "fovRateDegS": 8.38113
+       "dispM": 0.85031,
+       "angFromStartDeg": 1.25768,
+       "angToEndDeg": 6.45436,
+       "fov": 56.1535,
+       "speedMps": 6.67559,
+       "angVelDegS": 9.87376,
+       "fovRateDegS": -9.41353
       },
       {
        "t": 0.3167,
-       "dispM": 0,
-       "angFromStartDeg": 0.67634,
-       "angToEndDeg": 2.96345,
-       "fov": 58.56896,
-       "speedMps": 0,
-       "angVelDegS": 4.96558,
-       "fovRateDegS": 8.93064
+       "dispM": 0.96886,
+       "angFromStartDeg": 1.43303,
+       "angToEndDeg": 6.279,
+       "fov": 55.98633,
+       "speedMps": 7.11328,
+       "angVelDegS": 10.52115,
+       "fovRateDegS": -10.03073
       },
       {
        "t": 0.3333,
-       "dispM": 0,
-       "angFromStartDeg": 0.76391,
-       "angToEndDeg": 2.87588,
-       "fov": 58.72645,
-       "speedMps": 0,
-       "angVelDegS": 5.25419,
-       "fovRateDegS": 9.4497
+       "dispM": 1.09431,
+       "angFromStartDeg": 1.61858,
+       "angToEndDeg": 6.09346,
+       "fov": 55.80943,
+       "speedMps": 7.52671,
+       "angVelDegS": 11.13265,
+       "fovRateDegS": -10.61373
       },
       {
        "t": 0.35,
-       "dispM": 0,
-       "angFromStartDeg": 0.85597,
-       "angToEndDeg": 2.78382,
-       "fov": 58.89202,
-       "speedMps": 0,
-       "angVelDegS": 5.52364,
-       "fovRateDegS": 9.9343
+       "dispM": 1.22619,
+       "angFromStartDeg": 1.81363,
+       "angToEndDeg": 5.8984,
+       "fov": 55.62346,
+       "speedMps": 7.91269,
+       "angVelDegS": 11.70355,
+       "fovRateDegS": -11.15802
       },
       {
        "t": 0.3667,
-       "dispM": 0,
-       "angFromStartDeg": 0.95217,
-       "angToEndDeg": 2.68762,
-       "fov": 59.06504,
-       "speedMps": 0,
-       "angVelDegS": 5.7719,
-       "fovRateDegS": 10.38081
+       "dispM": 1.36399,
+       "angFromStartDeg": 2.01746,
+       "angToEndDeg": 5.69457,
+       "fov": 55.42914,
+       "speedMps": 8.26834,
+       "angVelDegS": 12.22958,
+       "fovRateDegS": -11.65953
       },
       {
        "t": 0.3833,
-       "dispM": 0,
-       "angFromStartDeg": 1.05212,
-       "angToEndDeg": 2.58767,
-       "fov": 59.2448,
-       "speedMps": 0,
-       "angVelDegS": 5.99716,
-       "fovRateDegS": 10.78594
+       "dispM": 1.50718,
+       "angFromStartDeg": 2.22924,
+       "angToEndDeg": 5.48279,
+       "fov": 55.22723,
+       "speedMps": 8.59103,
+       "angVelDegS": 12.70687,
+       "fovRateDegS": -12.11457
       },
       {
        "t": 0.4,
-       "dispM": 0,
-       "angFromStartDeg": 1.15541,
-       "angToEndDeg": 2.48437,
-       "fov": 59.43058,
-       "speedMps": 0,
-       "angVelDegS": 6.19781,
-       "fovRateDegS": 11.1468
+       "dispM": 1.65515,
+       "angFromStartDeg": 2.44811,
+       "angToEndDeg": 5.26393,
+       "fov": 55.01856,
+       "speedMps": 8.87845,
+       "angVelDegS": 13.13199,
+       "fovRateDegS": -12.51988
       },
       {
        "t": 0.4167,
-       "dispM": 0,
-       "angFromStartDeg": 1.26162,
-       "angToEndDeg": 2.37817,
-       "fov": 59.6216,
-       "speedMps": 0,
-       "angVelDegS": 6.37241,
-       "fovRateDegS": 11.46084
+       "dispM": 1.80729,
+       "angFromStartDeg": 2.67314,
+       "angToEndDeg": 5.03889,
+       "fov": 54.80402,
+       "speedMps": 9.12858,
+       "angVelDegS": 13.50196,
+       "fovRateDegS": -12.8726
       },
       {
        "t": 0.4333,
-       "dispM": 0,
-       "angFromStartDeg": 1.37028,
-       "angToEndDeg": 2.2695,
-       "fov": 59.81703,
-       "speedMps": 0,
-       "angVelDegS": 6.51977,
-       "fovRateDegS": 11.72587
+       "dispM": 1.96295,
+       "angFromStartDeg": 2.90338,
+       "angToEndDeg": 4.80866,
+       "fov": 54.58452,
+       "speedMps": 9.33968,
+       "angVelDegS": 13.81419,
+       "fovRateDegS": -13.17028
       },
       {
        "t": 0.45,
-       "dispM": 0,
-       "angFromStartDeg": 1.48093,
-       "angToEndDeg": 2.15886,
-       "fov": 60.01603,
-       "speedMps": 0,
-       "angVelDegS": 6.63888,
-       "fovRateDegS": 11.94007
+       "dispM": 2.12146,
+       "angFromStartDeg": 3.13782,
+       "angToEndDeg": 4.57421,
+       "fov": 54.361,
+       "speedMps": 9.5103,
+       "angVelDegS": 14.06654,
+       "fovRateDegS": -13.41087
       },
       {
        "t": 0.4667,
-       "dispM": 0,
-       "angFromStartDeg": 1.59308,
-       "angToEndDeg": 2.04671,
-       "fov": 60.21773,
-       "speedMps": 0,
-       "angVelDegS": 6.72891,
-       "fovRateDegS": 12.102
+       "dispM": 2.28211,
+       "angFromStartDeg": 3.37544,
+       "angToEndDeg": 4.33659,
+       "fov": 54.13446,
+       "speedMps": 9.63927,
+       "angVelDegS": 14.25731,
+       "fovRateDegS": -13.59274
       },
       {
        "t": 0.4833,
-       "dispM": 0,
-       "angFromStartDeg": 1.70624,
-       "angToEndDeg": 1.93355,
-       "fov": 60.42124,
-       "speedMps": 0,
-       "angVelDegS": 6.78927,
-       "fovRateDegS": 12.21056
+       "dispM": 2.44421,
+       "angFromStartDeg": 3.61519,
+       "angToEndDeg": 4.09684,
+       "fov": 53.90588,
+       "speedMps": 9.72574,
+       "angVelDegS": 14.3852,
+       "fovRateDegS": -13.71467
       },
       {
        "t": 0.5,
-       "dispM": 0,
-       "angFromStartDeg": 1.81989,
-       "angToEndDeg": 1.81989,
-       "fov": 60.62566,
-       "speedMps": 0,
-       "angVelDegS": 6.81955,
-       "fovRateDegS": 12.26502
+       "dispM": 2.60703,
+       "angFromStartDeg": 3.85602,
+       "angToEndDeg": 3.85602,
+       "fov": 53.67628,
+       "speedMps": 9.76912,
+       "angVelDegS": 14.44936,
+       "fovRateDegS": -13.77584
       },
       {
        "t": 0.5167,
-       "dispM": 0,
-       "angFromStartDeg": 1.93355,
-       "angToEndDeg": 1.70624,
-       "fov": 60.83007,
-       "speedMps": 0,
-       "angVelDegS": 6.81955,
-       "fovRateDegS": 12.26502
+       "dispM": 2.76985,
+       "angFromStartDeg": 4.09684,
+       "angToEndDeg": 3.61519,
+       "fov": 53.44668,
+       "speedMps": 9.76912,
+       "angVelDegS": 14.44936,
+       "fovRateDegS": -13.77584
       },
       {
        "t": 0.5333,
-       "dispM": 0,
-       "angFromStartDeg": 2.04671,
-       "angToEndDeg": 1.59308,
-       "fov": 61.03358,
-       "speedMps": 0,
-       "angVelDegS": 6.78927,
-       "fovRateDegS": 12.21056
+       "dispM": 2.93194,
+       "angFromStartDeg": 4.33659,
+       "angToEndDeg": 3.37544,
+       "fov": 53.2181,
+       "speedMps": 9.72574,
+       "angVelDegS": 14.3852,
+       "fovRateDegS": -13.71467
       },
       {
        "t": 0.55,
-       "dispM": 0,
-       "angFromStartDeg": 2.15886,
-       "angToEndDeg": 1.48093,
-       "fov": 61.23528,
-       "speedMps": 0,
-       "angVelDegS": 6.72891,
-       "fovRateDegS": 12.102
+       "dispM": 3.0926,
+       "angFromStartDeg": 4.57421,
+       "angToEndDeg": 3.13782,
+       "fov": 52.99156,
+       "speedMps": 9.63927,
+       "angVelDegS": 14.25731,
+       "fovRateDegS": -13.59274
       },
       {
        "t": 0.5667,
-       "dispM": 0,
-       "angFromStartDeg": 2.2695,
-       "angToEndDeg": 1.37028,
-       "fov": 61.43428,
-       "speedMps": 0,
-       "angVelDegS": 6.63888,
-       "fovRateDegS": 11.94007
+       "dispM": 3.2511,
+       "angFromStartDeg": 4.80866,
+       "angToEndDeg": 2.90338,
+       "fov": 52.76804,
+       "speedMps": 9.5103,
+       "angVelDegS": 14.06654,
+       "fovRateDegS": -13.41087
       },
       {
        "t": 0.5833,
-       "dispM": 0,
-       "angFromStartDeg": 2.37817,
-       "angToEndDeg": 1.26162,
-       "fov": 61.62971,
-       "speedMps": 0,
-       "angVelDegS": 6.51977,
-       "fovRateDegS": 11.72587
+       "dispM": 3.40676,
+       "angFromStartDeg": 5.03889,
+       "angToEndDeg": 2.67314,
+       "fov": 52.54854,
+       "speedMps": 9.33968,
+       "angVelDegS": 13.81419,
+       "fovRateDegS": -13.17028
       },
       {
        "t": 0.6,
-       "dispM": 0,
-       "angFromStartDeg": 2.48437,
-       "angToEndDeg": 1.15541,
-       "fov": 61.82073,
-       "speedMps": 0,
-       "angVelDegS": 6.37241,
-       "fovRateDegS": 11.46084
+       "dispM": 3.55891,
+       "angFromStartDeg": 5.26393,
+       "angToEndDeg": 2.44811,
+       "fov": 52.334,
+       "speedMps": 9.12858,
+       "angVelDegS": 13.50196,
+       "fovRateDegS": -12.8726
       },
       {
        "t": 0.6167,
-       "dispM": 0,
-       "angFromStartDeg": 2.58767,
-       "angToEndDeg": 1.05212,
-       "fov": 62.00651,
-       "speedMps": 0,
-       "angVelDegS": 6.19781,
-       "fovRateDegS": 11.1468
+       "dispM": 3.70688,
+       "angFromStartDeg": 5.48279,
+       "angToEndDeg": 2.22924,
+       "fov": 52.12533,
+       "speedMps": 8.87845,
+       "angVelDegS": 13.13199,
+       "fovRateDegS": -12.51988
       },
       {
        "t": 0.6333,
-       "dispM": 0,
-       "angFromStartDeg": 2.68762,
-       "angToEndDeg": 0.95217,
-       "fov": 62.18627,
-       "speedMps": 0,
-       "angVelDegS": 5.99716,
-       "fovRateDegS": 10.78594
+       "dispM": 3.85006,
+       "angFromStartDeg": 5.69457,
+       "angToEndDeg": 2.01746,
+       "fov": 51.92342,
+       "speedMps": 8.59103,
+       "angVelDegS": 12.70687,
+       "fovRateDegS": -12.11457
       },
       {
        "t": 0.65,
-       "dispM": 0,
-       "angFromStartDeg": 2.78382,
-       "angToEndDeg": 0.85597,
-       "fov": 62.35929,
-       "speedMps": 0,
-       "angVelDegS": 5.7719,
-       "fovRateDegS": 10.38081
+       "dispM": 3.98787,
+       "angFromStartDeg": 5.8984,
+       "angToEndDeg": 1.81363,
+       "fov": 51.7291,
+       "speedMps": 8.26834,
+       "angVelDegS": 12.22958,
+       "fovRateDegS": -11.65953
       },
       {
        "t": 0.6667,
-       "dispM": 0,
-       "angFromStartDeg": 2.87588,
-       "angToEndDeg": 0.76391,
-       "fov": 62.52486,
-       "speedMps": 0,
-       "angVelDegS": 5.52364,
-       "fovRateDegS": 9.9343
+       "dispM": 4.11975,
+       "angFromStartDeg": 6.09346,
+       "angToEndDeg": 1.61858,
+       "fov": 51.54313,
+       "speedMps": 7.91269,
+       "angVelDegS": 11.70355,
+       "fovRateDegS": -11.15802
       },
       {
        "t": 0.6833,
-       "dispM": 0,
-       "angFromStartDeg": 2.96345,
-       "angToEndDeg": 0.67634,
-       "fov": 62.68235,
-       "speedMps": 0,
-       "angVelDegS": 5.25419,
-       "fovRateDegS": 9.4497
+       "dispM": 4.24519,
+       "angFromStartDeg": 6.279,
+       "angToEndDeg": 1.43303,
+       "fov": 51.36623,
+       "speedMps": 7.52671,
+       "angVelDegS": 11.13265,
+       "fovRateDegS": -10.61373
       },
       {
        "t": 0.7,
-       "dispM": 0,
-       "angFromStartDeg": 3.04621,
-       "angToEndDeg": 0.59358,
-       "fov": 62.8312,
-       "speedMps": 0,
-       "angVelDegS": 4.96558,
-       "fovRateDegS": 8.93064
+       "dispM": 4.36375,
+       "angFromStartDeg": 6.45436,
+       "angToEndDeg": 1.25768,
+       "fov": 51.19906,
+       "speedMps": 7.11328,
+       "angVelDegS": 10.52115,
+       "fovRateDegS": -10.03073
       },
       {
        "t": 0.7167,
-       "dispM": 0,
-       "angFromStartDeg": 3.12388,
-       "angToEndDeg": 0.51591,
-       "fov": 62.97088,
-       "speedMps": 0,
-       "angVelDegS": 4.66004,
-       "fovRateDegS": 8.38113
+       "dispM": 4.47501,
+       "angFromStartDeg": 6.61892,
+       "angToEndDeg": 1.09312,
+       "fov": 51.04216,
+       "speedMps": 6.67559,
+       "angVelDegS": 9.87376,
+       "fovRateDegS": -9.41353
       },
       {
        "t": 0.7333,
-       "dispM": 0,
-       "angFromStartDeg": 3.19621,
-       "angToEndDeg": 0.44358,
-       "fov": 63.10098,
-       "speedMps": 0,
-       "angVelDegS": 4.34,
-       "fovRateDegS": 7.80552
+       "dispM": 4.57863,
+       "angFromStartDeg": 6.77218,
+       "angToEndDeg": 0.93986,
+       "fov": 50.89605,
+       "speedMps": 6.21711,
+       "angVelDegS": 9.19564,
+       "fovRateDegS": -8.76701
       },
       {
        "t": 0.75,
-       "dispM": 0,
-       "angFromStartDeg": 3.26301,
-       "angToEndDeg": 0.37678,
-       "fov": 63.22112,
-       "speedMps": 0,
-       "angVelDegS": 4.00807,
-       "fovRateDegS": 7.20854
+       "dispM": 4.67432,
+       "angFromStartDeg": 6.91372,
+       "angToEndDeg": 0.79832,
+       "fov": 50.7611,
+       "speedMps": 5.74162,
+       "angVelDegS": 8.49235,
+       "fovRateDegS": -8.0965
       },
       {
        "t": 0.7667,
-       "dispM": 0,
-       "angFromStartDeg": 3.32413,
-       "angToEndDeg": 0.31566,
-       "fov": 63.33104,
-       "speedMps": 0,
-       "angVelDegS": 3.66709,
-       "fovRateDegS": 6.59529
+       "dispM": 4.76187,
+       "angFromStartDeg": 7.04322,
+       "angToEndDeg": 0.66882,
+       "fov": 50.63764,
+       "speedMps": 5.25316,
+       "angVelDegS": 7.76988,
+       "fovRateDegS": -7.40771
       },
       {
        "t": 0.7833,
-       "dispM": 0,
-       "angFromStartDeg": 3.37947,
-       "angToEndDeg": 0.26032,
-       "fov": 63.43056,
-       "speedMps": 0,
-       "angVelDegS": 3.3201,
-       "fovRateDegS": 5.97122
+       "dispM": 4.84114,
+       "angFromStartDeg": 7.16046,
+       "angToEndDeg": 0.55157,
+       "fov": 50.52586,
+       "speedMps": 4.75609,
+       "angVelDegS": 7.03466,
+       "fovRateDegS": -6.70676
       },
       {
        "t": 0.8,
-       "dispM": 0,
-       "angFromStartDeg": 3.42897,
-       "angToEndDeg": 0.21082,
-       "fov": 63.5196,
-       "speedMps": 0,
-       "angVelDegS": 2.97032,
-       "fovRateDegS": 5.34215
+       "dispM": 4.91206,
+       "angFromStartDeg": 7.26535,
+       "angToEndDeg": 0.44668,
+       "fov": 50.42586,
+       "speedMps": 4.25503,
+       "angVelDegS": 6.29356,
+       "fovRateDegS": -6.0002
       },
       {
        "t": 0.8167,
-       "dispM": 0,
-       "angFromStartDeg": 3.47266,
-       "angToEndDeg": 0.16713,
-       "fov": 63.59817,
-       "speedMps": 0,
-       "angVelDegS": 2.62121,
-       "fovRateDegS": 4.71426
+       "dispM": 4.97464,
+       "angFromStartDeg": 7.35792,
+       "angToEndDeg": 0.35412,
+       "fov": 50.33761,
+       "speedMps": 3.75492,
+       "angVelDegS": 5.55385,
+       "fovRateDegS": -5.29497
       },
       {
        "t": 0.8333,
-       "dispM": 0,
-       "angFromStartDeg": 3.5106,
-       "angToEndDeg": 0.12919,
-       "fov": 63.6664,
-       "speedMps": 0,
-       "angVelDegS": 2.27639,
-       "fovRateDegS": 4.0941
+       "dispM": 5.02899,
+       "angFromStartDeg": 7.4383,
+       "angToEndDeg": 0.27373,
+       "fov": 50.26097,
+       "speedMps": 3.26096,
+       "angVelDegS": 4.82324,
+       "fovRateDegS": -4.59842
       },
       {
        "t": 0.85,
-       "dispM": 0,
-       "angFromStartDeg": 3.54293,
-       "angToEndDeg": 0.09686,
-       "fov": 63.72454,
-       "speedMps": 0,
-       "angVelDegS": 1.93971,
-       "fovRateDegS": 3.48858
+       "dispM": 5.0753,
+       "angFromStartDeg": 7.5068,
+       "angToEndDeg": 0.20523,
+       "fov": 50.19567,
+       "speedMps": 2.77866,
+       "angVelDegS": 4.10988,
+       "fovRateDegS": -3.91831
       },
       {
        "t": 0.8667,
-       "dispM": 0,
-       "angFromStartDeg": 3.56985,
-       "angToEndDeg": 0.06994,
-       "fov": 63.77296,
-       "speedMps": 0,
-       "angVelDegS": 1.61521,
-       "fovRateDegS": 2.90497
+       "dispM": 5.11386,
+       "angFromStartDeg": 7.56384,
+       "angToEndDeg": 0.14819,
+       "fov": 50.14129,
+       "speedMps": 2.31381,
+       "angVelDegS": 3.42233,
+       "fovRateDegS": -3.2628
       },
       {
        "t": 0.8833,
-       "dispM": 0,
-       "angFromStartDeg": 3.59163,
-       "angToEndDeg": 0.04816,
-       "fov": 63.81214,
-       "speedMps": 0,
-       "angVelDegS": 1.30714,
-       "fovRateDegS": 2.3509
+       "dispM": 5.14507,
+       "angFromStartDeg": 7.61,
+       "angToEndDeg": 0.10203,
+       "fov": 50.09728,
+       "speedMps": 1.8725,
+       "angVelDegS": 2.76959,
+       "fovRateDegS": -2.64049
       },
       {
        "t": 0.9,
-       "dispM": 0,
-       "angFromStartDeg": 3.60863,
-       "angToEndDeg": 0.03116,
-       "fov": 63.84272,
-       "speedMps": 0,
-       "angVelDegS": 1.01995,
-       "fovRateDegS": 1.83439
+       "dispM": 5.16942,
+       "angFromStartDeg": 7.64602,
+       "angToEndDeg": 0.06602,
+       "fov": 50.06294,
+       "speedMps": 1.4611,
+       "angVelDegS": 2.16109,
+       "fovRateDegS": -2.06035
       },
       {
        "t": 0.9167,
-       "dispM": 0,
-       "angFromStartDeg": 3.62127,
-       "angToEndDeg": 0.01852,
-       "fov": 63.86545,
-       "speedMps": 0,
-       "angVelDegS": 0.75829,
-       "fovRateDegS": 1.36379
+       "dispM": 5.18753,
+       "angFromStartDeg": 7.6728,
+       "angToEndDeg": 0.03924,
+       "fov": 50.03741,
+       "speedMps": 1.08626,
+       "angVelDegS": 1.60668,
+       "fovRateDegS": -1.53179
       },
       {
        "t": 0.9333,
-       "dispM": 0,
-       "angFromStartDeg": 3.63005,
-       "angToEndDeg": 0.00973,
-       "fov": 63.88124,
-       "speedMps": 0,
-       "angVelDegS": 0.52701,
-       "fovRateDegS": 0.94784
+       "dispM": 5.20011,
+       "angFromStartDeg": 7.69141,
+       "angToEndDeg": 0.02063,
+       "fov": 50.01966,
+       "speedMps": 0.75495,
+       "angVelDegS": 1.11664,
+       "fovRateDegS": -1.06459
       },
       {
        "t": 0.95,
-       "dispM": 0,
-       "angFromStartDeg": 3.63557,
-       "angToEndDeg": 0.00422,
-       "fov": 63.89117,
-       "speedMps": 0,
-       "angVelDegS": 0.33117,
-       "fovRateDegS": 0.59562
+       "dispM": 5.20802,
+       "angFromStartDeg": 7.7031,
+       "angToEndDeg": 0.00893,
+       "fov": 50.00852,
+       "speedMps": 0.47441,
+       "angVelDegS": 0.70169,
+       "fovRateDegS": -0.66898
       },
       {
        "t": 0.9667,
-       "dispM": 0,
-       "angFromStartDeg": 3.63851,
-       "angToEndDeg": 0.00128,
-       "fov": 63.89645,
-       "speedMps": 0,
-       "angVelDegS": 0.17603,
-       "fovRateDegS": 0.31658
+       "dispM": 5.21222,
+       "angFromStartDeg": 7.70932,
+       "angToEndDeg": 0.00272,
+       "fov": 50.00259,
+       "speedMps": 0.25216,
+       "angVelDegS": 0.37297,
+       "fovRateDegS": -0.35558
       },
       {
        "t": 0.9833,
-       "dispM": 0,
-       "angFromStartDeg": 3.63963,
-       "angToEndDeg": 0.00016,
-       "fov": 63.89846,
-       "speedMps": 0,
-       "angVelDegS": 0.06703,
-       "fovRateDegS": 0.12056
+       "dispM": 5.21382,
+       "angFromStartDeg": 7.71169,
+       "angToEndDeg": 0.00035,
+       "fov": 50.00033,
+       "speedMps": 0.09603,
+       "angVelDegS": 0.14203,
+       "fovRateDegS": -0.13541
       },
       {
        "t": 1,
-       "dispM": 0,
-       "angFromStartDeg": 3.63979,
+       "dispM": 5.21406,
+       "angFromStartDeg": 7.71203,
        "angToEndDeg": 0,
-       "fov": 63.89875,
-       "speedMps": 0,
-       "angVelDegS": 0.00986,
-       "fovRateDegS": 0.01773
+       "fov": 50,
+       "speedMps": 0.01412,
+       "angVelDegS": 0.02089,
+       "fovRateDegS": -0.01992
       }
      ]
     }
@@ -3669,16 +3669,16 @@
    "behind": 6.6,
    "up": 3.398,
    "cam": [
-    -3.713,
+    -3.714,
     4.07,
-    23.261
+    23.262
    ],
    "target": [
     -1.378,
     3.097,
     30.851
    ],
-   "fov": 48.000030909220264,
+   "fov": 48.000711503431326,
    "root": [
     -1.314,
     0.672,
@@ -3689,20 +3689,20 @@
    "d": 25.5,
    "lens": 2.524,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.4,
+   "side": 2.401,
    "behind": 6.6,
    "up": 3.398,
    "cam": [
-    -3.713,
+    -3.714,
     3.949,
     23.747
    ],
    "target": [
     -1.379,
-    2.976,
-    31.336
+    2.975,
+    31.337
    ],
-   "fov": 48.007045555706334,
+   "fov": 48.01515207165432,
    "root": [
     -1.314,
     0.551,
@@ -3711,22 +3711,22 @@
   },
   {
    "d": 26,
-   "lens": 2.464,
+   "lens": 2.466,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.397,
-   "behind": 6.601,
-   "up": 3.397,
+   "side": 2.402,
+   "behind": 6.599,
+   "up": 3.396,
    "cam": [
-    -3.711,
-    3.825,
-    24.231
+    -3.716,
+    3.824,
+    24.233
    ],
    "target": [
-    -1.38,
-    2.849,
+    -1.381,
+    2.847,
     31.822
    ],
-   "fov": 48.041419616028975,
+   "fov": 48.06379310002861,
    "root": [
     -1.314,
     0.428,
@@ -3735,22 +3735,22 @@
   },
   {
    "d": 26.5,
-   "lens": 2.405,
+   "lens": 2.412,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.392,
-   "behind": 6.601,
-   "up": 3.395,
+   "side": 2.406,
+   "behind": 6.596,
+   "up": 3.393,
    "cam": [
-    -3.705,
-    3.698,
-    24.715
+    -3.719,
+    3.696,
+    24.72
    ],
    "target": [
-    -1.383,
-    2.717,
-    32.307
+    -1.384,
+    2.714,
+    32.309
    ],
-   "fov": 48.12068306263337,
+   "fov": 48.1623748694816,
    "root": [
     -1.314,
     0.304,
@@ -3759,22 +3759,22 @@
   },
   {
    "d": 27,
-   "lens": 2.353,
+   "lens": 2.369,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.382,
-   "behind": 6.602,
-   "up": 3.398,
+   "side": 2.411,
+   "behind": 6.59,
+   "up": 3.395,
    "cam": [
-    -3.695,
-    3.576,
-    25.199
+    -3.724,
+    3.573,
+    25.21
    ],
    "target": [
-    -1.387,
-    2.586,
-    32.794
+    -1.39,
+    2.581,
+    32.797
    ],
-   "fov": 48.25748503219704,
+   "fov": 48.321906839754796,
    "root": [
     -1.314,
     0.178,
@@ -3783,22 +3783,22 @@
   },
   {
    "d": 27.5,
-   "lens": 2.321,
+   "lens": 2.35,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.368,
-   "behind": 6.599,
-   "up": 3.421,
+   "side": 2.418,
+   "behind": 6.58,
+   "up": 3.417,
    "cam": [
-    -3.681,
-    3.473,
-    25.684
+    -3.732,
+    3.469,
+    25.704
    ],
    "target": [
-    -1.395,
-    2.469,
-    33.285
+    -1.398,
+    2.462,
+    33.29
    ],
-   "fov": 48.46001427875911,
+   "fov": 48.549088102533055,
    "root": [
     -1.314,
     0.052,
@@ -3807,22 +3807,22 @@
   },
   {
    "d": 28,
-   "lens": 2.317,
+   "lens": 2.358,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.348,
-   "behind": 6.603,
-   "up": 3.401,
+   "side": 2.42,
+   "behind": 6.575,
+   "up": 3.396,
    "cam": [
-    -3.662,
-    3.401,
-    26.174
+    -3.733,
+    3.396,
+    26.202
    ],
    "target": [
-    -1.405,
-    2.379,
-    33.781
+    -1.41,
+    2.372,
+    33.788
    ],
-   "fov": 48.73241962684965,
+   "fov": 48.846727834573926,
    "root": [
     -1.314,
     0,
@@ -3831,22 +3831,22 @@
   },
   {
    "d": 28.5,
-   "lens": 2.341,
+   "lens": 2.386,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.324,
-   "behind": 6.61,
-   "up": 3.361,
+   "side": 2.405,
+   "behind": 6.579,
+   "up": 3.355,
    "cam": [
-    -3.638,
-    3.361,
-    26.667
+    -3.719,
+    3.355,
+    26.699
    ],
    "target": [
-    -1.418,
-    2.315,
-    34.282
+    -1.428,
+    2.307,
+    34.292
    ],
-   "fov": 49.07523042461889,
+   "fov": 49.21416575083691,
    "root": [
     -1.314,
     0,
@@ -3855,22 +3855,22 @@
   },
   {
    "d": 29,
-   "lens": 2.383,
+   "lens": 2.419,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.296,
-   "behind": 6.614,
-   "up": 3.337,
+   "side": 2.442,
+   "behind": 6.559,
+   "up": 3.33,
    "cam": [
-    -3.609,
-    3.337,
-    27.163
+    -3.679,
+    3.33,
+    27.19
    ],
    "target": [
-    -1.434,
-    2.262,
-    34.786
+    -1.454,
+    2.255,
+    34.799
    ],
-   "fov": 49.4857769969666,
+   "fov": 49.647692557612785,
    "root": [
     -1.314,
     0,
@@ -3879,22 +3879,22 @@
   },
   {
    "d": 29.5,
-   "lens": 2.43,
+   "lens": 2.451,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.262,
-   "behind": 6.618,
-   "up": 3.316,
+   "side": 2.514,
+   "behind": 6.524,
+   "up": 3.308,
    "cam": [
-    -3.576,
-    3.316,
-    27.659
+    -3.623,
+    3.308,
+    27.678
    ],
    "target": [
-    -1.454,
-    2.209,
-    35.292
+    -1.486,
+    2.203,
+    35.307
    ],
-   "fov": 49.95861109867132,
+   "fov": 50.14097040565286,
    "root": [
     -1.314,
     0,
@@ -3903,22 +3903,22 @@
   },
   {
    "d": 30,
-   "lens": 2.482,
+   "lens": 2.49,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.225,
-   "behind": 6.623,
-   "up": 3.294,
+   "side": 2.585,
+   "behind": 6.488,
+   "up": 3.285,
    "cam": [
-    -3.539,
-    3.294,
-    28.154
+    -3.566,
+    3.285,
+    28.166
    ],
    "target": [
-    -1.476,
-    2.149,
-    35.798
+    -1.522,
+    2.145,
+    35.816
    ],
-   "fov": 50.485926367519696,
+   "fov": 50.68545334329829,
    "root": [
     -1.314,
     0,
@@ -3927,22 +3927,22 @@
   },
   {
    "d": 30.5,
-   "lens": 2.535,
+   "lens": 2.54,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.185,
-   "behind": 6.628,
-   "up": 3.269,
+   "side": 2.67,
+   "behind": 6.444,
+   "up": 3.26,
    "cam": [
-    -3.499,
-    3.269,
-    28.649
+    -3.522,
+    3.26,
+    28.66
    ],
    "target": [
-    -1.502,
-    2.083,
-    36.305
+    -1.559,
+    2.082,
+    36.326
    ],
-   "fov": 51.057978777435736,
+   "fov": 51.270807769609405,
    "root": [
     -1.314,
     0,
@@ -3951,22 +3951,22 @@
   },
   {
    "d": 31,
-   "lens": 2.591,
+   "lens": 2.604,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.143,
-   "behind": 6.632,
-   "up": 3.243,
+   "side": 2.772,
+   "behind": 6.391,
+   "up": 3.234,
    "cam": [
-    -3.456,
-    3.243,
-    29.145
+    -3.497,
+    3.234,
+    29.162
    ],
    "target": [
-    -1.531,
-    2.013,
-    36.812
+    -1.595,
+    2.015,
+    36.836
    ],
-   "fov": 51.66350709161012,
+   "fov": 51.88533288749492,
    "root": [
     -1.314,
     0,
@@ -3975,22 +3975,22 @@
   },
   {
    "d": 31.5,
-   "lens": 2.653,
+   "lens": 2.683,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.099,
-   "behind": 6.637,
-   "up": 3.217,
+   "side": 2.892,
+   "behind": 6.328,
+   "up": 3.207,
    "cam": [
-    -3.412,
-    3.217,
-    29.64
+    -3.492,
+    3.207,
+    29.669
    ],
    "target": [
-    -1.562,
-    1.94,
-    37.318
+    -1.628,
+    1.945,
+    37.346
    ],
-   "fov": 52.29015331562952,
+   "fov": 52.5163811568413,
    "root": [
     -1.314,
     0,
@@ -3999,22 +3999,22 @@
   },
   {
    "d": 32,
-   "lens": 2.717,
+   "lens": 2.772,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.054,
-   "behind": 6.641,
-   "up": 3.189,
+   "side": 3.027,
+   "behind": 6.254,
+   "up": 3.18,
    "cam": [
-    -3.368,
-    3.189,
-    30.136
+    -3.504,
+    3.18,
+    30.183
    ],
    "target": [
-    -1.595,
-    1.865,
-    37.824
+    -1.658,
+    1.875,
+    37.857
    ],
-   "fov": 52.92488315060584,
+   "fov": 53.15077874764202,
    "root": [
     -1.314,
     0,
@@ -4023,22 +4023,22 @@
   },
   {
    "d": 32.5,
-   "lens": 2.788,
+   "lens": 2.874,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 2.01,
-   "behind": 6.645,
-   "up": 3.162,
+   "side": 3.177,
+   "behind": 6.17,
+   "up": 3.153,
    "cam": [
-    -3.324,
-    3.162,
-    30.632
+    -3.533,
+    3.153,
+    30.702
    ],
    "target": [
-    -1.629,
-    1.79,
-    38.329
+    -1.684,
+    1.805,
+    38.368
    ],
-   "fov": 53.55440644630555,
+   "fov": 53.77524599312689,
    "root": [
     -1.314,
     0,
@@ -4047,22 +4047,22 @@
   },
   {
    "d": 33,
-   "lens": 2.863,
+   "lens": 2.99,
    "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 1.967,
-   "behind": 6.649,
-   "up": 3.136,
+   "side": 3.351,
+   "behind": 6.075,
+   "up": 3.127,
    "cam": [
-    -3.281,
-    3.136,
-    31.128
+    -3.59,
+    3.127,
+    31.223
    ],
    "target": [
-    -1.664,
-    1.716,
-    38.833
+    -1.719,
+    1.736,
+    38.875
    ],
-   "fov": 54.165597654278955,
+   "fov": 54.3768178428913,
    "root": [
     -1.314,
     0,
@@ -4071,22 +4071,22 @@
   },
   {
    "d": 33.5,
-   "lens": 2.944,
-   "lensObj": "bridge:RainbowBridgeStrip",
-   "side": 1.927,
-   "behind": 6.652,
-   "up": 3.111,
+   "lens": 3,
+   "lensObj": null,
+   "side": 3.57,
+   "behind": 5.97,
+   "up": 3.103,
    "cam": [
-    -3.24,
-    3.111,
-    31.625
+    -3.693,
+    3.103,
+    31.741
    ],
    "target": [
-    -1.698,
-    1.646,
-    39.337
+    -1.781,
+    1.671,
+    39.376
    ],
-   "fov": 54.74591628098953,
+   "fov": 54.943264316025534,
    "root": [
     -1.314,
     0,
@@ -4097,288 +4097,264 @@
    "d": 34,
    "lens": 3,
    "lensObj": null,
-   "side": 1.889,
-   "behind": 6.655,
-   "up": 3.088,
+   "side": 3.732,
+   "behind": 5.853,
+   "up": 3.081,
    "cam": [
-    -3.203,
-    3.088,
-    32.122
+    -3.858,
+    3.08,
+    32.252
    ],
    "target": [
-    -1.731,
-    1.58,
-    39.84
+    -1.892,
+    1.609,
+    39.866
    ],
-   "fov": 55.283827340943155,
+   "fov": 55.46351095424411,
    "root": [
-    -1.314,
+    -1.428,
     0,
-    38.777
+    38.754
    ]
   },
   {
    "d": 34.5,
    "lens": 3,
    "lensObj": null,
-   "side": 1.855,
-   "behind": 6.657,
-   "up": 3.068,
+   "side": 3.817,
+   "behind": 5.765,
+   "up": 3.061,
    "cam": [
-    -3.169,
-    3.068,
-    32.62
+    -4.078,
+    3.06,
+    32.753
    ],
    "target": [
-    -1.762,
-    1.52,
-    40.342
+    -2.05,
+    1.554,
+    40.344
    ],
-   "fov": 55.769221809817445,
+   "fov": 55.92805927501498,
    "root": [
-    -1.314,
-    0,
-    39.277
+    -1.621,
+    -0.001,
+    39.216
    ]
   },
   {
    "d": 35,
    "lens": 3,
    "lensObj": null,
-   "side": 1.826,
-   "behind": 6.659,
-   "up": 3.05,
+   "side": 3.934,
+   "behind": 5.672,
+   "up": 3.044,
    "cam": [
-    -3.139,
-    3.05,
-    33.118
+    -4.325,
+    3.042,
+    33.247
    ],
    "target": [
-    -1.79,
-    1.467,
-    40.843
+    -2.234,
+    1.506,
+    40.814
    ],
-   "fov": 56.193837077591034,
+   "fov": 56.329407224688914,
    "root": [
-    -1.314,
-    0,
-    39.777
+    -1.813,
+    -0.002,
+    39.677
    ]
   },
   {
    "d": 35.5,
    "lens": 3,
    "lensObj": null,
-   "side": 1.801,
-   "behind": 6.661,
-   "up": 3.034,
+   "side": 4.061,
+   "behind": 5.576,
+   "up": 3.03,
    "cam": [
-    -3.114,
-    3.034,
-    33.616
+    -4.575,
+    3.027,
+    33.736
    ],
    "target": [
-    -1.814,
-    1.423,
-    41.344
+    -2.426,
+    1.465,
+    41.282
    ],
-   "fov": 56.551677401672876,
+   "fov": 56.66246963162874,
    "root": [
-    -1.314,
-    0,
-    40.277
+    -2.006,
+    -0.003,
+    40.138
    ]
   },
   {
    "d": 36,
    "lens": 3,
    "lensObj": null,
-   "side": 1.781,
-   "behind": 6.662,
-   "up": 3.022,
+   "side": 4.188,
+   "behind": 5.477,
+   "up": 3.018,
    "cam": [
-    -3.094,
-    3.022,
-    34.115
+    -4.817,
+    3.015,
+    34.221
    ],
    "target": [
-    -1.834,
-    1.387,
-    41.844
+    -2.616,
+    1.432,
+    41.748
    ],
-   "fov": 56.83943436003153,
+   "fov": 56.92499865933864,
    "root": [
-    -1.314,
-    0,
-    40.777
+    -2.199,
+    -0.004,
+    40.599
    ]
   },
   {
    "d": 36.5,
    "lens": 3,
    "lensObj": null,
-   "side": 1.765,
-   "behind": 6.663,
-   "up": 3.013,
+   "side": 4.315,
+   "behind": 5.374,
+   "up": 3.01,
    "cam": [
-    -3.079,
-    3.013,
-    34.614
+    -5.047,
+    3.006,
+    34.701
    ],
    "target": [
-    -1.849,
-    1.359,
-    42.345
+    -2.807,
+    1.408,
+    42.213
    ],
-   "fov": 57.056907304324454,
+   "fov": 57.11800425959349,
    "root": [
-    -1.314,
-    0,
-    41.277
+    -2.392,
+    -0.005,
+    41.061
    ]
   },
   {
    "d": 37,
-   "lens": 3,
-   "lensObj": null,
-   "side": 1.755,
-   "behind": 6.663,
-   "up": 3.006,
+   "lens": 2.994,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 4.443,
+   "behind": 5.266,
+   "up": 3.005,
    "cam": [
-    -3.068,
-    3.006,
-    35.114
+    -5.267,
+    2.999,
+    35.176
    ],
    "target": [
-    -1.86,
-    1.34,
-    42.845
+    -2.997,
+    1.392,
+    42.676
    ],
-   "fov": 57.207423813027305,
+   "fov": 57.24617462556806,
    "root": [
-    -1.314,
-    0,
-    41.777
+    -2.585,
+    -0.005,
+    41.522
    ]
   },
   {
    "d": 37.5,
-   "lens": 2.996,
+   "lens": 2.99,
    "lensObj": "lakeside:LK_terrain_i",
-   "side": 1.749,
-   "behind": 6.664,
-   "up": 3.002,
+   "side": 4.576,
+   "behind": 5.149,
+   "up": 3.001,
    "cam": [
-    -3.062,
-    3.002,
-    35.614
+    -5.477,
+    2.995,
+    35.645
    ],
    "target": [
-    -1.866,
-    1.329,
-    43.345
+    -3.188,
+    1.382,
+    43.139
    ],
-   "fov": 57.298260144563194,
+   "fov": 57.31829664496647,
    "root": [
-    -1.314,
-    0,
-    42.277
+    -2.778,
+    -0.006,
+    41.983
    ]
   },
   {
    "d": 38,
-   "lens": 2.993,
+   "lens": 2.988,
    "lensObj": "lakeside:LK_terrain_i",
-   "side": 1.746,
-   "behind": 6.664,
+   "side": 4.717,
+   "behind": 5.02,
    "up": 3,
    "cam": [
-    -3.059,
-    3,
-    36.113
+    -5.677,
+    2.993,
+    36.11
    ],
    "target": [
-    -1.869,
-    1.323,
-    43.845
+    -3.38,
+    1.378,
+    43.601
    ],
-   "fov": 57.3410616904321,
+   "fov": 57.34767635315123,
    "root": [
-    -1.314,
-    0,
-    42.777
+    -2.971,
+    -0.007,
+    42.445
    ]
   },
   {
    "d": 38.5,
-   "lens": 2.993,
+   "lens": 2.987,
    "lensObj": "lakeside:LK_terrain_i",
-   "side": 1.745,
-   "behind": 6.664,
+   "side": 4.872,
+   "behind": 4.869,
    "up": 3,
    "cam": [
-    -3.058,
-    3,
-    36.613
+    -5.871,
+    2.992,
+    36.572
    ],
    "target": [
-    -1.87,
-    1.322,
-    44.345
+    -3.573,
+    1.376,
+    44.062
    ],
-   "fov": 57.35226342833994,
+   "fov": 57.352559386272844,
    "root": [
-    -1.314,
-    0,
-    43.277
+    -3.164,
+    -0.008,
+    42.906
    ]
   },
   {
    "d": 39,
-   "lens": 2.992,
+   "lens": 2.986,
    "lensObj": "lakeside:LK_terrain_i",
-   "side": 1.745,
-   "behind": 6.664,
+   "side": 4.942,
+   "behind": 4.799,
    "up": 3,
    "cam": [
-    -3.058,
-    3,
-    37.113
+    -6.064,
+    2.991,
+    37.033
    ],
    "target": [
-    -1.87,
-    1.322,
-    44.845
+    -3.766,
+    1.375,
+    44.524
    ],
    "fov": 57.35256,
    "root": [
-    -1.314,
-    0,
-    43.777
-   ]
-  },
-  {
-   "d": 39.2,
-   "lens": 2.992,
-   "lensObj": "lakeside:LK_terrain_i",
-   "side": 1.745,
-   "behind": 6.664,
-   "up": 3,
-   "cam": [
-    -3.058,
-    3,
-    37.313
-   ],
-   "target": [
-    -1.87,
-    1.322,
-    45.045
-   ],
-   "fov": 57.35256,
-   "root": [
-    -1.314,
-    0,
-    43.977
+    -3.357,
+    -0.009,
+    43.367
    ]
   }
  ]

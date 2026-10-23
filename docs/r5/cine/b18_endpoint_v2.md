@@ -1,4 +1,7 @@
-# B18 endpoint v4 (base c2bc4eb9; path and cameras NOT implemented yet)
+# B18 endpoint v4 (implemented on cursor/b18-path-v4-7m-df84)
+
+Path v4, terrain follow, swing-only foot-lock, and the 7 m / short board cameras are in
+`LakesideBalloon`, `RegionJourneyAdapter`, and `LakesideCameraLayout`. The 6 m main lens is not shipped.
 
 ## End
 Root [3.2531, 0.5714, 25.0904], yaw −58°, reached by walking.
@@ -19,15 +22,11 @@ Other ground samples: step-down 0.5754; [3.8,24.3] 0.5652; [4.758,24.508] 0.5657
 - Stop phase = 0.316 + (6.3562 − 1.6566)/1.00333 = 5.000, which means bodyL, stretch 1.00.
 - Lowest root z is 24.508, at the bottom of A2, so the outer foot is at about 24.41 (bank 24.25).
 
-## Cameras (portrait fov 50°)
-- Main, h/w ≥ 2.0: P [2,6,33] → T [1,-0.5,2].
-  - Alternative (more margin, 7 m): P [1.5,7,34.5] → T [1,-0.5,0].
-- Short, h/w < 2.0: P [2.5,6.5,34] → T [-3,-0.5,0].
-- Orbit pitch to her pivot (y + 1.15):
-  - main 6 m 28.1° (9.1 m)
-  - main 7 m 28.9° (10.9 m)
-  - short 28.1° (10.1 m)
-  - limit 52°
+## Cameras (portrait fov 50°) — locked, shipped
+- Main, h/w ≥ 2.0 (exactly 2.0 is main): **7 m** P [1.5, 7, 34.5] → T [1, −0.5, 0].
+  - The 6 m lens P [2, 6, 33] → T [1, −0.5, 2] is not shipped (360×780 left about a 3 px gap).
+- Short, h/w < 2.0: P [2.5, 6.5, 34] → T [−3, −0.5, 0].
+- Orbit pitch to her pivot (end y + 1.15), measured from the shipped lenses: main 28.9° (~10.9 m), short 28.1° (~10.1 m). Limit 52°. FreeOrbit's lakeside pitch cap stays 54°; yaw stays unlocked.
 
 ## Real renders (qaTools=3); her box x0,y0,x1,y1 against tray bottom and right tool
 | size | cam | her box | tray bottom | right tool x | tool y |

@@ -2521,8 +2521,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts",
-    "bytes": 41029,
-    "sha256": "378531cdb0e332b5761c7cd59a99cc8bd67e4a84a007888a8e19e965513505c9"
+    "bytes": 44139,
+    "sha256": "52c96b5420d6e11578487164b6e6e806da28e5769d5b6b7148aaf5996871fb79"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBalloon.ts.meta",
@@ -2551,8 +2551,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts",
-    "bytes": 18341,
-    "sha256": "39ae6217ddd0c731b8132ddaad213e740a1bd8fd6a529d249d2fcb11ac312ff4"
+    "bytes": 17839,
+    "sha256": "e86f4fef115a54fafa0e8b1f11a1c03a68e736fd6ccedae34b8b0a44e18960b2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta",
@@ -2761,8 +2761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 45163,
-    "sha256": "00ebf8d00e75ccd828a0bbc1df098ec2e25b557d21ec876aebfab7d1762f163d"
+    "bytes": 45605,
+    "sha256": "58469a301b30e821925168c722ff0c2bcf0129b3f69c9a2ae5d9bcaed03b3395"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
