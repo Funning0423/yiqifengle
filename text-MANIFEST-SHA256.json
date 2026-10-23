@@ -2506,8 +2506,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 38156,
-    "sha256": "2276fc9e44d073ba3e94e8be90a48f42f472924f825825294930aac084e466cf"
+    "bytes": 38917,
+    "sha256": "bf8924ff82d9eb6af5d5cc3ed47624e5418783ec85da5839666d568739629392"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2826,8 +2826,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 41095,
-    "sha256": "f2fd7cffcc3998b4e6fe7904b284554ea6c874b76313ad5cfdee5a9d00ca6410"
+    "bytes": 42073,
+    "sha256": "280eeff6d9f81f96351533794660c40bee8763a58d23f0252c6070e608d9ef12"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4316,8 +4316,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 15769,
-    "sha256": "6ce605c2b503e722ceb99eaf51d2507d9662f7008b36a0a82ab824152e1af3cb"
+    "bytes": 15846,
+    "sha256": "81d2347d7e553d90bf5a1fb5c346019b0a226564de34023ad25e31df6ea6566b"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
