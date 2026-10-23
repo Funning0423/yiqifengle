@@ -16,6 +16,8 @@ import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarke
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
+import {LensPullIn,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
+import {LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
 
@@ -66,6 +68,9 @@ export class RegionNodeStage extends Component{
  private completed:readonly string[]=[];
  private readonly orbit=new FreeOrbit('island');
  private orbitBoxes:OrbitBox[]=[];
+ /** b17r7 (运镜bot): lakeside free-walk lens occlusion. The lakeside is static-merged (renderer AABBs > 14 m are skipped by
+  *  refreshOrbitBoxes), so the lens uses the generated tree/post/house proxies (LakesideLensOccluders) via LensPullIn. */
+ private lensPull=new LensPullIn();private occBoxes:OccBox[]|null=null;private occAt=0;private occModel:Node|null=null;
  private orbitBoxAt=0;
 
  attach(camera:Camera){this.camera=camera;}
@@ -427,11 +432,22 @@ export class RegionNodeStage extends Component{
   const n=Math.min(32,ranked.length);
   for(let i=0;i<n;i++)this.orbitBoxes.push(ranked[i].box);
  }
+ private lakesideOccluders():OccBox[]|null{
+  if(this.region!=='lakeside')return null;const m=this.model('lakeside');if(!m)return null;const now=Date.now();
+  if(this.occBoxes&&this.occModel===m&&now-this.occAt<2000)return this.occBoxes;
+  const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
+  this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.occModel=m;this.occAt=now;return this.occBoxes;
+ }
+ /** Lakeside only: slide/crane the walk lens off the occluders (no snap; see LensOcclusion). Other regions pass through. */
+ private occlude(pose:Pose,dt:number):Pose{
+  const boxes=this.lakesideOccluders();if(!boxes){this.lensPull.reset();return pose;}
+  const r=this.lensPull.apply(pose,this.girl(),boxes,dt);return {...pose,position:[...r.position] as Vec,target:[...r.target] as Vec};
+ }
  private writeOrbit(dt:number){
   this.orbit.step(dt);
   const g=this.girl();
   this.refreshOrbitBoxes(g);
-  this.writePose(this.guardOrbitGround(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds())),false);
+  this.writePose(this.occlude(this.guardOrbitGround(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds())),dt),false);
  }
  /** Sky stairs live in large merged meshes excluded from orbit AABBs. Sample from ABOVE the mesh,
   * so even a lens already below a tread (or returning from a cinematic) is lifted onto its top. */
@@ -466,7 +482,7 @@ export class RegionNodeStage extends Component{
   this.writeOrbit(0);
  }
  openExplore(region:StageRegion,fromLens=false){
-  this.region=region;this.exploring=true;this.lens='MapExplore';this.focus=this.girl();this.zoom=1.6;
+  this.region=region;this.exploring=true;this.lens='MapExplore';this.lensPull.reset();this.focus=this.girl();this.zoom=1.6;
   this.handOrbitBack(region);
   // board exit (and the lakeside): seed from the lens she already has, so opening explore never jumps the camera
   if(fromLens||region==='lakeside'){const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);}
@@ -701,7 +717,7 @@ export class RegionNodeStage extends Component{
   }
   if(!this.anim&&!this.holdPose&&(this.lens==='MapExplore'||this.lens==='FollowWalk')){
    if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
-   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),false);}
+   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
   }
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
  }

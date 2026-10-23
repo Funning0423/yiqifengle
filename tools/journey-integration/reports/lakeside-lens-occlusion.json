@@ -1,0 +1,790 @@
+{
+ "status": "PASS",
+ "gate": "after",
+ "routes": 12,
+ "feetSnappedToDeck": 2,
+ "lensSets": 43,
+ "screens": [
+  [
+   390,
+   844
+  ],
+  [
+   414,
+   896
+  ],
+  [
+   360,
+   780
+  ],
+  [
+   375,
+   667
+  ],
+  [
+   390,
+   520
+  ],
+  [
+   320,
+   568
+  ],
+  [
+   768,
+   1024
+  ]
+ ],
+ "proxies": 1017,
+ "scope": "Geometry (real lakeside GLB triangles, lakeside-local) + real TS lens functions. Not a render or device acceptance.",
+ "before": {
+  "frames": 497467,
+  "occludedFrames": 19629,
+  "headOccludedFrames": 17671,
+  "occludedShare": 0.0395,
+  "byOccluder": {
+   "LK_chime_post_i": 518,
+   "LK_house_A_i": 6234,
+   "LK_house_B_i": 1797,
+   "LK_tree_round_i": 3876,
+   "LK_bridge_i": 4103,
+   "LK_house_C_i": 1910,
+   "LK_clothesline_i": 134,
+   "LK_pavilion_i": 1057
+  },
+  "clear11Share": 0.9437,
+  "armFloorFrames": 0,
+  "terrainChestHits": 576,
+  "maxExtraStepM": 0,
+  "maxExtraTurnDegS": 0,
+  "sample": [
+   {
+    "lens": [
+     -2.74,
+     3.97,
+     -1.79
+    ],
+    "route": 1,
+    "i": 287,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -9.75,
+     0.57,
+     -2.18
+    ],
+    "raw": [
+     -2.74,
+     3.97,
+     -1.79
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -2.78,
+     3.97,
+     -1.8
+    ],
+    "route": 1,
+    "i": 288,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -9.79,
+     0.57,
+     -2.2
+    ],
+    "raw": [
+     -2.78,
+     3.97,
+     -1.8
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -2.83,
+     3.97,
+     -1.82
+    ],
+    "route": 1,
+    "i": 289,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -9.84,
+     0.57,
+     -2.22
+    ],
+    "raw": [
+     -2.83,
+     3.97,
+     -1.82
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -2.87,
+     3.97,
+     -1.84
+    ],
+    "route": 1,
+    "i": 290,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -9.88,
+     0.57,
+     -2.23
+    ],
+    "raw": [
+     -2.87,
+     3.97,
+     -1.84
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -2.91,
+     3.97,
+     -1.86
+    ],
+    "route": 1,
+    "i": 291,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -9.92,
+     0.57,
+     -2.25
+    ],
+    "raw": [
+     -2.91,
+     3.97,
+     -1.86
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -2.95,
+     3.97,
+     -1.88
+    ],
+    "route": 1,
+    "i": 292,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -9.97,
+     0.57,
+     -2.27
+    ],
+    "raw": [
+     -2.95,
+     3.97,
+     -1.88
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -3,
+     3.98,
+     -1.9
+    ],
+    "route": 1,
+    "i": 293,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -10.01,
+     0.58,
+     -2.29
+    ],
+    "raw": [
+     -3,
+     3.98,
+     -1.9
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -3.04,
+     3.98,
+     -1.91
+    ],
+    "route": 1,
+    "i": 294,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -10.05,
+     0.58,
+     -2.31
+    ],
+    "raw": [
+     -3.04,
+     3.98,
+     -1.91
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -3.08,
+     3.98,
+     -1.93
+    ],
+    "route": 1,
+    "i": 295,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -10.09,
+     0.58,
+     -2.33
+    ],
+    "raw": [
+     -3.08,
+     3.98,
+     -1.93
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -3.13,
+     3.98,
+     -1.95
+    ],
+    "route": 1,
+    "i": 296,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -10.14,
+     0.58,
+     -2.34
+    ],
+    "raw": [
+     -3.13,
+     3.98,
+     -1.95
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -3.17,
+     3.98,
+     -1.97
+    ],
+    "route": 1,
+    "i": 297,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -10.18,
+     0.58,
+     -2.36
+    ],
+    "raw": [
+     -3.17,
+     3.98,
+     -1.97
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -3.21,
+     3.98,
+     -1.99
+    ],
+    "route": 1,
+    "i": 298,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -10.22,
+     0.58,
+     -2.38
+    ],
+    "raw": [
+     -3.21,
+     3.98,
+     -1.99
+    ],
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   }
+  ],
+  "worstStep": null,
+  "byLensFamily": {
+   "follow": {
+    "frames": 80983,
+    "occ": 2138,
+    "maxStep": 0
+   },
+   "orbit": {
+    "frames": 416484,
+    "occ": 17491,
+    "maxStep": 0
+   }
+  },
+  "L1": "FAIL",
+  "followOccShare": 0.0264,
+  "L2": "PASS",
+  "L3orbit": "n/a"
+ },
+ "after": {
+  "frames": 497467,
+  "occludedFrames": 1536,
+  "headOccludedFrames": 1414,
+  "occludedShare": 0.0031,
+  "byOccluder": {
+   "LK_clothesline_i": 45,
+   "LK_tree_round_i": 190,
+   "LK_house_A_i": 1019,
+   "LK_bridge_i": 14,
+   "LK_pavilion_i": 32,
+   "LK_chime_post_i": 89,
+   "LK_house_B_i": 147
+  },
+  "clear11Share": 0.9712,
+  "armFloorFrames": 31735,
+  "terrainChestHits": 576,
+  "maxExtraStepM": 1.268,
+  "maxExtraTurnDegS": 1302.8,
+  "sample": [
+   {
+    "lens": [
+     -16.18,
+     2.03,
+     -8.86
+    ],
+    "route": 3,
+    "i": 2,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.78,
+     0.59,
+     -7.31
+    ],
+    "raw": [
+     -16.83,
+     1.91,
+     -12.19
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.23,
+     2.03,
+     -8.79
+    ],
+    "route": 3,
+    "i": 3,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.77,
+     0.59,
+     -7.26
+    ],
+    "raw": [
+     -16.82,
+     1.91,
+     -12.15
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.28,
+     2.03,
+     -8.73
+    ],
+    "route": 3,
+    "i": 4,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.76,
+     0.59,
+     -7.22
+    ],
+    "raw": [
+     -16.81,
+     1.91,
+     -12.1
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.34,
+     2.03,
+     -8.66
+    ],
+    "route": 3,
+    "i": 5,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.75,
+     0.59,
+     -7.17
+    ],
+    "raw": [
+     -16.8,
+     1.91,
+     -12.06
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.39,
+     2.03,
+     -8.59
+    ],
+    "route": 3,
+    "i": 6,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.74,
+     0.59,
+     -7.13
+    ],
+    "raw": [
+     -16.79,
+     1.91,
+     -12.01
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.43,
+     2.03,
+     -8.52
+    ],
+    "route": 3,
+    "i": 7,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.73,
+     0.59,
+     -7.08
+    ],
+    "raw": [
+     -16.78,
+     1.91,
+     -11.97
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.48,
+     2.03,
+     -8.44
+    ],
+    "route": 3,
+    "i": 8,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.72,
+     0.59,
+     -7.03
+    ],
+    "raw": [
+     -16.77,
+     1.91,
+     -11.92
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.38,
+     2.03,
+     -8.24
+    ],
+    "route": 3,
+    "i": 13,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.67,
+     0.59,
+     -6.81
+    ],
+    "raw": [
+     -16.72,
+     1.91,
+     -11.69
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 5,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d5"
+   },
+   {
+    "lens": [
+     -16.18,
+     2.08,
+     -8.86
+    ],
+    "route": 3,
+    "i": 2,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.78,
+     0.59,
+     -7.31
+    ],
+    "raw": [
+     -17.67,
+     2.05,
+     -16.1
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 8.99,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d9"
+   },
+   {
+    "lens": [
+     -16.23,
+     2.08,
+     -8.8
+    ],
+    "route": 3,
+    "i": 3,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.77,
+     0.59,
+     -7.26
+    ],
+    "raw": [
+     -17.66,
+     2.05,
+     -16.06
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 8.99,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d9"
+   },
+   {
+    "lens": [
+     -16.28,
+     2.08,
+     -8.73
+    ],
+    "route": 3,
+    "i": 4,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.76,
+     0.59,
+     -7.22
+    ],
+    "raw": [
+     -17.65,
+     2.05,
+     -16.01
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 8.99,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d9"
+   },
+   {
+    "lens": [
+     -16.34,
+     2.08,
+     -8.66
+    ],
+    "route": 3,
+    "i": 5,
+    "by": "LK_clothesline_i",
+    "feet": [
+     -15.75,
+     0.59,
+     -7.17
+    ],
+    "raw": [
+     -17.64,
+     2.05,
+     -15.97
+    ],
+    "crane": 0,
+    "arm": 1.6,
+    "full": 8.99,
+    "head": true,
+    "chest": true,
+    "lensId": "orbit yaw+180 p2 d9"
+   }
+  ],
+  "worstStep": {
+   "lens": "orbit yaw-90 p2 d14",
+   "route": 4,
+   "i": 50,
+   "s": 1.27,
+   "feet": [
+    13.87,
+    0.57,
+    -0.08
+   ],
+   "from": [
+    18.91,
+    4.19,
+    -6.39
+   ],
+   "to": [
+    17.88,
+    4.16,
+    -5.59
+   ],
+   "crane": 16.52892001278803,
+   "arm": 1.64,
+   "hard": 3.3,
+   "full": 13.99
+  },
+  "byLensFamily": {
+   "follow": {
+    "frames": 80983,
+    "occ": 0,
+    "maxStep": 0.500746491521187
+   },
+   "orbit": {
+    "frames": 416484,
+    "occ": 1536,
+    "maxStep": 1.2677488707464222,
+    "snaps": 28,
+    "snapSample": [
+     {
+      "lens": "orbit yaw+90 p2 d5",
+      "r": 1,
+      "i": 286,
+      "s": 1.17,
+      "crane": 8.4102386362046,
+      "swing": 19.83118101675097,
+      "arm": 2.25,
+      "hard": 2.25
+     },
+     {
+      "lens": "orbit yaw+90 p2 d9",
+      "r": 1,
+      "i": 286,
+      "s": 1.17,
+      "crane": 8.59644333167867,
+      "swing": 19.835417004265576,
+      "arm": 2.27,
+      "hard": 2.27
+     },
+     {
+      "lens": "orbit yaw+90 p2 d9",
+      "r": 10,
+      "i": 156,
+      "s": 1.17,
+      "crane": 0.08238937051584871,
+      "swing": 11.666666666657623,
+      "arm": 1.63,
+      "hard": 3.91
+     },
+     {
+      "lens": "orbit yaw+90 p2 d14",
+      "r": 1,
+      "i": 286,
+      "s": 1.17,
+      "crane": 13.65842040907378,
+      "swing": 19.83541702963788,
+      "arm": 2.31,
+      "hard": 2.31
+     },
+     {
+      "lens": "orbit yaw+90 p2 d14",
+      "r": 10,
+      "i": 156,
+      "s": 1.21,
+      "crane": 0.08238937051584871,
+      "swing": 11.666666666657623,
+      "arm": 1.63,
+      "hard": 3.91
+     }
+    ]
+   }
+  },
+  "L1": "PASS",
+  "followOccShare": 0,
+  "L2": "PASS",
+  "L3orbit": "PASS"
+ },
+ "L4wiring": {
+  "orbit": true,
+  "follow": true,
+  "proxies": true,
+  "reset": true,
+  "status": "PASS"
+ }
+}
