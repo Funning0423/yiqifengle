@@ -59,12 +59,30 @@ Landing standup wiring — **done, not a new path.** `RegionJourneyAdapter` on t
    - then `cancelAndReset({kind:'standing', controllerRoot: P0})`, which is the idle crossfade (0.2 s) **after** stand_up
    The forbidden pop is a standing reset that **skips** `stand_up` and teleports to P0 (~0.40 m / ~128°). That cut is not on this line. Animation reference: `anim/b17-landing-standup` @ `97fc3243` (Funning0423/yiqifengle). Adapter wiring commits on the integrated line: `b8c6fd30`, `4b7f6f32`, `bebe76f3`.
 
+DONE (box QA harness, 2026-10-23)
+6. Real QA renders for the **locked camera/pose contract** of this commit (labeled `4aa94038`), qaTools=3.
+   - Harness build = `/tmp/b18/lk/web-test` (older than game SHA `4aa94038`). Cameras + heroine pose are **forced** via `varg2.mjs` (`__lkV` + EP/EY), same method as earlier `endpoint_v4_*_c2bc4eb9` shots. Do not treat the web-test bundle as the game head.
+   - Endpoint stills (6 sizes) + sheet under `/workspace/yiqifengle/previews/运镜bot/b18/`:
+     - `endpoint_M7_{390x844,360x780,414x896}_4aa94038_qaTools3.png`
+     - `endpoint_S2_{320x568,390x520,375x667}_4aa94038_qaTools3.png`
+     - `endpoint_sheet_4aa94038_qaTools3.png`
+   - Composition (visual + yellow-blob gap to rightmost tool pedestal):
+     - M7 390×844: clear of tools/tray; gap ≈ 31 px; right edge ≈ 16 px. Matches prior c2bc4eb9 M7 bbox.
+     - M7 360×780: clear; gap ≈ 25 px (tightest main).
+     - M7 414×896: clear; gap ≈ 35 px.
+     - S2 320×568: clear; gap ≈ 35 px.
+     - S2 390×520: clear; gap ≈ 36 px; more right breathing room.
+     - S2 375×667: clear; gap ≈ 55 px.
+   - Landing→board strip: **posed waypoints**, not live path-v4 driver.
+     - Live `travelRegion('lakeside')` on this harness fails `journey-wrong-origin` (old build).
+     - Posed strip: 6 lake-local path-v4 knots (step-down → S0 → A1 → S1 → A2 → END), yaw along path, camera lerps follow-ish → locked 7 m board on 390×844.
+     - `landing_to_board_strip_4aa94038_posed.png` (+ `landing_wp_*` full frames). Early frames may sit under the board UI (board lens already up); END matches the M7 still.
+
 NOT DONE
-6. Real QA renders of this commit (390×844, 360×780, 414×896, 320×568, 390×520, 375×667, qaTools=3, plus a landing → board strip). The box tools are not in the repo (`/tmp/b18/varg2.mjs`, `/tmp/b18/lk/web-test`). Earlier renders in the endpoint doc are the c2bc4eb9 sheet (M6 / M7 / S2), not this head.
 7. Hand back to 角色动画bot for a 30 fps recheck of path v4 on this wiring.
 
 UNTESTED here
-- In-engine QA renders (item 6). Needs the box harness.
+- Live in-engine walk of path v4 (needs a web-test built from `4aa94038`, not the overridden harness).
 - navigation-guard stays BLOCKED_BROWSER (no Chromium). Ignore that one only.
 
 ## Decisions locked
@@ -79,7 +97,11 @@ UNTESTED here
 - Fit tools: fitC.cjs (env E, SCR, Y), path4.py, lay.json.
 
 ## Previews (paths only)
-/workspace/yiqifengle/previews/运镜bot/r5-b18-board-compose/:
+/workspace/yiqifengle/previews/运镜bot/b18/  (this head, harness-forced cameras):
+- endpoint_*_4aa94038_qaTools3.png + endpoint_sheet_4aa94038_qaTools3.png
+- landing_to_board_strip_4aa94038_posed.png (+ landing_wp_*)
+
+/workspace/yiqifengle/previews/运镜bot/r5-b18-board-compose/ (earlier):
 - endpoint_v4_*_c2bc4eb9_qaTools3.png
 - endpoint_v3_*
 - lakeside_Bpp_heroine_48548a01.png
