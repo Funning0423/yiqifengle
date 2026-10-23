@@ -18,17 +18,6 @@ CCEffect %{
         depthTest: true
         depthWrite: false
         depthFunc: less_equal
-  - name: cloud-night
-    passes:
-    - vert: grade-vs:vert
-      frag: cloud-night-fs:frag
-      properties:
-        tint: { value: [0.2667, 0.3137, 0.3686, 1.0], editor: { type: color } }
-      rasterizerState: { cullMode: none }
-      depthStencilState:
-        depthTest: true
-        depthWrite: true
-        depthFunc: less_equal
 }%
 
 CCProgram grade-vs %{
@@ -68,19 +57,5 @@ CCProgram sky-fs %{
   vec4 frag () {
     vec3 c = v_color + (ign(gl_FragCoord.xy) - 0.5) * (2.5 / 255.0);
     return vec4(clamp(c, 0.0, 1.0), 1.0);
-  }
-}%
-
-CCProgram cloud-night-fs %{
-  precision highp float;
-  in vec3 v_color;
-  uniform NightTint {
-    vec4 tint;
-  };
-  // Night cloud sea: baked shade x tint. Clamp + NaN guard so a bad colour stream can never paint a flat saturated sheet.
-  vec4 frag () {
-    vec3 s = clamp(v_color, 0.0, 1.0);
-    if (any(notEqual(s, s))) s = vec3(0.82);
-    return vec4(clamp(tint.rgb, 0.0, 1.0) * s, 1.0);
   }
 }%

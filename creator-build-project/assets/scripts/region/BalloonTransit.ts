@@ -36,6 +36,20 @@ function eachNamed(root:Node,fn:(n:Node)=>void):void{fn(root);for(const c of roo
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;return [p.x,p.y,p.z];}
 function nightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 function holdAt():number|null{try{const q=typeof location!=='undefined'?String(location.search||''):'';const m=/(?:^|[?&])balloonAt=([0-9.]+)/.exec(q);if(!m)return null;const t=Number(m[1]);return Number.isFinite(t)?t:null;}catch{return null;}}
+/** Web diagnostics (Mac bisect): ?hideNode=a,b hides nodes by exact name every frame; ?diagDump=1 logs every active renderer
+ *  ('[QF_DIAG]' JSON: path, effect, technique, mainTexture, emissive/emissiveScale, NaN flags) once the ride reaches balloonAt. */
+export function diagParams(q?:string):{hide:string[];dump:boolean}{try{const s=q!==undefined?q:(typeof location!=='undefined'?String(location.search||''):'');const h=/(?:^|[?&])hideNode=([^&]*)/.exec(s);return {hide:h?decodeURIComponent(h[1]).split(',').map(x=>x.trim()).filter(Boolean):[],dump:/(?:^|[?&])diagDump=1(?:&|$)/.test(s)};}catch{return {hide:[],dump:false};}}
+function nodePath(n:Node):string{const a:string[]=[];let c:Node|null=n;while(c){a.unshift(c.name);c=c.parent;}return a.join('/');}
+function diagVal(v:any):any{if(v==null)return null;if(typeof v==='number')return Number.isFinite(v)?+v.toFixed(4):String(v);if(typeof v==='object'){if(typeof v.name==='string'&&v.name)return v.name;const o:any={};for(const k of ['x','y','z','w','r','g','b','a'])if(typeof v[k]==='number')o[k]=Number.isFinite(v[k])?+v[k].toFixed(4):String(v[k]);return Object.keys(o).length?o:String(v);}return String(v);}
+export function diagDumpScene(t:number):void{
+ const scene=director.getScene();if(!scene)return;const rows:any[]=[];
+ for(const r of scene.getComponentsInChildren(MeshRenderer)){
+  if(!r.enabled||!r.node.activeInHierarchy)continue;const mat:any=(r as any)._materialInstances?.[0]||r.getSharedMaterial(0); // read only, never creates an instance
+  const get=(k:string)=>{try{return diagVal(mat?.getProperty?.(k));}catch{return null;}};
+  rows.push({path:nodePath(r.node),effect:mat?.effectName??null,technique:mat?.technique??null,mainTexture:get('mainTexture'),albedoMap:get('albedoMap'),mainColor:get('mainColor'),emissive:get('emissive'),emissiveScale:get('emissiveScale'),priority:(r as any).priority??null});
+ }
+ console.info('[QF_DIAG] '+JSON.stringify({t,count:rows.length,rows}));
+}
 class TransitDriver extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** glTF scene prefab inside region_transit_balloon. Same loadDir fallback as the balloon-fix (bundle.load misses the sub-asset). */
 export function loadTransitPrefab(name:string):Promise<Prefab|null>{return loadBundlePrefab(name,'region_transit_balloon');}
@@ -78,7 +92,8 @@ function setEmissive(root:Node,night:boolean):void{
    try{const tex=shared.getProperty(key);if(tex!=null)m.setProperty(key,tex);}catch{/* slot absent */}
   }
   try{m.setProperty('emissive',black);}catch{}
-  try{m.setProperty('emissiveScale',0);}catch{}
+  // No emissiveScale write: it is a vec3 uniform (emissiveScaleParam.xyz). A bare number goes through the FLOAT3 writer as
+  // v.x/v.y/v.z = undefined -> NaN in the UBO -> flat green/magenta cloud sheets at night. emissive=black already zeroes it.
  }});
 }
 /**
@@ -141,22 +156,9 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
    }
    return;
   }
-  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea'){
-   if(night&&grade)nightCloud(n,grade,nite);
-   else forceUnlit(n,night?nite:day,{vertexColor:true});
-  }
+  if(n.name==='clouds_floor'||n.name==='clouds_floor_puff'||n.name==='clouds_city_sea')forceUnlit(n,night?nite:day,{vertexColor:true});
  });
  lookCache.set(clouds,night);
-}
-/** Night cloud sea on balloon-grade technique 2: same a_color path the day grade proves on device, clamped + NaN-guarded. */
-function nightCloud(n:Node,grade:EffectAsset,tint:Color):void{
- for(const r of n.getComponents(MeshRenderer)){
-  const m=new Material();
-  try{m.initialize({effectAsset:grade,technique:2});}catch{forceUnlit(n,tint,{vertexColor:true});return;}
-  try{m.setProperty('tint',tint);}catch{/* */}
-  try{m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);}catch{/* */}
-  try{r.setMaterialInstance(0,m);}catch{/* */}
- }
 }
 /** Coarse sky-dome rings band in 8-bit. Swap the day dome to a dithered pass; caller restores the shared mat. */
 function ditherSky(dome:Node,grade:EffectAsset):void{
@@ -480,6 +482,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
    if(setWind)setWind(()=>0.35);
    const hold=holdAt();
+   const diag=diagParams();let diagDone=false;
    const clock={t:0,hiddenFor:0,fade:0};
    const fired=new Set<string>();
    const cues:Array<[number,string]>=Object.entries(json.cues).map(([name,t])=>[t,name]).sort((a,b)=>a[0]-b[0]);
@@ -493,6 +496,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
     paint(t);
+    if(diag.hide.length){const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(diag.hide.includes(n.name))n.active=false;});}
+    if(diag.dump&&!diagDone&&(hold===null||t+1e-6>=hold)){diagDone=true;diagDumpScene(t);}
     const fade=Number((globalThis as any).__QF_BALLOON_FADE)||0;
     if(typeof world.fadeCover==='function'&&(Math.abs(fade-lastFade)>0.02||(fade<=0&&lastFade>0))){
      lastFade=fade;try{void world.fadeCover(fade,0);}catch{/* cover optional in tests */}

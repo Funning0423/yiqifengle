@@ -1386,8 +1386,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon-grade.effect",
-    "bytes": 2424,
-    "sha256": "b00c0c8161b5dc7067a0ab4846c7dd5a44efcdfd48a99b9d3890d6d0c1970403"
+    "bytes": 1689,
+    "sha256": "d13aed0583313d7543f3518eb2f81d3a474246bc7da01e115270f4c1fcbfa517"
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/balloon-grade.effect.meta",
@@ -2506,8 +2506,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 35915,
-    "sha256": "600824fff3c785ca469c83d348b19da7cb31caf4872cd8a6121712b156608420"
+    "bytes": 37717,
+    "sha256": "9edb0862ca4b8ef3fc717f00a6637fdd73d086e7b583c1550b9c53ffeda7a319"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
