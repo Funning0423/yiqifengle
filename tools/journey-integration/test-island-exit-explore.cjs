@@ -24,6 +24,20 @@ assert.equal(X.exploreWanted('island',{...snap('island'),journey:{region:'island
 const src=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts'),'utf8');
 assert.match(src,/tap\.kind==='ground'\)\{if\([^)]*this\.region==='island'\)this\.groundTap/,'island ground tap wired');
 assert.doesNotMatch(src,/groundTap\(x:number,y:number\)\{\s*const region=this\.region;if\(region==='island'\)return/,'no island early return');
+// b17r12b (Mac r12 #6/#7): fresh save leaves the board before any reward walk, so bindCharacter was never called (hasChar=false)
+// and syncExplore / ground tap returned on !this.character. The stage must pull the composition's calibrated girl.
+{const comp=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts'),'utf8');
+ assert.match(src,/characterSource:\(\(\)=>CharacterAdapter\|null\)\|null/,'stage has a character source');
+ assert.match(src,/ensureCharacter\(\):CharacterAdapter\|null\{if\(!this\.character&&this\.characterSource\)/,'ensureCharacter pulls the girl');
+ const sync=src.slice(src.indexOf('private syncExplore('),src.indexOf('private skipWalk('));
+ assert.doesNotMatch(sync,/!this\.character\b/,'syncExplore must not bail on an unbound character');assert.match(sync,/!this\.ensureCharacter\(\)/,'syncExplore binds then proceeds');
+ const gt=src.slice(src.indexOf('groundTap(x:number,y:number)'),src.indexOf('private syncExplore('));
+ assert.doesNotMatch(gt,/!this\.character\)|!this\.character\|\|/,'ground tap must not bail on an unbound character');
+ assert.match(comp,/stage\.attach\(this\.worldCamera\);\s*stage\.characterSource=\(\)=>this\.boundCharacter;/,'composition wires the source at stage creation');
+ assert.match(comp,/attachCalibratedCharacter\(adapter:CharacterAdapter\)\{[^\n]*this\.boundCharacter=adapter;[^\n]*ensureCharacter\(\)/,'calibration binds the stage');
+ // behavioural: emulate syncExplore guard with a fresh-save stage (character never bound)
+ const girl={id:'girl'};const stage={character:null,characterSource:()=>girl,ensureCharacter(){if(!this.character&&this.characterSource)this.character=this.characterSource()||null;return this.character;}};
+ assert.equal(stage.ensureCharacter(),girl,'character bound on leave-board');assert.equal(stage.character,girl,'hasChar=true');}
 let hit=null;outer:for(let x=-20;x<=20;x+=1)for(let z=-20;z<=20;z+=1){const h=RW.walkRayHit('island',[x,40,z],[0,-1,0]);if(h.kind==='walk'){hit=h.at;break outer;}}
 assert.ok(hit,'a ray onto the island hits walkable ground');
 const from=RW.nearestWalkable('island',hit,1.6);assert.ok(from,'girl start resolves');

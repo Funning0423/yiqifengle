@@ -4166,8 +4166,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 39826,
-    "sha256": "741c4a03cb3f7288e5dd9e428d13d29e520c0b95aa948407ab01ac29a10e233c"
+    "bytes": 40286,
+    "sha256": "63e2f36fd8cbb8126bb6f6354c0ed414f52b43b6b57624346d758912b95c9ac2"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4206,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 41754,
-    "sha256": "ff255785997d22a9d4b2fe684d44958e7a73dcdd690d20e0cab5f5765a179b63"
+    "bytes": 41900,
+    "sha256": "7dbe4be393393d2dcdddb4421bcc478479da2736a262f63ac531501107519d6b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
