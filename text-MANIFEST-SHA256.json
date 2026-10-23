@@ -2655,6 +2655,16 @@
     "sha256": "e3e7c040b488f73064b079a2df2b08c877347123b68d0357bbc3293efa89e2c7"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/LakesideLegHide.ts",
+    "bytes": 1501,
+    "sha256": "0a0e6d172bfc59aec61a9582dea0c03a2352ea5019a95fb3459e71836315ac6e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLegHide.ts.meta",
+    "bytes": 171,
+    "sha256": "66a6ede004985f13a75cd799e1642fe24e96e45223b5d3a41b6a99d71102f976"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/LakesideLife.ts",
     "bytes": 3985,
     "sha256": "69c9a5e828608c33c19d7f7a1ecbc830c1ea313f092a35d7e2edd52014f52275"
@@ -2826,8 +2836,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 41095,
-    "sha256": "f2fd7cffcc3998b4e6fe7904b284554ea6c874b76313ad5cfdee5a9d00ca6410"
+    "bytes": 41400,
+    "sha256": "8baa105d2f357e53e17743a3e2a5f2d6ef1e7095e4da570a2617a0e1e0480992"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4316,8 +4326,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 15769,
-    "sha256": "6ce605c2b503e722ceb99eaf51d2507d9662f7008b36a0a82ab824152e1af3cb"
+    "bytes": 15846,
+    "sha256": "81d2347d7e553d90bf5a1fb5c346019b0a226564de34023ad25e31df6ea6566b"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
