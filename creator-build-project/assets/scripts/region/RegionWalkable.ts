@@ -67,7 +67,9 @@ function obstacles(region:WalkRegion):ObsField|null{
  if(D.obsCells!==undefined&&k!==D.obsCells)throw Error('obstacle-decode '+region+' '+k+'/'+D.obsCells);
  const o={slab:D.obsSlab,lo,off,cnt,mask:dh};obsCache[region]=o;return o;
 }
-const OBS_THICK_M=.6,OBS_HEAD_M=2.5;
+const OBS_THICK_M=.6,OBS_HEAD_M=2.5,OBS_LOW_M=1.8;
+/** Top (m) of the contiguous occupied slabs in cell ci that hold height y: the object the ray is in, not the canopy above it. */
+function runTop(o:ObsField,ci:number,y:number):number{let k=Math.floor(y/o.slab);while(solidAt(o,ci,(k+1.5)*o.slab))k++;return (k+1)*o.slab;}
 /** Scene geometry above (x,z,y) within 4 m in this cell: the ray is under a roof / the ground it just went through. */
 function roofed(o:ObsField,ci:number,y:number):boolean{for(let k=1;k*o.slab<=4;k++)if(solidAt(o,ci,y+k*o.slab))return true;return false;}
 /** Floor height of the walkable cell nearest (x,z) in plan within r m, or null. */
@@ -108,7 +110,7 @@ function snapNear(region:WalkRegion,b:WVec,from:WVec):WVec|null{
  *  of that hit, so a ray that meets the scene never answers 'none'. */
 export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05,from:WVec|null=null):WalkTap{
  const g=walkGrid(region),L=Math.hypot(d[0],d[1],d[2])||1,u=[d[0]/L,d[1]/L,d[2]/L],floorMin=g.minY-2,snap=WALK_TAP_SNAP.indexOf(region)>=0;
- const ob=snap?obstacles(region):null;let startIn=true,obsHit:WVec|null=null,solidM=0,over:WVec|null=null,lastIn:WVec|null=null,wasAbove=false,prevIn=false,prevCi=-1,runAt:WVec|null=null,countAt:WVec|null=null;
+ const ob=snap?obstacles(region):null;let startIn=true,obsHit:WVec|null=null,solidM=0,over:WVec|null=null,lastIn:WVec|null=null,wasAbove=false,prevIn=false,prevCi=-1,runAt:WVec|null=null,countAt:WVec|null=null,lowHit:WVec|null=null;
  for(let t=0;t<=maxM;t+=stepM){const x=o[0]+u[0]*t,y=o[1]+u[1]*t,z=o[2]+u[2]*t;
   const ci=cellOf(g,x,z),f=ci<0||Number.isNaN(g.h[ci])?null:g.h[ci];
   if(f!==null&&y<=f+.02&&y>=f-.6){
@@ -116,7 +118,11 @@ export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05,fr
    if(snap&&prevIn&&!startIn&&runAt&&y<f-.15){const at=tapSnap(region,runAt,u,from);if(at)return {kind:'walk',at};}
    return {kind:'walk',at:[x,f,z]};}
   if(snap&&f!==null&&y<f-.6&&wasAbove){const at=tapSnap(region,[x,f,z],u,from);if(at)return {kind:'walk',at};} // under a floor = its riser / cliff face
-  if(ob){const inS=ci>=0&&solidAt(ob,ci,y);
+  if(ob){let inS=ci>=0&&solidAt(ob,ci,y);
+   // r5 (Mac p0drag9): a LOW object (planter, bench, low fence, low foliage: its run of voxels tops out ≤ 1.8 m over the nearby floor) does not stop a
+   // tap above its own ground skin; she can see over it, and the floor beyond is the tap (E3/E6/Roof/W9 were stopped at the S3-east
+   // planter, x≈9–11). Its ground skin (≤ 0.3 m over the floor) still counts, so the not-walkable pocket keeps answering.
+   if(inS){const ref0=f!==null?f:floorNear(region,x,z,2);if(ref0!==null&&y>ref0+.3&&runTop(ob,ci,y)<=ref0+OBS_LOW_M){inS=false;if(!lowHit&&!startIn)lowHit=[x,y,z];}}
    // scene geometry: once the ray has gone through ≥ 0.6 m of it (wall, house, fence, roots, cliff; not a pole, a foliage card or
    // a lamp it grazes) she walks to the floor in front of where it entered. A camera that starts inside a voxel is not a hit.
    // canopy / eaves > 2.5 m over the nearby floor do not block a tap on the floor under them (they only answer when nothing else does)
@@ -134,7 +140,11 @@ export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05,fr
   if(g.waterY!==null&&f===null&&y<=g.waterY)return {kind:'water',at:[x,g.waterY,z]};
   if(y<floorMin)break;
  }
- if(obsHit){const at=tapSnap(region,obsHit,u,from);if(at)return {kind:'walk',at};} // only thin geometry met, no floor beyond
+ // only thin / high geometry met and no floor beyond. Tree canopy, eaves (> 2.5 m over the floor under it): she stays where she is
+ // (r5: a tap on the leaves walked her 6.9 m)
+ if(obsHit){const rf=floorNear(region,obsHit[0],obsHit[2],2);if(from&&rf!==null&&obsHit[1]>rf+OBS_HEAD_M){const st=nearestWalkable(region,from,1.6);if(st)return {kind:'walk',at:st.at};}
+  const at=tapSnap(region,obsHit,u,from);if(at)return {kind:'walk',at};}
+ if(lowHit){const at=tapSnap(region,lowHit,u,from);if(at)return {kind:'walk',at};} // only a low planter / fence, nothing beyond
  if(over){const at=tapSnap(region,over,u,from);if(at)return {kind:'walk',at};}
  if(lastIn){const at=tapSnap(region,lastIn,u,from);if(at)return {kind:'walk',at};} // camera inside geometry the whole way (a tower, a canopy)
  return {kind:'none'};

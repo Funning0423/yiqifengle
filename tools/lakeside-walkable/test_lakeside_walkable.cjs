@@ -224,3 +224,16 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
   const pth=RW.walkTapPath(r,RW.nearestWalkable(r,her,1.6).at,h.at),e=pth[pth.length-1];
   assert.ok(e[0]<=13.05&&!(e[0]>12.05&&e[2]>6.75&&e[2]<10.25),'pocket tap stops outside the pocket '+e+' from '+her+' '+p+'/'+y);n++;}
  console.log('skycity-walk-r4 方案C ok',n);}
+
+// b17 skycity-walk-r5 (Mac p0drag9 on 579952ac = r4 92452473): real trace / log-solved Mac rays (local frame: origin, dir, her).
+// Taps over the low planter (top ≈1.4 m) used to be cut off by its voxels at x≈9 (2.8 m); a canopy-leaf tap used to walk her 7 m.
+{const r='skycity',T={
+ Plat:[[-0.9294,2.9772,9.0713],[0.99276,-0.13533,-0.08837],[6.2,-0.01,8.2]],
+ E3b:[[-0.8228,2.9811,9.4887],[0.96595,-0.21232,-0.1542],[6.2,-0.01,8.2]],
+ Roof:[[-0.9547,2.9772,7.57],[0.97395,-0.20412,0.10907],[6.2,-0.01,8.2]],
+ leaf:[[-0.7629,3.0751,9.6761],[1.00486,-0.02363,-0.21301],[6.2,-0.01,8.2]]};
+ const go=k=>{const [o,d,her]=T[k],h=RW.walkRayHit(r,o,d,160,.05,her);assert.equal(h.kind,'walk',k);const p=RW.walkTapPath(r,RW.nearestWalkable(r,her,1.6).at,h.at);return {e:p[p.length-1],len:RW.walkPathLengthM(p)};};
+ const out=e=>!(e[0]>12.05&&e[2]>6.75&&e[2]<10.25);
+ for(const k of ['Plat','E3b','Roof']){const {e,len}=go(k);assert.ok(e[0]>11.5&&out(e),k+' passes the low planter and stops outside the pocket '+e+' '+len);}
+ const L=go('leaf');assert.ok(L.len<0.3,'canopy leaf tap: she stays '+L.len);
+ console.log('skycity-walk-r5 Mac rays ok');}

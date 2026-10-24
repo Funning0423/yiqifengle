@@ -104,3 +104,9 @@ if (snap) afang.setWorldPosition(localToWorld(region, snap)); // y 已经是地�
   - 擦过细杆、树叶片、2.5 m 以上的树冠、檐口的射线照常落到后面的地面；完全没碰到东西的射线（天空）仍是 'none'。
 - 方案 C：矮篱笆西侧凹角 x 12.0–13.4、z 6.8–10.2 设为不可走（spec.noWalk，没改 GLB）。站在那里时，6 m 环绕镜头有 90–130° 的方向被篱笆或房子挡住；现在点那里，她会停在凹角西边，被挡的角度 ≤ 80°。
 - `RegionNodeStage.groundTap` 会把她的位置传给 `from`。
+
+## b17 skycity-walk-r5（Mac p0drag9 验收 579952ac 失败的修复）
+
+- `walkRayHit` 体素场：射线落在“低矮物体”的体素里（该格中包含当前高度的连续体素段顶部 ≤ 附近地面 + `OBS_LOW_M`=1.8 m，比如花坛、长椅、矮栅栏、低矮植被），且高于地面皮 0.3 m 时，不再按厚度规则截停，可以穿过去；只记成 `lowHit`，在没有更远命中时作为兜底。真机镜头很低（pitch 约 −13.7°），以前会被 x≈9 的花坛 env_sky_static_palette 截停，落点 (9,8.2)，只走 2.8 m。
+- 射线只命中了树冠/叶片（obsHit 高于地面 2.5 m 以上），且没有更远的地面时：如果传了 `from`，返回她当前所在的可走格，也就是原地不动；以前 snapNear 会把她带走大约 7 m。
+- 兜底顺序：floor → 规则 1–4 → canopy 原地不动 → obsHit snap → lowHit snap → over → lastIn。
