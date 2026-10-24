@@ -2545,6 +2545,16 @@
     "sha256": "fa84999c0604685ae03fed701b4b5a14cae50a3f330f2f76d74e7ad6a143141f"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/IslandLensOccluders.ts",
+    "bytes": 20784,
+    "sha256": "b1af8b6c03a3f5f407c993fb7c2321c302ce75f3afd319203391c68e8fff2535"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/IslandLensOccluders.ts.meta",
+    "bytes": 171,
+    "sha256": "ed01a42ec15405710ec62d7612a6c95cafb3ee26b399afec6c1b49d7bb4e3177"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/JourneyTransport.ts",
     "bytes": 3670,
     "sha256": "5afcdb4d6550e206e3e1d25565ddeea88ddb9b8e65e52a81e46cb0a7f31e05f3"
@@ -2596,8 +2606,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts",
-    "bytes": 2324,
-    "sha256": "06999444fbf7f3c1043a2a7d2cf79d657ffd4b485543e825b9521bd1c5b029a3"
+    "bytes": 2741,
+    "sha256": "8467e1c36a6f084d38e6bc470abc7afe325f2a56202377af6c141c841264d7d9"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideExplore.ts.meta",
@@ -2663,6 +2673,16 @@
     "path": "creator-build-project/assets/scripts/region/LakesideLegHide.ts.meta",
     "bytes": 171,
     "sha256": "66a6ede004985f13a75cd799e1642fe24e96e45223b5d3a41b6a99d71102f976"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLensOccluders.ts",
+    "bytes": 41092,
+    "sha256": "186b33f2bb90b93c1777c3a8e15a588d2d1fecbe3b6ef038d4b55e01829ef45b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LakesideLensOccluders.ts.meta",
+    "bytes": 171,
+    "sha256": "bfc9b6ebbe16fae5d38925601f8ee3645152dc03f5d862a126b263b4f210581b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLife.ts",
@@ -2743,6 +2763,16 @@
     "path": "creator-build-project/assets/scripts/region/LakesideWalkable.ts.meta",
     "bytes": 171,
     "sha256": "e78424ce0c8a83b4deb42833ae54c17a7b0b22c0a2b38db3cb16091ff620e9b6"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LensOcclusion.ts",
+    "bytes": 17627,
+    "sha256": "37a171bc179e9d24d042076f87b5cb02b87d98ae0886f0037d3050949168b0ca"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LensOcclusion.ts.meta",
+    "bytes": 171,
+    "sha256": "8ea97e14f82da0d639ef66736e89c8f861bdf78e882379edf0bb798447ce575f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
@@ -3056,8 +3086,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
-    "bytes": 5981,
-    "sha256": "382c940ecb8870280a46cbb77fced6e23afac58e2cc5954f16fcbda5c986f3d7"
+    "bytes": 6626,
+    "sha256": "c849fab185006f1d230c493ae163ccd44f3c74ab3c09026a33c1401e29ea7aa4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
@@ -3286,8 +3316,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js",
-    "bytes": 4062,
-    "sha256": "84ca38e796787de8930bffb965c39d03d50d5d91644ade8e70a11177adc08896"
+    "bytes": 4214,
+    "sha256": "2d79b39bb035f2d259dee14020729bcb64f3b598c1e08910e469c5d3143983c3"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js.meta",
@@ -4166,8 +4196,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 39482,
-    "sha256": "e6eee0c3481f82b09eb6f521cd5c41e3757c170778b1a7b66c4f322dece1d505"
+    "bytes": 42674,
+    "sha256": "c2886ad62ca313ed3303a7c7c295858aef55f6fd17b512e1f56db754bbaea5ba"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4336,8 +4366,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 16057,
-    "sha256": "d95bdacf8917060cc6bfb21a73ce99f2b80ffab44a2ed123ec94bc73c59b123f"
+    "bytes": 16208,
+    "sha256": "399d01277cb9a59c274590ff65cdf3ca21585bd0e0b8f4b3073220067abc64ac"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
