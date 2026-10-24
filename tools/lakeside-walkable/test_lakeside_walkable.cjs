@@ -126,7 +126,7 @@ assert.match(src,/if\(this\.region==='lakeside'\)\{this\.groundTap\(x,y\);return
 assert.match(src,/if\(this\.region==='meadow'\|\|this\.region==='skycity'\|\|this\.region==='island'\)this\.groundTap\(x,y\)/);
 assert.match(src,/walkMatrix\(region:StageRegion\):Mat4\|null\{if\(region==='island'\)return new Mat4\(\)/);
 assert.match(src,/update\(dt:number\)\{\n  this\.syncExplore\(dt\);/);
-assert.match(src,/this\.openExplore\(r,true\)/);
+assert.match(src,/this\.openExplore\(r,true(,snapped)?\)/);
 assert.match(src,/region==='lakeside'(\?undefined:|\)return undefined;const b=)stageGraph/);/* r17: other regions' box goes through toWorld */
 assert.match(src,/LakesideJourneyScene/);
 // pause label (b16 decision): 「离开棋盘」, same Home action
