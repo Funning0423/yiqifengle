@@ -59,7 +59,7 @@ const DT=1/60,d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
  const crosses=(a,c,b)=>{let t0=0,t1=1;for(let k=0;k<3;k++){const d=c[k]-a[k];if(Math.abs(d)<1e-9){if(a[k]<b[k]||a[k]>b[k+3])return false;continue;}let u=(b[k]-a[k])/d,v=(b[k+3]-a[k])/d;if(u>v){const s=u;u=v;v=s;}t0=Math.max(t0,u);t1=Math.min(t1,v);if(t0>t1)return false;}return true;};
  for(const [k,w] of Object.entries(shots)){const p=toLocal(w),look=[herL[0],herL[1]+1.25,herL[2]];
   st.orbit={step(){},solve:()=>({position:p.slice(),target:look.slice(),fovVerticalDeg:48}),place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true};
-  st.armSmooth=new X.AS.ArmSmoother();st.avoid={sw:0,e:0,tsw:0,te:0,clear:0};st.entry=null;for(let f=0;f<150;f++)st.writeOrbit(DT);/* p0drag8: avoidance is rate-limited: settle 2.5 s */const q=R.cam().position;
+  st.armSmooth=new X.AS.ArmSmoother();st.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0};st.entry=null;for(let f=0;f<150;f++)st.writeOrbit(DT);/* p0drag8: avoidance is rate-limited: settle 2.5 s */const q=R.cam().position;
   const rawIn=SKO.filter(b=>inside(p,b)).length,inBox=SKO.filter(b=>inside(q,b)).length,cross=SKO.filter(b=>!inside(look,b)&&crosses(look,q,b)).length;
   out[k]={rawLocal:p.map(v=>+v.toFixed(2)),rawInsideProxies:rawIn,lens:q.map(v=>+v.toFixed(2)),insideProxies:inBox,segmentCrosses:cross,armM:+d3(q,look).toFixed(2)};
   const el=Math.asin((q[1]-look[1])/d3(q,look))*180/Math.PI;out[k].elevDeg=+el.toFixed(1);

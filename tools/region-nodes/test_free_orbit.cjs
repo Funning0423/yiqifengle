@@ -131,7 +131,7 @@ const geometry={Ray,ERaycastMode:{CLOSEST:1},intersect:{rayModel(ray,model,optio
 }}};
 const compiled=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
 const LAV=load('region/LensAvoid.ts');
-const sandbox={module:{exports:{}},AVOID:LAV.AVOID,LENS_PITCH_MAX_DEG:LAV.LENS_PITCH_MAX_DEG,lensLevel:LAV.lensLevel,geometry,MeshRenderer:class{},LENS_CLEAR_M:0.6,ORBIT_LIMITS:C.ORBIT_LIMITS,LENS_GUARD:{armMinM:3.5,armHardM:1.6,armMaxM:12}};/* r17: writeOrbit arm clamp */
+const sandbox={module:{exports:{}},AVOID:LAV.AVOID,LENS_PITCH_MAX_DEG:LAV.LENS_PITCH_MAX_DEG,lensLevel:LAV.lensLevel,nearSphere:LAV.nearSphere,geometry,MeshRenderer:class{},LENS_CLEAR_M:0.6,ORBIT_LIMITS:C.ORBIT_LIMITS,LENS_GUARD:{armMinM:3.5,armHardM:1.6,armMaxM:12}};/* r17: writeOrbit arm clamp */
 vm.runInNewContext(compiled,sandbox,{filename:stagePath});
 const Stage=sandbox.module.exports;
 const render=(name,height,enabled=true,active=true)=>({enabled,node:{name,activeInHierarchy:active},model:{worldBounds:{center:{x:0,y:5,z:0},halfExtents:{x:50,y:15,z:50}},height}});
@@ -139,7 +139,7 @@ const meshNames=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_
 const glb=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/bundles/region_skycity/env_skycity.glb'));
 const gltf=JSON.parse(glb.subarray(20,20+glb.readUInt32LE(12)).toString());
 for(const name of meshNames)assert.ok(gltf.nodes.some(n=>n.name===name&&n.mesh!==undefined),'real sky terrain mesh: '+name);
-const stage=new Stage();stage.region='skycity';stage.armSmooth={reset(){},step:a=>a};stage.avoid={sw:0,e:0,tsw:0,te:0,clear:0};stage.lakesideOccluders=()=>null;/* p0drag7: arm smoothing / proxies covered by explore-arm-smooth + skycity-east */
+const stage=new Stage();stage.region='skycity';stage.armSmooth={reset(){},step:a=>a};stage.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0};stage.lakesideOccluders=()=>null;/* p0drag7: arm smoothing / proxies covered by explore-arm-smooth + skycity-east */
 let renderers=[];
 stage.model=()=>({getComponentsInChildren:()=>renderers});
 stage.occlude=p=>p;/* b17r7: lakeside-only occlusion, covered by lakeside-lens-occlusion */stage.orbitBoxes=[];stage.refreshOrbitBoxes=()=>{};stage.regionBounds=()=>[-50,-50,50,50];stage.girl=()=>[0,0,0];
