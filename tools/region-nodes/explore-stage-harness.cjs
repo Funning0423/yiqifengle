@@ -11,8 +11,8 @@ const FO=H.load(S('region/FreeOrbit.ts')),EI=H.load(S('world-r2/ExploreInput.ts'
 const {IslandHomeInteraction}=H.load(S('world-r2/IslandHomeInteraction.ts'));
 const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true);
 const cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
-const want=['onGesture','clampArm','regionBounds','toWorld','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','skycityOccluders','handOrbitBack','viewDir','guardOrbitGround','deckElev','preSolveEntry','openExplore','syncExplore','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','walkMatrix','showWorld','restoreBoard','lookAt','armOf','armAlong','outOfProxies','update','traceFrame','clampPitch','skycityOccluders'];
-const OPTIONAL=new Set(['clampArm','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','lookAt','armOf','armAlong','outOfProxies','clampPitch','skycityOccluders']);/* p0drag5: absent before its fix *//* absent before the r17 fix: the failing-before run */
+const want=['onGesture','clampArm','regionBounds','toWorld','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','skycityOccluders','handOrbitBack','viewDir','guardOrbitGround','deckElev','preSolveEntry','openExplore','syncExplore','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','walkMatrix','showWorld','restoreBoard','lookAt','armOf','armAlong','outOfProxies','update','traceFrame','clampPitch','skycityOccluders','qaAimAt','qaOrbit','attach'];
+const OPTIONAL=new Set(['qaAimAt','qaOrbit','attach','clampArm','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','lookAt','armOf','armAlong','outOfProxies','clampPitch','skycityOccluders']);/* p0drag5: absent before its fix *//* absent before the r17 fix: the failing-before run */
 const methods=want.map(n=>{const m=cls.members.find(x=>x.name&&x.name.getText(sf)===n);if(!m&&OPTIONAL.has(n))return '';assert.ok(m,'RegionNodeStage.'+n);return m.getText(sf);});
 const out=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
 class Vec3{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}set(x,y,z){this.x=x;this.y=y;this.z=z;return this;}static transformMat4(o,v,m){const t=m&&m.m12!==undefined?[m.m12,m.m13,m.m14]:[0,0,0];o.x=v.x+t[0];o.y=v.y+t[1];o.z=v.z+t[2];return o;}}
@@ -22,12 +22,12 @@ class Mat4{constructor(){this.m12=0;this.m13=0;this.m14=0;}clone(){const o=new M
 const AS=(()=>{try{return H.load(S('region/ArmSmoother.ts'));}catch{return {ArmSmoother:class{clear(){}reset(){}step(t){return t;}}};}})(),SKO=(()=>{try{return H.load(S('region/SkycityLensOccluders.ts')).SKYCITY_LENS_OCCLUDERS;}catch{return [];}})();
 const LE=H.load(S('region/LakesideExplore.ts')),CT=H.load(S('region/CamTrace.ts'));
 const sb={module:{exports:{}},stageGraph:LE.stageGraph,EXIT_EXPLORE_REGIONS:LE.EXIT_EXPLORE_REGIONS,exploreArm:LE.exploreArm,exploreWanted:LE.exploreWanted,
- director:{getScene:()=>sb.__scene||null},...(()=>{try{const LA=H.load(S('region/LensAvoid.ts'));return {AVOID:LA.AVOID,LENS_PITCH_MAX_DEG:LA.LENS_PITCH_MAX_DEG,lensLevel:LA.lensLevel,nearSphere:LA.nearSphere};}catch{return {};}})(),ArmSmoother:AS.ArmSmoother,SKYCITY_LENS_OCCLUDERS:SKO,bgCamHold:BG.bgCamHold,bgCamRelease:BG.bgCamRelease,bgCamHeld:BG.bgCamHeld,bgCamWanted:BG.bgCamWanted,findDeep:(n,name)=>n&&n.find?n.find(name):null,Camera:class{},Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
+ director:{getScene:()=>sb.__scene||null},...(()=>{try{const LA=H.load(S('region/LensAvoid.ts'));return {AVOID:LA.AVOID,LENS_PITCH_MAX_DEG:LA.LENS_PITCH_MAX_DEG,lensLevel:LA.lensLevel,nearSphere:LA.nearSphere};}catch{return {};}})(),ArmSmoother:AS.ArmSmoother,ISLAND_PROPS:(()=>{try{return H.load(S('world-r2/IslandPropsLayout.ts')).ISLAND_PROPS;}catch{return undefined;}})(),qaSkipTarget:()=>sb.__qa??null,camTraceStart:()=>{},SKYCITY_LENS_OCCLUDERS:SKO,bgCamHold:BG.bgCamHold,bgCamRelease:BG.bgCamRelease,bgCamHeld:BG.bgCamHeld,bgCamWanted:BG.bgCamWanted,findDeep:(n,name)=>n&&n.find?n.find(name):null,Camera:class{},Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
  setExploreEnabled:v=>Gate.setExploreEnabled(v),emitTransitCue:()=>{},proxiesToWorld:OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:LX.LAKESIDE_LENS_OCCLUDERS,ISLAND_LENS_OCCLUDERS:IX.ISLAND_LENS_OCCLUDERS,
  followPose:E.followPose,followLookUp:E.followLookUp,geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}},intersect:{rayModel:()=>0}},MeshRenderer:class{},LENS_CLEAR_M:0.6,Date,Math,Mat4,REGION_NODES:RN.REGION_NODES,nearestWalkable:RW.nearestWalkable};
 /* ?camTrace=1 (CamTrace.ts) publishes its sub-path hook on the host globalThis; the vm context sees the same one */
 Object.defineProperty(sb,'__qfCamTraceSub',{get:()=>globalThis.__qfCamTraceSub});Object.defineProperty(sb,'__qfCamTrace',{get:()=>globalThis.__qfCamTrace});
-vm.runInNewContext(out,sb);const Stage=sb.module.exports;
+vm.runInNewContext(out,sb);const Stage=sb.module.exports;const setQa=v=>{sb.__qa=v;};
 const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
 const wrap=a=>((a+540)%360)-180;
 // her stand points: island next to the lighthouse / palm; lakeside next to a ring tree (lakeside model = identity world here)
@@ -58,4 +58,4 @@ function inputFor(region,st){
  return {start:(x,y)=>{all=[1];root.emit('touch-start',ev(1,x,y));},move:(x,y)=>root.emit('touch-move',ev(1,x,y)),end:(x,y)=>{all=[];root.emit('touch-end',ev(1,x,y));}};
 }
 const VW=[390,844];
-module.exports={AS,SKO,BG,RW,RN,setScene:s=>{sb.__scene=s;},CT,H,FO,E,OC,LX,IX,Gate,Stage,rig,inputFor,yawOf,wrap,VW,HER,DECK_STAND,S};
+module.exports={setQa,sb,AS,SKO,BG,RW,RN,setScene:s=>{sb.__scene=s;},CT,H,FO,E,OC,LX,IX,Gate,Stage,rig,inputFor,yawOf,wrap,VW,HER,DECK_STAND,S};
