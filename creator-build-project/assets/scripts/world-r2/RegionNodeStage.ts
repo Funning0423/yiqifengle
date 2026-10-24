@@ -24,7 +24,7 @@ import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLen
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
 import {SKYCITY_LENS_OCCLUDERS} from '../region/SkycityLensOccluders';
 import {ArmSmoother} from '../region/ArmSmoother';
-import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
+import {nearestWalkable,walkPath,walkTapPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
 
 type Cover={host:Node|null;nav:Node|null;cams:{cam:Camera;on:boolean}[];rig:Node|null;rigOn:boolean};
@@ -721,7 +721,7 @@ export class RegionNodeStage extends Component{
   const inv=new Mat4();Mat4.invert(inv,m);
   const gw=this.girl(),g=new Vec3();Vec3.transformMat4(g,new Vec3(gw[0],gw[1],gw[2]),inv);
   const from=nearestWalkable(region,[g.x,g.y,g.z],1.6);if(!from)return;
-  const local=walkPath(region,from.at,at);
+  const local=walkTapPath(region,from.at,at);
   (globalThis as any).__qfGroundTap={...((globalThis as any).__qfGroundTap||{}),path:local?local.length:0,lengthM:local?+walkPathLengthM(local).toFixed(2):0};
   if(!local||local.length<2)return;
   const path=this.toWorld(region,local as unknown as Vec[]),dest=path[path.length-1],L=walkPathLengthM(local),duration=Math.max(.4,L/1.2);

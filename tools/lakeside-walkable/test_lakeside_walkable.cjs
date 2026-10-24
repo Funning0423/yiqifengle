@@ -179,3 +179,15 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
  const s=RW.nearestWalkable(r,[20.84,1.65,7.13],1.6);assert.ok(s&&s.at[1]<.3,'off the annex she snaps to the ground');
  assert.ok(RW.walkPath(r,s.at,RN.REGION_NODES.skycity.nodes.find(n=>n.key==='S3').at),'and walks back to S3');
  console.log('skycity-walk-r3 components ok');}
+
+// b17 skycity-walk-r3 (Mac p0drag7 问题 3): S3 east. E3 (11.47,7.95)->(13.82,7.56) is 2.4 m straight but the spot is behind the low
+// ruin wall: walkTapPath stops her at the near side (was 14.4 m round). A tap into the blue-roof house stops at its wall (E6 was a
+// 33 m walk onto the annex roof; with the roof gone the ray flew through the house to the far side).
+{const r='skycity',L=p=>p?RW.walkPathLengthM(p):Infinity;
+ const p3=RW.walkTapPath(r,[11.47,-0.1,7.95],[13.82,0.1,7.56]);assert.ok(L(p3)<3,'E3 tap path '+L(p3));
+ assert.ok(L(RW.walkTapPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96]))<8,'near-straight taps untouched');
+ assert.equal(L(RW.walkTapPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96])).toFixed(3),L(RW.walkPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96])).toFixed(3));
+ const o=[7.12,4.37,7.81],t=[20.84,1.65,7.13],h=RW.walkRayHit(r,o,[t[0]-o[0],t[1]-o[1],t[2]-o[2]]);
+ assert.equal(h.kind,'walk');assert.ok(h.at[0]<15.5,'E6 tap stops at the house wall '+JSON.stringify(h));
+ assert.ok(L(RW.walkTapPath(r,[13.82,0.1,7.56],h.at))<3,'E6 walk short');
+ console.log('skycity-walk-r3 S3-east ok');}
