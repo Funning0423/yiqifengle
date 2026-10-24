@@ -706,7 +706,7 @@ export class RegionNodeStage extends Component{
   *  every ground ray missed the walkable grid (kind=none). Off the region's walkable area (> 1.6 m) = stand her on the nearest node. */
  private standOnWalk(region:StageRegion){try{this.standOnWalkOrThrow(region);}catch{/* lens only */}}
  private standOnWalkOrThrow(region:StageRegion){
-  const nodes=(REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined,m=this.walkMatrix(region);if(!nodes||!m||!this.character)return;
+  const nodes=(REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined,m=this.walkMatrix(region);if(!nodes||!m||this.character==null)return;
   const inv=new Mat4();Mat4.invert(inv,m);const g=this.girl(),v=new Vec3();Vec3.transformMat4(v,new Vec3(g[0],g[1],g[2]),inv);
   if(nearestWalkable(region as any,[v.x,v.y,v.z],1.6))return;
   let best=nodes[0],bd=Infinity;for(const n of nodes){const d=Math.hypot(n.at[0]-v.x,n.at[2]-v.z);if(d<bd){bd=d;best=n;}}
