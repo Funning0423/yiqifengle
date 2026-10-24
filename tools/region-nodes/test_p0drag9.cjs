@@ -6,6 +6,8 @@
  *     exists for ~150° of yaw at any arm 3.5–7.3 m / elevation ≤ 58°, see STATUS). The Mac numbers (before) are computed the same way from the trace.
  *  R2 OffsetSmoother: a 24° elevation step is eased (≤ 22°/s, no overshoot > 1°), a fresh smoother takes the first value as is.
  *  R3 frameHer: an off-axis target that puts her off the 320×568 screen is re-aimed to margin ≥ 0; a centred one is returned unchanged.
+ *  R4 __qfTeleport(key, yaw, pitch): after 60 frames of the normal lens tick the Main Camera euler yaw (= camTrace `yaw`) equals the
+ *     given yaw ±2° and its view pitch ≤ −pitch (= or a LensGuard lift); the orbit is engaged. __qfAimAt([x,y,z]) (world) puts that point in the view centre column.
  * node tools/region-nodes/test_p0drag9.cjs */
 const fs=require('node:fs'),path=require('node:path');
 const X=require('./explore-stage-harness.cjs');const {rig,SKO,FO}=X;const LS=X.H.load(X.S('region/LensSmooth.ts'));
@@ -65,5 +67,18 @@ function metrics(poses,hers,tag=""){let mp=0,mh=0,mpr=0,mhr=0,mm=1e9,ma=1e9,minP
  const feet=[0,0,0],pos=[0,2,6],centred=[0,0.8,0],off=[3.5,0.8,0];
  const a=LS.frameHer(pos,centred,48,feet),b=LS.frameHer(pos,off,48,feet);
  ok('R3',a===centred&&LS.herMargin(pos,off,48,feet)<0&&LS.herMargin(pos,b,48,feet)>=-1e-3,{offMarginBefore:+LS.herMargin(pos,off,48,feet).toFixed(2),after:+LS.herMargin(pos,b,48,feet).toFixed(3)});
+}
+// ---------- R4
+{
+ const nd=X.RN.REGION_NODES.island.nodes[1];const Rg=rig('island','S1',nd.at.slice(),{});const st=Rg.st,cam=st.camera;st.exploring=true;
+ X.setQa('island-finale');st.attach(cam);st.camera=cam;const T=X.sb.__qfTeleport,AIM=X.sb.__qfAimAt;
+ const eul=()=>{const c=Rg.cam(),f=c.target.map((v,k)=>v-c.position[k]),l=Math.hypot(...f);return {yaw:Math.atan2(-f[0],-f[2])/R,pitch:Math.asin(f[1]/l)/R};};
+ const out={};let good=true;
+ for(const [y,p] of [[40,20],[-120,35],[170,10]]){const r=T(nd.key,y,p);for(let k=0;k<60;k++)st.tickLens(1/60);const e=eul(),dy=Math.abs(LS.wrapDeg(e.yaw-y));
+  out['y'+y]={camYaw:+e.yaw.toFixed(1),camPitch:+e.pitch.toFixed(1),engaged:st.orbit.engaged()};good=good&&r.ok&&dy<=2&&e.pitch<=-p+1&&e.pitch>=-58.01&&st.orbit.engaged();/* pitch: the given one, or steeper where LensGuard lifts over an occluder */}
+ const g=st.girl(),P=[g[0]+6,g[1]+1,g[2]-8];const ra=AIM(P);for(let k=0;k<60;k++)st.tickLens(1/60);
+ const c=Rg.cam(),f=c.target.map((v,k)=>v-c.position[k]),d=P.map((v,k)=>v-c.position[k]);const ang=Math.abs(LS.wrapDeg(Math.atan2(f[0],f[2])/R-Math.atan2(d[0],d[2])/R));
+ X.setQa(null);delete X.sb.__qfTeleport;delete X.sb.__qfAimAt;
+ ok('R4',good&&ra.ok&&ang<=3,{...out,aimAtWorld:{point:P,yawOffDeg:+ang.toFixed(2)}});
 }
 const all=Object.values(res).every(r=>r.ok);console.log(JSON.stringify({test:'p0drag9',ok:all,...res},null,1));process.exit(all?0:1);
