@@ -13,7 +13,8 @@ function setup(local){const R=rig('skycity','S1',[local[0]+AT[0],local[1]+AT[1],
 const loc=h=>[h[0]-AT[0],h[1]-AT[1],h[2]-AT[2]];
 const rays=o=>{let walk=0;for(let a=0;a<360;a+=15)for(const dn of [0.3,0.6,1,2]){const r=a*Math.PI/180;if(RW.walkRayHit('skycity',o,[Math.sin(r),-dn,Math.cos(r)]).kind==='walk')walk++;}return walk;};
 // B1
-const bad=[-18.05,1.02,56.79];assert.equal(rays([bad[0],bad[1]+1.7,bad[2]]),0,'B1 Mac symptom reproduced');
+const bad=[-18.05,1.02,56.79];{const n=rays([bad[0],bad[1]+1.7,bad[2]]);/* p0drag7 merge: skycity-walk-r2 WALK_TAP_SNAP lets a few rays (5/96) that clip a wall snap to floor; the symptom (almost every tap none) still holds */
+ assert.ok(n<=8,'B1 Mac symptom reproduced '+n);}
 // B2
 {const {R,her}=setup(bad);R.st.standOnWalkOrThrow('skycity');const l=loc(her());assert.ok(RW.nearestWalkable('skycity',l,0.6),'B2 on walkable '+l);
  const p=E.followPose(her(),0,390,844,0);assert.ok(rays(p.position.map((v,i)=>v-AT[i]))>0,'B2 taps hit walk');console.log('B2 stood at',l.map(v=>+v.toFixed(2)));}

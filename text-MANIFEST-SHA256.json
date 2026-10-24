@@ -2485,6 +2485,16 @@
     "sha256": "ceb12afb038635164f2d5cc9726e7b474c2e0dbd781405f5be01fb15efc3e547"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/ArmSmoother.ts",
+    "bytes": 1883,
+    "sha256": "7cc676a502d72adfab4c82acf8bbc0a741392ee059c01410a2e88e1e38665dd8"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/ArmSmoother.ts.meta",
+    "bytes": 171,
+    "sha256": "8d49c9b6d0bb42d3d4576b00a1dd744f0b8d54201061e9ce31586e2238fbf21c"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
     "bytes": 11721,
     "sha256": "862e7a771ee02ab4061c71eb8c2ec546dba09313bd827ff4a14884d820baecfe"
@@ -2515,6 +2525,26 @@
     "sha256": "68c0600891ad9d1eb0b1f604936366b6c91b63d3fd35f177ceacd328bc2d218e"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/BgCamGate.ts",
+    "bytes": 2348,
+    "sha256": "115cbfcf1f8bdeb134b68460cf61dd63e927f4cce1dad8b0c235c4160d7df0de"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/BgCamGate.ts.meta",
+    "bytes": 171,
+    "sha256": "a8efc2b5931c6fc8afaf426844e305e0398907810742dfdaefdb79f292b29eb2"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/CamTrace.ts",
+    "bytes": 3209,
+    "sha256": "4875e094c3d2f003c9fbe46136541aa64f3150e750a1a782256279c29869dd21"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/CamTrace.ts.meta",
+    "bytes": 171,
+    "sha256": "2f078466cbdf3afd9edf660f6489c92e6f5dd3ae9a5e2a121b75ae3a46f39e80"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts",
     "bytes": 13180,
     "sha256": "8f1a610cde2c2cee9a50e49579e16a722380f5da08eed657f7be57b516cc3824"
@@ -2536,8 +2566,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts",
-    "bytes": 58638,
-    "sha256": "258b4d42d89c75a365ae66594d46de74799f8bf987e50a6151670c58f253e15f"
+    "bytes": 59121,
+    "sha256": "919d93eaaaf53e5545780619795515c76b4fc7e85eb72a650705cf64be7f93f2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/FreeOrbit.ts.meta",
@@ -2576,8 +2606,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
-    "bytes": 47507,
-    "sha256": "ecbbaba36af1f1ec6cd1c227d871172149b400ed3570ac3d7e265939c5de28d9"
+    "bytes": 47549,
+    "sha256": "f3dcc7b566c22e7aa517d8c428ee7d1099e6b54589e7e5ffb81979a85a206ed0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
@@ -2676,8 +2706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLensOccluders.ts",
-    "bytes": 41092,
-    "sha256": "186b33f2bb90b93c1777c3a8e15a588d2d1fecbe3b6ef038d4b55e01829ef45b"
+    "bytes": 44456,
+    "sha256": "e43cba3dfa30e5e643af215d727e429846b297fe2c15b6f053dc74710e089f78"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLensOccluders.ts.meta",
@@ -2766,8 +2796,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensOcclusion.ts",
-    "bytes": 17627,
-    "sha256": "37a171bc179e9d24d042076f87b5cb02b87d98ae0886f0037d3050949168b0ca"
+    "bytes": 21206,
+    "sha256": "b5754979d76b4217df789f87824269ba95565f4423f18703f2ef41225f203a53"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensOcclusion.ts.meta",
@@ -2776,8 +2806,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
-    "bytes": 15792,
-    "sha256": "33c836844b870d2ea5f8a2c9899edae98611ad9af063ae91fc904bc501cb727f"
+    "bytes": 15834,
+    "sha256": "ff61e19cc6cc8db5198576cf91709beef47154fbae5d56362c45396d7c280b8c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts.meta",
@@ -2856,8 +2886,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardStaging.ts",
-    "bytes": 8283,
-    "sha256": "1f393e8f7fb7e108d3ab4f33db95d1966f2d00209e51cc356391dff34f2bddb1"
+    "bytes": 8524,
+    "sha256": "f346af3d53c7eedf6231496ec4287db5a6b5226c0056be24e6a05f638acf9f1f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardStaging.ts.meta",
@@ -2916,8 +2946,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
-    "bytes": 6554,
-    "sha256": "bf48046fbfceac6907f3b8e05678cfe6e40a432e3459d219b060e48394c34df0"
+    "bytes": 6632,
+    "sha256": "4e0d365febdf97fb1509601c840942faeb05f3c85bfc77b585fd5aa6dab0bd26"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -2936,8 +2966,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkable.ts",
-    "bytes": 7792,
-    "sha256": "54b626dfaab490a2b558141b14f3a41f88a66b638500a54ef2c78f8d3a353fe7"
+    "bytes": 8885,
+    "sha256": "59b5b761844254dab67f4fb026bcafc0e378bdcdbf481465d27327f1e1f67b65"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkable.ts.meta",
@@ -2946,8 +2976,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
-    "bytes": 114509,
-    "sha256": "a6b04c0ad3e0f72b5af4f634cf1d81d9230348cd6a15a25aa06cdc94ddc1f008"
+    "bytes": 114297,
+    "sha256": "29f50ef0da0b68ccfc9a6358062941ffdbfc7d15bc71d9d1929090461c50a18d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
@@ -3066,8 +3096,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
-    "bytes": 4101,
-    "sha256": "80d843072f8e561ea3b042313008fdf21045c28760e12226746bcf7a1b08d51a"
+    "bytes": 4143,
+    "sha256": "57dc72f1d475f6156d117aa396ced5cfd9930637165f16e8b4d3bfdfaad9b0d3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -3093,6 +3123,16 @@
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
     "bytes": 171,
     "sha256": "14ba1dab4719bbf077a518e6eed96edee2f53f6a0ed859c73b5765fb0bdf7142"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts",
+    "bytes": 54567,
+    "sha256": "0cb57839910eae8c3e661d17d2a6e91aa557a217f726c49dec46fa83b91a6760"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts.meta",
+    "bytes": 171,
+    "sha256": "ca3910668f9d43a3fb954ed01943305842109edc3d7d348d89f38de916cd3cca"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityNightApply.ts",
@@ -3761,8 +3801,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/CameraPose.ts",
-    "bytes": 21191,
-    "sha256": "24f189cb71207fdb8a895fc0a0db026b09c6b818c23b6b27c6ab9773a4cbe3f3"
+    "bytes": 21416,
+    "sha256": "d75a4df5b8e18fbb0f6d00ffe4da55ac8dc2da8bf8e0a89631ea990252d8cef4"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/CameraPose.ts.meta",
@@ -4196,8 +4236,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 43134,
-    "sha256": "97c6cebae75472dd781a1926e287126bf769388667e01f9fb1428a6573552401"
+    "bytes": 60283,
+    "sha256": "b858b9ce12c36f1f3f852973debaf372f351247993318a06b148619b72be7ba2"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4366,8 +4406,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 16457,
-    "sha256": "f44213cb39ae2425fe02a1c1d3f7ae9c98ea1a929156151af206d74cdf3aaa12"
+    "bytes": 17684,
+    "sha256": "3247dc983db21b1816d0340dc21d742c6f86ebd02abffd3c422fb9b5827a45e4"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
