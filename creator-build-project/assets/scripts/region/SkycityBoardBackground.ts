@@ -1,3 +1,4 @@
+import {bgCamWant} from './BgCamGate';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {Camera,Color,Node,Prefab,SphereLight,director,isValid} from 'cc';
 import {REGIONS,loadRegionPrefab,mountRegion} from './RegionLoader';
@@ -25,7 +26,7 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async({parent,t
   const node=new Node('SkycityBackgroundCamera');node.layer=SKY_BOARD_LAYER;rig.addChild(node);camera=node.addComponent(Camera);camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=.1;camera.far=1200;camera.visibility=SKY_BOARD_LAYER;camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color('#9ccadf');camera.enabled=false;
   return {
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('skycity-background-layout-missing');const av=a.worldPosition,bv=b.worldPosition,pose=skycityVisitPose([av.x,av.y,av.z],[bv.x,bv.y,bv.z],layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'skycity.board-background'))throw Error('skycity-background-camera-rejected');},
-   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;ambient?.setHostPaused(paused||!visible);},
+   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;bgCamWant(camera!,value);ambient?.setHostPaused(paused||!visible);},
    setPaused:value=>{if(dead)return;paused=value;ambient?.setHostPaused(paused||!visible);},
    diagnostics:()=>({renderer:'region-live-3d',region:'skycity',bundle:REGIONS.skycity.bundle,visible,paused,layer:SKY_BOARD_LAYER,cameraPriority:44,dynamicTextureUploads:0}),dispose,
   };

@@ -17,6 +17,7 @@ import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
 import {camTraceStart} from '../region/CamTrace';
+import {bgCamHold,bgCamRelease} from '../region/BgCamGate';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
@@ -48,7 +49,7 @@ export class RegionNodeStage extends Component{
  private exploreCheck=0;
  private syncOpened:ExploreRegion|null=null;
  /** p0drag5: board-background cameras switched off while a sync-opened explore owns the view (restored on close). */
- private syncCams:Camera[]=[];
+ private syncCams:{cam:Camera;region:StageRegion;model:Node|null}[]=[];
  private exploreArmed:Partial<Record<ExploreRegion,boolean>>={};
  private explorePrev:string|null=null;
  private focus:Vec=[0,0,0];
@@ -706,14 +707,19 @@ export class RegionNodeStage extends Component{
   *  their pose to the stage camera, so the entry glide starts from the shot on screen (no cut). Returns that pose, or null. */
  private takeSyncView(region:StageRegion):Pose|null{
   this.releaseSyncCams();const scene=director.getScene();if(!scene)return null;let shot:Pose|null=null;
+  // p0drag5b: only THIS region's background camera(s); other regions' cameras are their owners' business
+  const name=region==='lakeside'?'LakesideBackgroundCamera':region==='meadow'?'MeadowBackgroundCamera':region==='skycity'?'SkycityBackgroundCamera':null;
+  if(!name)return null;const model=this.model(region);
   for(const c of scene.getComponentsInChildren(Camera)){
-   if(c===this.camera||!c.enabled||!c.node?.activeInHierarchy||!/BackgroundCamera$/.test(c.node.name))continue;
-   if(!shot&&c.node.name.toLowerCase().startsWith(region)){const p=c.node.worldPosition,f=c.node.forward;shot={position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:c.fov};}
-   c.enabled=false;this.syncCams.push(c);
+   if(c===this.camera||!c.enabled||!c.node?.activeInHierarchy||c.node.name!==name)continue;
+   if(!shot){const p=c.node.worldPosition,f=c.node.forward;shot={position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:c.fov};}
+   bgCamHold(c);this.syncCams.push({cam:c,region,model});
   }
   return shot;
  }
- private releaseSyncCams(){for(const c of this.syncCams.splice(0))if(c?.isValid)c.enabled=true;}
+ /** Drop explore's hold. Re-enable only if the owner still wants the camera visible (bgCamWant, its setVisible is the truth) and
+  *  we are still in the same region instance; otherwise the hold is dropped and the owner's next setVisible decides. */
+ private releaseSyncCams(){for(const e of this.syncCams.splice(0))bgCamRelease(e.cam,this.region===e.region&&this.model(e.region)===e.model);}
  private skipWalk(){/* a tap during FollowWalk is swallowed until the segment timeout cuts it */}
  private async walkTo(at:Vec){
   if(!this.character)return;

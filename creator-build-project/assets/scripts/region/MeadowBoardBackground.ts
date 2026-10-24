@@ -1,3 +1,4 @@
+import {bgCamWant} from './BgCamGate';
 import { _decorator, Animation, Camera, Color, Component, EffectAsset, Material, MeshRenderer, Node, Prefab, SphereLight, Vec4, assetManager, director, game, Game, isValid, instantiate } from 'cc';
 import { REGIONS, loadRegionPrefab, mountRegion } from './RegionLoader';
 import { MEADOW_SCENE_SOURCE, meadowScenePose } from './MeadowSceneData';
@@ -166,7 +167,7 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
     const pose=meadowBoardCamera(layout.width,layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');
     if(anchor&&!applyCameraPose(camera!,fromLookAt(anchor),'meadow.node-anchor'))throw Error('Meadow node anchor rejected');},
    setAnchor:pose=>{if(disposed)return;anchor=pose;},
-   setVisible:value=>{if(disposed)return;visible=value;camera!.enabled=value;motion!.visible=value;},
+   setVisible:value=>{if(disposed)return;visible=value;bgCamWant(camera!,value);motion!.visible=value;},
    setPaused:value=>{if(disposed)return;paused=value;motion!.hostPaused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'meadow',bundle:REGIONS.meadow.bundle,prefabName:REGIONS.meadow.prefabName,source:MEADOW_SCENE_SOURCE,visible,paused,cameraPriority:44,layer:MEADOW_LAYER,motion:motion?.diagnostics()||null,dynamicTextureUploads:0}),
    dispose,
