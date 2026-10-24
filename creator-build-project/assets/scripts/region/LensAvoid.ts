@@ -22,3 +22,8 @@ export function lensLevel(look:readonly number[],q:readonly number[],boxes:reado
 export function nearSphere(boxes:readonly OccBox[],c:readonly number[],r:number):OccBox[]{const out:OccBox[]=[],r2=r*r;
  for(let i=0;i<boxes.length;i++){const b=boxes[i],x=Math.max(b.min[0]-c[0],0,c[0]-b.max[0]),y=Math.max(b.min[1]-c[1],0,c[1]-b.max[1]),z=Math.max(b.min[2]-c[2],0,c[2]-b.max[2]);if(x*x+y*y+z*z<r2)out.push(b);}
  return out;}
+/** p0drag10: her face (feet + 1.45 m) / chest (feet + 1.05 m) hidden from the lens by a proxy box — the same slab raycast as lensLevel
+ *  (a box holding the body point is skipped; a lens inside a box counts as hidden). camTrace occFace / occChest + the replay test use it. */
+export function herOcclusion(lens:readonly number[],feet:readonly number[],boxes:readonly OccBox[]):{face:boolean;chest:boolean}{
+ const f=[feet[0],feet[1]+1.45,feet[2]],c=[feet[0],feet[1]+1.05,feet[2]];
+ return {face:lensLevel(f,lens,boxes,0)>0,chest:lensLevel(c,lens,boxes,0)>0};}
