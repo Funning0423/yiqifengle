@@ -2666,8 +2666,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLegHide.ts",
-    "bytes": 1501,
-    "sha256": "0a0e6d172bfc59aec61a9582dea0c03a2352ea5019a95fb3459e71836315ac6e"
+    "bytes": 2053,
+    "sha256": "18ea53583fff3ab06ee0d4fcb97a2d4c6c3ce61c9322418959ae3220a03e107f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideLegHide.ts.meta",
@@ -2866,8 +2866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 42073,
-    "sha256": "280eeff6d9f81f96351533794660c40bee8763a58d23f0252c6070e608d9ef12"
+    "bytes": 42256,
+    "sha256": "23206a148e0049077cead946e546814e2dd3be4ee0fe0c635201c5fbb7a38b8a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3086,8 +3086,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
-    "bytes": 6626,
-    "sha256": "c849fab185006f1d230c493ae163ccd44f3c74ab3c09026a33c1401e29ea7aa4"
+    "bytes": 6849,
+    "sha256": "d4ff692ef75357d4346dbfe7784e855b764f9b65137520677cfe090435e8716e"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
