@@ -82,7 +82,23 @@ assert.equal(RW.nearestWalkable('lakeside',[0,0,12],1),null,'board centre has no
 const s2=RW.nearestWalkable('lakeside',[0,0,12],12);assert.ok(s2&&s2.distanceM<=12);
 
 // 9. explore opens after a board exit (暂停 →「离开棋盘」) in meadow / skycity / lakeside, never during the arrival shot
-assert.deepEqual([...X.EXIT_EXPLORE_REGIONS].sort(),['lakeside','meadow','skycity']);
+assert.deepEqual([...X.EXIT_EXPLORE_REGIONS].sort(),['island','lakeside','meadow','skycity']);
+// b17 r7 ③: the island joins free explore after a board exit (island boards: no journey of their own)
+{const ok={state:'island',hidden:false,needsResume:false,characterReady:true};
+ assert.equal(X.exploreWanted('island',ok),true,'island stand');
+ assert.equal(X.exploreWanted('island',{...ok,journey:{region:'meadow',phase:'travel'}}),false,'island mid journey');
+ assert.equal(X.exploreWanted('island',{...ok,hidden:true}),false);assert.equal(X.exploreWanted('island',{...ok,state:'level'}),false);
+ let a=X.exploreArm('island','home-exit',ok,false);assert.equal(a,false,'walk-out arrival must not arm');
+ a=X.exploreArm('island','island',{state:'level'},a);assert.equal(a,true,'island board arms');
+ a=X.exploreArm('island','level',ok,a);assert.equal(a,true,'board exit keeps armed');
+ assert.equal(X.exploreArm('island','level',{state:'meadow'},a),false,'leaving island disarms');
+ assert.equal(X.exploreArm('island','meadow',{state:'level',journey:{region:'meadow',phase:'arrived'}},false),false,'meadow board does not arm island');
+ // ground tap straight down onto the island character spawn lands on walkable ground (island local = world)
+ const c=[-2.1135,0,5.2814],h=RW.walkRayHit('island',[c[0],c[1]+12,c[2]+6],[0,-12,-6]);assert.equal(h.kind,'walk','island ground tap '+JSON.stringify(h));
+ const f=RW.nearestWalkable('island',c,1.6);assert.ok(f,'island spawn walkable');
+ // tap out to sea = water
+ const w=RW.walkRayHit('island',[c[0],8,c[2]],[0,-8.6,60]);assert.notEqual(w.kind,'walk','island sea tap '+JSON.stringify(w));
+ console.log('island explore ok',JSON.stringify({spawn:f.at,tap:h.kind,sea:w.kind}));}
 for(const r of ['meadow','skycity','lakeside']){
  const arrived={state:r,hidden:false,needsResume:false,journey:{region:r,phase:'arrived'}};
  assert.equal(X.exploreWanted(r,arrived),true,r);
@@ -107,7 +123,8 @@ const y0=orbit.yaw;orbit.drag(0.2,0);assert.ok(Math.abs(orbit.yaw-y0)>1e-3,'drag
 // 11. stage wiring (source)
 const src=fs.readFileSync(path.join(SCRIPTS,'world-r2/RegionNodeStage.ts'),'utf8');
 assert.match(src,/if\(this\.region==='lakeside'\)\{this\.groundTap\(x,y\);return;\}/);
-assert.match(src,/if\(this\.region==='meadow'\|\|this\.region==='skycity'\)this\.groundTap\(x,y\)/);
+assert.match(src,/if\(this\.region==='meadow'\|\|this\.region==='skycity'\|\|this\.region==='island'\)this\.groundTap\(x,y\)/);
+assert.match(src,/walkMatrix\(region:StageRegion\):Mat4\|null\{if\(region==='island'\)return new Mat4\(\)/);
 assert.match(src,/update\(dt:number\)\{\n  this\.syncExplore\(dt\);/);
 assert.match(src,/this\.openExplore\(r,true\)/);
 assert.match(src,/region==='lakeside'\?undefined:stageGraph/);
