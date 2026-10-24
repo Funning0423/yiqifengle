@@ -89,3 +89,17 @@ bridge (lens looks down over the railing), island: drag down beside a palm (lens
 - Test explore-entry-follow (real syncExplore/openExplore/tickLens + CamTrace sub-paths, stubbed scene with the background camera): before → F1 FAIL (background camera still on at 0.1 s), F2 FAIL (no hand-off of the on-screen shot). After → writer region.node-lens:orbit+entry from frame 1, bg camera off by 0.1 s, first pose 0.00 m from the shot, max step 0.29 m/frame, glide done at 2.8 s, standing 1 m drift (no tap) → lens +0.74 m, aim +1.18 m, bg camera restored on close.
 - Mac camTrace check wanted: frame 1 after board exit should show `region.node-lens:orbit+entry` AND the LakesideBackgroundCamera disabled.
 - Suite: 170/173, 0 FAIL (3 BLOCKED: node<22.6 ×2, browser ×1). suite-p0drag5.log.
+
+## p0drag5b — GGbot review of 8d6d6279: background-camera release risk · commits d2661bc5, 25a6fb4a
+- New region/BgCamGate.ts. The owner's setVisible is the source of truth: the Lakeside, Meadow and Skycity background owners call bgCamWant(camera, visible), which records what they want and draws only if explore isn't holding the camera.
+- takeSyncView holds only the current region's camera (exact name: Lakeside/Meadow/SkycityBackgroundCamera) and records the region and model instance.
+- releaseSyncCams → bgCamRelease re-enables a camera only if all of these hold: its owner still wants it visible, it is valid and in the hierarchy, and the region and model are the same as at take time. Otherwise it only drops the hold, and the owner's next setVisible decides.
+- explore-entry-follow adds G1–G4:
+  - G1: other regions' cameras are untouched.
+  - G2: an owner setVisible(true) while held keeps the camera off; a normal exit restores it.
+  - G3: a background hidden during explore stays off after exit; the owner can show it again.
+  - G4: after a region change during explore, the old camera stays off.
+  - On 8d6d6279, G1, G2 and G4 fail; G3 couldn't be cleanly measured there.
+  - With the fix, F1–F4 and G1–G4 all pass.
+- lakeside-board-preload source regex updated for bgCamWant. Added BgCamGate.ts.meta.
+- Suite: 170/173, 0 FAIL (3 BLOCKED: node<22.6 ×2, browser ×1). suite-p0drag5b.log.

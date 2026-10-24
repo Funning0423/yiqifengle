@@ -25,6 +25,27 @@
   "F4": {
    "bgOn": true,
    "ok": true
+  },
+  "G1": {
+   "otherOn": true,
+   "ok": true
+  },
+  "G2": {
+   "bgOnWhileHeld": false,
+   "restoredOnExit": true,
+   "ok": true
+  },
+  "G3": {
+   "held": true,
+   "bgOnAfterExit": false,
+   "ok": true,
+   "ownerShowsAgain": true
+  },
+  "G4": {
+   "held": true,
+   "bgOnAfterExit": false,
+   "otherOn": true,
+   "ok": true
   }
  },
  "frames": [
