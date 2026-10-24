@@ -164,3 +164,18 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
  const chk2=cp.spawnSync(process.execPath,[path.join(ROOT,'tools/region-walkable/gen-skycity-lens-occluders.cjs'),'--check'],{encoding:'utf8'});
  assert.equal(chk2.status,0,'sky occluder drift: '+chk2.stderr+chk2.stdout);
  console.log('skycity-walk-r2 ok');}
+
+// b17 skycity-walk-r3 (Mac p0drag7 问题 2): she climbed the decorative tree roots onto the blue-roof house annex (20.84,1.65,7.13)
+// and every tap west was 'none'. The roots / annex are not walkable, and the skycity walkable area is ONE component under the
+// walkPath rules (8-neighbour, step 0.36·diag, no corner cut, Float32 heights) holding every story node: no "up but not down".
+{const r='skycity',g=RW.walkGrid(r),{W,H}=g,id=new Int32Array(W*H).fill(-1);let n=0;
+ for(let s=0;s<W*H;s++){if(Number.isNaN(g.h[s])||id[s]>=0)continue;const q=[s];id[s]=n;
+  while(q.length){const ci=q.pop(),gx=ci%W,gz=(ci/W)|0;for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dz)continue;const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx;
+   if(Number.isNaN(g.h[nc])||id[nc]>=0)continue;const d=dx&&dz?Math.SQRT2:1;if(Math.abs(g.h[nc]-g.h[ci])>RW.WALK_STEP_M*d)continue;if(dx&&dz&&(Number.isNaN(g.h[gz*W+nx])||Number.isNaN(g.h[nz*W+gx])))continue;id[nc]=n;q.push(nc);}}
+  n++;}
+ assert.equal(n,1,'skycity walkable components '+n);
+ assert.equal(RW.walkFloorY(r,20.84,7.13),null,'annex top not walkable');
+ for(const [x,z] of [[19.6,2.6],[20.4,5.0],[21.2,9.8],[21.6,11.4]])assert.ok(!(RW.walkFloorY(r,x,z)>.3),'roots/annex '+x+','+z);
+ const s=RW.nearestWalkable(r,[20.84,1.65,7.13],1.6);assert.ok(s&&s.at[1]<.3,'off the annex she snaps to the ground');
+ assert.ok(RW.walkPath(r,s.at,RN.REGION_NODES.skycity.nodes.find(n=>n.key==='S3').at),'and walks back to S3');
+ console.log('skycity-walk-r3 components ok');}

@@ -35,9 +35,13 @@ const REGIONS={
   draco:true,box:[-60,-50,45,80],c:.4,
   floor:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_bridge_after/,
   solid:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_gate_after$|env_sky_windchime|state_bridge_after|chr_robot/,
-  start:[5.4,-0.11,43.8],explore:[-37,-45,42,55],ridge:true,
+  start:[5.4,-0.11,43.8],explore:[-37,-45,42,55],ridge:true,keepNodeComponents:true,
   // b17 skycity-walk-r2: the orbit lens has its own (smaller) box = the baked floor's extent, not the walk/focus box
   lens:[-34.8,-41,39.6,47.6],
+  // b17 skycity-walk-r3 (Mac p0drag7): the two giant tree roots that lean on the blue-roof house east of S3 (one sloped 2-tri
+  // sliver of env_sky_static_palette from (17.6,-0.4,-4.5) up to the annex top y≈2 at (21.3,1.45,7.2)) are decoration, not a ramp.
+  // She walked up them onto the annex (20.84,1.65,7.13) and every tap west was 'none'. Floors > minY above ground here are not walkable.
+  noWalk:[[17.0,-5.2,22.8,14.6,0.3]],
  },
 };
 const NODES={
@@ -104,6 +108,8 @@ function buildGrid(spec,stamp){
    const wallZ=side([[gx-1,gz-1],[gx,gz-1],[gx+1,gz-1],[gx-1,gz+1],[gx,gz+1],[gx+1,gz+1]])&&low(nb(gx,gz-1))&&low(nb(gx,gz+1));
    if(wallX||wallZ)drop.push([ci,li]);});});
   for(const [ci,li] of drop)ok[ci][li]=false;}
+ if(spec.noWalk)for(const [ax,az,bx,bz,ymin] of spec.noWalk)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
+  if(x>=ax&&x<=bx&&z>=az&&z<=bz)ls.forEach((y,li)=>{if(y>ymin)ok[ci][li]=false;});});
  if(spec.sea!==undefined)layers.forEach((ls,ci)=>ls.forEach((y,li)=>{if(y<spec.sea)ok[ci][li]=false;}));
  const cellOf=p=>cell(p[0],p[2]);
  const s=cellOf(spec.start);let sl=-1,bd=9;
@@ -280,4 +286,4 @@ async function main(){
  console.log('wrote',OUT_TS,text.length,'bytes');
 }
 if(require.main===module)main().catch(e=>{console.error(e);process.exit(1);});
-module.exports={REGIONS,buildGrid,decodeDraco,decodePlain};
+module.exports={REGIONS,NODES,buildGrid,decodeDraco,decodePlain};

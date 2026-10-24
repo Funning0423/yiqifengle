@@ -88,3 +88,8 @@ if (snap) afang.setWorldPosition(localToWorld(region, snap)); // y 已经是地�
 - `walkRayHit` 在天空城（`WALK_TAP_SNAP=['skycity']`）：射线在头高以下穿过挡住的格子（花坛、墙）后钻到地面下，就返回障碍物前方 1.6 m 内最近的可走点（kind 'walk'），不再返回 'none'。湖畔、小岛、草原的行为不变。
 - `RegionGraph.lensBox`（可选）：镜头用的框，天空城是 [-34.8,-41,39.6,47.6]（烘焙地面范围）。`RegionNodeStage.regionBounds()` 现在用模型矩阵把这个局部框换成世界 AABB 再交给 FreeOrbit。以前直接把局部框当世界坐标用；天空城模型转了约 119°、离原点约 150 m，这样用是错的。
 - `SkycityLensOccluders.ts`（由 `tools/region-walkable/gen-skycity-lens-occluders.cjs` 生成，模型局部坐标）：天空城房屋、废墟、墙的镜头遮挡代理，每 1 m 一列，只收可走区 7 m 内的；运行时只取她 18 m 内的交给 LensGuard。
+
+## b17 skycity-walk-r3（Mac p0drag7）
+
+- 天空城东侧蓝顶房屋旁的两根装饰巨根和房屋附属屋顶（本地 x 17.0–22.8，z −5.2–14.6，高于 y 0.3 的部分）**不可走**（bake spec `noWalk`）。这个范围里只有 y≤0.3 的地面可走。
+- 天空城可走区只有 **1 个连通分量**（按 walkPath 的规则：8 邻接、台阶 ≤0.36 m×对角系数、不切角、Float32 高度），所有故事节点都在里面。bake 时会剔除不含节点的分量（`keepNodeComponents`），所以不存在上得去下不来的格子。
