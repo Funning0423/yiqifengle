@@ -18,3 +18,14 @@ export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarg
  if(!m||!(QA_SKIP_TARGETS as readonly string[]).includes(m[1])||!qaSkipAllowed(host))return null;
  return m[1] as QaSkipTarget;
 }
+/** p0drag9: test hooks (__qfTeleport / __qfAimAt / __qfBackToBoard) without a level skip: `?qfHooks=1` (or any valid ?qfSkip).
+ *  Same host gate as qfSkip — WeChat release (envVersion 'release') never; web/QA build and WeChat develop/trial only. */
+export function qaHooksEnabled(search?:string|null,host:any=globalThis):boolean{
+ let q=search;if(q==null){try{q=String(host?.location?.search||'');}catch{q='';}}
+ if(!qaSkipAllowed(host))return false;
+ return qaSkipTarget(q,host)!==null||/(?:^|[?&])qfHooks=1(?:&|$)/.test(q||'');
+}
+/** FreeOrbit / camTrace yaw (degrees, world): the lens sits at her look point + d·(sin yaw·cos p, sin p, cos yaw·cos p), i.e. the camera
+ *  looks along −(sin yaw, ·, cos yaw); camTrace `yaw` (Main Camera euler Y) is the same number, camTrace `pitch` = −orbit pitch.
+ *  To look from her TOWARD point p: yaw = atan2(g.x − p.x, g.z − p.z) (lens on the far side of her from p). */
+export function qaYawFacing(g:readonly number[],p:readonly number[]):number{return Math.atan2(g[0]-p[0],g[2]-p[2])*180/Math.PI;}

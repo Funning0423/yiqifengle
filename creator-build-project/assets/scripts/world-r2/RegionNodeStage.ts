@@ -18,7 +18,7 @@ import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
 import {camTraceStart} from '../region/CamTrace';
 import {bgCamHeld,bgCamHold,bgCamRelease,bgCamWanted} from '../region/BgCamGate';
-import {qaSkipTarget} from './QaSkip';
+import {qaHooksEnabled,qaYawFacing} from './QaSkip';
 import {ISLAND_PROPS} from './IslandPropsLayout';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
@@ -88,7 +88,7 @@ export class RegionNodeStage extends Component{
  private entry:{from:Pose;t:number;T:number}|null=null;
  private orbitBoxAt=0;
 
- attach(camera:Camera){this.camera=camera;camTraceStart();if(qaSkipTarget()!==null){const G=globalThis as any;G.__qfTeleport=(key:string,yaw?:number,pitch?:number)=>this.qaTeleport(key,yaw,pitch);G.__qfAimAt=(name:string)=>this.qaAimAt(name);}}
+ attach(camera:Camera){this.camera=camera;camTraceStart();if(qaHooksEnabled()){const G=globalThis as any;G.__qfTeleport=(key:string,yaw?:number,pitch?:number)=>this.qaTeleport(key,yaw,pitch);G.__qfAimAt=(at:string|readonly number[]|{x:number;y:number;z:number})=>this.qaAimAt(at);}}
  bindCharacter(character:CharacterAdapter|null){this.character=character;}
  /** b17r12b: the composition's calibrated girl. A fresh save that leaves the island board before any reward walk never called bindCharacter, so explore/ground taps pull her from here. */
  characterSource:(()=>CharacterAdapter|null)|null=null;
@@ -817,20 +817,27 @@ export class RegionNodeStage extends Component{
   if(this.groundWalking)this.walkToken++;
   this.standAt(region,n.at);const {w,h}=this.viewport(),g=this.girl();
   this.orbit.forget();this.orbit.setPlace(region);this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.entry=null;
-  if(sign){const sw=this.toWorld('island',[[sp[0],sp[1],sp[2]]])[0];yawDeg=yawDeg??Math.atan2(g[0]-sw[0],g[2]-sw[2])*180/Math.PI;pitchDeg=pitchDeg??12;}
+  if(sign){const sw=this.toWorld('island',[[sp[0],sp[1],sp[2]]])[0];yawDeg=yawDeg??qaYawFacing(g,sw);pitchDeg=pitchDeg??12;}
   this.qaOrbit(yawDeg,pitchDeg);this.writePose(this.orbit.rawPose(g),false);
   return {ok:true,region,at:n.at,yaw:this.orbit.yaw,pitch:this.orbit.pitch};
  }
  /** Test-only (?qfSkip gate): turn the explore lens so the named scene node sits in front of it (lens on the far side of her). */
- qaAimAt(name:string):{ok:boolean;reason?:string;yaw?:number;pitch?:number}{
-  if(!this.exploring)return {ok:false,reason:'explore-not-open'};
-  const find=(n:any):any=>{if(!n)return null;if(n.name===name)return n;for(const c of n.children??[]){const r=find(c);if(r)return r;}return null;};
-  const t=find(director.getScene());if(!t)return {ok:false,reason:'no-node-'+name};const p=t.worldPosition,g=this.girl();
-  this.qaOrbit(Math.atan2(g[0]-p.x,g[2]-p.z)*180/Math.PI,12);this.writePose(this.orbit.rawPose(g),false);
-  return {ok:true,yaw:this.orbit.yaw,pitch:this.orbit.pitch};
+ /** Test-only (qfSkip / qfHooks gate): turn the explore lens so a world point sits beyond her in the middle of the view (lens on the far
+  *  side of her). `at` = a scene node name, or WORLD coordinates [x,y,z] / {x,y,z} (metres, same space as camTrace cam/her). */
+ qaAimAt(at:string|readonly number[]|{x:number;y:number;z:number}):{ok:boolean;reason?:string;yaw?:number;pitch?:number;point?:number[]}{
+  if(!this.exploring)return {ok:false,reason:'explore-not-open'};let p:number[]|null=null;
+  if(typeof at==='string'){const find=(n:any):any=>{if(!n)return null;if(n.name===at)return n;for(const c of n.children??[]){const r=find(c);if(r)return r;}return null;};
+   const t=find(director.getScene());if(!t)return {ok:false,reason:'no-node-'+at};p=[t.worldPosition.x,t.worldPosition.y,t.worldPosition.z];}
+  else if(Array.isArray(at)&&at.length>=3)p=[+at[0],+at[1],+at[2]];else if(at&&typeof at==='object'&&'x' in (at as any))p=[(at as any).x,(at as any).y,(at as any).z];
+  if(!p||!p.every(Number.isFinite))return {ok:false,reason:'bad-point'};const g=this.girl();
+  this.qaOrbit(qaYawFacing(g,p),12);this.writePose(this.orbit.rawPose(g),false);
+  return {ok:true,yaw:this.orbit.yaw,pitch:this.orbit.pitch,point:p};
  }
+ /** yaw / pitch in the FreeOrbit convention = camTrace `yaw` / −camTrace `pitch` (see QaSkip.ts qaYawFacing). p0drag9: the orbit is then
+  *  ENGAGED (free, not held) like after a drag — before, it stayed un-engaged and the follow lens overwrote the yaw next frame. */
  private qaOrbit(yawDeg?:number,pitchDeg?:number){const L=ORBIT_LIMITS[this.orbit.place];
-  if(Number.isFinite(yawDeg))this.orbit.yaw=yawDeg!;if(Number.isFinite(pitchDeg))this.orbit.pitch=Math.max(L?.pitchMinDeg??5,Math.min(L?.pitchMaxDeg??58,pitchDeg!));}
+  if(Number.isFinite(yawDeg))this.orbit.yaw=yawDeg!;if(Number.isFinite(pitchDeg))this.orbit.pitch=Math.max(L?.pitchMinDeg??5,Math.min(L?.pitchMaxDeg??58,pitchDeg!));
+  this.orbit.drag(0,0);this.orbit.release();this.lensSmooth.clear();this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN};}
 
  /** p0drag5 (Mac fc742aa2: lakeside explore = fixed wide shot until a ground tap). Leaving a board opens explore by poll, but the
   *  board's own live background camera (LakesideBackgroundCamera, priority 44, fixed) kept drawing over the stage camera; only the
