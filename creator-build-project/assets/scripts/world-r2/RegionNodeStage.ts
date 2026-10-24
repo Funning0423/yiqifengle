@@ -18,6 +18,7 @@ import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
 import {camTraceStart} from '../region/CamTrace';
 import {bgCamHold,bgCamRelease} from '../region/BgCamGate';
+import {qaSkipTarget} from './QaSkip';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
@@ -80,7 +81,7 @@ export class RegionNodeStage extends Component{
  private entry:{from:Pose;t:number;T:number}|null=null;
  private orbitBoxAt=0;
 
- attach(camera:Camera){this.camera=camera;camTraceStart();}
+ attach(camera:Camera){this.camera=camera;camTraceStart();if(qaSkipTarget()!==null)(globalThis as any).__qfTeleport=(key:string)=>this.qaTeleport(key);}
  bindCharacter(character:CharacterAdapter|null){this.character=character;}
  /** b17r12b: the composition's calibrated girl. A fresh save that leaves the island board before any reward walk never called bindCharacter, so explore/ground taps pull her from here. */
  characterSource:(()=>CharacterAdapter|null)|null=null;
@@ -698,8 +699,30 @@ export class RegionNodeStage extends Component{
   if(this.syncOpened||this.cover||this.anim||!this.ensureCharacter()||!this.camera)return;
   for(const r of EXIT_EXPLORE_REGIONS){
    if(!this.exploreArmed[r]||!exploreWanted(r,s)||(r==='island'?!s?.characterReady:!this.model(r)?.activeInHierarchy))continue;
-   this.syncOpened=r;if(this.region!==r)this.orbit.forget();const shot=this.takeSyncView(r);if(shot)this.writePose(shot,false);this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
+   this.syncOpened=r;if(this.region!==r)this.orbit.forget();const shot=this.takeSyncView(r);if(shot)this.writePose(shot,false);this.standOnWalk(r);this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
   }
+ }
+ /** p0d5sky (Mac r16d ?qfSkip=skycity-finale): explore opened with her 12.6 m off the skycity plateau (walk-local -18,1,57), so
+  *  every ground ray missed the walkable grid (kind=none). Off the region's walkable area (> 1.6 m) = stand her on the nearest node. */
+ private standOnWalk(region:StageRegion){try{this.standOnWalkOrThrow(region);}catch{/* lens only */}}
+ private standOnWalkOrThrow(region:StageRegion){
+  const nodes=(REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined,m=this.walkMatrix(region);if(!nodes||!m||!this.character)return;
+  const inv=new Mat4();Mat4.invert(inv,m);const g=this.girl(),v=new Vec3();Vec3.transformMat4(v,new Vec3(g[0],g[1],g[2]),inv);
+  if(nearestWalkable(region as any,[v.x,v.y,v.z],1.6))return;
+  let best=nodes[0],bd=Infinity;for(const n of nodes){const d=Math.hypot(n.at[0]-v.x,n.at[2]-v.z);if(d<bd){bd=d;best=n;}}
+  this.standAt(region,best.at);
+ }
+ private standAt(region:StageRegion,at:readonly number[]){
+  const w=this.toWorld(region,[[at[0],at[1],at[2]]])[0];try{this.character?.cancelAndReset({kind:'standing',controllerRoot:[w[0],w[1],w[2]],yawRad:0});}catch{/* pose only */}
+ }
+ /** Test-only (registered only when ?qfSkip=… is allowed, see QaSkip): __qfTeleport('S3') stands her on that node of the open explore region. */
+ qaTeleport(key:string):{ok:boolean;reason?:string;region?:string;at?:readonly number[]}{
+  const region=this.region,n=((REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined)?.find(x=>x.key===key);
+  if(!this.exploring)return {ok:false,reason:'explore-not-open'};if(!n)return {ok:false,reason:'no-node-'+key+'-in-'+region};
+  if(this.groundWalking)this.walkToken++;
+  this.standAt(region,n.at);const {w,h}=this.viewport(),g=this.girl();
+  this.orbit.forget();this.orbit.setPlace(region);this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.entry=null;this.writePose(this.orbit.rawPose(g),false);
+  return {ok:true,region,at:n.at};
  }
  /** p0drag5 (Mac fc742aa2: lakeside explore = fixed wide shot until a ground tap). Leaving a board opens explore by poll, but the
   *  board's own live background camera (LakesideBackgroundCamera, priority 44, fixed) kept drawing over the stage camera; only the
