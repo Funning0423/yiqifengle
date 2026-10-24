@@ -1,3 +1,4 @@
+import {bgCamHeld,bgCamSettled,bgCamWarmOn} from './BgCamGate';
 import {Camera,MeshRenderer,Rect,director,game,isValid,type Node} from 'cc';
 /** r5 G1 (meadow / sky-city swap frames). The live region board (MeadowLiveScene / SkycityLiveBackground, under the hidden board
  *  host) used to make ALL of its render work happen on two frames: the frame its host switches on (every MeshRenderer.onEnable
@@ -52,9 +53,9 @@ export function stageRegionBoard(rig:Node|null,hooks?:BoardStagingHooks|null,opt
  const st:BoardStagingStats={armed:true,parked:parked.length,enabled:0,frames:0,cameraFrames:0,flushed:0,done:false,reason:'',camera:cam?cam.node.name:null};
  const mats:any[]=[],keyOf:any[]=[];for(let i=0;i<parked.length;i++)keyOf.push(variantKeys(parked[i],mats));const seen:string[]=[];
  const queue:number[]=[];for(let i=0;i<parked.length;i++)queue.push(i);let left=settle,saved:{rect:any;clear:any;enabled:boolean}|null=null,off:(()=>void)|null=null;
- const camOn=()=>{if(saved||!cam||!isValid(cam,true)||!cam.node.activeInHierarchy)return;try{const r:any=cam.rect;saved={rect:r?{x:r.x,y:r.y,width:r.width,height:r.height}:null,clear:cam.clearFlags,enabled:cam.enabled};
-  const v=H.viewport(),q=stagingRect(px,v.w,v.h);cam.rect=new Rect(q.x,q.y,q.width,q.height);cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;cam.enabled=true;}catch{saved=null;}};
- const camOff=()=>{const s=saved;saved=null;if(!s||!cam||!isValid(cam,true))return;try{cam.enabled=s.enabled;cam.clearFlags=s.clear;if(s.rect)cam.rect=new Rect(s.rect.x,s.rect.y,s.rect.width,s.rect.height);}catch{}};
+ const camOn=()=>{if(saved||!cam||!isValid(cam,true)||!cam.node.activeInHierarchy||bgCamHeld(cam))return;/* p0drag6: no warm-up draw while explore / the walk cover holds it */try{const r:any=cam.rect;saved={rect:r?{x:r.x,y:r.y,width:r.width,height:r.height}:null,clear:cam.clearFlags,enabled:cam.enabled};
+  const v=H.viewport(),q=stagingRect(px,v.w,v.h);cam.rect=new Rect(q.x,q.y,q.width,q.height);cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;bgCamWarmOn(cam);}catch{saved=null;}};
+ const camOff=()=>{const s=saved;saved=null;if(!s||!cam||!isValid(cam,true))return;try{cam.enabled=bgCamSettled(cam,s.enabled)/* p0drag6: the owner's want / holds as of now, not the stale snapshot */;cam.clearFlags=s.clear;if(s.rect)cam.rect=new Rect(s.rect.x,s.rect.y,s.rect.width,s.rect.height);}catch{}};
  const enable=(r:MeshRenderer)=>{if(r&&isValid(r,true)&&!r.enabled){r.enabled=true;return true;}return false;};
  const stop=(reason:string)=>{if(st.done)return;st.done=true;st.reason=reason;if(off){const o=off;off=null;o();}camOff();
   try{if((globalThis as any).__worldFlowLog)console.info('[QF_REGION] '+JSON.stringify({event:'board-staging',rig:rig.name,parked:st.parked,frames:st.frames,cameraFrames:st.cameraFrames,flushed:st.flushed,reason}));}catch{}};

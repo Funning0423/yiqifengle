@@ -17,7 +17,7 @@ import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
 import {camTraceStart} from '../region/CamTrace';
-import {bgCamHold,bgCamRelease} from '../region/BgCamGate';
+import {bgCamHeld,bgCamHold,bgCamRelease,bgCamWanted} from '../region/BgCamGate';
 import {qaSkipTarget} from './QaSkip';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
@@ -205,7 +205,7 @@ export class RegionNodeStage extends Component{
   const rig=region==='island'?null:findDeep(scene,'RegionJourney-'+region);
   this.cover={host,nav,cams:cams.map(cam=>({cam,on:cam.enabled})),rig,rigOn:!!rig?.active};
   if(host)host.active=false;
-  for(const c of cams)c.enabled=false;
+  for(const c of cams)bgCamHold(c,'cover');/* p0drag6: a hold the owner's setVisible respects (BgCamGate), not a raw toggle */
   if(rig)rig.active=true;
   this.flow()?.presentNodeWalkWorld(true);
   try{this.character?.setVisible(true);}catch{/* no adapter */}
@@ -215,7 +215,7 @@ export class RegionNodeStage extends Component{
   const c=this.cover;if(!c){this.releaseSyncCams();return;}this.cover=null;
   if(c.rig)c.rig.active=c.rigOn;
   this.flow()?.presentNodeWalkWorld(false);
-  for(const x of c.cams)if(x.cam?.isValid)x.cam.enabled=x.on;
+  for(const x of c.cams)if(x.cam?.isValid)bgCamRelease(x.cam,true,'cover',x.on);/* owner's current want wins; x.on only for ungated cameras */
   if(c.host?.isValid)c.host.active=true;
   if(c.nav?.isValid)c.nav.active=true;
   try{this.character?.setVisible(false);}catch{/* level hides her */}
@@ -734,7 +734,7 @@ export class RegionNodeStage extends Component{
   const name=region==='lakeside'?'LakesideBackgroundCamera':region==='meadow'?'MeadowBackgroundCamera':region==='skycity'?'SkycityBackgroundCamera':null;
   if(!name)return null;const model=this.model(region);
   for(const c of scene.getComponentsInChildren(Camera)){
-   if(c===this.camera||!c.enabled||!c.node?.activeInHierarchy||c.node.name!==name)continue;
+   if(c===this.camera||!(c.enabled||bgCamHeld(c)&&bgCamWanted(c))||!c.node?.activeInHierarchy||c.node.name!==name)continue;
    if(!shot){const p=c.node.worldPosition,f=c.node.forward;shot={position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:c.fov};}
    bgCamHold(c);this.syncCams.push({cam:c,region,model});
   }

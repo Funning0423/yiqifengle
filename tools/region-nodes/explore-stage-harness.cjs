@@ -11,7 +11,7 @@ const FO=H.load(S('region/FreeOrbit.ts')),EI=H.load(S('world-r2/ExploreInput.ts'
 const {IslandHomeInteraction}=H.load(S('world-r2/IslandHomeInteraction.ts'));
 const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true);
 const cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
-const want=['onGesture','clampArm','regionBounds','toWorld','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','handOrbitBack','viewDir','guardOrbitGround','deckElev','preSolveEntry','openExplore','syncExplore','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','walkMatrix'];
+const want=['onGesture','clampArm','regionBounds','toWorld','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','handOrbitBack','viewDir','guardOrbitGround','deckElev','preSolveEntry','openExplore','syncExplore','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','walkMatrix','showWorld','restoreBoard'];
 const OPTIONAL=new Set(['clampArm','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport']);/* p0drag5: absent before its fix *//* absent before the r17 fix: the failing-before run */
 const methods=want.map(n=>{const m=cls.members.find(x=>x.name&&x.name.getText(sf)===n);if(!m&&OPTIONAL.has(n))return '';assert.ok(m,'RegionNodeStage.'+n);return m.getText(sf);});
 const out=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
@@ -21,7 +21,7 @@ const RW=H.load(S('region/RegionWalkable.ts')),RN=H.load(S('region/RegionNodes.t
 class Mat4{constructor(){this.m12=0;this.m13=0;this.m14=0;}clone(){const o=new Mat4();o.m12=this.m12;o.m13=this.m13;o.m14=this.m14;return o;}static invert(o,a){o.m12=-(a.m12||0);o.m13=-(a.m13||0);o.m14=-(a.m14||0);return o;}}
 const LE=H.load(S('region/LakesideExplore.ts')),CT=H.load(S('region/CamTrace.ts'));
 const sb={module:{exports:{}},stageGraph:LE.stageGraph,EXIT_EXPLORE_REGIONS:LE.EXIT_EXPLORE_REGIONS,exploreArm:LE.exploreArm,exploreWanted:LE.exploreWanted,
- director:{getScene:()=>sb.__scene||null},bgCamHold:BG.bgCamHold,bgCamRelease:BG.bgCamRelease,Camera:class{},Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
+ director:{getScene:()=>sb.__scene||null},bgCamHold:BG.bgCamHold,bgCamRelease:BG.bgCamRelease,bgCamHeld:BG.bgCamHeld,bgCamWanted:BG.bgCamWanted,findDeep:(n,name)=>n&&n.find?n.find(name):null,Camera:class{},Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
  setExploreEnabled:v=>Gate.setExploreEnabled(v),emitTransitCue:()=>{},proxiesToWorld:OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:LX.LAKESIDE_LENS_OCCLUDERS,ISLAND_LENS_OCCLUDERS:IX.ISLAND_LENS_OCCLUDERS,
  followPose:E.followPose,followLookUp:E.followLookUp,geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}},intersect:{rayModel:()=>0}},MeshRenderer:class{},LENS_CLEAR_M:0.6,Date,Math,Mat4,REGION_NODES:RN.REGION_NODES,nearestWalkable:RW.nearestWalkable};
 /* ?camTrace=1 (CamTrace.ts) publishes its sub-path hook on the host globalThis; the vm context sees the same one */
