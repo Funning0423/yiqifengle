@@ -87,7 +87,7 @@ const FX=JSON.parse(fs.readFileSync(FIX,'utf8'));
  const r1=X.sb.__qfTeleport('I2',90,30),r2=X.sb.__qfTeleport('sign');const c=Rg.cam(),rect=L.signpostHitUi(CP.fromLookAt(c),390,844);
  X.setQa(null);for(const k of keys)delete X.sb[k];
  const boot=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
- const bootGated=/if\(qaSkipTarget\(\)!==null\)\(globalThis as any\)\.__qfBackToBoard=/.test(boot)&&(boot.match(/__qfBackToBoard=/g)||[]).length===1;
+ const bootGated=/const skip=qaSkipTarget\(q\);if\(skip!==null\)\(globalThis as any\)\.__qfBackToBoard=/.test(boot)&&(boot.match(/__qfBackToBoard=/g)||[]).length===1;
  const stageSrc=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8');const stageGated=/if\(qaSkipTarget\(\)!==null\)\{const G=globalThis as any;G\.__qfTeleport=.*G\.__qfAimAt=/.test(stageSrc)&&(stageSrc.match(/__qfTeleport=/g)||[]).length===1;
  ok('P4',normal&&offBuild&&onBuild&&bootGated&&stageGated&&r1.ok&&Math.abs(r1.yaw-90)<1e-6&&Math.abs(r1.pitch-30)<1e-6&&r2.ok&&L.signRectOnScreen(rect,390,844),
   {qaSkipNullInNormalBuild:normal,hooksAbsentWhenGateClosed:offBuild,hooksPresentWhenOpen:onBuild,bootGated,stageGated,teleportYawPitch:r1,teleportSign:r2,signRect:rect});
