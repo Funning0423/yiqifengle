@@ -9,6 +9,8 @@
  *     signRectOnScreen rejects it so the visible flat 继续旅程 button is used; facing the sign (yaw ≈ 180) the rect is accepted.
  *  P4 test-only hooks: __qfTeleport(key,yaw?,pitch?) / __qfTeleport('sign') / __qfAimAt(name) / __qfBackToBoard exist only when
  *     qaSkipTarget() !== null (normal build: no ?qfSkip, not a develop/trial host → not registered); 'sign' puts the signpost on screen.
+ *  P5 skycity ground spot by the roots / house (scene 4c585322 snap point 21.8,-0.17,6.6): a full slow orbit turn at 3 pitch/dist
+ *     settings: written lens inside a box ≤ 3 % of frames (merged with scene 4c585322: 0.5 %) (brief rate-limited swing past a wall right next to her; never a jump), arm ≥ 3.5, view pitch ≥ −58°, lens step ≤ 0.35 m/frame; perf p99.
  * node tools/region-nodes/test_p0drag8.cjs */
 const fs=require('node:fs'),path=require('node:path');
 const X=require('./explore-stage-harness.cjs');const {rig,SKO,FO}=X;
@@ -91,5 +93,21 @@ const FX=JSON.parse(fs.readFileSync(FIX,'utf8'));
  const stageSrc=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8');const stageGated=/if\(qaSkipTarget\(\)!==null\)\{const G=globalThis as any;G\.__qfTeleport=.*G\.__qfAimAt=/.test(stageSrc)&&(stageSrc.match(/__qfTeleport=/g)||[]).length===1;
  ok('P4',normal&&offBuild&&onBuild&&bootGated&&stageGated&&r1.ok&&Math.abs(r1.yaw-90)<1e-6&&Math.abs(r1.pitch-30)<1e-6&&r2.ok&&L.signRectOnScreen(rect,390,844),
   {qaSkipNullInNormalBuild:normal,hooksAbsentWhenGateClosed:offBuild,hooksPresentWhenOpen:onBuild,bootGated,stageGated,teleportYawPitch:r1,teleportSign:r2,signRect:rect});
+}
+// ---------- P5
+{
+ const her=[21.8,-0.17,6.6];const Rg=rig('skycity','S1',her.slice(),{modelAt:[0,0,0]});const st=Rg.st;st.guardOrbitGround=p=>p;st.girl=()=>her;
+ const B=SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]})),near=B.filter(b=>Math.hypot(Math.max(b.min[0]-her[0],0,her[0]-b.max[0]),Math.max(b.min[2]-her[2],0,her[2]-b.max[2]))<18);
+ st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;const o=new FO.FreeOrbit('skycity');
+ st.orbit={step(){},solve:()=>o.rawPose(her),place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true};st.entry=null;st.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0};
+ const inside=(p,b)=>p[0]>b.min[0]&&p[0]<b.max[0]&&p[1]>b.min[1]&&p[1]<b.max[1]&&p[2]>b.min[2]&&p[2]<b.max[2];const runs=[];let good=true;
+ for(const [pt,dd] of [[15,7],[30,10],[10,12]]){o.pitch=pt;o.dist=dd;let minA=1e9,minP=1e9,maxStep=0,inBox=0,rawIn=0,pa=null;const ms=[];
+  for(let f=-90;f<60*24;f++){o.yaw=Math.max(0,f)*0.25;if(f<0){st.writeOrbit(DT);pa=null;continue;}/* settle on the start yaw first */const t=process.hrtime.bigint();st.writeOrbit(DT);ms.push(Number(process.hrtime.bigint()-t)/1e6);
+   const c=Rg.cam(),look=[her[0],her[1]+1.25,her[2]],a=d3(c.position,look),v=c.target.map((x,k)=>x-c.position[k]),vp=Math.asin(v[1]/Math.hypot(...v))/R;
+   if(near.some(b=>inside(c.position,b)))inBox++;if(near.some(b=>inside(o.rawPose(her).position,b)))rawIn++;
+   minA=Math.min(minA,a);minP=Math.min(minP,vp);if(pa)maxStep=Math.max(maxStep,d3(c.position,pa));pa=c.position.slice();}
+  ms.sort((a,b)=>a-b);const r={pitch:pt,dist:dd,rawLensInsideFrames:rawIn,writtenInsideFrames:inBox,minArmM:+minA.toFixed(2),minViewPitchDeg:+minP.toFixed(1),maxLensStepM:+maxStep.toFixed(3),avgMs:+(ms.reduce((a,b)=>a+b)/ms.length).toFixed(3),p99Ms:+ms[Math.floor(ms.length*.99)].toFixed(2)};
+  runs.push(r);good=good&&inBox<=ms.length*0.03&&minA>=3.5&&minP>=-58.01&&maxStep<=0.35;}
+ ok('P5',good,{boxes:SKO.length,nearBoxes:near.length,runs});
 }
 const all=Object.values(res).every(r=>r.ok);console.log(JSON.stringify({test:'p0drag8',ok:all,...res},null,1));process.exit(all?0:1);
