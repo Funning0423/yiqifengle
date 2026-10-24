@@ -751,7 +751,9 @@ export class RegionNodeStage extends Component{
   const ray=new geometry.Ray();cam.screenPointToRay(x,y,ray);
   const inv=new Mat4();Mat4.invert(inv,m);
   const o=new Vec3(),e=new Vec3();Vec3.transformMat4(o,ray.o,inv);Vec3.add(e,ray.o,ray.d);Vec3.transformMat4(e,e,inv);
-  const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z]);
+  // b17 skycity-walk-r4 方案 C: her position lets a tap on the scene stop her on her side of it (fence / pocket), not 15 m round
+  const gw=this.girl(),gl=new Vec3();Vec3.transformMat4(gl,new Vec3(gw[0],gw[1],gw[2]),inv);
+  const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z],160,.05,[gl.x,gl.y,gl.z]);
   (globalThis as any).__qfGroundTap={region,kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now()};
   if(hit.kind!=='walk'){emitTransitCue('scene-tap',{t:0,region,id:hit.kind==='water'?'water':'none'});return;}
   void this.groundWalkTo(region,hit.at);

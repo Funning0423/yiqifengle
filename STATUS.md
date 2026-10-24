@@ -1,3 +1,13 @@
+# scene/b17-skycity-walk-r4 — 进度（场景设计部执行者）
+基于 cine/p0drag9 936a3309（最初在 b916204f 上开工，后来 rebase 到这里）。worktree /workspace/wt-skw4。不 push。
+- [x] 读 ui-audit/2026-10-24/p0drag8/summary.md 和 trace。用 Mac 的镜头模型复现（枢轴=脚+1.25，fov 48，390×844，Mac 的 C 记录给出俯仰和臂长）
+- [x] P0 hW6 (346,581) 返回 none：r2/r3 的启发式规则只认“钻到地面下”和“飞 3 m”两种情况。从她 (11.24,9.6) 扫 4 种臂长 × 26 种俯仰 × 120 种朝向，修改前有 484 个姿态返回 none，修改后 0。改法：烘焙体素场（0.25 m 一层，按格），射线碰到几何就落到她这一侧的地面
+- [x] 高：E3/E6/Root 在 (13,7.4) 差 1.5 m 停下，是 r3 的“绕远就停在近侧”规则造成的，这条规则已去掉。r3 的 y>0.3 矩形只挖掉了树根，没碰地面；剪分量也没剪掉地面（1 个分量）。院子 x 13.6–14.6 只向北开口，所以 1.7 m 直线却走 14.5–17 m 是真实绕路
+- [x] 方案 C：凹角 x 12.0–13.4、z 6.8–10.2 设为不可走（noWalk，没改 GLB）。点凹角 169 次：none 0，停点被挡角 ≤ 80°（原来 90–130°）
+- [x] 连通分量 1；可走格 26618 → 26594；RegionWalkableData 112 KB → 183 KB
+- [x] suite：176/179，没过的 3 项是已知的 BLOCKED（Node≥22.6 两项、浏览器一项）；报告已还原，没有提交
+- [x] 对比图 product/2026-10-24/skycity-walk-r4/skycity_walk_r4_before_after.png
+
 # scene/b17-skycity-walk-r3 — 进度（场景设计部执行者）
 基于 89c33d4b（已含 r2 a8e4069a）。worktree /workspace/wt-skw3。
 - [x] 读 ui-audit/2026-10-24/p0drag7/summary.md

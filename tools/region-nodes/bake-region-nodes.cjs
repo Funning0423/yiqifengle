@@ -41,7 +41,10 @@ const REGIONS={
   // b17 skycity-walk-r3 (Mac p0drag7): the two giant tree roots that lean on the blue-roof house east of S3 (one sloped 2-tri
   // sliver of env_sky_static_palette from (17.6,-0.4,-4.5) up to the annex top y≈2 at (21.3,1.45,7.2)) are decoration, not a ramp.
   // She walked up them onto the annex (20.84,1.65,7.13) and every tap west was 'none'. Floors > minY above ground here are not walkable.
-  noWalk:[[17.0,-5.2,22.8,14.6,0.3]],
+  // b17 skycity-walk-r4 方案 C (p0drag9): the pocket west of the low ruin fence at (13,7.4) (fence x≈13.5 to the east, the wide wall
+  // block z≥10 to the north): standing in it, 90–130° of the 6 m orbit around her is inside the fence / house. Ground there is
+  // not walkable; a tap into it stops her on the open ground west of it (blocked arc ≤ 80°). No GLB change.
+  noWalk:[[17.0,-5.2,22.8,14.6,0.3],[12.0,6.8,13.4,10.2,-9]],
  },
 };
 const NODES={

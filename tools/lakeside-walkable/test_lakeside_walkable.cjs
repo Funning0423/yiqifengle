@@ -151,8 +151,8 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
 // the floor in front of it, the lens has its own world-converted box and proxies for the merged sky houses.
 {const r='skycity',P=(a,b)=>{const p=RW.walkPath(r,a,b);return p?RW.walkPathLengthM(p):Infinity;};
  assert.equal(RW.walkFloorY(r,13.3,9.16)===null||RW.walkFloorY(r,13.3,9.16)<.5,true,'ruin wall top is not floor');
- assert.ok(P([13.13,-0.06,7.61],[13.22,1.17,9.16])<3,'E2->E3 near straight');
- assert.ok(P([13.18,-0.02,8.63],[11.79,-0.01,8.96])<3,'E3->W0 near straight');
+ // r4 方案 C: E2 (13.13,7.61) / E3 (13.2,8.6–9.2) are inside the pocket that is no longer walkable; the walk along its west edge stays short
+ assert.ok(P([11.8,-0.06,7.4],[11.79,-0.01,8.96])<2,'pocket west edge near straight');
  // r4: arm 3 m, the lens pulls in in front of the blue-roof house proxies; a 7.5 m arm east of W0 sits inside the house and the
  // voxel field (rightly) stops that ray on the house
  const cam=(her,t)=>{let dx=t[0]-her[0],dz=t[2]-her[2],L=Math.hypot(dx,dz);dx/=L;dz/=L;const k=3*Math.cos(25*Math.PI/180);return [her[0]-dx*k,her[1]+1.2+3*Math.sin(25*Math.PI/180),her[2]-dz*k];};
@@ -191,7 +191,7 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
   const p=RW.walkTapPath(r,f,t);assert.ok(p&&d2(end(p),t)<=.3,'reaches the tapped floor '+t+' '+(p&&end(p)));assert.ok(L(p)<20,'yard detour bounded '+L(p));}
  assert.equal(L(RW.walkTapPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96])).toFixed(3),L(RW.walkPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96])).toFixed(3));
  assert.ok(L(RW.walkTapPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96]))<8,'near-straight taps untouched');
- const o=[7.12,4.37,7.81],t=[20.84,1.65,7.13],h=RW.walkRayHit(r,o,[t[0]-o[0],t[1]-o[1],t[2]-o[2]]);
+ const o=[7.12,4.37,7.81],t=[20.84,1.65,7.13],h=RW.walkRayHit(r,o,[t[0]-o[0],t[1]-o[1],t[2]-o[2]],160,.05,[13.82,0.1,7.56]); // the stage passes her position
  assert.equal(h.kind,'walk');assert.ok(h.at[0]<15.5,'E6 tap stops at the house wall '+JSON.stringify(h));
  assert.ok(L(RW.walkTapPath(r,[13.82,0.1,7.56],h.at))<3,'E6 walk short');
  console.log('skycity-walk-r4 S3-east ok');}
@@ -211,3 +211,16 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
  assert.match(D,/skycity:\{[^\n]*obsSlab:0\.25,obsCells:\d+/,'skycity voxel field baked');
  assert.equal((D.match(/obsCells:\d/g)||[]).length,1,'only skycity has the voxel field');
  console.log('skycity-walk-r4 hW6 ok',n);}
+
+// b17 skycity-walk-r4 方案 C (p0drag9): the pocket west of the low fence at (13,7.4) is not walkable (90–130° of the 6 m orbit was
+// inside the fence / house there). Taps into it from orbit cameras round her stop her west of it (x ≤ 12.0, ≤ 80° blocked), never 'none'.
+{const r='skycity',D2R=Math.PI/180;
+ for(const [x,z] of [[13,7.4],[12.6,8.6],[13.2,9.4],[12.2,7.0]])assert.equal(RW.walkFloorY(r,x,z),null,'pocket '+x+','+z);
+ let n=0;
+ for(const her of [[10.6,0,7.4],[11.8,0,8.2],[9,0,7.5]])for(const tgt of [[13,0,7.4],[12.6,0,8.6],[13.2,0,9.4]])for(const p of [30,45,55])for(let y=0;y<360;y+=45){
+  const P=p*D2R,Y=y*D2R,o=[her[0]+6*Math.cos(P)*Math.sin(Y),her[1]+1.25+6*Math.sin(P),her[2]+6*Math.cos(P)*Math.cos(Y)],lk=[her[0]-o[0],her[1]+1.25-o[1],her[2]-o[2]];
+  const d=[tgt[0]-o[0],tgt[1]+.05-o[1],tgt[2]-o[2]],c=(d[0]*lk[0]+d[1]*lk[1]+d[2]*lk[2])/Math.hypot(...d)/Math.hypot(...lk);if(c<Math.cos(30*D2R))continue;
+  const h=RW.walkRayHit(r,o,d,160,.05,her);assert.equal(h.kind,'walk','pocket tap '+tgt+' '+p+'/'+y);
+  const pth=RW.walkTapPath(r,RW.nearestWalkable(r,her,1.6).at,h.at),e=pth[pth.length-1];
+  assert.ok(e[0]<=13.05&&!(e[0]>12.05&&e[2]>6.75&&e[2]<10.25),'pocket tap stops outside the pocket '+e+' from '+her+' '+p+'/'+y);n++;}
+ console.log('skycity-walk-r4 方案C ok',n);}
