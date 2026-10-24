@@ -7,6 +7,8 @@
  *     the written view pitch stays ≥ −58°.
  *  P3 island return sign: from the island explore orbit (any node, entry yaws 0–60 as in Mac isd/isn) the signpost hit rect is off screen;
  *     signRectOnScreen rejects it so the visible flat 继续旅程 button is used; facing the sign (yaw ≈ 180) the rect is accepted.
+ *  P4 test-only hooks: __qfTeleport(key,yaw?,pitch?) / __qfTeleport('sign') / __qfAimAt(name) / __qfBackToBoard exist only when
+ *     qaSkipTarget() !== null (normal build: no ?qfSkip, not a develop/trial host → not registered); 'sign' puts the signpost on screen.
  * node tools/region-nodes/test_p0drag8.cjs */
 const fs=require('node:fs'),path=require('node:path');
 const X=require('./explore-stage-harness.cjs');const {rig,SKO,FO}=X;
@@ -73,5 +75,21 @@ const FX=JSON.parse(fs.readFileSync(FIX,'utf8'));
    if(s)any=true;if(yaw<=60&&dd===12&&pt===25){entryN++;if(!s)entryOff++;}}if(any)on.push(yaw);}per[nd.key]=on.join(',');if(on.length)facing++;}
  const off={x:-1440,y:1281,width:88,height:88};
  ok('P3',gated&&entryOff===entryN&&facing===nodes.length&&!L.signRectOnScreen(off,W,Hh)&&!L.signRectOnScreen(null,W,Hh),{bootGatesOffscreenSign:gated,entryYawPosesOffscreen:entryOff+'/'+entryN,onScreenYawsByNode:per});
+}
+// ---------- P4
+{
+ const QS=X.H.load(X.S('world-r2/QaSkip.ts')),L=X.H.load(X.S('world-r2/IslandPropsLayout.ts')),CP=X.H.load(X.S('world-r1/CameraPose.ts'));
+ const normal=QS.qaSkipTarget(null,{location:{search:''}})===null&&QS.qaSkipTarget('?qfSkip=skycity-finale',{wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})}})===null&&QS.qaSkipTarget('?qfSkip=skycity-finale',{})==='skycity-finale';/* no param / WeChat release → closed; web QA URL → open */
+ const Rg=rig('island','S1',X.RN.REGION_NODES.island.nodes[0].at.slice(),{});const st=Rg.st,cam=st.camera;st.exploring=true;
+ const keys=['__qfTeleport','__qfAimAt'];for(const k of keys)delete X.sb[k];
+ X.setQa(null);st.attach(cam);const offBuild=keys.every(k=>X.sb[k]===undefined);
+ X.setQa('skycity-finale');st.attach(cam);const onBuild=keys.every(k=>typeof X.sb[k]==='function');st.camera=cam;
+ const r1=X.sb.__qfTeleport('I2',90,30),r2=X.sb.__qfTeleport('sign');const c=Rg.cam(),rect=L.signpostHitUi(CP.fromLookAt(c),390,844);
+ X.setQa(null);for(const k of keys)delete X.sb[k];
+ const boot=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
+ const bootGated=/if\(qaSkipTarget\(\)!==null\)\(globalThis as any\)\.__qfBackToBoard=/.test(boot)&&(boot.match(/__qfBackToBoard=/g)||[]).length===1;
+ const stageSrc=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8');const stageGated=/if\(qaSkipTarget\(\)!==null\)\{const G=globalThis as any;G\.__qfTeleport=.*G\.__qfAimAt=/.test(stageSrc)&&(stageSrc.match(/__qfTeleport=/g)||[]).length===1;
+ ok('P4',normal&&offBuild&&onBuild&&bootGated&&stageGated&&r1.ok&&Math.abs(r1.yaw-90)<1e-6&&Math.abs(r1.pitch-30)<1e-6&&r2.ok&&L.signRectOnScreen(rect,390,844),
+  {qaSkipNullInNormalBuild:normal,hooksAbsentWhenGateClosed:offBuild,hooksPresentWhenOpen:onBuild,bootGated,stageGated,teleportYawPitch:r1,teleportSign:r2,signRect:rect});
 }
 const all=Object.values(res).every(r=>r.ok);console.log(JSON.stringify({test:'p0drag8',ok:all,...res},null,1));process.exit(all?0:1);
