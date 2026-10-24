@@ -55,17 +55,25 @@ export type WalkTap=Readonly<{kind:'walk';at:WVec}|{kind:'water';at:WVec}|{kind:
 export const WALK_TAP_SNAP:readonly WalkRegion[]=['skycity'];
 export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05):WalkTap{
  const g=walkGrid(region),L=Math.hypot(d[0],d[1],d[2])||1,u=[d[0]/L,d[1]/L,d[2]/L],floorMin=g.minY-2,snap=WALK_TAP_SNAP.indexOf(region)>=0;
- let lastF:number|null=null,cand:WVec|null=null,inBlock=false;
+ let lastF:number|null=null,cand:WVec|null=null,inBlock=false,runX=0,runZ=0;
  for(let t=0;t<=maxM;t+=stepM){const x=o[0]+u[0]*t,y=o[1]+u[1]*t,z=o[2]+u[2]*t;
   const f=walkFloorY(region,x,z);
   if(f!==null&&y<=f+.02&&y>=f-.6)return {kind:'walk',at:[x,f,z]};
   if(snap){
    if(f!==null){lastF=f;inBlock=false;if(cand&&y<f-.6)break;} // the ray went under the floor past the obstacle: it hit the obstacle
-   else if(!inBlock){inBlock=true;
+   else if(!inBlock){inBlock=true;runX=x;runZ=z;
     // entering a blocked run under head height: the floor in front of it (≤1.6 m, from 0.3 m back along the ray). The LAST such
     // run before the ray dives under the floor is the obstacle it hit; earlier runs it flew over.
     if(lastF!==null&&y<=lastF+1.8){const back=Math.max(0,t-.3),h=nearestWalkable(region,[o[0]+u[0]*back,lastF,o[2]+u[2]*back],1.6);cand=h?h.at:null;}
     else cand=null;
+   }
+   // r3 (p0drag7 E6): still under head height (≤1.8 m over the floor in front) more than 3 m into one blocked run (wider than any
+   // planter / wall it could fly over): the ray is inside the wall / planter / house. Stop there (before, it flew on through the
+   // blue-roof house and walked her 30 m behind it).
+   if(f===null&&inBlock&&lastF!==null&&y<=lastF+1.8&&Math.hypot(x-runX,z-runZ)>3){
+    // it came in over the run's edge above head height (a roof): the floor in front of the run's entry
+    if(!cand){const h=nearestWalkable(region,[runX-u[0]*.3,lastF,runZ-u[2]*.3],1.6);cand=h?h.at:null;}
+    if(cand)return {kind:'walk',at:cand};
    }
   }
   if(g.waterY!==null&&f===null&&y<=g.waterY)return {kind:'water',at:[x,g.waterY,z]};
@@ -103,5 +111,27 @@ export function walkPath(region:WalkRegion,from:WVec,to:WVec,maxNodes=60000):WVe
  const out:WVec[]=[pts[0]];let i=0;
  while(i<pts.length-1){let j=pts.length-1;for(;j>i+1;j--)if(lineWalkable(region,pts[i],pts[j]))break;out.push(pts[j]);i=j;}
  return out;
+}
+/** Ground-tap path (b17 skycity-walk-r3, Mac p0drag7): walkPath, except in WALK_TAP_SNAP regions when the tapped spot is only
+ *  reachable the long way round (behind the low ruin wall east of S3: 2.4 m straight, 14.4 m walked). Then she goes to the floor
+ *  within 1.6 m of the tap that minimises walked length + 3 × distance from the tap (bounded Dijkstra, walkPath's adjacency), i.e.
+ *  she stops at the near side of the wall. Taps with a near-straight path are untouched. */
+export function walkTapPath(region:WalkRegion,from:WVec,to:WVec):WVec[]|null{
+ const p=walkPath(region,from,to);if(WALK_TAP_SNAP.indexOf(region)<0)return p;
+ const straight=Math.hypot(to[0]-from[0],to[2]-from[2]),len=p?walkPathLengthM(p):Infinity;
+ if(len<=1.5*straight+1)return p;
+ const g=walkGrid(region),A=nearestWalkable(region,from,1.6);if(!A)return p;const s=cellOf(g,A.at[0],A.at[2]);if(s<0)return p;
+ const W=g.W,H=g.H,lim=Math.min(len,3*straight+6),R=1.6,dist=new Map<number,number>([[s,0]]),done=new Set<number>(),q:[number,number][]=[[0,s]];
+ let best=-1,bs=len;
+ while(q.length){let mi=0;for(let i=1;i<q.length;i++)if(q[i][0]<q[mi][0])mi=i;const [d,ci]=q[mi];q[mi]=q[q.length-1];q.pop();
+  if(done.has(ci))continue;done.add(ci);if(d>lim)break;
+  const c=centre(g,ci),off=Math.hypot(c[0]-to[0],c[2]-to[2]);if(off<=R&&d+3*off<bs){bs=d+3*off;best=ci;}
+  const gx=ci%W,gz=(ci/W)|0,y=g.h[ci];
+  for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dz)continue;const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx,y2=g.h[nc];
+   if(Number.isNaN(y2)||done.has(nc))continue;const diag=dx&&dz?Math.SQRT2:1;if(Math.abs(y2-y)>WALK_STEP_M*diag*(g.c/.4))continue;
+   if(dx&&dz&&(Number.isNaN(g.h[gz*W+nx])||Number.isNaN(g.h[nz*W+gx])))continue;
+   const nd=d+diag*g.c;if(nd<(dist.get(nc)??Infinity)){dist.set(nc,nd);q.push([nd,nc]);}}}
+ if(best<0)return p;
+ return walkPath(region,from,centre(g,best))??p;
 }
 export function walkPathLengthM(p:readonly WVec[]):number{let n=0;for(let i=1;i<p.length;i++)n+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return n;}
