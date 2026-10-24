@@ -120,7 +120,7 @@ bridge (lens looks down over the railing), island: drag down beside a palm (lens
 - test_region_board_staging loader maps ./BgCamGate.
 - Suite: 172/175, 0 FAIL (3 BLOCKED: node<22.6 ×2, browser ×1). suite-p0drag6.log.
 
-## p0drag7 — Mac p0drag6 (42d0982f) FAIL items 1/2/3/5 · branch cine/p0drag7 from 42d0982f · commits ce258d9f, 0edb5a0d, f-tests
+## p0drag7 — Mac p0drag6 (42d0982f) FAIL items 1/2/3/5 · branch cine/p0drag7 from 42d0982f · commits ce258d9f, 0edb5a0d, 3f2fce14
 - 1 Skycity entry. Cause: syncExplore snapped her to the nearest node (standOnWalk), but openExplore then seeded the orbit from the shot on screen, measured from her NEW spot (≈29 m, aim at the old spot = sky). preSolveEntry/LensGuard only run where proxies exist, so nothing wrote the lens until the first drag. Fix: standOnWalk returns whether it snapped. After a snap, openExplore re-seats the orbit on her (follow lens, as qaTeleport), runs preSolveEntry where proxies exist, and glides from the on-screen shot (≤ 2.5 s). tickLens writes the orbit while an entry glide is running.
 - 2 Lakeside 9.7↔6.5 m flips. Cause, from trace_lake_walkdrag (lg.cost 0, share 1, fo.arm 9.08 constant): LensGuard is idle; FreeOrbit.clearPose's renderer-AABB pull-in switches on/off as the dragged yaw crosses a box edge (yaw 223→227, 219→215, 216→220). Fix: region/ArmSmoother on the written arm:
   - hysteresis: a goal > 0.35 m away must persist 4 frames; a push-out also needs ≥ 0.45 s since the last switch;
