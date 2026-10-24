@@ -75,3 +75,10 @@ Suite at cf50fcd8: 166/170 — 3 baseline env blocks + exit-footsteps FAIL under
   audio-timing test, not camera). New tests explore-drag-rotate, lakeside-entry-deck, lakeside-lens-guard all PASS in the suite.
 GGbot DevTools additions: open lakeside explore and stand 3 s (no canopy after ≤ 3 s glide), walk the boardwalk (reeds/posts), cross the arch
 bridge (lens looks down over the railing), island: drag down beside a palm (lens nudges/lifts so she shows).
+
+## r17 — 界面验收部 c5889aa2 FAIL (arm collapse / island distance / walk yaw)  ·  commits 176f4ad8, 76a957a1
+- P0 root cause (meadow/skycity 0.5–1.5 m): `regionBounds()` returned the stage graph's exploreBox in MODEL-LOCAL coordinates and FreeOrbit.clearPose treated it as a world xz box. The meadow/skycity copies sit far off the origin, so every lens counted as "outside" and clearPose pulled it in to `arm−0.8` → 0.55 m on the first drag (it only appears once the orbit takes over from the follow lens). Our harness stubbed regionBounds=undefined with the models at the origin, so it never hit this path.
+- Fix: box corners go through toWorld; `clampArm` keeps the written arm in [3.5, 12] m before the ground guard and ≥ 1.6 m (LensGuard floor) after occlusion; distMax 12 for island/meadow/skycity (island was 52 → the 30–40 m); first drag off a far lens glides (≤ 3 s) instead of cutting; the LensGuard swing nudge is off while walking (island yaw drift).
+- Test explore-arm (real regionBounds, off-origin model matrix): before → meadow/skycity settled arm 0.55 m (jumps 883 m/s), island 16.1 m, lakeside 14.6 m: FAIL 4. After → 12.0 / 12.0 / 12.06 / 12.28 m, min ≥ 10.8 m: ok. A3 walk-end yaw gap 0° and A4 island walk drift pass both before and after: the harness does NOT reproduce the lakeside 171° snap or the island 36° drift.
+- NOT FIXED / unverified: lakeside walking occlusion (canopy, boardwalk post, bridge rails) and the walk-end yaw snap. Their root cause is not found; they need engine capture.
+- Suite: 168/171, 0 FAIL (3 BLOCKED: node<22.6 ×2, browser ×1). suite-r17.log.
