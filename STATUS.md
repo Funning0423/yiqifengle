@@ -1,0 +1,10 @@
+# scene/b17-skycity-walk-r2 — 进度（场景设计部执行者）
+基于 ggbot/b17-cand-r16d becc6583。worktree /workspace/wt-skw2。
+- [x] 读 ui-audit/2026-10-24/p0drag6/summary.md 的 S3 点击表；用 E0–E3 / W0 的本地+世界坐标拟合天空城模型矩阵（转约 118.9°，缩放 0.9996，平移 58.68,18.63,143.84；5 个点误差 ≤0.01 m）
+- [x] 问题 1 根因：废墟墙（env_sky_ruins，x 13.4–13.6，z 4.5–13.5，墙顶 y≈1.0–1.17）的墙顶被当作地面烘焙（每格只取最高层），墙两侧地面因为头顶有“地面”被判不可走。E3 落在墙顶，A* 只能经北侧门廊上墙，所以要绕 25.85 m → 加 ridge 规则（墙顶不是地面），只对天空城生效
+- [x] 问题 2 根因：W 点在 S3 东侧花坛（env_sky_static_palette，x 9.1–11.4，z 7.5–9.8，顶部 1.45）上，这些格子不可走。射线穿过花坛钻到地面下，就 break 返回 none → 天空城点到障碍物时，吸附到障碍物前方最近的可走点
+- [x] 问题 3：regionBounds 把局部框当世界坐标用（错）；房屋是合并网格，超过 14 m 的 AABB 上限，镜头看不到它 → 镜头单独设 lensBox，并换算成世界 AABB；新增 1758 个天空城遮挡代理，接入 LensGuard
+- [x] 重新烘焙：RegionNodes 不变（节点和边一致）；天空城可走格 27977 → 27872（-105，都是墙顶以及只能经墙顶到达的格子）；岛、草原、湖畔不变
+- [x] 回归测试：test_lakeside_walkable.cjs 加了 r2 段
+- [x] 对比图：product/2026-10-24/skycity-walk-r2/skycity_walk_r2_before_after.png
+- [x] suite 复跑（最终状态）：166/169，没过的 3 项就是已知的 BLOCKED（Node≥22.6 两项、浏览器一项）；报告已还原，没有提交

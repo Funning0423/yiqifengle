@@ -49,15 +49,29 @@ export function nearestWalkable(region:WalkRegion,pos:WVec,radiusM=3):NearestHit
 export type WalkTap=Readonly<{kind:'walk';at:WVec}|{kind:'water';at:WVec}|{kind:'none'}>;
 /** March a local-space ray and report the first walkable floor it meets ('walk'), the water surface ('water', regions with waterY),
  *  or 'none' (sky, wall, off the area). */
+/** Regions whose taps that land on a prop / wall / planter (a blocked cell next to walkable floor) walk to the floor in front of
+ *  it instead of 'none' (b17 skycity-walk-r2: S3 west planter, x≈9.9–10.7 z≈9). Not lakeside / island / meadow: their water and
+ *  river must still answer 'water' / 'none'. */
+export const WALK_TAP_SNAP:readonly WalkRegion[]=['skycity'];
 export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05):WalkTap{
- const g=walkGrid(region),L=Math.hypot(d[0],d[1],d[2])||1,u=[d[0]/L,d[1]/L,d[2]/L],floorMin=g.minY-2;
+ const g=walkGrid(region),L=Math.hypot(d[0],d[1],d[2])||1,u=[d[0]/L,d[1]/L,d[2]/L],floorMin=g.minY-2,snap=WALK_TAP_SNAP.indexOf(region)>=0;
+ let lastF:number|null=null,cand:WVec|null=null,inBlock=false;
  for(let t=0;t<=maxM;t+=stepM){const x=o[0]+u[0]*t,y=o[1]+u[1]*t,z=o[2]+u[2]*t;
   const f=walkFloorY(region,x,z);
   if(f!==null&&y<=f+.02&&y>=f-.6)return {kind:'walk',at:[x,f,z]};
+  if(snap){
+   if(f!==null){lastF=f;inBlock=false;if(cand&&y<f-.6)break;} // the ray went under the floor past the obstacle: it hit the obstacle
+   else if(!inBlock){inBlock=true;
+    // entering a blocked run under head height: the floor in front of it (≤1.6 m, from 0.3 m back along the ray). The LAST such
+    // run before the ray dives under the floor is the obstacle it hit; earlier runs it flew over.
+    if(lastF!==null&&y<=lastF+1.8){const back=Math.max(0,t-.3),h=nearestWalkable(region,[o[0]+u[0]*back,lastF,o[2]+u[2]*back],1.6);cand=h?h.at:null;}
+    else cand=null;
+   }
+  }
   if(g.waterY!==null&&f===null&&y<=g.waterY)return {kind:'water',at:[x,g.waterY,z]};
   if(y<floorMin)break;
  }
- return {kind:'none'};
+ return cand?{kind:'walk',at:cand}:{kind:'none'};
 }
 /** True when every 0.1 m sample of the segment stands on walkable cells with no step > 0.36 m. */
 export function lineWalkable(region:WalkRegion,a:WVec,b:WVec):boolean{

@@ -19,6 +19,7 @@ import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreReg
 import {LensGuard,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
+import {SKYCITY_LENS_OCCLUDERS} from '../region/SkycityLensOccluders';
 import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
 
@@ -420,7 +421,16 @@ export class RegionNodeStage extends Component{
   this.writeOrbit(0);
  }
  /** The lakeside graph box is model-local and the journey copy sits far off the origin, so no world xz clamp there (the walk itself stays on the baked area). */
- private regionBounds():readonly [number,number,number,number]|undefined{return this.region==='lakeside'?undefined:stageGraph(this.region).exploreBox;}
+ /** b17 skycity-walk-r2: the boxes are MODEL-LOCAL; FreeOrbit clamps the lens in WORLD xz. Turn the lens box (lensBox, else
+  *  exploreBox) into its world AABB with the region model matrix (skycity is turned ~119° and sits ~150 m off the origin, so the
+  *  raw local box pushed the lens toward her from the wrong sides). */
+ private regionBounds():readonly [number,number,number,number]|undefined{
+  if(this.region==='lakeside')return undefined;const G=stageGraph(this.region) as {exploreBox:readonly number[];lensBox?:readonly number[]};
+  const b=G.lensBox??G.exploreBox,m=this.walkMatrix(this.region);if(!m)return b as unknown as [number,number,number,number];
+  const v=new Vec3();let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;
+  for(const [x,z] of [[b[0],b[1]],[b[2],b[1]],[b[0],b[3]],[b[2],b[3]]]){Vec3.transformMat4(v,new Vec3(x,0,z),m);x0=Math.min(x0,v.x);x1=Math.max(x1,v.x);z0=Math.min(z0,v.z);z1=Math.max(z1,v.z);}
+  return [x0,z0,x1,z1];
+ }
  /** AABB cache at 2.5 Hz, capped, so a drag does not walk every mesh on a 60 fps phone. */
  private refreshOrbitBoxes(g:Vec){
   const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return;
@@ -440,10 +450,22 @@ export class RegionNodeStage extends Component{
  }
  private lakesideOccluders():OccBox[]|null{
   if(this.region==='island'){if(!this.islandBoxes)this.islandBoxes=ISLAND_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]]}));return this.islandBoxes;}
+  if(this.region==='skycity')return this.skycityOccluders();
   if(this.region!=='lakeside')return null;const m=this.model('lakeside');if(!m)return null;const now=Date.now();
   if(this.occBoxes&&this.occModel===m&&now-this.occAt<2000)return this.occBoxes;
   const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
   this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.occModel=m;this.occAt=now;return this.occBoxes;
+ }
+ /** b17 skycity-walk-r2 (p0drag6): the sky houses / walls are merged meshes over the 14 m orbit-box cap, so the explore lens went
+  *  into the blue-roof house east of S3. Model-local proxies (SkycityLensOccluders) -> world; only the ones within 18 m of her. */
+ private skyAll:OccBox[]|null=null;private skyModel:Node|null=null;private skyNear:OccBox[]=[];private skyNearAt=0;
+ private skycityOccluders():OccBox[]|null{
+  const m=this.model('skycity');if(!m)return null;const now=Date.now();
+  if(!this.skyAll||this.skyModel!==m){const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
+   this.skyAll=proxiesToWorld(SKYCITY_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.skyModel=m;this.skyNearAt=0;}
+  if(now-this.skyNearAt>=400){const g=this.girl();this.skyNearAt=now;
+   this.skyNear=this.skyAll.filter(b=>Math.hypot(Math.max(b.min[0]-g[0],0,g[0]-b.max[0]),Math.max(b.min[2]-g[2],0,g[2]-b.max[2]))<18);}
+  return this.skyNear;
  }
  /** Lakeside + island (b17r13): LensGuard keeps the walk lens off the proxies (look-ahead plan, speed/accel-capped spring, floor). */
  private occlude(pose:Pose,dt:number):Pose{
