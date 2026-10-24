@@ -163,3 +163,46 @@ Commits: ede49fc7 avoidance + pitch cap · 76703364 perf · 67a1a1ad island sign
 - P5 ground spot by the roots/house (snap point 21.8,−0.17,6.6), full slow orbit turn at pitch/dist 15°/7 m, 30°/10 m, 10°/12 m: raw lens inside walls 476/1440 frames → written 7/1440 (0.5 %, brief rate-limited swing past a wall right next to her, ×1.6 catch-up), arm ≥ 5.05, pitch ≥ −58°, lens step ≤ 0.34 m/frame, p99 ≤ 3.0 ms. On this branch's 2112-box set the same sweep: 29/1440 (2 %). Residual: partial frames inside a box during that swing — not a jump, not a close-up.
 ### Suite
 HEAD 39da2922: 175/178 PASS, 0 FAIL; 3 baseline env blocks (2× Node ≥22.6, navigation-guard browser).
+
+## p0drag9 (branch cine/p0drag9 from b916204f; not pushed, no Mac)
+Commits: c12384bc camera · b71b1f27 test · 7d36e0d3 hooks · e92a96b3 hook tests · fd579d33 suite · 20b54c58 lens-guard regex · (this outbox commit).
+### 1 skycity (13,7.4) slow full turn (Mac sx2d 353–372 s, ro0–ro15)
+- Causes: (a) in skycity two avoiders were stacked — LensGuard (its own climb/swing) and outOfProxies on top of its output; LensGuard flipped
+  swing −30 → up 24 in ONE frame at 364.11 s (pitch −31 → −54°, +1.8 m). (b) outOfProxies moved the lens but kept the old target, and
+  LensGuard's swing kept its own target, so she drifted off-axis (Mac ro0 / ro11 she is off the narrow screens).
+- Fix: skycity has ONE avoider (outOfProxies; LensGuard off there). Its candidate cost prefers a swing to a climb (0.6·|swing| + 1.6·climb),
+  stays near where the lens currently is (no 180° sweeps through walls), and looks 0.5 s ahead along the player's own turn. The whole
+  avoidance offset about her look point is eased (new region/LensSmooth.ts: critically damped, ≤ 22°/s elevation, ≤ 80°/s yaw, ≤ 2.2 m/s arm).
+  Then frameHer re-aims the view (if needed) so her body box (feet..1.6 m, ±0.3 m) is inside a 12 % safe margin on 390×844, 414×896, 360×780,
+  375×667, 320×568, 390×520, 768×1024; then the −58° cap. Arm ≥ 3.5 m, no jump cuts kept.
+- Replay (test_p0drag9 R1, 1041 frames, raw = the trace's FreeOrbit yaw/pitch/arm, 2192 boxes) — Mac before → after:
+  max pitch step/frame 23.5° → 0.99° (rate 1384 → 22 °/s); max height step/frame 1.80 → 0.108 m (rate 106 → 2.6 m/s; 0.108 is one 0.04 s frame gap);
+  max pitch change between ro samples 25.6° → 14.9°, max lift between ro samples 2.32 → 1.16 m;
+  her min on-screen margin over all 7 screens −1.17 (off screen) → +0.62; ro0…ro15 margins 0.64–0.77; min arm 6.89 → 7.34 m; min view pitch −58.5 → −53°.
+  Perf 0.06 ms avg / 0.5 ms p99 per frame (LensGuard no longer runs in skycity).
+- REMAINING FLAW: face/chest sight line blocked up to 91 consecutive frames (~1.5 s; Mac 80) at 366.7–368.3 s. She stands in a nook:
+  a scan of every lens direction (arm 3.5–7.3 m, elevation 6–58°) is clear only for local yaw ≈ 240–345°; while the player turns through
+  the other ~150° no clear lens exists within ±90° of the requested yaw. Wider swings (±180°) cut it to 54 frames but made 0.4–0.5 m/frame
+  lens steps and fought the player's drag, so I did not ship them. Only fix left: fade the occluding mesh (renderer side) — not done.
+### 2 test hooks
+- Cause: __qfTeleport/__qfAimAt set the orbit yaw but did not ENGAGE the orbit, so next frame the follow lens overwrote it — no formula could line up.
+  Now they engage it (free, not held) like a finished drag.
+- Convention (degrees, world): yaw = camTrace `yaw` = Main Camera euler Y = FreeOrbit yaw. The lens sits at her look point +
+  d·(sin yaw·cos p, sin p, cos yaw·cos p): the camera looks along −(sin yaw, cos yaw). pitch = lens elevation above her, POSITIVE = above,
+  = −camTrace `pitch`, clamped to the region's orbit range (island 5–58°).
+  To look from her toward point T: yaw = atan2(g.x − T.x, g.z − T.z)·180/π (GGbot's atan2(T − g) puts the lens between her and T, looking away).
+- Usage: `__qfTeleport('I3', 40, 20)`; `__qfTeleport('sign')` (island: node nearest the signpost, lens aimed at it, pitch 12);
+  `__qfAimAt('ui_signpost')` (scene node name) or `__qfAimAt([x,y,z])` / `__qfAimAt({x,y,z})` (WORLD metres, same space as camTrace cam/her) —
+  keeps her where she is, lens on her far side so the point is in the centre column; `__qfBackToBoard()`.
+  All return {ok, reason?, yaw, pitch}. Explore must be open (reason 'explore-not-open').
+- Island with hooks: add `?qfHooks=1` to the web/QA build URL (e.g. `http://localhost:7456/?qfHooks=1&camTrace=1`), or in a WeChat develop/trial
+  build set the launch query qfHooks=1. No level skip happens; play to the island normally, open island explore, then call the hooks.
+  `?qfSkip=<target>` still enables them too. WeChat release (envVersion 'release'): never registered (qaHooksEnabled false).
+### 3 lens inside an occluder box
+- sx2d replay: Mac 11 frames → 0. Roots/house sweep (P5): 14/1440, 0, 19/1440 frames (was 7/0/0 in p0drag8 with LensGuard; the easing is slower
+  to leave a box). These are frames while the eased swing passes a wall right next to her (×2.5 ease while inside). No jump cuts.
+### Suite
+HEAD 20b54c58: 176/179 PASS, 0 FAIL; 3 baseline env blocks (2× Node ≥22.6, navigation-guard browser). (lakeside-lens-guard failed in the
+first run only on a source-wiring regex; fixed in 20b54c58 and re-run PASS.)
+### Size
++9.4 KB TS source (LensSmooth.ts 4.9 KB new, RegionNodeStage +3.4 KB, QaSkip +1.1 KB); no assets. Test fixture 86 KB (tools only).
