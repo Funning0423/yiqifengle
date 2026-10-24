@@ -22,7 +22,7 @@ const BASE='ebd316a7',OLD={OC:loadAt(BASE,'region/LensOcclusion.ts'),LX:loadAt(B
 // stage methods at a revision
 function stageAt(rev){const src=rev?cp.execFileSync('git',['show',rev+':creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts'],{cwd:ROOT,encoding:'utf8'}):fs.readFileSync(S+'world-r2/RegionNodeStage.ts','utf8');
  const sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true),cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
- const ms=cls.members.filter(m=>m.name&&['tickLens','writeOrbit','occlude','lakesideOccluders','handOrbitBack','guardOrbitGround','deckElev','preSolveEntry','openExplore','viewDir'].includes(m.name.getText(sf))).map(m=>m.getText(sf));
+ const ms=cls.members.filter(m=>m.name&&['tickLens','writeOrbit','occlude','clampArm','lakesideOccluders','handOrbitBack','guardOrbitGround','deckElev','preSolveEntry','openExplore','viewDir'].includes(m.name.getText(sf))).map(m=>m.getText(sf));
  const out=ts.transpileModule(`class Stage{${ms.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
  const M=rev?OLD:NOW;class Vec3{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}set(x,y,z){this.x=x;this.y=y;this.z=z;return this;}static transformMat4(o,v){o.x=v.x;o.y=v.y;o.z=v.z;return o;}}
  const sb={module:{exports:{}},Vec3,LensGuard:M.OC.LensGuard,LENS_GUARD:M.OC.LENS_GUARD,guardEval:M.OC.guardEval,proxiesToWorld:M.OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:M.LX.LAKESIDE_LENS_OCCLUDERS,LAKESIDE_DECK_ZONES:M.LX.LAKESIDE_DECK_ZONES||[],

@@ -1,0 +1,83 @@
+{
+ "status": "PASS",
+ "rows": [
+  {
+   "id": "A1/A2 first drag",
+   "region": "island",
+   "minArmM": 12.06,
+   "settledArmM": 12.06,
+   "maxLensMS": 9.6,
+   "orbitDist": 12,
+   "firstDragGlideS": 6.12,
+   "ok": true
+  },
+  {
+   "id": "A3 walk end",
+   "region": "island",
+   "gapDeg": 0,
+   "engaged": true,
+   "mode": "free",
+   "ok": true
+  },
+  {
+   "id": "A1/A2 first drag",
+   "region": "meadow",
+   "minArmM": 12,
+   "settledArmM": 12,
+   "maxLensMS": 17.3,
+   "orbitDist": 12,
+   "firstDragGlideS": 3,
+   "ok": true
+  },
+  {
+   "id": "A3 walk end",
+   "region": "meadow",
+   "gapDeg": 0,
+   "engaged": true,
+   "mode": "free",
+   "ok": true
+  },
+  {
+   "id": "A1/A2 first drag",
+   "region": "skycity",
+   "minArmM": 12,
+   "settledArmM": 12,
+   "maxLensMS": 17.3,
+   "orbitDist": 12,
+   "firstDragGlideS": 3,
+   "ok": true
+  },
+  {
+   "id": "A3 walk end",
+   "region": "skycity",
+   "gapDeg": 0,
+   "engaged": true,
+   "mode": "free",
+   "ok": true
+  },
+  {
+   "id": "A1/A2 first drag",
+   "region": "lakeside",
+   "minArmM": 11.48,
+   "settledArmM": 12.28,
+   "maxLensMS": 10.9,
+   "orbitDist": 12,
+   "firstDragGlideS": 4.89,
+   "ok": true
+  },
+  {
+   "id": "A3 walk end",
+   "region": "lakeside",
+   "gapDeg": 0,
+   "engaged": true,
+   "mode": "free",
+   "ok": true
+  },
+  {
+   "id": "A4 island walk yaw",
+   "region": "island",
+   "worstGapDeg": 0.1,
+   "ok": true
+  }
+ ]
+}

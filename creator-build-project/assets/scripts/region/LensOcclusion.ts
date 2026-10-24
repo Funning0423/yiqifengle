@@ -113,7 +113,9 @@ export const LENS_GUARD=Object.freeze({clearM:1.1,headM:1.5,chestM:1.1,feetHeadr
   * so even one or two of the 9 view rays meeting a reed / post / trunk within nearM (3 m) moves the lens. */
  deckElevDeg:28,liftMS:2.5,clutterLin:1.5,holdSwingDeg:30,
  /* explore entry glide (RegionNodeStage.preSolveEntry): peak lens speed (smootherstep peak ≈ 1.9 × mean), under the 9 m/s frame-jump ceiling */
- entryGlideMS:7});
+ entryGlideMS:7,
+ /* r17 hard explore arm (lens → her look point): ≥ armMinM before LensGuard, ≥ armHardM after its pull-in, ≤ armMaxM always */
+ armMinM:3.5,armHardM:1.6,armMaxM:12});
 type V3=[number,number,number];
 const vsub=(a:OccVec,b:OccVec):V3=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];const vlen=(a:OccVec)=>Math.hypot(a[0],a[1],a[2]);
 const vnorm=(a:OccVec):V3=>{const l=vlen(a)||1e-9;return [a[0]/l,a[1]/l,a[2]/l];};
@@ -148,9 +150,9 @@ export class LensGuard{
  private herPrev:OccVec|null=null;private herVel:V3=[0,0,0];
  last:{eval:GuardEval;params:GuardParams}|null=null;
  reset(){this.params={up:0,swing:0,share:1};this.off=null;this.vel=[0,0,0];this.planIn=0;this.offYaw=null;this.liftDeg=0;this.herPrev=null;this.herVel=[0,0,0];this.last=null;}
- private plan(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt:((x:number,z:number)=>number|null)|undefined,o:typeof LENS_GUARD,holdYaw=false){
+ private plan(raw:OccPose,her:OccVec,boxes:readonly OccBox[],floorAt:((x:number,z:number)=>number|null)|undefined,o:typeof LENS_GUARD,holdYaw=false,nudge=true){
   // player holds the yaw: no swing, unless her head itself is blocked (a palm / trunk right behind her): then a small ±holdSwingDeg nudge
-  const headBlocked=holdYaw&&guardEval(raw,her,boxes,{up:0,swing:0,share:1},floorAt,o).head;
+  const headBlocked=holdYaw&&nudge&&guardEval(raw,her,boxes,{up:0,swing:0,share:1},floorAt,o).head;
   const swings=holdYaw?(headBlocked?[0,o.holdSwingDeg,-o.holdSwingDeg]:[0]):o.swings;if(holdYaw&&!headBlocked&&this.params.swing!==0)this.params={...this.params,swing:0};
   const samples=o.lookAheadS.map(s=>{const dx:V3=[this.herVel[0]*s,this.herVel[1]*s,this.herVel[2]*s];
    return {her:[her[0]+dx[0],her[1]+dx[1],her[2]+dx[2]] as OccVec,raw:{position:[raw.position[0]+dx[0],raw.position[1]+dx[1],raw.position[2]+dx[2]] as OccVec,target:raw.target,fovVerticalDeg:raw.fovVerticalDeg}};});
@@ -184,7 +186,7 @@ private raise(raw:OccPose,her:OccVec,minElevDeg:number,step:number,o:typeof LENS
  warm(raw:OccPose,her:OccVec,boxes:readonly OccBox[],minElevDeg=0,frames=60,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD):OccPose{
   this.reset();let p:OccPose=raw;for(let i=0;i<frames;i++)p=this.apply(raw,her,boxes,i?1/30:0,floorAt,o,false,minElevDeg);this.herPrev=null;this.herVel=[0,0,0];return p;
  }
- apply(raw00:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD,holdYaw=false,minElevDeg=0):OccPose&{eval:GuardEval;params:GuardParams}{
+ apply(raw00:OccPose,her:OccVec,boxes:readonly OccBox[],dt:number,floorAt?:(x:number,z:number)=>number|null,o=LENS_GUARD,holdYaw=false,minElevDeg=0,nudge=true):OccPose&{eval:GuardEval;params:GuardParams}{
   const step=Math.max(0,Math.min(0.1,dt||0));
   // deck raise (eased): rotate the designed lens up about her chest to ≥ minElevDeg, keeping its arm and its look ray's height offset
   const raw0=this.raise(raw00,her,minElevDeg,step,o);
@@ -194,7 +196,7 @@ private raise(raw:OccPose,her:OccVec,minElevDeg:number,step:number,o:typeof LENS
   if(this.herPrev&&step>0){const k=1-Math.exp(-step/0.25);for(let i=0;i<3;i++)this.herVel[i]+=((her[i]-this.herPrev[i])/step-this.herVel[i])*k;}
   this.herPrev=[her[0],her[1],her[2]];
   const R=vlen(vsub(raw.position,her))+o.nearM+o.clearM+2;const near=boxes.filter(b=>boxDist(her,b)<=R);
-  this.planIn-=step;if(this.off===null||this.planIn<=0){this.plan(raw,her,near,floorAt,o,holdYaw);this.planIn=o.planS;}
+  this.planIn-=step;if(this.off===null||this.planIn<=0){this.plan(raw,her,near,floorAt,o,holdYaw,nudge);this.planIn=o.planS;}
   const ev=guardEval(raw,her,near,this.params,floorAt,o);
   // while the player holds the yaw, the offset turns with the raw lens around her (a drag rotates it exactly, never fights it)
   const ry=Math.atan2(raw.position[0]-her[0],raw.position[2]-her[2]);

@@ -1,0 +1,84 @@
+{
+ "E1_entry": {
+  "before": {
+   "cases": 19,
+   "hidAfter": 1425,
+   "fillAfter": 375,
+   "firstHid": 19,
+   "hidGlide": 456
+  },
+  "after": {
+   "cases": 19,
+   "hidAfter": 0,
+   "fillAfter": 0,
+   "firstHid": 2,
+   "maxGlideS": 3.03,
+   "maxMS": 6.91,
+   "hidGlide": 326
+  },
+  "pass": true
+ },
+ "E2_boardwalk": {
+  "before": {
+   "frames": 7803,
+   "hidden": 0,
+   "fill": 0,
+   "bridgeFrames": 0,
+   "bridgeLowElev": 0,
+   "minBridgeElev": 99,
+   "hiddenBy": {},
+   "fillBy": {}
+  },
+  "after": {
+   "frames": 7803,
+   "hidden": 0,
+   "fill": 0,
+   "bridgeFrames": 0,
+   "bridgeLowElev": 0,
+   "minBridgeElev": 99,
+   "hiddenBy": {},
+   "fillBy": {}
+  },
+  "pass": true
+ },
+ "E3_bridge": {
+  "before": {
+   "frames": 2544,
+   "hidden": 21,
+   "fill": 5,
+   "bridgeFrames": 2060,
+   "bridgeLowElev": 1050,
+   "minBridgeElev": 15.4,
+   "hiddenBy": {
+    "LK_tree_round_i": 21
+   },
+   "fillBy": {
+    "LK_tree_round_i": 5
+   }
+  },
+  "after": {
+   "frames": 2544,
+   "hidden": 0,
+   "fill": 0,
+   "bridgeFrames": 2060,
+   "bridgeLowElev": 0,
+   "minBridgeElev": 28,
+   "hiddenBy": {},
+   "fillBy": {}
+  },
+  "pass": true
+ },
+ "E4_island_palm": {
+  "before": {
+   "cases": 4,
+   "hidAfter": 120
+  },
+  "after": {
+   "cases": 4,
+   "hidAfter": 0
+  },
+  "pass": true
+ },
+ "elapsedS": 20.3,
+ "status": "PASS"
+}

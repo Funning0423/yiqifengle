@@ -422,7 +422,24 @@ export class RegionNodeStage extends Component{
   this.writeOrbit(0);
  }
  /** The lakeside graph box is model-local and the journey copy sits far off the origin, so no world xz clamp there (the walk itself stays on the baked area). */
- private regionBounds():readonly [number,number,number,number]|undefined{return this.region==='lakeside'?undefined:stageGraph(this.region).exploreBox;}
+ /** r17 P0: the graph box is MODEL-local like the nodes (toWorld); meadow / skycity copies sit far off the origin (meadow yaw 180), so
+  *  the raw box made FreeOrbit.clearPose see the lens "outside" every frame and pull it to 0.8 m from her look point (the hat shot).
+  *  Now the box corners go through toWorld (island: identity). Lakeside keeps no xz clamp. */
+ private regionBounds():readonly [number,number,number,number]|undefined{
+  if(this.region==='lakeside')return undefined;const b=stageGraph(this.region).exploreBox;
+  const c=this.toWorld(this.region,[[b[0],0,b[1]],[b[2],0,b[1]],[b[0],0,b[3]],[b[2],0,b[3]]]);
+  return [Math.min(c[0][0],c[1][0],c[2][0],c[3][0]),Math.min(c[0][2],c[1][2],c[2][2],c[3][2]),Math.max(c[0][0],c[1][0],c[2][0],c[3][0]),Math.max(c[0][2],c[1][2],c[2][2],c[3][2])];
+ }
+ /** r17 hard arm (lens → her look point) for the explore lens: [min, max] along the look ray. Whatever pulled it (clearPose boxes,
+  *  a bad seed), the lens never sits in her hat nor 30 m out. */
+ private clampArm(pose:Pose,min:number,max:number):Pose{
+  const g=this.girl(),look=[g[0],g[1]+(ORBIT_LIMITS[this.orbit.place]?.lookM??1.15),g[2]],p=pose.position,v=[p[0]-look[0],p[1]-look[1],p[2]-look[2]],L=Math.hypot(v[0],v[1],v[2]);
+  if(L>=min&&L<=max)return pose;
+  let u=L>1e-4?[v[0]/L,v[1]/L,v[2]/L]:null;
+  if(!u){const t=pose.target,d=[p[0]-t[0],p[1]-t[1],p[2]-t[2]],dl=Math.hypot(d[0],d[1],d[2])||1;u=[d[0]/dl,d[1]/dl,d[2]/dl];}
+  const a=Math.max(min,Math.min(max,L)),np:[number,number,number]=[look[0]+u[0]*a,look[1]+u[1]*a,look[2]+u[2]*a];
+  return {...pose,position:np};
+ }
  /** AABB cache at 2.5 Hz, capped, so a drag does not walk every mesh on a 60 fps phone. */
  private refreshOrbitBoxes(g:Vec){
   const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return;
@@ -477,7 +494,7 @@ export class RegionNodeStage extends Component{
  /** Lakeside + island (b17r13): LensGuard keeps the walk lens off the proxies (look-ahead plan, speed/accel-capped spring, floor). */
  private occlude(pose:Pose,dt:number):Pose{
   const boxes=this.lakesideOccluders();if(!boxes){this.lensPull.reset();return pose;}
-  const r=this.lensPull.apply(pose,this.girl(),boxes,dt,undefined,undefined,this.orbit.engaged()&&(this.orbit.shouldWrite()||this.groundWalking),this.deckElev());return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
+  const r=this.lensPull.apply(pose,this.girl(),boxes,dt,undefined,undefined,this.orbit.engaged()&&(this.orbit.shouldWrite()||this.groundWalking),this.deckElev(),!this.groundWalking&&this.lens!=='FollowWalk');return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
  }
  /** Held / blended-to follow lens (reward close-up): the planned clear pose, no spring (the blend is the ease). */
  private occludeHeld(pose:Pose):Pose{
@@ -492,7 +509,8 @@ export class RegionNodeStage extends Component{
   this.orbit.step(dt);
   const g=this.girl();
   this.refreshOrbitBoxes(g);
-  let pose=this.occlude(this.guardOrbitGround(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds())),dt);
+  const A=LENS_GUARD;
+  let pose=this.clampArm(this.occlude(this.guardOrbitGround(this.clampArm(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds()),A.armMinM,A.armMaxM)),dt),A.armHardM,Infinity);
   const e=this.entry;
   if(e){e.t+=Math.max(0,Math.min(0.1,dt||0));const u=Math.min(1,e.t/e.T),s=u*u*u*(u*(u*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s,a[2]+(b[2]-a[2])*s] as [number,number,number];
    pose={...pose,position:L(e.from.position,pose.position),target:L(e.from.target,pose.target)};if(u>=1)this.entry=null;}
@@ -533,8 +551,11 @@ export class RegionNodeStage extends Component{
   this.orbit.setPlace(this.region);
   if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);
   if(gesture==='release'){this.orbit.release();return;}
+  const first=!this.orbit.shouldWrite()&&!this.entry,from=first?this.readPose():null;
   if(gesture==='pinch')this.orbit.pinch(x);
   else this.orbit.drag(x/Math.max(1,w),y/Math.max(1,h));
+  // r17: the first drag takes over from whatever lens was on screen (far finale / board lens): glide, never cut
+  if(from&&this.orbit.shouldWrite()){const q=this.orbit.rawPose(g).position,d=Math.hypot(q[0]-from.position[0],q[1]-from.position[1],q[2]-from.position[2]);if(d>0.3)this.entry={from,t:0,T:Math.min(3,Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS))};}
   this.writeOrbit(0);
  }
  openExplore(region:StageRegion,fromLens=false){

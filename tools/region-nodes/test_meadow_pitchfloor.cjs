@@ -56,7 +56,7 @@ function reg(settle){const per={},list=[];for(const c of BASE){const o=new C.Fre
 out.outdoorDirect=reg(false);out.outdoorSettled=reg(true);
 for(const k of ['outdoorDirect','outdoorSettled'])for(const [id,v] of Object.entries(out[k].per))if(!EXPLORE_P0.has(id))assert.equal(v.changed,0,k+' '+id+' changed');
 assert.equal(out.outdoorDirect.per.meadow.changed,0,'a direct solve does not clamp (the floor acts through input and step)');
-for(const c of out.outdoorSettled.list)assert.ok(c.pitch<c.floor&&Math.abs(c.pitchAfter-c.floor)<1e-9,'only cases below the floor change, and they end on it');
+for(const c of out.outdoorSettled.list)if(!(c.dist>C.ORBIT_LIMITS[c.place].distMax+1e-9))/* r17: explore arm ceiling 12 m */assert.ok(c.pitch<c.floor&&Math.abs(c.pitchAfter-c.floor)<1e-9,'only cases below the floor change, and they end on it');
 // 5) pinch-in ease
 const F=C.PITCH_FLOOR_FEEL,feet=[0,0,0];assert.ok(F.accDegS2<=120&&F.brakeDegS2<=F.accDegS2/2);
 function ease(fps,pinchS,from,to){const o=new C.FreeOrbit('meadow'),dt=1/fps;o.dist=from;o.drag(0,5,dt);o.release();for(let i=0;i<10;i++)o.step(dt);
@@ -68,7 +68,7 @@ function ease(fps,pinchS,from,to){const o=new C.FreeOrbit('meadow'),dt=1/fps;o.d
  let acc=0,va=0,step=0,over=0;for(let i=1;i<P.length;i++){step=Math.max(step,Math.abs(P[i]-P[i-1]));over=Math.max(over,P[i]-FL[i]);if(i<P.length-1){acc=Math.max(acc,Math.abs(P[i+1]-2*P[i]+P[i-1])/dt/dt);va=Math.max(va,Math.abs(V[i+1]-2*V[i]+V[i-1])/dt/dt)}}
  const end=P[P.length-1],tEnd=(P.findIndex((p,i)=>i>0&&Math.abs(p-FL[i])<1e-6&&P.slice(i).every((q,k)=>Math.abs(q-FL[i+k])<1e-6)))*dt;
  return {fps,pinchS,from,to:+o.dist.toFixed(2),startPitch:+p0.toFixed(3),endPitch:+end.toFixed(3),floorEnd:+o.pitchFloorDeg.toFixed(3),peakPitchAccDegS2:+acc.toFixed(2),peakViewAccDegS2:+va.toFixed(2),maxStepDeg:+step.toFixed(4),maxAboveFloorDeg:+over.toFixed(6),onFloorAfterS:+tEnd.toFixed(3)}}
-out.ease=[];for(const fps of [30,60,120])for(const [s,a,b] of [[0.1,14,3.2],[0.3,14,4],[1.5,14,4],[0.5,9,3.5]]){const r=ease(fps,s,a,b);out.ease.push(r);
+out.ease=[];for(const fps of [30,60,120])for(const [s,a,b] of [[0.1,12,3.2],[0.3,12,4],[1.5,12,4],/* r17: meadow distMax 12 */[0.5,9,3.5]]){const r=ease(fps,s,a,b);out.ease.push(r);
  assert.ok(r.peakPitchAccDegS2<=F.accDegS2+1e-6,'ease accel '+r.peakPitchAccDegS2);assert.ok(r.peakViewAccDegS2<=F.accDegS2+0.5,'view accel '+r.peakViewAccDegS2);
  assert.ok(r.maxStepDeg<=F.vMaxDegS/fps+1e-9,'no snap: '+r.maxStepDeg+'° in one frame');assert.ok(r.maxAboveFloorDeg<=1e-9,'no overshoot past the floor');
  assert.ok(Math.abs(r.endPitch-r.floorEnd)<1e-6,'ends on the floor')}
