@@ -16,6 +16,7 @@ import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarke
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
+import {camTrace,camTraceFrame,camTraceRound,camTraceSub} from '../region/CamTrace';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
@@ -219,7 +220,7 @@ export class RegionNodeStage extends Component{
  }
  private async blend(seconds:number,from:Pose,to:()=>Pose){
   this.orbit.pause();
-  const step=(t:number)=>this.writePose(t<=0?from:t>=seconds?to():blendPose(from,to(),t,seconds));
+  const step=(t:number)=>(camTrace.on&&camTraceSub('blend'),this.writePose(t<=0?from:t>=seconds?to():blendPose(from,to(),t,seconds)));
   await new Promise<void>(resolve=>{
    let settled=false;const done=()=>{if(settled)return;settled=true;step(seconds);resolve();};
    this.anim={t:0,seconds,sample:step,done};
@@ -514,6 +515,7 @@ export class RegionNodeStage extends Component{
   const e=this.entry;
   if(e){e.t+=Math.max(0,Math.min(0.1,dt||0));const u=Math.min(1,e.t/e.T),s=u*u*u*(u*(u*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s,a[2]+(b[2]-a[2])*s] as [number,number,number];
    pose={...pose,position:L(e.from.position,pose.position),target:L(e.from.target,pose.target)};if(u>=1)this.entry=null;}
+  if(camTrace.on)camTraceSub(e?'orbit+entry':'orbit');
   this.writePose(pose,false);
  }
  /** Sky stairs live in large merged meshes excluded from orbit AABBs. Sample from ABOVE the mesh,
@@ -544,7 +546,7 @@ export class RegionNodeStage extends Component{
   if(this.anim||this.holdPose||(this.lens!=='MapExplore'&&this.lens!=='FollowWalk'))return;
   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
   else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
-  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
+  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();if(camTrace.on)camTraceSub('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
  }
  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
   const {w,h}=this.viewport(),g=this.girl();
@@ -607,6 +609,7 @@ export class RegionNodeStage extends Component{
   const guarded=lens==='map'||lens==='tap'||lens==='markers';
   const applied=lens==='prop'&&(spec.prop||SCENE_PROPS[region][0])==='robot'?this.writePose(pose,true,PROP_CLEAR_M):this.writePose(pose,guarded);
   this.holdPose=lens==='prop'||lens==='finale'||lens==='look'?applied:null;
+  if(camTrace.on)this.traceFrame();
   if(this.hideTree){this.treeVisible(false);this.stripFinaleOccluders(applied);}
   this.lens=spec.lens==='map'||spec.lens==='tap'?'MapExplore':'FollowWalk';
   this.shotPhases={};
@@ -779,10 +782,21 @@ export class RegionNodeStage extends Component{
   const mesh=utils.createMesh({positions,normals,colors,indices});
   const renderer=this.markerNode.getComponent(MeshRenderer)!;renderer.mesh=mesh;
  }
+ /** ?camTrace=1 only (CamTrace.ts). */
+ private traceFrame(){
+  const cam=this.camera,n=cam?.node?.isValid?cam.node:null,p=n?.worldPosition,f=n?.forward,lg=this.lensPull.last,o=this.orbit;
+  const d=(this.character as any)?.diagnostics?.()?.motion;
+  camTraceFrame({region:this.region,lens:this.lens,exploring:this.exploring,
+   cam:p?camTraceRound([p.x,p.y,p.z]):null,yaw:f?Math.round(Math.atan2(-f.x,-f.z)*1800/Math.PI)/10:null,pitch:f?Math.round(Math.asin(Math.max(-1,Math.min(1,f.y)))*1800/Math.PI)/10:null,
+   her:camTraceRound(this.girl()),herYaw:d&&typeof d.yawDeg==='number'?Math.round(d.yawDeg*10)/10:null,walking:this.groundWalking,herState:d?.state??d?.phase??null,
+   lg:lg?{cost:Math.round(lg.eval.cost*1000)/1000,head:lg.eval.head,chest:lg.eval.chest,inside:lg.eval.inside,clutter:lg.eval.clutter,up:lg.params.up,swing:lg.params.swing,share:lg.params.share}:null,
+   fo:{mode:o.mode,place:o.place,engaged:o.engaged(),write:o.shouldWrite(),seeded:o.seeded,yaw:Math.round(o.yaw*10)/10,pitch:Math.round(o.pitch*10)/10,arm:Math.round(o.dist*100)/100},
+   entry:this.entry?Math.round(this.entry.t/this.entry.T*100)/100:null,hold:!!this.holdPose,anim:!!this.anim});
+ }
  update(dt:number){
   this.syncExplore(dt);
   if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
-  if(this.holdPose){this.orbit.pause();this.writePose(this.holdPose,false);}
+  if(this.holdPose){this.orbit.pause();if(camTrace.on)camTraceSub('hold');this.writePose(this.holdPose,false);}
   if(this.hideTree){this.treeVisible(false);if(this.holdPose)this.stripFinaleOccluders(this.holdPose);}
   this.markerClock+=dt;
   if(this.holdPulse>0)this.holdPulse=Math.max(0,this.holdPulse-dt);

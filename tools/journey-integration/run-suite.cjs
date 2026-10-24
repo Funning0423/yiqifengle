@@ -113,6 +113,7 @@ const tests=[
  ['free-orbit','tools/region-nodes/test_free_orbit.cjs'],
  ['explore-drag-rotate','tools/region-nodes/test_explore_drag_rotate.cjs'],
  ['explore-arm','tools/region-nodes/test_explore_arm.cjs'],/* r17: first drag → arm floor/ceiling (real regionBounds), walk-end yaw, island yaw drift */
+ ['cam-trace','tools/region-nodes/test_cam_trace.cjs'],/* p0drag4b: ?camTrace=1 off = no writes, on = writer ids */
  ['lakeside-entry-deck','tools/journey-integration/test-lakeside-entry-deck.cjs'],
  ['room-keepinside','tools/region-nodes/test_room_keepinside.cjs'],
  ['explore-input','tools/region-nodes/test_explore_input.cjs'],

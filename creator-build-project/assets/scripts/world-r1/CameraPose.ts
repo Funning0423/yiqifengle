@@ -223,6 +223,7 @@ export function frameCheck(pose: CameraPose, aspect: number, box: readonly V3[],
 }
 
 /** Structural types so this file stays engine-free; a cc.Node / cc.Camera satisfy them. */
+import { camTrace, camTraceWrite } from '../region/CamTrace';
 export type CameraNodeLike = { setWorldPosition(x: number, y: number, z: number): unknown; setWorldRotation(x: number, y: number, z: number, w: number): unknown };
 export type CameraLike = { node: CameraNodeLike; fov: number };
 export type CameraWriteLog = { writes: number; last: CameraPose | null; lastSource: string; rejected: number; trackAborts: number; lastAbort: string };
@@ -235,6 +236,7 @@ export function applyCameraPose(camera: CameraLike, pose: CameraPose, source: st
   camera.node.setWorldRotation(pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]);
   camera.fov = pose.fovVerticalDeg;
   cameraWriteLog.writes++; cameraWriteLog.last = pose; cameraWriteLog.lastSource = source;
+  if (camTrace.on) camTraceWrite(source);
   return true;
 }
 
