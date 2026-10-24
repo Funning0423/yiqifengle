@@ -76,6 +76,9 @@ export class RegionNodeStage extends Component{
 
  attach(camera:Camera){this.camera=camera;}
  bindCharacter(character:CharacterAdapter|null){this.character=character;}
+ /** b17r12b: the composition's calibrated girl. A fresh save that leaves the island board before any reward walk never called bindCharacter, so explore/ground taps pull her from here. */
+ characterSource:(()=>CharacterAdapter|null)|null=null;
+ ensureCharacter():CharacterAdapter|null{if(!this.character&&this.characterSource){try{this.character=this.characterSource()||null;}catch{this.character=null;}}return this.character;}
  setCompleted(ids:readonly string[]){this.completed=ids;}
 
  private viewport(){const s=view.getVisibleSize();return {w:Math.max(1,s.width),h:Math.max(1,s.height)};}
@@ -574,7 +577,7 @@ export class RegionNodeStage extends Component{
   if(!tap||tap.kind==='ground'){if(this.region==='meadow'||this.region==='skycity'||this.region==='island')this.groundTap(x,y);return;}
   if(tap.kind==='prop')this.pulse(tap.id,this.region);
   else if(tap.kind==='locked')emitTransitCue('node-locked-tap',{t:0,region:this.region,node:tap.id});
-  else if(tap.walk&&this.character){const node=stageGraph(this.region).nodes.find(n=>n.key===tap.id);if(node)void this.walkTo(node.at);}
+  else if(tap.walk&&this.ensureCharacter()){const node=stageGraph(this.region).nodes.find(n=>n.key===tap.id);if(node)void this.walkTo(node.at);}
  }
  /** RegionWalkable's model-local frame -> world. The island has no region model node: its walkable data is in world metres
   *  (docs/b16/walkable/API.md: island local = world), so identity. */
@@ -583,7 +586,7 @@ export class RegionNodeStage extends Component{
   *  other shore or no hit = no walk (cue only). __qfGroundTap keeps the last answer for QA. */
  groundTap(x:number,y:number){
   const region=this.region;
-  const cam=this.camera,m=this.walkMatrix(region);if(!cam||!m||!this.character||this.groundWalking)return;
+  const cam=this.camera,m=this.walkMatrix(region);if(!cam||!m||!this.ensureCharacter()||this.groundWalking)return;
   const ray=new geometry.Ray();cam.screenPointToRay(x,y,ray);
   const inv=new Mat4();Mat4.invert(inv,m);
   const o=new Vec3(),e=new Vec3();Vec3.transformMat4(o,ray.o,inv);Vec3.add(e,ray.o,ray.d);Vec3.transformMat4(e,e,inv);
@@ -593,7 +596,7 @@ export class RegionNodeStage extends Component{
   void this.groundWalkTo(region,hit.at);
  }
  private async groundWalkTo(region:StageRegion,at:WVec){
-  const m=this.walkMatrix(region);if(!m||!this.character)return;
+  const m=this.walkMatrix(region);if(!m||!this.ensureCharacter())return;
   const inv=new Mat4();Mat4.invert(inv,m);
   const gw=this.girl(),g=new Vec3();Vec3.transformMat4(g,new Vec3(gw[0],gw[1],gw[2]),inv);
   const from=nearestWalkable(region,[g.x,g.y,g.z],1.6);if(!from)return;
@@ -622,7 +625,7 @@ export class RegionNodeStage extends Component{
    if(this.region===r&&!this.cover&&this.exploring){this.walkToken++;this.exploring=false;this.lens='Board';setExploreEnabled(false);this.orbit.forget();}
    return;
   }
-  if(this.syncOpened||this.cover||this.anim||!this.character||!this.camera)return;
+  if(this.syncOpened||this.cover||this.anim||!this.ensureCharacter()||!this.camera)return;
   for(const r of EXIT_EXPLORE_REGIONS){
    if(!this.exploreArmed[r]||!exploreWanted(r,s)||(r==='island'?!s?.characterReady:!this.model(r)?.activeInHierarchy))continue;
    this.syncOpened=r;if(this.region!==r)this.orbit.forget();this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;

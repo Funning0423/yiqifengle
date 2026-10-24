@@ -98,10 +98,13 @@ export class WorldNativeComposition extends Component {
     if(typeof RegionNodeStage==='function'&&typeof ExploreInput==='function'){
      const stage=this.node.getComponent(RegionNodeStage)||this.node.addComponent(RegionNodeStage);
      stage.attach(this.worldCamera);
+     stage.characterSource=()=>this.boundCharacter;
      const input=this.node.getComponent(ExploreInput)||this.node.addComponent(ExploreInput);
      input.sink=(g,x,y)=>stage.onGesture(g,x,y);
     }
   }
+  /** b17r14: island free-explore taps arrive via IslandLighthouseTouch (it claims the touch), not the global input. */
+  exploreFeed():ExploreInput|null{const c=this.node?.getComponent(ExploreInput);return c&&c.isValid?c:null;}
   selectProvider(selection:Selection):Result {
     if(!this.world)return {ok:false,reason:'world-not-ready'};
     if(!['home','island','meadow','skycity','lakeside'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'exit-current-level-first'};
@@ -312,7 +315,7 @@ export class WorldNativeComposition extends Component {
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'return-to-island-before-exiting-test'};
     Object.assign(this,this.normalPorts);this.normalPorts=null;this.testProfile=null;this.activeSession=null;this.hostReply=null;return {ok:true};
   }
-  attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');this.boundCharacter=adapter;return this.world.bindCharacter(adapter);}
+  attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');this.boundCharacter=adapter;const st=this.stage();if(st){st.characterSource=()=>this.boundCharacter;st.ensureCharacter();}return this.world.bindCharacter(adapter);}
   /** Reward / next-level: follow the girl to the next node, then the existing board or bridge opens. No character bound (tests, headless) keeps today's order. */
   private markExplore(on:boolean){const set=(globalThis as any).__qfSetExplore;if(typeof set==='function')set(on);}
   private stage():RegionNodeStage|null{return this.node?.getComponent(RegionNodeStage)||null;}
