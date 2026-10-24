@@ -578,7 +578,9 @@ export class RegionNodeStage extends Component{
      const pick=best??bestP;if(pick){A.tsw=pick[0];A.te=pick[1];}}}
   }
   const t=Number.isFinite(dt)&&dt>0?Math.min(0.1,dt):0,step=(c:number,g:number,r:number)=>c+Math.max(-r*t,Math.min(r*t,g-c));
-  A.sw=step(A.sw,A.tsw,AVOID.yawDegS);A.e=step(A.e,A.te,AVOID.elevDegS);
+  // p0drag8 (roots / house ground spot): while the swing is still passing through a box (lens inside), ×insideBoost — still continuous
+  const kIn=boxes&&boxes.length&&lensLevel(look,at(A.sw,A.e),nearSphere(boxes,look,L+1),0)===2?AVOID.insideBoost:1;
+  A.sw=step(A.sw,A.tsw,AVOID.yawDegS*kIn);A.e=step(A.e,A.te,AVOID.elevDegS*kIn);
   return {...pose,position:at(A.sw,A.e)};
  }
  /** p0drag8: final written pose never looks down steeper than LENS_PITCH_MAX_DEG (lens elevation about her look point, and the view). */

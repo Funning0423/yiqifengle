@@ -2,7 +2,7 @@
 import type {OccBox} from './LensOcclusion';
 /** Steepest look-down anywhere (Mac: −58°). */
 export const LENS_PITCH_MAX_DEG=58;
-export const AVOID=Object.freeze({swings:[0,15,-15,30,-30,45,-45,60,-60,90,-90] as readonly number[],stepDeg:6,backN:12,yawDegS:90,elevDegS:45,searchEveryN:4});
+export const AVOID=Object.freeze({swings:[0,15,-15,30,-30,45,-45,60,-60,90,-90] as readonly number[],stepDeg:6,backN:12,yawDegS:90,elevDegS:45,searchEveryN:4,insideBoost:1.6});
 /** 0 = lens outside every box and the look→lens segment clear; 1 = lens outside but the segment crosses a box; 2 = lens inside one.
  *  Boxes that hold the look point are ignored (she stands in / on them). */
 export function lensLevel(look:readonly number[],q:readonly number[],boxes:readonly OccBox[],pad:number):0|1|2{
