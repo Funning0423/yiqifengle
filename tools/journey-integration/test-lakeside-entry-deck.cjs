@@ -17,16 +17,17 @@ const J=require('./journey-scene.cjs'),LKS=require('./lakeside/lakeside-scene.cj
 const H=J.H,S=J.S;const W=H.load(S+'region/RegionWalkable.ts'),FO=H.load(S+'region/FreeOrbit.ts'),E=H.load(S+'region/ExploreCameraCore.ts');
 const ROOT=path.resolve(__dirname,'../..');
 const AS=(()=>{try{return require('../board-ui/harness.cjs').createHarness().load(path.join(ROOT,'creator-build-project/assets/scripts/region/ArmSmoother.ts'));}catch{return null;}})();/* p0drag7 */
+const LAV=(()=>{try{return require('../board-ui/harness.cjs').createHarness().load(path.join(ROOT,'creator-build-project/assets/scripts/region/LensAvoid.ts'));}catch{return {};}})();/* p0drag8 */
 function loadAt(rev,rel){const src=cp.execFileSync('git',['show',rev+':creator-build-project/assets/scripts/'+rel],{cwd:ROOT,encoding:'utf8'});const d=fs.mkdtempSync('/tmp/qf-r16-');const f=path.join(d,path.basename(rel));fs.writeFileSync(f,src);return H.load(f);}
 const NOW={OC:H.load(S+'region/LensOcclusion.ts'),LX:H.load(S+'region/LakesideLensOccluders.ts'),IX:H.load(S+'region/IslandLensOccluders.ts')};
 const BASE='ebd316a7',OLD={OC:loadAt(BASE,'region/LensOcclusion.ts'),LX:loadAt(BASE,'region/LakesideLensOccluders.ts'),IX:NOW.IX};
 // stage methods at a revision
 function stageAt(rev){const src=rev?cp.execFileSync('git',['show',rev+':creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts'],{cwd:ROOT,encoding:'utf8'}):fs.readFileSync(S+'world-r2/RegionNodeStage.ts','utf8');
  const sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true),cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
- const ms=cls.members.filter(m=>m.name&&['tickLens','writeOrbit','occlude','clampArm','lakesideOccluders','handOrbitBack','guardOrbitGround','deckElev','preSolveEntry','openExplore','viewDir','lookAt','armOf','armAlong','outOfProxies'].includes(m.name.getText(sf))).map(m=>m.getText(sf));
+ const ms=cls.members.filter(m=>m.name&&['tickLens','writeOrbit','occlude','clampArm','lakesideOccluders','handOrbitBack','guardOrbitGround','deckElev','preSolveEntry','openExplore','viewDir','lookAt','armOf','armAlong','outOfProxies','clampPitch'].includes(m.name.getText(sf))).map(m=>m.getText(sf));
  const out=ts.transpileModule(`class Stage{${ms.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
  const M=rev?OLD:NOW;class Vec3{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}set(x,y,z){this.x=x;this.y=y;this.z=z;return this;}static transformMat4(o,v){o.x=v.x;o.y=v.y;o.z=v.z;return o;}}
- const sb={module:{exports:{}},Vec3,SKYCITY_LENS_OCCLUDERS:[],ArmSmoother:AS?AS.ArmSmoother:class{clear(){}reset(){}step(a){return a;}},LensGuard:M.OC.LensGuard,LENS_GUARD:M.OC.LENS_GUARD,guardEval:M.OC.guardEval,proxiesToWorld:M.OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:M.LX.LAKESIDE_LENS_OCCLUDERS,LAKESIDE_DECK_ZONES:M.LX.LAKESIDE_DECK_ZONES||[],
+ const sb={module:{exports:{}},Vec3,AVOID:LAV.AVOID,LENS_PITCH_MAX_DEG:LAV.LENS_PITCH_MAX_DEG,lensLevel:LAV.lensLevel,nearSphere:LAV.nearSphere,SKYCITY_LENS_OCCLUDERS:[],ArmSmoother:AS?AS.ArmSmoother:class{clear(){}reset(){}step(a){return a;}},LensGuard:M.OC.LensGuard,LENS_GUARD:M.OC.LENS_GUARD,guardEval:M.OC.guardEval,proxiesToWorld:M.OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:M.LX.LAKESIDE_LENS_OCCLUDERS,LAKESIDE_DECK_ZONES:M.LX.LAKESIDE_DECK_ZONES||[],
   ISLAND_LENS_OCCLUDERS:M.IX.ISLAND_LENS_OCCLUDERS,ORBIT_LIMITS:FO.ORBIT_LIMITS,followPose:E.followPose,followLookUp:E.followLookUp,setExploreEnabled:()=>{},emitTransitCue:()=>{},
   geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}}},MeshRenderer:class{},Date,Math};
  vm.runInNewContext(out,sb);return sb.module.exports;}
