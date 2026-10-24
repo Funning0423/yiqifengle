@@ -1,0 +1,84 @@
+{
+ "status": "PASS",
+ "scope": "NOT ENGINE: real stage code, real Mac trace data",
+ "res": {
+  "K1": {
+   "snapped": true,
+   "her": [
+    5.4,
+    -0.11,
+    43.8
+   ],
+   "earlyWriters": [
+    "orbit+entry"
+   ],
+   "armM": 9,
+   "herOffAxisDeg": 0,
+   "nodes": 7,
+   "ok": true
+  },
+  "K2": {
+   "frames": 300,
+   "rawMaxArmJumpM": 3.38,
+   "writtenMaxArmJumpM": 0.1,
+   "ok": true
+  },
+  "K3": {
+   "proxies": 354,
+   "o0": {
+    "rawLocal": [
+     17.83,
+     4.57,
+     14.45
+    ],
+    "rawInsideProxies": 0,
+    "lens": [
+     14.3,
+     9.57,
+     10.4
+    ],
+    "insideProxies": 0,
+    "segmentCrosses": 0,
+    "armM": 7.34
+   },
+   "o1": {
+    "rawLocal": [
+     19.37,
+     5.61,
+     5.08
+    ],
+    "rawInsideProxies": 1,
+    "lens": [
+     14.54,
+     9.89,
+     6.51
+    ],
+    "insideProxies": 0,
+    "segmentCrosses": 0,
+    "armM": 8.04
+   },
+   "o5": {
+    "rawLocal": [
+     20.37,
+     4.66,
+     8.58
+    ],
+    "rawInsideProxies": 0,
+    "lens": [
+     14.58,
+     9.75,
+     8.22
+    ],
+    "insideProxies": 0,
+    "segmentCrosses": 0,
+    "armM": 7.52
+   },
+   "ok": true
+  },
+  "K4": {
+   "updates": 30,
+   "rows": 30,
+   "ok": true
+  }
+ }
+}
