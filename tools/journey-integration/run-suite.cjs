@@ -115,6 +115,7 @@ const tests=[
  ['explore-arm','tools/region-nodes/test_explore_arm.cjs'],/* r17: first drag → arm floor/ceiling (real regionBounds), walk-end yaw, island yaw drift */
  ['explore-entry-follow','tools/region-nodes/test_explore_entry_follow.cjs'],/* p0drag5: lakeside explore entry follows her from frame 1 (background camera off) */
  ['bgcam-gate','tools/region-nodes/test_bgcam_gate.cjs'],/* p0drag6: walk cover / explore / warm-up all go through BgCamGate */
+ ['p0drag7','tools/region-nodes/test_p0drag7.cjs'],/* skycity snap entry, arm hysteresis (Mac trace replay), skycity house proxies, camTrace in explore */
  ['cam-trace','tools/region-nodes/test_cam_trace.cjs'],/* p0drag4b: ?camTrace=1 off = no writes, on = writer ids */
  ['skycity-stand','tools/region-nodes/test_skycity_stand.cjs'],/* p0d5sky: off-walkable explore open → nearest node; __qfTeleport */
  ['lakeside-entry-deck','tools/journey-integration/test-lakeside-entry-deck.cjs'],

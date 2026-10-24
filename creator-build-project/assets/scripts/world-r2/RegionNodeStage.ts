@@ -524,7 +524,7 @@ export class RegionNodeStage extends Component{
   // p0drag7: no single-frame arm jumps (Mac trace_lake_walkdrag 203.6/205.7/207.9 s: clearPose flipped 9.1 ↔ 5.7 m with the yaw), then never inside a proxy
   const e=this.entry,look=this.lookAt(g);
   pose=e?(this.armSmooth.reset(this.armOf(pose,look)),pose):this.armAlong(pose,look,this.armSmooth.step(this.armOf(pose,look),dt));
-  pose=this.outOfProxies(pose,look);
+  pose=this.outOfProxies(pose,look) as Pose;
   if(e){e.t+=Math.max(0,Math.min(0.1,dt||0));const u=Math.min(1,e.t/e.T),s=u*u*u*(u*(u*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s,a[2]+(b[2]-a[2])*s] as [number,number,number];
    pose={...pose,position:L(e.from.position,pose.position),target:L(e.from.target,pose.target)};if(u>=1)this.entry=null;}
   (globalThis as any).__qfCamTraceSub?.(e?'orbit+entry':'orbit');
@@ -536,7 +536,7 @@ export class RegionNodeStage extends Component{
   return {...pose,position:[look[0]+(p[0]-look[0])*k,look[1]+(p[1]-look[1])*k,look[2]+(p[2]-look[2])*k]};}
  /** p0drag7 (Mac p0drag6 skycity east: lens in a house wall / single-colour frames): if the look→lens segment enters a proxy box (one
   *  that does not hold her look point), the lens stops OCC_FRONT_M in front of it. Skycity only (lakeside / island: LensGuard). */
- private outOfProxies(pose:Pose,look:readonly number[]):Pose{
+ private outOfProxies(pose:Pose,look:readonly number[],probe=false):Pose|null{
   if(this.region!=='skycity')return pose;const boxes=this.lakesideOccluders();if(!boxes)return pose;
   const p=pose.position,d=[p[0]-look[0],p[1]-look[1],p[2]-look[2]],L=Math.hypot(d[0],d[1],d[2]);if(L<1e-4)return pose;const pad=0.25;let tMin=L;
   for(const b of boxes){
@@ -546,7 +546,14 @@ export class RegionNodeStage extends Component{
     let a=(lo[k]-look[k])/d[k],c=(hi[k]-look[k])/d[k];if(a>c){const s=a;a=c;c=s;}t0=Math.max(t0,a);t1=Math.min(t1,c);if(t0>t1)ok=false;}
    if(ok)tMin=Math.min(tMin,t0*L);
   }
-  return tMin>=L-1e-6?pose:this.armAlong(pose,look,Math.max(0.8,tMin-0.3));
+  if(tMin>=L-1e-6)return probe?null:pose;if(probe)return pose;
+  // a wall right behind her: rather than a lens on her head, climb over it (same arm, steeper, first clear elevation ≤ 78°)
+  // (then the least yaw swing, up to ±90°) — never a lens in a wall
+  if(tMin-0.3<LENS_GUARD.armMinM){const y0=Math.atan2(d[0],d[2]),e0=Math.asin(Math.max(-1,Math.min(1,d[1]/L))),R=Math.PI/180;
+   for(const sw of [0,15,-15,30,-30,45,-45,60,-60,90,-90])for(let e=Math.max(e0,0)+(sw?0:5*R);e<=78*R;e+=5*R){const y=y0+sw*R;
+    const q:[number,number,number]=[look[0]+Math.sin(y)*Math.cos(e)*L,look[1]+Math.sin(e)*L,look[2]+Math.cos(y)*Math.cos(e)*L];
+    if(this.outOfProxies({...pose,position:q},look,true)===null)return {...pose,position:q};}}
+  return this.armAlong(pose,look,Math.max(0.8,tMin-0.3));
  }
  /** Sky stairs live in large merged meshes excluded from orbit AABBs. Sample from ABOVE the mesh,
   * so even a lens already below a tread (or returning from a cinematic) is lifted onto its top. */

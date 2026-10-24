@@ -26,7 +26,7 @@ const sb={module:{exports:{}},stageGraph:LE.stageGraph,EXIT_EXPLORE_REGIONS:LE.E
  setExploreEnabled:v=>Gate.setExploreEnabled(v),emitTransitCue:()=>{},proxiesToWorld:OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:LX.LAKESIDE_LENS_OCCLUDERS,ISLAND_LENS_OCCLUDERS:IX.ISLAND_LENS_OCCLUDERS,
  followPose:E.followPose,followLookUp:E.followLookUp,geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}},intersect:{rayModel:()=>0}},MeshRenderer:class{},LENS_CLEAR_M:0.6,Date,Math,Mat4,REGION_NODES:RN.REGION_NODES,nearestWalkable:RW.nearestWalkable};
 /* ?camTrace=1 (CamTrace.ts) publishes its sub-path hook on the host globalThis; the vm context sees the same one */
-Object.defineProperty(sb,'__qfCamTraceSub',{get:()=>globalThis.__qfCamTraceSub});
+Object.defineProperty(sb,'__qfCamTraceSub',{get:()=>globalThis.__qfCamTraceSub});Object.defineProperty(sb,'__qfCamTrace',{get:()=>globalThis.__qfCamTrace});
 vm.runInNewContext(out,sb);const Stage=sb.module.exports;
 const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
 const wrap=a=>((a+540)%360)-180;
