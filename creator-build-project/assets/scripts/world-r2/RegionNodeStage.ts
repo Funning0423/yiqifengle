@@ -47,6 +47,8 @@ export class RegionNodeStage extends Component{
  private groundWalking=false;
  private exploreCheck=0;
  private syncOpened:ExploreRegion|null=null;
+ /** p0drag5: board-background cameras switched off while a sync-opened explore owns the view (restored on close). */
+ private syncCams:Camera[]=[];
  private exploreArmed:Partial<Record<ExploreRegion,boolean>>={};
  private explorePrev:string|null=null;
  private focus:Vec=[0,0,0];
@@ -208,13 +210,14 @@ export class RegionNodeStage extends Component{
   this.region=region;
  }
  private restoreBoard(){
-  const c=this.cover;if(!c)return;this.cover=null;
+  const c=this.cover;if(!c){this.releaseSyncCams();return;}this.cover=null;
   if(c.rig)c.rig.active=c.rigOn;
   this.flow()?.presentNodeWalkWorld(false);
   for(const x of c.cams)if(x.cam?.isValid)x.cam.enabled=x.on;
   if(c.host?.isValid)c.host.active=true;
   if(c.nav?.isValid)c.nav.active=true;
   try{this.character?.setVisible(false);}catch{/* level hides her */}
+  this.releaseSyncCams();
   this.lens='Board';this.exploring=false;setExploreEnabled(false);this.shotPhases=null;
   this.orbit.armBoard();
  }
@@ -687,15 +690,30 @@ export class RegionNodeStage extends Component{
   this.explorePrev=s?.state??null;
   if(this.syncOpened&&!exploreWanted(this.syncOpened,s)){
    const r=this.syncOpened;this.syncOpened=null;this.exploreArmed[r]=false;(globalThis as any).__qfExploreSync={region:r,open:false,at:Date.now()};
+   this.releaseSyncCams();
    if(this.region===r&&!this.cover&&this.exploring){this.walkToken++;this.exploring=false;this.lens='Board';setExploreEnabled(false);this.orbit.forget();}
    return;
   }
   if(this.syncOpened||this.cover||this.anim||!this.ensureCharacter()||!this.camera)return;
   for(const r of EXIT_EXPLORE_REGIONS){
    if(!this.exploreArmed[r]||!exploreWanted(r,s)||(r==='island'?!s?.characterReady:!this.model(r)?.activeInHierarchy))continue;
-   this.syncOpened=r;if(this.region!==r)this.orbit.forget();this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
+   this.syncOpened=r;if(this.region!==r)this.orbit.forget();const shot=this.takeSyncView(r);if(shot)this.writePose(shot,false);this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
   }
  }
+ /** p0drag5 (Mac fc742aa2: lakeside explore = fixed wide shot until a ground tap). Leaving a board opens explore by poll, but the
+  *  board's own live background camera (LakesideBackgroundCamera, priority 44, fixed) kept drawing over the stage camera; only the
+  *  ground tap's cover switched it off, so the follow/orbit lens became visible only then. Switch those cameras off here and hand
+  *  their pose to the stage camera, so the entry glide starts from the shot on screen (no cut). Returns that pose, or null. */
+ private takeSyncView(region:StageRegion):Pose|null{
+  this.releaseSyncCams();const scene=director.getScene();if(!scene)return null;let shot:Pose|null=null;
+  for(const c of scene.getComponentsInChildren(Camera)){
+   if(c===this.camera||!c.enabled||!c.node?.activeInHierarchy||!/BackgroundCamera$/.test(c.node.name))continue;
+   if(!shot&&c.node.name.toLowerCase().startsWith(region)){const p=c.node.worldPosition,f=c.node.forward;shot={position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:c.fov};}
+   c.enabled=false;this.syncCams.push(c);
+  }
+  return shot;
+ }
+ private releaseSyncCams(){for(const c of this.syncCams.splice(0))if(c?.isValid)c.enabled=true;}
  private skipWalk(){/* a tap during FollowWalk is swallowed until the segment timeout cuts it */}
  private async walkTo(at:Vec){
   if(!this.character)return;
