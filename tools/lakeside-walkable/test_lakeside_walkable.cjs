@@ -127,7 +127,7 @@ assert.match(src,/if\(this\.region==='meadow'\|\|this\.region==='skycity'\|\|thi
 assert.match(src,/walkMatrix\(region:StageRegion\):Mat4\|null\{if\(region==='island'\)return new Mat4\(\)/);
 assert.match(src,/update\(dt:number\)\{\n  this\.syncExplore\(dt\);/);
 assert.match(src,/this\.openExplore\(r,true\)/);
-assert.match(src,/region==='lakeside'\?undefined:stageGraph/);
+assert.match(src,/region==='lakeside'(\?undefined:|\)return undefined;const b=)stageGraph/);/* r17: other regions' box goes through toWorld */
 assert.match(src,/LakesideJourneyScene/);
 // pause label (b16 decision): 「离开棋盘」, same Home action
 const bp=fs.readFileSync(path.join(SCRIPTS,'ui/BoardPanels.ts'),'utf8');

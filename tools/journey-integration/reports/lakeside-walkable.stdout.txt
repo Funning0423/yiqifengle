@@ -1,2 +1,1 @@
 island explore ok {"spawn":[-2.1135,0,5.2814],"tap":"walk","sea":"water"}
-region-walkable ok cells {"island":3642,"meadow":23987,"skycity":24093,"lakeside":11183}

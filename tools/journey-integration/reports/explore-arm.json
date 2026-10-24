@@ -58,11 +58,11 @@
   {
    "id": "A1/A2 first drag",
    "region": "lakeside",
-   "minArmM": 11.48,
+   "minArmM": 10.79,
    "settledArmM": 12.28,
-   "maxLensMS": 10.9,
-   "orbitDist": 12,
-   "firstDragGlideS": 4.89,
+   "maxLensMS": 13.9,
+   "orbitDist": 16.5,
+   "firstDragGlideS": 3.66,
    "ok": true
   },
   {

@@ -1,9 +1,9 @@
 {
- "status": "FAIL",
+ "status": "PASS",
  "failingBefore": true,
  "wiring": {
   "guard": true,
-  "orbit": false,
+  "orbit": true,
   "follow": true,
   "reward": true,
   "island": true
