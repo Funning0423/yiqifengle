@@ -140,3 +140,26 @@ bridge (lens looks down over the railing), island: drag down beside a palm (lens
   | K4 trace rows in explore | FAIL: 0 rows in 30 updates | PASS: 30 rows |
 - Item 4 (S3 walk detours / kind none) → 场景设计部; item 6 (QA strings in the wechat package) not touched.
 - Suite: 173/176, 0 FAIL (3 BLOCKED as before). suite-p0drag7.log.
+
+## p0drag8 (branch cine/p0drag8 from GGbot 89c33d4b; not pushed, not merged, no Mac)
+Commits: ede49fc7 avoidance + pitch cap · 76703364 perf · 67a1a1ad island sign fallback · 17e15910 test · d8bf3325 test hooks · 48651dbb/00ed5c8b/356be67e test + suite wiring · f775a268 inside-box catch-up · 39da2922 test P5 · (this outbox commit).
+### 1 skycity east high platform (Mac trace_skd 272–297 s)
+- Cause: the p0drag7 outOfProxies fallback `max(0.8, tMin−0.3)` fired whenever no climb/swing was clear among the dense 2112-box set → written arm 0.8 m (orbit arm 7.34) for ~25 s; it flipped 0.8↔7.34 when the 400 ms box refresh changed the set; LensGuard climb (up 24) gave pitch −68…−75°.
+- Fix: arm floor 3.5 m in skycity (clampArm after LensGuard). New avoidance: sticky clear offset (climb in 6° steps ≤ 58°, then least yaw swing ±15…±90°), kept while clear, back to raw only after 12 clear frames → holds across box refreshes; applied offset rate-limited 90°/s yaw, 45°/s elevation. No clear candidate → lens stays outside every box, partial occlusion accepted. Never a close-up.
+- Pitch: final clampPitch before writePose in every region: lens elevation and view pitch ≤ 58° (caps LensGuard climb too).
+- Replay (test_p0drag8 P1, 1621 frames, real 2112 boxes, 18 m near set re-taken every 24 frames with jitter + 10 % drop/reorder): Mac written min arm 0.8 → min arm 6.66 m, min view pitch −58.0°, max arm step 0.04 m/frame, elevation never faster than user drag + 45°/s. On 89c33d4b: pitch −77°, elevation step 39° over the limit → FAIL.
+- Perf (node, box): avg 0.15 ms/frame, p99 1.7 ms (LensGuard occlude 1.6, outOfProxies 0.07) after sphere-filtering boxes to arm+1.5 m for LensGuard/avoid, scalar slab test, full search ≤ every 4 frames. Before the perf commit: p99 6.4 ms.
+- Size: +7.9 KB TS source (RegionNodeStage +4.2 KB, LensAvoid.ts 2.2 KB new, Boot +0.9 KB, IslandPropsLayout +0.5 KB); no assets. Fixture 123 KB is tools/ only.
+### 5 lakeside walk-drag −60.5°
+- Cause: LensGuard idle; FreeOrbit.clearPose (renderer-AABB clear) lifted the lens 48→60.6°. Fix: final clampPitch. Replay P2: Mac −60.5 → −58.0.
+### Island return sign — REAL BUG for normal players
+- The 继续旅程 signpost is at (−1.2,−1.15,18.8); from every island explore node it is on screen only for a 10–15° yaw window (≈140–195°, lens on the far side looking at it). Explore entry yaws are 0–60° (Mac isd/isn) → 78/78 entry poses have it off screen. But syncIslandProps took any signRect (even off screen, e.g. (−1440,1281)) as the mainline hit area and set the flat button opacity 0 → no visible way back to the board.
+- Fix: signRectOnScreen() — an off-screen rect is rejected; the flat 继续旅程 button shows at its own layout slot; facing the sign the 3D sign takes over again. Test P3.
+### 4 test-only hooks (qfSkip gate; normal WeChat release / no ?qfSkip → not registered)
+- __qfTeleport(key, yaw?, pitch?); __qfTeleport('sign') = island node nearest the sign, lens aimed at it (P4: sign rect on screen); __qfAimAt(nodeName); __qfBackToBoard() = the 继续旅程 action. Test P4 checks gate closed/open, release host, source gating.
+### Scene 4c585322 (platform no longer walkable, 1838 scene boxes → 2192 total) — scratch merge only, NOT in this branch
+- Scratch worktree (merge HEAD + 4c585322, one trivial import conflict: walkTapPath) — all p0drag8 tests pass there.
+- P1 replay with 2192 boxes: min arm 6.79 m, pitch ≥ −58°, max arm step 0.022 m; perf avg 0.21 ms, p99 2.7 ms/frame (near set 364).
+- P5 ground spot by the roots/house (snap point 21.8,−0.17,6.6), full slow orbit turn at pitch/dist 15°/7 m, 30°/10 m, 10°/12 m: raw lens inside walls 476/1440 frames → written 7/1440 (0.5 %, brief rate-limited swing past a wall right next to her, ×1.6 catch-up), arm ≥ 5.05, pitch ≥ −58°, lens step ≤ 0.34 m/frame, p99 ≤ 3.0 ms. On this branch's 2112-box set the same sweep: 29/1440 (2 %). Residual: partial frames inside a box during that swing — not a jump, not a close-up.
+### Suite
+HEAD 39da2922: 175/178 PASS, 0 FAIL; 3 baseline env blocks (2× Node ≥22.6, navigation-guard browser).
