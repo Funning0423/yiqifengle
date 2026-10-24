@@ -4366,8 +4366,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 16208,
-    "sha256": "399d01277cb9a59c274590ff65cdf3ca21585bd0e0b8f4b3073220067abc64ac"
+    "bytes": 16275,
+    "sha256": "944c8ca43f9d9e216160c62931b1bd307c1747add9d6c95eaefb15957b8b1a02"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

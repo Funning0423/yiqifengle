@@ -1,0 +1,24 @@
+{
+  "comment": "launchQuery 只在測試包生效：模擬 ?qfSkip=lakeside（隔離測試存檔，真實存檔不動），直接進風鈴湖畔降落。",
+  "launchQuery": "?qfSkip=lakeside",
+  "stateEveryMs": 1000,
+  "steps": [
+    {"op":"waitState","name":"region:lakeside","timeoutMs":120000,"stopOnFail":false},
+    {"op":"wait","ms":1500},
+    {"op":"screenshot","name":"lake-landing-1"},
+    {"op":"wait","ms":4000},
+    {"op":"screenshot","name":"lake-landing-2"},
+    {"op":"waitState","name":"explore","timeoutMs":60000,"stopOnFail":false},
+    {"op":"wait","ms":3000},
+    {"op":"screenshot","name":"lake-explore-stand3s"},
+    {"op":"drag","x1":100,"y1":600,"x2":290,"y2":600,"ms":700},
+    {"op":"wait","ms":1000},
+    {"op":"screenshot","name":"lake-dragged"},
+    {"op":"tap","x":195,"y":650},
+    {"op":"wait","ms":2500},
+    {"op":"screenshot","name":"lake-tap-ground"},
+    {"op":"tap","x":40,"y":790},
+    {"op":"wait","ms":1500},
+    {"op":"screenshot","name":"lake-tap-water"}
+  ]
+}

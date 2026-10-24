@@ -1,0 +1,32 @@
+{
+  "comment": "座標＝設計解析度 390x844（左上為原點，y 向下）。tap/drag 座標為估計值，第一次跑請看 shots/ 校準。",
+  "stateEveryMs": 2000,
+  "steps": [
+    {"op":"waitState","name":"home","timeoutMs":90000},
+    {"op":"wait","ms":2000},
+    {"op":"screenshot","name":"home"},
+    {"op":"tap","x":195,"y":560},
+    {"op":"waitState","name":"island","timeoutMs":30000},
+    {"op":"wait","ms":3000},
+    {"op":"screenshot","name":"island"},
+    {"op":"tap","x":195,"y":420},
+    {"op":"waitState","name":"level","timeoutMs":20000,"stopOnFail":false},
+    {"op":"wait","ms":2000},
+    {"op":"screenshot","name":"board"},
+    {"op":"tap","x":36,"y":70},
+    {"op":"waitState","name":"island","timeoutMs":20000},
+    {"op":"wait","ms":2500},
+    {"op":"screenshot","name":"left-board"},
+    {"op":"drag","x1":120,"y1":600,"x2":300,"y2":600,"ms":600},
+    {"op":"wait","ms":800},
+    {"op":"drag","x1":195,"y1":650,"x2":195,"y2":520,"ms":500},
+    {"op":"wait","ms":800},
+    {"op":"screenshot","name":"dragged"},
+    {"op":"tap","x":200,"y":640},
+    {"op":"wait","ms":2500},
+    {"op":"screenshot","name":"tap-grass"},
+    {"op":"tap","x":40,"y":780},
+    {"op":"wait","ms":1500},
+    {"op":"screenshot","name":"tap-water"}
+  ]
+}
