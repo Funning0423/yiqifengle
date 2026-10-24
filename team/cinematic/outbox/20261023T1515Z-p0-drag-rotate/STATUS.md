@@ -103,3 +103,19 @@ bridge (lens looks down over the railing), island: drag down beside a palm (lens
   - With the fix, F1–F4 and G1–G4 all pass.
 - lakeside-board-preload source regex updated for bgCamWant. Added BgCamGate.ts.meta.
 - Suite: 170/173, 0 FAIL (3 BLOCKED: node<22.6 ×2, browser ×1). suite-p0drag5b.log.
+
+## p0drag6 — every board-background camera switch goes through BgCamGate · branch cine/p0drag6 from c7a0c4e4 · commit 036ea4ae
+- BgCamGate holds are now per holder ('explore', 'cover'), so they can overlap. The camera draws again only when the last hold is released, and then only if its owner still wants it (bgCamWant from setVisible), it is valid, and it is in the hierarchy. New helpers: bgCamWanted, bgCamWarmOn, bgCamSettled.
+- Walk cover (RegionNodeStage.showWorld/restoreBoard) uses bgCamHold(c,'cover') and bgCamRelease(c,true,'cover',x.on). The old on/off snapshot is used only as a fallback for a camera whose owner never recorded what it wants.
+- Board warm-up (RegionBoardStaging) camOn skips a held camera and turns the camera on through bgCamWarmOn. camOff sets bgCamSettled(cam,saved), i.e. the owner's current want and holds, not the stale snapshot.
+- Other direct `.enabled=` writes on cameras (grep) only switch them off and are left as is: owner dispose/construction, GLB-embedded cameras, and the SailShot QA tool.
+- Test bgcam-gate (real showWorld/restoreBoard/syncExplore/RegionBoardStaging, NOT ENGINE):
+  - W1: walk cover + owner setVisible(true) mid-walk → off during the walk, on after it.
+  - W2: walk cover + owner setVisible(false) mid-walk → off after it.
+  - W3: explore and cover overlap → off until both are released.
+  - W4: warm-up during a hold never draws; W4b: warm-up without a hold still runs.
+  - W5: another region's camera follows its own owner.
+  - W6: source scan finds no ungated camera switch-on.
+  - Results: on c7a0c4e4 all checks fail except W4b; on 036ea4ae all pass.
+- test_region_board_staging loader maps ./BgCamGate.
+- Suite: 172/175, 0 FAIL (3 BLOCKED: node<22.6 ×2, browser ×1). suite-p0drag6.log.
