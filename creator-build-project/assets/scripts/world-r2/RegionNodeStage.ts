@@ -22,6 +22,8 @@ import {qaSkipTarget} from './QaSkip';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
+import {SKYCITY_LENS_OCCLUDERS} from '../region/SkycityLensOccluders';
+import {ArmSmoother} from '../region/ArmSmoother';
 import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
 
@@ -68,6 +70,7 @@ export class RegionNodeStage extends Component{
  private savedLayers:{n:Node;layer:number}[]=[];
  private animHold:{c:Animation;on:boolean}[]=[];
  private holdPose:Pose|null=null;
+ private armSmooth=new ArmSmoother();
  private walkToken=0;
  private shotNote='';
  private dragHome:Vec|null=null;
@@ -465,11 +468,12 @@ export class RegionNodeStage extends Component{
  }
  private lakesideOccluders():OccBox[]|null{
   if(this.region==='island'){if(!this.islandBoxes)this.islandBoxes=ISLAND_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]]}));return this.islandBoxes;}
-  if(this.region!=='lakeside')return null;const m=this.model('lakeside');if(!m)return null;const now=Date.now();
+  if(this.region!=='lakeside'&&this.region!=='skycity')return null;const m=this.model(this.region);if(!m)return null;const now=Date.now();
   if(this.occBoxes&&this.occModel===m&&now-this.occAt<2000)return this.occBoxes;
   const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
   const tw=(p:readonly number[]):[number,number,number]=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];};
-  this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,tw);this.deckZones=proxiesToWorld(LAKESIDE_DECK_ZONES,tw);this.occModel=m;this.occAt=now;return this.occBoxes;
+  if(this.region==='skycity'){this.occBoxes=proxiesToWorld(SKYCITY_LENS_OCCLUDERS,tw);this.deckZones=null;}/* p0drag7: houses / walls */
+  else{this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,tw);this.deckZones=proxiesToWorld(LAKESIDE_DECK_ZONES,tw);}this.occModel=m;this.occAt=now;return this.occBoxes;
  }
  /** P0 r16: on the boardwalk / arch bridge the lens keeps ≥ deckElevDeg (looks over the railings); 0 elsewhere. */
  private deckElev():number{
@@ -517,11 +521,32 @@ export class RegionNodeStage extends Component{
   this.refreshOrbitBoxes(g);
   const A=LENS_GUARD;
   let pose=this.clampArm(this.occlude(this.guardOrbitGround(this.clampArm(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds()),A.armMinM,A.armMaxM)),dt),A.armHardM,Infinity);
-  const e=this.entry;
+  // p0drag7: no single-frame arm jumps (Mac trace_lake_walkdrag 203.6/205.7/207.9 s: clearPose flipped 9.1 ↔ 5.7 m with the yaw), then never inside a proxy
+  const e=this.entry,look=this.lookAt(g);
+  pose=e?(this.armSmooth.reset(this.armOf(pose,look)),pose):this.armAlong(pose,look,this.armSmooth.step(this.armOf(pose,look),dt));
+  pose=this.outOfProxies(pose,look);
   if(e){e.t+=Math.max(0,Math.min(0.1,dt||0));const u=Math.min(1,e.t/e.T),s=u*u*u*(u*(u*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s,a[2]+(b[2]-a[2])*s] as [number,number,number];
    pose={...pose,position:L(e.from.position,pose.position),target:L(e.from.target,pose.target)};if(u>=1)this.entry=null;}
   (globalThis as any).__qfCamTraceSub?.(e?'orbit+entry':'orbit');
   this.writePose(pose,false);
+ }
+ private lookAt(g:Vec):[number,number,number]{return [g[0],g[1]+(ORBIT_LIMITS[this.orbit.place]?.lookM??1.15),g[2]];}
+ private armOf(pose:Pose,look:readonly number[]):number{const p=pose.position;return Math.hypot(p[0]-look[0],p[1]-look[1],p[2]-look[2]);}
+ private armAlong(pose:Pose,look:readonly number[],a:number):Pose{const p=pose.position,L=this.armOf(pose,look);if(L<1e-4||Math.abs(a-L)<1e-6)return pose;const k=a/L;
+  return {...pose,position:[look[0]+(p[0]-look[0])*k,look[1]+(p[1]-look[1])*k,look[2]+(p[2]-look[2])*k]};}
+ /** p0drag7 (Mac p0drag6 skycity east: lens in a house wall / single-colour frames): if the look→lens segment enters a proxy box (one
+  *  that does not hold her look point), the lens stops OCC_FRONT_M in front of it. Skycity only (lakeside / island: LensGuard). */
+ private outOfProxies(pose:Pose,look:readonly number[]):Pose{
+  if(this.region!=='skycity')return pose;const boxes=this.lakesideOccluders();if(!boxes)return pose;
+  const p=pose.position,d=[p[0]-look[0],p[1]-look[1],p[2]-look[2]],L=Math.hypot(d[0],d[1],d[2]);if(L<1e-4)return pose;const pad=0.25;let tMin=L;
+  for(const b of boxes){
+   const lo=[b.min[0]-pad,b.min[1]-pad,b.min[2]-pad],hi=[b.max[0]+pad,b.max[1]+pad,b.max[2]+pad];
+   if(look[0]>=lo[0]&&look[0]<=hi[0]&&look[1]>=lo[1]&&look[1]<=hi[1]&&look[2]>=lo[2]&&look[2]<=hi[2])continue;
+   let t0=0,t1=1,ok=true;for(let k=0;k<3&&ok;k++){if(Math.abs(d[k])<1e-9){if(look[k]<lo[k]||look[k]>hi[k])ok=false;continue;}
+    let a=(lo[k]-look[k])/d[k],c=(hi[k]-look[k])/d[k];if(a>c){const s=a;a=c;c=s;}t0=Math.max(t0,a);t1=Math.min(t1,c);if(t0>t1)ok=false;}
+   if(ok)tMin=Math.min(tMin,t0*L);
+  }
+  return tMin>=L-1e-6?pose:this.armAlong(pose,look,Math.max(0.8,tMin-0.3));
  }
  /** Sky stairs live in large merged meshes excluded from orbit AABBs. Sample from ABOVE the mesh,
   * so even a lens already below a tread (or returning from a cinematic) is lifted onto its top. */
@@ -549,7 +574,7 @@ export class RegionNodeStage extends Component{
  /** Per-frame explore lens writer (the only one while explore is open; WorldFlow.settleOrbit stands down on exploreEnabled()). */
  private tickLens(dt:number){
   if(this.anim||this.holdPose||(this.lens!=='MapExplore'&&this.lens!=='FollowWalk'))return;
-  if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
+  if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded)||(this.entry&&this.orbit.seeded))this.writeOrbit(dt);
   else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
  }
@@ -565,9 +590,16 @@ export class RegionNodeStage extends Component{
   if(from&&this.orbit.shouldWrite()){const q=this.orbit.rawPose(g).position,d=Math.hypot(q[0]-from.position[0],q[1]-from.position[1],q[2]-from.position[2]);if(d>0.3)this.entry={from,t:0,T:Math.min(3,Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS))};}
   this.writeOrbit(0);
  }
- openExplore(region:StageRegion,fromLens=false){
-  this.region=region;this.exploring=true;this.lens='MapExplore';this.lensPull.reset();this.focus=this.girl();this.zoom=1.6;
+ openExplore(region:StageRegion,fromLens=false,snapped=false){
+  this.region=region;this.exploring=true;this.lens='MapExplore';this.lensPull.reset();this.focus=this.girl();this.zoom=1.6;this.armSmooth.clear();
   this.handOrbitBack(region);
+  /* p0drag7 (Mac p0drag6 skycity: she was snapped onto the nearest node, the lens stayed seeded on the board shot ~29 m away looking at
+     the sky). After a snap: re-seat the orbit on her new spot (follow lens, as qaTeleport) and glide there from the shot on screen. */
+  if(snapped){const g=this.girl(),{w,h}=this.viewport(),from=this.readPose();this.orbit.forget();this.orbit.setPlace(region);this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);
+   this.entry=null;if(this.lakesideOccluders())this.preSolveEntry();
+   const to=this.orbit.rawPose(g),d=Math.hypot(to.position[0]-from.position[0],to.position[1]-from.position[1],to.position[2]-from.position[2]);
+   this.entry=d>0.3?{from,t:0,T:Math.min(2.5,Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS))}:null;
+   setExploreEnabled(true);emitTransitCue('explore-unlocked',{t:0,region});this.rebuildMarkers();return;}
   // board exit (and the lakeside): seed from the lens she already has, so opening explore never jumps the camera
   if(fromLens||region==='lakeside'){const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);}
   this.entry=null;if(!this.orbit.shouldWrite())this.preSolveEntry();
@@ -699,18 +731,18 @@ export class RegionNodeStage extends Component{
   if(this.syncOpened||this.cover||this.anim||!this.ensureCharacter()||!this.camera)return;
   for(const r of EXIT_EXPLORE_REGIONS){
    if(!this.exploreArmed[r]||!exploreWanted(r,s)||(r==='island'?!s?.characterReady:!this.model(r)?.activeInHierarchy))continue;
-   this.syncOpened=r;if(this.region!==r)this.orbit.forget();const shot=this.takeSyncView(r);if(shot)this.writePose(shot,false);this.standOnWalk(r);this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
+   this.syncOpened=r;if(this.region!==r)this.orbit.forget();const shot=this.takeSyncView(r);if(shot)this.writePose(shot,false);const snapped=this.standOnWalk(r);this.openExplore(r,true,snapped);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
   }
  }
  /** p0d5sky (Mac r16d ?qfSkip=skycity-finale): explore opened with her 12.6 m off the skycity plateau (walk-local -18,1,57), so
   *  every ground ray missed the walkable grid (kind=none). Off the region's walkable area (> 1.6 m) = stand her on the nearest node. */
- private standOnWalk(region:StageRegion){try{this.standOnWalkOrThrow(region);}catch{/* lens only */}}
- private standOnWalkOrThrow(region:StageRegion){
-  const nodes=(REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined,m=this.walkMatrix(region);if(!nodes||!m||this.character==null)return;
+ private standOnWalk(region:StageRegion):boolean{try{return this.standOnWalkOrThrow(region);}catch{return false;/* lens only */}}
+ private standOnWalkOrThrow(region:StageRegion):boolean{
+  const nodes=(REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined,m=this.walkMatrix(region);if(!nodes||!m||this.character==null)return false;
   const inv=new Mat4();Mat4.invert(inv,m);const g=this.girl(),v=new Vec3();Vec3.transformMat4(v,new Vec3(g[0],g[1],g[2]),inv);
-  if(nearestWalkable(region as any,[v.x,v.y,v.z],1.6))return;
+  if(nearestWalkable(region as any,[v.x,v.y,v.z],1.6))return false;
   let best=nodes[0],bd=Infinity;for(const n of nodes){const d=Math.hypot(n.at[0]-v.x,n.at[2]-v.z);if(d<bd){bd=d;best=n;}}
-  this.standAt(region,best.at);
+  this.standAt(region,best.at);return true;
  }
  private standAt(region:StageRegion,at:readonly number[]){
   const w=this.toWorld(region,[[at[0],at[1],at[2]]])[0];try{this.character?.cancelAndReset({kind:'standing',controllerRoot:[w[0],w[1],w[2]],yawRad:0});}catch{/* pose only */}
@@ -858,6 +890,8 @@ export class RegionNodeStage extends Component{
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
   }
   this.tickLens(dt);
+  /* p0drag7 (Mac p0drag6 item 5: 0 frames in explore): one camTrace row per frame while ?camTrace=1 is on */
+  {const T=(globalThis as any).__qfCamTrace;if(T)this.traceFrame(T);}
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
  }
 }

@@ -118,7 +118,7 @@ const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
 const stagePath=path.join(__dirname,'../../creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts');
 const source=ts.createSourceFile(stagePath,fs.readFileSync(stagePath,'utf8'),ts.ScriptTarget.Latest,true);
 const stageClass=source.statements.find(n=>ts.isClassDeclaration(n)&&n.name.text==='RegionNodeStage');
-const methods=['writeOrbit','guardOrbitGround','viewDir','clampArm'].map(name=>stageClass.members.find(n=>n.name?.getText(source)===name).getText(source));
+const methods=['writeOrbit','guardOrbitGround','viewDir','clampArm','lookAt','armOf','armAlong','outOfProxies'].map(name=>stageClass.members.find(n=>n.name?.getText(source)===name).getText(source));
 class Ray{constructor(){this.o={set(x,y,z){Object.assign(this,{x,y,z});}};this.d={set(x,y,z){Object.assign(this,{x,y,z});}};}}
 let rayCalls=0;
 const geometry={Ray,ERaycastMode:{CLOSEST:1},intersect:{rayModel(ray,model,options){
@@ -138,7 +138,7 @@ const meshNames=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_
 const glb=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/bundles/region_skycity/env_skycity.glb'));
 const gltf=JSON.parse(glb.subarray(20,20+glb.readUInt32LE(12)).toString());
 for(const name of meshNames)assert.ok(gltf.nodes.some(n=>n.name===name&&n.mesh!==undefined),'real sky terrain mesh: '+name);
-const stage=new Stage();stage.region='skycity';
+const stage=new Stage();stage.region='skycity';stage.armSmooth={reset(){},step:a=>a};stage.lakesideOccluders=()=>null;/* p0drag7: arm smoothing / proxies covered by explore-arm-smooth + skycity-east */
 let renderers=[];
 stage.model=()=>({getComponentsInChildren:()=>renderers});
 stage.occlude=p=>p;/* b17r7: lakeside-only occlusion, covered by lakeside-lens-occlusion */stage.orbitBoxes=[];stage.refreshOrbitBoxes=()=>{};stage.regionBounds=()=>[-50,-50,50,50];stage.girl=()=>[0,0,0];

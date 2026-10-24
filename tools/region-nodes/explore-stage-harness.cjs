@@ -11,17 +11,18 @@ const FO=H.load(S('region/FreeOrbit.ts')),EI=H.load(S('world-r2/ExploreInput.ts'
 const {IslandHomeInteraction}=H.load(S('world-r2/IslandHomeInteraction.ts'));
 const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true);
 const cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
-const want=['onGesture','clampArm','regionBounds','toWorld','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','handOrbitBack','viewDir','guardOrbitGround','deckElev','preSolveEntry','openExplore','syncExplore','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','walkMatrix','showWorld','restoreBoard'];
-const OPTIONAL=new Set(['clampArm','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport']);/* p0drag5: absent before its fix *//* absent before the r17 fix: the failing-before run */
+const want=['onGesture','clampArm','regionBounds','toWorld','aimOrbit','tickLens','writeOrbit','occlude','lakesideOccluders','handOrbitBack','viewDir','guardOrbitGround','deckElev','preSolveEntry','openExplore','syncExplore','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','walkMatrix','showWorld','restoreBoard','lookAt','armOf','armAlong','outOfProxies','update','traceFrame'];
+const OPTIONAL=new Set(['clampArm','takeSyncView','releaseSyncCams','standOnWalk','standOnWalkOrThrow','standAt','qaTeleport','lookAt','armOf','armAlong','outOfProxies']);/* p0drag5: absent before its fix *//* absent before the r17 fix: the failing-before run */
 const methods=want.map(n=>{const m=cls.members.find(x=>x.name&&x.name.getText(sf)===n);if(!m&&OPTIONAL.has(n))return '';assert.ok(m,'RegionNodeStage.'+n);return m.getText(sf);});
 const out=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
 class Vec3{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}set(x,y,z){this.x=x;this.y=y;this.z=z;return this;}static transformMat4(o,v,m){const t=m&&m.m12!==undefined?[m.m12,m.m13,m.m14]:[0,0,0];o.x=v.x+t[0];o.y=v.y+t[1];o.z=v.z+t[2];return o;}}
 const BG=H.load(S('region/BgCamGate.ts'));
 const RW=H.load(S('region/RegionWalkable.ts')),RN=H.load(S('region/RegionNodes.ts'));
 class Mat4{constructor(){this.m12=0;this.m13=0;this.m14=0;}clone(){const o=new Mat4();o.m12=this.m12;o.m13=this.m13;o.m14=this.m14;return o;}static invert(o,a){o.m12=-(a.m12||0);o.m13=-(a.m13||0);o.m14=-(a.m14||0);return o;}}
+const AS=(()=>{try{return H.load(S('region/ArmSmoother.ts'));}catch{return {ArmSmoother:class{clear(){}reset(){}step(t){return t;}}};}})(),SKO=(()=>{try{return H.load(S('region/SkycityLensOccluders.ts')).SKYCITY_LENS_OCCLUDERS;}catch{return [];}})();
 const LE=H.load(S('region/LakesideExplore.ts')),CT=H.load(S('region/CamTrace.ts'));
 const sb={module:{exports:{}},stageGraph:LE.stageGraph,EXIT_EXPLORE_REGIONS:LE.EXIT_EXPLORE_REGIONS,exploreArm:LE.exploreArm,exploreWanted:LE.exploreWanted,
- director:{getScene:()=>sb.__scene||null},bgCamHold:BG.bgCamHold,bgCamRelease:BG.bgCamRelease,bgCamHeld:BG.bgCamHeld,bgCamWanted:BG.bgCamWanted,findDeep:(n,name)=>n&&n.find?n.find(name):null,Camera:class{},Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
+ director:{getScene:()=>sb.__scene||null},ArmSmoother:AS.ArmSmoother,SKYCITY_LENS_OCCLUDERS:SKO,bgCamHold:BG.bgCamHold,bgCamRelease:BG.bgCamRelease,bgCamHeld:BG.bgCamHeld,bgCamWanted:BG.bgCamWanted,findDeep:(n,name)=>n&&n.find?n.find(name):null,Camera:class{},Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
  setExploreEnabled:v=>Gate.setExploreEnabled(v),emitTransitCue:()=>{},proxiesToWorld:OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:LX.LAKESIDE_LENS_OCCLUDERS,ISLAND_LENS_OCCLUDERS:IX.ISLAND_LENS_OCCLUDERS,
  followPose:E.followPose,followLookUp:E.followLookUp,geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}},intersect:{rayModel:()=>0}},MeshRenderer:class{},LENS_CLEAR_M:0.6,Date,Math,Mat4,REGION_NODES:RN.REGION_NODES,nearestWalkable:RW.nearestWalkable};
 /* ?camTrace=1 (CamTrace.ts) publishes its sub-path hook on the host globalThis; the vm context sees the same one */
@@ -37,7 +38,7 @@ const HER={island:[-2.1,0,5.3],meadow:[0,0,0],skycity:[0,0,0],lakeside:[tree[3]+
 function rig(region,state,stand,opts={}){
  const st=new Stage();let written=null;const orbit=new FO.FreeOrbit(region);
  Object.assign(st,{region,orbit,exploring:true,anim:null,holdPose:null,lens:state==='S3'?'FollowWalk':'MapExplore',groundWalking:state==='S2',camera:{},dragHome:null,
-  lensPull:new OC.LensGuard(),entry:null,deckZones:null,rebuildMarkers:()=>{},islandBoxes:null,occBoxes:null,occAt:0,occModel:null,orbitBoxes:[]});
+  lensPull:new OC.LensGuard(),armSmooth:new AS.ArmSmoother(),entry:null,deckZones:null,rebuildMarkers:()=>{},islandBoxes:null,occBoxes:null,occAt:0,occModel:null,orbitBoxes:[]});
  let her=(stand||HER[region]).slice();st.girl=()=>her;st.yaw=()=>0;st.viewport=()=>({w:VW[0],h:VW[1]});st.refreshOrbitBoxes=()=>{st.orbitBoxes=(opts.boxes||[]).map(b=>({min:b.min.slice(),max:b.max.slice()}));};
  st.model=r=>r==='lakeside'?{worldMatrix:null}:opts.modelAt?{worldMatrix:{m12:opts.modelAt[0],m13:opts.modelAt[1],m14:opts.modelAt[2]},getComponentsInChildren:()=>[]}:null;st.readPose=()=>written||E.followPose(her,0,390,844,0);
  st.writePose=p=>{written=p;return p;};
@@ -57,4 +58,4 @@ function inputFor(region,st){
  return {start:(x,y)=>{all=[1];root.emit('touch-start',ev(1,x,y));},move:(x,y)=>root.emit('touch-move',ev(1,x,y)),end:(x,y)=>{all=[];root.emit('touch-end',ev(1,x,y));}};
 }
 const VW=[390,844];
-module.exports={BG,RW,RN,setScene:s=>{sb.__scene=s;},CT,H,FO,E,OC,LX,IX,Gate,Stage,rig,inputFor,yawOf,wrap,VW,HER,DECK_STAND,S};
+module.exports={AS,SKO,BG,RW,RN,setScene:s=>{sb.__scene=s;},CT,H,FO,E,OC,LX,IX,Gate,Stage,rig,inputFor,yawOf,wrap,VW,HER,DECK_STAND,S};
