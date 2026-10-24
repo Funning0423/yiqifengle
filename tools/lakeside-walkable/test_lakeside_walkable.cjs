@@ -153,7 +153,9 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
  assert.equal(RW.walkFloorY(r,13.3,9.16)===null||RW.walkFloorY(r,13.3,9.16)<.5,true,'ruin wall top is not floor');
  assert.ok(P([13.13,-0.06,7.61],[13.22,1.17,9.16])<3,'E2->E3 near straight');
  assert.ok(P([13.18,-0.02,8.63],[11.79,-0.01,8.96])<3,'E3->W0 near straight');
- const cam=(her,t)=>{let dx=t[0]-her[0],dz=t[2]-her[2],L=Math.hypot(dx,dz);dx/=L;dz/=L;const k=7.5*Math.cos(25*Math.PI/180);return [her[0]-dx*k,her[1]+1.2+7.5*Math.sin(25*Math.PI/180),her[2]-dz*k];};
+ // r4: arm 3 m, the lens pulls in in front of the blue-roof house proxies; a 7.5 m arm east of W0 sits inside the house and the
+ // voxel field (rightly) stops that ray on the house
+ const cam=(her,t)=>{let dx=t[0]-her[0],dz=t[2]-her[2],L=Math.hypot(dx,dz);dx/=L;dz/=L;const k=3*Math.cos(25*Math.PI/180);return [her[0]-dx*k,her[1]+1.2+3*Math.sin(25*Math.PI/180),her[2]-dz*k];};
  for(const t of [[9.9,0,9],[10.7,0,9],[9.9,1,9],[10.7,1,9]]){const o=cam([11.79,-0.01,8.96],t),h=RW.walkRayHit(r,o,[t[0]-o[0],t[1]-o[1],t[2]-o[2]]);
   assert.equal(h.kind,'walk','W tap '+t+' '+JSON.stringify(h));assert.ok(P([11.79,-0.01,8.96],h.at)<8,'W tap path '+t);}
  assert.equal(JSON.stringify(RW.WALK_TAP_SNAP),'["skycity"]');
@@ -180,14 +182,32 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
  assert.ok(RW.walkPath(r,s.at,RN.REGION_NODES.skycity.nodes.find(n=>n.key==='S3').at),'and walks back to S3');
  console.log('skycity-walk-r3 components ok');}
 
-// b17 skycity-walk-r3 (Mac p0drag7 问题 3): S3 east. E3 (11.47,7.95)->(13.82,7.56) is 2.4 m straight but the spot is behind the low
-// ruin wall: walkTapPath stops her at the near side (was 14.4 m round). A tap into the blue-roof house stops at its wall (E6 was a
-// 33 m walk onto the annex roof; with the roof gone the ray flew through the house to the far side).
-{const r='skycity',L=p=>p?RW.walkPathLengthM(p):Infinity;
- const p3=RW.walkTapPath(r,[11.47,-0.1,7.95],[13.82,0.1,7.56]);assert.ok(L(p3)<3,'E3 tap path '+L(p3));
- assert.ok(L(RW.walkTapPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96]))<8,'near-straight taps untouched');
+// b17 skycity-walk-r3 → r4 (Mac p0drag8): S3 east. The r3 "stop on the near side when it is the long way round" rule stopped her
+// 1.5 m short of reachable floor (E3/E6/Root) and is gone: a tap on reachable floor takes her there (≤ 0.3 m). The spot east of the
+// low ruin fence (x≈13.5, z 4.5–13.5) is a fenced yard open only to the north, so that walk is a real detour (~14.5–17 m).
+// A ray into the blue-roof house still stops at its wall: it now meets the baked voxel field (walls / roots), not the 3 m rule.
+{const r='skycity',L=p=>p?RW.walkPathLengthM(p):Infinity,end=p=>p[p.length-1],d2=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2]);
+ for(const [f,t] of [[[8.77,0,7.5],[14.5438,0.08,7.1742]],[[8.77,0,7.5],[14.5333,0.08,7.7447]],[[13,0,7.4],[14.6126,0.08,7.7665]],[[11.47,-0.1,7.95],[14.02,0.08,7.53]]]){
+  const p=RW.walkTapPath(r,f,t);assert.ok(p&&d2(end(p),t)<=.3,'reaches the tapped floor '+t+' '+(p&&end(p)));assert.ok(L(p)<20,'yard detour bounded '+L(p));}
  assert.equal(L(RW.walkTapPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96])).toFixed(3),L(RW.walkPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96])).toFixed(3));
+ assert.ok(L(RW.walkTapPath(r,[6.2,-0.01,8.2],[11.79,-0.01,8.96]))<8,'near-straight taps untouched');
  const o=[7.12,4.37,7.81],t=[20.84,1.65,7.13],h=RW.walkRayHit(r,o,[t[0]-o[0],t[1]-o[1],t[2]-o[2]]);
  assert.equal(h.kind,'walk');assert.ok(h.at[0]<15.5,'E6 tap stops at the house wall '+JSON.stringify(h));
  assert.ok(L(RW.walkTapPath(r,[13.82,0.1,7.56],h.at))<3,'E6 walk short');
- console.log('skycity-walk-r3 S3-east ok');}
+ console.log('skycity-walk-r4 S3-east ok');}
+
+// b17 skycity-walk-r4 (Mac p0drag8 P0): hW6 tap (346,581) from her at (11.24,9.6) answered 'none'. Real Mac camera model (orbit:
+// pivot = feet + 1.25, fov 48, 390×844): over every pitch / yaw / arm the rays through that pixel never answer 'none' now, and a
+// ray from the sky over the plaza that meets nothing still does. Voxel field decodes to its baked cell count.
+{const r='skycity',D2R=Math.PI/180,her=[11.24,0.02,9.6];let none=0,n=0;
+ // local camera basis (the region's local frame; yaw sweeps all directions so the world rotation does not matter)
+ for(const arm of [4,7.48])for(let p=-80;p<=-15;p+=5)for(let y=0;y<360;y+=10){const P=p*D2R,Y=y*D2R,f=[-Math.sin(Y)*Math.cos(P),Math.sin(P),-Math.cos(Y)*Math.cos(P)];
+  const c=[her[0]-f[0]*arm,her[1]+1.25-f[1]*arm,her[2]-f[2]*arm],rt=[Math.cos(Y),0,-Math.sin(Y)],up=[-(rt[1]*f[2]-rt[2]*f[1]),-(rt[2]*f[0]-rt[0]*f[2]),-(rt[0]*f[1]-rt[1]*f[0])];
+  const t=Math.tan(24*D2R),nx=(2*346/390-1)*t*390/844,ny=(1-2*581/844)*t,d=[0,1,2].map(i=>f[i]+rt[i]*nx+up[i]*ny);
+  n++;if(RW.walkRayHit(r,c,d).kind==='none')none++;}
+ assert.equal(none,0,'hW6 pixel none '+none+'/'+n);
+ assert.equal(RW.walkRayHit(r,[6.2,30,8.2],[0,1,0]).kind,'none','a ray into the sky is still none');
+ const D=RW.walkGrid&&require('fs').readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/RegionWalkableData.ts'),'utf8');
+ assert.match(D,/skycity:\{[^\n]*obsSlab:0\.25,obsCells:\d+/,'skycity voxel field baked');
+ assert.equal((D.match(/obsCells:\d/g)||[]).length,1,'only skycity has the voxel field');
+ console.log('skycity-walk-r4 hW6 ok',n);}
