@@ -195,8 +195,8 @@ Commits: c12384bc camera · b71b1f27 test · 7d36e0d3 hooks · e92a96b3 hook tes
   `__qfAimAt('ui_signpost')` (scene node name) or `__qfAimAt([x,y,z])` / `__qfAimAt({x,y,z})` (WORLD metres, same space as camTrace cam/her) —
   keeps her where she is, lens on her far side so the point is in the centre column; `__qfBackToBoard()`.
   All return {ok, reason?, yaw, pitch}. Explore must be open (reason 'explore-not-open').
-- Island with hooks: add `?qfHooks=1` to the web/QA build URL (e.g. `http://localhost:7456/?qfHooks=1&camTrace=1`), or in a WeChat develop/trial
-  build set the launch query qfHooks=1. No level skip happens; play to the island normally, open island explore, then call the hooks.
+- Island with hooks: add `?qfHooks=1` to the web/QA build URL (e.g. `http://localhost:7456/?qfHooks=1&camTrace=1`). Like qfSkip it reads location.search, so
+  inside the WeChat runtime (no location) it stays off — use the web/QA build for hook tests. No level skip happens; play to the island normally, open island explore, then call the hooks.
   `?qfSkip=<target>` still enables them too. WeChat release (envVersion 'release'): never registered (qaHooksEnabled false).
 ### 3 lens inside an occluder box
 - sx2d replay: Mac 11 frames → 0. Roots/house sweep (P5): 14/1440, 0, 19/1440 frames (was 7/0/0 in p0drag8 with LensGuard; the easing is slower
