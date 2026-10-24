@@ -19,7 +19,9 @@ class Vec3{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}set(x,y,z){this.
 const LE=H.load(S('region/LakesideExplore.ts')),CT=H.load(S('region/CamTrace.ts'));
 const sb={module:{exports:{}},stageGraph:LE.stageGraph,Vec3,LensGuard:OC.LensGuard,LENS_GUARD:OC.LENS_GUARD,guardEval:OC.guardEval,ORBIT_LIMITS:FO.ORBIT_LIMITS,LAKESIDE_DECK_ZONES:LX.LAKESIDE_DECK_ZONES,
  setExploreEnabled:v=>Gate.setExploreEnabled(v),emitTransitCue:()=>{},proxiesToWorld:OC.proxiesToWorld,LAKESIDE_LENS_OCCLUDERS:LX.LAKESIDE_LENS_OCCLUDERS,ISLAND_LENS_OCCLUDERS:IX.ISLAND_LENS_OCCLUDERS,
- followPose:E.followPose,followLookUp:E.followLookUp,geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}},intersect:{rayModel:()=>0}},MeshRenderer:class{},LENS_CLEAR_M:0.6,Date,Math,camTrace:CT.camTrace,camTraceSub:CT.camTraceSub,camTraceFrame:CT.camTraceFrame,camTraceRound:CT.camTraceRound};
+ followPose:E.followPose,followLookUp:E.followLookUp,geometry:{Ray:class{constructor(){this.o=new Vec3();this.d=new Vec3();}},intersect:{rayModel:()=>0}},MeshRenderer:class{},LENS_CLEAR_M:0.6,Date,Math};
+/* ?camTrace=1 (CamTrace.ts) publishes its sub-path hook on the host globalThis; the vm context sees the same one */
+Object.defineProperty(sb,'__qfCamTraceSub',{get:()=>globalThis.__qfCamTraceSub});
 vm.runInNewContext(out,sb);const Stage=sb.module.exports;
 const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
 const wrap=a=>((a+540)%360)-180;
