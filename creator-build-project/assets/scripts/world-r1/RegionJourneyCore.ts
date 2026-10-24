@@ -46,7 +46,9 @@ function journeyRegionOrderOk(from:string,to:string):boolean{
  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
 export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
 /** 04→05 set-off: black cover ramps (s), same cover/style as 主页 (HOME_FADE 0.4/0.5 in 88506aa). */
-export const SETOFF_FADE={outS:.25,inS:.35} as const;
+/** holdS (b17r7, 运镜bot): after the switch under black the cover is held at alpha 1 this long, so the first frames that draw the
+ * new scene/lens are drawn under a fully opaque cover (the fade-in used to start in the switch frame: alpha ~0.95). */
+export const SETOFF_FADE={outS:.25,inS:.35,holdS:.05} as const;
 export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
  // Landing A (final, v3, Mac check 379e137): 12 m behind / 1.5 m right / 2 m up from the end, view pitched 2.5 deg up over the
  // plaza-centred aim: plaza 50% across / 55% down, her centre at 75% of the width (was 86-89%), her 0.153 of screen height
@@ -231,7 +233,9 @@ export class RegionJourneyController {
   finally{if(serial===this.serial)this.busy=false;}
  }
  observe(actor:CharacterAdapter,world:WorldLease,dt:number=0):void{
-  if(this.lease?.onFrame){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target&&!this.rideHold){this.camera=pose;world.setCamera(pose);}}catch{}}
+  // b17r7: a held ride (set-off cover pending) gets NO onFrame at all, not just no camera write: the sail driver's step dresses
+  // its scene (SailArt.sync hides the island sea) and that showed as a grey sea under the half-faded cover (audit 0.31-0.40 s).
+  if(this.lease?.onFrame&&!this.rideHold){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target){this.camera=pose;world.setCamera(pose);}}catch{}}
   if(!this.activePath||!this.lease||!this.startCamera)return;
   const f=actor.walkProgress?.();if(typeof f!=='number'||!Number.isFinite(f))return;
   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
@@ -257,9 +261,12 @@ export class RegionJourneyController {
    const rideFade=!fade&&!!this.lease.ride&&!!this.lease.startPose&&this.distance===0&&typeof world.fadeCover==='function';
    if(this.rideHold){
     if(rideFade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';}
-    const p=this.lease.startPose!();if(p&&p.position&&p.target){this.camera=p;world.setCamera(p);}this.rideHold=false;
+    const p=this.lease.startPose!();if(p&&p.position&&p.target){this.camera=p;world.setCamera(p);}
    }
    this.show(true);token.check();
+   // Scene switch frame: shown only under alpha 1, and held there (holdS) so the first frames of the new scene draw fully black.
+   if(this.rideHold){if(rideFade){await world.fadeCover!(1,SETOFF_FADE.holdS);token.check();}this.rideHold=false;}
+   if(fade){await world.fadeCover!(1,SETOFF_FADE.holdS);token.check();}
    if(rideFade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
    if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
    if(this.lease.ride){
@@ -267,14 +274,14 @@ export class RegionJourneyController {
     this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
     const beforeRide=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-beforeRide[0],this.root[2]-beforeRide[2]);
     if(this.camera)world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!)/* b15: a ride tail (offscreen exit walk) still owns her */;
-    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+    this.region=this.lease.route.to;this.phase='arrived';this.target=null;this.pruneScenes();
    }else if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
     const L=routeLength(path),tm=this.lease.route.timing,timing=tm?(this.distance>0?remainingTiming(routeLength(this.lease.route.path),L,tm):tm):null;
     await token.wait(actor.perform(timing?{kind:'walk',path,duration:timing.durationS,distanceAt:(time:number)=>journeyDistanceAt(L,timing,time)}:{kind:'walk',path,duration:L/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
    this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);this.leaseProgress();
-   this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+   this.region=this.lease.route.to;this.phase='arrived';this.target=null;this.pruneScenes();
   }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}
@@ -285,6 +292,18 @@ export class RegionJourneyController {
  // fade-in), restore must not cancel that walk and snap her there; the tail ends on the same point (route end).
  restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root&&!(this.lease as any)?.tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
+ /** b17r10 memory: legs used to pile up until 「主页」 (island→meadow sail + meadow→skycity balloon + skycity→lakeside all alive on
+  *  the lakeside board, +64–80 MB JS). On arrival keep only the leg that arrived and the leg that built its departure region
+  *  (lease.route.to === current.route.from: the next ride can still depart from it); older legs are disposed (their own release:
+  *  prefab decRef, owned meshes/materials, SailArt, board source). Hidden-only nodes, so nothing visible changes. */
+ private pruneScenes():void{
+  const cur=this.lease;if(!cur)return;const keep=new Set<JourneySceneLease>([cur]);
+  for(const s of this.scenes)if(s!==cur&&s.route?.to===cur.route.from)keep.add(s);
+  const drop=this.scenes.filter(s=>!keep.has(s));if(!drop.length)return;
+  this.scenes=this.scenes.filter(s=>keep.has(s));
+  for(const s of drop){try{s.dispose();}catch(e){console.warn('journey-prune dispose failed',String(e));}}
+  try{(globalThis as any).__QF_JOURNEY_PRUNED=((globalThis as any).__QF_JOURNEY_PRUNED||[]).concat(drop.map(s=>s.route.from+'-'+s.route.to));}catch{/* */}
+ }
  private leaseProgress(){const l=this.lease;if(!l?.progress)return;try{l.progress(this.distance);}catch{}}
  /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.
   * Not a completion: region unlocks/records live in the campaign save, not here; the next trip simply walks the route again. */

@@ -1,0 +1,1 @@
+PASS lakeside-leg-hide: room_no_original_chair/env_cloud_layer

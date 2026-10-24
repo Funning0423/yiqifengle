@@ -27,7 +27,8 @@ import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor} from './JourneyTransport';
 import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
-import {loadTransitPrefab} from './BalloonTransit';
+import {diagDumpScene,diagParams,lakeDiagAt,loadTransitPrefab} from './BalloonTransit';
+import {LakesideLegHide} from './LakesideLegHide';
 import {mountVehicle} from './TransportVehicle';
 import {stepTransitClock} from './TransportLeg';
 import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,sailVehicle,seatFromBench} from './TransportLeg';
@@ -172,7 +173,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
  if(from!=='skycity')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
  let tailStop=()=>{}/* b15 handover: only the journey owner ends the exit walk */,waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{},beforeDraw=()=>{};let fillW=0;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
- const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);tailStop();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+ const legHide=new LakesideLegHide()/* b17 night lakeside blocker: earlier legs' leftovers off once she boards */;
+ const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);tailStop();rig.active=false;if(isValid(rig,true))rig.destroy();legHide.restore();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
  try{
   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);lakeModel=model;
@@ -218,6 +220,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined;let prev:Node|null=null,aboard=false;
    const fade=typeof world.fadeCover==='function'?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
    let walkDone=false,blackDone=!fade,fadingOut=false,fadingIn=false;
+   const diag=diagParams(),diagAt=lakeDiagAt();let diagDone=false;
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
@@ -230,7 +233,12 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
+     if(t>=R.cutT)legHide.apply(director.getScene())/* b17: island env_cloud_layer, day and night; skycity untouched */;
      lastPose=lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);
+     // Web diagnostics (Mac bisect, night lakeside blocker): ?hideNode=a,b hides by exact name every frame of THIS leg too (the
+     // BalloonTransit hook only runs on the meadow→skycity leg); ?diagDump=1&lakeDiagAt=t logs every active renderer once at ride time t.
+     if(diag.hide.length){const sc=director.getScene();if(sc){const hideIn=(n:Node)=>{if(diag.hide.includes(n.name))n.active=false;for(const c of n.children)hideIn(c);};hideIn(sc);}}
+     if(diag.dump&&!diagDone&&diagAt!==null&&clock.t+1e-6>=diagAt){diagDone=true;diagDumpScene(clock.t,'lakeside');}
      lease.progress!(t<R.cutT?R.walkAt(t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
     };
     beforeDraw=()=>{if(!dead)apply();};

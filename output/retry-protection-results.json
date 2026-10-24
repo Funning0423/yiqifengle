@@ -1,6 +1,6 @@
 {
   "scopeVersion": "r5-retry-readonly-exit-v1",
-  "startedAt": "2026-10-22T01:13:12.637Z",
+  "startedAt": "2026-10-23T09:34:39.135Z",
   "scope": "Pure Node actual unchanged runtime + pure managed session seam; isolated synchronous Map storage. No Cocos/browser/device/disk save acceptance.",
   "checks": [
     {
@@ -236,11 +236,11 @@
     }
   ],
   "findings": [],
-  "finishedAt": "2026-10-22T01:14:13.604Z",
+  "finishedAt": "2026-10-23T09:35:36.538Z",
   "runtimeSha256": {
     "mainline-r1/runtime/mainline-controller.js": "57ea81f302b4f5b44d014da999d57b0ac91920b2ae8c44bb5e113d3b7819e305",
     "regional-r05/runtime/board-session-provider.js": "5206e77677c469c84b63e297c95d78acd6890ebae41962b7e2198ed40252e449",
     "world-r2/ManagedBoardSession.ts": "c01e058acbdc4101c7f6a047f85884d5385aa56b7bbbe5cbd0652669d2e90e6c",
-    "ManagedMobileBoardUI.ts": "3953926904b57a4bff4e96e3bcb300ab4297ffca3cfd83d856a01ee5fbc5b626"
+    "ManagedMobileBoardUI.ts": "9d5b1d340edbded2881b38085eb9bef28231e7b5973a72b35f0713edf249088b"
   }
 }

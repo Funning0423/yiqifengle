@@ -16,7 +16,7 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, balloonIllumFactor, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
  if(name==='sky-city-enable'||name==='sky-islets-enable'||name==='balloon-cloud-exit'||name==='balloon-land')return 'skycity';
@@ -42,14 +42,17 @@ function holdAt():number|null{try{const q=typeof location!=='undefined'?String(l
 export function diagParams(q?:string):{hide:string[];dump:boolean}{try{const s=q!==undefined?q:(typeof location!=='undefined'?String(location.search||''):'');const h=/(?:^|[?&])hideNode=([^&]*)/.exec(s);return {hide:h?decodeURIComponent(h[1]).split(',').map(x=>x.trim()).filter(Boolean):[],dump:/(?:^|[?&])diagDump=1(?:&|$)/.test(s)};}catch{return {hide:[],dump:false};}}
 function nodePath(n:Node):string{const a:string[]=[];let c:Node|null=n;while(c){a.unshift(c.name);c=c.parent;}return a.join('/');}
 function diagVal(v:any):any{if(v==null)return null;if(typeof v==='number')return Number.isFinite(v)?+v.toFixed(4):String(v);if(typeof v==='object'){if(typeof v.name==='string'&&v.name)return v.name;const o:any={};for(const k of ['x','y','z','w','r','g','b','a'])if(typeof v[k]==='number')o[k]=Number.isFinite(v[k])?+v[k].toFixed(4):String(v[k]);return Object.keys(o).length?o:String(v);}return String(v);}
-export function diagDumpScene(t:number):void{
+/** ?lakeDiagAt=t: the skycity→lakeside ride time (s) at which ?diagDump=1 dumps (the lakeside leg; balloonAt is the meadow→skycity leg). */
+export function lakeDiagAt(q?:string):number|null{try{const s=q!==undefined?q:(typeof location!=='undefined'?String(location.search||''):'');const m=/(?:^|[?&])lakeDiagAt=([0-9.]+)/.exec(s);if(!m)return null;const t=Number(m[1]);return Number.isFinite(t)?t:null;}catch{return null;}}
+export function diagDumpScene(t:number,leg:string='skycity'):void{
  const scene=director.getScene();if(!scene)return;const rows:any[]=[];
  for(const r of scene.getComponentsInChildren(MeshRenderer)){
   if(!r.enabled||!r.node.activeInHierarchy)continue;const mat:any=(r as any)._materialInstances?.[0]||r.getSharedMaterial(0); // read only, never creates an instance
   const get=(k:string)=>{try{return diagVal(mat?.getProperty?.(k));}catch{return null;}};
-  rows.push({path:nodePath(r.node),effect:mat?.effectName??null,technique:mat?.technique??null,mainTexture:get('mainTexture'),albedoMap:get('albedoMap'),mainColor:get('mainColor'),emissive:get('emissive'),emissiveScale:get('emissiveScale'),priority:(r as any).priority??null});
+  const wb:any=(r as any).model?.worldBounds;const wp=r.node.worldPosition;
+  rows.push({path:nodePath(r.node),pos:[+wp.x.toFixed(2),+wp.y.toFixed(2),+wp.z.toFixed(2)],aabb:wb?[+wb.center.x.toFixed(1),+wb.center.y.toFixed(1),+wb.center.z.toFixed(1),+wb.halfExtents.x.toFixed(1),+wb.halfExtents.y.toFixed(1),+wb.halfExtents.z.toFixed(1)]:null,effect:mat?.effectName??null,technique:mat?.technique??null,mainTexture:get('mainTexture'),albedoMap:get('albedoMap'),mainColor:get('mainColor'),emissive:get('emissive'),emissiveScale:get('emissiveScale'),priority:(r as any).priority??null});
  }
- console.info('[QF_DIAG] '+JSON.stringify({t,count:rows.length,rows}));
+ console.info('[QF_DIAG] '+JSON.stringify({leg,t,count:rows.length,rows}));
 }
 class TransitDriver extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** glTF scene prefab inside region_transit_balloon. Same loadDir fallback as the balloon-fix (bundle.load misses the sub-asset). */
@@ -161,6 +164,14 @@ function paintCloudSea(clouds:Node|null,night:boolean,grade:EffectAsset|null):vo
  });
  lookCache.set(clouds,night);
 }
+/** b17r10: per-frame night cloud colour during the city blend. Only touches the unlit instances paintCloudSea made; skips when unchanged. */
+const cloudTint=new WeakMap<Node,string>();
+function tintCloudSea(clouds:Node|null,rgb:[number,number,number]):void{
+ if(!clouds)return;const key=rgb.join(',');if(cloudTint.get(clouds)===key)return;cloudTint.set(clouds,key);
+ const c=new Color(rgb[0],rgb[1],rgb[2],255);
+ eachNamed(clouds,n=>{if(n.name!=='clouds_floor'&&n.name!=='clouds_floor_puff'&&n.name!=='clouds_city_sea')return;
+  for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;try{m.setProperty('mainColor',c);}catch{/* */}}});
+}
 /** Coarse sky-dome rings band in 8-bit. Swap the day dome to a dithered pass; caller restores the shared mat. */
 function ditherSky(dome:Node,grade:EffectAsset):void{
  eachNamed(dome,n=>{for(const r of n.getComponents(MeshRenderer)){
@@ -271,7 +282,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
   const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
-  const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  let restoreSailLeft=()=>{};
+  const release=()=>{if(dead)return;dead=true;try{restoreSailLeft();}catch{}director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
@@ -325,6 +337,20 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(seaPrefab){seaPrefab.addRef();owned.push({destroy(){seaPrefab.decRef();}});seaFallback=instantiate(seaPrefab);seaFallback.name='transit_sea_fallback';rig.addChild(seaFallback);seaFallback.active=false;showBothSides(seaFallback);paintSeaFallback(seaFallback,false);}
   }
   const sea=findSceneNamed('env_sea_surface');
+  // b17r7 (运镜bot): the island sea (env_sea_surface, flat at world y=-0.918) stayed visible during the flight and the post-seam
+  // lens climbs through that height at ~15.9 s while the basket is still ~7 m below it: the sea cut the basket and her out
+  // (audit b17-cand-76a0433, 15.8-17 s). Hide EVERY live env_sea_surface each frame (rescanned, not one cached node) whenever
+  // islandSeaShown() says so; paint runs on EVENT_BEFORE_DRAW so this is the last write before the frame.
+  const seas:Node[]=[];let seaScanAt=-1;
+  const scanSeas=(t:number)=>{if(seaScanAt>=0&&Math.abs(t-seaScanAt)<0.5&&seas.every(n=>isValid(n,true))&&sailLeft.every(n=>isValid(n,true)))return;seaScanAt=t;seas.length=0;sailLeft.length=0;const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(n.name==='env_sea_surface')seas.push(n);else if(n.name==='SailArt'){sailLeft.push(n);if(!sailHome.has(n))sailHome.set(n,n.active);}});};
+  // b17r7 B1 (Mac diagDump 3efe2a0c): the blocker is the SAIL leg's leftover SailArt (WorldFlowOwner/RegionJourney-meadow/SailArt:
+  // transit_sea/sea_plane, world y=-0.91, AABB half-extent 832 m around (-3.7,30.4)). SailArt is a sibling of the meadow model,
+  // disposed only with the meadow lease, so hiding the meadow at MEADOW_OFF_T left it on; the post-seam lens climbs through
+  // y≈-0.9 at 15.8 s with the basket below. It now follows the meadow: off with the meadow, home state if the meadow returns.
+  const sailLeft:Node[]=[];const sailHome=new Map<Node,boolean>();
+  restoreSailLeft=()=>{if(!(isValid(meadow,true)&&meadow.activeInHierarchy))return;for(const [n,a] of sailHome)if(isValid(n,true))n.active=a;};
+  const applySailLeft=(meadowOn:boolean)=>{for(const n of sailLeft)if(isValid(n,true)){const want=meadowOn?(sailHome.get(n)??true):false;if(n.active!==want)n.active=want;}
+   const g=(globalThis as any).__QF_BALLOON_SEA_PLAN;if(g){g.sailLeftover=sailLeft.length;g.sailLeftoverLive=sailLeft.filter(n=>isValid(n,true)&&n.activeInHierarchy).length;}};
   const seaHome=sea?{pos:sea.position.clone(),scale:sea.scale.clone(),euler:sea.eulerAngles.clone()}:null;
   const backdropNodes:Node[]=[];
   const scene=director.getScene();
@@ -364,7 +390,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // Night keeps a dark unlit disc under the city (cloud sea sits above it). Day: blue disc.
     const showFb=t>=MEADOW_OFF_T&&!handoff;
     if(seaFallback&&isValid(seaFallback,true))seaFallback.active=showFb;
-    if(sea&&isValid(sea,true)){sea.active=!showFb&&!(t>=MEADOW_OFF_T&&!handoff);if(showFb)dampSeaSpecular(sea,true);}
+    const on=islandSeaShown(t,handoff);scanSeas(t);
+    for(const n of seas)if(isValid(n,true)){n.active=on;if(showFb)dampSeaSpecular(n,true);}
+    const g=(globalThis as any).__QF_BALLOON_SEA_PLAN;if(g){g.islandSea=on;g.islandSeaNodes=seas.length;g.islandSeaLive=seas.filter(n=>isValid(n,true)&&n.activeInHierarchy).length;}
     return;
    }
    // Plan A (kept for fallback): teleport × S and scale ×6 at seam.
@@ -402,14 +430,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const meadowOn=!arrived&&t<plan.meadowOffAt,cityOn=arrived||t>=plan.cityActiveAt;
    const showIsland=arrived||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
    if(isValid(meadow,true))meadow.active=meadowOn;
+   scanSeas(t);applySailLeft(sailLeftoverShown(t,arrived)&&meadowOn);
    // Shadows on for meadow gameplay match; off after unload for DC ≤53.
    if(mainLight){
     const wantShadow=meadowOn&&mainShadow0;
     try{(mainLight as any).shadowEnabled=wantShadow;}catch{}
     try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=wantShadow;}catch{}
     if(arrived){try{(mainLight as any).shadowEnabled=mainShadow0;}catch{} try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=mainShadow0;}catch{} if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}}
-    else if(night&&cityOn){try{mainLight.illuminance=Math.min(mainLight.illuminance,mainIllum0*0.22);}catch{}}
-    else if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}
+    else if(mainIllum0>0){try{mainLight.illuminance=mainIllum0*balloonIllumFactor(t,night);}catch{}} // b17r10: night ramps x1 -> x0.22 over NIGHT_BLEND_S (was a one-frame cut at CITY_ON_T)
    }
    if(model){
     model.active=cityOn;
@@ -456,19 +484,20 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    applySea(t,handoff);
    if(handoff){seaRestored=true;backdropRestored=true;}
    applyLight(t);
+   (globalThis as any).__QF_BALLOON_LIGHT={t,yawOffset:balloonLightYawOffset(t),illum:mainLight?mainLight.illuminance:0,illumFactor:balloonIllumFactor(t,night),nightW:night?nightCityBlend(t):0};
    if(!arrived){
     (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
     (globalThis as any).__QF_BALLOON_LENS=true;
     for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day){if(gradeEffect&&!skyHome.length){for(const r of n.getComponents(MeshRenderer))skyHome.push({r,shared:r.getSharedMaterial(0)});ditherSky(n,gradeEffect);}else skybox(n);}}
     if(nightDome){nightDome.active=night;} // skybox() ran once at mount; re-running it per frame rebuilt the pass every frame
     // Cloud sea: graded day clumps, night blue-grey. Never emissive.
-    if(cityOn)paintCloudSea(clouds,night,gradeEffect);
+    if(cityOn){paintCloudSea(clouds,night,gradeEffect);if(night)tintCloudSea(clouds,nightCloudColor(t));}
     else if(night&&!emissiveDone.has(clouds)){emissiveDone.add(clouds);setEmissive(clouds,true);} // once — per-frame instance rebinds churned the pass
    }
    applyVehicleNight(vehicle,night);
    // b16: self-lit sky-city clouds / accents follow the island night (they ignored the dimmed light; after landing the
    // cloud_small and accents came back at day brightness). Cached: only walks the city when the mode changes.
-   if(model&&cityOn){gradeSkycityNight(model,night?1:0);gradeSkycityCloudsea(model.parent,night?1:0);}
+   if(model&&cityOn){const w=night?(arrived?1:Math.round(nightCityBlend(t)*20)/20):0; /* 5% steps: one city walk per step, not per frame */gradeSkycityNight(model,w);gradeSkycityCloudsea(model.parent,w);}
    if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=!arrived&&t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    if(arrived){

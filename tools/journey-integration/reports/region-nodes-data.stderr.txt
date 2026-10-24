@@ -1,0 +1,12 @@
+ Error: no blender and no fixture /tmp/wt-b17r10/tools/region-nodes/fixtures/room_no_original_chair.glb.walk.gz
+    at decodeDraco (/tmp/wt-b17r10/tools/region-nodes/bake-region-nodes.cjs:125:31)
+    at main (/tmp/wt-b17r10/tools/region-nodes/bake-region-nodes.cjs:226:34)
+    at Object.<anonymous> (/tmp/wt-b17r10/tools/region-nodes/bake-region-nodes.cjs:269:26)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+

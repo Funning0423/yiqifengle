@@ -1,2 +1,2 @@
-{"point":[9.5,0.572,25.6],"basketYawDeg":96.18861596324165,"clearance":0.491736671754749,"closest":"lake:LK_terrain_i","walkSeconds":15.45465505046339,"peakWalkMps":0.8,"errors":[]}
+{"point":[9.5,0.602,25.6],"basketYawDeg":96.18861596324165,"clearance":0.5217366308223189,"closest":"lake:LK_terrain_i","walkSeconds":11.48632585605175,"peakWalkMps":0.8,"errors":[]}
 PASS mooring, mesh frusta, right free look, geometry, unchanged shore, b15 door exit (yaw, P0, 0.8 m/s planner walk, r>=1, door clock, foot lock) and stationary end lens

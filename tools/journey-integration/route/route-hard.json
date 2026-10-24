@@ -20,7 +20,8 @@
     "sail.O1sgMain",
     "sail.C1ride",
     "balloonLake.O1",
-    "balloonSky.C1reveal"
+    "balloonSky.C1reveal",
+    "balloonSky.O3"
   ],
   "exceptions": {
     "sail.O1": "palm env_prop_palm_lean_01 may cross her face/head/chest for <=2 frames (<=40 ms) within 10.5-11.5 s: a quick foreground pass while the set-off arc swings on her right side near the palm, 2.9 m from her at the jetty (Grok Bot 2026-10-22). The S-g sail_main is its own key sail.O1sgMain, hard since the raised K6 dock lens (TransportLeg K5/K6, up 10.0 m).",

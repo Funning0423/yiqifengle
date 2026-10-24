@@ -1,0 +1,1 @@
+PASS journey-prune (lakeside keeps 2 legs, not 3)

@@ -6,7 +6,7 @@
    "status": "PASS"
   },
   {
-   "id": "K2 face/head/chest visible + lens ≥ 1.1 m every 0.05 m (island + lakeside + bridge strip)",
+   "id": "K2 face/head/chest visible + lens ≥ 1.1 m every 0.05 m (island + lakeside)",
    "status": "PASS"
   },
   {
@@ -14,23 +14,23 @@
    "status": "PASS"
   },
   {
-   "id": "K4 final landing frame 390x844 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 390x844 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS"
   },
   {
-   "id": "K4 final landing frame 414x896 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 414x896 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS"
   },
   {
-   "id": "K4 final landing frame 360x780 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 360x780 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS"
   },
   {
-   "id": "K4 final landing frame 375x667 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 375x667 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS"
   },
   {
-   "id": "K4 final landing frame 390x520 (this screen's route landing): whole body, feet ≥5% above bottom, her x 20–80%, readable height, board centre in frame",
+   "id": "K4 final landing frame 390x520 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
    "status": "PASS"
   },
   {

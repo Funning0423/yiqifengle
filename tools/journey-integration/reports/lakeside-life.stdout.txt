@@ -1,0 +1,14 @@
+PASS wind-to-lake-local [-0.944,0.33]
+PASS chime-leans-downwind "tip never upwind over 12 s, 4 wind dirs"
+PASS chime-amplitude 0.189
+PASS chime-still-at-0
+PASS fireflies-in-box-glow-0..1
+PASS fireflies-drift-downwind "0.219 m/s"
+PASS fireflies-few "14 x 8 tris"
+PASS effect-wind-default [0.944,-0.33,1,0]
+PASS effect-ubo
+PASS hook-water
+PASS hook-mount
+PASS firefly-colour-from-shared-palette "ffd84a"
+PASS loose-es5 []
+PASS lakeside life (chimes downwind, ripples on GlobalWind, night fireflies)

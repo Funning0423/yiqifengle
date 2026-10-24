@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T23:03:43.753Z",
+ "timeUTC": "2026-10-23T09:34:27.860Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -139,15 +139,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -281,15 +299,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -423,15 +459,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -565,15 +619,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -707,15 +779,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -849,15 +939,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -991,15 +1099,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1102,15 +1228,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1213,15 +1357,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1324,15 +1486,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1435,15 +1615,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1546,15 +1744,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1657,15 +1873,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1768,15 +2002,33 @@
      "viewDeg": 0,
      "fovDeg": 0
     },
+    "switchFrame": {
+     "showAlpha": 1,
+     "nextCover": {
+      "a": 1,
+      "from": 1
+     },
+     "fadeInFrom": 1,
+     "onFrameBeforeSwitch": 0
+    },
+    "switchOk": true,
     "sequence": [
      "cover:1",
      "camera@1",
      "show",
+     "cover:1",
      "cover:0",
      "ride",
      "camera@1",
+     "onFrame",
+     "camera@1",
+     "onFrame",
      "camera@0",
-     "camera@0"
+     "onFrame",
+     "camera@0",
+     "onFrame",
+     "camera@0",
+     "onFrame"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -2393,8 +2645,79 @@
   },
   {
    "id": "BG2 lakeside leg: no below-horizon ray misses all geometry (hole to the clear colour), 7 screens, every 0.1 s",
-   "status": "FAIL",
-   "error": "[{\"screen\":\"390x844\",\"holeFrames\":1,\"max\":1,\"at\":21.7,\"phase\":\"flight\",\"first\":[{\"t\":21.7,\"holes\":1}]},{\"screen\":\"414x896\",\"holeFrames\":1,\"max\":1,\"at\":21.7,\"phase\":\"flight\",\"first\":[{\"t\":21.7,\"holes\":1}]},{\"screen\":\"360x780\",\"holeFrames\":1,\"max\":1,\"at\":21.7,\"phase\":\"flight\",\"first\":[{\"t\":21.7,\"holes\":1}]},{\"screen\":\"375x667\",\"holeFrames\":2,\"max\":1,\"at\":21.8,\"phase\":\"flight\",\"first\":[{\"t\":21.8,\"holes\":1},{\"t\":22.5,\"holes\":1}]},{\"screen\":\"320x568\",\"holeFrames\":2,\"max\":1,\"at\":21.8,\"phase\":\"flight\",\"first\":[{\"t\":21.8,\"holes\":1},{\"t\":22.5,\"holes\":1}]},{\"screen\":\"390x520\",\"holeFrames\":1,\"max\":1,\"at\":21.7,\"phase\":\"flight\",\"first\":[{\"t\":21.7,\"holes\":1}]},{\"screen\":\"768x1024\",\"holeFrames\":2,\"max\":1,\"at\":21.7,\"phase\":\"flight\",\"first\":[{\"t\":21.7,\"holes\":1},{\"t\":24.2,\"holes\":1}]}]"
+   "status": "PASS",
+   "screens": [
+    {
+     "screen": "390x844",
+     "frames": 425,
+     "holeFrames": 0,
+     "maxHoleRays": 0,
+     "ofRays": 1566,
+     "atS": null,
+     "phase": null,
+     "first": []
+    },
+    {
+     "screen": "414x896",
+     "frames": 425,
+     "holeFrames": 0,
+     "maxHoleRays": 0,
+     "ofRays": 1566,
+     "atS": null,
+     "phase": null,
+     "first": []
+    },
+    {
+     "screen": "360x780",
+     "frames": 425,
+     "holeFrames": 0,
+     "maxHoleRays": 0,
+     "ofRays": 1566,
+     "atS": null,
+     "phase": null,
+     "first": []
+    },
+    {
+     "screen": "375x667",
+     "frames": 425,
+     "holeFrames": 0,
+     "maxHoleRays": 0,
+     "ofRays": 1566,
+     "atS": null,
+     "phase": null,
+     "first": []
+    },
+    {
+     "screen": "320x568",
+     "frames": 425,
+     "holeFrames": 0,
+     "maxHoleRays": 0,
+     "ofRays": 1566,
+     "atS": null,
+     "phase": null,
+     "first": []
+    },
+    {
+     "screen": "390x520",
+     "frames": 425,
+     "holeFrames": 0,
+     "maxHoleRays": 0,
+     "ofRays": 1566,
+     "atS": null,
+     "phase": null,
+     "first": []
+    },
+    {
+     "screen": "768x1024",
+     "frames": 425,
+     "holeFrames": 0,
+     "maxHoleRays": 0,
+     "ofRays": 1566,
+     "atS": null,
+     "phase": null,
+     "first": []
+    }
+   ]
   },
   {
    "id": "BG3 lakeside clear colour (shown above the horizon only if the dome is off) is not the Cocos default grey #333333, day and night",

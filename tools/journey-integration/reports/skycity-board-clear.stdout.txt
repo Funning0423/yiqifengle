@@ -1,0 +1,1 @@
+PASS skycity board clear: real base/live factories; day, prewarm/resume, toggles, blend 0/.5/1, day precedence, invalid/clamped blend, camera isolation, diagnostics and cleanup. No rendered acceptance.

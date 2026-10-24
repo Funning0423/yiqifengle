@@ -1,0 +1,308 @@
+{
+ "path": {
+  "stepMismatchMm": 0.04,
+  "lengthM": 6.356,
+  "points": 36,
+  "endLocal": [
+   3.2531,
+   0.5714,
+   25.0904
+  ],
+  "endYawDeg": -57.99,
+  "walkS": 9.186,
+  "minZ": 24.51
+ },
+ "terrain": {
+  "walkPenetrationMm": 0.05,
+  "walkHoverMm": 0.06,
+  "stepdownPenetrationMm": 0.05,
+  "stepdownPenetrationOldMm": 4.04
+ },
+ "footLock": {
+  "step0.4": {
+   "new": {
+    "maxOffsetMm": 6.9,
+    "endOffsetMm": 0,
+    "maxStanceSoleDriftMm": 5.1
+   },
+   "old": {
+    "maxOffsetMm": 11.5,
+    "endOffsetMm": 4.36,
+    "maxStanceSoleDriftMm": 0
+   }
+  },
+  "step0.5": {
+   "new": {
+    "maxOffsetMm": 6.8,
+    "endOffsetMm": 0,
+    "maxStanceSoleDriftMm": 6.9
+   },
+   "old": {
+    "maxOffsetMm": 14.2,
+    "endOffsetMm": 4.12,
+    "maxStanceSoleDriftMm": 0
+   }
+  },
+  "step0.6": {
+   "new": {
+    "maxOffsetMm": 9.8,
+    "endOffsetMm": 0,
+    "maxStanceSoleDriftMm": 8.7
+   },
+   "old": {
+    "maxOffsetMm": 18.6,
+    "endOffsetMm": 8.34,
+    "maxStanceSoleDriftMm": 0
+   }
+  }
+ },
+ "cameras": [
+  {
+   "screen": "390x844",
+   "lens": "main6m",
+   "position": [
+    2,
+    6,
+    33
+   ],
+   "target": [
+    0.5,
+    0.7,
+    2
+   ],
+   "fov": 56,
+   "swapViewDeg": 0,
+   "swapPosCm": 0,
+   "clearanceM": 6.1,
+   "herBoxPx": [
+    327,
+    650,
+    369,
+    792
+   ],
+   "herWidthFrac": 0.108,
+   "inFrame": true,
+   "trayBottomPx": 588,
+   "camOnHerRight": false,
+   "occluders": {
+    "head": null,
+    "chest": null,
+    "face": null
+   }
+  },
+  {
+   "screen": "360x780",
+   "lens": "main6m",
+   "position": [
+    2,
+    6,
+    33
+   ],
+   "target": [
+    0.5,
+    0.7,
+    2
+   ],
+   "fov": 56.0563,
+   "swapViewDeg": 0,
+   "swapPosCm": 0,
+   "clearanceM": 6.1,
+   "herBoxPx": [
+    302,
+    601,
+    341,
+    732
+   ],
+   "herWidthFrac": 0.108,
+   "inFrame": true,
+   "trayBottomPx": 573,
+   "camOnHerRight": false,
+   "occluders": {
+    "head": null,
+    "chest": null,
+    "face": null
+   }
+  },
+  {
+   "screen": "414x896",
+   "lens": "main6m",
+   "position": [
+    2,
+    6,
+    33
+   ],
+   "target": [
+    0.5,
+    0.7,
+    2
+   ],
+   "fov": 56.0033,
+   "swapViewDeg": 0,
+   "swapPosCm": 0,
+   "clearanceM": 6.1,
+   "herBoxPx": [
+    347,
+    690,
+    392,
+    841
+   ],
+   "herWidthFrac": 0.109,
+   "inFrame": true,
+   "trayBottomPx": 614,
+   "camOnHerRight": false,
+   "occluders": {
+    "head": null,
+    "chest": null,
+    "face": null
+   }
+  },
+  {
+   "screen": "320x568",
+   "lens": "short",
+   "position": [
+    2.5,
+    6.5,
+    34
+   ],
+   "target": [
+    -1.9,
+    -0.5,
+    0
+   ],
+   "fov": 50,
+   "swapViewDeg": 0,
+   "swapPosCm": 0,
+   "clearanceM": 6.26,
+   "herBoxPx": [
+    266,
+    442,
+    295,
+    538
+   ],
+   "herWidthFrac": 0.091,
+   "inFrame": true,
+   "trayBottomPx": 402,
+   "camOnHerRight": false,
+   "occluders": {
+    "head": null,
+    "chest": null,
+    "face": null
+   }
+  },
+  {
+   "screen": "390x520",
+   "lens": "short",
+   "position": [
+    2.5,
+    6.5,
+    34
+   ],
+   "target": [
+    -1.9,
+    -0.5,
+    0
+   ],
+   "fov": 50,
+   "swapViewDeg": 0,
+   "swapPosCm": 0,
+   "clearanceM": 6.26,
+   "herBoxPx": [
+    292,
+    405,
+    319,
+    492
+   ],
+   "herWidthFrac": 0.069,
+   "inFrame": true,
+   "trayBottomPx": 354,
+   "camOnHerRight": false,
+   "occluders": {
+    "head": null,
+    "chest": null,
+    "face": null
+   }
+  },
+  {
+   "screen": "375x667",
+   "lens": "short",
+   "position": [
+    2.5,
+    6.5,
+    34
+   ],
+   "target": [
+    -1.9,
+    -0.5,
+    0
+   ],
+   "fov": 50,
+   "swapViewDeg": 0,
+   "swapPosCm": 0,
+   "clearanceM": 6.26,
+   "herBoxPx": [
+    312,
+    519,
+    346,
+    631
+   ],
+   "herWidthFrac": 0.091,
+   "inFrame": true,
+   "trayBottomPx": 501,
+   "camOnHerRight": false,
+   "occluders": {
+    "head": null,
+    "chest": null,
+    "face": null
+   }
+  },
+  {
+   "screen": "430x932",
+   "lens": "main6m",
+   "position": [
+    2,
+    6,
+    33
+   ],
+   "target": [
+    0.5,
+    0.7,
+    2
+   ],
+   "fov": 56.0733,
+   "swapViewDeg": 0,
+   "swapPosCm": 0,
+   "clearanceM": 6.1,
+   "herBoxPx": [
+    360,
+    718,
+    407,
+    874
+   ],
+   "herWidthFrac": 0.109,
+   "inFrame": true,
+   "trayBottomPx": 632,
+   "camOnHerRight": false,
+   "occluders": {
+    "head": null,
+    "chest": null,
+    "face": null
+   }
+  }
+ ],
+ "blend": {
+  "durS": 6.874,
+  "specS": 3.488,
+  "entryM": 6.356,
+  "new": {
+   "maxAccMs2": 0.773,
+   "maxAngAccDegS2": 11.1,
+   "startAngVelDegS": 0.001
+  },
+  "old": {
+   "maxAccMs2": 0.773,
+   "maxAngAccDegS2": 271.4,
+   "startAngVelDegS": 4.171
+  }
+ },
+ "fail": []
+}

@@ -6,7 +6,7 @@ import { R5_KEYS } from './PersistentR5Port';
 import { REGION_FLOW_WITNESSES } from './RegionFlowWitnesses';
 let serial=0;
 /** Test build only. All progress is derived by original engine/controller operations in a fresh root. */
-export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:boolean}) {
+export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:boolean;finish?:boolean}) {
  if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
  if(![4,8,12].includes(completed))throw Error('unsupported-checkpoint');
  const namespace='dot-region-flow-test-'+Date.now().toString(36)+'-'+(++serial)+'-'+Math.random().toString(36).slice(2)+':';
@@ -16,12 +16,13 @@ export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:bo
  const requireOK=(reply:any)=>{if(!reply?.ok)throw Error('checkpoint-save-or-replay-failed: '+(reply?.reason||'unknown'));};
  for(let level=0;level<completed;level++){
   const witness=REGION_FLOW_WITNESSES[level];requireOK(controller.startStage(witness.stageId,{seed:witness.seed}));
-  const actions=level===completed-1?witness.actions.slice(0,-1):witness.actions;
+  const actions=level===completed-1&&!opts?.finish?witness.actions.slice(0,-1):witness.actions;
   for(const action of actions){const p=controller.previewAction(action);requireOK(p);requireOK(controller.commitAction(p.token));let v=controller.snapshot().visual;while(v){requireOK(controller.finishVisualStep(v.token));v=controller.snapshot().visual;}}
-  const s=controller.snapshot();if(level<completed-1&&(!s.result?.completionRecorded||s.state!=='result.saved'))throw Error('unregistered-replay');
+  const s=controller.snapshot();if((level<completed-1||opts?.finish)&&(!s.result?.completionRecorded||s.state!=='result.saved'))throw Error('unregistered-replay');
  }
- const before=controller.snapshot();if(before.active.status!=='playing'||before.journey.completed!==completed-1)throw Error('checkpoint-not-before-legal-win');
- requireOK(controller.pause());
+ // b17r10 qfSkip: finish=true registers the last win too (all `completed` stages cleared, nothing paused).
+ if(!opts?.finish){const before=controller.snapshot();if(before.active.status!=='playing'||before.journey.completed!==completed-1)throw Error('checkpoint-not-before-legal-win');
+ requireOK(controller.pause());}
  const stage=REGION_FLOW_WITNESSES[completed-1];
  const r4={platform:R4Port.createSynchronousStorage(storage('r4')),journey:mainline.journey};
  const r5Platform=R4Port.createSynchronousStorage(storage('r5'));

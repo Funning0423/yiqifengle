@@ -40,6 +40,28 @@ export function balloonLightYawOffset(t:number):number{
  const u=Math.max(0,Math.min(1,(t-SEAM_T)/(LAND_T-SEAM_T)));
  return -LIGHT_RAMP_YAW*(1-u*u*(3-2*u));
 }
+/**
+ * b17r10: night look handoff at the city switch. Before CITY_ON_T the night clouds are lit by the full board light; at
+ * CITY_ON_T the light dropped to x0.22 and the cloud sea swapped to unlit RGB(68,80,94) in one frame (whole-frame -16%,
+ * white -> cyan-blue). Everything that changes there now follows this weight: 0 before CITY_ON_T, smoothstep to 1 over
+ * NIGHT_BLEND_S (camera is still inside the cloud window), 1 afterwards.
+ */
+export const NIGHT_BLEND_S=1.2;
+export const NIGHT_CITY_ILLUM=0.22;
+export function nightCityBlend(t:number):number{
+ const u=Math.max(0,Math.min(1,(t-CITY_ON_T)/NIGHT_BLEND_S));
+ return u*u*(3-2*u);
+}
+/** Board-light illuminance factor during the ride (day: 1; night: 1 -> NIGHT_CITY_ILLUM across the blend). */
+export function balloonIllumFactor(t:number,night:boolean):number{
+ return night?1+(NIGHT_CITY_ILLUM-1)*nightCityBlend(t):1;
+}
+/** Night cloud-sea unlit colour (sRGB 0..255): lit-white look -> RGB(68,80,94) across the blend. */
+export const NIGHT_CLOUD_FROM:[number,number,number]=[255,255,255];
+export const NIGHT_CLOUD_TO:[number,number,number]=[68,80,94];
+export function nightCloudColor(t:number):[number,number,number]{
+ const w=nightCityBlend(t);return [0,1,2].map(i=>Math.round(NIGHT_CLOUD_FROM[i]+(NIGHT_CLOUD_TO[i]-NIGHT_CLOUD_FROM[i])*w)) as [number,number,number];
+}
 export type Rigid={yawDeg:number;origin:Vec};
 export type FlightFrame='meadow'|'world';
 export type FlightKey={t:number;frame?:FlightFrame;pos:Vec;yawDeg:number;rollDeg:number;cam:Vec;camLook:Vec};
@@ -145,6 +167,14 @@ export function skyNodeAfterArrival(name:string):'on'|'off'|null{
 }
 /** Island backdrop meshes hidden from meadow-unload until handoff (plan B also hides env_sea_surface). */
 export const BACKDROP_HIDE=['env_cloud_layer','env_sea_foam','env_sea_surf_foam_v22','env_sea_wave_line_01_v22','env_sea_wave_line_02_v22','env_lighthouse_ext','env_lighthouse_door','env_island_main','env_island_props_merged','env_prop_palm_lean_01','env_prop_palm_tall_01','env_prop_palm_young_01','env_rear_window_palm'];
+/** Island sea (env_sea_surface) world height; IslandAtmosphereFxCore: flat at y=-0.918. The post-seam flight climbs through it. */
+export const ISLAND_SEA_Y=-0.918;
+/** Island sea shown? Off from meadow-unload until handoff (plan B). Shared by BalloonTransit and test-route-occlusion O3. */
+export function islandSeaShown(t:number,handoff:boolean):boolean{return !(t>=MEADOW_OFF_T&&!handoff);}
+/** Sail leg leftover (RegionJourney-meadow/SailArt: transit_sea/sea_plane, y=SAIL_SEA_Y -0.91, 832 m half-extent). It lives
+ * until the meadow lease is released, so the balloon drives it with the meadow: shown only while the meadow is (b17r7 B1). */
+export const SAIL_LEFTOVER_SEA_Y=-0.91;
+export function sailLeftoverShown(t:number,arrived:boolean):boolean{return !arrived&&t<MEADOW_OFF_T;}
 export const NIGHT_MOON_HIDE=['env_sky_moon_night_v22','env_sky_moon_halo_night_v22'];
 /** Ry(yaw) * Rz(roll), degrees. Returns xyzw. */
 export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,number]{

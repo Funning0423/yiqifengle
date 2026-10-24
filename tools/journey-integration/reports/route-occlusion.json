@@ -1,12 +1,12 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-22T23:02:58.290Z",
+ "timeUTC": "2026-10-23T09:33:45.141Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
   "skycityMeshes": 37,
   "skycityTris": 89863,
-  "lakesideInstances": 802,
+  "lakesideInstances": 813,
   "islandObjs": 34,
   "meadowObjs": 20,
   "balloonParts": 4,
@@ -601,7 +601,36 @@
    "minLensClearM": 3,
    "clearAtS": 0,
    "clearPhase": "B-b",
-   "clearNearest": null
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26.1,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 59,
+    "spans": [
+     {
+      "t0": 15.8,
+      "t1": 17.73,
+      "first": {
+       "t": 15.8,
+       "lensY": -0.85,
+       "basketY": -7.58,
+       "faceY": -6.08,
+       "cutPts": 9
+      },
+      "last": {
+       "t": 17.73,
+       "lensY": 6.86,
+       "basketY": -0.98,
+       "faceY": 0.53,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
   },
   {
    "leg": "balloon meadow→skycity",
@@ -702,7 +731,36 @@
    "minLensClearM": 3,
    "clearAtS": 0,
    "clearPhase": "B-b",
-   "clearNearest": null
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26.1,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 59,
+    "spans": [
+     {
+      "t0": 15.8,
+      "t1": 17.73,
+      "first": {
+       "t": 15.8,
+       "lensY": -0.85,
+       "basketY": -7.58,
+       "faceY": -6.08,
+       "cutPts": 9
+      },
+      "last": {
+       "t": 17.73,
+       "lensY": 6.86,
+       "basketY": -0.98,
+       "faceY": 0.53,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
   },
   {
    "leg": "balloon meadow→skycity",
@@ -803,7 +861,36 @@
    "minLensClearM": 3,
    "clearAtS": 0,
    "clearPhase": "B-b",
-   "clearNearest": null
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26.1,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 59,
+    "spans": [
+     {
+      "t0": 15.8,
+      "t1": 17.73,
+      "first": {
+       "t": 15.8,
+       "lensY": -0.85,
+       "basketY": -7.58,
+       "faceY": -6.08,
+       "cutPts": 9
+      },
+      "last": {
+       "t": 17.73,
+       "lensY": 6.86,
+       "basketY": -0.98,
+       "faceY": 0.53,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
   },
   {
    "leg": "balloon meadow→skycity",
@@ -904,7 +991,36 @@
    "minLensClearM": 3,
    "clearAtS": 0,
    "clearPhase": "B-b",
-   "clearNearest": null
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26.1,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 59,
+    "spans": [
+     {
+      "t0": 15.8,
+      "t1": 17.73,
+      "first": {
+       "t": 15.8,
+       "lensY": -0.85,
+       "basketY": -7.58,
+       "faceY": -6.08,
+       "cutPts": 9
+      },
+      "last": {
+       "t": 17.73,
+       "lensY": 6.86,
+       "basketY": -0.98,
+       "faceY": 0.53,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
   },
   {
    "leg": "balloon meadow→skycity",
@@ -1005,7 +1121,36 @@
    "minLensClearM": 3,
    "clearAtS": 0,
    "clearPhase": "B-b",
-   "clearNearest": null
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26.1,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 59,
+    "spans": [
+     {
+      "t0": 15.8,
+      "t1": 17.73,
+      "first": {
+       "t": 15.8,
+       "lensY": -0.85,
+       "basketY": -7.58,
+       "faceY": -6.08,
+       "cutPts": 9
+      },
+      "last": {
+       "t": 17.73,
+       "lensY": 6.86,
+       "basketY": -0.98,
+       "faceY": 0.53,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
   },
   {
    "leg": "balloon meadow→skycity",
@@ -1106,7 +1251,36 @@
    "minLensClearM": 3,
    "clearAtS": 0,
    "clearPhase": "B-b",
-   "clearNearest": null
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26.1,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 59,
+    "spans": [
+     {
+      "t0": 15.8,
+      "t1": 17.73,
+      "first": {
+       "t": 15.8,
+       "lensY": -0.85,
+       "basketY": -7.58,
+       "faceY": -6.08,
+       "cutPts": 9
+      },
+      "last": {
+       "t": 17.73,
+       "lensY": 6.86,
+       "basketY": -0.98,
+       "faceY": 0.53,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
   },
   {
    "leg": "balloon meadow→skycity",
@@ -1207,7 +1381,36 @@
    "minLensClearM": 3,
    "clearAtS": 0,
    "clearPhase": "B-b",
-   "clearNearest": null
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26.1,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 59,
+    "spans": [
+     {
+      "t0": 15.8,
+      "t1": 17.73,
+      "first": {
+       "t": 15.8,
+       "lensY": -0.85,
+       "basketY": -7.58,
+       "faceY": -6.08,
+       "cutPts": 9
+      },
+      "last": {
+       "t": 17.73,
+       "lensY": 6.86,
+       "basketY": -0.98,
+       "faceY": 0.53,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
   },
   {
    "leg": "balloon skycity→lakeside",
