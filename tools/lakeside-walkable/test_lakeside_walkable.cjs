@@ -127,7 +127,8 @@ assert.match(src,/if\(this\.region==='meadow'\|\|this\.region==='skycity'\|\|thi
 assert.match(src,/walkMatrix\(region:StageRegion\):Mat4\|null\{if\(region==='island'\)return new Mat4\(\)/);
 assert.match(src,/update\(dt:number\)\{\n  this\.syncExplore\(dt\);/);
 assert.match(src,/this\.openExplore\(r,true(,snapped)?\)/);
-assert.match(src,/region==='lakeside'(\?undefined:|\)return undefined;const b=)stageGraph/);/* r17: other regions' box goes through toWorld */
+assert.match(src,/if\(this\.region==='lakeside'\)return undefined;const G=stageGraph\(this\.region\)/);/* r17 + skycity-walk-r2: lensBox??exploreBox through toWorld */
+assert.match(src,/b=G\.lensBox\?\?G\.exploreBox;\n\s*const c=this\.toWorld\(this\.region/);
 assert.match(src,/LakesideJourneyScene/);
 // pause label (b16 decision): 「离开棋盘」, same Home action
 const bp=fs.readFileSync(path.join(SCRIPTS,'ui/BoardPanels.ts'),'utf8');
@@ -144,3 +145,22 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
   const a=n.at,hit=RW.walkRayHit('skycity',[a[0],a[1]+12,a[2]+6],[0,-12,-6]);assert.equal(hit.kind,'walk','skycity tap '+p+' '+JSON.stringify(hit));
   const w=RW.walkPath('skycity',S3,n.at);assert.ok(w&&w.length>=2,'skycity path S3->'+p);}
  console.log('skycity plateau ok');}
+
+// b17 skycity-walk-r2 (Mac p0drag6): taps around S3. E3 used to land on the 0.2 m ruin wall top (y 1.17) and walk 25.85 m round
+// through the porch; W taps on the planter west of her returned 'none'. Wall tops are not floor now, a tap on a planter walks to
+// the floor in front of it, the lens has its own world-converted box and proxies for the merged sky houses.
+{const r='skycity',P=(a,b)=>{const p=RW.walkPath(r,a,b);return p?RW.walkPathLengthM(p):Infinity;};
+ assert.equal(RW.walkFloorY(r,13.3,9.16)===null||RW.walkFloorY(r,13.3,9.16)<.5,true,'ruin wall top is not floor');
+ assert.ok(P([13.13,-0.06,7.61],[13.22,1.17,9.16])<3,'E2->E3 near straight');
+ assert.ok(P([13.18,-0.02,8.63],[11.79,-0.01,8.96])<3,'E3->W0 near straight');
+ const cam=(her,t)=>{let dx=t[0]-her[0],dz=t[2]-her[2],L=Math.hypot(dx,dz);dx/=L;dz/=L;const k=7.5*Math.cos(25*Math.PI/180);return [her[0]-dx*k,her[1]+1.2+7.5*Math.sin(25*Math.PI/180),her[2]-dz*k];};
+ for(const t of [[9.9,0,9],[10.7,0,9],[9.9,1,9],[10.7,1,9]]){const o=cam([11.79,-0.01,8.96],t),h=RW.walkRayHit(r,o,[t[0]-o[0],t[1]-o[1],t[2]-o[2]]);
+  assert.equal(h.kind,'walk','W tap '+t+' '+JSON.stringify(h));assert.ok(P([11.79,-0.01,8.96],h.at)<8,'W tap path '+t);}
+ assert.equal(JSON.stringify(RW.WALK_TAP_SNAP),'["skycity"]');
+ const lb=RN.REGION_NODES.skycity.lensBox;assert.ok(lb&&lb[0]>-36&&lb[2]<41&&lb[1]>=-41.5&&lb[3]<=48.5,'skycity lensBox inside the baked floor '+JSON.stringify(lb));
+ const OC=load('region/SkycityLensOccluders.ts').SKYCITY_LENS_OCCLUDERS;assert.ok(OC.length>500&&OC.length<3000,'sky occluders '+OC.length);
+ assert.ok(OC.some(b=>b[0]<=16&&b[3]>=15&&b[2]<=8&&b[5]>=6&&b[4]>3),'blue-roof house east of S3 has proxies');
+ assert.match(src,/if\(this\.region==='skycity'\)return this\.skycityOccluders\(\);/);
+ const chk2=cp.spawnSync(process.execPath,[path.join(ROOT,'tools/region-walkable/gen-skycity-lens-occluders.cjs'),'--check'],{encoding:'utf8'});
+ assert.equal(chk2.status,0,'sky occluder drift: '+chk2.stderr+chk2.stdout);
+ console.log('skycity-walk-r2 ok');}

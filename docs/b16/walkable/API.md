@@ -81,3 +81,10 @@ if (snap) afang.setWorldPosition(localToWorld(region, snap)); // y 已经是地�
 - 每 0.4 m 的台阶高差 ≤0.36 m；
 - 头顶净空 1.7 m；
 - 从落地点开始泛洪，到不了的碎块会被丢掉。
+
+## b17 skycity-walk-r2（Mac p0drag6）
+
+- 天空城烘焙加了 `ridge` 规则：一格宽、沿一个轴（含对角）两侧都比它低 0.5 m 以上的地面层（墙顶、栏杆顶）不算可走。S3 东侧 0.2 m 宽的废墟墙顶以前可走，点墙会绕门廊走 25.85 m。
+- `walkRayHit` 在天空城（`WALK_TAP_SNAP=['skycity']`）：射线在头高以下穿过挡住的格子（花坛、墙）后钻到地面下，就返回障碍物前方 1.6 m 内最近的可走点（kind 'walk'），不再返回 'none'。湖畔、小岛、草原的行为不变。
+- `RegionGraph.lensBox`（可选）：镜头用的框，天空城是 [-34.8,-41,39.6,47.6]（烘焙地面范围）。`RegionNodeStage.regionBounds()` 现在用模型矩阵把这个局部框换成世界 AABB 再交给 FreeOrbit。以前直接把局部框当世界坐标用；天空城模型转了约 119°、离原点约 150 m，这样用是错的。
+- `SkycityLensOccluders.ts`（由 `tools/region-walkable/gen-skycity-lens-occluders.cjs` 生成，模型局部坐标）：天空城房屋、废墟、墙的镜头遮挡代理，每 1 m 一列，只收可走区 7 m 内的；运行时只取她 18 m 内的交给 LensGuard。

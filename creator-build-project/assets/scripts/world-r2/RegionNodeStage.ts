@@ -433,9 +433,10 @@ export class RegionNodeStage extends Component{
  /** The lakeside graph box is model-local and the journey copy sits far off the origin, so no world xz clamp there (the walk itself stays on the baked area). */
  /** r17 P0: the graph box is MODEL-local like the nodes (toWorld); meadow / skycity copies sit far off the origin (meadow yaw 180), so
   *  the raw box made FreeOrbit.clearPose see the lens "outside" every frame and pull it to 0.8 m from her look point (the hat shot).
-  *  Now the box corners go through toWorld (island: identity). Lakeside keeps no xz clamp. */
+  *  Now the box corners go through toWorld (island: identity). Lakeside keeps no xz clamp.
+  *  b17 skycity-walk-r2: the lens uses lensBox (baked floor extent) when the graph has one, else exploreBox. */
  private regionBounds():readonly [number,number,number,number]|undefined{
-  if(this.region==='lakeside')return undefined;const b=stageGraph(this.region).exploreBox;
+  if(this.region==='lakeside')return undefined;const G=stageGraph(this.region) as {exploreBox:readonly number[];lensBox?:readonly number[]},b=G.lensBox??G.exploreBox;
   const c=this.toWorld(this.region,[[b[0],0,b[1]],[b[2],0,b[1]],[b[0],0,b[3]],[b[2],0,b[3]]]);
   return [Math.min(c[0][0],c[1][0],c[2][0],c[3][0]),Math.min(c[0][2],c[1][2],c[2][2],c[3][2]),Math.max(c[0][0],c[1][0],c[2][0],c[3][0]),Math.max(c[0][2],c[1][2],c[2][2],c[3][2])];
  }
@@ -468,12 +469,12 @@ export class RegionNodeStage extends Component{
  }
  private lakesideOccluders():OccBox[]|null{
   if(this.region==='island'){if(!this.islandBoxes)this.islandBoxes=ISLAND_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]]}));return this.islandBoxes;}
-  if(this.region!=='lakeside'&&this.region!=='skycity')return null;const m=this.model(this.region);if(!m)return null;const now=Date.now();
+  if(this.region==='skycity')return this.skycityOccluders();/* p0drag7 merge: union (cine + scene) set, 18 m cull, same LensGuard avoidance */
+  if(this.region!=='lakeside')return null;const m=this.model(this.region);if(!m)return null;const now=Date.now();
   if(this.occBoxes&&this.occModel===m&&now-this.occAt<2000)return this.occBoxes;
   const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
   const tw=(p:readonly number[]):[number,number,number]=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];};
-  if(this.region==='skycity'){this.occBoxes=proxiesToWorld(SKYCITY_LENS_OCCLUDERS,tw);this.deckZones=null;}/* p0drag7: houses / walls */
-  else{this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,tw);this.deckZones=proxiesToWorld(LAKESIDE_DECK_ZONES,tw);}this.occModel=m;this.occAt=now;return this.occBoxes;
+  this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,tw);this.deckZones=proxiesToWorld(LAKESIDE_DECK_ZONES,tw);this.occModel=m;this.occAt=now;return this.occBoxes;
  }
  /** P0 r16: on the boardwalk / arch bridge the lens keeps ≥ deckElevDeg (looks over the railings); 0 elsewhere. */
  private deckElev():number{
@@ -500,6 +501,17 @@ export class RegionNodeStage extends Component{
   const from=this.readPose(),to=this.lensPull.apply(o.rawPose(her),her,boxes,0,undefined,undefined,false,this.deckElev());
   const d=Math.hypot(to.position[0]-from.position[0],to.position[1]-from.position[1],to.position[2]-from.position[2]);
   this.entry={from,t:0,T:Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS)};
+ }
+ /** b17 skycity-walk-r2 (p0drag6): the sky houses / walls are merged meshes over the 14 m orbit-box cap, so the explore lens went
+  *  into the blue-roof house east of S3. Model-local proxies (SkycityLensOccluders) -> world; only the ones within 18 m of her. */
+ private skyAll:OccBox[]|null=null;private skyModel:Node|null=null;private skyNear:OccBox[]=[];private skyNearAt=0;
+ private skycityOccluders():OccBox[]|null{
+  const m=this.model('skycity');if(!m)return null;const now=Date.now();
+  if(!this.skyAll||this.skyModel!==m){const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
+   this.skyAll=proxiesToWorld(SKYCITY_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.skyModel=m;this.skyNearAt=0;}
+  if(now-this.skyNearAt>=400){const g=this.girl();this.skyNearAt=now;
+   this.skyNear=this.skyAll.filter(b=>Math.hypot(Math.max(b.min[0]-g[0],0,g[0]-b.max[0]),Math.max(b.min[2]-g[2],0,g[2]-b.max[2]))<18);}
+  return this.skyNear;
  }
  /** Lakeside + island (b17r13): LensGuard keeps the walk lens off the proxies (look-ahead plan, speed/accel-capped spring, floor). */
  private occlude(pose:Pose,dt:number):Pose{
