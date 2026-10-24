@@ -14,6 +14,7 @@ import {CabinHint} from './world-r2/CabinHint';
 import {cabinHintSeen,markCabinHintSeen} from './ui/UiPrefs';
 import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
 import {ISLAND_NAV_IDS,worldNavigationLayout} from './world-r2/WorldNavigationLayout';
+import {signRectOnScreen} from './world-r2/IslandPropsLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { GlassSign } from './world-r1/GlassSign';
 import { warmButton, WarmButton } from './WarmButton';
@@ -636,7 +637,7 @@ export class WorldIntegrationBoot extends Component {
   if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
    const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
    p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',journey:s.state==='region-travel',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
-   if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
+   if(s.state==='island'&&m.active){sign=p.signRect(f.width,f.height);if(!signRectOnScreen(sign,f.width,f.height))sign=null;}} // p0drag8: off-screen sign (explore orbit facing away) -> visible flat 继续旅程 button
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   // b16-fix P1 (build05 全流程测试 P1-1)：入场已结束但木牌并不可见时，不能留一个看不见的点击区。先重放一次入场；仍不可见就退回可见的平面「继续旅程」按钮。
   // v2.2（验收 E）：退回平面按钮后不放弃 3D 木牌：平面按钮保持可见可点，每 1 s 在后台把木牌直接设为完全显示再查一次，一旦可见就切回木牌；离开小岛清零重来。
@@ -649,7 +650,7 @@ export class WorldIntegrationBoot extends Component {
   this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
   if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height)t.setContentSize(sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
-  else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;}
+  else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;this.placeNavigationControl(m,worldNavigationLayout(f.width,f.height).buttons.mainline);} // p0drag8: back to its own slot, not the last sign spot
  }
  private paintNavigation(dt=0){this.status.node.parent!.active=false; // status bar removed (Funning final): never on screen once ready, any early return included
  let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}

@@ -264,6 +264,12 @@ export function signpostHitUi(pose: CameraPose, width: number, height: number): 
   return { x: r.x, y: r.y, width: w, height: h }; // nothing clear: keep centred (tests assert this never happens on supported frames)
 }
 
+/** p0drag8: true when the whole hit rect lies inside the viewport (UI units, centre origin). An off-screen rect (explore orbit
+ *  turned away from the signpost) must NOT become the invisible mainline hit area: the flat 继续旅程 button takes over instead. */
+export function signRectOnScreen(r: Rect | null, width: number, height: number): boolean {
+  return !!r && Math.abs(r.x) + r.width / 2 <= width / 2 && Math.abs(r.y) + r.height / 2 <= height / 2;
+}
+
 /* ---------- T9n night look (engine-free) ---------- */
 const hexRgba = (h: string): number[] => { const x = h.replace('#', ''); const v = [0, 2, 4, 6].map(i => i < x.length ? parseInt(x.slice(i, i + 2), 16) : 255); return v; };
 const toHex = (v: number[], alpha: boolean) => '#' + v.slice(0, alpha ? 4 : 3).map(c => Math.round(Math.max(0, Math.min(255, c))).toString(16).padStart(2, '0')).join('');
