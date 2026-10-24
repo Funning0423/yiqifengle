@@ -134,3 +134,13 @@ const bp=fs.readFileSync(path.join(SCRIPTS,'ui/BoardPanels.ts'),'utf8');
 assert.match(bp,/p\.button\('secondary', '离开棋盘', 0, 700, 480, 96, \(\) => a\.home\(\)/);
 assert.doesNotMatch(bp,/'回到小岛'/);
 console.log('region-walkable ok cells',JSON.stringify(cells));
+
+// b17 skycity-walk (web p0drag3: 天空城点地面不走): the r5 exploreBox [-30,-45,25,55] cut ~620 m² of connected y≈0 floor off the
+// walkable area (east of S3, west rim). The box now encloses the whole flood-filled plateau; taps there walk from S3.
+{const sb=RN.REGION_NODES.skycity.exploreBox;assert.ok(sb[0]<=-36&&sb[2]>=41.5,'skycity exploreBox encloses the plateau '+JSON.stringify(sb));
+ const S3=RW.nearestWalkable('skycity',[6.2,-0.01,8.2],1.2).at;
+ for(const p of [[33,0,0],[35,0,10],[30,0,-10],[38,0,5],[-33,0,10]]){
+  const n=RW.nearestWalkable('skycity',p,0.5);assert.ok(n,'skycity '+p+' walkable');
+  const a=n.at,hit=RW.walkRayHit('skycity',[a[0],a[1]+12,a[2]+6],[0,-12,-6]);assert.equal(hit.kind,'walk','skycity tap '+p+' '+JSON.stringify(hit));
+  const w=RW.walkPath('skycity',S3,n.at);assert.ok(w&&w.length>=2,'skycity path S3->'+p);}
+ console.log('skycity plateau ok');}

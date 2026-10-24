@@ -35,7 +35,7 @@ const REGIONS={
   draco:true,box:[-60,-50,45,80],c:.4,
   floor:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_bridge_after/,
   solid:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_gate_after$|env_sky_windchime|state_bridge_after|chr_robot/,
-  start:[5.4,-0.11,43.8],explore:[-30,-45,25,55],
+  start:[5.4,-0.11,43.8],explore:[-37,-45,42,55],
  },
 };
 const NODES={
