@@ -14,7 +14,8 @@ export function exploreWanted(region:ExploreRegion,s:any):boolean{
  if(!s||s.state!==region||s.hidden||s.needsResume)return false;
  const j=s.journey;
  // island: home region, no journey of its own (or one that has come back to the island) - just not mid-travel
- if(region==='island')return !j||!j.region||j.region==='island'&&(!j.phase||j.phase==='arrived');if(!j||j.region!==region||(j.phase&&j.phase!=='arrived'))return false;
+ // b17r12: a journey that never left (or came home) sits at region 'island', phase 'idle' (RegionJourneyCore start / returnToIsland)
+ if(region==='island')return !j||!j.region||j.region==='island'&&(!j.phase||j.phase==='arrived'||j.phase==='idle');if(!j||j.region!==region||(j.phase&&j.phase!=='arrived'))return false;
  return true;
 }
 /** Armed only on the way OUT of a board of that region ('level' seen while her journey region is `region`), never by the arrival /

@@ -1,5 +1,8 @@
 'use strict';
-// 运镜bot r5 meadow pitch floor: pitchMin(d) = -8 - 4 * smoothstep(3.2, 14, d) on the meadow free camera only.
+// 运镜bot r5 meadow pitch floor: pitchMin(d) = 9 - 4 * smoothstep(3.2, 14, d) on the meadow free camera only
+// (P0 pitch 2026-10-23: was -8 - 4·s; every explore region now has pitchMinDeg 5, so island/skycity/lakeside behaviour
+//  legitimately differs from the base commit / outdoor baseline where the old pitch went below 5°; board + home stay identical).
+const EXPLORE_P0=new Set(['island','meadow','skycity','lakeside']);
 //   node test_meadow_pitchfloor.cjs   (prints a JSON report; asserts)
 // 1. Curve values (±0.01°). 2. Every other place: no pitchFloor, floor == pitchMinDeg at every distance.
 // 3. Behaviour vs FreeOrbit @6eafc35f (git show; skipped with a note if git is unavailable): seeded random input scripts
@@ -11,10 +14,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {load,ROOT}=require('./load.cjs');
 const C=load('region/FreeOrbit.ts'),M=C.ORBIT_LIMITS.meadow,out={};
 // 1) curve
-const want=[[3.2,-8.00],[5,-8.30],[7,-9.14],[9,-10.22],[11,-11.25],[14,-12.00],[20,-12.00],[2,-8.00]];
+const want=[[3.2,9.00],[5,8.70],[7,7.86],[9,6.78],[11,5.75],[14,5.00],[20,5.00],[2,9.00]];
 out.curve=want.map(([d,w])=>{const g=C.orbitPitchFloor(M,d);assert.ok(Math.abs(g-w)<=0.01,'pitchMin('+d+') = '+g+', want '+w);return {d,got:+g.toFixed(4),want:w}});
 for(let d=M.distMin;d<M.distMax;d+=0.01)assert.ok(C.orbitPitchFloor(M,d+0.01)<=C.orbitPitchFloor(M,d)+1e-12,'floor falls monotonically with distance');
-assert.equal(M.pitchMinDeg,-12,'meadow absolute floor stays -12');
+assert.equal(M.pitchMinDeg,5,'meadow absolute floor is 5 (P0 pitch)');
 // 2) other places
 const places=Object.keys(C.ORBIT_LIMITS);
 for(const id of places){if(id==='meadow')continue;const L=C.ORBIT_LIMITS[id];assert.equal(L.pitchFloor,undefined,id+' has no pitch floor');
@@ -35,7 +38,7 @@ function script(K,place,seed){const r=rng(seed),o=new K.FreeOrbit(place),feet=[r
  return trace}
 if(B){out.baseCompare={};for(const id of places){if(id==='home')continue;let changed=0;const N=60;
   for(let s=1;s<=N;s++){const a=JSON.stringify(script(C,id,s*7919+id.length)),b=JSON.stringify(script(B,id,s*7919+id.length));if(a!==b)changed++}
-  out.baseCompare[id]={scripts:N,changed};if(id!=='meadow')assert.equal(changed,0,id+' behaviour changed in '+changed+' of '+N+' scripts')}
+  out.baseCompare[id]={scripts:N,changed};if(!EXPLORE_P0.has(id))assert.equal(changed,0,id+' behaviour changed in '+changed+' of '+N+' scripts')}
  // home (room look) follows r10, not the r6 pose at 6eafc35f
  const W=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/room-keepinside/world_boxes.json'),'utf8')).boxes,seat=[0.4327,0,-4.2076];let hc=0;
  if(R10){for(let s=1;s<=20;s++){const run=K=>{const r=rng(s),o=new K.FreeOrbit('home'),t=[];for(let i=0;i<180;i++){if(r()<0.5)o.drag((r()-0.5)*0.06,(r()-0.5)*0.06,1/60);else if(r()<0.6)o.pinch(0.9+r()*0.2);else o.release();o.step(1/60);const p=o.solve(seat,W,0);t.push([o.yaw,o.pitch,o.dist,p.position,p.target])}return JSON.stringify(t)};if(run(C)!==run(R10))hc++}
@@ -51,9 +54,9 @@ function reg(settle){const per={},list=[];for(const c of BASE){const o=new C.Fre
   per[c.place]=per[c.place]||{cases:0,changed:0};per[c.place].cases++;if(d>1e-9){per[c.place].changed++;list.push({place:c.place,pitch:+c.pitch.toFixed(3),dist:+c.dist.toFixed(3),floor:+C.orbitPitchFloor(C.ORBIT_LIMITS[c.place],c.dist).toFixed(3),pitchAfter:+o.pitch.toFixed(3),moveM:+d.toFixed(4)})}}
  return {per,list}}
 out.outdoorDirect=reg(false);out.outdoorSettled=reg(true);
-for(const k of ['outdoorDirect','outdoorSettled'])for(const [id,v] of Object.entries(out[k].per))if(id!=='meadow')assert.equal(v.changed,0,k+' '+id+' changed');
+for(const k of ['outdoorDirect','outdoorSettled'])for(const [id,v] of Object.entries(out[k].per))if(!EXPLORE_P0.has(id))assert.equal(v.changed,0,k+' '+id+' changed');
 assert.equal(out.outdoorDirect.per.meadow.changed,0,'a direct solve does not clamp (the floor acts through input and step)');
-for(const c of out.outdoorSettled.list)assert.ok(c.pitch<c.floor&&Math.abs(c.pitchAfter-c.floor)<1e-9,'only cases below the floor change, and they end on it');
+for(const c of out.outdoorSettled.list)if(!(c.dist>C.ORBIT_LIMITS[c.place].distMax+1e-9))/* r17: explore arm ceiling 12 m */assert.ok(c.pitch<c.floor&&Math.abs(c.pitchAfter-c.floor)<1e-9,'only cases below the floor change, and they end on it');
 // 5) pinch-in ease
 const F=C.PITCH_FLOOR_FEEL,feet=[0,0,0];assert.ok(F.accDegS2<=120&&F.brakeDegS2<=F.accDegS2/2);
 function ease(fps,pinchS,from,to){const o=new C.FreeOrbit('meadow'),dt=1/fps;o.dist=from;o.drag(0,5,dt);o.release();for(let i=0;i<10;i++)o.step(dt);
@@ -65,7 +68,7 @@ function ease(fps,pinchS,from,to){const o=new C.FreeOrbit('meadow'),dt=1/fps;o.d
  let acc=0,va=0,step=0,over=0;for(let i=1;i<P.length;i++){step=Math.max(step,Math.abs(P[i]-P[i-1]));over=Math.max(over,P[i]-FL[i]);if(i<P.length-1){acc=Math.max(acc,Math.abs(P[i+1]-2*P[i]+P[i-1])/dt/dt);va=Math.max(va,Math.abs(V[i+1]-2*V[i]+V[i-1])/dt/dt)}}
  const end=P[P.length-1],tEnd=(P.findIndex((p,i)=>i>0&&Math.abs(p-FL[i])<1e-6&&P.slice(i).every((q,k)=>Math.abs(q-FL[i+k])<1e-6)))*dt;
  return {fps,pinchS,from,to:+o.dist.toFixed(2),startPitch:+p0.toFixed(3),endPitch:+end.toFixed(3),floorEnd:+o.pitchFloorDeg.toFixed(3),peakPitchAccDegS2:+acc.toFixed(2),peakViewAccDegS2:+va.toFixed(2),maxStepDeg:+step.toFixed(4),maxAboveFloorDeg:+over.toFixed(6),onFloorAfterS:+tEnd.toFixed(3)}}
-out.ease=[];for(const fps of [30,60,120])for(const [s,a,b] of [[0.1,14,3.2],[0.3,14,4],[1.5,14,4],[0.5,9,3.5]]){const r=ease(fps,s,a,b);out.ease.push(r);
+out.ease=[];for(const fps of [30,60,120])for(const [s,a,b] of [[0.1,12,3.2],[0.3,12,4],[1.5,12,4],/* r17: meadow distMax 12 */[0.5,9,3.5]]){const r=ease(fps,s,a,b);out.ease.push(r);
  assert.ok(r.peakPitchAccDegS2<=F.accDegS2+1e-6,'ease accel '+r.peakPitchAccDegS2);assert.ok(r.peakViewAccDegS2<=F.accDegS2+0.5,'view accel '+r.peakViewAccDegS2);
  assert.ok(r.maxStepDeg<=F.vMaxDegS/fps+1e-9,'no snap: '+r.maxStepDeg+'° in one frame');assert.ok(r.maxAboveFloorDeg<=1e-9,'no overshoot past the floor');
  assert.ok(Math.abs(r.endPitch-r.floorEnd)<1e-6,'ends on the floor')}

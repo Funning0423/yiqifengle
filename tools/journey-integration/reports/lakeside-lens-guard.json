@@ -1,0 +1,478 @@
+{
+ "status": "PASS",
+ "failingBefore": true,
+ "wiring": {
+  "guard": true,
+  "orbit": true,
+  "follow": true,
+  "reward": true,
+  "island": true
+ },
+ "scope": "Geometry (real GLB triangles) + real TS lens code; NOT a render or device capture.",
+ "routes": [
+  {
+   "id": "MAC",
+   "points": 8,
+   "lengthM": 57.61
+  },
+  {
+   "id": "DECK0",
+   "points": 4,
+   "lengthM": 20.21
+  },
+  {
+   "id": "DECK1",
+   "points": 4,
+   "lengthM": 20.23
+  },
+  {
+   "id": "DECK2",
+   "points": 2,
+   "lengthM": 14.8
+  },
+  {
+   "id": "DECK3",
+   "points": 2,
+   "lengthM": 14.8
+  },
+  {
+   "id": "RAND0",
+   "points": 3,
+   "lengthM": 14.9
+  },
+  {
+   "id": "CANOPY0",
+   "points": 3,
+   "lengthM": 62.45
+  },
+  {
+   "id": "CANOPY1",
+   "points": 4,
+   "lengthM": 42
+  },
+  {
+   "id": "CANOPY2",
+   "points": 3,
+   "lengthM": 39.81
+  }
+ ],
+ "macFitErr": 0,
+ "before": {
+  "G1": false,
+  "G2": false,
+  "G3": true,
+  "G4": false,
+  "G5": true,
+  "follow": {
+   "frames": 43064,
+   "hidden": 7,
+   "fill": 7,
+   "under": 0,
+   "maxExtraMS": 109.27,
+   "maxExtraAcc": 1700.58,
+   "maxAbsMS": 71.84,
+   "byRoute": {
+    "MAC": {
+     "frames": 8645,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK0": {
+     "frames": 3031,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK1": {
+     "frames": 3038,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK2": {
+     "frames": 2226,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK3": {
+     "frames": 2226,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "RAND0": {
+     "frames": 2240,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY0": {
+     "frames": 9373,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY1": {
+     "frames": 6307,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY2": {
+     "frames": 5978,
+     "hidden": 7,
+     "fill": 7,
+     "under": 0
+    }
+   }
+  },
+  "orbit": {
+   "frames": 61520,
+   "hidden": 495,
+   "fill": 196,
+   "under": 0,
+   "maxExtraMS": 22.92,
+   "maxExtraAcc": 795.72,
+   "maxAbsMS": 24,
+   "byRoute": {
+    "MAC": {
+     "frames": 12350,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK0": {
+     "frames": 4330,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK1": {
+     "frames": 4340,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK2": {
+     "frames": 3180,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK3": {
+     "frames": 3180,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "RAND0": {
+     "frames": 3200,
+     "hidden": 33,
+     "fill": 36,
+     "under": 0
+    },
+    "CANOPY0": {
+     "frames": 13390,
+     "hidden": 143,
+     "fill": 69,
+     "under": 0
+    },
+    "CANOPY1": {
+     "frames": 9010,
+     "hidden": 7,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY2": {
+     "frames": 8540,
+     "hidden": 312,
+     "fill": 91,
+     "under": 0
+    }
+   }
+  },
+  "reward": [
+   {
+    "screen": "390x844",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "414x896",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "360x780",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "375x667",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.8,
+     -1.3
+    ]
+   },
+   {
+    "screen": "390x520",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.8,
+     -1.3
+    ]
+   },
+   {
+    "screen": "320x568",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "768x1024",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   }
+  ]
+ },
+ "after": {
+  "G1": true,
+  "G2": true,
+  "G3": true,
+  "G4": true,
+  "G5": true,
+  "follow": {
+   "frames": 43064,
+   "hidden": 0,
+   "fill": 0,
+   "under": 0,
+   "maxExtraMS": 2.77,
+   "maxExtraAcc": 7,
+   "maxAbsMS": 122.14,
+   "byRoute": {
+    "MAC": {
+     "frames": 8645,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK0": {
+     "frames": 3031,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK1": {
+     "frames": 3038,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK2": {
+     "frames": 2226,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK3": {
+     "frames": 2226,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "RAND0": {
+     "frames": 2240,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY0": {
+     "frames": 9373,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY1": {
+     "frames": 6307,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY2": {
+     "frames": 5978,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    }
+   }
+  },
+  "orbit": {
+   "frames": 61520,
+   "hidden": 117,
+   "fill": 11,
+   "under": 0,
+   "maxExtraMS": 3.5,
+   "maxExtraAcc": 7,
+   "maxAbsMS": 18.06,
+   "byRoute": {
+    "MAC": {
+     "frames": 12350,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK0": {
+     "frames": 4330,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK1": {
+     "frames": 4340,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "DECK2": {
+     "frames": 3180,
+     "hidden": 34,
+     "fill": 11,
+     "under": 0
+    },
+    "DECK3": {
+     "frames": 3180,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "RAND0": {
+     "frames": 3200,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY0": {
+     "frames": 13390,
+     "hidden": 6,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY1": {
+     "frames": 9010,
+     "hidden": 0,
+     "fill": 0,
+     "under": 0
+    },
+    "CANOPY2": {
+     "frames": 8540,
+     "hidden": 77,
+     "fill": 0,
+     "under": 0
+    }
+   }
+  },
+  "reward": [
+   {
+    "screen": "390x844",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "414x896",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "360x780",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "375x667",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.8,
+     -1.3
+    ]
+   },
+   {
+    "screen": "390x520",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.8,
+     -1.3
+    ]
+   },
+   {
+    "screen": "320x568",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   },
+   {
+    "screen": "768x1024",
+    "fill": 0,
+    "hiddenShare": 0,
+    "lens": [
+     -4.5,
+     3.4,
+     -1.3
+    ]
+   }
+  ]
+ }
+}

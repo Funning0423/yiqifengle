@@ -7,7 +7,8 @@ import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
-import { QA_SKIP_CHECKPOINT, qaSkipTarget, type QaSkipTarget } from './QaSkip';
+import { QA_SKIP_CHECKPOINT, qaSkipTarget, qaQuery, type QaSkipTarget } from './QaSkip';
+import { preTransitionEnabled } from './PreTransitionKeys';
 import { qaTransportEnabled } from '../region/JourneyTransport';
 import { armSailQa } from '../region/SailQaProbe';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
@@ -98,10 +99,13 @@ export class WorldNativeComposition extends Component {
     if(typeof RegionNodeStage==='function'&&typeof ExploreInput==='function'){
      const stage=this.node.getComponent(RegionNodeStage)||this.node.addComponent(RegionNodeStage);
      stage.attach(this.worldCamera);
+     stage.characterSource=()=>this.boundCharacter;
      const input=this.node.getComponent(ExploreInput)||this.node.addComponent(ExploreInput);
      input.sink=(g,x,y)=>stage.onGesture(g,x,y);
     }
   }
+  /** b17r14: island free-explore taps arrive via IslandLighthouseTouch (it claims the touch), not the global input. */
+  exploreFeed():ExploreInput|null{const c=this.node?.getComponent(ExploreInput);return c&&c.isValid?c:null;}
   selectProvider(selection:Selection):Result {
     if(!this.world)return {ok:false,reason:'world-not-ready'};
     if(!['home','island','meadow','skycity','lakeside'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'exit-current-level-first'};
@@ -291,7 +295,7 @@ export class WorldNativeComposition extends Component {
    *  real saves are never written; leave via exitQaSkip() or a relaunch. No banner. */
   async qaSkip(target:QaSkipTarget):Promise<Result>{
     const gated=qaSkipTarget('qfSkip='+target);if(!gated||gated!==target)return {ok:false,reason:'qa-skip-disabled'};
-    const search=(()=>{try{const s=(globalThis as any).location?.search;return typeof s==='string'?s:'';}catch{return '';}})();
+    const search=qaQuery();
     if(!qaSkipTarget(search)&&!(globalThis as any).__QF_QA_SKIP_API)return {ok:false,reason:'qa-skip-disabled'};
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
     const cp=QA_SKIP_CHECKPOINT[target];let profile:any;
@@ -301,6 +305,18 @@ export class WorldNativeComposition extends Component {
     try{console.info('[QF_QA_SKIP] '+JSON.stringify({target,namespace:profile.namespace,completed:cp.completed,finish:cp.finish}));}catch{}
     if(this.world.commands().snapshot().state==='home'){const r=await this.world.commands().leaveHome();if(!r.ok)return r;}
     return cp.finish?this.enterMainline():this.enterMainlineStage(profile.stageId,profile.seed);
+  }
+  /** Test-only pre-transition setup (PreTransitionRun): swap in an isolated, engine-replayed profile (real saves untouched),
+   *  `completed` stages with the last one paused one move short (finish=false) or registered (finish=true). Same host gate as
+   *  __qfTeleport; refuses in WeChat release. Moves nobody: the caller drives the world through the normal commands. */
+  preTransitionProfile(completed:number,finish:boolean):Result{
+    if(!preTransitionEnabled())return {ok:false,reason:'pre-transition-disabled'};
+    if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
+    let profile:any;try{profile=createRegionFlowCheckpoint(completed,{allowQa:true,finish,anyCheckpoint:true});}catch(e){return {ok:false,reason:String((e as Error).message)};}
+    if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+    this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;this.hostReply=null;
+    try{console.info('[QF_PRE] profile '+JSON.stringify({namespace:profile.namespace,completed,finish}));}catch{}
+    return {ok:true,stageId:profile.stageId,seed:profile.seed,lastAction:profile.lastAction} as any;
   }
   exitQaSkip():Result{
     if(!this.normalPorts)return {ok:false,reason:'no-test-profile'};
@@ -312,7 +328,7 @@ export class WorldNativeComposition extends Component {
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'return-to-island-before-exiting-test'};
     Object.assign(this,this.normalPorts);this.normalPorts=null;this.testProfile=null;this.activeSession=null;this.hostReply=null;return {ok:true};
   }
-  attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');this.boundCharacter=adapter;return this.world.bindCharacter(adapter);}
+  attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');this.boundCharacter=adapter;const st=this.stage();if(st){st.characterSource=()=>this.boundCharacter;st.ensureCharacter();}return this.world.bindCharacter(adapter);}
   /** Reward / next-level: follow the girl to the next node, then the existing board or bridge opens. No character bound (tests, headless) keeps today's order. */
   private markExplore(on:boolean){const set=(globalThis as any).__qfSetExplore;if(typeof set==='function')set(on);}
   private stage():RegionNodeStage|null{return this.node?.getComponent(RegionNodeStage)||null;}

@@ -35,7 +35,16 @@ const REGIONS={
   draco:true,box:[-60,-50,45,80],c:.4,
   floor:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_bridge_after/,
   solid:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_gate_after$|env_sky_windchime|state_bridge_after|chr_robot/,
-  start:[5.4,-0.11,43.8],explore:[-30,-45,25,55],
+  start:[5.4,-0.11,43.8],explore:[-37,-45,42,55],ridge:true,keepNodeComponents:true,tapObstacles:true,
+  // b17 skycity-walk-r2: the orbit lens has its own (smaller) box = the baked floor's extent, not the walk/focus box
+  lens:[-34.8,-41,39.6,47.6],
+  // b17 skycity-walk-r3 (Mac p0drag7): the two giant tree roots that lean on the blue-roof house east of S3 (one sloped 2-tri
+  // sliver of env_sky_static_palette from (17.6,-0.4,-4.5) up to the annex top y≈2 at (21.3,1.45,7.2)) are decoration, not a ramp.
+  // She walked up them onto the annex (20.84,1.65,7.13) and every tap west was 'none'. Floors > minY above ground here are not walkable.
+  // b17 skycity-walk-r4 方案 C (p0drag9): the pocket west of the low ruin fence at (13,7.4) (fence x≈13.5 to the east, the wide wall
+  // block z≥10 to the north): standing in it, 90–130° of the 6 m orbit around her is inside the fence / house. Ground there is
+  // not walkable; a tap into it stops her on the open ground west of it (blocked arc ≤ 80°). No GLB change.
+  noWalk:[[17.0,-5.2,22.8,14.6,0.3],[12.0,6.8,13.4,10.2,-9]],
  },
 };
 const NODES={
@@ -91,6 +100,19 @@ function buildGrid(spec,stamp){
  stamp(addTri);
  const layers=floors.map(a=>{a.sort((p,q)=>p-q);const o=[];for(const y of a){if(o.length&&y-o[o.length-1].hi<.15)o[o.length-1].hi=y;else o.push({lo:y,hi:y});}return o.map(l=>l.hi);});
  const ok=layers.map((ls,ci)=>ls.map(y=>{const s=solids[ci];for(const q of s)if(q>y+LOW&&q<y+HEAD)return false;for(const y2 of ls)if(y2>y+.2&&y2<y+HEAD)return false;return true;}));
+ // b17 skycity-walk-r2: wall / rail tops are not floor. A layer that has no neighbour layer within STEP on BOTH sides of one axis
+ // (x or z) - not even diagonally, so a 1-cell diagonal ramp stays -, i.e. it is one cell thin across, with floor > .5 m lower on BOTH sides of that axis, is a wall / rail top (the 0.2 m ruin wall east of S3 was walkable
+ // and made a 26 m detour through the porch). Only for regions with spec.ridge.
+ if(spec.ridge){const near=(ci,y)=>ci>=0&&layers[ci].some((y2,l2)=>ok[ci][l2]&&Math.abs(y2-y)<=STEP);const nb=(gx,gz)=>gx<0||gz<0||gx>=W||gz>=H?-1:gz*W+gx;
+  const drop=[];layers.forEach((ls,ci)=>{const gx=ci%W,gz=(ci/W)|0;ls.forEach((y,li)=>{if(!ok[ci][li])return;
+   const low=n=>n>=0&&layers[n].some(y2=>y2<y-.5);
+   const side=(cs)=>cs.every(([a,b])=>!near(nb(a,b),y));
+   const wallX=side([[gx-1,gz-1],[gx-1,gz],[gx-1,gz+1],[gx+1,gz-1],[gx+1,gz],[gx+1,gz+1]])&&low(nb(gx-1,gz))&&low(nb(gx+1,gz));
+   const wallZ=side([[gx-1,gz-1],[gx,gz-1],[gx+1,gz-1],[gx-1,gz+1],[gx,gz+1],[gx+1,gz+1]])&&low(nb(gx,gz-1))&&low(nb(gx,gz+1));
+   if(wallX||wallZ)drop.push([ci,li]);});});
+  for(const [ci,li] of drop)ok[ci][li]=false;}
+ if(spec.noWalk)for(const [ax,az,bx,bz,ymin] of spec.noWalk)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
+  if(x>=ax&&x<=bx&&z>=az&&z<=bz)ls.forEach((y,li)=>{if(y>ymin)ok[ci][li]=false;});});
  if(spec.sea!==undefined)layers.forEach((ls,ci)=>ls.forEach((y,li)=>{if(y<spec.sea)ok[ci][li]=false;}));
  const cellOf=p=>cell(p[0],p[2]);
  const s=cellOf(spec.start);let sl=-1,bd=9;
@@ -102,7 +124,8 @@ function buildGrid(spec,stamp){
  while(qi<q.length){const [ci,li]=q[qi++],y=layers[ci][li],gx=ci%W,gz=(ci/W)|0,d0=dist.get(key(ci,li));
   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx;const lim=STEP*Math.hypot(dx,dz)*(c/.4);
    layers[nc].forEach((y2,l2)=>{if(!ok[nc][l2]||Math.abs(y2-y)>lim)return;const k=key(nc,l2);if(seen.has(k))return;seen.set(k,1);parent.set(k,key(ci,li));dist.set(k,d0+Math.hypot(dx,dz)*c);q.push([nc,l2]);});}}
- return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell};
+ // b17 skycity-walk-r4: the solid surface samples per cell (0.2 m on every triangle) feed the tap-ray voxel field (RegionWalkableData.obs)
+ return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids};
 }
 function nearest(M,p,ytol=1.5){
  const ci=M.cell(p[0],p[2]);if(ci<0)return null;let best=null;
@@ -173,7 +196,7 @@ function emit(baked){
   }
   for(const n of nodes){const out=edges.find(e=>e.a===n.key)||edges.find(e=>e.b===n.key);if(!out){n.faceDeg=0;continue;}
    const forward=out.a===n.key?out.path:[...out.path].reverse();n.faceDeg=faceDeg(forward[0],forward[Math.min(1,forward.length-1)]);}
-  body[id]={sha256:baked[id].sha,decoder:baked[id].decoder,exploreBox:spec.explore,gridM:spec.c,nodes,edges};
+  body[id]={sha256:baked[id].sha,decoder:baked[id].decoder,exploreBox:spec.explore,...(spec.lens?{lensBox:spec.lens}:{}),gridM:spec.c,nodes,edges};
  }
  return body;
 }
@@ -198,7 +221,7 @@ function ts(body){
  lines.push("export type RegionId='island'|'meadow'|'skycity';");
  lines.push("export type RegionNode=Readonly<{key:string;region:RegionId;at:Vec;role:NodeRole;stageId?:string;opens?:'challenge-meadow'|'challenge-sky'|'challenge-island';faceDeg:number;boardPose?:string}>;");
  lines.push("export type RegionEdge=Readonly<{a:string;b:string;path:readonly Vec[];lengthM:number}>;");
- lines.push("export type RegionGraph=Readonly<{nodes:readonly RegionNode[];edges:readonly RegionEdge[];exploreBox:readonly [number,number,number,number];gridM:number;sourceSha256:string}>;");
+ lines.push("export type RegionGraph=Readonly<{nodes:readonly RegionNode[];edges:readonly RegionEdge[];exploreBox:readonly [number,number,number,number];lensBox?:readonly [number,number,number,number];gridM:number;sourceSha256:string}>;");
  lines.push('export const REGION_NODE_GLB:Readonly<Record<RegionId,string>>=');
  const shas={};
  for(const id of Object.keys(body))shas[id]=body[id].sha256;
@@ -208,7 +231,7 @@ function ts(body){
  for(const id of Object.keys(body)){
   const g=body[id];
   pub[id]={
-   sourceSha256:g.sha256,gridM:g.gridM,exploreBox:g.exploreBox,
+   sourceSha256:g.sha256,gridM:g.gridM,exploreBox:g.exploreBox,...(g.lensBox?{lensBox:g.lensBox}:{}),
    nodes:g.nodes.map(n=>({key:n.key,region:id,at:n.at,role:n.role,...(n.stageId?{stageId:n.stageId}:{}),...(n.opens?{opens:n.opens}:{}),faceDeg:n.faceDeg,...(n.role==='mainline'&&id!=='island'?{boardPose:'default'}:{})})),
    edges:g.edges,
   };
@@ -267,4 +290,4 @@ async function main(){
  console.log('wrote',OUT_TS,text.length,'bytes');
 }
 if(require.main===module)main().catch(e=>{console.error(e);process.exit(1);});
-module.exports={REGIONS,buildGrid,decodeDraco,decodePlain};
+module.exports={REGIONS,NODES,buildGrid,decodeDraco,decodePlain};

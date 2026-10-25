@@ -6,9 +6,9 @@ import { R5_KEYS } from './PersistentR5Port';
 import { REGION_FLOW_WITNESSES } from './RegionFlowWitnesses';
 let serial=0;
 /** Test build only. All progress is derived by original engine/controller operations in a fresh root. */
-export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:boolean;finish?:boolean}) {
+export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:boolean;finish?:boolean;anyCheckpoint?:boolean}) {
  if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
- if(![4,8,12].includes(completed))throw Error('unsupported-checkpoint');
+ if(![4,8,12].includes(completed)&&!(opts?.allowQa&&opts?.anyCheckpoint&&Number.isInteger(completed)&&completed>=1&&completed<=12))throw Error('unsupported-checkpoint');/* pre-transition: any 1..12 (QA gate only) */
  const namespace='dot-region-flow-test-'+Date.now().toString(36)+'-'+(++serial)+'-'+Math.random().toString(36).slice(2)+':';
  const storage=(lane:string)=>({getItem:(key:string)=>sys.localStorage.getItem(namespace+lane+':'+key),setItem:(key:string,value:string)=>sys.localStorage.setItem(namespace+lane+':'+key,value)});
  const mainStorage=storage('mainline'),mainline=Object.assign(MainlinePort.createPort(mainStorage),{namespace:namespace+'mainline:',inspect:()=>['forest-mainline-cocos-r1-active','forest-v33-journey','forest-v3-progress','forest-v3-completed'].map(k=>[k,mainStorage.getItem(k)])});

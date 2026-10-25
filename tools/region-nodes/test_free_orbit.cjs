@@ -118,7 +118,7 @@ const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
 const stagePath=path.join(__dirname,'../../creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts');
 const source=ts.createSourceFile(stagePath,fs.readFileSync(stagePath,'utf8'),ts.ScriptTarget.Latest,true);
 const stageClass=source.statements.find(n=>ts.isClassDeclaration(n)&&n.name.text==='RegionNodeStage');
-const methods=['writeOrbit','guardOrbitGround','viewDir'].map(name=>stageClass.members.find(n=>n.name?.getText(source)===name).getText(source));
+const methods=['writeOrbit','guardOrbitGround','viewDir','clampArm','lookAt','armOf','armAlong','outOfProxies','clampPitch'].map(name=>stageClass.members.find(n=>n.name?.getText(source)===name).getText(source));
 class Ray{constructor(){this.o={set(x,y,z){Object.assign(this,{x,y,z});}};this.d={set(x,y,z){Object.assign(this,{x,y,z});}};}}
 let rayCalls=0;
 const geometry={Ray,ERaycastMode:{CLOSEST:1},intersect:{rayModel(ray,model,options){
@@ -130,7 +130,8 @@ const geometry={Ray,ERaycastMode:{CLOSEST:1},intersect:{rayModel(ray,model,optio
  return height===null?0:ray.o.y-height;
 }}};
 const compiled=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
-const sandbox={module:{exports:{}},geometry,MeshRenderer:class{},LENS_CLEAR_M:0.6};
+const LAV=load('region/LensAvoid.ts');
+const LSM=load('region/LensSmooth.ts');const sandbox={module:{exports:{}},...LSM,AVOID:LAV.AVOID,LENS_PITCH_MAX_DEG:LAV.LENS_PITCH_MAX_DEG,lensLevel:LAV.lensLevel,nearSphere:LAV.nearSphere,herOcclusion:LAV.herOcclusion,toFrame:LAV.toFrame,geometry,MeshRenderer:class{},LENS_CLEAR_M:0.6,ORBIT_LIMITS:C.ORBIT_LIMITS,LENS_GUARD:{armMinM:3.5,armHardM:1.6,armMaxM:12}};/* r17: writeOrbit arm clamp */
 vm.runInNewContext(compiled,sandbox,{filename:stagePath});
 const Stage=sandbox.module.exports;
 const render=(name,height,enabled=true,active=true)=>({enabled,node:{name,activeInHierarchy:active},model:{worldBounds:{center:{x:0,y:5,z:0},halfExtents:{x:50,y:15,z:50}},height}});
@@ -138,7 +139,7 @@ const meshNames=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_
 const glb=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/bundles/region_skycity/env_skycity.glb'));
 const gltf=JSON.parse(glb.subarray(20,20+glb.readUInt32LE(12)).toString());
 for(const name of meshNames)assert.ok(gltf.nodes.some(n=>n.name===name&&n.mesh!==undefined),'real sky terrain mesh: '+name);
-const stage=new Stage();stage.region='skycity';
+const stage=new Stage();stage.region='skycity';stage.armSmooth={reset(){},step:a=>a};stage.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0};stage.lensSmooth=new LSM.OffsetSmoother();stage.lakesideOccluders=()=>null;/* p0drag7: arm smoothing / proxies covered by explore-arm-smooth + skycity-east */
 let renderers=[];
 stage.model=()=>({getComponentsInChildren:()=>renderers});
 stage.occlude=p=>p;/* b17r7: lakeside-only occlusion, covered by lakeside-lens-occlusion */stage.orbitBoxes=[];stage.refreshOrbitBoxes=()=>{};stage.regionBounds=()=>[-50,-50,50,50];stage.girl=()=>[0,0,0];
@@ -153,6 +154,7 @@ for(const name of meshNames){
  assert.equal(written.target[1],1.25,'keep looking at the subject');
 }
 // The near point crosses onto a higher tread while the lens itself is still on the lower one.
+stage.clampArm=p=>p;stage.clampPitch=p=>p;stage.outOfProxies=p=>p;stage.lensSmooth={step:(a,b,c)=>[a,b,c],clear(){},y:0,e:0,a:0,live:false};sandbox.frameHer=(p,t)=>t;/* p0drag9: easing covered by p0drag9 *//* p0drag8: pitch cap covered by p0drag8 test */ /* r17: synthetic poses below sit 0.75 m from her look; the arm floor/ceiling is covered by explore-arm */
 const stepPose={position:[0,0.5,0],target:[0,0,10],fovVerticalDeg:48};
 stage.orbit={step(){},solve(){return stepPose;}};
 renderers=[render('env_sky_static_palette',(_x,z)=>z>0.1?5:1)];

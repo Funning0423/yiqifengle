@@ -1,0 +1,1 @@
+island explore ok {"spawn":[-2.1135,0,5.2814],"tap":"walk","sea":"water"}

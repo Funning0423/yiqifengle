@@ -4,7 +4,7 @@ import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
 import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,propFacingPose,ROBOT_FACING,PROP_CLEAR_M,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
-import {FreeOrbit,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
+import {FreeOrbit,ORBIT_LIMITS,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
 import {setExploreEnabled} from '../region/ExploreGate';
 import {REGION_NODES,type RegionId} from '../region/RegionNodes';
 import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
@@ -16,10 +16,18 @@ import {gemLocal,markerAnchor,footprints,routeHintVisible} from '../ui/NodeMarke
 import {WorldFlowComponent} from '../world-r1/WorldFlowComponent';
 import {SkycityRobotInteract} from '../region/SkycityRobotInteract';
 import {EXIT_EXPLORE_REGIONS,exploreArm,exploreWanted,stageGraph,type ExploreRegion,type StageRegion} from '../region/LakesideExplore';
-import {LensGuard,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
-import {LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
+import {camTraceStart} from '../region/CamTrace';
+import {bgCamHeld,bgCamHold,bgCamRelease,bgCamWanted} from '../region/BgCamGate';
+import {qaHooksEnabled,qaYawFacing} from './QaSkip';
+import {ISLAND_PROPS,signFrontView} from './IslandPropsLayout';
+import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
+import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
-import {nearestWalkable,walkPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
+import {SKYCITY_LENS_OCCLUDERS} from '../region/SkycityLensOccluders';
+import {ArmSmoother} from '../region/ArmSmoother';
+import {AVOID,LENS_PITCH_MAX_DEG,herOcclusion,lensLevel,nearSphere,toFrame,type FrameBox} from '../region/LensAvoid';
+import {LENS_SMOOTH,OffsetSmoother,frameHer,posOf,sphOf,wrapDeg} from '../region/LensSmooth';
+import {nearestWalkable,walkPath,walkTapPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
 
 type Cover={host:Node|null;nav:Node|null;cams:{cam:Camera;on:boolean}[];rig:Node|null;rigOn:boolean};
@@ -46,6 +54,8 @@ export class RegionNodeStage extends Component{
  private groundWalking=false;
  private exploreCheck=0;
  private syncOpened:ExploreRegion|null=null;
+ /** p0drag5: board-background cameras switched off while a sync-opened explore owns the view (restored on close). */
+ private syncCams:{cam:Camera;region:StageRegion;model:Node|null}[]=[];
  private exploreArmed:Partial<Record<ExploreRegion,boolean>>={};
  private explorePrev:string|null=null;
  private focus:Vec=[0,0,0];
@@ -63,7 +73,9 @@ export class RegionNodeStage extends Component{
  private savedLayers:{n:Node;layer:number}[]=[];
  private animHold:{c:Animation;on:boolean}[]=[];
  private holdPose:Pose|null=null;
- private walkToken=0;
+ private armSmooth=new ArmSmoother();
+ private avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1,hidT:0};private lensSmooth=new OffsetSmoother();private skyPrev:{yaw:number;el:number;arm:number}|null=null;private qaHold=false;private qaShot:Pose|null=null;private skyDetour=0;
+ private walkToken=0;private walkCancel:(()=>void)|null=null;
  private shotNote='';
  private dragHome:Vec|null=null;
  private completed:readonly string[]=[];
@@ -71,11 +83,16 @@ export class RegionNodeStage extends Component{
  private orbitBoxes:OrbitBox[]=[];
  /** b17r7 (运镜bot): lakeside free-walk lens occlusion. The lakeside is static-merged (renderer AABBs > 14 m are skipped by
   *  refreshOrbitBoxes), so the lens uses the generated tree/post/house proxies (LakesideLensOccluders) via LensPullIn. */
- private lensPull=new LensGuard();private islandBoxes:OccBox[]|null=null;private occBoxes:OccBox[]|null=null;private occAt=0;private occModel:Node|null=null;
+ private lensPull=new LensGuard();private islandBoxes:OccBox[]|null=null;private occBoxes:OccBox[]|null=null;private occAt=0;private occModel:Node|null=null;private deckZones:OccBox[]|null=null;
+ /** P0 r16 explore entry glide: from the lens explore opened on to the pre-solved clear lens (no first-frame canopy). */
+ private entry:{from:Pose;t:number;T:number}|null=null;
  private orbitBoxAt=0;
 
- attach(camera:Camera){this.camera=camera;}
+ attach(camera:Camera){this.camera=camera;camTraceStart();if(qaHooksEnabled()){const G=globalThis as any;G.__qfTeleport=(key:string,yaw?:number,pitch?:number)=>this.qaTeleport(key,yaw,pitch);G.__qfAimAt=(at:string|readonly number[]|{x:number;y:number;z:number})=>this.qaAimAt(at);}}
  bindCharacter(character:CharacterAdapter|null){this.character=character;}
+ /** b17r12b: the composition's calibrated girl. A fresh save that leaves the island board before any reward walk never called bindCharacter, so explore/ground taps pull her from here. */
+ characterSource:(()=>CharacterAdapter|null)|null=null;
+ ensureCharacter():CharacterAdapter|null{if(!this.character&&this.characterSource){try{this.character=this.characterSource()||null;}catch{this.character=null;}}return this.character;}
  setCompleted(ids:readonly string[]){this.completed=ids;}
 
  private viewport(){const s=view.getVisibleSize();return {w:Math.max(1,s.width),h:Math.max(1,s.height)};}
@@ -195,26 +212,27 @@ export class RegionNodeStage extends Component{
   const rig=region==='island'?null:findDeep(scene,'RegionJourney-'+region);
   this.cover={host,nav,cams:cams.map(cam=>({cam,on:cam.enabled})),rig,rigOn:!!rig?.active};
   if(host)host.active=false;
-  for(const c of cams)c.enabled=false;
+  for(const c of cams)bgCamHold(c,'cover');/* p0drag6: a hold the owner's setVisible respects (BgCamGate), not a raw toggle */
   if(rig)rig.active=true;
   this.flow()?.presentNodeWalkWorld(true);
   try{this.character?.setVisible(true);}catch{/* no adapter */}
   this.region=region;
  }
  private restoreBoard(){
-  const c=this.cover;if(!c)return;this.cover=null;
+  const c=this.cover;if(!c){this.releaseSyncCams();return;}this.cover=null;
   if(c.rig)c.rig.active=c.rigOn;
   this.flow()?.presentNodeWalkWorld(false);
-  for(const x of c.cams)if(x.cam?.isValid)x.cam.enabled=x.on;
+  for(const x of c.cams)if(x.cam?.isValid)bgCamRelease(x.cam,true,'cover',x.on);/* owner's current want wins; x.on only for ungated cameras */
   if(c.host?.isValid)c.host.active=true;
   if(c.nav?.isValid)c.nav.active=true;
   try{this.character?.setVisible(false);}catch{/* level hides her */}
+  this.releaseSyncCams();
   this.lens='Board';this.exploring=false;setExploreEnabled(false);this.shotPhases=null;
   this.orbit.armBoard();
  }
  private async blend(seconds:number,from:Pose,to:()=>Pose){
   this.orbit.pause();
-  const step=(t:number)=>this.writePose(t<=0?from:t>=seconds?to():blendPose(from,to(),t,seconds));
+  const step=(t:number)=>((globalThis as any).__qfCamTraceSub?.('blend'),this.writePose(t<=0?from:t>=seconds?to():blendPose(from,to(),t,seconds)));
   await new Promise<void>(resolve=>{
    let settled=false;const done=()=>{if(settled)return;settled=true;step(seconds);resolve();};
    this.anim={t:0,seconds,sample:step,done};
@@ -417,7 +435,25 @@ export class RegionNodeStage extends Component{
   this.writeOrbit(0);
  }
  /** The lakeside graph box is model-local and the journey copy sits far off the origin, so no world xz clamp there (the walk itself stays on the baked area). */
- private regionBounds():readonly [number,number,number,number]|undefined{return this.region==='lakeside'?undefined:stageGraph(this.region).exploreBox;}
+ /** r17 P0: the graph box is MODEL-local like the nodes (toWorld); meadow / skycity copies sit far off the origin (meadow yaw 180), so
+  *  the raw box made FreeOrbit.clearPose see the lens "outside" every frame and pull it to 0.8 m from her look point (the hat shot).
+  *  Now the box corners go through toWorld (island: identity). Lakeside keeps no xz clamp.
+  *  b17 skycity-walk-r2: the lens uses lensBox (baked floor extent) when the graph has one, else exploreBox. */
+ private regionBounds():readonly [number,number,number,number]|undefined{
+  if(this.region==='lakeside')return undefined;const G=stageGraph(this.region) as {exploreBox:readonly number[];lensBox?:readonly number[]},b=G.lensBox??G.exploreBox;
+  const c=this.toWorld(this.region,[[b[0],0,b[1]],[b[2],0,b[1]],[b[0],0,b[3]],[b[2],0,b[3]]]);
+  return [Math.min(c[0][0],c[1][0],c[2][0],c[3][0]),Math.min(c[0][2],c[1][2],c[2][2],c[3][2]),Math.max(c[0][0],c[1][0],c[2][0],c[3][0]),Math.max(c[0][2],c[1][2],c[2][2],c[3][2])];
+ }
+ /** r17 hard arm (lens → her look point) for the explore lens: [min, max] along the look ray. Whatever pulled it (clearPose boxes,
+  *  a bad seed), the lens never sits in her hat nor 30 m out. */
+ private clampArm(pose:Pose,min:number,max:number):Pose{
+  const g=this.girl(),look=[g[0],g[1]+(ORBIT_LIMITS[this.orbit.place]?.lookM??1.15),g[2]],p=pose.position,v=[p[0]-look[0],p[1]-look[1],p[2]-look[2]],L=Math.hypot(v[0],v[1],v[2]);
+  if(L>=min&&L<=max)return pose;
+  let u=L>1e-4?[v[0]/L,v[1]/L,v[2]/L]:null;
+  if(!u){const t=pose.target,d=[p[0]-t[0],p[1]-t[1],p[2]-t[2]],dl=Math.hypot(d[0],d[1],d[2])||1;u=[d[0]/dl,d[1]/dl,d[2]/dl];}
+  const a=Math.max(min,Math.min(max,L)),np:[number,number,number]=[look[0]+u[0]*a,look[1]+u[1]*a,look[2]+u[2]*a];
+  return {...pose,position:np};
+ }
  /** AABB cache at 2.5 Hz, capped, so a drag does not walk every mesh on a 60 fps phone. */
  private refreshOrbitBoxes(g:Vec){
   const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return;
@@ -437,15 +473,77 @@ export class RegionNodeStage extends Component{
  }
  private lakesideOccluders():OccBox[]|null{
   if(this.region==='island'){if(!this.islandBoxes)this.islandBoxes=ISLAND_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]]}));return this.islandBoxes;}
-  if(this.region!=='lakeside')return null;const m=this.model('lakeside');if(!m)return null;const now=Date.now();
+  if(this.region==='skycity')return this.skycityOccluders();/* p0drag7 merge: union (cine + scene) set, 18 m cull, same LensGuard avoidance */
+  if(this.region!=='lakeside')return null;const m=this.model(this.region);if(!m)return null;const now=Date.now();
   if(this.occBoxes&&this.occModel===m&&now-this.occAt<2000)return this.occBoxes;
   const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
-  this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.occModel=m;this.occAt=now;return this.occBoxes;
+  const tw=(p:readonly number[]):[number,number,number]=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];};
+  this.occBoxes=proxiesToWorld(LAKESIDE_LENS_OCCLUDERS,tw);this.deckZones=proxiesToWorld(LAKESIDE_DECK_ZONES,tw);this.occModel=m;this.occAt=now;return this.occBoxes;
+ }
+ /** P0 r16: on the boardwalk / arch bridge the lens keeps ≥ deckElevDeg (looks over the railings); 0 elsewhere. */
+ private deckElev():number{
+  if(this.region!=='lakeside'||!this.deckZones)return 0;const g=this.girl(),m=0.4;
+  for(const z of this.deckZones)if(g[0]>=z.min[0]-m&&g[0]<=z.max[0]+m&&g[2]>=z.min[2]-m&&g[2]<=z.max[2]+m&&g[1]>=z.min[1]-0.5&&g[1]<=z.max[1]+0.5)return LENS_GUARD.deckElevDeg;
+  return 0;
+ }
+ /** P0 r16 ①: explore opens on whatever lens the board exit left (on the lakeside often in a canopy, and nothing wrote the lens
+  *  until she walked). Pick the clear orbit (yaw / pitch / arm nearest the seed whose designed lens has the lowest LensGuard
+  *  cost), converge LensGuard on it, and glide there; MapExplore keeps writing through LensGuard while she stands. */
+ private preSolveEntry(){
+  if(this.region==='skycity'&&this.orbit.seeded){/* p0drag11: no LensGuard pre-solve on the frame boxes, but keep the entry glide (explore-arm A1: 40 m/s without it) */
+   const from=this.readPose(),to=this.orbit.rawPose(this.girl()),d=Math.hypot(to.position[0]-from.position[0],to.position[1]-from.position[1],to.position[2]-from.position[2]);
+   this.entry={from,t:0,T:Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS)};return;}
+  const boxes=this.region==='skycity'?null:this.lakesideOccluders();if(!boxes||!this.orbit.seeded){this.entry=null;return;}/* p0drag11: skycity proxies are model-local frame boxes (LensGuard is world-AABB) and its lens avoids with outOfProxies */
+  const o=this.orbit,her=this.girl(),y0=o.yaw,p0=o.pitch,d0=o.dist,R=d0+LENS_GUARD.nearM+LENS_GUARD.clearM+2;
+  const near=boxes.filter(b=>{const ax=Math.max(b.min[0]-her[0],0,her[0]-b.max[0]),az=Math.max(b.min[2]-her[2],0,her[2]-b.max[2]);return ax*ax+az*az<=R*R;});
+  const cur=this.readPose(),base={up:0,swing:0,share:1};let best:[number,number,number]=[y0,p0,d0],bc=1e9;
+  const L=ORBIT_LIMITS[o.place],dl=Math.min(L.distMax,Math.max(L.distMin,9));
+  for(let k=0;k<=12;k++)for(const sg of k?[1,-1]:[1])for(const pi of [p0,22,32,42])for(const di of [d0,dl]){
+   o.yaw=y0+sg*k*30;o.pitch=Math.max(L.pitchMinDeg,Math.min(L.pitchMaxDeg,pi));o.dist=di;
+   const rp=o.rawPose(her),q=rp.position,mv=Math.hypot(q[0]-cur.position[0],q[1]-cur.position[1],q[2]-cur.position[2]);
+   const c=guardEval(rp,her,near,base).cost+0.02*k*30+0.04*Math.abs(o.pitch-p0)+0.3*Math.abs(di-d0)+0.8*mv;
+   if(c<bc){bc=c;best=[o.yaw,o.pitch,o.dist];}}
+  o.yaw=best[0];o.pitch=best[1];o.dist=best[2];
+  this.lensPull.warm(o.rawPose(her),her,boxes,this.deckElev());
+  const from=this.readPose(),to=this.lensPull.apply(o.rawPose(her),her,boxes,0,undefined,undefined,false,this.deckElev());
+  const d=Math.hypot(to.position[0]-from.position[0],to.position[1]-from.position[1],to.position[2]-from.position[2]);
+  this.entry={from,t:0,T:Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS)};
+ }
+ /** b17 skycity-walk-r2 (p0drag6): the sky houses / walls are merged meshes over the 14 m orbit-box cap, so the explore lens went
+  *  into the blue-roof house east of S3. Model-local proxies (SkycityLensOccluders) -> world; only the ones within 18 m of her. */
+ private skyAll:OccBox[]|null=null;private skyL:number[]|null=null;private skyModel:Node|null=null;private skyNear:OccBox[]=[];private skyNearAt=0;
+ /** p0drag11 item 2 (Mac p0drag10 day nook: the walk ended at (11.8,8.2) with a grey pillar over the whole screen). At a skycity walk end:
+  *  if the lens at her new spot is inside a box or her face / chest is hidden, turn the orbit to the nearest clear yaw (±15° steps to
+  *  180°, same pitch / arm). The written lens does NOT jump: the smoother's yaw offset takes −Δ, so the eased offset (≤ yaw cap,
+  *  critically damped) carries the lens round. Returns the turn or null. Test: test_p0drag11 Q2. */
+ walkEndView(region:StageRegion):{from:number;to:number}|null{
+  if(region!=='skycity'||!this.exploring||!this.orbit.seeded||!this.lensSmooth.live)return null;
+  const bx=this.skycityOccluders();if(!bx||!bx.length)return null;
+  const g=this.girl(),O=this.orbit,y0=O.yaw,look=this.lookAt(g),near=nearSphere(bx,look,O.dist+1);
+  const bad=(y:number)=>{O.yaw=y;const p=O.rawPose(g).position;O.yaw=y0;return lensLevel(look,p,near,0)===2||((o)=>o.face||o.chest)(herOcclusion(p,g,near));};
+  const cur=this.skyPrev?posOf(look,this.skyPrev):null;
+  if(!bad(y0)&&!(cur&&(lensLevel(look,cur,near,0)===2||((o)=>o.face||o.chest)(herOcclusion(cur,g,near)))))return null;
+  for(let d=15;d<=180;d+=15)for(const sd of d===180?[d]:[d,-d]){if(bad(y0+sd))continue;
+   O.yaw=wrapDeg(y0+sd);this.lensSmooth.y-=sd;this.qaHold=false;this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1,hidT:0};
+   (globalThis as any).__qfWalkEndView={from:y0,to:O.yaw,at:g.slice()};return {from:y0,to:O.yaw};}
+  return null;
+ }
+ private skycityOccluders():OccBox[]|null{
+  const m=this.model('skycity');if(!m)return null;const now=Date.now();
+  // p0drag11: the proxies stay MODEL-LOCAL and carry the world→local affine (LensAvoid FrameBox); every skycity test (avoid, no-entry,
+  // camTrace occ) runs in that frame. World AABBs of the ~118°-yawed rows were up to 9× too big (Mac p0drag10 phantom occlusion).
+  if(!this.skyAll||this.skyModel!==m){const I=new Mat4();Mat4.invert(I,m.worldMatrix);
+   const l=[I.m00,I.m01,I.m02,I.m04,I.m05,I.m06,I.m08,I.m09,I.m10,I.m12,I.m13,I.m14];this.skyL=l;
+   this.skyAll=SKYCITY_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]],l}) as FrameBox);this.skyModel=m;this.skyNearAt=0;}
+  if(now-this.skyNearAt>=400){const g=toFrame(this.skyL!,this.girl());this.skyNearAt=now;
+   this.skyNear=this.skyAll.filter(b=>Math.hypot(Math.max(b.min[0]-g[0],0,g[0]-b.max[0]),Math.max(b.min[2]-g[2],0,g[2]-b.max[2]))<18);}
+  return this.skyNear;
  }
  /** Lakeside + island (b17r13): LensGuard keeps the walk lens off the proxies (look-ahead plan, speed/accel-capped spring, floor). */
  private occlude(pose:Pose,dt:number):Pose{
-  const boxes=this.lakesideOccluders();if(!boxes){this.lensPull.reset();return pose;}
-  const r=this.lensPull.apply(pose,this.girl(),boxes,dt);return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
+  let boxes=this.lakesideOccluders();if(!boxes||this.region==='skycity'){this.lensPull.reset();return pose;}/* p0drag9: skycity has ONE avoider (outOfProxies, swing-first, eased) — LensGuard's own climb/swing stacked on it (Mac sx2d: offset −78° yaw / +41° elevation) */
+  if(this.region==='skycity'){const lk=this.lookAt(this.girl());boxes=nearSphere(boxes,lk,this.armOf(pose,lk)+1.5);}/* p0drag8 perf: 2112-box set → only boxes the lens orbit can touch */
+  const r=this.lensPull.apply(pose,this.girl(),boxes,dt,undefined,undefined,this.orbit.engaged()&&(this.orbit.shouldWrite()||this.groundWalking),this.deckElev(),!this.groundWalking&&this.lens!=='FollowWalk');return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
  }
  /** Held / blended-to follow lens (reward close-up): the planned clear pose, no spring (the blend is the ease). */
  private occludeHeld(pose:Pose):Pose{
@@ -457,10 +555,105 @@ export class RegionNodeStage extends Component{
   const r=new LensGuard().solveStatic(pose,this.girl(),boxes);return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
  }
  private writeOrbit(dt:number){
+  /* p0drag11: the QA 'sign' shot is held as placed until a drag (from the text side every lens has her hidden by the island rocks, so the
+   * occlusion guard would lift / pull it — Mac p0drag10 ended with the sign behind the lens); the drag glides back to the orbit (entry blend) */
+  if(this.qaShot){if(this.qaHold){this.writePose(this.qaShot,false);return;}this.entry={from:this.qaShot,t:0,T:0.6};this.qaShot=null;}
   this.orbit.step(dt);
   const g=this.girl();
   this.refreshOrbitBoxes(g);
-  this.writePose(this.occlude(this.guardOrbitGround(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds())),dt),false);
+  const A=LENS_GUARD;
+  const raw=this.clampArm(this.orbit.solve(g,this.orbitBoxes,g[1],this.regionBounds()),A.armMinM,A.armMaxM);
+  let pose=this.clampArm(this.occlude(this.guardOrbitGround(raw),dt),A.armHardM,Infinity);
+  // p0drag7: no single-frame arm jumps (Mac trace_lake_walkdrag 203.6/205.7/207.9 s: clearPose flipped 9.1 ↔ 5.7 m with the yaw), then never inside a proxy
+  const e=this.entry,look=this.lookAt(g);
+  if(this.region==='skycity')pose=this.clampArm(pose,A.armMinM,Infinity);/* p0drag8: the 1.6 m floor never wins over 3.5 m here */
+  pose=e?(this.armSmooth.reset(this.armOf(pose,look)),pose):this.armAlong(pose,look,this.armSmooth.step(this.armOf(pose,look),dt));
+  pose=this.outOfProxies(pose,look,e?0:dt);
+  // p0drag9 (Mac sx2d ro4→5 / ro9→10: LensGuard swing −30 → up 24 in ONE frame, pitch −31 → −54°, +1.8 m): skycity eases the whole
+  // avoidance offset (LensGuard + proxies) about her look point — critically damped, elevation ≤ 22°/s, yaw ≤ 80°/s, arm ≤ 2.2 m/s.
+  if(this.region==='skycity'){const r=sphOf(raw.position,look),q=sphOf(pose.position,look);
+   const S=this.lensSmooth,cur=posOf(look,{yaw:r.yaw+S.y,el:r.el+S.e,arm:r.arm+S.a}),bx=this.lakesideOccluders();
+   const P0=this.skyPrev,inBox=S.live&&!!bx&&bx.length>0&&lensLevel(look,P0?posOf(look,P0):cur,nearSphere(bx,look,r.arm+S.a+1),0)===2;/* p0drag10: judged on last frame's written lens (raw + old offset after a drag was inside while the lens was not → ×2.5 rate) */
+   const ty=wrapDeg(q.yaw-r.yaw),te=q.el-r.el,ta=q.arm-r.arm,hid=!!P0&&!!bx&&bx.length>0&&((o)=>o.face||o.chest)(herOcclusion(posOf(look,P0),g,nearSphere(bx,look,r.arm+S.a+1))),dv=wrapDeg(ty-S.y),det=this.skyDetour&&hid&&Math.abs(dv)>20?this.skyDetour:0,[y,el,a]=S.step(ty,te,ta,e?0:dt,inBox?LENS_SMOOTH.insideBoost:1,hid?LENS_SMOOTH.hiddenYawBoost:1,LENS_SMOOTH.boostLensMS*180/Math.PI/Math.max(1,(r.arm+S.a)*Math.cos(Math.min(80,Math.max(0,r.el+S.e))*Math.PI/180))/* arc speed on the horizontal circle */,det);
+   let gy=y,ge=el;const P=this.skyPrev,near=bx&&bx.length?nearSphere(bx,look,r.arm+Math.max(0,a)+1):null;
+   /* p0drag10 (Mac p0drag9 skxd ro/pock: 18–53 frames with the lens inside a house while the eased offset swept back through it): the
+    * eased lens may never ENTER a box — if this frame's step would, keep last frame's yaw (world) and only ease the elevation, else
+    * climb at the elevation cap, else hold last frame's lens. Leaving a box (last frame's lens inside) stays free; judged on last frame's WORLD lens, not raw + old offset (a drag moves the raw). */
+   if(near&&P&&!e&&lensLevel(look,posOf(look,P),near,0)!==2&&lensLevel(look,posOf(look,{yaw:r.yaw+y,el:r.el+el,arm:r.arm+a}),near,0)===2){
+    const py=wrapDeg(P.yaw-r.yaw),pe=P.el-r.el,cl=pe+LENS_SMOOTH.elevDegS*Math.min(0.1,dt>0?dt:0);
+    const ok=(yy:number,ee:number)=>lensLevel(look,posOf(look,{yaw:r.yaw+yy,el:r.el+ee,arm:r.arm+a}),near,0)!==2;
+    const cy=r.el+pe+LENS_SMOOTH.elevDegS*Math.min(0.1,dt>0?dt:0)<=LENS_PITCH_MAX_DEG?cl:pe,hold=Math.abs(py)<=LENS_SMOOTH.holdMaxDeg;
+    if(ok(y,cy)){ge=cy;}else if(hold&&ok(py,el)){gy=py;}else if(hold&&ok(py,cy)){gy=py;ge=cy;}else if(hold){gy=py;ge=pe;}
+    if(gy!==y||ge!==el)S.pin(gy,ge,a);
+    /* p0drag11 (replay skn ro: pinned 0.4 s against a wall while she was hidden): go round the other way */
+    if(gy!==y&&hid&&!this.skyDetour)this.skyDetour=Math.sign(wrapDeg(ty-gy))>0?-1:1;}
+   if(!hid)this.skyDetour=0;
+   this.skyPrev={yaw:r.yaw+gy,el:r.el+ge,arm:r.arm+a};
+   if(Math.abs(gy-ty)+Math.abs(ge-te)+Math.abs(a-ta)>1e-7)pose={...pose,position:posOf(look,{yaw:r.yaw+gy,el:r.el+ge,arm:r.arm>=A.armMinM?Math.max(A.armMinM,r.arm+a):r.arm+a})};}
+  else{this.lensSmooth.clear();this.skyPrev=null;this.skyDetour=0;}
+  if(e){e.t+=Math.max(0,Math.min(0.1,dt||0));const u=Math.min(1,e.t/e.T),s=u*u*u*(u*(u*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s,a[2]+(b[2]-a[2])*s] as [number,number,number];
+   pose={...pose,position:L(e.from.position,pose.position),target:L(e.from.target,pose.target)};if(u>=1)this.entry=null;}
+  {const ft=frameHer(pose.position,pose.target,pose.fovVerticalDeg,g);if(ft!==pose.target)pose={...pose,target:ft as [number,number,number]};}/* p0drag9: her body inside the safe margins on all 7 screens */
+  pose=this.clampPitch(pose,this.lookAt(this.girl()));
+  /* p0drag9: framing first, then the pitch cap (it re-aims at her look point if it has to move anything) */
+  (globalThis as any).__qfCamTraceSub?.(e?'orbit+entry':'orbit');
+  this.writePose(pose,false);
+ }
+ private lookAt(g:Vec):[number,number,number]{return [g[0],g[1]+(ORBIT_LIMITS[this.orbit.place]?.lookM??1.15),g[2]];}
+ private armOf(pose:Pose,look:readonly number[]):number{const p=pose.position;return Math.hypot(p[0]-look[0],p[1]-look[1],p[2]-look[2]);}
+ private armAlong(pose:Pose,look:readonly number[],a:number):Pose{const p=pose.position,L=this.armOf(pose,look);if(L<1e-4||Math.abs(a-L)<1e-6)return pose;const k=a/L;
+  return {...pose,position:[look[0]+(p[0]-look[0])*k,look[1]+(p[1]-look[1])*k,look[2]+(p[2]-look[2])*k]};}
+ /** p0drag7 (Mac p0drag6 skycity east: lens in a house wall / single-colour frames): if the look→lens segment enters a proxy box (one
+  *  that does not hold her look point), the lens stops OCC_FRONT_M in front of it. Skycity only (lakeside / island: LensGuard). */
+ /** p0drag8 (Mac p0drag7 skycity east platform: lens 0.8 m on her head for 25 s, 0.8↔7.4 m single-frame jumps, pitch −68…−75°).
+  *  Skycity: keep the arm (≥ armMinM); if a proxy blocks the look→lens segment, pick an avoidance offset (climb ≤ LENS_PITCH_MAX_DEG,
+  *  then the least yaw swing ±90°) that is clear; sticky (the current offset is kept while it stays clear; going back to the raw
+  *  pose needs AVOID.backN clear frames); the applied offset moves rate-limited (yaw / elevation °/s) — so a refreshed box set or a
+  *  flicker of one box never makes a jump. No clear candidate: lens outside every box with partial occlusion; never a hat close-up. */
+ private outOfProxies(pose:Pose,look:readonly number[],dt=0):Pose{
+  const A=this.avoid;if(this.region!=='skycity'){A.sw=A.e=A.tsw=A.te=0;A.clear=0;return pose;}
+  const boxes=this.lakesideOccluders();if(!boxes||!boxes.length){A.tsw=A.te=0;}
+  const p=pose.position,d=[p[0]-look[0],p[1]-look[1],p[2]-look[2]],L=Math.max(LENS_GUARD.armMinM,Math.hypot(d[0],d[1],d[2]));
+  const R=Math.PI/180,y0=Math.atan2(d[0],d[2]),e0=Math.asin(Math.max(-1,Math.min(1,d[1]/(Math.hypot(d[0],d[1],d[2])||1)))),eMax=LENS_PITCH_MAX_DEG*R;
+  // p0drag9 (item 3): look ahead along the user's own turn (raw yaw rate × AVOID.aheadS) so avoidance starts before the raw lens reaches a wall
+  const ydeg=y0/R,dts=Number.isFinite(dt)&&dt>0?Math.min(0.1,dt):0,rate=dts>0&&Number.isFinite(A.py)?wrapDeg(ydeg-A.py)/dts:0;if(dts>0)A.py=ydeg;/* p0drag10: dt = 0 writes do not eat the turn rate */
+  const ah=Math.max(-AVOID.aheadMaxDeg,Math.min(AVOID.aheadMaxDeg,rate*AVOID.aheadS));
+  if(!(A.k>0))A.k=1;if(!(A.tk>0))A.tk=1;
+  // p0drag11: candidates may also pull the lens in (arm × k, never under the 3.5 m floor) — in front of the post / bush instead of around it
+  const at=(sw:number,de:number,ahead=0,k=A.k):[number,number,number]=>{const y=y0+(sw+ahead)*R,e=Math.min(eMax,e0+de*R),Lk=Math.max(Math.min(L,AVOID.armFloorM),L*k);return [look[0]+Math.sin(y)*Math.cos(e)*Lk,look[1]+Math.sin(e)*Lk,look[2]+Math.cos(y)*Math.cos(e)*Lk];};
+  if(boxes&&boxes.length){
+   const near=nearSphere(boxes,look,L+1);/* p0drag8 perf: sphere of the lens orbit */
+   const g=this.girl(),fc=[g[0],g[1]+1.45,g[2]],ch=[g[0],g[1]+1.05,g[2]];
+   const lvl1=(q:readonly number[])=>{const v=lensLevel(look,q,near,0.25);return v!==0?v:((o)=>o.face||o.chest)(herOcclusion(q,g,near))?1:0;};/* p0drag11: the same test as the hidden timer (was a 0.1 m-shrunk sight line — said clear while she stayed hidden 3 s in replay p0drag9 R1) *//* p0drag11: face OR chest hidden counts (Mac measures each) *//* 0 clear, 1 lens outside but sight line blocked, 2 lens inside; p0drag10: the look line alone missed face+chest both hidden (Mac skxd 0.97–1.4 s runs) */
+   const lvlAt=(sw:number,de:number,k=A.k)=>{const v=lvl1(at(sw,de,0,k));return v===2||Math.abs(ah)<1?v:Math.max(v,lensLevel(look,at(sw,de,ah,k),near,0.25)===2?2:0);};/* now, and the lens in aheadS not inside a box */
+   // p0drag10 (Mac skxd ro: the eased lens swept back to the clear raw THROUGH a house): a target is only taken if the arc from where
+   // the lens is now (A.sw/A.e → sw, at the higher of the two elevations) keeps the lens out of every box
+   const LS0=this.lensSmooth,S0=LS0.live?LS0.y:A.sw,E0=LS0.live?LS0.e:A.e,arc=(sw:number,de:number,kk=A.k)=>{const e=Math.max(de,E0),n=Math.ceil(Math.abs(sw-S0)/AVOID.stepDeg),km=Math.min(kk,A.k);
+    for(let k=1;k<n;k++)if(lensLevel(look,at(S0+(sw-S0)*k/n,e,0,km),near,0)===2)return false;return true;};
+   if(lvlAt(0,0,1)===0&&(A.tsw===0&&A.te===0&&A.tk===1||arc(0,0,1))){A.clear++;if(A.clear>=AVOID.backN||(A.tsw===0&&A.te===0&&A.tk===1)){A.tsw=0;A.te=0;A.tk=1;}}
+   else{A.clear=0;
+    if(A.wait>0)A.wait--;/* p0drag8 perf: hold the current target between full searches (≤ searchEveryN frames of partial occlusion) */
+    else if(lvlAt(A.tsw,A.te,A.tk)!==0||(A.tsw===0&&A.te===0&&A.tk===1)||!arc(A.tsw,A.te,A.tk)){A.wait=AVOID.searchEveryN-1;let best:[number,number,number]|null=null,bestP:[number,number,number]|null=null,bestQ:[number,number,number]|null=null,bc=1e9;
+     for(const sw of this.qaHold?[0]:AVOID.swings){if(Math.abs(sw)>90&&(A.hidT||0)<AVOID.armAfterS&&Math.abs(A.sw)<=90)continue;/* p0drag11: the wide swings (120–180°) only once she has been hidden > armAfterS */for(let de=sw?0:AVOID.stepDeg;e0*180/Math.PI+de<=LENS_PITCH_MAX_DEG+1e-6;de+=AVOID.stepDeg){
+      for(const k of AVOID.armK){if(k<1&&(L*k<AVOID.armFloorM-1e-6||(A.hidT||0)<AVOID.armAfterS))continue;/* p0drag11: pull in only after she has been hidden > armAfterS */
+      const v=lvlAt(sw,de,k),c=0.6*Math.abs(sw)+1.6*de+AVOID.armCost*(1-k)+/* p0drag9: prefer a swing to a steep climb */Math.abs(wrapDeg(sw-A.sw))*AVOID.stayW+Math.abs(de-A.e)*AVOID.stayW+Math.abs(k-A.k)*AVOID.armCost*AVOID.stayW/* p0drag9: stay near where the lens IS (no 180° sweep through walls) */;
+      if(v===0&&c<bc&&arc(sw,de,k)){bc=c;best=[sw,de,k];}else if(v===1&&!bestP&&arc(sw,de,k))bestP=[sw,de,k];else if(v===1&&!bestQ)bestQ=[sw,de,k];}}}
+     const pick=best??(lvlAt(0,0,1)!==2&&arc(0,0,1)?[0,0,1] as [number,number,number]:null)??bestP??bestQ;/* p0drag11: nothing clear → no detour at all (replay p0drag9 R1: a 30° climb held 3 s without ever showing her) *//* p0drag11: a partial pick must also keep a box-free arc (Mac/replay skn ro: pinned 0.4 s against a wall) */if(pick){A.tsw=pick[0];A.te=pick[1];A.tk=pick[2];}}}
+  }
+  const t=Number.isFinite(dt)&&dt>0?Math.min(0.1,dt):0,step=(c:number,g:number,r:number)=>c+Math.max(-r*t,Math.min(r*t,g-c));
+  // p0drag8 (roots / house ground spot): while the swing is still passing through a box (lens inside), ×insideBoost — still continuous
+  const kIn=boxes&&boxes.length&&lensLevel(look,at(A.sw,A.e),nearSphere(boxes,look,L+1),0)===2?AVOID.insideBoost:1;
+  const g2=this.girl(),hid=kIn===1&&!!boxes&&boxes.length>0&&((o)=>o.face||o.chest)(herOcclusion(at(A.sw,A.e),g2,nearSphere(boxes,look,L+1)));A.hidT=hid?(A.hidT||0)+t:0;/* p0drag10: swing ×2 while she is hidden (yaw only) */
+  A.sw=step(A.sw,A.tsw,AVOID.yawDegS*(hid?LENS_SMOOTH.hiddenYawBoost:kIn));/* the written lens speed is capped in LensSmooth (boostLensMS) */A.e=step(A.e,A.te,AVOID.elevDegS*kIn);A.k=step(A.k,A.tk,AVOID.armMS/Math.max(1,L));/* p0drag11: arm pull-in at ≤ armMS */
+  return {...pose,position:at(A.sw,A.e)};
+ }
+ /** p0drag8: final written pose never looks down steeper than LENS_PITCH_MAX_DEG (lens elevation about her look point, and the view). */
+ private clampPitch(pose:Pose,look:readonly number[]):Pose{
+  const p=pose.position,d=[p[0]-look[0],p[1]-look[1],p[2]-look[2]],L=Math.hypot(d[0],d[1],d[2]),R=Math.PI/180;if(L<1e-4)return pose;
+  const t=pose.target,v=[t[0]-p[0],t[1]-p[1],t[2]-p[2]],vl=Math.hypot(v[0],v[1],v[2])||1,vp=-Math.asin(Math.max(-1,Math.min(1,v[1]/vl)))/R;
+  const e=Math.asin(Math.max(-1,Math.min(1,d[1]/L)))/R,over=Math.max(e-LENS_PITCH_MAX_DEG,vp-LENS_PITCH_MAX_DEG);if(over<=1e-6)return pose;
+  const ne=(e-over)*R,h=Math.hypot(d[0],d[2])||1e-4,ux=h>1e-3?d[0]/h:0,uz=h>1e-3?d[2]/h:1;
+  return {...pose,position:[look[0]+ux*Math.cos(ne)*L,look[1]+Math.sin(ne)*L,look[2]+uz*Math.cos(ne)*L],target:[look[0],look[1],look[2]]};
  }
  /** Sky stairs live in large merged meshes excluded from orbit AABBs. Sample from ABOVE the mesh,
   * so even a lens already below a tread (or returning from a cinematic) is lifted onto its top. */
@@ -485,20 +678,39 @@ export class RegionNodeStage extends Component{
   }
   return y===p[1]?pose:{position:[p[0],y,p[2]],target:pose.target,fovVerticalDeg:pose.fovVerticalDeg};
  }
+ /** Per-frame explore lens writer (the only one while explore is open; WorldFlow.settleOrbit stands down on exploreEnabled()). */
+ private tickLens(dt:number){
+  if(this.anim||this.holdPose||(this.lens!=='MapExplore'&&this.lens!=='FollowWalk'))return;
+  if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded)||(this.entry&&this.orbit.seeded))this.writeOrbit(dt);
+  else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
+  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
+ }
  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
   const {w,h}=this.viewport(),g=this.girl();
   this.orbit.setPlace(this.region);
   if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);
   if(gesture==='release'){this.orbit.release();return;}
+  if(gesture==='drag')this.qaHold=false;/* p0drag10: a manual drag ends the QA-hook hold (avoidance swings again) */
+  const first=!this.orbit.shouldWrite()&&!this.entry,from=first?this.readPose():null;
   if(gesture==='pinch')this.orbit.pinch(x);
   else this.orbit.drag(x/Math.max(1,w),y/Math.max(1,h));
+  // r17: the first drag takes over from whatever lens was on screen (far finale / board lens): glide, never cut
+  if(from&&this.orbit.shouldWrite()){const q=this.orbit.rawPose(g).position,d=Math.hypot(q[0]-from.position[0],q[1]-from.position[1],q[2]-from.position[2]);if(d>0.3)this.entry={from,t:0,T:Math.min(3,Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS))};}
   this.writeOrbit(0);
  }
- openExplore(region:StageRegion,fromLens=false){
-  this.region=region;this.exploring=true;this.lens='MapExplore';this.lensPull.reset();this.focus=this.girl();this.zoom=1.6;
+ openExplore(region:StageRegion,fromLens=false,snapped=false){
+  this.region=region;this.exploring=true;this.lens='MapExplore';this.lensPull.reset();this.qaShot=null;this.focus=this.girl();this.zoom=1.6;this.armSmooth.clear();this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1};this.lensSmooth.clear();this.skyPrev=null;this.qaHold=false;
   this.handOrbitBack(region);
+  /* p0drag7 (Mac p0drag6 skycity: she was snapped onto the nearest node, the lens stayed seeded on the board shot ~29 m away looking at
+     the sky). After a snap: re-seat the orbit on her new spot (follow lens, as qaTeleport) and glide there from the shot on screen. */
+  if(snapped){const g=this.girl(),{w,h}=this.viewport(),from=this.readPose();this.orbit.forget();this.orbit.setPlace(region);this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);
+   this.entry=null;if(this.lakesideOccluders())this.preSolveEntry();
+   const to=this.orbit.rawPose(g),d=Math.hypot(to.position[0]-from.position[0],to.position[1]-from.position[1],to.position[2]-from.position[2]);
+   this.entry=d>0.3?{from,t:0,T:Math.min(2.5,Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS))}:null;
+   setExploreEnabled(true);emitTransitCue('explore-unlocked',{t:0,region});this.rebuildMarkers();return;}
   // board exit (and the lakeside): seed from the lens she already has, so opening explore never jumps the camera
   if(fromLens||region==='lakeside'){const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(this.readPose(),g);}
+  this.entry=null;if(!this.orbit.shouldWrite())this.preSolveEntry();
   else if(!this.orbit.shouldWrite()){const {w,h}=this.viewport();const g=this.girl();if(!this.orbit.seeded)this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.writePose(this.orbit.rawPose(g),false);}
   setExploreEnabled(true);
   emitTransitCue('explore-unlocked',{t:0,region});
@@ -542,6 +754,7 @@ export class RegionNodeStage extends Component{
   const guarded=lens==='map'||lens==='tap'||lens==='markers';
   const applied=lens==='prop'&&(spec.prop||SCENE_PROPS[region][0])==='robot'?this.writePose(pose,true,PROP_CLEAR_M):this.writePose(pose,guarded);
   this.holdPose=lens==='prop'||lens==='finale'||lens==='look'?applied:null;
+  if((globalThis as any).__qfCamTrace)this.traceFrame((globalThis as any).__qfCamTrace);
   if(this.hideTree){this.treeVisible(false);this.stripFinaleOccluders(applied);}
   this.lens=spec.lens==='map'||spec.lens==='tap'?'MapExplore':'FollowWalk';
   this.shotPhases={};
@@ -574,7 +787,7 @@ export class RegionNodeStage extends Component{
   if(!tap||tap.kind==='ground'){if(this.region==='meadow'||this.region==='skycity'||this.region==='island')this.groundTap(x,y);return;}
   if(tap.kind==='prop')this.pulse(tap.id,this.region);
   else if(tap.kind==='locked')emitTransitCue('node-locked-tap',{t:0,region:this.region,node:tap.id});
-  else if(tap.walk&&this.character){const node=stageGraph(this.region).nodes.find(n=>n.key===tap.id);if(node)void this.walkTo(node.at);}
+  else if(tap.walk&&this.ensureCharacter()){const node=stageGraph(this.region).nodes.find(n=>n.key===tap.id);if(node)void this.walkTo(node.at);}
  }
  /** RegionWalkable's model-local frame -> world. The island has no region model node: its walkable data is in world metres
   *  (docs/b16/walkable/API.md: island local = world), so identity. */
@@ -583,30 +796,33 @@ export class RegionNodeStage extends Component{
   *  other shore or no hit = no walk (cue only). __qfGroundTap keeps the last answer for QA. */
  groundTap(x:number,y:number){
   const region=this.region;
-  const cam=this.camera,m=this.walkMatrix(region);if(!cam||!m||!this.character||this.groundWalking)return;
+  const cam=this.camera,m=this.walkMatrix(region);if(!cam||!m||!this.ensureCharacter()||this.groundWalking)return;
   const ray=new geometry.Ray();cam.screenPointToRay(x,y,ray);
   const inv=new Mat4();Mat4.invert(inv,m);
   const o=new Vec3(),e=new Vec3();Vec3.transformMat4(o,ray.o,inv);Vec3.add(e,ray.o,ray.d);Vec3.transformMat4(e,e,inv);
-  const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z]);
+  // b17 skycity-walk-r4 方案 C: her position lets a tap on the scene stop her on her side of it (fence / pocket), not 15 m round
+  const gw=this.girl(),gl=new Vec3();Vec3.transformMat4(gl,new Vec3(gw[0],gw[1],gw[2]),inv);
+  const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z],160,.05,[gl.x,gl.y,gl.z]);
   (globalThis as any).__qfGroundTap={region,kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now()};
   if(hit.kind!=='walk'){emitTransitCue('scene-tap',{t:0,region,id:hit.kind==='water'?'water':'none'});return;}
   void this.groundWalkTo(region,hit.at);
  }
  private async groundWalkTo(region:StageRegion,at:WVec){
-  const m=this.walkMatrix(region);if(!m||!this.character)return;
+  const m=this.walkMatrix(region);if(!m||!this.ensureCharacter())return;
   const inv=new Mat4();Mat4.invert(inv,m);
   const gw=this.girl(),g=new Vec3();Vec3.transformMat4(g,new Vec3(gw[0],gw[1],gw[2]),inv);
   const from=nearestWalkable(region,[g.x,g.y,g.z],1.6);if(!from)return;
-  const local=walkPath(region,from.at,at);
+  const local=walkTapPath(region,from.at,at);
   (globalThis as any).__qfGroundTap={...((globalThis as any).__qfGroundTap||{}),path:local?local.length:0,lengthM:local?+walkPathLengthM(local).toFixed(2):0};
   if(!local||local.length<2)return;
   const path=this.toWorld(region,local as unknown as Vec[]),dest=path[path.length-1],L=walkPathLengthM(local),duration=Math.max(.4,L/1.2);
   // lens stays MapExplore: the seeded orbit follows her feet (update), no cut to the follow lens
   const token=this.walkToken;this.groundWalking=true;
   const end=path[path.length-2],yaw=Math.atan2(dest[0]-end[0],dest[2]-end[2]);
-  try{await performBounded(this.character,{kind:'walk',path,duration},dest,yaw,duration*1000+4000);}
-  finally{this.groundWalking=false;}
+  try{await performBounded(this.character,{kind:'walk',path,duration},dest,yaw,duration*1000+4000,()=>token===this.walkToken,t=>{this.walkCancel=()=>{try{t.cancel();}catch{/* done */}};});}
+  finally{if(token===this.walkToken){this.groundWalking=false;this.walkCancel=null;}}
   if(token!==this.walkToken)return;
+  this.walkEndView(region);
   this.lens='MapExplore';this.focus=this.girl();
  }
  /** Poll (4 Hz): leaving a meadow / skycity / lakeside board (暂停 →「离开棋盘」/ result → exitLevel lands in that region) opens
@@ -619,15 +835,95 @@ export class RegionNodeStage extends Component{
   this.explorePrev=s?.state??null;
   if(this.syncOpened&&!exploreWanted(this.syncOpened,s)){
    const r=this.syncOpened;this.syncOpened=null;this.exploreArmed[r]=false;(globalThis as any).__qfExploreSync={region:r,open:false,at:Date.now()};
+   this.releaseSyncCams();
    if(this.region===r&&!this.cover&&this.exploring){this.walkToken++;this.exploring=false;this.lens='Board';setExploreEnabled(false);this.orbit.forget();}
    return;
   }
-  if(this.syncOpened||this.cover||this.anim||!this.character||!this.camera)return;
+  if(this.syncOpened||this.cover||this.anim||!this.ensureCharacter()||!this.camera)return;
   for(const r of EXIT_EXPLORE_REGIONS){
    if(!this.exploreArmed[r]||!exploreWanted(r,s)||(r==='island'?!s?.characterReady:!this.model(r)?.activeInHierarchy))continue;
-   this.syncOpened=r;if(this.region!==r)this.orbit.forget();this.openExplore(r,true);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
+   this.syncOpened=r;if(this.region!==r)this.orbit.forget();const shot=this.takeSyncView(r);if(shot)this.writePose(shot,false);const snapped=this.standOnWalk(r);this.openExplore(r,true,snapped);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
   }
  }
+ /** p0d5sky (Mac r16d ?qfSkip=skycity-finale): explore opened with her 12.6 m off the skycity plateau (walk-local -18,1,57), so
+  *  every ground ray missed the walkable grid (kind=none). Off the region's walkable area (> 1.6 m) = stand her on the nearest node. */
+ private standOnWalk(region:StageRegion):boolean{try{return this.standOnWalkOrThrow(region);}catch{return false;/* lens only */}}
+ private standOnWalkOrThrow(region:StageRegion):boolean{
+  const nodes=(REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined,m=this.walkMatrix(region);if(!nodes||!m||this.character==null)return false;
+  const inv=new Mat4();Mat4.invert(inv,m);const g=this.girl(),v=new Vec3();Vec3.transformMat4(v,new Vec3(g[0],g[1],g[2]),inv);
+  if(nearestWalkable(region as any,[v.x,v.y,v.z],1.6))return false;
+  let best=nodes[0],bd=Infinity;for(const n of nodes){const d=Math.hypot(n.at[0]-v.x,n.at[2]-v.z);if(d<bd){bd=d;best=n;}}
+  this.standAt(region,best.at);return true;
+ }
+ private standAt(region:StageRegion,at:readonly number[]){
+  const w=this.toWorld(region,[[at[0],at[1],at[2]]])[0];try{this.character?.cancelAndReset({kind:'standing',controllerRoot:[w[0],w[1],w[2]],yawRad:0});}catch{/* pose only */}
+ }
+ /** Test-only (registered only when ?qfSkip=… is allowed, see QaSkip): __qfTeleport('S3') stands her on that node of the open explore region. */
+ qaTeleport(key:string,yawDeg?:number,pitchDeg?:number):{ok:boolean;reason?:string;region?:string;at?:readonly number[];yaw?:number;pitch?:number}{
+  const region=this.region;if(!this.exploring)return {ok:false,reason:'explore-not-open'};
+  const nodes=((REGION_NODES as any)[region]?.nodes as {key:string;at:readonly number[]}[]|undefined)??[];
+  // p0drag8: 'sign' = island, the node nearest the return signpost (p0drag10: lens on the sign's text side, see below)
+  const sp=ISLAND_PROPS.signpost.position,sign=key==='sign';if(sign&&region!=='island')return {ok:false,reason:'sign-is-on-island'};
+  let n=sign?nodes.slice().sort((a,b)=>Math.hypot(a.at[0]-sp[0],a.at[2]-sp[2])-Math.hypot(b.at[0]-sp[0],b.at[2]-sp[2]))[0]:nodes.find(x=>x.key===key);
+  // p0drag11 (Mac p0drag10: tpSign yaw 4.6°, the sign BEHIND the lens): spot + yaw + arm from the sign's front-face normal, judged in world
+  // space on the orbit's own raw pose: lens ≥ 1.5 m in front of the panel, text ≤ 60° off, whole sign on screen, her sight line clear of it
+  let sv:ReturnType<typeof signFrontView>=null;
+  if(sign&&nodes.length){const {w,h}=this.viewport(),O=this.orbit,keep=[O.yaw,O.pitch,O.dist],W=nodes.map(x=>this.toWorld('island',[[x.at[0],x.at[1],x.at[2]]])[0]);
+   O.forget();O.setPlace('island');O.pitch=12;
+   sv=signFrontView(nodes.length,(i,y,p,d)=>{O.yaw=y;O.pitch=p;O.dist=d;return O.rawPose(W[i]) as any;},[5,9,13,17,21,25],[12,10,8,6],w,h);
+   [O.yaw,O.pitch,O.dist]=keep;if(sv)n=nodes[sv.i];}
+  if(!n)return {ok:false,reason:'no-node-'+key+'-in-'+region};
+  /* p0drag11 (Mac p0drag10: night po stood at (8.77,8.14), the walk before the teleport still ran and re-stood her at its end): a teleport
+   * always ends the walk — new token (the walk's end-of-segment re-stand and lens hand-off are skipped), its Cancellation fired, flag off */
+  this.walkToken++;const wc=this.walkCancel;this.walkCancel=null;this.groundWalking=false;if(wc)wc();(globalThis as any).__qfGroundTap=null;
+  this.standAt(region,n.at);const {w,h}=this.viewport(),g=this.girl();
+  this.orbit.forget();this.orbit.setPlace(region);this.orbit.seed(followPose(g,this.yaw(),w,h,0),g);this.entry=null;
+  // p0drag10 (Mac p0drag9: the 'sign' shot looked from her side at the panel's BACK, 继续旅程 mirrored): the sign faces the sea (GLB front
+  // = +Z turned by signpost.yawDeg; every walkable island spot is 7.9–24 m BEHIND its front plane), so the lens goes past the sign along
+  // her→sign at the 12 m orbit cap: it is then on the text side (front) looking back over the panel at her. Test: test_p0drag10 Q3.
+  if(sign&&sv){yawDeg=yawDeg??sv.yaw;pitchDeg=pitchDeg??sv.pitch;this.orbit.dist=sv.dist;}
+  else if(sign){const sw=this.toWorld('island',[[sp[0],sp[1],sp[2]]])[0];yawDeg=yawDeg??qaYawFacing(sw,g);pitchDeg=pitchDeg??12;this.orbit.dist=ORBIT_LIMITS.island.distMax;}
+  this.qaOrbit(yawDeg,pitchDeg);let p0:Pose=this.orbit.rawPose(g);if(sign&&sv&&yawDeg===sv.yaw){const lk=this.lookAt(g);p0={...p0,target:[lk[0]+sv.aim[0],lk[1]+sv.aim[1],lk[2]+sv.aim[2]]};this.qaShot=p0;}/* the view on the text centre, held until a drag */this.writePose(p0,false);
+  return {ok:true,region,at:n.at,yaw:this.orbit.yaw,pitch:this.orbit.pitch,...(sv?{signView:{dist:sv.dist,pitch:sv.pitch,frontM:+sv.frontM.toFixed(2),textDeg:+sv.textDeg.toFixed(1)}}:{})} as any;
+ }
+ /** Test-only (?qfSkip gate): turn the explore lens so the named scene node sits in front of it (lens on the far side of her). */
+ /** Test-only (qfSkip / qfHooks gate): turn the explore lens so a world point sits beyond her in the middle of the view (lens on the far
+  *  side of her). `at` = a scene node name, or WORLD coordinates [x,y,z] / {x,y,z} (metres, same space as camTrace cam/her). */
+ qaAimAt(at:string|readonly number[]|{x:number;y:number;z:number}):{ok:boolean;reason?:string;yaw?:number;pitch?:number;point?:number[]}{
+  if(!this.exploring)return {ok:false,reason:'explore-not-open'};let p:number[]|null=null;
+  if(typeof at==='string'){const find=(n:any):any=>{if(!n)return null;if(n.name===at)return n;for(const c of n.children??[]){const r=find(c);if(r)return r;}return null;};
+   const t=find(director.getScene());if(!t)return {ok:false,reason:'no-node-'+at};p=[t.worldPosition.x,t.worldPosition.y,t.worldPosition.z];}
+  else if(Array.isArray(at)&&at.length>=3)p=[+at[0],+at[1],+at[2]];else if(at&&typeof at==='object'&&'x' in (at as any))p=[(at as any).x,(at as any).y,(at as any).z];
+  if(!p||!p.every(Number.isFinite))return {ok:false,reason:'bad-point'};const g=this.girl();
+  this.qaOrbit(qaYawFacing(g,p),12);this.writePose(this.orbit.rawPose(g),false);
+  return {ok:true,yaw:this.orbit.yaw,pitch:this.orbit.pitch,point:p};
+ }
+ /** yaw / pitch in the FreeOrbit convention = camTrace `yaw` / −camTrace `pitch` (see QaSkip.ts qaYawFacing). p0drag9: the orbit is then
+  *  ENGAGED (free, not held) like after a drag — before, it stayed un-engaged and the follow lens overwrote the yaw next frame. */
+ private qaOrbit(yawDeg?:number,pitchDeg?:number){const L=ORBIT_LIMITS[this.orbit.place];
+  if(Number.isFinite(yawDeg))this.orbit.yaw=yawDeg!;if(Number.isFinite(pitchDeg))this.orbit.pitch=Math.max(L?.pitchMinDeg??5,Math.min(L?.pitchMaxDeg??58,pitchDeg!));
+  this.orbit.drag(0,0);this.orbit.release();this.lensSmooth.clear();this.skyPrev=null;this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1};
+  this.qaHold=true;this.qaShot=null;/* p0drag10 (Mac p0drag9: aimed −160° drifted to −135° and on — the avoidance swing eased in): the hooked yaw sticks; avoidance may only climb until a manual drag */}
+
+ /** p0drag5 (Mac fc742aa2: lakeside explore = fixed wide shot until a ground tap). Leaving a board opens explore by poll, but the
+  *  board's own live background camera (LakesideBackgroundCamera, priority 44, fixed) kept drawing over the stage camera; only the
+  *  ground tap's cover switched it off, so the follow/orbit lens became visible only then. Switch those cameras off here and hand
+  *  their pose to the stage camera, so the entry glide starts from the shot on screen (no cut). Returns that pose, or null. */
+ private takeSyncView(region:StageRegion):Pose|null{
+  this.releaseSyncCams();const scene=director.getScene();if(!scene)return null;let shot:Pose|null=null;
+  // p0drag5b: only THIS region's background camera(s); other regions' cameras are their owners' business
+  const name=region==='lakeside'?'LakesideBackgroundCamera':region==='meadow'?'MeadowBackgroundCamera':region==='skycity'?'SkycityBackgroundCamera':null;
+  if(!name)return null;const model=this.model(region);
+  for(const c of scene.getComponentsInChildren(Camera)){
+   if(c===this.camera||!(c.enabled||bgCamHeld(c)&&bgCamWanted(c))||!c.node?.activeInHierarchy||c.node.name!==name)continue;
+   if(!shot){const p=c.node.worldPosition,f=c.node.forward;shot={position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:c.fov};}
+   bgCamHold(c);this.syncCams.push({cam:c,region,model});
+  }
+  return shot;
+ }
+ /** Drop explore's hold. Re-enable only if the owner still wants the camera visible (bgCamWant, its setVisible is the truth) and
+  *  we are still in the same region instance; otherwise the hold is dropped and the owner's next setVisible decides. */
+ private releaseSyncCams(){for(const e of this.syncCams.splice(0))bgCamRelease(e.cam,this.region===e.region&&this.model(e.region)===e.model);}
  private skipWalk(){/* a tap during FollowWalk is swallowed until the segment timeout cuts it */}
  private async walkTo(at:Vec){
   if(!this.character)return;
@@ -636,7 +932,7 @@ export class RegionNodeStage extends Component{
   const dest=this.toWorld(this.region,[at])[0];
   const path=[from,dest] as [Vec,Vec];
   this.lens='FollowWalk';
-  await performBounded(this.character,{kind:'walk',path,duration:Math.max(0.4,Math.hypot(dest[0]-from[0],dest[2]-from[2])/1.2)},dest,0);
+  await performBounded(this.character,{kind:'walk',path,duration:Math.max(0.4,Math.hypot(dest[0]-from[0],dest[2]-from[2])/1.2)},dest,0,undefined,()=>token===this.walkToken);
   if(token!==this.walkToken)return;
   this.lens='MapExplore';
   this.focus=this.girl();
@@ -714,10 +1010,27 @@ export class RegionNodeStage extends Component{
   const mesh=utils.createMesh({positions,normals,colors,indices});
   const renderer=this.markerNode.getComponent(MeshRenderer)!;renderer.mesh=mesh;
  }
+ /** ?camTrace=1 only (CamTrace.ts). */
+ /** p0drag10: camTrace occFace / occChest — her face / chest hidden from the lens by a proxy box (LensAvoid.herOcclusion, the same
+  *  slab raycast the replay test scores); null when the region has no proxy set. */
+ private traceOcc(cam:readonly number[]|null):{occFace:boolean|null;occChest:boolean|null}{
+  const b=cam&&this.exploring?this.lakesideOccluders():null;if(!cam||!b||!b.length)return {occFace:null,occChest:null};
+  const g=this.girl(),o=herOcclusion(cam,g,nearSphere(b,g,Math.hypot(cam[0]-g[0],cam[1]-g[1],cam[2]-g[2])+2));return {occFace:o.face,occChest:o.chest};}
+ private traceFrame(T:{frame:(s:object)=>void;round:(v:readonly number[])=>number[]}){
+  const cam=this.camera,n=cam?.node?.isValid?cam.node:null,p=n?.worldPosition,f=n?.forward,lg=this.lensPull.last,o=this.orbit;
+  const d=(this.character as any)?.diagnostics?.()?.motion;
+  T.frame({region:this.region,lens:this.lens,exploring:this.exploring,
+   cam:p?T.round([p.x,p.y,p.z]):null,yaw:f?Math.round(Math.atan2(-f.x,-f.z)*1800/Math.PI)/10:null,pitch:f?Math.round(Math.asin(Math.max(-1,Math.min(1,f.y)))*1800/Math.PI)/10:null,
+   her:T.round(this.girl()),herYaw:d&&typeof d.yawDeg==='number'?Math.round(d.yawDeg*10)/10:null,walking:this.groundWalking,herState:d?.state??d?.phase??null,
+   lg:lg?{cost:Math.round(lg.eval.cost*1000)/1000,head:lg.eval.head,chest:lg.eval.chest,inside:lg.eval.inside,clutter:lg.eval.clutter,up:lg.params.up,swing:lg.params.swing,share:lg.params.share}:null,
+   ...this.traceOcc(p?[p.x,p.y,p.z]:null),
+   fo:{mode:o.mode,place:o.place,engaged:o.engaged(),write:o.shouldWrite(),seeded:o.seeded,yaw:Math.round(o.yaw*10)/10,pitch:Math.round(o.pitch*10)/10,arm:Math.round(o.dist*100)/100},
+   entry:this.entry?Math.round(this.entry.t/this.entry.T*100)/100:null,hold:!!this.holdPose,anim:!!this.anim});
+ }
  update(dt:number){
   this.syncExplore(dt);
   if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
-  if(this.holdPose){this.orbit.pause();this.writePose(this.holdPose,false);}
+  if(this.holdPose){this.orbit.pause();(globalThis as any).__qfCamTraceSub?.('hold');this.writePose(this.holdPose,false);}
   if(this.hideTree){this.treeVisible(false);if(this.holdPose)this.stripFinaleOccluders(this.holdPose);}
   this.markerClock+=dt;
   if(this.holdPulse>0)this.holdPulse=Math.max(0,this.holdPulse-dt);
@@ -731,10 +1044,9 @@ export class RegionNodeStage extends Component{
    else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*28,p.ey+wave*36,0);
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
   }
-  if(!this.anim&&!this.holdPose&&(this.lens==='MapExplore'||this.lens==='FollowWalk')){
-   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded))this.writeOrbit(dt);
-   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
-  }
+  this.tickLens(dt);
+  /* p0drag7 (Mac p0drag6 item 5: 0 frames in explore): one camTrace row per frame while ?camTrace=1 is on */
+  {const T=(globalThis as any).__qfCamTrace;if(T)this.traceFrame(T);}
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
  }
 }

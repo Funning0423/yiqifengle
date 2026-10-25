@@ -19,7 +19,9 @@ const S=p=>fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/a
  // no banner / no button: the boot only wires the API inside the gated branch and adds no label or button for it
  const boot=S('WorldIntegrationBoot.ts');
  assert.ok(/const skip=qaSkipTarget\(q\);if\(skip\)\{/.test(boot),'boot API behind qaSkipTarget');
- assert.ok(boot.split('\n').filter(l=>/qaSkip/i.test(l)).every(l=>/^import \{ qaSkipTarget \}/.test(l)||/const skip=qaSkipTarget\(q\);if\(skip\)/.test(l)),'qaSkip only on the import + gated line');
+ assert.ok(boot.split('\n').filter(l=>/qaSkip/i.test(l)).every(l=>/^import \{ qaSkipTarget(, qaHooksEnabled)?(, qaQuery)? \}/.test(l)||/const skip=qaSkipTarget\(q\);if\(skip\)/.test(l)||/^\s*if\(skip!==null\|\|qaHooksEnabled\(q\)\)\(globalThis as any\)\.__qfBackToBoard=/.test(l)),'qaSkip only on the import + gated lines');
+// p0drag9: ?qfHooks=1 test hooks — same host gate
+if(Q.qaHooksEnabled){assert.equal(Q.qaHooksEnabled('',{}),false);assert.equal(Q.qaHooksEnabled('?qfHooks=1',{}),true,'web QA');assert.equal(Q.qaHooksEnabled('?qfHooks=1',wx('release')),false,'release never');assert.equal(Q.qaHooksEnabled('?qfHooks=1',wx('develop')),true);assert.equal(Q.qaHooksEnabled('?qfSkip=lakeside',{}),true);assert.equal(Q.qaHooksEnabled('?qfHooks=0',{}),false);}
  assert.ok(!/label\([^)]*(跳关|qfSkip|skip)/i.test(boot)&&!/button\('qa/i.test(boot),'no visible skip label/button');
  // composition refuses without the URL gate even when called directly
  const C=H.load('world-r2/WorldNativeComposition').WorldNativeComposition,c=new C();

@@ -1,7 +1,7 @@
 import './SharedBundles';
 import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { qaTransportEnabled } from './region/JourneyTransport';
-import { qaSkipTarget } from './world-r2/QaSkip';
+import { qaSkipTarget, qaHooksEnabled, qaQuery } from './world-r2/QaSkip';
 import { DEBUG, MINIGAME } from 'cc/env';
 import {setScreenCover} from './world-r1/ScreenCover';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
@@ -14,9 +14,11 @@ import {CabinHint} from './world-r2/CabinHint';
 import {cabinHintSeen,markCabinHintSeen} from './ui/UiPrefs';
 import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
 import {ISLAND_NAV_IDS,worldNavigationLayout} from './world-r2/WorldNavigationLayout';
+import {signRectOnScreen} from './world-r2/IslandPropsLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { GlassSign } from './world-r1/GlassSign';
 import { warmButton, WarmButton } from './WarmButton';
+import { installPreTransition } from './world-r2/PreTransitionRun';
 import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
 import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
 import {IslandProps} from './world-r2/IslandProps';
@@ -537,12 +539,14 @@ export class WorldIntegrationBoot extends Component {
  console.info('UNIFIED_CHARACTER_CANDIDATE_LOADED',(globalThis as any).__characterCandidateIdentity);
  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
  (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),glassSign:()=>this.glassSign?.diagnostics()??null,props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.goHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.resumeJourney(),journey:()=>this.composition.worldCommands().journeySnapshot(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),previewBalloon:()=>this.composition.previewBalloonTransit(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. OPEN layer-clearance task21 GLB SHA 42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
- try{const q=typeof location!=='undefined'?String(location.search||''):'';
+ try{const q=qaQuery();/* location + DevTools 启动参数 */
   const skip=qaSkipTarget(q);if(skip){/* b17r10 test-only level skip: API + auto-run; no banner */const api=(globalThis as any).__worldIntegration;(globalThis as any).__QF_QA_SKIP_API=true;api.qaSkip=(t:any)=>this.composition.qaSkip(t);api.exitQaSkip=()=>this.composition.exitQaSkip();void this.composition.qaSkip(skip).then(r=>console.info('[QF_QA_SKIP] result '+JSON.stringify(r)));}
+  if(skip!==null||qaHooksEnabled(q))(globalThis as any).__qfBackToBoard=()=>{if(!this.controls.get('mainline')?.active)return {ok:false,reason:'no-mainline-control'};void this.invoke(()=>this.composition.enterMainline());return {ok:true};};/* p0drag8 test-only: same action as the 继续旅程 sign / button */
   else if(q.includes('meadowGameplay=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewMeadowGameplay();}
   else if(q.includes('balloonPreview=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewBalloonTransit();}
   else if(q.includes('sailqa=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewSailJourney();}
  }catch{}
+ try{installPreTransition({composition:this.composition,board:()=>this.board(),control:id=>this.controls.get(id),call:async fn=>{if(this.busy)return {ok:false,reason:'busy'};this.busy=true;this.error='';try{return await fn();}finally{this.busy=false;}},idle:()=>!this.busy&&!this.loadingLayer?.fading,islandJourney:()=>this.islandJourney,glassSign:()=>this.glassSign,roomExplore:()=>this.roomExplore,frame:()=>this.navLayout(),signRect:()=>{if(!this.propSign||!this.islandProps)return null;const f=this.navLayout();return (this.islandProps as any).signRect?.(f.width,f.height)??null;},leave:()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},enterMainline:()=>{void this.invoke(()=>this.composition.enterMainline());},returnHome:()=>{void this.invoke(()=>this.composition.worldCommands().returnHome());}});}catch(e){console.warn('[QF_PRE] install failed',String(e));}/* test-only pre-transition entry: gated inside (WeChat release never) */
  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
  if(!MINIGAME){try{const q=(globalThis as any).location?.search;if(typeof q==='string'&&/(?:^|[?&])qa=1(?:&|$)/.test(q)){const api=(globalThis as any).__worldIntegration;api.qaShot=(spec:any)=>this.composition.qaShot(spec);}}catch{/* no location */}}
  }
@@ -555,7 +559,7 @@ export class WorldIntegrationBoot extends Component {
  this.islandToast=new IslandToast(this.canvas);this.dialog=new DialogBubble(this.canvas);this.devMark=new DevPreviewMark(this.canvas);
  (globalThis as any).__dialogDemo=(lines?:unknown)=>{if(lines===false){this.dialog?.close();return;}const demo=Array.isArray(lines)&&lines.length?lines:[{speaker:'阿芳',text:'风从海上来。'}];this.dialog?.play(demo as any);};
  this.islandJourney=new IslandJourneyOverlay(this.canvas,{prewarm:id=>{if(id==='lake')void prewarmLakesideAssets();},invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
- this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},()=>this.glassSign);this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale),orbit:(dx:number,dy:number,scale:number)=>this.composition.worldCommands().orbitIsland(dx,dy,scale)});
+ this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},()=>this.glassSign);this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale),orbit:(dx:number,dy:number,scale:number)=>this.composition.worldCommands().orbitIsland(dx,dy,scale),explore:()=>this.composition?.exploreFeed?.()??null});
  if(DEBUG){
  this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);
  this.button('flowTests','地区流程测试',()=>{this.flowTestMenu=!this.flowTestMenu;});
@@ -636,7 +640,7 @@ export class WorldIntegrationBoot extends Component {
   if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
    const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
    p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',journey:s.state==='region-travel',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
-   if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
+   if(s.state==='island'&&m.active){sign=p.signRect(f.width,f.height);if(!signRectOnScreen(sign,f.width,f.height))sign=null;}} // p0drag8: off-screen sign (explore orbit facing away) -> visible flat 继续旅程 button
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   // b16-fix P1 (build05 全流程测试 P1-1)：入场已结束但木牌并不可见时，不能留一个看不见的点击区。先重放一次入场；仍不可见就退回可见的平面「继续旅程」按钮。
   // v2.2（验收 E）：退回平面按钮后不放弃 3D 木牌：平面按钮保持可见可点，每 1 s 在后台把木牌直接设为完全显示再查一次，一旦可见就切回木牌；离开小岛清零重来。
@@ -649,7 +653,7 @@ export class WorldIntegrationBoot extends Component {
   this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
   if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height)t.setContentSize(sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
-  else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;}
+  else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;this.placeNavigationControl(m,worldNavigationLayout(f.width,f.height).buttons.mainline);} // p0drag8: back to its own slot, not the last sign spot
  }
  private paintNavigation(dt=0){this.status.node.parent!.active=false; // status bar removed (Funning final): never on screen once ready, any early return included
  let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}

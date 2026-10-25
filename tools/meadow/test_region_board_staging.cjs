@@ -35,7 +35,8 @@ function draw(){const work={newKeys:0,firstDraws:0};for(const cam of W.cams){if(
  if(work.newKeys)W.compiled[W.frame]=(W.compiled[W.frame]||0)+work.newKeys;}
 function frame(){draw();for(const f of W.listeners.slice())f();W.frame++;}
 const load=(f)=>{const out=ts.transpileModule(fs.readFileSync(S+f,'utf8'),{compilerOptions:{module:1,target:1,downlevelIteration:false}}).outputText;const E={};
- vm.runInThisContext('(function(exports,require){'+out+'\n})')(E,s=>s==='cc'?cc:s==='./RegionBoardStaging'?STG:null);return E;};
+ vm.runInThisContext('(function(exports,require){'+out+'\n})')(E,s=>s==='cc'?cc:s==='./RegionBoardStaging'?STG:s==='./BgCamGate'?BGG:null);return E;};
+const BGG=load('region/BgCamGate.ts');/* p0drag6: staging goes through the background-camera gate */
 const STG=load('region/RegionBoardStaging.ts'),G=load('region/LakesideBoardGuest.ts');
 function glb(f){const d=fs.readFileSync(ROOT+f),L=d.readUInt32LE(12);return JSON.parse(d.subarray(20,20+L).toString('utf8'));}
 const HER='bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb';

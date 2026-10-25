@@ -227,6 +227,8 @@ export type CameraNodeLike = { setWorldPosition(x: number, y: number, z: number)
 export type CameraLike = { node: CameraNodeLike; fov: number };
 export type CameraWriteLog = { writes: number; last: CameraPose | null; lastSource: string; rejected: number; trackAborts: number; lastAbort: string };
 export const cameraWriteLog: CameraWriteLog = { writes: 0, last: null, lastSource: '', rejected: 0, trackAborts: 0, lastAbort: '' };
+/** Test-only ?camTrace=1 (region/CamTrace.ts sets it); null = off. */
+export const cameraWriteHook: { trace: ((source: string) => void) | null } = { trace: null };
 /** THE single writer: position, rotation, then fov. Invalid poses are rejected (logged, camera untouched). */
 export function applyCameraPose(camera: CameraLike, pose: CameraPose, source: string, opts?: { allowRoll?: boolean }): boolean {
   let bad = validateCameraPose(pose); if (bad === 'roll-not-zero' && opts?.allowRoll) bad = null;
@@ -235,6 +237,7 @@ export function applyCameraPose(camera: CameraLike, pose: CameraPose, source: st
   camera.node.setWorldRotation(pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]);
   camera.fov = pose.fovVerticalDeg;
   cameraWriteLog.writes++; cameraWriteLog.last = pose; cameraWriteLog.lastSource = source;
+  if (cameraWriteHook.trace) cameraWriteHook.trace(source);
   return true;
 }
 
