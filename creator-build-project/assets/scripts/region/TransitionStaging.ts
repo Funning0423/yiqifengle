@@ -78,7 +78,7 @@ export function transitionTimeline(D=TRANSITION_DURATIONS,o:{lakeWalkS?:number;m
  const k=D.seg4,s4=seq([['standUp',k.standUp],['pause',k.pause],['doorReach',k.doorReach],['stepDown',k.stepDown+1.0/* BalloonTransit walks stepDown+1.0 */],['toPath',b5ToPathS(k.toPath)]]);
  const l=D.seg5a,lw=o.lakeWalkS??l.toBasket,lIn=lw+l.doorReach+l.intoBasket+l.turn180+l.sitDown,lIgn=Math.max(0,l.inflate-lIn);
  const s5a=[...seq([['toBasket',lw],['doorReach',l.doorReach],['intoBasket',l.intoBasket],['turn180',l.turn180],['sitDown',l.sitDown],['igniteRemainder',lIgn],['liftoff',l.liftoff],['flight',l.flight]]),
-  {id:'inflate',t0:r2(Math.max(0,lIn-l.inflate)),t1:r2(Math.max(0,lIn-l.inflate)+l.inflate),overlapsWith:'toBasket'}];
+  {id:'inflate',t0:r2(Math.max(0,lw-l.inflate)),t1:r2(Math.max(0,lw-l.inflate)+l.inflate),overlapsWith:'toBasket'}];
  const b=D.seg5b,s5b=seq([['settle',b.settle],['standUp',b.standUp],['pause',b.pause],['doorReach',b.doorReach],['stepDown',b.stepDown],['walkOut',b.walkOut]]);
  const end=(x:Beat[])=>Math.max(...x.map(e=>e.t1));
  const tot={seg1:end(s1),seg2:end(s2),seg3:end(s3),seg4:end(s4),seg5a:end(s5a),seg5b:end(s5b)} as Record<string,number>;

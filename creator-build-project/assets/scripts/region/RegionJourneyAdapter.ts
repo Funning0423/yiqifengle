@@ -265,7 +265,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     // compress: ignition + inflate start during the walk to the basket (finish as she sits); only a remainder delays liftoff
     const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
     sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false});
-    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,boardEndTau+ign-D5.inflate);inflate(0);if(lflame)lflame.active=false;
+    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,R.walkS-D5.inflate)/* the last 3 s of her walk to the basket */;inflate(0);if(lflame)lflame.active=false;
     chainMark('lakeside','C1-basket-in');guardBeforeWalk((actor as any).anim,'C1 walk to basket');}
    const boardIn=async()=>{
     let dt0=0;const dStep=()=>{dt0+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,BALLOON_DOOR.openDeg*Math.min(1,Math.max(0,(dt0-BALLOON_DOOR.openDelayS)/BALLOON_DOOR.openS)),0);};

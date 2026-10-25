@@ -93,7 +93,7 @@ assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[0.032,0,-0.099]);assert
  assert.equal(TL.igniteAfterSit.meadow,0);assert.equal(TL.igniteAfterSit.lake,0);assert.equal(D.seg4.pause,0);assert.equal(D.seg5b.pause,0);
  assert.ok(b3.doorClose.t0>=b3.sitDown.t0&&b3.doorClose.t1<=b3.sitDown.t1+1e-9&&b3.doorClose.t1<=b3.flight.t0+1e-9);
  assert.ok(b3.settle.t1===b3.flight.t1,'settle inside the flight (not added again)');
- const b5=Object.fromEntries(TL.beats.seg5a.map(b=>[b.id,b]));assert.ok(b5.inflate.t0<b5.toBasket.t1+b5.doorReach.t1&&Math.abs(b5.inflate.t1-b5.liftoff.t0)<1e-6,'lake inflate ends as liftoff starts');
+ const b5=Object.fromEntries(TL.beats.seg5a.map(b=>[b.id,b]));assert.ok(b5.inflate.t0<b5.toBasket.t1&&b5.inflate.t1<=b5.liftoff.t0+1e-9,'lake inflate during the walk, full before liftoff');
  // her actions keep natural speed: action beats identical to 59aa0bbc (b19 seconds), walk speeds unchanged
  const OLD={seg1:{nodeWalkI4toI6:15.6,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:16.5},
   seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0},seg4:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,toPath:7.5},
