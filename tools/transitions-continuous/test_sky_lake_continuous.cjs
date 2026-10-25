@@ -9,8 +9,9 @@ const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*R
 const SWEEP=process.env.SWEEP?process.env.SWEEP.split(',').map(Number):null;
 (async()=>{const G=await RL.geometry(),rows=[];
  for(const s of (process.env.SCREENS1?[RL.SCREENS[0]]:RL.SCREENS)){const leg=RL.lakeLeg(G,s),T=leg.timing,Rr=leg.ride,door=leg.door;
-  for(const liftS of SWEEP||[SL.SKY_LAKE_CONT.liftS]){
-   const S=SL.skyLakeContinuous(Rr,door,{...SL.SKY_LAKE_CONT,liftS});
+  for(const liftS of SWEEP||[H.load('region/TransitionStaging.ts').TRANSITION_RETIME.lakeLiftS]){
+   const RT=H.load('region/TransitionStaging.ts').TRANSITION_RETIME,fS=process.env.T03_EXACT?undefined:RT.lakeFlightS;
+   const S=SL.skyLakeContinuous(Rr,door,{...SL.SKY_LAKE_CONT,liftS,flightS:fS});
    const from=leg.start.from,end=S.touchdownAt+T.outT+T.durS+0.5;
    // entry = T-02's end CamState via the continuation hook (stand-in: the skycity follow lens the T-03 audit uses)
    let got=null;const off=TC.onShotContinue(st=>{got=st;});TC.fireShotContinue({pose:from});off();assert.ok(got);
@@ -27,8 +28,12 @@ const SWEEP=process.env.SWEEP?process.env.SWEEP.split(',').map(Number):null;
    if(!SWEEP){assert.ok(row.yawMax<=90.5,'yaw ≤ 90°/s '+JSON.stringify(row));assert.ok(row.yawAccP99<=201,'yaw accel p99 ≤ 200 '+JSON.stringify(row));
     assert.ok(row.stepMaxM<=0.6,'no position jump '+JSON.stringify(row));assert.ok(row.fovStepMax<=0.25,'no FOV jump '+JSON.stringify(row));
     assert.ok(row.occFaceChestMaxS<=0.5,'face/chest hidden ≤ 0.5 s '+JSON.stringify(row));
-    for(const u of [0,3,6,11.9]){const a=S.cam(S.liftEndAt+u,null),b=LB.lakesideDoorRideCamera(Rr,door,Rr.cutT+u,null);assert.ok(Math.hypot(...[0,1,2].map(j=>a.position[j]-b.position[j]))<1e-9,'T-03 flight exact at +'+u);}
-    assert.ok(Math.abs((S.touchdownAt-S.liftEndAt)-(Rr.T-Rr.cutT))<1e-9,'T-03 visible flight length kept');}
+    if(fS===undefined){for(const u of [0,3,6,11.9]){const a=S.cam(S.liftEndAt+u,null),b=LB.lakesideDoorRideCamera(Rr,door,Rr.cutT+u,null);assert.ok(Math.hypot(...[0,1,2].map(j=>a.position[j]-b.position[j]))<1e-9,'T-03 flight exact at +'+u);}
+    assert.ok(Math.abs((S.touchdownAt-S.liftEndAt)-(Rr.T-Rr.cutT))<1e-9,'T-03 visible flight length kept');}}
+    else{assert.ok(Math.abs((S.touchdownAt-S.liftEndAt)-fS)<1e-9&&fS>=RT.lakeFlightMinS,'visible lake flight '+fS+' s ≥ 8 s');
+     assert.ok(Math.abs(S.rideT(S.touchdownAt-1e-9)-Rr.T)<1e-6,'retimed flight still ends on T-03 touchdown');
+     for(const u of [0.5,1,2])assert.ok(Math.abs(S.rideT(S.touchdownAt+u)-(Rr.T+u))<1e-9,'C2 touchdown timing unchanged +'+u);
+     row.visibleFlightS=fS;}
   }}
  console.log(JSON.stringify({status:SWEEP?'SWEEP':'PASS',touchdown:LB.LAKESIDE_TOUCHDOWN,rows}));
 })().catch(e=>{console.error(e);process.exit(1);});

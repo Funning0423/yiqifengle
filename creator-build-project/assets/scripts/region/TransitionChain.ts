@@ -75,8 +75,8 @@ export function inflateAt(t:number):{sy:number;sxz:number;flame:number;done:bool
  return {sy,sxz,flame,done:t>=I.durationS};
 }
 // ── B4/B5 door ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-/** Ride clock (30 s, BalloonFlight warp): B4 settle 29.00–30.00, then B5: the door opens only after the settle. */
-export const BALLOON_DOOR=Object.freeze({settleT0:29,settleT1:30,openDelayS:.15,openS:.8,openDeg:100,walkAfterOpenS:.35,closeS:.6});
+/** Ride clock (28.5 s, BalloonFlight warp): B4 settle 27.50–28.50, then B5: the door opens only after the settle. */
+export const BALLOON_DOOR=Object.freeze({settleT0:27.5,settleT1:28.5/* ride clock = TRANSITION_RETIME.meadowRideS−1..meadowRideS (compress 30→28.5; no import: pure-file harnesses; test_chain_ggbot asserts the match) */,openDelayS:.15,openS:.8,openDeg:100,walkAfterOpenS:.35,closeS:.6});
 /** Door angle t seconds after the ride clock reached settleT1 (B5 time). */
 export function doorAngleAt(b5t:number,D=BALLOON_DOOR):number{return D.openDeg*minJerk((b5t-D.openDelayS)/D.openS);}
 export function doorOpensAfterSettle(D=BALLOON_DOOR):boolean{return D.settleT1+D.openDelayS>=D.settleT1&&D.openDelayS>=0;}

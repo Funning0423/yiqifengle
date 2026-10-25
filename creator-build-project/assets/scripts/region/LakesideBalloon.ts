@@ -352,12 +352,26 @@ export function lakesideNearestWalkable(walk:readonly (readonly number[])[],p:re
 /** Option A: land off the board frame. Disembark through the b15 basket door (DOOR_SPEC, door wall = basket local +Z), also
  *  offscreen, then walk to the unchanged shore root with the production planner (walk_start → walk_loop → walk_stop_bodyL).
  *  The camera stays on the board pose; the board fades in while she walks (she is off the board frame for ~7 s). */
-export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.7){
+/** Two-door basket (Grok Bot FINAL 2026-10-25): enter one side, exit the opposite side; she rides facing the EXIT door, stands and
+ *  walks straight out, no turn. ── PROVISIONAL BLOCK: replace wholesale with 场景设计部's tools/transition-spaces/DOOR2_HANDOFF.md
+ *  data (door node names, hinges, per-door open animation, entry/exit stand points) and set modelReady:true once the basket
+ *  model with the second door is in. While modelReady is false the get-out keeps the single b15 door (legacy) so nobody walks
+ *  through a wall. Basket frame: entry door wall = +Z, exit door wall = −Z (wallSign −1). */
+export const BASKET_DOORS=Object.freeze({provisional:true,modelReady:false,source:'DOOR2_HANDOFF.md (pending)',
+ entry:{node:'basket_door',hingeLocal:[0.4,0,0.84] as readonly [number,number,number],openDeg:100,openS:0.8},
+ exit:{node:'basket_door_exit',hingeLocal:[-0.4,0,-0.84] as readonly [number,number,number],openDeg:100,openS:0.8,wallSign:-1,
+  /** P0 behind the closed EXIT leaf (mirror of the b15 entry-side exitStartLocal) */
+  standLocal:[-.03,0,-.395] as readonly [number,number,number]}});
+/** Which door the lakeside get-out uses: the exit door once its model is in, else the legacy entry door. */
+export function lakesideExitDoor(D=BASKET_DOORS){return D.modelReady?{node:D.exit.node,wallSign:D.exit.wallSign,startLocal:D.exit.standLocal,legacy:false}
+ :{node:D.entry.node,wallSign:1,startLocal:LAKESIDE_BALLOON_LANDING.exitStartLocal,legacy:true};}
+export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.7,exitDoor=lakesideExitDoor()){
  const K=LAKESIDE_BALLOON_LANDING,mooring=toWorld([...K.mooringLocal] as Vec),origin=toWorld([0,0,0]),south=toWorld([0,0,2]);
  // Finish on the original arrival heading too: RegionJourneyController derives the final lens/yaw from this tangent.
  const approach:Vec=[bank[0]+south[0]-origin[0],bank[1],bank[2]+south[2]-origin[2]],h=heading(mooring,approach);
  // Door wall (local +Z) faces her exit heading h (Cocos rotY(θ) takes +Z to (sin θ, 0, cos θ)): 96.19° at the b15 mooring.
- const doorYawDeg=Math.atan2(h[0],h[1])*180/Math.PI,yr=doorYawDeg*Math.PI/180,c=Math.cos(yr),sn=Math.sin(yr),e=K.exitStartLocal;
+ // two-door: the EXIT wall faces h; with the exit wall at basket −Z the basket yaw is h + 180° (doorYawDeg = basket yaw)
+ const exitWallYawDeg=Math.atan2(h[0],h[1])*180/Math.PI,doorYawDeg=exitWallYawDeg+(exitDoor.wallSign<0?180:0),yr=doorYawDeg*Math.PI/180,c=Math.cos(yr),sn=Math.sin(yr),e=exitDoor.startLocal;
  // P0 = mooring + rotY(doorYaw)·exitStartLocal (rotY: x' = x cos + z sin, z' = −x sin + z cos); feet at the basket origin
  // b15b (场景特效bot b69faa60) agrees: door exit and approach on the mooring lawn height, ending on the shared arrival node L1 (0.58).
  // v3: one ground height for the exit route = the 0.572 lawn (floor fix: mooring 0.602 = lawn + 3 cm board; bank anchors 0.58); lake-local P0 (9.1105, ·, 25.6724)
@@ -378,7 +392,7 @@ export function lakesideBalloonMooring(bank:Vec,toWorld:(p:Vec)=>Vec,nativeMps=.
  const timing:JourneyTiming={durationS:walkAt+walkS,easeInS:K.walkEaseS,easeOutS:K.walkEaseS};
  // facing at touchdown: she rode facing the flight heading; she is reset (offscreen) to face the door before the get-out
  // v3 facing: toward the first rounded-walk point (95.97°, 0.22° off the door normal)
- return {mooring,start,walk,length,cornerM,mps,walkS,timing,doorYawDeg,stepMismatchM,groundYAt,pathV4:true,startYawRad:Math.atan2(walk[1][0]-start[0],walk[1][2]-start[2]),groundY:gy,T0,doorAt,walkStartAt:walkAt,doorDeg,
+ return {mooring,start,walk,length,cornerM,mps,walkS,timing,doorYawDeg,exitWallYawDeg,exitDoorNode:exitDoor.node,exitDoorLegacy:exitDoor.legacy,stepMismatchM,groundYAt,pathV4:true,startYawRad:Math.atan2(walk[1][0]-start[0],walk[1][2]-start[2]),groundY:gy,T0,doorAt,walkStartAt:walkAt,doorDeg,
   /** her seat yaw under stand_point, compensated for the basket yaw so her ride facing is unchanged */
   seatYawDeg:(girlYawDeg:number)=>girlYawDeg-doorYawDeg};
 }

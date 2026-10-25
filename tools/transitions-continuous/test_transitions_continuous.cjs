@@ -14,21 +14,21 @@ function metrics(poses){const yr=[],ya=[],dp=[],acc=[],df=[],dpitch=[];
  for(let i=1;i<dp.length;i++)acc.push(Math.abs(dp[i]-dp[i-1])/DT/DT);
  return {yawMax:Math.max(...yr.map(Math.abs)),yawAccP99:pct(ya,0.99),pitchMax:Math.max(...dpitch),stepMaxM:Math.max(...dp),accP99:pct(acc,0.99),fovStepMax:Math.max(...df)};}
 // ---- 1. ride clock warp: 30 s → 36 s flight, monotonic, C1, cues before the seam untouched
-assert.equal(F.RIDE_DURATION,30);
-assert.ok(Math.abs(F.rideToFlightT(30)-F.FLIGHT_DURATION)<1e-9,'ride ends exactly at flight end: '+F.rideToFlightT(30));
+const RD=F.RIDE_DURATION,ST=H.load('region/TransitionStaging.ts');assert.equal(RD,ST.TRANSITION_RETIME.meadowRideS,'ride length is data (TRANSITION_RETIME)');assert.ok(RD<=30&&RD>=20);
+assert.ok(Math.abs(F.rideToFlightT(RD)-F.FLIGHT_DURATION)<1e-9,'ride ends exactly at flight end: '+F.rideToFlightT(RD));
 let prev=-1,prevRate=1,maxRateStep=0;
-for(let i=0;i<=30*FPS;i++){const tau=i*DT,t=F.rideToFlightT(tau);assert.ok(t>=prev-1e-12,'monotonic');prev=t;
+for(let i=0;i<=RD*FPS;i++){const tau=i*DT,t=F.rideToFlightT(tau);assert.ok(t>=prev-1e-12,'monotonic');prev=t;
  if(i){const rate=(t-F.rideToFlightT(tau-DT))/DT;if(i>1)maxRateStep=Math.max(maxRateStep,Math.abs(rate-prevRate));prevRate=rate;}}
 assert.ok(maxRateStep<0.02,'rate is C1 (no speed step): '+maxRateStep);
 for(const ct of [0.4,1.8,4.3,11.2,11.4,11.6])assert.ok(Math.abs(F.rideToFlightT(ct)-ct)<1e-9,'cue '+ct+' keeps its time');
-assert.ok(Math.abs(F.flightToRideT(F.LAND_T)-(30-1))<1e-6,'touchdown on the ride clock at 29 s');
-out.ride={duration:30,cruiseRate:+F.RIDE_CRUISE_RATE.toFixed(4),cueRideT:Object.fromEntries(Object.entries({cloudExit:15,islets:21.5,approach:27,land:35}).map(([k,v])=>[k,+F.flightToRideT(v).toFixed(2)]))};
+assert.ok(Math.abs(F.flightToRideT(F.LAND_T)-(RD-1))<1e-6,'touchdown on the ride clock at RD−1 s');
+out.ride={duration:RD,cruiseRate:+F.RIDE_CRUISE_RATE.toFixed(4),cueRideT:Object.fromEntries(Object.entries({cloudExit:15,islets:21.5,approach:27,land:35}).map(([k,v])=>[k,+F.flightToRideT(v).toFixed(2)]))};
 // ---- 2. flight camera on the ride clock vs the 36 s camera: not faster than the approved caps, unless the 36 s file already was
 global.__QF_BALLOON_FLIGHT=JSON.parse(fs.readFileSync(path.join(ROOT,'creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json'),'utf8'));
 const T=H.load('region/TransportLeg.ts'),plan=T.balloonBeats([-1.51,5.34,78.08],[5.4,-0.11,43.8],[0,-0.07,30],{walkInM:9.1,walkOutM:8.6});
 const seamTau=F.flightToRideT(F.SEAM_T);
 const skipSeam=(arr,taus)=>arr; // seam re-root is a rigid world re-base: the camera path is continuous by construction (BALLOON seam tests)
-const old=[],neu=[],tausN=[];for(let i=0;i<=36*FPS;i++)old.push(plan.camera(i*DT));for(let i=0;i<=30*FPS;i++){tausN.push(i*DT);neu.push(plan.camera(F.rideToFlightT(i*DT)));}
+const old=[],neu=[],tausN=[];for(let i=0;i<=36*FPS;i++)old.push(plan.camera(i*DT));for(let i=0;i<=RD*FPS;i++){tausN.push(i*DT);neu.push(plan.camera(F.rideToFlightT(i*DT)));}
 // the seam is a rigid world re-base (whole world moves with the lens; continuous on screen): measure each side on its own
 const worst=(a,b)=>Object.fromEntries(Object.keys(a).map(k=>[k,Math.max(a[k],b[k])]));
 const split=(poses,seam)=>{const i=Math.floor(seam/DT);return worst(metrics(poses.slice(0,i)),metrics(poses.slice(i+1)));};

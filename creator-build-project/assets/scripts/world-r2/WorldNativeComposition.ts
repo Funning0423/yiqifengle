@@ -236,7 +236,7 @@ export class WorldNativeComposition extends Component {
   private skyContinueHandlers:((camera:any)=>boolean|void)[]=[];
   onSkyFinaleContinue(handler:(camera:any)=>boolean|void){this.skyContinueHandlers.push(handler);return ()=>{this.skyContinueHandlers=this.skyContinueHandlers.filter(h=>h!==handler);};}
   skyFinaleActive(){try{return !!(this.stage() as any)?.finaleEndCamera?.();}catch{return false;}}
-  async continueFromSkyFinale(){const stage=this.stage() as any;let camera=null;try{camera=stage?.finaleEndCamera?.()??null;stage?.disarmFinale?.();}catch{/* optional */}
+  async continueFromSkyFinale(){const stage=this.stage() as any;let camera=null;try{camera=stage?.finaleEndCamera?.()??null;stage?.disarmFinale?.();stage?.markFinaleDeparture?.();}catch{/* optional */}
     for(const h of [...this.skyContinueHandlers]){try{if(h(camera)===true)return {ok:true,via:'continuous'} as any;}catch(error){console.error('sky-finale-continue',error);}}
     return this.enterMainline();}
   /** 继续旅程: from the held sky finale go through the continuation hook; elsewhere the plain mainline entry. */

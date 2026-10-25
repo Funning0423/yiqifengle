@@ -51,7 +51,7 @@ let peak=0;for(let t=0;t<=3;t+=1/60){const f=C.inflateAt(t);peak=Math.max(peak,f
 assert.ok(peak>1&&peak<1.08,'slight rebound '+peak);assert.ok(C.inflateAt(.3).flame>C.inflateAt(3).flame,'burner bright while filling');
 out.inflate={durationS:I.durationS,peak:+peak.toFixed(4)};
 // 6 door after settle
-const D=C.BALLOON_DOOR;assert.ok(D.settleT1>=30-1e-9&&D.settleT0===29);assert.equal(C.doorAngleAt(0),0);assert.equal(C.doorAngleAt(D.openDelayS),0);
+const D=C.BALLOON_DOOR;{const RD=H.load('region/BalloonFlight.ts').RIDE_DURATION;assert.ok(Math.abs(D.settleT1-RD)<1e-9&&Math.abs(D.settleT0-(RD-1))<1e-9,'settle = last 1 s of the ride clock');}assert.equal(C.doorAngleAt(0),0);assert.equal(C.doorAngleAt(D.openDelayS),0);
 assert.ok(Math.abs(C.doorAngleAt(D.openDelayS+D.openS)-D.openDeg)<1e-9);assert.ok(C.doorOpensAfterSettle());
 // 7 anim guards
 const st={isPlaying:true,stop(){this.isPlaying=false;}};assert.equal(C.guardBeforeWalk({clips:[{name:'sit_hold'},{name:'walk_loop'}],getState:n=>n==='sit_hold'?st:{isPlaying:false,stop(){}}},'t'),1);assert.equal(st.isPlaying,false);
@@ -78,7 +78,59 @@ for(const f of ['TransitionChain','TransitionStaging','TransitionStagingMath','T
 const ST=H.load('region/TransitionStaging.ts'),tot=ST.segmentTotals();out.totals=tot;
 const stances=JSON.parse(fs.readFileSync(path.join(ROOT,'tools/transition-spaces/stances.json'),'utf8'));assert.ok(stances.segments['3_meadow_balloon_in']);
 assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[0.032,0,-0.099]);assert.equal(ST.BASKET_RIDE_POSE.meadowSkycity.clip,'sit_hold');
-assert.ok(Math.abs(tot.seg3-45.8)<1e-6&&Math.abs(tot.seg4-14.3)<1e-6,'seg3/seg4 '+tot.seg3+'/'+tot.seg4);
+// 12 compress (Grok Bot 2026-10-25): overlap-aware timeline within caps, actions untouched
+{const TL=ST.transitionTimeline(),RT=ST.TRANSITION_RETIME,D=ST.TRANSITION_DURATIONS,tt=TL.totals;out.timeline=tt;
+ assert.ok(tt.islandToMeadow<=RT.caps.islandToMeadow,'island→meadow '+tt.islandToMeadow);assert.ok(Math.abs(tt.islandToMeadow-44.57)<1e-6,'seg1/2 left as is');
+ assert.ok(tt.meadowToSkycity<=RT.caps.meadowToSkycity,'meadow→skycity '+tt.meadowToSkycity);
+ // skycity→lakeside recomputes from the real T-03 walk (mooring pending at 场景设计部): within cap, or flagged pending
+ const LB=H.load('region/LakesideBalloon.ts');out.lakeWalkSource='TRANSITION_DURATIONS.seg5a.toBasket';
+ const lk=tt.skycityToLakeside;out.lakeCap={total:lk,mooringPending:ST.TRANSITION_STAGING.skyMooring5a.pending,overBy:+(lk-RT.caps.skycityToLakeside).toFixed(2)};
+ const opt=ST.TRANSITION_STAGING.skyMooring5a.option,cap=ST.skycityToLakesideCap(opt);out.lakeCap.option=opt;out.lakeCap.cap=cap;
+ assert.equal(ST.skycityToLakesideCap('C'),50);assert.equal(ST.skycityToLakesideCap('pending'),null);
+ const M5=ST.TRANSITION_STAGING.skyMooring5a;assert.equal(opt,'C');assert.equal(cap,50);out.lakeCap.provisional=M5.provisional;out.lakeCap.fits=lk<=cap;
+ // her walk: natural 0.9 m/s, never sped up; seconds follow the (provisional) path; the in-basket turn is gone
+ assert.equal(M5.walkMps,H.load('region/NodeWalker.ts').WALK_SPEED_MPS,'natural walk speed constant');assert.equal(M5.walkMps,1.2);assert.equal(D.seg5a.turn180,0);assert.equal(D.seg3.turn180,0,'no in-basket turn (meadow)');
+ assert.equal(M5.provisional,false);assert.ok(Math.abs(ST.lakeBoardS()-3.56)<0.01,'boarding 3.56 s (场景设计部)');assert.ok(Math.abs(TL.beats.seg5a.find(b=>b.id==='toBasket').t1-M5.walkPathM/M5.walkMps)<0.01);
+ assert.ok(lk<=cap,'skycity→lakeside '+lk+' over cap '+cap);
+ const seg=(k,a,b)=>{const B=TL.beats[k],f=id=>B.find(x=>x.id===id);return +(f(b).t1-f(a).t0).toFixed(2);};
+ out.measured={meadow:{boarding:seg('seg3','toBasket','sitDown'),flight:TL.beats.seg3.find(b=>b.id==='flight').t1-TL.beats.seg3.find(b=>b.id==='flight').t0,exit:tt.seg4,total:tt.meadowToSkycity},lake:{boarding:seg('seg5a','toBasket','sitDown'),flight:seg('seg5a','liftoff','flight'),exit:tt.seg5b,total:tt.skycityToLakeside}};
+ // two-door lakeside exit: provisional block, legacy single door until the model is in
+ {const LB=H.load('region/LakesideBalloon.ts'),BD=LB.BASKET_DOORS;assert.equal(BD.exit.wallSign,-1);assert.notEqual(BD.exit.node,BD.entry.node);
+  const xl=LB.lakesideExitDoor(),xr=LB.lakesideExitDoor({...BD,modelReady:true});assert.equal(xl.legacy,!BD.modelReady);assert.equal(xr.node,'basket_door_exit');assert.deepEqual([...xr.startLocal],[-.03,0,-.395]);
+  const tw=p=>p,m0=LB.lakesideBalloonMooring([0,0,10],tw,.7,xl),m1=LB.lakesideBalloonMooring([0,0,10],tw,.7,xr);
+  assert.ok(Math.hypot(m0.start[0]-m1.start[0],m0.start[2]-m1.start[2])<0.07,'exit P0 on the exit-heading side either way');assert.ok(Math.abs(((m1.doorYawDeg-m0.doorYawDeg)%360+360)%360-180)<1e-6,'basket turned 180° so the exit door faces her heading');
+  assert.ok(/find\(vehicle,moored\.exitDoorNode\)/.test(adp),'lakeside get-out animates the exit leaf');out.exitDoor={provisional:BD.provisional,modelReady:BD.modelReady};}
+ // visible lake flight ≥ 8 s; meadow flight shortened from 30
+ assert.ok(D.seg5a.flight>=8&&D.seg5a.flight===RT.lakeFlightS);assert.ok(D.seg3.flight<30&&D.seg3.flight===RT.meadowRideS);
+ // overlaps: inflate inside the walk, no ignition wait after she sits, no dead pause after stand_up, door close inside sit_down
+ const b3=Object.fromEntries(TL.beats.seg3.map(b=>[b.id,b]));assert.ok(b3.inflate.t0<b3.toBasket.t1&&b3.inflate.t1<=b3.sitDown.t1,'meadow inflate overlaps the walk');
+ assert.equal(TL.igniteAfterSit.meadow,0);assert.equal(TL.igniteAfterSit.lake,0);assert.equal(D.seg4.pause,0);assert.equal(D.seg5b.pause,0);
+ assert.ok(b3.doorClose.t0>=b3.sitDown.t0&&b3.doorClose.t1<=b3.sitDown.t1+1e-9&&b3.doorClose.t1<=b3.flight.t0+1e-9);
+ assert.ok(b3.settle.t1===b3.flight.t1,'settle inside the flight (not added again)');
+ const b5=Object.fromEntries(TL.beats.seg5a.map(b=>[b.id,b]));assert.ok(b5.inflate.t0<b5.sitDown.t0&&b5.inflate.t1>=b5.sitDown.t1-1e-9&&b5.inflate.t1<=b5.liftoff.t0+1e-9,'lake ignition overlaps sit_down, full before liftoff');
+ // her actions keep natural speed: action beats identical to 59aa0bbc (b19 seconds), walk speeds unchanged
+ const OLD={seg1:{nodeWalkI4toI6:15.6,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:16.5},
+  seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,sitDown:1.2,inflate:3.0},seg4:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,toPath:7.5},
+  seg5a:{doorReach:1.8,sitDown:1.2,inflate:3.0},seg5b:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,walkOut:7.7}};
+ for(const [sg,v] of Object.entries(OLD))for(const [k,x] of Object.entries(v))assert.equal(D[sg][k],x,'action '+sg+'.'+k+' unchanged (clip speed 1.0×)');
+ assert.equal(ST.TRANSITION_STAGING.walkMps,0.9);assert.equal(ST.TRANSITION_STAGING.basketWalkMps,0.8);
+ assert.ok(/inflateT<INFLATE\.durationS&&envHome\)\{if\(!inflateMarked\)/.test(bal),'B1 walk drives the inflate');
+ assert.ok(/flightS:TRANSITION_RETIME\.lakeFlightS/.test(adp)&&/inflateTau0=/.test(adp),'lakeside retime + inflate during walk wired');}
 assert.ok(/kind:'stand',seat:seatDef/.test(bal)&&/guardBeforeWalk\(anim,'B5 stand up'\)/.test(bal),'B5 stands up (guarded) before walking');
+// 13 T-02 → seg 5 departure: gaze ≥ 2 s, cancel before walk, no interrupt after, 继续旅程 path
+{const SD=H.load('region/SkyFinaleDeparture.ts');assert.ok(SD.finaleAutoContinueAtS(1.4)-1.4>=2-1e-9&&SD.finaleAutoContinueAtS(2.1)-2.1>=2-1e-9);
+ let went=0;const a=new SD.FinaleDeparture(()=>went++);for(let i=0;i<600&&!went;i++)a.step(1/60);
+ assert.equal(went,1);assert.equal(a.startedBy,'auto');assert.ok(a.gazedS()>=2-1e-6,'gazed '+a.gazedS());
+ assert.equal(a.gesture('drag'),true,'drag after the walk started is swallowed');a.step(5);a.button();assert.equal(went,1,'walk not restarted / interrupted');
+ const b=new SD.FinaleDeparture(()=>went++);b.step(1.0);assert.equal(b.gesture('tap'),false);for(let i=0;i<1200;i++)b.step(1/60);
+ assert.equal(b.state,'held');assert.equal(went,1,'input before the walk cancels auto-continue: she keeps gazing');
+ b.button();assert.equal(b.state,'walking');assert.equal(b.startedBy,'button');assert.equal(went,2,'继续旅程 starts the turn + walk');
+ const c=new SD.FinaleDeparture(()=>went++);c.step(2.5);c.gesture('pinch');c.step(10);assert.equal(went,2,'pinch during the gaze also holds');
+ const stg=src('world-r2/RegionNodeStage.ts');assert.ok(/finaleAutoContinueAtS\(this\.finaleApproachS\)\*1000/.test(stg),'stage auto-continue = ease-in + gaze');
+ assert.ok(/onGesture\(gesture:Gesture,x:number,y:number\)\{\n  if\(\(this as any\)\.finaleDeparting\?\.\(\)\)return/.test(stg)&&/finaleDeparting\(now=Date\.now\(\)\)\{return SKY_DEPARTURE\.ignoreGesturesAfterWalk&&/.test(stg),'stage swallows gestures once she departs');
+ assert.ok(/stage\?\.markFinaleDeparture\?\.\(\)/.test(comp),'auto and 继续旅程 both mark the departure (continueFromSkyFinale)');
+ assert.ok(comp.includes('continueJourney(){return this.skyFinaleActive()?this.continueFromSkyFinale()'),'继续旅程 button kept');
+ assert.ok(fs.existsSync(path.join(ROOT,'creator-build-project/assets/scripts/region/SkyFinaleDeparture.ts.meta'))&&!/@ccclass\(/.test(src('region/SkyFinaleDeparture.ts')));
+ out.departure={autoContinueAtS:SD.finaleAutoContinueAtS(1.4),gazeS:+a.gazedS().toFixed(2),wasS:6.9};}
 console.error=ce;console.warn=cw;console.log(JSON.stringify({ok:true,...out}));
 })().catch(e=>{console.error=ce;console.warn=cw;console.error(e);process.exit(1);});
