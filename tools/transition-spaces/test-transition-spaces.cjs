@@ -12,7 +12,7 @@ const H=__dirname,J=JSON.parse(fs.readFileSync(path.join(H,'stances.json'),'utf8
 const BUN=path.join(H,'../../creator-build-project/assets/bundles/');
 const fx=n=>{const d=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(H,'fixtures',n+'.json.gz'))).toString());const T=[];for(const v of Object.values(d))for(let k=0;k<v.length;k+=9)T.push(v.slice(k,k+9));return T;};
 const meshOf=(file,re)=>{const T=[];for(const n of glb.load(BUN+file)){if(!n.tris||!re.test(n.name))continue;for(let k=0;k<n.tris.length;k+=9)T.push(Array.from(n.tris.slice(k,k+9)));}return T;};
-const R={island:fx('island'),meadow:fx('meadow_n').concat(fx('meadow_s')),skycity:fx('sky_s0').concat(fx('sky_s6'))};
+const R={island:fx('island'),meadow:fx('meadow_n').concat(fx('meadow_s')),skycity:fx('sky_s0').concat(fx('sky_s6'),fx('sky_s6w'))};
 const BOAT=meshOf('transport_sail/sailboat.glb',/^(hull|rig|seat_bench)$/),BASK=meshOf('region_transit_balloon/transport_balloon.glb',/^balloon_basket$/),LEAF=meshOf('region_transit_balloon/transport_balloon.glb',/^basket_door_leaf$/);
 const JETTY=meshOf('transport_sail/transit_landing.glb',/^landing_jetty$/);
 let fails=0,checks=0;const ok=(c,m)=>{checks++;if(!c){fails++;console.error('FAIL '+m);}};
@@ -108,6 +108,13 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
  ok(worst>=.005,`open door leaf stays above the island floor (min gap ${worst.toFixed(3)})`);
  const th=s.path.find(p=>p.id==='basket_threshold').at,gt=floorAt(R.skycity,th[0],th[2],.2,.3);ok(gt===null||Math.abs(gt-b.root[1])<=.05,`threshold step ${(gt===null?'over the edge':(b.root[1]-gt).toFixed(3))}`);
  const pts=s.path.filter(p=>p.frame==='skycity').map(p=>p.at);let h=0;for(const q of legs(pts))h+=bodyHits(R.skycity,q);ok(h===0,`seg5a approach body clear (${h})`);}
+// seg5a lift-off: parked + suggested lift (lift5-suggested.json) keep ≥ 0.5 m with the edge-crossing envelope (check-lift-clearance.cjs on fixtures)
+{const CL=require('./check-lift-clearance.cjs'),raw=n=>JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(H,'fixtures',n+'.json.gz'))).toString());
+ const sc={};for(const n of ['sky_s6w','sky_lift5'])for(const [k,v] of Object.entries(raw(n)))sc[k]=(sc[k]||[]).concat(v);
+ const b=S['5a_skycity_balloon_in'].balloon,lk=S['5a_skycity_balloon_in'].liftSuggested;ok(!!lk&&lk.keys.length>=5,'seg5a has a suggested lift (≥5 keys)');
+ const env=ENV.flat();const pk=CL.check({keys:[{t:0,pos:b.root}]},{dt:1,scene:sc,envelope:env,box:'fx'});ok(pk.minGapM>=.5,`seg5a parked gap ${pk.minGapM} ≥ 0.5 (${pk.hit})`);
+ const lr=CL.check(lk,{dt:.02,scene:sc,envelope:env,box:'fx'});ok(lr.minGapM>=.5,`seg5a suggested lift min gap ${lr.minGapM} at t ${lr.atT} ≥ 0.5 (${lr.hit})`);
+ ok(Math.abs(lk.keys[lk.keys.length-1].t-5)<.01,'suggested lift shown in 5 s');}
 // motion rule (产品总监 2026-10-25): she walks INTO the vehicle and sits down inside; on arrival she stands up, opens the door, walks out.
 // No seated frame while moving on the ground: sit_* only as the last beats of a boarding segment (after door_reach / boarding walk) and
 // as the first beats of an arrival segment (before stand_up); every walk beat lies between them.

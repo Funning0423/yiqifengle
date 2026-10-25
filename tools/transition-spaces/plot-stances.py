@@ -112,7 +112,7 @@ draw(s,'skycity',[1.5,9.5,35.5,47],balloonE(bl['root'],bl['yawDeg'])+[polyE(dpol
 # 5a
 s=S['5a_skycity_balloon_in'];bl=s['balloon']
 pc=bl.get('parkedClearance',{});hp=pc.get('hitPointSky')
-draw(s,'skycity',[-4,5,-33,-25],balloonE(bl['root'],bl['yawDeg'])+([circE(hp,0.25,'#ff0000',f"min gap {pc['minGapM']} m ({pc['hit']}, y {hp[1]})",'-')] if hp else []),'z','seg5a_skycity_balloon_in','段5a 天空城S6→C1进篮（红=最小间隙点）',lat=1.5)
+draw(s,'skycity',[-18,2,-41,-26],balloonE(bl['root'],bl['yawDeg'])+([circE(hp,0.25,'#ff0000',f"min gap {pc['minGapM']} m ({pc['hit']}, y {hp[1]})",'-')] if hp else []),'z','seg5a_skycity_balloon_in','段5a 天空城S6→系泊点C进篮（红=最小间隙点）',lat=1.5)
 # 5b (lake: no region crop; basket + path only)
 s=S['5b_lake_balloon_out'];bl=s['balloon']
 REG['lake']=np.zeros((0,3,3))
