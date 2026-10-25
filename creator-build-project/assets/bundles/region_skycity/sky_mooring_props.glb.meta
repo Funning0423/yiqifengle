@@ -1,0 +1,42 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "ace375af-e2b3-49a1-998b-064776758faa",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "092e7721-97fd-4de7-9550-85e5e7b72f98@c8867"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "092e7721-97fd-4de7-9550-85e5e7b72f98@4a919"
+      ],
+      "scenes": [
+        "092e7721-97fd-4de7-9550-85e5e7b72f98@30751"
+      ]
+    }
+  }
+}

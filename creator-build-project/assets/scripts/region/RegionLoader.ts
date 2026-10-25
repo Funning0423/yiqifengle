@@ -1,4 +1,4 @@
-import {assetManager,AssetManager,Prefab,Node,instantiate,isValid} from 'cc';
+import {assetManager,AssetManager,Prefab,Node,instantiate,isValid,MeshRenderer,Material} from 'cc';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkycityPennantWind} from './SkycityPennantWind';
 import {SkycityRobotInteract} from './SkycityRobotInteract';
@@ -30,6 +30,9 @@ export const REGIONS:Record<string,RegionDef>={
 };
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 const cloudseaPrefabs=new WeakMap<Prefab,Prefab>();
+/** b19 dock models: optional sky-city mooring props (landing deck sky_mooring_deck + posts/rope, 5a stakes/rope/stool). Missing = no props, never blocks. */
+const mooringPrefabs=new WeakMap<Prefab,Prefab|null>();
+export const SKY_MOORING_PREFAB='sky_mooring_props';
 /** Loads the region's bundle and prefab. Rejects on failure so callers can show retry UI. */
 async function loadPrefab(def:RegionDef,progress?:(fraction:number)=>void):Promise<Prefab>{
   progress?.(0);
@@ -46,6 +49,10 @@ export async function loadRegionPrefab(def:RegionDef,progress?:(fraction:number)
     const soft=await loadPrefab({bundle:def.bundle,prefabName:'env_sky_cloudsea_soft'});
     cloudseaPrefabs.set(prefab,soft);
   }
+  if(def.bundle==='region_skycity'&&!mooringPrefabs.has(prefab)){
+    let m:Prefab|null=null;try{m=await loadPrefab({bundle:def.bundle,prefabName:SKY_MOORING_PREFAB});}catch(e){console.warn('[SKY_MOORING] props unavailable',String(e));}
+    mooringPrefabs.set(prefab,m);
+  }
   return prefab;
 }
 /** Instantiates a loaded region prefab under parent and starts its ambient loops. */
@@ -60,6 +67,19 @@ export function mountRegion(def:RegionDef,prefab:Prefab,parent:Node):Node{
       if(!soft||!isValid(soft,true))throw Error('skycity-cloudsea-not-prepared');
       model.addComponent(SkycityCloudsea).mount(soft);
     }catch(error){model.destroy();throw error;}
+    mountSkyMooring(model,mooringPrefabs.get(prefab)||null);
   }
   return model;
+}
+
+/** Mounts sky_mooring_props under the sky-city model (authored in skycity-local coordinates) and rebinds its renderers to the
+ *  model's own M_sky_palette material (the prop glb carries an untextured stand-in of the same name, no new texture). */
+export function mountSkyMooring(model:Node,prefab:Prefab|null):Node|null{
+  if(!prefab||!isValid(prefab,true))return null;
+  let palette:Material|null=null;
+  for(const r of model.getComponentsInChildren(MeshRenderer)){for(const m of r.sharedMaterials){if(m&&m.name.startsWith('M_sky_palette')&&!m.name.includes('emissive')){palette=m;break;}}if(palette)break;}
+  const n=instantiate(prefab);n.name=SKY_MOORING_PREFAB;model.addChild(n);
+  if(palette)for(const r of n.getComponentsInChildren(MeshRenderer)){const c=Math.max(1,r.sharedMaterials.length);for(let i=0;i<c;i++)r.setSharedMaterial(palette,i);}
+  else console.warn('[SKY_MOORING] M_sky_palette not found; props keep the imported stand-in');
+  return n;
 }

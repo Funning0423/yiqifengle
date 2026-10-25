@@ -56,6 +56,11 @@ export const ISLAND_PROPS = Object.freeze({
     { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
   ] as readonly WorldProp[],
+  /** b19 dock models: resident island structures authored in island coordinates (mounted at the origin, rebound to M_env_palette like the palms).
+   *  island_dock: pier deck x[-2.5,-1.1] z[8.9,14.4] top -0.18, shore ramp z[8.2,8.9], boarding end near (-1.40,-0.14,12.22); node name read by RegionJourneyAdapter. */
+  structures: [
+    { prefab: 'island_dock', position: [0, 0, 0] as V3, yawDeg: 0, scale: 1 },
+  ] as readonly WorldProp[],
   buttons: {
     bag: { prefab: 'ui_satchel', label: '行囊', heightM: 0.915, widthM: 0.86, depthM: 0.514 },
     journal: { prefab: 'ui_notebook', label: '旅程册', heightM: 0.89, widthM: 0.665, depthM: 0.314 },

@@ -13,7 +13,8 @@ for(const t of times){
 // Completed progress, including the sky-city arrival, must reach the same no-flag path.
 const states=P.derive({completed:P.MAINLINE_STAGE_IDS.slice()},null);
 const s0=REGION_NODES.skycity.nodes.find(n=>n.key==='S0');
-assert.ok(s0.at.every((v,i)=>Math.abs(v-[5.4,-0.11,43.8][i])<0.002),'S0 matches the rounded example position');
+// b19 dock models: S0 moved off the moored basket onto the landing deck exit (bake-region-nodes S0 (5.25,-0.084,40.6) -> grid (5.4,-0.068,40.6))
+assert.ok(s0.at.every((v,i)=>Math.abs(v-[5.4,-0.068,40.6][i])<0.002),'S0 matches the rounded example position');
 assert.equal(states.nodes.S0,'passed');
 for(const [key,phase] of Object.entries(states.nodes)){
  if(phase==='passed')assert.equal(M.gemLocal(phase,0).indices.length,0,key);

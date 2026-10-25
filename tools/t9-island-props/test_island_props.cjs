@@ -65,13 +65,13 @@ ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world 
   assert(L.rippleAt(W.ripple.periodS/2,0).alpha>.99&&a0.alpha<1e-9,'fade in/out');assert(W.ripple.nightAlpha<W.ripple.alpha&&W.shadow.nightAlpha<W.shadow.alpha,'dimmer at night');
   for(const p of P.palms){assert(p.position[2]>6.5&&p.position[2]<10.5,'palm z on beach');assert(p.position[1]>-1&&p.position[1]<.2);}
   assert(P.signpost.position[1]<P.seaY,'sign posts stand in the water');
-  const dir=path.resolve(SRC,'../bundles/region_island',P.dir),names=[P.signpost.prefab,...P.palms.map(p=>p.prefab),...Object.values(P.buttons).map(b=>b.prefab)];
+  const dir=path.resolve(SRC,'../bundles/region_island',P.dir),names=[P.signpost.prefab,...P.palms.map(p=>p.prefab),...P.structures.map(p=>p.prefab),...Object.values(P.buttons).map(b=>b.prefab)];
   for(const n of names){const m=JSON.parse(fs.readFileSync(path.join(dir,n+'.glb.meta'),'utf8'));assert.equal(m.importer,'gltf');assert.equal(m.userData.tangents,1,'Tangents=Exclude '+n);
     const b=fs.readFileSync(path.join(dir,n+'.glb')),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)));assert(!j.images,'no embedded images '+n);
     const mats=j.materials.map(x=>x.name);assert(mats.every(x=>x==='M_env_palette'||(n==='ui_signpost'&&x==='M_signpost_lamp')),'materials '+n+' '+mats);
     assert((j.extensionsUsed||[]).includes('KHR_draco_mesh_compression'));}
   assert(!fs.existsSync(path.join(dir,'beach_gull.glb'))&&!fs.existsSync(path.join(dir,'beach_crab.glb'))&&!fs.existsSync(path.join(dir,'beach_turtle.glb')),'duplicate animals not added');
-  assert.equal(fs.readdirSync(dir).filter(f=>f.endsWith('.glb')).length,6);
+  assert.equal(fs.readdirSync(dir).filter(f=>f.endsWith('.glb')).length,7);
 });
 ok('IslandPropTaps: subscribe/unsubscribe, info flags, listener errors isolated',()=>{
   const got=[];const off=T.onPropTap((t,ph,i)=>got.push([t,ph,i.blocked,i.props]));const bad=T.onPropTap(()=>{throw Error('x');});

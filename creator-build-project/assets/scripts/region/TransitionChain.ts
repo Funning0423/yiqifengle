@@ -98,7 +98,7 @@ export type PreloadItem=Readonly<{bundle:string;bytes:number;prefab?:string}>;
 /** Warmed when the LAST level of a region STARTS (mainline-04 / -08 / -12), hidden inside play time. Raw bundle sizes. */
 export const PRELOAD_PLAN:Readonly<Record<string,Readonly<{stage:string;leg:ChainLeg;items:readonly PreloadItem[]}>>>=Object.freeze({
  meadow:{stage:'mainline-04',leg:'sail',items:[{bundle:'region_meadow',bytes:5500847},{bundle:'transport_sail',bytes:1011317}]},
- skycity:{stage:'mainline-08',leg:'balloon',items:[{bundle:'region_skycity',bytes:1938037},{bundle:'region_transit_balloon',bytes:1036082,prefab:'transport_balloon'}]},
+ skycity:{stage:'mainline-08',leg:'balloon',items:[{bundle:'region_skycity',bytes:1961205},{bundle:'region_transit_balloon',bytes:1036082,prefab:'transport_balloon'}]},
  lakeside:{stage:'mainline-12',leg:'lakeside',items:[{bundle:'region_lakeside',bytes:2030414},{bundle:'region_transit_balloon',bytes:1036082,prefab:'transport_balloon'}]},
 });
 export const PRELOAD_MEMORY_BUDGET_MB=6;
