@@ -36,9 +36,9 @@ const vp=p=>{const v=p.target.map((x,k)=>x-p.position[k]);return Math.asin(v[1]/
 const yawOf=p=>Math.atan2(p.position[0]-p.target[0],p.position[2]-p.target[2])/R;
 /* replay: pitchOver = replace the orbit pitch (low-angle self-check); walking frames are written like the engine (groundWalking && seeded) */
 function replay(F,{pitchOver=null,endView=false,path=null}={}){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1',H[0].slice(),{modelAt:[0,0,0]});const st=Rg.st;st.guardOrbitGround=p=>p;let her=H[0];st.girl=()=>her;
- let near=null,nearAt=-1e9,yoff=0;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;const o=new FO.FreeOrbit('skycity');let i=0;
- st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF+yoff;o.pitch=pitchOver??f[3];o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){},setPlace(){},seed(){},forget(){},
-  rawPose:(g)=>{o.yaw=F[i][2]+YAW_OFF+yoff;o.pitch=pitchOver??F[i][3];o.dist=F[i][4];return o.rawPose(g);},get yaw(){return F[i][2]+YAW_OFF+yoff;},set yaw(v){yoff=v-F[i][2]-YAW_OFF;},get pitch(){return pitchOver??F[i][3];},set pitch(v){},get dist(){return F[i][4];},set dist(v){}};st.entry=null;
+ let near=null,nearAt=-1e9,yoff=0,poff=0;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;const o=new FO.FreeOrbit('skycity');let i=0;
+ st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF+yoff;o.pitch=(pitchOver??f[3])+poff;o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){},setPlace(){},seed(){},forget(){},
+  rawPose:(g)=>{o.yaw=F[i][2]+YAW_OFF+yoff;o.pitch=(pitchOver??F[i][3])+poff;o.dist=F[i][4];return o.rawPose(g);},get yaw(){return F[i][2]+YAW_OFF+yoff;},set yaw(v){yoff=v-F[i][2]-YAW_OFF;},get pitch(){return (pitchOver??F[i][3])+poff;},set pitch(v){poff=v-(pitchOver??F[i][3]);},get dist(){return F[i][4];},set dist(v){}};st.entry=null;
  const P=[],act=[];let last=-1,walk=false;
  for(i=0;i<F.length;i++){her=H[i];if(F[i][0]-nearAt>=0.4||(last>=0&&d3(H[i],H[last])>1)){nearAt=F[i][0];near=near18(B,her);}
   const w=!!F[i][12];if(w&&!walk&&typeof st.walkStarted==='function')st.walkStarted('skycity',path);st.groundWalking=w;if(!w&&walk&&endView&&typeof st.walkEndView==='function'){st.exploring=true;st.walkEndView('skycity');}walk=w;
