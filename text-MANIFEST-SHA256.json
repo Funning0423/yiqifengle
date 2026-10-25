@@ -2541,8 +2541,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 14031,
-    "sha256": "971e926e59a452c552a289a1b38e9b9350f62d698599259053692f96386d167a"
+    "bytes": 20912,
+    "sha256": "dd098750a77beab9b1170cc8727075d8c81f53f8bf110cc6ff7a3ed6061e1779"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -3221,8 +3221,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeContinuous.ts",
-    "bytes": 4511,
-    "sha256": "5f8f1c6330fa8eed163b46b7c0b971ac4e760fd477e21e207275edd460f90801"
+    "bytes": 5625,
+    "sha256": "d3ed9be87708d731205f051f9fbf6fc62660ff7e3179d37406be51b7ba7d36c3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeContinuous.ts.meta",
@@ -3431,8 +3431,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 40560,
-    "sha256": "1f6546949914cc230f99ef5e98690c2553dc60277afb26757964981b4298b83b"
+    "bytes": 41772,
+    "sha256": "fa2d80aa9585e2502143821bbe5cb77ad4f1db2af067ba01e6e9b5fd312d4eac"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
@@ -4741,8 +4741,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 20949,
-    "sha256": "ecb26d8c53353be56c5a545b1201a4cd449d482666080c19b60d2ad75eea5f4e"
+    "bytes": 21126,
+    "sha256": "81ee0a6302307f505d71fe3aea95da8343ad57cceb525c860321e412454882aa"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
