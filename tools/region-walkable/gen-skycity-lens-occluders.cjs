@@ -4,7 +4,7 @@
  * b17 skycity-walk-r2: skycity orbit-lens occluder proxies (MODEL-LOCAL metres of env_skycity.glb) ->
  * creator-build-project/assets/scripts/region/SkycityLensOccluders.ts. The sky houses / ruins / walls are merged meshes far over
  * the 14 m cap of RegionNodeStage.refreshOrbitBoxes, so the free-explore lens went into the blue-roof house east of S3
- * (p0drag6). Same recipe as the island proxies (gen-lens-occluders.cjs): 1 m × 0.8 m cells, each the AABB of the triangles that
+ * (p0drag6). b19: cells are the exact triangle ∩ cell extent. Same recipe as the island proxies (gen-lens-occluders.cjs): 1 m × 0.8 m cells, each the AABB of the triangles that
  * touch it, then one box per 1 m column; ground skin dropped (a cell must rise ≥ 0.6 m over the walkable floor under / next to it); only cells within 7 m
  * (plan) of the walkable area and below floor + 8 m (where the orbit lens can be).  Usage: node gen-skycity-lens-occluders.cjs [--check]
  */
@@ -29,6 +29,15 @@ const {load}=require('../region-nodes/load.cjs');const RW=load('region/RegionWal
  for(let i=0;i<g.W*g.H;i++){const y=g.h[i];if(Number.isNaN(y))continue;const x=g.x0+(i%g.W+.5)*g.c,z=g.z0+(((i/g.W)|0)+.5)*g.c,gx=Math.floor(x/C),gz=Math.floor(z/C);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const k=(gx+dx)+','+(gz+dz),f=floorNear.get(k);if(f===undefined||y>f)floorNear.set(k,y);}
   for(let dx=-7;dx<=7;dx++)for(let dz=-7;dz<=7;dz++)if(dx*dx+dz*dz<=49)farOK.add((gx+dx)+','+(gz+dz));}
+ /* b19 skycity-pocket-occluder: exact triangle ∩ cell (Sutherland–Hodgman on the 6 cell planes). The old triangle-AABB ∩ cell
+  * over-reached on slanted / long triangles (column x 11–12 at the pocket wall end counted as wall though the mesh stops at x 11.44).
+  * Still conservative: the result is the exact AABB of the part of the triangle inside the cell, so it never leaves out real mesh. */
+ const clipTri=(T,lo,hi)=>{let P=T.map(v=>v.slice());const E=1e-6;
+  for(let a=0;a<3&&P.length;a++)for(const [lim,sg] of [[lo[a],1],[hi[a],-1]]){const Q=[];
+   for(let i=0;i<P.length;i++){const A=P[i],B=P[(i+1)%P.length],da=sg*(A[a]-lim),db=sg*(B[a]-lim);
+    if(da>=-E)Q.push(A);if((da>=-E)!==(db>=-E)){const t=da/(da-db);Q.push(A.map((v,k)=>v+(B[k]-v)*t));}}P=Q;}
+  if(!P.length)return null;const b=[1e9,1e9,1e9,-1e9,-1e9,-1e9];
+  for(const v of P)for(let a=0;a<3;a++){const x=Math.min(hi[a],Math.max(lo[a],v[a]));b[a]=Math.min(b[a],x);b[a+3]=Math.max(b[a+3],x);}return b;};
  const minFloor=g.minY,cells=new Map();
  doc.nodes.forEach((node,i)=>{if(node.mesh===undefined||!MESH.test(node.name||''))return;const M=glob(i);
   for(const pr of doc.meshes[node.mesh].primitives){const ext=pr.extensions&&pr.extensions.KHR_draco_mesh_compression;if(!ext)continue;
@@ -40,10 +49,10 @@ const {load}=require('../region-nodes/load.cjs');const RW=load('region/RegionWal
    const face=new decMod.DracoInt32Array();
    for(let f=0;f<nf;f++){d.GetFaceFromMesh(mesh,f,face);const T=[0,1,2].map(k=>P[face.GetValue(k)]);
     const lo=[0,1,2].map(a=>Math.min(T[0][a],T[1][a],T[2][a])),hi=[0,1,2].map(a=>Math.max(T[0][a],T[1][a],T[2][a]));
-    // clip the triangle AABB to each 1 m × 0.8 m cell it touches
+    // b19: clip the TRIANGLE itself (not its AABB) to each 1 m × 0.8 m cell it touches; the cell box is the AABB of triangle ∩ cell
     for(let gx=Math.floor(lo[0]/C);gx<=Math.floor(hi[0]/C);gx++)for(let gz=Math.floor(lo[2]/C);gz<=Math.floor(hi[2]/C);gz++){const ck=gx+','+gz;if(!farOK.has(ck))continue;
      for(let gy=Math.floor(lo[1]/CY);gy<=Math.floor(hi[1]/CY);gy++){const k=ck+','+gy;
-      const b=[Math.max(lo[0],gx*C),Math.max(lo[1],gy*CY),Math.max(lo[2],gz*C),Math.min(hi[0],(gx+1)*C),Math.min(hi[1],(gy+1)*CY),Math.min(hi[2],(gz+1)*C)];
+      const b=clipTri(T,[gx*C,gy*CY,gz*C],[(gx+1)*C,(gy+1)*CY,(gz+1)*C]);if(!b)continue;
       let c=cells.get(k);if(!c)cells.set(k,c={ck,b:b.slice()});else for(let a=0;a<3;a++){c.b[a]=Math.min(c.b[a],b[a]);c.b[a+3]=Math.max(c.b[a+3],b[a+3]);}}}}
    [pos,face,mesh,buf,d].forEach(o=>decMod.destroy(o));}});
  const rows=[],col=new Map();
