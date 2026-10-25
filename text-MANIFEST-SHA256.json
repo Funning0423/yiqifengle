@@ -1730,6 +1730,41 @@
     "sha256": "01d1f3a0f7c78ad3c678315d5c6802bb275a6a876b23a368a3f8bc46d2fc9e7d"
   },
   {
+    "path": "creator-build-project/assets/resources/ending.meta",
+    "bytes": 168,
+    "sha256": "3f64fcea2b267dc8e77823bd73e31baf6c11aae941950b5b48d7ac4788f5b871"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_bg_day.jpg.meta",
+    "bytes": 3118,
+    "sha256": "7c42508f555a917d7575363b475d2a920c0472d5510afea897df46b361166cb2"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_bg_night.jpg.meta",
+    "bytes": 3122,
+    "sha256": "5dcd085254e531f0e93fe104fa62b928e7f87c83cd42c4d1ba18d69d01888fcc"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_chime_day.png.meta",
+    "bytes": 3113,
+    "sha256": "cdf248db6ea9641d65fc03be5b6a383761c1eb39a66c5beb992407c1399790c6"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_chime_night.png.meta",
+    "bytes": 3117,
+    "sha256": "4c19bebcbc3e098db6651804a46e9fd9fba14a12c323576f0c59968beacf9f35"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_day.png.meta",
+    "bytes": 3107,
+    "sha256": "a9f26c68152cfdebbd80e93cf54ee4d1370d44e7b4ab8e2039ef036403084fab"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_night.png.meta",
+    "bytes": 3111,
+    "sha256": "ab06e4e559e47c7b5746bc1cf9609023b82db4be4bdf16cfd209d08795c3bd8e"
+  },
+  {
     "path": "creator-build-project/assets/resources/firstslice.meta",
     "bytes": 169,
     "sha256": "159d61f7235de28eb73d496640cbac3b26453a39ce48f411af58ab16d488fd46"
@@ -1916,8 +1951,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 97381,
-    "sha256": "9d5b1d340edbded2881b38085eb9bef28231e7b5973a72b35f0713edf249088b"
+    "bytes": 97548,
+    "sha256": "1ee12ec0e07ea6228bfd6bd4d70234cdbae017649371eecefb55cbbb60bccf30"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -2016,8 +2051,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 107188,
-    "sha256": "d3ac4a1f9e0c4123d580f41bb2aab27c78511200159a4709f6eb6ebc9458a233"
+    "bytes": 109108,
+    "sha256": "3c2290d45ec56f27e2a70a75383604da8b779077563741ad4401919011ab95e8"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -2536,8 +2571,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTrace.ts",
-    "bytes": 3209,
-    "sha256": "4875e094c3d2f003c9fbe46136541aa64f3150e750a1a782256279c29869dd21"
+    "bytes": 3280,
+    "sha256": "82fee1b0142e224e89dbcdade906dbc1a47d48250f310b9ebcb94445abaa76ce"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTrace.ts.meta",
@@ -2796,8 +2831,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensAvoid.ts",
-    "bytes": 2196,
-    "sha256": "ea9ba64726769cc7021d1ee337eda5ec45c7681bc4e2f1528176b27a45914593"
+    "bytes": 4346,
+    "sha256": "eb74df190a7d7487490f78a5df08b60ecbc59eaf13b0324e199b32788c9c1698"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensAvoid.ts.meta",
@@ -2813,6 +2848,16 @@
     "path": "creator-build-project/assets/scripts/region/LensOcclusion.ts.meta",
     "bytes": 171,
     "sha256": "8ea97e14f82da0d639ef66736e89c8f861bdf78e882379edf0bb798447ce575f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LensSmooth.ts",
+    "bytes": 6026,
+    "sha256": "1a7fd49fd88cf483c7980d53cebfc2dc62250c5fcede45146dcbec21ba6aa3e7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/LensSmooth.ts.meta",
+    "bytes": 171,
+    "sha256": "4bee18a3bbd3ee1a048b70ba242ab2584cc2be37427a76238c47eb37e1b6b28f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
@@ -2906,8 +2951,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 42256,
-    "sha256": "23206a148e0049077cead946e546814e2dd3be4ee0fe0c635201c5fbb7a38b8a"
+    "bytes": 42523,
+    "sha256": "6bb7be692b23c6b551de86410b618f1907a049b72c733aae7c359d79797fc6d6"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -2936,8 +2981,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 3980,
-    "sha256": "1c1414d273a4d4d4efbbea6c18ea4a8ca2af51c397619df8b540a40560d29c65"
+    "bytes": 4395,
+    "sha256": "27da1bf8afd00bcac2d89737590611cfe078b2a69bdc3d91f734507b19097f32"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -2976,8 +3021,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkable.ts",
-    "bytes": 11490,
-    "sha256": "1ccab26e782d1f0eb35e928df3503b156b8d2d2f6cdbe5107fa4908c4f409c44"
+    "bytes": 19003,
+    "sha256": "c4eef0215004397457195282b90f172de9a625737709743b1032c76985416c6f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkable.ts.meta",
@@ -2986,8 +3031,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
-    "bytes": 112272,
-    "sha256": "ca4117704bcb08374448a3ac70b4d3e687dadf9eefaebb8f94d7327feb30e218"
+    "bytes": 183349,
+    "sha256": "35512337ee6114ee75ab89f60fc4dbbb61594fa7c8265a4d6feb2ae8074e6392"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
@@ -3136,8 +3181,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts",
-    "bytes": 55993,
-    "sha256": "291dd317abf0842a48c66b0709545fe86050b4789356bd6dcda921ca94b611f8"
+    "bytes": 74114,
+    "sha256": "ac774ed20a16c1f94e69960aaffa7da47182a6279d5715b1ffe18c64023d280b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts.meta",
@@ -3636,8 +3681,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
-    "bytes": 65330,
-    "sha256": "a7436783e412ee2e41aaa576491c2e9c1f0cf37ee9ff8196e852d568eb126301"
+    "bytes": 65432,
+    "sha256": "f9ed8de5022bf8fc24029d17d027d7dfa8e36f61fb512723fbdf95cef6355679"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -3693,6 +3738,16 @@
     "path": "creator-build-project/assets/scripts/ui/DialogBubble.ts.meta",
     "bytes": 171,
     "sha256": "c1d4439f0349021d498123c2530d2f7d775f0737a2e0be4affc13ade8d541f6d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts",
+    "bytes": 6791,
+    "sha256": "15ac81eef40a527545f4a890c8cdb0a68928de6932f91ab356684fdd0ea97b2f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts.meta",
+    "bytes": 171,
+    "sha256": "dcbd958579679cc6aff417d39ab41e09f1d18b5c73db085e8a18c39eebb32e39"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts",
@@ -3805,6 +3860,16 @@
     "sha256": "0c5f00d62d6ee7e71bd83eb597cae99590605915ca4602ba46690003cfec42f6"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/WindWipe.ts",
+    "bytes": 13116,
+    "sha256": "f94679bd71b311189d80c94a979eee9571b48b00561726d9016cc9ab695fa77f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/WindWipe.ts.meta",
+    "bytes": 171,
+    "sha256": "3e408efa4b1331e933bcaa67b3014cc0203ba57c99a19ed90b4c36751b648133"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r1.meta",
     "bytes": 169,
     "sha256": "0bede5c1aaeb25b2d86271d91321381bf701d49a19843d8f53785345bc021df8"
@@ -3911,8 +3976,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 36776,
-    "sha256": "6a98db815383b12532a094f4e539087735dfc65361e15a491dbe5961f593c603"
+    "bytes": 39009,
+    "sha256": "089dd37e0ebe2edc296cebb7fadcec8489f963afbd5a1a833f697e9281070bbf"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
@@ -3931,8 +3996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/ScreenCover.ts",
-    "bytes": 700,
-    "sha256": "a7c87a2d6733cdf0db587075d340cfb4ac36d598566b4eee6c71eec8eeb181f7"
+    "bytes": 5228,
+    "sha256": "a85476cebb4cdd476a7ebe51b52df8a74b8c78ebb1191c55409271745b3adccb"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/ScreenCover.ts.meta",
@@ -3995,6 +4060,16 @@
     "sha256": "6afd89112735e7a686893a50705fb827ee8feca580dd03cedf08b01939988ef2"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts",
+    "bytes": 5504,
+    "sha256": "5c93562c35b4817ff3bff6d46a3f1356ffac2112d4074d8444a8adfe46fe390a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts.meta",
+    "bytes": 171,
+    "sha256": "a9e7129464d7555ee74793a39b361e96150adaecc8f94639615d92fb958c0ce5"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts",
     "bytes": 7567,
     "sha256": "dd016ef35071535f69a61d833365f5d6ea21c016ab06d5cd2442de4e10e3213a"
@@ -4026,8 +4101,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/HomeTransition.ts",
-    "bytes": 2564,
-    "sha256": "0eddfad6fb83fecc85c32a719b2dc962c1ad68df80a8c906002a465faa66a182"
+    "bytes": 3487,
+    "sha256": "4a4ed14aa0d39585975ea8bcaa2754166e7db53e891b6ce8dcbbbe1c4779b94a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/HomeTransition.ts.meta",
@@ -4086,8 +4161,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
-    "bytes": 24756,
-    "sha256": "bece28954248c03f9e456b42549ada7272b64c06c791a0b4cbaefe868927b920"
+    "bytes": 29110,
+    "sha256": "61aff25df24974008af8b5eb014c1ccfe9cf9055738b46affe83291d7be0358f"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",
@@ -4206,8 +4281,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/QaSkip.ts",
-    "bytes": 1627,
-    "sha256": "a5650a0fadb3a3d8e6b06d6e1d95f6695d28f034b7132db18f8c6f4e4739b70e"
+    "bytes": 2684,
+    "sha256": "df56b6bb1614176573e11189a62ac0b4a259eb8810a4bbb67198f81de8593245"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/QaSkip.ts.meta",
@@ -4246,8 +4321,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 64791,
-    "sha256": "56c63de877c6c246e8713c37f28967457b202d798dd3458d52d08ffe9a9c472d"
+    "bytes": 79635,
+    "sha256": "e76a3911cd53746364f53a96fc16f57d0411026c6794a52255a997cb4e1223c6"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4283,6 +4358,16 @@
     "path": "creator-build-project/assets/scripts/world-r2/StartupReadyGate.ts.meta",
     "bytes": 171,
     "sha256": "52c5ed603e2f53d46e82813d425f9ea8bf8de8ee3bf3a6dc49b9170c58b303cf"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/WindWipeCore.ts",
+    "bytes": 10331,
+    "sha256": "b6b3c7922e7f13f9d56c3f503188e35936170b79c2e6d095abb26992f1e32ecb"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/WindWipeCore.ts.meta",
+    "bytes": 171,
+    "sha256": "afb3f9431e5a21fadab3bd8e71114546a82ba43397dd30ab70162e4b44704f19"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
@@ -4416,8 +4501,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 17862,
-    "sha256": "f95eb5a95fbe597560d122a624cf35139694f144ba6b7cd1ce7c1eca22b4afe4"
+    "bytes": 18543,
+    "sha256": "fe0cee01d8d046287f653ae51c081053f34a9c54322f43308a6f00d8f793b1d8"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
@@ -4691,8 +4776,8 @@
   },
   {
     "path": "tools/test_startup_ready_gate.cjs",
-    "bytes": 18169,
-    "sha256": "44c1d3802cf94426b3ad758e13f25dfa917aab9bfd378120fde779f8df0a300c"
+    "bytes": 18269,
+    "sha256": "be330d2e788c78339905fd20aafc919e0df1a5d323040fb25ee2c623dbd9c2e2"
   },
   {
     "path": "tools/test_ui_contrast.cjs",

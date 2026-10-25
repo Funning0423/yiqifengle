@@ -1,4 +1,6 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
+import {coverContent} from '../world-r1/ScreenCover';
+import {wipeContentFor} from '../world-r2/WindWipeCore';
 import {Animation,Camera,Component,Director,Mat4,Material,Mesh,MeshRenderer,Node,Vec3,director,isValid,view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
@@ -220,7 +222,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const ticker=rig.addComponent(LakesideBalloonTicker);
    const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
    const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined;let prev:Node|null=null,aboard=false;
-   const fade=typeof world.fadeCover==='function'?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
+   const fade=typeof world.fadeCover==='function'?(w:number,s:number)=>{/* WindWipe: balloon + 风铃湖畔 on the boarding cover */if(w>=1)coverContent(wipeContentFor('lakeside',true));else if(w<=0)coverContent(null);return Promise.resolve(world.fadeCover!(w,s)).catch(()=>{});}:null;
    let walkDone=false,blackDone=!fade,fadingOut=false,fadingIn=false;
    const diag=diagParams(),diagAt=lakeDiagAt();let diagDone=false;
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
