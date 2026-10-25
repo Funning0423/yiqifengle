@@ -37,3 +37,8 @@ t('lost lake board: caption = the stage failHint (≤16 字), other regions keep
  const tide=API.catalog.find(s=>s.region==='tide');
  assert.deepEqual(Host.resultPresentation({state:'result.saved',result:{outcome:'lost'},active:{stageId:tide.id,region:'tide'}}),{uiResultTitle:'再试一阵风',uiResultCaption:'本局已保存，可以重新挑战',uiStatus:'未通关 · 不发奖励'});});
 console.log('lakeside-retune-b18 hints PASS');
+t('win-replays.json: every lake stage, every seedBank seed replays to a win; last move is a swap (for __qfPreTransition lastAction)',()=>{
+ const J=JSON.parse(fs.readFileSync(path.join(__dirname,'win-replays.json'),'utf8'));assert.equal(J.format,'qf-lake-win-replay-1');
+ for(const s of L){const e=J.stages.find(x=>x.stageId===s.id);assert(e,s.id);assert.equal(e.contentRevision,s.contentRevision);assert.deepEqual(e.replays.map(r=>r.seed),s.seedBank);
+  for(const r of e.replays){const run=API.createSession(s.id,r.seed);r.actions.forEach((a,i)=>{assert(run.act(a),s.id);if(i<r.actions.length-1)assert.equal(run.engine.status,'playing');});assert.equal(run.engine.status,'won');assert.equal(r.lastAction[0],'swap');}}});
+console.log('lakeside-retune-b18 replays PASS');
