@@ -261,7 +261,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     if(lflame&&isValid(lflame,true)){lflame.active=it>0;const k=f.flame;lflame.setScale(k,k,k);}};
    let stepInS:number=SKY_LAKE_CONT.stepInS,inflateTau0=0;let boardFn:()=>void=()=>{};
    if(contLake){
-    const D5=TRANSITION_DURATIONS.seg5a;stepInS=D5.intoBasket+D5.turn180+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
+    const D5=TRANSITION_DURATIONS.seg5a;stepInS=D5.intoBasket+D5.turn180/* 0: turn removed */+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
     // compress: ignition + inflate start during the walk to the basket (finish as she sits); only a remainder delays liftoff
     const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
     sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false});

@@ -22,6 +22,7 @@ import {qaHooksEnabled,qaYawFacing} from './QaSkip';
 import {ISLAND_PROPS,signFrontView} from './IslandPropsLayout';
 import {signShot} from '../region/SignShot';
 import {SKY_FINALE,SKY_FINALE_POSE_LOCAL,skyFinaleApproach,skyFinaleApproachPose} from '../region/SkyFinaleShot';
+import {SKY_DEPARTURE,finaleAutoContinueAtS} from '../region/SkyFinaleDeparture';
 import {onWipeCovered,onWipeRevealed,addWipeBeforeReveal} from '../world-r1/ScreenCover';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
@@ -321,11 +322,15 @@ export class RegionNodeStage extends Component{
   * SKY_FINALE.holdS of no input it calls `go` (the same handler as the 继续旅程 button). The lake set-off's WindWipe covers the
   * hand-off: covered → disarm; beforeReveal waits for any blend of ours to finish; revealed → nothing of ours stays on screen. */
  private finaleArm:{at:number;go:()=>void;timer:any}|null=null;
- armFinaleContinue(go:()=>void,now=Date.now()){this.disarmFinale();if(this.region!=='skycity'||!this.exploring)return false;
-  const a={at:now,go,timer:null as any};a.timer=setInterval(()=>{if(this.finaleArm!==a)return;if(Date.now()-a.at>=SKY_FINALE.holdS*1000){this.disarmFinale();try{go();}catch(e){console.error('finale-continue',e);}}},100);this.finaleArm=a;
+ armFinaleContinue(go:()=>void,now=Date.now()){this.disarmFinale();this.departAt=0;if(this.region!=='skycity'||!this.exploring)return false;
+  const a={at:now,go,timer:null as any};a.timer=setInterval(()=>{if(this.finaleArm!==a)return;if(Date.now()-a.at>=finaleAutoContinueAtS(this.finaleApproachS)*1000/* compress: ease-in + ≥ 2 s gaze (was holdS 5.5) */){this.disarmFinale();try{go();}catch(e){console.error('finale-continue',e);}}},100);this.finaleArm=a;
   if(!this.wipeHooks.length)this.wipeHooks.push(onWipeCovered(()=>this.disarmFinale()),addWipeBeforeReveal(()=>!this.anim),onWipeRevealed(()=>this.disarmFinale()));return true;}
  disarmFinale(){const a=this.finaleArm;this.finaleArm=null;if(a&&a.timer)clearInterval(a.timer);}
  finaleArmed(){return !!this.finaleArm;}
+ /** Departure (auto or 继续旅程): she turns and walks to the basket; from here gestures are swallowed so the walk is never interrupted. */
+ private departAt=0;
+ markFinaleDeparture(now=Date.now()){this.disarmFinale();this.departAt=now;try{(globalThis as any).__QF_SKY_DEPARTURE={at:now};}catch{}}
+ finaleDeparting(now=Date.now()){return this.departAt>0&&this.region==='skycity'&&now-this.departAt<SKY_DEPARTURE.departGuardMaxS*1000;}
  private wipeHooks:(()=>void)[]=[];
  onDestroy(){this.disarmFinale();for(const u of this.wipeHooks.splice(0))try{u();}catch{}}
  private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
@@ -947,6 +952,7 @@ export class RegionNodeStage extends Component{
  }
 
  onGesture(gesture:Gesture,x:number,y:number){
+  if(SKY_DEPARTURE.ignoreGesturesAfterWalk&&this.finaleDeparting())return/* seg 5 walk started: no nudge, no skipWalk */;
   if(this.finaleArm&&(gesture==='drag'||gesture==='pinch'||gesture==='tap'))this.disarmFinale()/* T-02: the player took over */;
   const live=this.exploring&&!this.anim&&(this.lens==='MapExplore'||this.lens==='FollowWalk');
   if(!live){
