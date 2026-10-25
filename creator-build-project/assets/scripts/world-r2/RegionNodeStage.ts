@@ -300,11 +300,18 @@ export class RegionNodeStage extends Component{
   const all=this.skycityAllOccluders(),L=this.skyL,loc=(p:Pose)=>({position:toFrame(L!,p.position) as Vec,target:toFrame(L!,p.target) as Vec,fovVerticalDeg:p.fovVerticalDeg});
   const ap=all&&L?skyFinaleApproach(loc(from),{...SKY_FINALE_POSE_LOCAL},toFrame(L,g),all.map(b=>({min:b.min,max:b.max}))):skyFinaleApproach(from,shot,g,[]);this.finaleApproachS=ap.T;
   await this.blendPath(ap.T,t=>skyFinaleApproachPose(from,shot,g,t,ap.T,ap.dir))/* orbits round her the clear way, never a straight cut */;
+  this.recordFinaleEnd();
   this.openExplore('skycity');
  }
  /** T-02: the baked S6 shot (skycity model-local → world). */
  skyFinalePose():Pose{const [p,t]=this.toWorld('skycity',[SKY_FINALE_POSE_LOCAL.position as Vec,SKY_FINALE_POSE_LOCAL.target as Vec]);return {position:p,target:t,fovVerticalDeg:SKY_FINALE_POSE_LOCAL.fovVerticalDeg};}
  finaleApproachS=0;
+ /** End-of-shot camera state for a later continuous hand-off (pos, rot, fov, velocity). Velocity is zero: the smootherstep
+  * ease-in ends at rest and the shot is held. null until the T-02 shot has settled. */
+ private finaleEnd:{position:Vec;rotation:[number,number,number,number];fovVerticalDeg:number;velocity:Vec;angularVelocityDegS:number;at:number}|null=null;
+ finaleEndCamera(){const e=this.region==='skycity'&&this.exploring?this.finaleEnd:null;return e?{position:[...e.position] as Vec,rotation:[...e.rotation] as [number,number,number,number],fovVerticalDeg:e.fovVerticalDeg,velocity:[...e.velocity] as Vec,angularVelocityDegS:e.angularVelocityDegS,at:e.at}:null;}
+ private recordFinaleEnd(){const p=this.readPose(),q=this.camera?.node?.worldRotation;
+  this.finaleEnd={position:[p.position[0],p.position[1],p.position[2]] as Vec,rotation:q?[q.x,q.y,q.z,q.w]:[0,0,0,1],fovVerticalDeg:p.fovVerticalDeg,velocity:[0,0,0] as Vec,angularVelocityDegS:0,at:Date.now()};}
  private async blendPath(seconds:number,at:(t:number)=>Pose){
   this.orbit.pause();
   const step=(t:number)=>this.writePose(at(Math.min(seconds,Math.max(0,t))));
