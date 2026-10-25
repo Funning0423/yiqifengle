@@ -76,8 +76,9 @@ function flowHarness(){
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'lakeside-flow-'));
  fs.writeFileSync(path.join(dir,'WindWipeCore.js'),ts.transpileModule(fs.readFileSync(S+'world-r2/WindWipeCore.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText.replace('"../world-r1/ScreenCover"','"./ScreenCover"'));
  for(const name of ['CameraPose','WorldFlowCore','RegionJourneyCore','ScreenCover']){
-  fs.writeFileSync(path.join(dir,name+'.js'),ts.transpileModule(fs.readFileSync(S+'world-r1/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText.replace('"../world-r2/WindWipeCore"','"./WindWipeCore"'));
+  fs.writeFileSync(path.join(dir,name+'.js'),ts.transpileModule(fs.readFileSync(S+'world-r1/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText.replace('"../world-r2/WindWipeCore"','"./WindWipeCore"').replace(/"\.\.\/region\//g,'"./'));
  }
+ for(const name of ['TransitionChain','TransitionCamera','EngineAnimStop'])fs.writeFileSync(path.join(dir,name+'.js'),ts.transpileModule(fs.readFileSync(S+'region/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText)/* transitions-continuous deps */;
  const {WorldFlow}=require(path.join(dir,'WorldFlowCore'));
  const J=require(path.join(dir,'RegionJourneyCore'));
  const start=[0,0,3],bank=[0,0.58,23];

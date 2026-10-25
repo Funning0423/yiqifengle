@@ -127,7 +127,7 @@ const tests=[
  ['p0drag10','tools/region-nodes/test_p0drag10.cjs'],/* REAL Mac skxd ro/pock trace replay (drag-event dt=0 writes, hook cuts): per-frame easing, no lens in a box, face+chest occlusion, hook hold, sign front, camTrace occ */
  ['p0drag11','tools/region-nodes/test_p0drag11.cjs'],/* Mac p0drag10 traces: Q0 occ calibration (≥97.5 % frames), Q1 4 slow turns face/chest ≤0.5 s, Q2 nook walk-end facing, Q3 sign from its text side, Q4 teleport ends the walk */
  ['p0drag12','tools/region-nodes/test_p0drag12.cjs'],/* Mac p0drag11 traces: W1 nook walks face/chest ≤0.5 s + no lens in a box while walking, L1 low-angle (12°/20°) replays of the slow turns, Y1 yaw-rate audit, S1 island sign shot: her + whole sign on 7 screens */
- ['p0drag13','tools/region-nodes/test_p0drag13.cjs'],/* Mac p0drag12 traces: O1 slow turns (hook-release rule, eased ≤90°/s ≤200°/s² standing), K1 pocket walks (tap-time plan ≤120°/s ≤300°/s², no lens in a box), R1 written-yaw cap */
+ ['p0drag13','tools/region-nodes/test_p0drag13.cjs'],['transitions-continuous','tools/transitions-continuous/test_transitions_continuous.cjs'],['sky-lake-continuous','tools/transitions-continuous/test_sky_lake_continuous.cjs'],['chain-ggbot','tools/transitions-continuous/test_chain_ggbot.cjs'],/* segment 6 skycity→lakeside without the boarding cover: C1→lift-off→T-03 12 s flight→C2→board, 7 screens *//* no-WindWipe handoff continuity (pos/yaw/FOV/accel caps) + 30 s meadow→skycity ride clock *//* Mac p0drag12 traces: O1 slow turns (hook-release rule, eased ≤90°/s ≤200°/s² standing), K1 pocket walks (tap-time plan ≤120°/s ≤300°/s², no lens in a box), R1 written-yaw cap */
  ['cam-trace','tools/region-nodes/test_cam_trace.cjs'],/* p0drag4b: ?camTrace=1 off = no writes, on = writer ids */
  ['skycity-stand','tools/region-nodes/test_skycity_stand.cjs'],/* p0d5sky: off-walkable explore open → nearest node; __qfTeleport */
  ['lakeside-entry-deck','tools/journey-integration/test-lakeside-entry-deck.cjs'],
@@ -144,6 +144,7 @@ const tests=[
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
+  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
  ['balloon-windsource-bound','tools/journey-integration/test-balloon-windsource-bound.cjs'],
   ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['lakeside-touchdown-timeline','tools/journey-integration/test-lakeside-touchdown-timeline.cjs'],['balloon-sky-dome-yaw','tools/journey-integration/test-balloon-sky-dome-yaw.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['pre-transition','tools/journey-integration/test-pre-transition.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],['island-exit-explore','tools/journey-integration/test-island-exit-explore.cjs'],['island-explore-touch','tools/journey-integration/test-island-explore-touch.cjs'],['lakeside-exit-explore','tools/journey-integration/test-lakeside-exit-explore.cjs'],
@@ -165,6 +166,7 @@ const tests=[
  ['h5-mouse-bridge','tools/h5-mouse/test_h5_mouse_bridge.cjs'],/* b16 P2-1 H5 mouse */
  ['ui-b16-fixes','tools/ui-b16-fixes/test_b16_ui_fixes.cjs'],/* UI设计部 b16: P1 signpost, P2 sky-city night key light, L13 rule guide, r6 lakeside measure_visible gate */
  ['lakeside-lens-guard','tools/journey-integration/test-lakeside-lens-guard.cjs'],/* b17r13: supersedes lakeside-lens-occlusion (LensPullIn, b17r7) */
+ ['transition-spaces','tools/transition-spaces/test-transition-spaces.cjs'],/* b19: transition stance/path data (stances.json) vs d9423886 geometry */
 ];
 /* P0 r16: geometry-heavy checks (real GLB triangles, ~155 s alone) get 360 s; everything else keeps 180 s. */
 const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000};

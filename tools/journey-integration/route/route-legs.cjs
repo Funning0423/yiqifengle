@@ -131,7 +131,7 @@ function lakeLeg(geo,[w,h]){
   handoffs:[{name:'ride end → door lens (touchdown)',a:LB.lakesideDoorRideCamera(R,door,R.T-1e-6,from),b:door},{name:'door→board blend end → lakeside board camera',a:LB.lakesideDoorBlendPose(door,land,1,herAt(R.T+outT+durS)),b:land}],
   start:{name:'skycity follow lens → ride camera(0)',from,controller:null,ride:cam(0)},
   phases:[{id:'walk-to-basket',t0:0,t1:R.cutT},{id:'flight',t0:R.cutT,t1:R.T},{id:'door-hold',t0:R.T,t1:R.T+outT},{id:'door→board blend',t0:R.T+outT,t1:R.T+outT+durS},{id:'board',t0:R.T+outT+durS,t1:TT}],
-  toLocal:p=>rotY(-L.yawDeg,sub(p,L.root)),L,land,timing:{rideT:R.T,cutT:R.cutT,outT,durS}};
+  toLocal:p=>rotY(-L.yawDeg,sub(p,L.root)),L,land,timing:{rideT:R.T,cutT:R.cutT,outT,durS},ride:R,door/* transitions segment 6 test */};
 }
 // ======================= geometry =======================
 async function geometry(){

@@ -1,6 +1,11 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
+import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE} from './TransitionStaging';
+import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
+import {SKY_LAKE_CONT,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
+import {firstMaterial,plankBetween} from './TransitionProps';
+import {sailBoardPaths,sailOffPath} from './TransitionStagingMath';
 import {Animation,Camera,Component,Director,Mat4,Material,Mesh,MeshRenderer,Node,Vec3,director,isValid,sys,view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
@@ -141,7 +146,17 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      const v0=sailVehicle(tl,sr.samples,0),fx=Math.sin(v0.yaw),fz=Math.cos(v0.yaw),p0=sr.samples[0];
      const sit=seatFromBench([p0[0]-fx*0.55,p0[1]+0.06,p0[2]-fz*0.55],v0.yaw);
      const arrival=[step,...walk.slice(1),m0,m1];
-     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,disembark:[standAt.position as Vec,port,step],arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
+     // transitions-continuous (场景设计部 b19 stances): I4 → dock ramp → new I6 → dock_board → gangway → sit (A1/A2);
+     // stand_up → port gangway → landing_step (A5). Dock/gangway art comes later as named nodes; until then swappable placeholders.
+     const bp=sailBoardPaths(start,v0.pos,v0.yaw),off=sailOffPath(berth,vEnd.yaw,step),G=TRANSITION_STAGING.gangway,I=TRANSITION_STAGING.island;
+     const hull=firstMaterial(boat),scn=director.getScene(),has=(n:string)=>!!(scn&&find(scn,n));
+     const props={pier:has('island_dock')?null:plankBetween(rig,'island_dock',[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[0]],[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[1]],I.dockDeck.x[1]-I.dockDeck.x[0],.12,hull),
+      islandPlank:has('sail_gangway')?null:plankBetween(rig,'sail_gangway',I.dockBoard,bp.boat[1],G.widthM,.05,hull),
+      meadowPlank:has('sail_gangway')?null:plankBetween(rig,'sail_gangway_meadow',off[2],off[3],G.widthM,.05,hull)};
+     if(!has('island_dock'))plankBetween(rig,'island_dock_ramp',[-1.4,I.dockRamp.top[0],I.dockRamp.z[0]],[-1.4,I.dockRamp.top[1],I.dockRamp.z[1]],I.dockRamp.x[1]-I.dockRamp.x[0],.08,hull);
+     if(props.meadowPlank)props.meadowPlank.active=false;
+     const sitStart=bp.boat[bp.boat.length-1];
+     sailPlan={total:tl.build05S,approach:bp.toI6,pier:bp.dock.slice(1),plankOn:bp.boat.slice(1,-1),props,deck:sitStart,disembark:off,arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
     }
     token.check();
     // N3: at night the path and windmill dim to x0.6 with the same night weight.
@@ -226,7 +241,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // T-03 + WindWipe: the boarding cover is ONE 'ride' WindWipe (no black fade of ours). Covered → seat her + jump the ride by
    // flightSkipS (clock to cutT); beforeReveal resolves once the ride camera has been placed for 2 frames; the ride clock is frozen
    // at cutT during the hold and runs again from the reveal. Hooks filter kind 'ride' + our id and are removed at segment end.
-   const wipeOn=typeof world.fadeCover==='function',fade=wipeOn?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
+   // transitions-continuous (segment 6, 运镜bot SkyLakeContinuous): no WindWipe boarding. She walks to the basket, the door
+   // opens, she steps in and sits (BASKET_RIDE_POSE.lakeside), the burner ignites and the envelope fills (INFLATE), the 18 s
+   // lift-off T-03 hid under black plays time-compressed (liftS), then T-03's 12 s visible flight unchanged, touchdown/board unchanged.
+   const contLake=continuousTransitions();let sl:SkyLake|null=null,tau=0,boardStarted=false,boarded=false,boardEndTau=0;
+   const wipeOn=!contLake&&typeof world.fadeCover==='function',fade=wipeOn?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
    let walkDone=false,blackDone=!wipeOn,fadingOut=false,fadingIn=false,held=!wipeOn,placed=0;let wipeEv:WipeEvent|null=null;
    const mine=(e:WipeEvent)=>!!wipeEv&&e.kind==='ride'&&e.id===wipeEv.id;
    const unhook=[onWipeCovered(e=>{if(mine(e)){blackDone=true;clock.t=Math.max(clock.t,R.cutT);placed=0;}}),
@@ -236,6 +255,27 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     await fade!(1,WINDWIPE.outS);if(dead)return;emitWipeCovered(wipeEv);const hooks=startWipeBeforeReveal(wipeEv),t0=Date.now();
     await new Promise<void>(res=>{const tick=()=>{const h=(Date.now()-t0)/1000;if(dead||h>=20||(h>=WINDWIPE.holdS&&hooks()&&coverReady()))res();else setTimeout(tick,16);};tick();});
     held=true;coverAudioIn(WINDWIPE.inS);fadingIn=true;await fade!(0,WINDWIPE.inS);emitWipeRevealed(wipeEv);};
+   const ldoor=find(vehicle,'basket_door')||find(vehicle,'basket_door_leaf'),lenv=find(vehicle,'balloon_envelope'),lflame=find(vehicle,'burner_flame');
+   const envHome=lenv&&isValid(lenv,true)?{p:lenv.position.clone(),s:lenv.scale.clone()}:null;
+   const inflate=(it:number)=>{const f=inflateAt(it);if(envHome&&lenv&&isValid(lenv,true))lenv.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
+    if(lflame&&isValid(lflame,true)){lflame.active=it>0;const k=f.flame;lflame.setScale(k,k,k);}};
+   let stepInS:number=SKY_LAKE_CONT.stepInS;let boardFn:()=>void=()=>{};
+   if(contLake){
+    const D5=TRANSITION_DURATIONS.seg5a;stepInS=D5.intoBasket+D5.turn180+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
+    sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:D5.inflate,liftS:D5.liftoff,placeholder:false});
+    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflate(0);if(lflame)lflame.active=false;
+    chainMark('lakeside','C1-basket-in');guardBeforeWalk((actor as any).anim,'C1 walk to basket');}
+   const boardIn=async()=>{
+    let dt0=0;const dStep=()=>{dt0+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,BALLOON_DOOR.openDeg*Math.min(1,Math.max(0,(dt0-BALLOON_DOOR.openDelayS)/BALLOON_DOOR.openS)),0);};
+    director.on(Director.EVENT_BEFORE_DRAW,dStep);
+    try{if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});rideToken.check();
+     const g=girl&&isValid(girl,true)?girl.worldPosition:null,sp=seat.worldPosition;
+     if(g){guardBeforeWalk((actor as any).anim,'C1 step into basket');const here:Vec=[g.x,g.y,g.z],to:Vec=[sp.x,g.y,sp.z],L=Math.hypot(to[0]-here[0],to[2]-here[2]);
+      if(L>.05)await actor.perform({kind:'walk',path:[here,to],duration:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken);
+      try{await actor.perform({kind:'sit',seat:seatFromBench([sp.x,sp.y+BASKET_RIDE_POSE.lakeside.offset[1],sp.z],moored.startYawRad)} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;}}
+     rideToken.check();boardFn();legHide.apply(director.getScene());
+    }finally{director.off(Director.EVENT_BEFORE_DRAW,dStep);if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,0,0);}
+    boarded=true;chainMark('lakeside','C2-ignite-inflate');};
    const diag=diagParams(),diagAt=lakeDiagAt();let diagDone=false;
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    // T-03 (GGbot): arrival trace + board preload from the set-off (P1 45 s: the board preload used to start only at atmosphere
@@ -246,6 +286,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const flightAt=R.cutT+K.boardBlackS/2;let skipReq=false,skipped=false,landedOk:()=>void=()=>{};const landed=new Promise<void>(r=>{landedOk=r;});
    const offSkip=registerLakesideRideSkip(()=>{if(skipReq)return landed;skipReq=true;skipped=true;arrivalMark('skip');return landed;});
    const pub=(t:number,isLanded:boolean)=>publishLakesideRide({t,flightAt,touchdownAt:R.T,skippable:!skipReq&&t>=flightAt&&t<R.T-1,landed:isLanded,skipped});
+   let c4=false;
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
     const off=rideToken.onCancel(()=>{unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);offSkip();publishLakesideRide(null);bad(Error('cancelled'));});
@@ -253,22 +294,31 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      // b15 stand-up v1b (角色动画bot 968be1d1 REPORT): she rides seated 0.494 m behind P0 facing the door (stand_point local
      // 0.032,-0.1,-0.099; basket floor board top = basket y 0), so the stand_up root motion ends on P0 with no turn.
      girl.setPosition(.032,-.1,-.099);girl.setRotationFromEuler(0,moored.seatYawDeg(moored.startYawRad*180/Math.PI),0);};
+    boardFn=()=>board();
     const apply=()=>{
-     const t=Math.min(clock.t,R.T),pos=R.vehicle(t);
+     const t=Math.min(clock.t,R.T),pos=sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
      if(t>=R.cutT)legHide.apply(director.getScene())/* b17: island env_cloud_layer, day and night; skycity untouched */;
-     lastPose=lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);if(t>=R.cutT&&placed<9)placed++;
+     lastPose=sl?sl.cam(tau,from):lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);if(t>=R.cutT&&placed<9)placed++;
      // Web diagnostics (Mac bisect, night lakeside blocker): ?hideNode=a,b hides by exact name every frame of THIS leg too (the
      // BalloonTransit hook only runs on the meadow→skycity leg); ?diagDump=1&lakeDiagAt=t logs every active renderer once at ride time t.
      if(diag.hide.length){const sc=director.getScene();if(sc){const hideIn=(n:Node)=>{if(diag.hide.includes(n.name))n.active=false;for(const c of n.children)hideIn(c);};hideIn(sc);}}
      if(diag.dump&&!diagDone&&diagAt!==null&&clock.t+1e-6>=diagAt){diagDone=true;diagDumpScene(clock.t,'lakeside');}
-     lease.progress!(t<R.cutT?R.walkAt(t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
+     lease.progress!(t<R.cutT?R.walkAt(sl?Math.min(tau,R.walkS):t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
     };
     beforeDraw=()=>{if(!dead)apply();};
     director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
     ticker.step=(dt)=>{
      const hidden=typeof document!=='undefined'&&!!document.hidden;
+     if(sl){const d=hidden?0:Math.max(0,Math.min(.1,dt));
+      if(tau<sl.walkS)tau=Math.min(sl.walkS,tau+d);
+      else if(!boarded){if(walkDone&&!boardStarted){boardStarted=true;void boardIn().catch(bad);}tau=Math.min(boardEndTau-1e-3,tau+d);}
+      else{const prevTau=tau;tau=Math.max(tau,boardEndTau)+d;if(tau<sl.flightAt)inflate(tau-boardEndTau);else if(prevTau<sl.flightAt){inflate(INFLATE.durationS);chainMark('lakeside','C3-flight');}}
+      clock.t=sl.rideT(tau);if(!(clock.t+1e-4<R.T)&&!c4){c4=true;chainMark('lakeside','C4-settle');}
+      apply();pub(clock.t,false);
+      if(clock.t+1e-4>=R.T){off();unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
+      return;}
      const next=stepTransitClock(clock,dt,hidden);
      const resumed=clock.fade<=0&&next.fade>0;
      // the shot clock waits for her: at the basket until the walk has really ended, in the black until the cover is down
@@ -366,7 +416,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
        lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt,sw);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
     ticker.step=tailStep;
     const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
-    await waitUntil(moored.T0);rideToken.check();qaMark('door');
+    await waitUntil(moored.T0);rideToken.check();qaMark('door');if(contLake)chainMark('lakeside','C5-door-walk-out');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
     await waitUntil(moored.walkStartAt);
     const SD=LAKESIDE_STEPDOWN,av=actor as any,hasSd=!!(av.rig?.has?.(SD.clip)&&typeof av.playNamed==='function');

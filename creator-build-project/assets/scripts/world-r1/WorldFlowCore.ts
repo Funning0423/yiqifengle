@@ -462,6 +462,7 @@ export class WorldFlow {
     if(!(this.stable==='island'||this.stable==='meadow'||this.stable==='skycity'))return {ok:false,reason:'journey-wrong-origin'};
     return this.operate('region-loading',async token=>{
       const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
+      (this.journey as any).bindWorld?.(this.world)/* transitions-continuous: the >3 s fallback cover */;
       await this.journey!.prepare(target,pose.controllerRoot,token);token.check();
       this.world!.setLayers(ISLAND);this.world!.setRoomLightWeight?.(0);this.character!.setVisible(true);
       this.change('region-travel');await this.journey!.walk(this.character!,this.world!,token);token.check();
@@ -635,7 +636,7 @@ export class WorldFlow {
   }
   advance(seconds:number):void {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
-    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world,Math.min(seconds,.1));}
+    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){try{(globalThis as any).__qfInstallPlayerAnim?.(this.character);}catch{}/* __QF_PLAYER_ANIM for QA (TransitionChain) */;this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world,Math.min(seconds,.1));}
   }
   /** r4.1 (Grok Bot, Mac evidence C_show_snapback_strip): a background trip during the home exit or the walk home no
    *  longer cancels it. V1 cancelled the transition (token + jobs), restore()d the stable pose (home = the seat) and on

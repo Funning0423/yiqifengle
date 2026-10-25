@@ -1,0 +1,366 @@
+{
+ "format": "qf-transition-cam/1",
+ "note": "PLACEHOLDER anchors (her-relative, feet origin, her yaw). Final world anchors come from 场景设计部 path JSON; not loaded by the game yet.",
+ "segments": {
+  "A1-dock-walk": {
+   "id": "A1-dock-walk",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "A2-board": {
+   "id": "A2-board",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "A3-setoff": {
+   "id": "A3-setoff",
+   "placeholder": true,
+   "space": "her",
+   "mode": "stand",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "A4A5-arrive-disembark": {
+   "id": "A4A5-arrive-disembark",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "A6-meadow-first": {
+   "id": "A6-meadow-first",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "B1-basket-in": {
+   "id": "B1-basket-in",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "B2-ignite": {
+   "id": "B2-ignite",
+   "placeholder": true,
+   "space": "her",
+   "mode": "stand",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "B4B5-skycity-out": {
+   "id": "B4B5-skycity-out",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "C1-sky-basket-in": {
+   "id": "C1-sky-basket-in",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  },
+  "C2-lakeside-out": {
+   "id": "C2-lakeside-out",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ]
+  }
+ }
+}

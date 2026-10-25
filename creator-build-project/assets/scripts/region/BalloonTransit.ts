@@ -13,9 +13,13 @@ import {emitTransitCue} from './TransitAudioHooks';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {gradeSkycityCloudsea,gradeSkycityNight} from './SkycityNightApply';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,doorAngleAt,doorInAngleAt,guardBeforeWalk,inflateAt} from './TransitionChain';
+import {TRANSITION_DURATIONS,TRANSITION_STAGING} from './TransitionStaging';
+import {basketToWorld,pathLength} from './TransitionStagingMath';
+import {seatFromBench} from './TransportLeg';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
- ISLET_NODES, ISLETS_ON_T, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
+ ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
  SEAM_T, STRATA_OFF_T, balloonIllumFactor, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
@@ -373,7 +377,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const cityNightDimmed=new WeakSet<MeshRenderer>();
   let canopyClipped=false;
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
+  const contChain=continuousTransitions();
   const handoffFade=(t:number):number=>{
+   if(contChain)return 0/* transitions-continuous: no black blink at the landing handoff */;
    if(t<HANDOFF_FADE_T0)return 0;
    if(t<HANDOFF_COVER_T)return (t-HANDOFF_FADE_T0)/(HANDOFF_COVER_T-HANDOFF_FADE_T0);
    if(t<HANDOFF_FADE_T1)return 1;
@@ -516,7 +522,45 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const driver=rig.addComponent(TransitDriver);
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;
-   if(girl&&isValid(girl,true)){girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
+   const door=find(vehicle,'basket_door')??find(vehicle,'basket_door_leaf'),envelope=find(vehicle,'balloon_envelope');
+   const anim=(actor as any).anim||null;
+   let seatDef:any=null,seated=false,s0End:Vec|null=null;
+   const walkTo=(path:Vec[],secs?:number)=>{let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);
+    return L>0.05?actor.perform({kind:'walk',path,duration:secs&&secs>0?secs:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken):Promise.resolve();};
+   const vYawDeg=()=>{const v=plan.vehicle(0);return v.yaw*180/Math.PI;};
+   if(contChain&&girl&&isValid(girl,true)){
+    // B1 (transitions-continuous): she walks from the last meadow stop to the basket door, the door opens (door_reach), she
+    // steps in to stand_point and the door closes behind her. Basket at its t=0 pose; lens = the ride's first pose (handoff blend).
+    chainMark('balloon','B1-basket-in');
+    const v0=plan.vehicle(0);vehicle.setWorldPosition(v0.pos[0],v0.pos[1],v0.pos[2]);{const qq=balloonQuat(v0.yaw*180/Math.PI,v0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);}
+    if(flame)flame.active=false;
+    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));world.setCamera(plan.camera(0));paint(0);if(flame)flame.active=false;
+     if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
+    let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
+    try{
+     const B=TRANSITION_STAGING.basket,D3=TRANSITION_DURATIONS.seg3,o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),W=(l:Vec)=>basketToWorld(o,y,l);
+     const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=[here,W(B.outside),W(B.doorOut)];
+     guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps));rideToken.check();
+     doorAt=b1;const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();await reach;rideToken.check();
+     guardBeforeWalk(anim,'B1 step into basket');await walkTo([W(B.doorOut),W(B.stool),W(B.threshold),W(B.p0)],D3.intoBasket);rideToken.check();inAt=b1;
+     // b19: ridden SEATED (sit_down → sit_hold; stand_up before any walk at B5), seat = basket (0.032,0,−0.099) facing the door
+     seatDef=seatFromBench(W(B.seat),(y+B.seatYawDeg)*Math.PI/180);
+     try{await actor.perform({kind:'sit',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B1 sit skipped: '+String(e));}
+     rideToken.check();seated=true;
+    }finally{b1On=false;director.off(Director.EVENT_BEFORE_DRAW,b1Draw);}
+   }
+   if(girl&&isValid(girl,true)){if(seated)girl.setParent(vehicle,true)/* seated root kept where sit_down put it */;else{girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}}
+   if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);
+   // B2 inflate: the ride clock waits at 0 while the envelope fills (INFLATE.durationS), burner brightness synced.
+   const envHome=envelope&&isValid(envelope,true)?{p:envelope.position.clone(),s:envelope.scale.clone(),drop:NaN}:null;
+   let inflateT=contChain&&envHome?0:INFLATE.durationS;let inflateMarked=false;
+   const applyInflate=()=>{if(!envHome||!envelope||!isValid(envelope,true))return;const f=inflateAt(inflateT);
+    if(!Number.isFinite(envHome.drop)){envHome.drop=0;try{let lo=Infinity;for(const r of envelope.getComponentsInChildren(MeshRenderer)){const b:any=(r as any).model?.worldBounds;if(b)lo=Math.min(lo,b.center.y-b.halfExtents.y);}
+      const ps=envelope.parent?envelope.parent.worldScale.y:1;if(Number.isFinite(lo))envHome.drop=(lo-envelope.worldPosition.y)/(ps||1);}catch{envHome.drop=0;}}
+    envelope.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
+    envelope.setPosition(envHome.p.x,envHome.p.y+envHome.drop*envHome.s.y*(1-f.sy),envHome.p.z)/* bottom stays on the burner ring */;
+    if(flame){flame.active=inflateT>0;const k=f.flame*(1+0.12*Math.sin(inflateT*18));flame.setScale(k,k,k);}};
+   if(inflateT<INFLATE.durationS)applyInflate();
    const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
    /* call with the actor as `this`: FlowReferenceStandin.setWindSource is a class method (unbound call threw "Cannot set properties of undefined (setting 'windSource')" -> journey failed) */if(setWind)setWind.call(actor,()=>0.35);
    const hold=holdAt();
@@ -526,7 +570,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const cues:Array<[number,string]>=Object.entries(json.cues).map(([name,t])=>[t,name]).sort((a,b)=>a[0]-b[0]);
    let dcWorst=0,dcAt=0,frames=0,lastFade=-1;
    const apply=()=>{
-    const t=Math.max(0,Math.min(plan.total,clock.t));
+    const t=Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)));/* transitions: 30 s ride clock → 36 s flight file */
     const sample=plan.vehicle(t);
     vehicle.setWorldPosition(sample.pos[0],sample.pos[1],sample.pos[2]);
     const qq=balloonQuat(sample.yaw*180/Math.PI,sample.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
@@ -542,26 +586,53 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     }
     return t;
    };
-   beforeDraw=()=>{if(!dead)apply();};
+   let flightMarked=!contChain,settleMarked=!contChain;
+   beforeDraw=()=>{if(!dead){apply();if(inflateT<INFLATE.durationS)applyInflate();}};
    director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
    await new Promise<void>((ok,bad)=>{
     const off=rideToken.onCancel(()=>bad(Error('cancelled')));
     driver.step=(dt)=>{
      const hidden=typeof document!=='undefined'&&!!document.hidden;
-     if(!(hold!=null&&clock.t>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
-     const t=apply();
+     if(inflateT<INFLATE.durationS){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}if(!hidden)inflateT=Math.min(INFLATE.durationS,inflateT+Math.max(0,Math.min(.1,dt)));}
+     else if(!(hold!=null&&rideToFlightT(clock.t)>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
+     const t=apply();if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
+     if(contChain&&inflateT>=INFLATE.durationS&&!flightMarked){flightMarked=true;chainMark('balloon','B3-flight');}
+     if(contChain&&!settleMarked&&clock.t>=BALLOON_DOOR.settleT0){settleMarked=true;chainMark('balloon','B4-settle');}
      for(const [ct,name] of cues){if(fired.has(name)||t<ct||hidden)continue;fired.add(name);emitTransitCue(name as any,{t,region:balloonCueRegion(name),id:name});}
      let dc=0;try{dc=Number((director as any).root?.device?.numDrawCalls)||0;}catch{dc=0;}
      frames++;if(dc>dcWorst){dcWorst=dc;dcAt=t;}
      const beat=plan.beats.find(b=>t>=b.t0&&t<b.t1)?.id??'board';
-     (globalThis as any).__QF_BALLOON={t,total:plan.total,beat,alt:plan.vehicle(t).pos[1]-plan.launch[1],wind:0.35,night,meadow:t<MEADOW_OFF_T,city:t>=CITY_ON_T,dc,dcWorst,dcAt,frames,hold:hold!=null&&t>=(hold??0)-1e-3,seam:t>=SEAM_T,far:t>=FAR_CARD_ON_T&&t<MEADOW_OFF_T?false:t>=FAR_CARD_ON_T,seaPlan:SEA_PLAN};
+     (globalThis as any).__QF_BALLOON={t,rideT:clock.t,rideTotal:RIDE_DURATION,total:plan.total,beat,alt:plan.vehicle(t).pos[1]-plan.launch[1],wind:0.35,night,meadow:t<MEADOW_OFF_T,city:t>=CITY_ON_T,dc,dcWorst,dcAt,frames,hold:hold!=null&&t>=(hold??0)-1e-3,seam:t>=SEAM_T,far:t>=FAR_CARD_ON_T&&t<MEADOW_OFF_T?false:t>=FAR_CARD_ON_T,seaPlan:SEA_PLAN};
      if(t>=plan.total&&hold==null){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);driver.step=()=>{};ok();}
     };
    });
    rideToken.check();
    if(setWind)setWind.call(actor,()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
-   if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
-   actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:plan.vehicle(LAND_T).yaw});
+   if(envHome&&envelope&&isValid(envelope,true)){envelope.setScale(envHome.s);envelope.setPosition(envHome.p);}
+   if(contChain&&girl&&isValid(girl,true)){
+    // B5 (after the B4 settle 29–30 s): the door opens (door_reach), she leaves stand_point over the sill and walks to the first
+    // sky-city stop (plan.s0). No teleport: the actor is reset to where she stands, then walks.
+    chainMark('balloon','B5-door-walk-out');
+    const vp=vehicle.worldPosition,o:Vec=[vp.x,vp.y,vp.z],y=vehicle.eulerAngles.y;
+    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;b5+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(door&&isValid(door,true))door.setRotationFromEuler(0,doorAngleAt(b5),0);};
+    director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
+    try{
+     const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);
+     const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);
+     const city=(l:Vec):Vec=>{if(!model)return l;const v=new Vec3(l[0],l[1],l[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];};
+     guardBeforeWalk(anim,'B5 stand up');
+     if(seated&&seatDef){try{await actor.perform({kind:'stand',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B5 stand skipped: '+String(e));}}
+     rideToken.check();await new Promise<void>(r=>setTimeout(r,D4.pause*1000));b5=0/* door clock starts with door_reach */;
+     const gw=girl.worldPosition,here:Vec=[gw.x,gw.y,gw.z];
+     actor.cancelAndReset({kind:'standing',controllerRoot:here,yawRad:(y+0)*Math.PI/180});
+     guardBeforeWalk(anim,'B5 door reach');if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});
+     rideToken.check();guardBeforeWalk(anim,'B5 walk out');
+     await walkTo([here,W(B.threshold),W(B.doorOut),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
+     await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
+     s0End=city(K.s0New);(lease as any).tail=true/* she ends on the b19 S0: the controller must not reset her to the old route end */;
+    }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);}
+   }else if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
+   actor.cancelAndReset({kind:'standing',controllerRoot:s0End||plan.s0,yawRad:s0End?TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?model.eulerAngles.y*Math.PI/180:0):plan.vehicle(LAND_T).yaw});
    arrived=true;
    if(model){model.active=true;showNamed(model,ISLET_NODES,true);}
    paint(plan.total);

@@ -1,4 +1,6 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
+import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
+import {preloadTargetForStage} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -78,7 +80,8 @@ export class WorldNativeComposition extends Component {
   private initialization:Promise<void>|null=null;private pendingJourneySelection:Selection|null=null;
   /** Boot awaits actual world validation; Creator start shares the same promise. */
   initializeWorld():Promise<void>{if(!this.initialization)this.initialization=this.initializeOnce();return this.initialization;}
-  start(){void this.initializeWorld().catch(error=>console.error('World composition initialization failed',error));}
+  private skyLakeOff:(()=>void)|null=null;
+  start(){try{if(!this.skyLakeOff&&typeof registerSkyLakeContinuous==='function')this.skyLakeOff=registerSkyLakeContinuous(this as any)/* T-02 → segment 6 continuous */;}catch{/* hook optional: fallback = enterMainline */}void this.initializeWorld().catch(error=>console.error('World composition initialization failed',error));}
   private async initializeOnce(){
     if(!this.firstsliceModel||!this.worldCamera||!this.smokeFixture)throw Error('Bind combined prefab, dedicated world camera and R4 smoke fixture');
     installR5PersistenceProbe();
@@ -136,7 +139,8 @@ export class WorldNativeComposition extends Component {
     else if(region==='meadow'||region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&(region==='meadow'?requiresMeadowScene(selection):requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
     if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
-    if(result.ok&&selection.stageId==='mainline-04'){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload('meadow');}
+    // transitions-continuous: the last level of a region warms the next region + its vehicle (04 meadow+sail, 08 skycity+balloon, 12 lakeside+balloon)
+    {let target:string|null=null;try{target=result.ok?preloadTargetForStage(selection.stageId):null;}catch{target=null;}if(target){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload(target);}}
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
     return result;
@@ -225,6 +229,18 @@ export class WorldNativeComposition extends Component {
   mainlineStatus(){return this.mainline.createController().snapshot();}
   mainlineStorage(){return this.mainline.inspect();}
   challengeGates(){return {r4:new (R4 as any)({platform:this.r4.platform,journey:this.mainline.journey}).snapshot().stages,r5:(RegionalAPI as any).catalog.filter((x:any)=>x.ordinal===1).map((x:any)=>({id:x.id,region:x.region,...(CampaignHost as any).inspectSelection(this.persistence,{stageId:x.id,seed:x.seedBank[0]})}))};}
+  /** T-02 continuation hook. The sky-finale auto-continue and the 继续旅程 button both call continueFromSkyFinale(). A continuous
+   * skycity→lakeside segment (walk to the basket, door, board, ignition, take-off; built elsewhere) registers here and gets the
+   * end-of-shot camera {position, rotation, fovVerticalDeg, velocity, angularVelocityDegS}; returning true means it took over.
+   * When nothing is registered or every handler declines, the fallback is the existing enterMainline() path (WindWipe 'ride'). */
+  private skyContinueHandlers:((camera:any)=>boolean|void)[]=[];
+  onSkyFinaleContinue(handler:(camera:any)=>boolean|void){this.skyContinueHandlers.push(handler);return ()=>{this.skyContinueHandlers=this.skyContinueHandlers.filter(h=>h!==handler);};}
+  skyFinaleActive(){try{return !!(this.stage() as any)?.finaleEndCamera?.();}catch{return false;}}
+  async continueFromSkyFinale(){const stage=this.stage() as any;let camera=null;try{camera=stage?.finaleEndCamera?.()??null;stage?.disarmFinale?.();}catch{/* optional */}
+    for(const h of [...this.skyContinueHandlers]){try{if(h(camera)===true)return {ok:true,via:'continuous'} as any;}catch(error){console.error('sky-finale-continue',error);}}
+    return this.enterMainline();}
+  /** 继续旅程: from the held sky finale go through the continuation hook; elsewhere the plain mainline entry. */
+  continueJourney(){return this.skyFinaleActive()?this.continueFromSkyFinale():this.enterMainline();}
   async enterMainline(){const s=this.mainlineStatus();if(s.active?.status!=='playing'&&(RegionCampaign as any).canEnterRegion(s.journey,'lakeside').ok)return this.enterRegion('lake');const id=s.active?.status==='playing'?s.active.stageId:s.nextStageId||s.stages.find((x:any)=>x.unlocked&&!x.record?.bestStars)?.id||'mainline-12';return this.enterMainlineStage(id);}
   async enterMainlineStage(stageId:string,seed=1){const selected=this.selectProvider({provider:'mainline',stageId,seed});return selected.ok?this.enterSelectedLevel():selected;}
   async advanceMainline(){
@@ -356,6 +372,10 @@ export class WorldNativeComposition extends Component {
      await (this.boundCharacter as any).__qfWalkTail?.done;
      stage.bindCharacter(this.boundCharacter);
      try{await stage.playFinale(this.boundCharacter);}catch(error){console.error('region-node-finale',error);}
+     /* T-02: once the region reward is claimed, the held sky shot auto-continues after SKY_FINALE.holdS of no input (same
+      * handler as 继续旅程; any drag/tap cancels it and the button stays). */
+     const r=this.mainlineReward('claimRegion',index);if((r as any)?.ok!==false)try{stage.armFinaleContinue?.(()=>{void this.continueFromSkyFinale();});}catch{/* optional */}
+     return r;
     }
     return this.mainlineReward('claimRegion',index);
   }
