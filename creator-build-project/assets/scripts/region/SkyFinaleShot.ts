@@ -54,7 +54,12 @@ export function skyFinaleShot(feet:readonly number[],faceYawRad:number,ring:read
  * (A2 — a ring arc across ≥60 % of the frame width with fov ≤ 60 and no up-tilt — has no pose: the ring never enters the upper frame).
  * Rear 3/4 (50° off her back), 6 m arm, lens 1.3 m up, fov 45; found by a real-mesh search (clearance ≥ 1.1 m, head/chest clear,
  * city share) and baked so the player build does no search. test_t02_sky_final checks it per screen. skycity model-local. */
-export const SKY_FINALE_POSE_LOCAL={position:[6.845,1.342,-26.291] as V3,target:[-3.199,2.342,-26.649] as V3,fovVerticalDeg:45};
+/** b19 P1 (界面验收部 d3fe578e: parked under the city, underside 69 % of the upper half, sky 5.6 %): pulled back 8.5 m out from
+ *  under the canopy, rear 3/4 (25° off her back), lens 1.5 m up, pitched 2° UP toward the distant city, her on the left third with
+ *  lead room toward the city. Proxy (env_skycity.glb rays): sky 40.9–48 %, underside ≤ 21.9 % of the upper half, 7 screens.
+ *  Old option C pose kept as SKY_FINALE_POSE_LOCAL_C for before/after. */
+export const SKY_FINALE_POSE_LOCAL={position:[1.972,1.542,-18.668] as V3,target:[0.377,1.839,-27.012] as V3,fovVerticalDeg:45};
+export const SKY_FINALE_POSE_LOCAL_C={position:[6.845,1.342,-26.291] as V3,target:[-3.199,2.342,-26.649] as V3,fovVerticalDeg:45};
 /** Approach seconds from the walk lens to the shot under the standing yaw cap: blendPose is smootherstep (peak rate 1.875·Δ/T,
  * peak acceleration ≈ 5.77·Δ/T²), so T ≥ 1.875·Δ/V and T ≥ √(5.77·Δ/A) with V = 90°/s, A = 200°/s² (5 % margin). Δ = the larger of
  * the view-direction turn and the turn of the lens round her. */

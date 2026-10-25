@@ -18,7 +18,7 @@ const ROOT=path.resolve(__dirname,'../..');
 const B=X.SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));
 const segs=NW.planWalk('skycity','S4','S6').segments,last=segs[segs.length-1].path,pa=last[last.length-2],feet=last[last.length-1],face=Math.atan2(feet[0]-pa[0],feet[2]-pa[2]);
 const res={};let all=true;const ok=(k,v,d)=>{res[k]={ok:!!v,...d};all=all&&!!v;};
-const NEW=F.SKY_FINALE_POSE_LOCAL,OLD=C.finaleLook(feet,[-0.238,20,-24.327]);
+const NEW=F.SKY_FINALE_POSE_LOCAL,OLD=F.SKY_FINALE_POSE_LOCAL_C/* before = option C (86437547) */;
 // F2
 const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.position,p.target,p.fovVerticalDeg,W,H,feet)*100).toFixed(1),ringPct:+(F.ringShare(p.position,p.target,p.fovVerticalDeg,W,H,F.STAR_RING_LOCAL)*100).toFixed(1),herMargin:+LS.herMargin(p.position,p.target,p.fovVerticalDeg,feet,[[W,H]]).toFixed(2)}));
 {const a=frame(NEW),b=frame(OLD);ok('F2',a.every(s=>s.herMargin>=0&&s.herPct>=20),{after:a,before:b});}
@@ -45,8 +45,8 @@ const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.pos
   const vc=d1*d4-d3*d2;if(vc<=0&&d1>=0&&d3<=0){const v=d1/(d1-d3);return Math.hypot(a[0]+ab[0]*v-p[0],a[1]+ab[1]*v-p[1],a[2]+ab[2]*v-p[2]);}const cp=sub(p,c),d5=dot(ab,cp),d6=dot(ac,cp);if(d6>=0&&d5<=d6)return Math.hypot(...cp);
   const vb=d5*d2-d1*d6;if(vb<=0&&d2>=0&&d6<=0){const w=d2/(d2-d6);return Math.hypot(a[0]+ac[0]*w-p[0],a[1]+ac[1]*w-p[1],a[2]+ac[2]*w-p[2]);}const va=d3*d6-d5*d4;
   if(va<=0&&(d4-d3)>=0&&(d5-d6)>=0){const w=(d4-d3)/((d4-d3)+(d5-d6));return Math.hypot(b[0]+(c[0]-b[0])*w-p[0],b[1]+(c[1]-b[1])*w-p[1],b[2]+(c[2]-b[2])*w-p[2]);}const den=1/(va+vb+vc),v=vb*den,w=vc*den;return Math.hypot(a[0]+ab[0]*v+ac[0]*w-p[0],a[1]+ab[1]*v+ac[1]*w-p[1],a[2]+ab[2]*v+ac[2]*w-p[2]);}
- function ray(o,u,maxT,skipFar=false,skipRx=null){let best=maxT,hit=-1;for(const t of T){if(skipFar&&t.far)continue;if(skipRx&&skipRx.test(names[t.n]))continue;const w=[t.cx-o[0],t.cy-o[1],t.cz-o[2]],s=dot(w,u);if(s<-t.r||s-t.r>best)continue;const q=dot(w,w)-s*s;if(q>t.r*t.r)continue;
-  const e1=sub(t.b,t.a),e2=sub(t.c,t.a),p=cr(u,e2),det=dot(e1,p);if(Math.abs(det)<1e-9)continue;const inv=1/det,tv=sub(o,t.a),uu=dot(tv,p)*inv;if(uu<0||uu>1)continue;const qv=cr(tv,e1),vv=dot(u,qv)*inv;if(vv<0||uu+vv>1)continue;const d=dot(e2,qv)*inv;if(d>0.05&&d<best){best=d;hit=t.n;}}return {t:best,name:hit>=0?names[hit]:''};}
+ function ray(o,u,maxT,skipFar=false,skipRx=null){let best=maxT,hit=-1,bt=null;for(const t of T){if(skipFar&&t.far)continue;if(skipRx&&skipRx.test(names[t.n]))continue;const w=[t.cx-o[0],t.cy-o[1],t.cz-o[2]],s=dot(w,u);if(s<-t.r||s-t.r>best)continue;const q=dot(w,w)-s*s;if(q>t.r*t.r)continue;
+  const e1=sub(t.b,t.a),e2=sub(t.c,t.a),p=cr(u,e2),det=dot(e1,p);if(Math.abs(det)<1e-9)continue;const inv=1/det,tv=sub(o,t.a),uu=dot(tv,p)*inv;if(uu<0||uu>1)continue;const qv=cr(tv,e1),vv=dot(u,qv)*inv;if(vv<0||uu+vv>1)continue;const d=dot(e2,qv)*inv;if(d>0.05&&d<best){best=d;hit=t.n;bt=t;}}let ny=0;if(bt){const n=cr(sub(bt.b,bt.a),sub(bt.c,bt.a)),l=Math.hypot(...n)||1;ny=n[1]/l;if(dot(n,u)>0)ny=-ny;}return {t:best,name:hit>=0?names[hit]:'',ny};}
  const blocked=(o,q,skip=null)=>{const d=sub(q,o),L=Math.hypot(...d),r=ray(o,d.map(v=>v/L),L-0.35,false,skip);return r.name;};
  const RING_SELF=/starring|state_ring/;
  const minClear=p=>{let m=Infinity,nm='';for(const t of T){if(Math.hypot(p[0]-t.cx,p[1]-t.cy,p[2]-t.cz)-t.r>m)continue;const d=dPT(p,t.a,t.b,t.c);if(d<m){m=d;nm=names[t.n];}}return {m,nm};};
@@ -59,12 +59,15 @@ const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.pos
  const head=[feet[0],feet[1]+1.45,feet[2]],chest=[feet[0],feet[1]+1.05,feet[2]];
  const CITY=/ruins|state_(court|gate|bridge)|windcore|windchime|greattree|static_palette|static_rock|islets_far|floatingrocks/,RUINS=/ruins|state_(court|gate|bridge)/;
  const cityOf=(pose,W,H,nx=18,ny=38)=>{const f=sub(pose.target,pose.position),fl=Math.hypot(...f);for(let i=0;i<3;i++)f[i]/=fl;let r=[-f[2],0,f[0]];const rl=Math.hypot(r[0],r[2]);r=[r[0]/rl,0,r[2]/rl];const u=cr(r,f);
-  const tv=Math.tan(pose.fovVerticalDeg*Math.PI/360),th=tv*W/H;let city=0,ruins=0,sky=0;for(let iy=0;iy<ny;iy++)for(let ix=0;ix<nx;ix++){const sx=((ix+.5)/nx*2-1)*th,sy=((iy+.5)/ny*2-1)*tv;const d=[f[0]+r[0]*sx+u[0]*sy,f[1]+r[1]*sx+u[1]*sy,f[2]+r[2]*sx+u[2]*sy],l=Math.hypot(...d);
-   const h=ray(pose.position,d.map(v=>v/l),400);if(!h.name)sky++;else if(h.t>5&&CITY.test(h.name)){city++;if(RUINS.test(h.name))ruins++;}}const N=nx*ny;return {cityPct:+(city/N*100).toFixed(1),ruinsPct:+(ruins/N*100).toFixed(1),skyPct:+(sky/N*100).toFixed(1)};};
+  const tv=Math.tan(pose.fovVerticalDeg*Math.PI/360),th=tv*W/H;let city=0,ruins=0,sky=0,und=0,up=0;for(let iy=0;iy<ny;iy++)for(let ix=0;ix<nx;ix++){const sx=((ix+.5)/nx*2-1)*th,sy=((iy+.5)/ny*2-1)*tv;const d=[f[0]+r[0]*sx+u[0]*sy,f[1]+r[1]*sx+u[1]*sy,f[2]+r[2]*sx+u[2]*sy],l=Math.hypot(...d);
+   const h=ray(pose.position,d.map(v=>v/l),400);if(sy>0){up++;if(h.name&&h.ny<-0.25)und++;}if(!h.name)sky++;else if(h.t>5&&CITY.test(h.name)){city++;if(RUINS.test(h.name))ruins++;}}const N=nx*ny;return {cityPct:+(city/N*100).toFixed(1),ruinsPct:+(ruins/N*100).toFixed(1),skyPct:+(sky/N*100).toFixed(1),undersideUpperPct:+(und/up*100).toFixed(1)};};
  const per=C.SCREENS.map(([W,H])=>({screen:W+'x'+H,after:cityOf(NEW,W,H),before:cityOf(OLD,W,H)}));const cl=minClear(NEW.position);
- /* city reads: ≥ 50 % of the frame is skycity structure beyond 5 m, ≥ 8 % is ruins/court/gate/bridge, sky ≤ 40 % — every screen */
- ok('F3',cl.m>=1.1&&!blocked(NEW.position,head)&&!blocked(NEW.position,chest)&&per.every(p=>p.after.cityPct>=50&&p.after.ruinsPct>=8&&p.after.skyPct<=40),
-  {meshClearM:+cl.m.toFixed(2),nearest:cl.nm,headBlockedBy:blocked(NEW.position,head),chestBlockedBy:blocked(NEW.position,chest),city:per,oldMeshClearM:+minClear(OLD.position).m.toFixed(2)});
+ /* b19 P1 (Grok Bot floor): sky ≥ 20 % of the frame AND dark underside (down-facing city tris) ≤ 50 % of the upper half, every screen;
+  * city still reads (structure > 5 m ≥ 25 %). Stricter GGbot/界面验收部 aim (sky > 25 %, underside < 30 %) reported as strict. Proxy is
+  * geometric (day = night: same rays). */
+ const strict=per.every(p=>p.after.skyPct>25&&p.after.undersideUpperPct<30);
+ ok('F3',cl.m>=1.1&&!blocked(NEW.position,head)&&!blocked(NEW.position,chest)&&per.every(p=>p.after.skyPct>=20&&p.after.undersideUpperPct<=50&&p.after.cityPct>=25),
+  {strictAim:strict,meshClearM:+cl.m.toFixed(2),nearest:cl.nm,headBlockedBy:blocked(NEW.position,head),chestBlockedBy:blocked(NEW.position,chest),city:per,oldMeshClearM:+minClear(OLD.position).m.toFixed(2)});
  // F4 approach from the walk lens
  {const from=C.followPose(feet,face,390,844,8),ap=F.skyFinaleApproach(from,NEW,feet,B),Ts=ap.T,dt=1/60;let prevY=null,prevV=0,pk=0,pkA=0,ins=0,run=[0,0],mx=[0,0],jump=0,prevP=null,minC=Infinity,startC=Infinity;const vy=[];
   const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;

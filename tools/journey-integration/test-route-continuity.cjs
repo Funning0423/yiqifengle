@@ -8,7 +8,8 @@
  *     (full black) or at the balloon's coordinate re-root (checked in C3).
  *  C2 hand-offs (sail → shore follow → meadow board camera; ride → door lens → lakeside board camera): ≤ 0.1°, ≤ 1 cm, FOV ≤ 0.1°.
  *  C3 balloon seam (BalloonFlight SEAM_T, the world re-roots): camera relative to the balloon continuous (≤ 1 cm, ≤ 0.1°).
- *  C4 start: sail + balloon meadow→skycity: real controller, live lens held → black → ride camera(0) → fade in (rideStart);
+ *  C4 start: sail + balloon meadow→skycity: real controller, continuous LiveHandoff from the CURRENT lens, per-frame caps through
+ *     the whole blend, waits for it to settle, + C4r render validity (rideStart; rewritten b19, Grok Bot approved);
  *     b17r7: switch frame at cover alpha 1 (show() at 1, held at 1 before the fade-in, no lease.onFrame before the switch).
  *     skycity follow lens; balloon meadow→skycity: the controller's journeyCamera(d=0) write). A visible jump fails unless the
  *     frame is under a full cover. Lakeside walk→basket cut: must be under full black.
@@ -38,34 +39,56 @@ function kin(cam,t0,t1){const P=[],D=[],Fv=[],T=[];for(let t=t0;t<=t1+1e-9;t+=1/
  for(let i=1;i+1<P.length;i++){const a=Math.hypot(...[0,1,2].map(c=>(P[i+1][c]-2*P[i][c]+P[i-1][c])/(dt*dt)));if(a>o.acc){o.acc=a;o.accAt=T[i];}
   const al=Math.abs(sa[i]-sa[i-1])/dt/dt;if(al>o.alpha){o.alpha=al;o.alphaAt=T[i];}}
  for(const k of ['omega','alpha','acc','fovRate','omegaAt','alphaAt','accAt'])o[k]=+o[k].toFixed(3);o.samples=P.length;return o;}
-/* C4 rig (item 3): the REAL RegionJourneyController with a ride lease that has startPose (= the leg's ride camera at t=0) and an
- * onFrame that keeps returning ride poses, a recording world with fadeCover. Pass = no camera write from prepare until the
- * cover is at alpha 1; the one write under black is the ride's first pose (≤ 1 cm / 0.1°); then the cover fades in; plus the
- * production wiring (sail lease + balloon lease expose startPose). */
-const RC=J.H.load(J.S+'world-r1/RegionJourneyCore.ts'),{Cancellation}=J.H.load(J.S+'world-r1/WorldFlowCore.ts');
-async function rideStart(leg){const sail=leg.id.startsWith('sail'),log=[];let alpha=0;const covers=[];
+/* C4 (rewritten b19, Grok Bot approved): since 59aa0bbc the ride starts as a CONTINUOUS LiveHandoff from the lens on screen, not
+ * black → ride camera(0) → fade-in. The REAL RegionJourneyController + a ride lease whose ride() writes leg.cam(t) every 60 fps frame
+ * (game clock faked through performance.now). The level lens MOVES after prepare (live0 → live1) so a stale prepare-time lens is
+ * caught (P1 d3fe578e sail start). Pass =
+ *  - no camera write between prepare and walk; no cover (no black);
+ *  - first written frame = the CURRENT live lens (≤ 1 cm / 0.1° / 0.1° fov);
+ *  - every blend frame: translation ≤ (TRANSITION_CAM.blendLensMS + the ride lens's own speed)/60 (+1 mm), view turn ≤
+ *    (walkYawDegS + the ride lens's own turn rate)/60, no jump (C1 detector), FOV step ≤ fovDegS/60 + ride's own;
+ *  - the test waits for the blend to finish: output == ride lens (swapOk) for 30 consecutive frames;
+ *  - C4r render validity (proxy for the blue empty frame): every write is finite, non-degenerate (|look| > 1 mm, not the origin
+ *    default), and the journey scene was shown BEFORE the first write and never hidden during the blend.
+ *  Mac-only (not provable here): clear colour vs drawn layers, camera visibility/priority/layer mask, the first drawn frame. */
+const RC=J.H.load(J.S+'world-r1/RegionJourneyCore.ts'),{Cancellation}=J.H.load(J.S+'world-r1/WorldFlowCore.ts'),TCAM=J.H.load(J.S+'region/TransitionCamera.ts').TRANSITION_CAM;
+async function rideStart(leg){const sail=leg.id.startsWith('sail'),log=[];let shown=false,now=1000,stop=false;const dt=1/FPS;
+ const perf0=globalThis.performance;Object.defineProperty(globalThis,'performance',{value:{now:()=>now*1000},configurable:true,writable:true});
+ try{
  const route={from:sail?'island':'meadow',to:sail?'meadow':'skycity',path:[[0,0,0],[0,0,4],[0,0,8]],bridgeStart:2,bridgeEnd:3,speed:1.2,startBlendM:0};
- const live={position:[0,9,-9],target:[0,0,0],fovVerticalDeg:45};let rideDone;const rideP=new Promise(r=>{rideDone=r;});
- const lease={route,show:v=>log.push({k:'show',alpha}),dispose:()=>{},startPose:()=>leg.cam(0),onFrame:()=>{log.push({k:'onFrame',alpha});return leg.cam(.5);},ride:async(a,w)=>{log.push({k:'ride',alpha});w.setCamera(leg.cam(0));await rideP;}};
- const c=new RC.RegionJourneyController({prepare:async()=>lease,readCamera:()=>structuredClone(live)});if(!sail)c.region='meadow';
- const world={setCamera:p=>log.push({k:'camera',p:structuredClone(p),alpha}),fadeCover:(a,s)=>{log.push({k:'cover',a,from:alpha});return new Promise(r=>covers.push(()=>{alpha=a;r();}));}};
- const actor={walkProgress:()=>0,perform:async()=>{},cancelAndReset:()=>{},setVisible:()=>{}};const tick=()=>new Promise(r=>setImmediate(r));
- const tok=new Cancellation();await c.prepare(route.to,[0,0,0],tok);for(let i=0;i<5;i++)c.observe(actor,world,1/60);
- const beforeWalk=log.filter(e=>e.k==='camera').length;const w=c.walk(actor,world,tok);await tick();covers.shift()?.();await tick();
- // b17r7: one observed frame between each cover step (the world keeps calling observe while walk() awaits the cover).
- for(let i=0;i<6;i++){c.observe(actor,world,1/60);await tick();covers.shift()?.();await tick();}rideDone();await w.catch(e=>log.push({k:'err',e:String(e)}));
- const cams=log.filter(e=>e.k==='camera'),first=cams[0],ride0=leg.cam(0),j=first?jumpOf(first.p,ride0):null,err=log.find(e=>e.k==='err');
+ // level lenses placed where a level camera of the departure region is: near the ride's first lens (a level lens 100 m away would
+ // only measure the blend length), the prepare-time one and the moved one 4.5 m / 16° apart
+ const r0=leg.cam(0),off=(p,d,t)=>({position:p.position.map((v,i)=>v+d[i]),target:p.target.map((v,i)=>v+t[i]),fovVerticalDeg:p.fovVerticalDeg+2});
+ const live0=off(r0,[-3,4,-6],[0,0,0]),live1=off(r0,[3,2.5,-3],[0.5,1,0]);let liveNow=live0;
+ let rideT=0;const lease={route,show:v=>{shown=!!v;log.push({k:'show',v:!!v});},dispose:()=>{},startPose:()=>leg.cam(0),onFrame:()=>{log.push({k:'onFrame'});return leg.cam(rideT);},
+  ride:async(a,w)=>{while(!stop){w.setCamera(leg.cam(rideT));log.at(-1).rt=rideT;rideT+=dt;now+=dt;await new Promise(r=>setImmediate(r));}}};
+ const c=new RC.RegionJourneyController({prepare:async()=>lease,readCamera:()=>structuredClone(liveNow)});if(!sail)c.region='meadow';
+ const world={setCamera:p=>log.push({k:'camera',p:structuredClone(p),shown}),fadeCover:(a,s)=>{log.push({k:'cover',a});return Promise.resolve();},wait:async()=>{now+=dt;await new Promise(r=>setImmediate(r));}};
+ const actor={walkProgress:()=>0,perform:async()=>{},cancelAndReset:()=>{},setVisible:()=>{}};
+ const tok=new Cancellation();await c.prepare(route.to,[0,0,0],tok);for(let i=0;i<5;i++)c.observe(actor,world,dt);
+ const beforeWalk=log.filter(e=>e.k==='camera').length;liveNow=live1/* the level lens kept moving after prepare */;
+ const w=c.walk(actor,world,tok).catch(e=>log.push({k:'err',e:String(e)}));
+ let settled=0,frames=0;for(;frames<60*20&&settled<30;frames++){await new Promise(r=>setImmediate(r));const cams=log.filter(e=>e.k==='camera');const l=cams.at(-1);
+  if(l&&l.rt!==undefined&&swapOk(jumpOf(l.p,leg.cam(l.rt))))settled++;else settled=0;}
+ const nStop=log.length;stop=true;await w;
+ // writes after the test stops the ride early (controller wrap-up of a cut-short ride) are not part of the blend
+ const cams=log.slice(0,nStop).filter(e=>e.k==='camera'),first=cams[0],err=log.find(e=>e.k==='err');const firstVsLive=first?jumpOf(first.p,live1):null;
+ let worst={stepM:0,stepCapM:0,turnDeg:0,turnCapDeg:0,fovStep:0,at:-1},capOk=true,renderOk=!!first&&first.shown;
+ const P=cams.map(e=>e.p);for(let i=1;i<cams.length;i++){const a=cams[i-1],b=cams[i],ra=a.rt!==undefined?leg.cam(a.rt):a.p,rb=b.rt!==undefined?leg.cam(b.rt):b.p;
+  const st=Math.hypot(...sub(b.p.position,a.p.position)),rs=Math.hypot(...sub(rb.position,ra.position)),tu=ang(dirOf(a.p),dirOf(b.p)),rtu=ang(dirOf(ra),dirOf(rb));
+  const capM=(TCAM.blendLensMS*dt+rs)+1e-3,capD=(TCAM.walkYawDegS*dt+rtu)+1e-3,fs=Math.abs(b.p.fovVerticalDeg-a.p.fovVerticalDeg),capF=TCAM.fovDegS*dt+Math.abs(rb.fovVerticalDeg-ra.fovVerticalDeg)+1e-3;
+  if(st>capM||tu>capD||fs>capF){capOk=false;}if(st/capM>worst.stepM/(worst.stepCapM||1)||tu/capD>worst.turnDeg/(worst.turnCapDeg||1))worst={stepM:+st.toFixed(4),stepCapM:+capM.toFixed(4),turnDeg:+tu.toFixed(3),turnCapDeg:+capD.toFixed(3),fovStep:+fs.toFixed(3),at:i};}
+ for(const e of cams){const p=e.p,f=[...p.position,...p.target,p.fovVerticalDeg];if(!f.every(Number.isFinite)||Math.hypot(...sub(p.target,p.position))<1e-3||(p.position.every(v=>v===0)&&p.target.every(v=>v===0))||!e.shown)renderOk=false;}
+ const hiddenDuring=log.some((e,i)=>e.k==='show'&&!e.v&&i>log.indexOf(first));if(hiddenDuring)renderOk=false;
+ // jumps of the OUTPUT that the ride lens itself does not have (the ride's own seam / segment steps are C1/C3's business)
+ const rideStep=i=>{const a=cams[i],b=cams[i+1];if(!a||!b||a.rt===undefined||b.rt===undefined)return 0;return Math.hypot(...sub(leg.cam(b.rt).position,leg.cam(a.rt).position));};
+ const kj=(()=>{const cam=t=>P[Math.min(P.length-1,Math.round(t/dt))];return kin(cam,0,(P.length-1)*dt).jumps.filter(j=>{const i=Math.round(j.t/dt);return rideStep(i)<0.5*j.stepM;});})();
+ const covers=log.filter(e=>e.k==='cover').length;
  const src=f=>fs.readFileSync(J.S+f,'utf8').replace(/\s/g,'');const wired=sail?/startPose:\(\)=>\{constv=view\.getFrameSize\(\);returnsailDriver!\.pose\(/.test(src('region/RegionJourneyAdapter.ts')):/startPose:\(\)=>plan\.camera\(0\)/.test(src('region/BalloonTransit.ts'));
- // b17r7 switch frame: the scene is shown only at alpha 1, the next cover step after show() is a hold AT 1 (from 1), so the first
- // drawn frame of the new scene is fully black; the fade-in (→0) starts from alpha 1 after that hold; no lease.onFrame (ride/scene
- // dressing side effects) runs while the cover is below 1 before the switch.
- const iShow=log.findIndex(e=>e.k==='show'),afterShow=log.slice(iShow+1).find(e=>e.k==='cover'),fadeIn=log.find(e=>e.k==='cover'&&e.a===0);
- const iIn=log.indexOf(fadeIn),onFrameEarly=log.filter((e,i)=>e.k==='onFrame'&&(i<iShow||(i<iIn&&e.alpha<1))).length;
- const switchFrame={showAlpha:iShow>=0?log[iShow].alpha:null,nextCover:afterShow?{a:afterShow.a,from:afterShow.from}:null,fadeInFrom:fadeIn?fadeIn.from:null,onFrameBeforeSwitch:onFrameEarly};
- const switchOk=switchFrame.showAlpha===1&&!!afterShow&&afterShow.a===1&&afterShow.from===1&&switchFrame.fadeInFrom===1&&onFrameEarly===0;
- const ok=!err&&beforeWalk===0&&first&&first.alpha===1&&swapOk(j)&&!!fadeIn&&wired&&log.findIndex(e=>e.k==='cover'&&e.a===1)<log.indexOf(first)&&switchOk;
- return {name:'live lens → black → ride camera(0) → fade in (real RegionJourneyController)',ok,camWritesBeforeWalk:beforeWalk,firstWriteAlpha:first?first.alpha:null,firstWriteVsRide0:j,switchFrame,switchOk,sequence:log.map(e=>e.k+(e.a!==undefined?':'+e.a:'')+(e.k==='camera'?'@'+e.alpha:'')).slice(0,16),productionWired:wired,error:err&&err.e,
-  liveToRide0Hidden:jumpOf(live,ride0)};}
+ const ok=!err&&beforeWalk===0&&covers===0&&!!first&&swapOk(firstVsLive)&&capOk&&!kj.length&&settled>=30&&renderOk&&wired;
+ return {name:'continuous LiveHandoff from the current lens (real RegionJourneyController, faked 60 fps clock)',ok,camWritesBeforeWalk:beforeWalk,covers,firstVsCurrentLens:firstVsLive,
+  firstVsPrepareLens:first?jumpOf(first.p,live0):null,blendFrames:cams.length,settledFrames:settled,capOk,worstVsCap:worst,jumps:kj.slice(0,4),C4render:renderOk,productionWired:wired,err:err?err.e:null};
+ }finally{if(perf0!==undefined)Object.defineProperty(globalThis,'performance',{value:perf0,configurable:true,writable:true});}}
 (async()=>{const G=await R.geometry(),Core=J.Core,rows=[],checks=[];
  const check=(id,fn)=>{try{checks.push({id,status:'PASS',...fn()});}catch(e){checks.push({id,status:'FAIL',error:String(e.message||e).slice(0,1500)});}};
  for(const mk of R.legs)for(const scr of screens){const leg=mk(G,scr),key=`${leg.id} ${scr.join('x')}`,ph=t=>(leg.phases.find(p=>t>=p.t0&&t<p.t1)||leg.phases.at(-1)).id;

@@ -551,6 +551,8 @@ function accelOf(fn:(t:number)=>Vec,t0:number,t1:number):number{
  return peak;
 }
 function climbAngle(a:Vec,b:Vec):number{const h=Math.hypot(b[0]-a[0],b[2]-a[2]),dy=b[1]-a[1];return Math.atan2(dy,h)*180/Math.PI;}
+const minJerk01=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10-15*u+6*u*u);};
+export const BALLOON_SEAM_TILT=Object.freeze({/* short screens (h/w < shortAspect) only: tilt down so her basket clears the WeChat capsule */tiltDeg:-0.4,shortAspect:1.9,squatAspect:1.5,squatTiltDeg:-0.8,fovCutDeg:0,liftM:0,aimFollow:1,/* all screens: slide the lens right so the frame's lower edge stays on the cloud deck */rightM:2.5,fwdM:0,inT0:10.0,inT1:10.8,outT0:11.9,outT1:12.6});
 export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Vec;walkInM?:number;walkOutM?:number;clearRadiusM?:number;strataLocalMinY?:number;meadowGroundMaxY?:number;cityFrame?:Rigid;meadowFrame?:Rigid}):BalloonPlan{
  const doc=flightDocument();
  const meadow=opts?.meadowFrame??meadowFrameFromM6(m6);
@@ -584,8 +586,16 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
   for(let k=-N;k<=N;k++){const w=N+1-Math.abs(k),tt=Math.max(0,Math.min(FLIGHT_DURATION,time+k*h/N)),c=rawCam(tt),sp=tt<SEAM_T;
    const cp=toSide(c.position,sp,pre),ct=toSide(c.target,sp,pre);for(let j=0;j<3;j++){P[j]+=cp[j]*w;Q[j]+=ct[j]*w;}W+=w;}
   const pose:Pose={position:[P[0]/W,P[1]/W,P[2]/W],target:[Q[0]/W,Q[1]/W,Q[2]/W],fovVerticalDeg:48};
-  const vp=vehicle(time).pos;return balloonKeepInFrame(balloonSeatedLift(pose,vp,balloonSeatedCap(time)),vp);
+  const vp=vehicle(time).pos;return seamTilt(balloonKeepInFrame(balloonSeatedLift(pose,vp,balloonSeatedCap(time)),vp),time,_screen);
  };
+ // b19 运镜: during the cloud seam (meadow off / city on, flight 10.4–12.1 s) the frame's bottom edge grazed the meadow terrain
+ // ~107 m below (10 rays on 5 portrait screens at 11.1–11.2 s). Narrow the FOV a few degrees across the window (min-jerk in/out,
+ // a slow push-in) so the lower frame edge stays on the cloud deck, not ground. Aim unchanged, so her framing only scales toward centre.
+ const seamTilt=(p:Pose,time:number,scr?:Screen):Pose=>{const K=BALLOON_SEAM_TILT,u=time<K.inT0||time>K.outT1?0:time<K.inT1?minJerk01((time-K.inT0)/(K.inT1-K.inT0)):time>K.outT0?1-minJerk01((time-K.outT0)/(K.outT1-K.outT0)):1;
+  if(u<=0)return p;const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],hz=Math.hypot(d[0],d[2]),L=Math.hypot(hz,d[1]);
+  const ar=scr?scr.h/scr.w:9,td=ar<K.squatAspect?K.squatTiltDeg:ar<K.shortAspect?K.tiltDeg:0,pit=Math.atan2(d[1],hz)+u*td*Math.PI/180,nh=Math.cos(pit)*L/(hz||1);
+  const y=u*K.liftM,fx=d[0]/(hz||1),fz=d[2]/(hz||1),ox=u*(K.rightM*-fz+K.fwdM*fx),oz=u*(K.rightM*fx+K.fwdM*fz);
+  return {position:[p.position[0]+ox,p.position[1]+y,p.position[2]+oz],target:[p.position[0]+ox+d[0]*nh,p.position[1]+y*K.aimFollow+Math.sin(pit)*L,p.position[2]+oz+d[2]*nh],fovVerticalDeg:(p.fovVerticalDeg??48)-u*K.fovCutDeg};};
  const routeAt=(time:number)=>worldAt(Math.max(0,Math.min(FLIGHT_DURATION,time)));
  const deck=doc.layout.cloudDeckY,deckMid=(deck[0]+deck[1])/2;
  const cloudAt=map(local(4.3).pos,4.3,local(4.3).frame);
