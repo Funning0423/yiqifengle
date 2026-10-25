@@ -67,9 +67,11 @@ export const LAKESIDE_BALLOON_LANDING={
  /** Walk corners rounded with this radius (m). */
  walkCornerM:1.6,
  /** Boarding: fade to black, (cut + seat her in the basket), fade back in; the basket lifts liftHoldS after the cut. */
- boardFadeOutS:.5,
- boardBlackS:.3,
- boardFadeInS:.7,
+ /* T-03 + WindWipe (GGbot b476a6ca): the boarding cover is the 'ride' WindWipe — OUT .45, hold ≥1.10 (ride clock frozen at
+    cutT, not counted here), IN .55; no black fade of our own. */
+ boardFadeOutS:.45,
+ boardBlackS:0,
+ boardFadeInS:.55,
  liftHoldS:0,
  /** Flight time skipped at the cut (s). T-03 (DESIGN T3 ~12 s visible flight): 9 → 18, so the shot opens at ride τ 0.6 (basket
   *  aloft past the skycity rim) and shows the last 12 s of the unchanged 30 s ride: the lens keys, the strut dodge and the

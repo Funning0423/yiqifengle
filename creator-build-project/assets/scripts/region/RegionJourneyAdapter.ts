@@ -1,6 +1,6 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
-import {coverContent} from '../world-r1/ScreenCover';
-import {wipeContentFor} from '../world-r2/WindWipeCore';
+import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
+import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
 import {Animation,Camera,Component,Director,Mat4,Material,Mesh,MeshRenderer,Node,Vec3,director,isValid,view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
@@ -222,13 +222,24 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const ticker=rig.addComponent(LakesideBalloonTicker);
    const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
    const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined;let prev:Node|null=null,aboard=false;
-   const fade=typeof world.fadeCover==='function'?(w:number,s:number)=>{/* WindWipe: balloon + 风铃湖畔 on the boarding cover */if(w>=1)coverContent(wipeContentFor('lakeside',true));else if(w<=0)coverContent(null);return Promise.resolve(world.fadeCover!(w,s)).catch(()=>{});}:null;
-   let walkDone=false,blackDone=!fade,fadingOut=false,fadingIn=false;
+   // T-03 + WindWipe: the boarding cover is ONE 'ride' WindWipe (no black fade of ours). Covered → seat her + jump the ride by
+   // flightSkipS (clock to cutT); beforeReveal resolves once the ride camera has been placed for 2 frames; the ride clock is frozen
+   // at cutT during the hold and runs again from the reveal. Hooks filter kind 'ride' + our id and are removed at segment end.
+   const wipeOn=typeof world.fadeCover==='function',fade=wipeOn?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
+   let walkDone=false,blackDone=!wipeOn,fadingOut=false,fadingIn=false,held=!wipeOn,placed=0;let wipeEv:WipeEvent|null=null;
+   const mine=(e:WipeEvent)=>!!wipeEv&&e.kind==='ride'&&e.id===wipeEv.id;
+   const unhook=[onWipeCovered(e=>{if(mine(e)){blackDone=true;clock.t=Math.max(clock.t,R.cutT);placed=0;}}),
+    addWipeBeforeReveal(e=>!mine(e)||placed>=2),onWipeRevealed(e=>{if(mine(e))coverContent(null);})];
+   const unhookAll=()=>{for(const u of unhook.splice(0))try{u();}catch{}};
+   const runWipe=async()=>{wipeEv=newWipeEvent('ride',wipeContentFor('lakeside',true));coverContent(wipeContentFor('lakeside',true));coverAudioOut(WINDWIPE.outS);
+    await fade!(1,WINDWIPE.outS);if(dead)return;emitWipeCovered(wipeEv);const hooks=startWipeBeforeReveal(wipeEv),t0=Date.now();
+    await new Promise<void>(res=>{const tick=()=>{const h=(Date.now()-t0)/1000;if(dead||h>=20||(h>=WINDWIPE.holdS&&hooks()&&coverReady()))res();else setTimeout(tick,16);};tick();});
+    held=true;coverAudioIn(WINDWIPE.inS);fadingIn=true;await fade!(0,WINDWIPE.inS);emitWipeRevealed(wipeEv);};
    const diag=diagParams(),diagAt=lakeDiagAt();let diagDone=false;
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
-    const off=rideToken.onCancel(()=>{director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
+    const off=rideToken.onCancel(()=>{unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);bad(Error('cancelled'));});
     const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);
      // b15 stand-up v1b (角色动画bot 968be1d1 REPORT): she rides seated 0.494 m behind P0 facing the door (stand_point local
      // 0.032,-0.1,-0.099; basket floor board top = basket y 0), so the stand_up root motion ends on P0 with no turn.
@@ -238,7 +249,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
      if(t>=R.cutT)legHide.apply(director.getScene())/* b17: island env_cloud_layer, day and night; skycity untouched */;
-     lastPose=lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);
+     lastPose=lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);if(t>=R.cutT&&placed<9)placed++;
      // Web diagnostics (Mac bisect, night lakeside blocker): ?hideNode=a,b hides by exact name every frame of THIS leg too (the
      // BalloonTransit hook only runs on the meadow→skycity leg); ?diagDump=1&lakeDiagAt=t logs every active renderer once at ride time t.
      if(diag.hide.length){const sc=director.getScene();if(sc){const hideIn=(n:Node)=>{if(diag.hide.includes(n.name))n.active=false;for(const c of n.children)hideIn(c);};hideIn(sc);}}
@@ -252,13 +263,12 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      const next=stepTransitClock(clock,dt,hidden);
      const resumed=clock.fade<=0&&next.fade>0;
      // the shot clock waits for her: at the basket until the walk has really ended, in the black until the cover is down
-     let t=next.t;if(!walkDone&&t>R.fadeOutAt)t=R.fadeOutAt;if(!blackDone&&t>R.cutT)t=R.cutT;
+     let t=Math.max(next.t,clock.t);if(!walkDone&&t>R.fadeOutAt)t=R.fadeOutAt;if((!blackDone||!held)&&t>R.cutT)t=R.cutT/* frozen under the wipe hold */;
      clock.t=t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;
-     if(fade&&walkDone&&!fadingOut&&t>=R.fadeOutAt){fadingOut=true;void fade(1,K.boardFadeOutS).then(()=>{blackDone=true;});}
-     if(fade&&blackDone&&!fadingIn&&t>=R.cutT+K.boardBlackS/2){fadingIn=true;void fade(0,K.boardFadeInS);}
-     if(resumed&&fade){try{void fade(next.fade,0.35);}catch{/* cover optional */}}
+     if(fade&&walkDone&&!fadingOut&&t>=R.fadeOutAt){fadingOut=true;void runWipe();}
+     if(resumed&&fade&&(!fadingOut||fadingIn)){try{void fade(next.fade,0.35);}catch{/* cover optional */}}
      apply();
-     if(clock.t+1e-4>=R.T){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
+     if(clock.t+1e-4>=R.T){off();unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
     };
    });
    rideToken.check();
