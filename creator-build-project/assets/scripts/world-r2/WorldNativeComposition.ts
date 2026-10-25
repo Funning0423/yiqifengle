@@ -356,6 +356,10 @@ export class WorldNativeComposition extends Component {
      await (this.boundCharacter as any).__qfWalkTail?.done;
      stage.bindCharacter(this.boundCharacter);
      try{await stage.playFinale(this.boundCharacter);}catch(error){console.error('region-node-finale',error);}
+     /* T-02: once the region reward is claimed, the held sky shot auto-continues after SKY_FINALE.holdS of no input (same
+      * handler as 继续旅程; any drag/tap cancels it and the button stays). */
+     const r=this.mainlineReward('claimRegion',index);if((r as any)?.ok!==false)try{stage.armFinaleContinue?.(()=>{void this.enterMainline();});}catch{/* optional */}
+     return r;
     }
     return this.mainlineReward('claimRegion',index);
   }

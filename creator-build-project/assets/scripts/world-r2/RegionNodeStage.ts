@@ -21,6 +21,8 @@ import {bgCamHeld,bgCamHold,bgCamRelease,bgCamWanted} from '../region/BgCamGate'
 import {qaHooksEnabled,qaYawFacing} from './QaSkip';
 import {ISLAND_PROPS,signFrontView} from './IslandPropsLayout';
 import {signShot} from '../region/SignShot';
+import {SKY_FINALE,SKY_FINALE_POSE_LOCAL,skyFinaleApproach,skyFinaleApproachPose} from '../region/SkyFinaleShot';
+import {onWipeCovered,onWipeRevealed,addWipeBeforeReveal} from '../world-r1/ScreenCover';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
@@ -289,12 +291,36 @@ export class RegionNodeStage extends Component{
   this.handOrbitBack('skycity');
   try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);}
   this.lens='FollowWalk';
-  this.hideTree=true;this.treeVisible(false);
-  const star=this.guardLens(this.starPose(this.girl(),w,h));
-  await this.blend(0.6,this.readPose(),()=>star);
-  this.hideTree=false;this.treeVisible(true);
+  /* T-02 (Grok Bot approved Oct 25): the old 0.6 s blend to the 26 m star pose (mostly empty sky, she ≈ 3 %) is replaced by a low side
+   * angle 7 m from her (SkyFinaleShot: her ≈ 26 % of the frame, the star-ring arc across the top, the city between, ≥ 1.1 m clear),
+   * reached in an eased blend timed to the standing cap (≤ 90°/s, ≤ 200°/s²). Held until a drag/tap, or auto-continue (armFinaleContinue). */
+  const shot=this.skyFinalePose(),from=this.readPose(),g=this.girl();
+  /* the way round + time are judged in the skycity model frame (proxies are model-local, see skycityOccluders); rigid, so the
+   * world path below keeps the same way round */
+  const all=this.skycityAllOccluders(),L=this.skyL,loc=(p:Pose)=>({position:toFrame(L!,p.position) as Vec,target:toFrame(L!,p.target) as Vec,fovVerticalDeg:p.fovVerticalDeg});
+  const ap=all&&L?skyFinaleApproach(loc(from),{...SKY_FINALE_POSE_LOCAL},toFrame(L,g),all.map(b=>({min:b.min,max:b.max}))):skyFinaleApproach(from,shot,g,[]);this.finaleApproachS=ap.T;
+  await this.blendPath(ap.T,t=>skyFinaleApproachPose(from,shot,g,t,ap.T,ap.dir))/* orbits round her the clear way, never a straight cut */;
   this.openExplore('skycity');
  }
+ /** T-02: the baked S6 shot (skycity model-local → world). */
+ skyFinalePose():Pose{const [p,t]=this.toWorld('skycity',[SKY_FINALE_POSE_LOCAL.position as Vec,SKY_FINALE_POSE_LOCAL.target as Vec]);return {position:p,target:t,fovVerticalDeg:SKY_FINALE_POSE_LOCAL.fovVerticalDeg};}
+ finaleApproachS=0;
+ private async blendPath(seconds:number,at:(t:number)=>Pose){
+  this.orbit.pause();
+  const step=(t:number)=>this.writePose(at(Math.min(seconds,Math.max(0,t))));
+  await new Promise<void>(resolve=>{let settled=false;const done=()=>{if(settled)return;settled=true;step(seconds);resolve();};this.anim={t:0,seconds,sample:step,done};setTimeout(done,seconds*1000+80);});
+ }
+ /** T-02 auto-continue: armed by the composition once the region reward is claimed; any drag / pinch / tap disarms it; after
+  * SKY_FINALE.holdS of no input it calls `go` (the same handler as the 继续旅程 button). The lake set-off's WindWipe covers the
+  * hand-off: covered → disarm; beforeReveal waits for any blend of ours to finish; revealed → nothing of ours stays on screen. */
+ private finaleArm:{at:number;go:()=>void;timer:any}|null=null;
+ armFinaleContinue(go:()=>void,now=Date.now()){this.disarmFinale();if(this.region!=='skycity'||!this.exploring)return false;
+  const a={at:now,go,timer:null as any};a.timer=setInterval(()=>{if(this.finaleArm!==a)return;if(Date.now()-a.at>=SKY_FINALE.holdS*1000){this.disarmFinale();try{go();}catch(e){console.error('finale-continue',e);}}},100);this.finaleArm=a;
+  if(!this.wipeHooks.length)this.wipeHooks.push(onWipeCovered(()=>this.disarmFinale()),addWipeBeforeReveal(()=>!this.anim),onWipeRevealed(()=>this.disarmFinale()));return true;}
+ disarmFinale(){const a=this.finaleArm;this.finaleArm=null;if(a&&a.timer)clearInterval(a.timer);}
+ finaleArmed(){return !!this.finaleArm;}
+ private wipeHooks:(()=>void)[]=[];
+ onDestroy(){this.disarmFinale();for(const u of this.wipeHooks.splice(0))try{u();}catch{}}
  private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
  /** Great-tree canopy sits on the finale sightline. Hide it by name, and drop the mesh the lens ray hits before the ring. */
  private treeVisible(on:boolean){
@@ -914,6 +940,7 @@ export class RegionNodeStage extends Component{
  }
 
  onGesture(gesture:Gesture,x:number,y:number){
+  if(this.finaleArm&&(gesture==='drag'||gesture==='pinch'||gesture==='tap'))this.disarmFinale()/* T-02: the player took over */;
   const live=this.exploring&&!this.anim&&(this.lens==='MapExplore'||this.lens==='FollowWalk');
   if(!live){
    if(gesture==='tap'&&this.lens==='FollowWalk')this.skipWalk();
