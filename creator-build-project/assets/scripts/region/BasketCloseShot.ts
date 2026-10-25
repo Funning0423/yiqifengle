@@ -34,3 +34,12 @@ export function boardFeetAt(door:Vec,seat:Vec,t:number,doorS:number,stepS:number
 
 /** B1: the close-up is blended in from the ride's first lens while she walks to the basket (she starts behind the basket from the door side). */
 export function b1InS(walkS:number):number{return Math.min(2.5,Math.max(.5,walkS*.6));}
+/** full2-cam C2 (Grok Bot: option B → close-up): lakeside get-out on the touchdown clock s. Blend from the option-B lens (`orig`, the
+ *  held wide then its board blend, unchanged) onto the door close-up over inS, hold it through stand-up, door reach and the step
+ *  down, then pull back onto `orig` over pullS while she walks out — so the shot lands on the option-B path (no timing change:
+ *  sign, board blend start and board takeover keep their LAKESIDE_TOUCHDOWN times). */
+export const C2_CLOSE=Object.freeze({/** blend-in starts this long before touchdown (descent), so the ≈9 m wide → close move keeps ≤ blendLensMS */inAtS:-2.2,inS:3.4,pullAtS:4.4,pullS:3.4});
+export function c2CloseWeight(s:number,k=C2_CLOSE):number{const mj=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(u*(u*6-15)+10);};return s<k.pullAtS?mj((s-k.inAtS)/k.inS):1-mj((s-k.pullAtS)/k.pullS);}
+export function c2ClosePose(s:number,orig:Pose,close:Pose,k=C2_CLOSE):Pose{const w=c2CloseWeight(s,k);if(w<=0)return orig;
+ const L=(a:readonly number[],b:readonly number[]):Vec=>[a[0]+(b[0]-a[0])*w,a[1]+(b[1]-a[1])*w,a[2]+(b[2]-a[2])*w];
+ return {position:L(orig.position,close.position),target:L(orig.target,close.target),fovVerticalDeg:orig.fovVerticalDeg+(close.fovVerticalDeg-orig.fovVerticalDeg)*w};}
