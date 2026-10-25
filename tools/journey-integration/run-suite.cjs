@@ -170,7 +170,7 @@ const tests=[
  ['transition-spaces','tools/transition-spaces/test-transition-spaces.cjs'],/* b19: transition stance/path data (stances.json) vs d9423886 geometry */
  ['basket-obstacles','tools/transition-spaces/test-basket-obstacles.cjs'],/* b19: state-toggled basket discs data (transition-anchors.json basketObstacles), unbaked, edges routed round */
  ['sky-exit-door-b','tools/transitions-continuous/test_sky_exit_door_b.cjs'],/* cand7: door B faces the sky deck with the landing yaw */
- ['basket-obstacle-runtime','tools/transition-spaces/test-basket-obstacle-runtime.cjs'],['vertex-color-black','tools/skycity/test_vertex_color_black.cjs'],['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
+ ['basket-obstacle-runtime','tools/transition-spaces/test-basket-obstacle-runtime.cjs'],['vertex-color-black','tools/skycity/test_vertex_color_black.cjs'],['static-names','tools/static-names/check-names.cjs'],/* cand10: whole-project tsc gate on undefined names / unresolved imports */['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
 ];
 /* P0 r16: geometry-heavy checks (real GLB triangles, ~155 s alone) get 360 s; everything else keeps 180 s. */
 const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000};
