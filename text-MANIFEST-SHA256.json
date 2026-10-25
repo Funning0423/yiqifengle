@@ -2016,8 +2016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 109145,
-    "sha256": "895135ef2ba24350bc1f94ac6be093041f00d9b599249b7d089a326232e514d8"
+    "bytes": 109152,
+    "sha256": "b87ebaf3d4b4791ade57f3e022a229599d825773312070ecc4688e75107dc542"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
