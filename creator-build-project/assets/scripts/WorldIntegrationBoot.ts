@@ -12,7 +12,7 @@ import {LAKESIDE_LOAD_FAILED,prewarmLakesideAssets} from './region/LakesideBoard
 import {CabinHint} from './world-r2/CabinHint';
 import {cabinHintSeen,markCabinHintSeen} from './ui/UiPrefs';
 import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
-import {ISLAND_NAV_IDS,worldNavigationLayout,mainlineTapAllowed,mainlineLockAfterTap,mainlineLockForState} from './world-r2/WorldNavigationLayout';
+import {ISLAND_NAV_IDS,worldNavigationLayout,mainlineTapAllowed,mainlineLockAfterTap,mainlineLockForState,signChildLayout} from './world-r2/WorldNavigationLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { GlassSign } from './world-r1/GlassSign';
 import { warmButton, WarmButton } from './WarmButton';
@@ -575,7 +575,7 @@ export class WorldIntegrationBoot extends Component {
  private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
  // T2: bake the FINAL island button size/skin while it is still hidden. Otherwise the first island frame resizes the
  // button, the WarmButtonSkin cache starts a new offscreen bake and the Graphics fallback surface shows until it lands.
- const islandNav=worldNavigationLayout(f.width,f.height);for(const id of ISLAND_NAV_IDS){const n=this.controls.get(id);if(n)this.placeNavigationControl(n,islandNav.buttons[id],id==='mainline');}
+ const islandNav=worldNavigationLayout(f.width,f.height);for(const id of ISLAND_NAV_IDS){const n=this.controls.get(id);if(n)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(n,islandNav.buttons[id],id==='mainline');}
  };
  private navLayout(){const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();return {width:f.width,height:f.height,room:this.roomExplore?.diagnostics()??null,targets:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>[k,{x:n.worldPosition.x+f.width/2,y:f.height/2-n.worldPosition.y}])),targetRects:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>{const t=n.getComponent(UITransform)!;return [k,{x:n.worldPosition.x+f.width/2-t.width/2,y:f.height/2-n.worldPosition.y-t.height/2,width:t.width,height:t.height}]})),managedBoards:director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).filter(x=>x.node.isValid).length||0};}
  private placeNavigationControl(n:Node,r:{x:number;y:number;width:number;height:number},islandFallback=false){const t=n.getComponent(UITransform)!;
@@ -650,9 +650,13 @@ export class WorldIntegrationBoot extends Component {
   else if(sign&&this.islandEntrance<0&&this.signEntrance<0)this.signRetry=0;
   this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
-  if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height)t.setContentSize(sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
+  if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height||(m as any).__qfSkin!=='sign')this.layoutSignControl(m,sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
   else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;}
  }
+ /** b16 复核2 ④：木牌模式下根节点和所有子节点按根节点实际尺寸重排（原来只改根 UITransform，子节点仍是 250 宽）。
+  * __qfSkin='sign'，离开木牌模式时 placeNavigationControl 发现皮肤变了会按按钮尺寸整套重建。 */
+ private layoutSignControl(m:Node,w:number,h:number){(m as any).__qfSkin='sign';const L=signChildLayout(w,h);m.getComponent(UITransform)!.setContentSize(L.surface.width,L.surface.height);m.getComponent(WarmButton)?.configure(L.surface.width,L.surface.height);
+  for(const label of m.getComponentsInChildren(Label))if(label.node.name==='VisibleLabel'){label.node.getComponent(UITransform)!.setContentSize(L.label.width,L.label.height);label.node.parent!.getComponent(UITransform)!.setContentSize(L.label.width,L.label.height);}}
  private paintNavigation(dt=0){this.status.node.parent!.active=false; // status bar removed (Funning final): never on screen once ready, any early return included
  let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}
  this.syncHomeSeated(s.state,!!s.hidden||!!s.needsResume);

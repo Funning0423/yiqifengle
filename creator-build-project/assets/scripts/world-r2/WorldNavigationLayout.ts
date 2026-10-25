@@ -28,3 +28,8 @@ export const MAINLINE_TAP_LOCK_MS=1200,MAINLINE_RETURN_LOCK_MS=500;
 export function mainlineTapAllowed(now:number,lockUntil:number,busy:boolean):boolean{return !busy&&now>=lockUntil;}
 export function mainlineLockAfterTap(now:number):number{return now+MAINLINE_TAP_LOCK_MS;}
 export function mainlineLockForState(lockUntil:number,state:string,now:number):number{return state==='island'?lockUntil:Math.max(lockUntil,now+MAINLINE_RETURN_LOCK_MS);}
+
+/** b16 复核2 ④：木牌模式下主线控件的根节点跟着木牌投影缩放（390 约 191×147、320 约 128×99），子节点（WarmButton 底板、
+ *  文字底板、VisibleLabel）原来仍按 250 宽建，超出屏幕。按根节点实际尺寸重排：底板 = 根尺寸，文字框 = 根宽 −12（≥0）、高 ≤25。纯函数。 */
+export function signChildLayout(width:number,height:number){const w=Math.max(0,width),h=Math.max(0,height);
+ return {surface:{width:w,height:h},label:{width:Math.max(0,w-12),height:Math.min(25,h)}};}

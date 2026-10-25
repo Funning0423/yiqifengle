@@ -43,7 +43,7 @@ ok('runtime ② sky-city night: ambient x0.3 and main light x0.6 with the key li
  let w=0,frames=0,maxStep=0;while(w<1&&frames<1000){const nw=M.easeRegionBoardLight(w,1,1/60);maxStep=Math.max(maxStep,nw-w);w=nw;frames++;}
  assert(frames>=30&&frames<=40,'day->night takes ~0.6 s at 60 fps, got '+frames+' frames');assert(maxStep<=1/36+1e-9,'per-frame step '+maxStep);
  assert.equal(M.easeRegionBoardLight(.5,0,5),.5-.1/.6,'dt clamped to 0.1 s');assert.equal(M.easeRegionBoardLight(NaN,1,0),1,'first frame snaps');
- const s=src('region/SkycityBoardLive.ts');assert(/lightW=easeRegionBoardLight\(lightW,skyNightBlend,dt\)/.test(s));assert(/regionBoardSceneLightScale\(lightW\)/.test(s));
+ const s=src('region/SkycityBoardLive.ts');assert(/lightW=shown\?easeRegionBoardLight\(lightW,skyNightBlend,dt\):skyNightBlend;/.test(s));assert(/regionBoardSceneLightScale\(lightW\)/.test(s));
  assert(/if\(!shown\)\{restoreScene\(\);return;\}/.test(s)&&/dispose:\(\)=>\{if\(!dead\)\{dead=true;offNight\(\);restoreScene\(\);\}/.test(s),'restored on hide and dispose');
  assert(/scene\.amb\.skyIllum!==scene\.ambWritten\)scene\.ambBase=scene\.amb\.skyIllum/.test(s)&&/scene\.main\.illuminance!==scene\.mainWritten\)scene\.mainBase=scene\.main\.illuminance/.test(s),'re-bases when the world rewrites the light');
  assert(!/clearCameras|SkycityCloudsea/.test(s),'does not touch the city cameras baa28c06 clears');});
@@ -70,4 +70,22 @@ ok('runtime ⑤ L13 rule guide: title plank >= 12 pt below the plate art (+7 pt 
 ok('r6 lakeside previews pass measure_visible.py gates (day L13/L16, night L13/L16; exit 0)',()=>{const cp=require('child_process'),ROOT=path.resolve(__dirname,'..','..'),d=path.join(ROOT,'docs/r6/ui');
  const r=cp.spawnSync('python3',[path.join(d,'tools/measure_visible.py'),...['board_L13_390x844.png','board_L16_390x844.png','board_L13_night_390x844.png','board_L16_night_390x844.png'].map(f=>path.join(d,f))],{encoding:'utf8'});
  if(r.error&&r.error.code==='ENOENT'){console.log('  (python3 missing: skipped)');return;}assert.equal(r.status,0,r.stdout+r.stderr);});
+// ---------- b16 复核2（ui-audit/2026-10-25/build16-fixes，c389259e）----------
+ok('复核2 ④ sign mode: hit root right edge >= 22 pt, >= 44 pt, children laid out from the root size and never outside it (320/375/390)',()=>{const M=load(['world-r1/CameraPose','world-r1/RegionCameraData','world-r2/IslandPropsLayout','world-r2/WorldNavigationLayout']),C=M.CameraPose,L=M.IslandPropsLayout,N=M.WorldNavigationLayout;
+ const pose=C.fromLookAt(M.RegionCameraData.islandPoseEntry());assert.equal(L.SIGN_HIT_EDGE_PT,22);
+ for(const [w,h] of [[320,568],[375,667],[390,844]]){const r=L.signpostHitUi(pose,w,h),c=N.signChildLayout(r.width,r.height),right=r.x+r.width/2;
+  assert(w/2-right>=22-1e-6,'root right gap '+(w/2-right).toFixed(1)+' @'+w);assert(r.width>=44&&r.height>=44,'hit >= 44 @'+w);
+  for(const k of ['surface','label']){assert(c[k].width<=r.width+1e-9&&c[k].height<=r.height+1e-9,k+' inside root @'+w);assert(w/2-(r.x+c[k].width/2)>=22-1e-6,k+' right gap @'+w);}}
+ const s=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
+ assert(/\|\|\(m as any\)\.__qfSkin!=='sign'\)this\.layoutSignControl\(m,sign\.width,sign\.height\)/.test(s),'sign branch relayouts children');
+ assert(/private layoutSignControl\(m:Node,w:number,h:number\)\{\(m as any\)\.__qfSkin='sign';const L=signChildLayout\(w,h\);[^\n]*configure\(L\.surface\.width,L\.surface\.height\)/.test(s));
+ assert(/for\(const id of ISLAND_NAV_IDS\)\{const n=this\.controls\.get\(id\);if\(n\)if\(!\(id==='mainline'&&this\.propSign\)\)this\.placeNavigationControl/.test(s),'resize() no longer rebuilds the sign control at 250');});
+ok('复核2 ② sky-city night board entry: clear colour + key/ambient/main lights share one 0.6 s fade from the show frame; no 100 ms window takes > 30% of the drop',()=>{const M=load(['region/RegionBoardNight']).RegionBoardNight;
+ const day=[156,202,223],lum=w=>{const c=M.regionBoardClear(day,w),s=M.regionBoardSceneLightScale(w),k=M.regionBoardKeyLight([255,243,218],12,w);return (0.2126*c[0]+0.7152*c[1]+0.0722*c[2])*0.4+100*(s.ambient*0.4+s.main*0.3+k.luminance/12*0.3)*0.6;};
+ for(const fps of [60,30,10,7]){let w=0,t=0;const pts=[[0,lum(0)]];while(w<1){w=M.easeRegionBoardLight(w,1,1/fps);t+=1/fps;pts.push([t,lum(w)]);}
+  const total=pts[0][1]-pts[pts.length-1][1];assert(total>0);for(const [t0,l0] of pts){const after=pts.filter(p=>p[0]<=t0+0.1+1e-9).pop();assert((l0-after[1])/total<=0.3+1e-9,`drop ${(100*(l0-after[1])/total).toFixed(0)}% in 100 ms @${fps}fps t=${t0.toFixed(2)}`);}
+  if(fps>=10)assert(t>=0.55&&t<=0.75,'fade ~0.6 s, got '+t.toFixed(2)+' @'+fps);}
+ const s=fs.readFileSync(path.join(SRC,'region/SkycityBoardLive.ts'),'utf8');
+ assert(/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,lightW,/.test(s),'clear colour follows lightW');assert(!/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend/.test(s),'no instant clear write');
+ assert(/if\(v&&!shown\)\{lightW=0;lastT=0;\}/.test(s)&&!/if\(v\)lightW=skyNightBlend/.test(s),'show starts the fade instead of snapping');});
 console.log(n+' checks passed');

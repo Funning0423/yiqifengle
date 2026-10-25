@@ -30,7 +30,6 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
   let view:any;try{view=(globalThis as any).__worldDayNight?.snapshot?.();}catch{/* no world: authored day sky */}
   skyMode=mode??(view?.mode==='night'?'night':'day');
   skyNightBlend=skyMode==='night'?(Number.isFinite(view?.skyNightBlend)?Math.max(0,Math.min(1,view.skyNightBlend)):1):0;
-  if(camera&&isValid(camera,true))writeRegionBoardClear(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend,(r,g,b)=>new Color(r,g,b,255));
   applyLights();
  };
  // b16 真机复核 ②：补光、环境光、主光共用一个渐变权重 lightW（REGION_BOARD_LIGHT_FADE_S 0.6 s），不再一帧跳变。
@@ -41,7 +40,9 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const restoreScene=()=>{if(!scene)return;const s0=scene;scene=null;
   if(s0.amb&&s0.amb.skyIllum===s0.ambWritten)s0.amb.skyIllum=s0.ambBase;if(s0.main&&isValid(s0.main,true)&&s0.main.illuminance===s0.mainWritten)s0.main.illuminance=s0.mainBase;};
  function applyLights(){
-  const now=Date.now()/1000,dt=lastT?now-lastT:0;lastT=now;lightW=easeRegionBoardLight(lightW,skyNightBlend,dt);
+  const now=Date.now()/1000,dt=lastT?now-lastT:0;lastT=now;lightW=shown?easeRegionBoardLight(lightW,skyNightBlend,dt):skyNightBlend; // hidden (prewarm): snap, nothing on screen
+  // b16 复核2 ②：天空 clear 色也走 lightW（原来按 skyNightBlend 立即写，进棋盘第一帧掉了总降幅的大半）
+  if(camera&&isValid(camera,true))writeRegionBoardClear(camera,SKYCITY_BOARD_DAY_CLEAR,lightW,(r,g,b)=>new Color(r,g,b,255));
   if(key&&keyDay&&isValid(key,true)&&keyWritten!==lightW){const k=regionBoardKeyLight(keyDay.color,keyDay.luminance,lightW);key.color=new Color(k.color[0],k.color[1],k.color[2],255);key.luminance=k.luminance;keyWritten=lightW;}
   if(!shown){restoreScene();return;}
   if(!scene)scene=sceneLights();const f=regionBoardSceneLightScale(lightW);
@@ -51,7 +52,7 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  syncNight();const offNight=onDayNightChange(syncNight);
  return Object.assign({},lease,{
   frame:(...args:Parameters<typeof lease.frame>)=>{syncNight();lease.frame(...args);},
-  setVisible:(v:boolean)=>{shown=v;if(v)lightW=skyNightBlend; /* first frame snaps (no fade-in from day when entering at night) */syncNight();lease.setVisible(v);keepActive();},
+  setVisible:(v:boolean)=>{/* b16 复核2 ②：显示时从白天权重起步，clear 色/补光/环境光/主光同一个 0.6 s 渐变到夜间，不再首帧跳变 */if(v&&!shown){lightW=0;lastT=0;}shown=v;syncNight();lease.setVisible(v);keepActive();},
   diagnostics:()=>({...lease.diagnostics?.(),skyMode,skyNightBlend,skyClearColor:camera?[camera.clearColor.r,camera.clearColor.g,camera.clearColor.b]:null,keyLight:key?{color:[key.color.r,key.color.g,key.color.b],luminance:key.luminance}:null,lightW,sceneLight:scene?{skyIllum:scene.amb?.skyIllum??null,ambientBase:scene.ambBase,mainIlluminance:scene.main?.illuminance??null,mainBase:scene.mainBase}:null}),
   dispose:()=>{if(!dead){dead=true;offNight();restoreScene();}lease.dispose();}});
 };
