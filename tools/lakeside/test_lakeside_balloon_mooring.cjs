@@ -37,9 +37,10 @@ assert(Math.abs(M.start[1]-.602)<1e-9&&Math.abs(M.groundY-.572)<1e-9,'P0 on the 
 // b15 getout v2: door yaw / P0 / planner walk / door clock / foot lock
 const K=B.LAKESIDE_BALLOON_LANDING;
 assert.deepEqual([...K.mooringLocal],[9.5,.602,25.6],'b15 mooring (floor-fix: lawn 0.572 + 3 cm board)');
-assert(Math.abs(M.doorYawDeg-96.19)<.01,'basket door yaw 96.19 deg at the b15 mooring, got '+M.doorYawDeg);
+/* door2 (scene/b19-basket-door2 01c4cbe3): the EXIT wall (door B, basket −Z) faces 96.19°, so the basket yaw is 96.19+180 */
+assert(Math.abs(M.exitWallYawDeg-96.19)<.01,'exit door wall yaw 96.19 deg at the b15 mooring, got '+M.exitWallYawDeg);assert(Math.abs(M.doorYawDeg-(96.19+180))<.01,'basket yaw = exit wall +180, got '+M.doorYawDeg);assert.equal(M.exitDoorNode,'basket_door_b');
 assert.deepEqual(M.walk[0],M.start,'exit walk starts at P0');
-const off=sub(M.start,M.mooring),yr=M.doorYawDeg*Math.PI/180;
+const off=sub(M.start,M.mooring),yr=M.exitWallYawDeg*Math.PI/180/* P0 world unchanged by door2: rotY(yaw+180)(−0.03,0,−0.395) = rotY(yaw)(0.03,0,0.395) */;
 assert(Math.abs(off[0]*Math.sin(yr)+off[2]*Math.cos(yr)-.395)<1e-9&&Math.abs(off[0]*Math.cos(yr)-off[2]*Math.sin(yr)-.03)<1e-9,'P0 = mooring + rotY(doorYaw)(0.03,0,0.395)');
 assert(Math.abs(M.startYawRad*180/Math.PI-95.97)<.02,'faces the first walk point (95.97 deg), got '+M.startYawRad*180/Math.PI);
 const lp=L.toLocal?L.toLocal(M.start):null;if(lp)assert(Math.abs(lp[0]-9.1105)<1e-3&&Math.abs(lp[2]-25.6724)<1e-3,'P0 lake-local (9.1105, 25.6724)');
