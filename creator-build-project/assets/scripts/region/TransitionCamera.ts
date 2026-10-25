@@ -41,7 +41,7 @@ export function sampleShot(spec:ShotSpec,t:number,her?:HerState):Pose{const k=sp
  let i=0;while(i<k.length-2&&t>k[i+1].t)i++;const a=k[Math.max(0,i-1)],b=k[i],c=k[Math.min(k.length-1,i+1)],d=k[Math.min(k.length-1,i+2)];
  const u=c.t>b.t?Math.max(0,Math.min(1,(t-b.t)/(c.t-b.t))):0;
  const cr=(p0:readonly number[],p1:readonly number[],p2:readonly number[],p3:readonly number[]):Vec=>{const u2=u*u,u3=u2*u;
-  return [0,1,2].map(j=>0.5*(2*p1[j]+(-p0[j]+p2[j])*u+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*u2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*u3)) as Vec;};
+  return [0,1,2].map(j=>0.5*(2*p1[j]+(-p0[j]+p2[j])*u+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*u2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*u3)) as unknown as Vec;};
  let pos=cr(a.pos,b.pos,c.pos,d.pos),look=cr(a.look,b.look,c.look,d.look);const fov=lerp(b.fov??TRANSITION_CAM.fovDeg,c.fov??TRANSITION_CAM.fovDeg,u);
  if(spec.space==='her'){if(!her)throw Error('transition-shot-needs-her:'+spec.id);const m=(p:Vec):Vec=>{const r=rotY(her.yawDeg,p);return [r[0]+her.feet[0],r[1]+her.feet[1],r[2]+her.feet[2]];};pos=m(pos);look=m(look);}
  return {position:pos,target:look,fovVerticalDeg:fov};}
@@ -49,7 +49,7 @@ export const shotLength=(s:ShotSpec)=>s.keys.length?s.keys[s.keys.length-1].t:0;
 type Source=(t:number)=>Pose;
 /** Eased cap on the written view: yaw trapezoid (≤V, ≤A), pitch and FOV rate caps. Never jumps; converges on the target. */
 export class ViewLimiter{
- yaw=0;pitch=0;fov=TRANSITION_CAM.fovDeg;vy=0;live=false;private lastRaw:number|null=null;
+ yaw=0;pitch=0;fov:number=TRANSITION_CAM.fovDeg;vy=0;live=false;private lastRaw:number|null=null;
  reset(p:Pose,yawRateDegS=0){const v=viewOf(p);this.yaw=v.yaw;this.pitch=v.pitch;this.fov=p.fovVerticalDeg??TRANSITION_CAM.fovDeg;this.vy=yawRateDegS;this.lastRaw=v.yaw;this.live=true;}
  /** caught up with the raw view (safe to stop writing through the limiter) */
  settled=false;

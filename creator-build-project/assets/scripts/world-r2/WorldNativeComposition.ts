@@ -1,4 +1,6 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
+import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
+import {preloadTargetForStage} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -78,7 +80,8 @@ export class WorldNativeComposition extends Component {
   private initialization:Promise<void>|null=null;private pendingJourneySelection:Selection|null=null;
   /** Boot awaits actual world validation; Creator start shares the same promise. */
   initializeWorld():Promise<void>{if(!this.initialization)this.initialization=this.initializeOnce();return this.initialization;}
-  start(){void this.initializeWorld().catch(error=>console.error('World composition initialization failed',error));}
+  private skyLakeOff:(()=>void)|null=null;
+  start(){try{if(!this.skyLakeOff&&typeof registerSkyLakeContinuous==='function')this.skyLakeOff=registerSkyLakeContinuous(this as any)/* T-02 → segment 6 continuous */;}catch{/* hook optional: fallback = enterMainline */}void this.initializeWorld().catch(error=>console.error('World composition initialization failed',error));}
   private async initializeOnce(){
     if(!this.firstsliceModel||!this.worldCamera||!this.smokeFixture)throw Error('Bind combined prefab, dedicated world camera and R4 smoke fixture');
     installR5PersistenceProbe();
@@ -136,7 +139,8 @@ export class WorldNativeComposition extends Component {
     else if(region==='meadow'||region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&(region==='meadow'?requiresMeadowScene(selection):requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
     if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
-    if(result.ok&&selection.stageId==='mainline-04'){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload('meadow');}
+    // transitions-continuous: the last level of a region warms the next region + its vehicle (04 meadow+sail, 08 skycity+balloon, 12 lakeside+balloon)
+    {let target:string|null=null;try{target=result.ok?preloadTargetForStage(selection.stageId):null;}catch{target=null;}if(target){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload(target);}}
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
     return result;

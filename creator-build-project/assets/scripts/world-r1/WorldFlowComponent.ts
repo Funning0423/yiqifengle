@@ -14,6 +14,7 @@ import { IslandAtmosphereFx } from '../render/IslandAtmosphereFx';
 import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { preloadMeadowForSail } from '../region/SailPreload';
+import { warmTransition } from '../region/TransitionPreload';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import { hasScreenCover, screenCover } from './ScreenCover';
@@ -279,9 +280,9 @@ export class WorldFlowComponent extends Component {
   }
   /** mainline-04 board: warm the meadow rig inactive. A slow warm keeps waiting on the sail. */
   preloadHiddenRegion(target:JourneyRegion):Promise<{ok:boolean;reason?:string}>{
-   if(target!=='meadow')return Promise.resolve({ok:false,reason:'unsupported'});
    const scene=director.getScene();if(!scene)return Promise.resolve({ok:false,reason:'no-scene'});
-   return preloadMeadowForSail(scene).then(()=>({ok:true}));
+   if(target!=='meadow')return warmTransition(target).then(ok=>({ok}));
+   return Promise.all([preloadMeadowForSail(scene),warmTransition('meadow')]).then(()=>({ok:true}));
   }
   /** UI receives this command facade, never scene/model/camera references. */
   commands() {
