@@ -1018,7 +1018,7 @@ export class RegionNodeStage extends Component{
    [O.yaw,O.pitch,O.dist]=keep;if(sv)n=nodes[sv.i];
    /* p0drag12 (Mac p0drag11: sign 5.5 m away, left side cropped, she not in frame): her AND the whole sign on all 7 portrait screens needs
     * a ~26 m arm (QA shot only, held until a drag) — signShot (region/SignShot.ts). Test: test_p0drag12 S1. */
-   shot=signShot(W,this.lakesideOccluders()??[],ORBIT_LIMITS.island.fovDeg);if(shot)n=nodes[shot.i];}
+   shot=signShot(W,this.lakesideOccluders()??[],ORBIT_LIMITS.island.fovDeg,{textOnly:true,minClearM:1.1});/* p0drag13 option B: her + text panel only, 26.4 → 17.9 m */if(shot)n=nodes[shot.i];}
   if(!n)return {ok:false,reason:'no-node-'+key+'-in-'+region};
   /* p0drag11 (Mac p0drag10: night po stood at (8.77,8.14), the walk before the teleport still ran and re-stood her at its end): a teleport
    * always ends the walk — new token (the walk's end-of-segment re-stand and lens hand-off are skipped), its Cancellation fired, flag off */

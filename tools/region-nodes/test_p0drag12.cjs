@@ -84,7 +84,10 @@ function walkReplay(F0,P){const s=F0.findIndex(f=>f[12]),L=RW.walkPathLengthM(P)
  *  · Pock·夜 chest 1.45 s — at the path's corner (≈ 4.6 m) her chest is visible only from a sector ≈ 90° further round, with the stop
  *    sector beyond it; the plan's own predicted hidden cost (single direction, 120°/s) is 1.31 s — the DP optimum, not a lag.
  * Everything else (face ≤ 0.5 s on Pock·夜, all other routes, no box frames) is unchanged. */
-const W2_RELAXED={'NE1·昼':{f:0.85,c:0.85},'Pock·昼':{f:0.75,c:0.75},'Pock·夜':{f:0.5,c:1.55}};
+/* Grok Bot approved Oct 25: only NE1·昼 and Pock·昼 are re-baselined, to ≤ 0.8 s (measured 0.76 / 0.66 s, reasons above).
+ * Pock·夜 is NOT relaxed: chest stays gated at ≤ 0.5 s and this case is RED (1.43–1.45 s) until 场景设计部 adjusts the occluder
+ * (outbox SCENE_REQUEST_pocket_night.md). */
+const W2_RELAXED={'NE1·昼':{f:0.8,c:0.8},'Pock·昼':{f:0.8,c:0.8}};
 const W2=(prefix='')=>{const out={};let all=true;
  for(const tap of Object.keys(TAPS)){const P=tapPath(tap);for(const k of WALKS){const {F,r,H,s,e2,stopI,L,T}=walkReplay(FX[k],P),m=metrics(F,r.P,H,s,e2,r.act),lim=W2_RELAXED[tap];all=all&&good(m,lim);if(lim)m.relaxedLimit={...lim};
   out[tap+'/'+k]={walkM:+L.toFixed(2),walkS:+T.toFixed(2),stop:H[stopI].map(x=>+x.toFixed(2)),...m};}}
@@ -104,16 +107,18 @@ const W2=(prefix='')=>{const out={};let all=true;
   accs.sort((a,b)=>a-b);const accP99=accs.length?accs[Math.floor(accs.length*0.99)]:0,accPk=accs.length?accs[accs.length-1]:0;
   /* audit only (not gated): the excess is ours (hidden-swing ×5 = 400°/s, 28 m/s arc cap); ×4 or less regresses p0drag10 Q1 (0.48 → 1.7 s) */out[k]={macWrittenPeakDegS:+macPk.toFixed(0),macPeakAt:at,playerRawPeakDegS:+rawPk.toFixed(0),macAboveRawPeakDegS:+macExtraPk.toFixed(0),replayPeakDegS:+ourPk.toFixed(0),replayAboveRawPeakDegS:+extraPk.toFixed(0),replayYawAccelP99DegS2:+accP99.toFixed(0),replayYawAccelPeakDegS2:+accPk.toFixed(0)};}
  ok('Y1',all,out);}
-// ---------- S1 sign shot: her + whole sign on all 7 screens
+// ---------- S1 sign shot (p0drag13 option B, owner Oct 25): her + the sign's TEXT PANEL complete on all 7 screens, her ≥ 11% of frame height
+//   (old whole-sign shot: 26.4 m arm, 8.5%), lens ≥ 1.1 m from every box, out of the gull flight space, head/chest seen
 {const L=X.H.load(X.S('world-r2/IslandPropsLayout.ts')),CP=X.H.load(X.S('world-r1/CameraPose.ts')),OC=X.H.load(X.S('region/LensOcclusion.ts')),EC=X.H.load(X.S('region/ExploreCameraCore.ts'));
  const S=L.ISLAND_PROPS.signpost,a=S.yawDeg*R,n=[Math.sin(a),0,Math.cos(a)],C=L.propCorners(S,S.boxMin,S.boxMax),lo=[0,1,2].map(k=>Math.min(...C.map(q=>q[k]))),hi=[0,1,2].map(k=>Math.max(...C.map(q=>q[k])));
  const tc=S.text.center,txt=[S.position[0]+S.scale*(tc[0]*Math.cos(a)+tc[2]*Math.sin(a)),S.position[1]+S.scale*tc[1],S.position[2]+S.scale*(-tc[0]*Math.sin(a)+tc[2]*Math.cos(a))];
  const Rg=rig('island','S1',X.RN.REGION_NODES.island.nodes[0].at.slice(),{});const st=Rg.st;let her=Rg.her();st.girl=()=>her;st.standAt=(r,at)=>{her=at.slice();};const bx=(st.lakesideOccluders()||[]).concat([{min:lo,max:hi}]);
  const r=st.qaTeleport('sign');
- const judge=c=>{const scr=EC.SCREENS.map(([W,H])=>{const rc=L.signpostRectUi(CP.fromLookAt(c),W,H),m=LS.herMargin(c.position,c.target,c.fovVerticalDeg,her,[[W,H]]);
-   return {screen:W+'x'+H,herMargin:+m.toFixed(2),signRect:rc&&[rc.x,rc.y,rc.width,rc.height].map(v=>Math.round(v)),signWhole:!!rc&&Math.abs(rc.x)+rc.width/2<=W/2&&Math.abs(rc.y)+rc.height/2<=H/2};});
+ const SS=X.H.load(X.S('region/SignShot.ts')),TQ=SS.signTextCorners(),bd=(P,b)=>Math.hypot(...[0,1,2].map(k=>Math.max(b.min[k]-P[k],0,P[k]-b.max[k])));
+ const judge=c=>{const cam=CP.fromLookAt(c),scr=EC.SCREENS.map(([W,H])=>{const rc=L.projectRectUi(cam,W,H,TQ),hb=L.projectRectUi(cam,W,H,CP.characterBox(her,1.6,0.3)),m=LS.herMargin(c.position,c.target,c.fovVerticalDeg,her,[[W,H]]);
+   return {screen:W+'x'+H,herMargin:+m.toFixed(2),herFrac:hb?+(hb.height/H).toFixed(3):0,textRect:rc&&[rc.x,rc.y,rc.width,rc.height].map(v=>Math.round(v)),textFrac:rc?+(rc.height/H).toFixed(3):0,signWhole:!!rc&&Math.abs(rc.x)+rc.width/2<=W/2-12&&Math.abs(rc.y)+rc.height/2<=H/2-12&&rc.height>=24};});
   const g=OC.guardEval(c,her,bx,{up:0,swing:0,share:1}),v=c.position.map((x,k)=>x-txt[k]),text=(v[0]*n[0]+v[2]*n[2])/Math.hypot(...v);
-  return {herSeen:!g.head&&!g.chest,textFacing:+text.toFixed(2),textDeg:+(Math.acos(text)/R).toFixed(1),armM:+d3(c.position,[her[0],her[1]+1.15,her[2]]).toFixed(1),allScreens:scr.every(s=>s.herMargin>=0&&s.signWhole),screens:scr};};
+  return {herSeen:!g.head&&!g.chest,textFacing:+text.toFixed(2),textDeg:+(Math.acos(text)/R).toFixed(1),armM:+d3(c.position,[her[0],her[1]+1.15,her[2]]).toFixed(1),allScreens:scr.every(s=>s.herMargin>=0&&s.signWhole&&s.herFrac>=0.11),inside:!!g.inside,clearM:+Math.min(...bx.map(b=>bd(c.position,b))).toFixed(2),gullClear:SS.gullClear(c.position),screens:scr};};
  const j0=judge(Rg.cam());for(let f=0;f<60;f++)st.writeOrbit(1/60);const j1=judge(Rg.cam());
- ok('S1',r.ok&&[j0,j1].every(j=>j.allScreens&&j.herSeen&&j.textFacing>=0.5),{teleport:r,atTeleport:j0,after1s:{...j1,screens:undefined}});}
+ ok('S1',r.ok&&[j0,j1].every(j=>j.allScreens&&j.herSeen&&j.textFacing>=0.5&&!j.inside&&j.clearM>=1.1&&j.gullClear),{teleport:r,atTeleport:j0,after1s:{...j1,screens:undefined}});}
 const all=Object.values(res).every(r=>r.ok);console.log(JSON.stringify({test:'p0drag12',ok:all,...res},null,1));process.exit(all?0:1);
