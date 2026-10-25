@@ -112,6 +112,8 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  assert.ok(!/__qfPreTransition/.test(boot),'boot never assigns the global itself');
  const setup=run.slice(run.indexOf('private async setup'),run.indexOf('private scale'));
  assert.ok(!/travelRegion\('lakeside'\)|claimRegionAndWalk|advanceMainline|advanceRegistered|playFinale|exitSkycity\(\)\.then/.test(setup),'setup never fires the tested transition');
+ // tap QA: __qfGroundTap carries the first rendered hit (hitName/hitPath/hitPoint), only behind qaHooksEnabled
+ {const st=S('world-r2/RegionNodeStage.ts');assert.ok(/__qfGroundTap=\{region,kind:hit\.kind,[^\n]*\.\.\.\(qaHooksEnabled\(\)\?qaFirstRenderHit\(ray\):\{\}\)/.test(st),'hitName gated');assert.ok(/hitName:node\.name,hitPath:/.test(st));}
  // release strip script: hook strings must ship together with the release gate
  const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'qfpre-'));const sh=path.join(ROOT,'tools/grokbot-autoplay/check_release_strip.sh');
  try{
