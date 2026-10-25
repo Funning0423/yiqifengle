@@ -23,6 +23,9 @@ export function qaQuery(host:any=globalThis):string{
  try{addObj(host?.wx?.getLaunchOptionsSync?.()?.query);}catch{}
  if(!out.size)return '';const parts:string[]=[];out.forEach((v,k)=>{parts.push(k+'='+v);});return '?'+parts.join('&');
 }
+/** Harness enable without launch params (DevTools `cli open` ignores 编译模式 启动参数): the autoplay tool sets
+ *  globalThis.__qfHooksEnable=true or calls __qfPreTransition('enable'). Still behind qaSkipAllowed (WeChat release never). */
+export function qaHarnessEnabled(host:any=globalThis):boolean{try{return host?.__qfHooksEnable===true;}catch{return false;}}
 export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarget|null{
  let q=search;
  if(q==null)q=qaQuery(host);
@@ -35,6 +38,7 @@ export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarg
 export function qaHooksEnabled(search?:string|null,host:any=globalThis):boolean{
  let q=search;if(q==null)q=qaQuery(host);
  if(!qaSkipAllowed(host))return false;
+ if(qaHarnessEnabled(host))return true;
  return qaSkipTarget(q,host)!==null||/(?:^|[?&])qfHooks=1(?:&|$)/.test(q||'');
 }
 /** FreeOrbit / camTrace yaw (degrees, world): the lens sits at her look point + d·(sin yaw·cos p, sin p, cos yaw·cos p), i.e. the camera
