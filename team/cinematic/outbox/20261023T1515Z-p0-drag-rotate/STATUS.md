@@ -245,3 +245,6 @@ Source +5,994 B (RegionNodeStage +4,456, LensSmooth +904, LensAvoid +563, CamTra
 - The 'sign' shot: from the 12 m arm cap the panel is ~3 m from the lens and fills most of the portrait; her figure is partly behind it. Every walkable spot is behind the sign, so a front view with her clear would need a longer QA-only arm or a scene change (the panel back currently shows mirrored text — art may want a blank back).
 - The no-entry guard may let the lens trail the player's turn by up to 90° behind a house until a clear arc exists; replay shows no pitch/height/limit violations, but feel on device unknown.
 - Easing/occlusion numbers are the replay model (real code, stubbed scene/proxy boxes, Mac dt sequence). Engine confirmation needs a Mac rerun with camTrace (occFace/occChest now in each frame).
+
+## p0drag11 — CHECKPOINT (in progress)
+Branch cine/p0drag11: d916f189 occluders, 8f5885dc frame boxes+avoidance, c71a413c items 2–4, 12a1f2f2 tests, 3bbbbe02 entry glide. Camera tests p0drag8–11, explore-arm, free-orbit, lakeside-walkable PASS. Full suite pending.
