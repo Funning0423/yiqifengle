@@ -1,16 +1,56 @@
-import { _decorator, BlockInputEvents, Color, Component, Graphics, Layers, Node, Sprite, SpriteFrame, UITransform, isValid, resources, sys, view } from 'cc';
+import { _decorator, BlockInputEvents, Camera, Color, Component, EffectAsset, Graphics, Layers, Material, MeshRenderer, Node, Sprite, SpriteFrame, RenderTexture, UITransform, director, isValid, resources, sys, utils, view } from 'cc';
 import { artButton, artSprite, makeLabel, TintSet } from './PopupKit';
 import { uiNightWeight } from './NightTint';
 import { ENDING_ART, endingLayout, endingLayoutChecks, endingSwayDeg } from '../world-r2/EndingFlow';
+import { ENDING_CHIME, chimePartSwing, endingChimeParts, type ChimePart } from '../world-r2/EndingChimeGeometry';
 /** Ending screen v2 (UI设计部 SPEC §3 @94b821fd + Grok Bot: board on the post removed, night rendered on its own).
- *  Layers, back to front: lake-view render (day / night render, chosen once at build), 3D wind chime render swung ±4° / 3.2 s
- *  around its hang point on the post arm, night warm glow, the girl (whole body, between seals and button), bottom shade,
+ *  Layers, back to front: lake-view render (day / night render, chosen once at build), live low-poly 3D wind chime (built in code,
+ *  EndingChimeGeometry; each tube swings on its own, the whole chime ±4° / 3.2 s around its hang point on the post arm),
+ *  night warm glow, the girl (whole body, between seals and button), bottom shade,
  *  「旅程完成」 plank, four seals, ONE button 「回小岛」 inset ≥24 pt. Text total: 7 characters. Swallows touches.
  *  ready() turns true when the art has loaded (or failed → warm gradient fallback) so the WindWipe reveal waits for it. */
 type Part = 'bg' | 'chime' | 'girl';
 const { ccclass } = _decorator;
 @ccclass('EndingChimeSway')
 class ChimeSway extends Component { t = 0; update(dt: number) { this.t += Math.min(dt, .1); this.node.angle = endingSwayDeg(this.t); } }
+const CHIME_LAYER = 1 << 16;
+/** Live low-poly chime: code-built meshes (no asset), lit by the existing ui/warm-button-lit studio effect (vertex colours, fixed
+ *  key/fill, sRGB out), rendered by an ortho camera on its own layer into a RenderTexture shown by the chime Sprite. */
+@ccclass('EndingChime3D')
+class EndingChime3D extends Component {
+  private rig: Node | null = null; private cam: Camera | null = null; private rt: RenderTexture | null = null; private frame: SpriteFrame | null = null;
+  private mat: Material | null = null; private effect: EffectAsset | null = null; private parts: { n: Node; p: ChimePart }[] = []; private t = 0; private dead = false;
+  build(sprite: Sprite, night: boolean, w: number, h: number, done: (ok: boolean, why?: string) => void) {
+    resources.load('ui/warm-button-lit', EffectAsset, (err, effect) => {
+      if (this.dead || !isValid(this.node, true)) return done(false, 'disposed');
+      if (err || !effect) return done(false, String(err || 'effect'));
+      try {
+        const scene = director.getScene(); if (!scene) throw Error('no scene');
+        if (!scene.getComponentsInChildren(Camera).every(c => (c.visibility & CHIME_LAYER) === 0)) throw Error('chime layer 16 visible to a scene camera');
+        this.effect = effect; effect.addRef(); this.mat = new Material(); this.mat.initialize({ effectAsset: effect }); if (!this.mat.passes.length) throw Error('no passes');
+        const C = ENDING_CHIME, rig = new Node('EndingChimeRig'); rig.layer = CHIME_LAYER; scene.addChild(rig); rig.setPosition(-30000, -30000, -30000); this.rig = rig;
+        const model = new Node('EndingChimeModel'); model.layer = CHIME_LAYER; rig.addChild(model); model.setRotationFromEuler(C.tiltDeg, 0, 0);
+        for (const p of endingChimeParts(night)) { const n = new Node(p.name); n.layer = CHIME_LAYER; model.addChild(n); n.setPosition(p.pivot[0], p.pivot[1], p.pivot[2]);
+          const r = n.addComponent(MeshRenderer); r.mesh = utils.createMesh(p.geom, undefined, { calculateBounds: true }); r.setSharedMaterial(this.mat, 0); r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; this.parts.push({ n, p }); }
+        const cn = new Node('EndingChimeCamera'); cn.layer = CHIME_LAYER; rig.addChild(cn); cn.setPosition(0, -C.boxH / 2, 500);
+        const cam = cn.addComponent(Camera); cam.projection = Camera.ProjectionType.ORTHO; cam.orthoHeight = C.boxH / 2; cam.near = 1; cam.far = 1000; cam.visibility = CHIME_LAYER;
+        cam.clearFlags = Camera.ClearFlag.SOLID_COLOR; cam.clearColor = new Color(0, 0, 0, 0); cam.priority = 43; cam.usePostProcess = false;
+        // 3 px per screen point, ≤512 wide: sharp on 3× screens, ~1.2 MB GPU
+        const px = Math.max(1, Math.min(512, Math.ceil(w * 3))), py = Math.max(1, Math.round(px * h / w));
+        const rt = new RenderTexture(); rt.reset({ width: px, height: py }); (rt as any).setFilters?.(2, 2); cam.targetTexture = rt; this.cam = cam; this.rt = rt;
+        const f = new SpriteFrame(); f.texture = rt; f.packable = false; this.frame = f; sprite.spriteFrame = f; this.tick(0); done(true);
+      } catch (e) { this.release(); done(false, String(e)); }
+    });
+  }
+  private tick(dt: number) { this.t += Math.min(dt, .1); for (const { n, p } of this.parts) { const [z, x] = chimePartSwing(p.swing, this.t); n.setRotationFromEuler(x, 0, z); } }
+  update(dt: number) { if (this.parts.length) this.tick(dt); }
+  private release() {
+    if (this.cam && isValid(this.cam, true)) { this.cam.targetTexture = null; this.cam.enabled = false; } this.cam = null;
+    if (this.rig && isValid(this.rig, true)) this.rig.destroy(); this.rig = null; this.parts = [];
+    this.frame?.destroy(); this.frame = null; this.rt?.destroy(); this.rt = null; this.mat?.destroy(); this.mat = null; this.effect?.decRef(); this.effect = null;
+  }
+  onDestroy() { this.dead = true; this.release(); }
+}
 export class EndingScreen {
   readonly node: Node; private tint = new TintSet(); private alive = true; private pending = 3; private failed: string[] = [];
   readonly night: boolean; readonly layout: ReturnType<typeof endingLayout>;
@@ -27,7 +67,9 @@ export class EndingScreen {
     const bg = this.ui(n, 'EndingLake', L.bg.w, L.bg.h); bg.setPosition(X(L.bg.x + L.bg.w / 2), Y(L.bg.y + L.bg.h / 2), 0); this.load(bg, 'bg', ENDING_ART.dir + 'end_bg_' + mode);
     const cw = L.chime.x1 - L.chime.x0, chh = L.chime.y1 - L.chime.y0;
     const pivot = this.ui(n, 'EndingChimePivot', 1, 1); pivot.setPosition(X(L.hang.x), Y(L.hang.y), 0); pivot.addComponent(ChimeSway);
-    const ch = this.ui(pivot, 'EndingChime', cw, chh); ch.setPosition(0, -chh / 2, 0); this.load(ch, 'chime', ENDING_ART.dir + 'end_chime_' + mode);
+    const ch = this.ui(pivot, 'EndingChime', cw, chh); ch.setPosition(0, -chh / 2, 0);
+    { const sp = ch.addComponent(Sprite); sp.sizeMode = Sprite.SizeMode.CUSTOM; sp.trim = false;
+      ch.addComponent(EndingChime3D).build(sp, night, cw, chh, (ok, why) => { this.pending--; if (!ok) { this.failed.push('chime'); console.warn('[Ending] 3D chime unavailable', why); } }); }
     if (night) { const gl = this.ui(n, 'EndingChimeGlow', 2, 2); gl.setPosition(X(L.hang.x), Y((L.chime.y0 + L.chime.y1) / 2), 0); const gg = gl.addComponent(Graphics), c = ENDING_ART.nightGlow.color;
       for (let i = 10; i >= 1; i--) { gg.fillColor = new Color(c[0], c[1], c[2], Math.round(255 * ENDING_ART.nightGlow.alpha / 10)); gg.circle(0, 0, L.glowR * i / 10); gg.fill(); } }
     const gw = L.girl.x1 - L.girl.x0, gh = L.girl.y1 - L.girl.y0;

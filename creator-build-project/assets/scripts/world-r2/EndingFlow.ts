@@ -11,8 +11,8 @@ export function endingAvailable(world:{state?:string;needsResume?:boolean}|null|
 }
 /** Ending v2 art (UI设计部 ui/post-island-ui 94b821fd SPEC §3): layered Blender renders of the real lakeside scene
  *  (lakeside_r5h3.blend, camera on the south shore looking north, 20 mm), day and night lit separately. Source frames are
- *  780×1688 px = 390×844 pt; boxes below are in those source points (top-left origin). The board on the chime post is
- *  removed in the bg render; the chime is its own layer, swung in code around its hang point. */
+ *  rendered at 1170×2532 px (3×) = 390×844 pt; boxes below are in those source points (top-left origin). The board on the chime post is
+ *  removed in the bg render; the chime is a live low-poly 3D layer built in code (EndingChimeGeometry), swung around its hang point. */
 export const ENDING_ART=Object.freeze({
   dir:'ending/',srcW:390,srcH:844,
   chime:{x0:134,y0:159,x1:215,y1:359},   // LK_windchime ×1.25 hanging from the LK_chime_post arm; hang point = top centre
