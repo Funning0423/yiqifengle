@@ -3151,8 +3151,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailGangway.ts",
-    "bytes": 4513,
-    "sha256": "bbb98991e8a8abad8821ad2adbc59265bad9066057d2e9932faa592b07a8d20f"
+    "bytes": 5731,
+    "sha256": "eeddb64cdad86c89ef2de0eef852f483c64f3edbabc690c98b0c2e0fbc3762f5"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailGangway.ts.meta",
@@ -3201,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts",
-    "bytes": 22515,
-    "sha256": "886f9e126dc2f22713c14c1eee13ea3b39d6c617fcfc1580cded0096513edb92"
+    "bytes": 22619,
+    "sha256": "59de2386c66b4e69ca99393825cd592d07460ddbe39d3b8b4c72f07c34dca8a4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts.meta",
@@ -4491,8 +4491,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelBackground.ts",
-    "bytes": 4276,
-    "sha256": "73bd178283b5515efdd0d771bdc6ac0fdc9377526a0af532e1e05ea49648d578"
+    "bytes": 5816,
+    "sha256": "7c928daa57517de49f1c666034a315f795e8eaa3fb3c071729605084ef187ee1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelBackground.ts.meta",
@@ -4551,8 +4551,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 8001,
-    "sha256": "f3c08b745cb7bd533400b7d9b624413a92232868876da914be38522834f289c4"
+    "bytes": 8742,
+    "sha256": "c860398ef4e2c4746b2bf20be5afe3f077d7acb37c6bf6dafa13181458ee2805"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
@@ -4821,8 +4821,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 21807,
-    "sha256": "7a48a00fbfe2cd8b8ca90397b1551e527a868733dfdfc949c5804bcf7378c7c6"
+    "bytes": 21942,
+    "sha256": "630cd9db915f1853c384e114569965b28583c531f2b66a52a8e5463db9fba617"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

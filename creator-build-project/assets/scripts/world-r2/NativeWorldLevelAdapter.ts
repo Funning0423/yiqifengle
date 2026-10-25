@@ -1,5 +1,5 @@
 import { Node, director, Director, UIOpacity } from 'cc';
-import { LevelBackgroundBinding } from './LevelBackground';
+import { LevelBackgroundBinding, BACKGROUND_FADE_SECONDS } from './LevelBackground';
 import type { LevelBackgroundFactory } from './LevelBackground';
 import { ManagedMobileBoardUI as NativeBoardUI } from '../ManagedMobileBoardUI';
 import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
@@ -91,7 +91,11 @@ export function createNativeWorldLevelAdapter(options:{
           if(disposed||!root.active){resolve();return;}const op=root.getComponent(UIOpacity)||root.addComponent(UIOpacity),a0=op.opacity;let t=0,end=false;
           const finish=()=>{if(end)return;end=true;try{director.off(Director.EVENT_BEFORE_DRAW,tick);}catch{}resolve();};
           const tick=()=>{if(disposed){finish();return;}t+=Math.min(.05,Math.max(0,director.getDeltaTime()));op.opacity=boardFadeOpacity(a0,t,seconds);if(t>=seconds)finish();};
-          director.on(Director.EVENT_BEFORE_DRAW,tick);setTimeout(finish,seconds*1000+1500);}),
+          director.on(Director.EVENT_BEFORE_DRAW,tick);setTimeout(finish,seconds*1000+1500);}).then(()=>{
+          /* cand8 (Grok Bot ③): the 3D board background is not switched off on dispose any more; it fades over BACKGROUND_FADE_SECONDS
+           * (0.3 s) on the drawn-frame clock right after the 2D board fade, then disposes itself (dispose() below is then a no-op for it). */
+          if(disposed)return;return background.fadeOut(BACKGROUND_FADE_SECONDS,step=>{let off=false;const f=()=>{if(off)return;if(step(director.getDeltaTime())){off=true;try{director.off(Director.EVENT_BEFORE_DRAW,f);}catch{}}};
+            director.on(Director.EVENT_BEFORE_DRAW,f);setTimeout(()=>{if(!off){off=true;try{director.off(Director.EVENT_BEFORE_DRAW,f);}catch{}step(1);}},BACKGROUND_FADE_SECONDS*1000+1500);});}),
         isSettledResult:()=>{const s=session!.snapshot();return !s.readOnly&&s.state==='result.saved'&&!!s.active&&(s.active.status==='won'||s.active.status==='lost');},
         whenPlayable:()=>typeof (ui as any).whenInteractive==='function'?(ui as any).whenInteractive():Promise.resolve(),
         reveal};

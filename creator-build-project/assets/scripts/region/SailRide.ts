@@ -328,9 +328,9 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  // so the sail motion keeps its d9423886 length instead of being squeezed.
  const motionBudget=Math.max(4,30.5-(used-realI6)-sf-standS-offS+(plan.pier?3.5:0));
  driver.depart(motionBudget);
- chainMark('sail','A3-sail');show(plan.props?.islandPlank,false)/* plank drawn back as she casts off */;try{gw?.swing('stowed-island',0.8);}catch{}
+ chainMark('sail','A3-sail');show(plan.props?.islandPlank,false)/* plank drawn back as she casts off */;try{gw?.swing('stowed-meadow',0.8)/* cand8: visible raise → swing across (1.2 s, eased) → stowed on the meadow side, during the sail */;}catch{}
  await until(plan.total-plan.boardS);
- chainMark('sail','A4-dock');show(plan.props?.meadowPlank,true);try{gw?.swing('meadow',0.8)/* side swap happens upright (stowed→stowed), then lowers */;}catch{}
+ chainMark('sail','A4-dock');show(plan.props?.meadowPlank,true);try{gw?.swing('meadow',0.8)/* cand8: already on the meadow side since A3; only lowers */;}catch{}
  show(plan.props?.pier,false);show(plan.props?.ramp,false)/* cand7: island left — island-side placeholders off */;
  driver.releaseRider();
  // fix-cloud-sit: guard again right before stand_up and before the disembark walk (the actor's anim = her SkeletalAnimation)

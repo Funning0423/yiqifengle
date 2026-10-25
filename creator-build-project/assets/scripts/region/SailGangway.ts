@@ -30,6 +30,23 @@ export function gangwayPose(e:GangwayExtras,s:GangwayState):{pos:Vec;euler:Vec}{
  const z=s==='island'?e.islandDeployDeg:s==='meadow'?e.meadowDeployDeg:e.stowedDeg;
  return {pos:island?e.islandHinge:e.meadowHinge,euler:[0,island?e.islandYawDeg:0,z]};
 }
+/** cand8: pure keyframe plan for a swing. A side switch is never a snap: the board is raised on its current side,
+ *  then swung across (hinge position and yaw interpolated together, eased) to the stowed pose on the other side, then lowered.
+ *  Every consecutive pair of keys differs only by a continuous tween; no key repeats a pose change in zero time. */
+export type GangwayKey={pos:Vec;euler:Vec;seconds:number};
+export const GANGWAY_CROSS_SECONDS=1.2;
+export function gangwaySequence(e:GangwayExtras,from:GangwayState,to:GangwayState,seconds=0.6):GangwayKey[]{
+ const side=(x:GangwayState)=>x==='island'||x==='stowed-island';const sec=Math.max(0.05,seconds);const keys:GangwayKey[]=[];
+ const push=(s:GangwayState,t:number)=>{const q=gangwayPose(e,s);keys.push({pos:q.pos,euler:q.euler,seconds:t});};
+ if(side(from)!==side(to)){
+  const upFrom:GangwayState=side(from)?'stowed-island':'stowed-meadow',upTo:GangwayState=side(to)?'stowed-island':'stowed-meadow';
+  if(from!==upFrom)push(upFrom,sec);
+  push(upTo,GANGWAY_CROSS_SECONDS);
+  if(to!==upTo)push(to,sec);
+ }else push(to,sec);
+ return keys;
+}
+export function gangwaySequenceSeconds(e:GangwayExtras,from:GangwayState,to:GangwayState,seconds=0.6):number{return gangwaySequence(e,from,to,seconds).reduce((a,k)=>a+k.seconds,0);}
 export type GangwayDriver={hinge:Node;extras:GangwayExtras;source:string;set(s:GangwayState):void;swing(s:GangwayState,seconds?:number):void;state():GangwayState};
 /** null when the boat has no sail_gangway_hinge (old sailboat.glb): the caller keeps the placeholder planks. */
 export function createGangwayDriver(boat:Node|null,findDeep:(r:Node|null,n:string)=>Node|null):GangwayDriver|null{
@@ -42,8 +59,8 @@ export function createGangwayDriver(boat:Node|null,findDeep:(r:Node|null,n:strin
  const stop=()=>{try{tw?.stop();}catch{}tw=null;};
  return {hinge,extras:e,source:r.source,state:()=>cur,
   set(s){stop();cur=s;if(hinge.isValid)apply(s);},
-  swing(s,seconds=0.6){stop();if(!hinge.isValid)return;const q=gangwayPose(e,s),side=(x:GangwayState)=>x==='island'||x==='stowed-island';
-   if(side(s)!==side(cur)){apply(side(s)?'stowed-island':'stowed-meadow');}
-   cur=s;hinge.setPosition(q.pos[0],q.pos[1],q.pos[2]);
-   tw=tween(hinge).to(Math.max(0.05,seconds),{eulerAngles:new Vec3(q.euler[0],q.euler[1],q.euler[2])}).start();}};
+  swing(s,seconds=0.6){stop();if(!hinge.isValid)return;const keys=gangwaySequence(e,cur,s,seconds);cur=s;
+   let t=tween(hinge);
+   for(const k of keys)t=t.to(k.seconds,{position:new Vec3(k.pos[0],k.pos[1],k.pos[2]),eulerAngles:new Vec3(k.euler[0],k.euler[1],k.euler[2])},{easing:'sineInOut'});
+   tw=t.start();}};
 }
