@@ -156,6 +156,7 @@ const tests=[
  ['sky-arrival','tools/transitions/test_sky_arrival.cjs'],
  ['sky-cloudsea','tools/transitions/test_sky_cloudsea.cjs'],
  ['skycity-face-budget','tools/skycity/test_skycity_face_budget.cjs'],
+ ['skycity-visibility','tools/skycity/test_skycity_visibility.cjs'],/* b19: no repo camera sees through the face-budget holes (fast sampling; --full for every orbit lens) */
  ['skycity-night-grade','tools/skycity/test_skycity_night_grade.cjs'],['skycity-board-clear','tools/skycity/test_skycity_board_clear.cjs'],
  ['lakeside-sun-continuity','tools/lakeside/test_lakeside_sun_continuity.cjs'],/* r4.2 item 7 */
  ['board-prewarm-swap','tools/board-ui/test_board_prewarm_swap.cjs'],/* r4.2 items 10/11 */
