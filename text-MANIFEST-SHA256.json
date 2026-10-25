@@ -1736,23 +1736,13 @@
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_bg_day.jpg.meta",
-    "bytes": 3118,
-    "sha256": "7c42508f555a917d7575363b475d2a920c0472d5510afea897df46b361166cb2"
+    "bytes": 3128,
+    "sha256": "8414ae5f31cde92f4b3642a826cee7ca61de8871c1d54191441854b3f77d3497"
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_bg_night.jpg.meta",
-    "bytes": 3122,
-    "sha256": "5dcd085254e531f0e93fe104fa62b928e7f87c83cd42c4d1ba18d69d01888fcc"
-  },
-  {
-    "path": "creator-build-project/assets/resources/ending/end_chime_day.png.meta",
-    "bytes": 3113,
-    "sha256": "cdf248db6ea9641d65fc03be5b6a383761c1eb39a66c5beb992407c1399790c6"
-  },
-  {
-    "path": "creator-build-project/assets/resources/ending/end_chime_night.png.meta",
-    "bytes": 3117,
-    "sha256": "4c19bebcbc3e098db6651804a46e9fd9fba14a12c323576f0c59968beacf9f35"
+    "bytes": 3132,
+    "sha256": "0d623cfe3594de60f0613951919169a9b74065987dde780b19c55b9f92750f48"
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_girl_day.png.meta",
@@ -3761,8 +3751,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts",
-    "bytes": 6791,
-    "sha256": "15ac81eef40a527545f4a890c8cdb0a68928de6932f91ab356684fdd0ea97b2f"
+    "bytes": 11174,
+    "sha256": "c928e222a2a06adf5cc954bdad582a529e794ad09ecec062ac198ceaf6765ec1"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts.meta",
@@ -4090,9 +4080,19 @@
     "sha256": "6afd89112735e7a686893a50705fb827ee8feca580dd03cedf08b01939988ef2"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/EndingChimeGeometry.ts",
+    "bytes": 4874,
+    "sha256": "f2dc6295a8b7adc244777a2bb2793869e69adc0bcb5d7ecaa7cb621d768b9096"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/EndingChimeGeometry.ts.meta",
+    "bytes": 171,
+    "sha256": "009465af44d7079712ebc42e926da254d39fdea7afbff2294ad21bb7c4e92fd3"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts",
-    "bytes": 5504,
-    "sha256": "5c93562c35b4817ff3bff6d46a3f1356ffac2112d4074d8444a8adfe46fe390a"
+    "bytes": 5562,
+    "sha256": "3e8a2bd648f2202eda9c4a60a110916ef43b4cd28a187263a8dcb6ece1c0b436"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts.meta",

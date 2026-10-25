@@ -70,8 +70,15 @@ function clock(){let t=0;const log=[];const self={log,now:()=>t,wait:async s=>{t
   const L=E.endingLayout(320,568,0);assert(L.girl.y1-L.girl.y0>=48-1e-6&&L.girl.y0-(L.sealsCy+22)>=12-1e-6);
   assert.equal(E.endingSwayDeg(0),0);assert(Math.abs(E.endingSwayDeg(0.8)-4)<1e-9);assert(Math.abs(E.endingSwayDeg(2.4)+4)<1e-9);
   const dir=path.join(__dirname,'../../creator-build-project/assets/resources/ending');
-  for(const m of ['day','night'])for(const f of ['end_bg_'+m+'.jpg','end_chime_'+m+'.png','end_girl_'+m+'.png']){assert(fs.existsSync(path.join(dir,f))&&fs.existsSync(path.join(dir,f+'.meta')),f);}
+  for(const m of ['day','night'])for(const f of ['end_bg_'+m+'.jpg','end_girl_'+m+'.png']){assert(fs.existsSync(path.join(dir,f))&&fs.existsSync(path.join(dir,f+'.meta')),f);}
   const es=src('ui/EndingScreen.ts');assert(/end_bg_'\s*\+\s*mode/.test(es)&&/ChimeSway/.test(es)&&/pending\s*<=\s*0/.test(es));
-  ok('ending v2: 7 sizes pass layout checks (320×568 girl 48 pt, head ≥12 pt under seals); chime sways ±4°/3.2 s; day+night art with .meta; reveal waits for art');}
+  for(const m of ['day','night'])assert(!fs.existsSync(path.join(dir,'end_chime_'+m+'.png')),'flat chime png still shipped');
+  {const G=H.load('world-r2/EndingChimeGeometry');for(const night of [false,true]){const P=G.endingChimeParts(night);assert.equal(P.filter(p=>/^ChimeTube/.test(p.name)).length,4);
+    const tris=G.chimeTriangles(P);assert(tris>0&&tris<600,'low-poly '+tris);for(const p of P){const g=p.geom;assert.equal(g.positions.length,g.normals.length);assert.equal(g.colors.length/4,g.positions.length/3);assert(Math.max(...g.indices)<g.positions.length/3);
+      for(let i=0;i<g.positions.length;i+=3){const x=g.positions[i]+p.pivot[0],y=g.positions[i+1]+p.pivot[1];assert(Math.abs(x)<=G.ENDING_CHIME.boxW/2&&y<=0&&y>=-G.ENDING_CHIME.boxH,p.name+' leaves the chime box');}}}
+   const tubes=G.endingChimeParts(false).filter(p=>p.swing),a=tubes.map(p=>G.chimePartSwing(p.swing,1.3)[0]);assert(new Set(a.map(v=>v.toFixed(3))).size===tubes.length,'tubes swing independently');
+   for(const p of tubes)for(let t=0;t<8;t+=.1){const [z,x]=G.chimePartSwing(p.swing,t);assert(Math.abs(z)<=3.5&&Math.abs(x)<=2.1);}
+   assert(/EndingChime3D/.test(es)&&/warm-button-lit/.test(es)&&!/end_chime_/.test(es));}
+  ok('ending v2: 7 sizes pass layout checks (320×568 girl 48 pt, head ≥12 pt under seals); chime sways ±4°/3.2 s; 3D chime in code (4 tubes, own swings, low-poly, no PNG); day+night art with .meta; reveal waits for art');}
  console.log('windwipe-ending: '+pass+' checks PASS');
 })().catch(e=>{console.error('FAIL',e);process.exit(1);});
