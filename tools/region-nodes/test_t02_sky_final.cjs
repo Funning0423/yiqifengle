@@ -72,7 +72,8 @@ const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.pos
   ok('F4',pk<=90&&pkA<=200&&ins===0&&minC>=Math.min(1.1,startC)-0.01&&mx[0]<=0.5&&mx[1]<=0.5&&jump<=0.5,{approachS:+Ts.toFixed(2),wayRound:ap.dir,yawPeakDegS:+pk.toFixed(1),yawAccPeakDegS2:+pkA.toFixed(0),lensInBoxFrames:ins,faceS:+mx[0].toFixed(2),chestS:+mx[1].toFixed(2),maxStepM:+jump.toFixed(3),minMeshClearM:+minC.toFixed(2),walkLensStartClearM:+startC.toFixed(2)});}
  // F5 auto-continue + WindWipe hand-off (source contract; the stage methods are Cocos-bound)
  {const st=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8'),co=fs.readFileSync(X.S('world-r2/WorldNativeComposition.ts'),'utf8');
-  const checks={holdS:F.SKY_FINALE.holdS>=4&&F.SKY_FINALE.holdS<=8,armedAfterReward:/mainlineReward\('claimRegion',index\);if\(\(r as any\)\?\.ok!==false\)try\{stage\.armFinaleContinue\?\.\(\(\)=>\{void this\.enterMainline\(\);\}\)/.test(co),
+  const pf=(st.match(/async playFinale\([\s\S]*?\n \}/)||[''])[0];
+  const checks={holdS:F.SKY_FINALE.holdS===5.5&&F.SKY_FINALE.approachS===1.4,countdownAfterEaseIn:/await this\.blendPath\(ap\.T/.test(pf)&&/await stage\.playFinale\([\s\S]{0,400}armFinaleContinue/.test(co),armedAfterReward:/mainlineReward\('claimRegion',index\);if\(\(r as any\)\?\.ok!==false\)try\{stage\.armFinaleContinue\?\.\(\(\)=>\{void this\.enterMainline\(\);\}\)/.test(co),
    inputDisarms:/if\(this\.finaleArm&&\(gesture==='drag'\|\|gesture==='pinch'\|\|gesture==='tap'\)\)this\.disarmFinale\(\)/.test(st),
    wipeHooks:/onWipeCovered\(\(\)=>this\.disarmFinale\(\)\),addWipeBeforeReveal\(\(\)=>!this\.anim\),onWipeRevealed\(/.test(st),
    noBlackOfOurs:!/fadeCover|screenCover\(/.test(st.slice(st.indexOf('async playFinale'),st.indexOf('private wipeHooks'))),bakedPoseUsed:/skyFinalePose\(\)/.test(st),orbitApproach:/blendPath\(ap\.T,t=>skyFinaleApproachPose\(from,shot,g,t,ap\.T,ap\.dir\)\)/.test(st)};
