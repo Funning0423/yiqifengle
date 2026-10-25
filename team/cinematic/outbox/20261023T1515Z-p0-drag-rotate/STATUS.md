@@ -355,3 +355,21 @@ All after-numbers are NOT ENGINE: they come from replaying the Mac p0drag11 camT
 ### Tests and suite
 - test_p0drag12: W1, L1 (skn_ro reported only), Y1 (audit), S1. W1 and S1 fail on 74d0ae20. L1 gives the same numbers on 74d0ae20: it is a self-check and nothing this round changes the turns.
 - p0drag8/9/10/11, explore_arm and free_orbit still pass.
+- Suite on 91cb12d6 (includes the r7 merge): 179/182 PASS. The only blocks are the expected ones: 2× Node ≥22.6 and navigation-guard (browser). p0drag7–12, skycity-stand and lakeside-walkable pass.
+
+### r7 merge (scene/b17-skycity-walk-r7 c2aa19e3, merged cleanly as 044c8de8)
+- W2 (NOT ENGINE, self-check, not gated): the Mac walk frames replayed with her on the r7 walk, 5.69 m to the nook stop (11.8, 7.8) at 1.2 m/s, with walkEndView at the stop. Longest face/chest hidden run during the walk plus 0.5 s:
+
+| Walk | Face (s) | Chest (s) | Frames inside a box |
+|---|---|---|---|
+| skd | 0.75 | 0.88 | 0 |
+| skxd | 0.77 | 0.88 | 0 |
+| skn | 1.85 | 2.77 | 19 |
+
+- **The r7 stop FAILS the ≤0.5 s limit.**
+- Cause: at (11.8, 7.8) she is clear only from a yaw sector of about 100° (150–250° in the probe frame). At walk start the avoider swings wide to the other side, and the lens then waits behind a wall until the walk-end turn. That turn passes through boxes on skn.
+- I tried two fixes; both made it worse or did no better, so both are reverted:
+  - predicting along her path (0.8 s ahead);
+  - releasing a stuck world-hold.
+- Next step: choose the swing side against the walk destination's clear sector, and make walkEndView's turn arc box-free.
+- Foliage taps and NE1: not re-tested by the camera side this round (r7 ray tests pass in the suite).

@@ -250,6 +250,59 @@
   ],
   "ok": true
  },
+ "W2": {
+  "note": "self-check, NOT gated: r7 stop (11.8,7.8) fails — see STATUS p0drag12",
+  "passesLimits": false,
+  "skd_pock": {
+   "walkM": 5.69,
+   "walkS": 4.74,
+   "stop": [
+    11.8,
+    -0.01,
+    7.8
+   ],
+   "longestFaceS": 0.75,
+   "longestChestS": 0.88,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0.33,
+   "heightOverLimitM": 0.168,
+   "minArmM": 4.09,
+   "gated": false
+  },
+  "skn_pock": {
+   "walkM": 5.69,
+   "walkS": 4.74,
+   "stop": [
+    11.8,
+    -0.01,
+    7.8
+   ],
+   "longestFaceS": 1.85,
+   "longestChestS": 2.77,
+   "framesInsideGeometry": 19,
+   "pitchOverLimitDeg": 0.59,
+   "heightOverLimitM": 0.004,
+   "minArmM": 6.33,
+   "gated": false
+  },
+  "skxd_pock": {
+   "walkM": 5.69,
+   "walkS": 4.74,
+   "stop": [
+    11.8,
+    -0.01,
+    7.8
+   ],
+   "longestFaceS": 0.77,
+   "longestChestS": 0.88,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0.56,
+   "heightOverLimitM": 0.169,
+   "minArmM": 4.48,
+   "gated": false
+  },
+  "ok": true
+ },
  "L1": {
   "skd_po": {
    "pitch12": {
