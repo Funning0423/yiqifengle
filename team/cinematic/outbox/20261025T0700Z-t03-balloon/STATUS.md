@@ -43,3 +43,9 @@ LAKESIDE_TOUCHDOWN = {signAtS 1.8, signS 3.0, blendAfterSignS 0.5, blendPadS 1.5
 
 ## Her on screen while the sign is up (touchdown +1.8…+4.8; % of width from left / height from top, body + basket box)
 390x844/414x896/360x780 x 12–51 y 38–56 · 375x667/320x568 x 15–51 y 32–51 · 390x520 x 19–50 y 32–52 · 768x1024 x 19–50 y 40–59. Ropes run from the basket up into the envelope above this box (not measured separately). Keep the sign in the top 30 % or the bottom 40 % band.
+
+## Rebuilt on ggbot/t03-landing-sign a5efb21e (merge 375d93b3)
+- The earlier b476a6ca merge (c42204a5) stays in history; a5efb21e contains it, so nothing was rewritten. The only conflicts were in RegionJourneyAdapter. I kept both sides: GGbot's registerLakesideRideSkip / publishLakesideRide / markSeenT03 / sys, plus our 'ride' boarding wipe and the option B hold. __qfLakesideAvoid is now published every frame.
+- The badge skip (GGbot's runWindWipe 'ride', with its own event id) jumps the clock to R.T. Our boarding hooks only react to our own event id, so there are no duplicate handlers.
+- LAKESIDE_TOUCHDOWN = {signAtS 1.8, signS 3.0, blendAfterSignS .5, boardWithinS .5, blendPadS 1.5, blendAimPull .15}. The event sends boardByS = lakesideBoardByS() = 5.3, which is when the blend starts. The board is reached at about +12.03.
+- Full suite on 375d93b3: 183 PASS, 0 FAIL, 3 environment blocks (2× Node ≥22.6, navigation-guard browser).
