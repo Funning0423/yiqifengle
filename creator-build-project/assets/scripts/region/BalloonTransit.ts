@@ -228,6 +228,7 @@ function dimCityNight(model:Node|null,night:boolean,cache:WeakSet<MeshRenderer>)
  eachNamed(model,n=>{
   if(/window|emissive|lamp|light|flame|pennant|flag/i.test(n.name))return;
   if(isTransitionPlaceholder(n))return/* cand7: placeholder planks never get the night silhouette */;
+  if(/^(island_dock|island_dock_ramp|sail_gangway|sail_gangway_meadow|sail_frozen_pose)$/.test(n.name))return;/* black-shape P2: transition placeholders / runtime nodes never get the night silhouette */
   for(const r of n.getComponents(MeshRenderer)){
    if(cache.has(r))continue;
    const shared=r.getSharedMaterial(0);if(!shared)continue;

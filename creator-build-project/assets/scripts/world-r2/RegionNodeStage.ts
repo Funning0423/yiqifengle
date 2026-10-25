@@ -256,7 +256,7 @@ export class RegionNodeStage extends Component{
   });
  }
 
- async playReward(character:CharacterAdapter,fromStage:string,toStage:string){
+ async playReward(character:CharacterAdapter,fromStage:string,toStage:string,handoff=false){
   await (character as any).__qfWalkTail?.done/* b15: never cut her exit walk */;
   this.character=character;
   const spec=walkPair(fromStage,toStage);
@@ -273,10 +273,22 @@ export class RegionNodeStage extends Component{
   this.handOrbitBack(spec.region);
   try{await runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));}
   finally{setExploreEnabled(false);}
+  /* sail-blue (Mac d3fe578e night, frames 26-29: beach close-up → 1 blank frame → island wide): a departure walk that hands straight
+   * into a continuous ride (04→05 sail, 08→09 balloon) must NOT blend back to the parked board lens and switch the world layers off
+   * (restoreBoard → presentNodeWalkWorld(false)): the level is being left, so that pose/blank is never meant to be seen. Keep the
+   * world and the live follow lens on; the journey picks this lens up as its handoff start (RegionJourneyCore.refreshLive). */
+  if(handoff&&spec.departure){this.releaseForJourney();return;}
   const arrived=this.readPose();
   this.lens='FollowToBoard';
   await this.blend(BLEND_S.followToBoard,arrived,()=>board);
   this.restoreBoard();
+ }
+ /** Like restoreBoard, but the world layers, the girl and the camera stay exactly as on screen (handoff to a continuous ride). */
+ private releaseForJourney(){
+  const c=this.cover;this.cover=null;
+  if(c){for(const x of c.cams)if(x.cam?.isValid)bgCamRelease(x.cam,true,'cover',x.on);if(c.host?.isValid)c.host.active=true;if(c.nav?.isValid)c.nav.active=true;}
+  this.releaseSyncCams();
+  this.lens='Board';this.exploring=false;setExploreEnabled(false);this.shotPhases=null;
  }
  async playFinale(character:CharacterAdapter){
   await (character as any).__qfWalkTail?.done;

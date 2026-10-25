@@ -288,6 +288,10 @@ export function createSailDriver(opts:{
   shore(){return opts.shore;},
  };
 }
+/** A real (non-placeholder) node of that name: not one of our plankBetween boxes under a RegionJourney-* rig. */
+export function hasRealNode(root:Node|null|undefined,name:string):boolean{if(!root)return false;const st:Node[]=[root];while(st.length){const x=st.pop()!;if(x.name===name&&!/^RegionJourney-/.test(x.parent?.name||''))return true;for(const c of x.children)st.push(c);}return false;}
+/** Every sail placeholder off (called when the sail leg ends / the meadow lease hides). */
+export function sailPropsOff(props:any):void{for(const k of ['pier','ramp','islandPlank','meadowPlank']){const n=props?.[k];try{if(n&&n.isValid)n.active=false;}catch{/* gone */}}}
 export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,actor:CharacterAdapter,world:WorldLease,token:Cancellation,plan:{
  total:number;approach:Vec[];deck:Vec[];disembark:Vec[];arrival:Vec[];sit:ReturnType<typeof seatFromBench>;stand:ReturnType<typeof seatFromBench>;
  boardS:number;arrivalS:number;boardPose?:Pose|null;
@@ -303,12 +307,14 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  const walk=(path:Vec[],stop:boolean,secs?:number)=>{const L=pathLen(path);const duration=secs&&secs>0?secs:Math.max(0.35,L/1.2);return actor.perform({kind:'walk',path,duration,stopAtEnd:stop} as any,token);};
  const anim0=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);
  const show=(n:Node|null|undefined,on:boolean)=>{try{if(n&&n.isValid&&n.active!==on)n.active=on;}catch{/* prop optional */}};
- show(plan.props?.pier,true);show(plan.props?.ramp,true);show(plan.props?.islandPlank,true);show(plan.props?.meadowPlank,false);
+ // black-shape P2: placeholders only while this sail leg runs and only while no real model (late-loaded island props / b19 dock nodes) exists.
+ const P:any=plan.props||{},dockReal=hasRealNode(rider.scene,'island_dock'),gangReal=hasRealNode(rider.scene,'sail_gangway_hinge');
+ show(P.pier,!dockReal);show(P.ramp,!dockReal);show(P.islandPlank,!gangReal);show(P.meadowPlank,false);
  const gw=plan.props?.gangway||null;try{gw?.swing('island',0.8)/* cand7: real gangway lowered onto island_dock while she walks to it */;}catch{}
  // A1: visible walk from the last island level to the pier (no cover); A2: over the gangplank onto the deck, sit.
  chainMark('sail','A1-pier-walk');guardBeforeWalk(anim0,'A1 pier walk');
  const D=TRANSITION_DURATIONS.seg1;let realI6=0;
- if(plan.pier&&plan.pier.length){await walk(plan.approach,true,D.nodeWalkI4toI6)/* level stop → new I6, visible now */;realI6=driver.real;guardBeforeWalk(anim0,'A1 dock walk');
+ if(plan.pier&&plan.pier.length){const i6=plan.approach[plan.approach.length-1],rp=rider?.worldPosition;const atI6=!!rp&&Math.hypot(rp.x-i6[0],rp.z-i6[2])<0.8/* sail-blue: the departure node walk (I4→I6) already brought her here on the live lens */;if(!atI6)await walk(plan.approach,true,D.nodeWalkI4toI6)/* level stop → new I6, visible now */;realI6=driver.real;guardBeforeWalk(anim0,'A1 dock walk');
   await walk([plan.approach[plan.approach.length-1],...plan.pier] as Vec[],true,D.a1DockWalk);chainMark('sail','A2-gangplank-board');guardBeforeWalk(anim0,'A2 gangplank');
   await walk([plan.pier[plan.pier.length-1],...(plan.plankOn||[]),plan.deck] as Vec[],true,D.a2Gangway);}
  else{await walk([...plan.approach,plan.deck,plan.sit.position as unknown as Vec],true);chainMark('sail','A2-gangplank-board');}
@@ -334,6 +340,7 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  chainMark('sail','A5-gangplank-off');guardBeforeWalk(anim,'A5 gangplank off');stopEngineStates(anim,'sail walk');
  await walk(plan.disembark,true,plan.pier?TRANSITION_DURATIONS.seg2.offBoat:undefined);
  await until(plan.total);
+ sailPropsOff(plan.props)/* black-shape P2: no sail placeholder outlives the sail leg (the meadow rig stays on for the balloon) */;
  if(plan.arrival.length>1){
   const dur=pathLen(plan.arrival)/1.2;
   driver.beginArrival(plan.arrival,dur);
