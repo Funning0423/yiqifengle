@@ -57,6 +57,16 @@ function runFake(script,env='develop',withCc){
   const e=runFake({steps:[{op:'wait',ms:50}]});e.g.console.error('Error 3804 from game');
   for(let i=0;i<40&&!e.files.has(e.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
   const eres=JSON.parse(e.files.get(e.U+'/qf-autoplay/out/result.json'));assert.equal(eres.ok,false);assert.equal(eres.consoleErrors,1);assert.match(eres.failReason,/console errors: 1/);
+  // preTransition op: enables the hook (no launch params), runs setup, then a normal synthetic touch on the returned point
+  assert.equal(api.parseScript({steps:[{op:'preT',key:'home-island'}]}).steps[0].op,'preTransition','preT alias');
+  assert.throws(()=>api.parseScript({steps:[{op:'preTransition',key:'Bad Key'}]}),/bad key/);
+  const pt=runFake({steps:[{op:'preTransition',key:'island-board',tap:true,recordMs:20,timeoutMs:5000},{op:'preT',key:'nope',timeoutMs:2000,stopOnFail:false}]});
+  const calls=[];pt.g.__qfPreTransition=async k=>{calls.push([k,pt.g.__qfHooksEnable]);if(k==='enable')return {ok:true};if(k==='island-board')return {ok:true,state:'island',tap:{kind:'control',point:{x:175,y:458}},frame:{width:390,height:844}};return {ok:false,reason:'unknown-key'};};
+  for(let i=0;i<60&&!pt.files.has(pt.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+  const pres=JSON.parse(pt.files.get(pt.U+'/qf-autoplay/out/result.json'));
+  assert.deepEqual(calls[0],['enable',true],'enable first (flag set)');assert.equal(calls[1][0],'island-board');
+  assert.equal(pres.steps[0].ready,true);assert.deepEqual(pres.steps[0].tapped,{x:175,y:458});assert.ok(pt.events.some(e=>e[0]==='S'&&e[1]===175&&e[2]===458),'touch at returned point');
+  assert.equal(pres.steps[1].ready,false);assert.equal(pres.ok,false,'failed setup marks ok=false');
   const rel=runFake({steps:[{op:'tap',x:1,y:1}]},'release');assert(!rel.g.__QF_AUTOPLAY,'release envVersion -> harness refuses');
   // injector + release check on a fake output
   const d=fs.mkdtempSync(path.join(os.tmpdir(),'qfap-'));fs.writeFileSync(path.join(d,'game.js'),"require('./adapter');\n");
