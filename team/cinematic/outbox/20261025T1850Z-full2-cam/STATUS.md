@@ -33,3 +33,62 @@ Not separately verified: A1 continuity from I6, the M4→M6 walk, gangway visibi
 Rendered acceptance (renderedAcceptance=BLOCKED_NOT_RUN); real skinned-mesh occlusion of the close-ups; LiveHandoff blend into B1 from the live meadow lens on device; frame-time.
 
 Images: NOT_ENGINE_* are top-down proxy plots (occluder boxes, her path, lens, basket), not renders.
+
+---
+## Addendum 2 (2026-10-25 19:xx UTC): Task 1 / Task 5 tests + C2 option B close-up
+Commits: 4a9b9b15 live-start · 9545679e t02-dock · cf595be9 gangway-frame (report-only) · f6c3c095 fence-gate · 2ff1f4c0 C2 + import fix.
+Suite on 2ff1f4c0: **216 PASS / 0 FAIL / 3 BLOCKED** (same env-only three).
+
+**Bug fixed:** RegionJourneyAdapter used basketCloseSpot/basketClosePose/boardFeetAt (E, 1bea977a) and SKYCITY_LENS_OCCLUDERS (task 4, 08e7ed77) without importing them. The harness doesn't type-check, so all proxy tests passed, but on device the code would hit a ReferenceError. The imports are added, and basket-close K7 now guards against this.
+
+### Task 1: live-start (7 screens, real controller + LiveHandoff from ExploreCameraCore.followPose)
+| leg | first frame vs live | blend | yaw max | p99 accel | jumps | live→ride gap |
+|---|---|---|---|---|---|---|
+| A1 from I6 | 0 m / 0° | 1.48 s | 23.1°/s | 45°/s² | 0 | 4.2 m |
+| B1 from M6 (M4/M5→M6) | 0 m / 0° | 6.47 s | 28.0°/s | 54°/s² | 0 | 17.9 m |
+Proxy limits:
+- The B1 ride lens in this test is plan.camera(0), not the B1 close-up; the close-up is covered by basket-close.
+- TransportLeg.SAIL_I6 (−1.9, −0.6, 10.1) is 0.89 m from the re-baked node I6 (−1.5, −0.18, 9.3). SailRide's atI6 tolerance is 0.8 m, so after the node walk she replays a short approach walk. Not changed (scene/flow data).
+
+### Task 5.1: t02-dock (sky_mooring_props.glb triangles, including both ropes, plus the dock occluder rows)
+Same on all 7 screens:
+| shot | length | lens in box | min clearance (mesh / box) | face/chest hidden |
+|---|---|---|---|---|
+| approach | 1.4 s | 0 | 25.0 / 24.9 m | 0 s |
+| final hold | — | 0 | 25.0 / 24.9 m | 0 s |
+| walk handoff | 16.1 s | 0 | 5.04 / 4.9 m | 0 s |
+
+### Task 5.3: gangway-frame (REPORT-ONLY, proposed floor: share ≥ 0.25 % of frame AND ≥ 90 % of the bbox in frame)
+| screen | boarding share min–max | disembark share min–max | in frame |
+|---|---|---|---|
+| 390x844 / 414x896 / 360x780 | 0.47–1.17 % | 0.63–0.67 % | 1.0 |
+| 375x667 / 320x568 | 0.38–0.97 % | 0.51–0.55 % | 1.0 |
+| 390x520 / 768x1024 | 0.29–0.73 % | 0.39–0.41 % | 1.0 |
+Floor rationale: 0.25 % ≈ 820 px² on 390x844 (about 29×29 px), the smallest size at which a 0.6×0.5 m plank still reads as an object at ~9 m. Today's worst case is 0.29 %, on the wide-aspect screens.
+Not modelled: occlusion of the plank by her body or the boat.
+
+### Task 5.4: fence-gate (meadow_fence_merged, west gate (2.6, −20.8))
+| shot | path length / closest pass to gate | face/chest hidden | fence clearance |
+|---|---|---|---|
+| walk M4→M6 | 10.1 m / 0.18 m | 0 s | 2.22–2.62 m |
+| walk M5→M6 | 10.0 m / 0.15 m | 0 s | 1.95–2.35 m |
+| B1 boarding close-up | — | 0.30 s (basket rim, fence 0) | 5.27 m |
+Proxy limit: the walk lens is a plain followPose, without RegionNodeStage's orbit/occlude.
+
+### C2 (option B → close-up), basket-close C2 rows
+| screen | her at door (wide before) | yaw stand / walk (p99) | translation over cap | hidden | clearance | capsule gap | segment | pull end vs wide |
+|---|---|---|---|---|---|---|---|---|
+| 390x844 | 29.0 % (8.6) | 6.0 (7) / 8.9 (61) | 0 | 0.15 s | 5.43 m | 277 px | 47.78 s | 2.32 m / 8.1° |
+| 414x896 | 29.0 % (8.6) | 6.0 (7) / 8.9 (61) | 0 | 0.15 s | 5.43 m | 301 px | 47.78 s | 2.32 m / 8.1° |
+| 360x780 | 29.0 % (8.6) | 6.0 (7) / 8.9 (61) | 0 | 0.15 s | 5.43 m | 248 px | 47.78 s | 2.32 m / 8.1° |
+| 375x667 | 29.0 % (11.9) | 5.0 (4) / 8.6 (58) | 0 | 0.15 s | 5.43 m | 221 px | 47.78 s | 2.09 m / 5.9° |
+| 320x568 | 29.0 % (11.9) | 5.0 (4) / 8.6 (58) | 0 | 0.15 s | 5.43 m | 175 px | 47.78 s | 2.09 m / 5.9° |
+| 390x520 | 29.5 % (13.2) | 7.1 (8) / 10.7 (69) | 0 | 0.17 s | 5.82 m | 173 px | 47.78 s | 1.78 m / 5.3° |
+| 768x1024 | 29.5 % (13.1) | 7.2 (8) / 10.7 (69) | 0 | 0.15 s | 5.82 m | 440 px | 47.78 s | 1.78 m / 4.3° |
+Timeline (s from touchdown):
+- −2.2 → 1.2: blend in from the descent lens. Starting before touchdown keeps the ~9 m move within 5 m/s.
+- Hold through stand-up, door reach and the step down (door 1.77 → step lands 4.4).
+- 4.4 → 7.8: pull back onto the option-B lens path. It lands exactly on that path (0 m).
+- The option-B board blend already starts at 5.3, so the landing point is 1.8–2.3 m / 4–8° from the held wide.
+Unchanged: sign, board blend start (5.3 s), boardByS and her walk speed. The capsule is modelled as WeChat's 87×32 button.
+Mac-only: the sign now shows over the close-up instead of the wide; its placement uses __qfLakesideAvoid, so check it on device.

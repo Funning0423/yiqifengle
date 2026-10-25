@@ -5,6 +5,8 @@ import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETI
 import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
 import {SKY_LAKE_CONT,lakeBasketYaw,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
 import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './TransitionAnchorData';
+import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
+import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
 import {SKY_WALK_SHOT,finaleCity,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
 import {SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
 import {firstMaterial,placeholderPlank,hidePlaceholders,findDeep,realModelPresent} from './TransitionProps';
@@ -254,7 +256,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // transitions-continuous (segment 6, 运镜bot SkyLakeContinuous): no WindWipe boarding. She walks to the basket, the door
    // opens, she steps in and sits (BASKET_RIDE_POSE.lakeside), the burner ignites and the envelope fills (INFLATE), the 18 s
    // lift-off T-03 hid under black plays time-compressed (liftS), then T-03's 12 s visible flight unchanged, touchdown/board unchanged.
-   const contLake=continuousTransitions();let sl:SkyLake|null=null,tau=0,boardStarted=false,boarded=false,boardEndTau=0;
+   const contLake=continuousTransitions();
+   // full2-cam C2: door close-up spot beside the lakeside basket (her P0), preferring the option-B wide side
+   let c2Spot:{position:Vec}|null=null;try{c2Spot=contLake?basketCloseSpot(moored.start as Vec,moored.mooring as Vec,transitionOccluderBoxes() as any,undefined,[doorLens]):null;}catch{c2Spot=null;}
+   const c2Lens=(s:number,base:Pose):Pose=>{if(!c2Spot||!girl||!isValid(girl,true)||s<C2_CLOSE.inAtS)return base;const g=girl.worldPosition;return c2ClosePose(s,base,basketClosePose(c2Spot.position,[g.x,g.y,g.z]));};let sl:SkyLake|null=null,tau=0,boardStarted=false,boarded=false,boardEndTau=0;
    const wipeOn=!contLake&&typeof world.fadeCover==='function',fade=wipeOn?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
    let walkDone=false,blackDone=!wipeOn,fadingOut=false,fadingIn=false,held=!wipeOn,placed=0;let wipeEv:WipeEvent|null=null;
    const mine=(e:WipeEvent)=>!!wipeEv&&e.kind==='ride'&&e.id===wipeEv.id;
@@ -321,7 +326,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
      if(t>=R.cutT)legHide.apply(director.getScene())/* b17: island env_cloud_layer, day and night; skycity untouched */;
-     lastPose=sl?sl.cam(tau,from):lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(lastPose);if(t>=R.cutT&&placed<9)placed++;
+     lastPose=sl?sl.cam(tau,from):lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(sl?c2Lens(tau-sl.touchdownAt,lastPose):lastPose)/* C2 close-up starts before touchdown */;if(t>=R.cutT&&placed<9)placed++;
      // Web diagnostics (Mac bisect, night lakeside blocker): ?hideNode=a,b hides by exact name every frame of THIS leg too (the
      // BalloonTransit hook only runs on the meadow→skycity leg); ?diagDump=1&lakeDiagAt=t logs every active renderer once at ride time t.
      if(diag.hide.length){const sc=director.getScene();if(sc){const hideIn=(n:Node)=>{if(diag.hide.includes(n.name))n.active=false;for(const c of n.children)hideIn(c);};hideIn(sc);}}
@@ -396,7 +401,9 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       wideDur=lakesideBoardBlendDurS(doorLens,landPose,walked,lakesideBoardEntryM(moored.walk,landPose,vs2.width/Math.max(1,vs2.height),walked),moored.mps);}
      wideU=Math.min(1,(sinceTouch-blendAtS)/wideDur);
      lastPose=wideU>=1?landPose:lakesideDoorBlendPose(doorLens,landPose,wideU,gp?[gp.x,gp.y,gp.z]:undefined,LAKESIDE_TOUCHDOWN.blendAimPull);if(wideU>=1)outOk();}
-    if(lastPose)world.setCamera(lastPose);publishAvoid();};director.on(Director.EVENT_BEFORE_DRAW,hold);
+    // full2-cam C2: door / step-out close-up over the option-B lens, pulled back onto it as she walks out (BasketCloseShot.c2ClosePose)
+    const out=lastPose?c2Lens(sinceTouch,lastPose):null;
+    if(out)world.setCamera(out);publishAvoid();};director.on(Director.EVENT_BEFORE_DRAW,hold);
    // b15 stand-up v1b: on the seat (where she rode) sit_hold → HARD CUT stand_up (REPORT: start_pose = sit_hold f0, no crossfade;
    // 1.2667 s time clock, root carried seat → P0 along the facing by stand_up root_motion.forward_m (LAKESIDE_STANDUP)) → crossfade 0.2 into idle at P0 facing the door (cancelAndReset
    // in place) = getout t0. Without the stand_up clip / playNamed: the old placement (cancelAndReset straight to P0).
