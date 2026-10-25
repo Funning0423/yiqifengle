@@ -1737,12 +1737,12 @@
   {
     "path": "creator-build-project/assets/resources/ending/end_bg_day.jpg.meta",
     "bytes": 3105,
-    "sha256": "06c24682b84a9aa651ee6fdc5619388b59f3abe6c1ad4e4ee193c9fbcebb8195"
+    "sha256": "f64378c6b49d03c005badd5454539c9a9426a2b7b6a2be17bbfa2a9b9d9b76e6"
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_bg_night.jpg.meta",
     "bytes": 3109,
-    "sha256": "85b54fdb7dcf66a86e1d1e36359a86c3818aa82e6d095cfa6dd7e315c1bc1fb3"
+    "sha256": "aff30c1cb7c9d6ffe50c5dc4f85b445bbf3404d893ef3055f9e1d1e33942d7db"
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_girl_day.png.meta",
@@ -3151,8 +3151,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SignShot.ts",
-    "bytes": 3529,
-    "sha256": "fd7a106d4df518b8e074602ef787e1d4add9e2ef21c2fa9e6d2b5c4e61d33379"
+    "bytes": 5850,
+    "sha256": "c1467fc0726fe4ba33042e086fabb0fc72c705ac47b47921ab96dd80c28185ec"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SignShot.ts.meta",
@@ -4381,8 +4381,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 102172,
-    "sha256": "d0cbc18f96930cc256cc0fb1ad31b78138850b6c0afea17a23d806ed42ffffb6"
+    "bytes": 102265,
+    "sha256": "bcf4b673d00627dcbed3de9b8da85cb3cb1788e2ec8069ee85e9949a07faa16f"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
