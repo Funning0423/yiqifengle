@@ -1916,8 +1916,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 97381,
-    "sha256": "9d5b1d340edbded2881b38085eb9bef28231e7b5973a72b35f0713edf249088b"
+    "bytes": 97548,
+    "sha256": "1ee12ec0e07ea6228bfd6bd4d70234cdbae017649371eecefb55cbbb60bccf30"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -2016,8 +2016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 107223,
-    "sha256": "71fc8b41498d45aabbb2fff652dfe6d82fa6431bd2bfc7e82de2a05c62853d34"
+    "bytes": 109145,
+    "sha256": "895135ef2ba24350bc1f94ac6be093041f00d9b599249b7d089a326232e514d8"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -2916,8 +2916,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 42256,
-    "sha256": "23206a148e0049077cead946e546814e2dd3be4ee0fe0c635201c5fbb7a38b8a"
+    "bytes": 42523,
+    "sha256": "6bb7be692b23c6b551de86410b618f1907a049b72c733aae7c359d79797fc6d6"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3646,8 +3646,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
-    "bytes": 65330,
-    "sha256": "a7436783e412ee2e41aaa576491c2e9c1f0cf37ee9ff8196e852d568eb126301"
+    "bytes": 65432,
+    "sha256": "f9ed8de5022bf8fc24029d17d027d7dfa8e36f61fb512723fbdf95cef6355679"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -3703,6 +3703,16 @@
     "path": "creator-build-project/assets/scripts/ui/DialogBubble.ts.meta",
     "bytes": 171,
     "sha256": "c1d4439f0349021d498123c2530d2f7d775f0737a2e0be4affc13ade8d541f6d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts",
+    "bytes": 2681,
+    "sha256": "0d092cbdcb60d76c3924dc8e26c25ba88724af14fa1aa0b116ff47592470c0ec"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts.meta",
+    "bytes": 171,
+    "sha256": "dcbd958579679cc6aff417d39ab41e09f1d18b5c73db085e8a18c39eebb32e39"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts",
@@ -3815,6 +3825,16 @@
     "sha256": "0c5f00d62d6ee7e71bd83eb597cae99590605915ca4602ba46690003cfec42f6"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/WindWipe.ts",
+    "bytes": 13116,
+    "sha256": "f94679bd71b311189d80c94a979eee9571b48b00561726d9016cc9ab695fa77f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/WindWipe.ts.meta",
+    "bytes": 171,
+    "sha256": "3e408efa4b1331e933bcaa67b3014cc0203ba57c99a19ed90b4c36751b648133"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r1.meta",
     "bytes": 169,
     "sha256": "0bede5c1aaeb25b2d86271d91321381bf701d49a19843d8f53785345bc021df8"
@@ -3921,8 +3941,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts",
-    "bytes": 36776,
-    "sha256": "6a98db815383b12532a094f4e539087735dfc65361e15a491dbe5961f593c603"
+    "bytes": 39009,
+    "sha256": "089dd37e0ebe2edc296cebb7fadcec8489f963afbd5a1a833f697e9281070bbf"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts.meta",
@@ -3941,8 +3961,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/ScreenCover.ts",
-    "bytes": 700,
-    "sha256": "a7c87a2d6733cdf0db587075d340cfb4ac36d598566b4eee6c71eec8eeb181f7"
+    "bytes": 5228,
+    "sha256": "a85476cebb4cdd476a7ebe51b52df8a74b8c78ebb1191c55409271745b3adccb"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/ScreenCover.ts.meta",
@@ -4005,6 +4025,16 @@
     "sha256": "6afd89112735e7a686893a50705fb827ee8feca580dd03cedf08b01939988ef2"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts",
+    "bytes": 2411,
+    "sha256": "0d73047ae78ff1baf25fbb61f17c803d80e2000edcee43549c2009cc94378ac9"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts.meta",
+    "bytes": 171,
+    "sha256": "a9e7129464d7555ee74793a39b361e96150adaecc8f94639615d92fb958c0ce5"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/ExploreInput.ts",
     "bytes": 7567,
     "sha256": "dd016ef35071535f69a61d833365f5d6ea21c016ab06d5cd2442de4e10e3213a"
@@ -4036,8 +4066,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/HomeTransition.ts",
-    "bytes": 2564,
-    "sha256": "0eddfad6fb83fecc85c32a719b2dc962c1ad68df80a8c906002a465faa66a182"
+    "bytes": 3487,
+    "sha256": "4a4ed14aa0d39585975ea8bcaa2754166e7db53e891b6ce8dcbbbe1c4779b94a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/HomeTransition.ts.meta",
@@ -4295,6 +4325,16 @@
     "sha256": "52c5ed603e2f53d46e82813d425f9ea8bf8de8ee3bf3a6dc49b9170c58b303cf"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/WindWipeCore.ts",
+    "bytes": 10331,
+    "sha256": "b6b3c7922e7f13f9d56c3f503188e35936170b79c2e6d095abb26992f1e32ecb"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/WindWipeCore.ts.meta",
+    "bytes": 171,
+    "sha256": "afb3f9431e5a21fadab3bd8e71114546a82ba43397dd30ab70162e4b44704f19"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
     "bytes": 42129,
     "sha256": "fa6817930cbfaa6946e59065f1cc1f7c6cdc656401b92f4e741163eee5ac9486"
@@ -4426,8 +4466,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 18486,
-    "sha256": "0103d2188550ff2a325083bdd8de81383ddc9148890866ca8db38afb37164a2c"
+    "bytes": 18543,
+    "sha256": "fe0cee01d8d046287f653ae51c081053f34a9c54322f43308a6f00d8f793b1d8"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
@@ -4701,8 +4741,8 @@
   },
   {
     "path": "tools/test_startup_ready_gate.cjs",
-    "bytes": 18169,
-    "sha256": "44c1d3802cf94426b3ad758e13f25dfa917aab9bfd378120fde779f8df0a300c"
+    "bytes": 18269,
+    "sha256": "be330d2e788c78339905fd20aafc919e0df1a5d323040fb25ee2c623dbd9c2e2"
   },
   {
     "path": "tools/test_ui_contrast.cjs",
