@@ -2016,8 +2016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 109152,
-    "sha256": "b87ebaf3d4b4791ade57f3e022a229599d825773312070ecc4688e75107dc542"
+    "bytes": 109108,
+    "sha256": "3c2290d45ec56f27e2a70a75383604da8b779077563741ad4401919011ab95e8"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -3706,8 +3706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts",
-    "bytes": 2681,
-    "sha256": "0d092cbdcb60d76c3924dc8e26c25ba88724af14fa1aa0b116ff47592470c0ec"
+    "bytes": 2964,
+    "sha256": "b1426593c769f4813becfebe3c30e8f7a18c51128867c55173ae28d06d653135"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts.meta",
