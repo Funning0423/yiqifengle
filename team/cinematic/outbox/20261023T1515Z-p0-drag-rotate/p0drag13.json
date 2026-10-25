@@ -275,5 +275,177 @@
   "limitDegS": 120,
   "accLimitDegS2": 600,
   "ok": true
+ },
+ "round2": {
+  "signShotOptionB": {
+   "teleport": {
+    "ok": true,
+    "region": "island",
+    "at": [
+     -1.9,
+     -0.597,
+     10.1
+    ],
+    "yaw": 4.600095666263279,
+    "pitch": 12,
+    "signShot": {
+     "armM": 17.9,
+     "textDeg": 51.5,
+     "minTextPx": 144.9
+    }
+   },
+   "atTeleport": {
+    "herSeen": true,
+    "textFacing": 0.62,
+    "textDeg": 51.5,
+    "armM": 17.9,
+    "allScreens": true,
+    "inside": false,
+    "clearM": 7.62,
+    "gullClear": true,
+    "screens": [
+     {
+      "screen": "390x844",
+      "herMargin": 0.58,
+      "herFrac": 0.127,
+      "textRect": [
+       -7,
+       -249,
+       340,
+       235
+      ],
+      "textFrac": 0.279,
+      "signWhole": true
+     },
+     {
+      "screen": "414x896",
+      "herMargin": 0.58,
+      "herFrac": 0.127,
+      "textRect": [
+       -7,
+       -264,
+       361,
+       250
+      ],
+      "textFrac": 0.279,
+      "signWhole": true
+     },
+     {
+      "screen": "360x780",
+      "herMargin": 0.58,
+      "herFrac": 0.127,
+      "textRect": [
+       -6,
+       -230,
+       314,
+       217
+      ],
+      "textFrac": 0.279,
+      "signWhole": true
+     },
+     {
+      "screen": "375x667",
+      "herMargin": 0.58,
+      "herFrac": 0.127,
+      "textRect": [
+       -5,
+       -197,
+       268,
+       186
+      ],
+      "textFrac": 0.279,
+      "signWhole": true
+     },
+     {
+      "screen": "390x520",
+      "herMargin": 0.58,
+      "herFrac": 0.127,
+      "textRect": [
+       -4,
+       -153,
+       209,
+       145
+      ],
+      "textFrac": 0.279,
+      "signWhole": true
+     },
+     {
+      "screen": "320x568",
+      "herMargin": 0.58,
+      "herFrac": 0.127,
+      "textRect": [
+       -5,
+       -168,
+       229,
+       158
+      ],
+      "textFrac": 0.279,
+      "signWhole": true
+     },
+     {
+      "screen": "768x1024",
+      "herMargin": 0.58,
+      "herFrac": 0.127,
+      "textRect": [
+       -8,
+       -302,
+       412,
+       285
+      ],
+      "textFrac": 0.279,
+      "signWhole": true
+     }
+    ]
+   },
+   "after1s": {
+    "herSeen": true,
+    "textFacing": 0.62,
+    "textDeg": 51.5,
+    "armM": 17.9,
+    "allScreens": true,
+    "inside": false,
+    "clearM": 7.62,
+    "gullClear": true
+   },
+   "ok": true
+  },
+  "gates": {
+   "p0drag12_W2": {
+    "ok": false,
+    "limits": {
+     "NE1·昼": "≤0.8 s (Grok Bot approved Oct 25)",
+     "Pock·昼": "≤0.8 s (Grok Bot approved Oct 25)",
+     "others": "≤0.5 s"
+    },
+    "red": "Pock·夜 chest 1.43–1.45 s → SCENE_REQUEST_pocket_night.md"
+   },
+   "p0drag11_unapproved": {
+    "Q1_skd_po": {
+     "face": 0.54,
+     "chest": 0.78,
+     "gate": {
+      "f": 0.6,
+      "c": 0.85
+     }
+    },
+    "Q2": {
+     "insideFrames": 7,
+     "gate": 8,
+     "clearAfterS": 0.45
+    }
+   }
+  },
+  "suite": {
+   "passed": 179,
+   "total": 183,
+   "fail": [
+    "p0drag12 (W2 Pock·夜 only)"
+   ],
+   "blocked": [
+    "legacy-board-ui-pure (Node≥22.6)",
+    "reward-background-return (Node≥22.6)",
+    "navigation-guard (browser)"
+   ]
+  }
  }
 }
