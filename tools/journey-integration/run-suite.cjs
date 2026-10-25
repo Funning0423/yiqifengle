@@ -168,6 +168,7 @@ const tests=[
  ['ui-b16-fixes','tools/ui-b16-fixes/test_b16_ui_fixes.cjs'],/* UI设计部 b16: P1 signpost, P2 sky-city night key light, L13 rule guide, r6 lakeside measure_visible gate */
  ['lakeside-lens-guard','tools/journey-integration/test-lakeside-lens-guard.cjs'],/* b17r13: supersedes lakeside-lens-occlusion (LensPullIn, b17r7) */
  ['transition-spaces','tools/transition-spaces/test-transition-spaces.cjs'],/* b19: transition stance/path data (stances.json) vs d9423886 geometry */
+ ['basket-obstacles','tools/transition-spaces/test-basket-obstacles.cjs'],/* b19: state-toggled basket discs data (transition-anchors.json basketObstacles), unbaked, edges routed round */
  ['sky-exit-door-b','tools/transitions-continuous/test_sky_exit_door_b.cjs'],/* cand7: door B faces the sky deck with the landing yaw */
  ['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
 ];

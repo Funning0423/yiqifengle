@@ -15,6 +15,9 @@ const OUT_TS=path.join(ROOT,'creator-build-project/assets/scripts/region/RegionN
 const OUT_JSON=path.join(ROOT,'tools/region-nodes/region-nodes.json');
 const FIX=path.join(ROOT,'tools/region-nodes/fixtures');
 const STEP=.36,HEAD=1.7,LOW=.3;
+// b19 basket obstacles (state-toggled at runtime, never baked): edge paths keep r+clearM+ROUTE_MARGIN away from every disc
+const ROUTE_MARGIN=.25;
+const BASKET_DISCS=()=>JSON.parse(fs.readFileSync(path.join(__dirname,'../transitions-continuous/transition-anchors.json'),'utf8')).basketObstacles||[];
 const REGIONS={
  island:{
   file:'creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb',
@@ -31,8 +34,10 @@ const REGIONS={
   floor:/meadow_terrain|meadow_path|meadow_river_bank/,
   solid:/meadow_terrain|meadow_path|meadow_river_bank|meadow_fence|meadow_trees|windmill_static|wind_bell_frame/,
   start:[0.2,1.22,20],explore:[-30,-35,30,30],
-  // b19: parked balloon basket at the M6 yard (yaw -16), r 1.1 m (+0.4 m body clearance, discClearM); present from the M4 level start until lift-off (baked as permanent)
-  discs:[[3.6,-23.4,1.1]],discClearM:.4,
+  // b19 basket obstacles: the parked basket at the M6 yard is a STATE-TOGGLED obstacle (BasketObstacles.ts, data
+  // transition-anchors.json basketObstacles); it is NOT baked into the walkable cells. Node-to-node paths still route round it
+  // (routeDiscs, r + clearM + routeMarginM) so M4-M6 / M5-M6 stay valid while the disc is on.
+  routeDiscs:'meadow',
   // b19: the yard fence (meadow_fence_merged, (3.1,-21.0)->(8.3,-25.4)) has rails the 0.2 m triangle sampling lets through at the
   // 0.4 m cell size; it is a wall here so M4/M5 -> M6 go round its west end (the gate), as in stances.json 3_meadow_balloon_in.
   walls:[[3.1,-21.0,8.3,-25.4,.25]],
@@ -53,9 +58,9 @@ const REGIONS={
   // not walkable; a tap into it stops her on the open ground west of it (blocked arc ≤ 80°). No GLB change.
   noWalk:[[17.0,-5.2,22.8,14.6,0.3],[12.0,6.8,13.4,10.2,-9]],
   // b19 dock models: landing deck sky_mooring_deck + posts and 5a mooring C (stakes, stool) from region_skycity/sky_mooring_props.glb;
-  // moored baskets r 1.1 m at the landing (5.4,43.8) and at 5a (-14.8,-38.8)
+  // moored baskets at the landing and at 5a: state-toggled (BasketObstacles), routed round, not baked
   extras:[{file:'creator-build-project/assets/bundles/region_skycity/sky_mooring_props.glb',floor:/sky_mooring_deck|balloon_step_stool/,solid:/sky_mooring_deck|sky_mooring_posts|sky_mooring_5a_stakes|balloon_step_stool/}],
-  discs:[[5.4,43.8,1.1],[-14.8,-38.8,1.1]],discClearM:.4,
+  routeDiscs:'skycity',
  },
 };
 const NODES={
@@ -124,7 +129,8 @@ function buildGrid(spec,stamp){
   for(const [ci,li] of drop)ok[ci][li]=false;}
  if(spec.noWalk)for(const [ax,az,bx,bz,ymin] of spec.noWalk)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
   if(x>=ax&&x<=bx&&z>=az&&z<=bz)ls.forEach((y,li)=>{if(y>ymin)ok[ci][li]=false;});});
- if(spec.discs)for(const [cx,cz,r] of spec.discs)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-cx,z-cz)<=r+(spec.discClearM||0))ls.forEach((y,li)=>{ok[ci][li]=false;});});
+ const route=new Set();
+ if(spec.routeDiscs)for(const o of BASKET_DISCS().filter(o=>o.region===spec.routeDiscs))layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-o.at[0],z-o.at[1])<=o.r+o.clearM+ROUTE_MARGIN)route.add(ci);});
  if(spec.walls)for(const [ax,az,bx,bz,hw] of spec.walls)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
   const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));if(Math.hypot(x-ax-dx*t,z-az-dz*t)<=hw)ls.forEach((y,li)=>{ok[ci][li]=false;});});
  if(spec.sea!==undefined)layers.forEach((ls,ci)=>ls.forEach((y,li)=>{if(y<spec.sea)ok[ci][li]=false;}));
@@ -139,7 +145,7 @@ function buildGrid(spec,stamp){
   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx;const lim=STEP*Math.hypot(dx,dz)*(c/.4);
    layers[nc].forEach((y2,l2)=>{if(!ok[nc][l2]||Math.abs(y2-y)>lim)return;const k=key(nc,l2);if(seen.has(k))return;seen.set(k,1);parent.set(k,key(ci,li));dist.set(k,d0+Math.hypot(dx,dz)*c);q.push([nc,l2]);});}}
  // b17 skycity-walk-r4: the solid surface samples per cell (0.2 m on every triangle) feed the tap-ray voxel field (RegionWalkableData.obs)
- return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids};
+ return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids,route};
 }
 function nearest(M,p,ytol=1.5){
  const ci=M.cell(p[0],p[2]);if(ci<0)return null;let best=null;
@@ -223,6 +229,7 @@ function bfs(M,from,to){
  const W=M.W,H=M.H,c=M.c;
  while(qi<q.length){const k=q[qi++];if(k===goal.k)break;const ci=(k/8)|0,li=k%8,y=M.layers[ci][li],gx=ci%W,gz=(ci/W)|0,d0=dist.get(k);
   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx,lim=STEP*Math.hypot(dx,dz)*(c/.4);
+   if(M.route&&M.route.has(nc))continue;
    M.layers[nc].forEach((y2,l2)=>{if(!M.ok[nc][l2]||Math.abs(y2-y)>lim)return;const nk=M.key(nc,l2);if(seen.has(nk))return;seen.add(nk);parent.set(nk,k);dist.set(nk,d0+Math.hypot(dx,dz)*c);q.push(nk);});}}
  if(!parent.has(goal.k)&&start.k!==goal.k)return null;
  const pts=[];let cur=goal.k;while(cur!==null){const ci=(cur/8)|0,li=cur%8;pts.push([round3(M.x0+(ci%W+.5)*c),round3(M.layers[ci][li]),round3(M.z0+(((ci/W)|0)+.5)*c)]);cur=parent.get(cur);} 

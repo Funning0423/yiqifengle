@@ -2066,5 +2066,64 @@
     ]
    }
   }
- }
+ },
+ "basketObstacles": [
+  {
+   "id": "meadow_basket",
+   "region": "meadow",
+   "at": [
+    3.6,
+    -23.4
+   ],
+   "r": 1.03,
+   "clearM": 0.4,
+   "initial": false,
+   "on": [
+    "node:M4"
+   ],
+   "off": [
+    "balloon:B3-flight",
+    "balloon:released"
+   ],
+   "baked": false
+  },
+  {
+   "id": "skycity_landing_basket",
+   "region": "skycity",
+   "at": [
+    5.4,
+    43.8
+   ],
+   "r": 1.03,
+   "clearM": 0.4,
+   "initial": false,
+   "on": [
+    "balloon:B4-settle"
+   ],
+   "off": [
+    "balloon:released"
+   ],
+   "baked": false
+  },
+  {
+   "id": "skycity_5a_basket",
+   "region": "skycity",
+   "at": [
+    -14.8,
+    -38.8
+   ],
+   "r": 1.03,
+   "clearM": 0.4,
+   "initial": false,
+   "on": [
+    "lakeside:C1-basket-in"
+   ],
+   "off": [
+    "lakeside:C3-flight",
+    "lakeside:released"
+   ],
+   "baked": false
+  }
+ ],
+ "basketObstaclesNote": "场景设计部 b19: state-toggled basket discs (BasketObstacles.ts). at = region model-local [x,z] of the parked balloon root (stances.json), r = basket body + closed door leaves max radius from transport_balloon.glb (1.03 m), clearM = body clearance. baked:false: not in RegionWalkableData/RegionNodes cells; RegionNodes edge paths keep >= r+clearM+0.25 m. tools/transition-spaces/gen-basket-obstacles.py"
 }
