@@ -585,7 +585,7 @@ export class RegionNodeStage extends Component{
     * climb at the elevation cap, else hold last frame's lens. Leaving a box (last frame's lens inside) stays free; judged on last frame's WORLD lens, not raw + old offset (a drag moves the raw). */
    /* p0drag12 (Mac nook walk replay: lens carried 21–24 frames through an 11 m wall while she walked): "last frame's lens" is also judged
     * where it really was (world) — walking carries the her-relative lens into walls, which then counted as "leaving" and went unguarded */
-   const W0=this.skyPrevW&&Math.hypot(this.skyPrevW[0]-look[0],this.skyPrevW[1]-look[1],this.skyPrevW[2]-look[2])<=r.arm+Math.abs(S.a)+3?this.skyPrevW:null;
+   const W0=this.groundWalking&&this.skyPrevW&&Math.hypot(this.skyPrevW[0]-look[0],this.skyPrevW[1]-look[1],this.skyPrevW[2]-look[2])<=r.arm+Math.abs(S.a)+3?this.skyPrevW:null;
    const out0=!!P&&(lensLevel(look,posOf(look,P),near??[],0)!==2||(!!W0&&lensLevel(look,W0,near??[],0)!==2));
    if(near&&P&&!e&&out0&&lensLevel(look,posOf(look,{yaw:r.yaw+y,el:r.el+el,arm:r.arm+a}),near,0)===2){
     const py=wrapDeg(P.yaw-r.yaw),pe=P.el-r.el,cl=pe+LENS_SMOOTH.elevDegS*Math.min(0.1,dt>0?dt:0);
@@ -594,7 +594,8 @@ export class RegionNodeStage extends Component{
     /* world fallback: from last frame's real lens, step toward this frame's target, sliding along the box faces (axis by axis) */
     let ga=a,wsel:{yaw:number;el:number;arm:number}|null=null;
     if(W0){const D=posOf(look,{yaw:r.yaw+y,el:r.el+el,arm:r.arm+a}),mx=LENS_SMOOTH.boostLensMS*Math.min(0.1,dt>0?dt:0),v=[D[0]-W0[0],D[1]-W0[1],D[2]-W0[2]],n=Math.hypot(v[0],v[1],v[2]),k=n>mx?mx/n:1,u=[v[0]*k,v[1]*k,v[2]*k];
-     for(const m of [[1,1,1],[1,0,1],[1,0,0],[0,0,1],[1,1,0],[0,1,1],[0,1,0],[0,0,0]]){const c:[number,number,number]=[W0[0]+u[0]*m[0],W0[1]+u[1]*m[1],W0[2]+u[2]*m[2]];
+     const pl=[look[0]-W0[0],look[1]-W0[1],look[2]-W0[2]],pn=Math.hypot(pl[0],pl[1],pl[2])||1,pu=[pl[0]/pn*mx,pl[1]/pn*mx,pl[2]/pn*mx];/* pull in toward her look point (keeps the elevation) */
+     for(const m of [[1,1,1],[1,0,1],[1,0,0],[0,0,1],[1,1,0],[0,1,1],[0,1,0],[2,2,2],[0,0,0]]){const P2=m[0]===2,c:[number,number,number]=P2?[W0[0]+pu[0],W0[1]+pu[1],W0[2]+pu[2]]:[W0[0]+u[0]*m[0],W0[1]+u[1]*m[1],W0[2]+u[2]*m[2]];
       const w=sphOf(c,look);if(w.arm<A.armMinM-0.01||Math.abs(w.el-P.el)>LENS_SMOOTH.elevDegS*Math.min(0.1,dt>0?dt:0)*0.9||lensLevel(look,c,near,0)===2)continue;wsel=w;break;}}
     if(ok(y,cy)){ge=cy;}else if(hold&&ok(py,el)){gy=py;}else if(hold&&ok(py,cy)){gy=py;ge=cy;}else if(wsel){gy=wrapDeg(wsel.yaw-r.yaw);ge=wsel.el-r.el;ga=wsel.arm-r.arm;}else if(hold){gy=py;ge=pe;}
     if(gy!==y||ge!==el||ga!==a)S.pin(gy,ge,ga);a=ga;
