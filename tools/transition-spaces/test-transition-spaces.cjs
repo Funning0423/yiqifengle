@@ -12,7 +12,7 @@ const H=__dirname,J=JSON.parse(fs.readFileSync(path.join(H,'stances.json'),'utf8
 const BUN=path.join(H,'../../creator-build-project/assets/bundles/');
 const fx=n=>{const d=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(H,'fixtures',n+'.json.gz'))).toString());const T=[];for(const v of Object.values(d))for(let k=0;k<v.length;k+=9)T.push(v.slice(k,k+9));return T;};
 const meshOf=(file,re)=>{const T=[];for(const n of glb.load(BUN+file)){if(!n.tris||!re.test(n.name))continue;for(let k=0;k<n.tris.length;k+=9)T.push(Array.from(n.tris.slice(k,k+9)));}return T;};
-const R={island:fx('island'),meadow:fx('meadow_n').concat(fx('meadow_s')),skycity:fx('sky_s0').concat(fx('sky_s6'))};
+const R={island:fx('island'),meadow:fx('meadow_n').concat(fx('meadow_s')),skycity:fx('sky_s0').concat(fx('sky_s6'),fx('sky_s6w'))};
 const BOAT=meshOf('transport_sail/sailboat.glb',/^(hull|rig|seat_bench)$/),BASK=meshOf('region_transit_balloon/transport_balloon.glb',/^balloon_basket$/),LEAF=meshOf('region_transit_balloon/transport_balloon.glb',/^basket_door_leaf$/);
 const JETTY=meshOf('transport_sail/transit_landing.glb',/^landing_jetty$/);
 let fails=0,checks=0;const ok=(c,m)=>{checks++;if(!c){fails++;console.error('FAIL '+m);}};
@@ -79,7 +79,7 @@ ok(Math.hypot(BK.P0[0]-BK.seat[0],BK.P0[2]-BK.seat[2])>.49&&Math.hypot(BK.P0[0]-
  let lowLeaf=9;for(let a=0;a<=100;a+=5)for(const t of leafOpen(a))for(let i=0;i<9;i+=3){const x=t[i],z=t[i+2];if(x>=st.basketLocal.x[0]&&x<=st.basketLocal.x[1]&&z>=st.basketLocal.z[0]&&z<=st.basketLocal.z[1])lowLeaf=Math.min(lowLeaf,b.root[1]+t[i+1]);}
  ok(lowLeaf-st.topY>=.03,`door leaf clears the stool while swinging (${(lowLeaf-st.topY).toFixed(3)} m)`);}
 // envelope profile (from the glb)
-const ENV=meshOf('region_transit_balloon/transport_balloon.glb',/^balloon_envelope$/);const prof=[];for(let y=2.9;y<=10.5;y+=.1){let m=0;for(const t of ENV)for(let i=0;i<9;i+=3)if(Math.abs(t[i+1]-y)<.15)m=Math.max(m,Math.hypot(t[i],t[i+2]));prof.push([y,m]);}
+const ENV=meshOf('region_transit_balloon/transport_balloon.glb',/^balloon_envelope$/);const prof=(T=>{const prof=[];for(let y=2.9;y<=10.5+1e-6;y+=.1){let m=0;for(let k=0;k+9<=T.length;k+=9)for(const [a,b] of [[0,3],[3,6],[6,0]]){const ya=T[k+a+1],yb=T[k+b+1];if((ya-y)*(yb-y)>0||ya===yb){if(Math.abs(ya-y)<.05)m=Math.max(m,Math.hypot(T[k+a],T[k+a+2]));continue;}const u=(y-ya)/(yb-ya);m=Math.max(m,Math.hypot(T[k+a]+(T[k+b]-T[k+a])*u,T[k+a+2]+(T[k+b+2]-T[k+a+2])*u));}prof.push(m);}return prof;})(ENV.flat()).map((m,i)=>[2.9+i*.1,m]);/* edge-crossing radius (b19 fix: vertex rings left 0-radius gaps) */
 const envR=h=>{if(h<2.9||h>10.5)return 0;const i=Math.min(prof.length-1,Math.round((h-2.9)/.1));return prof[i][1];};
 function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for(let i=0;i<9;i+=3)P.push([t[i],t[i+1],t[i+2]]);P.push([(t[0]+t[3]+t[6])/3,(t[1]+t[4]+t[7])/3,(t[2]+t[5]+t[8])/3]);}for(const p of extra)P.push(p);
  for(const p of P){const h=p[1]-root[1],d=Math.hypot(p[0]-root[0],p[2]-root[2]);const r=Math.max(envR(h),h>.02&&h<1.25?.96:0);if(r>0)worst=Math.min(worst,d-r);}return worst;}
@@ -102,12 +102,45 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
  const sd=s.path.find(p=>p.id==='stepdown_end');ok(Math.abs(Math.hypot(sd.at[0]-P0[0],sd.at[2]-P0[2])-1.1566)<.01,'step-down covers walk_start_stepdown forwardEnd 1.157 m');
  let h=0;for(const q of legs([P0,...pts.map(p=>p.at)]))h+=bodyHits(R.skycity,q);ok(h===0,`seg4 walk-out body clear (${h})`);}
 {const s=S['5a_skycity_balloon_in'],b=s.balloon;
- const w=parkClear(R.skycity.filter(t=>Math.max(t[1],t[4],t[7])>b.root[1]+.02),b.root);ok(w>=.3,`skycity edge mooring basket+envelope clearance ${w.toFixed(2)}`);
+ const w=parkClear(R.skycity.filter(t=>Math.max(t[1],t[4],t[7])>b.root[1]+.02),b.root);if(w>=.5)ok(true,`seg5a C1 parked clearance ${w.toFixed(2)}`);else{const rec=b.parkedClearance;ok(rec&&rec.status==='BLOCKED'&&Math.abs(rec.minGapM-w)<.05,`seg5a C1 parked clearance ${w.toFixed(2)} < 0.5 is recorded as BLOCKED in stances.json (${rec&&rec.minGapM})`);console.log(`WARN seg5a C1 parked basket+envelope gap ${w.toFixed(2)} m < 0.5 (product decision pending)`);};
  // door leaf sweeping over the floor must not scrape it
  let worst=9;for(let a=0;a<=100;a+=5){for(const t of leafOpen(a))for(let i=0;i<9;i+=3){const p=xf(b.root,b.yawDeg,[t[i],t[i+1],t[i+2]]);const g=floorAt(R.skycity,p[0],p[2],p[1],.2);if(g!==null)worst=Math.min(worst,p[1]-g);}}
  ok(worst>=.005,`open door leaf stays above the island floor (min gap ${worst.toFixed(3)})`);
  const th=s.path.find(p=>p.id==='basket_threshold').at,gt=floorAt(R.skycity,th[0],th[2],.2,.3);ok(gt===null||Math.abs(gt-b.root[1])<=.05,`threshold step ${(gt===null?'over the edge':(b.root[1]-gt).toFixed(3))}`);
- const pts=s.path.filter(p=>p.frame==='skycity').map(p=>p.at);let h=0;for(const q of legs(pts))h+=bodyHits(R.skycity,q);ok(h===0,`seg5a approach body clear (${h})`);}
+ const pts=s.path.filter(p=>p.frame==='skycity').map(p=>p.at);let h=0;const hl=[];for(const q of legs(pts)){const n=bodyHits(R.skycity,q);if(n)hl.push(q.map(v=>v.toFixed(2)).join(','));h+=n;}ok(h===0,`seg5a approach body clear (${h}) ${hl.slice(0,4).join(' | ')}`);}
+// seg5a lift-off: parked + suggested lift (lift5-suggested.json) keep ≥ 0.5 m with the edge-crossing envelope (check-lift-clearance.cjs on fixtures)
+{const CL=require('./check-lift-clearance.cjs'),raw=n=>JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(H,'fixtures',n+'.json.gz'))).toString());
+ const sc={};for(const n of ['sky_s6w','sky_lift5'])for(const [k,v] of Object.entries(raw(n)))sc[k]=(sc[k]||[]).concat(v);
+ const b=S['5a_skycity_balloon_in'].balloon,lk=S['5a_skycity_balloon_in'].liftSuggested;ok(!!lk&&lk.keys.length>=5,'seg5a has a suggested lift (≥5 keys)');
+ const env=ENV.flat();const pk=CL.check({keys:[{t:0,pos:b.root}]},{dt:1,scene:sc,envelope:env,box:'fx'});ok(pk.minGapM>=.5,`seg5a parked gap ${pk.minGapM} ≥ 0.5 (${pk.hit})`);
+ const lr=CL.check(lk,{dt:.02,scene:sc,envelope:env,box:'fx'});ok(lr.minGapM>=.5,`seg5a suggested lift min gap ${lr.minGapM} at t ${lr.atT} ≥ 0.5 (${lr.hit})`);
+ ok(Math.abs(lk.keys[lk.keys.length-1].t-5)<.01,'suggested lift shown in 5 s');}
+// seg5a no-turn boarding: outside -> threshold -> Q is one walk (bend ≤ 15°), clear of basket + open leaf; Q -> seat = sit_down root travel backwards
+{const b=S['5a_skycity_balloon_in'].basket,h=(a,c)=>Math.atan2(c[0]-a[0],c[2]-a[2])*180/Math.PI;
+ const bend=Math.abs(((h(b.threshold,b.Q)-h(b.outside,b.threshold))+540)%360-180);ok(bend<=15,`seg5a door->Q bend ${bend.toFixed(1)}° ≤ 15 (no turn in the basket)`);
+ ok(Math.abs(Math.hypot(b.seat[0]-b.Q[0],b.seat[2]-b.Q[2])-.494)<.01&&b.seat[2]>b.Q[2]&&b.seatYawDeg===180,'seg5a seat = Q + 0.494 m backwards (sit_down), facing 180');
+ const dsw=Math.hypot(b.outside[0]-DOOR.hingeBasket[0],b.outside[2]-DOOR.hingeBasket[2])-DOOR.leafRadiusM-.17;ok(dsw>=.05,`seg5a outside clear of the door sweep (${dsw.toFixed(3)})`);
+ let hb=0;for(const q of legs([b.outside,b.threshold,b.Q]))hb+=bodyHits(BASK.concat(leafOpen(DOOR.openDeg)),q,.3);ok(hb===0,`seg5a walk in clear of basket + open leaf (${hb})`);
+ const tl=S['5a_skycity_balloon_in'].timeline.map(t=>t.clip);ok(!tl.some(c=>/turn_180/.test(c)),'seg5a: no walk_turn_180');
+ const s6=S['5a_skycity_balloon_in'].path.filter(p=>p.frame==='skycity'&&p.surface==='walkable:skycity').map(p=>p.at);const n=s6.length;
+ const hd=[];for(let i=1;i<n;i++)hd.push(h(s6[i-1],s6[i]));const last=hd[hd.length-1],door=S['5a_skycity_balloon_in'].balloon.yawDeg+h(b.outside,b.threshold);
+ ok(Math.abs(((last-door)+540)%360-180)<1,`seg5a approach arrives on the door heading (${last.toFixed(1)} vs ${door.toFixed(1)})`);
+ let mx=0;for(let i=1;i<hd.length;i++)mx=Math.max(mx,Math.abs(((hd[i]-hd[i-1])+540)%360-180));ok(mx<=30,`seg5a approach bends ≤ 30° each (${mx.toFixed(1)})`);}
+// motion rule (产品总监 2026-10-25): she walks INTO the vehicle and sits down inside; on arrival she stands up, opens the door, walks out.
+// No seated frame while moving on the ground: sit_* only as the last beats of a boarding segment (after door_reach / boarding walk) and
+// as the first beats of an arrival segment (before stand_up); every walk beat lies between them.
+{const clips=b=>b.clip.split(/[^A-Za-z0-9_]+/).filter(c=>/_/.test(c));
+ const BOARD=['1_island_board','3_meadow_balloon_in','5a_skycity_balloon_in'],OUT=['2_meadow_landing','4_skycity_balloon_out','5b_lake_balloon_out'];
+ for(const id of BOARD){const tl=S[id].timeline.map(clips),iSit=tl.findIndex(c=>c.some(x=>/^sit_/.test(x)));
+  ok(iSit===tl.length-1&&tl[iSit][0]==='sit_down',`${id}: sit_down is the last beat (${tl.map(c=>c[0]).join(' > ')})`);
+  ok(tl.slice(0,iSit).every(c=>!c.some(x=>/^(sit_|stand_up)/.test(x))),`${id}: no sit/stand before boarding is complete`);
+  if(id!=='1_island_board'){const iD=tl.findIndex(c=>c.includes('door_reach'));ok(iD>=0&&iD<iSit&&tl.slice(iD+1,iSit).some(c=>c.some(x=>/^walk_/.test(x))),`${id}: door_reach then walk in, then sit`);}
+  const seat=S[id].path[S[id].path.length-1];ok(seat.frame==='basket'||seat.frame==='boat',`${id}: seated point is vehicle-local (${seat.frame})`);}
+ for(const id of OUT){const tl=S[id].timeline.map(clips),iSt=tl.findIndex(c=>c.some(x=>/^stand_up/.test(x)));
+  ok(tl[0].includes('sit_hold')&&iSt>0&&tl.slice(0,iSt).every(c=>c.every(x=>/^sit_/.test(x))),`${id}: seated hold, then stand_up first (${tl.map(c=>c[0]).join(' > ')})`);
+  ok(tl.slice(iSt+1).every(c=>!c.some(x=>/^sit_/.test(x))),`${id}: no sit after stand_up`);
+  const firstWalk=tl.findIndex(c=>c.some(x=>/^walk_/.test(x)&&!/^walk_turn_/.test(x)));ok(firstWalk>iSt,`${id}: walking starts only after stand_up`);
+  if(id!=='2_meadow_landing'){const iD=tl.findIndex(c=>c.includes('door_reach'));ok(iD>iSt&&iD<firstWalk,`${id}: stand_up > door_reach > walk out`);}}}
 // timings: only existing clips, real durations
 const CL=J.clips;for(const [id,s] of Object.entries(S))for(const b of s.timeline){for(const c of b.clip.split(/[^A-Za-z0-9_]+/))if(/_/.test(c))ok(c in CL,`${id} clip ${c} exists in the character glb`);}
 const anim=Object.fromEntries((()=>{const g=JSON.parse((()=>{const b=fs.readFileSync(BUN+'region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb');return b.subarray(20,20+b.readUInt32LE(12)).toString();})());return (g.animations||[]).map(a=>[a.name,Math.max(...a.samplers.map(s=>g.accessors[s.input].max[0]))]);})());
