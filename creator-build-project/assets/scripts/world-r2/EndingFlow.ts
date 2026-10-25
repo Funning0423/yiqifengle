@@ -1,4 +1,4 @@
-/** L16 → ending (TR9) and 回小岛 (pure; no cc imports). The last lakeside challenge's registered win shows 「继续」 on the
+/** L18 「刻名的桥」 (r04-lake-06) → ending (TR9) and 回小岛 (pure; no cc imports). The last lakeside challenge's registered win shows 「继续」 on the
  *  result page; it runs a WindWipe (vehicle: 3D 风铃) under which the EndingScreen (v2 lake view) is built. 回小岛 runs another
  *  WindWipe under which the board exits normally (saves already written at result.saved) and she is stood on the island. */
 export const LAKE_STAGE_COUNT=4;

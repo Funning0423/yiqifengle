@@ -689,7 +689,7 @@ export class WorldIntegrationBoot extends Component {
  // Result actions are drawn by the board's result page (ui/BoardPanels.openResult); the host only owns availability + commands.
  // Do not rebuild the result behind a live RewardPanel while the app is hidden.
  // Its dismissal callback owns that exact panel; on show the settled lease restores level before painting.
- if(board){const actions:any={};for(const k of [...RESULT_ACTION_IDS,'ending']/* TR9 L16 → ending */){const n=this.controls.get(k);actions[k]={visible:!!n?.active,run:this.resultActions[k]};if(n)n.active=false;}actions.afterClaims={visible:true,run:(then:()=>any)=>{if(this.busy){void then();return;}this.enqueueResult(()=>then());}};if(!s.hidden)board.setHostActions(actions);}
+ if(board){const actions:any={};for(const k of [...RESULT_ACTION_IDS,'ending']/* TR9 L18 → ending */){const n=this.controls.get(k);actions[k]={visible:!!n?.active,run:this.resultActions[k]};if(n)n.active=false;}actions.afterClaims={visible:true,run:(then:()=>any)=>{if(this.busy){void then();return;}this.enqueueResult(()=>then());}};if(!s.hidden)board.setHostActions(actions);}
  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);if(s.state!=='home')this.glassSign?.reset();this.glassSign?.sync(dt,s.state==='home'&&!s.hidden&&!s.needsResume&&!!this.roomExplore?.diagnostics().visible);
@@ -719,7 +719,7 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
   * legacy cover(alpha, seconds) ramps (ScreenCover) on foreground time; rising alpha = OUT sweep, falling = IN sweep. */
  private lakesideArrival:LakesideArrivalUI|null=null;
  private wipe:WindWipeView|null=null;private wipeDone:(()=>void)|null=null;
- /** TR9 L16 → ending and 回小岛 (world-r2/EndingFlow): both run through the shared WindWipe (runWindWipe). */
+ /** TR9 L18 → ending and 回小岛 (world-r2/EndingFlow): both run through the shared WindWipe (runWindWipe). */
  private ending:EndingScreen|null=null;
  private endingHost():EndingHost{
   const audio=GameAudio.instance as any,cmd=()=>this.composition.worldCommands();
