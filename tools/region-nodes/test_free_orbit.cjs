@@ -131,7 +131,7 @@ const geometry={Ray,ERaycastMode:{CLOSEST:1},intersect:{rayModel(ray,model,optio
 }}};
 const compiled=ts.transpileModule(`class Stage{${methods.join('\n')}};module.exports=Stage;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
 const LAV=load('region/LensAvoid.ts');
-const LSM=load('region/LensSmooth.ts');const sandbox={module:{exports:{}},...LSM,AVOID:LAV.AVOID,LENS_PITCH_MAX_DEG:LAV.LENS_PITCH_MAX_DEG,lensLevel:LAV.lensLevel,nearSphere:LAV.nearSphere,geometry,MeshRenderer:class{},LENS_CLEAR_M:0.6,ORBIT_LIMITS:C.ORBIT_LIMITS,LENS_GUARD:{armMinM:3.5,armHardM:1.6,armMaxM:12}};/* r17: writeOrbit arm clamp */
+const LSM=load('region/LensSmooth.ts');const sandbox={module:{exports:{}},...LSM,AVOID:LAV.AVOID,LENS_PITCH_MAX_DEG:LAV.LENS_PITCH_MAX_DEG,lensLevel:LAV.lensLevel,nearSphere:LAV.nearSphere,herOcclusion:LAV.herOcclusion,toFrame:LAV.toFrame,geometry,MeshRenderer:class{},LENS_CLEAR_M:0.6,ORBIT_LIMITS:C.ORBIT_LIMITS,LENS_GUARD:{armMinM:3.5,armHardM:1.6,armMaxM:12}};/* r17: writeOrbit arm clamp */
 vm.runInNewContext(compiled,sandbox,{filename:stagePath});
 const Stage=sandbox.module.exports;
 const render=(name,height,enabled=true,active=true)=>({enabled,node:{name,activeInHierarchy:active},model:{worldBounds:{center:{x:0,y:5,z:0},halfExtents:{x:50,y:15,z:50}},height}});
