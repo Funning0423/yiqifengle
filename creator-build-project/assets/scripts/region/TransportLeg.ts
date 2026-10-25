@@ -436,6 +436,14 @@ export function balloonKeepInFrame(pose:Pose,basket:Vec):Pose{
  const yaw=yawOf(f)+cy,pitch=pitchOf(f)+cp,cpch=Math.cos(pitch);
  return {position:p,target:[p[0]+Math.sin(yaw)*cpch*dist,p[1]+Math.sin(pitch)*dist,p[2]+Math.cos(yaw)*cpch*dist],fovVerticalDeg:pose.fovVerticalDeg};
 }
+/** b19: she rides SEATED (chest ≈ floor+0.75, rim ≈ floor+1.0). Raise the lens (position only, soft-max) so it sees her chest over the
+ *  rim from ≥ BALLOON_SEATED_ELEV_DEG; no change where the authored lens is already higher (most of the flight). */
+export const BALLOON_SEATED_CHEST_M=0.75,BALLOON_SEATED_ELEV_DEG=40,BALLOON_SEATED_MAX_LIFT_M=1.5;
+/** constant cap: a later release lifts the lens into the cloud-deck cards (frame-background clear/near) and over the seam cloud (leak) */
+export function balloonSeatedCap(t:number):number{void t;return BALLOON_SEATED_MAX_LIFT_M;}
+export function balloonSeatedLift(pose:Pose,basket:Vec,cap:number=BALLOON_SEATED_MAX_LIFT_M):Pose{const p=pose.position,d=Math.hypot(p[0]-basket[0],p[2]-basket[2]);
+ const need=basket[1]+BALLOON_SEATED_CHEST_M+d*Math.tan(BALLOON_SEATED_ELEV_DEG*Math.PI/180),k=0.25,e=need-p[1];
+ const l0=e>6*k?e:k*Math.log1p(Math.exp(e/k)),M=cap,lift=M*Math.tanh(l0/M)/* soft cap: never pushed into the cloud deck */;if(lift<1e-4)return pose;return {position:[p[0],p[1]+lift,p[2]],target:[pose.target[0],pose.target[1]+lift*0.5,pose.target[2]],fovVerticalDeg:pose.fovVerticalDeg};}
 /** Balloon meadow → sky city (§10). Pose is the shared WorldFlowCore camera pose already imported above. */
 export type Beat={id:string;t0:number;t1:number};
 export type VehicleSample={pos:Vec;yaw:number;roll:number};
@@ -576,7 +584,7 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
   for(let k=-N;k<=N;k++){const w=N+1-Math.abs(k),tt=Math.max(0,Math.min(FLIGHT_DURATION,time+k*h/N)),c=rawCam(tt),sp=tt<SEAM_T;
    const cp=toSide(c.position,sp,pre),ct=toSide(c.target,sp,pre);for(let j=0;j<3;j++){P[j]+=cp[j]*w;Q[j]+=ct[j]*w;}W+=w;}
   const pose:Pose={position:[P[0]/W,P[1]/W,P[2]/W],target:[Q[0]/W,Q[1]/W,Q[2]/W],fovVerticalDeg:48};
-  return balloonKeepInFrame(pose,vehicle(time).pos);
+  const vp=vehicle(time).pos;return balloonKeepInFrame(balloonSeatedLift(pose,vp,balloonSeatedCap(time)),vp);
  };
  const routeAt=(time:number)=>worldAt(Math.max(0,Math.min(FLIGHT_DURATION,time)));
  const deck=doc.layout.cloudDeckY,deckMid=(deck[0]+deck[1])/2;
