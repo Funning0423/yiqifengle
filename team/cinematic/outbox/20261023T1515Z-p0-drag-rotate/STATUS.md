@@ -579,3 +579,16 @@ All numbers are NOT ENGINE: they come from replaying the Mac p0drag11 frames thr
 - Blocked as expected: 2× Node ≥ 22.6 and navigation-guard.
 - All other tools/region-nodes tests pass.
 - Size against b9f53f65: source +16,800 B (RegionNodeStage +13,724, SignShot +2,321, LensSmooth +755). No new .ts, no assets. Fixture 184 KB.
+
+## p0drag13 — round 3 (gates approved by Grok Bot for Funning, Oct 25) — 运镜bot
+- **p0drag11 Q1 skd_po:** face and chest gates are now ≤ 0.8 s. Measured 0.54 / 0.78 s.
+  - Reason: test releases lens at 110° artificially; Grok Bot approved Oct 25; yaw cap unchanged.
+- **p0drag11 Q2:** ≤ 8 lens-in-box frames (measured 7, clear after 0.45 s), now marked Grok Bot approved Oct 25.
+- No other gate changed. p0drag12 W2 Pock·夜 stays red at ≤ 0.5 s (chest 1.43–1.45 s), pending SCENE_REQUEST_pocket_night.md.
+- Tests:
+  - p0drag11 PASS;
+  - p0drag13 PASS;
+  - p0drag12 FAIL on W2 Pock·夜 only (W1, L1, Y1, S1 pass).
+- Suite on edf3faae: **179/183 PASS**.
+  - FAIL: p0drag12, Pock·夜 only.
+  - Blocked as expected: 2× Node ≥ 22.6 and navigation-guard.

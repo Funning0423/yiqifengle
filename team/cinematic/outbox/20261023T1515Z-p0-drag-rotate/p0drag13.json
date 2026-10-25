@@ -419,19 +419,21 @@
     },
     "red": "Pock·夜 chest 1.43–1.45 s → SCENE_REQUEST_pocket_night.md"
    },
-   "p0drag11_unapproved": {
+   "p0drag11": {
     "Q1_skd_po": {
      "face": 0.54,
      "chest": 0.78,
      "gate": {
-      "f": 0.6,
-      "c": 0.85
-     }
+      "f": 0.8,
+      "c": 0.8
+     },
+     "reason": "test releases lens at 110° artificially; Grok Bot approved Oct 25; yaw cap unchanged"
     },
     "Q2": {
      "insideFrames": 7,
      "gate": 8,
-     "clearAfterS": 0.45
+     "clearAfterS": 0.45,
+     "reason": "Grok Bot approved Oct 25"
     }
    }
   },
@@ -445,7 +447,8 @@
     "legacy-board-ui-pure (Node≥22.6)",
     "reward-background-return (Node≥22.6)",
     "navigation-guard (browser)"
-   ]
+   ],
+   "head": "edf3faae"
   }
  }
 }
