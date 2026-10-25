@@ -1,6 +1,6 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
-import {preloadTargetForStage} from '../region/TransitionChain';
+import {preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -233,12 +233,35 @@ export class WorldNativeComposition extends Component {
    * skycity→lakeside segment (walk to the basket, door, board, ignition, take-off; built elsewhere) registers here and gets the
    * end-of-shot camera {position, rotation, fovVerticalDeg, velocity, angularVelocityDegS}; returning true means it took over.
    * When nothing is registered or every handler declines, the fallback is the existing enterMainline() path (WindWipe 'ride'). */
-  private skyContinueHandlers:((camera:any)=>boolean|void)[]=[];
-  onSkyFinaleContinue(handler:(camera:any)=>boolean|void){this.skyContinueHandlers.push(handler);return ()=>{this.skyContinueHandlers=this.skyContinueHandlers.filter(h=>h!==handler);};}
+  private skyContinueHandlers:((camera:any)=>boolean|void|PromiseLike<any>)[]=[];
+  onSkyFinaleContinue(handler:(camera:any)=>boolean|void|PromiseLike<any>){this.skyContinueHandlers.push(handler);return ()=>{this.skyContinueHandlers=this.skyContinueHandlers.filter(h=>h!==handler);};}
   skyFinaleActive(){try{return !!(this.stage() as any)?.finaleEndCamera?.();}catch{return false;}}
+  /** skyfix (界面验收部 cand-stage5 P1, root cause): the T-02 finale plays on top of the mainline-12 RESULT board, i.e. the world
+   *  is still in state 'level'. enterMainline()→enterRegion('lake')→selectProvider() then answers {ok:false,'exit-current-level-
+   *  first'} (a resolved promise, so nothing was logged), and the 继续旅程 button is only shown in state 'skycity' → no UI, no
+   *  departure. Close that board in place (same exitLevel the other region advances use) without moving her or the held shot. */
+  leaveFinaleBoard():boolean{
+    const w=this.world?.commands();if(!w||w.snapshot().state!=='level')return true;
+    const actor=this.boundCharacter as any,had=actor&&Object.prototype.hasOwnProperty.call(actor,'__qfWalkTail'),prev=actor?.__qfWalkTail;
+    if(actor&&!prev)actor.__qfWalkTail={done:Promise.resolve(),holdForFinale:true}/* RegionJourneyCore.restore(): keep her where the finale left her */;
+    let r:any;try{r=w.exitLevel();}catch(error){r={ok:false,reason:String(error)};}
+    finally{if(actor&&!prev){if(had)actor.__qfWalkTail=prev;else delete actor.__qfWalkTail;}}
+    try{(this.stage() as any)?.holdFinaleView?.();}catch{/* optional */}
+    if(!r?.ok)console.warn('[QF_TRANSITION] sky finale board exit refused '+String(r?.reason));
+    return !!r?.ok;
+  }
   async continueFromSkyFinale(){const stage=this.stage() as any;let camera=null;try{camera=stage?.finaleEndCamera?.()??null;stage?.disarmFinale?.();stage?.markFinaleDeparture?.();}catch{/* optional */}
-    for(const h of [...this.skyContinueHandlers]){try{if(h(camera)===true)return {ok:true,via:'continuous'} as any;}catch(error){console.error('sky-finale-continue',error);}}
-    return this.enterMainline();}
+    this.leaveFinaleBoard();const t0=Date.now();let reason='no-continuous-handler';
+    for(const h of [...this.skyContinueHandlers]){let r:any;try{r=h(camera);}catch(error){reason='handler-threw:'+String(error);console.warn('[QF_TRANSITION] sky-finale-continue '+reason);continue;}
+      if(r===true)return {ok:true,via:'continuous'} as any;
+      if(r&&typeof r.then==='function'){let res:any;try{res=await r;}catch(error){res={ok:false,reason:'continuous-threw:'+String(error)};}
+        if(res&&res.ok!==false)return {...res,via:'continuous'};
+        if(!this.stillInSkycity())return res??{ok:false,reason:'continuous-null'};
+        reason=String(res?.reason??'continuous-null');break;}}
+    // bounded fallback: the continuous path declined / returned null / threw while she is still in sky city → the WindWipe ride, logged
+    if(this.skyContinueHandlers.length)recordFallback('lakeside',(Date.now()-t0)/1000,'sky-finale:'+reason);
+    return withLegacyTransition(()=>this.enterMainline());}
+  private stillInSkycity(){try{const s=this.world?.commands().snapshot();return !!s&&(s.state==='skycity'||s.state==='level'&&s.journey?.region==='skycity');}catch{return false;}}
   /** 继续旅程: from the held sky finale go through the continuation hook; elsewhere the plain mainline entry. */
   continueJourney(){return this.skyFinaleActive()?this.continueFromSkyFinale():this.enterMainline();}
   async enterMainline(){const s=this.mainlineStatus();if(s.active?.status!=='playing'&&(RegionCampaign as any).canEnterRegion(s.journey,'lakeside').ok)return this.enterRegion('lake');const id=s.active?.status==='playing'?s.active.stageId:s.nextStageId||s.stages.find((x:any)=>x.unlocked&&!x.record?.bestStars)?.id||'mainline-12';return this.enterMainlineStage(id);}
@@ -374,7 +397,7 @@ export class WorldNativeComposition extends Component {
      try{await stage.playFinale(this.boundCharacter);}catch(error){console.error('region-node-finale',error);}
      /* T-02: once the region reward is claimed, the held sky shot auto-continues after SKY_FINALE.holdS of no input (same
       * handler as 继续旅程; any drag/tap cancels it and the button stays). */
-     const r=this.mainlineReward('claimRegion',index);if((r as any)?.ok!==false)try{stage.armFinaleContinue?.(()=>{void this.continueFromSkyFinale();});}catch{/* optional */}
+     const r=this.mainlineReward('claimRegion',index);if((r as any)?.ok!==false)this.leaveFinaleBoard()/* skyfix: state 'skycity' → 继续旅程 shown, departure can select lakeside */;if((r as any)?.ok!==false)try{stage.armFinaleContinue?.(()=>{void this.continueFromSkyFinale();});}catch{/* optional */}
      return r;
     }
     return this.mainlineReward('claimRegion',index);

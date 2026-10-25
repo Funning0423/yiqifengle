@@ -11,7 +11,11 @@ import {blendPose,minJerk,ViewLimiter,TRANSITION_CAM} from './TransitionCamera';
 import {stopEngineStates,type EngineAnimLike} from './EngineAnimStop';
 export type ChainLeg='sail'|'balloon'|'lakeside';
 /** Master switch. `?windwipe=legacy` (web QA only) restores the old cover path for A/B comparison. */
+let legacyDepth=0;
+/** skyfix: bounded fallback — run one travel with the WindWipe cover path (continuousTransitions() false meanwhile). */
+export async function withLegacyTransition<T>(fn:()=>Promise<T>|T):Promise<T>{legacyDepth++;try{return await fn();}finally{legacyDepth--;}}
 export function continuousTransitions(q?:string):boolean{
+ if(legacyDepth>0&&q===undefined)return false;
  try{const s=q!==undefined?q:(typeof location!=='undefined'?String(location.search||''):'');return !/(?:^|[?&])windwipe=legacy(?:&|$)/.test(s);}catch{return true;}
 }
 /** Required segment order per leg (each segment plays visibly; nothing is skipped). */
