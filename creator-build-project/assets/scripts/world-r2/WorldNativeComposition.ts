@@ -7,7 +7,7 @@ import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
-import { QA_SKIP_CHECKPOINT, qaSkipTarget, type QaSkipTarget } from './QaSkip';
+import { QA_SKIP_CHECKPOINT, qaSkipTarget, qaQuery, type QaSkipTarget } from './QaSkip';
 import { preTransitionEnabled } from './PreTransitionKeys';
 import { qaTransportEnabled } from '../region/JourneyTransport';
 import { armSailQa } from '../region/SailQaProbe';
@@ -295,7 +295,7 @@ export class WorldNativeComposition extends Component {
    *  real saves are never written; leave via exitQaSkip() or a relaunch. No banner. */
   async qaSkip(target:QaSkipTarget):Promise<Result>{
     const gated=qaSkipTarget('qfSkip='+target);if(!gated||gated!==target)return {ok:false,reason:'qa-skip-disabled'};
-    const search=(()=>{try{const s=(globalThis as any).location?.search;return typeof s==='string'?s:'';}catch{return '';}})();
+    const search=qaQuery();
     if(!qaSkipTarget(search)&&!(globalThis as any).__QF_QA_SKIP_API)return {ok:false,reason:'qa-skip-disabled'};
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
     const cp=QA_SKIP_CHECKPOINT[target];let profile:any;
