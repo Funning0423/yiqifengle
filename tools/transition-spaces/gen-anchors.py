@@ -38,7 +38,11 @@ def sub(pth,a,b):
     ids=[p['id'] for p in pth];return pth[ids.index(a):ids.index(b)+1]
 def tl(seg):return [{'clip':t['clip'],'s':t['s']} for t in seg['timeline']]
 p1=path(s1,boat0);p2=path(s2,boatM);p3=path(s3,ball3);p4=path(s4,ball4)
-GW=s1['nodes']['gangway'];bk=s3['basket'];door=s3['door']
+GW=s1['nodes']['gangway'];bk=s3['basket'];door=s3['doors']['board'];doorB=s3['doors']['exit']
+def DI(d,par,role):  # door block for 运镜bot / GGbot (b19 basket-door2)
+    return {'role':role,'pivotNode':d['pivotNode'],'leafNode':d['leafNode'],'hinge':P('basket',d['hingeBasket'],None,par),'hingeBasket':d['hingeBasket'],'opens':'outward','openDeg':d['openDeg'],
+            'rotation':'pivot local +Y by +openDeg (same sign for both doors; basket_door_b pivot is pre-rotated yaw 180)','openS':d['openS'],'closeS':d['closeS'],'leafRadiusM':d['leafRadiusM'],'axis':d['axis']}
+def DOORS(par,use):return {'A':DI(door,par,'board (enter)' if use in('board','both') else 'stays shut'),'B':DI(doorB,par,'exit (walk out)' if use in('exit','both') else 'stays shut')}
 def plank(par,side,deg):
     h=GW['hingeBoat'][side];sgn=-1 if side=='stbd' else 1
     end=[h[0]+sgn*GW['plankLenM']*math.cos(math.radians(abs(deg))),h[1]+GW['plankTopAboveHingeM']-math.copysign(1,deg)*GW['plankLenM']*math.sin(math.radians(abs(deg)))*(-1 if side=='stbd' else 1),h[2]]
@@ -62,11 +66,12 @@ A['A6-meadow-first']={'note':'码头 → 草原第一关 M1','path':p2[i:],'firs
 a,b=p2[-2]['pos'],p2[-1]['pos'];A['A6-meadow-first']['firstStop']['yawDeg']=round(math.degrees(math.atan2(b[0]-a[0],b[2]-a[2])),2)
 A['B1-basket-in']={'note':'草原最后一关 M4 → 篮门前 → 开门 → 篮内坐下（篮已停在新起飞点）','balloonPose':pose(ball3),'M4':P('meadow',s3['path'][0]['at']),
  'doorFront':P('basket',bk['outside'],bk['outsideYawDeg'],ball3),'hinge':P('basket',door['hingeBasket'],None,ball3)|{'pivotNode':door['pivotNode'],'leafNode':door['leafNode'],'openDeg':door['openDeg'],'openS':door['openS'],'closeS':door['closeS'],'leafRadiusM':door['leafRadiusM'],'opens':'outward'},
- 'inside':{'P0':P('basket',bk['P0'],180.0,ball3),'seat':P('basket',bk['seat'],0.0,ball3)},'path':p3,'walkMps':{'approach':1.2,'intoBasket':0.8},'seconds':s3['totalS'],'timeline':tl(s3)}
-A['B2-ignite']={'note':'起飞前篮位姿（flight 首键改到这里，归运镜bot）','balloonPose':pose(ball3),'seat':A['B1-basket-in']['inside']['seat']}
-A['B4B5-skycity-out']={'note':'天空之城着陆位姿（篮根 y 抬到停靠台）→ 出门点 P0 → 下台阶第一步 → 新 S0 → 接 S0–S1','balloonPose':pose(ball4),'seat':P('basket',bk['seat'],0.0,ball4),
+ 'doors':DOORS(ball3,'board'),'threshold':P('basket',bk['threshold'],180.0,ball3),
+ 'inside':{'P0':P('basket',bk['P0'],180.0,ball3),'seat':P('basket',bk['seat'],180.0,ball3)|{'basketLocal':bk['seat'],'basketYawDeg':180.0},'note':'no turn: walks in through door A facing basket -z, sit_down backwards P0 -> seat (0.494 m); seated facing door B'},'path':p3,'walkMps':{'approach':1.2,'intoBasket':0.8},'seconds':s3['totalS'],'timeline':tl(s3)}
+A['B2-ignite']={'note':'起飞前篮位姿（flight 首键改到这里，归运镜bot）；篮 yaw -16°（门 A 对着院门来路）','balloonPose':pose(ball3),'seat':A['B1-basket-in']['inside']['seat']}
+A['B4B5-skycity-out']={'note':'天空之城着陆位姿（篮根 y 抬到停靠台；篮 yaw = 旧末键 yaw +180，门 B 在原门 A 位置）→ 站起 P0 → 开门 B → 门槛 B → 下台阶第一步 → 新 S0 → 接 S0–S1','balloonPose':pose(ball4),'balloonYawOldDeg':round(Wyaw('skycity',s4['balloon']['landYawOldDeg']),3),'seat':P('basket',bk['seat'],180.0,ball4)|{'basketLocal':bk['seat']},'doors':DOORS(ball4,'exit'),'thresholdB':P('basket',bk['thresholdB'],None,ball4),'doorOutB':P('basket',bk['doorOutB'],None,ball4),'exitStartLocalB':bk['P0'],
  'exitDoor':P('skycity',s4['stances']['P0']['at'],s4['stances']['P0']['yawDeg']),'firstStepDown':P('skycity',[q for q in s4['path'] if q['id']=='stepdown_end'][0]['at']),
- 'hinge':P('basket',door['hingeBasket'],None,ball4)|{'openDeg':door['openDeg']},'firstStop':P('skycity',s4['stances']['S0_new']['at'],s4['stances']['S0_new']['yawDeg'])|{'id':'S0'},
+ 'hinge':P('basket',doorB['hingeBasket'],None,ball4)|{'openDeg':doorB['openDeg'],'pivotNode':doorB['pivotNode']},'firstStop':P('skycity',s4['stances']['S0_new']['at'],s4['stances']['S0_new']['yawDeg'])|{'id':'S0'},
  'path':p4,'walkMps':0.8,'seconds':s4['totalS'],'timeline':tl(s4)}
 s5,s6=SG['5a_skycity_balloon_in'],SG['5b_lake_balloon_out'];LIFTGAP=float(os.environ.get('LIFTGAP','nan'))
 ball5=('skycity',s5['balloon']['yawDeg'],s5['balloon']['root']);ball6=('lake',s6['balloon']['yawDeg'],s6['balloon']['root'])
@@ -74,11 +79,12 @@ p5=path(s5,ball5);p6=path(s6,ball6)
 A['C1-sky-basket-in']={'note':'T-02 最后一镜 S6 → 系泊点（选 C，S6 西南 18 m）篮门前 → 开门 → 篮内坐下。起飞关键帧归运镜bot（用 check-lift-clearance.cjs 校验 ≥0.5 m）；liftSuggested 只是参考','candidate':s5['balloon']['candidate'],
  'mooringPose':pose(ball5),'S6':P('skycity',s5['path'][0]['at']),'doorFront':P('basket',s5['basket']['outside'],s5['basket']['outsideYawDeg'],ball5),
  'hinge':P('basket',door['hingeBasket'],None,ball5)|{'pivotNode':door['pivotNode'],'leafNode':door['leafNode'],'openDeg':door['openDeg'],'openS':door['openS'],'closeS':door['closeS'],'opens':'outward'},
- 'inside':{'Q':P('basket',s5['basket']['Q'],180.0,ball5),'seat':P('basket',s5['basket']['seat'],180.0,ball5),'note':'no turn in the basket: walks in facing the seat direction, sits backwards Q -> seat'},'path':p5,'walkMps':{'approach':1.2,'intoBasket':0.8},'seconds':s5['totalS'],'timeline':tl(s5),
+ 'doors':DOORS(ball5,'board'),'threshold':P('basket',s5['basket']['threshold'],180.0,ball5),'inside':{'Q':P('basket',s5['basket']['Q'],180.0,ball5),'seat':P('basket',s5['basket']['seat'],180.0,ball5)|{'basketLocal':s5['basket']['seat']},'note':'no turn in the basket: walks in through door A facing the seat direction, sits backwards Q -> seat; seated facing door B (lake heading)'},'path':p5,'walkMps':{'approach':1.2,'intoBasket':0.8},'seconds':s5['totalS'],'timeline':tl(s5),
  'parkedClearance':s5['balloon']['parkedClearance'],
  'liftSuggested':({'note':s5['liftSuggested']['note'],'liftDirSkyDeg':s5['balloon']['liftDirDeg'],'minGapM':LIFTGAP,'keys':[{'t':k['t'],'pos':r(W('skycity',k['pos'])),'yawDeg':round(Wyaw('skycity',k['yaw']),2)} for k in s5['liftSuggested']['keys']]} if s5.get('liftSuggested') else None)}
-A['C2-lakeside-out']={'note':'湖边着陆（门位）→ 站起 → 开门 → 下台阶 → 走到湖边关卡起点 L1（b15/b18 代码数据不变）','touchdownPose':pose(ball6),'seat':P('basket',s5['basket']['seat'],180.0,ball6),'note5b':'seated facing the back wall (from 5a); stand_up -> walk_turn_180 -> door (GGbot code change)',
- 'exitDoor':P('lake',s6['stances']['P0']['at'],s6['stances']['P0']['yawDeg']),'hinge':P('basket',door['hingeBasket'],None,ball6)|{'openDeg':door['openDeg']},
+A['C2-lakeside-out']={'note':'湖边着陆（篮 yaw = 旧 lakesideBalloonMooring yaw +180，门 B 在原门 A 位置）→ 站起（已面向门 B，不转身）→ 开门 B → 门槛 B → 下台阶 → 走到湖边关卡起点 L1（b18 路径 v4 不变）','touchdownPose':pose(ball6),'balloonYawOldDeg':round(Wyaw('lake',s6['balloon']['yawOldDeg']),3),'seat':P('basket',s5['basket']['seat'],180.0,ball6)|{'basketLocal':s5['basket']['seat']},
+ 'doors':DOORS(ball6,'exit'),'exitStartLocalB':bk['P0'],'thresholdB':P('basket',bk['thresholdB'],None,ball6),'doorOutB':P('basket',bk['doorOutB'],None,ball6)|{'note':'门外站位（下台阶途中，第一步落地前后）'},'firstStepDown':P('basket',bk['stepdownEndB'],None,ball6),
+ 'exitDoor':P('lake',s6['stances']['P0']['at'],s6['stances']['P0']['yawDeg']),'hinge':P('basket',doorB['hingeBasket'],None,ball6)|{'openDeg':doorB['openDeg'],'pivotNode':doorB['pivotNode']},
  'levelStart':P('lake',s6['stances']['end']['at'],s6['stances']['end']['yawDeg']),'path':p6,'walkMps':0.8,'seconds':s6['totalS'],'timeline':tl(s6)}
 ph=json.load(open(sys.argv[1]));out={'format':'qf-transition-cam/1','note':'场景设计部 b19: anchors = world (region journey world: island root origin; meadow = sailMeadowRoot yaw180; skycity = CW_JSON). camera keys unchanged from placeholder (运镜bot). yaw = atan2(dx,dz) deg. source: tools/transition-spaces/stances.json via gen-anchors.py',
  'world':{'island':{'origin':[0,0,0],'yawDeg':0},'meadow':{'origin':r(MR),'yawDeg':180},'skycity':{'origin':CW[1],'yawDeg':CW[0]}},'segments':{}}
@@ -93,11 +99,13 @@ D=s1['nodes']['dock']
 O['island_dock']=[box('island',None,[D['deck']['x'][0],-0.9,D['deck']['z'][0]],[D['deck']['x'][1],D['deck']['topY'],D['deck']['z'][1]]),box('island',None,[D['ramp']['x'][0],-0.3,D['ramp']['z'][0]],[D['ramp']['x'][1],0.0,D['ramp']['z'][1]])]
 O['sail_gangway_island']=[box('boat',boat0,[-1.45,0.33,-0.1],[-0.70,0.62,0.40])];O['sail_gangway_meadow']=[box('boat',boatM,[0.70,0.31,-0.1],[1.45,0.62,0.40])]
 BW=0.85;BH=1.01;T=0.06  # planned basket wall box (basket-local; refine from balloon glb triangles when modelled)
-def basket(par):return [box('basket',par,[-BW,0,-BW],[BW,BH,-BW+T]),box('basket',par,[-BW,0,-BW],[-BW+T,BH,BW]),box('basket',par,[BW-T,0,-BW],[BW,BH,BW]),box('basket',par,[-BW,0,BW-T],[-0.4,BH,BW])]
-def leaf(par,deg):
+def basket(par):return [box('basket',par,[0.4,0,-BW],[BW,BH,-BW+T]),box('basket',par,[-BW,0,-BW],[-0.4,BH,-BW+T]),box('basket',par,[-BW,0,-BW],[-BW+T,BH,BW]),box('basket',par,[BW-T,0,-BW],[BW,BH,BW]),box('basket',par,[-BW,0,BW-T],[-0.4,BH,BW]),box('basket',par,[0.4,0,BW-T],[BW,BH,BW])]  # door openings x -0.4..0.4 in both the +z (A) and -z (B) walls
+def leaf(par,deg,B=False):
     c,s=math.cos(math.radians(deg)),math.sin(math.radians(deg));h=door['hingeBasket'];e=[h[0]-0.8*c,0,h[2]+0.8*s]
-    return box('basket',par,[min(h[0],e[0]),0,min(h[2],e[2])-0.03],[max(h[0],e[0]),BH,max(h[2],e[2])+0.03])
-for n,par in [('meadow',ball3),('skycity',ball4),('skycity_5a',ball5),('lake',ball6)]:O['basket_'+n]=basket(par);O['basket_door_leaf_'+n]={'closed':leaf(par,0),'open100':leaf(par,100)}
+    lo,hi=[min(h[0],e[0]),0,min(h[2],e[2])-0.03],[max(h[0],e[0]),BH,max(h[2],e[2])+0.03]
+    if B:lo,hi=[-hi[0],0,-hi[2]],[-lo[0],BH,-lo[2]]  # basket_door_b = door A turned 180° about the basket origin
+    return box('basket',par,lo,hi)
+for n,par in [('meadow',ball3),('skycity',ball4),('skycity_5a',ball5),('lake',ball6)]:O['basket_'+n]=basket(par);O['basket_door_leaf_'+n]={'closed':leaf(par,0),'open100':leaf(par,100)};O['basket_door_leaf_b_'+n]={'closed':leaf(par,0,True),'open100':leaf(par,100,True)}
 oc={'format':'lens-occluders/aabb-world','rowFormat':'[minX,minY,minZ,maxX,maxY,maxZ] world AABB (same row format as SKYCITY_LENS_OCCLUDERS)','planned':True,
  'note':'按计划尺寸生成（码头/踏板未建模；篮墙按 ±0.85 m×1.01 m 估）。建模后用实际三角形重新生成。用于 脸/胸可见 + 镜头离墙 1.1 m 测试。','boxes':O}
 O['sky_mooring_5a']=[box('basket',ball5,[x-0.08,0,-0.98],[x+0.08,0.9,-0.82]) for x in(-1.15,1.15)]+[box('basket',ball5,[-0.25,-0.05,0.9],[0.25,0.03,1.2])]
