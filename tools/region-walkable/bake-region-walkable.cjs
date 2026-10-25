@@ -10,6 +10,7 @@
  * the same order (base64). Model-local metres (the region GLB / lakeside scene frame).  Usage: node bake-region-walkable.cjs [--check]
  */
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const OBS_SLAB=.25;
 const RN=require('../region-nodes/bake-region-nodes.cjs'),LK=require('../lakeside-walkable/bake-lakeside-walkable.cjs');
 const ROOT=path.resolve(__dirname,'../..');
 const OUT=path.join(ROOT,'creator-build-project/assets/scripts/region/RegionWalkableData.ts');
@@ -65,6 +66,17 @@ async function bakeAll(){
     hs=hs.map((y,ci)=>y!==null&&keep.has(comp.id[ci])?y:null);}
    STATS[id]=st;}
   const e=encode(W,H,g.c,ox0,oz0,ci=>hs[ci]);
+  // b17 skycity-walk-r4 (Mac p0drag8 hW6 'none'): voxel field for the tap ray. Each cell keeps the 0.25 m slabs that hold scene
+  // surface samples (walls, roofs, fence, roots, canopy, cliffs; on walkable cells only what is > 0.3 m above the floor):
+  // a ray that enters an occupied voxel hit the scene and never answers 'none'. Per marked cell: zigzag Δ lowest slab, slab count, mask bytes.
+  // Only the band a tap ray can meet before it falls below the floor: [lowest floor − 2.5 m, highest floor + 12 m].
+  if(spec.tapObstacles){let fy0=1e9,fy1=-1e9;for(const y of hs)if(y!==null){fy0=Math.min(fy0,y);fy1=Math.max(fy1,y);}const yLo=fy0-2.5,yHi=fy1+12;
+   const bits=Buffer.alloc(Math.ceil(W*H/8)),dh=[];let prev=0,n=0;const put=v=>putU(v<0?(-v*2-1):v*2),putU=z=>{do{let b=z&127;z>>>=7;if(z)b|=128;dh.push(b);}while(z);};
+   for(let ci=0;ci<W*H;ci++){const ci0=(gz0+((ci/W)|0))*g.W+gx0+ci%W,f=hs[ci],sl=new Set();
+    for(const y of g.solids[ci0]||[])if(y>=yLo&&y<=yHi&&(f===null||y>f+.3))sl.add(Math.floor(y/OBS_SLAB));if(!sl.size)continue;
+    const ks=[...sl].sort((p,q)=>p-q),lo=ks[0],cnt=ks[ks.length-1]-lo+1,m=Buffer.alloc(Math.ceil(cnt/8));for(const k of ks)m[(k-lo)>>3]|=1<<((k-lo)&7);
+    bits[ci>>3]|=1<<(ci&7);n++;put(lo-prev);prev=lo;putU(cnt);for(const b of m)dh.push(b);}
+   e.obsSlab=OBS_SLAB;e.obsCells=n;e.obs=bits.toString('base64');e.obsH=Buffer.from(dh).toString('base64');STATS[id]={...(STATS[id]||{}),obsCells:n};}
   out[id]={sourceSha256:d.sha,waterY:id==='island'?spec.sea:null,...e};
  }
  const b=LK.bake();
@@ -73,7 +85,7 @@ async function bakeAll(){
 }
 function ts(all){
  const L=['/** Baked by tools/region-walkable/bake-region-walkable.cjs. Pure data, no cc. Do not edit by hand. See docs/b16/walkable/API.md. */',
-  'export type WalkableData=Readonly<{sourceSha256:string;waterY:number|null;W:number;H:number;c:number;x0:number;z0:number;cells:number;minY:number;maxY:number;bits:string;dh:string}>;',
+  'export type WalkableData=Readonly<{sourceSha256:string;waterY:number|null;W:number;H:number;c:number;x0:number;z0:number;cells:number;minY:number;maxY:number;bits:string;dh:string;obsSlab?:number;obsCells?:number;obs?:string;obsH?:string}>;',
   "export const REGION_WALKABLE_DATA:Readonly<Record<'island'|'meadow'|'skycity'|'lakeside',WalkableData>>={"];
  for(const [id,d] of Object.entries(all))L.push(` ${id}:${JSON.stringify(d).replace(/"([A-Za-z0-9_]+)":/g,'$1:')},`);
  L.push('};','');return L.join('\n');
