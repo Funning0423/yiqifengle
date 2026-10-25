@@ -14,14 +14,14 @@ const fs=require('node:fs'),path=require('node:path');
 const X=require('./explore-stage-harness.cjs');const {rig,SKO,FO}=X;const LS=X.H.load(X.S('region/LensSmooth.ts')),LA=X.H.load(X.S('region/LensAvoid.ts'));
 const res={};const ok=(k,v,o)=>{res[k]={...o,ok:!!v};};
 const R=Math.PI/180,d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),wrap=a=>((a%360)+540)%360-180;
-const FIX=path.join(__dirname,'fixtures_p0drag12.json'),TR=process.env.QF_P0D11_TRACE||'/workspace/wechat-game/ui-audit/2026-10-24/p0drag11/trace';
+const FIX=path.join(__dirname,'fixtures_p0drag12.json.gz'),TR=process.env.QF_P0D11_TRACE||'/workspace/wechat-game/ui-audit/2026-10-24/p0drag11/trace';
 const WALKS=['skd_pock','skn_pock','skxd_pock'],TURNS=['skd_po','skd_ro','skn_po','skn_ro'];
 if(!fs.existsSync(FIX)){const cut=n=>JSON.parse(fs.readFileSync(path.join(TR,'trace_'+n+'.json'),'utf8')).trace.filter(f=>f.exploring&&f.region==='skycity'&&f.fo&&f.cam)
   .map(f=>[+f.t.toFixed(3),f.her.map(v=>+v.toFixed(3)),+f.fo.yaw.toFixed(2),+f.fo.pitch.toFixed(2),+f.fo.arm.toFixed(3),f.cam.map(v=>+v.toFixed(3)),f.yaw,f.pitch,
    f.w.filter(w=>w==='region.node-lens:orbit').length,f.occFace?1:0,f.occChest?1:0,f.fo.write?1:0,f.walking?1:0]);
  const o={src:'Mac p0drag11 (a71d0fe8) camTrace: [t, her(world), fo.yaw, fo.pitch, fo.arm, cam(world), yaw, pitch, orbit writes, occFace, occChest, orbit-writing, walking]'};for(const k of [...WALKS,...TURNS])o[k]=cut(k);
- fs.writeFileSync(FIX,JSON.stringify(o));}
-const FX=JSON.parse(fs.readFileSync(FIX,'utf8'));
+ fs.writeFileSync(FIX,require('node:zlib').gzipSync(JSON.stringify(o),{level:9}));}
+const FX=JSON.parse(require('node:zlib').gunzipSync(fs.readFileSync(FIX)).toString('utf8'));/* gzip: 2.29 MB → 0.22 MB */
 const MW=[[-0.482,0,0.880],[-0.001,1,-0.053],[-0.875,0,-0.447]],T=[58.662,18.63,143.515];
 const A3=[[MW[0][0],MW[1][0],MW[2][0]],[MW[0][1],MW[1][1],MW[2][1]],[MW[0][2],MW[1][2],MW[2][2]]];
 const det=m=>m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])-m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])+m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
