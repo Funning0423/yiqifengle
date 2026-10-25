@@ -21,7 +21,7 @@ export function qaQuery(host:any=globalThis):string{
  try{addSearch(host?.location?.search);}catch{}
  try{addObj(host?.wx?.getEnterOptionsSync?.()?.query);}catch{}
  try{addObj(host?.wx?.getLaunchOptionsSync?.()?.query);}catch{}
- if(!out.size)return '';return '?'+[...out].map(([k,v])=>k+'='+v).join('&');
+ if(!out.size)return '';const parts:string[]=[];out.forEach((v,k)=>{parts.push(k+'='+v);});return '?'+parts.join('&');
 }
 export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarget|null{
  let q=search;
