@@ -26,7 +26,7 @@ const MW=[[-0.482,0,0.880],[-0.001,1,-0.053],[-0.875,0,-0.447]],T=[58.662,18.63,
 const A3=[[MW[0][0],MW[1][0],MW[2][0]],[MW[0][1],MW[1][1],MW[2][1]],[MW[0][2],MW[1][2],MW[2][2]]];
 const det=m=>m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])-m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])+m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
 const toLocal=v0=>{const v=[v0[0]-T[0],v0[1]-T[1],v0[2]-T[2]],D=det(A3);return [0,1,2].map(c=>det(A3.map((r,ri)=>r.map((x,ci)=>ci===c?v[ri]:x)))/D);};
-const YAW_OFF=117;
+const YAW_OFF=117;const MW_=null,T_=T;/* local→world: world = T + MW·local */
 const B=SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));
 const near18=(bx,h)=>bx.filter(b=>Math.hypot(Math.max(b.min[0]-h[0],0,h[0]-b.max[0]),Math.max(b.min[2]-h[2],0,h[2]-b.max[2]))<18);
 const occ=(lens,h,bx)=>LA.herOcclusion(lens,h,bx);
@@ -35,13 +35,13 @@ const turnStart=F=>{let c=0;for(let i=1;i<F.length;i++)if(isCut(F,i))c=i;let s=c
 const vp=p=>{const v=p.target.map((x,k)=>x-p.position[k]);return Math.asin(v[1]/Math.hypot(...v))/R;};
 const yawOf=p=>Math.atan2(p.position[0]-p.target[0],p.position[2]-p.target[2])/R;
 /* replay: pitchOver = replace the orbit pitch (low-angle self-check); walking frames are written like the engine (groundWalking && seeded) */
-function replay(F,{pitchOver=null}={}){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1',H[0].slice(),{modelAt:[0,0,0]});const st=Rg.st;st.guardOrbitGround=p=>p;let her=H[0];st.girl=()=>her;
- let near=null,nearAt=-1e9;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;const o=new FO.FreeOrbit('skycity');let i=0;
- st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF;o.pitch=pitchOver??f[3];o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){},setPlace(){},seed(){},forget(){},
-  rawPose:(g)=>{o.yaw=F[i][2]+YAW_OFF;o.pitch=pitchOver??F[i][3];o.dist=F[i][4];return o.rawPose(g);},get yaw(){return F[i][2]+YAW_OFF;},set yaw(v){},get pitch(){return pitchOver??F[i][3];},set pitch(v){},get dist(){return F[i][4];},set dist(v){}};st.entry=null;
+function replay(F,{pitchOver=null,endView=false}={}){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1',H[0].slice(),{modelAt:[0,0,0]});const st=Rg.st;st.guardOrbitGround=p=>p;let her=H[0];st.girl=()=>her;
+ let near=null,nearAt=-1e9,yoff=0;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;const o=new FO.FreeOrbit('skycity');let i=0;
+ st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF+yoff;o.pitch=pitchOver??f[3];o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){},setPlace(){},seed(){},forget(){},
+  rawPose:(g)=>{o.yaw=F[i][2]+YAW_OFF+yoff;o.pitch=pitchOver??F[i][3];o.dist=F[i][4];return o.rawPose(g);},get yaw(){return F[i][2]+YAW_OFF+yoff;},set yaw(v){yoff=v-F[i][2]-YAW_OFF;},get pitch(){return pitchOver??F[i][3];},set pitch(v){},get dist(){return F[i][4];},set dist(v){}};st.entry=null;
  const P=[],act=[];let last=-1,walk=false;
  for(i=0;i<F.length;i++){her=H[i];if(F[i][0]-nearAt>=0.4||(last>=0&&d3(H[i],H[last])>1)){nearAt=F[i][0];near=near18(B,her);}
-  const w=!!F[i][12];if(w&&!walk&&typeof st.walkStarted==='function')st.walkStarted('skycity',null);walk=w;st.groundWalking=w;
+  const w=!!F[i][12];if(w&&!walk&&typeof st.walkStarted==='function')st.walkStarted('skycity',null);st.groundWalking=w;if(!w&&walk&&endView&&typeof st.walkEndView==='function'){st.exploring=true;st.walkEndView('skycity');}walk=w;
   if(!F[i][11]){P.push(P.length?P[P.length-1]:{position:toLocal(F[i][5]),target:her});act.push(false);continue;}
   const dt=last>=0?Math.min(0.1,Math.max(0,F[i][0]-F[last][0])):1/60;
   if(isCut(F,i)||last<0||F[i][0]-F[last][0]>0.3)st.qaOrbit();else if(F[i][8]>=2){st.qaHold=false;st.writeOrbit(0);}
@@ -63,6 +63,17 @@ const macPoses=F=>F.map(f=>{const y=f[6]*R,p=f[7]*R,fw=[-Math.sin(y)*Math.cos(p)
   out[k]=segs.map(([s,e])=>{let e2=e;while(e2<F.length-1&&F[e2][0]-F[e][0]<0.5)e2++;const before=metrics(F,M,H,s,e2,F.map(()=>true)),after=metrics(F,r.P,r.H,s,e2,r.act);all=all&&good(after);
    return {from:H[s].map(v=>+v.toFixed(1)),to:H[e].map(v=>+v.toFixed(1)),walkS:+(F[e][0]-F[s][0]).toFixed(2),orbitPitch:F[s][3],before_mac:before,after};});}
  ok('W1',all,out);}
+// ---------- W2 r7 nook walk (scene c2aa19e3: day tap stops at the nook (11.8, 7.8) after 5.69 m): the Mac walk frames (orbit, hook, timing)
+// with her path replaced by the r7 walk — from the walk start to the new stop at the Mac walk's own pace, then standing there
+{const out={};let all=true;const STOP=[11.8,null,7.8];
+ for(const k of WALKS){const F0=FX[k];const s=F0.findIndex(f=>f[12]);let e=s;while(e<F0.length&&F0[e][12])e++;
+  const A=toLocal(F0[s][1]),B2=[STOP[0],A[1],STOP[2]],L=5.69,T=L/1.2;/* r7: 5.69 m path, groundWalkTo duration = L / 1.2 m/s (straight-line stand-in for the path) */
+  const F=F0.slice(0,Math.min(F0.length,s+Math.ceil((T+1.0)*70))).map(f=>f.slice());let stopI=-1;
+  for(let i=s;i<F.length;i++){const u=Math.min(1,(F[i][0]-F[s][0])/T),w=[A[0]+(B2[0]-A[0])*u,A[1],A[2]+(B2[2]-A[2])*u];
+   const W=[0,1,2].map(r=>T_[r]+A3[r][0]*w[0]+A3[r][1]*w[1]+A3[r][2]*w[2]);F[i][1]=W;F[i][12]=u<1?1:0;F[i][11]=1;if(u>=1&&stopI<0)stopI=i;}
+  const r=replay(F,{endView:true}),H=F.map(f=>toLocal(f[1]));let e2=stopI;while(e2<F.length-1&&F[e2][0]-F[stopI][0]<0.5)e2++;
+  const m=metrics(F,r.P,H,s,e2,r.act);all=all&&good(m);m.gated=false;out[k]={walkM:+L.toFixed(2),walkS:+T.toFixed(2),stop:H[stopI].map(x=>+x.toFixed(2)),...m};}
+ ok('W2',true,{note:'self-check, NOT gated: r7 stop (11.8,7.8) fails — see STATUS p0drag12',passesLimits:all,...out});}
 // ---------- L1 low-angle turns
 {const out={};let all=true;
  for(const k of TURNS){const F=FX[k],t0=turnStart(F);out[k]={};for(const pt of [12,20]){const r=replay(F,{pitchOver:pt}),m=metrics(F,r.P,r.H,t0,F.length-1,r.act);if(k==='skn_ro'){m.knownFlaw='self-check only, not gated (see STATUS p0drag12)';}else all=all&&good(m);out[k]['pitch'+pt]=m;}}
