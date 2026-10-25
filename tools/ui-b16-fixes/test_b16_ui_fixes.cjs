@@ -71,9 +71,9 @@ ok('r6 lakeside previews pass measure_visible.py gates (day L13/L16, night L13/L
  const r=cp.spawnSync('python3',[path.join(d,'tools/measure_visible.py'),...['board_L13_390x844.png','board_L16_390x844.png','board_L13_night_390x844.png','board_L16_night_390x844.png'].map(f=>path.join(d,f))],{encoding:'utf8'});
  if(r.error&&r.error.code==='ENOENT'){console.log('  (python3 missing: skipped)');return;}assert.equal(r.status,0,r.stdout+r.stderr);});
 // ---------- b16 复核2（ui-audit/2026-10-25/build16-fixes，c389259e）----------
-ok('复核2 ④ sign mode: hit root right edge >= 22 pt, >= 44 pt, children laid out from the root size and never outside it (320/375/390)',()=>{const M=load(['world-r1/CameraPose','world-r1/RegionCameraData','world-r2/IslandPropsLayout','world-r2/WorldNavigationLayout']),C=M.CameraPose,L=M.IslandPropsLayout,N=M.WorldNavigationLayout;
+ok('复核2 ④ sign mode: hit root right edge >= 22 pt, >= 44 pt, children laid out from the root size and never outside it (7 sizes)',()=>{const M=load(['world-r1/CameraPose','world-r1/RegionCameraData','world-r2/IslandPropsLayout','world-r2/WorldNavigationLayout']),C=M.CameraPose,L=M.IslandPropsLayout,N=M.WorldNavigationLayout;
  const pose=C.fromLookAt(M.RegionCameraData.islandPoseEntry());assert.equal(L.SIGN_HIT_EDGE_PT,22);
- for(const [w,h] of [[320,568],[375,667],[390,844]]){const r=L.signpostHitUi(pose,w,h),c=N.signChildLayout(r.width,r.height),right=r.x+r.width/2;
+ for(const [w,h] of [[320,568],[360,780],[375,667],[390,844],[402,874],[414,896],[430,932]]){const r=L.signpostHitUi(pose,w,h),c=N.signChildLayout(r.width,r.height),right=r.x+r.width/2;
   assert(w/2-right>=22-1e-6,'root right gap '+(w/2-right).toFixed(1)+' @'+w);assert(r.width>=44&&r.height>=44,'hit >= 44 @'+w);
   for(const k of ['surface','label']){assert(c[k].width<=r.width+1e-9&&c[k].height<=r.height+1e-9,k+' inside root @'+w);assert(w/2-(r.x+c[k].width/2)>=22-1e-6,k+' right gap @'+w);}}
  const s=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
