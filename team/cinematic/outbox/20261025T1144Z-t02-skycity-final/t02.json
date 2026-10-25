@@ -1,0 +1,158 @@
+{
+ "test": "t02_sky_final",
+ "ok": true,
+ "F2": {
+  "ok": true,
+  "after": [
+   {
+    "screen": "390x844",
+    "herPct": 25.6,
+    "ringPct": 9.1,
+    "herMargin": 0.01
+   },
+   {
+    "screen": "414x896",
+    "herPct": 25.6,
+    "ringPct": 9.1,
+    "herMargin": 0.01
+   },
+   {
+    "screen": "360x780",
+    "herPct": 25.6,
+    "ringPct": 9.1,
+    "herMargin": 0.01
+   },
+   {
+    "screen": "375x667",
+    "herPct": 25.6,
+    "ringPct": 9.1,
+    "herMargin": 0.01
+   },
+   {
+    "screen": "390x520",
+    "herPct": 25.6,
+    "ringPct": 9.1,
+    "herMargin": 0.01
+   },
+   {
+    "screen": "320x568",
+    "herPct": 25.6,
+    "ringPct": 9.1,
+    "herMargin": 0.01
+   },
+   {
+    "screen": "768x1024",
+    "herPct": 25.6,
+    "ringPct": 9.1,
+    "herMargin": 0.01
+   }
+  ],
+  "before": [
+   {
+    "screen": "390x844",
+    "herPct": 3.1,
+    "ringPct": 22.7,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "414x896",
+    "herPct": 3.1,
+    "ringPct": 22.7,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "360x780",
+    "herPct": 3.1,
+    "ringPct": 22.7,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "375x667",
+    "herPct": 3.1,
+    "ringPct": 25,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "390x520",
+    "herPct": 3.1,
+    "ringPct": 31.8,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "320x568",
+    "herPct": 3.1,
+    "ringPct": 25,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "768x1024",
+    "herPct": 3.1,
+    "ringPct": 31.8,
+    "herMargin": 0.22
+   }
+  ]
+ },
+ "F1": {
+  "ok": true,
+  "maxDiffM": 0.0004,
+  "derived": {
+   "position": [
+    6.434,
+    1.342,
+    -22.815
+   ],
+   "target": [
+    -1.3,
+    3.421,
+    -28.804
+   ]
+  },
+  "feet": [
+   0.9,
+   0.04,
+   -27.1
+  ],
+  "faceDeg": -147.8,
+  "yawFromFaceDeg": -160,
+  "lookUpDeg": 12,
+  "armM": 7,
+  "searchMs": 4426
+ },
+ "F3": {
+  "ok": true,
+  "meshClearM": 1.3,
+  "nearest": "env_sky_static_palette",
+  "headBlockedBy": "",
+  "chestBlockedBy": "",
+  "ringSamplesOnScreen": 4,
+  "ringSamplesSeen": 2,
+  "meshFillPct_390x844": {
+   "before": 91.1,
+   "after": 58.8
+  },
+  "oldMeshClearM": 4.47
+ },
+ "F4": {
+  "ok": true,
+  "approachS": 1.4,
+  "wayRound": 1,
+  "yawPeakDegS": 3.9,
+  "yawAccPeakDegS2": 9,
+  "lensInBoxFrames": 0,
+  "faceS": 0.43,
+  "chestS": 0.43,
+  "maxStepM": 0.047,
+  "minMeshClearM": 0.58,
+  "walkLensStartClearM": 0.58
+ },
+ "F5": {
+  "ok": true,
+  "holdS": true,
+  "armedAfterReward": true,
+  "inputDisarms": true,
+  "wipeHooks": true,
+  "noBlackOfOurs": true,
+  "bakedPoseUsed": true,
+  "orbitApproach": true
+ }
+}
