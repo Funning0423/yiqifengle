@@ -1,4 +1,6 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
+import { coverAudioIn, coverAudioOut, coverContent, coverReady, emitWipeCovered, emitWipeRevealed, newWipeEvent, startWipeBeforeReveal, type WipeEvent } from './ScreenCover';
+import { WINDWIPE, wipeContentFor } from '../world-r2/WindWipeCore';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
@@ -48,7 +50,8 @@ export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:numbe
 /** 04→05 set-off: black cover ramps (s), same cover/style as 主页 (HOME_FADE 0.4/0.5 in 88506aa). */
 /** holdS (b17r7, 运镜bot): after the switch under black the cover is held at alpha 1 this long, so the first frames that draw the
  * new scene/lens are drawn under a fully opaque cover (the fade-in used to start in the switch frame: alpha ~0.95). */
-export const SETOFF_FADE={outS:.25,inS:.35,holdS:.05} as const;
+/** WindWipe (post-island SPEC §1, approved 2026-10-25): OUT 0.45 s, HOLD ≥ 1.10 s (and until coverReady()), IN 0.55 s. */
+export const SETOFF_FADE={outS:WINDWIPE.outS,inS:WINDWIPE.inS,holdS:WINDWIPE.holdS} as const;
 export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
  // Landing A (final, v3, Mac check 379e137): 12 m behind / 1.5 m right / 2 m up from the end, view pitched 2.5 deg up over the
  // plaza-centred aim: plaza 50% across / 55% down, her centre at 75% of the width (was 86-89%), her 0.153 of screen height
@@ -245,6 +248,18 @@ export class RegionJourneyController {
   this.leaseProgress();
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
+ private wiping=false;
+ /** WindWipe hold: the cover stays full ≥ SETOFF_FADE.holdS, then keeps holding (the band drifts) until the new lens is placed
+  *  and every registered reveal check passes (coverReady: loading settled). Never reveals a half-loaded scene; gives up only
+  *  at WINDWIPE.maxHoldS (warn) so a broken load cannot lock the game behind the cloud. */
+ private async holdCover(world:WorldLease,token:Cancellation):Promise<{held:number;ready:boolean}>{
+  const ev=this.wipeEvent;if(ev)emitWipeCovered(ev);const hooks=ev?startWipeBeforeReveal(ev):()=>true;
+  await world.fadeCover!(1,SETOFF_FADE.holdS);token.check();let held=SETOFF_FADE.holdS;
+  const ready=()=>{const l:any=this.lease;return !!this.camera&&hooks()&&coverReady()&&(typeof l?.ready!=='function'||!!l.ready());};
+  while(!ready()){if(held>=WINDWIPE.maxHoldS){console.warn('[WindWipe] hold timeout',held);return {held,ready:false};}await world.fadeCover!(1,1/60);token.check();held+=1/60;}
+  this.lastHold={held,ready:true};return this.lastHold;
+ }
+ lastHold:{held:number;ready:boolean}|null=null;private wipeEvent:WipeEvent|null=null;
  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
   if(this.busy)throw Error('journey-busy');if(!this.lease||!this.root||!this.startCamera)throw Error('journey-not-prepared');
   if(!actor.walkProgress)throw Error('journey-needs-distance-signal');
@@ -254,6 +269,9 @@ export class RegionJourneyController {
    // fade to black (SETOFF_FADE.outS), cut to the follow pose (FOV straight to 48) and show the journey scenes only under
    // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
    const fade=!this.lease.ride&&this.distance===0&&this.lease.route.startBlendM===0&&this.lease.route.from==='island'&&typeof world.fadeCover==='function';
+   const rideFade0=!fade&&!!this.lease.ride&&!!this.lease.startPose&&this.distance===0&&typeof world.fadeCover==='function'&&this.rideHold;
+   // WindWipe: one vehicle + one sign during the hold; music fades out with the picture and back in on the reveal.
+   const wipe=fade||rideFade0;if(wipe){this.wiping=true;const wc=wipeContentFor(this.lease.route.to,!!this.lease.ride);this.wipeEvent=newWipeEvent(fade?'setoff':'ride',wc);coverContent(wc);coverAudioOut(SETOFF_FADE.outS);}
    if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
     this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);}
    // b16 ride set-off (运镜bot route item 3): sail / meadow→skycity balloon leases carry startPose. Fade the live lens to black,
@@ -265,10 +283,12 @@ export class RegionJourneyController {
    }
    this.show(true);token.check();
    // Scene switch frame: shown only under alpha 1, and held there (holdS) so the first frames of the new scene draw fully black.
-   if(this.rideHold){if(rideFade){await world.fadeCover!(1,SETOFF_FADE.holdS);token.check();}this.rideHold=false;}
-   if(fade){await world.fadeCover!(1,SETOFF_FADE.holdS);token.check();}
-   if(rideFade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
-   if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
+   if(this.rideHold){if(rideFade){await this.holdCover(world,token);}this.rideHold=false;}
+   if(fade){await this.holdCover(world,token);}
+   if(wipe){this.wiping=false;coverAudioIn(SETOFF_FADE.inS);coverContent(null);}
+   const rev=wipe?this.wipeEvent:null;this.wipeEvent=null;const revealed=()=>{if(rev)emitWipeRevealed(rev);};
+   if(rideFade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';revealed();},()=>{});}
+   if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';revealed();},()=>{});}
    if(this.lease.ride){
     await token.wait(this.lease.ride(actor,world,token));token.check();
     this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
@@ -282,7 +302,7 @@ export class RegionJourneyController {
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
    this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);this.leaseProgress();
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;this.pruneScenes();
-  }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
+  }catch(error){if(this.wiping){this.wiping=false;coverContent(null);coverAudioIn(.2);}if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}
  }

@@ -105,17 +105,19 @@ function lakeLeg(geo,[w,h]){
  const shore=L.arrival[L.arrival.length-1],fr=LC.lakesideScreenFrame(w,h,BL.boardSafeInsets(w,h)),lan=LC.lakesideScreenLanding(L,fr,LC.LAKESIDE_CAMERA_LAYOUT.stopLocal);
  const E=Core.arrivalPose([shore,L.toWorld([...LC.LAKESIDE_CAMERA_LAYOUT.stopLocal])],L.focus,lan),land={position:E.position,target:E.target,fovVerticalDeg:lan.arrivalFovDeg};
  const M=LB.lakesideBalloonMooring(shore,L.toWorld),R=LB.lakesideBalloonRide([S6,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),M.mooring,land);
- const door=LB.lakesideDoorLens(M.walk,M.mooring,w/h,undefined,undefined,{...BL.boardSafeInsets(w,h),h});
+ // T-03: the adapter's wide touchdown lens (fallback: the b16 door lens) held under the sign; option B board blend from touchdown + lakesideBoardBlendAtS() until her walk reaches the board entry distance
+ const wide=LB.lakesideDoorWideLens(M.walk,M.mooring,land,w/h,{...BL.boardSafeInsets(w,h),h}),door=wide?wide.lens:LB.lakesideDoorLens(M.walk,M.mooring,w/h,undefined,undefined,{...BL.boardSafeInsets(w,h),h});
  // skycity follow camera at set-off (free-camera SPEC default, as the lakeside-landing-cam audit): pitch 17°, 7.36 m, FOV 48
  const f=sub(S6,S4),hl=Math.hypot(f[0],f[2]),yy=Math.atan2(f[0]/hl,f[2]/hl),c0=[S6[0],S6[1]+1,S6[2]],pp=17*Math.PI/180,D=7.36;
  const from={position:[c0[0]-Math.sin(yy)*Math.cos(pp)*D,c0[1]+Math.sin(pp)*D,c0[2]-Math.cos(yy)*Math.cos(pp)*D],target:c0,fovVerticalDeg:48};
  // exit: door hold until outT, then ONE game-time door → board blend (durS); timings as test-lakeside-landing-board-progress
- const blendS=LB.lakesideDoorBlendS(door,land),entryM=LB.lakesideBoardEntryM(M.walk,land,w/h,DH.outM),mean=M.length/M.walkS,durS=LB.lakesideDoorBlendDurS(blendS,DH.outM,entryM,mean);
- const walkAt=M.walkStartAt+SD.durationS,outT=Math.min(M.walkStartAt+DH.outM/mean+DH.capPadS,walkAt+Math.max(0,DH.outM-SD.forwardEnd)/K.exitWalkMps),Wl=routeLength(M.walk);
+ const blendS=LB.lakesideDoorBlendS(door,land),entryM=LB.lakesideBoardEntryM(M.walk,land,w/h,DH.outM),mean=M.length/M.walkS,durS0=LB.lakesideDoorBlendDurS(blendS,DH.outM,entryM,mean);
+ const walkAt=M.walkStartAt+SD.durationS,outT0=Math.min(M.walkStartAt+DH.outM/mean+DH.capPadS,walkAt+Math.max(0,DH.outM-SD.forwardEnd)/K.exitWalkMps),Wl=routeLength(M.walk);;
  const exitS=t=>t<M.walkStartAt?0:t<walkAt?SD.forwardEnd*(t-M.walkStartAt)/SD.durationS:Math.min(Wl,SD.forwardEnd+(t-walkAt)*K.exitWalkMps);
+ const outT=wide?LB.lakesideBoardBlendAtS():outT0,walkedB=exitS(outT),durS=wide?LB.lakesideBoardBlendDurS(door,land,walkedB,LB.lakesideBoardEntryM(M.walk,land,w/h,walkedB),K.exitWalkMps):durS0;
  const TT=R.T+outT+durS+1;
  const herAt=t=>t<=R.T?R.girl(t):sampleRoute(M.walk,exitS(t-R.T));
- const cam=t=>{if(t<=R.T)return LB.lakesideDoorRideCamera(R,door,t,from);const e=t-R.T;if(e<outT)return door;if(e<outT+durS){const p=herAt(t);return LB.lakesideDoorBlendPose(door,land,(e-outT)/durS,[p[0],p[1]+1.2,p[2]]);}return land;};
+ const cam=t=>{if(t<=R.T)return LB.lakesideDoorRideCamera(R,door,t,from);const e=t-R.T;if(e<outT)return door;if(e<outT+durS){const p=herAt(t);return LB.lakesideDoorBlendPose(door,land,(e-outT)/durS,[p[0],p[1]+1.2,p[2]],wide?LB.LAKESIDE_TOUCHDOWN.blendAimPull:undefined);}return land;};
  // aboard (cutT…T) she rides SEATED at stand_point local (.032,-.1,-.099) (b15 stand-up v1b), basket at the door yaw for the whole ride
  const seatLocal=add(STAND_POINT,[.032,-.1,-.099]);
  const her=t=>{if(!(t>=R.cutT&&t<=R.T)){const s=standPts(herAt(t));return s;}const v=R.vehicle(t),W=p=>balToWorld(v,M.doorYawDeg,0,add(seatLocal,p)),K=SIT_HOLD;
@@ -124,7 +126,7 @@ function lakeLeg(geo,[w,h]){
  return {id:'balloon skycity→lakeside',T:TT,cam,her,
   /* after the door hold the controller arrives and the board fades in over her exit walk (b15: 'still overlapping the rest of her
      (offscreen) walk'); the path-v4 walk to the board stop is not modelled here, so her-based checks stop at R.T+outT. */
-  herValid:t=>t<=R.T+outT,black:t=>t<=R.T&&R.cover(t)>=.999,los,
+  herValid:t=>t<=R.T+outT+(wide?durS-LB.LAKESIDE_TOUCHDOWN.blendPadS:0)/* T-03: her framing/occlusion is checked through the option-B blend too, up to the last blendPadS where the lens settles onto the accepted board view (her stop at its lower right is that view's own composition) */,black:t=>t<=R.T&&R.cover(t)>=.999,los,
   segs:[[0,R.cutT-1e-6],[R.cutT+1e-6,TT]],cut:{t:R.cutT,underBlack:R.cover(R.cutT)>=.999},
   handoffs:[{name:'ride end → door lens (touchdown)',a:LB.lakesideDoorRideCamera(R,door,R.T-1e-6,from),b:door},{name:'door→board blend end → lakeside board camera',a:LB.lakesideDoorBlendPose(door,land,1,herAt(R.T+outT+durS)),b:land}],
   start:{name:'skycity follow lens → ride camera(0)',from,controller:null,ride:cam(0)},

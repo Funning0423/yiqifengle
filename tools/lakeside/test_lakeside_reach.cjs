@@ -74,8 +74,9 @@ t('production path has no ?lakeside=1 switch and no lakeside bridge strip',()=>{
 
 function flowHarness(){
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'lakeside-flow-'));
- for(const name of ['CameraPose','WorldFlowCore','RegionJourneyCore']){
-  fs.writeFileSync(path.join(dir,name+'.js'),ts.transpileModule(fs.readFileSync(S+'world-r1/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText);
+ fs.writeFileSync(path.join(dir,'WindWipeCore.js'),ts.transpileModule(fs.readFileSync(S+'world-r2/WindWipeCore.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText.replace('"../world-r1/ScreenCover"','"./ScreenCover"'));
+ for(const name of ['CameraPose','WorldFlowCore','RegionJourneyCore','ScreenCover']){
+  fs.writeFileSync(path.join(dir,name+'.js'),ts.transpileModule(fs.readFileSync(S+'world-r1/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText.replace('"../world-r2/WindWipeCore"','"./WindWipeCore"'));
  }
  const {WorldFlow}=require(path.join(dir,'WorldFlowCore'));
  const J=require(path.join(dir,'RegionJourneyCore'));
