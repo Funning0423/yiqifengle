@@ -26,3 +26,11 @@ export const TRANSITION_STAGING=Object.freeze({
  /** Walk speed for the short staged walks (m/s). */
  walkMps:1.1,
 });
+/** Her pose while the basket flies (for 运镜bot's occlusion test, 8.65–19.85 s of segment 6 and the B2/B3 meadow leg).
+ *  offset = her controller root in basket `stand_point` local (m); yawDeg = her yaw in that frame; clip = the pose drawn.
+ *  lakeside: seated (sit_hold), offset from 角色动画bot b15 stand-up v1b (she stands up with stand_up at touchdown);
+ *  meadow→skycity: standing (idle_breathing_loop) on stand_point, yaw GIRL_YAW of BalloonTransit. */
+export const BASKET_RIDE_POSE=Object.freeze({
+ lakeside:{offset:[0.032,-0.1,-0.099] as Vec,clip:'sit_hold',yawDeg:'moored.seatYawDeg(startYaw)' as const,eyeHeightM:1.0},
+ meadowSkycity:{offset:[0,0,0] as Vec,clip:'idle_breathing_loop',yawDeg:-76.6,eyeHeightM:1.45},
+});

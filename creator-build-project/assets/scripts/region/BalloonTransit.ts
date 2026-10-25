@@ -521,7 +521,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const driver=rig.addComponent(TransitDriver);
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;
-   const door=find(vehicle,'basket_door_leaf'),envelope=find(vehicle,'balloon_envelope');
+   const door=find(vehicle,'basket_door')??find(vehicle,'basket_door_leaf'),envelope=find(vehicle,'balloon_envelope');
    const anim=(actor as any).anim||null;
    const walkTo=(path:Vec[])=>{let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);
     return L>0.05?actor.perform({kind:'walk',path,duration:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken):Promise.resolve();};
