@@ -109,5 +109,41 @@ for n,par in [('meadow',ball3),('skycity',ball4),('skycity_5a',ball5),('lake',ba
 oc={'format':'lens-occluders/aabb-world','rowFormat':'[minX,minY,minZ,maxX,maxY,maxZ] world AABB (same row format as SKYCITY_LENS_OCCLUDERS)','planned':True,
  'note':'按计划尺寸生成（码头/踏板未建模；篮墙按 ±0.85 m×1.01 m 估）。建模后用实际三角形重新生成。用于 脸/胸可见 + 镜头离墙 1.1 m 测试。','boxes':O}
 O['sky_mooring_5a']=[box('basket',ball5,[x-0.08,0,-0.98],[x+0.08,0.9,-0.82]) for x in(-1.15,1.15)]+[box('basket',ball5,[-0.25,-0.05,0.9],[0.25,0.03,1.2])]
+# ---- b19 dock models: the dock / gangway / sky mooring rows from the real triangles (tools/dock-models/build_models.py = the exported glbs) ----
+import numpy as np
+sys.path.insert(0,R+'/tools/dock-models')
+with contextlib.redirect_stdout(io.StringIO()):import build_models as BM
+def tris_of(parts,names=None):
+    out=[]
+    for n,pp in parts.items():
+        if pp.get('mesh') is None or (names and not any(k in n for k in names)):continue
+        V,F,_=pp['mesh'].arrays();out.append(V[F.reshape(-1)])
+    return np.concatenate(out)
+def chunk_boxes(P,to_world,cell=0.6,ymin=None,ymax=None):
+    # world AABBs of the real triangle corners, bucketed by xz cells (merged per cell), clipped to [ymin,ymax]
+    keep=np.ones(len(P),bool)  # y limits in the model's own (region-local) frame
+    if ymin is not None:keep&=P[:,1]>=ymin
+    if ymax is not None:keep&=P[:,1]<=ymax
+    Wp=np.array([to_world(v) for v in P[keep]]);B={}
+    for q in Wp:
+        k=(int(math.floor(q[0]/cell)),int(math.floor(q[2]/cell)));b=B.setdefault(k,[q.copy(),q.copy()]);b[0]=np.minimum(b[0],q);b[1]=np.maximum(b[1],q)
+    return [[round(float(v),2) for v in list(b[0])+list(b[1])] for b in B.values() if (b[1]-b[0]).max()>0.02]
+def slab(P,to_world,ylo,yhi):
+    Wp=np.array([to_world(v) for v in P[(P[:,1]>=ylo)&(P[:,1]<=yhi)]])
+    return [round(float(v),2) for v in list(Wp.min(0))+list(Wp.max(0))]
+dp,_=BM.island_dock();Pd=tris_of(dp);toI=lambda v:W('island',list(v))
+# deck + ramp slab (one row, the walking surface down to the joists) + everything standing above the deck in 0.6 m cells (posts, bollards, rail, coils)
+O['island_dock']=[slab(Pd,toI,-0.45,-0.12)]+chunk_boxes(Pd,toI,0.6,ymin=-0.12)
+gp,_=BM.sail_gangway();Pg=tris_of(gp)
+def hinge(par,h,yaw,deg):
+    def f(v):
+        c,s_=math.cos(math.radians(deg)),math.sin(math.radians(deg));q=[c*v[0]-s_*v[1],s_*v[0]+c*v[1],v[2]];q=rotY(yaw,q);return W('boat',[h[0]+q[0],h[1]+q[1],h[2]+q[2]],par)
+    return f
+O['sail_gangway_island']=[slab(Pg,hinge(boat0,[-0.80,0.585,0.15],180.0,23.0),-9,9)];O['sail_gangway_meadow']=[slab(Pg,hinge(boatM,[0.80,0.585,0.15],0.0,-16.0),-9,9)]
+sp_,_=BM.sky();toS=lambda v:W('skycity',list(v))
+O['sky_mooring_deck']=[slab(tris_of(sp_,['sky_mooring_deck']),toS,-1,1)]+chunk_boxes(tris_of(sp_,['sky_mooring_posts']),toS,0.6)
+O['sky_mooring_5a']=chunk_boxes(tris_of(sp_,['sky_mooring_5a_stakes']),toS,0.6)+[slab(tris_of(sp_,['balloon_step_stool_5a']),toS,-1,1)]
+oc['planned']=False
+oc['note']='码头/踏板/天空城停靠台/5a 桩与踏凳按实际三角形生成（tools/dock-models/build_models.py，与导出 glb 同源）；篮墙仍按 ±0.85 m×1.01 m 估。用于 脸/胸可见 + 镜头离墙 1.1 m 测试。'
 json.dump(oc,open(R+'/tools/transitions-continuous/transition-occluders.json','w'),ensure_ascii=False,indent=1)
 print('ok',len(json.dumps(out)),len(json.dumps(oc)))

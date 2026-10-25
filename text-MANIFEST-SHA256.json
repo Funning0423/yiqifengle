@@ -795,6 +795,11 @@
     "sha256": "f8a404509abbb2e464996cbeb39e0600e5b26792f1108aa961a6e79289c99811"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/ui-props/island_dock.glb.meta",
+    "bytes": 859,
+    "sha256": "590ee8c43a30a06c130c5bfab2d61c6612fbb95b1d8d54b3fc047ea80af5e44b"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_compass.glb.meta",
     "bytes": 1983,
     "sha256": "71a33713299692c58c9a4e21f52469644acccaa02130418fa741552a7ca806ea"
@@ -1365,6 +1370,11 @@
     "sha256": "0c1f2a9a00b97197fcc4fd7cc85da5b09f9bae0283f6b357f10fc02478e0bc40"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/sky_mooring_props.glb.meta",
+    "bytes": 840,
+    "sha256": "d7963128b5d7a12b8a5cff42d903f16c8aff86e36d1737e401e9d1ab4c89de2f"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_snowpass.meta",
     "bytes": 409,
     "sha256": "c81f5202d3dc45fbeb6f4d592ea62bceb17e54598c180de61c265f61ae2a9dfe"
@@ -1427,7 +1437,7 @@
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta",
     "bytes": 7784,
-    "sha256": "3399b5ca81d9f6356b4a885d9bdadc6567f474406d91646d30f7b22c20228aac"
+    "sha256": "ae93f0f32fd978bfbd5d17d5e950e9b3f5fd27854c1f07019d873e4ff295c8d1"
   },
   {
     "path": "creator-build-project/assets/bundles/shared_effects.meta",
@@ -2991,8 +3001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 4396,
-    "sha256": "5ec2adc82523ae3ec40b554f47427b030cba438b23f2d566560c1ab290e82966"
+    "bytes": 5985,
+    "sha256": "0ada67ecd1eff5a84c2f4b23cac54bad80947527ef1b36b09340996aced64d35"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -3021,8 +3031,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
-    "bytes": 6632,
-    "sha256": "ba85d256c2c99509179e04ba01e228a7b4b82ba856228f88a603b949221a5a5a"
+    "bytes": 6751,
+    "sha256": "85c2c0e2940a3cdfe0630822f2032b5e00f08b8faf745ac356baec6af0da8b8d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3051,8 +3061,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
-    "bytes": 183349,
-    "sha256": "6ea32cb85ef97cb6e878e36328a13466eded874b85838134769ca7ab3252aa6c"
+    "bytes": 183793,
+    "sha256": "c830db177f3269d1d3f21b5ba046dabdad4644dff8737651d7b28d1935806343"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
@@ -3352,7 +3362,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts",
     "bytes": 12851,
-    "sha256": "3d320222bc22779d769d17e932859c182b5f051189aa757b9e48a858da1a40d2"
+    "sha256": "362ff36efed34d061c00194910ffc485ae7e879bd914fc7ce0c25db0fd83c43f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts.meta",
@@ -4311,8 +4321,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts",
-    "bytes": 26337,
-    "sha256": "0c0df60e2342e669d4d212f465ab3d60233f5ca57f91da6d5fac36e611958845"
+    "bytes": 26519,
+    "sha256": "8ed3c07d47658feb12b2a921bfe30772cedcba6b73c7ec029ead1eca5058d384"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts.meta",
@@ -4321,8 +4331,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
-    "bytes": 29110,
-    "sha256": "61aff25df24974008af8b5eb014c1ccfe9cf9055738b46affe83291d7be0358f"
+    "bytes": 29551,
+    "sha256": "d5040b8d94b5f86a79d5368d820beb740e694f5ca862e4ae3c34c00d4833557b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",

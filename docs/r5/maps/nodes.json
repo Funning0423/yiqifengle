@@ -88,7 +88,7 @@
    {
     "from": "I5",
     "to": "I6",
-    "walkM": 12.6,
+    "walkM": 11.4,
     "walkS": 10.5,
     "climbM": -0.73
    }
@@ -212,7 +212,7 @@
    {
     "from": "M5",
     "to": "M6",
-    "walkM": 9.2,
+    "walkM": 10.3,
     "walkS": 7.6,
     "climbM": 0.03
    }
@@ -301,7 +301,7 @@
    {
     "from": "S0",
     "to": "S1",
-    "walkM": 16.1,
+    "walkM": 12.9,
     "walkS": 13.4,
     "climbM": 0.15
    },

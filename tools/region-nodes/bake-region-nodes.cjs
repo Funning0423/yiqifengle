@@ -22,6 +22,8 @@ const REGIONS={
   floor:/env_island_main|env_beach_|env_lighthouse_ext|env_island_props_merged/,
   solid:/env_island_main|env_island_props_merged|env_lighthouse_ext|env_lighthouse_door|env_prop_palm|env_beach_tide/,
   start:[-2.1,0,5.3],sea:-0.6,explore:[-15,-16,19,18],
+  // b19 dock models: the resident pier (region_island/ui-props/island_dock.glb, island coordinates) is floor + solid
+  extras:[{file:'creator-build-project/assets/bundles/region_island/ui-props/island_dock.glb',floor:/island_dock/,solid:/island_dock/}],
  },
  meadow:{
   file:'creator-build-project/assets/bundles/region_meadow/env_meadow.glb',
@@ -29,13 +31,18 @@ const REGIONS={
   floor:/meadow_terrain|meadow_path|meadow_river_bank/,
   solid:/meadow_terrain|meadow_path|meadow_river_bank|meadow_fence|meadow_trees|windmill_static|wind_bell_frame/,
   start:[0.2,1.22,20],explore:[-30,-35,30,30],
+  // b19: parked balloon basket at the M6 yard (yaw -16), r 1.1 m (+0.4 m body clearance, discClearM); present from the M4 level start until lift-off (baked as permanent)
+  discs:[[3.6,-23.4,1.1]],discClearM:.4,
+  // b19: the yard fence (meadow_fence_merged, (3.1,-21.0)->(8.3,-25.4)) has rails the 0.2 m triangle sampling lets through at the
+  // 0.4 m cell size; it is a wall here so M4/M5 -> M6 go round its west end (the gate), as in stances.json 3_meadow_balloon_in.
+  walls:[[3.1,-21.0,8.3,-25.4,.25]],
  },
  skycity:{
   file:'creator-build-project/assets/bundles/region_skycity/env_skycity.glb',
   draco:true,box:[-60,-50,45,80],c:.4,
   floor:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_bridge_after/,
   solid:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_gate_after$|env_sky_windchime|state_bridge_after|chr_robot/,
-  start:[5.4,-0.11,43.8],explore:[-37,-45,42,55],ridge:true,keepNodeComponents:true,tapObstacles:true,
+  start:[5.25,-0.084,40.6],explore:[-37,-45,42,55],ridge:true,keepNodeComponents:true,tapObstacles:true,
   // b17 skycity-walk-r2: the orbit lens has its own (smaller) box = the baked floor's extent, not the walk/focus box
   lens:[-34.8,-41,39.6,47.6],
   // b17 skycity-walk-r3 (Mac p0drag7): the two giant tree roots that lean on the blue-roof house east of S3 (one sloped 2-tri
@@ -45,6 +52,10 @@ const REGIONS={
   // block z≥10 to the north): standing in it, 90–130° of the 6 m orbit around her is inside the fence / house. Ground there is
   // not walkable; a tap into it stops her on the open ground west of it (blocked arc ≤ 80°). No GLB change.
   noWalk:[[17.0,-5.2,22.8,14.6,0.3],[12.0,6.8,13.4,10.2,-9]],
+  // b19 dock models: landing deck sky_mooring_deck + posts and 5a mooring C (stakes, stool) from region_skycity/sky_mooring_props.glb;
+  // moored baskets r 1.1 m at the landing (5.4,43.8) and at 5a (-14.8,-38.8)
+  extras:[{file:'creator-build-project/assets/bundles/region_skycity/sky_mooring_props.glb',floor:/sky_mooring_deck|balloon_step_stool/,solid:/sky_mooring_deck|sky_mooring_posts|sky_mooring_5a_stakes|balloon_step_stool/}],
+  discs:[[5.4,43.8,1.1],[-14.8,-38.8,1.1]],discClearM:.4,
  },
 };
 const NODES={
@@ -54,7 +65,7 @@ const NODES={
   {key:'I3',at:[8.1,-0.36,6.1],role:'mainline',stageId:'mainline-03'},
   {key:'I4',at:[4.5,0.23,-4.9],role:'mainline',stageId:'mainline-04'},
   {key:'I5',at:[-4.5,0.13,-0.9],role:'optional',opens:'challenge-island'},
-  {key:'I6',at:[-1.9,-0.6,10.1],role:'departure'},
+  {key:'I6',at:[-1.5,-0.18,9.3],role:'departure'},
  ],
  meadow:[
   {key:'M0',at:[0.2,1.22,20],role:'arrival'},
@@ -66,7 +77,7 @@ const NODES={
   {key:'M6',at:[0.2,6.5,-25.6],role:'departure'},
  ],
  skycity:[
-  {key:'S0',at:[5.4,-0.11,43.8],role:'arrival'},
+  {key:'S0',at:[5.25,-0.084,40.6],role:'arrival'},
   {key:'S1',at:[0.2,0.04,30.2],role:'mainline',stageId:'mainline-09'},
   {key:'S2',at:[-6.6,-0.05,19],role:'mainline',stageId:'mainline-10'},
   {key:'S3',at:[6.2,-0.01,8.2],role:'mainline',stageId:'mainline-11'},
@@ -113,6 +124,9 @@ function buildGrid(spec,stamp){
   for(const [ci,li] of drop)ok[ci][li]=false;}
  if(spec.noWalk)for(const [ax,az,bx,bz,ymin] of spec.noWalk)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
   if(x>=ax&&x<=bx&&z>=az&&z<=bz)ls.forEach((y,li)=>{if(y>ymin)ok[ci][li]=false;});});
+ if(spec.discs)for(const [cx,cz,r] of spec.discs)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-cx,z-cz)<=r+(spec.discClearM||0))ls.forEach((y,li)=>{ok[ci][li]=false;});});
+ if(spec.walls)for(const [ax,az,bx,bz,hw] of spec.walls)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
+  const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));if(Math.hypot(x-ax-dx*t,z-az-dz*t)<=hw)ls.forEach((y,li)=>{ok[ci][li]=false;});});
  if(spec.sea!==undefined)layers.forEach((ls,ci)=>ls.forEach((y,li)=>{if(y<spec.sea)ok[ci][li]=false;}));
  const cellOf=p=>cell(p[0],p[2]);
  const s=cellOf(spec.start);let sl=-1,bd=9;
@@ -149,16 +163,16 @@ async function decodeDraco(file,spec){
   return {fixture:gz,sha:sha256(gz)};
  }
  const draco=require(path.join(dir,'draco3d.js'));const decMod=await draco.createDecoderModule({});
- const raw=fs.readFileSync(path.join(ROOT,file));const jl=raw.readUInt32LE(12),doc=JSON.parse(raw.subarray(20,20+jl).toString());
- const binOff=20+jl+8,bin=raw.subarray(binOff,binOff+raw.readUInt32LE(20+jl));
- const parent={};doc.nodes.forEach((n,i)=>(n.children||[]).forEach(c=>{parent[c]=i;}));
  const mul=(A,B)=>{const C=new Array(16).fill(0);for(let r=0;r<4;r++)for(let c=0;c<4;c++)for(let k=0;k<4;k++)C[c*4+r]+=A[k*4+r]*B[c*4+k];return C;};
  const trs=n=>{if(n.matrix)return n.matrix.slice();const [x,y,z,w]=n.rotation||[0,0,0,1],[sx,sy,sz]=n.scale||[1,1,1],t=n.translation||[0,0,0];
   return [(1-2*(y*y+z*z))*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,2*(x*y-z*w)*sy,(1-2*(x*x+z*z))*sy,2*(y*z+x*w)*sy,0,2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*(x*x+y*y))*sz,0,t[0],t[1],t[2],1];};
- const glob=i=>{let M=trs(doc.nodes[i]);for(let k=parent[i];k!==undefined;k=parent[k])M=mul(trs(doc.nodes[k]),M);return M;};
  const xf=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2]+M[12],M[1]*v[0]+M[5]*v[1]+M[9]*v[2]+M[13],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]+M[14]];
- const grid=buildGrid(spec,(addTri)=>{
-  doc.nodes.forEach((node,i)=>{if(node.mesh===undefined)return;const name=node.name||'';const isF=spec.floor.test(name),isS=spec.solid.test(name);if(!isF&&!isS)return;const M=glob(i);
+ const stampGlb=(gfile,floorRx,solidRx,addTri)=>{
+  const raw=fs.readFileSync(path.join(ROOT,gfile));const jl=raw.readUInt32LE(12),doc=JSON.parse(raw.subarray(20,20+jl).toString());
+  const binOff=20+jl+8,bin=raw.subarray(binOff,binOff+raw.readUInt32LE(20+jl));
+  const parent={};doc.nodes.forEach((n,i)=>(n.children||[]).forEach(c=>{parent[c]=i;}));
+  const glob=i=>{let M=trs(doc.nodes[i]);for(let k=parent[i];k!==undefined;k=parent[k])M=mul(trs(doc.nodes[k]),M);return M;};
+  doc.nodes.forEach((node,i)=>{if(node.mesh===undefined)return;const name=node.name||'';const isF=floorRx.test(name),isS=solidRx.test(name);if(!isF&&!isS)return;const M=glob(i);
    for(const pr of doc.meshes[node.mesh].primitives){const ext=pr.extensions&&pr.extensions.KHR_draco_mesh_compression;if(!ext)continue;
     const bv=doc.bufferViews[ext.bufferView],data=bin.subarray(bv.byteOffset||0,(bv.byteOffset||0)+bv.byteLength);
     const d=new decMod.Decoder(),buf=new decMod.DecoderBuffer();buf.Init(new Int8Array(data.buffer,data.byteOffset,data.byteLength),data.byteLength);
@@ -168,7 +182,8 @@ async function decodeDraco(file,spec){
     for(let v=0;v<nv;v++)P[v]=xf(M,[pos.GetValue(v*3),pos.GetValue(v*3+1),pos.GetValue(v*3+2)]);
     const face=new decMod.DracoInt32Array();
     for(let f=0;f<nf;f++){d.GetFaceFromMesh(mesh,f,face);addTri(isF,isS,P[face.GetValue(0)],P[face.GetValue(1)],P[face.GetValue(2)]);}
-    [pos,face,mesh,buf,d].forEach(o=>decMod.destroy(o));}});});
+    [pos,face,mesh,buf,d].forEach(o=>decMod.destroy(o));}});};
+ const grid=buildGrid(spec,(addTri)=>{stampGlb(file,spec.floor,spec.solid,addTri);for(const e of spec.extras||[])stampGlb(e.file,e.floor,e.solid,addTri);});
  return {grid,sha:sha256(path.join(ROOT,file)),decoder:'draco3d@1.5.7'};
 }
 function decodePlain(file,spec){
