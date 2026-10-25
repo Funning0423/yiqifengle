@@ -20,6 +20,7 @@ import {camTraceStart} from '../region/CamTrace';
 import {bgCamHeld,bgCamHold,bgCamRelease,bgCamWanted} from '../region/BgCamGate';
 import {qaHooksEnabled,qaYawFacing} from './QaSkip';
 import {ISLAND_PROPS,signFrontView} from './IslandPropsLayout';
+import {signShot} from '../region/SignShot';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
 import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
@@ -865,11 +866,14 @@ export class RegionNodeStage extends Component{
   let n=sign?nodes.slice().sort((a,b)=>Math.hypot(a.at[0]-sp[0],a.at[2]-sp[2])-Math.hypot(b.at[0]-sp[0],b.at[2]-sp[2]))[0]:nodes.find(x=>x.key===key);
   // p0drag11 (Mac p0drag10: tpSign yaw 4.6°, the sign BEHIND the lens): spot + yaw + arm from the sign's front-face normal, judged in world
   // space on the orbit's own raw pose: lens ≥ 1.5 m in front of the panel, text ≤ 60° off, whole sign on screen, her sight line clear of it
-  let sv:ReturnType<typeof signFrontView>=null;
+  let sv:ReturnType<typeof signFrontView>=null,shot:ReturnType<typeof signShot>=null;
   if(sign&&nodes.length){const {w,h}=this.viewport(),O=this.orbit,keep=[O.yaw,O.pitch,O.dist],W=nodes.map(x=>this.toWorld('island',[[x.at[0],x.at[1],x.at[2]]])[0]);
    O.forget();O.setPlace('island');O.pitch=12;
    sv=signFrontView(nodes.length,(i,y,p,d)=>{O.yaw=y;O.pitch=p;O.dist=d;return O.rawPose(W[i]) as any;},[5,9,13,17,21,25],[12,10,8,6],w,h);
-   [O.yaw,O.pitch,O.dist]=keep;if(sv)n=nodes[sv.i];}
+   [O.yaw,O.pitch,O.dist]=keep;if(sv)n=nodes[sv.i];
+   /* p0drag12 (Mac p0drag11: sign 5.5 m away, left side cropped, she not in frame): her AND the whole sign on all 7 portrait screens needs
+    * a ~26 m arm (QA shot only, held until a drag) — signShot (region/SignShot.ts). Test: test_p0drag12 S1. */
+   shot=signShot(W,this.lakesideOccluders()??[],ORBIT_LIMITS.island.fovDeg);if(shot)n=nodes[shot.i];}
   if(!n)return {ok:false,reason:'no-node-'+key+'-in-'+region};
   /* p0drag11 (Mac p0drag10: night po stood at (8.77,8.14), the walk before the teleport still ran and re-stood her at its end): a teleport
    * always ends the walk — new token (the walk's end-of-segment re-stand and lens hand-off are skipped), its Cancellation fired, flag off */
@@ -879,10 +883,12 @@ export class RegionNodeStage extends Component{
   // p0drag10 (Mac p0drag9: the 'sign' shot looked from her side at the panel's BACK, 继续旅程 mirrored): the sign faces the sea (GLB front
   // = +Z turned by signpost.yawDeg; every walkable island spot is 7.9–24 m BEHIND its front plane), so the lens goes past the sign along
   // her→sign at the 12 m orbit cap: it is then on the text side (front) looking back over the panel at her. Test: test_p0drag10 Q3.
-  if(sign&&sv){yawDeg=yawDeg??sv.yaw;pitchDeg=pitchDeg??sv.pitch;this.orbit.dist=sv.dist;}
+  if(sign&&sv&&!shot){yawDeg=yawDeg??sv.yaw;pitchDeg=pitchDeg??sv.pitch;this.orbit.dist=sv.dist;}
   else if(sign){const sw=this.toWorld('island',[[sp[0],sp[1],sp[2]]])[0];yawDeg=yawDeg??qaYawFacing(sw,g);pitchDeg=pitchDeg??12;this.orbit.dist=ORBIT_LIMITS.island.distMax;}
-  this.qaOrbit(yawDeg,pitchDeg);let p0:Pose=this.orbit.rawPose(g);if(sign&&sv&&yawDeg===sv.yaw){const lk=this.lookAt(g);p0={...p0,target:[lk[0]+sv.aim[0],lk[1]+sv.aim[1],lk[2]+sv.aim[2]]};this.qaShot=p0;}/* the view on the text centre, held until a drag */this.writePose(p0,false);
-  return {ok:true,region,at:n.at,yaw:this.orbit.yaw,pitch:this.orbit.pitch,...(sv?{signView:{dist:sv.dist,pitch:sv.pitch,frontM:+sv.frontM.toFixed(2),textDeg:+sv.textDeg.toFixed(1)}}:{})} as any;
+  if(sign&&shot&&yawDeg===undefined){const P=shot.position;yawDeg=Math.atan2(P[0]-g[0],P[2]-g[2])*180/Math.PI;pitchDeg=pitchDeg??20;}
+  this.qaOrbit(yawDeg,pitchDeg);let p0:Pose=this.orbit.rawPose(g);if(sign&&shot){p0={position:[...shot.position] as any,target:[...shot.target] as any,fovVerticalDeg:shot.fovVerticalDeg};this.qaShot=p0;}
+  else if(sign&&sv&&yawDeg===sv.yaw){const lk=this.lookAt(g);p0={...p0,target:[lk[0]+sv.aim[0],lk[1]+sv.aim[1],lk[2]+sv.aim[2]]};this.qaShot=p0;}/* the view on the text centre, held until a drag */this.writePose(p0,false);
+  return {ok:true,region,at:n.at,yaw:this.orbit.yaw,pitch:this.orbit.pitch,...(shot?{signShot:{armM:+shot.armM.toFixed(1),textDeg:+shot.textDeg.toFixed(1),minTextPx:+shot.minTextPx.toFixed(1)}}:{}),...(sv&&!shot?{signView:{dist:sv.dist,pitch:sv.pitch,frontM:+sv.frontM.toFixed(2),textDeg:+sv.textDeg.toFixed(1)}}:{})} as any;
  }
  /** Test-only (?qfSkip gate): turn the explore lens so the named scene node sits in front of it (lens on the far side of her). */
  /** Test-only (qfSkip / qfHooks gate): turn the explore lens so a world point sits beyond her in the middle of the view (lens on the far
