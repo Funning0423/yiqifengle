@@ -447,9 +447,11 @@ export function lakesideDoorLens(walk:readonly Vec[],basket?:Vec,aspect=390/844,
  *  from the segment start (her first step in the skycity); the adapter emits `event` on director ({atS: ride.T}) and sets
  *  globalThis.__qfLakesideTouchdownAt. Option C (walk-out by +2 s, board by ≤ +6.5 s) needs ≈ 1.4 m/s over her 6.4 m exit
  *  walk (clip band ≤ 0.91 m/s), so it is not used. */
-export const LAKESIDE_TOUCHDOWN={signAtS:1.8,signS:3.0,blendAfterSignS:.5,event:'qf-lakeside-touchdown',/** aim pull toward her in the wide → board blend (b16 door blend: 0.3; ω ≤ 20°/s) */blendAimPull:.15,/** extra blend time after her walk reaches the board entry distance (she is well inside before the lens settles) */blendPadS:1.5} as const;
+export const LAKESIDE_TOUCHDOWN={signAtS:1.8,signS:3.0,blendAfterSignS:.5,/** = blendAfterSignS, GGbot sign/test contract */boardWithinS:.5,event:'qf-lakeside-touchdown',/** aim pull toward her in the wide → board blend (b16 door blend: 0.3; ω ≤ 20°/s) */blendAimPull:.15,/** extra blend time after her walk reaches the board entry distance (she is well inside before the lens settles) */blendPadS:1.5} as const;
 /** Touchdown → board blend start (s). */
 export function lakesideBoardBlendAtS(k=LAKESIDE_TOUCHDOWN):number{return k.signAtS+k.signS+k.blendAfterSignS;}
+/** T-03 event field boardByS (GGbot LakesideArrivalCore): the board takeover deadline after touchdown = the option-B blend start. */
+export function lakesideBoardByS(k=LAKESIDE_TOUCHDOWN):number{return lakesideBoardBlendAtS(k);}
 /** Blend length: the SPEC rule (lakesideDoorBlendS) or her walk from `walkedM` to the board entry distance, whichever is longer. */
 export function lakesideBoardBlendDurS(wide:Pose,land:Pose,walkedM:number,entryM:number,walkMps:number):number{
  return Math.max(lakesideDoorBlendS(wide,land),Math.max(0,entryM-walkedM)/Math.max(.1,walkMps)+LAKESIDE_TOUCHDOWN.blendPadS);}
