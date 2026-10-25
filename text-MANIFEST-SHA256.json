@@ -2521,8 +2521,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 13810,
-    "sha256": "9507745000c5bda546e8a55c7c0ba591c504c97662f39d35236006b0346772d8"
+    "bytes": 14031,
+    "sha256": "971e926e59a452c552a289a1b38e9b9350f62d698599259053692f96386d167a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2541,8 +2541,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 51070,
-    "sha256": "3b9a01a0638696e6d7643c68f7bfa3c5c33daed86a56b4ad92ad0638c1333e21"
+    "bytes": 51443,
+    "sha256": "45705fd1deb96bc015f5052c87c423b22783629c0978d1001ae09d5a0deef175"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2971,8 +2971,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 54384,
-    "sha256": "dc86c5773f13c38ff62561cf27b1a2c2814ce81dfa22329b4b1a2f4c8090e331"
+    "bytes": 54885,
+    "sha256": "0dab40c998fe19565ca3d32dfa96391cf21115d04d0000465ff35d7be36561d2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3191,8 +3191,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeContinuous.ts",
-    "bytes": 4074,
-    "sha256": "142b47463513350463ffe0842e141207ff570cb43146a3bae8ddaea9937734dc"
+    "bytes": 4511,
+    "sha256": "5f8f1c6330fa8eed163b46b7c0b971ac4e760fd477e21e207275edd460f90801"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeContinuous.ts.meta",
@@ -3351,8 +3351,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts",
-    "bytes": 12851,
-    "sha256": "3d320222bc22779d769d17e932859c182b5f051189aa757b9e48a858da1a40d2"
+    "bytes": 13003,
+    "sha256": "b16702ce27aa46479e1071ed0aa74aff1273ad62ce03e90eecb53038de7bd71c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts.meta",
@@ -3381,8 +3381,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts",
-    "bytes": 4784,
-    "sha256": "f7ae009ecb9ddbefc7b9f15811689a1f1e30e1243fb2ce8c64aa5a120451f586"
+    "bytes": 9657,
+    "sha256": "9fe7974c81c1767783fd2236a0f282baa6b35773effe79ddb5629adb14abef3f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts.meta",
