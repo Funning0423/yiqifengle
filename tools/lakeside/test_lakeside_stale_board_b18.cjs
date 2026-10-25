@@ -9,10 +9,10 @@ let n=0;const t=(m,f)=>{f();n++;console.log('PASS',m);};
 const journey=()=>({readOnly:false,records:Array.from({length:12},()=>({bestStars:2}))});
 const load=s=>JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/stale-board-'+s+'.json'),'utf8'));
 const mem=entries=>{const m=new Map(entries);return {m,getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v))};};
-const NOTICE='重新开始已调整的关卡';
+const NOTICE='关卡已调整，从头开始';const Store=require(R+'/durable-store.js');
 for(const id of ['r04-lake-01','r04-lake-02','r04-lake-03','r04-lake-04']){
  t(id+': old unfinished board dropped alone; save writable; clears and other keys intact; notice; replay of the stage starts fresh',()=>{
-  const fx=load(id),store=mem(fx.storage),before=new Map(fx.storage),oldJ=JSON.parse(before.get(Journal.KEY)),stage=API.getStage(id);
+  Store.clearRepairs();const fx=load(id),store=mem(fx.storage),before=new Map(fx.storage),oldJ=JSON.parse(before.get(Journal.KEY)),stage=API.getStage(id);
   assert.notEqual(fx.made.contentRevision,stage.contentRevision,'fixture really is from older rules');
   assert(oldJ.openAttempt||before.get(Provider.KEY),'fixture has an unfinished board');
   const prov=new Provider({platform:Host.createStorage(store),journey:journey()});
@@ -25,7 +25,7 @@ for(const id of ['r04-lake-01','r04-lake-02','r04-lake-03','r04-lake-04']){
   assert.equal(JSON.parse(store.m.get(Provider.KEY)),null);
   for(const c of Object.keys(oldJ.records))assert.equal(prov.progress.isUnlocked(c),true,c);
   const r=prov.startStage(id,{seed:stage.seedBank[0]});assert(r.ok,JSON.stringify(r));
-  const again=new Provider({platform:Host.createStorage(store),journey:journey()});assert.equal(again.readOnly,false);assert.equal(again.snapshot().active.stageId,id);assert.equal(again.snapshot().notice,null,'notice only once');
+  Store.clearRepairs()/* = a restart: the pool is in memory only */;const again=new Provider({platform:Host.createStorage(store),journey:journey()});assert.equal(again.readOnly,false);assert.equal(again.snapshot().active.stageId,id);assert.equal(again.snapshot().notice,null,'notice only once');
  });}
 t('corrupt saves stay read-only: broken record aggregate, and a stale board next to a broken record',()=>{
  for(const mut of [j=>{const k=Object.keys(j.records)[0]||'r04-lake-01';j.records[k]={bestStars:3,bestScore:1,bestMoves:1,clears:9,contentRevision:'x'};},j=>{j.records['r04-lake-05']={bestStars:3,bestScore:1,bestMoves:1,clears:1,contentRevision:'x'};}]){
@@ -35,7 +35,7 @@ t('corrupt saves stay read-only: broken record aggregate, and a stale board next
  // garbage active record (not a stale checkpoint) is still protected
  const fx=load('r04-lake-01'),m=new Map(fx.storage);m.set(Provider.KEY,JSON.stringify({version:2,packId:'regional-r05',revision:1,checkpoint:{version:1,packId:'regional-r05',stageId:'nope'}}));
  const p=new Provider({platform:Host.createStorage(mem([...m])),journey:journey()});assert.equal(p.readOnly,true);});
-t('a current-rules unfinished board is kept (no repair on a valid save)',()=>{
+t('a current-rules unfinished board is kept (no repair on a valid save)',()=>{Store.clearRepairs();
  const store=mem([]),platform=Host.createStorage(store),st=API.getStage('r04-lake-01');const p=new Provider({platform,journey:journey(),stageId:st.id,seed:st.seedBank[0]});assert(!p.error);
  const a=API.createSession(st.id,st.seedBank[0]).legalActions({tools:false})[0],pv=p.previewAction(a);assert(pv.ok);assert(p.commitAction(pv.token).ok);
  const p2=new Provider({platform,journey:journey()});assert.equal(p2.snapshot().active.stageId,st.id);assert.equal(p2.snapshot().notice,null);});

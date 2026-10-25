@@ -51,7 +51,7 @@ export class ManagedMobileBoardUI extends Component {
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
-  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1;
+  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1; private toastFade = 0.2; private toastEnd = TOAST_S; private noticeShown = false;
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private resultAttemptKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
@@ -364,7 +364,7 @@ export class ManagedMobileBoardUI extends Component {
     if (tool.targeted && (!Number.isInteger(index) || index < 0 || index > 48)) { this.say('先点道具再选格子，或把道具拖到格子上'); return false; }
     const r = this.managed.useTool(kind, index);
     if (!r.ok) this.say(r.reason === 'illegal-or-unsupported-action' ? '换一个有作用的落点，道具还在' : '暂不可操作 · ' + r.reason);
-    else { this.armedTool = null; this.selected = -1; this.toastT = Math.min(this.toastT, TOAST_S); }
+    else { this.armedTool = null; this.selected = -1; this.toastT = Math.min(this.toastT, this.toastEnd); }
     this.paintToolTray(); this.paint(); return !!r.ok;
   }
   private tapTool(slot: number) {
@@ -873,8 +873,8 @@ export class ManagedMobileBoardUI extends Component {
   private box(name: string, parent: Node, x: number, y: number, w: number, h: number) { const n = new Node(name); n.layer = Layers.Enum.UI_2D; parent.addChild(n); n.setPosition(x, y); n.addComponent(UITransform).setContentSize(w, h); return n; }
   // ---------------- toast / input / hint ----------------
   /** Transient strip above the board tray (BoardLayout.toast, every region alike): tool prompts and errors only, fades after 2 s. */
-  private say(text: string) {
-    if (!text || !this.toastLabel) return; this.toastLabel.string = text; this.toastT = 0;
+  private say(text: string, fade = 0.2) {
+    if (!text || !this.toastLabel) return; this.toastLabel.string = text; this.toastT = 0; this.toastFade = fade; this.toastEnd = fade === 0.2 ? TOAST_S : fade + TOAST_S;
     this.sizeToast(); this.toast.setSiblingIndex(this.root.children.length - 1);
   }
   /** Pill = text + 40, capped by the layout's max width (≤ 330, inset from the edges); a longer line scales down to stay inside the caps. */
@@ -884,6 +884,15 @@ export class ManagedMobileBoardUI extends Component {
     this.toast.getComponent(UITransform)!.setContentSize(w, h); this.toastLabel.node.setScale(fit, fit, 1); this.paintToast(w, h);
   }
   private paintToast(w: number, h: number) { const g = this.toastBg, k = 1 - 0.38 * this.tint.weight(); g.clear(); g.fillColor = new Color(40, 30, 20, 40); g.roundRect(-w / 2 + 1, -h / 2 - 2, w, h, h / 2); g.fill(); g.fillColor = new Color(Math.round(248 * k), Math.round(242 * k), Math.round(226 * k), 240); g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.fill(); g.strokeColor = new Color(201, 177, 133, 255); g.lineWidth = 1.5; g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.stroke(); }
+  /** b18 (UI设计部): an old unfinished lake board was dropped on load → once, after presentForPlay (entry shot + transition done),
+   *  the board toast says 「关卡已调整，从头开始」: fade 0.3 s, hold 2 s, fade 0.3 s; no button, no popup, touches pass through; the
+   *  provider flag is cleared at once (in memory, so a restart never shows it). Toast sits in the plate→tray band like every tip. */
+  private staleNotice(s: any) {
+    if (this.noticeShown || !s?.notice?.text || !s.active || s.state !== 'run.ready' || s.readOnly || this.modalOpen()) return;
+    if (Array.isArray(s.notice.stageIds) && !s.notice.stageIds.includes(s.active.stageId)) return;
+    this.noticeShown = true; this.say(String(s.notice.text), 0.3);
+    try { this.managed?.clearNotice?.(); } catch { }
+  }
   private input() { this.hintClock.reset(); if (this.hintCells.length) { this.hintCells = []; this.paintMarks(); } }
   private autoHint() {
     const s = this.snapshot, a = s?.active; if (!a) return;
@@ -903,7 +912,8 @@ export class ManagedMobileBoardUI extends Component {
     if (this.hintClock.tick(dt, active)) this.autoHint();
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
-    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, k = this.toastT < 0.2 ? this.toastT / 0.2 : this.toastT < TOAST_S ? 1 : Math.max(0, 1 - (this.toastT - TOAST_S) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > TOAST_S) this.toastT = -1; }
+    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) this.toastT = -1; }
+    this.staleNotice(s);
     if (this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
   }
   // ---------------- dialogs ----------------

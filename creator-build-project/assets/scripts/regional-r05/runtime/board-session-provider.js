@@ -4,12 +4,12 @@ var API=require('./index'),Session=require('./regional-session'),Store=require('
 var KEY='forest-regional-r05-active',BACKUP=KEY+'-v1-backup',PACK='regional-r05',nextProvider=0;
 function need(ok,msg){if(!ok)throw Error(msg);}
 // b18: the active board record whose checkpoint is from older rules is dropped (that board only, = not started); see progress-journal staleCheckpoint.
-var STALE_NOTICE='重新开始已调整的关卡';
+var STALE_NOTICE='关卡已调整，从头开始';
 function repairActive(r){return r&&r.checkpoint&&Journal.staleCheckpoint(r.checkpoint)?{value:null,dropped:[{stageId:r.checkpoint.stageId,contentRevision:r.checkpoint.contentRevision}]}:null;}
 function validateActive(r){need(r&&[1,2].includes(r.version)&&r.packId===PACK&&Number.isSafeInteger(r.revision)&&r.revision>=1&&r.checkpoint&&(r.pendingAction===null||Array.isArray(r.pendingAction)),'Unknown or corrupt active record');var run=API.restore(r.checkpoint);if(r.pendingAction)need(run._valid(r.pendingAction),'Invalid persisted action');if(r.version===2){need(/^r5a-[0-9]{12,16}$/.test(r.attemptId)&&typeof r.discarded==='boolean'&&(r.completionReceipt===null||typeof r.completionReceipt==='object'),'Invalid active v2 identity');need(!r.discarded||r.pendingAction===null,'Discarded action intent');}}
 function Provider(options){options=options||{};this.platform=options.platform;need(this.platform&&typeof this.platform.load==='function'&&typeof this.platform.save==='function','Synchronous load/save required');this.id=++nextProvider;this.generation=0;this.frames=[];this.frameIndex=0;this.hidden=false;this.paused=true;this.session=null;this.active=null;this.work=null;this.error=null;this.readOnly=false;this.completion=null;this.lastGrant=null;
  this.progress=new Journal(this.platform,options.journey);this.store=new Store(this.platform,KEY,validateActive,repairActive);this.backup=null;
- var gone=(this.progress.store.repaired||[]).concat(this.store.repaired||[]);this.staleNotice=gone.length?{text:STALE_NOTICE,stageIds:gone.map(function(x){return x.stageId;}).filter(function(x,i,a){return a.indexOf(x)===i;})}:null;
+ var gone=Store.pendingRepairs();this.staleNotice=gone.length?{text:STALE_NOTICE,stageIds:gone.map(function(x){return x.stageId;}).filter(function(x,i,a){return a.indexOf(x)===i;})}:null;
  try{if(this.progress.store.readOnly||this.store.readOnly){this._storeError();return;}var r=this.store.value,open=this.progress.data.openAttempt;
   if(r&&r.version===1){this.work={kind:'migrate',raw:copy(this.store.raw),legacy:copy(r)};this._drain();}
   else if(open&&(!r||open.id!==r.attemptId)){need(!r||open.replaces===r.attemptId&&this._replaceableRecord(r),'Reserved transition conflicts with preserved active');this.work={kind:'adopt',reservation:copy(open),recovering:true};this._drain();}
@@ -74,4 +74,7 @@ Provider.prototype.retrySave=function(){if(this.readOnly||!this.work)return {ok:
 Provider.prototype.finish=function(){if(this.readOnly||!this.session||this.session.engine.status!=='won')return {ok:false,reason:'not-won'};if(this.work)return this.retrySave();if(this._completed())return {ok:true,saved:true,duplicate:true,firstClear:false,newlyGranted:[]};this.work={kind:'complete'};var done=this._drain();return done&&typeof done==='object'?done:{ok:false,reason:this.error&&this.error.code||'save-failed',newlyGranted:[]};};
 Provider.prototype.discardActive=function(){if(this.readOnly||this.work||!this.session)return {ok:false,reason:'discard-blocked'};if(this.session.engine.status==='won'&&!this._completed())return {ok:false,reason:'unsaved-win'};this.pause();this.work={kind:'discard'};var done=this._drain();return done&&typeof done==='object'?done:{ok:false,reason:this.error&&this.error.code||'save-failed',newlyGranted:[]};};
 Provider.prototype.claimMemento=function(region){if(this.readOnly||this.work)return {ok:false,reason:'pending-or-readonly',newlyGranted:[]};if(this.session&&this.session.engine.status==='won'&&!this._completed())return {ok:false,reason:'completion-unsaved',newlyGranted:[]};this.work={kind:'claim',region:region};var out=this._drain();if(!out||!out.ok)return {ok:false,reason:this.error&&this.error.code||out&&out.reason||'save-failed',newlyGranted:[]};return this.lastGrant||{ok:false,reason:'region-incomplete',newlyGranted:[]};};
+// b18: the board shows the stale-board notice once, then clears it for the whole run (in memory; the repair itself is already saved).
+Provider.prototype.clearNotice=function(){Store.clearRepairs();this.staleNotice=null;return {ok:true};};
+Provider.STALE_NOTICE=STALE_NOTICE;
 module.exports=Provider;

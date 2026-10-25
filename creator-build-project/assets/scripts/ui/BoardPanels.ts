@@ -60,18 +60,18 @@ function resultSummary(m: ResultModel): string {
   if (m.movesLeft !== null) parts.push('剩余 ' + m.movesLeft + ' 步');
   return parts.join(' · ');
 }
-/** b18 (UI设计部): the lose-panel subtitle (ResultMessage) is one line, never wrapped or ellipsised. It starts at 17 pt and steps
- *  down to 15 pt when the text is wider than the caption box. 17 pt is the size the panel already used (28 design px), so a caption
- *  that fits renders exactly as before; 1 pt = 28/17 design px. Only this label's font size changes. */
+/** b18 (UI设计部 2026-10-25): the lose-panel subtitle (ResultMessage) is the stage failHint on a lost lake board, else the old
+ *  line. The result panel lays out at scale 1, so sizes are pt: the relayout draws it at 16 pt on ONE line and steps down 0.5 pt
+ *  at a time (min 15 pt) until it fits inner - 4. No wrap, no ellipsis. Hints are capped at 14 字 by the data tests. */
 export const LOSE_CAPTION_DEFAULT = '步数用完了，换个顺序试试？';
-export const LOSE_CAPTION_PT = { default: 17, min: 15, step: 0.5 } as const;
-export const LOSE_CAPTION_PX_PER_PT = 28 / 17, LOSE_CAPTION_W = 480;
-export function loseCaptionSize(text: string, width: number = LOSE_CAPTION_W, meas: (t: string, size: number) => number = measure): number {
-  for (let pt: number = LOSE_CAPTION_PT.default; pt >= LOSE_CAPTION_PT.min; pt -= LOSE_CAPTION_PT.step) { const px = pt * LOSE_CAPTION_PX_PER_PT; if (meas(text, px) <= width) return px; }
-  return LOSE_CAPTION_PT.min * LOSE_CAPTION_PX_PER_PT;
+export const LOSE_CAPTION_PT = { default: 16, min: 15, step: 0.5 } as const;
+/** Largest pt in [min, default] (0.5 steps) whose width fits; min when nothing fits. */
+export function loseCaptionPt(text: string, width: number, meas: (t: string, size: number) => number): number {
+  for (let pt: number = LOSE_CAPTION_PT.default; pt >= LOSE_CAPTION_PT.min; pt -= LOSE_CAPTION_PT.step) if (meas(text, pt) <= width) return pt;
+  return LOSE_CAPTION_PT.min;
 }
 function loseCaption(p: PopupPanel, text: string): Label {
-  const l = p.text(text, 0, 336, loseCaptionSize(text), 'brown', { bold: false, name: 'ResultMessage' });
+  const l = p.text(text, 0, 336, LOSE_CAPTION_PT.default, 'brown', { bold: false, name: 'ResultMessage' });
   l.enableWrapText = false; l.overflow = Label.Overflow.NONE; return l;
 }
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
@@ -387,7 +387,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = padRoom ? ACTION_PAD + ACTION_SHADOW + (specCompact ? ACTION_H_C : ACTION_H) + 12 : roomy ? 92 : 68, heights: number[] = [];
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
-    if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
+    if (m.kind === 'lose') heights.push(Math.ceil(LOSE_CAPTION_PT.default * 1.35)); else lines(scoreText, 34, 46);
     if (m.hostError) { const n = wrap(m.hostError, Math.max(40, inner - 26), 16).slice(0, 2); for (const _ of n) heights.push(22); if (n.length) heights.push(8); }
     if (m.kind === 'win') { /* SPEC v2.2: no step line */ }
     else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
@@ -483,7 +483,15 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       const starH = shortPhone ? 44 : dense ? 44 : specCompact ? 50 : tight ? 56 : snug ? 64 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : specCompact ? 0.19 : tight ? 0.2 : snug ? 0.24 : 0.32;
       const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
       scoreLabel.node.active = false;
-      if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
+      if (m.kind === 'lose') {
+        // One line in pt: 16 → 15 in 0.5 steps against inner - 4; the failHint (or the old line), never scoreText wrapping.
+        const text = m.failHint || LOSE_CAPTION_DEFAULT, size = loseCaptionPt(text, inner - 4, textWidth), lh = Math.ceil(LOSE_CAPTION_PT.default * 1.35);
+        const row = getRow('ResultMessage-0', lh);
+        let l = row.node.getComponentInChildren(Label);
+        if (!l) l = p.text('', 0, 0, size, 'brown', { name: 'ResultMessage', bold: false, width: inner, parent: row.node });
+        l.string = text; l.fontSize = size; l.lineHeight = lh; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+        l.node.getComponent(UITransform)!.setContentSize(inner - 4, lh); l.node.setPosition(0, 0, 0); rows.push(row);
+      }
       else {
         // 34/46 is the settled score. A number that cannot stay on one page at that size
         // drops to the 16-unit body so the opening scale (0.92) still clears the 14px floor.
