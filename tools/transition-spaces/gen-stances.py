@@ -128,30 +128,46 @@ segs['4_skycity_balloon_out']={'title':'天空之城停稳 → 开篮门 → 走
  'path':pts4,'timeline':t4,'totalS':T4,'door':DOOR,'basket':BASKET,'joinsEdge':'S0->S1 at (5.4,-0.087,37.0)'}
 # ================= 5a. skycity finale (S6) -> balloon at the island edge -> in -> sit =================
 S6=[n for n in cc['nodes']['skycity']['nodes'] if n['key']=='S6'][0]['at']
-G5=0.03;LB=[-14.8,0.08,-37.8];LBY=round(yaw(LB,S6),2)  # option C (产品总监规则 2026-10-25): search-mooring.cjs shortest walk with park+lift gap ≥0.5; door faces S6
-inb5=basket_in(LB,LBY,G5)
-STOOL5={'node':'balloon_step_stool','frame':'skycity','basketLocal':{'x':[-0.25,0.25],'z':[0.9,1.2]},'topY':0.055,'parent':'region_skycity scene root (stays after lift-off), same procedural stool as seg3','why':'3 cm floor step: stool is optional visually (kept so the mooring matches the meadow set)'}
-_o=inb5[0][1];W5=[[S6[0]+(_o[0]-S6[0])*k/6,0.03,S6[2]+(_o[2]-S6[2])*k/6] for k in range(1,6)]  # straight RegionWalkable leg (walkPath = 2 points, lineWalkable)
-p5=[S6]+W5+[p for _,p,_ in inb5]
+G5=0.03;LBXZ=[-14.8,-38.8]  # option C alternate (产品总监 2026-10-25 10:37): park/lift gap 1.49 m
+# no turn inside the basket: she walks in facing the seat direction (basket -z), sits backwards 0.494 m (sit_down root travel);
+# seated facing the back wall (basket yaw 180 local). Door_reach from a stand outside the outward door sweep, on the line
+# outside -> threshold -> Q, so after the door she walks one straight line in (no turn at the door).
+BK5={'outside':[-0.2,0,1.75],'threshold':[0.0,0,0.84],'Q':[0.03,0,-0.35],'seat':[0.032,0,0.144],'seatYawDeg':180.0}
+BK5['outsideYawDeg']=yaw(BK5['outside'],BK5['threshold'])
+VIA5=[-11.6,0.03,-35.3]  # passes north-west of a 0.5 m grass-card tuft at (-11.26..-10.7, -36.3..-35.73); 24° bend mid-walk
+LBY=0.0
+for _ in range(20):  # basket yaw so the S6 approach arrives on the outside->threshold heading (turn spread over the straight approach = 0)
+    _o=xf([LBXZ[0],0,LBXZ[1]],LBY,BK5['outside']);LBY=round((yaw(VIA5,_o)-BK5['outsideYawDeg']+180)%360-180,3)
+LB=[LBXZ[0],0.09,LBXZ[1]]
+o5=xf(LB,LBY,BK5['outside']);o5[1]=G5
+W5=[[S6[0]+(VIA5[0]-S6[0])*k/4,G5,S6[2]+(VIA5[2]-S6[2])*k/4] for k in range(1,4)]+[VIA5]
+in5=[('basket_threshold',xf(LB,LBY,BK5['threshold'])),('basket_Q',xf(LB,LBY,BK5['Q']))]
+p5=[S6]+W5+[o5]+[p for _,p in in5]
 pts5=[{'id':'S6','frame':'skycity','at':S6,'surface':'walkable:skycity'}]+[{'id':f's6_walk_{i+1:02d}','frame':'skycity','at':r(q),'surface':'walkable:skycity'} for i,q in enumerate(W5)]
-pts5+=[{'id':n,'frame':'skycity','at':r(p),'surface':'walkable:skycity' if n=='basket_outside' else ('ground' if n=='basket_door_out' else 'basket'),'basketLocal':BASKET[{'basket_outside':'outside','basket_door_out':'doorOut','basket_threshold':'threshold','basket_P0':'P0'}[n]]} for n,p,s in inb5]
-pts5+=[{'id':'basket_seat','frame':'basket','parent':'transport_balloon','at':BASKET['seat'],'surface':'basket','regionAt':r(xf(LB,LBY,BASKET['seat']))}]
-L5w=plen(p5[:7]);L5i=plen(p5[6:])
-t5,T5=tl([('S6 -> basket_outside',walkS(L5w),'walk_start/walk_loop/walk_stop_bodyL',f'{L5w:.2f} m')]+basket_seq(L5i))
+pts5+=[{'id':'basket_outside','frame':'skycity','at':r(o5),'surface':'walkable:skycity','basketLocal':BK5['outside']}]
+pts5+=[{'id':n,'frame':'skycity','at':r(q),'surface':'basket','basketLocal':BK5[n.split('_')[1]]} for n,q in in5]
+pts5+=[{'id':'basket_seat','frame':'basket','parent':'transport_balloon','at':BK5['seat'],'surface':'basket','regionAt':r(xf(LB,LBY,BK5['seat']))}]
+L5w=plen(p5[:6]);L5i=plen(p5[5:])
+STOOL5={'node':'balloon_step_stool','frame':'skycity','basketLocal':{'x':[-0.25,0.25],'z':[0.9,1.2]},'topY':0.06,'parent':'region_skycity scene root (stays after lift-off), same procedural stool as seg3','why':'6 cm floor step (ground 0.03 -> basket floor 0.09)'}
+t5,T5=tl([('S6 -> basket_outside (one straight line, already on the door heading)',walkS(L5w),'walk_start/walk_loop/walk_stop_bodyL',f'{L5w:.2f} m @1.2 m/s (NodeWalker.WALK_SPEED_MPS)'),
+ ('door_reach at basket_outside (contact 0.333 s, leaf +100° outward in 0.8 s; walk may start at 1.8 s)',K['walkStartAfterReachS'],'door_reach','door: '+DOOR['pivotNode']),
+ ('walk in: outside -> threshold -> Q, straight, facing the seat direction (no turn in the basket)',round(L5i/EXIT+0.9,2),'walk_start -> walk_loop 0.8 m/s -> walk_stop_bodyL',f'{L5i:.2f} m'),
+ ('sit backwards (root Q -> seat 0.494 m toward the door), door closes 0.8 s meanwhile; ignition overlaps this beat',CLIP['sit_down'],'sit_down -> sit_hold','seated = basket (0.032,0,0.144) yaw 180 (facing the back wall / lake heading)')])
 lakeYawAtMoor=round((LBY+cc['lake']['skyYawDeg']-cc['lake']['yawDeg'])%360,2)
 segs['5a_skycity_balloon_in']={'title':'天空之城最后一关(S6) → 走到球篮(C, 11 m 外) → 开篮门 → 进篮坐下','frames':['skycity','basket'],
- 'balloon':{'frame':'skycity','root':LB,'yawDeg':LBY,'candidate':'C','rejected':{'C1':{'root':[0.7,0.027,-29.8],'parkGapM':-0.36,'hit':'env_sky_static_palette 144-tri root arch (S6 west, 15 m x ~5 m, y 2.8-10.2, palette cell root/moss)'},'C2':{'root':[2.7,0.03,-38.3],'parkGapM':-0.02}},'liftDirDeg':150,'parkGapM':0.606,'liftGapM':0.606,'oldLaunchSky':cc['lake']['launchSky'],'oldLaunchLake':K['launchLocal'],'lakeYawAtMoorDeg':lakeYawAtMoor,'lakeYawAtTouchdownDeg':round(cc['lake']['moored']['doorYawDeg']-cc['lake']['yawDeg'],2),
-  'why':'选 C：S6 西侧碰到的是大树的架空巨根（主体，不动模型）。11 m 外按规则取停放间隙 ≥0.5 且有起飞方向 ≥0.5 的点中步程最短者：(-14.8,0.08,-37.8)，门朝 S6（yaw 56.31），起飞朝 150°（T-03 起飞形状）。停放 0.606 m / 起飞 0.606 m（env_sky_static_palette，起飞 0.1 s 处）。',
+ 'balloon':{'frame':'skycity','root':LB,'yawDeg':LBY,'candidate':'C','rejected':{'C_nearest':{'root':[-14.8,0.08,-37.8],'parkGapM':0.606,'why':'gap margin only 0.1 m on a 1 m grid'},'C1':{'root':[0.7,0.027,-29.8],'parkGapM':-0.36,'hit':'env_sky_static_palette 144-tri root arch (S6 west, 15 m x ~5 m, y 2.8-10.2, palette cell root/moss)'},'C2':{'root':[2.7,0.03,-38.3],'parkGapM':-0.02}},'liftDirDeg':150,'parkGapM':1.485,'liftGapM':1.485,'oldLaunchSky':cc['lake']['launchSky'],'oldLaunchLake':K['launchLocal'],'lakeYawAtMoorDeg':lakeYawAtMoor,'lakeYawAtTouchdownDeg':round(cc['lake']['moored']['doorYawDeg']-cc['lake']['yawDeg'],2),
+  'why':'选 C（巨根是主体，不动模型）；产品总监定备选点 (-14.8,-38.8)：停放间隙 1.49 m。篮 yaw 让 S6 来路、门外站位、门槛、篮内 Q 点在一条直线上，篮内不转身，倒坐进座位（面朝篮后壁）。',
   'liftoff':'运镜bot 设计关键帧，tools/transition-spaces/check-lift-clearance.cjs 校验',
-  'parkedClearance':{'minGapM':0.606,'status':'OK','hit':'env_sky_static_palette (same S6-west root arch, far end)','hitPointSky':[-13.35,8.521,-34.925]}},
+  'parkedClearance':{'minGapM':1.485,'status':'OK','hit':'env_sky_static_palette (S6-west root arch, far end)','hitPointSky':[-12.832,8.436,-35.144]}},
  'liftSuggested':(json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'lift5-suggested.json'))) if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)),'lift5-suggested.json')) else None),
  'mooring':{'posts':['sky_mooring_post_l','sky_mooring_post_r'],'postsBasketLocal':[[-1.15,0,-0.9],[1.15,0,-0.9]],'rope':'sky_mooring_rope','stool':STOOL5,'reuse':'seg3/seg4 procedural code (no deck: basket stands on the floor)','parent':'region_skycity scene root (posts/rope/stool stay after lift-off; rope detaches at ignition)'},
- 'stances':{'basket_outside':{'frame':'skycity','at':r(inb5[0][1]),'yawDeg':round(BASKET['outsideYawDeg']+LBY,2)},'seated':{'frame':'basket','at':BASKET['seat'],'yawDeg':0.0}},
- 'path':pts5,'timeline':t5,'totalS':T5,'door':DOOR,'basket':BASKET}
+ 'stances':{'basket_outside':{'frame':'skycity','at':r(o5),'yawDeg':round(BK5['outsideYawDeg']+LBY,2)},'Q':{'frame':'basket','at':BK5['Q'],'yawDeg':180.0},'seated':{'frame':'basket','at':BK5['seat'],'yawDeg':180.0}},
+ 'path':pts5,'timeline':t5,'totalS':T5,'door':DOOR,'basket':BK5}
 # ================= 5b. lake touchdown -> door -> walk out (existing b15/b18 code, unchanged) =================
 mo=cc['lake']['moored'];lyaw=round(mo['doorYawDeg']-cc['lake']['yawDeg'],3)
 pts6=[{'id':'basket_seat','frame':'basket','parent':'transport_balloon','at':BASKET['seat'],'surface':'basket','regionAt':r(xf(mo['mooringLake'],lyaw,BASKET['seat']))},{'id':'basket_P0','frame':'lake','at':mo['startLake'],'surface':'basket'}]+[{'id':f'v4_{i:02d}','frame':'lake','at':p,'surface':'walkable:lakeside'} for i,p in enumerate(mo['walkLake'][1:]) if i%5==0 or i==len(mo['walkLake'])-2]
-t6,T6=tl(basket_out(mo['length']-cc['stepdown']['forwardEnd'])[:-1]+[('walk out (path v4 to L1)',round(mo['walkS']-cc['stepdown']['forwardEnd']/EXIT,2),'walk_loop 0.8 m/s -> walk_stop_bodyL','moored.walkS from code')])
+_bo=basket_out(mo['length']-cc['stepdown']['forwardEnd'])[:-1];_bo=_bo[:2]+[('turn to the door (seated facing the back wall since 5a: no turn when boarding)',CLIP['walk_turn_180'],'walk_turn_180','stepping turn Q -> facing the door; then P0 = exitStartLocal (code change for GGbot: stand_up ends at Q (0.03,0,-0.35) facing 180)')]+_bo[2:]
+t6,T6=tl(_bo+[('walk out (path v4 to L1)',round(mo['walkS']-cc['stepdown']['forwardEnd']/EXIT,2),'walk_loop 0.8 m/s -> walk_stop_bodyL','moored.walkS from code')])
 segs['5b_lake_balloon_out']={'title':'湖边停稳 → 开门 → 走下来（复用 RegionJourneyAdapter.ts:287-383，数据不变）','frames':['basket','lake'],
  'balloon':{'frame':'lake','root':mo['mooringLake'],'yawDeg':lyaw,'source':'lakesideBalloonMooring (d9423886)'},
  'stances':{'seated':{'frame':'basket','at':BASKET['seat'],'yawDeg':0.0},'P0':{'frame':'lake','at':mo['startLake'],'yawDeg':lyaw},'end':{'frame':'lake','at':mo['walkLake'][-1],'yawDeg':yaw(mo['walkLake'][-2],mo['walkLake'][-1])}},

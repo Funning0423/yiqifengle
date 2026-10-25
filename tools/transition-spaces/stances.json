@@ -1536,12 +1536,21 @@
     "frame": "skycity",
     "root": [
      -14.8,
-     0.08,
-     -37.8
+     0.09,
+     -38.8
     ],
-    "yawDeg": 56.31,
+    "yawDeg": 52.65,
     "candidate": "C",
     "rejected": {
+     "C_nearest": {
+      "root": [
+       -14.8,
+       0.08,
+       -37.8
+      ],
+      "parkGapM": 0.606,
+      "why": "gap margin only 0.1 m on a 1 m grid"
+     },
      "C1": {
       "root": [
        0.7,
@@ -1561,8 +1570,8 @@
      }
     },
     "liftDirDeg": 150,
-    "parkGapM": 0.606,
-    "liftGapM": 0.606,
+    "parkGapM": 1.485,
+    "liftGapM": 1.485,
     "oldLaunchSky": [
      3.8744,
      0.034,
@@ -1573,18 +1582,18 @@
      0.58,
      53.5
     ],
-    "lakeYawAtMoorDeg": 117.48,
+    "lakeYawAtMoorDeg": 113.82,
     "lakeYawAtTouchdownDeg": -83.81,
-    "why": "选 C：S6 西侧碰到的是大树的架空巨根（主体，不动模型）。11 m 外按规则取停放间隙 ≥0.5 且有起飞方向 ≥0.5 的点中步程最短者：(-14.8,0.08,-37.8)，门朝 S6（yaw 56.31），起飞朝 150°（T-03 起飞形状）。停放 0.606 m / 起飞 0.606 m（env_sky_static_palette，起飞 0.1 s 处）。",
+    "why": "选 C（巨根是主体，不动模型）；产品总监定备选点 (-14.8,-38.8)：停放间隙 1.49 m。篮 yaw 让 S6 来路、门外站位、门槛、篮内 Q 点在一条直线上，篮内不转身，倒坐进座位（面朝篮后壁）。",
     "liftoff": "运镜bot 设计关键帧，tools/transition-spaces/check-lift-clearance.cjs 校验",
     "parkedClearance": {
-     "minGapM": 0.606,
+     "minGapM": 1.485,
      "status": "OK",
-     "hit": "env_sky_static_palette (same S6-west root arch, far end)",
+     "hit": "env_sky_static_palette (S6-west root arch, far end)",
      "hitPointSky": [
-      -13.35,
-      8.521,
-      -34.925
+      -12.832,
+      8.436,
+      -35.144
      ]
     }
    },
@@ -1596,190 +1605,190 @@
       "t": 0,
       "pos": [
        -14.8,
-       0.08,
-       -37.8
+       0.09,
+       -38.8
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 0.25,
       "pos": [
        -14.785,
-       0.081,
-       -37.825
+       0.091,
+       -38.825
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 0.5,
       "pos": [
        -14.693,
-       0.13,
-       -37.986
+       0.14,
+       -38.986
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 0.75,
       "pos": [
        -14.399,
-       0.62,
-       -38.495
+       0.63,
+       -39.495
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 1,
       "pos": [
        -14.067,
-       1.396,
-       -39.069
+       1.406,
+       -40.069
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 1.25,
       "pos": [
        -13.433,
-       2.586,
-       -40.168
+       2.596,
+       -41.168
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 1.5,
       "pos": [
        -12.74,
-       3.809,
-       -41.368
+       3.819,
+       -42.368
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 1.75,
       "pos": [
        -12.2,
-       4.714,
-       -42.303
+       4.724,
+       -43.303
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 2,
       "pos": [
        -11.47,
-       5.878,
-       -43.568
+       5.888,
+       -44.568
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 2.25,
       "pos": [
        -10.905,
-       6.715,
-       -44.545
+       6.725,
+       -45.545
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 2.5,
       "pos": [
        -10.123,
-       7.748,
-       -45.901
+       7.758,
+       -46.901
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 2.75,
       "pos": [
        -9.305,
-       8.631,
-       -47.318
+       8.641,
+       -48.318
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 3,
       "pos": [
        -8.684,
-       9.162,
-       -48.394
+       9.172,
+       -49.394
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 3.25,
       "pos": [
        -7.829,
-       9.783,
-       -49.873
+       9.793,
+       -50.873
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 3.5,
       "pos": [
        -7.162,
-       10.236,
-       -51.029
+       10.246,
+       -52.029
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 3.75,
       "pos": [
        -6.253,
-       10.734,
-       -52.603
+       10.744,
+       -53.603
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 4,
       "pos": [
        -5.386,
-       11.457,
-       -54.106
+       11.467,
+       -55.106
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 4.25,
       "pos": [
        -4.783,
-       12.196,
-       -55.149
+       12.206,
+       -56.149
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 4.5,
       "pos": [
        -3.952,
-       13.075,
-       -56.59
+       13.085,
+       -57.59
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 4.75,
       "pos": [
        -3.27,
-       13.438,
-       -57.771
+       13.448,
+       -58.771
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      },
      {
       "t": 5,
       "pos": [
        -2.332,
-       13.586,
-       -59.396
+       13.596,
+       -60.396
       ],
-      "yaw": 56.31
+      "yaw": 52.65
      }
     ]
    },
@@ -1814,9 +1823,9 @@
        1.2
       ]
      },
-     "topY": 0.055,
+     "topY": 0.06,
      "parent": "region_skycity scene root (stays after lift-off), same procedural stool as seg3",
-     "why": "3 cm floor step: stool is optional visually (kept so the mooring matches the meadow set)"
+     "why": "6 cm floor step (ground 0.03 -> basket floor 0.09)"
     },
     "reuse": "seg3/seg4 procedural code (no deck: basket stands on the floor)",
     "parent": "region_skycity scene root (posts/rope/stool stay after lift-off; rope detaches at ignition)"
@@ -1825,20 +1834,29 @@
     "basket_outside": {
      "frame": "skycity",
      "at": [
-      -13.802,
+      -13.53,
       0.03,
-      -36.594
+      -37.579
      ],
-     "yawDeg": 221.05
+     "yawDeg": 220.25
+    },
+    "Q": {
+     "frame": "basket",
+     "at": [
+      0.03,
+      0,
+      -0.35
+     ],
+     "yawDeg": 180.0
     },
     "seated": {
      "frame": "basket",
      "at": [
       0.032,
       0,
-      -0.099
+      0.144
      ],
-     "yawDeg": 0.0
+     "yawDeg": 180.0
     }
    },
    "path": [
@@ -1856,9 +1874,9 @@
      "id": "s6_walk_01",
      "frame": "skycity",
      "at": [
-      -2.134,
+      -2.75,
       0.03,
-      -29.266
+      -29.675
      ],
      "surface": "walkable:skycity"
     },
@@ -1866,9 +1884,9 @@
      "id": "s6_walk_02",
      "frame": "skycity",
      "at": [
-      -4.467,
+      -5.7,
       0.03,
-      -30.731
+      -31.55
      ],
      "surface": "walkable:skycity"
     },
@@ -1876,9 +1894,9 @@
      "id": "s6_walk_03",
      "frame": "skycity",
      "at": [
-      -6.801,
+      -8.65,
       0.03,
-      -32.197
+      -33.425
      ],
      "surface": "walkable:skycity"
     },
@@ -1886,19 +1904,9 @@
      "id": "s6_walk_04",
      "frame": "skycity",
      "at": [
-      -9.134,
+      -11.6,
       0.03,
-      -33.662
-     ],
-     "surface": "walkable:skycity"
-    },
-    {
-     "id": "s6_walk_05",
-     "frame": "skycity",
-     "at": [
-      -11.468,
-      0.03,
-      -35.128
+      -35.3
      ],
      "surface": "walkable:skycity"
     },
@@ -1906,39 +1914,24 @@
      "id": "basket_outside",
      "frame": "skycity",
      "at": [
-      -13.802,
+      -13.53,
       0.03,
-      -36.594
+      -37.579
      ],
      "surface": "walkable:skycity",
      "basketLocal": [
-      -0.45,
+      -0.2,
       0,
-      1.5
-     ]
-    },
-    {
-     "id": "basket_door_out",
-     "frame": "skycity",
-     "at": [
-      -13.76,
-      0.03,
-      -37.107
-     ],
-     "surface": "ground",
-     "basketLocal": [
-      0.0,
-      0,
-      1.25
+      1.75
      ]
     },
     {
      "id": "basket_threshold",
      "frame": "skycity",
      "at": [
-      -14.101,
-      0.08,
-      -37.334
+      -14.132,
+      0.09,
+      -38.29
      ],
      "surface": "basket",
      "basketLocal": [
@@ -1948,18 +1941,18 @@
      ]
     },
     {
-     "id": "basket_P0",
+     "id": "basket_Q",
      "frame": "skycity",
      "at": [
-      -14.455,
-      0.08,
-      -37.606
+      -15.06,
+      0.09,
+      -39.036
      ],
      "surface": "basket",
      "basketLocal": [
       0.03,
       0,
-      0.395
+      -0.35
      ]
     },
     {
@@ -1969,59 +1962,51 @@
      "at": [
       0.032,
       0,
-      -0.099
+      0.144
      ],
      "surface": "basket",
      "regionAt": [
-      -14.865,
-      0.08,
-      -37.882
+      -14.666,
+      0.09,
+      -38.738
      ]
     }
    ],
    "timeline": [
     {
-     "beat": "S6 -> basket_outside",
+     "beat": "S6 -> basket_outside (one straight line, already on the door heading)",
      "t0": 0,
-     "t1": 14.38,
-     "s": 14.38,
+     "t1": 14.74,
+     "s": 14.74,
      "clip": "walk_start/walk_loop/walk_stop_bodyL",
-     "note": "16.53 m"
+     "note": "16.97 m @1.2 m/s (NodeWalker.WALK_SPEED_MPS)"
     },
     {
-     "beat": "door_reach at basket_outside (door contact 0.333 s, leaf opens +100° in 0.8 s, walk may start at 1.8 s)",
-     "t0": 14.38,
-     "t1": 16.18,
+     "beat": "door_reach at basket_outside (contact 0.333 s, leaf +100° outward in 0.8 s; walk may start at 1.8 s)",
+     "t0": 14.74,
+     "t1": 16.54,
      "s": 1.8,
      "clip": "door_reach",
      "note": "door: basket_door"
     },
     {
-     "beat": "walk in: outside -> door_out -> threshold -> P0",
-     "t0": 16.18,
-     "t1": 18.8,
-     "s": 2.62,
+     "beat": "walk in: outside -> threshold -> Q, straight, facing the seat direction (no turn in the basket)",
+     "t0": 16.54,
+     "t1": 20.1,
+     "s": 3.56,
      "clip": "walk_start -> walk_loop 0.8 m/s -> walk_stop_bodyL",
-     "note": "1.37 m"
+     "note": "2.12 m"
     },
     {
-     "beat": "turn to face the door",
-     "t0": 18.8,
-     "t1": 20.3,
-     "s": 1.5,
-     "clip": "walk_turn_180",
-     "note": "at P0"
-    },
-    {
-     "beat": "sit (root P0 -> seat 0.494 m back); door closes 0.8 s meanwhile",
-     "t0": 20.3,
-     "t1": 21.5,
+     "beat": "sit backwards (root Q -> seat 0.494 m toward the door), door closes 0.8 s meanwhile; ignition overlaps this beat",
+     "t0": 20.1,
+     "t1": 21.3,
      "s": 1.2,
      "clip": "sit_down -> sit_hold",
-     "note": "seated = basket (0.032,0,-0.099) yaw 0"
+     "note": "seated = basket (0.032,0,0.144) yaw 180 (facing the back wall / lake heading)"
     }
    ],
-   "totalS": 21.5,
+   "totalS": 21.3,
    "door": {
     "pivotNode": "basket_door",
     "leafNode": "basket_door_leaf",
@@ -2038,33 +2023,27 @@
    },
    "basket": {
     "outside": [
-     -0.45,
+     -0.2,
      0,
-     1.5
-    ],
-    "doorOut": [
-     0.0,
-     0,
-     1.25
+     1.75
     ],
     "threshold": [
      0.0,
      0,
      0.84
     ],
-    "P0": [
+    "Q": [
      0.03,
      0,
-     0.395
+     -0.35
     ],
     "seat": [
      0.032,
      0,
-     -0.099
+     0.144
     ],
-    "seatYawDeg": 0.0,
-    "note": "P0 = LAKESIDE_BALLOON_LANDING.exitStartLocal; seat = lakeside stand_point offset (.032,-.1,-.099) -> basket y 0 (floor board top); seated facing the door (+z), stand_up root carries seat -> P0 (0.494 m, LAKESIDE_STANDUP)",
-    "outsideYawDeg": 164.74
+    "seatYawDeg": 180.0,
+    "outsideYawDeg": 167.6
    },
    "walkableChanges": [
     {
@@ -2246,39 +2225,47 @@
      "note": "LAKESIDE_STANDUP"
     },
     {
-     "beat": "idle before the door",
+     "beat": "turn to the door (seated facing the back wall since 5a: no turn when boarding)",
      "t0": 2.77,
-     "t1": 3.27,
+     "t1": 4.27,
+     "s": 1.5,
+     "clip": "walk_turn_180",
+     "note": "stepping turn Q -> facing the door; then P0 = exitStartLocal (code change for GGbot: stand_up ends at Q (0.03,0,-0.35) facing 180)"
+    },
+    {
+     "beat": "idle before the door",
+     "t0": 4.27,
+     "t1": 4.77,
      "s": 0.5,
      "clip": "idle_breathing_loop",
      "note": "exitIdleS"
     },
     {
      "beat": "door_reach (contact 0.333 s, leaf +100° in 0.8 s); hard cut at 1.8 s",
-     "t0": 3.27,
-     "t1": 5.07,
+     "t0": 4.77,
+     "t1": 6.57,
      "s": 1.8,
      "clip": "door_reach",
      "note": "basket_door"
     },
     {
      "beat": "step down off the basket floor (1.157 m fwd, -0.03..-0.036 m)",
-     "t0": 5.07,
-     "t1": 6.8,
+     "t0": 6.57,
+     "t1": 8.3,
      "s": 1.73,
      "clip": "walk_start_stepdown -> walk_loop @0.453 s",
      "note": "LAKESIDE_STEPDOWN"
     },
     {
      "beat": "walk out (path v4 to L1)",
-     "t0": 6.8,
-     "t1": 14.54,
+     "t0": 8.3,
+     "t1": 16.04,
      "s": 7.74,
      "clip": "walk_loop 0.8 m/s -> walk_stop_bodyL",
      "note": "moored.walkS from code"
     }
    ],
-   "totalS": 14.54,
+   "totalS": 16.04,
    "door": {
     "pivotNode": "basket_door",
     "leafNode": "basket_door_leaf",
