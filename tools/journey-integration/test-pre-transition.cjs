@@ -69,8 +69,8 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  assert.ok(p2.namespace.startsWith('dot-region-flow-test-'),'isolated namespace');
  // b18 lakeside level-to-level keys: sequential-unlock profile seeded by the real R5 provider, restored one move short
  const LK=K.PRE_SPECS.filter(s=>s.place==='lake-result');
- assert.deepEqual(LK.map(s=>s.key),['lake-13-14','lake-14-15','lake-15-16','lake-16-17','lake-17-18','lake-18-home','lake-fail'],'lake keys');
- assert.ok(!K.PRE_UNSUPPORTED.some(u=>u.key==='lake-next'),'lake-next now supported');assert.ok(K.PRE_UNSUPPORTED.some(u=>u.key==='ending'),'ending still listed');
+ assert.deepEqual(LK.map(s=>s.key),['lake-13-14','lake-14-15','lake-15-16','lake-16-17','lake-17-18','lake-18-home','lake-fail','ending'],'lake keys');
+ assert.ok(!K.PRE_UNSUPPORTED.some(u=>u.key==='lake-next'),'lake-next now supported');assert.ok(K.preSpec('ending')&&!K.PRE_UNSUPPORTED.some(u=>u.key==='ending'),'ending key supported');
  assert.equal(cp.spawnSync(process.execPath,[path.join(ROOT,'tools/pre-transition/gen_lake_witnesses.cjs'),'--check']).status,0,'LakeWinWitnesses.ts matches win-replays.json');
  const API=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/index.js')),Prov=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js')),CH=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js'));
  for(const s of LK){
@@ -84,7 +84,7 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
   let v=P.snapshot().visual;while(v){P.finishVisualStep(v.token);v=P.snapshot().visual;}
   const z=P.snapshot();assert.equal(z.state,'result.saved',s.key);
   if(s.lakeMode==='win'){assert.ok(z.result.completionRecorded,'win registered '+s.key);const next=API.catalog.find(x=>x.region==='lake'&&x.ordinal===st.ordinal+1);
-   if(s.taps[0].path[1]==='Next')assert.equal(z.nextStageId,next.id,s.key+' Next -> '+next.id);else assert.equal(z.nextStageId,null,s.key+' last lake stage');}
+   if(s.taps[0].path[1]==='Next'&&s.key!=='ending')assert.equal(z.nextStageId,next.id,s.key+' Next -> '+next.id);else assert.equal(z.nextStageId,null,s.key+' last lake stage');}
   else{assert.equal(z.result.outcome,'lost');const pr=CH.resultPresentation(z);assert.ok(st.failHint&&pr.uiResultCaption===st.failHint,'failHint on lose panel');}
  }
  // composition refuses without the gate (no location / release)
@@ -100,7 +100,7 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  delete globalThis.wx;globalThis.location={search:'?qfHooks=1'};
  const r=c.preTransitionProfile(4,false);assert.ok(r.ok,'web QA: profile swap');assert.equal(r.stageId,'mainline-04');
  assert.equal(RUN.installPreTransition({composition:c}),true);assert.equal(typeof globalThis.__qfPreTransition,'function');
- const list=await globalThis.__qfPreTransition('list');assert.ok(list.ok&&list.keys.length===K.PRE_SPECS.length&&list.unsupported.length>=1);
+ const list=await globalThis.__qfPreTransition('list');assert.ok(list.ok&&list.keys.length===K.PRE_SPECS.length&&list.unsupported.length>=0);
  assert.equal((await globalThis.__qfPreTransition('bogus')).reason,'unknown-key');
  delete globalThis.__qfPreTransition;if(saved!==undefined)globalThis.location=saved;else delete globalThis.location;
  // source guards: the runner never starts a transition itself; boot registers through the gated installer only

@@ -30,6 +30,7 @@
 ## 3. 範例
 - `tools/wx-autoplay/examples/example-island.json`：回到家→出門→進棋盤→離開棋盤→左右拖、上下拖視角→點草地→點水面。
 - `tools/wx-autoplay/examples/example-lakeside.json`：`?qfSkip=lakeside`（隔離測試存檔）→湖畔降落→站 3 秒→拖視角→點地面→點水面。
+- `tools/wx-autoplay/examples/example-ending.json`：`?qfPre=ending`（隔離測試存檔）→最後一關湖畔結算→點「继续」(Next)→WindWipe→結局→點「回小岛」(EndingHome，座標待校準)→回小島。
 - **tap 座標是估計值，待校準**：第一次跑完看 `shots/` 再調整（例如離開棋盤按鈕位置 36,70）。`launchQuery` 是在引擎啟動前補上 `location.search`，在 DevTools 上是否生效**待實機確認**；若無效，`result.json` 會顯示 `region:lakeside` 逾時。
 - 不重新建置也能換腳本：把新腳本寫到 `USER_DATA_PATH/qf-autoplay/script.json`（優先於包內的），或重新 inject。
 

@@ -1,0 +1,19 @@
+{
+  "comment": "測試包限定：?qfPre=ending（隔離測試存檔）擺到最後一關湖畔結算面板，然後真點「继续」(Next) 走 WindWipe 進結局，再點結局「回小岛」(EndingHome)。Next 座標沿用校準值 195,497；EndingHome 座標為估計值，第一次跑請看 shots/ 校準。cli open 不套用啟動參數時，改在 Console 先跑 __qfPreTransition('enable') 再 __qfPreTransition('ending')。",
+  "launchQuery": "?qfPre=ending",
+  "stateEveryMs": 1000,
+  "steps": [
+    {"op":"waitState","name":"level","timeoutMs":300000},
+    {"op":"wait","ms":4000},
+    {"op":"screenshot","name":"ending-result"},
+    {"op":"tap","x":195,"y":497},
+    {"op":"wait","ms":2500},
+    {"op":"screenshot","name":"ending-wipe"},
+    {"op":"wait","ms":3500},
+    {"op":"screenshot","name":"ending-screen"},
+    {"op":"tap","x":195,"y":760},
+    {"op":"waitState","name":"island","timeoutMs":90000,"stopOnFail":false},
+    {"op":"wait","ms":2000},
+    {"op":"screenshot","name":"ending-home-island"}
+  ]
+}
