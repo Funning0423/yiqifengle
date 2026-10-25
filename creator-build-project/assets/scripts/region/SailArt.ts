@@ -44,11 +44,23 @@ function copyMat(renderer:MeshRenderer,patch:{cull?:number;alphaTest?:number;ble
  return mat;
 }
 function place(node:Node|null,x:number,y:number,z:number){if(node)node.setWorldPosition(x,y,z);}
+/** readAttribute/struct/data read the RAW stored bytes. Meshes in an inactive rig were never initialize()d, so a meshopt-encoded
+ * (transport_sail) or zlib-compressed (env_meadow) mesh still holds packed bytes: patching positions into them and reset() on a copy
+ * threw "Malformed buffer data: -1" inside mountSailArt (no seat -> sail-rider-missing) and left a copy with no sub-meshes
+ * (MeshRenderer onLoad: null.length). Decode first; on failure skip the edit and keep the authored mesh. */
+export function sailMeshReady(mesh:Mesh|null|undefined):Mesh|null{
+ if(!mesh)return null;
+ try{mesh.initialize();}catch(error){try{console.warn('[QF_SAIL] mesh decode failed, edit skipped: '+(mesh.name||'?')+' '+String((error as Error)?.message||error));}catch{}return null;}
+ const st=mesh.struct as any;
+ if(!st||st.compressed||st.encoded)return null;
+ return mesh;
+}
+function safeEdit(what:string,fn:()=>void){try{fn();}catch(error){try{console.warn('[QF_SAIL] '+what+' skipped: '+String((error as Error)?.message||error));}catch{}}}
 const CHANNEL_MESH=/^(meadow_terrain|meadow_river|meadow_river_bank|meadow_grass_instances(?:\.\d+)?)$/;
 const GRASS_MESH=/^meadow_grass_instances(?:\.\d+)?$|^meadow_flower/;
 /** Lower underwater verts only — no triangle rebuild (that made the grey K6 plate). */
 function digChannel(renderer:MeshRenderer,samples:readonly Vec[]){
- const mesh=renderer.mesh;if(!mesh)return;
+ const mesh=sailMeshReady(renderer.mesh);if(!mesh)return;
  const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
  if(!(src instanceof Float32Array)||src.length<3)return;
  const wm=renderer.node.worldMatrix,inv=new Mat4();
@@ -87,7 +99,7 @@ function writeMeshPositions(mesh:Mesh,renderer:MeshRenderer,pos:Float32Array){
  * Copies the mesh so env_meadow.glb stays frozen. Returns how many blade components were removed.
  */
 export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
- const mesh=renderer.mesh;if(!mesh)return 0;
+ const mesh=sailMeshReady(renderer.mesh);if(!mesh)return 0;
  const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
  const idx=mesh.readIndices(0);
  if(!(src instanceof Float32Array)||!idx||src.length<3)return 0;
@@ -146,7 +158,7 @@ export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
 }
 /** The river-mouth banks are rectangular pads in the channel. Put every above-water vertex under the sea; the meadow shore stays. */
 function taperMouthShore(renderer:MeshRenderer,_side:'left'|'right'|'reeds'){
- const mesh=renderer.mesh;if(!mesh)return;
+ const mesh=sailMeshReady(renderer.mesh);if(!mesh)return;
  const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
  if(!(src instanceof Float32Array)||src.length<3)return;
  const pos=new Float32Array(src);let changed=false;
@@ -281,8 +293,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  if(plane)plane.setWorldPosition(seaHome[0],SAIL_SEA_Y,seaHome[2]);
  if(meadow){
   for(const r of meadow.getComponentsInChildren(MeshRenderer)){
-   if(CHANNEL_MESH.test(r.node.name))digChannel(r,route);
-   if(GRASS_MESH.test(r.node.name))grassCleared+=clearLandingGrass(r,meadow);
+   if(CHANNEL_MESH.test(r.node.name))safeEdit('dig '+r.node.name,()=>digChannel(r,route));
+   if(GRASS_MESH.test(r.node.name))safeEdit('grass '+r.node.name,()=>{grassCleared+=clearLandingGrass(r,meadow);});
   }
   // landing_path UVs are authored for transit_palette; sharing meadow_path's albedo
   // samples the wrong atlas and reads as a flat grey/black plate. Keep palette + nearest,
@@ -344,7 +356,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
     sailMats.push(unlit(r,new Color(SAIL_DAY_SAIL_RGB[0],SAIL_DAY_SAIL_RGB[1],SAIL_DAY_SAIL_RGB[2],255),tex));
    }
-   else if(n.name==='rm_reeds'){copyMat(r,{cull:gfx.CullMode.NONE});taperMouthShore(r,'reeds');}
+   else if(n.name==='rm_reeds'){copyMat(r,{cull:gfx.CullMode.NONE});safeEdit('taper reeds',()=>taperMouthShore(r,'reeds'));}
    else if(n.name==='wake_strips')wakeMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='hull_foam_ring')foamMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
    else if(n.name==='foam_strip_a'||n.name==='foam_strip_b'||n.name==='foam_ring'||n.name.startsWith('foam_ring'))copyMat(r,{cull:gfx.CullMode.NONE,alphaTest:0.4});
@@ -360,8 +372,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
     if(n.name==='night_stars')unlit(r,new Color(210,220,255,255),null);
     else if(/^cloud_/.test(n.name))copyMat(r,{cull:gfx.CullMode.NONE});
     else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
-    else if(n.name==='rm_bank_left')taperMouthShore(r,'left');
-    else if(n.name==='rm_bank_right')taperMouthShore(r,'right');
+    else if(n.name==='rm_bank_left')safeEdit('taper left',()=>taperMouthShore(r,'left'));
+    else if(n.name==='rm_bank_right')safeEdit('taper right',()=>taperMouthShore(r,'right'));
     else if(n.name==='landing_jetty'||n.name==='landing_path')nearestPalette(tex);
    }
   });
