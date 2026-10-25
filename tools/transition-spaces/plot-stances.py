@@ -111,7 +111,8 @@ dpoly=xfT(np.array([[dk['sizeBasketLocal']['x'][0],0,dk['sizeBasketLocal']['z'][
 draw(s,'skycity',[1.5,9.5,35.5,47],balloonE(bl['root'],bl['yawDeg'])+[polyE(dpoly,dk['topY'],lab='sky_mooring_deck (planned, top -0.02)')],'z','seg4_skycity_balloon_out','段4 天空城落地→出篮→S1',lat=1.5)
 # 5a
 s=S['5a_skycity_balloon_in'];bl=s['balloon']
-draw(s,'skycity',[-2,8,-42,-26],balloonE(bl['root'],bl['yawDeg'])+[circE(bl['oldLaunchSky'],0.94,'#8a00c0','old lakeside launch (off the edge)',':')],'z','seg5a_skycity_balloon_in','段5a 天空城S6→进篮',lat=1.5)
+pc=bl.get('parkedClearance',{});hp=pc.get('hitPointSky')
+draw(s,'skycity',[-4,5,-33,-25],balloonE(bl['root'],bl['yawDeg'])+([circE(hp,0.25,'#ff0000',f"min gap {pc['minGapM']} m ({pc['hit']}, y {hp[1]})",'-')] if hp else []),'z','seg5a_skycity_balloon_in','段5a 天空城S6→C1进篮（红=最小间隙点）',lat=1.5)
 # 5b (lake: no region crop; basket + path only)
 s=S['5b_lake_balloon_out'];bl=s['balloon']
 REG['lake']=np.zeros((0,3,3))

@@ -1527,7 +1527,7 @@
    ]
   },
   "5a_skycity_balloon_in": {
-   "title": "天空之城最后一关(S6) → 走到球篮 → 开篮门 → 进篮坐下",
+   "title": "天空之城最后一关(S6) → 走到球篮(C1) → 开篮门 → 进篮坐下",
    "frames": [
     "skycity",
     "basket"
@@ -1535,11 +1535,12 @@
    "balloon": {
     "frame": "skycity",
     "root": [
-     2.8,
-     0.01,
-     -37.8
+     0.7,
+     0.027,
+     -29.8
     ],
-    "yawDeg": 0.0,
+    "yawDeg": -14.04,
+    "candidate": "C1",
     "oldLaunchSky": [
      3.8744,
      0.034,
@@ -1550,20 +1551,69 @@
      0.58,
      53.5
     ],
-    "lakeYawAtMoorDeg": 61.17,
+    "lakeYawAtMoorDeg": 47.13,
     "lakeYawAtTouchdownDeg": -83.81,
-    "why": "现系留点 (-8,.58,53.5) 湖畔局部 = 天空城 (3.87,0.03,-41.24)，离她走到的岛边 5.4 m、篮下无地面，以前靠遮罩瞬移进篮。改到岛边 (2.8,0.01,-37.8)：篮门贴岛边（门叶外缘 z=-36.79，地面边 ≈-36.78，门框离地边 0.18 m 跨过去），篮身+气囊对 env_sky_static_palette/ruins/大树净空（离线扫描 0 命中），门开向岛面时门叶底 0.02 高于地面 0.011。",
-    "notSameAsS0": "不是 S0 停靠台那只的位置：S0(5.4,43.8) 与 S6(0.2,-27.8) 相距约 72 m，回走约 60 s；湖畔航线（LAKESIDE_BALLOON_LANDING.pathKeys/镜头）以 S6 为原点。建议用同一只气球（同一模型/同一节点名），在她离开 S0 视野后（S2 关起）由 GGbot 把它从 S0 停靠台挪到岛边系留点，S0 台子保留缆桩空着；若产品要求球始终在 S0，需要重做湖畔航线起点（运镜bot）并加约 60 s 步行。"
+    "why": "C1 (产品总监 2026-10-25): 天空城 (0.7,-29.8)，离 S6 约 2.3 s 步程；篮门朝 S6。停着时篮身+气囊净空 0.5 m（大网格）。起飞须先水平飘出大树树冠再爬升——轨迹归运镜bot，用 check-lift-clearance.cjs 校验（≥0.5 m）。",
+    "liftoff": "运镜bot 设计关键帧，tools/transition-spaces/check-lift-clearance.cjs 校验",
+    "parkedClearance": {
+     "minGapM": -0.36,
+     "status": "BLOCKED",
+     "hit": "env_sky_static_palette",
+     "hitPointSky": [
+      -0.869,
+      6.563,
+      -27.724
+     ],
+     "why": "停着时气囊（离篮底 6.5 m 处半径约 2.95 m）已插进 S6 西侧 palette 体 0.36 m；按修正后的气囊轮廓（三角形边求交），S6 周围 11 m 内没有任何点能停着 ≥0.5 m，C2 停着也只有 -0.02 m。需要产品决定：缩小/抬高气囊、移走或改 palette 那块、或系泊点放更远。"
+    }
+   },
+   "mooring": {
+    "posts": [
+     "sky_mooring_post_l",
+     "sky_mooring_post_r"
+    ],
+    "postsBasketLocal": [
+     [
+      -1.15,
+      0,
+      -0.9
+     ],
+     [
+      1.15,
+      0,
+      -0.9
+     ]
+    ],
+    "rope": "sky_mooring_rope",
+    "stool": {
+     "node": "balloon_step_stool",
+     "frame": "skycity",
+     "basketLocal": {
+      "x": [
+       -0.25,
+       0.25
+      ],
+      "z": [
+       0.9,
+       1.2
+      ]
+     },
+     "topY": 0.012,
+     "parent": "region_skycity scene root (stays after lift-off), same procedural stool as seg3",
+     "why": "3 cm floor step: stool is optional visually (kept so the mooring matches the meadow set)"
+    },
+    "reuse": "seg3/seg4 procedural code (no deck: basket stands on the floor)",
+    "parent": "region_skycity scene root (posts/rope/stool stay after lift-off; rope detaches at ignition)"
    },
    "stances": {
     "basket_outside": {
      "frame": "skycity",
      "at": [
-      2.35,
-      -0.008,
-      -36.3
+      -0.1,
+      -0.003,
+      -28.454
      ],
-     "yawDeg": 164.74
+     "yawDeg": 150.7
     },
     "seated": {
      "frame": "basket",
@@ -1587,32 +1637,12 @@
      "surface": "walkable:skycity"
     },
     {
-     "id": "s6_walk_01",
-     "frame": "skycity",
-     "at": [
-      0.6804,
-      0.034,
-      -31.4891
-     ],
-     "surface": "walkable:skycity"
-    },
-    {
-     "id": "s6_walk_02",
-     "frame": "skycity",
-     "at": [
-      2.0,
-      0.02,
-      -34.2
-     ],
-     "surface": "walkable:skycity"
-    },
-    {
      "id": "basket_outside",
      "frame": "skycity",
      "at": [
-      2.35,
-      -0.008,
-      -36.3
+      -0.1,
+      -0.003,
+      -28.454
      ],
      "surface": "walkable:skycity",
      "basketLocal": [
@@ -1625,9 +1655,9 @@
      "id": "basket_door_out",
      "frame": "skycity",
      "at": [
-      2.8,
-      -0.008,
-      -36.55
+      0.397,
+      -0.003,
+      -28.587
      ],
      "surface": "ground",
      "basketLocal": [
@@ -1640,9 +1670,9 @@
      "id": "basket_threshold",
      "frame": "skycity",
      "at": [
-      2.8,
-      0.01,
-      -36.96
+      0.496,
+      0.027,
+      -28.985
      ],
      "surface": "basket",
      "basketLocal": [
@@ -1655,9 +1685,9 @@
      "id": "basket_P0",
      "frame": "skycity",
      "at": [
-      2.83,
-      0.01,
-      -37.405
+      0.633,
+      0.027,
+      -29.41
      ],
      "surface": "basket",
      "basketLocal": [
@@ -1677,9 +1707,9 @@
      ],
      "surface": "basket",
      "regionAt": [
-      2.832,
-      0.01,
-      -37.899
+      0.755,
+      0.027,
+      -29.888
      ]
     }
    ],
@@ -1687,45 +1717,45 @@
     {
      "beat": "S6 -> basket_outside",
      "t0": 0,
-     "t1": 7.99,
-     "s": 7.99,
+     "t1": 1.2,
+     "s": 1.2,
      "clip": "walk_start/walk_loop/walk_stop_bodyL",
-     "note": "8.86 m"
+     "note": "0.72 m"
     },
     {
      "beat": "door_reach at basket_outside (door contact 0.333 s, leaf opens +100° in 0.8 s, walk may start at 1.8 s)",
-     "t0": 7.99,
-     "t1": 9.79,
+     "t0": 1.2,
+     "t1": 3.0,
      "s": 1.8,
      "clip": "door_reach",
      "note": "door: basket_door"
     },
     {
      "beat": "walk in: outside -> door_out -> threshold -> P0",
-     "t0": 9.79,
-     "t1": 12.4,
+     "t0": 3.0,
+     "t1": 5.61,
      "s": 2.61,
      "clip": "walk_start -> walk_loop 0.8 m/s -> walk_stop_bodyL",
      "note": "1.37 m"
     },
     {
      "beat": "turn to face the door",
-     "t0": 12.4,
-     "t1": 13.9,
+     "t0": 5.61,
+     "t1": 7.11,
      "s": 1.5,
      "clip": "walk_turn_180",
      "note": "at P0"
     },
     {
      "beat": "sit (root P0 -> seat 0.494 m back); door closes 0.8 s meanwhile",
-     "t0": 13.9,
-     "t1": 15.1,
+     "t0": 7.11,
+     "t1": 8.31,
      "s": 1.2,
      "clip": "sit_down -> sit_hold",
      "note": "seated = basket (0.032,0,-0.099) yaw 0"
     }
    ],
-   "totalS": 15.1,
+   "totalS": 8.31,
    "door": {
     "pivotNode": "basket_door",
     "leafNode": "basket_door_leaf",
@@ -1772,8 +1802,10 @@
    },
    "walkableChanges": [
     {
-     "kind": "none",
-     "why": "path S6→edge already walkable; basket hangs past the floor edge (no floor cells under it)"
+     "kind": "obstacle",
+     "region": "skycity",
+     "what": "moored basket at C1 (0.7,-29.8) r 1.1 + posts, from the S6 level start until lift-off",
+     "why": "basket stands on the S6 terrace floor; explore taps must not walk through it"
     }
    ]
   },
