@@ -1,6 +1,9 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
+import {TRANSITION_STAGING} from './TransitionStaging';
+import {firstMaterial,plankBetween} from './TransitionProps';
+import {sailStaging} from './TransitionStagingMath';
 import {Animation,Camera,Component,Director,Mat4,Material,Mesh,MeshRenderer,Node,Vec3,director,isValid,sys,view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
@@ -141,7 +144,14 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      const v0=sailVehicle(tl,sr.samples,0),fx=Math.sin(v0.yaw),fz=Math.cos(v0.yaw),p0=sr.samples[0];
      const sit=seatFromBench([p0[0]-fx*0.55,p0[1]+0.06,p0[2]-fz*0.55],v0.yaw);
      const arrival=[step,...walk.slice(1),m0,m1];
-     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,disembark:[standAt.position as Vec,port,step],arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
+     // transitions-continuous (TransitionStaging, placeholders for 场景设计部): island pier + gangplank (A1/A2), meadow gangplank (A5).
+     const st=sailStaging(start,deck,port,step);
+     const hull=firstMaterial(boat);
+     const props={pier:plankBetween(rig,'qf_island_pier',st.pierRoot,st.pierEnd,TRANSITION_STAGING.islandPier.widthM,TRANSITION_STAGING.islandPier.thickM,hull),
+      islandPlank:plankBetween(rig,'qf_island_gangplank',st.pierEnd,st.deckEdge,TRANSITION_STAGING.islandGangplank.widthM,TRANSITION_STAGING.islandGangplank.thickM,hull),
+      meadowPlank:plankBetween(rig,'qf_meadow_gangplank',port,step,TRANSITION_STAGING.meadowGangplank.widthM,TRANSITION_STAGING.meadowGangplank.thickM,hull)};
+     if(props.meadowPlank)props.meadowPlank.active=false;
+     sailPlan={total:tl.build05S,approach:[start,st.pierRoot],pier:[st.pierEnd],plankOn:[st.deckEdge],props,deck,disembark:[standAt.position as Vec,port,st.plankMid,step],arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
     }
     token.check();
     // N3: at night the path and windmill dim to x0.6 with the same night weight.

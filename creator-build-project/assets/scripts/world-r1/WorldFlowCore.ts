@@ -462,6 +462,7 @@ export class WorldFlow {
     if(!(this.stable==='island'||this.stable==='meadow'||this.stable==='skycity'))return {ok:false,reason:'journey-wrong-origin'};
     return this.operate('region-loading',async token=>{
       const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
+      (this.journey as any).bindWorld?.(this.world)/* transitions-continuous: the >3 s fallback cover */;
       await this.journey!.prepare(target,pose.controllerRoot,token);token.check();
       this.world!.setLayers(ISLAND);this.world!.setRoomLightWeight?.(0);this.character!.setVisible(true);
       this.change('region-travel');await this.journey!.walk(this.character!,this.world!,token);token.check();

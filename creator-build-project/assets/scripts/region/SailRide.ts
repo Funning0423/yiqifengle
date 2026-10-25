@@ -5,6 +5,7 @@ import {beatAt, sailCamera, sailFollowCamera, sailPresentationT, sailVehicle, se
 import {attachRider, detachRider, placeBoat} from './TransportVehicle';
 import type {SailArt} from './SailArt';
 import {stopEngineStates} from './EngineAnimStop';
+import {chainMark,guardBeforeWalk} from './TransitionChain';
 import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 function sailCueRegion(cue:string):string{
@@ -288,6 +289,8 @@ export function createSailDriver(opts:{
 export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,actor:CharacterAdapter,world:WorldLease,token:Cancellation,plan:{
  total:number;approach:Vec[];deck:Vec[];disembark:Vec[];arrival:Vec[];sit:ReturnType<typeof seatFromBench>;stand:ReturnType<typeof seatFromBench>;
  boardS:number;arrivalS:number;boardPose?:Pose|null;
+ /** transitions-continuous (TransitionStaging): pier end + deck edge (A2 gangplank), shown props hidden on cue. */
+ pier?:Vec[];plankOn?:Vec[];props?:{islandPlank?:Node|null;pier?:Node|null;meadowPlank?:Node|null};
 }):Promise<void>{
  const rider=(actor as {node?:Node}).node;
  if(!rider){console.error('[QF_SAIL] FlowReferenceStandin has no node; sail ride aborted');throw Error('sail-rider-missing');}
@@ -296,8 +299,14 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  const wait=async()=>{token.check();if(world.wait)await world.wait(0.05,token);else driver.onFrame(1/60,!!world.isWorldVisible&&!world.isWorldVisible());};
  const until=async(time:number)=>{while(driver.t+1e-3<time)await wait();};
  const walk=(path:Vec[],stop:boolean)=>{const L=pathLen(path);const duration=Math.max(0.35,L/1.2);return actor.perform({kind:'walk',path,duration,stopAtEnd:stop} as any,token);};
- const board=[...plan.approach,plan.deck,plan.sit.position as unknown as Vec];
- await walk(board,true);
+ const anim0=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);
+ const show=(n:Node|null|undefined,on:boolean)=>{try{if(n&&n.isValid&&n.active!==on)n.active=on;}catch{/* prop optional */}};
+ show(plan.props?.pier,true);show(plan.props?.islandPlank,true);show(plan.props?.meadowPlank,false);
+ // A1: visible walk from the last island level to the pier (no cover); A2: over the gangplank onto the deck, sit.
+ chainMark('sail','A1-pier-walk');guardBeforeWalk(anim0,'A1 pier walk');
+ if(plan.pier&&plan.pier.length){await walk([...plan.approach,...plan.pier],true);chainMark('sail','A2-gangplank-board');guardBeforeWalk(anim0,'A2 gangplank');
+  await walk([plan.pier[plan.pier.length-1],...(plan.plankOn||[]),plan.deck,plan.sit.position as unknown as Vec],true);}
+ else{await walk([...plan.approach,plan.deck,plan.sit.position as unknown as Vec],true);chainMark('sail','A2-gangplank-board');}
  driver.markBoard();
  await actor.perform({kind:'sit',seat:plan.sit},token);
  const standS=actor.actionSeconds?.('stand')||1.2;
@@ -306,19 +315,21 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  const used=driver.real;
  const motionBudget=Math.max(4,30.5-used-sf-standS-offS);
  driver.depart(motionBudget);
+ chainMark('sail','A3-sail');show(plan.props?.islandPlank,false)/* plank drawn back as she casts off */;
  await until(plan.total-plan.boardS);
+ chainMark('sail','A4-dock');show(plan.props?.meadowPlank,true);
  driver.releaseRider();
  // fix-cloud-sit: guard again right before stand_up and before the disembark walk (the actor's anim = her SkeletalAnimation)
  const anim=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);
  stopEngineStates(anim,'sail stand');
  await actor.perform({kind:'stand',seat:plan.stand},token);
- stopEngineStates(anim,'sail walk');
+ chainMark('sail','A5-gangplank-off');guardBeforeWalk(anim,'A5 gangplank off');
  await walk(plan.disembark,true);
  await until(plan.total);
  if(plan.arrival.length>1){
   const dur=pathLen(plan.arrival)/1.2;
   driver.beginArrival(plan.arrival,dur);
-  stopEngineStates(anim,'sail arrival walk');
+  chainMark('sail','A6-meadow-first');guardBeforeWalk(anim,'A6 meadow first stop');
  const walking=walk(plan.arrival,true);
   while(driver.arrivalU<1-1e-4)await wait();
   const held=driver.arrivalElapsed;

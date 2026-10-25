@@ -1,6 +1,8 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
 import { coverAudioIn, coverAudioOut, coverContent, coverReady, emitWipeCovered, emitWipeRevealed, newWipeEvent, startWipeBeforeReveal, type WipeEvent } from './ScreenCover';
 import { WINDWIPE, wipeContentFor } from '../world-r2/WindWipeCore';
+import { CHAIN_FALLBACK, LiveHandoff, continuousTransitions, fallbackDecision, recordFallback } from '../region/TransitionChain';
+import { beginTransition, shotLength, type TransitionRun } from '../region/TransitionCamera';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
@@ -11,6 +13,7 @@ export interface JourneySceneAdapter {
  readCamera():Pose;
 }
 export type JourneySnapshot = Readonly<{phase:JourneyPhase;region:JourneyRegion;target:JourneyRegion|null;loadProgress:number;distance:number;total:number;error:string|null;canRetry:boolean;canResume:boolean}>;
+const journeyNow=()=>{try{return typeof performance!=='undefined'&&performance.now?performance.now()/1000:Date.now()/1000;}catch{return 0;}};
 const dist=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 export const routeLength=(p:readonly Vec[])=>p.slice(1).reduce((n,b,i)=>n+dist(p[i],b),0);
 export function sampleRoute(path:readonly Vec[],distance:number):Vec {
@@ -227,13 +230,20 @@ export class RegionJourneyController {
   if(this.lease?.route.to===to&&this.target===to)return;
   if(this.target&&this.target!==to&&this.phase!=='arrived')throw Error('journey-already-pending');
   this.busy=true;const serial=++this.serial;this.target=to;this.phase='loading';this.error=null;this.loadProgress=0;
+  // transitions-continuous: no cover while loading. If loading is still not done after CHAIN_FALLBACK.waitS the WindWipe
+  // fallback covers (logged, counted, no loading card); otherwise the chain starts on the live lens.
+  const t0=journeyNow();this.prepareWaitS=0;this.fallbackCovered=false;let fbTimer:any=null;
+  const cw=this.coverWorld;
+  if(continuousTransitions()&&cw&&typeof cw.fadeCover==='function'&&typeof setTimeout==='function')fbTimer=setTimeout(()=>{fbTimer=null;
+   if(serial!==this.serial||token.cancelled||this.phase!=='loading')return;this.fallbackCovered=true;recordFallback(to,journeyNow()-t0,'prepare-slow');
+   try{coverContent(null);coverAudioOut(SETOFF_FADE.outS);void Promise.resolve(cw.fadeCover!(1,SETOFF_FADE.outS)).catch(()=>{});}catch{}},CHAIN_FALLBACK.waitS*1000);
   try{
    const pending=this.adapter.prepare(this.region,to,start,token,p=>{if(serial===this.serial&&!token.cancelled&&Number.isFinite(p))this.loadProgress=Math.max(this.loadProgress,Math.min(.99,Math.max(0,p)));}).then(lease=>{if(token.cancelled||serial!==this.serial){lease.dispose();token.check();throw Error('journey-stale-load');}return lease;});
    const lease=await token.wait(pending);token.check();
    let camera:Pose;try{if(lease.route.from!==this.region||lease.route.to!==to)throw Error('journey-loaded-region-mismatch');validateJourneyRoute(lease.route,start);camera=this.adapter.readCamera();if([...camera.position,...camera.target].some(n=>!Number.isFinite(n)))throw Error('journey-invalid-camera');}catch(error){lease.dispose();throw error;}
    this.lease=lease;this.scenes.push(lease);this.rideHold=!!(lease.ride&&lease.startPose);this.distance=0;this.root=start;this.camera=camera;this.startCamera=this.camera;this.loadProgress=1;this.phase='ready';
   }catch(error){if(serial===this.serial){this.error=String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
-  finally{if(serial===this.serial)this.busy=false;}
+  finally{if(fbTimer)clearTimeout(fbTimer);this.prepareWaitS=journeyNow()-t0;if(serial===this.serial)this.busy=false;}
  }
  observe(actor:CharacterAdapter,world:WorldLease,dt:number=0):void{
   // b17r7: a held ride (set-off cover pending) gets NO onFrame at all, not just no camera write: the sail driver's step dresses
@@ -249,6 +259,23 @@ export class RegionJourneyController {
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
  private wiping=false;
+ /** transitions-continuous: the world the fallback cover may use during prepare (bound by WorldFlow before prepare). */
+ coverWorld:WorldLease|null=null;bindWorld(world:WorldLease|null){this.coverWorld=world;}
+ prepareWaitS=0;fallbackCovered=false;lastContinuous:{leg:string;fallback:boolean;waitedS:number}|null=null;
+ private unpatch:(()=>void)|null=null;
+ /** Continuous handoff: every camera write of the ride (sail onFrame via observe, balloon/lakeside own writes) is blended
+  *  from the live level lens it left; an authored TransitionCamera shot (data from 运镜bot) drives the lens first if present. */
+ private patchCamera(world:WorldLease,from:Pose,first:Pose|null,shotId:string){
+  const orig=world.setCamera;let hand:LiveHandoff|null=new LiveHandoff(from,first);let run:TransitionRun|null=null;
+  try{run=beginTransition(shotId,{pose:from});}catch{run=null;}
+  let last=journeyNow(),latest:Pose|null=first;
+  const patched=(p:Pose)=>{const t=journeyNow(),dt=Math.max(0,Math.min(.1,t-last||1/60));last=t;latest=p;let out=p;
+   if(run){if(run.phase==='shot'&&run.t>=shotLength(run.spec))run.handTo(()=>latest||p);out=run.step(dt);if(run.phase==='done')run=null;}
+   else if(hand){out=hand.step(p,dt);if(hand.done)hand=null;}
+   this.camera=out;orig.call(world,out);};
+  (world as any).setCamera=patched;
+  this.unpatch=()=>{if((world as any).setCamera===patched)(world as any).setCamera=orig;this.unpatch=null;};
+ }
  /** WindWipe hold: the cover stays full ≥ SETOFF_FADE.holdS, then keeps holding (the band drifts) until the new lens is placed
   *  and every registered reveal check passes (coverReady: loading settled). Never reveals a half-loaded scene; gives up only
   *  at WINDWIPE.maxHoldS (warn) so a broken load cannot lock the game behind the cloud. */
@@ -265,6 +292,8 @@ export class RegionJourneyController {
   if(!actor.walkProgress)throw Error('journey-needs-distance-signal');
   this.busy=true;this.error=null;const serial=++this.serial,path=remainingRoute(this.lease.route.path,this.distance);this.startDistance=this.distance;
   try{
+   const cont=continuousTransitions()&&!!this.lease.ride&&this.distance===0;
+   if(cont){await this.walkContinuous(actor,world,token);}else{
    // v3.3 set-off fade (Grok Bot: no hard cut, no camera swoop): leaving the live island lens on a startBlendM-0 route,
    // fade to black (SETOFF_FADE.outS), cut to the follow pose (FOV straight to 48) and show the journey scenes only under
    // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
@@ -289,8 +318,9 @@ export class RegionJourneyController {
    const rev=wipe?this.wipeEvent:null;this.wipeEvent=null;const revealed=()=>{if(rev)emitWipeRevealed(rev);};
    if(rideFade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';revealed();},()=>{});}
    if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';revealed();},()=>{});}
+   }
    if(this.lease.ride){
-    await token.wait(this.lease.ride(actor,world,token));token.check();
+    try{await token.wait(this.lease.ride(actor,world,token));}finally{this.unpatch?.();}token.check();
     this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
     const beforeRide=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-beforeRide[0],this.root[2]-beforeRide[2]);
     if(this.camera)world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!)/* b15: a ride tail (offscreen exit walk) still owns her */;
@@ -305,6 +335,28 @@ export class RegionJourneyController {
   }catch(error){if(this.wiping){this.wiping=false;coverContent(null);coverAudioIn(.2);}if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}
+ }
+ /** transitions-continuous set-off (replaces rideFade/WindWipe on every mainline ride): no cover, no card. Waits for
+  *  lease.ready (she idles on the live lens) up to CHAIN_FALLBACK.waitS in total with the prepare time; only then the logged
+  *  WindWipe fallback (content null). */
+ private async walkContinuous(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
+  const l:any=this.lease!,leg=l.route.to==='meadow'?'sail':l.route.to==='skycity'?'balloon':'lakeside';
+  const ready=()=>(typeof l.ready!=='function'||!!l.ready())&&coverReady();
+  let waited=this.prepareWaitS,fb=this.fallbackCovered;
+  while(!fb){const d=fallbackDecision(waited,ready());if(d==='go')break;if(d==='fallback'){fb=true;recordFallback(leg,waited,'lease-not-ready');break;}
+   if(typeof world.wait==='function'){await world.wait(1/30,token);waited+=1/30;}else break;token.check();}
+  this.lastContinuous={leg,fallback:fb,waitedS:waited};
+  const first=this.lease!.startPose?.()||null;
+  if(fb&&typeof world.fadeCover==='function'){
+   // fallback only: cloud band, NO vehicle/place-name card
+   coverContent(null);if(!this.fallbackCovered){coverAudioOut(SETOFF_FADE.outS);this.fadeState='out';await world.fadeCover(1,SETOFF_FADE.outS);token.check();}
+   this.fadeState='black';if(first&&first.position&&first.target){this.camera=first;world.setCamera(first);}
+   this.rideHold=false;this.show(true);await this.holdCover(world,token);coverAudioIn(SETOFF_FADE.inS);
+   this.fadeState='in';void Promise.resolve(world.fadeCover(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});
+   this.fallbackCovered=false;return;}
+  this.rideHold=false;this.show(true);token.check();
+  const shotId=leg==='sail'?'A1-dock-walk':leg==='balloon'?'B1-basket-in':'C1-sky-basket-in';
+  if(leg!=='lakeside'/* lakeside ride already blends out of the live skycity lens itself */)this.patchCamera(world,this.camera||this.startCamera!,first,shotId);
  }
  /** Called BEFORE cancelling the action token, while its distance signal is still available. */
  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
