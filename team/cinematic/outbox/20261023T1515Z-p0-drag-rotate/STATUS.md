@@ -246,5 +246,69 @@ Source +5,994 B (RegionNodeStage +4,456, LensSmooth +904, LensAvoid +563, CamTra
 - The no-entry guard may let the lens trail the player's turn by up to 90° behind a house until a clear arc exists; replay shows no pitch/height/limit violations, but feel on device unknown.
 - Easing/occlusion numbers are the replay model (real code, stubbed scene/proxy boxes, Mac dt sequence). Engine confirmation needs a Mac rerun with camTrace (occFace/occChest now in each frame).
 
-## p0drag11 — CHECKPOINT (in progress)
-Branch cine/p0drag11: d916f189 occluders, 8f5885dc frame boxes+avoidance, c71a413c items 2–4, 12a1f2f2 tests, 3bbbbe02 entry glide. Camera tests p0drag8–11, explore-arm, free-orbit, lakeside-walkable PASS. Full suite pending.
+## p0drag11 — FINAL (cine/p0drag11 from 6473d11c; replay/harness numbers are NOT ENGINE)
+### Root causes
+1. **Why the replay occlusion didn't match the Mac.** Engine `skycityOccluders` turned each model-local box into a world AABB. The sky-city model is yawed about 118°, so every rotated box got inflated (a 10×1 m wall became about 9×9 m). That inflation created phantom occFace/occChest, and avoidance fled walls that aren't there. With the same world-AABB plus 18 m near-set method, the replay reproduces the Mac's per-frame occ fields at 97.8–99.4% agreement (Q0). Boxes are now FrameBoxes: points are tested in the model frame, with no inflation.
+2. **Missing geometry.** The generator dropped everything below y 2.2 m (bushes, post bottoms). Cine boxes now go down to y 0.3 m, from env_sky_ruins and env_sky_static_palette: 1239 boxes (was 354). Night uses the same meshes (only the material grade differs). Night po was worse because of where she stood (item 4).
+3. **Avoider gaps.**
+   - The sight test was shrunk by 0.1 m, so the avoider said "clear" while she stayed hidden for 3 s.
+   - No candidate wider than 90°.
+   - It held a 30° climb that never showed her.
+   - The no-entry guard pinned the lens against a wall.
+   - Hidden swings were too slow.
+4. **Item 2.** Walk end never re-checked the facing.
+5. **Item 3.** The lens went past the sign along her→sign. The sign then hid her, the lens pull moved the lens in front of it, and the sign ended up behind the lens. Under the 12 m arm cap and the about 20° portrait horizontal FOV, no orbit pose that looks at her can show the sign: every walkable spot is 7.9–24 m behind the sign's front plane.
+6. **Item 4.** `performBounded` re-stood her at the old walk's end once the teleport cancelled the walk. The harness reproduces the Mac's (8.77, 8.14) drift.
+
+### Fixes
+- Hidden means face OR chest. After she has been hidden for 0.3 s, the avoider may:
+  - pull the arm in (×0.8/0.62/0.48, floor 3.5 m, ≤2.2 m/s);
+  - use the wide swings (±120/150/180°);
+  - go round the other way when the guard pins it.
+- If nothing is clear, it makes no detour. A partial pick must also have a box-free arc.
+- Hidden yaw: ×5 rate, stiffer spring, lens arc speed ≤28 m/s on the horizontal circle. Pitch is unchanged (≤22°/s) and arm stays ≤2.2 m/s.
+- **Walk end (skycity):** if she is hidden or the lens is in a box, the orbit turns to the nearest clear yaw (±15° steps). The smoother takes −Δ, so the turn is eased, not a cut.
+- **'sign' shot:** spot, yaw, pitch and arm come from the text-side normal, in world space:
+  - lens ≥1.5 m in front of the panel;
+  - text ≤60° off;
+  - her sight line clear of the sign's world AABB;
+  - view aimed at the text centre.
+  - The shot is held until a drag, which glides back over 0.6 s.
+- **Teleport:** always new walk token, cancels the walk's Cancellation, clears groundWalking and the tap state, and skips the end re-stand.
+- **Skycity entry glide:** kept without the LensGuard pre-solve.
+
+### Calibrated before → after (Q1, the Mac turn window, exact boxes, face/chest longest run)
+| | Mac field | Mac poses on exact boxes | HEAD replay |
+|---|---|---|---|
+| day po | 1.95/1.95 s | 1.85/2.03 s | 0.33/0.37 s |
+| day ro | 2.70/2.22 s | 0.75/0.75 s | 0.30/0.30 s |
+| night po | 4.58/9.60 s | 0.60/7.75 s | 0.13/0.30 s |
+| night ro | 2.70/2.22 s | 0.88/0.88 s | 0.28/0.28 s |
+
+- **Easing (HEAD):**
+  - pitch: 0 over limit, max per-frame step 0.73°, max change in 0.25 s 5.5°;
+  - height: 0 over limit, max per-frame step 0.089 m, max change in 0.25 s 0.67 m;
+  - 0 frames with the lens inside a box (Mac poses: 4–6);
+  - min arm 7.08 m (pull-in rarely needed);
+  - min view pitch −54°.
+- **Q2:** nook (11.8, 8.2) at yaw 50 starts inside a post. Turns 50→20°, she is clear after 0.13 s, 0 frames inside, max step 0.47 m.
+- **Q3:** text 5.5 m away, at NDC (0,0), 49° off, sign not in her sight line; unchanged after 1 s.
+- **Q4:** she stays on S3 after the old walk settles (6473d11c: re-stood at the walk end).
+- On 6473d11c, Q1–Q4 all FAIL; Q0 is calibration only.
+
+### Suite
+3bbbbe02: 178/181 PASS, 0 FAIL, 3 baseline blocks (2× Node ≥22.6, navigation-guard browser).
+
+Thresholds changed:
+- test_p0drag8 P5 lens step 0.35→0.55 m/frame (hidden swings at 28 m/s).
+- test_p0drag10 Q2 also accepts "she is seen" (a climb plus pull-in at the same yaw).
+- lakeside-walkable occluder count bound 3000→4000.
+
+### Size
+Source +31,011 B: SkycityLensOccluders +18,121, RegionNodeStage about +6.9 K, IslandPropsLayout +4,354, LensAvoid +1,553, RegionNodePlay +415, LensSmooth +255. Build headroom was 935,439 B. Test fixtures: fixtures_p0drag11.json 1.28 MB and oldsky 55 KB (tools only).
+
+### Remaining flaws
+- The sign shot shows the sign but not her: from the text side the island rocks hide her at every reachable pose. The panel is about 5.5 m away and overfills the portrait view (the full 2.8×4.3 m panel cannot fit within the 12 m arm).
+- Hidden swings move the lens fast (up to about 0.5 m/frame). This is yaw only and within the pitch/arm limits, but the feel on the device is unknown.
+- Walk-end facing is tested by calling walkEndView directly at (11.8, 8.2). The Mac traces had no nook walk end to replay.
+- All after-numbers are replay or harness results (real code, stubbed scene). A Mac camTrace rerun is needed.
