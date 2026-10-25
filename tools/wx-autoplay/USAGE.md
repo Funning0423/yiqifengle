@@ -39,6 +39,8 @@
 
 已校準的點擊座標（DevTools 390×844）：小島路牌 175,458；進關 282,575；繼續 195,497；規則彈窗 195,554；暫停 38,67；離開棋盤 195,560。
 
+- 範例：`examples/example-pretransition.json`（island-board）、`examples/example-pretransition-lakeside.json`（skycity-lakeside：擺位後點「繼續旅程」看完熱氣球→湖畔棋盤；lakeside-exit：擺位後點暫停 38,67→離開棋盤 195,560→湖畔自由探索）。
+
 ## 3. 範例
 - `tools/wx-autoplay/examples/example-island.json`：回到家→出門→進棋盤→離開棋盤→左右拖、上下拖視角→點草地→點水面。
 - `tools/wx-autoplay/examples/example-lakeside.json`：`?qfSkip=lakeside`（隔離測試存檔）→湖畔降落→站 3 秒→拖視角→點地面→點水面。

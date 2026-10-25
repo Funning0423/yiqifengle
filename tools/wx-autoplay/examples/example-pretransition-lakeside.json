@@ -1,0 +1,13 @@
+{"stateEveryMs":2000,"steps":[
+ {"op":"preTransition","key":"skycity-lakeside","timeoutMs":300000,"tap":true,"recordMs":5000},
+ {"op":"waitState","name":"level","timeoutMs":120000},
+ {"op":"wait","ms":3000},
+ {"op":"screenshot","name":"lake-board"},
+ {"op":"preTransition","key":"lakeside-exit","timeoutMs":300000},
+ {"op":"tap","x":38,"y":67},
+ {"op":"wait","ms":1200},
+ {"op":"screenshot","name":"pause-panel"},
+ {"op":"tap","x":195,"y":560},
+ {"op":"waitState","name":"lakeside","timeoutMs":90000},
+ {"op":"wait","ms":3000},
+ {"op":"screenshot","name":"lakeside-explore"}]}
