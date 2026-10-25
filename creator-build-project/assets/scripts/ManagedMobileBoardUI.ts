@@ -51,7 +51,7 @@ export class ManagedMobileBoardUI extends Component {
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
-  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1; private toastFade = 0.2; private toastEnd = TOAST_S; private noticeShown = false;
+  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1; private toastFade = 0.2; private toastEnd = TOAST_S; private noticeShown = false; private noticeUp = false; private queuedTip = '';
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private resultAttemptKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
@@ -364,7 +364,7 @@ export class ManagedMobileBoardUI extends Component {
     if (tool.targeted && (!Number.isInteger(index) || index < 0 || index > 48)) { this.say('先点道具再选格子，或把道具拖到格子上'); return false; }
     const r = this.managed.useTool(kind, index);
     if (!r.ok) this.say(r.reason === 'illegal-or-unsupported-action' ? '换一个有作用的落点，道具还在' : '暂不可操作 · ' + r.reason);
-    else { this.armedTool = null; this.selected = -1; this.toastT = Math.min(this.toastT, this.toastEnd); }
+    else { this.armedTool = null; this.selected = -1; if (!this.noticeUp) this.toastT = Math.min(this.toastT, this.toastEnd); }
     this.paintToolTray(); this.paint(); return !!r.ok;
   }
   private tapTool(slot: number) {
@@ -874,7 +874,9 @@ export class ManagedMobileBoardUI extends Component {
   // ---------------- toast / input / hint ----------------
   /** Transient strip above the board tray (BoardLayout.toast, every region alike): tool prompts and errors only, fades after 2 s. */
   private say(text: string, fade = 0.2) {
-    if (!text || !this.toastLabel) return; this.toastLabel.string = text; this.toastT = 0; this.toastFade = fade; this.toastEnd = fade === 0.2 ? TOAST_S : fade + TOAST_S;
+    if (!text || !this.toastLabel) return;
+    // b18 (UI设计部): the stale-board notice has top priority; a tip arriving during it waits (latest wins) and shows after it fades.
+    if (this.noticeUp) { this.queuedTip = text; return; } this.toastLabel.string = text; this.toastT = 0; this.toastFade = fade; this.toastEnd = fade === 0.2 ? TOAST_S : fade + TOAST_S;
     this.sizeToast(); this.toast.setSiblingIndex(this.root.children.length - 1);
   }
   /** Pill = text + 40, capped by the layout's max width (≤ 330, inset from the edges); a longer line scales down to stay inside the caps. */
@@ -890,7 +892,7 @@ export class ManagedMobileBoardUI extends Component {
   private staleNotice(s: any) {
     if (this.noticeShown || !s?.notice?.text || !s.active || s.state !== 'run.ready' || s.readOnly || this.modalOpen()) return;
     if (Array.isArray(s.notice.stageIds) && !s.notice.stageIds.includes(s.active.stageId)) return;
-    this.noticeShown = true; this.say(String(s.notice.text), 0.3);
+    this.noticeShown = true; this.say(String(s.notice.text), 0.3); this.noticeUp = true;
     try { this.managed?.clearNotice?.(); } catch { }
   }
   private input() { this.hintClock.reset(); if (this.hintCells.length) { this.hintCells = []; this.paintMarks(); } }
@@ -912,7 +914,7 @@ export class ManagedMobileBoardUI extends Component {
     if (this.hintClock.tick(dt, active)) this.autoHint();
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
-    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) this.toastT = -1; }
+    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
     this.staleNotice(s);
     if (this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
   }
@@ -986,7 +988,7 @@ export class ManagedMobileBoardUI extends Component {
     this.resultAttemptKey = attemptKey;
     const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, m.failHint, m.hostError, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
     if (key === this.resultKey && this.popups.find('ResultPanel')) return;
-    this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.toast.getComponent(UIOpacity)!.opacity = 0;
+    this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.noticeUp = false; this.queuedTip = ''; this.toast.getComponent(UIOpacity)!.opacity = 0;
     const p = openResult(this.popups, m, this.toolArt); if (this.modalOpen()) p.root.setSiblingIndex(Math.max(0, this.root.children.length - 2));
   }
   /** Reward claim popup: shown when a chest / regional tool / memento flips to claimed while this board is open. */

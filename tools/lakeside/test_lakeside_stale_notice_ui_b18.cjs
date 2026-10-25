@@ -42,6 +42,13 @@ const TEXT = '关卡已调整，从头开始';
     const { u, cleared, withNotice } = await make(true); withNotice(); for (let i = 0; i < 3; i++) u.update(0.2); assert.equal(cleared(), 0, 'hidden before present');
     withNotice(['some-other-stage']); u.presented = true; u.update(0.1); assert.equal(cleared(), 0, 'other stage');
     withNotice(); u.update(0.1); assert.equal(cleared(), 1); assert.equal(u.toastLabel.string, TEXT); });
+  await t('priority: a tool tip during the notice waits — notice stays (text + timing), tip shown after it fades', async () => {
+    const { u, withNotice } = await make(false); withNotice(); u.update(0); assert.equal(u.toastLabel.string, TEXT);
+    u.update(1); u.say('选一个棋子'); assert.equal(u.toastLabel.string, TEXT, 'not replaced'); assert.equal(op(u), 255);
+    u.say('点一下要敲掉的棋子'); u.armedTool = null; u.update(0.5); assert.equal(u.toastLabel.string, TEXT); assert.equal(op(u), 255, 'not cut short');
+    u.update(0.79); assert.equal(u.toastLabel.string, TEXT); u.update(0.4); // 2.69 s: notice gone → queued tip (latest) starts
+    assert.equal(u.toastLabel.string, '点一下要敲掉的棋子'); assert.equal(u.toastT, 0); u.update(0.1); assert(op(u) > 0);
+    u.say('另一条'); assert.equal(u.toastLabel.string, '另一条', 'normal tips replace each other again'); });
   await t('position + night: the notice uses the shared Toast (BoardLayout.toast band, under the plate, over the tray) with tint', async () => {
     const { u } = await make(false); const g = u.geo; assert(g && g.toast, 'layout');
     const plateB = g.plate.y + g.plate.height / 2, trayT = g.tray.y - g.tray.height / 2, top = g.toast.y - g.toast.height / 2, bot = g.toast.y + g.toast.height / 2;
