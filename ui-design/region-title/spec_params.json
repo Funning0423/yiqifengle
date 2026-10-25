@@ -36,5 +36,32 @@
  "inS": 0.4,
  "holdS": 1.2,
  "outS": 0.4,
- "risePt": 6
+ "risePt": 6,
+ "B": {
+  "shadow_day_a": 0.6,
+  "shadow_day_blur": 4,
+  "shadow_day_dy": 1,
+  "tight_day_a": 0.95,
+  "tight_day_blur": 0.7,
+  "tight_day_spread": 3.2,
+  "halo_rgb": [
+   90,
+   58,
+   30
+  ],
+  "halo_a": 0.24,
+  "halo_padx": 30,
+  "halo_pady": 18,
+  "night_use_glow": true,
+  "glow_night_a": 0.0,
+  "halo_rgb_night": [
+   20,
+   28,
+   52
+  ],
+  "halo_a_night": 0.22,
+  "tight_night_a": 0.75,
+  "tight_night_blur": 1.0,
+  "tight_night_spread": 1.5
+ }
 }

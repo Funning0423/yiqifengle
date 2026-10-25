@@ -22,6 +22,10 @@ S=dict(font=24,track=.15,fill_day=(0xFF,0xF8,0xEC),fill_night=(0xE8,0xEE,0xFF),n
        shadow_day=(0x5A,0x3A,0x1E),shadow_day_a=.5,shadow_day_blur=4.5,shadow_day_dy=1,tight_day_a=.4,tight_day_blur=1.0,
        glow_night=(0x9C,0xB4,0xF0),glow_night_a=.38,glow_night_blur=7,
        line_w=44,line_gap=7,line_h=1,line_a=.5,inS=.4,holdS=1.2,outS=.4,risePt=6)
+# ---- 备选 B（day only by default; see SPEC §10）----
+SB=dict(shadow_day_a=.6,shadow_day_blur=4,shadow_day_dy=1,tight_day_a=.95,tight_day_blur=.7,tight_day_spread=3.2,
+        halo_rgb=(0x5A,0x3A,0x1E),halo_a=.24,halo_padx=30,halo_pady=18,
+        night_use_glow=True,glow_night_a=0.,halo_rgb_night=(0x14,0x1C,0x34),halo_a_night=.22,tight_night_a=.75,tight_night_blur=1.0,tight_night_spread=1.5)
 def ease_out(t): t=max(0,min(1,t)); return 1-(1-t)**3
 def ease_in(t): t=max(0,min(1,t)); return t*t
 def state(t):
@@ -32,7 +36,7 @@ def state(t):
     u=t-S['inS']-S['holdS']
     if u<S['outS']: return 1-ease_in(u/S['outS']),0
     return 0,0
-def title_layer(W,H,sc,cx,cy,name,night,alpha=1.,dy=0.,deco=True):
+def title_layer(W,H,sc,cx,cy,name,night,alpha=1.,dy=0.,deco=True,style='A',want_mask=False):
     """RGBA layer W×H px, sc px/pt, (cx,cy) ink-block centre in pt. Rendered 2× and downsampled (anti-aliased)."""
     ss=2; s=sc*ss; f=ImageFont.truetype(SERIF,round(S['font']*s),index=SI)
     adv=[f.getlength(c) for c in name]; tr=S['font']*S['track']*s
@@ -51,6 +55,9 @@ def title_layer(W,H,sc,cx,cy,name,night,alpha=1.,dy=0.,deco=True):
             u=(i+.5)/n; a=math.sin(math.pi*u)**1.5
             xa=cx*s-lw/2+lw*i/n; d.rectangle([xa,ly,xa+lw/n+1,ly+S['line_h']*s],fill=int(255*a))
         return L
+    def spread(m,pt):
+        if not pt: return m
+        r=max(1,int(round(pt*s))); return m.filter(ImageFilter.MaxFilter(2*r+1))
     G=glyphs(255); Lm=line_mask(); out=Image.new('RGBA',(W*ss,H*ss),(0,0,0,0))
     def comp(mask,rgb,a,blur=0,dyp=0):
         m=mask
@@ -58,17 +65,30 @@ def title_layer(W,H,sc,cx,cy,name,night,alpha=1.,dy=0.,deco=True):
         if blur: m=m.filter(ImageFilter.GaussianBlur(blur*s))
         m=m.point(lambda v:int(v*a)); layer=Image.new('RGBA',out.size,rgb+(0,)); layer.putalpha(m)
         return Image.alpha_composite(out,layer)
+    P=S if style=='A' else {**S,**SB}
+    if style=='B' and (not night or SB['night_use_glow']):
+        # very faint elliptical radial darkening, warm brown, smoothstep falloff to 0 (no visible edge)
+        rx=tw/2+SB['halo_padx']*s; ry=bh/2+SB['halo_pady']*s; hcx=cx*s; hcy=(cy+dy)*s
+        sm=max(1,int(4*s)); gw,gh_=int(W*ss/sm)+1,int(H*ss/sm)+1; M=Image.new('L',(gw,gh_),0); px=M.load()
+        for yy in range(gh_):
+            for xx in range(gw):
+                r=math.hypot((xx*sm-hcx)/rx,(yy*sm-hcy)/ry)
+                if r<1: u=1-r; px[xx,yy]=int(255*(u*u*(3-2*u)))
+        M=M.resize((W*ss,H*ss),Image.BILINEAR).filter(ImageFilter.GaussianBlur(2*s))
+        ha=SB['halo_a_night'] if night else SB['halo_a']
+        if ha>0: out=comp(M,SB['halo_rgb_night'] if night else SB['halo_rgb'],ha)
     if not night:
-        out=comp(G,S['shadow_day'],S['shadow_day_a'],S['shadow_day_blur'],S['shadow_day_dy'])
-        out=comp(G,S['shadow_day'],S['tight_day_a'],S['tight_day_blur'],.5)
+        out=comp(G,P['shadow_day'],P['shadow_day_a'],P['shadow_day_blur'],P['shadow_day_dy'])
+        out=comp(spread(G,P.get('tight_day_spread',0)),P['shadow_day'],P['tight_day_a'],P['tight_day_blur'],.5)
         out=comp(G,S['fill_day'],1); out=comp(Lm,S['fill_day'],S['line_a'])
     else:
-        out=comp(G,S['glow_night'],S['glow_night_a'],S['glow_night_blur'])
-        out=comp(G,(0x14,0x1C,0x34),.22,1.2,.5)
+        out=comp(G,P['glow_night'],P['glow_night_a'],P['glow_night_blur'])
+        out=comp(spread(G,P.get('tight_night_spread',0)),(0x14,0x1C,0x34),P.get('tight_night_a',.22),P.get('tight_night_blur',1.2),.5)
         out=comp(G,S['fill_night'],S['night_alpha']); out=comp(Lm,S['fill_night'],S['line_a']*S['night_alpha'])
     out=out.resize((W,H),Image.LANCZOS)
     if alpha<1: a=out.getchannel('A').point(lambda v:int(v*alpha)); out.putalpha(a)
     ink=(cx-tw/s/2,cy+dy-bh/s/2,tw/s,bh/s)
+    if want_mask: return out,ink,G.resize((W,H),Image.LANCZOS)
     return out,ink
 def on(bg,name,night,size,t=None,deco=True):
     w,h=map(int,size.split('x')); L=LAY[size]; im=bg.convert('RGBA').resize((w*2,h*2)) if bg.size!=(w*2,h*2) else bg.convert('RGBA')
