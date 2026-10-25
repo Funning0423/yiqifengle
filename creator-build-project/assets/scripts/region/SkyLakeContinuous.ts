@@ -81,3 +81,8 @@ export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CON
  const phase=(tau:number)=>tau<walkS?'C1-walk':tau<flightAt?'C1-board':tau<liftEndAt?'liftoff':tau<touchdownAt?'flight':'C2';
  return {walkS,boardS,flightAt,liftEndAt,touchdownAt,rideT,basket,flightVisS:flightS,liftJoinM,cam,phase};
 }
+/** full2-cam task 4: basket yaw on the mooring-C leg — the mooring yaw (data) while moored, then min-jerk the shortest way to the
+ *  landing yaw (door2: exit door B toward the shore) during the lift-off (flightAt+0.5 → liftEndAt), held after: the T-03 flight
+ *  lens was framed for the basket at the landing yaw, so it is reached before the visible flight. */
+export function lakeBasketYaw(sl:Readonly<{flightAt:number;liftEndAt:number;touchdownAt:number}>,tau:number,mooringDeg:number,landDeg:number):number{
+ const d=((landDeg-mooringDeg)%360+540)%360-180,a=sl.flightAt+.5,e=Math.max(a+.5,sl.liftEndAt),u=Math.max(0,Math.min(1,(tau-a)/(e-a))),w=u*u*u*(10-15*u+6*u*u);return mooringDeg+d*w;}

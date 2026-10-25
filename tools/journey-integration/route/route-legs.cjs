@@ -156,4 +156,4 @@ async function geometry(){
  return {sail,meadow,cityB:bvhOf(cityObjs),isletsB:bvhOf(isletObjs),cloudsPre,cloudsPost,flight,lake:bvhOf([...lakeObjs,...skyJ]),lakeOnly:bvhOf(lakeObjs),skyJ:bvhOf(skyJ),
   info:{skycityMeshes:sky.length,skycityTris:sky.reduce((a,o)=>a+o.tris.length/9,0),lakesideInstances:lakeObjs.length,islandObjs:J.island.length,meadowObjs:J.meadow.length,balloonParts:balloonNodes.length,boatParts:boatNodes.length,standPoint:STAND_POINT}};
 }
-module.exports={SCREENS,STAND,geometry,sailLeg,balloonLeg,lakeLeg,legs:[sailLeg,balloonLeg,lakeLeg],F,J,BL,hit};
+module.exports={skyLocal,rigid,balToWorld,balHit,SIT_HOLD,STAND_POINT,standPts,SCREENS,STAND,geometry,sailLeg,balloonLeg,lakeLeg,legs:[sailLeg,balloonLeg,lakeLeg],F,J,BL,hit};

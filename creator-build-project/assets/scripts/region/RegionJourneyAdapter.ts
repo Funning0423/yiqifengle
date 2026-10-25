@@ -3,7 +3,10 @@ import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,e
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME,lakeBoardS} from './TransitionStaging';
 import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
-import {SKY_LAKE_CONT,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
+import {SKY_LAKE_CONT,lakeBasketYaw,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
+import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './TransitionAnchorData';
+import {SKY_WALK_SHOT,finaleCity,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
+import {SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
 import {firstMaterial,placeholderPlank,hidePlaceholders,findDeep,realModelPresent} from './TransitionProps';
 import {createGangwayDriver} from './SailGangway';
 import {setMooringRopes} from './SkyMooringRopes';
@@ -226,7 +229,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.
   const shore=L.arrival[L.arrival.length-1],v4Stop=L.toWorld([...LAKESIDE_CAMERA_LAYOUT.stopLocal] as Vec),E=arrivalPose([shore,v4Stop],L.focus,L.landing)/* b18: solved from the v4 stop, = this screen's board lens */,landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
   // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
-  const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),R=lakesideBalloonRide([start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
+  const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),M5=TRANSITION_STAGING.skyMooring5a,atC=continuousTransitions()&&M5.option==='C'/* full2-cam task 4: the game rides from mooring C (data), not T-03's launch-point walk */,R=lakesideBalloonRide(atC?[start,...M5.walkWorld.slice(1).map(p=>[p[0],p[1],p[2]] as Vec)]:[start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
   let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
   const total=routeLength(path);route={...route,timing:lakesideRouteTiming(total,R.T+moored.timing.durationS,K.walkEaseS,moored.timing.easeOutS)};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
@@ -271,7 +274,10 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     const D5=TRANSITION_DURATIONS.seg5a;stepInS=(D5.intoBasket||lakeBoardS())+D5.turn180/* 0: turn removed */+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
     // compress: ignition + inflate start during the walk to the basket (finish as she sits); only a remainder delays liftoff
     const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
-    sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false});
+    // full2-cam task 4: mooring C — basket on 场景设计部's lift keys, T-02 finale → walk lens (SkyWalkShot) on the data walk
+    let walkCam:((tau:number)=>Pose)|null=null;if(atC){try{const fin={position:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.position),target:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.target),fovVerticalDeg:SKY_FINALE_POSE_LOCAL.fovVerticalDeg};
+     const W=skyWalkShot(M5.walkWorld,M5.walkMps,2,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,M5.walkWorld)] as any,finaleCity(fin),{...SKY_WALK_SHOT,plan:SKY_5A_WALK_PLAN} as any,fin);walkCam=tau=>W.pose(W.gazeS+tau*W.walkS/R.walkS);}catch{walkCam=null;}}
+    sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false,...(atC?{liftTraj:SKY_5A_LIFT_KEYS,walkCam}:{})});
     boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,boardEndTau-D5.inflate)/* ignition + fill overlap boarding and sit_down, full as she is seated */;inflate(0);if(lflame)lflame.active=false;
     chainMark('lakeside','C1-basket-in');guardBeforeWalk((actor as any).anim,'C1 walk to basket');}
    const boardIn=async()=>{
@@ -305,7 +311,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      {const S=TRANSITION_STAGING.basket.seat;girl.setPosition(S[0],-.1,S[2]);}/* door2: seat (−0.032,0,0.099) facing exit door B */girl.setRotationFromEuler(0,moored.seatYawDeg(moored.startYawRad*180/Math.PI),0);};
     boardFn=()=>board();
     const apply=()=>{
-     const t=Math.min(clock.t,R.T),pos=sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
+     const t=Math.min(clock.t,R.T),pos=sl&&atC&&tau<sl.touchdownAt?sl.basket(tau):sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
+     if(sl&&atC&&isValid(vehicle,true))vehicle.setRotationFromEuler(0,lakeBasketYaw(sl,tau,M5.worldYawDeg,moored.doorYawDeg),0)/* moored −68.19 → landing (door B exit) */;
      {const m=t<R.liftT;if(m!==ropes5a){ropes5a=m;setMooringRopes(director.getScene(),'5a',m);}}/* cand7: 5a rope while the basket is moored, stowed at lift-off */
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
