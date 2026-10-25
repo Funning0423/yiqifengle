@@ -61,8 +61,13 @@ var logBuf=[],logBytes=0,stateBytes=0;
 function w2(file,s,capRef){try{fs.appendFileSync(OUT+'/'+file,s,'utf8');}catch(e){try{fs.writeFileSync(OUT+'/'+file,s,'utf8');}catch(x){}}}
 function flush(){if(!logBuf.length)return;var s=logBuf.join('');logBuf=[];if(logBytes>LOG_CAP)return;logBytes+=s.length;w2('console.log',s+(logBytes>LOG_CAP?'[QF_AUTOPLAY] log cap reached\n':''));}
 var consoleErrors=0,errorSamples=[];
-['log','info','warn','error'].forEach(function(lv){var o=console[lv];console[lv]=function(){try{var a=[].slice.call(arguments).map(function(v){if(typeof v==='string')return v;try{return JSON.stringify(v);}catch(e){return String(v);}}).join(' ');logBuf.push(new Date().toISOString()+' '+lv+' '+a.slice(0,4000)+'\n');if(lv==='error'&&a.indexOf('[QF_AUTOPLAY]')!==0){consoleErrors++;if(errorSamples.length<5)errorSamples.push(a.slice(0,300));}}catch(e){}return o.apply(console,arguments);};});
+['log','info','warn','error'].forEach(function(lv){var o=console[lv];console[lv]=function(){try{var a=[].slice.call(arguments).map(function(v){if(typeof v==='string')return v;try{return JSON.stringify(v);}catch(e){return String(v);}}).join(' ');logBuf.push(new Date().toISOString()+' '+lv+' '+a.slice(0,4000)+'\n');if(a.indexOf('[OI_HUD] suppressed')>=0&&a.indexOf('"kind":"error"')>=0)noteFail('hudSuppressed',a.slice(a.indexOf('[OI_HUD]')));if(lv==='error'&&a.indexOf('[QF_AUTOPLAY]')!==0){consoleErrors++;if(errorSamples.length<5)errorSamples.push(a.slice(0,300));}}catch(e){}return o.apply(console,arguments);};});
 var tick=setInterval(flush,1000);
+/* run failures that never reach console.error: journey phase=failed, snapshot world/journey error, wx.onError / unhandled rejections, HUD-suppressed errors */
+var gameFail={journeyFailed:[],snapshotErrors:[],uncaught:[],hudSuppressed:[]};function noteFail(k,t){t=String(t).slice(0,300);var l=gameFail[k];if(l.indexOf(t)<0&&l.length<10)l.push(t);}
+try{wx.onError&&wx.onError(function(r){noteFail('uncaught',(r&&(r.message||r.stack))||r);});}catch(e){}
+try{wx.onUnhandledRejection&&wx.onUnhandledRejection(function(r){var x=r&&r.reason;noteFail('uncaught','unhandledrejection: '+((x&&(x.message||x.stack))||x));});}catch(e){}
+function scanState(s){if(!s)return;try{var w=s.world||{},j=w.journey||{};if(s.journeyPhase==='failed'||j.phase==='failed')noteFail('journeyFailed',(j.region||'?')+'>'+(j.target||'?')+': '+(j.error||w.error||'failed'));if(w.error)noteFail('snapshotErrors',w.error);if(s.error)noteFail('snapshotErrors',s.error);if(s.snapErr)noteFail('snapshotErrors','snapshot threw: '+s.snapErr);}catch(e){}}
 var touch=installTouch(wx);g.__QF_AUTOPLAY={touch:touch,api:api};
 if(err){console.error('[QF_AUTOPLAY] script rejected: '+err);w2('result.json',JSON.stringify({ok:false,error:err}));flush();return;}
 if(script.launchQuery){try{if(!g.location||!g.location.search)g.location={search:script.launchQuery,href:'game.js'+script.launchQuery};}catch(e){console.warn('[QF_AUTOPLAY] launchQuery not applied');}}
@@ -93,7 +98,7 @@ function snapshot(light){
   try{var pm=(g.performance&&g.performance.memory)||null;s.memory=pm?{usedJSHeapMB:+(pm.usedJSHeapSize/1048576).toFixed(1),totalJSHeapMB:+(pm.totalJSHeapSize/1048576).toFixed(1)}:null;}catch(e){s.memory=null;}
   s.memoryWarnings=memWarn;return s;
 }
-function writeState(tag){if(stateBytes>STATE_CAP)return;var s=snapshot();s.tag=tag;var line=JSON.stringify(s,function(k,v){return typeof v==='function'?undefined:v;})+'\n';stateBytes+=line.length;w2('state.jsonl',line);return s;}
+function writeState(tag){if(stateBytes>STATE_CAP)return;var s=snapshot();s.tag=tag;var line=JSON.stringify(s,function(k,v){return typeof v==='function'?undefined:v;})+'\n';stateBytes+=line.length;w2('state.jsonl',line);scanState(s);return s;}
 var shotN=0;
 function shot(name){return new Promise(function(res){var cv=g.canvas,cc=g.cc;if(!cv||!cv.toTempFilePathSync||shotN>=MAX_SHOTS){res(null);return;}
   var take=function(){try{var h=Math.round(SHOT_W*cv.height/cv.width);var tmp=cv.toTempFilePathSync({destWidth:SHOT_W,destHeight:h,fileType:'jpg',quality:SHOT_Q});
@@ -132,7 +137,10 @@ function run(){
       if((st.op==='waitState'&&rec.matched===false||st.op==='preTransition'&&rec.ready===false)&&st.stopOnFail!==false){res.stoppedAt=rec.i;return;}return next();});}
   return next().then(function(){clearInterval(stTimer);res.finishedAt=new Date().toISOString();res.shots=shotN;res.consoleErrors=consoleErrors;res.consoleErrorSamples=errorSamples;
     /* acceptance rule: DevTools Console Error count must be 0 */
-    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}writeState('final');w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},
+    writeState('final');res.journeyFailures=gameFail.journeyFailed;res.snapshotErrors=gameFail.snapshotErrors;res.uncaughtErrors=gameFail.uncaught;res.hudSuppressedErrors=gameFail.hudSuppressed;
+    var gf=gameFail.journeyFailed.length+gameFail.snapshotErrors.length+gameFail.uncaught.length+gameFail.hudSuppressed.length;res.gameFailures=gf;
+    if(gf>0&&script.allowGameFailures!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'game failures: '+gf+' (journey failed '+gameFail.journeyFailed.length+', snapshot errors '+gameFail.snapshotErrors.length+', uncaught '+gameFail.uncaught.length+', hud-suppressed '+gameFail.hudSuppressed.length+')';}
+    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},
     function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);w2('result.json',JSON.stringify(res,null,1));flush();});
 }
 /* start once the world integration hook exists (or after 60 s regardless) */

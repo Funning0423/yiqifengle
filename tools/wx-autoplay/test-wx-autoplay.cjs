@@ -57,6 +57,12 @@ function runFake(script,env='develop',withCc){
   const e=runFake({steps:[{op:'wait',ms:50}]});e.g.console.error('Error 3804 from game');
   for(let i=0;i<40&&!e.files.has(e.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
   const eres=JSON.parse(e.files.get(e.U+'/qf-autoplay/out/result.json'));assert.equal(eres.ok,false);assert.equal(eres.consoleErrors,1);assert.match(eres.failReason,/console errors: 1/);
+  // journey phase=failed / snapshot error / HUD-suppressed error fail the run even with 0 console errors (38699944 windSource P0)
+  {const f=runFake({steps:[{op:'wait',ms:50}]});const err="TypeError: Cannot set properties of undefined (setting 'windSource')";
+   f.g.__worldIntegration={snapshot:()=>({state:'meadow',error:err,journey:{phase:'failed',region:'meadow',target:'skycity',error:err}})};f.g.console.info('[OI_HUD] suppressed {"kind":"error","text":"x"}');
+   for(let i=0;i<40&&!f.files.has(f.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+   const fr=JSON.parse(f.files.get(f.U+'/qf-autoplay/out/result.json'));assert.equal(fr.consoleErrors,0);assert.equal(fr.ok,false);
+   assert.equal(fr.journeyFailures.length,1);assert.match(fr.journeyFailures[0],/meadow>skycity: TypeError/);assert.equal(fr.snapshotErrors.length,1);assert.equal(fr.hudSuppressedErrors.length,1);assert.match(fr.failReason,/game failures: 3/);}
   // preTransition op: enables the hook (no launch params), runs setup, then a normal synthetic touch on the returned point
   assert.equal(api.parseScript({steps:[{op:'preT',key:'home-island'}]}).steps[0].op,'preTransition','preT alias');
   assert.throws(()=>api.parseScript({steps:[{op:'preTransition',key:'Bad Key'}]}),/bad key/);
