@@ -75,7 +75,7 @@ export class RegionNodeStage extends Component{
  private animHold:{c:Animation;on:boolean}[]=[];
  private holdPose:Pose|null=null;
  private armSmooth=new ArmSmoother();
- private avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1,hidT:0};private lensSmooth=new OffsetSmoother();private skyPrev:{yaw:number;el:number;arm:number}|null=null;private skyPrevW:[number,number,number]|null=null;private qaHold=false;private qaShot:Pose|null=null;private skyDetour=0;
+ private avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1,hidT:0};private lensSmooth=new OffsetSmoother();private skyPrev:{yaw:number;el:number;arm:number}|null=null;private skyPrevW:[number,number,number]|null=null;private walkAim:number|null=null;private qaHold=false;private qaShot:Pose|null=null;private skyDetour=0;
  private walkToken=0;private walkCancel:(()=>void)|null=null;
  private shotNote='';
  private dragHome:Vec|null=null;
@@ -519,7 +519,22 @@ export class RegionNodeStage extends Component{
   *  critically damped) carries the lens round. Returns the turn or null. Test: test_p0drag11 Q2. */
  /** p0drag12 (Mac p0drag11 nook walk: the lens stood still at the hooked yaw/pitch for the whole 2–5 s walk, face/chest hidden ~2 s): a walk
   *  is the player's own input — it ends the QA-hook hold (like a drag), so avoidance swings while she walks. */
- walkStarted(_region:StageRegion,_path:unknown){this.qaHold=false;this.qaShot=null;}
+ walkStarted(region:StageRegion,path:unknown){this.qaHold=false;this.qaShot=null;this.walkAim=null;
+  /* p0drag12 (r7 nook stop (11.4, 7.8): visible only from a ~100° yaw sector): the destination is known at walk start — aim the orbit
+   * early at the nearest yaw from which she will be clear (and the lens out of every box) where she stops; avoidance rides on top */
+  const p=path as readonly (readonly number[])[]|null;if(region!=='skycity'||!p||p.length<2||!this.orbit.seeded)return;
+  const w=this.toWorld(region,[p[p.length-1] as unknown as Vec])[0];const ys=this.clearYaws(w);if(!ys.length)return;
+  const y0=this.orbit.yaw;let best=ys[0],bd=1e9;for(const y of ys){const d=Math.abs(wrapDeg(y-y0));if(d<bd){bd=d;best=y;}}
+  /* into the sector: centre of the run that holds `best`, at most 30° past its edge */
+  const inRun=(y:number)=>ys.some(q=>Math.abs(wrapDeg(q-y))<2.6);let a=best,b=best;while(inRun(a-5)&&Math.abs(wrapDeg(a-5-best))<180)a-=5;while(inRun(b+5)&&Math.abs(wrapDeg(b+5-best))<180)b+=5;
+  const c=(a+b)/2,aim=Math.abs(wrapDeg(c-best))>30?best+30*Math.sign(wrapDeg(c-best)):c;this.walkAim=wrapDeg(aim);}
+ /** Orbit yaws (5° steps) from which her chest/face at `g` are clear and the raw lens is outside every box (skycity). */
+ clearYaws(g:readonly number[]):number[]{
+  const bx=this.skycityOccluders();if(!bx||!bx.length)return [];const O=this.orbit,y0=O.yaw,look=this.lookAt(g as Vec),near=nearSphere(bx,look,O.dist+1),out:number[]=[];
+  for(let y=0;y<360;y+=5){O.yaw=y;const q=O.rawPose(g as Vec).position;if(lensLevel(look,q,near,0)!==2&&!((o)=>o.face||o.chest)(herOcclusion(q,g as Vec,near)))out.push(y);}O.yaw=y0;return out;}
+ /** While walking: turn the orbit toward walkAim (eased, ≤ 45°/s) — the written lens follows through the smoother + no-entry guard. */
+ steerWalk(dt:number){if(!this.groundWalking||this.walkAim==null||!(dt>0))return;const O=this.orbit,d=wrapDeg(this.walkAim-O.yaw);if(Math.abs(d)<0.5){this.walkAim=null;return;}
+  const v=Math.sign(d)*Math.min(Math.abs(d),45*Math.min(0.1,dt),Math.max(6*Math.min(0.1,dt),Math.abs(d)*3*Math.min(0.1,dt)));O.yaw=wrapDeg(O.yaw+v);}
  walkEndView(region:StageRegion):{from:number;to:number}|null{
   if(region!=='skycity'||!this.exploring||!this.orbit.seeded||!this.lensSmooth.live)return null;
   const bx=this.skycityOccluders();if(!bx||!bx.length)return null;
@@ -527,7 +542,9 @@ export class RegionNodeStage extends Component{
   const bad=(y:number)=>{O.yaw=y;const p=O.rawPose(g).position;O.yaw=y0;return lensLevel(look,p,near,0)===2||((o)=>o.face||o.chest)(herOcclusion(p,g,near));};
   const cur=this.skyPrev?posOf(look,this.skyPrev):null;
   if(!bad(y0)&&!(cur&&(lensLevel(look,cur,near,0)===2||((o)=>o.face||o.chest)(herOcclusion(cur,g,near)))))return null;
-  for(let d=15;d<=180;d+=15)for(const sd of d===180?[d]:[d,-d]){if(bad(y0+sd))continue;
+  /* p0drag12: the eased turn goes round, never through a box — every 5° of the arc (raw lens at that yaw) must be outside */
+  const arcIn=(sd:number)=>{for(let k=5;k<Math.abs(sd);k+=5){O.yaw=y0+Math.sign(sd)*k;const q=O.rawPose(g).position;O.yaw=y0;if(lensLevel(look,q,near,0)===2)return true;}return false;};
+  for(let d=15;d<=180;d+=15)for(const sd of d===180?[d]:[d,-d]){if(bad(y0+sd)||arcIn(sd))continue;
    O.yaw=wrapDeg(y0+sd);this.lensSmooth.y-=sd;this.qaHold=false;this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1,hidT:0};
    (globalThis as any).__qfWalkEndView={from:y0,to:O.yaw,at:g.slice()};return {from:y0,to:O.yaw};}
   return null;
@@ -562,7 +579,7 @@ export class RegionNodeStage extends Component{
   /* p0drag11: the QA 'sign' shot is held as placed until a drag (from the text side every lens has her hidden by the island rocks, so the
    * occlusion guard would lift / pull it — Mac p0drag10 ended with the sign behind the lens); the drag glides back to the orbit (entry blend) */
   if(this.qaShot){if(this.qaHold){this.writePose(this.qaShot,false);return;}this.entry={from:this.qaShot,t:0,T:0.6};this.qaShot=null;}
-  this.orbit.step(dt);
+  this.orbit.step(dt);this.steerWalk(dt);
   const g=this.girl();
   this.refreshOrbitBoxes(g);
   const A=LENS_GUARD;
