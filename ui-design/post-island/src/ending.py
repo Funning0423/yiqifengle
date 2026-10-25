@@ -18,7 +18,7 @@ def layout(W,H):
 # v2：背景改为 Blender 实时场景分层渲染（render_ending_scene.py / render_all.sh）：
 #   bg = 湖畔场景+木架；chime = 风铃（16 个摇摆相位）；girl = 游戏角色。女孩按屏幕尺寸摆位，游戏里由镜头构图实现。
 SCENE=HERE+'../render/ending_scene/'
-NIGHT_GRADE=(.42,.48,.72)
+NIGHT_GRADE=(.80,.80,.92)  # v2.1：夜间已用夜间光照单独渲染，这里只轻压一档
 def alpha_box(im):
   b=im.split()[3].point(lambda v:255 if v>8 else 0).getbbox();return b
 def _grade(im):

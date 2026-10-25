@@ -7,14 +7,14 @@ def annot():
   im,L=ending();im=im.resize((390,844),Image.LANCZOS);a=Image.new('RGBA',(390+340,844),(250,247,240,255));a.paste(im,(0,0));d=ImageDraw.Draw(a);f=ImageFont.truetype(FB,12,index=2)
   M=(214,60,40);bx,by,bw,bh=L['btn'];cb=L['chime_box'];gb=L['girl_box']
   boxes=[('机位：湖畔南岸，低机位仰拍 20mm，看向北岸远山\n湖面和远山占画面中段，前景只有一块草地',(4,380,386,640),10),
-   ('3D 风铃（LK_windchime.glb ×%.2f）挂在木架横臂末端\n木架 LK_chime_post.glb，在风铃左后方。唯一焦点，中心 y≈%d\n摇摆：绕挂点 ±%.0f°，周期 3.2 s（见 ending_sway_keyframes.png）'%(PR['chime_scale'],(cb[1]+cb[3])/2,PR['amp']),cb,120),
+   ('3D 风铃（LK_windchime.glb ×%.2f）挂在木架横臂末端\n木架 LK_chime_post.glb，在风铃左后方（已去掉立柱中段小木板）。唯一焦点，中心 y≈%d\n摇摆：绕挂点 ±%.0f°，周期 3.2 s（见 ending_sway_keyframes.png）'%(PR['chime_scale'],(cb[1]+cb[3])/2,PR['amp']),cb,120),
    ('标题木牌 title_plank_3s 196×58，「旅程完成」24pt Bold #5A3A1E\n字距 3，奶白投影 #FFFAEC 2pt；中心 y=%.0f（不变）'%L['plank_cy'],(97,L['plank_cy']-29,293,L['plank_cy']+29),260),
    ('四章印章 reward_seal_* 44×44，间距 14，无文字；中心 y=%.0f（不变）'%L['seals_cy'],(97,L['seals_cy']-22,293,L['seals_cy']+22),350),
    ('女孩：游戏角色 glb（chr_b_r5g2…grokbot2），整个人入画\n站在湖边，抬头 %d° 仰望风铃；印章下方、按钮上方\n脚下离按钮 %.0fpt'%(PR['head_up'],by-gb[3]),gb,440),
    ('唯一按钮 btn_primary_3s %d×%d（含 6pt 底厚）\n左右各 %dpt（≥16），下沿离安全区 24pt；「回小岛」20pt Bold #FFFFFF\n按下下沉 4pt；触控区 = 按钮本体 ≥44pt（不变）'%(bw,bh,bx),(bx,by,bx+bw,by+bh),640),]
   for t,(x0,y0,x1,y1),ty in boxes:
     d.rectangle((x0,y0,x1,y1),outline=M,width=1);d.line((x1,(y0+y1)/2,398,ty+8),fill=M,width=1);d.multiline_text((402,ty),t,font=f,fill=(50,40,30),spacing=3)
-  d.multiline_text((402,760),'底部 30%% 渐暗 #281A0A 0→24%%（夜 #050814 0→39%%），不加面板。\n夜间：画面乘 (0.42,0.48,0.72)，风铃周围暖光 #FFCE82 α42%%；\n木牌、按钮、印章走 NightTint (0.80,0.80,0.88)。',font=f,fill=(50,40,30),spacing=3)
+  d.multiline_text((402,760),'底部 30%% 渐暗 #281A0A 0→24%%（夜 #050814 0→39%%），不加面板。\n夜间：单独夜间光照渲染（冷色弱月光、渐变夜空、无体积雾），\n再轻压 (0.80,0.80,0.92)；风铃周围暖光 #FFCE82 α42%%；\n木牌、按钮、印章走 NightTint (0.80,0.80,0.88)。',font=f,fill=(50,40,30),spacing=3)
   a.convert('RGB').save(OUT+'ending_day_annot.png')
 def inter(a,b):return not (a[2]<=b[0] or b[2]<=a[0] or a[3]<=b[1] or b[3]<=a[1])
 def sizes():
@@ -36,10 +36,10 @@ def sizes():
   s.save(OUT+'ending_7sizes.png');return res
 def compare():
   s=Image.new('RGB',(16+4*(390+16),844+56),(244,240,232));d=ImageDraw.Draw(s);f=ImageFont.truetype(FB,15,index=2)
-  ims=[('/tmp/eb/v1_day.png','上一版 v1 白天'),(OUT+'ending_day.png','本版 v2 白天'),('/tmp/eb/v1_night.png','上一版 v1 夜间'),(OUT+'ending_night.png','本版 v2 夜间')]
+  ims=[('/tmp/eb/v20_day.png','修改前 v2.0 白天'),(OUT+'ending_day.png','修改后 v2.1 白天'),('/tmp/eb/v20_night.png','修改前 v2.0 夜间'),(OUT+'ending_night.png','修改后 v2.1 夜间')]
   for i,(p,t) in enumerate(ims):
-    x=16+i*406;s.paste(Image.open(p).convert('RGB').resize((390,844),Image.LANCZOS),(x,44));d.text((x,14),t,font=f,fill=(30,90,60) if 'v2' in t else (120,40,30))
-  s.save(OUT+'compare_ending_v1_v2.png')
+    x=16+i*406;s.paste(Image.open(p).convert('RGB').resize((390,844),Image.LANCZOS),(x,44));d.text((x,14),t,font=f,fill=(30,90,60) if '修改后' in t else (120,40,30))
+  s.save(OUT+'compare_ending_v20_v21.png')
 def sway():
   fr=sorted(glob.glob(SCENE+'day/chime/sway_*.png'))
   if not fr:print('no sway frames');return

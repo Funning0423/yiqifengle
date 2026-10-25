@@ -57,6 +57,12 @@ if P.get('post'):
   off=Vector((off.x*math.cos(yaw)-off.y*math.sin(yaw),off.x*math.sin(yaw)+off.y*math.cos(yaw),off.z))
   post.location=(px,py,ground(px,py));ch.location=post.location+off
   post.rotation_mode='XYZ';ch.rotation_mode='XYZ';post.rotation_euler.z+=yaw;ch.rotation_euler.z+=yaw
+# 去掉立柱中段那块小木板（模型里的独立零件：z 1.05–1.75，贴在立柱 +y 面，从机位看像悬空）
+if P.get('drop_plaque',True):
+  import bmesh
+  post.data=post.data.copy();bm=bmesh.new();bm.from_mesh(post.data)
+  dead=[v for v in bm.verts if 1.0<v.co.z<1.8 and v.co.y>0.13]
+  bmesh.ops.delete(bm,geom=dead,context='VERTS');bm.to_mesh(post.data);bm.free()
 # 风铃：重新导入 LK_windchime.glb（场景里那只带原动画、渲染不出来），挂在木架横臂末端，绕挂点摇摆
 ch.hide_render=True
 bpy.context.view_layer.update()
@@ -76,12 +82,23 @@ for o in cn:
     o.parent=piv;o.location=((o.location.x-cx)*k,(o.location.y-cy)*k,(o.location.z-ctop)*k);o.scale=tuple(v*k for v in o.scale)
 # 夜间：压暗太阳、加暖色点光照风铃
 if night:
+  # 夜间光照：太阳改成冷色弱月光；天空换成纯渐变夜空（原天空贴图里有太阳盘，会在右上角留光斑）
   for o in bpy.data.objects:
-    if o.type=='LIGHT' and o.data.type=='SUN':o.data.energy*=0.22;o.data.color=(0.55,0.65,1.0)
-  w=sc.world
-  if w and w.use_nodes:
-    for n in w.node_tree.nodes:
-      if n.type=='BACKGROUND':n.inputs[1].default_value*=0.25
+    if o.type=='LIGHT' and o.data.type=='SUN':o.data.energy*=0.10;o.data.color=(0.55,0.65,1.0);o.data.angle=0.05
+  w=bpy.data.worlds.new('night');w.use_nodes=True;nt=w.node_tree;bgn=nt.nodes['Background']
+  tc=nt.nodes.new('ShaderNodeTexCoord');sep=nt.nodes.new('ShaderNodeSeparateXYZ');ramp=nt.nodes.new('ShaderNodeValToRGB')
+  nt.links.new(tc.outputs['Generated'],sep.inputs[0]);nt.links.new(sep.outputs['Z'],ramp.inputs['Fac'])
+  ramp.color_ramp.elements[0].position=0.5;ramp.color_ramp.elements[0].color=(0.035,0.05,0.11,1)
+  ramp.color_ramp.elements[1].position=0.75;ramp.color_ramp.elements[1].color=(0.008,0.014,0.04,1)
+  fog=bpy.data.objects.get('FX_fog_volume')
+  if fog:fog.hide_render=True   # 体积雾在逆光太阳方向散射出光斑，夜间关掉
+  m=bpy.data.materials.get('M_LK_cloud_preview')
+  if m and m.use_nodes:
+    for n in m.node_tree.nodes:
+      if n.type=='EMISSION':n.inputs['Strength'].default_value*=0.15
+      if n.type=='BSDF_PRINCIPLED':
+        n.inputs['Emission Strength'].default_value*=0.15 if 'Emission Strength' in n.inputs else 1
+  nt.links.new(ramp.outputs['Color'],bgn.inputs['Color']);bgn.inputs['Strength'].default_value=1.0;sc.world=w
   ld=bpy.data.lights.new('chime_lamp','POINT');ld.energy=180;ld.color=(1,.78,.45);ld.shadow_soft_size=.6
   lo=bpy.data.objects.new('chime_lamp',ld);sc.collection.objects.link(lo);lo.location=(piv.location.x+.8,piv.location.y-1.4,piv.location.z-.8)
 # 分层渲染：bg=场景（不含女孩和风铃）；girl=只有女孩；chime=只有风铃。分层后女孩可按屏幕尺寸重新摆位，风铃摇摆只需重渲小层
