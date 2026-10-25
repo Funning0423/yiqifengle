@@ -1,4 +1,4 @@
-import { Node, director } from 'cc';
+import { Node, director, Director, UIOpacity } from 'cc';
 import { LevelBackgroundBinding } from './LevelBackground';
 import type { LevelBackgroundFactory } from './LevelBackground';
 import { ManagedMobileBoardUI as NativeBoardUI } from '../ManagedMobileBoardUI';
@@ -6,6 +6,7 @@ import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
 import Port from '../r4-cloud-compat/adapter/cocos-port.js';
 import R5 from '../regional-r05/runtime/board-session-provider.js';
 import type { LevelAdapter, LevelLease, Cancellation, Result } from '../world-r1/WorldFlowCore';
+import { boardFadeOpacity } from '../world-r1/WorldFlowCore';
 import { createManagedBoardSession } from './ManagedBoardSession';
 import type { Selection, DisposableStores } from './ManagedBoardSession';
 import { paintRegionalOverlay } from './RegionalOverlay';
@@ -86,6 +87,11 @@ export function createNativeWorldLevelAdapter(options:{
       const lease:LevelLease={requestExit:()=>session!.requestExit() as Result,
         hide:()=>{root.active=false;background.setPaused(true);try{session!.hide();}finally{background.setVisible(false);}},showPaused:()=>{background.setPaused(true);try{session!.show();}finally{root.active=true;background.setVisible(true);}},
         resume:()=>session!.resume() as Result,dispose,
+        fadeOut:(seconds:number)=>new Promise<void>(resolve=>{/* skyfix: gradual board exit (opacity per drawn frame), no instant pop */
+          if(disposed||!root.active){resolve();return;}const op=root.getComponent(UIOpacity)||root.addComponent(UIOpacity),a0=op.opacity;let t=0,end=false;
+          const finish=()=>{if(end)return;end=true;try{director.off(Director.EVENT_BEFORE_DRAW,tick);}catch{}resolve();};
+          const tick=()=>{if(disposed){finish();return;}t+=Math.min(.05,Math.max(0,director.getDeltaTime()));op.opacity=boardFadeOpacity(a0,t,seconds);if(t>=seconds)finish();};
+          director.on(Director.EVENT_BEFORE_DRAW,tick);setTimeout(finish,seconds*1000+1500);}),
         isSettledResult:()=>{const s=session!.snapshot();return !s.readOnly&&s.state==='result.saved'&&!!s.active&&(s.active.status==='won'||s.active.status==='lost');},
         whenPlayable:()=>typeof (ui as any).whenInteractive==='function'?(ui as any).whenInteractive():Promise.resolve(),
         reveal};

@@ -67,6 +67,8 @@ export type CameraEvent=Readonly<{kind:'crane-start';segment:'toIsland';progress
 /** UI is granted commands/status only; never a world node or camera reference. */
 export interface LevelLease {
   requestExit():Result; hide():void; showPaused():void; resume():Result; dispose():void;
+  /** skyfix: fade the board UI out over `seconds` (gradual, per rendered frame) before dispose; resolves when done. */
+  fadeOut?(seconds:number):Promise<void>;
   /** Saved terminal page has no gameplay to resume. Errors/unsaved/playing keep the explicit pause gate. */
   isSettledResult?():boolean;
   /** Resolves when the board may be shown: run.ready and able to take a finger, or a settled pause/result screen.
@@ -232,6 +234,9 @@ export function rejoinSeconds(from:Pose,home:Pose):number {
   const a=f(from),b=f(home),deg=Math.acos(Math.max(-1,Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])))*180/Math.PI;
   return deg<.5?0:Math.max(.5,Math.min(2.0,deg/75));
 }
+/** skyfix: board exit fade (seconds) and its curve (smoothstep), shared by the native lease and the tests. */
+export const BOARD_EXIT_FADE_S=0.3;
+export function boardFadeOpacity(a0:number,t:number,seconds:number=BOARD_EXIT_FADE_S):number{const k=Math.max(0,Math.min(1,seconds>0?t/seconds:1));return Math.round(a0*(1-k*k*(3-2*k)));}
 export class WorldFlow {
   private state:State='idle'; private stable:Place='home'; private mode:Mode;
   private hidden=false; private needsResume=false; private error:string|null=null;
@@ -523,6 +528,18 @@ export class WorldFlow {
       if(!(err instanceof CameraTrackFailure))throw err;
       console.warn('enter-level shot skipped',String(err));await this.waitSeconds(ENTER_LEVEL_SHOT_S,token);
     }
+  }
+  /** skyfix (no flicker): leave a settled board WITHOUT restore(). Used under the held sky finale: the region already renders
+   *  (RegionNodeStage owns camera, layers and her pose), so no camera / layer / character / door / wind write happens at all.
+   *  The state flips to the origin region at once (继续旅程 shows, selection accepted); the board UI fades out, then disposes. */
+  exitLevelInPlace(fadeS:number=BOARD_EXIT_FADE_S):Result {
+    const fail=this.blocked('level');if(fail)return fail;
+    const lease=this.level!,accepted=lease.requestExit();if(!accepted.ok){this.error=accepted.reason;this.emit(this.snapshot());return accepted;}
+    this.level=null;this.stable=this.levelOrigin;this.change(this.levelOrigin);
+    const done=()=>{try{lease.dispose();}catch(error){console.warn('board dispose failed',String(error));}};
+    let p:Promise<void>|undefined;try{p=lease.fadeOut?.(fadeS);}catch{p=undefined;}
+    if(p&&typeof p.then==='function')void p.then(done,done);else done();
+    return {ok:true};
   }
   exitLevel():Result {
     const fail=this.blocked('level');if(fail)return fail;
