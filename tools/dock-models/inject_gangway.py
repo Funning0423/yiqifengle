@@ -1,7 +1,7 @@
 """Inject sail_gangway into transport_sail/sailboat.glb (plain glb, keeps external textures/format).
 Nodes: transport_sailboat > sail_gangway_hinge (port rail outer top, boat-local (0.80,0.585,0.15)) > sail_gangway (mesh, material 0 M_sailboat_hull,
 transit palette UVs). The plank lies along hinge-local +x; hinge rotates about local z: +95 deg = stowed upright (default),
-meadow deploy -25 deg (end rests ~boat-local (1.37,0.32)); island deploy: hinge at (-0.80,0.585,0.15) yaw 180, +20 deg.
+meadow deploy -16 deg (plank end underside at boat-local (1.38,0.35)); island deploy: hinge at (-0.80,0.585,0.15) yaw 180, +23 deg (end underside at (-1.40,0.77) = dock top -0.14 world with the boat at y -0.91).
 python3 inject_gangway.py parts_sail_gangway.json sailboat.glb out.glb"""
 import json,struct,sys,math
 import numpy as np
@@ -37,7 +37,7 @@ mi=len(g['meshes'])-1
 q=lambda deg:[0,0,math.sin(math.radians(deg)/2),math.cos(math.radians(deg)/2)]
 g['nodes'].append({'name':'sail_gangway','mesh':mi});gi=len(g['nodes'])-1
 g['nodes'].append({'name':'sail_gangway_hinge','translation':[0.80,0.585,0.15],'rotation':q(95),'children':[gi],
-  'extras':{'stowedDeg':95,'meadowDeployDeg':-25,'islandHinge':[-0.80,0.585,0.15],'islandYawDeg':180,'islandDeployDeg':20,'lengthM':0.625,'widthM':0.5}})
+  'extras':{'stowedDeg':95,'meadowDeployDeg':-16,'islandHinge':[-0.80,0.585,0.15],'islandYawDeg':180,'islandDeployDeg':23,'lengthM':0.625,'widthM':0.5}})
 hi=len(g['nodes'])-1
 root=[i for i,n in enumerate(g['nodes']) if n.get('name')=='transport_sailboat'][0];g['nodes'][root]['children'].append(hi)
 while len(bin_)%4:bin_.append(0)
