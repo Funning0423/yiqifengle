@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-25T12:53:50.137Z",
+ "timeUTC": "2026-10-25T13:17:57.508Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -2055,7 +2055,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
     "maxAlphaDegS2": 37.142,
-    "maxAccMS2": 2.736
+    "maxAccMS2": 2.643
    },
    "segments": [
     {
@@ -2076,16 +2076,16 @@
     {
      "t0": 9.095,
      "t1": 34.128,
-     "omega": 13.25,
-     "omegaAt": 29.895,
-     "omegaPhase": "door→board blend",
+     "omega": 13.207,
+     "omegaAt": 14.728,
+     "omegaPhase": "flight",
      "alpha": 37.142,
      "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.736,
+     "acc": 2.643,
      "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.447,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2138,7 +2138,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
     "maxAlphaDegS2": 37.142,
-    "maxAccMS2": 2.736
+    "maxAccMS2": 2.643
    },
    "segments": [
     {
@@ -2159,16 +2159,16 @@
     {
      "t0": 9.095,
      "t1": 34.128,
-     "omega": 13.25,
-     "omegaAt": 29.895,
-     "omegaPhase": "door→board blend",
+     "omega": 13.207,
+     "omegaAt": 14.728,
+     "omegaPhase": "flight",
      "alpha": 37.142,
      "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.736,
+     "acc": 2.643,
      "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.447,
+     "fovRate": 1.672,
      "jumps": 0
     }
    ],
@@ -2221,7 +2221,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
     "maxAlphaDegS2": 37.142,
-    "maxAccMS2": 2.736
+    "maxAccMS2": 2.643
    },
    "segments": [
     {
@@ -2242,16 +2242,16 @@
     {
      "t0": 9.095,
      "t1": 34.128,
-     "omega": 13.25,
-     "omegaAt": 29.895,
-     "omegaPhase": "door→board blend",
+     "omega": 13.207,
+     "omegaAt": 14.728,
+     "omegaPhase": "flight",
      "alpha": 37.142,
      "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.736,
+     "acc": 2.643,
      "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.447,
+     "fovRate": 1.687,
      "jumps": 0
     }
    ],
@@ -2304,7 +2304,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
     "maxAlphaDegS2": 37.142,
-    "maxAccMS2": 2.596
+    "maxAccMS2": 2.466
    },
    "segments": [
     {
@@ -2325,14 +2325,14 @@
     {
      "t0": 9.095,
      "t1": 34.128,
-     "omega": 11.944,
-     "omegaAt": 14.712,
+     "omega": 11.981,
+     "omegaAt": 14.545,
      "omegaPhase": "flight",
      "alpha": 37.142,
      "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.596,
-     "accAt": 13.278,
+     "acc": 2.466,
+     "accAt": 13.245,
      "accPhase": "flight",
      "fovRate": 1.671,
      "jumps": 0
@@ -2387,7 +2387,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
     "maxAlphaDegS2": 37.142,
-    "maxAccMS2": 2.596
+    "maxAccMS2": 2.466
    },
    "segments": [
     {
@@ -2408,14 +2408,14 @@
     {
      "t0": 9.095,
      "t1": 34.128,
-     "omega": 11.944,
-     "omegaAt": 14.712,
+     "omega": 11.981,
+     "omegaAt": 14.545,
      "omegaPhase": "flight",
      "alpha": 37.142,
      "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.596,
-     "accAt": 13.278,
+     "acc": 2.466,
+     "accAt": 13.245,
      "accPhase": "flight",
      "fovRate": 1.671,
      "jumps": 0
@@ -2470,7 +2470,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
     "maxAlphaDegS2": 37.142,
-    "maxAccMS2": 2.499
+    "maxAccMS2": 2.556
    },
    "segments": [
     {
@@ -2491,16 +2491,16 @@
     {
      "t0": 9.095,
      "t1": 34.128,
-     "omega": 10.717,
-     "omegaAt": 14.628,
+     "omega": 10.681,
+     "omegaAt": 14.712,
      "omegaPhase": "flight",
      "alpha": 37.142,
      "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.499,
+     "acc": 2.556,
      "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.671,
+     "fovRate": 0.481,
      "jumps": 0
     }
    ],
@@ -2553,7 +2553,7 @@
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
     "maxAlphaDegS2": 37.142,
-    "maxAccMS2": 2.499
+    "maxAccMS2": 2.441
    },
    "segments": [
     {
@@ -2574,14 +2574,14 @@
     {
      "t0": 9.095,
      "t1": 34.128,
-     "omega": 10.643,
-     "omegaAt": 14.628,
+     "omega": 10.755,
+     "omegaAt": 14.528,
      "omegaPhase": "flight",
      "alpha": 37.142,
      "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.499,
-     "accAt": 13.278,
+     "acc": 2.441,
+     "accAt": 13.245,
      "accPhase": "flight",
      "fovRate": 1.671,
      "jumps": 0

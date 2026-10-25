@@ -41,8 +41,8 @@
     "hookRelease": null
    },
    "perf": {
-    "avgMs": 0.243,
-    "p99Ms": 2.67
+    "avgMs": 0.21,
+    "p99Ms": 1.24
    }
   },
   "pock": {
@@ -83,8 +83,8 @@
     "hookRelease": null
    },
    "perf": {
-    "avgMs": 0.236,
-    "p99Ms": 1.23
+    "avgMs": 0.26,
+    "p99Ms": 1.24
    }
   },
   "ok": true

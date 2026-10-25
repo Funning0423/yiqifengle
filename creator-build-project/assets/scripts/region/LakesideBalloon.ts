@@ -460,7 +460,7 @@ export const LAKESIDE_DOOR_LAKE_OFFS:ReadonlyArray<readonly [number,number,numbe
 /** Her standing height (feet→head at the door and at outM) as a fraction of the frame height, touchdown lens (no sign: b53c8336). */
 /** her head-top height over her feet (m; the route model's head point) */
 export const LAKESIDE_HEAD_M=1.6;
-export const LAKESIDE_DOOR_HER_FRAC=.12;/* max on all 7 screens: 0.13+ has no lens on 390x844 / 414x896 / 360x780 whose board blend fits 5.4 s (was ~0.08 with the sign layout) */
+export const LAKESIDE_DOOR_HER_FRAC=.07;/* floor, not a target: at ≥ .08 the only lenses left put the basket wall over her face as she steps out on 390x844/414x896/360x780 (route O1, hard gate); .12–.13 fit the board blend but fail O1 */
 /** T-03 wide touchdown lens (review: "basket fills the frame, no lake"): orbit search round the basket for a lens that holds the
  *  basket, her standing body (feet → head, ±0.3 m) on the door path and ≥ 3 lake samples inside the safe frame, keeps the rim
  *  floor (lakesideRimLift = identity, so the turn-in still lands exactly), and is close enough to the board pose `land` that
@@ -478,15 +478,22 @@ export function lakesideDoorWideLens(walk:readonly Vec[],basket:Vec,land:Pose,as
   const f0=unit(P,c),r0l=Math.hypot(f0[0],f0[2])||1,lens:Pose={position:P,target:[c[0]-f0[2]/r0l*ax,c[1]+ay,c[2]+f0[0]/r0l*ax],fovVerticalDeg:fov};
   const f=unit(P,lens.target),rl=Math.hypot(f[0],f[2])||1,r:Vec=[-f[2]/rl,0,f[0]/rl],u:Vec=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan(fov*Math.PI/360);
   const nd=(p:Vec)=>{const v=[p[0]-P[0],p[1]-P[1],p[2]-P[2]],z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];return [(v[0]*r[0]+v[2]*r[2])/(z*th*aspect),(v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th),z];};
-  let ok=true,ymn=9,ymx=-9;const hb=[[9,-9],[9,-9]];for(let bi=0;bi<body.length;bi++){const n=nd(body[bi]);if(n[2]<2||Math.abs(n[0])>.85||n[1]<yLo||n[1]>yHi||(bi>=8&&n[0]>.52)/* her box: right edge ≤ 76 % of the width (route F2 80 %) */){ok=false;break;}ymn=Math.min(ymn,n[1]);ymx=Math.max(ymx,n[1]);if(bi>=8&&bi<24){const j=bi<16?0:1;hb[j][0]=Math.min(hb[j][0],n[1]);hb[j][1]=Math.max(hb[j][1],n[1]);}}
+  let ok=true,ymn=9,ymx=-9;const hb=[[9,-9],[9,-9]];for(let bi=0;bi<body.length;bi++){const n=nd(body[bi]);if(n[2]<2||Math.abs(n[0])>.85||n[1]<yLo||n[1]>yHi||(bi>=8&&n[0]>.5)/* her box: right edge ≤ 75 % of the width (route F2 80 %; .52 let the door→board blend reach 80.2 % with the larger her framing) */){ok=false;break;}ymn=Math.min(ymn,n[1]);ymx=Math.max(ymx,n[1]);if(bi>=8&&bi<24){const j=bi<16?0:1;hb[j][0]=Math.min(hb[j][0],n[1]);hb[j][1]=Math.max(hb[j][1],n[1]);}}
   if(!ok||ymx-ymn<.45)continue;
+  /* her face (1.5 m) at the door, at outM and standing in the basket must see the lens over the basket wall (route O1: the wall
+   *  hid her face for a frame at the step-out with a closer lens) */
+  {let hidden=false;const wallTop=basket[1]+1.1,bx0=basket[0]-.9,bx1=basket[0]+.9,bz0=basket[2]-.9,bz1=basket[2]+.9;
+   for(const f of [walk[0],q,basket]){const F:Vec=[f[0],f[1]+1.5,f[2]];if(f===basket)F[1]=basket[1]+1.5;
+    for(let k=1;k<20;k++){const u=k/20,x=F[0]+(P[0]-F[0])*u,y=F[1]+(P[1]-F[1])*u,z=F[2]+(P[2]-F[2])*u;
+     if(y<wallTop&&x>bx0&&x<bx1&&z>bz0&&z<bz1&&!(Math.abs(x-basket[0])<.8&&Math.abs(z-basket[2])<.8&&y>basket[1]+.05&&f===basket)){hidden=true;break;}}if(hidden)break;}
+   if(hidden)continue;}
   /* b53c8336: no place-name sign any more — the touchdown lens frames HER (standing, door → outM) at a readable size + the lake */
   let her=9;for(const p of [walk[0],q]){const a=nd(p),b=nd([p[0],p[1]+LAKESIDE_HEAD_M,p[2]]);her=Math.min(her,(b[1]-a[1])/2);}/* per standing spot (door, outM): feet → head on her centre line */void hb;if(her<herFrac)continue;
   let li=0;for(const p of lake){const n=nd(p);if(n[2]>0&&Math.abs(n[0])<.95&&n[1]>yLo&&n[1]<yHi)li++;}if(li<3)continue;
   if(lakesideRimLift(lens,seat)!==lens)continue;
   const ang=Math.acos(Math.max(-1,Math.min(1,f[0]*lf[0]+f[1]*lf[1]+f[2]*lf[2])))*180/Math.PI,gap=seg(P,land.position as Vec);
   const need=Math.max(1.875*ang/19,Math.sqrt(5.7735*ang/110),Math.sqrt(5.7735*gap/2.7));if(need>maxBlendS)continue;
-  const cst=Math.abs(her-herFrac-.02)*4+need*.3/* body block ≈ 25 % of the frame height (option B: .6 let her face cross the basket rim for a frame in the step-out, .7 let the envelope hide her for 1.2 s in the board blend; .9 let the turn-in cross a rigging strut on 390x520 / 768x1024 (route O1) */;if(cst<bc){bc=cst;best={lens,blendS:Math.max(need,1)};}}
+  const cst=Math.abs((ymx-ymn)-.5)*4+need*.3/* body block ≈ 25 % of the frame height (option B: .6 let her face cross the basket rim for a frame in the step-out, .7 let the envelope hide her for 1.2 s in the board blend; .9 let the turn-in cross a rigging strut on 390x520 / 768x1024 (route O1) */;if(cst<bc){bc=cst;best={lens,blendS:Math.max(need,1)};}}
  return best;
 }
 /** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera until the old blend-out window (from there the

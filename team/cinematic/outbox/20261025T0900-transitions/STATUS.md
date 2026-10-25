@@ -29,3 +29,12 @@ Comparison image: NOT_ENGINE_flight30_timewarp.png (proxy chart, not engine rend
   liftS sweep: 4 s → 85.3°/s / 177°/s² (passes, no margin); 5 s → 66.9 / 122; 6 s chosen.
 - test-lakeside-touchdown-timeline PASS (unchanged), t03-arrival 7/7.
 - Suite on 9b695930: 196/199 PASS; BLOCKED: legacy-board-ui-pure, reward-background-return (Node ≥22.6), navigation-guard (browser). 0 FAIL.
+
+# Round 3 — b53c8336 (sign removed), lift-off 5 s, ride 29.5 s, data lift-off
+- Merged ggbot/region-arrival-title b53c8336 (clean, 7d65d64c).
+- Sign audit: no camera pose/aim used the sign (signAtS/signS only time the door hold; blendAimPull pulls toward HER chest). Timing kept: board blend at touchdown+5.3 (lakesideBoardByS), sign constants untouched (GGbot's contract).
+- Touchdown lens (lakesideDoorWideLens): new her-size floor LAKESIDE_DOOR_HER_FRAC + face-over-basket-wall check. Tried 0.20/0.15/0.12: route O1 (hard) fails on 390x844/414x896/360x780 for every value ≥ 0.08 (basket wall over her face as she steps out, 1 frame at touchdown+3.1 s); 0.12 also hit F2 (80.2 % right edge, 1 frame). Kept floor 0.07 → same lens as before (image shows no change). Larger framing needs a different step-out composition — not done.
+- C2 her+lake gate (new, stricter than before — there was none): she fully in frame, ≥3 lake samples, standing height ≥ 7 % every frame touchdown → +5.3 s. Measured: 7.9 % (390x844/414x896/360x780), 10.6 % (375x667/320x568), 11.8 % (390x520), 11.6 % (768x1024); lake ≥3 all.
+- Segment 6: liftS 5 (yaw 66.9°/s, p99 122°/s²), capS 26, skyLakeTotalS / skyLakeOverrunS; data trajectory liftTraj {t,pos,yawDeg} + liftTrajJoinErr; synthetic stand-in: yaw 18.6°/s, p99 55, step 0.27 m.
+  Total T-02 handoff→touchdown: placeholder walk 8.65 → 30.85 s (over cap by 4.85); 4 s walk → 26.2 s (over by 0.2 s → trim 0.2 s of visible flight, needs approval since the T-03 flight is kept exact).
+- Ride 29.5 s (×1.619 band 14–22.5 s): 0–12 s cues exact; land at 28.5, end 29.5; camera yaw 43.5°/s, p99 178.5°/s², ≤0.55 m/frame.

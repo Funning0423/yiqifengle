@@ -39,9 +39,18 @@ const SWEEP=process.env.SWEEP?process.env.SWEEP.split(',').map(Number):null;
     assert.ok(row.stepMaxM<=0.6,'no position jump '+JSON.stringify(row));assert.ok(row.fovStepMax<=0.25,'no FOV jump '+JSON.stringify(row));
     assert.ok(row.occFaceChestMaxS<=0.5,'face/chest hidden ≤ 0.5 s '+JSON.stringify(row));
     for(const u of [0,3,6,11.9]){const a=S.cam(S.liftEndAt+u,null),b=LB.lakesideDoorRideCamera(Rr,door,Rr.cutT+u,null);assert.ok(Math.hypot(...[0,1,2].map(j=>a.position[j]-b.position[j]))<1e-9,'T-03 flight exact at +'+u);}
-    assert.ok(row.c2InFrame,'C2: she is fully in frame '+JSON.stringify(row));assert.ok(row.c2LakeMin>=3,'C2: lake visible '+JSON.stringify(row));assert.ok(row.c2HerFrac>=LB.LAKESIDE_DOOR_HER_FRAC-0.005,'C2: her standing height ≥ LAKESIDE_DOOR_HER_FRAC (12 %, was ~8 %) '+JSON.stringify(row));
+    assert.ok(row.c2InFrame,'C2: she is fully in frame '+JSON.stringify(row));assert.ok(row.c2LakeMin>=3,'C2: lake visible '+JSON.stringify(row));assert.ok(row.c2HerFrac>=LB.LAKESIDE_DOOR_HER_FRAC-0.005,'C2: her standing height ≥ LAKESIDE_DOOR_HER_FRAC (floor 7 %) '+JSON.stringify(row));
     assert.ok(Math.abs((S.touchdownAt-S.liftEndAt)-(Rr.T-Rr.cutT))<1e-9,'T-03 visible flight length kept');}
   }}
  const K6=SL.SKY_LAKE_CONT,vis=rows.length?null:null;void vis;
- console.log(JSON.stringify({status:SWEEP?'SWEEP':'PASS',touchdown:LB.LAKESIDE_TOUCHDOWN,rows}));
+ // data-driven lift-off (场景设计部 trajectory, not delivered yet): synthetic stand-in — drift 4 m horizontally, then climb onto the
+ // T-03 flight at flightSkipS. The camera must keep the caps and continuity on it (390x844).
+ const liftRows=[];if(!SWEEP){const leg=RL.lakeLeg(G,RL.SCREENS[0]),Rr=leg.ride,door=leg.door,v0=Rr.flight.vehicle(0),vE=Rr.flight.vehicle(Rr.cutT-Rr.liftT),h=[vE[0]-v0[0],vE[2]-v0[2]],hl=Math.hypot(...h);
+  const keys=[{t:0,pos:v0,yawDeg:0},{t:1.6,pos:[v0[0]+h[0]/hl*4,v0[1]+.4,v0[2]+h[1]/hl*4],yawDeg:0},{t:5,pos:vE,yawDeg:0}];
+  assert.ok(SL.liftTrajJoinErr(Rr,keys)<1e-9);const S=SL.skyLakeContinuous(Rr,door,{...SL.SKY_LAKE_CONT,liftTraj:keys}),P=[];
+  for(let tau=0;tau<=S.touchdownAt+1;tau+=DT)P.push(tau<S.touchdownAt?S.cam(tau,leg.start.from):leg.cam(leg.timing.rideT+(tau-S.touchdownAt)));
+  const yr=[],dp=[],ya=[];for(let i=1;i<P.length;i++){yr.push(wrap(yawOf(P[i])-yawOf(P[i-1]))/DT);dp.push(Math.hypot(...[0,1,2].map(j=>P[i].position[j]-P[i-1].position[j])));}for(let i=1;i<yr.length;i++)ya.push(Math.abs(yr[i]-yr[i-1])/DT);
+  const r={case:'liftTraj synthetic',yawMax:+Math.max(...yr.map(Math.abs)).toFixed(1),yawAccP99:+pct(ya,.99).toFixed(0),stepMaxM:+Math.max(...dp).toFixed(3)};liftRows.push(r);
+  assert.ok(r.yawMax<=90.5&&r.yawAccP99<=201&&r.stepMaxM<=0.6,'data lift-off camera caps '+JSON.stringify(r));}
+ console.log(JSON.stringify({status:SWEEP?'SWEEP':'PASS',liftRows,touchdown:LB.LAKESIDE_TOUCHDOWN,rows}));
 })().catch(e=>{console.error(e);process.exit(1);});

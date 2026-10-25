@@ -20,18 +20,30 @@ export const SKY_LAKE_CONT=Object.freeze({
  capS:26,flightTrimS:0,
  /** smoothstep rate ramps inside the lift-off window (start and end of the window are at rate 1 → no velocity step) */
  rampFrac:0.3,
- placeholder:true});
+ placeholder:true,
+ /** 场景设计部 lift-off trajectory (world, basket root): keys {t (0..liftS), pos, yawDeg}; null = the T-03 flight's own first 18 s
+  *  time-warped. Must end on the T-03 flight at flightSkipS (checked by liftTrajJoinErr). */
+ liftTraj:null as null|ReadonlyArray<Readonly<{t:number;pos:Vec;yawDeg:number}>>});
 /** Planned T-02 handoff → touchdown for a walk of walkS (walk length comes from the path: R.walkS). */
 export function skyLakeTotalS(walkS:number,visibleFlightS:number,k=SKY_LAKE_CONT):number{return walkS+k.doorS+k.stepInS+k.igniteS+k.liftS+visibleFlightS-k.flightTrimS;}
 /** Visible-flight seconds to cut to meet capS (0 = fits). */
 export function skyLakeOverrunS(walkS:number,visibleFlightS:number,k=SKY_LAKE_CONT):number{return Math.max(0,skyLakeTotalS(walkS,visibleFlightS,k)-k.capS);}
 export type SkyLake=Readonly<{walkS:number;boardS:number;flightAt:number;liftEndAt:number;touchdownAt:number;
- rideT(tau:number):number;cam(tau:number,from:Pose|null):Pose;phase(tau:number):'C1-walk'|'C1-board'|'liftoff'|'flight'|'C2'}>;
+ rideT(tau:number):number;basket(tau:number):Vec;cam(tau:number,from:Pose|null):Pose;phase(tau:number):'C1-walk'|'C1-board'|'liftoff'|'flight'|'C2'}>;
 /** eased warp: σ∈[0,S] → flight time f∈[0,F]; rate 1 at both ends, smoothstep up/down to the cruise rate (C1, monotonic) */
 export function liftWarp(S:number,F:number,rampFrac=SKY_LAKE_CONT.rampFrac):{f:(s:number)=>number;rate:number}{
  const ramp=S*rampFrac,ri=(x:number)=>{if(x<=0)return 0;if(x>=ramp)return ramp/2+(x-ramp);const u=x/ramp;return ramp*(u*u*u-u*u*u*u/2);};
  const r=1+(F-S)/(ri(S)-ri(ramp));/* ∫(rate−1) = (r−1)(ri(s) − ri(s−(S−ramp))) */
  return {rate:r,f:s=>{const x=Math.max(0,Math.min(S,s));return Math.min(F,x+(r-1)*(ri(x)-ri(x-(S-ramp))));}};}
+/** Sample a lift-off trajectory (Catmull-Rom on pos, linear yaw). */
+export function liftTrajAt(keys:ReadonlyArray<Readonly<{t:number;pos:Vec;yawDeg:number}>>,t:number):{pos:Vec;yawDeg:number}{
+ let i=0;while(i<keys.length-2&&t>keys[i+1].t)i++;const a=keys[Math.max(0,i-1)],b=keys[i],c=keys[Math.min(keys.length-1,i+1)],d=keys[Math.min(keys.length-1,i+2)];
+ const u=c.t>b.t?Math.max(0,Math.min(1,(t-b.t)/(c.t-b.t))):0,u2=u*u,u3=u2*u;
+ const pos=[0,1,2].map(j=>0.5*(2*b.pos[j]+(-a.pos[j]+c.pos[j])*u+(2*a.pos[j]-5*b.pos[j]+4*c.pos[j]-d.pos[j])*u2+(-a.pos[j]+3*b.pos[j]-3*c.pos[j]+d.pos[j])*u3)) as Vec;
+ return {pos,yawDeg:b.yawDeg+(c.yawDeg-b.yawDeg)*u};}
+/** Gap (m) between the trajectory end and the T-03 flight at flightSkipS (should be ~0 for a seamless join). */
+export function liftTrajJoinErr(R:LakesideBalloonRide,keys:ReadonlyArray<Readonly<{t:number;pos:Vec;yawDeg:number}>>):number{
+ const e=keys[keys.length-1].pos,f=R.flight.vehicle(R.cutT-R.liftT);return Math.hypot(e[0]-f[0],e[1]-f[1],e[2]-f[2]);}
 export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CONT):SkyLake{
  const skip=R.cutT-R.liftT/* T-03 flightSkipS: flight time hidden under black */,walkS=R.walkS,boardS=k.doorS+k.stepInS+k.igniteS;
  const flightAt=walkS+boardS,liftEndAt=flightAt+k.liftS,touchdownAt=liftEndAt+(R.T-R.cutT);
@@ -44,7 +56,14 @@ export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CON
  const cam=(tau:number,from:Pose|null):Pose=>{
   if(tau<walkS)return R.camera(tau,from);
   if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=R.camera(walkS-1e-6,from);}return blendPose(walkEnd,flightLens(R.liftT),minJerk((tau-walkS)/boardS));}
+  if(k.liftTraj&&tau<liftEndAt){/* data trajectory: the lens rides with the basket (offset from the boarding lens decays) and
+    *  min-jerk blends onto the T-03 flight lens at cutT; aim stays on her seated chest */
+   if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=R.camera(walkS-1e-6,from);}
+   const s0=tau-flightAt,w=minJerk(s0/k.liftS),v0=liftTrajAt(k.liftTraj,0).pos,v=liftTrajAt(k.liftTraj,s0).pos,end=flightLens(R.cutT);
+   const ride:Pose={position:[walkEnd.position[0]+v[0]-v0[0],walkEnd.position[1]+v[1]-v0[1],walkEnd.position[2]+v[2]-v0[2]],target:[v[0],v[1]+.7,v[2]],fovVerticalDeg:end.fovVerticalDeg};
+   const b0=blendPose(blendPose(walkEnd,flightLens(R.liftT),1),ride,minJerk(Math.min(1,s0/0.6)));return blendPose(b0,end,w);}
   return flightLens(rideT(tau));};
+ const basket=(tau:number):Vec=>k.liftTraj&&tau>=flightAt&&tau<liftEndAt?liftTrajAt(k.liftTraj,tau-flightAt).pos:R.vehicle(rideT(tau));
  const phase=(tau:number)=>tau<walkS?'C1-walk':tau<flightAt?'C1-board':tau<liftEndAt?'liftoff':tau<touchdownAt?'flight':'C2';
- return {walkS,boardS,flightAt,liftEndAt,touchdownAt,rideT,cam,phase};
+ return {walkS,boardS,flightAt,liftEndAt,touchdownAt,rideT,cam,phase,basket};
 }

@@ -186,11 +186,11 @@ export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,
  *  rate 1 through board / liftoff / cloud seam (t ≤ RIDE_KEEP_T, all seam & visibility cues keep their exact timing), then a
  *  smoothstep rise to RIDE_CRUISE_RATE, cruise, a smoothstep fall back to 1, and rate 1 for the last RIDE_TAIL_S of the
  *  approach + landing (touchdown and the basket-door beat play at real speed). C1 rate → no velocity step on the camera. */
-export const RIDE_DURATION=30;
+export const RIDE_DURATION=29.5;/* Grok Bot: meadow→skycity end to end ≤ 43.5 s (was 43.9): −0.5 s from the empty ×cruise band only */
 export const RIDE_KEEP_T=12;
 export const RIDE_RAMP_S=2;
 export const RIDE_TAIL_S=5;
-/** ∫ of the smoothstep rise over x s (full rise after RIDE_RAMP_S). 36 = 30 + (r−1)·(Rint(18) − Rint(7)) = 30 + 11(r−1) → r = 17/11. */
+/** ∫ of the smoothstep rise over x s (full rise after RIDE_RAMP_S). 36 = 29.5 + (r−1)·(Rint(17.5) − Rint(7)) → r = 1 + 6.5/10.5 ≈ 1.619. */
 const rampInt=(x:number)=>{if(x<=0)return 0;if(x>=RIDE_RAMP_S)return RIDE_RAMP_S/2+(x-RIDE_RAMP_S);const u=x/RIDE_RAMP_S;return RIDE_RAMP_S*(u*u*u-u*u*u*u/2);};
 export const RIDE_CRUISE_RATE=1+(FLIGHT_DURATION-RIDE_DURATION)/(rampInt(RIDE_DURATION-RIDE_KEEP_T)-rampInt(RIDE_TAIL_S+RIDE_RAMP_S));
 /** Flight-time rate dt/dτ at ride time τ. */
