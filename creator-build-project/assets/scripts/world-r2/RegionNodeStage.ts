@@ -756,6 +756,8 @@ export class RegionNodeStage extends Component{
   const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z],160,.05,[gl.x,gl.y,gl.z]);
   (globalThis as any).__qfGroundTap={region,kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now()};
   if(hit.kind!=='walk'){emitTransitCue('scene-tap',{t:0,region,id:hit.kind==='water'?'water':'none'});return;}
+  // r7: leaves / a planter / a pillar right by her: she stays exactly where she is (no snap onto her cell)
+  if(hit.stay){(globalThis as any).__qfGroundTap={...(globalThis as any).__qfGroundTap,path:0,lengthM:0,stay:true};return;}
   void this.groundWalkTo(region,hit.at);
  }
  private async groundWalkTo(region:StageRegion,at:WVec){

@@ -118,3 +118,8 @@ if (snap) afang.setWorldPosition(localToWorld(region, snap)); // y 已经是地�
   - 穿过高度 ≤ 地面 + `WALL_TAP_M` 3 m（墙面），就在这里停下，用 tapSnap 停到墙靠她这一侧的可走地面；
   - 穿过高度再高（屋檐、屋顶，或者墙前面的树冠）：传了 from 时原地不动。
 - 只看她前方 1.5 m 以外的墙，有两个原因：镜头在她身后，会把镜头和她之间的东西淡化掉（Mac 上 NE1 的情况）；另外她身边柱子的 0.4 m 体素比实物胖，射线只是擦过也会被吃掉。
+
+## b17 skycity-walk-r7（Mac p0drag11）
+
+- `walkRayHit` 返回的 `{kind:'walk'}` 可能带 `stay:true`，表示她原地不动。条件：射线没有落在地面上（碰到的是树叶、花坛、柱子、屋檐等），而且解析出的点离她的平面距离小于 `STAY_NEAR_M`（1 m）。这时 `at` 就是她当前的位置，不会吸附到格子中心。`RegionNodeStage` 收到 `stay` 就不走路，并在 `__qfGroundTap` 里记 `lengthM:0, stay:true`。修之前，T1 会走 0.4 m，T2 会走 0.89 m。
+- snapNear 的代价改为“路径长度 + `SNAP_OFF_W`(3) × 候选格到命中点的平面距离”（r4 用的是 2）。白天从 S3 点凹角时，射线越过花坛命中凹角边，以前因为绕花坛的路更长而停在 x≈9；现在停在凹角边 (11.4,7.8)，仍然在凹角外。
