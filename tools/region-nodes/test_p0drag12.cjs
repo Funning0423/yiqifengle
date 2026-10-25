@@ -84,7 +84,10 @@ function walkReplay(F0,P){const s=F0.findIndex(f=>f[12]),L=RW.walkPathLengthM(P)
  *  · Pock·夜 chest 1.45 s — at the path's corner (≈ 4.6 m) her chest is visible only from a sector ≈ 90° further round, with the stop
  *    sector beyond it; the plan's own predicted hidden cost (single direction, 120°/s) is 1.31 s — the DP optimum, not a lag.
  * Everything else (face ≤ 0.5 s on Pock·夜, all other routes, no box frames) is unchanged. */
-const W2_RELAXED={'NE1·昼':{f:0.85,c:0.85},'Pock·昼':{f:0.75,c:0.75},'Pock·夜':{f:0.5,c:1.55}};
+/* Grok Bot approved Oct 25: only NE1·昼 and Pock·昼 are re-baselined, to ≤ 0.8 s (measured 0.76 / 0.66 s, reasons above).
+ * Pock·夜 is NOT relaxed: chest stays gated at ≤ 0.5 s and this case is RED (1.43–1.45 s) until 场景设计部 adjusts the occluder
+ * (outbox SCENE_REQUEST_pocket_night.md). */
+const W2_RELAXED={'NE1·昼':{f:0.8,c:0.8},'Pock·昼':{f:0.8,c:0.8}};
 const W2=(prefix='')=>{const out={};let all=true;
  for(const tap of Object.keys(TAPS)){const P=tapPath(tap);for(const k of WALKS){const {F,r,H,s,e2,stopI,L,T}=walkReplay(FX[k],P),m=metrics(F,r.P,H,s,e2,r.act),lim=W2_RELAXED[tap];all=all&&good(m,lim);if(lim)m.relaxedLimit={...lim};
   out[tap+'/'+k]={walkM:+L.toFixed(2),walkS:+T.toFixed(2),stop:H[stopI].map(x=>+x.toFixed(2)),...m};}}
