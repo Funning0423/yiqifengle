@@ -1,0 +1,127 @@
+{
+ "test": "p0drag8",
+ "ok": true,
+ "P1": {
+  "frames": 1621,
+  "her": [
+   20.9,
+   1.65,
+   7.1
+  ],
+  "boxes": 2718,
+  "nearBoxes": 439,
+  "macWrittenMinArmM": 0.8,
+  "minArmM": 7.34,
+  "minViewPitchDeg": -55,
+  "maxArmStepM": 0,
+  "avoidElevStepOverLimitDeg": 0,
+  "rawDragElevStepMaxDeg": 10.7,
+  "perf": {
+   "avgMsPerFrame": 0.243,
+   "p99Ms": 1.1,
+   "maxMs": 10.19
+  },
+  "worst": [],
+  "ok": true
+ },
+ "P2": {
+  "frames": 120,
+  "macMinPitchDeg": -60.5,
+  "writtenMinPitchDeg": -58,
+  "ok": true
+ },
+ "P3": {
+  "bootGatesOffscreenSign": true,
+  "entryYawPosesOffscreen": "78/78",
+  "onScreenYawsByNode": {
+   "I1": "180,185,190",
+   "I2": "160,165",
+   "I3": "140,145,150",
+   "I4": "160,165,170",
+   "I5": "185,190,195",
+   "I6": "180,185"
+  },
+  "ok": true
+ },
+ "P4": {
+  "qaSkipNullInNormalBuild": true,
+  "hooksAbsentWhenGateClosed": true,
+  "hooksPresentWhenOpen": true,
+  "bootGated": true,
+  "stageGated": true,
+  "teleportYawPitch": {
+   "ok": true,
+   "region": "island",
+   "at": [
+    2.5,
+    -0.01,
+    8.1
+   ],
+   "yaw": 90,
+   "pitch": 30
+  },
+  "teleportSign": {
+   "ok": true,
+   "region": "island",
+   "at": [
+    -1.9,
+    -0.597,
+    10.1
+   ],
+   "yaw": 3.814074834290355,
+   "pitch": 12,
+   "signShot": {
+    "armM": 17.9,
+    "textDeg": 51.5,
+    "minTextPx": 144.9
+   }
+  },
+  "signRect": {
+   "x": -15.934514557823436,
+   "y": -217.67653106395088,
+   "width": 646.4822168740883,
+   "height": 629.8032669203328
+  },
+  "ok": true
+ },
+ "P5": {
+  "boxes": 2718,
+  "nearBoxes": 441,
+  "runs": [
+   {
+    "pitch": 15,
+    "dist": 7,
+    "rawLensInsideFrames": 403,
+    "writtenInsideFrames": 0,
+    "minArmM": 7,
+    "minViewPitchDeg": -15,
+    "maxLensStepM": 0.062,
+    "avgMs": 0.147,
+    "p99Ms": 0.79
+   },
+   {
+    "pitch": 30,
+    "dist": 10,
+    "rawLensInsideFrames": 0,
+    "writtenInsideFrames": 0,
+    "minArmM": 10,
+    "minViewPitchDeg": -30,
+    "maxLensStepM": 0.189,
+    "avgMs": 0.278,
+    "p99Ms": 1
+   },
+   {
+    "pitch": 10,
+    "dist": 12,
+    "rawLensInsideFrames": 2,
+    "writtenInsideFrames": 0,
+    "minArmM": 12,
+    "minViewPitchDeg": -10,
+    "maxLensStepM": 0.12,
+    "avgMs": 0.53,
+    "p99Ms": 3.94
+   }
+  ],
+  "ok": true
+ }
+}

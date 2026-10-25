@@ -1,0 +1,773 @@
+{
+ "test": "p0drag12",
+ "ok": true,
+ "W1": {
+  "skd_pock": [
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     12.1,
+     0.1,
+     10.6
+    ],
+    "walkS": 5.56,
+    "orbitPitch": 12,
+    "before_mac": {
+     "longestFaceS": 0.3,
+     "longestChestS": 0.3,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0.64,
+     "heightOverLimitM": 0.03,
+     "minArmM": 7.13
+    },
+    "after": {
+     "longestFaceS": 0.18,
+     "longestChestS": 0.18,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 4.78
+    }
+   },
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     9,
+     -0.1,
+     8.2
+    ],
+    "walkS": 2.35,
+    "orbitPitch": 12,
+    "before_mac": {
+     "longestFaceS": 1.12,
+     "longestChestS": 1.12,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.19
+    },
+    "after": {
+     "longestFaceS": 0,
+     "longestChestS": 0,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.34
+    }
+   }
+  ],
+  "skn_pock": [
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     12.1,
+     0.1,
+     10.6
+    ],
+    "walkS": 5.56,
+    "orbitPitch": 12,
+    "before_mac": {
+     "longestFaceS": 0.3,
+     "longestChestS": 0.3,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0.74,
+     "heightOverLimitM": 0.026,
+     "minArmM": 7.13
+    },
+    "after": {
+     "longestFaceS": 0.18,
+     "longestChestS": 0.18,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 4.76
+    }
+   },
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     9,
+     -0.1,
+     8.6
+    ],
+    "walkS": 2.37,
+    "orbitPitch": 55,
+    "before_mac": {
+     "longestFaceS": 1.77,
+     "longestChestS": 1.85,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.17
+    },
+    "after": {
+     "longestFaceS": 0,
+     "longestChestS": 0,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.34
+    }
+   },
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     11.8,
+     0,
+     8.2
+    ],
+    "walkS": 5.23,
+    "orbitPitch": 55,
+    "before_mac": {
+     "longestFaceS": 1.88,
+     "longestChestS": 1.97,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.15
+    },
+    "after": {
+     "longestFaceS": 0,
+     "longestChestS": 0.07,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.34
+    }
+   }
+  ],
+  "skxd_pock": [
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     12.1,
+     0.1,
+     10.6
+    ],
+    "walkS": 5.56,
+    "orbitPitch": 12,
+    "before_mac": {
+     "longestFaceS": 0.3,
+     "longestChestS": 0.3,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0.69,
+     "heightOverLimitM": 0.029,
+     "minArmM": 7.13
+    },
+    "after": {
+     "longestFaceS": 0.18,
+     "longestChestS": 0.18,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 4.78
+    }
+   },
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     9,
+     -0.1,
+     8.6
+    ],
+    "walkS": 2.37,
+    "orbitPitch": 55,
+    "before_mac": {
+     "longestFaceS": 1.77,
+     "longestChestS": 1.85,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.17
+    },
+    "after": {
+     "longestFaceS": 0,
+     "longestChestS": 0,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.34
+    }
+   },
+   {
+    "from": [
+     6.2,
+     0,
+     8.2
+    ],
+    "to": [
+     11.8,
+     0,
+     8.2
+    ],
+    "walkS": 5.22,
+    "orbitPitch": 55,
+    "before_mac": {
+     "longestFaceS": 1.88,
+     "longestChestS": 1.97,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.15
+    },
+    "after": {
+     "longestFaceS": 0,
+     "longestChestS": 0.01,
+     "framesInsideGeometry": 0,
+     "pitchOverLimitDeg": 0,
+     "heightOverLimitM": 0,
+     "minArmM": 7.34
+    }
+   }
+  ],
+  "ok": true
+ },
+ "W2": {
+  "NE1·昼/skd_pock": {
+   "walkM": 24.64,
+   "walkS": 20.54,
+   "stop": [
+    26.6,
+    0.04,
+    -5
+   ],
+   "longestFaceS": 0.37,
+   "longestChestS": 0.37,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "NE1·昼/skn_pock": {
+   "walkM": 24.64,
+   "walkS": 20.54,
+   "stop": [
+    26.6,
+    0.04,
+    -5
+   ],
+   "longestFaceS": 0.37,
+   "longestChestS": 0.37,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "NE1·昼/skxd_pock": {
+   "walkM": 24.64,
+   "walkS": 20.54,
+   "stop": [
+    26.6,
+    0.04,
+    -5
+   ],
+   "longestFaceS": 0.37,
+   "longestChestS": 0.37,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "NE2·昼/skd_pock": {
+   "walkM": 6.67,
+   "walkS": 5.56,
+   "stop": [
+    12.2,
+    0.07,
+    10.6
+   ],
+   "longestFaceS": 0.35,
+   "longestChestS": 0.35,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "NE2·昼/skn_pock": {
+   "walkM": 6.67,
+   "walkS": 5.56,
+   "stop": [
+    12.2,
+    0.07,
+    10.6
+   ],
+   "longestFaceS": 0.36,
+   "longestChestS": 0.36,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "NE2·昼/skxd_pock": {
+   "walkM": 6.67,
+   "walkS": 5.56,
+   "stop": [
+    12.2,
+    0.07,
+    10.6
+   ],
+   "longestFaceS": 0.36,
+   "longestChestS": 0.36,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "Roof·昼/skd_pock": {
+   "walkM": 6.85,
+   "walkS": 5.71,
+   "stop": [
+    11.8,
+    0.01,
+    9.4
+   ],
+   "longestFaceS": 0.35,
+   "longestChestS": 0.35,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "Roof·昼/skn_pock": {
+   "walkM": 6.85,
+   "walkS": 5.71,
+   "stop": [
+    11.8,
+    0.01,
+    9.4
+   ],
+   "longestFaceS": 0.36,
+   "longestChestS": 0.36,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "Roof·昼/skxd_pock": {
+   "walkM": 6.85,
+   "walkS": 5.71,
+   "stop": [
+    11.8,
+    0.01,
+    9.4
+   ],
+   "longestFaceS": 0.36,
+   "longestChestS": 0.36,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 7.34
+  },
+  "Pock·昼/skd_pock": {
+   "walkM": 5.69,
+   "walkS": 4.74,
+   "stop": [
+    11.4,
+    -0.08,
+    7.8
+   ],
+   "longestFaceS": 0.66,
+   "longestChestS": 0.66,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 5.88,
+   "relaxedLimit": {
+    "f": 0.8,
+    "c": 0.8
+   }
+  },
+  "Pock·昼/skn_pock": {
+   "walkM": 5.69,
+   "walkS": 4.74,
+   "stop": [
+    11.4,
+    -0.08,
+    7.8
+   ],
+   "longestFaceS": 0.66,
+   "longestChestS": 0.66,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 5.88,
+   "relaxedLimit": {
+    "f": 0.8,
+    "c": 0.8
+   }
+  },
+  "Pock·昼/skxd_pock": {
+   "walkM": 5.69,
+   "walkS": 4.74,
+   "stop": [
+    11.4,
+    -0.08,
+    7.8
+   ],
+   "longestFaceS": 0.66,
+   "longestChestS": 0.66,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 5.88,
+   "relaxedLimit": {
+    "f": 0.8,
+    "c": 0.8
+   }
+  },
+  "Pock·夜/skd_pock": {
+   "walkM": 6.26,
+   "walkS": 5.22,
+   "stop": [
+    11.8,
+    -0.05,
+    8.2
+   ],
+   "longestFaceS": 0.66,
+   "longestChestS": 0.66,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 5.88,
+   "relaxedLimit": {
+    "f": 0.8,
+    "c": 0.8
+   }
+  },
+  "Pock·夜/skn_pock": {
+   "walkM": 6.26,
+   "walkS": 5.22,
+   "stop": [
+    11.8,
+    -0.05,
+    8.2
+   ],
+   "longestFaceS": 0.66,
+   "longestChestS": 0.66,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 5.88,
+   "relaxedLimit": {
+    "f": 0.8,
+    "c": 0.8
+   }
+  },
+  "Pock·夜/skxd_pock": {
+   "walkM": 6.26,
+   "walkS": 5.22,
+   "stop": [
+    11.8,
+    -0.05,
+    8.2
+   ],
+   "longestFaceS": 0.66,
+   "longestChestS": 0.66,
+   "framesInsideGeometry": 0,
+   "pitchOverLimitDeg": 0,
+   "heightOverLimitM": 0,
+   "minArmM": 5.88,
+   "relaxedLimit": {
+    "f": 0.8,
+    "c": 0.8
+   }
+  },
+  "ok": true
+ },
+ "L1": {
+  "skd_po": {
+   "pitch12": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34
+   },
+   "pitch20": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34
+   }
+  },
+  "skd_ro": {
+   "pitch12": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34
+   },
+   "pitch20": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34
+   }
+  },
+  "skn_po": {
+   "pitch12": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34
+   },
+   "pitch20": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34
+   }
+  },
+  "skn_ro": {
+   "pitch12": {
+    "longestFaceS": 0.27,
+    "longestChestS": 0.27,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34,
+    "knownFlaw": "self-check only, not gated (see STATUS p0drag12)"
+   },
+   "pitch20": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "minArmM": 7.34,
+    "knownFlaw": "self-check only, not gated (see STATUS p0drag12)"
+   }
+  },
+  "ok": true
+ },
+ "Y1": {
+  "skd_po": {
+   "macWrittenPeakDegS": 325,
+   "macPeakAt": {
+    "t": 642.896,
+    "raw": 50,
+    "dt": 0.02
+   },
+   "playerRawPeakDegS": 71,
+   "macAboveRawPeakDegS": 310,
+   "replayPeakDegS": 68,
+   "replayAboveRawPeakDegS": 33,
+   "replayYawAccelP99DegS2": 4122,
+   "replayYawAccelPeakDegS2": 5125
+  },
+  "skd_ro": {
+   "macWrittenPeakDegS": 440,
+   "macPeakAt": {
+    "t": 663.495,
+    "raw": 40,
+    "dt": 0.01
+   },
+   "playerRawPeakDegS": 67,
+   "macAboveRawPeakDegS": 400,
+   "replayPeakDegS": 77,
+   "replayAboveRawPeakDegS": 36,
+   "replayYawAccelP99DegS2": 4046,
+   "replayYawAccelPeakDegS2": 4644
+  },
+  "skn_po": {
+   "macWrittenPeakDegS": 474,
+   "macPeakAt": {
+    "t": 575.262,
+    "raw": 0,
+    "dt": 0.012
+   },
+   "playerRawPeakDegS": 71,
+   "macAboveRawPeakDegS": 474,
+   "replayPeakDegS": 90,
+   "replayAboveRawPeakDegS": 90,
+   "replayYawAccelP99DegS2": 4046,
+   "replayYawAccelPeakDegS2": 5102
+  },
+  "skn_ro": {
+   "macWrittenPeakDegS": 443,
+   "macPeakAt": {
+    "t": 597.795,
+    "raw": 13,
+    "dt": 0.015
+   },
+   "playerRawPeakDegS": 67,
+   "macAboveRawPeakDegS": 430,
+   "replayPeakDegS": 90,
+   "replayAboveRawPeakDegS": 90,
+   "replayYawAccelP99DegS2": 3968,
+   "replayYawAccelPeakDegS2": 4168
+  },
+  "ok": true
+ },
+ "S1": {
+  "teleport": {
+   "ok": true,
+   "region": "island",
+   "at": [
+    -1.9,
+    -0.597,
+    10.1
+   ],
+   "yaw": 4.600095666263279,
+   "pitch": 12,
+   "signShot": {
+    "armM": 17.9,
+    "textDeg": 51.5,
+    "minTextPx": 144.9
+   }
+  },
+  "atTeleport": {
+   "herSeen": true,
+   "textFacing": 0.62,
+   "textDeg": 51.5,
+   "armM": 17.9,
+   "allScreens": true,
+   "inside": false,
+   "clearM": 7.62,
+   "gullClear": true,
+   "screens": [
+    {
+     "screen": "390x844",
+     "herMargin": 0.58,
+     "herFrac": 0.127,
+     "textRect": [
+      -7,
+      -249,
+      340,
+      235
+     ],
+     "textFrac": 0.279,
+     "signWhole": true
+    },
+    {
+     "screen": "414x896",
+     "herMargin": 0.58,
+     "herFrac": 0.127,
+     "textRect": [
+      -7,
+      -264,
+      361,
+      250
+     ],
+     "textFrac": 0.279,
+     "signWhole": true
+    },
+    {
+     "screen": "360x780",
+     "herMargin": 0.58,
+     "herFrac": 0.127,
+     "textRect": [
+      -6,
+      -230,
+      314,
+      217
+     ],
+     "textFrac": 0.279,
+     "signWhole": true
+    },
+    {
+     "screen": "375x667",
+     "herMargin": 0.58,
+     "herFrac": 0.127,
+     "textRect": [
+      -5,
+      -197,
+      268,
+      186
+     ],
+     "textFrac": 0.279,
+     "signWhole": true
+    },
+    {
+     "screen": "390x520",
+     "herMargin": 0.58,
+     "herFrac": 0.127,
+     "textRect": [
+      -4,
+      -153,
+      209,
+      145
+     ],
+     "textFrac": 0.279,
+     "signWhole": true
+    },
+    {
+     "screen": "320x568",
+     "herMargin": 0.58,
+     "herFrac": 0.127,
+     "textRect": [
+      -5,
+      -168,
+      229,
+      158
+     ],
+     "textFrac": 0.279,
+     "signWhole": true
+    },
+    {
+     "screen": "768x1024",
+     "herMargin": 0.58,
+     "herFrac": 0.127,
+     "textRect": [
+      -8,
+      -302,
+      412,
+      285
+     ],
+     "textFrac": 0.279,
+     "signWhole": true
+    }
+   ]
+  },
+  "after1s": {
+   "herSeen": true,
+   "textFacing": 0.62,
+   "textDeg": 51.5,
+   "armM": 17.9,
+   "allScreens": true,
+   "inside": false,
+   "clearM": 7.62,
+   "gullClear": true
+  },
+  "ok": true
+ }
+}

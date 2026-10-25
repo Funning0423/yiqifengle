@@ -1,0 +1,157 @@
+{
+ "test": "p0drag10",
+ "ok": true,
+ "Q1": {
+  "boxes": 2718,
+  "ro": {
+   "her": [
+    8.59,
+    -0.08,
+    8.2
+   ],
+   "before_mac": {
+    "frames": 3600,
+    "maxPitchStepDeg": 43.16,
+    "maxHeightStepM": 4.564,
+    "pitchOverLimitDeg": 42.74,
+    "heightOverLimitM": 4.469,
+    "max025sPitchDeg": 43.5,
+    "max025sHeightM": 4.64,
+    "framesInsideGeometry": 46,
+    "longestFaceChestOcclusionS": 0.94,
+    "longestOcclusionFromQaHookS": 0,
+    "minHerMargin": 0.59,
+    "minArmM": 7.16,
+    "minViewPitchDeg": -58.8
+   },
+   "after": {
+    "frames": 3600,
+    "maxPitchStepDeg": 0.42,
+    "maxHeightStepM": 0.039,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 5.5,
+    "max025sHeightM": 0.49,
+    "framesInsideGeometry": 0,
+    "longestFaceChestOcclusionS": 0.33,
+    "longestOcclusionFromQaHookS": 0.81,
+    "minHerMargin": 0.61,
+    "minArmM": 6.76,
+    "minViewPitchDeg": -25.4,
+    "hookRelease": null
+   },
+   "perf": {
+    "avgMs": 0.189,
+    "p99Ms": 1.09
+   }
+  },
+  "pock": {
+   "her": [
+    8.59,
+    -0.08,
+    8.2
+   ],
+   "before_mac": {
+    "frames": 1731,
+    "maxPitchStepDeg": 41.04,
+    "maxHeightStepM": 5.196,
+    "pitchOverLimitDeg": 40.58,
+    "heightOverLimitM": 5.091,
+    "max025sPitchDeg": 41.1,
+    "max025sHeightM": 5.2,
+    "framesInsideGeometry": 0,
+    "longestFaceChestOcclusionS": 0,
+    "longestOcclusionFromQaHookS": 0,
+    "minHerMargin": 0.6,
+    "minArmM": 7.25,
+    "minViewPitchDeg": -58.9
+   },
+   "after": {
+    "frames": 1731,
+    "maxPitchStepDeg": 0,
+    "maxHeightStepM": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 0,
+    "max025sHeightM": 0,
+    "framesInsideGeometry": 0,
+    "longestFaceChestOcclusionS": 0.02,
+    "longestOcclusionFromQaHookS": 0,
+    "minHerMargin": 0.61,
+    "minArmM": 7.34,
+    "minViewPitchDeg": -12,
+    "hookRelease": null
+   },
+   "perf": {
+    "avgMs": 0.22,
+    "p99Ms": 1.1
+   }
+  },
+  "ok": true
+ },
+ "Q2": {
+  "herSeenAfterDrag": true,
+  "blockedPick": {
+   "key": "S2",
+   "yaw": -45,
+   "at": [
+    -6.6,
+    -0.055,
+    19
+   ]
+  },
+  "teleport": {
+   "ok": true,
+   "region": "skycity",
+   "at": [
+    -6.6,
+    -0.055,
+    19
+   ],
+   "yaw": -45,
+   "pitch": 12
+  },
+  "maxYawDriftDeg3s": 0,
+  "yawOffAfterManualDrag15sDeg": 17.1,
+  "ok": true
+ },
+ "Q3": {
+  "teleport": {
+   "ok": true,
+   "region": "island",
+   "at": [
+    -1.9,
+    -0.597,
+    10.1
+   ],
+   "yaw": 4.600095666263279,
+   "pitch": 12,
+   "signShot": {
+    "armM": 17.9,
+    "textDeg": 51.5,
+    "minTextPx": 144.9
+   }
+  },
+  "lensFrontOfPanelM": 6.46,
+  "signAheadOfLens": true,
+  "signRect": [
+   -16,
+   -218,
+   646,
+   630
+  ],
+  "ok": true
+ },
+ "Q4": {
+  "wired": true,
+  "hidden": {
+   "occFace": true,
+   "occChest": true
+  },
+  "clear": {
+   "occFace": false,
+   "occChest": false
+  },
+  "ok": true
+ }
+}

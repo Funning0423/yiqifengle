@@ -1,0 +1,381 @@
+{
+ "test": "p0drag11",
+ "ok": true,
+ "Q0": {
+  "skd_po": {
+   "frames": 3600,
+   "turnFrom": 531.954,
+   "agreeWithMacOcc": 0.9944,
+   "longestTurnFaceChestS": {
+    "macEngineField": [
+     1.95,
+     1.95
+    ],
+    "worldAabbRecomputed": [
+     2.13,
+     2.13
+    ],
+    "exactLocalOldSet": [
+     1.85,
+     2.03
+    ],
+    "exactLocalNewSet": [
+     1.77,
+     1.78
+    ]
+   }
+  },
+  "skd_ro": {
+   "frames": 3600,
+   "turnFrom": 566.268,
+   "agreeWithMacOcc": 0.9922,
+   "longestTurnFaceChestS": {
+    "macEngineField": [
+     2.7,
+     2.22
+    ],
+    "worldAabbRecomputed": [
+     2.65,
+     2.65
+    ],
+    "exactLocalOldSet": [
+     0.8,
+     0.8
+    ],
+    "exactLocalNewSet": [
+     0.75,
+     0.75
+    ]
+   }
+  },
+  "skn_po": {
+   "frames": 3600,
+   "turnFrom": 527.738,
+   "agreeWithMacOcc": 0.9781,
+   "longestTurnFaceChestS": {
+    "macEngineField": [
+     4.58,
+     9.6
+    ],
+    "worldAabbRecomputed": [
+     4.13,
+     9.62
+    ],
+    "exactLocalOldSet": [
+     0.6,
+     4.26
+    ],
+    "exactLocalNewSet": [
+     0.25,
+     7.75
+    ]
+   }
+  },
+  "skn_ro": {
+   "frames": 3600,
+   "turnFrom": 567.119,
+   "agreeWithMacOcc": 0.9836,
+   "longestTurnFaceChestS": {
+    "macEngineField": [
+     2.7,
+     2.22
+    ],
+    "worldAabbRecomputed": [
+     2.67,
+     2.67
+    ],
+    "exactLocalOldSet": [
+     1.15,
+     0.93
+    ],
+    "exactLocalNewSet": [
+     0.88,
+     0.88
+    ]
+   }
+  },
+  "ok": true
+ },
+ "Q1": {
+  "boxes": 2718,
+  "skd_po": {
+   "her": [
+    13.02,
+    -0.05,
+    6.58
+   ],
+   "turnFrom": 531.954,
+   "before_mac_exactBoxes": {
+    "longestFaceS": 1.77,
+    "longestChestS": 1.78,
+    "framesInsideGeometry": 0,
+    "maxPitchStepDeg": 0.73,
+    "maxHeightStepM": 0.084,
+    "pitchOverLimitDeg": 0.15,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 5.7,
+    "max025sHeightM": 0.88,
+    "minHerMargin": 0.59,
+    "minArmM": 7.12,
+    "minViewPitchDeg": -59
+   },
+   "after": {
+    "longestFaceS": 0.54,
+    "longestChestS": 0.76,
+    "framesInsideGeometry": 0,
+    "maxPitchStepDeg": 0,
+    "maxHeightStepM": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 0,
+    "max025sHeightM": 0,
+    "minHerMargin": 0.61,
+    "minArmM": 7.34,
+    "minViewPitchDeg": -12,
+    "relaxedLimit": {
+     "f": 0.8,
+     "c": 0.8
+    }
+   },
+   "perf": {
+    "avgMs": 0.168,
+    "p99Ms": 1.57
+   }
+  },
+  "skd_ro": {
+   "her": [
+    6.2,
+    -0.01,
+    8.19
+   ],
+   "turnFrom": 566.268,
+   "before_mac_exactBoxes": {
+    "longestFaceS": 0.75,
+    "longestChestS": 0.75,
+    "framesInsideGeometry": 4,
+    "maxPitchStepDeg": 1.03,
+    "maxHeightStepM": 0.115,
+    "pitchOverLimitDeg": 0.63,
+    "heightOverLimitM": 0.033,
+    "max025sPitchDeg": 9.3,
+    "max025sHeightM": 1.04,
+    "minHerMargin": 0.6,
+    "minArmM": 7.12,
+    "minViewPitchDeg": -51.5
+   },
+   "after": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "maxPitchStepDeg": 0,
+    "maxHeightStepM": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 0,
+    "max025sHeightM": 0,
+    "minHerMargin": 0.61,
+    "minArmM": 7.34,
+    "minViewPitchDeg": -12
+   },
+   "perf": {
+    "avgMs": 0.196,
+    "p99Ms": 1.66
+   }
+  },
+  "skn_po": {
+   "her": [
+    8.76,
+    -0.08,
+    8.14
+   ],
+   "turnFrom": 527.738,
+   "before_mac_exactBoxes": {
+    "longestFaceS": 0.25,
+    "longestChestS": 7.75,
+    "framesInsideGeometry": 6,
+    "maxPitchStepDeg": 0.53,
+    "maxHeightStepM": 0.069,
+    "pitchOverLimitDeg": 0.1,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 5.8,
+    "max025sHeightM": 0.85,
+    "minHerMargin": 0.6,
+    "minArmM": 7.12,
+    "minViewPitchDeg": -56.9
+   },
+   "after": {
+    "longestFaceS": 0.18,
+    "longestChestS": 0.18,
+    "framesInsideGeometry": 0,
+    "maxPitchStepDeg": 0.46,
+    "maxHeightStepM": 0.053,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 5.5,
+    "max025sHeightM": 0.64,
+    "minHerMargin": 0.61,
+    "minArmM": 7.08,
+    "minViewPitchDeg": -27.3
+   },
+   "perf": {
+    "avgMs": 0.132,
+    "p99Ms": 0.99
+   }
+  },
+  "skn_ro": {
+   "her": [
+    6.2,
+    -0.01,
+    8.19
+   ],
+   "turnFrom": 567.119,
+   "before_mac_exactBoxes": {
+    "longestFaceS": 0.88,
+    "longestChestS": 0.88,
+    "framesInsideGeometry": 4,
+    "maxPitchStepDeg": 1.01,
+    "maxHeightStepM": 0.108,
+    "pitchOverLimitDeg": 0.63,
+    "heightOverLimitM": 0.028,
+    "max025sPitchDeg": 9.5,
+    "max025sHeightM": 1,
+    "minHerMargin": 0.6,
+    "minArmM": 7.12,
+    "minViewPitchDeg": -51.9
+   },
+   "after": {
+    "longestFaceS": 0,
+    "longestChestS": 0,
+    "framesInsideGeometry": 0,
+    "maxPitchStepDeg": 0,
+    "maxHeightStepM": 0,
+    "pitchOverLimitDeg": 0,
+    "heightOverLimitM": 0,
+    "max025sPitchDeg": 0,
+    "max025sHeightM": 0,
+    "minHerMargin": 0.61,
+    "minArmM": 7.34,
+    "minViewPitchDeg": -12
+   },
+   "perf": {
+    "avgMs": 0.161,
+    "p99Ms": 1.11
+   }
+  },
+  "ok": true
+ },
+ "Q2": {
+  "her": [
+   11.8,
+   -0.05,
+   8.2
+  ],
+  "badYaw": 50,
+  "start": {
+   "inside": true,
+   "hid": true
+  },
+  "turn": {
+   "from": 50,
+   "to": 20
+  },
+  "clearAfterS": 0.4166666666666667,
+  "endSeen": true,
+  "insideFrames": 6,
+  "maxLensStepM": 0.24,
+  "ok": true
+ },
+ "Q3": {
+  "teleport": {
+   "ok": true,
+   "region": "island",
+   "at": [
+    -1.9,
+    -0.597,
+    10.1
+   ],
+   "yaw": 4.600095666263279,
+   "pitch": 12,
+   "signShot": {
+    "armM": 17.9,
+    "textDeg": 51.5,
+    "minTextPx": 144.9
+   }
+  },
+  "atTeleport": {
+   "signDepthM": 9.43,
+   "inFrustum": true,
+   "textNdc": [
+    -0.1,
+    -0.58
+   ],
+   "textDistM": 9.66,
+   "textFacing": 0.62,
+   "signBlocksHer": false,
+   "rect": [
+    -16,
+    -218,
+    646,
+    630
+   ]
+  },
+  "after1s": {
+   "signDepthM": 9.43,
+   "inFrustum": true,
+   "textNdc": [
+    -0.1,
+    -0.58
+   ],
+   "textDistM": 9.66,
+   "textFacing": 0.62,
+   "signBlocksHer": false,
+   "rect": [
+    -16,
+    -218,
+    646,
+    630
+   ]
+  },
+  "ok": true
+ },
+ "Q4": {
+  "walkStarted": true,
+  "walkDest": [
+   0.2,
+   0.029999999329447746,
+   -27.8
+  ],
+  "teleport": {
+   "ok": true,
+   "region": "skycity",
+   "at": [
+    6.2,
+    -0.013,
+    8.2
+   ],
+   "yaw": -160.01689347810003,
+   "pitch": 17.021697930454376
+  },
+  "herAtTeleport": [
+   6.2,
+   -0.013,
+   8.2
+  ],
+  "herAfterOldWalkSettled": [
+   6.2,
+   -0.013,
+   8.2
+  ],
+  "stayedOnNode": true,
+  "groundWalkingAfterTeleport": false,
+  "walkTokenCancelled": true,
+  "reStands": [
+   [
+    6.2,
+    -0.013,
+    8.2
+   ]
+  ],
+  "ok": true
+ }
+}

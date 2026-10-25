@@ -1,100 +1,100 @@
 [QF_BOARD_PRESENTATION_ERROR] Error: injected first-render
-    at b.u.render (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at ManagedMobileBoardUI.swap (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1441:29)
-    at ManagedMobileBoardUI.tap (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1481:18)
-    at ManagedMobileBoardUI.releasePiece (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:966:18)
-    at ManagedMobileBoardUI.eval (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:221:22)
-    at Node.emit (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:15:335)
-    at Object.tap (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:190:91)
+    at b.u.render (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1441:29)
+    at ManagedMobileBoardUI.tap (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1481:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:966:18)
+    at ManagedMobileBoardUI.eval (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:221:22)
+    at Node.emit (/workspace/wt-trans/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/workspace/wt-trans/tools/board-ui/harness.cjs:190:91)
 [QF_BOARD_PRESENTATION_ERROR] Error: injected completion-render
-    at b.u.render (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
-    at /workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:69:16
-    at ManagedMobileBoardUI.finishVisual (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1407:9)
-    at ManagedMobileBoardUI.update (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1824:22)
-    at step (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:13:49)
-    at /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:22:48
-    at async test (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:18:74
+    at b.u.render (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
+    at /workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:69:16
+    at ManagedMobileBoardUI.finishVisual (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1407:9)
+    at ManagedMobileBoardUI.update (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1824:22)
+    at step (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:13:49)
+    at /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:22:48
+    at async test (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:18:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected tween start
-    at b.H.cc.tween (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:21:108)
-    at Object.animate (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1376:36)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:63:12)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at ManagedMobileBoardUI.swap (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1441:29)
-    at ManagedMobileBoardUI.tap (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1481:18)
-    at ManagedMobileBoardUI.releasePiece (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:966:18)
-    at ManagedMobileBoardUI.eval (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:221:22)
-    at Node.emit (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:15:335)
-    at Object.tap (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:190:91)
+    at b.H.cc.tween (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:21:108)
+    at Object.animate (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1376:36)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:63:12)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1441:29)
+    at ManagedMobileBoardUI.tap (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1481:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:966:18)
+    at ManagedMobileBoardUI.eval (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:221:22)
+    at Node.emit (/workspace/wt-trans/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/workspace/wt-trans/tools/board-ui/harness.cjs:190:91)
 [QF_BOARD_PRESENTATION_ERROR] Error: injected render
-    at b.u.paint (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:24:244)
-    at ManagedMobileBoardUI.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1556:14)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at ManagedMobileBoardUI.swap (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1441:29)
-    at ManagedMobileBoardUI.tap (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1481:18)
-    at ManagedMobileBoardUI.releasePiece (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:966:18)
-    at ManagedMobileBoardUI.eval (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:221:22)
-    at Node.emit (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:15:335)
+    at b.u.paint (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:24:244)
+    at ManagedMobileBoardUI.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1556:14)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1441:29)
+    at ManagedMobileBoardUI.tap (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1481:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:966:18)
+    at ManagedMobileBoardUI.eval (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:221:22)
+    at Node.emit (/workspace/wt-trans/tools/board-ui/harness.cjs:15:335)
 [QF_BOARD_PRESENTATION_ERROR] Error: persistent board paint
-    at b.u.paint (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:25:203)
-    at ManagedMobileBoardUI.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1556:14)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:25:355
-    at async test (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:25:2
+    at b.u.paint (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:25:203)
+    at ManagedMobileBoardUI.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1556:14)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:25:355
+    at async test (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:25:2
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R5 first-render
-    at u.render (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:31:412)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:31:637
-    at async test (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+    at u.render (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:31:412)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:28:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R5 completion-render
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R5 tween
-    at H.cc.tween (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:31:571)
-    at Object.animate (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1376:36)
-    at Object.animate (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:31:637
-    at async test (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+    at H.cc.tween (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:31:571)
+    at Object.animate (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1376:36)
+    at Object.animate (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:28:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R4 first-render
-    at u.render (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:33:1422)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
-    at Object.render (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
-    at async test (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+    at u.render (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:33:1422)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1370:33)
+    at Object.render (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:33:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R4 completion-render
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R4 tween
-    at H.cc.tween (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:33:1581)
-    at Object.animate (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:1376:36)
-    at Object.animate (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
-    at refresh (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
-    at Object.command (/workspace/wt-p0-drag/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/workspace/wt-p0-drag/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
-    at async test (/workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /workspace/wt-p0-drag/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+    at H.cc.tween (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:33:1581)
+    at Object.animate (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:1376:36)
+    at Object.animate (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/workspace/wt-trans/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/workspace/wt-trans/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /workspace/wt-trans/tools/board-ui/test_board_freeze_recovery.cjs:33:74
 [QF_BOARD_ENTRY_TIMEOUT] background mainline-01
 [enter-level] not ready; staying on the island
