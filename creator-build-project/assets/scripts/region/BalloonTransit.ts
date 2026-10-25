@@ -1,3 +1,6 @@
+import {BASKET_CLOSE,b1InS,basketClosePose,basketCloseSpot} from './BasketCloseShot';
+import {transitionOccluderBoxes} from './TransitionAnchorData';
+import {blendPose,minJerk} from './TransitionCamera';
 import {Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid, view} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {VEHICLE_ASSET_WAIT_MS} from './TransportWait';
@@ -5,7 +8,7 @@ import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {SkycityCloudsea} from './SkycityCloudsea';
 import {routeLength} from '../world-r1/RegionJourneyCore';
 import type {JourneySceneLease} from '../world-r1/RegionJourneyCore';
-import type {Cancellation, CharacterAdapter, Vec, WorldLease} from '../world-r1/WorldFlowCore';
+import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import {REGION_JOURNEY_LAYOUT, meadowExitFrom, plus, skyDeckRoute, skycityYawDeg} from './RegionJourneyLayout';
 import {balloonBeats, balloonRoutePoints, stepTransitClock} from './TransportLeg';
 import {basketFloor, loadBundlePrefab, mountVehicle, applyVehicleNight} from './TransportVehicle';
@@ -550,14 +553,21 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     chainMark('balloon','B1-basket-in');
     const v0=plan.vehicle(0);vehicle.setWorldPosition(v0.pos[0],v0.pos[1],v0.pos[2]);{const qq=balloonQuat(v0.yaw*180/Math.PI,v0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);}
     if(flame)flame.active=false;
-    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));world.setCamera(plan.camera(0));paint(0);if(flame)flame.active=false;
+    // full2-cam E (d3fe578e P2): close-up of the boarding — lens beside the door (BasketCloseShot, her ≈30 % of the frame), panning to
+    // her live; once she is in, min-jerk onto the ride's first pose before she is seated (the ride then continues from it, no step).
+    const cam0=plan.camera(0),oB:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],doorB1=basketToWorld(oB,vYawDeg(),TRANSITION_STAGING.basket.doorOut);
+    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,transitionOccluderBoxes() as any,undefined,[cam0]);}catch{spotB1=null;}
+    const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
+    const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
+    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));world.setCamera(b1Lens());paint(0);if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
     try{
      const B=TRANSITION_STAGING.basket,D3=TRANSITION_DURATIONS.seg3,o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),W=(l:Vec)=>basketToWorld(o,y,l);
      const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=[here,W(B.outside),W(B.doorOut)];
-     guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps));rideToken.check();
+     const walkS=Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps);b1In=b1InS(walkS);
+     guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,walkS);rideToken.check();
      doorAt=b1;const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();await reach;rideToken.check();
      guardBeforeWalk(anim,'B1 step into basket');await walkTo([W(B.doorOut),W(B.threshold),W(B.p0)],D3.intoBasket);rideToken.check();inAt=b1;
      // b19: ridden SEATED (sit_down → sit_hold; stand_up before any walk at B5), seat = basket (0.032,0,−0.099) facing the door
@@ -623,7 +633,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // sky-city stop (plan.s0). No teleport: the actor is reset to where she stands, then walks.
     chainMark('balloon','B5-door-walk-out');
     const vp=vehicle.worldPosition,o:Vec=[vp.x,vp.y,vp.z],y=vehicle.eulerAngles.y;
-    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;b5+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
+    // full2-cam E: exit close-up — from the ride's last pose, min-jerk (BASKET_CLOSE.blendS) onto a lens beside door B (her ≈30 %),
+    // panning with her down the step to S0; the ride ends on it (RegionJourneyCore keeps a ride's last lens; D hands it to the board).
+    const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
+    try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
+    const b5Lens=():Pose|null=>{if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/BASKET_CLOSE.blendOutS));};
+    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p)world.setCamera(p);}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
      const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);

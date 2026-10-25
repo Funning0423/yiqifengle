@@ -9,7 +9,7 @@
 //  W4 lens never inside an occluder box; ≥1.1 m from them on the scripted walk/board; runtime data file in sync with the JSONs
 const fs=require('fs'),path=require('path'),{createHarness}=require('../board-ui/harness.cjs'),RL=require('../journey-integration/route/route-legs.cjs');
 const H=createHarness(),SL=H.load('region/SkyLakeContinuous.ts'),TS=H.load('region/TransitionStaging.ts'),LB=H.load('region/LakesideBalloon.ts'),LC=H.load('region/LakesideCameraLayout.ts'),
- BL=H.load('ui/BoardLayout.ts'),SW=H.load('region/SkyWalkShot.ts'),AD=H.load('region/TransitionAnchorData.ts'),Core=H.load('world-r1/RegionJourneyCore.ts'),FS=H.load('region/SkyFinaleShot.ts'),SO=H.load('region/SkycityLensOccluders.ts');
+ BL=H.load('ui/BoardLayout.ts'),SW=H.load('region/SkyWalkShot.ts'),AD=H.load('region/TransitionAnchorData.ts'),Core=H.load('world-r1/RegionJourneyCore.ts'),FS=H.load('region/SkyFinaleShot.ts'),SO=H.load('region/SkycityLensOccluders.ts'),BC=H.load('region/BasketCloseShot.ts');
 const {J}=RL,{add,rotY,sub}=J;const DT=1/60,R2D=180/Math.PI,wrap=a=>((a%360)+540)%360-180,yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*R2D;
 const pct=(a,q)=>{const s=[...a].sort((x,y)=>x-y);return s[Math.min(s.length-1,Math.floor(q*s.length))]||0;};
 let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
@@ -23,7 +23,14 @@ let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
   const wide=LB.lakesideDoorWideLens(M.walk,M.mooring,land,w/h,{...BL.boardSafeInsets(w,h),h}),door=wide?wide.lens:LB.lakesideDoorLens(M.walk,M.mooring,w/h,undefined,undefined,{...BL.boardSafeInsets(w,h),h});
   const stepInS=(D5.intoBasket||TS.lakeBoardS())+D5.turn180+D5.sitDown,inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
   const Wk=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,[...boxes,...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,M5.walkWorld)],SW.finaleCity(fin),{...SW.SKY_WALK_SHOT,plan:AD.SKY_5A_WALK_PLAN},fin),walkCam=tau=>Wk.pose(Wk.gazeS+tau*Wk.walkS/R.walkS);
-  const S=SL.skyLakeContinuous(R,door,{...SL.SKY_LAKE_CONT,doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TS.TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:AD.SKY_5A_LIFT_KEYS,walkCam});
+  const S00=SL.skyLakeContinuous(R,door,{...SL.SKY_LAKE_CONT,doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TS.TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:AD.SKY_5A_LIFT_KEYS,walkCam});
+  const dS=M5.walkWorld.at(-1),spot=BC.basketCloseSpot(dS,M5.world,[...boxes,...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,[dS])],undefined,[walkCam(R.walkS),S00.cam(S00.flightAt,null)]);ok(!!spot,'E C1 close spot');
+  const boardClose=spot?tau=>BC.basketClosePose(spot.position,BC.boardFeetAt(dS,M5.seat,tau-R.walkS,D5.doorReach,stepInS-D5.sitDown)):null;
+  const S=SL.skyLakeContinuous(R,door,{...SL.SKY_LAKE_CONT,doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TS.TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:AD.SKY_5A_LIFT_KEYS,walkCam,boardClose});
+  const S0=SL.skyLakeContinuous(R,door,{...SL.SKY_LAKE_CONT,doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TS.TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:AD.SKY_5A_LIFT_KEYS,walkCam});
+  // E: her height share through the door beat (hold window 0.3–0.75 of C1-board), before (no close-up) / after
+  const herMin=(SS)=>{let mn=9;for(let tau=S.walkS+S.boardS*.3;tau<=S.walkS+S.boardS*.75;tau+=.1){const f=BC.boardFeetAt(dS,M5.seat,tau-R.walkS,D5.doorReach,stepInS-D5.sitDown);mn=Math.min(mn,BC.herHeightFrac(SS.cam(tau,null),f));}return mn;};
+  const eAfter=herMin(S),eBefore=herMin(S0);ok(eAfter>=0.25,`${w}x${h} E C1 her ${eAfter}`);
   const yawAt=tau=>SL.lakeBasketYaw(S,tau,M5.worldYawDeg,M.doorYawDeg);
   const b0=S.basket(0);ok(Math.hypot(...sub(b0,M5.world))<1e-3,`${w}x${h} W1 basket at C ${b0}`);ok(Math.abs(wrap(yawAt(0)-M5.worldYawDeg))<1e-9,'W1 moored yaw');
   const td=S.basket(S.touchdownAt-1e-6);ok(Math.hypot(...sub(td,R.vehicle(R.T)))<0.02,`${w}x${h} W1 touchdown ${Math.hypot(...sub(td,R.vehicle(R.T)))}`);ok(Math.abs(wrap(yawAt(S.touchdownAt)-M.doorYawDeg))<1e-6,'W1 landing yaw');
@@ -46,8 +53,8 @@ let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
   for(let i=1;i<yr.length;i++)ya.push(Math.abs(yr[i]-yr[i-1])/DT);
   const sel=(pred,a)=>a.filter((_,i)=>pred(ph[i]));const walkY=sel(x=>x==='C1-walk',yr),restY=sel(x=>x!=='C1-walk',yr),walkA=sel(x=>x==='C1-walk',ya),restA=sel(x=>x!=='C1-walk',ya);
   const r={screen:w+'x'+h,walkS:+S.walkS.toFixed(2),flightAt:+S.flightAt.toFixed(2),touchdownAt:+S.touchdownAt.toFixed(2),walkYawMax:+Math.max(...walkY.map(Math.abs)).toFixed(1),walkAccP99:+pct(walkA,.99).toFixed(0),
-   yawMax:+Math.max(...restY.map(Math.abs)).toFixed(1),accP99:+pct(restA,.99).toFixed(0),stepMaxM:+Math.max(...dp).toFixed(3),faceChestHiddenMaxS:+maxRun.toFixed(2),lensInBox:inBox,boxClearMinM:+minBox.toFixed(2),liftJoinM:+S.liftJoinM.toFixed(2),landYawLocal:+wrap(landLocal).toFixed(3)};
-  rows.push(r);
+   yawMax:+Math.max(...restY.map(Math.abs)).toFixed(1),accP99:+pct(restA,.99).toFixed(0),stepMaxM:+Math.max(...dp).toFixed(3),faceChestHiddenMaxS:+maxRun.toFixed(2),lensInBox:inBox,boxClearMinM:+minBox.toFixed(2),liftJoinM:+S.liftJoinM.toFixed(2),landYawLocal:+wrap(landLocal).toFixed(3),C1herBefore:+eBefore.toFixed(3),C1herAfter:+eAfter.toFixed(3),C1side:spot&&spot.sideDeg};
+  r.c2Her=+(BC.herHeightFrac(S.cam(S.touchdownAt+1,from),S.basket(S.touchdownAt))*100).toFixed(1)/* lakeside C2 door lens (T-03 option B wide): reported, not gated */;rows.push(r);
   ok(r.walkYawMax<=120&&r.walkAccP99<=300,`${r.screen} W2 walk ${r.walkYawMax}/${r.walkAccP99}`);ok(r.yawMax<=90&&r.accP99<=200,`${r.screen} W2 ride ${r.yawMax}/${r.accP99}`);ok(r.stepMaxM<=0.6,`${r.screen} W2 step ${r.stepMaxM}`);
   ok(r.faceChestHiddenMaxS<=0.5,`${r.screen} W3 hidden ${r.faceChestHiddenMaxS}`);ok(r.lensInBox===0,`${r.screen} W4 in box`);ok(r.boxClearMinM>=1.1,`${r.screen} W4 clearance ${r.boxClearMinM}`);
   const hand=Math.hypot(...sub(S.cam(S.touchdownAt+DT,from).position,S.cam(S.touchdownAt-DT,from).position));ok(hand<=0.6,`${r.screen} W2 touchdown hand ${hand}`);}
