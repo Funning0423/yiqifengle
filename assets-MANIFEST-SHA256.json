@@ -1121,8 +1121,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb",
-    "bytes": 136476,
-    "sha256": "1ec4485de6f74f9dcebc70d0f3770a4c9de2be5f9a008a01c1fbd7018facc076"
+    "bytes": 142656,
+    "sha256": "d5b1dc25c14d2e8529836e099763415a90a6e4b6da755b110a2a74187863de3f"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
