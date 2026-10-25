@@ -35,13 +35,16 @@ const REGIONS={
   draco:true,box:[-60,-50,45,80],c:.4,
   floor:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_bridge_after/,
   solid:/static_palette|env_sky_ruins|state_court_after$|static_rock_strata|state_gate_after$|env_sky_windchime|state_bridge_after|chr_robot/,
-  start:[5.4,-0.11,43.8],explore:[-37,-45,42,55],ridge:true,keepNodeComponents:true,
+  start:[5.4,-0.11,43.8],explore:[-37,-45,42,55],ridge:true,keepNodeComponents:true,tapObstacles:true,
   // b17 skycity-walk-r2: the orbit lens has its own (smaller) box = the baked floor's extent, not the walk/focus box
   lens:[-34.8,-41,39.6,47.6],
   // b17 skycity-walk-r3 (Mac p0drag7): the two giant tree roots that lean on the blue-roof house east of S3 (one sloped 2-tri
   // sliver of env_sky_static_palette from (17.6,-0.4,-4.5) up to the annex top y≈2 at (21.3,1.45,7.2)) are decoration, not a ramp.
   // She walked up them onto the annex (20.84,1.65,7.13) and every tap west was 'none'. Floors > minY above ground here are not walkable.
-  noWalk:[[17.0,-5.2,22.8,14.6,0.3]],
+  // b17 skycity-walk-r4 方案 C (p0drag9): the pocket west of the low ruin fence at (13,7.4) (fence x≈13.5 to the east, the wide wall
+  // block z≥10 to the north): standing in it, 90–130° of the 6 m orbit around her is inside the fence / house. Ground there is
+  // not walkable; a tap into it stops her on the open ground west of it (blocked arc ≤ 80°). No GLB change.
+  noWalk:[[17.0,-5.2,22.8,14.6,0.3],[12.0,6.8,13.4,10.2,-9]],
  },
 };
 const NODES={
@@ -121,7 +124,8 @@ function buildGrid(spec,stamp){
  while(qi<q.length){const [ci,li]=q[qi++],y=layers[ci][li],gx=ci%W,gz=(ci/W)|0,d0=dist.get(key(ci,li));
   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx;const lim=STEP*Math.hypot(dx,dz)*(c/.4);
    layers[nc].forEach((y2,l2)=>{if(!ok[nc][l2]||Math.abs(y2-y)>lim)return;const k=key(nc,l2);if(seen.has(k))return;seen.set(k,1);parent.set(k,key(ci,li));dist.set(k,d0+Math.hypot(dx,dz)*c);q.push([nc,l2]);});}}
- return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell};
+ // b17 skycity-walk-r4: the solid surface samples per cell (0.2 m on every triangle) feed the tap-ray voxel field (RegionWalkableData.obs)
+ return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids};
 }
 function nearest(M,p,ytol=1.5){
  const ci=M.cell(p[0],p[2]);if(ci<0)return null;let best=null;
