@@ -347,7 +347,9 @@ export class ManagedMobileBoardUI extends Component {
     for (; p.next < p.parked.length; p.next++) { const n = p.parked[p.next]; if (isValid(n, true) && !n.active) { n.active = true; this.prewarmStats.flushed++; } }
   }
   private frameKey() { const f = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); return Math.max(240, f.width) + 'x' + Math.max(320, f.height); }
-  private cancelToolInput() { for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
+  /** b18 (UI设计部): cancelling a tool drops the tip held behind the stale notice (it no longer applies); the notice itself keeps its full 0.3/2/0.3. */
+  private dropHeldTip() { if (this.noticeUp) this.queuedTip = ''; }
+  private cancelToolInput() { this.dropHeldTip(); for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */
   private syncToolBar() {
     const a = this.snapshot?.active; if (!a) { this.toolBar = []; this.toolBarKey = ''; return; }
@@ -373,7 +375,7 @@ export class ManagedMobileBoardUI extends Component {
     if (!tool?.available) { this.cancelToolInput(); this.say(tool?.reason || '本关没有可用道具'); this.paintToolTray(); this.paint(); return false; }
     if (!tool.targeted) return this.useToolAt(tool.kind, -1);
     this.armedTool = this.armedTool === tool.kind ? null : tool.kind; this.selected = -1;
-    this.say(this.armedTool ? `${tool.name} · 点选目标` : '已收回，道具没有消耗'); this.paintToolTray(); this.paint(); return true;
+    if (!this.armedTool && this.noticeUp) this.dropHeldTip(); else this.say(this.armedTool ? `${tool.name} · 点选目标` : '已收回，道具没有消耗'); this.paintToolTray(); this.paint(); return true;
   }
   /** A press is layout pt (origin top-left, y down) when that reading sits on the node, otherwise Cocos UI (y up). */
   private layoutYDown(node: Node, x: number, y: number) {

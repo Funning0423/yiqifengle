@@ -49,6 +49,16 @@ const TEXT = '关卡已调整，从头开始';
     u.update(0.79); assert.equal(u.toastLabel.string, TEXT); u.update(0.4); // 2.69 s: notice gone → queued tip (latest) starts
     assert.equal(u.toastLabel.string, '点一下要敲掉的棋子'); assert.equal(u.toastT, 0); u.update(0.1); assert(op(u) > 0);
     u.say('另一条'); assert.equal(u.toastLabel.string, '另一条', 'normal tips replace each other again'); });
+  await t('cancel: tip held during the notice + tool cancelled during the notice -> no tip after; cancel does not cut the notice short', async () => {
+    const { u, withNotice } = await make(false); withNotice(); u.update(0); u.update(0.5);
+    u.armedTool = 'hammer'; u.say('点一下要敲掉的棋子'); assert.equal(u.queuedTip, '点一下要敲掉的棋子'); assert.equal(u.toastLabel.string, TEXT);
+    const t0 = u.toastT, e0 = u.toastEnd; u.cancelToolInput(); // real cancel path
+    assert.equal(u.queuedTip, '', 'held tip dropped'); assert.equal(u.armedTool, null); assert.equal(u.toastT, t0, 'clock untouched'); assert.equal(u.toastEnd, e0);
+    u.update(0.5); assert.equal(op(u), 255, 'still holding at 1.0 s'); assert.equal(u.toastLabel.string, TEXT);
+    u.update(1.29); assert.equal(op(u), 255, 'hold until 2.3 s'); u.update(0.15); assert(op(u) > 0 && op(u) < 255, 'fading out');
+    u.update(0.2); assert.equal(op(u), 0); assert.equal(u.toastT, -1); assert.equal(u.noticeUp, false);
+    assert.equal(u.toastLabel.string, TEXT, 'no tip after the notice'); u.update(0.5); assert.equal(op(u), 0);
+    u.say('选一个棋子'); assert.equal(u.toastLabel.string, '选一个棋子', 'tips normal again'); });
   await t('position + night: the notice uses the shared Toast (BoardLayout.toast band, under the plate, over the tray) with tint', async () => {
     const { u } = await make(false); const g = u.geo; assert(g && g.toast, 'layout');
     const plateB = g.plate.y + g.plate.height / 2, trayT = g.tray.y - g.tray.height / 2, top = g.toast.y - g.toast.height / 2, bot = g.toast.y + g.toast.height / 2;
