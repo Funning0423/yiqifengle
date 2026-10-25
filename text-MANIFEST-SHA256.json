@@ -1241,8 +1241,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
-    "bytes": 21227,
-    "sha256": "9170b371a5003d031bb7baa03686e96fe6b83460494d0c097b10586231ac2bdb"
+    "bytes": 21245,
+    "sha256": "970a79cb2dce9f05f4f16dfca6aa959ebb880d8ef602eb89e83f96cd2d26eeae"
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
@@ -2871,8 +2871,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
-    "bytes": 1411,
-    "sha256": "f4b601815b7723bf2ccfdd180aa2bf83719a0b5d1387fcfadcf1cf6fec7c78e1"
+    "bytes": 1481,
+    "sha256": "85ae52c55c48c903502f632a5e5597f1a4fda2671fbc0e1ca50e0a13d8f152e8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts.meta",
@@ -3002,7 +3002,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6632,
-    "sha256": "4e0d365febdf97fb1509601c840942faeb05f3c85bfc77b585fd5aa6dab0bd26"
+    "sha256": "ba85d256c2c99509179e04ba01e228a7b4b82ba856228f88a603b949221a5a5a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3032,7 +3032,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
     "bytes": 183349,
-    "sha256": "35512337ee6114ee75ab89f60fc4dbbb61594fa7c8265a4d6feb2ae8074e6392"
+    "sha256": "6ea32cb85ef97cb6e878e36328a13466eded874b85838134769ca7ab3252aa6c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
