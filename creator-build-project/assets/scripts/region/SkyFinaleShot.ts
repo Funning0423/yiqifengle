@@ -50,9 +50,11 @@ export function skyFinaleShot(feet:readonly number[],faceYawRad:number,ring:read
   const s=Math.min(...hf)+rs;
   if(s>bs){bs=s;best={position:P,target:T,fovVerticalDeg:fov,armM:Math.hypot(P[0]-feet[0],P[1]-feet[1]-1.15,P[2]-feet[2]),herFrac:hf,ringShare:rs,clearM:clear,yawDeg:dy,lookUpDeg:up};}}
  return best;}
-/** The shot for S6 (end of planWalk S4→S6, facing −148°), baked from skyFinaleShot(…, SKYCITY lens boxes) so the player build does
- * no search (test_t02_sky_final re-derives it and checks it matches). skycity model-local. */
-export const SKY_FINALE_POSE_LOCAL={position:[6.434,1.342,-22.815] as V3,target:[-1.3,3.421,-28.804] as V3,fovVerticalDeg:50};
+/** The shot for S6 (end of planWalk S4→S6, facing −148°). T-02 option C (Grok Bot, Oct 25): her + the city, no ring requirement
+ * (A2 — a ring arc across ≥60 % of the frame width with fov ≤ 60 and no up-tilt — has no pose: the ring never enters the upper frame).
+ * Rear 3/4 (50° off her back), 6 m arm, lens 1.3 m up, fov 45; found by a real-mesh search (clearance ≥ 1.1 m, head/chest clear,
+ * city share) and baked so the player build does no search. test_t02_sky_final checks it per screen. skycity model-local. */
+export const SKY_FINALE_POSE_LOCAL={position:[6.845,1.342,-26.291] as V3,target:[-3.199,2.342,-26.649] as V3,fovVerticalDeg:45};
 /** Approach seconds from the walk lens to the shot under the standing yaw cap: blendPose is smootherstep (peak rate 1.875·Δ/T,
  * peak acceleration ≈ 5.77·Δ/T²), so T ≥ 1.875·Δ/V and T ≥ √(5.77·Δ/A) with V = 90°/s, A = 200°/s² (5 % margin). Δ = the larger of
  * the view-direction turn and the turn of the lens round her. */
@@ -67,7 +69,7 @@ const smoother=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t
 export function skyFinaleApproachPose(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],t:number,T:number,dir=0):{position:V3;target:V3;fovVerticalDeg:number}{
  const e=T>0?smoother(t/T):1,sph=(p:readonly number[])=>({a:Math.atan2(p[0]-feet[0],p[2]-feet[2]),r:Math.hypot(p[0]-feet[0],p[2]-feet[2]),y:p[1]-feet[1]});
  const A=sph(from.position),Bq=sph(to.position);let da=Bq.a-A.a;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;if(dir>0&&da<0)da+=2*Math.PI;if(dir<0&&da>0)da-=2*Math.PI;
- const a=A.a+da*e,r=A.r+(Bq.r-A.r)*e,y=A.y+(Bq.y-A.y)*e,P:V3=[feet[0]+Math.sin(a)*r,feet[1]+y,feet[2]+Math.cos(a)*r];
+ const a=A.a+da*e,r=A.r+(Bq.r-A.r)*e,y=A.y+(Bq.y-A.y)*(T>0&&Bq.y<A.y?smoother(Math.min(1,t/(0.55*T))):e)/* drop under the canopy band first */,P:V3=[feet[0]+Math.sin(a)*r,feet[1]+y,feet[2]+Math.cos(a)*r];
  const u=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
  const d0=u(from),d1=u(to),c=Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])),w=Math.acos(c);let d:number[];
  if(w<1e-4)d=d1;else{const s0=Math.sin((1-e)*w)/Math.sin(w),s1=Math.sin(e*w)/Math.sin(w);d=[d0[0]*s0+d1[0]*s1,d0[1]*s0+d1[1]*s1,d0[2]*s0+d1[2]*s1];}
