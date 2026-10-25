@@ -84,8 +84,10 @@ assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[0.032,0,-0.099]);assert
  assert.ok(tt.meadowToSkycity<=RT.caps.meadowToSkycity,'meadow→skycity '+tt.meadowToSkycity);
  // skycity→lakeside recomputes from the real T-03 walk (mooring pending at 场景设计部): within cap, or flagged pending
  const LB=H.load('region/LakesideBalloon.ts');out.lakeWalkSource='TRANSITION_DURATIONS.seg5a.toBasket';
- const lk=tt.skycityToLakeside;out.lakeCap={total:lk,cap:RT.caps.skycityToLakeside,mooringPending:ST.TRANSITION_STAGING.skyMooring5a.pending,overBy:+(lk-RT.caps.skycityToLakeside).toFixed(2)};
- assert.ok(lk<=RT.caps.skycityToLakeside||ST.TRANSITION_STAGING.skyMooring5a.pending,'skycity→lakeside over cap with a FINAL mooring: '+lk);
+ const lk=tt.skycityToLakeside;out.lakeCap={total:lk,mooringPending:ST.TRANSITION_STAGING.skyMooring5a.pending,overBy:+(lk-RT.caps.skycityToLakeside).toFixed(2)};
+ const opt=ST.TRANSITION_STAGING.skyMooring5a.option,cap=ST.skycityToLakesideCap(opt);out.lakeCap.option=opt;out.lakeCap.cap=cap;
+ assert.equal(ST.skycityToLakesideCap('B'),40);assert.equal(ST.skycityToLakesideCap('C'),45);assert.equal(ST.skycityToLakesideCap('pending'),null);
+ if(cap!==null)assert.ok(lk<=cap,'skycity→lakeside '+lk+' over the option '+opt+' cap '+cap);else assert.ok(ST.TRANSITION_STAGING.skyMooring5a.pending,'pending option ⇔ pending mooring');
  // visible lake flight ≥ 8 s; meadow flight shortened from 30
  assert.ok(D.seg5a.flight>=8&&D.seg5a.flight===RT.lakeFlightS);assert.ok(D.seg3.flight<30&&D.seg3.flight===RT.meadowRideS);
  // overlaps: inflate inside the walk, no ignition wait after she sits, no dead pause after stand_up, door close inside sit_down

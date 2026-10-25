@@ -28,7 +28,9 @@ export const TRANSITION_STAGING=Object.freeze({
  /** Segment 4 (skycity frame): mooring deck, step-down landing, deck front edge, new S0. Basket root y 0.01 (+0.12 m vs flight end key). */
  skycity:{stepDown:[5.192,-0.02,42.262] as Vec,deckEdge:[5.107,-0.02,41.519] as Vec,s0New:[5.25,-0.084,40.6] as Vec,s0YawDeg:177.6,s1:[5.4,-0.087,37.0] as Vec,basketRootY:0.01},
  /** Segment 5a mooring (skycity frame) — pending Grok Bot; NOT applied (lakeside keeps lakesideBalloonMooring). */
- skyMooring5a:{pos:[2.8,0.01,-37.8] as Vec,yawDeg:0,pending:true},
+ skyMooring5a:{pos:[2.8,0.01,-37.8] as Vec,yawDeg:0,pending:true,
+  /** 场景设计部's choice: 'B' (move small props, keep the near mooring) → cap 40 s; 'C' (mooring ~11 m away) → cap 45 s (Grok Bot). */
+  option:'pending' as 'B'|'C'|'pending'},
  walkMps:0.9,basketWalkMps:0.8,
 });
 /** Compression retime (Grok Bot 2026-10-25: caps island→meadow ≤45 s, meadow→skycity ≤50 s, skycity→lakeside ≤40 s).
@@ -40,8 +42,12 @@ export const TRANSITION_STAGING=Object.freeze({
  *   meadowRideRampS smoothstep rate ramp (was 2; 3 keeps the rate C1 step < 0.02/frame at cruise ×3.0; yaw max 80.6°/s).
  *   lakeLiftS       screen seconds of T-03's 18 s hidden lift-off (was 6; 运镜bot sweep: 5 s → 66.9°/s on 390×844).
  *   lakeFlightS     T-03 visible flight, retimed from its 12 s with rate-1 ends (≥ 8 s, Grok Bot). */
-export const TRANSITION_RETIME=Object.freeze({meadowRideS:24,meadowRideTailS:3,meadowRideRampS:3,lakeLiftS:5,lakeFlightS:8,lakeFlightMinS:8,
- caps:{islandToMeadow:45,meadowToSkycity:50,skycityToLakeside:40}});
+export const TRANSITION_RETIME=Object.freeze({meadowRideS:28.5/* Grok Bot 2026-10-25: keeps lens step ≤ 0.6 m/frame (0.582), yaw 46.1°/s */,meadowRideTailS:3,meadowRideRampS:3,lakeLiftS:5,lakeFlightS:8,lakeFlightMinS:8,
+ caps:{islandToMeadow:45,meadowToSkycity:50,skycityToLakeside:40},
+ /** skycity→lakeside cap per mooring option (visible flight ≥ 8 s, her walk speed never changes) */
+ lakeCapByMooring:{B:40,C:45} as Record<'B'|'C',number>});
+/** Cap for the chosen mooring option; null while 场景设计部 has not chosen. */
+export function skycityToLakesideCap(opt:'B'|'C'|'pending'=TRANSITION_STAGING.skyMooring5a.option):number|null{return opt==='pending'?null:TRANSITION_RETIME.lakeCapByMooring[opt];}
 /** Seconds per beat (STANCES.md). One table (Grok Bot may retune). Compress: the pauses after stand_up are dead time → 0;
  *  flight / liftoff come from TRANSITION_RETIME. Action beats unchanged. */
 export const TRANSITION_DURATIONS=Object.freeze({

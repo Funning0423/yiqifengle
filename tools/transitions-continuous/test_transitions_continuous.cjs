@@ -37,9 +37,7 @@ out.flight={old36:mOld,new30:mNew};
 assert.ok(mNew.yawMax<=Math.max(90,mOld.yawMax*1.0001),'flight yaw ≤ 90°/s (or ≤ the approved 36 s file): '+mNew.yawMax);
 assert.ok(mNew.yawAccP99<=Math.max(200,mOld.yawAccP99*1.0001),'flight yaw accel p99: '+mNew.yawAccP99);
 assert.equal(mNew.fovStepMax,0,'flight FOV constant');
-// compress (24 s ride): cruise ×3.0 → lens step 1.018 m/frame (30 s: 0.525). 0.6 needs ≥ 28.5 s, which breaks the 50 s cap →
-// flagged for 运镜bot re-check (pan speed), guarded here against regressions only.
-out.flightStepFlag=mNew.stepMaxM>0.6?'RECHECK-运镜bot':'ok';assert.ok(mNew.stepMaxM<=1.1,'flight lens step per frame '+mNew.stepMaxM);
+assert.ok(mNew.stepMaxM<=0.6,'flight lens step per frame '+mNew.stepMaxM);
 // ---- 3. handoff level → shot → level: per-frame continuity and the eased yaw caps
 function levelOrbit(feet,yaw0,rate){return t=>{const y=(yaw0+rate*t)/R;return {position:[feet[0]+Math.sin(y)*6,feet[1]+3,feet[2]+Math.cos(y)*6],target:[feet[0],feet[1]+1,feet[2]],fovVerticalDeg:45};};}
 const feet=[0,0,0],shot={id:'test',space:'world',mode:'walk',keys:[{t:0,pos:[-3,2.2,-5],look:[0,1.2,0],fov:50},{t:3,pos:[-5,2.4,-1],look:[1,1.2,2],fov:50},{t:6,pos:[-4,2.6,4],look:[2,1.2,4],fov:50}]};
