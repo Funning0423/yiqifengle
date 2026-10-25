@@ -15,10 +15,11 @@ const meshOf=(file,re)=>{const T=[];for(const n of glb.load(BUN+file)){if(!n.tri
 const R={island:fx('island'),meadow:fx('meadow_n').concat(fx('meadow_s')),skycity:fx('sky_s0').concat(fx('sky_s6'),fx('sky_s6w'))};
 const BOAT=meshOf('transport_sail/sailboat.glb',/^(hull|rig|seat_bench)$/),BASK=meshOf('region_transit_balloon/transport_balloon.glb',/^balloon_basket$/),LEAF=meshOf('region_transit_balloon/transport_balloon.glb',/^basket_door_leaf$/);
 const JETTY=meshOf('transport_sail/transit_landing.glb',/^landing_jetty$/);
-let fails=0,checks=0;const ok=(c,m)=>{checks++;if(!c){fails++;console.error('FAIL '+m);}};
+let fails=0,checks=0;const ok=(c,m)=>{checks++;if(!c){fails++;console.error('FAIL '+m);}else if(process.env.V)console.log('ok '+m);};
 const rot=(deg,p)=>{const c=Math.cos(deg*Math.PI/180),s=Math.sin(deg*Math.PI/180);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
 const xf=(root,yaw,p)=>{const q=rot(yaw,p);return [root[0]+q[0],root[1]+q[1],root[2]+q[2]];};
 const xfT=(T,root,yaw)=>T.map(t=>[...xf(root,yaw,t.slice(0,3)),...xf(root,yaw,t.slice(3,6)),...xf(root,yaw,t.slice(6,9))]);
+const leafOpenB=(deg)=>leafOpen(deg).map(t=>{const o=[];for(let i=0;i<9;i+=3){const q=rot(180,[t[i],t[i+1],t[i+2]]);o.push(...q);}return o;});/* door B = basket_door_b, node yaw 180 */
 const leafOpen=(deg)=>LEAF.map(t=>{const o=[];for(let i=0;i<9;i+=3){const p=[t[i]-.4,t[i+1],t[i+2]-.84],q=rot(deg,p);o.push(q[0]+.4,q[1],q[2]+.84);}return o;});
 // box-triangle overlap (SAT)
 function boxTri(c,h,t){const v=[[t[0]-c[0],t[1]-c[1],t[2]-c[2]],[t[3]-c[0],t[4]-c[1],t[5]-c[2]],[t[6]-c[0],t[7]-c[1],t[8]-c[2]]];
@@ -66,12 +67,24 @@ for(const [id,seg] of Object.entries(S)){
  const jw=s.path.filter(p=>p.frame==='meadow').map(p=>p.at);let hj=0;for(const q of legs([pj,...jw]))hj+=bodyHits(JETTY,q,.3)+bodyHits(R.meadow,q,.3);ok(hj===0,`seg2 jetty/path walk clear (${hj})`);
 }
 // ---------- balloon segments ----------
-const BK=Object.values(S).find(s=>s.basket).basket,DOOR=Object.values(S).find(s=>s.door).door;
+const BK=Object.values(S).find(s=>s.basket).basket,DOOR=S['3_meadow_balloon_in'].door,DOOR_B_=S['4_skycity_balloon_out'].door;ok(DOOR_B_.pivotNode==='basket_door_b'&&S['5b_lake_balloon_out'].door.pivotNode==='basket_door_b'&&DOOR.pivotNode==='basket_door','arrivals open basket_door_b, boardings basket_door');
 const doorSweepClear=(p)=>Math.hypot(p[0]-DOOR.hingeBasket[0],p[2]-DOOR.hingeBasket[2])-DOOR.leafRadiusM-.17;
 ok(doorSweepClear(BK.outside)>=.05,`basket_outside clear of the outward door sweep (${doorSweepClear(BK.outside).toFixed(3)} m)`);
 ok(Math.hypot(BK.P0[0]-BK.seat[0],BK.P0[2]-BK.seat[2])>.49&&Math.hypot(BK.P0[0]-BK.seat[0],BK.P0[2]-BK.seat[2])<.5,'seat -> P0 = stand_up / sit_down root travel 0.494 m');
 {const open=leafOpen(DOOR.openDeg),inside=[BK.doorOut,BK.threshold,BK.P0,BK.seat];let h=0;for(const q of legs(inside))h+=bodyHits(BASK.concat(open),q,.3);ok(h===0,`walk in/out through the open door clear of basket + open leaf (${h})`);
- let hs=0;for(const q of legs([BK.outside,BK.doorOut]))hs+=bodyHits(open,q,.05);ok(hs===0,`outside -> door_out clear of the open leaf (${hs})`);}
+ let hs=0;for(const q of legs([BK.outside,BK.doorOut]))hs+=bodyHits(open,q,.05);ok(hs===0,`outside -> door_out clear of the open leaf (${hs})`);
+ // b19 door2: exit through door B (-z): P0 -> thresholdB -> doorOutB -> stepdown end, clear of basket (with its new opening) + open leaf B
+ const openB=leafOpenB(DOOR.openDeg);let hB=0;for(const q of legs([BK.P0,BK.thresholdB,BK.doorOutB,BK.stepdownEndB]))hB+=bodyHits(BASK.concat(openB),q,.3);ok(hB===0,`walk out through the open door B clear of basket + open leaf B (${hB})`);
+ let hA=0;for(const q of legs([BK.P0,BK.thresholdB,BK.doorOutB,BK.stepdownEndB]))hA+=bodyHits(BASK,q,.05);ok(hA===0,`door B opening is really cut in the basket wall (${hA} hits below the rim)`);
+ const shut=leafOpenB(0);let hC=0;for(const q of legs([BK.thresholdB,BK.doorOutB]))hC+=bodyHits(shut,q,.3);ok(hC>0,`closed leaf B blocks the opening (${hC})`);
+ const HD=(a,c)=>Math.atan2(c[0]-a[0],c[2]-a[2])*180/Math.PI,dA=(a,b)=>Math.abs(((a-b)+540)%360-180);
+ ok(BK.seatYawDeg===180&&BK.exitYawDeg===180,'seated / standing yaw 180 = facing door B');
+ ok(dA(HD(BK.P0,BK.stepdownEndB),BK.exitYawDeg)<=15&&dA(HD(BK.P0,BK.thresholdB),BK.exitYawDeg)<=15,`exit faces outward: P0 -> door B heading ${HD(BK.P0,BK.thresholdB).toFixed(1)}° vs standing yaw 180 (≤15°)`);
+ ok(BK.thresholdB[2]<BK.P0[2]&&BK.doorOutB[2]<BK.thresholdB[2]&&Math.abs(BK.thresholdB[2]-DOOR_B_.hingeBasket[2])<.01,'exit path goes out through door B (-z wall)');
+ ok(dA(HD(BK.outside,BK.threshold),BK.seatYawDeg)<=15&&dA(HD(BK.threshold,BK.P0),BK.seatYawDeg)<=15,`board: walks in already facing the seated yaw (${HD(BK.outside,BK.threshold).toFixed(1)}°/${HD(BK.threshold,BK.P0).toFixed(1)}° vs 180)`);
+ ok(Math.abs(Math.hypot(BK.stepdownEndB[0]-BK.P0[0],BK.stepdownEndB[2]-BK.P0[2])-1.157)<.01,'door B step-down = walk_start_stepdown forwardEnd 1.157 m');
+ const mir=(a,b)=>Math.abs(a[0]+b[0])<.003&&Math.abs(a[2]+b[2])<.003;ok(mir(BK.P0,[.03,0,.395])&&mir(BK.seat,[.032,0,-.099]),'door-B exit set = 180° mirror of the old door-A exit set (exitStartLocal / seat)');}
+for(const [id,s] of Object.entries(S))ok(!s.timeline.some(b=>/walk_turn_180/.test(b.clip)),`${id}: no walk_turn_180 (two doors, no turn in the vehicle)`);
 {const s=S['3_meadow_balloon_in'],st=s.stool,b=s.balloon,p=s.path.find(q=>q.id==='balloon_step_stool'),o=s.path.find(q=>q.id==='basket_door_out');
  ok(p.at[1]-o.at[1]<=.07&&b.root[1]-p.at[1]<=.07&&p.at[1]>o.at[1],`stool splits the door step (${(p.at[1]-o.at[1]).toFixed(3)} + ${(b.root[1]-p.at[1]).toFixed(3)} m)`);
  let gmax=-9;for(let x=st.basketLocal.x[0];x<=st.basketLocal.x[1]+1e-6;x+=.05)for(let z=st.basketLocal.z[0];z<=st.basketLocal.z[1]+1e-6;z+=.05){const q=xf(b.root,b.yawDeg,[x,0,z]),g=floorAt(R.meadow,q[0],q[2],st.topY,.3);if(g!==null)gmax=Math.max(gmax,g);}
@@ -89,6 +102,7 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
  const wq=parkClear(nonFloor.filter(t=>Math.max(t[1],t[4],t[7])>b.requested[1]+.02),b.requested,disc);ok(wq<0,`requested (4.6,-24.2) really collides (clearance ${wq.toFixed(2)}) — reason for the move`);
  let lo=9,hi=-9;for(let a=0;a<6.283;a+=.4){const g=floorAt(terr,b.root[0]+.94*Math.cos(a),b.root[2]+.94*Math.sin(a),7,.6);lo=Math.min(lo,g);hi=Math.max(hi,g);}
  ok(hi<=b.root[1]-.03+.005&&lo>=b.root[1]-.03-.1,`meadow basket board bottom ${(b.root[1]-.03).toFixed(3)} on the lawn (${lo.toFixed(3)}..${hi.toFixed(3)})`);
+ {const w=s.path.filter(p=>p.frame==='meadow'&&p.surface==='walkable:meadow').map(p=>p.at),n=w.length,hd=Math.atan2(w[n-1][0]-w[n-2][0],w[n-1][2]-w[n-2][2])*180/Math.PI,door=b.yawDeg+s.basket.outsideYawDeg;ok(Math.abs(((hd-door)+540)%360-180)<=15,`seg3 approach arrives on the door-A heading (${hd.toFixed(1)} vs ${door.toFixed(1)})`);}
  const mw=s.path.filter(p=>p.frame==='meadow').map(p=>p.at);let h=0;for(const q of legs(mw))h+=bodyHits(R.meadow,q);ok(h===0,`seg3 approach body clear (${h})`);
  for(const c of s.walkableChanges.filter(c=>c.kind==='reroute-edge')){for(let i=1;i<c.path.length;i++)ok(RW.lineWalkable('meadow',c.path[i-1],c.path[i]),`meadow reroute ${c.edge} leg ${i} walkable`);
   for(const q of legs(c.path,.2))ok(Math.hypot(q[0]-b.root[0],q[2]-b.root[2])>=1.25,`meadow reroute ${c.edge} keeps 1.25 m off the basket at ${q.map(v=>v.toFixed(1))}`);}}
@@ -96,8 +110,8 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
  const w=parkClear(R.skycity.filter(t=>Math.max(t[1],t[4],t[7])>b.root[1]+.02),b.root);ok(w>=.3,`skycity landing basket+envelope clearance ${w.toFixed(2)}`);
  let gmax=-9;for(let x=dk.sizeBasketLocal.x[0];x<=dk.sizeBasketLocal.x[1];x+=.2)for(let z=dk.sizeBasketLocal.z[0];z<=dk.sizeBasketLocal.z[1];z+=.2){const p=xf(b.root,b.yawDeg,[x,0,z]),g=floorAt(R.skycity,p[0],p[2],0,.4);if(g!==null)gmax=Math.max(gmax,g);}
  ok(gmax<=dk.topY-.02,`ground under sky_mooring_deck ≤ top-0.02 (max ${gmax.toFixed(3)} top ${dk.topY})`);
- const fe=xf(b.root,b.yawDeg,[0,0,dk.sizeBasketLocal.z[1]]),gf=floorAt(R.skycity,fe[0],fe[2],0,.4);ok(gf!==null&&dk.topY-gf<=.08,`deck front edge step ${(dk.topY-gf).toFixed(3)} m ≤ 0.08 (bevelled)`);
- const pts=s.path.filter(p=>p.frame==='skycity');for(const p of pts.filter(p=>p.surface==='deck')){const l=rot(-b.yawDeg,[p.at[0]-b.root[0],0,p.at[2]-b.root[2]]);ok(l[0]>=dk.sizeBasketLocal.x[0]&&l[0]<=dk.sizeBasketLocal.x[1]&&l[2]<=dk.sizeBasketLocal.z[1]+1e-3&&Math.abs(p.at[1]-dk.topY)<.01,`${p.id} on the deck`);}
+ const fe=xf(b.root,b.yawDeg,[0,0,dk.frontEdgeZ]),gf=floorAt(R.skycity,fe[0],fe[2],0,.4);ok(gf!==null&&dk.topY-gf<=.08,`deck front edge step ${(dk.topY-gf).toFixed(3)} m ≤ 0.08 (bevelled)`);
+ const pts=s.path.filter(p=>p.frame==='skycity');for(const p of pts.filter(p=>p.surface==='deck')){const l=rot(-b.yawDeg,[p.at[0]-b.root[0],0,p.at[2]-b.root[2]]);ok(l[0]>=dk.sizeBasketLocal.x[0]&&l[0]<=dk.sizeBasketLocal.x[1]&&l[2]>=dk.sizeBasketLocal.z[0]-1e-3&&l[2]<=dk.sizeBasketLocal.z[1]+1e-3&&Math.abs(p.at[1]-dk.topY)<.01,`${p.id} on the deck`);}
  const P0=s.path.find(p=>p.id==='basket_P0').regionAt;ok(Math.abs(P0[1]-(b.root[1]))<.01,'P0 on the basket floor board');
  const sd=s.path.find(p=>p.id==='stepdown_end');ok(Math.abs(Math.hypot(sd.at[0]-P0[0],sd.at[2]-P0[2])-1.1566)<.01,'step-down covers walk_start_stepdown forwardEnd 1.157 m');
  let h=0;for(const q of legs([P0,...pts.map(p=>p.at)]))h+=bodyHits(R.skycity,q);ok(h===0,`seg4 walk-out body clear (${h})`);}
@@ -145,4 +159,10 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
 const CL=J.clips;for(const [id,s] of Object.entries(S))for(const b of s.timeline){for(const c of b.clip.split(/[^A-Za-z0-9_]+/))if(/_/.test(c))ok(c in CL,`${id} clip ${c} exists in the character glb`);}
 const anim=Object.fromEntries((()=>{const g=JSON.parse((()=>{const b=fs.readFileSync(BUN+'region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb');return b.subarray(20,20+b.readUInt32LE(12)).toString();})());return (g.animations||[]).map(a=>[a.name,Math.max(...a.samplers.map(s=>g.accessors[s.input].max[0]))]);})());
 for(const [c,d] of Object.entries(CL))ok(c in anim&&Math.abs(anim[c]-d)<.002,`clip ${c} ${d}s matches glb ${anim[c]}`);
+// b19 door2: the swinging leaf (0..100°) must not hit scene geometry at any parked basket (door A at boardings, door B at the skycity landing)
+{const sweep=(T,root,yaw,lf)=>{let n=0;for(let a=0;a<=100;a+=10)for(const t of lf(a))for(let i=0;i<9;i+=3){const p=xf(root,yaw,[t[i],0,t[i+2]]);n+=bodyHits(T,[p[0],root[1],p[2]],.08,1.0,.03);}return n;};
+ const b3=S['3_meadow_balloon_in'].balloon,b4=S['4_skycity_balloon_out'].balloon,b5=S['5a_skycity_balloon_in'].balloon,mn=fx('meadow_n').filter(t=>Math.max(t[1],t[4],t[7])>b3.root[1]+.1);
+ ok(sweep(mn,b3.root,b3.yawDeg,leafOpen)===0,'meadow: door A leaf sweep clear of fence/bell/props');
+ const sk=R.skycity.filter(t=>Math.max(t[1],t[4],t[7])>b4.root[1]+.1);ok(sweep(sk,b4.root,b4.yawDeg,leafOpenB)===0,'skycity landing: door B leaf sweep clear');
+ const s5=R.skycity.filter(t=>Math.max(t[1],t[4],t[7])>b5.root[1]+.1);ok(sweep(s5,b5.root,b5.yawDeg,leafOpen)===0,'skycity mooring: door A leaf sweep clear');}
 console.log(`${fails?'FAIL':'PASS'} transition-spaces: ${checks-fails}/${checks} checks`);process.exit(fails?1:0);

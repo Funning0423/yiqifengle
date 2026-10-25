@@ -1,6 +1,6 @@
 {
  "schema": "qf.transition-stances/1",
- "branch": "scene/b19-transition-spaces",
+ "branch": "scene/b19-basket-door2",
  "base": "ggbot/cand-b18-stage d9423886",
  "generator": "tools/transition-spaces/gen-stances.py",
  "frames": {
@@ -9,7 +9,7 @@
   "skycity": "env_skycity local (CW_JSON root in world)",
   "lake": "lakeside local (lakesideJourney root, yaw 180 from world)",
   "boat": "transport_sailboat root; +z bow, -x starboard, +x port; waterline y 0",
-  "basket": "transport_balloon root; floor board top y 0; door wall +z; stand_point = (0,0.1,0)"
+  "basket": "transport_balloon root; floor board top y 0; door A wall +z (basket_door), door B wall -z (basket_door_b); stand_point = (0,0.1,0)"
  },
  "yaw": "deg, atan2(dx,dz) in the stated frame",
  "clips": {
@@ -878,7 +878,7 @@
      6.6,
      -23.4
     ],
-    "yawDeg": 0.0,
+    "yawDeg": -16.0,
     "requested": [
      4.6,
      6.56,
@@ -896,20 +896,29 @@
     "basket_outside": {
      "frame": "meadow",
      "at": [
-      3.15,
+      2.964,
       6.494,
-      -21.9
+      -21.762
      ],
-     "yawDeg": 164.74
+     "yawDeg": 154.03
+    },
+    "P0": {
+     "frame": "basket",
+     "at": [
+      -0.03,
+      0,
+      -0.395
+     ],
+     "yawDeg": 180.0
     },
     "seated": {
      "frame": "basket",
      "at": [
-      0.032,
+      -0.032,
       0,
-      -0.099
+      0.099
      ],
-     "yawDeg": 0.0
+     "yawDeg": 180.0
     }
    },
    "path": [
@@ -947,9 +956,9 @@
      "id": "yard_in",
      "frame": "meadow",
      "at": [
-      2.6,
-      6.45,
-      -21.7
+      2.74,
+      6.37,
+      -21.31
      ],
      "surface": "walkable:meadow"
     },
@@ -957,28 +966,28 @@
      "id": "basket_outside",
      "frame": "meadow",
      "at": [
-      3.15,
+      2.964,
       6.494,
-      -21.9
+      -21.762
      ],
      "surface": "walkable:meadow",
      "basketLocal": [
-      -0.45,
+      -0.16,
       0,
-      1.5
+      1.75
      ]
     },
     {
      "id": "basket_door_out",
      "frame": "meadow",
      "at": [
-      3.6,
+      3.186,
       6.494,
-      -22.15
+      -22.218
      ],
      "surface": "ground",
      "basketLocal": [
-      0.0,
+      -0.072,
       0,
       1.25
      ],
@@ -988,9 +997,9 @@
      "id": "balloon_step_stool",
      "frame": "meadow",
      "at": [
-      3.6,
+      3.311,
       6.55,
-      -22.35
+      -22.391
      ],
      "surface": "stool",
      "basketLocal": [
@@ -1003,9 +1012,9 @@
      "id": "basket_threshold",
      "frame": "meadow",
      "at": [
-      3.6,
+      3.368,
       6.6,
-      -22.56
+      -22.593
      ],
      "surface": "basket",
      "basketLocal": [
@@ -1019,15 +1028,15 @@
      "id": "basket_P0",
      "frame": "meadow",
      "at": [
-      3.63,
+      3.68,
       6.6,
-      -23.005
+      -23.788
      ],
      "surface": "basket",
      "basketLocal": [
-      0.03,
+      -0.03,
       0,
-      0.395
+      -0.395
      ],
      "parent": "transport_balloon"
     },
@@ -1036,15 +1045,15 @@
      "frame": "basket",
      "parent": "transport_balloon",
      "at": [
-      0.032,
+      -0.032,
       0,
-      -0.099
+      0.099
      ],
      "surface": "basket",
      "regionAt": [
-      3.632,
+      3.542,
       6.6,
-      -23.499
+      -23.314
      ]
     }
    ],
@@ -1069,45 +1078,37 @@
     {
      "beat": "B1a M4 -> basket_outside (balloon parked here since the M4 level started; burner/inflate B2 may overlap)",
      "t0": 0,
-     "t1": 5.67,
-     "s": 5.67,
+     "t1": 5.3,
+     "s": 5.3,
      "clip": "walk_start/walk_loop/walk_stop_bodyL",
-     "note": "6.09 m"
+     "note": "5.64 m"
     },
     {
      "beat": "door_reach at basket_outside (door contact 0.333 s, leaf opens +100° in 0.8 s, walk may start at 1.8 s)",
-     "t0": 5.67,
-     "t1": 7.47,
+     "t0": 5.3,
+     "t1": 7.1,
      "s": 1.8,
      "clip": "door_reach",
      "note": "door: basket_door"
     },
     {
-     "beat": "walk in: outside -> door_out -> threshold -> P0",
-     "t0": 7.47,
-     "t1": 10.1,
-     "s": 2.63,
+     "beat": "walk in through door A: outside -> door_out -> threshold -> P0, one line, facing the seat direction (no turn in the basket)",
+     "t0": 7.1,
+     "t1": 10.72,
+     "s": 3.62,
      "clip": "walk_start -> walk_loop 0.8 m/s -> walk_stop_bodyL",
-     "note": "1.38 m"
+     "note": "2.18 m"
     },
     {
-     "beat": "turn to face the door",
-     "t0": 10.1,
-     "t1": 11.6,
-     "s": 1.5,
-     "clip": "walk_turn_180",
-     "note": "at P0"
-    },
-    {
-     "beat": "sit (root P0 -> seat 0.494 m back); door closes 0.8 s meanwhile",
-     "t0": 11.6,
-     "t1": 12.8,
+     "beat": "sit backwards (root P0 -> seat 0.494 m toward door A); door A closes 0.8 s meanwhile",
+     "t0": 10.72,
+     "t1": 11.92,
      "s": 1.2,
      "clip": "sit_down -> sit_hold",
-     "note": "seated = basket (0.032,0,-0.099) yaw 0"
+     "note": "seated = basket (-0.032,0,0.099) yaw 180, facing door B"
     }
    ],
-   "totalS": 12.8,
+   "totalS": 11.92,
    "door": {
     "pivotNode": "basket_door",
     "leafNode": "basket_door_leaf",
@@ -1120,16 +1121,50 @@
     "openDeg": 100,
     "openS": 0.8,
     "closeS": 0.8,
-    "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)"
+    "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)",
+    "opens": "outward"
+   },
+   "doors": {
+    "board": {
+     "pivotNode": "basket_door",
+     "leafNode": "basket_door_leaf",
+     "hingeBasket": [
+      0.4,
+      0,
+      0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)",
+     "opens": "outward"
+    },
+    "exit": {
+     "pivotNode": "basket_door_b",
+     "leafNode": "basket_door_leaf_b",
+     "hingeBasket": [
+      -0.4,
+      0,
+      -0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door_b local Y (node yaw 180 about the basket origin, quaternion (0,1,0,0)), +deg opens OUTWARD exactly like basket_door: leaf free end sweeps from (0.4,-0.84..-1.01) to about (-0.64,-1.61) basket-local, i.e. toward -z/-x",
+     "opens": "outward",
+     "mesh": "basket_door_leaf (shared, 0 new bytes)"
+    }
    },
    "basket": {
     "outside": [
-     -0.45,
+     -0.16,
      0,
-     1.5
+     1.75
     ],
     "doorOut": [
-     0.0,
+     -0.072,
      0,
      1.25
     ],
@@ -1139,18 +1174,34 @@
      0.84
     ],
     "P0": [
-     0.03,
+     -0.03,
      0,
-     0.395
+     -0.395
     ],
     "seat": [
-     0.032,
+     -0.032,
      0,
-     -0.099
+     0.099
     ],
-    "seatYawDeg": 0.0,
-    "note": "P0 = LAKESIDE_BALLOON_LANDING.exitStartLocal; seat = lakeside stand_point offset (.032,-.1,-.099) -> basket y 0 (floor board top); seated facing the door (+z), stand_up root carries seat -> P0 (0.494 m, LAKESIDE_STANDUP)",
-    "outsideYawDeg": 164.74
+    "seatYawDeg": 180.0,
+    "thresholdB": [
+     0.0,
+     0,
+     -0.84
+    ],
+    "doorOutB": [
+     0.0,
+     0,
+     -1.25
+    ],
+    "stepdownEndB": [
+     -0.03,
+     0,
+     -1.552
+    ],
+    "exitYawDeg": 180.0,
+    "note": "board door A: outside -> doorOut -> threshold -> P0 one line (bend at the threshold 11.4°), sit_down backwards P0 -> seat (0.494 m), seated yaw 180 (facing door B). Exit door B: stand_up seat -> P0 (= exitStartLocalB, the 180° mirror of LAKESIDE_BALLOON_LANDING.exitStartLocal (.03,0,.395)), door_reach basket_door_b, walk_start_stepdown 1.157 m along -z through thresholdB/doorOutB. No walk_turn_180.",
+    "outsideYawDeg": 170.03
    },
    "walkableChanges": [
     {
@@ -1244,14 +1295,15 @@
      0.01,
      43.8
     ],
-    "yawDeg": -173.418,
+    "yawDeg": 6.582,
     "flightEndSkyLocal": [
      5.4,
      -0.11,
      43.8
     ],
     "deltaY": 0.12,
-    "note": "落点 = 现 S0 / flight 末键；篮门已朝 -z（S1 方向）；落点 y 抬 +0.11 m 站到停靠台上（运镜bot 改末键 y 或 GGbot 加偏移）"
+    "landYawOldDeg": -173.418,
+    "note": "落点 = 现 S0 / flight 末键；篮 yaw 改为旧值+180（门 B 朝原门 A 的方向 = S1 方向，出口点世界坐标不变）；落点 y 抬 +0.11 m 站到停靠台上（运镜bot 改末键 y 或 GGbot 加偏移）"
    },
    "deck": {
     "node": "sky_mooring_deck",
@@ -1267,42 +1319,44 @@
      0.01,
      43.303
     ],
-    "yawDeg": -173.418,
+    "yawDeg": 6.582,
     "sizeBasketLocal": {
      "x": [
       -1.3,
       1.3
      ],
      "z": [
-      -1.3,
-      2.3
+      -2.3,
+      1.3
      ]
     },
+    "frontEdgeZ": -2.3,
     "topY": -0.02,
     "edgeBevelM": 0.05,
     "parent": "region_skycity scene root, procedural (skycity palette material)",
     "postsBasketLocal": [
      [
-      -1.15,
-      0,
-      -0.9
-     ],
-     [
       1.15,
       0,
-      -0.9
+      0.9
+     ],
+     [
+      -1.15,
+      0,
+      0.9
      ]
-    ]
+    ],
+    "note": "same deck in the world as before; basket-local numbers mirrored because the basket yaw turned 180"
    },
    "stances": {
     "seated": {
      "frame": "basket",
      "at": [
-      0.032,
+      -0.032,
       0,
-      -0.099
+      0.099
      ],
-     "yawDeg": 0.0
+     "yawDeg": 180.0
     },
     "P0": {
      "frame": "skycity",
@@ -1329,9 +1383,9 @@
      "frame": "basket",
      "parent": "transport_balloon",
      "at": [
-      0.032,
+      -0.032,
       0,
-      -0.099
+      0.099
      ],
      "surface": "basket",
      "regionAt": [
@@ -1345,15 +1399,31 @@
      "frame": "basket",
      "parent": "transport_balloon",
      "at": [
-      0.03,
+      -0.03,
       0,
-      0.395
+      -0.395
      ],
      "surface": "basket",
      "regionAt": [
       5.325,
       0.01,
       43.411
+     ]
+    },
+    {
+     "id": "basket_threshold_B",
+     "frame": "basket",
+     "parent": "transport_balloon",
+     "at": [
+      0.0,
+      0,
+      -0.84
+     ],
+     "surface": "basket",
+     "regionAt": [
+      5.304,
+      0.01,
+      42.966
      ]
     },
     {
@@ -1411,11 +1481,11 @@
      "t0": 1.5,
      "t1": 2.77,
      "s": 1.27,
-     "clip": "stand_up (seat -> P0 0.494 m, stopEngineStates each tick)",
-     "note": "LAKESIDE_STANDUP"
+     "clip": "stand_up (seat -> P0 0.494 m toward door B, stopEngineStates each tick)",
+     "note": "LAKESIDE_STANDUP; P0 = exitStartLocalB (-0.03,0,-0.395)"
     },
     {
-     "beat": "idle before the door",
+     "beat": "idle before door B (already facing it: seated yaw 180)",
      "t0": 2.77,
      "t1": 3.27,
      "s": 0.5,
@@ -1423,15 +1493,15 @@
      "note": "exitIdleS"
     },
     {
-     "beat": "door_reach (contact 0.333 s, leaf +100° in 0.8 s); hard cut at 1.8 s",
+     "beat": "door_reach door B (contact 0.333 s, leaf +100° outward in 0.8 s); hard cut at 1.8 s",
      "t0": 3.27,
      "t1": 5.07,
      "s": 1.8,
      "clip": "door_reach",
-     "note": "basket_door"
+     "note": "basket_door_b"
     },
     {
-     "beat": "step down off the basket floor (1.157 m fwd, -0.03..-0.036 m)",
+     "beat": "step down through door B (1.157 m fwd along basket -z, -0.03..-0.036 m)",
      "t0": 5.07,
      "t1": 6.8,
      "s": 1.73,
@@ -1449,27 +1519,62 @@
    ],
    "totalS": 14.28,
    "door": {
-    "pivotNode": "basket_door",
-    "leafNode": "basket_door_leaf",
+    "pivotNode": "basket_door_b",
+    "leafNode": "basket_door_leaf_b",
     "hingeBasket": [
-     0.4,
+     -0.4,
      0,
-     0.84
+     -0.84
     ],
     "leafRadiusM": 0.82,
     "openDeg": 100,
     "openS": 0.8,
     "closeS": 0.8,
-    "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)"
+    "axis": "basket_door_b local Y (node yaw 180 about the basket origin, quaternion (0,1,0,0)), +deg opens OUTWARD exactly like basket_door: leaf free end sweeps from (0.4,-0.84..-1.01) to about (-0.64,-1.61) basket-local, i.e. toward -z/-x",
+    "opens": "outward",
+    "mesh": "basket_door_leaf (shared, 0 new bytes)"
+   },
+   "doors": {
+    "board": {
+     "pivotNode": "basket_door",
+     "leafNode": "basket_door_leaf",
+     "hingeBasket": [
+      0.4,
+      0,
+      0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)",
+     "opens": "outward"
+    },
+    "exit": {
+     "pivotNode": "basket_door_b",
+     "leafNode": "basket_door_leaf_b",
+     "hingeBasket": [
+      -0.4,
+      0,
+      -0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door_b local Y (node yaw 180 about the basket origin, quaternion (0,1,0,0)), +deg opens OUTWARD exactly like basket_door: leaf free end sweeps from (0.4,-0.84..-1.01) to about (-0.64,-1.61) basket-local, i.e. toward -z/-x",
+     "opens": "outward",
+     "mesh": "basket_door_leaf (shared, 0 new bytes)"
+    }
    },
    "basket": {
     "outside": [
-     -0.45,
+     -0.16,
      0,
-     1.5
+     1.75
     ],
     "doorOut": [
-     0.0,
+     -0.072,
      0,
      1.25
     ],
@@ -1479,18 +1584,34 @@
      0.84
     ],
     "P0": [
-     0.03,
+     -0.03,
      0,
-     0.395
+     -0.395
     ],
     "seat": [
-     0.032,
+     -0.032,
      0,
-     -0.099
+     0.099
     ],
-    "seatYawDeg": 0.0,
-    "note": "P0 = LAKESIDE_BALLOON_LANDING.exitStartLocal; seat = lakeside stand_point offset (.032,-.1,-.099) -> basket y 0 (floor board top); seated facing the door (+z), stand_up root carries seat -> P0 (0.494 m, LAKESIDE_STANDUP)",
-    "outsideYawDeg": 164.74
+    "seatYawDeg": 180.0,
+    "thresholdB": [
+     0.0,
+     0,
+     -0.84
+    ],
+    "doorOutB": [
+     0.0,
+     0,
+     -1.25
+    ],
+    "stepdownEndB": [
+     -0.03,
+     0,
+     -1.552
+    ],
+    "exitYawDeg": 180.0,
+    "note": "board door A: outside -> doorOut -> threshold -> P0 one line (bend at the threshold 11.4°), sit_down backwards P0 -> seat (0.494 m), seated yaw 180 (facing door B). Exit door B: stand_up seat -> P0 (= exitStartLocalB, the 180° mirror of LAKESIDE_BALLOON_LANDING.exitStartLocal (.03,0,.395)), door_reach basket_door_b, walk_start_stepdown 1.157 m along -z through thresholdB/doorOutB. No walk_turn_180.",
+    "outsideYawDeg": 170.03
    },
    "joinsEdge": "S0->S1 at (5.4,-0.087,37.0)",
    "walkableChanges": [
@@ -1539,7 +1660,7 @@
      0.09,
      -38.8
     ],
-    "yawDeg": 52.65,
+    "yawDeg": 50.65,
     "candidate": "C",
     "rejected": {
      "C_nearest": {
@@ -1582,7 +1703,7 @@
      0.58,
      53.5
     ],
-    "lakeYawAtMoorDeg": 113.82,
+    "lakeYawAtMoorDeg": 111.82,
     "lakeYawAtTouchdownDeg": -83.81,
     "why": "选 C（巨根是主体，不动模型）；产品总监定备选点 (-14.8,-38.8)：停放间隙 1.49 m。篮 yaw 让 S6 来路、门外站位、门槛、篮内 Q 点在一条直线上，篮内不转身，倒坐进座位（面朝篮后壁）。",
     "liftoff": "运镜bot 设计关键帧，tools/transition-spaces/check-lift-clearance.cjs 校验",
@@ -1608,7 +1729,7 @@
        0.09,
        -38.8
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 0.25,
@@ -1617,7 +1738,7 @@
        0.091,
        -38.825
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 0.5,
@@ -1626,7 +1747,7 @@
        0.14,
        -38.986
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 0.75,
@@ -1635,7 +1756,7 @@
        0.63,
        -39.495
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 1,
@@ -1644,7 +1765,7 @@
        1.406,
        -40.069
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 1.25,
@@ -1653,7 +1774,7 @@
        2.596,
        -41.168
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 1.5,
@@ -1662,7 +1783,7 @@
        3.819,
        -42.368
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 1.75,
@@ -1671,7 +1792,7 @@
        4.724,
        -43.303
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 2,
@@ -1680,7 +1801,7 @@
        5.888,
        -44.568
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 2.25,
@@ -1689,7 +1810,7 @@
        6.725,
        -45.545
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 2.5,
@@ -1698,7 +1819,7 @@
        7.758,
        -46.901
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 2.75,
@@ -1707,7 +1828,7 @@
        8.641,
        -48.318
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 3,
@@ -1716,7 +1837,7 @@
        9.172,
        -49.394
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 3.25,
@@ -1725,7 +1846,7 @@
        9.793,
        -50.873
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 3.5,
@@ -1734,7 +1855,7 @@
        10.246,
        -52.029
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 3.75,
@@ -1743,7 +1864,7 @@
        10.744,
        -53.603
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 4,
@@ -1752,7 +1873,7 @@
        11.467,
        -55.106
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 4.25,
@@ -1761,7 +1882,7 @@
        12.206,
        -56.149
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 4.5,
@@ -1770,7 +1891,7 @@
        13.085,
        -57.59
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 4.75,
@@ -1779,7 +1900,7 @@
        13.448,
        -58.771
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      },
      {
       "t": 5,
@@ -1788,7 +1909,7 @@
        13.596,
        -60.396
       ],
-      "yaw": 52.65
+      "yaw": 50.65
      }
     ]
    },
@@ -1834,27 +1955,27 @@
     "basket_outside": {
      "frame": "skycity",
      "at": [
-      -13.53,
+      -13.548,
       0.03,
-      -37.579
+      -37.567
      ],
-     "yawDeg": 220.25
+     "yawDeg": 220.68
     },
     "Q": {
      "frame": "basket",
      "at": [
-      0.03,
+      -0.03,
       0,
-      -0.35
+      -0.395
      ],
      "yawDeg": 180.0
     },
     "seated": {
      "frame": "basket",
      "at": [
-      0.032,
+      -0.032,
       0,
-      0.144
+      0.099
      ],
      "yawDeg": 180.0
     }
@@ -1914,13 +2035,13 @@
      "id": "basket_outside",
      "frame": "skycity",
      "at": [
-      -13.53,
+      -13.548,
       0.03,
-      -37.579
+      -37.567
      ],
      "surface": "walkable:skycity",
      "basketLocal": [
-      -0.2,
+      -0.16,
       0,
       1.75
      ]
@@ -1929,9 +2050,9 @@
      "id": "basket_threshold",
      "frame": "skycity",
      "at": [
-      -14.132,
+      -14.15,
       0.09,
-      -38.29
+      -38.267
      ],
      "surface": "basket",
      "basketLocal": [
@@ -1944,15 +2065,15 @@
      "id": "basket_Q",
      "frame": "skycity",
      "at": [
-      -15.06,
+      -15.124,
       0.09,
-      -39.036
+      -39.027
      ],
      "surface": "basket",
      "basketLocal": [
-      0.03,
+      -0.03,
       0,
-      -0.35
+      -0.395
      ]
     },
     {
@@ -1960,15 +2081,15 @@
      "frame": "basket",
      "parent": "transport_balloon",
      "at": [
-      0.032,
+      -0.032,
       0,
-      0.144
+      0.099
      ],
      "surface": "basket",
      "regionAt": [
-      -14.666,
+      -14.744,
       0.09,
-      -38.738
+      -38.712
      ]
     }
    ],
@@ -1992,21 +2113,21 @@
     {
      "beat": "walk in: outside -> threshold -> Q, straight, facing the seat direction (no turn in the basket)",
      "t0": 16.54,
-     "t1": 20.1,
-     "s": 3.56,
+     "t1": 20.14,
+     "s": 3.6,
      "clip": "walk_start -> walk_loop 0.8 m/s -> walk_stop_bodyL",
-     "note": "2.12 m"
+     "note": "2.16 m"
     },
     {
      "beat": "sit backwards (root Q -> seat 0.494 m toward the door), door closes 0.8 s meanwhile; ignition overlaps this beat",
-     "t0": 20.1,
-     "t1": 21.3,
+     "t0": 20.14,
+     "t1": 21.34,
      "s": 1.2,
      "clip": "sit_down -> sit_hold",
-     "note": "seated = basket (0.032,0,0.144) yaw 180 (facing the back wall / lake heading)"
+     "note": "seated = basket (-0.032,0,0.099) yaw 180 (facing door B / lake heading)"
     }
    ],
-   "totalS": 21.3,
+   "totalS": 21.34,
    "door": {
     "pivotNode": "basket_door",
     "leafNode": "basket_door_leaf",
@@ -2019,11 +2140,45 @@
     "openDeg": 100,
     "openS": 0.8,
     "closeS": 0.8,
-    "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)"
+    "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)",
+    "opens": "outward"
+   },
+   "doors": {
+    "board": {
+     "pivotNode": "basket_door",
+     "leafNode": "basket_door_leaf",
+     "hingeBasket": [
+      0.4,
+      0,
+      0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)",
+     "opens": "outward"
+    },
+    "exit": {
+     "pivotNode": "basket_door_b",
+     "leafNode": "basket_door_leaf_b",
+     "hingeBasket": [
+      -0.4,
+      0,
+      -0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door_b local Y (node yaw 180 about the basket origin, quaternion (0,1,0,0)), +deg opens OUTWARD exactly like basket_door: leaf free end sweeps from (0.4,-0.84..-1.01) to about (-0.64,-1.61) basket-local, i.e. toward -z/-x",
+     "opens": "outward",
+     "mesh": "basket_door_leaf (shared, 0 new bytes)"
+    }
    },
    "basket": {
     "outside": [
-     -0.2,
+     -0.16,
      0,
      1.75
     ],
@@ -2033,17 +2188,17 @@
      0.84
     ],
     "Q": [
-     0.03,
+     -0.03,
      0,
-     -0.35
+     -0.395
     ],
     "seat": [
-     0.032,
+     -0.032,
      0,
-     0.144
+     0.099
     ],
     "seatYawDeg": 180.0,
-    "outsideYawDeg": 167.6
+    "outsideYawDeg": 170.03
    },
    "walkableChanges": [
     {
@@ -2055,7 +2210,7 @@
    ]
   },
   "5b_lake_balloon_out": {
-   "title": "湖边停稳 → 开门 → 走下来（复用 RegionJourneyAdapter.ts:287-383，数据不变）",
+   "title": "湖边停稳 → 站起 → 开门 B → 走下来（复用 RegionJourneyAdapter.ts:287-383 的路径；篮 yaw +180、门 B）",
    "frames": [
     "basket",
     "lake"
@@ -2067,18 +2222,19 @@
      0.602,
      25.6
     ],
-    "yawDeg": -83.811,
-    "source": "lakesideBalloonMooring (d9423886)"
+    "yawDeg": 96.189,
+    "yawOldDeg": -83.811,
+    "source": "lakesideBalloonMooring (d9423886); yaw +180 so door B sits where door A was"
    },
    "stances": {
     "seated": {
      "frame": "basket",
      "at": [
-      0.032,
+      -0.032,
       0,
-      -0.099
+      0.099
      ],
-     "yawDeg": 0.0
+     "yawDeg": 180.0
     },
     "P0": {
      "frame": "lake",
@@ -2105,9 +2261,9 @@
      "frame": "basket",
      "parent": "transport_balloon",
      "at": [
-      0.032,
+      -0.032,
       0,
-      -0.099
+      0.099
      ],
      "surface": "basket",
      "regionAt": [
@@ -2124,7 +2280,47 @@
       0.602,
       25.6724
      ],
-     "surface": "basket"
+     "surface": "basket",
+     "basketLocal": [
+      -0.03,
+      0,
+      -0.395
+     ],
+     "check": [
+      9.111,
+      0.602,
+      25.672
+     ]
+    },
+    {
+     "id": "basket_threshold_B",
+     "frame": "lake",
+     "at": [
+      8.665,
+      0.602,
+      25.691
+     ],
+     "surface": "basket",
+     "basketLocal": [
+      0.0,
+      0,
+      -0.84
+     ]
+    },
+    {
+     "id": "basket_door_out_B",
+     "frame": "lake",
+     "at": [
+      8.257,
+      0.602,
+      25.735
+     ],
+     "surface": "step",
+     "basketLocal": [
+      0.0,
+      0,
+      -1.25
+     ]
     },
     {
      "id": "v4_00",
@@ -2221,73 +2417,100 @@
      "t0": 1.5,
      "t1": 2.77,
      "s": 1.27,
-     "clip": "stand_up (seat -> P0 0.494 m, stopEngineStates each tick)",
-     "note": "LAKESIDE_STANDUP"
+     "clip": "stand_up (seat -> P0 0.494 m toward door B, stopEngineStates each tick)",
+     "note": "LAKESIDE_STANDUP; P0 = exitStartLocalB (-0.03,0,-0.395)"
     },
     {
-     "beat": "turn to the door (seated facing the back wall since 5a: no turn when boarding)",
+     "beat": "idle before door B (already facing it: seated yaw 180)",
      "t0": 2.77,
-     "t1": 4.27,
-     "s": 1.5,
-     "clip": "walk_turn_180",
-     "note": "stepping turn Q -> facing the door; then P0 = exitStartLocal (code change for GGbot: stand_up ends at Q (0.03,0,-0.35) facing 180)"
-    },
-    {
-     "beat": "idle before the door",
-     "t0": 4.27,
-     "t1": 4.77,
+     "t1": 3.27,
      "s": 0.5,
      "clip": "idle_breathing_loop",
      "note": "exitIdleS"
     },
     {
-     "beat": "door_reach (contact 0.333 s, leaf +100° in 0.8 s); hard cut at 1.8 s",
-     "t0": 4.77,
-     "t1": 6.57,
+     "beat": "door_reach door B (contact 0.333 s, leaf +100° outward in 0.8 s); hard cut at 1.8 s",
+     "t0": 3.27,
+     "t1": 5.07,
      "s": 1.8,
      "clip": "door_reach",
-     "note": "basket_door"
+     "note": "basket_door_b"
     },
     {
-     "beat": "step down off the basket floor (1.157 m fwd, -0.03..-0.036 m)",
-     "t0": 6.57,
-     "t1": 8.3,
+     "beat": "step down through door B (1.157 m fwd along basket -z, -0.03..-0.036 m)",
+     "t0": 5.07,
+     "t1": 6.8,
      "s": 1.73,
      "clip": "walk_start_stepdown -> walk_loop @0.453 s",
      "note": "LAKESIDE_STEPDOWN"
     },
     {
      "beat": "walk out (path v4 to L1)",
-     "t0": 8.3,
-     "t1": 16.04,
+     "t0": 6.8,
+     "t1": 14.54,
      "s": 7.74,
      "clip": "walk_loop 0.8 m/s -> walk_stop_bodyL",
      "note": "moored.walkS from code"
     }
    ],
-   "totalS": 16.04,
+   "totalS": 14.54,
    "door": {
-    "pivotNode": "basket_door",
-    "leafNode": "basket_door_leaf",
+    "pivotNode": "basket_door_b",
+    "leafNode": "basket_door_leaf_b",
     "hingeBasket": [
-     0.4,
+     -0.4,
      0,
-     0.84
+     -0.84
     ],
     "leafRadiusM": 0.82,
     "openDeg": 100,
     "openS": 0.8,
     "closeS": 0.8,
-    "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)"
+    "axis": "basket_door_b local Y (node yaw 180 about the basket origin, quaternion (0,1,0,0)), +deg opens OUTWARD exactly like basket_door: leaf free end sweeps from (0.4,-0.84..-1.01) to about (-0.64,-1.61) basket-local, i.e. toward -z/-x",
+    "opens": "outward",
+    "mesh": "basket_door_leaf (shared, 0 new bytes)"
+   },
+   "doors": {
+    "board": {
+     "pivotNode": "basket_door",
+     "leafNode": "basket_door_leaf",
+     "hingeBasket": [
+      0.4,
+      0,
+      0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door local Y, +deg opens OUTWARD (leaf free end sweeps from (-0.4,0.84..1.01) to about (0.64,1.61) basket-local, i.e. toward +z/+x)",
+     "opens": "outward"
+    },
+    "exit": {
+     "pivotNode": "basket_door_b",
+     "leafNode": "basket_door_leaf_b",
+     "hingeBasket": [
+      -0.4,
+      0,
+      -0.84
+     ],
+     "leafRadiusM": 0.82,
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "axis": "basket_door_b local Y (node yaw 180 about the basket origin, quaternion (0,1,0,0)), +deg opens OUTWARD exactly like basket_door: leaf free end sweeps from (0.4,-0.84..-1.01) to about (-0.64,-1.61) basket-local, i.e. toward -z/-x",
+     "opens": "outward",
+     "mesh": "basket_door_leaf (shared, 0 new bytes)"
+    }
    },
    "basket": {
     "outside": [
-     -0.45,
+     -0.16,
      0,
-     1.5
+     1.75
     ],
     "doorOut": [
-     0.0,
+     -0.072,
      0,
      1.25
     ],
@@ -2297,18 +2520,34 @@
      0.84
     ],
     "P0": [
-     0.03,
+     -0.03,
      0,
-     0.395
+     -0.395
     ],
     "seat": [
-     0.032,
+     -0.032,
      0,
-     -0.099
+     0.099
     ],
-    "seatYawDeg": 0.0,
-    "note": "P0 = LAKESIDE_BALLOON_LANDING.exitStartLocal; seat = lakeside stand_point offset (.032,-.1,-.099) -> basket y 0 (floor board top); seated facing the door (+z), stand_up root carries seat -> P0 (0.494 m, LAKESIDE_STANDUP)",
-    "outsideYawDeg": 164.74
+    "seatYawDeg": 180.0,
+    "thresholdB": [
+     0.0,
+     0,
+     -0.84
+    ],
+    "doorOutB": [
+     0.0,
+     0,
+     -1.25
+    ],
+    "stepdownEndB": [
+     -0.03,
+     0,
+     -1.552
+    ],
+    "exitYawDeg": 180.0,
+    "note": "board door A: outside -> doorOut -> threshold -> P0 one line (bend at the threshold 11.4°), sit_down backwards P0 -> seat (0.494 m), seated yaw 180 (facing door B). Exit door B: stand_up seat -> P0 (= exitStartLocalB, the 180° mirror of LAKESIDE_BALLOON_LANDING.exitStartLocal (.03,0,.395)), door_reach basket_door_b, walk_start_stepdown 1.157 m along -z through thresholdB/doorOutB. No walk_turn_180.",
+    "outsideYawDeg": 170.03
    },
    "walkableChanges": [
     {
@@ -2322,14 +2561,38 @@
   "meadowToSky": {
    "capS": 43.5,
    "flightS": 30.0,
-   "basketInS": 7.13,
+   "basketInS": 6.62,
    "inflateS": 3.0,
    "touchdownS": 1.5,
    "basketOutToStepdownS": 5.3,
    "walkOutS": 7.48,
-   "approachWalkS": 5.67,
-   "sumNoApproach": 54.41,
-   "sumInflateOverlapped_walkOutUnderBoardBlend": 43.93
+   "approachWalkS": 5.3,
+   "sumNoApproach": 53.9,
+   "sumInflateOverlapped_walkOutUnderBoardBlend": 43.42
+  },
+  "meadowToSky_ggbotTimeline": {
+   "capS": 50.0,
+   "capSource": "GGbot TransitionStaging.ts TRANSITION_RETIME.caps.meadowToSkycity (ca37373a)",
+   "seg3S": 11.92,
+   "inflateRemainderS": 0,
+   "rideS": 24.0,
+   "seg4S_ggbot": 13.28,
+   "note": "GGbot timeline: settle inside the ride, pause 0, stepDown+1.0; seg4 here = stand 1.27 + door 1.8 + stepDown 1.73+1.0 + walk 7.48",
+   "totalS": 49.2,
+   "savedByNoTurnS": 1.5
+  },
+  "skyToLake": {
+   "capS": 50.0,
+   "capSource": "产品总监 2026-10-25 (lift-off counted inside the visible flight)",
+   "seg5aS": 21.34,
+   "inflate": "overlapped with the S6 walk (GGbot dc81f5e6: last 3 s of the walk)",
+   "visibleFlightInclLiftS": 8.0,
+   "seg5bS": 14.54,
+   "totalS": 43.88,
+   "totalS_ggbotStyle_liftOnTop": 48.38,
+   "savedByNoTurnS": 1.5,
+   "walkMps": 1.2,
+   "walkMpsSource": "NodeWalker.ts WALK_SPEED_MPS"
   }
  },
  "package": {
