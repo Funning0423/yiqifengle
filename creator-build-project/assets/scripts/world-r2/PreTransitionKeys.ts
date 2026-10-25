@@ -3,7 +3,7 @@
  *  scene transition; the tester then fires the transition with a normal touch on the named trigger, so the whole transition
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
-import { qaSkipAllowed, qaSkipTarget } from './QaSkip';
+import { qaSkipAllowed, qaSkipTarget, qaQuery } from './QaSkip';
 export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit';
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
 export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit';stage?:string;
@@ -34,9 +34,7 @@ export const PRE_UNSUPPORTED:readonly {key:string;reason:string}[]=[
 /** WeChat has no location: read the DevTools launch query (编译模式 启动参数 qfHooks=1&qfPre=…) as a search string. */
 export function preSearch(search?:string|null,host:any=globalThis):string{
  if(search!=null)return search;
- try{const s=host?.location?.search;if(typeof s==='string'&&s)return s;}catch{}
- try{const q=host?.wx?.getLaunchOptionsSync?.()?.query;if(q&&typeof q==='object')return '?'+Object.keys(q).map(k=>k+'='+String(q[k])).join('&');}catch{}
- return '';
+ return qaQuery(host);/* location.search + enter/launch query merged (DevTools worker location.search is never empty) */
 }
 /** `?qfPre=<key>` (valid key only). Never in WeChat release. */
 export function preTransitionKey(search?:string|null,host:any=globalThis):PreKey|null{

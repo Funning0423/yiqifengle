@@ -11,9 +11,21 @@ export const QA_SKIP_CHECKPOINT:Record<QaSkipTarget,{completed:number;finish:boo
 export function qaSkipAllowed(host:any=globalThis):boolean{
  try{const wx=host?.wx;if(!wx)return true;const env=wx.getAccountInfoSync?.()?.miniProgram?.envVersion;return env==='develop'||env==='trial';}catch{return false;}
 }
+/** Test query from ALL sources: location.search (web; in WeChat DevTools the worker has a read-only non-empty one like
+ *  '?contextName=game&id=2'), then wx.getEnterOptionsSync().query, then wx.getLaunchOptionsSync().query (DevTools 编译模式
+ *  启动参数) — launch keys win. Returned as a '?k=v&…' string. Never throws. The release gate is separate (qaSkipAllowed). */
+export function qaQuery(host:any=globalThis):string{
+ const out=new Map<string,string>();
+ const addSearch=(s:any)=>{if(typeof s!=='string'||!s)return;for(const part of s.replace(/^\?/,'').split('&')){if(!part)continue;const i=part.indexOf('=');out.set(i<0?part:part.slice(0,i),i<0?'':part.slice(i+1));}};
+ const addObj=(q:any)=>{if(!q||typeof q!=='object')return;for(const k of Object.keys(q))out.set(k,String(q[k]));};
+ try{addSearch(host?.location?.search);}catch{}
+ try{addObj(host?.wx?.getEnterOptionsSync?.()?.query);}catch{}
+ try{addObj(host?.wx?.getLaunchOptionsSync?.()?.query);}catch{}
+ if(!out.size)return '';return '?'+[...out].map(([k,v])=>k+'='+v).join('&');
+}
 export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarget|null{
  let q=search;
- if(q==null){try{q=String(host?.location?.search||'');}catch{q='';}}
+ if(q==null)q=qaQuery(host);
  const m=/(?:^|[?&])qfSkip=([a-z-]+)(?:&|$)/.exec(q||'');
  if(!m||!(QA_SKIP_TARGETS as readonly string[]).includes(m[1])||!qaSkipAllowed(host))return null;
  return m[1] as QaSkipTarget;
@@ -21,7 +33,7 @@ export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarg
 /** p0drag9: test hooks (__qfTeleport / __qfAimAt / __qfBackToBoard) without a level skip: `?qfHooks=1` (or any valid ?qfSkip).
  *  Same host gate as qfSkip — WeChat release (envVersion 'release') never; web/QA build and WeChat develop/trial only. */
 export function qaHooksEnabled(search?:string|null,host:any=globalThis):boolean{
- let q=search;if(q==null){try{q=String(host?.location?.search||'');}catch{q='';}}
+ let q=search;if(q==null)q=qaQuery(host);
  if(!qaSkipAllowed(host))return false;
  return qaSkipTarget(q,host)!==null||/(?:^|[?&])qfHooks=1(?:&|$)/.test(q||'');
 }

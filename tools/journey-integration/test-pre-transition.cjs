@@ -20,6 +20,25 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  assert.equal(K.preTransitionKey(null,wx('trial',{qfPre:'meadow-skycity'})),'meadow-skycity');
  assert.equal(K.preTransitionEnabled(null,wx('develop',{})),false,'develop without query: off');
  assert.equal(K.preTransitionEnabled('?qfHooks=1',{wx:{getAccountInfoSync:()=>{throw Error('x');}}}),false,'gate error -> closed');
+ // DevTools worker: location.search is non-empty + read-only ('?contextName=game&id=2'); launch query (启动参数) must still be read
+ {const Q=H.load('world-r2/QaSkip'),dt=(env,query,enter)=>({location:{search:'?contextName=game&id=2'},wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:env}}),getLaunchOptionsSync:()=>({query}),...(enter?{getEnterOptionsSync:()=>({query:enter})}:{})}});
+  const h=dt('develop',{qfHooks:'1',qfPre:'island-board'});
+  assert.equal(K.preTransitionEnabled(null,h),true,'DevTools: location.search + launch qfHooks=1 -> enabled');
+  assert.equal(K.preTransitionKey(null,h),'island-board','DevTools: launch qfPre parsed');
+  assert.equal(Q.qaHooksEnabled(null,h),true,'__qfTeleport gate reads launch query too');
+  assert.equal(Q.qaSkipTarget(null,dt('trial',{qfSkip:'lakeside'})),'lakeside','qfSkip via launch query');
+  assert.match(Q.qaQuery(h),/contextName=game/,'location params kept');
+  assert.equal(Q.qaQuery({location:{search:'?qfPre=home-island'},wx:{getLaunchOptionsSync:()=>({query:{qfPre:'island-board'}})}}).match(/qfPre=([a-z-]+)/)[1],'island-board','launch key wins');
+  assert.equal(K.preTransitionKey(null,dt('develop',{},{qfPre:'node-walk',qfHooks:'1'})),'node-walk','enter options query');
+  assert.equal(K.preTransitionEnabled(null,dt('release',{qfHooks:'1',qfPre:'island-board'})),false,'release still off');
+  assert.equal(Q.qaHooksEnabled(null,dt('release',{qfHooks:'1'})),false,'release teleport off');
+  assert.equal(K.preTransitionEnabled(null,dt('develop',{})),false,'DevTools without 启动参数: off');
+  // console call path: installer + run() gate with launch-query-only host (globalThis)
+  const sv={location:globalThis.location,wx:globalThis.wx};globalThis.location={search:'?contextName=game&id=2'};globalThis.wx=dt('develop',{qfHooks:'1'}).wx;
+  const RUN0=H.load('world-r2/PreTransitionRun');delete globalThis.__qfPreTransition;
+  try{assert.equal(RUN0.installPreTransition({}),true,'registers from launch query');const l=await globalThis.__qfPreTransition('list');assert.ok(l.ok&&l.keys.length,'console list works');}
+  finally{delete globalThis.__qfPreTransition;for(const k of ['location','wx'])if(sv[k]===undefined)delete globalThis[k];else globalThis[k]=sv[k];}
+ }
  // key table
  const keys=K.PRE_SPECS.map(s=>s.key);assert.equal(new Set(keys).size,keys.length,'unique keys');
  for(const s of K.PRE_SPECS){assert.ok(s.trigger&&s.expect&&s.taps.length,'spec complete '+s.key);
