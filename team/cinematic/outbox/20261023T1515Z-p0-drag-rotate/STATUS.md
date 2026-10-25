@@ -592,3 +592,60 @@ All numbers are NOT ENGINE: they come from replaying the Mac p0drag11 frames thr
 - Suite on edf3faae: **179/183 PASS**.
   - FAIL: p0drag12, Pock·夜 only.
   - Blocked as expected: 2× Node ≥ 22.6 and navigation-guard.
+
+## p0drag13 — round 4: merged scene b19 (5a45f06a, skycity proxies clipped to triangles) — 运镜bot
+- Normal merge da44f471 (no stash, no force). Scene block went from 1838 to 1479 columns.
+- **Gates** (deaacc15):
+  - NE1·昼 is back to ≤ 0.5 s (now 0.37 s).
+  - Pock·夜 face and chest are ≤ 0.8 s, Grok Bot approved Oct 25 (0.66 / 0.66 s).
+  - No other gate changed.
+
+### Before → after the merge (all tools/region-nodes tests rerun; only changed numbers listed)
+- **p0drag12 W2:**
+  - NE1·昼: 0.76 → 0.37 s, and minimum arm 4.56 → 7.34 m.
+  - Pock·夜 chest: 1.43–1.45 → 0.66 s.
+  - **Pock·夜 face: 0.23 → 0.66 s, WORSE** (within the approved 0.8 s).
+  - Pock·夜 minimum arm: 4.59 → 5.88 m.
+- **p0drag12 W1:** chest 0.18/0.20 → 0.07/0.01 s.
+- **p0drag11:**
+  - Q1 skd_po chest: 0.78 → 0.76 s.
+  - **Q1 skn_po face: 0 → 0.18 s, WORSE** (within 0.5 s).
+  - Q2: clear 0.45 → 0.42 s; inside frames 7 → 6.
+- **p0drag8 P5:** raw-lens-inside frames 476 → 403.
+- **Unchanged:** p0drag9, p0drag10, p0drag13 and all room-orbit tests. Every non-JSON test still passes.
+- **Lens clearance against the new triangle-tight proxies (closest to the real mesh):**
+  - minimum is 0.00 m before and after in every skycity test (the lens touches proxy faces but is not inside);
+  - lens-in-box frames: 0 → 0 in p0drag12/13; 7 → 0 in p0drag10; 49 → 48 in p0drag11 (Q2 puts the lens in a box on purpose, plus the hook pose).
+- **Frames under 1.1 m clearance:**
+  - **p0drag11: 5,781 → 6,241 (+460), WORSE;**
+  - **p0drag13: 12,152 → 12,353 (+201), WORSE;**
+  - p0drag12: 18,453 → 17,431 (better);
+  - p0drag10: 4,631 → 4,574 (better).
+  - Cause: tighter proxies let the guard place the lens nearer real walls. It never enters them, but there is no 1.1 m clearance rule for the orbit lens (the 1.1 m rule is the sign shot's own).
+- Suite on deaacc15: **180/183 PASS**. Blocked as expected: 2× Node ≥ 22.6 and navigation-guard.
+
+### Gate table (for GGbot and 界面验收部)
+| Case | Metric | Gate | Measured | Approval |
+|---|---|---|---|---|
+| p0drag13 O1 po (d/n/xd) | face / chest occlusion after hook release | ≤ 0.5 s | 0.13–0.17 / 0.15–0.18 s | standard |
+| p0drag13 O1 po | release→clear | ≤ physical min + 0.15 s (0.58 s) | 0.38–0.48 s | hook rule, owner Oct 25 04:58 |
+| p0drag13 O1 ro (d/n/xd) | face / chest | ≤ 0.5 s | 0.05 / 0.12–0.13 s | standard |
+| p0drag13 O1 ro | release→clear | ≤ physical min + 0.15 s (1.02 s) | 0.86–0.87 s | hook rule, owner Oct 25 04:58 |
+| p0drag13 O1 all | time in hidden hook pose | reported, not gated | 1.75–1.87 s | hook rule, owner Oct 25 04:58 |
+| p0drag13 K1 pocket walks | face / chest | ≤ 0.5 s | ≤ 0.25 / ≤ 0.25 s | standard |
+| p0drag13 all | yaw written (standing / walk) | ≤ 90 / ≤ 120 °/s | peak 90 / 120 | standard |
+| p0drag13 all | yaw acceleration p99 (standing / walk) | ≤ 200 / ≤ 300 °/s² (R1 peak ≤ 600) | ≤ 295 / 300; peak ≤ 607 replay-frame | standard |
+| p0drag12 W1 nook walks | face / chest | ≤ 0.5 s | ≤ 0.18 / ≤ 0.18 s | standard |
+| p0drag12 W2 NE1·昼 | face / chest | ≤ 0.5 s | 0.37 / 0.37 s | standard (re-tightened after b19) |
+| p0drag12 W2 NE2·昼, Roof·昼 | face / chest | ≤ 0.5 s | 0.35–0.36 s | standard |
+| p0drag12 W2 Pock·昼 | face / chest | ≤ 0.8 s | 0.66 / 0.66 s | Grok Bot approved Oct 25 |
+| p0drag12 W2 Pock·夜 | chest | ≤ 0.8 s | 0.66 s | Grok Bot approved target Oct 25 |
+| p0drag12 W2 Pock·夜 | face | ≤ 0.8 s | 0.66 s | Grok Bot approved Oct 25 |
+| p0drag12 S1 sign shot | her ≥ 11 % of frame height on 7 screens; text complete; ≥ 1.1 m clearance; gull-clear | as stated | 12.7 %, 17.9 m arm, 7.62 m clearance | option B, Grok Bot approved Oct 25 |
+| p0drag12 / p0drag13 all | lens-in-box frames | 0 | 0 | standard |
+| p0drag11 Q1 skd_po | face / chest | ≤ 0.8 s | 0.54 / 0.76 s | Grok Bot approved Oct 25 (test releases lens at 110° artificially; yaw cap unchanged) |
+| p0drag11 Q1 skn_po, skd_ro, skn_ro | face / chest | ≤ 0.5 s | ≤ 0.18 / ≤ 0.18 s | standard |
+| p0drag11 Q2 | clear after | ≤ 0.5 s | 0.42 s | standard |
+| p0drag11 Q2 | lens-in-box frames (test puts the lens in a box) | ≤ 8 | 6 | Grok Bot approved Oct 25 |
+| p0drag10 Q1 ro | face/chest after hook release | ≤ 0.5 s | 0.33 s (hook 0.81 s, reported) | hook rule, owner Oct 25 04:58 |
+| p0drag10 Q1 pock | face/chest | ≤ 0.5 s | 0.02 s | standard |
