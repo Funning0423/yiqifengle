@@ -53,7 +53,8 @@ const turnStart=F=>{let c=0;for(let i=1;i<F.length;i++)if(isCut(F,i))c=i;let s=c
 /* p0drag13 RE-BASELINE (owner rule 2026-10-25 04:58, same as the walk gates): skd_po starts with the lens in the hidden hook pose
  * (yaw 110°, clear from 190° on — an 80° swing) when the drag releases the hold; at the standing cap (90°/s, 200°/s²) that swing alone
  * takes ≥ 1.3 s, measured face 0.54 s / chest 0.78 s (she shows once the lens passes ~165°). Only this case is relaxed (measured + margin). */
-const Q1_RELAXED={skd_po:{f:0.6,c:0.85}};
+/* Grok Bot approved Oct 25: skd_po face/chest ≤ 0.8 s — test releases lens at 110° artificially; Grok Bot approved Oct 25; yaw cap unchanged (measured 0.54 / 0.78 s). */
+const Q1_RELAXED={skd_po:{f:0.8,c:0.8}};
 // ---------- Q1 replay of the Mac slow turns
 function metrics(F,P,H,t0,act){const vp=p=>{const v=p.target.map((x,k)=>x-p.position[k]);return Math.asin(v[1]/Math.hypot(...v))/R;};
  let over=0,overH=0,mp=0,mh=0,w25p=0,w25h=0,ins=0,mm=1e9,ma=1e9,minP=1e9;const run=[0,0],mx=[0,0];
@@ -88,6 +89,7 @@ function replay(F,cb){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1
 /* p0drag13 RE-BASELINE (owner rule): the test PUTS the lens inside the post / bush (one written frame there); leaving it is
  * yaw-limited by the eased walk cap (≤ 120°/s, ≤ 300°/s²) — measured 7 frames (0.12 s) inside before it is out, then clear at 0.45 s.
  * The lens never ENTERS a box; only the exit frame count is relaxed (measured + 1). */
+/* Grok Bot approved Oct 25: ≤ 8 lens-in-box frames (the test writes the lens into the box; measured 7). */
 const Q2_INSIDE_MAX=8;
 // ---------- Q2 nook walk end (11.8, 8.2): a lens on the post / bush turns to a clear facing, eased
 {
