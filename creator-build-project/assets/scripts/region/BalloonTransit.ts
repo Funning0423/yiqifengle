@@ -528,6 +528,16 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const walkTo=(path:Vec[],secs?:number)=>{let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);
     return L>0.05?actor.perform({kind:'walk',path,duration:secs&&secs>0?secs:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken):Promise.resolve();};
    const vYawDeg=()=>{const v=plan.vehicle(0);return v.yaw*180/Math.PI;};
+   // B2 inflate (compress: Grok Bot 2026-10-25): ignition + fill start with the B1 walk to the basket (overlap), so the ride
+   // clock no longer waits at 0 after she sits unless the walk was shorter than INFLATE.durationS; burner brightness synced.
+   const envHome=envelope&&isValid(envelope,true)?{p:envelope.position.clone(),s:envelope.scale.clone(),drop:NaN}:null;
+   let inflateT=contChain&&envHome?0:INFLATE.durationS;let inflateMarked=false;
+   const applyInflate=()=>{if(!envHome||!envelope||!isValid(envelope,true))return;const f=inflateAt(inflateT);
+    if(!Number.isFinite(envHome.drop)){envHome.drop=0;try{let lo=Infinity;for(const r of envelope.getComponentsInChildren(MeshRenderer)){const b:any=(r as any).model?.worldBounds;if(b)lo=Math.min(lo,b.center.y-b.halfExtents.y);}
+      const ps=envelope.parent?envelope.parent.worldScale.y:1;if(Number.isFinite(lo))envHome.drop=(lo-envelope.worldPosition.y)/(ps||1);}catch{envHome.drop=0;}}
+    envelope.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
+    envelope.setPosition(envHome.p.x,envHome.p.y+envHome.drop*envHome.s.y*(1-f.sy),envHome.p.z)/* bottom stays on the burner ring */;
+    if(flame){flame.active=inflateT>0;const k=f.flame*(1+0.12*Math.sin(inflateT*18));flame.setScale(k,k,k);}};
    if(contChain&&girl&&isValid(girl,true)){
     // B1 (transitions-continuous): she walks from the last meadow stop to the basket door, the door opens (door_reach), she
     // steps in to stand_point and the door closes behind her. Basket at its t=0 pose; lens = the ride's first pose (handoff blend).
@@ -535,6 +545,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const v0=plan.vehicle(0);vehicle.setWorldPosition(v0.pos[0],v0.pos[1],v0.pos[2]);{const qq=balloonQuat(v0.yaw*180/Math.PI,v0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);}
     if(flame)flame.active=false;
     let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));world.setCamera(plan.camera(0));paint(0);if(flame)flame.active=false;
+     if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
     try{
@@ -551,15 +562,6 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }
    if(girl&&isValid(girl,true)){if(seated)girl.setParent(vehicle,true)/* seated root kept where sit_down put it */;else{girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}}
    if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);
-   // B2 inflate: the ride clock waits at 0 while the envelope fills (INFLATE.durationS), burner brightness synced.
-   const envHome=envelope&&isValid(envelope,true)?{p:envelope.position.clone(),s:envelope.scale.clone(),drop:NaN}:null;
-   let inflateT=contChain&&envHome?0:INFLATE.durationS;let inflateMarked=false;
-   const applyInflate=()=>{if(!envHome||!envelope||!isValid(envelope,true))return;const f=inflateAt(inflateT);
-    if(!Number.isFinite(envHome.drop)){envHome.drop=0;try{let lo=Infinity;for(const r of envelope.getComponentsInChildren(MeshRenderer)){const b:any=(r as any).model?.worldBounds;if(b)lo=Math.min(lo,b.center.y-b.halfExtents.y);}
-      const ps=envelope.parent?envelope.parent.worldScale.y:1;if(Number.isFinite(lo))envHome.drop=(lo-envelope.worldPosition.y)/(ps||1);}catch{envHome.drop=0;}}
-    envelope.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
-    envelope.setPosition(envHome.p.x,envHome.p.y+envHome.drop*envHome.s.y*(1-f.sy),envHome.p.z)/* bottom stays on the burner ring */;
-    if(flame){flame.active=inflateT>0;const k=f.flame*(1+0.12*Math.sin(inflateT*18));flame.setScale(k,k,k);}};
    if(inflateT<INFLATE.durationS)applyInflate();
    const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
    /* call with the actor as `this`: FlowReferenceStandin.setWindSource is a class method (unbound call threw "Cannot set properties of undefined (setting 'windSource')" -> journey failed) */if(setWind)setWind.call(actor,()=>0.35);

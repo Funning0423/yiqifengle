@@ -1,7 +1,7 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
-import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE} from './TransitionStaging';
+import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME} from './TransitionStaging';
 import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
 import {SKY_LAKE_CONT,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
 import {firstMaterial,plankBetween} from './TransitionProps';
@@ -259,11 +259,13 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const envHome=lenv&&isValid(lenv,true)?{p:lenv.position.clone(),s:lenv.scale.clone()}:null;
    const inflate=(it:number)=>{const f=inflateAt(it);if(envHome&&lenv&&isValid(lenv,true))lenv.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
     if(lflame&&isValid(lflame,true)){lflame.active=it>0;const k=f.flame;lflame.setScale(k,k,k);}};
-   let stepInS:number=SKY_LAKE_CONT.stepInS;let boardFn:()=>void=()=>{};
+   let stepInS:number=SKY_LAKE_CONT.stepInS,inflateTau0=0;let boardFn:()=>void=()=>{};
    if(contLake){
     const D5=TRANSITION_DURATIONS.seg5a;stepInS=D5.intoBasket+D5.turn180+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
-    sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:D5.inflate,liftS:D5.liftoff,placeholder:false});
-    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflate(0);if(lflame)lflame.active=false;
+    // compress: ignition + inflate start during the walk to the basket (finish as she sits); only a remainder delays liftoff
+    const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
+    sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false});
+    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,boardEndTau+ign-D5.inflate);inflate(0);if(lflame)lflame.active=false;
     chainMark('lakeside','C1-basket-in');guardBeforeWalk((actor as any).anim,'C1 walk to basket');}
    const boardIn=async()=>{
     let dt0=0;const dStep=()=>{dt0+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,BALLOON_DOOR.openDeg*Math.min(1,Math.max(0,(dt0-BALLOON_DOOR.openDelayS)/BALLOON_DOOR.openS)),0);};
@@ -275,7 +277,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       try{await actor.perform({kind:'sit',seat:seatFromBench([sp.x,sp.y+BASKET_RIDE_POSE.lakeside.offset[1],sp.z],moored.startYawRad)} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;}}
      rideToken.check();boardFn();legHide.apply(director.getScene());
     }finally{director.off(Director.EVENT_BEFORE_DRAW,dStep);if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,0,0);}
-    boarded=true;chainMark('lakeside','C2-ignite-inflate');};
+    boarded=true;};
    const diag=diagParams(),diagAt=lakeDiagAt();let diagDone=false;
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    // T-03 (GGbot): arrival trace + board preload from the set-off (P1 45 s: the board preload used to start only at atmosphere
@@ -286,7 +288,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const flightAt=R.cutT+K.boardBlackS/2;let skipReq=false,skipped=false,landedOk:()=>void=()=>{};const landed=new Promise<void>(r=>{landedOk=r;});
    const offSkip=registerLakesideRideSkip(()=>{if(skipReq)return landed;skipReq=true;skipped=true;arrivalMark('skip');return landed;});
    const pub=(t:number,isLanded:boolean)=>publishLakesideRide({t,flightAt,touchdownAt:R.T,skippable:!skipReq&&t>=flightAt&&t<R.T-1,landed:isLanded,skipped});
-   let c4=false;
+   let c4=false,lakeIgn=false;
    await new Promise<void>((ok,bad)=>{
     walking.catch(bad);
     const off=rideToken.onCancel(()=>{unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);offSkip();publishLakesideRide(null);bad(Error('cancelled'));});
@@ -314,7 +316,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      if(sl){const d=hidden?0:Math.max(0,Math.min(.1,dt));
       if(tau<sl.walkS)tau=Math.min(sl.walkS,tau+d);
       else if(!boarded){if(walkDone&&!boardStarted){boardStarted=true;void boardIn().catch(bad);}tau=Math.min(boardEndTau-1e-3,tau+d);}
-      else{const prevTau=tau;tau=Math.max(tau,boardEndTau)+d;if(tau<sl.flightAt)inflate(tau-boardEndTau);else if(prevTau<sl.flightAt){inflate(INFLATE.durationS);chainMark('lakeside','C3-flight');}}
+      else{const prevTau=tau;tau=Math.max(tau,boardEndTau)+d;if(prevTau<sl.flightAt&&tau>=sl.flightAt){inflate(INFLATE.durationS);if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}chainMark('lakeside','C3-flight');}}
+      if(tau<sl.flightAt&&tau>=inflateTau0){if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}inflate(tau-inflateTau0);}
       clock.t=sl.rideT(tau);if(!(clock.t+1e-4<R.T)&&!c4){c4=true;chainMark('lakeside','C4-settle');}
       apply();pub(clock.t,false);
       if(clock.t+1e-4>=R.T){off();unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}

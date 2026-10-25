@@ -51,7 +51,7 @@ let peak=0;for(let t=0;t<=3;t+=1/60){const f=C.inflateAt(t);peak=Math.max(peak,f
 assert.ok(peak>1&&peak<1.08,'slight rebound '+peak);assert.ok(C.inflateAt(.3).flame>C.inflateAt(3).flame,'burner bright while filling');
 out.inflate={durationS:I.durationS,peak:+peak.toFixed(4)};
 // 6 door after settle
-const D=C.BALLOON_DOOR;assert.ok(D.settleT1>=30-1e-9&&D.settleT0===29);assert.equal(C.doorAngleAt(0),0);assert.equal(C.doorAngleAt(D.openDelayS),0);
+const D=C.BALLOON_DOOR;{const RD=H.load('region/BalloonFlight.ts').RIDE_DURATION;assert.ok(Math.abs(D.settleT1-RD)<1e-9&&Math.abs(D.settleT0-(RD-1))<1e-9,'settle = last 1 s of the ride clock');}assert.equal(C.doorAngleAt(0),0);assert.equal(C.doorAngleAt(D.openDelayS),0);
 assert.ok(Math.abs(C.doorAngleAt(D.openDelayS+D.openS)-D.openDeg)<1e-9);assert.ok(C.doorOpensAfterSettle());
 // 7 anim guards
 const st={isPlaying:true,stop(){this.isPlaying=false;}};assert.equal(C.guardBeforeWalk({clips:[{name:'sit_hold'},{name:'walk_loop'}],getState:n=>n==='sit_hold'?st:{isPlaying:false,stop(){}}},'t'),1);assert.equal(st.isPlaying,false);
@@ -78,7 +78,30 @@ for(const f of ['TransitionChain','TransitionStaging','TransitionStagingMath','T
 const ST=H.load('region/TransitionStaging.ts'),tot=ST.segmentTotals();out.totals=tot;
 const stances=JSON.parse(fs.readFileSync(path.join(ROOT,'tools/transition-spaces/stances.json'),'utf8'));assert.ok(stances.segments['3_meadow_balloon_in']);
 assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[0.032,0,-0.099]);assert.equal(ST.BASKET_RIDE_POSE.meadowSkycity.clip,'sit_hold');
-assert.ok(Math.abs(tot.seg3-45.8)<1e-6&&Math.abs(tot.seg4-14.3)<1e-6,'seg3/seg4 '+tot.seg3+'/'+tot.seg4);
+// 12 compress (Grok Bot 2026-10-25): overlap-aware timeline within caps, actions untouched
+{const TL=ST.transitionTimeline(),RT=ST.TRANSITION_RETIME,D=ST.TRANSITION_DURATIONS,tt=TL.totals;out.timeline=tt;
+ assert.ok(tt.islandToMeadow<=RT.caps.islandToMeadow,'island→meadow '+tt.islandToMeadow);assert.ok(Math.abs(tt.islandToMeadow-44.57)<1e-6,'seg1/2 left as is');
+ assert.ok(tt.meadowToSkycity<=RT.caps.meadowToSkycity,'meadow→skycity '+tt.meadowToSkycity);
+ // skycity→lakeside recomputes from the real T-03 walk (mooring pending at 场景设计部): within cap, or flagged pending
+ const LB=H.load('region/LakesideBalloon.ts');out.lakeWalkSource='TRANSITION_DURATIONS.seg5a.toBasket';
+ const lk=tt.skycityToLakeside;out.lakeCap={total:lk,cap:RT.caps.skycityToLakeside,mooringPending:ST.TRANSITION_STAGING.skyMooring5a.pending,overBy:+(lk-RT.caps.skycityToLakeside).toFixed(2)};
+ assert.ok(lk<=RT.caps.skycityToLakeside||ST.TRANSITION_STAGING.skyMooring5a.pending,'skycity→lakeside over cap with a FINAL mooring: '+lk);
+ // visible lake flight ≥ 8 s; meadow flight shortened from 30
+ assert.ok(D.seg5a.flight>=8&&D.seg5a.flight===RT.lakeFlightS);assert.ok(D.seg3.flight<30&&D.seg3.flight===RT.meadowRideS);
+ // overlaps: inflate inside the walk, no ignition wait after she sits, no dead pause after stand_up, door close inside sit_down
+ const b3=Object.fromEntries(TL.beats.seg3.map(b=>[b.id,b]));assert.ok(b3.inflate.t0<b3.toBasket.t1&&b3.inflate.t1<=b3.sitDown.t1,'meadow inflate overlaps the walk');
+ assert.equal(TL.igniteAfterSit.meadow,0);assert.equal(TL.igniteAfterSit.lake,0);assert.equal(D.seg4.pause,0);assert.equal(D.seg5b.pause,0);
+ assert.ok(b3.doorClose.t0>=b3.sitDown.t0&&b3.doorClose.t1<=b3.sitDown.t1+1e-9&&b3.doorClose.t1<=b3.flight.t0+1e-9);
+ assert.ok(b3.settle.t1===b3.flight.t1,'settle inside the flight (not added again)');
+ const b5=Object.fromEntries(TL.beats.seg5a.map(b=>[b.id,b]));assert.ok(b5.inflate.t0<b5.toBasket.t1+b5.doorReach.t1&&Math.abs(b5.inflate.t1-b5.liftoff.t0)<1e-6,'lake inflate ends as liftoff starts');
+ // her actions keep natural speed: action beats identical to 59aa0bbc (b19 seconds), walk speeds unchanged
+ const OLD={seg1:{nodeWalkI4toI6:15.6,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:16.5},
+  seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0},seg4:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,toPath:7.5},
+  seg5a:{toBasket:8.0,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0},seg5b:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,walkOut:7.7}};
+ for(const [sg,v] of Object.entries(OLD))for(const [k,x] of Object.entries(v))assert.equal(D[sg][k],x,'action '+sg+'.'+k+' unchanged (clip speed 1.0×)');
+ assert.equal(ST.TRANSITION_STAGING.walkMps,0.9);assert.equal(ST.TRANSITION_STAGING.basketWalkMps,0.8);
+ assert.ok(/inflateT<INFLATE\.durationS&&envHome\)\{if\(!inflateMarked\)/.test(bal),'B1 walk drives the inflate');
+ assert.ok(/flightS:TRANSITION_RETIME\.lakeFlightS/.test(adp)&&/inflateTau0=/.test(adp),'lakeside retime + inflate during walk wired');}
 assert.ok(/kind:'stand',seat:seatDef/.test(bal)&&/guardBeforeWalk\(anim,'B5 stand up'\)/.test(bal),'B5 stands up (guarded) before walking');
 console.error=ce;console.warn=cw;console.log(JSON.stringify({ok:true,...out}));
 })().catch(e=>{console.error=ce;console.warn=cw;console.error(e);process.exit(1);});

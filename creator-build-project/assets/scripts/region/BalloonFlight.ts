@@ -1,4 +1,5 @@
 import type {Vec} from '../world-r1/WorldFlowCore';
+import {TRANSITION_RETIME} from './TransitionStaging';
 /** GGbot flightpath 2.2: meadow keys until the seam, world keys after. City placement is untouched. */
 export const FLIGHT_FORMAT='r5-balloon-flightpath/2.2';
 export const M6_LOCAL:Vec=[0.2,6.5,-25.6];
@@ -186,10 +187,10 @@ export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,
  *  rate 1 through board / liftoff / cloud seam (t ≤ RIDE_KEEP_T, all seam & visibility cues keep their exact timing), then a
  *  smoothstep rise to RIDE_CRUISE_RATE, cruise, a smoothstep fall back to 1, and rate 1 for the last RIDE_TAIL_S of the
  *  approach + landing (touchdown and the basket-door beat play at real speed). C1 rate → no velocity step on the camera. */
-export const RIDE_DURATION=30;
+export const RIDE_DURATION:number=TRANSITION_RETIME.meadowRideS/* compress: 30 → 24 (data) */;
 export const RIDE_KEEP_T=12;
-export const RIDE_RAMP_S=2;
-export const RIDE_TAIL_S=5;
+export const RIDE_RAMP_S:number=TRANSITION_RETIME.meadowRideRampS/* was 2 */;
+export const RIDE_TAIL_S:number=TRANSITION_RETIME.meadowRideTailS/* was 5 */;
 /** ∫ of the smoothstep rise over x s (full rise after RIDE_RAMP_S). 36 = 30 + (r−1)·(Rint(18) − Rint(7)) = 30 + 11(r−1) → r = 17/11. */
 const rampInt=(x:number)=>{if(x<=0)return 0;if(x>=RIDE_RAMP_S)return RIDE_RAMP_S/2+(x-RIDE_RAMP_S);const u=x/RIDE_RAMP_S;return RIDE_RAMP_S*(u*u*u-u*u*u*u/2);};
 export const RIDE_CRUISE_RATE=1+(FLIGHT_DURATION-RIDE_DURATION)/(rampInt(RIDE_DURATION-RIDE_KEEP_T)-rampInt(RIDE_TAIL_S+RIDE_RAMP_S));

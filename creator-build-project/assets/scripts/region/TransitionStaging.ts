@@ -31,18 +31,59 @@ export const TRANSITION_STAGING=Object.freeze({
  skyMooring5a:{pos:[2.8,0.01,-37.8] as Vec,yawDeg:0,pending:true},
  walkMps:0.9,basketWalkMps:0.8,
 });
-/** Seconds per beat (STANCES.md). One table: Grok Bot may retune (meadow→skycity exceeds the 43.5 s target). */
+/** Compression retime (Grok Bot 2026-10-25: caps island→meadow ≤45 s, meadow→skycity ≤50 s, skycity→lakeside ≤40 s).
+ *  Flight/sail shot lengths only: consumed by the EXISTING clock remaps (BalloonFlight rideToFlightT, SkyLakeContinuous
+ *  liftWarp) — path geometry untouched. Her action beats below stay at natural speed (clips 1.0×, walk speed unchanged).
+ *   meadowRideS     meadow→skycity ride clock (was 30). 20 s needs >90°/s camera yaw with the 0–12 s seam cues kept at
+ *                   rate 1 (sweep: 20 s 198°/s, 22 s 121°/s, 24 s 80.6°/s) → 24 s is the shortest within the 90°/s cap.
+ *   meadowRideTailS rate-1 tail before the end of the ride (touchdown at meadowRideS−1; was 5).
+ *   meadowRideRampS smoothstep rate ramp (was 2; 3 keeps the rate C1 step < 0.02/frame at cruise ×3.0; yaw max 80.6°/s).
+ *   lakeLiftS       screen seconds of T-03's 18 s hidden lift-off (was 6; 运镜bot sweep: 5 s → 66.9°/s on 390×844).
+ *   lakeFlightS     T-03 visible flight, retimed from its 12 s with rate-1 ends (≥ 8 s, Grok Bot). */
+export const TRANSITION_RETIME=Object.freeze({meadowRideS:24,meadowRideTailS:3,meadowRideRampS:3,lakeLiftS:5,lakeFlightS:8,lakeFlightMinS:8,
+ caps:{islandToMeadow:45,meadowToSkycity:50,skycityToLakeside:40}});
+/** Seconds per beat (STANCES.md). One table (Grok Bot may retune). Compress: the pauses after stand_up are dead time → 0;
+ *  flight / liftoff come from TRANSITION_RETIME. Action beats unchanged. */
 export const TRANSITION_DURATIONS=Object.freeze({
  seg1:{nodeWalkI4toI6:15.6,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},
  seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:16.5},
- seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,flight:30},
- seg4:{settle:1.5,standUp:1.27,pause:0.5,doorReach:1.8,stepDown:1.73,toPath:7.5},
- seg5a:{toBasket:8.0,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,liftoff:6.0,flight:12},
- seg5b:{settle:1.5,standUp:1.27,pause:0.5,doorReach:1.8,stepDown:1.73,walkOut:7.7},
+ seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,flight:TRANSITION_RETIME.meadowRideS},
+ seg4:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,toPath:7.5},
+ seg5a:{toBasket:8.0,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,liftoff:TRANSITION_RETIME.lakeLiftS,flight:TRANSITION_RETIME.lakeFlightS},
+ seg5b:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,walkOut:7.7},
 });
+/** Plain sum of every beat (no overlap) — kept for comparison with the 59aa0bbc table. */
 export function segmentTotals(D=TRANSITION_DURATIONS):Record<string,number>{const o:Record<string,number>={};
  for(const [k,v] of Object.entries(D))o[k]=Math.round(Object.values(v as Record<string,number>).reduce((a,b)=>a+b,0)*100)/100;
  o.meadowToSkycity=Math.round((o.seg3+o.seg4)*100)/100;o.skycityToLakeside=Math.round((o.seg5a+o.seg5b)*100)/100;return o;}
+/** B5 deck walk as BalloonTransit plays it: min(table, max(1.5, path / walkMps)) over stepDown → deckEdge → new S0. */
+export function b5ToPathS(cap:number=TRANSITION_DURATIONS.seg4.toPath):number{const K=TRANSITION_STAGING.skycity,p=[K.stepDown,K.deckEdge,K.s0New];let L=0;
+ for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return Math.min(cap,Math.max(1.5,L/TRANSITION_STAGING.walkMps));}
+export type Beat={id:string;t0:number;t1:number;overlapsWith?:string};
+const r2=(x:number)=>Math.round(x*100)/100;
+/** Overlap-aware timeline (what the compressed runtime plays). Overlaps:
+ *  · ignition + inflate start with the walk to the basket (seg3 B1, seg5a C1); only the remainder (if the walk + door + step-in
+ *    is shorter than the fill) delays liftoff;
+ *  · door close runs inside sit_down (closeS 0.6 < sit 1.2) and liftoff starts the frame she is seated;
+ *  · settle = the last 1.0 s of the ride clock (BALLOON_DOOR settleT0..T1), already inside the flight (59aa0bbc's table added
+ *    it again on top); stand_up + door_reach follow the settle with no pause.
+ *  walkS overrides (real path seconds, e.g. T-03 R.walkS for the lakeside mooring) recompute the totals from data. */
+export function transitionTimeline(D=TRANSITION_DURATIONS,o:{lakeWalkS?:number;meadowWalkS?:number}={}){
+ const seq=(beats:Array<[string,number]>,t=0):Beat[]=>beats.map(([id,d])=>{const b={id,t0:r2(t),t1:r2(t+d)};t+=d;return b;});
+ const s1=seq(Object.entries(D.seg1)),s2=seq(Object.entries(D.seg2));
+ const m=D.seg3,mw=o.meadowWalkS??m.toBasket,mIn=mw+m.doorReach+m.intoBasket+m.turn180+m.sitDown,mIgn=Math.max(0,m.inflate-mIn);
+ const s3=[...seq([['toBasket',mw],['doorReach',m.doorReach],['intoBasket',m.intoBasket],['turn180',m.turn180],['sitDown',m.sitDown],['igniteRemainder',mIgn],['flight',m.flight]]),
+  {id:'inflate',t0:0,t1:r2(m.inflate),overlapsWith:'toBasket'},{id:'doorClose',t0:r2(mIn-m.sitDown),t1:r2(mIn-m.sitDown+0.6),overlapsWith:'sitDown'},
+  {id:'settle',t0:r2(mIn+mIgn+m.flight-1),t1:r2(mIn+mIgn+m.flight),overlapsWith:'flight'}];
+ const k=D.seg4,s4=seq([['standUp',k.standUp],['pause',k.pause],['doorReach',k.doorReach],['stepDown',k.stepDown+1.0/* BalloonTransit walks stepDown+1.0 */],['toPath',b5ToPathS(k.toPath)]]);
+ const l=D.seg5a,lw=o.lakeWalkS??l.toBasket,lIn=lw+l.doorReach+l.intoBasket+l.turn180+l.sitDown,lIgn=Math.max(0,l.inflate-lIn);
+ const s5a=[...seq([['toBasket',lw],['doorReach',l.doorReach],['intoBasket',l.intoBasket],['turn180',l.turn180],['sitDown',l.sitDown],['igniteRemainder',lIgn],['liftoff',l.liftoff],['flight',l.flight]]),
+  {id:'inflate',t0:r2(Math.max(0,lIn-l.inflate)),t1:r2(Math.max(0,lIn-l.inflate)+l.inflate),overlapsWith:'toBasket'}];
+ const b=D.seg5b,s5b=seq([['settle',b.settle],['standUp',b.standUp],['pause',b.pause],['doorReach',b.doorReach],['stepDown',b.stepDown],['walkOut',b.walkOut]]);
+ const end=(x:Beat[])=>Math.max(...x.map(e=>e.t1));
+ const tot={seg1:end(s1),seg2:end(s2),seg3:end(s3),seg4:end(s4),seg5a:end(s5a),seg5b:end(s5b)} as Record<string,number>;
+ tot.islandToMeadow=r2(tot.seg1+tot.seg2);tot.meadowToSkycity=r2(tot.seg3+tot.seg4);tot.skycityToLakeside=r2(tot.seg5a+tot.seg5b);
+ return {beats:{seg1:s1,seg2:s2,seg3:s3,seg4:s4,seg5a:s5a,seg5b:s5b},totals:tot,igniteAfterSit:{meadow:r2(mIgn),lake:r2(lIgn)}};}
 /** Her pose while the basket flies (运镜bot occlusion test, segment 6 8.65–19.85 s, and the meadow→skycity leg).
  *  b19: BOTH balloon legs are ridden SEATED: offset = seated controller root in the BASKET ROOT frame (floor top y 0), yaw in
  *  basket frame (0 = facing the door, +Z), clip sit_hold. Lakeside keeps its b15 stand_point-local root (0.032,−0.1,−0.099),
