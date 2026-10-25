@@ -40,7 +40,7 @@ export const TRANSITION_STAGING=Object.freeze({
  *   meadowRideRampS smoothstep rate ramp (was 2; 3 keeps the rate C1 step < 0.02/frame at cruise ×3.0; yaw max 80.6°/s).
  *   lakeLiftS       screen seconds of T-03's 18 s hidden lift-off (was 6; 运镜bot sweep: 5 s → 66.9°/s on 390×844).
  *   lakeFlightS     T-03 visible flight, retimed from its 12 s with rate-1 ends (≥ 8 s, Grok Bot). */
-export const TRANSITION_RETIME=Object.freeze({meadowRideS:24,meadowRideTailS:3,meadowRideRampS:3,lakeLiftS:5,lakeFlightS:8,lakeFlightMinS:8,
+export const TRANSITION_RETIME=Object.freeze({meadowRideS:28.5/* Grok Bot decision 2026-10-25 (GGbot base pending) */,meadowRideTailS:3,meadowRideRampS:3,lakeLiftS:5,lakeFlightS:8,lakeFlightMinS:8,
  caps:{islandToMeadow:45,meadowToSkycity:50,skycityToLakeside:40}});
 /** Seconds per beat (STANCES.md). One table (Grok Bot may retune). Compress: the pauses after stand_up are dead time → 0;
  *  flight / liftoff come from TRANSITION_RETIME. Action beats unchanged. */

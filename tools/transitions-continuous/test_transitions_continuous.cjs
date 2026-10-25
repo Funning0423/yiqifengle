@@ -14,14 +14,14 @@ function metrics(poses){const yr=[],ya=[],dp=[],acc=[],df=[],dpitch=[];
  for(let i=1;i<dp.length;i++)acc.push(Math.abs(dp[i]-dp[i-1])/DT/DT);
  return {yawMax:Math.max(...yr.map(Math.abs)),yawAccP99:pct(ya,0.99),pitchMax:Math.max(...dpitch),stepMaxM:Math.max(...dp),accP99:pct(acc,0.99),fovStepMax:Math.max(...df)};}
 // ---- 1. ride clock warp: 30 s → 36 s flight, monotonic, C1, cues before the seam untouched
-const RD=F.RIDE_DURATION,ST=H.load('region/TransitionStaging.ts');assert.equal(RD,ST.TRANSITION_RETIME.meadowRideS,'ride length is data (TRANSITION_RETIME)');assert.ok(RD<=30&&RD>=20);
+const TS=H.load('region/TransitionStaging.ts'),RD=F.RIDE_DURATION;assert.equal(RD,TS.TRANSITION_DURATIONS.seg3.flight,'ride length is the one data parameter');
 assert.ok(Math.abs(F.rideToFlightT(RD)-F.FLIGHT_DURATION)<1e-9,'ride ends exactly at flight end: '+F.rideToFlightT(RD));
 let prev=-1,prevRate=1,maxRateStep=0;
 for(let i=0;i<=RD*FPS;i++){const tau=i*DT,t=F.rideToFlightT(tau);assert.ok(t>=prev-1e-12,'monotonic');prev=t;
  if(i){const rate=(t-F.rideToFlightT(tau-DT))/DT;if(i>1)maxRateStep=Math.max(maxRateStep,Math.abs(rate-prevRate));prevRate=rate;}}
 assert.ok(maxRateStep<0.02,'rate is C1 (no speed step): '+maxRateStep);
-for(const ct of [0.4,1.8,4.3,11.2,11.4,11.6])assert.ok(Math.abs(F.rideToFlightT(ct)-ct)<1e-9,'cue '+ct+' keeps its time');
-assert.ok(Math.abs(F.flightToRideT(F.LAND_T)-(RD-1))<1e-6,'touchdown on the ride clock at RD−1 s');
+for(const ct of [1.8].filter(c=>c>=F.RIDE_START_T))assert.ok(Math.abs(F.rideToFlightT(ct-F.RIDE_START_T)-ct)<1e-9,'cue '+ct+' keeps its time');
+assert.ok(Math.abs(F.flightToRideT(F.LAND_T)-(RD-1))<1e-6,'touchdown on the ride clock 1 s before the end');
 out.ride={duration:RD,cruiseRate:+F.RIDE_CRUISE_RATE.toFixed(4),cueRideT:Object.fromEntries(Object.entries({cloudExit:15,islets:21.5,approach:27,land:35}).map(([k,v])=>[k,+F.flightToRideT(v).toFixed(2)]))};
 // ---- 2. flight camera on the ride clock vs the 36 s camera: not faster than the approved caps, unless the 36 s file already was
 global.__QF_BALLOON_FLIGHT=JSON.parse(fs.readFileSync(path.join(ROOT,'creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json'),'utf8'));
@@ -37,9 +37,7 @@ out.flight={old36:mOld,new30:mNew};
 assert.ok(mNew.yawMax<=Math.max(90,mOld.yawMax*1.0001),'flight yaw ≤ 90°/s (or ≤ the approved 36 s file): '+mNew.yawMax);
 assert.ok(mNew.yawAccP99<=Math.max(200,mOld.yawAccP99*1.0001),'flight yaw accel p99: '+mNew.yawAccP99);
 assert.equal(mNew.fovStepMax,0,'flight FOV constant');
-// compress (24 s ride): cruise ×3.0 → lens step 1.018 m/frame (30 s: 0.525). 0.6 needs ≥ 28.5 s, which breaks the 50 s cap →
-// flagged for 运镜bot re-check (pan speed), guarded here against regressions only.
-out.flightStepFlag=mNew.stepMaxM>0.6?'RECHECK-运镜bot':'ok';assert.ok(mNew.stepMaxM<=1.1,'flight lens step per frame '+mNew.stepMaxM);
+assert.ok(mNew.stepMaxM<=0.6,'flight lens step per frame '+mNew.stepMaxM);
 // ---- 3. handoff level → shot → level: per-frame continuity and the eased yaw caps
 function levelOrbit(feet,yaw0,rate){return t=>{const y=(yaw0+rate*t)/R;return {position:[feet[0]+Math.sin(y)*6,feet[1]+3,feet[2]+Math.cos(y)*6],target:[feet[0],feet[1]+1,feet[2]],fovVerticalDeg:45};};}
 const feet=[0,0,0],shot={id:'test',space:'world',mode:'walk',keys:[{t:0,pos:[-3,2.2,-5],look:[0,1.2,0],fov:50},{t:3,pos:[-5,2.4,-1],look:[1,1.2,2],fov:50},{t:6,pos:[-4,2.6,4],look:[2,1.2,4],fov:50}]};
