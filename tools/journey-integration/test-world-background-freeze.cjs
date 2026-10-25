@@ -221,7 +221,7 @@ async function watchdogCases(ref){
  // Boot wiring: watchdog / waits / cover ramp on ForegroundTimers, ticked with the flow's hidden/needsResume.
  const boot=fs.readFileSync(S+'WorldIntegrationBoot.ts','utf8');
  assert(/const wall=this\.fg\.now,wait=this\.fg\.wait;/.test(boot),'goHome on foreground time');
- assert(/update\(dt:number\)\{this\.fg\.tick\(dt,this\.flowPaused\(\)\);this\.tickCover\(\);/.test(boot),'ticked per frame, paused with the flow');
+ assert(/update\(dt:number\)\{this\.fg\.tick\(dt,this\.flowPaused\(\)\);this\.tickCover\(dt\);/.test(boot),'ticked per frame, paused with the flow');
  assert(/return !!s&&\(!!s\.hidden\|\|!!s\.needsResume\)/.test(boot),'paused = hidden || needsResume');
  const cover=boot.slice(boot.indexOf('goHome():Promise'),boot.indexOf(' update(dt:number)'));assert(!/Date\.now\(\)(?!\};return r)/.test(cover.replace(/__worldHomeTransition=\{\.\.\.r,at:Date\.now\(\)\}/,'')),'no wall clock in goHome / fadeCover / tickCover');
  assert(!/homeWaits/.test(boot));

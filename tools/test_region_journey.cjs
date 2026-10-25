@@ -1,7 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const ts=require('./qf-env.cjs').typescript(),dir=fs.mkdtempSync(path.join(os.tmpdir(),'region-journey-'));
-for(const name of ['CameraPose','WorldFlowCore','RegionJourneyCore','FirstsliceFacts','FirstsliceRoutes','RegionCameraData','CharacterReference']){fs.writeFileSync(path.join(dir,name+'.js'),ts.transpileModule(fs.readFileSync('creator-build-project/assets/scripts/world-r1/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText);}
+fs.writeFileSync(path.join(dir,'WindWipeCore.js'),ts.transpileModule(fs.readFileSync('creator-build-project/assets/scripts/world-r2/WindWipeCore.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText.replace('"../world-r1/ScreenCover"','"./ScreenCover"'));
+for(const name of ['CameraPose','WorldFlowCore','RegionJourneyCore','FirstsliceFacts','FirstsliceRoutes','RegionCameraData','CharacterReference','ScreenCover']){fs.writeFileSync(path.join(dir,name+'.js'),ts.transpileModule(fs.readFileSync('creator-build-project/assets/scripts/world-r1/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText.replace('"../world-r2/WindWipeCore"','"./WindWipeCore"'));}
 const {Cancellation,WorldFlow}=require(path.join(dir,'WorldFlowCore')),J=require(path.join(dir,'RegionJourneyCore'));
 fs.writeFileSync(path.join(dir,'RegionAssetDeadline.js'),ts.transpileModule(fs.readFileSync('creator-build-project/assets/scripts/region/RegionAssetDeadline.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText);
 const {waitRegionAsset}=require(path.join(dir,'RegionAssetDeadline'));

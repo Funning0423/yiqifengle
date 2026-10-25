@@ -1355,6 +1355,36 @@
     "sha256": "95f06da4f66c22ac5df582f96f25999627744d914ad3e3985298a25e992e36b2"
   },
   {
+    "path": "creator-build-project/assets/resources/ending/end_bg_day.jpg",
+    "bytes": 33195,
+    "sha256": "3e10c3b7f942418d31cae4b94f645266f36a109ee4c34c4f84df77ad536b504b"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_bg_night.jpg",
+    "bytes": 23143,
+    "sha256": "1de03f6c73a06630dbb3269c2d42630a9b67068bbf12caa0b268caa47920d8a1"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_chime_day.png",
+    "bytes": 19548,
+    "sha256": "79949f6f43dd8437dec0c1a2317fad0573581ee58afcffd78dfed297528db8d4"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_chime_night.png",
+    "bytes": 25578,
+    "sha256": "81aaa743df5828c965999906831b9f2f5e008f68506f345312e29c408cb83984"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_day.png",
+    "bytes": 26711,
+    "sha256": "b843b21940f1e166b00573d84888a03624c525bcaf3c428585814fa40ca1da8f"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_night.png",
+    "bytes": 21081,
+    "sha256": "95e56588d61064171d137f24f599c60615707318fa118a8b9f8ec28dea1aebe6"
+  },
+  {
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png",
     "bytes": 2118,
     "sha256": "0bf1a4335842f3ab8821f40f28197b89298d285f5f52db733148102fdf27e16c"
