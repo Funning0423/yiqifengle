@@ -419,3 +419,14 @@ All numbers are NOT ENGINE: they come from replaying the Mac p0drag11 frames thr
 - T1/T2 stay taps return before any camera code runs, so the camera does not change.
 - NE1, NE2 and Roof walks: see W2 above.
 - Suite on 79ff5833: 179/182 PASS. The only blocks are the expected ones: 2× Node ≥22.6 and navigation-guard (browser). p0drag7–12, skycity-stand and lakeside-walkable pass.
+
+## p0drag13 — checkpoint 1 (WIP, not delivered) — 运镜bot
+- Our written yaw is now a trapezoid: ≤ 90°/s, ≤ 200°/s² (LensSmooth yawOursDegS/yawAccDegS2). The 5× hidden boost and the 28 m/s yaw boost cap no longer drive yaw.
+- Skycity standing yaw policy `sectorTarget`: 5°-grid clear yaws at the player's pitch/arm. Follow the player's yaw when it is clear and reachable through ≤ 30° of hidden view without entering a box. Otherwise wait inside the lens's own clear run, eased to the edge nearest the player's yaw. Pitch/arm offsets stay at 0, so there is no automatic climb.
+- Walking still uses the avoider, on the same eased cap. The QA hook hold keeps its yaw until the orbit turns ≥ 2°.
+- Replay of the 2026-10-25 Mac traces (test_p0drag13):
+  - po: 0.15/0.36 s, was 0.25/0.35 on the Mac.
+  - ro: 0.85 s, was 0.63.
+  - pock walks: 0.41–0.47 s.
+  - Our yaw peaks at 90°/s; acceleration p99 is 200 and the peak is 607°/s².
+- Still red under the cap: p0drag10 Q1, p0drag11 Q1/Q2, p0drag12 W1/W2, p0drag13 O1 (ro). See the report.

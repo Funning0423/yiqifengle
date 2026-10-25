@@ -11,6 +11,9 @@ export const LENS_SMOOTH=Object.freeze({
  hiddenYawBoost:5,
  /** p0drag10: a yaw boost never moves the lens faster than this along its arc (m/s; p0drag8 P5 step cap 0.35 m @ 60 fps) */
  boostLensMS:28,
+ /** p0drag13 (Mac p0drag12: automatic swing 379–507°/s, p95 140–240°/s — a whip): OUR yaw offset moves on an eased, capped
+  *  profile — ≤ yawOursDegS, |accel| ≤ yawAccDegS2 (trapezoid: speeds up, cruises, slows into the target). Replaces ×5 + 28 m/s. */
+ yawOursDegS:90,yawAccDegS2:200,
  /** screens the framing must hold on (w×h px) */
  screens:[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]] as readonly (readonly [number,number])[],
  /** her body: feet .. head above the feet (m) and half width (m); margin kept to the screen edge (fraction of the half screen) */
@@ -35,7 +38,10 @@ export class OffsetSmoother{
   const t=Math.min(0.1,dt),w=LENS_SMOOTH.omega*boost;
   const f=(x:number,v:number,g:number,cap:number,ww=w):[number,number]=>{const acc=ww*ww*(g-x)-2*ww*v;let nv=v+acc*t;nv=Math.max(-cap,Math.min(cap,nv));return [x+nv*t,nv];};
   const dy=wrapDeg(ty-this.y);/* p0drag11: yawDir ±1 = go round that way (detour past a wall) */
-  [this.y,this.vy]=f(this.y,this.vy,this.y+(yawDir&&Math.sign(dy)!==yawDir?dy+360*yawDir:dy),Math.max(LENS_SMOOTH.yawDegS,Math.min(LENS_SMOOTH.yawDegS*Math.max(boost,yawBoost),yawMaxDegS)),LENS_SMOOTH.omega*Math.max(boost,yawBoost));/* p0drag11: the yaw spring is also stiffer while she is hidden *//* p0drag10: yaw alone may go ×yawBoost while she is hidden (yaw is not a user-felt pitch/height limit) */
+  {const d=yawDir&&Math.sign(dy)!==yawDir?dy+360*yawDir:dy,A=LENS_SMOOTH.yawAccDegS2,V=LENS_SMOOTH.yawOursDegS;
+   /* p0drag13: eased + capped yaw — target speed is what can still stop in time (√(2A|d|)), the speed changes by ≤ A·t */
+   const want=Math.sign(d)*Math.min(V,Math.sqrt(2*A*Math.abs(d))),nv=this.vy+Math.max(-A*t,Math.min(A*t,want-this.vy));
+   let ny=this.y+nv*t;if(Math.abs(d)<0.05&&Math.abs(nv)<A*t){ny=this.y+d;this.vy=0;}else this.vy=nv;this.y=ny;void yawBoost;void yawMaxDegS;}/* p0drag11: the yaw spring is also stiffer while she is hidden *//* p0drag10: yaw alone may go ×yawBoost while she is hidden (yaw is not a user-felt pitch/height limit) */
   [this.e,this.ve]=f(this.e,this.ve,te,LENS_SMOOTH.elevDegS*boost);
   [this.a,this.va]=f(this.a,this.va,ta,LENS_SMOOTH.armMS*boost);
   return [this.y,this.e,this.a];}

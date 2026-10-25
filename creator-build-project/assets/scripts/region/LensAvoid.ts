@@ -2,7 +2,7 @@
 import type {OccBox} from './LensOcclusion';
 /** Steepest look-down anywhere (Mac: −58°). */
 export const LENS_PITCH_MAX_DEG=58;
-export const AVOID=Object.freeze({swings:[0,15,-15,30,-30,45,-45,60,-60,90,-90,120,-120,150,-150,180] as readonly number[],stepDeg:6,backN:12,yawDegS:90,elevDegS:45,searchEveryN:4,insideBoost:1.6,aheadS:0.5,aheadMaxDeg:40,stayW:1,
+export const AVOID=Object.freeze({swings:[0,15,-15,30,-30,45,-45,60,-60,90,-90,120,-120,150,-150,180] as readonly number[],stepDeg:6,backN:12,yawDegS:90,elevDegS:45,searchEveryN:4,insideBoost:1.6,aheadS:1.0,aheadMaxDeg:90,stayW:1,
  /** p0drag11: arm pull-in candidates (× current arm), floor, cost per unit of (1 − k), pull-in rate (m/s) */
  armK:[1,0.8,0.62,0.48] as readonly number[],armFloorM:3.5,armAfterS:0.3,armCost:45,armMS:2.2});
 /** 0 = lens outside every box and the look→lens segment clear; 1 = lens outside but the segment crosses a box; 2 = lens inside one.
