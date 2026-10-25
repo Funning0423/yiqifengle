@@ -248,12 +248,13 @@ export function lakesideBalloonRide(walkKeys:Vec[],launch:Vec,bank:Vec,landing:P
 
 /** b18 turn foot-lock (getout v2 pivot, recovery retuned on sim_lock_frames). While the exit walk's yaw changes, the root
  *  is pivoted about the planted sole (L = +X local, R = −X, half-width FOOT_LOCK_HALF_W) so the stance foot does not skate.
- *  The offset must NOT decay during stance: a.lastFoot stays set through double support, so stance vs swing is the foot-event
- *  clock (footLockSwing: motionT − lastFootEmit.t > FOOT_LOCK_SWING_S). Recovery runs only in swing, linear at
+ *  The runtime caller uses a fresh, valid SoleContactSolver snapshot. Double support/unknown/settle/retarget freeze
+ *  recovery; lastFoot and audio timestamps are not contact evidence. Recovery in single support remains linear at
  *  FOOT_LOCK_RECOVER_MPS, and the offset never exceeds FOOT_LOCK_MAX_M. Applied by the lakeside adapter after the character
  *  driver's update (the frozen character controller is untouched). */
 export const FOOT_LOCK_HALF_W=.09,FOOT_LOCK_SWING_S=.12,FOOT_LOCK_RECOVER_MPS=.018,FOOT_LOCK_MAX_M=.15;
-/** True while the swing foot is in the air: the last foot event is older than FOOT_LOCK_SWING_S. A missing emit is not a swing. */
+/** Legacy timing heuristic retained for old replay callers, NOT proof of airborne/contact state.
+ * @deprecated Runtime recovery must use solved per-foot constraints, never this audio-event clock. */
 export function footLockSwing(motionT:number,lastEmitT:number|null):boolean{
  return typeof lastEmitT==='number'&&isFinite(lastEmitT)&&motionT-lastEmitT>FOOT_LOCK_SWING_S;}
 export function footLockStep(off:readonly [number,number],planted:'L'|'R'|null,yawOld:number,yawNew:number,dt:number,swing=false):[number,number]{

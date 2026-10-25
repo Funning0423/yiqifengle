@@ -1,6 +1,8 @@
 import type { RegionJourneyController, JourneyRegion, JourneySnapshot } from './RegionJourneyCore';
 import { CameraTrackFailure } from './CameraPose';
 import type { TrackOptions, WeightRamp } from './CameraPose';
+/** A failed ride pose must remain visible and frozen until an explicit retry/return. */
+export class JourneyPoseFailure extends Error {constructor(message:string){super(message);this.name="JourneyPoseFailure";}}
 /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
 export type Vec = readonly [number, number, number];
 export type Mode = 'fixed' | 'motion';
@@ -296,7 +298,7 @@ export class WorldFlow {
     const token=new Cancellation();this.current=token;this.error=null;this.change(initial);
     try {await body(token);token.check();return {ok:true};}
     catch(err) {if(err instanceof Cancelled)return {ok:false,reason:'cancelled'};
-      if(this.current===token && this.state!=='disposed'){if(err instanceof CameraTrackFailure){this.fault(String(err));}else{token.cancel();this.error=String(err);this.restore();this.change(this.world?this.stable:'error');}}
+      if(this.current===token && this.state!=='disposed'){if(err instanceof JourneyPoseFailure){token.cancel();this.error=String(err);this.change(this.world?this.stable:'error');}else if(err instanceof CameraTrackFailure){this.fault(String(err));}else{token.cancel();this.error=String(err);this.restore();this.change(this.world?this.stable:'error');}}
       return {ok:false,reason:String(err)};
     } finally {if(this.current===token)this.current=null;}
   }
@@ -634,7 +636,7 @@ export class WorldFlow {
     this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
   }
   advance(seconds:number):void {
-    if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
+    if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume||this.journey?.preservesFailedPose())return;
     if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world,Math.min(seconds,.1));}
   }
   /** r4.1 (Grok Bot, Mac evidence C_show_snapback_strip): a background trip during the home exit or the walk home no

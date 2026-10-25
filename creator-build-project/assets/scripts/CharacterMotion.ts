@@ -532,10 +532,15 @@ export function supportPose(joints:ReadonlyArray<Joint>):any {
  const fk=(n:any):any=>{if(!n||nodes[n.name]!==n)return {p:[0,0,0],q:[0,0,0,1],s:[1,1,1]};const w=fk(n.parent),p=n.position,q=n.rotation,ss=n.scale,v=rot(w.q,[p.x*w.s[0],p.y*w.s[1],p.z*w.s[2]]);return {p:w.p.map((x:number,i:number)=>x+v[i]),q:mul(w.q,[q.x,q.y,q.z,q.w]),s:[w.s[0]*ss.x,w.s[1]*ss.y,w.s[2]*ss.z]};};
  const h=nodes.hips.position;return {hip:[h.x,h.y,h.z],knees:{'foot.L':fk(nodes['shin.L']).p,'foot.R':fk(nodes['shin.R']).p},thighs:{'foot.L':fk(nodes['thigh.L']).p,'foot.R':fk(nodes['thigh.R']).p},feet:{'foot.L':fk(nodes['foot.L']),'foot.R':fk(nodes['foot.R'])}};
 }
+export type SoleContactSnapshot={revision:number;valid:boolean;left:boolean;right:boolean};
 export class SoleContactSolver {
+ private contactRevision=0;private contactValid=false;
+ /** Solved constraints, not animation/audio timestamps. Invalid means unknown, never airborne. */
+ contactSnapshot():SoleContactSnapshot{return {revision:this.contactRevision,valid:this.contactValid,left:this.contactValid&&!!this.anchors['foot.L']?.some(a=>a!==null),right:this.contactValid&&!!this.anchors['foot.R']?.some(a=>a!==null)};}
+ private invalidateContacts(){this.contactRevision++;this.contactValid=false;}
  private turnPlan:any=null;private settle:any=null;private settleLandings:string[]=[];
  takeSettleLandings(){const a=this.settleLandings;this.settleLandings=[];return a;}
- startSettle(a:any,b:any){this.anchors={};this.previous={};const dist=(k:string)=>Math.hypot(...a.feet[k].p.map((x:number,i:number)=>x-b.feet[k].p[i]));const soleY=(k:string)=>{const f=a.feet[k],q=f.q;return f.p[1]+Math.min(...this.geometry.points[k].map((p:number[])=>2*(q[0]*q[1]+q[3]*q[2])*p[0]*f.s[0]+(1-2*(q[0]*q[0]+q[2]*q[2]))*p[1]*f.s[1]+2*(q[1]*q[2]-q[3]*q[0])*p[2]*f.s[2]));};const yl=soleY('foot.L'),yr=soleY('foot.R');const first=Math.abs(yl-yr)>.003?(yl>yr?'foot.L':'foot.R'):(dist('foot.L')>=dist('foot.R')?'foot.L':'foot.R');this.settleLandings=[];const need=(k:string)=>dist(k)>.003||Math.abs(a.feet[k].q.reduce((v:number,x:number,i:number)=>v+x*b.feet[k].q[i],0))<Math.cos(.035/2);const second=first==='foot.L'?'foot.R':'foot.L';const duration=(k:string)=>need(k)?Math.max(.16,Math.min(.26,.16+dist(k)*.35)):0;const d1=duration(first),d2=duration(second);this.settle={a,b,first,t:0,landed:0,d1,d2,total:Math.max(.12,d1+d2)};}
+ startSettle(a:any,b:any){this.invalidateContacts();this.anchors={};this.previous={};const dist=(k:string)=>Math.hypot(...a.feet[k].p.map((x:number,i:number)=>x-b.feet[k].p[i]));const soleY=(k:string)=>{const f=a.feet[k],q=f.q;return f.p[1]+Math.min(...this.geometry.points[k].map((p:number[])=>2*(q[0]*q[1]+q[3]*q[2])*p[0]*f.s[0]+(1-2*(q[0]*q[0]+q[2]*q[2]))*p[1]*f.s[1]+2*(q[1]*q[2]-q[3]*q[0])*p[2]*f.s[2]));};const yl=soleY('foot.L'),yr=soleY('foot.R');const first=Math.abs(yl-yr)>.003?(yl>yr?'foot.L':'foot.R'):(dist('foot.L')>=dist('foot.R')?'foot.L':'foot.R');this.settleLandings=[];const need=(k:string)=>dist(k)>.003||Math.abs(a.feet[k].q.reduce((v:number,x:number,i:number)=>v+x*b.feet[k].q[i],0))<Math.cos(.035/2);const second=first==='foot.L'?'foot.R':'foot.L';const duration=(k:string)=>need(k)?Math.max(.16,Math.min(.26,.16+dist(k)*.35)):0;const d1=duration(first),d2=duration(second);this.settle={a,b,first,t:0,landed:0,d1,d2,total:Math.max(.12,d1+d2)};}
  startTurnBridge(a:any,b:any,fromYaw:number,deltaYaw:number,flat:any,predictions:any[]){
   // Isolated timing probe: two relocations inside the existing turn, then release to its authored pose.
   const angle=deltaYaw*.65/1.5,q=[0,Math.sin(angle/2),0,Math.cos(angle/2)],c=Math.cos(angle),s=Math.sin(angle);
@@ -552,7 +557,7 @@ export class SoleContactSolver {
   this.settle.d1=.25;this.settle.d2=.40;this.settle.total=.75;this.settle.bridgeFromYaw=fromYaw;
  }
 
- startNinetyLanding(start:any,samples:any[],idle:any,fromYaw:number,deltaYaw:number,root:number[]){
+ startNinetyLanding(start:any,samples:any[],idle:any,fromYaw:number,deltaYaw:number,root:number[]){this.invalidateContacts();
   const heel:{[b:string]:number[]}={'foot.L':[8.66704175e-8,.0174170642,.0822387213],'foot.R':[-7.07237809e-8,.0174169882,.0822385758]};
   const mul=(a:number[],b:number[])=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]],rot=(q:number[],p:number[])=>mul(mul(q,[...p,0]),[-q[0],-q[1],-q[2],q[3]]).slice(0,3);
   const point=(pose:any,b:string,yaw:number)=>{const f=pose.feet[b],v=rot(f.q,heel[b].map((x,i)=>x*f.s[i])).map((x,i)=>x+f.p[i]),w=rot([0,Math.sin(yaw/2),0,Math.cos(yaw/2)],v);return w.map((x,i)=>x+root[i]);},at=(t:number)=>samples.reduce((a,b)=>Math.abs(a.time-t)<Math.abs(b.time-t)?a:b).pose,h=1/240;
@@ -562,7 +567,7 @@ export class SoleContactSolver {
   }this.turnPlan=plan;
  }
  canStartTurnLanding(fromYaw:number,deltaYaw:number,root:readonly number[]){const p=TURN_JOINT26_DIAGNOSTIC;return Math.abs(fromYaw)<1e-10&&Math.abs(deltaYaw-p.deltaYaw)<1e-10&&root.length===3&&root.every((x:number,i:number)=>Math.abs(x-p.root[i])<1e-9); }
- startTurnLanding(start:any,samples:any[],idle:any,fromYaw:number,deltaYaw:number,root:number[]){
+ startTurnLanding(start:any,samples:any[],idle:any,fromYaw:number,deltaYaw:number,root:number[]){this.invalidateContacts();
   if(!this.canStartTurnLanding(fromYaw,deltaYaw,root)){this.reset();return false;}
   const heel:{[b:string]:number[]}={'foot.L':[8.66704175e-8,.0174170642,.0822387213],'foot.R':[-7.07237809e-8,.0174169882,.0822385758]};
   const mul=(a:number[],b:number[])=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]],rot=(q:number[],p:number[])=>mul(mul(q,[...p,0]),[-q[0],-q[1],-q[2],q[3]]).slice(0,3);
@@ -584,10 +589,16 @@ export class SoleContactSolver {
  maxCorrectionMm=0;unreachable=0;
  constructor(private geometry:any){}
  hasContacts(){return Object.keys(this.anchors).some(b=>this.anchors[b].some(a=>a!==null));}
- reset(){this.turnPlan=null;this.anchors={};this.previous={};this.settle=null;this.settleLandings=[];}
+ reset(){this.invalidateContacts();this.turnPlan=null;this.anchors={};this.previous={};this.settle=null;this.settleLandings=[];}
  apply(joints:ReadonlyArray<Joint>,root:readonly number[],yaw:number,enabled:boolean,dt=0,posePlan?:Plan){
-  if(!enabled||!this.geometry){this.reset();return;}
+  this.invalidateContacts();const unreachableBefore=this.unreachable;let observedFeet=0,solveFinite=true;
+  if(!enabled||!this.geometry?.points||root.length!==3||!root.every(Number.isFinite)||!Number.isFinite(yaw)){this.reset();return;}
   const nodes:any={};for(let i=0;i<joints.length;i++)nodes[joints[i].name]=joints[i].node;
+  // A missing ancestor is not an identity transform and cannot certify foot contact.
+  const completeChain=(name:string)=>{let n=nodes[name];const seen=new Set<any>();while(n){if(seen.has(n)||nodes[n.name]!==n)return false;seen.add(n);const p=n.position,q=n.rotation,s=n.scale;
+   if(!p||!q||!s||![p.x,p.y,p.z,q.x,q.y,q.z,q.w,s.x,s.y,s.z].every(Number.isFinite)||Math.hypot(q.x,q.y,q.z,q.w)<1e-8||Math.min(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z))<1e-8)return false;
+   if(n===nodes.hips)return true;n=n.parent;}return false;};
+  if(!['hips','thigh.L','shin.L','foot.L','thigh.R','shin.R','foot.R'].every(completeChain)){this.reset();return;}
   const mul=(a:number[],b:number[])=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
   const inv=(q:number[])=>[-q[0],-q[1],-q[2],q[3]];
   const rot=(q:number[],v:number[])=>mul(mul(q,[v[0],v[1],v[2],0]),inv(q)).slice(0,3);
@@ -603,8 +614,9 @@ export class SoleContactSolver {
   const phase=posePlan?.base?.clip==='walk_loop'?((posePlan.base.time%1.433333)+1.433333)%1.433333:-1;
   const order=!ss&&phase>=0&&phase<.733333?[1,0]:[0,1];
   for(const side of order){
-   const suffix=side?'R':'L',b='foot.'+suffix,points=this.geometry.points[b],foot=nodes[b],thigh=nodes['thigh.'+suffix],shin=nodes['shin.'+suffix];if(!points||!foot||!shin||!thigh)continue;
+   const suffix=side?'R':'L',b='foot.'+suffix,points=this.geometry.points[b],foot=nodes[b],thigh=nodes['thigh.'+suffix],shin=nodes['shin.'+suffix];if(!points?.length||!foot||!shin||!thigh||!points.every((p:number[])=>p.length===3&&p.every(Number.isFinite)))continue;
    const fw=fk(foot),tw=fk(thigh),sw=fk(shin),world=points.map((p:number[])=>add(root.slice() as number[],rot(yq,add(fw.p,rot(fw.q,p.map((x,i)=>x*fw.s[i]))))));
+   if(!world.every((p:number[])=>p.every(Number.isFinite)))continue;observedFeet++;
    let stepTarget:any=null;
    if(ss){const delay=b===ss.first?0:ss.d1,duration=b===ss.first?ss.d1:ss.d2,u=duration>0?Math.max(0,Math.min(1,(ss.t-delay)/duration)):1,v=smooth(u),a=ss.a.feet[b],z=ss.b.feet[b];const p=a.p.map((x:number,i:number)=>x+(z.p[i]-x)*v);p[1]+=.04*Math.sin(Math.PI*u)**2;const q:number[]=[];slerp(...a.q as [number,number,number,number],...z.q as [number,number,number,number],v,q);if(ss.bridgeFromYaw!==undefined){const a=ss.bridgeFromYaw-yaw,rq=[0,Math.sin(a/2),0,Math.cos(a/2)],lp=rot(rq,p),lq=mul(rq,q),release=smooth((ss.t-.65)/.10);for(let i=0;i<3;i++)p[i]=lp[i]+(fw.p[i]-lp[i])*release;const qq:number[]=[];slerp(...lq as [number,number,number,number],...fw.q as [number,number,number,number],release,qq);for(let i=0;i<4;i++)q[i]=qq[i];}if(ss.bridgeFromYaw!==undefined){const y=p[1]+Math.min(...points.map((point:number[])=>rot(q,point.map((x,i)=>x*fw.s[i]))[1]));let clearance=0;if(b===ss.first&&ss.t>.65&&ss.t<.75)clearance=Math.max(0,fw.p[1]+Math.min(...points.map((point:number[])=>rot(fw.q,point.map((x,i)=>x*fw.s[i]))[1])))*smooth((ss.t-.65)/.05);if(y<clearance)p[1]+=clearance-y;}stepTarget={p,q,u,v};}
    const anchors=this.anchors[b]||(this.anchors[b]=points.map(()=>null));const residual:number[][]=[];const active=world.map((p:number[],k:number)=>!retarget&&p[1]<root[1]+(anchors[k]?.012:.006));
@@ -718,8 +730,9 @@ export class SoleContactSolver {
    }
    perp=unit(perp);
    const knee=add(tw.p,add(axis.map(v=>v*x),perp.map(v=>v*h))),upper=mul(between(sub(sw.p,tw.p),sub(knee,tw.p)),tw.q),sr=shin.rotation,base=mul(upper,[sr.x,sr.y,sr.z,sr.w]),ft=foot.position,lower=mul(between(rot(base,[ft.x,ft.y,ft.z]),sub(target,knee)),base);
-   const tq=mul(inv(fk(thigh.parent).q),upper),sq=mul(inv(upper),lower),fq=mul(inv(lower),fw.q);thigh.setRotation(tq[0],tq[1],tq[2],tq[3]);shin.setRotation(sq[0],sq[1],sq[2],sq[3]);foot.setRotation(fq[0],fq[1],fq[2],fq[3]);
+   const tq=mul(inv(fk(thigh.parent).q),upper),sq=mul(inv(upper),lower),fq=mul(inv(lower),fw.q);if(![...tq,...sq,...fq,...target].every(Number.isFinite)){solveFinite=false;continue;}thigh.setRotation(tq[0],tq[1],tq[2],tq[3]);shin.setRotation(sq[0],sq[1],sq[2],sq[3]);foot.setRotation(fq[0],fq[1],fq[2],fq[3]);
   }
+  this.contactValid=solveFinite&&observedFeet===2&&!ss&&!retarget&&this.unreachable===unreachableBefore;
   if(ss){if(ss.t>=ss.d1&&ss.landed<1){this.settleLandings.push(ss.first);ss.landed=1;}if(ss.t>=ss.d1+ss.d2&&ss.landed<2){this.settleLandings.push(ss.first==='foot.L'?'foot.R':'foot.L');ss.landed=2;}if((globalThis as any).__characterMotionEvidence===true) ((globalThis as any).__settleEvidence ||= []).push({time:ss.t,first:ss.first,d1:ss.d1,d2:ss.d2,total:ss.total});if(ss.t>=ss.total){this.settle=null;this.anchors={};this.previous={};}}
  }
 }
