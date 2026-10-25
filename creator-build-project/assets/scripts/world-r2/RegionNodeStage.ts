@@ -25,7 +25,7 @@ import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLen
 import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
 import {SKYCITY_LENS_OCCLUDERS} from '../region/SkycityLensOccluders';
 import {ArmSmoother} from '../region/ArmSmoother';
-import {AVOID,LENS_PITCH_MAX_DEG,herOcclusion,lensLevel,nearSphere} from '../region/LensAvoid';
+import {AVOID,LENS_PITCH_MAX_DEG,herOcclusion,lensLevel,nearSphere,toFrame,type FrameBox} from '../region/LensAvoid';
 import {LENS_SMOOTH,OffsetSmoother,frameHer,posOf,sphOf,wrapDeg} from '../region/LensSmooth';
 import {nearestWalkable,walkPath,walkTapPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
 const {ccclass}=_decorator;
@@ -74,7 +74,7 @@ export class RegionNodeStage extends Component{
  private animHold:{c:Animation;on:boolean}[]=[];
  private holdPose:Pose|null=null;
  private armSmooth=new ArmSmoother();
- private avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN};private lensSmooth=new OffsetSmoother();private skyPrev:{yaw:number;el:number;arm:number}|null=null;private qaHold=false;
+ private avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1,hidT:0};private lensSmooth=new OffsetSmoother();private skyPrev:{yaw:number;el:number;arm:number}|null=null;private qaHold=false;private skyDetour=0;
  private walkToken=0;
  private shotNote='';
  private dragHome:Vec|null=null;
@@ -490,7 +490,7 @@ export class RegionNodeStage extends Component{
   *  until she walked). Pick the clear orbit (yaw / pitch / arm nearest the seed whose designed lens has the lowest LensGuard
   *  cost), converge LensGuard on it, and glide there; MapExplore keeps writing through LensGuard while she stands. */
  private preSolveEntry(){
-  const boxes=this.lakesideOccluders();if(!boxes||!this.orbit.seeded){this.entry=null;return;}
+  const boxes=this.region==='skycity'?null:this.lakesideOccluders();if(!boxes||!this.orbit.seeded){this.entry=null;return;}/* p0drag11: skycity proxies are model-local frame boxes (LensGuard is world-AABB) and its lens avoids with outOfProxies */
   const o=this.orbit,her=this.girl(),y0=o.yaw,p0=o.pitch,d0=o.dist,R=d0+LENS_GUARD.nearM+LENS_GUARD.clearM+2;
   const near=boxes.filter(b=>{const ax=Math.max(b.min[0]-her[0],0,her[0]-b.max[0]),az=Math.max(b.min[2]-her[2],0,her[2]-b.max[2]);return ax*ax+az*az<=R*R;});
   const cur=this.readPose(),base={up:0,swing:0,share:1};let best:[number,number,number]=[y0,p0,d0],bc=1e9;
@@ -508,12 +508,15 @@ export class RegionNodeStage extends Component{
  }
  /** b17 skycity-walk-r2 (p0drag6): the sky houses / walls are merged meshes over the 14 m orbit-box cap, so the explore lens went
   *  into the blue-roof house east of S3. Model-local proxies (SkycityLensOccluders) -> world; only the ones within 18 m of her. */
- private skyAll:OccBox[]|null=null;private skyModel:Node|null=null;private skyNear:OccBox[]=[];private skyNearAt=0;
+ private skyAll:OccBox[]|null=null;private skyL:number[]|null=null;private skyModel:Node|null=null;private skyNear:OccBox[]=[];private skyNearAt=0;
  private skycityOccluders():OccBox[]|null{
   const m=this.model('skycity');if(!m)return null;const now=Date.now();
-  if(!this.skyAll||this.skyModel!==m){const W=m.worldMatrix,v=new Vec3(),src=new Vec3();
-   this.skyAll=proxiesToWorld(SKYCITY_LENS_OCCLUDERS,p=>{src.set(p[0],p[1],p[2]);Vec3.transformMat4(v,src,W);return [v.x,v.y,v.z];});this.skyModel=m;this.skyNearAt=0;}
-  if(now-this.skyNearAt>=400){const g=this.girl();this.skyNearAt=now;
+  // p0drag11: the proxies stay MODEL-LOCAL and carry the world→local affine (LensAvoid FrameBox); every skycity test (avoid, no-entry,
+  // camTrace occ) runs in that frame. World AABBs of the ~118°-yawed rows were up to 9× too big (Mac p0drag10 phantom occlusion).
+  if(!this.skyAll||this.skyModel!==m){const I=new Mat4();Mat4.invert(I,m.worldMatrix);
+   const l=[I.m00,I.m01,I.m02,I.m04,I.m05,I.m06,I.m08,I.m09,I.m10,I.m12,I.m13,I.m14];this.skyL=l;
+   this.skyAll=SKYCITY_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]],l}) as FrameBox);this.skyModel=m;this.skyNearAt=0;}
+  if(now-this.skyNearAt>=400){const g=toFrame(this.skyL!,this.girl());this.skyNearAt=now;
    this.skyNear=this.skyAll.filter(b=>Math.hypot(Math.max(b.min[0]-g[0],0,g[0]-b.max[0]),Math.max(b.min[2]-g[2],0,g[2]-b.max[2]))<18);}
   return this.skyNear;
  }
@@ -549,7 +552,7 @@ export class RegionNodeStage extends Component{
   if(this.region==='skycity'){const r=sphOf(raw.position,look),q=sphOf(pose.position,look);
    const S=this.lensSmooth,cur=posOf(look,{yaw:r.yaw+S.y,el:r.el+S.e,arm:r.arm+S.a}),bx=this.lakesideOccluders();
    const P0=this.skyPrev,inBox=S.live&&!!bx&&bx.length>0&&lensLevel(look,P0?posOf(look,P0):cur,nearSphere(bx,look,r.arm+S.a+1),0)===2;/* p0drag10: judged on last frame's written lens (raw + old offset after a drag was inside while the lens was not → ×2.5 rate) */
-   const ty=wrapDeg(q.yaw-r.yaw),te=q.el-r.el,ta=q.arm-r.arm,hid=!!P0&&!!bx&&bx.length>0&&((o)=>o.face&&o.chest)(herOcclusion(posOf(look,P0),g,nearSphere(bx,look,r.arm+S.a+1))),[y,el,a]=S.step(ty,te,ta,e?0:dt,inBox?LENS_SMOOTH.insideBoost:1,hid?LENS_SMOOTH.hiddenYawBoost:1,LENS_SMOOTH.boostLensMS*180/Math.PI/Math.max(1,r.arm+S.a));
+   const ty=wrapDeg(q.yaw-r.yaw),te=q.el-r.el,ta=q.arm-r.arm,hid=!!P0&&!!bx&&bx.length>0&&((o)=>o.face||o.chest)(herOcclusion(posOf(look,P0),g,nearSphere(bx,look,r.arm+S.a+1))),dv=wrapDeg(ty-S.y),det=this.skyDetour&&hid&&Math.abs(dv)>20?this.skyDetour:0,[y,el,a]=S.step(ty,te,ta,e?0:dt,inBox?LENS_SMOOTH.insideBoost:1,hid?LENS_SMOOTH.hiddenYawBoost:1,LENS_SMOOTH.boostLensMS*180/Math.PI/Math.max(1,(r.arm+S.a)*Math.cos(Math.min(80,Math.max(0,r.el+S.e))*Math.PI/180))/* arc speed on the horizontal circle */,det);
    let gy=y,ge=el;const P=this.skyPrev,near=bx&&bx.length?nearSphere(bx,look,r.arm+Math.max(0,a)+1):null;
    /* p0drag10 (Mac p0drag9 skxd ro/pock: 18–53 frames with the lens inside a house while the eased offset swept back through it): the
     * eased lens may never ENTER a box — if this frame's step would, keep last frame's yaw (world) and only ease the elevation, else
@@ -559,10 +562,13 @@ export class RegionNodeStage extends Component{
     const ok=(yy:number,ee:number)=>lensLevel(look,posOf(look,{yaw:r.yaw+yy,el:r.el+ee,arm:r.arm+a}),near,0)!==2;
     const cy=r.el+pe+LENS_SMOOTH.elevDegS*Math.min(0.1,dt>0?dt:0)<=LENS_PITCH_MAX_DEG?cl:pe,hold=Math.abs(py)<=LENS_SMOOTH.holdMaxDeg;
     if(ok(y,cy)){ge=cy;}else if(hold&&ok(py,el)){gy=py;}else if(hold&&ok(py,cy)){gy=py;ge=cy;}else if(hold){gy=py;ge=pe;}
-    if(gy!==y||ge!==el)S.pin(gy,ge,a);}
+    if(gy!==y||ge!==el)S.pin(gy,ge,a);
+    /* p0drag11 (replay skn ro: pinned 0.4 s against a wall while she was hidden): go round the other way */
+    if(gy!==y&&hid&&!this.skyDetour)this.skyDetour=Math.sign(wrapDeg(ty-gy))>0?-1:1;}
+   if(!hid)this.skyDetour=0;
    this.skyPrev={yaw:r.yaw+gy,el:r.el+ge,arm:r.arm+a};
    if(Math.abs(gy-ty)+Math.abs(ge-te)+Math.abs(a-ta)>1e-7)pose={...pose,position:posOf(look,{yaw:r.yaw+gy,el:r.el+ge,arm:r.arm>=A.armMinM?Math.max(A.armMinM,r.arm+a):r.arm+a})};}
-  else{this.lensSmooth.clear();this.skyPrev=null;}
+  else{this.lensSmooth.clear();this.skyPrev=null;this.skyDetour=0;}
   if(e){e.t+=Math.max(0,Math.min(0.1,dt||0));const u=Math.min(1,e.t/e.T),s=u*u*u*(u*(u*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s,a[2]+(b[2]-a[2])*s] as [number,number,number];
    pose={...pose,position:L(e.from.position,pose.position),target:L(e.from.target,pose.target)};if(u>=1)this.entry=null;}
   {const ft=frameHer(pose.position,pose.target,pose.fovVerticalDeg,g);if(ft!==pose.target)pose={...pose,target:ft as [number,number,number]};}/* p0drag9: her body inside the safe margins on all 7 screens */
@@ -590,30 +596,33 @@ export class RegionNodeStage extends Component{
   // p0drag9 (item 3): look ahead along the user's own turn (raw yaw rate × AVOID.aheadS) so avoidance starts before the raw lens reaches a wall
   const ydeg=y0/R,dts=Number.isFinite(dt)&&dt>0?Math.min(0.1,dt):0,rate=dts>0&&Number.isFinite(A.py)?wrapDeg(ydeg-A.py)/dts:0;if(dts>0)A.py=ydeg;/* p0drag10: dt = 0 writes do not eat the turn rate */
   const ah=Math.max(-AVOID.aheadMaxDeg,Math.min(AVOID.aheadMaxDeg,rate*AVOID.aheadS));
-  const at=(sw:number,de:number,ahead=0):[number,number,number]=>{const y=y0+(sw+ahead)*R,e=Math.min(eMax,e0+de*R);return [look[0]+Math.sin(y)*Math.cos(e)*L,look[1]+Math.sin(e)*L,look[2]+Math.cos(y)*Math.cos(e)*L];};
+  if(!(A.k>0))A.k=1;if(!(A.tk>0))A.tk=1;
+  // p0drag11: candidates may also pull the lens in (arm × k, never under the 3.5 m floor) — in front of the post / bush instead of around it
+  const at=(sw:number,de:number,ahead=0,k=A.k):[number,number,number]=>{const y=y0+(sw+ahead)*R,e=Math.min(eMax,e0+de*R),Lk=Math.max(Math.min(L,AVOID.armFloorM),L*k);return [look[0]+Math.sin(y)*Math.cos(e)*Lk,look[1]+Math.sin(e)*Lk,look[2]+Math.cos(y)*Math.cos(e)*Lk];};
   if(boxes&&boxes.length){
    const near=nearSphere(boxes,look,L+1);/* p0drag8 perf: sphere of the lens orbit */
    const g=this.girl(),fc=[g[0],g[1]+1.45,g[2]],ch=[g[0],g[1]+1.05,g[2]];
-   const lvl1=(q:readonly number[])=>{const v=lensLevel(look,q,near,0.25);return v!==0?v:lensLevel(fc,q,near,0.1)!==0&&lensLevel(ch,q,near,0.1)!==0?1:0;};/* 0 clear, 1 lens outside but sight line blocked, 2 lens inside; p0drag10: the look line alone missed face+chest both hidden (Mac skxd 0.97–1.4 s runs) */
-   const lvlAt=(sw:number,de:number)=>{const v=lvl1(at(sw,de));return v===2||Math.abs(ah)<1?v:Math.max(v,lensLevel(look,at(sw,de,ah),near,0.25)===2?2:0);};/* now, and the lens in aheadS not inside a box */
+   const lvl1=(q:readonly number[])=>{const v=lensLevel(look,q,near,0.25);return v!==0?v:((o)=>o.face||o.chest)(herOcclusion(q,g,near))?1:0;};/* p0drag11: the same test as the hidden timer (was a 0.1 m-shrunk sight line — said clear while she stayed hidden 3 s in replay p0drag9 R1) *//* p0drag11: face OR chest hidden counts (Mac measures each) *//* 0 clear, 1 lens outside but sight line blocked, 2 lens inside; p0drag10: the look line alone missed face+chest both hidden (Mac skxd 0.97–1.4 s runs) */
+   const lvlAt=(sw:number,de:number,k=A.k)=>{const v=lvl1(at(sw,de,0,k));return v===2||Math.abs(ah)<1?v:Math.max(v,lensLevel(look,at(sw,de,ah,k),near,0.25)===2?2:0);};/* now, and the lens in aheadS not inside a box */
    // p0drag10 (Mac skxd ro: the eased lens swept back to the clear raw THROUGH a house): a target is only taken if the arc from where
    // the lens is now (A.sw/A.e → sw, at the higher of the two elevations) keeps the lens out of every box
-   const LS0=this.lensSmooth,S0=LS0.live?LS0.y:A.sw,E0=LS0.live?LS0.e:A.e,arc=(sw:number,de:number)=>{const e=Math.max(de,E0),n=Math.ceil(Math.abs(sw-S0)/AVOID.stepDeg);
-    for(let k=1;k<n;k++)if(lensLevel(look,at(S0+(sw-S0)*k/n,e),near,0)===2)return false;return true;};
-   if(lvlAt(0,0)===0&&(A.tsw===0&&A.te===0||arc(0,0))){A.clear++;if(A.clear>=AVOID.backN||(A.tsw===0&&A.te===0)){A.tsw=0;A.te=0;}}
+   const LS0=this.lensSmooth,S0=LS0.live?LS0.y:A.sw,E0=LS0.live?LS0.e:A.e,arc=(sw:number,de:number,kk=A.k)=>{const e=Math.max(de,E0),n=Math.ceil(Math.abs(sw-S0)/AVOID.stepDeg),km=Math.min(kk,A.k);
+    for(let k=1;k<n;k++)if(lensLevel(look,at(S0+(sw-S0)*k/n,e,0,km),near,0)===2)return false;return true;};
+   if(lvlAt(0,0,1)===0&&(A.tsw===0&&A.te===0&&A.tk===1||arc(0,0,1))){A.clear++;if(A.clear>=AVOID.backN||(A.tsw===0&&A.te===0&&A.tk===1)){A.tsw=0;A.te=0;A.tk=1;}}
    else{A.clear=0;
     if(A.wait>0)A.wait--;/* p0drag8 perf: hold the current target between full searches (≤ searchEveryN frames of partial occlusion) */
-    else if(lvlAt(A.tsw,A.te)!==0||(A.tsw===0&&A.te===0)||!arc(A.tsw,A.te)){A.wait=AVOID.searchEveryN-1;let best:[number,number]|null=null,bestP:[number,number]|null=null,bc=1e9;
-     for(const sw of this.qaHold?[0]:AVOID.swings){for(let de=sw?0:AVOID.stepDeg;e0*180/Math.PI+de<=LENS_PITCH_MAX_DEG+1e-6;de+=AVOID.stepDeg){
-      const v=lvlAt(sw,de),c=0.6*Math.abs(sw)+1.6*de+/* p0drag9: prefer a swing to a steep climb */Math.abs(wrapDeg(sw-A.sw))*AVOID.stayW+Math.abs(de-A.e)*AVOID.stayW/* p0drag9: stay near where the lens IS (no 180° sweep through walls) */;
-      if(v===0&&c<bc&&arc(sw,de)){bc=c;best=[sw,de];}else if(v===1&&!bestP)bestP=[sw,de];}}
-     const pick=best??bestP;if(pick){A.tsw=pick[0];A.te=pick[1];}}}
+    else if(lvlAt(A.tsw,A.te,A.tk)!==0||(A.tsw===0&&A.te===0&&A.tk===1)||!arc(A.tsw,A.te,A.tk)){A.wait=AVOID.searchEveryN-1;let best:[number,number,number]|null=null,bestP:[number,number,number]|null=null,bestQ:[number,number,number]|null=null,bc=1e9;
+     for(const sw of this.qaHold?[0]:AVOID.swings){if(Math.abs(sw)>90&&(A.hidT||0)<AVOID.armAfterS&&Math.abs(A.sw)<=90)continue;/* p0drag11: the wide swings (120–180°) only once she has been hidden > armAfterS */for(let de=sw?0:AVOID.stepDeg;e0*180/Math.PI+de<=LENS_PITCH_MAX_DEG+1e-6;de+=AVOID.stepDeg){
+      for(const k of AVOID.armK){if(k<1&&(L*k<AVOID.armFloorM-1e-6||(A.hidT||0)<AVOID.armAfterS))continue;/* p0drag11: pull in only after she has been hidden > armAfterS */
+      const v=lvlAt(sw,de,k),c=0.6*Math.abs(sw)+1.6*de+AVOID.armCost*(1-k)+/* p0drag9: prefer a swing to a steep climb */Math.abs(wrapDeg(sw-A.sw))*AVOID.stayW+Math.abs(de-A.e)*AVOID.stayW+Math.abs(k-A.k)*AVOID.armCost*AVOID.stayW/* p0drag9: stay near where the lens IS (no 180° sweep through walls) */;
+      if(v===0&&c<bc&&arc(sw,de,k)){bc=c;best=[sw,de,k];}else if(v===1&&!bestP&&arc(sw,de,k))bestP=[sw,de,k];else if(v===1&&!bestQ)bestQ=[sw,de,k];}}}
+     const pick=best??(lvlAt(0,0,1)!==2&&arc(0,0,1)?[0,0,1] as [number,number,number]:null)??bestP??bestQ;/* p0drag11: nothing clear → no detour at all (replay p0drag9 R1: a 30° climb held 3 s without ever showing her) *//* p0drag11: a partial pick must also keep a box-free arc (Mac/replay skn ro: pinned 0.4 s against a wall) */if(pick){A.tsw=pick[0];A.te=pick[1];A.tk=pick[2];}}}
   }
   const t=Number.isFinite(dt)&&dt>0?Math.min(0.1,dt):0,step=(c:number,g:number,r:number)=>c+Math.max(-r*t,Math.min(r*t,g-c));
   // p0drag8 (roots / house ground spot): while the swing is still passing through a box (lens inside), ×insideBoost — still continuous
   const kIn=boxes&&boxes.length&&lensLevel(look,at(A.sw,A.e),nearSphere(boxes,look,L+1),0)===2?AVOID.insideBoost:1;
-  const g2=this.girl(),hid=kIn===1&&!!boxes&&boxes.length>0&&((o)=>o.face&&o.chest)(herOcclusion(at(A.sw,A.e),g2,nearSphere(boxes,look,L+1)));/* p0drag10: swing ×2 while she is hidden (yaw only) */
-  A.sw=step(A.sw,A.tsw,AVOID.yawDegS*(hid?LENS_SMOOTH.hiddenYawBoost:kIn));/* the written lens speed is capped in LensSmooth (boostLensMS) */A.e=step(A.e,A.te,AVOID.elevDegS*kIn);
+  const g2=this.girl(),hid=kIn===1&&!!boxes&&boxes.length>0&&((o)=>o.face||o.chest)(herOcclusion(at(A.sw,A.e),g2,nearSphere(boxes,look,L+1)));A.hidT=hid?(A.hidT||0)+t:0;/* p0drag10: swing ×2 while she is hidden (yaw only) */
+  A.sw=step(A.sw,A.tsw,AVOID.yawDegS*(hid?LENS_SMOOTH.hiddenYawBoost:kIn));/* the written lens speed is capped in LensSmooth (boostLensMS) */A.e=step(A.e,A.te,AVOID.elevDegS*kIn);A.k=step(A.k,A.tk,AVOID.armMS/Math.max(1,L));/* p0drag11: arm pull-in at ≤ armMS */
   return {...pose,position:at(A.sw,A.e)};
  }
  /** p0drag8: final written pose never looks down steeper than LENS_PITCH_MAX_DEG (lens elevation about her look point, and the view). */
@@ -668,7 +677,7 @@ export class RegionNodeStage extends Component{
   this.writeOrbit(0);
  }
  openExplore(region:StageRegion,fromLens=false,snapped=false){
-  this.region=region;this.exploring=true;this.lens='MapExplore';this.lensPull.reset();this.focus=this.girl();this.zoom=1.6;this.armSmooth.clear();this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN};this.lensSmooth.clear();this.skyPrev=null;this.qaHold=false;
+  this.region=region;this.exploring=true;this.lens='MapExplore';this.lensPull.reset();this.focus=this.girl();this.zoom=1.6;this.armSmooth.clear();this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1};this.lensSmooth.clear();this.skyPrev=null;this.qaHold=false;
   this.handOrbitBack(region);
   /* p0drag7 (Mac p0drag6 skycity: she was snapped onto the nearest node, the lens stayed seeded on the board shot ~29 m away looking at
      the sky). After a snap: re-seat the orbit on her new spot (follow lens, as qaTeleport) and glide there from the shot on screen. */
@@ -858,7 +867,7 @@ export class RegionNodeStage extends Component{
   *  ENGAGED (free, not held) like after a drag — before, it stayed un-engaged and the follow lens overwrote the yaw next frame. */
  private qaOrbit(yawDeg?:number,pitchDeg?:number){const L=ORBIT_LIMITS[this.orbit.place];
   if(Number.isFinite(yawDeg))this.orbit.yaw=yawDeg!;if(Number.isFinite(pitchDeg))this.orbit.pitch=Math.max(L?.pitchMinDeg??5,Math.min(L?.pitchMaxDeg??58,pitchDeg!));
-  this.orbit.drag(0,0);this.orbit.release();this.lensSmooth.clear();this.skyPrev=null;this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN};
+  this.orbit.drag(0,0);this.orbit.release();this.lensSmooth.clear();this.skyPrev=null;this.avoid={sw:0,e:0,tsw:0,te:0,clear:0,wait:0,py:NaN,k:1,tk:1};
   this.qaHold=true;/* p0drag10 (Mac p0drag9: aimed −160° drifted to −135° and on — the avoidance swing eased in): the hooked yaw sticks; avoidance may only climb until a manual drag */}
 
  /** p0drag5 (Mac fc742aa2: lakeside explore = fixed wide shot until a ground tap). Leaving a board opens explore by poll, but the

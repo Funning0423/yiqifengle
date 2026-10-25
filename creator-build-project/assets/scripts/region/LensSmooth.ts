@@ -8,9 +8,9 @@ export const LENS_SMOOTH=Object.freeze({
  /** ×boost while the eased lens is still inside an occluder box (gets out sooner; still continuous) */
  insideBoost:2.5,
  /** p0drag10: ×yaw rate while her face AND chest are hidden from the written lens */
- hiddenYawBoost:2,
+ hiddenYawBoost:5,
  /** p0drag10: a yaw boost never moves the lens faster than this along its arc (m/s; p0drag8 P5 step cap 0.35 m @ 60 fps) */
- boostLensMS:18,
+ boostLensMS:28,
  /** screens the framing must hold on (w×h px) */
  screens:[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]] as readonly (readonly [number,number])[],
  /** her body: feet .. head above the feet (m) and half width (m); margin kept to the screen edge (fraction of the half screen) */
@@ -29,12 +29,13 @@ export class OffsetSmoother{
  clear(){this.reset();this.live=false;}
  /** p0drag10: the no-entry guard moved the lens to (y,e,a) instead of the eased step — adopt it, zeroing the velocity on axes it held. */
  pin(y:number,e:number,a:number){if(y!==this.y)this.vy=0;if(e!==this.e)this.ve=0;if(a!==this.a)this.va=0;this.y=y;this.e=e;this.a=a;}
- step(ty:number,te:number,ta:number,dt:number,boost=1,yawBoost=1,yawMaxDegS=Infinity):[number,number,number]{
+ step(ty:number,te:number,ta:number,dt:number,boost=1,yawBoost=1,yawMaxDegS=Infinity,yawDir=0):[number,number,number]{
   if(!this.live){this.reset(ty,te,ta);return [ty,te,ta];}
   if(!(dt>0))return [this.y,this.e,this.a];/* p0drag10: a dt = 0 write (drag event → aimOrbit → writeOrbit(0)) HOLDS — it used to reset to the target = a jump */
   const t=Math.min(0.1,dt),w=LENS_SMOOTH.omega*boost;
-  const f=(x:number,v:number,g:number,cap:number):[number,number]=>{const acc=w*w*(g-x)-2*w*v;let nv=v+acc*t;nv=Math.max(-cap,Math.min(cap,nv));return [x+nv*t,nv];};
-  [this.y,this.vy]=f(this.y,this.vy,this.y+wrapDeg(ty-this.y),Math.max(LENS_SMOOTH.yawDegS,Math.min(LENS_SMOOTH.yawDegS*Math.max(boost,yawBoost),yawMaxDegS)));/* p0drag10: yaw alone may go ×yawBoost while she is hidden (yaw is not a user-felt pitch/height limit) */
+  const f=(x:number,v:number,g:number,cap:number,ww=w):[number,number]=>{const acc=ww*ww*(g-x)-2*ww*v;let nv=v+acc*t;nv=Math.max(-cap,Math.min(cap,nv));return [x+nv*t,nv];};
+  const dy=wrapDeg(ty-this.y);/* p0drag11: yawDir ±1 = go round that way (detour past a wall) */
+  [this.y,this.vy]=f(this.y,this.vy,this.y+(yawDir&&Math.sign(dy)!==yawDir?dy+360*yawDir:dy),Math.max(LENS_SMOOTH.yawDegS,Math.min(LENS_SMOOTH.yawDegS*Math.max(boost,yawBoost),yawMaxDegS)),LENS_SMOOTH.omega*Math.max(boost,yawBoost));/* p0drag11: the yaw spring is also stiffer while she is hidden *//* p0drag10: yaw alone may go ×yawBoost while she is hidden (yaw is not a user-felt pitch/height limit) */
   [this.e,this.ve]=f(this.e,this.ve,te,LENS_SMOOTH.elevDegS*boost);
   [this.a,this.va]=f(this.a,this.va,ta,LENS_SMOOTH.armMS*boost);
   return [this.y,this.e,this.a];}
