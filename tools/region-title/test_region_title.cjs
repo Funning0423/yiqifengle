@@ -55,12 +55,28 @@ const all = (x, o = []) => { o.push(x); for (const ch of x.children) all(ch, o);
       assert(top >= g.plate.y + g.plate.height / 2 - 1e-9, `${w}x${h} ink top ${top} over the plate`); assert(bot <= g.tray.y - g.tray.height / 2 + 1e-9, `${w}x${h} ink over the tray`);
       assert((w - ink.w) / 2 >= 32, `${w}x${h} margins`); assert.equal(ink.font, 24);
     }
+  });
+  await ok('P3 7 sizes (+390 short windows): DRAWN extent (glyph + tight spread + shadow + 44×1 line) clears plate and tray by ≥ 2 pt; old toast.y@24 pt did not', () => {
+    let oldBad = 0;
+    for (const [w, h] of [[320, 568], [360, 780], [375, 667], [390, 844], [402, 874], [414, 896], [430, 932], [390, 664], [390, 700]]) {
+      const g = BL.boardLayout(w, h, BL.boardSafeInsets(w, h), 2), top = g.plate.y + g.plate.height / 2, bot = g.tray.y - g.tray.height / 2;
+      for (const name of ['花粉草甸', '天空之城', '风铃湖畔']) {
+        const f = C.regionTitleFit(name, w, top, bot);
+        assert(f.fits, `${w}x${h} ${name} fits`); assert(f.font >= C.REGION_TITLE_TYPE.minFont && f.font <= 24);
+        assert(f.y - f.up - top >= C.REGION_TITLE_CLEAR - 1e-9, `${w}x${h} ${name} clear of the plate ${(f.y - f.up - top).toFixed(2)}`);
+        assert(bot - (f.y + f.down) >= C.REGION_TITLE_CLEAR - 1e-9, `${w}x${h} ${name} clear of the tray ${(bot - f.y - f.down).toFixed(2)}`);
+        const e24 = C.regionTitleExtent(24); if (g.toast.y - e24.up < top + C.REGION_TITLE_CLEAR || g.toast.y + e24.down > bot - C.REGION_TITLE_CLEAR) oldBad++;
+      }
+    }
+    assert(oldBad > 0, 'regression: the old placement violates the rule on some size');
+    const v = fs.readFileSync(S + 'ui/RegionArrivalTitle.ts', 'utf8'), m = fs.readFileSync(S + 'ManagedMobileBoardUI.ts', 'utf8');
+    assert.match(v, /regionTitleFit\(/); assert.match(m, /regionTitle\?\.place\(w, h, g\.toast\.y, \{ top: g\.plate\.y \+ g\.plate\.height \/ 2, bottom: g\.tray\.y - g\.tray\.height \/ 2 \}\)/);
     assert(near(C.regionTitleInk('花粉草甸', 390).w, 4 * 24 + 3 * 3.6));
   });
   await ok('board L5: 花粉草甸 shows after presentForPlay on toast.y, above the Toast, 2.0 s, no input blocker; the flag is written at start', async () => {
     const b = await board('mainline-05'), { u, H } = b, d = u.regionTitle.diagnostics();
     assert.equal(d.showing, true); assert.equal(d.text, '花粉草甸'); assert.equal(u.regionTitle.main.string, '花粉草甸');
-    const g = u.geo, h = u.layoutInfo.height; assert(near(u.regionTitle.node.position.y, h / 2 - g.toast.y));
+    const g = u.geo, h = u.layoutInfo.height; const fit = C.regionTitleFit('花粉草甸', u.layoutInfo.width, g.plate.y + g.plate.height / 2, g.tray.y - g.tray.height / 2); assert(near(u.regionTitle.node.position.y, h / 2 - fit.y)) /* P3: band-fitted (was toast.y) */; assert(Math.abs(fit.y - g.toast.y) < 1); assert.equal(u.regionTitle.diagnostics().font, fit.font);
     const kids = u.root.children; assert(kids.indexOf(u.regionTitle.node) > kids.indexOf(u.toast), 'title above the toast');
     assert(!all(u.regionTitle.node).some(x => (x.components || []).some(k => /BlockInput|Button/.test(k?.constructor?.name || ''))), 'no blocker / button');
     assert(!all(u.regionTitle.node).some(x => (x._ev && [...x._ev.keys()].some(k => /touch|mouse/i.test(k)))), 'no touch listeners');

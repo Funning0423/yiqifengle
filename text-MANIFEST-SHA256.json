@@ -1961,8 +1961,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 102011,
-    "sha256": "3ffdbab83a843b0de23819f344bcaa8780da45c5f6b98e22d031c737d35d9b00"
+    "bytes": 102090,
+    "sha256": "5de1f0cd1bd917d81c60341b65b0085807afea13004e45306c1042df8a101af3"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -3231,8 +3231,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeRegister.ts",
-    "bytes": 1559,
-    "sha256": "b72836c09fc4f38a677562dc9539a3563abb099da2147ee1b5f5e1a9509cf924"
+    "bytes": 1717,
+    "sha256": "12712f9ce94c3fcb400e3ffa14c88345ced3bee6c3fc1cdd1e8355f60f4cd8d6"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeRegister.ts.meta",
@@ -3381,8 +3381,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts",
-    "bytes": 13011,
-    "sha256": "f9d5e1da3dccb935eea33e0a0a796f9b1361dd1760b6cc89125293a06121125e"
+    "bytes": 13340,
+    "sha256": "cf5e0a895da33bd1a0e54ff917f2352691075c4aed817d227fa3f2f4bd7b7a1a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts.meta",
@@ -3991,8 +3991,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitle.ts",
-    "bytes": 6873,
-    "sha256": "08732c144aa343c7886c9019feb2f345dcb932f7d8e0746120647267f0d79c17"
+    "bytes": 7722,
+    "sha256": "25e68dc6a9394a6ce34bf271878cdfe792d54eda9b883cd8c3ce793826a82f45"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitle.ts.meta",
@@ -4001,8 +4001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitleCore.ts",
-    "bytes": 9243,
-    "sha256": "608fbb4f0aeaa4a22bf293efb77735c3bff205c72db73e88ddd24890c36b1709"
+    "bytes": 11024,
+    "sha256": "5e37da045e8bc09b84df1efae79747eb763c842d4dd8264aff9760bfd0a1b70c"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitleCore.ts.meta",
@@ -4561,8 +4561,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 107297,
-    "sha256": "fda8632add307a4950633d8713d4f4d09d6b1ede253fc4baaac50a16abb3cff7"
+    "bytes": 108162,
+    "sha256": "dbaefaffa812652ca5abebcff189a5e927534865323938a507e1235751f314bf"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4611,8 +4611,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 46624,
-    "sha256": "77ef72ccf15794dc36af1a925b0e926519e66f288ff43bba6d8ae637f3240b2a"
+    "bytes": 49111,
+    "sha256": "9a64a1192bd86533af63e7d1ac0961e63e2480d2acc5273165a24342b8733aec"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4741,8 +4741,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 21126,
-    "sha256": "81ee0a6302307f505d71fe3aea95da8343ad57cceb525c860321e412454882aa"
+    "bytes": 21210,
+    "sha256": "60d598250e75aa1973ae302ab84ec0904038db8579ba8462d1d7b5bc0494275b"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

@@ -5,7 +5,7 @@
  *  Pure (no cc). */
 import {continuousTransitions} from './TransitionChain';
 import {fireShotContinue} from './TransitionCamera';
-export type SkyFinaleHost={onSkyFinaleContinue(h:(camera:any)=>boolean|void):()=>void;enterMainline():Promise<unknown>|unknown};
+export type SkyFinaleHost={onSkyFinaleContinue(h:(camera:any)=>boolean|void|PromiseLike<any>):()=>void;enterMainline():Promise<unknown>|unknown};
 let finaleCam:any=null;
 export function takeSkyFinaleCamera():any{const c=finaleCam;finaleCam=null;return c;}
 export function registerSkyLakeContinuous(host:SkyFinaleHost):()=>void{
@@ -14,7 +14,8 @@ export function registerSkyLakeContinuous(host:SkyFinaleHost):()=>void{
   finaleCam=camera||null;
   try{(globalThis as any).__QF_SKY_CONTINUE={at:Date.now(),camera:!!camera};}catch{}
   try{if(camera&&camera.position)fireShotContinue({pose:{position:camera.position,target:camera.target||camera.position,fovVerticalDeg:camera.fovVerticalDeg},vel:camera.velocity,yawRateDegS:camera.angularVelocityDegS?.[1]});}catch{}
-  try{void Promise.resolve(host.enterMainline()).catch(e=>{try{console.warn('[QF_TRANSITION] sky-lake continuous start failed '+String(e));}catch{}});}catch{return false;}
-  return true;
+  /* skyfix: hand the travel result back (a thenable) instead of a blind `true`, so a refused / null / thrown start reaches the
+   * composition's bounded WindWipe fallback instead of silently leaving her in sky city. */
+  return Promise.resolve().then(()=>host.enterMainline()).then(r=>r??{ok:false,reason:'continuous-null'});
  });
 }

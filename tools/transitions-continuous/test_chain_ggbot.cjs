@@ -69,7 +69,7 @@ assert.ok(src('world-r2/WorldNativeComposition.ts').includes('preloadTargetForSt
 const comp=src('world-r2/WorldNativeComposition.ts');assert.ok(/registerSkyLakeContinuous\(this/.test(comp),'registered at start()');
 const handlers=[];let entered=0;const host={onSkyFinaleContinue(h){handlers.push(h);return ()=>{};},enterMainline(){entered++;return Promise.resolve({ok:true});}};
 REG.registerSkyLakeContinuous(host);
-const cont=async(cam)=>{for(const h of handlers)if(h(cam)===true)return 'continuous';await host.enterMainline();return 'fallback';};// = continueFromSkyFinale
+const cont=async(cam)=>{for(const h of handlers){const r=h(cam);if(r===true)return 'continuous';if(r&&typeof r.then==='function'){const res=await r;if(res&&res.ok!==false)return 'continuous';break;}}await host.enterMainline();return 'fallback';};// = continueFromSkyFinale (skyfix: handler hands back the travel result; full behaviour: test_sky_finale_continue)
 assert.equal(await cont({position:[0,1,2],target:[0,1,3],fovVerticalDeg:48}),'continuous');assert.equal(entered,1);
 assert.ok(comp.includes("stage.armFinaleContinue?.(()=>{void this.continueFromSkyFinale();})"),'auto-continue calls continueFromSkyFinale');
 // 10 no ccclass in new pure files, metas present

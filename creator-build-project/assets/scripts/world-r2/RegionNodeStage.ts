@@ -311,7 +311,11 @@ export class RegionNodeStage extends Component{
   * ease-in ends at rest and the shot is held. null until the T-02 shot has settled. */
  private finaleEnd:{position:Vec;rotation:[number,number,number,number];fovVerticalDeg:number;velocity:Vec;angularVelocityDegS:number;at:number}|null=null;
  finaleEndCamera(){const e=this.region==='skycity'&&this.exploring?this.finaleEnd:null;return e?{position:[...e.position] as Vec,rotation:[...e.rotation] as [number,number,number,number],fovVerticalDeg:e.fovVerticalDeg,velocity:[...e.velocity] as Vec,angularVelocityDegS:e.angularVelocityDegS,at:e.at}:null;}
- private recordFinaleEnd(){const p=this.readPose(),q=this.camera?.node?.worldRotation;
+ private finalePose:Pose|null=null;
+ /** skyfix: re-write the held T-02 end shot (after the result board behind the finale is closed, WorldFlowCore.restore()
+  *  re-applies the journey camera; this puts the held shot straight back in the same frame, so nothing visibly cuts). */
+ holdFinaleView(){const p=this.finalePose;if(!p||this.region!=='skycity'||!this.exploring)return false;this.writePose({position:[...p.position] as Vec,target:[...p.target] as Vec,fovVerticalDeg:p.fovVerticalDeg},false);return true;}
+ private recordFinaleEnd(){const p=this.readPose(),q=this.camera?.node?.worldRotation;this.finalePose={position:[p.position[0],p.position[1],p.position[2]] as Vec,target:[p.target[0],p.target[1],p.target[2]] as Vec,fovVerticalDeg:p.fovVerticalDeg};
   this.finaleEnd={position:[p.position[0],p.position[1],p.position[2]] as Vec,rotation:q?[q.x,q.y,q.z,q.w]:[0,0,0,1],fovVerticalDeg:p.fovVerticalDeg,velocity:[0,0,0] as Vec,angularVelocityDegS:0,at:Date.now()};}
  private async blendPath(seconds:number,at:(t:number)=>Pose){
   this.orbit.pause();
@@ -1025,6 +1029,7 @@ export class RegionNodeStage extends Component{
   }
   if(this.syncOpened||this.cover||this.anim||!this.ensureCharacter()||!this.camera)return;
   for(const r of EXIT_EXPLORE_REGIONS){
+   if(r==='skycity'&&this.exploring&&this.region==='skycity'&&this.finalePose)continue/* skyfix: explore already open here (sky finale held shot): never re-seed the lens or re-stand her */;
    if(!this.exploreArmed[r]||!exploreWanted(r,s)||(r==='island'?!s?.characterReady:!this.model(r)?.activeInHierarchy))continue;
    this.syncOpened=r;if(this.region!==r)this.orbit.forget();const shot=this.takeSyncView(r);if(shot)this.writePose(shot,false);const snapped=this.standOnWalk(r);this.openExplore(r,true,snapped);(globalThis as any).__qfExploreSync={region:r,open:true,at:Date.now()};return;
   }

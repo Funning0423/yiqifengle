@@ -1,6 +1,6 @@
 import { Color, Graphics, Label, Layers, Node, TTFFont, UIOpacity, UITransform, assetManager, isValid } from 'cc';
 import { uiNightWeight } from './NightTint';
-import { REGION_TITLE, REGION_TITLE_TYPE as TY, regionTitleInk, regionTitleLook, regionTitleState, regionTitleStyle, regionTitleTable } from './RegionArrivalTitleCore';
+import { REGION_TITLE, REGION_TITLE_TYPE as TY, regionTitleFit, regionTitleInk, regionTitleLook, regionTitleState, regionTitleStyle, regionTitleTable } from './RegionArrivalTitleCore';
 export { REGION_TITLE_STYLE, REGION_TITLE_A, REGION_TITLE_B, regionTitleState } from './RegionArrivalTitleCore';
 /** 地名开局淡入 view (UI设计部 SPEC v1.1 §8): one node on the board UI root, above the Toast, centred on BoardLayout.toast.y.
  *  Layers bottom-up: B radial dark halo (Graphics rings, soft, no plate) → tight shade Label (outline = spread) → main Label
@@ -39,11 +39,18 @@ export class RegionArrivalTitle {
   /** start the 2.0 s timeline now (presentForPlay or the first ready frame of a new region) */
   show(id: keyof typeof REGION_TITLE) {
     this.text = REGION_TITLE[id]; this.t = 0; this.main.string = this.tight.string = this.text; this.lastLook = '';
-    const ink = regionTitleInk(this.text, this.screenW); this.main.fontSize = this.tight.fontSize = ink.font;
-    this.node.active = true; this.apply(0);
+    this.fitFont(); this.node.active = true; this.apply(0);
   }
   /** layout: BoardLayout.toast.y (top-down pt) on a w×h screen; Canvas centred */
-  place(w: number, h: number, toastY: number) { this.screenW = w; this.y = h / 2 - toastY; this.node.setPosition(0, this.y, 0); }
+  /** P3: with the plate→tray band (top-down pt) the title is fitted to clear both by REGION_TITLE_CLEAR (regionTitleFit). */
+  place(w: number, h: number, toastY: number, band?: { top: number; bottom: number }) { this.screenW = w; this.band = band || null; this.screenH = h; this.toastY = toastY; this.fitFont(); }
+  private band: { top: number; bottom: number } | null = null; private screenH = 844; private toastY = 0; private font: number = TY.font;
+  private fitFont() {
+    const f = this.band ? regionTitleFit(this.text || '天空之城', this.screenW, this.band.top, this.band.bottom) : null;
+    this.font = f ? f.font : regionTitleInk(this.text || '天空之城', this.screenW).font; this.y = this.screenH / 2 - (f ? f.y : this.toastY);
+    this.node.setPosition(0, this.y, 0); this.main.fontSize = this.tight.fontSize = this.font;
+    this.main.lineHeight = this.tight.lineHeight = Math.round(TY.lineHeight * this.font / TY.font); this.lastLook = '';
+  }
   showing() { return this.t >= 0; }
   update(dt: number) { if (this.t < 0 || !isValid(this.node, true)) return; this.t += Math.max(0, Math.min(dt, 0.1)); this.apply(this.t); }
   private apply(t: number) {
@@ -61,7 +68,7 @@ export class RegionArrivalTitle {
     this.tight.color = rgba(L.tight, L.tightA); this.tight.node.setPosition(0, -0.5, 0);
     k.enableOutline = L.tightSpread > 0.2; k.outlineColor = rgba(L.tight, L.tightA); k.outlineWidth = Math.max(1, Math.round(L.tightSpread));
     k.enableShadow = true; k.shadowColor = rgba(L.tight, L.tightA * 0.6); k.shadowOffset = { x: 0, y: 0 }; k.shadowBlur = Math.max(1, Math.round(L.tightBlur));
-    const ink = regionTitleInk(this.text, this.screenW);
+    const ink = regionTitleInk(this.text, this.screenW), k0 = this.font / ink.font; ink.w *= k0; ink.h = Math.round(ink.h * k0);
     // B halo: ellipse rx = ink/2 + 30, ry = ink/2 + 18; smoothstep falloff drawn as soft concentric rings (no visible edge)
     const g = this.halo; g.clear();
     if (L.halo && L.haloA > 0.001) {
@@ -74,6 +81,6 @@ export class RegionArrivalTitle {
     for (let i = 0; i < seg; i++) { const x0 = -TY.lineW / 2 + TY.lineW * i / seg, u = (i + 0.5) / seg, a = Math.pow(Math.sin(Math.PI * u), 1.5) * TY.lineA;
       ln.fillColor = rgba(L.fill, a); ln.rect(x0, y, TY.lineW / seg + 0.2, TY.lineH); ln.fill(); }
   }
-  diagnostics() { return { showing: this.showing(), t: this.t, text: this.text, y: this.y, opacity: this.op.opacity, blocksInput: false }; }
+  diagnostics() { return { showing: this.showing(), t: this.t, text: this.text, y: this.y, font: this.font, opacity: this.op.opacity, blocksInput: false }; }
   dispose() { if (isValid(this.node, true)) this.node.destroy(); }
 }
