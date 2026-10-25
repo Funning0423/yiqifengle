@@ -247,7 +247,15 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
   const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
-  const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  // b16 复核5 P2：夜间飞行关掉 env_sky_dome 后主相机仍是 clearFlags 14（只清 skybox+深度模板，不清颜色），穹顶没盖到的下半屏露出上一帧残留，真机品红/绿交替。
+  // 夜间飞行期间改纯色清屏（7），颜色贴近 transit_night_dome 下沿；白天、落地和释放时还原原来的 clearFlags/颜色。
+  let clearHome:{cam:Camera;flags:number;color:Color}|null=null;
+  const holdNightClear=(on:boolean)=>{
+   if(on){const n=findCamera(),cam=n?n.getComponent(Camera):null;if(!cam)return;if(clearHome&&clearHome.cam!==cam)holdNightClear(false);
+    if(!clearHome)clearHome={cam,flags:cam.clearFlags,color:new Color(cam.clearColor.r,cam.clearColor.g,cam.clearColor.b,cam.clearColor.a)};
+    if(cam.clearFlags!==BALLOON_NIGHT_CLEAR_FLAGS)cam.clearFlags=BALLOON_NIGHT_CLEAR_FLAGS;const c=BALLOON_NIGHT_CLEAR;if(cam.clearColor.r!==c[0]||cam.clearColor.g!==c[1]||cam.clearColor.b!==c[2])cam.clearColor=new Color(c[0],c[1],c[2],255);return;}
+   const h=clearHome;clearHome=null;if(h&&isValid(h.cam,true)){h.cam.clearFlags=h.flags;h.cam.clearColor=h.color;}};
+  const release=()=>{if(dead)return;dead=true;holdNightClear(false);director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
@@ -441,6 +449,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     (globalThis as any).__QF_BALLOON_LENS=true;
     for(const n of domes){if(!isValid(n,true))continue;const day=n.name==='env_sky_dome'&&!night;n.active=day;for(const r of n.getComponents(MeshRenderer))r.enabled=day;if(day){if(gradeEffect&&!skyHome.length){for(const r of n.getComponents(MeshRenderer))skyHome.push({r,shared:r.getSharedMaterial(0)});ditherSky(n,gradeEffect);}else skybox(n);}}
     if(nightDome){nightDome.active=night;if(night)skybox(nightDome);}
+    holdNightClear(night);
     // Cloud sea: graded day clumps, night blue-grey. Never emissive.
     if(cityOn)paintCloudSea(clouds,night,gradeEffect);
     else if(night)setEmissive(clouds,true);
@@ -449,6 +458,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=!arrived&&t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    if(arrived){
+    holdNightClear(false);
     const dress=[model,clouds,farRoot,seaFallback,nightDome];
     for(const root of dress){if(!root||!isValid(root,true))continue;eachNamed(root,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;else if(want==='off')n.active=false;});}
     (globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_FADE=0;
@@ -514,6 +524,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  }catch(error){release();throw error;}
 }
 function worldOf(model:Node,local:Vec):Vec{const v=new Vec3(local[0],local[1],local[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];}
+/** b16 复核5 P2：夜间飞行的纯色清屏（gfx.ClearFlagBit.ALL=7）和颜色（transit_night_dome 下沿夜空，真机截图取样约 3–13,17–21,54–57）。 */
+export const BALLOON_NIGHT_CLEAR_FLAGS=7,BALLOON_NIGHT_CLEAR:readonly number[]=[10,20,56];
 function findCamera():Node|null{const scene=director.getScene();if(!scene)return null;const cams=scene.getComponentsInChildren(Camera);const world=cams.find(c=>c.node.name!=='WorldNavigationCamera'&&c.visibility!==0);return (world??cams[0])?.node??null;}
 function loadGradeEffect():Promise<EffectAsset|null>{
  return new Promise(ok=>{

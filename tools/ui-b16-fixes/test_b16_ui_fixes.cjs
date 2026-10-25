@@ -102,4 +102,17 @@ ok('复核3 ④ sign tap root: WarmButtonFace follows configure() (was fixed at 
 ok('复核4 ② world steps blended on the board: Cloudsea skips the board camera; main light/colour/ambient interpolate prev→world by the board smoothstep',()=>{const s=src('region/SkycityBoardLive.ts');
  assert(/\(camera as any\)\.__qfBoardClearOwner=true/.test(s)&&/&&!\(camera as any\)\.__qfBoardClearOwner/.test(src('region/SkycityCloudsea.ts')));
  assert(/const mix=fade\?smoothRegionBoardLight\(0,1,fade\.p\):1/.test(s)&&/\(sc\.mainPrev\+\(sc\.mainBase-sc\.mainPrev\)\*mix\)\*f\.main/.test(s)&&/\(sc\.ambPrev\+\(sc\.ambBase-sc\.ambPrev\)\*mix\)\*f\.ambient/.test(s)&&/lerpRgb\(sc\.colPrev,sc\.col,mix\)/.test(s));});
+ok('复核5 P2 balloon night flight: main camera clears solid (7) with the night-dome colour while night, restores flags+colour on day, landing and release; day untouched',()=>{const s=src('region/BalloonTransit.ts');
+ const a=s.indexOf('  let clearHome:'),b=s.indexOf('  const release=()=>');assert(a>0&&b>a);const ts=typescript();
+ const js=ts.transpileModule('let clearHome:any=null;'+s.slice(s.indexOf('const holdNightClear',a),b)+'return holdNightClear;',{compilerOptions:{target:ts.ScriptTarget.ES2019}}).outputText;
+ class Color{constructor(r,g,b,a){Object.assign(this,{r,g,b,a});}}class Camera{}const cam=new Camera();cam.clearFlags=14;cam.clearColor=new Color(51,51,51,255);let found=cam;
+ const node={getComponent:()=>found};const hold=new Function('Camera','Color','findCamera','isValid','BALLOON_NIGHT_CLEAR_FLAGS','BALLOON_NIGHT_CLEAR',js)(Camera,Color,()=>found?node:null,()=>true,7,[10,20,56]);
+ const st=()=>[cam.clearFlags,cam.clearColor.r,cam.clearColor.g,cam.clearColor.b];
+ hold(false);assert.deepEqual(st(),[14,51,51,51],'day: untouched');
+ for(let i=0;i<5;i++)hold(true);assert.deepEqual(st(),[7,10,20,56],'night flight: solid clear, night colour');
+ hold(false);assert.deepEqual(st(),[14,51,51,51],'day/landing/release: restored');hold(false);assert.deepEqual(st(),[14,51,51,51],'restore is idempotent');
+ hold(true);cam.clearFlags=7;hold(true);hold(false);assert.deepEqual(st(),[14,51,51,51],'re-entering night keeps the original home');
+ assert(/if\(nightDome\)\{nightDome\.active=night;if\(night\)skybox\(nightDome\);\}\n    holdNightClear\(night\);/.test(s),'driven where env_sky_dome is switched off at night');
+ assert(/if\(arrived\)\{\n    holdNightClear\(false\);/.test(s)&&/const release=\(\)=>\{if\(dead\)return;dead=true;holdNightClear\(false\);/.test(s),'restored on landing and dispose');
+ assert(/export const BALLOON_NIGHT_CLEAR_FLAGS=7,/.test(s));});
 console.log(n+' checks passed');
