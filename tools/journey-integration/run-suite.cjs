@@ -107,7 +107,7 @@ const tests=[
  ['no-bridge-fallback','tools/transitions/test_no_bridge_fallback.cjs'],
  ['transit-background-resume','tools/transitions/test_transit_background.cjs'],
  ['region-nodes-data','tools/region-nodes/test_region_nodes_data.cjs'],
- ['region-nodes-progress','tools/region-nodes/test_region_nodes_progress.cjs'],
+ ['region-nodes-progress','tools/region-nodes/test_region_nodes_progress.cjs'],['lakeside-order','tools/region-nodes/test_lakeside_order.cjs'],
  ['region-nodes-walk','tools/region-nodes/test_region_nodes_walk.cjs'],
  ['explore-camera','tools/region-nodes/test_explore_camera.cjs'],
  ['free-orbit','tools/region-nodes/test_free_orbit.cjs'],
