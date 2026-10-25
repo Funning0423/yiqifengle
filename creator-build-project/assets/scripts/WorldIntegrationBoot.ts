@@ -3,7 +3,7 @@ import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { qaTransportEnabled } from './region/JourneyTransport';
 import { qaSkipTarget, qaHooksEnabled } from './world-r2/QaSkip';
 import { DEBUG, MINIGAME } from 'cc/env';
-import {setScreenCover} from './world-r1/ScreenCover';
+import {setScreenCover,setCoverContentHost,setCoverAudioHost,addCoverReadyCheck,coverContent} from './world-r1/ScreenCover';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
 import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
 import {IslandToast,LAKESIDE_NOT_READY_TEXT} from './ui/IslandToast';
@@ -18,7 +18,7 @@ import {signRectOnScreen} from './world-r2/IslandPropsLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { GlassSign } from './world-r1/GlassSign';
 import { warmButton, WarmButton } from './WarmButton';
-import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
+import {_decorator,sys,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
 import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
 import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
@@ -37,7 +37,11 @@ import {ART as STARTUP_ART} from './ui/StartupLoadingLayout';
 import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
 import {sailShotRequested,startSailShot} from './region/SailShot';
 import {validateSkycity} from './region/RegionValidation';
-import {runHomeTransition,HOME_FADE,coverAlphaByte} from './world-r2/HomeTransition';
+import {runHomeTransition,HOME_FADE} from './world-r2/HomeTransition';
+import {WindWipeView} from './ui/WindWipe';
+import {EndingScreen} from './ui/EndingScreen';
+import {playEnding,endingToIsland,endingAvailable,type EndingHost} from './world-r2/EndingFlow';
+import {runWindWipe} from './world-r2/WindWipeCore';
 import {ForegroundTimers} from './world-r2/ForegroundClock';
 import {GameAudio} from './audio/GameAudio';
 import {FootstepAudio} from './audio/FootstepAudio';
@@ -551,9 +555,11 @@ export class WorldIntegrationBoot extends Component {
  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.dialog?.visible())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason===LAKESIDE_LOAD_FAILED){this.islandToast?.show(LAKESIDE_NOT_READY_TEXT);this.logSuppressedStatus('lakeside',r.reason);}else if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;else this.board()?.clearHostResultError();}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
- private createNavigation(){setScreenCover((a,sec)=>this.fadeCover(a,sec));this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+ private createNavigation(){setScreenCover((a,sec)=>this.fadeCover(a,sec));setCoverContentHost(c=>{if(!this.wipe)this.wipe=new WindWipeView(this.canvas);this.wipe.setContent(c);});
+  setCoverAudioHost({out:sec=>{(GameAudio.instance as any)?.fadeTransition?.(0,sec);},in:sec=>{(GameAudio.instance as any)?.fadeTransition?.(1,sec);}});
+  addCoverReadyCheck(()=>this.loadPhase==='ready'&&!this.loadingLayer?.fading);this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
  this.createLoadingBackdrop();this.status=this.label('世界加载中',0,0,16,320);
- this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.claimRegionAndWalk(Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('lake','风铃湖畔',()=>this.composition.enterRegion('lake'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+ this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.claimRegionAndWalk(Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('lake','风铃湖畔',()=>this.composition.enterRegion('lake'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('ending','继续',()=>this.startEnding());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
  this.islandToast=new IslandToast(this.canvas);this.dialog=new DialogBubble(this.canvas);this.devMark=new DevPreviewMark(this.canvas);
  (globalThis as any).__dialogDemo=(lines?:unknown)=>{if(lines===false){this.dialog?.close();return;}const demo=Array.isArray(lines)&&lines.length?lines:[{speaker:'阿芳',text:'风从海上来。'}];this.dialog?.play(demo as any);};
  this.islandJourney=new IslandJourneyOverlay(this.canvas,{prewarm:id=>{if(id==='lake')void prewarmLakesideAssets();},invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
@@ -667,7 +673,7 @@ export class WorldIntegrationBoot extends Component {
  if(!s.needsResume)this.cutsceneRunning=!s.hidden&&['region-loading','region-travel'].includes(s.state);
  else if(this.cutsceneRunning){this.cutsceneRunning=false;this.cutsceneAutoResume=s.state!=='error';}
  if(this.cutsceneAutoResume&&!s.hidden){if(!s.needsResume||s.state==='error')this.cutsceneAutoResume=false;else if(!this.busy&&!board?.hostModalOpen()&&!this.islandJourney?.isOpen()){this.cutsceneAutoResume=false;void this.invoke(()=>this.composition.resumeJourney());}}
- for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen()&&!this.cutsceneAutoResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow','lakeside'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):k==='home'?(s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
+ for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen()&&!this.cutsceneAutoResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='ending'?endingAvailable(s,b):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow','lakeside'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):k==='home'?(s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
  const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(['island','meadow','skycity','lakeside'].includes(s.state))for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
  this.islandToast?.update(dt,f.width,f.height);this.dialog?.update(dt,f.width,f.height);this.devMark?.sync(f.width,f.height,['region-loading','region-travel'].includes(s.state)&&!s.hidden&&!s.needsResume);this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
@@ -676,7 +682,7 @@ export class WorldIntegrationBoot extends Component {
  // Result actions are drawn by the board's result page (ui/BoardPanels.openResult); the host only owns availability + commands.
  // Do not rebuild the result behind a live RewardPanel while the app is hidden.
  // Its dismissal callback owns that exact panel; on show the settled lease restores level before painting.
- if(board){const actions:any={};for(const k of RESULT_ACTION_IDS){const n=this.controls.get(k)!;actions[k]={visible:n.active,run:this.resultActions[k]};n.active=false;}actions.afterClaims={visible:true,run:(then:()=>any)=>{if(this.busy){void then();return;}this.enqueueResult(()=>then());}};if(!s.hidden)board.setHostActions(actions);}
+ if(board){const actions:any={};for(const k of [...RESULT_ACTION_IDS,'ending']/* TR9 L16 → ending */){const n=this.controls.get(k)!;actions[k]={visible:n.active,run:this.resultActions[k]};n.active=false;}actions.afterClaims={visible:true,run:(then:()=>any)=>{if(this.busy){void then();return;}this.enqueueResult(()=>then());}};if(!s.hidden)board.setHostActions(actions);}
  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);if(s.state!=='home')this.glassSign?.reset();this.glassSign?.sync(dt,s.state==='home'&&!s.hidden&&!s.needsResume&&!!this.roomExplore?.diagnostics().visible);
@@ -702,11 +708,29 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
   * walk home freezes the walk (WorldFlowCore.hide) and this clock with it, so it never times out or snaps on return. */
  private fg=new ForegroundTimers();
  private flowPaused():boolean{try{const s=this.composition?.worldCommands().snapshot() as any;return !!s&&(!!s.hidden||!!s.needsResume);}catch{return false;}}
- private homeCover:{node:Node;g:Graphics;alpha:number;from:number;to:number;at:number;s:number;done:(()=>void)|null}|null=null;
- /** F1 (77b76c3 audit): the cover used to fade via UIOpacity, which Cocos 3.8 Graphics ignores (its colour is baked into the fill
-  * vertices), so the black appeared at full strength the instant the node went active and vanished at the end: a hard cut both ways.
-  * The alpha is now baked into the fill itself on every tick (coverAlphaByte), so the 0.25/0.35 s set-off and 0.4/0.5 s home ramps render. */
- private paintCover(c:{g:Graphics;alpha:number},alpha:number){const a=coverAlphaByte(alpha);if(a===c.alpha)return;c.alpha=a;const g=c.g;g.clear();g.fillColor=new Color(0,0,0,a);g.rect(-2000,-2000,4000,4000);g.fill();}
+ /** WindWipe (post-island SPEC §1): the shared cover is the 风云擦除 cloud band (ui/WindWipe.ts), never black. It is driven by the
+  * legacy cover(alpha, seconds) ramps (ScreenCover) on foreground time; rising alpha = OUT sweep, falling = IN sweep. */
+ private wipe:WindWipeView|null=null;private wipeDone:(()=>void)|null=null;
+ /** TR9 L16 → ending and 回小岛 (world-r2/EndingFlow): both run through the shared WindWipe (runWindWipe). */
+ private ending:EndingScreen|null=null;
+ private endingHost():EndingHost{
+  const audio=GameAudio.instance as any,cmd=()=>this.composition.worldCommands();
+  return {
+   wipe:o=>runWindWipe({now:this.fg.now,wait:this.fg.wait,frame:()=>this.fg.wait(1/60),cover:(a,sec)=>this.fadeCover(a,sec),content:c=>coverContent(c),
+    audioOut:sec=>{audio?.fadeTransition?.(0,sec);},
+    audioIn:sec=>{if(o.kind==='ending-home'){const t=SCENE_TRACKS.island;audio?.switchTrackAfterTransition?.(t.path,t.bundle);}else audio?.fadeTransition?.(1,sec);},
+    log:(e,d)=>{(globalThis as any).__qfWindWipeLog=((globalThis as any).__qfWindWipeLog||[]).concat([{kind:o.kind,e,d,t:this.fg.now()}]).slice(-60);}},
+    {kind:o.kind,content:o.content,work:o.work,ready:o.ready}),
+   showEnding:()=>{this.ending?.dispose();this.ending=new EndingScreen(this.canvas,{home:()=>{void this.invoke(()=>endingToIsland(this.endingHost()));},safeBottom:(this.navLayout() as any).safe?.bottom??0});},
+   hideEnding:()=>{this.ending?.dispose();this.ending=null;},
+   endingShown:()=>!!this.ending?.ready(),
+   exitLevel:()=>cmd().snapshot().state==='level'?cmd().exitLevel():{ok:true},
+   toIsland:()=>{const c:any=cmd();return typeof c.abandonLakesideJourney==='function'?c.abandonLakesideJourney():{ok:false,reason:'no-island-route'};},
+   state:()=>cmd().snapshot().state,islandMusic:()=>{},
+   markComplete:()=>{try{sys.localStorage.setItem('qf-journey-complete',String(Date.now()));}catch{}},
+  };
+ }
+ private startEnding(){return playEnding(this.endingHost()).then(r=>{(globalThis as any).__qfEnding={...r,shown:!!this.ending?.ready(),at:Date.now()};return r;});}
  goHome():Promise<{ok:boolean;reason?:string;seconds?:number}>{
   const cmd=this.composition.worldCommands(),s=cmd.snapshot() as any;
   const inRegion=s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'||!!(s.journey&&s.state==='island'&&['paused','failed'].includes(s.journey.phase));
@@ -720,18 +744,17 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
    act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},HOME_FADE).then(r=>{(globalThis as any).__worldHomeTransition={...r,at:Date.now()};return r;});
  }
  private fadeCover(to:number,seconds:number):Promise<void>{
-  if(!this.homeCover){const node=new Node('HomeFadeCover');node.layer=Layers.Enum.UI_2D;this.canvas.addChild(node);node.addComponent(UITransform).setContentSize(4000,4000);
-   const g=node.addComponent(Graphics);this.homeCover={node,g,alpha:-1,from:0,to:0,at:0,s:0,done:null};this.paintCover(this.homeCover,0);}
-  const c=this.homeCover;c.node.setSiblingIndex(this.canvas.children.length-1);c.done?.();c.from=Math.max(0,c.alpha)/255;c.to=to;c.at=this.fg.now();c.s=Math.max(0,seconds);c.node.active=true;
+  if(!this.wipe)this.wipe=new WindWipeView(this.canvas);
+  const w=this.wipe;w.node.setSiblingIndex(this.canvas.children.length-1);this.wipeDone?.();this.wipeDone=null;w.ramp(to,Math.max(0,seconds),this.fg.now());
   // b15 QA: qaShot frame() deactivates WorldNavigationCanvas (clean shots) and only the board lens reopens it; the cover
   // lives under that canvas, so a later home fade ran invisibly (no brightness drop). The screen cover must always show.
   if(this.canvas&&this.canvas.isValid&&!this.canvas.active)this.canvas.active=true;
-  return new Promise<void>(r=>{c.done=r;this.tickCover();});
+  return new Promise<void>(r=>{this.wipeDone=r;this.tickCover(0);});
  }
- private tickCover(){this.fg.flush();const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(this.fg.now()-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
-  if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
- update(dt:number){this.fg.tick(dt,this.flowPaused());this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+ private tickCover(dt:number){this.fg.flush();const w=this.wipe;if(!w)return;const fin=w.tick(this.fg.now(),dt);
+  (globalThis as any).__qfWindWipe=w.diagnostics();if(fin&&this.wipeDone){const d=this.wipeDone;this.wipeDone=null;d();}}
+ update(dt:number){this.fg.tick(dt,this.flowPaused());this.tickCover(dt);this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
  /** r4 exit footsteps: after every update() of the frame (WorldFlowComponent has advanced the character). */
  lateUpdate(dt:number){try{this.footsteps?.tick(dt);}catch(error){console.warn('footsteps tick failed',String(error));}}
- onDestroy(){this.footsteps?.dispose();this.footsteps=null;setScreenCover(null);this.dialog?.dispose();this.dialog=null;delete (globalThis as any).__dialogDemo;this.islandToast?.dispose();this.islandToast=null;this.devMark?.dispose();this.devMark=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ onDestroy(){this.footsteps?.dispose();this.footsteps=null;setScreenCover(null);setCoverContentHost(null);setCoverAudioHost(null);this.wipe?.dispose();this.wipe=null;this.ending?.dispose();this.ending=null;this.dialog?.dispose();this.dialog=null;delete (globalThis as any).__dialogDemo;this.islandToast?.dispose();this.islandToast=null;this.devMark?.dispose();this.devMark=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
 }

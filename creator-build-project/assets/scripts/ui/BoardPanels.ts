@@ -48,7 +48,7 @@ export interface ResultReward { id: string; label: string; icon: string; iconKin
 export interface ResultModel {
   kind: ResultKind; score: number; stars: number | null; movesUsed: number | null; movesLeft: number | null;
   goalsLeft: Array<{ art: string; count: number }>; chestHint: boolean; rewards: ResultReward[];
-  unlockHint?: string; hostError?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
+  unlockHint?: string; hostError?: string; nextUnavailable?: string; /** L16 (TR9): 「继续」 to the ending instead of 下一关. */ nextLabel?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
 /** Steps, saved and the unlock hint are one secondary line under the score. */
@@ -108,7 +108,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     const claimFirst = (go: () => void) => () => { (p as any).resultClaimAll?.(); go(); };
     if (m.next) m = { ...m, next: claimFirst(m.next) };
     const home0 = m.home; m = { ...m, home: claimFirst(home0) };
-    if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
+    if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : m.nextLabel || '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
   } else if (m.kind === 'lose') {
     section('ResultGoals', 0, 440, () => {
