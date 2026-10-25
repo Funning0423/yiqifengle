@@ -18,7 +18,7 @@ import {signRectOnScreen} from './world-r2/IslandPropsLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { GlassSign } from './world-r1/GlassSign';
 import { warmButton, WarmButton } from './WarmButton';
-import {_decorator,sys,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
+import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
 import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
 import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
@@ -39,7 +39,7 @@ import {sailShotRequested,startSailShot} from './region/SailShot';
 import {validateSkycity} from './region/RegionValidation';
 import {runHomeTransition,HOME_FADE} from './world-r2/HomeTransition';
 import {WindWipeView} from './ui/WindWipe';
-import {EndingScreen} from './ui/EndingScreen';
+import {EndingScreen,markJourneyComplete} from './ui/EndingScreen';
 import {playEnding,endingToIsland,endingAvailable,type EndingHost} from './world-r2/EndingFlow';
 import {runWindWipe} from './world-r2/WindWipeCore';
 import {ForegroundTimers} from './world-r2/ForegroundClock';
@@ -727,7 +727,7 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
    exitLevel:()=>cmd().snapshot().state==='level'?cmd().exitLevel():{ok:true},
    toIsland:()=>{const c:any=cmd();return typeof c.abandonLakesideJourney==='function'?c.abandonLakesideJourney():{ok:false,reason:'no-island-route'};},
    state:()=>cmd().snapshot().state,islandMusic:()=>{},
-   markComplete:()=>{try{sys.localStorage.setItem('qf-journey-complete',String(Date.now()));}catch{}},
+   markComplete:()=>markJourneyComplete(),
   };
  }
  private startEnding(){return playEnding(this.endingHost()).then(r=>{(globalThis as any).__qfEnding={...r,shown:!!this.ending?.ready(),at:Date.now()};return r;});}

@@ -1,4 +1,4 @@
-import { BlockInputEvents, Color, Graphics, Layers, Node, UITransform, isValid, view } from 'cc';
+import { BlockInputEvents, Color, Graphics, Layers, Node, UITransform, isValid, sys, view } from 'cc';
 import { artButton, artSprite, makeLabel, TintSet } from './PopupKit';
 import { uiNightWeight } from './NightTint';
 import { endingLayout } from '../world-r2/EndingFlow';
@@ -23,3 +23,5 @@ export class EndingScreen {
   ready() { return this.alive && isValid(this.node, true); }
   dispose() { this.alive = false; if (isValid(this.node, true)) this.node.destroy(); }
 }
+/** Journey-complete marker (display only; campaign saves are owned by the providers and already written at result.saved). */
+export function markJourneyComplete() { try { sys.localStorage.setItem('qf-journey-complete', String(Date.now())); } catch { /* storage optional */ } }
