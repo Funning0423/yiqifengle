@@ -1736,23 +1736,23 @@
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_bg_day.jpg.meta",
-    "bytes": 3128,
-    "sha256": "8414ae5f31cde92f4b3642a826cee7ca61de8871c1d54191441854b3f77d3497"
+    "bytes": 3105,
+    "sha256": "06c24682b84a9aa651ee6fdc5619388b59f3abe6c1ad4e4ee193c9fbcebb8195"
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_bg_night.jpg.meta",
-    "bytes": 3132,
-    "sha256": "0d623cfe3594de60f0613951919169a9b74065987dde780b19c55b9f92750f48"
+    "bytes": 3109,
+    "sha256": "85b54fdb7dcf66a86e1d1e36359a86c3818aa82e6d095cfa6dd7e315c1bc1fb3"
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_girl_day.png.meta",
-    "bytes": 3107,
-    "sha256": "a9f26c68152cfdebbd80e93cf54ee4d1370d44e7b4ab8e2039ef036403084fab"
+    "bytes": 3084,
+    "sha256": "892854ae843b789bc479e53b8018b07147e14fc3946a50f22904e312ef1048d6"
   },
   {
     "path": "creator-build-project/assets/resources/ending/end_girl_night.png.meta",
-    "bytes": 3111,
-    "sha256": "ab06e4e559e47c7b5746bc1cf9609023b82db4be4bdf16cfd209d08795c3bd8e"
+    "bytes": 3088,
+    "sha256": "766270558771123f6449b3ea2f143f4bf123de9cd0ad1a611d95b07ef83790df"
   },
   {
     "path": "creator-build-project/assets/resources/firstslice.meta",
@@ -2541,8 +2541,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 42936,
-    "sha256": "cc33af9621e277733e2d9570e1c48385b6495ce1e2212530fdc0b39665b01834"
+    "bytes": 43146,
+    "sha256": "d7b1ba4b6dcaea04a51b8a66dd1296839b8c0496b832c2a59908e755f7474811"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2832,7 +2832,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/LensAvoid.ts",
     "bytes": 4346,
-    "sha256": "eb74df190a7d7487490f78a5df08b60ecbc59eaf13b0324e199b32788c9c1698"
+    "sha256": "bfb3d3789ef68bbe33a240b2ec4fa1c86ed24b1579eb8b698160504a2a5071fb"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensAvoid.ts.meta",
@@ -2851,8 +2851,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensSmooth.ts",
-    "bytes": 6026,
-    "sha256": "1a7fd49fd88cf483c7980d53cebfc2dc62250c5fcede45146dcbec21ba6aa3e7"
+    "bytes": 6781,
+    "sha256": "2c7ec71f8a51c944720eae87f71c40827376cfaf9518667cffe13d65b2d4c1cf"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensSmooth.ts.meta",
@@ -4036,8 +4036,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 70064,
-    "sha256": "415a16164852d85ecef62d6bd772c9f50324b64265fb73ec1fac482e07126c77"
+    "bytes": 70239,
+    "sha256": "42c74fadd696e64764e64e7963630ccbe5e77b7e4ed442346244494e53404304"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -4381,8 +4381,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 88541,
-    "sha256": "45c558a8836c39d68787f74d894e550fb070e5114afdff05bf820d455e802984"
+    "bytes": 102172,
+    "sha256": "d0cbc18f96930cc256cc0fb1ad31b78138850b6c0afea17a23d806ed42ffffb6"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4561,8 +4561,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 19624,
-    "sha256": "44405aa025dde80b13e34ef68724abe7a9980a20443eeff5ebb5947cb7ef3c0d"
+    "bytes": 19965,
+    "sha256": "acd8d372844ac22a6bf5e5d6d8f6061e0379f60c27980b39a769ee7db3b35e49"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
