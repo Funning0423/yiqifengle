@@ -29,7 +29,8 @@ export const SKY_LAKE_CONT=Object.freeze({
   *  riderYawDeg = her seated facing (data; used by the occlusion tests / her pose, never hard-coded here). */
  walkS:null as number|null,liftTraj:null as null|ReadonlyArray<Readonly<{t:number;pos:Vec;yawDeg:number}>>,liftInWindow:false/* 9d0043f2 timeline (Grok Bot): lift 5 s + visible flight 8 s */,riderYawDeg:null as number|null,
  /** b19 T-02→walk handoff: SkyWalkShot lens on the data walk (tau = walk clock; caller passes τ ↦ walk.pose(gazeS+τ)). null = T-03 walk lens */
- walkCam:null as null|((tau:number)=>Pose)});
+ walkCam:null as null|((tau:number)=>Pose),
+ /** full2-cam E: basket close-up through C1-board (tau ↦ pose, BasketCloseShot) or null */boardClose:null as null|((tau:number)=>Pose)});
 export type SkyLake=Readonly<{walkS:number;boardS:number;flightAt:number;liftEndAt:number;touchdownAt:number;
  rideT(tau:number):number;basket(tau:number):Vec;flightVisS:number;liftJoinM:number;cam(tau:number,from:Pose|null):Pose;phase(tau:number):'C1-walk'|'C1-board'|'liftoff'|'flight'|'C2'}>;
 /** eased warp: σ∈[0,S] → flight time f∈[0,F]; rate 1 at both ends, smoothstep up/down to the cruise rate (C1, monotonic) */
@@ -75,9 +76,17 @@ export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CON
   return {position:[p.position[0]+dd[0],p.position[1]+dd[1],p.position[2]+dd[2]],target:[p.target[0]+dd[0],p.target[1]+dd[1],p.target[2]+dd[2]],fovVerticalDeg:p.fovVerticalDeg};};
  const cam=(tau:number,from:Pose|null):Pose=>{
   if(tau<walkS)return K.walkCam?K.walkCam(tau):R.camera(walkClock(tau),from);
-  if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=K.walkCam?K.walkCam(walkS):R.camera(R.walkS-1e-6,from);}return blendPose(walkEnd,traj?liftLens(flightAt)/* lens placed for the data mooring */:flightLens(R.liftT),minJerk((tau-walkS)/Math.max(1e-3,boardS)));}
+  if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=K.walkCam?K.walkCam(walkS):R.camera(R.walkS-1e-6,from);}const out=traj?liftLens(flightAt)/* lens placed for the data mooring */:flightLens(R.liftT),u=(tau-walkS)/Math.max(1e-3,boardS);
+   /* full2-cam E: close-up through the door beat (in 0–0.3, hold, out 0.75–1 onto the lift lens) when the caller gives one */
+   const close=K.boardClose?K.boardClose(tau):null;if(close){const BI=.3,BO=.75;return u<BI?blendPose(walkEnd,close,minJerk(u/BI)):u<BO?close:blendPose(close,out,minJerk((u-BO)/(1-BO)));}
+   return blendPose(walkEnd,out,minJerk(u));}
   if(traj&&tau<liftEndAt)return liftLens(tau);
   return traj&&tau<touchdownAt?shift(flightLens(rideT(tau)),dW(tau)):flightLens(rideT(tau));};
  const phase=(tau:number)=>tau<walkS?'C1-walk':tau<flightAt?'C1-board':tau<liftEndAt?'liftoff':tau<touchdownAt?'flight':'C2';
  return {walkS,boardS,flightAt,liftEndAt,touchdownAt,rideT,basket,flightVisS:flightS,liftJoinM,cam,phase};
 }
+/** full2-cam task 4: basket yaw on the mooring-C leg — the mooring yaw (data) while moored, then min-jerk the shortest way to the
+ *  landing yaw (door2: exit door B toward the shore) during the lift-off (flightAt+0.5 → liftEndAt), held after: the T-03 flight
+ *  lens was framed for the basket at the landing yaw, so it is reached before the visible flight. */
+export function lakeBasketYaw(sl:Readonly<{flightAt:number;liftEndAt:number;touchdownAt:number}>,tau:number,mooringDeg:number,landDeg:number):number{
+ const d=((landDeg-mooringDeg)%360+540)%360-180,a=sl.flightAt+.5,e=Math.max(a+.5,sl.liftEndAt),u=Math.max(0,Math.min(1,(tau-a)/(e-a))),w=u*u*u*(10-15*u+6*u*u);return mooringDeg+d*w;}

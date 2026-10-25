@@ -61,12 +61,12 @@ const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.pos
  const cityOf=(pose,W,H,nx=18,ny=38)=>{const f=sub(pose.target,pose.position),fl=Math.hypot(...f);for(let i=0;i<3;i++)f[i]/=fl;let r=[-f[2],0,f[0]];const rl=Math.hypot(r[0],r[2]);r=[r[0]/rl,0,r[2]/rl];const u=cr(r,f);
   const tv=Math.tan(pose.fovVerticalDeg*Math.PI/360),th=tv*W/H;let city=0,ruins=0,sky=0,und=0,up=0;for(let iy=0;iy<ny;iy++)for(let ix=0;ix<nx;ix++){const sx=((ix+.5)/nx*2-1)*th,sy=((iy+.5)/ny*2-1)*tv;const d=[f[0]+r[0]*sx+u[0]*sy,f[1]+r[1]*sx+u[1]*sy,f[2]+r[2]*sx+u[2]*sy],l=Math.hypot(...d);
    const h=ray(pose.position,d.map(v=>v/l),400);if(sy>0){up++;if(h.name&&h.ny<-0.25)und++;}if(!h.name)sky++;else if(h.t>5&&CITY.test(h.name)){city++;if(RUINS.test(h.name))ruins++;}}const N=nx*ny;return {cityPct:+(city/N*100).toFixed(1),ruinsPct:+(ruins/N*100).toFixed(1),skyPct:+(sky/N*100).toFixed(1),undersideUpperPct:+(und/up*100).toFixed(1)};};
- const per=C.SCREENS.map(([W,H])=>({screen:W+'x'+H,after:cityOf(NEW,W,H),before:cityOf(OLD,W,H)}));const cl=minClear(NEW.position);
+ const per=C.SCREENS.map(([W,H])=>({screen:W+'x'+H,after:{...cityOf(NEW,W,H),herPct:+(F.herShare(NEW.position,NEW.target,NEW.fovVerticalDeg,W,H,feet)*100).toFixed(1)},before:cityOf(OLD,W,H)}));const cl=minClear(NEW.position);
  /* b19 P1 (Grok Bot floor): sky ≥ 20 % of the frame AND dark underside (down-facing city tris) ≤ 50 % of the upper half, every screen;
   * city still reads (structure > 5 m ≥ 25 %). Stricter GGbot/界面验收部 aim (sky > 25 %, underside < 30 %) reported as strict. Proxy is
   * geometric (day = night: same rays). */
  const strict=per.every(p=>p.after.skyPct>25&&p.after.undersideUpperPct<30);
- ok('F3',cl.m>=1.1&&!blocked(NEW.position,head)&&!blocked(NEW.position,chest)&&per.every(p=>p.after.skyPct>=20&&p.after.undersideUpperPct<=50&&p.after.cityPct>=25),
+ ok('F3',cl.m>=1.1&&!blocked(NEW.position,head)&&!blocked(NEW.position,chest)&&per.every(p=>p.after.skyPct>=20&&p.after.undersideUpperPct<=50&&p.after.cityPct>=25&&p.after.cityPct>=28&&p.after.herPct>=18/* Grok Bot floor: city + her stay the subject (same metrics as the midpoint table: cityPct rays > 5 m on city mesh, herShare as F2) */),
   {strictAim:strict,meshClearM:+cl.m.toFixed(2),nearest:cl.nm,headBlockedBy:blocked(NEW.position,head),chestBlockedBy:blocked(NEW.position,chest),city:per,oldMeshClearM:+minClear(OLD.position).m.toFixed(2)});
  // F4 approach from the walk lens
  {const from=C.followPose(feet,face,390,844,8),ap=F.skyFinaleApproach(from,NEW,feet,B),Ts=ap.T,dt=1/60;let prevY=null,prevV=0,pk=0,pkA=0,ins=0,run=[0,0],mx=[0,0],jump=0,prevP=null,minC=Infinity,startC=Infinity;const vy=[];

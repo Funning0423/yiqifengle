@@ -43,18 +43,32 @@ function rawLens(h:HerSample,headDeg:number,azOff:number,arm:number,k=HER_SHOT,s
 export function lensOk(p:Pose,h:HerSample,boxes:readonly Box[],k=HER_SHOT):boolean{const s=h.pose==='seated',face:Vec=[h.feet[0],h.feet[1]+(s?k.seatedFaceM:k.faceM),h.feet[2]],chest:Vec=[h.feet[0],h.feet[1]+(s?k.seatedChestM:k.chestM),h.feet[2]];
  for(const b of boxes){if(boxDist(p.position,b)<k.clearM)return false;if(segBox(p.position,face,b)||segBox(p.position,chest,b))return false;}return true;}
 /** Precomputed follow shot over [0,T]: per-sample best azimuth (closest to the drifting base that is clear), smoothed, then capped. */
-export function followShot(her:(t:number)=>HerSample,T:number,boxes:readonly Box[],k=HER_SHOT):{pose:(t:number)=>Pose;clearFrac:number}{
- const n=Math.ceil(T/k.sampleS)+1,head:number[]=[],az:number[]=[],arm:number[]=[];let clear=0;
+export function followShot(her:(t:number)=>HerSample,T:number,boxes:readonly Box[],k=HER_SHOT):{pose:(t:number)=>Pose;clearFrac:number;plan:{az:number[];arm:number[];up:number[]}}{
+ const n=Math.ceil(T/k.sampleS)+1,head:number[]=[],az:number[]=[],arm:number[]=[],ups:number[]=[],offs:number[][]=[];let clear=0;
+ /* full2-cam: optional extra lens heights (m over k.up) tried after the azimuth search fails (SkyWalkShot: foliage on the 5a walk); absent = unchanged */
+ const lifts:readonly number[]=(k as any).liftSearch??[0],arms:readonly number[]=(k as any).armSearch??[0];
  // heading: her yaw, unwrapped and smoothed (a stand/seated hold, incl. turning in place, keeps the last walking heading — the lens does not orbit a turn-in-place, it lets her turn to face it)
  const raw:number[]=[];for(let i=0;i<n;i++){const hs=her(i*k.sampleS);if(i&&hs.pose!=='walk'){raw.push(raw[i-1]);continue;}const y=hs.yawDeg;raw.push(i?raw[i-1]+(((y-raw[i-1])%360+540)%360-180):y);}
  const w=Math.round(k.headingSmoothS/k.sampleS);for(let i=0;i<n;i++){let s=0,W=0;for(let j=-w;j<=w;j++){const q=raw[Math.max(0,Math.min(n-1,i+j))],ww=w+1-Math.abs(j);s+=q*ww;W+=ww;}head.push(s/W);}
  for(let i=0;i<n;i++){const t=i*k.sampleS,h=her(t),dr=t>k.driftFromS?Math.sin(2*Math.PI*(t-k.driftFromS)/k.driftPeriodS):0,base=k.driftAzDeg*dr,A=k.arm+k.driftArm*Math.sin(2*Math.PI*(t-k.driftFromS)/(k.driftPeriodS*1.7))*(t>k.driftFromS?1:0);
-  let pick=base,ok=false;for(const o of k.searchDeg){const L=rawLens(h,head[i],base+o,A,k,h.pose==='seated'?1:0);if(lensOk(L,h,boxes,k)){pick=base+o;ok=true;break;}}
-  if(ok)clear++;az.push(pick);arm.push(A);}
+  let pick=base,ok=false,up=0;let armD=0;const plan=(k as any).plan as {az:number[];arm:number[];up:number[]}|undefined,okFn=(k as any).okFn as ((p:Pose,h:HerSample)=>boolean)|undefined;
+  if(plan&&i<plan.az.length){pick=base+plan.az[i];armD=plan.arm[i];up=plan.up[i];ok=true;}
+  else for(const o of k.searchDeg){for(const da of arms){for(const dl of lifts){const kk=dl?{...k,up:k.up+dl}:k;const L=rawLens(h,head[i],base+o,A+da,kk,h.pose==='seated'?1:0);if(lensOk(L,h,boxes,kk)&&(!okFn||okFn(L,h))){pick=base+o;ok=true;up=dl;armD=da;break;}}if(ok)break;}if(ok)break;}
+  offs.push([pick-base,armD,up]);/* nearest azimuth first; a lift before a swing */
+  if(ok)clear++;az.push(pick);arm.push(A+armD);ups.push(up);}
+ /* full2-cam offline (k.okFn given, generator only): replace the greedy picks by the smoothest clear sequence — DP over a 6° × arm × height
+  * grid, cost = |Δaz| + 4·|Δarm| + 4·|Δup| between samples + 0.02·|az| (stay near the authored framing); unclear samples keep the greedy pick. */
+ if((k as any).okFn&&!(k as any).plan){const okFn=(k as any).okFn as (p:Pose,h:HerSample)=>boolean,grid:number[][][]=[];const azs:number[]=[];for(let d=-84;d<=84;d+=6)azs.push(d);
+  for(let i=0;i<n;i++){const t=i*k.sampleS,h=her(t),base=az[i]-offs[i][0],A=arm[i]-offs[i][1],c:number[][]=[];
+   for(const o of azs)for(const da of arms)for(const dl of lifts){const kk=dl?{...k,up:k.up+dl}:k,L=rawLens(h,head[i],base+o,A+da,kk,h.pose==='seated'?1:0);if(lensOk(L,h,boxes,kk)&&okFn(L,h))c.push([o,da,dl]);}
+   grid.push(c.length?c:[offs[i]]);}
+  const cost:number[][]=[],from:number[][]=[];for(let i=0;i<n;i++){cost.push([]);from.push([]);for(let j=0;j<grid[i].length;j++){const g=grid[i][j],own=0.02*Math.abs(g[0]);
+   if(!i){cost[i].push(own);from[i].push(-1);continue;}let best=Infinity,bj=0;for(let q=0;q<grid[i-1].length;q++){const p=grid[i-1][q],v=cost[i-1][q]+Math.abs(g[0]-p[0])+4*Math.abs(g[1]-p[1])+4*Math.abs(g[2]-p[2]);if(v<best){best=v;bj=q;}}cost[i].push(best+own);from[i].push(bj);}}
+  let j=0;for(let q=1;q<cost[n-1].length;q++)if(cost[n-1][q]<cost[n-1][j])j=q;for(let i=n-1;i>=0;i--){const g=grid[i][j],base=az[i]-offs[i][0],A=arm[i]-offs[i][1];offs[i]=[g[0],g[1],g[2]];az[i]=base+g[0];arm[i]=A+g[1];ups[i]=g[2];j=from[i][j];}}
  const sm=(a:number[])=>{const m=Math.round(k.smoothS/k.sampleS);return a.map((_,i)=>{let s=0,W=0;for(let j=-m;j<=m;j++){const ww=m+1-Math.abs(j);s+=a[Math.max(0,Math.min(n-1,i+j))]*ww;W+=ww;}return s/W;});};
- const seat=sm(sm(Array.from({length:n},(_,i)=>her(i*k.sampleS).pose==='seated'?1:0))),azS=sm(sm(az)),armS=sm(arm);
+ const seat=sm(sm(Array.from({length:n},(_,i)=>her(i*k.sampleS).pose==='seated'?1:0))),azS=sm(sm(az)),armS=sm(arm),upS=sm(sm(ups));
  const lerpA=(a:number[],t:number)=>{const x=Math.max(0,Math.min(n-1,t/k.sampleS)),i=Math.min(n-2,Math.floor(x)),u=x-i;return a[i]+(a[i+1]-a[i])*u;};
- return {clearFrac:clear/n,pose:t=>rawLens(her(t),lerpA(head,t),lerpA(azS,t),lerpA(armS,t),k,lerpA(seat,t))};}
+ return {clearFrac:clear/n,plan:{az:offs.map(o=>o[0]),arm:offs.map(o=>o[1]),up:offs.map(o=>o[2])},pose:t=>{const du=lerpA(upS,t);return rawLens(her(t),lerpA(head,t),lerpA(azS,t),lerpA(armS,t),du?{...k,up:k.up+du}:k,lerpA(seat,t));}};}
 /** Stateful writer: follow pose through the eased yaw caps (walk / stand-seated mode from her pose). */
 export class FollowWriter{private lim=new ViewLimiter();constructor(private shot:{pose:(t:number)=>Pose},private her:(t:number)=>HerSample){}
  reset(p:Pose,yawRate=0){this.lim.reset(p,yawRate);}

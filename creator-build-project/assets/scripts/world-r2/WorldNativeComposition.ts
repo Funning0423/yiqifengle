@@ -28,7 +28,7 @@ import {lakesideLandingToBoard,lakesideViewport,type LakesideLandingDeps} from '
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import {lakesideQaPhase,LAKESIDE_QA_FREEZE,lakesideRevealPose} from '../region/LakesideQaShot';
 import type {Vec} from '../world-r1/WorldFlowCore';
-import {regionBoardPose,regionBoardSource,regionLandingToBoard,type BoardLandingRegion,type RegionLandingDeps} from '../region/RegionBoardLanding';
+import {regionBoardHandoff,regionBoardPose,regionBoardSource,regionLandingToBoard,type BoardLandingRegion,type RegionLandingDeps} from '../region/RegionBoardLanding';
 import {boardSafeInsets} from '../ui/BoardLayout';
 /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
@@ -131,6 +131,8 @@ export class WorldNativeComposition extends Component {
     this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){/* r4.2 item 3: a soft stop (player cancel/background pause/double tap) logs nothing; a real failure logs ONE error, lakesideFallback's (it carries the reason) */if(region==='lakeside'&&!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);return arrived;}
     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
     // 运镜bot: lakeside assets still not ready after the hook's 3 s wait → the existing lakeside fallback (toast + island), never an empty board.
+    // 运镜bot cand7 D: skycity (L9 after the balloon, L10 from the same lens) hands the live lens to the board lens first (no cut).
+    if(region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&requiresSkycityScene(selection))await regionBoardHandoff({region,stageId:selection.stageId,deps});}
     let held=false;
     if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('arrived',{state:this.world?.commands().snapshot().state});
     if(region==='lakeside'){const landed=await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null,deps:this.lakesideLandingDeps()});if(landed?.ok===false)return this.lakesideFallback('board',landed.reason);held=true;this.world?.holdEnterLevel?.(true);}

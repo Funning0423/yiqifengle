@@ -332,7 +332,8 @@ export class RegionJourneyController {
     await token.wait(actor.perform(timing?{kind:'walk',path,duration:timing.durationS,distanceAt:(time:number)=>journeyDistanceAt(L,timing,time)}:{kind:'walk',path,duration:L/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);this.leaseProgress();
+   /* full2-cam E: a ride ends on its own last lens (the exit close-up); writing the route-end follow pose here was a cut (D's board handoff then blends from the live lens) */
+   if(!this.lease.ride){this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);}if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);this.leaseProgress();
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;this.pruneScenes();
   }catch(error){if(this.wiping){this.wiping=false;coverContent(null);coverAudioIn(.2);}if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}

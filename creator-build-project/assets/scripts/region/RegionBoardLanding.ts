@@ -7,6 +7,7 @@ import {MEADOW_STAND_LOCAL} from './RegionJourneyLayout';
 import {boardLayout,boardSafeInsets,toolSlots,type SafeArea} from '../ui/BoardLayout';
 import {REGION_NODES} from './RegionNodes';
 import {REGION_CAMERA} from '../world-r1/RegionCameraData';
+import {TRANSITION_CAM,beginTransitionSpec} from './TransitionCamera';
 /** 运镜bot: LANDING → BOARD for 04→05 (meadow) and 08→09 (skycity), same approach as 风铃湖畔 (LakesideLandingHook). Pure
  *  (no engine imports): RegionJourneyAdapter gives the map between the journey copy of the region model and the board copy,
  *  WorldNativeComposition injects the camera and the frame clock.
@@ -134,6 +135,31 @@ export async function regionLandingToBoard(context:Readonly<{region:BoardLanding
   for(;;){if(!d.setCamera(at(t)))return done(false,'camera-rejected',{gap,frames});if(t>=seconds)break;const dt=await d.nextFrame();frames++;t+=Number.isFinite(dt)&&dt>0?Math.min(.1,dt):0;}
   return done(true,'blended',{gap,seconds,frames,frame:{width:v.width,height:v.height}});
  }catch(error){return done(false,'error',{stage,error:String((error as any)?.message||error)});}
+}
+/** 运镜bot cand7 D (d3fe578e P2: L9 / L10 entry cut balloon cloud-sea close-up → board). After the balloon arrival the world
+ *  lens is the ride's exit lens, too far from the board pose for regionLandingToBoard (match: 16 m / 10°), so the hook fell back to
+ *  the generic push-in and the board camera cut in (and L10 cut again from the same stale lens). This runs BEFORE that hook: when
+ *  a board pose exists and the lens is beyond `match`, it hands the live lens to the board lens with a TransitionCamera run
+ *  (min-jerk, peak ≤ blendLensMS, standing yaw cap ≤90°/s / ≤200°/s² through the ViewLimiter, pitch/FOV caps), waits until the capped
+ *  lens has settled, then writes the board pose exactly, so the hook that follows finds it on-pose (one exact write, push-in held)
+ *  and the board camera takes over at the identical pose. Near / exact / no pose / no camera: no write, the hook decides as before. */
+export const BOARD_HANDOFF={maxS:12} as const;
+export async function regionBoardHandoff(context:Readonly<{region:BoardLandingRegion;stageId:string;deps?:RegionLandingDeps}>):Promise<RegionLandingResult>{
+ const d=context.deps;if(!d)return {ok:false,result:'no-deps'};
+ const done=(ok:boolean,result:string,e:Record<string,unknown>={}):RegionLandingResult=>{try{d.log?.({event:'board-handoff',region:context.region,stageId:context.stageId,result,...e});}catch{}return {ok,result};};
+ try{
+  const from=d.readCamera();if(!from)return done(false,'no-camera');const to=d.boardPose(d.viewport());if(!to)return done(false,'no-board-pose');
+  const gap=poseGap(from,to),M=REGION_BOARD_LANDING.match;
+  if(gap.positionM<=M.positionM&&gap.viewDeg<=M.viewDeg&&Math.abs(gap.fovDeg)<=M.fovDeg)return done(false,'near',{gap});
+  const blendIn=Math.max(TRANSITION_CAM.blendInS,1.875*gap.positionM/TRANSITION_CAM.blendLensMS);
+  const run=beginTransitionSpec({id:'board-handoff',mode:'stand',blendInS:blendIn,keys:[{t:0,pos:to.position,look:to.target,fov:to.fovVerticalDeg},{t:blendIn,pos:to.position,look:to.target,fov:to.fovVerticalDeg}]},{pose:from});
+  let frames=0;
+  for(;;){const dt=await d.nextFrame();frames++;const p=run.step(Number.isFinite(dt)&&dt>0?Math.min(.1,dt):1/60);
+   if(run.t>=run.blendIn&&poseGap(p,to).viewDeg<.05&&Math.abs(poseGap(p,to).fovDeg)<.02)break;
+   if(!d.setCamera(p))return done(false,'camera-rejected',{gap,frames});if(run.t>=BOARD_HANDOFF.maxS+run.blendIn)break;}
+  if(!d.setCamera(to))return done(false,'camera-rejected',{gap,frames});
+  return done(true,'handed',{gap,seconds:run.t,frames});
+ }catch(error){return done(false,'error',{error:String((error as any)?.message||error)});}
 }
 /** 运镜bot (r4): WHERE SHE STOPS on the board. Her frozen board copy (GGbot, LakesideBoardGuest.mountRegionBoardGuest) is put
  *  exactly where she stands when the journey ends, and the board camera is fixed (meadowScenePose / skycityVisitPose per aspect),
