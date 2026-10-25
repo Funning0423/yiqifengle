@@ -116,7 +116,7 @@
   "yawFromFaceDeg": -160,
   "lookUpDeg": 12,
   "armM": 7,
-  "searchMs": 4426
+  "searchMs": 4723
  },
  "F3": {
   "ok": true,
@@ -148,6 +148,7 @@
  "F5": {
   "ok": true,
   "holdS": true,
+  "countdownAfterEaseIn": true,
   "armedAfterReward": true,
   "inputDisarms": true,
   "wipeHooks": true,
