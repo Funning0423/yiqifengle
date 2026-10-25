@@ -125,8 +125,34 @@ const lerp3=(a:Vec,b:Vec,u:number):Vec=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a
 function lerpKey(A:FlightKey,B:FlightKey,u:number,time:number):FlightKey{
  return {t:time,frame:A.frame??B.frame,pos:lerp3(A.pos,B.pos,u),yawDeg:A.yawDeg+(B.yawDeg-A.yawDeg)*u,rollDeg:A.rollDeg+(B.rollDeg-A.rollDeg)*u,cam:lerp3(A.cam,B.cam,u),camLook:lerp3(A.camLook,B.camLook,u)};
 }
+/** b19 (场景设计部 transition-spaces 01975129): the parked basket moved from the flight file's take-off (12, 6.52, −23.8) to
+ *  (3.6, 6.60, −23.4) meadow-local (windchime + windmill clearance), and the sky-city landing is raised 0.12 m onto the mooring
+ *  deck. The flight file is unchanged; sampleFlight adds these offsets to pos / cam / camLook: the take-off shift at full weight
+ *  through board + burner (t ≤ TAKEOFF_SHIFT_HOLD_T), smootherstep to 0 by TAKEOFF_SHIFT_END_T (well before meadow-unload/seam);
+ *  the landing lift from LAND_LIFT_FROM_T to full at LAND_T. Meadow keys only for the shift, world keys only for the lift. */
+export const TAKEOFF_SHIFT:Vec=[3.6-12,6.60-6.51934814453125,-23.4-(-23.8)];
+export const TAKEOFF_SHIFT_HOLD_T=4.5/* basket floor ≥ 10.7 m local: 1.2 m over the wind_bell_frame top before any sideways drift */,TAKEOFF_SHIFT_END_T=9.0;
+export const LAND_LIFT_M=.12,LAND_LIFT_FROM_T=31;
+const s5=(u:number)=>{const x=Math.max(0,Math.min(1,u));return x*x*x*(x*(x*6-15)+10);};
+/** sidestep away from the wind_bell_frame while rising vertically (frame is +x of the basket), eased in from lift-off */
+export let TAKEOFF_SIDESTEP:Vec=[-0.8,0,0.6]/* check-meadow-lift: obstacle gap ≥ 0.534 m (= the parked gap to the blade sweep) */;
+export function setTakeoffSidestep(v:Vec):void{TAKEOFF_SIDESTEP=v;}
+export function takeoffShiftW(t:number):number{return 1-s5((t-TAKEOFF_SHIFT_HOLD_T)/(TAKEOFF_SHIFT_END_T-TAKEOFF_SHIFT_HOLD_T));}
+export function landLiftW(t:number):number{return s5((t-LAND_LIFT_FROM_T)/(LAND_T-LAND_LIFT_FROM_T));}
+function shiftKey(k:FlightKey,t:number):FlightKey{
+ const meadow=(k.frame??'meadow')==='meadow'&&t+1e-9<SEAM_T;let d:Vec=[0,0,0];
+ if(meadow){const w=takeoffShiftW(t),q=w*s5((t-1.8)/(TAKEOFF_SHIFT_HOLD_T-1.8));d=[TAKEOFF_SHIFT[0]*w+TAKEOFF_SIDESTEP[0]*q,TAKEOFF_SHIFT[1]*w+TAKEOFF_SIDESTEP[1]*q,TAKEOFF_SHIFT[2]*w+TAKEOFF_SIDESTEP[2]*q];}else{d=[0,LAND_LIFT_M*landLiftW(t),0];}
+ const a=(v:Vec):Vec=>[v[0]+d[0],v[1]+d[1],v[2]+d[2]];
+ // lens orbit about the basket while shifted: the file lens would look at the new point THROUGH the wind chime (bells back-faced)
+ const yw=meadow?TAKEOFF_CAM_ORBIT_DEG*(1-s5((t-TAKEOFF_ORBIT_FROM_T)/(TAKEOFF_ORBIT_END_T-TAKEOFF_ORBIT_FROM_T)))*Math.PI/180:0,P=a(k.pos),orb=(v:Vec):Vec=>{const q=a(v),x=q[0]-P[0],z=q[2]-P[2],c=Math.cos(yw),s=Math.sin(yw);return [P[0]+c*x+s*z,q[1]+TAKEOFF_CAM_UP_M*takeoffShiftW(t)*(meadow?1:0),P[2]-s*x+c*z];};
+ if(!d[0]&&!d[1]&&!d[2]&&!yw)return k;return {...k,pos:P,cam:orb(k.cam),camLook:orb(k.camLook)};}
+/** the orbit unwinds inside the cloud bank (cloud-enter 4.3 → seam 11.4) */
+export const TAKEOFF_ORBIT_FROM_T=2.0,TAKEOFF_ORBIT_END_T=11.3;
+export let TAKEOFF_CAM_UP_M=0;export function setTakeoffCamUp(m:number):void{TAKEOFF_CAM_UP_M=m;}
+export let TAKEOFF_CAM_ORBIT_DEG=0/* frame-background: the file lens would see the new point through the wind chime (bell interiors) */;export function setTakeoffCamOrbit(d:number):void{TAKEOFF_CAM_ORBIT_DEG=d;}
 /** Same-frame neighbours only. [seam−0.1, seam) → keys[seam−0.1]…preKey; t≥seam → world keys. */
-export function sampleFlight(doc:FlightDoc,t:number):FlightKey{
+export function sampleFlight(doc:FlightDoc,t:number):FlightKey{return shiftKey(sampleFlightRaw(doc,t),Math.max(0,Math.min(doc.duration_s,t)));}
+export function sampleFlightRaw(doc:FlightDoc,t:number):FlightKey{
  const keys=doc.keys,hz=doc.sampleRate_hz||10,dur=doc.duration_s;
  const time=Math.max(0,Math.min(dur,t));
  const seam=doc.seam?.t??SEAM_T;
@@ -187,19 +213,52 @@ export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,
  *  rate 1 through board / liftoff / cloud seam (t ≤ RIDE_KEEP_T, all seam & visibility cues keep their exact timing), then a
  *  smoothstep rise to RIDE_CRUISE_RATE, cruise, a smoothstep fall back to 1, and rate 1 for the last RIDE_TAIL_S of the
  *  approach + landing (touchdown and the basket-door beat play at real speed). C1 rate → no velocity step on the camera. */
-export const RIDE_DURATION:number=TRANSITION_RETIME.meadowRideS/* compress: 30 → 24 (data) */;
-export const RIDE_KEEP_T=12;
-export const RIDE_RAMP_S:number=TRANSITION_RETIME.meadowRideRampS/* was 2 */;
-export const RIDE_TAIL_S:number=TRANSITION_RETIME.meadowRideTailS/* was 5 */;
+/** b19 caps (Grok Bot): meadow→skycity ≤ 50 s, visible flight 28.5 s (Grok Bot). ONE data-driven parameter: TRANSITION_RETIME.meadowRideS.
+ *  Re-blocked timing: rate 1 while she is seen boarding and lifting off (flight 0–RIDE_KEEP_T = end of B-c_liftoff), the speed-up is
+ *  spent inside the cloud bank (4.3–15, 100% cloud at the seam) and the islets, and rate 1 again for approach + landing + exit
+ *  (last RIDE_TAIL_S). */
+export const RIDE_DURATION:number=TRANSITION_RETIME.meadowRideS;
+/** the parked B-b_board beat (flight 0–1.8) is NOT replayed: she already boarded/sat and the burner lit during seg3 inflate
+ *  (TRANSITION_DURATIONS.seg3.inflate). The ride opens on the B-c_liftoff key at rate 1 and eases up from there. */
+export const RIDE_START_T=1.8;
+export const RIDE_KEEP_T=0.8;
+/** asymmetric: quick rise inside the cloud bank, long fall so the islets/approach (file already fast there) stay ≤ 0.6 m/frame */
+export const RIDE_RAMP_S=3,RIDE_RAMP_DOWN_S=9;
+export const RIDE_TAIL_S=3;
 /** ∫ of the smoothstep rise over x s (full rise after RIDE_RAMP_S). 36 = 30 + (r−1)·(Rint(18) − Rint(7)) = 30 + 11(r−1) → r = 17/11. */
-const rampInt=(x:number)=>{if(x<=0)return 0;if(x>=RIDE_RAMP_S)return RIDE_RAMP_S/2+(x-RIDE_RAMP_S);const u=x/RIDE_RAMP_S;return RIDE_RAMP_S*(u*u*u-u*u*u*u/2);};
-export const RIDE_CRUISE_RATE=1+(FLIGHT_DURATION-RIDE_DURATION)/(rampInt(RIDE_DURATION-RIDE_KEEP_T)-rampInt(RIDE_TAIL_S+RIDE_RAMP_S));
+const rampInt=(x:number,R:number=RIDE_RAMP_S)=>{if(x<=0)return 0;if(x>=R)return R/2+(x-R);const u=x/R;return R*(u*u*u-u*u*u*u/2);};
+export const RIDE_CRUISE_RATE=1+(FLIGHT_DURATION-RIDE_START_T-RIDE_DURATION)/(rampInt(RIDE_DURATION-RIDE_KEEP_T)-rampInt(RIDE_TAIL_S+RIDE_RAMP_DOWN_S,RIDE_RAMP_DOWN_S));
 /** Flight-time rate dt/dτ at ride time τ. */
 export function rideRate(tau:number):number{const r=RIDE_CRUISE_RATE,s=(u:number)=>{const x=Math.max(0,Math.min(1,u));return x*x*(3-2*x);};
- const downT0=RIDE_DURATION-RIDE_TAIL_S-RIDE_RAMP_S;
- return 1+(r-1)*(s((tau-RIDE_KEEP_T)/RIDE_RAMP_S)-s((tau-downT0)/RIDE_RAMP_S));}
-/** Ride clock τ ∈ [0, RIDE_DURATION] → flight time t ∈ [0, FLIGHT_DURATION]; monotonic, C1. */
-export function rideToFlightT(tau:number):number{const x=Math.max(0,Math.min(RIDE_DURATION,tau)),r=RIDE_CRUISE_RATE,downT0=RIDE_DURATION-RIDE_TAIL_S-RIDE_RAMP_S;
- return Math.min(FLIGHT_DURATION,x+(r-1)*(rampInt(x-RIDE_KEEP_T)-rampInt(x-downT0)));}
+ const downT0=RIDE_DURATION-RIDE_TAIL_S-RIDE_RAMP_DOWN_S;
+ return 1+(r-1)*(s((tau-RIDE_KEEP_T)/RIDE_RAMP_S)-s((tau-downT0)/RIDE_RAMP_DOWN_S));}
+/** Speed-adaptive ride clock (re-blocked, not a uniform time-scale): ride seconds per flight second
+ *  g(t) = w(t)·1 + (1−w(t))·max(1/RIDE_MAX_RATE, λ·(v(t)+RIDE_V0)), v = lens speed of the authored flight camera (each side of the
+ *  seam on its own), w = 1 on the first RIDE_KEEP_T s (lift-off) and the last RIDE_TAIL_S s (approach→landing→exit, real speed),
+ *  smootherstep in between; λ solved so the ride lasts RIDE_DURATION. Fast-moving file stretches play near real speed, slow / cloud
+ *  stretches are compressed (≤ RIDE_MAX_RATE). g is smoothed (C1 rate). Falls back to the analytic warp when no flight file is loaded. */
+export const RIDE_MAX_RATE=2.5,RIDE_V0=2,RIDE_EASE_S=2.5,/** m per °/s: lens turning counts as motion, so turns are not sped up */RIDE_ANG_K=0.7;
+let rideTab:{t:number[];tau:number[];g:number[]}|null=null;
+function buildRideTab():{t:number[];tau:number[];g:number[]}|null{let doc:FlightDoc;try{doc=flightDocument();}catch{return null;}if(!doc||!doc.keys)return null;
+ const h=0.05,t0=RIDE_START_T,t1=FLIGHT_DURATION,n=Math.round((t1-t0)/h),v:number[]=[],w:number[]=[];
+ for(let i=0;i<=n;i++){const t=t0+i*h,a=sampleFlight(doc,Math.max(t0,t-h/2)),b=sampleFlight(doc,Math.min(t1,t+h/2));
+  const cross=(t-h/2<SEAM_T)!==(t+h/2<SEAM_T);const yw=(k:FlightKey)=>Math.atan2(k.camLook[0]-k.cam[0],k.camLook[2]-k.cam[2])*180/Math.PI,dy=Math.abs(((yw(b)-yw(a))%360+540)%360-180)/h;
+  v.push(cross?(v[i-1]??0):Math.hypot(b.cam[0]-a.cam[0],b.cam[1]-a.cam[1],b.cam[2]-a.cam[2])/h+RIDE_ANG_K*dy);
+  const s5=(u:number)=>{const x=Math.max(0,Math.min(1,u));return x*x*x*(x*(x*6-15)+10);};
+  w.push(Math.max(1-s5((t-t0-RIDE_KEEP_T)/RIDE_EASE_S),s5((t-(t1-RIDE_TAIL_S)+RIDE_EASE_S)/RIDE_EASE_S)));}
+ const sm=(a:number[],m:number)=>a.map((_,i)=>{let s=0,W=0;for(let j=-m;j<=m;j++){const ww=m+1-Math.abs(j);s+=a[Math.max(0,Math.min(n,i+j))]*ww;W+=ww;}return s/W;});
+ const vs=sm(v,10);const gOf=(lam:number)=>sm(vs.map((x,i)=>w[i]+(1-w[i])*Math.max(1/RIDE_MAX_RATE,lam*(x+RIDE_V0))),12);
+ const tot=(g:number[])=>{let s=0;for(let i=1;i<=n;i++)s+=(g[i]+g[i-1])/2*h;return s;};
+ let lo=0,hi=10;for(let k=0;k<60;k++){const m=(lo+hi)/2;if(tot(gOf(m))<RIDE_DURATION)lo=m;else hi=m;}
+ const g=gOf(hi),T=[t0],U=[0];for(let i=1;i<=n;i++){T.push(t0+i*h);U.push(U[i-1]+(g[i]+g[i-1])/2*h);}const f=RIDE_DURATION/U[n];return {t:T,tau:U.map(x=>x*f),g:g.map(x=>x*f)};}
+function tab(){if(!rideTab)rideTab=buildRideTab();return rideTab;}
+/** test hook: rebuild after the flight file / durations change */
+export function resetRideClock():void{rideTab=null;}
+/** Ride clock τ ∈ [0, RIDE_DURATION] → flight time t ∈ [RIDE_START_T, FLIGHT_DURATION]; monotonic, C1. */
+export function rideToFlightT(tau:number):number{const x=Math.max(0,Math.min(RIDE_DURATION,tau)),T=tab();
+ if(T){let lo=0,hi=T.tau.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(T.tau[m]<=x)lo=m;else hi=m;}const d=(T.tau[hi]-T.tau[lo])||1,u=(x-T.tau[lo])/d,u2=u*u,u3=u2*u;/* cubic Hermite, slopes dt/dτ = 1/g: C1 rate */
+  return (2*u3-3*u2+1)*T.t[lo]+(u3-2*u2+u)*d/T.g[lo]+(-2*u3+3*u2)*T.t[hi]+(u3-u2)*d/T.g[hi];}
+ const r=RIDE_CRUISE_RATE,downT0=RIDE_DURATION-RIDE_TAIL_S-RIDE_RAMP_DOWN_S;
+ return Math.min(FLIGHT_DURATION,RIDE_START_T+x+(r-1)*(rampInt(x-RIDE_KEEP_T)-rampInt(x-downT0,RIDE_RAMP_DOWN_S)));}
 /** Inverse (bisection), for reporting cue times on the ride clock. */
-export function flightToRideT(t:number):number{let lo=0,hi=RIDE_DURATION;for(let i=0;i<40;i++){const m=(lo+hi)/2;if(rideToFlightT(m)<t)lo=m;else hi=m;}return hi;}
+export function flightToRideT(t:number):number{if(t<=RIDE_START_T)return 0;let lo=0,hi=RIDE_DURATION;for(let i=0;i<40;i++){const m=(lo+hi)/2;if(rideToFlightT(m)<t)lo=m;else hi=m;}return hi;}

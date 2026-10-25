@@ -21,7 +21,7 @@ const {load:loadGlb}=require('../occlusion/lib-glb.cjs'),{decode}=require('../..
 const LKS=require('../lakeside/lakeside-scene.cjs');
 const {H,S,B,add,sub,rotY,routeLength,sampleRoute}=J;
 const T=H.load(S+'region/TransportLeg.ts'),SL=H.load(S+'region/SailLanding.ts'),RB=H.load(S+'region/RegionBoardLanding.ts'),Fl=H.load(S+'region/BalloonFlight.ts');
-const LB=H.load(S+'region/LakesideBalloon.ts'),LC=H.load(S+'region/LakesideCameraLayout.ts'),BL=H.load(S+'ui/BoardLayout.ts'),Core=H.load(S+'world-r1/RegionJourneyCore.ts');
+const TSG=H.load(S+'region/TransitionStaging.ts'),LB=H.load(S+'region/LakesideBalloon.ts'),LC=H.load(S+'region/LakesideCameraLayout.ts'),BL=H.load(S+'ui/BoardLayout.ts'),Core=H.load(S+'world-r1/RegionJourneyCore.ts');
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]];
 const STAND={chest:1.2,face:1.5,head:1.6,top:1.7253,halfW:.3},SEAT={head:[0,1.06,-.55],face:[0,.98,-.47],chest:[0,.71,-.55],top:[0,1.18,-.55],feet:[0,.05,.05]};
 const bvhOf=(objs)=>F.buildBvh(objs.filter(o=>o.tris&&o.tris.length));
@@ -87,8 +87,10 @@ function balloonLeg(geo,[w,h]){
  global.__QF_BALLOON_FLIGHT=geo.flight;
  const m6=add(rotY(180,[0.2,6.5,-25.6]),J.mOff),plan=T.balloonBeats(m6,[5.4,-0.11,43.8],J.sp('anchor_starcourt_center'),{walkInM:0,walkOutM:0,cityFrame:{yawDeg:J.yaw,origin:J.sOff}});
  const TT=plan.total,GY=-76.6;
- const her=t=>{const v=plan.vehicle(t),yd=v.yaw*180/Math.PI,W=p=>balToWorld(v.pos,yd,v.roll,add(STAND_POINT,rotY(GY,p)));const r=W([0,0,0]);
-  return {root:r,face:W([0,STAND.face,.08]),head:W([0,STAND.head,0]),chest:W([0,STAND.chest,0]),box:[[-.3,0,-.3],[.3,0,-.3],[-.3,0,.3],[.3,0,.3],[-.3,STAND.top,-.3],[.3,STAND.top,-.3],[-.3,STAND.top,.3],[.3,STAND.top,.3]].map(W),pose:'stand(basket)',v};};
+ // b19: she rides SEATED (TransitionStaging BASKET_RIDE_POSE.meadowSkycity: sit_hold, root (.032,0,-.099) in the basket-root frame, yaw 0)
+ const RP=TSG.BASKET_RIDE_POSE.meadowSkycity;void GY;
+ const her=t=>{const v=plan.vehicle(t),yd=v.yaw*180/Math.PI,W=p=>balToWorld(v.pos,yd+RP.yawDeg,v.roll,add(RP.offset,p)),K=SIT_HOLD;
+  return {root:W([0,0,0]),face:W(K.face),head:W(K.head),chest:W(K.chest),box:K.box.map(W),pose:'seated(basket, sit_hold skeleton)',v};};
  const fade=t=>t<35.7?0:t<35.9?(t-35.7)/.2:t<36?1:0;// test_frame_background handoffFade (landing cloud cover)
  const los=(t,a,b)=>{const solid=[t<Fl.MEADOW_OFF_T?geo.meadow:null,t>=Fl.CITY_ON_T?geo.cityB:null,t>=Fl.ISLETS_ON_T?geo.isletsB:null].filter(Boolean);
   for(const g of solid){const x=hit(g,a,b);if(x)return x;}const v=plan.vehicle(t);return balHit(v.pos,v.yaw*180/Math.PI,v.roll,a,b);};
@@ -120,10 +122,11 @@ function lakeLeg(geo,[w,h]){
  const cam=t=>{if(t<=R.T)return LB.lakesideDoorRideCamera(R,door,t,from);const e=t-R.T;if(e<outT)return door;if(e<outT+durS){const p=herAt(t);return LB.lakesideDoorBlendPose(door,land,(e-outT)/durS,[p[0],p[1]+1.2,p[2]],wide?LB.LAKESIDE_TOUCHDOWN.blendAimPull:undefined);}return land;};
  // aboard (cutT…T) she rides SEATED at stand_point local (.032,-.1,-.099) (b15 stand-up v1b), basket at the door yaw for the whole ride
  const seatLocal=add(STAND_POINT,[.032,-.1,-.099]);
+ const herSeated=t=>{const v=t<R.cutT?R.flight.vehicle(t-R.liftT)/* lift-off shown by SkyLakeContinuous: flight clock */:R.vehicle(t),W=p=>balToWorld(v,M.doorYawDeg,0,add(seatLocal,p)),K=SIT_HOLD;return {root:W([0,0,0]),face:W(K.face),head:W(K.head),chest:W(K.chest),box:K.box.map(W),pose:'seated(basket, sit_hold skeleton)',aboard:true};};
  const her=t=>{if(!(t>=R.cutT&&t<=R.T)){const s=standPts(herAt(t));return s;}const v=R.vehicle(t),W=p=>balToWorld(v,M.doorYawDeg,0,add(seatLocal,p)),K=SIT_HOLD;
   return {root:W([0,0,0]),face:W(K.face),head:W(K.head),chest:W(K.chest),box:K.box.map(W),pose:'seated(basket, sit_hold skeleton)',aboard:true};};
  const los=(t,a,b)=>{const x=hit(geo.lake,a,b);if(x)return x;const v=t<=R.T?R.vehicle(t):M.mooring;return balHit(v,M.doorYawDeg,0,a,b);};
- return {id:'balloon skycity→lakeside',T:TT,cam,her,
+ return {id:'balloon skycity→lakeside',T:TT,cam,her,herSeated,
   /* after the door hold the controller arrives and the board fades in over her exit walk (b15: 'still overlapping the rest of her
      (offscreen) walk'); the path-v4 walk to the board stop is not modelled here, so her-based checks stop at R.T+outT. */
   herValid:t=>t<=R.T+outT+(wide?durS-LB.LAKESIDE_TOUCHDOWN.blendPadS:0)/* T-03: her framing/occlusion is checked through the option-B blend too, up to the last blendPadS where the lens settles onto the accepted board view (her stop at its lower right is that view's own composition) */,black:t=>t<=R.T&&R.cover(t)>=.999,los,

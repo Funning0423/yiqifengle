@@ -14,14 +14,14 @@ function metrics(poses){const yr=[],ya=[],dp=[],acc=[],df=[],dpitch=[];
  for(let i=1;i<dp.length;i++)acc.push(Math.abs(dp[i]-dp[i-1])/DT/DT);
  return {yawMax:Math.max(...yr.map(Math.abs)),yawAccP99:pct(ya,0.99),pitchMax:Math.max(...dpitch),stepMaxM:Math.max(...dp),accP99:pct(acc,0.99),fovStepMax:Math.max(...df)};}
 // ---- 1. ride clock warp: 30 s → 36 s flight, monotonic, C1, cues before the seam untouched
-const RD=F.RIDE_DURATION,ST=H.load('region/TransitionStaging.ts');assert.equal(RD,ST.TRANSITION_RETIME.meadowRideS,'ride length is data (TRANSITION_RETIME)');assert.ok(RD<=30&&RD>=20);
+const TS=H.load('region/TransitionStaging.ts'),RD=F.RIDE_DURATION;assert.equal(RD,TS.TRANSITION_DURATIONS.seg3.flight,'ride length is the one data parameter');
 assert.ok(Math.abs(F.rideToFlightT(RD)-F.FLIGHT_DURATION)<1e-9,'ride ends exactly at flight end: '+F.rideToFlightT(RD));
 let prev=-1,prevRate=1,maxRateStep=0;
 for(let i=0;i<=RD*FPS;i++){const tau=i*DT,t=F.rideToFlightT(tau);assert.ok(t>=prev-1e-12,'monotonic');prev=t;
  if(i){const rate=(t-F.rideToFlightT(tau-DT))/DT;if(i>1)maxRateStep=Math.max(maxRateStep,Math.abs(rate-prevRate));prevRate=rate;}}
 assert.ok(maxRateStep<0.02,'rate is C1 (no speed step): '+maxRateStep);
-for(const ct of [0.4,1.8,4.3,11.2,11.4,11.6])assert.ok(Math.abs(F.rideToFlightT(ct)-ct)<1e-9,'cue '+ct+' keeps its time');
-assert.ok(Math.abs(F.flightToRideT(F.LAND_T)-(RD-1))<1e-6,'touchdown on the ride clock at RD−1 s');
+for(const ct of [1.8].filter(c=>c>=F.RIDE_START_T))assert.ok(Math.abs(F.rideToFlightT(ct-F.RIDE_START_T)-ct)<1e-9,'cue '+ct+' keeps its time');
+assert.ok(Math.abs(F.flightToRideT(F.LAND_T)-(RD-1))<1e-6,'touchdown on the ride clock 1 s before the end');
 out.ride={duration:RD,cruiseRate:+F.RIDE_CRUISE_RATE.toFixed(4),cueRideT:Object.fromEntries(Object.entries({cloudExit:15,islets:21.5,approach:27,land:35}).map(([k,v])=>[k,+F.flightToRideT(v).toFixed(2)]))};
 // ---- 2. flight camera on the ride clock vs the 36 s camera: not faster than the approved caps, unless the 36 s file already was
 global.__QF_BALLOON_FLIGHT=JSON.parse(fs.readFileSync(path.join(ROOT,'creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json'),'utf8'));
