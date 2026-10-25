@@ -1,4 +1,5 @@
 import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Quat, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
+import {continuousTransitions} from './TransitionChain';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {traceCloudLayer} from './CloudTrace';
 import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
@@ -318,6 +319,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  if(tile)tile.active=false;
  const pier=findNode(props,'transit_pier');
  place(pier,SAIL_I6[0],-0.6,SAIL_I6[2]-0.7);
+ if(pier&&continuousTransitions())pier.active=false/* b19: island_dock (permanent island pier) owns this spot; transit_pier off during the sail journey */;
  // Mouth between boat and jetty (game ≈ x −3.55, origin z ≈ 37.5).
  // The mouth banks are a rectangular cap in the channel. Mesh rewrites left that cap on screen, so drop the whole prefab under the sea. The meadow shore is the bank that should read.
  place(mouth,-3.55,SAIL_SEA_Y-1.7,37.5);

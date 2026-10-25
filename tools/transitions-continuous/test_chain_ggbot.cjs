@@ -28,7 +28,15 @@ let r=await run(mk(0));
 assert.equal(r.fades.length,0,'no WindWipe on a ready continuous ride');assert.ok(contents.every(c=>c===null),'no loading card');
 assert.equal(C.fallbackCount(),0);assert.ok(r.cams.length>0);
 // the first written camera is the LIVE lens blend start (not the ride pose): continuous
-const c0=r.cams[0];assert.ok(Math.hypot(c0.position[0]-0,c0.position[2]+3)>0.5,'blend starts at the live lens');
+const c0=r.cams[0];assert.deepEqual(c0.position,[5,3,5],'first frame = the live lens exactly (no cut)');
+// P2 no hard cut / no empty frame: scenes shown before any frame, lens steps bounded while the ride writes its own pose
+{const lease=mk(0);let shownAt=-1,calls=0;lease.show=v=>{if(v&&shownAt<0)shownAt=calls;};const orig=lease.ride;lease.ride=async(a,w)=>{let ft=1e6;const P=globalThis.performance;Object.defineProperty(globalThis,'performance',{configurable:true,value:{now:()=>ft}});for(let i=0;i<120;i++){calls++;ft+=1000/60;w.setCamera({position:[0,2,-3],target:[0,1,0],fovVerticalDeg:48});}Object.defineProperty(globalThis,'performance',{configurable:true,value:P});};
+ const r2=await run(lease);assert.equal(shownAt,0,'journey scenes shown before the first ride frame');
+ let maxStep=0;for(let i=1;i<Math.min(r2.cams.length,121);i++)maxStep=Math.max(maxStep,Math.hypot(...[0,1,2].map(j=>r2.cams[i].position[j]-r2.cams[i-1].position[j])));
+ assert.ok(maxStep<0.2,'no hard cut: max lens step '+maxStep);out.handoff={maxStepM:+maxStep.toFixed(4),frames:r2.cams.length};}
+// player anim probe
+C.installPlayerAnimProbe({clock:{base:{clip:'walk_loop',loop:true,time:.3}},anim:{clips:[{name:'sit_hold'}],getState:()=>({isPlaying:false})}});
+assert.equal(globalThis.__QF_PLAYER_ANIM.clip,'walk_loop');assert.deepEqual(globalThis.__QF_PLAYER_ANIM.engine,[]);
 // 4 slow lease: waits visibly, fallback only after 3 s, warn not error, content null
 r=await run(mk(1e9));
 assert.equal(C.fallbackCount(),1,'one logged trigger');assert.ok(r.waited>=3-1e-6&&r.waited<3.1,'waited 3 s first: '+r.waited);
@@ -66,5 +74,11 @@ assert.equal(await cont({position:[0,1,2],target:[0,1,3],fovVerticalDeg:48}),'co
 assert.ok(comp.includes("stage.armFinaleContinue?.(()=>{void this.continueFromSkyFinale();})"),'auto-continue calls continueFromSkyFinale');
 // 10 no ccclass in new pure files, metas present
 for(const f of ['TransitionChain','TransitionStaging','TransitionStagingMath','TransitionProps','TransitionPreload','SkyLakeRegister']){assert.ok(fs.existsSync(path.join(ROOT,'creator-build-project/assets/scripts/region',f+'.ts.meta')),f+' meta');assert.ok(!/@ccclass\(/.test(src('region/'+f+'.ts')));}
+// 11 b19 staging data + duration table
+const ST=H.load('region/TransitionStaging.ts'),tot=ST.segmentTotals();out.totals=tot;
+const stances=JSON.parse(fs.readFileSync(path.join(ROOT,'tools/transition-spaces/stances.json'),'utf8'));assert.ok(stances.segments['3_meadow_balloon_in']);
+assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[0.032,0,-0.099]);assert.equal(ST.BASKET_RIDE_POSE.meadowSkycity.clip,'sit_hold');
+assert.ok(Math.abs(tot.seg3-45.8)<1e-6&&Math.abs(tot.seg4-14.3)<1e-6,'seg3/seg4 '+tot.seg3+'/'+tot.seg4);
+assert.ok(/kind:'stand',seat:seatDef/.test(bal)&&/guardBeforeWalk\(anim,'B5 stand up'\)/.test(bal),'B5 stands up (guarded) before walking');
 console.error=ce;console.warn=cw;console.log(JSON.stringify({ok:true,...out}));
 })().catch(e=>{console.error=ce;console.warn=cw;console.error(e);process.exit(1);});

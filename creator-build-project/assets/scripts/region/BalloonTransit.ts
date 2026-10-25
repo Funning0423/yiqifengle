@@ -14,8 +14,9 @@ import {onDayNightChange} from '../world-r1/DayNightContract';
 import {gradeSkycityCloudsea,gradeSkycityNight} from './SkycityNightApply';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,doorAngleAt,doorInAngleAt,guardBeforeWalk,inflateAt} from './TransitionChain';
-import {TRANSITION_STAGING} from './TransitionStaging';
-import {basketToWorld} from './TransitionStagingMath';
+import {TRANSITION_DURATIONS,TRANSITION_STAGING} from './TransitionStaging';
+import {basketToWorld,pathLength} from './TransitionStagingMath';
+import {seatFromBench} from './TransportLeg';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -523,8 +524,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;
    const door=find(vehicle,'basket_door')??find(vehicle,'basket_door_leaf'),envelope=find(vehicle,'balloon_envelope');
    const anim=(actor as any).anim||null;
-   const walkTo=(path:Vec[])=>{let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);
-    return L>0.05?actor.perform({kind:'walk',path,duration:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken):Promise.resolve();};
+   let seatDef:any=null,seated=false,s0End:Vec|null=null;
+   const walkTo=(path:Vec[],secs?:number)=>{let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);
+    return L>0.05?actor.perform({kind:'walk',path,duration:secs&&secs>0?secs:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken):Promise.resolve();};
    const vYawDeg=()=>{const v=plan.vehicle(0);return v.yaw*180/Math.PI;};
    if(contChain&&girl&&isValid(girl,true)){
     // B1 (transitions-continuous): she walks from the last meadow stop to the basket door, the door opens (door_reach), she
@@ -536,14 +538,18 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
     try{
-     const o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),front=basketToWorld(o,y,TRANSITION_STAGING.basketDoorFront),sill=basketToWorld(o,y,TRANSITION_STAGING.basketDoorSill);
-     const gp=girl.worldPosition,sp=seat.worldPosition,here:Vec=[gp.x,gp.y,gp.z],stand:Vec=[sp.x,sp.y,sp.z];
-     guardBeforeWalk(anim,'B1 walk to basket');await walkTo([here,front]);rideToken.check();
+     const B=TRANSITION_STAGING.basket,D3=TRANSITION_DURATIONS.seg3,o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),W=(l:Vec)=>basketToWorld(o,y,l);
+     const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=[here,W(B.outside),W(B.doorOut)];
+     guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps));rideToken.check();
      doorAt=b1;const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();await reach;rideToken.check();
-     guardBeforeWalk(anim,'B1 step into basket');await walkTo([front,sill,stand]);rideToken.check();inAt=b1;
+     guardBeforeWalk(anim,'B1 step into basket');await walkTo([W(B.doorOut),W(B.stool),W(B.threshold),W(B.p0)],D3.intoBasket);rideToken.check();inAt=b1;
+     // b19: ridden SEATED (sit_down → sit_hold; stand_up before any walk at B5), seat = basket (0.032,0,−0.099) facing the door
+     seatDef=seatFromBench(W(B.seat),(y+B.seatYawDeg)*Math.PI/180);
+     try{await actor.perform({kind:'sit',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B1 sit skipped: '+String(e));}
+     rideToken.check();seated=true;
     }finally{b1On=false;director.off(Director.EVENT_BEFORE_DRAW,b1Draw);}
    }
-   if(girl&&isValid(girl,true)){girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
+   if(girl&&isValid(girl,true)){if(seated)girl.setParent(vehicle,true)/* seated root kept where sit_down put it */;else{girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}}
    if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);
    // B2 inflate: the ride clock waits at 0 while the envelope fills (INFLATE.durationS), burner brightness synced.
    const envHome=envelope&&isValid(envelope,true)?{p:envelope.position.clone(),s:envelope.scale.clone(),drop:NaN}:null;
@@ -611,19 +617,22 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;b5+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(door&&isValid(door,true))door.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
-     const gw=girl.worldPosition,here:Vec=[gw.x,gw.y,gw.z];
+     const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);
      const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);
-     const sill=basketToWorld(o,y,TRANSITION_STAGING.basketDoorSill),out=basketToWorld(o,y,TRANSITION_STAGING.basketStepOut);
-     actor.cancelAndReset({kind:'standing',controllerRoot:here,yawRad:Math.atan2(sill[0]-here[0],sill[2]-here[2])});
-     guardBeforeWalk(anim,'B5 door reach');
-     await new Promise<void>(r=>setTimeout(r,(BALLOON_DOOR.openDelayS)*1000));
-     if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});
+     const city=(l:Vec):Vec=>{if(!model)return l;const v=new Vec3(l[0],l[1],l[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];};
+     guardBeforeWalk(anim,'B5 stand up');
+     if(seated&&seatDef){try{await actor.perform({kind:'stand',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B5 stand skipped: '+String(e));}}
+     rideToken.check();await new Promise<void>(r=>setTimeout(r,D4.pause*1000));b5=0/* door clock starts with door_reach */;
+     const gw=girl.worldPosition,here:Vec=[gw.x,gw.y,gw.z];
+     actor.cancelAndReset({kind:'standing',controllerRoot:here,yawRad:(y+0)*Math.PI/180});
+     guardBeforeWalk(anim,'B5 door reach');if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});
      rideToken.check();guardBeforeWalk(anim,'B5 walk out');
-     const s0:Vec=[plan.s0[0],plan.s0[1],plan.s0[2]];
-     await walkTo([here,sill,out,s0]);rideToken.check();
+     await walkTo([here,W(B.threshold),W(B.doorOut),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
+     await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
+     s0End=city(K.s0New);(lease as any).tail=true/* she ends on the b19 S0: the controller must not reset her to the old route end */;
     }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);}
    }else if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
-   actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:plan.vehicle(LAND_T).yaw});
+   actor.cancelAndReset({kind:'standing',controllerRoot:s0End||plan.s0,yawRad:s0End?TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?model.eulerAngles.y*Math.PI/180:0):plan.vehicle(LAND_T).yaw});
    arrived=true;
    if(model){model.active=true;showNamed(model,ISLET_NODES,true);}
    paint(plan.total);

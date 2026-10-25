@@ -342,6 +342,10 @@ export class RegionJourneyController {
  private async walkContinuous(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
   const l:any=this.lease!,leg=l.route.to==='meadow'?'sail':l.route.to==='skycity'?'balloon':'lakeside';
   const ready=()=>(typeof l.ready!=='function'||!!l.ready())&&coverReady();
+  // P2 (Mac 7e8420b0: roof close-up → 1–2 blue empty frames → palm close-up at the sail start): the layers had already been switched
+  // to the journey (WorldFlow setLayers) while the journey scenes were still hidden and the live lens kept pointing at the island
+  // roof; show the scenes FIRST, and write the live lens through the handoff, so no frame draws an empty layer or a cut.
+  this.show(true);
   let waited=this.prepareWaitS,fb=this.fallbackCovered;
   while(!fb){const d=fallbackDecision(waited,ready());if(d==='go')break;if(d==='fallback'){fb=true;recordFallback(leg,waited,'lease-not-ready');break;}
    if(typeof world.wait==='function'){await world.wait(1/30,token);waited+=1/30;}else break;token.check();}
@@ -354,9 +358,9 @@ export class RegionJourneyController {
    this.rideHold=false;this.show(true);await this.holdCover(world,token);coverAudioIn(SETOFF_FADE.inS);
    this.fadeState='in';void Promise.resolve(world.fadeCover(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});
    this.fallbackCovered=false;return;}
-  this.rideHold=false;this.show(true);token.check();
+  this.rideHold=false;token.check();
   const shotId=leg==='sail'?'A1-dock-walk':leg==='balloon'?'B1-basket-in':'C1-sky-basket-in';
-  if(leg!=='lakeside'/* lakeside ride already blends out of the live skycity lens itself */)this.patchCamera(world,this.camera||this.startCamera!,first,shotId);
+  if(leg!=='lakeside'/* lakeside ride already blends out of the live skycity lens itself */){const live=this.camera||this.startCamera!;this.patchCamera(world,live,first,shotId);world.setCamera(live)/* first frame = the live lens exactly */;}
  }
  /** Called BEFORE cancelling the action token, while its distance signal is still available. */
  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}

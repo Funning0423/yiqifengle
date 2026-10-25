@@ -105,3 +105,18 @@ export function logBundleLoad(target:string,item:PreloadItem,ms:number,ok:boolea
  p.events.push({target,bundle:item.bundle,bytes:item.bytes,ms:Math.round(ms),ok});if(ok)p.bytes+=item.bytes;
  try{console.info('[QF_PRELOAD] '+JSON.stringify({target,bundle:item.bundle,bytes:item.bytes,ms:Math.round(ms),ok,totalMB:Math.round(p.bytes/1048576*100)/100}));}catch{}
 }
+// ── player animation probe (全流程测试部: B_PASS2G_CURSOR.playing is null under the direct-TRS rig) ─────────────────────────
+/** globalThis.__QF_PLAYER_ANIM (getter, read any time): {clip, loop?, time?, engine:[names of engine-PLAYING states], source}.
+ *  clip = the rig/MotionClock base clip (what is actually drawn: walk_loop, sit_hold, stand_up, …); engine lists SkeletalAnimation
+ *  states the engine itself is playing (should be [] — anything here overrides the rig, e.g. a stuck sit_hold). */
+export function playerAnimOf(actor:any):{clip:string|null;loop:boolean|null;time:number|null;engine:string[];source:string}{
+ const out={clip:null as string|null,loop:null as boolean|null,time:null as number|null,engine:[] as string[],source:'none'};if(!actor)return out;
+ try{const b=actor.clock?.base;if(b&&typeof b.clip==='string'){out.clip=b.clip;out.source='rig';if(typeof b.loop==='boolean')out.loop=b.loop;if(typeof b.time==='number')out.time=b.time;}}catch{}
+ try{const a=actor.anim;if(a&&a.clips)for(const c of a.clips){if(!c)continue;const st=a.getState?.(c.name);if(st&&st.isPlaying)out.engine.push(c.name);}
+  if(!out.clip&&out.engine.length){out.clip=out.engine[0];out.source='engine';}}catch{}
+ return out;
+}
+let probed:any=null;
+export function installPlayerAnimProbe(actor:any):void{if(!actor||probed===actor)return;probed=actor;
+ try{Object.defineProperty(globalThis,'__QF_PLAYER_ANIM',{configurable:true,enumerable:false,get:()=>playerAnimOf(probed)});}catch{}}
+try{(globalThis as any).__qfInstallPlayerAnim=installPlayerAnimProbe;}catch{}

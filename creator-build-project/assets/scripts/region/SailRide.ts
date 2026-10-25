@@ -6,6 +6,7 @@ import {attachRider, detachRider, placeBoat} from './TransportVehicle';
 import type {SailArt} from './SailArt';
 import {stopEngineStates} from './EngineAnimStop';
 import {chainMark,guardBeforeWalk} from './TransitionChain';
+import {TRANSITION_DURATIONS} from './TransitionStaging';
 import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 function sailCueRegion(cue:string):string{
@@ -298,22 +299,26 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  driver.arm();
  const wait=async()=>{token.check();if(world.wait)await world.wait(0.05,token);else driver.onFrame(1/60,!!world.isWorldVisible&&!world.isWorldVisible());};
  const until=async(time:number)=>{while(driver.t+1e-3<time)await wait();};
- const walk=(path:Vec[],stop:boolean)=>{const L=pathLen(path);const duration=Math.max(0.35,L/1.2);return actor.perform({kind:'walk',path,duration,stopAtEnd:stop} as any,token);};
+ const walk=(path:Vec[],stop:boolean,secs?:number)=>{const L=pathLen(path);const duration=secs&&secs>0?secs:Math.max(0.35,L/1.2);return actor.perform({kind:'walk',path,duration,stopAtEnd:stop} as any,token);};
  const anim0=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);
  const show=(n:Node|null|undefined,on:boolean)=>{try{if(n&&n.isValid&&n.active!==on)n.active=on;}catch{/* prop optional */}};
  show(plan.props?.pier,true);show(plan.props?.islandPlank,true);show(plan.props?.meadowPlank,false);
  // A1: visible walk from the last island level to the pier (no cover); A2: over the gangplank onto the deck, sit.
  chainMark('sail','A1-pier-walk');guardBeforeWalk(anim0,'A1 pier walk');
- if(plan.pier&&plan.pier.length){await walk([...plan.approach,...plan.pier],true);chainMark('sail','A2-gangplank-board');guardBeforeWalk(anim0,'A2 gangplank');
-  await walk([plan.pier[plan.pier.length-1],...(plan.plankOn||[]),plan.deck,plan.sit.position as unknown as Vec],true);}
+ const D=TRANSITION_DURATIONS.seg1;let realI6=0;
+ if(plan.pier&&plan.pier.length){await walk(plan.approach,true,D.nodeWalkI4toI6)/* level stop → new I6, visible now */;realI6=driver.real;guardBeforeWalk(anim0,'A1 dock walk');
+  await walk([plan.approach[plan.approach.length-1],...plan.pier] as Vec[],true,D.a1DockWalk);chainMark('sail','A2-gangplank-board');guardBeforeWalk(anim0,'A2 gangplank');
+  await walk([plan.pier[plan.pier.length-1],...(plan.plankOn||[]),plan.deck] as Vec[],true,D.a2Gangway);}
  else{await walk([...plan.approach,plan.deck,plan.sit.position as unknown as Vec],true);chainMark('sail','A2-gangplank-board');}
  driver.markBoard();
  await actor.perform({kind:'sit',seat:plan.sit},token);
  const standS=actor.actionSeconds?.('stand')||1.2;
- const offS=Math.max(0.35,pathLen(plan.disembark)/1.2);
+ const offS=plan.pier?TRANSITION_DURATIONS.seg2.offBoat:Math.max(0.35,pathLen(plan.disembark)/1.2);
  const sf=1;
  const used=driver.real;
- const motionBudget=Math.max(4,30.5-used-sf-standS-offS);
+ // b19: the I4→I6 walk is now visible (not in the 30.5 s sail budget); boarding (+1.5 s) and the stand+gangway off (+2 s) grew,
+ // so the sail motion keeps its d9423886 length instead of being squeezed.
+ const motionBudget=Math.max(4,30.5-(used-realI6)-sf-standS-offS+(plan.pier?3.5:0));
  driver.depart(motionBudget);
  chainMark('sail','A3-sail');show(plan.props?.islandPlank,false)/* plank drawn back as she casts off */;
  await until(plan.total-plan.boardS);
@@ -323,8 +328,8 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  const anim=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);
  stopEngineStates(anim,'sail stand');
  await actor.perform({kind:'stand',seat:plan.stand},token);
- chainMark('sail','A5-gangplank-off');guardBeforeWalk(anim,'A5 gangplank off');
- await walk(plan.disembark,true);
+ chainMark('sail','A5-gangplank-off');guardBeforeWalk(anim,'A5 gangplank off');stopEngineStates(anim,'sail walk');
+ await walk(plan.disembark,true,plan.pier?TRANSITION_DURATIONS.seg2.offBoat:undefined);
  await until(plan.total);
  if(plan.arrival.length>1){
   const dur=pathLen(plan.arrival)/1.2;
