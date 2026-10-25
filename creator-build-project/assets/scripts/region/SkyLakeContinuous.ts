@@ -27,7 +27,9 @@ export const SKY_LAKE_CONT=Object.freeze({
  /** b19 data hooks (BalloonLegData.skyLakeParamsFrom): null = T-03 values. walkS = S6→door walk seconds (data); liftTraj = 场景设计部
   *  lift keys (world basket root, t 0..liftS); liftInWindow: lift-off counts INSIDE the visible-flight window flightS (Grok Bot);
   *  riderYawDeg = her seated facing (data; used by the occlusion tests / her pose, never hard-coded here). */
- walkS:null as number|null,liftTraj:null as null|ReadonlyArray<Readonly<{t:number;pos:Vec;yawDeg:number}>>,liftInWindow:true,riderYawDeg:null as number|null});
+ walkS:null as number|null,liftTraj:null as null|ReadonlyArray<Readonly<{t:number;pos:Vec;yawDeg:number}>>,liftInWindow:false/* 9d0043f2 timeline (Grok Bot): lift 5 s + visible flight 8 s */,riderYawDeg:null as number|null,
+ /** b19 T-02→walk handoff: SkyWalkShot lens on the data walk (tau = walk clock; caller passes τ ↦ walk.pose(gazeS+τ)). null = T-03 walk lens */
+ walkCam:null as null|((tau:number)=>Pose)});
 export type SkyLake=Readonly<{walkS:number;boardS:number;flightAt:number;liftEndAt:number;touchdownAt:number;
  rideT(tau:number):number;basket(tau:number):Vec;flightVisS:number;liftJoinM:number;cam(tau:number,from:Pose|null):Pose;phase(tau:number):'C1-walk'|'C1-board'|'liftoff'|'flight'|'C2'}>;
 /** eased warp: σ∈[0,S] → flight time f∈[0,F]; rate 1 at both ends, smoothstep up/down to the cruise rate (C1, monotonic) */
@@ -72,8 +74,8 @@ export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CON
  const liftLens=(tau:number):Pose=>{const t=rideT(Math.max(flightAt,tau)),v=veh(t),q=basket(Math.max(flightAt,tau)),dd:Vec=[q[0]-v[0],q[1]-v[1],q[2]-v[2]],p=flightLens(t);
   return {position:[p.position[0]+dd[0],p.position[1]+dd[1],p.position[2]+dd[2]],target:[p.target[0]+dd[0],p.target[1]+dd[1],p.target[2]+dd[2]],fovVerticalDeg:p.fovVerticalDeg};};
  const cam=(tau:number,from:Pose|null):Pose=>{
-  if(tau<walkS)return R.camera(walkClock(tau),from);
-  if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=R.camera(R.walkS-1e-6,from);}return blendPose(walkEnd,traj?liftLens(flightAt)/* lens placed for the data mooring */:flightLens(R.liftT),minJerk((tau-walkS)/Math.max(1e-3,boardS)));}
+  if(tau<walkS)return K.walkCam?K.walkCam(tau):R.camera(walkClock(tau),from);
+  if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=K.walkCam?K.walkCam(walkS):R.camera(R.walkS-1e-6,from);}return blendPose(walkEnd,traj?liftLens(flightAt)/* lens placed for the data mooring */:flightLens(R.liftT),minJerk((tau-walkS)/Math.max(1e-3,boardS)));}
   if(traj&&tau<liftEndAt)return liftLens(tau);
   return traj&&tau<touchdownAt?shift(flightLens(rideT(tau)),dW(tau)):flightLens(rideT(tau));};
  const phase=(tau:number)=>tau<walkS?'C1-walk':tau<flightAt?'C1-board':tau<liftEndAt?'liftoff':tau<touchdownAt?'flight':'C2';

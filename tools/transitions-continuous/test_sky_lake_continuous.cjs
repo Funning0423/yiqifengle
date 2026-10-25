@@ -10,7 +10,7 @@ const SWEEP=process.env.SWEEP?process.env.SWEEP.split(',').map(Number):null;
 (async()=>{const G=await RL.geometry(),rows=[];
  for(const s of (process.env.SCREENS1?[RL.SCREENS[0]]:RL.SCREENS)){const leg=RL.lakeLeg(G,s),T=leg.timing,Rr=leg.ride,door=leg.door;
   for(const liftS of SWEEP||[SL.SKY_LAKE_CONT.liftS]){
-   const S=SL.skyLakeContinuous(Rr,door,{...SL.SKY_LAKE_CONT,liftS,liftInWindow:!process.env.T03_EXACT,flightS:process.env.T03_EXACT?Rr.T-Rr.cutT:process.env.FLIGHT_S?+process.env.FLIGHT_S:TS.TRANSITION_RETIME.lakeFlightS});
+   const S=SL.skyLakeContinuous(Rr,door,{...SL.SKY_LAKE_CONT,liftS,flightS:process.env.T03_EXACT?Rr.T-Rr.cutT:process.env.FLIGHT_S?+process.env.FLIGHT_S:TS.TRANSITION_RETIME.lakeFlightS});
    const from=leg.start.from,end=S.touchdownAt+T.outT+T.durS+0.5;
    // entry = T-02's end CamState via the continuation hook (stand-in: the skycity follow lens the T-03 audit uses)
    let got=null;const off=TC.onShotContinue(st=>{got=st;});TC.fireShotContinue({pose:from});off();assert.ok(got);
@@ -29,7 +29,7 @@ const SWEEP=process.env.SWEEP?process.env.SWEEP.split(',').map(Number):null;
     assert.ok(row.occFaceChestMaxS<=0.5,'face/chest hidden ≤ 0.5 s '+JSON.stringify(row));
     /* b19 (Grok Bot caps): the visible flight is re-timed to TRANSITION_DURATIONS.seg5a.flight (8–12 s) — the old "T-03 flight
        bit-identical" gate is superseded by that instruction; what stays exact: the last tailS before touchdown and all of C2 */
-    const FS=process.env.T03_EXACT?Rr.T-Rr.cutT:process.env.FLIGHT_S?+process.env.FLIGHT_S:TS.TRANSITION_RETIME.lakeFlightS;assert.ok(FS>=TS.TRANSITION_RETIME.lakeFlightMinS&&FS<=12,'visible flight 8–12 s');/* b19 (Grok Bot): lift-off counts INSIDE the visible-flight window */assert.ok(Math.abs((S.touchdownAt-S.flightAt)-(process.env.T03_EXACT?S.liftEndAt-S.flightAt+FS:FS))<1e-9,'lift-off + visible flight = data window');
+    const FS=process.env.T03_EXACT?Rr.T-Rr.cutT:process.env.FLIGHT_S?+process.env.FLIGHT_S:TS.TRANSITION_RETIME.lakeFlightS;assert.ok(FS>=TS.TRANSITION_RETIME.lakeFlightMinS&&FS<=12,'visible flight 8–12 s');/* b19 (Grok Bot): lift-off counts INSIDE the visible-flight window */assert.ok(Math.abs((S.touchdownAt-S.flightAt)-(S.liftEndAt-S.flightAt+FS))<1e-9,'lift-off + visible flight (5+8) = data');
     for(const u of [-Math.min(SL.SKY_LAKE_CONT.tailS,S.flightVisS*0.5)+0.3,-1,-0.2,0,2,5]){const a=S.cam(S.touchdownAt+u,null),b=LB.lakesideDoorRideCamera(Rr,door,Rr.T+u,null);assert.ok(Math.hypot(...[0,1,2].map(j=>a.position[j]-b.position[j]))<1e-3,'touchdown/C2 framing exact at '+u);}}
   }}
  console.log(JSON.stringify({status:SWEEP?'SWEEP':'PASS',touchdown:LB.LAKESIDE_TOUCHDOWN,rows}));
