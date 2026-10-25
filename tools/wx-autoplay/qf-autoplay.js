@@ -10,7 +10,7 @@
 'use strict';
 var g=typeof GameGlobal!=='undefined'?GameGlobal:globalThis;var wx=g.wx;
 var DESIGN_W=390,DESIGN_H=844,MAX_SHOTS=20,SHOT_W=195,SHOT_Q=0.6,LOG_CAP=2*1024*1024,STATE_CAP=2*1024*1024,STEP_CAP=500;
-var OPS={tap:['x','y'],drag:['x1','y1','x2','y2','ms'],wait:['ms'],waitState:['name'],screenshot:['name']};
+var OPS={tap:['x','y'],drag:['x1','y1','x2','y2','ms'],wait:['ms'],waitState:['name'],screenshot:['name'],preTransition:['key'],preT:['key']};
 function parseScript(text){
   var s=typeof text==='string'?JSON.parse(text):text;
   if(!s||typeof s!=='object'||!Array.isArray(s.steps))throw Error('script must be {"steps":[...]}');
@@ -20,13 +20,15 @@ function parseScript(text){
   var steps=s.steps.map(function(st,i){
     var op=st&&st.op,need=OPS[op];if(!need)throw Error('step '+i+': unknown op '+op);
     need.forEach(function(k){if(k==='name'){if(typeof st.name!=='string'||!/^[A-Za-z0-9:_.-]{1,40}$/.test(st.name))throw Error('step '+i+': bad name');}
-      else if(typeof st[k]!=='number'||!isFinite(st[k]))throw Error('step '+i+': '+k+' must be a number');});
+      else if(k==='key'){}else if(typeof st[k]!=='number'||!isFinite(st[k]))throw Error('step '+i+': '+k+' must be a number');});
     if(op==='tap'||op==='drag'){['x','x1','x2'].forEach(function(k){if(k in st&&(st[k]<0||st[k]>DESIGN_W))throw Error('step '+i+': '+k+' outside 0..390');});
       ['y','y1','y2'].forEach(function(k){if(k in st&&(st[k]<0||st[k]>DESIGN_H))throw Error('step '+i+': '+k+' outside 0..844');});}
     if((op==='wait'&&(st.ms<0||st.ms>600000))||(op==='drag'&&(st.ms<16||st.ms>10000)))throw Error('step '+i+': ms out of range');
     if(op==='waitState'&&st.timeoutMs!=null&&(typeof st.timeoutMs!=='number'||st.timeoutMs<0||st.timeoutMs>600000))throw Error('step '+i+': bad timeoutMs');
+    if((op==='preTransition'||op==='preT')){if(!/^[a-z0-9-]{1,40}$/.test(String(st.key)))throw Error('step '+i+': bad key');
+      ['timeoutMs','recordMs'].forEach(function(k){if(st[k]!=null&&(typeof st[k]!=='number'||st[k]<0||st[k]>600000))throw Error('step '+i+': bad '+k);});}
     if(op==='screenshot'&&++shots>MAX_SHOTS)throw Error('more than '+MAX_SHOTS+' screenshots');
-    var o={op:op};for(var k in st)o[k]=st[k];return o;});
+    var o={op:op==='preT'?'preTransition':op};for(var k in st)if(k!=='op')o[k]=st[k];return o;});
   return {launchQuery:s.launchQuery||null,allowConsoleErrors:s.allowConsoleErrors===true,stateEveryMs:Math.max(500,Number(s.stateEveryMs)||2000),steps:steps};
 }
 /* design (390x844, top-left origin, y down) -> wx clientX/Y (window CSS px). Per-axis scale; identity on a 390x844 device. */
@@ -97,6 +99,20 @@ function shot(name){return new Promise(function(res){var cv=g.canvas,cc=g.cc;if(
   var take=function(){try{var h=Math.round(SHOT_W*cv.height/cv.width);var tmp=cv.toTempFilePathSync({destWidth:SHOT_W,destHeight:h,fileType:'jpg',quality:SHOT_Q});
     var dst=OUT+'/shots/'+String(++shotN).padStart(2,'0')+'-'+name+'.jpg';fs.copyFileSync(tmp,dst);try{fs.unlinkSync(tmp);}catch(e){}res(dst);}catch(e){console.warn('[QF_AUTOPLAY] screenshot failed',e&&e.message);res(null);}};
   try{if(cc&&cc.director&&cc.Director)cc.director.once(cc.Director.EVENT_AFTER_DRAW,take);else take();}catch(e){take();}});}
+/* {op:'preTransition',key,timeoutMs?=90000,tap?:true,recordMs?}: enables the test hook (no launch params needed; DevTools
+ * cli open ignores 启动参数), waits for __qfPreTransition, runs the key's SETUP only. tap:true then touches r.tap.point with a
+ * normal synthetic touch (the transition under test plays through the real input path); recordMs waits afterwards. */
+function preTransition(st,rec,res,W){var to=st.timeoutMs==null?90000:st.timeoutMs,t0=Date.now();
+  return new Promise(function(r){(function wait(){if(typeof g.__qfPreTransition==='function')r(true);else if(Date.now()-t0>=to)r(false);else setTimeout(wait,250);})();})
+  .then(function(have){if(!have){rec.ready=false;rec.reason='no __qfPreTransition (not a test build?)';res.ok=false;return;}
+    g.__qfHooksEnable=true;
+    return Promise.resolve(g.__qfPreTransition('enable')).then(function(){return Promise.race([g.__qfPreTransition(st.key),sleep(Math.max(1000,to-(Date.now()-t0))).then(function(){return {ok:false,reason:'timeout'};})]);})
+    .then(function(out){rec.ready=!!(out&&out.ok);rec.pre=out&&{ok:out.ok,reason:out.reason,state:out.state,trigger:out.trigger,tap:out.tap};if(!rec.ready){res.ok=false;return;}
+      var pt=out.tap&&out.tap.point,f=out.frame||{width:DESIGN_W,height:DESIGN_H};
+      if(st.tap){if(!pt){rec.tapped=false;rec.reason='tap point null (node '+(out.tap&&out.tap.node)+')';res.ok=false;return;}
+        var x=pt.x*DESIGN_W/(f.width||DESIGN_W),y=pt.y*DESIGN_H/(f.height||DESIGN_H),c=toClient(x,y,W),id=touch.nextId();touch.emit('TouchStart',c.x,c.y,id);rec.tapped={x:Math.round(x),y:Math.round(y)};
+        return sleep(60).then(function(){touch.emit('TouchEnd',c.x,c.y,id);return st.recordMs?sleep(st.recordMs):null;});}
+      return st.recordMs?sleep(st.recordMs):null;});});}
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 function run(){
   var res={ok:true,steps:[],startedAt:new Date().toISOString(),design:[DESIGN_W,DESIGN_H],window:win(),listeners:{}};
@@ -109,10 +125,11 @@ function run(){
     else if(st.op==='drag'){var pts=dragPoints(st,16),id2=touch.nextId(),a=toClient(st.x1,st.y1,W);rec.listeners=touch.emit('TouchStart',a.x,a.y,id2);var dt=st.ms/pts.length;
       p=pts.reduce(function(pr,pt){return pr.then(function(){return sleep(dt);}).then(function(){var q=toClient(pt[0],pt[1],W);touch.emit('TouchMove',q.x,q.y,id2);});},Promise.resolve()).then(function(){var b=toClient(st.x2,st.y2,W);touch.emit('TouchEnd',b.x,b.y,id2);});}
     else if(st.op==='wait')p=sleep(st.ms);
-    else if(st.op==='waitState'){var to=st.timeoutMs==null?30000:st.timeoutMs;p=new Promise(function(r){(function poll(){var names=stateNames(snapshot(true));if(names.indexOf(st.name)>=0){rec.matched=true;r();}else if(Date.now()-t0>=to){rec.matched=false;rec.lastNames=names;res.ok=false;r();}else setTimeout(poll,200);})();});}
+    else if(st.op==='waitState'){var to=st.timeoutMs==null?90000:st.timeoutMs;p=new Promise(function(r){(function poll(){var names=stateNames(snapshot(true));if(names.indexOf(st.name)>=0){rec.matched=true;r();}else if(Date.now()-t0>=to){rec.matched=false;rec.lastNames=names;res.ok=false;r();}else setTimeout(poll,200);})();});}
+    else if(st.op==='preTransition')p=preTransition(st,rec,res,W);
     else if(st.op==='screenshot')p=shot(st.name).then(function(f){rec.file=f;});
     return p.then(function(){rec.ms=Date.now()-t0;var s=writeState('after:'+st.op+(st.name?':'+st.name:''));rec.state=s&&s.state;res.steps.push(rec);console.info('[QF_AUTOPLAY] step '+JSON.stringify(rec));
-      if(st.op==='waitState'&&rec.matched===false&&st.stopOnFail!==false){res.stoppedAt=rec.i;return;}return next();});}
+      if((st.op==='waitState'&&rec.matched===false||st.op==='preTransition'&&rec.ready===false)&&st.stopOnFail!==false){res.stoppedAt=rec.i;return;}return next();});}
   return next().then(function(){clearInterval(stTimer);res.finishedAt=new Date().toISOString();res.shots=shotN;res.consoleErrors=consoleErrors;res.consoleErrorSamples=errorSamples;
     /* acceptance rule: DevTools Console Error count must be 0 */
     if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}writeState('final');w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},

@@ -23,9 +23,23 @@
     {"op":"waitState","name":"island","timeoutMs":30000,"stopOnFail":true},
     {"op":"screenshot","name":"island"} ] }
 ```
-- `waitState` 的名稱可用：世界狀態（`home`、`island`、`level`…，即 `__worldIntegration.snapshot().state`）、`region:<id>`、`phase:<x>`、`explore`（自由探索開啟）、`lakeside:<mark>`。逾時（預設 30 s）→ `result.json` 的 ok=false；`stopOnFail` 預設 true（停止後續步驟）。
+- `waitState` 的名稱可用：世界狀態（`home`、`island`、`level`…，即 `__worldIntegration.snapshot().state`）、`region:<id>`、`phase:<x>`、`explore`（自由探索開啟）、`lakeside:<mark>`。逾時（預設 90 s）→ `result.json` 的 ok=false；`stopOnFail` 預設 true（停止後續步驟）。
 - 觸控注入：腳本啟動前先包住 `wx.onTouchStart/Move/End/Cancel`，記下引擎、轉接層以及 `IslandHomeInteraction` 的原始監聽器，再把合成的原始 wx 觸控事件送進**這些同一批監聽器**。所以會經過 Cocos 輸入→節點命中與吞觸控（如 `IslandLighthouseTouch`）→`ExploreInput`，和真手指同一路徑。不直接呼叫任何遊戲邏輯接口。tap＝Start→60 ms→End；drag＝每 16 ms 一個 Move。
 - 腳本上限：500 步、最多 20 張截圖（超過直接拒絕）。
+
+### `preTransition`（轉場前擺位，b18）
+```json
+{"op":"preTransition","key":"island-board","timeoutMs":90000,"tap":true,"recordMs":20000}
+```
+- 別名 `preT`。不需要啟動參數（DevTools `cli open` 不套用 project.config 的編譯條件／啟動參數）：會先設 `globalThis.__qfHooksEnable=true` 並呼叫 `__qfPreTransition('enable')`，再呼叫 `__qfPreTransition(key)` 只做擺位。
+- 需要遊戲包含 `ggbot/pre-transition-hooks-fix`（或之後的整合包）；正式版 `envVersion==='release'` 下遊戲不註冊這個入口，enable 也會被拒絕。
+- `tap:true`：擺位成功後，用一般合成觸控點回傳的 `tap.point`（被測轉場走真實輸入路徑）；`point` 為 null 時判失敗。`recordMs`：之後再等多久（錄影/取樣）。不加 `tap` 就只擺位，後面自己用 `tap` 步驟點。
+- `timeoutMs` 預設 **90 s**（DevTools 從屋內到小島約 31.8 s）；湖畔 `lake-*` key 擺位要經過帆船＋兩段熱氣球，建議 `300000`。失敗（ok=false）時 `stopOnFail` 預設停止。
+- `waitState` 的預設逾時也改成 90 s。
+
+已校準的點擊座標（DevTools 390×844）：小島路牌 175,458；進關 282,575；繼續 195,497；規則彈窗 195,554；暫停 38,67；離開棋盤 195,560。
+
+- 範例：`examples/example-pretransition.json`（island-board）、`examples/example-pretransition-lakeside.json`（skycity-lakeside：擺位後點「繼續旅程」看完熱氣球→湖畔棋盤；lakeside-exit：擺位後點暫停 38,67→離開棋盤 195,560→湖畔自由探索）。
 
 ## 3. 範例
 - `tools/wx-autoplay/examples/example-island.json`：回到家→出門→進棋盤→離開棋盤→左右拖、上下拖視角→點草地→點水面。

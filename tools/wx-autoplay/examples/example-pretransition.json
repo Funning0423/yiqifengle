@@ -1,0 +1,3 @@
+{"stateEveryMs":2000,"steps":[
+ {"op":"preTransition","key":"island-board","timeoutMs":90000,"tap":true,"recordMs":20000},
+ {"op":"screenshot","name":"after-island-board"}]}
