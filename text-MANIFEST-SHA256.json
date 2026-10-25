@@ -2521,8 +2521,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 14031,
-    "sha256": "971e926e59a452c552a289a1b38e9b9350f62d698599259053692f96386d167a"
+    "bytes": 20912,
+    "sha256": "dd098750a77beab9b1170cc8727075d8c81f53f8bf110cc6ff7a3ed6061e1779"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2891,8 +2891,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
-    "bytes": 1481,
-    "sha256": "85ae52c55c48c903502f632a5e5597f1a4fda2671fbc0e1ca50e0a13d8f152e8"
+    "bytes": 1551,
+    "sha256": "512658df46b1e99fce9d9ef0bf5dd72fe0de01a6c27cbdaa22b27080c5e95f75"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts.meta",
@@ -3022,7 +3022,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6632,
-    "sha256": "ba85d256c2c99509179e04ba01e228a7b4b82ba856228f88a603b949221a5a5a"
+    "sha256": "d147eab33aa74d550131c243a625d682b916026fd49679c6bc771ff4357fc2e2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3052,7 +3052,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
     "bytes": 183349,
-    "sha256": "6ea32cb85ef97cb6e878e36328a13466eded874b85838134769ca7ab3252aa6c"
+    "sha256": "efb0cbf7fa80f4985bbf699af90763425c93d409c83c76c5653c3aac89e9e3e1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
@@ -3191,8 +3191,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeContinuous.ts",
-    "bytes": 4511,
-    "sha256": "5f8f1c6330fa8eed163b46b7c0b971ac4e760fd477e21e207275edd460f90801"
+    "bytes": 5625,
+    "sha256": "d3ed9be87708d731205f051f9fbf6fc62660ff7e3179d37406be51b7ba7d36c3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakeContinuous.ts.meta",
@@ -3351,8 +3351,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts",
-    "bytes": 13003,
-    "sha256": "b16702ce27aa46479e1071ed0aa74aff1273ad62ce03e90eecb53038de7bd71c"
+    "bytes": 13007,
+    "sha256": "802862bd35888825a4ba6ab199b66c55ee0a89918c02aa916d5c60f389d73fd4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts.meta",
@@ -3381,8 +3381,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts",
-    "bytes": 9657,
-    "sha256": "9fe7974c81c1767783fd2236a0f282baa6b35773effe79ddb5629adb14abef3f"
+    "bytes": 9714,
+    "sha256": "19c8ea53711943b666f790359776a96033da4ac4c32db7230d9275b2caceaf47"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts.meta",
@@ -3401,8 +3401,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 40560,
-    "sha256": "1f6546949914cc230f99ef5e98690c2553dc60277afb26757964981b4298b83b"
+    "bytes": 41772,
+    "sha256": "fa2d80aa9585e2502143821bbe5cb77ad4f1db2af067ba01e6e9b5fd312d4eac"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
@@ -4691,8 +4691,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 20879,
-    "sha256": "0f6cc6fefdfae4a54042eb156f26e3e7fdc000b084f4006d4ceff4e5541d3da3"
+    "bytes": 21056,
+    "sha256": "0a92968ea9dd9ea2fa71d7ab18237406686d2112e9fd811801e1736d964ac201"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
