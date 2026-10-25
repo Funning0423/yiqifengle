@@ -34,3 +34,7 @@ export const REGION_BOARD_LIGHT_FADE_S=0.6;
 export function easeRegionBoardLight(current:number,target:number,dt:number):number{
  if(!Number.isFinite(current))return target;const step=Math.max(0,Math.min(dt,.1))/REGION_BOARD_LIGHT_FADE_S;
  return current<target?Math.min(target,current+step):Math.max(target,current-step);}
+/** b16 复核3 ②：显示期间日夜切换的平滑曲线（smoothstep，最大斜率 1.5 → 任意 100 ms ≤ 25%），终点跟随实时目标。 */
+export function smoothRegionBoardLight(from:number,to:number,p:number):number{const t=Math.max(0,Math.min(1,p));return from+(to-from)*t*t*(3-2*t);}
+/** Director.EVENT_AFTER_UPDATE 的值（cc 3.8），每帧一次。 */
+export const REGION_BOARD_TICK_EVENT='director_after_update';

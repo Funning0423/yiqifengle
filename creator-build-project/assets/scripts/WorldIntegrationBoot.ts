@@ -656,7 +656,9 @@ export class WorldIntegrationBoot extends Component {
  /** b16 复核2 ④：木牌模式下根节点和所有子节点按根节点实际尺寸重排（原来只改根 UITransform，子节点仍是 250 宽）。
   * __qfSkin='sign'，离开木牌模式时 placeNavigationControl 发现皮肤变了会按按钮尺寸整套重建。 */
  private layoutSignControl(m:Node,w:number,h:number){(m as any).__qfSkin='sign';const L=signChildLayout(w,h);m.getComponent(UITransform)!.setContentSize(L.surface.width,L.surface.height);m.getComponent(WarmButton)?.configure(L.surface.width,L.surface.height);
-  for(const label of m.getComponentsInChildren(Label))if(label.node.name==='VisibleLabel'){label.node.getComponent(UITransform)!.setContentSize(L.label.width,L.label.height);label.node.parent!.getComponent(UITransform)!.setContentSize(L.label.width,L.label.height);}}
+  for(const label of m.getComponentsInChildren(Label))if(label.node.name==='VisibleLabel'){label.node.getComponent(UITransform)!.setContentSize(L.label.width,L.label.height);label.node.parent!.getComponent(UITransform)!.setContentSize(L.label.width,L.label.height);}
+  // b16 复核3 ④：兜底——任何子节点都不比根节点宽/高（世界包围盒 = 根 ∪ 子节点，子节点超宽会把点击包围盒撑出屏幕）
+  for(const t of m.getComponentsInChildren(UITransform))if(t.node!==m&&(t.width>L.surface.width||t.height>L.surface.height))t.setContentSize(Math.min(t.width,L.surface.width),Math.min(t.height,L.surface.height));}
  private paintNavigation(dt=0){this.status.node.parent!.active=false; // status bar removed (Funning final): never on screen once ready, any early return included
  let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}
  this.syncHomeSeated(s.state,!!s.hidden||!!s.needsResume);

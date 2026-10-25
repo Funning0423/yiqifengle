@@ -43,8 +43,8 @@ ok('runtime ② sky-city night: ambient x0.3 and main light x0.6 with the key li
  let w=0,frames=0,maxStep=0;while(w<1&&frames<1000){const nw=M.easeRegionBoardLight(w,1,1/60);maxStep=Math.max(maxStep,nw-w);w=nw;frames++;}
  assert(frames>=30&&frames<=40,'day->night takes ~0.6 s at 60 fps, got '+frames+' frames');assert(maxStep<=1/36+1e-9,'per-frame step '+maxStep);
  assert.equal(M.easeRegionBoardLight(.5,0,5),.5-.1/.6,'dt clamped to 0.1 s');assert.equal(M.easeRegionBoardLight(NaN,1,0),1,'first frame snaps');
- const s=src('region/SkycityBoardLive.ts');assert(/lightW=shown\?easeRegionBoardLight\(lightW,skyNightBlend,dt\):skyNightBlend;/.test(s));assert(/regionBoardSceneLightScale\(lightW\)/.test(s));
- assert(/if\(!shown\)\{restoreScene\(\);return;\}/.test(s)&&/dispose:\(\)=>\{if\(!dead\)\{dead=true;offNight\(\);restoreScene\(\);\}/.test(s),'restored on hide and dispose');
+ const s=src('region/SkycityBoardLive.ts');assert(/if\(!shown\|\|snapNext\|\|!Number\.isFinite\(lightW\)\)\{lightW=skyNightBlend;/.test(s)&&/lightW=smoothRegionBoardLight\(fade\.from,skyNightBlend,fade\.p\)/.test(s));assert(/regionBoardSceneLightScale\(lightW\)/.test(s));
+ assert(/if\(!shown\)\{restoreScene\(\);return;\}/.test(s)&&/dispose:\(\)=>\{if\(!dead\)\{dead=true;offNight\(\);(?:director\.off\(REGION_BOARD_TICK_EVENT,tick\);)?restoreScene\(\);\}/.test(s),'restored on hide and dispose');
  assert(/scene\.amb\.skyIllum!==scene\.ambWritten\)scene\.ambBase=scene\.amb\.skyIllum/.test(s)&&/scene\.main\.illuminance!==scene\.mainWritten\)scene\.mainBase=scene\.main\.illuminance/.test(s),'re-bases when the world rewrites the light');
  assert(!/clearCameras|SkycityCloudsea/.test(s),'does not touch the city cameras baa28c06 clears');});
 ok('runtime ③ island fallback 继续旅程 uses the 主页 WarmButton look (no journey primary leaf skin); region rows keep the journey skin',()=>{const s=src('WorldIntegrationBoot.ts');
@@ -87,5 +87,16 @@ ok('复核2 ② sky-city night board entry: clear colour + key/ambient/main ligh
   if(fps>=10)assert(t>=0.55&&t<=0.75,'fade ~0.6 s, got '+t.toFixed(2)+' @'+fps);}
  const s=fs.readFileSync(path.join(SRC,'region/SkycityBoardLive.ts'),'utf8');
  assert(/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,lightW,/.test(s),'clear colour follows lightW');assert(!/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend/.test(s),'no instant clear write');
- assert(/if\(v&&!shown\)\{lightW=0;lastT=0;\}/.test(s)&&!/if\(v\)lightW=skyNightBlend/.test(s),'show starts the fade instead of snapping');});
+ assert(/if\(v&&!shown\)\{snapNext=true;lastT=0;\}/.test(s)&&!/lightW=0;/.test(s),'复核3: show snaps to the current target (night entry = night first frame)');});
+ok('复核3 ② on-board day/night toggle: smoothstep over 0.6 s by real dt, any 100 ms <= 30% of the drop, ends exactly on the night target; ticked every frame by the director',()=>{const M=load(['region/RegionBoardNight']).RegionBoardNight;
+ const day=[156,202,223],lum=w=>{const c=M.regionBoardClear(day,w),s=M.regionBoardSceneLightScale(w),k=M.regionBoardKeyLight([255,243,218],12,w);return (0.2126*c[0]+0.7152*c[1]+0.0722*c[2])*0.4+100*(s.ambient*0.4+s.main*0.3+k.luminance/12*0.3)*0.6;};
+ for(const fps of [120,60,30,10]){let p=0,t=0;const pts=[[0,lum(0)]];while(p<1){p=Math.min(1,p+Math.min(1/fps,.1)/M.REGION_BOARD_LIGHT_FADE_S);t+=1/fps;pts.push([t,lum(M.smoothRegionBoardLight(0,1,p))]);}
+  const total=pts[0][1]-pts[pts.length-1][1];assert(Math.abs(pts[pts.length-1][1]-lum(1))<1e-9,'ends on night value');
+  for(const [t0,l0] of pts){const after=pts.filter(q=>q[0]<=t0+0.1+1e-9).pop();assert((l0-after[1])/total<=0.3+1e-9,`drop ${(100*(l0-after[1])/total).toFixed(0)}% @${fps}fps`);}}
+ const s=fs.readFileSync(path.join(SRC,'region/SkycityBoardLive.ts'),'utf8');assert(/director\.on\(REGION_BOARD_TICK_EVENT,tick\)/.test(s)&&/director\.off\(REGION_BOARD_TICK_EVENT,tick\)/.test(s));assert.equal(M.REGION_BOARD_TICK_EVENT,'director_after_update');});
+ok('复核3 ④ sign tap root: WarmButtonFace follows configure() (was fixed at 240) and no child is wider than the root; root on screen, >= 44 pt, right >= 22 pt on 7 sizes',()=>{const M=load(['world-r1/CameraPose','world-r1/RegionCameraData','world-r2/IslandPropsLayout']),L=M.IslandPropsLayout,pose=M.CameraPose.fromLookAt(M.RegionCameraData.islandPoseEntry());
+ for(const [w,h] of [[320,568],[360,780],[375,667],[390,844],[402,874],[414,896],[430,932]]){const r=L.signpostHitUi(pose,w,h);assert(r.width<240,'root not fixed 240 @'+w);
+  assert(r.x-r.width/2>=-w/2&&r.x+r.width/2<=w/2-L.SIGN_HIT_EDGE_PT+1e-6&&r.y-r.height/2>=-h/2&&r.y+r.height/2<=h/2,'root on screen @'+w);assert(r.width>=44&&r.height>=44);}
+ const wb=src('WarmButton.ts');assert(/else this\.face\.getComponent\(UITransform\)\?\.setContentSize\(width,height\);/.test(wb),'face resized on every configure');
+ const b=src('WorldIntegrationBoot.ts');assert(/for\(const t of m\.getComponentsInChildren\(UITransform\)\)if\(t\.node!==m&&\(t\.width>L\.surface\.width\|\|t\.height>L\.surface\.height\)\)/.test(b),'children clamped to root');});
 console.log(n+' checks passed');

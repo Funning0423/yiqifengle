@@ -49,7 +49,7 @@ run('wiring: meadow board grades like the journey, mounts a night dome only at n
  assert.match(f,/if\(night&&!nightSky\)nightSky=mountMeadowBoardNightSky\(model\);/,'night picture loads only once night is on');
  assert.match(f,/offNight=onDayNightChange\(syncNight\);/);assert.match(f,/disposed=true;offCancel\(\);offNight\(\);/);
  assert.doesNotMatch(md.slice(md.indexOf('export function mountMeadowBoardNightSky'),md.indexOf('export const createMeadowBoardBackground')),/__qfNightOnly/,'board dome stays its day sky');
- assert.match(sk,/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,(?:skyNightBlend|lightW)/);assert.match(sk,/offNight=onDayNightChange\(syncNight\);/);assert.match(sk,/dead=true;offNight\(\);(?:restoreScene\(\);)?\}lease\.dispose\(\);/);
+ assert.match(sk,/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,(?:skyNightBlend|lightW)/);assert.match(sk,/offNight=onDayNightChange\(syncNight\);/);assert.match(sk,/dead=true;offNight\(\);(?:director\.off\(REGION_BOARD_TICK_EVENT,tick\);)?(?:restoreScene\(\);)?\}lease\.dispose\(\);/);
  assert.doesNotMatch(fs.readFileSync(S+'region/SkycityBoardBackground.ts','utf8'),/RegionBoardNight|onDayNightChange/,'Build05 sky-city lease untouched (sha-pinned by test-journey-occlusion)');});
 (async()=>{
  // behaviour of the sky-city wrapper on a fake Build05 lease (same rig/camera names and clear colour)
@@ -64,5 +64,16 @@ run('wiring: meadow board grades like the journey, mounts a night dome only at n
  globalThis.__worldDayNight={snapshot:()=>({mode:'day'})};D.emitDayNightChange('day');assert.deepEqual(rgb(),[0x9c,0xca,0xdf],'toggle to day: the Build05 day sky');
  globalThis.__worldDayNight={snapshot:()=>({mode:'night'})};D.emitDayNightChange('night');assert.deepEqual(rgb(),[0,12,68],'toggle back to night');
  lease.dispose();assert.equal(disposed,1);globalThis.__worldDayNight={snapshot:()=>({mode:'day'})};D.emitDayNightChange('day');assert.deepEqual(rgb(),[0,12,68],'listener freed on dispose');
+ // 复核3 ②：night entry shows night on the first visible frame; on-board toggles are ticked per frame by the director and end on the night value
+ {const ticks=[];const dOn=H2.cc.director.on,dOff=H2.cc.director.off;H2.cc.director.on=(e,f)=>{if(e==='director_after_update')ticks.push(f);};H2.cc.director.off=(e,f)=>{const i=ticks.indexOf(f);if(i>=0)ticks.splice(i,1);};
+  const realNow=Date.now;let now=50000;Date.now=()=>now;
+  try{const host2=new H2.cc.Node('host2');H2.cc._scene.addChild(host2);globalThis.__worldDayNight={snapshot:()=>({mode:'night'})};const l2=await L.createSkycityBoardBackground({parent:host2,token:{check(){},onCancel:()=>()=>{}}});assert.equal(ticks.length,1,'per-frame tick registered');
+   l2.setVisible(false);l2.setVisible(true);assert.equal(l2.diagnostics().lightW,1,'first visible frame at night = night weight');assert.deepEqual(rgb(),[0,12,68],'first visible frame: night sky');
+   globalThis.__worldDayNight={snapshot:()=>({mode:'day'})};D.emitDayNightChange('day');const ws=[l2.diagnostics().lightW];
+   for(let i=0;i<60;i++){now+=1000/60;ticks[0]();ws.push(l2.diagnostics().lightW);}
+   assert(ws[0]>0.99,'no jump on the toggle frame');for(let i=0;i+6<ws.length;i++)assert(ws[i]-ws[i+6]<=0.3+1e-9,'<=30% per 100 ms');assert.equal(ws[ws.length-1],0,'day reached by ticks alone');
+   globalThis.__worldDayNight={snapshot:()=>({mode:'night'})};D.emitDayNightChange('night');for(let i=0;i<45;i++){now+=1000/60;ticks[0]();}assert.equal(l2.diagnostics().lightW,1,'ends on the night value');assert.deepEqual(rgb(),[0,12,68]);
+   l2.dispose();assert.equal(ticks.length,0,'tick freed on dispose');}
+  finally{Date.now=realNow;H2.cc.director.on=dOn;H2.cc.director.off=dOff;}}
  delete globalThis.__worldDayNight;console.log('PASS sky city wrapper: board sky follows the day/night mode and its toggles; listener freed on dispose');
 })().catch(e=>{console.error(e);process.exitCode=1;});
