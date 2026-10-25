@@ -35,3 +35,4 @@
 - [x] suite 复跑（最终状态）：166/169，没过的 3 项就是已知的 BLOCKED（Node≥22.6 两项、浏览器一项）；报告已还原，没有提交
 
 - b17 skycity-walk-r5：用 p0drag9 的 trace 真机射线在本地复现了 Mac 结果。问题是低矮花坛体素按厚度截停，以及点到树冠叶片时会走开。现在低矮物体可以穿透，点到树冠原地不动。测试 `skycity-walk-r5 Mac rays`。
+- b17 skycity-walk-r6：点到墙面时她停在墙靠自己这一侧，点得高于墙面时原地不动。用 p0drag10 真机镜头写了测试 `skycity-walk-r6 Mac p0drag10 rays`。

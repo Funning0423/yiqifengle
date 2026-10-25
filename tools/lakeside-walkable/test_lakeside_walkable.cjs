@@ -235,5 +235,19 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
  const go=k=>{const [o,d,her]=T[k],h=RW.walkRayHit(r,o,d,160,.05,her);assert.equal(h.kind,'walk',k);const p=RW.walkTapPath(r,RW.nearestWalkable(r,her,1.6).at,h.at);return {e:p[p.length-1],len:RW.walkPathLengthM(p)};};
  const out=e=>!(e[0]>12.05&&e[2]>6.75&&e[2]<10.25);
  for(const k of ['Plat','E3b','Roof']){const {e,len}=go(k);assert.ok(e[0]>11.5&&out(e),k+' passes the low planter and stops outside the pocket '+e+' '+len);}
- const L=go('leaf');assert.ok(L.len<0.3,'canopy leaf tap: she stays '+L.len);
+ // r6: p0drag10 showed this 'leaf' pixel really meets the house wall at x=15 (≈2.7 m up), not a crown: she walks to its near side.
+ const L=go('leaf');assert.ok(Math.hypot(L.e[0]-13,L.e[2]-6.6)<0.35,'leaf pixel = house wall: near side '+L.e);
  console.log('skycity-walk-r5 Mac rays ok');}
+
+// b17 skycity-walk-r6 (GGbot): Mac p0drag10 (477575f1, r5 passed) taps with its real lens (trace: arm 7.01 m flat, +3.445 m, pitch -17.4,
+// yaw = __qfAimAt orbit yaw; reproduces every tapeval pixel ≤ 2 px), T1/T2 crowns aimed from S3 and NE1, and the x=15 wall tapped from NE1
+// (r5: the ray crossed the one-voxel wall above 2.5 m and flew on to (-10.6,31), 53.4 m).
+{const r='skycity',T={"Plat":[[-0.7958,3.4363,8.7154],[0.9955,-0.1602,-0.0733],[6.2,-0.01,8.2]],"E3":[[-0.7758,3.4363,8.9384],[0.9785,-0.2055,-0.1036],[6.2,-0.01,8.2]],"E6":[[-0.7958,3.4363,8.7154],[0.9955,-0.1602,-0.0733],[6.2,-0.01,8.2]],"Roof":[[-0.7506,3.4363,7.2536],[0.9643,-0.2397,0.1313],[6.2,-0.01,8.2]],"Pock":[[-0.8075,3.4363,7.8806],[0.9697,-0.2478,0.0442],[6.2,-0.01,8.2]],"NE1":[[0.2723,3.4363,11.9508],[0.863,-0.0866,-0.546],[6.2,-0.01,8.2]],"NE2":[[24.6959,4.6663,-11.631],[0.365,-0.1209,0.9422],[27.23,1.22,-5.09]],"hW6":[[-0.6572,3.4363,6.7215],[0.9313,-0.3052,0.2008],[6.2,-0.01,8.2]],"T1":[[6.0221,3.4363,15.2125],[0.0268,0.0325,-1.0582],[6.2,-0.01,8.2]],"T2":[[5.4874,3.4363,15.1784],[0.1076,0.0349,-1.0538],[6.2,-0.01,8.2]],"T1@NE":[[32.7509,3.4863,-1.6277],[-0.9282,0.0323,-0.5089],[26.6,0.04,-5]],"T2@NE":[[32.673,3.4863,-1.4892],[-0.9176,0.0367,-0.5305],[26.6,0.04,-5]],"墙@NE":[[31.6431,3.4863,-9.8758],[-0.7459,-0.0345,0.7212],[26.6,0.04,-5]],"墙@S3":[[-0.6625,3.4363,9.6535],[1.0111,-0.0474,-0.2142],[6.2,-0.01,8.2]]};
+ const go=k=>{const [o,d,her]=T[k],h=RW.walkRayHit(r,o,d,160,.05,her);assert.equal(h.kind,'walk',k);const p=RW.walkTapPath(r,RW.nearestWalkable(r,her,1.6).at,h.at);return {e:p[p.length-1],len:RW.walkPathLengthM(p)};};
+ const E={"Plat":[13,6.6],"E3":[13,6.6],"E6":[13,6.6],"Roof":[11.8,9.4],"Pock":[11.8,8.2],"NE1":[27.22,-5.1],"NE2":[24.6,-11.8],"hW6":[8.6,8.6]};
+ for(const k in E){const {e}=go(k);assert.ok(Math.hypot(e[0]-E[k][0],e[2]-E[k][1])<0.35,'Mac p0drag10 '+k+' ends '+e);}
+ assert.ok(Math.abs(go('NE1').len-37.26)<0.5,'NE1 ramp route');
+ for(const k of ['T1','T2','T1@NE','T2@NE'])assert.ok(go(k).len<0.3,k+' crown: she stays');
+ const w=go('墙@NE');assert.ok(w.e[0]>15&&w.len<20,'wall from NE1: her side, not across the map '+w.e+' '+w.len);
+ const w2=go('墙@S3');assert.ok(w2.e[0]<15&&w2.len<10,'wall from S3: west side '+w2.e);
+ console.log('skycity-walk-r6 Mac p0drag10 rays ok');}

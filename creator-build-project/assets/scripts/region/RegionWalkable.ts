@@ -67,8 +67,10 @@ function obstacles(region:WalkRegion):ObsField|null{
  if(D.obsCells!==undefined&&k!==D.obsCells)throw Error('obstacle-decode '+region+' '+k+'/'+D.obsCells);
  const o={slab:D.obsSlab,lo,off,cnt,mask:dh};obsCache[region]=o;return o;
 }
-const OBS_THICK_M=.6,OBS_HEAD_M=2.5,OBS_LOW_M=1.8;
+const OBS_THICK_M=.6,OBS_HEAD_M=2.5,OBS_LOW_M=1.8,WALL_CLEAR_M=1.5,WALL_TAP_M=3;
 /** Top (m) of the contiguous occupied slabs in cell ci that hold height y: the object the ray is in, not the canopy above it. */
+/** Bottom (m) of the contiguous occupied slabs in cell ci that hold height y. */
+function runBot(o:ObsField,ci:number,y:number):number{let k=Math.floor(y/o.slab);while(solidAt(o,ci,(k-.5)*o.slab))k--;return k*o.slab;}
 function runTop(o:ObsField,ci:number,y:number):number{let k=Math.floor(y/o.slab);while(solidAt(o,ci,(k+1.5)*o.slab))k++;return (k+1)*o.slab;}
 /** Scene geometry above (x,z,y) within 4 m in this cell: the ray is under a roof / the ground it just went through. */
 function roofed(o:ObsField,ci:number,y:number):boolean{for(let k=1;k*o.slab<=4;k++)if(solidAt(o,ci,y+k*o.slab))return true;return false;}
@@ -127,6 +129,14 @@ export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05,fr
    // a lamp it grazes) she walks to the floor in front of where it entered. A camera that starts inside a voxel is not a hit.
    // canopy / eaves > 2.5 m over the nearby floor do not block a tap on the floor under them (they only answer when nothing else does)
    if(inS&&!startIn){if(!obsHit)obsHit=[x,y,z];const ref=f!==null?f:floorNear(region,x,z,2);
+    // r6: a ground-rooted run that rises past head height (wall, house, trunk), crossed ≤ 3 m up (the wall face) walks her to its near
+    // side; crossed higher (eaves, roofline, a crown in front of it) she stays. Either way the ray stops right here, however thin it is and
+    // whatever height the ray crosses it at; before, a one-voxel wall crossed above 2.5 m let the ray fly on to far geometry.
+    // Only past her and ≥ 1.5 m away in plan: the lens rides behind / over her and fades what is between it and her (Mac NE1),
+    // and the 0.4 m voxels round the pillars by her would otherwise eat rays that only graze them.
+    if(ref!==null&&(!from||((x-from[0])*u[0]+(z-from[2])*u[2]>0&&Math.hypot(x-from[0],z-from[2])>=WALL_CLEAR_M))&&runBot(ob,ci,y)<=ref+.5&&runTop(ob,ci,y)>=ref+OBS_HEAD_M){
+     if(y<=ref+WALL_TAP_M){const at=tapSnap(region,[x,y,z],u,from);if(at)return {kind:'walk',at};}
+     else if(from){const st=nearestWalkable(region,from,1.6);if(st)return {kind:'walk',at:st.at};}} // above the wall face (eaves, roofline): stay
     if(ref!==null&&y<=ref+OBS_HEAD_M){if(!countAt)countAt=[x,y,z];solidM+=stepM;}if(solidM>=OBS_THICK_M&&countAt){const at=tapSnap(region,countAt,u,from);if(at)return {kind:'walk',at};}}
    // went down THROUGH a surface (ground of a not-walkable cell, a fence or wall top): a hit, not a pass to the floor beyond / below
    if(inS&&!prevIn)runAt=[x,y,z];
