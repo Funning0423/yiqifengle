@@ -33,6 +33,6 @@ for(const [w,h] of SCREENS)for(const [name,from] of Object.entries(starts)){
  const n=writes.length,r10=await RB.regionBoardHandoff({region:'skycity',stageId:'mainline-10',deps});ok(r10.result==='near'&&writes.length===n,`${w}x${h} L10 ${r10.result}`);
  rows.push({screen:`${w}x${h}`,start:name,gapM:+RB.poseGap(from,to).positionM.toFixed(2),gapDeg:+RB.poseGap(from,to).viewDeg.toFixed(1),seconds:+(writes.length/60).toFixed(2),yawMaxDegS:+yMax.toFixed(1),yawAccP99:+p99.toFixed(0),stepM:+step.toFixed(3),clearM:+minC.toFixed(2),hook:hook.result,L10:r10.result});}
 const co=fs.readFileSync(S+'world-r2/WorldNativeComposition.ts','utf8').replace(/\s+/g,' ');
-ok(/if\(region==='skycity'&&requiresSkycityScene\(selection\)\)\{const deps=this\.regionLandingDeps\(region\);if\(deps\)await regionBoardHandoff\(/.test(co)&&co.indexOf('regionBoardHandoff({')<co.indexOf('regionLandingToBoard({region'),'wiring');
+ok(/if\(region==='skycity'\)\{const deps=this\.regionLandingDeps\(region\);if\(deps&&requiresSkycityScene\(selection\)\)await regionBoardHandoff\(/.test(co)&&co.indexOf('regionBoardHandoff({')<co.indexOf('regionLandingToBoard({region'),'wiring');
 console.table(rows);const out={status:fail?'FAIL':'PASS',rows};fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/board-handoff.json',JSON.stringify(out,null,1)+'\n');
 console.log(JSON.stringify({status:out.status}));process.exit(fail?1:0);})();
