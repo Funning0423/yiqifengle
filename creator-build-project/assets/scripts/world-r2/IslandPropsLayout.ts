@@ -246,22 +246,39 @@ export function rippleAt(t: number, k: number): { scale: number; alpha: number }
 }
 
 /** Signpost visual rect (projected AABB) in UI units for the current camera (null = not in front of the camera). */
-export function signpostRectUi(pose: CameraPose, width: number, height: number): Rect | null {
-  const S = ISLAND_PROPS.signpost;
-  return projectRectUi(pose, width, height, propCorners(S, S.boxMin, S.boxMax));
+export function signpostRectUi(pose: CameraPose, width: number, height: number, shiftX = 0): Rect | null {
+  const S = ISLAND_PROPS.signpost, P = shiftX ? { ...S, position: [S.position[0] + shiftX, S.position[1], S.position[2]] as V3 } : S;
+  return projectRectUi(pose, width, height, propCorners(P, S.boxMin, S.boxMax));
+}
+/** b16 真机复核 ④：木牌离屏幕右缘至少 SIGN_EDGE_PT（12pt）。SIGN_BOX_SLACK_PT = 真机木牌（灯、木纹外沿）比 boxMin/boxMax 投影宽出的量：
+ *  d58c1012 Mac web 实测 390/414/430 宽木牌离右缘约 3pt，同一机位此投影约 12.6–13.6pt，差约 10pt。 */
+export const SIGN_EDGE_PT = 12, SIGN_BOX_SLACK_PT = 10;
+/** World-x shift (metres, <= 0) that keeps the signpost's right edge >= SIGN_EDGE_PT + SIGN_BOX_SLACK_PT in from the screen
+ *  edge at this width; 0 when it already fits. Linear solve on the projected right edge, refined once (perspective). */
+export function signpostShiftX(pose: CameraPose, width: number, height: number): number {
+  const lim = width / 2 - SIGN_EDGE_PT - SIGN_BOX_SLACK_PT - 0.5 /* b16 复核2 ④: 0.5pt margin so the 22pt hit edge can still cover the sign */, right = (dx: number) => { const r = signpostRectUi(pose, width, height, dx); return r ? r.x + r.width / 2 : NaN; };
+  let dx = 0;
+  for (let i = 0; i < 3; i++) { const r0 = right(dx), over = r0 - lim; if (!Number.isFinite(over) || over <= 0.05) break; const k = r0 - right(dx - 1); if (!(k > 0)) break; dx -= over / k; }
+  return dx;
 }
 /** Minimum mainline (signpost) touch target, logical px. */
 export const SIGN_HIT_MIN = 88;
+/** Absolute floor for a clamped hit rect (44 pt). */
+export const SIGN_HIT_FLOOR = 44;
+/** b16 复核2 ④：点击区（及其子节点）右缘离屏幕右缘至少 22pt（原来夹在 12pt，390 实测 12.6pt）。 */
+export const SIGN_HIT_EDGE_PT = 22;
 /** Mainline hit rect: the visual rect grown to >= SIGN_HIT_MIN per axis. The growth is placed (centred first, then
  * shifted while still covering the whole sign) so it stays inside an 8 px safe inset and off the bottom-row prop hits. */
-export function signpostHitUi(pose: CameraPose, width: number, height: number): Rect | null {
-  const r = signpostRectUi(pose, width, height); if (!r) return null;
+export function signpostHitUi(pose: CameraPose, width: number, height: number, shiftX = signpostShiftX(pose, width, height)): Rect | null {
+  const r = signpostRectUi(pose, width, height, shiftX); if (!r) return null;
   const w = Math.max(SIGN_HIT_MIN, r.width), h = Math.max(SIGN_HIT_MIN, r.height), ex = (w - r.width) / 2, ey = (h - r.height) / 2;
   const slots = propButtonLayout(width, height).slots.map(s => s.hit), inset = 8;
-  const clear = (c: Rect) => c.x - c.width / 2 >= -width / 2 + inset && c.x + c.width / 2 <= width / 2 - inset && c.y - c.height / 2 >= -height / 2 + inset && c.y + c.height / 2 <= height / 2 - inset
+  const clear = (c: Rect) => c.x - c.width / 2 >= -width / 2 + inset && c.x + c.width / 2 <= width / 2 - SIGN_HIT_EDGE_PT && c.y - c.height / 2 >= -height / 2 + inset && c.y + c.height / 2 <= height / 2 - inset
     && slots.every(b => !(Math.abs(c.x - b.x) < (c.width + b.width) / 2 && Math.abs(c.y - b.y) < (c.height + b.height) / 2));
   for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) { const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h }; if (clear(c)) return c; }
-  return { x: r.x, y: r.y, width: w, height: h }; // nothing clear: keep centred (tests assert this never happens on supported frames)
+  // nothing clear: keep centred, but never past the screen edges (right >= SIGN_HIT_EDGE_PT, left >= inset) and never below 44 pt
+  const x0 = Math.max(-width / 2 + inset, r.x - w / 2), x1 = Math.min(width / 2 - SIGN_HIT_EDGE_PT, r.x + w / 2), cw = Math.max(SIGN_HIT_FLOOR, x1 - x0);
+  return { x: Math.min(width / 2 - SIGN_HIT_EDGE_PT - cw / 2, (x0 + x1) / 2), y: r.y, width: cw, height: h };
 }
 
 /** p0drag8: true when the whole hit rect lies inside the viewport (UI units, centre origin). An off-screen rect (explore orbit

@@ -19,6 +19,7 @@ export class WarmButton extends Component {
   configure(width:number,height:number,ivory=false){
     this.width=width;this.height=height;this.ivory=ivory;
     if(!this.face){this.face=new Node('WarmButtonFace');this.face.layer=this.node.layer;this.node.addChild(this.face);this.face.addComponent(UITransform).setContentSize(width,height);this.face.addComponent(Graphics);}
+    else this.face.getComponent(UITransform)?.setContentSize(width,height); // b16 复核3 ④：重配尺寸时底板跟着变（原来只在创建时设 240，木牌模式下点击包围盒仍 240 宽、越出屏幕）
     const g=this.face.getComponent(Graphics)!;g.clear();
     this.paintBase();
     if(!this.skin)this.skin=new WarmButtonSkin(this.node);

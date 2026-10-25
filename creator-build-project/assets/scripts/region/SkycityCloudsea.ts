@@ -63,7 +63,7 @@ export class SkycityCloudsea extends Component{
     this.clearCameras(scene,156,202,223);
   }
   private clearCameras(scene:Node,r:number,g:number,b:number){
-    for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0){
+    for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0&&!(camera as any).__qfBoardClearOwner/* b16 复核4：棋盘相机的 clear 色由 SkycityBoardLive 渐变 */){
       if(!savedDayCameras.has(camera))savedDayCameras.set(camera,{flags:camera.clearFlags,color:new Color(camera.clearColor.r,camera.clearColor.g,camera.clearColor.b,camera.clearColor.a)});
       const c=camera.clearColor;if(camera.clearFlags===Camera.ClearFlag.SOLID_COLOR&&c.r===r&&c.g===g&&c.b===b)continue;
       camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(r,g,b,255);

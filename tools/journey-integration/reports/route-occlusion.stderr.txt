@@ -12,10 +12,10 @@ balloon meadow→skycity 375x667 FAIL 14 clear 3 0 null
 balloon meadow→skycity 320x568 FAIL 14 clear 3 0 null
 balloon meadow→skycity 390x520 FAIL 14 clear 3 0 null
 balloon meadow→skycity 768x1024 FAIL 14 clear 3 0 null
-balloon skycity→lakeside 390x844 PASS 12 clear 1.246 4.7 skycity:env_sky_static_palette
-balloon skycity→lakeside 414x896 PASS 12 clear 1.246 4.7 skycity:env_sky_static_palette
-balloon skycity→lakeside 360x780 PASS 12 clear 1.246 4.7 skycity:env_sky_static_palette
-balloon skycity→lakeside 375x667 PASS 12 clear 1.246 4.7 skycity:env_sky_static_palette
-balloon skycity→lakeside 320x568 PASS 12 clear 1.246 4.7 skycity:env_sky_static_palette
-balloon skycity→lakeside 390x520 PASS 12 clear 1.246 4.7 skycity:env_sky_static_palette
-balloon skycity→lakeside 768x1024 PASS 12 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 390x844 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 414x896 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 360x780 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 375x667 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 320x568 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 390x520 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 768x1024 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette

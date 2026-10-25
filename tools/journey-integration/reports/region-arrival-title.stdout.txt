@@ -1,0 +1,14 @@
+PASS timeline §5: 0 s α0 +6 pt, ease-out cubic in to 0.4 s, hold to 1.6 s, ease-in quad out, done at 2.0 s
+PASS style switch §10: default B; A kept as backup; __qfConfig.regionTitleStyle overrides; B params = spec_params.json "B"
+PASS night §10.3: B has no light-blue glow (α 0 at any night weight), dark halo #141C34 α0.22, text #E8EEFF α0.9; A night keeps glow 0.38
+PASS names §2: L5 花粉草甸, L9 天空之城, L13 风铃湖畔 (+ r04-lake-*); island L1–4 none; chapter name 天空回声 untouched
+PASS 7 sizes §4/§8.5: ink block (incl. the 6 pt rise) centred on toast.y clears the info plate and the tray; ≥ 32 pt side margins
+PASS board L5: 花粉草甸 shows after presentForPlay on toast.y, above the Toast, 2.0 s, no input blocker; the flag is written at start
+PASS touches land during the title: a cell tap reaches the board at frame 0 (input clears the auto hint)
+PASS once per region §6: second entry into the same region (restart, reload) shows nothing; another region still does
+PASS queue §7: an item tip during the title waits and shows after it; a cancelled tool tip is dropped; auto-hint counts from the end
+PASS queue §7: 「关卡已调整，从头开始」 waits for the title, then shows (0.3/2/0.3) before queued tips
+PASS queue §7: a first-time tool intro (e.g. 星光) opens only after the title
+PASS transitions §1: no place-name sign or 「回到小岛」 anywhere in a transition; the vehicle stays
+PASS assets: QFLRegionTitle.ttf (≤ 12 KB, same bytes as the design) + OFL text, each with a Creator .meta; new scripts have .meta
+{"status":"PASS","checks":13}

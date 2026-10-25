@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-25T07:33:14.531Z",
-  "sourceRoot": "/tmp/wt-pre2",
+  "timeUTC": "2026-10-25T13:52:27.860Z",
+  "sourceRoot": "/tmp/wt-cand5",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
     {

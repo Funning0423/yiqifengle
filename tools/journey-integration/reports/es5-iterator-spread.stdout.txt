@@ -1,0 +1,1 @@
+es5 iterator spread OK (218 TS files)

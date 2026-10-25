@@ -1,4 +1,7 @@
-PASS 17 pt default = the size the panel already used (28 design px); old line unchanged without a hint
-PASS every lake failHint fits at 17 pt on one line, shown as is
-PASS too wide → shrinks in 0.5 pt steps, never below 15 pt, no ellipsis, no wrap
-lose-caption-fit 3 PASS
+PASS 16 pt default, min 15, step 0.5; px-per-pt conversion is gone
+PASS no failHint → old line, unchanged text, one line
+PASS every lake failHint: rendered once, 15–16 pt, one line, fits inner at 320 and 390
+  320 inner-4 = 276 pt 16
+PASS 14 字 at 320 stays one line within inner
+PASS too wide → 0.5 pt steps, floor 15 pt, no ellipsis, no wrap
+lose-caption-fit 5 PASS

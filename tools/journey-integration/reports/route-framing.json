@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-25T07:21:24.393Z",
+ "timeUTC": "2026-10-25T13:55:21.285Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -421,8 +421,8 @@
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x844",
-   "frames": 1038,
-   "herNotModelledFrames": 236,
+   "frames": 949,
+   "herNotModelledFrames": 75,
    "F1": "PASS",
    "F2": "PASS",
    "F3": "PASS",
@@ -433,25 +433,25 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 67.6,
-    "atS": 30.3
+    "maxRightEdgePctOfWidth": 79.1,
+    "atS": 31.6
    },
    "ui": {
-    "minGapPt": 43.2,
-    "atS": 7.83,
-    "phase": "walk-to-basket",
+    "minGapPt": 23.6,
+    "atS": 27.23,
+    "phase": "door→board blend",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.357,
-   "minHeightFrac": 0.0711
+   "maxWidthFrac": 0.286,
+   "minHeightFrac": 0.0732
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "414x896",
-   "frames": 1038,
-   "herNotModelledFrames": 236,
+   "frames": 949,
+   "herNotModelledFrames": 75,
    "F1": "PASS",
    "F2": "PASS",
    "F3": "PASS",
@@ -462,25 +462,25 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 67.6,
-    "atS": 30.3
+    "maxRightEdgePctOfWidth": 79.1,
+    "atS": 31.6
    },
    "ui": {
-    "minGapPt": 47.9,
-    "atS": 7.83,
-    "phase": "walk-to-basket",
+    "minGapPt": 25.1,
+    "atS": 27.23,
+    "phase": "door→board blend",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.357,
-   "minHeightFrac": 0.0711
+   "maxWidthFrac": 0.286,
+   "minHeightFrac": 0.0732
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "360x780",
-   "frames": 1038,
-   "herNotModelledFrames": 236,
+   "frames": 949,
+   "herNotModelledFrames": 75,
    "F1": "PASS",
    "F2": "PASS",
    "F3": "PASS",
@@ -491,25 +491,25 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 67.6,
-    "atS": 30.3
+    "maxRightEdgePctOfWidth": 79.1,
+    "atS": 31.6
    },
    "ui": {
-    "minGapPt": 37.3,
-    "atS": 7.83,
-    "phase": "walk-to-basket",
+    "minGapPt": 21.6,
+    "atS": 27.23,
+    "phase": "door→board blend",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.357,
-   "minHeightFrac": 0.0711
+   "maxWidthFrac": 0.286,
+   "minHeightFrac": 0.0732
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "375x667",
-   "frames": 1038,
-   "herNotModelledFrames": 236,
+   "frames": 949,
+   "herNotModelledFrames": 75,
    "F1": "PASS",
    "F2": "PASS",
    "F3": "PASS",
@@ -520,25 +520,25 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 67,
-    "atS": 30.3
+    "maxRightEdgePctOfWidth": 78.9,
+    "atS": 31.6
    },
    "ui": {
-    "minGapPt": 27,
-    "atS": 7.83,
-    "phase": "walk-to-basket",
+    "minGapPt": 24.3,
+    "atS": 31.6,
+    "phase": "door→board blend",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.351,
-   "minHeightFrac": 0.0711
+   "maxWidthFrac": 0.235,
+   "minHeightFrac": 0.0729
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "320x568",
-   "frames": 1038,
-   "herNotModelledFrames": 236,
+   "frames": 949,
+   "herNotModelledFrames": 75,
    "F1": "PASS",
    "F2": "PASS",
    "F3": "PASS",
@@ -549,25 +549,25 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 64.4,
-    "atS": 30.3
+    "maxRightEdgePctOfWidth": 78.8,
+    "atS": 31.6
    },
    "ui": {
-    "minGapPt": 17.9,
-    "atS": 7.83,
-    "phase": "walk-to-basket",
+    "minGapPt": 15.6,
+    "atS": 31.6,
+    "phase": "door→board blend",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.293,
-   "minHeightFrac": 0.0711
+   "maxWidthFrac": 0.235,
+   "minHeightFrac": 0.0729
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "390x520",
-   "frames": 1038,
-   "herNotModelledFrames": 236,
+   "frames": 949,
+   "herNotModelledFrames": 75,
    "F1": "PASS",
    "F2": "PASS",
    "F3": "PASS",
@@ -578,25 +578,25 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 62.4,
-    "atS": 30.3
+    "maxRightEdgePctOfWidth": 72.2,
+    "atS": 31.6
    },
    "ui": {
-    "minGapPt": 13.6,
-    "atS": 7.83,
-    "phase": "walk-to-basket",
+    "minGapPt": 12.8,
+    "atS": 31.6,
+    "phase": "door→board blend",
     "overlapFrames": 0,
     "spans": [],
-    "framesUnder13pt": 0
+    "framesUnder13pt": 1
    },
-   "maxWidthFrac": 0.251,
-   "minHeightFrac": 0.0711
+   "maxWidthFrac": 0.176,
+   "minHeightFrac": 0.0732
   },
   {
    "leg": "balloon skycity→lakeside",
    "screen": "768x1024",
-   "frames": 1038,
-   "herNotModelledFrames": 236,
+   "frames": 949,
+   "herNotModelledFrames": 75,
    "F1": "PASS",
    "F2": "PASS",
    "F3": "PASS",
@@ -607,19 +607,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 62.8,
-    "atS": 30.3
+    "maxRightEdgePctOfWidth": 72.3,
+    "atS": 31.6
    },
    "ui": {
-    "minGapPt": 59.7,
-    "atS": 7.83,
-    "phase": "walk-to-basket",
+    "minGapPt": 50.7,
+    "atS": 31.6,
+    "phase": "door→board blend",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.263,
-   "minHeightFrac": 0.0711
+   "maxWidthFrac": 0.176,
+   "minHeightFrac": 0.0732
   }
  ]
 }

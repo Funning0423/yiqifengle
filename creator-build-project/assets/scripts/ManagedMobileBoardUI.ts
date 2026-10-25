@@ -5,7 +5,7 @@ import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/Lev
 import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
 import { MINIGAME } from 'cc/env';
-import { ruleGuideDy, RULE_GUIDE_MAX_LINES, boardLayout, boardSafeInsets, cellCenter, pickToolBar, qaForcedToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
+import { ruleGuideDy, RULE_GUIDE_MAX_LINES, wrapKinsoku, boardLayout, boardSafeInsets, cellCenter, pickToolBar, qaForcedToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
 import { PopupStack, popupScale, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
 import { openPause, openRestartConfirm, openResult, type ResultModel, type ResultReward } from './ui/BoardPanels';
@@ -978,7 +978,9 @@ export class ManagedMobileBoardUI extends Component {
     // b16-fix P2（build05 全流程测试 P2-3：L13 规则弹窗正文左侧被裁约 10px）：正文原来居中、宽 580，比木框内沿（680 宽、两侧木边）还宽，
     // 左右都压到木边下面。改为左对齐、文字盒宽 RULE_BODY_W=480，两侧各留 100（木边约 70 + 安全边距约 30，即屏幕上约 15pt），行数按每段 472 估算，避免 CLAMP 裁字。
     const RULE_BODY_W = 480;
-    const body = [guide.rule, guide.tool?.description].filter(Boolean).join('\n'), lines = Math.min(RULE_GUIDE_MAX_LINES, body.split('\n').reduce((n, ln) => n + Math.max(1, Math.ceil(measure(ln, 28) / (RULE_BODY_W - 8))), 0));
+    // b16 真机复核 ⑤：自己按 472 折行并做避头尾（行首不出现「）」等），Label 宽 480 不会再折一次。
+    const wrapped = wrapKinsoku([guide.rule, guide.tool?.description].filter(Boolean).join('\n'), RULE_BODY_W - 8, t => measure(t, 28)).slice(0, RULE_GUIDE_MAX_LINES),
+      body = wrapped.join('\n'), lines = wrapped.length;
     const ph = 104 + 48 + 40 + lines * 40 + 48 + 104 + 72, vw = this.layoutInfo?.width || 390, vh = this.layoutInfo?.height || 844, plateBottom = this.geo ? this.geo.plate.y + this.geo.plate.height / 2 : 0,
       p = this.popups.open({ name: 'RuleGuidePanel', height: ph, title: guide.title || '这一关的规则', dy: ruleGuideDy(vw, vh, ph, plateBottom, this.layoutInfo?.safe?.bottom ?? 34, popupScale(vw, vh)) });
     p.text(guide.phaseLabel + (guide.heldTurns ? ' · 固定 ' + guide.heldTurns + ' 次行动' : ''), 0, 128, 26, 'brown2', { bold: false, width: RULE_BODY_W });

@@ -1961,8 +1961,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 101863,
-    "sha256": "c892edbdfb5cc597ad42beeddb5e39100a6d0f37f72d41a2afc3eaa1c0ee7cab"
+    "bytes": 102011,
+    "sha256": "3ffdbab83a843b0de23819f344bcaa8780da45c5f6b98e22d031c737d35d9b00"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -2051,8 +2051,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WarmButton.ts",
-    "bytes": 6042,
-    "sha256": "9c1c0d57a9607e924636a872a1308386f4096b30e8eb21378c0261cd63f77abb"
+    "bytes": 6263,
+    "sha256": "f17dc6e212704bbe9410da7aef3004b1f7d0a76c20fe27bacf7849f5cb4bdb62"
   },
   {
     "path": "creator-build-project/assets/scripts/WarmButton.ts.meta",
@@ -2061,8 +2061,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 111210,
-    "sha256": "241df2f94d4e19cd2233a48dc76cfb76edc23713ccfd7bee41cee6d19b6b15c7"
+    "bytes": 113725,
+    "sha256": "821c92a65ad7e752f01e149148177217fcef806164db607f68f332cc21e2c17b"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -2971,8 +2971,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardNight.ts",
-    "bytes": 2989,
-    "sha256": "5e1895f4aeed6ab42a413b480df1871eb8b393bfa6d06d6c1f1711853bce15c2"
+    "bytes": 4720,
+    "sha256": "592cf25afa354518e490a10ffb63014be4326b91db8e67feb37d28d6499d2a17"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardNight.ts.meta",
@@ -3211,8 +3211,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts",
-    "bytes": 4177,
-    "sha256": "1535ae90d28a8d031936dd898759ef43f4aad87bf09a796f0e77ce42bd9c5b17"
+    "bytes": 9129,
+    "sha256": "9a39901736e44b533031c1a2f59ac29feb469ef966349a5c2de4d1d09c1db717"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts.meta",
@@ -3221,8 +3221,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
-    "bytes": 6849,
-    "sha256": "d4ff692ef75357d4346dbfe7784e855b764f9b65137520677cfe090435e8716e"
+    "bytes": 6959,
+    "sha256": "7d78650d2151c7506466af96d69a19266c1fb766b2e9387a2c215566be05f392"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
@@ -3721,8 +3721,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
-    "bytes": 12291,
-    "sha256": "821fa09a126144086f9297e88f22b4d21fdf9339da8418f372ae5987a4edf587"
+    "bytes": 13873,
+    "sha256": "c7aa1d1127fa23c85b1a7f26f9172fc16b32a4ffe0bd650610c8b61038bae97f"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts.meta",
@@ -4261,8 +4261,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts",
-    "bytes": 26337,
-    "sha256": "0c0df60e2342e669d4d212f465ab3d60233f5ca57f91da6d5fac36e611958845"
+    "bytes": 27095,
+    "sha256": "f99fbc7d985d9e17ffa2d1077d98f80cd0635c3c63de99a8c175e250bb80ff55"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts.meta",
@@ -4271,8 +4271,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
-    "bytes": 29110,
-    "sha256": "61aff25df24974008af8b5eb014c1ccfe9cf9055738b46affe83291d7be0358f"
+    "bytes": 30983,
+    "sha256": "d12654b34e8a93d2f49a77b7a3e524796df062a9d7f508a99ae034fd26bd8639"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",
@@ -4521,8 +4521,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts",
-    "bytes": 1592,
-    "sha256": "085fbff833aec1de5b14f24e782749960db69c6c658c3815f98ff8bee67c4169"
+    "bytes": 2926,
+    "sha256": "98f48273e315ae3cc14ac581b7359e899079320f17abab89fd9f7a497ce7e4a0"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNavigationLayout.ts.meta",

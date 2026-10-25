@@ -1,7 +1,7 @@
 import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
-import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, signpostShiftX, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { onPropTap } from './IslandPropTaps';
 import { SeaNightTint } from './SeaNightTint';
 
@@ -22,9 +22,9 @@ export class IslandProps {
   private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>(); private pivots = new Map<PropRole, Node>();
   /** Settled island wide shot. A pull moves the live lens only; the three bottom props keep this picture. */
   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
-  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string, seaUniform: null as number[] | null };
+  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string, seaUniform: null as number[] | null, signShiftX: 0 };
   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
-  private nightW = 0; private journeyW = 0; private seaTint: SeaNightTint | null = null; private seaLast = -1; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
+  private nightW = 0; private journeyW = 0; private seaTint: SeaNightTint | null = null; private seaLast = -1; private lastTime = -1; private shiftX = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
   private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number; appliedJ: number } | null = null;
   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
@@ -114,7 +114,7 @@ export class IslandProps {
       if (!isValid(r.node, true)) return; const a = rippleAt(t, k), c = new Color(mixHex(W.color, W.nightColor, w));
       // grow around the centre between the posts (mesh is centred at centerX)
       const cx = S.water.centerX * S.scale, yaw = S.yawDeg * Math.PI / 180, dx = cx * (1 - a.scale);
-      r.node.setPosition(S.position[0] + dx * Math.cos(yaw), ISLAND_PROPS.seaY + W.lift, S.position[2] - dx * Math.sin(yaw));
+      r.node.setPosition(S.position[0] + this.shiftX + dx * Math.cos(yaw), ISLAND_PROPS.seaY + W.lift, S.position[2] - dx * Math.sin(yaw));
       r.node.setScale(S.scale * a.scale, 1, S.scale * a.scale);
       c.a = Math.round(mix(W.alpha, W.nightAlpha) * a.alpha * this.entrance * 255); r.material.setProperty('mainColor', c);
     });
@@ -173,6 +173,13 @@ export class IslandProps {
       n.active = false; this.glow = { node: n, material: m };
     } catch (e) { this.glow = null; console.warn('[T9_PROPS] lamp reflection unavailable', String(e)); }
   }
+  /** b16 真机复核 ④：按屏幕宽度把木牌（连同水面阴影/涟漪/灯影）沿世界 x 左移，木牌右缘离屏幕右缘 >= 12pt。 */
+  private applyShift() {
+    const pose = this.pose(); if (!pose || !(this.view.width > 0) || !(this.view.height > 0)) return;
+    const dx = signpostShiftX(pose, this.view.width, this.view.height), d = dx - this.shiftX; if (Math.abs(d) < 1e-4) return;
+    this.shiftX = dx; this.stats.signShiftX = +dx.toFixed(3);
+    for (const n of [this.sign, ...this.waterNodes, this.glow?.node]) if (n && isValid(n, true)) { const p = n.position; n.setPosition(p.x + d, p.y, p.z); }
+  }
   /** Current world-camera pose (read-only; camera is written by CameraPose.applyCameraPose only). */
   pose(): CameraPose | null {
     const c = this.camera; if (!c || !isValid(c, true) || !isValid(c.node, true)) return null;
@@ -184,6 +191,7 @@ export class IslandProps {
     if (!this.ready || !isValid(this.root, true)) return;
     if (this.root.active !== o.exterior) this.root.active = o.exterior;
     this.view.width = o.width; this.view.height = o.height;
+    this.applyShift();
     const now = game.totalTime / 1000, first = this.lastTime < 0, dt = first ? 0 : now - this.lastTime; this.lastTime = now;
     // first sync snaps to the current mode (no fade at startup); afterwards a switch fades over nightFadeS
     this.nightW = first ? (o.night ? 1 : 0) : approachNight(this.nightW, o.night, dt);
@@ -231,8 +239,8 @@ export class IslandProps {
     e = Math.max(0, Math.min(1, e)); if (e === this.entrance && risePx === 0 && sign.active === e > 0) return true;
     this.entrance = e; this.stats.entrance = +e.toFixed(3);
     const S = ISLAND_PROPS.signpost; let rise = 0;
-    if (risePx > 0 && e < 1) { const pose = this.pose(), r = pose && this.view.height > 0 ? signpostRectUi(pose, this.view.width, this.view.height) : null; if (r && r.height > 0) rise = risePx * (S.boxMax[1] - S.boxMin[1]) * S.scale / r.height; }
-    sign.setPosition(S.position[0], S.position[1] - rise, S.position[2]);
+    if (risePx > 0 && e < 1) { const pose = this.pose(), r = pose && this.view.height > 0 ? signpostRectUi(pose, this.view.width, this.view.height, this.shiftX) : null; if (r && r.height > 0) rise = risePx * (S.boxMax[1] - S.boxMin[1]) * S.scale / r.height; }
+    sign.setPosition(S.position[0] + this.shiftX, S.position[1] - rise, S.position[2]);
     if (sign.active !== e > 0) sign.active = e > 0;
     for (const n of this.waterNodes) if (isValid(n, true) && n.active !== e > 0) n.active = e > 0;
     if (e <= 0) { if (this.lampLight && isValid(this.lampLight, true) && this.lampLight.enabled) { this.lampLight.luminance = 0; this.lampLight.enabled = false; }
@@ -268,7 +276,7 @@ export class IslandProps {
   /** Mainline hit rect (>= 88x88, see signpostHitUi) of the signpost in UI units (centre origin) for the live camera, or null when not usable. */
   signRect(width: number, height: number): Rect | null {
     if (!this.ready || !this.root.active) return null; const pose = this.pose(); if (!pose || !(width > 0) || !(height > 0)) return null;
-    const r = signpostHitUi(pose, width, height); if (!r) return null;
+    const r = signpostHitUi(pose, width, height, this.shiftX); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
   dispose() { if (this.disposed) return; this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }

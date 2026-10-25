@@ -22,3 +22,19 @@ export function regionBoardKeyLight(dayColor:readonly number[],dayLuminance:numb
  const t=Number.isFinite(nightWeight)?Math.max(0,Math.min(1,nightWeight)):0,K=REGION_BOARD_KEY_NIGHT_COLOR;
  const color=[0,1,2].map(i=>Math.round(dayColor[i]*(1+(K[i]/255-1)*t))) as [number,number,number];
  return {color,luminance:dayLuminance*(1+(REGION_BOARD_KEY_NIGHT_SCALE-1)*t)};}
+/** b16 真机复核 ②（天空城夜间棋盘下半屏均值 123，岛屿夜间约 57）：夜间除了补光，场景环境光（ambient.skyIllum）和主光
+ *  （Main Light illuminance，世界已按 0.35 压过）也在天空城棋盘显示期间一起压暗，目标棋盘下半屏均值约 60–75。
+ *  倍率按 nightWeight 线性过渡；显示期间写入、隐藏/释放时还原。真机未复测，倍率是按 d58c1012 实测（123 → 目标 ~67）估的。 */
+export const REGION_BOARD_AMBIENT_NIGHT_SCALE=0.3,REGION_BOARD_MAIN_NIGHT_SCALE=0.6;
+export function regionBoardSceneLightScale(nightWeight:number):{ambient:number;main:number}{
+ const t=Number.isFinite(nightWeight)?Math.max(0,Math.min(1,nightWeight)):0;
+ return {ambient:1+(REGION_BOARD_AMBIENT_NIGHT_SCALE-1)*t,main:1+(REGION_BOARD_MAIN_NIGHT_SCALE-1)*t};}
+/** 补光/环境光/主光的日夜切换渐变：每帧向目标靠近 dt/REGION_BOARD_LIGHT_FADE_S，不再一帧跳变。 */
+export const REGION_BOARD_LIGHT_FADE_S=0.6;
+export function easeRegionBoardLight(current:number,target:number,dt:number):number{
+ if(!Number.isFinite(current))return target;const step=Math.max(0,Math.min(dt,.1))/REGION_BOARD_LIGHT_FADE_S;
+ return current<target?Math.min(target,current+step):Math.max(target,current-step);}
+/** b16 复核3 ②：显示期间日夜切换的平滑曲线（smoothstep，最大斜率 1.5 → 任意 100 ms ≤ 25%），终点跟随实时目标。 */
+export function smoothRegionBoardLight(from:number,to:number,p:number):number{const t=Math.max(0,Math.min(1,p));return from+(to-from)*t*t*(3-2*t);}
+/** Director.EVENT_AFTER_UPDATE 的值（cc 3.8），每帧一次。 */
+export const REGION_BOARD_TICK_EVENT='director_after_update';

@@ -1,1 +1,1 @@
-PASS fade cover bakes alpha into Graphics fill; 0.4 s ramp has 13 levels
+PASS WindWipe cover repaints per tick on foreground time; 0.45 s OUT sweep has 15 positions
