@@ -1,3 +1,4 @@
+import { JourneyPoseFailure } from './WorldFlowCore';
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
@@ -206,6 +207,8 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
 /** No timers, persistence, fake percentages or character assets. All movement is through the existing adapter.
  * The flow owns the sole clock. Assets become ready only after real prefab/anchor/material validation succeeds. */
 export class RegionJourneyController {
+ private failedPose=false;
+ preservesFailedPose(){return this.failedPose;}
  private phase:JourneyPhase='idle';private region:JourneyRegion='island';private target:JourneyRegion|null=null;
  private lease:JourneySceneLease|null=null;private scenes:JourneySceneLease[]=[];private loadProgress=0;private distance=0;private error:string|null=null;
  private root:Vec|null=null;private yaw=0;private camera:Pose|null=null;private startCamera:Pose|null=null;
@@ -243,7 +246,7 @@ export class RegionJourneyController {
  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
   if(this.busy)throw Error('journey-busy');if(!this.lease||!this.root||!this.startCamera)throw Error('journey-not-prepared');
   if(!actor.walkProgress)throw Error('journey-needs-distance-signal');
-  this.busy=true;this.error=null;const serial=++this.serial,path=remainingRoute(this.lease.route.path,this.distance);this.startDistance=this.distance;
+  this.busy=true;this.failedPose=false;this.error=null;const serial=++this.serial,path=remainingRoute(this.lease.route.path,this.distance);this.startDistance=this.distance;
   try{
    // v3.3 set-off fade (Grok Bot: no hard cut, no camera swoop): leaving the live island lens on a startBlendM-0 route,
    // fade to black (SETOFF_FADE.outS), cut to the follow pose (FOV straight to 48) and show the journey scenes only under
@@ -267,20 +270,20 @@ export class RegionJourneyController {
    this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);this.leaseProgress();
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
   }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
-   if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
+   if(serial===this.serial){this.failedPose=error instanceof JourneyPoseFailure;this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}
  }
  /** Called BEFORE cancelling the action token, while its distance signal is still available. */
- suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
+ suspend(actor:CharacterAdapter,world:WorldLease):void{if(this.failedPose)return;this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
  // b15 handover (no teleport): while a ride tail still walks her to the stand point (the lakeside exit walk under the board
  // fade-in), restore must not cancel that walk and snap her there; the tail ends on the same point (route end).
- restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root&&!(this.lease as any)?.tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
+ restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(!this.failedPose&&this.root&&!(this.lease as any)?.tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
  private leaseProgress(){const l=this.lease;if(!l?.progress)return;try{l.progress(this.distance);}catch{}}
  /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.
   * Not a completion: region unlocks/records live in the campaign save, not here; the next trip simply walks the route again. */
  returnToIsland():void{if(this.busy)throw Error('journey-busy');if(this.phase==='disposed')throw Error('journey-disposed');
-  ++this.serial;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.region='island';this.target=null;this.phase='idle';
+  this.failedPose=false;++this.serial;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.region='island';this.target=null;this.phase='idle';
   this.distance=0;this.startDistance=0;this.root=null;this.camera=null;this.startCamera=null;this.activePath=null;this.error=null;this.loadProgress=0;}
- dispose(){++this.serial;this.phase='disposed';this.activePath=null;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.root=null;}
+ dispose(){this.failedPose=false;++this.serial;this.phase='disposed';this.activePath=null;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.root=null;}
 }

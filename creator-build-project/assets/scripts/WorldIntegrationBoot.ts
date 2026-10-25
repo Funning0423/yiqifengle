@@ -147,6 +147,7 @@ class FlowReferenceStandin implements CharacterAdapter {
  private readWind():number {let v:any=0;try{v=this.windSource?this.windSource():0;}catch{v=0;}return typeof v==='number'&&v>0?(v<1?v:1):0;}
  /** One contact = one event: entry_contact events (the walk_loop heel strike a stop clip starts on, already emitted by
   *  walk_loop) and a same-bone event on another clip within FOOT_DEDUPE_S are skipped (logged as foot-dedupe). */
+ contactSnapshot(){return this.support?.contactSnapshot()??null;}
  private emitFoot(f:any){const def=f.def,prev=this.lastFootEmit;
   if(def.entryContact||prev&&prev.bone===def.bone&&prev.clip!==f.clip&&this.motionT-prev.t<FOOT_DEDUPE_S){this.footDeduped++;this.logEvent({kind:'foot-dedupe',event:def.name,clip:f.clip,reason:def.entryContact?'entry_contact':'same contact'});return;}
   this.lastFootEmit={bone:def.bone,clip:f.clip,t:this.motionT};this.lastFoot=def.body;

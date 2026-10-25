@@ -8,6 +8,7 @@ import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, journeyDistanceAt, routeLength, sampleRoute} from '../world-r1/RegionJourneyCore';
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom,meadowExitExtraM,MEADOW_EXIT_BUDGET_M} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+import {JourneyPoseFailure} from '../world-r1/WorldFlowCore';
 import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
 import { TailToken, beginTail, endTail } from './WalkTail';
 import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
@@ -15,7 +16,7 @@ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideQaAdvance} from './LakesideQaShot';
-import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,LAKESIDE_STEPDOWN,stepdownRootAt,stepdownBlendedY,walkFrom,standupRootK} from './LakesideBalloon';
+import {LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,LAKESIDE_STEPDOWN,stepdownRootAt,stepdownBlendedY,walkFrom,standupRootK} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -328,20 +329,23 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // 1.2667 s time clock, root carried seat → P0 along the facing by stand_up root_motion.forward_m (LAKESIDE_STANDUP, rise 0.494 m))
    // → crossfade 0.2 into idle at P0 facing the door (cancelAndReset in place, only AFTER stand_up) = getout t0.
    // A cancelAndReset that skips stand_up and cuts straight to P0 is the ~0.40 m / ~128° pose pop. Do not put that cut back.
-   {const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.playNamed==='function'&&n&&isValid(n,true));
+   try{const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.playNamed==='function'&&n&&isValid(n,true));
+    rideToken.check();if(!canStand)throw Error('lakeside-stand-up-unavailable');
     if(canStand){const w=n!.worldPosition,seatRoot:Vec=[w.x,w.y,w.z],P0=moored.start as Vec;
      const seatDef={position:seatRoot,back:seatRoot,yawRad:moored.startYawRad,seatedFoot:seatRoot,standingFoot:P0,seatedControllerRoot:seatRoot,standingControllerRoot:P0};
-     const dur=(typeof a.rig?.duration==='function'&&a.rig.duration('stand_up'))||1.266667;
+     const dur=typeof a.rig?.duration==='function'?a.rig.duration('stand_up'):NaN;
+     if(!Number.isFinite(dur)||dur<=0)throw Error('lakeside-stand-up-duration-invalid');
      const prevStep=ticker.step;
      try{actor.cancelAndReset({kind:'seated',seat:seatDef} as any);a.pendingIdle=false;a.playNamed('stand_up',false,0);
       await new Promise<void>((ok,bad)=>{let st=0;const off=rideToken.onCancel(()=>{bad(Object.assign(Error('cancelled'),{name:'Cancelled'}));});
-       ticker.step=(dt)=>{stopEngineStates();st=Math.min(dur,st+dt);const k=standupRootK(st,dur),m=a.node;
-        if(m&&isValid(m,true))m.setWorldPosition(seatRoot[0]+(P0[0]-seatRoot[0])*k,seatRoot[1]+(P0[1]-seatRoot[1])*k,seatRoot[2]+(P0[2]-seatRoot[2])*k);
-        if(st>=dur){off();ok();}};});}
-     catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_LAKESIDE] stand-up skipped: '+String(e));}
+       ticker.step=(dt)=>{try{rideToken.check();stopEngineStates();st=Math.min(dur,st+Math.max(0,dt));const k=standupRootK(st,dur),m=a.node;
+        if(!m||!isValid(m,true))throw Error('lakeside-stand-up-node-lost');
+        m.setWorldPosition(seatRoot[0]+(P0[0]-seatRoot[0])*k,seatRoot[1]+(P0[1]-seatRoot[1])*k,seatRoot[2]+(P0[2]-seatRoot[2])*k);
+        if(st>=dur){off();ok();}}catch(error){off();bad(error);}};});}
      finally{ticker.step=prevStep;}
      rideToken.check();}
     actor.cancelAndReset({kind:'standing',controllerRoot:moored.start,yawRad:moored.startYawRad});}
+   catch(error){director.off(Director.EVENT_BEFORE_DRAW,hold);if(rideToken.cancelled||(error as any)?.name==='Cancelled')throw error;throw new JourneyPoseFailure(String(error));} // Preserve failed pose through the outer flow too.
    const holdCapS=moored.walkStartAt+LAKESIDE_DOOR_HOLD.outM/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
    const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=lakesideQaAdvance(q.mark,m);}catch{/* qa only */}};
    let tailDone=false/* b16: the tail cleared its ticker step (she is on the shore); the door blend must not restore it */;
@@ -350,7 +354,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});tailStop=()=>{tailToken.cancel();endTail(actor);}/* b17: synchronous, before the 主页 restore */;
    const tail=(async()=>{
    const rideToken=tailToken as any as Cancellation;
-    let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
+    let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null,contactRevision=-1;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
     ticker.step=(dt)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
      if(stepping){const u=t-moored.walkStartAt,r=stepdownRootAt(u),a=actor as any,P0=moored.start,sy=Math.sin(moored.startYawRad),cy=Math.cos(moored.startYawRad);
       // b18: blend the clip drop onto the terrain profile (drop = clamp(y_m / −0.03)). Forward stays on the exit heading.
@@ -359,9 +363,12 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       lease.progress!(landedM+r[0]);if(r[0]>=LAKESIDE_DOOR_HOLD.outM)outOk();}
      if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){const s=walkBase+w*walkLen;lease.progress!(landedM+s);if(s>=LAKESIDE_DOOR_HOLD.outM)outOk();}
       // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
-      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const emit=a.lastFootEmit,emitT=emit&&typeof emit.t==='number'?emit.t:null;
-       const swing=typeof a.motionT==='number'&&footLockSwing(a.motionT,emitT),pl=a.lastFoot==='L'||a.lastFoot==='R'?a.lastFoot:null;
-       lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt,swing);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
+      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){const contact=a.contactSnapshot?.(),fresh=contact&&Number.isInteger(contact.revision)&&contact.revision>contactRevision;
+       if(fresh)contactRevision=contact.revision;
+       // Bone labels are opposite body-side labels. Both feet constrained is double support, not lastFoot.
+       if(fresh&&contact.valid){const single=contact.left!==contact.right,pl=single?(contact.left?'R':'L'):null;
+        lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt,single);}
+       lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
     const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
     await waitUntil(moored.T0);rideToken.check();qaMark('door');
     const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
