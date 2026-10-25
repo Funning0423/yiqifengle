@@ -21,3 +21,10 @@ export function regionNavigationRow(width:number,height:number){
   const w=Math.min(170,(width-48-REGION_NAV_GAP)/2),y=-height/2+safe+h/2,dx=(w+REGION_NAV_GAP)/2;
   return {mainline:{x:-dx,y,width:w,height:h},home:{x:dx,y,width:w,height:h}};
 }
+
+/** b16 真机复核 ①（入场中快速连点木牌：进关→59 ms 回岛→再进一次）：主线点击防抖。一次有效点击后锁 MAINLINE_TAP_LOCK_MS；
+ *  不在小岛（进关加载、棋盘里、转场中）时锁一直续到离开后 MAINLINE_RETURN_LOCK_MS，回岛后的残余连点也吃掉。纯函数。 */
+export const MAINLINE_TAP_LOCK_MS=1200,MAINLINE_RETURN_LOCK_MS=500;
+export function mainlineTapAllowed(now:number,lockUntil:number,busy:boolean):boolean{return !busy&&now>=lockUntil;}
+export function mainlineLockAfterTap(now:number):number{return now+MAINLINE_TAP_LOCK_MS;}
+export function mainlineLockForState(lockUntil:number,state:string,now:number):number{return state==='island'?lockUntil:Math.max(lockUntil,now+MAINLINE_RETURN_LOCK_MS);}

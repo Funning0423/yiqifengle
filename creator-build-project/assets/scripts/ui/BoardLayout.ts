@@ -131,12 +131,37 @@ export function boardSafeInsets(w: number, h: number): SafeArea & { portrait: bo
 
 /** b16-fix（验收 9d4fcaa8：L13 规则弹窗在 320×568 上要不顶到 HUD）：弹窗默认居中；面板顶（含半块标题木牌 52.5 设计 px）若高过信息牌底 + 12 pt，
  *  就整体往下挪，但底边不低于屏幕底安全区上方 12 pt。返回 PopupPanel 的 dy（750 设计 px，正值向下）。纯函数。 */
+/** b16 真机复核 ⑤：信息牌美术（木框外沿 + 阴影）比 geo.plate 低约 6.6pt：d58c1012 Mac web 在 320×568 / 375×667 实测标题木牌离信息牌
+ *  只有 5.4pt（模型算的是 12pt）。下移时把这段外沿也算进去，保证真机 ≥12pt。 */
+export const RULE_GUIDE_PLATE_OVERHANG = 7;
 export function ruleGuideDy(width: number, height: number, panelH: number, plateBottom: number, safeBottom: number, scale: number): number {
   // v2.3：scale 由调用方传 PopupKit.popupScale(width, height)，这里不再抄缩放公式
-  const s = scale, top = height / 2 - panelH * s / 2 - 52.5 * s, want = plateBottom + 12;
+  const s = scale, top = height / 2 - panelH * s / 2 - 52.5 * s, want = plateBottom + 12 + RULE_GUIDE_PLATE_OVERHANG;
   const room = (height - safeBottom - 12) - (height / 2 + panelH * s / 2);
   const down = Math.max(0, Math.min(want - top, room));
   return down / s;
 }
 /** 规则弹窗正文行数上限（320×568 下 9 行没有余量）。 */
 export const RULE_GUIDE_MAX_LINES = 8;
+
+/** b16 真机复核 ⑤：中文避头尾换行。行首不能是收尾标点（「）」「，」「。」等），行尾不能是开括号；遇到时把上一行最后一个字一起带到下一行。
+ *  按 maxW 和 measure(字符串) 逐字贪心排版，返回各行；调用方用 '\n' 拼起来交给 Label（Label 宽度略大于 maxW，不会再自行折行）。 */
+export const KINSOKU_NO_START = '）)」』】〕》〉，。、；：！？,.;:!?…·%～';
+export const KINSOKU_NO_END = '（(「『【〔《〈';
+export function wrapKinsoku(text: string, maxW: number, measure: (s: string) => number): string[] {
+  const out: string[] = [];
+  for (const para of text.split('\n')) {
+    let line = '';
+    for (const ch of Array.from(para)) {
+      if (line && measure(line + ch) > maxW) {
+        let carry = '';
+        const take = () => { carry = line[line.length - 1] + carry; line = line.slice(0, -1); };
+        if (KINSOKU_NO_START.includes(ch)) take();
+        while (line.length > 1 && (KINSOKU_NO_START.includes(carry[0] ?? '') || KINSOKU_NO_END.includes(line[line.length - 1]))) take();
+        out.push(line); line = carry + ch;
+      } else line += ch;
+    }
+    out.push(line);
+  }
+  return out;
+}

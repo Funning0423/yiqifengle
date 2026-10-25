@@ -49,7 +49,7 @@ ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2, >= 40 % of the po
 });
 ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers the whole sign, inside the 8 px inset, clear of bottom-row hits and the girl',()=>{
   const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3);assert.equal(L.SIGN_HIT_MIN,88);
-  for(const [w,h] of FRAMES){const v=L.signpostRectUi(pose,w,h),r=L.signpostHitUi(pose,w,h);
+  for(const [w,h] of FRAMES){const v=L.signpostRectUi(pose,w,h,L.signpostShiftX(pose,w,h)),r=L.signpostHitUi(pose,w,h); // b16 ④: the sign is shifted left on wide phones
     assert(r.width>=88&&r.height>=88,'hit '+r.width+'x'+r.height+' '+w+'x'+h);
     assert(r.x-r.width/2<=v.x-v.width/2+1e-6&&r.x+r.width/2>=v.x+v.width/2-1e-6&&r.y-r.height/2<=v.y-v.height/2+1e-6&&r.y+r.height/2>=v.y+v.height/2-1e-6,'hit covers sign '+w+'x'+h);
     assert(inside(r,w,h,8),'hit inside inset '+w+'x'+h);

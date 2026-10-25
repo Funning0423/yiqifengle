@@ -49,7 +49,7 @@ run('wiring: meadow board grades like the journey, mounts a night dome only at n
  assert.match(f,/if\(night&&!nightSky\)nightSky=mountMeadowBoardNightSky\(model\);/,'night picture loads only once night is on');
  assert.match(f,/offNight=onDayNightChange\(syncNight\);/);assert.match(f,/disposed=true;offCancel\(\);offNight\(\);/);
  assert.doesNotMatch(md.slice(md.indexOf('export function mountMeadowBoardNightSky'),md.indexOf('export const createMeadowBoardBackground')),/__qfNightOnly/,'board dome stays its day sky');
- assert.match(sk,/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend/);assert.match(sk,/offNight=onDayNightChange\(syncNight\);/);assert.match(sk,/dead=true;offNight\(\);\}lease\.dispose\(\);/);
+ assert.match(sk,/writeRegionBoardClear\(camera,SKYCITY_BOARD_DAY_CLEAR,skyNightBlend/);assert.match(sk,/offNight=onDayNightChange\(syncNight\);/);assert.match(sk,/dead=true;offNight\(\);(?:restoreScene\(\);)?\}lease\.dispose\(\);/);
  assert.doesNotMatch(fs.readFileSync(S+'region/SkycityBoardBackground.ts','utf8'),/RegionBoardNight|onDayNightChange/,'Build05 sky-city lease untouched (sha-pinned by test-journey-occlusion)');});
 (async()=>{
  // behaviour of the sky-city wrapper on a fake Build05 lease (same rig/camera names and clear colour)
