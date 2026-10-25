@@ -1,5 +1,5 @@
 /** Test-only per-frame camera trace (?camTrace=1, web only). Off by default: every hook is one boolean check, no allocation.
- *  On: each frame keeps {t, region, cam pos, yaw/pitch, writers (applyCameraPose sources + sub-path), LensGuard, FreeOrbit, her pos, walking}
+ *  On: each frame keeps {t, region, cam pos, yaw/pitch, writers (applyCameraPose sources + sub-path), LensGuard, FreeOrbit, her pos, walking, occFace / occChest (p0drag10: her face / chest hidden by a proxy box)}
  *  in a 60 s ring (3600 frames). Console: __qfCamTrace.dump() → JSON string; copy(__qfCamTrace.dump()); __qfCamTrace.save('name') downloads a .json. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
 export type CamTraceFrame={[k:string]:unknown};
