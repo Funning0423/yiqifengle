@@ -14,8 +14,12 @@ if(!fs.existsSync(FIX)){const cut=n=>JSON.parse(fs.readFileSync(path.join(TR,'tr
   .map(f=>[+f.t.toFixed(3),f.her.map(v=>+v.toFixed(3)),+f.fo.yaw.toFixed(2),+f.fo.pitch.toFixed(2),+f.fo.arm.toFixed(3),f.cam.map(v=>+v.toFixed(3)),f.yaw,f.pitch,
    f.w.filter(w=>w==='region.node-lens:orbit').length,f.occFace?1:0,f.occChest?1:0,f.fo.write?1:0,f.walking?1:0]);
  const o={src:'Mac p0drag12 re-test (ggbot/p0drag12-verify ad4f4cba) camTrace: [t, her(world), fo.yaw, fo.pitch, fo.arm, cam(world), yaw, pitch, orbit writes, occFace, occChest, orbit-writing, walking]'};for(const k of [...WALKS,...TURNS])o[k]=cut(k);
- fs.writeFileSync(FIX,require('node:zlib').gzipSync(JSON.stringify(o),{level:9}));}
-const FX=JSON.parse(require('node:zlib').gunzipSync(fs.readFileSync(FIX)).toString('utf8'));/* gzip: 2.29 MB → 0.22 MB */
+ fs.writeFileSync(FIX,require('node:zlib').gzipSync(JSON.stringify(o),{level:9}));require('node:child_process').execFileSync(process.execPath,[path.join(__dirname,'fixture_coldelta.cjs'),FIX]);}
+const FX0=JSON.parse(require('node:zlib').gunzipSync(fs.readFileSync(FIX)).toString('utf8'));
+/* fixture trimmed 571 → ~183 KB gzip (lossless): column-delta form, rebuilt here into the original rows */
+const SC=[1000,1000,1000,1000,100,100,1000,1000,1000,1000,null,null,1,1,1,1,1];
+const dec=c=>{const C=c.map((col,j)=>{if(SC[j]==null)return col;let p=0;return col.map(d=>(p+=d)/SC[j]);});return C[0].map((_,i)=>{const v=C.map(col=>col[i]);return [v[0],[v[1],v[2],v[3]],v[4],v[5],v[6],[v[7],v[8],v[9]],v[10],v[11],v[12],v[13],v[14],v[15],v[16]];});};
+const FX=FX0.fmt?Object.fromEntries(Object.entries(FX0).map(([k,v])=>[k,Array.isArray(v)?dec(v):v])):FX0;/* gzip: 2.29 MB → 0.22 MB */
 const MW=[[-0.482,0,0.880],[-0.001,1,-0.053],[-0.875,0,-0.447]],T=[58.662,18.63,143.515];
 const A3=[[MW[0][0],MW[1][0],MW[2][0]],[MW[0][1],MW[1][1],MW[2][1]],[MW[0][2],MW[1][2],MW[2][2]]];
 const det=m=>m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])-m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])+m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
