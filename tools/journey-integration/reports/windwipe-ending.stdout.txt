@@ -1,0 +1,13 @@
+PASS timing 0.45 / ≥1.10 / 0.55 (home hold 0.5) on every path
+PASS fast load: out 0.45 + hold 1.100 + in 0.55; music out with cover, in at reveal
+PASS slow load: held 3.20 s, cover lifts only after load
+PASS reveal waits for character/camera ready
+PASS hooks: [["covered","ride",0.45],["before","ride"],["revealed","ride",2.58]]
+PASS no black: day/night band luminance >30, OUT/IN monotone, reveal continues upper-right, touches swallowed
+PASS legacy alpha ramps map onto OUT/FULL/IN; content in after 0.3 s; drift 22 pt/s; dots after 3 s
+PASS home: hold ≥0.5 s and until home lens ready (1.42 s)
+PASS hold content: one vehicle + one sign per destination
+PASS set-off, ride, lakeside boarding, home, ending all use the shared WindWipe cover
+PASS L16 → 继续 → WindWipe → ending (旅程完成, one 回小岛) → WindWipe → island; gate only on saved last-lake win
+PASS ending v2: 7 sizes pass layout checks (320×568 girl 48 pt, head ≥12 pt under seals); chime sways ±4°/3.2 s; 3D chime in code (4 tubes, own swings, low-poly, no PNG); day+night art with .meta; reveal waits for art
+windwipe-ending: 12 checks PASS

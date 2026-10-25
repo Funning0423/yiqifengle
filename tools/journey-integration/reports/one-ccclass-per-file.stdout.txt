@@ -1,0 +1,5 @@
+WARN (name != basename):
+  scripts/region/MeadowBoardBackground.ts: @ccclass('MeadowSceneMotion') != file name
+  scripts/ui/CheerText.ts: @ccclass('CheerTextHost') != file name
+  scripts/world-r2/IslandBoardBackground.ts: @ccclass('IslandBoardBackgroundTint') != file name
+PASS one-ccclass-per-file: 216 scripts, 32 ccclass names, 3 warnings

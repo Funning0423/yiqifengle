@@ -12,10 +12,10 @@ balloon meadow→skycity 375x667 PASS 0 PASS 0 71.8 PASS 31
 balloon meadow→skycity 320x568 PASS 0 PASS 0 71.7 PASS 21.3
 balloon meadow→skycity 390x520 PASS 0 PASS 0 66.3 PASS 16.6
 balloon meadow→skycity 768x1024 PASS 0 PASS 0 66.3 PASS 65.7
-balloon skycity→lakeside 390x844 PASS 0 PASS 0 67.6 PASS 43.2
-balloon skycity→lakeside 414x896 PASS 0 PASS 0 67.6 PASS 47.9
-balloon skycity→lakeside 360x780 PASS 0 PASS 0 67.6 PASS 37.3
-balloon skycity→lakeside 375x667 PASS 0 PASS 0 67 PASS 27
-balloon skycity→lakeside 320x568 PASS 0 PASS 0 64.4 PASS 17.9
-balloon skycity→lakeside 390x520 PASS 0 PASS 0 62.4 PASS 13.6
-balloon skycity→lakeside 768x1024 PASS 0 PASS 0 62.8 PASS 59.7
+balloon skycity→lakeside 390x844 PASS 0 PASS 0 79.1 PASS 23.6
+balloon skycity→lakeside 414x896 PASS 0 PASS 0 79.1 PASS 25.1
+balloon skycity→lakeside 360x780 PASS 0 PASS 0 79.1 PASS 21.6
+balloon skycity→lakeside 375x667 PASS 0 PASS 0 78.9 PASS 24.3
+balloon skycity→lakeside 320x568 PASS 0 PASS 0 78.8 PASS 15.6
+balloon skycity→lakeside 390x520 PASS 0 PASS 0 72.2 PASS 12.8
+balloon skycity→lakeside 768x1024 PASS 0 PASS 0 72.3 PASS 50.7
