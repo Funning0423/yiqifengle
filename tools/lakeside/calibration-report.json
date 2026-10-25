@@ -1,11 +1,11 @@
 [
  {
   "id": "r04-lake-01",
-  "draftMoves": 25,
+  "draftMoves": 14,
   "seedsTried": 12,
   "greedyWins": 12,
-  "greedyUsedMedian": 2,
-  "greedyUsedP80": 2,
+  "greedyUsedMedian": 6,
+  "greedyUsedP80": 8,
   "winsWithinDraft": 12,
   "seedBank": [
    4,
@@ -15,29 +15,59 @@
   "witness": [
    {
     "seed": 4,
-    "used": 1,
+    "used": 2,
     "actions": [
      [
       "swap",
       10,
       11
+     ],
+     [
+      "swap",
+      24,
+      25
      ]
     ]
    },
    {
     "seed": 12,
-    "used": 1,
+    "used": 6,
     "actions": [
      [
       "swap",
       23,
       30
+     ],
+     [
+      "swap",
+      24,
+      25
+     ],
+     [
+      "swap",
+      16,
+      23
+     ],
+     [
+      "swap",
+      20,
+      27
+     ],
+     [
+      "swap",
+      0,
+      7
+     ],
+     [
+      "swap",
+      8,
+      15
      ]
     ]
    },
    {
     "seed": 1,
-    "used": 2,
+    "used": 14,
     "actions": [
      [
       "swap",
@@ -46,8 +76,68 @@
      ],
      [
       "swap",
-      17,
-      18
+      3,
+      10
+     ],
+     [
+      "swap",
+      31,
+      32
+     ],
+     [
+      "swap",
+      29,
+      30
+     ],
+     [
+      "swap",
+      23,
+      24
+     ],
+     [
+      "swap",
+      1,
+      2
+     ],
+     [
+      "swap",
+      4,
+      11
+     ],
+     [
+      "swap",
+      7,
+      14
+     ],
+     [
+      "swap",
+      7,
+      14
+     ],
+     [
+      "swap",
+      8,
+      15
+     ],
+     [
+      "swap",
+      22,
+      29
+     ],
+     [
+      "swap",
+      21,
+      28
+     ],
+     [
+      "swap",
+      37,
+      44
+     ],
+     [
+      "swap",
+      18,
+      25
      ]
     ]
    }
@@ -55,12 +145,12 @@
  },
  {
   "id": "r04-lake-02",
-  "draftMoves": 24,
+  "draftMoves": 18,
   "seedsTried": 12,
   "greedyWins": 12,
   "greedyUsedMedian": 14,
   "greedyUsedP80": 19,
-  "winsWithinDraft": 12,
+  "winsWithinDraft": 9,
   "seedBank": [
    11,
    8,
@@ -189,11 +279,11 @@
  },
  {
   "id": "r04-lake-03",
-  "draftMoves": 24,
+  "draftMoves": 13,
   "seedsTried": 12,
   "greedyWins": 12,
-  "greedyUsedMedian": 2,
-  "greedyUsedP80": 2,
+  "greedyUsedMedian": 5,
+  "greedyUsedP80": 7,
   "winsWithinDraft": 12,
   "seedBank": [
    1,
@@ -203,7 +293,7 @@
   "witness": [
    {
     "seed": 1,
-    "used": 2,
+    "used": 3,
     "actions": [
      [
       "swap",
@@ -212,14 +302,19 @@
      ],
      [
       "swap",
-      18,
-      25
+      39,
+      40
+     ],
+     [
+      "swap",
+      10,
+      17
      ]
     ]
    },
    {
     "seed": 2,
-    "used": 2,
+    "used": 5,
     "actions": [
      [
       "swap",
@@ -228,14 +323,29 @@
      ],
      [
       "swap",
-      17,
+      37,
+      44
+     ],
+     [
+      "swap",
+      9,
+      16
+     ],
+     [
+      "swap",
+      22,
+      29
+     ],
+     [
+      "swap",
+      11,
       18
      ]
     ]
    },
    {
     "seed": 3,
-    "used": 2,
+    "used": 5,
     "actions": [
      [
       "swap",
@@ -246,6 +356,21 @@
       "swap",
       16,
       17
+     ],
+     [
+      "swap",
+      32,
+      39
+     ],
+     [
+      "swap",
+      30,
+      31
+     ],
+     [
+      "swap",
+      32,
+      33
      ]
     ]
    }

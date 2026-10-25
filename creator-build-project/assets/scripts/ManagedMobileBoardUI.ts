@@ -962,7 +962,7 @@ export class ManagedMobileBoardUI extends Component {
     const ending = !h.mainNext?.visible && !h.next?.visible && !!h.ending?.visible, next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : ending ? h.ending.run : null;
     return { kind, score: a.score || 0, stars, movesUsed: Array.isArray(a.actions) ? a.actions.length : null, movesLeft: a.moves ?? null, goalsLeft, chestHint: mainline && kind !== 'readonly', rewards,
       unlockHint: mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? a.level === 3 ? '主线 05 与潮汐挑战已开放；前往风车草甸' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放；天空城另有 3D 场景入口' : undefined : undefined,
-      hostError: this.hostResultError || undefined,
+      hostError: this.hostResultError || undefined, failHint: kind === 'lose' && typeof s.uiFailHint === 'string' && s.uiFailHint ? s.uiFailHint : undefined,
       next, nextLabel: ending ? '继续' : undefined, replay: kind === 'lose' && s.state === 'result.saved' ? mainline ? () => this.command('startStage', a.stageId, {}) : s.provider === 'regional-r05' ? () => this.command('retryStage') : null : null,
       retrySave: () => this.command('retrySave'), home: () => {
         // 回小岛 joins the host's claim batch: the chest / region claims fired by the same tap are written first, then we leave.
@@ -974,7 +974,7 @@ export class ManagedMobileBoardUI extends Component {
     const attemptKey = (s.active?.stageId || '') + '|' + (s.active?.attemptId || '');
     if (this.resultAttemptKey && attemptKey !== this.resultAttemptKey) this.hostResultError = '';
     this.resultAttemptKey = attemptKey;
-    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, m.hostError, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
+    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, m.failHint, m.hostError, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
     if (key === this.resultKey && this.popups.find('ResultPanel')) return;
     this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.toast.getComponent(UIOpacity)!.opacity = 0;
     const p = openResult(this.popups, m, this.toolArt); if (this.modalOpen()) p.root.setSiblingIndex(Math.max(0, this.root.children.length - 2));

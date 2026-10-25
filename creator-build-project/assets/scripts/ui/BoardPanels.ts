@@ -48,7 +48,7 @@ export interface ResultReward { id: string; label: string; icon: string; iconKin
 export interface ResultModel {
   kind: ResultKind; score: number; stars: number | null; movesUsed: number | null; movesLeft: number | null;
   goalsLeft: Array<{ art: string; count: number }>; chestHint: boolean; rewards: ResultReward[];
-  unlockHint?: string; hostError?: string; nextUnavailable?: string; /** L16 (TR9): 「继续」 to the ending instead of 下一关. */ nextLabel?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
+  unlockHint?: string; hostError?: string; failHint?: string; nextUnavailable?: string; /** L16 (TR9): 「继续」 to the ending instead of 下一关. */ nextLabel?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
 /** Steps, saved and the unlock hint are one secondary line under the score. */
@@ -59,6 +59,20 @@ function resultSummary(m: ResultModel): string {
   if (m.movesUsed !== null) parts.push('用了 ' + m.movesUsed + ' 步');
   if (m.movesLeft !== null) parts.push('剩余 ' + m.movesLeft + ' 步');
   return parts.join(' · ');
+}
+/** b18 (UI设计部): the lose-panel subtitle (ResultMessage) is one line, never wrapped or ellipsised. It starts at 17 pt and steps
+ *  down to 15 pt when the text is wider than the caption box. 17 pt is the size the panel already used (28 design px), so a caption
+ *  that fits renders exactly as before; 1 pt = 28/17 design px. Only this label's font size changes. */
+export const LOSE_CAPTION_DEFAULT = '步数用完了，换个顺序试试？';
+export const LOSE_CAPTION_PT = { default: 17, min: 15, step: 0.5 } as const;
+export const LOSE_CAPTION_PX_PER_PT = 28 / 17, LOSE_CAPTION_W = 480;
+export function loseCaptionSize(text: string, width: number = LOSE_CAPTION_W, meas: (t: string, size: number) => number = measure): number {
+  for (let pt: number = LOSE_CAPTION_PT.default; pt >= LOSE_CAPTION_PT.min; pt -= LOSE_CAPTION_PT.step) { const px = pt * LOSE_CAPTION_PX_PER_PT; if (meas(text, px) <= width) return px; }
+  return LOSE_CAPTION_PT.min * LOSE_CAPTION_PX_PER_PT;
+}
+function loseCaption(p: PopupPanel, text: string): Label {
+  const l = p.text(text, 0, 336, loseCaptionSize(text), 'brown', { bold: false, name: 'ResultMessage' });
+  l.enableWrapText = false; l.overflow = Label.Overflow.NONE; return l;
 }
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
   const wideReward = m.kind === 'win' && m.rewards.some(r => r.label.length >= 6);
@@ -79,7 +93,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
   };
   const starNodes = section('ResultStars', 0, 184, () => stars(p, 184, m.kind === 'lose' ? 0 : m.stars ?? 0));
   section('ResultScore', 0, 336, () => m.kind === 'lose'
-    ? p.text('步数用完了，换个顺序试试？', 0, 336, 28, 'brown', { bold: false, name: 'ResultMessage' })
+    ? loseCaption(p, m.failHint || LOSE_CAPTION_DEFAULT)
     : p.text(m.score + ' 分', 0, 336, 64, 'brown', { name: 'Score' }));
   if (m.kind === 'win') {
     // SPEC v2.2 text list: a win page keeps only 过关啦 / the score / 下一关 / 回小岛 (no step line, hint, names or unlock line).
