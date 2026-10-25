@@ -129,6 +129,7 @@ const tests=[
   ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],
   ['balloon-night-sky-states','tools/journey-integration/test-balloon-night-sky-states.cjs'],
   ['mesh-quantize-float-color','tools/journey-integration/test-mesh-quantize-float-color.cjs'],
+  ['sail-mesh-ready','tools/journey-integration/test-sail-mesh-ready.cjs'],
  ['balloon-transport-flag','tools/journey-integration/test-transport-flag.cjs'],
  ['balloon-transit-background-resume','tools/journey-integration/test-transit-background-resume.cjs'],
  ['sky-arrival','tools/transitions/test_sky_arrival.cjs'],

@@ -2966,8 +2966,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts",
-    "bytes": 33373,
-    "sha256": "7124f84f2c2a061243d1b4b662430943b095ef4c7ec26e6550b0ef747db516e3"
+    "bytes": 34606,
+    "sha256": "970b46098308e07b8bb849251953f526836a7351ec2aaf67aa2755c195c210cd"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts.meta",
@@ -3016,8 +3016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts",
-    "bytes": 17848,
-    "sha256": "e548667f62c3fe848e729ad9147c41037aeb0e7401da35b9b5f4ad8d349c48d1"
+    "bytes": 17899,
+    "sha256": "d4394ecd5fdef6c09ca63669c2cc8de0aad73562ec342d28d010d03c1f5cfd44"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts.meta",
@@ -4366,8 +4366,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 16275,
-    "sha256": "944c8ca43f9d9e216160c62931b1bd307c1747add9d6c95eaefb15957b8b1a02"
+    "bytes": 16284,
+    "sha256": "d7c62a3ce181c06518776b2abe8f36ca8d4e4c4caa0c8a2e279a52998e5c3f5c"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

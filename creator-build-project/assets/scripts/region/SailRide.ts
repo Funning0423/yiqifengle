@@ -78,6 +78,7 @@ export function createSailDriver(opts:{
   const bindP=new Vec3(),bindN=new Vec3();
   let bakedAny=false;
   for(const skin of opts.rider.getComponentsInChildren(SkinnedMeshRenderer)){
+   try{(skin.mesh as any)?.initialize?.();}catch{}
    const mesh=skin.mesh as any,skelData=skin.skeleton,root=skin.skinningRoot||opts.rider;
    if(!mesh||!skelData||!skelData.joints.length)continue;
    const prims=mesh.struct?.primitives?.length||0;
