@@ -17,7 +17,7 @@ function sweep(root,dir){/* dir: null = existing T-03 shape translated; else yaw
  let w=9,at=null;for(const [i,o] of traj.entries()){let d=o;if(dir!==null){const hz=Math.hypot(o[0],o[2]),q=rot(dir,[0,0,hz]);d=[q[0],o[1],q[2]];}
   const r=[root[0]+d[0],root[1]+d[1],root[2]+d[2]];const c=parkClear(tris.filter(t=>Math.max(t[1],t[4],t[7])>r[1]+.02),r);if(c<w){w=c;at=+(i*.25).toFixed(2);}}return {minClear:+w.toFixed(2),atFlightS:at};}
 const walkS=(pts)=>{let l=0;for(let i=1;i<pts.length;i++)l+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][2]-pts[i-1][2]);return {m:+l.toFixed(2),s:+(l/1.2+.6).toFixed(2)};};
-module.exports={tris,parkClear,floorAt,traj,S6,launch,rot,skyToW,L,K,LB,moored,F,envR};
+module.exports={tris,parkClear,floorAt,traj,S6,launch,rot,skyToW,L,K,LB,moored,F};
 if(require.main===module){const cands=JSON.parse(process.argv[2]||'[]');const out={S6,launchOld:launch.map(v=>+v.toFixed(3)),trajTop:traj[traj.length-1].map(v=>+v.toFixed(2)),fixtureYTop:+yTop.toFixed(2),cands:[]};
 for(const c of cands){const g=floorAt(tris,c.root[0],c.root[2],1,.6);const r=[c.root[0],g!==null?g+.03:c.root[1],c.root[2]];
  out.cands.push({id:c.id,root:r.map(v=>+v.toFixed(3)),ground:g,walk:walkS([S6,...(c.via||[]),c.outside]),park:+parkClear(tris.filter(t=>Math.max(t[1],t[4],t[7])>r[1]+.02),r).toFixed(2),liftExisting:(process.env.NOLIFT?null:sweep(r,null)),...(c.dir!==undefined?{liftDir:c.dir,liftOut:sweep(r,c.dir)}:{})});}
