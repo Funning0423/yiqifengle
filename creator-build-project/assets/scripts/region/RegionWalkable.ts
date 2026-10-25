@@ -97,13 +97,14 @@ function snapNear(region:WalkRegion,b:WVec,from:WVec):WVec|null{
  const W=g.W,H=g.H,dist=new Float64Array(W*H).fill(Infinity),heap:number[]=[],fs:number[]=[];
  const push=(ci:number,f:number)=>{heap.push(ci);fs.push(f);let i=heap.length-1;while(i>0){const p=(i-1)>>1;if(fs[p]<=fs[i])break;[heap[p],heap[i]]=[heap[i],heap[p]];[fs[p],fs[i]]=[fs[i],fs[p]];i=p;}};
  const pop=():number=>{const top=heap[0],lh=heap.pop()!,lf=fs.pop()!;if(heap.length){heap[0]=lh;fs[0]=lf;let i=0;for(;;){const l=i*2+1,r=l+1;let m=i;if(l<heap.length&&fs[l]<fs[m])m=l;if(r<heap.length&&fs[r]<fs[m])m=r;if(m===i)break;[heap[m],heap[i]]=[heap[i],heap[m]];[fs[m],fs[i]]=[fs[i],fs[m]];i=m;}}return top;};
- let best=-1,bestCost=Infinity;dist[s]=0;push(s,0);
+ const bh=Math.hypot(b[0]-from[0],b[2]-from[2]);let best=-1,bestCost=Infinity,farBest=-1,farCost=Infinity;dist[s]=0;push(s,0);
  while(heap.length){const fv=fs[0],ci=pop();if(fv>dist[ci])continue;if(fv>=bestCost)break;
-  const cc=centre(g,ci),dh=Math.hypot(cc[0]-b[0],cc[2]-b[2]);{const cost=fv+SNAP_OFF_W*dh;if(cost<bestCost){bestCost=cost;best=ci;}}
+  const cc=centre(g,ci),dh=Math.hypot(cc[0]-b[0],cc[2]-b[2]);{const cost=fv+SNAP_OFF_W*dh,far=bh>.5&&((cc[0]-b[0])*(b[0]-from[0])+(cc[2]-b[2])*(b[2]-from[2]))/bh>SNAP_BEHIND_M;if(far){if(cost<farCost){farCost=cost;farBest=ci;}}else if(cost<bestCost){bestCost=cost;best=ci;}}
   const gx=ci%W,gz=(ci/W)|0,y=g.h[ci],sc=g.c/.4;
   for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dz)continue;const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx,y2=g.h[nc];
    if(Number.isNaN(y2))continue;const diag=dx&&dz?Math.SQRT2:1;if(Math.abs(y2-y)>WALK_STEP_M*diag*sc)continue;
    if(dx&&dz&&(Number.isNaN(g.h[gz*W+nx])||Number.isNaN(g.h[nz*W+gx])))continue;const nd=fv+diag*g.c;if(nd<dist[nc]){dist[nc]=nd;push(nc,nd);}}}
+ if(best<0)best=farBest; // only cells behind the hit reachable: as before
  return best<0?null:centre(g,best);
 }
 /** March a local-space ray and report the first walkable floor it meets ('walk'), the water surface ('water', regions with waterY),
@@ -115,7 +116,10 @@ function snapNear(region:WalkRegion,b:WVec,from:WVec):WVec|null{
  *  `stay` tells the caller not to walk; `at` is then exactly her position. A floor hit (the ground at her feet) still walks. */
 export const STAY_NEAR_M=1.0;
 /** snapNear: cost = path + SNAP_OFF_W × plan distance of the cell to the hit (r4: 2; r7: 3, the S3 pocket tap over the planter stopped her at x≈9, 2.4 m short of the pocket edge). */
-let SNAP_OFF_W=3;export function __setSnapOffW(w:number){SNAP_OFF_W=w;}
+let SNAP_OFF_W=3;
+/** r7b: snapNear only falls back to cells more than this far BEHIND the hit as seen from her (plan, along her→hit) when none in front of it is reachable
+ *  (wall at (16.2,12.2) tapped from (26.6,-5): she went 30.7 m round the house to 0.6 m behind its wall). */
+const SNAP_BEHIND_M=.2;export function __setSnapOffW(w:number){SNAP_OFF_W=w;}
 export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05,from:WVec|null=null):WalkTap{
  const h=walkRayHitRaw(region,o,d,maxM,stepM,from);
  if(from&&h.kind==='walk'&&!(h as any).floor&&Math.hypot(h.at[0]-from[0],h.at[2]-from[2])<STAY_NEAR_M)return {kind:'walk',at:[from[0],from[1],from[2]],stay:true};
