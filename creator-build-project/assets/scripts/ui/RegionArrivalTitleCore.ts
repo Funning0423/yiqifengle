@@ -73,6 +73,23 @@ export function regionTitleInk(text: string, screenW: number): { w: number; h: n
   let f: number = T.font; while (f > T.minFont && at(f) > screenW - 2 * T.minEdge) f -= 1;
   return { w: at(f), h: Math.round(T.inkH * f / T.font), font: f };
 }
+/** P3 (界面验收部 cand-stage5: L9 title over the board by 1.6 px at 390): the title's DRAWN extent, not just the ink box, must
+ *  keep REGION_TITLE_CLEAR pt from the info plate above and the tray (board frame) below. Drawn extent from the centre:
+ *  glyph half + tight-shade spread + half the soft-shadow blur (+ the shadow drop below), and below also the 44×1 line.
+ *  Measured on the active style table (day and night worst case; default B). */
+export const REGION_TITLE_CLEAR = 2;
+export function regionTitleExtent(font: number, table: RegionTitleStyleTable = regionTitleTable()): { up: number; down: number } {
+  const T = REGION_TITLE_TYPE, half = (T.inkH * font / T.font) / 2, s = table;
+  const spread = Math.max(s.tightDaySpread, s.tightNightSpread), blur = Math.max(s.shadowDayBlur, s.glowNightA > 0 ? s.glowNightBlur : 0) / 2;
+  return { up: half + spread + blur, down: Math.max(half + spread + blur + s.shadowDayDy, half + T.lineGap - 3 + T.lineH) };
+}
+/** Font + centre y (top-down pt) inside the plate→tray band: the largest font (≤ the width rule) whose drawn extent + 2×clear fits;
+ *  y balances the two clearances. fits=false only if even minFont cannot (then centred, best effort). */
+export function regionTitleFit(text: string, screenW: number, bandTop: number, bandBottom: number, clear = REGION_TITLE_CLEAR): { font: number; y: number; up: number; down: number; fits: boolean } {
+  let f = regionTitleInk(text, screenW).font, e = regionTitleExtent(f); const band = bandBottom - bandTop;
+  while (f > REGION_TITLE_TYPE.minFont && e.up + e.down + 2 * clear > band) { f -= 1; e = regionTitleExtent(f); }
+  return { font: f, y: (bandTop + e.up + bandBottom - e.down) / 2, up: e.up, down: e.down, fits: e.up + e.down + 2 * clear <= band + 1e-9 };
+}
 /** §2/§6 region of a board: mainline 5–8 meadow, 9–12 skycity, 13–16 lakeside; 风铃湖畔 challenges r04/r05-lake-* lakeside.
  *  Island (tide, L1–4) is the start, not an arrival → null. */
 export function regionForStage(stageId: unknown): RegionTitleId | null {

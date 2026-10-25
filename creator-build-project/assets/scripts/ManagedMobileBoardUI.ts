@@ -634,7 +634,7 @@ export class ManagedMobileBoardUI extends Component {
     this.cells.forEach((n, i) => { const c = cellCenter(g, i); n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.getComponent(UITransform)!.setContentSize(P, P); });
     this.place(this.pause, X(g.pause.x), Y(g.pause.y), g.pause.hit); this.place(this.pause.getChildByName('Face')!.getChildByName('Art')!, 0, 0, g.pause.size * 126 / 128, g.pause.size);
     this.layoutPlate();
-    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast(); this.regionTitle?.place(w, h, g.toast.y);
+    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast(); this.regionTitle?.place(w, h, g.toast.y, { top: g.plate.y + g.plate.height / 2, bottom: g.tray.y - g.tray.height / 2 });
     this.layoutInfo = { width: w, height: h, safe, board: g.grid.size, cell: P, boardCenter: { x: this.boardCenter.x, y: this.boardCenter.y }, toolY: Y(g.tools.y), pitch: P, geometry: g, skyReserved: g.tray.y - g.tray.height / 2 };
     this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2, board: { x: g.grid.x, y: g.grid.y, size: g.grid.size } });
     this.popups.layout(); this.paint(); this.paintToolTray(); if (this.snapshot) this.render(this.snapshot);
