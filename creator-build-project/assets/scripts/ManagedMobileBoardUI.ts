@@ -1,6 +1,6 @@
 import { ManagedToolArt } from './ManagedToolArt';
 import { managedTools, TOOL_NAMES, type ManagedTool } from './world-r2/ManagedTools';
-import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, input, isValid } from 'cc';
+import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, input, isValid, sys } from 'cc';
 import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/LevelBackground';
 import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
@@ -10,6 +10,8 @@ import { PopupStack, popupScale, TintSet, artButton, makeLabel, measure, playSou
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
 import { openPause, openRestartConfirm, openResult, type ResultModel, type ResultReward } from './ui/BoardPanels';
 import { hasSeenTool, reducedMotion } from './ui/UiPrefs';
+import { RegionArrivalTitle } from './ui/RegionArrivalTitle';
+import { RegionTitleGate, markRegionTitleSeen, regionTitleFor } from './ui/RegionArrivalTitleCore';
 import Controller from './r4-cloud-compat/runtime/challenge-controller.js';
 import Port from './r4-cloud-compat/adapter/cocos-port.js';
 const { ccclass } = _decorator;
@@ -52,6 +54,8 @@ export class ManagedMobileBoardUI extends Component {
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
   private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1; private toastFade = 0.2; private toastEnd = TOAST_S; private noticeShown = false; private noticeUp = false; private queuedTip = '';
+  /** region-title SPEC §6/§7: the 2.0 s place name at a new region's first board; tips, the stale notice and tool intros wait behind it. */
+  private regionTitle: RegionArrivalTitle | null = null; private titleGate = new RegionTitleGate(); private titleClock = 0; private titleStage = '';
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private resultAttemptKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
@@ -154,6 +158,7 @@ export class ManagedMobileBoardUI extends Component {
     this.toast = this.box('Toast', this.root, 0, 0, 300, 40); this.toast.addComponent(UIOpacity).opacity = 0;
     this.toastBg = this.box('ToastPlate', this.toast, 0, 0, 300, 40).addComponent(Graphics);
     this.toastLabel = makeLabel(this.toast, '', 0, 0, 15, { width: 320, name: 'ToastText' }); this.tint.label(this.toastLabel, 'brown');
+    this.regionTitle = new RegionArrivalTitle(this.root);
     this.stagePanel = this.box('NativeStageSelection', this.root, 0, 0, 1, 1);
     this.popups = new PopupStack(this.root, () => ({ width: this.layoutInfo?.width || 390, height: this.layoutInfo?.height || 844, safeInsets: this.layoutInfo?.safe }));
     const art = BoardArt.shared(); this.artOff = art.onChange(() => { if (!this.disposing && isValid(this.root, true)) this.refreshArt(); });
@@ -301,6 +306,7 @@ export class ManagedMobileBoardUI extends Component {
     // r4.2 items 10/11: a finished hidden pre-activation already laid out this frame size; the swap frame only toggles visibility.
     if (!this.disposing && this.root && isValid(this.root, true) && (!this.prewarmedFrame || this.prewarmedFrame !== this.frameKey())) this.layout();
     if (this.veil && isValid(this.veil, true)) this.veil.opacity = 255;
+    this.maybeShowRegionTitle();
     // Restored attempts intentionally stay paused. Unlike an OS hide/show,
     // a new view has no boardWasHidden edge to request the recovery controls.
     // Offer explicit Resume on its first visible update; never unlock silently.
@@ -375,7 +381,7 @@ export class ManagedMobileBoardUI extends Component {
     if (!tool?.available) { this.cancelToolInput(); this.say(tool?.reason || '本关没有可用道具'); this.paintToolTray(); this.paint(); return false; }
     if (!tool.targeted) return this.useToolAt(tool.kind, -1);
     this.armedTool = this.armedTool === tool.kind ? null : tool.kind; this.selected = -1;
-    if (!this.armedTool && this.noticeUp) this.dropHeldTip(); else this.say(this.armedTool ? `${tool.name} · 点选目标` : '已收回，道具没有消耗'); this.paintToolTray(); this.paint(); return true;
+    if (!this.armedTool && this.noticeUp) this.dropHeldTip(); else { const armed = this.armedTool; this.say(armed ? `${tool.name} · 点选目标` : '已收回，道具没有消耗', 0.2, armed ? () => this.armedTool === armed : undefined); } this.paintToolTray(); this.paint(); return true;
   }
   /** A press is layout pt (origin top-left, y down) when that reading sits on the node, otherwise Cocos UI (y up). */
   private layoutYDown(node: Node, x: number, y: number) {
@@ -628,7 +634,7 @@ export class ManagedMobileBoardUI extends Component {
     this.cells.forEach((n, i) => { const c = cellCenter(g, i); n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.getComponent(UITransform)!.setContentSize(P, P); });
     this.place(this.pause, X(g.pause.x), Y(g.pause.y), g.pause.hit); this.place(this.pause.getChildByName('Face')!.getChildByName('Art')!, 0, 0, g.pause.size * 126 / 128, g.pause.size);
     this.layoutPlate();
-    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast();
+    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast(); this.regionTitle?.place(w, h, g.toast.y);
     this.layoutInfo = { width: w, height: h, safe, board: g.grid.size, cell: P, boardCenter: { x: this.boardCenter.x, y: this.boardCenter.y }, toolY: Y(g.tools.y), pitch: P, geometry: g, skyReserved: g.tray.y - g.tray.height / 2 };
     this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2, board: { x: g.grid.x, y: g.grid.y, size: g.grid.size } });
     this.popups.layout(); this.paint(); this.paintToolTray(); if (this.snapshot) this.render(this.snapshot);
@@ -873,13 +879,24 @@ export class ManagedMobileBoardUI extends Component {
     g.strokeColor = new Color(255, 226, 140, 255); g.lineWidth = 3; g.circle(from.x, from.y, this.cell * .5); g.stroke(); g.strokeColor = new Color(120, 200, 190, 255); g.circle(to.x, to.y, this.cell * .46); g.stroke();
   }
   private box(name: string, parent: Node, x: number, y: number, w: number, h: number) { const n = new Node(name); n.layer = Layers.Enum.UI_2D; parent.addChild(n); n.setPosition(x, y); n.addComponent(UITransform).setContentSize(w, h); return n; }
+  /** region-title SPEC §6/§8.3: after presentForPlay (and on any later new board in the same view) show the region's name once.
+   *  The flag is written when the title starts, so leaving mid-title never replays it. */
+  private maybeShowRegionTitle() {
+    if (!this.presented || this.disposing || !this.regionTitle) return;
+    const s = this.snapshot, stage = String(s?.active?.stageId ?? ''); if (!stage || stage === this.titleStage) return; this.titleStage = stage;
+    let store: any = null; try { store = sys.localStorage; } catch { store = null; }
+    const id = regionTitleFor(s, store); if (!id) return;
+    markRegionTitleSeen(store, id); this.titleGate.begin(this.titleClock); this.regionTitle.show(id); this.regionTitle.node.setSiblingIndex(this.root.children.length - 1);
+  }
   // ---------------- toast / input / hint ----------------
   /** Transient strip above the board tray (BoardLayout.toast, every region alike): tool prompts and errors only, fades after 2 s. */
-  private say(text: string, fade = 0.2) {
+  private say(text: string, fade = 0.2, valid?: () => boolean) {
     if (!text || !this.toastLabel) return;
+    // region-title SPEC §7: the place name owns the toast slot for its 2.0 s; tips wait and come out afterwards in order.
+    if (this.titleGate.active(this.titleClock)) { this.titleGate.hold({ text, fade, valid }); return; }
     // b18 (UI设计部): the stale-board notice has top priority; a tip arriving during it waits (latest wins) and shows after it fades.
     if (this.noticeUp) { this.queuedTip = text; return; } this.toastLabel.string = text; this.toastT = 0; this.toastFade = fade; this.toastEnd = fade === 0.2 ? TOAST_S : fade + TOAST_S;
-    this.sizeToast(); this.toast.setSiblingIndex(this.root.children.length - 1);
+    this.sizeToast(); this.toast.setSiblingIndex(this.root.children.length - 1); this.regionTitle?.node.setSiblingIndex(this.root.children.length - 1);
   }
   /** Pill = text + 40, capped by the layout's max width (≤ 330, inset from the edges); a longer line scales down to stay inside the caps. */
   private sizeToast() {
@@ -892,6 +909,7 @@ export class ManagedMobileBoardUI extends Component {
    *  the board toast says 「关卡已调整，从头开始」: fade 0.3 s, hold 2 s, fade 0.3 s; no button, no popup, touches pass through; the
    *  provider flag is cleared at once (in memory, so a restart never shows it). Toast sits in the plate→tray band like every tip. */
   private staleNotice(s: any) {
+    if (this.titleGate.active(this.titleClock)) return; // §7: the place name first, then 「关卡已调整」
     if (this.noticeShown || !s?.notice?.text || !s.active || s.state !== 'run.ready' || s.readOnly || this.modalOpen()) return;
     if (Array.isArray(s.notice.stageIds) && !s.notice.stageIds.includes(s.active.stageId)) return;
     this.noticeShown = true; this.say(String(s.notice.text), 0.3); this.noticeUp = true;
@@ -912,13 +930,17 @@ export class ManagedMobileBoardUI extends Component {
     this.followGhost(); this.followPiece();
     if (this.returnPause) { this.returnPause = false; if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden && this.snapshot.active && !this.modalOpen()) this.openPausePanel(); }
     this.tint.update(); this.popups.update(dt);
-    const s = this.snapshot, active = !!s && s.state === 'run.ready' && !s.readOnly && !this.modalOpen() && !this.armedTool && !this.toolDrag && !this.dragStart && (typeof this.managed?.hint === 'function' || !!s.active?.guide);
+    this.titleClock += Math.max(0, dt); this.regionTitle?.update(dt); this.maybeShowRegionTitle();
+    if (this.titleGate.ended(this.titleClock)) this.hintClock.reset()/* §7: the 5 s auto-hint counts from the title's end */;
+    const titleUp = this.titleGate.active(this.titleClock);
+    const s = this.snapshot, active = !titleUp && !!s && s.state === 'run.ready' && !s.readOnly && !this.modalOpen() && !this.armedTool && !this.toolDrag && !this.dragStart && (typeof this.managed?.hint === 'function' || !!s.active?.guide);
     if (this.hintClock.tick(dt, active)) this.autoHint();
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
     if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
     this.staleNotice(s);
-    if (this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
+    if (!titleUp && this.toastT < 0 && !this.noticeUp && this.titleGate.pending()) { const q = this.titleGate.next(); if (q) this.say(q.text, q.fade, q.valid); }
+    if (!titleUp && this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
   }
   // ---------------- dialogs ----------------
   /** QA board frames: the checkpoint is paused, so the recovery sheet would cover the playfield. */
@@ -1016,7 +1038,7 @@ export class ManagedMobileBoardUI extends Component {
     const shown = this.rewardShown.slice(), hadChest = this.rewardChest;
     openReward(this.popups, shown, this.toolArt, { chest: hadChest, description: desc, done: () => { this.rewardShown = []; this.rewardChest = false; if (behind && behind.alive) behind.root.active = true; for (let i = 0; i < shown.length; i++) { const k = shown[i].kind; if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); } this.flushIntro(); } });
   }
-  private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
+  private flushIntro() { if (!this.introQueue.length || this.modalOpen() || this.titleGate.active(this.titleClock)) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
   onDestroy() {
     if (this.disposing) return; this.disposing = true;
     // Cocos destroys child nodes before this component. Detach global listeners

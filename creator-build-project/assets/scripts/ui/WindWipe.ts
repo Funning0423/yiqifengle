@@ -1,6 +1,5 @@
-import { BlockInputEvents, Camera, Color, Graphics, Label, Layers, MeshRenderer, Node, Prefab, RenderTexture, SphereLight, Sprite, SpriteFrame, UIOpacity, UITransform, Vec3, assetManager, director, instantiate, isValid, view } from 'cc';
+import { BlockInputEvents, Camera, Color, Graphics, Layers, MeshRenderer, Node, Prefab, RenderTexture, SphereLight, Sprite, SpriteFrame, UIOpacity, UITransform, Vec3, assetManager, director, instantiate, isValid, view } from 'cc';
 import { WINDWIPE, WINDWIPE_COLORS, WindWipeState, contentAlpha, holdDrift, wipeLobes, windAxis, type WipeContent, type WipeVehicle } from '../world-r2/WindWipeCore';
-import { artSprite, makeLabel } from './PopupKit';
 import { uiNightWeight } from './NightTint';
 /** 风云擦除 renderer (post-island SPEC §1). Replaces the black HomeFadeCover Graphics: the node keeps the name 'HomeFadeCover'
  *  so QA/tests that look it up still find it. Driven by WorldIntegrationBoot.fadeCover(alpha, seconds) through WindWipeState.
@@ -59,7 +58,7 @@ class WipeProp3D {
 }
 export class WindWipeView {
   readonly node: Node; readonly state = new WindWipeState();
-  private band: Graphics; private bandNode: Node; private hold: Node; private holdOp: UIOpacity; private prop: WipeProp3D; private sign: Node; private signLabel: Label; private dots: Graphics;
+  private band: Graphics; private bandNode: Node; private hold: Node; private holdOp: UIOpacity; private prop: WipeProp3D; private dots: Graphics;
   private content: WipeContent | null = null; private pendingClear = false; private lobes = wipeLobes(); private now = 0; private inAt = -1; private last = '';
   private block: BlockInputEvents;
   constructor(parent: Node) {
@@ -70,16 +69,13 @@ export class WindWipeView {
     this.hold = new Node('WindWipeHold'); this.hold.layer = Layers.Enum.UI_2D; node.addChild(this.hold); this.hold.addComponent(UITransform); this.holdOp = this.hold.addComponent(UIOpacity);
     const shadow = new Node('VehicleShadow'); shadow.layer = Layers.Enum.UI_2D; this.hold.addChild(shadow); shadow.addComponent(UITransform); const sg = shadow.addComponent(Graphics); sg.fillColor = new Color(0x3c, 0x28, 0x14, 61); sg.ellipse(0, -92, 70, 12); sg.fill();
     this.prop = new WipeProp3D(this.hold, 200);
-    this.sign = new Node('WindWipeSign'); this.sign.layer = Layers.Enum.UI_2D; this.hold.addChild(this.sign); this.sign.addComponent(UITransform);
-    artSprite(this.sign, 'popup/title_plank_3s', 0, 0, 176, 54, 'Plank');
-    this.signLabel = makeLabel(this.sign, '', 0, 2, 22, { width: 170, name: 'RegionName' }); this.signLabel.color = new Color(0x5a, 0x3a, 0x1e, 255);
-    (this.signLabel as any).spacingX = 3;
+    // region-title SPEC §1: the hold has no place-name plank any more (the name fades in at the region's first level).
     const dn = new Node('WindDots'); dn.layer = Layers.Enum.UI_2D; this.hold.addChild(dn); dn.addComponent(UITransform); this.dots = dn.addComponent(Graphics);
     node.active = false;
   }
   setContent(c: WipeContent | null) {
     if (!c) { this.pendingClear = true; return; }
-    this.pendingClear = false; this.content = c; this.prop.show(c.vehicle); this.signLabel.string = c.sign || ''; this.sign.active = !!c.sign;
+    this.pendingClear = false; this.content = c; this.prop.show(c.vehicle);
   }
   /** Legacy cover(alpha, seconds) ramp. */
   ramp(alpha: number, seconds: number, now: number) { this.now = now; const d = this.state.set(alpha, seconds, now); if (d === 'in') this.inAt = now; if (alpha > 0 || this.state.mode !== 'clear') this.node.active = true; }
@@ -96,8 +92,6 @@ export class WindWipeView {
     if (this.hold.active) {
       const k = Math.min(w / 390, h / 844), dr = holdDrift(fullFor);
       this.prop.sprite.node.setPosition(dr.dx * k - 40 * k, h / 2 - 330 * k + dr.dy * k, 0); this.prop.sprite.node.getComponent(UITransform)!.setContentSize(200 * k, 200 * k);
-      this.sign.setPosition(0, h / 2 - 470 * k, 0); this.sign.setScale(k, k, 1);
-      const sp = this.sign.getChildByName('Plank')?.getComponent(Sprite); const tint = night ? [217, 217, 235] : [255, 255, 255]; if (sp) sp.color = new Color(tint[0], tint[1], tint[2], 255);
       this.dots.clear(); if (dr.dots) { const b = .5 + .5 * Math.sin(fullFor * Math.PI * 2 / .5); for (let i = -1; i <= 1; i++) { this.dots.fillColor = new Color(0x5a, 0x3a, 0x1e, Math.round(120 + 100 * b)); this.dots.circle(i * 14 * k, h / 2 - 512 * k, 3 * k); this.dots.fill(); } }
     }
     this.prop.tick(dt); return done;
