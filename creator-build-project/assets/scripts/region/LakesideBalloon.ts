@@ -468,7 +468,7 @@ export function lakesideDoorWideLens(walk:readonly Vec[],basket:Vec,land:Pose,as
   if(lakesideRimLift(lens,seat)!==lens)continue;
   const ang=Math.acos(Math.max(-1,Math.min(1,f[0]*lf[0]+f[1]*lf[1]+f[2]*lf[2])))*180/Math.PI,gap=seg(P,land.position as Vec);
   const need=Math.max(1.875*ang/19,Math.sqrt(5.7735*ang/110),Math.sqrt(5.7735*gap/2.7));if(need>maxBlendS)continue;
-  const cst=Math.abs((ymx-ymn)-.9)*4+need*.3;if(cst<bc){bc=cst;best={lens,blendS:Math.max(need,1)};}}
+  const cst=Math.abs((ymx-ymn)-.7)*4+need*.3/* body block ≈ 35 % of the frame height: .9 let the turn-in cross a rigging strut on 390x520 / 768x1024 (route O1) */;if(cst<bc){bc=cst;best={lens,blendS:Math.max(need,1)};}}
  return best;
 }
 /** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera until the old blend-out window (from there the
