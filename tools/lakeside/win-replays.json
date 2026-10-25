@@ -173,7 +173,7 @@
    "label": "L14",
    "stageId": "r04-lake-02",
    "name": "两岸的铃",
-   "contentRevision": "draft-2026-10-16",
+   "contentRevision": "draft-2026-10-25",
    "replays": [
     {
      "seed": 11,
@@ -205,11 +205,11 @@
       30
      ],
      "moves": 4,
-     "movesAllowed": 24,
+     "movesAllowed": 18,
      "verified": true,
      "lastIsSwap": true,
      "score": 860,
-     "movesRemaining": 20
+     "movesRemaining": 14
     },
     {
      "seed": 8,
@@ -261,11 +261,11 @@
       15
      ],
      "moves": 8,
-     "movesAllowed": 24,
+     "movesAllowed": 18,
      "verified": true,
      "lastIsSwap": true,
      "score": 840,
-     "movesRemaining": 16
+     "movesRemaining": 10
     },
     {
      "seed": 10,
@@ -317,11 +317,11 @@
       24
      ],
      "moves": 8,
-     "movesAllowed": 24,
+     "movesAllowed": 18,
      "verified": true,
      "lastIsSwap": true,
      "score": 700,
-     "movesRemaining": 16
+     "movesRemaining": 10
     }
    ]
   },

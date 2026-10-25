@@ -145,12 +145,12 @@
  },
  {
   "id": "r04-lake-02",
-  "draftMoves": 24,
+  "draftMoves": 18,
   "seedsTried": 12,
   "greedyWins": 12,
   "greedyUsedMedian": 14,
   "greedyUsedP80": 19,
-  "winsWithinDraft": 12,
+  "winsWithinDraft": 9,
   "seedBank": [
    11,
    8,
