@@ -373,3 +373,49 @@ All after-numbers are NOT ENGINE: they come from replaying the Mac p0drag11 camT
   - releasing a stuck world-hold.
 - Next step: choose the swing side against the walk destination's clear sector, and make walkEndView's turn arc box-free.
 - Foliage taps and NE1: not re-tested by the camera side this round (r7 ray tests pass in the suite).
+
+## p0drag12 continued (after the r7 merge) — 运镜bot
+All numbers are NOT ENGINE: they come from replaying the Mac p0drag11 frames through the real writeOrbit.
+
+### r7 nook stop (routes now come from walkRayHit → walkTapPath on the merged code)
+- The real day stop is (11.4, 7.8) after 5.69 m, by way of (10.6, 7.0). The night stop is (11.8, 8.2) after 6.26 m.
+- Fix, step 1: `walkStarted(path)` now uses her destination.
+  - `clearYaws(dest, pitch)` lists the orbit yaws from which her face and chest are clear and the lens is outside every box.
+  - If fewer than 18 yaws (90°) are clear, the orbit is also raised, by up to +24°.
+  - `steerWalk` turns the orbit toward that sector early in the walk (≤60°/s, aim up to 60° inside the sector, pitch ≤3°/s).
+- Fix, step 2: walkEndView's turn is checked every 5° against boxes and goes around them, never through.
+- Fix, step 3: while walking, the "lens inside a box" boost is judged on the real world lens. This removed the 55°/s climbs that broke the pitch limit.
+- Fix, step 4: a detour that shows her again re-anchors the avoider where it is. While walking, the return to the raw yaw must keep her visible along the arc.
+- Fix, step 5: the no-entry guard's last resort always holds last frame's lens.
+- Result, W2 (face/chest, walk + 0.5 s; 0 frames inside a box; pitch and height within limits) — **gated**:
+
+| Route | Straight line on 044c8de8 (s) | Now (s) |
+|---|---|---|
+| Pock day, skd/skn/skxd | 0.75–1.85 / 0.88–2.77 | 0.35 / 0.37 / 0.35 |
+| Pock night, skd/skn/skxd | — | 0.13 / 0.17 / 0.25 |
+| NE1 (24.64 m, to (26.6, −5)) | — | 0.17–0.18 |
+| NE2 | — | 0.13–0.14 |
+| Roof | — | 0.13–0.14 |
+
+### L1 low-angle skn ro
+- Frames inside a box: 4 → 0, gated.
+- Hidden time, not gated:
+  - At 12°: 0.59 s. Her clear sector at (9.09, 7.78) is 150–330°, but the avoider swings to +43° and back.
+  - At 20°: 1.03/1.07 → 0.62 s.
+
+### Yaw harshness
+- I tried a yaw acceleration cap (2400 and 1200°/s²). It did not lower the measured acceleration peaks: those come from pins and frame jitter (p99 about 4000°/s² either way). It also regressed occlusion:
+  - W2 day skd: 0.35 → 1.57 s;
+  - W1 fails;
+  - p0drag11 Q2 fails.
+- Reverted. Y1 now also reports angular acceleration:
+  - written peak 315–437°/s (Mac 325–474°/s; player ≤71°/s);
+  - acceleration p99 4195–5765°/s², peak 12–23 k°/s².
+
+### Fixture
+- `fixtures_p0drag12.json` (2.29 MB) is now `fixtures_p0drag12.json.gz` (0.22 MB). Test output is identical.
+
+### Foliage taps and NE1 (r7, camera side)
+- T1/T2 stay taps return before any camera code runs, so the camera does not change.
+- NE1, NE2 and Roof walks: see W2 above.
+- Suite on 79ff5833: 179/182 PASS. The only blocks are the expected ones: 2× Node ≥22.6 and navigation-guard (browser). p0drag7–12, skycity-stand and lakeside-walkable pass.
