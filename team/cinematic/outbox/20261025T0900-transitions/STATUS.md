@@ -18,3 +18,14 @@ Camera (60 fps, per side of the seam re-base): yaw max 37.6→41.5 °/s, yaw acc
 ## Handoff test (synthetic level orbit → shot → next level orbit)
 walk 130°: yaw 59.6°/s, p99 47; stand 170°: 87.8°/s, p99 111; moving-in: 113°/s, p99 300 (walk cap); pos step ≤0.15 m/frame; FOV step ≤0.1°.
 Comparison image: NOT_ENGINE_flight30_timewarp.png (proxy chart, not engine render).
+
+# Round 2 — merge cand + segment 6 (skycity→lakeside)
+- Merged ggbot/cand-b18-stage d9423886 (normal merge 3419d404). Conflicts only in generated suite reports (taken from cand, regenerated). No source conflicts. T-03 b1bb58e7 is in d9423886.
+- region/SkyLakeContinuous.ts (+.meta): camera only. Entry = TransitionCamera.onShotContinue (T-02 end CamState → `from`).
+  Timeline (segment clock, all screens): C1 walk 0–8.65 (T-03 walk lens + its start blend) · C1 board 8.65–13.85 (door 1.0 + step-in 1.2 + ignition 3.0, PLACEHOLDER; min-jerk blend to the lift-off lens) · lift-off 13.85–19.85 (the 18 s T-03 hid under black, 6 s eased warp, ×~4.3 peak) · T-03 visible flight 19.85–31.85 (12 s, bit-identical) · touchdown 31.85 → C2 = ride time R.T+Δ: sign at +1.8 for 3.0 s, board blend at +5.3 (LAKESIDE_TOUCHDOWN unchanged).
+  rideT(τ) maps to T-03 ride time for basket/her/adapter.
+- tools/transitions-continuous/test_sky_lake_continuous.cjs (suite: sky-lake-continuous), 7 screens, 60 fps, C1→flight→C2→board:
+  yaw max 55.0°/s, yaw accel p99 84°/s², lens step ≤0.192 m/frame, accel p99 12.8 m/s², FOV step ≤0.028°, face/chest hidden ≤0.17 s. T-03 flight exact at 4 probes.
+  liftS sweep: 4 s → 85.3°/s / 177°/s² (passes, no margin); 5 s → 66.9 / 122; 6 s chosen.
+- test-lakeside-touchdown-timeline PASS (unchanged), t03-arrival 7/7.
+- Suite on 9b695930: 196/199 PASS; BLOCKED: legacy-board-ui-pure, reward-background-return (Node ≥22.6), navigation-guard (browser). 0 FAIL.

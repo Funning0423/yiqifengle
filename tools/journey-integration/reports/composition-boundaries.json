@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-25T07:33:25.426Z",
+  "timeUTC": "2026-10-25T12:49:46.721Z",
   "scope": "Actual production WorldNativeComposition and mainline controller, legal progression, explicit world-command doubles. Tests command ordering/ownership only, not rendered movement.",
   "checks": [
     {

@@ -6,6 +6,9 @@ PASS landing→board hook call site
 PASS pitch and route speed untouched (pending Grok Bot / 运镜bot)
 PASS continue journey after saved mainline completion enters lake; unfinished or active mainline stays on mainline
 PASS lakeside region admission requires all twelve verified records before any movement
+[QF_LAKESIDE_ARRIVAL] arrived
+[QF_LAKESIDE_ARRIVAL] enter-level
+[QF_LAKESIDE_ARRIVAL] level-interactive
 PASS saved finale → real continue/selection/provider gate → balloon route → lake board, without save writes
 PASS ensureRegion (real class method): skycity→lakeside one travel, island walks the chain, lakeside→lakeside none
 PASS enterSelectedLevel r04-lake-01 from skycity: travel lakeside → landing hook → enterLevel (in that order)

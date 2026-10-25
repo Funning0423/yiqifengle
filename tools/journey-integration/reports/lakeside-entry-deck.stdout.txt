@@ -79,7 +79,7 @@
   },
   "pass": true
  },
- "elapsedS": 24,
+ "elapsedS": 20.9,
  "status": "PASS"
 }
 lakeside-entry-deck: ok

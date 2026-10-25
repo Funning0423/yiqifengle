@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-25T07:22:05.692Z",
+ "timeUTC": "2026-10-25T12:53:50.137Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -2054,13 +2054,13 @@
     "visibleJumps": 0,
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.736
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2074,18 +2074,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 18.618,
-     "omegaAt": 37.512,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 13.25,
+     "omegaAt": 29.895,
      "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.736,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.637,
+     "fovRate": 1.447,
      "jumps": 0
     }
    ],
@@ -2117,7 +2117,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2137,13 +2137,13 @@
     "visibleJumps": 0,
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.736
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2157,18 +2157,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 18.618,
-     "omegaAt": 37.512,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 13.25,
+     "omegaAt": 29.895,
      "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.736,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.638,
+     "fovRate": 1.447,
      "jumps": 0
     }
    ],
@@ -2200,7 +2200,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2220,13 +2220,13 @@
     "visibleJumps": 0,
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.736
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2240,18 +2240,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 18.618,
-     "omegaAt": 37.512,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 13.25,
+     "omegaAt": 29.895,
      "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.736,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.652,
+     "fovRate": 1.447,
      "jumps": 0
     }
    ],
@@ -2283,7 +2283,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2302,14 +2302,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.339,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.729
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.596
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2323,18 +2323,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.339,
-     "omegaAt": 37.395,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 11.944,
+     "omegaAt": 14.712,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.729,
-     "accAt": 22.745,
+     "acc": 2.596,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2366,7 +2366,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2385,14 +2385,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.482,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.596
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2406,18 +2406,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.482,
-     "omegaAt": 37.478,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 11.944,
+     "omegaAt": 14.712,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.596,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2449,7 +2449,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2468,14 +2468,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.262,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.727
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.499
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2489,18 +2489,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.262,
-     "omegaAt": 37.395,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 10.717,
+     "omegaAt": 14.628,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.727,
-     "accAt": 22.745,
+     "acc": 2.499,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2532,7 +2532,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2551,14 +2551,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.339,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.729
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.499
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2572,18 +2572,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.339,
-     "omegaAt": 37.395,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 10.643,
+     "omegaAt": 14.628,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.729,
-     "accAt": 22.745,
+     "acc": 2.499,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2615,7 +2615,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   }
@@ -2649,7 +2649,7 @@
    "screens": [
     {
      "screen": "390x844",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2659,7 +2659,7 @@
     },
     {
      "screen": "414x896",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2669,7 +2669,7 @@
     },
     {
      "screen": "360x780",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2679,7 +2679,7 @@
     },
     {
      "screen": "375x667",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2689,7 +2689,7 @@
     },
     {
      "screen": "320x568",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2699,7 +2699,7 @@
     },
     {
      "screen": "390x520",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2709,7 +2709,7 @@
     },
     {
      "screen": "768x1024",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
