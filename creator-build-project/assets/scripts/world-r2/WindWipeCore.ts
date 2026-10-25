@@ -1,7 +1,7 @@
 /** 风云擦除 (WindWipe, UI设计部 ui/post-island-ui 9fe06160 SPEC §1): the one shared transition cover. A warm low-poly cloud
  *  band sweeps from lower-left to upper-right (12° tilt) in the wind direction: OUT 0.45 s smoothstep, HOLD ≥ 1.10 s (until the
  *  next scene is loaded and she / the camera are placed), IN 0.55 s continuing to upper-right (never backs off). During HOLD only
- *  one 3D vehicle and one region sign show; no buttons, no other text. Pure (no cc imports): the geometry and the orchestration
+ *  one 3D vehicle shows (no region sign since the region-title SPEC); no buttons, no other text. Pure (no cc imports): the geometry and the orchestration
  *  live here so tests can drive simulated time; ui/WindWipe.ts draws it and WorldIntegrationBoot owns the node.
  *
  *  Legacy API: every cover caller speaks `cover(alpha, seconds)` (ScreenCover). WindWipeState maps that onto the band: a rising
@@ -16,12 +16,13 @@ export const WINDWIPE_COLORS={
 export type WipeVehicle='sailboat'|'balloon'|'chime';
 export interface WipeContent{vehicle:WipeVehicle|null;sign:string|null}
 /** Destination → hold content (SPEC §2 TR1/TR3/TR9; TR8 home has none). */
+/** Region-title SPEC §1 (UI设计部 00bae3e7): no place-name sign or any text during a transition; the name now fades in at the
+ *  first level of a new region (ui/RegionArrivalTitle.ts). `sign` is always null; the hold keeps only the 3D vehicle. */
 export function wipeContentFor(to:string|null|undefined,ride?:boolean):WipeContent{
-  if(to==='meadow')return {vehicle:'sailboat',sign:'花粉草甸'};
-  if(to==='skycity')return {vehicle:'balloon',sign:'天空之城'};
-  if(to==='lakeside')return {vehicle:'balloon',sign:'风铃湖畔'};
+  if(to==='meadow')return {vehicle:'sailboat',sign:null};
+  if(to==='skycity'||to==='lakeside')return {vehicle:'balloon',sign:null};
   if(to==='ending')return {vehicle:'chime',sign:null};
-  if(to==='island')return {vehicle:null,sign:'回到小岛'};
+  if(to==='island')return {vehicle:null,sign:null};
   return {vehicle:ride?'balloon':null,sign:null};
 }
 export const smoothstep=(t:number)=>{const x=Math.max(0,Math.min(1,Number.isFinite(t)?t:0));return x*x*(3-2*x);};

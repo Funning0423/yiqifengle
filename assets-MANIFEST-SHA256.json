@@ -175,6 +175,11 @@
     "sha256": "be93114667e01b8b2a0c07941fa1b9fd4fdd583333688b519022f00e5652dde4"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/font/QFLRegionTitle.ttf",
+    "bytes": 11652,
+    "sha256": "26b1dab4dfb968e4a973d10705244670d3b3ff39f75309871a5173a1230596ad"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/popup/btn_close.png",
     "bytes": 28266,
     "sha256": "6f66b50a14e4808013e3450d3cca63790e3a6e9c2b70b920c0f750821066a907"

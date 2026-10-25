@@ -1,0 +1,67 @@
+{
+ "font": 24,
+ "track": 0.15,
+ "fill_day": [
+  255,
+  248,
+  236
+ ],
+ "fill_night": [
+  232,
+  238,
+  255
+ ],
+ "night_alpha": 0.9,
+ "shadow_day": [
+  90,
+  58,
+  30
+ ],
+ "shadow_day_a": 0.5,
+ "shadow_day_blur": 4.5,
+ "shadow_day_dy": 1,
+ "tight_day_a": 0.4,
+ "tight_day_blur": 1.0,
+ "glow_night": [
+  156,
+  180,
+  240
+ ],
+ "glow_night_a": 0.38,
+ "glow_night_blur": 7,
+ "line_w": 44,
+ "line_gap": 7,
+ "line_h": 1,
+ "line_a": 0.5,
+ "inS": 0.4,
+ "holdS": 1.2,
+ "outS": 0.4,
+ "risePt": 6,
+ "B": {
+  "shadow_day_a": 0.6,
+  "shadow_day_blur": 4,
+  "shadow_day_dy": 1,
+  "tight_day_a": 0.95,
+  "tight_day_blur": 0.7,
+  "tight_day_spread": 3.2,
+  "halo_rgb": [
+   90,
+   58,
+   30
+  ],
+  "halo_a": 0.24,
+  "halo_padx": 30,
+  "halo_pady": 18,
+  "night_use_glow": true,
+  "glow_night_a": 0.0,
+  "halo_rgb_night": [
+   20,
+   28,
+   52
+  ],
+  "halo_a_night": 0.22,
+  "tight_night_a": 0.75,
+  "tight_night_blur": 1.0,
+  "tight_night_spread": 1.5
+ }
+}
