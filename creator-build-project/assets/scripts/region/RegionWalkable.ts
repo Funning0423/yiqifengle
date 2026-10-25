@@ -46,7 +46,7 @@ export function nearestWalkable(region:WalkRegion,pos:WVec,radiusM=3):NearestHit
   const c=centre(g,k),d=Math.hypot(c[0]-pos[0],c[2]-pos[2]);if(d>radiusM)continue;const score=d+(Math.abs(c[1]-pos[1])>1.5?10:0);if(score<bd){bd=score;best=c;}}
  return best?{at:best,distanceM:+Math.hypot(best[0]-pos[0],best[2]-pos[2]).toFixed(3),exact:false}:null;
 }
-export type WalkTap=Readonly<{kind:'walk';at:WVec}|{kind:'water';at:WVec}|{kind:'none'}>;
+export type WalkTap=Readonly<{kind:'walk';at:WVec;stay?:boolean}|{kind:'water';at:WVec}|{kind:'none'}>;
 /** March a local-space ray and report the first walkable floor it meets ('walk'), the water surface ('water', regions with waterY),
  *  or 'none' (sky, wall, off the area). */
 /** Regions whose taps that land on a prop / wall / planter (a blocked cell next to walkable floor) walk to the floor in front of
@@ -99,7 +99,7 @@ function snapNear(region:WalkRegion,b:WVec,from:WVec):WVec|null{
  const pop=():number=>{const top=heap[0],lh=heap.pop()!,lf=fs.pop()!;if(heap.length){heap[0]=lh;fs[0]=lf;let i=0;for(;;){const l=i*2+1,r=l+1;let m=i;if(l<heap.length&&fs[l]<fs[m])m=l;if(r<heap.length&&fs[r]<fs[m])m=r;if(m===i)break;[heap[m],heap[i]]=[heap[i],heap[m]];[fs[m],fs[i]]=[fs[i],fs[m]];i=m;}}return top;};
  let best=-1,bestCost=Infinity;dist[s]=0;push(s,0);
  while(heap.length){const fv=fs[0],ci=pop();if(fv>dist[ci])continue;if(fv>=bestCost)break;
-  const cc=centre(g,ci),dh=Math.hypot(cc[0]-b[0],cc[2]-b[2]);{const cost=fv+2*dh;if(cost<bestCost){bestCost=cost;best=ci;}}
+  const cc=centre(g,ci),dh=Math.hypot(cc[0]-b[0],cc[2]-b[2]);{const cost=fv+SNAP_OFF_W*dh;if(cost<bestCost){bestCost=cost;best=ci;}}
   const gx=ci%W,gz=(ci/W)|0,y=g.h[ci],sc=g.c/.4;
   for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dz)continue;const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx,y2=g.h[nc];
    if(Number.isNaN(y2))continue;const diag=dx&&dz?Math.SQRT2:1;if(Math.abs(y2-y)>WALK_STEP_M*diag*sc)continue;
@@ -110,7 +110,18 @@ function snapNear(region:WalkRegion,b:WVec,from:WVec):WVec|null{
  *  or 'none' (sky / off the area). WALK_TAP_SNAP regions (skycity, b17 skycity-walk-r4): the ray also stops on the baked obstacle
  *  voxel field (walls, houses, fence, roots, canopy, cliffs; 0.25 m slabs per cell) and a ray that slips under a floor hit its riser, and she walks to the nearest floor in front
  *  of that hit, so a ray that meets the scene never answers 'none'. */
+/** r7 (Mac p0drag11): a tap that does not land on a floor (it met leaves, a planter, a pillar, the roofline…) and resolves to a point
+ *  < STAY_NEAR_M from her in plan is not a walk: she does not move at all, not even onto her cell's centre (T1 0.4 m, T2 0.89 m).
+ *  `stay` tells the caller not to walk; `at` is then exactly her position. A floor hit (the ground at her feet) still walks. */
+export const STAY_NEAR_M=1.0;
+/** snapNear: cost = path + SNAP_OFF_W × plan distance of the cell to the hit (r4: 2; r7: 3, the S3 pocket tap over the planter stopped her at x≈9, 2.4 m short of the pocket edge). */
+let SNAP_OFF_W=3;export function __setSnapOffW(w:number){SNAP_OFF_W=w;}
 export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05,from:WVec|null=null):WalkTap{
+ const h=walkRayHitRaw(region,o,d,maxM,stepM,from);
+ if(from&&h.kind==='walk'&&!(h as any).floor&&Math.hypot(h.at[0]-from[0],h.at[2]-from[2])<STAY_NEAR_M)return {kind:'walk',at:[from[0],from[1],from[2]],stay:true};
+ return h.kind==='walk'?{kind:'walk',at:h.at}:h;
+}
+function walkRayHitRaw(region:WalkRegion,o:WVec,d:WVec,maxM:number,stepM:number,from:WVec|null):WalkTap{
  const g=walkGrid(region),L=Math.hypot(d[0],d[1],d[2])||1,u=[d[0]/L,d[1]/L,d[2]/L],floorMin=g.minY-2,snap=WALK_TAP_SNAP.indexOf(region)>=0;
  const ob=snap?obstacles(region):null;let startIn=true,obsHit:WVec|null=null,solidM=0,over:WVec|null=null,lastIn:WVec|null=null,wasAbove=false,prevIn=false,prevCi=-1,runAt:WVec|null=null,countAt:WVec|null=null,lowHit:WVec|null=null;
  for(let t=0;t<=maxM;t+=stepM){const x=o[0]+u[0]*t,y=o[1]+u[1]*t,z=o[2]+u[2]*t;
@@ -118,7 +129,7 @@ export function walkRayHit(region:WalkRegion,o:WVec,d:WVec,maxM=160,stepM=.05,fr
   if(f!==null&&y<=f+.02&&y>=f-.6){
    // came out of scene geometry (fence foot, the ground of a not-walkable pocket) under this floor's level: that geometry was the hit
    if(snap&&prevIn&&!startIn&&runAt&&y<f-.15){const at=tapSnap(region,runAt,u,from);if(at)return {kind:'walk',at};}
-   return {kind:'walk',at:[x,f,z]};}
+   return {kind:'walk',at:[x,f,z],floor:true} as WalkTap;}
   if(snap&&f!==null&&y<f-.6&&wasAbove){const at=tapSnap(region,[x,f,z],u,from);if(at)return {kind:'walk',at};} // under a floor = its riser / cliff face
   if(ob){let inS=ci>=0&&solidAt(ob,ci,y);
    // r5 (Mac p0drag9): a LOW object (planter, bench, low fence, low foliage: its run of voxels tops out ≤ 1.8 m over the nearby floor) does not stop a
