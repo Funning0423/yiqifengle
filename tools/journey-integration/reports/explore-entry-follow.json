@@ -1,0 +1,126 @@
+{
+ "status": "PASS",
+ "scope": "NOT ENGINE: real RegionNodeStage/FreeOrbit/LensGuard/CamTrace code, stubbed scene",
+ "res": {
+  "opened": true,
+  "F1": {
+   "writers": [
+    "region.node-lens",
+    "region.node-lens:orbit+entry"
+   ],
+   "bgOnAt0_1": false,
+   "ok": true
+  },
+  "F2": {
+   "firstDevM": 0,
+   "maxStepM": 0.289,
+   "ok": true
+  },
+  "F3": {
+   "entryDoneS": 2.8,
+   "lensShiftXM": 0.664,
+   "aimShiftXM": 1.177,
+   "ok": true
+  },
+  "F4": {
+   "bgOn": true,
+   "ok": true
+  },
+  "G1": {
+   "otherOn": true,
+   "ok": true
+  },
+  "G2": {
+   "bgOnWhileHeld": false,
+   "restoredOnExit": true,
+   "ok": true
+  },
+  "G3": {
+   "held": true,
+   "bgOnAfterExit": false,
+   "ok": true,
+   "ownerShowsAgain": true
+  },
+  "G4": {
+   "held": true,
+   "bgOnAfterExit": false,
+   "otherOn": true,
+   "ok": true
+  }
+ },
+ "frames": [
+  {
+   "t": 0.033,
+   "w": [
+    "region.node-lens",
+    "region.node-lens:orbit+entry"
+   ],
+   "cam": [
+    -6.480106894730788,
+    22.50988903687074,
+    -40.99515224545867
+   ],
+   "bgOn": false
+  },
+  {
+   "t": 0.067,
+   "w": [
+    "region.node-lens:orbit+entry"
+   ],
+   "cam": [
+    -6.4808397546817424,
+    22.50912828437278,
+    -40.99619602562019
+   ],
+   "bgOn": false
+  },
+  {
+   "t": 0.1,
+   "w": [
+    "region.node-lens:orbit+entry"
+   ],
+   "cam": [
+    -6.482782691241656,
+    22.507111399919733,
+    -40.99896326461818
+   ],
+   "bgOn": false
+  },
+  {
+   "t": 0.133,
+   "w": [
+    "region.node-lens:orbit+entry"
+   ],
+   "cam": [
+    -6.486475177015925,
+    22.503278378654468,
+    -41.004222309532416
+   ],
+   "bgOn": false
+  },
+  {
+   "t": 0.167,
+   "w": [
+    "region.node-lens:orbit+entry"
+   ],
+   "cam": [
+    -6.492413167762459,
+    22.497114388812445,
+    -41.01267952831276
+   ],
+   "bgOn": false
+  },
+  {
+   "t": 0.2,
+   "w": [
+    "region.node-lens:orbit+entry"
+   ],
+   "cam": [
+    -6.501050224327595,
+    22.48814860708509,
+    -41.024980907703124
+   ],
+   "bgOn": false
+  }
+ ]
+}

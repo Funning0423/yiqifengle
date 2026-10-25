@@ -859,11 +859,11 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
-      "sha256": "4e81279fc99cf16d37dca16edf013fd38911d9d2fc6b5733bebfbeabcb70ba04"
+      "sha256": "b46b0e77eaad8dffae2713701d257f1e20ab8e1f519af29c227a67dd49f236ac"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
-      "sha256": "9170b371a5003d031bb7baa03686e96fe6b83460494d0c097b10586231ac2bdb"
+      "sha256": "970a79cb2dce9f05f4f16dfca6aa959ebb880d8ef602eb89e83f96cd2d26eeae"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",

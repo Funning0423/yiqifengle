@@ -1006,8 +1006,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
-    "bytes": 6609580,
-    "sha256": "4e81279fc99cf16d37dca16edf013fd38911d9d2fc6b5733bebfbeabcb70ba04"
+    "bytes": 4727836,
+    "sha256": "b46b0e77eaad8dffae2713701d257f1e20ab8e1f519af29c227a67dd49f236ac"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/amb_sky_air_loop.mp3",
@@ -1353,6 +1353,26 @@
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_signpost.mp3",
     "bytes": 3832,
     "sha256": "95f06da4f66c22ac5df582f96f25999627744d914ad3e3985298a25e992e36b2"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_bg_day.jpg",
+    "bytes": 91798,
+    "sha256": "e77332716de9a273a3e8438e4ac4a3d2518948c03b265b1980947e1657217ba2"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_bg_night.jpg",
+    "bytes": 64396,
+    "sha256": "58c6933a5504a2f8e6a8b6b4cff9bad6197377107bc494e96451e27877d266e8"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_day.png",
+    "bytes": 26711,
+    "sha256": "b843b21940f1e166b00573d84888a03624c525bcaf3c428585814fa40ca1da8f"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_night.png",
+    "bytes": 21081,
+    "sha256": "95e56588d61064171d137f24f599c60615707318fa118a8b9f8ec28dea1aebe6"
   },
   {
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png",

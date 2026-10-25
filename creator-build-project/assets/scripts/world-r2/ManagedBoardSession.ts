@@ -126,6 +126,7 @@ export function createManagedBoardSession(selection:Selection,deps:Dependencies,
     },
     intercept:(name:string)=>name==='requestExit'?navigation.exit():name==='resume'?navigation.resume():undefined,
     submit,
+    clearNotice:()=>{if(!disposed&&typeof controller.clearNotice==='function')controller.clearNotice();},
     tools:()=>managedTools(controller.snapshot()),
     useTool:(kind:string,index:number):Reply=>{
       const s=controller.snapshot(),tool=s.active?.tool;

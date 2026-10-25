@@ -48,7 +48,7 @@ export interface ResultReward { id: string; label: string; icon: string; iconKin
 export interface ResultModel {
   kind: ResultKind; score: number; stars: number | null; movesUsed: number | null; movesLeft: number | null;
   goalsLeft: Array<{ art: string; count: number }>; chestHint: boolean; rewards: ResultReward[];
-  unlockHint?: string; hostError?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
+  unlockHint?: string; hostError?: string; failHint?: string; nextUnavailable?: string; /** L18 (TR9): 「继续」 to the ending instead of 下一关. */ nextLabel?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
 /** Steps, saved and the unlock hint are one secondary line under the score. */
@@ -59,6 +59,20 @@ function resultSummary(m: ResultModel): string {
   if (m.movesUsed !== null) parts.push('用了 ' + m.movesUsed + ' 步');
   if (m.movesLeft !== null) parts.push('剩余 ' + m.movesLeft + ' 步');
   return parts.join(' · ');
+}
+/** b18 (UI设计部 2026-10-25): the lose-panel subtitle (ResultMessage) is the stage failHint on a lost lake board, else the old
+ *  line. The result panel lays out at scale 1, so sizes are pt: the relayout draws it at 16 pt on ONE line and steps down 0.5 pt
+ *  at a time (min 15 pt) until it fits inner - 4. No wrap, no ellipsis. Hints are capped at 14 字 by the data tests. */
+export const LOSE_CAPTION_DEFAULT = '步数用完了，换个顺序试试？';
+export const LOSE_CAPTION_PT = { default: 16, min: 15, step: 0.5 } as const;
+/** Largest pt in [min, default] (0.5 steps) whose width fits; min when nothing fits. */
+export function loseCaptionPt(text: string, width: number, meas: (t: string, size: number) => number): number {
+  for (let pt: number = LOSE_CAPTION_PT.default; pt >= LOSE_CAPTION_PT.min; pt -= LOSE_CAPTION_PT.step) if (meas(text, pt) <= width) return pt;
+  return LOSE_CAPTION_PT.min;
+}
+function loseCaption(p: PopupPanel, text: string): Label {
+  const l = p.text(text, 0, 336, LOSE_CAPTION_PT.default, 'brown', { bold: false, name: 'ResultMessage' });
+  l.enableWrapText = false; l.overflow = Label.Overflow.NONE; return l;
 }
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
   const wideReward = m.kind === 'win' && m.rewards.some(r => r.label.length >= 6);
@@ -79,7 +93,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
   };
   const starNodes = section('ResultStars', 0, 184, () => stars(p, 184, m.kind === 'lose' ? 0 : m.stars ?? 0));
   section('ResultScore', 0, 336, () => m.kind === 'lose'
-    ? p.text('步数用完了，换个顺序试试？', 0, 336, 28, 'brown', { bold: false, name: 'ResultMessage' })
+    ? loseCaption(p, m.failHint || LOSE_CAPTION_DEFAULT)
     : p.text(m.score + ' 分', 0, 336, 64, 'brown', { name: 'Score' }));
   if (m.kind === 'win') {
     // SPEC v2.2 text list: a win page keeps only 过关啦 / the score / 下一关 / 回小岛 (no step line, hint, names or unlock line).
@@ -108,7 +122,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     const claimFirst = (go: () => void) => () => { (p as any).resultClaimAll?.(); go(); };
     if (m.next) m = { ...m, next: claimFirst(m.next) };
     const home0 = m.home; m = { ...m, home: claimFirst(home0) };
-    if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
+    if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : m.nextLabel || '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
   } else if (m.kind === 'lose') {
     section('ResultGoals', 0, 440, () => {
@@ -373,7 +387,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = padRoom ? ACTION_PAD + ACTION_SHADOW + (specCompact ? ACTION_H_C : ACTION_H) + 12 : roomy ? 92 : 68, heights: number[] = [];
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
-    if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
+    if (m.kind === 'lose') heights.push(Math.ceil(LOSE_CAPTION_PT.default * 1.35)); else lines(scoreText, 34, 46);
     if (m.hostError) { const n = wrap(m.hostError, Math.max(40, inner - 26), 16).slice(0, 2); for (const _ of n) heights.push(22); if (n.length) heights.push(8); }
     if (m.kind === 'win') { /* SPEC v2.2: no step line */ }
     else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
@@ -469,7 +483,15 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       const starH = shortPhone ? 44 : dense ? 44 : specCompact ? 50 : tight ? 56 : snug ? 64 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : specCompact ? 0.19 : tight ? 0.2 : snug ? 0.24 : 0.32;
       const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
       scoreLabel.node.active = false;
-      if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
+      if (m.kind === 'lose') {
+        // One line in pt: 16 → 15 in 0.5 steps against inner - 4; the failHint (or the old line), never scoreText wrapping.
+        const text = m.failHint || LOSE_CAPTION_DEFAULT, size = loseCaptionPt(text, inner - 4, textWidth), lh = Math.ceil(LOSE_CAPTION_PT.default * 1.35);
+        const row = getRow('ResultMessage-0', lh);
+        let l = row.node.getComponentInChildren(Label);
+        if (!l) l = p.text('', 0, 0, size, 'brown', { name: 'ResultMessage', bold: false, width: inner, parent: row.node });
+        l.string = text; l.fontSize = size; l.lineHeight = lh; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+        l.node.getComponent(UITransform)!.setContentSize(inner - 4, lh); l.node.setPosition(0, 0, 0); rows.push(row);
+      }
       else {
         // 34/46 is the settled score. A number that cannot stay on one page at that size
         // drops to the 16-unit body so the opening scale (0.92) still clears the 14px floor.

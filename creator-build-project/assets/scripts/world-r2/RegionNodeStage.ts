@@ -44,6 +44,18 @@ function findAll(n:Node|null,name:string,out:Node[]){
  for(const c of n.children)findAll(c,name,out);
 }
 /** Drives the live world camera, the girl, and one shared marker mesh. */
+/** Test-only (qaHooksEnabled): first rendered mesh along the tap ray -> hitName / hitPath (up to 5 parents) / hitPoint (world) /
+ *  hitDistM, for __qfGroundTap. Walking still uses the baked walk field; this only names what the finger visually touched. */
+function qaFirstRenderHit(ray:geometry.Ray):{hitName:string|null;hitPath?:string;hitPoint?:number[];hitDistM?:number}{
+ try{const scene=director.getScene();if(!scene)return {hitName:null};let best=Infinity,node:Node|null=null;
+  for(const m of scene.getComponentsInChildren(MeshRenderer)){const md=(m as any).model;if(!m.enabledInHierarchy||!md||!md.worldBounds)continue;
+   const t0=geometry.intersect.rayAABB(ray,md.worldBounds);const wb=md.worldBounds,c=wb.center,h=wb.halfExtents,inside=Math.abs(ray.o.x-c.x)<=h.x&&Math.abs(ray.o.y-c.y)<=h.y&&Math.abs(ray.o.z-c.z)<=h.z;
+   if(!inside&&(!t0||t0>=best))continue;
+   const t=geometry.intersect.rayModel(ray,md,{mode:geometry.ERaycastMode.CLOSEST,distance:Math.min(best,1000),doubleSided:true} as any);if(t&&t<best){best=t;node=m.node;}}
+  if(!node)return {hitName:null};const path:string[]=[];for(let n:Node|null=node,i=0;n&&n.parent&&i<6;n=n.parent,i++)path.unshift(n.name);
+  const r=(v:number)=>+v.toFixed(2);return {hitName:node.name,hitPath:path.join('/'),hitPoint:[r(ray.o.x+ray.d.x*best),r(ray.o.y+ray.d.y*best),r(ray.o.z+ray.d.z*best)],hitDistM:r(best)};
+ }catch{return {hitName:null};}
+}
 @ccclass('RegionNodeStage')
 export class RegionNodeStage extends Component{
  lens:LensState='Board';
@@ -933,7 +945,7 @@ export class RegionNodeStage extends Component{
   // b17 skycity-walk-r4 方案 C: her position lets a tap on the scene stop her on her side of it (fence / pocket), not 15 m round
   const gw=this.girl(),gl=new Vec3();Vec3.transformMat4(gl,new Vec3(gw[0],gw[1],gw[2]),inv);
   const hit=walkRayHit(region,[o.x,o.y,o.z],[e.x-o.x,e.y-o.y,e.z-o.z],160,.05,[gl.x,gl.y,gl.z]);
-  (globalThis as any).__qfGroundTap={region,kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now()};
+  (globalThis as any).__qfGroundTap={region,kind:hit.kind,at:hit.kind==='none'?null:hit.at,t:Date.now(),...(qaHooksEnabled()?qaFirstRenderHit(ray):{})};
   if(hit.kind!=='walk'){emitTransitCue('scene-tap',{t:0,region,id:hit.kind==='water'?'water':'none'});return;}
   // r7: leaves / a planter / a pillar right by her: she stays exactly where she is (no snap onto her cell)
   if(hit.stay){(globalThis as any).__qfGroundTap={...(globalThis as any).__qfGroundTap,path:0,lengthM:0,stay:true};return;}

@@ -1,0 +1,2 @@
+{"W1":{"offAtCover":true,"offAfterOwnerShow":true,"onAfterWalk":true,"ok":true},"W2":{"onAfterWalk":false,"ownerShowsAgain":true,"ok":true},"W3":{"opened":true,"offWhileCoverStillUp":true,"onAfterBoth":true,"ok":true},"W4":{"staged":true,"drewWhileHeld":false,"offAfterStaging":true,"ownerWantAfterRelease":true,"ok":true},"W4b":{"warmUpDrew":true,"offAfter":true,"ok":true},"W5":{"meadowOn":false,"lakeOn":true,"ok":true},"W6":{"bad":[],"ok":true}}
+bgcam-gate: ok

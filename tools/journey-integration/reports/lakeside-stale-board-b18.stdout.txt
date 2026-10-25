@@ -1,0 +1,7 @@
+PASS r04-lake-01: old unfinished board dropped alone; save writable; clears and other keys intact; notice; replay of the stage starts fresh
+PASS r04-lake-02: old unfinished board dropped alone; save writable; clears and other keys intact; notice; replay of the stage starts fresh
+PASS r04-lake-03: old unfinished board dropped alone; save writable; clears and other keys intact; notice; replay of the stage starts fresh
+PASS r04-lake-04: old unfinished board dropped alone; save writable; clears and other keys intact; notice; replay of the stage starts fresh
+PASS corrupt saves stay read-only: broken record aggregate, and a stale board next to a broken record
+PASS a current-rules unfinished board is kept (no repair on a valid save)
+lakeside-stale-board-b18 6 PASS

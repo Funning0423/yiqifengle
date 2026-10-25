@@ -25,10 +25,34 @@ const STAGE_NODE:Readonly<Record<string,string>>={
 export type NodePhase='locked'|'playable'|'passed';
 export type MainlineView=Readonly<{completed?:readonly string[]|null}>;
 export type R5View=Readonly<{records?:Readonly<Record<string,unknown>>|null;openChallenges?:readonly string[]|null}>;
+/** b18 lakeside order (DESIGN §3.2/R4: 新13 教学 → 新16 小高峰 → 新17 回落 → 新18 剧情关). Board stage ids in play order. */
+export const LAKESIDE_STAGE_IDS:readonly string[]=['r04-lake-01','r04-lake-02','r04-lake-03','r04-lake-04','r04-lake-05','r04-lake-06'];
+export const LAKESIDE_STAGE_LABEL:Readonly<Record<string,string>>={'r04-lake-01':'L13','r04-lake-02':'L14','r04-lake-03':'L15','r04-lake-04':'L16','r04-lake-05':'L17','r04-lake-06':'L18'};
+/** 「刻名的桥」(story finale). It never opens before L13–L15 are all cleared, on top of the one-after-another order. */
+export const LAKESIDE_BRIDGE_ID='r04-lake-06';
+export const LAKESIDE_BRIDGE_REQUIRES:readonly string[]=['r04-lake-01','r04-lake-02','r04-lake-03'];
+/** Lakeside stage phases. Locked until S4. A recorded clear is 'passed', and a stage an old save already lists as open stays
+ *  'playable' — order only ever opens stages, it never locks an opened or cleared one again. */
+export function lakesideStagePhases(s4Passed:boolean,r5View:R5View|null|undefined):Record<string,NodePhase>{
+ const out:Record<string,NodePhase>={},records=(r5View&&r5View.records)||{},open=(r5View&&r5View.openChallenges)||[];
+ const has=(id:string)=>Object.prototype.hasOwnProperty.call(records,id)&&!!records[id];
+ for(let i=0;i<LAKESIDE_STAGE_IDS.length;i++){
+  const id=LAKESIDE_STAGE_IDS[i];
+  if(has(id)){out[id]='passed';continue;}
+  if(open.indexOf(id)>=0){out[id]='playable';continue;}
+  if(!s4Passed){out[id]='locked';continue;}
+  let ok=i===0||has(LAKESIDE_STAGE_IDS[i-1]);
+  if(ok&&id===LAKESIDE_BRIDGE_ID)for(let k=0;k<LAKESIDE_BRIDGE_REQUIRES.length;k++)if(!has(LAKESIDE_BRIDGE_REQUIRES[k]))ok=false;
+  out[id]=ok?'playable':'locked';
+ }
+ return out;
+}
 export type NodeStates=Readonly<{
  nodes:Readonly<Record<string,NodePhase>>;
  explore:Readonly<Record<ProgressRegion,boolean>>;
  lastPassed:Readonly<Record<ProgressRegion,string|null>>;
+ /** b18: per-stage lakeside order (see lakesideStagePhases). */
+ lakeStages:Readonly<Record<string,NodePhase>>;
 }>;
 export type Presentation=Readonly<{lastNode:Readonly<Record<ProgressRegion,string|undefined>>;exploreHintSeen:readonly [boolean,boolean,boolean];v:1}>;
 
@@ -76,14 +100,17 @@ export function derive(mainlineView:MainlineView|null|undefined,r5View:R5View|nu
   if(phase==='passed')lastPassed[region]=key;
  }
  explore.lakeside=nodes.S4==='passed';
+ const lakeStages=lakesideStagePhases(nodes.S4==='passed',r5View);
  for(let i=0;i<REGION_ORDER.length;i++){
   const id=REGION_ORDER[i],list=REGION_GRAPHS[id].nodes;
   if(id==='lakeside'){
+   // b18: the shore node is only the way in; the 6 boards open one after another (lakeStages), the bridge after L13–L15.
    const open=nodes.S4==='passed';
+   let any=false;for(let k=0;k<LAKESIDE_STAGE_IDS.length;k++)if(lakeStages[LAKESIDE_STAGE_IDS[k]]!=='locked')any=true;
    for(let n=0;n<list.length;n++){
     const node=list[n];
-    nodes[node.key]=!open?'locked':node.role==='arrival'?'passed':'playable';
-    if(node.role==='arrival'&&open)lastPassed.lakeside=node.key;
+    nodes[node.key]=node.role==='arrival'?(open||any?'passed':'locked'):open||any?'playable':'locked';
+    if(node.role==='arrival'&&(open||any))lastPassed.lakeside=node.key;
    }
    continue;
   }
@@ -104,7 +131,7 @@ export function derive(mainlineView:MainlineView|null|undefined,r5View:R5View|nu
    }
   }
  }
- return {nodes,explore,lastPassed};
+ return {nodes,explore,lastPassed,lakeStages};
 }
 /** Lake chapter opens with the skycity finale: both wait until mainline-12 (S4) is passed. */
 export function lakesideDeparture():{region:ProgressRegion;from:string;to:string;departure:boolean;nextRegion:ProgressRegion}{
