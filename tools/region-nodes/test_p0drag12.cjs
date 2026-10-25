@@ -65,9 +65,9 @@ const macPoses=F=>F.map(f=>{const y=f[6]*R,p=f[7]*R,fw=[-Math.sin(y)*Math.cos(p)
  ok('W1',all,out);}
 // ---------- W2 r7 nook walks (scene c2aa19e3, merged): her REAL r7 route for the Mac p0drag11 Pock taps (walkRayHit → walkTapPath, day
 // (11.4, 7.8) 5.69 m and night (11.8, 8.2)), groundWalkTo pace (L / 1.2 m/s), walkStarted(path) at the start and walkEndView at the stop,
-// replayed over each Mac walk's own frames (orbit, hook, timing): face/chest ≤ 0.5 s over walk + 0.5 s, lens never in a box
+// + NE1 (24.6 m ramp route), NE2, Roof day taps (r7 owner check); replayed over each Mac walk's own frames (orbit, hook, timing): face/chest ≤ 0.5 s over walk + 0.5 s, lens never in a box
 const RW=X.H.load(X.S('region/RegionWalkable.ts'));
-const TAPS={'Pock·昼':[[-0.975,2.7672,7.873],[0.9795,-0.1987,0.0446],[6.2,-0.01,8.2]],'Pock·夜':[[1.9927,7.2554,8.0083],[0.885,-0.6009,0.0403],[6.2,-0.01,8.2]]};
+const TAPS={'NE1·昼':[[0.1306,2.7672,12.0405],[0.8521,-0.0676,-0.5392],[6.2,-0.01,8.2]],'NE2·昼':[[-0.7912,2.7672,6.5536],[0.9798,-0.0758,0.2307],[6.2,-0.01,8.2]],'Roof·昼':[[-0.9167,2.7672,7.231],[0.9731,-0.1915,0.1325],[6.2,-0.01,8.2]],'Pock·昼':[[-0.975,2.7672,7.873],[0.9795,-0.1987,0.0446],[6.2,-0.01,8.2]],'Pock·夜':[[1.9927,7.2554,8.0083],[0.885,-0.6009,0.0403],[6.2,-0.01,8.2]]};
 const tapPath=k=>{const [o,d,her]=TAPS[k],h=RW.walkRayHit('skycity',o,d,160,.05,her);return h.stay?null:RW.walkTapPath('skycity',RW.nearestWalkable('skycity',her,1.6).at,h.at).map(p=>[p[0],p[1],p[2]]);};
 function onPath(P,u){const L=RW.walkPathLengthM(P);let d=u*L;for(let i=1;i<P.length;i++){const s=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1],P[i][2]-P[i-1][2]);if(d<=s||i===P.length-1){const t=s>0?Math.min(1,d/s):1;return [0,1,2].map(c=>P[i-1][c]+(P[i][c]-P[i-1][c])*t);}d-=s;}return P[P.length-1];}
 function walkReplay(F0,P){const s=F0.findIndex(f=>f[12]),L=RW.walkPathLengthM(P),T=L/1.2;
