@@ -561,7 +561,7 @@ All numbers are NOT ENGINE: they come from replaying the Mac p0drag11 frames thr
 - **Re-baselined without approval, reported as they stand** (gates unchanged from 4ceadaff):
   - **p0drag11 Q1 skd_po:** face 0.54 s, chest 0.78 s (gate 0.6/0.85), so it does **not** meet ≤ 0.5 s.
     - Physics: the test releases the hold with the lens at the hidden hook yaw of 110°, and she is first visible from about 165°.
-    - At 90°/s and 200°/s² that 55° swing takes ≥ 0.98 s (θ/V + V/A = 0.61 + 0.45 s), and part of it is unavoidable.
+    - At 90°/s and 200°/s² that 55° swing takes ≥ 0.84 s (0.45 s ramp to 90°/s covering 20°, then 35° at 90°/s), and part of it is unavoidable.
     - Only a faster cap would bring it under 0.5 s.
   - **p0drag11 Q2:** clear after 0.45 s (meets ≤ 0.5 s), but 7 frames inside the box (gate ≤ 8; the original gate was 0 after the first frame).
     - The test itself writes the lens into the post or bush. Getting out at ≤ 300°/s² takes 7 frames.
