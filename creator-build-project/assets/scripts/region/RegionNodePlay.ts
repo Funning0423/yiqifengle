@@ -5,6 +5,7 @@ import {transportFor,type TransportKind} from './JourneyTransport';
 import {walkPair} from './RegionNodeProgress';
 import {planWalk,type WalkPlan} from './NodeWalker';
 import {stopEngineStates} from './EngineAnimStop';
+import {basketObstacleEvent} from './BasketObstacles';
 
 export type WalkResult=Readonly<{transport:TransportKind|'walk';departure:boolean;segments:number;region:string;to:string;timedOut:boolean}>;
 /** One segment must finish or be cut. A stuck `perform` must not freeze advanceMainline. */
@@ -50,6 +51,7 @@ async function runPlan(character:Pick<CharacterAdapter,'perform'|'cancelAndReset
   if(status==='timeout')timedOut=true;
  }
  emitTransitCue('node-arrive',{t:0,region,node:to});
+ try{basketObstacleEvent('node:'+to)/* cand9: e.g. node:M4 → meadow basket obstacle on */;}catch{}
  return timedOut;
 }
 /** Issue the clipped walk on the bound adapter. A stuck perform is cut to the segment end. */
@@ -58,6 +60,7 @@ export async function runRewardWalk(character:Pick<CharacterAdapter,'perform'|'c
  await (character as any).__qfWalkTail?.done/* b15: a walk tail finishes first */;
  const spec=walkPair(fromStage,toStage);
  const plan=planWalk(spec.region,spec.from,spec.to);
+ try{basketObstacleEvent('node:'+spec.from)/* cand9: leaving a node also asserts it (resume at M4 straight into the M4→M6 departure) */;}catch{}
  const timedOut=await runPlan(character,plan,spec.region,spec.to,place,timeoutMs);
  const transport:TransportKind|'walk'=spec.departure&&spec.nextRegion?transportFor(spec.region,spec.nextRegion):'walk';
  return {transport,departure:spec.departure,segments:plan.segments.length,region:spec.region,to:spec.to,timedOut};

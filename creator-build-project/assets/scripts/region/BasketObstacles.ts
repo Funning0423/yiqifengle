@@ -4,14 +4,18 @@
  *     initial:boolean, on:string[] (events that activate it), off:string[] (events that clear it), baked:boolean}
  *  Events are TransitionChain marks 'leg:seg' (e.g. 'balloon:B3-flight') plus 'node:<key>' (level node reached, e.g. 'node:M4')
  *  and 'balloon:released' / 'lakeside:released' (the vehicle is gone).
- *  baked:true = the disc is ALSO baked into RegionWalkableData/RegionNodes (today's data, 8557f895), so clearing it cannot
- *  re-open those cells; the overlay only ever ADDS a block. Once the walkable bake leaves the discs out (baked:false) the same
- *  state machine opens / closes them with no code change. */
+ *  cand9: the rows below are GENERATED from 场景设计部's transition-anchors.json (7d5f4b90: r 1.03, clearM 0.4, baked:false —
+ *  the walkable bake no longer contains the discs, so an inactive obstacle really re-opens its cells; meadow 43 / dock 36 / 5a 41).
+ *  A baked (true) row (old data) would mean the disc is also in the bake and clearing cannot re-open it. Event names = the real chain marks
+ *  (BalloonTransit B3-flight / B4-settle, RegionJourneyAdapter C1-basket-in / C3-flight, release hooks) and node:<key> from
+ *  RegionNodePlay (departure start and arrival). */
 export type BasketObstacle=Readonly<{id:string;region:'meadow'|'skycity';at:readonly [number,number];r:number;clearM:number;initial:boolean;on:readonly string[];off:readonly string[];baked:boolean}>;
 export const BASKET_OBSTACLES:readonly BasketObstacle[]=Object.freeze([
- {id:'meadow_basket',region:'meadow',at:[3.6,-23.4],r:1.1,clearM:.4,initial:false,on:['node:M4'],off:['balloon:B3-flight','balloon:released'],baked:true},
- {id:'skycity_landing_basket',region:'skycity',at:[5.4,43.8],r:1.1,clearM:.4,initial:false,on:['balloon:B4-settle'],off:['balloon:released'],baked:true},
- {id:'skycity_5a_basket',region:'skycity',at:[-14.8,-38.8],r:1.1,clearM:.4,initial:false,on:['lakeside:C1-basket-in'],off:['lakeside:C3-flight','lakeside:released'],baked:true},
+// BEGIN GENERATED basketObstacles (tools/transition-spaces/gen-basket-obstacle-data.cjs from transition-anchors.json; do not edit)
+ {"id":"meadow_basket","region":"meadow","at":[3.6,-23.4],"r":1.03,"clearM":0.4,"initial":false,"on":["node:M4"],"off":["balloon:B3-flight","balloon:released"],"baked":false},
+ {"id":"skycity_landing_basket","region":"skycity","at":[5.4,43.8],"r":1.03,"clearM":0.4,"initial":false,"on":["balloon:B4-settle"],"off":["balloon:released"],"baked":false},
+ {"id":"skycity_5a_basket","region":"skycity","at":[-14.8,-38.8],"r":1.03,"clearM":0.4,"initial":false,"on":["lakeside:C1-basket-in"],"off":["lakeside:C3-flight","lakeside:released"],"baked":false},
+// END GENERATED basketObstacles
 ]);
 const state=new Map<string,boolean>();
 export function resetBasketObstacles():void{state.clear();}

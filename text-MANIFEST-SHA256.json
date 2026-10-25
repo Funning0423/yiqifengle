@@ -2601,8 +2601,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BasketObstacles.ts",
-    "bytes": 3293,
-    "sha256": "550836de356d46756fc6fee51241a2ba888e00d602d86764d439eb6813f92a3d"
+    "bytes": 3793,
+    "sha256": "378d14d184156d9ac4589e48af430b61fcc6a9ad518e5d26a68d1e8f869207de"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BasketObstacles.ts.meta",
@@ -3081,8 +3081,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 4822,
-    "sha256": "dbfbfee73473488b11ad9aab4d817bdd4e4a0e1ad5bb85021d26cb1b082941c0"
+    "bytes": 5125,
+    "sha256": "ab71f5c9fb6d41477335c9e5a554123ded9b0354e2ea75886ddabe098945df15"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -4851,8 +4851,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 22406,
-    "sha256": "31b3e2b20a974bfe7e470a314cde436f5edbb6a00a02dcf76884d40ad8a8b98d"
+    "bytes": 22560,
+    "sha256": "d8e0094b8ee0867d705275abcded5b10dc62bffec947f954288a21ff1f5beda3"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
