@@ -17,7 +17,7 @@
 { "launchQuery": "?qfSkip=lakeside",   // 可選，只在測試包生效
   "stateEveryMs": 2000,                 // 可選，定時寫狀態（最小 500）
   "steps": [
-    {"op":"tap","x":195,"y":560},
+    {"op":"tap","x":175,"y":458},
     {"op":"drag","x1":120,"y1":600,"x2":300,"y2":600,"ms":600},
     {"op":"wait","ms":1000},
     {"op":"waitState","name":"island","timeoutMs":30000,"stopOnFail":true},
@@ -39,7 +39,8 @@
 - `state.jsonl`：每步之後＋定時一行：state、region、phase、journeyPhase、exploreOpen、character（節點名＋世界座標，取場上第一個啟用的蒙皮網格的根節點，為推定值）、camera（位置、euler、fov）、fps、memory（`performance.memory`，DevTools 才有，手機可能是 null）、memoryWarnings、lastGroundTap、onWater（上限 2 MB）
   - **注意 onWater**：遊戲沒有「角色在水面上」的全域旗標，這裡是「最近一次點地面的結果是不是 water」（`onWaterSource` 有標明），不是角色真正的位置判定。
 - `shots/NN-名稱.jpg`：寬 195 px、jpg 品質 0.6，最多 20 張（每張約 10–20 KB）
-- `result.json`：每步結果、是否命中、耗時、監聽器數量、總結 ok
+- `result.json`：每步結果、是否命中、耗時、監聽器數量、總結 ok；`consoleErrors`／`consoleErrorSamples`：遊戲的 console.error 次數（不含 `[QF_AUTOPLAY]` 自己的訊息）。**只要 >0 就判 ok=false**（驗收規則：Console Error 必須 0；腳本可設 `"allowConsoleErrors":true` 只用於診斷）。
+- `state.jsonl` 的 `characterErr`：引擎類別在微信 cc 命名空間取不到時記錄，不會再把 undefined 傳給 getComponent（舊版因此每次取樣都報 Error 3804）。
 
 Mac 上的位置（**需實機確認**，依官方說明推得）：
 `~/Library/Application Support/微信开发者工具/<安裝路徑MD5>/WeappSimulator/WeappFileSystem/<隨機目錄>/wx3bdd911c5c06f591/usr/qf-autoplay/out/`

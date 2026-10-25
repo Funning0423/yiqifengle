@@ -5,7 +5,7 @@
     {"op":"waitState","name":"home","timeoutMs":90000},
     {"op":"wait","ms":2000},
     {"op":"screenshot","name":"home"},
-    {"op":"tap","x":195,"y":560},
+    {"op":"tap","x":175,"y":458},
     {"op":"waitState","name":"island","timeoutMs":30000},
     {"op":"wait","ms":3000},
     {"op":"screenshot","name":"island"},

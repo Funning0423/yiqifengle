@@ -14,7 +14,7 @@ assert.deepEqual(api.toClient(195,422,{w:390,h:844}),{x:195,y:422});
 assert.deepEqual(api.toClient(390,844,{w:375,h:812}),{x:375,y:812});
 const pts=api.dragPoints({x1:0,y1:0,x2:100,y2:0,ms:160},16);assert.equal(pts.length,10);assert.deepEqual(pts.at(-1),[100,0]);
 // runtime in a fake mini-game
-function runFake(script,env='develop'){
+function runFake(script,env='develop',withCc){
   const files=new Map(),events=[],raw=[];const U='wxfile://usr';
   const fsm={readFileSync:p=>{if(files.has(p))return files.get(p);throw Error('ENOENT '+p);},writeFileSync:(p,s)=>files.set(p,s),appendFileSync:(p,s)=>files.set(p,(files.get(p)||'')+s),
     mkdirSync(){},rmdirSync:p=>{for(const k of [...files.keys()])if(k.startsWith(p))files.delete(k);},copyFileSync:(a,b)=>files.set(b,'JPG'),unlinkSync(){}};
@@ -26,6 +26,8 @@ function runFake(script,env='develop'){
   g.GameGlobal=g;g.globalThis=g;vm.createContext(g);vm.runInContext(fs.readFileSync(H,'utf8'),g);
   // engine + a full-screen swallowing node registered after the harness, like the Cocos adapter / IslandLighthouseTouch
   let state='home';g.__worldIntegration={snapshot:()=>({state})};
+  if(withCc){const nil=[];const scene={getComponentsInChildren:t=>{if(!t){nil.push(1);g.console.error('Error 3804, please go to EngineErrorMap.md#3804');}return [];}};
+    g.cc={director:{getScene:()=>scene,getTotalFrames:()=>1},Camera:function Camera(){},Layers:{Enum:{UI_2D:1}},Vec3:function(){},js:{getClassByName:()=>undefined}};g.__nil=nil;}
   g.wx.onTouchStart(e=>{events.push(['S',e.changedTouches[0].clientX,e.changedTouches[0].clientY]);if(e.touches[0].clientY>300)state='island';});
   g.wx.onTouchMove(e=>events.push(['M',e.changedTouches[0].clientX]));g.wx.onTouchEnd(e=>{events.push(['E',e.touches.length]);});
   g.wx.onTouchStart(e=>raw.push('raw'));
@@ -45,6 +47,16 @@ function runFake(script,env='develop'){
   assert(r.files.has(r.U+'/qf-autoplay/out/shots/01-a.jpg'));
   const st=r.files.get(r.U+'/qf-autoplay/out/state.jsonl').trim().split('\n').map(JSON.parse);assert(st.some(s=>s.state==='island'));assert('fps' in st[0]&&'memory' in st[0]&&'onWater' in st[0]);
   assert(r.files.get(r.U+'/qf-autoplay/out/console.log').includes('[QF_AUTOPLAY]'));
+  // Error 3804 regression: WeChat cc namespace lacks SkinnedMeshRenderer; harness must never pass undefined to getComponent*
+  const c=runFake({steps:[{op:'waitState',name:'home',timeoutMs:1000},{op:'wait',ms:50}]},'develop',true);
+  for(let i=0;i<40&&!c.files.has(c.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+  const cres=JSON.parse(c.files.get(c.U+'/qf-autoplay/out/result.json'));
+  assert.equal(c.g.__nil.length,0,'no getComponent*(undefined) call (Error 3804)');assert.equal(cres.consoleErrors,0);assert.equal(cres.ok,true);
+  const cst=c.files.get(c.U+'/qf-autoplay/out/state.jsonl').trim().split('\n').map(JSON.parse);assert(cst.every(s=>s.characterErr==='cc.SkinnedMeshRenderer unavailable'&&!s.ccErr));
+  // a game-side console error fails the run (acceptance: DevTools Console Error count = 0)
+  const e=runFake({steps:[{op:'wait',ms:50}]});e.g.console.error('Error 3804 from game');
+  for(let i=0;i<40&&!e.files.has(e.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+  const eres=JSON.parse(e.files.get(e.U+'/qf-autoplay/out/result.json'));assert.equal(eres.ok,false);assert.equal(eres.consoleErrors,1);assert.match(eres.failReason,/console errors: 1/);
   const rel=runFake({steps:[{op:'tap',x:1,y:1}]},'release');assert(!rel.g.__QF_AUTOPLAY,'release envVersion -> harness refuses');
   // injector + release check on a fake output
   const d=fs.mkdtempSync(path.join(os.tmpdir(),'qfap-'));fs.writeFileSync(path.join(d,'game.js'),"require('./adapter');\n");

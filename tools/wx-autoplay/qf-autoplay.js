@@ -27,7 +27,7 @@ function parseScript(text){
     if(op==='waitState'&&st.timeoutMs!=null&&(typeof st.timeoutMs!=='number'||st.timeoutMs<0||st.timeoutMs>600000))throw Error('step '+i+': bad timeoutMs');
     if(op==='screenshot'&&++shots>MAX_SHOTS)throw Error('more than '+MAX_SHOTS+' screenshots');
     var o={op:op};for(var k in st)o[k]=st[k];return o;});
-  return {launchQuery:s.launchQuery||null,stateEveryMs:Math.max(500,Number(s.stateEveryMs)||2000),steps:steps};
+  return {launchQuery:s.launchQuery||null,allowConsoleErrors:s.allowConsoleErrors===true,stateEveryMs:Math.max(500,Number(s.stateEveryMs)||2000),steps:steps};
 }
 /* design (390x844, top-left origin, y down) -> wx clientX/Y (window CSS px). Per-axis scale; identity on a 390x844 device. */
 function toClient(x,y,win){return {x:x*win.w/DESIGN_W,y:y*win.h/DESIGN_H};}
@@ -58,7 +58,8 @@ try{fs.rmdirSync(OUT,true);}catch(e){}try{fs.mkdirSync(OUT+'/shots',true);}catch
 var logBuf=[],logBytes=0,stateBytes=0;
 function w2(file,s,capRef){try{fs.appendFileSync(OUT+'/'+file,s,'utf8');}catch(e){try{fs.writeFileSync(OUT+'/'+file,s,'utf8');}catch(x){}}}
 function flush(){if(!logBuf.length)return;var s=logBuf.join('');logBuf=[];if(logBytes>LOG_CAP)return;logBytes+=s.length;w2('console.log',s+(logBytes>LOG_CAP?'[QF_AUTOPLAY] log cap reached\n':''));}
-['log','info','warn','error'].forEach(function(lv){var o=console[lv];console[lv]=function(){try{var a=[].slice.call(arguments).map(function(v){if(typeof v==='string')return v;try{return JSON.stringify(v);}catch(e){return String(v);}}).join(' ');logBuf.push(new Date().toISOString()+' '+lv+' '+a.slice(0,4000)+'\n');}catch(e){}return o.apply(console,arguments);};});
+var consoleErrors=0,errorSamples=[];
+['log','info','warn','error'].forEach(function(lv){var o=console[lv];console[lv]=function(){try{var a=[].slice.call(arguments).map(function(v){if(typeof v==='string')return v;try{return JSON.stringify(v);}catch(e){return String(v);}}).join(' ');logBuf.push(new Date().toISOString()+' '+lv+' '+a.slice(0,4000)+'\n');if(lv==='error'&&a.indexOf('[QF_AUTOPLAY]')!==0){consoleErrors++;if(errorSamples.length<5)errorSamples.push(a.slice(0,300));}}catch(e){}return o.apply(console,arguments);};});
 var tick=setInterval(flush,1000);
 var touch=installTouch(wx);g.__QF_AUTOPLAY={touch:touch,api:api};
 if(err){console.error('[QF_AUTOPLAY] script rejected: '+err);w2('result.json',JSON.stringify({ok:false,error:err}));flush();return;}
@@ -66,18 +67,24 @@ if(script.launchQuery){try{if(!g.location||!g.location.search)g.location={search
 var memWarn=0;try{wx.onMemoryWarning(function(r){memWarn++;console.warn('[QF_AUTOPLAY] memory warning',r&&r.level);});}catch(e){}
 var fpsT=Date.now(),fpsF=0,fps=null;function frames(){var cc=g.cc;try{return cc&&cc.director?cc.director.getTotalFrames():null;}catch(e){return null;}}
 function win(){try{var i=wx.getSystemInfoSync();return {w:i.windowWidth,h:i.windowHeight,dpr:i.pixelRatio};}catch(e){return {w:DESIGN_W,h:DESIGN_H,dpr:1};}}
+/* Resolve an engine class without ever passing undefined to getComponent*: in the WeChat build some classes (e.g.
+ * SkinnedMeshRenderer) are not on the global cc namespace, and getComponentsInChildren(undefined) logs Cocos
+ * Error 3804 "getComponent: Type must be non-nil" on every call (b17r16 DevTools run: 170-228 errors). */
+function ccClass(cc,name){var c=null;try{c=cc[name]||(cc.js&&cc.js.getClassByName&&cc.js.getClassByName('cc.'+name))||null;}catch(e){c=null;}return typeof c==='function'?c:null;}
 function v3(v){return v?[+v.x.toFixed(3),+v.y.toFixed(3),+v.z.toFixed(3)]:null;}
-function snapshot(){
+function snapshot(light){
   var s={t:Date.now()},wi=g.__worldIntegration,cc=g.cc;
   try{var w=wi&&wi.snapshot();if(w){s.state=w.state;s.region=w.region||w.activeRegion||null;s.phase=w.phase||null;s.world=w;}}catch(e){s.snapErr=String(e);}
   try{var j=wi&&wi.journey&&wi.journey();if(j)s.journeyPhase=j.phase||j.state||null;}catch(e){}
   var ex=g.__qfExploreSync;if(ex){s.exploreOpen=!!ex.open;s.exploreRegion=ex.region;}
   var tap=g.__qfGroundTap;if(tap){s.lastGroundTap={kind:tap.kind,region:tap.region,at:tap.at,t:tap.t};}
   var lq=g.__qaLakeside;if(lq&&lq.mark)s.lakesideMark=lq.mark;
-  try{if(cc&&cc.director&&cc.director.getScene()){var cams=cc.director.getScene().getComponentsInChildren(cc.Camera).filter(function(c){return c.enabled&&c.node.activeInHierarchy&&c.node.layer!==cc.Layers.Enum.UI_2D;});
+  if(light)return s;
+  try{var CAM=cc&&ccClass(cc,'Camera'),SKIN=cc&&ccClass(cc,'SkinnedMeshRenderer');if(cc&&!SKIN)s.characterErr='cc.SkinnedMeshRenderer unavailable';
+    if(cc&&cc.director&&cc.director.getScene()){var cams=!CAM?[]:cc.director.getScene().getComponentsInChildren(CAM).filter(function(c){return c.enabled&&c.node.activeInHierarchy&&c.node.layer!==cc.Layers.Enum.UI_2D;});
     var c=cams.sort(function(a,b){return a.priority-b.priority;})[0];if(c){var e=c.node.worldRotation.getEulerAngles(new cc.Vec3());s.camera={pos:v3(c.node.worldPosition),euler:v3(e),fov:c.fov};}
-    var sk=cc.director.getScene().getComponentsInChildren(cc.SkinnedMeshRenderer).filter(function(r){return r.enabled&&r.node.activeInHierarchy;});
-    if(sk.length){var n=sk[0].node;while(n.parent&&n.parent.getComponentsInChildren(cc.SkinnedMeshRenderer).length===n.getComponentsInChildren(cc.SkinnedMeshRenderer).length&&n.parent.parent)n=n.parent;s.character={node:n.name,pos:v3(n.worldPosition)};}}}catch(e){s.ccErr=String(e);}
+    var sk=!SKIN?[]:cc.director.getScene().getComponentsInChildren(SKIN).filter(function(r){return r.enabled&&r.node.activeInHierarchy;});
+    if(sk.length){var n=sk[0].node;while(n.parent&&n.parent.getComponentsInChildren(SKIN).length===n.getComponentsInChildren(SKIN).length&&n.parent.parent)n=n.parent;s.character={node:n.name,pos:v3(n.worldPosition)};}}}catch(e){s.ccErr=String(e);}
   /* on-water: the game has no global "character on water" flag; this is the last ground tap kind (water/walk/none) only. */
   s.onWater=tap?tap.kind==='water':null;s.onWaterSource='lastGroundTap.kind';
   var f=frames(),now=Date.now();if(f!=null){if(now>fpsT){fps=+((f-fpsF)*1000/(now-fpsT)).toFixed(1);}fpsF=f;fpsT=now;}s.fps=fps;
@@ -102,11 +109,13 @@ function run(){
     else if(st.op==='drag'){var pts=dragPoints(st,16),id2=touch.nextId(),a=toClient(st.x1,st.y1,W);rec.listeners=touch.emit('TouchStart',a.x,a.y,id2);var dt=st.ms/pts.length;
       p=pts.reduce(function(pr,pt){return pr.then(function(){return sleep(dt);}).then(function(){var q=toClient(pt[0],pt[1],W);touch.emit('TouchMove',q.x,q.y,id2);});},Promise.resolve()).then(function(){var b=toClient(st.x2,st.y2,W);touch.emit('TouchEnd',b.x,b.y,id2);});}
     else if(st.op==='wait')p=sleep(st.ms);
-    else if(st.op==='waitState'){var to=st.timeoutMs==null?30000:st.timeoutMs;p=new Promise(function(r){(function poll(){var names=stateNames(snapshot());if(names.indexOf(st.name)>=0){rec.matched=true;r();}else if(Date.now()-t0>=to){rec.matched=false;rec.lastNames=names;res.ok=false;r();}else setTimeout(poll,200);})();});}
+    else if(st.op==='waitState'){var to=st.timeoutMs==null?30000:st.timeoutMs;p=new Promise(function(r){(function poll(){var names=stateNames(snapshot(true));if(names.indexOf(st.name)>=0){rec.matched=true;r();}else if(Date.now()-t0>=to){rec.matched=false;rec.lastNames=names;res.ok=false;r();}else setTimeout(poll,200);})();});}
     else if(st.op==='screenshot')p=shot(st.name).then(function(f){rec.file=f;});
     return p.then(function(){rec.ms=Date.now()-t0;var s=writeState('after:'+st.op+(st.name?':'+st.name:''));rec.state=s&&s.state;res.steps.push(rec);console.info('[QF_AUTOPLAY] step '+JSON.stringify(rec));
       if(st.op==='waitState'&&rec.matched===false&&st.stopOnFail!==false){res.stoppedAt=rec.i;return;}return next();});}
-  return next().then(function(){clearInterval(stTimer);res.finishedAt=new Date().toISOString();res.shots=shotN;writeState('final');w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},
+  return next().then(function(){clearInterval(stTimer);res.finishedAt=new Date().toISOString();res.shots=shotN;res.consoleErrors=consoleErrors;res.consoleErrorSamples=errorSamples;
+    /* acceptance rule: DevTools Console Error count must be 0 */
+    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}writeState('final');w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},
     function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);w2('result.json',JSON.stringify(res,null,1));flush();});
 }
 /* start once the world integration hook exists (or after 60 s regardless) */
