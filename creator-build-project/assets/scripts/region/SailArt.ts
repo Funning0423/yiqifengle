@@ -1,5 +1,6 @@
 import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Quat, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
+import {traceCloudLayer} from './CloudTrace';
 import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {sailChannelWorldY} from './SailChannel';
 import {inGrassClearLocal} from './SailLanding';
@@ -396,7 +397,10 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  // the set-off cover is black: grey clear colour under the half-faded cover). The first sync() hides it, and the journey
  // controller only drives sync (lease.onFrame / ride) once the cover is at alpha 1.
  let seaTaken=false;
- const takeIslandSea=()=>{if(seaTaken)return;seaTaken=true;const sc=director.getScene();if(sc)walk(sc,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))if(r.enabled){r.enabled=false;hidden.push(r);}});};
+ // fix-cloud-sit: the island sea renderers are found ONCE (first sync) and only re-disabled if someone turned them back on;
+ // the old per-frame full-scene walk is gone.
+ const seaRenderers:MeshRenderer[]=[];
+ const takeIslandSea=()=>{if(seaTaken)return;seaTaken=true;const sc=director.getScene();if(sc)walk(sc,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer)){seaRenderers.push(r);if(r.enabled){r.enabled=false;hidden.push(r);}}});};
  const dome=scene?findNode(scene,'env_sky_dome'):null;
  const cloudLayer=scene?findNode(scene,'env_cloud_layer'):null;
  const domeHome=dome?[dome.worldPosition.x,dome.worldPosition.y,dome.worldPosition.z]:null;
@@ -416,10 +420,15 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  type Grade={m:Material;base:number[];wind:boolean;cloud:boolean;prop:boolean};
  const grades:Grade[]=[];
  const linToSrgb=(c:number)=>c<=0.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-0.055;
+ // fix-cloud-sit: meadow_clouds_near has ONE colour owner, MeadowSceneMotion (RegionJourneyAdapter mounts it with
+ // journeyNight + meadowCloudMaterials). SailArt used to grade the same material instance with the GROUND factor every frame
+ // (a different night colour from meadowCloudColor) → two writers, mismatched night tint. Skip that subtree here.
+ const underMeadowClouds=(n:Node|null)=>{for(let p=n;p;p=p.parent)if(p.name==='meadow_clouds_near')return true;return false;};
  const take=(node:Node|null,prop=false,cloud=false)=>{
   if(!node)return;
   for(const r of node.getComponentsInChildren(MeshRenderer)){
    if(r.node.name==='night_stars')continue;
+   if(underMeadowClouds(r.node))continue;
    for(let i=0;i<r.sharedMaterials.length;i++){
     const m=r.getMaterialInstance(i);if(!m)continue;
     const wind=!!m.passes[0]?.getHandle('windParams');
@@ -445,26 +454,53 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
   const sailC=new Color(rgb[0],rgb[1],rgb[2],255);
   for(const m of sailMats)m.setProperty('mainColor',sailC);
  };
+ // fix-cloud-sit P2: ONE place for the sail's day/night colours. Called at the END of mount as well (current world mode):
+ // mount runs during region-loading while the island lens is still on screen, and the sail sea_plane (day white) was visible
+ // over the dark island sea until the first sync() → one bright DAYTIME frame at night right before the set-off cover.
+ const nightLook=(night:boolean)=>{
+  grade(night);
+  // Readable deep-blue night (match art K7), not near-black.
+  if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.20,0.30,0.52,1):new Vec4(1,1,1,1));
+  if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.26,0.34,0.55,1):new Vec4(1,1,1,1));
+  if(seaMat)seaMat.setProperty('mainColor',night?new Color(150,185,220,255):new Color(255,255,255,255));
+ };
+ const worldNight=()=>{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}};
+ if(worldNight())nightLook(true);
  let time=0,cruise=4.4,savedNear:number|null=null,savedFar:number|null=null,worldCam:Camera|null=null;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
  const shoreHidden:MeshRenderer[]=[];
  const SHORE=/reed|flower|bush|shrub|cattail|rm_reeds/i;
- const hideCloseShore=(cam:Vec)=>{
-  for(const r of shoreHidden)if(r.isValid)r.enabled=true;
-  shoreHidden.length=0;
-  let left=0;
+ // fix-cloud-sit: shore props are static. Their renderers + bounds are collected ONCE; each frame only renderers whose
+ // near/far state CHANGED are toggled (the old code re-enabled every hidden reed and disabled it again every frame, and
+ // walked meadow+landing each frame).
+ type ShoreProp={r:MeshRenderer;c:number[];h:number[]};
+ let shoreProps:ShoreProp[]|null=null;
+ const collectShore=()=>{
+  const out:ShoreProp[]=[];
   for(const root of [meadow,landing]){
    if(!root)continue;
    walk(root,n=>{
     if(!SHORE.test(n.name)||CHANNEL_MESH.test(n.name))return;
-    const r=n.getComponent(MeshRenderer);if(!r||!r.node.activeInHierarchy)return;
+    const r=n.getComponent(MeshRenderer);if(!r)return;
     const b=r.model?.worldBounds;if(!b)return;
     const c=b.center,he=b.halfExtents;
     if(!c||!he||he.x>5||he.y>5||he.z>5)return;
-    const dx=Math.max(0,Math.abs(cam[0]-c.x)-he.x),dy=Math.max(0,Math.abs(cam[1]-c.y)-he.y),dz=Math.max(0,Math.abs(cam[2]-c.z)-he.z);
-    if(Math.hypot(dx,dy,dz)>=1.3)return;
-    if(r.enabled){r.enabled=false;shoreHidden.push(r);}else left++;
+    out.push({r,c:[c.x,c.y,c.z],h:[he.x,he.y,he.z]});
    });
+  }
+  return out;
+ };
+ const hideCloseShore=(cam:Vec)=>{
+  if(!shoreProps)shoreProps=collectShore();
+  let left=0;
+  for(const p of shoreProps){
+   const r=p.r;if(!r.isValid)continue;
+   const mine=shoreHidden.indexOf(r);
+   if(!r.node.activeInHierarchy){if(mine>=0){r.enabled=true;shoreHidden.splice(mine,1);}continue;}
+   const dx=Math.max(0,Math.abs(cam[0]-p.c[0])-p.h[0]),dy=Math.max(0,Math.abs(cam[1]-p.c[1])-p.h[1]),dz=Math.max(0,Math.abs(cam[2]-p.c[2])-p.h[2]);
+   const near=Math.hypot(dx,dy,dz)<1.3;
+   if(near){if(mine<0){if(r.enabled){r.enabled=false;shoreHidden.push(r);}else left++;}}
+   else if(mine>=0){r.enabled=true;shoreHidden.splice(mine,1);}
   }
   (globalThis as any).__QF_SAIL_SHORE_NEAR=left;
  };
@@ -474,7 +510,9 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
   worldCam.node.setWorldPosition(ov.pos[0],ov.pos[1],ov.pos[2]);
   worldCam.node.lookAt(new Vec3(ov.aim[0],ov.aim[1],ov.aim[2]));
  };
- try{director.on(Director.EVENT_BEFORE_DRAW,applyOverride);}catch{/* QA stills only */}
+ // fix-cloud-sit: test-only cloud trace (?cloudTrace=1): position after ALL writers, right before draw.
+ const traceCloud=()=>{if(cloudLayer&&cloudLayer.isValid){const p=cloudLayer.worldPosition;traceCloudLayer(p.x,p.y,p.z,(globalThis as any).__QF_SAIL_HOLD_ISLAND_FX?'sail':'idle');}};
+ try{director.on(Director.EVENT_BEFORE_DRAW,applyOverride);director.on(Director.EVENT_BEFORE_DRAW,traceCloud);}catch{/* QA stills only */}
  return {
   boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
   sync(v,cam,dt,night,aim?:Vec){
@@ -482,7 +520,7 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
    takeIslandSea();
    time+=Math.max(0,dt);
    const sceneNow=director.getScene();
-   if(sceneNow)walk(sceneNow,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))r.enabled=false;});
+   for(const r of seaRenderers)if(r.isValid&&r.enabled)r.enabled=false;
    if(!worldCam&&sceneNow)worldCam=sceneNow.getComponentsInChildren(Camera).find(c=>c.node.name==='WorldCamera')||sceneNow.getComponentsInChildren(Camera).find(c=>c.node.name!=='WorldNavigationCamera')||null;
    // Scaled sea sheet reaches ~1180 m from its centre. near 0.3 keeps a 6 cm gap resolvable inside that far plane.
    if(worldCam&&savedNear==null){savedNear=worldCam.near;savedFar=worldCam.far;worldCam.near=0.3;worldCam.far=1400;}
@@ -513,11 +551,7 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
      });
     }
    }
-   grade(night);
-   // Readable deep-blue night (match art K7), not near-black.
-   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.20,0.30,0.52,1):new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.26,0.34,0.55,1):new Vec4(1,1,1,1));
-   if(seaMat)seaMat.setProperty('mainColor',night?new Color(150,185,220,255):new Color(255,255,255,255));
+   nightLook(night);
    const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.72:0;
    paint(wakeMat,alpha);
    syncWakeTrail(wakeFx,wakeAnchor,boat,v.speed,dt,night);
@@ -532,7 +566,7 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
   },
   dispose(){
    (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=false;
-   try{director.off(Director.EVENT_BEFORE_DRAW,applyOverride);}catch{/* already torn down */}
+   try{director.off(Director.EVENT_BEFORE_DRAW,applyOverride);director.off(Director.EVENT_BEFORE_DRAW,traceCloud);}catch{/* already torn down */}
    for(const r of shoreHidden)if(r.isValid)r.enabled=true;
    for(const r of hidden)if(r.isValid)r.enabled=true;
    if(dome?.isValid&&domeHome)dome.setWorldPosition(domeHome[0],domeHome[1],domeHome[2]);

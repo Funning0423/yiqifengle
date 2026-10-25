@@ -4,6 +4,7 @@ import {emitTransit, setTransitHidden} from './TransitAudioHooks';
 import {beatAt, sailCamera, sailFollowCamera, sailPresentationT, sailVehicle, seatFromBench, type SailTimeline} from './TransportLeg';
 import {attachRider, detachRider, placeBoat} from './TransportVehicle';
 import type {SailArt} from './SailArt';
+import {stopEngineStates} from './EngineAnimStop';
 import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 function sailCueRegion(cue:string):string{
@@ -249,7 +250,10 @@ export function createSailDriver(opts:{
    try{director.on(Director.EVENT_BEFORE_DRAW,drawSeated);}catch{/* draw hook is best-effort */}
    departAt=real;
   },
-  releaseRider(){dropSeatedPose();const skel=opts.rider?.getComponent(SkeletalAnimation)||opts.rider?.getComponentInChildren(SkeletalAnimation);try{skel?.resume();}catch{/* already playing */}if(attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}},
+  // fix-cloud-sit: NOT resuming the SkeletalAnimation — that replayed the engine's own sit_hold state (play+pause by drawSeated), which then
+  // overwrote the rig-driven stand_up / walk_loop every frame: she slid ashore and across the meadow seated. Stop every
+  // engine-played state instead (same rule as the lakeside get-out, 1033173f).
+  releaseRider(){dropSeatedPose();const skel=opts.rider?.getComponent(SkeletalAnimation)||opts.rider?.getComponentInChildren(SkeletalAnimation);stopEngineStates(skel as any,'sail disembark');if(attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}},
   beginArrival(path:Vec[],dur:number){
    phase='arrival';arrivalPath=path;arrivalU=0;arrivalElapsed=0;arrivalDur=Math.max(0.5,dur);followYaw={yaw:null};
    arrivalFrom=sailCamera(opts.timeline,opts.route,Math.min(t,opts.timeline.build05S),viewSize());
@@ -304,13 +308,18 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  driver.depart(motionBudget);
  await until(plan.total-plan.boardS);
  driver.releaseRider();
+ // fix-cloud-sit: guard again right before stand_up and before the disembark walk (the actor's anim = her SkeletalAnimation)
+ const anim=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);
+ stopEngineStates(anim,'sail stand');
  await actor.perform({kind:'stand',seat:plan.stand},token);
+ stopEngineStates(anim,'sail walk');
  await walk(plan.disembark,true);
  await until(plan.total);
  if(plan.arrival.length>1){
   const dur=pathLen(plan.arrival)/1.2;
   driver.beginArrival(plan.arrival,dur);
-  const walking=walk(plan.arrival,true);
+  stopEngineStates(anim,'sail arrival walk');
+ const walking=walk(plan.arrival,true);
   while(driver.arrivalU<1-1e-4)await wait();
   const held=driver.arrivalElapsed;
   while(driver.arrivalElapsed<held+2)await wait();

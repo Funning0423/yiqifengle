@@ -4,6 +4,7 @@ import {emitTransitCue} from './TransitAudioHooks';
 import {transportFor,type TransportKind} from './JourneyTransport';
 import {walkPair} from './RegionNodeProgress';
 import {planWalk,type WalkPlan} from './NodeWalker';
+import {stopEngineStates} from './EngineAnimStop';
 
 export type WalkResult=Readonly<{transport:TransportKind|'walk';departure:boolean;segments:number;region:string;to:string;timedOut:boolean}>;
 /** One segment must finish or be cut. A stuck `perform` must not freeze advanceMainline. */
@@ -17,6 +18,9 @@ function heading(path:readonly Vec[]):number{
 /** p0drag11: `live()` false = the walk was taken over (e.g. __qfTeleport stood her elsewhere): no end-of-segment re-stand; `onToken`
  *  receives the segment's Cancellation so the owner can cancel it. */
 export async function performBounded(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,action:Action,end:Vec,yawRad:number,timeoutMs=WALK_SEGMENT_TIMEOUT_MS,live?:()=>boolean,onToken?:(t:Cancellation)=>void):Promise<'done'|'timeout'>{
+ // fix-cloud-sit: every region-node walk (meadow / skycity / lakeside) starts with no engine-played state left over from a ride
+ // (sit_hold after the sail); the rig is the only pose clock. Same rule as the lakeside get-out (1033173f).
+ if((action as any).kind==='walk'||(action as any).kind==='stand')stopEngineStates((character as any).anim,'node '+(action as any).kind);
  const token=new Cancellation();if(onToken)onToken(token);
  let mode:''|'done'|'timeout'='';
  let timer:ReturnType<typeof setTimeout>|undefined;

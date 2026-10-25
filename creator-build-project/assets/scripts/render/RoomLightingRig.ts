@@ -111,6 +111,8 @@ export class RoomLightingRig {
   private paused = false;
   private time = 0;
   private accumulator = 0;
+  /** fix-cloud-sit: backdrop ticks skipped because the sail ride owns clouds/sea. */
+  private sailYields = 0;
   private updates = 0;
   private sun: DirectionalLight | null = null;
   private sunState: SunState | null = null;
@@ -492,6 +494,11 @@ export class RoomLightingRig {
         detail.offset.w = detail.base.w + this.seaDetailTime * .01;
         detail.instance.setProperty('tilingOffset', detail.offset);
       }
+      // fix-cloud-sit: while the sail ride holds the island FX (SailArt.sync sets __QF_SAIL_HOLD_ISLAND_FX), SailArt owns
+      // env_cloud_layer (moves it over the lens every frame) and hides the island sea. Writing them here at 30 Hz from
+      // lateUpdate put the cloud shell back at the island every other frame: the whole-voyage cloud flicker. Same yield as
+      // IslandAtmosphereFx / ShoreBreak. SailArt.dispose restores layerHome, after which this drift resumes from it.
+      if ((globalThis as any).__QF_SAIL_HOLD_ISLAND_FX) { this.sailYields++; return; }
       const sea = this.sea;
       if (sea && live(sea.node)) sea.node.setPosition(sea.position.x, sea.position.y + Math.sin(t * .41) * .003, sea.position.z);
       const c = this.clouds;
@@ -530,7 +537,7 @@ export class RoomLightingRig {
       foliageTwoSidedBindings: this.foliageMaterials.length,
       seaDetailBound: !!this.seaDetail, seaDetailTime: this.seaDetailTime,
       lampShadow: false, steamEmitters: this.steam.length, shadowRenderers: this.states.length,
-      plantBound: !!this.plant, seaBound: !!this.sea, cloudsBound: !!this.clouds, notices: this.notices.slice(),
+      plantBound: !!this.plant, seaBound: !!this.sea, cloudsBound: !!this.clouds, sailYields: this.sailYields, notices: this.notices.slice(),
       verification: 'Runtime configuration and lifecycle only; native Creator/WeChat visual/performance acceptance required.' };
   }
 

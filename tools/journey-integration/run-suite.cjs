@@ -100,6 +100,7 @@ const tests=[
  ['rider-parenting','tools/transitions/test_rider_parenting.cjs'],
  ['transport-sail','tools/transitions/test_transport_sail.cjs'],
  ['sail-art','tools/transitions/test_sail_art.cjs'],
+ ['cloud-sit-fix','tools/transitions/test_cloud_sit_fix.cjs'],/* fix-cloud-sit: cloud layer single writer during the sail, disembark stops engine states */
  ['sail-clearance','tools/transitions/test_sail_clearance.cjs'],
  ['sail-dock-path','tools/transitions/test_sail_dock_path.cjs'],
  ['sail-k2k7','tools/transitions/test_sail_k2k7.cjs'],

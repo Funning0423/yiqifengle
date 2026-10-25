@@ -2570,6 +2570,26 @@
     "sha256": "2f078466cbdf3afd9edf660f6489c92e6f5dd3ae9a5e2a121b75ae3a46f39e80"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/CloudTrace.ts",
+    "bytes": 1508,
+    "sha256": "dce42766690acbc4a17b6773570c8dc6264c8740ec844e105c06e31310f40922"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/CloudTrace.ts.meta",
+    "bytes": 171,
+    "sha256": "08b97f728db3979ce8089003dbc150de0de35d0fc29befee2fcf629e7592a746"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/EngineAnimStop.ts",
+    "bytes": 1064,
+    "sha256": "d9f63f4f1a83b488759294994dd8a152687353e647bfb8af0e95010d7c752662"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/EngineAnimStop.ts.meta",
+    "bytes": 171,
+    "sha256": "8dfc6fe5bbbc7a75934859035029c3bbe6aed8a90df667e4996f993a5a13dc92"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts",
     "bytes": 13180,
     "sha256": "8f1a610cde2c2cee9a50e49579e16a722380f5da08eed657f7be57b516cc3824"
@@ -2981,8 +3001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 4395,
-    "sha256": "27da1bf8afd00bcac2d89737590611cfe078b2a69bdc3d91f734507b19097f32"
+    "bytes": 4822,
+    "sha256": "dbfbfee73473488b11ad9aab4d817bdd4e4a0e1ad5bb85021d26cb1b082941c0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -3051,8 +3071,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts",
-    "bytes": 34606,
-    "sha256": "970b46098308e07b8bb849251953f526836a7351ec2aaf67aa2755c195c210cd"
+    "bytes": 37115,
+    "sha256": "aa35f8086fe8c6a9b36d33c6e6eabc12ac8020cfc2344468f35713b711df8aa8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailArt.ts.meta",
@@ -3101,8 +3121,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts",
-    "bytes": 17899,
-    "sha256": "d4394ecd5fdef6c09ca63669c2cc8de0aad73562ec342d28d010d03c1f5cfd44"
+    "bytes": 18661,
+    "sha256": "1bdd9b23f381f7f7be90b473cbc9445414b747bae6ce8478ff1b6289f9d2b8c2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailRide.ts.meta",
@@ -3571,8 +3591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
-    "bytes": 36493,
-    "sha256": "8acd545528ddf42420ddbc1dbb4714ca061c8016950c86e2f98e62646dc596b6"
+    "bytes": 37206,
+    "sha256": "6b4e8c4278661d70334eae95492ee34231e3d6fe7d1b7b98f37c2988f58429e1"
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts.meta",
@@ -4581,8 +4601,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 20050,
-    "sha256": "e0bf1603ebf43072075e6b67dfd26ea13358626b16ff704818d27f37e8daf230"
+    "bytes": 20206,
+    "sha256": "e253ac889196ab7b4d62671f05fa1b9e23015bd541adbf9d392d6b03ab80530a"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
