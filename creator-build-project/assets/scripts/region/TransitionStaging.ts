@@ -35,9 +35,9 @@ export const TRANSITION_STAGING=Object.freeze({
 export const TRANSITION_DURATIONS=Object.freeze({
  seg1:{nodeWalkI4toI6:15.6,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},
  seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:16.5},
- seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,flight:30},
+ seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,flight:20/* 运镜bot b19: visible meadow→skycity flight, ≤50 s cap */},
  seg4:{settle:1.5,standUp:1.27,pause:0.5,doorReach:1.8,stepDown:1.73,toPath:7.5},
- seg5a:{toBasket:8.0,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,liftoff:6.0,flight:12},
+ seg5a:{toBasket:8.0,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,liftoff:6.0,flight:10/* 运镜bot b19: 8–12 s, re-timed */},
  seg5b:{settle:1.5,standUp:1.27,pause:0.5,doorReach:1.8,stepDown:1.73,walkOut:7.7},
 });
 export function segmentTotals(D=TRANSITION_DURATIONS):Record<string,number>{const o:Record<string,number>={};
