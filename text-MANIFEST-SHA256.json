@@ -4216,8 +4216,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 70332,
-    "sha256": "d7bf69c947f614a3595f1b7569f68039deb39c385947f2260c5a6faa01d36655"
+    "bytes": 70397,
+    "sha256": "145c725e5de7a9f3b061487e9076648e4cedb88346181552af32b001598f6652"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -4226,8 +4226,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 63622,
-    "sha256": "ef9ac51b1c7c458aa69828ec5e3b279847a3b1a7b3c9094cacd9eeb7cb642010"
+    "bytes": 65143,
+    "sha256": "a2db4fbcab36b2e97704b131bd3e00aedaf50ff4f89eabe03f1b8c5d86b637b1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -4471,8 +4471,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 7230,
-    "sha256": "ae9311ea4d6baaad70b2cb5630519c9acf2de57728b7e583a37b901b34e76231"
+    "bytes": 8001,
+    "sha256": "f3c08b745cb7bd533400b7d9b624413a92232868876da914be38522834f289c4"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
@@ -4611,8 +4611,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 49111,
-    "sha256": "9a64a1192bd86533af63e7d1ac0961e63e2480d2acc5273165a24342b8733aec"
+    "bytes": 49399,
+    "sha256": "19c0da41ab500cbbdb6b81ffd490b2db29e2aacb272446a3b98aec8134507e4b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4741,8 +4741,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 21210,
-    "sha256": "60d598250e75aa1973ae302ab84ec0904038db8579ba8462d1d7b5bc0494275b"
+    "bytes": 21290,
+    "sha256": "23730101abda7c48103041f3361bcb43bc46abd51781384bed4b380018037f54"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
