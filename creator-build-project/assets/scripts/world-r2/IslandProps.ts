@@ -19,7 +19,7 @@ export class IslandProps {
   readonly root: Node;
   private ready_ = false; private failure: string | null = null; private disposed = false;
   private palette: Material | null = null; private lamp: MeshRenderer | null = null; private lampDay: Material | null = null; private night: boolean | null = null;
-  private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>(); private pivots = new Map<PropRole, Node>();
+  private sign: Node | null = null; private palms: Node[] = []; private structures: Node[] = []; private buttons = new Map<PropRole, Node>(); private pivots = new Map<PropRole, Node>();
   /** Settled island wide shot. A pull moves the live lens only; the three bottom props keep this picture. */
   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
   private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string, seaUniform: null as number[] | null };
@@ -53,6 +53,7 @@ export class IslandProps {
       const S = ISLAND_PROPS.signpost;
       this.sign = this.mount(get(S.prefab), S.position, S.yawDeg, S.scale);
       for (const p of ISLAND_PROPS.palms) this.palms.push(this.mount(get(p.prefab), p.position, p.yawDeg, p.scale));
+      for (const p of ISLAND_PROPS.structures) this.structures.push(this.mount(get(p.prefab), p.position, p.yawDeg, p.scale));
       for (const role of PROP_ROLES) {
         const pivot = new Node('IslandPropPivot-' + role); this.root.addChild(pivot); pivot.active = false;
         const n = this.mount(get(ISLAND_PROPS.buttons[role].prefab), [0, 0, 0], 0, 1);
@@ -271,5 +272,5 @@ export class IslandProps {
     const r = signpostHitUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
-  dispose() { if (this.disposed) return; this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
+  dispose() { if (this.disposed) return; this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.structures = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
 }
