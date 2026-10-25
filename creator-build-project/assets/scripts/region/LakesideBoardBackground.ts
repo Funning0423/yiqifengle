@@ -1,4 +1,5 @@
 import {bgCamWant} from './BgCamGate';
+import {createSceneFade} from './BoardBackgroundFade';
 import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Texture2D,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
 import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppendPiece,lakesideStaticMergeFromEnv,type LakesideAttr} from './LakesideStaticMerge';
 import {waitRegionAsset} from './RegionAssetDeadline';
@@ -346,7 +347,9 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
    for(let i=0;i<kids.length;i++){if(isValid(kids[i],true))kids[i].active=true;if((i+1)%LAKESIDE_PRELOAD_BATCH===0){await pre.yieldFrame();token.check();}}}
   else rig.active=true;/* r4.2 items 10/11: a direct build switches on with the (still hidden) board host, not on the swap frame */
   const showCamera=()=>{if(!camera||!isValid(camera,true))return;bgCamWant(camera,visible&&isValid(host,true)&&host.activeInHierarchy);};
+  const fade=createSceneFade(()=>rig,()=>camera,'lakeside');
   return {
+   setFade:a=>{if(!dead)fade(a);},
    adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();syncDir();},
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');showCamera();syncDir();},
    setVisible:value=>{if(dead)return;visible=value;showCamera();if(value)syncDir();else restoreDir();},

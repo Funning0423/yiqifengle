@@ -107,5 +107,6 @@ export function withRegionBoardGuest(region:string,rigName:string,layer:number,f
    setVisible:v=>{if(v&&staging)staging.finish('reveal');lease.setVisible(v);if(v&&!synced){synced=true;try{ambient=syncRegionAmbient(j,m);}catch{ambient=0;}
     try{if((globalThis as any).__worldFlowLog)console.info('[QF_REGION] '+JSON.stringify({event:'board-ambient-sync',region,clips:ambient}));}catch{}}},
    setPaused:v=>lease.setPaused?.(v),
+   ...(lease.setFade?{setFade:(a:number)=>lease.setFade!(a)}:{})/* cand8b: the 0.3 s dissolve reaches the wrapped lease */,
    diagnostics:()=>({...(lease.diagnostics?lease.diagnostics():{}),guest:g?g.renderers:0,ambientSynced:ambient,staging:staging?staging.stats():null}),dispose:()=>{staging?.dispose();g?.dispose();dispose.call(lease);}};};
 }

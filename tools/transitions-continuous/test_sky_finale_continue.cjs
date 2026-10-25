@@ -86,5 +86,14 @@ let n=0,fail=0;const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}cat
    assert.equal(globalThis.__QF_TRANSITION_FALLBACK.events[0].leg,'lakeside');
    assert.ok(R.TC.continuousTransitions(),'legacy override is one-shot');});
  }
+ await T('(d) cand8b: leaveFinaleBoard throws → tagged console.error, counted bounded WindWipe fallback, no unhandled rejection',async()=>{
+  const R=rig();let thrown=false;const arm=()=>{R.c.leaveFinaleBoard=()=>{if(!thrown){thrown=true;throw Error('leave boom');}};};
+  const errs=[],e0=console.error,w0=console.warn,unh=[],onU=r=>unh.push(r);console.error=(...a)=>errs.push(a.join(' '));console.warn=()=>{};process.on('unhandledRejection',onU);
+  try{await R.c.claimRegionAndWalk(3);arm()/* the claim's own leaveFinaleBoard ran fine; the continue's one throws */;await R.run(3.6);}finally{console.error=e0;console.warn=w0;}
+  await new Promise(r=>setImmediate(r));process.off('unhandledRejection',onU);
+  assert.ok(thrown,'leaveFinaleBoard was called');assert.equal(unh.length,0,'no unhandled rejection');
+  assert.ok(errs.some(x=>x.includes('[QF_TRANSITION_FALLBACK]')&&x.includes('leave-board-threw')),'tagged error '+JSON.stringify(errs));
+  assert.deepEqual(travels(R.ev),[['travel','lakeside','windwipe']],JSON.stringify(R.ev));
+  assert.equal(globalThis.__QF_TRANSITION_FALLBACK.count,1,'counted once');assert.ok(R.TC.continuousTransitions(),'legacy override is one-shot');});
  console.log(JSON.stringify({status:fail?'FAIL':'PASS',passed:n,failed:fail}));process.exit(fail?1:0);
 })();

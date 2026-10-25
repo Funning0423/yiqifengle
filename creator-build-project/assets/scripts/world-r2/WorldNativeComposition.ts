@@ -251,7 +251,11 @@ export class WorldNativeComposition extends Component {
     return !!r?.ok;
   }
   async continueFromSkyFinale(){const stage=this.stage() as any;let camera=null;try{camera=stage?.finaleEndCamera?.()??null;stage?.disarmFinale?.();stage?.markFinaleDeparture?.();}catch{/* optional */}
-    this.leaveFinaleBoard();const t0=Date.now();let reason='no-continuous-handler';
+    const t0=Date.now();let reason='no-continuous-handler';
+    /* cand8b: a throw here must not become an unhandled rejection. Logged as an error (acceptance FAIL), counted, bounded fallback. */
+    try{this.leaveFinaleBoard();}catch(error){reason='leave-board-threw:'+String(error);const n=recordFallback('lakeside',(Date.now()-t0)/1000,'sky-finale:'+reason);
+      console.error('[QF_TRANSITION_FALLBACK] !!! sky finale leaveFinaleBoard threw → WindWipe fallback (#'+n+', reason '+reason+'). Acceptance requires 0 — report this.');
+      return withLegacyTransition(()=>this.enterMainline())/* leave-board fallback */;}
     for(const h of [...this.skyContinueHandlers]){let r:any;try{r=h(camera);}catch(error){reason='handler-threw:'+String(error);console.warn('[QF_TRANSITION] sky-finale-continue '+reason);continue;}
       if(r===true)return {ok:true,via:'continuous'} as any;
       if(r&&typeof r.then==='function'){let res:any;try{res=await r;}catch(error){res={ok:false,reason:'continuous-threw:'+String(error)};}

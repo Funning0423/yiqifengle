@@ -1,4 +1,5 @@
 import {bgCamWant} from './BgCamGate';
+import {createSceneFade} from './BoardBackgroundFade';
 import { _decorator, Animation, Camera, Color, Component, EffectAsset, Material, MeshRenderer, Node, Prefab, SphereLight, Vec4, assetManager, director, game, Game, isValid, instantiate } from 'cc';
 import { REGIONS, loadRegionPrefab, mountRegion } from './RegionLoader';
 import { MEADOW_SCENE_SOURCE, meadowScenePose } from './MeadowSceneData';
@@ -162,7 +163,9 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   };
   syncNight();offNight=onDayNightChange(syncNight);
   rig.active=true;/* r4.2 items 10/11: the scene switches on with the (still hidden) board host, not on the swap frame; visibility = camera */
+  const fade=createSceneFade(()=>rig,()=>camera,'meadow');
   return {
+   setFade:a=>{if(!disposed)fade(a);},
    frame:(_portrait,layout)=>{if(disposed)return;token.check();if(!camera||!isValid(camera,true)||!isValid(camera.node,true))throw Error('Meadow camera owner destroyed');if(!layout||!(layout.width>0&&layout.height>0))throw Error('Meadow requires current board layout');
     const pose=meadowBoardCamera(layout.width,layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');
     if(anchor&&!applyCameraPose(camera!,fromLookAt(anchor),'meadow.node-anchor'))throw Error('Meadow node anchor rejected');},

@@ -2721,8 +2721,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
-    "bytes": 47549,
-    "sha256": "f3dcc7b566c22e7aa517d8c428ee7d1099e6b54589e7e5ffb81979a85a206ed0"
+    "bytes": 47700,
+    "sha256": "3bfdf55f73b01eeb9176fb22bc169ec3aff72d62ae2d886d0b901e3125d472c2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
@@ -2731,8 +2731,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardGuest.ts",
-    "bytes": 12427,
-    "sha256": "c77be5c5d4d323ab87117c15031b030ad89bb4725c776f373f035e05e420e957"
+    "bytes": 12551,
+    "sha256": "c77e1b34917df3883dd4b2b721820626df7bcc150e2a6052d5e68b3ffe9f94e5"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardGuest.ts.meta",
@@ -2941,8 +2941,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
-    "bytes": 15834,
-    "sha256": "ff61e19cc6cc8db5198576cf91709beef47154fbae5d56362c45396d7c280b8c"
+    "bytes": 15987,
+    "sha256": "2ac38baf08ece181ea606c2d411ab4b45fa211a5e13a643644af7ccf7fdf4be1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts.meta",
@@ -3321,8 +3321,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
-    "bytes": 4143,
-    "sha256": "57dc72f1d475f6156d117aa396ced5cfd9930637165f16e8b4d3bfdfaad9b0d3"
+    "bytes": 4293,
+    "sha256": "87aa77b7ee53b25f6bd17f1366aa3cc8f7dac0dd155efa659c6e5697a31f1e38"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -4401,8 +4401,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts",
-    "bytes": 5053,
-    "sha256": "ad326f8b38d2355583429884ea8fcd3ce912f10c87a76aa20d854a00e85a41bb"
+    "bytes": 5287,
+    "sha256": "343f9ae26b19888f3fd5a1a1bcd1f727cc9d351a687af890b79a12ba4251b6dd"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts.meta",
@@ -4691,8 +4691,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 50097,
-    "sha256": "d143afaeac280932a18b4c837bb269f54706ac540e047c63f1bb7658d4c8eea5"
+    "bytes": 50640,
+    "sha256": "c94851dc53291596fee295ec6b88ce58b83accc9a85da12364f524fb5f8c432a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
