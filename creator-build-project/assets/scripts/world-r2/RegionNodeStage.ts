@@ -620,7 +620,7 @@ export class RegionNodeStage extends Component{
     if(gy!==y||ge!==el||ga!==a)S.pin(gy,ge,ga);a=ga;
     /* p0drag11 (replay skn ro: pinned 0.4 s against a wall while she was hidden): go round the other way */
     if(gy!==y&&hid&&!this.skyDetour)this.skyDetour=Math.sign(wrapDeg(ty-gy))>0?-1:1;}
-   if(!hid&&this.skyDetour){this.skyDetour=0;if(this.groundWalking){const Av=this.avoid;Av.sw=Av.tsw=wrapDeg(gy);Av.clear=0;Av.wait=AVOID.searchEveryN;}}/* p0drag12 (r7 nook replay): a detour that shows her again stays there (walking) — heading back to the old target crossed the hidden band again */
+   if(!hid&&this.skyDetour){this.skyDetour=0;if(true){const Av=this.avoid;Av.sw=Av.tsw=wrapDeg(gy);Av.clear=0;Av.wait=AVOID.searchEveryN;}}/* p0drag12 (r7 nook replay): a detour that shows her again stays there (walking) — heading back to the old target crossed the hidden band again */
    this.skyPrev={yaw:r.yaw+gy,el:r.el+ge,arm:r.arm+a};this.skyPrevW=posOf(look,this.skyPrev);
    if(Math.abs(gy-ty)+Math.abs(ge-te)+Math.abs(a-ta)>1e-7)pose={...pose,position:posOf(look,{yaw:r.yaw+gy,el:r.el+ge,arm:r.arm>=A.armMinM?Math.max(A.armMinM,r.arm+a):r.arm+a})};}
   else{this.lensSmooth.clear();this.skyPrev=null;this.skyPrevW=null;this.skyDetour=0;}
