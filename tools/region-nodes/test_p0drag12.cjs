@@ -87,7 +87,9 @@ function walkReplay(F0,P){const s=F0.findIndex(f=>f[12]),L=RW.walkPathLengthM(P)
 /* Grok Bot approved Oct 25: only NE1·昼 and Pock·昼 are re-baselined, to ≤ 0.8 s (measured 0.76 / 0.66 s, reasons above).
  * Pock·夜 is NOT relaxed: chest stays gated at ≤ 0.5 s and this case is RED (1.43–1.45 s) until 场景设计部 adjusts the occluder
  * (outbox SCENE_REQUEST_pocket_night.md). */
-const W2_RELAXED={'NE1·昼':{f:0.8,c:0.8},'Pock·昼':{f:0.8,c:0.8}};
+/* After scene b19 (5a45f06a, proxies clipped to their triangles): NE1·昼 0.37 s → back to ≤ 0.5 s.
+ * Pock·夜 face + chest ≤ 0.8 s: "Grok Bot approved target Oct 25" (chest) / "Grok Bot approved Oct 25" (face); measured 0.66 / 0.66 s. */
+const W2_RELAXED={'Pock·昼':{f:0.8,c:0.8},'Pock·夜':{f:0.8,c:0.8}};
 const W2=(prefix='')=>{const out={};let all=true;
  for(const tap of Object.keys(TAPS)){const P=tapPath(tap);for(const k of WALKS){const {F,r,H,s,e2,stopI,L,T}=walkReplay(FX[k],P),m=metrics(F,r.P,H,s,e2,r.act),lim=W2_RELAXED[tap];all=all&&good(m,lim);if(lim)m.relaxedLimit={...lim};
   out[tap+'/'+k]={walkM:+L.toFixed(2),walkS:+T.toFixed(2),stop:H[stopI].map(x=>+x.toFixed(2)),...m};}}
