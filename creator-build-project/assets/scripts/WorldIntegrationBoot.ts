@@ -18,6 +18,7 @@ import {signRectOnScreen} from './world-r2/IslandPropsLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { GlassSign } from './world-r1/GlassSign';
 import { warmButton, WarmButton } from './WarmButton';
+import { installPreTransition } from './world-r2/PreTransitionRun';
 import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
 import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
 import {IslandProps} from './world-r2/IslandProps';
@@ -545,6 +546,7 @@ export class WorldIntegrationBoot extends Component {
   else if(q.includes('balloonPreview=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewBalloonTransit();}
   else if(q.includes('sailqa=1')&&qaTransportEnabled()){if(this.canvas)this.canvas.active=false;void this.composition.previewSailJourney();}
  }catch{}
+ try{installPreTransition({composition:this.composition,board:()=>this.board(),control:id=>this.controls.get(id),call:async fn=>{if(this.busy)return {ok:false,reason:'busy'};this.busy=true;this.error='';try{return await fn();}finally{this.busy=false;}},idle:()=>!this.busy&&!this.loadingLayer?.fading,islandJourney:()=>this.islandJourney,glassSign:()=>this.glassSign,roomExplore:()=>this.roomExplore,frame:()=>this.navLayout(),signRect:()=>{if(!this.propSign||!this.islandProps)return null;const f=this.navLayout();return (this.islandProps as any).signRect?.(f.width,f.height)??null;},leave:()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());},enterMainline:()=>{void this.invoke(()=>this.composition.enterMainline());},returnHome:()=>{void this.invoke(()=>this.composition.worldCommands().returnHome());}});}catch(e){console.warn('[QF_PRE] install failed',String(e));}/* test-only pre-transition entry: gated inside (WeChat release never) */
  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
  if(!MINIGAME){try{const q=(globalThis as any).location?.search;if(typeof q==='string'&&/(?:^|[?&])qa=1(?:&|$)/.test(q)){const api=(globalThis as any).__worldIntegration;api.qaShot=(spec:any)=>this.composition.qaShot(spec);}}catch{/* no location */}}
  }

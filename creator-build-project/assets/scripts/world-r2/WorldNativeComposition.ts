@@ -8,6 +8,7 @@ import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
 import { QA_SKIP_CHECKPOINT, qaSkipTarget, type QaSkipTarget } from './QaSkip';
+import { preTransitionEnabled } from './PreTransitionKeys';
 import { qaTransportEnabled } from '../region/JourneyTransport';
 import { armSailQa } from '../region/SailQaProbe';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
@@ -304,6 +305,18 @@ export class WorldNativeComposition extends Component {
     try{console.info('[QF_QA_SKIP] '+JSON.stringify({target,namespace:profile.namespace,completed:cp.completed,finish:cp.finish}));}catch{}
     if(this.world.commands().snapshot().state==='home'){const r=await this.world.commands().leaveHome();if(!r.ok)return r;}
     return cp.finish?this.enterMainline():this.enterMainlineStage(profile.stageId,profile.seed);
+  }
+  /** Test-only pre-transition setup (PreTransitionRun): swap in an isolated, engine-replayed profile (real saves untouched),
+   *  `completed` stages with the last one paused one move short (finish=false) or registered (finish=true). Same host gate as
+   *  __qfTeleport; refuses in WeChat release. Moves nobody: the caller drives the world through the normal commands. */
+  preTransitionProfile(completed:number,finish:boolean):Result{
+    if(!preTransitionEnabled())return {ok:false,reason:'pre-transition-disabled'};
+    if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
+    let profile:any;try{profile=createRegionFlowCheckpoint(completed,{allowQa:true,finish,anyCheckpoint:true});}catch(e){return {ok:false,reason:String((e as Error).message)};}
+    if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+    this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;this.hostReply=null;
+    try{console.info('[QF_PRE] profile '+JSON.stringify({namespace:profile.namespace,completed,finish}));}catch{}
+    return {ok:true,stageId:profile.stageId,seed:profile.seed,lastAction:profile.lastAction} as any;
   }
   exitQaSkip():Result{
     if(!this.normalPorts)return {ok:false,reason:'no-test-profile'};
