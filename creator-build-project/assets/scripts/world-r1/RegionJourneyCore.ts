@@ -258,6 +258,8 @@ export class RegionJourneyController {
   this.leaseProgress();
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
+ /** the level camera as it is on screen now (null when the adapter cannot read a finite pose) */
+ private liveCamera():Pose|null{try{const c=this.adapter.readCamera();return c&&c.position&&c.target&&[...c.position,...c.target].every(n=>Number.isFinite(n))?c:null;}catch{return null;}}
  private wiping=false;
  /** transitions-continuous: the world the fallback cover may use during prepare (bound by WorldFlow before prepare). */
  coverWorld:WorldLease|null=null;bindWorld(world:WorldLease|null){this.coverWorld=world;}
@@ -360,7 +362,11 @@ export class RegionJourneyController {
    this.fallbackCovered=false;return;}
   this.rideHold=false;token.check();
   const shotId=leg==='sail'?'A1-dock-walk':leg==='balloon'?'B1-basket-in':'C1-sky-basket-in';
-  if(leg!=='lakeside'/* lakeside ride already blends out of the live skycity lens itself */){const live=this.camera||this.startCamera!;this.patchCamera(world,live,first,shotId);world.setCamera(live)/* first frame = the live lens exactly */;}
+  if(leg!=='lakeside'/* lakeside ride already blends out of the live skycity lens itself */){
+   // P1 (d3fe578e sail start: house → beach close-up → blue → lighthouse): this.camera was read at the END OF PREPARE, which runs
+   // while the level camera is still moving (level-end / 继续旅程 framing), so the handoff started from a stale lens = a hard cut
+   // away from what is on screen. Re-read the live lens NOW, at the first frame of the ride.
+   const fresh=this.liveCamera(),live=fresh||this.camera||this.startCamera!;if(fresh){this.camera=fresh;this.startCamera=fresh;}this.patchCamera(world,live,first,shotId);world.setCamera(live)/* first frame = the live lens exactly */;}
  }
  /** Called BEFORE cancelling the action token, while its distance signal is still available. */
  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
