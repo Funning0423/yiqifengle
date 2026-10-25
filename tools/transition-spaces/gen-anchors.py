@@ -10,7 +10,7 @@ S,rotY=g['S'],g['rotY'];st=json.load(open(H+'/stances.json'));SG=st['segments']
 CW=(241.165081,[59.06373,18.818369,117.212135]);MR=S['meadowRoot']
 def r(p):return [round(v,3) for v in p]
 def xf(root,yaw,p):q=rotY(yaw,p);return [root[0]+q[0],root[1]+q[1],root[2]+q[2]]
-FR={'island':(0.0,[0,0,0]),'meadow':(180.0,MR),'skycity':CW}
+CC=g['cc'];FR={'island':(0.0,[0,0,0]),'meadow':(180.0,MR),'skycity':CW,'lake':(float(CC['lake']['yawDeg']),CC['lake']['root'])}
 def W(frame,p,parent=None):
     if frame in FR:y,o=FR[frame];return xf(o,y,p)
     pf,py,pp=parent;q=xf(pp,py,p);return W(pf,q)
@@ -68,7 +68,17 @@ A['B4B5-skycity-out']={'note':'天空之城着陆位姿（篮根 y 抬到停靠�
  'exitDoor':P('skycity',s4['stances']['P0']['at'],s4['stances']['P0']['yawDeg']),'firstStepDown':P('skycity',[q for q in s4['path'] if q['id']=='stepdown_end'][0]['at']),
  'hinge':P('basket',door['hingeBasket'],None,ball4)|{'openDeg':door['openDeg']},'firstStop':P('skycity',s4['stances']['S0_new']['at'],s4['stances']['S0_new']['yawDeg'])|{'id':'S0'},
  'path':p4,'walkMps':0.8,'seconds':s4['totalS'],'timeline':tl(s4)}
-for k in ['C1-sky-basket-in','C2-lakeside-out']:A[k]={'todo':'第 5 段 world anchors 尚未导出（数据在 stances.json 5a/5b，frame=skycity/lake）'}
+s5,s6=SG['5a_skycity_balloon_in'],SG['5b_lake_balloon_out']
+ball5=('skycity',s5['balloon']['yawDeg'],s5['balloon']['root']);ball6=('lake',s6['balloon']['yawDeg'],s6['balloon']['root'])
+p5=path(s5,ball5);p6=path(s6,ball6)
+A['C1-sky-basket-in']={'note':'T-02 最后一镜 S6 → C1 篮门前 → 开门 → 篮内坐下。起飞关键帧归运镜bot（用 check-lift-clearance.cjs 校验 ≥0.5 m）','candidate':'C1',
+ 'mooringPose':pose(ball5),'S6':P('skycity',s5['path'][0]['at']),'doorFront':P('basket',bk['outside'],bk['outsideYawDeg'],ball5),
+ 'hinge':P('basket',door['hingeBasket'],None,ball5)|{'pivotNode':door['pivotNode'],'leafNode':door['leafNode'],'openDeg':door['openDeg'],'openS':door['openS'],'closeS':door['closeS'],'opens':'outward'},
+ 'inside':{'P0':P('basket',bk['P0'],180.0,ball5),'seat':P('basket',bk['seat'],0.0,ball5)},'path':p5,'walkMps':{'approach':1.2,'intoBasket':0.8},'seconds':s5['totalS'],'timeline':tl(s5),
+ 'parkedClearance':s5['balloon']['parkedClearance']}
+A['C2-lakeside-out']={'note':'湖边着陆（门位）→ 站起 → 开门 → 下台阶 → 走到湖边关卡起点 L1（b15/b18 代码数据不变）','touchdownPose':pose(ball6),'seat':P('basket',bk['seat'],0.0,ball6),
+ 'exitDoor':P('lake',s6['stances']['P0']['at'],s6['stances']['P0']['yawDeg']),'hinge':P('basket',door['hingeBasket'],None,ball6)|{'openDeg':door['openDeg']},
+ 'levelStart':P('lake',s6['stances']['end']['at'],s6['stances']['end']['yawDeg']),'path':p6,'walkMps':0.8,'seconds':s6['totalS'],'timeline':tl(s6)}
 ph=json.load(open(sys.argv[1]));out={'format':'qf-transition-cam/1','note':'场景设计部 b19: anchors = world (region journey world: island root origin; meadow = sailMeadowRoot yaw180; skycity = CW_JSON). camera keys unchanged from placeholder (运镜bot). yaw = atan2(dx,dz) deg. source: tools/transition-spaces/stances.json via gen-anchors.py',
  'world':{'island':{'origin':[0,0,0],'yawDeg':0},'meadow':{'origin':r(MR),'yawDeg':180},'skycity':{'origin':CW[1],'yawDeg':CW[0]}},'segments':{}}
 for k,v in ph['segments'].items():out['segments'][k]=dict(v)|{'anchors':A.get(k,{})}
@@ -86,8 +96,9 @@ def basket(par):return [box('basket',par,[-BW,0,-BW],[BW,BH,-BW+T]),box('basket'
 def leaf(par,deg):
     c,s=math.cos(math.radians(deg)),math.sin(math.radians(deg));h=door['hingeBasket'];e=[h[0]-0.8*c,0,h[2]+0.8*s]
     return box('basket',par,[min(h[0],e[0]),0,min(h[2],e[2])-0.03],[max(h[0],e[0]),BH,max(h[2],e[2])+0.03])
-for n,par in [('meadow',ball3),('skycity',ball4)]:O['basket_'+n]=basket(par);O['basket_door_leaf_'+n]={'closed':leaf(par,0),'open100':leaf(par,100)}
+for n,par in [('meadow',ball3),('skycity',ball4),('skycity_C1',ball5),('lake',ball6)]:O['basket_'+n]=basket(par);O['basket_door_leaf_'+n]={'closed':leaf(par,0),'open100':leaf(par,100)}
 oc={'format':'lens-occluders/aabb-world','rowFormat':'[minX,minY,minZ,maxX,maxY,maxZ] world AABB (same row format as SKYCITY_LENS_OCCLUDERS)','planned':True,
  'note':'按计划尺寸生成（码头/踏板未建模；篮墙按 ±0.85 m×1.01 m 估）。建模后用实际三角形重新生成。用于 脸/胸可见 + 镜头离墙 1.1 m 测试。','boxes':O}
+O['sky_mooring_C1']=[box('basket',ball5,[x-0.08,0,-0.98],[x+0.08,0.9,-0.82]) for x in(-1.15,1.15)]+[box('basket',ball5,[-0.25,-0.05,0.9],[0.25,0.03,1.2])]
 json.dump(oc,open(R+'/tools/transitions-continuous/transition-occluders.json','w'),ensure_ascii=False,indent=1)
 print('ok',len(json.dumps(out)),len(json.dumps(oc)))

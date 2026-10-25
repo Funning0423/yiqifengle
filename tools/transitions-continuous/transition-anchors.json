@@ -1198,7 +1198,151 @@
     }
    ],
    "anchors": {
-    "todo": "第 5 段 world anchors 尚未导出（数据在 stances.json 5a/5b，frame=skycity/lake）"
+    "note": "T-02 最后一镜 S6 → C1 篮门前 → 开门 → 篮内坐下。起飞关键帧归运镜bot（用 check-lift-clearance.cjs 校验 ≥0.5 m）",
+    "candidate": "C1",
+    "mooringPose": {
+     "pos": [
+      84.831,
+      18.845,
+      132.198
+     ],
+     "yawDeg": -132.875
+    },
+    "S6": {
+     "pos": [
+      83.32,
+      18.852,
+      130.795
+     ]
+    },
+    "doorFront": {
+     "pos": [
+      84.038,
+      18.845,
+      130.847
+     ],
+     "yawDeg": 31.87
+    },
+    "hinge": {
+     "pos": [
+      83.944,
+      18.845,
+      131.919
+     ],
+     "pivotNode": "basket_door",
+     "leafNode": "basket_door_leaf",
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "opens": "outward"
+    },
+    "inside": {
+     "P0": {
+      "pos": [
+       84.521,
+       18.845,
+       131.951
+      ],
+      "yawDeg": 47.13
+     },
+     "seat": {
+      "pos": [
+       84.882,
+       18.845,
+       132.288
+      ],
+      "yawDeg": -132.87
+     }
+    },
+    "path": [
+     {
+      "id": "S6",
+      "pos": [
+       83.32,
+       18.852,
+       130.795
+      ]
+     },
+     {
+      "id": "basket_outside",
+      "pos": [
+       84.038,
+       18.815,
+       130.848
+      ]
+     },
+     {
+      "id": "basket_door_out",
+      "pos": [
+       83.915,
+       18.815,
+       131.347
+      ]
+     },
+     {
+      "id": "basket_threshold",
+      "pos": [
+       84.216,
+       18.845,
+       131.626
+      ]
+     },
+     {
+      "id": "basket_P0",
+      "pos": [
+       84.522,
+       18.845,
+       131.951
+      ]
+     },
+     {
+      "id": "basket_seat",
+      "pos": [
+       84.882,
+       18.845,
+       132.288
+      ],
+      "moving": "basket"
+     }
+    ],
+    "walkMps": {
+     "approach": 1.2,
+     "intoBasket": 0.8
+    },
+    "seconds": 8.31,
+    "timeline": [
+     {
+      "clip": "walk_start/walk_loop/walk_stop_bodyL",
+      "s": 1.2
+     },
+     {
+      "clip": "door_reach",
+      "s": 1.8
+     },
+     {
+      "clip": "walk_start -> walk_loop 0.8 m/s -> walk_stop_bodyL",
+      "s": 2.61
+     },
+     {
+      "clip": "walk_turn_180",
+      "s": 1.5
+     },
+     {
+      "clip": "sit_down -> sit_hold",
+      "s": 1.2
+     }
+    ],
+    "parkedClearance": {
+     "minGapM": -0.36,
+     "status": "BLOCKED",
+     "hit": "env_sky_static_palette",
+     "hitPointSky": [
+      -0.869,
+      6.563,
+      -27.724
+     ],
+     "why": "停着时气囊（离篮底 6.5 m 处半径约 2.95 m）已插进 S6 西侧 palette 体 0.36 m；按修正后的气囊轮廓（三角形边求交），S6 周围 11 m 内没有任何点能停着 ≥0.5 m，C2 停着也只有 -0.02 m。需要产品决定：缩小/抬高气囊、移走或改 palette 那块、或系泊点放更远。"
+    }
    }
   },
   "C2-lakeside-out": {
@@ -1237,7 +1381,158 @@
     }
    ],
    "anchors": {
-    "todo": "第 5 段 world anchors 尚未导出（数据在 stances.json 5a/5b，frame=skycity/lake）"
+    "note": "湖边着陆（门位）→ 站起 → 开门 → 下台阶 → 走到湖边关卡起点 L1（b15/b18 代码数据不变）",
+    "touchdownPose": {
+     "pos": [
+      75.82,
+      18.874,
+      168.395
+     ],
+     "yawDeg": 96.189
+    },
+    "seat": {
+     "pos": [
+      75.719,
+      18.874,
+      168.374
+     ],
+     "yawDeg": 96.19
+    },
+    "exitDoor": {
+     "pos": [
+      76.21,
+      18.874,
+      168.323
+     ],
+     "yawDeg": 96.19
+    },
+    "hinge": {
+     "pos": [
+      76.612,
+      18.874,
+      167.907
+     ],
+     "openDeg": 100
+    },
+    "levelStart": {
+     "pos": [
+      82.067,
+      18.844,
+      168.905
+     ],
+     "yawDeg": 122.01
+    },
+    "path": [
+     {
+      "id": "basket_seat",
+      "pos": [
+       75.719,
+       18.874,
+       168.374
+      ],
+      "moving": "basket"
+     },
+     {
+      "id": "basket_P0",
+      "pos": [
+       76.21,
+       18.874,
+       168.323
+      ]
+     },
+     {
+      "id": "v4_00",
+      "pos": [
+       76.568,
+       18.848,
+       168.285
+      ]
+     },
+     {
+      "id": "v4_05",
+      "pos": [
+       77.526,
+       18.848,
+       168.191
+      ]
+     },
+     {
+      "id": "v4_10",
+      "pos": [
+       78.323,
+       18.847,
+       168.337
+      ]
+     },
+     {
+      "id": "v4_15",
+      "pos": [
+       79.068,
+       18.843,
+       168.839
+      ]
+     },
+     {
+      "id": "v4_20",
+      "pos": [
+       79.834,
+       18.838,
+       169.349
+      ]
+     },
+     {
+      "id": "v4_25",
+      "pos": [
+       80.664,
+       18.838,
+       169.484
+      ]
+     },
+     {
+      "id": "v4_30",
+      "pos": [
+       81.475,
+       18.841,
+       169.266
+      ]
+     },
+     {
+      "id": "v4_34",
+      "pos": [
+       82.067,
+       18.844,
+       168.905
+      ]
+     }
+    ],
+    "walkMps": 0.8,
+    "seconds": 14.54,
+    "timeline": [
+     {
+      "clip": "sit_hold",
+      "s": 1.5
+     },
+     {
+      "clip": "stand_up (seat -> P0 0.494 m, stopEngineStates each tick)",
+      "s": 1.27
+     },
+     {
+      "clip": "idle_breathing_loop",
+      "s": 0.5
+     },
+     {
+      "clip": "door_reach",
+      "s": 1.8
+     },
+     {
+      "clip": "walk_start_stepdown -> walk_loop @0.453 s",
+      "s": 1.73
+     },
+     {
+      "clip": "walk_loop 0.8 m/s -> walk_stop_bodyL",
+      "s": 7.74
+     }
+    ]
    }
   }
  }
