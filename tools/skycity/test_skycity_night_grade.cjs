@@ -91,7 +91,7 @@ ok(Math.abs(rb.r.inst.props.albedoScale.x-G.SKYCITY_NIGHT.propAlbedo)<1e-9,'robo
  ok(light.luminance===home&&light.color.r===0xff&&light.color.b===0xda,'day restores the key light');
  ok(c.r.inst.props.emissiveScale.x===1&&r.r.inst.props.emissiveScale.x===3,'day restores the emissive');
  ok(p.r.inst.props.albedoScale.x===1&&sw.r.inst.props.albedoScale.x===1,'day restores the albedo');
- snap={...N,skyNightBlend:.5};lease.setVisible(true);ok(light.luminance<home&&light.luminance>home*N.lightScale,'blend 0.5');
+ snap={...N,skyNightBlend:.5};lease.setVisible(false);lease.setVisible(true);/* b16: re-show snaps; a shown toggle fades 0.6 s */ok(light.luminance<home&&light.luminance>home*N.lightScale,'blend 0.5');
  const dg=lease.diagnostics();ok(typeof dg.keyLuminance==='number','diagnostics expose key luminance');
  lease.dispose();
  // 5. journey wiring

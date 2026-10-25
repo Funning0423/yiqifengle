@@ -36,6 +36,9 @@ const rgb=c=>[c.clearColor.r,c.clearColor.g,c.clearColor.b];
  const dayColor=camera.clearColor;lease.frame(false,{width:390,height:844});assert.equal(camera.clearColor,dayColor,'steady day reuses Color');assert.equal(frames,1);
  assert.deepEqual(lease.diagnostics().skyClearColor,[156,202,223]);
  // Intermediate night weight must interpolate from the day colour, never jump to fixed navy.
+ // cand-b18-stage5: while shown, b16 (f6ec5df9) fades day/night over 0.6 s (covered by tools/ui-b16-fixes); the endpoint/blend
+ // mapping below is checked hidden, where the board snaps straight to the target.
+ lease.setVisible(false);
  snapshot={...D.resolveDayNight('night',true),skyNightBlend:.5};D.emitDayNightChange('night');
  assert.deepEqual(rgb(camera),[78,107,146],'half blend from #9ccadf to #000c44');
  snapshot={...snapshot,skyNightBlend:0};lease.frame(false,{width:390,height:844});assert.deepEqual(rgb(camera),[156,202,223],'night blend 0 is day endpoint');
