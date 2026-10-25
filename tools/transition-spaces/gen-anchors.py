@@ -68,16 +68,16 @@ A['B4B5-skycity-out']={'note':'天空之城着陆位姿（篮根 y 抬到停靠�
  'exitDoor':P('skycity',s4['stances']['P0']['at'],s4['stances']['P0']['yawDeg']),'firstStepDown':P('skycity',[q for q in s4['path'] if q['id']=='stepdown_end'][0]['at']),
  'hinge':P('basket',door['hingeBasket'],None,ball4)|{'openDeg':door['openDeg']},'firstStop':P('skycity',s4['stances']['S0_new']['at'],s4['stances']['S0_new']['yawDeg'])|{'id':'S0'},
  'path':p4,'walkMps':0.8,'seconds':s4['totalS'],'timeline':tl(s4)}
-s5,s6=SG['5a_skycity_balloon_in'],SG['5b_lake_balloon_out']
+s5,s6=SG['5a_skycity_balloon_in'],SG['5b_lake_balloon_out'];LIFTGAP=float(os.environ.get('LIFTGAP','nan'))
 ball5=('skycity',s5['balloon']['yawDeg'],s5['balloon']['root']);ball6=('lake',s6['balloon']['yawDeg'],s6['balloon']['root'])
 p5=path(s5,ball5);p6=path(s6,ball6)
 A['C1-sky-basket-in']={'note':'T-02 最后一镜 S6 → 系泊点（选 C，S6 西南 18 m）篮门前 → 开门 → 篮内坐下。起飞关键帧归运镜bot（用 check-lift-clearance.cjs 校验 ≥0.5 m）；liftSuggested 只是参考','candidate':s5['balloon']['candidate'],
- 'mooringPose':pose(ball5),'S6':P('skycity',s5['path'][0]['at']),'doorFront':P('basket',bk['outside'],bk['outsideYawDeg'],ball5),
+ 'mooringPose':pose(ball5),'S6':P('skycity',s5['path'][0]['at']),'doorFront':P('basket',s5['basket']['outside'],s5['basket']['outsideYawDeg'],ball5),
  'hinge':P('basket',door['hingeBasket'],None,ball5)|{'pivotNode':door['pivotNode'],'leafNode':door['leafNode'],'openDeg':door['openDeg'],'openS':door['openS'],'closeS':door['closeS'],'opens':'outward'},
- 'inside':{'P0':P('basket',bk['P0'],180.0,ball5),'seat':P('basket',bk['seat'],0.0,ball5)},'path':p5,'walkMps':{'approach':1.2,'intoBasket':0.8},'seconds':s5['totalS'],'timeline':tl(s5),
+ 'inside':{'Q':P('basket',s5['basket']['Q'],180.0,ball5),'seat':P('basket',s5['basket']['seat'],180.0,ball5),'note':'no turn in the basket: walks in facing the seat direction, sits backwards Q -> seat'},'path':p5,'walkMps':{'approach':1.2,'intoBasket':0.8},'seconds':s5['totalS'],'timeline':tl(s5),
  'parkedClearance':s5['balloon']['parkedClearance'],
- 'liftSuggested':({'note':s5['liftSuggested']['note'],'liftDirSkyDeg':s5['balloon']['liftDirDeg'],'minGapM':0.607,'keys':[{'t':k['t'],'pos':r(W('skycity',k['pos'])),'yawDeg':round(Wyaw('skycity',k['yaw']),2)} for k in s5['liftSuggested']['keys']]} if s5.get('liftSuggested') else None)}
-A['C2-lakeside-out']={'note':'湖边着陆（门位）→ 站起 → 开门 → 下台阶 → 走到湖边关卡起点 L1（b15/b18 代码数据不变）','touchdownPose':pose(ball6),'seat':P('basket',bk['seat'],0.0,ball6),
+ 'liftSuggested':({'note':s5['liftSuggested']['note'],'liftDirSkyDeg':s5['balloon']['liftDirDeg'],'minGapM':LIFTGAP,'keys':[{'t':k['t'],'pos':r(W('skycity',k['pos'])),'yawDeg':round(Wyaw('skycity',k['yaw']),2)} for k in s5['liftSuggested']['keys']]} if s5.get('liftSuggested') else None)}
+A['C2-lakeside-out']={'note':'湖边着陆（门位）→ 站起 → 开门 → 下台阶 → 走到湖边关卡起点 L1（b15/b18 代码数据不变）','touchdownPose':pose(ball6),'seat':P('basket',s5['basket']['seat'],180.0,ball6),'note5b':'seated facing the back wall (from 5a); stand_up -> walk_turn_180 -> door (GGbot code change)',
  'exitDoor':P('lake',s6['stances']['P0']['at'],s6['stances']['P0']['yawDeg']),'hinge':P('basket',door['hingeBasket'],None,ball6)|{'openDeg':door['openDeg']},
  'levelStart':P('lake',s6['stances']['end']['at'],s6['stances']['end']['yawDeg']),'path':p6,'walkMps':0.8,'seconds':s6['totalS'],'timeline':tl(s6)}
 ph=json.load(open(sys.argv[1]));out={'format':'qf-transition-cam/1','note':'场景设计部 b19: anchors = world (region journey world: island root origin; meadow = sailMeadowRoot yaw180; skycity = CW_JSON). camera keys unchanged from placeholder (运镜bot). yaw = atan2(dx,dz) deg. source: tools/transition-spaces/stances.json via gen-anchors.py',

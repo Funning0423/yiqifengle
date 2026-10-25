@@ -107,7 +107,7 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
  let worst=9;for(let a=0;a<=100;a+=5){for(const t of leafOpen(a))for(let i=0;i<9;i+=3){const p=xf(b.root,b.yawDeg,[t[i],t[i+1],t[i+2]]);const g=floorAt(R.skycity,p[0],p[2],p[1],.2);if(g!==null)worst=Math.min(worst,p[1]-g);}}
  ok(worst>=.005,`open door leaf stays above the island floor (min gap ${worst.toFixed(3)})`);
  const th=s.path.find(p=>p.id==='basket_threshold').at,gt=floorAt(R.skycity,th[0],th[2],.2,.3);ok(gt===null||Math.abs(gt-b.root[1])<=.05,`threshold step ${(gt===null?'over the edge':(b.root[1]-gt).toFixed(3))}`);
- const pts=s.path.filter(p=>p.frame==='skycity').map(p=>p.at);let h=0;for(const q of legs(pts))h+=bodyHits(R.skycity,q);ok(h===0,`seg5a approach body clear (${h})`);}
+ const pts=s.path.filter(p=>p.frame==='skycity').map(p=>p.at);let h=0;const hl=[];for(const q of legs(pts)){const n=bodyHits(R.skycity,q);if(n)hl.push(q.map(v=>v.toFixed(2)).join(','));h+=n;}ok(h===0,`seg5a approach body clear (${h}) ${hl.slice(0,4).join(' | ')}`);}
 // seg5a lift-off: parked + suggested lift (lift5-suggested.json) keep ≥ 0.5 m with the edge-crossing envelope (check-lift-clearance.cjs on fixtures)
 {const CL=require('./check-lift-clearance.cjs'),raw=n=>JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(H,'fixtures',n+'.json.gz'))).toString());
  const sc={};for(const n of ['sky_s6w','sky_lift5'])for(const [k,v] of Object.entries(raw(n)))sc[k]=(sc[k]||[]).concat(v);
@@ -115,6 +115,17 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
  const env=ENV.flat();const pk=CL.check({keys:[{t:0,pos:b.root}]},{dt:1,scene:sc,envelope:env,box:'fx'});ok(pk.minGapM>=.5,`seg5a parked gap ${pk.minGapM} ≥ 0.5 (${pk.hit})`);
  const lr=CL.check(lk,{dt:.02,scene:sc,envelope:env,box:'fx'});ok(lr.minGapM>=.5,`seg5a suggested lift min gap ${lr.minGapM} at t ${lr.atT} ≥ 0.5 (${lr.hit})`);
  ok(Math.abs(lk.keys[lk.keys.length-1].t-5)<.01,'suggested lift shown in 5 s');}
+// seg5a no-turn boarding: outside -> threshold -> Q is one walk (bend ≤ 15°), clear of basket + open leaf; Q -> seat = sit_down root travel backwards
+{const b=S['5a_skycity_balloon_in'].basket,h=(a,c)=>Math.atan2(c[0]-a[0],c[2]-a[2])*180/Math.PI;
+ const bend=Math.abs(((h(b.threshold,b.Q)-h(b.outside,b.threshold))+540)%360-180);ok(bend<=15,`seg5a door->Q bend ${bend.toFixed(1)}° ≤ 15 (no turn in the basket)`);
+ ok(Math.abs(Math.hypot(b.seat[0]-b.Q[0],b.seat[2]-b.Q[2])-.494)<.01&&b.seat[2]>b.Q[2]&&b.seatYawDeg===180,'seg5a seat = Q + 0.494 m backwards (sit_down), facing 180');
+ const dsw=Math.hypot(b.outside[0]-DOOR.hingeBasket[0],b.outside[2]-DOOR.hingeBasket[2])-DOOR.leafRadiusM-.17;ok(dsw>=.05,`seg5a outside clear of the door sweep (${dsw.toFixed(3)})`);
+ let hb=0;for(const q of legs([b.outside,b.threshold,b.Q]))hb+=bodyHits(BASK.concat(leafOpen(DOOR.openDeg)),q,.3);ok(hb===0,`seg5a walk in clear of basket + open leaf (${hb})`);
+ const tl=S['5a_skycity_balloon_in'].timeline.map(t=>t.clip);ok(!tl.some(c=>/turn_180/.test(c)),'seg5a: no walk_turn_180');
+ const s6=S['5a_skycity_balloon_in'].path.filter(p=>p.frame==='skycity'&&p.surface==='walkable:skycity').map(p=>p.at);const n=s6.length;
+ const hd=[];for(let i=1;i<n;i++)hd.push(h(s6[i-1],s6[i]));const last=hd[hd.length-1],door=S['5a_skycity_balloon_in'].balloon.yawDeg+h(b.outside,b.threshold);
+ ok(Math.abs(((last-door)+540)%360-180)<1,`seg5a approach arrives on the door heading (${last.toFixed(1)} vs ${door.toFixed(1)})`);
+ let mx=0;for(let i=1;i<hd.length;i++)mx=Math.max(mx,Math.abs(((hd[i]-hd[i-1])+540)%360-180));ok(mx<=30,`seg5a approach bends ≤ 30° each (${mx.toFixed(1)})`);}
 // motion rule (产品总监 2026-10-25): she walks INTO the vehicle and sits down inside; on arrival she stands up, opens the door, walks out.
 // No seated frame while moving on the ground: sit_* only as the last beats of a boarding segment (after door_reach / boarding walk) and
 // as the first beats of an arrival segment (before stand_up); every walk beat lies between them.
@@ -128,7 +139,7 @@ function parkClear(T,root,extra=[]){let worst=9;const P=[];for(const t of T){for
  for(const id of OUT){const tl=S[id].timeline.map(clips),iSt=tl.findIndex(c=>c.some(x=>/^stand_up/.test(x)));
   ok(tl[0].includes('sit_hold')&&iSt>0&&tl.slice(0,iSt).every(c=>c.every(x=>/^sit_/.test(x))),`${id}: seated hold, then stand_up first (${tl.map(c=>c[0]).join(' > ')})`);
   ok(tl.slice(iSt+1).every(c=>!c.some(x=>/^sit_/.test(x))),`${id}: no sit after stand_up`);
-  const firstWalk=tl.findIndex(c=>c.some(x=>/^walk_/.test(x)));ok(firstWalk>iSt,`${id}: walking starts only after stand_up`);
+  const firstWalk=tl.findIndex(c=>c.some(x=>/^walk_/.test(x)&&!/^walk_turn_/.test(x)));ok(firstWalk>iSt,`${id}: walking starts only after stand_up`);
   if(id!=='2_meadow_landing'){const iD=tl.findIndex(c=>c.includes('door_reach'));ok(iD>iSt&&iD<firstWalk,`${id}: stand_up > door_reach > walk out`);}}}
 // timings: only existing clips, real durations
 const CL=J.clips;for(const [id,s] of Object.entries(S))for(const b of s.timeline){for(const c of b.clip.split(/[^A-Za-z0-9_]+/))if(/_/.test(c))ok(c in CL,`${id} clip ${c} exists in the character glb`);}
