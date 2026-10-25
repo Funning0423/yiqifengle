@@ -13,6 +13,7 @@ def layout(W,H):
   chime_cy=top+usable*0.36
   plank_cy=chime_cy+chime*0.5+44
   seals_cy=plank_cy+64
+  if H<=600:seals_cy-=8   # 矮屏（320×568 这类）：印章上移 8pt，给女孩头顶留 ≥12pt
   return dict(top=top,bot=bot,btn=(int((W-btn_w)/2),int(btn_y),btn_w,btn_h),chime=chime,chime_cy=chime_cy,plank_cy=plank_cy,seals_cy=seals_cy)
 # v2：背景改为 Blender 实时场景分层渲染（render_ending_scene.py / render_all.sh）：
 #   bg = 湖畔场景+木架；chime = 风铃（16 个摇摆相位）；girl = 游戏角色。女孩按屏幕尺寸摆位，游戏里由镜头构图实现。

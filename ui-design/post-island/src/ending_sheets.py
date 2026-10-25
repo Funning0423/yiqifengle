@@ -23,7 +23,7 @@ def sizes():
     im,L=ending(W,H);im=im.resize((W,H),Image.LANCZOS);d=ImageDraw.Draw(im);bx,by,bw,bh=L['btn'];gb=L['girl_box'];cb=L['chime_box']
     btn=(bx,by,bx+bw,by+bh);seal=(97*W/390,L['seals_cy']-22,W-97*W/390,L['seals_cy']+22);plk=(W/2-98,L['plank_cy']-29,W/2+98,L['plank_cy']+29)
     checks={'按钮离边≥16':bx>=16,'按钮在安全区内':by+bh<=H-L['bot'],'女孩完整入画':gb[0]>=0 and gb[2]<=W and gb[1]>=0 and gb[3]<=H,
-      '女孩不压按钮/印章/木牌':not(inter(gb,btn) or inter(gb,seal) or inter(gb,plk)),'风铃完整且不压木牌':cb[1]>=L['top'] and cb[3]<=L['plank_cy']-29 and cb[0]>=0 and cb[2]<=W}
+      '女孩不压按钮/木牌':not(inter(gb,btn) or inter(gb,plk)),'女孩头顶离印章≥12':gb[1]-seal[3]>=12-1e-6,'风铃完整且不压木牌':cb[1]>=L['top'] and cb[3]<=L['plank_cy']-29 and cb[0]>=0 and cb[2]<=W}
     ok=all(checks.values())
     for bxx,col in ((btn,(0,200,90)),(gb,(255,170,0)),(cb,(0,150,255))):d.rectangle(bxx,outline=col if ok else (230,30,30),width=2)
     ths.append((W,H,im,ok,[k for k,v in checks.items() if not v]));res.append((W,H,ok,round(bx),round(by-gb[3]),round(gb[1]-(L['seals_cy']+22)),[k for k,v in checks.items() if not v]))
