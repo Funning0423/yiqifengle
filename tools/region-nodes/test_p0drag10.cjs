@@ -76,8 +76,9 @@ const nearOf=h=>B.filter(b=>Math.hypot(Math.max(b.min[0]-h[0],0,h[0]-b.max[0]),M
  for(let f=0;f<180;f++){st.writeOrbit(1/60);drift=Math.max(drift,Math.abs(wrap(camYaw(Rg.cam())-pick.yaw)));}
  // a manual drag ends the hold: avoidance swings again (the lens leaves the hooked yaw within 1.5 s)
  st.aimOrbit('drag',0,0);st.aimOrbit('release',0,0);for(let f=0;f<90;f++)st.writeOrbit(1/60);
- const after=Math.abs(wrap(camYaw(Rg.cam())-pick.yaw));
- ok('Q2',r.ok&&drift<=3&&after>3,{blockedPick:pick,teleport:r,maxYawDriftDeg3s:+drift.toFixed(2),yawOffAfterManualDrag15sDeg:+after.toFixed(1)});
+ const after=Math.abs(wrap(camYaw(Rg.cam())-pick.yaw)),oc2=occ(Rg.cam().position,her),seen=!oc2.face&&!oc2.chest;
+ /* p0drag11: avoidance may also answer with a climb + arm pull-in at the same yaw — what counts is that it acts and she is seen */
+ ok('Q2',r.ok&&drift<=3&&(after>3||seen),{herSeenAfterDrag:seen,blockedPick:pick,teleport:r,maxYawDriftDeg3s:+drift.toFixed(2),yawOffAfterManualDrag15sDeg:+after.toFixed(1)});
 }
 // ---------- Q3 sign from the text side
 {

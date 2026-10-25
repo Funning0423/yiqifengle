@@ -119,6 +119,7 @@ const tests=[
  ['p0drag8','tools/region-nodes/test_p0drag8.cjs'],/* skycity platform replay (2112 boxes + refresh churn), lakeside walk-drag pitch, island sign fallback, qfSkip-gated hooks */
  ['p0drag9','tools/region-nodes/test_p0drag9.cjs'],/* skycity ro-turn replay (eased avoidance, framing on 7 screens), teleport yaw convention, aimAt world point */
  ['p0drag10','tools/region-nodes/test_p0drag10.cjs'],/* REAL Mac skxd ro/pock trace replay (drag-event dt=0 writes, hook cuts): per-frame easing, no lens in a box, face+chest occlusion, hook hold, sign front, camTrace occ */
+ ['p0drag11','tools/region-nodes/test_p0drag11.cjs'],/* Mac p0drag10 traces: Q0 occ calibration (≥97.5 % frames), Q1 4 slow turns face/chest ≤0.5 s, Q2 nook walk-end facing, Q3 sign from its text side, Q4 teleport ends the walk */
  ['cam-trace','tools/region-nodes/test_cam_trace.cjs'],/* p0drag4b: ?camTrace=1 off = no writes, on = writer ids */
  ['skycity-stand','tools/region-nodes/test_skycity_stand.cjs'],/* p0d5sky: off-walkable explore open → nearest node; __qfTeleport */
  ['lakeside-entry-deck','tools/journey-integration/test-lakeside-entry-deck.cjs'],
