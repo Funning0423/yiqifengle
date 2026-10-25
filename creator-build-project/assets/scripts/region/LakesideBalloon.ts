@@ -71,8 +71,11 @@ export const LAKESIDE_BALLOON_LANDING={
  boardBlackS:.3,
  boardFadeInS:.7,
  liftHoldS:0,
- /** Flight time skipped at the cut (s). */
- flightSkipS:9,
+ /** Flight time skipped at the cut (s). T-03 (DESIGN T3 ~12 s visible flight): 9 → 18, so the shot opens at ride τ 0.6 (basket
+  *  aloft past the skycity rim) and shows the last 12 s of the unchanged 30 s ride: the lens keys, the strut dodge and the
+  *  door turn-in keep their tested timing (shortening durationS alone sped the whole keyed lens up: lens 4.1 m/s², turn-in
+  *  6.8 m/s). Segment total −9 s. */
+ flightSkipS:18,
  /** Walk lens, her-relative on the walk heading: [back, side (right +), up, aimAhead, aimUp (from chest), fov, aimSide (right +)]. */
  walkLens:[4.92,-.37,-.05,-.18,.15,48,.46] as readonly [number,number,number,number,number,number,number],
  /** Walk lens at the end of the walk (blended from walkLens on her walk progress, smootherstep). */
@@ -443,8 +446,10 @@ export function lakesideDoorRideCamera(R:LakesideBalloonRide,door:Pose,t:number,
  if(t<R.cutT)return R.camera(t,from);
  // her chest reference for the lift: basket path averaged over ±0.6 s (triangular; the window closes over the last 1.2 s so it is
  // exact at touchdown): the path polyline's vertical kinks (e.g. 18.5 s) would otherwise reach the lens as acceleration spikes
- const hw=.8*Math.max(0,Math.min(1,(R.T-t)/1.6,(t-R.cutT)/1.6));let v:Vec=R.vehicle(t);
- if(hw>1e-3){let W=0;const a:Vec=[0,0,0];for(let i=-24;i<=24;i++){const w=1-Math.abs(i)/25,q=R.vehicle(t+i*hw/24);W+=w;a[0]+=q[0]*w;a[1]+=q[1]*w;a[2]+=q[2]*w;}v=[a[0]/W,a[1]/W,a[2]/W];}
+ // T-03: sampled on the flight's own clock (continuous through the skipped flight time, so the window no longer opens from 0
+ // at the cut, where the basket is already moving with the 18 s skip) and closed with smootherstep at touchdown
+ const hw=.8*smooth5((R.T-t)/1.6);let v:Vec=R.vehicle(t);
+ if(hw>1e-3){let W=0;const a:Vec=[0,0,0];for(let i=-24;i<=24;i++){const w=1-Math.abs(i)/25,q=R.flight.vehicle(t-R.liftT+i*hw/24);W+=w;a[0]+=q[0]*w;a[1]+=q[1]*w;a[2]+=q[2]*w;}v=[a[0]/W,a[1]/W,a[2]/W];}
  const c:Vec=[v[0],v[1]+LAKESIDE_SEATED_CHEST_M,v[2]];let p=lakesideDoorRideCameraRaw(R,door,t,from,k,v);
  // aim point on the raw view ray at her chest distance: the same ray whichever raw branch made it, so moving the lens below never kinks the view
  {const P=p.position,dd=unit(P as Vec,p.target as Vec),r=Math.hypot(P[0]-c[0],P[1]-c[1],P[2]-c[2]);p={position:P,target:[P[0]+dd[0]*r,P[1]+dd[1]*r,P[2]+dd[2]*r],fovVerticalDeg:p.fovVerticalDeg};}
@@ -470,7 +475,7 @@ export function lakesideRimLift(p:Pose,chest:Vec,deg=LAKESIDE_RIM_ELEV_DEG):Pose
  return {position:[chest[0]+(P[0]-chest[0])*k,chest[1]+d*Math.sin(e),chest[2]+(P[2]-chest[2])*k],target:[p.target[0],p.target[1],p.target[2]],fovVerticalDeg:p.fovVerticalDeg};
 }
 function lakesideDoorRideCameraRaw(R:LakesideBalloonRide,door:Pose,t:number,from:Pose|null,k=LAKESIDE_DOOR_LENS,vs?:Vec):Pose{
- if(t<R.T-LAKESIDE_BALLOON_LANDING.blendOutS||t<R.cutT)return R.camera(t,from)/* the old blend-out onto the landing pose is not used */;
+ if(t<R.T-Math.max(LAKESIDE_BALLOON_LANDING.blendOutS,k.turnInS)/* T-03: a turn-in longer than blendOutS starts on the follow lens */||t<R.cutT)return R.camera(t,from)/* the old blend-out onto the landing pose is not used */;
  const o=R.T-k.turnInS;if(t>=R.T)return door;if(t<o)return R.flight.follow(t-R.liftT);
  const fl=R.flight.follow(t-R.liftT),v=vs||R.vehicle(t)/* b16: the smoothed basket (see lakesideDoorRideCamera) */,c:Vec=[v[0],v[1]+1.0,v[2]],e=Math.max(0,Math.min(1,(t-o)/k.turnInS)),x=e*e*e*(e*(e*6-15)+10);
  const vt=R.vehicle(R.T),cT:Vec=[vt[0],vt[1]+1.0,vt[2]];
