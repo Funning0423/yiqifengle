@@ -3750,9 +3750,29 @@
     "sha256": "c1d4439f0349021d498123c2530d2f7d775f0737a2e0be4affc13ade8d541f6d"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/EndingChime3D.ts",
+    "bytes": 4205,
+    "sha256": "1512d63d0737dd5be64ac04d5c11d4ccbd8e9aa372d02b031edef27603ed76c1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/EndingChime3D.ts.meta",
+    "bytes": 171,
+    "sha256": "e1dbf2b583e370efc067c5e97f27bb874e366a4f8e594f734c1f22ca5f457a66"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/EndingChimeSway.ts",
+    "bytes": 411,
+    "sha256": "196f008709907b26c0ce4d6b70116db703cc0a0507e48908fb55f2e792d4f8d1"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/EndingChimeSway.ts.meta",
+    "bytes": 171,
+    "sha256": "9c41a0672d3559bd07d804485fbcf2055a12f802198f6948e44a1db6572f4f4c"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts",
-    "bytes": 11174,
-    "sha256": "c928e222a2a06adf5cc954bdad582a529e794ad09ecec062ac198ceaf6765ec1"
+    "bytes": 7208,
+    "sha256": "4a7405153962a878f8f57357de31593f79e7fba182cb998668bfa52efbcb104f"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts.meta",
@@ -4561,8 +4581,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 19965,
-    "sha256": "acd8d372844ac22a6bf5e5d6d8f6061e0379f60c27980b39a769ee7db3b35e49"
+    "bytes": 20050,
+    "sha256": "e0bf1603ebf43072075e6b67dfd26ea13358626b16ff704818d27f37e8daf230"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
