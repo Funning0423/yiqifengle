@@ -1730,6 +1730,41 @@
     "sha256": "01d1f3a0f7c78ad3c678315d5c6802bb275a6a876b23a368a3f8bc46d2fc9e7d"
   },
   {
+    "path": "creator-build-project/assets/resources/ending.meta",
+    "bytes": 168,
+    "sha256": "3f64fcea2b267dc8e77823bd73e31baf6c11aae941950b5b48d7ac4788f5b871"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_bg_day.jpg.meta",
+    "bytes": 3118,
+    "sha256": "7c42508f555a917d7575363b475d2a920c0472d5510afea897df46b361166cb2"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_bg_night.jpg.meta",
+    "bytes": 3122,
+    "sha256": "5dcd085254e531f0e93fe104fa62b928e7f87c83cd42c4d1ba18d69d01888fcc"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_chime_day.png.meta",
+    "bytes": 3113,
+    "sha256": "cdf248db6ea9641d65fc03be5b6a383761c1eb39a66c5beb992407c1399790c6"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_chime_night.png.meta",
+    "bytes": 3117,
+    "sha256": "4c19bebcbc3e098db6651804a46e9fd9fba14a12c323576f0c59968beacf9f35"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_day.png.meta",
+    "bytes": 3107,
+    "sha256": "a9f26c68152cfdebbd80e93cf54ee4d1370d44e7b4ab8e2039ef036403084fab"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ending/end_girl_night.png.meta",
+    "bytes": 3111,
+    "sha256": "ab06e4e559e47c7b5746bc1cf9609023b82db4be4bdf16cfd209d08795c3bd8e"
+  },
+  {
     "path": "creator-build-project/assets/resources/firstslice.meta",
     "bytes": 169,
     "sha256": "159d61f7235de28eb73d496640cbac3b26453a39ce48f411af58ab16d488fd46"
