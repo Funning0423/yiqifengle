@@ -49,17 +49,30 @@ const good=m=>m.pitchOverLimitDeg<=0.5&&m.heightOverLimitM<=0.03&&m.max025sPitch
   const mac=F.map(f=>{const y=f[6]*R,p=f[7]*R,fw=[-Math.sin(y)*Math.cos(p),Math.sin(p),-Math.cos(y)*Math.cos(p)],c=toLocal(f[5]),d=solve(fw);return {position:c,target:[c[0]+d[0]*5,c[1]+d[1]*5,c[2]+d[2]*5]};});
   const before=metrics(F,mac,hers);
   const Rg=rig('skycity','S1',hers[0].slice(),{modelAt:[0,0,0]});const st=Rg.st;st.guardOrbitGround=p=>p;let her=hers[0];st.girl=()=>her;
-  let near=null,nearAt=-1;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;
+  let near=null,nearAt=-1;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;st.skycityAllOccluders=()=>B;
   const o=new FO.FreeOrbit('skycity');let i=0;
-  st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF;o.pitch=f[3];o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){}};
+  st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF;o.pitch=f[3];o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){},
+   rawPose:(g)=>{const f=F[i];o.yaw=f[2]+YAW_OFF;o.pitch=f[3];o.dist=f[4];return o.rawPose(g);},get yaw(){return F[i][2]+YAW_OFF;},get pitch(){return F[i][3];},get dist(){return F[i][4];}};/* p0drag13: rawPose / yaw for the walk plan */
   st.entry=null;const poses=[],ms=[],hold=[];
   for(i=0;i<F.length;i++){her=hers[i];if(F[i][0]-nearAt>=0.4){nearAt=F[i][0];near=B.filter(b=>Math.hypot(Math.max(b.min[0]-her[0],0,her[0]-b.max[0]),Math.max(b.min[2]-her[2],0,her[2]-b.max[2]))<18);}
    const dt=i?Math.min(0.1,Math.max(0,F[i][0]-F[i-1][0])):1/60;const t0=process.hrtime.bigint();
    const hook=cutAt(F,hers,i);
+   /* p0drag13: the p0drag9 traces carry no walking flag — a frame where she moves (≥ 3 mm since the last frame) is walking, and the
+    * walk start hands walkStarted her own coming positions (the path the game hands it at the tap) */
+   {const w=i>0&&!hook&&d3(hers[i],hers[i-1])>0.003;if(w&&!st.groundWalking&&typeof st.walkStarted==='function'){const pth=[];for(let j=i-1;j<F.length&&(j===i-1||d3(hers[j],hers[j-1])>0.003);j++)if(!pth.length||Math.hypot(hers[j][0]-pth[pth.length-1][0],hers[j][2]-pth[pth.length-1][2])>0.25)pth.push(hers[j].slice());if(pth.length>=2)st.walkStarted('skycity',pth);}
+    st.groundWalking=w;}
    if(hook)st.qaOrbit();/* a __qfTeleport / __qfAimAt cut (her or the raw orbit jumps in one frame): the hook's own qaOrbit resets */
    else if(F[i][8]>=2){st.qaHold=false;st.writeOrbit(0);}/* the drag event's own write (aimOrbit, which also ends the hook hold) */
    st.writeOrbit(dt);hold.push(!!st.qaHold);ms.push(Number(process.hrtime.bigint()-t0)/1e6);const c=Rg.cam();poses.push({position:c.position.slice(),target:c.target.slice()});}
-  const after=metrics(F,poses,hers,hold);ms.sort((a,b)=>a-b);all=all&&good(after);
+  const after=metrics(F,poses,hers,hold);ms.sort((a,b)=>a-b);
+  /* p0drag13 hook rule (owner decision, see STATUS p0drag13): a run that starts in the QA hook pose is reported (longestOcclusionFromQaHookS);
+   * after the hook releases, the lens must clear her within the physical minimum of the eased standing cap for the swing needed + 0.15 s */
+  const hid=i=>{const o=occ(poses[i].position,hers[i]);return o.face&&o.chest;};let rk=null;
+  for(let i=1;i<poses.length;i++)if(hold[i-1]&&!hold[i]&&hid(i)){let fc=i;while(fc<poses.length-1&&hid(fc))fc++;const h=hers[i],L=[h[0],h[1]+1.15,h[2]],p0=poses[i].position,dx=p0[0]-L[0],dy=p0[1]-L[1],dz=p0[2]-L[2],arm=Math.hypot(dx,dy,dz),el=Math.asin(dy/arm),y0=Math.atan2(dx,dz);
+   let th=1e9;for(const sg of [1,-1])for(let dd=1;dd<=180;dd++){const y=y0+sg*dd*R,p=[L[0]+Math.sin(y)*Math.cos(el)*arm,L[1]+Math.sin(el)*arm,L[2]+Math.cos(y)*Math.cos(el)*arm];if(inside(p))break;const o=occ(p,h);if(!(o.face&&o.chest)){th=Math.min(th,dd);break;}}
+   const V=LS.LENS_SMOOTH.yawOursDegS,A=LS.LENS_SMOOTH.yawAccDegS2,tmin=th>=1e9?Infinity:(th>V*V/A?th/V+V/A:2*Math.sqrt(th/A)),t=F[fc][0]-F[i][0];
+   const x={swingNeededDeg:th>=1e9?null:th,releaseToClearS:+t.toFixed(2),physMinS:+tmin.toFixed(2),ok:t<=tmin+0.15};if(!rk||x.releaseToClearS>rk.releaseToClearS)rk=x;}
+  after.hookRelease=rk;all=all&&good(after)&&(!rk||rk.ok);
   out[key]={her:hers[0].map(v=>+v.toFixed(2)),before_mac:before,after,perf:{avgMs:+(ms.reduce((a,b)=>a+b)/ms.length).toFixed(3),p99Ms:+ms[Math.floor(ms.length*.99)].toFixed(2)}};}
  ok('Q1',all,{boxes:SKO.length,...out});
 }

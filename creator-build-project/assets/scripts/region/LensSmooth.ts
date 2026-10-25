@@ -13,7 +13,7 @@ export const LENS_SMOOTH=Object.freeze({
  boostLensMS:28,
  /** p0drag13 (Mac p0drag12: automatic swing 379–507°/s, p95 140–240°/s — a whip): OUR yaw offset moves on an eased, capped
   *  profile — ≤ yawOursDegS, |accel| ≤ yawAccDegS2 (trapezoid: speeds up, cruises, slows into the target). Replaces ×5 + 28 m/s. */
- yawOursDegS:90,yawAccDegS2:200,
+ yawOursDegS:90,yawAccDegS2:200,yawWalkDegS:120,yawWalkAccDegS2:300,
  /** screens the framing must hold on (w×h px) */
  screens:[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]] as readonly (readonly [number,number])[],
  /** her body: feet .. head above the feet (m) and half width (m); margin kept to the screen edge (fraction of the half screen) */
@@ -31,6 +31,8 @@ export class OffsetSmoother{
  reset(y=0,e=0,a=0){this.y=y;this.e=e;this.a=a;this.vy=this.ve=this.va=0;this.live=true;}
  clear(){this.reset();this.live=false;}
  /** p0drag10: the no-entry guard moved the lens to (y,e,a) instead of the eased step — adopt it, zeroing the velocity on axes it held. */
+ /** p0drag13: per-mode yaw caps (0 = LENS_SMOOTH): walks may use the 120°/s hard cap, ≤ 300°/s². */
+ capV=0;capA=0;
  pin(y:number,e:number,a:number){if(y!==this.y)this.vy=0;if(e!==this.e)this.ve=0;if(a!==this.a)this.va=0;this.y=y;this.e=e;this.a=a;}
  step(ty:number,te:number,ta:number,dt:number,boost=1,yawBoost=1,yawMaxDegS=Infinity,yawDir=0):[number,number,number]{
   if(!this.live){this.reset(ty,te,ta);return [ty,te,ta];}
@@ -38,7 +40,7 @@ export class OffsetSmoother{
   const t=Math.min(0.1,dt),w=LENS_SMOOTH.omega*boost;
   const f=(x:number,v:number,g:number,cap:number,ww=w):[number,number]=>{const acc=ww*ww*(g-x)-2*ww*v;let nv=v+acc*t;nv=Math.max(-cap,Math.min(cap,nv));return [x+nv*t,nv];};
   const dy=wrapDeg(ty-this.y);/* p0drag11: yawDir ±1 = go round that way (detour past a wall) */
-  {const d=yawDir&&Math.sign(dy)!==yawDir?dy+360*yawDir:dy,A=LENS_SMOOTH.yawAccDegS2,V=LENS_SMOOTH.yawOursDegS;
+  {const d=yawDir&&Math.sign(dy)!==yawDir?dy+360*yawDir:dy,A=this.capA||LENS_SMOOTH.yawAccDegS2,V=this.capV||LENS_SMOOTH.yawOursDegS;
    /* p0drag13: eased + capped yaw — target speed is what can still stop in time (√(2A|d|)), the speed changes by ≤ A·t */
    const want=Math.sign(d)*Math.min(V,Math.sqrt(2*A*Math.abs(d))),nv=this.vy+Math.max(-A*t,Math.min(A*t,want-this.vy));
    let ny=this.y+nv*t;if(Math.abs(d)<0.05&&Math.abs(nv)<A*t){ny=this.y+d;this.vy=0;}else this.vy=nv;this.y=ny;void yawBoost;void yawMaxDegS;}/* p0drag11: the yaw spring is also stiffer while she is hidden *//* p0drag10: yaw alone may go ×yawBoost while she is hidden (yaw is not a user-felt pitch/height limit) */

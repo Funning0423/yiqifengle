@@ -29,18 +29,20 @@ const turnStart=F=>{let c=0;for(let i=1;i<F.length;i++)if(isCut(F,i))c=i;let s=c
 const vp=p=>{const v=p.target.map((x,k)=>x-p.position[k]);return Math.asin(v[1]/Math.hypot(...v))/R;};
 const yawOf=p=>Math.atan2(p.position[0]-p.target[0],p.position[2]-p.target[2])/R;
 /* replay: pitchOver = replace the orbit pitch (low-angle self-check); walking frames are written like the engine (groundWalking && seeded) */
+/* p0drag13: the game hands walkStarted the r7 walk path at the tap — the replay hands it the trace's own walk (her positions until she stops) */
+const tracePath=F=>i=>{const out=[];for(let j=i;j<F.length&&F[j][12];j++){const p=toLocal(F[j][1]);if(!out.length||Math.hypot(p[0]-out[out.length-1][0],p[2]-out[out.length-1][2])>0.25)out.push(p);}return out.length>=2?out:null;};
 function replay(F,{pitchOver=null,endView=false,path=null}={}){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1',H[0].slice(),{modelAt:[0,0,0]});const st=Rg.st;st.guardOrbitGround=p=>p;let her=H[0];st.girl=()=>her;
- let near=null,nearAt=-1e9,yoff=0,poff=0;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;const o=new FO.FreeOrbit('skycity');let i=0;
+ let near=null,nearAt=-1e9,yoff=0,poff=0;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;st.skycityAllOccluders=()=>B;const o=new FO.FreeOrbit('skycity');let i=0;
  st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF+yoff;o.pitch=(pitchOver??f[3])+poff;o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){},setPlace(){},seed(){},forget(){},
   rawPose:(g)=>{o.yaw=F[i][2]+YAW_OFF+yoff;o.pitch=(pitchOver??F[i][3])+poff;o.dist=F[i][4];return o.rawPose(g);},get yaw(){return F[i][2]+YAW_OFF+yoff;},set yaw(v){yoff=v-F[i][2]-YAW_OFF;},get pitch(){return (pitchOver??F[i][3])+poff;},set pitch(v){poff=v-(pitchOver??F[i][3]);},get dist(){return F[i][4];},set dist(v){}};st.entry=null;
- const P=[],act=[];let last=-1,walk=false;
+ const P=[],act=[],hold=[];let last=-1,walk=false;
  for(i=0;i<F.length;i++){her=H[i];if(F[i][0]-nearAt>=0.4||(last>=0&&d3(H[i],H[last])>1)){nearAt=F[i][0];near=near18(B,her);}
-  const w=!!F[i][12];if(w&&!walk&&typeof st.walkStarted==='function')st.walkStarted('skycity',path);st.groundWalking=w;if(!w&&walk&&endView&&typeof st.walkEndView==='function'){st.exploring=true;st.walkEndView('skycity');}walk=w;
+  const w=!!F[i][12];if(w&&!walk&&typeof st.walkStarted==='function')st.walkStarted('skycity',typeof path==='function'?path(i):path);st.groundWalking=w;if(!w&&walk&&endView&&typeof st.walkEndView==='function'){st.exploring=true;st.walkEndView('skycity');}walk=w;
   if(!F[i][11]){P.push(P.length?P[P.length-1]:{position:toLocal(F[i][5]),target:her});act.push(false);continue;}
   const dt=last>=0?Math.min(0.1,Math.max(0,F[i][0]-F[last][0])):1/60;
   if(isCut(F,i)||last<0||F[i][0]-F[last][0]>0.3)st.qaOrbit();else if(F[i][8]>=2){st.qaHold=false;st.writeOrbit(0);}
-  st.writeOrbit(dt);const c=Rg.cam();P.push({position:c.position.slice(),target:c.target.slice()});act.push(true);last=i;}
- return {P,H,act};}
+  st.writeOrbit(dt);const c=Rg.cam();P.push({position:c.position.slice(),target:c.target.slice()});act.push(true);hold[i]=!!st.qaHold;last=i;}
+ return {P,H,act,hold};}
 function metrics(F,P,H,from,to,act){let over=0,overH=0,ins=0,minA=1e9;const run=[0,0],mx=[0,0];
  const inside=p=>B.some(b=>p[0]>b.min[0]&&p[0]<b.max[0]&&p[1]>b.min[1]&&p[1]<b.max[1]&&p[2]>b.min[2]&&p[2]<b.max[2]);
  for(let i=from;i<=to;i++){if(!act[i])continue;const p=P[i],h=H[i];if(inside(p.position))ins++;minA=Math.min(minA,d3(p.position,[h[0],h[1]+1.25,h[2]]));
@@ -61,9 +63,22 @@ const ourYaw=(F,r,from,to)=>{const rates=[],accs=[];let pr=null;
  return {oursPeakDegS:+q(rates,1).toFixed(0),oursP99DegS:+q(rates,0.99).toFixed(0),oursP95DegS:+q(rates,0.95).toFixed(0),accPeakDegS2:+q(accs,1).toFixed(0),accP99DegS2:+q(accs,0.99).toFixed(0)};};
 const macOcc=(F,from,to)=>{const run=[0,0],mx=[0,0];for(let i=from+1;i<=to;i++){const dt=Math.min(0.1,F[i][0]-F[i-1][0]);[F[i][9],F[i][10]].forEach((v,j)=>{run[j]=v?run[j]+dt:0;mx[j]=Math.max(mx[j],run[j]);});}return {macFaceS:+mx[0].toFixed(2),macChestS:+mx[1].toFixed(2)};};
 const rateOk=y=>y.oursPeakDegS<=YAW_MAX+1&&y.accPeakDegS2<=YAW_ACC*1.05;
+/* p0drag13 hook rule (owner decision 2026-10-25 04:58): a QA hook (__qfAimAt / __qfTeleport) parks the lens at a test-only pose and holds
+ * it (p0drag10 Q2) until the player turns the orbit ≥ 2°. Real players never start there, and the standing rule never parks her hidden.
+ * So: hookHiddenS (hidden while the hook held) is REPORTED only; releaseToClearS (release → first frame face+chest clear) is gated at
+ * the physical minimum of the eased cap for the swing that was needed (nearest clear yaw at release, box-free arc; trapezoid V, A) + 0.15 s;
+ * occlusion is gated (≤ 0.5 s) from that first clear frame on. */
+const hookRule=(F,r,t0,end,V,A)=>{let cut=0;for(let i=1;i<=t0;i++)if(isCut(F,i))cut=i;let rel=t0;while(rel<end&&(!r.act[rel]||r.hold[rel]))rel++;
+ const hid=i=>{const o=occ(r.P[i].position,r.H[i],B);return o.face||o.chest;},inside=p=>B.some(b=>p[0]>b.min[0]&&p[0]<b.max[0]&&p[1]>b.min[1]&&p[1]<b.max[1]&&p[2]>b.min[2]&&p[2]<b.max[2]);
+ let hk=0;for(let i=Math.max(cut,1);i<rel;i++)if(r.act[i]&&hid(i))hk+=Math.min(0.1,F[i][0]-F[i-1][0]);
+ let fc=rel;while(fc<end&&(!r.act[fc]||hid(fc)))fc++;
+ let th=0;if(hid(rel)){const h=r.H[rel],L=[h[0],h[1]+1.15,h[2]],p0=r.P[rel].position,dx=p0[0]-L[0],dy=p0[1]-L[1],dz=p0[2]-L[2],arm=Math.hypot(dx,dy,dz),el=Math.asin(dy/arm),y0=Math.atan2(dx,dz);
+  th=1e9;for(const sg of [1,-1])for(let dd=1;dd<=180;dd++){const y=y0+sg*dd*R,p=[L[0]+Math.sin(y)*Math.cos(el)*arm,L[1]+Math.sin(el)*arm,L[2]+Math.cos(y)*Math.cos(el)*arm];if(inside(p))break;const o=occ(p,h,B);if(!o.face&&!o.chest){th=Math.min(th,dd);break;}}}
+ const tmin=th<=0?0:th>=1e9?Infinity:(th>V*V/A?th/V+V/A:2*Math.sqrt(th/A));
+ return {rel,fc,hookHiddenS:+hk.toFixed(2),swingNeededDeg:th>=1e9?null:th,releaseToClearS:+(F[fc][0]-F[rel][0]).toFixed(2),physMinS:+tmin.toFixed(2),releaseOk:(F[fc][0]-F[rel][0])<=tmin+0.15};};
 const res2={turns:{},walks:{}};let okO=true,okK=true,okR=true;
-for(const k of TURNS){const F=FX[k],t0=turnStart(F),r=replay(F),m=metrics(F,r.P,r.H,t0,F.length-1,r.act),y=ourYaw(F,r,t0,F.length-1);okO=okO&&good(m);okR=okR&&rateOk(y);res2.turns[k]={...macOcc(F,t0,F.length-1),...m,...y};}
+for(const k of TURNS){const F=FX[k],t0=turnStart(F),r=replay(F),hr=hookRule(F,r,t0,F.length-1,LS.LENS_SMOOTH.yawOursDegS,LS.LENS_SMOOTH.yawAccDegS2),m=metrics(F,r.P,r.H,hr.fc,F.length-1,r.act),y=ourYaw(F,r,t0,F.length-1);okO=okO&&good(m)&&hr.releaseOk;okR=okR&&rateOk(y);const {rel,fc,...hrr}=hr;res2.turns[k]={...macOcc(F,t0,F.length-1),...hrr,...m,...y};}
 for(const k of WALKS){const F=FX[k],s=F.findIndex(f=>f[12]);if(s<0){res2.walks[k]={noWalk:true};continue;}let e=s;while(e<F.length-1&&F[e][12])e++;let e2=e;while(e2<F.length-1&&F[e2][0]-F[e][0]<0.5)e2++;
- const r=replay(F,{endView:true}),m=metrics(F,r.P,r.H,s,e2,r.act),y=ourYaw(F,r,s,e2);okK=okK&&good(m);okR=okR&&rateOk(y);res2.walks[k]={walkS:+(F[e][0]-F[s][0]).toFixed(2),...macOcc(F,s,e2),...m,...y};}
+ const r=replay(F,{endView:true,path:tracePath(F)}),m=metrics(F,r.P,r.H,s,e2,r.act),y=ourYaw(F,r,s,e2);okK=okK&&good(m);okR=okR&&rateOk(y);res2.walks[k]={walkS:+(F[e][0]-F[s][0]).toFixed(2),...macOcc(F,s,e2),...m,...y};}
 ok('O1',okO,res2.turns);ok('K1',okK,res2.walks);ok('R1',okR,{limitDegS:YAW_MAX,accLimitDegS2:YAW_ACC});
 const all=Object.values(res).every(r=>r.ok);console.log(JSON.stringify({test:'p0drag13',ok:all,...res},null,1));process.exit(all?0:1);

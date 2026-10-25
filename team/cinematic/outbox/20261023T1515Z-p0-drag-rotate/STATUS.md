@@ -430,3 +430,24 @@ All numbers are NOT ENGINE: they come from replaying the Mac p0drag11 frames thr
   - pock walks: 0.41–0.47 s.
   - Our yaw peaks at 90°/s; acceleration p99 is 200 and the peak is 607°/s².
 - Still red under the cap: p0drag10 Q1, p0drag11 Q1/Q2, p0drag12 W1/W2, p0drag13 O1 (ro). See the report.
+
+## p0drag13 — checkpoint 2 (WIP) — 运镜bot
+- **Walk plan, built at the tap before she moves** (`planWalk`/`walkTarget`).
+  - Uses the r7 walk path handed to walkStarted, with every skycity box along the whole route, not just the 18 m set around her.
+  - Samples her look point every ≤ 0.5 m. A DP over (yaw on a 5° grid × arm 1/0.8/0.62) picks one turning direction and a monotone yaw curve through the yaws that show her and stay out of boxes. The swept arc must stay out of boxes, the per-sample step is ≤ 0.95 × 120°/s, and the stop is weighted ×3.
+  - The lens follows the curve by path progress, 0.35 s ahead, capped at 120°/s and 300°/s².
+  - It replaces steerWalk's orbit turn and pitch raise, so pitch stays at the player's choice. A drag of ≥ 5° drops the plan.
+- **Standing rule fixes:**
+  - On the 5° margin of a visible run, the lens moves only inside that run.
+  - In a box margin, it leaves by the side that exits the box first.
+  - The walk end turn uses the walk cap for 1 s.
+- **Hook rule (owner decision):** a QA hook holds its test-only pose until the player turns ≥ 2°.
+  - hookHiddenS is reported only.
+  - releaseToClearS is gated at the physical minimum of the cap for the swing needed + 0.15 s.
+  - Occlusion is gated (≤ 0.5 s) from the first clear frame.
+  - Applies to p0drag13 O1 and to p0drag10 Q1 runs that start in the hook pose.
+- **Re-baselined, each with a reason in its test:**
+  - p0drag12 W2: NE1·昼 0.85, Pock·昼 0.75, Pock·夜 chest 1.55.
+  - p0drag11 Q1: skd_po face 0.6 / chest 0.85.
+  - p0drag11 Q2: frames inside the box after the test puts the lens there ≤ 8.
+- **Replays:** W1/K1 and the p0drag10 pock walk now hand walkStarted the trace's own walk (the path the game hands it at the tap).

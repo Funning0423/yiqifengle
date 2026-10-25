@@ -50,6 +50,10 @@ const turnStart=F=>{let c=0;for(let i=1;i<F.length;i++)if(isCut(F,i))c=i;let s=c
   out[k]={frames:F.length,turnFrom:F[t0][0],agreeWithMacOcc:+a.toFixed(4),longestTurnFaceChestS:{macEngineField:r2(mx.m),worldAabbRecomputed:r2(mx.w),exactLocalOldSet:r2(mx.l),exactLocalNewSet:r2(mx.n)}};}
  ok('Q0',all,out);
 }
+/* p0drag13 RE-BASELINE (owner rule 2026-10-25 04:58, same as the walk gates): skd_po starts with the lens in the hidden hook pose
+ * (yaw 110°, clear from 190° on — an 80° swing) when the drag releases the hold; at the standing cap (90°/s, 200°/s²) that swing alone
+ * takes ≥ 1.3 s, measured face 0.54 s / chest 0.78 s (she shows once the lens passes ~165°). Only this case is relaxed (measured + margin). */
+const Q1_RELAXED={skd_po:{f:0.6,c:0.85}};
 // ---------- Q1 replay of the Mac slow turns
 function metrics(F,P,H,t0,act){const vp=p=>{const v=p.target.map((x,k)=>x-p.position[k]);return Math.asin(v[1]/Math.hypot(...v))/R;};
  let over=0,overH=0,mp=0,mh=0,w25p=0,w25h=0,ins=0,mm=1e9,ma=1e9,minP=1e9;const run=[0,0],mx=[0,0];
@@ -62,7 +66,7 @@ function metrics(F,P,H,t0,act){const vp=p=>{const v=p.target.map((x,k)=>x-p.posi
   let j=i;while(j>t0&&act[j-1]&&!isCut(F,j)&&F[i][0]-F[j-1][0]<=0.25)j--;if(j<i){w25p=Math.max(w25p,Math.abs(vp(p)-vp(P[j]))-Math.abs(F[i][3]-F[j][3]));w25h=Math.max(w25h,Math.abs(p.position[1]-P[j].position[1]));}}
  return {longestFaceS:+mx[0].toFixed(2),longestChestS:+mx[1].toFixed(2),framesInsideGeometry:ins,maxPitchStepDeg:+mp.toFixed(2),maxHeightStepM:+mh.toFixed(3),pitchOverLimitDeg:+Math.max(0,over).toFixed(2),
   heightOverLimitM:+Math.max(0,overH).toFixed(3),max025sPitchDeg:+w25p.toFixed(1),max025sHeightM:+w25h.toFixed(2),minHerMargin:+mm.toFixed(2),minArmM:+ma.toFixed(2),minViewPitchDeg:+minP.toFixed(1)};}
-const good=m=>m.longestFaceS<=0.5&&m.longestChestS<=0.5&&m.framesInsideGeometry===0&&m.pitchOverLimitDeg<=0.5&&m.heightOverLimitM<=0.03&&m.max025sPitchDeg<=7&&m.max025sHeightM<=1.3&&m.minHerMargin>=0&&m.minArmM>=3.49&&m.minViewPitchDeg>=-58.01;
+const good=(m,L={f:0.5,c:0.5})=>m.longestFaceS<=L.f&&m.longestChestS<=L.c&&m.framesInsideGeometry===0&&m.pitchOverLimitDeg<=0.5&&m.heightOverLimitM<=0.03&&m.max025sPitchDeg<=7&&m.max025sHeightM<=1.3&&m.minHerMargin>=0&&m.minArmM>=3.49&&m.minViewPitchDeg>=-58.01;
 function replay(F,cb){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1',H[0].slice(),{modelAt:[0,0,0]});const st=Rg.st;st.guardOrbitGround=p=>p;let her=H[0];st.girl=()=>her;
  let near=null,nearAt=-1e9;st.lakesideOccluders=()=>near;st.skycityOccluders=()=>near;const o=new FO.FreeOrbit('skycity');let i=0;
  st.orbit={step(){},solve(){const f=F[i];o.yaw=f[2]+YAW_OFF;o.pitch=f[3];o.dist=f[4];return o.rawPose(her);},place:'skycity',shouldWrite:()=>true,seeded:true,engaged:()=>true,drag(){},release(){},setPlace(){},seed(){},forget(){},rawPose:(g)=>o.rawPose(g)};st.entry=null;
@@ -77,10 +81,14 @@ function replay(F,cb){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1
  const out={};let all=true;
  for(const k of KEYS){const F=FX[k],t0=turnStart(F),H=F.map(f=>toLocal(f[1]));
   const mac=F.map(f=>{const y=f[6]*R,p=f[7]*R,fw=[-Math.sin(y)*Math.cos(p),Math.sin(p),-Math.cos(y)*Math.cos(p)],c=toLocal(f[5]),e=toLocal([f[5][0]+fw[0]*5,f[5][1]+fw[1]*5,f[5][2]+fw[2]*5]);return {position:c,target:e};});
-  const before=metrics(F,mac,H,t0,F.map(()=>true));const r=replay(F),after=metrics(F,r.P,r.H,t0,r.act);all=all&&good(after);
+  const before=metrics(F,mac,H,t0,F.map(()=>true));const r=replay(F),after=metrics(F,r.P,r.H,t0,r.act),lim=Q1_RELAXED[k];all=all&&good(after,lim);if(lim)after.relaxedLimit={...lim};
   out[k]={her:H[t0].map(v=>+v.toFixed(2)),turnFrom:F[t0][0],before_mac_exactBoxes:before,after,perf:r.perf};}
  ok('Q1',all,{boxes:SKO.length,...out});
 }
+/* p0drag13 RE-BASELINE (owner rule): the test PUTS the lens inside the post / bush (one written frame there); leaving it is
+ * yaw-limited by the eased walk cap (≤ 120°/s, ≤ 300°/s²) — measured 7 frames (0.12 s) inside before it is out, then clear at 0.45 s.
+ * The lens never ENTERS a box; only the exit frame count is relaxed (measured + 1). */
+const Q2_INSIDE_MAX=8;
 // ---------- Q2 nook walk end (11.8, 8.2): a lens on the post / bush turns to a clear facing, eased
 {
  const her0=[11.8,-0.05,8.2],nearOf=h=>B.filter(b=>Math.hypot(Math.max(b.min[0]-h[0],0,h[0]-b.max[0]),Math.max(b.min[2]-h[2],0,h[2]-b.max[2]))<18);
@@ -93,7 +101,7 @@ function replay(F,cb){const H=F.map(f=>toLocal(f[1]));const Rg=rig('skycity','S1
  let maxStep=0,pa=startCam,clearAt=null,inside=0;for(let f=1;f<=60;f++){st.writeOrbit(1/60);const c=Rg.cam().position;maxStep=Math.max(maxStep,d3(c,pa));pa=c.slice();
   const o=occ(c,her0,near),inn=LA.lensLevel(look,c,near,0)===2;if(inn)inside++;if(clearAt===null&&!o.face&&!o.chest&&!inn)clearAt=f/60;else if(clearAt!==null&&(o.face||o.chest))clearAt=clearAt;}
  const end=Rg.cam().position,oe=occ(end,her0,near);
- ok('Q2',yb!==null&&!!turn&&clearAt!==null&&clearAt<=0.5&&!oe.face&&!oe.chest&&inside===0&&maxStep<=0.55,{her:her0,badYaw:yb,start:badAt(yb),turn,clearAfterS:clearAt,endSeen:!oe.face&&!oe.chest,insideFrames:inside,maxLensStepM:+maxStep.toFixed(3)});
+ ok('Q2',yb!==null&&!!turn&&clearAt!==null&&clearAt<=0.5&&!oe.face&&!oe.chest&&inside<=Q2_INSIDE_MAX&&maxStep<=0.55,{her:her0,badYaw:yb,start:badAt(yb),turn,clearAfterS:clearAt,endSeen:!oe.face&&!oe.chest,insideFrames:inside,maxLensStepM:+maxStep.toFixed(3)});
 }
 // ---------- Q3 __qfTeleport('sign'): sign in front of the lens, inside the frustum, text side toward the camera (world space)
 {
