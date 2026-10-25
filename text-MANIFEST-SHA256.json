@@ -2911,8 +2911,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
-    "bytes": 1481,
-    "sha256": "85ae52c55c48c903502f632a5e5597f1a4fda2671fbc0e1ca50e0a13d8f152e8"
+    "bytes": 1551,
+    "sha256": "512658df46b1e99fce9d9ef0bf5dd72fe0de01a6c27cbdaa22b27080c5e95f75"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts.meta",
@@ -3042,7 +3042,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6632,
-    "sha256": "ba85d256c2c99509179e04ba01e228a7b4b82ba856228f88a603b949221a5a5a"
+    "sha256": "d147eab33aa74d550131c243a625d682b916026fd49679c6bc771ff4357fc2e2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3072,7 +3072,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
     "bytes": 183349,
-    "sha256": "6ea32cb85ef97cb6e878e36328a13466eded874b85838134769ca7ab3252aa6c"
+    "sha256": "efb0cbf7fa80f4985bbf699af90763425c93d409c83c76c5653c3aac89e9e3e1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
