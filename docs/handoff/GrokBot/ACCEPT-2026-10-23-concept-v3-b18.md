@@ -32,3 +32,10 @@ Grok Bot 对照原神级场景/镜头标准过图，小事项自行拍板。
 ## 不重提
 
 - 湖畔风铃 v2：已问过两次，本轮不打扰。
+
+## oi · B18 接触门控修复 · 代码验收通过（2026-10-25 15:50 EDT）
+
+- 分支：`oi/b18-runtime-repair-20261025` @ `b5ac60db` → 已 merge 进 `gbt/r5-integrated-b15` @ `0cbd4954`
+- 改动：SoleContactSolver 快照与音频脚事件时钟解耦；站起失败走 `JourneyPoseFailure` 并冻结姿态，禁止 snap-restore
+- 范围：6 个脚本文件；无灯塔资产/清单改动；oi 声称源码契约 26+11 通过
+- **未完（仍挡 b16）**：Mac Creator / live walk web-test（从 `0cbd4954` 打）
