@@ -455,6 +455,8 @@ export class WorldFlow {
       await this.journey!.prepare(target,pose.controllerRoot,token);token.check();this.change(this.stable);
     });
   }
+  /** sail-blue: departure handoff (see RegionJourneyController.adoptLive). Level state only. */
+  adoptJourneyLive(root:Vec|null,yawRad?:number):boolean{if(this.state!=='level'||!this.journey)return false;return this.journey.adoptLive(root,yawRad);}
   async travelRegion(target:JourneyRegion):Promise<Result>{
     if(!this.journey)return {ok:false,reason:'journey-unavailable'};
     if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};

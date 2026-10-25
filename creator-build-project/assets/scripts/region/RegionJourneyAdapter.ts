@@ -153,7 +153,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      const props={pier:has('island_dock')?null:plankBetween(rig,'island_dock',[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[0]],[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[1]],I.dockDeck.x[1]-I.dockDeck.x[0],.12,hull),
       islandPlank:has('sail_gangway')?null:plankBetween(rig,'sail_gangway',I.dockBoard,bp.boat[1],G.widthM,.05,hull),
       meadowPlank:has('sail_gangway')?null:plankBetween(rig,'sail_gangway_meadow',off[2],off[3],G.widthM,.05,hull)};
-     if(!has('island_dock'))plankBetween(rig,'island_dock_ramp',[-1.4,I.dockRamp.top[0],I.dockRamp.z[0]],[-1.4,I.dockRamp.top[1],I.dockRamp.z[1]],I.dockRamp.x[1]-I.dockRamp.x[0],.08,hull);
+     (props as any).ramp=has('island_dock')?null:plankBetween(rig,'island_dock_ramp',[-1.4,I.dockRamp.top[0],I.dockRamp.z[0]],[-1.4,I.dockRamp.top[1],I.dockRamp.z[1]],I.dockRamp.x[1]-I.dockRamp.x[0],.08,hull);
      if(props.meadowPlank)props.meadowPlank.active=false;
      const sitStart=bp.boat[bp.boat.length-1];
      sailPlan={total:tl.build05S,approach:bp.toI6,pier:bp.dock.slice(1),plankOn:bp.boat.slice(1,-1),props,deck:sitStart,disembark:off,arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};

@@ -1,6 +1,6 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
-import {preloadTargetForStage} from '../region/TransitionChain';
+import {continuousTransitions,preloadTargetForStage} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -247,9 +247,12 @@ export class WorldNativeComposition extends Component {
     const s=this.activeSession?.snapshot();if(s?.provider!=='mainline-v33'||!s.result?.completionRecorded||!s.nextStageId||s.state!=='result.saved')return {ok:false,reason:'next-requires-registered-win'};
     const route=(RegionCampaign as any).transition(s.journey,s.active.stageId,s.nextStageId);if(!route.ok)return route;
     if(route.requiresTravel){const prepared=await this.world!.commands().prepareRegion(route.toRegion);if(!prepared.ok)return prepared;}
-    await this.presentNodeWalk(s);
+    await this.presentNodeWalk(s,!!route.requiresTravel&&typeof continuousTransitions==='function'&&continuousTransitions())/* sail-blue: departure walk hands its live lens to the ride */;
+    if(route.requiresTravel&&typeof continuousTransitions==='function'&&continuousTransitions())this.adoptLiveForJourney();
     const exited=this.world!.commands().exitLevel();return exited.ok?this.enterMainlineStage(s.nextStageId):exited;
   }
+  /** sail-blue: hand the departure walk's live lens + her stand to the prepared ride before exitLevel restores. */
+  private adoptLiveForJourney(){try{const c=this.world!.commands() as any;const n=(this.boundCharacter as any)?.node;const p=n?.worldPosition;const e=n?.eulerAngles;c.adoptJourneyLive?.(p?[p.x,p.y,p.z]:null,e?e.y*Math.PI/180:undefined);}catch{/* optional */}}
   mainlineReward(command:'openChest'|'claimRegion',index:number){if(this.activeSession?.snapshot().provider!=='mainline-v33')return {ok:false,reason:'not-mainline'};const snapshot=this.activeSession.snapshot();if(command==='openChest'){const chest=snapshot.journey.chests?.find((x:any)=>x.level===index);if(snapshot.readOnly||snapshot.state!=='result.saved'||!snapshot.result?.completionRecorded||index!==snapshot.active.level||!chest?.earned)return this.hostReply={ok:false,reason:'chest-not-earned-or-unsaved'};}else{const region=snapshot.journey.regionRewards?.find((x:any)=>x.region===index);if(snapshot.readOnly||snapshot.state!=='result.saved'||!snapshot.result?.completionRecorded||index!==Math.floor(snapshot.active.level/4)||!region?.unlocked)return this.hostReply={ok:false,reason:'region-tool-not-earned-or-unsaved'};}return this.hostReply=this.activeSession.command(command,index);}
   async enterR4(){const f:any=this.smokeFixture!.json;const selected=this.selectProvider({provider:'r4',stageId:f.stageId,seed:f.seed});return selected.ok?this.enterSelectedLevel():selected;}
   async advanceRegistered(){const s=this.activeSession?.snapshot();if(!s||s.state!=='result.saved'||!s.result?.completionRecorded||!s.nextStageId)return {ok:false,reason:'next-requires-registered-win'};
@@ -350,13 +353,13 @@ export class WorldNativeComposition extends Component {
   /** Reward / next-level: follow the girl to the next node, then the existing board or bridge opens. No character bound (tests, headless) keeps today's order. */
   private markExplore(on:boolean){const set=(globalThis as any).__qfSetExplore;if(typeof set==='function')set(on);}
   private stage():RegionNodeStage|null{return this.node?.getComponent(RegionNodeStage)||null;}
-  private async presentNodeWalk(snapshot:any){
+  private async presentNodeWalk(snapshot:any,handoff=false){
     if(!this.boundCharacter||!snapshot?.active?.stageId||!snapshot?.nextStageId)return;
     await (this.boundCharacter as any).__qfWalkTail?.done/* b15: a level cleared during her exit walk: let it finish, never re-walk/snap */;
     const stage=this.stage();
     if(stage&&this.worldCamera){
      stage.bindCharacter(this.boundCharacter);
-     try{await stage.playReward(this.boundCharacter,snapshot.active.stageId,snapshot.nextStageId);}
+     try{await stage.playReward(this.boundCharacter,snapshot.active.stageId,snapshot.nextStageId,handoff);}
      catch(error){console.error('region-node-walk',error);}
      return;
     }
