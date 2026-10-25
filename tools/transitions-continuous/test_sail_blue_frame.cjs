@@ -46,7 +46,7 @@ assert.ok(src('world-r2/WorldNativeComposition.ts').includes("if(route.requiresT
  const sr=src('region/SailRide.ts'),ad=src('region/RegionJourneyAdapter.ts'),bt=src('region/BalloonTransit.ts');
  assert.ok(/await until\(plan\.total\);\n sailPropsOff\(plan\.props\)/.test(sr),'props off at sail end');
  assert.ok(sr.includes("hasRealNode(rider.scene,'island_dock')")&&sr.includes("hasRealNode(rider.scene,'sail_gangway_hinge')"),'late real models win');
- assert.ok(ad.includes("(props as any).ramp=has('island_dock')?null:plankBetween(rig,'island_dock_ramp'"),'ramp tracked');
+ assert.ok(ad.includes("ramp:dockReal?null:placeholderPlank(rig,'island_dock_ramp'"),'ramp tracked')/* cand7: reconciled with the b19 dock-model path (placeholderPlank, real model wins) */;
  assert.ok(/island_dock\|island_dock_ramp\|sail_gangway\|sail_gangway_meadow\|sail_frozen_pose/.test(bt),'night silhouette skips placeholders');
  console.log(JSON.stringify({ok:true,frames:frames.length,maxStepM:+maxStep.toFixed(3)}));
 })().catch(e=>{console.error(e);process.exit(1);});
