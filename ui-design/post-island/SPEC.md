@@ -36,7 +36,7 @@ python3 ending_sheets.py
 | TR6 | 天空之城 → 热气球 → 风铃湖畔 → L13 | 约 48 s 长镜头，没有提示，落地后约 45 s 才自动进棋盘 | 保留长镜头。落地时出到达木牌「风铃湖畔」；木牌淡出后 1 s 内进棋盘，不再等 45 s。第二次观看起 3 s 后右下出 44pt「»」跳过角标（离边 16pt） | 长镜头 + 2.2 s + ≤1 s | TR6_before.png、TR6_keyframes.png |
 | TR7 | 关卡间「下一关」 | 面板直接替换 | 结算面板 0.2 s 缩到 0.96 并淡出；棋盘格子从中心向外 0.3 s 依次换新（每圈延迟 30 ms）。不盖屏 | 0.5 s | 不出图（低优先级） |
 | TR8 | 暂停「离开棋盘 / 主页」→ 小岛 | 纯黑 0.4 + 0.5 s | 风云擦除，无载具、无木牌，HOLD 最短 0.5 s | ≥1.50 s | TR8_before.png、TR8_keyframes.png |
-| TR9 | L16 通关 → 结局 | 不存在 | L16 结算点「继续」→ 风云擦除。停留时的载具换成 3D 风铃（LK_windchime.glb），云散开后就是结局画面 | ≥2.20 s | TR9_before.png、TR9_keyframes.png、TR9.mp4 |
+| TR9 | L18「刻名的桥」（r04-lake-06）通关 → 结局 | 不存在 | L18 结算点「继续」→ 风云擦除。停留时的载具换成 3D 风铃（LK_windchime.glb），云散开后就是结局画面 | ≥2.20 s | TR9_before.png、TR9_keyframes.png、TR9.mp4 |
 
 TR1/TR3/TR8/TR9 共用同一套参数：只换载具和木牌文字，代码只需要一个 `WindWipe` 组件，替换 `ScreenCover` 里的黑色 Graphics。
 

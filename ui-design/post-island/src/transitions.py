@@ -57,8 +57,8 @@ SPECS={
  'TR3n':dict(title='TR3 夜间版',A=B05+'b05_10_ch1_result.png',B=R7+'T9_22.png',vehicle='balloon',name='天空之城',night=True,before=[]),
  'TR8':dict(title='TR8 暂停「离开棋盘/主页」→ 小岛（任何场景回家）',A=R7+'LB_lakeDay_pause.png',B=R7+'D02_island.png',hold=0.5,
    before=[(R7+'LB_lakeDay_pause.png','暂停面板'),(R7+'T5_4.png','纯黑 0.4 s（HOME_FADE）'),(R7+'D02_island.png','小岛')]),
- 'TR9':dict(title='TR9 L16 通关 → 结局（湖畔→结局）',A=R7+'L15_result.png',B=ending_bg,vehicle='chime',hold=1.2,
-   before=[(R7+'L15_result.png','L16 结算（同 L13–15）'),(R7+'L16_start.png','现状：无结局，回小岛/下一关')]),
+ 'TR9':dict(title='TR9 L18 通关 → 结局（湖畔→结局）',A=R7+'L15_result.png',B=ending_bg,vehicle='chime',hold=1.2,
+   before=[(R7+'L15_result.png','L18 结算（示意，用 L15 结算图代替）'),(R7+'L16_start.png','现状：无结局，回小岛/下一关（示意图为 L16）')]),
 }
 def keyframes(key):
   sp=SPECS[key];hold=sp.get('hold',HOLD_S);ts=[0,OUT_S*0.5,OUT_S+0.35,OUT_S+hold,OUT_S+hold+IN_S*0.5,OUT_S+hold+IN_S]
