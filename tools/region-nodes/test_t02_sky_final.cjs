@@ -1,14 +1,14 @@
 'use strict';
 /* T-02 (Grok Bot approved Oct 25) — the last skycity shot before the lakeside set-off (ISSUES T-02: mostly empty sky, she tiny,
  * no continue unless tapped).
- * F1 the baked S6 pose (SKY_FINALE_POSE_LOCAL) is what skyFinaleShot derives from the skycity lens boxes;
- * F2 on all 7 portrait screens: her whole body inside the safe margins, her ≥ 20 % of the frame height, ≥ 8 % of the star-ring
- *    samples on screen (old finaleLook reported for comparison);
+ * F1 option C pose: rear 3/4 (20–60° off her back), fov ≤ 60, lens not in a box;
+ * F2 on all 7 portrait screens: her whole body inside the safe margins, her ≥ 20 % of the frame height (ring: no requirement under
+ *    option C; ring share reported; old finaleLook for comparison);
  * F3 real mesh (env_skycity.glb triangles, clouds/birds excluded, great tree INCLUDED): lens ≥ 1.1 m from every triangle, her head
- *    and chest rays unblocked, ≥ 1 on-screen ring sample visible; mesh fill (non-sky share of a 18×38 ray grid) before → after;
+ *    and chest rays unblocked; the city reads on every screen (18×38 rays: structure > 5 m ≥ 50 %, ruins ≥ 8 %, sky ≤ 40 %);
  * F4 approach from her walk lens: orbits round her the clear way (skyFinaleApproach / skyFinaleApproachPose), eased, view yaw ≤ 90°/s and ≤ 200°/s², lens never in a
  *    box, face/chest hidden ≤ 0.5 s, no jump (≤ 0.5 m per 60 Hz frame);
- * F5 auto-continue: holdS, armed after the reward claim, disarmed by drag/pinch/tap and by the WindWipe cover; wipe hooks used;
+ * F5 auto-continue → continuation hook (onSkyFinaleContinue gets finaleEndCamera; WindWipe enterMainline only as fallback; 继续旅程 via the hook): holdS, armed after the reward claim, disarmed by drag/pinch/tap and by the WindWipe cover; wipe hooks used;
  *    no black screen of ours. */
 const fs=require('node:fs'),path=require('node:path');
 const X=require('./explore-stage-harness.cjs');
@@ -21,7 +21,7 @@ const res={};let all=true;const ok=(k,v,d)=>{res[k]={ok:!!v,...d};all=all&&!!v;}
 const NEW=F.SKY_FINALE_POSE_LOCAL,OLD=C.finaleLook(feet,[-0.238,20,-24.327]);
 // F2
 const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.position,p.target,p.fovVerticalDeg,W,H,feet)*100).toFixed(1),ringPct:+(F.ringShare(p.position,p.target,p.fovVerticalDeg,W,H,F.STAR_RING_LOCAL)*100).toFixed(1),herMargin:+LS.herMargin(p.position,p.target,p.fovVerticalDeg,feet,[[W,H]]).toFixed(2)}));
-{const a=frame(NEW),b=frame(OLD);ok('F2',a.every(s=>s.herMargin>=0&&s.herPct>=20&&s.ringPct>=8),{after:a,before:b});}
+{const a=frame(NEW),b=frame(OLD);ok('F2',a.every(s=>s.herMargin>=0&&s.herPct>=20),{after:a,before:b});}
 // F3 real mesh
 (async()=>{
  const draco=require('/tmp/draco3d/node_modules/draco3d/draco3d.js'),decMod=await draco.createDecoderModule({});
@@ -53,14 +53,18 @@ const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.pos
  const fill=(pose,W,H,nx=18,ny=38)=>{const f=sub(pose.target,pose.position),fl=Math.hypot(...f);for(let i=0;i<3;i++)f[i]/=fl;let r=[f[2],0,-f[0]];const rl=Math.hypot(r[0],r[2]);r=[r[0]/rl,0,r[2]/rl];const u=cr(r,f);
   const tv=Math.tan(pose.fovVerticalDeg*Math.PI/360),th=tv*W/H;let n=0;for(let iy=0;iy<ny;iy++)for(let ix=0;ix<nx;ix++){const sx=((ix+.5)/nx*2-1)*th,sy=((iy+.5)/ny*2-1)*tv;const d=[f[0]+r[0]*sx+u[0]*sy,f[1]+r[1]*sx+u[1]*sy,f[2]+r[2]*sx+u[2]*sy],l=Math.hypot(...d);if(ray(pose.position,d.map(v=>v/l),400,true).name)n++;}return n/(nx*ny);};
 // F1 (bake check): skyFinaleShot with the lens boxes AND the real-mesh checks (clearance, her head/chest + ring seen) = the baked pose
- {const t0=Date.now(),sh=F.skyFinaleShot(feet,face,F.STAR_RING_LOCAL,B,{clearAt:p=>minClear(p).m,seen:(a,q)=>!blocked(a,q,q[1]>10?RING_SELF:null)}),d=sh?Math.max(...[0,1,2].map(i=>Math.abs(sh.position[i]-NEW.position[i])),...[0,1,2].map(i=>Math.abs(sh.target[i]-NEW.target[i]))):Infinity;
-  ok('F1',d<=0.01,{maxDiffM:+d.toFixed(4),derived:sh&&{position:sh.position.map(v=>+v.toFixed(3)),target:sh.target.map(v=>+v.toFixed(3))},feet:feet.map(v=>+v.toFixed(2)),faceDeg:+(face*180/Math.PI).toFixed(1),yawFromFaceDeg:sh&&sh.yawDeg,lookUpDeg:sh&&sh.lookUpDeg,armM:sh&&+sh.armM.toFixed(2),searchMs:Date.now()-t0});}
+ {const off=[NEW.position[0]-feet[0],NEW.position[2]-feet[2]],back=[-Math.sin(face),-Math.cos(face)],ol=Math.hypot(...off);
+  const offDeg=Math.acos((off[0]*back[0]+off[1]*back[1])/ol)*180/Math.PI,inBox=B.some(b=>NEW.position.every((v,i)=>v>b.min[i]&&v<b.max[i]));
+  ok('F1',offDeg>=20&&offDeg<=60&&NEW.fovVerticalDeg<=60&&!inBox,{option:'C',offBackDeg:+offDeg.toFixed(1),armM:+ol.toFixed(2),lensUpM:+(NEW.position[1]-feet[1]).toFixed(2),fov:NEW.fovVerticalDeg,lensInBox:inBox,feet:feet.map(v=>+v.toFixed(2)),faceDeg:+(face*180/Math.PI).toFixed(1)});}
  const head=[feet[0],feet[1]+1.45,feet[2]],chest=[feet[0],feet[1]+1.05,feet[2]];
- const vis=F.STAR_RING_LOCAL.filter(q=>{const s=F.ndc(NEW.position,NEW.target,NEW.fovVerticalDeg,320,568,q);return s&&Math.abs(s[0])<=1&&Math.abs(s[1])<=1;});
- const ringSeen=vis.filter(q=>!blocked(NEW.position,q,RING_SELF)).length,cl=minClear(NEW.position);
- const fa=fill(NEW,390,844),fb=fill(OLD,390,844);
- ok('F3',cl.m>=1.1&&!blocked(NEW.position,head)&&!blocked(NEW.position,chest)&&ringSeen>=1,{meshClearM:+cl.m.toFixed(2),nearest:cl.nm,headBlockedBy:blocked(NEW.position,head),chestBlockedBy:blocked(NEW.position,chest),ringSamplesOnScreen:vis.length,ringSamplesSeen:ringSeen,
-  meshFillPct_390x844:{before:+(fb*100).toFixed(1),after:+(fa*100).toFixed(1)},oldMeshClearM:+minClear(OLD.position).m.toFixed(2)});
+ const CITY=/ruins|state_(court|gate|bridge)|windcore|windchime|greattree|static_palette|static_rock|islets_far|floatingrocks/,RUINS=/ruins|state_(court|gate|bridge)/;
+ const cityOf=(pose,W,H,nx=18,ny=38)=>{const f=sub(pose.target,pose.position),fl=Math.hypot(...f);for(let i=0;i<3;i++)f[i]/=fl;let r=[-f[2],0,f[0]];const rl=Math.hypot(r[0],r[2]);r=[r[0]/rl,0,r[2]/rl];const u=cr(r,f);
+  const tv=Math.tan(pose.fovVerticalDeg*Math.PI/360),th=tv*W/H;let city=0,ruins=0,sky=0;for(let iy=0;iy<ny;iy++)for(let ix=0;ix<nx;ix++){const sx=((ix+.5)/nx*2-1)*th,sy=((iy+.5)/ny*2-1)*tv;const d=[f[0]+r[0]*sx+u[0]*sy,f[1]+r[1]*sx+u[1]*sy,f[2]+r[2]*sx+u[2]*sy],l=Math.hypot(...d);
+   const h=ray(pose.position,d.map(v=>v/l),400);if(!h.name)sky++;else if(h.t>5&&CITY.test(h.name)){city++;if(RUINS.test(h.name))ruins++;}}const N=nx*ny;return {cityPct:+(city/N*100).toFixed(1),ruinsPct:+(ruins/N*100).toFixed(1),skyPct:+(sky/N*100).toFixed(1)};};
+ const per=C.SCREENS.map(([W,H])=>({screen:W+'x'+H,after:cityOf(NEW,W,H),before:cityOf(OLD,W,H)}));const cl=minClear(NEW.position);
+ /* city reads: ≥ 50 % of the frame is skycity structure beyond 5 m, ≥ 8 % is ruins/court/gate/bridge, sky ≤ 40 % — every screen */
+ ok('F3',cl.m>=1.1&&!blocked(NEW.position,head)&&!blocked(NEW.position,chest)&&per.every(p=>p.after.cityPct>=50&&p.after.ruinsPct>=8&&p.after.skyPct<=40),
+  {meshClearM:+cl.m.toFixed(2),nearest:cl.nm,headBlockedBy:blocked(NEW.position,head),chestBlockedBy:blocked(NEW.position,chest),city:per,oldMeshClearM:+minClear(OLD.position).m.toFixed(2)});
  // F4 approach from the walk lens
  {const from=C.followPose(feet,face,390,844,8),ap=F.skyFinaleApproach(from,NEW,feet,B),Ts=ap.T,dt=1/60;let prevY=null,prevV=0,pk=0,pkA=0,ins=0,run=[0,0],mx=[0,0],jump=0,prevP=null,minC=Infinity,startC=Infinity;const vy=[];
   const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
@@ -73,7 +77,10 @@ const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.pos
  // F5 auto-continue + WindWipe hand-off (source contract; the stage methods are Cocos-bound)
  {const st=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8'),co=fs.readFileSync(X.S('world-r2/WorldNativeComposition.ts'),'utf8');
   const pf=(st.match(/async playFinale\([\s\S]*?\n \}/)||[''])[0];
-  const checks={holdS:F.SKY_FINALE.holdS===5.5&&F.SKY_FINALE.approachS===1.4,countdownAfterEaseIn:/await this\.blendPath\(ap\.T/.test(pf)&&/await stage\.playFinale\([\s\S]{0,400}armFinaleContinue/.test(co),armedAfterReward:/mainlineReward\('claimRegion',index\);if\(\(r as any\)\?\.ok!==false\)try\{stage\.armFinaleContinue\?\.\(\(\)=>\{void this\.enterMainline\(\);\}\)/.test(co),
+  const bo=fs.readFileSync(X.S('WorldIntegrationBoot.ts'),'utf8'),cf=(co.match(/async continueFromSkyFinale\(\)\{[\s\S]*?return this\.enterMainline\(\);\}/)||[''])[0];
+  const checks={continuationHook:/onSkyFinaleContinue\(handler/.test(co)&&/finaleEndCamera\?\.\(\)/.test(cf)&&/h\(camera\)===true/.test(cf),windWipeFallback:/return this\.enterMainline\(\);\}$/.test(cf),
+   buttonViaHook:/this\.button\('mainline','继续旅程  →',\(\)=>this\.composition\.continueJourney\(\)\)/.test(bo),endCameraAccessor:/finaleEndCamera\(\)\{/.test(st)&&/this\.recordFinaleEnd\(\);\s*this\.openExplore\('skycity'\)/.test(st)&&/velocity:\[0,0,0\]/.test(st),
+   holdS:F.SKY_FINALE.holdS===5.5&&F.SKY_FINALE.approachS===1.4,countdownAfterEaseIn:/await this\.blendPath\(ap\.T/.test(pf)&&/await stage\.playFinale\([\s\S]{0,400}armFinaleContinue/.test(co),armedAfterReward:/mainlineReward\('claimRegion',index\);if\(\(r as any\)\?\.ok!==false\)try\{stage\.armFinaleContinue\?\.\(\(\)=>\{void this\.continueFromSkyFinale\(\);\}\)/.test(co),
    inputDisarms:/if\(this\.finaleArm&&\(gesture==='drag'\|\|gesture==='pinch'\|\|gesture==='tap'\)\)this\.disarmFinale\(\)/.test(st),
    wipeHooks:/onWipeCovered\(\(\)=>this\.disarmFinale\(\)\),addWipeBeforeReveal\(\(\)=>!this\.anim\),onWipeRevealed\(/.test(st),
    noBlackOfOurs:!/fadeCover|screenCover\(/.test(st.slice(st.indexOf('async playFinale'),st.indexOf('private wipeHooks'))),bakedPoseUsed:/skyFinalePose\(\)/.test(st),orbitApproach:/blendPath\(ap\.T,t=>skyFinaleApproachPose\(from,shot,g,t,ap\.T,ap\.dir\)\)/.test(st)};
