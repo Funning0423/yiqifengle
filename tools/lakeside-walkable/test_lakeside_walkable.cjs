@@ -158,7 +158,7 @@ console.log('region-walkable ok cells',JSON.stringify(cells));
   assert.equal(h.kind,'walk','W tap '+t+' '+JSON.stringify(h));assert.ok(P([11.79,-0.01,8.96],h.at)<8,'W tap path '+t);}
  assert.equal(JSON.stringify(RW.WALK_TAP_SNAP),'["skycity"]');
  const lb=RN.REGION_NODES.skycity.lensBox;assert.ok(lb&&lb[0]>-36&&lb[2]<41&&lb[1]>=-41.5&&lb[3]<=48.5,'skycity lensBox inside the baked floor '+JSON.stringify(lb));
- const OC=load('region/SkycityLensOccluders.ts').SKYCITY_LENS_OCCLUDERS;assert.ok(OC.length>500&&OC.length<3000,'sky occluders '+OC.length);
+ const OC=load('region/SkycityLensOccluders.ts').SKYCITY_LENS_OCCLUDERS;assert.ok(OC.length>500&&OC.length<4000,'sky occluders '+OC.length);/* p0drag11: cine set down to y 0.3 m (pillars, bushes) → 3077 */
  assert.ok(OC.some(b=>b[0]<=16&&b[3]>=15&&b[2]<=8&&b[5]>=6&&b[4]>3),'blue-roof house east of S3 has proxies');
  assert.match(src,/if\(this\.region==='skycity'\)return this\.skycityOccluders\(\);/);
  const chk2=cp.spawnSync(process.execPath,[path.join(ROOT,'tools/region-walkable/gen-skycity-lens-occluders.cjs'),'--check'],{encoding:'utf8'});

@@ -490,6 +490,9 @@ export class RegionNodeStage extends Component{
   *  until she walked). Pick the clear orbit (yaw / pitch / arm nearest the seed whose designed lens has the lowest LensGuard
   *  cost), converge LensGuard on it, and glide there; MapExplore keeps writing through LensGuard while she stands. */
  private preSolveEntry(){
+  if(this.region==='skycity'&&this.orbit.seeded){/* p0drag11: no LensGuard pre-solve on the frame boxes, but keep the entry glide (explore-arm A1: 40 m/s without it) */
+   const from=this.readPose(),to=this.orbit.rawPose(this.girl()),d=Math.hypot(to.position[0]-from.position[0],to.position[1]-from.position[1],to.position[2]-from.position[2]);
+   this.entry={from,t:0,T:Math.max(0.5,1.9*d/LENS_GUARD.entryGlideMS)};return;}
   const boxes=this.region==='skycity'?null:this.lakesideOccluders();if(!boxes||!this.orbit.seeded){this.entry=null;return;}/* p0drag11: skycity proxies are model-local frame boxes (LensGuard is world-AABB) and its lens avoids with outOfProxies */
   const o=this.orbit,her=this.girl(),y0=o.yaw,p0=o.pitch,d0=o.dist,R=d0+LENS_GUARD.nearM+LENS_GUARD.clearM+2;
   const near=boxes.filter(b=>{const ax=Math.max(b.min[0]-her[0],0,her[0]-b.max[0]),az=Math.max(b.min[2]-her[2],0,her[2]-b.max[2]);return ax*ax+az*az<=R*R;});
