@@ -18,7 +18,7 @@
  * Not added (the island already has them, see combined_visual_m.glb): beach_gull (env_anim_seagull_01 + two
  * flying gulls), beach_crab (env_anim_crab_01, env_anim_hermit_crab_v22), beach_turtle (env_anim_turtle_01).
  */
-import { projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
+import { fromLookAt, projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
 export type V3 = [number, number, number];
 export type PropRole = 'bag' | 'journal' | 'settings';
 export type WorldProp = Readonly<{ prefab: string; position: V3; yawDeg: number; scale: number }>;
@@ -313,4 +313,45 @@ export function srgbToLinear(h: string): [number, number, number] {
 export function seaColorAt(authored: readonly number[], w: number, j = 0): number[] {
   const k = Math.max(0, Math.min(1, w)), q = Math.max(0, Math.min(1, j)), a = hexRgba(ISLAND_PROPS.seaNight.tint), b = hexRgba(ISLAND_PROPS.seaNight.journeyTint);
   return [0, 1, 2].map(i => { const t = a[i] + (b[i] - a[i]) * q; return Math.round(authored[i] + (authored[i] * t / 255 - authored[i]) * k); }).concat([authored[3] ?? 255]);
+}
+
+/** p0drag11 (Mac p0drag10 tpSign: yaw 4.6°, the lens went PAST the sign along her→sign, the sign then hid her, the lens pull brought
+ * the lens back in front of it and the sign ended up BEHIND the lens). Within the explore orbit (looks at her, arm ≤ 12 m, portrait
+ * hfov ≈ 20°) no pose shows the sign AND her: every walkable spot is 7.9–24 m behind the sign's front plane. So the 'sign' shot is
+ * chosen from the sign's front-face normal (text side = local +Z turned by yawDeg), in world space:
+ *  - lens ≥ minFrontM in front of the panel plane and the text normal ≤ maxTextDeg off the text → lens direction;
+ *  - her sight line (lens → her look point) clear of the sign box (+pad), so the occlusion pull never moves the lens;
+ *  - the view aims at the text centre (orbit aim offset, released by the next drag); it is in the frustum (|ndc| ≤ 0.8). The whole sign
+ *    does not fit: the lens can be at most ~3.6 m in front of the panel (arm ≤ 12 m), the panel is 2.8 × 4.3 m.
+ * `poseAt(i, yawDeg, pitchDeg, dist)` = the orbit's raw pose with her on candidate spot i (target = her look point).
+ * Returns {i, yaw, pitch, dist, aim (text centre − look point), frontM, textDeg, rect, textM} or null. */
+export function signTextCenter(): V3 {
+  const S = ISLAND_PROPS.signpost, a = S.yawDeg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), t = S.text.center;
+  return [S.position[0] + S.scale * (t[0] * c + t[2] * s), S.position[1] + S.scale * t[1], S.position[2] + S.scale * (-t[0] * s + t[2] * c)];
+}
+export type SignView = { i: number; yaw: number; pitch: number; dist: number; aim: V3; frontM: number; textDeg: number; rect: Rect; textM: number };
+export function signFrontView(n: number, poseAt: (i: number, yawDeg: number, pitchDeg: number, dist: number) => { position: V3; target: V3; fovVerticalDeg: number },
+  pitches: readonly number[], dists: readonly number[], width: number, height: number, o: { minFrontM?: number; maxTextDeg?: number } = {}, accept?: (i: number, pose: { position: V3; target: V3; fovVerticalDeg: number }) => boolean): SignView | null {
+  const S = ISLAND_PROPS.signpost, a = S.yawDeg * Math.PI / 180, nx = Math.sin(a), nz = Math.cos(a);
+  const minFront = o.minFrontM ?? 1.5, cosMax = Math.cos((o.maxTextDeg ?? 60) * Math.PI / 180), pad = 0.3, tc = signTextCenter();
+    // the scene sees the sign as its renderer's WORLD AABB (LensGuard / occlusion boxes), so her sight line is judged against that (+pad)
+  const C = propCorners(S, S.boxMin, S.boxMax), lo = [0, 1, 2].map(k => Math.min(...C.map(q => q[k])) - pad), hi = [0, 1, 2].map(k => Math.max(...C.map(q => q[k])) + pad);
+  const segHits = (A: readonly number[], B: readonly number[]) => { let t0 = 0, t1 = 1;
+    for (let k = 0; k < 3; k++) { const d = B[k] - A[k];
+      if (Math.abs(d) < 1e-9) { if (A[k] < lo[k] || A[k] > hi[k]) return false; continue; }
+      let u = (lo[k] - A[k]) / d, v = (hi[k] - A[k]) / d; if (u > v) { const s = u; u = v; v = s; } t0 = Math.max(t0, u); t1 = Math.min(t1, v); if (t0 > t1) return false; }
+    return true; };
+  let best: SignView | null = null, bs = Infinity;
+  for (let i = 0; i < n; i++) for (const pitch of pitches) for (const dist of dists) for (let yaw = -180; yaw < 180; yaw += 5) {
+    const P = poseAt(i, yaw, pitch, dist), p = P.position, front = (p[0] - tc[0]) * nx + (p[2] - tc[2]) * nz;
+    if (front < minFront) continue;
+    const v = [p[0] - tc[0], p[1] - tc[1], p[2] - tc[2]], vl = Math.hypot(v[0], v[1], v[2]) || 1, cos = (v[0] * nx + v[2] * nz) / vl;
+    if (cos < cosMax || segHits(p, P.target) || (accept && !accept(i, P))) continue;/* accept: the scene's own occlusion guard leaves this lens alone */
+    const aimed = fromLookAt({ position: p, target: tc, fovVerticalDeg: P.fovVerticalDeg } as any), q = projectPoint(aimed, width / height, tc);
+    const r = signpostRectUi(aimed, width, height);
+    if (!(q.depth > 0.5) || Math.abs(q.x) > 0.8 || Math.abs(q.y) > 0.8 || !r) continue;
+    const s = (1 - cos) * 2 - Math.min(12, vl) / 6 + pitch / 90;/* frontal, then as far from the panel as the 12 m arm allows */
+    if (s < bs) { bs = s; best = { i, yaw, pitch, dist, aim: [tc[0] - P.target[0], tc[1] - P.target[1], tc[2] - P.target[2]], frontM: front, textDeg: Math.acos(Math.min(1, cos)) * 180 / Math.PI, rect: r, textM: vl }; }
+  }
+  return best;
 }

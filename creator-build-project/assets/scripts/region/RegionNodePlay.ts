@@ -14,8 +14,10 @@ function heading(path:readonly Vec[]):number{
  return Math.atan2(b[0]-a[0],b[2]-a[2]);
 }
 /** Resolves even when `perform` never returns. The girl is stood at the segment end. */
-export async function performBounded(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,action:Action,end:Vec,yawRad:number,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<'done'|'timeout'>{
- const token=new Cancellation();
+/** p0drag11: `live()` false = the walk was taken over (e.g. __qfTeleport stood her elsewhere): no end-of-segment re-stand; `onToken`
+ *  receives the segment's Cancellation so the owner can cancel it. */
+export async function performBounded(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,action:Action,end:Vec,yawRad:number,timeoutMs=WALK_SEGMENT_TIMEOUT_MS,live?:()=>boolean,onToken?:(t:Cancellation)=>void):Promise<'done'|'timeout'>{
+ const token=new Cancellation();if(onToken)onToken(token);
  let mode:''|'done'|'timeout'='';
  let timer:ReturnType<typeof setTimeout>|undefined;
  const work=character.perform(action,token).then(()=>{if(!mode)mode='done';},()=>{if(!mode)mode='timeout';});
@@ -24,6 +26,7 @@ export async function performBounded(character:Pick<CharacterAdapter,'perform'|'
  if(timer)clearTimeout(timer);
  if(mode!=='done'){
   try{token.cancel();}catch{/* ignore */}
+  if(live&&!live())return 'timeout';/* p0drag11 (Mac p0drag10 skn po: teleported, then re-stood at the old walk's end (8.77,8.14)) */
   try{character.cancelAndReset({kind:'standing',controllerRoot:[end[0],end[1],end[2]],yawRad});}catch{/* caller still continues */}
   return 'timeout';
  }

@@ -206,3 +206,216 @@ HEAD 20b54c58: 176/179 PASS, 0 FAIL; 3 baseline env blocks (2× Node ≥22.6, na
 first run only on a source-wiring regex; fixed in 20b54c58 and re-run PASS.)
 ### Size
 +9.4 KB TS source (LensSmooth.ts 4.9 KB new, RegionNodeStage +3.4 KB, QaSkip +1.1 KB); no assets. Test fixture 86 KB (tools only).
+
+## p0drag10 (branch cine/p0drag10 from 936a3309; Mac p0drag9 = 579952ac FAILED) — 运镜bot
+Commits: 457c9830 (camera), fc13e6bf (tests + suite entry), this outbox commit. Not pushed. Nook: option C (场景设计部 makes it unwalkable) — no renderer fading here.
+
+### Gap between the p9 replay harness and the engine (root causes)
+1. **Drag events write with dt = 0.** Every frame the Mac trace lists two `region.node-lens:orbit` writes is a drag event: `aimOrbit → writeOrbit(0)` before the tick's `writeOrbit(dt)`. `OffsetSmoother.step` treated dt ≤ 0 as "not live" and **reset the eased offset to the raw avoidance target** → the 43°/4.6 m single-frame jumps (exactly the 2-write frames, e.g. t 730.754, 683.722). The p9 harness only called writeOrbit(dt). Fix: dt = 0 holds the eased state; outOfProxies no longer eats the turn-rate look-ahead on dt = 0.
+2. **Lens inside houses**: the eased offset swept back to the (clear) raw target *through* a box, and after a drag the "already inside → boost" test looked at raw + old offset instead of the lens actually written. Fix: no-entry guard on the last written lens (step that would enter a box → keep last world yaw / climb at the 22°/s cap / hold, never trailing the player's turn by > 90°); avoidance only takes a target whose yaw arc from where the lens is stays out of boxes; boost judged on the written lens.
+3. **Face/chest occlusion**: avoidance scored only the single look-point sight line; the face (+1.45 m) and chest (+1.05 m) lines were both hidden while it called the pose clear. Fix: a candidate counts as blocked when face AND chest are hidden; while she is hidden the yaw (only) moves ×2 (lens arc speed capped 18 m/s; pitch/arm caps untouched).
+4. **Auto-recentre after hooks** (item 2): not the orbit (fo.yaw stayed −160) — the avoidance swing eased in. qaOrbit now sets a hold: avoidance may only climb, no swing, until a manual drag (aimOrbit 'drag').
+5. **Sign mirrored** (item 3): the panel's front (+Z, yawDeg −21) faces the sea; every walkable island spot is 7.9–24 m behind its front plane, so "behind her, aimed at the sign" always saw the back. `__qfTeleport('sign')` now puts the lens past the sign along her→sign at the 12 m cap (text side, looking back over the panel at her).
+6. camTrace frames now carry `occFace` / `occChest` (LensAvoid.herOcclusion, same slab raycast as the test; null outside explore / without proxies).
+
+### Before → after (test_p0drag10 Q1, real Mac traces replayed through the real writeOrbit; NOT ENGINE)
+| | Mac ro (579952ac) | 936a3309 replay ro | HEAD ro | Mac pock | 936a3309 pock | HEAD pock |
+|---|---|---|---|---|---|---|
+| max view-pitch step / frame | 43.16° | 20.13° | 0.51° | 41.04° | 28.2° | 0.57° |
+| pitch over 22°/s·dt (+raw) | 42.74° | 19.72° | 0 | 40.58° | 27.71° | 0 |
+| max height step / frame | 4.56 m | 2.23 m | 0.057 m | 5.20 m | 3.16 m | 0.064 m |
+| height over 5 m/s·dt | 4.47 m | 2.14 m | 0 | 5.09 m | 3.05 m | 0 |
+| max Δpitch in 0.25 s | 43.5° | 28.6° | 5.5° | 41.1° | 33.1° | 5.5° |
+| max Δheight in 0.25 s | 4.64 m | 3.23 m | 0.67 m | 5.20 m | 3.68 m | 0.67 m |
+| frames lens inside a box | 53 | 18 | 0 | 0 | 9 | 0 |
+| longest face+chest hidden | 0.61 s | 0.47 s | 0.42 s | 0.26 s | 0.27 s | 0.42 s |
+| min her margin (7 screens) | 0.59 | 0.61 | 0.61 | 0.60 | 0.61 | 0.61 |
+| min arm / min view pitch | 7.16 m / −58.8° | 7.34 / −48 | 7.34 / −53.8 | 7.25 / −58.9 | 7.34 / −54 | 7.34 / −53.9 |
+Hook cuts (her or the raw orbit jumping in one frame = __qfTeleport/__qfAimAt) are replayed through qaOrbit and excluded from the step limits. Perf: writeOrbit avg 0.065 ms, p99 0.45 ms.
+Q2 hook hold: blocked yaw S2 −45° → drift 0° over 3 s (936a3309: 30°); after a manual drag avoidance swings again (30°). Q3 sign: lens 2.7 m on the text side, sign ahead (936a3309: −14.4 m, back side). Q4 camTrace occ wired + correct on a hidden / clear pose. All four FAIL on 936a3309.
+
+### Suite
+HEAD fc13e6bf: 177/180 PASS, 0 FAIL, 3 baseline blocks (2× Node ≥22.6, navigation-guard browser). p0drag7/8/9/10 PASS. test_p0drag8 P4 no longer requires the 'sign' hit rect inside the portrait (the text-side shot overfills it; Q3 checks the side).
+
+### Size
+Source +5,994 B (RegionNodeStage +4,456, LensSmooth +904, LensAvoid +563, CamTrace +71). Test fixture fixtures_p0drag10.json 443 KB (tools only, not in the build).
+
+### Remaining flaws
+- Hook hold trade-off: right after `__qfAimAt/__qfTeleport` at a blocked yaw she can stay hidden until the first drag (ro replay: 0.81 s after the −160° aim; reported separately as longestOcclusionFromQaHookS). Avoidance may only climb while held.
+- The 'sign' shot: from the 12 m arm cap the panel is ~3 m from the lens and fills most of the portrait; her figure is partly behind it. Every walkable spot is behind the sign, so a front view with her clear would need a longer QA-only arm or a scene change (the panel back currently shows mirrored text — art may want a blank back).
+- The no-entry guard may let the lens trail the player's turn by up to 90° behind a house until a clear arc exists; replay shows no pitch/height/limit violations, but feel on device unknown.
+- Easing/occlusion numbers are the replay model (real code, stubbed scene/proxy boxes, Mac dt sequence). Engine confirmation needs a Mac rerun with camTrace (occFace/occChest now in each frame).
+
+## p0drag11 — FINAL (cine/p0drag11 from 6473d11c; replay/harness numbers are NOT ENGINE)
+### Root causes
+1. **Why the replay occlusion didn't match the Mac.** Engine `skycityOccluders` turned each model-local box into a world AABB. The sky-city model is yawed about 118°, so every rotated box got inflated (a 10×1 m wall became about 9×9 m). That inflation created phantom occFace/occChest, and avoidance fled walls that aren't there. With the same world-AABB plus 18 m near-set method, the replay reproduces the Mac's per-frame occ fields at 97.8–99.4% agreement (Q0). Boxes are now FrameBoxes: points are tested in the model frame, with no inflation.
+2. **Missing geometry.** The generator dropped everything below y 2.2 m (bushes, post bottoms). Cine boxes now go down to y 0.3 m, from env_sky_ruins and env_sky_static_palette: 1239 boxes (was 354). Night uses the same meshes (only the material grade differs). Night po was worse because of where she stood (item 4).
+3. **Avoider gaps.**
+   - The sight test was shrunk by 0.1 m, so the avoider said "clear" while she stayed hidden for 3 s.
+   - No candidate wider than 90°.
+   - It held a 30° climb that never showed her.
+   - The no-entry guard pinned the lens against a wall.
+   - Hidden swings were too slow.
+4. **Item 2.** Walk end never re-checked the facing.
+5. **Item 3.** The lens went past the sign along her→sign. The sign then hid her, the lens pull moved the lens in front of it, and the sign ended up behind the lens. Under the 12 m arm cap and the about 20° portrait horizontal FOV, no orbit pose that looks at her can show the sign: every walkable spot is 7.9–24 m behind the sign's front plane.
+6. **Item 4.** `performBounded` re-stood her at the old walk's end once the teleport cancelled the walk. The harness reproduces the Mac's (8.77, 8.14) drift.
+
+### Fixes
+- Hidden means face OR chest. After she has been hidden for 0.3 s, the avoider may:
+  - pull the arm in (×0.8/0.62/0.48, floor 3.5 m, ≤2.2 m/s);
+  - use the wide swings (±120/150/180°);
+  - go round the other way when the guard pins it.
+- If nothing is clear, it makes no detour. A partial pick must also have a box-free arc.
+- Hidden yaw: ×5 rate, stiffer spring, lens arc speed ≤28 m/s on the horizontal circle. Pitch is unchanged (≤22°/s) and arm stays ≤2.2 m/s.
+- **Walk end (skycity):** if she is hidden or the lens is in a box, the orbit turns to the nearest clear yaw (±15° steps). The smoother takes −Δ, so the turn is eased, not a cut.
+- **'sign' shot:** spot, yaw, pitch and arm come from the text-side normal, in world space:
+  - lens ≥1.5 m in front of the panel;
+  - text ≤60° off;
+  - her sight line clear of the sign's world AABB;
+  - view aimed at the text centre.
+  - The shot is held until a drag, which glides back over 0.6 s.
+- **Teleport:** always new walk token, cancels the walk's Cancellation, clears groundWalking and the tap state, and skips the end re-stand.
+- **Skycity entry glide:** kept without the LensGuard pre-solve.
+
+### Calibrated before → after (Q1, the Mac turn window, exact boxes, face/chest longest run)
+| | Mac field | Mac poses on exact boxes | HEAD replay |
+|---|---|---|---|
+| day po | 1.95/1.95 s | 1.85/2.03 s | 0.33/0.37 s |
+| day ro | 2.70/2.22 s | 0.75/0.75 s | 0.30/0.30 s |
+| night po | 4.58/9.60 s | 0.60/7.75 s | 0.13/0.30 s |
+| night ro | 2.70/2.22 s | 0.88/0.88 s | 0.28/0.28 s |
+
+- **Easing (HEAD):**
+  - pitch: 0 over limit, max per-frame step 0.73°, max change in 0.25 s 5.5°;
+  - height: 0 over limit, max per-frame step 0.089 m, max change in 0.25 s 0.67 m;
+  - 0 frames with the lens inside a box (Mac poses: 4–6);
+  - min arm 7.08 m (pull-in rarely needed);
+  - min view pitch −54°.
+- **Q2:** nook (11.8, 8.2) at yaw 50 starts inside a post. Turns 50→20°, she is clear after 0.13 s, 0 frames inside, max step 0.47 m.
+- **Q3:** text 5.5 m away, at NDC (0,0), 49° off, sign not in her sight line; unchanged after 1 s.
+- **Q4:** she stays on S3 after the old walk settles (6473d11c: re-stood at the walk end).
+- On 6473d11c, Q1–Q4 all FAIL; Q0 is calibration only.
+
+### Suite
+3bbbbe02: 178/181 PASS, 0 FAIL, 3 baseline blocks (2× Node ≥22.6, navigation-guard browser).
+
+Thresholds changed:
+- test_p0drag8 P5 lens step 0.35→0.55 m/frame (hidden swings at 28 m/s).
+- test_p0drag10 Q2 also accepts "she is seen" (a climb plus pull-in at the same yaw).
+- lakeside-walkable occluder count bound 3000→4000.
+
+### Size
+Source +31,011 B: SkycityLensOccluders +18,121, RegionNodeStage about +6.9 K, IslandPropsLayout +4,354, LensAvoid +1,553, RegionNodePlay +415, LensSmooth +255. Build headroom was 935,439 B. Test fixtures: fixtures_p0drag11.json 1.28 MB and oldsky 55 KB (tools only).
+
+### Remaining flaws
+- The sign shot shows the sign but not her: from the text side the island rocks hide her at every reachable pose. The panel is about 5.5 m away and overfills the portrait view (the full 2.8×4.3 m panel cannot fit within the 12 m arm).
+- Hidden swings move the lens fast (up to about 0.5 m/frame). This is yaw only and within the pitch/arm limits, but the feel on the device is unknown.
+- Walk-end facing is tested by calling walkEndView directly at (11.8, 8.2). The Mac traces had no nook walk end to replay.
+- All after-numbers are replay or harness results (real code, stubbed scene). A Mac camTrace rerun is needed.
+
+## p0drag12 (cine/p0drag12 from 74d0ae20) — 运镜bot
+All after-numbers are NOT ENGINE: they come from replaying the Mac p0drag11 camTrace through the real writeOrbit with a stubbed scene. Fixture: tools/region-nodes/fixtures_p0drag12.json.
+
+### 1. Island sign shot
+- Cause: within the 12 m arm cap, no lens pose shows both her and the whole sign.
+- Fix: `region/SignShot.ts` searches her node, the blend between her and the sign, yaw, pitch (10–35°) and arm (10–28 m). It keeps poses where:
+  - the text faces the lens within 60°, so it is never mirrored;
+  - her head and chest are clear of the island boxes and the sign;
+  - her body and the whole sign rect fit on all 7 portrait screens.
+- Result: node I6, arm 26.4 m, text 40° off-axis, smallest text about 39 px.
+- The pose is held until a drag, then glides back over 0.6 s. The arm cap is raised for this QA shot only.
+- No scene change is needed.
+
+### 2. Nook walk
+- Cause: the QA hook hold (`__qfTeleport` S3, yaw 148.5 / pitch 55) persisted through the walk, so the lens stayed fixed while she walked. The longest hidden run was 1.12–1.97 s on the Mac and 1.77–2.08 s in replay on 74d0ae20.
+- Fix 1: `walkStarted()` drops the hold when a walk starts.
+- Side effect: the walking lens was then carried through an 11 m wall for 21–24 frames, because its her-relative position counted as already "leaving" a box.
+- Fix 2: while walking, the no-entry guard also judges last frame's world lens position. Its fallback steps toward the target, slides along box faces, or pulls in toward her.
+- W1 replay, longest face/chest run during the walk plus 0.5 s, lens never inside a box:
+
+| Walk | Mac (s) | Replay on 74d0ae20 (s) | Replay now (s) |
+|---|---|---|---|
+| skd walk 1 (walk-start pillar) | 0.30 | 0.33 | 0.13 |
+| skd walk 2 | 1.12 | 1.77 | 0.17 |
+| skn walk 2 | 1.85 | 2.03 | 0.07 |
+| skn walk 3 | 1.97 | 2.08 | 0.20 |
+| skxd walks | 1.85 / 1.97 | 2.03 / 2.08 | 0.06 / 0.20 |
+
+- The walk-start pillar clears in 0.13 s.
+
+### 3. Low-angle self-check and yaw peak
+- L1: the four slow turns replayed at pitch 12° and 20°.
+  - skd po/ro and skn po: 0.27–0.35 s. (skn po at 20° was 0.43 s on 74d0ae20)
+  - skn ro: 0.59 s at 12° and 1.03/1.07 s at 20°, with 4 frames inside a box. **Known flaw.** It is reported, not gated.
+- Yaw peak, from the trace: on the Mac the written yaw peaks at 325–474°/s while the player's raw drag rate stays ≤71°/s (it is 0 at the 474°/s frame), so **the peak is ours**.
+  - Source: hidden-swing speed ×5 = 400°/s, plus the 28 m/s arc cap (about 260°/s at a 6 m arm).
+  - Lowering the ×5 cap regresses occlusion: ×4 takes p0drag10 Q1 from 0.48 s to 1.7 s; ×2.5 makes nook walks hidden for over 2 s.
+  - The speed is therefore left at ×5. Y1 is an audit only (replay +261 to +381°/s above the player's raw rate).
+
+### Tests and suite
+- test_p0drag12: W1, L1 (skn_ro reported only), Y1 (audit), S1. W1 and S1 fail on 74d0ae20. L1 gives the same numbers on 74d0ae20: it is a self-check and nothing this round changes the turns.
+- p0drag8/9/10/11, explore_arm and free_orbit still pass.
+- Suite on 91cb12d6 (includes the r7 merge): 179/182 PASS. The only blocks are the expected ones: 2× Node ≥22.6 and navigation-guard (browser). p0drag7–12, skycity-stand and lakeside-walkable pass.
+
+### r7 merge (scene/b17-skycity-walk-r7 c2aa19e3, merged cleanly as 044c8de8)
+- W2 (NOT ENGINE, self-check, not gated): the Mac walk frames replayed with her on the r7 walk, 5.69 m to the nook stop (11.8, 7.8) at 1.2 m/s, with walkEndView at the stop. Longest face/chest hidden run during the walk plus 0.5 s:
+
+| Walk | Face (s) | Chest (s) | Frames inside a box |
+|---|---|---|---|
+| skd | 0.75 | 0.88 | 0 |
+| skxd | 0.77 | 0.88 | 0 |
+| skn | 1.85 | 2.77 | 19 |
+
+- **The r7 stop FAILS the ≤0.5 s limit.**
+- Cause: at (11.8, 7.8) she is clear only from a yaw sector of about 100° (150–250° in the probe frame). At walk start the avoider swings wide to the other side, and the lens then waits behind a wall until the walk-end turn. That turn passes through boxes on skn.
+- I tried two fixes; both made it worse or did no better, so both are reverted:
+  - predicting along her path (0.8 s ahead);
+  - releasing a stuck world-hold.
+- Next step: choose the swing side against the walk destination's clear sector, and make walkEndView's turn arc box-free.
+- Foliage taps and NE1: not re-tested by the camera side this round (r7 ray tests pass in the suite).
+
+## p0drag12 continued (after the r7 merge) — 运镜bot
+All numbers are NOT ENGINE: they come from replaying the Mac p0drag11 frames through the real writeOrbit.
+
+### r7 nook stop (routes now come from walkRayHit → walkTapPath on the merged code)
+- The real day stop is (11.4, 7.8) after 5.69 m, by way of (10.6, 7.0). The night stop is (11.8, 8.2) after 6.26 m.
+- Fix, step 1: `walkStarted(path)` now uses her destination.
+  - `clearYaws(dest, pitch)` lists the orbit yaws from which her face and chest are clear and the lens is outside every box.
+  - If fewer than 18 yaws (90°) are clear, the orbit is also raised, by up to +24°.
+  - `steerWalk` turns the orbit toward that sector early in the walk (≤60°/s, aim up to 60° inside the sector, pitch ≤3°/s).
+- Fix, step 2: walkEndView's turn is checked every 5° against boxes and goes around them, never through.
+- Fix, step 3: while walking, the "lens inside a box" boost is judged on the real world lens. This removed the 55°/s climbs that broke the pitch limit.
+- Fix, step 4: a detour that shows her again re-anchors the avoider where it is. While walking, the return to the raw yaw must keep her visible along the arc.
+- Fix, step 5: the no-entry guard's last resort always holds last frame's lens.
+- Result, W2 (face/chest, walk + 0.5 s; 0 frames inside a box; pitch and height within limits) — **gated**:
+
+| Route | Straight line on 044c8de8 (s) | Now (s) |
+|---|---|---|
+| Pock day, skd/skn/skxd | 0.75–1.85 / 0.88–2.77 | 0.35 / 0.37 / 0.35 |
+| Pock night, skd/skn/skxd | — | 0.13 / 0.17 / 0.25 |
+| NE1 (24.64 m, to (26.6, −5)) | — | 0.17–0.18 |
+| NE2 | — | 0.13–0.14 |
+| Roof | — | 0.13–0.14 |
+
+### L1 low-angle skn ro
+- Frames inside a box: 4 → 0, gated.
+- Hidden time, not gated:
+  - At 12°: 0.59 s. Her clear sector at (9.09, 7.78) is 150–330°, but the avoider swings to +43° and back.
+  - At 20°: 1.03/1.07 → 0.62 s.
+
+### Yaw harshness
+- I tried a yaw acceleration cap (2400 and 1200°/s²). It did not lower the measured acceleration peaks: those come from pins and frame jitter (p99 about 4000°/s² either way). It also regressed occlusion:
+  - W2 day skd: 0.35 → 1.57 s;
+  - W1 fails;
+  - p0drag11 Q2 fails.
+- Reverted. Y1 now also reports angular acceleration:
+  - written peak 315–437°/s (Mac 325–474°/s; player ≤71°/s);
+  - acceleration p99 4195–5765°/s², peak 12–23 k°/s².
+
+### Fixture
+- `fixtures_p0drag12.json` (2.29 MB) is now `fixtures_p0drag12.json.gz` (0.22 MB). Test output is identical.
+
+### Foliage taps and NE1 (r7, camera side)
+- T1/T2 stay taps return before any camera code runs, so the camera does not change.
+- NE1, NE2 and Roof walks: see W2 above.
+- Suite on 79ff5833: 179/182 PASS. The only blocks are the expected ones: 2× Node ≥22.6 and navigation-guard (browser). p0drag7–12, skycity-stand and lakeside-walkable pass.

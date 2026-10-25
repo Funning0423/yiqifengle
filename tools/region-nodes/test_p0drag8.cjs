@@ -91,7 +91,7 @@ const FX=JSON.parse(fs.readFileSync(FIX,'utf8'));
  const boot=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
  const bootGated=/const skip=qaSkipTarget\(q\);[^\n]*\n\s*if\(skip!==null\|\|qaHooksEnabled\(q\)\)\(globalThis as any\)\.__qfBackToBoard=/.test(boot)&&(boot.match(/__qfBackToBoard=/g)||[]).length===1;
  const stageSrc=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8');const stageGated=/if\(qaHooksEnabled\(\)\)\{const G=globalThis as any;G\.__qfTeleport=.*G\.__qfAimAt=/.test(stageSrc)&&(stageSrc.match(/__qfTeleport=/g)||[]).length===1;
- ok('P4',normal&&offBuild&&onBuild&&bootGated&&stageGated&&r1.ok&&Math.abs(r1.yaw-90)<1e-6&&Math.abs(r1.pitch-30)<1e-6&&r2.ok&&L.signRectOnScreen(rect,390,844),
+ ok('P4',normal&&offBuild&&onBuild&&bootGated&&stageGated&&r1.ok&&Math.abs(r1.yaw-90)<1e-6&&Math.abs(r1.pitch-30)<1e-6&&r2.ok,/* p0drag10: the sign shot now looks from the text side (test_p0drag10 Q3 checks it with her actually moved; this rig keeps her at I1) */
   {qaSkipNullInNormalBuild:normal,hooksAbsentWhenGateClosed:offBuild,hooksPresentWhenOpen:onBuild,bootGated,stageGated,teleportYawPitch:r1,teleportSign:r2,signRect:rect});
 }
 // ---------- P5
@@ -107,7 +107,7 @@ const FX=JSON.parse(fs.readFileSync(FIX,'utf8'));
    if(near.some(b=>inside(c.position,b)))inBox++;if(near.some(b=>inside(o.rawPose(her).position,b)))rawIn++;
    minA=Math.min(minA,a);minP=Math.min(minP,vp);if(pa)maxStep=Math.max(maxStep,d3(c.position,pa));pa=c.position.slice();}
   ms.sort((a,b)=>a-b);const r={pitch:pt,dist:dd,rawLensInsideFrames:rawIn,writtenInsideFrames:inBox,minArmM:+minA.toFixed(2),minViewPitchDeg:+minP.toFixed(1),maxLensStepM:+maxStep.toFixed(3),avgMs:+(ms.reduce((a,b)=>a+b)/ms.length).toFixed(3),p99Ms:+ms[Math.floor(ms.length*.99)].toFixed(2)};
-  runs.push(r);good=good&&inBox<=ms.length*0.03&&minA>=3.5&&minP>=-58.01&&maxStep<=0.35;}
+  runs.push(r);good=good&&inBox<=ms.length*0.03&&minA>=3.5&&minP>=-58.01&&maxStep<=0.55;}/* p0drag11: hidden swings may move the lens ≤ boostLensMS (28 m/s ≈ 0.47 m/frame on the horizontal arc, + elevation) so she is out of a ≤0.5 s occlusion; was 0.35 */
  ok('P5',good,{boxes:SKO.length,nearBoxes:near.length,runs});
 }
 const all=Object.values(res).every(r=>r.ok);console.log(JSON.stringify({test:'p0drag8',ok:all,...res},null,1));process.exit(all?0:1);
