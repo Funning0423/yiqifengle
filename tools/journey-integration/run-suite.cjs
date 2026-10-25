@@ -143,6 +143,7 @@ const tests=[
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
+  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
  ['balloon-windsource-bound','tools/journey-integration/test-balloon-windsource-bound.cjs'],
   ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['lakeside-touchdown-timeline','tools/journey-integration/test-lakeside-touchdown-timeline.cjs'],['balloon-sky-dome-yaw','tools/journey-integration/test-balloon-sky-dome-yaw.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['pre-transition','tools/journey-integration/test-pre-transition.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],['island-exit-explore','tools/journey-integration/test-island-exit-explore.cjs'],['island-explore-touch','tools/journey-integration/test-island-explore-touch.cjs'],['lakeside-exit-explore','tools/journey-integration/test-lakeside-exit-explore.cjs'],
