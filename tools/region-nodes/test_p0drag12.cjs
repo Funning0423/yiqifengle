@@ -85,12 +85,13 @@ const W2=(prefix='')=>{const out={};let all=true;
  ok('L1',all,out);}
 // ---------- Y1 yaw-rate audit
 {const out={};let all=true;
- for(const k of TURNS){const F=FX[k],t0=turnStart(F),M=macPoses(F),r=replay(F);let rawPk=0,macPk=0,ourPk=0,extraPk=0,macExtraPk=0,at=null;
+ for(const k of TURNS){const F=FX[k],t0=turnStart(F),M=macPoses(F),r=replay(F);let rawPk=0,macPk=0,ourPk=0,extraPk=0,macExtraPk=0,at=null,prevR=null;const accs=[];
   for(let i=t0+1;i<F.length;i++){if(isCut(F,i))continue;const dt=F[i][0]-F[i-1][0];if(!(dt>1/240))continue;
    const raw=Math.abs(wrap(F[i][2]-F[i-1][2]))/dt,mac=Math.abs(wrap(yawOf(M[i])-yawOf(M[i-1])))/dt;rawPk=Math.max(rawPk,raw);if(mac>macPk){macPk=mac;at={t:F[i][0],raw:+raw.toFixed(0),dt:+dt.toFixed(4)};}
    macExtraPk=Math.max(macExtraPk,mac-raw);
-   if(r.act[i]&&r.act[i-1]){const ou=Math.abs(wrap(yawOf(r.P[i])-yawOf(r.P[i-1])))/dt;ourPk=Math.max(ourPk,ou);extraPk=Math.max(extraPk,ou-raw);}}
-  /* audit only (not gated): the excess is ours (hidden-swing ×5 = 400°/s, 28 m/s arc cap); ×4 or less regresses p0drag10 Q1 (0.48 → 1.7 s) */out[k]={macWrittenPeakDegS:+macPk.toFixed(0),macPeakAt:at,playerRawPeakDegS:+rawPk.toFixed(0),macAboveRawPeakDegS:+macExtraPk.toFixed(0),replayPeakDegS:+ourPk.toFixed(0),replayAboveRawPeakDegS:+extraPk.toFixed(0)};}
+   if(r.act[i]&&r.act[i-1]){const sr=wrap(yawOf(r.P[i])-yawOf(r.P[i-1]))/dt,ou=Math.abs(sr);ourPk=Math.max(ourPk,ou);extraPk=Math.max(extraPk,ou-raw);if(prevR!==null&&dt>1/90){accs.push(Math.abs(sr-prevR)/dt);}prevR=dt>1/90?sr:prevR;}else prevR=null;}
+  accs.sort((a,b)=>a-b);const accP99=accs.length?accs[Math.floor(accs.length*0.99)]:0,accPk=accs.length?accs[accs.length-1]:0;
+  /* audit only (not gated): the excess is ours (hidden-swing ×5 = 400°/s, 28 m/s arc cap); ×4 or less regresses p0drag10 Q1 (0.48 → 1.7 s) */out[k]={macWrittenPeakDegS:+macPk.toFixed(0),macPeakAt:at,playerRawPeakDegS:+rawPk.toFixed(0),macAboveRawPeakDegS:+macExtraPk.toFixed(0),replayPeakDegS:+ourPk.toFixed(0),replayAboveRawPeakDegS:+extraPk.toFixed(0),replayYawAccelP99DegS2:+accP99.toFixed(0),replayYawAccelPeakDegS2:+accPk.toFixed(0)};}
  ok('Y1',all,out);}
 // ---------- S1 sign shot: her + whole sign on all 7 screens
 {const L=X.H.load(X.S('world-r2/IslandPropsLayout.ts')),CP=X.H.load(X.S('world-r1/CameraPose.ts')),OC=X.H.load(X.S('region/LensOcclusion.ts')),EC=X.H.load(X.S('region/ExploreCameraCore.ts'));
