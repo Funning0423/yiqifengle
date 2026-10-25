@@ -518,7 +518,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;
    if(girl&&isValid(girl,true)){girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
    const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
-   if(setWind)setWind(()=>0.35);
+   /* call with the actor as `this`: FlowReferenceStandin.setWindSource is a class method (unbound call threw "Cannot set properties of undefined (setting 'windSource')" -> journey failed) */if(setWind)setWind.call(actor,()=>0.35);
    const hold=holdAt();
    const diag=diagParams();let diagDone=false;
    const clock={t:0,hiddenFor:0,fade:0};
@@ -559,7 +559,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     };
    });
    rideToken.check();
-   if(setWind)setWind(()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
+   if(setWind)setWind.call(actor,()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
    if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:plan.vehicle(LAND_T).yaw});
    arrived=true;
