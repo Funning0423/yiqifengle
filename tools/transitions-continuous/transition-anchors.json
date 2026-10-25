@@ -1,0 +1,1244 @@
+{
+ "format": "qf-transition-cam/1",
+ "note": "场景设计部 b19: anchors = world (region journey world: island root origin; meadow = sailMeadowRoot yaw180; skycity = CW_JSON). camera keys unchanged from placeholder (运镜bot). yaw = atan2(dx,dz) deg. source: tools/transition-spaces/stances.json via gen-anchors.py",
+ "world": {
+  "island": {
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "yawDeg": 0
+  },
+  "meadow": {
+   "origin": [
+    -1.7,
+    -1.35,
+    79.1
+   ],
+   "yawDeg": 180
+  },
+  "skycity": {
+   "origin": [
+    59.06373,
+    18.818369,
+    117.212135
+   ],
+   "yawDeg": 241.165081
+  }
+ },
+ "segments": {
+  "A1-dock-walk": {
+   "id": "A1-dock-walk",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "小岛最后一关 I4 停点 → 码头端点（dock_board）",
+    "I4": {
+     "pos": [
+      4.5,
+      0.231,
+      -4.9
+     ]
+    },
+    "I6_new": {
+     "pos": [
+      -1.5,
+      -0.18,
+      9.3
+     ],
+     "yawDeg": 0.0
+    },
+    "dockEnd": {
+     "pos": [
+      -1.402,
+      -0.14,
+      12.222
+     ],
+     "yawDeg": 88.76
+    },
+    "path": [
+     {
+      "id": "I4",
+      "pos": [
+       4.5,
+       0.231,
+       -4.9
+      ]
+     },
+     {
+      "id": "nodewalk_00",
+      "pos": [
+       4.5,
+       0.029,
+       -3.3
+      ]
+     },
+     {
+      "id": "nodewalk_01",
+      "pos": [
+       4.9,
+       0.012,
+       -2.7
+      ]
+     },
+     {
+      "id": "nodewalk_02",
+      "pos": [
+       5.1,
+       0.026,
+       -1.9
+      ]
+     },
+     {
+      "id": "nodewalk_03",
+      "pos": [
+       5.3,
+       0.09,
+       -1.3
+      ]
+     },
+     {
+      "id": "nodewalk_04",
+      "pos": [
+       5.5,
+       0.146,
+       -0.9
+      ]
+     },
+     {
+      "id": "nodewalk_05",
+      "pos": [
+       4.9,
+       0.006,
+       -0.3
+      ]
+     },
+     {
+      "id": "nodewalk_06",
+      "pos": [
+       5.1,
+       0.065,
+       0.5
+      ]
+     },
+     {
+      "id": "nodewalk_07",
+      "pos": [
+       5.1,
+       0.159,
+       2.1
+      ]
+     },
+     {
+      "id": "nodewalk_08",
+      "pos": [
+       3.5,
+       0.087,
+       3.7
+      ]
+     },
+     {
+      "id": "nodewalk_09",
+      "pos": [
+       2.1,
+       0.148,
+       4.9
+      ]
+     },
+     {
+      "id": "nodewalk_10",
+      "pos": [
+       0.5,
+       0.046,
+       6.3
+      ]
+     },
+     {
+      "id": "nodewalk_11",
+      "pos": [
+       0.5,
+       0.002,
+       7.3
+      ]
+     },
+     {
+      "id": "nodewalk_12",
+      "pos": [
+       -0.5,
+       0.0,
+       7.7
+      ]
+     },
+     {
+      "id": "nodewalk_13",
+      "pos": [
+       -1.4,
+       0.0,
+       8.2
+      ]
+     },
+     {
+      "id": "nodewalk_14",
+      "pos": [
+       -1.45,
+       -0.18,
+       8.9
+      ]
+     },
+     {
+      "id": "nodewalk_15",
+      "pos": [
+       -1.5,
+       -0.18,
+       9.3
+      ]
+     },
+     {
+      "id": "dock_mid",
+      "pos": [
+       -1.5,
+       -0.18,
+       11.6
+      ]
+     },
+     {
+      "id": "dock_board",
+      "pos": [
+       -1.402,
+       -0.14,
+       12.222
+      ]
+     }
+    ],
+    "walkMps": 1.2,
+    "seconds": 18.65,
+    "timeline": [
+     {
+      "clip": "walk_start/walk_loop/walk_stop_bodyL",
+      "s": 15.61
+     },
+     {
+      "clip": "walk_start/walk_loop/walk_turn_90_bodyL",
+      "s": 3.04
+     }
+    ]
+   }
+  },
+  "A2-board": {
+   "id": "A2-board",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "踏板（码头端→船舷）→ 舱内踏阶 → 坐下；船坐标点按开船时（t=0 泊位）换算",
+    "gangway": {
+     "hinge": {
+      "pos": [
+       -0.802,
+       -0.35,
+       12.235
+      ]
+     },
+     "start": {
+      "pos": [
+       -1.402,
+       -0.14,
+       12.222
+      ]
+     },
+     "end": {
+      "pos": [
+       -0.802,
+       -0.31,
+       12.235
+      ]
+     },
+     "deployDeg": 14.0,
+     "node": "sail_gangway",
+     "hingeNode": "sail_gangway_hinge",
+     "parent": "transport_sailboat"
+    },
+    "path": [
+     {
+      "id": "dock_board",
+      "pos": [
+       -1.402,
+       -0.14,
+       12.222
+      ]
+     },
+     {
+      "id": "boat_rail_stbd",
+      "pos": [
+       -0.802,
+       -0.31,
+       12.235
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "boat_step",
+      "pos": [
+       -0.222,
+       -0.58,
+       12.247
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "boat_sole",
+      "pos": [
+       -0.098,
+       -0.85,
+       12.06
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "boat_sit_stand",
+      "pos": [
+       -0.096,
+       -0.85,
+       11.95
+      ],
+      "moving": "boat"
+     }
+    ],
+    "walkMps": 0.9,
+    "seconds": 3.52,
+    "timeline": [
+     {
+      "clip": "walk_loop (0.9 m/s on the plank/steps) -> walk_stop_bodyL",
+      "s": 2.32
+     },
+     {
+      "clip": "sit_down -> sit_hold",
+      "s": 1.2
+     }
+    ],
+    "seat": {
+     "pos": [
+      -0.087,
+      -0.85,
+      11.55
+     ],
+     "yawDeg": -1.24,
+     "node": "seated_root_anchor"
+    }
+   }
+  },
+  "A3-setoff": {
+   "id": "A3-setoff",
+   "placeholder": true,
+   "space": "her",
+   "mode": "stand",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "开船时船的位姿（sailVehicle t=0）与坐姿",
+    "boatPose": {
+     "pos": [
+      -0.099,
+      -0.91,
+      12.1
+     ],
+     "yawDeg": -1.241
+    },
+    "seat": {
+     "pos": [
+      -0.087,
+      -0.85,
+      11.55
+     ],
+     "yawDeg": -1.24,
+     "node": "seated_root_anchor"
+    }
+   }
+  },
+  "A4A5-arrive-disembark": {
+   "id": "A4A5-arrive-disembark",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "草原靠岸时船位姿；站起点；下踏板 → landing_jetty",
+    "boatPose": {
+     "pos": [
+      -4.4,
+      -0.91,
+      48.8
+     ],
+     "yawDeg": 0.0
+    },
+    "seated": {
+     "pos": [
+      -4.4,
+      -0.85,
+      48.25
+     ],
+     "yawDeg": 0.0
+    },
+    "standUp": {
+     "pos": [
+      -4.4,
+      -0.85,
+      48.744
+     ],
+     "yawDeg": 0.0
+    },
+    "gangway": {
+     "hinge": {
+      "pos": [
+       -3.7,
+       -0.35,
+       48.95
+      ]
+     },
+     "start": {
+      "pos": [
+       -3.7,
+       -0.31,
+       48.95
+      ]
+     },
+     "end": {
+      "pos": [
+       -3.1,
+       -0.56,
+       48.95
+      ]
+     },
+     "deployDeg": -20.0,
+     "node": "sail_gangway",
+     "hingeNode": "sail_gangway_hinge",
+     "parent": "transport_sailboat"
+    },
+    "path": [
+     {
+      "id": "boat_seated",
+      "pos": [
+       -4.4,
+       -0.85,
+       48.25
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "boat_stood_P",
+      "pos": [
+       -4.4,
+       -0.85,
+       48.744
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "boat_step",
+      "pos": [
+       -4.28,
+       -0.58,
+       48.95
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "boat_rail_port",
+      "pos": [
+       -3.7,
+       -0.31,
+       48.95
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "boat_plank_jetty",
+      "pos": [
+       -3.1,
+       -0.56,
+       48.95
+      ],
+      "moving": "boat"
+     },
+     {
+      "id": "landing_step",
+      "pos": [
+       -3.05,
+       -0.6,
+       48.73
+      ]
+     }
+    ],
+    "walkMps": 0.9,
+    "seconds": 5.96,
+    "timeline": [
+     {
+      "clip": "sit_hold",
+      "s": 2.0
+     },
+     {
+      "clip": "stand_up (hard cut from sit_hold, root seat -> P 0.494 m fwd)",
+      "s": 1.27
+     },
+     {
+      "clip": "walk_turn_90_bodyL -> walk_loop 0.9 m/s -> (no stop, continues)",
+      "s": 2.69
+     }
+    ]
+   }
+  },
+  "A6-meadow-first": {
+   "id": "A6-meadow-first",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "码头 → 草原第一关 M1",
+    "path": [
+     {
+      "id": "landing_step",
+      "pos": [
+       -3.05,
+       -0.6,
+       48.73
+      ]
+     },
+     {
+      "id": "landing_walk_01",
+      "pos": [
+       -2.7,
+       -0.6,
+       51.9
+      ]
+     },
+     {
+      "id": "landing_walk_02",
+      "pos": [
+       -2.7,
+       -0.6,
+       55.9
+      ]
+     },
+     {
+      "id": "landing_walk_03",
+      "pos": [
+       -2.627,
+       -0.476,
+       57.176
+      ]
+     },
+     {
+      "id": "landing_walk_04",
+      "pos": [
+       -2.523,
+       -0.315,
+       58.39
+      ]
+     },
+     {
+      "id": "landing_walk_05",
+      "pos": [
+       -2.557,
+       -0.124,
+       59.551
+      ]
+     },
+     {
+      "id": "landing_walk_06",
+      "pos": [
+       -2.898,
+       0.0,
+       60.652
+      ]
+     },
+     {
+      "id": "M0_sail",
+      "pos": [
+       -1.9,
+       0.05,
+       62.1
+      ]
+     },
+     {
+      "id": "M1",
+      "pos": [
+       -4.3,
+       0.85,
+       67.5
+      ]
+     }
+    ],
+    "firstStop": {
+     "pos": [
+      -4.3,
+      0.85,
+      67.5
+     ],
+     "id": "M1",
+     "yawDeg": -23.96
+    },
+    "walkMps": 1.2,
+    "seconds": 16.47,
+    "timeline": [
+     {
+      "clip": "walk_loop -> walk_stop_bodyL",
+      "s": 16.47
+     }
+    ]
+   }
+  },
+  "B1-basket-in": {
+   "id": "B1-basket-in",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "草原最后一关 M4 → 篮门前 → 开门 → 篮内坐下（篮已停在新起飞点）",
+    "balloonPose": {
+     "pos": [
+      -5.3,
+      5.25,
+      102.5
+     ],
+     "yawDeg": -180.0
+    },
+    "M4": {
+     "pos": [
+      -4.7,
+      4.49,
+      95.5
+     ]
+    },
+    "doorFront": {
+     "pos": [
+      -4.85,
+      5.25,
+      101.0
+     ],
+     "yawDeg": -15.26
+    },
+    "hinge": {
+     "pos": [
+      -5.7,
+      5.25,
+      101.66
+     ],
+     "pivotNode": "basket_door",
+     "leafNode": "basket_door_leaf",
+     "openDeg": 100,
+     "openS": 0.8,
+     "closeS": 0.8,
+     "leafRadiusM": 0.82,
+     "opens": "outward"
+    },
+    "inside": {
+     "P0": {
+      "pos": [
+       -5.33,
+       5.25,
+       102.105
+      ],
+      "yawDeg": 0.0
+     },
+     "seat": {
+      "pos": [
+       -5.332,
+       5.25,
+       102.599
+      ],
+      "yawDeg": -180.0
+     }
+    },
+    "path": [
+     {
+      "id": "M4",
+      "pos": [
+       -4.7,
+       4.49,
+       95.5
+      ]
+     },
+     {
+      "id": "m4_m6_01",
+      "pos": [
+       -4.7,
+       4.972,
+       99.5
+      ]
+     },
+     {
+      "id": "yard_gate",
+      "pos": [
+       -4.3,
+       4.991,
+       99.9
+      ]
+     },
+     {
+      "id": "yard_in",
+      "pos": [
+       -4.3,
+       5.1,
+       100.8
+      ]
+     },
+     {
+      "id": "basket_outside",
+      "pos": [
+       -4.85,
+       5.144,
+       101.0
+      ]
+     },
+     {
+      "id": "basket_door_out",
+      "pos": [
+       -5.3,
+       5.144,
+       101.25
+      ]
+     },
+     {
+      "id": "balloon_step_stool",
+      "pos": [
+       -5.3,
+       5.2,
+       101.45
+      ]
+     },
+     {
+      "id": "basket_threshold",
+      "pos": [
+       -5.3,
+       5.25,
+       101.66
+      ]
+     },
+     {
+      "id": "basket_P0",
+      "pos": [
+       -5.33,
+       5.25,
+       102.105
+      ]
+     },
+     {
+      "id": "basket_seat",
+      "pos": [
+       -5.332,
+       5.25,
+       102.599
+      ],
+      "moving": "basket"
+     }
+    ],
+    "walkMps": {
+     "approach": 1.2,
+     "intoBasket": 0.8
+    },
+    "seconds": 12.8,
+    "timeline": [
+     {
+      "clip": "walk_start/walk_loop/walk_stop_bodyL",
+      "s": 5.67
+     },
+     {
+      "clip": "door_reach",
+      "s": 1.8
+     },
+     {
+      "clip": "walk_start -> walk_loop 0.8 m/s -> walk_stop_bodyL",
+      "s": 2.63
+     },
+     {
+      "clip": "walk_turn_180",
+      "s": 1.5
+     },
+     {
+      "clip": "sit_down -> sit_hold",
+      "s": 1.2
+     }
+    ]
+   }
+  },
+  "B2-ignite": {
+   "id": "B2-ignite",
+   "placeholder": true,
+   "space": "her",
+   "mode": "stand",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "起飞前篮位姿（flight 首键改到这里，归运镜bot）",
+    "balloonPose": {
+     "pos": [
+      -5.3,
+      5.25,
+      102.5
+     ],
+     "yawDeg": -180.0
+    },
+    "seat": {
+     "pos": [
+      -5.332,
+      5.25,
+      102.599
+     ],
+     "yawDeg": -180.0
+    }
+   }
+  },
+  "B4B5-skycity-out": {
+   "id": "B4B5-skycity-out",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "note": "天空之城着陆位姿（篮根 y 抬到停靠台）→ 出门点 P0 → 下台阶第一步 → 新 S0 → 接 S0–S1",
+    "balloonPose": {
+     "pos": [
+      18.09,
+      18.828,
+      100.818
+     ],
+     "yawDeg": 67.747
+    },
+    "seat": {
+     "pos": [
+      18.011,
+      18.828,
+      100.751
+     ],
+     "yawDeg": 67.75
+    },
+    "exitDoor": {
+     "pos": [
+      18.467,
+      18.828,
+      100.94
+     ],
+     "yawDeg": 67.75
+    },
+    "firstStepDown": {
+     "pos": [
+      19.538,
+      18.798,
+      101.378
+     ]
+    },
+    "hinge": {
+     "pos": [
+      19.019,
+      18.828,
+      100.766
+     ],
+     "openDeg": 100
+    },
+    "firstStop": {
+     "pos": [
+      20.966,
+      18.734,
+      102.23
+     ],
+     "yawDeg": 58.78,
+     "id": "S0"
+    },
+    "path": [
+     {
+      "id": "basket_seat",
+      "pos": [
+       18.011,
+       18.828,
+       100.751
+      ],
+      "moving": "basket"
+     },
+     {
+      "id": "basket_P0",
+      "pos": [
+       18.467,
+       18.828,
+       100.94
+      ],
+      "moving": "basket"
+     },
+     {
+      "id": "stepdown_end",
+      "pos": [
+       19.538,
+       18.798,
+       101.378
+      ]
+     },
+     {
+      "id": "deck_front",
+      "pos": [
+       20.23,
+       18.798,
+       101.662
+      ]
+     },
+     {
+      "id": "S0_new",
+      "pos": [
+       20.966,
+       18.734,
+       102.23
+      ]
+     },
+     {
+      "id": "S0S1_join",
+      "pos": [
+       24.047,
+       18.731,
+       104.098
+      ]
+     }
+    ],
+    "walkMps": 0.8,
+    "seconds": 14.28,
+    "timeline": [
+     {
+      "clip": "sit_hold",
+      "s": 1.5
+     },
+     {
+      "clip": "stand_up (seat -> P0 0.494 m, stopEngineStates each tick)",
+      "s": 1.27
+     },
+     {
+      "clip": "idle_breathing_loop",
+      "s": 0.5
+     },
+     {
+      "clip": "door_reach",
+      "s": 1.8
+     },
+     {
+      "clip": "walk_start_stepdown -> walk_loop @0.453 s",
+      "s": 1.73
+     },
+     {
+      "clip": "walk_loop 0.8 m/s -> walk_stop_bodyL",
+      "s": 7.48
+     }
+    ]
+   }
+  },
+  "C1-sky-basket-in": {
+   "id": "C1-sky-basket-in",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "todo": "第 5 段 world anchors 尚未导出（数据在 stances.json 5a/5b，frame=skycity/lake）"
+   }
+  },
+  "C2-lakeside-out": {
+   "id": "C2-lakeside-out",
+   "placeholder": true,
+   "space": "her",
+   "mode": "walk",
+   "keys": [
+    {
+     "t": 0,
+     "pos": [
+      -1.8,
+      2.0,
+      -4.2
+     ],
+     "look": [
+      0,
+      1.2,
+      0
+     ],
+     "fov": 48
+    },
+    {
+     "t": 3,
+     "pos": [
+      -2.4,
+      2.2,
+      -4.0
+     ],
+     "look": [
+      0,
+      1.2,
+      0.6
+     ],
+     "fov": 48
+    }
+   ],
+   "anchors": {
+    "todo": "第 5 段 world anchors 尚未导出（数据在 stances.json 5a/5b，frame=skycity/lake）"
+   }
+  }
+ }
+}
