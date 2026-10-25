@@ -1096,13 +1096,13 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-    "bytes": 1145800,
-    "sha256": "7e52d0feab33a8a9d53f7fb491340d3b40cd7673c995e38da803301bb6c58cf0"
+    "bytes": 1144512,
+    "sha256": "7a9150c4ea6930a6ced3c221a7e03057aaf46b3bae09d1a5ad9f1ff9422cdc5b"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/sky_mooring_props.glb",
-    "bytes": 23168,
-    "sha256": "2595f20474312303a7a5407ba335cfc26b45c8ae90c378b766bd27b39e17d5e4"
+    "bytes": 13140,
+    "sha256": "c6aa91aa9dc448bcbefb5befb3403e3b3400709fb8886d1891814e600677c108"
   },
   {
     "path": "creator-build-project/assets/bundles/region_snowpass/models/SP_snowpass.glb",

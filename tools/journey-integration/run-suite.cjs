@@ -155,6 +155,7 @@ const tests=[
  ['balloon-transit-background-resume','tools/journey-integration/test-transit-background-resume.cjs'],
  ['sky-arrival','tools/transitions/test_sky_arrival.cjs'],
  ['sky-cloudsea','tools/transitions/test_sky_cloudsea.cjs'],
+ ['skycity-face-budget','tools/skycity/test_skycity_face_budget.cjs'],
  ['skycity-night-grade','tools/skycity/test_skycity_night_grade.cjs'],['skycity-board-clear','tools/skycity/test_skycity_board_clear.cjs'],
  ['lakeside-sun-continuity','tools/lakeside/test_lakeside_sun_continuity.cjs'],/* r4.2 item 7 */
  ['board-prewarm-swap','tools/board-ui/test_board_prewarm_swap.cjs'],/* r4.2 items 10/11 */
@@ -167,6 +168,7 @@ const tests=[
  ['ui-b16-fixes','tools/ui-b16-fixes/test_b16_ui_fixes.cjs'],/* UI设计部 b16: P1 signpost, P2 sky-city night key light, L13 rule guide, r6 lakeside measure_visible gate */
  ['lakeside-lens-guard','tools/journey-integration/test-lakeside-lens-guard.cjs'],/* b17r13: supersedes lakeside-lens-occlusion (LensPullIn, b17r7) */
  ['transition-spaces','tools/transition-spaces/test-transition-spaces.cjs'],/* b19: transition stance/path data (stances.json) vs d9423886 geometry */
+ ['basket-obstacles','tools/transition-spaces/test-basket-obstacles.cjs'],/* b19: state-toggled basket discs data (transition-anchors.json basketObstacles), unbaked, edges routed round */
  ['sky-exit-door-b','tools/transitions-continuous/test_sky_exit_door_b.cjs'],/* cand7: door B faces the sky deck with the landing yaw */
  ['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
 ];
