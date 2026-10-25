@@ -312,3 +312,46 @@ Source +31,011 B: SkycityLensOccluders +18,121, RegionNodeStage about +6.9 K, Is
 - Hidden swings move the lens fast (up to about 0.5 m/frame). This is yaw only and within the pitch/arm limits, but the feel on the device is unknown.
 - Walk-end facing is tested by calling walkEndView directly at (11.8, 8.2). The Mac traces had no nook walk end to replay.
 - All after-numbers are replay or harness results (real code, stubbed scene). A Mac camTrace rerun is needed.
+
+## p0drag12 (cine/p0drag12 from 74d0ae20) — 运镜bot
+All after-numbers are NOT ENGINE: they come from replaying the Mac p0drag11 camTrace through the real writeOrbit with a stubbed scene. Fixture: tools/region-nodes/fixtures_p0drag12.json.
+
+### 1. Island sign shot
+- Cause: within the 12 m arm cap, no lens pose shows both her and the whole sign.
+- Fix: `region/SignShot.ts` searches her node, the blend between her and the sign, yaw, pitch (10–35°) and arm (10–28 m). It keeps poses where:
+  - the text faces the lens within 60°, so it is never mirrored;
+  - her head and chest are clear of the island boxes and the sign;
+  - her body and the whole sign rect fit on all 7 portrait screens.
+- Result: node I6, arm 26.4 m, text 40° off-axis, smallest text about 39 px.
+- The pose is held until a drag, then glides back over 0.6 s. The arm cap is raised for this QA shot only.
+- No scene change is needed.
+
+### 2. Nook walk
+- Cause: the QA hook hold (`__qfTeleport` S3, yaw 148.5 / pitch 55) persisted through the walk, so the lens stayed fixed while she walked. The longest hidden run was 1.12–1.97 s on the Mac and 1.77–2.08 s in replay on 74d0ae20.
+- Fix 1: `walkStarted()` drops the hold when a walk starts.
+- Side effect: the walking lens was then carried through an 11 m wall for 21–24 frames, because its her-relative position counted as already "leaving" a box.
+- Fix 2: while walking, the no-entry guard also judges last frame's world lens position. Its fallback steps toward the target, slides along box faces, or pulls in toward her.
+- W1 replay, longest face/chest run during the walk plus 0.5 s, lens never inside a box:
+
+| Walk | Mac (s) | Replay on 74d0ae20 (s) | Replay now (s) |
+|---|---|---|---|
+| skd walk 1 (walk-start pillar) | 0.30 | 0.33 | 0.13 |
+| skd walk 2 | 1.12 | 1.77 | 0.17 |
+| skn walk 2 | 1.85 | 2.03 | 0.07 |
+| skn walk 3 | 1.97 | 2.08 | 0.20 |
+| skxd walks | 1.85 / 1.97 | 2.03 / 2.08 | 0.06 / 0.20 |
+
+- The walk-start pillar clears in 0.13 s.
+
+### 3. Low-angle self-check and yaw peak
+- L1: the four slow turns replayed at pitch 12° and 20°.
+  - skd po/ro and skn po: 0.27–0.35 s. (skn po at 20° was 0.43 s on 74d0ae20)
+  - skn ro: 0.59 s at 12° and 1.03/1.07 s at 20°, with 4 frames inside a box. **Known flaw.** It is reported, not gated.
+- Yaw peak, from the trace: on the Mac the written yaw peaks at 325–474°/s while the player's raw drag rate stays ≤71°/s (it is 0 at the 474°/s frame), so **the peak is ours**.
+  - Source: hidden-swing speed ×5 = 400°/s, plus the 28 m/s arc cap (about 260°/s at a 6 m arm).
+  - Lowering the ×5 cap regresses occlusion: ×4 takes p0drag10 Q1 from 0.48 s to 1.7 s; ×2.5 makes nook walks hidden for over 2 s.
+  - The speed is therefore left at ×5. Y1 is an audit only (replay +261 to +381°/s above the player's raw rate).
+
+### Tests and suite
+- test_p0drag12: W1, L1 (skn_ro reported only), Y1 (audit), S1. W1 and S1 fail on 74d0ae20. L1 gives the same numbers on 74d0ae20: it is a self-check and nothing this round changes the turns.
+- p0drag8/9/10/11, explore_arm and free_orbit still pass.
