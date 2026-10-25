@@ -616,7 +616,7 @@ export class RegionNodeStage extends Component{
      const pl=[look[0]-W0[0],look[1]-W0[1],look[2]-W0[2]],pn=Math.hypot(pl[0],pl[1],pl[2])||1,pu=[pl[0]/pn*mx,Math.max(-hy,Math.min(hy,pl[1]/pn*mx)),pl[2]/pn*mx];/* pull in toward her look point (keeps the elevation) */
      for(const m of [[1,1,1],[1,0,1],[1,0,0],[0,0,1],[1,1,0],[0,1,1],[0,1,0],[2,2,2],[0,0,0]]){const P2=m[0]===2,c:[number,number,number]=P2?[W0[0]+pu[0],W0[1]+pu[1],W0[2]+pu[2]]:[W0[0]+u[0]*m[0],W0[1]+u[1]*m[1],W0[2]+u[2]*m[2]];
       const w=sphOf(c,look);if(w.arm<A.armMinM-0.01||Math.abs(w.el-P.el)>LENS_SMOOTH.elevDegS*Math.min(0.1,dt>0?dt:0)*0.9||lensLevel(look,c,near,0)===2)continue;wsel=w;break;}}
-    if(ok(y,cy)){ge=cy;}else if(hold&&ok(py,el)){gy=py;}else if(hold&&ok(py,cy)){gy=py;ge=cy;}else if(wsel){gy=wrapDeg(wsel.yaw-r.yaw);ge=wsel.el-r.el;ga=wsel.arm-r.arm;}else if(hold){gy=py;ge=pe;}
+    if(ok(y,cy)){ge=cy;}else if(hold&&ok(py,el)){gy=py;}else if(hold&&ok(py,cy)){gy=py;ge=cy;}else if(wsel){gy=wrapDeg(wsel.yaw-r.yaw);ge=wsel.el-r.el;ga=wsel.arm-r.arm;}else{gy=py;ge=pe;}/* p0drag12 (L1 skn ro 12°: 4 frames in a house — an offset past holdMaxDeg went in): the last resort always keeps last frame's lens */
     if(gy!==y||ge!==el||ga!==a)S.pin(gy,ge,ga);a=ga;
     /* p0drag11 (replay skn ro: pinned 0.4 s against a wall while she was hidden): go round the other way */
     if(gy!==y&&hid&&!this.skyDetour)this.skyDetour=Math.sign(wrapDeg(ty-gy))>0?-1:1;}
