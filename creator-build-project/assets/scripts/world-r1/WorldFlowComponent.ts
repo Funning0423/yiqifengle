@@ -288,7 +288,7 @@ export class WorldFlowComponent extends Component {
   commands() {
     const flow=()=>{if(!this.flow)throw Error('World not initialized');return this.flow;};
     return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),pullIsland:(dy:number,scale:number)=>this.pullIsland(dy,scale),orbitIsland:(dx:number,dy:number,scale:number)=>this.orbitIsland(dx,dy,scale),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),hitCabin:(x:number,y:number)=>this.hitCabin(x,y),
-      enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
+      enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),exitLevelInPlace:(fadeS?:number)=>flow().exitLevelInPlace(fadeS),resume:()=>flow().resume(),
       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
       prepareRegion:(target:JourneyRegion)=>flow().prepareRegion(target),travelRegion:(target:JourneyRegion)=>flow().travelRegion(target),journeySnapshot:()=>flow().snapshot().journey,abandonLakesideJourney:()=>flow().abandonLakesideJourney(),
       preloadHiddenRegion:(target:JourneyRegion)=>this.preloadHiddenRegion(target),

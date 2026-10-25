@@ -2580,6 +2580,16 @@
     "sha256": "68c0600891ad9d1eb0b1f604936366b6c91b63d3fd35f177ceacd328bc2d218e"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/BasketObstacles.ts",
+    "bytes": 3293,
+    "sha256": "550836de356d46756fc6fee51241a2ba888e00d602d86764d439eb6813f92a3d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/BasketObstacles.ts.meta",
+    "bytes": 171,
+    "sha256": "093a6d6646d9695d60f6ac581bf9f30aeb9ae16206316c342a3bc29cffdbbe21"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/BgCamGate.ts",
     "bytes": 2348,
     "sha256": "115cbfcf1f8bdeb134b68460cf61dd63e927f4cce1dad8b0c235c4160d7df0de"
@@ -3120,6 +3130,26 @@
     "sha256": "5a8c601c89d5ca0edeff7c2006ebdeefceb89db240d0d70d9104bd9a354d73b8"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/SailGangway.ts",
+    "bytes": 4513,
+    "sha256": "bbb98991e8a8abad8821ad2adbc59265bad9066057d2e9932faa592b07a8d20f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailGangway.ts.meta",
+    "bytes": 171,
+    "sha256": "b61ad8f1b94b8ebd34c680ad14114d6f99dd1ba21aa7593e9c36683284cae1ec"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailGangwayExtras.ts",
+    "bytes": 541,
+    "sha256": "3c1eb041a2fd7d95e7aaea9bd6a5ba92ea6d8e585eac654f07d86e013a5fbaf4"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SailGangwayExtras.ts.meta",
+    "bytes": 171,
+    "sha256": "9ed51281226b88f3cf649228a23a2124839c630bdccfdc5d7455f4fe7085e117"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/SailLanding.ts",
     "bytes": 3814,
     "sha256": "557049c44e1f86e3a062cc857ae2d19bce4aaa4e4c635fd3ad0d3353a0f91112"
@@ -3248,6 +3278,16 @@
     "path": "creator-build-project/assets/scripts/region/SkyLakeRegister.ts.meta",
     "bytes": 171,
     "sha256": "59cd8f5f3a939645ec156471c15f497bd45f532b8c34c6297a0aa178ba3c5aae"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkyMooringRopes.ts",
+    "bytes": 1497,
+    "sha256": "fd1a3e81c63335e052f8c26b63c2e5b7d750213461534b70aaf890f9dd852ce9"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkyMooringRopes.ts.meta",
+    "bytes": 171,
+    "sha256": "77ca1e72598c4fde4a3ace5a6e5dcb9f287a422a4a5f7e9af796ba47b333400b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
@@ -4226,8 +4266,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 70332,
-    "sha256": "d7bf69c947f614a3595f1b7569f68039deb39c385947f2260c5a6faa01d36655"
+    "bytes": 70397,
+    "sha256": "145c725e5de7a9f3b061487e9076648e4cedb88346181552af32b001598f6652"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -4236,8 +4276,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 63622,
-    "sha256": "ef9ac51b1c7c458aa69828ec5e3b279847a3b1a7b3c9094cacd9eeb7cb642010"
+    "bytes": 65143,
+    "sha256": "a2db4fbcab36b2e97704b131bd3e00aedaf50ff4f89eabe03f1b8c5d86b637b1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -4481,8 +4521,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 7230,
-    "sha256": "ae9311ea4d6baaad70b2cb5630519c9acf2de57728b7e583a37b901b34e76231"
+    "bytes": 8001,
+    "sha256": "f3c08b745cb7bd533400b7d9b624413a92232868876da914be38522834f289c4"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
@@ -4621,8 +4661,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 49111,
-    "sha256": "9a64a1192bd86533af63e7d1ac0961e63e2480d2acc5273165a24342b8733aec"
+    "bytes": 49399,
+    "sha256": "19c0da41ab500cbbdb6b81ffd490b2db29e2aacb272446a3b98aec8134507e4b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4751,8 +4791,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 21370,
-    "sha256": "1db60e5cad7a37d0580ff0deb1958e7cac003c6c2ea105b1b508585cb8848013"
+    "bytes": 21450,
+    "sha256": "23de2dec5e251768ab783993a71a4ab910aa0b98b2fe3ae5cb7c9ad0e151fa18"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

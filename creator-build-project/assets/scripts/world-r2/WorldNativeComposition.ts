@@ -244,7 +244,7 @@ export class WorldNativeComposition extends Component {
     const w=this.world?.commands();if(!w||w.snapshot().state!=='level')return true;
     const actor=this.boundCharacter as any,had=actor&&Object.prototype.hasOwnProperty.call(actor,'__qfWalkTail'),prev=actor?.__qfWalkTail;
     if(actor&&!prev)actor.__qfWalkTail={done:Promise.resolve(),holdForFinale:true}/* RegionJourneyCore.restore(): keep her where the finale left her */;
-    let r:any;try{r=w.exitLevel();}catch(error){r={ok:false,reason:String(error)};}
+    let r:any;try{const inPlace=(w as any).exitLevelInPlace;r=typeof inPlace==='function'?inPlace()/* skyfix: no restore(), board fades */:w.exitLevel();}catch(error){r={ok:false,reason:String(error)};}
     finally{if(actor&&!prev){if(had)actor.__qfWalkTail=prev;else delete actor.__qfWalkTail;}}
     try{(this.stage() as any)?.holdFinaleView?.();}catch{/* optional */}
     if(!r?.ok)console.warn('[QF_TRANSITION] sky finale board exit refused '+String(r?.reason));
@@ -259,7 +259,7 @@ export class WorldNativeComposition extends Component {
         if(!this.stillInSkycity())return res??{ok:false,reason:'continuous-null'};
         reason=String(res?.reason??'continuous-null');break;}}
     // bounded fallback: the continuous path declined / returned null / threw while she is still in sky city → the WindWipe ride, logged
-    if(this.skyContinueHandlers.length)recordFallback('lakeside',(Date.now()-t0)/1000,'sky-finale:'+reason);
+    if(this.skyContinueHandlers.length){const n=recordFallback('lakeside',(Date.now()-t0)/1000,'sky-finale:'+reason);console.warn('[QF_TRANSITION_FALLBACK] !!! sky finale → lakeside fell back to WindWipe (#'+n+', reason '+reason+'). Acceptance requires 0 — report this.');}
     return withLegacyTransition(()=>this.enterMainline());}
   private stillInSkycity(){try{const s=this.world?.commands().snapshot();return !!s&&(s.state==='skycity'||s.state==='level'&&s.journey?.region==='skycity');}catch{return false;}}
   /** 继续旅程: from the held sky finale go through the continuation hook; elsewhere the plain mainline entry. */

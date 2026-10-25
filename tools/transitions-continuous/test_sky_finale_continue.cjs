@@ -72,13 +72,15 @@ let n=0,fail=0;const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}cat
   assert.ok(mainlineShown(R.snap),'继续旅程 visible (state '+R.snap.state+')');
   await R.c.continueJourney();for(let i=0;i<20;i++)await new Promise(r=>setImmediate(r));
   assert.deepEqual(travels(R.ev),[['travel','lakeside','continuous']],'button started: '+JSON.stringify(R.ev));
-  assert.equal(globalThis.__QF_TRANSITION_FALLBACK.count,0);});
+  assert.equal(globalThis.__QF_TRANSITION_FALLBACK.count,0,'(b) 0 WindWipe fallbacks');});
  for(const [name,mk] of [['returns null',()=>()=>null],['throws',()=>()=>{throw Error('boom');}],['resolves null',()=>()=>Promise.resolve(null)],['enterMainline rejects',null]]){
   await T('(c) bounded fallback when the continuous path '+name+': she still leaves sky city via WindWipe, logged',async()=>{
    const R=rig();
    if(mk){R.off();R.c.onSkyFinaleContinue(mk());}
    else{const real=R.c.enterMainline.bind(R.c);let first=true;R.c.enterMainline=async()=>{if(first){first=false;throw Error('start failed');}return real();};}
-   await R.c.claimRegionAndWalk(3);await R.run(3.6);
+   const warns=[],w0=console.warn;console.warn=(...a)=>{warns.push(a.join(' '));};
+   try{await R.c.claimRegionAndWalk(3);await R.run(3.6);}finally{console.warn=w0;}
+   assert.ok(warns.some(x=>x.includes('[QF_TRANSITION_FALLBACK]')&&x.includes('Acceptance requires 0')),'loud tagged warn');assert.ok(warns.some(x=>x.includes('[QF_TRANSITION] WindWipe fallback #1')),'counted warn');
    assert.deepEqual(travels(R.ev),[['travel','lakeside','windwipe']],JSON.stringify(R.ev));
    assert.equal(globalThis.__QF_TRANSITION_FALLBACK.count,1,'fallback logged once');
    assert.equal(globalThis.__QF_TRANSITION_FALLBACK.events[0].leg,'lakeside');
