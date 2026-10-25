@@ -54,6 +54,7 @@ const tests=[
  ['cconb-bin-only','tools/test_cconb_bin_only.cjs'],
  ['fade-cover-alpha','tools/test_fade_cover_alpha.cjs'],
  ['windwipe-ending','tools/windwipe/test_windwipe.cjs'],
+ ['region-arrival-title','tools/region-title/test_region_title.cjs'],
  ['t03-arrival','tools/t03/test_t03_arrival.cjs'],
  ['result-chest-handoff','tools/board-ui/test_result_chest_handoff.cjs'],
  ['result-float-lift','tools/board-ui/test_result_float_lift.cjs'],

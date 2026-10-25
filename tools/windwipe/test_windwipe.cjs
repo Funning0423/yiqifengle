@@ -18,7 +18,7 @@ function clock(){let t=0;const log=[];const self={log,now:()=>t,wait:async s=>{t
  {const c=clock();const r=await W.runWindWipe(c,{content:W.wipeContentFor('meadow'),work:async()=>({ok:true}),ready:()=>true});
   assert.equal(r.ok,true);assert(Math.abs(r.outS-.45)<1e-9);assert(r.holdS>=1.10-1e-9&&r.holdS<1.10+1/60+1e-9,'hold '+r.holdS);assert(Math.abs(r.inS-.55)<1e-9);
   const ao=c.log.find(x=>x[0]==='audioOut'),ai=c.log.find(x=>x[0]==='audioIn');assert.equal(ao[1],.45);assert.equal(ao[2],0);assert(ai[2]>=.45+1.10-1e-6);
-  assert.deepEqual(c.log.find(x=>x[0]==='content').slice(1),['sailboat','花粉草甸']);ok('fast load: out 0.45 + hold '+r.holdS.toFixed(3)+' + in 0.55; music out with cover, in at reveal');}
+  assert.deepEqual(c.log.find(x=>x[0]==='content').slice(1),['sailboat',null]);ok('fast load: out 0.45 + hold '+r.holdS.toFixed(3)+' + in 0.55; music out with cover, in at reveal');}
  // 3 slow load (3.2 s): hold extends, cover never lifts before load + ready
  {const c=clock();let loaded=false;const r=await W.runWindWipe(c,{work:async()=>{await c.wait(3.2);loaded=true;return {ok:true};},ready:()=>loaded});
   assert.equal(r.slowLoad,true);assert(r.holdS>=3.2);const lift=c.log.find(x=>x[0]==='cover'&&x[1]===0);assert(lift[3]>=.45+3.2-1e-6,'lifted at '+lift[3]);assert.equal(r.readyAtReveal,true);
@@ -46,8 +46,8 @@ function clock(){let t=0;const log=[];const self={log,now:()=>t,wait:async s=>{t
  {const c=clock();let placed=false;const r=await HT.runHomeTransition({now:c.now,wait:s=>s>=5?new Promise(()=>{}):c.wait(s),cover:c.cover,audioOut:()=>{},audioIn:()=>{},audioRestore:()=>{},act:async()=>{setTimeout(()=>{},0);placed=false;return {ok:true};},state:()=>'home',ready:()=>{const t=c.now();if(t>=1.4)placed=true;return placed;}},HT.HOME_FADE);
   assert.equal(r.ok,true);const lift=c.log.find(x=>x[0]==='cover'&&x[1]===0);assert(lift[3]>=1.4-1e-9,'home lifted at '+lift[3]);ok('home: hold ≥0.5 s and until home lens ready ('+lift[3].toFixed(2)+' s)');}
  // 9 hold content per transition
- assert.deepEqual(W.wipeContentFor('meadow'),{vehicle:'sailboat',sign:'花粉草甸'});assert.deepEqual(W.wipeContentFor('skycity'),{vehicle:'balloon',sign:'天空之城'});
- assert.deepEqual(W.wipeContentFor('lakeside'),{vehicle:'balloon',sign:'风铃湖畔'});assert.equal(W.wipeContentFor('ending').vehicle,'chime');ok('hold content: one vehicle + one sign per destination');
+ assert.deepEqual(W.wipeContentFor('meadow'),{vehicle:'sailboat',sign:null});assert.deepEqual(W.wipeContentFor('skycity'),{vehicle:'balloon',sign:null});
+ assert.deepEqual(W.wipeContentFor('lakeside'),{vehicle:'balloon',sign:null});assert.equal(W.wipeContentFor('ending').vehicle,'chime');assert.equal(W.wipeContentFor('island').sign,null);ok('hold content: one vehicle, no place-name sign (region-title SPEC §1)');
  // 10 every cover path routes through the WindWipe renderer + ScreenCover (no second black cover in scripts)
  {const scripts=require('node:child_process').execSync("git grep -nI 'new Color(0, *0, *0, *a)\\|g.fillColor=new Color(0,0,0' -- "+S+" || true").toString().trim();
   assert.equal(scripts,'','black full-screen fills left: '+scripts);const rj=src('world-r1/RegionJourneyCore.ts');assert(/holdCover\(world,token\)/.test(rj)&&/coverAudioOut\(SETOFF_FADE\.outS\)/.test(rj)&&/coverAudioIn\(SETOFF_FADE\.inS\)/.test(rj));

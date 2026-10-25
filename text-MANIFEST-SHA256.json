@@ -1941,8 +1941,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 99447,
-    "sha256": "7cbd1acae502d8c9fb8c34043347c8ae259e951cfe8045f8089d81b5d1e21f37"
+    "bytes": 101863,
+    "sha256": "c892edbdfb5cc597ad42beeddb5e39100a6d0f37f72d41a2afc3eaa1c0ee7cab"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -3811,8 +3811,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/LakesideArrivalUI.ts",
-    "bytes": 6895,
-    "sha256": "e0974c40104b9f7fea81bdcec27cc868cef72cb136a8513195bfdb658466b9ed"
+    "bytes": 5520,
+    "sha256": "f7375a3d04981450ecede9535379e609356957324ce96df6059392d36fb06204"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/LakesideArrivalUI.ts.meta",
@@ -3901,8 +3901,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WindWipe.ts",
-    "bytes": 13116,
-    "sha256": "f94679bd71b311189d80c94a979eee9571b48b00561726d9016cc9ab695fa77f"
+    "bytes": 12380,
+    "sha256": "33be9477676e891ca6da8ec807b9078c718256f97b9a37bf8e3aef82d84a2e45"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WindWipe.ts.meta",
@@ -4441,8 +4441,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WindWipeCore.ts",
-    "bytes": 10331,
-    "sha256": "b6b3c7922e7f13f9d56c3f503188e35936170b79c2e6d095abb26992f1e32ecb"
+    "bytes": 10528,
+    "sha256": "0a17b45964a993f5c4f118dd7152f17e659176c7a86a5f9209561b94814ca0fe"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WindWipeCore.ts.meta",
@@ -4581,8 +4581,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 20050,
-    "sha256": "e0bf1603ebf43072075e6b67dfd26ea13358626b16ff704818d27f37e8daf230"
+    "bytes": 20120,
+    "sha256": "c8f2643d1ec5d4fd8ad69f8600897708e7645502740027f88d59ceff5124567b"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

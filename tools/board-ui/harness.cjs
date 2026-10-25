@@ -133,7 +133,7 @@ function createCc(state) {
   const property = (...a) => (a.length >= 2 && typeof a[1] === 'string') ? undefined : () => {};
   return {
     Emitter, Vec2, Vec3, Quat, Color, Size, Rect, Component, Node, UITransform, Sprite, Label, Graphics, UIOpacity, BlockInputEvents, Mask, ScrollView, Canvas, Camera, MeshRenderer, SphereLight, EventTouch,
-    ImageAsset, Texture2D, SpriteFrame, TextAsset, Prefab, Material, RenderTexture, JsonAsset, AudioSource, AudioClip,
+    ImageAsset, Texture2D, SpriteFrame, TextAsset, Prefab, Material, RenderTexture, JsonAsset, AudioSource, AudioClip, TTFFont: class TTFFont { },
     Director: { EVENT_AFTER_SCENE_LAUNCH: 'director_after_scene_launch' }, game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, view, ResolutionPolicy: { EXACT_FIT: 1 }, Layers: { Enum: { UI_2D: 1 << 25, DEFAULT: 1 } }, director, sys, assetManager, AssetManager: {}, resources,
     isValid: (o, strict) => !!o && o.isValid !== false, profiler: { hideStats() {} }, _decorator: { ccclass: () => c => c, property }, tween, Tween, input, Input: { EventType: { TOUCH_START: 'touch-start' } },
     instantiate: p => new Node('Instance'), geometry: { Ray: class { constructor() { this.o = new Vec3(); this.d = new Vec3(); } }, ERaycastMode: { ANY: 0, CLOSEST: 1 }, intersect: { rayModel: () => 0 } },
