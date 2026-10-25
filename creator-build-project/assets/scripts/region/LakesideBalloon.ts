@@ -438,12 +438,19 @@ export function lakesideDoorLens(walk:readonly Vec[],basket?:Vec,aspect=390/844,
   const c=Math.abs(ymn-aimLo)*4+Math.abs((xmn+xmx)/2)*2+Math.max(0,.55-(ymx-ymn))*3;if(c<bc){bc=c;best=P;}}
  return best||lakesideDoorLensAt(walk,k.aheadM,k.sideM,k.upM,k.lookUpM,k.fovDeg,outM);
 }
-/** T-03 (Grok Bot 2026-10-25, UI SPEC §6): the place-name sign 「风铃湖畔」 (GGbot) shows at touchdown + signAtS for signS; the
- *  board view must be reached within boardWithinS after it is dismissed, i.e. by touchdown + lakesideBoardByS() (5.8 s).
- *  Touchdown = LakesideBalloonRide.T seconds from the segment start (her first step in the skycity); the adapter emits
- *  `event` on director at that moment ({atS: ride.T}) and sets globalThis.__qfLakesideTouchdownAt (game seconds). */
-export const LAKESIDE_TOUCHDOWN={signAtS:1.8,signS:3.0,boardWithinS:1.0,event:'qf-lakeside-touchdown',/** aim pull toward her in the wide → board blend (b16 door blend: 0.3; ω ≤ 20°/s) */blendAimPull:.15} as const;
-export function lakesideBoardByS(k=LAKESIDE_TOUCHDOWN):number{return k.signAtS+k.signS+k.boardWithinS;}
+/** T-03 (Grok Bot 2026-10-25, UI SPEC §6, option B): the place-name sign 「风铃湖畔」 (GGbot) shows at touchdown + signAtS for signS;
+ *  the wide touchdown lens holds her (stand-up, door, step-out) under the sign, and the door → board blend starts
+ *  blendAfterSignS after the sign is dismissed (lakesideBoardBlendAtS(), 5.3 s) and lands on the accepted board view when her
+ *  walk reaches the board entry distance (she stays in frame; ≈ touchdown + 11–12 s). Touchdown = LakesideBalloonRide.T seconds
+ *  from the segment start (her first step in the skycity); the adapter emits `event` on director ({atS: ride.T}) and sets
+ *  globalThis.__qfLakesideTouchdownAt. Option C (walk-out by +2 s, board by ≤ +6.5 s) needs ≈ 1.4 m/s over her 6.4 m exit
+ *  walk (clip band ≤ 0.91 m/s), so it is not used. */
+export const LAKESIDE_TOUCHDOWN={signAtS:1.8,signS:3.0,blendAfterSignS:.5,event:'qf-lakeside-touchdown',/** aim pull toward her in the wide → board blend (b16 door blend: 0.3; ω ≤ 20°/s) */blendAimPull:.15,/** extra blend time after her walk reaches the board entry distance (she is well inside before the lens settles) */blendPadS:1.5} as const;
+/** Touchdown → board blend start (s). */
+export function lakesideBoardBlendAtS(k=LAKESIDE_TOUCHDOWN):number{return k.signAtS+k.signS+k.blendAfterSignS;}
+/** Blend length: the SPEC rule (lakesideDoorBlendS) or her walk from `walkedM` to the board entry distance, whichever is longer. */
+export function lakesideBoardBlendDurS(wide:Pose,land:Pose,walkedM:number,entryM:number,walkMps:number):number{
+ return Math.max(lakesideDoorBlendS(wide,land),Math.max(0,entryM-walkedM)/Math.max(.1,walkMps)+LAKESIDE_TOUCHDOWN.blendPadS);}
 /** T-03 lake surface samples (LK_lake_i, water y) as world offsets from the mooring (the lakeside root is fixed). */
 export const LAKESIDE_DOOR_LAKE_OFFS:ReadonlyArray<readonly [number,number,number]>=[[-1.31,-.6,-3.83],[4.94,-.6,1.8],[-5.47,-.6,-1.95],[4.94,-.6,-3.83],[-5.47,-.6,3.67],[.78,-.6,-7.58],[7.03,-.6,3.67],[-7.56,-.6,-3.83]];
 /** T-03 wide touchdown lens (review: "basket fills the frame, no lake"): orbit search round the basket for a lens that holds the
@@ -451,10 +458,11 @@ export const LAKESIDE_DOOR_LAKE_OFFS:ReadonlyArray<readonly [number,number,numbe
  *  floor (lakesideRimLift = identity, so the turn-in still lands exactly), and is close enough to the board pose `land` that
  *  the door → board blend fits in maxBlendS (ω ≤ 19°/s, α ≤ 110°/s², |a| ≤ 2.7 m/s², smootherstep). Largest basket wins.
  *  Returns the lens and the blend length it needs, or null (callers fall back to lakesideDoorLens). */
-export function lakesideDoorWideLens(walk:readonly Vec[],basket:Vec,land:Pose,aspect=390/844,safe?:{top:number;bottom:number;h:number},maxBlendS=lakesideBoardByS()-.4,outM:number=LAKESIDE_DOOR_HOLD.outM):{lens:Pose;blendS:number}|null{
+export function lakesideDoorWideLens(walk:readonly Vec[],basket:Vec,land:Pose,aspect=390/844,safe?:{top:number;bottom:number;h:number},maxBlendS=5.4,outM:number=LAKESIDE_DOOR_HOLD.outM):{lens:Pose;blendS:number}|null{
  let yLo=-.9,yHi=.9;if(safe&&safe.h>0){yLo=Math.max(yLo,-1+2*(safe.bottom+13)/safe.h);yHi=Math.min(yHi,1-2*(safe.top+13)/safe.h);}
  const body:Vec[]=[];for(const x of [-1,1])for(const z of [-1,1])for(const y of [0,1.25])body.push([basket[0]+x,basket[1]+y,basket[2]+z]);
  const q=sampleRoute(walk as Vec[],outM);for(const p of [walk[0],q])for(const dx of [-.3,.3])for(const dz of [-.3,.3])for(const y of [0,1.73])body.push([p[0]+dx,p[1]+y,p[2]+dz]);
+ for(const dx of [-.45,.45])for(const dz of [-.45,.45])for(const y of [.1,1.3])body.push([basket[0]+dx,basket[1]+y,basket[2]+dz])/* her seated box at touchdown */;
  const lake=LAKESIDE_DOOR_LAKE_OFFS.map(o=>[basket[0]+o[0],basket[1]+o[1],basket[2]+o[2]] as Vec),lf=unit(land.position,land.target),seat:Vec=[basket[0],basket[1]+LAKESIDE_SEATED_CHEST_M,basket[2]];
  const c:Vec=[basket[0],basket[1]+1,basket[2]];let best:{lens:Pose;blendS:number}|null=null,bc=1e9;
  for(let az=0;az<360;az+=5)for(let el=25;el<=55;el+=5)for(let D=6;D<=16;D+=1)for(const fov of [50,56])for(const ax of [-2,0,2])for(const ay of [-1,0,1]){
@@ -462,13 +470,13 @@ export function lakesideDoorWideLens(walk:readonly Vec[],basket:Vec,land:Pose,as
   const f0=unit(P,c),r0l=Math.hypot(f0[0],f0[2])||1,lens:Pose={position:P,target:[c[0]-f0[2]/r0l*ax,c[1]+ay,c[2]+f0[0]/r0l*ax],fovVerticalDeg:fov};
   const f=unit(P,lens.target),rl=Math.hypot(f[0],f[2])||1,r:Vec=[-f[2]/rl,0,f[0]/rl],u:Vec=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan(fov*Math.PI/360);
   const nd=(p:Vec)=>{const v=[p[0]-P[0],p[1]-P[1],p[2]-P[2]],z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];return [(v[0]*r[0]+v[2]*r[2])/(z*th*aspect),(v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th),z];};
-  let ok=true,ymn=9,ymx=-9;for(const p of body){const n=nd(p);if(n[2]<2||Math.abs(n[0])>.85||n[1]<yLo||n[1]>yHi){ok=false;break;}ymn=Math.min(ymn,n[1]);ymx=Math.max(ymx,n[1]);}
+  let ok=true,ymn=9,ymx=-9;for(let bi=0;bi<body.length;bi++){const n=nd(body[bi]);if(n[2]<2||Math.abs(n[0])>.85||n[1]<yLo||n[1]>yHi||(bi>=8&&n[0]>.52)/* her box: right edge ≤ 76 % of the width (route F2 80 %) */){ok=false;break;}ymn=Math.min(ymn,n[1]);ymx=Math.max(ymx,n[1]);}
   if(!ok||ymx-ymn<.45)continue;
   let li=0;for(const p of lake){const n=nd(p);if(n[2]>0&&Math.abs(n[0])<.95&&n[1]>yLo&&n[1]<yHi)li++;}if(li<3)continue;
   if(lakesideRimLift(lens,seat)!==lens)continue;
   const ang=Math.acos(Math.max(-1,Math.min(1,f[0]*lf[0]+f[1]*lf[1]+f[2]*lf[2])))*180/Math.PI,gap=seg(P,land.position as Vec);
   const need=Math.max(1.875*ang/19,Math.sqrt(5.7735*ang/110),Math.sqrt(5.7735*gap/2.7));if(need>maxBlendS)continue;
-  const cst=Math.abs((ymx-ymn)-.7)*4+need*.3/* body block ≈ 35 % of the frame height: .9 let the turn-in cross a rigging strut on 390x520 / 768x1024 (route O1) */;if(cst<bc){bc=cst;best={lens,blendS:Math.max(need,1)};}}
+  const cst=Math.abs((ymx-ymn)-.5)*4+need*.3/* body block ≈ 25 % of the frame height (option B: .6 let her face cross the basket rim for a frame in the step-out, .7 let the envelope hide her for 1.2 s in the board blend; .9 let the turn-in cross a rigging strut on 390x520 / 768x1024 (route O1) */;if(cst<bc){bc=cst;best={lens,blendS:Math.max(need,1)};}}
  return best;
 }
 /** Ride lens with the door-shot ending (see LAKESIDE_DOOR_HOLD): R.camera until the old blend-out window (from there the

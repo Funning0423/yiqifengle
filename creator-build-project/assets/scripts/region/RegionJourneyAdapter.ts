@@ -15,7 +15,7 @@ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {LAKESIDE_CAMERA_LAYOUT,lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideQaAdvance} from './LakesideQaShot';
-import {LAKESIDE_TOUCHDOWN,lakesideBoardByS,lakesideDoorWideLens,LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendDurS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,lakesideNearestWalkable,LAKESIDE_PATH_V4,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
+import {LAKESIDE_TOUCHDOWN,lakesideBoardBlendAtS,lakesideBoardBlendDurS,lakesideDoorWideLens,LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendDurS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,lakesideNearestWalkable,LAKESIDE_PATH_V4,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
 import {arrivalPose} from '../world-r1/RegionJourneyCore';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
@@ -215,7 +215,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const clock={t:0,hiddenFor:0,fade:0};
   let lastPose:Pose|null=null;
   const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
-  const doorVs=view.getVisibleSize(),doorWide=lakesideDoorWideLens(moored.walk,moored.mooring,landPose,doorVs.width/Math.max(1,doorVs.height),{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* T-03: pulled back, lake + her whole body in frame, board reachable by touchdown + lakesideBoardByS() */,doorLens=doorWide?doorWide.lens:lakesideDoorLens(moored.walk,moored.mooring,doorVs.width/Math.max(1,doorVs.height),undefined,undefined,{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* b16 item 6: safe insets (route F3) *//* b15 door shot: where the ride lens arrives at touchdown */;
+  const doorVs=view.getVisibleSize(),doorWide=lakesideDoorWideLens(moored.walk,moored.mooring,landPose,doorVs.width/Math.max(1,doorVs.height),{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* T-03: pulled back, lake + her whole body in frame, held under the place-name sign, option B */,doorLens=doorWide?doorWide.lens:lakesideDoorLens(moored.walk,moored.mooring,doorVs.width/Math.max(1,doorVs.height),undefined,undefined,{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* b16 item 6: safe insets (route F3) *//* b15 door shot: where the ride lens arrives at touchdown */;
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const ticker=rig.addComponent(LakesideBalloonTicker);
    const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
@@ -280,13 +280,17 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // (LAKESIDE_DOOR_HOLD.outM along the moored walk, or a game-time cap); only then does the controller arrive and the board
    // fade in, still overlapping the rest of her (offscreen) walk to the shore.
    let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
-   // T-03: with the wide touchdown lens the board blend starts by itself at touchdown + (boardBy − its length), so the board view
-   // is reached 1 s after the place-name sign leaves (UI SPEC §6); game time, frame step clamped to 0.1 s like WorldFlowComponent;
-   // the blend runs here (before draw), independent of the stand-up / get-out ticker, so it is on time whatever she is doing
-   const boardByS=lakesideBoardByS();let sinceTouch=0,wideU=0;
+   // T-03 option B: the wide touchdown lens holds under the place-name sign; the board blend starts by itself at touchdown +
+   // lakesideBoardBlendAtS() (0.5 s after the sign leaves) and runs until her walk reaches the board entry distance, so she stays
+   // in frame; game time, frame step clamped to 0.1 s like WorldFlowComponent; driven here (before draw), independent of the
+   // stand-up / get-out ticker
+   const blendAtS=lakesideBoardBlendAtS();let sinceTouch=0,wideU=0,wideDur=-1;
    const hold=()=>{if(dead)return;sinceTouch+=Math.min(.1,Math.max(0,director.getDeltaTime()));
-    if(doorWide){const u=(sinceTouch-(boardByS-doorWide.blendS))/doorWide.blendS;if(u>0){wideU=Math.min(1,u);const gp=girl&&isValid(girl,true)?girl.worldPosition:null;
-     lastPose=wideU>=1?landPose:lakesideDoorBlendPose(doorLens,landPose,wideU,gp?[gp.x,gp.y,gp.z]:undefined,LAKESIDE_TOUCHDOWN.blendAimPull);if(wideU>=1)outOk();}}
+    if(doorWide&&sinceTouch>=blendAtS){const gp=girl&&isValid(girl,true)?girl.worldPosition:null;
+     if(wideDur<0){const vs2=view.getVisibleSize(),w=(actor as any).walkProgress?.(),walked=typeof w==='number'&&isFinite(w)?Math.max(0,w)*moored.length:0;
+      wideDur=lakesideBoardBlendDurS(doorLens,landPose,walked,lakesideBoardEntryM(moored.walk,landPose,vs2.width/Math.max(1,vs2.height),walked),moored.mps);}
+     wideU=Math.min(1,(sinceTouch-blendAtS)/wideDur);
+     lastPose=wideU>=1?landPose:lakesideDoorBlendPose(doorLens,landPose,wideU,gp?[gp.x,gp.y,gp.z]:undefined,LAKESIDE_TOUCHDOWN.blendAimPull);if(wideU>=1)outOk();}
     if(lastPose)world.setCamera(lastPose);};director.on(Director.EVENT_BEFORE_DRAW,hold);
    // b15 stand-up v1b: on the seat (where she rode) sit_hold → HARD CUT stand_up (REPORT: start_pose = sit_hold f0, no crossfade;
    // 1.2667 s time clock, root carried seat → P0 along the facing by stand_up root_motion.forward_m (LAKESIDE_STANDUP)) → crossfade 0.2 into idle at P0 facing the door (cancelAndReset
