@@ -330,7 +330,7 @@ export class RegionNodeStage extends Component{
  /** Departure (auto or 继续旅程): she turns and walks to the basket; from here gestures are swallowed so the walk is never interrupted. */
  private departAt=0;
  markFinaleDeparture(now=Date.now()){this.disarmFinale();this.departAt=now;try{(globalThis as any).__QF_SKY_DEPARTURE={at:now};}catch{}}
- finaleDeparting(now=Date.now()){return this.departAt>0&&this.region==='skycity'&&now-this.departAt<SKY_DEPARTURE.departGuardMaxS*1000;}
+ finaleDeparting(now=Date.now()){return SKY_DEPARTURE.ignoreGesturesAfterWalk&&this.departAt>0&&this.region==='skycity'&&now-this.departAt<SKY_DEPARTURE.departGuardMaxS*1000;}
  private wipeHooks:(()=>void)[]=[];
  onDestroy(){this.disarmFinale();for(const u of this.wipeHooks.splice(0))try{u();}catch{}}
  private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
@@ -952,7 +952,7 @@ export class RegionNodeStage extends Component{
  }
 
  onGesture(gesture:Gesture,x:number,y:number){
-  if(SKY_DEPARTURE.ignoreGesturesAfterWalk&&this.finaleDeparting())return/* seg 5 walk started: no nudge, no skipWalk */;
+  if((this as any).finaleDeparting?.())return/* seg 5 walk started (SKY_DEPARTURE.ignoreGesturesAfterWalk): no nudge, no skipWalk */;
   if(this.finaleArm&&(gesture==='drag'||gesture==='pinch'||gesture==='tap'))this.disarmFinale()/* T-02: the player took over */;
   const live=this.exploring&&!this.anim&&(this.lens==='MapExplore'||this.lens==='FollowWalk');
   if(!live){

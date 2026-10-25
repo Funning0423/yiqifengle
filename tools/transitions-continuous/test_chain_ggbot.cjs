@@ -118,7 +118,7 @@ assert.ok(/kind:'stand',seat:seatDef/.test(bal)&&/guardBeforeWalk\(anim,'B5 stan
  b.button();assert.equal(b.state,'walking');assert.equal(b.startedBy,'button');assert.equal(went,2,'继续旅程 starts the turn + walk');
  const c=new SD.FinaleDeparture(()=>went++);c.step(2.5);c.gesture('pinch');c.step(10);assert.equal(went,2,'pinch during the gaze also holds');
  const stg=src('world-r2/RegionNodeStage.ts');assert.ok(/finaleAutoContinueAtS\(this\.finaleApproachS\)\*1000/.test(stg),'stage auto-continue = ease-in + gaze');
- assert.ok(/onGesture\(gesture:Gesture,x:number,y:number\)\{\n  if\(SKY_DEPARTURE\.ignoreGesturesAfterWalk&&this\.finaleDeparting\(\)\)return/.test(stg),'stage swallows gestures once she departs');
+ assert.ok(/onGesture\(gesture:Gesture,x:number,y:number\)\{\n  if\(\(this as any\)\.finaleDeparting\?\.\(\)\)return/.test(stg)&&/finaleDeparting\(now=Date\.now\(\)\)\{return SKY_DEPARTURE\.ignoreGesturesAfterWalk&&/.test(stg),'stage swallows gestures once she departs');
  assert.ok(/stage\?\.markFinaleDeparture\?\.\(\)/.test(comp),'auto and 继续旅程 both mark the departure (continueFromSkyFinale)');
  assert.ok(comp.includes('continueJourney(){return this.skyFinaleActive()?this.continueFromSkyFinale()'),'继续旅程 button kept');
  assert.ok(fs.existsSync(path.join(ROOT,'creator-build-project/assets/scripts/region/SkyFinaleDeparture.ts.meta'))&&!/@ccclass\(/.test(src('region/SkyFinaleDeparture.ts')));
