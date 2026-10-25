@@ -19,7 +19,8 @@
   3. **热气球**：`gbt/r5-balloon-meadow-sky`，提示词见 `cli-task-balloon.md`。
      - 路线：风车门前 M6 起飞 → 爬升穿过云层 → 天空之城前沿草坪 S0 降落 → 走到 S1（mainline-09）。
      - **时长目标 30 s，上限 38.9 s**。Build05 的 08→09 是 36.9 s，上限是它加 2 s。
-- **彩虹桥不删，只用开关关掉**：`JOURNEY_TRANSPORT.<leg>='sail'|'balloon'|'bridge'`，见 §11。旧路线一字不改，作为 fallback 保留。
+- **（2026-10-25 现状）彩虹桥已在 b16 去掉**：`region/JourneyTransport.ts` 只剩 `'sail'|'balloon'`（海岛→草甸帆船，草甸→天空之城、天空之城→湖畔热气球），其他组合抛 `journey-transport-unsupported`；下面这条和 §11 是当时的方案记录。产品设计文档 product/2026-10-15/DESIGN.md §4.2/§4.5/§4.6 已同步。
+- ~~**彩虹桥不删，只用开关关掉**~~：`JOURNEY_TRANSPORT.<leg>='sail'|'balloon'|'bridge'`，见 §11。旧路线一字不改，作为 fallback 保留。
 - **冻结文件不碰**：
   - 女孩的动作只用现有的 `CharacterAdapter.perform({kind:'walk'|'sit'|'stand'|'turn'})` 和现有动画片段：`sit_down` 1.2 s、`sit_hold`、`stand_up` 1.27 s、`idle_breathing_loop`、`walk_*`。
   - 骑乘时，把她的根节点挂到载具的座位节点下（`keepWorldTransform`），见 §12。
@@ -589,7 +590,7 @@ stateDiagram-v2
 
 ---
 
-## 11. 彩虹桥开关（不删）
+## 11. 彩虹桥开关（不删）——历史记录，b16 已去掉彩虹桥
 
 ```ts
 // region/JourneyTransport.ts
