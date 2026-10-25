@@ -6,7 +6,7 @@ import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, di
 import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
-import { createRegionFlowCheckpoint } from './RegionFlowTest';
+import { createRegionFlowCheckpoint, seedLakeCheckpoint } from './RegionFlowTest';
 import { QA_SKIP_CHECKPOINT, qaSkipTarget, qaQuery, type QaSkipTarget } from './QaSkip';
 import { preTransitionEnabled } from './PreTransitionKeys';
 import { qaTransportEnabled } from '../region/JourneyTransport';
@@ -309,13 +309,14 @@ export class WorldNativeComposition extends Component {
   /** Test-only pre-transition setup (PreTransitionRun): swap in an isolated, engine-replayed profile (real saves untouched),
    *  `completed` stages with the last one paused one move short (finish=false) or registered (finish=true). Same host gate as
    *  __qfTeleport; refuses in WeChat release. Moves nobody: the caller drives the world through the normal commands. */
-  preTransitionProfile(completed:number,finish:boolean):Result{
+  preTransitionProfile(completed:number,finish:boolean,lake?:{stageId:string;mode:'win'|'lose'}):Result{
     if(!preTransitionEnabled())return {ok:false,reason:'pre-transition-disabled'};
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
-    let profile:any;try{profile=createRegionFlowCheckpoint(completed,{allowQa:true,finish,anyCheckpoint:true});}catch(e){return {ok:false,reason:String((e as Error).message)};}
+    let profile:any,lk:any=null;try{profile=createRegionFlowCheckpoint(completed,{allowQa:true,finish,anyCheckpoint:true});if(lake)lk=seedLakeCheckpoint(profile,lake.stageId,lake.mode,{allowQa:true});}catch(e){return {ok:false,reason:String((e as Error).message)};}
     if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
     this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;this.hostReply=null;
-    try{console.info('[QF_PRE] profile '+JSON.stringify({namespace:profile.namespace,completed,finish}));}catch{}
+    try{console.info('[QF_PRE] profile '+JSON.stringify({namespace:profile.namespace,completed,finish,lake:lk&&{stageId:lk.stageId,seed:lk.seed,cleared:lk.cleared}}));}catch{}
+    if(lk)return {ok:true,stageId:lk.stageId,seed:lk.seed,lastAction:lk.lastAction,cleared:lk.cleared} as any;
     return {ok:true,stageId:profile.stageId,seed:profile.seed,lastAction:profile.lastAction} as any;
   }
   exitQaSkip():Result{

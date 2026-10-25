@@ -4,9 +4,9 @@
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
 import { qaSkipAllowed, qaSkipTarget, qaQuery } from './QaSkip';
-export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit';
+export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail';
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
-export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit';stage?:string;
+export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';
  trigger:string;taps:PreTap[];expect:string};
 const N=(...path:string[]):PreTap=>({kind:'node',path});
 export const PRE_SPECS:readonly PreSpec[]=[
@@ -23,13 +23,20 @@ export const PRE_SPECS:readonly PreSpec[]=[
  {key:'lakeside-home',label:'湖畔回家：湖畔 → 屋内',checkpoint:12,finish:true,place:'lakeside',trigger:'点「主页」',taps:[{kind:'control',id:'home'}],expect:'整屏淡出→屋内坐下→淡入（leaveJourneyForIsland，state lakeside→home）'},
  {key:'skycity-visit',label:'参观天空城：小岛日志 → 天空城 3D',checkpoint:12,finish:true,place:'island',trigger:'已打开的「天空」章节面板里点「前往天空城 · 3D 场景」',taps:[N('ChapterPanel','VisitSkycity')],expect:'skycity-loading→天空城 3D 场景（state island→skycity）'},
  {key:'skycity-visit-exit',label:'参观结束：天空城 3D → 小岛',checkpoint:12,finish:true,place:'skycity-visit',trigger:'点「返回小岛」',taps:[{kind:'control',id:'returnIsland'}],expect:'天空城卸载→回到小岛（state skycity→island）'},
+ /* b18 湖畔关间（场景设计部 win-replays.json；测试存档按顺序解锁把前面的湖畔关打通，进本关后停在最后一步之前） */
+ {key:'lake-13-14',label:'湖畔关间：L13 → L14',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-01',lakeMode:'win',trigger:'结算面板「下一关」',taps:[N('ResultPanel','Next')],expect:'棋盘退出→L14（r04-lake-02）棋盘进入（advanceRegistered）'},
+ {key:'lake-14-15',label:'湖畔关间：L14 → L15',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-02',lakeMode:'win',trigger:'结算面板「下一关」',taps:[N('ResultPanel','Next')],expect:'棋盘退出→L15（r04-lake-03）棋盘进入'},
+ {key:'lake-15-16',label:'湖畔关间：L15 → L16',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-03',lakeMode:'win',trigger:'结算面板「下一关」',taps:[N('ResultPanel','Next')],expect:'棋盘退出→L16（r04-lake-04）棋盘进入'},
+ {key:'lake-16-17',label:'湖畔关间：L16 → L17（当前代码 L16 之后接 L17）',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-04',lakeMode:'win',trigger:'结算面板「下一关」',taps:[N('ResultPanel','Next')],expect:'棋盘退出→L17（r04-lake-05）棋盘进入（结局接通后这里会改成 WindWipe→结局，届时另加 ending key）'},
+ {key:'lake-17-18',label:'湖畔关间：L17 → L18「刻名的桥」',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-05',lakeMode:'win',trigger:'结算面板「下一关」',taps:[N('ResultPanel','Next')],expect:'棋盘退出→L18 刻名的桥（r04-lake-06，需 L13–L15 已通关）棋盘进入'},
+ {key:'lake-18-home',label:'湖畔收尾：L18 结算 → 离开棋盘',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-06',lakeMode:'win',trigger:'结算面板「回小岛」（先自动领取地区印记）',taps:[N('ResultPanel','Home')],expect:'领取湖畔地区印记→棋盘退出→湖畔自由探索（state level→lakeside）'},
+ {key:'lake-fail',label:'湖畔失败面板：L13 输 → 再试一次',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-01',lakeMode:'lose',trigger:'失败面板「再试一次」（摆位后先看副标题 failHint）',taps:[N('ResultPanel','Replay')],expect:'失败面板副标题显示本关提示（≤14 字单行）；点「再试一次」→L13 重新开局'},
 ];
 export const PRE_KEYS:readonly PreKey[]=PRE_SPECS.map(s=>s.key);
 export function preSpec(key:string):PreSpec|null{return PRE_SPECS.find(s=>s.key===key)||null;}
 /** Transitions that exist in the game but cannot be staged (reported in the list so nobody assumes coverage). */
 export const PRE_UNSUPPORTED:readonly {key:string;reason:string}[]=[
- {key:'lake-next',reason:'L13→L16 湖畔关间：r04-lake 关卡没有可回放的通关见证（只有 greedy 校准长度），无法用真实存档推到「L13 已通关」'},
- {key:'ending',reason:'当前代码里没有结局场景/结局转场（主线 12 关 + 湖畔 4 关之后没有后续场景）'},
+ {key:'ending',reason:'当前分支没有结局场景/结局转场；ggbot/windwipe-ending 合入后再加 ending key（L16→WindWipe→结局）'},
 ];
 /** WeChat has no location: read the DevTools launch query (编译模式 启动参数 qfHooks=1&qfPre=…) as a search string. */
 export function preSearch(search?:string|null,host:any=globalThis):string{

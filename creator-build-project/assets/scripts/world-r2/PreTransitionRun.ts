@@ -44,6 +44,10 @@ export class PreTransitionRunner{
  private boardSnap(){const b:any=this.d.board();return b?.snapshot||null;}
  private async toResult(spec:PreSpec,last:any,seed:number):Promise<R>{
   const r=await this.step(()=>this.d.composition.enterMainlineStage(spec.stage,seed),'level','enter '+spec.stage,240000);if(!r.ok)return r;
+  return this.swapToResult(spec,last);
+ }
+ /** Board already entered: resume if restored paused, then the player's own swap of the recorded last move; wait for the panel. */
+ private async swapToResult(spec:PreSpec,last:any):Promise<R>{
   if(!await waitFor(()=>{const s=this.boardSnap();return s&&(s.state==='run.ready'||s.state==='run.paused')&&(this.d.board() as any)?.presented;},30000))return {ok:false,reason:'board-not-ready'};
   const b:any=this.d.board();
   if(this.boardSnap().state==='run.paused'){try{b.popups?.close?.('PausePanel');}catch{}b.host.command('resume');await waitFor(()=>this.boardSnap()?.state==='run.ready',5000);}
@@ -61,7 +65,7 @@ export class PreTransitionRunner{
    if(spec.place==='home')return await this.toPlace('home');
    let r=await this.toPlace('island');if(!r.ok)return r;
    let prof:any=null;
-   if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish);if(!prof.ok)return prof;}
+   if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);if(!prof.ok)return prof;}
    if(spec.place==='island'){
     if(spec.key==='skycity-visit'){const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','VisitSkycity']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
     return {ok:true};
@@ -72,6 +76,7 @@ export class PreTransitionRunner{
    r=await this.step(()=>this.wc().travelRegion('skycity'),'skycity','travel skycity',240000);if(!r.ok)return r;
    if(spec.place==='skycity')return r;
    r=await this.step(()=>this.d.composition.enterMainline(),'level','enter lakeside',300000);if(!r.ok)return r;
+   if(spec.place==='lake-result'){const id=this.boardSnap()?.active?.stageId;if(id&&id!==spec.stage)return {ok:false,reason:'lake-stage-mismatch ('+id+')'};return await this.swapToResult(spec,prof?.lastAction);}
    if(!await waitFor(()=>this.boardSnap()?.state==='run.ready'&&(this.d.board() as any)?.presented,30000))return {ok:false,reason:'lake-board-not-ready'};
    if(spec.place==='lake-board')return {ok:true};
    const b:any=this.d.board();return await this.step(()=>b.command('requestExit'),'lakeside','leave lake board');
