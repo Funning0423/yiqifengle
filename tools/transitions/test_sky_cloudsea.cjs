@@ -93,9 +93,10 @@ async function loaderChecks(){
  L.cc.assetManager.loadBundle=(_name,done)=>done(null,{loadDir(_dir,_type,cb){loads++;cb(null,available?[base,soft]:[base]);}});
  L.cc.assetManager.loadAny=(_request,_options,_progress,done)=>done(null,base);
  await assert.rejects(loader.loadRegionPrefab(loader.REGIONS.skycity),/prefab env_sky_cloudsea_soft not found/,'missing soft asset never substitutes the sole base prefab');
- available=true;assert.equal(await loader.loadRegionPrefab(loader.REGIONS.skycity),base);assert.equal(loads,2);
- await loader.loadRegionPrefab(loader.REGIONS.skycity);assert.equal(loads,2,'reuse valid prepared asset');
- soft.isValid=false;soft=makeSoft();await loader.loadRegionPrefab(loader.REGIONS.skycity);assert.equal(loads,3,'reload a released prefab');
+ // b19 dock models: +1 loadDir for the optional sky_mooring_props (absent here -> warn, cached as null, never blocks)
+ available=true;assert.equal(await loader.loadRegionPrefab(loader.REGIONS.skycity),base);assert.equal(loads,3);
+ await loader.loadRegionPrefab(loader.REGIONS.skycity);assert.equal(loads,3,'reuse valid prepared asset');
+ soft.isValid=false;soft=makeSoft();await loader.loadRegionPrefab(loader.REGIONS.skycity);assert.equal(loads,4,'reload a released prefab');
  const parent=new L.cc.Node('Owner');
  assert.throws(()=>loader.mountRegion(loader.REGIONS.skycity,base,parent),/skycity-shared-palette-missing/);
  assert.equal(parent.children.length,0,'failed mount cleans both nodes');assert.equal(refs,0,'failed mount releases extra prefab');
