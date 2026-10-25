@@ -1941,8 +1941,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 97666,
-    "sha256": "1ead79b64ecf817379ce7ecb4c20419c008f3f9754685f2cd810dee0288a9e2e"
+    "bytes": 99139,
+    "sha256": "98b1a22d18332c8a857dce2ba8d04e1c0b3a7b5396d8f9705cdfcdb083855008"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -3351,8 +3351,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js",
-    "bytes": 17295,
-    "sha256": "c54337f6c62ddd3148cb902399f64c031c476ea3a63cc63f3af4fbc9660cac8f"
+    "bytes": 17527,
+    "sha256": "a9bc9d82d7d26064dc4fc318391faf90b366a3be9b57fd0f707c6c1e134ebcb0"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js.meta",
@@ -3391,8 +3391,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js",
-    "bytes": 3101,
-    "sha256": "1ed74a28f8b368e4b30449760f65baa4aba3e39957b38a952a36cb712a33e84c"
+    "bytes": 3458,
+    "sha256": "dfefbb8f82c9fa61c22174e2cf1bd75d819b86b725726ae926ed335110b81185"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js.meta",
@@ -3691,8 +3691,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
-    "bytes": 66613,
-    "sha256": "b9704e1962eaa294a282d5de73e87f32a49810e397d7f5d0928b30ecb7e94e5a"
+    "bytes": 67306,
+    "sha256": "676cbd18b2bc546300ab41ce4cd214ae08a5337c4441207ec5e830aaecd0be19"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -4261,8 +4261,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts",
-    "bytes": 10506,
-    "sha256": "c01e058acbdc4101c7f6a047f85884d5385aa56b7bbbe5cbd0652669d2e90e6c"
+    "bytes": 10612,
+    "sha256": "2d69562e92b49c281782f449f9b9debf4263f04a284b5c6fc04f7116f475a116"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts.meta",
@@ -4561,8 +4561,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 19469,
-    "sha256": "288d2d2ae4c22bdde4f0b7da1743dac674d8c1a12112fee2ca41a4461c6e2637"
+    "bytes": 19557,
+    "sha256": "fddb222a46fc59de98408c3743be46945b94012aae8a7a650481d1d164979c73"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
