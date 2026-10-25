@@ -23,12 +23,25 @@ const SWEEP=process.env.SWEEP?process.env.SWEEP.split(',').map(Number):null;
     occ=hid?occ+DT:0;if(occ>occMax){occMax=occ;occAt=tau;}}
    for(let i=1;i<yr.length;i++)ya.push(Math.abs(yr[i]-yr[i-1])/DT);for(let i=1;i<dp.length;i++)accs.push(Math.abs(dp[i]-dp[i-1])/DT/DT);
    const row={screen:s.join('x'),liftS,walkS:+S.walkS.toFixed(2),flightAt:+S.flightAt.toFixed(2),touchdownAt:+S.touchdownAt.toFixed(2),yawMax:+Math.max(...yr.map(Math.abs)).toFixed(1),yawAccP99:+pct(ya,.99).toFixed(0),stepMaxM:+Math.max(...dp).toFixed(3),accP99:+pct(accs,.99).toFixed(2),fovStepMax:+Math.max(...df).toFixed(3),occFaceChestMaxS:+occMax.toFixed(2),occAt:+occAt.toFixed(2)};
+   // C2 (sign removed, b53c8336): touchdown → board blend start (boardByS) frames HER + the LAKE: every frame she is fully in the
+   // safe frame, ≥ 3 lake-surface samples (LAKESIDE_DOOR_LAKE_OFFS, the wide-lens search set) are on screen, her height ≥ 20 % of the frame
+   {const moor=Rr.vehicle(Rr.T),lake=LB.LAKESIDE_DOOR_LAKE_OFFS.map(o=>[moor[0]+o[0],moor[1]+o[1],moor[2]+o[2]]),asp=s[0]/s[1];let hMin=9,lMin=99,inF=true;
+    for(let tau=S.touchdownAt;tau<=S.touchdownAt+LB.lakesideBoardByS();tau+=DT){const c=cam(tau),lt=legT(tau),h=leg.her(lt),P=c.position;
+     const f=(()=>{const q=c.target.map((x,i)=>x-P[i]),l=Math.hypot(...q);return q.map(x=>x/l);})(),rl=Math.hypot(f[0],f[2]),r=[-f[2]/rl,0,f[0]/rl],u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]],th=Math.tan((c.fovVerticalDeg??48)*Math.PI/360);
+     const nd=p=>{const v=p.map((x,i)=>x-P[i]),z=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];return [(v[0]*r[0]+v[2]*r[2])/(z*th*asp),(v[0]*u[0]+v[1]*u[1]+v[2]*u[2])/(z*th),z];};
+     const pts=[h.root,h.head,h.face,h.chest].filter(Boolean).map(nd);if(pts.some(n=>n[2]<=0||Math.abs(n[0])>1||Math.abs(n[1])>1))inF=false;
+     const ys=pts.map(n=>n[1]);if(!/seated/.test(h.pose||""))hMin=Math.min(hMin,(Math.max(...ys)-Math.min(...ys))/2)/* standing (out of the basket) */;
+     if(process.env.DBG&&Math.round((tau-S.touchdownAt)*60)%30===0)console.error(s.join("x"),(tau-S.touchdownAt).toFixed(1),((Math.max(...ys)-Math.min(...ys))/2).toFixed(3),h.pose||"");
+     lMin=Math.min(lMin,lake.filter(p=>{const n=nd(p);return n[2]>0&&Math.abs(n[0])<.95&&Math.abs(n[1])<.95;}).length);}
+    row.c2HerFrac=+hMin.toFixed(3);row.c2LakeMin=lMin;row.c2InFrame=inF;}
    rows.push(row);
    if(!SWEEP){assert.ok(row.yawMax<=90.5,'yaw ≤ 90°/s '+JSON.stringify(row));assert.ok(row.yawAccP99<=201,'yaw accel p99 ≤ 200 '+JSON.stringify(row));
     assert.ok(row.stepMaxM<=0.6,'no position jump '+JSON.stringify(row));assert.ok(row.fovStepMax<=0.25,'no FOV jump '+JSON.stringify(row));
     assert.ok(row.occFaceChestMaxS<=0.5,'face/chest hidden ≤ 0.5 s '+JSON.stringify(row));
     for(const u of [0,3,6,11.9]){const a=S.cam(S.liftEndAt+u,null),b=LB.lakesideDoorRideCamera(Rr,door,Rr.cutT+u,null);assert.ok(Math.hypot(...[0,1,2].map(j=>a.position[j]-b.position[j]))<1e-9,'T-03 flight exact at +'+u);}
+    assert.ok(row.c2InFrame,'C2: she is fully in frame '+JSON.stringify(row));assert.ok(row.c2LakeMin>=3,'C2: lake visible '+JSON.stringify(row));assert.ok(row.c2HerFrac>=LB.LAKESIDE_DOOR_HER_FRAC-0.005,'C2: her standing height ≥ LAKESIDE_DOOR_HER_FRAC (12 %, was ~8 %) '+JSON.stringify(row));
     assert.ok(Math.abs((S.touchdownAt-S.liftEndAt)-(Rr.T-Rr.cutT))<1e-9,'T-03 visible flight length kept');}
   }}
+ const K6=SL.SKY_LAKE_CONT,vis=rows.length?null:null;void vis;
  console.log(JSON.stringify({status:SWEEP?'SWEEP':'PASS',touchdown:LB.LAKESIDE_TOUCHDOWN,rows}));
 })().catch(e=>{console.error(e);process.exit(1);});

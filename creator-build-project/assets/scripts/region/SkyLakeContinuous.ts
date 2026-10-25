@@ -13,11 +13,18 @@ import {blendPose,minJerk} from './TransitionCamera';
 export const SKY_LAKE_CONT=Object.freeze({
  /** PLACEHOLDER beats until 场景设计部 / GGbot animation timings arrive: door open, step in, ignition */
  doorS:1.0,stepInS:1.2,igniteS:3.0,
- /** seconds of screen time that show the 18 s lift-off T-03 skipped (searched: least value meeting the yaw caps, see test) */
- liftS:6.0,
+ /** seconds of screen time that show the 18 s lift-off T-03 skipped (Grok Bot: 5 s; 66.9°/s, 122°/s² measured) — a constant */
+ liftS:5.0,
+ /** Grok Bot: T-02 handoff → touchdown target (s). Walk / door / step-in / ignition are never compressed; an overrun is cut
+  *  from empty shots inside the visible flight (flightTrimS, needs T-03 flight re-cut — reported, 0 until approved). */
+ capS:26,flightTrimS:0,
  /** smoothstep rate ramps inside the lift-off window (start and end of the window are at rate 1 → no velocity step) */
  rampFrac:0.3,
  placeholder:true});
+/** Planned T-02 handoff → touchdown for a walk of walkS (walk length comes from the path: R.walkS). */
+export function skyLakeTotalS(walkS:number,visibleFlightS:number,k=SKY_LAKE_CONT):number{return walkS+k.doorS+k.stepInS+k.igniteS+k.liftS+visibleFlightS-k.flightTrimS;}
+/** Visible-flight seconds to cut to meet capS (0 = fits). */
+export function skyLakeOverrunS(walkS:number,visibleFlightS:number,k=SKY_LAKE_CONT):number{return Math.max(0,skyLakeTotalS(walkS,visibleFlightS,k)-k.capS);}
 export type SkyLake=Readonly<{walkS:number;boardS:number;flightAt:number;liftEndAt:number;touchdownAt:number;
  rideT(tau:number):number;cam(tau:number,from:Pose|null):Pose;phase(tau:number):'C1-walk'|'C1-board'|'liftoff'|'flight'|'C2'}>;
 /** eased warp: σ∈[0,S] → flight time f∈[0,F]; rate 1 at both ends, smoothstep up/down to the cruise rate (C1, monotonic) */
