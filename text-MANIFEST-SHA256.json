@@ -3706,8 +3706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts",
-    "bytes": 2964,
-    "sha256": "b1426593c769f4813becfebe3c30e8f7a18c51128867c55173ae28d06d653135"
+    "bytes": 6791,
+    "sha256": "15ac81eef40a527545f4a890c8cdb0a68928de6932f91ab356684fdd0ea97b2f"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts.meta",
@@ -4026,8 +4026,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts",
-    "bytes": 2411,
-    "sha256": "0d73047ae78ff1baf25fbb61f17c803d80e2000edcee43549c2009cc94378ac9"
+    "bytes": 5504,
+    "sha256": "5c93562c35b4817ff3bff6d46a3f1356ffac2112d4074d8444a8adfe46fe390a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts.meta",

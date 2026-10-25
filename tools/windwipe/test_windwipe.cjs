@@ -64,5 +64,14 @@ function clock(){let t=0;const log=[];const self={log,now:()=>t,wait:async s=>{t
   const boot=src('WorldIntegrationBoot.ts');assert(/'ending'\]/.test(boot)&&/k==='ending'\?endingAvailable\(s,b\)/.test(boot));assert(/nextLabel: ending \? '继续'/.test(src('ManagedMobileBoardUI.ts')));
   const es=src('ui/EndingScreen.ts');assert(/'旅程完成'/.test(es)&&/'回小岛'/.test(es)&&(es.match(/artButton\(/g)||[]).length===1);
   ok('L16 → 继续 → WindWipe → ending (旅程完成, one 回小岛) → WindWipe → island; gate only on saved last-lake win');}
+ // 12 ending v2 (UI设计部 SPEC §3 v2.1): 7 sizes pass the design's layout checks; layered day/night art present with .meta
+ {const fs=require('fs'),path=require('path');
+  for(const [w,h] of [[320,568],[360,780],[375,667],[390,844],[393,852],[414,896],[430,932]]){const c=E.endingLayoutChecks(w,h,0);for(const k of Object.keys(c))assert(c[k],w+'x'+h+' '+k);}
+  const L=E.endingLayout(320,568,0);assert(L.girl.y1-L.girl.y0>=48-1e-6&&L.girl.y0-(L.sealsCy+22)>=12-1e-6);
+  assert.equal(E.endingSwayDeg(0),0);assert(Math.abs(E.endingSwayDeg(0.8)-4)<1e-9);assert(Math.abs(E.endingSwayDeg(2.4)+4)<1e-9);
+  const dir=path.join(__dirname,'../../creator-build-project/assets/resources/ending');
+  for(const m of ['day','night'])for(const f of ['end_bg_'+m+'.jpg','end_chime_'+m+'.png','end_girl_'+m+'.png']){assert(fs.existsSync(path.join(dir,f))&&fs.existsSync(path.join(dir,f+'.meta')),f);}
+  const es=src('ui/EndingScreen.ts');assert(/end_bg_'\s*\+\s*mode/.test(es)&&/ChimeSway/.test(es)&&/pending\s*<=\s*0/.test(es));
+  ok('ending v2: 7 sizes pass layout checks (320×568 girl 48 pt, head ≥12 pt under seals); chime sways ±4°/3.2 s; day+night art with .meta; reveal waits for art');}
  console.log('windwipe-ending: '+pass+' checks PASS');
 })().catch(e=>{console.error('FAIL',e);process.exit(1);});
