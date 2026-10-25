@@ -181,3 +181,24 @@ export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,
  const y=yawDeg*Math.PI/360,z=rollDeg*Math.PI/360,sy=Math.sin(y),cy=Math.cos(y),sz=Math.sin(z),cz=Math.cos(z);
  return [sy*sz,sy*cz,cy*sz,cy*cz];
 }
+/** Transitions (Grok Bot / GGbot 2026-10-25): the meadow→skycity ride plays in RIDE_DURATION s of foreground time instead of
+ *  FLIGHT_DURATION. The flight file is unchanged; the ride clock τ is warped to flight time t = rideToFlightT(τ):
+ *  rate 1 through board / liftoff / cloud seam (t ≤ RIDE_KEEP_T, all seam & visibility cues keep their exact timing), then a
+ *  smoothstep rise to RIDE_CRUISE_RATE, cruise, a smoothstep fall back to 1, and rate 1 for the last RIDE_TAIL_S of the
+ *  approach + landing (touchdown and the basket-door beat play at real speed). C1 rate → no velocity step on the camera. */
+export const RIDE_DURATION=30;
+export const RIDE_KEEP_T=12;
+export const RIDE_RAMP_S=2;
+export const RIDE_TAIL_S=5;
+/** ∫ of the smoothstep rise over x s (full rise after RIDE_RAMP_S). 36 = 30 + (r−1)·(Rint(18) − Rint(7)) = 30 + 11(r−1) → r = 17/11. */
+const rampInt=(x:number)=>{if(x<=0)return 0;if(x>=RIDE_RAMP_S)return RIDE_RAMP_S/2+(x-RIDE_RAMP_S);const u=x/RIDE_RAMP_S;return RIDE_RAMP_S*(u*u*u-u*u*u*u/2);};
+export const RIDE_CRUISE_RATE=1+(FLIGHT_DURATION-RIDE_DURATION)/(rampInt(RIDE_DURATION-RIDE_KEEP_T)-rampInt(RIDE_TAIL_S+RIDE_RAMP_S));
+/** Flight-time rate dt/dτ at ride time τ. */
+export function rideRate(tau:number):number{const r=RIDE_CRUISE_RATE,s=(u:number)=>{const x=Math.max(0,Math.min(1,u));return x*x*(3-2*x);};
+ const downT0=RIDE_DURATION-RIDE_TAIL_S-RIDE_RAMP_S;
+ return 1+(r-1)*(s((tau-RIDE_KEEP_T)/RIDE_RAMP_S)-s((tau-downT0)/RIDE_RAMP_S));}
+/** Ride clock τ ∈ [0, RIDE_DURATION] → flight time t ∈ [0, FLIGHT_DURATION]; monotonic, C1. */
+export function rideToFlightT(tau:number):number{const x=Math.max(0,Math.min(RIDE_DURATION,tau)),r=RIDE_CRUISE_RATE,downT0=RIDE_DURATION-RIDE_TAIL_S-RIDE_RAMP_S;
+ return Math.min(FLIGHT_DURATION,x+(r-1)*(rampInt(x-RIDE_KEEP_T)-rampInt(x-downT0)));}
+/** Inverse (bisection), for reporting cue times on the ride clock. */
+export function flightToRideT(t:number):number{let lo=0,hi=RIDE_DURATION;for(let i=0;i<40;i++){const m=(lo+hi)/2;if(rideToFlightT(m)<t)lo=m;else hi=m;}return hi;}
