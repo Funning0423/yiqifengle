@@ -5,6 +5,7 @@
  *  sky_mooring_deck) arrives later as its own SHA: TransitionProps draws swappable placeholders ONLY when those named nodes
  *  are absent. Durations live in TRANSITION_DURATIONS (one table, Grok Bot may retune). */
 import type {Vec} from '../world-r1/WorldFlowCore';
+import {WALK_SPEED_MPS} from './NodeWalker';
 export const STAGING_SOURCE='scene/b19-transition-spaces 0197512';
 export const TRANSITION_STAGING=Object.freeze({
  /** Segment 1 (island frame). */
@@ -27,12 +28,18 @@ export const TRANSITION_STAGING=Object.freeze({
  meadow:{m4:[3,5.84,-16.4] as Vec,toBasket:[[3,6.322,-20.4],[2.6,6.341,-20.8],[2.6,6.45,-21.7]] as Vec[],launch:[3.6,6.60,-23.4] as Vec,basketObstacleR:1.1},
  /** Segment 4 (skycity frame): mooring deck, step-down landing, deck front edge, new S0. Basket root y 0.01 (+0.12 m vs flight end key). */
  skycity:{stepDown:[5.192,-0.02,42.262] as Vec,deckEdge:[5.107,-0.02,41.519] as Vec,s0New:[5.25,-0.084,40.6] as Vec,s0YawDeg:177.6,s1:[5.4,-0.087,37.0] as Vec,basketRootY:0.01},
- /** Segment 5a mooring (skycity frame). Grok Bot FINAL 2026-10-25: option C, ALTERNATE point (−14.8, −38.8) (gap 1.49 m),
-  *  straight S6 → basket door walk at her natural 0.9 m/s, cap 50 s. ── PROVISIONAL BLOCK: 场景设计部 is recomputing the point,
-  *  waypoints and walk seconds (new SHA off 59aa0bbc); replace this object wholesale with their data and set provisional:false.
-  *  The runtime lakeside ride still walks T-03's LakesideBalloon route (knobs.walkLocal / walkMps) until that data lands. */
- skyMooring5a:{option:'C' as 'B'|'C'|'pending',provisional:true,pos:[-14.8,0.01,-38.8] as Vec,yawDeg:-62.5,gapM:1.49,
-  walkPathM:16.5,walkMps:0.9,pending:false},
+ /** Segment 5a mooring — 场景设计部 FINAL (scene/b19-transition-spaces-on-59aa 3924dab4, transition-anchors.json): option C
+  *  alternate point. World (100.191,18.908,122.960) yaw −66.19°; skycity-local (−14.8,0.09,−38.8) yaw 52.65°; gap 1.485 m.
+  *  S6 → door-stand straight walk 16.97 m at her NATURAL speed (NodeWalker.WALK_SPEED_MPS); door-stand faces 101.4° (door opens
+  *  here) → threshold → in-basket point (faces 113.8°) → backs 0.494 m to the seat facing the EXIT door (no turn); boarding
+  *  2.12 m at basketWalkMps 0.8 = 3.56 s; sit 1.2 s overlaps ignition. Hinge (99.584,18.908,123.665), out 100°, 0.8 s each way.
+  *  NOTE: the runtime lakeside ride still uses T-03's LakesideBalloon walk/launch knobs (运镜bot) — wire these points there. */
+ skyMooring5a:{option:'C' as 'B'|'C'|'pending',provisional:false,pending:false,source:'scene/b19-transition-spaces-on-59aa 3924dab4',
+  world:[100.191,18.908,122.960] as Vec,worldYawDeg:-66.19,pos:[-14.8,0.09,-38.8] as Vec,yawDeg:52.65,gapM:1.485,
+  walkWorld:[[83.320,18.852,130.795],[86.386,18.848,129.115],[89.451,18.848,127.435],[92.516,18.848,125.755],[95.582,18.848,124.075],[98.509,18.848,123.484]] as Vec[],
+  doorStandYawDeg:101.4,threshold:[99.422,18.908,123.299] as Vec,inBasket:[100.523,18.908,122.846] as Vec,inBasketYawDeg:113.8,
+  seat:[100.072,18.908,123.047] as Vec,seatBackM:0.494,hinge:[99.584,18.908,123.665] as Vec,doorOpenDeg:100,doorOpenS:0.8,
+  walkPathM:16.97,boardPathM:2.12,boardS:3.56/* 场景设计部: 2.12 m incl. the 0.494 m back-up, with walk_start/stop + back-step, at 0.8 m/s nominal */,walkMps:WALK_SPEED_MPS},
  walkMps:0.9,basketWalkMps:0.8,
 });
 /** Compression retime (Grok Bot 2026-10-25: caps island→meadow ≤45 s, meadow→skycity ≤50 s, skycity→lakeside ≤40 s).
@@ -49,14 +56,15 @@ export const TRANSITION_RETIME=Object.freeze({meadowRideS:28.5/* Grok Bot 2026-1
 export function skycityToLakesideCap(opt:'B'|'C'|'pending'=TRANSITION_STAGING.skyMooring5a.option):number|null{return opt==='pending'?null:TRANSITION_RETIME.caps.skycityToLakeside;}
 /** Her walk S6 → basket door for seg 5a, at her natural speed (never sped up to fit a cap). */
 export function lakeWalkS(m=TRANSITION_STAGING.skyMooring5a):number{return Math.round(m.walkPathM/m.walkMps*100)/100;}
+export function lakeBoardS(m=TRANSITION_STAGING.skyMooring5a):number{return m.boardS;}
 /** Seconds per beat (STANCES.md). One table (Grok Bot may retune). Compress: the pauses after stand_up are dead time → 0;
  *  flight / liftoff come from TRANSITION_RETIME. Action beats unchanged. */
 export const TRANSITION_DURATIONS=Object.freeze({
  seg1:{nodeWalkI4toI6:15.6,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},
  seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:16.5},
- seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:1.5,sitDown:1.2,inflate:3.0,flight:TRANSITION_RETIME.meadowRideS},
+ seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:0/* removed: two-door basket, no in-basket turn */,sitDown:1.2,inflate:3.0,flight:TRANSITION_RETIME.meadowRideS},
  seg4:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,toPath:7.5},
- seg5a:{toBasket:0/* = lakeWalkS() (provisional mooring data) */,doorReach:1.8,intoBasket:2.6,turn180:0/* removed (Grok Bot): she sits facing in */,sitDown:1.2,inflate:3.0,liftoff:TRANSITION_RETIME.lakeLiftS,flight:TRANSITION_RETIME.lakeFlightS},
+ seg5a:{toBasket:0/* = lakeWalkS() */,doorReach:1.8,intoBasket:0/* = lakeBoardS() */,turn180:0/* removed (Grok Bot): she sits facing in */,sitDown:1.2,inflate:3.0,liftoff:TRANSITION_RETIME.lakeLiftS,flight:TRANSITION_RETIME.lakeFlightS},
  seg5b:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,walkOut:7.7},
 });
 /** Plain sum of every beat (no overlap) — kept for comparison with the 59aa0bbc table. */
@@ -83,9 +91,9 @@ export function transitionTimeline(D=TRANSITION_DURATIONS,o:{lakeWalkS?:number;m
   {id:'inflate',t0:0,t1:r2(m.inflate),overlapsWith:'toBasket'},{id:'doorClose',t0:r2(mIn-m.sitDown),t1:r2(mIn-m.sitDown+0.6),overlapsWith:'sitDown'},
   {id:'settle',t0:r2(mIn+mIgn+m.flight-1),t1:r2(mIn+mIgn+m.flight),overlapsWith:'flight'}];
  const k=D.seg4,s4=seq([['standUp',k.standUp],['pause',k.pause],['doorReach',k.doorReach],['stepDown',k.stepDown+1.0/* BalloonTransit walks stepDown+1.0 */],['toPath',b5ToPathS(k.toPath)]]);
- const l=D.seg5a,lw=o.lakeWalkS??(l.toBasket||lakeWalkS()),lIn=lw+l.doorReach+l.intoBasket+l.turn180+l.sitDown,lIgn=Math.max(0,l.inflate-lIn);
- const s5a=[...seq([['toBasket',lw],['doorReach',l.doorReach],['intoBasket',l.intoBasket],['turn180',l.turn180],['sitDown',l.sitDown],['igniteRemainder',lIgn],['liftoff',l.liftoff],['flight',l.flight]]),
-  {id:'inflate',t0:r2(Math.max(0,lw-l.inflate)),t1:r2(Math.max(0,lw-l.inflate)+l.inflate),overlapsWith:'toBasket'}];
+ const l=D.seg5a,lw=o.lakeWalkS??(l.toBasket||lakeWalkS()),lb=l.intoBasket||lakeBoardS(),lIn=lw+l.doorReach+lb+l.turn180+l.sitDown,lIgn=Math.max(0,l.inflate-lIn);
+ const s5a=[...seq([['toBasket',lw],['doorReach',l.doorReach],['intoBasket',lb],['turn180',l.turn180],['sitDown',l.sitDown],['igniteRemainder',lIgn],['liftoff',l.liftoff],['flight',l.flight]]),
+  {id:'inflate',t0:r2(Math.max(0,lIn-l.inflate)),t1:r2(Math.max(0,lIn-l.inflate)+l.inflate),overlapsWith:'sitDown'}];
  const b=D.seg5b,s5b=seq([['settle',b.settle],['standUp',b.standUp],['pause',b.pause],['doorReach',b.doorReach],['stepDown',b.stepDown],['walkOut',b.walkOut]]);
  const end=(x:Beat[])=>Math.max(...x.map(e=>e.t1));
  const tot={seg1:end(s1),seg2:end(s2),seg3:end(s3),seg4:end(s4),seg5a:end(s5a),seg5b:end(s5b)} as Record<string,number>;

@@ -1,7 +1,7 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
-import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME} from './TransitionStaging';
+import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME,lakeBoardS} from './TransitionStaging';
 import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
 import {SKY_LAKE_CONT,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
 import {firstMaterial,plankBetween} from './TransitionProps';
@@ -261,11 +261,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     if(lflame&&isValid(lflame,true)){lflame.active=it>0;const k=f.flame;lflame.setScale(k,k,k);}};
    let stepInS:number=SKY_LAKE_CONT.stepInS,inflateTau0=0;let boardFn:()=>void=()=>{};
    if(contLake){
-    const D5=TRANSITION_DURATIONS.seg5a;stepInS=D5.intoBasket+D5.turn180/* 0: turn removed */+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
+    const D5=TRANSITION_DURATIONS.seg5a;stepInS=(D5.intoBasket||lakeBoardS())+D5.turn180/* 0: turn removed */+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
     // compress: ignition + inflate start during the walk to the basket (finish as she sits); only a remainder delays liftoff
     const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
     sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false});
-    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,R.walkS-D5.inflate)/* the last 3 s of her walk to the basket */;inflate(0);if(lflame)lflame.active=false;
+    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,boardEndTau-D5.inflate)/* ignition + fill overlap boarding and sit_down, full as she is seated */;inflate(0);if(lflame)lflame.active=false;
     chainMark('lakeside','C1-basket-in');guardBeforeWalk((actor as any).anim,'C1 walk to basket');}
    const boardIn=async()=>{
     let dt0=0;const dStep=()=>{dt0+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,BALLOON_DOOR.openDeg*Math.min(1,Math.max(0,(dt0-BALLOON_DOOR.openDelayS)/BALLOON_DOOR.openS)),0);};
@@ -347,7 +347,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    try{(globalThis as any).__qfLakesideTouchdownAt=R.T;director.emit(LAKESIDE_TOUCHDOWN.event,{atS:R.T,skipped,signAtS:LAKESIDE_TOUCHDOWN.signAtS,signS:LAKESIDE_TOUCHDOWN.signS,boardByS:lakesideBoardByS()/* option B: board blend START (touchdown +5.3); board reached when her walk is in, ≈ +12.0 */});}catch{/* listeners only */}
    landedOk();
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
-   const door=find(vehicle,'basket_door');door?.setRotationFromEuler(0,0,0);
+   const door=find(vehicle,moored.exitDoorNode)||find(vehicle,'basket_door')/* two-door: the exit leaf (BASKET_DOORS) */;door?.setRotationFromEuler(0,0,0);
+   if(moored.exitDoorLegacy)try{console.info('[QF_TRANSITION] lakeside exit: single-door legacy (BASKET_DOORS.modelReady=false)');}catch{}
    // b15 acceptance (5a177b4c door strip): the engine kept her SkeletalAnimation 'sit_hold' state PLAYING (auto-played on
    // re-activation after board()/setParent), so Cocos overwrote the joints every frame and door_reach / walk_start / walk_loop
    // (driven by the actor's own rig clock, whose states must never play) never reached the screen: seated pose sliding out.
