@@ -1,0 +1,4 @@
+PASS 17 pt default = the size the panel already used (28 design px); old line unchanged without a hint
+PASS every lake failHint fits at 17 pt on one line, shown as is
+PASS too wide → shrinks in 0.5 pt steps, never below 15 pt, no ellipsis, no wrap
+lose-caption-fit 3 PASS

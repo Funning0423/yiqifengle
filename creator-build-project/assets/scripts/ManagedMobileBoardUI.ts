@@ -16,7 +16,7 @@ const { ccclass } = _decorator;
 const { createSynchronousStorage, bindChallengeController } = Port;
 /** Result-page actions owned by the world host (WorldIntegrationBoot): availability is pushed every frame. */
 export interface HostResultAction { visible: boolean; claimed?: boolean; run: (then?: () => any) => void }
-export interface HostResultActions { mainNext?: HostResultAction; chest?: HostResultAction; regionReward?: HostResultAction; next?: HostResultAction; claim?: HostResultAction; afterClaims?: HostResultAction }
+export interface HostResultActions { mainNext?: HostResultAction; chest?: HostResultAction; regionReward?: HostResultAction; next?: HostResultAction; claim?: HostResultAction; ending?: HostResultAction; afterClaims?: HostResultAction }
 const GOAL_ART: Record<string, string> = { moss: 'board/obstacle_moss', roots: 'board/obstacle_roots', beacons: 'r2/beacon_lighthouse', pearls: 'board/obstacle_shell_2', shells: 'board/obstacle_shell_2', lines: 'board/special_line_h', specials: 'board/special_bomb', blooms: 'board/piece_flower', relays: 'board/special_line_v' };
 export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? PIECE_KEYS[Number(key.slice(4))] : GOAL_ART[key] || 'board/piece_flower'; }
 /** b-board v3.1 board skin: wood tray with tile_a/b bases, piece_* art, obstacles, specials; top-left pause + one info
@@ -51,7 +51,7 @@ export class ManagedMobileBoardUI extends Component {
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
-  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1;
+  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1; private toastFade = 0.2; private toastEnd = TOAST_S; private noticeShown = false; private noticeUp = false; private queuedTip = '';
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private resultAttemptKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
@@ -347,7 +347,9 @@ export class ManagedMobileBoardUI extends Component {
     for (; p.next < p.parked.length; p.next++) { const n = p.parked[p.next]; if (isValid(n, true) && !n.active) { n.active = true; this.prewarmStats.flushed++; } }
   }
   private frameKey() { const f = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); return Math.max(240, f.width) + 'x' + Math.max(320, f.height); }
-  private cancelToolInput() { for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
+  /** b18 (UI设计部): cancelling a tool drops the tip held behind the stale notice (it no longer applies); the notice itself keeps its full 0.3/2/0.3. */
+  private dropHeldTip() { if (this.noticeUp) this.queuedTip = ''; }
+  private cancelToolInput() { this.dropHeldTip(); for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */
   private syncToolBar() {
     const a = this.snapshot?.active; if (!a) { this.toolBar = []; this.toolBarKey = ''; return; }
@@ -364,7 +366,7 @@ export class ManagedMobileBoardUI extends Component {
     if (tool.targeted && (!Number.isInteger(index) || index < 0 || index > 48)) { this.say('先点道具再选格子，或把道具拖到格子上'); return false; }
     const r = this.managed.useTool(kind, index);
     if (!r.ok) this.say(r.reason === 'illegal-or-unsupported-action' ? '换一个有作用的落点，道具还在' : '暂不可操作 · ' + r.reason);
-    else { this.armedTool = null; this.selected = -1; this.toastT = Math.min(this.toastT, TOAST_S); }
+    else { this.armedTool = null; this.selected = -1; if (!this.noticeUp) this.toastT = Math.min(this.toastT, this.toastEnd); }
     this.paintToolTray(); this.paint(); return !!r.ok;
   }
   private tapTool(slot: number) {
@@ -373,7 +375,7 @@ export class ManagedMobileBoardUI extends Component {
     if (!tool?.available) { this.cancelToolInput(); this.say(tool?.reason || '本关没有可用道具'); this.paintToolTray(); this.paint(); return false; }
     if (!tool.targeted) return this.useToolAt(tool.kind, -1);
     this.armedTool = this.armedTool === tool.kind ? null : tool.kind; this.selected = -1;
-    this.say(this.armedTool ? `${tool.name} · 点选目标` : '已收回，道具没有消耗'); this.paintToolTray(); this.paint(); return true;
+    if (!this.armedTool && this.noticeUp) this.dropHeldTip(); else this.say(this.armedTool ? `${tool.name} · 点选目标` : '已收回，道具没有消耗'); this.paintToolTray(); this.paint(); return true;
   }
   /** A press is layout pt (origin top-left, y down) when that reading sits on the node, otherwise Cocos UI (y up). */
   private layoutYDown(node: Node, x: number, y: number) {
@@ -873,8 +875,10 @@ export class ManagedMobileBoardUI extends Component {
   private box(name: string, parent: Node, x: number, y: number, w: number, h: number) { const n = new Node(name); n.layer = Layers.Enum.UI_2D; parent.addChild(n); n.setPosition(x, y); n.addComponent(UITransform).setContentSize(w, h); return n; }
   // ---------------- toast / input / hint ----------------
   /** Transient strip above the board tray (BoardLayout.toast, every region alike): tool prompts and errors only, fades after 2 s. */
-  private say(text: string) {
-    if (!text || !this.toastLabel) return; this.toastLabel.string = text; this.toastT = 0;
+  private say(text: string, fade = 0.2) {
+    if (!text || !this.toastLabel) return;
+    // b18 (UI设计部): the stale-board notice has top priority; a tip arriving during it waits (latest wins) and shows after it fades.
+    if (this.noticeUp) { this.queuedTip = text; return; } this.toastLabel.string = text; this.toastT = 0; this.toastFade = fade; this.toastEnd = fade === 0.2 ? TOAST_S : fade + TOAST_S;
     this.sizeToast(); this.toast.setSiblingIndex(this.root.children.length - 1);
   }
   /** Pill = text + 40, capped by the layout's max width (≤ 330, inset from the edges); a longer line scales down to stay inside the caps. */
@@ -884,6 +888,15 @@ export class ManagedMobileBoardUI extends Component {
     this.toast.getComponent(UITransform)!.setContentSize(w, h); this.toastLabel.node.setScale(fit, fit, 1); this.paintToast(w, h);
   }
   private paintToast(w: number, h: number) { const g = this.toastBg, k = 1 - 0.38 * this.tint.weight(); g.clear(); g.fillColor = new Color(40, 30, 20, 40); g.roundRect(-w / 2 + 1, -h / 2 - 2, w, h, h / 2); g.fill(); g.fillColor = new Color(Math.round(248 * k), Math.round(242 * k), Math.round(226 * k), 240); g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.fill(); g.strokeColor = new Color(201, 177, 133, 255); g.lineWidth = 1.5; g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.stroke(); }
+  /** b18 (UI设计部): an old unfinished lake board was dropped on load → once, after presentForPlay (entry shot + transition done),
+   *  the board toast says 「关卡已调整，从头开始」: fade 0.3 s, hold 2 s, fade 0.3 s; no button, no popup, touches pass through; the
+   *  provider flag is cleared at once (in memory, so a restart never shows it). Toast sits in the plate→tray band like every tip. */
+  private staleNotice(s: any) {
+    if (this.noticeShown || !s?.notice?.text || !s.active || s.state !== 'run.ready' || s.readOnly || this.modalOpen()) return;
+    if (Array.isArray(s.notice.stageIds) && !s.notice.stageIds.includes(s.active.stageId)) return;
+    this.noticeShown = true; this.say(String(s.notice.text), 0.3); this.noticeUp = true;
+    try { this.managed?.clearNotice?.(); } catch { }
+  }
   private input() { this.hintClock.reset(); if (this.hintCells.length) { this.hintCells = []; this.paintMarks(); } }
   private autoHint() {
     const s = this.snapshot, a = s?.active; if (!a) return;
@@ -903,7 +916,8 @@ export class ManagedMobileBoardUI extends Component {
     if (this.hintClock.tick(dt, active)) this.autoHint();
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
-    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, k = this.toastT < 0.2 ? this.toastT / 0.2 : this.toastT < TOAST_S ? 1 : Math.max(0, 1 - (this.toastT - TOAST_S) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > TOAST_S) this.toastT = -1; }
+    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
+    this.staleNotice(s);
     if (this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
   }
   // ---------------- dialogs ----------------
@@ -959,11 +973,11 @@ export class ManagedMobileBoardUI extends Component {
     if (kind === 'win' && mainline && chest?.earned) rewards.push({ id: 'chest', label: chest.opened ? '宝箱已打开' : '打开宝箱', icon: 'popup/chest_closed', iconKind: 'chest', state: chest.opened ? 'claimed' : h.chest?.visible ? 'ready' : 'locked', claim: h.chest?.run });
     if (kind === 'win' && mainline) { const region = s.journey?.regionRewards?.find((x: any) => x.region === Math.floor((a.level ?? 0) / 4)); if (region?.unlocked) { const tool = ['tideNet', 'sunSeed', 'starShears'][region.region] || 'tideNet'; rewards.push({ id: 'regionReward', label: TOOL_NAMES[tool] || (region.claimed ? '地区道具已领取' : '地区道具'), icon: '', iconKind: 'tool', tool, state: region.claimed ? 'claimed' : h.regionReward?.visible ? 'ready' : 'locked', claim: h.regionReward?.run }); } }
     if (kind === 'win' && s.provider === 'regional-r05' && (h.claim?.visible || s.progress?.claimedRegions?.includes(a.region))) { const owned = !!s.progress?.claimedRegions?.includes(a.region); rewards.push({ id: 'claim', label: owned ? '地区印记已领取' : '领取地区印记', icon: 'popup/reward_seal_' + (a.region || 'tide'), iconKind: 'seal', state: owned ? 'claimed' : 'ready', claim: h.claim?.run }); }
-    const next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : null;
+    const ending = !h.mainNext?.visible && !h.next?.visible && !!h.ending?.visible, next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : ending ? h.ending.run : null;
     return { kind, score: a.score || 0, stars, movesUsed: Array.isArray(a.actions) ? a.actions.length : null, movesLeft: a.moves ?? null, goalsLeft, chestHint: mainline && kind !== 'readonly', rewards,
       unlockHint: mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? a.level === 3 ? '主线 05 与潮汐挑战已开放；前往风车草甸' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放；天空城另有 3D 场景入口' : undefined : undefined,
-      hostError: this.hostResultError || undefined,
-      next, replay: kind === 'lose' && s.state === 'result.saved' ? mainline ? () => this.command('startStage', a.stageId, {}) : s.provider === 'regional-r05' ? () => this.command('retryStage') : null : null,
+      hostError: this.hostResultError || undefined, failHint: kind === 'lose' && typeof s.uiFailHint === 'string' && s.uiFailHint ? s.uiFailHint : undefined,
+      next, nextLabel: ending ? '继续' : undefined, replay: kind === 'lose' && s.state === 'result.saved' ? mainline ? () => this.command('startStage', a.stageId, {}) : s.provider === 'regional-r05' ? () => this.command('retryStage') : null : null,
       retrySave: () => this.command('retrySave'), home: () => {
         // 回小岛 joins the host's claim batch: the chest / region claims fired by the same tap are written first, then we leave.
         const go = () => { this.popups.clear(); this.resultKey = ''; return this.command('requestExit'); }, after = this.hostActions.afterClaims;
@@ -974,9 +988,9 @@ export class ManagedMobileBoardUI extends Component {
     const attemptKey = (s.active?.stageId || '') + '|' + (s.active?.attemptId || '');
     if (this.resultAttemptKey && attemptKey !== this.resultAttemptKey) this.hostResultError = '';
     this.resultAttemptKey = attemptKey;
-    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, m.hostError, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
+    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, m.failHint, m.hostError, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
     if (key === this.resultKey && this.popups.find('ResultPanel')) return;
-    this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.toast.getComponent(UIOpacity)!.opacity = 0;
+    this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.noticeUp = false; this.queuedTip = ''; this.toast.getComponent(UIOpacity)!.opacity = 0;
     const p = openResult(this.popups, m, this.toolArt); if (this.modalOpen()) p.root.setSiblingIndex(Math.max(0, this.root.children.length - 2));
   }
   /** Reward claim popup: shown when a chest / regional tool / memento flips to claimed while this board is open. */

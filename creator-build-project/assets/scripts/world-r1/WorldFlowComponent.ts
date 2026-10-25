@@ -537,7 +537,7 @@ export class WorldFlowComponent extends Component {
     const state=this.flow?.snapshot().state;
     const place=state==='home'?'home':state==='island'?'island':null;if(!place)return;
     const orbit=place==='home'?this.homeOrbit:this.islandOrbit;
-    if(orbit.mode==='paused'&&orbit.engaged())orbit.beginReturn(this.readLivePose());
+    /* paused + never engaged (arrival cinematic paused a fresh orbit) used to stay paused forever, so FreeOrbit.drag() refused every island drag; beginReturn() sends an unengaged orbit to idle */if(orbit.mode==='paused')orbit.beginReturn(this.readLivePose());
     if(!orbit.shouldWrite())return;
     orbit.step(dt);
     this.writeOrbit(orbit,place==='home'?this.homePivot():this.islandPivot(),place+'.orbit');

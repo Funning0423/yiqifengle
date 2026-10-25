@@ -282,8 +282,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
   const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
+  /** b18 T-04: sky domes are camera-centred and not teleported; yaw them with the sun so sky + light stay camera-relative continuous across the seam. */
+  const domeYaw0=new Map<Node,[number,number,number]>();
   let restoreSailLeft=()=>{};
   const release=()=>{if(dead)return;dead=true;try{restoreSailLeft();}catch{}director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
@@ -418,6 +421,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }
   };
   const applyLight=(t:number)=>{
+   const off=balloonLightYawOffset(t);
+   for(const n of nightDome?[...domes,nightDome]:domes){if(!isValid(n,true))continue;let e=domeYaw0.get(n);if(!e){const q=n.eulerAngles;e=[q.x,q.y,q.z];domeYaw0.set(n,e);}n.setRotationFromEuler(e[0],e[1]+off,e[2]);}
    if(!mainLight||!isValid(mainLight.node,true))return;
    // Content-relative continuous sun: no pre-seam spin, no snap (see balloonLightYawOffset). Pitch/roll cached
    // once so eulerAngles read-back can never flip x/z when yaw passes ±90°.
@@ -513,7 +518,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;
    if(girl&&isValid(girl,true)){girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
    const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
-   if(setWind)setWind(()=>0.35);
+   /* call with the actor as `this`: FlowReferenceStandin.setWindSource is a class method (unbound call threw "Cannot set properties of undefined (setting 'windSource')" -> journey failed) */if(setWind)setWind.call(actor,()=>0.35);
    const hold=holdAt();
    const diag=diagParams();let diagDone=false;
    const clock={t:0,hiddenFor:0,fade:0};
@@ -554,7 +559,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     };
    });
    rideToken.check();
-   if(setWind)setWind(()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
+   if(setWind)setWind.call(actor,()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
    if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:plan.vehicle(LAND_T).yaw});
    arrived=true;

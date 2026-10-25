@@ -6,8 +6,9 @@ import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, di
 import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
-import { createRegionFlowCheckpoint } from './RegionFlowTest';
-import { QA_SKIP_CHECKPOINT, qaSkipTarget, type QaSkipTarget } from './QaSkip';
+import { createRegionFlowCheckpoint, seedLakeCheckpoint } from './RegionFlowTest';
+import { QA_SKIP_CHECKPOINT, qaSkipTarget, qaQuery, type QaSkipTarget } from './QaSkip';
+import { preTransitionEnabled } from './PreTransitionKeys';
 import { qaTransportEnabled } from '../region/JourneyTransport';
 import { armSailQa } from '../region/SailQaProbe';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
@@ -128,12 +129,13 @@ export class WorldNativeComposition extends Component {
     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
     // 运镜bot: lakeside assets still not ready after the hook's 3 s wait → the existing lakeside fallback (toast + island), never an empty board.
     let held=false;
+    if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('arrived',{state:this.world?.commands().snapshot().state});
     if(region==='lakeside'){const landed=await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null,deps:this.lakesideLandingDeps()});if(landed?.ok===false)return this.lakesideFallback('board',landed.reason);held=true;this.world?.holdEnterLevel?.(true);}
     // 运镜bot (region hooks): 04→05 / 08→09 end on the meadow / skycity board camera (RegionBoardLanding); hold the push-in only
     // when the hook put the world camera ON that pose and that board background will render. Otherwise today's path, unchanged.
     else if(region==='meadow'||region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&(region==='meadow'?requiresMeadowScene(selection):requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
-    let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
+    if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
     if(result.ok&&selection.stageId==='mainline-04'){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload('meadow');}
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
@@ -294,7 +296,7 @@ export class WorldNativeComposition extends Component {
    *  real saves are never written; leave via exitQaSkip() or a relaunch. No banner. */
   async qaSkip(target:QaSkipTarget):Promise<Result>{
     const gated=qaSkipTarget('qfSkip='+target);if(!gated||gated!==target)return {ok:false,reason:'qa-skip-disabled'};
-    const search=(()=>{try{const s=(globalThis as any).location?.search;return typeof s==='string'?s:'';}catch{return '';}})();
+    const search=qaQuery();
     if(!qaSkipTarget(search)&&!(globalThis as any).__QF_QA_SKIP_API)return {ok:false,reason:'qa-skip-disabled'};
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
     const cp=QA_SKIP_CHECKPOINT[target];let profile:any;
@@ -304,6 +306,19 @@ export class WorldNativeComposition extends Component {
     try{console.info('[QF_QA_SKIP] '+JSON.stringify({target,namespace:profile.namespace,completed:cp.completed,finish:cp.finish}));}catch{}
     if(this.world.commands().snapshot().state==='home'){const r=await this.world.commands().leaveHome();if(!r.ok)return r;}
     return cp.finish?this.enterMainline():this.enterMainlineStage(profile.stageId,profile.seed);
+  }
+  /** Test-only pre-transition setup (PreTransitionRun): swap in an isolated, engine-replayed profile (real saves untouched),
+   *  `completed` stages with the last one paused one move short (finish=false) or registered (finish=true). Same host gate as
+   *  __qfTeleport; refuses in WeChat release. Moves nobody: the caller drives the world through the normal commands. */
+  preTransitionProfile(completed:number,finish:boolean,lake?:{stageId:string;mode:'win'|'lose'}):Result{
+    if(!preTransitionEnabled())return {ok:false,reason:'pre-transition-disabled'};
+    if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
+    let profile:any,lk:any=null;try{profile=createRegionFlowCheckpoint(completed,{allowQa:true,finish,anyCheckpoint:true});if(lake)lk=seedLakeCheckpoint(profile,lake.stageId,lake.mode,{allowQa:true});}catch(e){return {ok:false,reason:String((e as Error).message)};}
+    if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+    this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;this.hostReply=null;
+    try{console.info('[QF_PRE] profile '+JSON.stringify({namespace:profile.namespace,completed,finish,lake:lk&&{stageId:lk.stageId,seed:lk.seed,cleared:lk.cleared}}));}catch{}
+    if(lk)return {ok:true,stageId:lk.stageId,seed:lk.seed,lastAction:lk.lastAction,cleared:lk.cleared} as any;
+    return {ok:true,stageId:profile.stageId,seed:profile.seed,lastAction:profile.lastAction} as any;
   }
   exitQaSkip():Result{
     if(!this.normalPorts)return {ok:false,reason:'no-test-profile'};

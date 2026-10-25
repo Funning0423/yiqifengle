@@ -8,8 +8,8 @@
    1.65,
    7.1
   ],
-  "boxes": 2718,
-  "nearBoxes": 439,
+  "boxes": 3077,
+  "nearBoxes": 501,
   "macWrittenMinArmM": 0.8,
   "minArmM": 7.34,
   "minViewPitchDeg": -55,
@@ -17,9 +17,9 @@
   "avoidElevStepOverLimitDeg": 0,
   "rawDragElevStepMaxDeg": 10.7,
   "perf": {
-   "avgMsPerFrame": 0.243,
-   "p99Ms": 1.1,
-   "maxMs": 10.19
+   "avgMsPerFrame": 0.099,
+   "p99Ms": 0.47,
+   "maxMs": 7.37
   },
   "worst": [],
   "ok": true
@@ -71,55 +71,55 @@
    "yaw": 3.814074834290355,
    "pitch": 12,
    "signShot": {
-    "armM": 17.9,
-    "textDeg": 51.5,
-    "minTextPx": 144.9
+    "armM": 26.4,
+    "textDeg": 40.1,
+    "minTextPx": 39.4
    }
   },
   "signRect": {
-   "x": -15.934514557823436,
-   "y": -217.67653106395088,
-   "width": 646.4822168740883,
-   "height": 629.8032669203328
+   "x": 5.1794108733448345,
+   "y": -131.82907655845744,
+   "width": 347.81124078554916,
+   "height": 326.3693887835978
   },
   "ok": true
  },
  "P5": {
-  "boxes": 2718,
-  "nearBoxes": 441,
+  "boxes": 3077,
+  "nearBoxes": 515,
   "runs": [
    {
     "pitch": 15,
     "dist": 7,
-    "rawLensInsideFrames": 403,
+    "rawLensInsideFrames": 476,
     "writtenInsideFrames": 0,
     "minArmM": 7,
-    "minViewPitchDeg": -15,
-    "maxLensStepM": 0.062,
-    "avgMs": 0.147,
-    "p99Ms": 0.79
+    "minViewPitchDeg": -51,
+    "maxLensStepM": 0.497,
+    "avgMs": 0.184,
+    "p99Ms": 4.23
    },
    {
     "pitch": 30,
     "dist": 10,
     "rawLensInsideFrames": 0,
     "writtenInsideFrames": 0,
-    "minArmM": 10,
-    "minViewPitchDeg": -30,
-    "maxLensStepM": 0.189,
-    "avgMs": 0.278,
-    "p99Ms": 1
+    "minArmM": 9.88,
+    "minViewPitchDeg": -58,
+    "maxLensStepM": 0.504,
+    "avgMs": 0.379,
+    "p99Ms": 4.42
    },
    {
     "pitch": 10,
     "dist": 12,
     "rawLensInsideFrames": 2,
-    "writtenInsideFrames": 0,
-    "minArmM": 12,
-    "minViewPitchDeg": -10,
-    "maxLensStepM": 0.12,
-    "avgMs": 0.53,
-    "p99Ms": 3.94
+    "writtenInsideFrames": 21,
+    "minArmM": 9.65,
+    "minViewPitchDeg": -34,
+    "maxLensStepM": 0.52,
+    "avgMs": 0.262,
+    "p99Ms": 2.1
    }
   ],
   "ok": true
