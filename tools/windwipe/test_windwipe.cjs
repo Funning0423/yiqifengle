@@ -78,7 +78,7 @@ function clock(){let t=0;const log=[];const self={log,now:()=>t,wait:async s=>{t
       for(let i=0;i<g.positions.length;i+=3){const x=g.positions[i]+p.pivot[0],y=g.positions[i+1]+p.pivot[1];assert(Math.abs(x)<=G.ENDING_CHIME.boxW/2&&y<=0&&y>=-G.ENDING_CHIME.boxH,p.name+' leaves the chime box');}}}
    const tubes=G.endingChimeParts(false).filter(p=>p.swing),a=tubes.map(p=>G.chimePartSwing(p.swing,1.3)[0]);assert(new Set(a.map(v=>v.toFixed(3))).size===tubes.length,'tubes swing independently');
    for(const p of tubes)for(let t=0;t<8;t+=.1){const [z,x]=G.chimePartSwing(p.swing,t);assert(Math.abs(z)<=3.5&&Math.abs(x)<=2.1);}
-   assert(/EndingChime3D/.test(es)&&/warm-button-lit/.test(es)&&!/end_chime_/.test(es));}
+   {const c3=src('ui/EndingChime3D.ts'),sw=src('ui/EndingChimeSway.ts');assert(/addComponent\(EndingChime3D\)/.test(es)&&/@ccclass\('EndingChime3D'\)/.test(c3)&&/warm-button-lit/.test(c3)&&!/end_chime_/.test(es+c3)&&/endingSwayDeg/.test(sw));}}
   ok('ending v2: 7 sizes pass layout checks (320×568 girl 48 pt, head ≥12 pt under seals); chime sways ±4°/3.2 s; 3D chime in code (4 tubes, own swings, low-poly, no PNG); day+night art with .meta; reveal waits for art');}
  console.log('windwipe-ending: '+pass+' checks PASS');
 })().catch(e=>{console.error('FAIL',e);process.exit(1);});

@@ -12,6 +12,9 @@ assert.throws(()=>api.parseScript({launchQuery:'?a=<x>',steps:[]}),/launchQuery/
 for(const f of fs.readdirSync(path.join(__dirname,'examples')))api.parseScript(fs.readFileSync(path.join(__dirname,'examples',f),'utf8'));
 assert.deepEqual(api.toClient(195,422,{w:390,h:844}),{x:195,y:422});
 assert.deepEqual(api.toClient(390,844,{w:375,h:812}),{x:375,y:812});
+{const e=new Error('boom 3615');const t=api.qfSer(e);assert(t.includes('boom 3615')&&t.includes('test-wx-autoplay'),'Error -> message+stack, not {}');
+ class TE extends TypeError{};assert(api.qfSer(new TE("Cannot set properties of null (setting '_sealed')")).includes('_sealed'));
+ assert(api.qfSer({message:'m',stack:'S1'}).includes('S1'));assert.equal(api.qfSer({a:1}),'{"a":1}');assert.equal(api.qfSer('x'),'x');}
 const pts=api.dragPoints({x1:0,y1:0,x2:100,y2:0,ms:160},16);assert.equal(pts.length,10);assert.deepEqual(pts.at(-1),[100,0]);
 // runtime in a fake mini-game
 function runFake(script,env='develop',withCc){

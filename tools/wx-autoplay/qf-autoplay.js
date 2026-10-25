@@ -47,7 +47,7 @@ function installTouch(w){
     var ev={touches:(k==='TouchEnd'||k==='TouchCancel')?[]:[t],changedTouches:[t],timeStamp:Date.now()};var l=(L[k]||[]).slice();
     for(var i=0;i<l.length;i++){try{l[i](ev);}catch(e){console.error('[QF_AUTOPLAY] listener error',e&&e.message);}}return l.length;}};
 }
-var api={parseScript:parseScript,toClient:toClient,dragPoints:dragPoints,stateNames:stateNames,installTouch:installTouch,DESIGN_W:DESIGN_W,DESIGN_H:DESIGN_H,MAX_SHOTS:MAX_SHOTS};
+var api={parseScript:parseScript,toClient:toClient,dragPoints:dragPoints,stateNames:stateNames,installTouch:installTouch,DESIGN_W:DESIGN_W,DESIGN_H:DESIGN_H,MAX_SHOTS:MAX_SHOTS,qfSer:qfSer};
 if(typeof module!=='undefined'&&module.exports&&!wx){module.exports=api;return;}
 if(!wx||g.__QF_AUTOPLAY)return;
 try{var env=wx.getAccountInfoSync&&wx.getAccountInfoSync().miniProgram.envVersion;if(env==='release'){return;}}catch(e){}
@@ -61,12 +61,13 @@ var logBuf=[],logBytes=0,stateBytes=0;
 function w2(file,s,capRef){try{fs.appendFileSync(OUT+'/'+file,s,'utf8');}catch(e){try{fs.writeFileSync(OUT+'/'+file,s,'utf8');}catch(x){}}}
 function flush(){if(!logBuf.length)return;var s=logBuf.join('');logBuf=[];if(logBytes>LOG_CAP)return;logBytes+=s.length;w2('console.log',s+(logBytes>LOG_CAP?'[QF_AUTOPLAY] log cap reached\n':''));}
 var consoleErrors=0,errorSamples=[];
-['log','info','warn','error'].forEach(function(lv){var o=console[lv];console[lv]=function(){try{var a=[].slice.call(arguments).map(function(v){if(typeof v==='string')return v;try{return JSON.stringify(v);}catch(e){return String(v);}}).join(' ');logBuf.push(new Date().toISOString()+' '+lv+' '+a.slice(0,4000)+'\n');if(a.indexOf('[OI_HUD] suppressed')>=0&&a.indexOf('"kind":"error"')>=0)noteFail('hudSuppressed',a.slice(a.indexOf('[OI_HUD]')));if(lv==='error'&&a.indexOf('[QF_AUTOPLAY]')!==0){consoleErrors++;if(errorSamples.length<5)errorSamples.push(a.slice(0,300));}}catch(e){}return o.apply(console,arguments);};});
+function qfSer(v){if(typeof v==='string')return v;if(v&&typeof v==='object'&&(v instanceof Error||(typeof v.message==='string'&&('stack' in v||'name' in v)))){return (v.name||'Error')+': '+v.message+(v.stack?'\n'+v.stack:'');}try{var j=JSON.stringify(v);if(j==='{}'&&v&&typeof v==='object'){var t=String(v);if(t!=='[object Object]')return t;}return j;}catch(e){return String(v);}}
+['log','info','warn','error'].forEach(function(lv){var o=console[lv];console[lv]=function(){try{var a=[].slice.call(arguments).map(qfSer).join(' ');logBuf.push(new Date().toISOString()+' '+lv+' '+a.slice(0,4000)+'\n');if(a.indexOf('[OI_HUD] suppressed')>=0&&a.indexOf('"kind":"error"')>=0)noteFail('hudSuppressed',a.slice(a.indexOf('[OI_HUD]')));if(lv==='error'&&a.indexOf('[QF_AUTOPLAY]')!==0){consoleErrors++;if(errorSamples.length<5)errorSamples.push(a.slice(0,300));}}catch(e){}return o.apply(console,arguments);};});
 var tick=setInterval(flush,1000);
 /* run failures that never reach console.error: journey phase=failed, snapshot world/journey error, wx.onError / unhandled rejections, HUD-suppressed errors */
 var gameFail={journeyFailed:[],snapshotErrors:[],uncaught:[],hudSuppressed:[]};function noteFail(k,t){t=String(t).slice(0,300);var l=gameFail[k];if(l.indexOf(t)<0&&l.length<10)l.push(t);}
-try{wx.onError&&wx.onError(function(r){noteFail('uncaught',(r&&(r.message||r.stack))||r);});}catch(e){}
-try{wx.onUnhandledRejection&&wx.onUnhandledRejection(function(r){var x=r&&r.reason;noteFail('uncaught','unhandledrejection: '+((x&&(x.message||x.stack))||x));});}catch(e){}
+try{wx.onError&&wx.onError(function(r){var m=r&&typeof r==='object'?((r.message||'')+(r.stack?'\n'+r.stack:'')):qfSer(r);console.error('[QF_AUTOPLAY] wx.onError '+m);noteFail('uncaught',m||qfSer(r));});}catch(e){}
+try{wx.onUnhandledRejection&&wx.onUnhandledRejection(function(r){var x=r&&r.reason;var m='unhandledrejection: '+qfSer(x);console.error('[QF_AUTOPLAY] '+m);noteFail('uncaught',m);});}catch(e){}
 function scanState(s){if(!s)return;try{var w=s.world||{},j=w.journey||{};if(s.journeyPhase==='failed'||j.phase==='failed')noteFail('journeyFailed',(j.region||'?')+'>'+(j.target||'?')+': '+(j.error||w.error||'failed'));if(w.error)noteFail('snapshotErrors',w.error);if(s.error)noteFail('snapshotErrors',s.error);if(s.snapErr)noteFail('snapshotErrors','snapshot threw: '+s.snapErr);}catch(e){}}
 var touch=installTouch(wx);g.__QF_AUTOPLAY={touch:touch,api:api};
 if(err){console.error('[QF_AUTOPLAY] script rejected: '+err);w2('result.json',JSON.stringify({ok:false,error:err}));flush();return;}
