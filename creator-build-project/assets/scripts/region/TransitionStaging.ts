@@ -22,10 +22,13 @@ export const TRANSITION_STAGING=Object.freeze({
  meadowLanding:{standUpEnd:[0,0.06,-0.056] as Vec,offBoat:[[0.12,0.33,0.15],[0.70,0.60,0.15],[1.30,0.35,0.15]] as Vec[]},
  gangway:{lengthM:0.75,widthM:0.5,hingeIsland:[-0.70,0.56,0.15] as Vec,hingeMeadow:[0.70,0.56,0.15] as Vec,downDegIsland:14,downDegMeadow:-20},
  /** Segments 3 / 4 / 5a basket staging (basket frame). */
- basket:{outside:[-0.45,0,1.50] as Vec,outsideYawDeg:164.7,doorOut:[0,0,1.25] as Vec,stool:[0,-0.05,1.05] as Vec,threshold:[0,0,0.84] as Vec,
-  p0:[0.03,0,0.395] as Vec,seat:[0.032,0,-0.099] as Vec,seatYawDeg:0,doorHinge:[0.4,0,0.84] as Vec,doorOpenDeg:100,doorS:0.8},
+ /* two-door (场景设计部 scene/b19-basket-door2 01c4cbe3, DOOR2_HANDOFF.md): enter door A (basket_door, +Z), exit door B
+  *  (basket_door_b, −Z); she sits facing B (seatYawDeg 180) and never turns in the basket. p0 = end of boarding = start of exit. */
+ basket:{outside:[-0.16,0,1.75] as Vec,outsideYawDeg:170.0,doorOut:[-0.072,0,1.25] as Vec,threshold:[0,0,0.84] as Vec,
+  p0:[-0.03,0,-0.395] as Vec,seat:[-0.032,0,0.099] as Vec,seatYawDeg:180,doorHinge:[0.4,0,0.84] as Vec,doorOpenDeg:100,doorS:0.8,
+  entryDoorNode:'basket_door',exitDoorNode:'basket_door_b',doorHingeB:[-0.4,0,-0.84] as Vec,thresholdB:[0,0,-0.84] as Vec,doorOutB:[0,0,-1.25] as Vec,stepdownEndB:[-0.03,0,-1.552] as Vec},
  /** Segment 3 (meadow frame): new launch point (old one clips wind_bell_frame / windmill sweep) — NOT applied, flight path is 运镜bot's. */
- meadow:{m4:[3,5.84,-16.4] as Vec,toBasket:[[3,6.322,-20.4],[2.6,6.341,-20.8],[2.6,6.45,-21.7]] as Vec[],launch:[3.6,6.60,-23.4] as Vec,basketObstacleR:1.1},
+ meadow:{m4:[3,5.84,-16.4] as Vec,toBasket:[[3,6.322,-20.4],[2.6,6.341,-20.8],[2.74,6.37,-21.31]/* yard_in (door2) */] as Vec[],launch:[3.6,6.60,-23.4] as Vec,basketYawLocalDeg:-16/* world 164 (door2); flight key t=0 is 运镜bot's */,basketObstacleR:1.1},
  /** Segment 4 (skycity frame): mooring deck, step-down landing, deck front edge, new S0. Basket root y 0.01 (+0.12 m vs flight end key). */
  skycity:{stepDown:[5.192,-0.02,42.262] as Vec,deckEdge:[5.107,-0.02,41.519] as Vec,s0New:[5.25,-0.084,40.6] as Vec,s0YawDeg:177.6,s1:[5.4,-0.087,37.0] as Vec,basketRootY:0.01},
  /** Segment 5a mooring — 场景设计部 FINAL (scene/b19-transition-spaces-on-59aa 3924dab4, transition-anchors.json): option C
@@ -35,7 +38,7 @@ export const TRANSITION_STAGING=Object.freeze({
   *  2.12 m at basketWalkMps 0.8 = 3.56 s; sit 1.2 s overlaps ignition. Hinge (99.584,18.908,123.665), out 100°, 0.8 s each way.
   *  NOTE: the runtime lakeside ride still uses T-03's LakesideBalloon walk/launch knobs (运镜bot) — wire these points there. */
  skyMooring5a:{option:'C' as 'B'|'C'|'pending',provisional:false,pending:false,source:'scene/b19-transition-spaces-on-59aa 3924dab4',
-  world:[100.191,18.908,122.960] as Vec,worldYawDeg:-66.19,pos:[-14.8,0.09,-38.8] as Vec,yawDeg:52.65,gapM:1.485,
+  world:[100.191,18.908,122.960] as Vec,worldYawDeg:-68.19,pos:[-14.8,0.09,-38.8] as Vec,yawDeg:50.65/* door2: world −68.19 (was 52.65 / −66.19) */,gapM:1.485,
   walkWorld:[[83.320,18.852,130.795],[86.386,18.848,129.115],[89.451,18.848,127.435],[92.516,18.848,125.755],[95.582,18.848,124.075],[98.509,18.848,123.484]] as Vec[],
   doorStandYawDeg:101.4,threshold:[99.422,18.908,123.299] as Vec,inBasket:[100.523,18.908,122.846] as Vec,inBasketYawDeg:113.8,
   seat:[100.072,18.908,123.047] as Vec,seatBackM:0.494,hinge:[99.584,18.908,123.665] as Vec,doorOpenDeg:100,doorOpenS:0.8,

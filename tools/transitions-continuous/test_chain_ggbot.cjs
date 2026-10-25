@@ -77,7 +77,7 @@ for(const f of ['TransitionChain','TransitionStaging','TransitionStagingMath','T
 // 11 b19 staging data + duration table
 const ST=H.load('region/TransitionStaging.ts'),tot=ST.segmentTotals();out.totals=tot;
 const stances=JSON.parse(fs.readFileSync(path.join(ROOT,'tools/transition-spaces/stances.json'),'utf8'));assert.ok(stances.segments['3_meadow_balloon_in']);
-assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[0.032,0,-0.099]);assert.equal(ST.BASKET_RIDE_POSE.meadowSkycity.clip,'sit_hold');
+assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[-0.032,0,0.099]);assert.equal(ST.TRANSITION_STAGING.basket.seatYawDeg,180);assert.deepEqual([...ST.TRANSITION_STAGING.basket.p0],[-0.03,0,-0.395]);assert.equal(ST.BASKET_RIDE_POSE.meadowSkycity.clip,'sit_hold');
 // 12 compress (Grok Bot 2026-10-25): overlap-aware timeline within caps, actions untouched
 {const TL=ST.transitionTimeline(),RT=ST.TRANSITION_RETIME,D=ST.TRANSITION_DURATIONS,tt=TL.totals;out.timeline=tt;
  assert.ok(tt.islandToMeadow<=RT.caps.islandToMeadow,'island→meadow '+tt.islandToMeadow);assert.ok(Math.abs(tt.islandToMeadow-44.57)<1e-6,'seg1/2 left as is');
@@ -96,7 +96,7 @@ assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[0.032,0,-0.099]);assert
  out.measured={meadow:{boarding:seg('seg3','toBasket','sitDown'),flight:TL.beats.seg3.find(b=>b.id==='flight').t1-TL.beats.seg3.find(b=>b.id==='flight').t0,exit:tt.seg4,total:tt.meadowToSkycity},lake:{boarding:seg('seg5a','toBasket','sitDown'),flight:seg('seg5a','liftoff','flight'),exit:tt.seg5b,total:tt.skycityToLakeside}};
  // two-door lakeside exit: provisional block, legacy single door until the model is in
  {const LB=H.load('region/LakesideBalloon.ts'),BD=LB.BASKET_DOORS;assert.equal(BD.exit.wallSign,-1);assert.notEqual(BD.exit.node,BD.entry.node);
-  const xl=LB.lakesideExitDoor(),xr=LB.lakesideExitDoor({...BD,modelReady:true});assert.equal(xl.legacy,!BD.modelReady);assert.equal(xr.node,'basket_door_exit');assert.deepEqual([...xr.startLocal],[-.03,0,-.395]);
+  assert.equal(BD.modelReady,true,'door2 model in');const xl=LB.lakesideExitDoor({...BD,modelReady:false}),xr=LB.lakesideExitDoor();assert.equal(xl.legacy,true);assert.equal(xr.legacy,false);assert.equal(xr.node,'basket_door_b');assert.deepEqual([...xr.startLocal],[-.03,0,-.395]);
   const tw=p=>p,m0=LB.lakesideBalloonMooring([0,0,10],tw,.7,xl),m1=LB.lakesideBalloonMooring([0,0,10],tw,.7,xr);
   assert.ok(Math.hypot(m0.start[0]-m1.start[0],m0.start[2]-m1.start[2])<0.07,'exit P0 on the exit-heading side either way');assert.ok(Math.abs(((m1.doorYawDeg-m0.doorYawDeg)%360+360)%360-180)<1e-6,'basket turned 180° so the exit door faces her heading');
   assert.ok(/find\(vehicle,moored\.exitDoorNode\)/.test(adp),'lakeside get-out animates the exit leaf');out.exitDoor={provisional:BD.provisional,modelReady:BD.modelReady};}

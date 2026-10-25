@@ -522,7 +522,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const driver=rig.addComponent(TransitDriver);
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;
-   const door=find(vehicle,'basket_door')??find(vehicle,'basket_door_leaf'),envelope=find(vehicle,'balloon_envelope');
+   const door=find(vehicle,TRANSITION_STAGING.basket.entryDoorNode)??find(vehicle,'basket_door_leaf'),doorB=find(vehicle,TRANSITION_STAGING.basket.exitDoorNode)/* door2: exit leaf */,envelope=find(vehicle,'balloon_envelope');
    const anim=(actor as any).anim||null;
    let seatDef:any=null,seated=false,s0End:Vec|null=null;
    const walkTo=(path:Vec[],secs?:number)=>{let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);
@@ -553,7 +553,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=[here,W(B.outside),W(B.doorOut)];
      guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps));rideToken.check();
      doorAt=b1;const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();await reach;rideToken.check();
-     guardBeforeWalk(anim,'B1 step into basket');await walkTo([W(B.doorOut),W(B.stool),W(B.threshold),W(B.p0)],D3.intoBasket);rideToken.check();inAt=b1;
+     guardBeforeWalk(anim,'B1 step into basket');await walkTo([W(B.doorOut),W(B.threshold),W(B.p0)],D3.intoBasket);rideToken.check();inAt=b1;
      // b19: ridden SEATED (sit_down → sit_hold; stand_up before any walk at B5), seat = basket (0.032,0,−0.099) facing the door
      seatDef=seatFromBench(W(B.seat),(y+B.seatYawDeg)*Math.PI/180);
      try{await actor.perform({kind:'sit',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B1 sit skipped: '+String(e));}
@@ -561,7 +561,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     }finally{b1On=false;director.off(Director.EVENT_BEFORE_DRAW,b1Draw);}
    }
    if(girl&&isValid(girl,true)){if(seated)girl.setParent(vehicle,true)/* seated root kept where sit_down put it */;else{girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}}
-   if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);
+   if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);if(doorB&&isValid(doorB,true)&&contChain)doorB.setRotationFromEuler(0,0,0);
    if(inflateT<INFLATE.durationS)applyInflate();
    const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
    /* call with the actor as `this`: FlowReferenceStandin.setWindSource is a class method (unbound call threw "Cannot set properties of undefined (setting 'windSource')" -> journey failed) */if(setWind)setWind.call(actor,()=>0.35);
@@ -616,7 +616,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // sky-city stop (plan.s0). No teleport: the actor is reset to where she stands, then walks.
     chainMark('balloon','B5-door-walk-out');
     const vp=vehicle.worldPosition,o:Vec=[vp.x,vp.y,vp.z],y=vehicle.eulerAngles.y;
-    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;b5+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(door&&isValid(door,true))door.setRotationFromEuler(0,doorAngleAt(b5),0);};
+    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;b5+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
      const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);
@@ -626,10 +626,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      if(seated&&seatDef){try{await actor.perform({kind:'stand',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B5 stand skipped: '+String(e));}}
      rideToken.check();await new Promise<void>(r=>setTimeout(r,D4.pause*1000));b5=0/* door clock starts with door_reach */;
      const gw=girl.worldPosition,here:Vec=[gw.x,gw.y,gw.z];
-     actor.cancelAndReset({kind:'standing',controllerRoot:here,yawRad:(y+0)*Math.PI/180});
+     actor.cancelAndReset({kind:'standing',controllerRoot:here,yawRad:(y+B.seatYawDeg)*Math.PI/180/* door2: stood up facing door B, no turn */});
      guardBeforeWalk(anim,'B5 door reach');if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});
      rideToken.check();guardBeforeWalk(anim,'B5 walk out');
-     await walkTo([here,W(B.threshold),W(B.doorOut),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
+     await walkTo([here,W(B.thresholdB),W(B.doorOutB),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
      await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
      s0End=city(K.s0New);(lease as any).tail=true/* she ends on the b19 S0: the controller must not reset her to the old route end */;
     }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);}

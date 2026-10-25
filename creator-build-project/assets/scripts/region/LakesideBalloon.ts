@@ -1,5 +1,6 @@
 import type {Pose, Vec} from '../world-r1/WorldFlowCore';
 import {journeyDistanceAt, journeyTimingOk, orbitOffset, routeLength, sampleRoute, type JourneyTiming} from '../world-r1/RegionJourneyCore';
+import {TRANSITION_STAGING} from './TransitionStaging';
 /** Skycity → lakeside balloon (运镜bot r5 lakeside-landing-cam, docs/r5/lakeside-landing/RESULT.md).
  *  One continuous shot: the lens leaves the skycity camera, rises with the basket, looks down over the lake from above and
  *  behind her right shoulder, follows the slow glide down to the south bank and ends EXACTLY on the standing landing pose
@@ -357,11 +358,11 @@ export function lakesideNearestWalkable(walk:readonly (readonly number[])[],p:re
  *  data (door node names, hinges, per-door open animation, entry/exit stand points) and set modelReady:true once the basket
  *  model with the second door is in. While modelReady is false the get-out keeps the single b15 door (legacy) so nobody walks
  *  through a wall. Basket frame: entry door wall = +Z, exit door wall = −Z (wallSign −1). */
-export const BASKET_DOORS=Object.freeze({provisional:true,modelReady:false,source:'DOOR2_HANDOFF.md (pending)',
- entry:{node:'basket_door',hingeLocal:[0.4,0,0.84] as readonly [number,number,number],openDeg:100,openS:0.8},
- exit:{node:'basket_door_exit',hingeLocal:[-0.4,0,-0.84] as readonly [number,number,number],openDeg:100,openS:0.8,wallSign:-1,
-  /** P0 behind the closed EXIT leaf (mirror of the b15 entry-side exitStartLocal) */
-  standLocal:[-.03,0,-.395] as readonly [number,number,number]}});
+export const BASKET_DOORS=Object.freeze({provisional:false,modelReady:true,source:'scene/b19-basket-door2 01c4cbe3 DOOR2_HANDOFF.md',
+ entry:{node:TRANSITION_STAGING.basket.entryDoorNode,hingeLocal:TRANSITION_STAGING.basket.doorHinge as readonly [number,number,number],openDeg:100,openS:0.8},
+ exit:{node:TRANSITION_STAGING.basket.exitDoorNode,hingeLocal:TRANSITION_STAGING.basket.doorHingeB as readonly [number,number,number],openDeg:100,openS:0.8,wallSign:-1,
+  /** P0 behind the closed EXIT leaf (= exitStartLocalB, = TRANSITION_STAGING.basket.p0) */
+  standLocal:TRANSITION_STAGING.basket.p0 as readonly [number,number,number]}});
 /** Which door the lakeside get-out uses: the exit door once its model is in, else the legacy entry door. */
 export function lakesideExitDoor(D=BASKET_DOORS){return D.modelReady?{node:D.exit.node,wallSign:D.exit.wallSign,startLocal:D.exit.standLocal,legacy:false}
  :{node:D.entry.node,wallSign:1,startLocal:LAKESIDE_BALLOON_LANDING.exitStartLocal,legacy:true};}
