@@ -17,6 +17,9 @@ import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,doorAngleAt,doorInA
 import {TRANSITION_DURATIONS,TRANSITION_STAGING} from './TransitionStaging';
 import {basketToWorld,pathLength} from './TransitionStagingMath';
 import {seatFromBench} from './TransportLeg';
+import {isTransitionPlaceholder} from './TransitionProps';
+import {setMooringRopes} from './SkyMooringRopes';
+import {basketObstacleEvent} from './BasketObstacles';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -224,6 +227,7 @@ function dimCityNight(model:Node|null,night:boolean,cache:WeakSet<MeshRenderer>)
  if(!model||!night||!EffectAsset.get('builtin-unlit'))return;
  eachNamed(model,n=>{
   if(/window|emissive|lamp|light|flame|pennant|flag/i.test(n.name))return;
+  if(isTransitionPlaceholder(n))return/* cand7: placeholder planks never get the night silhouette */;
   for(const r of n.getComponents(MeshRenderer)){
    if(cache.has(r))continue;
    const shared=r.getSharedMaterial(0);if(!shared)continue;
@@ -289,7 +293,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   /** b18 T-04: sky domes are camera-centred and not teleported; yaw them with the sun so sky + light stay camera-relative continuous across the seam. */
   const domeYaw0=new Map<Node,[number,number,number]>();
   let restoreSailLeft=()=>{};
-  const release=()=>{if(dead)return;dead=true;try{restoreSailLeft();}catch{}director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  let landRopeOn=false;
+  const release=()=>{if(dead)return;dead=true;try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
@@ -598,6 +603,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      if(inflateT<INFLATE.durationS){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}if(!hidden)inflateT=Math.min(INFLATE.durationS,inflateT+Math.max(0,Math.min(.1,dt)));}
      else if(!(hold!=null&&rideToFlightT(clock.t)>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
      const t=apply();if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
+     {const m=t>=LAND_T;if(m!==landRopeOn){landRopeOn=m;setMooringRopes(model,'landing',m);}}/* cand7: landing rope only with the basket down */
      if(contChain&&inflateT>=INFLATE.durationS&&!flightMarked){flightMarked=true;chainMark('balloon','B3-flight');}
      if(contChain&&!settleMarked&&clock.t>=BALLOON_DOOR.settleT0){settleMarked=true;chainMark('balloon','B4-settle');}
      for(const [ct,name] of cues){if(fired.has(name)||t<ct||hidden)continue;fired.add(name);emitTransitCue(name as any,{t,region:balloonCueRegion(name),id:name});}

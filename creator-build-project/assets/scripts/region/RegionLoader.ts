@@ -1,4 +1,5 @@
 import {assetManager,AssetManager,Prefab,Node,instantiate,isValid,MeshRenderer,Material} from 'cc';
+import {setMooringRopes} from './SkyMooringRopes';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkycityPennantWind} from './SkycityPennantWind';
 import {SkycityRobotInteract} from './SkycityRobotInteract';
@@ -79,6 +80,7 @@ export function mountSkyMooring(model:Node,prefab:Prefab|null):Node|null{
   let palette:Material|null=null;
   for(const r of model.getComponentsInChildren(MeshRenderer)){for(const m of r.sharedMaterials){if(m&&m.name.startsWith('M_sky_palette')&&!m.name.includes('emissive')){palette=m;break;}}if(palette)break;}
   const n=instantiate(prefab);n.name=SKY_MOORING_PREFAB;model.addChild(n);
+  setMooringRopes(n,'landing',false);setMooringRopes(n,'5a',false)/* cand7: ropes stowed until a basket is moored */;
   if(palette)for(const r of n.getComponentsInChildren(MeshRenderer)){const c=Math.max(1,r.sharedMaterials.length);for(let i=0;i<c;i++)r.setSharedMaterial(palette,i);}
   else console.warn('[SKY_MOORING] M_sky_palette not found; props keep the imported stand-in');
   return n;

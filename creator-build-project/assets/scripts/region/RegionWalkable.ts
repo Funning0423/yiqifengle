@@ -32,7 +32,9 @@ export function walkGrid(region:WalkRegion):WalkGrid{
 function cellOf(g:WalkGrid,x:number,z:number):number{const gx=Math.floor((x-g.x0)/g.c),gz=Math.floor((z-g.z0)/g.c);return gx<0||gz<0||gx>=g.W||gz>=g.H?-1:gz*g.W+gx;}
 function centre(g:WalkGrid,ci:number):WVec{return [+(g.x0+(ci%g.W+.5)*g.c).toFixed(3),g.h[ci],+(g.z0+(((ci/g.W)|0)+.5)*g.c).toFixed(3)];}
 /** Floor height (m) where she can stand at local (x,z), or null (water, wall, trunk, off the baked area). */
-export function walkFloorY(region:WalkRegion,x:number,z:number):number|null{const g=walkGrid(region),ci=cellOf(g,x,z);if(ci<0)return null;const y=g.h[ci];return Number.isNaN(y)?null:y;}
+/** cand7: BasketObstacles installs globalThis.__QF_WALK_OVERLAY (no import, keeps this module standalone for node harnesses). */
+function walkOverlay(region:WalkRegion,x:number,z:number):boolean{try{const f=(globalThis as any).__QF_WALK_OVERLAY;return typeof f==='function'&&!!f(region,x,z);}catch{return false;}}
+export function walkFloorY(region:WalkRegion,x:number,z:number):number|null{const g=walkGrid(region),ci=cellOf(g,x,z);if(ci<0)return null;const y=g.h[ci];return Number.isNaN(y)||walkOverlay(region,x,z)/* cand7: active moored basket (BasketObstacles) */?null:y;}
 export function isWalkable(region:WalkRegion,x:number,z:number):boolean{return walkFloorY(region,x,z)!==null;}
 export type NearestHit=Readonly<{at:WVec;distanceM:number;exact:boolean}>;
 /** Nearest standable point to `pos` (local). Same cell -> pos itself on the floor height (exact). Otherwise the closest walkable cell

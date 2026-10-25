@@ -7,6 +7,7 @@ import type {SailArt} from './SailArt';
 import {stopEngineStates} from './EngineAnimStop';
 import {chainMark,guardBeforeWalk} from './TransitionChain';
 import {TRANSITION_DURATIONS} from './TransitionStaging';
+import type {GangwayDriver} from './SailGangway';
 import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 function sailCueRegion(cue:string):string{
@@ -291,7 +292,7 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  total:number;approach:Vec[];deck:Vec[];disembark:Vec[];arrival:Vec[];sit:ReturnType<typeof seatFromBench>;stand:ReturnType<typeof seatFromBench>;
  boardS:number;arrivalS:number;boardPose?:Pose|null;
  /** transitions-continuous (TransitionStaging): pier end + deck edge (A2 gangplank), shown props hidden on cue. */
- pier?:Vec[];plankOn?:Vec[];props?:{islandPlank?:Node|null;pier?:Node|null;meadowPlank?:Node|null};
+ pier?:Vec[];plankOn?:Vec[];props?:{islandPlank?:Node|null;pier?:Node|null;meadowPlank?:Node|null;ramp?:Node|null;gangway?:GangwayDriver|null};
 }):Promise<void>{
  const rider=(actor as {node?:Node}).node;
  if(!rider){console.error('[QF_SAIL] FlowReferenceStandin has no node; sail ride aborted');throw Error('sail-rider-missing');}
@@ -302,7 +303,8 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  const walk=(path:Vec[],stop:boolean,secs?:number)=>{const L=pathLen(path);const duration=secs&&secs>0?secs:Math.max(0.35,L/1.2);return actor.perform({kind:'walk',path,duration,stopAtEnd:stop} as any,token);};
  const anim0=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);
  const show=(n:Node|null|undefined,on:boolean)=>{try{if(n&&n.isValid&&n.active!==on)n.active=on;}catch{/* prop optional */}};
- show(plan.props?.pier,true);show(plan.props?.islandPlank,true);show(plan.props?.meadowPlank,false);
+ show(plan.props?.pier,true);show(plan.props?.ramp,true);show(plan.props?.islandPlank,true);show(plan.props?.meadowPlank,false);
+ const gw=plan.props?.gangway||null;try{gw?.swing('island',0.8)/* cand7: real gangway lowered onto island_dock while she walks to it */;}catch{}
  // A1: visible walk from the last island level to the pier (no cover); A2: over the gangplank onto the deck, sit.
  chainMark('sail','A1-pier-walk');guardBeforeWalk(anim0,'A1 pier walk');
  const D=TRANSITION_DURATIONS.seg1;let realI6=0;
@@ -320,9 +322,10 @@ export async function playSailBeats(driver:ReturnType<typeof createSailDriver>,a
  // so the sail motion keeps its d9423886 length instead of being squeezed.
  const motionBudget=Math.max(4,30.5-(used-realI6)-sf-standS-offS+(plan.pier?3.5:0));
  driver.depart(motionBudget);
- chainMark('sail','A3-sail');show(plan.props?.islandPlank,false)/* plank drawn back as she casts off */;
+ chainMark('sail','A3-sail');show(plan.props?.islandPlank,false)/* plank drawn back as she casts off */;try{gw?.swing('stowed-island',0.8);}catch{}
  await until(plan.total-plan.boardS);
- chainMark('sail','A4-dock');show(plan.props?.meadowPlank,true);
+ chainMark('sail','A4-dock');show(plan.props?.meadowPlank,true);try{gw?.swing('meadow',0.8)/* side swap happens upright (stowed→stowed), then lowers */;}catch{}
+ show(plan.props?.pier,false);show(plan.props?.ramp,false)/* cand7: island left — island-side placeholders off */;
  driver.releaseRider();
  // fix-cloud-sit: guard again right before stand_up and before the disembark walk (the actor's anim = her SkeletalAnimation)
  const anim=(actor as any).anim||rider.getComponent(SkeletalAnimation)||rider.getComponentInChildren(SkeletalAnimation);

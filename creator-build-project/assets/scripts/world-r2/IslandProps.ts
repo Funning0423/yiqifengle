@@ -4,6 +4,7 @@ import { islandPoseEntry } from '../world-r1/RegionCameraData';
 import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, signpostShiftX, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { onPropTap } from './IslandPropTaps';
 import { SeaNightTint } from './SeaNightTint';
+import { realModelArrived } from '../region/TransitionProps';
 
 /**
  * T9 island 3D UI props host (runtime). Owns only its own nodes under one root; never touches the imported island
@@ -53,7 +54,7 @@ export class IslandProps {
       const S = ISLAND_PROPS.signpost;
       this.sign = this.mount(get(S.prefab), S.position, S.yawDeg, S.scale);
       for (const p of ISLAND_PROPS.palms) this.palms.push(this.mount(get(p.prefab), p.position, p.yawDeg, p.scale));
-      for (const p of ISLAND_PROPS.structures) this.structures.push(this.mount(get(p.prefab), p.position, p.yawDeg, p.scale));
+      for (const p of ISLAND_PROPS.structures) { const n = this.mount(get(p.prefab), p.position, p.yawDeg, p.scale); this.structures.push(n); if (p.prefab === 'island_dock') realModelArrived('island_dock', n); /* cand7: placeholder boxes go in this same call */ }
       for (const role of PROP_ROLES) {
         const pivot = new Node('IslandPropPivot-' + role); this.root.addChild(pivot); pivot.active = false;
         const n = this.mount(get(ISLAND_PROPS.buttons[role].prefab), [0, 0, 0], 0, 1);

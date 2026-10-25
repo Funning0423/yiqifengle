@@ -36,6 +36,7 @@ export function chainMark(leg:ChainLeg,seg:string,at:number=now()):boolean{
  const ok=i>=0&&(i===0||i===pi+1);
  if(i===0)c.events=c.events.filter((e:ChainEvent)=>e.leg!==leg);
  c.events.push({leg,seg,at});
+ try{const h=g.__QF_CHAIN_HOOK;if(typeof h==='function')h(leg,seg,i);}catch{/* cand7: BasketObstacles listens here (no import: pure test harnesses copy this file alone) */}
  if(!ok){c.bad++;try{console.warn('[QF_CHAIN] out-of-order segment '+leg+':'+seg+' after '+(prev?prev.seg:'none'));}catch{}}
  return ok;
 }

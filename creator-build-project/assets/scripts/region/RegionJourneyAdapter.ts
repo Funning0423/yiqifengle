@@ -4,7 +4,10 @@ import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME,lakeBoardS} from './TransitionStaging';
 import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
 import {SKY_LAKE_CONT,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
-import {firstMaterial,plankBetween} from './TransitionProps';
+import {firstMaterial,placeholderPlank,hidePlaceholders,findDeep,realModelPresent} from './TransitionProps';
+import {createGangwayDriver} from './SailGangway';
+import {setMooringRopes} from './SkyMooringRopes';
+import {basketObstacleEvent} from './BasketObstacles';
 import {sailBoardPaths,sailOffPath} from './TransitionStagingMath';
 import {Animation,Camera,Component,Director,Mat4,Material,Mesh,MeshRenderer,Node,Vec3,director,isValid,sys,view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
@@ -149,11 +152,15 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      // transitions-continuous (场景设计部 b19 stances): I4 → dock ramp → new I6 → dock_board → gangway → sit (A1/A2);
      // stand_up → port gangway → landing_step (A5). Dock/gangway art comes later as named nodes; until then swappable placeholders.
      const bp=sailBoardPaths(start,v0.pos,v0.yaw),off=sailOffPath(berth,vEnd.yaw,step),G=TRANSITION_STAGING.gangway,I=TRANSITION_STAGING.island;
-     const hull=firstMaterial(boat),scn=director.getScene(),has=(n:string)=>!!(scn&&find(scn,n));
-     const props={pier:has('island_dock')?null:plankBetween(rig,'island_dock',[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[0]],[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[1]],I.dockDeck.x[1]-I.dockDeck.x[0],.12,hull),
-      islandPlank:has('sail_gangway')?null:plankBetween(rig,'sail_gangway',I.dockBoard,bp.boat[1],G.widthM,.05,hull),
-      meadowPlank:has('sail_gangway')?null:plankBetween(rig,'sail_gangway_meadow',off[2],off[3],G.widthM,.05,hull)};
-     if(!has('island_dock'))plankBetween(rig,'island_dock_ramp',[-1.4,I.dockRamp.top[0],I.dockRamp.z[0]],[-1.4,I.dockRamp.top[1],I.dockRamp.z[1]],I.dockRamp.x[1]-I.dockRamp.x[0],.08,hull);
+     // cand7 (b19 dock models): the real island_dock (IslandProps, ISLAND_PROPS.structures) and the real sail_gangway (sailboat.glb
+     // sail_gangway_hinge, driven from its extras) replace the plankBetween boxes. Boxes are a fallback only when a model is missing;
+     // a dock that mounts later removes them in the same call (realModelArrived), and they are hidden when their region is left.
+     const hull=firstMaterial(boat),scn=director.getScene(),dockReal=realModelPresent('island_dock')||!!findDeep(scn,'island_dock');
+     const gangway=createGangwayDriver(boat,findDeep);if(gangway)gangway.set('stowed-meadow');
+     const props={pier:dockReal?null:placeholderPlank(rig,'island_dock',[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[0]],[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[1]],I.dockDeck.x[1]-I.dockDeck.x[0],.12,hull),
+      ramp:dockReal?null:placeholderPlank(rig,'island_dock_ramp',[-1.4,I.dockRamp.top[0],I.dockRamp.z[0]],[-1.4,I.dockRamp.top[1],I.dockRamp.z[1]],I.dockRamp.x[1]-I.dockRamp.x[0],.08,hull),
+      islandPlank:gangway?null:placeholderPlank(rig,'sail_gangway',I.dockBoard,bp.boat[1],G.widthM,.05,hull),
+      meadowPlank:gangway?null:placeholderPlank(rig,'sail_gangway_meadow',off[2],off[3],G.widthM,.05,hull),gangway};
      if(props.meadowPlank)props.meadowPlank.active=false;
      const sitStart=bp.boat[bp.boat.length-1];
      sailPlan={total:tl.build05S,approach:bp.toI6,pier:bp.dock.slice(1),plankOn:bp.boat.slice(1,-1),props,deck:sitStart,disembark:off,arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
@@ -162,7 +169,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     // N3: at night the path and windmill dim to x0.6 with the same night weight.
     if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT));mounted.set(to,model);progress(.98);
     if(boardSrc&&route.board)setRegionBoardSource(to as BoardLandingRegion,boardSrc);
-    const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
+    const lease:JourneySceneLease={route,show(visible){if(dead)return;if(!visible)hidePlaceholders(rig)/* cand7: off with the meadow lease; SailRide re-shows on cue */;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
      ...(sailDriver&&sailPlan?{onFrame:(dt:number)=>sailDriver!.onFrame(dt,false),startPose:()=>{const v=view.getFrameSize();return sailDriver!.pose({w:v.width,h:v.height});},ride:(actor,world,token)=>playSailBeats(sailDriver!,actor,world,token,sailPlan!)}:{})};
     return lease;
    }catch(error){release();throw error;}
@@ -194,7 +201,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
  let tailStop=()=>{}/* b15 handover: only the journey owner ends the exit walk */,waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{},beforeDraw=()=>{};let fillW=0;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
  const legHide=new LakesideLegHide()/* b17 night lakeside blocker: earlier legs' leftovers off once she boards */;
- const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);tailStop();rig.active=false;if(isValid(rig,true))rig.destroy();legHide.restore();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();publishLakesideRide(null);};
+ const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);tailStop();rig.active=false;if(isValid(rig,true))rig.destroy();legHide.restore();try{setMooringRopes(director.getScene(),'5a',false);basketObstacleEvent('lakeside:released');}catch{}/* cand7 */batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();publishLakesideRide(null);};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
  try{
   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);lakeModel=model;
@@ -231,7 +238,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
   const clock={t:0,hiddenFor:0,fade:0};
-  let lastPose:Pose|null=null;
+  let lastPose:Pose|null=null;let ropes5a=false;
   const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
   const doorVs=view.getVisibleSize(),doorWide=lakesideDoorWideLens(moored.walk,moored.mooring,landPose,doorVs.width/Math.max(1,doorVs.height),{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* T-03: pulled back, lake + her whole body in frame, held under the place-name sign, option B */,doorLens=doorWide?doorWide.lens:lakesideDoorLens(moored.walk,moored.mooring,doorVs.width/Math.max(1,doorVs.height),undefined,undefined,{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* b16 item 6: safe insets (route F3) *//* b15 door shot: where the ride lens arrives at touchdown */;
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
@@ -299,6 +306,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     boardFn=()=>board();
     const apply=()=>{
      const t=Math.min(clock.t,R.T),pos=sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
+     {const m=t<R.liftT;if(m!==ropes5a){ropes5a=m;setMooringRopes(director.getScene(),'5a',m);}}/* cand7: 5a rope while the basket is moored, stowed at lift-off */
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
      if(t>=R.cutT)legHide.apply(director.getScene())/* b17: island env_cloud_layer, day and night; skycity untouched */;

@@ -167,6 +167,7 @@ const tests=[
  ['ui-b16-fixes','tools/ui-b16-fixes/test_b16_ui_fixes.cjs'],/* UI设计部 b16: P1 signpost, P2 sky-city night key light, L13 rule guide, r6 lakeside measure_visible gate */
  ['lakeside-lens-guard','tools/journey-integration/test-lakeside-lens-guard.cjs'],/* b17r13: supersedes lakeside-lens-occlusion (LensPullIn, b17r7) */
  ['transition-spaces','tools/transition-spaces/test-transition-spaces.cjs'],/* b19: transition stance/path data (stances.json) vs d9423886 geometry */
+ ['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
 ];
 /* P0 r16: geometry-heavy checks (real GLB triangles, ~155 s alone) get 360 s; everything else keeps 180 s. */
 const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000};
