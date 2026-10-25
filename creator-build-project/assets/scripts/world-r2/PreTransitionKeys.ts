@@ -3,7 +3,7 @@
  *  scene transition; the tester then fires the transition with a normal touch on the named trigger, so the whole transition
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
-import { qaSkipAllowed, qaSkipTarget, qaQuery } from './QaSkip';
+import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled } from './QaSkip';
 export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail';
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
 export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';
@@ -50,7 +50,7 @@ export function preTransitionKey(search?:string|null,host:any=globalThis):PreKey
 }
 /** Hook registration gate: same as __qfTeleport (?qfSkip / ?qfHooks=1) plus a valid ?qfPre. Release: always false. */
 export function preTransitionEnabled(search?:string|null,host:any=globalThis):boolean{
- if(!qaSkipAllowed(host))return false;const q=preSearch(search,host);
+ if(!qaSkipAllowed(host))return false;if(search==null&&qaHarnessEnabled(host))return true;const q=preSearch(search,host);
  return qaSkipTarget(q,host)!==null||/(?:^|[?&])qfHooks=1(?:&|$)/.test(q)||preTransitionKey(q,host)!==null;/* = qaHooksEnabled (p0drag9), inlined so this also cherry-picks onto builds without it */
 }
 /** UI point helper (pure): a node centre in canvas-local px (y up, origin at canvas centre) -> top-left CSS px. */

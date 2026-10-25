@@ -1,6 +1,6 @@
 {
   "scopeVersion": "r5-retry-readonly-exit-v1",
-  "startedAt": "2026-10-24T07:38:52.348Z",
+  "startedAt": "2026-10-25T07:22:20.064Z",
   "scope": "Pure Node actual unchanged runtime + pure managed session seam; isolated synchronous Map storage. No Cocos/browser/device/disk save acceptance.",
   "checks": [
     {
@@ -61,7 +61,7 @@
       "name": "R5 uses actually earned mainline gate; all 12 wins, duplicate commits/visual/finish and memento claims",
       "status": "PASS",
       "stages": 12,
-      "actions": 116,
+      "actions": 118,
       "receipts": 18
     },
     {
@@ -236,11 +236,11 @@
     }
   ],
   "findings": [],
-  "finishedAt": "2026-10-24T07:40:02.189Z",
+  "finishedAt": "2026-10-25T07:23:18.471Z",
   "runtimeSha256": {
     "mainline-r1/runtime/mainline-controller.js": "57ea81f302b4f5b44d014da999d57b0ac91920b2ae8c44bb5e113d3b7819e305",
-    "regional-r05/runtime/board-session-provider.js": "5206e77677c469c84b63e297c95d78acd6890ebae41962b7e2198ed40252e449",
+    "regional-r05/runtime/board-session-provider.js": "c54337f6c62ddd3148cb902399f64c031c476ea3a63cc63f3af4fbc9660cac8f",
     "world-r2/ManagedBoardSession.ts": "c01e058acbdc4101c7f6a047f85884d5385aa56b7bbbe5cbd0652669d2e90e6c",
-    "ManagedMobileBoardUI.ts": "9d5b1d340edbded2881b38085eb9bef28231e7b5973a72b35f0713edf249088b"
+    "ManagedMobileBoardUI.ts": "702ebf1375e014965d8d721a022fe5caedf725f31f89888a0f571ac6acbd5d51"
   }
 }

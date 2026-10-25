@@ -2,6 +2,7 @@
  *  (same host gate as __qfTeleport; WeChat release never). Setup goes through the real commands and an isolated test profile;
  *  the transition itself is never started here — the tester (or autoplay) touches the returned trigger. */
 import { director, game, Node, UITransform, Canvas, Vec3 } from 'cc';
+import { qaSkipAllowed } from './QaSkip';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
 export type PreDeps={
@@ -97,7 +98,8 @@ export class PreTransitionRunner{
   return {kind:'lighthouse',node:'island lighthouse',point:null};
  }
  async run(key:string,opts?:{setupTimeScale?:number}):Promise<R>{
-  if(!preTransitionEnabled())return {ok:false,reason:'pre-transition-disabled'};
+  if(key==='enable'){if(!qaSkipAllowed())return {ok:false,reason:'pre-transition-disabled'};(globalThis as any).__qfHooksEnable=true;return {ok:true,enabled:true,note:'__qfTeleport 在场景 attach 时注册；需要它时请在启动后尽早 enable'};}
+  if(!preTransitionEnabled())return {ok:false,reason:'pre-transition-disabled',hint:"call __qfPreTransition('enable') first (test builds only)"};
   if(key==='list')return {ok:true,keys:PRE_SPECS.map(s=>({key:s.key,label:s.label,trigger:s.trigger,expect:s.expect})),unsupported:PRE_UNSUPPORTED};
   if(key==='tap')return this.tap();
   const spec=preSpec(key);if(!spec)return {ok:false,reason:'unknown-key',keys:PRE_SPECS.map(s=>s.key)};
@@ -123,7 +125,7 @@ export class PreTransitionRunner{
 }
 /** Boot wiring: registers the globals only when the gate is open; auto-runs ?qfPre=<key>. Returns whether it registered. */
 export function installPreTransition(deps:PreDeps):boolean{
- if(!preTransitionEnabled())return false;
+ if(!qaSkipAllowed())return false;/* WeChat release: never registered. develop/trial/web: registered but inert until a query gate or 'enable' */
  const runner=new PreTransitionRunner(deps),G=globalThis as any;
  G.__qfPreTransition=(key:string,opts?:any)=>runner.run(key,opts);
  const auto=preTransitionKey();if(auto)setTimeout(()=>{void runner.run(auto).then(r=>{try{console.info('[QF_PRE] auto '+JSON.stringify(r));}catch{}});},1500);

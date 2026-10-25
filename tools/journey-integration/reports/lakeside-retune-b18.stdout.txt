@@ -1,0 +1,10 @@
+PASS L13 / L15 retuned: 14 / 13 moves, every chime 6 hits, new revision, old revision listed as legacy
+PASS every seedBank seed of every lake stage has a greedy witness that wins within moves
+PASS L14 retuned: 18 moves, new revision, old one legacy
+PASS old save (L13–L15 cleared under draft-2026-10-16) loads writable, keeps the clears, L16 open, and a new L13 clear still records
+PASS a revision that is not listed is still refused (no blanket trust)
+lakeside-retune-b18 5 PASS
+PASS lost lake board: caption = the stage failHint (≤14 字, 一句话, 无标点), other regions keep the old caption
+lakeside-retune-b18 hints PASS
+PASS win-replays.json: every lake stage, every seedBank seed replays to a win; last move is a swap (for __qfPreTransition lastAction)
+lakeside-retune-b18 replays PASS

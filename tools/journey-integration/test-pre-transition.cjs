@@ -39,6 +39,21 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
   try{assert.equal(RUN0.installPreTransition({}),true,'registers from launch query');const l=await globalThis.__qfPreTransition('list');assert.ok(l.ok&&l.keys.length,'console list works');}
   finally{delete globalThis.__qfPreTransition;for(const k of ['location','wx'])if(sv[k]===undefined)delete globalThis[k];else globalThis[k]=sv[k];}
  }
+ // harness enable without launch params (DevTools cli open ignores 启动参数)
+ {const Q=H.load('world-r2/QaSkip'),dev={location:{search:'?contextName=game&id=2'},wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'develop'}}),getLaunchOptionsSync:()=>({query:{}})}};
+  assert.equal(K.preTransitionEnabled(null,dev),false,'develop, no params: off');
+  assert.equal(K.preTransitionEnabled(null,{...dev,__qfHooksEnable:true}),true,'__qfHooksEnable=true: on');
+  assert.equal(Q.qaHooksEnabled(null,{...dev,__qfHooksEnable:true}),true,'teleport gate honours harness flag');
+  const rel={...dev,__qfHooksEnable:true,wx:{...dev.wx,getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})}};
+  assert.equal(K.preTransitionEnabled(null,rel),false,'release + flag: still off');assert.equal(Q.qaHooksEnabled(null,rel),false);
+  const sv={location:globalThis.location,wx:globalThis.wx};globalThis.location=dev.location;globalThis.wx=dev.wx;delete globalThis.__qfHooksEnable;
+  const RUN1=H.load('world-r2/PreTransitionRun');delete globalThis.__qfPreTransition;
+  try{assert.equal(RUN1.installPreTransition({}),true,'develop: registered (inert)');assert.equal((await globalThis.__qfPreTransition('list')).reason,'pre-transition-disabled','inert before enable');
+   assert.ok((await globalThis.__qfPreTransition('enable')).ok);assert.ok((await globalThis.__qfPreTransition('list')).ok,'list after enable');
+   globalThis.wx={...dev.wx,getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})};assert.equal((await globalThis.__qfPreTransition('enable')).ok,false,'enable refused in release');
+   delete globalThis.__qfPreTransition;assert.equal(RUN1.installPreTransition({}),false,'release: not registered');assert.equal(globalThis.__qfPreTransition,undefined);}
+  finally{delete globalThis.__qfPreTransition;delete globalThis.__qfHooksEnable;for(const k of ['location','wx'])if(sv[k]===undefined)delete globalThis[k];else globalThis[k]=sv[k];}
+ }
  // key table
  const keys=K.PRE_SPECS.map(s=>s.key);assert.equal(new Set(keys).size,keys.length,'unique keys');
  for(const s of K.PRE_SPECS){assert.ok(s.trigger&&s.expect&&s.taps.length,'spec complete '+s.key);
@@ -90,8 +105,9 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  delete globalThis.__qfPreTransition;if(saved!==undefined)globalThis.location=saved;else delete globalThis.location;
  // source guards: the runner never starts a transition itself; boot registers through the gated installer only
  const run=S('world-r2/PreTransitionRun.ts'),boot=S('WorldIntegrationBoot.ts');
- assert.ok(/export function installPreTransition\(deps:PreDeps\):boolean\{\n if\(!preTransitionEnabled\(\)\)return false;/.test(run),'installer gate first');
- assert.ok(/async run\(key:string[^\n]*\n  if\(!preTransitionEnabled\(\)\)return/.test(run),'run() re-checks gate');
+ assert.ok(/export function installPreTransition\(deps:PreDeps\):boolean\{\n if\(!qaSkipAllowed\(\)\)return false;/.test(run),'installer release gate first');
+ assert.ok(/if\(key==='enable'\)\{if\(!qaSkipAllowed\(\)\)return/.test(run),'enable is release-gated');
+ assert.ok(/async run\(key:string[^\n]*\n  if\(key==='enable'\)[^\n]*\n  if\(!preTransitionEnabled\(\)\)return/.test(run),'run() re-checks gate');
  assert.equal((boot.match(/installPreTransition\(/g)||[]).length,1,'boot wires once');
  assert.ok(!/__qfPreTransition/.test(boot),'boot never assigns the global itself');
  const setup=run.slice(run.indexOf('private async setup'),run.indexOf('private scale'));
