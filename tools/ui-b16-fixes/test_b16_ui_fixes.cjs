@@ -3,7 +3,7 @@
 const fs=require('fs'),path=require('path'),assert=require('assert'),{load,SRC,typescript}=require('../t9-island-props/load_ts.cjs');
 let n=0;const ok=(name,fn)=>{fn();n++;console.log('PASS '+name);};
 const src=f=>fs.readFileSync(path.join(SRC,f),'utf8');
-ok('changed sources transpile without syntax errors',()=>{const ts=typescript();for(const f of ['WorldIntegrationBoot.ts','world-r2/IslandProps.ts','world-r2/IslandPropsLayout.ts','world-r2/WorldNavigationLayout.ts','ui/BoardLayout.ts','region/SkycityBoardLive.ts','region/RegionBoardNight.ts','ManagedMobileBoardUI.ts']){const r=ts.transpileModule(src(f),{reportDiagnostics:true,compilerOptions:{experimentalDecorators:true}});assert.equal((r.diagnostics||[]).length,0,f);}});
+ok('changed sources transpile without syntax errors',()=>{const ts=typescript();for(const f of ['WorldIntegrationBoot.ts','world-r2/IslandProps.ts','world-r2/IslandPropsLayout.ts','world-r2/WorldNavigationLayout.ts','ui/BoardLayout.ts','region/SkycityBoardLive.ts','region/RegionBoardNight.ts','region/SkycityCloudsea.ts','WarmButton.ts','ManagedMobileBoardUI.ts']){const r=ts.transpileModule(src(f),{reportDiagnostics:true,compilerOptions:{experimentalDecorators:true}});assert.equal((r.diagnostics||[]).length,0,f);}});
 ok('P1 setSignEntrance skips only when the node visibility already matches; reports whether it applied',()=>{const s=src('world-r2/IslandProps.ts');
  assert(/e === this\.entrance && risePx === 0 && sign\.active === e > 0\) return true;/.test(s));assert(/setSignEntrance\(e: number, risePx = 0\): boolean/.test(s));assert(/signVisible\(\): boolean/.test(s));});
 ok('P1 host: no invisible hit area once the entrance is over; one replay, then the visible flat 继续旅程 button while the 3D sign keeps retrying (1 s)',()=>{const s=src('WorldIntegrationBoot.ts');
@@ -45,7 +45,7 @@ ok('runtime ② sky-city night: ambient x0.3 and main light x0.6 with the key li
  assert.equal(M.easeRegionBoardLight(.5,0,5),.5-.1/.6,'dt clamped to 0.1 s');assert.equal(M.easeRegionBoardLight(NaN,1,0),1,'first frame snaps');
  const s=src('region/SkycityBoardLive.ts');assert(/if\(!shown\|\|snapNext\|\|!Number\.isFinite\(lightW\)\)\{lightW=skyNightBlend;/.test(s)&&/lightW=smoothRegionBoardLight\(fade\.from,skyNightBlend,fade\.p\)/.test(s));assert(/regionBoardSceneLightScale\(lightW\)/.test(s));
  assert(/if\(!shown\)\{restoreScene\(\);return;\}/.test(s)&&/dispose:\(\)=>\{if\(!dead\)\{dead=true;offNight\(\);(?:director\.off\(REGION_BOARD_TICK_EVENT,tick\);)?restoreScene\(\);\}/.test(s),'restored on hide and dispose');
- assert(/scene\.amb\.skyIllum!==scene\.ambWritten\)scene\.ambBase=scene\.amb\.skyIllum/.test(s)&&/scene\.main\.illuminance!==scene\.mainWritten\)scene\.mainBase=scene\.main\.illuminance/.test(s),'re-bases when the world rewrites the light');
+ assert(/sc\.amb\.skyIllum!==sc\.ambWritten\)\{sc\.ambPrev=[^;]*;sc\.ambBase=sc\.amb\.skyIllum;/.test(s)&&/m\.illuminance!==sc\.mainWritten\)\{sc\.mainPrev=[^;]*;sc\.mainBase=m\.illuminance;/.test(s),'re-bases when the world rewrites the light (复核4: blended from the previous value)');
  assert(!/clearCameras|SkycityCloudsea/.test(s),'does not touch the city cameras baa28c06 clears');});
 ok('runtime ③ island fallback 继续旅程 uses the 主页 WarmButton look (no journey primary leaf skin); region rows keep the journey skin',()=>{const s=src('WorldIntegrationBoot.ts');
  assert(/const skin=n\.name==='mainline'&&islandFallback\?'home':'journey';/.test(s));assert(/if\(skin==='journey'&&n\.name==='mainline'\)applyJourneyNavigationSkin\(n,'primary',r\.width,r\.height\);else if\(skin==='home'\)/.test(s));
@@ -99,4 +99,7 @@ ok('复核3 ④ sign tap root: WarmButtonFace follows configure() (was fixed at 
   assert(r.x-r.width/2>=-w/2&&r.x+r.width/2<=w/2-L.SIGN_HIT_EDGE_PT+1e-6&&r.y-r.height/2>=-h/2&&r.y+r.height/2<=h/2,'root on screen @'+w);assert(r.width>=44&&r.height>=44);}
  const wb=src('WarmButton.ts');assert(/else this\.face\.getComponent\(UITransform\)\?\.setContentSize\(width,height\);/.test(wb),'face resized on every configure');
  const b=src('WorldIntegrationBoot.ts');assert(/for\(const t of m\.getComponentsInChildren\(UITransform\)\)if\(t\.node!==m&&\(t\.width>L\.surface\.width\|\|t\.height>L\.surface\.height\)\)/.test(b),'children clamped to root');});
+ok('复核4 ② world steps blended on the board: Cloudsea skips the board camera; main light/colour/ambient interpolate prev→world by the board smoothstep',()=>{const s=src('region/SkycityBoardLive.ts');
+ assert(/\(camera as any\)\.__qfBoardClearOwner=true/.test(s)&&/&&!\(camera as any\)\.__qfBoardClearOwner/.test(src('region/SkycityCloudsea.ts')));
+ assert(/const mix=fade\?smoothRegionBoardLight\(0,1,fade\.p\):1/.test(s)&&/\(sc\.mainPrev\+\(sc\.mainBase-sc\.mainPrev\)\*mix\)\*f\.main/.test(s)&&/\(sc\.ambPrev\+\(sc\.ambBase-sc\.ambPrev\)\*mix\)\*f\.ambient/.test(s)&&/lerpRgb\(sc\.colPrev,sc\.col,mix\)/.test(s));});
 console.log(n+' checks passed');

@@ -47,7 +47,7 @@ export class SkycityCloudsea extends Component{
     // The arriving balloon belongs to the journey rig, outside the old room.
     const vehicle=this.node.parent?.getChildByName('transport_balloon');if(vehicle)hide(vehicle);
     for(const n of savedDayNodes.keys())if(isValid(n,true))n.active=false;
-    for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0){
+    for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0&&!(camera as any).__qfBoardClearOwner/* b16 复核4：棋盘相机的 clear 色由 SkycityBoardLive 渐变 */){
       if(!savedDayCameras.has(camera))savedDayCameras.set(camera,{flags:camera.clearFlags,color:new Color(camera.clearColor.r,camera.clearColor.g,camera.clearColor.b,camera.clearColor.a)});
       camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(156,202,223,255);
     }

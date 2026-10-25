@@ -10,6 +10,8 @@ export const SKYCITY_BOARD_RIG='SkycityLiveBackground';
 export const SKYCITY_BOARD_DAY_CLEAR=hexToRgb('#9ccadf');
 /** r5 region nodes: the live board shows the bridge-after state only. Other state_* meshes stay off. */
 function hideOtherBoardStates(root:Node|null){if(!root)return;const walk=(n:Node)=>{if(n.name.startsWith('state_')&&n.name!=='state_bridge_after')n.active=false;for(const c of n.children)walk(c);};walk(root);}
+const sameRgb=(c:{r:number;g:number;b:number},v:number[])=>c.r===v[0]&&c.g===v[1]&&c.b===v[2];
+const lerpRgb=(a:number[],b:number[],t:number)=>[0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*t));
 export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const lease=await createBuild05SkycityBoard(ctx);if(!lease)return lease;
  const rig:Node|null=ctx.parent.getChildByName(SKYCITY_BOARD_RIG);
@@ -20,6 +22,8 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const keepActive=()=>{if(rig&&isValid(rig,true)&&!rig.active)rig.active=true;};keepActive();
  // item 9 (Mac r4: daytime sky behind the night journey): the board sky follows the world day/night mode and its toggles.
  const camNode=rig?rig.getChildByName('SkycityBackgroundCamera'):null,camera:Camera|null=camNode?camNode.getComponent(Camera):null;let dead=false;
+ // b16 复核4 ②：clear 色归棋盘管；云海组件（region/Skycity 云海）不再在白天强写/夜间还原这台相机（原来夜间还原出一帧存下的夜色，顶部天空闪一帧）。
+ if(camera)(camera as any).__qfBoardClearOwner=true;
  // Read the live blend, not just a binary night flag. Day always restores the authored sky, including after a hidden prewarm.
  let skyMode:DayNightMode='day',skyNightBlend=0;
  // b16-fix P2: the Build05 lease's warm key light follows the night too (was day-bright under the night sky). Day values captured once.
@@ -34,11 +38,13 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  };
  // b16 真机复核 ②：补光、环境光、主光共用一个渐变权重 lightW（REGION_BOARD_LIGHT_FADE_S 0.6 s），不再一帧跳变。
  // 环境光/主光只在棋盘显示期间写，隐藏/释放时还原；世界在显示期间改了主光（日夜切换）就以新值为基准重新记。
- let lightW=NaN,lastT=0,shown=false,snapNext=false,fade:{from:number;p:number}|null=null,fadeMode:DayNightMode='day',scene:{amb:any;ambBase:number;ambWritten:number;main:DirectionalLight|null;mainBase:number;mainWritten:number}|null=null;
+ let fadeMixWas=1,lightW=NaN,lastT=0,shown=false,snapNext=false,fade:{from:number;p:number}|null=null,fadeMode:DayNightMode='day',scene:{amb:any;ambBase:number;ambPrev:number;ambWritten:number;main:DirectionalLight|null;mainBase:number;mainPrev:number;mainWritten:number;col:number[];colPrev:number[];colWritten:number[]|null}|null=null;
  const sceneLights=()=>{const sc:any=director.getScene();const amb=sc?.globals?.ambient??null;const mn=sc?.getChildByName?.('Main Light')?.getComponent?.(DirectionalLight)??null;
-  return {amb,ambBase:amb?amb.skyIllum:0,ambWritten:NaN,main:mn,mainBase:mn?mn.illuminance:0,mainWritten:NaN};};
+  const col=mn?[mn.color.r,mn.color.g,mn.color.b]:[255,255,255];
+  return {amb,ambBase:amb?amb.skyIllum:0,ambPrev:amb?amb.skyIllum:0,ambWritten:NaN,main:mn,mainBase:mn?mn.illuminance:0,mainPrev:mn?mn.illuminance:0,mainWritten:NaN,col,colPrev:col,colWritten:null};};
  const restoreScene=()=>{if(!scene)return;const s0=scene;scene=null;
-  if(s0.amb&&s0.amb.skyIllum===s0.ambWritten)s0.amb.skyIllum=s0.ambBase;if(s0.main&&isValid(s0.main,true)&&s0.main.illuminance===s0.mainWritten)s0.main.illuminance=s0.mainBase;};
+  if(s0.amb&&s0.amb.skyIllum===s0.ambWritten)s0.amb.skyIllum=s0.ambBase;if(s0.main&&isValid(s0.main,true)&&s0.main.illuminance===s0.mainWritten)s0.main.illuminance=s0.mainBase;
+  if(s0.main&&isValid(s0.main,true)&&s0.colWritten&&sameRgb(s0.main.color,s0.colWritten))s0.main.color=new Color(s0.col[0],s0.col[1],s0.col[2],255);};
  function applyLights(){
   const now=Date.now()/1000,dt=lastT?now-lastT:0;lastT=now;
   // b16 复核3 ②：隐藏/刚显示时直接取当前目标（夜间进场首帧即夜景）；显示期间换日夜时按真实 dt 走 0.6 s smoothstep，每帧由 director after-update 推进。
@@ -50,8 +56,16 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
   if(key&&keyDay&&isValid(key,true)&&keyWritten!==lightW){const k=regionBoardKeyLight(keyDay.color,keyDay.luminance,lightW);key.color=new Color(k.color[0],k.color[1],k.color[2],255);key.luminance=k.luminance;keyWritten=lightW;}
   if(!shown){restoreScene();return;}
   if(!scene)scene=sceneLights();const f=regionBoardSceneLightScale(lightW);
-  if(scene.amb){if(Number.isFinite(scene.ambWritten)&&scene.amb.skyIllum!==scene.ambWritten)scene.ambBase=scene.amb.skyIllum;const v=scene.ambBase*f.ambient;if(scene.amb.skyIllum!==v)scene.amb.skyIllum=v;scene.ambWritten=v;}
-  if(scene.main&&isValid(scene.main,true)){if(Number.isFinite(scene.mainWritten)&&scene.main.illuminance!==scene.mainWritten)scene.mainBase=scene.main.illuminance;const v=scene.mainBase*f.main;if(scene.main.illuminance!==v)scene.main.illuminance=v;scene.mainWritten=v;}
+  // b16 复核4 ②：世界在切日夜那一帧把主光（亮度+颜色）、环境光一步写到新值；棋盘显示期间以「切换前的值 → 世界新值」按同一条 smoothstep（mix）每帧插值，没在渐变就直接跟世界。
+  const mix=fade?smoothRegionBoardLight(0,1,fade.p):1,sc=scene;
+  if(sc.amb){if(Number.isFinite(sc.ambWritten)&&sc.amb.skyIllum!==sc.ambWritten){sc.ambPrev=fade?sc.ambPrev+(sc.ambBase-sc.ambPrev)*fadeMixWas:sc.amb.skyIllum;sc.ambBase=sc.amb.skyIllum;}else if(!fade)sc.ambPrev=sc.ambBase;
+   const v=(sc.ambPrev+(sc.ambBase-sc.ambPrev)*mix)*f.ambient;if(sc.amb.skyIllum!==v)sc.amb.skyIllum=v;sc.ambWritten=v;}
+  if(sc.main&&isValid(sc.main,true)){const m=sc.main;
+   if(Number.isFinite(sc.mainWritten)&&m.illuminance!==sc.mainWritten){sc.mainPrev=fade?sc.mainPrev+(sc.mainBase-sc.mainPrev)*fadeMixWas:m.illuminance;sc.mainBase=m.illuminance;}else if(!fade)sc.mainPrev=sc.mainBase;
+   const v=(sc.mainPrev+(sc.mainBase-sc.mainPrev)*mix)*f.main;if(m.illuminance!==v)m.illuminance=v;sc.mainWritten=v;
+   if(sc.colWritten&&!sameRgb(m.color,sc.colWritten)){sc.colPrev=fade?lerpRgb(sc.colPrev,sc.col,fadeMixWas):[m.color.r,m.color.g,m.color.b];sc.col=[m.color.r,m.color.g,m.color.b];}else if(!fade)sc.colPrev=sc.col;
+   const c=lerpRgb(sc.colPrev,sc.col,mix);if(!sameRgb(m.color,c))m.color=new Color(c[0],c[1],c[2],255);sc.colWritten=c;}
+  fadeMixWas=mix;
  }
  syncNight();const offNight=onDayNightChange(syncNight);
  // b16 复核3 ②：lease.frame 不是每帧都跑，显示期间由 director 每帧推进渐变（隐藏时不做事）。
