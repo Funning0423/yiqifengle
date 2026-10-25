@@ -2591,8 +2591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BasketCloseShot.ts",
-    "bytes": 4092,
-    "sha256": "099d6643782d54b24bc8f3908d62a7131795903710c5917eb6dc4874a5af763a"
+    "bytes": 5397,
+    "sha256": "5ed26f28a2df8cdf95e3ebfe69ee1112384bb86f854d685a3ddf44a05d17b888"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BasketCloseShot.ts.meta",
@@ -3051,8 +3051,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 58657,
-    "sha256": "1bed4b1bfffcd6a5e4c30d669e8d38b0105234cfe279cfa9c27185207095d9af"
+    "bytes": 59609,
+    "sha256": "eff903bb29969fbf8ce3607bc6075ba2c80c36c08d5800c250981455a3c29d99"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4851,8 +4851,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 22864,
-    "sha256": "1c5108de10d7742d5a200d908b1d06de9ef812637f82afddcb8965c345023f4b"
+    "bytes": 23130,
+    "sha256": "3efccc4204d784080f5092ad3bf7bc199c6eef44a595c62ac83fe9d67c034b43"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
