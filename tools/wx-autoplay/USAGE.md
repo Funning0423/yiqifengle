@@ -71,3 +71,11 @@ Mac 上的位置（**需實機確認**，依官方說明推得）：
 - Mac 上**同一時間只開一個**微信開發者工具視窗，用完就關，留意記憶體。
 - 這個工具不碰系統滑鼠、不用 cliclick，不會搶 Funning 的螢幕；開啟專案後放著讓它自己跑即可。
 - 只殺自己啟動的 PID，不要用 pkill -f。
+
+## Game failures (not only console.error)
+result.json now also fails the run (`ok:false`, `failReason: game failures: N (...)`) when any of these is seen, even with `consoleErrors: 0`:
+- `journeyFailures`: a state snapshot with journey phase `failed` (text `region>target: error`)
+- `snapshotErrors`: `world.error` / snapshot `error` / snapshot threw
+- `uncaughtErrors`: `wx.onError` and `wx.onUnhandledRejection`
+- `hudSuppressedErrors`: `[OI_HUD] suppressed {"kind":"error"...}` log lines
+Set `"allowGameFailures": true` in the script to report them without failing. `gameFailures` is the total.
