@@ -16,7 +16,8 @@ const blendFor=(base:number,gapM:number)=>Math.max(base,1.875*gapM/TRANSITION_CA
 export type CamState=Readonly<{pose:Pose;vel?:Vec;yawRateDegS?:number}>;
 /** One authored key; `her` = keys are offsets from her feet (rotated by her yaw), so a path change keeps the framing. */
 export type ShotKey=Readonly<{t:number;pos:Vec;look:Vec;fov?:number}>;
-export type ShotSpec=Readonly<{id:string;keys:readonly ShotKey[];space?:'world'|'her';mode?:'stand'|'walk';blendInS?:number;blendOutS?:number;placeholder?:boolean}>;
+export type ShotSpec=Readonly<{id:string;keys:readonly ShotKey[];space?:'world'|'her';mode?:'stand'|'walk'|((t:number)=>'stand'|'walk');
+ /** live shot (HerShot.followShot on her real path) instead of keys */source?:(t:number)=>Pose;blendInS?:number;blendOutS?:number;placeholder?:boolean}>;
 export type HerState=Readonly<{feet:Vec;yawDeg:number}>;
 const R=Math.PI/180;
 export const minJerk=(u:number)=>{const x=Math.max(0,Math.min(1,u));return x*x*x*(10-15*x+6*x*x);};
@@ -37,7 +38,7 @@ export function blendPose(a:Pose,b:Pose,w:number):Pose{const va=viewOf(a),vb=vie
   lerp(a.fovVerticalDeg??TRANSITION_CAM.fovDeg,b.fovVerticalDeg??TRANSITION_CAM.fovDeg,w));}
 const rotY=(deg:number,p:readonly number[]):Vec=>{const t=deg*R,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
 /** Sample an authored shot at t (Catmull-Rom on keys, clamped). Placeholder anchors are fine: only data changes later. */
-export function sampleShot(spec:ShotSpec,t:number,her?:HerState):Pose{const k=spec.keys;if(!k.length)throw Error('transition-shot-empty:'+spec.id);
+export function sampleShot(spec:ShotSpec,t:number,her?:HerState):Pose{if(spec.source)return spec.source(t);const k=spec.keys;if(!k.length)throw Error('transition-shot-empty:'+spec.id);
  let i=0;while(i<k.length-2&&t>k[i+1].t)i++;const a=k[Math.max(0,i-1)],b=k[i],c=k[Math.min(k.length-1,i+1)],d=k[Math.min(k.length-1,i+2)];
  const u=c.t>b.t?Math.max(0,Math.min(1,(t-b.t)/(c.t-b.t))):0;
  const cr=(p0:readonly number[],p1:readonly number[],p2:readonly number[],p3:readonly number[]):Vec=>{const u2=u*u,u3=u2*u;
@@ -46,6 +47,8 @@ export function sampleShot(spec:ShotSpec,t:number,her?:HerState):Pose{const k=sp
  if(spec.space==='her'){if(!her)throw Error('transition-shot-needs-her:'+spec.id);const m=(p:Vec):Vec=>{const r=rotY(her.yawDeg,p);return [r[0]+her.feet[0],r[1]+her.feet[1],r[2]+her.feet[2]];};pos=m(pos);look=m(look);}
  return {position:pos,target:look,fovVerticalDeg:fov};}
 export const shotLength=(s:ShotSpec)=>s.keys.length?s.keys[s.keys.length-1].t:0;
+/** Begin with an explicit spec (live HerShot source), not from the data table. */
+export function beginTransitionSpec(spec:ShotSpec,from:CamState|((t:number)=>Pose)):TransitionRun{const src=typeof from==='function'?from:coastFrom(from);return new TransitionRun(spec,src,()=>undefined,typeof from==='function'?0:(from.yawRateDegS??0));}
 type Source=(t:number)=>Pose;
 /** Eased cap on the written view: yaw trapezoid (≤V, ≤A), pitch and FOV rate caps. Never jumps; converges on the target. */
 export class ViewLimiter{
@@ -85,7 +88,7 @@ export class TransitionRun{
   if(this.outT0>=0&&this.next){const u=(t-this.outT0)/this.blendOut;p=blendPose(p,this.next(t-this.outT0),minJerk(u));}
   return p;}
  step(dt:number):Pose{this.t+=Math.max(0,Math.min(0.1,dt));const t=this.t;
-  const pose=this.lim.step(this.raw(t),dt,this.spec.mode??'stand');
+  const m=this.spec.mode,pose=this.lim.step(this.raw(t),dt,typeof m==='function'?m(t):m??'stand');
   /* done only once the blend is over AND the capped lens has caught up: the next writer then continues without a step */
   this.phase=this.outT0>=0?(t-this.outT0>=this.blendOut&&this.lim.settled?'done':'out'):t<this.blendIn?'in':'shot';
   return pose;}

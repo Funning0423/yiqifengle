@@ -124,8 +124,24 @@ const lerp3=(a:Vec,b:Vec,u:number):Vec=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a
 function lerpKey(A:FlightKey,B:FlightKey,u:number,time:number):FlightKey{
  return {t:time,frame:A.frame??B.frame,pos:lerp3(A.pos,B.pos,u),yawDeg:A.yawDeg+(B.yawDeg-A.yawDeg)*u,rollDeg:A.rollDeg+(B.rollDeg-A.rollDeg)*u,cam:lerp3(A.cam,B.cam,u),camLook:lerp3(A.camLook,B.camLook,u)};
 }
+/** b19 (场景设计部 transition-spaces 01975129): the parked basket moved from the flight file's take-off (12, 6.52, −23.8) to
+ *  (3.6, 6.60, −23.4) meadow-local (windchime + windmill clearance), and the sky-city landing is raised 0.12 m onto the mooring
+ *  deck. The flight file is unchanged; sampleFlight adds these offsets to pos / cam / camLook: the take-off shift at full weight
+ *  through board + burner (t ≤ TAKEOFF_SHIFT_HOLD_T), smootherstep to 0 by TAKEOFF_SHIFT_END_T (well before meadow-unload/seam);
+ *  the landing lift from LAND_LIFT_FROM_T to full at LAND_T. Meadow keys only for the shift, world keys only for the lift. */
+export const TAKEOFF_SHIFT:Vec=[3.6-12,6.60-6.51934814453125,-23.4-(-23.8)];
+export const TAKEOFF_SHIFT_HOLD_T=1.8,TAKEOFF_SHIFT_END_T=10.2;
+export const LAND_LIFT_M=.12,LAND_LIFT_FROM_T=31;
+const s5=(u:number)=>{const x=Math.max(0,Math.min(1,u));return x*x*x*(x*(x*6-15)+10);};
+export function takeoffShiftW(t:number):number{return 1-s5((t-TAKEOFF_SHIFT_HOLD_T)/(TAKEOFF_SHIFT_END_T-TAKEOFF_SHIFT_HOLD_T));}
+export function landLiftW(t:number):number{return s5((t-LAND_LIFT_FROM_T)/(LAND_T-LAND_LIFT_FROM_T));}
+function shiftKey(k:FlightKey,t:number):FlightKey{
+ const meadow=(k.frame??'meadow')==='meadow'&&t+1e-9<SEAM_T;let d:Vec=[0,0,0];
+ if(meadow){const w=takeoffShiftW(t);d=[TAKEOFF_SHIFT[0]*w,TAKEOFF_SHIFT[1]*w,TAKEOFF_SHIFT[2]*w];}else{d=[0,LAND_LIFT_M*landLiftW(t),0];}
+ if(!d[0]&&!d[1]&&!d[2])return k;const a=(v:Vec):Vec=>[v[0]+d[0],v[1]+d[1],v[2]+d[2]];return {...k,pos:a(k.pos),cam:a(k.cam),camLook:a(k.camLook)};}
 /** Same-frame neighbours only. [seam−0.1, seam) → keys[seam−0.1]…preKey; t≥seam → world keys. */
-export function sampleFlight(doc:FlightDoc,t:number):FlightKey{
+export function sampleFlight(doc:FlightDoc,t:number):FlightKey{return shiftKey(sampleFlightRaw(doc,t),Math.max(0,Math.min(doc.duration_s,t)));}
+export function sampleFlightRaw(doc:FlightDoc,t:number):FlightKey{
  const keys=doc.keys,hz=doc.sampleRate_hz||10,dur=doc.duration_s;
  const time=Math.max(0,Math.min(dur,t));
  const seam=doc.seam?.t??SEAM_T;
