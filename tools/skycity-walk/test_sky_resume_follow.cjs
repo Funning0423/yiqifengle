@@ -7,7 +7,7 @@
 // margin >0, hidden ≤0.5 s, lens never in a box / within 1.1 m. Report-only (QF_S6_GATE=gate makes it hard).
 const fs=require('fs');const ROOT=process.cwd();const {createHarness}=require(ROOT+'/tools/board-ui/harness.cjs');
 const H=createHarness(),SP=H.load('region/SkyLakePreWalk.ts'),S=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),LB=H.load('region/LakesideBalloon.ts'),HS=H.load('region/HerShot.ts'),NW=H.load('region/NodeWalker.ts'),RN=H.load('region/RegionNodes.ts');
-const ALT=process.env.QF_LENS==='alt'&&fs.existsSync(ROOT+'/creator-build-project/assets/scripts/region/SkyPreFollow.ts')?H.load('region/SkyPreFollow.ts'):null;// QF_LENS=alt: candidate lens in a tree that has region/SkyPreFollow.ts (cine/b19-s6-follow dc08e8cf)const RL=require(ROOT+'/tools/journey-integration/route/route-legs.cjs');
+const ALT=process.env.QF_LENS==='alt'&&fs.existsSync(ROOT+'/creator-build-project/assets/scripts/region/SkyPreFollow.ts')?H.load('region/SkyPreFollow.ts'):null;/* QF_LENS=alt: candidate lens in a tree that has region/SkyPreFollow.ts (cine/b19-s6-follow dc08e8cf) */const RL=require(ROOT+'/tools/journey-integration/route/route-legs.cjs');
 const M=TS.TRANSITION_STAGING.skyMooring5a,occ=JSON.parse(fs.readFileSync(ROOT+'/tools/transitions-continuous/transition-occluders.json','utf8'));
 const boxes=Object.values(occ.boxes).flatMap(v=>Array.isArray(v)?v:[v.open100]);
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]],FPS=60,dt=1/FPS;

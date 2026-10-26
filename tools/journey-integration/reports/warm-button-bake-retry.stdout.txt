@@ -1,0 +1,2 @@
+PASS warmFacesOpaque: both faces opaque at the centre row
+PASS bake retry: up to 2 extra frames, then the unchanged flat fallback
