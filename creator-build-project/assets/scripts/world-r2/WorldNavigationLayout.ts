@@ -27,7 +27,12 @@ export function regionNavigationRow(width:number,height:number){
 export const MAINLINE_TAP_LOCK_MS=1200,MAINLINE_RETURN_LOCK_MS=500;
 export function mainlineTapAllowed(now:number,lockUntil:number,busy:boolean):boolean{return !busy&&now>=lockUntil;}
 export function mainlineLockAfterTap(now:number):number{return now+MAINLINE_TAP_LOCK_MS;}
-export function mainlineLockForState(lockUntil:number,state:string,now:number):number{return state==='island'?lockUntil:Math.max(lockUntil,now+MAINLINE_RETURN_LOCK_MS);}
+/** full6 P0 (Mac full5 s2a/s2b: 天空城「继续旅程 →」永远无响应): the old rule treated every state except 'island' as
+ *  loading/board/transit and renewed the lock EVERY frame, so in the stable explore states meadow / skycity / lakeside the
+ *  lock never expired and mainlineTapAllowed() silently swallowed every tap (no log, no error, listeners fired). The stable
+ *  region explore states are tap targets exactly like the island; only loading / board / transit states keep the lock. */
+export const MAINLINE_EXPLORE_STATES:readonly string[]=['island','meadow','skycity','lakeside'];
+export function mainlineLockForState(lockUntil:number,state:string,now:number):number{return MAINLINE_EXPLORE_STATES.includes(state)?lockUntil:Math.max(lockUntil,now+MAINLINE_RETURN_LOCK_MS);}
 
 /** b16 复核2 ④：木牌模式下主线控件的根节点跟着木牌投影缩放（390 约 191×147、320 约 128×99），子节点（WarmButton 底板、
  *  文字底板、VisibleLabel）原来仍按 250 宽建，超出屏幕。按根节点实际尺寸重排：底板 = 根尺寸，文字框 = 根宽 −12（≥0）、高 ≤25。纯函数。 */

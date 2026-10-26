@@ -4,6 +4,7 @@
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),crypto=require('node:crypto');
 const ROOT=path.resolve(__dirname,'../..'),out=path.join(__dirname,'reports');fs.mkdirSync(out,{recursive:true});
 const tests=[
+ ['skycity-continue-tap','tools/journey-integration/test-skycity-continue-tap.cjs'],
  ['one-ccclass-per-file','tools/journey-integration/test-one-ccclass-per-file.cjs'],
  ['production-integrity','tools/journey-integration/test-production-integrity.cjs'],
  ['journey-types','tools/journey-integration/test-journey-types.cjs'],
