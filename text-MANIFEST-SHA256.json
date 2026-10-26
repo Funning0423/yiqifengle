@@ -3861,8 +3861,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
-    "bytes": 12103,
-    "sha256": "137aa01904acdc3d2ccc54f958620c96f1623c48f6f2a27f35aff43fad3f4d0a"
+    "bytes": 12124,
+    "sha256": "730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta",
@@ -3878,21 +3878,6 @@
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js.meta",
     "bytes": 171,
     "sha256": "db9330358bf05ac876af6c942de20d6b507861180e98637eebff33d9bf0445e8"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/regional-r05/runtime/vendor.meta",
-    "bytes": 169,
-    "sha256": "9d839a1dc646f5092aa5028e6eb595db368fb9c6d68e64d7198dbfa478c18c8d"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js",
-    "bytes": 45173,
-    "sha256": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js.meta",
-    "bytes": 171,
-    "sha256": "29236f6e532271ffe275f1421c406a724922f91e655cd2321609d9bce3982c85"
   },
   {
     "path": "creator-build-project/assets/scripts/render.meta",

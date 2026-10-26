@@ -1,7 +1,7 @@
 'use strict';
 // Additive regional rules. The compatibility Engine is vendored byte-for-byte.
 // Internal Engine methods are only called here, never from a renderer.
-var Engine = require('./vendor/engine'), ruleGuide = require('./rule-guide');
+var Engine = require('../../r4-cloud-compat/runtime/engine'), ruleGuide = require('./rule-guide');
 var serial = 0;
 function copy(x) { return JSON.parse(JSON.stringify(x)); }
 function freeze(x) { if (x && typeof x === 'object' && !Object.isFrozen(x)) { Object.keys(x).forEach(function(k){freeze(x[k]);}); Object.freeze(x); } return x; }
