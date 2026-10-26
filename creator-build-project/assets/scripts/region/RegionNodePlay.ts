@@ -3,7 +3,8 @@ import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
 import {emitTransitCue} from './TransitAudioHooks';
 import {transportFor,type TransportKind} from './JourneyTransport';
 import {walkPair} from './RegionNodeProgress';
-import {planWalk,type WalkPlan} from './NodeWalker';
+import {planWalk,routeKeys,WALK_SPEED_MPS,type WalkPlan} from './NodeWalker';
+import {meadowDepartureCut} from './BalloonB1Start';
 import {stopEngineStates} from './EngineAnimStop';
 import {basketObstacleEvent} from './BasketObstacles';
 
@@ -59,7 +60,11 @@ export async function runRewardWalk(character:Pick<CharacterAdapter,'perform'|'c
  void token;
  await (character as any).__qfWalkTail?.done/* b15: a walk tail finishes first */;
  const spec=walkPair(fromStage,toStage);
- const plan=planWalk(spec.region,spec.from,spec.to);
+ let plan=planWalk(spec.region,spec.from,spec.to);
+ /* full6 gate handoff: the meadow→skycity departure stops at the yard gate (B1 goes on to the basket door from there; M6 lies
+  * past the door → U-turn, and against the windmill base). One direct segment at the natural speed. */
+ {const full=routeKeys(spec.region as any,spec.from,spec.to).path,cut=meadowDepartureCut(spec.region,spec.to,spec.nextRegion??undefined,full);
+  if(cut.length!==full.length){let L=0;for(let i=1;i<cut.length;i++)L+=Math.hypot(cut[i][0]-cut[i-1][0],cut[i][1]-cut[i-1][1],cut[i][2]-cut[i-1][2]);plan={segments:[{path:cut,duration:L/WALK_SPEED_MPS}],cut:false,fades:0,lengthM:L} as WalkPlan;}}
  try{basketObstacleEvent('node:'+spec.from)/* cand9: leaving a node also asserts it (resume at M4 straight into the M4→M6 departure) */;}catch{}
  const timedOut=await runPlan(character,plan,spec.region,spec.to,place,timeoutMs);
  const transport:TransportKind|'walk'=spec.departure&&spec.nextRegion?transportFor(spec.region,spec.nextRegion):'walk';

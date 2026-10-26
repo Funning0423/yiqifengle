@@ -23,7 +23,7 @@ import {seatFromBench} from './TransportLeg';
 import {isTransitionPlaceholder} from './TransitionProps';
 import {setMooringRopes} from './SkyMooringRopes';
 import {basketObstacleEvent} from './BasketObstacles';
-import {b1PreWalk,B1_START_NODE} from './BalloonB1Start';
+import {b1PreWalk,b1DoorPath} from './BalloonB1Start';
 import {followPose} from './ExploreCameraCore';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
@@ -552,11 +552,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(contChain&&girl&&isValid(girl,true)){
     // B1 (transitions-continuous): she walks from the last meadow stop to the basket door, the door opens (door_reach), she
     // steps in to stand_point and the door closes behind her. Basket at its t=0 pose; lens = the ride's first pose (handoff blend).
-    // full6 P1: chained island→skycity (no meadow level played) hands her over at sail M1. Walk the meadow node graph to M6
-    // first (through the gate, natural 1.2 m/s, one continuous walk); B1 then starts at M6 exactly like the normal flow.
+    // full6 P1: chained island→skycity (no meadow level played) hands her over at sail M1. Walk the meadow node graph to the YARD GATE (2.6,−20.8)
+    // first (through the gate, natural 1.2 m/s, one continuous walk); B1 then starts at the gate exactly like the normal flow (M4→M6 departure is cut at the gate).
     {try{const gp0=girl.worldPosition,inv=new Mat4();Mat4.invert(inv,meadow.worldMatrix);const lv=new Vec3(gp0.x,gp0.y,gp0.z);Vec3.transformMat4(lv,lv,inv);
-      const pre=b1PreWalk([lv.x,lv.y,lv.z]);(globalThis as any).__QF_B1_PREWALK=pre?{from:pre.fromKey,m:+pre.lengthM.toFixed(2),s:+pre.durationS.toFixed(2)}:null;
-      if(pre){const t0=Date.now();emitTransitCue('node-walk-start',{t:0,region:'meadow',node:B1_START_NODE});guardBeforeWalk(anim,'B1 pre-walk to M6');
+      const B0=TRANSITION_STAGING.basket,vv=plan.vehicle(0),outW=basketToWorld([vv.pos[0],vv.pos[1],vv.pos[2]],vv.yaw*180/Math.PI,B0.outside),ov=new Vec3(outW[0],outW[1],outW[2]);Vec3.transformMat4(ov,ov,inv);
+      const pre=b1PreWalk([lv.x,lv.y,lv.z],[ov.x,ov.y,ov.z]);(globalThis as any).__QF_B1_PREWALK=pre?{from:pre.fromKey,m:+pre.lengthM.toFixed(2),s:+pre.durationS.toFixed(2)}:null;
+      if(pre){const t0=Date.now();emitTransitCue('node-walk-start',{t:0,region:'meadow',node:'gate'});guardBeforeWalk(anim,'B1 pre-walk to the gate');
        // lens: continuous follow — starts from the live world camera (blend 1 s), follows her (eased), lands on the B1 first lens
        // (plan.camera(0) = cam0 below) over the last 1.5 s so B1 starts with no step. No cut.
        const live=liveWorldPose(),fs0=(view as any)?.getFrameSize?.(),fw=fs0?.width||390,fh=fs0?.height||844,c0=plan.camera(0);let pt=0,fol:Pose|null=null;
@@ -565,7 +566,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
         if(live&&pt<1)p=blendPose(live,p,minJerk(pt/1));const left=pre.durationS-pt;if(left<1.5)p=blendPose(p,c0,minJerk(1-Math.max(0,left)/1.5));world.setCamera(p);};
        director.on(Director.EVENT_BEFORE_DRAW,preDraw);
        try{await actor.perform({kind:'walk',path:pre.path.map(l=>worldOf(meadow,l)),duration:pre.durationS,stopAtEnd:true} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);}rideToken.check();
-       emitTransitCue('node-arrive',{t:0,region:'meadow',node:B1_START_NODE});console.info('[QF_B1_PREWALK] '+JSON.stringify({from:pre.fromKey,m:+pre.lengthM.toFixed(2),planS:+pre.durationS.toFixed(2),realS:(Date.now()-t0)/1000}));}
+       emitTransitCue('node-arrive',{t:0,region:'meadow',node:'gate'});console.info('[QF_B1_PREWALK] '+JSON.stringify({from:pre.fromKey,m:+pre.lengthM.toFixed(2),planS:+pre.durationS.toFixed(2),realS:(Date.now()-t0)/1000}));}
     }catch(error){if(String(error).includes('ancel'))throw error;console.warn('[QF_B1_PREWALK] skipped '+String(error));}}
     chainMark('balloon','B1-basket-in');
     const v0=plan.vehicle(0);vehicle.setWorldPosition(v0.pos[0],v0.pos[1],v0.pos[2]);{const qq=balloonQuat(v0.yaw*180/Math.PI,v0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);}
@@ -582,7 +583,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
     try{
      const B=TRANSITION_STAGING.basket,D3=TRANSITION_DURATIONS.seg3,o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),W=(l:Vec)=>basketToWorld(o,y,l);
-     const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=[here,W(B.outside),W(B.doorOut)];
+     const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=b1DoorPath(here,W(B.outside),W(B.doorOut))/* full6: no in-place turn > 90° */;
      const walkS=Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps);b1In=b1InS(walkS);
      guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,walkS);rideToken.check();
      doorAt=b1;const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();await reach;rideToken.check();
