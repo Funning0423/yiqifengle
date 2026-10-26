@@ -23,8 +23,13 @@ export function dropSharpTurns(path:readonly Vec[],max=MAX_TURN_DEG):Vec[]{const
 export function cutAtHandoff(path:readonly Vec[]):Vec[]{const i=path.findIndex(q=>d2(q,B1_HANDOFF)<.05);return i>=0?path.slice(0,i+1):path.slice();}
 const len=(p:readonly Vec[])=>{let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return L;};
 /** `here` meadow-local; `firstB1` = B1's first target (basket 'outside', meadow-local). null = already at the gate (normal flow). */
+/** 场景设计部 b19-meadow-m6-move: an old save standing at M6 (new (0.2,6.493,−24.8) or pre-move (0.2,·,−25.6)) no longer walks
+ *  straight M6→doorOut (104.9° / 112.6° turn at the threshold, body 1.17 m from the basket centre): it goes via M6_DOOR_VIA. */
+export const M6_LOCAL:Vec=[0.2,6.493,-24.8],M6_OLD_LOCAL:Vec=[0.2,6.493,-25.6],M6_DOOR_VIA:Vec=[1.4,6.256,-21.6];
+const nearXZ=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[2]-b[2])<=0.3;
 export function b1PreWalk(here:Vec,firstB1?:Vec):B1PreWalk{
  if(d2(here,B1_HANDOFF)<=B1_HANDOFF_TOL_M)return null;
+ if(nearXZ(here,M6_LOCAL)||nearXZ(here,M6_OLD_LOCAL))return null/* old save at M6: B1 runs b1DoorPath's M6 route */;
  const nodes=REGION_NODES.meadow.nodes;
  let near=nodes[0];for(const n of nodes)if(d2(here,n.at)<d2(here,near.at))near=n;
  const r=near.key===B1_START_NODE?{path:[near.at] as Vec[]}:routeKeys('meadow',near.key,B1_START_NODE);
@@ -36,7 +41,10 @@ export function b1PreWalk(here:Vec,firstB1?:Vec):B1PreWalk{
  const L=len(path);return {path,lengthM:L,durationS:L/WALK_SPEED_MPS,fromKey:near.key};
 }
 /** B1 door path [start, outside, doorOut] without in-place turns > MAX_TURN_DEG (world or local; rigid-invariant). */
-export function b1DoorPath(start:Vec,outside:Vec,doorOut:Vec):Vec[]{return dropSharpTurns([start,outside,doorOut]);}
+export function b1DoorPath(start:Vec,outside:Vec,doorOut:Vec):Vec[]{
+ if(nearXZ(start,M6_LOCAL))return [start,M6_DOOR_VIA,outside,doorOut];
+ if(nearXZ(start,M6_OLD_LOCAL))return [start,M6_LOCAL,M6_DOOR_VIA,outside,doorOut];
+ return dropSharpTurns([start,outside,doorOut]);}
 /** Post-L8 departure (M4→M6 / M5→M6, meadow→skycity): stop at the gate; B1 continues from there. */
 export function meadowDepartureCut(region:string,toKey:string,nextRegion:string|undefined,path:readonly Vec[]):Vec[]{
  return region==='meadow'&&toKey===B1_START_NODE&&nextRegion==='skycity'?cutAtHandoff(path):path.slice();}
