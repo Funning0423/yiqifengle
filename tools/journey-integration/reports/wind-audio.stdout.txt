@@ -73,7 +73,7 @@ PASS near gull waits until 2.5 s after the previous gull [2.5]
 PASS near gull dropped when the wait exceeds nearMaxLateS {"before":3,"after":3}
 PASS 'soft' -> no near gull, no distant gulls []
 PASS random gull due 1.1 s after the last gull -> postponed past the 2.5 s gap, vol 0.6 {"since":2.5}
-PASS crane gull re-arms the random timer (8..20 s) 16.48
+PASS crane gull re-arms the random timer (8..20 s) 15.06
 PASS canPlayAmbience false -> no exit gulls, no waves
 PASS world invisible -> no waves floor, no exit gulls
 PASS music 1: wind and waves at the design full level {"soft":0.7499975423150587,"strong":0.9999999997688707,"waves":0.4125000756084245}
@@ -84,7 +84,7 @@ PASS music 0.2: half the design level, wind-duck ratio stays inside it {"strong"
 PASS A3b: outdoors waves at the bed level 0.549999962055197
 PASS A3b: transition gain 0 -> waves self-pause, smoothed vol still stale {"playing":false,"vol":0.5499999952108814}
 PASS A3b: self-pause restart: first audible frame near 0 (not the stale ~0.5) 0.03666666666666667
-PASS A3b: [QF_AUDIO] waves-start logs the first-frame vol {"event":"waves-start","t":1793020282688,"vol":0.037,"from":"zero"}
+PASS A3b: [QF_AUDIO] waves-start logs the first-frame vol {"event":"waves-start","t":1793017645994,"vol":0.037,"from":"zero"}
 PASS A3b: back at the bed level ~2.5 s later 0.5499835594644904
 PASS A3b: restart after quiet() (hide / external stop) also from 0 0.03666666666666667
 ALL PASS wind-audio

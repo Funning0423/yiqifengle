@@ -1,100 +1,100 @@
 [QF_BOARD_PRESENTATION_ERROR] Error: injected first-render
-    at b.u.render (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1465:29)
-    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1505:18)
-    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:989:18)
-    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:233:22)
-    at Node.emit (/tmp/wt-sb/tools/board-ui/harness.cjs:15:335)
-    at Object.tap (/tmp/wt-sb/tools/board-ui/harness.cjs:190:91)
+    at b.u.render (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1465:29)
+    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1505:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:989:18)
+    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:233:22)
+    at Node.emit (/tmp/wt-s4/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/tmp/wt-s4/tools/board-ui/harness.cjs:190:91)
 [QF_BOARD_PRESENTATION_ERROR] Error: injected completion-render
-    at b.u.render (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
-    at /tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:69:16
-    at ManagedMobileBoardUI.finishVisual (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1431:9)
-    at ManagedMobileBoardUI.update (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1906:22)
-    at step (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:13:49)
-    at /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:22:48
-    at async test (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:18:74
+    at b.u.render (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
+    at /tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:69:16
+    at ManagedMobileBoardUI.finishVisual (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1431:9)
+    at ManagedMobileBoardUI.update (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1906:22)
+    at step (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:13:49)
+    at /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:22:48
+    at async test (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:18:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected tween start
-    at b.H.cc.tween (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:21:108)
-    at Object.animate (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1400:36)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:63:12)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1465:29)
-    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1505:18)
-    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:989:18)
-    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:233:22)
-    at Node.emit (/tmp/wt-sb/tools/board-ui/harness.cjs:15:335)
-    at Object.tap (/tmp/wt-sb/tools/board-ui/harness.cjs:190:91)
+    at b.H.cc.tween (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:21:108)
+    at Object.animate (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1400:36)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:63:12)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1465:29)
+    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1505:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:989:18)
+    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:233:22)
+    at Node.emit (/tmp/wt-s4/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/tmp/wt-s4/tools/board-ui/harness.cjs:190:91)
 [QF_BOARD_PRESENTATION_ERROR] Error: injected render
-    at b.u.paint (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:24:244)
-    at ManagedMobileBoardUI.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1580:14)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1465:29)
-    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1505:18)
-    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:989:18)
-    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:233:22)
-    at Node.emit (/tmp/wt-sb/tools/board-ui/harness.cjs:15:335)
+    at b.u.paint (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:24:244)
+    at ManagedMobileBoardUI.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1580:14)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1465:29)
+    at ManagedMobileBoardUI.tap (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1505:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:989:18)
+    at ManagedMobileBoardUI.eval (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:233:22)
+    at Node.emit (/tmp/wt-s4/tools/board-ui/harness.cjs:15:335)
 [QF_BOARD_PRESENTATION_ERROR] Error: persistent board paint
-    at b.u.paint (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:25:203)
-    at ManagedMobileBoardUI.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1580:14)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
-    at /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:25:355
-    at async test (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:25:2
+    at b.u.paint (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:25:203)
+    at ManagedMobileBoardUI.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1580:14)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:25:355
+    at async test (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:25:2
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R5 first-render
-    at u.render (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:31:412)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:31:637
-    at async test (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+    at u.render (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:31:412)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:28:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R5 completion-render
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R5 tween
-    at H.cc.tween (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:31:571)
-    at Object.animate (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1400:36)
-    at Object.animate (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:31:637
-    at async test (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+    at H.cc.tween (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:31:571)
+    at Object.animate (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1400:36)
+    at Object.animate (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:28:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R4 first-render
-    at u.render (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:33:1422)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
-    at Object.render (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
-    at async test (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+    at u.render (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:33:1422)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1394:33)
+    at Object.render (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:33:74
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R4 completion-render
 [QF_BOARD_PRESENTATION_ERROR] Error: injected R4 tween
-    at H.cc.tween (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:33:1581)
-    at Object.animate (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:1400:36)
-    at Object.animate (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
-    at refresh (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
-    at Object.command (/tmp/wt-sb/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
-    at safeCommand (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
-    at Object.submit (eval at load (/tmp/wt-sb/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
-    at /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
-    at async test (/tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
-    at async /tmp/wt-sb/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+    at H.cc.tween (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:33:1581)
+    at Object.animate (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:1400:36)
+    at Object.animate (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/tmp/wt-s4/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/tmp/wt-s4/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /tmp/wt-s4/tools/board-ui/test_board_freeze_recovery.cjs:33:74
 [QF_BOARD_ENTRY_TIMEOUT] background mainline-01
 [enter-level] not ready; staying on the island
