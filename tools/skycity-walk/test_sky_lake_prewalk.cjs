@@ -1,7 +1,7 @@
 'use strict';
 // full7 option (a) (Grok Bot 2026-10-26): skycity→lakeside counted from S6; from anywhere else she walks the skycity node path to
 // S6 first (region walking). Asserts on every start node + the Mac S0 case: no in-place turn > 90°, every 0.1 m sample on the
-// skycity walkable grid (tolerance 0.3 m = body radius, for the 0.4 m grid cell edges; the S2→S3 edge data grazes one NaN cell at local (4.8,1.2); no point inside rock/terrace colliders, no straight segment through terrain), floor step ≤ 0.45 m
+// skycity walkable grid (full8: no tolerance any more (场景设计部 b863f120 moved S2, edges keep ≥0.4 m from unwalkable cells); no point inside rock/terrace colliders, no straight segment through terrain), floor step ≤ 0.45 m
 // (stairs), the old straight line WAS off-grid (regression evidence), S6 → no prewalk, counted leg keys unchanged.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const H=require('../board-ui/harness.cjs').createHarness();
@@ -16,7 +16,7 @@ assert.ok(d3(toW(node('S6')),M5.walkWorld[0])<0.05,'S6 = counted-leg start');
 assert.equal(PW.skyLakePreWalk(M5.walkWorld[0],M5),null,'at S6: no prewalk');
 assert.equal(NW.WALK_SPEED_MPS,1.2);
 function sweep(P,tag){let off=0,step=0,pf=null,n=0;for(let i=1;i<P.length;i++){const a=toL(P[i-1]),b=toL(P[i]),m=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[2]-a[2])/0.1));
- for(let k=0;k<=m;k++){const x=a[0]+(b[0]-a[0])*k/m,z=a[2]+(b[2]-a[2])*k/m,f=RW.walkFloorY('skycity',x,z);n++;if(f===null&&RW.nearestWalkable("skycity",[x,a[1]+(b[1]-a[1])*k/m,z],0.3)){pf=null;continue;}if(f===null&&!RW.nearestWalkable("skycity",[x,a[1]+(b[1]-a[1])*k/m,z],0.3)){off++;if(process.env.DBG&&tag)console.log("off",tag,x,z,a[1]+(b[1]-a[1])*k/m,JSON.stringify(RW.nearestWalkable("skycity",[x,a[1],z],0.5)));pf=null;continue;}if(pf!==null)step=Math.max(step,Math.abs(f-pf));pf=f;}}return {off,step,n};}
+ for(let k=0;k<=m;k++){const x=a[0]+(b[0]-a[0])*k/m,z=a[2]+(b[2]-a[2])*k/m,f=RW.walkFloorY('skycity',x,z);n++;if(f===null&&RW.nearestWalkable("skycity",[x,a[1]+(b[1]-a[1])*k/m,z],1e-6)){pf=null;continue;}if(f===null&&!RW.nearestWalkable("skycity",[x,a[1]+(b[1]-a[1])*k/m,z],1e-6)){off++;if(process.env.DBG&&tag)console.log("off",tag,x,z,a[1]+(b[1]-a[1])*k/m,JSON.stringify(RW.nearestWalkable("skycity",[x,a[1],z],0.5)));pf=null;continue;}if(pf!==null)step=Math.max(step,Math.abs(f-pf));pf=f;}}return {off,step,n};}
 const out={},bad=[];
 for(const k of ['S0','S1','S2','S3','S4','S5']){const st=toW(node(k)),pre=PW.skyLakePreWalk(st,M5);assert.ok(pre,k+' needs a prewalk');
  const turn=B1.maxTurnDeg(pre.path),sw=sweep(pre.path,k),old=sweep([st,M5.walkWorld[1]]);

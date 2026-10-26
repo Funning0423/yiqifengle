@@ -1,6 +1,5 @@
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import {debugSearch} from './DebugQuery';
-import {SEA_HANDOFF_REAL,SEA_HANDOFF_STANDIN} from './SeaHandoffBounds';
 /** full8 plan E (场景设计部 PROPOSAL 2026-10-26 sea-distance, Grok Bot approved): the island→meadow sail reads as open sea.
  *  The real meadow is not drawn from the set-off; a small far stand-in sits on the horizon in the meadow's bearing (~480 m).
  *  Handoff stand-in → real meadow at SEA_HANDOFF_T (sail timeline seconds) ONLY when both boxes are outside the camera frustum;
@@ -69,7 +68,7 @@ export function aboveWaterBox(pts:ArrayLike<number>,waterY:number):Box|null{
  for(let i=0;i+2<pts.length;i+=3){if(pts[i+1]<=waterY)continue;any=true;for(let k=0;k<3;k++){a[k]=Math.min(a[k],pts[i+k]);b[k]=Math.max(b[k],pts[i+k]);}}
  return any?{min:a as unknown as Vec,max:b as unknown as Vec}:null;}
 /** Optional fixed bounds from 场景设计部's asset-branch integration notes (world space). null until delivered. */
-export const SEA_BOUNDS_NOTE:{standin:Box[]|null;real:Box[]|null}={standin:SEA_HANDOFF_STANDIN as Box[],real:SEA_HANDOFF_REAL as Box[]}/* 73 + 1 boxes, handoff_bounds.json */;
+export const SEA_BOUNDS_NOTE:{standin:Box[]|null;real:Box[]|null}={standin:null,real:null}/* override; default = SeaHandoffBounds (73 + 1 boxes, handoff_bounds.json) wired in SailArt */;
 /** Above-water verts binned into cell×cell m xz tiles, one box per tile: conservative like a bbox but tight enough that the
  *  far-off parts of one big mesh (terrain spans 160 m) do not keep the handoff waiting. */
 export const SEA_TILE_M=4;

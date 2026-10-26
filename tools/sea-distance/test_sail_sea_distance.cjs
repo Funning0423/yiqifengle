@@ -11,7 +11,7 @@
 const assert=require('node:assert/strict'),fs=require('fs'),path=require('path');
 const L=require('../transitions/sail_farsea_lib.cjs'),leg=L.leg,voy=L.load('region/SailVoyage.ts',s=>s.includes('TransportLeg')?leg:{});
 const ROOT=path.resolve(__dirname,'../..'),SRC=path.join(ROOT,'creator-build-project/assets/scripts/region');
-const sea=L.load('region/SeaReveal.ts',s=>s.includes('SeaHandoffBounds')?L.load('region/SeaHandoffBounds.ts'):s.includes('DebugQuery')?{debugSearch:()=>''}:{});
+const sea=L.load('region/SeaReveal.ts'),HB=L.load('region/SeaHandoffBounds.ts');
 assert.deepEqual([...sea.SEA_STANDIN.pos],[-5.6,-0.91,242.0]);assert.equal(sea.SEA_STANDIN.scale,.335);assert.equal(sea.SEA_STANDIN.yawDeg,180);
 assert.equal(sea.SEA_HANDOFF_T,17.4);
 // state machine: no swap before 17.4, defers while either box is visible
@@ -31,8 +31,7 @@ const standinT=sea.aboveWaterTiles(sp,SEA_Y,sea.SEA_TILE_M*S.scale),standin=sea.
 const route=leg.sailRoute(),tl=leg.sailBeats(route.length),st=leg.sailStillTimes(tl);
 assert.ok(tl.build05S<=45,'sail leg '+tl.build05S);
 // runtime uses 场景设计部's handoff bounds (73 real boxes + stand-in) when present — the gate uses exactly those
-if(sea.SEA_BOUNDS_NOTE.real){boxes.length=0;boxes.push(...sea.SEA_BOUNDS_NOTE.real);}
-const standinT2=sea.SEA_BOUNDS_NOTE.standin||null;
+boxes.length=0;boxes.push(...HB.SEA_HANDOFF_REAL);const standinT2=HB.SEA_HANDOFF_STANDIN;
 const anyIn=(c,asp,bs)=>bs.some(b=>sea.boxInFrustum(c,asp,b));
 // Lens used for the sweep: shipped sailCamera, with the PROPOSAL §2.2 prototype open-sea lateral shot in 11.4–18.0 s (运镜bot owns the
 // final framing). Also recorded: whether the shipped camera alone ever allows a frustum-safe handoff (it does not → plan E stays opt-in).
@@ -54,7 +53,7 @@ const art=fs.readFileSync(path.join(SRC,'SailArt.ts'),'utf8'),ride=fs.readFileSy
 assert.match(ride,/art\?\.sync\(v,pose\.position,dt,sailNight\(\),pose\.target,t\)/,'presentation t into SailArt');
 assert.match(ride,/const pose=sailLens\(/,'voyage lens drives the ride');
 assert.match(art,/prewarmLeft>0&&!stillFrame\)\{prewarmLeft--;showMeadow\(true\)/,'prewarm (not on SailShot stills)');
-assert.match(art,/realBox=SEA_BOUNDS_NOTE\.real\|\|boundsOf/,'above-water / notes bounds');
+assert.match(art,/realBox=SEA_BOUNDS_NOTE\.real\|\|\(SEA_HANDOFF_REAL as SeaBox\[\]\)/,'handoff_bounds.json boxes');
 assert.match(art,/restoreLowland\(\);showMeadow\(true\)/,'dispose restores');
 assert.match(art,/h\.r\.mesh=h\.mesh/,'restore = original mesh object');
 assert.doesNotMatch(art,/fog/i,'no fog');
