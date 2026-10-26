@@ -1,4 +1,6 @@
 {
+  "status": "historical-review-record-2026-10-12",
+  "statusNote": "Frozen record of the 2026-10-12 review. NOT current pins and NOT a live gate: the production tree has changed since (e.g. regional-r05/runtime/regional-session.js after 6f66e2f1 on 10/17). Live hash pins: tools/journey-integration/frozen-production-inputs.json (gates: production-integrity, frozen-inputs-pins).",
   "description": "Reviewed restoration + exact 3D-only UI/WarmButton integration; no audio/reward/storage changes",
   "sourceChanges": {
     "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts": {
@@ -337,8 +339,11 @@
     "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta": "80bc3340240c7023ad6397c813ed6ac75ebc79cafa0cbb884268bf8116d7f740",
     "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js": "77a6228d96557a93112cfb6aa9a2611c4efe28093849a63bb3cccbf212e4cc09",
     "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta": "a607238c34f22bb088b56de2b0302c295be03a935ecaea241b1f918bcb0d2e3d",
-    "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js": "730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b",
+    "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js": "75c73b386f6842e06836be2f4b97b66b653819112884abf44023449800bbf2e5",
     "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta": "9e5991611ed519279d583624266e3985db487911d266747f13dbcb6ab5b9d5a8",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js.meta": "29236f6e532271ffe275f1421c406a724922f91e655cd2321609d9bce3982c85",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor.meta": "9d839a1dc646f5092aa5028e6eb595db368fb9c6d68e64d7198dbfa478c18c8d",
     "creator-build-project/assets/scripts/regional-r05/runtime.meta": "7b91d58971d3dccf88f61729a389f73e96d99b05cda652b54f5a8ba5ce1caccd",
     "creator-build-project/assets/scripts/regional-r05.meta": "1d289c0e20d1167b2a633322881a7a7c0b7bd3c298ebbb5261722f3b4d1d766f",
     "creator-build-project/assets/scripts/render/BakedGroundTexture.ts": "50410524edeebc9d4145236da4f63e19058b4327e6c8ada119a1c30ffe546165",
@@ -579,8 +584,11 @@
     "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta": "80bc3340240c7023ad6397c813ed6ac75ebc79cafa0cbb884268bf8116d7f740",
     "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js": "77a6228d96557a93112cfb6aa9a2611c4efe28093849a63bb3cccbf212e4cc09",
     "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta": "a607238c34f22bb088b56de2b0302c295be03a935ecaea241b1f918bcb0d2e3d",
-    "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js": "730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b",
+    "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js": "75c73b386f6842e06836be2f4b97b66b653819112884abf44023449800bbf2e5",
     "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta": "9e5991611ed519279d583624266e3985db487911d266747f13dbcb6ab5b9d5a8",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js.meta": "29236f6e532271ffe275f1421c406a724922f91e655cd2321609d9bce3982c85",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor.meta": "9d839a1dc646f5092aa5028e6eb595db368fb9c6d68e64d7198dbfa478c18c8d",
     "creator-build-project/assets/scripts/regional-r05/runtime.meta": "7b91d58971d3dccf88f61729a389f73e96d99b05cda652b54f5a8ba5ce1caccd",
     "creator-build-project/assets/scripts/regional-r05.meta": "1d289c0e20d1167b2a633322881a7a7c0b7bd3c298ebbb5261722f3b4d1d766f",
     "creator-build-project/assets/scripts/render/BakedGroundTexture.ts": "50410524edeebc9d4145236da4f63e19058b4327e6c8ada119a1c30ffe546165",

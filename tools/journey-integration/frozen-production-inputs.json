@@ -1244,6 +1244,42 @@
     {
       "path": "creator-build-project/assets/scripts/mainline-r1/runtime/vendor/progression.js",
       "sha256": "a05de888f017cfd81c9a1649946cba94aef06f3040215e29bf87f1ee5abb868f"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/engine.js",
+      "sha256": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-session.js",
+      "sha256": "532909019b340f5658df828359e0efaa3f01ce726d9aaeb1bc3ea4baf18cba55"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js",
+      "sha256": "20dca0cb9b634bb8be79b47d7fa132d3d6e44b25b59491df6cfdf3419b1bf511"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-validation.js",
+      "sha256": "ac75ea9e2260db91c50836bc3a1c22acbb5839e4ad2ca35d9b9ac6a3bf7b972d"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
+      "sha256": "730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
+      "sha256": "2653f7233a890100a1e7c7bb8ca5cfc5f5d3a44bc93a9de3b32796c55af9f3ea"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js",
+      "sha256": "9532d28a732d9bc575053ecb1c3a68488ba5f6444715d84200abee02bec600e3"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js",
+      "sha256": "540f60d4c0bd767dc742776f319a255fd30fbe46a43ff464d3f5c714cc7b3966"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/mainline-r1/runtime/verified-seeds.js",
+      "sha256": "4df5ece9598437d1d2f5212ad7382a4dfe7831baf5bacfbea56cf5a4bf8798e3"
     }
   ],
   "characterControllerSectionSHA256": "171b4e16d91ae0a95bdcad27ae084796ca109e6e329141f2d975692e4abb6342"

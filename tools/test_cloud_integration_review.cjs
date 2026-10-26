@@ -1,4 +1,6 @@
 'use strict';
+// HISTORICAL (2026-10-26, Grok Bot): verified_restoration_scope / integrated_3d_scope / audio_gesture_scope are frozen records of the 2026-10-12
+// review, not current pins. This script is NOT a live gate (not in run-suite; needs /tmp/baseline-current). Live pins: frozen-production-inputs.json.
 // Independent merge/scope and syntax audit. Not a type checker or engine/render test.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const {stripTypeScriptTypes}=require('node:module');
