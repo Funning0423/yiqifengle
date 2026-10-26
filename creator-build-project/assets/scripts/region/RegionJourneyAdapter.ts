@@ -321,7 +321,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    // T-03 (GGbot): arrival trace + board preload from the set-off (P1 45 s: the board preload used to start only at atmosphere
    // weight 0.9, i.e. at the very end of the route, so the board mount ran after the landing instead of during the flight)
-   arrivalMark('ride-start');legClock.mark('walk');void preloadLakesideBoard();
+   legClock.mark('walk');arrivalMark('ride-start');void preloadLakesideBoard();
    // T-03 skip API: the skip badge (2nd viewing on) runs a WindWipe 'ride'; under the cover it calls this, which jumps the
    // ride clock to touchdown (R.T) on the next tick; resolves once the touchdown frame has been applied.
    const flightAt=R.cutT+K.boardBlackS/2;let skipReq=false,skipped=false,landedOk:()=>void=()=>{};const landed=new Promise<void>(r=>{landedOk=r;});
