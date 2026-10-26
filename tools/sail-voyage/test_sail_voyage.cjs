@@ -10,7 +10,7 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const V=require('./voyage_lib.cjs'),leg=V.leg,L=V.L;
 const SV=L.load('region/SailVoyage.ts',s=>s.includes('TransportLeg')?leg:{});
-const G={dock:[0.02,0.039]/* b19 standin-scale: ≤3.9 % (was 4 %) */,millHPx:12,millWPx:10/* windmill recognisable on all 7 screens: silhouette ≥12 px tall, blades ≥10 px wide */,
+const G={dock:[0.02,0.039]/* b19 standin-scale (Grok Bot approved): ≤3.9 % (was 4 %) */,millHPx:12,millWPx:10/* windmill recognisable on all 7 screens: silhouette ≥12 px tall, blades ≥10 px wide */,
  seaS:6,approach:[0.30,0.40],swapT:17.4,swapWin:0.1,wholeS:45,headNdc:0.9,boatNdc:0.97,yaw:90,accP99:200,stepM:0.6,clearM:1.1,occlS:0.5,solid:0.92};
 const WHOLE_NOW=41.4;
 const route=leg.sailRoute(),R=route.samples,tl=leg.sailBeats(route.length),BEFORE=process.env.QF_SAIL_VOYAGE_BEFORE==='1'/* report the approved sailCamera on the E scene, never gates */,cam=(t,s)=>BEFORE?leg.sailCamera(tl,R,t,s):SV.sailVoyageCamera(tl,R,t,s);
