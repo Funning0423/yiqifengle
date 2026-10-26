@@ -5,6 +5,7 @@ import {mountSailArt, findNode, type SailArt} from './SailArt';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {mountMeadowNightSky} from './RegionJourneyAdapter';
 import {configureMeadowVertexColors} from './MeadowBoardBackground';
+import {SAIL_VOYAGE, sailVoyageCamera} from './SailVoyage';
 /** QA / web-test only. `?sailshot=1&k=1` frames a real K still. Release WeChat ignores it. No on-screen text. */
 export function sailShotRequested(search?:string,host:any=(globalThis as any).wx):boolean{
  let q=search;if(q===undefined){try{q=String((globalThis as any).location?.search||'');}catch{q='';}}
@@ -36,11 +37,14 @@ export function sailShotTime(k:number):{t:number;night:boolean}{
  */
 export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  const k=shotIndex();
- const {t,night}=sailShotTime(k);
+ const shot=sailShotTime(k),night=shot.night;
+ // sail-voyage capture (tools/sail-voyage/capture-spec.json): `&sailT=<Build05 s>` picks any frame, `&sailVoyage=1` the voyage lens,
+ // `&w=&h=` the screen the lens is framed for (default 390×844, as before).
+ const tq=Number(qparam('sailT')),t=qparam('sailT')!==''&&isFinite(tq)?tq:shot.t,scr={w:Number(qparam('w'))||390,h:Number(qparam('h'))||844};
  const route=sailRoute();
  const tl=sailBeats(route.length);
  const v=sailVehicle(tl,route.samples,t);
- const pose=sailCamera(tl,route.samples,t,{w:390,h:844});
+ const pose=SAIL_VOYAGE.enabled?sailVoyageCamera(tl,route.samples,t,scr):sailCamera(tl,route.samples,t,scr);
  const island=mountRegion(REGIONS.island,await loadRegionPrefab(REGIONS.island),scene);
  island.name='SailShotIsland';
  const meadow=mountRegion(REGIONS.meadow,await loadRegionPrefab(REGIONS.meadow),scene);
